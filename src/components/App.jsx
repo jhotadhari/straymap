@@ -8,35 +8,60 @@ import React, {
 	useRef,
 } from 'react';
 import {
-	Button,
 	SafeAreaView,
 	StatusBar,
 	Text,
 	useColorScheme,
 	useWindowDimensions,
-	PixelRatio,
 	View,
-	Pressable,
-	NativeEventEmitter,
 } from 'react-native';
+import 'intl-pluralrules';
+import { useTranslation } from 'react-i18next';
+import {
+	PaperProvider,
+	useTheme,
+	Button,
+	MD3DarkTheme,
+	MD3LightTheme,
+} from 'react-native-paper';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+// import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
-
+/**
+ * Internal dependencies
+ */
 import '../assets/i18n/i18n';
 
-import 'intl-pluralrules';
-import {useTranslation} from 'react-i18next';
+const DarkTheme = {
+	...MD3DarkTheme,
+	colors: {
+		...MD3DarkTheme.colors,
+		background: '#000',
+	}
+};
 
-const App = () => {
+const AppThemeWrapper = () => {
 
-	const isDarkMode = useColorScheme() === 'dark';
+	const systemIsDarkMode = useColorScheme() === 'dark';
 
-	const style = {
-		backgroundColor: isDarkMode ? 'black' : '#eee',
-		color: isDarkMode ? '#eee' : 'black',
-	};
+	const [isDarkMode,setIsDarkMode] = useState( systemIsDarkMode );
 
+	return <PaperProvider
+		theme={ isDarkMode ? DarkTheme : MD3LightTheme }
+	>
+		<App
+			isDarkMode={ isDarkMode }
+			setIsDarkMode={ setIsDarkMode }
+		/>
+	</PaperProvider>;
+};
 
+const App = ( {
+	isDarkMode,
+	setIsDarkMode,
+} ) => {
 
+	const theme = useTheme();
 
 	const {t, i18n} = useTranslation();
 
@@ -49,69 +74,71 @@ const App = () => {
 			.catch( err => console.log( err ) );
 	};
 
-
-
 	const {
 		width,
 		height,
 	} = useWindowDimensions();
 
-	return (
-		<SafeAreaView style={ {
-			...style,
-			height,
-			width,
-		} }>
-			<StatusBar
-				barStyle={ isDarkMode ? 'light-content' : 'dark-content' }
-				backgroundColor={ style.backgroundColor }
-			/>
+	return <SafeAreaView style={ {
+		backgroundColor: theme.colors.background,
+		height,
+		width,
+	} }>
+		<StatusBar
+			barStyle={ isDarkMode ? 'light-content' : 'dark-content' }
+			backgroundColor={ theme.colors.background }
+		/>
+
+		<View
+			style={ {
+				width,
+				height,
+				justifyContent: 'space-around',
+				alignItems: 'center',
+			} }
+		>
+
+			<Text
+				style={ { color: theme.colors.onBackground } }
+			>{ t( 'test' ) }</Text>
 
 			<View
 				style={ {
 					width,
-					height,
-					justifyContent: 'space-around',
+					justifyContent: 'space-evenly',
 					alignItems: 'center',
+					flexDirection: 'row',
 				} }
 			>
-
-				<Text
-					style={ { marginBottom: 10 } }
-				>{ t( 'test' ) }</Text>
-
-				<View
-					style={ {
-						width,
-						justifyContent: 'space-evenly',
-						alignItems: 'center',
-						flexDirection: 'row',
-					} }
+				<Button
+					onPress={ () => changeLanguage( 'en' ) }
+					icon={ ( { size, color }) => <MaterialIcons name="language" size={ size } color={ color } /> }
+					mode={ currentLanguage === 'en' ? 'contained' : 'outlined' }
 				>
-					<Pressable
-						onPress={ () => changeLanguage( 'en' ) }
-						style={ {
-							backgroundColor: currentLanguage === 'en' ? '#555' : style.backgroundColor,
-							padding: 10,
-						} }
-					>
-						<Text>Select English</Text>
-					</Pressable>
+					<Text>Select English</Text>
+				</Button>
 
-					<Pressable
-						onPress={ () => changeLanguage( 'de' ) }
-						style={{
-							backgroundColor: currentLanguage === 'de' ? '#555' : style.backgroundColor,
-						} }
-					>
-						<Text>Sprache wählen</Text>
-					</Pressable>
+				<Button
+					icon={ ( { size, color }) => <MaterialIcons name="language" size={ size } color={ color } /> }
+					onPress={ () => changeLanguage( 'de' ) }
+					mode={ currentLanguage === 'de' ? 'contained' : 'outlined' }
+				>
+					<Text>Sprache wählen</Text>
+				</Button>
 
-				</View>
 			</View>
 
-		</SafeAreaView>
-	);
+			<Button
+				icon="invert-colors"
+				onPress={ () => setIsDarkMode( ! isDarkMode ) }
+				mode={ currentLanguage === 'de' ? 'contained' : 'outlined' }
+			>
+				<Text>{ t( 'toggleTheme' ) }</Text>
+			</Button>
+
+		</View>
+
+	</SafeAreaView>;
 };
 
-export default App;
+export default AppThemeWrapper;

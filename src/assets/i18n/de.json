@@ -1,6 +1,7 @@
 {
     "translation": {
         "hello":"Hallo",
-        "test":"Das ist nur ein test Satz"
+        "test":"Das ist nur ein test Satz",
+        "toggleTheme":"Theme umschalten"
     }
 }
