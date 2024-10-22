@@ -113,11 +113,16 @@ android {
     }
 }
 
+
 dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
 
+    //react-native-vector-icons
     implementation project(':react-native-vector-icons')
+
+    // react-native-default-preference
+    implementation project(':react-native-default-preference')
 
     if (hermesEnabled.toBoolean()) {
         implementation("com.facebook.react:hermes-android")

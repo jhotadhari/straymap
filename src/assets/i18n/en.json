@@ -1,7 +1,14 @@
 {
     "translation": {
-        "hello":"Hello",
-        "test":"That's just a test sentence",
-        "toggleTheme":"Toggle theme"
+        "systemSetting": "System setting",
+        "selectTheme": "Select theme",
+        "themeOptions": {
+            "light": "Light",
+            "dark": "Dark",
+            "black": "Black"
+        },
+        "selectLang": "Select language",
+        "test": "That's just a test sentence"
+
     }
 }

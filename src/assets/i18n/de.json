@@ -1,7 +1,13 @@
 {
     "translation": {
-        "hello":"Hallo",
-        "test":"Das ist nur ein test Satz",
-        "toggleTheme":"Theme umschalten"
+        "systemSetting": "Systemeinstellung",
+        "selectTheme":"Theme wählen",
+        "themeOptions": {
+            "light": "Hell",
+            "dark": "Dunkel",
+            "black": "Schwarz"
+        },
+        "selectLang": "Sprache wählen",
+        "test":"Das ist nur ein test Satz"
     }
 }
