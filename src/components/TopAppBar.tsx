@@ -6,6 +6,7 @@ import React, {
 	Dispatch,
 	SetStateAction,
 	useContext,
+	useEffect,
 	useState,
 } from 'react';
 import {
@@ -16,7 +17,7 @@ import {
 } from 'react-native-paper';
 import { IconSource } from 'react-native-paper/lib/typescript/components/Icon';
 import { useTranslation } from 'react-i18next';
-import { useWindowDimensions, View } from 'react-native';
+import { useWindowDimensions, View, BackHandler } from 'react-native';
 
 /**
  * Internal dependencies
@@ -202,6 +203,31 @@ const TopAppBar = ( {
 		setSelectedHierarchyItems,
     } = useContext( AppContext )
 
+	const backAction = () => {
+		if ( setSelectedHierarchyItems && selectedHierarchyItems ) {
+			let newSelectedHierarchyItems = [...selectedHierarchyItems];
+			newSelectedHierarchyItems.pop();
+			const maybeTraverseUp = ( newSelectedHierarchyItems : HierarchyItem[] ) : HierarchyItem[] => {
+				if ( newSelectedHierarchyItems.length && newSelectedHierarchyItems[newSelectedHierarchyItems.length-1].children ) {
+					newSelectedHierarchyItems.pop();
+					return maybeTraverseUp( newSelectedHierarchyItems );
+				}
+				return newSelectedHierarchyItems;
+			};
+			newSelectedHierarchyItems = maybeTraverseUp( newSelectedHierarchyItems );
+			setSelectedHierarchyItems( newSelectedHierarchyItems.length ? newSelectedHierarchyItems : null );
+		}
+		return true;
+	};
+
+	useEffect(() => {
+		const backHandler = BackHandler.addEventListener(
+			'hardwareBackPress',
+			backAction,
+		);
+		return () => backHandler.remove();
+	}, [selectedHierarchyItems] );
+
 	return <Appbar
         onLayout={ e => {
             const { height } = e.nativeEvent.layout;
@@ -211,21 +237,7 @@ const TopAppBar = ( {
 			justifyContent: 'space-between',
 		} }
 	>
-		{ selectedHierarchyItems && <Appbar.BackAction onPress={ () => {
-            if ( setSelectedHierarchyItems && selectedHierarchyItems ) {
-                let newSelectedHierarchyItems = [...selectedHierarchyItems];
-                newSelectedHierarchyItems.pop();
-                const maybeTraverseUp = ( newSelectedHierarchyItems : HierarchyItem[] ) : HierarchyItem[] => {
-                    if ( newSelectedHierarchyItems.length && newSelectedHierarchyItems[newSelectedHierarchyItems.length-1].children ) {
-                        newSelectedHierarchyItems.pop();
-                        return maybeTraverseUp( newSelectedHierarchyItems );
-                    }
-                    return newSelectedHierarchyItems;
-                };
-                newSelectedHierarchyItems = maybeTraverseUp( newSelectedHierarchyItems );
-                setSelectedHierarchyItems( newSelectedHierarchyItems.length ? newSelectedHierarchyItems : null );
-            }
-        } } /> }
+		{ selectedHierarchyItems && <Appbar.BackAction onPress={ backAction } /> }
 
         <Appbar.Content title={ selectedHierarchyItems
             ? [...selectedHierarchyItems].map( item => t( item.label ) ).join( ' / ' )
