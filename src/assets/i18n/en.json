@@ -7,7 +7,18 @@
             "dark": "Dark",
             "black": "Black"
         },
+        "menu": {
+            "tools": "Tools",
+            "routing": "Routing",
+            "settings": "Settings",
+            "about": "About"
+        },
+        "settings": {
+            "general": "General",
+            "appearance": "Appearance"
+        },
         "selectLang": "Select language",
+
         "test": "That's just a test sentence"
 
     }

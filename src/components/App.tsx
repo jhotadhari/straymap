@@ -12,7 +12,6 @@ import {
 	NativeModules,
 	SafeAreaView,
 	StatusBar,
-	Text,
 	useColorScheme,
 	useWindowDimensions,
 	View,
@@ -25,11 +24,7 @@ import {
 	useTheme,
 	MD3DarkTheme,
 	MD3LightTheme,
-	Button,
-	Menu,
 } from 'react-native-paper';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { ThemeProp } from 'react-native-paper/lib/typescript/types';
 
 /**
  * react-native-mapsforge-vtm
@@ -41,7 +36,7 @@ import {
 	// LayerMBTilesBitmap,
 	// LayerHillshading,
 	// LayerPathSlopeGradient,
-	// LayerScalebar,
+	LayerScalebar,
 	// useRenderStyleOptions,
 	// nativeMapModules,
 	useMapEvents,
@@ -51,25 +46,11 @@ import {
  * Internal dependencies
  */
 import '../assets/i18n/i18n';
-
-type ThemeOption = {
-	key: string;
-	value: ThemeProp;
-	label: string;
-};
-
-type LangOption = {
-	key: string;
-	label: string;
-};
-
-const BlackTheme = {
-	...MD3DarkTheme,
-	colors: {
-		...MD3DarkTheme.colors,
-		background: '#000',
-	}
-};
+import TopAppBar from './TopAppBar';
+import type { OptionBase, HierarchyItem, ThemeOption } from '../types';
+import customThemes from '../themes';
+import { AppContext } from '../Context';
+import Center from './Center';
 
 const useAppTheme = () => {
 
@@ -81,7 +62,11 @@ const useAppTheme = () => {
 	let themeOptions : ThemeOption[] = [
 		{ key: 'light', value: MD3LightTheme, label: t( 'themeOptions.light' ) },
 		{ key: 'dark', value: MD3DarkTheme, label: t( 'themeOptions.dark' ) },
-		{ key: 'black', value: BlackTheme, label: t( 'themeOptions.black' ) },
+		...Object.keys( customThemes ).map( ( customThemeKey : string ) => (  {
+			key: customThemeKey,
+			label: t( customThemes[customThemeKey]?.label || '' ),
+			value: customThemes[customThemeKey],
+		} ) ),
 	];
 
 	const systemOpt = themeOptions.find( opt => opt.key === ( systemIsDarkMode ? 'dark' : 'light' ) );
@@ -188,12 +173,6 @@ const AppWrapper = () => {
 	} = useAppLang();
 
 	const theme = themeOptions.find( opt => opt.key === selectedTheme );
-	// useEffect( () => {
-	// 	if ( ! theme ) {
-	// 		console.log( 'debug should fix theme???', theme ); // debug
-	// 		// setSelectedTheme( 'system' );
-	// 	}
-	// }, [theme] )
 
 	if ( selectedTheme === null ) {
 		return null;
@@ -221,88 +200,6 @@ const AppWrapper = () => {
 	</PaperProvider>;
 };
 
-const ThemeControl = ( {
-	selectedTheme,
-	setSelectedTheme,
-	themeOptions,
-} : {
-	selectedTheme: string,
-	setSelectedTheme: Dispatch<SetStateAction<string | null>>;
-	themeOptions: ThemeOption[],
-} ) => {
-	const { t } = useTranslation();
-	const theme = useTheme();
-	const [visible,setVisible] = useState( false );
-	return <Menu
-		visible={ visible }
-		onDismiss={ () => setVisible( false ) }
-		anchor={
-			<Button
-				icon="invert-colors"
-				onPress={ () => setVisible( ! visible ) }
-				mode={ 'outlined' }
-			>
-				<Text>{ t( 'selectTheme' ) }</Text>
-			</Button>
-		}>
-			{ [...themeOptions].map( opt => <Menu.Item
-				key={ opt.key }
-				onPress={ () => {
-					setSelectedTheme( opt.key );
-					setVisible( false );
-				} }
-				title={ opt.label }
-				style={ opt.key === selectedTheme && {
-					backgroundColor: theme.colors.primary,
-				} }
-				titleStyle={ opt.key === selectedTheme && {
-					color: theme.colors.onPrimary,
-				} }
-			/> ) }
-	</Menu>;
-};
-
-const LangControl = ( {
-	langOptions,
-	changeLang,
-	selectedLang,
-} : {
-	langOptions: LangOption[],
-	changeLang: ( newSelectedLang : string ) => void;
-	selectedLang: string,
-} ) => {
-	const { t } = useTranslation();
-	const theme = useTheme();
-	const [visible,setVisible] = useState( false );
-	return <Menu
-		visible={ visible }
-		onDismiss={ () => setVisible( false ) }
-		anchor={
-			<Button
-				icon={ ( { size, color }) => <MaterialIcons name="language" size={ size } color={ color } /> }
-				onPress={ () => setVisible( ! visible ) }
-				mode={ 'outlined' }
-			>
-				<Text>{ t( 'selectLang' ) }</Text>
-			</Button>
-		}>
-			{ [...langOptions].map( opt => <Menu.Item
-				key={ opt.key }
-				onPress={ () => {
-					changeLang( opt.key );
-					setVisible( false );
-				} }
-				title={ opt.label }
-				style={ opt.key === selectedLang && {
-					backgroundColor: theme.colors.primary,
-				} }
-				titleStyle={ opt.key === selectedLang && {
-					color: theme.colors.onPrimary,
-				} }
-			/> ) }
-	</Menu>;
-};
-
 const App = ( {
 	selectedTheme,
 	setSelectedTheme,
@@ -314,14 +211,16 @@ const App = ( {
 	selectedTheme: string,
 	setSelectedTheme: Dispatch<SetStateAction<string | null>>;
 	themeOptions: ThemeOption[],
-	langOptions: LangOption[],
+	langOptions: OptionBase[],
 	changeLang: ( newSelectedLang : string ) => void;
 	selectedLang: string,
 } ) => {
 
 	const theme = useTheme();
+	const systemIsDarkMode = useColorScheme() === 'dark';
+	const [topAppBarHeight,setTopAppBarHeight] = useState<number>( 0 );
 
-	const { t } = useTranslation();
+	const [selectedHierarchyItems,setSelectedHierarchyItems] = useState<null | HierarchyItem[]>( null );
 
 	const {
 		width,
@@ -337,65 +236,44 @@ const App = ( {
 		},
 	} );
 
-	return <SafeAreaView style={ {
-		backgroundColor: theme.colors.background,
-		height,
-		width,
+	const mapHeight = height - topAppBarHeight;
+
+	return <AppContext.Provider value={ {
+		selectedTheme,
+		setSelectedTheme,
+		themeOptions,
+		langOptions,
+		changeLang,
+		selectedLang,
+		mapViewNativeNodeHandle,
+		mapHeight,
+		topAppBarHeight,
+		selectedHierarchyItems,
+		setSelectedHierarchyItems,
 	} }>
-		<StatusBar
-			barStyle={ theme.dark ? 'dark-content' : 'light-content' }
-			backgroundColor={ theme.colors.background }
-		/>
+		<SafeAreaView style={ {
+			backgroundColor: theme.colors.background,
+			height,
+			width,
+		} }>
 
-		<View
-			style={ {
+			<StatusBar barStyle={ systemIsDarkMode ? 'light-content' : 'dark-content' } />
+
+			<TopAppBar setTopAppBarHeight={ setTopAppBarHeight } />
+
+			<View style={ {
+				height: mapHeight,
 				width,
-				height,
-				justifyContent: 'space-evenly',
-				alignItems: 'center',
-			} }
-		>
+			} } >
 
-			<Text
-				style={ {
-					color: theme.colors.onBackground,
-					marginBottom: 10,
-				} }
-			>{ t( 'test' ) }</Text>
-
-			<View
-				style={ {
-					width,
-					justifyContent: 'space-evenly',
-					alignItems: 'center',
-					flexDirection: 'row',
-					marginBottom: 10
-				} }
-			>
-
-				<ThemeControl
-					selectedTheme={ selectedTheme }
-					setSelectedTheme={ setSelectedTheme }
-					themeOptions={ themeOptions }
-				/>
-
-				<LangControl
-					langOptions={ langOptions }
-					changeLang={ changeLang }
-					selectedLang={ selectedLang }
-				/>
-
-
-			</View>
-
-			<View>
+				{ selectedHierarchyItems !== null && selectedHierarchyItems[selectedHierarchyItems.length-1].SubActivity && selectedHierarchyItems[selectedHierarchyItems.length-1].SubActivity }
 
 				<MapContainer
 					nativeNodeHandle={ mapViewNativeNodeHandle }
 					setNativeNodeHandle={ setMapViewNativeNodeHandle }
 					responseInclude={ { center: 2 } }
-					height={ 500 }
-					width={ width /* defaults to full width */ }
+					height={ mapHeight }
+					width={ width }
 					center={ {
 						lng: -70.239,
 						lat: -10.65,
@@ -416,12 +294,19 @@ const App = ( {
 						cacheSize={ 10 * 1024 * 1024 }
 					/>
 
+					<LayerScalebar/>
+
 				</MapContainer>
+
+				<Center
+					height={ mapHeight }
+					width={ width }
+				/>
+
 			</View>
 
-		</View>
-
-	</SafeAreaView>;
+		</SafeAreaView>
+	</AppContext.Provider>;
 };
 
 export default AppWrapper;

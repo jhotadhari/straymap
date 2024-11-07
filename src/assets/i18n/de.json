@@ -7,6 +7,16 @@
             "dark": "Dunkel",
             "black": "Schwarz"
         },
+        "menu": {
+            "tools": "Werkzeuge",
+            "routing": "Routenplanung",
+            "settings": "Einstellungen",
+            "about": "Über"
+        },
+        "settings": {
+            "general": "Allgemein",
+            "appearance": "Aussehen"
+        },
         "selectLang": "Sprache wählen",
         "test":"Das ist nur ein test Satz"
     }
