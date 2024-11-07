@@ -10,9 +10,10 @@ import {
 /**
  * Internal dependencies
  */
-import { ThemeOption, OptionBase, HierarchyItem } from "./types";
+import { ThemeOption, OptionBase, HierarchyItem, AbsPathsMap } from "./types";
 
 export type AppContextType = {
+	appDirs?: AbsPathsMap;
 	selectedTheme?: string;
 	setSelectedTheme?: Dispatch<SetStateAction<string | null>>;
 	themeOptions?: ThemeOption[];

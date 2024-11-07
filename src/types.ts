@@ -2,6 +2,10 @@ import { ReactElement } from "react";
 import { Style as ListStyle } from "react-native-paper/lib/typescript/components/List/utils";
 import { MD3Theme } from 'react-native-paper/lib/typescript/types';
 
+export type AbsPath = `/${string}`;
+
+export type AbsPathsMap = { [value: string]: AbsPath[] };
+
 export interface MenuItem {
 	key: string;
 	leadingIcon: string;

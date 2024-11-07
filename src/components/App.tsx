@@ -47,10 +47,11 @@ import {
  */
 import '../assets/i18n/i18n';
 import TopAppBar from './TopAppBar';
-import type { OptionBase, HierarchyItem, ThemeOption } from '../types';
+import type { OptionBase, HierarchyItem, ThemeOption, AbsPathsMap } from '../types';
 import customThemes from '../themes';
 import { AppContext } from '../Context';
 import Center from './Center';
+import { HelperModule } from '../nativeModules';
 
 const useAppTheme = () => {
 
@@ -229,6 +230,14 @@ const App = ( {
 
 	const [mapViewNativeNodeHandle, setMapViewNativeNodeHandle] = useState<null | number>( null );
 
+	const [appDirs,setAppDirs] = useState<null | AbsPathsMap>( null );
+
+	useEffect( () => {
+		HelperModule.getAppDirs().then( ( dirs : AbsPathsMap ) => {
+			setAppDirs( dirs );
+		} ).catch( ( err: any ) => console.log( 'ERROR', err ) );
+	}, [] );
+
 	useMapEvents( {
 		nativeNodeHandle: mapViewNativeNodeHandle,
 		onMapEvent: event => {
@@ -238,7 +247,12 @@ const App = ( {
 
 	const mapHeight = height - topAppBarHeight;
 
+	if ( ! appDirs ) {
+		return null;
+	}
+
 	return <AppContext.Provider value={ {
+		appDirs,
 		selectedTheme,
 		setSelectedTheme,
 		themeOptions,
