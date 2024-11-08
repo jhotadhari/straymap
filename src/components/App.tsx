@@ -60,15 +60,11 @@ const useAppTheme = () => {
 	const systemIsDarkMode = useColorScheme() === 'dark';
 	const [selectedTheme,setSelectedTheme] = useState<null | string>( null );
 
-	let themeOptions : ThemeOption[] = [
-		{ key: 'light', value: MD3LightTheme, label: t( 'themeOptions.light' ) },
-		{ key: 'dark', value: MD3DarkTheme, label: t( 'themeOptions.dark' ) },
-		...Object.keys( customThemes ).map( ( customThemeKey : string ) => (  {
-			key: customThemeKey,
-			label: t( customThemes[customThemeKey]?.label || '' ),
-			value: customThemes[customThemeKey],
-		} ) ),
-	];
+	let themeOptions : ThemeOption[] = Object.keys( customThemes ).map( ( customThemeKey : string ) => (  {
+		key: customThemeKey,
+		label: t( customThemes[customThemeKey]?.label || '' ),
+		value: customThemes[customThemeKey],
+	} ) );
 
 	const systemOpt = themeOptions.find( opt => opt.key === ( systemIsDarkMode ? 'dark' : 'light' ) );
 

@@ -1,8 +1,16 @@
-
+/**
+ * External dependencies
+ */
 import {
 	MD3DarkTheme,
+	MD3LightTheme,
 } from 'react-native-paper';
+import { configureFonts } from 'react-native-paper';
+import { get, set } from 'lodash-es';
 
+/**
+ * Internal dependencies
+ */
 import type { ThemePropExtended } from './types';
 
 const BlackTheme : ThemePropExtended = {
@@ -22,12 +30,31 @@ const BlackTheme : ThemePropExtended = {
 			level3: 'rgb(30, 30, 30)',
 			level4: 'rgb(40, 40, 40)',
 			level5: 'rgb(50, 50, 50)',
-		  },
+		},
 	},
 };
 
 const themes : { [value: string]: ThemePropExtended } = {
+	light: { ... MD3LightTheme, label: 'themeOptions.light' },
+	dark: { ... MD3DarkTheme, label: 'themeOptions.dark' },
     black: BlackTheme,
 };
+
+// Loop themes, apply fonts.
+Object.keys( themes ).map( ( key : string ) => {
+	const fontConfig = { ...themes[key].fonts };
+	Object.keys( fontConfig ).map( ( key : string ) => {
+		set( fontConfig, key, {
+			...get( fontConfig, key ),
+			fontFamily: key.startsWith( 'headline' ) || key.startsWith( 'display' )
+				? 'jangly_walk'
+				: 'F25_Executive',
+		} )
+	} );
+	themes[key] = {
+		...themes[key],
+		fonts: configureFonts( { config: fontConfig } ),
+	};
+} );
 
 export default themes;
