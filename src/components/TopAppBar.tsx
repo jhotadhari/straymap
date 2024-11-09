@@ -2,7 +2,7 @@
 /**
  * External dependencies
  */
-import React, {
+import {
 	Dispatch,
 	SetStateAction,
 	useContext,
@@ -17,15 +17,16 @@ import {
 } from 'react-native-paper';
 import { IconSource } from 'react-native-paper/lib/typescript/components/Icon';
 import { useTranslation } from 'react-i18next';
-import { useWindowDimensions, View, BackHandler } from 'react-native';
+import { useWindowDimensions, View, BackHandler, TouchableHighlight } from 'react-native';
 
 /**
  * Internal dependencies
  */
-import { HierarchyItem, SettingsItem, type MenuItem } from '../types';
+import type { HierarchyItem, MenuItem as MenuItemType } from '../types';
 import Settings from './Settings';
 import About from './About';
 import { AppContext } from '../Context';
+import MenuItem from './MenuItem';
 
 const EgalTest = () => {
 	const theme = useTheme();
@@ -43,7 +44,7 @@ const EgalTest = () => {
     </View>;
 };
 
-const menuItems : MenuItem[] = [
+const menuItems : MenuItemType[] = [
 	{
 		key: 'tools',
 		label: 'menu.tools',
@@ -100,7 +101,7 @@ const TopAppBarMenu = ( {
     selectedHierarchyItems,
     setSelectedHierarchyItems,
 } : {
-	items: MenuItem[];
+	items: MenuItemType[];
 	anchorIcon: IconSource;
 	anchorTitle?: string;
 	anchorActive?: boolean;
@@ -121,17 +122,26 @@ const TopAppBarMenu = ( {
         : () => setMenuVisible( false );
 
 	const anchor = ! parents || ! parents.length
-		? <Appbar.Action
-            icon={ anchorIcon }
-            onPress={ () =>
-            setMenuVisible( ! menuVisible ) }
-        />
-		: <Menu.Item
+		? <TouchableHighlight
+			style={ {
+				padding: 10,
+				marginBottom: 5,
+				marginRight: 5,
+				borderRadius: theme.roundness,
+			} }
+			underlayColor={ theme.colors.elevation.level3 }
+            onPress={ () => setMenuVisible( ! menuVisible ) }
+        >
+			<Icon
+				source={ anchorIcon }
+				size={ 30 }
+			/>
+		</TouchableHighlight>
+		: <MenuItem
             leadingIcon={ anchorIcon }
             title={ anchorTitle }
             onPress={ () => setMenuVisible( ! menuVisible ) }
-            style={ anchorActive && { backgroundColor: theme.colors.primary } }
-            titleStyle={ anchorActive && { color: theme.colors.onPrimary } }
+            active={ anchorActive }
         />
 
 	return 	<Menu
@@ -139,20 +149,13 @@ const TopAppBarMenu = ( {
 			borderColor: theme.colors.outline,
 			borderWidth: 1,
 		} }
+		style={ { minWidth: 175} }
 		visible={ menuVisible }
 		onDismiss={ () => closeMenu() }
 		anchor={ anchor }
 	>
 		{ [...items].map( ( item, index ) => {
             const isActive = !! ( selectedHierarchyItems ? selectedHierarchyItems.find( s => s.key === item.key ) : false );
-
-            const icon : IconSource | undefined = 'string' === typeof item.leadingIcon
-                ? ( { color, size } ) => <Icon
-                    source={ item.leadingIcon }
-                    color={ isActive ? theme.colors.onPrimary : color }
-                    size={ size }
-                />
-                : item.leadingIcon; // ??? should handle custom icons
 
 			if ( item.children ) {
 				return <TopAppBarMenu
@@ -165,25 +168,23 @@ const TopAppBarMenu = ( {
                         item,
                     ] }
 					items={ item.children }
-					anchorIcon={ icon }
+					anchorIcon={ item.leadingIcon }
 					anchorActive={ isActive }
 					anchorTitle={ t( item.label ) }
 				/>;
 			} else {
-
-				return <Menu.Item
+				return <MenuItem
 					key={ index }
 					onPress={ () => {
-                        setSelectedHierarchyItems( [
-                            ...( parents && false !== item.hierarchyIncludeParents ? parents : [] ),
-                            item,
-                        ] )
-                        closeMenu();
-                    } }
-					leadingIcon={ icon }
+						setSelectedHierarchyItems( [
+							...( parents && false !== item.hierarchyIncludeParents ? parents : [] ),
+							item,
+						] )
+						closeMenu();
+					} }
+					leadingIcon={ item.leadingIcon }
 					title={ t( item.label ) }
-                    style={ isActive && { backgroundColor: theme.colors.primary } }
-                    titleStyle={ isActive && { color: theme.colors.onPrimary } }
+					active={ isActive }
 				/>
 			}
 		} ) }
@@ -197,6 +198,8 @@ const TopAppBar = ( {
 } ) => {
 
 	const { t } = useTranslation();
+
+	const theme = useTheme();
 
     const {
 		selectedHierarchyItems,
@@ -237,7 +240,21 @@ const TopAppBar = ( {
 			justifyContent: 'space-between',
 		} }
 	>
-		{ selectedHierarchyItems && <Appbar.BackAction onPress={ backAction } /> }
+		{ selectedHierarchyItems && <TouchableHighlight
+			style={ {
+				padding: 10,
+				marginLeft: 5,
+				marginRight: 10,
+				borderRadius: theme.roundness,
+			} }
+			underlayColor={ theme.colors.elevation.level3 }
+            onPress={ backAction }
+        >
+			<Icon
+				source="arrow-left"
+				size={ 30 }
+			/>
+		</TouchableHighlight> }
 
         <Appbar.Content title={ selectedHierarchyItems
             ? [...selectedHierarchyItems].map( item => t( item.label ) ).join( ' / ' )
@@ -248,7 +265,7 @@ const TopAppBar = ( {
 			selectedHierarchyItems={ selectedHierarchyItems }
 			setSelectedHierarchyItems={ setSelectedHierarchyItems }
 			items={ menuItems }
-			anchorIcon="dots-vertical"
+			anchorIcon="menu"
 		/> }
 	</Appbar>;
 }

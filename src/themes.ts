@@ -46,7 +46,7 @@ Object.keys( themes ).map( ( key : string ) => {
 	Object.keys( fontConfig ).map( ( key : string ) => {
 		set( fontConfig, key, {
 			...get( fontConfig, key ),
-			fontFamily: key.startsWith( 'headline' ) || key.startsWith( 'display' )
+			fontFamily: key.startsWith( 'display' )
 				? 'jangly_walk'
 				: 'F25_Executive',
 		} )

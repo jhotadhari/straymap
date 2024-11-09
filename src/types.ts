@@ -1,4 +1,4 @@
-import { ReactElement } from "react";
+import { ReactElement, ReactNode } from "react";
 import { Style as ListStyle } from "react-native-paper/lib/typescript/components/List/utils";
 import { MD3Theme } from 'react-native-paper/lib/typescript/types';
 
@@ -20,7 +20,7 @@ export interface SettingsItem {
 	left?: ( ( props: {
 		color: string;
 		style: ListStyle;
-	} ) => React.ReactNode );
+	} ) => ReactNode );
 	label: string;
 	description?: string;
 	SubActivity?: ReactElement;
