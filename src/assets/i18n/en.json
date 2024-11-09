@@ -16,14 +16,19 @@
         "settings": {
             "general": "General",
             "maps": "Maps",
-            "mapsAddNew": "Add new map",
             "appearance": "Appearance"
         },
         "map": {
             "addNew": "Add new map",
+            "edit": "Edit map",
             "mapType": "Map type",
+            "addNewLayer": "Add new map layer",
+            "addNewLayerShort": "Add new layer",
+            "layer_one": "Map layer",
+            "layer_other": "Map layers",
             "selectType": "Select map type",
             "askCancel": "Do you really want to cancel editing this map?",
+            "source": "Map source",
             "typeDesc": {
                 "online-raster-xyz": "bla bla online-raster-xyz",
                 "mapsforge": "bla bla mapsforge",
@@ -34,6 +39,9 @@
         "changesWillBeLost": "Changes will be lost!",
         "keepEdit": "Keep editing",
         "cancel": "Cancel",
+        "custom": "Custom",
+        "visibility": "Visibility",
+        "cacheSize": "Cache size",
         "selectLang": "Select language",
         "test": "That's just a test sentence"
     }

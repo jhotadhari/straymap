@@ -41,3 +41,46 @@ export interface ThemeOption extends OptionBase {
 };
 
 export type HierarchyItem = MenuItem | SettingsItem;
+
+
+export interface MapConfigOptionsBase {
+	zoomMin?: number,
+	zoomMax?: number,
+};
+
+export interface MapConfigOptionsOnlineRasterXYZ extends MapConfigOptionsBase {
+	url?: string;
+	cacheSize?: number;
+};
+
+export interface MapConfigOptionsMapsforge extends MapConfigOptionsBase {
+	mapFile?: string;
+	renderTheme?: string;
+	renderStyle?: string;
+	renderOverlays?: string[];
+};
+
+export interface MapConfigOptionsRasterMBtiles extends MapConfigOptionsBase {
+	mapFile?: string;
+};
+
+export interface MapConfigOptionsHillshading extends MapConfigOptionsBase {
+	hgtDirPath?: string;
+	shadingAlgorithm?: string;
+	shadingAlgorithmOptions?: {};
+	magnitude?: number;
+	cacheSize?: number;
+};
+
+export type MapConfigOptionsAny = MapConfigOptionsOnlineRasterXYZ
+	| MapConfigOptionsMapsforge
+	| MapConfigOptionsRasterMBtiles
+	| MapConfigOptionsHillshading
+
+export type MapConfig = {
+    key: string;
+    name: string;
+    type: null | string;	// 'online-raster-xyz' | 'mapsforge' | 'raster-MBtiles' | 'hillshading';
+    visible: boolean;
+	options: MapConfigOptionsAny;
+};

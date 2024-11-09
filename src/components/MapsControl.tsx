@@ -10,6 +10,7 @@ import {
 	useWindowDimensions,
 	View,
     TouchableHighlight,
+    ViewStyle,
 } from 'react-native';
 import {
     List,
@@ -17,6 +18,7 @@ import {
     Text,
     Icon,
     RadioButton,
+    TextInput,
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import DraggableGrid from 'react-native-draggable-grid';
@@ -25,18 +27,11 @@ import DraggableGrid from 'react-native-draggable-grid';
  * Internal dependencies
  */
 import { uuid } from '../utils';
-import { OptionBase } from '../types';
+import { MapConfig, MapConfigOptionsAny, MapConfigOptionsHillshading, MapConfigOptionsMapsforge, MapConfigOptionsOnlineRasterXYZ, MapConfigOptionsRasterMBtiles, OptionBase } from '../types';
 import ButtonHighlight from './ButtonHighlight';
 import ModalWrapper from './ModalWrapper';
-import { get } from 'lodash-es';
+import { debounce, get } from 'lodash-es';
 import MapsControlOnlineRasterXYZ from './MapsControlOnlineRasterXYZ';
-
-type MapConfig = {
-    key: string;
-    name: string;
-    type: null | string;
-    visible: boolean;
-};
 
 const mapTypeOptions : OptionBase[] = [
     'online-raster-xyz',
@@ -52,46 +47,170 @@ const initialItems : MapConfig[] = [
     {
         key: 'egal',
         name: 'egal',
-        visible: true,
+        visible: false,
         type: 'online-raster-xyz',
+        options: {
+            zoomMin: 1,
+            zoomMax: 20,
+            url: '',
+            cacheSize: 64,
+        },
     },
     {
         key: 'auchegal',
         name: 'auch egal',
-        visible: true,
+        visible: false,
         type: 'mapsforge',
+        options: {
+            zoomMin: 1,
+            zoomMax: 20,
+            mapFile: '',
+            renderTheme: '',
+            renderStyle: '',
+            renderOverlays: [''],
+        },
     },
     {
         key: 'wirklichegal',
         name: 'wirklich egal',
         visible: false,
         type: 'raster-MBtiles',
+        options: {
+            zoomMin: 1,
+            zoomMax: 20,
+            mapFile: '',
+        },
     },
     {
         key: 'bla',
         name: 'bla',
-        visible: true,
+        visible: false,
         type: 'hillshading',
+        options: {
+            zoomMin: 1,
+            zoomMax: 20,
+            hgtDirPath: '',
+            shadingAlgorithm: '',
+            shadingAlgorithmOptions: {},
+            magnitude: 90,
+            cacheSize: 64,
+        },
     },
 ];
 
 const itemHeight = 50;
 
+
+const labelMinWidth = 90;
+
+
 const getNewItem = () : MapConfig => ( {
     key: uuid.create(),
     name: '',
-    visible: true,
+    visible: false,
     type: null,
+    options: {
+        zoomMin: 1,
+        zoomMax: 20,
+    },
 } );
+
+const fillMapConfigOptionsWithDefauls = ( type : string, options : MapConfigOptionsAny ) : MapConfigOptionsAny => {
+    switch( type ) {
+        case 'online-raster-xyz':
+            return {
+                ...options,
+                ...( null === get( options, 'cacheSize', null ) && { cacheSize: 0 } ),
+            };
+        case 'mapsforge':
+            return {
+                ...options,
+            };
+        case 'raster-MBtiles':
+            return {
+                ...options,
+            };
+        case 'hillshading':
+            return {
+                ...options,
+            };
+        default:
+            return options;
+    }
+};
+
+const VisibleControl = ( {
+    item,
+    updateItem,
+    style,
+} : {
+    item: MapConfig;
+    updateItem: ( newItem: MapConfig ) => void,
+    style?: ViewStyle,
+} ) => {
+    const theme = useTheme();
+    return <TouchableHighlight
+        underlayColor={ theme.colors.elevation.level3 }
+        onPress={ () => updateItem( {
+            ...item,
+            visible: ! item.visible,
+        } ) }
+        style={ { borderRadius: theme.roundness, ...style } }
+    >
+        <Icon
+            source={ item.visible ? 'eye-outline' : 'eye-off-outline' }
+            size={ 25 }
+        />
+    </TouchableHighlight>;
+};
+
+const NameControl = ( {
+    item,
+    updateItem,
+} : {
+    item: MapConfig;
+    updateItem: ( newItem: MapConfig ) => void,
+} ) => {
+    const theme = useTheme();
+
+    const [value,setValue] = useState( item.name );
+
+    const doUpdate = debounce( () => {
+        updateItem( {
+            ...item,
+            name: value,
+        } );
+    }, 300 );
+    useEffect( () => {
+        doUpdate();
+    }, [value] );
+
+    return <View style={ { marginTop: 10, marginBottom: 10, flexDirection: 'row', alignItems: 'center' } }>
+        <Text style={ { minWidth: labelMinWidth + 12 } }>Name/ID:</Text>
+        <TextInput
+            style={ { flexGrow: 1 } }
+            underlineColor="transparent"
+            dense={ true }
+            theme={ { fonts: { bodyLarge: {
+                ...theme.fonts.bodySmall,
+                fontFamily: "sans-serif",
+            } } } }
+            onChangeText={ newVal => setValue( newVal ) }
+            value={ value }
+        />
+    </View>;
+};
 
 const DraggableItem = ( {
     item,
     width,
     updateItem,
+    setEditItem,
 } : {
     item: MapConfig;
     width: number;
     updateItem: ( newItem: MapConfig ) => void,
+    setEditItem: ( newItem: MapConfig ) => void,
 } ) => {
 
     const theme = useTheme();
@@ -110,19 +229,11 @@ const DraggableItem = ( {
         key={ item.key }
     >
 
-        <TouchableHighlight
-            underlayColor={ theme.colors.elevation.level3 }
-            onPress={ () => updateItem( {
-                ...item,
-                visible: ! item.visible,
-            } ) }
-            style={ { padding: 10, borderRadius: theme.roundness } }
-        >
-            <Icon
-                source={ item.visible ? 'eye-outline' : 'eye-off-outline' }
-                size={ 25 }
-            />
-        </TouchableHighlight>
+        <VisibleControl
+            item={ item }
+            updateItem={ updateItem }
+            style={ { padding: 10 } }
+        />
 
         <View style={ {
             justifyContent: 'space-between',
@@ -138,7 +249,7 @@ const DraggableItem = ( {
 
         <TouchableHighlight
             underlayColor={ theme.colors.elevation.level3 }
-            onPress={ () => null }
+            onPress={ () => setEditItem( item ) }
             style={ { padding: 10, borderRadius: theme.roundness } }
         >
             <Icon
@@ -158,9 +269,6 @@ const MapsControl = () => {
 
 	const theme = useTheme();
 
-    // const {
-    // } = useContext( AppContext )
-
 	const [expanded, setExpanded] = useState( true );
 
 	const [modalVisible, setModalVisible] = useState( false );
@@ -168,8 +276,6 @@ const MapsControl = () => {
 	const [askToDismiss, setAskToDismiss] = useState( false );
 
     const [editItem, setEditItem] = useState<null | MapConfig>( null );
-
-    console.log( 'debug editItem', editItem ); // debug
 
     useEffect( () => {
         if ( editItem ) {
@@ -186,6 +292,11 @@ const MapsControl = () => {
             const newItems = [...items];
             newItems[itemIndex] = newItem;
             setItems( newItems );
+        } else {
+            setItems( [
+                newItem,
+                ...items,
+            ] );
         }
     };
 
@@ -193,38 +304,46 @@ const MapsControl = () => {
         item={ item }
         width={ width }
         updateItem={ updateItem }
+        setEditItem={ setEditItem }
     /></View>;
 
     return <View>
 
         { editItem && <ModalWrapper
             visible={ modalVisible }
-            onDismiss={ () => modalDismissable ? setModalVisible( false ) : setAskToDismiss( true ) }
-            header={ t( 'settings.mapsAddNew' ) }
-            headerPrepend={ editItem.type && <TouchableHighlight
-                underlayColor={ theme.colors.elevation.level3 }
-                style={ {
-                    padding: 5,
-                    borderRadius: theme.roundness,
-                    marginRight: 10,
-                } }
-                onPress={ () => {
-                    if ( askToDismiss ) {
-                        setAskToDismiss( false );
-                    } else {
-                        updateItem( {
-                            ...editItem,
-                            type: null,
-                        } );
-                        setModalDismissable( true );
-                    }
-                } }
-            ><Icon
-                source="arrow-left"
-                size={ 25 }
-            /></TouchableHighlight> }
+            onDismiss={ () => {
+                if ( modalDismissable ) {
+                    setModalVisible( false );
+                    setEditItem( null );
+                } else {
+                    setAskToDismiss( true );
+                }
+            } }
+            header={ editItem.type ? t( 'map.edit' ) : t( 'map.addNewLayerShort' ) }
+            // headerPrepend={ editItem.type && <TouchableHighlight
+            //     underlayColor={ theme.colors.elevation.level3 }
+            //     style={ {
+            //         padding: 5,
+            //         borderRadius: theme.roundness,
+            //         marginRight: 10,
+            //     } }
+            //     onPress={ () => {
+            //         if ( askToDismiss ) {
+            //             setAskToDismiss( false );
+            //         } else {
+            //             updateItem( {
+            //                 ...editItem,
+            //                 type: null,
+            //             } );
+            //             setModalDismissable( true );
+            //         }
+            //     } }
+            // ><Icon
+            //     source="arrow-left"
+            //     size={ 25 }
+            // /></TouchableHighlight> }
         >
-            { askToDismiss && <View>
+            {/* { askToDismiss && <View>
                 <Text style={ { marginTop: 24, marginBottom: 40 }}>{ t( 'map.askCancel' ) } { t( 'changesWillBeLost' ) }</Text>
 
                 <View style={ {
@@ -254,15 +373,19 @@ const MapsControl = () => {
                     ><Text>{ t( 'cancel' ) }</Text></ButtonHighlight>
 
                 </View>
-            </View> }
+            </View> } */}
 
             { ! askToDismiss && ! editItem.type && <View>
                 <Text style={ { marginBottom: 18 } }>{ t( 'map.selectType' ) }</Text>
 
                     { [...mapTypeOptions].map( ( opt : OptionBase, index: number ) => {
                         const onPress = () => {
-                            updateItem( { ...editItem, type: opt.key } );
-                            setModalDismissable( false );
+                            updateItem( {
+                                ...editItem,
+                                type: opt.key,
+                                options: fillMapConfigOptionsWithDefauls( opt.key, editItem.options ),
+                            } );
+                            // setModalDismissable( false );
                         };
                         return <TouchableHighlight
                             key={ opt.key }
@@ -294,10 +417,29 @@ const MapsControl = () => {
             </View> }
 
             { ! askToDismiss && editItem.type && <View>
-                <Text style={ { marginBottom: 18 } }>{ t( 'map.mapType' ) }: { editItem.type }</Text>
 
+                <View style={ { marginBottom: 10, flexDirection: 'row' } }>
+                    <Text style={ { minWidth: labelMinWidth + 12 } }>{ t( 'map.mapType' ) }:</Text>
+                    <Text>{ editItem.type }</Text>
+                </View>
 
-                { 'online-raster-xyz' === editItem.type && <MapsControlOnlineRasterXYZ/> }
+                <NameControl
+                    item={ editItem }
+                    updateItem={ updateItem }
+                />
+
+                <View style={ { marginTop: 10, marginBottom: 10, flexDirection: 'row', alignItems: 'center' } }>
+                    <Text style={ { minWidth: labelMinWidth + 12 } }>{ t( 'visibility' ) }:</Text>
+                    <VisibleControl
+                        item={ editItem }
+                        updateItem={ updateItem }
+                    />
+                </View>
+
+                { 'online-raster-xyz' === editItem.type && <MapsControlOnlineRasterXYZ
+                    editItem={ editItem }
+                    updateItem={ updateItem }
+                /> }
 
                 { 'mapsforge' === editItem.type && <View>
 
@@ -339,7 +481,7 @@ const MapsControl = () => {
         </ModalWrapper> }
 
         <List.Accordion
-            title={ t( 'settings.maps' )}
+            title={ t( 'map.layer', { count: 0 } ) }
             left={ props => <List.Icon {...props} icon="map" /> }
             expanded={ expanded }
             onPress={ () => setExpanded( ! expanded ) }
@@ -375,7 +517,7 @@ const MapsControl = () => {
                         setEditItem( getNewItem() );
                     } }
                 >
-                    { t( 'settings.mapsAddNew' ) }
+                    { t( 'map.addNewLayer' ) }
                 </ButtonHighlight>
             </View>
         </List.Accordion>

@@ -16,14 +16,19 @@
         "settings": {
             "general": "Allgemein",
             "maps": "Karten",
-            "mapsAddNew": "Neue Karte hinzufügen",
             "appearance": "Aussehen"
         },
         "map": {
             "addNew": "Neue Karte hinzufügen",
+            "edit": "Karte bearbeiten",
             "mapType": "Kartentyp",
+            "addNewLayer": "Neue Kartenebene hinzufügen",
+            "addNewLayerShort": "Neue Ebene hinzufügen",
+            "layer_one": "Kartenebene",
+            "layer_other": "Kartenebenen",
             "selectType": "Wähle den Kartentyp",
             "askCancel": "Möchtest du die Bearbeitung dieser Karte wirklich abbrechen?",
+            "source": "Kartenquelle",
             "typeDesc": {
                 "online-raster-xyz": "bla bla online-raster-xyz",
                 "mapsforge": "bla bla mapsforge",
@@ -34,6 +39,9 @@
         "changesWillBeLost": "Änderungen gehen verloren!",
         "keepEdit": "Weiter bearbeiten",
         "cancel": "Abbrechen",
+        "custom": "Individuell einstellbar",
+        "visibility": "Sichtbarkeit",
+        "cacheSize": "Cache Größe",
         "selectLang": "Sprache wählen",
         "test":"Das ist nur ein test Satz"
     }

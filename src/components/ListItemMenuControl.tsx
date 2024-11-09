@@ -16,6 +16,7 @@ import {
 	useTheme,
 } from 'react-native-paper';
 import { Style as ListStyle } from 'react-native-paper/lib/typescript/components/List/utils';
+import { useTranslation } from 'react-i18next';
 
 /**
  * Internal dependencies
@@ -45,6 +46,7 @@ const ListItemMenuControl = ( {
 	}) => React.ReactNode );
 } ) => {
 	const theme = useTheme();
+	const { t } = useTranslation();
 	const [visible,setVisible] = useState( false );
 	const [layout,setLayout] = useState<null | LayoutRectangle>( null )
     const { topAppBarHeight } = useContext( AppContext )
@@ -64,8 +66,8 @@ const ListItemMenuControl = ( {
 			onDismiss={ () => setVisible( false ) }
 			anchor={ {
 				x: layout.x + layout.width / 2 - menuMarginRight,
-				y: layout.y + menuMarginTop + ( topAppBarHeight ? topAppBarHeight : 0 ) }
-			}
+				y: layout.y + menuMarginTop + ( topAppBarHeight ? topAppBarHeight : 0 ),
+			} }
 		>
 			{ options && setValue && [...options].map( opt => <MenuItem
 				key={ opt.key }
@@ -73,7 +75,7 @@ const ListItemMenuControl = ( {
 					setValue( opt.key );
 					setVisible( false );
 				} }
-				title={ opt.label }
+				title={ t( opt.label ) }
 				active={ opt.key === value }
 			/> ) }
 		</Menu> }
