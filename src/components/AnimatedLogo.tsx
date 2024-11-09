@@ -53,16 +53,18 @@ const AnimatedLogo = ( { size } : { size: number } ) => {
         }
         const stringIndexAvailable = Math.round( randomNumber( 0, stringsAvailable.length - 1 ) );
         const newStringIndex = strings.findIndex( string => string === stringsAvailable[stringIndexAvailable] );
-        return newStringIndex !== stringIndex || stringsAvailable.length <= 1
+        return ! textIsInitialized || newStringIndex !== stringIndex || stringsAvailable.length <= 1
             ? newStringIndex
             : getNewStringIndex();
     }
     useEffect( () => {
-        const maybeNewVal = [...stringIndexUsed, stringIndex ];
-        setStringIndexUsed( maybeNewVal.length === strings.length ? [] : maybeNewVal );
+        if ( textIsInitialized ) {
+            const maybeNewVal = [...stringIndexUsed, stringIndex ];
+            setStringIndexUsed( maybeNewVal.length === strings.length ? [] : maybeNewVal );
+        }
     }, [stringIndex] );
 
-    const [showText,setShowText] = useState( false );
+    const [textIsInitialized,setTextIsInitialized] = useState( false );
     const [textDims,setTextDims] = useState( [0,0] );
     const textOpacity = useAnimatedValue( 0 );
     const textX = useAnimatedValue( 10 );
@@ -75,7 +77,7 @@ const AnimatedLogo = ( { size } : { size: number } ) => {
 
     // animate text
     useEffect( () => {
-        if ( showText ) {
+        if ( textIsInitialized ) {
             // text position
             Animated.timing( textX, {
                 toValue: randomNumber( 0, size - textDims[0] ),
@@ -181,7 +183,7 @@ const AnimatedLogo = ( { size } : { size: number } ) => {
             alignItems: 'center',
         } }
         onPress={ () => {
-            setShowText( true );
+            setTextIsInitialized( true );
             animate();
             setStringIndex( getNewStringIndex() );
         } }
@@ -235,7 +237,7 @@ const AnimatedLogo = ( { size } : { size: number } ) => {
             />
         </Animated.View>
 
-        { showText && <Animated.View style={ {
+        { textIsInitialized && <Animated.View style={ {
             position: 'absolute',
             alignItems: 'flex-start',
             width: size,
