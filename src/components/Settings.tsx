@@ -23,6 +23,7 @@ import { AppContext } from '../Context';
 import { SettingsItem } from '../types';
 import SettingsGeneral from './SettingsGeneral';
 import SettingsAppearance from './SettingsAppearance';
+import SettingsMaps from './SettingsMaps';
 import ListItem from './ListItem';
 
 const settingsPages : SettingsItem[] = [
@@ -31,6 +32,12 @@ const settingsPages : SettingsItem[] = [
 		label: 'settings.general',
         left: props => <List.Icon {...props} icon="application-cog-outline" />,
 		SubActivity: <SettingsGeneral/>,
+	},
+	{
+		key: 'maps',
+		label: 'settings.maps',
+        left: props => <List.Icon {...props} icon="map" />,
+		SubActivity: <SettingsMaps/>,
 	},
 	{
 		key: 'appearance',

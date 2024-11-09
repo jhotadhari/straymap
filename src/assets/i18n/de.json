@@ -15,8 +15,25 @@
         },
         "settings": {
             "general": "Allgemein",
+            "maps": "Karten",
+            "mapsAddNew": "Neue Karte hinzufügen",
             "appearance": "Aussehen"
         },
+        "map": {
+            "addNew": "Neue Karte hinzufügen",
+            "mapType": "Kartentyp",
+            "selectType": "Wähle den Kartentyp",
+            "askCancel": "Möchtest du die Bearbeitung dieser Karte wirklich abbrechen?",
+            "typeDesc": {
+                "online-raster-xyz": "bla bla online-raster-xyz",
+                "mapsforge": "bla bla mapsforge",
+                "raster-MBtiles": "bla bla raster-MBtiles",
+                "hillshading": "bla bla hillshading"
+            }
+        },
+        "changesWillBeLost": "Änderungen gehen verloren!",
+        "keepEdit": "Weiter bearbeiten",
+        "cancel": "Abbrechen",
         "selectLang": "Sprache wählen",
         "test":"Das ist nur ein test Satz"
     }

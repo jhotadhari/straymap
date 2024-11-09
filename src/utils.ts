@@ -1,4 +1,4 @@
-
+import rnUuid from 'react-native-uuid';
 
 export const randomNumber = ( min : number, max : number ) : number => Math.random() * ( max - min ) + min;
 
@@ -13,3 +13,13 @@ export const formatSeconds = ( secNum : number ) : string => {
         ( seconds < 10 ? '0' : '' ) + seconds + 's',
     ].join( ' ' );
 };
+
+export const uuid = {
+    // enforce string type
+    create: () => {
+        const newUuid : ( string | number[] )= rnUuid.v4();
+        return 'string' === typeof newUuid
+            ? newUuid
+            : newUuid.join( '' );
+    },
+}

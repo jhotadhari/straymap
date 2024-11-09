@@ -1,8 +1,6 @@
 package com.jhotadhari.straymap;
 
 import android.content.res.AssetManager;
-import android.os.Build;
-import android.util.Log;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -38,11 +36,9 @@ public class DummyContent {
 					if ( null != mediaDirPath ) {
 						File outFile = getOutFile( mediaDirPath, parent, file );
 						if ( ! outFile.exists() ) {
-							Log.d("testtest file", parent + file.getAbsolutePath() );
 							InputStream in = assetManager.open( parent + file.getAbsolutePath() );;
 							FileOutputStream out = new FileOutputStream( outFile );;
 							outFile.getParentFile().mkdirs();
-	//						outFile.mkdirs();
 							copyFile( in, out );
 							in.close();
 							out.flush();

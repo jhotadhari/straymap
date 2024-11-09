@@ -15,11 +15,26 @@
         },
         "settings": {
             "general": "General",
+            "maps": "Maps",
+            "mapsAddNew": "Add new map",
             "appearance": "Appearance"
         },
+        "map": {
+            "addNew": "Add new map",
+            "mapType": "Map type",
+            "selectType": "Select map type",
+            "askCancel": "Do you really want to cancel editing this map?",
+            "typeDesc": {
+                "online-raster-xyz": "bla bla online-raster-xyz",
+                "mapsforge": "bla bla mapsforge",
+                "raster-MBtiles": "bla bla raster-MBtiles",
+                "hillshading": "bla bla hillshading"
+            }
+        },
+        "changesWillBeLost": "Changes will be lost!",
+        "keepEdit": "Keep editing",
+        "cancel": "Cancel",
         "selectLang": "Select language",
-
         "test": "That's just a test sentence"
-
     }
 }
