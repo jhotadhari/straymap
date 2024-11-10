@@ -10,7 +10,7 @@ import {
 /**
  * Internal dependencies
  */
-import { ThemeOption, OptionBase, HierarchyItem, AbsPathsMap } from "./types";
+import { ThemeOption, OptionBase, HierarchyItem, AbsPathsMap, MapSettings } from "./types";
 
 export type AppContextType = {
 	appDirs?: AbsPathsMap;
@@ -25,6 +25,8 @@ export type AppContextType = {
     topAppBarHeight?: number;
 	selectedHierarchyItems?: null | HierarchyItem[];
 	setSelectedHierarchyItems?: Dispatch<SetStateAction<null | HierarchyItem[]>>;
+	mapSettings?: MapSettings;
+	setMapSettings?: ( newMapSettings : MapSettings ) => void;
 };
 
 export const AppContext = createContext<AppContextType>( {} );

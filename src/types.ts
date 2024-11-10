@@ -75,7 +75,7 @@ export interface MapConfigOptionsHillshading extends MapConfigOptionsBase {
 export type MapConfigOptionsAny = MapConfigOptionsOnlineRasterXYZ
 	| MapConfigOptionsMapsforge
 	| MapConfigOptionsRasterMBtiles
-	| MapConfigOptionsHillshading
+	| MapConfigOptionsHillshading;
 
 export type MapConfig = {
     key: string;
@@ -84,3 +84,7 @@ export type MapConfig = {
     visible: boolean;
 	options: MapConfigOptionsAny;
 };
+
+export type MapSettings = {
+	layers: MapConfig[];
+}

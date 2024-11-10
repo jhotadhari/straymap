@@ -3,7 +3,6 @@
  */
 import {
     ReactNode,
-    useCallback,
     useEffect,
     useState,
 } from 'react';
@@ -17,11 +16,8 @@ import {
     Menu,
     useTheme,
     TextInput,
-    MD3DarkTheme,
-    configureFonts,
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import TextInputMask from 'react-native-text-input-mask';
 
 /**
  * Internal dependencies
@@ -29,7 +25,7 @@ import TextInputMask from 'react-native-text-input-mask';
 import ButtonHighlight from './ButtonHighlight';
 import MenuItem from './MenuItem';
 import { MapConfig, MapConfigOptionsOnlineRasterXYZ, OptionBase } from '../types';
-import { debounce, get, set, throttle } from 'lodash-es';
+import { debounce, get } from 'lodash-es';
 
 
 interface SourceOption extends OptionBase {
@@ -94,17 +90,6 @@ const sourceOptions : SourceOption[] = [
 
 ];
 
-//     'osm',
-//     'opentopomaps',
-//     'google',
-//     'esrisat',
-//     'custom',
-// ].map( key => ( {
-//     key,
-//     label: 'map.bla???.' + key,
-//     url: 'https://',
-// } ) );
-
 const labelMinWidth = 90;
 
 
@@ -119,8 +104,10 @@ const SourceControl = ( {
     const { t } = useTranslation();
     const theme = useTheme();
 
-
-	const [selectedOpt,setSelectedOpt] = useState( sourceOptions[0].key );
+	const [selectedOpt,setSelectedOpt] = useState( options.url
+        ? get( sourceOptions.find( opt => opt.url === options.url ), 'key', 'custom' )
+        : sourceOptions[0].key
+    );
 	const [customUrl,setCustomUrl] = useState<undefined | string >( undefined );
 	const [menuVisible,setMenuVisible] = useState( false );
 

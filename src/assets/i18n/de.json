@@ -20,7 +20,7 @@
         },
         "map": {
             "addNew": "Neue Karte hinzufügen",
-            "edit": "Karte bearbeiten",
+            "layerEdit": "Kartenebene bearbeiten",
             "mapType": "Kartentyp",
             "addNewLayer": "Neue Kartenebene hinzufügen",
             "addNewLayerShort": "Neue Ebene hinzufügen",

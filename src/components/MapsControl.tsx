@@ -3,7 +3,9 @@
  * External dependencies
  */
 import {
+    useContext,
     useEffect,
+    useRef,
     useState,
 } from 'react';
 import {
@@ -27,11 +29,12 @@ import DraggableGrid from 'react-native-draggable-grid';
  * Internal dependencies
  */
 import { uuid } from '../utils';
-import { MapConfig, MapConfigOptionsAny, MapConfigOptionsHillshading, MapConfigOptionsMapsforge, MapConfigOptionsOnlineRasterXYZ, MapConfigOptionsRasterMBtiles, OptionBase } from '../types';
+import { MapConfig, MapConfigOptionsAny, OptionBase } from '../types';
 import ButtonHighlight from './ButtonHighlight';
 import ModalWrapper from './ModalWrapper';
 import { debounce, get } from 'lodash-es';
 import MapsControlOnlineRasterXYZ from './MapsControlOnlineRasterXYZ';
+import { AppContext } from '../Context';
 
 const mapTypeOptions : OptionBase[] = [
     'online-raster-xyz',
@@ -43,66 +46,8 @@ const mapTypeOptions : OptionBase[] = [
     label: 'map.typeDesc.' + key,
 } ) );
 
-const initialItems : MapConfig[] = [
-    {
-        key: 'egal',
-        name: 'egal',
-        visible: false,
-        type: 'online-raster-xyz',
-        options: {
-            zoomMin: 1,
-            zoomMax: 20,
-            url: '',
-            cacheSize: 64,
-        },
-    },
-    {
-        key: 'auchegal',
-        name: 'auch egal',
-        visible: false,
-        type: 'mapsforge',
-        options: {
-            zoomMin: 1,
-            zoomMax: 20,
-            mapFile: '',
-            renderTheme: '',
-            renderStyle: '',
-            renderOverlays: [''],
-        },
-    },
-    {
-        key: 'wirklichegal',
-        name: 'wirklich egal',
-        visible: false,
-        type: 'raster-MBtiles',
-        options: {
-            zoomMin: 1,
-            zoomMax: 20,
-            mapFile: '',
-        },
-    },
-    {
-        key: 'bla',
-        name: 'bla',
-        visible: false,
-        type: 'hillshading',
-        options: {
-            zoomMin: 1,
-            zoomMax: 20,
-            hgtDirPath: '',
-            shadingAlgorithm: '',
-            shadingAlgorithmOptions: {},
-            magnitude: 90,
-            cacheSize: 64,
-        },
-    },
-];
-
 const itemHeight = 50;
-
-
 const labelMinWidth = 90;
-
 
 const getNewItem = () : MapConfig => ( {
     key: uuid.create(),
@@ -262,17 +207,29 @@ const DraggableItem = ( {
 };
 
 const MapsControl = () => {
-    const [items,setItems] = useState<MapConfig[]>( initialItems );
 
-	const { width } = useWindowDimensions();
+    const { width } = useWindowDimensions();
 	const { t } = useTranslation();
-
 	const theme = useTheme();
 
+    const {
+		mapSettings,
+		setMapSettings,
+    } = useContext( AppContext );
+
+    const [layers,setLayers] = useState<MapConfig[]>( mapSettings?.layers || [] );
+    const layersRef = useRef<MapConfig[]>( layers );
+    useEffect( () => {
+        layersRef.current = layers;
+    }, [layers])
+    const save = () => mapSettings && setMapSettings && setMapSettings( {
+        ...mapSettings,
+        layers: layersRef.current,
+    } );
+    useEffect( () => save, [] );    // Save on unmount.
+
 	const [expanded, setExpanded] = useState( true );
-
 	const [modalVisible, setModalVisible] = useState( false );
-
     const [editItem, setEditItem] = useState<null | MapConfig>( null );
 
     useEffect( () => {
@@ -285,15 +242,15 @@ const MapsControl = () => {
         if ( editItem && editItem.key === newItem.key ) {
             setEditItem( newItem );
         }
-        const itemIndex = items.findIndex( item => item.key === newItem.key );
+        const itemIndex = layers.findIndex( item => item.key === newItem.key );
         if ( -1 !== itemIndex ) {
-            const newItems = [...items];
+            const newItems = [...layers];
             newItems[itemIndex] = newItem;
-            setItems( newItems );
+            setLayers( newItems );
         } else {
-            setItems( [
+            setLayers( [
                 newItem,
-                ...items,
+                ...layers,
             ] );
         }
     };
@@ -424,12 +381,16 @@ const MapsControl = () => {
             title={ t( 'map.layer', { count: 0 } ) }
             left={ props => <List.Icon {...props} icon="map" /> }
             expanded={ expanded }
-            onPress={ () => setExpanded( ! expanded ) }
-
+            onPress={ () => {
+                if ( expanded ) {
+                    save();
+                }
+                setExpanded( ! expanded )
+            } }
         >
 
             <View style={ {
-                height: itemHeight * items.length + 8 ,
+                height: itemHeight * layers.length + 8 ,
                 width,
             } } >
                 <DraggableGrid
@@ -437,10 +398,12 @@ const MapsControl = () => {
                     numColumns={ 1 }
                     // renderItem={ DraggableItem }
                     renderItem={ renderItem }
-                    data={ items }
-                    onDragRelease={ ( newItems : MapConfig[] ) => setItems( newItems ) }
+                    data={ layers }
+                    onDragRelease={ ( newItems : MapConfig[] ) => setLayers( newItems ) }
                 />
             </View>
+
+            { ! layers.length && <Text style={ { marginLeft: 18, marginBottom: 35 } } >There are no map layers currently???</Text>}
 
             <View
                 style={ {

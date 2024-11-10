@@ -22,8 +22,6 @@ import DefaultPreference from 'react-native-default-preference';
 import {
 	PaperProvider,
 	useTheme,
-	MD3DarkTheme,
-	MD3LightTheme,
 } from 'react-native-paper';
 
 /**
@@ -47,11 +45,12 @@ import {
  */
 import '../assets/i18n/i18n';
 import TopAppBar from './TopAppBar';
-import type { OptionBase, HierarchyItem, ThemeOption, AbsPathsMap } from '../types';
+import type { OptionBase, HierarchyItem, ThemeOption, AbsPathsMap, MapConfig, MapSettings } from '../types';
 import customThemes from '../themes';
 import { AppContext } from '../Context';
 import Center from './Center';
 import { HelperModule } from '../nativeModules';
+import { get } from 'lodash-es';
 
 const useAppTheme = () => {
 
@@ -197,6 +196,33 @@ const AppWrapper = () => {
 	</PaperProvider>;
 };
 
+const useMapSettings = () => {
+	const [initialized,setInitialized] = useState( false );
+	const [mapSettings,setMapSettings] = useState<MapSettings>( {
+		layers: [],
+	} );
+    useEffect( () => {
+		DefaultPreference.get( 'mapSettings' ).then( newMapSettings => {
+			if ( newMapSettings ) {
+				setMapSettings( JSON.parse( newMapSettings ) );
+			}
+			setInitialized( true );
+		} ).catch( err => 'ERROR' + console.log( err ) );
+    }, [] );
+
+	useEffect( () => {
+		if ( initialized ) {
+			// console.log( 'debug save mapSettings', mapSettings ); // debug
+			DefaultPreference.set( 'mapSettings', JSON.stringify( mapSettings ) )
+			.catch( err => 'ERROR' + console.log( err ) );
+		}
+	}, [mapSettings] )
+	return {
+		mapSettings,
+		setMapSettings,
+	};
+};
+
 const App = ( {
 	selectedTheme,
 	setSelectedTheme,
@@ -241,6 +267,11 @@ const App = ( {
 		},
 	} );
 
+	const {
+		mapSettings,
+		setMapSettings,
+	} = useMapSettings();
+
 	const mapHeight = height - topAppBarHeight;
 
 	if ( ! appDirs ) {
@@ -260,6 +291,8 @@ const App = ( {
 		topAppBarHeight,
 		selectedHierarchyItems,
 		setSelectedHierarchyItems,
+		mapSettings,
+		setMapSettings,
 	} }>
 		<SafeAreaView style={ {
 			backgroundColor: theme.colors.background,
@@ -281,7 +314,7 @@ const App = ( {
 				<MapContainer
 					nativeNodeHandle={ mapViewNativeNodeHandle }
 					setNativeNodeHandle={ setMapViewNativeNodeHandle }
-					responseInclude={ { center: 2 } }
+					responseInclude={ { center: 2, zoomLevel: 2 } }
 					height={ mapHeight }
 					width={ width }
 					center={ {
@@ -299,10 +332,21 @@ const App = ( {
 					onResume={ response => console.log( 'lifecycle event onResume', response ) }
 				>
 
-					<LayerBitmapTile
-						url={ 'https://tile.openstreetmap.org/{Z}/{X}/{Y}.png' }
-						cacheSize={ 10 * 1024 * 1024 }
-					/>
+					{ [...mapSettings.layers].map( ( layer : MapConfig ) => {
+						if ( layer.type && layer.visible ) {
+							switch( layer.type ) {
+								case 'online-raster-xyz':
+									return <LayerBitmapTile
+										key={ layer.key }
+										zoomMin={ layer.options.zoomMin }
+										zoomMax={ layer.options.zoomMax }
+										url={ get( layer.options, 'url', '' ) }
+										cacheSize={ get( layer.options, 'cacheSize', 0 ) * 1024 * 1024 }
+									/>;
+							}
+						}
+						return null
+					} ) }
 
 					<LayerScalebar/>
 

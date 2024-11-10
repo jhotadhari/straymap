@@ -20,7 +20,7 @@
         },
         "map": {
             "addNew": "Add new map",
-            "edit": "Edit map",
+            "layerEdit": "Edit map layer",
             "mapType": "Map type",
             "addNewLayer": "Add new map layer",
             "addNewLayerShort": "Add new layer",
