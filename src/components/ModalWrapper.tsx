@@ -11,6 +11,8 @@ import {
     Pressable,
     StyleSheet,
     ViewStyle,
+    ScrollView,
+    KeyboardAvoidingView,
 } from 'react-native';
 import {
 	useTheme,
@@ -72,29 +74,31 @@ const ModalWrapper = ( {
                 />
             </Pressable>
 
-            <View
-                style={ {
-                    backgroundColor: theme.colors.background,
-                    width: width * 0.8,
-                    minHeight: height * 0.5,
-                    padding: 20,
-                    borderColor: theme.colors.outline,
-                    borderWidth: 1,
-                    borderRadius: theme.roundness,
-                } }
-            >
+            <KeyboardAvoidingView behavior="height" >
+                <ScrollView
+                    style={ {
+                        backgroundColor: theme.colors.background,
+                        width: width * 0.8,
+                        maxHeight: height * 0.75,
+                        padding: 20,
+                        borderColor: theme.colors.outline,
+                        borderWidth: 1,
+                        borderRadius: theme.roundness,
+                    } }
+                >
 
-                <View style={ { flexDirection: 'row', alignItems: 'center', marginBottom: 10 } }>
-                    { headerPrepend && 'string' === typeof headerPrepend && <Text>{ headerPrepend }</Text> }
-                    { headerPrepend && 'string' !== typeof headerPrepend && headerPrepend }
-                    { header && <Text style={ theme.fonts.headlineSmall } >{ header }</Text> }
-                </View>
+                    <View style={ { flexDirection: 'row', alignItems: 'center', marginBottom: 10 } }>
+                        { headerPrepend && 'string' === typeof headerPrepend && <Text>{ headerPrepend }</Text> }
+                        { headerPrepend && 'string' !== typeof headerPrepend && headerPrepend }
+                        { header && <Text style={ theme.fonts.headlineSmall } >{ header }</Text> }
+                    </View>
 
-                <View style={ innerStyle } >
-                    { children }
-                </View>
+                    <View style={ innerStyle } >
+                        { children }
+                    </View>
+                </ScrollView>
+            </KeyboardAvoidingView>
 
-            </View>
         </Modal>
     </Portal>;
 };
