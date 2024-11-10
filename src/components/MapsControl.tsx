@@ -272,8 +272,6 @@ const MapsControl = () => {
 	const [expanded, setExpanded] = useState( true );
 
 	const [modalVisible, setModalVisible] = useState( false );
-	const [modalDismissable, setModalDismissable] = useState( true );
-	const [askToDismiss, setAskToDismiss] = useState( false );
 
     const [editItem, setEditItem] = useState<null | MapConfig>( null );
 
@@ -312,70 +310,12 @@ const MapsControl = () => {
         { editItem && <ModalWrapper
             visible={ modalVisible }
             onDismiss={ () => {
-                if ( modalDismissable ) {
-                    setModalVisible( false );
-                    setEditItem( null );
-                } else {
-                    setAskToDismiss( true );
-                }
+                setModalVisible( false );
+                setEditItem( null );
             } }
-            header={ editItem.type ? t( 'map.edit' ) : t( 'map.addNewLayerShort' ) }
-            // headerPrepend={ editItem.type && <TouchableHighlight
-            //     underlayColor={ theme.colors.elevation.level3 }
-            //     style={ {
-            //         padding: 5,
-            //         borderRadius: theme.roundness,
-            //         marginRight: 10,
-            //     } }
-            //     onPress={ () => {
-            //         if ( askToDismiss ) {
-            //             setAskToDismiss( false );
-            //         } else {
-            //             updateItem( {
-            //                 ...editItem,
-            //                 type: null,
-            //             } );
-            //             setModalDismissable( true );
-            //         }
-            //     } }
-            // ><Icon
-            //     source="arrow-left"
-            //     size={ 25 }
-            // /></TouchableHighlight> }
+            header={ editItem.type ? t( 'map.layerEdit' ) : t( 'map.addNewLayerShort' ) }
         >
-            {/* { askToDismiss && <View>
-                <Text style={ { marginTop: 24, marginBottom: 40 }}>{ t( 'map.askCancel' ) } { t( 'changesWillBeLost' ) }</Text>
-
-                <View style={ {
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                } }>
-
-                    <ButtonHighlight
-                        onPress={ () => {
-                            setAskToDismiss( false );
-                        } }
-                        mode="contained"
-                        buttonColor={ get( theme.colors, 'successContainer' ) }
-                        textColor={ get( theme.colors, 'onSuccessContainer' ) }
-                    ><Text>{ t( 'keepEdit' ) }</Text></ButtonHighlight>
-
-                    <ButtonHighlight
-                        onPress={ () => {
-                            setAskToDismiss( false );
-                            setEditItem( null );
-                            setModalDismissable( true );
-                            setModalVisible( false );
-                        } }
-                        mode="contained"
-                        buttonColor={ theme.colors.errorContainer }
-                        textColor={ theme.colors.onErrorContainer }
-                    ><Text>{ t( 'cancel' ) }</Text></ButtonHighlight>
-
-                </View>
-            </View> } */}
-
-            { ! askToDismiss && ! editItem.type && <View>
+            { ! editItem.type && <View>
                 <Text style={ { marginBottom: 18 } }>{ t( 'map.selectType' ) }</Text>
 
                     { [...mapTypeOptions].map( ( opt : OptionBase, index: number ) => {
@@ -416,7 +356,7 @@ const MapsControl = () => {
                     } ) }
             </View> }
 
-            { ! askToDismiss && editItem.type && <View>
+            { editItem.type && <View>
 
                 <View style={ { marginBottom: 10, flexDirection: 'row' } }>
                     <Text style={ { minWidth: labelMinWidth + 12 } }>{ t( 'map.mapType' ) }:</Text>
@@ -512,10 +452,7 @@ const MapsControl = () => {
                     style={ { marginRight: 20 } }
                     icon="map-plus"
                     mode="outlined"
-                    onPress={ () => {
-                        setAskToDismiss( false );
-                        setEditItem( getNewItem() );
-                    } }
+                    onPress={ () => setEditItem( getNewItem() ) }
                 >
                     { t( 'map.addNewLayer' ) }
                 </ButtonHighlight>
