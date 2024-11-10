@@ -86,17 +86,17 @@ const fillMapConfigOptionsWithDefauls = ( type : string, options : MapConfigOpti
 
 const VisibleControl = ( {
     item,
-    updateItem,
+    updateLayer,
     style,
 } : {
     item: MapConfig;
-    updateItem: ( newItem: MapConfig ) => void,
+    updateLayer: ( newItem: MapConfig ) => void,
     style?: ViewStyle,
 } ) => {
     const theme = useTheme();
     return <TouchableHighlight
         underlayColor={ theme.colors.elevation.level3 }
-        onPress={ () => updateItem( {
+        onPress={ () => updateLayer( {
             ...item,
             visible: ! item.visible,
         } ) }
@@ -111,17 +111,17 @@ const VisibleControl = ( {
 
 const NameControl = ( {
     item,
-    updateItem,
+    updateLayer,
 } : {
     item: MapConfig;
-    updateItem: ( newItem: MapConfig ) => void,
+    updateLayer: ( newItem: MapConfig ) => void,
 } ) => {
     const theme = useTheme();
 
     const [value,setValue] = useState( item.name );
 
     const doUpdate = debounce( () => {
-        updateItem( {
+        updateLayer( {
             ...item,
             name: value,
         } );
@@ -149,13 +149,13 @@ const NameControl = ( {
 const DraggableItem = ( {
     item,
     width,
-    updateItem,
-    setEditItem,
+    updateLayer,
+    setEditLayer,
 } : {
     item: MapConfig;
     width: number;
-    updateItem: ( newItem: MapConfig ) => void,
-    setEditItem: ( newItem: MapConfig ) => void,
+    updateLayer: ( newItem: MapConfig ) => void,
+    setEditLayer: ( newItem: MapConfig ) => void,
 } ) => {
 
     const theme = useTheme();
@@ -176,7 +176,7 @@ const DraggableItem = ( {
 
         <VisibleControl
             item={ item }
-            updateItem={ updateItem }
+            updateLayer={ updateLayer }
             style={ { padding: 10 } }
         />
 
@@ -194,7 +194,7 @@ const DraggableItem = ( {
 
         <TouchableHighlight
             underlayColor={ theme.colors.elevation.level3 }
-            onPress={ () => setEditItem( item ) }
+            onPress={ () => setEditLayer( item ) }
             style={ { padding: 10, borderRadius: theme.roundness } }
         >
             <Icon
@@ -230,17 +230,17 @@ const MapsControl = () => {
 
 	const [expanded, setExpanded] = useState( true );
 	const [modalVisible, setModalVisible] = useState( false );
-    const [editItem, setEditItem] = useState<null | MapConfig>( null );
+    const [editLayer, setEditLayer] = useState<null | MapConfig>( null );
 
     useEffect( () => {
-        if ( editItem ) {
+        if ( editLayer ) {
             setModalVisible( true );
         }
-    }, [editItem] );
+    }, [editLayer] );
 
-    const updateItem = ( newItem : MapConfig ) => {
-        if ( editItem && editItem.key === newItem.key ) {
-            setEditItem( newItem );
+    const updateLayer = ( newItem : MapConfig ) => {
+        if ( editLayer && editLayer.key === newItem.key ) {
+            setEditLayer( newItem );
         }
         const itemIndex = layers.findIndex( item => item.key === newItem.key );
         if ( -1 !== itemIndex ) {
@@ -258,29 +258,29 @@ const MapsControl = () => {
     const renderItem = ( item : MapConfig ) => <View key={ item.key }><DraggableItem
         item={ item }
         width={ width }
-        updateItem={ updateItem }
-        setEditItem={ setEditItem }
+        updateLayer={ updateLayer }
+        setEditLayer={ setEditLayer }
     /></View>;
 
     return <View>
 
-        { editItem && <ModalWrapper
+        { editLayer && <ModalWrapper
             visible={ modalVisible }
             onDismiss={ () => {
                 setModalVisible( false );
-                setEditItem( null );
+                setEditLayer( null );
             } }
-            header={ editItem.type ? t( 'map.layerEdit' ) : t( 'map.addNewLayerShort' ) }
+            header={ editLayer.type ? t( 'map.layerEdit' ) : t( 'map.addNewLayerShort' ) }
         >
-            { ! editItem.type && <View>
+            { ! editLayer.type && <View>
                 <Text style={ { marginBottom: 18 } }>{ t( 'map.selectType' ) }</Text>
 
                     { [...mapTypeOptions].map( ( opt : OptionBase, index: number ) => {
                         const onPress = () => {
-                            updateItem( {
-                                ...editItem,
+                            updateLayer( {
+                                ...editLayer,
                                 type: opt.key,
-                                options: fillMapConfigOptionsWithDefauls( opt.key, editItem.options ),
+                                options: fillMapConfigOptionsWithDefauls( opt.key, editLayer.options ),
                             } );
                             // setModalDismissable( false );
                         };
@@ -313,32 +313,32 @@ const MapsControl = () => {
                     } ) }
             </View> }
 
-            { editItem.type && <View>
+            { editLayer.type && <View>
 
                 <View style={ { marginBottom: 10, flexDirection: 'row' } }>
                     <Text style={ { minWidth: labelMinWidth + 12 } }>{ t( 'map.mapType' ) }:</Text>
-                    <Text>{ editItem.type }</Text>
+                    <Text>{ editLayer.type }</Text>
                 </View>
 
                 <NameControl
-                    item={ editItem }
-                    updateItem={ updateItem }
+                    item={ editLayer }
+                    updateLayer={ updateLayer }
                 />
 
                 <View style={ { marginTop: 10, marginBottom: 10, flexDirection: 'row', alignItems: 'center' } }>
                     <Text style={ { minWidth: labelMinWidth + 12 } }>{ t( 'visibility' ) }:</Text>
                     <VisibleControl
-                        item={ editItem }
-                        updateItem={ updateItem }
+                        item={ editLayer }
+                        updateLayer={ updateLayer }
                     />
                 </View>
 
-                { 'online-raster-xyz' === editItem.type && <MapsControlOnlineRasterXYZ
-                    editItem={ editItem }
-                    updateItem={ updateItem }
+                { 'online-raster-xyz' === editLayer.type && <MapsControlOnlineRasterXYZ
+                    editLayer={ editLayer }
+                    updateLayer={ updateLayer }
                 /> }
 
-                { 'mapsforge' === editItem.type && <View>
+                { 'mapsforge' === editLayer.type && <View>
 
                     {/*
                     source mapFile
@@ -350,7 +350,7 @@ const MapsControl = () => {
 
                 </View> }
 
-                { 'raster-MBtiles' === editItem.type && <View>
+                { 'raster-MBtiles' === editLayer.type && <View>
 
                     {/*
                     source mapFile
@@ -359,7 +359,7 @@ const MapsControl = () => {
 
                 </View> }
 
-                { 'hillshading' === editItem.type && <View>
+                { 'hillshading' === editLayer.type && <View>
 
                     {/*
                     source hgtDirPath
@@ -372,6 +372,24 @@ const MapsControl = () => {
 
                 </View> }
 
+                <View style={ { marginTop: 15, marginBottom: 10, flexDirection: 'row', alignItems: 'flex-end' } }>
+                    <ButtonHighlight
+                        style={ { marginLeft: 'auto' } }
+                        onPress={ () => {
+                            const layerIndex = layers.findIndex( layer => layer.key === editLayer.key )
+                            if ( layerIndex !== -1 ) {
+                                const newLayers = [...layers];
+                                newLayers.splice( layerIndex, 1 );
+                                setLayers( newLayers );
+                                setEditLayer( null );
+                                setModalVisible( false );
+                            }
+                        } }
+                        mode="contained"
+                        buttonColor={ theme.colors.errorContainer }
+                        textColor={ theme.colors.onErrorContainer }
+                    ><Text>{ t( 'Remove layer' ) }</Text></ButtonHighlight>
+                </View>
 
             </View> }
 
@@ -415,7 +433,7 @@ const MapsControl = () => {
                     style={ { marginRight: 20 } }
                     icon="map-plus"
                     mode="outlined"
-                    onPress={ () => setEditItem( getNewItem() ) }
+                    onPress={ () => setEditLayer( getNewItem() ) }
                 >
                     { t( 'map.addNewLayer' ) }
                 </ButtonHighlight>

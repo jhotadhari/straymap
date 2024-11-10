@@ -208,20 +208,20 @@ const NumericControl = ( {
 
 
 const MapsControlOnlineRasterXYZ = ( {
-    editItem,
-    updateItem,
+    editLayer,
+    updateLayer,
 } : {
-    editItem: MapConfig;
-    updateItem: ( newItem : MapConfig ) => void;
+    editLayer: MapConfig;
+    updateLayer: ( newItem : MapConfig ) => void;
 } ) => {
 
 	const { t } = useTranslation();
 
-    const [options,setOptions] = useState<MapConfigOptionsOnlineRasterXYZ>( editItem.options );
+    const [options,setOptions] = useState<MapConfigOptionsOnlineRasterXYZ>( editLayer.options );
 
     const doUpdate = debounce( () => {
-        updateItem( {
-            ...editItem,
+        updateLayer( {
+            ...editLayer,
             options,
         } );
     }, 300 );
