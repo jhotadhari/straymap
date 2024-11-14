@@ -16,11 +16,15 @@
         "settings": {
             "general": "Allgemein",
             "maps": "Karten",
+            "mapsSaved": "Karteneinstellungen gespeichert",
+            "themeSaved": "Theme Auswahl gespeichert",
+            "langSaved": "Sprachauswahl gespeichert",
             "appearance": "Aussehen"
         },
         "map": {
             "addNew": "Neue Karte hinzufügen",
             "layerEdit": "Kartenebene bearbeiten",
+            "layerRemove": "Kartenebene entfernen",
             "mapType": "Kartentyp",
             "addNewLayer": "Neue Kartenebene hinzufügen",
             "addNewLayerShort": "Neue Ebene hinzufügen",

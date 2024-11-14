@@ -12,6 +12,7 @@ import {
 	NativeModules,
 	SafeAreaView,
 	StatusBar,
+	ToastAndroid,
 	useColorScheme,
 	useWindowDimensions,
 	View,
@@ -23,6 +24,7 @@ import {
 	PaperProvider,
 	useTheme,
 } from 'react-native-paper';
+import useDeepCompareEffect from 'use-deep-compare-effect'
 
 /**
  * react-native-mapsforge-vtm
@@ -56,6 +58,7 @@ const useAppTheme = () => {
 
 	const { t } = useTranslation();
 
+	const [initialized,setInitialized] = useState( false );
 	const systemIsDarkMode = useColorScheme() === 'dark';
 	const [selectedTheme,setSelectedTheme] = useState<null | string>( null );
 
@@ -91,7 +94,10 @@ const useAppTheme = () => {
 
 	useEffect( () => {
 		if ( null !== selectedTheme ) {
-			DefaultPreference.set( 'theme', selectedTheme ).catch( err => 'ERROR' + console.log( err ) );
+			DefaultPreference.set( 'theme', selectedTheme ).catch( err => 'ERROR' + console.log( err ) )
+			.then( () => initialized && ToastAndroid.show( t( 'settings.themeSaved' ), ToastAndroid.SHORT ) )
+			.catch( err => 'ERROR' + console.log( err ) );
+			setInitialized( true );
 		}
 	}, [selectedTheme] );
 
@@ -112,6 +118,7 @@ const useAppLang = () => {
 		{ key: 'de', label: 'Deutsch' },
 	];
 
+	const [initialized,setInitialized] = useState( false );
 	const [selectedLang,setSelectedLang] = useState<null | string>( null );
 
 	const changeLang = ( newSelectedLang : string ) : void => {
@@ -143,7 +150,10 @@ const useAppLang = () => {
 
 	useEffect( () => {
 		if ( selectedLang ) {
-			DefaultPreference.set( 'lang', selectedLang ).catch( err => 'ERROR' + console.log( err ) );
+			DefaultPreference.set( 'lang', selectedLang ).catch( err => 'ERROR' + console.log( err ) )
+			.then( () => initialized && ToastAndroid.show( t( 'settings.langSaved' ), ToastAndroid.SHORT ) )
+			.catch( err => 'ERROR' + console.log( err ) );
+			setInitialized( true );
 		}
 	}, [selectedLang]);
 
@@ -197,6 +207,7 @@ const AppWrapper = () => {
 };
 
 const useMapSettings = () => {
+	const { t } = useTranslation();
 	const [initialized,setInitialized] = useState( false );
 	const [mapSettings,setMapSettings] = useState<MapSettings>( {
 		layers: [],
@@ -209,11 +220,10 @@ const useMapSettings = () => {
 			setInitialized( true );
 		} ).catch( err => 'ERROR' + console.log( err ) );
     }, [] );
-
-	useEffect( () => {
+	useDeepCompareEffect( () => {
 		if ( initialized ) {
-			// console.log( 'debug save mapSettings', mapSettings ); // debug
 			DefaultPreference.set( 'mapSettings', JSON.stringify( mapSettings ) )
+			.then( () => ToastAndroid.show( t( 'settings.mapsSaved' ), ToastAndroid.SHORT ) )
 			.catch( err => 'ERROR' + console.log( err ) );
 		}
 	}, [mapSettings] )
