@@ -60,12 +60,14 @@ const getNewItem = () : MapConfig => ( {
     },
 } );
 
-const fillMapConfigOptionsWithDefauls = ( type : string, options : MapConfigOptionsAny ) : MapConfigOptionsAny => {
+const fillMapConfigOptionsWithDefaults = ( type : string, options : MapConfigOptionsAny ) : MapConfigOptionsAny => {
     switch( type ) {
         case 'online-raster-xyz':
             return {
                 ...options,
                 ...( null === get( options, 'cacheSize', null ) && { cacheSize: 0 } ),
+                ...( null === get( options, 'enabledZoomMin', null ) && { enabledZoomMin: options.zoomMin } ),
+                ...( null === get( options, 'enabledZoomMax', null ) && { enabledZoomMax: options.zoomMax } ),
             };
         case 'mapsforge':
             return {
@@ -131,7 +133,7 @@ const NameControl = ( {
     }, [value] );
 
     return <View style={ { marginTop: 10, marginBottom: 10, flexDirection: 'row', alignItems: 'center' } }>
-        <Text style={ { minWidth: labelMinWidth + 12 } }>Name/ID:</Text>
+        <Text style={ { minWidth: labelMinWidth + 12 } }>Name/ID</Text>
         <TextInput
             style={ { flexGrow: 1 } }
             underlineColor="transparent"
@@ -280,7 +282,7 @@ const MapsControl = () => {
                             updateLayer( {
                                 ...editLayer,
                                 type: opt.key,
-                                options: fillMapConfigOptionsWithDefauls( opt.key, editLayer.options ),
+                                options: fillMapConfigOptionsWithDefaults( opt.key, editLayer.options ),
                             } );
                             // setModalDismissable( false );
                         };
@@ -326,7 +328,7 @@ const MapsControl = () => {
                 />
 
                 <View style={ { marginTop: 10, marginBottom: 10, flexDirection: 'row', alignItems: 'center' } }>
-                    <Text style={ { minWidth: labelMinWidth + 12 } }>{ t( 'visibility' ) }:</Text>
+                    <Text style={ { minWidth: labelMinWidth + 12 } }>{ t( 'visibility' ) }</Text>
                     <VisibleControl
                         item={ editLayer }
                         updateLayer={ updateLayer }

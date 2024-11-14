@@ -42,6 +42,7 @@
         },
         "changesWillBeLost": "Changes will be lost!",
         "keepEdit": "Keep editing",
+        "enabled": "Enabled",
         "cancel": "Cancel",
         "custom": "Custom",
         "visibility": "Visibility",

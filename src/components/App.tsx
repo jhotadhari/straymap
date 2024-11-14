@@ -48,7 +48,7 @@ import { get } from 'lodash-es';
  */
 import '../assets/i18n/i18n';
 import TopAppBar from './TopAppBar';
-import type { OptionBase, HierarchyItem, ThemeOption, AbsPathsMap, MapConfig, MapSettings } from '../types';
+import type { OptionBase, HierarchyItem, ThemeOption, AbsPathsMap, MapConfig, MapSettings, MapConfigOptionsOnlineRasterXYZ } from '../types';
 import customThemes from '../themes';
 import { AppContext } from '../Context';
 import Center from './Center';
@@ -389,12 +389,15 @@ const App = ( {
 						if ( layer.type && layer.visible ) {
 							switch( layer.type ) {
 								case 'online-raster-xyz':
+									const options : MapConfigOptionsOnlineRasterXYZ = layer.options;
 									return <LayerBitmapTile
 										key={ layer.key }
-										zoomMin={ layer.options.zoomMin }
-										zoomMax={ layer.options.zoomMax }
+										zoomMin={ options.zoomMin }
+										zoomMax={ options.zoomMax }
+										enabledZoomMin={ options.enabledZoomMin }
+										enabledZoomMax={ options.enabledZoomMax }
 										url={ get( layer.options, 'url', '' ) }
-										cacheSize={ get( layer.options, 'cacheSize', 0 ) * 1024 * 1024 }
+										cacheSize={ undefined === options.cacheSize ? undefined : options.cacheSize * 1024 * 1024 }
 									/>;
 							}
 						}

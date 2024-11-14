@@ -133,7 +133,7 @@ const SourceControl = ( {
 
     return <View>
         <View style={ { flexDirection: 'row', alignItems: 'center' } }>
-            <Text style={ { minWidth: labelMinWidth } }>{ t( 'map.source' ) }:</Text>
+            <Text style={ { minWidth: labelMinWidth } }>{ t( 'map.source' ) }</Text>
             <Menu
                 contentStyle={ {
                     borderColor: theme.colors.outline,
@@ -181,18 +181,21 @@ const NumericControl = ( {
     optKey,
     options,
     setOptions,
+    labelStyle,
+    inputStyle,
 } : {
-    label: string;
+    label?: string;
     optKey: string;
     options: MapConfigOptionsOnlineRasterXYZ;
     setOptions: ( options : MapConfigOptionsOnlineRasterXYZ ) => void;
+    labelStyle?: TextStyle;
+    inputStyle?: TextStyle;
 } ) => {
-
     const theme = useTheme();
     return <View style={ { marginTop: 10, marginBottom: 10, flexDirection: 'row', alignItems: 'center' } }>
-        <Text style={ { minWidth: labelMinWidth + 12 } }>{ label }</Text>
+        { label && <Text style={ { minWidth: labelMinWidth + 12, ...labelStyle } }>{ label }</Text> }
         <TextInput
-            style={ { flexGrow: 1 } }
+            style={ { flexGrow: 1, ...inputStyle } }
             underlineColor="transparent"
             dense={ true }
             theme={ { fonts: { bodyLarge: {
@@ -203,6 +206,35 @@ const NumericControl = ( {
             value={ get( options, optKey, '' ) + '' }
             keyboardType='numeric'
         />
+    </View>;
+};
+
+const NumericControlRow = ( {   // ??? should be responsive
+    label,
+    optKeys,
+    optLabels,
+    options,
+    setOptions,
+} : {
+    label?: string;
+    optKeys: string[];
+    optLabels: string[];
+    options: MapConfigOptionsOnlineRasterXYZ;
+    setOptions: ( options : MapConfigOptionsOnlineRasterXYZ ) => void;
+} ) => {
+    return <View style={ { marginTop: 10, marginBottom: 10, flexDirection: 'row', alignItems: 'center' } }>
+        { label && <Text style={ { minWidth: labelMinWidth + 12 } }>{ label }</Text> }
+        <View style={ { flexDirection: 'row', justifyContent: 'space-between', flexGrow: 1 } }>
+            { [...optKeys].map( ( optKey, index ) => <NumericControl
+                key={ optKey }
+                label={ get( optLabels, index, undefined ) }
+                optKey={ optKey }
+                options={ options }
+                setOptions={ setOptions }
+                labelStyle={ { minWidth: 0, marginRight: 10 } }
+                inputStyle={ { flexGrow: 0, maxWidth: 60 } }
+            /> ) }
+        </View>
     </View>;
 };
 
@@ -236,16 +268,18 @@ const MapsControlOnlineRasterXYZ = ( {
             setOptions={ setOptions }
         />
 
-        <NumericControl
-            label={ 'Zoom min' }
-            optKey={ 'zoomMin' }
+        <NumericControlRow
+            label={ t( 'enabled' ) }
+            optKeys={ ['enabledZoomMin','enabledZoomMax'] }
+            optLabels={ ['min','max'] }
             options={ options }
             setOptions={ setOptions }
         />
 
-        <NumericControl
-            label={ 'Zoom max' }
-            optKey={ 'zoomMax' }
+        <NumericControlRow
+            label={ 'Zoom' }
+            optKeys={ ['zoomMin','zoomMax'] }
+            optLabels={ ['min','max'] }
             options={ options }
             setOptions={ setOptions }
         />

@@ -51,6 +51,8 @@ export interface MapConfigOptionsBase {
 export interface MapConfigOptionsOnlineRasterXYZ extends MapConfigOptionsBase {
 	url?: string;
 	cacheSize?: number;
+	enabledZoomMin?: number,
+	enabledZoomMax?: number,
 };
 
 export interface MapConfigOptionsMapsforge extends MapConfigOptionsBase {
