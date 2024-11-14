@@ -397,7 +397,7 @@ const App = ( {
 										enabledZoomMin={ options.enabledZoomMin }
 										enabledZoomMax={ options.enabledZoomMax }
 										url={ get( layer.options, 'url', '' ) }
-										cacheSize={ undefined === options.cacheSize ? undefined : options.cacheSize * 1024 * 1024 }
+										cacheSize={ undefined === options.cacheSize || 'number' !== typeof options.cacheSize ? undefined : options.cacheSize * 1024 * 1024 }
 									/>;
 							}
 						}
