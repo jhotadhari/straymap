@@ -33,7 +33,7 @@ import { MapConfig, MapConfigOptionsAny, OptionBase } from '../types';
 import ButtonHighlight from './ButtonHighlight';
 import ModalWrapper from './ModalWrapper';
 import { debounce, get } from 'lodash-es';
-import MapsControlOnlineRasterXYZ from './MapsControlOnlineRasterXYZ';
+import MapLayerControlOnlineRasterXYZ from './MapLayerControlOnlineRasterXYZ';
 import { AppContext } from '../Context';
 
 const mapTypeOptions : OptionBase[] = [
@@ -208,7 +208,7 @@ const DraggableItem = ( {
     </View>;
 };
 
-const MapsControl = () => {
+const MapLayersControl = () => {
 
     const { width } = useWindowDimensions();
 	const { t } = useTranslation();
@@ -335,7 +335,7 @@ const MapsControl = () => {
                     />
                 </View>
 
-                { 'online-raster-xyz' === editLayer.type && <MapsControlOnlineRasterXYZ
+                { 'online-raster-xyz' === editLayer.type && <MapLayerControlOnlineRasterXYZ
                     editLayer={ editLayer }
                     updateLayer={ updateLayer }
                 /> }
@@ -445,4 +445,4 @@ const MapsControl = () => {
     </View>;
 };
 
-export default MapsControl;
+export default MapLayersControl;

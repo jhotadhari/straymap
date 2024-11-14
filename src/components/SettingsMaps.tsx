@@ -18,7 +18,7 @@ import {
  * Internal dependencies
  */
 import { AppContext } from '../Context';
-import MapsControl from './MapsControl';
+import MapLayersControl from './MapLayersControl';
 
 
 const SettingsMaps : FC = () => {
@@ -39,7 +39,7 @@ const SettingsMaps : FC = () => {
         zIndex: 9,
     } } >
 
-        <MapsControl/>
+        <MapLayersControl/>
 
 
 	</ScrollView>;

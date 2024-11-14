@@ -239,7 +239,7 @@ const NumericControlRow = ( {   // ??? should be responsive
 };
 
 
-const MapsControlOnlineRasterXYZ = ( {
+const MapLayerControlOnlineRasterXYZ = ( {
     editLayer,
     updateLayer,
 } : {
@@ -295,4 +295,4 @@ const MapsControlOnlineRasterXYZ = ( {
 
 };
 
-export default MapsControlOnlineRasterXYZ;
+export default MapLayerControlOnlineRasterXYZ;
