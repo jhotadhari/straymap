@@ -260,13 +260,6 @@ const App = ( {
 		} ).catch( ( err: any ) => console.log( 'ERROR', err ) );
 	}, [] );
 
-	useMapEvents( {
-		nativeNodeHandle: mapViewNativeNodeHandle,
-		onMapEvent: event => {
-			console.log( 'onMapEvent event', event ); // debug
-		},
-	} );
-
 	const {
 		mapSettings,
 		setMapSettings,
@@ -322,14 +315,17 @@ const App = ( {
 						lat: -10.65,
 					} }
 					zoomLevel={ 12 }
-					minZoom={ 2 }
-					maxZoom={ 20 }
+					zoomMin={ 2 }
+					zoomMax={ 20 }
 					moveEnabled={ true }
 					tiltEnabled={ false }
 					rotationEnabled={ false }
 					zoomEnabled={ true }
 					onPause={ response => console.log( 'lifecycle event onPause', response ) }
 					onResume={ response => console.log( 'lifecycle event onResume', response ) }
+					onMapEvent={ response => {
+						console.log( 'onMapEvent event', response ); // debug
+					} }
 				>
 
 					{ [...mapSettings.layers].map( ( layer : MapConfig ) => {
