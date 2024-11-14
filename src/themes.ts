@@ -55,25 +55,25 @@ Object.keys( themes ).map( ( key : string ) => {
 		...themes[key],
 		fonts: configureFonts( { config: fontConfig } ),
 	};
-	// // Custom colors
-	// const colorSuccess = themes[key].dark
-	// 	? {
-	// 		"success": "rgb(130, 219, 126)",
-	// 		"onSuccess": "rgb(0, 57, 10)",
-	// 		"successContainer": "rgb(0, 83, 18)",
-	// 		"onSuccessContainer": "rgb(157, 248, 152)"
-	// 	}
-	// 	: {
-	// 		"success": "rgb(16, 109, 32)",
-	// 		"onSuccess": "rgb(255, 255, 255)",
-	// 		"successContainer": "rgb(157, 248, 152)",
-	// 		"onSuccessContainer": "rgb(0, 34, 4)"
-	// 	};
-	// // Use lodash set because ts is complaining
-	// set( themes[key], 'colors', {
-	// 	...themes[key].colors,
-	// 	...colorSuccess,
-	// } );
+	// Custom colors
+	const colorSuccess = themes[key].dark
+		? {
+			"success": "rgb(130, 219, 126)",
+			"onSuccess": "rgb(0, 57, 10)",
+			"successContainer": "rgb(0, 83, 18)",
+			"onSuccessContainer": "rgb(157, 248, 152)"
+		}
+		: {
+			"success": "rgb(16, 109, 32)",
+			"onSuccess": "rgb(255, 255, 255)",
+			"successContainer": "rgb(157, 248, 152)",
+			"onSuccessContainer": "rgb(0, 34, 4)"
+		};
+	// Use lodash set because ts is complaining
+	set( themes[key], 'colors', {
+		...themes[key].colors,
+		...colorSuccess,
+	} );
 } );
 
 export default themes;

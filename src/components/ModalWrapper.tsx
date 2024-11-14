@@ -39,6 +39,7 @@ const ModalWrapper = ( {
     header,
     headerPrepend,
     innerStyle,
+    backgroundBlur = true,
 } : {
     children?: ReactNode;
     visible: boolean;
@@ -46,32 +47,36 @@ const ModalWrapper = ( {
     header: string;
     headerPrepend?: string | ReactNode;
     innerStyle?: null | ViewStyle;
+    backgroundBlur?: boolean,
 } ) => {
-
 	const { width, height } = useWindowDimensions();
     const theme = useTheme();
-
-
     return <Portal>
         <Modal
+            theme={ backgroundBlur ? theme : { colors: {
+                ...theme.colors,
+                backdrop: 'transparent',
+            } } }
             onDismiss={ onDismiss }
             visible={ visible }
+            style={ { opacity: 1 } }
             contentContainerStyle={ {
                 width,
                 height,
                 justifyContent: 'center',
                 alignItems: 'center',
+                // ,
             } }
         >
             <Pressable
                 style={ styles.absolute }
                 onPress={ onDismiss }
             >
-                <BlurView
+                { backgroundBlur && <BlurView
                     style={ styles.absolute }
                     blurAmount={ 1 }
                     blurType={ theme.dark ? 'dark' : 'light' }
-                />
+                /> }
             </Pressable>
 
             <KeyboardAvoidingView behavior="height" >

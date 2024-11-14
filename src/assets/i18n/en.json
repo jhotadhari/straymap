@@ -46,6 +46,7 @@
         "cancel": "Cancel",
         "custom": "Custom",
         "visibility": "Visibility",
+        "whatIs": "What is \"%s\"?",
         "cacheSize": "Cache size",
         "selectLang": "Select language",
         "test": "That's just a test sentence"

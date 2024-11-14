@@ -24,15 +24,16 @@ import {
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import DraggableGrid from 'react-native-draggable-grid';
+import { debounce, get } from 'lodash-es';
 
 /**
  * Internal dependencies
  */
 import { uuid } from '../utils';
 import { MapConfig, MapConfigOptionsAny, OptionBase } from '../types';
+import InfoRowControl from './InfoRowControl';
 import ButtonHighlight from './ButtonHighlight';
 import ModalWrapper from './ModalWrapper';
-import { debounce, get } from 'lodash-es';
 import MapLayerControlOnlineRasterXYZ from './MapLayerControlOnlineRasterXYZ';
 import { AppContext } from '../Context';
 
@@ -52,7 +53,7 @@ const labelMinWidth = 90;
 const getNewItem = () : MapConfig => ( {
     key: uuid.create(),
     name: '',
-    visible: false,
+    visible: true,
     type: null,
     options: {
         zoomMin: 1,
@@ -111,7 +112,26 @@ const VisibleControl = ( {
     </TouchableHighlight>;
 };
 
-const NameControl = ( {
+const VisibleRowControl = ( {
+    item,
+    updateLayer,
+} : {
+    item: MapConfig;
+    updateLayer: ( newItem: MapConfig ) => void,
+} ) => {
+	const { t } = useTranslation();
+    return <InfoRowControl
+        label={ t( 'visibility' ) }
+        Info={ <Text>{ 'bla bla ??? info text' }</Text> }
+    >
+        <VisibleControl
+            item={ item }
+            updateLayer={ updateLayer }
+        />
+    </InfoRowControl>;
+};
+
+const NameRowControl = ( {
     item,
     updateLayer,
 } : {
@@ -119,9 +139,7 @@ const NameControl = ( {
     updateLayer: ( newItem: MapConfig ) => void,
 } ) => {
     const theme = useTheme();
-
     const [value,setValue] = useState( item.name );
-
     const doUpdate = debounce( () => {
         updateLayer( {
             ...item,
@@ -132,8 +150,10 @@ const NameControl = ( {
         doUpdate();
     }, [value] );
 
-    return <View style={ { marginTop: 10, marginBottom: 10, flexDirection: 'row', alignItems: 'center' } }>
-        <Text style={ { minWidth: labelMinWidth + 12 } }>Name/ID</Text>
+    return <InfoRowControl
+        label={ 'Name/ID' }
+        Info={ <Text>{ 'bla bla ??? info text' }</Text> }
+    >
         <TextInput
             style={ { flexGrow: 1 } }
             underlineColor="transparent"
@@ -145,7 +165,7 @@ const NameControl = ( {
             onChangeText={ newVal => setValue( newVal ) }
             value={ value }
         />
-    </View>;
+    </InfoRowControl>;
 };
 
 const DraggableItem = ( {
@@ -322,18 +342,23 @@ const MapLayersControl = () => {
                     <Text>{ editLayer.type }</Text>
                 </View>
 
-                <NameControl
+                <NameRowControl
                     item={ editLayer }
                     updateLayer={ updateLayer }
                 />
 
-                <View style={ { marginTop: 10, marginBottom: 10, flexDirection: 'row', alignItems: 'center' } }>
+                <VisibleRowControl
+                    item={ editLayer }
+                    updateLayer={ updateLayer }
+                />
+
+                {/* <View style={ { marginTop: 10, marginBottom: 10, flexDirection: 'row', alignItems: 'center' } }>
                     <Text style={ { minWidth: labelMinWidth + 12 } }>{ t( 'visibility' ) }</Text>
                     <VisibleControl
                         item={ editLayer }
                         updateLayer={ updateLayer }
                     />
-                </View>
+                </View> */}
 
                 { 'online-raster-xyz' === editLayer.type && <MapLayerControlOnlineRasterXYZ
                     editLayer={ editLayer }

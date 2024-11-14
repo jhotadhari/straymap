@@ -18,6 +18,7 @@ import {
     TextInput,
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
+import { debounce, get } from 'lodash-es';
 
 /**
  * Internal dependencies
@@ -25,7 +26,9 @@ import { useTranslation } from 'react-i18next';
 import ButtonHighlight from './ButtonHighlight';
 import MenuItem from './MenuItem';
 import { MapConfig, MapConfigOptionsOnlineRasterXYZ, OptionBase } from '../types';
-import { debounce, get } from 'lodash-es';
+import NumericRowControl from './NumericRowControl';
+import NumericMultiRowControl from './NumericMultiRowControl';
+import InfoRowControl from './InfoRowControl';
 
 
 interface SourceOption extends OptionBase {
@@ -86,14 +89,9 @@ const sourceOptions : SourceOption[] = [
         key: 'custom',
         label: 'custom',
     },
-
-
 ];
 
-const labelMinWidth = 90;
-
-
-const SourceControl = ( {
+const SourceRowControl = ( {
     options,
     setOptions,
 } : {
@@ -131,33 +129,11 @@ const SourceControl = ( {
         doUpdate();
     }, [urlIsValid, selectedOpt, customUrl] );
 
-    return <View>
-        <View style={ { flexDirection: 'row', alignItems: 'center' } }>
-            <Text style={ { minWidth: labelMinWidth } }>{ t( 'map.source' ) }</Text>
-            <Menu
-                contentStyle={ {
-                    borderColor: theme.colors.outline,
-                    borderWidth: 1,
-                } }
-                visible={ menuVisible }
-                onDismiss={ () => setMenuVisible( false ) }
-                anchor={ <ButtonHighlight style={ { marginTop: 3} } onPress={ () => setMenuVisible( true ) } >
-                    <Text>{ t( get( sourceOptions.find( opt => opt.key === selectedOpt ), 'label', '' ) ) }</Text>
-                </ButtonHighlight> }
-            >
-                { sourceOptions && [...sourceOptions].map( opt => <MenuItem
-                    key={ opt.key }
-                    onPress={ () => {
-                        setSelectedOpt( opt.key );
-                        setMenuVisible( false );
-                    } }
-                    title={ t( opt.label ) }
-                    active={ opt.key === selectedOpt }
-                /> ) }
-            </Menu>
-        </View>
-
-        <View style={ { flexDirection: 'row', alignItems: 'center', marginTop: -8, marginBottom: 10 } }>
+    return <InfoRowControl
+            label={ t( 'map.source' ) }
+            // Info={ Info }
+            Info={ <Text>{ 'bla bla ??? info text' }</Text> }
+            Below={ <View style={ { flexDirection: 'row', alignItems: 'center', marginTop: -18, marginBottom: 10 } }>
             <TextInput
                 disabled={ 'custom' !== selectedOpt }
                 placeholder="https://...{Z}/{X}/{Y}.png"
@@ -172,72 +148,32 @@ const SourceControl = ( {
                 value={ 'custom' === selectedOpt ? ( customUrl || '' ) : get( sourceOptions.find( opt => opt.key === selectedOpt ), 'url', '' ) }
                 onChangeText={ newUrl => setCustomUrl( newUrl ) }
             />
-        </View>
-    </View>;
-};
-
-const NumericControl = ( {
-    label,
-    optKey,
-    options,
-    setOptions,
-    labelStyle,
-    inputStyle,
-} : {
-    label?: string;
-    optKey: string;
-    options: MapConfigOptionsOnlineRasterXYZ;
-    setOptions: ( options : MapConfigOptionsOnlineRasterXYZ ) => void;
-    labelStyle?: TextStyle;
-    inputStyle?: TextStyle;
-} ) => {
-    const theme = useTheme();
-    return <View style={ { marginTop: 10, marginBottom: 10, flexDirection: 'row', alignItems: 'center' } }>
-        { label && <Text style={ { minWidth: labelMinWidth + 12, ...labelStyle } }>{ label }</Text> }
-        <TextInput
-            style={ { flexGrow: 1, ...inputStyle } }
-            underlineColor="transparent"
-            dense={ true }
-            theme={ { fonts: { bodyLarge: {
-                ...theme.fonts.bodySmall,
-                fontFamily: "sans-serif",
-            } } } }
-            onChangeText={ newVal => setOptions( { ...options, [optKey]: parseInt( newVal.replace(/[^0-9]/g, ''), 10 ) } ) }
-            value={ get( options, optKey, '' ) + '' }
-            keyboardType='numeric'
-        />
-    </View>;
-};
-
-const NumericControlRow = ( {   // ??? should be responsive
-    label,
-    optKeys,
-    optLabels,
-    options,
-    setOptions,
-} : {
-    label?: string;
-    optKeys: string[];
-    optLabels: string[];
-    options: MapConfigOptionsOnlineRasterXYZ;
-    setOptions: ( options : MapConfigOptionsOnlineRasterXYZ ) => void;
-} ) => {
-    return <View style={ { marginTop: 10, marginBottom: 10, flexDirection: 'row', alignItems: 'center' } }>
-        { label && <Text style={ { minWidth: labelMinWidth + 12 } }>{ label }</Text> }
-        <View style={ { flexDirection: 'row', justifyContent: 'space-between', flexGrow: 1 } }>
-            { [...optKeys].map( ( optKey, index ) => <NumericControl
-                key={ optKey }
-                label={ get( optLabels, index, undefined ) }
-                optKey={ optKey }
-                options={ options }
-                setOptions={ setOptions }
-                labelStyle={ { minWidth: 0, marginRight: 10 } }
-                inputStyle={ { flexGrow: 0, maxWidth: 60 } }
+        </View> }
+    >
+        <Menu
+            contentStyle={ {
+                borderColor: theme.colors.outline,
+                borderWidth: 1,
+            } }
+            visible={ menuVisible }
+            onDismiss={ () => setMenuVisible( false ) }
+            anchor={ <ButtonHighlight style={ { marginTop: 3} } onPress={ () => setMenuVisible( true ) } >
+                <Text>{ t( get( sourceOptions.find( opt => opt.key === selectedOpt ), 'label', '' ) ) }</Text>
+            </ButtonHighlight> }
+        >
+            { sourceOptions && [...sourceOptions].map( opt => <MenuItem
+                key={ opt.key }
+                onPress={ () => {
+                    setSelectedOpt( opt.key );
+                    setMenuVisible( false );
+                } }
+                title={ t( opt.label ) }
+                active={ opt.key === selectedOpt }
             /> ) }
-        </View>
-    </View>;
-};
+        </Menu>
+    </InfoRowControl>;
 
+};
 
 const MapLayerControlOnlineRasterXYZ = ( {
     editLayer,
@@ -263,32 +199,35 @@ const MapLayerControlOnlineRasterXYZ = ( {
 
     return <View>
 
-        <SourceControl
+        <SourceRowControl
             options={ options }
             setOptions={ setOptions }
         />
 
-        <NumericControlRow
+        <NumericMultiRowControl
             label={ t( 'enabled' ) }
             optKeys={ ['enabledZoomMin','enabledZoomMax'] }
             optLabels={ ['min','max'] }
             options={ options }
             setOptions={ setOptions }
+            Info={ <Text>{ 'bla blaa ??? info text' }</Text> }
         />
 
-        <NumericControlRow
+        <NumericMultiRowControl
             label={ 'Zoom' }
             optKeys={ ['zoomMin','zoomMax'] }
             optLabels={ ['min','max'] }
             options={ options }
             setOptions={ setOptions }
+            Info={ <Text>{ 'bla bla ??? info text' }</Text> }
         />
 
-        <NumericControl
+        <NumericRowControl
             label={ t( 'cacheSize' ) }
             optKey={ 'cacheSize' }
             options={ options }
             setOptions={ setOptions }
+            Info={ <Text>{ 'bla bla ??? info text' }</Text> }
         />
 
     </View>;

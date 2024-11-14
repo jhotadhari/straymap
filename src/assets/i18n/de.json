@@ -46,6 +46,7 @@
         "cancel": "Abbrechen",
         "custom": "Individuell einstellbar",
         "visibility": "Sichtbarkeit",
+        "whatIs": "Was ist \"%s\"?",
         "cacheSize": "Cache Größe",
         "selectLang": "Sprache wählen",
         "test":"Das ist nur ein test Satz"
