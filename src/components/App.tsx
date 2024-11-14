@@ -37,8 +37,9 @@ import {
 	LayerScalebar,
 	// useRenderStyleOptions,
 	// nativeMapModules,
-	useMapEvents,
+	type Location,
 } from 'react-native-mapsforge-vtm';
+import { get } from 'lodash-es';
 
 /**
  * Internal dependencies
@@ -50,7 +51,6 @@ import customThemes from '../themes';
 import { AppContext } from '../Context';
 import Center from './Center';
 import { HelperModule } from '../nativeModules';
-import { get } from 'lodash-es';
 
 const useAppTheme = () => {
 
@@ -223,6 +223,43 @@ const useMapSettings = () => {
 	};
 };
 
+const useInitialCenter = () => {
+	const [initialized,setInitialized] = useState( false );
+	const [initialPosition,setInitialPosition] = useState<null | {
+		center: Location,
+		zoomLevel: number,
+	}>( null );
+	useEffect( () => {
+		DefaultPreference.get( 'initialPosition' ).then( newInitialPosition => {
+			if ( newInitialPosition ) {
+				setInitialPosition( JSON.parse( newInitialPosition ) );
+			} else {
+				setInitialPosition( {
+					center: {
+						lng: -70.239,
+						lat: -10.65,
+					},
+					zoomLevel: 5,
+				} );
+			}
+		} ).catch( err => 'ERROR' + console.log( err ) );
+	}, [] );
+
+	useEffect( () => {
+		if ( initialPosition ) {
+			if ( initialized ) {
+				DefaultPreference.set( 'initialPosition', JSON.stringify( initialPosition ) )
+				.catch( err => 'ERROR' + console.log( err ) );
+			}
+			setInitialized( true );
+		}
+	}, [initialPosition] )
+	return {
+		initialPosition,
+		setInitialPosition,
+	};
+};
+
 const App = ( {
 	selectedTheme,
 	setSelectedTheme,
@@ -265,9 +302,14 @@ const App = ( {
 		setMapSettings,
 	} = useMapSettings();
 
+	const {
+		initialPosition,
+		setInitialPosition,
+	} = useInitialCenter();
+
 	const mapHeight = height - topAppBarHeight;
 
-	if ( ! appDirs ) {
+	if ( ! appDirs || ! initialPosition ) {
 		return null;
 	}
 
@@ -310,18 +352,23 @@ const App = ( {
 					responseInclude={ { center: 2, zoomLevel: 2 } }
 					height={ mapHeight }
 					width={ width }
-					center={ {
-						lng: -70.239,
-						lat: -10.65,
-					} }
-					zoomLevel={ 12 }
+					center={ initialPosition.center }
+					zoomLevel={ initialPosition.zoomLevel }
 					zoomMin={ 2 }
 					zoomMax={ 20 }
 					moveEnabled={ true }
 					tiltEnabled={ false }
 					rotationEnabled={ false }
 					zoomEnabled={ true }
-					onPause={ response => console.log( 'lifecycle event onPause', response ) }
+					onPause={ response => {
+						if ( response.center && response.zoomLevel ) {
+							setInitialPosition( {
+								center: response.center,
+								zoomLevel: response.zoomLevel,
+							} );
+						}
+					} }
+					onError={ err => console.log( 'Error', err ) }
 					onResume={ response => console.log( 'lifecycle event onResume', response ) }
 					onMapEvent={ response => {
 						console.log( 'onMapEvent event', response ); // debug
