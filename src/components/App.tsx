@@ -48,7 +48,7 @@ import {
  */
 import '../assets/i18n/i18n';
 import TopAppBar from './TopAppBar';
-import type { OptionBase, HierarchyItem, ThemeOption, AbsPathsMap, MapConfig, MapSettings, MapConfigOptionsOnlineRasterXYZ, MapConfigOptionsRasterMBtiles } from '../types';
+import type { OptionBase, HierarchyItem, ThemeOption, AbsPathsMap, LayerConfig, MapSettings, LayerConfigOptionsOnlineRasterXYZ, LayerConfigOptionsRasterMBtiles } from '../types';
 import customThemes from '../themes';
 import { AppContext } from '../Context';
 import Center from './Center';
@@ -385,12 +385,12 @@ const App = ( {
 					} }
 				>
 
-					{ [...mapSettings.layers].map( ( layer : MapConfig ) => {
+					{ [...mapSettings.layers].map( ( layer : LayerConfig ) => {
 						if ( layer.type && layer.visible ) {
 							let options;
 							switch( layer.type ) {
 								case 'online-raster-xyz':
-									options = layer.options as MapConfigOptionsOnlineRasterXYZ;
+									options = layer.options as LayerConfigOptionsOnlineRasterXYZ;
 									return <LayerBitmapTile
 										key={ layer.key }
 										zoomMin={ options.zoomMin }
@@ -401,7 +401,7 @@ const App = ( {
 										cacheSize={ undefined === options.cacheSize || 'number' !== typeof options.cacheSize ? undefined : options.cacheSize * 1024 * 1024 }
 									/>;
 								case 'raster-MBtiles':
-									options = layer.options as MapConfigOptionsRasterMBtiles;
+									options = layer.options as LayerConfigOptionsRasterMBtiles;
 									return <LayerMBTilesBitmap
 										key={ layer.key }
 										mapFile={ options.mapFile }

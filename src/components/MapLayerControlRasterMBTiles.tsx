@@ -23,7 +23,7 @@ import { debounce, get, isNull } from 'lodash-es';
  * Internal dependencies
  */
 import ButtonHighlight from './ButtonHighlight';
-import { AbsPath, MapConfig, MapConfigOptionsRasterMBtiles, OptionBase } from '../types';
+import { AbsPath, LayerConfig, LayerConfigOptionsRasterMBtiles, OptionBase } from '../types';
 import NumericMultiRowControl from './NumericMultiRowControl';
 import InfoRowControl from './InfoRowControl';
 import { AppContext } from '../Context';
@@ -44,8 +44,8 @@ const SourceRowControl = ( {
 } : {
     filePattern: RegExp;
     dirs: AbsPath[],
-    options: MapConfigOptionsRasterMBtiles;
-    setOptions: ( options : MapConfigOptionsRasterMBtiles ) => void;
+    options: LayerConfigOptionsRasterMBtiles;
+    setOptions: ( options : LayerConfigOptionsRasterMBtiles ) => void;
 } ) => {
 
     const { t } = useTranslation();
@@ -155,8 +155,8 @@ const MapLayerControlRasterMBTiles = ( {
     editLayer,
     updateLayer,
 } : {
-    editLayer: MapConfig;
-    updateLayer: ( newItem : MapConfig ) => void;
+    editLayer: LayerConfig;
+    updateLayer: ( newItem : LayerConfig ) => void;
 } ) => {
 
 	const { t } = useTranslation();
@@ -164,7 +164,7 @@ const MapLayerControlRasterMBTiles = ( {
     const { appDirs } = useContext( AppContext );
 
 
-    const [options,setOptions] = useState<MapConfigOptionsRasterMBtiles>( editLayer.options as MapConfigOptionsRasterMBtiles );
+    const [options,setOptions] = useState<LayerConfigOptionsRasterMBtiles>( editLayer.options as LayerConfigOptionsRasterMBtiles );
 
     const doUpdate = debounce( () => {
         updateLayer( {

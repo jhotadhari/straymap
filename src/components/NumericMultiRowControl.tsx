@@ -17,7 +17,7 @@ import { get } from 'lodash-es';
 /**
  * Internal dependencies
  */
-import { MapConfigOptionsAny } from '../types';
+import { LayerConfigOptionsAny } from '../types';
 import InfoRowControl from './InfoRowControl';
 
 const NumericMultiRowControl = ( {
@@ -31,7 +31,7 @@ const NumericMultiRowControl = ( {
     label?: string;
     optKeys: string[];
     optLabels: string[];
-    options: MapConfigOptionsAny;
+    options: LayerConfigOptionsAny;
     setOptions: ( options : any ) => void;
     Info?: ReactNode;
 } ) => {

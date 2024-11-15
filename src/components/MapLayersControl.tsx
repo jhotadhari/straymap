@@ -29,7 +29,7 @@ import rnUuid from 'react-native-uuid';
 /**
  * Internal dependencies
  */
-import { MapConfig, MapConfigOptionsAny, OptionBase } from '../types';
+import { LayerConfig, LayerConfigOptionsAny, OptionBase } from '../types';
 import InfoRowControl from './InfoRowControl';
 import ButtonHighlight from './ButtonHighlight';
 import ModalWrapper from './ModalWrapper';
@@ -51,7 +51,7 @@ const mapTypeOptions : OptionBase[] = [
 const itemHeight = 50;
 const labelMinWidth = 90;
 
-const getNewItem = () : MapConfig => ( {
+const getNewItem = () : LayerConfig => ( {
     key: rnUuid.v4(),
     name: '',
     visible: true,
@@ -59,7 +59,7 @@ const getNewItem = () : MapConfig => ( {
     options: {},
 } );
 
-const fillMapConfigOptionsWithDefaults = ( type : string, options : MapConfigOptionsAny ) : MapConfigOptionsAny => {
+const fillLayerConfigOptionsWithDefaults = ( type : string, options : LayerConfigOptionsAny ) : LayerConfigOptionsAny => {
     switch( type ) {
         case 'online-raster-xyz':
             return {
@@ -94,8 +94,8 @@ const VisibleControl = ( {
     updateLayer,
     style,
 } : {
-    item: MapConfig;
-    updateLayer: ( newItem: MapConfig ) => void,
+    item: LayerConfig;
+    updateLayer: ( newItem: LayerConfig ) => void,
     style?: ViewStyle,
 } ) => {
     const theme = useTheme();
@@ -118,8 +118,8 @@ const VisibleRowControl = ( {
     item,
     updateLayer,
 } : {
-    item: MapConfig;
-    updateLayer: ( newItem: MapConfig ) => void,
+    item: LayerConfig;
+    updateLayer: ( newItem: LayerConfig ) => void,
 } ) => {
 	const { t } = useTranslation();
     return <InfoRowControl
@@ -137,8 +137,8 @@ const NameRowControl = ( {
     item,
     updateLayer,
 } : {
-    item: MapConfig;
-    updateLayer: ( newItem: MapConfig ) => void,
+    item: LayerConfig;
+    updateLayer: ( newItem: LayerConfig ) => void,
 } ) => {
     const theme = useTheme();
     const [value,setValue] = useState( item.name );
@@ -176,10 +176,10 @@ const DraggableItem = ( {
     updateLayer,
     setEditLayer,
 } : {
-    item: MapConfig;
+    item: LayerConfig;
     width: number;
-    updateLayer: ( newItem: MapConfig ) => void,
-    setEditLayer: ( newItem: MapConfig ) => void,
+    updateLayer: ( newItem: LayerConfig ) => void,
+    setEditLayer: ( newItem: LayerConfig ) => void,
 } ) => {
 
     const theme = useTheme();
@@ -241,8 +241,8 @@ const MapLayersControl = () => {
 		setMapSettings,
     } = useContext( AppContext );
 
-    const [layers,setLayers] = useState<MapConfig[]>( mapSettings?.layers || [] );
-    const layersRef = useRef<MapConfig[]>( layers );
+    const [layers,setLayers] = useState<LayerConfig[]>( mapSettings?.layers || [] );
+    const layersRef = useRef<LayerConfig[]>( layers );
     useEffect( () => {
         layersRef.current = layers;
     }, [layers])
@@ -254,7 +254,7 @@ const MapLayersControl = () => {
 
 	const [expanded, setExpanded] = useState( true );
 	const [modalVisible, setModalVisible] = useState( false );
-    const [editLayer, setEditLayer] = useState<null | MapConfig>( null );
+    const [editLayer, setEditLayer] = useState<null | LayerConfig>( null );
 
     useEffect( () => {
         if ( editLayer ) {
@@ -262,7 +262,7 @@ const MapLayersControl = () => {
         }
     }, [editLayer] );
 
-    const updateLayer = ( newItem : MapConfig ) => {
+    const updateLayer = ( newItem : LayerConfig ) => {
         if ( editLayer && editLayer.key === newItem.key ) {
             setEditLayer( newItem );
         }
@@ -279,7 +279,7 @@ const MapLayersControl = () => {
         }
     };
 
-    const renderItem = ( item : MapConfig ) => <View key={ item.key }><DraggableItem
+    const renderItem = ( item : LayerConfig ) => <View key={ item.key }><DraggableItem
         item={ item }
         width={ width }
         updateLayer={ updateLayer }
@@ -304,7 +304,7 @@ const MapLayersControl = () => {
                             updateLayer( {
                                 ...editLayer,
                                 type: opt.key,
-                                options: fillMapConfigOptionsWithDefaults( opt.key, editLayer.options ),
+                                options: fillLayerConfigOptionsWithDefaults( opt.key, editLayer.options ),
                             } );
                             // setModalDismissable( false );
                         };
@@ -424,7 +424,7 @@ const MapLayersControl = () => {
                     // renderItem={ DraggableItem }
                     renderItem={ renderItem }
                     data={ layers }
-                    onDragRelease={ ( newItems : MapConfig[] ) => setLayers( newItems ) }
+                    onDragRelease={ ( newItems : LayerConfig[] ) => setLayers( newItems ) }
                 />
             </View>
 

@@ -25,7 +25,7 @@ import { debounce, get } from 'lodash-es';
  */
 import ButtonHighlight from './ButtonHighlight';
 import MenuItem from './MenuItem';
-import { MapConfig, MapConfigOptionsOnlineRasterXYZ, OptionBase } from '../types';
+import { LayerConfig, LayerConfigOptionsOnlineRasterXYZ, OptionBase } from '../types';
 import NumericRowControl from './NumericRowControl';
 import NumericMultiRowControl from './NumericMultiRowControl';
 import InfoRowControl from './InfoRowControl';
@@ -95,8 +95,8 @@ const SourceRowControl = ( {
     options,
     setOptions,
 } : {
-    options: MapConfigOptionsOnlineRasterXYZ;
-    setOptions: ( options : MapConfigOptionsOnlineRasterXYZ ) => void;
+    options: LayerConfigOptionsOnlineRasterXYZ;
+    setOptions: ( options : LayerConfigOptionsOnlineRasterXYZ ) => void;
 } ) => {
 
     const { t } = useTranslation();
@@ -179,13 +179,13 @@ const MapLayerControlOnlineRasterXYZ = ( {
     editLayer,
     updateLayer,
 } : {
-    editLayer: MapConfig;
-    updateLayer: ( newItem : MapConfig ) => void;
+    editLayer: LayerConfig;
+    updateLayer: ( newItem : LayerConfig ) => void;
 } ) => {
 
 	const { t } = useTranslation();
 
-    const [options,setOptions] = useState<MapConfigOptionsOnlineRasterXYZ>( editLayer.options as MapConfigOptionsOnlineRasterXYZ );
+    const [options,setOptions] = useState<LayerConfigOptionsOnlineRasterXYZ>( editLayer.options as LayerConfigOptionsOnlineRasterXYZ );
 
     const doUpdate = debounce( () => {
         updateLayer( {

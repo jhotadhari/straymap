@@ -58,7 +58,7 @@ export interface ThemeOption extends OptionBase {
 export type HierarchyItem = MenuItem | SettingsItem;
 
 
-export interface MapConfigOptionsOnlineRasterXYZ {
+export interface LayerConfigOptionsOnlineRasterXYZ {
 	url?: LayerBitmapTileProps['url'];
 	cacheSize?: LayerBitmapTileProps['cacheSize'];
 	enabledZoomMin?: LayerBitmapTileProps['enabledZoomMin'],
@@ -67,20 +67,20 @@ export interface MapConfigOptionsOnlineRasterXYZ {
 	zoomMax?: LayerBitmapTileProps['zoomMax'],
 };
 
-export interface MapConfigOptionsMapsforge {
+export interface LayerConfigOptionsMapsforge {
 	mapFile?: LayerMapsforgeProps['mapFile'];
 	renderTheme?: LayerMapsforgeProps['renderTheme'];
 	renderStyle?: LayerMapsforgeProps['renderStyle'];
 	renderOverlays?: LayerMapsforgeProps['renderOverlays'];
 };
 
-export interface MapConfigOptionsRasterMBtiles {
+export interface LayerConfigOptionsRasterMBtiles {
 	mapFile?: LayerMBTilesBitmapProps['mapFile'];
 	enabledZoomMin?: LayerMBTilesBitmapProps['enabledZoomMin'];
 	enabledZoomMax?: LayerMBTilesBitmapProps['enabledZoomMax'];
 };
 
-export interface MapConfigOptionsHillshading {
+export interface LayerConfigOptionsHillshading {
 	hgtDirPath?: LayerHillshadingProps['hgtDirPath'];
 	enabledZoomMin?: LayerHillshadingProps['enabledZoomMin'];
 	enabledZoomMax?: LayerHillshadingProps['enabledZoomMax'];
@@ -92,19 +92,19 @@ export interface MapConfigOptionsHillshading {
 	cacheSize?: LayerHillshadingProps['cacheSize'];
 };
 
-export type MapConfigOptionsAny = MapConfigOptionsOnlineRasterXYZ
-	| MapConfigOptionsMapsforge
-	| MapConfigOptionsRasterMBtiles
-	| MapConfigOptionsHillshading;
+export type LayerConfigOptionsAny = LayerConfigOptionsOnlineRasterXYZ
+	| LayerConfigOptionsMapsforge
+	| LayerConfigOptionsRasterMBtiles
+	| LayerConfigOptionsHillshading;
 
-export type MapConfig = {
+export type LayerConfig = {
     key: string;
     name: string;
     type: null | string;	// 'online-raster-xyz' | 'mapsforge' | 'raster-MBtiles' | 'hillshading';
     visible: boolean;
-	options: MapConfigOptionsAny;
+	options: LayerConfigOptionsAny;
 };
 
 export type MapSettings = {
-	layers: MapConfig[];
-}
+	layers: LayerConfig[];
+};
