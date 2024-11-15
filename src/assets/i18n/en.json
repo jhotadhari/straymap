@@ -22,6 +22,7 @@
             "appearance": "Appearance"
         },
         "map": {
+            "file": "Map file",
             "addNew": "Add new map",
             "layerEdit": "Edit map layer",
             "layerRemove": "Remove layer",
@@ -43,6 +44,7 @@
         "changesWillBeLost": "Changes will be lost!",
         "keepEdit": "Keep editing",
         "enabled": "Enabled",
+        "nothingSelected": "Nothing selected",
         "cancel": "Cancel",
         "custom": "Custom",
         "visibility": "Visibility",

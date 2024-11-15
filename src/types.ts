@@ -1,6 +1,21 @@
+
+/**
+ * External dependencies
+ */
 import { ReactElement, ReactNode } from "react";
 import { Style as ListStyle } from "react-native-paper/lib/typescript/components/List/utils";
 import { MD3Theme } from 'react-native-paper/lib/typescript/types';
+
+/**
+ * react-native-mapsforge-vtm
+ */
+import {
+	LayerMBTilesBitmapProps,
+	LayerBitmapTileProps,
+	LayerMapsforgeProps,
+	LayerHillshadingProps,
+} from 'react-native-mapsforge-vtm';
+
 
 export type AbsPath = `/${string}`;
 
@@ -43,35 +58,38 @@ export interface ThemeOption extends OptionBase {
 export type HierarchyItem = MenuItem | SettingsItem;
 
 
-export interface MapConfigOptionsBase {
-	zoomMin?: number,
-	zoomMax?: number,
+export interface MapConfigOptionsOnlineRasterXYZ {
+	url?: LayerBitmapTileProps['url'];
+	cacheSize?: LayerBitmapTileProps['cacheSize'];
+	enabledZoomMin?: LayerBitmapTileProps['enabledZoomMin'],
+	enabledZoomMax?: LayerBitmapTileProps['enabledZoomMax'],
+	zoomMin?: LayerBitmapTileProps['zoomMin'],
+	zoomMax?: LayerBitmapTileProps['zoomMax'],
 };
 
-export interface MapConfigOptionsOnlineRasterXYZ extends MapConfigOptionsBase {
-	url?: string;
-	cacheSize?: number;
-	enabledZoomMin?: number,
-	enabledZoomMax?: number,
+export interface MapConfigOptionsMapsforge {
+	mapFile?: LayerMapsforgeProps['mapFile'];
+	renderTheme?: LayerMapsforgeProps['renderTheme'];
+	renderStyle?: LayerMapsforgeProps['renderStyle'];
+	renderOverlays?: LayerMapsforgeProps['renderOverlays'];
 };
 
-export interface MapConfigOptionsMapsforge extends MapConfigOptionsBase {
-	mapFile?: string;
-	renderTheme?: string;
-	renderStyle?: string;
-	renderOverlays?: string[];
+export interface MapConfigOptionsRasterMBtiles {
+	mapFile?: LayerMBTilesBitmapProps['mapFile'];
+	enabledZoomMin?: LayerMBTilesBitmapProps['enabledZoomMin'];
+	enabledZoomMax?: LayerMBTilesBitmapProps['enabledZoomMax'];
 };
 
-export interface MapConfigOptionsRasterMBtiles extends MapConfigOptionsBase {
-	mapFile?: string;
-};
-
-export interface MapConfigOptionsHillshading extends MapConfigOptionsBase {
-	hgtDirPath?: string;
-	shadingAlgorithm?: string;
-	shadingAlgorithmOptions?: {};
-	magnitude?: number;
-	cacheSize?: number;
+export interface MapConfigOptionsHillshading {
+	hgtDirPath?: LayerHillshadingProps['hgtDirPath'];
+	enabledZoomMin?: LayerHillshadingProps['enabledZoomMin'];
+	enabledZoomMax?: LayerHillshadingProps['enabledZoomMax'];
+	zoomMin?: LayerHillshadingProps['zoomMin'];
+	zoomMax?: LayerHillshadingProps['zoomMax'];
+	shadingAlgorithm?: LayerHillshadingProps['shadingAlgorithm'];
+	shadingAlgorithmOptions?: LayerHillshadingProps['shadingAlgorithmOptions'];
+	magnitude?: LayerHillshadingProps['magnitude'];
+	cacheSize?: LayerHillshadingProps['cacheSize'];
 };
 
 export type MapConfigOptionsAny = MapConfigOptionsOnlineRasterXYZ

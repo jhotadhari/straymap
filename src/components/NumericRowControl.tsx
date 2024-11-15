@@ -30,7 +30,7 @@ const NumericRowControl = ( {
     label?: string;
     optKey: string;
     options: MapConfigOptionsAny;
-    setOptions: ( options : MapConfigOptionsAny ) => void;
+    setOptions: ( options : any ) => void;
     inputStyle?: TextStyle;
     Info?: ReactNode;
 } ) => {

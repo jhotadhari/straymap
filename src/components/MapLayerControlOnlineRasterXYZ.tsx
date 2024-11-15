@@ -185,7 +185,7 @@ const MapLayerControlOnlineRasterXYZ = ( {
 
 	const { t } = useTranslation();
 
-    const [options,setOptions] = useState<MapConfigOptionsOnlineRasterXYZ>( editLayer.options );
+    const [options,setOptions] = useState<MapConfigOptionsOnlineRasterXYZ>( editLayer.options as MapConfigOptionsOnlineRasterXYZ );
 
     const doUpdate = debounce( () => {
         updateLayer( {

@@ -19,23 +19,24 @@ import {
 	useTheme,
     Text,
     Icon,
-    RadioButton,
     TextInput,
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import DraggableGrid from 'react-native-draggable-grid';
 import { debounce, get } from 'lodash-es';
+import rnUuid from 'react-native-uuid';
 
 /**
  * Internal dependencies
  */
-import { uuid } from '../utils';
 import { MapConfig, MapConfigOptionsAny, OptionBase } from '../types';
 import InfoRowControl from './InfoRowControl';
 import ButtonHighlight from './ButtonHighlight';
 import ModalWrapper from './ModalWrapper';
 import MapLayerControlOnlineRasterXYZ from './MapLayerControlOnlineRasterXYZ';
 import { AppContext } from '../Context';
+import MapLayerControlRasterMBTiles from './MapLayerControlRasterMBTiles';
+import RadioListItem from './RadioListItem';
 
 const mapTypeOptions : OptionBase[] = [
     'online-raster-xyz',
@@ -51,14 +52,11 @@ const itemHeight = 50;
 const labelMinWidth = 90;
 
 const getNewItem = () : MapConfig => ( {
-    key: uuid.create(),
+    key: rnUuid.v4(),
     name: '',
     visible: true,
     type: null,
-    options: {
-        zoomMin: 1,
-        zoomMax: 20,
-    },
+    options: {},
 } );
 
 const fillMapConfigOptionsWithDefaults = ( type : string, options : MapConfigOptionsAny ) : MapConfigOptionsAny => {
@@ -67,8 +65,10 @@ const fillMapConfigOptionsWithDefaults = ( type : string, options : MapConfigOpt
             return {
                 ...options,
                 ...( null === get( options, 'cacheSize', null ) && { cacheSize: 0 } ),
-                ...( null === get( options, 'enabledZoomMin', null ) && { enabledZoomMin: options.zoomMin } ),
-                ...( null === get( options, 'enabledZoomMax', null ) && { enabledZoomMax: options.zoomMax } ),
+                ...( null === get( options, 'zoomMin', null ) && { zoomMin: 1 } ),
+                ...( null === get( options, 'zoomMax', null ) && { zoomMax: 20 } ),
+                ...( null === get( options, 'enabledZoomMin', null ) && { enabledZoomMin: 1 } ),
+                ...( null === get( options, 'enabledZoomMax', null ) && { enabledZoomMax: 20 } ),
             };
         case 'mapsforge':
             return {
@@ -77,6 +77,8 @@ const fillMapConfigOptionsWithDefaults = ( type : string, options : MapConfigOpt
         case 'raster-MBtiles':
             return {
                 ...options,
+                ...( null === get( options, 'enabledZoomMin', null ) && { enabledZoomMin: 1 } ),
+                ...( null === get( options, 'enabledZoomMax', null ) && { enabledZoomMax: 20 } ),
             };
         case 'hillshading':
             return {
@@ -306,32 +308,13 @@ const MapLayersControl = () => {
                             } );
                             // setModalDismissable( false );
                         };
-                        return <TouchableHighlight
+                        return <RadioListItem
                             key={ opt.key }
+                            opt={ opt }
                             onPress={ onPress }
-                            underlayColor={ theme.colors.elevation.level3 }
-
-                            style={ {
-                                padding: 6,
-                                marginLeft: -6,
-                                marginRight: -6,
-                                borderRadius: theme.roundness,
-                            } }
-                        >
-                            <View
-                                style={ {
-                                    justifyContent: 'space-between',
-                                    alignItems: 'center',
-                                    flexDirection: 'row',
-                                } }
-                            >
-                                <View style={ { flexGrow: 1} }>
-                                    <Text style={ { ...theme.fonts.bodyLarge } } >{ t( opt.key ) }</Text>
-                                    <Text style={ { ...theme.fonts.bodySmall } } >{ t( opt.label ) }</Text>
-                                </View>
-                                <RadioButton value={ opt.key } onPress={ onPress } />
-                            </View>
-                        </TouchableHighlight>
+                            labelExtractor={ a => a.key }
+                            descExtractor={ a => a.label }
+                        />;
                     } ) }
             </View> }
 
@@ -377,14 +360,11 @@ const MapLayersControl = () => {
 
                 </View> }
 
-                { 'raster-MBtiles' === editLayer.type && <View>
+                { 'raster-MBtiles' === editLayer.type && <MapLayerControlRasterMBTiles
+                    editLayer={ editLayer }
+                    updateLayer={ updateLayer }
 
-                    {/*
-                    source mapFile
-                    zoomMin
-                    zoomMax */}
-
-                </View> }
+                /> }
 
                 { 'hillshading' === editLayer.type && <View>
 

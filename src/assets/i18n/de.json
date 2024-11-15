@@ -22,6 +22,7 @@
             "appearance": "Aussehen"
         },
         "map": {
+            "file": "Karten Datei",
             "addNew": "Neue Karte hinzufügen",
             "layerEdit": "Kartenebene bearbeiten",
             "layerRemove": "Kartenebene entfernen",
@@ -43,6 +44,7 @@
         "changesWillBeLost": "Änderungen gehen verloren!",
         "keepEdit": "Weiter bearbeiten",
         "enabled": "Aktiviert",
+        "nothingSelected": "Nichts ausgewählt",
         "cancel": "Abbrechen",
         "custom": "Individuell einstellbar",
         "visibility": "Sichtbarkeit",

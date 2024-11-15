@@ -25,6 +25,7 @@ import {
 	useTheme,
 } from 'react-native-paper';
 import useDeepCompareEffect from 'use-deep-compare-effect'
+import { get } from 'lodash-es';
 
 /**
  * react-native-mapsforge-vtm
@@ -38,17 +39,16 @@ import {
 	// LayerPathSlopeGradient,
 	LayerScalebar,
 	// useRenderStyleOptions,
-	// nativeMapModules,
 	type Location,
+	LayerMBTilesBitmap,
 } from 'react-native-mapsforge-vtm';
-import { get } from 'lodash-es';
 
 /**
  * Internal dependencies
  */
 import '../assets/i18n/i18n';
 import TopAppBar from './TopAppBar';
-import type { OptionBase, HierarchyItem, ThemeOption, AbsPathsMap, MapConfig, MapSettings, MapConfigOptionsOnlineRasterXYZ } from '../types';
+import type { OptionBase, HierarchyItem, ThemeOption, AbsPathsMap, MapConfig, MapSettings, MapConfigOptionsOnlineRasterXYZ, MapConfigOptionsRasterMBtiles } from '../types';
 import customThemes from '../themes';
 import { AppContext } from '../Context';
 import Center from './Center';
@@ -387,9 +387,10 @@ const App = ( {
 
 					{ [...mapSettings.layers].map( ( layer : MapConfig ) => {
 						if ( layer.type && layer.visible ) {
+							let options;
 							switch( layer.type ) {
 								case 'online-raster-xyz':
-									const options : MapConfigOptionsOnlineRasterXYZ = layer.options;
+									options = layer.options as MapConfigOptionsOnlineRasterXYZ;
 									return <LayerBitmapTile
 										key={ layer.key }
 										zoomMin={ options.zoomMin }
@@ -398,6 +399,14 @@ const App = ( {
 										enabledZoomMax={ options.enabledZoomMax }
 										url={ get( layer.options, 'url', '' ) }
 										cacheSize={ undefined === options.cacheSize || 'number' !== typeof options.cacheSize ? undefined : options.cacheSize * 1024 * 1024 }
+									/>;
+								case 'raster-MBtiles':
+									options = layer.options as MapConfigOptionsRasterMBtiles;
+									return <LayerMBTilesBitmap
+										key={ layer.key }
+										mapFile={ options.mapFile }
+										enabledZoomMin={ options.enabledZoomMin }
+										enabledZoomMax={ options.enabledZoomMax }
 									/>;
 							}
 						}

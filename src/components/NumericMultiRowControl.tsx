@@ -32,7 +32,7 @@ const NumericMultiRowControl = ( {
     optKeys: string[];
     optLabels: string[];
     options: MapConfigOptionsAny;
-    setOptions: ( options : MapConfigOptionsAny ) => void;
+    setOptions: ( options : any ) => void;
     Info?: ReactNode;
 } ) => {
     const theme = useTheme();

@@ -4,6 +4,7 @@
  */
 import React, {
 	ReactNode,
+    useContext,
 } from 'react';
 import {
 	useWindowDimensions,
@@ -21,6 +22,7 @@ import {
     Modal,
 } from 'react-native-paper';
 import { BlurView } from '@react-native-community/blur';
+import { AppContext } from '../Context';
 
 const styles = StyleSheet.create( {
     absolute: {
@@ -51,7 +53,8 @@ const ModalWrapper = ( {
 } ) => {
 	const { width, height } = useWindowDimensions();
     const theme = useTheme();
-    return <Portal>
+    const context = useContext( AppContext );
+    return <Portal><AppContext.Provider value={ context } >
         <Modal
             theme={ backgroundBlur ? theme : { colors: {
                 ...theme.colors,
@@ -105,7 +108,7 @@ const ModalWrapper = ( {
             </KeyboardAvoidingView>
 
         </Modal>
-    </Portal>;
+    </AppContext.Provider></Portal>;
 };
 
 export default ModalWrapper;

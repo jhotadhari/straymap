@@ -13,13 +13,3 @@ export const formatSeconds = ( secNum : number ) : string => {
         ( seconds < 10 ? '0' : '' ) + seconds + 's',
     ].join( ' ' );
 };
-
-export const uuid = {
-    // enforce string type
-    create: () => {
-        const newUuid : ( string | number[] )= rnUuid.v4();
-        return 'string' === typeof newUuid
-            ? newUuid
-            : newUuid.join( '' );
-    },
-}
