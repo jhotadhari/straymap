@@ -379,9 +379,19 @@ const MapLayersControl = () => {
 
                 </View> }
 
-                <View style={ { marginTop: 15, marginBottom: 10, flexDirection: 'row', alignItems: 'flex-end' } }>
+                <View style={ { marginTop: 20, marginBottom: 10, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' } }>
+
                     <ButtonHighlight
-                        style={ { marginLeft: 'auto' } }
+                        onPress={ () => {
+                            setEditLayer( null );
+                            setModalVisible( false );
+                        } }
+                        mode="contained"
+                        buttonColor={ get( theme.colors, 'successContainer' ) }
+                        textColor={ get( theme.colors, 'onSuccessContainer' ) }
+                    ><Text>{ t( 'ok' ) }</Text></ButtonHighlight>
+
+                    <ButtonHighlight
                         onPress={ () => {
                             const layerIndex = layers.findIndex( layer => layer.key === editLayer.key )
                             if ( layerIndex !== -1 ) {
@@ -395,7 +405,7 @@ const MapLayersControl = () => {
                         mode="contained"
                         buttonColor={ theme.colors.errorContainer }
                         textColor={ theme.colors.onErrorContainer }
-                    ><Text>{ t( 'Remove layer' ) }</Text></ButtonHighlight>
+                    ><Text>{ t( 'map.layerRemove' ) }</Text></ButtonHighlight>
                 </View>
 
             </View> }
@@ -428,7 +438,7 @@ const MapLayersControl = () => {
                 />
             </View>
 
-            { ! layers.length && <Text style={ { marginLeft: 18, marginBottom: 35 } } >There are no map layers currently???</Text>}
+            { ! layers.length && <Text style={ { marginLeft: 18, marginBottom: 35 } } >{ t( 'map.layersNone' ) }</Text>}
 
             <View
                 style={ {

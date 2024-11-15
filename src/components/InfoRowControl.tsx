@@ -68,7 +68,7 @@ const InfoRowControl = ( {
                 mode="contained"
                 buttonColor={ get( theme.colors, 'successContainer' ) }
                 textColor={ get( theme.colors, 'onSuccessContainer' ) }
-            ><Text>{ t( 'ok ???' ) }</Text></ButtonHighlight>
+            ><Text>{ t( 'gotIt' ) }</Text></ButtonHighlight>
 
         </ModalWrapper> }
 
