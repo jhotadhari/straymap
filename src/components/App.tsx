@@ -41,6 +41,7 @@ import {
 	// useRenderStyleOptions,
 	type Location,
 	LayerMBTilesBitmap,
+	LayerHillshading,
 } from 'react-native-mapsforge-vtm';
 
 /**
@@ -48,7 +49,7 @@ import {
  */
 import '../assets/i18n/i18n';
 import TopAppBar from './TopAppBar';
-import type { OptionBase, HierarchyItem, ThemeOption, AbsPathsMap, LayerConfig, MapSettings, LayerConfigOptionsOnlineRasterXYZ, LayerConfigOptionsRasterMBtiles } from '../types';
+import type { OptionBase, HierarchyItem, ThemeOption, AbsPathsMap, LayerConfig, MapSettings, LayerConfigOptionsOnlineRasterXYZ, LayerConfigOptionsRasterMBtiles, LayerConfigOptionsHillshading } from '../types';
 import customThemes from '../themes';
 import { AppContext } from '../Context';
 import Center from './Center';
@@ -385,7 +386,7 @@ const App = ( {
 					} }
 				>
 
-					{ [...mapSettings.layers].map( ( layer : LayerConfig ) => {
+					{ [...mapSettings.layers].reverse().map( ( layer : LayerConfig, index ) => {
 						if ( layer.type && layer.visible ) {
 							let options;
 							switch( layer.type ) {
@@ -398,7 +399,7 @@ const App = ( {
 										enabledZoomMin={ options.enabledZoomMin }
 										enabledZoomMax={ options.enabledZoomMax }
 										url={ get( layer.options, 'url', '' ) }
-										cacheSize={ undefined === options.cacheSize || 'number' !== typeof options.cacheSize ? undefined : options.cacheSize * 1024 * 1024 }
+										cacheSize={ options.cacheSize }
 									/>;
 								case 'raster-MBtiles':
 									options = layer.options as LayerConfigOptionsRasterMBtiles;
@@ -407,6 +408,20 @@ const App = ( {
 										mapFile={ options.mapFile }
 										enabledZoomMin={ options.enabledZoomMin }
 										enabledZoomMax={ options.enabledZoomMax }
+									/>;
+								case 'hillshading':
+									options = layer.options as LayerConfigOptionsHillshading;
+									return <LayerHillshading
+										key={ layer.key }
+										hgtDirPath={ options.hgtDirPath }
+										zoomMin={ options.zoomMin }
+										zoomMax={ options.zoomMax }
+										enabledZoomMin={ options.enabledZoomMin }
+										enabledZoomMax={ options.enabledZoomMax }
+										magnitude={ options.magnitude }
+										cacheSize={ options.cacheSize }
+										shadingAlgorithm={ options.shadingAlgorithm }
+										shadingAlgorithmOptions={ options.shadingAlgorithmOptions }
 									/>;
 							}
 						}

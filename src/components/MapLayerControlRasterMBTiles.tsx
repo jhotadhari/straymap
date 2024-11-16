@@ -24,7 +24,7 @@ import { debounce, get, isNull } from 'lodash-es';
  */
 import ButtonHighlight from './ButtonHighlight';
 import { AbsPath, LayerConfig, LayerConfigOptionsRasterMBtiles, OptionBase } from '../types';
-import NumericMultiRowControl from './NumericMultiRowControl';
+import { NumericMultiRowControl } from './NumericRowControls';
 import InfoRowControl from './InfoRowControl';
 import { AppContext } from '../Context';
 import { useDirsInfo } from '../compose/useDirInfo';
@@ -104,7 +104,7 @@ const SourceRowControl = ( {
             visible={ modalVisible }
             backgroundBlur={ false }
             onDismiss={ () => setModalVisible( false ) }
-            header={ 'Select map file' }
+            header={ t( 'map.selectFile' ) }
         >
             { Object.keys( optsMap ).map( key => {
                 const opts = optsMap[key];

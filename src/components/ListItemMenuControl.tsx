@@ -3,15 +3,9 @@
  * External dependencies
  */
 import React, {
-	useContext,
     useState,
 } from 'react';
 import {
-	LayoutRectangle,
-	View,
-} from 'react-native';
-import {
-    List,
     Menu,
 	useTheme,
 } from 'react-native-paper';
@@ -21,21 +15,20 @@ import { useTranslation } from 'react-i18next';
 /**
  * Internal dependencies
  */
-import { AppContext } from '../Context';
 import { OptionBase } from '../types';
 import MenuItem from './MenuItem';
 import ListItem from './ListItem';
-
-const menuMarginRight = 0;
-const menuMarginTop = 10;
+import { ViewStyle } from 'react-native';
 
 const ListItemMenuControl = ( {
+	listItemStyle,
 	options,
 	value,
 	setValue,
 	anchorLabel,
 	anchorIcon,
 } : {
+	listItemStyle?: ViewStyle;
 	anchorLabel: string;
 	options?: OptionBase[];
 	value?: string;
@@ -48,38 +41,33 @@ const ListItemMenuControl = ( {
 	const theme = useTheme();
 	const { t } = useTranslation();
 	const [visible,setVisible] = useState( false );
-	const [layout,setLayout] = useState<null | LayoutRectangle>( null )
-    const { topAppBarHeight } = useContext( AppContext )
-	return <View onLayout={ e => setLayout( e.nativeEvent.layout ) } >
-		<ListItem
+	return <Menu
+		contentStyle={ {
+			borderColor: theme.colors.outline,
+			borderWidth: 1,
+		} }
+		style={ {
+			marginLeft: 100
+		} }
+		visible={ visible }
+		onDismiss={ () => setVisible( false ) }
+		anchor={ <ListItem
+			style={ listItemStyle }
 			title={ anchorLabel }
 			icon={ anchorIcon ? anchorIcon : undefined }
 			onPress={ () => setVisible( ! visible ) }
-		/>
-		{ layout && <Menu
-			contentStyle={ {
-				borderColor: theme.colors.outline,
-				borderWidth: 1,
+		/> }
+	>
+		{ options && setValue && [...options].map( opt => <MenuItem
+			key={ opt.key }
+			onPress={ () => {
+				setValue( opt.key );
+				setVisible( false );
 			} }
-			style={ { minWidth: ( layout.x + layout.width - 40 ) / 2 } }
-			visible={ visible }
-			onDismiss={ () => setVisible( false ) }
-			anchor={ {
-				x: layout.x + layout.width / 2 - menuMarginRight,
-				y: layout.y + menuMarginTop + ( topAppBarHeight ? topAppBarHeight : 0 ),
-			} }
-		>
-			{ options && setValue && [...options].map( opt => <MenuItem
-				key={ opt.key }
-				onPress={ () => {
-					setValue( opt.key );
-					setVisible( false );
-				} }
-				title={ t( opt.label ) }
-				active={ opt.key === value }
-			/> ) }
-		</Menu> }
-	</View>;
+			title={ t( opt.label ) }
+			active={ opt.key === value }
+		/> ) }
+	</Menu>;
 };
 
 export default ListItemMenuControl;

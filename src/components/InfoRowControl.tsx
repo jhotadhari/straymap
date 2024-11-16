@@ -41,7 +41,7 @@ const InfoRowControl = ( {
 } : {
     label?: string;
     children: ReactNode;
-    Info?: ReactNode;
+    Info?: ReactNode | string;
     Below?: ReactNode;
 } ) => {
 	const { t } = useTranslation();
@@ -59,7 +59,8 @@ const InfoRowControl = ( {
             /></View> }
         >
             <View style={ { marginTop: 20, marginBottom: 20 } }>
-                { Info && Info }
+                { Info && 'string' === typeof Info && <Text>{ Info }</Text> }
+                { Info && 'string' !== typeof Info && Info }
             </View>
 
             <ButtonHighlight

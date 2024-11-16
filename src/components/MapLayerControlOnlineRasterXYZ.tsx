@@ -26,8 +26,7 @@ import { debounce, get } from 'lodash-es';
 import ButtonHighlight from './ButtonHighlight';
 import MenuItem from './MenuItem';
 import { LayerConfig, LayerConfigOptionsOnlineRasterXYZ, OptionBase } from '../types';
-import NumericRowControl from './NumericRowControl';
-import NumericMultiRowControl from './NumericMultiRowControl';
+import { NumericRowControl, NumericMultiRowControl } from './NumericRowControls';
 import InfoRowControl from './InfoRowControl';
 
 

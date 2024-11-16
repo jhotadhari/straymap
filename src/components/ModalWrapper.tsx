@@ -23,6 +23,7 @@ import {
 } from 'react-native-paper';
 import { BlurView } from '@react-native-community/blur';
 import { AppContext } from '../Context';
+import { modalWidthFactor } from '../constants';
 
 const styles = StyleSheet.create( {
     absolute: {
@@ -86,7 +87,7 @@ const ModalWrapper = ( {
                 <ScrollView
                     style={ {
                         backgroundColor: theme.colors.background,
-                        width: width * 0.8,
+                        width: width * modalWidthFactor,
                         maxHeight: height * 0.75,
                         padding: 20,
                         borderColor: theme.colors.outline,

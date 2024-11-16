@@ -4,6 +4,7 @@
 import {
     TextStyle,
 	TouchableHighlight,
+	useWindowDimensions,
 	View,
 } from 'react-native';
 import {
@@ -17,6 +18,9 @@ import { useTranslation } from 'react-i18next';
  * Internal dependencies
  */
 import { OptionBase } from '../types';
+import { modalWidthFactor } from '../constants';
+
+const space = 6;
 
 const RadioListItem = ( {
     opt,
@@ -35,22 +39,21 @@ const RadioListItem = ( {
     descStyle?: TextStyle;
     status?: 'unchecked' | 'checked' | undefined;
 } ) => {
-
+	const { width } = useWindowDimensions();
 	const { t } = useTranslation();
 	const theme = useTheme();
-
     const label = labelExtractor ? labelExtractor( opt ) : null;
     const desc = descExtractor ? descExtractor( opt ) : null;
-
     return <TouchableHighlight
         key={ opt.key }
         onPress={ onPress }
         underlayColor={ theme.colors.elevation.level3 }
         style={ {
-            padding: 6,
-            marginLeft: -6,
-            marginRight: -6,
+            padding: space,
+            marginLeft: -space,
+            marginRight: -space,
             borderRadius: theme.roundness,
+            width: width * modalWidthFactor - 4 * space,
         } }
     >
         <View
@@ -60,7 +63,7 @@ const RadioListItem = ( {
                 flexDirection: 'row',
             } }
         >
-            <View style={ { flexGrow: 1} }>
+            <View style={ { flexGrow: 1 } }>
                 { label && <Text style={ { ...theme.fonts.bodyLarge, ...labelStyle } } >{ t( label ) }</Text> }
                 { desc && <Text style={ { ...theme.fonts.bodySmall, ...descStyle } } >{ t( desc ) }</Text> }
             </View>

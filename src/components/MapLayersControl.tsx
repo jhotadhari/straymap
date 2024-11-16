@@ -37,6 +37,8 @@ import MapLayerControlOnlineRasterXYZ from './MapLayerControlOnlineRasterXYZ';
 import { AppContext } from '../Context';
 import MapLayerControlRasterMBTiles from './MapLayerControlRasterMBTiles';
 import RadioListItem from './RadioListItem';
+import MapLayerControlHillshading from './MapLayerControlHillshading';
+import { LayerHillshading } from 'react-native-mapsforge-vtm';
 
 const mapTypeOptions : OptionBase[] = [
     'online-raster-xyz',
@@ -83,6 +85,18 @@ const fillLayerConfigOptionsWithDefaults = ( type : string, options : LayerConfi
         case 'hillshading':
             return {
                 ...options,
+                ...( null === get( options, 'cacheSize', null ) && { cacheSize: 0 } ),
+                ...( null === get( options, 'zoomMin', null ) && { zoomMin: 1 } ),
+                ...( null === get( options, 'zoomMax', null ) && { zoomMax: 20 } ),
+                ...( null === get( options, 'enabledZoomMin', null ) && { enabledZoomMin: 1 } ),
+                ...( null === get( options, 'enabledZoomMax', null ) && { enabledZoomMax: 20 } ),
+                ...( null === get( options, 'magnitude', null ) && { magnitude: 90 } ),
+                ...( null === get( options, 'shadingAlgorithm', null ) && { shadingAlgorithm: Object.values( LayerHillshading.shadingAlgorithms )[0] } ),
+                ...( null === get( options, 'shadingAlgorithmOptions', null ) && { shadingAlgorithmOptions: {
+                    linearity: 0.1,
+                    scale: 0.666,
+                    heightAngle: 50,
+                } } ),
             };
         default:
             return options;
@@ -363,23 +377,14 @@ const MapLayersControl = () => {
                 { 'raster-MBtiles' === editLayer.type && <MapLayerControlRasterMBTiles
                     editLayer={ editLayer }
                     updateLayer={ updateLayer }
-
                 /> }
 
-                { 'hillshading' === editLayer.type && <View>
+                { 'hillshading' === editLayer.type && <MapLayerControlHillshading
+                    editLayer={ editLayer }
+                    updateLayer={ updateLayer }
+                /> }
 
-                    {/*
-                    source hgtDirPath
-                    zoomMin
-                    zoomMax
-                    shadingAlgorithm
-                    shadingAlgorithmOptions
-                    magnitude
-                    cacheSize */}
-
-                </View> }
-
-                <View style={ { marginTop: 20, marginBottom: 10, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' } }>
+                <View style={ { marginTop: 20, marginBottom: 40, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' } }>
 
                     <ButtonHighlight
                         onPress={ () => {
