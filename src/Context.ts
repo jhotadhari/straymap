@@ -26,7 +26,7 @@ export type AppContextType = {
 	selectedHierarchyItems?: null | HierarchyItem[];
 	setSelectedHierarchyItems?: Dispatch<SetStateAction<null | HierarchyItem[]>>;
 	mapSettings?: MapSettings;
-	setMapSettings?: ( newMapSettings : MapSettings ) => void;
+	setMapSettings?: Dispatch<SetStateAction<MapSettings>>;
 };
 
 export const AppContext = createContext<AppContextType>( {} );

@@ -33,7 +33,7 @@ import { LayerHillshading } from 'react-native-mapsforge-vtm';
 /**
  * Internal dependencies
  */
-import { LayerConfig, LayerConfigOptionsAny, OptionBase } from '../types';
+import { LayerConfig, LayerConfigOptionsAny, MapSettings, OptionBase } from '../types';
 import InfoRowControl from './InfoRowControl';
 import ButtonHighlight from './ButtonHighlight';
 import ModalWrapper from './ModalWrapper';
@@ -43,6 +43,7 @@ import MapLayerControlRasterMBTiles from './MapLayerControlRasterMBTiles';
 import RadioListItem from './RadioListItem';
 import MapLayerControlHillshading from './MapLayerControlHillshading';
 import InfoButton from './InfoButton';
+import useDeepCompareEffect from 'use-deep-compare-effect';
 
 type LayerType = 'base' | 'overlay';
 
@@ -284,10 +285,10 @@ const MapLayersControl = () => {
     useEffect( () => {
         layersRef.current = layers;
     }, [layers])
-    const save = () => mapSettings && setMapSettings && setMapSettings( {
+    const save = () => mapSettings && setMapSettings && setMapSettings( ( mapSettings: MapSettings ) => ( {
         ...mapSettings,
         layers: layersRef.current,
-    } );
+    } ) );
     useEffect( () => save, [] );    // Save on unmount.
 
 	const [expanded, setExpanded] = useState( true );
