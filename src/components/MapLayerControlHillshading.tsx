@@ -246,6 +246,7 @@ const AlgorithmControl = ( {
                 optKey={ 'scale' }
                 options={ algOpts }
                 setOptions={ setAlgOpts }
+                validate={ val => val > 0 }
                 numType="float"
                 Info={ t( 'scaleWhat' ) }
             /> }
@@ -255,7 +256,7 @@ const AlgorithmControl = ( {
                 optKey={ 'heightAngle' }
                 options={ algOpts }
                 setOptions={ setAlgOpts }
-                range={ { min: 0, max: 90 } }
+                validate={ val => val >= 0 && val <= 90 }
                 Info={ t( 'heightAngleWhat' ) }
             /> }
 
@@ -295,7 +296,6 @@ const MapLayerControlHillshading = ( {
 
     const { appDirs } = useContext( AppContext );
 
-
     const [options,setOptions] = useState<LayerConfigOptionsHillshading>( editLayer.options as LayerConfigOptionsHillshading );
 
     const doUpdate = debounce( () => {
@@ -327,6 +327,7 @@ const MapLayerControlHillshading = ( {
             optLabels={ ['min','max'] }
             options={ options }
             setOptions={ setOptions }
+            validate={ val => val >= 0 }
             Info={ 'bla blaa ??? info text' }
         />
 
@@ -336,6 +337,7 @@ const MapLayerControlHillshading = ( {
             optLabels={ ['min','max'] }
             options={ options }
             setOptions={ setOptions }
+            validate={ val => val >= 0 }
             Info={ 'bla bla ??? info text' }
         />
 
@@ -344,6 +346,7 @@ const MapLayerControlHillshading = ( {
             optKey={ 'magnitude' }
             options={ options }
             setOptions={ setOptions }
+            validate={ val => val > 0 }
             Info={ 'bla bla ??? info text' }
         />
 
@@ -352,6 +355,7 @@ const MapLayerControlHillshading = ( {
             optKey={ 'cacheSize' }
             options={ options }
             setOptions={ setOptions }
+            validate={ val => val >= 0 }
             Info={ 'bla bla ??? info text' }
         />
 

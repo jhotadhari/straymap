@@ -209,6 +209,7 @@ const MapLayerControlOnlineRasterXYZ = ( {
             optLabels={ ['min','max'] }
             options={ options }
             setOptions={ setOptions }
+            validate={ val => val >= 0 }
             Info={ <Text>{ 'bla blaa ??? info text' }</Text> }
         />
 
@@ -218,6 +219,7 @@ const MapLayerControlOnlineRasterXYZ = ( {
             optLabels={ ['min','max'] }
             options={ options }
             setOptions={ setOptions }
+            validate={ val => val >= 0 }
             Info={ <Text>{ 'bla bla ??? info text' }</Text> }
         />
 
@@ -226,6 +228,7 @@ const MapLayerControlOnlineRasterXYZ = ( {
             optKey={ 'cacheSize' }
             options={ options }
             setOptions={ setOptions }
+            validate={ val => val >= 0 }
             Info={ <Text>{ 'bla bla ??? info text' }</Text> }
         />
 

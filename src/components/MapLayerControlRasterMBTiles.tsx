@@ -191,6 +191,7 @@ const MapLayerControlRasterMBTiles = ( {
             optLabels={ ['min','max'] }
             options={ options }
             setOptions={ setOptions }
+            validate={ val => val >= 0 }
             Info={ <Text>{ 'bla blaa ??? info text' }</Text> }
         />
 
