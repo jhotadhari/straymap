@@ -104,6 +104,7 @@ const SourceRowControl = ( {
             visible={ modalVisible }
             backgroundBlur={ false }
             onDismiss={ () => setModalVisible( false ) }
+            onHeaderBackPress={ () => setModalVisible( false ) }
             header={ t( 'map.selectFile' ) }
         >
             { Object.keys( optsMap ).map( key => {
@@ -140,9 +141,20 @@ const SourceRowControl = ( {
                     </View> }
                 </View>;
             } ) }
+
+            <ButtonHighlight
+                style={ { marginTop: 10 } }
+                onPress={ () => {
+                    setModalVisible( false );
+                } }
+                mode="contained"
+                buttonColor={ get( theme.colors, 'successContainer' ) }
+                textColor={ get( theme.colors, 'onSuccessContainer' ) }
+            ><Text>{ t( 'ok' ) }</Text></ButtonHighlight>
+
         </ModalWrapper> }
 
-        <View style={ { marginTop: 10, marginBottom: 10, flexDirection: 'row', alignItems: 'center' } }>
+        <View style={ { flexDirection: 'row', alignItems: 'center' } }>
             <ButtonHighlight style={ { marginTop: 3} } onPress={ () => setModalVisible( true ) } >
                 <Text>{ t( selectedOpt ? get( Object.values( optsMap ).flat().find( opt => opt.key === selectedOpt ), 'label', '' ) : 'nothingSelected' ) }</Text>
             </ButtonHighlight>
@@ -162,7 +174,6 @@ const MapLayerControlRasterMBTiles = ( {
 	const { t } = useTranslation();
 
     const { appDirs } = useContext( AppContext );
-
 
     const [options,setOptions] = useState<LayerConfigOptionsRasterMBtiles>( editLayer.options as LayerConfigOptionsRasterMBtiles );
 

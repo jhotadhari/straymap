@@ -95,6 +95,7 @@ const SourceRowControl = ( {
             backgroundBlur={ false }
             onDismiss={ () => setModalVisible( false ) }
             header={ t( 'map.selectDemDir' ) }
+            onHeaderBackPress={ () => setModalVisible( false ) }
         >
             { [...opts].map( opt => {
                 return <View
@@ -214,6 +215,7 @@ const AlgorithmControl = ( {
             visible={ modalVisible }
             backgroundBlur={ false }
             onDismiss={ () => setModalVisible( false ) }
+            onHeaderBackPress={ () => setModalVisible( false ) }
             header={ t( 'shadingAlgorithm' ) }
         >
             <InfoRowControl

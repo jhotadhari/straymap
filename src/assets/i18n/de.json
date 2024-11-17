@@ -60,7 +60,7 @@
         "linearity": "Linearität",
         "linearityWhat": "1 oder höher für eine lineare Neigung.\n\n0 oder niedriger für einen dreifach angewandten Sinus der Neigung, welcher Neigungsänderungen in nahezu flachen Bereichen stark betont, aber Details in steilen Hängen reduziert.\n\nStandardwert 0.1",
         "algorithm": "Algorithmus",
-        "shadingAlgorithm": "Schattierungsalgorithmus",
+        "shadingAlgorithm": "Schattierungs-Algorithmus",
         "gotIt": "Alles klar, verstanden",
         "visibility": "Sichtbarkeit",
         "whatIs": "Was ist \"%s\"?",

@@ -13,7 +13,6 @@ import {
 import {
 	useTheme,
     Text,
-    Icon,
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { sprintf } from 'sprintf-js';
@@ -52,11 +51,8 @@ const InfoRowControl = ( {
             visible={ modalVisible }
             backgroundBlur={ false }
             onDismiss={ () => setModalVisible( false ) }
+            onHeaderBackPress={ () => setModalVisible( false ) }
             header={  sprintf( t( 'whatIs' ), ( label || '' ) ) }
-            headerPrepend={ <View style={ { marginRight: 10 } }><Icon
-                source="information-outline"
-                size={ 25 }
-            /></View> }
         >
             <View style={ { marginTop: 20, marginBottom: 20 } }>
                 { Info && 'string' === typeof Info && <Text>{ Info }</Text> }

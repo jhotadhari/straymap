@@ -14,16 +14,24 @@ import {
     ViewStyle,
     ScrollView,
     KeyboardAvoidingView,
+    TouchableHighlight,
+    Keyboard,
 } from 'react-native';
 import {
 	useTheme,
     Text,
     Portal,
     Modal,
+    Icon,
 } from 'react-native-paper';
 import { BlurView } from '@react-native-community/blur';
+
+/**
+ * Internal dependencies
+ */
 import { AppContext } from '../Context';
 import { modalWidthFactor } from '../constants';
+import useKeyboardShown from '../compose/useKeyboardShown';
 
 const styles = StyleSheet.create( {
     absolute: {
@@ -39,6 +47,7 @@ const ModalWrapper = ( {
     children,
     visible,
     onDismiss,
+    onHeaderBackPress,
     header,
     headerPrepend,
     innerStyle,
@@ -47,6 +56,7 @@ const ModalWrapper = ( {
     children?: ReactNode;
     visible: boolean;
     onDismiss: () => void;
+    onHeaderBackPress?: () => void;
     header: string;
     headerPrepend?: string | ReactNode;
     innerStyle?: null | ViewStyle;
@@ -55,13 +65,20 @@ const ModalWrapper = ( {
 	const { width, height } = useWindowDimensions();
     const theme = useTheme();
     const context = useContext( AppContext );
+    const keyboardShown = useKeyboardShown();
     return <Portal><AppContext.Provider value={ context } >
         <Modal
             theme={ backgroundBlur ? theme : { colors: {
                 ...theme.colors,
                 backdrop: 'transparent',
             } } }
-            onDismiss={ onDismiss }
+            onDismiss={ () => {
+                if ( keyboardShown ) {
+                    Keyboard.dismiss();
+                } else {
+                    onDismiss();
+                }
+            } }
             visible={ visible }
             style={ { opacity: 1 } }
             contentContainerStyle={ {
@@ -69,12 +86,17 @@ const ModalWrapper = ( {
                 height,
                 justifyContent: 'center',
                 alignItems: 'center',
-                // ,
             } }
         >
             <Pressable
                 style={ styles.absolute }
-                onPress={ onDismiss }
+                onPress={ () => {
+                    if ( keyboardShown ) {
+                        Keyboard.dismiss();
+                    } else {
+                        onDismiss();
+                    }
+                } }
             >
                 { backgroundBlur && <BlurView
                     style={ styles.absolute }
@@ -95,11 +117,37 @@ const ModalWrapper = ( {
                         borderRadius: theme.roundness,
                     } }
                 >
-
-                    <View style={ { flexDirection: 'row', alignItems: 'center', marginBottom: 10 } }>
+                    <View style={ {
+                        width: '90%',
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        marginBottom: 10,
+                    } }>
+                        { onHeaderBackPress && <TouchableHighlight
+                            underlayColor={ theme.colors.elevation.level3 }
+                            style={ {
+                                padding: 5,
+                                borderRadius: theme.roundness,
+                                marginRight: 10,
+                            } }
+                            onPress={ () => {
+                                if ( keyboardShown ) {
+                                    Keyboard.dismiss();
+                                } else {
+                                    onHeaderBackPress();
+                                }
+                            }  }
+                        ><Icon
+                            source="arrow-left"
+                            size={ 25 }
+                        /></TouchableHighlight> }
                         { headerPrepend && 'string' === typeof headerPrepend && <Text>{ headerPrepend }</Text> }
                         { headerPrepend && 'string' !== typeof headerPrepend && headerPrepend }
-                        { header && <Text style={ theme.fonts.headlineSmall } >{ header }</Text> }
+                        { header && <View>
+                            { header.split( '-' ).map( ( str, index ) => <Text key={ index } style={ theme.fonts.headlineSmall } >
+                                { str + ( index < header.split( '-' ).length - 1 ? '-' : '' ) }
+                            </Text> ) }
+                        </View>}
                     </View>
 
                     <View style={ innerStyle } >
