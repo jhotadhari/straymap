@@ -23,8 +23,13 @@ import {
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import DraggableGrid from 'react-native-draggable-grid';
-import { debounce, get } from 'lodash-es';
+import { debounce, findIndex, get } from 'lodash-es';
 import rnUuid from 'react-native-uuid';
+
+/**
+ * react-native-mapsforge-vtm dependencies
+ */
+import { LayerHillshading } from 'react-native-mapsforge-vtm';
 
 /**
  * Internal dependencies
@@ -38,17 +43,36 @@ import { AppContext } from '../Context';
 import MapLayerControlRasterMBTiles from './MapLayerControlRasterMBTiles';
 import RadioListItem from './RadioListItem';
 import MapLayerControlHillshading from './MapLayerControlHillshading';
-import { LayerHillshading } from 'react-native-mapsforge-vtm';
 
-const mapTypeOptions : OptionBase[] = [
-    'online-raster-xyz',
-    'mapsforge',
-    'raster-MBtiles',
-    'hillshading',
-].map( key => ( {
-    key,
-    label: 'map.typeDesc.' + key,
+type LayerType = 'base' | 'overlay';
+
+interface LayerOption extends OptionBase {
+    type: LayerType;
+};
+
+const mapTypeOptions : LayerOption[] = [
+    {
+        key: 'online-raster-xyz',
+        type: 'base' as LayerOption['type'],
+    },
+    {
+        key: 'mapsforge',
+        type: 'base' as LayerOption['type'],
+    },
+    {
+        key: 'raster-MBtiles',
+        type: 'base' as LayerOption['type'],
+    },
+    {
+        key: 'hillshading',
+        type: 'overlay' as LayerOption['type'],
+    },
+].map( opt => ( {
+    ...opt,
+    label: 'map.typeDesc.' + opt.key,
 } ) );
+
+const getLayerType = ( layer : LayerConfig ) : ( LayerType | null ) => get( mapTypeOptions.find( opt => opt.key === layer.type ), 'type', null );
 
 const itemHeight = 50;
 const labelMinWidth = 90;
@@ -109,7 +133,7 @@ const VisibleControl = ( {
     style,
 } : {
     item: LayerConfig;
-    updateLayer: ( newItem: LayerConfig ) => void,
+    updateLayer: ( newLayer: LayerConfig ) => void,
     style?: ViewStyle,
 } ) => {
     const theme = useTheme();
@@ -133,7 +157,7 @@ const VisibleRowControl = ( {
     updateLayer,
 } : {
     item: LayerConfig;
-    updateLayer: ( newItem: LayerConfig ) => void,
+    updateLayer: ( newLayer: LayerConfig ) => void,
 } ) => {
 	const { t } = useTranslation();
     return <InfoRowControl
@@ -152,7 +176,7 @@ const NameRowControl = ( {
     updateLayer,
 } : {
     item: LayerConfig;
-    updateLayer: ( newItem: LayerConfig ) => void,
+    updateLayer: ( newLayer: LayerConfig ) => void,
 } ) => {
     const theme = useTheme();
     const [value,setValue] = useState( item.name );
@@ -192,8 +216,8 @@ const DraggableItem = ( {
 } : {
     item: LayerConfig;
     width: number;
-    updateLayer: ( newItem: LayerConfig ) => void,
-    setEditLayer: ( newItem: LayerConfig ) => void,
+    updateLayer: ( newLayer: LayerConfig ) => void,
+    setEditLayer: ( newLayer: LayerConfig ) => void,
 } ) => {
 
     const theme = useTheme();
@@ -276,20 +300,28 @@ const MapLayersControl = () => {
         }
     }, [editLayer] );
 
-    const updateLayer = ( newItem : LayerConfig ) => {
-        if ( editLayer && editLayer.key === newItem.key ) {
-            setEditLayer( newItem );
+    const updateLayer = ( newLayer : LayerConfig ) => {
+        if ( editLayer && editLayer.key === newLayer.key ) {
+            setEditLayer( newLayer );
         }
-        const itemIndex = layers.findIndex( item => item.key === newItem.key );
+        const itemIndex = layers.findIndex( item => item.key === newLayer.key );
         if ( -1 !== itemIndex ) {
-            const newItems = [...layers];
-            newItems[itemIndex] = newItem;
-            setLayers( newItems );
+            const newLayers = [...layers];
+            newLayers[itemIndex] = newLayer;
+            setLayers( newLayers );
         } else {
-            setLayers( [
-                newItem,
-                ...layers,
-            ] );
+            let insertIndex = 0;
+            if ( 'base' === getLayerType( newLayer ) ) {
+                const indexFirstBase = layers.findIndex( layer => 'base' === getLayerType( layer ) );
+                insertIndex = indexFirstBase !== -1 ? indexFirstBase : insertIndex;
+            }
+            const newLayers = [...layers];
+            newLayers.splice(
+                insertIndex,
+                0,
+                newLayer
+            );
+            setLayers( newLayers );
         }
     };
 
@@ -313,7 +345,7 @@ const MapLayersControl = () => {
             { ! editLayer.type && <View>
                 <Text style={ { marginBottom: 18 } }>{ t( 'map.selectType' ) }</Text>
 
-                    { [...mapTypeOptions].map( ( opt : OptionBase, index: number ) => {
+                    { [...mapTypeOptions].map( ( opt : LayerOption, index: number ) => {
                         const onPress = () => {
                             updateLayer( {
                                 ...editLayer,
@@ -439,7 +471,7 @@ const MapLayersControl = () => {
                     // renderItem={ DraggableItem }
                     renderItem={ renderItem }
                     data={ layers }
-                    onDragRelease={ ( newItems : LayerConfig[] ) => setLayers( newItems ) }
+                    onDragRelease={ ( newLayers : LayerConfig[] ) => setLayers( newLayers ) }
                 />
             </View>
 

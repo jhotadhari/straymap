@@ -18,6 +18,11 @@ import { debounce, get } from 'lodash-es';
 import { openDocumentTree } from "react-native-scoped-storage"
 
 /**
+ * react-native-mapsforge-vtm dependencies
+ */
+import { LayerHillshading, ShadingAlgorithm, ShadingAlgorithmOptions } from 'react-native-mapsforge-vtm';
+
+/**
  * Internal dependencies
  */
 import ButtonHighlight from './ButtonHighlight';
@@ -27,7 +32,6 @@ import { AppContext } from '../Context';
 import ModalWrapper from './ModalWrapper';
 import RadioListItem from './RadioListItem';
 import { NumericRowControl, NumericMultiRowControl } from './NumericRowControls';
-import { LayerHillshading, ShadingAlgorithm, ShadingAlgorithmOptions } from 'react-native-mapsforge-vtm';
 import ListItemMenuControl from './ListItemMenuControl';
 
 const SourceRowControl = ( {

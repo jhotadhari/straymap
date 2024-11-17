@@ -28,7 +28,7 @@ import useDeepCompareEffect from 'use-deep-compare-effect'
 import { get } from 'lodash-es';
 
 /**
- * react-native-mapsforge-vtm
+ * react-native-mapsforge-vtm dependencies
  */
 import {
 	MapContainer,

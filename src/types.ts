@@ -7,7 +7,7 @@ import { Style as ListStyle } from "react-native-paper/lib/typescript/components
 import { MD3Theme } from 'react-native-paper/lib/typescript/types';
 
 /**
- * react-native-mapsforge-vtm
+ * react-native-mapsforge-vtm dependencies
  */
 import {
 	LayerMBTilesBitmapProps,
