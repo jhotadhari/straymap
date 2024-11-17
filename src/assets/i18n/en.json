@@ -63,7 +63,8 @@
         "shadingAlgorithm": "Shading Algorithm",
         "gotIt": "Alright, got it",
         "visibility": "Visibility",
-        "whatIs": "What is \"%s\"?",
+        "whatIs_one": "What is \"%s\"?",
+        "whatIs_other": "What are \"%s\"?",
         "cacheSize": "Cache size",
         "selectLang": "Select language",
         "test": "That's just a test sentence"

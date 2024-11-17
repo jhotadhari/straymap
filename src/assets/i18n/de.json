@@ -63,7 +63,8 @@
         "shadingAlgorithm": "Schattierungs-Algorithmus",
         "gotIt": "Alles klar, verstanden",
         "visibility": "Sichtbarkeit",
-        "whatIs": "Was ist \"%s\"?",
+        "whatIs_one": "Was ist \"%s\"?",
+        "whatIs_other": "Was sind \"%s\"?",
         "cacheSize": "Cache Größe",
         "selectLang": "Sprache wählen",
         "test":"Das ist nur ein test Satz"

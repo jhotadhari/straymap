@@ -1,4 +1,3 @@
-
 /**
  * External dependencies
  */
@@ -23,7 +22,7 @@ import {
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import DraggableGrid from 'react-native-draggable-grid';
-import { debounce, findIndex, get } from 'lodash-es';
+import { debounce, get } from 'lodash-es';
 import rnUuid from 'react-native-uuid';
 
 /**
@@ -43,6 +42,7 @@ import { AppContext } from '../Context';
 import MapLayerControlRasterMBTiles from './MapLayerControlRasterMBTiles';
 import RadioListItem from './RadioListItem';
 import MapLayerControlHillshading from './MapLayerControlHillshading';
+import InfoButton from './InfoButton';
 
 type LayerType = 'base' | 'overlay';
 
@@ -229,9 +229,9 @@ const DraggableItem = ( {
             justifyContent:'space-between',
             alignItems: 'center',
             flexDirection: 'row',
-            marginLeft: -30,
+            marginLeft: -34,
             paddingLeft: 3,
-            paddingRight: 18,
+            paddingRight: 17,
         } }
         key={ item.key }
     >
@@ -479,10 +479,24 @@ const MapLayersControl = () => {
 
             <View
                 style={ {
-                    justifyContent: 'flex-end',
+                    justifyContent: 'space-between',
                     flexDirection: 'row',
                 } }
             >
+
+                <InfoButton
+                    label={ t( 'map.layer', { count: 0 } ) }
+                    headerPlural={ true }
+                    backgroundBlur={ true }
+                    Info={ <Text>{ 'bla bla ??? info text' }</Text> }
+                    buttonProps={ {
+                        style: { marginTop: 0, marginBottom: 0, marginLeft: -30 },
+                        icon: "information-variant",
+                        mode: "outlined",
+                        iconColor: theme.colors.primary,
+                    } }
+                />
+
                 <ButtonHighlight
                     style={ { marginRight: 20 } }
                     icon="map-plus"

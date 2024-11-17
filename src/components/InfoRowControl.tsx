@@ -21,8 +21,7 @@ import { get } from 'lodash-es';
 /**
  * Internal dependencies
  */
-import ButtonHighlight from './ButtonHighlight';
-import ModalWrapper from './ModalWrapper';
+import InfoControlWrapper from './InfoControlWrapper';
 
 const labelMinWidth = 90;
 
@@ -37,38 +36,28 @@ const InfoRowControl = ( {
     children,
     Info,
     Below,
+    backgroundBlur = false,
+    headerPlural = false,
 } : {
     label?: string;
     children: ReactNode;
     Info?: ReactNode | string;
     Below?: ReactNode;
+    backgroundBlur?: boolean,
+    headerPlural?: boolean,
 } ) => {
 	const { t } = useTranslation();
 	const theme = useTheme();
 	const [modalVisible, setModalVisible] = useState( false );
-    return <View>
-        { modalVisible && <ModalWrapper
-            visible={ modalVisible }
-            backgroundBlur={ false }
-            onDismiss={ () => setModalVisible( false ) }
-            onHeaderBackPress={ () => setModalVisible( false ) }
-            header={  sprintf( t( 'whatIs' ), ( label || '' ) ) }
-        >
-            <View style={ { marginTop: 20, marginBottom: 20 } }>
-                { Info && 'string' === typeof Info && <Text>{ Info }</Text> }
-                { Info && 'string' !== typeof Info && Info }
-            </View>
-
-            <ButtonHighlight
-                style={ { marginTop: 20 } }
-                onPress={ () => setModalVisible( false ) }
-                mode="contained"
-                buttonColor={ get( theme.colors, 'successContainer' ) }
-                textColor={ get( theme.colors, 'onSuccessContainer' ) }
-            ><Text>{ t( 'gotIt' ) }</Text></ButtonHighlight>
-
-        </ModalWrapper> }
-
+    return <InfoControlWrapper
+        label={ label }
+        Info={ Info }
+        Below={ Below }
+        backgroundBlur={ backgroundBlur }
+        headerPlural={ headerPlural }
+        modalVisible={ modalVisible }
+        setModalVisible={ setModalVisible }
+    >
         <View style={ { marginTop: 10, marginBottom: 10, flexDirection: 'row', alignItems: 'center' } }>
             { Info && <TouchableHighlight
                 underlayColor={ theme.colors.elevation.level3 }
@@ -80,9 +69,7 @@ const InfoRowControl = ( {
             { ! Info && <Text style={ { ...labelPadding, minWidth: labelMinWidth + 12 } }>{ label }</Text> }
             { children }
         </View>
-
-        { Below }
-    </View>;
+    </InfoControlWrapper>;
 };
 
 export default InfoRowControl;
