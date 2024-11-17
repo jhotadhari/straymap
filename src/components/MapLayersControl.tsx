@@ -381,14 +381,6 @@ const MapLayersControl = () => {
                     updateLayer={ updateLayer }
                 />
 
-                {/* <View style={ { marginTop: 10, marginBottom: 10, flexDirection: 'row', alignItems: 'center' } }>
-                    <Text style={ { minWidth: labelMinWidth + 12 } }>{ t( 'visibility' ) }</Text>
-                    <VisibleControl
-                        item={ editLayer }
-                        updateLayer={ updateLayer }
-                    />
-                </View> */}
-
                 { 'online-raster-xyz' === editLayer.type && <MapLayerControlOnlineRasterXYZ
                     editLayer={ editLayer }
                     updateLayer={ updateLayer }
