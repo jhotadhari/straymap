@@ -175,7 +175,7 @@ export const NumericMultiRowControl = ( {
             { [...optKeys].map( ( optKey, index ) => <View key={ index } style={ { marginTop: 10, marginBottom: 10, flexDirection: 'row', alignItems: 'center' } }>
                 { get( optLabels, index, undefined ) && <Text style={ { marginRight: 10 } }>{ get( optLabels, index, undefined ) }</Text> }
                 <TextInput
-                    style={ { maxWidth: 60 } }
+                    style={ { maxWidth: 50 } }
                     underlineColor="transparent"
                     error={ ! isValids[index] }
                     dense={ true }

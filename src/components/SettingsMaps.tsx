@@ -19,7 +19,7 @@ import {
  */
 import { AppContext } from '../Context';
 import MapLayersControl from './MapLayersControl';
-
+import MapsforgeProfilesControl from './MapsforgeProfilesControl';
 
 const SettingsMaps : FC = () => {
 
@@ -41,10 +41,9 @@ const SettingsMaps : FC = () => {
 
         <MapLayersControl/>
 
+        <MapsforgeProfilesControl/>
 
 	</ScrollView>;
 };
-
-
 
 export default SettingsMaps;

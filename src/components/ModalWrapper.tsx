@@ -16,6 +16,7 @@ import {
     KeyboardAvoidingView,
     TouchableHighlight,
     Keyboard,
+    LayoutChangeEvent,
 } from 'react-native';
 import {
 	useTheme,
@@ -52,6 +53,7 @@ const ModalWrapper = ( {
     headerPrepend,
     innerStyle,
     backgroundBlur = true,
+    onLayout,
 } : {
     children?: ReactNode;
     visible: boolean;
@@ -60,7 +62,8 @@ const ModalWrapper = ( {
     header: string;
     headerPrepend?: string | ReactNode;
     innerStyle?: null | ViewStyle;
-    backgroundBlur?: boolean,
+    backgroundBlur?: boolean;
+    onLayout?: ( ( event: LayoutChangeEvent ) => void );
 } ) => {
 	const { width, height } = useWindowDimensions();
     const theme = useTheme();
@@ -68,6 +71,7 @@ const ModalWrapper = ( {
     const keyboardShown = useKeyboardShown();
     return <Portal><AppContext.Provider value={ context } >
         <Modal
+
             theme={ backgroundBlur ? theme : { colors: {
                 ...theme.colors,
                 backdrop: 'transparent',
@@ -107,6 +111,7 @@ const ModalWrapper = ( {
 
             <KeyboardAvoidingView behavior="height" >
                 <ScrollView
+                    onLayout={ onLayout }
                     style={ {
                         backgroundColor: theme.colors.background,
                         width: width * modalWidthFactor,

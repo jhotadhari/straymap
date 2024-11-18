@@ -48,8 +48,6 @@ export const useDirsInfo = ( navDirs : AbsPath[] ) : DirInfoMap => {
 		Promise.all( [...navDirs].map( ( navDir ) => {
 			return new Promise( ( resolve : ( value: ( DirInfoMap | false ) ) => void ) => {
 				FsModule.getInfo( navDir ).then( ( info : DirInfo ) => {
-
-					console.log( 'debug info', info ); // debug
 					if ( info ) {
 						resolve( { [navDir]: info } );
 					} else {

@@ -129,10 +129,9 @@ const SourceRowControl = ( {
     }, [urlIsValid, selectedOpt, customUrl] );
 
     return <InfoRowControl
-            label={ t( 'map.source' ) }
-            // Info={ Info }
-            Info={ <Text>{ 'bla bla ??? info text' }</Text> }
-            Below={ <View style={ { flexDirection: 'row', alignItems: 'center', marginTop: -18, marginBottom: 10 } }>
+        label={ t( 'map.source' ) }
+        Info={ <Text>{ 'bla bla ??? info text' }</Text> }
+        Below={ <View style={ { flexDirection: 'row', alignItems: 'center', marginTop: -18, marginBottom: 10 } }>
             <TextInput
                 disabled={ 'custom' !== selectedOpt }
                 placeholder="https://...{Z}/{X}/{Y}.png"

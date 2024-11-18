@@ -210,7 +210,9 @@ const useMapSettings = () => {
 	const [initialized,setInitialized] = useState( false );
 	const [mapSettings,setMapSettings] = useState<MapSettings>( {
 		layers: [],
+		mapsforgeProfiles: [],
 	} );
+
     useEffect( () => {
 		DefaultPreference.get( 'mapSettings' ).then( newMapSettings => {
 			if ( newMapSettings ) {

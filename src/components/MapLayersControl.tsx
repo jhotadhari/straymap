@@ -44,6 +44,7 @@ import RadioListItem from './RadioListItem';
 import MapLayerControlHillshading from './MapLayerControlHillshading';
 import InfoButton from './InfoButton';
 import useDeepCompareEffect from 'use-deep-compare-effect';
+import NameRowControl from './NameRowControl';
 
 type LayerType = 'base' | 'overlay';
 
@@ -78,7 +79,7 @@ const getLayerType = ( layer : LayerConfig ) : ( LayerType | null ) => get( mapT
 const itemHeight = 50;
 const labelMinWidth = 90;
 
-const getNewItem = () : LayerConfig => ( {
+const getNewLayer = () : LayerConfig => ( {
     key: rnUuid.v4(),
     name: '',
     visible: true,
@@ -172,43 +173,6 @@ const VisibleRowControl = ( {
     </InfoRowControl>;
 };
 
-const NameRowControl = ( {
-    item,
-    updateLayer,
-} : {
-    item: LayerConfig;
-    updateLayer: ( newLayer: LayerConfig ) => void,
-} ) => {
-    const theme = useTheme();
-    const [value,setValue] = useState( item.name );
-    const doUpdate = debounce( () => {
-        updateLayer( {
-            ...item,
-            name: value,
-        } );
-    }, 300 );
-    useEffect( () => {
-        doUpdate();
-    }, [value] );
-
-    return <InfoRowControl
-        label={ 'Name/ID' }
-        Info={ <Text>{ 'bla bla ??? info text' }</Text> }
-    >
-        <TextInput
-            style={ { flexGrow: 1 } }
-            underlineColor="transparent"
-            dense={ true }
-            theme={ { fonts: { bodyLarge: {
-                ...theme.fonts.bodySmall,
-                fontFamily: "sans-serif",
-            } } } }
-            onChangeText={ newVal => setValue( newVal ) }
-            value={ value }
-        />
-    </InfoRowControl>;
-};
-
 const DraggableItem = ( {
     item,
     width,
@@ -296,9 +260,7 @@ const MapLayersControl = () => {
     const [editLayer, setEditLayer] = useState<null | LayerConfig>( null );
 
     useEffect( () => {
-        if ( editLayer ) {
-            setModalVisible( true );
-        }
+        setModalVisible( !! editLayer );
     }, [editLayer] );
 
     const updateLayer = ( newLayer : LayerConfig ) => {
@@ -374,7 +336,8 @@ const MapLayersControl = () => {
 
                 <NameRowControl
                     item={ editLayer }
-                    updateLayer={ updateLayer }
+                    update={ updateLayer as ( newItem: { name: string } ) => void }
+                    Info={ <Text>{ 'bla blaa ??? info text' }</Text> }
                 />
 
                 <VisibleRowControl
@@ -452,6 +415,7 @@ const MapLayersControl = () => {
                 }
                 setExpanded( ! expanded )
             } }
+            // style={ expanded ? { marginBottom: 20 } : {} }
         >
 
             <View style={ {
@@ -461,7 +425,6 @@ const MapLayersControl = () => {
                 <DraggableGrid
                     itemHeight={ itemHeight }
                     numColumns={ 1 }
-                    // renderItem={ DraggableItem }
                     renderItem={ renderItem }
                     data={ layers }
                     onDragRelease={ ( newLayers : LayerConfig[] ) => setLayers( newLayers ) }
@@ -474,6 +437,7 @@ const MapLayersControl = () => {
                 style={ {
                     justifyContent: 'space-between',
                     flexDirection: 'row',
+                    marginBottom: 25,
                 } }
             >
 
@@ -494,7 +458,7 @@ const MapLayersControl = () => {
                     style={ { marginRight: 20 } }
                     icon="map-plus"
                     mode="outlined"
-                    onPress={ () => setEditLayer( getNewItem() ) }
+                    onPress={ () => setEditLayer( getNewLayer() ) }
                 >
                     { t( 'map.addNewLayer' ) }
                 </ButtonHighlight>

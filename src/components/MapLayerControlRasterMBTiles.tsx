@@ -2,166 +2,26 @@
  * External dependencies
  */
 import {
-    ReactNode,
     useContext,
     useEffect,
     useState,
 } from 'react';
 import {
-    Linking,
-    TextStyle,
 	View,
 } from 'react-native';
 import {
     Text,
-    useTheme,
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { debounce, get, isNull } from 'lodash-es';
+import { debounce } from 'lodash-es';
 
 /**
  * Internal dependencies
  */
-import ButtonHighlight from './ButtonHighlight';
-import { AbsPath, LayerConfig, LayerConfigOptionsRasterMBtiles, OptionBase } from '../types';
+import { LayerConfig, LayerConfigOptionsRasterMBtiles } from '../types';
 import { NumericMultiRowControl } from './NumericRowControls';
-import InfoRowControl from './InfoRowControl';
 import { AppContext } from '../Context';
-import { useDirsInfo } from '../compose/useDirInfo';
-import ModalWrapper from './ModalWrapper';
-import RadioListItem from './RadioListItem';
-
-
-interface AbsPathOption extends OptionBase {
-    key: AbsPath;
-}
-
-const SourceRowControl = ( {
-    filePattern,
-    dirs,
-    options,
-    setOptions,
-} : {
-    filePattern: RegExp;
-    dirs: AbsPath[],
-    options: LayerConfigOptionsRasterMBtiles;
-    setOptions: ( options : LayerConfigOptionsRasterMBtiles ) => void;
-} ) => {
-
-    const { t } = useTranslation();
-    const theme = useTheme();
-
-	const [modalVisible, setModalVisible] = useState( false );
-
-    const dirsInfos = useDirsInfo( dirs || [] );
-
-    const [optsMap,setOptsMap] = useState<{ [value: string]: AbsPathOption[] }>( {} );
-
-    useEffect( () => {
-        let newOptsMap = {};
-        Object.keys( dirsInfos ).map( key => {
-            const dirInfo = dirsInfos[key];
-            newOptsMap = {
-                ...newOptsMap,
-                [key]: dirInfo && dirInfo.navChildren ? [...dirInfo.navChildren].filter( child => child.isFile && child.canRead ).map( child => {
-                    const nameArr = child.name.split( '/' );
-                    return {
-                        key: child.name,
-                        label: nameArr[nameArr.length-1],
-                    };
-                } ) : []
-            }
-        } );
-        setOptsMap( newOptsMap );
-    }, [dirsInfos] );
-
-    const getInitialSelectedOpt = () => options.mapFile
-        ? get( Object.values( optsMap ).flat().find( opt => opt.key === options.mapFile ), 'key', null )
-        : null;
-
-	const [selectedOpt,setSelectedOpt] = useState<null | AbsPath>( getInitialSelectedOpt() );
-
-    useEffect( () => {
-        if ( null === selectedOpt ) {
-            setSelectedOpt( getInitialSelectedOpt );
-        }
-    }, [optsMap] );
-
-    useEffect( () => {
-        if ( selectedOpt ) {
-            setOptions( {
-                ...options,
-                mapFile: selectedOpt,
-            } );
-        }
-    }, [selectedOpt] );
-
-    return <InfoRowControl
-            label={ t( 'map.file' ) }
-            Info={ <Text>{ 'bla bla ??? info text' }</Text> }
-    >
-        { modalVisible && <ModalWrapper
-            visible={ modalVisible }
-            backgroundBlur={ false }
-            onDismiss={ () => setModalVisible( false ) }
-            onHeaderBackPress={ () => setModalVisible( false ) }
-            header={ t( 'map.selectFile' ) }
-        >
-            { Object.keys( optsMap ).map( key => {
-                const opts = optsMap[key];
-                return <View
-                    key={ key }
-                    style={ {
-                        marginBottom: 18,
-                    } }
-                >
-                    { opts.length > 0 && <View>
-                        <Text>MBtiles files in: </Text>
-                        <Text style={ theme.fonts.bodySmall }>{ key }</Text>
-                        { [...opts].map( opt => <RadioListItem
-                            key={ opt.key }
-                            opt={ opt }
-                            onPress={ () => {
-                                if ( opt.key === selectedOpt ) {
-                                    setSelectedOpt( null );
-                                } else {
-                                    setSelectedOpt( opt.key );
-                                    setModalVisible( false );
-                                }
-                            } }
-                            labelStyle={ theme.fonts.bodyMedium }
-                            labelExtractor={ a => a.label }
-                            status={ opt.key === selectedOpt ? 'checked' : 'unchecked' }
-                        />) }
-                    </View> }
-
-                    { opts.length === 0 && <View>
-                        <Text>No MBtiles files in: </Text>
-                        <Text style={ theme.fonts.bodySmall }>{ key }</Text>
-                    </View> }
-                </View>;
-            } ) }
-
-            <ButtonHighlight
-                style={ { marginTop: 10 } }
-                onPress={ () => {
-                    setModalVisible( false );
-                } }
-                mode="contained"
-                buttonColor={ get( theme.colors, 'successContainer' ) }
-                textColor={ get( theme.colors, 'onSuccessContainer' ) }
-            ><Text>{ t( 'ok' ) }</Text></ButtonHighlight>
-
-        </ModalWrapper> }
-
-        <View style={ { flexDirection: 'row', alignItems: 'center' } }>
-            <ButtonHighlight style={ { marginTop: 3} } onPress={ () => setModalVisible( true ) } >
-                <Text>{ t( selectedOpt ? get( Object.values( optsMap ).flat().find( opt => opt.key === selectedOpt ), 'label', '' ) : 'nothingSelected' ) }</Text>
-            </ButtonHighlight>
-        </View>
-
-    </InfoRowControl>;
-};
+import FileSourceRowControl from './FileSourceRowControl';
 
 const MapLayerControlRasterMBTiles = ( {
     editLayer,
@@ -189,11 +49,21 @@ const MapLayerControlRasterMBTiles = ( {
 
     return <View>
 
-        <SourceRowControl
+        <FileSourceRowControl
+            header={ t( 'map.selectFile' ) }
+            label={ t( 'map.file' ) }
             options={ options }
-            setOptions={ setOptions }
+            optionsKey={ 'mapFile' }
+            onSelect={ selectedOpt => setOptions( {
+                ...options,
+                mapFile: selectedOpt,
+            } ) }
             filePattern={ /.*\.mbtiles$/ }
             dirs={ appDirs ? appDirs.mapfiles : [] }
+            Info={ <Text>{ 'bla blaa ??? info text' }</Text> }
+
+            filesHeading={ 'MBtiles files in' }         // ??? translate
+            noFilesHeading={ 'No MBtiles files in' }    // ??? translate
         />
 
         <NumericMultiRowControl

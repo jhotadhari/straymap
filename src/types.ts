@@ -105,6 +105,15 @@ export type LayerConfig = {
 	options: LayerConfigOptionsAny;
 };
 
+export type MapsforgeProfile = {
+    key: string;
+    name: string;
+    theme: string; // It is AbsPath or built-in
+    renderStyle: null | string;
+    renderOverlays: string[];
+    isDefault: boolean;
+};
 export type MapSettings = {
 	layers: LayerConfig[];
+	mapsforgeProfiles: MapsforgeProfile[];
 };

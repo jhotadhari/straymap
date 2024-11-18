@@ -38,6 +38,17 @@
             "selectType": "Wähle den Kartentyp",
             "askCancel": "Möchtest du die Bearbeitung dieser Karte wirklich abbrechen?",
             "source": "Kartenquelle",
+
+
+            "mapsforgeProfileRemove": "Profil entfernen",
+            "mapsforgeProfileEdit": "Mapsforge Profil bearbeiten",
+            "mapsforgeProfile_one": "Mapsforge Profil",
+            "mapsforgeProfile_other": "Mapsforge Profile",
+            "mapsforgeProfilesNone": "Derzeit sind keine mapsforge Profile vorhanden",
+            "addNewMapsforgeProfile": "Neues mapsforge Profil hinzufügen",
+            "addNewMapsforgeProfileShort": "Neues Profil hinzufügen",
+
+
             "typeDesc": {
                 "online-raster-xyz": "bla bla online-raster-xyz",
                 "mapsforge": "bla bla mapsforge",
@@ -45,6 +56,10 @@
                 "hillshading": "bla bla hillshading"
             }
         },
+
+        "theme": "Theme",
+        "builtInThemes": "Eingebaute Themes",
+        "selectTheme": "Theme auswählen",
         "changesWillBeLost": "Änderungen gehen verloren!",
         "keepEdit": "Weiter bearbeiten",
         "enabled": "Aktiviert",
