@@ -66,8 +66,7 @@ const getNewProfile = () : MapsforgeProfile => ( {
     renderOverlays: [],
 } );
 
-
-const Item = ( {
+const DraggableItem = ( {
     width,
     profile,
     updateProfile,
@@ -79,6 +78,7 @@ const Item = ( {
     setEditProfile: ( newProfile: MapsforgeProfile ) => void,
 } ) => {
 
+    const { t } = useTranslation();
     const theme = useTheme();
 
     let themeLabel = '';
@@ -109,7 +109,7 @@ const Item = ( {
             marginLeft: 5,
             marginRight: 5,
         } } >
-            <Text>{ profile.name }</Text>
+            <Text style={ { marginLeft: 40 } } >{ profile.name }</Text>
             <Text>[{ themeLabel }]</Text>
         </View>
 
@@ -420,10 +420,8 @@ const MapsforgeProfilesControl = () => {
     }, [editProfile] );
 
     const updateProfile = ( newProfile : MapsforgeProfile ) => {
-        console.log( 'debug newProfile', newProfile ); // debug
         if ( editProfile && editProfile.key === newProfile.key ) {
             setEditProfile( newProfile );
-
         }
         const itemIndex = profiles.findIndex( item => item.key === newProfile.key );
         if ( -1 !== itemIndex ) {
@@ -465,9 +463,12 @@ const MapsforgeProfilesControl = () => {
 		}
     }, [editProfile?.theme, modalOpened] );
 
-    console.log( 'debug isBusy', isBusy ); // debug
-
-
+    const renderItem = ( profile : MapsforgeProfile ) => <View key={ profile.key }><DraggableItem
+        profile={ profile }
+        width={ width }
+        updateProfile={ updateProfile }
+        setEditProfile={ setEditProfile }
+    /></View>;
 
     return <View>
 
@@ -539,17 +540,6 @@ const MapsforgeProfilesControl = () => {
                     label={ t( 'overlay', { count: 1 } ) }
                 />
 
-
-                {/* Render style options */}
-
-
-
-
-
-
-
-
-
                 { ! isBusy && <View style={ { marginTop: 20, marginBottom: 40, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' } }>
                     <ButtonHighlight
                         onPress={ () => {
@@ -584,9 +574,6 @@ const MapsforgeProfilesControl = () => {
 
         </ModalWrapper> }
 
-
-
-
         <List.Accordion
             title={ t( 'map.mapsforge.profile', { count: 0 } ) }
             left={ props => <IconIcomoon size={ 25 } name="mapsforge_puzzle_only" {...props}/> }
@@ -603,15 +590,13 @@ const MapsforgeProfilesControl = () => {
                 height: itemHeight * profiles.length + 8 ,
                 width,
             } } >
-
-                { [...profiles].map( profile => <Item
-                    key={ profile.key }
-                    profile={ profile }
-                    width={ width }
-                    updateProfile={ updateProfile }
-                    setEditProfile={ setEditProfile }
-                /> ) }
-
+                <DraggableGrid
+                    itemHeight={ itemHeight }
+                    numColumns={ 1 }
+                    renderItem={ renderItem }
+                    data={ profiles }
+                    onDragRelease={ ( newProfiles : MapsforgeProfile[] ) => setProfiles( newProfiles ) }
+                />
             </View>
 
             { ! profiles.length && <Text style={ { marginLeft: 18, marginBottom: 35 } } >{ t( 'map.mapsforge.profilesNone' ) }</Text>}
