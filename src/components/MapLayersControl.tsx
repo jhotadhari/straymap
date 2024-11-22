@@ -18,11 +18,10 @@ import {
 	useTheme,
     Text,
     Icon,
-    TextInput,
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import DraggableGrid from 'react-native-draggable-grid';
-import { debounce, get } from 'lodash-es';
+import { get } from 'lodash-es';
 import rnUuid from 'react-native-uuid';
 
 /**
@@ -43,8 +42,8 @@ import MapLayerControlRasterMBTiles from './MapLayerControlRasterMBTiles';
 import RadioListItem from './RadioListItem';
 import MapLayerControlHillshading from './MapLayerControlHillshading';
 import InfoButton from './InfoButton';
-import useDeepCompareEffect from 'use-deep-compare-effect';
 import NameRowControl from './NameRowControl';
+import MapLayerControlMapsforge from './MapLayerControlMapsforge';
 
 type LayerType = 'base' | 'overlay';
 
@@ -101,6 +100,8 @@ const fillLayerConfigOptionsWithDefaults = ( type : string, options : LayerConfi
         case 'mapsforge':
             return {
                 ...options,
+                ...( null === get( options, 'enabledZoomMin', null ) && { enabledZoomMin: 1 } ),
+                ...( null === get( options, 'enabledZoomMax', null ) && { enabledZoomMax: 20 } ),
             };
         case 'raster-MBtiles':
             return {
@@ -350,17 +351,10 @@ const MapLayersControl = () => {
                     updateLayer={ updateLayer }
                 /> }
 
-                { 'mapsforge' === editLayer.type && <View>
-
-                    {/*
-                    source mapFile
-                    renderTheme
-                    renderStyle
-                    renderOverlays
-                    zoomMin
-                    zoomMax */}
-
-                </View> }
+                { 'mapsforge' === editLayer.type && <MapLayerControlMapsforge
+                    editLayer={ editLayer }
+                    updateLayer={ updateLayer }
+                /> }
 
                 { 'raster-MBtiles' === editLayer.type && <MapLayerControlRasterMBTiles
                     editLayer={ editLayer }
