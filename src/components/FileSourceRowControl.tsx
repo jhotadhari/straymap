@@ -17,12 +17,13 @@ import {
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { get } from 'lodash-es';
+import { openDocument } from 'react-native-scoped-storage';
 
 /**
  * Internal dependencies
  */
 import ButtonHighlight from './ButtonHighlight';
-import { AbsPath, LayerConfigOptionsRasterMBtiles, OptionBase } from '../types';
+import { AbsPath, OptionBase } from '../types';
 import InfoRowControl from './InfoRowControl';
 import { useDirsInfo } from '../compose/useDirInfo';
 import ModalWrapper from './ModalWrapper';
@@ -33,6 +34,14 @@ interface Option extends OptionBase {
 };
 
 type OptsMap = { [value: string]: Option[] };
+
+const getLabelFromUri = ( uri?: `content://${string}` ) => {
+    if ( ! uri ) {
+        return '';
+    }
+    const parts = uri.split( '%2F' );
+    return parts.length > 0 ? parts[parts.length-1] : '';
+};
 
 const FileSourceRowControl = ( {
     filePattern,
@@ -45,6 +54,7 @@ const FileSourceRowControl = ( {
     Info,
     filesHeading,
     noFilesHeading,
+    hasCustom,
     initialOptsMap = {},
     AlternativeButton,
 } : {
@@ -58,6 +68,7 @@ const FileSourceRowControl = ( {
     Info?: ReactNode | string;
     filesHeading?: string;
     noFilesHeading?: string;
+    hasCustom?: boolean;
     initialOptsMap?: OptsMap;
     AlternativeButton?: ( {
         setModalVisible
@@ -90,24 +101,47 @@ const FileSourceRowControl = ( {
                 } ) : []
             }
         } );
+        if ( hasCustom ) {
+            newOptsMap = {
+                ...newOptsMap,
+                ['']: [ {
+                    key: 'custom',
+                    label: t( 'custom' ),
+                } ],
+            };
+        }
+
         setOptsMap( newOptsMap );
     }, [dirsInfos] );
 
-    const getInitialSelectedOpt = () => get( options, optionsKey )
-        ? get( Object.values( optsMap ).flat().find( opt => opt.key === get( options, optionsKey ) ), 'key', null )
-        : null;
+    const getInitialSelectedOpt = () => {
+        if ( get( options, optionsKey ) ) {
+            const opt = Object.values( optsMap ).flat().find( opt => opt.key === get( options, optionsKey ) );
+            return opt ? get( opt, 'key', null ) as ( null | string ) : 'custom';
+        } else {
+            return null;
+        }
+    };
 
 	const [selectedOpt,setSelectedOpt] = useState<null | string>( getInitialSelectedOpt() );
 
+	const [customUri,setCustomUri] = useState<undefined | `content://${string}`>( get( options, optionsKey, '' ).startsWith( 'content://' )
+        ? get( options, optionsKey, '' ) as `content://${string}`
+        : undefined
+    );
+
     useEffect( () => {
         if ( null === selectedOpt ) {
-            setSelectedOpt( getInitialSelectedOpt );
+            setSelectedOpt( getInitialSelectedOpt() );
         }
     }, [optsMap] );
 
     useEffect( () => {
         if ( selectedOpt ) {
-            onSelect( selectedOpt )
+            onSelect( selectedOpt === 'custom'
+                ? customUri
+                : selectedOpt
+            )
         }
     }, [selectedOpt] );
 
@@ -140,12 +174,24 @@ const FileSourceRowControl = ( {
                                 if ( opt.key === selectedOpt ) {
                                     setSelectedOpt( null );
                                 } else {
-                                    setSelectedOpt( opt.key );
-                                    setModalVisible( false );
+                                    if ( 'custom' === opt.key ) {
+                                        openDocument( false ).then( file => {
+                                            setCustomUri( file.uri as `content://${string}` );
+                                            setSelectedOpt( 'custom' );
+                                            setModalVisible( false );
+                                        } ).catch( ( err : any ) => console.log( err ) );
+                                    } else {
+                                        setCustomUri( undefined );
+                                        setSelectedOpt( opt.key );
+                                        setModalVisible( false );
+                                    }
                                 }
                             } }
                             labelStyle={ theme.fonts.bodyMedium }
                             labelExtractor={ a => a.label }
+                            descExtractor={ a => 'custom' === a.key
+                                ? ( customUri ? customUri?.replace( 'content://', 'content:// ' ) : null )
+                                : '' }
                             status={ opt.key === selectedOpt ? 'checked' : 'unchecked' }
                         />) }
                     </View> }
@@ -171,7 +217,13 @@ const FileSourceRowControl = ( {
 
         <View style={ { flexDirection: 'row', alignItems: 'center' } }>
             { ! AlternativeButton && <ButtonHighlight style={ { marginTop: 3} } onPress={ () => setModalVisible( true ) } >
-                <Text>{ t( selectedOpt ? get( Object.values( optsMap ).flat().find( opt => opt.key === selectedOpt ), 'label', '' ) : 'selected.none' ) }</Text>
+                <Text>{ t(
+                    'custom' === selectedOpt
+                        ? getLabelFromUri( customUri )
+                        : ( selectedOpt
+                            ? get( Object.values( optsMap ).flat().find( opt => opt.key === selectedOpt ), 'label', '' )
+                            : 'selected.none' )
+                ) }</Text>
             </ButtonHighlight> }
 
             { AlternativeButton && <AlternativeButton setModalVisible={ setModalVisible } /> }
