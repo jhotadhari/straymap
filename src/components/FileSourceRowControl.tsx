@@ -115,15 +115,18 @@ const FileSourceRowControl = ( {
     }, [dirsInfos] );
 
     const getInitialSelectedOpt = () => {
-        if ( get( options, optionsKey ) ) {
-            const opt = Object.values( optsMap ).flat().find( opt => opt.key === get( options, optionsKey ) );
-            return opt ? get( opt, 'key', null ) as ( null | string ) : 'custom';
+        const selected = get( options, optionsKey, '' );
+        if ( selected ) {
+            const opt = Object.values( optsMap ).flat().find( opt => opt.key === selected );
+            return opt
+                ? get( opt, 'key', null ) as ( null | string )
+                : ( hasCustom && ( selected as string ).startsWith( 'content://' ) ? 'custom' : null );
         } else {
             return null;
         }
     };
 
-	const [selectedOpt,setSelectedOpt] = useState<null | string>( getInitialSelectedOpt() );
+	const [selectedOpt,setSelectedOpt] = useState<null | string>( null );
 
 	const [customUri,setCustomUri] = useState<undefined | `content://${string}`>( get( options, optionsKey, '' ).startsWith( 'content://' )
         ? get( options, optionsKey, '' ) as `content://${string}`
