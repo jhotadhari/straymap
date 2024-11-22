@@ -38,17 +38,15 @@
             "selectType": "Wähle den Kartentyp",
             "askCancel": "Möchtest du die Bearbeitung dieser Karte wirklich abbrechen?",
             "source": "Kartenquelle",
-
-
-            "mapsforgeProfileRemove": "Profil entfernen",
-            "mapsforgeProfileEdit": "Mapsforge Profil bearbeiten",
-            "mapsforgeProfile_one": "Mapsforge Profil",
-            "mapsforgeProfile_other": "Mapsforge Profile",
-            "mapsforgeProfilesNone": "Derzeit sind keine mapsforge Profile vorhanden",
-            "addNewMapsforgeProfile": "Neues mapsforge Profil hinzufügen",
-            "addNewMapsforgeProfileShort": "Neues Profil hinzufügen",
-
-
+            "mapsforge": {
+                "profile_one": "Mapsforge Profil",
+                "profile_other": "Mapsforge Profile",
+                "profileRemove": "Profil entfernen",
+                "profileEdit": "Mapsforge Profil bearbeiten",
+                "profilesNone": "Derzeit sind keine mapsforge Profile vorhanden",
+                "profileAddNew": "Neues mapsforge Profil hinzufügen",
+                "profileAddNewShort": "Neues Profil hinzufügen"
+            },
             "typeDesc": {
                 "online-raster-xyz": "bla bla online-raster-xyz",
                 "mapsforge": "bla bla mapsforge",
@@ -56,14 +54,24 @@
                 "hillshading": "bla bla hillshading"
             }
         },
-
         "theme": "Theme",
         "builtInThemes": "Eingebaute Themes",
-        "selectTheme": "Theme auswählen",
+        "style": "Stil",
+        "overlay_one": "Overlay",
+        "overlay_other": "Overlays",
         "changesWillBeLost": "Änderungen gehen verloren!",
         "keepEdit": "Weiter bearbeiten",
         "enabled": "Aktiviert",
-        "nothingSelected": "Nichts ausgewählt",
+        "selected": {
+            "none": "Nichts ausgewählt",
+            "all": "Alles ausgewählt",
+            "count": "%s ausgewählt"
+        },
+        "select": {
+            "none": "Nichts auswählen",
+            "all": "Alles auswählen",
+            "toggle": "Auswahl umschalten"
+        },
         "cancel": "Abbrechen",
         "custom": "Individuell einstellbar",
         "ok": "OK",

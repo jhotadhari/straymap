@@ -38,18 +38,15 @@
             "selectType": "Select map type",
             "askCancel": "Do you really want to cancel editing this map?",
             "source": "Map source",
-
-
-
-            "mapsforgeProfileRemove": "Remove profile",
-            "mapsforgeProfileEdit": "Edit mapsforge profile",
-            "mapsforgeProfile_one": "Mapsforge profile",
-            "mapsforgeProfile_other": "Mapsforge profiles",
-            "mapsforgeProfilesNone": "There are currently no mapsforge profiles",
-            "addNewMapsforgeProfile": "Add new mapsforge profile",
-            "addNewMapsforgeProfileShort": "Add new profile",
-
-
+            "mapsforge": {
+                "profile_one": "Mapsforge profile",
+                "profile_other": "Mapsforge profiles",
+                "profileRemove": "Remove profile",
+                "profileEdit": "Edit mapsforge profile",
+                "profilesNone": "There are currently no mapsforge profiles",
+                "profileAddNew": "Add new mapsforge profile",
+                "profileAddNewShort": "Add new profile"
+            },
             "typeDesc": {
                 "online-raster-xyz": "bla bla online-raster-xyz",
                 "mapsforge": "bla bla mapsforge",
@@ -57,14 +54,24 @@
                 "hillshading": "bla bla hillshading"
             }
         },
-
         "theme": "Theme",
         "builtInThemes": "Built-in themes",
-        "selectTheme": "Select theme",
+        "style": "Style",
+        "overlay_one": "Overlay",
+        "overlay_other": "Overlays",
         "changesWillBeLost": "Changes will be lost!",
         "keepEdit": "Keep editing",
         "enabled": "Enabled",
-        "nothingSelected": "Nothing selected",
+        "selected": {
+            "none": "Nothing selected",
+            "all": "All selected",
+            "count": "%s selected"
+        },
+        "select": {
+            "none": "Select nothing",
+            "all": "Select all",
+            "toggle": "Toggle selection"
+        },
         "cancel": "Cancel",
         "custom": "Custom",
         "ok": "OK",

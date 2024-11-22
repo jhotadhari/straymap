@@ -156,7 +156,7 @@ const SourceRowControl = ( {
                         ? customUri?.replace( 'content://', 'content:// ' ).slice( 0, Math.min( customUri.length - 1, 30 ) )
                         : get( opts.find( opt => opt.key === selectedOpt ), 'label', '' )
                     )
-                    : 'nothingSelected'
+                    : 'selected.none'
                 ) }</Text>
             </ButtonHighlight>
         </View>
@@ -282,7 +282,7 @@ const AlgorithmControl = ( {
             <ButtonHighlight style={ { marginTop: 3 } } onPress={ () => setModalVisible( true ) } >
                 <Text>{ t( selectedOpt
                     ? get( opts.find( opt => opt.key === selectedOpt ), 'label', '' )
-                    : 'nothingSelected'
+                    : 'selected.none'
                 ) }</Text>
             </ButtonHighlight>
         </View>

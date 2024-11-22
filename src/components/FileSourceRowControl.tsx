@@ -171,7 +171,7 @@ const FileSourceRowControl = ( {
 
         <View style={ { flexDirection: 'row', alignItems: 'center' } }>
             { ! AlternativeButton && <ButtonHighlight style={ { marginTop: 3} } onPress={ () => setModalVisible( true ) } >
-                <Text>{ t( selectedOpt ? get( Object.values( optsMap ).flat().find( opt => opt.key === selectedOpt ), 'label', '' ) : 'nothingSelected' ) }</Text>
+                <Text>{ t( selectedOpt ? get( Object.values( optsMap ).flat().find( opt => opt.key === selectedOpt ), 'label', '' ) : 'selected.none' ) }</Text>
             </ButtonHighlight> }
 
             { AlternativeButton && <AlternativeButton setModalVisible={ setModalVisible } /> }

@@ -127,6 +127,17 @@ const Item = ( {
     </View>;
 };
 
+const getDefaultSelectedOpt = ( profile: MapsforgeProfile, opts: OptionBase[], defaultRenderStyle: ( string | null ) ) => {
+    let defaultSelected = null;
+    if ( profile.renderStyle ) {
+        defaultSelected = get( opts.find( opt => opt.key === profile.renderStyle ), 'key', null );
+        if ( defaultSelected ) {
+            return defaultSelected;
+        }
+    }
+    return opts.length && defaultRenderStyle ? get( opts.find( opt => opt.key === defaultRenderStyle ), 'key', null ) : null;
+};
+
 const RenderStyleRowControl = ( {
     profile,
     updateProfile,
@@ -157,24 +168,17 @@ const RenderStyleRowControl = ( {
 
     const defaultRenderStyle = profile.theme ? get( renderDefaultStylesMap, profile.theme, null ) : null;
 
-    const getDefaultSelectedOpt = () => {
-        let defaultSelected = null;
-        if ( profile.renderStyle ) {
-            defaultSelected = get( opts.find( opt => opt.key === profile.renderStyle ), 'key', null );
-            if ( defaultSelected ) {
-                return defaultSelected;
-            }
-        }
-        return opts.length && defaultRenderStyle ? get( opts.find( opt => opt.key === defaultRenderStyle ), 'key', null ) : null;
-    }
-
-    const [selectedOpt,setSelectedOpt] = useState( getDefaultSelectedOpt() );
-
+    const [selectedOpt,setSelectedOpt] = useState( getDefaultSelectedOpt( profile, opts, defaultRenderStyle ) );
     useEffect( () => {
         if ( opts.length && ( null === selectedOpt || ! opts.find( opt => opt.key === selectedOpt ) ) ) {
-            setSelectedOpt( getDefaultSelectedOpt() );
+            setSelectedOpt( getDefaultSelectedOpt( profile, opts, defaultRenderStyle ) );
         }
-    }, [opts,selectedOpt] );
+    }, [
+        profile,
+        opts,
+        defaultRenderStyle,
+        selectedOpt,
+    ] );
 
 	const [menuVisible,setMenuVisible] = useState( false );
 
@@ -188,7 +192,7 @@ const RenderStyleRowControl = ( {
     }, [selectedOpt] );
 
     return opts.length > 0 ? <InfoRowControl
-        label={ t( 'render.style' ) }
+        label={ t( 'style' ) }
         Info={ Info }
     >
         { ! AlternativeButton && <Menu
@@ -254,11 +258,10 @@ const RenderOverlaysRowControl = ( {
         if ( ! profile.theme || ! profile.renderStyle || ! get( renderStyleOptions, [profile.renderStyle,'options'], false ) ) {
             setOpts( [] );
         }
-
     }, [profile.theme, profile.renderStyle, renderStyleOptions] );
 
     useEffect( () => {
-        setSelectedOpts( [] );
+        setSelectedOpts( profile.renderOverlays || [] );
     }, [opts] );
 
 	const [modalVisible, setModalVisible] = useState( false );
@@ -281,6 +284,31 @@ const RenderOverlaysRowControl = ( {
             onHeaderBackPress={ () => setModalVisible( false ) }
             header={ header || label }
         >
+            <View style={ { flexDirection: 'row', justifyContent: 'space-between' } }>
+                { selectedOpts.length > 0 && selectedOpts.length < opts.length && <ButtonHighlight
+                    style={ { marginTop: 10, marginBottom: 40 } }
+                    onPress={ () => {
+                        setSelectedOpts( [...opts].filter( opt => ! selectedOpts.includes( opt.key ) ).map( opt => opt.key ) );
+                    } }
+                    mode="contained"
+                    buttonColor={ get( theme.colors, 'primaryContainer' ) }
+                    textColor={ get( theme.colors, 'onPrimaryContainer' ) }
+                ><Text>{ t( 'select.toggle' ) }</Text></ButtonHighlight>  }
+
+                <ButtonHighlight
+                    style={ { marginTop: 10, marginBottom: 40, marginLeft: 'auto' } }
+                    onPress={ () => {
+                        if ( selectedOpts.length < opts.length ) {
+                            setSelectedOpts( [...opts].map( opt => opt.key ) );
+                        } else {
+                            setSelectedOpts( [] );
+                        }
+                    } }
+                    mode="contained"
+                    buttonColor={ get( theme.colors, 'primaryContainer' ) }
+                    textColor={ get( theme.colors, 'onPrimaryContainer' ) }
+                ><Text>{ t( selectedOpts.length < opts.length ? 'select.all' : 'select.none' ) }</Text></ButtonHighlight>
+            </View>
 
             { opts.length > 0 && <View>
                 { [...opts].map( ( opt, index ) => {
@@ -325,7 +353,13 @@ const RenderOverlaysRowControl = ( {
                 style={ { marginTop: 3} }
                 onPress={ () => setModalVisible( true ) }
             >
-                <Text>{ t( selectedOpts ? ( sprintf( t( '??? %s overlays selected' ), selectedOpts.length ) ) : 'nothingSelected' ) }</Text>
+                <Text>{ opts.length === selectedOpts.length
+                    ? t( 'selected.all' )
+                    : ( 0 === selectedOpts.length
+                        ? t( 'selected.none' )
+                        : t( selectedOpts ? ( sprintf( t( 'selected.count' ), selectedOpts.length + '/' + opts.length ) ) : 'selected.none' )
+                    )
+                }</Text>
             </ButtonHighlight> }
 
             { AlternativeButton && <AlternativeButton setModalVisible={ setModalVisible } /> }
@@ -449,7 +483,7 @@ const MapsforgeProfilesControl = () => {
                 setIsNewKey( null );
                 setEditProfile( null );
             } }
-            header={ isNewKey === editProfile.key ? t( 'map.addNewMapsforgeProfileShort' ) : t( 'map.mapsforgeProfileEdit' ) }
+            header={ isNewKey === editProfile.key ? t( 'map.mapsforge.profileAddNewShort' ) : t( 'map.mapsforge.profileEdit' ) }
         >
             <View>
 
@@ -502,15 +536,12 @@ const MapsforgeProfilesControl = () => {
                     profile={ editProfile }
                     updateProfile={ updateProfile }
                     renderStyleOptionsMap={ renderStyleOptionsMap }
-                    label={ t( 'render.overlays' ) }
+                    label={ t( 'overlay', { count: 1 } ) }
                 />
 
 
                 {/* Render style options */}
 
-
-
-                { isBusy && <Text>busy!!!???</Text>}
 
 
 
@@ -546,7 +577,7 @@ const MapsforgeProfilesControl = () => {
                         mode="contained"
                         buttonColor={ theme.colors.errorContainer }
                         textColor={ theme.colors.onErrorContainer }
-                    ><Text>{ t( 'map.mapsforgeProfileRemove' ) }</Text></ButtonHighlight>
+                    ><Text>{ t( 'map.mapsforge.profileRemove' ) }</Text></ButtonHighlight>
                 </View> }
 
             </View>
@@ -557,7 +588,7 @@ const MapsforgeProfilesControl = () => {
 
 
         <List.Accordion
-            title={ t( 'map.mapsforgeProfile', { count: 0 } ) }
+            title={ t( 'map.mapsforge.profile', { count: 0 } ) }
             left={ props => <IconIcomoon size={ 25 } name="mapsforge_puzzle_only" {...props}/> }
             expanded={ expanded }
             onPress={ () => {
@@ -583,7 +614,7 @@ const MapsforgeProfilesControl = () => {
 
             </View>
 
-            { ! profiles.length && <Text style={ { marginLeft: 18, marginBottom: 35 } } >{ t( 'map.mapsforgeProfilesNone' ) }</Text>}
+            { ! profiles.length && <Text style={ { marginLeft: 18, marginBottom: 35 } } >{ t( 'map.mapsforge.profilesNone' ) }</Text>}
 
             <View
                 style={ {
@@ -594,7 +625,7 @@ const MapsforgeProfilesControl = () => {
             >
 
                 <InfoButton
-                    label={ t( 'map.mapsforgeProfile', { count: 0 } ) }
+                    label={ t( 'map.mapsforge.profile', { count: 0 } ) }
                     headerPlural={ true }
                     backgroundBlur={ true }
                     Info={ <Text>{ 'bla bla ??? info text' }</Text> }
@@ -617,7 +648,7 @@ const MapsforgeProfilesControl = () => {
                         updateProfile( newEditProfile );
                     } }
                 >
-                    { t( 'map.addNewMapsforgeProfile' ) }
+                    { t( 'map.mapsforge.profileAddNew' ) }
                 </ButtonHighlight>
             </View>
         </List.Accordion>
