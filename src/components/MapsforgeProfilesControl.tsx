@@ -62,7 +62,6 @@ const getNewProfile = () : MapsforgeProfile => ( {
     name: '',
     theme: 'DEFAULT',
     renderStyle: null,
-    isDefault: false,
     renderOverlays: [],
 } );
 
@@ -382,11 +381,22 @@ const MapsforgeProfilesControl = () => {
 		setMapSettings,
     } = useContext( AppContext );
 
+
+    const [modalOpened,setModalOpened] = useState( false )
+	const [modalVisible, setModalVisible_] = useState( false );
+
     const [profiles,setProfiles] = useState<MapsforgeProfile[]>( mapSettings?.mapsforgeProfiles || [] );
     const profilesRef = useRef<MapsforgeProfile[]>( profiles );
     useEffect( () => {
         profilesRef.current = profiles;
-    }, [profiles])
+        if ( ! profiles.length ) {
+            updateProfile( getNewProfile() );
+        }
+        if ( ! modalVisible ) {
+            save();
+        }
+    }, [profiles,modalVisible] );
+
     const save = () => mapSettings && setMapSettings && setMapSettings( ( mapSettings: MapSettings ) => ( {
         ...mapSettings,
         mapsforgeProfiles: profilesRef.current,
@@ -395,9 +405,6 @@ const MapsforgeProfilesControl = () => {
 
 	const [expanded, setExpanded] = useState( true );
 
-
-    const [modalOpened,setModalOpened] = useState( false )
-	const [modalVisible, setModalVisible_] = useState( false );
     const setModalVisible = ( visible: boolean ) => {
         if ( visible ) {
             setModalVisible_( visible );
@@ -595,7 +602,9 @@ const MapsforgeProfilesControl = () => {
                     numColumns={ 1 }
                     renderItem={ renderItem }
                     data={ profiles }
-                    onDragRelease={ ( newProfiles : MapsforgeProfile[] ) => setProfiles( newProfiles ) }
+                    onDragRelease={ ( newProfiles : MapsforgeProfile[] ) => {
+                        setProfiles( newProfiles );
+                    } }
                 />
             </View>
 
