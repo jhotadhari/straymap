@@ -69,9 +69,9 @@ export interface LayerConfigOptionsOnlineRasterXYZ {
 
 export interface LayerConfigOptionsMapsforge {
 	mapFile?: LayerMapsforgeProps['mapFile'];
-	renderTheme?: LayerMapsforgeProps['renderTheme'];
-	renderStyle?: LayerMapsforgeProps['renderStyle'];
-	renderOverlays?: LayerMapsforgeProps['renderOverlays'];
+	enabledZoomMin?: LayerMBTilesBitmapProps['enabledZoomMin'];
+	enabledZoomMax?: LayerMBTilesBitmapProps['enabledZoomMax'];
+	profile?: string;
 };
 
 export interface LayerConfigOptionsRasterMBtiles {
@@ -111,7 +111,6 @@ export type MapsforgeProfile = {
     theme: string; // It is AbsPath or built-in
     renderStyle: null | string;
     renderOverlays: string[];
-    isDefault: boolean;
 };
 export type MapSettings = {
 	layers: LayerConfig[];

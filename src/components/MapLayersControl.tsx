@@ -102,6 +102,7 @@ const fillLayerConfigOptionsWithDefaults = ( type : string, options : LayerConfi
                 ...options,
                 ...( null === get( options, 'enabledZoomMin', null ) && { enabledZoomMin: 1 } ),
                 ...( null === get( options, 'enabledZoomMax', null ) && { enabledZoomMax: 20 } ),
+                ...( null === get( options, 'profile', null ) && { profile: 'default' } ),
             };
         case 'raster-MBtiles':
             return {

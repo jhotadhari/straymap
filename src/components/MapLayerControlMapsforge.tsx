@@ -2,26 +2,128 @@
  * External dependencies
  */
 import {
+    ReactNode,
     useContext,
     useEffect,
     useState,
 } from 'react';
 import {
+    TouchableHighlight,
 	View,
 } from 'react-native';
 import {
+    Icon,
+    Menu,
     Text,
+    TextInput,
+    useTheme,
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { debounce } from 'lodash-es';
+import { debounce, get } from 'lodash-es';
 
 /**
  * Internal dependencies
  */
-import { LayerConfig, LayerConfigOptionsMapsforge } from '../types';
+import { LayerConfig, LayerConfigOptionsMapsforge, OptionBase } from '../types';
 import { NumericMultiRowControl } from './NumericRowControls';
 import { AppContext } from '../Context';
 import FileSourceRowControl from './FileSourceRowControl';
+import InfoRowControl from './InfoRowControl';
+import ButtonHighlight from './ButtonHighlight';
+import MenuItem from './MenuItem';
+
+const ProfileRowControl = ( {
+    options,
+    setOptions,
+    Info,
+} : {
+    options: LayerConfigOptionsMapsforge;
+    setOptions: ( options : LayerConfigOptionsMapsforge ) => void;
+    Info?: ReactNode | string;
+} ) => {
+
+
+
+    const { t } = useTranslation();
+    const theme = useTheme();
+    const { mapSettings } = useContext( AppContext );
+
+    const [menuVisible,setMenuVisible] = useState( false );
+    const profiles = mapSettings?.mapsforgeProfiles || [];
+
+    const opts : OptionBase[] = [
+        {
+            key: 'default',
+            label: 'use first one',   // ??? translate
+        },
+        ...[...profiles].map( prof => {
+            const themeArr = prof.theme.split( '/' );
+            return {
+                key: prof.key,
+                label: [prof.name,'[' + themeArr[themeArr.length-1] + ']'].join( ' ' ),
+            }
+        } )
+    ];
+
+    const [selectedOpt,setSelectedOpt] = useState<string | null>( get( opts.find( opt => opt.key === options.profile ), 'key', '' ) );
+
+    useEffect( () => {
+        if ( selectedOpt ) {
+            setOptions( {
+                ...options,
+                profile: selectedOpt,
+            } );
+        }
+    }, [selectedOpt] );
+
+    return <InfoRowControl
+        label={ t( 'map.mapsforge.profile', { count: 1 } ) }
+        Info={ <Text>{ 'bla bla ??? info text' }</Text> }
+    >
+
+        <View style={ { flexDirection: 'row' } }>
+            <Menu
+                contentStyle={ {
+                    borderColor: theme.colors.outline,
+                    borderWidth: 1,
+                } }
+                visible={ menuVisible }
+                onDismiss={ () => setMenuVisible( false ) }
+                anchor={ <ButtonHighlight style={ { marginTop: 3} } onPress={ () => setMenuVisible( true ) } >
+                    <Text>{ t( get( opts.find( opt => opt.key === selectedOpt ), 'label', '' ) ) }</Text>
+                </ButtonHighlight> }
+            >
+                { opts && [...opts].map( ( opt, index ) => <MenuItem
+                    key={ opt.key }
+                    onPress={ () => {
+                        setSelectedOpt( opt.key );
+                        setMenuVisible( false );
+                    } }
+                    title={ t( opt.label ) }
+                    active={ opt.key === selectedOpt }
+                    style={ 'default' === selectedOpt && index === 1 ? {
+                        borderLeftColor: theme.colors.primary,
+                        borderLeftWidth: 5,
+                    } : {} }
+                /> ) }
+            </Menu>
+
+
+            {/* <TouchableHighlight
+                underlayColor={ theme.colors.elevation.level3 }
+                // onPress={ () => setEditProfile( profile ) }
+                style={ { padding: 10, borderRadius: theme.roundness } }
+            >
+                <Icon
+                    source="cog"
+                    size={ 25 }
+                />
+            </TouchableHighlight> */}
+
+        </View>
+    </InfoRowControl>;
+
+};
 
 const MapLayerControlMapsforge = ( {
     editLayer,
@@ -68,11 +170,11 @@ const MapLayerControlMapsforge = ( {
             hasCustom={ true }
         />
 
-
-        {/*
-        mapsforge.profile
-        */}
-
+        <ProfileRowControl
+            options={ options }
+            setOptions={ setOptions }
+            Info={ <Text>{ 'bla blaa ??? info text' }</Text> }
+        />
 
         <NumericMultiRowControl
             label={ t( 'enabled' ) }
