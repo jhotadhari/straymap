@@ -2,6 +2,8 @@
  * External dependencies
  */
 import {
+    Dispatch,
+    SetStateAction,
     useContext,
     useEffect,
     useRef,
@@ -32,12 +34,12 @@ import { LayerHillshading } from 'react-native-mapsforge-vtm';
 /**
  * Internal dependencies
  */
-import { LayerConfig, LayerConfigOptionsAny, MapSettings, OptionBase } from '../types';
+import { LayerConfig, LayerConfigOptionsAny, LayerOption, MapSettings, MapsforgeProfile, OptionBase } from '../types';
 import InfoRowControl from './InfoRowControl';
 import ButtonHighlight from './ButtonHighlight';
 import ModalWrapper from './ModalWrapper';
 import MapLayerControlOnlineRasterXYZ from './MapLayerControlOnlineRasterXYZ';
-import { AppContext } from '../Context';
+import { AppContext, SettingsMapsContext } from '../Context';
 import MapLayerControlRasterMBTiles from './MapLayerControlRasterMBTiles';
 import RadioListItem from './RadioListItem';
 import MapLayerControlHillshading from './MapLayerControlHillshading';
@@ -45,13 +47,8 @@ import InfoButton from './InfoButton';
 import NameRowControl from './NameRowControl';
 import MapLayerControlMapsforge from './MapLayerControlMapsforge';
 
-type LayerType = 'base' | 'overlay';
 
-interface LayerOption extends OptionBase {
-    type: LayerType;
-};
-
-const mapTypeOptions : LayerOption[] = [
+export const mapTypeOptions : LayerOption[] = [
     {
         key: 'online-raster-xyz',
         type: 'base' as LayerOption['type'],
@@ -72,8 +69,6 @@ const mapTypeOptions : LayerOption[] = [
     ...opt,
     label: 'map.typeDesc.' + opt.key,
 } ) );
-
-const getLayerType = ( layer : LayerConfig ) : ( LayerType | null ) => get( mapTypeOptions.find( opt => opt.key === layer.type ), 'type', null );
 
 const itemHeight = 50;
 const labelMinWidth = 90;
@@ -133,17 +128,18 @@ const fillLayerConfigOptionsWithDefaults = ( type : string, options : LayerConfi
 
 const VisibleControl = ( {
     item,
-    updateLayer,
     style,
 } : {
     item: LayerConfig;
-    updateLayer: ( newLayer: LayerConfig ) => void,
     style?: ViewStyle,
 } ) => {
     const theme = useTheme();
+
+    const { updateLayer } = useContext( SettingsMapsContext );
+
     return <TouchableHighlight
         underlayColor={ theme.colors.elevation.level3 }
-        onPress={ () => updateLayer( {
+        onPress={ () => updateLayer && updateLayer( {
             ...item,
             visible: ! item.visible,
         } ) }
@@ -158,10 +154,8 @@ const VisibleControl = ( {
 
 const VisibleRowControl = ( {
     item,
-    updateLayer,
 } : {
     item: LayerConfig;
-    updateLayer: ( newLayer: LayerConfig ) => void,
 } ) => {
 	const { t } = useTranslation();
     return <InfoRowControl
@@ -170,7 +164,6 @@ const VisibleRowControl = ( {
     >
         <VisibleControl
             item={ item }
-            updateLayer={ updateLayer }
         />
     </InfoRowControl>;
 };
@@ -178,18 +171,19 @@ const VisibleRowControl = ( {
 const DraggableItem = ( {
     item,
     width,
-    updateLayer,
-    setEditLayer,
 } : {
     item: LayerConfig;
     width: number;
-    updateLayer: ( newLayer: LayerConfig ) => void,
-    setEditLayer: ( newLayer: LayerConfig ) => void,
 } ) => {
 
     const theme = useTheme();
 
-    return <View
+    const {
+        setEditLayer,
+        updateLayer,
+    } = useContext( SettingsMapsContext );
+
+    return setEditLayer && updateLayer ? <View
         style={ {
             width,
             height: itemHeight,
@@ -205,7 +199,6 @@ const DraggableItem = ( {
 
         <VisibleControl
             item={ item }
-            updateLayer={ updateLayer }
             style={ { padding: 10 } }
         />
 
@@ -232,7 +225,7 @@ const DraggableItem = ( {
             />
         </TouchableHighlight>
 
-    </View>;
+    </View> : null;
 };
 
 const MapLayersControl = () => {
@@ -242,59 +235,27 @@ const MapLayersControl = () => {
 	const theme = useTheme();
 
     const {
-		mapSettings,
-		setMapSettings,
-    } = useContext( AppContext );
+        editLayer,
+        setEditLayer,
+        updateLayer,
+        layers,
+        setLayers,
+        saveLayers,
 
-    const [layers,setLayers] = useState<LayerConfig[]>( mapSettings?.layers || [] );
-    const layersRef = useRef<LayerConfig[]>( layers );
-    useEffect( () => {
-        layersRef.current = layers;
-    }, [layers])
-    const save = () => mapSettings && setMapSettings && setMapSettings( ( mapSettings: MapSettings ) => ( {
-        ...mapSettings,
-        layers: layersRef.current,
-    } ) );
-    useEffect( () => save, [] );    // Save on unmount.
+        setEditProfile,
+        profiles,
+    } = useContext( SettingsMapsContext );
 
 	const [expanded, setExpanded] = useState( true );
 	const [modalVisible, setModalVisible] = useState( false );
-    const [editLayer, setEditLayer] = useState<null | LayerConfig>( null );
 
     useEffect( () => {
         setModalVisible( !! editLayer );
     }, [editLayer] );
 
-    const updateLayer = ( newLayer : LayerConfig ) => {
-        if ( editLayer && editLayer.key === newLayer.key ) {
-            setEditLayer( newLayer );
-        }
-        const itemIndex = layers.findIndex( item => item.key === newLayer.key );
-        if ( -1 !== itemIndex ) {
-            const newLayers = [...layers];
-            newLayers[itemIndex] = newLayer;
-            setLayers( newLayers );
-        } else {
-            let insertIndex = 0;
-            if ( 'base' === getLayerType( newLayer ) ) {
-                const indexFirstBase = layers.findIndex( layer => 'base' === getLayerType( layer ) );
-                insertIndex = indexFirstBase !== -1 ? indexFirstBase : insertIndex;
-            }
-            const newLayers = [...layers];
-            newLayers.splice(
-                insertIndex,
-                0,
-                newLayer
-            );
-            setLayers( newLayers );
-        }
-    };
-
     const renderItem = ( item : LayerConfig ) => <View key={ item.key }><DraggableItem
         item={ item }
         width={ width }
-        updateLayer={ updateLayer }
-        setEditLayer={ setEditLayer }
     /></View>;
 
     return <View>
@@ -303,7 +264,7 @@ const MapLayersControl = () => {
             visible={ modalVisible }
             onDismiss={ () => {
                 setModalVisible( false );
-                setEditLayer( null );
+                setEditLayer && setEditLayer( null );
             } }
             header={ editLayer.type ? t( 'map.layerEdit' ) : t( 'map.addNewLayerShort' ) }
         >
@@ -312,7 +273,7 @@ const MapLayersControl = () => {
 
                     { [...mapTypeOptions].map( ( opt : LayerOption, index: number ) => {
                         const onPress = () => {
-                            updateLayer( {
+                            updateLayer && updateLayer( {
                                 ...editLayer,
                                 type: opt.key,
                                 options: fillLayerConfigOptionsWithDefaults( opt.key, editLayer.options ),
@@ -329,7 +290,7 @@ const MapLayersControl = () => {
                     } ) }
             </View> }
 
-            { editLayer.type && <View>
+            { editLayer.type && updateLayer && setEditLayer && setLayers && <View>
 
                 <View style={ { marginBottom: 10, flexDirection: 'row' } }>
                     <Text style={ { minWidth: labelMinWidth + 12 } }>{ t( 'map.mapType' ) }:</Text>
@@ -344,7 +305,6 @@ const MapLayersControl = () => {
 
                 <VisibleRowControl
                     item={ editLayer }
-                    updateLayer={ updateLayer }
                 />
 
                 { 'online-raster-xyz' === editLayer.type && <MapLayerControlOnlineRasterXYZ
@@ -355,6 +315,8 @@ const MapLayersControl = () => {
                 { 'mapsforge' === editLayer.type && <MapLayerControlMapsforge
                     editLayer={ editLayer }
                     updateLayer={ updateLayer }
+                    setEditProfile={ setEditProfile }
+                    profiles={ profiles }
                 /> }
 
                 { 'raster-MBtiles' === editLayer.type && <MapLayerControlRasterMBTiles
@@ -400,13 +362,13 @@ const MapLayersControl = () => {
 
         </ModalWrapper> }
 
-        <List.Accordion
+        { saveLayers && setEditLayer && setLayers && <List.Accordion
             title={ t( 'map.layer', { count: 0 } ) }
             left={ props => <List.Icon {...props} icon="map" /> }
             expanded={ expanded }
             onPress={ () => {
                 if ( expanded ) {
-                    save();
+                    saveLayers();
                 }
                 setExpanded( ! expanded )
             } }
@@ -458,7 +420,7 @@ const MapLayersControl = () => {
                     { t( 'map.addNewLayer' ) }
                 </ButtonHighlight>
             </View>
-        </List.Accordion>
+        </List.Accordion> }
 
     </View>;
 };

@@ -57,6 +57,11 @@ export interface ThemeOption extends OptionBase {
 
 export type HierarchyItem = MenuItem | SettingsItem;
 
+export type LayerType = 'base' | 'overlay';
+
+export interface LayerOption extends OptionBase {
+    type: LayerType;
+};
 
 export interface LayerConfigOptionsOnlineRasterXYZ {
 	url?: LayerBitmapTileProps['url'];

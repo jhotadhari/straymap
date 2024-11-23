@@ -2,7 +2,9 @@
  * External dependencies
  */
 import {
+    Dispatch,
     ReactNode,
+    SetStateAction,
     useContext,
     useEffect,
     useState,
@@ -15,7 +17,6 @@ import {
     Icon,
     Menu,
     Text,
-    TextInput,
     useTheme,
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -24,7 +25,7 @@ import { debounce, get } from 'lodash-es';
 /**
  * Internal dependencies
  */
-import { LayerConfig, LayerConfigOptionsMapsforge, OptionBase } from '../types';
+import { LayerConfig, LayerConfigOptionsMapsforge, MapsforgeProfile, OptionBase } from '../types';
 import { NumericMultiRowControl } from './NumericRowControls';
 import { AppContext } from '../Context';
 import FileSourceRowControl from './FileSourceRowControl';
@@ -35,21 +36,21 @@ import MenuItem from './MenuItem';
 const ProfileRowControl = ( {
     options,
     setOptions,
+    setEditProfile,
+    profiles,
     Info,
 } : {
     options: LayerConfigOptionsMapsforge;
     setOptions: ( options : LayerConfigOptionsMapsforge ) => void;
+    setEditProfile?: Dispatch<SetStateAction<null | MapsforgeProfile>>;
+    profiles: MapsforgeProfile[];
     Info?: ReactNode | string;
 } ) => {
 
-
-
     const { t } = useTranslation();
     const theme = useTheme();
-    const { mapSettings } = useContext( AppContext );
 
     const [menuVisible,setMenuVisible] = useState( false );
-    const profiles = mapSettings?.mapsforgeProfiles || [];
 
     const opts : OptionBase[] = [
         {
@@ -78,7 +79,7 @@ const ProfileRowControl = ( {
 
     return <InfoRowControl
         label={ t( 'map.mapsforge.profile', { count: 1 } ) }
-        Info={ <Text>{ 'bla bla ??? info text' }</Text> }
+        Info={ Info }
     >
 
         <View style={ { flexDirection: 'row' } }>
@@ -109,16 +110,21 @@ const ProfileRowControl = ( {
             </Menu>
 
 
-            {/* <TouchableHighlight
+            { 'default' !== selectedOpt && <TouchableHighlight
                 underlayColor={ theme.colors.elevation.level3 }
-                // onPress={ () => setEditProfile( profile ) }
+                onPress={ () => {
+                    const newEditProfile = profiles.find( prof => prof.key === selectedOpt )
+                    if ( newEditProfile && setEditProfile ) {
+                        setEditProfile( newEditProfile );
+                    }
+                } }
                 style={ { padding: 10, borderRadius: theme.roundness } }
             >
                 <Icon
                     source="cog"
                     size={ 25 }
                 />
-            </TouchableHighlight> */}
+            </TouchableHighlight> }
 
         </View>
     </InfoRowControl>;
@@ -128,9 +134,13 @@ const ProfileRowControl = ( {
 const MapLayerControlMapsforge = ( {
     editLayer,
     updateLayer,
+    setEditProfile,
+    profiles,
 } : {
     editLayer: LayerConfig;
     updateLayer: ( newItem : LayerConfig ) => void;
+    setEditProfile?: Dispatch<SetStateAction<null | MapsforgeProfile>>;
+    profiles: MapsforgeProfile[];
 } ) => {
 
 	const { t } = useTranslation();
@@ -173,6 +183,8 @@ const MapLayerControlMapsforge = ( {
         <ProfileRowControl
             options={ options }
             setOptions={ setOptions }
+            setEditProfile={ setEditProfile }
+            profiles={ profiles }
             Info={ <Text>{ 'bla blaa ??? info text' }</Text> }
         />
 

@@ -10,7 +10,7 @@ import {
 /**
  * Internal dependencies
  */
-import { ThemeOption, OptionBase, HierarchyItem, AbsPathsMap, MapSettings } from "./types";
+import { ThemeOption, OptionBase, HierarchyItem, AbsPathsMap, MapSettings, LayerConfig, MapsforgeProfile } from "./types";
 
 export type AppContextType = {
 	appDirs?: AbsPathsMap;
@@ -30,3 +30,28 @@ export type AppContextType = {
 };
 
 export const AppContext = createContext<AppContextType>( {} );
+
+export type SettingsMapsContextType = {
+	// layers
+    layers: LayerConfig[];
+    editLayer: null | LayerConfig;
+    setEditLayer?: Dispatch<SetStateAction<null | LayerConfig>>
+    updateLayer?: ( newLayer: LayerConfig ) => void;
+    setLayers?: Dispatch<SetStateAction<LayerConfig[]>>;
+    saveLayers?: () => void;
+	// profiles
+    profiles: MapsforgeProfile[];
+    editProfile: null | MapsforgeProfile;
+    setEditProfile?: Dispatch<SetStateAction<null | MapsforgeProfile>>;
+    updateProfile?: ( newProfile: MapsforgeProfile ) => void;
+    setProfiles?: Dispatch<SetStateAction<MapsforgeProfile[]>>;
+    saveProfiles?: () => void;
+    getNewProfile?: () => MapsforgeProfile;
+};
+
+export const SettingsMapsContext = createContext<SettingsMapsContextType>( {
+	layers: [],
+    editLayer: null,
+	profiles: [],
+    editProfile: null,
+} );

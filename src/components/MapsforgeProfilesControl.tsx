@@ -43,7 +43,7 @@ import InfoRowControl from './InfoRowControl';
 import ButtonHighlight from './ButtonHighlight';
 import ModalWrapper from './ModalWrapper';
 import MapLayerControlOnlineRasterXYZ from './MapLayerControlOnlineRasterXYZ';
-import { AppContext } from '../Context';
+import { AppContext, SettingsMapsContext } from '../Context';
 import MapLayerControlRasterMBTiles from './MapLayerControlRasterMBTiles';
 import RadioListItem from './RadioListItem';
 import MapLayerControlHillshading from './MapLayerControlHillshading';
@@ -57,28 +57,19 @@ import { sprintf } from 'sprintf-js';
 
 const itemHeight = 50;
 
-const getNewProfile = () : MapsforgeProfile => ( {
-    key: rnUuid.v4(),
-    name: '',
-    theme: 'DEFAULT',
-    renderStyle: null,
-    renderOverlays: [],
-} );
 
 const DraggableItem = ( {
     width,
     profile,
-    updateProfile,
-    setEditProfile,
 } : {
     profile: MapsforgeProfile;
     width: number;
-    updateProfile: ( newProfile: MapsforgeProfile ) => void,
-    setEditProfile: ( newProfile: MapsforgeProfile ) => void,
 } ) => {
 
     const { t } = useTranslation();
     const theme = useTheme();
+
+    const { setEditProfile } = useContext( SettingsMapsContext );
 
     let themeLabel = '';
     if ( profile.theme ) {
@@ -114,7 +105,7 @@ const DraggableItem = ( {
 
         <TouchableHighlight
             underlayColor={ theme.colors.elevation.level3 }
-            onPress={ () => setEditProfile( profile ) }
+            onPress={ () => setEditProfile && setEditProfile( profile ) }
             style={ { padding: 10, borderRadius: theme.roundness } }
         >
             <Icon
@@ -146,7 +137,7 @@ const RenderStyleRowControl = ( {
     AlternativeButton,
 } : {
     profile: MapsforgeProfile;
-    updateProfile: ( newProfile: MapsforgeProfile ) => void,
+    updateProfile?: ( newProfile: MapsforgeProfile ) => void;
     Info?: ReactNode | string;
     AlternativeButton?: ReactNode;
     renderStyleOptionsMap: { [value: string]: RenderStyleOptionsCollection };
@@ -182,7 +173,7 @@ const RenderStyleRowControl = ( {
 	const [menuVisible,setMenuVisible] = useState( false );
 
     useEffect( () => {
-        if ( selectedOpt ) {
+        if ( selectedOpt && updateProfile ) {
             updateProfile( {
                 ...profile,
                 renderStyle: selectedOpt,
@@ -230,7 +221,7 @@ const RenderOverlaysRowControl = ( {
     AlternativeButton,
 } : {
     profile: MapsforgeProfile;
-    updateProfile: ( newProfile: MapsforgeProfile ) => void,
+    updateProfile?: ( newProfile: MapsforgeProfile ) => void;
     Info?: ReactNode | string;
     label: string;
     header?: string;
@@ -266,7 +257,7 @@ const RenderOverlaysRowControl = ( {
 	const [modalVisible, setModalVisible] = useState( false );
 
     useEffect( () => {
-        updateProfile( {
+        updateProfile && updateProfile( {
             ...profile,
             renderOverlays: selectedOpts,
         } );
@@ -369,6 +360,15 @@ const RenderOverlaysRowControl = ( {
 
 const MapsforgeProfilesControl = () => {
 
+    const {
+        editProfile,
+        setEditProfile,
+        updateProfile,
+        profiles,
+        setProfiles,
+        saveProfiles,
+        getNewProfile,
+    } = useContext( SettingsMapsContext );
 
     const { width } = useWindowDimensions();
 	const { t } = useTranslation();
@@ -376,32 +376,19 @@ const MapsforgeProfilesControl = () => {
 
     const { appDirs } = useContext( AppContext );
 
-    const {
-		mapSettings,
-		setMapSettings,
-    } = useContext( AppContext );
-
-
     const [modalOpened,setModalOpened] = useState( false )
 	const [modalVisible, setModalVisible_] = useState( false );
 
-    const [profiles,setProfiles] = useState<MapsforgeProfile[]>( mapSettings?.mapsforgeProfiles || [] );
-    const profilesRef = useRef<MapsforgeProfile[]>( profiles );
-    useEffect( () => {
-        profilesRef.current = profiles;
-        if ( ! profiles.length ) {
-            updateProfile( getNewProfile() );
-        }
-        if ( ! modalVisible ) {
-            save();
-        }
-    }, [profiles,modalVisible] );
+    const [isNewKey,setIsNewKey] = useState<null | string>( null );
 
-    const save = () => mapSettings && setMapSettings && setMapSettings( ( mapSettings: MapSettings ) => ( {
-        ...mapSettings,
-        mapsforgeProfiles: profilesRef.current,
-    } ) );
-    useEffect( () => save, [] );    // Save on unmount.
+    useEffect( () => {
+        if ( editProfile ) {
+            setModalVisible( true );
+        } else {
+            setIsNewKey( null );
+            setModalVisible( false );
+        }
+    }, [editProfile] );
 
 	const [expanded, setExpanded] = useState( true );
 
@@ -414,34 +401,6 @@ const MapsforgeProfilesControl = () => {
         }
     };
 
-    const [editProfile, setEditProfile] = useState<null | MapsforgeProfile>( null );
-    const [isNewKey,setIsNewKey] = useState<null | string>( null );
-
-    useEffect( () => {
-        if ( editProfile ) {
-            setModalVisible( true );
-        } else {
-            setIsNewKey( null );
-            setModalVisible( false );
-        }
-    }, [editProfile] );
-
-    const updateProfile = ( newProfile : MapsforgeProfile ) => {
-        if ( editProfile && editProfile.key === newProfile.key ) {
-            setEditProfile( newProfile );
-        }
-        const itemIndex = profiles.findIndex( item => item.key === newProfile.key );
-        if ( -1 !== itemIndex ) {
-            const newProfiles = [...profiles];
-            newProfiles[itemIndex] = newProfile;
-            setProfiles( newProfiles );
-        } else {
-            setProfiles( [
-                ...profiles,
-                newProfile,
-            ] );
-        }
-    };
 
     const [isBusy,setIsBusy] = useState( false );
     const [renderStyleOptionsMap,setRenderStyleOptionsMap] = useState<{ [value: string]: RenderStyleOptionsCollection }>( {} );
@@ -473,8 +432,6 @@ const MapsforgeProfilesControl = () => {
     const renderItem = ( profile : MapsforgeProfile ) => <View key={ profile.key }><DraggableItem
         profile={ profile }
         width={ width }
-        updateProfile={ updateProfile }
-        setEditProfile={ setEditProfile }
     /></View>;
 
     return <View>
@@ -489,7 +446,7 @@ const MapsforgeProfilesControl = () => {
             onDismiss={ () => {
                 setModalVisible( false );
                 setIsNewKey( null );
-                setEditProfile( null );
+                setEditProfile && setEditProfile( null );
             } }
             header={ isNewKey === editProfile.key ? t( 'map.mapsforge.profileAddNewShort' ) : t( 'map.mapsforge.profileEdit' ) }
         >
@@ -514,7 +471,7 @@ const MapsforgeProfilesControl = () => {
                     options={ editProfile }
                     optionsKey={ 'theme' }
                     onSelect={ selectedOpt => {
-                        updateProfile( {
+                        updateProfile && updateProfile( {
                             ...editProfile,
                             theme: selectedOpt,
                         } )
@@ -550,7 +507,7 @@ const MapsforgeProfilesControl = () => {
                 { ! isBusy && <View style={ { marginTop: 20, marginBottom: 40, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' } }>
                     <ButtonHighlight
                         onPress={ () => {
-                            setEditProfile( null );
+                            setEditProfile && setEditProfile( null );
                             setModalVisible( false );
                             setIsNewKey( null );
                         } }
@@ -561,14 +518,16 @@ const MapsforgeProfilesControl = () => {
 
                     <ButtonHighlight
                         onPress={ () => {
-                            const profileIndex = profiles.findIndex( profile => profile.key === editProfile.key )
-                            if ( profileIndex !== -1 ) {
-                                const newProfiles = [...profiles];
-                                newProfiles.splice( profileIndex, 1 );
-                                setProfiles( newProfiles );
-                                setEditProfile( null );
-                                setModalVisible( false );
-                                setIsNewKey( null );
+                            if ( profiles && setProfiles && setEditProfile ) {
+                                const profileIndex = profiles.findIndex( profile => profile.key === editProfile.key )
+                                if ( profileIndex !== -1 ) {
+                                    const newProfiles = [...profiles];
+                                    newProfiles.splice( profileIndex, 1 );
+                                    setProfiles( newProfiles );
+                                    setEditProfile( null );
+                                    setModalVisible( false );
+                                    setIsNewKey( null );
+                                }
                             }
                         } }
                         mode="contained"
@@ -586,8 +545,8 @@ const MapsforgeProfilesControl = () => {
             left={ props => <IconIcomoon size={ 25 } name="mapsforge_puzzle_only" {...props}/> }
             expanded={ expanded }
             onPress={ () => {
-                if ( expanded ) {
-                    save();
+                if ( expanded && saveProfiles ) {
+                    saveProfiles();
                 }
                 setExpanded( ! expanded )
             } }
@@ -603,7 +562,7 @@ const MapsforgeProfilesControl = () => {
                     renderItem={ renderItem }
                     data={ profiles }
                     onDragRelease={ ( newProfiles : MapsforgeProfile[] ) => {
-                        setProfiles( newProfiles );
+                        setProfiles && setProfiles( newProfiles );
                     } }
                 />
             </View>
@@ -636,10 +595,12 @@ const MapsforgeProfilesControl = () => {
                     icon="map-plus"
                     mode="outlined"
                     onPress={ () => {
-                        const newEditProfile = getNewProfile();
-                        setIsNewKey( newEditProfile.key );
-                        setEditProfile( newEditProfile );
-                        updateProfile( newEditProfile );
+                        if ( getNewProfile && setEditProfile && updateProfile ) {
+                            const newEditProfile = getNewProfile();
+                            setIsNewKey( newEditProfile.key );
+                            setEditProfile( newEditProfile );
+                            updateProfile( newEditProfile );
+                        }
                     } }
                 >
                     { t( 'map.mapsforge.profileAddNew' ) }
