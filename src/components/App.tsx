@@ -33,15 +33,12 @@ import { get } from 'lodash-es';
 import {
 	MapContainer,
 	LayerBitmapTile,
-	// LayerMapsforge,
-	// LayerMBTilesBitmap,
-	// LayerHillshading,
-	// LayerPathSlopeGradient,
 	LayerScalebar,
-	// useRenderStyleOptions,
 	type Location,
 	LayerMBTilesBitmap,
 	LayerHillshading,
+	LayerMapsforge,
+	LayerMapsforgeProps,
 } from 'react-native-mapsforge-vtm';
 
 /**
@@ -49,7 +46,7 @@ import {
  */
 import '../assets/i18n/i18n';
 import TopAppBar from './TopAppBar';
-import type { OptionBase, HierarchyItem, ThemeOption, AbsPathsMap, LayerConfig, MapSettings, LayerConfigOptionsOnlineRasterXYZ, LayerConfigOptionsRasterMBtiles, LayerConfigOptionsHillshading } from '../types';
+import type { OptionBase, HierarchyItem, ThemeOption, AbsPathsMap, LayerConfig, MapSettings, LayerConfigOptionsOnlineRasterXYZ, LayerConfigOptionsRasterMBtiles, LayerConfigOptionsHillshading, LayerConfigOptionsMapsforge } from '../types';
 import customThemes from '../themes';
 import { AppContext } from '../Context';
 import Center from './Center';
@@ -409,6 +406,22 @@ const App = ( {
 										enabledZoomMin={ options.enabledZoomMin }
 										enabledZoomMax={ options.enabledZoomMax }
 									/>;
+								case 'mapsforge':
+									if ( mapSettings.mapsforgeProfiles.length > 0 ) {
+										const layerMapsforgeOptions = layer.options as LayerConfigOptionsMapsforge;
+										let profile = mapSettings.mapsforgeProfiles.find( prof => prof.key === layerMapsforgeOptions.profile );
+										profile = profile || mapSettings.mapsforgeProfiles[0];
+										return <LayerMapsforge
+											key={ layer.key }
+											enabledZoomMin={ layerMapsforgeOptions.enabledZoomMin }
+											enabledZoomMax={ layerMapsforgeOptions.enabledZoomMax }
+											mapFile={ layerMapsforgeOptions.mapFile }
+											renderTheme={ profile.theme as LayerMapsforgeProps['renderTheme'] }
+											renderStyle={ profile.renderStyle || undefined }
+											renderOverlays={ profile.renderOverlays }
+										/>;
+									}
+									return null;
 								case 'hillshading':
 									options = layer.options as LayerConfigOptionsHillshading;
 									return <LayerHillshading
