@@ -125,13 +125,13 @@ const fillLayerConfigOptionsWithDefaults = ( type : string, options : LayerConfi
 const VisibleControl = ( {
     item,
     style,
+    updateLayer,
 } : {
     item: LayerConfig;
     style?: ViewStyle,
+    updateLayer?: ( newLayer: LayerConfig ) => void;
 } ) => {
     const theme = useTheme();
-
-    const { updateLayer } = useContext( SettingsMapsContext );
 
     return <TouchableHighlight
         underlayColor={ theme.colors.elevation.level3 }
@@ -150,8 +150,10 @@ const VisibleControl = ( {
 
 const VisibleRowControl = ( {
     item,
+    updateLayer,
 } : {
     item: LayerConfig;
+    updateLayer?: ( newLayer: LayerConfig ) => void;
 } ) => {
 	const { t } = useTranslation();
     return <InfoRowControl
@@ -160,6 +162,7 @@ const VisibleRowControl = ( {
     >
         <VisibleControl
             item={ item }
+            updateLayer={ updateLayer }
         />
     </InfoRowControl>;
 };
@@ -195,6 +198,7 @@ const DraggableItem = ( {
 
         <VisibleControl
             item={ item }
+            updateLayer={ updateLayer }
             style={ { padding: 10 } }
         />
 
@@ -301,6 +305,7 @@ const MapLayersControl = () => {
 
                 <VisibleRowControl
                     item={ editLayer }
+                    updateLayer={ updateLayer }
                 />
 
                 { 'online-raster-xyz' === editLayer.type && <MapLayerControlOnlineRasterXYZ
