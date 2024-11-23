@@ -2,11 +2,8 @@
  * External dependencies
  */
 import {
-    Dispatch,
-    SetStateAction,
     useContext,
     useEffect,
-    useRef,
     useState,
 } from 'react';
 import {
@@ -34,19 +31,18 @@ import { LayerHillshading } from 'react-native-mapsforge-vtm';
 /**
  * Internal dependencies
  */
-import { LayerConfig, LayerConfigOptionsAny, LayerOption, MapSettings, MapsforgeProfile, OptionBase } from '../types';
+import { LayerConfig, LayerConfigOptionsAny, LayerOption } from '../types';
 import InfoRowControl from './InfoRowControl';
 import ButtonHighlight from './ButtonHighlight';
 import ModalWrapper from './ModalWrapper';
 import MapLayerControlOnlineRasterXYZ from './MapLayerControlOnlineRasterXYZ';
-import { AppContext, SettingsMapsContext } from '../Context';
+import { SettingsMapsContext } from '../Context';
 import MapLayerControlRasterMBTiles from './MapLayerControlRasterMBTiles';
 import RadioListItem from './RadioListItem';
 import MapLayerControlHillshading from './MapLayerControlHillshading';
 import InfoButton from './InfoButton';
 import NameRowControl from './NameRowControl';
 import MapLayerControlMapsforge from './MapLayerControlMapsforge';
-
 
 export const mapTypeOptions : LayerOption[] = [
     {

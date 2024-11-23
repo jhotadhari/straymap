@@ -66,7 +66,13 @@ const ProfileRowControl = ( {
         } )
     ];
 
-    const [selectedOpt,setSelectedOpt] = useState<string | null>( get( opts.find( opt => opt.key === options.profile ), 'key', '' ) );
+    const getInitialSelectedOpt = () => get( opts.find( opt => opt.key === options.profile ), 'key', 'default' );
+
+    const [selectedOpt,setSelectedOpt] = useState<string | null>( getInitialSelectedOpt() );
+
+    useEffect( () => {
+        setSelectedOpt( getInitialSelectedOpt() )
+    }, [profiles] )
 
     useEffect( () => {
         if ( selectedOpt ) {
@@ -128,7 +134,6 @@ const ProfileRowControl = ( {
 
         </View>
     </InfoRowControl>;
-
 };
 
 const MapLayerControlMapsforge = ( {
@@ -158,8 +163,6 @@ const MapLayerControlMapsforge = ( {
     useEffect( () => {
         doUpdate();
     }, [Object.values( options ).join( '' )] );
-
-    console.log( 'debug editLayer', editLayer ); // debug
 
     return <View>
 

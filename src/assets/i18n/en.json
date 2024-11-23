@@ -54,6 +54,12 @@
                 "hillshading": "bla bla hillshading"
             }
         },
+        "layer_one": "Layer",
+        "layer_other": "Layers",
+        "layerSelectedCount_one": "%s layer selected this profile",
+        "layerSelectedCount_other": "%s layers selected this profile",
+        "layerSelectedDefaultCount_one": "%s layer is using this profile because it is the default profile",
+        "layerSelectedDefaultCount_other": "%s layers are using this profile because it is the default profile",
         "theme": "Theme",
         "builtInThemes": "Built-in themes",
         "style": "Style",

@@ -24,8 +24,9 @@ import {
 import { AppContext, SettingsMapsContext } from '../Context';
 import MapLayersControl, { mapTypeOptions } from './MapLayersControl';
 import MapsforgeProfilesControl from './MapsforgeProfilesControl';
-import { LayerConfig, LayerType, MapSettings, MapsforgeProfile } from '../types';
+import { LayerConfig, LayerConfigOptionsMapsforge, LayerType, MapSettings, MapsforgeProfile } from '../types';
 import { get } from 'lodash-es';
+import useDeepCompareEffect from 'use-deep-compare-effect';
 
 
 const getNewProfile = () : MapsforgeProfile => ( {
@@ -111,8 +112,6 @@ const useLayers = () => {
 
     const [editLayer, setEditLayer] = useState<null | LayerConfig>( null );
 
-    console.log( 'debug useLayers editLayer', editLayer ); // debug
-
     const updateLayer = ( newLayer : LayerConfig ) => {
         if ( editLayer && editLayer.key === newLayer.key ) {
             setEditLayer( newLayer );
@@ -178,6 +177,28 @@ const SettingsMaps : FC = () => {
         saveLayers,
     } = useLayers();
 
+    useDeepCompareEffect( () => {
+        const layerProfileExisting = ( layer: LayerConfig ) => {
+            if ( 'mapsforge' !== layer.type ) {
+                return false;
+            }
+            const options = layer.options as LayerConfigOptionsMapsforge;
+            return 'default' === options.profile || !! profiles.find( prof => prof.key === options.profile );
+        };
+        const newLayers = [...layers].map( layer => {
+            return 'mapsforge' !== layer.type ? layer : ( layerProfileExisting( layer )
+                ? layer
+                : {
+                    ...layer,
+                    options: {
+                        ...layer.options,
+                        profile: 'default',
+                    },
+                }
+            );
+        } );
+        setLayers && setLayers( newLayers );
+    }, [profiles,layers] );
 
     return <SettingsMapsContext.Provider value={ {
         // layers

@@ -54,6 +54,12 @@
                 "hillshading": "bla bla hillshading"
             }
         },
+        "layer_one": "Ebene",
+        "layer_other": "Ebenen",
+        "layerSelectedCount_one": "%s Ebene hat dieses Profil ausgewählt",
+        "layerSelectedCount_other": "%s Ebenen haben dieses Profil ausgewählt",
+        "layerSelectedDefaultCount_one": "%s Ebene benutzt dieses Profil, weil es das es das Standardprofil ist",
+        "layerSelectedDefaultCount_other": "%s Ebenen benutzen dieses Profil, weil es das es das Standardprofil ist",
         "theme": "Theme",
         "builtInThemes": "Eingebaute Themes",
         "style": "Stil",

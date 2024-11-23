@@ -7,56 +7,46 @@ import {
     SetStateAction,
     useContext,
     useEffect,
-    useRef,
     useState,
 } from 'react';
 import {
 	useWindowDimensions,
 	View,
     TouchableHighlight,
-    ViewStyle,
 } from 'react-native';
 import {
     List,
 	useTheme,
     Text,
     Icon,
-    TextInput,
     Menu,
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import DraggableGrid from 'react-native-draggable-grid';
-import { debounce, get } from 'lodash-es';
-import rnUuid from 'react-native-uuid';
-import { IconProps } from 'react-native-paper/lib/typescript/components/MaterialCommunityIcon';
+import { get } from 'lodash-es';
+import { sprintf } from 'sprintf-js';
 
 /**
  * react-native-mapsforge-vtm dependencies
  */
-import { LayerHillshading, LayerMapsforge, MapLayerMapsforgeModule, RenderStyleOptionsCollection, useRenderStyleOptions } from 'react-native-mapsforge-vtm';
+import { LayerMapsforge, MapLayerMapsforgeModule, RenderStyleOptionsCollection } from 'react-native-mapsforge-vtm';
 
 /**
  * Internal dependencies
  */
-import { MapSettings, MapsforgeProfile, OptionBase } from '../types';
+import { LayerConfig, LayerConfigOptionsMapsforge, MapSettings, MapsforgeProfile, OptionBase } from '../types';
 import InfoRowControl from './InfoRowControl';
 import ButtonHighlight from './ButtonHighlight';
 import ModalWrapper from './ModalWrapper';
-import MapLayerControlOnlineRasterXYZ from './MapLayerControlOnlineRasterXYZ';
 import { AppContext, SettingsMapsContext } from '../Context';
-import MapLayerControlRasterMBTiles from './MapLayerControlRasterMBTiles';
 import RadioListItem from './RadioListItem';
-import MapLayerControlHillshading from './MapLayerControlHillshading';
 import InfoButton from './InfoButton';
 import IconIcomoon from './IconIcomoon';
-import useDeepCompareEffect from 'use-deep-compare-effect';
 import NameRowControl from './NameRowControl';
 import FileSourceRowControl from './FileSourceRowControl';
 import MenuItem from './MenuItem';
-import { sprintf } from 'sprintf-js';
 
 const itemHeight = 50;
-
 
 const DraggableItem = ( {
     width,
@@ -69,12 +59,17 @@ const DraggableItem = ( {
     const { t } = useTranslation();
     const theme = useTheme();
 
-    const { setEditProfile } = useContext( SettingsMapsContext );
+    const { setEditProfile, layers, profiles } = useContext( SettingsMapsContext );
 
     let themeLabel = '';
     if ( profile.theme ) {
         const themeArr = profile.theme.split( '/' );
         themeLabel = themeArr[themeArr.length-1];
+    }
+
+    let layersCount = layers.filter( lay => lay.type === 'mapsforge' && get( lay.options as LayerConfigOptionsMapsforge, 'profile' ) === profile.key ).length;
+    if ( profiles.length && profiles[0].key === profile.key ) {
+        layersCount = layersCount + layers.filter( lay => lay.type === 'mapsforge' && get( lay.options as LayerConfigOptionsMapsforge, 'profile' ) === 'default' ).length;
     }
 
     return <View
@@ -100,6 +95,7 @@ const DraggableItem = ( {
             marginRight: 5,
         } } >
             <Text style={ { marginLeft: 40 } } >{ profile.name }</Text>
+            <Text>{ sprintf( '%s ' + t( 'layer', { count: layersCount } ), layersCount ) }</Text>
             <Text>[{ themeLabel }]</Text>
         </View>
 
@@ -126,6 +122,29 @@ const getDefaultSelectedOpt = ( profile: MapsforgeProfile, opts: OptionBase[], d
         }
     }
     return opts.length && defaultRenderStyle ? get( opts.find( opt => opt.key === defaultRenderStyle ), 'key', null ) : null;
+};
+
+const LayerCountRow = ( {
+    profile,
+    profiles,
+    layers,
+} : {
+    profile: MapsforgeProfile;
+    profiles: MapsforgeProfile[];
+    layers: LayerConfig[];
+} ) => {
+    const { t } = useTranslation();
+    const isDefaultProfile = profiles.length && profiles[0].key === profile.key;
+    const layersCount = layers.filter( lay => lay.type === 'mapsforge' && get( lay.options as LayerConfigOptionsMapsforge, 'profile' ) === profile.key ).length;
+    const layersCountDefault = isDefaultProfile ? layers.filter( lay => lay.type === 'mapsforge' && get( lay.options as LayerConfigOptionsMapsforge, 'profile' ) === 'default' ).length : 0;
+    return <InfoRowControl
+        label={ t( 'layer', { count: 0 } ) }
+    >
+        <View style={ { paddingLeft: 12 } }>
+            <Text style={ { maxWidth: '80%'} }>{ sprintf( t( 'layerSelectedCount', { count: layersCount } ), layersCount ) }</Text>
+            { isDefaultProfile && <Text style={ { maxWidth: '80%', marginTop: 10 } }>{ sprintf( t( 'layerSelectedDefaultCount', { count: layersCountDefault } ), layersCountDefault ) }</Text> }
+        </View>
+    </InfoRowControl>
 };
 
 const RenderStyleRowControl = ( {
@@ -368,6 +387,7 @@ const MapsforgeProfilesControl = () => {
         setProfiles,
         saveProfiles,
         getNewProfile,
+        layers,
     } = useContext( SettingsMapsContext );
 
     const { width } = useWindowDimensions();
@@ -456,6 +476,12 @@ const MapsforgeProfilesControl = () => {
                     item={ editProfile }
                     update={ updateProfile as ( newItem: { name: string } ) => void }
                     Info={ isBusy ? undefined : <Text>{ 'bla blaa ??? info text' }</Text> }
+                />
+
+                <LayerCountRow
+                    profile={ editProfile }
+                    profiles={ profiles }
+                    layers={ layers }
                 />
 
                 <FileSourceRowControl
