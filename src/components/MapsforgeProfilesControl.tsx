@@ -328,7 +328,10 @@ const RenderOverlaysRowControl = ( {
                         onPress={ () => {
                             if ( isSelected ) {
                                 const newSelectedOpts = [...selectedOpts];
-                                newSelectedOpts.splice( index, 1 );
+                                const index = newSelectedOpts.findIndex( optKey => optKey === opt.key );
+                                if ( index !== -1 ) {
+                                    newSelectedOpts.splice( index, 1 );
+                                }
                                 setSelectedOpts( newSelectedOpts );
                             } else {
                                 setSelectedOpts( [
