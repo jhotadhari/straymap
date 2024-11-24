@@ -39,6 +39,7 @@ import {
 	LayerHillshading,
 	LayerMapsforge,
 	LayerMapsforgeProps,
+	usePromiseQueueState,
 } from 'react-native-mapsforge-vtm';
 
 /**
@@ -202,7 +203,11 @@ const AppWrapper = () => {
 	</PaperProvider>;
 };
 
-const useMapSettings = () => {
+const useMapSettings = ( {
+	setMaybeIsBusy,
+} : {
+    setMaybeIsBusy?: Dispatch<SetStateAction<boolean>>;
+} ) => {
 	const { t } = useTranslation();
 	const [initialized,setInitialized] = useState( false );
 	const [mapSettings,setMapSettings] = useState<MapSettings>( {
@@ -211,18 +216,23 @@ const useMapSettings = () => {
 	} );
 
     useEffect( () => {
-		DefaultPreference.get( 'mapSettings' ).then( newMapSettings => {
+		setMaybeIsBusy && setMaybeIsBusy( true );
+		setTimeout( () => DefaultPreference.get( 'mapSettings' ).then( newMapSettings => {
 			if ( newMapSettings ) {
 				setMapSettings( JSON.parse( newMapSettings ) );
 			}
 			setInitialized( true );
-		} ).catch( err => 'ERROR' + console.log( err ) );
+		} ).catch( err => 'ERROR' + console.log( err ) )
+		.finally( () => setMaybeIsBusy && setMaybeIsBusy( false ) ), 1 );
     }, [] );
+
 	useDeepCompareEffect( () => {
 		if ( initialized ) {
-			DefaultPreference.set( 'mapSettings', JSON.stringify( mapSettings ) )
+			setMaybeIsBusy && setMaybeIsBusy( true );
+			setTimeout( () => DefaultPreference.set( 'mapSettings', JSON.stringify( mapSettings ) )
 			.then( () => ToastAndroid.show( t( 'settings.mapsSaved' ), ToastAndroid.SHORT ) )
-			.catch( err => 'ERROR' + console.log( err ) );
+			.catch( err => 'ERROR' + console.log( err ) )
+			.finally( () => setMaybeIsBusy && setMaybeIsBusy( false ) ), 10 );
 		}
 	}, [mapSettings] )
 	return {
@@ -268,6 +278,19 @@ const useInitialCenter = () => {
 	};
 };
 
+const useIsBusy = () => {
+	const [isBusy,setIsBusy] = useState( false );
+	const [maybeIsBusy,setMaybeIsBusy] = useState( false );
+	const promiseQueueState = usePromiseQueueState();
+	useEffect( () => {
+		setIsBusy( promiseQueueState !== 0 || maybeIsBusy );
+	}, [maybeIsBusy, promiseQueueState] );
+	return {
+		isBusy,
+		setMaybeIsBusy,
+	};
+};
+
 const App = ( {
 	selectedTheme,
 	setSelectedTheme,
@@ -291,6 +314,11 @@ const App = ( {
 	const [selectedHierarchyItems,setSelectedHierarchyItems] = useState<null | HierarchyItem[]>( null );
 
 	const {
+		isBusy,
+		setMaybeIsBusy,
+	} = useIsBusy();
+
+	const {
 		width,
 		height,
 	} = useWindowDimensions();
@@ -308,7 +336,9 @@ const App = ( {
 	const {
 		mapSettings,
 		setMapSettings,
-	} = useMapSettings();
+	} = useMapSettings( {
+		setMaybeIsBusy,
+	} );
 
 	const {
 		initialPosition,
@@ -336,6 +366,8 @@ const App = ( {
 		setSelectedHierarchyItems,
 		mapSettings,
 		setMapSettings,
+		isBusy,
+		setMaybeIsBusy,
 	} }>
 		<SafeAreaView style={ {
 			backgroundColor: theme.colors.background,
@@ -383,7 +415,7 @@ const App = ( {
 					} }
 				>
 
-					{ [...mapSettings.layers].reverse().map( ( layer : LayerConfig, index ) => {
+					{ [...mapSettings.layers].reverse().map( ( layer : LayerConfig ) => {
 						if ( layer.type && layer.visible ) {
 							let options;
 							switch( layer.type ) {

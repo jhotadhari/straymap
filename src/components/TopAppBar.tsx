@@ -17,7 +17,7 @@ import {
 } from 'react-native-paper';
 import { IconSource } from 'react-native-paper/lib/typescript/components/Icon';
 import { useTranslation } from 'react-i18next';
-import { useWindowDimensions, View, BackHandler, TouchableHighlight } from 'react-native';
+import { useWindowDimensions, View, BackHandler, TouchableHighlight, ActivityIndicator } from 'react-native';
 
 /**
  * Internal dependencies
@@ -191,6 +191,19 @@ const TopAppBarMenu = ( {
 	</Menu>;
 };
 
+const LoadingIndicator = () => {
+	const theme = useTheme();
+	return <ActivityIndicator
+		animating={ true }
+		size={ 'large' }
+		style={ {
+			backgroundColor: theme.colors.background,
+			borderRadius: theme.roundness,
+		} }
+		color={ theme.colors.primary }
+	/>;
+};
+
 const TopAppBar = ( {
 	setTopAppBarHeight,
 } : {
@@ -204,6 +217,7 @@ const TopAppBar = ( {
     const {
 		selectedHierarchyItems,
 		setSelectedHierarchyItems,
+		isBusy,
     } = useContext( AppContext )
 
 	const backAction = () => {
@@ -250,10 +264,13 @@ const TopAppBar = ( {
 			underlayColor={ theme.colors.elevation.level3 }
             onPress={ backAction }
         >
-			<Icon
-				source="arrow-left"
-				size={ 30 }
-			/>
+			<View>
+				{ ! isBusy && <Icon
+					source="arrow-left"
+					size={ 30 }
+				/> }
+				{ isBusy && <LoadingIndicator/> }
+			</View>
 		</TouchableHighlight> }
 
         <Appbar.Content title={ selectedHierarchyItems
@@ -265,9 +282,12 @@ const TopAppBar = ( {
 			selectedHierarchyItems={ selectedHierarchyItems }
 			setSelectedHierarchyItems={ setSelectedHierarchyItems }
 			items={ menuItems }
-			anchorIcon="menu"
+			anchorIcon={ props => isBusy
+				? <LoadingIndicator/>
+				: <Icon size={ 30 } source="menu"/>
+			}
 		/> }
 	</Appbar>;
-}
+};
 
 export default TopAppBar;

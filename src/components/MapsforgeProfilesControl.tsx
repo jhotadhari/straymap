@@ -20,6 +20,7 @@ import {
     Text,
     Icon,
     Menu,
+    ActivityIndicator,
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import DraggableGrid from 'react-native-draggable-grid';
@@ -45,8 +46,23 @@ import IconIcomoon from './IconIcomoon';
 import NameRowControl from './NameRowControl';
 import FileSourceRowControl from './FileSourceRowControl';
 import MenuItem from './MenuItem';
+import { modalWidthFactor } from '../constants';
 
 const itemHeight = 50;
+
+
+const LoadingIndicator = () => {
+	const theme = useTheme();
+	return <ActivityIndicator
+		animating={ true }
+		// size={ 'large' }
+		style={ {
+			backgroundColor: theme.colors.background,
+			borderRadius: theme.roundness,
+		} }
+		color={ theme.colors.primary }
+	/>;
+};
 
 const DraggableItem = ( {
     width,
@@ -74,7 +90,7 @@ const DraggableItem = ( {
 
     return <View
         style={ {
-            width,
+            width: width * modalWidthFactor,
             height: itemHeight,
             justifyContent:'space-between',
             alignItems: 'center',
@@ -94,9 +110,9 @@ const DraggableItem = ( {
             marginLeft: 5,
             marginRight: 5,
         } } >
-            <Text style={ { marginLeft: 40 } } >{ profile.name }</Text>
-            <Text>{ sprintf( '%s ' + t( 'layer', { count: layersCount } ), layersCount ) }</Text>
-            <Text>[{ themeLabel }]</Text>
+            <Text style={ { marginLeft: 0, width: 100 } } >{ profile.name }</Text>
+            <Text style={ { flexGrow: 1 } } >{ sprintf( '%s ' + t( 'layer', { count: layersCount } ), layersCount ) }</Text>
+            <Text style={ {} } >[{ themeLabel }]</Text>
         </View>
 
         <TouchableHighlight
@@ -320,7 +336,7 @@ const RenderOverlaysRowControl = ( {
             </View>
 
             { opts.length > 0 && <View>
-                { [...opts].map( ( opt, index ) => {
+                { [...opts].map( ( opt ) => {
                     const isSelected = selectedOpts.includes( opt.key );
                     return <RadioListItem
                         key={ opt.key }
@@ -397,7 +413,7 @@ const MapsforgeProfilesControl = () => {
 	const { t } = useTranslation();
 	const theme = useTheme();
 
-    const { appDirs } = useContext( AppContext );
+    const { appDirs, isBusy, setMaybeIsBusy } = useContext( AppContext );
 
     const [modalOpened,setModalOpened] = useState( false )
 	const [modalVisible, setModalVisible_] = useState( false );
@@ -425,14 +441,14 @@ const MapsforgeProfilesControl = () => {
     };
 
 
-    const [isBusy,setIsBusy] = useState( false );
+    // const [isBusy,setIsBusy] = useState( false );
     const [renderStyleOptionsMap,setRenderStyleOptionsMap] = useState<{ [value: string]: RenderStyleOptionsCollection }>( {} );
     const [renderDefaultStylesMap,setRenderDefaultStylesMap] = useState<{ [value: string]: ( string | null ) }>( {} );
 
 	useEffect( () => {
         if ( editProfile && null !== editProfile.theme && modalOpened ) {
             if ( ! renderStyleOptionsMap[editProfile.theme] ) {
-                setIsBusy( true );
+                setMaybeIsBusy && setMaybeIsBusy( true );
                 setTimeout( () => {
                     MapLayerMapsforgeModule.getRenderThemeOptions( editProfile?.theme ).then( ( collection : RenderStyleOptionsCollection ) => {
                         setRenderStyleOptionsMap( {
@@ -445,7 +461,7 @@ const MapsforgeProfilesControl = () => {
                                 [editProfile.theme]: get( Object.values( collection ).find( obj => obj.default ), 'value', null ),
                             } ),
                         } );
-                        setIsBusy( false );
+                        setMaybeIsBusy && setMaybeIsBusy( false );
                     } ).catch( ( err: any ) => console.log( 'ERROR', err ) );
                 }, 1 );
             }
@@ -461,11 +477,7 @@ const MapsforgeProfilesControl = () => {
 
         { editProfile && <ModalWrapper
             visible={ modalVisible }
-            onLayout={ event => {
-
-                setModalOpened( true );
-                // console.log( 'debug event', event ); // debug
-            } }
+            onLayout={ () => setModalOpened( true ) }
             onDismiss={ () => {
                 setModalVisible( false );
                 setIsNewKey( null );
@@ -488,7 +500,7 @@ const MapsforgeProfilesControl = () => {
                 />
 
                 <FileSourceRowControl
-                    AlternativeButton={ isBusy ? () => <Text>busy!!!???</Text> : undefined }
+                    AlternativeButton={ isBusy ? () => <LoadingIndicator/> : undefined }
                     label={ t( 'theme' ) }
                     header={ t( 'selectTheme' ) }
                     initialOptsMap={ {
@@ -516,7 +528,7 @@ const MapsforgeProfilesControl = () => {
 
 
                 <RenderStyleRowControl
-                    AlternativeButton={ isBusy ? <Text>busy!!!???</Text> : undefined }
+                    AlternativeButton={ isBusy ? <LoadingIndicator/> : undefined }
                     Info={ isBusy ? undefined : <Text>{'bla blaa ??? info text'}</Text> }
                     profile={ editProfile }
                     updateProfile={ updateProfile }
@@ -525,7 +537,7 @@ const MapsforgeProfilesControl = () => {
                 />
 
                 <RenderOverlaysRowControl
-                    AlternativeButton={ isBusy ? () => <Text>busy!!!???</Text> : undefined }
+                    AlternativeButton={ isBusy ? () => <LoadingIndicator/> : undefined }
                     Info={ isBusy ? undefined : <Text>{'bla blaa ??? info text'}</Text> }
                     profile={ editProfile }
                     updateProfile={ updateProfile }
