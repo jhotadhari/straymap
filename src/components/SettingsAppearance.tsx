@@ -22,7 +22,7 @@ import { useTranslation } from 'react-i18next';
  */
 import { AppContext } from '../Context';
 import ListItemMenuControl from './ListItemMenuControl';
-
+import CenterControl from './CenterControl';
 
 const SettingsAppearance : FC = () => {
 
@@ -55,6 +55,8 @@ const SettingsAppearance : FC = () => {
 				size={ 25 }
 			/></View> }
 		/>
+
+		<CenterControl/>
 
 	</ScrollView>;
 };

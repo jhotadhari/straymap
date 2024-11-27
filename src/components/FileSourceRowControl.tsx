@@ -58,8 +58,8 @@ const FileSourceRowControl = ( {
     initialOptsMap = {},
     AlternativeButton,
 } : {
-    filePattern: RegExp;
-    dirs: AbsPath[],
+    filePattern?: RegExp;
+    dirs?: AbsPath[],
     options: object;
     optionsKey: string;
     onSelect: ( option : any ) => void;
@@ -92,7 +92,7 @@ const FileSourceRowControl = ( {
             const dirInfo = dirsInfos[key];
             newOptsMap = {
                 ...newOptsMap,
-                [key]: dirInfo && dirInfo.navChildren ? [...dirInfo.navChildren].filter( child => child.isFile && child.canRead && filePattern.test( child.name ) ).map( child => {
+                [key]: dirInfo && dirInfo.navChildren ? [...dirInfo.navChildren].filter( child => child.isFile && child.canRead && ( filePattern ? filePattern.test( child.name ) : true ) ).map( child => {
                     const nameArr = child.name.split( '/' );
                     return {
                         key: child.name,

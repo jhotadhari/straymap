@@ -2,14 +2,76 @@
 /**
  * External dependencies
  */
-import React, { useContext } from 'react';
-import { View } from 'react-native';
-import { ActivityIndicator, Icon, MD3Colors, useTheme } from 'react-native-paper';
+import React, { useContext, useEffect, useState } from 'react';
+import { Image, View } from 'react-native';
+import { ActivityIndicator, Icon, useTheme } from 'react-native-paper';
+import { SvgXml } from 'react-native-svg';
+import { readFile } from 'react-native-fs';
 
 /**
  * react-native-mapsforge-vtm dependencies
  */
 import { AppContext } from '../Context';
+import { CurserConfig } from '../types';
+
+export const CenterInner = ( {
+	curser,
+} : {
+	curser?: CurserConfig;
+} ) => {
+
+	const { appearanceSettings } = useContext( AppContext );
+
+	const curserConfig = curser || appearanceSettings?.curser;
+
+	const [xml,setXml] = useState( '' );
+
+	console.log( 'debug curserConfig', curserConfig ); // debug
+
+	// ??? should handle png
+
+	useEffect( () => {
+		if ( curserConfig && ( curserConfig.iconSource.startsWith( 'content://' ) || curserConfig.iconSource.startsWith( '/' ) ) && curserConfig.iconSource.endsWith( '.svg' ) ) {
+			readFile( curserConfig.iconSource, 'utf8' ).then( ( newXml: string ) => {
+				setXml( newXml );
+			} ).catch( ( err: any ) => { console.log( 'ERROR readFile', err ) } );
+		} else {
+			setXml( '' );
+		}
+	}, [curserConfig?.iconSource] );
+
+	return <View>
+
+		{ curserConfig && ! curserConfig.iconSource.startsWith( 'content://' ) && ! curserConfig.iconSource.startsWith( '/' ) && <Icon
+			source={ curserConfig.iconSource }
+			color={ curserConfig.color }
+			size={ curserConfig.size }
+		/> }
+
+		{ curserConfig && curserConfig.iconSource.toLowerCase().endsWith( '.svg' ) && xml && <View style={ {
+			width: curserConfig.size,
+			height: curserConfig.size,
+		} }>
+			<SvgXml xml={ xml } width="100%" height="100%" />
+		</View> }
+
+		{ curserConfig && curserConfig.iconSource.toLowerCase().endsWith( '.png' ) && <View style={ {
+			width: curserConfig.size,
+			height: curserConfig.size,
+		} }>
+			<Image
+				source={ { uri: curserConfig.iconSource.startsWith( '/' )
+					? 'file://' + curserConfig.iconSource
+					: curserConfig.iconSource } }
+				style={{
+					width: curserConfig.size,
+					height: curserConfig.size
+				}
+			} />
+		</View> }
+
+	</View>
+};
 
 const Center = ( {
 	width,
@@ -47,11 +109,7 @@ const Center = ( {
 			color={ theme.colors.primary }
 		/> }
 
-		{ ! isBusy && <Icon
-			source="target"
-			color={ MD3Colors.error50 }
-			size={ 25 }
-		/> }
+		{ ! isBusy && <CenterInner/> }
 
 	</View>;
 };

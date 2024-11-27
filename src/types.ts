@@ -117,7 +117,18 @@ export type MapsforgeProfile = {
     renderStyle: null | string;
     renderOverlays: string[];
 };
+
 export type MapSettings = {
 	layers: LayerConfig[];
 	mapsforgeProfiles: MapsforgeProfile[];
+};
+
+export type CurserConfig = {
+	iconSource: string;
+	size: number;
+	color: string;
+};
+
+export type AppearanceSettings = {
+	curser: CurserConfig;
 };

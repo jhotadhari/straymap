@@ -12,8 +12,10 @@ import { GestureResponderEvent } from 'react-native';
 const ButtonHighlight = ( props : ButtonProps ) => {
     const [pressing,setPressing] = useState( false );
     const theme = useTheme();
+    const { onPress, ...restProps } = props;
     return <Button
-        {...props}
+        {...restProps}
+        onPress={ props.disabled ? undefined : onPress }
         onPressIn={ ( e: GestureResponderEvent ) => {
             setPressing( true );
             props.onPressIn ? props.onPressIn( e ) : null;

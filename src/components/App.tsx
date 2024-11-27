@@ -47,7 +47,19 @@ import {
  */
 import '../assets/i18n/i18n';
 import TopAppBar from './TopAppBar';
-import type { OptionBase, HierarchyItem, ThemeOption, AbsPathsMap, LayerConfig, MapSettings, LayerConfigOptionsOnlineRasterXYZ, LayerConfigOptionsRasterMBtiles, LayerConfigOptionsHillshading, LayerConfigOptionsMapsforge } from '../types';
+import type {
+	OptionBase,
+	HierarchyItem,
+	ThemeOption,
+	AbsPathsMap,
+	LayerConfig,
+	MapSettings,
+	LayerConfigOptionsOnlineRasterXYZ,
+	LayerConfigOptionsRasterMBtiles,
+	LayerConfigOptionsHillshading,
+	LayerConfigOptionsMapsforge,
+	AppearanceSettings,
+} from '../types';
 import customThemes from '../themes';
 import { AppContext } from '../Context';
 import Center from './Center';
@@ -241,6 +253,47 @@ const useMapSettings = ( {
 	};
 };
 
+const useAppearanceSettings = ( {
+	setMaybeIsBusy,
+} : {
+    setMaybeIsBusy?: Dispatch<SetStateAction<boolean>>;
+} ) => {
+	const { t } = useTranslation();
+	const [initialized,setInitialized] = useState( false );
+	const [appearanceSettings,setAppearanceSettings] = useState<AppearanceSettings>( {
+		curser: {
+			iconSource: 'target',
+			size: 25,
+			color: '#ed1c23',
+		},
+	} );
+
+    useEffect( () => {
+		setMaybeIsBusy && setMaybeIsBusy( true );
+		setTimeout( () => DefaultPreference.get( 'appearanceSettings' ).then( newAppearanceSettings => {
+			if ( newAppearanceSettings ) {
+				setAppearanceSettings( JSON.parse( newAppearanceSettings ) );
+			}
+			setInitialized( true );
+		} ).catch( err => 'ERROR' + console.log( err ) )
+		.finally( () => setMaybeIsBusy && setMaybeIsBusy( false ) ), 1 );
+    }, [] );
+
+	useDeepCompareEffect( () => {
+		if ( initialized ) {
+			setMaybeIsBusy && setMaybeIsBusy( true );
+			setTimeout( () => DefaultPreference.set( 'appearanceSettings', JSON.stringify( appearanceSettings ) )
+			.then( () => ToastAndroid.show( t( 'settings.appearanceSaved' ), ToastAndroid.SHORT ) )
+			.catch( err => 'ERROR' + console.log( err ) )
+			.finally( () => setMaybeIsBusy && setMaybeIsBusy( false ) ), 10 );
+		}
+	}, [appearanceSettings] )
+	return {
+		appearanceSettings,
+		setAppearanceSettings,
+	};
+};
+
 const useInitialCenter = () => {
 	const [initialized,setInitialized] = useState( false );
 	const [initialPosition,setInitialPosition] = useState<null | {
@@ -341,6 +394,13 @@ const App = ( {
 	} );
 
 	const {
+		appearanceSettings,
+		setAppearanceSettings,
+	} = useAppearanceSettings( {
+		setMaybeIsBusy,
+	} );
+
+	const {
 		initialPosition,
 		setInitialPosition,
 	} = useInitialCenter();
@@ -366,6 +426,8 @@ const App = ( {
 		setSelectedHierarchyItems,
 		mapSettings,
 		setMapSettings,
+		appearanceSettings,
+		setAppearanceSettings,
 		isBusy,
 		setMaybeIsBusy,
 	} }>

@@ -83,6 +83,7 @@ public class HelperModule extends ReactContextBaseJavaModule {
 			"mapstyles",
 			"tracks",
 			"marker",
+			"curser",
 		};
 		for ( int si = 0; si < subdirs.length; si++ ) {
 			WritableArray dirs = new WritableNativeArray();
