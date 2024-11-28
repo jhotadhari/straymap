@@ -1,4 +1,3 @@
-
 /**
  * External dependencies
  */
@@ -35,11 +34,14 @@ import {
 	LayerBitmapTile,
 	LayerScalebar,
 	type Location,
+	type HardwareKeyEventResponse,
+	type MapContainerProps,
 	LayerMBTilesBitmap,
 	LayerHillshading,
 	LayerMapsforge,
 	LayerMapsforgeProps,
 	usePromiseQueueState,
+	MapContainerModule,
 } from 'react-native-mapsforge-vtm';
 
 /**
@@ -59,11 +61,13 @@ import type {
 	LayerConfigOptionsHillshading,
 	LayerConfigOptionsMapsforge,
 	AppearanceSettings,
+	GeneralSettings,
 } from '../types';
 import customThemes from '../themes';
 import { AppContext } from '../Context';
 import Center from './Center';
 import { HelperModule } from '../nativeModules';
+import { sprintf } from 'sprintf-js';
 
 const useAppTheme = () => {
 
@@ -215,23 +219,26 @@ const AppWrapper = () => {
 	</PaperProvider>;
 };
 
-const useMapSettings = ( {
+const useSettings = ( {
 	setMaybeIsBusy,
+	settingsKey,
+	savedMessage,
+	initialSettings = {},
 } : {
-    setMaybeIsBusy?: Dispatch<SetStateAction<boolean>>;
+	setMaybeIsBusy?: Dispatch<SetStateAction<boolean>>;
+	savedMessage?: string;
+	settingsKey: string;
+	initialSettings?: object;
 } ) => {
-	const { t } = useTranslation();
+
 	const [initialized,setInitialized] = useState( false );
-	const [mapSettings,setMapSettings] = useState<MapSettings>( {
-		layers: [],
-		mapsforgeProfiles: [],
-	} );
+	const [settings,setSettings] = useState<object>( initialSettings );
 
     useEffect( () => {
 		setMaybeIsBusy && setMaybeIsBusy( true );
-		setTimeout( () => DefaultPreference.get( 'mapSettings' ).then( newMapSettings => {
-			if ( newMapSettings ) {
-				setMapSettings( JSON.parse( newMapSettings ) );
+		setTimeout( () => DefaultPreference.get( settingsKey ).then( newSettings => {
+			if ( newSettings ) {
+				setSettings( JSON.parse( newSettings ) );
 			}
 			setInitialized( true );
 		} ).catch( err => 'ERROR' + console.log( err ) )
@@ -241,57 +248,17 @@ const useMapSettings = ( {
 	useDeepCompareEffect( () => {
 		if ( initialized ) {
 			setMaybeIsBusy && setMaybeIsBusy( true );
-			setTimeout( () => DefaultPreference.set( 'mapSettings', JSON.stringify( mapSettings ) )
-			.then( () => ToastAndroid.show( t( 'settings.mapsSaved' ), ToastAndroid.SHORT ) )
+			setTimeout( () => DefaultPreference.set( settingsKey, JSON.stringify( settings ) )
+			.then( () => savedMessage ? ToastAndroid.show( savedMessage, ToastAndroid.SHORT ) : null )
 			.catch( err => 'ERROR' + console.log( err ) )
 			.finally( () => setMaybeIsBusy && setMaybeIsBusy( false ) ), 10 );
 		}
-	}, [mapSettings] )
+	}, [settings] )
 	return {
-		mapSettings,
-		setMapSettings,
+		settings,
+		setSettings,
 	};
-};
 
-const useAppearanceSettings = ( {
-	setMaybeIsBusy,
-} : {
-    setMaybeIsBusy?: Dispatch<SetStateAction<boolean>>;
-} ) => {
-	const { t } = useTranslation();
-	const [initialized,setInitialized] = useState( false );
-	const [appearanceSettings,setAppearanceSettings] = useState<AppearanceSettings>( {
-		curser: {
-			iconSource: 'target',
-			size: 25,
-			color: '#ed1c23',
-		},
-	} );
-
-    useEffect( () => {
-		setMaybeIsBusy && setMaybeIsBusy( true );
-		setTimeout( () => DefaultPreference.get( 'appearanceSettings' ).then( newAppearanceSettings => {
-			if ( newAppearanceSettings ) {
-				setAppearanceSettings( JSON.parse( newAppearanceSettings ) );
-			}
-			setInitialized( true );
-		} ).catch( err => 'ERROR' + console.log( err ) )
-		.finally( () => setMaybeIsBusy && setMaybeIsBusy( false ) ), 1 );
-    }, [] );
-
-	useDeepCompareEffect( () => {
-		if ( initialized ) {
-			setMaybeIsBusy && setMaybeIsBusy( true );
-			setTimeout( () => DefaultPreference.set( 'appearanceSettings', JSON.stringify( appearanceSettings ) )
-			.then( () => ToastAndroid.show( t( 'settings.appearanceSaved' ), ToastAndroid.SHORT ) )
-			.catch( err => 'ERROR' + console.log( err ) )
-			.finally( () => setMaybeIsBusy && setMaybeIsBusy( false ) ), 10 );
-		}
-	}, [appearanceSettings] )
-	return {
-		appearanceSettings,
-		setAppearanceSettings,
-	};
 };
 
 const useInitialCenter = () => {
@@ -360,6 +327,7 @@ const App = ( {
 	selectedLang: string,
 } ) => {
 
+	const { t } = useTranslation();
 	const theme = useTheme();
 	const systemIsDarkMode = useColorScheme() === 'dark';
 	const [topAppBarHeight,setTopAppBarHeight] = useState<number>( 0 );
@@ -386,19 +354,64 @@ const App = ( {
 		} ).catch( ( err: any ) => console.log( 'ERROR', err ) );
 	}, [] );
 
-	const {
-		mapSettings,
-		setMapSettings,
-	} = useMapSettings( {
+	let {
+		settings: mapSettings,
+		setSettings: setMapSettings,
+	} = useSettings( {
 		setMaybeIsBusy,
-	} );
+		savedMessage: sprintf( t( 'settings.saved' ), t( 'settings.maps' ) ),
+		settingsKey: 'mapSettings',
+		initialSettings: {
+			layers: [],
+			mapsforgeProfiles: [],
+		},
+	} ) as {
+		settings: MapSettings,
+		setSettings: Dispatch<SetStateAction<MapSettings>>
+	};
 
-	const {
-		appearanceSettings,
-		setAppearanceSettings,
-	} = useAppearanceSettings( {
+	let {
+		settings: appearanceSettings,
+		setSettings: setAppearanceSettings,
+	} = useSettings( {
+		savedMessage: sprintf( t( 'settings.Saved' ), t( 'settings.appearance' ) ),
 		setMaybeIsBusy,
-	} );
+		settingsKey: 'appearanceSettings',
+		initialSettings: {
+			curser: {
+				iconSource: 'target',
+				size: 25,
+				color: '#ed1c23',
+			},
+		},
+	} ) as {
+		settings: AppearanceSettings,
+		setSettings: Dispatch<SetStateAction<AppearanceSettings>>
+	};
+
+	let {
+		settings: generalSettings,
+		setSettings: setGeneralSettings,
+	} = useSettings( {
+		savedMessage: sprintf( t( 'settings.Saved' ), t( 'settings.general' ) ),
+		setMaybeIsBusy,
+		settingsKey: 'generalSettings',
+		initialSettings: {
+			hardwareKeys: [
+				{
+					keyCodeString: 'KEYCODE_VOLUME_UP',
+					actionKey: 'zoomIn',
+				},
+				{
+					keyCodeString: 'KEYCODE_VOLUME_DOWN',
+					actionKey: 'zoomOut',
+				},
+			],
+		},
+	} ) as {
+		settings: GeneralSettings,
+		setSettings: Dispatch<SetStateAction<GeneralSettings>>
+	};
 
 	const {
 		initialPosition,
@@ -428,6 +441,8 @@ const App = ( {
 		setMapSettings,
 		appearanceSettings,
 		setAppearanceSettings,
+		generalSettings,
+		setGeneralSettings,
 		isBusy,
 		setMaybeIsBusy,
 	} }>
@@ -475,6 +490,21 @@ const App = ( {
 					onMapEvent={ response => {
 						console.log( 'onMapEvent event', response ); // debug
 					} }
+					emitsHardwareKeyUp={ [...generalSettings.hardwareKeys].filter( keyConf => 'none' !== keyConf.actionKey ).map( keyConf => keyConf.keyCodeString ) as MapContainerProps['emitsHardwareKeyUp'] }
+					onHardwareKeyUp={ generalSettings.hardwareKeys.length > 0 ? ( response: HardwareKeyEventResponse ) => {
+						[...generalSettings.hardwareKeys].map( keyConf => {
+							if ( response.keyCodeString === keyConf.keyCodeString ) {
+								switch( keyConf.actionKey ) {
+									case 'zoomIn':
+										MapContainerModule.zoomIn( mapViewNativeNodeHandle );
+										break;
+									case 'zoomOut':
+										MapContainerModule.zoomOut( mapViewNativeNodeHandle );
+										break;
+								}
+							}
+						} )
+					} : null }
 				>
 
 					{ [...mapSettings.layers].reverse().map( ( layer : LayerConfig ) => {

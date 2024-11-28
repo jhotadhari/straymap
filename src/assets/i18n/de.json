@@ -16,6 +16,7 @@
         "settings": {
             "general": "Allgemein",
             "maps": "Karten",
+            "saved": "%s Einstellungen settings",
             "mapsSaved": "Karteneinstellungen gespeichert",
             "themeSaved": "Theme Auswahl gespeichert",
             "langSaved": "Sprachauswahl gespeichert",
@@ -96,6 +97,9 @@
         "whatIs_other": "Was sind \"%s\"?",
         "cacheSize": "Cache Größe",
         "selectLang": "Sprache wählen",
+        "hardwareKeyAssignment": "Hardware-Tastenbelegung",
+        "hardwareKey_one": "Hardware-Taste",
+        "hardwareKey_other": "Hardware-Tasten",
         "test":"Das ist nur ein test Satz"
     }
 }

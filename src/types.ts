@@ -132,3 +132,12 @@ export type CurserConfig = {
 export type AppearanceSettings = {
 	curser: CurserConfig;
 };
+
+export type HardwareKeyActionConf = {
+	keyCodeString: string;
+	actionKey: string;
+};
+
+export type GeneralSettings = {
+	hardwareKeys: HardwareKeyActionConf[];
+};

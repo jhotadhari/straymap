@@ -19,6 +19,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 */
 import { AppContext } from '../Context';
 import ListItemMenuControl from './ListItemMenuControl';
+import HardwareKeyControl from './HardwareKeyControl';
 
 const SettingsGeneral : FC = () => {
 
@@ -47,6 +48,8 @@ const SettingsGeneral : FC = () => {
 			value={ selectedLang }
 			anchorIcon={ ( { style, color } ) => <MaterialIcons style={ style } name="language" size={ 25 } color={ color } /> }
 		/>
+
+		<HardwareKeyControl/>
 
 	</ScrollView>;
 };

@@ -10,7 +10,7 @@ import {
 /**
  * Internal dependencies
  */
-import { ThemeOption, OptionBase, HierarchyItem, AbsPathsMap, MapSettings, LayerConfig, MapsforgeProfile, AppearanceSettings } from "./types";
+import { ThemeOption, OptionBase, HierarchyItem, AbsPathsMap, MapSettings, LayerConfig, MapsforgeProfile, AppearanceSettings, GeneralSettings } from "./types";
 
 export type AppContextType = {
 	appDirs?: AbsPathsMap;
@@ -29,6 +29,8 @@ export type AppContextType = {
 	setMapSettings?: Dispatch<SetStateAction<MapSettings>>;
 	appearanceSettings?: AppearanceSettings;
 	setAppearanceSettings?: Dispatch<SetStateAction<AppearanceSettings>>;
+	generalSettings?: GeneralSettings;
+	setGeneralSettings?: Dispatch<SetStateAction<GeneralSettings>>;
     isBusy?: boolean;
     setMaybeIsBusy?: Dispatch<SetStateAction<boolean>>;
 };

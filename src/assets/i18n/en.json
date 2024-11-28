@@ -16,6 +16,7 @@
         "settings": {
             "general": "General",
             "maps": "Maps",
+            "saved": "Saved %s settings",
             "mapsSaved": "Saved map settings",
             "themeSaved": "Saved theme settings",
             "langSaved": "Saved language settings",
@@ -96,6 +97,9 @@
         "whatIs_other": "What are \"%s\"?",
         "cacheSize": "Cache size",
         "selectLang": "Select language",
+        "hardwareKeyAssignment": "Hardware key assignment",
+        "hardwareKey_one": "Hardware key",
+        "hardwareKey_other": "Hardware keys",
         "test": "That's just a test sentence"
     }
 }
