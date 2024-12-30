@@ -27,25 +27,25 @@ import ColorPicker from 'react-native-wheel-color-picker'
  */
 import { AppContext } from '../Context';
 import InfoRowControl from './InfoRowControl';
-import { AppearanceSettings, CurserConfig } from '../types';
+import { AppearanceSettings, CursorConfig } from '../types';
 import ListItemModalControl from './ListItemModalControl';
 import { NumericRowControl } from './NumericRowControls';
 import FileSourceRowControl from './FileSourceRowControl';
 import { CenterInner } from './Center';
 
 const ColorRowControl = ( {
-	curserConfig,
-	setCurserConfig,
+	cursorConfig,
+	setCursorConfig,
 } : {
-	curserConfig: CurserConfig;
-	setCurserConfig?: Dispatch<SetStateAction<CurserConfig | undefined>>;
+	cursorConfig: CursorConfig;
+	setCursorConfig?: Dispatch<SetStateAction<CursorConfig | undefined>>;
 } ) => {
 	return  <InfoRowControl label={ 'color' } >
 		<ColorPicker
-			color= { curserConfig?.color }
+			color= { cursorConfig?.color }
 			onColorChange={ ( newColor: string ) => {
-				setCurserConfig && setCurserConfig( {
-					...curserConfig,
+				setCursorConfig && setCursorConfig( {
+					...cursorConfig,
 					color: newColor,
 				} )
 			} }
@@ -64,47 +64,47 @@ const CenterControl = () => {
 		appDirs,
 	} = useContext( AppContext );
 
-	const [curserConfig,setCurserConfig] = useState<CurserConfig | undefined >( get( appearanceSettings, 'curser', undefined ) );
-	const curserConfigRef = useRef( curserConfig );
+	const [cursorConfig,setCursorConfig] = useState<CursorConfig | undefined >( get( appearanceSettings, 'cursor', undefined ) );
+	const cursorConfigRef = useRef( cursorConfig );
     useEffect( () => {
-        curserConfigRef.current = curserConfig;
-    }, [curserConfig] );
+        cursorConfigRef.current = cursorConfig;
+    }, [cursorConfig] );
 
-    const saveCurser = () => appearanceSettings && setAppearanceSettings && setAppearanceSettings( ( appearanceSettings: AppearanceSettings ) => ( {
+    const saveCursor = () => appearanceSettings && setAppearanceSettings && setAppearanceSettings( ( appearanceSettings: AppearanceSettings ) => ( {
         ...appearanceSettings,
-        ...( curserConfigRef.current && { curser: curserConfigRef.current } ),
+        ...( cursorConfigRef.current && { cursor: cursorConfigRef.current } ),
     } ) );
-    useEffect( () => saveCurser, [] );    // Save on unmount.
+    useEffect( () => saveCursor, [] );    // Save on unmount.
 
 	return <ListItemModalControl
-		anchorLabel={ 'curser' }
+		anchorLabel={ 'Cursor' }
 		anchorIcon={ ( { color, style } ) => <View style={ style }>
 
-			{ ! curserConfig?.iconSource &&  <Icon
+			{ ! cursorConfig?.iconSource &&  <Icon
 				source="target"
 				color={ color }
 				size={ 25 }
 			/> }
 
-			{ curserConfig?.iconSource && <CenterInner curser={ {
-				...curserConfig,
+			{ cursorConfig?.iconSource && <CenterInner cursor={ {
+				...cursorConfig,
 				size: 25,
 				color: theme.colors.onBackground,
 			} } /> }
 
 		</View> }
-		header={ 'Curser???' }
+		header={ 'Cursor???' }
 		hasHeaderBackPress={ true }
 	>
 
         <FileSourceRowControl
             header={ t( 'selectFile' ) }
             label={ t( 'file' ) }
-            options={ curserConfig as object }
+            options={ cursorConfig as object }
             optionsKey={ 'iconSource' }
             onSelect={ selectedOpt => {
-				setCurserConfig( {
-					...( curserConfig as CurserConfig ),
+				setCursorConfig( {
+					...( cursorConfig as CursorConfig ),
 					iconSource: selectedOpt,
 				} );
 			} }
@@ -121,7 +121,7 @@ const CenterControl = () => {
 				]
 			} }
             filePattern={ /.*\.(svg|png)$/ }
-            dirs={ appDirs ? appDirs.curser : [] }
+            dirs={ appDirs ? appDirs.cursor : [] }
             Info={ <Text>{ 'bla blaa ??? info text' }</Text> }
             filesHeading={ 'image (svg|png) files in' }         // ??? translate
             noFilesHeading={ 'No image (svg|png) files in' }    // ??? translate
@@ -131,19 +131,19 @@ const CenterControl = () => {
         <NumericRowControl
             label={ t( 'size' ) }
             optKey={ 'size' }
-            options={ curserConfig as object }
-            setOptions={ setCurserConfig }
+            options={ cursorConfig as object }
+            setOptions={ setCursorConfig }
             validate={ val => val >= 0 }
             Info={ <Text>{ 'bla bla ??? info text' }</Text> }
         />
 
-		{ curserConfig?.iconSource && ! curserConfig.iconSource.startsWith( '/' ) && ! curserConfig.iconSource.startsWith( 'content://' ) && <ColorRowControl
-			curserConfig={ curserConfig }
-			setCurserConfig={ setCurserConfig }
+		{ cursorConfig?.iconSource && ! cursorConfig.iconSource.startsWith( '/' ) && ! cursorConfig.iconSource.startsWith( 'content://' ) && <ColorRowControl
+			cursorConfig={ cursorConfig }
+			setCursorConfig={ setCursorConfig }
 		/> }
 
 		<InfoRowControl label={ 'preview' } >
-			<CenterInner curser={ curserConfig } />
+			<CenterInner cursor={ cursorConfig } />
 		</InfoRowControl>
 
 	</ListItemModalControl>;

@@ -125,14 +125,14 @@ export type MapSettings = {
 	mapsforgeProfiles: MapsforgeProfile[];
 };
 
-export type CurserConfig = {
+export type CursorConfig = {
 	iconSource: string;
 	size: number;
 	color: string;
 };
 
 export type AppearanceSettings = {
-	curser: CurserConfig;
+	cursor: CursorConfig;
 };
 
 export type HardwareKeyActionConf = {

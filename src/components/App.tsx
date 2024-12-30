@@ -395,7 +395,7 @@ const App = ( {
 		setMaybeIsBusy,
 		settingsKey: 'appearanceSettings',
 		initialSettings: {
-			curser: {
+			cursor: {
 				iconSource: 'target',
 				size: 25,
 				color: '#ed1c23',

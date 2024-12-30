@@ -12,58 +12,58 @@ import { readFile } from 'react-native-fs';
  * react-native-mapsforge-vtm dependencies
  */
 import { AppContext } from '../Context';
-import { CurserConfig } from '../types';
+import { CursorConfig } from '../types';
 
 export const CenterInner = ( {
-	curser,
+	cursor,
 } : {
-	curser?: CurserConfig;
+	cursor?: CursorConfig;
 } ) => {
 
 	const { appearanceSettings } = useContext( AppContext );
 
-	const curserConfig = curser || appearanceSettings?.curser;
+	const cursorConfig = cursor || appearanceSettings?.cursor;
 
 	const [xml,setXml] = useState( '' );
 
 	// ??? should handle png
 
 	useEffect( () => {
-		if ( curserConfig && ( curserConfig.iconSource.startsWith( 'content://' ) || curserConfig.iconSource.startsWith( '/' ) ) && curserConfig.iconSource.endsWith( '.svg' ) ) {
-			readFile( curserConfig.iconSource, 'utf8' ).then( ( newXml: string ) => {
+		if ( cursorConfig && ( cursorConfig.iconSource.startsWith( 'content://' ) || cursorConfig.iconSource.startsWith( '/' ) ) && cursorConfig.iconSource.endsWith( '.svg' ) ) {
+			readFile( cursorConfig.iconSource, 'utf8' ).then( ( newXml: string ) => {
 				setXml( newXml );
 			} ).catch( ( err: any ) => { console.log( 'ERROR readFile', err ) } );
 		} else {
 			setXml( '' );
 		}
-	}, [curserConfig?.iconSource] );
+	}, [cursorConfig?.iconSource] );
 
 	return <View>
 
-		{ curserConfig && ! curserConfig.iconSource.startsWith( 'content://' ) && ! curserConfig.iconSource.startsWith( '/' ) && <Icon
-			source={ curserConfig.iconSource }
-			color={ curserConfig.color }
-			size={ curserConfig.size }
+		{ cursorConfig && ! cursorConfig.iconSource.startsWith( 'content://' ) && ! cursorConfig.iconSource.startsWith( '/' ) && <Icon
+			source={ cursorConfig.iconSource }
+			color={ cursorConfig.color }
+			size={ cursorConfig.size }
 		/> }
 
-		{ curserConfig && curserConfig.iconSource.toLowerCase().endsWith( '.svg' ) && xml && <View style={ {
-			width: curserConfig.size,
-			height: curserConfig.size,
+		{ cursorConfig && cursorConfig.iconSource.toLowerCase().endsWith( '.svg' ) && xml && <View style={ {
+			width: cursorConfig.size,
+			height: cursorConfig.size,
 		} }>
 			<SvgXml xml={ xml } width="100%" height="100%" />
 		</View> }
 
-		{ curserConfig && curserConfig.iconSource.toLowerCase().endsWith( '.png' ) && <View style={ {
-			width: curserConfig.size,
-			height: curserConfig.size,
+		{ cursorConfig && cursorConfig.iconSource.toLowerCase().endsWith( '.png' ) && <View style={ {
+			width: cursorConfig.size,
+			height: cursorConfig.size,
 		} }>
 			<Image
-				source={ { uri: curserConfig.iconSource.startsWith( '/' )
-					? 'file://' + curserConfig.iconSource
-					: curserConfig.iconSource } }
+				source={ { uri: cursorConfig.iconSource.startsWith( '/' )
+					? 'file://' + cursorConfig.iconSource
+					: cursorConfig.iconSource } }
 				style={{
-					width: curserConfig.size,
-					height: curserConfig.size
+					width: cursorConfig.size,
+					height: cursorConfig.size
 				}
 			} />
 		</View> }
