@@ -46,25 +46,10 @@ import InfoRowControl from '../InfoRowControl';
 
 const itemHeight = 50;
 
-// ??? should construct options from elements
-const elementTypeOptions : OptionBase[] = [
-    {
-        key: 'lineBreak',
-        label: 'lineBreak',
-    },
-    {
-        key: 'zoomLevel',
-        label: 'zoomLevel',
-    },
-    {
-        key: 'centerCoordinates',
-        label: 'centerCoordinates',
-    },
-    {
-        key: 'centerAltitude',
-        label: 'centerAltitude',
-    },
-];
+const elementTypeOptions : OptionBase[] = Object.values( dashboardElementComponents ).map( comp => ( {
+    key: comp.key,
+    label: comp.label,
+} ) );
 
 const styleAlignOptions : OptionBase[] = [
     {
@@ -120,6 +105,8 @@ const DraggableItem = ( {
     const { t } = useTranslation();
     const theme = useTheme();
 
+
+    console.log( 'debug dashboardElementComponents', dashboardElementComponents ); // debug
     return <View
         style={ {
             width,
