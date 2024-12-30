@@ -423,6 +423,12 @@ const App = ( {
 		settings: GeneralSettings,
 		setSettings: Dispatch<SetStateAction<GeneralSettings>>
 	};
+	// Remove bottomBar if no dashboard elements.
+	useEffect( () => {
+		if ( ! generalSettings?.dashboardElements?.elements || ( generalSettings?.dashboardElements?.elements && ! generalSettings?.dashboardElements?.elements.length ) ) {
+			setBottomBarHeight( 0 );
+		}
+	}, [generalSettings?.dashboardElements?.elements] );
 
 	const {
 		initialPosition,
