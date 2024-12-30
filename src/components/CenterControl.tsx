@@ -40,7 +40,10 @@ const ColorRowControl = ( {
 	cursorConfig: CursorConfig;
 	setCursorConfig?: Dispatch<SetStateAction<CursorConfig | undefined>>;
 } ) => {
-	return  <InfoRowControl label={ 'color' } >
+
+	const { t } = useTranslation();
+
+	return  <InfoRowControl label={ t( 'color' ) } >
 		<ColorPicker
 			color= { cursorConfig?.color }
 			onColorChange={ ( newColor: string ) => {
@@ -93,7 +96,7 @@ const CenterControl = () => {
 			} } /> }
 
 		</View> }
-		header={ 'Cursor???' }
+		header={ t( 'cursor' ) }
 		hasHeaderBackPress={ true }
 	>
 
@@ -129,7 +132,7 @@ const CenterControl = () => {
         />
 
         <NumericRowControl
-            label={ t( 'size' ) }
+            label={ t( 'size [px]' ) }
             optKey={ 'size' }
             options={ cursorConfig as object }
             setOptions={ setCursorConfig }
@@ -142,7 +145,7 @@ const CenterControl = () => {
 			setCursorConfig={ setCursorConfig }
 		/> }
 
-		<InfoRowControl label={ 'preview' } >
+		<InfoRowControl label={ t( 'preview' ) } >
 			<CenterInner cursor={ cursorConfig } />
 		</InfoRowControl>
 
