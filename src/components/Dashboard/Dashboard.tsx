@@ -2,17 +2,19 @@ import { View } from "react-native";
 import { Dispatch, SetStateAction } from "react";
 import { MapEventResponse } from "react-native-mapsforge-vtm";
 
-import { DashboardElementConf, UnitPref } from "../../types";
+import { DashboardElementConf, DashboardStyle, UnitPref } from "../../types";
 import * as dashboardElementComponents from "./elements";
 import { get } from "lodash-es";
 
 const Dashboard = ( {
-    dashboardElements,
+    elements,
+    dashboardStyle,
     unitPrefs,
     currentMapEvent,
     setBottomBarHeight,
 } : {
-    dashboardElements: DashboardElementConf[];
+    elements: DashboardElementConf[];
+    dashboardStyle: DashboardStyle;
 	unitPrefs: { [value: string]: UnitPref };
     currentMapEvent: MapEventResponse;
     setBottomBarHeight?: Dispatch<SetStateAction<number>>;
@@ -26,14 +28,20 @@ const Dashboard = ( {
         style={ {
             flexDirection: 'row',
             flexWrap: 'wrap',
-            justifyContent: 'flex-start',
-            // justifyContent: 'center',
+            justifyContent: get( {
+                center: 'center',
+                left: 'flex-start',
+                right: 'flex-end',
+                around: 'space-around',
+                between: 'space-between',
+                evenly: 'space-evenly',
+            }, dashboardStyle.align, 'center' ),
             alignItems: 'center',
             paddingTop: 10,
             paddingBottom: 10,
         } }
     >
-        { dashboardElements && [...dashboardElements].map( ( element, index ) => {
+        { elements && [...elements].map( ( element, index ) => {
             const DisplayComponent = get( dashboardElementComponents, [element.type as string,'DisplayComponent'] );
             return DisplayComponent ? <DisplayComponent
                 key={ element.key || index }

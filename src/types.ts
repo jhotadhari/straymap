@@ -157,9 +157,16 @@ export type UnitPref = {
 	round: number;
 };
 
+export type DashboardStyle = {
+	align: string;
+};
+
 export type GeneralSettings = {
 	hardwareKeys: HardwareKeyActionConf[];
-	dashboardElements: DashboardElementConf[];
+	dashboardElements: {
+		elements: DashboardElementConf[];
+		style: DashboardStyle;
+	};
 	unitPrefs: { [value: string]: UnitPref };
 };
 

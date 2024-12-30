@@ -16,6 +16,7 @@ import {
 } from 'react-native';
 import {
 	Icon,
+	Menu,
 	Text,
 	useTheme,
 } from 'react-native-paper';
@@ -29,7 +30,7 @@ import { sprintf } from 'sprintf-js';
  * Internal dependencies
  */
 import { AppContext } from '../../Context';
-import { GeneralSettings, DashboardElementConf, OptionBase } from '../../types';
+import { GeneralSettings, DashboardElementConf, OptionBase, DashboardStyle } from '../../types';
 import ListItemModalControl from '../ListItemModalControl';
 import ButtonHighlight from '../ButtonHighlight';
 import DraggableGrid from 'react-native-draggable-grid';
@@ -40,6 +41,8 @@ import ModalWrapper from '../ModalWrapper';
 import RadioListItem from '../RadioListItem';
 import { NumericRowControl } from '../NumericRowControls';
 import * as dashboardElementComponents from "./elements";
+import MenuItem from '../MenuItem';
+import InfoRowControl from '../InfoRowControl';
 
 const itemHeight = 50;
 
@@ -60,6 +63,33 @@ const elementTypeOptions : OptionBase[] = [
     {
         key: 'centerAltitude',
         label: 'centerAltitude',
+    },
+];
+
+const styleAlignOptions : OptionBase[] = [
+    {
+        key: 'center',
+        label: 'center',
+    },
+    {
+        key: 'left',
+        label: 'left',
+    },
+    {
+        key: 'right',
+        label: 'right',
+    },
+    {
+        key: 'around',
+        label: 'around',
+    },
+    {
+        key: 'between',
+        label: 'between',
+    },
+    {
+        key: 'evenly',
+        label: 'evenly',
     },
 ];
 
@@ -198,15 +228,27 @@ const DashboardControl = () => {
 		currentMapEvent,
 	} = useContext( AppContext );
 
-	const [dashboardElementConfigs,setDashboardElementConfigs] = useState<DashboardElementConf[] >( get( generalSettings, 'dashboardElements', defaults.generalSettings.dashboardElements ) );
+    const [menuVisible,setMenuVisible] = useState( false );
+
+	const [dashboardElementConfigs,setDashboardElementConfigs] = useState<DashboardElementConf[] >( get( generalSettings, ['dashboardElements','elements'], defaults.generalSettings.dashboardElements.elements ) );
 	const dashboardElementConfigRef = useRef( dashboardElementConfigs );
     useEffect( () => {
         dashboardElementConfigRef.current = dashboardElementConfigs;
     }, [dashboardElementConfigs] );
 
+	const [dashboardStyle,setDashboardStyle] = useState<DashboardStyle>( get( generalSettings, ['dashboardElements','style'], defaults.generalSettings.dashboardElements.style ) );
+	const dashboardStyleRef = useRef( dashboardStyle );
+    useEffect( () => {
+        dashboardStyleRef.current = dashboardStyle;
+    }, [dashboardStyle] );
+
     const save = () => generalSettings && setGeneralSettings && setGeneralSettings( ( generalSettings: GeneralSettings ) => ( {
         ...generalSettings,
-        ...( dashboardElementConfigRef.current && { dashboardElements: dashboardElementConfigRef.current } ),
+        ...( dashboardElementConfigRef.current && { dashboardElements: {
+            ...get( generalSettings, 'dashboardElements' ),
+            elements: dashboardElementConfigRef.current,
+            style: dashboardStyleRef.current,
+        } } ),
     } ) );
     useEffect( () => save, [] );    // Save on unmount.
 
@@ -341,7 +383,8 @@ const DashboardControl = () => {
                 borderRadius: theme.roundness,
             } } >
                 <Dashboard
-                    dashboardElements={ dashboardElementConfigs }
+                    elements={ dashboardElementConfigs }
+                    dashboardStyle={ dashboardStyle }
                     currentMapEvent={ currentMapEvent }
                     unitPrefs={ generalSettings?.unitPrefs }
                 />
@@ -394,6 +437,38 @@ const DashboardControl = () => {
                     { t( 'dashboardElementNew' ) }
                 </ButtonHighlight>
             </View>
+
+            <InfoRowControl
+                label={ t( 'alignment' ) }
+                // Info={ <Text>{ 'bla bla ??? info text' }</Text> }
+                style={ { marginTop: 0, marginBottom: 0 } }
+            >
+                <Menu
+                    contentStyle={ {
+                        borderColor: theme.colors.outline,
+                        borderWidth: 1,
+                    } }
+                    visible={ menuVisible }
+                    onDismiss={ () => setMenuVisible( false ) }
+                    anchor={ <ButtonHighlight style={ { marginTop: 3, alignItems: 'flex-start' } } onPress={ () => setMenuVisible( true ) } >
+                        <Text>{ t( get( styleAlignOptions.find( opt => opt.key === dashboardStyle.align ), 'label', '' ) ) }</Text>
+                    </ButtonHighlight> }
+                >
+                    { styleAlignOptions && [...styleAlignOptions].map( opt => <MenuItem
+                        key={ opt.key }
+                        onPress={ () => {
+                            setMenuVisible( false );
+                            setDashboardStyle( {
+                                ...dashboardStyle,
+                                align: opt.key,
+
+                            } );
+                        } }
+                        title={ t( opt.label ) }
+                        active={ opt.key === dashboardStyle.align }
+                    /> ) }
+                </Menu>
+            </InfoRowControl>
 
         </ListItemModalControl>
 

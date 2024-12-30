@@ -222,6 +222,16 @@ const AppWrapper = () => {
 	</PaperProvider>;
 };
 
+const mergeSettingsForKey = ( initialSettings: object, newSettings: object, key: string ) => ( {
+	[key]: {
+		...get( initialSettings, key, {} ),
+		...( newSettings.hasOwnProperty( key ) && pick(
+			get( newSettings, key, {} ),
+			Object.keys( get( initialSettings, key, {} ) )
+		) ),
+	},
+} );
+
 const useSettings = ( {
 	setMaybeIsBusy,
 	settingsKey,
@@ -246,13 +256,8 @@ const useSettings = ( {
 					...initialSettings,
 					...newSettings,
 					...( 'generalSettings' === settingsKey && {
-						unitPrefs: {
-							...( ( initialSettings as { unitPrefs: object } ).unitPrefs ),
-							...( newSettings.hasOwnProperty( 'unitPrefs' ) && pick(
-								( newSettings as { unitPrefs: object } ).unitPrefs,
-								Object.keys( ( initialSettings as { unitPrefs: object } ).unitPrefs )
-							) ),
-						},
+						...mergeSettingsForKey( initialSettings, newSettings, 'unitPrefs' ),
+						...mergeSettingsForKey( initialSettings, newSettings, 'dashboardElements' ),
 					} ),
 				} );
 			}
@@ -587,8 +592,9 @@ const App = ( {
 
 			</View>
 
-			{ generalSettings?.dashboardElements && generalSettings?.dashboardElements.length > 0 && generalSettings.unitPrefs && <Dashboard
-				dashboardElements={ generalSettings.dashboardElements }
+			{ generalSettings?.dashboardElements?.elements && generalSettings?.dashboardElements?.elements.length > 0 && generalSettings.unitPrefs && <Dashboard
+				elements={ generalSettings.dashboardElements.elements }
+				dashboardStyle={ generalSettings.dashboardElements.style }
 				unitPrefs={ generalSettings.unitPrefs }
 				currentMapEvent={ currentMapEvent }
 				setBottomBarHeight={ setBottomBarHeight }
