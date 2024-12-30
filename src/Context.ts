@@ -6,6 +6,7 @@ import {
     Dispatch,
     SetStateAction,
 } from "react";
+import { MapEventResponse } from "react-native-mapsforge-vtm";
 
 /**
  * Internal dependencies
@@ -21,8 +22,9 @@ export type AppContextType = {
 	changeLang?: ( newSelectedLang : string ) => void;
 	selectedLang?: string;
     mapViewNativeNodeHandle?: number | null;
-    mapHeight?: number;
+    appInnerHeight?: number;
     topAppBarHeight?: number;
+    bottomBarHeight?: number;
 	selectedHierarchyItems?: null | HierarchyItem[];
 	setSelectedHierarchyItems?: Dispatch<SetStateAction<null | HierarchyItem[]>>;
 	mapSettings?: MapSettings;
@@ -33,6 +35,7 @@ export type AppContextType = {
 	setGeneralSettings?: Dispatch<SetStateAction<GeneralSettings>>;
     isBusy?: boolean;
     setMaybeIsBusy?: Dispatch<SetStateAction<boolean>>;
+    currentMapEvent?: MapEventResponse;
 };
 
 export const AppContext = createContext<AppContextType>( {} );

@@ -24,7 +24,8 @@ import {
 	useTheme,
 } from 'react-native-paper';
 import useDeepCompareEffect from 'use-deep-compare-effect'
-import { get } from 'lodash-es';
+import { get, pick } from 'lodash-es';
+import { sprintf } from 'sprintf-js';
 
 /**
  * react-native-mapsforge-vtm dependencies
@@ -42,6 +43,7 @@ import {
 	LayerMapsforgeProps,
 	usePromiseQueueState,
 	MapContainerModule,
+	MapEventResponse,
 } from 'react-native-mapsforge-vtm';
 
 /**
@@ -67,7 +69,8 @@ import customThemes from '../themes';
 import { AppContext } from '../Context';
 import Center from './Center';
 import { HelperModule } from '../nativeModules';
-import { sprintf } from 'sprintf-js';
+import { Dashboard } from './Dashboard';
+import { defaults } from '../constants';
 
 const useAppTheme = () => {
 
@@ -236,9 +239,22 @@ const useSettings = ( {
 
     useEffect( () => {
 		setMaybeIsBusy && setMaybeIsBusy( true );
-		setTimeout( () => DefaultPreference.get( settingsKey ).then( newSettings => {
-			if ( newSettings ) {
-				setSettings( JSON.parse( newSettings ) );
+		setTimeout( () => DefaultPreference.get( settingsKey ).then( newSettingsStr => {
+			if ( newSettingsStr ) {
+				const newSettings = JSON.parse( newSettingsStr );
+				setSettings( {
+					...initialSettings,
+					...newSettings,
+					...( 'generalSettings' === settingsKey && {
+						unitPrefs: {
+							...( ( initialSettings as { unitPrefs: object } ).unitPrefs ),
+							...( newSettings.hasOwnProperty( 'unitPrefs' ) && pick(
+								( newSettings as { unitPrefs: object } ).unitPrefs,
+								Object.keys( ( initialSettings as { unitPrefs: object } ).unitPrefs )
+							) ),
+						},
+					} ),
+				} );
 			}
 			setInitialized( true );
 		} ).catch( err => 'ERROR' + console.log( err ) )
@@ -331,8 +347,9 @@ const App = ( {
 	const theme = useTheme();
 	const systemIsDarkMode = useColorScheme() === 'dark';
 	const [topAppBarHeight,setTopAppBarHeight] = useState<number>( 0 );
-
+	const [bottomBarHeight,setBottomBarHeight] = useState<number>( 0 );
 	const [selectedHierarchyItems,setSelectedHierarchyItems] = useState<null | HierarchyItem[]>( null );
+    const [currentMapEvent,setCurrentMapEvent] = useState<MapEventResponse>( {} );
 
 	const {
 		isBusy,
@@ -396,18 +413,7 @@ const App = ( {
 		savedMessage: sprintf( t( 'settings.Saved' ), t( 'settings.general' ) ),
 		setMaybeIsBusy,
 		settingsKey: 'generalSettings',
-		initialSettings: {
-			hardwareKeys: [
-				{
-					keyCodeString: 'KEYCODE_VOLUME_UP',
-					actionKey: 'zoomIn',
-				},
-				{
-					keyCodeString: 'KEYCODE_VOLUME_DOWN',
-					actionKey: 'zoomOut',
-				},
-			],
-		},
+		initialSettings: defaults.generalSettings,
 	} ) as {
 		settings: GeneralSettings,
 		setSettings: Dispatch<SetStateAction<GeneralSettings>>
@@ -418,7 +424,7 @@ const App = ( {
 		setInitialPosition,
 	} = useInitialCenter();
 
-	const mapHeight = height - topAppBarHeight;
+	const appInnerHeight = height - topAppBarHeight;
 
 	if ( ! appDirs || ! initialPosition ) {
 		return null;
@@ -433,8 +439,9 @@ const App = ( {
 		changeLang,
 		selectedLang,
 		mapViewNativeNodeHandle,
-		mapHeight,
+		appInnerHeight,
 		topAppBarHeight,
+		bottomBarHeight,
 		selectedHierarchyItems,
 		setSelectedHierarchyItems,
 		mapSettings,
@@ -445,6 +452,7 @@ const App = ( {
 		setGeneralSettings,
 		isBusy,
 		setMaybeIsBusy,
+		currentMapEvent,
 	} }>
 		<SafeAreaView style={ {
 			backgroundColor: theme.colors.background,
@@ -457,17 +465,19 @@ const App = ( {
 			<TopAppBar setTopAppBarHeight={ setTopAppBarHeight } />
 
 			<View style={ {
-				height: mapHeight,
+				height: appInnerHeight - bottomBarHeight,
 				width,
 			} } >
 
 				{ selectedHierarchyItems !== null && selectedHierarchyItems[selectedHierarchyItems.length-1].SubActivity && selectedHierarchyItems[selectedHierarchyItems.length-1].SubActivity }
 
 				<MapContainer
+	                mapEventRate={ 50 }
+					hgtDirPath={ appDirs.dem.length ? appDirs.dem[0] : undefined }
 					nativeNodeHandle={ mapViewNativeNodeHandle }
 					setNativeNodeHandle={ setMapViewNativeNodeHandle }
 					responseInclude={ { center: 2, zoomLevel: 2 } }
-					height={ mapHeight }
+					height={ appInnerHeight - bottomBarHeight }
 					width={ width }
 					center={ initialPosition.center }
 					zoomLevel={ initialPosition.zoomLevel }
@@ -487,8 +497,9 @@ const App = ( {
 					} }
 					onError={ err => console.log( 'Error', err ) }
 					onResume={ response => console.log( 'lifecycle event onResume', response ) }
-					onMapEvent={ response => {
+					onMapEvent={ ( response: MapEventResponse ) => {
 						console.log( 'onMapEvent event', response ); // debug
+						setCurrentMapEvent( response );
 					} }
 					emitsHardwareKeyUp={ [...generalSettings.hardwareKeys].filter( keyConf => 'none' !== keyConf.actionKey ).map( keyConf => keyConf.keyCodeString ) as MapContainerProps['emitsHardwareKeyUp'] }
 					onHardwareKeyUp={ generalSettings.hardwareKeys.length > 0 ? ( response: HardwareKeyEventResponse ) => {
@@ -570,11 +581,18 @@ const App = ( {
 				</MapContainer>
 
 				<Center
-					height={ mapHeight }
+					height={ appInnerHeight - bottomBarHeight }
 					width={ width }
 				/>
 
 			</View>
+
+			{ generalSettings?.dashboardElements && generalSettings?.dashboardElements.length > 0 && generalSettings.unitPrefs && <Dashboard
+				dashboardElements={ generalSettings.dashboardElements }
+				unitPrefs={ generalSettings.unitPrefs }
+				currentMapEvent={ currentMapEvent }
+				setBottomBarHeight={ setBottomBarHeight }
+			/> }
 
 		</SafeAreaView>
 	</AppContext.Provider>;

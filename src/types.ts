@@ -14,7 +14,9 @@ import {
 	LayerBitmapTileProps,
 	LayerMapsforgeProps,
 	LayerHillshadingProps,
+	MapEventResponse,
 } from 'react-native-mapsforge-vtm';
+import { ViewStyle } from "react-native";
 
 
 export type AbsPath = `/${string}`;
@@ -138,6 +140,32 @@ export type HardwareKeyActionConf = {
 	actionKey: string;
 };
 
+export type DashboardElementStyle = {
+	fontSize?: number;
+	minWidth?: number;
+};
+
+export type DashboardElementConf = {
+	key: string;
+	type: string | null;
+	options?: object;
+	style?: DashboardElementStyle;
+};
+
+export type UnitPref = {
+	unit: string;
+	round: number;
+};
+
 export type GeneralSettings = {
 	hardwareKeys: HardwareKeyActionConf[];
+	dashboardElements: DashboardElementConf[];
+	unitPrefs: { [value: string]: UnitPref };
 };
+
+export type DashboardDisplayComponentProps = {
+	dashboardElement: DashboardElementConf;
+	currentMapEvent: MapEventResponse;
+	style?: ViewStyle;
+	unitPrefs: { [value: string]: UnitPref };
+}

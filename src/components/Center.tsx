@@ -26,8 +26,6 @@ export const CenterInner = ( {
 
 	const [xml,setXml] = useState( '' );
 
-	console.log( 'debug curserConfig', curserConfig ); // debug
-
 	// ??? should handle png
 
 	useEffect( () => {

@@ -9,6 +9,7 @@ import {
 import {
 	View,
     TouchableHighlight,
+    ViewStyle,
 } from 'react-native';
 import {
 	useTheme,
@@ -38,6 +39,7 @@ const InfoRowControl = ( {
     Below,
     backgroundBlur = false,
     headerPlural = false,
+    style = {},
 } : {
     label?: string;
     children: ReactNode;
@@ -45,6 +47,7 @@ const InfoRowControl = ( {
     Below?: ReactNode;
     backgroundBlur?: boolean,
     headerPlural?: boolean,
+    style?: ViewStyle,
 } ) => {
 	const { t } = useTranslation();
 	const theme = useTheme();
@@ -58,7 +61,7 @@ const InfoRowControl = ( {
         modalVisible={ modalVisible }
         setModalVisible={ setModalVisible }
     >
-        <View style={ { marginTop: 10, marginBottom: 10, flexDirection: 'row', alignItems: 'center' } }>
+        <View style={ { marginTop: 10, marginBottom: 10, flexDirection: 'row', alignItems: 'center', ...style } }>
             { Info && <TouchableHighlight
                 underlayColor={ theme.colors.elevation.level3 }
                 onPress={ () => setModalVisible( true ) }

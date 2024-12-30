@@ -53,14 +53,14 @@ const Settings : FC = () => {
 	const { t } = useTranslation();
 	const { width } = useWindowDimensions();
     const {
-        mapHeight,
+        appInnerHeight,
 		selectedHierarchyItems,
 		setSelectedHierarchyItems,
     } = useContext( AppContext )
 
 	return <View style={ {
         backgroundColor: theme.colors.background,
-        height: mapHeight,
+        height: appInnerHeight,
         width,
         position: 'absolute',
         zIndex: 9,

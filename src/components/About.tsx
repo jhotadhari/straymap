@@ -31,12 +31,12 @@ const About : FC = () => {
 	const { width } = useWindowDimensions();
 
     const {
-        mapHeight,
+        appInnerHeight,
     } = useContext( AppContext )
 
 	return <View style={ {
         backgroundColor: theme.colors.background,
-        height: mapHeight,
+        height: appInnerHeight,
         width,
         position: 'absolute',
         zIndex: 9,

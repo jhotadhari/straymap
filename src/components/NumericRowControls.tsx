@@ -9,6 +9,7 @@ import {
 import {
     TextStyle,
 	View,
+    ViewStyle,
 } from 'react-native';
 import {
     Text,
@@ -61,6 +62,7 @@ export const NumericRowControl = ( {
     options,
     setOptions,
     inputStyle,
+    style = {},
     Info,
     numType = 'int',
     validate,
@@ -70,6 +72,7 @@ export const NumericRowControl = ( {
     options: object;
     setOptions: ( options : any ) => void;
     inputStyle?: TextStyle;
+    style?: ViewStyle;
     Info?: ReactNode;
     numType?: NumType;
     validate?: ( val : number ) => boolean;
@@ -87,6 +90,7 @@ export const NumericRowControl = ( {
     return <InfoRowControl
         label={ label }
         Info={ Info }
+        style={ style }
     >
        <TextInput
             style={ { flexGrow: 1, ...inputStyle } }

@@ -20,6 +20,8 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { AppContext } from '../Context';
 import ListItemMenuControl from './ListItemMenuControl';
 import HardwareKeyControl from './HardwareKeyControl';
+import { DashboardControl } from './Dashboard';
+import UnitPrefControl from './UnitPrefControl';
 
 const SettingsGeneral : FC = () => {
 
@@ -27,15 +29,15 @@ const SettingsGeneral : FC = () => {
 	const { width } = useWindowDimensions();
 	const { t } = useTranslation();
     const {
-        mapHeight,
+        appInnerHeight,
 		langOptions,
 		changeLang,
 		selectedLang,
-    } = useContext( AppContext )
+    } = useContext( AppContext );
 
 	return <ScrollView style={ {
         backgroundColor: theme.colors.background,
-        height: mapHeight,
+        height: appInnerHeight,
         width,
         position: 'absolute',
         zIndex: 9,
@@ -50,6 +52,10 @@ const SettingsGeneral : FC = () => {
 		/>
 
 		<HardwareKeyControl/>
+
+		<UnitPrefControl/>
+
+		<DashboardControl/>
 
 	</ScrollView>;
 };

@@ -32,11 +32,11 @@ const EgalTest = () => {
 	const theme = useTheme();
 	const { width } = useWindowDimensions();
     const {
-        mapHeight,
+        appInnerHeight,
     } = useContext( AppContext )
 	return <View style={ {
         backgroundColor: theme.colors.background,
-        height: mapHeight,
+        height: appInnerHeight,
         width,
         position: 'absolute',
         zIndex: 9,
@@ -58,25 +58,25 @@ const menuItems : MenuItemType[] = [
 			},
 		]
 	},
-	{
-        key: 'egal',
-		label: 'menu.egal',
-		leadingIcon: 'progress-question',
-		children: [
-			{
-                key: 'egalSub1',
-				label: 'menu.egalSub1',
-				leadingIcon: 'progress-question',
-                SubActivity: <EgalTest/>,
-			},
-			{
-                key: 'egalSub2',
-				label: 'menu.egalSub2',
-				leadingIcon: 'progress-question',
-                SubActivity: <EgalTest/>,
-			},
-		]
-	},
+	// {
+    //     key: 'egal',
+	// 	label: 'menu.egal',
+	// 	leadingIcon: 'progress-question',
+	// 	children: [
+	// 		{
+    //             key: 'egalSub1',
+	// 			label: 'menu.egalSub1',
+	// 			leadingIcon: 'progress-question',
+    //             SubActivity: <EgalTest/>,
+	// 		},
+	// 		{
+    //             key: 'egalSub2',
+	// 			label: 'menu.egalSub2',
+	// 			leadingIcon: 'progress-question',
+    //             SubActivity: <EgalTest/>,
+	// 		},
+	// 	]
+	// },
 	{
         key: 'settings',
 		label: 'menu.settings',

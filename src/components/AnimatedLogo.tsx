@@ -31,6 +31,9 @@ const rotationInterpolateConfig = {
 const strings = [
     'Love Bicycles',
     'Love Geography',
+    'Love Antifa',
+    'Love Diversity',
+    'Love Equality',
     'Fuck Nazis',
     'Fuck Capitalism',
     'Fuck Fascism',

@@ -155,7 +155,7 @@ const SettingsMaps : FC = () => {
 	const { width } = useWindowDimensions();
 
     const {
-        mapHeight,
+        appInnerHeight,
     } = useContext( AppContext )
 
     const {
@@ -219,7 +219,7 @@ const SettingsMaps : FC = () => {
 	} }>
         <ScrollView style={ {
             backgroundColor: theme.colors.background,
-            height: mapHeight,
+            height: appInnerHeight,
             width,
             position: 'absolute',
             zIndex: 9,

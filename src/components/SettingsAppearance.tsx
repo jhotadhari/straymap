@@ -30,7 +30,7 @@ const SettingsAppearance : FC = () => {
 	const { width } = useWindowDimensions();
 	const { t } = useTranslation();
     const {
-        mapHeight,
+        appInnerHeight,
         selectedTheme,
         setSelectedTheme,
         themeOptions,
@@ -38,7 +38,7 @@ const SettingsAppearance : FC = () => {
 
 	return <ScrollView style={ {
         backgroundColor: theme.colors.background,
-        height: mapHeight,
+        height: appInnerHeight,
         width,
         position: 'absolute',
         zIndex: 9,

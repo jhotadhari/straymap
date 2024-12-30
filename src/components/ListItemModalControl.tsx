@@ -3,6 +3,7 @@
  */
 import React, {
     ReactNode,
+    useEffect,
     useState,
 } from 'react';
 import {
@@ -32,6 +33,8 @@ const ListItemModalControl = ( {
     backgroundBlur = true,
     onLayout,
     anchorIcon,
+    belowModal = false,
+    afterDismiss,
 } : {
     listItemStyle?: ViewStyle;
     hasHeaderBackPress?: boolean;
@@ -46,10 +49,19 @@ const ListItemModalControl = ( {
         color: string;
 		style: ListStyle;
 	} ) => React.ReactNode );
+    belowModal?: ReactNode | null;
+    afterDismiss?: () => void;
 } ) => {
 	const theme = useTheme();
 	const { t } = useTranslation();
 	const [visible,setVisible] = useState( false );
+
+    useEffect( () => {
+        if ( ! visible && afterDismiss ) {
+            afterDismiss();
+        }
+    }, [visible] );
+
     return <View>
 
         { visible && <ModalWrapper
@@ -64,6 +76,7 @@ const ListItemModalControl = ( {
             innerStyle={ innerStyle }
             backgroundBlur={ backgroundBlur }
             onLayout={ onLayout }
+            belowModal={ belowModal }
         >
 
             { children }

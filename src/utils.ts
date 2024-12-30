@@ -1,4 +1,3 @@
-import rnUuid from 'react-native-uuid';
 
 export const randomNumber = ( min : number, max : number ) : number => Math.random() * ( max - min ) + min;
 
@@ -12,4 +11,9 @@ export const formatSeconds = ( secNum : number ) : string => {
         ( minutes < 10 ? '0' : '' ) + minutes + 'm',
         ( seconds < 10 ? '0' : '' ) + seconds + 's',
     ].join( ' ' );
+};
+
+export const roundTo = ( num: number, precision: number ) : number => {
+    const factor = Math.pow( 10, precision );
+    return Math.round( num * factor ) / factor;
 };

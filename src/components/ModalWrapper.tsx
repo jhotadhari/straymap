@@ -52,8 +52,10 @@ const ModalWrapper = ( {
     header,
     headerPrepend,
     innerStyle,
+    modalStyle,
     backgroundBlur = true,
     onLayout,
+    belowModal,
 } : {
     children?: ReactNode;
     visible: boolean;
@@ -62,13 +64,16 @@ const ModalWrapper = ( {
     header: string;
     headerPrepend?: string | ReactNode;
     innerStyle?: null | ViewStyle;
+    modalStyle?: null | ViewStyle;
     backgroundBlur?: boolean;
     onLayout?: ( ( event: LayoutChangeEvent ) => void );
+    belowModal?: ReactNode | null;
 } ) => {
 	const { width, height } = useWindowDimensions();
     const theme = useTheme();
     const context = useContext( AppContext );
     const keyboardShown = useKeyboardShown();
+
     return <Portal><AppContext.Provider value={ context } >
         <Modal
 
@@ -84,7 +89,7 @@ const ModalWrapper = ( {
                 }
             } }
             visible={ visible }
-            style={ { opacity: 1 } }
+            style={ { opacity: 1, ...modalStyle } }
             contentContainerStyle={ {
                 width,
                 height,
@@ -160,6 +165,8 @@ const ModalWrapper = ( {
                     </View>
                 </ScrollView>
             </KeyboardAvoidingView>
+
+            { belowModal && belowModal }
 
         </Modal>
     </AppContext.Provider></Portal>;
