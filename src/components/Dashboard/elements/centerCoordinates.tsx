@@ -54,8 +54,6 @@ const ControlComponent = ( {
             const newEditElement = {...editElement}
             set( newEditElement, ['options','unit','key'], 'default' );
             set( newEditElement, ['options','unit','round'], 4 );
-
-            console.log( 'debug newEditElement', newEditElement ); // debug
             updateElement( newEditElement as DashboardElementConf );
         }
     };
@@ -148,4 +146,5 @@ export default {
     ControlComponent,
     hasStyleControl: true,
     defaultWidth: 200,
+    responseInclude: { center: 2 },
 };

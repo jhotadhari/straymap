@@ -7,6 +7,19 @@ export const LINKING_ERROR =
 export const modalWidthFactor = 0.8;
 
 export const defaults = {
+	mapSettings: {
+		layers: [],
+		mapsforgeProfiles: [],
+		hgtDirPath: undefined,
+		hgtReadFileRate: 500,
+	},
+	appearanceSettings: {
+		cursor: {
+			iconSource: 'target',
+			size: 25,
+			color: '#ed1c23',
+		},
+	},
 	generalSettings: {
 		hardwareKeys: [
 			{
@@ -71,5 +84,6 @@ export const defaults = {
 				round: 2,
 			},
 		},
+		mapEventRate: 100,
 	},
 };

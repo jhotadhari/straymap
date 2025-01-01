@@ -28,4 +28,5 @@ export default {
     ControlComponent: null,
     hasStyleControl: false,
     defaultWidth: 75,
+    responseInclude: {},
 };

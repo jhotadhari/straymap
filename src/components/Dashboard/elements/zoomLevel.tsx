@@ -35,4 +35,5 @@ export default {
     ControlComponent: null,
     hasStyleControl: true,
     defaultWidth: 75,
+    responseInclude: { zoomLevel: 2 },
 };

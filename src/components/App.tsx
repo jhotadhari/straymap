@@ -44,6 +44,7 @@ import {
 	usePromiseQueueState,
 	MapContainerModule,
 	MapEventResponse,
+	ResponseInclude,
 } from 'react-native-mapsforge-vtm';
 
 /**
@@ -64,6 +65,7 @@ import type {
 	LayerConfigOptionsMapsforge,
 	AppearanceSettings,
 	GeneralSettings,
+	DashboardElementConf,
 } from '../types';
 import customThemes from '../themes';
 import { AppContext } from '../Context';
@@ -71,6 +73,7 @@ import Center from './Center';
 import { HelperModule } from '../nativeModules';
 import { Dashboard } from './Dashboard';
 import { defaults } from '../constants';
+import * as dashboardElementComponents from "./Dashboard/elements";
 
 const useAppTheme = () => {
 
@@ -278,6 +281,7 @@ const useSettings = ( {
 	return {
 		settings,
 		setSettings,
+		initialized,
 	};
 
 };
@@ -379,49 +383,46 @@ const App = ( {
 	let {
 		settings: mapSettings,
 		setSettings: setMapSettings,
+		initialized: mapSettingsInitialized,
 	} = useSettings( {
 		setMaybeIsBusy,
 		savedMessage: sprintf( t( 'settings.saved' ), t( 'settings.maps' ) ),
 		settingsKey: 'mapSettings',
-		initialSettings: {
-			layers: [],
-			mapsforgeProfiles: [],
-		},
+		initialSettings: defaults.mapSettings,
 	} ) as {
-		settings: MapSettings,
-		setSettings: Dispatch<SetStateAction<MapSettings>>
+		settings: MapSettings;
+		setSettings: Dispatch<SetStateAction<MapSettings>>;
+		initialized: boolean;
 	};
 
 	let {
 		settings: appearanceSettings,
 		setSettings: setAppearanceSettings,
+		initialized: appearanceSettingsInitialized,
 	} = useSettings( {
 		savedMessage: sprintf( t( 'settings.Saved' ), t( 'settings.appearance' ) ),
 		setMaybeIsBusy,
 		settingsKey: 'appearanceSettings',
-		initialSettings: {
-			cursor: {
-				iconSource: 'target',
-				size: 25,
-				color: '#ed1c23',
-			},
-		},
+		initialSettings: defaults.appearanceSettings,
 	} ) as {
-		settings: AppearanceSettings,
-		setSettings: Dispatch<SetStateAction<AppearanceSettings>>
+		settings: AppearanceSettings;
+		setSettings: Dispatch<SetStateAction<AppearanceSettings>>;
+		initialized: boolean;
 	};
 
 	let {
 		settings: generalSettings,
 		setSettings: setGeneralSettings,
+		initialized: generalSettingsInitialized,
 	} = useSettings( {
 		savedMessage: sprintf( t( 'settings.Saved' ), t( 'settings.general' ) ),
 		setMaybeIsBusy,
 		settingsKey: 'generalSettings',
 		initialSettings: defaults.generalSettings,
 	} ) as {
-		settings: GeneralSettings,
-		setSettings: Dispatch<SetStateAction<GeneralSettings>>
+		settings: GeneralSettings;
+		setSettings: Dispatch<SetStateAction<GeneralSettings>>;
+		initialized: boolean;
 	};
 	// Remove bottomBar if no dashboard elements.
 	useEffect( () => {
@@ -437,7 +438,13 @@ const App = ( {
 
 	const appInnerHeight = height - topAppBarHeight;
 
-	if ( ! appDirs || ! initialPosition ) {
+	if (
+		! appDirs
+		|| ! initialPosition
+		|| ! mapSettingsInitialized
+		|| ! appearanceSettingsInitialized
+		|| ! generalSettingsInitialized
+	) {
 		return null;
 	}
 
@@ -483,11 +490,19 @@ const App = ( {
 				{ selectedHierarchyItems !== null && selectedHierarchyItems[selectedHierarchyItems.length-1].SubActivity && selectedHierarchyItems[selectedHierarchyItems.length-1].SubActivity }
 
 				<MapContainer
-	                mapEventRate={ 50 }
-					hgtDirPath={ appDirs.dem.length ? appDirs.dem[0] : undefined }
+					mapEventRate={ generalSettings.mapEventRate }
 					nativeNodeHandle={ mapViewNativeNodeHandle }
 					setNativeNodeHandle={ setMapViewNativeNodeHandle }
-					responseInclude={ { center: 2, zoomLevel: 2 } }
+					hgtReadFileRate={ mapSettings.hgtReadFileRate }
+					hgtDirPath={ mapSettings?.hgtDirPath && [...generalSettings.dashboardElements.elements].reduce( ( acc: boolean, ele: DashboardElementConf ) => {
+						return acc || ! ele.type ? acc : get( dashboardElementComponents, [ele.type,'shouldSetHgtDirPath'], false );
+					}, false ) as boolean ? mapSettings.hgtDirPath : undefined }
+					responseInclude={ [...generalSettings.dashboardElements.elements].reduce( ( acc: object, ele: DashboardElementConf ) => {
+						return ele.type ? {
+							...acc,
+							...get( dashboardElementComponents, [ele.type,'responseInclude'], {} ),
+						} : acc;
+					}, { zoomLevel: 2 } ) as ResponseInclude }
 					height={ appInnerHeight - bottomBarHeight }
 					width={ width }
 					center={ initialPosition.center }

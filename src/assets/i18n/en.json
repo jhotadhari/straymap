@@ -55,6 +55,8 @@
                 "hillshading": "bla bla hillshading"
             }
         },
+        "dem": "Digital Elevation Model",
+        "updateRate": "Update rate",
         "layer_one": "Layer",
         "layer_other": "Layers",
         "layerSelectedCount_one": "%s layer selected this profile",

@@ -189,9 +189,9 @@ const DraggableItem = ( {
             justifyContent:'space-between',
             alignItems: 'center',
             flexDirection: 'row',
-            marginLeft: -34,
+            marginLeft: -20,
             paddingLeft: 3,
-            paddingRight: 17,
+            paddingRight: 24,
         } }
         key={ item.key }
     >
@@ -246,7 +246,7 @@ const MapLayersControl = () => {
         profiles,
     } = useContext( SettingsMapsContext );
 
-	const [expanded, setExpanded] = useState( true );
+	const [expanded, setExpanded] = useState( false );
 	const [modalVisible, setModalVisible] = useState( false );
 
     useEffect( () => {
@@ -365,7 +365,11 @@ const MapLayersControl = () => {
 
         { saveLayers && setEditLayer && setLayers && <List.Accordion
             title={ t( 'map.layer', { count: 0 } ) }
-            left={ props => <List.Icon {...props} icon="map" /> }
+            left={ props => <View style={ {
+                marginLeft:   7,
+                marginRight: -7,
+                justifyContent: 'center',
+            } }><List.Icon {...props } icon="map" /></View> }
             expanded={ expanded }
             onPress={ () => {
                 if ( expanded ) {
@@ -373,6 +377,7 @@ const MapLayersControl = () => {
                 }
                 setExpanded( ! expanded )
             } }
+            titleStyle={ theme.fonts.bodyMedium }
             // style={ expanded ? { marginBottom: 20 } : {} }
         >
 
@@ -405,7 +410,7 @@ const MapLayersControl = () => {
                     backgroundBlur={ true }
                     Info={ <Text>{ 'bla bla ??? info text' }</Text> }
                     buttonProps={ {
-                        style: { marginTop: 0, marginBottom: 0, marginLeft: -30 },
+                        style: { marginTop: 0, marginBottom: 0, marginLeft: -23 },
                         icon: "information-variant",
                         mode: "outlined",
                         iconColor: theme.colors.primary,

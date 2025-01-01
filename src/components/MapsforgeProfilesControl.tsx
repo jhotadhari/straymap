@@ -95,9 +95,9 @@ const DraggableItem = ( {
             justifyContent:'space-between',
             alignItems: 'center',
             flexDirection: 'row',
-            marginLeft: -34,
+            marginLeft: -20,
             paddingLeft: 3,
-            paddingRight: 17,
+            paddingRight: 24,
         } }
         key={ profile.key }
     >
@@ -429,7 +429,7 @@ const MapsforgeProfilesControl = () => {
         }
     }, [editProfile] );
 
-	const [expanded, setExpanded] = useState( true );
+	const [expanded, setExpanded] = useState( false );
 
     const setModalVisible = ( visible: boolean ) => {
         if ( visible ) {
@@ -583,7 +583,11 @@ const MapsforgeProfilesControl = () => {
 
         <List.Accordion
             title={ t( 'map.mapsforge.profile', { count: 0 } ) }
-            left={ props => <IconIcomoon size={ 25 } name="mapsforge_puzzle_only" {...props}/> }
+            left={ props => <View style={ {
+                marginLeft:   7,
+                marginRight: -7,
+                justifyContent: 'center',
+            } }><IconIcomoon size={ 25 } name="mapsforge_puzzle_only" {...props}/></View> }
             expanded={ expanded }
             onPress={ () => {
                 if ( expanded && saveProfiles ) {
@@ -591,6 +595,7 @@ const MapsforgeProfilesControl = () => {
                 }
                 setExpanded( ! expanded )
             } }
+            titleStyle={ theme.fonts.bodyMedium }
         >
 
             <View style={ {
@@ -624,7 +629,7 @@ const MapsforgeProfilesControl = () => {
                     backgroundBlur={ true }
                     Info={ <Text>{ 'bla bla ??? info text' }</Text> }
                     buttonProps={ {
-                        style: { marginTop: 0, marginBottom: 0, marginLeft: -30 },
+                        style: { marginTop: 0, marginBottom: 0, marginLeft: -23 },
                         icon: "information-variant",
                         mode: "outlined",
                         iconColor: theme.colors.primary,

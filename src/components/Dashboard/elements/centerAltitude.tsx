@@ -112,7 +112,10 @@ const ControlComponent = ( {
     </View> : null;
 };
 
-const formatBla = ( altitudeM: number, unit: UnitPref, t: TFunction<"translation", undefined> ): string => {
+const formatOutput = ( altitudeM: ( number | null ), unit: UnitPref, t: TFunction<"translation", undefined> ): string => {
+    if ( null === altitudeM ) {
+        return '-';
+    }
     switch( unit.unit ){
         case 'ft':
             return roundTo( convertUnits( altitudeM ).from( 'm' ).to( 'ft' ), unit.round )  + ' ft';
@@ -149,9 +152,7 @@ const DisplayComponent = ( {
         { currentMapEvent.center && currentMapEvent?.center.hasOwnProperty( 'alt' ) && <Text style={ {
             fontSize: get( dashboardElement, ['style','fontSize'], undefined ),
         } }>{
-
-            formatBla( currentMapEvent.center.alt as number, unit, t )
-
+            formatOutput( currentMapEvent.center.alt as ( number | null ), unit, t )
         }</Text> }
     </View>;
 };
@@ -162,5 +163,7 @@ export default {
     DisplayComponent,
     ControlComponent,
     hasStyleControl: true,
+    shouldSetHgtDirPath: true,
     defaultWidth: 75,
+    responseInclude: { center: 2 },
 };

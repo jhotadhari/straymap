@@ -15,6 +15,7 @@ import {
 	LayerMapsforgeProps,
 	LayerHillshadingProps,
 	MapEventResponse,
+	MapContainerProps,
 } from 'react-native-mapsforge-vtm';
 import { ViewStyle } from "react-native";
 
@@ -120,9 +121,13 @@ export type MapsforgeProfile = {
     renderOverlays: string[];
 };
 
+export type HgtDirPath = LayerConfigOptionsHillshading['hgtDirPath'] | MapContainerProps['hgtDirPath'];
+
 export type MapSettings = {
 	layers: LayerConfig[];
 	mapsforgeProfiles: MapsforgeProfile[];
+	hgtDirPath: MapContainerProps['hgtDirPath'];
+	hgtReadFileRate: MapContainerProps['hgtReadFileRate'];
 };
 
 export type CursorConfig = {
@@ -168,6 +173,7 @@ export type GeneralSettings = {
 		style: DashboardStyle;
 	};
 	unitPrefs: { [value: string]: UnitPref };
+	mapEventRate: MapContainerProps['mapEventRate'];
 };
 
 export type DashboardDisplayComponentProps = {

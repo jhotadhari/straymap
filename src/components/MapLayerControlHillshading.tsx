@@ -15,154 +15,23 @@ import {
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { debounce, get } from 'lodash-es';
-import { openDocumentTree } from "react-native-scoped-storage"
 
 /**
  * react-native-mapsforge-vtm dependencies
  */
-import { LayerHillshading, ShadingAlgorithm, ShadingAlgorithmOptions } from 'react-native-mapsforge-vtm';
+import { LayerHillshading, MapContainerProps, ShadingAlgorithm, ShadingAlgorithmOptions } from 'react-native-mapsforge-vtm';
 
 /**
  * Internal dependencies
  */
 import ButtonHighlight from './ButtonHighlight';
-import { AbsPath, LayerConfig, LayerConfigOptionsHillshading, OptionBase } from '../types';
+import { LayerConfig, LayerConfigOptionsHillshading, OptionBase } from '../types';
 import InfoRowControl from './InfoRowControl';
 import { AppContext } from '../Context';
 import ModalWrapper from './ModalWrapper';
-import RadioListItem from './RadioListItem';
 import { NumericRowControl, NumericMultiRowControl } from './NumericRowControls';
 import ListItemMenuControl from './ListItemMenuControl';
-
-const SourceRowControl = ( {
-    dirs,
-    options,
-    setOptions,
-} : {
-    dirs: AbsPath[],
-    options: LayerConfigOptionsHillshading;
-    setOptions: ( options : LayerConfigOptionsHillshading ) => void;
-} ) => {
-
-    const { t } = useTranslation();
-    const theme = useTheme();
-
-	const [modalVisible, setModalVisible] = useState( false );
-
-    let opts : OptionBase[] = [
-        {
-            key: 'custom',
-            label: t( 'custom' ),
-        },
-    ];
-    [...dirs].reverse().map( ( dir : AbsPath ) => {
-        opts = [
-            {
-                key: dir,
-                label: dir,
-            },
-            ...opts,
-        ];
-    } );
-
-    const getInitialSelectedOpt = () : ( null | 'custom' | LayerConfigOptionsHillshading['hgtDirPath'] ) => {
-        if ( options.hgtDirPath ) {
-            const opt = opts.find( opt => opt.key === options.hgtDirPath );
-            return opt ? get( opt, 'key', null ) as ( null | LayerConfigOptionsHillshading['hgtDirPath'] ) : 'custom';
-        } else {
-            return null;
-        }
-    };
-
-	const [selectedOpt,setSelectedOpt] = useState<null | 'custom' | LayerConfigOptionsHillshading['hgtDirPath']>( getInitialSelectedOpt() );
-
-	const [customUri,setCustomUri] = useState<undefined | `content://${string}`>( options.hgtDirPath && options.hgtDirPath.startsWith( 'content://' )
-        ? options.hgtDirPath as `content://${string}`
-        : undefined
-    );
-
-    useEffect( () => {
-        if ( selectedOpt ) {
-            setOptions( {
-                ...options,
-                hgtDirPath: 'custom' === selectedOpt ? customUri : selectedOpt,
-            } );
-        }
-    }, [selectedOpt] );
-
-    return <InfoRowControl
-            label={ t( 'map.demDir' ) }
-            Info={ 'bla bla ??? info text' }
-    >
-        { modalVisible && <ModalWrapper
-            visible={ modalVisible }
-            backgroundBlur={ false }
-            onDismiss={ () => setModalVisible( false ) }
-            header={ t( 'map.selectDemDir' ) }
-            onHeaderBackPress={ () => setModalVisible( false ) }
-        >
-            { [...opts].map( opt => {
-                return <View
-                    key={ opt.key }
-                    style={ {
-                        marginBottom: 18,
-                    } }
-                >
-                    <RadioListItem
-                        key={ opt.key }
-                        opt={ opt }
-                        onPress={ () => {
-                            if ( opt.key === selectedOpt ) {
-                                setSelectedOpt( null );
-                                setCustomUri( undefined );
-                            } else {
-                                if ( opt.key === 'custom' ) {
-                                    openDocumentTree( true ).then( dir => {
-                                        setCustomUri( dir.uri as `content://${string}` );
-                                        setSelectedOpt( 'custom' );
-                                        setModalVisible( false );
-                                    } ).catch( ( err : any ) => console.log( err ) );
-                                } else {
-                                    setCustomUri( undefined );
-                                    setSelectedOpt( opt.key as LayerConfigOptionsHillshading['hgtDirPath'] );
-                                    setModalVisible( false );
-                                }
-                            }
-                        } }
-                        labelStyle={ theme.fonts.bodyMedium }
-                        labelExtractor={ a => a.label }
-                        descExtractor={ opt.key === 'custom' ? () => ( customUri ? customUri?.replace( 'content://', 'content:// ' ) : null ) : undefined }
-                        status={ opt.key === selectedOpt ? 'checked' : 'unchecked' }
-                    />
-                </View>;
-            } ) }
-
-            <ButtonHighlight
-                style={ { marginTop: 10 } }
-                onPress={ () => {
-                    setModalVisible( false );
-                } }
-                mode="contained"
-                buttonColor={ get( theme.colors, 'successContainer' ) }
-                textColor={ get( theme.colors, 'onSuccessContainer' ) }
-            ><Text>{ t( 'ok' ) }</Text></ButtonHighlight>
-
-        </ModalWrapper> }
-
-        <View style={ { flexDirection: 'row', alignItems: 'center' } }>
-            <ButtonHighlight style={ { marginTop: 3 } } onPress={ () => setModalVisible( true ) } >
-                <Text>{ t( selectedOpt
-                    ? ( 'custom' === selectedOpt && customUri
-                        ? customUri?.replace( 'content://', 'content:// ' ).slice( 0, Math.min( customUri.length - 1, 30 ) )
-                        : get( opts.find( opt => opt.key === selectedOpt ), 'label', '' )
-                    )
-                    : 'selected.none'
-                ) }</Text>
-            </ButtonHighlight>
-        </View>
-
-    </InfoRowControl>;
-};
+import HgtSourceRowControl from './HgtSourceRowControl';
 
 const AlgorithmControl = ( {
     options,
@@ -316,9 +185,10 @@ const MapLayerControlHillshading = ( {
 
     return <View>
 
-        <SourceRowControl
+        <HgtSourceRowControl
             options={ options }
             setOptions={ setOptions }
+            optKey={ 'hgtDirPath' }
             dirs={ appDirs ? appDirs.dem : [] }
         />
 

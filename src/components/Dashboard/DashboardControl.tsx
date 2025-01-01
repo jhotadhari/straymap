@@ -43,6 +43,7 @@ import { NumericRowControl } from '../NumericRowControls';
 import * as dashboardElementComponents from "./elements";
 import MenuItem from '../MenuItem';
 import InfoRowControl from '../InfoRowControl';
+import { MapContainerProps } from 'react-native-mapsforge-vtm';
 
 const itemHeight = 50;
 
@@ -105,8 +106,6 @@ const DraggableItem = ( {
     const { t } = useTranslation();
     const theme = useTheme();
 
-
-    console.log( 'debug dashboardElementComponents', dashboardElementComponents ); // debug
     return <View
         style={ {
             width,
@@ -229,13 +228,21 @@ const DashboardControl = () => {
         dashboardStyleRef.current = dashboardStyle;
     }, [dashboardStyle] );
 
+
+    const [mapEventRate,setMapEventRate] = useState<MapContainerProps['mapEventRate'] >( get( generalSettings, 'mapEventRate', defaults.generalSettings.mapEventRate ) );
+    const mapEventRateRef = useRef( mapEventRate );
+    useEffect( () => {
+        mapEventRateRef.current = mapEventRate;
+    }, [mapEventRate] );
+
     const save = () => generalSettings && setGeneralSettings && setGeneralSettings( ( generalSettings: GeneralSettings ) => ( {
         ...generalSettings,
-        ...( dashboardElementConfigRef.current && { dashboardElements: {
+        dashboardElements: {
             ...get( generalSettings, 'dashboardElements' ),
-            elements: dashboardElementConfigRef.current,
-            style: dashboardStyleRef.current,
-        } } ),
+            ...( dashboardElementConfigRef.current && { elements: dashboardElementConfigRef.current } ),
+            ...( dashboardStyleRef.current && { style: dashboardStyleRef.current } ),
+        },
+        ...( mapEventRateRef.current && { mapEventRate: mapEventRateRef.current } ),
     } ) );
     useEffect( () => save, [] );    // Save on unmount.
 
@@ -448,7 +455,6 @@ const DashboardControl = () => {
                             setDashboardStyle( {
                                 ...dashboardStyle,
                                 align: opt.key,
-
                             } );
                         } }
                         title={ t( opt.label ) }
@@ -456,6 +462,17 @@ const DashboardControl = () => {
                     /> ) }
                 </Menu>
             </InfoRowControl>
+
+            <NumericRowControl
+                label={ t( 'updateRate' ) }
+                optKey={ 'mapEventRate' }
+                options={ { mapEventRate } }
+                setOptions={ ( { mapEventRate } ) => {
+                    setMapEventRate( mapEventRate );
+                } }
+                validate={ val => val >= 0 }
+                Info={ 'bla bla ??? info text in [ms]' }
+            />
 
         </ListItemModalControl>
 
