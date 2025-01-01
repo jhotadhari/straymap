@@ -51,7 +51,7 @@ const HgtControl = () => {
 
     const save = () => mapSettings && setMapSettings && setMapSettings( ( mapSettings: MapSettings ) => ( {
         ...mapSettings,
-        ...( hgtDirPathRef.current && { hgtDirPath: hgtDirPathRef.current } ),
+        hgtDirPath: hgtDirPathRef.current,
         ...( hgtReadFileRateRef.current && { hgtReadFileRate: hgtReadFileRateRef.current } ),
     } ) );
     useEffect( () => save, [] );    // Save on unmount.
@@ -72,9 +72,7 @@ const HgtControl = () => {
         <HgtSourceRowControl
             options={ { hgtDirPath } }
             setOptions={ options => {
-                if ( get( options, 'hgtDirPath' ) ) {
-                    setHgtDirPath( get( options, 'hgtDirPath' ) );
-                }
+                setHgtDirPath( get( options, 'hgtDirPath' ) || undefined );
             } }
             optKey={ 'hgtDirPath' }
             dirs={ appDirs ? appDirs.dem : [] }

@@ -74,18 +74,16 @@ const HgtSourceRowControl = ( {
 
 	const [selectedOpt,setSelectedOpt] = useState<null | 'custom' | HgtDirPath>( getInitialSelectedOpt() );
 
-	const [customUri,setCustomUri] = useState<undefined | `content://${string}`>( get( options, optKey, '' ).startsWith( 'content://' )
+	const [customUri,setCustomUri] = useState<undefined | `content://${string}`>( 'string' === typeof get( options, optKey, '' ) && get( options, optKey, '' ).startsWith( 'content://' )
         ? get( options, optKey ) as `content://${string}`
         : undefined
     );
 
     useEffect( () => {
-        if ( selectedOpt ) {
-            setOptions( {
-                ...options,
-                [optKey]: 'custom' === selectedOpt ? customUri : selectedOpt,
-            } );
-        }
+        setOptions( {
+            ...options,
+            [optKey]: 'custom' === selectedOpt ? customUri : selectedOpt,
+        } );
     }, [selectedOpt] );
 
     return <InfoRowControl
