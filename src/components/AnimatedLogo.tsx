@@ -11,6 +11,7 @@ import {
 	useAnimatedValue,
 	View,
     Pressable,
+    Easing,
 } from 'react-native';
 import {
 	Text,
@@ -43,7 +44,17 @@ const strings = [
     'Fuck Flatearthlers',
 ];
 
-const AnimatedLogo = ( { size } : { size: number } ) => {
+const AnimatedLogo = ( {
+    size,
+    shouldShit,
+    animateOnPress,
+    animateLoop,
+} : {
+    size: number;
+    shouldShit?: boolean;
+    animateOnPress?: boolean;
+    animateLoop?: boolean;
+} ) => {
 
 	const theme = useTheme();
 
@@ -113,7 +124,34 @@ const AnimatedLogo = ( { size } : { size: number } ) => {
         }
     }, [textDims.join( '' )] )
 
-    const animate = () => {
+    const loopAnimate = () => {
+        // water
+        Animated.loop(
+            Animated.sequence( [
+                Animated.timing( waterRotate, {
+                    toValue: 360,
+                    duration: 2500,
+                    useNativeDriver: true,
+                    easing: Easing.linear,
+                } ),
+                Animated.timing( waterRotate, {
+                    toValue: 0,
+                    duration: 0,
+                    useNativeDriver: true,
+                } ),
+            ] )
+        ).start();
+    };
+
+    const updateLoopAnimate = ( animateLoop: boolean ) => animateLoop && loopAnimate();
+    useEffect( () => {
+        updateLoopAnimate( !! animateLoop );
+    }, [] )
+    useEffect( () => {
+        updateLoopAnimate( !! animateLoop );
+    }, [animateLoop] )
+
+    const onPressAnimate = () => {
         // water
         Animated.sequence( [
             Animated.timing( waterRotate, {
@@ -186,9 +224,11 @@ const AnimatedLogo = ( { size } : { size: number } ) => {
             alignItems: 'center',
         } }
         onPress={ () => {
-            setTextIsInitialized( true );
-            animate();
-            setStringIndex( getNewStringIndex() );
+            if ( shouldShit ) {
+                setTextIsInitialized( true );
+                setStringIndex( getNewStringIndex() );
+            }
+            animateOnPress && onPressAnimate();
         } }
     >
 

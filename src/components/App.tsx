@@ -45,6 +45,7 @@ import {
 	MapContainerModule,
 	MapEventResponse,
 	ResponseInclude,
+	useMapLayersCreated,
 } from 'react-native-mapsforge-vtm';
 
 /**
@@ -74,6 +75,7 @@ import { HelperModule } from '../nativeModules';
 import { Dashboard } from './Dashboard';
 import { defaults } from '../constants';
 import * as dashboardElementComponents from "./Dashboard/elements";
+import SplashScreen from './SplashScreen';
 
 const useAppTheme = () => {
 
@@ -324,7 +326,7 @@ const useInitialCenter = () => {
 };
 
 const useIsBusy = () => {
-	const [isBusy,setIsBusy] = useState( false );
+	const [isBusy,setIsBusy] = useState( true );
 	const [maybeIsBusy,setMaybeIsBusy] = useState( false );
 	const promiseQueueState = usePromiseQueueState();
 	useEffect( () => {
@@ -334,6 +336,35 @@ const useIsBusy = () => {
 		isBusy,
 		setMaybeIsBusy,
 	};
+};
+
+const useShowSplash = ( {
+	mapViewNativeNodeHandle,
+	isBusy,
+}: {
+	mapViewNativeNodeHandle: null | number;
+	isBusy: boolean;
+} ) => {
+	const mapLayersCreated = useMapLayersCreated( mapViewNativeNodeHandle );
+	const [mapLayersCreatedDef,setMapLayersCreatedDef] = useState( false );
+	const [showSplash,setShowSplash] = useState( true );
+	useEffect( () => {
+		if ( mapLayersCreated ) {
+			setTimeout( () => {
+				setMapLayersCreatedDef( true );
+			}, 100 );
+		}
+	}, [mapLayersCreated] );
+	useEffect( () => {
+		if ( showSplash && ( mapLayersCreatedDef && ! isBusy ) ) {
+			setShowSplash( false );
+		}
+	}, [
+		mapLayersCreatedDef,
+		isBusy,
+		showSplash
+	] );
+	return showSplash;
 };
 
 const App = ( {
@@ -371,6 +402,11 @@ const App = ( {
 	} = useWindowDimensions();
 
 	const [mapViewNativeNodeHandle, setMapViewNativeNodeHandle] = useState<null | number>( null );
+
+	const showSplash = useShowSplash( {
+		mapViewNativeNodeHandle,
+		isBusy,
+	} );
 
 	const [appDirs,setAppDirs] = useState<null | AbsPathsMap>( null );
 
@@ -445,7 +481,13 @@ const App = ( {
 		|| ! appearanceSettingsInitialized
 		|| ! generalSettingsInitialized
 	) {
-		return null;
+		return  <SafeAreaView style={ {
+			backgroundColor: theme.colors.background,
+			height,
+			width,
+		} }>
+			<SplashScreen/>
+		</SafeAreaView>;
 	}
 
 	return <AppContext.Provider value={ {
@@ -477,6 +519,8 @@ const App = ( {
 			height,
 			width,
 		} }>
+
+			{ showSplash && <SplashScreen/> }
 
 			<StatusBar barStyle={ systemIsDarkMode ? 'light-content' : 'dark-content' } />
 

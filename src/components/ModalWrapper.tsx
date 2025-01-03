@@ -52,6 +52,7 @@ const ModalWrapper = ( {
     header,
     headerPrepend,
     innerStyle,
+    innerContainerStyle,
     modalStyle,
     backgroundBlur = true,
     onLayout,
@@ -64,6 +65,7 @@ const ModalWrapper = ( {
     header: string;
     headerPrepend?: string | ReactNode;
     innerStyle?: null | ViewStyle;
+    innerContainerStyle?: null | ViewStyle;
     modalStyle?: null | ViewStyle;
     backgroundBlur?: boolean;
     onLayout?: ( ( event: LayoutChangeEvent ) => void );
@@ -125,6 +127,7 @@ const ModalWrapper = ( {
                         borderColor: theme.colors.outline,
                         borderWidth: 1,
                         borderRadius: theme.roundness,
+                        ...innerContainerStyle,
                     } }
                 >
                     <View style={ {

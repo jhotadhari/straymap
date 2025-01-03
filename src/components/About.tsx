@@ -50,7 +50,11 @@ const About : FC = () => {
             } }
         >{ t( 'test' ) }</Text>
 
-        <AnimatedLogo size={ width } />
+        <AnimatedLogo
+            size={ width }
+            shouldShit={ true }
+            animateOnPress={ true }
+        />
 
 	</View>;
 
