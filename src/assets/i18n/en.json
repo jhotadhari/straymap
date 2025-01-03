@@ -14,12 +14,9 @@
             "about": "About"
         },
         "settings": {
+            "saved": "Saved %s settings",
             "general": "General",
             "maps": "Maps",
-            "saved": "Saved %s settings",
-            "mapsSaved": "Saved map settings",
-            "themeSaved": "Saved theme settings",
-            "langSaved": "Saved language settings",
             "appearance": "Appearance"
         },
         "map": {
@@ -57,6 +54,12 @@
         },
         "dem": "Digital Elevation Model",
         "updateRate": "Update rate",
+        "hgtReadFileRate": "hgt-file read rate",
+        "nothing": "Nothing",
+        "volumeUp": "Volume up",
+        "volumeDown": "Volume down",
+        "zoomIn": "Zoom in",
+        "zoomOut": "Zoom out",
         "layer_one": "Layer",
         "layer_other": "Layers",
         "layerSelectedCount_one": "%s layer selected this profile",
@@ -98,6 +101,7 @@
         "whatIs_one": "What is \"%s\"?",
         "whatIs_other": "What are \"%s\"?",
         "cacheSize": "Cache size",
+        "language": "language",
         "selectLang": "Select language",
         "hardwareKeyAssignment": "Hardware key assignment",
         "hardwareKey_one": "Hardware key",

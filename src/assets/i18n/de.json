@@ -14,12 +14,9 @@
             "about": "Über"
         },
         "settings": {
+            "saved": "%s Einstellungen gespeichert",
             "general": "Allgemein",
             "maps": "Karten",
-            "saved": "%s Einstellungen settings",
-            "mapsSaved": "Karteneinstellungen gespeichert",
-            "themeSaved": "Theme Auswahl gespeichert",
-            "langSaved": "Sprachauswahl gespeichert",
             "appearance": "Aussehen"
         },
         "map": {
@@ -57,6 +54,12 @@
         },
         "dem": "Digitales Höhenmodel",
         "updateRate": "Aktualisierungsrate",
+        "hgtReadFileRate": "hgt-Datei-Leserate",
+        "nothing": "Nichts",
+        "volumeUp": "Lautstärke erhöhen",
+        "volumeDown": "Lautstärke reduzieren",
+        "zoomIn": "Heranzoomen",
+        "zoomOut": "Herauszoomen",
         "layer_one": "Ebene",
         "layer_other": "Ebenen",
         "layerSelectedCount_one": "%s Ebene hat dieses Profil ausgewählt",
@@ -98,6 +101,7 @@
         "whatIs_one": "Was ist \"%s\"?",
         "whatIs_other": "Was sind \"%s\"?",
         "cacheSize": "Cache Größe",
+        "language": "Sprache",
         "selectLang": "Sprache wählen",
         "hardwareKeyAssignment": "Hardware-Tastenbelegung",
         "hardwareKey_one": "Hardware-Taste",

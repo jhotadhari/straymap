@@ -33,25 +33,25 @@ import MenuItem from './MenuItem';
 const keyCodeStringOptions : OptionBase[] = [
 	{
 		key: 'KEYCODE_VOLUME_UP',
-		label: 'Volume Up',	// ??? translate
+		label: 'volumeUp',
 	},
 	{
 		key: 'KEYCODE_VOLUME_DOWN',
-		label: 'Volume Down',// ??? translate
+		label: 'volumeDown',
 	},
 ];
 const actionKeyOptions : OptionBase[] = [
 	{
 		key: 'none',
-		label: 'nothing',// ??? translate
+		label: 'nothing',
 	},
 	{
 		key: 'zoomIn',
-		label: 'Zoom in',// ??? translate
+		label: 'zoomIn',
 	},
 	{
 		key: 'zoomOut',
-		label: 'Zoom out',// ??? translate
+		label: 'zoomOut',
 	},
 ];
 
@@ -84,7 +84,7 @@ const MappingRowControl = ( {
 					style={ {
 						minWidth: '40%',
 					} }
-				>{ keyCodeStringOption.label }</Text>
+				>{ t( keyCodeStringOption.label ) }</Text>
 
 				<Menu
 					contentStyle={ {

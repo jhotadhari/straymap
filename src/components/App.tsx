@@ -116,7 +116,7 @@ const useAppTheme = () => {
 	useEffect( () => {
 		if ( null !== selectedTheme ) {
 			DefaultPreference.set( 'theme', selectedTheme ).catch( err => 'ERROR' + console.log( err ) )
-			.then( () => initialized && ToastAndroid.show( t( 'settings.themeSaved' ), ToastAndroid.SHORT ) )
+			.then( () => initialized && ToastAndroid.show( sprintf( t( 'settings.saved' ), t( 'theme' ) ), ToastAndroid.SHORT ) )
 			.catch( err => 'ERROR' + console.log( err ) );
 			setInitialized( true );
 		}
@@ -170,7 +170,7 @@ const useAppLang = () => {
 	useEffect( () => {
 		if ( selectedLang ) {
 			DefaultPreference.set( 'lang', selectedLang ).catch( err => 'ERROR' + console.log( err ) )
-			.then( () => initialized && ToastAndroid.show( t( 'settings.langSaved' ), ToastAndroid.SHORT ) )
+			.then( () => initialized && ToastAndroid.show( sprintf( t( 'settings.saved' ), t( 'language' ) ), ToastAndroid.SHORT ) )
 			.catch( err => 'ERROR' + console.log( err ) );
 			setInitialized( true );
 		}
@@ -400,7 +400,7 @@ const App = ( {
 		setSettings: setAppearanceSettings,
 		initialized: appearanceSettingsInitialized,
 	} = useSettings( {
-		savedMessage: sprintf( t( 'settings.Saved' ), t( 'settings.appearance' ) ),
+		savedMessage: sprintf( t( 'settings.saved' ), t( 'settings.appearance' ) ),
 		setMaybeIsBusy,
 		settingsKey: 'appearanceSettings',
 		initialSettings: defaults.appearanceSettings,
@@ -415,7 +415,7 @@ const App = ( {
 		setSettings: setGeneralSettings,
 		initialized: generalSettingsInitialized,
 	} = useSettings( {
-		savedMessage: sprintf( t( 'settings.Saved' ), t( 'settings.general' ) ),
+		savedMessage: sprintf( t( 'settings.saved' ), t( 'settings.general' ) ),
 		setMaybeIsBusy,
 		settingsKey: 'generalSettings',
 		initialSettings: defaults.generalSettings,
