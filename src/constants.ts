@@ -51,16 +51,6 @@ export const defaults = {
 					// 	minWidth: 200,
 					// },
 				},
-				{
-					type: 'centerAltitude',
-					key: '0215f479-9a06-4c38-b966-be3af90ee880',
-					options: {
-						unit: {
-							key: 'default',
-							round: 2,
-						},
-					},
-				},
 			],
 			style: {
 				align: 'left',
