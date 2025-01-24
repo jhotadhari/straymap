@@ -24,7 +24,7 @@ import {
 	useTheme,
 } from 'react-native-paper';
 import useDeepCompareEffect from 'use-deep-compare-effect'
-import { get, pick } from 'lodash-es';
+import { get, pick, without } from 'lodash-es';
 import { sprintf } from 'sprintf-js';
 
 /**
@@ -238,12 +238,14 @@ const mergeSettingsForKey = ( initialSettings: object, newSettings: object, key:
 } );
 
 const useSettings = ( {
-	setMaybeIsBusy,
+	maybeIsBusyAdd,
+	maybeIsBusyRemove,
 	settingsKey,
 	savedMessage,
 	initialSettings = {},
 } : {
-	setMaybeIsBusy?: Dispatch<SetStateAction<boolean>>;
+	maybeIsBusyAdd?: ( key: string ) => void;
+	maybeIsBusyRemove?: ( key: string ) => void;
 	savedMessage?: string;
 	settingsKey: string;
 	initialSettings?: object;
@@ -252,8 +254,10 @@ const useSettings = ( {
 	const [initialized,setInitialized] = useState( false );
 	const [settings,setSettings] = useState<object>( initialSettings );
 
+
     useEffect( () => {
-		setMaybeIsBusy && setMaybeIsBusy( true );
+		const busyKey = 'useSettings' + 'load' + settingsKey;
+		maybeIsBusyAdd && maybeIsBusyAdd( busyKey );
 		setTimeout( () => DefaultPreference.get( settingsKey ).then( newSettingsStr => {
 			if ( newSettingsStr ) {
 				const newSettings = JSON.parse( newSettingsStr );
@@ -268,16 +272,17 @@ const useSettings = ( {
 			}
 			setInitialized( true );
 		} ).catch( err => 'ERROR' + console.log( err ) )
-		.finally( () => setMaybeIsBusy && setMaybeIsBusy( false ) ), 1 );
+		.finally( () => maybeIsBusyRemove && maybeIsBusyRemove( busyKey ) ), 1 );
     }, [] );
 
 	useDeepCompareEffect( () => {
 		if ( initialized ) {
-			setMaybeIsBusy && setMaybeIsBusy( true );
+			const busyKey = 'useSettings' + 'changed' + settingsKey;
+			maybeIsBusyAdd && maybeIsBusyAdd( busyKey );
 			setTimeout( () => DefaultPreference.set( settingsKey, JSON.stringify( settings ) )
 			.then( () => savedMessage ? ToastAndroid.show( savedMessage, ToastAndroid.SHORT ) : null )
 			.catch( err => 'ERROR' + console.log( err ) )
-			.finally( () => setMaybeIsBusy && setMaybeIsBusy( false ) ), 10 );
+			.finally( () => maybeIsBusyRemove && maybeIsBusyRemove( busyKey ) ), 10 );
 		}
 	}, [settings] )
 	return {
@@ -327,14 +332,17 @@ const useInitialCenter = () => {
 
 const useIsBusy = () => {
 	const [isBusy,setIsBusy] = useState( true );
-	const [maybeIsBusy,setMaybeIsBusy] = useState( false );
+	const [maybeIsBusy,setMaybeIsBusy] = useState<string[]>( [] );
+	const maybeIsBusyAdd = ( key: string ) => setMaybeIsBusy( [...maybeIsBusy, key] );
+	const maybeIsBusyRemove = ( key: string ) => setMaybeIsBusy( without( maybeIsBusy, key ) );
 	const promiseQueueState = usePromiseQueueState();
 	useEffect( () => {
-		setIsBusy( promiseQueueState !== 0 || maybeIsBusy );
+		setIsBusy( promiseQueueState !== 0 || maybeIsBusy.length > 0 );
 	}, [maybeIsBusy, promiseQueueState] );
 	return {
 		isBusy,
-		setMaybeIsBusy,
+		maybeIsBusyAdd,
+		maybeIsBusyRemove,
 	};
 };
 
@@ -393,7 +401,8 @@ const App = ( {
 
 	const {
 		isBusy,
-		setMaybeIsBusy,
+		maybeIsBusyAdd,
+		maybeIsBusyRemove,
 	} = useIsBusy();
 
 	const {
@@ -421,7 +430,8 @@ const App = ( {
 		setSettings: setMapSettings,
 		initialized: mapSettingsInitialized,
 	} = useSettings( {
-		setMaybeIsBusy,
+		maybeIsBusyAdd,
+		maybeIsBusyRemove,
 		savedMessage: sprintf( t( 'settings.saved' ), t( 'settings.maps' ) ),
 		settingsKey: 'mapSettings',
 		initialSettings: defaults.mapSettings,
@@ -437,7 +447,8 @@ const App = ( {
 		initialized: appearanceSettingsInitialized,
 	} = useSettings( {
 		savedMessage: sprintf( t( 'settings.saved' ), t( 'settings.appearance' ) ),
-		setMaybeIsBusy,
+		maybeIsBusyAdd,
+		maybeIsBusyRemove,
 		settingsKey: 'appearanceSettings',
 		initialSettings: defaults.appearanceSettings,
 	} ) as {
@@ -452,7 +463,8 @@ const App = ( {
 		initialized: generalSettingsInitialized,
 	} = useSettings( {
 		savedMessage: sprintf( t( 'settings.saved' ), t( 'settings.general' ) ),
-		setMaybeIsBusy,
+		maybeIsBusyAdd,
+		maybeIsBusyRemove,
 		settingsKey: 'generalSettings',
 		initialSettings: defaults.generalSettings,
 	} ) as {
@@ -511,7 +523,8 @@ const App = ( {
 		generalSettings,
 		setGeneralSettings,
 		isBusy,
-		setMaybeIsBusy,
+		maybeIsBusyAdd,
+		maybeIsBusyRemove,
 		currentMapEvent,
 	} }>
 		<SafeAreaView style={ {
@@ -568,7 +581,7 @@ const App = ( {
 					onError={ err => console.log( 'Error', err ) }
 					onResume={ response => console.log( 'lifecycle event onResume', response ) }
 					onMapEvent={ ( response: MapEventResponse ) => {
-						console.log( 'onMapEvent event', response ); // debug
+						// console.log( 'onMapEvent event', response ); // debug
 						setCurrentMapEvent( response );
 					} }
 					emitsHardwareKeyUp={ [...generalSettings.hardwareKeys].filter( keyConf => 'none' !== keyConf.actionKey ).map( keyConf => keyConf.keyCodeString ) as MapContainerProps['emitsHardwareKeyUp'] }

@@ -34,7 +34,8 @@ export type AppContextType = {
 	generalSettings?: GeneralSettings;
 	setGeneralSettings?: Dispatch<SetStateAction<GeneralSettings>>;
     isBusy?: boolean;
-    setMaybeIsBusy?: Dispatch<SetStateAction<boolean>>;
+	maybeIsBusyAdd?: ( key: string ) => void;
+	maybeIsBusyRemove?: ( key: string ) => void;
     currentMapEvent?: MapEventResponse;
 };
 

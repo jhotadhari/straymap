@@ -413,7 +413,7 @@ const MapsforgeProfilesControl = () => {
 	const { t } = useTranslation();
 	const theme = useTheme();
 
-    const { appDirs, isBusy, setMaybeIsBusy } = useContext( AppContext );
+    const { appDirs, isBusy, maybeIsBusyAdd, maybeIsBusyRemove } = useContext( AppContext );
 
     const [modalOpened,setModalOpened] = useState( false )
 	const [modalVisible, setModalVisible_] = useState( false );
@@ -448,7 +448,8 @@ const MapsforgeProfilesControl = () => {
 	useEffect( () => {
         if ( editProfile && null !== editProfile.theme && modalOpened ) {
             if ( ! renderStyleOptionsMap[editProfile.theme] ) {
-                setMaybeIsBusy && setMaybeIsBusy( true );
+                const busyKey = 'MapsforgeProfilesControl' + editProfile.key;
+                maybeIsBusyAdd && maybeIsBusyAdd( busyKey );
                 setTimeout( () => {
                     MapLayerMapsforgeModule.getRenderThemeOptions( editProfile?.theme ).then( ( collection : RenderStyleOptionsCollection ) => {
                         setRenderStyleOptionsMap( {
@@ -461,7 +462,7 @@ const MapsforgeProfilesControl = () => {
                                 [editProfile.theme]: get( Object.values( collection ).find( obj => obj.default ), 'value', null ),
                             } ),
                         } );
-                        setMaybeIsBusy && setMaybeIsBusy( false );
+                        maybeIsBusyRemove && maybeIsBusyRemove( busyKey );
                     } ).catch( ( err: any ) => console.log( 'ERROR', err ) );
                 }, 1 );
             }
