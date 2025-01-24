@@ -27,6 +27,6 @@ export default {
     DisplayComponent,
     ControlComponent: null,
     hasStyleControl: false,
-    defaultWidth: 75,
+    defaultMinWidth: 75,
     responseInclude: {},
 };

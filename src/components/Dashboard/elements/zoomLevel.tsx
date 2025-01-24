@@ -34,6 +34,6 @@ export default {
     DisplayComponent,
     ControlComponent: null,
     hasStyleControl: true,
-    defaultWidth: 75,
+    defaultMinWidth: 75,
     responseInclude: { zoomLevel: 2 },
 };

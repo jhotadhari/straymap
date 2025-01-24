@@ -79,15 +79,6 @@ const styleAlignOptions : OptionBase[] = [
     },
 ];
 
-const getDefaultWidth = ( key?: string | null ) => {
-    switch( key ) {
-        case 'centerCoordinates':
-            return 200;
-        default:
-            return 75;
-    };
-};
-
 const getNewElement = () : DashboardElementConf => ( {
     key: rnUuid.v4(),
     type: null,
@@ -162,7 +153,7 @@ const StyleControl = ( {
                 ...editElement,
                 style: {
                     fontSize: theme.fonts.bodyMedium.fontSize,
-                    minWidth: getDefaultWidth( editElement?.type ),
+                    minWidth: get( dashboardElementComponents, [editElement?.type || '','defaultMinWidth'], 75 ),
                 },
             };
             updateElement( newEditElement as DashboardElementConf );

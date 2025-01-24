@@ -145,6 +145,6 @@ export default {
     DisplayComponent,
     ControlComponent,
     hasStyleControl: true,
-    defaultWidth: 200,
+    defaultMinWidth: 200,
     responseInclude: { center: 2 },
 };

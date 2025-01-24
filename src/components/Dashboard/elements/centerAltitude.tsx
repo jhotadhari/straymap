@@ -164,6 +164,6 @@ export default {
     ControlComponent,
     hasStyleControl: true,
     shouldSetHgtDirPath: true,
-    defaultWidth: 75,
+    defaultMinWidth: 75,
     responseInclude: { center: 2 },
 };
