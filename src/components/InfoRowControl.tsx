@@ -26,7 +26,7 @@ import InfoControlWrapper from './InfoControlWrapper';
 
 const labelMinWidth = 90;
 
-const labelPadding = {
+export const labelPadding = {
     paddingTop: 4,
     paddingBottom: 4,
     paddingRight: 4,

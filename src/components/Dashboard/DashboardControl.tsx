@@ -42,7 +42,7 @@ import RadioListItem from '../RadioListItem';
 import { NumericRowControl } from '../NumericRowControls';
 import * as dashboardElementComponents from "./elements";
 import MenuItem from '../MenuItem';
-import InfoRowControl from '../InfoRowControl';
+import InfoRowControl, { labelPadding } from '../InfoRowControl';
 import { MapContainerProps } from 'react-native-mapsforge-vtm';
 
 const itemHeight = 50;
@@ -356,9 +356,9 @@ const DashboardControl = () => {
         </ModalWrapper> }
 
         <ListItemModalControl
-            anchorLabel={ t( 'dashboardElement', { count: 0 } ) }
+            anchorLabel={ t( 'dashboard' ) }
             anchorIcon={ ( { color, style } ) => <MaterialIcons style={ style } name="dashboard" size={ 25 } color={ color } /> }
-            header={ t( 'dashboardElement', { count: 0 } ) }
+            header={ t( 'dashboard' ) }
             hasHeaderBackPress={ true }
             belowModal={ currentMapEvent && generalSettings?.unitPrefs ? <View style={ {
                 width,
@@ -376,17 +376,20 @@ const DashboardControl = () => {
             </View> : null }
         >
 
-            <View style={ {
-                height: itemHeight * dashboardElementConfigs.length + 8,
-                width: width * modalWidthFactor,
-            } } >
-                <DraggableGrid
-                    itemHeight={ itemHeight }
-                    numColumns={ 1 }
-                    renderItem={ renderItem }
-                    data={ dashboardElementConfigs.filter( el => !! el.key ) }
-                    onDragRelease={ ( newElements : DashboardElementConf[] ) => setDashboardElementConfigs( newElements ) }
-                />
+            <View>
+                <Text style={ { ...labelPadding } }>{ t( 'dashboardElement', { count: 0 } ) }</Text>
+                <View style={ {
+                    height: itemHeight * dashboardElementConfigs.length + 8,
+                    width: width * modalWidthFactor,
+                } } >
+                    <DraggableGrid
+                        itemHeight={ itemHeight }
+                        numColumns={ 1 }
+                        renderItem={ renderItem }
+                        data={ dashboardElementConfigs.filter( el => !! el.key ) }
+                        onDragRelease={ ( newElements : DashboardElementConf[] ) => setDashboardElementConfigs( newElements ) }
+                    />
+                </View>
             </View>
 
             { ! dashboardElementConfigs.length && <Text style={ { marginLeft: 18, marginBottom: 35 } } >{ t( 'dashboardElementsNone' ) }</Text> }
