@@ -178,6 +178,8 @@ const SettingsMaps : FC = () => {
         saveLayers,
     } = useLayers();
 
+    const [scrollEnabled,setScrollEnabled] = useState( true );
+
     useDeepCompareEffect( () => {
         const layerProfileExisting = ( layer: LayerConfig ) => {
             if ( 'mapsforge' !== layer.type ) {
@@ -218,17 +220,24 @@ const SettingsMaps : FC = () => {
         saveProfiles,
         getNewProfile,
 	} }>
-        <ScrollView style={ {
-            backgroundColor: theme.colors.background,
-            height: appInnerHeight,
-            width,
-            position: 'absolute',
-            zIndex: 9,
-        } } >
+        <ScrollView
+            scrollEnabled={ scrollEnabled }
+            style={ {
+                backgroundColor: theme.colors.background,
+                height: appInnerHeight,
+                width,
+                position: 'absolute',
+                zIndex: 9,
+            } }
+        >
 
-            <MapLayersControl/>
+            <MapLayersControl
+                setScrollEnabled={ setScrollEnabled }
+            />
 
-            <MapsforgeProfilesControl/>
+            <MapsforgeProfilesControl
+                setScrollEnabled={ setScrollEnabled }
+            />
 
             <HgtControl/>
 

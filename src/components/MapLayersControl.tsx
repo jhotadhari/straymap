@@ -2,6 +2,8 @@
  * External dependencies
  */
 import {
+    Dispatch,
+    SetStateAction,
     useContext,
     useEffect,
     useState,
@@ -228,7 +230,11 @@ const DraggableItem = ( {
     </View> : null;
 };
 
-const MapLayersControl = () => {
+const MapLayersControl = ( {
+    setScrollEnabled,
+} : {
+    setScrollEnabled: Dispatch<SetStateAction<boolean>>,
+} ) => {
 
     const { width } = useWindowDimensions();
 	const { t } = useTranslation();
@@ -390,7 +396,11 @@ const MapLayersControl = () => {
                     numColumns={ 1 }
                     renderItem={ renderItem }
                     data={ layers }
-                    onDragRelease={ ( newLayers : LayerConfig[] ) => setLayers( newLayers ) }
+                    onDragStart={ () => setScrollEnabled( false ) }
+                    onDragRelease={ ( newLayers : LayerConfig[] ) => {
+                        setScrollEnabled( true );
+                        setLayers( newLayers );
+                    } }
                 />
             </View>
 

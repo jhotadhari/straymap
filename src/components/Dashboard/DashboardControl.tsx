@@ -207,6 +207,8 @@ const DashboardControl = () => {
 
     const [menuVisible,setMenuVisible] = useState( false );
 
+    const [scrollEnabled,setScrollEnabled] = useState( true );
+
 	const [dashboardElementConfigs,setDashboardElementConfigs] = useState<DashboardElementConf[] >( get( generalSettings, ['dashboardElements','elements'], defaults.generalSettings.dashboardElements.elements ) );
 	const dashboardElementConfigRef = useRef( dashboardElementConfigs );
     useEffect( () => {
@@ -277,9 +279,7 @@ const DashboardControl = () => {
 
         { editElement && <ModalWrapper
             visible={ modalVisible }
-            modalStyle={ {
-                marginTop: -60, // ??? why -60?
-            } }
+            scrollEnabled={ scrollEnabled }
             backgroundBlur={ false }
             onDismiss={ () => {
                 setModalVisible( false );
@@ -356,6 +356,7 @@ const DashboardControl = () => {
         </ModalWrapper> }
 
         <ListItemModalControl
+            scrollEnabled={ scrollEnabled }
             anchorLabel={ t( 'dashboard' ) }
             anchorIcon={ ( { color, style } ) => <MaterialIcons style={ style } name="dashboard" size={ 25 } color={ color } /> }
             header={ t( 'dashboard' ) }
@@ -366,6 +367,8 @@ const DashboardControl = () => {
                 borderColor: theme.colors.outline,
                 borderWidth: 1,
                 borderRadius: theme.roundness,
+                position: 'absolute',
+                bottom: 0,
             } } >
                 <Dashboard
                     elements={ dashboardElementConfigs }
@@ -387,7 +390,11 @@ const DashboardControl = () => {
                         numColumns={ 1 }
                         renderItem={ renderItem }
                         data={ dashboardElementConfigs.filter( el => !! el.key ) }
-                        onDragRelease={ ( newElements : DashboardElementConf[] ) => setDashboardElementConfigs( newElements ) }
+                        onDragStart={ () => setScrollEnabled( false ) }
+                        onDragRelease={ ( newElements : DashboardElementConf[] ) => {
+                            setScrollEnabled( true );
+                            setDashboardElementConfigs( newElements );
+                        } }
                     />
                 </View>
             </View>

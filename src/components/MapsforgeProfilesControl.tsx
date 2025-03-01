@@ -396,7 +396,11 @@ const RenderOverlaysRowControl = ( {
     </InfoRowControl> : null;
 };
 
-const MapsforgeProfilesControl = () => {
+const MapsforgeProfilesControl = ( {
+    setScrollEnabled,
+} : {
+    setScrollEnabled: Dispatch<SetStateAction<boolean>>,
+} ) => {
 
     const {
         editProfile,
@@ -608,7 +612,9 @@ const MapsforgeProfilesControl = () => {
                     numColumns={ 1 }
                     renderItem={ renderItem }
                     data={ profiles }
+                    onDragStart={ () => setScrollEnabled( false ) }
                     onDragRelease={ ( newProfiles : MapsforgeProfile[] ) => {
+                        setScrollEnabled( true );
                         setProfiles && setProfiles( newProfiles );
                     } }
                 />

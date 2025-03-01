@@ -31,6 +31,7 @@ const ListItemModalControl = ( {
 	headerPrepend,
     innerStyle,
     backgroundBlur = true,
+    scrollEnabled = true,
     onLayout,
     anchorIcon,
     belowModal = false,
@@ -44,6 +45,7 @@ const ListItemModalControl = ( {
     headerPrepend?: string | ReactNode;
     innerStyle?: null | ViewStyle;
     backgroundBlur?: boolean;
+    scrollEnabled?: boolean;
     onLayout?: ( ( event: LayoutChangeEvent ) => void );
 	anchorIcon?: ( ( props: {
         color: string;
@@ -75,6 +77,7 @@ const ListItemModalControl = ( {
             onHeaderBackPress={ hasHeaderBackPress ? () => setVisible( false ) : undefined }
             innerStyle={ innerStyle }
             backgroundBlur={ backgroundBlur }
+            scrollEnabled={ scrollEnabled }
             onLayout={ onLayout }
             belowModal={ belowModal }
         >

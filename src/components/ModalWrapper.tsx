@@ -55,6 +55,7 @@ const ModalWrapper = ( {
     innerContainerStyle,
     modalStyle,
     backgroundBlur = true,
+    scrollEnabled = true,
     onLayout,
     belowModal,
 } : {
@@ -68,6 +69,7 @@ const ModalWrapper = ( {
     innerContainerStyle?: null | ViewStyle;
     modalStyle?: null | ViewStyle;
     backgroundBlur?: boolean;
+    scrollEnabled?: boolean;
     onLayout?: ( ( event: LayoutChangeEvent ) => void );
     belowModal?: ReactNode | null;
 } ) => {
@@ -118,6 +120,7 @@ const ModalWrapper = ( {
 
             <KeyboardAvoidingView behavior="height" >
                 <ScrollView
+                    scrollEnabled={ scrollEnabled }
                     onLayout={ onLayout }
                     style={ {
                         backgroundColor: theme.colors.background,
