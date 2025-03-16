@@ -172,7 +172,7 @@ const StyleControlFontSize = ( {
     return <View>
         <InfoRowControl
             label={ t( 'fontSize' ) }
-            Info={ <Text>{ 'bla bla ??? info text' }</Text> }
+            Info={ t( 'hint.dashboard.item.fontSize' ) }
         >
             <Menu
                 contentStyle={ {
@@ -262,6 +262,7 @@ const StyleControl = ( {
                 updateElement( newEditElement as DashboardElementConf );
             } }
             validate={ val => val >= 0 }
+            Info={ t( 'hint.dashboard.item.minWidth' ) }
         />
     </View> : null;
 };
@@ -487,7 +488,7 @@ const DashboardControl = () => {
                     label={ t( 'dashboardElement', { count: 0 } ) }
                     headerPlural={ true }
                     backgroundBlur={ false }
-                    Info={ <Text>{ 'bla bla ??? info text' }</Text> }
+                    Info={ t( 'hint.dashboard.elements' ) }
                     buttonProps={ {
                         style: { marginTop: 0, marginBottom: 0 },
                         icon: "information-variant",
@@ -517,12 +518,12 @@ const DashboardControl = () => {
                     } );
                 } }
                 validate={ val => val >= 0 }
-                Info={ 'bla bla ??? info text ' }
+                Info={ t( 'hint.dashboard.fontSize' ) }
             />
 
             <InfoRowControl
                 label={ t( 'alignment' ) }
-                // Info={ <Text>{ 'bla bla ??? info text' }</Text> }
+                Info={ t( 'hint.dashboard.alignment' ) }
                 style={ { marginTop: 0, marginBottom: 0 } }
             >
                 <Menu
@@ -559,7 +560,7 @@ const DashboardControl = () => {
                     setMapEventRate( mapEventRate );
                 } }
                 validate={ val => val >= 0 }
-                Info={ 'bla bla ??? info text in [ms]' }
+                Info={ t( 'hint.dashboard.updateRate' ) }
             />
 
         </ListItemModalControl>

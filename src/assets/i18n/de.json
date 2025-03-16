@@ -161,6 +161,20 @@
         "edit\"X\"": "\"%s\" bearbeiten",
         "removeX": "%s entfernen",
         "selectXType": "%s-Typ auswählen",
+        "hint": {
+            "dashboard": {
+                "elements": "Das dashboard kann uns verschiedene Informationen über die Karte, unsere Position und die Route oder den Track anzeigen.\n\nDie einzelnen Elemente können per Drag-and-Drop sortiert werden",
+                "fontSize": "Standardschriftgröße für alle Dashboard-Elemente.\n\nGilt für alle Dashboard-Elemente, für die keine Schriftgröße angegeben ist.",
+                "alignment": "Legt fest, wie der Raum zwischen den Dashboard-Elementen und um sie herum entlang der x-Achse verteilt wird.",
+                "updateRate": "Wie schnell die Elemente des Dashboards aktualisiert werden.\n\nEine schnelle Aktualisierungsrate kann auf langsamen Geräten zu Leistungseinbußen führen.",
+                "item": {
+                    "fontSize": "Schriftgröße dieses eine Dashboard-Element.",
+                    "minWidth": "xxx",
+                    "unit": "Die Einheit, in der das Dashboard-Element angezeigt wird.\n\nDie Standardeinstellung der Einheit kann in den allgemeinen Einstellungen unter „Bevorzugte Einheiten“ angepasst werden."
+
+                }
+            }
+        },
         "test":"Das ist nur ein test Satz"
     }
 }

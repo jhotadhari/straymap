@@ -66,7 +66,7 @@ const ControlComponent = ( {
 
         <InfoRowControl
             label={ t( 'unit' ) }
-            // Info={ <Text>{ 'bla bla ??? info text' }</Text> }
+            Info={ t( 'hint.dashboard.item.unit' ) }
         >
             <Menu
                 contentStyle={ {

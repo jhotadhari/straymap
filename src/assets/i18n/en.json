@@ -161,6 +161,19 @@
         "edit\"X\"": "Edit \"%s\"",
         "removeX": "Remove %s",
         "selectXType": "Select %s type",
+        "hint": {
+            "dashboard": {
+                "elements": "It can show us various information about the map, our position and the route or track.\n\nThe individual elements can be sorted using drag-and-drop",
+                "fontSize": "Default font size for all dashboard elements.\n\nApplies to all dashboard elements for which no font size is specified.",
+                "alignment": "Defines how the space between the dashboard elements and around them is distributed along the x-axis.",
+                "updateRate": "How quickly the dashboard elements are updated.\n\nA fast refresh rate can lead to a loss of performance on slow devices.",
+                "item": {
+                    "fontSize": "Font size of this one dashboard element.",
+                    "minWidth": "xxx",
+                    "unit": "The unit in which the dashboard element is displayed.\n\nThe default setting of the unit can be adjusted in the general settings under \"Unit preferences\"."
+                }
+            }
+        },
         "test": "That's just a test sentence"
     }
 }
