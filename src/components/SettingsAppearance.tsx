@@ -46,6 +46,7 @@ const SettingsAppearance : FC = () => {
 
 		<ListItemMenuControl
 			anchorLabel={ t( 'selectTheme' ) }
+			anchorLabelAppendSelected={ true }
 			options={ themeOptions }
 			setValue={ setSelectedTheme }
 			value={ selectedTheme }

@@ -45,6 +45,7 @@ const SettingsGeneral : FC = () => {
 
 		<ListItemMenuControl
 			anchorLabel={ t( 'selectLang' ) }
+			anchorLabelAppendSelected={ true }
 			options={ langOptions }
 			setValue={ changeLang }
 			value={ selectedLang }

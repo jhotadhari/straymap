@@ -11,6 +11,7 @@ import {
 } from 'react-native-paper';
 import { Style as ListStyle } from 'react-native-paper/lib/typescript/components/List/utils';
 import { useTranslation } from 'react-i18next';
+import { get } from 'lodash-es';
 
 /**
  * Internal dependencies
@@ -26,10 +27,12 @@ const ListItemMenuControl = ( {
 	value,
 	setValue,
 	anchorLabel,
+	anchorLabelAppendSelected = false,
 	anchorIcon,
 } : {
 	listItemStyle?: ViewStyle;
 	anchorLabel: string;
+	anchorLabelAppendSelected?: boolean;
 	options?: OptionBase[];
 	value?: string;
 	setValue?: ( ( newValue: string ) => void )
@@ -53,7 +56,10 @@ const ListItemMenuControl = ( {
 		onDismiss={ () => setVisible( false ) }
 		anchor={ <ListItem
 			style={ listItemStyle }
-			title={ anchorLabel }
+			title={ anchorLabel + ( anchorLabelAppendSelected
+				? ' (' + get( options?.find( opt => opt.key === value ), 'label', '' ) + ')'
+				: ''
+			) }
 			icon={ anchorIcon ? anchorIcon : undefined }
 			onPress={ () => setVisible( ! visible ) }
 		/> }
