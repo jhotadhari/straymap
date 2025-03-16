@@ -52,6 +52,8 @@
                 "hillshading": "bla bla hillshading"
             }
         },
+        "layerAttributions": "Zuschreibungen und Lizenzen für Kartenebenen",
+        "createdBy": "Erstellt von",
         "dem": "Digitales Höhenmodel",
         "updateRate": "Aktualisierungsrate",
         "hgtReadFileRate": "hgt-Datei-Leserate",

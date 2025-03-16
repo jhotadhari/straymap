@@ -52,6 +52,8 @@
                 "hillshading": "bla bla hillshading"
             }
         },
+        "layerAttributions": "Attributions and licenses for map layers",
+        "createdBy": "Created by",
         "dem": "Digital Elevation Model",
         "updateRate": "Update rate",
         "hgtReadFileRate": "hgt-file read rate",

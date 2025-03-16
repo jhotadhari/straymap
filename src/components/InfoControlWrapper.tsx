@@ -23,6 +23,7 @@ import ModalWrapper from './ModalWrapper';
 
 const InfoControlWrapper = ( {
     label,
+    labelPattern = 'whatIs',
     children,
     Info,
     Below,
@@ -32,6 +33,7 @@ const InfoControlWrapper = ( {
     setModalVisible,
 } : {
     label?: string;
+    labelPattern?: string,
     children: ReactNode;
     Info?: ReactNode | string;
     Below?: ReactNode;
@@ -48,7 +50,7 @@ const InfoControlWrapper = ( {
             backgroundBlur={ !! backgroundBlur }
             onDismiss={ () => setModalVisible( false ) }
             onHeaderBackPress={ () => setModalVisible( false ) }
-            header={ sprintf( t( 'whatIs', { count: headerPlural ? 0 : 1 } ), ( label || '' ) ) }
+            header={ sprintf( t( labelPattern, { count: headerPlural ? 0 : 1 } ), ( label || '' ) ) }
         >
             <View style={ { marginTop: 20, marginBottom: 20 } }>
                 { Info && 'string' === typeof Info && <Text>{ Info }</Text> }
@@ -56,7 +58,7 @@ const InfoControlWrapper = ( {
             </View>
 
             <ButtonHighlight
-                style={ { marginTop: 20 } }
+                style={ { marginTop: 20, marginBottom: 40 } }
                 onPress={ () => setModalVisible( false ) }
                 mode="contained"
                 buttonColor={ get( theme.colors, 'successContainer' ) }

@@ -25,22 +25,22 @@ import { debounce, get } from 'lodash-es';
  */
 import ButtonHighlight from './ButtonHighlight';
 import MenuItem from './MenuItem';
-import { LayerConfig, LayerConfigOptionsOnlineRasterXYZ, OptionBase } from '../types';
+import { LayerConfig, LayerConfigOptionsOnlineRasterXYZ, OptionBase, ThemePropExtended } from '../types';
 import { NumericRowControl, NumericMultiRowControl } from './NumericRowControls';
 import InfoRowControl from './InfoRowControl';
 
 interface SourceOption extends OptionBase {
     url?: `http://${string}` | `https://${string}`;
-    attribution?: ( { style } : { style: TextStyle} ) => ReactNode;
+    attribution?: ( { theme } : { theme: ThemePropExtended } ) => ReactNode;
 }
 
-const sourceOptions : SourceOption[] = [
+export const sourceOptions : SourceOption[] = [
     {
         key: 'OpenStreetMap',
         label: 'OpenStreetMap',
         url: 'https://tile.openstreetmap.org/{Z}/{X}/{Y}.png',
         // zoomMax: 19,
-        attribution: ( { style } ) => <Text style={ style } onPress={ () => Linking.openURL( 'https://www.openstreetmap.org/copyright' ) }>
+        attribution: ( { theme } : { theme: ThemePropExtended } ) => <Text style={ { color: get( theme.colors, 'link' ) } } onPress={ () => Linking.openURL( 'https://www.openstreetmap.org/copyright' ) }>
             &copy; OpenStreetMap contributors
         </Text>
     },
@@ -49,17 +49,17 @@ const sourceOptions : SourceOption[] = [
         label: 'OpenTopoMap',
         url: 'https://a.tile.opentopomap.org/{Z}/{X}/{Y}.png',
 	    // zoomMax: 17,
-        attribution: ( { style } ) => <View>
-            <Text style={ style } onPress={ () => Linking.openURL( 'https://www.openstreetmap.org/copyright' ) }>
+        attribution: ( { theme } : { theme: ThemePropExtended } ) => <View>
+            <Text style={ { color: get( theme.colors, 'link' ) } } onPress={ () => Linking.openURL( 'https://www.openstreetmap.org/copyright' ) }>
                 &copy; OpenStreetMap contributors
             </Text>
-            <Text style={ style } onPress={ () => Linking.openURL( 'http://viewfinderpanoramas.org' ) }>
+            <Text style={ { color: get( theme.colors, 'link' ) } } onPress={ () => Linking.openURL( 'http://viewfinderpanoramas.org' ) }>
                 SRTM
             </Text>
-            <Text style={ style } onPress={ () => Linking.openURL( 'https://opentopomap.org' ) }>
+            <Text style={ { color: get( theme.colors, 'link' ) } } onPress={ () => Linking.openURL( 'https://opentopomap.org' ) }>
                 Map style: &copy; OpenTopoMap
             </Text>
-            <Text style={ style } onPress={ () => Linking.openURL( 'https://creativecommons.org/licenses/by-sa/3.0' ) }>
+            <Text style={ { color: get( theme.colors, 'link' ) } } onPress={ () => Linking.openURL( 'https://creativecommons.org/licenses/by-sa/3.0' ) }>
                 CC-BY-SA
             </Text>
         </View>
@@ -69,7 +69,7 @@ const sourceOptions : SourceOption[] = [
         label: 'Esri World Imagery',
         url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{Z}/{Y}/{X}',
 	    // zoomMax: 17,
-        attribution: ( { style } ) => <Text style={ style }>
+        attribution: ( { theme } : { theme: ThemePropExtended } ) => <Text>
             Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community
         </Text>
     },
@@ -78,7 +78,7 @@ const sourceOptions : SourceOption[] = [
         label: 'Google Maps',
         url: 'https://mt1.google.com/vt/lyrs=r&x={X}&y={Y}&z={Z}',
         // zoomMax: 19,
-        attribution: ( { style } ) => <Text style={ style } onPress={ () => Linking.openURL( 'https://cloud.google.com/maps-platform/terms' ) }>
+        attribution: ( { theme } : { theme: ThemePropExtended } ) => <Text style={ { color: get( theme.colors, 'link' ) } } onPress={ () => Linking.openURL( 'https://cloud.google.com/maps-platform/terms' ) }>
             &copy; Map data ©2024 Google ... logo missing! sorry
         </Text>
     },

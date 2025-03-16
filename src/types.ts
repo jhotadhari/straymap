@@ -24,6 +24,15 @@ export type AbsPath = `/${string}`;
 
 export type AbsPathsMap = { [value: string]: AbsPath[] };
 
+export type LayerInfo = {
+	attribution?: string | null;
+	description?: string | null;
+	comment?: string | null;
+	createdBy?: string | null;
+};
+
+export type LayerInfos = { [value: string]: LayerInfo };
+
 export interface MenuItem {
 	key: string;
 	leadingIcon: string;

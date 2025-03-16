@@ -46,6 +46,8 @@ import {
 	MapEventResponse,
 	ResponseInclude,
 	useMapLayersCreated,
+	LayerMBTilesBitmapResponse,
+	LayerMapsforgeResponse,
 } from 'react-native-mapsforge-vtm';
 
 /**
@@ -67,6 +69,7 @@ import type {
 	AppearanceSettings,
 	GeneralSettings,
 	DashboardElementConf,
+	LayerInfos,
 } from '../types';
 import customThemes from '../themes';
 import { AppContext } from '../Context';
@@ -76,6 +79,7 @@ import { Dashboard } from './Dashboard';
 import { defaults } from '../constants';
 import * as dashboardElementComponents from "./Dashboard/elements";
 import SplashScreen from './SplashScreen';
+import MapLayersAttribution from './MapLayersAttribution';
 
 const useAppTheme = () => {
 
@@ -375,6 +379,25 @@ const useShowSplash = ( {
 	return showSplash;
 };
 
+const useLayerInfos = () => {
+	const [layerInfos,setLayerInfos] = useState<LayerInfos>( {} );
+	const onLayerChange = ( key: string, response: LayerMapsforgeResponse | LayerMBTilesBitmapResponse ) => {
+		setLayerInfos( layerInfos => ( {
+			...layerInfos,
+			[key]: pick( response, [
+				'attribution',
+				'description',
+				'comment',
+				'createdBy',
+			] ),
+		} ) );
+	};
+	return {
+		layerInfos,
+		onLayerChange,
+	};
+};
+
 const App = ( {
 	selectedTheme,
 	setSelectedTheme,
@@ -483,6 +506,11 @@ const App = ( {
 		initialPosition,
 		setInitialPosition,
 	} = useInitialCenter();
+
+	const {
+		layerInfos,
+		onLayerChange,
+	} = useLayerInfos();
 
 	const appInnerHeight = height - topAppBarHeight;
 
@@ -623,6 +651,8 @@ const App = ( {
 										mapFile={ options.mapFile }
 										enabledZoomMin={ options.enabledZoomMin }
 										enabledZoomMax={ options.enabledZoomMax }
+										onCreate={ response => onLayerChange( layer.key, response ) }
+										onChange={ response => onLayerChange( layer.key, response ) }
 									/>;
 								case 'mapsforge':
 									if ( mapSettings.mapsforgeProfiles.length > 0 ) {
@@ -637,6 +667,8 @@ const App = ( {
 											renderTheme={ profile.theme as LayerMapsforgeProps['renderTheme'] }
 											renderStyle={ profile.renderStyle || undefined }
 											renderOverlays={ profile.renderOverlays }
+											onCreate={ response => onLayerChange( layer.key, response ) }
+											onChange={ response => onLayerChange( layer.key, response ) }
 										/>;
 									}
 									return null;
@@ -666,6 +698,10 @@ const App = ( {
 				<Center
 					height={ appInnerHeight - bottomBarHeight }
 					width={ width }
+				/>
+
+				<MapLayersAttribution
+					layerInfos={ layerInfos }
 				/>
 
 			</View>
