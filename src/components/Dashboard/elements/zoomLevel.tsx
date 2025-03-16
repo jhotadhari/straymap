@@ -17,13 +17,18 @@ const DisplayComponent = ( {
     currentMapEvent,
     dashboardElement,
     style = {},
+    dashboardStyle,
 } : DashboardDisplayComponentProps ) => {
+
+    let fontSize = get( dashboardElement, ['style','fontSize'], 'default' );
+    fontSize = 'default' === fontSize ? dashboardStyle.fontSize : fontSize;
+
     return <View style={ {
         minWidth: get( dashboardElement, ['style','minWidth'], undefined ),
         ...style,
     } }>
         { currentMapEvent.zoomLevel && <Text style={ {
-            fontSize: get( dashboardElement, ['style','fontSize'], undefined ),
+            fontSize,
         } }>{ currentMapEvent.zoomLevel }</Text>  }
     </View>;
 };

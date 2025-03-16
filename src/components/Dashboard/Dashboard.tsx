@@ -52,6 +52,7 @@ const Dashboard = ( {
                 dashboardElement={ element }
                 currentMapEvent={ currentMapEvent }
                 unitPrefs={ unitPrefs }
+                dashboardStyle={ dashboardStyle }
             /> : null;
         } ) }
     </View>;

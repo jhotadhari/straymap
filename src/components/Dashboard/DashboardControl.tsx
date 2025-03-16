@@ -21,7 +21,7 @@ import {
 	useTheme,
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { get } from 'lodash-es';
+import { get, isNumber, set } from 'lodash-es';
 import rnUuid from 'react-native-uuid';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { sprintf } from 'sprintf-js';
@@ -136,6 +136,89 @@ const DraggableItem = ( {
     </View>;
 };
 
+const StyleControlFontSize = ( {
+    editElement,
+    updateElement,
+} : {
+    editElement: null | DashboardElementConf;
+    updateElement: ( newElement : DashboardElementConf ) => void;
+} ) => {
+
+	const { t } = useTranslation();
+    const theme = useTheme();
+
+    const [menuVisible,setMenuVisible] = useState( false );
+
+    const [numVal,setNumVal] = useState( isNumber( get( editElement, ['style','fontSize'] ) )
+        ? get( editElement, ['style','fontSize'] )
+        : theme.fonts.bodyMedium.fontSize
+    );
+
+    const opts = [
+        {
+            key: 'default',
+            label: 'default',
+        },
+        {
+            key: 'custom',
+            label: 'custom',
+        },
+    ];
+
+    const activeOpt = 'default' === get( editElement, ['style','fontSize'] )
+        ? opts.find( opt => opt.key === 'default' )
+        : opts.find( opt => opt.key === 'custom' );
+
+    return <View>
+        <InfoRowControl
+            label={ t( 'fontSize' ) }
+            Info={ <Text>{ 'bla bla ??? info text' }</Text> }
+        >
+            <Menu
+                contentStyle={ {
+                    borderColor: theme.colors.outline,
+                    borderWidth: 1,
+                } }
+                visible={ menuVisible }
+                onDismiss={ () => setMenuVisible( false ) }
+                anchor={ <ButtonHighlight style={ { marginTop: 3, alignItems: 'flex-start' } } onPress={ () => setMenuVisible( true ) } >
+                    <Text>{ t( get( activeOpt, 'label', '' ) ) }</Text>
+                </ButtonHighlight> }
+            >
+                { [...opts].map( opt => <MenuItem
+                    key={ opt.key }
+                    onPress={ () => {
+                        setMenuVisible( false );
+                        const newEditElement = {...editElement}
+                        set( newEditElement, ['style','fontSize'], 'default' === opt.key
+                            ? opt.key
+                            : numVal
+                        );
+                        updateElement( newEditElement as DashboardElementConf );
+                    } }
+                    title={ t( opt.label ) }
+                    active={ activeOpt ? opt.key === activeOpt.key : false }
+                /> ) }
+            </Menu>
+        </InfoRowControl>
+
+        { activeOpt && 'custom' === activeOpt.key && <NumericRowControl
+            optKey={ 'fontSize' }
+            options={ get( editElement, 'style', {} ) }
+            setOptions={ newStyle => {
+                const newEditElement = {
+                    ...editElement,
+                    style: newStyle,
+                };
+                updateElement( newEditElement as DashboardElementConf );
+                setNumVal( newStyle['fontSize'] );
+            } }
+            validate={ val => val > 0 }
+        /> }
+
+    </View>;
+};
+
 const StyleControl = ( {
     editElement,
     updateElement,
@@ -152,7 +235,7 @@ const StyleControl = ( {
             const newEditElement = {
                 ...editElement,
                 style: {
-                    fontSize: theme.fonts.bodyMedium.fontSize,
+                    fontSize: 'default',
                     minWidth: get( dashboardElementComponents, [editElement?.type || '','defaultMinWidth'], 75 ),
                 },
             };
@@ -163,20 +246,10 @@ const StyleControl = ( {
     useEffect( () => presetStyle(), [editElement?.style] );
 
     return editElement?.style ? <View>
-        <NumericRowControl
-            label={ t( 'fontSize' ) }
-            optKey={ 'fontSize' }
-            options={ get( editElement, 'style', {} ) }
-            setOptions={ newStyle => {
-                const newEditElement = {
-                    ...editElement,
-                    style: newStyle,
-                };
-                updateElement( newEditElement as DashboardElementConf );
-            } }
-            validate={ val => val > 0 }
+        <StyleControlFontSize
+            editElement={ editElement }
+            updateElement={ updateElement }
         />
-
         <NumericRowControl
             label={ t( 'minWidth' ) }
             optKey={ 'minWidth' }
@@ -432,6 +505,20 @@ const DashboardControl = () => {
                     { t( 'dashboardElementNew' ) }
                 </ButtonHighlight>
             </View>
+
+            <NumericRowControl
+                label={ t( 'fontSize' ) }
+                optKey={ 'fontSize' }
+                options={ dashboardStyle }
+                setOptions={ ( { fontSize } ) => {
+                    setDashboardStyle( {
+                        ...dashboardStyle,
+                        fontSize,
+                    } );
+                } }
+                validate={ val => val >= 0 }
+                Info={ 'bla bla ??? info text ' }
+            />
 
             <InfoRowControl
                 label={ t( 'alignment' ) }

@@ -46,14 +46,11 @@ export const defaults = {
 							round: 4,
 						},
 					},
-					// style: {
-					// 	fontSize: 14,
-					// 	minWidth: 200,
-					// },
 				},
 			],
 			style: {
 				align: 'left',
+				fontSize: 14,
 			}
 		},
 		unitPrefs: {

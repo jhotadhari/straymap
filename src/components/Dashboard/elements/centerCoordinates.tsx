@@ -115,6 +115,7 @@ const DisplayComponent = ( {
     dashboardElement,
     style = {},
     unitPrefs,
+    dashboardStyle,
 } : DashboardDisplayComponentProps ) => {
     const unit = 'default' === get( dashboardElement, ['options','unit','key'], 'default' )
         ? {
@@ -122,12 +123,16 @@ const DisplayComponent = ( {
             key: get( unitPrefs, ['coordinates','unit'] ),
         }
         : get( dashboardElement, ['options','unit'] );
+
+    let fontSize = get( dashboardElement, ['style','fontSize'], 'default' );
+    fontSize = 'default' === fontSize ? dashboardStyle.fontSize : fontSize;
+
     return <View style={ {
         minWidth: get( dashboardElement, ['style','minWidth'], undefined ),
         ...style,
     } }>
         { currentMapEvent.center && <Text style={ {
-            fontSize: get( dashboardElement, ['style','fontSize'], undefined ),
+            fontSize,
         } }>{ formatcoords( currentMapEvent.center).format( get( {
             // https://www.npmjs.com/package/formatcoords#user-content-formatting
             'dd': 'f',

@@ -131,6 +131,7 @@ const DisplayComponent = ( {
     dashboardElement,
     style = {},
     unitPrefs,
+    dashboardStyle,
 } : DashboardDisplayComponentProps ) => {
 
     const { t } = useTranslation();
@@ -145,12 +146,15 @@ const DisplayComponent = ( {
             unit: get( dashboardElement, ['options','unit','key'] ),
         };
 
+    let fontSize = get( dashboardElement, ['style','fontSize'], 'default' );
+    fontSize = 'default' === fontSize ? dashboardStyle.fontSize : fontSize;
+
     return <View style={ {
         minWidth: get( dashboardElement, ['style','minWidth'], undefined ),
         ...style,
     } }>
         { currentMapEvent.center && currentMapEvent?.center.hasOwnProperty( 'alt' ) && <Text style={ {
-            fontSize: get( dashboardElement, ['style','fontSize'], undefined ),
+            fontSize,
         } }>{
             formatOutput( currentMapEvent.center.alt as ( number | null ), unit, t )
         }</Text> }

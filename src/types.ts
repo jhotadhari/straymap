@@ -146,7 +146,7 @@ export type HardwareKeyActionConf = {
 };
 
 export type DashboardElementStyle = {
-	fontSize?: number;
+	fontSize?: 'default' | number;
 	minWidth?: number;
 };
 
@@ -164,6 +164,7 @@ export type UnitPref = {
 
 export type DashboardStyle = {
 	align: string;
+	fontSize: number;
 };
 
 export type GeneralSettings = {
@@ -181,4 +182,5 @@ export type DashboardDisplayComponentProps = {
 	currentMapEvent: MapEventResponse;
 	style?: ViewStyle;
 	unitPrefs: { [value: string]: UnitPref };
+	dashboardStyle: DashboardStyle;
 }
