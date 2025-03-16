@@ -22,6 +22,7 @@ import { get } from 'lodash-es';
  * Internal dependencies
  */
 import InfoRowControl from './InfoRowControl';
+import useKeyboardShown from '../compose/useKeyboardShown';
 
 type NumType = 'int' | 'float';
 
@@ -78,15 +79,52 @@ export const NumericRowControl = ( {
     validate?: ( val : number ) => boolean;
 } ) => {
     const theme = useTheme();
-    const [val,setVal] = useState( get( options, optKey, '' ) + '' );
+    const keyboardShown = useKeyboardShown();
+    const initialVal: string = get( options, optKey, '' ) + '';
+    const [val,setVal] = useState( initialVal );
     const [isValid,setIsValid] = useState( true );
     const [blurred,setBlurred] = useState( false );
+
+    // Save
     useEffect( () => {
         if ( blurred ) {
             setOptions( getNewOptions( optKey, val, options, numType, validate ) );
         }
         setBlurred( false );
-    }, [val,blurred ] );
+    }, [val,blurred] );
+
+    const onBlur = () => {
+        let newValNb = strValToNb( val, numType );
+        if (
+            'number' !== typeof newValNb
+            || isNaN( newValNb )
+            || ( validate && ! validate( newValNb ) )
+        ) {
+            // reset val
+            setVal( get( options, optKey, '' ) + '' );
+        } else {
+            setVal( newValNb + '' );
+        }
+        setIsValid( true );
+        setBlurred( true );
+    };
+
+    // Blur on keyboard hide.
+    useEffect( () => {
+        if (
+            ! blurred
+            && ! keyboardShown
+            && val !== initialVal
+        ) {
+            onBlur();
+        }
+    }, [
+        initialVal,
+        val,
+        keyboardShown,
+        blurred,
+    ] );
+
     return <InfoRowControl
         label={ label }
         Info={ Info }
@@ -117,21 +155,7 @@ export const NumericRowControl = ( {
                 setVal( newVal );
                 setBlurred( false );
             } }
-            onBlur={ () => {
-                let newValNb = strValToNb( val, numType );
-                if (
-                    'number' !== typeof newValNb
-                    || isNaN( newValNb )
-                    || ( validate && ! validate( newValNb ) )
-                ) {
-                    // reset val
-                    setVal( get( options, optKey, '' ) + '' );
-                } else {
-                    setVal( newValNb + '' );
-                }
-                setIsValid( true );
-                setBlurred( true );
-            } }
+            onBlur={ onBlur }
             value={ val }
             keyboardType='numeric'
         />
@@ -158,9 +182,13 @@ export const NumericMultiRowControl = ( {
     validate?: ( val : number ) => boolean;
 } ) => {
     const theme = useTheme();
-    const [vals,setVals] = useState( [...optKeys].map( optKey => get( options, optKey, '' ) + '' ) );
+    const keyboardShown = useKeyboardShown();
+    const initialVals: string[] = [...optKeys].map( optKey => get( options, optKey, '' ) + '' );
+    const [vals,setVals] = useState( initialVals );
     const [isValids,setIsValids] = useState( Array.from( { length: optKeys.length }, () => true ) );
     const [blurred,setBlurred] = useState( false );
+
+    // Save
     useEffect( () => {
         if ( blurred ) {
             let newOptions = {...options};
@@ -171,6 +199,47 @@ export const NumericMultiRowControl = ( {
         }
         setBlurred( false );
     }, [vals] );
+
+    const onBlur = ( index: number, optKey: string ) => {
+        let newValNb = strValToNb( vals[index], numType );
+        if (
+            'number' !== typeof newValNb
+            || isNaN( newValNb )
+            || ( validate && ! validate( newValNb ) )
+        ) {
+            // reset val
+            const newVals = [...vals];
+            newVals.splice( index, 1, get( options, optKey, '' ) + '' );
+            setVals( newVals );
+        } else {
+            const newVals = [...vals];
+            newVals.splice( index, 1, newValNb + '' );
+            setVals( newVals );
+        }
+        const newIsValids = [...isValids];
+        newIsValids.splice( index, 1, true );
+        setIsValids( newIsValids );
+        setBlurred( true );
+    };
+
+    // Blur on keyboard hide.
+    useEffect( () => {
+        if (
+            ! blurred
+            && ! keyboardShown
+            && vals.toString() !== initialVals.toString()
+        ) {
+            [...optKeys].map( ( optKey, index ) => {
+                onBlur( index, optKey );
+            } );
+        }
+    }, [
+        initialVals,
+        vals,
+        keyboardShown,
+        blurred,
+    ] );
+
     return <InfoRowControl
         label={ label }
         Info={ Info }
@@ -207,27 +276,7 @@ export const NumericMultiRowControl = ( {
                         setVals( newVals );
                         setBlurred( false );
                     } }
-                    onBlur={ () => {
-                        let newValNb = strValToNb( vals[index], numType );
-                        if (
-                            'number' !== typeof newValNb
-                            || isNaN( newValNb )
-                            || ( validate && ! validate( newValNb ) )
-                        ) {
-                            // reset val
-                            const newVals = [...vals];
-                            newVals.splice( index, 1, get( options, optKey, '' ) + '' );
-                            setVals( newVals );
-                        } else {
-                            const newVals = [...vals];
-                            newVals.splice( index, 1, newValNb + '' );
-                            setVals( newVals );
-                        }
-                        const newIsValids = [...isValids];
-                        newIsValids.splice( index, 1, true );
-                        setIsValids( newIsValids );
-                        setBlurred( true );
-                    } }
+                    onBlur={ () => onBlur( index, optKey ) }
                     value={ vals[index] }
                     keyboardType='numeric'
                 />
