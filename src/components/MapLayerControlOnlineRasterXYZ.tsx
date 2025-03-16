@@ -29,14 +29,12 @@ import { LayerConfig, LayerConfigOptionsOnlineRasterXYZ, OptionBase } from '../t
 import { NumericRowControl, NumericMultiRowControl } from './NumericRowControls';
 import InfoRowControl from './InfoRowControl';
 
-
 interface SourceOption extends OptionBase {
     url?: `http://${string}` | `https://${string}`;
     attribution?: ( { style } : { style: TextStyle} ) => ReactNode;
 }
 
 const sourceOptions : SourceOption[] = [
-
     {
         key: 'OpenStreetMap',
         label: 'OpenStreetMap',
@@ -105,7 +103,10 @@ const SourceRowControl = ( {
         ? get( sourceOptions.find( opt => opt.url === options.url ), 'key', 'custom' )
         : sourceOptions[0].key
     );
-	const [customUrl,setCustomUrl] = useState<undefined | string >( undefined );
+	const [customUrl,setCustomUrl] = useState<undefined | string >( 'custom' === selectedOpt
+        ? get( options, 'url', undefined )
+        : undefined
+    );
 	const [menuVisible,setMenuVisible] = useState( false );
 
     let urlIsValid = selectedOpt !== 'custom' || (
@@ -136,6 +137,7 @@ const SourceRowControl = ( {
                 disabled={ 'custom' !== selectedOpt }
                 placeholder="https://...{Z}/{X}/{Y}.png"
                 underlineColor="transparent"
+                multiline={ true }
                 dense={ true }
                 error={ ! urlIsValid }
                 theme={ { fonts: { bodyLarge: {
@@ -143,7 +145,9 @@ const SourceRowControl = ( {
                     fontFamily: "sans-serif",
                 } } } }
                 style={ { width: '100%' } }
-                value={ 'custom' === selectedOpt ? ( customUrl || '' ) : get( sourceOptions.find( opt => opt.key === selectedOpt ), 'url', '' ) }
+                value={ 'custom' === selectedOpt
+                    ? ( customUrl || '' )
+                    : get( sourceOptions.find( opt => opt.key === selectedOpt ), 'url', '' ) }
                 onChangeText={ newUrl => setCustomUrl( newUrl ) }
             />
         </View> }
@@ -170,7 +174,6 @@ const SourceRowControl = ( {
             /> ) }
         </Menu>
     </InfoRowControl>;
-
 };
 
 const MapLayerControlOnlineRasterXYZ = ( {
