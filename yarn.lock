@@ -3813,6 +3813,7 @@ __metadata:
     "@types/sprintf-js": ^1.1.4
     babel-jest: ^29.6.3
     convert-units: ^2.3.4
+    dayjs: ^1.11.13
     eslint: ^8.19.0
     formatcoords: ^1.1.3
     i18next: ^23.16.2
@@ -4072,7 +4073,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dayjs@npm:^1.8.15":
+"dayjs@npm:^1.11.13, dayjs@npm:^1.8.15":
   version: 1.11.13
   resolution: "dayjs@npm:1.11.13"
   checksum: f388db88a6aa93956c1f6121644e783391c7b738b73dbc54485578736565c8931bdfba4bb94e9b1535c6e509c97d5deb918bbe1ae6b34358d994de735055cca9

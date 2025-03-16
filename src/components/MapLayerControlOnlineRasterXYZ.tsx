@@ -7,8 +7,8 @@ import {
     useState,
 } from 'react';
 import {
+    Image,
     Linking,
-    TextStyle,
 	View,
 } from 'react-native';
 import {
@@ -19,6 +19,7 @@ import {
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { debounce, get } from 'lodash-es';
+import dayjs from 'dayjs';
 
 /**
  * Internal dependencies
@@ -78,9 +79,15 @@ export const sourceOptions : SourceOption[] = [
         label: 'Google Maps',
         url: 'https://mt1.google.com/vt/lyrs=r&x={X}&y={Y}&z={Z}',
         // zoomMax: 19,
-        attribution: ( { theme } : { theme: ThemePropExtended } ) => <Text style={ { color: get( theme.colors, 'link' ) } } onPress={ () => Linking.openURL( 'https://cloud.google.com/maps-platform/terms' ) }>
-            &copy; Map data ©2024 Google ... logo missing! sorry
-        </Text>
+        attribution: ( { theme } : { theme: ThemePropExtended } ) => <View>
+            <Image source={ theme.dark
+                ? require( '../assets/images/google_on_non_white.png' )
+                : require( '../assets/images/google_on_white.png' )
+            } />
+            <Text style={ { color: get( theme.colors, 'link' ) } } onPress={ () => Linking.openURL( 'https://cloud.google.com/maps-platform/terms' ) }>
+                &copy; Map data ©{ dayjs().format( 'YYYY' ) } Google
+            </Text>
+        </View>
     },
     {
         key: 'custom',
