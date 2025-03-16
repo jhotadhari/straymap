@@ -70,7 +70,7 @@ const Inner = ( {
                     type: layer.type,
                     Component: get(
                         sourceOptions.find( opt => opt.url === get( layer.options, 'url', '' ) ),
-                        'attribution',
+                        'Attribution',
                         false
                     ),
                 };

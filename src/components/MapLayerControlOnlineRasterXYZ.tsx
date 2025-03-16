@@ -32,7 +32,7 @@ import InfoRowControl from './InfoRowControl';
 
 interface SourceOption extends OptionBase {
     url?: `http://${string}` | `https://${string}`;
-    attribution?: ( { theme } : { theme: ThemePropExtended } ) => ReactNode;
+    Attribution?: ( { theme } : { theme: ThemePropExtended } ) => ReactNode;
 }
 
 export const sourceOptions : SourceOption[] = [
@@ -41,7 +41,7 @@ export const sourceOptions : SourceOption[] = [
         label: 'OpenStreetMap',
         url: 'https://tile.openstreetmap.org/{Z}/{X}/{Y}.png',
         // zoomMax: 19,
-        attribution: ( { theme } : { theme: ThemePropExtended } ) => <Text style={ { color: get( theme.colors, 'link' ) } } onPress={ () => Linking.openURL( 'https://www.openstreetmap.org/copyright' ) }>
+        Attribution: ( { theme } : { theme: ThemePropExtended } ) => <Text style={ { color: get( theme.colors, 'link' ) } } onPress={ () => Linking.openURL( 'https://www.openstreetmap.org/copyright' ) }>
             &copy; OpenStreetMap contributors
         </Text>
     },
@@ -50,7 +50,7 @@ export const sourceOptions : SourceOption[] = [
         label: 'OpenTopoMap',
         url: 'https://a.tile.opentopomap.org/{Z}/{X}/{Y}.png',
 	    // zoomMax: 17,
-        attribution: ( { theme } : { theme: ThemePropExtended } ) => <View>
+        Attribution: ( { theme } : { theme: ThemePropExtended } ) => <View>
             <Text style={ { color: get( theme.colors, 'link' ) } } onPress={ () => Linking.openURL( 'https://www.openstreetmap.org/copyright' ) }>
                 &copy; OpenStreetMap contributors
             </Text>
@@ -70,7 +70,7 @@ export const sourceOptions : SourceOption[] = [
         label: 'Esri World Imagery',
         url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{Z}/{Y}/{X}',
 	    // zoomMax: 17,
-        attribution: ( { theme } : { theme: ThemePropExtended } ) => <Text>
+        Attribution: ( { theme } : { theme: ThemePropExtended } ) => <Text>
             Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community
         </Text>
     },
@@ -79,7 +79,7 @@ export const sourceOptions : SourceOption[] = [
         label: 'Google Maps',
         url: 'https://mt1.google.com/vt/lyrs=r&x={X}&y={Y}&z={Z}',
         // zoomMax: 19,
-        attribution: ( { theme } : { theme: ThemePropExtended } ) => <View>
+        Attribution: ( { theme } : { theme: ThemePropExtended } ) => <View>
             <Image source={ theme.dark
                 ? require( '../assets/images/google_on_non_white.png' )
                 : require( '../assets/images/google_on_white.png' )
@@ -136,10 +136,17 @@ const SourceRowControl = ( {
         doUpdate();
     }, [urlIsValid, selectedOpt, customUrl] );
 
+    const Attribution : null | SourceOption['Attribution'] = 'custom' === selectedOpt
+        ? null
+        : get( sourceOptions.find( opt => opt.url === options.url ), 'Attribution' )
+
     return <InfoRowControl
         label={ t( 'map.source' ) }
         Info={ <Text>{ 'bla bla ??? info text' }</Text> }
-        Below={ <View style={ { flexDirection: 'row', alignItems: 'center', marginTop: -18, marginBottom: 10 } }>
+        Below={ <View style={ {
+            marginTop: -18,
+            marginBottom: 10
+        } }>
             <TextInput
                 disabled={ 'custom' !== selectedOpt }
                 placeholder="https://...{Z}/{X}/{Y}.png"
@@ -157,6 +164,8 @@ const SourceRowControl = ( {
                     : get( sourceOptions.find( opt => opt.key === selectedOpt ), 'url', '' ) }
                 onChangeText={ newUrl => setCustomUrl( newUrl ) }
             />
+
+            { Attribution && <View style={ { marginTop: 10 } }><Attribution theme={ theme } /></View> }
         </View> }
     >
         <Menu
