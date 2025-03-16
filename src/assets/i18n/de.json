@@ -161,6 +161,8 @@
         "edit\"X\"": "\"%s\" bearbeiten",
         "removeX": "%s entfernen",
         "selectXType": "%s-Typ auswählen",
+        "imageFilesIn": "Bilddateien %s in",
+        "noImageFilesIn": "Keine Bilddateien %s in",
         "hint": {
             "dashboard": {
                 "elements": "Das dashboard kann uns verschiedene Informationen über die Karte, unsere Position und die Route oder den Track anzeigen.\n\nDie einzelnen Elemente können per Drag-and-Drop sortiert werden",
@@ -173,6 +175,9 @@
                     "unit": "Die Einheit, in der das Dashboard-Element angezeigt wird.\n\nDie Standardeinstellung der Einheit kann in den allgemeinen Einstellungen unter „Bevorzugte Einheiten“ angepasst werden."
 
                 }
+            },
+            "center": {
+                "file": "Legt fest, welches Symbol für den Cursor verwendet werden soll.\n\nEs können voreingestellte Symbole oder svg- und png-Dateien verwendet werden."
             }
         },
         "test":"Das ist nur ein test Satz"

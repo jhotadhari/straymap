@@ -15,12 +15,12 @@ import {
 } from 'react-native';
 import {
 	Icon,
-	Text,
 	useTheme,
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { get } from 'lodash-es';
 import ColorPicker from 'react-native-wheel-color-picker'
+import { sprintf } from 'sprintf-js';
 
 /**
  * Internal dependencies
@@ -125,9 +125,9 @@ const CenterControl = () => {
 			} }
             filePattern={ /.*\.(svg|png)$/ }
             dirs={ appDirs ? appDirs.cursor : [] }
-            Info={ <Text>{ 'bla blaa ??? info text' }</Text> }
-            filesHeading={ 'image (svg|png) files in' }         // ??? translate
-            noFilesHeading={ 'No image (svg|png) files in' }    // ??? translate
+            Info={ t( 'hint.center.file' ) }
+            filesHeading={ sprintf( t( 'imageFilesIn' ), '(svg|png)' ) }
+            noFilesHeading={ sprintf( t( 'noImageFilesIn' ), '(svg|png)' )  }
             hasCustom={ true }
         />
 
@@ -137,7 +137,6 @@ const CenterControl = () => {
             options={ cursorConfig as object }
             setOptions={ setCursorConfig }
             validate={ val => val >= 0 }
-            Info={ <Text>{ 'bla bla ??? info text' }</Text> }
         />
 
 		{ cursorConfig?.iconSource && ! cursorConfig.iconSource.startsWith( '/' ) && ! cursorConfig.iconSource.startsWith( 'content://' ) && <ColorRowControl

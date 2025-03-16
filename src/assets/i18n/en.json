@@ -161,6 +161,8 @@
         "edit\"X\"": "Edit \"%s\"",
         "removeX": "Remove %s",
         "selectXType": "Select %s type",
+        "imageFilesIn": "Image %s files in",
+        "noImageFilesIn": "No image %s files in",
         "hint": {
             "dashboard": {
                 "elements": "It can show us various information about the map, our position and the route or track.\n\nThe individual elements can be sorted using drag-and-drop",
@@ -172,6 +174,9 @@
                     "minWidth": "xxx",
                     "unit": "The unit in which the dashboard element is displayed.\n\nThe default setting of the unit can be adjusted in the general settings under \"Unit preferences\"."
                 }
+            },
+            "center": {
+                "file": "Determines which symbol should be used for the cursor.\n\nPreset symbols or svg and png files can be used."
             }
         },
         "test": "That's just a test sentence"
