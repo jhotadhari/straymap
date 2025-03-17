@@ -63,7 +63,7 @@ const RadioListItem = ( {
                 flexDirection: 'row',
             } }
         >
-            <View style={ { flexGrow: 1 } }>
+            <View style={ { flexGrow: 1, maxWidth: '85%' } }>
                 { label && <Text style={ { ...theme.fonts.bodyLarge, ...labelStyle } } >{ t( label ) }</Text> }
                 { desc && <Text style={ { ...theme.fonts.bodySmall, ...descStyle } } >{ t( desc ) }</Text> }
             </View>
