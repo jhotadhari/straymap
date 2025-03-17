@@ -175,7 +175,7 @@
                 }
             },
             "center": {
-                "file": "Determines which symbol should be used for the cursor.\n\nPreset symbols or svg and png files can be used."
+                "file": "Determines which symbol should be used for the cursor.\n\nPreset symbols or svg and png files can be used. The files can be in one of the Straymap app directories, or in a publicly accessible directory."
             },
             "maps": {
                 "layers": "Map layers are displayed on top of each other. Layers that are higher up in the settings are displayed above the other layers in the map.\n\nThe layers can be sorted by drag and drop.\n\nThe individual map layers can be switched on or off at different zoom levels.\n\nThis allows overview and detail maps to be used together.\n\nMap layers that are temporarily not needed can be hidden (eye symbol button).",

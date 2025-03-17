@@ -175,7 +175,7 @@
                 }
             },
             "center": {
-                "file": "Legt fest, welches Symbol für den Cursor verwendet werden soll.\n\nEs können voreingestellte Symbole oder svg- und png-Dateien verwendet werden."
+                "file": "Legt fest, welches Symbol für den Cursor verwendet werden soll.\n\nEs können voreingestellte Symbole oder svg- und png-Dateien verwendet werden. Die Dateien können sich in einem der Verzeichnisse der Straymap-App oder in einem öffentlich zugänglichen Verzeichnis befinden."
             },
             "maps": {
                 "layers": "Die Kartenebenen werden übereinander angezeigt. Ebenen, die in den Einstellungen weiter oben stehen, werden über den anderen Ebenen in der Karte angezeigt.\n\nDie Ebenen können per Drag & Drop sortiert werden.\n\nDie einzelnen Kartenebenen können in verschiedenen Zoomstufen ein- oder ausgeschaltet werden.\n\nDadurch können Übersichts- und Detailkarten zusammen verwendet werden.\n\nKartenebenen, die vorübergehend nicht benötigt werden, können ausgeblendet werden (Schaltfläche Augensymbol).",
