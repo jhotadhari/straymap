@@ -252,7 +252,7 @@ const MapLayersControl = ( {
         profiles,
     } = useContext( SettingsMapsContext );
 
-	const [expanded, setExpanded] = useState( false );
+	const [expanded, setExpanded] = useState( true );
 	const [modalVisible, setModalVisible] = useState( false );
 
     useEffect( () => {

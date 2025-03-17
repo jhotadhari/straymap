@@ -433,7 +433,7 @@ const MapsforgeProfilesControl = ( {
         }
     }, [editProfile] );
 
-	const [expanded, setExpanded] = useState( false );
+	const [expanded, setExpanded] = useState( true );
 
     const setModalVisible = ( visible: boolean ) => {
         if ( visible ) {
