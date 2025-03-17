@@ -6,6 +6,7 @@ import {
     useState,
 } from 'react';
 import {
+    Linking,
 	View,
 } from 'react-native';
 import {
@@ -87,8 +88,22 @@ const HgtSourceRowControl = ( {
     }, [selectedOpt] );
 
     return <InfoRowControl
-            label={ t( 'map.demDir' ) }
-            Info={ 'bla bla ??? info text' }
+        label={ t( 'map.demDir' ) }
+        Info={ <View>
+            <Text>{ t( 'hint.maps.demDir' ) }</Text>
+            <View style={ { marginTop: 10 } }>
+                <Text>{ t( 'hint.link.digitalEleData' ) }</Text>
+                <Text style={ { color: get( theme.colors, 'link' ) } } onPress={ () => Linking.openURL( 'https://viewfinderpanoramas.org/dem3.html' ) }>
+                    https://viewfinderpanoramas.org/dem3.html
+                </Text>
+            </View>
+            <View style={ { marginTop: 10 } }>
+                <Text>{ t( 'hint.link.digitalEleDataCoverage' ) }</Text>
+                <Text style={ { color: get( theme.colors, 'link' ) } } onPress={ () => Linking.openURL( 'https://viewfinderpanoramas.org/Coverage%20map%20viewfinderpanoramas_org3.htm' ) }>
+                    https://viewfinderpanoramas.org/Coverage%20map%20viewfinderpanoramas_org3.htm
+                </Text>
+            </View>
+        </View> }
     >
         { modalVisible && <ModalWrapper
             visible={ modalVisible }

@@ -82,7 +82,7 @@ const AlgorithmControl = ( {
 
     return <InfoRowControl
         label={ t( 'algorithm' ) }
-        Info={ 'bla bla ??? info text' }
+        Info={ t( 'hint.maps.shadingAlgorithm' ) }
     >
         { modalVisible && <ModalWrapper
             visible={ modalVisible }
@@ -93,7 +93,6 @@ const AlgorithmControl = ( {
         >
             <InfoRowControl
                 label={ t( 'algorithm' ) }
-                Info={ 'bla bla ??? info text' }
             >
                 <ListItemMenuControl
                     options={ opts }
@@ -113,7 +112,7 @@ const AlgorithmControl = ( {
                 options={ algOpts }
                 setOptions={ setAlgOpts }
                 numType="float"
-                Info={ t( 'linearityWhat' ) }
+                Info={ t( 'hint.maps.shadingLinearity' ) }
             /> }
 
             { 'SimpleShadingAlgorithm' === selectedOpt && <NumericRowControl
@@ -123,7 +122,7 @@ const AlgorithmControl = ( {
                 setOptions={ setAlgOpts }
                 validate={ val => val > 0 }
                 numType="float"
-                Info={ t( 'scaleWhat' ) }
+                Info={ t( 'hint.maps.shadingScale' ) }
             /> }
 
             { 'DiffuseLightShadingAlgorithm' === selectedOpt && <NumericRowControl
@@ -132,7 +131,7 @@ const AlgorithmControl = ( {
                 options={ algOpts }
                 setOptions={ setAlgOpts }
                 validate={ val => val >= 0 && val <= 90 }
-                Info={ t( 'heightAngleWhat' ) }
+                Info={ t( 'hint.maps.shadingHeightAngle' ) }
             /> }
 
             <ButtonHighlight
@@ -204,7 +203,7 @@ const MapLayerControlHillshading = ( {
             options={ options }
             setOptions={ setOptions }
             validate={ val => val >= 0 }
-            Info={ 'bla blaa ??? info text' }
+            Info={ t( 'hint.maps.enabled' ) + '\n\n' + t( 'hint.maps.zoomGeneralInfo' ) }
         />
 
         <NumericMultiRowControl
@@ -214,7 +213,7 @@ const MapLayerControlHillshading = ( {
             options={ options }
             setOptions={ setOptions }
             validate={ val => val >= 0 }
-            Info={ 'bla bla ??? info text' }
+            Info={ t( 'hint.maps.zoom' ) + '\n\n' + t( 'hint.maps.zoomGeneralInfo' ) }
         />
 
         <NumericRowControl
@@ -223,7 +222,7 @@ const MapLayerControlHillshading = ( {
             options={ options }
             setOptions={ setOptions }
             validate={ val => val > 0 }
-            Info={ 'bla bla ??? info text' }
+            Info={ t( 'hint.maps.shadingMagnitude' ) }
         />
 
         <NumericRowControl
@@ -232,7 +231,7 @@ const MapLayerControlHillshading = ( {
             options={ options }
             setOptions={ setOptions }
             validate={ val => val >= 0 }
-            Info={ 'bla bla ??? info text' }
+            // Info={ t( 'hint.maps.cacheSize' ) }  // ??? is it mb.is the cache working at all ???
         />
 
     </View>;

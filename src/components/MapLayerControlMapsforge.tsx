@@ -10,6 +10,7 @@ import {
     useState,
 } from 'react';
 import {
+    Linking,
     TouchableHighlight,
 	View,
 } from 'react-native';
@@ -32,6 +33,7 @@ import FileSourceRowControl from './FileSourceRowControl';
 import InfoRowControl from './InfoRowControl';
 import ButtonHighlight from './ButtonHighlight';
 import MenuItem from './MenuItem';
+import { sprintf } from 'sprintf-js';
 
 const ProfileRowControl = ( {
     options,
@@ -55,7 +57,7 @@ const ProfileRowControl = ( {
     const opts : OptionBase[] = [
         {
             key: 'default',
-            label: 'use first one',   // ??? translate
+            label: 'useFirstOne',
         },
         ...[...profiles].map( prof => {
             const themeArr = prof.theme.split( '/' );
@@ -149,6 +151,7 @@ const MapLayerControlMapsforge = ( {
 } ) => {
 
 	const { t } = useTranslation();
+    const theme = useTheme();
 
     const { appDirs } = useContext( AppContext );
 
@@ -177,9 +180,17 @@ const MapLayerControlMapsforge = ( {
             } ) }
             filePattern={ /.*\.map$/ }
             dirs={ appDirs ? appDirs.mapfiles : [] }
-            Info={ <Text>{ 'bla blaa ??? info text' }</Text> }
-            filesHeading={ 'map files in' }         // ??? translate
-            noFilesHeading={ 'No map files in' }    // ??? translate
+            Info={ <View>
+                <Text>{ t( 'hint.maps.mapsforgeFile' ) }</Text>
+                <View style={ { marginTop: 10 } }>
+                    <Text>{ t( 'hint.link.openandromapsDownloads' ) }</Text>
+                    <Text style={ { color: get( theme.colors, 'link' ) } } onPress={ () => Linking.openURL( 'https://www.openandromaps.org/en/downloads' ) }>
+                        https://www.openandromaps.org/en/downloads
+                    </Text>
+                </View>
+            </View> }
+            filesHeading={ sprintf( t( 'filesIn' ), '(.map)' ) }
+            noFilesHeading={ sprintf( t( 'noFilesIn' ), '(.map)' ) }
             hasCustom={ true }
         />
 
@@ -188,7 +199,7 @@ const MapLayerControlMapsforge = ( {
             setOptions={ setOptions }
             setEditProfile={ setEditProfile }
             profiles={ profiles }
-            Info={ <Text>{ 'bla blaa ??? info text' }</Text> }
+            Info={ t( 'hint.maps.mapsforgeProfile' ) }
         />
 
         <NumericMultiRowControl
@@ -198,7 +209,7 @@ const MapLayerControlMapsforge = ( {
             options={ options }
             setOptions={ setOptions }
             validate={ val => val >= 0 }
-            Info={ <Text>{ 'bla blaa ??? info text' }</Text> }
+            Info={ t( 'hint.maps.enabled' ) + '\n\n' + t( 'hint.maps.zoomGeneralInfo' ) }
         />
 
     </View>;

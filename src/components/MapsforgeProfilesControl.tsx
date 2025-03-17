@@ -13,6 +13,7 @@ import {
 	useWindowDimensions,
 	View,
     TouchableHighlight,
+    Linking,
 } from 'react-native';
 import {
     List,
@@ -495,7 +496,7 @@ const MapsforgeProfilesControl = ( {
                 <NameRowControl
                     item={ editProfile }
                     update={ updateProfile as ( newItem: { name: string } ) => void }
-                    Info={ isBusy ? undefined : <Text>{ 'bla blaa ??? info text' }</Text> }
+                    Info={ isBusy ? undefined : t( 'hint.nameId' ) }
                 />
 
                 <LayerCountRow
@@ -524,17 +525,28 @@ const MapsforgeProfilesControl = ( {
                     } }
                     filePattern={ /.*\.xml$/ }
                     dirs={ appDirs ? appDirs.mapstyles : [] }
-                    Info={ isBusy ? undefined : <Text>{ 'bla blaa ??? info text' }</Text> }
-
-
-                    filesHeading={ 'xml theme files in' }         // ??? translate
-                    noFilesHeading={ 'No xml theme files in' }    // ??? translate
+                    Info={ isBusy ? undefined : <View>
+                        <Text>{ t( 'hint.maps.mapsforgeProfileFile' ) }</Text>
+                        <View style={ { marginTop: 10 } }>
+                            <Text>{ t( 'hint.link.xmlRenderThemes' ) }</Text>
+                            <Text style={ { color: get( theme.colors, 'link' ) } } onPress={ () => Linking.openURL( 'https://www.openandromaps.org/en/legend/elevate-mountain-hike-theme' ) }>
+                                https://www.openandromaps.org/en/legend/elevate-mountain-hike-theme
+                            </Text>
+                        </View>
+                        <View style={ { marginTop: 10 } }>
+                            <Text>{ t( 'hint.link.xmlRenderThemesModify' ) }</Text>
+                            <Text style={ { color: get( theme.colors, 'link' ) } } onPress={ () => Linking.openURL( 'https://github.com/mapsforge/mapsforge/blob/master/docs/Rendertheme.md' ) }>
+                                https://github.com/mapsforge/mapsforge/blob/master/docs/Rendertheme.md
+                            </Text>
+                        </View>
+                    </View> }
+                    filesHeading={ sprintf( t( 'filesIn' ), '(.xml)' ) }
+                    noFilesHeading={ sprintf( t( 'noFilesIn' ), '(.xml)' ) }
                 />
-
 
                 <RenderStyleRowControl
                     AlternativeButton={ isBusy ? <LoadingIndicator/> : undefined }
-                    Info={ isBusy ? undefined : <Text>{'bla blaa ??? info text'}</Text> }
+                    Info={ isBusy ? undefined : t( 'hint.maps.mapsforgeProfileStyle' ) }
                     profile={ editProfile }
                     updateProfile={ updateProfile }
                     renderStyleOptionsMap={ renderStyleOptionsMap }
@@ -543,7 +555,7 @@ const MapsforgeProfilesControl = ( {
 
                 <RenderOverlaysRowControl
                     AlternativeButton={ isBusy ? () => <LoadingIndicator/> : undefined }
-                    Info={ isBusy ? undefined : <Text>{'bla blaa ??? info text'}</Text> }
+                    Info={ isBusy ? undefined : t( 'hint.maps.mapsforgeProfileOverlays' ) }
                     profile={ editProfile }
                     updateProfile={ updateProfile }
                     renderStyleOptionsMap={ renderStyleOptionsMap }
@@ -634,7 +646,21 @@ const MapsforgeProfilesControl = ( {
                     label={ t( 'map.mapsforge.profile', { count: 0 } ) }
                     headerPlural={ true }
                     backgroundBlur={ true }
-                    Info={ <Text>{ 'bla bla ??? info text' }</Text> }
+                    Info={ <View>
+                        <Text>{ t( 'hint.maps.profiles' ) }</Text>
+                        <View style={ { marginTop: 10 } }>
+                            <Text>Mapsforge</Text>
+                            <Text style={ { color: get( theme.colors, 'link' ) } } onPress={ () => Linking.openURL( 'https://github.com/mapsforge/mapsforge' ) }>
+                                https://github.com/mapsforge/mapsforge
+                            </Text>
+                        </View>
+                        <View style={ { marginTop: 10 } }>
+                            <Text>{ t( 'hint.link.openandromapsDownloads' ) }</Text>
+                            <Text style={ { color: get( theme.colors, 'link' ) } } onPress={ () => Linking.openURL( 'https://www.openandromaps.org/en/downloads' ) }>
+                                https://www.openandromaps.org/en/downloads
+                            </Text>
+                        </View>
+                    </View> }
                     buttonProps={ {
                         style: { marginTop: 0, marginBottom: 0, marginLeft: -23 },
                         icon: "information-variant",

@@ -26,8 +26,6 @@ export const CenterInner = ( {
 
 	const [xml,setXml] = useState( '' );
 
-	// ??? should handle png
-
 	useEffect( () => {
 		if ( cursorConfig && ( cursorConfig.iconSource.startsWith( 'content://' ) || cursorConfig.iconSource.startsWith( '/' ) ) && cursorConfig.iconSource.endsWith( '.svg' ) ) {
 			readFile( cursorConfig.iconSource, 'utf8' ).then( ( newXml: string ) => {

@@ -46,12 +46,13 @@
                 "profileAddNewShort": "Add new profile"
             },
             "typeDesc": {
-                "online-raster-xyz": "bla bla online-raster-xyz",
-                "mapsforge": "bla bla mapsforge",
-                "raster-MBtiles": "bla bla raster-MBtiles",
-                "hillshading": "bla bla hillshading"
+                "online-raster-xyz": "Can be used for various online map servers with xyz tiles.",
+                "mapsforge": "Free, open-source offline vector maps based on open-street-map data. Good choice for detailed map sections.",
+                "raster-MBtiles": "Offline raster maps in MBtiles format are well suited for overview maps with low resolution.",
+                "hillshading": "Offline hillshading with digital elevation models (DEM) in hgt format."
             }
         },
+        "useFirstOne": "Use first one",
         "layerAttributions": "Attributions and licenses for map layers",
         "createdBy": "Created by",
         "dem": "Digital Elevation Model",
@@ -91,11 +92,8 @@
         "ok": "OK",
         "magnitude": "Magnitude",
         "heightAngle": "Height Angle",
-        "heightAngleWhat": "The height angle of light source over ground.\n\nIn degrees, between 0 and 90.",
         "scale": "Scale",
-        "scaleWhat": "Scales the input slopes.\n\nWith lower values slopes will saturate later, but nuances closer to flat will suffer.\n\nDefault: 0.666",
         "linearity": "Linearity",
-        "linearityWhat": "1 or higher for linear grade.\n\n0 or lower for a triple-applied sine of grade that gives high emphasis on changes in slope in near-flat areas, but reduces details within steep slopes.\n\nDefault 0.1",
         "algorithm": "Algorithm",
         "shadingAlgorithm": "Shading Algorithm",
         "gotIt": "Alright, got it",
@@ -161,9 +159,10 @@
         "edit\"X\"": "Edit \"%s\"",
         "removeX": "Remove %s",
         "selectXType": "Select %s type",
-        "imageFilesIn": "Image %s files in",
-        "noImageFilesIn": "No image %s files in",
+        "filesIn": "Files %s in",
+        "noFilesIn": "No files %s in",
         "hint": {
+            "nameId": "Any name for identification. It doesn't really matter what you call it.",
             "dashboard": {
                 "elements": "It can show us various information about the map, our position and the route or track.\n\nThe individual elements can be sorted using drag-and-drop",
                 "fontSize": "Default font size for all dashboard elements.\n\nApplies to all dashboard elements for which no font size is specified.",
@@ -171,12 +170,43 @@
                 "updateRate": "How quickly the dashboard elements are updated.\n\nA fast refresh rate can lead to a loss of performance on slow devices.",
                 "item": {
                     "fontSize": "Font size of this one dashboard element.",
-                    "minWidth": "xxx",
+                    "minWidth": "The minimum width of the dashboard element in pixels.",
                     "unit": "The unit in which the dashboard element is displayed.\n\nThe default setting of the unit can be adjusted in the general settings under \"Unit preferences\"."
                 }
             },
             "center": {
                 "file": "Determines which symbol should be used for the cursor.\n\nPreset symbols or svg and png files can be used."
+            },
+            "maps": {
+                "layers": "Map layers are displayed on top of each other. Layers that are higher up in the settings are displayed above the other layers in the map.\n\nThe layers can be sorted by drag and drop.\n\nThe individual map layers can be switched on or off at different zoom levels.\n\nThis allows overview and detail maps to be used together.\n\nMap layers that are temporarily not needed can be hidden (eye symbol button).",
+                "profiles": "Mapsforge is great! It is a free, open-source, offline vector map library for Android and Java-based applications.\n\n“Profiles” determine how the offline vector maps are displayed by mapsforge.\n\nBuilt-in themes can be used for the profiles. Or custom themes in xml format.\n\nThe profiles can be sorted by drag and drop. The top profile is used as default for all maps that do not have a specific profile assigned.",
+                "visibility": "Whether the map layer is switched on or not.\n\nMap layers that are temporarily not required can be switched off.",
+                "xyzSource": "The url to the xyz map tile server.\n\nThe url must preferably start with https://. Insecure connections with http:// are possible, but are not recommended.\n\nThe url must contain the placeholders {X}, {Y} and {Z} (in curly braces).",
+                "enabled": "Between which zoom levels the map layer is displayed.",
+                "zoom": "Between which zoom levels the map layer is loaded. If you zoom beyond the maximum zoom level of the map layer, the map will continue to be displayed but will not be updated. This prevents some tile servers from showing placeholders at high zoom levels.",
+                "zoomGeneralInfo": "About zoom in general:\n\nAt low zoom levels, the zoom is wide and a large area is displayed on the map. At large zoom levels, the map shows a detailed section.\n\nTip: The dashboard can display the current map zoom level.",
+                "mapsforgeFile": "Map files for mapsforge are individual files that contain vector data. The file extension is “.map”.\n\nThey must be downloaded manually. Once downloaded, no internet connection is required to use them.\n\nIt is recommended to move the downloaded files to one of the Straymap app directories. However, it is also possible to load the map from any publicly accessible directory.",
+                "mapsforgeProfile": "Profiles determine how the offline vector maps are displayed by mapsforge.\n\nA profile can be selected for the map layer, which must be configured beforehand. The various mapsforge profiles can generally be managed in the map settings.\n\nIf no profile is assigned to the map layer, the first profile is used automatically.",
+                "mbTilesFile": "MBtiles map files contain raster images that are stored in an SQLite database. The file extension is “.mbtiles”.\n\nThey must be downloaded manually. After downloading, no internet connection is required to use them.\n\nAfter downloading, the files must be moved to one of the Straymap app directories. It is not possible to load the map from a publicly accessible directory.",
+                "demDir": "The DEM directory contains the files for the digital elevation models (DEM). The file extension of the files is “.hgt”.\n\nThey must be downloaded manually. After downloading, no internet connection is required to use them.\n\nIt is highly recommended to move the downloaded files to one of the directories of the Straymap app. In principle, it is possible to load the elevation models from any publicly accessible directory, but performance may suffer.\n\nCurrently, only elevation models with a resolution of 3 arc seconds are supported.",
+                "shadingAlgorithm": "The shading algorithm determines how the digital elevation models are processed, how light and shadow are simulated and how the relief is shaded. Each algorithm has its own options.",
+                "shadingMagnitude": "The magnitude determines the intensity of the shading.",
+                "shadingLinearity": "1 or higher for linear grade.\n\n0 or lower for a triple-applied sine of grade that gives high emphasis on changes in slope in near-flat areas, but reduces details within steep slopes.\n\nDefault 0.1",
+                "shadingHeightAngle": "The height angle of light source over ground.\n\nIn degrees, between 0 and 90.",
+                "shadingScale": "Scales the input slopes.\n\nWith lower values slopes will saturate later, but nuances closer to flat will suffer.\n\nDefault: 0.666",
+                "mapsforgeProfileFile": "Themes determine how the offline vector maps are displayed by mapsforge.\n\nBuilt-in themes can be used. Or custom themes in xml format. The file extension for custom themes is “.xml”.\n\nCustom themes must be downloaded manually and moved to one of the Straymap app directories. It is not possible to load the themes from a publicly accessible directory.",
+                "mapsforgeProfileStyle": "Themes can contain different styles. These styles are slight variations of the theme.",
+                "mapsforgeProfileOverlays": "Overlays determine which elements of the map are visible or not.\n\nTip: You can switch off the map background. And instead display another map layer (e.g. a satellite map) behind it.",
+                "hgtReadFileRate": "Determines the speed (in milliseconds) at which new elevation models are loaded into the memory when the map is moved.",
+                "cacheSize": "xxx???xxx"
+            },
+            "link": {
+                "xmlRenderThemes": "Render themes in xml format",
+                "xmlRenderThemesModify": "Advanced: modify or create your own theme",
+                "openandromapsDownloads": "Vector maps in mapsforge V5 format based on open-street-map data And xml render themes",
+                "openandromapsDownloadsRaster": "Raster overview maps in mbtiles format",
+                "digitalEleData": "Digital Elevation Data",
+                "digitalEleDataCoverage": "Easiest way to download elevation data in hgt format at 3 arc second resolution"
             }
         },
         "test": "That's just a test sentence"

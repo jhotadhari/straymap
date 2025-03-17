@@ -7,13 +7,16 @@ import {
     useState,
 } from 'react';
 import {
+    Linking,
 	View,
 } from 'react-native';
 import {
     Text,
+    useTheme,
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { debounce } from 'lodash-es';
+import { debounce, get } from 'lodash-es';
+import { sprintf } from 'sprintf-js';
 
 /**
  * Internal dependencies
@@ -31,6 +34,7 @@ const MapLayerControlRasterMBTiles = ( {
     updateLayer: ( newItem : LayerConfig ) => void;
 } ) => {
 
+    const theme = useTheme();
 	const { t } = useTranslation();
 
     const { appDirs } = useContext( AppContext );
@@ -60,10 +64,17 @@ const MapLayerControlRasterMBTiles = ( {
             } ) }
             filePattern={ /.*\.mbtiles$/ }
             dirs={ appDirs ? appDirs.mapfiles : [] }
-            Info={ <Text>{ 'bla blaa ??? info text' }</Text> }
-
-            filesHeading={ 'MBtiles files in' }         // ??? translate
-            noFilesHeading={ 'No MBtiles files in' }    // ??? translate
+            Info={ <View>
+                <Text>{ t( 'hint.maps.mbTilesFile' ) }</Text>
+                <View style={ { marginTop: 10 } }>
+                    <Text>{ t( 'hint.link.openandromapsDownloadsRaster' ) }</Text>
+                    <Text style={ { color: get( theme.colors, 'link' ) } } onPress={ () => Linking.openURL( 'https://www.openandromaps.org/en/downloads/general-maps' ) }>
+                        https://www.openandromaps.org/en/downloads/general-maps
+                    </Text>
+                </View>
+            </View> }
+            filesHeading={ sprintf( t( 'filesIn' ), '(.mbtiles)' ) }
+            noFilesHeading={ sprintf( t( 'noFilesIn' ), '(.mbtiles)' ) }
         />
 
         <NumericMultiRowControl
@@ -73,7 +84,7 @@ const MapLayerControlRasterMBTiles = ( {
             options={ options }
             setOptions={ setOptions }
             validate={ val => val >= 0 }
-            Info={ <Text>{ 'bla blaa ??? info text' }</Text> }
+            Info={ t( 'hint.maps.enabled' ) + '\n\n' + t( 'hint.maps.zoomGeneralInfo' ) }
         />
 
     </View>;

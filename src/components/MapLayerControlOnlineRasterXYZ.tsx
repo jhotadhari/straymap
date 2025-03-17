@@ -40,7 +40,6 @@ export const sourceOptions : SourceOption[] = [
         key: 'OpenStreetMap',
         label: 'OpenStreetMap',
         url: 'https://tile.openstreetmap.org/{Z}/{X}/{Y}.png',
-        // zoomMax: 19,
         Attribution: ( { theme } : { theme: ThemePropExtended } ) => <Text style={ { color: get( theme.colors, 'link' ) } } onPress={ () => Linking.openURL( 'https://www.openstreetmap.org/copyright' ) }>
             &copy; OpenStreetMap contributors
         </Text>
@@ -49,7 +48,6 @@ export const sourceOptions : SourceOption[] = [
         key: 'OpenTopoMap',
         label: 'OpenTopoMap',
         url: 'https://a.tile.opentopomap.org/{Z}/{X}/{Y}.png',
-	    // zoomMax: 17,
         Attribution: ( { theme } : { theme: ThemePropExtended } ) => <View>
             <Text style={ { color: get( theme.colors, 'link' ) } } onPress={ () => Linking.openURL( 'https://www.openstreetmap.org/copyright' ) }>
                 &copy; OpenStreetMap contributors
@@ -69,7 +67,6 @@ export const sourceOptions : SourceOption[] = [
         key: 'EsriWorldImagery',
         label: 'Esri World Imagery',
         url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{Z}/{Y}/{X}',
-	    // zoomMax: 17,
         Attribution: ( { theme } : { theme: ThemePropExtended } ) => <Text>
             Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community
         </Text>
@@ -78,7 +75,6 @@ export const sourceOptions : SourceOption[] = [
         key: 'GoogleMaps',
         label: 'Google Maps',
         url: 'https://mt1.google.com/vt/lyrs=r&x={X}&y={Y}&z={Z}',
-        // zoomMax: 19,
         Attribution: ( { theme } : { theme: ThemePropExtended } ) => <View>
             <Image source={ theme.dark
                 ? require( '../assets/images/google_on_non_white.png' )
@@ -142,7 +138,7 @@ const SourceRowControl = ( {
 
     return <InfoRowControl
         label={ t( 'map.source' ) }
-        Info={ <Text>{ 'bla bla ??? info text' }</Text> }
+        Info={ t( 'hint.maps.xyzSource' ) }
         Below={ <View style={ {
             marginTop: -18,
             marginBottom: 10
@@ -228,7 +224,7 @@ const MapLayerControlOnlineRasterXYZ = ( {
             options={ options }
             setOptions={ setOptions }
             validate={ val => val >= 0 }
-            Info={ <Text>{ 'bla blaa ??? info text' }</Text> }
+            Info={ t( 'hint.maps.enabled' ) + '\n\n' + t( 'hint.maps.zoomGeneralInfo' ) }
         />
 
         <NumericMultiRowControl
@@ -238,7 +234,7 @@ const MapLayerControlOnlineRasterXYZ = ( {
             options={ options }
             setOptions={ setOptions }
             validate={ val => val >= 0 }
-            Info={ <Text>{ 'bla bla ??? info text' }</Text> }
+            Info={ t( 'hint.maps.zoom' ) + '\n\n' + t( 'hint.maps.zoomGeneralInfo' ) }
         />
 
         <NumericRowControl
@@ -247,7 +243,7 @@ const MapLayerControlOnlineRasterXYZ = ( {
             options={ options }
             setOptions={ setOptions }
             validate={ val => val >= 0 }
-            Info={ <Text>{ 'bla bla ??? info text' }</Text> }
+            // Info={ t( 'hint.maps.cacheSize' ) }  // ??? is the cache working at all ???
         />
 
     </View>;

@@ -13,6 +13,7 @@ import {
 	View,
     TouchableHighlight,
     ViewStyle,
+    Linking,
 } from 'react-native';
 import {
     List,
@@ -160,7 +161,7 @@ const VisibleRowControl = ( {
 	const { t } = useTranslation();
     return <InfoRowControl
         label={ t( 'visibility' ) }
-        Info={ <Text>{ 'bla bla ??? info text' }</Text> }
+        Info={ t( 'hint.maps.visibility' ) }
     >
         <VisibleControl
             item={ item }
@@ -306,7 +307,7 @@ const MapLayersControl = ( {
                 <NameRowControl
                     item={ editLayer }
                     update={ updateLayer as ( newItem: { name: string } ) => void }
-                    Info={ <Text>{ 'bla blaa ??? info text' }</Text> }
+                    Info={ t( 'hint.nameId' ) }
                 />
 
                 <VisibleRowControl
@@ -418,7 +419,7 @@ const MapLayersControl = ( {
                     label={ t( 'map.layer', { count: 0 } ) }
                     headerPlural={ true }
                     backgroundBlur={ true }
-                    Info={ <Text>{ 'bla bla ??? info text' }</Text> }
+                    Info={ t( 'hint.maps.layers' ) }
                     buttonProps={ {
                         style: { marginTop: 0, marginBottom: 0, marginLeft: -23 },
                         icon: "information-variant",

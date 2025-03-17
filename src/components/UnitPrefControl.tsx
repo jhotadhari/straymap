@@ -127,7 +127,6 @@ const UnitControl = ( {
 
         <InfoRowControl
             label={ t( 'unit' ) }
-            // Info={ <Text>{ 'bla bla ??? info text' }</Text> }
             style={ { marginTop: 0, marginBottom: 0 } }
         >
             <Menu

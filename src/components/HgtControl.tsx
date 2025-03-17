@@ -86,7 +86,7 @@ const HgtControl = () => {
                 setHgtReadFileRate( hgtReadFileRate );
             } }
             validate={ val => val >= 0 }
-            Info={ 'bla bla ??? info text in [ms]' }
+            Info={ t( 'hint.maps.hgtReadFileRate' ) }
         />
 
 	</ListItemModalControl>;
