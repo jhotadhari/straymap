@@ -12,8 +12,31 @@ export const defaults = {
 		mapsforgeProfilesExpanded: false,
 	},
 	mapSettings: {
-		layers: [],
-		mapsforgeProfiles: [],
+		layers: [
+			{
+				key: '62fc0763-7130-4c92-a67f-5fe0717bf0a9',
+				name: 'OpenStreetMap',
+				type: 'online-raster-xyz',
+				visible: true,
+				options: {
+					cacheSize: 128,
+					enabledZoomMax: 20,
+					enabledZoomMin: 1,
+					url: 'https://tile.openstreetmap.org/{Z}/{X}/{Y}.png',
+					zoomMax: 20,
+					zoomMin: 1,
+				},
+			},
+		],
+		mapsforgeProfiles: [
+			{
+				key: '0bd5e1c3-0840-428c-9e11-6425fbd92942',
+				name: 'Default',
+				renderOverlays: [],
+				renderStyle: null,
+				theme: 'DEFAULT',
+			},
+		],
 		hgtDirPath: undefined,
 		hgtReadFileRate: 500,
 	},
