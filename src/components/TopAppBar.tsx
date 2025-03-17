@@ -45,19 +45,19 @@ const EgalTest = () => {
 };
 
 const menuItems : MenuItemType[] = [
-	{
-		key: 'tools',
-		label: 'menu.tools',
-		leadingIcon: 'tools',
-		children: [
-			{
-                key: 'routing',
-				label: 'menu.routing',
-				hierarchyIncludeParents: false,
-				leadingIcon: 'routes',
-			},
-		]
-	},
+	// {
+	// 	key: 'tools',
+	// 	label: 'menu.tools',
+	// 	leadingIcon: 'tools',
+	// 	children: [
+	// 		{
+    //             key: 'routing',
+	// 			label: 'menu.routing',
+	// 			hierarchyIncludeParents: false,
+	// 			leadingIcon: 'routes',
+	// 		},
+	// 	]
+	// },
 	// {
     //     key: 'egal',
 	// 	label: 'menu.egal',
