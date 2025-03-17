@@ -11,7 +11,7 @@ import { MapEventResponse } from "react-native-mapsforge-vtm";
 /**
  * Internal dependencies
  */
-import { ThemeOption, OptionBase, HierarchyItem, AbsPathsMap, MapSettings, LayerConfig, MapsforgeProfile, AppearanceSettings, GeneralSettings } from "./types";
+import { ThemeOption, OptionBase, HierarchyItem, AbsPathsMap, MapSettings, LayerConfig, MapsforgeProfile, AppearanceSettings, GeneralSettings, UiState } from "./types";
 
 export type AppContextType = {
 	appDirs?: AbsPathsMap;
@@ -29,6 +29,8 @@ export type AppContextType = {
 	setSelectedHierarchyItems?: Dispatch<SetStateAction<null | HierarchyItem[]>>;
 	mapSettings?: MapSettings;
 	setMapSettings?: Dispatch<SetStateAction<MapSettings>>;
+	uiState?: UiState;
+	setUiState?: Dispatch<SetStateAction<UiState>>;
 	appearanceSettings?: AppearanceSettings;
 	setAppearanceSettings?: Dispatch<SetStateAction<AppearanceSettings>>;
 	generalSettings?: GeneralSettings;

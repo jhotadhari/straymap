@@ -70,6 +70,7 @@ import type {
 	GeneralSettings,
 	DashboardElementConf,
 	LayerInfos,
+	UiState,
 } from '../types';
 import customThemes from '../themes';
 import { AppContext } from '../Context';
@@ -257,7 +258,6 @@ const useSettings = ( {
 
 	const [initialized,setInitialized] = useState( false );
 	const [settings,setSettings] = useState<object>( initialSettings );
-
 
     useEffect( () => {
 		const busyKey = 'useSettings' + 'load' + settingsKey;
@@ -449,6 +449,22 @@ const App = ( {
 	}, [] );
 
 	let {
+		settings: uiState,
+		setSettings: setUiState,
+		initialized: uiStateInitialized,
+	} = useSettings( {
+		maybeIsBusyAdd,
+		maybeIsBusyRemove,
+		savedMessage: undefined,
+		settingsKey: 'uiState',
+		initialSettings: defaults.uiState,
+	} ) as {
+		settings: UiState;
+		setSettings: Dispatch<SetStateAction<UiState>>;
+		initialized: boolean;
+	};
+
+	let {
 		settings: mapSettings,
 		setSettings: setMapSettings,
 		initialized: mapSettingsInitialized,
@@ -520,6 +536,7 @@ const App = ( {
 		|| ! mapSettingsInitialized
 		|| ! appearanceSettingsInitialized
 		|| ! generalSettingsInitialized
+		|| ! uiStateInitialized
 	) {
 		return  <SafeAreaView style={ {
 			backgroundColor: theme.colors.background,
@@ -546,6 +563,8 @@ const App = ( {
 		setSelectedHierarchyItems,
 		mapSettings,
 		setMapSettings,
+		uiState,
+		setUiState,
 		appearanceSettings,
 		setAppearanceSettings,
 		generalSettings,

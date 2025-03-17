@@ -7,6 +7,10 @@ export const LINKING_ERROR =
 export const modalWidthFactor = 0.8;
 
 export const defaults = {
+	uiState: {
+		mapLayersExpanded: false,
+		mapsforgeProfilesExpanded: false,
+	},
 	mapSettings: {
 		layers: [],
 		mapsforgeProfiles: [],

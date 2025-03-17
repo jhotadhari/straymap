@@ -48,6 +48,7 @@ import NameRowControl from './NameRowControl';
 import FileSourceRowControl from './FileSourceRowControl';
 import MenuItem from './MenuItem';
 import { modalWidthFactor } from '../constants';
+import useUiState from '../compose/useUiState';
 
 const itemHeight = 50;
 
@@ -434,7 +435,10 @@ const MapsforgeProfilesControl = ( {
         }
     }, [editProfile] );
 
-	const [expanded, setExpanded] = useState( true );
+    const {
+        value: expanded,
+        setValue: setExpanded,
+    } = useUiState( 'mapsforgeProfilesExpanded' );
 
     const setModalVisible = ( visible: boolean ) => {
         if ( visible ) {
@@ -445,8 +449,6 @@ const MapsforgeProfilesControl = ( {
         }
     };
 
-
-    // const [isBusy,setIsBusy] = useState( false );
     const [renderStyleOptionsMap,setRenderStyleOptionsMap] = useState<{ [value: string]: RenderStyleOptionsCollection }>( {} );
     const [renderDefaultStylesMap,setRenderDefaultStylesMap] = useState<{ [value: string]: ( string | null ) }>( {} );
 

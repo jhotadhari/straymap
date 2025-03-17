@@ -46,6 +46,7 @@ import MapLayerControlHillshading from './MapLayerControlHillshading';
 import InfoButton from './InfoButton';
 import NameRowControl from './NameRowControl';
 import MapLayerControlMapsforge from './MapLayerControlMapsforge';
+import useUiState from '../compose/useUiState';
 
 export const mapTypeOptions : LayerOption[] = [
     {
@@ -253,7 +254,11 @@ const MapLayersControl = ( {
         profiles,
     } = useContext( SettingsMapsContext );
 
-	const [expanded, setExpanded] = useState( true );
+    const {
+        value: expanded,
+        setValue: setExpanded,
+    } = useUiState( 'mapLayersExpanded' );
+
 	const [modalVisible, setModalVisible] = useState( false );
 
     useEffect( () => {

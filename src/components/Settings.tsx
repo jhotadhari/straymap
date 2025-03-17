@@ -28,16 +28,16 @@ import ListItem from './ListItem';
 
 const settingsPages : SettingsItem[] = [
 	{
-		key: 'general',
-		label: 'settings.general',
-        left: props => <List.Icon {...props} icon="application-cog-outline" />,
-		SubActivity: <SettingsGeneral/>,
-	},
-	{
 		key: 'maps',
 		label: 'settings.maps',
         left: props => <List.Icon {...props} icon="map" />,
 		SubActivity: <SettingsMaps/>,
+	},
+	{
+		key: 'general',
+		label: 'settings.general',
+        left: props => <List.Icon {...props} icon="application-cog-outline" />,
+		SubActivity: <SettingsGeneral/>,
 	},
 	{
 		key: 'appearance',

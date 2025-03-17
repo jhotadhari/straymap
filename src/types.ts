@@ -132,6 +132,11 @@ export type MapsforgeProfile = {
 
 export type HgtDirPath = LayerConfigOptionsHillshading['hgtDirPath'] | MapContainerProps['hgtDirPath'];
 
+export type UiState = {
+	mapLayersExpanded: Boolean;
+	mapsforgeProfilesExpanded: Boolean;
+};
+
 export type MapSettings = {
 	layers: LayerConfig[];
 	mapsforgeProfiles: MapsforgeProfile[];
