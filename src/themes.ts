@@ -48,7 +48,7 @@ Object.keys( themes ).map( ( key : string ) => {
 			...get( fontConfig, key ),
 			fontFamily: key.startsWith( 'display' )
 				? 'jangly_walk'
-				: 'F25_Executive',
+				: 'Coustard-Regular-custom',
 		} )
 	} );
 	themes[key] = {
