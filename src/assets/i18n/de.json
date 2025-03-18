@@ -2,6 +2,8 @@
     "translation": {
         "systemSetting": "Systemeinstellung",
         "selectTheme":"Theme wählen",
+        "license": "Lizenz",
+        "slogan": "Android-Offline-Karten-App für umherstreunende Radreisende und Vagabund*innen",
         "themeOptions": {
             "light": "Hell",
             "dark": "Dunkel",
@@ -208,7 +210,6 @@
                 "digitalEleData": "Digitale Höhendaten",
                 "digitalEleDataCoverage": "Einfachster Weg zum Download von Höhendaten im hgt-Format mit einer Auflösung von 3 Bogensekunden"
             }
-        },
-        "test":"Das ist nur ein test Satz"
+        }
     }
 }

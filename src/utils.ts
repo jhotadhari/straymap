@@ -17,3 +17,34 @@ export const roundTo = ( num: number, precision: number ) : number => {
     const factor = Math.pow( 10, precision );
     return Math.round( num * factor ) / factor;
 };
+
+let firstNonEmptyLine: null | number = null;
+const filterCb = ( line: string, idx: number ) => {
+    if ( 0 === idx ) {
+        firstNonEmptyLine = null;
+    }
+    if ( null !== firstNonEmptyLine ) {
+        return true;
+    }
+    if ( line.replace( /\s/, '' ).length ) {
+        firstNonEmptyLine = idx;
+        return true;
+    }
+    return false;
+};
+export const removeLeadingTrailingEmptyLines = ( str: string, skipLinesNb?: number ) : string => {
+    skipLinesNb = undefined === skipLinesNb ? 0 : skipLinesNb;
+    const lines = str.split( '\n' ).slice( skipLinesNb );
+    return lines.filter( filterCb )
+        .reverse()
+        .filter( filterCb )
+        .reverse()
+        .join( '\n' );
+};
+
+export const removeLines = ( str: string, pattern: RegExp ) : string => {
+    const lines = str.split( '\n' );
+    return lines.filter( ( line: string ) => {
+        return ! line.match( pattern );
+    } ).join( '\n' );
+};

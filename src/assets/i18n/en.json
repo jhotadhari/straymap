@@ -2,6 +2,8 @@
     "translation": {
         "systemSetting": "System setting",
         "selectTheme": "Select theme",
+        "license": "License",
+        "slogan": "Android offline map app for stray cyclists and roaming vagabonds",
         "themeOptions": {
             "light": "Light",
             "dark": "Dark",
@@ -208,7 +210,6 @@
                 "digitalEleData": "Digital Elevation Data",
                 "digitalEleDataCoverage": "Easiest way to download elevation data in hgt format at 3 arc second resolution"
             }
-        },
-        "test": "That's just a test sentence"
+        }
     }
 }
