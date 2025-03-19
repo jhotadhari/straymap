@@ -1524,6 +1524,23 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@deno/shim-deno-test@npm:^0.5.0":
+  version: 0.5.0
+  resolution: "@deno/shim-deno-test@npm:0.5.0"
+  checksum: 5c8dd3744bcd881630ef9707979604dec975fc81c4b1e1a1453a36d3bfef3736269b3de6f9a511f266af66705f759855861ae6bab60ba4bde62414fc22da68a5
+  languageName: node
+  linkType: hard
+
+"@deno/shim-deno@npm:~0.18.0":
+  version: 0.18.2
+  resolution: "@deno/shim-deno@npm:0.18.2"
+  dependencies:
+    "@deno/shim-deno-test": ^0.5.0
+    which: ^4.0.0
+  checksum: 63f009ec40803f5b408a8b2d38a67a7d2db6e0334e9a0fd2fa89ead07b85fab5534ae36ce9dbe972452bd0687a63d81074b649cc8df9d73237352e5007f5b005
+  languageName: node
+  linkType: hard
+
 "@eslint-community/eslint-utils@npm:^4.2.0, @eslint-community/eslint-utils@npm:^4.4.0":
   version: 4.4.1
   resolution: "@eslint-community/eslint-utils@npm:4.4.1"
@@ -3826,6 +3843,7 @@ __metadata:
     i18next: ^23.16.2
     intl-pluralrules: ^2.0.1
     jest: ^29.6.3
+    keep-a-changelog: ^2.6.1
     lodash-es: ^4.17.21
     prettier: 2.8.8
     react: 18.3.1
@@ -6736,6 +6754,17 @@ __metadata:
     object.assign: ^4.1.4
     object.values: ^1.1.6
   checksum: f4b05fa4d7b5234230c905cfa88d36dc8a58a6666975a3891429b1a8cdc8a140bca76c297225cb7a499fad25a2c052ac93934449a2c31a44fc9edd06c773780a
+  languageName: node
+  linkType: hard
+
+"keep-a-changelog@npm:^2.6.1":
+  version: 2.6.1
+  resolution: "keep-a-changelog@npm:2.6.1"
+  dependencies:
+    "@deno/shim-deno": ~0.18.0
+  bin:
+    changelog: esm/bin.js
+  checksum: 44e4ec00f0d3ce97aed70175214e792411a22435cfd8d8abcdd028f988e469857740a5e19f3943718df03d44097aa29ebc624d5ff5f669537714d1aa81dc3b76
   languageName: node
   linkType: hard
 
@@ -10171,6 +10200,17 @@ __metadata:
   bin:
     node-which: ./bin/node-which
   checksum: 1a5c563d3c1b52d5f893c8b61afe11abc3bab4afac492e8da5bde69d550de701cf9806235f20a47b5c8fa8a1d6a9135841de2596535e998027a54589000e66d1
+  languageName: node
+  linkType: hard
+
+"which@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "which@npm:4.0.0"
+  dependencies:
+    isexe: ^3.1.1
+  bin:
+    node-which: bin/which.js
+  checksum: f17e84c042592c21e23c8195108cff18c64050b9efb8459589116999ea9da6dd1509e6a1bac3aeebefd137be00fabbb61b5c2bc0aa0f8526f32b58ee2f545651
   languageName: node
   linkType: hard
 

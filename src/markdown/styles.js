@@ -23,4 +23,30 @@ export const styles = theme => ( {
 		borderRadius: 4,
 		fontFamily: 'monospace',
 	},
+	// Headings
+	heading1: {
+		...theme.fonts.displaySmall,
+		flexDirection: 'row',
+	},
+	heading2: {
+		...theme.fonts.displaySmall,
+		flexDirection: 'row',
+	},
+	// heading3: {
+	// 	flexDirection: 'row',
+	// 	fontSize: 18,
+	// },
+	// heading4: {
+	// 	flexDirection: 'row',
+	// 	fontSize: 16,
+	// },
+	// heading5: {
+	// 	flexDirection: 'row',
+	// 	fontSize: 13,
+	// },
+	// heading6: {
+	// 	flexDirection: 'row',
+	// 	fontSize: 11,
+	// },
+
 } );

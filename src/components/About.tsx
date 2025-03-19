@@ -3,8 +3,10 @@
  */
 import React, {
 	FC,
+	ReactNode,
 	useContext,
     useEffect,
+    useMemo,
     useState,
 } from 'react';
 import {
@@ -30,6 +32,7 @@ import { AppContext } from '../Context';
 import AnimatedLogo from './AnimatedLogo';
 import readme from '../../README.md';
 import license from '../../LICENSE.md';
+import changelog from '../../CHANGELOG.md';
 import packageJson from '../../package.json';
 import { removeLeadingTrailingEmptyLines, removeLines } from '../utils';
 import renderRules from '../markdown/renderRules';
@@ -37,12 +40,12 @@ import { styles } from '../markdown/styles';
 import { get } from 'lodash-es';
 import ButtonHighlight from './ButtonHighlight';
 
-type ReadmePart = {
+type MdPart = {
     key: string;
     str: string;
 };
 
-const readmeParts: ReadmePart[] = [...readme.split( /\n##\s[\s\S]*?/g )].map( str => {
+const getMdParts = ( fileContent: string ) : MdPart[] => [...fileContent.split( /\n##\s[\s\S]*?/g )].map( str => {
     const key = str.match( /(.*?)\n/ );
     return key ? {
         key: key[1],
@@ -50,9 +53,25 @@ const readmeParts: ReadmePart[] = [...readme.split( /\n##\s[\s\S]*?/g )].map( st
     } : null;
 } ).filter( a => !! a );
 
-const License = () => {
+const readmeParts = getMdParts( readme );
+const changelogParts = getMdParts( changelog ).slice( 1 );
+
+const getChangelogVersion = ( idx?: number ) : string | undefined => {
+    idx = undefined === idx ? 0 : idx;
+    const version = get( changelogParts, [idx,'key'] );
+    return version ? version.replace( /[\]\[]/g, '' ) : undefined;
+};
+
+const AccordionItem = ( {
+    label,
+    children,
+    notExpandedContent,
+} : {
+    label: string;
+    children?: string | ReactNode;
+    notExpandedContent?: string | ReactNode;
+} ) => {
 	const theme = useTheme();
-	const { t } = useTranslation();
     const [expanded, setExpanded] = useState( false );
 
     // Fix vertical align. toggle expand and back.
@@ -85,41 +104,53 @@ const License = () => {
                     source={ expanded ? 'chevron-down' : 'chevron-right' }
                     size={ 25 }
                 />
-                <Text style={ theme.fonts.displaySmall }>{ t( 'license' ) }</Text>
+                <Text style={ theme.fonts.displaySmall }>{ label }</Text>
             </View>
 
         </ButtonHighlight>
 
-        { expanded && <Text style={ {
+        { expanded && <View style={ {
             paddingLeft: 10,
             paddingRight: 10,
-        } }>{ license }</Text> }
+        } }>
+            { 'string' === typeof children && <Text>{ children }</Text> }
+            { 'string' !== typeof children && children }
+        </View> }
 
-        { ! expanded && <Text style={ {
+        { ! expanded && undefined !== notExpandedContent && <View style={ {
             paddingLeft: 10,
             paddingRight: 10,
-        } }>{ license.split( '\n' )[0] }</Text> }
+        } }>
+            { 'string' === typeof notExpandedContent && <Text>{ notExpandedContent }</Text> }
+            { 'string' !== typeof notExpandedContent && notExpandedContent }
+        </View> }
 
     </View>;
 };
 
-const ReadmeRender = ( {
+const MdPartsRender = ( {
     include,
+    mbParts,
 } : {
-    include: string[];
+    include?: string[];
+    mbParts: MdPart[];
 } ) => {
 	const { t } = useTranslation();
 	const theme = useTheme();
-    return [...include].map( key => {
+    return [...( include || [...mbParts].map( part => part.key ) )].map( key => {
 
-        const part: undefined | ReadmePart = readmeParts.find( part => part.key === key );
+        const part: undefined | MdPart = mbParts.find( part => part.key === key );
 
         if ( ! part ) {
             return null;
         }
 
         if ( 'License' === part.key ) {
-            return <License key={ part.key }/>;
+            return <AccordionItem
+                label={ t( 'license' ) }
+                key={ part.key }
+                notExpandedContent={ license.split( '\n' )[0] }
+            >{ license }</AccordionItem>;
         }
 
         if ( 'Contribution' === part.key ) {
@@ -133,7 +164,7 @@ const ReadmeRender = ( {
                 marginBottom: 20,
             } }
         >
-            <Text style={ theme.fonts.displaySmall }>{ t( part.key.toLowerCase() ) }</Text>
+            { part.key.length > 0 && <Text style={ theme.fonts.displaySmall }>{ part.key }</Text> }
             <Markdown
                 rules={ renderRules }
                 style={ styles( theme ) as StyleSheet.NamedStyles<any> }
@@ -164,6 +195,8 @@ const About : FC = () => {
         appInnerHeight,
     } = useContext( AppContext )
 
+    const versionChangelog = useMemo( () => getChangelogVersion(), [] );
+
     return <View style={ {
         backgroundColor: theme.colors.background,
         height: appInnerHeight,
@@ -175,7 +208,10 @@ const About : FC = () => {
 
             <Text style={ theme.fonts.displaySmall }>Straymap</Text>
             <Text style={ { marginTop: 10 } } >{ t( 'slogan' ) }</Text>
-            <Text style={ { marginTop: 20 } } >version { packageJson.version }</Text>
+            <Text style={ { marginTop: 20 } } >version { versionChangelog }</Text>
+            { 'Unreleased' === versionChangelog &&
+                <Text>last { getChangelogVersion( 1 ) || packageJson.version }</Text>
+            }
 
             <View style={ {
                 justifyContent: 'space-evenly',
@@ -188,7 +224,8 @@ const About : FC = () => {
                 />
             </View>
 
-            <ReadmeRender
+            <MdPartsRender
+                mbParts={ readmeParts }
                 include={ [
                     'License',
                     'Contribution',
@@ -196,6 +233,13 @@ const About : FC = () => {
                     'Credits',
                 ] }
             />
+
+            <AccordionItem label={ 'Changelog' } >
+                <MdPartsRender mbParts={ [ {
+                    key: '',
+                    str: [...changelogParts].map( part => '## ' + part.key + '\n' + part.str ).join( '\n\n' ),
+                } ] }/>
+            </AccordionItem>
 
         </ScrollView>
     </View>;

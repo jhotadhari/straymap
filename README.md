@@ -1,4 +1,3 @@
-
 ## Straymap
 
 Android offline map app for stray cyclists and roaming vagabonds.
