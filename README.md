@@ -16,21 +16,42 @@ Raster overview maps in MBtiles format [https://www.openandromaps.org/en/downloa
 
 Digital elevation Models, elevation data in hgt format at 3 arc second resolution [https://viewfinderpanoramas.org/dem3.html](https://viewfinderpanoramas.org/Coverage%20map%20viewfinderpanoramas_org3.htm)
 
+## Free Software
+
+Straymap is Free Software ([source code](https://github.com/jhotadhari/straymap))
+
+What is Free Software? [https://www.gnu.org/philosophy/free-sw.en.html](https://www.gnu.org/philosophy/free-sw.en.html)
+
+> “Free software” means software that respects users' freedom and community. Roughly, it means that **the users have the freedom to run, copy, distribute, study, change and improve the software**. Thus, “free software” is a matter of liberty, not price. To understand the concept, you should think of “free” as in “free speech,” not as in “free beer.”
+
+## License
+
+[MIT License](https://github.com/jhotadhari/straymap/blob/main/LICENSE.md)
+
+## Donation
+
+Straymap is gratis, it's free of charge. It's non-commercial. It's not intended for commercial advantage or monetary compensation. It is not intended for profit.
+
+If you want and if you can afford to pay for it, your are free to do so. Otherwise, it's OK, just use it.
+
+[![liberapay](https://liberapay.com/assets/widgets/donate.svg)](https://liberapay.com/jhotadhari/donate)
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/H2H3162PAG)
+
 ## Contribution
 
 - You can report [issues and bugs](https://github.com/jhotadhari/straymap/issues).
 - Ask questions, suggest new features, just start a [discussion](https://github.com/jhotadhari/straymap/discussions).
 - Help me coding. This project is free open source software. [Checkout the repository](https://github.com/jhotadhari/straymap), fork it and make pull requests for the `development` branch.
-- Or help with a donation:
 
-[![liberapay](https://liberapay.com/assets/widgets/donate.svg)](https://liberapay.com/jhotadhari/donate)
-[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/H2H3162PAG)
+## Privacy
 
-## License
+Straymap respects the users privacy. It does **not** contain any kind of trackers. Nothing external, nothing internal. The entire data stays on the device. Nothing gets collected, uploaded or shared with no one no where never.
 
-Free open source
+Straymap works, with one exception, entirely offline, no other requests* to any kind of servers are done. The exceptions is:
 
-[MIT License](https://github.com/jhotadhari/straymap/blob/main/LICENSE.md)
+- The `online-raster-xyz` map layer. This map layer requests raster images from an online source. The online source that you choose by yourself.
+
+\* A request to a server, transferees personal data (the users IP address). This is technically necessary.
 
 ## Development
 
@@ -111,5 +132,5 @@ This is one way to run your app — you can also run it directly from within And
 [queue-promise](https://www.npmjs.com/package/queue-promise),
 [create-react-native-library](https://github.com/callstack/react-native-builder-bob)
 - Fonts:
-[Jangly Walk](https://www.fonts4free.net/jangly-walk-font.html) copyright (c) [Jakob Fischer at www.pizzadude.dk](https://www.pizzadude.dk)
-[Coustard](https://www.fonts4free.net/coustard-font.html) copyright (c) [vernon adams newtypography.co.uk](https://newtypography.co.uk)
+[Jangly Walk](https://www.fonts4free.net/jangly-walk-font.html) copyright (c) [Jakob Fischer at www.pizzadude.dk](https://www.pizzadude.dk),
+[Coustard](https://www.fonts4free.net/coustard-font.html)

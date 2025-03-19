@@ -153,7 +153,7 @@ const MdPartsRender = ( {
             >{ license }</AccordionItem>;
         }
 
-        if ( 'Contribution' === part.key ) {
+        if ( 'Donation' === part.key ) {
             part.str = removeLines( part.str, /(?:liberapay|ko-fi)/ );
         }
 
@@ -172,7 +172,7 @@ const MdPartsRender = ( {
                 { part.str }
             </Markdown>
 
-            { 'Contribution' === part.key && <View>
+            { 'Donation' === part.key && <View>
                 <Text style={ { height: 50, color: get( theme.colors, 'link' ) } } onPress={ () => Linking.openURL( 'https://ko-fi.com/H2H3162PAG' ) }>
                     <Image source={ require( '../assets/images/ko-fi_donate.png' ) } />
                 </Text>
@@ -212,6 +212,10 @@ const About : FC = () => {
             { 'Unreleased' === versionChangelog &&
                 <Text>last { getChangelogVersion( 1 ) || packageJson.version }</Text>
             }
+            <Text style={ { marginTop: 10 } } >{ t( 'sourceHostedOnGithub' ) }</Text>
+            <Text style={ { color: get( theme.colors, 'link' ) } } onPress={ () => Linking.openURL( 'https://github.com/jhotadhari/straymap' ) }>
+                https://github.com/jhotadhari/straymap
+            </Text>
 
             <View style={ {
                 justifyContent: 'space-evenly',
@@ -227,8 +231,11 @@ const About : FC = () => {
             <MdPartsRender
                 mbParts={ readmeParts }
                 include={ [
+                    'Free Software',
                     'License',
+                    'Donation',
                     'Contribution',
+                    'Privacy',
                     'Where to get maps?',
                     'Credits',
                 ] }

@@ -3,6 +3,7 @@
         "systemSetting": "Systemeinstellung",
         "selectTheme":"Theme wählen",
         "license": "Lizenz",
+        "sourceHostedOnGithub": "Der Quellcode ist auf Github gehostet",
         "slogan": "Android-Offline-Karten-App für umherstreunende Radreisende und Vagabund*innen",
         "themeOptions": {
             "light": "Hell",

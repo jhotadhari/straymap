@@ -23,6 +23,15 @@ export const styles = theme => ( {
 		borderRadius: 4,
 		fontFamily: 'monospace',
 	},
+	// Blockquotes
+	blockquote: {
+		borderColor: theme.colors.primary,
+		backgroundColor: theme.colors.surfaceVariant,
+		color: theme.colors.onSurfaceVariant,
+		borderLeftWidth: 4,
+		marginLeft: 20,
+		paddingHorizontal: 5,
+	},
 	// Headings
 	heading1: {
 		...theme.fonts.displaySmall,
