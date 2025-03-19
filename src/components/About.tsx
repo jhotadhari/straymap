@@ -45,13 +45,13 @@ type MdPart = {
     str: string;
 };
 
-const getMdParts = ( fileContent: string ) : MdPart[] => [...fileContent.split( /\n##\s[\s\S]*?/g )].map( str => {
+const getMdParts = ( fileContent: string ) : MdPart[] => [...fileContent.split( /\n##\s[\s\S]*?/g )].map( ( str: string ) : null | MdPart => {
     const key = str.match( /(.*?)\n/ );
     return key ? {
         key: key[1],
         str: removeLeadingTrailingEmptyLines( str, 1 ),
     } : null;
-} ).filter( a => !! a );
+} ).filter( a => null !== a ) as MdPart[];
 
 const readmeParts = getMdParts( readme );
 const changelogParts = getMdParts( changelog ).slice( 1 );
@@ -137,7 +137,7 @@ const MdPartsRender = ( {
 } ) => {
 	const { t } = useTranslation();
 	const theme = useTheme();
-    return [...( include || [...mbParts].map( part => part.key ) )].map( key => {
+    return <View>{ [...( include || [...mbParts].map( part => part.key ) )].map( key => {
 
         const part: undefined | MdPart = mbParts.find( part => part.key === key );
 
@@ -182,7 +182,7 @@ const MdPartsRender = ( {
             </View> }
 
         </View>
-    } );
+    } ) }</View>;
 };
 
 const About : FC = () => {

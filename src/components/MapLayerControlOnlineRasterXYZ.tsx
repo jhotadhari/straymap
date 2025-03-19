@@ -2,7 +2,7 @@
  * External dependencies
  */
 import {
-    ReactNode,
+    ReactElement,
     useEffect,
     useState,
 } from 'react';
@@ -32,7 +32,7 @@ import InfoRowControl from './InfoRowControl';
 
 interface SourceOption extends OptionBase {
     url?: `http://${string}` | `https://${string}`;
-    Attribution?: ( { theme } : { theme: ThemePropExtended } ) => ReactNode;
+    Attribution?: ( { theme } : { theme: ThemePropExtended } ) => ReactElement;
 }
 
 export const sourceOptions : SourceOption[] = [

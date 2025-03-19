@@ -45,7 +45,7 @@ import RadioListItem from './RadioListItem';
 import InfoButton from './InfoButton';
 import IconIcomoon from './IconIcomoon';
 import NameRowControl from './NameRowControl';
-import FileSourceRowControl from './FileSourceRowControl';
+import FileSourceRowControl, { AlternativeButtonType } from './FileSourceRowControl';
 import MenuItem from './MenuItem';
 import { modalWidthFactor } from '../constants';
 import useUiState from '../compose/useUiState';
@@ -177,6 +177,7 @@ const RenderStyleRowControl = ( {
     updateProfile?: ( newProfile: MapsforgeProfile ) => void;
     Info?: ReactNode | string;
     AlternativeButton?: ReactNode;
+    // AlternativeButton?: AlternativeButtonType;
     renderStyleOptionsMap: { [value: string]: RenderStyleOptionsCollection };
     renderDefaultStylesMap: { [value: string]: ( string | null ) };
 } ) => {
@@ -255,18 +256,14 @@ const RenderOverlaysRowControl = ( {
     label,
     header,
     renderStyleOptionsMap,
-    AlternativeButton,
+    AlternativeButton = null,
 } : {
     profile: MapsforgeProfile;
     updateProfile?: ( newProfile: MapsforgeProfile ) => void;
     Info?: ReactNode | string;
     label: string;
     header?: string;
-    AlternativeButton?: ( {
-        setModalVisible
-    } : {
-        setModalVisible?: Dispatch<SetStateAction<boolean>>
-    } ) => ReactNode;
+    AlternativeButton?: AlternativeButtonType;
     renderStyleOptionsMap: { [value: string]: RenderStyleOptionsCollection };
 } ) => {
 

@@ -2,7 +2,7 @@
 /**
  * External dependencies
  */
-import React, { ReactNode, useContext } from 'react';
+import React, { ReactElement, useContext } from 'react';
 import { View } from 'react-native';
 import { Icon, Text, useTheme } from 'react-native-paper';
 import { get } from 'lodash-es';
@@ -20,7 +20,7 @@ type AttributionConf = {
     key: string;
     name: string;
     type: string;
-    Component: ( { theme } : { theme: ThemePropExtended } ) => ReactNode;
+    Component: ( { theme } : { theme: ThemePropExtended } ) => ReactElement;
 };
 
 const LayerInfoComponent = ( {
@@ -57,7 +57,7 @@ const Inner = ( {
 		mapSettings,
     } = useContext( AppContext );
     if ( ! mapSettings ) {
-        return;
+        return null;
     }
     const attributions : AttributionConf[] = [...mapSettings.layers].filter( layer => {
         return layer.type && layer.visible;
