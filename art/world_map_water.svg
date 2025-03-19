@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   version="1.1"
+   id="svg1"
+   width="100"
+   height="100"
+   viewBox="0 0 99.999999 100"
+   sodipodi:docname="world_map_water.svg"
+   inkscape:version="1.4 (1:1.4+202410161351+e7c3feb100)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1" />
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="8.5493332"
+     inkscape:cx="51.641454"
+     inkscape:cy="51.349034"
+     inkscape:window-width="1920"
+     inkscape:window-height="1029"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="g1" />
+  <g
+     inkscape:groupmode="layer"
+     inkscape:label="Image"
+     id="g1"
+     transform="translate(0.087197,1.8069948)">
+    <path
+       style="display:inline;fill:#87aec4;fill-opacity:1;stroke:none;stroke-width:13.2822px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M -6.8717881,452.345 C 4.3335362,383.34771 34.388762,313.34677 92.583831,251.59632 150.05895,190.60979 230.11938,132.9107 331.70052,91.909869 458.26006,40.827099 612.54747,3.0370389 769.72846,-6.1832365 964.91058,-17.632667 1169.0409,8.0601221 1349.5336,49.707021 c 90.0102,20.768947 171.9641,54.079759 237.0006,93.530629 58.1149,35.25227 99.1722,78.8685 129.0807,123.1867 17.1675,25.43867 18.1527,53.24769 27.509,79.84322 16.5978,47.17969 44.3456,93.54175 50.7858,141.43657 8.7798,65.29482 15.6487,133.11911 -16.9286,196.18622 -33.3552,64.57325 -89.0862,129.79711 -177.7504,176.79571 -96.9506,51.39101 -229.1291,85.57401 -361.8493,101.51496 -116.4518,13.98696 -240.43835,4.11133 -357.61692,-7.98433 C 693.31139,934.97024 505.33641,905.10807 342.28091,852.70174 260.36746,826.37461 183.61944,791.66235 130.67322,748.90555 65.767917,696.49117 37.170999,632.52968 12.172905,570.96921 -3.5711003,532.19793 -13.292852,491.88299 -6.8717881,452.345 Z"
+       id="path1"
+       sodipodi:nodetypes="sssssssssssssssss"
+       transform="matrix(0.05524653,0,0,0.10225373,0.40314354,-0.89555836)"
+       inkscape:label="water" />
+  </g>
+</svg>

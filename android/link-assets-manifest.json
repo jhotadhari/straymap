@@ -1,0 +1,29 @@
+{
+  "migIndex": 1,
+  "data": [
+    {
+      "path": "src/assets/fonts/Coustard-Regular-custom.ttf",
+      "sha1": "fa5026669ee89e49f63209d5c0ded272b9483111"
+    },
+    {
+      "path": "src/assets/fonts/jangly_walk.ttf",
+      "sha1": "1a99812898e2c11a4a8bcaf0c51e203e09b8fdbe"
+    },
+    {
+      "path": "src/assets/icons/icomoon/fonts/icomoon.eot",
+      "sha1": "2e7666749ff7017b027488f9cb000dfad637a0bf"
+    },
+    {
+      "path": "src/assets/icons/icomoon/fonts/icomoon.svg",
+      "sha1": "914178b6c9fbcfc51031a32d049125b1dda45483"
+    },
+    {
+      "path": "src/assets/icons/icomoon/fonts/icomoon.ttf",
+      "sha1": "0362ca753563a3eafaed500c8581780ba5667832"
+    },
+    {
+      "path": "src/assets/icons/icomoon/fonts/icomoon.woff",
+      "sha1": "5c759f420fa896d620969d60fd0a1b002db4930c"
+    }
+  ]
+}
