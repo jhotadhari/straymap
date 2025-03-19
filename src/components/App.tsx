@@ -149,7 +149,7 @@ const useAppLang = () => {
 	const [initialized,setInitialized] = useState( false );
 	const [selectedLang,setSelectedLang] = useState<null | string>( null );
 
-	const changeLang = ( newSelectedLang : ( string | null | undefined ) ) : void => {
+	const changeLang = ( newSelectedLang : ( string | null ) ) : void => {
 		newSelectedLang = !! newSelectedLang && [...langOptions].map( opt => opt.key ).includes( newSelectedLang )
 			? newSelectedLang
 			: 'system';
@@ -168,8 +168,8 @@ const useAppLang = () => {
 
 	useEffect( () => {
 		if ( null === selectedLang ) {
-			DefaultPreference.get( 'lang' ).then( ( newSelectedLang : string | null | undefined ) => {
-				changeLang( newSelectedLang );
+			DefaultPreference.get( 'lang' ).then( ( newSelectedLang?: string | null ) => {
+				changeLang( newSelectedLang || null );
 			} ).catch( err => 'ERROR' + console.log( err ) );
 		}
 	}, [] );

@@ -3,6 +3,7 @@
  */
 import {
     Dispatch,
+    ReactElement,
     ReactNode,
     SetStateAction,
     useEffect,
@@ -43,6 +44,12 @@ const getLabelFromUri = ( uri?: `content://${string}` ) => {
     return parts.length > 0 ? parts[parts.length-1] : '';
 };
 
+export type AlternativeButtonType = null | ( ( {
+    setModalVisible
+} : {
+    setModalVisible?: Dispatch<SetStateAction<boolean>>
+} ) => ReactElement );
+
 const FileSourceRowControl = ( {
     filePattern,
     dirs,
@@ -56,7 +63,7 @@ const FileSourceRowControl = ( {
     noFilesHeading,
     hasCustom,
     initialOptsMap = {},
-    AlternativeButton,
+    AlternativeButton = null,
 } : {
     filePattern?: RegExp;
     dirs?: AbsPath[],
@@ -70,11 +77,7 @@ const FileSourceRowControl = ( {
     noFilesHeading?: string;
     hasCustom?: boolean;
     initialOptsMap?: OptsMap;
-    AlternativeButton?: ( {
-        setModalVisible
-    } : {
-        setModalVisible?: Dispatch<SetStateAction<boolean>>
-    } ) => ReactNode;
+    AlternativeButton?: AlternativeButtonType;
 } ) => {
 
     const { t } = useTranslation();
@@ -229,7 +232,7 @@ const FileSourceRowControl = ( {
                 ) }</Text>
             </ButtonHighlight> }
 
-            { AlternativeButton && <AlternativeButton setModalVisible={ setModalVisible } /> }
+            { !! AlternativeButton && <AlternativeButton setModalVisible={ setModalVisible } /> }
         </View>
 
     </InfoRowControl>;
