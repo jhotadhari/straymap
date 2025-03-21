@@ -85,7 +85,7 @@ const FileSourceRowControl = ( {
 
 	const [modalVisible, setModalVisible] = useState( false );
 
-    const dirsInfos = useDirsInfo( dirs || [] );
+    const dirsInfos = useDirsInfo( dirs || [], true );
 
     const [optsMap,setOptsMap] = useState<OptsMap>( {} );
 
@@ -99,7 +99,10 @@ const FileSourceRowControl = ( {
                     const nameArr = child.name.split( '/' );
                     return {
                         key: child.name,
-                        label: nameArr[nameArr.length-1],
+                        label: nameArr.slice( - ( child.depth
+                            ? child.depth + 1
+                            : 1
+                        ) ).join( '/' ),
                     };
                 } ) : []
             }

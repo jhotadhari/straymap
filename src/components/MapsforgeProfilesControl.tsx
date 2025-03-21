@@ -467,7 +467,10 @@ const MapsforgeProfilesControl = ( {
                             } ),
                         } );
                         maybeIsBusyRemove && maybeIsBusyRemove( busyKey );
-                    } ).catch( ( err: any ) => console.log( 'ERROR', err ) );
+                    } ).catch( ( err: any ) => {
+                        console.log( 'ERROR', err );
+                        maybeIsBusyRemove && maybeIsBusyRemove( busyKey );
+                    } );
                 }, 1 );
             }
 		}

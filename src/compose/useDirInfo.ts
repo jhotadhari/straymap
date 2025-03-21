@@ -8,6 +8,7 @@ import { useState, useEffect } from 'react';
  */
 import { FsModule } from '../nativeModules';
 import { type AbsPath } from '../types';
+import { flatten } from 'lodash-es';
 
 type NavChild = {
 	name: string;
@@ -15,6 +16,7 @@ type NavChild = {
 	isFile: boolean;
 	canRead: boolean;
 	canExecute: boolean;
+	depth?: number;
 };
 
 type DirInfo = {
@@ -42,14 +44,42 @@ export const useDirInfo = ( navDir : AbsPath ) : DirInfo => {
 	return { navParent, navChildren };
 }
 
-export const useDirsInfo = ( navDirs : AbsPath[] ) : DirInfoMap => {
+const addDepthToChildren = ( cs: NavChild[], depth: number ) => [...cs].map( c => ( {...c, depth } ) );
+
+const getNewNavChildren = async ( navChildren: NavChild[], depth: number ) : Promise<NavChild[]> => {
+	let newNavChildren = await Promise.all( [...navChildren].map( async( child ) => {
+		if ( child.isDir ) {
+			const childInfo : DirInfo = await FsModule.getInfo( child.name )
+			let childNavChildren = await getNewNavChildren( childInfo?.navChildren || [], depth + 1 );
+			return [
+				...addDepthToChildren( [child], depth ),
+				...addDepthToChildren( childNavChildren, depth + 1 ),
+			];
+		} else {
+			return addDepthToChildren( [child], depth )[0];
+		}
+	} ) );
+	newNavChildren = flatten( newNavChildren );
+	return newNavChildren as NavChild[];
+};
+
+export const useDirsInfo = ( navDirs : AbsPath[], recursive?: boolean ) : DirInfoMap => {
 	const [infos,setInfos] = useState<DirInfoMap>( {} );
 	useEffect( () => {
 		Promise.all( [...navDirs].map( ( navDir ) => {
 			return new Promise( ( resolve : ( value: ( DirInfoMap | false ) ) => void ) => {
-				FsModule.getInfo( navDir ).then( ( info : DirInfo ) => {
+				FsModule.getInfo( navDir ).then( async ( info : DirInfo ) => {
 					if ( info ) {
-						resolve( { [navDir]: info } );
+						if ( recursive && info.navChildren ) {
+							let newNavChildren = await getNewNavChildren( info.navChildren, 0 );
+							let newDirInfo: DirInfo = {
+								...info,
+								navChildren: newNavChildren,
+							};
+							resolve( { [navDir]: newDirInfo } );
+						} else {
+							resolve( { [navDir]: info } );
+						}
 					} else {
 						resolve( false );
 					}
@@ -71,6 +101,5 @@ export const useDirsInfo = ( navDirs : AbsPath[] ) : DirInfoMap => {
 			setInfos( newInfos );
 		} ).catch( ( err : any ) => console.log( err ) );
 	}, [navDirs.join( '' )] );
-
 	return infos;
 };
