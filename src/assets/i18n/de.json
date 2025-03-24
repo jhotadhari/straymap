@@ -20,6 +20,7 @@
             "saved": "%s Einstellungen gespeichert",
             "general": "Allgemein",
             "maps": "Karten",
+            "mapsforgeGeneral": "Allgemeine Mapsforge Einstellungen",
             "appearance": "Aussehen"
         },
         "map": {
@@ -55,6 +56,9 @@
                 "hillshading": "Offline-Höhenschattierung mit digitalen Höhenmodellen (DEM) im hgt-Format."
             }
         },
+        "lineScale": "Linien-Skalierung",
+        "textScale": "Text-Skalierung",
+        "symbolScale": "Symbol-Skalierung",
         "useFirstOne": "Das erste benutzen",
         "layerAttributions": "Zuschreibungen und Lizenzen für Kartenebenen",
         "createdBy": "Erstellt von",
@@ -166,6 +170,8 @@
         "noFilesIn": "Keine Dateien %s in",
         "hint": {
             "nameId": "Irgendein beliebiger Name zur Identifizierung. Es ist wirklich egal wie du es nennst.",
+            "applyToAllMapsforge": "Diese Einstellungen gelten für alle mapsforge Kartenebenen.",
+            "changeNeedsRestart": "Änderungen erfordern einen Neustart der App.",
             "dashboard": {
                 "elements": "Das dashboard kann uns verschiedene Informationen über die Karte, unsere Position und die Route oder den Track anzeigen.\n\nDie einzelnen Elemente können per Drag-and-Drop sortiert werden",
                 "fontSize": "Standardschriftgröße für alle Dashboard-Elemente.\n\nGilt für alle Dashboard-Elemente, für die keine Schriftgröße angegeben ist.",
@@ -201,6 +207,9 @@
                 "mapsforgeProfileStyle": "Themes können verschiedene Stile enthalten. Diese Stile sind leichte Variationen des Themes.",
                 "mapsforgeProfileOverlays": "Overlays bestimmen, welche Elemente der Karte sichtbar sind und welche nicht.\n\nTipp: Du kannst den Kartenhintergrund ausschalten. Und stattdessen eine andere Kartenebene (z. B. eine Satellitenkarte) dahinter anzeigen.",
                 "hgtReadFileRate": "Bestimmt die Geschwindigkeit (in Millisekunden), mit der neue Höhenmodelle in den Speicher geladen werden, wenn die Karte verschoben wird.",
+                "lineScale": "Linien-Skalierungsfaktor > 0.0\n\nZur Skalierung der Liniendicke auf der Karte\n\nStandard: 1. = keine Skalierung der Liniendicke",
+                "textScale": "Text-Skalierungsfaktor > 0.0\n\nZur Skalierung der Größe von Beschriftungen auf der Karte\n\nStandard: 1. = keine Skalierung der Textgröße",
+                "symbolScale": "Symbol-Skalierungsfaktor > 0.0\n\nZur Skalierung der Symbolgröße auf der Karte\n\nStandard: 1. = keine Skalierung der Symbolgröße",
                 "cacheSize": "xxx???xxx"
             },
             "link": {

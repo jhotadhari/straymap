@@ -43,6 +43,7 @@ import {
 	LayerMapsforgeProps,
 	usePromiseQueueState,
 	MapContainerModule,
+	CanvasAdapterModule,
 	MapEventResponse,
 	ResponseInclude,
 	useMapLayersCreated,
@@ -527,6 +528,15 @@ const App = ( {
 		layerInfos,
 		onLayerChange,
 	} = useLayerInfos();
+
+	// Set CanvasAdapter props on app start, when mapSettingsInitialized, before the map gets initialized.
+	useEffect( () => {
+		if ( mapSettingsInitialized ) {
+			CanvasAdapterModule.setLineScale( get( mapSettings, ['mapsforgeGeneral','lineScale'], defaults.mapSettings.mapsforgeGeneral.lineScale ) );
+			CanvasAdapterModule.setTextScale( get( mapSettings, ['mapsforgeGeneral','textScale'], defaults.mapSettings.mapsforgeGeneral.textScale ) );
+			CanvasAdapterModule.setSymbolScale( get( mapSettings, ['mapsforgeGeneral','symbolScale'], defaults.mapSettings.mapsforgeGeneral.symbolScale ) );
+		}
+	}, [mapSettingsInitialized] );
 
 	const appInnerHeight = height - topAppBarHeight;
 

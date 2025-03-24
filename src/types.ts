@@ -137,11 +137,18 @@ export type UiState = {
 	mapsforgeProfilesExpanded: Boolean;
 };
 
+export type MapsforgeGeneral = {
+	textScale: number;
+	lineScale: number;
+	symbolScale: number;
+};
+
 export type MapSettings = {
 	layers: LayerConfig[];
 	mapsforgeProfiles: MapsforgeProfile[];
 	hgtDirPath: MapContainerProps['hgtDirPath'];
 	hgtReadFileRate: MapContainerProps['hgtReadFileRate'];
+	mapsforgeGeneral: MapsforgeGeneral;
 };
 
 export type CursorConfig = {

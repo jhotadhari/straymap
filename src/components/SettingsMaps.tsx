@@ -28,6 +28,7 @@ import { LayerConfig, LayerConfigOptionsMapsforge, LayerType, MapSettings, Mapsf
 import { get } from 'lodash-es';
 import useDeepCompareEffect from 'use-deep-compare-effect';
 import HgtControl from './HgtControl';
+import SettingsMapsforgeControl from './SettingsMapsforgeControl';
 
 
 const getNewProfile = () : MapsforgeProfile => ( {
@@ -238,6 +239,8 @@ const SettingsMaps : FC = () => {
             <MapsforgeProfilesControl
                 setScrollEnabled={ setScrollEnabled }
             />
+
+            <SettingsMapsforgeControl/>
 
             <HgtControl/>
 

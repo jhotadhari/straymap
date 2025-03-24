@@ -381,7 +381,7 @@ const MapLayersControl = ( {
                 marginLeft:   7,
                 marginRight: -7,
                 justifyContent: 'center',
-            } }><List.Icon {...props } icon="map" /></View> }
+            } }><List.Icon {...props } icon="layers-triple" /></View> }
             expanded={ expanded }
             onPress={ () => {
                 if ( expanded ) {

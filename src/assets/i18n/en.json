@@ -20,6 +20,7 @@
             "saved": "Saved %s settings",
             "general": "General",
             "maps": "Maps",
+            "mapsforgeGeneral": "Mapsforge General Settings",
             "appearance": "Appearance"
         },
         "map": {
@@ -55,6 +56,9 @@
                 "hillshading": "Offline hillshading with digital elevation models (DEM) in hgt format."
             }
         },
+        "lineScale": "Line scale",
+        "textScale": "Text scale",
+        "symbolScale": "Symbol scale",
         "useFirstOne": "Use first one",
         "layerAttributions": "Attributions and licenses for map layers",
         "createdBy": "Created by",
@@ -166,6 +170,8 @@
         "noFilesIn": "No files %s in",
         "hint": {
             "nameId": "Any name for identification. It doesn't really matter what you call it.",
+            "applyToAllMapsforge": "These settings apply to all mapsforge map layers.",
+            "changeNeedsRestart": "Changes require a restart of the app.",
             "dashboard": {
                 "elements": "It can show us various information about the map, our position and the route or track.\n\nThe individual elements can be sorted using drag-and-drop",
                 "fontSize": "Default font size for all dashboard elements.\n\nApplies to all dashboard elements for which no font size is specified.",
@@ -201,6 +207,9 @@
                 "mapsforgeProfileStyle": "Themes can contain different styles. These styles are slight variations of the theme.",
                 "mapsforgeProfileOverlays": "Overlays determine which elements of the map are visible or not.\n\nTip: You can switch off the map background. And instead display another map layer (e.g. a satellite map) behind it.",
                 "hgtReadFileRate": "Determines the speed (in milliseconds) at which new elevation models are loaded into the memory when the map is moved.",
+                "lineScale": "Line scale factor > 0.0\n\nTo scale thickness of lines on map\n\nDefault: 1. = no line thickness scaling",
+                "textScale": "Text scale factor > 0.0\n\nTo scale size of labels on map\n\nDefault: 1. = no text size scaling",
+                "symbolScale": "Symbol scale factor > 0.0\n\nTo scale size of symbols on map\n\nDefault: 1. = no symbol size scaling",
                 "cacheSize": "xxx???xxx"
             },
             "link": {

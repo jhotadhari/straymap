@@ -39,6 +39,11 @@ export const defaults = {
 		],
 		hgtDirPath: undefined,
 		hgtReadFileRate: 500,
+		mapsforgeGeneral: {
+			textScale: 1,
+			lineScale: 1,
+			symbolScale: 1,
+		},
 	},
 	appearanceSettings: {
 		cursor: {
