@@ -62,7 +62,7 @@ const MapLayerControlRasterMBTiles = ( {
                 ...options,
                 mapFile: selectedOpt,
             } ) }
-            filePattern={ /.*\.mbtiles$/ }
+            extensions={ ['mbtiles'] }
             dirs={ appDirs ? appDirs.mapfiles : [] }
             Info={ <View>
                 <Text>{ t( 'hint.maps.mbTilesFile' ) }</Text>

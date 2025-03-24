@@ -49,22 +49,9 @@ import FileSourceRowControl, { AlternativeButtonType } from './FileSourceRowCont
 import MenuItem from './MenuItem';
 import { modalWidthFactor } from '../constants';
 import useUiState from '../compose/useUiState';
+import LoadingIndicator from './LoadingIndicator';
 
 const itemHeight = 50;
-
-
-const LoadingIndicator = () => {
-	const theme = useTheme();
-	return <ActivityIndicator
-		animating={ true }
-		// size={ 'large' }
-		style={ {
-			backgroundColor: theme.colors.background,
-			borderRadius: theme.roundness,
-		} }
-		color={ theme.colors.primary }
-	/>;
-};
 
 const DraggableItem = ( {
     width,
@@ -525,7 +512,7 @@ const MapsforgeProfilesControl = ( {
                             theme: selectedOpt,
                         } )
                     } }
-                    filePattern={ /.*\.xml$/ }
+                    extensions={ ['xml'] }
                     dirs={ appDirs ? appDirs.mapstyles : [] }
                     Info={ isBusy ? undefined : <View>
                         <Text>{ t( 'hint.maps.mapsforgeProfileFile' ) }</Text>

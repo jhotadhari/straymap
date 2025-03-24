@@ -178,7 +178,7 @@ const MapLayerControlMapsforge = ( {
                 ...options,
                 mapFile: selectedOpt,
             } ) }
-            filePattern={ /.*\.map$/ }
+            extensions={ ['map'] }
             dirs={ appDirs ? appDirs.mapfiles : [] }
             Info={ <View>
                 <Text>{ t( 'hint.maps.mapsforgeFile' ) }</Text>

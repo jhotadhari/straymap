@@ -131,6 +131,9 @@ dependencies {
     // react-native-default-preference
     implementation project(':react-native-default-preference')
 
+    // https://commons.apache.org/proper/commons-io/dependency-info.html
+    implementation 'commons-io:commons-io:2.18.0'
+
     if (hermesEnabled.toBoolean()) {
         implementation("com.facebook.react:hermes-android")
     } else {

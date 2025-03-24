@@ -42,9 +42,6 @@ const SettingsMapsforgeControl = () => {
         valueRef.current = value;
     }, [value] );
     const save = () => {
-
-        console.log( 'debug valueRef.current', valueRef.current ); // debug
-
         return setMapSettings && setMapSettings( ( mapSettings: MapSettings ) => ( {
             ...mapSettings,
             ...( valueRef.current && { mapsforgeGeneral: valueRef.current } ),
