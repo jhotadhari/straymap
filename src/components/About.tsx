@@ -24,6 +24,7 @@ import {
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import Markdown from 'react-native-markdown-display';
+import { get } from 'lodash-es';
 
 /**
  * Internal dependencies
@@ -33,11 +34,11 @@ import AnimatedLogo from './AnimatedLogo';
 import readme from '../../README.md';
 import license from '../../LICENSE.md';
 import changelog from '../../CHANGELOG.md';
+import debugInfo from '../../.debugInfo.json';
 import packageJson from '../../package.json';
 import { removeLeadingTrailingEmptyLines, removeLines } from '../utils';
 import renderRules from '../markdown/renderRules';
 import { styles } from '../markdown/styles';
-import { get } from 'lodash-es';
 import ButtonHighlight from './ButtonHighlight';
 
 type MdPart = {
@@ -208,10 +209,11 @@ const About : FC = () => {
 
             <Text style={ theme.fonts.displaySmall }>Straymap</Text>
             <Text style={ { marginTop: 10 } } >{ t( 'slogan' ) }</Text>
-            <Text style={ { marginTop: 20 } } >version { versionChangelog }</Text>
-            { 'Unreleased' === versionChangelog &&
-                <Text>last { getChangelogVersion( 1 ) || packageJson.version }</Text>
-            }
+            <Text style={ { marginTop: 20 } } >Version { versionChangelog }</Text>
+            { 'Unreleased' === versionChangelog && <View>
+                <Text>Latest release { getChangelogVersion( 1 ) || packageJson.version }</Text>
+                { Object.keys( debugInfo ).map( ( key: string ) => <Text key={ key } >{ t( key ) + ': ' + get( debugInfo, key ) }</Text> ) }
+            </View> }
             <Text style={ { marginTop: 10 } } >{ t( 'sourceHostedOnGithub' ) }</Text>
             <Text style={ { color: get( theme.colors, 'link' ) } } onPress={ () => Linking.openURL( 'https://github.com/jhotadhari/straymap' ) }>
                 https://github.com/jhotadhari/straymap

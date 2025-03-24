@@ -5,6 +5,8 @@
         "license": "License",
         "sourceHostedOnGithub": "Source code is hosted on github",
         "slogan": "Android offline map app for stray cyclists and roaming vagabonds",
+        "gitStatus": "Git Status",
+        "latestCommit": "Latest commit",
         "themeOptions": {
             "light": "Light",
             "dark": "Dark",
