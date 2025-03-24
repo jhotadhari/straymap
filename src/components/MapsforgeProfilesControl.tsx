@@ -50,6 +50,7 @@ import MenuItem from './MenuItem';
 import { modalWidthFactor } from '../constants';
 import useUiState from '../compose/useUiState';
 import LoadingIndicator from './LoadingIndicator';
+import HintLink from './HintLink';
 
 const itemHeight = 50;
 
@@ -637,18 +638,28 @@ const MapsforgeProfilesControl = ( {
                     backgroundBlur={ true }
                     Info={ <View>
                         <Text>{ t( 'hint.maps.profiles' ) }</Text>
-                        <View style={ { marginTop: 10 } }>
-                            <Text>Mapsforge</Text>
-                            <Text style={ { color: get( theme.colors, 'link' ) } } onPress={ () => Linking.openURL( 'https://github.com/mapsforge/mapsforge' ) }>
-                                https://github.com/mapsforge/mapsforge
-                            </Text>
-                        </View>
-                        <View style={ { marginTop: 10 } }>
-                            <Text>{ t( 'hint.link.openandromapsDownloads' ) }</Text>
-                            <Text style={ { color: get( theme.colors, 'link' ) } } onPress={ () => Linking.openURL( 'https://www.openandromaps.org/en/downloads' ) }>
-                                https://www.openandromaps.org/en/downloads
-                            </Text>
-                        </View>
+                        <Text style={ {
+                            marginTop: 20,
+                            ...theme.fonts.bodyLarge,
+                        } }>{ 'Render theme downloads:' }</Text>
+                        { [
+                            {
+                                label: 'OpenAndroMaps Elevate & Elements by Tobias Kuehn',
+                                url: 'https://www.openandromaps.org/en/downloads',
+                            },
+                            {
+                                label: 'Outdoor & Desert by Bernard Mai',
+                                url: 'https://www.maiwolf.de/locus/',
+                            },
+                            {
+                                label: 'Tiramisù by Maki',
+                                url: 'https://github.com/IgorMagellan/Tiramisu',
+                            },
+                            {
+                                label: 'Alti by jhotadhari. Just a copy of elevate and andromaps_hike with landscape names copy of Desert',
+                                url: 'https://github.com/jhotadhari/Alti',
+                            },
+                        ].map( ( { label, url } ) => <HintLink key={ url } label={ label } url={ url } /> ) }
                     </View> }
                     buttonProps={ {
                         style: { marginTop: 0, marginBottom: 0, marginLeft: -23 },

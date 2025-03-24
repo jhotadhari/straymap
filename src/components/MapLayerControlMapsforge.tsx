@@ -34,6 +34,7 @@ import InfoRowControl from './InfoRowControl';
 import ButtonHighlight from './ButtonHighlight';
 import MenuItem from './MenuItem';
 import { sprintf } from 'sprintf-js';
+import HintLink from './HintLink';
 
 const ProfileRowControl = ( {
     options,
@@ -182,12 +183,14 @@ const MapLayerControlMapsforge = ( {
             dirs={ appDirs ? appDirs.mapfiles : [] }
             Info={ <View>
                 <Text>{ t( 'hint.maps.mapsforgeFile' ) }</Text>
-                <View style={ { marginTop: 10 } }>
-                    <Text>{ t( 'hint.link.openandromapsDownloads' ) }</Text>
-                    <Text style={ { color: get( theme.colors, 'link' ) } } onPress={ () => Linking.openURL( 'https://www.openandromaps.org/en/downloads' ) }>
-                        https://www.openandromaps.org/en/downloads
-                    </Text>
-                </View>
+                <Text style={ {
+                    marginTop: 20,
+                    ...theme.fonts.bodyLarge,
+                } }>{ 'Downloads:' }</Text>
+                <HintLink
+                    label={ t( 'hint.link.openandromapsDownloads' ) }
+                    url={ 'https://www.openandromaps.org/en/downloads' }
+                />
             </View> }
             filesHeading={ sprintf( t( 'filesIn' ), '(.map)' ) }
             noFilesHeading={ sprintf( t( 'noFilesIn' ), '(.map)' ) }

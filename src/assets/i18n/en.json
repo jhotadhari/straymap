@@ -190,7 +190,7 @@
             },
             "maps": {
                 "layers": "Map layers are displayed on top of each other. Layers that are higher up in the settings are displayed above the other layers in the map.\n\nThe layers can be sorted by drag and drop.\n\nThe individual map layers can be switched on or off at different zoom levels.\n\nThis allows overview and detail maps to be used together.\n\nMap layers that are temporarily not needed can be hidden (eye symbol button).",
-                "profiles": "Mapsforge is great! It is a free, open-source, offline vector map library for Android and Java-based applications.\n\n“Profiles” determine how the offline vector maps are displayed by mapsforge.\n\nBuilt-in themes can be used for the profiles. Or custom themes in xml format.\n\nThe profiles can be sorted by drag and drop. The top profile is used as default for all maps that do not have a specific profile assigned.",
+                "profiles": "“Profiles” determine how the offline vector maps are displayed by mapsforge.\n\nBuilt-in themes can be used for the profiles. Or custom themes in xml format.\n\nThe profiles can be sorted by drag and drop. The top profile is used as default for all maps that do not have a specific profile assigned.",
                 "visibility": "Whether the map layer is switched on or not.\n\nMap layers that are temporarily not required can be switched off.",
                 "xyzSource": "The url to the xyz map tile server.\n\nThe url must preferably start with https://. Insecure connections with http:// are possible, but are not recommended.\n\nThe url must contain the placeholders {X}, {Y} and {Z} (in curly braces).\n\nThis map layer requests raster images from an online source. Any request to any server, transferees personal data (your IP address). This is technically necessary.",
                 "enabled": "Between which zoom levels the map layer is displayed.",
@@ -217,7 +217,7 @@
             "link": {
                 "xmlRenderThemes": "Render themes in xml format",
                 "xmlRenderThemesModify": "Advanced: modify or create your own theme",
-                "openandromapsDownloads": "Vector maps in mapsforge V5 format based on open-street-map data And xml render themes",
+                "openandromapsDownloads": "Vector maps in mapsforge V5 format based on open-street-map data and xml render themes",
                 "openandromapsDownloadsRaster": "Raster overview maps in mbtiles format",
                 "digitalEleData": "Digital Elevation Data",
                 "digitalEleDataCoverage": "Easiest way to download elevation data in hgt format at 3 arc second resolution"

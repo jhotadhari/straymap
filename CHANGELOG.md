@@ -21,6 +21,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
     - *Google Satellite*
     - Rename *Google Maps* to *Google Road*
 
+### Changed
+- Some info texts and added more external download links.
+
 ### Fixed
 - File picker controls should search recursive in nested directories.
 

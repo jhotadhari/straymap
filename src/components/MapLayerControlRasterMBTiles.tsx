@@ -25,6 +25,7 @@ import { LayerConfig, LayerConfigOptionsRasterMBtiles } from '../types';
 import { NumericMultiRowControl } from './NumericRowControls';
 import { AppContext } from '../Context';
 import FileSourceRowControl from './FileSourceRowControl';
+import HintLink from './HintLink';
 
 const MapLayerControlRasterMBTiles = ( {
     editLayer,
@@ -66,12 +67,14 @@ const MapLayerControlRasterMBTiles = ( {
             dirs={ appDirs ? appDirs.mapfiles : [] }
             Info={ <View>
                 <Text>{ t( 'hint.maps.mbTilesFile' ) }</Text>
-                <View style={ { marginTop: 10 } }>
-                    <Text>{ t( 'hint.link.openandromapsDownloadsRaster' ) }</Text>
-                    <Text style={ { color: get( theme.colors, 'link' ) } } onPress={ () => Linking.openURL( 'https://www.openandromaps.org/en/downloads/general-maps' ) }>
-                        https://www.openandromaps.org/en/downloads/general-maps
-                    </Text>
-                </View>
+                <Text style={ {
+                    marginTop: 20,
+                    ...theme.fonts.bodyLarge,
+                } }>{ 'Downloads:' }</Text>
+                <HintLink
+                    label={ t( 'hint.link.openandromapsDownloadsRaster' ) }
+                    url={ 'https://www.openandromaps.org/en/downloads/general-maps' }
+                />
             </View> }
             filesHeading={ sprintf( t( 'filesIn' ), '(.mbtiles)' ) }
             noFilesHeading={ sprintf( t( 'noFilesIn' ), '(.mbtiles)' ) }
