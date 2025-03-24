@@ -13,9 +13,11 @@ import {
     Image,
     Linking,
     ScrollView,
+    StyleProp,
     StyleSheet,
 	useWindowDimensions,
 	View,
+    ViewStyle,
 } from 'react-native';
 import {
     Icon,
@@ -81,10 +83,7 @@ const AccordionItem = ( {
         setTimeout( () => setExpanded( false ), 0 );
     }, [] );
 
-    return <View style={ {
-        marginTop: -20,
-        marginBottom: 20,
-    } }>
+    return <View style={ { marginBottom: 20 } }>
         <ButtonHighlight
             onPress={ () => setExpanded( ! expanded ) }
             labelStyle={ {
@@ -129,6 +128,74 @@ const AccordionItem = ( {
     </View>;
 };
 
+const MdPartsRenderPart = ( {
+    part,
+    style,
+} : {
+    part: MdPart;
+    style: StyleProp<ViewStyle>;
+} ) => {
+	const theme = useTheme();
+    return <View style={ style } >
+        { part.key.length > 0 && <Text style={ theme.fonts.displaySmall }>{ part.key }</Text> }
+        <Markdown
+            rules={ renderRules }
+            style={ styles( theme ) as StyleSheet.NamedStyles<any> }
+        >
+            { part.str }
+        </Markdown>
+    </View>;
+};
+
+const MdPartsRenderPartDonation = ( {
+    part,
+    style,
+} : {
+    part: MdPart;
+    style: StyleProp<ViewStyle>;
+} ) => {
+	const { t } = useTranslation();
+	const theme = useTheme();
+
+    const parts = part.str.split( '\n\n' );
+
+    if ( parts.length < 2 ) {
+        return <MdPartsRenderPart
+            key={ part.key }
+            style={ style }
+            part={ part }
+        />;
+    }
+
+    const linkStyle = { height: 50, color: get( theme.colors, 'link' ) };
+
+    return <View style={ style } >
+        { part.key.length > 0 && <Text style={ theme.fonts.displaySmall }>{ part.key }</Text> }
+
+        <Markdown
+            rules={ renderRules }
+            style={ styles( theme ) as StyleSheet.NamedStyles<any> }
+        >
+            { parts.slice( 0, parts.length - 1).join( '\n\n' ) }
+        </Markdown>
+
+        <Text style={ linkStyle } onPress={ () => Linking.openURL( 'https://ko-fi.com/H2H3162PAG' ) }>
+            <Image source={ require( '../assets/images/ko-fi_donate.png' ) } />
+        </Text>
+        <Text style={ {...linkStyle, marginBottom: 20} } onPress={ () => Linking.openURL( 'https://liberapay.com/jhotadhari/donate' ) }>
+            <Image source={ require( '../assets/images/liberapay_donate.png' ) } />
+        </Text>
+
+        <Markdown
+            rules={ renderRules }
+            style={ styles( theme ) as StyleSheet.NamedStyles<any> }
+        >
+            { parts[parts.length-1] }
+        </Markdown>
+
+    </View>;
+};
+
 const MdPartsRender = ( {
     include,
     mbParts,
@@ -137,7 +204,6 @@ const MdPartsRender = ( {
     mbParts: MdPart[];
 } ) => {
 	const { t } = useTranslation();
-	const theme = useTheme();
     return <View>{ [...( include || [...mbParts].map( part => part.key ) )].map( key => {
 
         const part: undefined | MdPart = mbParts.find( part => part.key === key );
@@ -145,6 +211,9 @@ const MdPartsRender = ( {
         if ( ! part ) {
             return null;
         }
+
+        // Remove lines with linked images.
+        part.str = removeLines( part.str, /\[!\[[^\]]+\]\([^\(]+\)\]\([^\(]+\)/ );
 
         if ( 'License' === part.key ) {
             return <AccordionItem
@@ -154,35 +223,25 @@ const MdPartsRender = ( {
             >{ license }</AccordionItem>;
         }
 
+        const style: StyleProp<ViewStyle> = {
+            maxWidth: '93%',
+            marginBottom: 20,
+        };
+
         if ( 'Donation' === part.key ) {
-            part.str = removeLines( part.str, /(?:liberapay|ko-fi)/ );
+            return <MdPartsRenderPartDonation
+                key={ part.key }
+                style={ style }
+                part={ part }
+            />
         }
 
-        return <View
+        return <MdPartsRenderPart
             key={ part.key }
-            style={ {
-                maxWidth: '93%',
-                marginBottom: 20,
-            } }
-        >
-            { part.key.length > 0 && <Text style={ theme.fonts.displaySmall }>{ part.key }</Text> }
-            <Markdown
-                rules={ renderRules }
-                style={ styles( theme ) as StyleSheet.NamedStyles<any> }
-            >
-                { part.str }
-            </Markdown>
+            style={ style }
+            part={ part }
+        />;
 
-            { 'Donation' === part.key && <View>
-                <Text style={ { height: 50, color: get( theme.colors, 'link' ) } } onPress={ () => Linking.openURL( 'https://ko-fi.com/H2H3162PAG' ) }>
-                    <Image source={ require( '../assets/images/ko-fi_donate.png' ) } />
-                </Text>
-                <Text style={ { height: 50, color: get( theme.colors, 'link' ) } } onPress={ () => Linking.openURL( 'https://liberapay.com/jhotadhari/donate' ) }>
-                    <Image source={ require( '../assets/images/liberapay_donate.png' ) } />
-                </Text>
-            </View> }
-
-        </View>
     } ) }</View>;
 };
 

@@ -37,6 +37,9 @@ If you want and if you can afford to pay for it, your are free to do so. Otherwi
 [![liberapay](https://liberapay.com/assets/widgets/donate.svg)](https://liberapay.com/jhotadhari/donate)
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/H2H3162PAG)
 
+### Donation to third parties
+Straymap and other map apps are fundamentally based on the [mapsforge programming library](https://github.com/mapsforge). And the free maps that [OpenAndroMaps](https://www.openandromaps.org/en/project-funding) makes available to us. If you have a little money to spare, it's in good hands there.
+
 ## Contribution
 
 - You can report [issues and bugs](https://github.com/jhotadhari/straymap/issues).
@@ -51,7 +54,7 @@ Straymap works, with one exception, entirely offline, no other requests* to any 
 
 - The `online-raster-xyz` map layer. This map layer requests raster images from an online source. The online source that you choose by yourself.
 
-\* A request to a server, transferees personal data (the users IP address). This is technically necessary.
+\* A request to a server, transmits personal data (the users IP address). This is technically necessary.
 
 ## Development
 
@@ -68,7 +71,7 @@ git checkout development
 git pull
 ```
 
->**Note**: The development branch is called `development`. This should be the pull request base..
+>**Note**: The development branch is called `development`. This should be the pull request base.
 
 Start the Metro Server, the JavaScript _bundler_ that ships _with_ React Native. Run the following command from the _root_ of the project:
 ```bash
@@ -123,7 +126,7 @@ This is one way to run your app — you can also run it directly from within And
 [Okio](https://github.com/square/okio),
 [Protocol Buffers - Google's data interchange format](https://github.com/protocolbuffers/protobuf),
 [MapBox Vector Tile - Java](https://github.com/wdtinc/mapbox-vector-tile-java)
-- Dependencies of [react-native-mapsforge-vtm](https://github.com/jhotadhari/react-native-mapsforge-vtm):
+- Dependencies and sources of [react-native-mapsforge-vtm](https://github.com/jhotadhari/react-native-mapsforge-vtm):
 [JTS Topology Suite](https://github.com/locationtech/jts),
 [Java OpenStreetMap Editor - Plugins - ElevationProfile](https://github.com/JOSM/josm-plugins/tree/master/ElevationProfile),
 [Android GPX Parser](https://github.com/ticofab/android-gpx-parser),
