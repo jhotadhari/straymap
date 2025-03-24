@@ -8,6 +8,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ### Added
 - *Mapsforge General Settings* to *Settings / Maps*. To control `lineScale`, `textScale` and `symbolScale` of all mapsforge layers. Changes require a restart of the app.
 - Add some debug/commit information to *About* page in app debug mode.
+- More source options for layer `online-raster-xyz`:
+    - *Esri World StreetMap*
+    - *Esri World TopoMap*
+    - *Esri World GrayCanvas*
+    - *Esri World Terrain*
+    - *Esri World ShadedRelief*
+    - *Esri World Physical*
+    - *Esri Ocean Basemap*
+    - *Esri NatGeo World Map*
+    - *Google Hybrid*
+    - *Google Satellite*
+    - Rename *Google Maps* to *Google Road*
 
 ### Fixed
 - File picker controls should search recursive in nested directories.

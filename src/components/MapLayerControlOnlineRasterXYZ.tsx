@@ -35,6 +35,16 @@ interface SourceOption extends OptionBase {
     Attribution?: ( { theme } : { theme: ThemePropExtended } ) => ReactElement;
 }
 
+const AttributionGoogle = ( { theme } : { theme: ThemePropExtended } ) => <View>
+    <Image source={ theme.dark
+        ? require( '../assets/images/google_on_non_white.png' )
+        : require( '../assets/images/google_on_white.png' )
+    } />
+    <Text style={ { color: get( theme.colors, 'link' ) } } onPress={ () => Linking.openURL( 'https://cloud.google.com/maps-platform/terms' ) }>
+        &copy; Map data ©{ dayjs().format( 'YYYY' ) } Google
+    </Text>
+</View>;
+
 export const sourceOptions : SourceOption[] = [
     {
         key: 'OpenStreetMap',
@@ -72,18 +82,86 @@ export const sourceOptions : SourceOption[] = [
         </Text>
     },
     {
-        key: 'GoogleMaps',
-        label: 'Google Maps',
+        key: 'EsriWorldStreetMap',
+        label: 'Esri World StreetMap',
+        url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{Z}/{Y}/{X}',
+        Attribution: ( { theme } : { theme: ThemePropExtended } ) => <Text>
+            Tiles &copy; Esri &mdash; Source: Esri, DeLorme, NAVTEQ, USGS, Intermap, iPC, NRCAN, Esri Japan, METI, Esri China (Hong Kong), Esri (Thailand), TomTom, 2012
+        </Text>
+    },
+    {
+        key: 'EsriWorldTopoMap',
+        label: 'Esri World TopoMap',
+        url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{Z}/{Y}/{X}',
+        Attribution: ( { theme } : { theme: ThemePropExtended } ) => <Text>
+            Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ, TomTom, Intermap, iPC, USGS, FAO, NPS, NRCAN, GeoBase, Kadaster NL, Ordnance Survey, Esri Japan, METI, Esri China (Hong Kong), and the GIS User Community
+        </Text>
+    },
+    {
+        key: 'EsriWorldGrayCanvas',
+        label: 'Esri World GrayCanvas',
+        url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{Z}/{Y}/{X}',
+        Attribution: ( { theme } : { theme: ThemePropExtended } ) => <Text>
+            Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ
+        </Text>
+    },
+    {
+        key: 'EsriWorldTerrain',
+        label: 'Esri World Terrain',
+        url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Terrain_Base/MapServer/tile/{Z}/{Y}/{X}',
+        Attribution: ( { theme } : { theme: ThemePropExtended } ) => <Text>
+            Tiles &copy; Esri &mdash; Source: USGS, Esri, TANA, DeLorme, and NPS
+        </Text>
+    },
+    {
+        key: 'EsriWorldShadedRelief',
+        label: 'Esri World ShadedRelief',
+        url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Shaded_Relief/MapServer/tile/{Z}/{Y}/{X}',
+        Attribution: ( { theme } : { theme: ThemePropExtended } ) => <Text>
+            Tiles &copy; Esri &mdash; Source: Esri
+        </Text>
+    },
+    {
+        key: 'EsriWorldPhysical',
+        label: 'Esri World Physical',
+        url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Physical_Map/MapServer/tile/{Z}/{Y}/{X}',
+        Attribution: ( { theme } : { theme: ThemePropExtended } ) => <Text>
+            Tiles &copy; Esri &mdash; Source: US National Park Service
+        </Text>
+    },
+    {
+        key: 'EsriOceanBasemap',
+        label: 'Esri Ocean Basemap',
+        url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Base/MapServer/tile/{Z}/{Y}/{X}',
+        Attribution: ( { theme } : { theme: ThemePropExtended } ) => <Text>
+            Tiles &copy; Esri &mdash; Sources: GEBCO, NOAA, CHS, OSU, UNH, CSUMB, National Geographic, DeLorme, NAVTEQ, and Esri
+        </Text>
+    },
+    {
+        key: 'EsriNatGeoWorldMap',
+        label: 'Esri NatGeo World Map',
+        url: 'https://server.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/tile/{Z}/{Y}/{X}',
+        Attribution: ( { theme } : { theme: ThemePropExtended } ) => <Text>
+            Tiles &copy; Esri &mdash; National Geographic, Esri, DeLorme, NAVTEQ, UNEP-WCMC, USGS, NASA, ESA, METI, NRCAN, GEBCO, NOAA, iPC
+        </Text>
+    },
+    {
+        key: 'GoogleRoad',
+        label: 'Google Road',
         url: 'https://mt1.google.com/vt/lyrs=r&x={X}&y={Y}&z={Z}',
-        Attribution: ( { theme } : { theme: ThemePropExtended } ) => <View>
-            <Image source={ theme.dark
-                ? require( '../assets/images/google_on_non_white.png' )
-                : require( '../assets/images/google_on_white.png' )
-            } />
-            <Text style={ { color: get( theme.colors, 'link' ) } } onPress={ () => Linking.openURL( 'https://cloud.google.com/maps-platform/terms' ) }>
-                &copy; Map data ©{ dayjs().format( 'YYYY' ) } Google
-            </Text>
-        </View>
+        Attribution: AttributionGoogle
+    },
+    {
+        key: 'GoogleHybrid',
+        label: 'Google Hybrid',
+        url: 'https://mt1.google.com/vt/lyrs=y&x={X}&y={Y}&z={Z}',
+        Attribution: AttributionGoogle
+    },
+    {
+        key: 'GoogleSatellite',
+        label: 'Google Satellite',
+        url: 'https://mt1.google.com/vt/lyrs=s&x={X}&y={Y}&z={Z}',
+        Attribution: AttributionGoogle
     },
     {
         key: 'custom',
