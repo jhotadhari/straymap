@@ -9,8 +9,6 @@ import React, {
 } from 'react';
 import {
 	NativeModules,
-	SafeAreaView,
-	StatusBar,
 	ToastAndroid,
 	useColorScheme,
 	useWindowDimensions,
@@ -26,26 +24,15 @@ import {
 import useDeepCompareEffect from 'use-deep-compare-effect'
 import { get, pick, without } from 'lodash-es';
 import { sprintf } from 'sprintf-js';
+import semverCompare from 'semver-compare';
 
 /**
  * react-native-mapsforge-vtm dependencies
  */
 import {
-	MapContainer,
-	LayerBitmapTile,
-	LayerScalebar,
-	type Location,
-	type HardwareKeyEventResponse,
-	type MapContainerProps,
-	LayerMBTilesBitmap,
-	LayerHillshading,
-	LayerMapsforge,
-	LayerMapsforgeProps,
 	usePromiseQueueState,
-	MapContainerModule,
 	CanvasAdapterModule,
 	MapEventResponse,
-	ResponseInclude,
 	useMapLayersCreated,
 	LayerMBTilesBitmapResponse,
 	LayerMapsforgeResponse,
@@ -54,34 +41,29 @@ import {
 /**
  * Internal dependencies
  */
+import packageJson from '../../package.json';
 import '../assets/i18n/i18n';
-import TopAppBar from './TopAppBar';
 import type {
 	OptionBase,
 	HierarchyItem,
 	ThemeOption,
 	AbsPathsMap,
-	LayerConfig,
 	MapSettings,
-	LayerConfigOptionsOnlineRasterXYZ,
-	LayerConfigOptionsRasterMBtiles,
-	LayerConfigOptionsHillshading,
-	LayerConfigOptionsMapsforge,
 	AppearanceSettings,
 	GeneralSettings,
-	DashboardElementConf,
 	LayerInfos,
 	UiState,
+	InitialPosition,
+	UpdaterSettings,
+	UpdateResults,
 } from '../types';
 import customThemes from '../themes';
 import { AppContext } from '../Context';
-import Center from './Center';
 import { HelperModule } from '../nativeModules';
-import { Dashboard } from './Dashboard';
 import { defaults } from '../constants';
-import * as dashboardElementComponents from "./Dashboard/elements";
 import SplashScreen from './SplashScreen';
-import MapLayersAttribution from './MapLayersAttribution';
+import AppView from './AppView';
+import SplashScreenUpdater from './SplashScreenUpdater';
 
 const useAppTheme = () => {
 
@@ -300,10 +282,7 @@ const useSettings = ( {
 
 const useInitialCenter = () => {
 	const [initialized,setInitialized] = useState( false );
-	const [initialPosition,setInitialPosition] = useState<null | {
-		center: Location,
-		zoomLevel: number,
-	}>( null );
+	const [initialPosition,setInitialPosition] = useState<null | InitialPosition>( null );
 	useEffect( () => {
 		DefaultPreference.get( 'initialPosition' ).then( newInitialPosition => {
 			if ( newInitialPosition ) {
@@ -399,6 +378,133 @@ const useLayerInfos = () => {
 	};
 };
 
+const updateCbs: {
+	[value: string]: 												// the version updating from
+	null | ( ( results: UpdateResults ) => Promise<UpdateResults> )	// function to run when updating from this version.
+} = {
+	['0.0.2']: null,
+	// ['x.x.x']: ( results: UpdateResults ) => new Promise( resolve => {
+	// 	const version = 'x.x.x';
+	// 	const success = true;
+	// 	if ( success ) {
+	// 		resolve( {
+	// 			...results,
+	// 			[version]: {
+	// 				state: 'success',
+	// 			},
+	// 		} );
+	// 	} else {
+	// 		resolve( {
+	// 			...results,
+	// 			[version]: {
+	// 				state: 'failed',
+	// 				msg: 'Some Error wtf'
+	// 			},
+	// 		} );
+	// 	}
+	// } ),
+};
+
+const useUpdater = ( {
+	ready,
+	maybeIsBusyAdd,
+	maybeIsBusyRemove,
+} : {
+	ready: boolean;
+	maybeIsBusyAdd: ( key: string ) => void;
+	maybeIsBusyRemove: ( key: string ) => void;
+} ) => {
+
+	let {
+		settings: updaterSettings,
+		setSettings: setUpdaterSettings,
+		initialized: updaterSettingsInitialized,
+	} = useSettings( {
+		maybeIsBusyAdd,
+		maybeIsBusyRemove,
+		settingsKey: 'updaterSettings',
+		initialSettings: defaults.updaterSettings,
+	} ) as {
+		settings: UpdaterSettings;
+		setSettings: Dispatch<SetStateAction<UpdaterSettings>>;
+		initialized: boolean;
+	};
+
+	const [isUpdating,setIsUpdating] = useState<boolean | UpdateResults>( true );
+
+	const runUpdates = ( updateCbsKeys: string[] ): Promise<UpdateResults> => new Promise( ( resolve, reject ) => {
+		updateCbsKeys.sort( semverCompare );
+		const results: UpdateResults = {};
+		resolve( [...updateCbsKeys].reduce( ( accumulatorPromise: Promise<UpdateResults>, updateCbsKey: string ) => {
+			const cb = ( results: UpdateResults ): Promise<UpdateResults> => new Promise( resolveCb => {
+				const updateCb = get( updateCbs, updateCbsKey );
+				setIsUpdating( {
+					...results,
+					[updateCbsKey]: { state: 'updating' },
+				} );
+				const updateInstalledVersion = () => setUpdaterSettings( updaterSettings => ( {
+					...updaterSettings,
+					installedVersion: updateCbsKey
+				} ) );
+				if ( updateCb ) {
+					updateCb( results ).then( results => {
+						switch( get( results, [updateCbsKey,'state'] ) ) {
+							case 'success':
+								updateInstalledVersion();
+								resolveCb( results );
+								break;
+							case 'failed':
+								setIsUpdating( results );
+								reject( results );
+								break;
+						}
+					} )
+				} else {
+					updateInstalledVersion();
+					resolveCb( {
+						...results,
+						[updateCbsKey]: { state: 'success' },
+					} );
+				}
+			} );
+			return accumulatorPromise.then( results => cb( results ) );
+		}, Promise.resolve( results ) ) );
+	} );
+
+	useEffect( () => {
+		if ( ready && updaterSettingsInitialized ) {
+			// current version (packageJson.version) is greater than installedVersion.
+			if ( 1 === semverCompare( packageJson.version, updaterSettings.installedVersion ) ) {
+				// updateCbs keys to run updates for. All that ones lower than packageJson.version and same or higher than installedVersion.
+				const updateCbsKeys = Object.keys( updateCbs ).filter( cbVersion => {
+					return 1 === semverCompare( packageJson.version, cbVersion )
+						&& 1 > semverCompare( updaterSettings.installedVersion, cbVersion );
+				} );
+				// Run updates, then check if all updates are success.
+				runUpdates( updateCbsKeys ).then( ( results: UpdateResults ) => {
+					if ( Object.values( results ).every( result => 'success' === result.state ) ) {
+						setIsUpdating( false );
+						setUpdaterSettings( updaterSettings => ( {
+							...updaterSettings,
+							installedVersion: packageJson.version
+						} ) );
+					}
+				} ).catch( () => null );	// catch the error, do nothing, no need to handle it.
+			} else {
+				setIsUpdating( false );
+			}
+		}
+	}, [
+		ready,
+		updaterSettingsInitialized,
+	] );
+
+	return {
+		isUpdating,
+		setIsUpdating,
+	};
+};
+
 const App = ( {
 	selectedTheme,
 	setSelectedTheme,
@@ -417,7 +523,6 @@ const App = ( {
 
 	const { t } = useTranslation();
 	const theme = useTheme();
-	const systemIsDarkMode = useColorScheme() === 'dark';
 	const [topAppBarHeight,setTopAppBarHeight] = useState<number>( 0 );
 	const [bottomBarHeight,setBottomBarHeight] = useState<number>( 0 );
 	const [selectedHierarchyItems,setSelectedHierarchyItems] = useState<null | HierarchyItem[]>( null );
@@ -540,21 +645,42 @@ const App = ( {
 
 	const appInnerHeight = height - topAppBarHeight;
 
-	if (
-		! appDirs
-		|| ! initialPosition
-		|| ! mapSettingsInitialized
-		|| ! appearanceSettingsInitialized
-		|| ! generalSettingsInitialized
-		|| ! uiStateInitialized
-	) {
-		return  <SafeAreaView style={ {
-			backgroundColor: theme.colors.background,
-			height,
-			width,
-		} }>
+	const ready = !! ( appDirs
+		&& initialPosition
+		&& mapSettingsInitialized
+		&& appearanceSettingsInitialized
+		&& generalSettingsInitialized
+		&& uiStateInitialized
+	);
+
+	const {
+		isUpdating,
+		setIsUpdating,
+	} = useUpdater( {
+		ready,
+		maybeIsBusyAdd,
+		maybeIsBusyRemove,
+	} );
+
+	const style = {
+		backgroundColor: theme.colors.background,
+		height,
+		width,
+	};
+
+	if ( ! ready || true === isUpdating ) {
+		return  <View style={ style }>
 			<SplashScreen/>
-		</SafeAreaView>;
+		</View>;
+	}
+
+	if ( false !== isUpdating ) {
+		return  <View style={ style }>
+			<SplashScreenUpdater
+				isUpdating={ isUpdating }
+				setIsUpdating={ setIsUpdating }
+			/>
+		</View>;
 	}
 
 	return <AppContext.Provider value={ {
@@ -584,166 +710,19 @@ const App = ( {
 		maybeIsBusyRemove,
 		currentMapEvent,
 	} }>
-		<SafeAreaView style={ {
-			backgroundColor: theme.colors.background,
-			height,
-			width,
-		} }>
 
-			{ showSplash && <SplashScreen/> }
+		<AppView
+    		showSplash={ showSplash }
+    		initialPosition={ initialPosition }
+    		setInitialPosition={ setInitialPosition }
+    		setTopAppBarHeight={ setTopAppBarHeight }
+    		setBottomBarHeight={ setBottomBarHeight }
+    		setCurrentMapEvent={ setCurrentMapEvent }
+    		setMapViewNativeNodeHandle={ setMapViewNativeNodeHandle }
+    		layerInfos={ layerInfos }
+    		onLayerChange={ onLayerChange }
+		/>
 
-			<StatusBar barStyle={ systemIsDarkMode ? 'light-content' : 'dark-content' } />
-
-			<TopAppBar setTopAppBarHeight={ setTopAppBarHeight } />
-
-			<View style={ {
-				height: appInnerHeight - bottomBarHeight,
-				width,
-			} } >
-
-				{ selectedHierarchyItems !== null && selectedHierarchyItems[selectedHierarchyItems.length-1].SubActivity && selectedHierarchyItems[selectedHierarchyItems.length-1].SubActivity }
-
-				<MapContainer
-					mapEventRate={ generalSettings.mapEventRate }
-					nativeNodeHandle={ mapViewNativeNodeHandle }
-					setNativeNodeHandle={ setMapViewNativeNodeHandle }
-					hgtReadFileRate={ mapSettings.hgtReadFileRate }
-					hgtDirPath={ mapSettings?.hgtDirPath && [...generalSettings.dashboardElements.elements].reduce( ( acc: boolean, ele: DashboardElementConf ) => {
-						return acc || ! ele.type ? acc : get( dashboardElementComponents, [ele.type,'shouldSetHgtDirPath'], false );
-					}, false ) as boolean ? mapSettings.hgtDirPath : undefined }
-					responseInclude={ [...generalSettings.dashboardElements.elements].reduce( ( acc: object, ele: DashboardElementConf ) => {
-						return ele.type ? {
-							...acc,
-							...get( dashboardElementComponents, [ele.type,'responseInclude'], {} ),
-						} : acc;
-					}, { zoomLevel: 2 } ) as ResponseInclude }
-					height={ appInnerHeight - bottomBarHeight }
-					width={ width }
-					center={ initialPosition.center }
-					zoomLevel={ initialPosition.zoomLevel }
-					zoomMin={ 2 }
-					zoomMax={ 20 }
-					moveEnabled={ true }
-					tiltEnabled={ false }
-					rotationEnabled={ false }
-					zoomEnabled={ true }
-					onPause={ response => {
-						if ( response.center && response.zoomLevel ) {
-							setInitialPosition( {
-								center: response.center,
-								zoomLevel: response.zoomLevel,
-							} );
-						}
-					} }
-					onError={ err => console.log( 'Error', err ) }
-					onResume={ response => console.log( 'lifecycle event onResume', response ) }
-					onMapEvent={ ( response: MapEventResponse ) => {
-						// console.log( 'onMapEvent event', response ); // debug
-						setCurrentMapEvent( response );
-					} }
-					emitsHardwareKeyUp={ [...generalSettings.hardwareKeys].filter( keyConf => 'none' !== keyConf.actionKey ).map( keyConf => keyConf.keyCodeString ) as MapContainerProps['emitsHardwareKeyUp'] }
-					onHardwareKeyUp={ generalSettings.hardwareKeys.length > 0 ? ( response: HardwareKeyEventResponse ) => {
-						[...generalSettings.hardwareKeys].map( keyConf => {
-							if ( response.keyCodeString === keyConf.keyCodeString ) {
-								switch( keyConf.actionKey ) {
-									case 'zoomIn':
-										MapContainerModule.zoomIn( mapViewNativeNodeHandle );
-										break;
-									case 'zoomOut':
-										MapContainerModule.zoomOut( mapViewNativeNodeHandle );
-										break;
-								}
-							}
-						} )
-					} : null }
-				>
-
-					{ [...mapSettings.layers].reverse().map( ( layer : LayerConfig ) => {
-						if ( layer.type && layer.visible ) {
-							let options;
-							switch( layer.type ) {
-								case 'online-raster-xyz':
-									options = layer.options as LayerConfigOptionsOnlineRasterXYZ;
-									return <LayerBitmapTile
-										key={ layer.key }
-										zoomMin={ options.zoomMin }
-										zoomMax={ options.zoomMax }
-										enabledZoomMin={ options.enabledZoomMin }
-										enabledZoomMax={ options.enabledZoomMax }
-										url={ get( layer.options, 'url', '' ) }
-										cacheSize={ options.cacheSize }
-									/>;
-								case 'raster-MBtiles':
-									options = layer.options as LayerConfigOptionsRasterMBtiles;
-									return <LayerMBTilesBitmap
-										key={ layer.key }
-										mapFile={ options.mapFile }
-										enabledZoomMin={ options.enabledZoomMin }
-										enabledZoomMax={ options.enabledZoomMax }
-										onCreate={ response => onLayerChange( layer.key, response ) }
-										onChange={ response => onLayerChange( layer.key, response ) }
-									/>;
-								case 'mapsforge':
-									if ( mapSettings.mapsforgeProfiles.length > 0 ) {
-										const layerMapsforgeOptions = layer.options as LayerConfigOptionsMapsforge;
-										let profile = mapSettings.mapsforgeProfiles.find( prof => prof.key === layerMapsforgeOptions.profile );
-										profile = profile || mapSettings.mapsforgeProfiles[0];
-										return <LayerMapsforge
-											key={ layer.key }
-											enabledZoomMin={ layerMapsforgeOptions.enabledZoomMin }
-											enabledZoomMax={ layerMapsforgeOptions.enabledZoomMax }
-											mapFile={ layerMapsforgeOptions.mapFile }
-											renderTheme={ profile.theme as LayerMapsforgeProps['renderTheme'] }
-											renderStyle={ profile.renderStyle || undefined }
-											renderOverlays={ profile.renderOverlays }
-											onCreate={ response => onLayerChange( layer.key, response ) }
-											onChange={ response => onLayerChange( layer.key, response ) }
-										/>;
-									}
-									return null;
-								case 'hillshading':
-									options = layer.options as LayerConfigOptionsHillshading;
-									return <LayerHillshading
-										key={ layer.key }
-										hgtDirPath={ options.hgtDirPath }
-										zoomMin={ options.zoomMin }
-										zoomMax={ options.zoomMax }
-										enabledZoomMin={ options.enabledZoomMin }
-										enabledZoomMax={ options.enabledZoomMax }
-										magnitude={ options.magnitude }
-										cacheSize={ options.cacheSize }
-										shadingAlgorithm={ options.shadingAlgorithm }
-										shadingAlgorithmOptions={ options.shadingAlgorithmOptions }
-									/>;
-							}
-						}
-						return null
-					} ) }
-
-					<LayerScalebar/>
-
-				</MapContainer>
-
-				<Center
-					height={ appInnerHeight - bottomBarHeight }
-					width={ width }
-				/>
-
-				<MapLayersAttribution
-					layerInfos={ layerInfos }
-				/>
-
-			</View>
-
-			{ generalSettings?.dashboardElements?.elements && generalSettings?.dashboardElements?.elements.length > 0 && generalSettings.unitPrefs && <Dashboard
-				elements={ generalSettings.dashboardElements.elements }
-				dashboardStyle={ generalSettings.dashboardElements.style }
-				unitPrefs={ generalSettings.unitPrefs }
-				currentMapEvent={ currentMapEvent }
-				setBottomBarHeight={ setBottomBarHeight }
-			/> }
-
-		</SafeAreaView>
 	</AppContext.Provider>;
 };
 

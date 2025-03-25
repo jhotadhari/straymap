@@ -1,3 +1,7 @@
+/**
+ * Internal dependencies
+ */
+import packageJson from '../package.json';
 
 export const LINKING_ERROR =
 	'The package doesn\'t seem to be linked. Make sure: \n\n' +
@@ -51,6 +55,9 @@ export const defaults = {
 			size: 25,
 			color: '#ed1c23',
 		},
+	},
+	updaterSettings: {
+		installedVersion: packageJson.version,
 	},
 	generalSettings: {
 		hardwareKeys: [

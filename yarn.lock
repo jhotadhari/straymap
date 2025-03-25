@@ -2697,6 +2697,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/semver-compare@npm:^1.0.3":
+  version: 1.0.3
+  resolution: "@types/semver-compare@npm:1.0.3"
+  checksum: be6d31ee0de2132ae53d9c675c9774e11037240656e227f6551e7e404293c157a6cd6181c42cec7e85a8a00b3512f0c43e13dac7aaee4a94cbebf73e11e2b68c
+  languageName: node
+  linkType: hard
+
 "@types/semver@npm:^7.3.12":
   version: 7.5.8
   resolution: "@types/semver@npm:7.5.8"
@@ -3834,6 +3841,7 @@ __metadata:
     "@types/react": ^18.2.6
     "@types/react-native-vector-icons": ^6.4.18
     "@types/react-test-renderer": ^18.0.0
+    "@types/semver-compare": ^1.0.3
     "@types/sprintf-js": ^1.1.4
     babel-jest: ^29.6.3
     convert-units: ^2.3.4
@@ -3862,6 +3870,7 @@ __metadata:
     react-native-vector-icons: ^10.2.0
     react-native-wheel-color-picker: ^1.3.1
     react-test-renderer: 18.3.1
+    semver-compare: ^1.0.0
     sprintf-js: ^1.1.3
     typescript: 5.0.4
     use-deep-compare-effect: ^1.8.1
@@ -9069,6 +9078,13 @@ __metadata:
     "@types/node-forge": ^1.3.0
     node-forge: ^1
   checksum: 38b91c56f1d7949c0b77f9bbe4545b19518475cae15e7d7f0043f87b1626710b011ce89879a88969651f650a19d213bb15b7d5b4c2877df9eeeff7ba8f8b9bfa
+  languageName: node
+  linkType: hard
+
+"semver-compare@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "semver-compare@npm:1.0.0"
+  checksum: dd1d7e2909744cf2cf71864ac718efc990297f9de2913b68e41a214319e70174b1d1793ac16e31183b128c2b9812541300cb324db8168e6cf6b570703b171c68
   languageName: node
   linkType: hard
 

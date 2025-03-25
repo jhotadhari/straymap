@@ -16,6 +16,7 @@ import {
 	LayerHillshadingProps,
 	MapEventResponse,
 	MapContainerProps,
+	Location,
 } from 'react-native-mapsforge-vtm';
 import { ViewStyle } from "react-native";
 
@@ -29,6 +30,11 @@ export type LayerInfo = {
 	description?: string | null;
 	comment?: string | null;
 	createdBy?: string | null;
+};
+
+export type InitialPosition = {
+	center: Location,
+	zoomLevel: number,
 };
 
 export type LayerInfos = { [value: string]: LayerInfo };
@@ -150,6 +156,18 @@ export type MapSettings = {
 	hgtReadFileRate: MapContainerProps['hgtReadFileRate'];
 	mapsforgeGeneral: MapsforgeGeneral;
 };
+
+export type UpdateResults = {
+	[value: string]: 	// the version updating from
+	{
+		state: string;	// 'failed'|'running'|'success'
+		msg?: string;
+	}
+};
+
+export type UpdaterSettings = {
+	installedVersion: string;
+}
 
 export type CursorConfig = {
 	iconSource: string;
