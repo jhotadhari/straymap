@@ -1,6 +1,6 @@
 
 exec {
-    commandLine 'sh', '-c', 'echo \'{\' > ../.debugInfo.json && echo "    \\"gitStatus\\": \\"$( git status --short --branch | head -n 1 | sed \'s/##\s//\' )\\"," >> ../.debugInfo.json && echo "    \\"latestCommit\\": \\"$( git rev-parse HEAD )\\"" >> ../.debugInfo.json && echo \'}\' >> ../.debugInfo.json'
+    commandLine 'sh', '-c', 'echo \'{\' > ../.debugInfo.json && echo "    \\"gitStatus\\": \\"$( git status --short --branch | sed \'s/##\s//\' | tr \'\n\' \'#\' )\\"," >> ../.debugInfo.json && echo "    \\"latestCommit\\": \\"$( git rev-parse HEAD )\\"" >> ../.debugInfo.json && echo \'}\' >> ../.debugInfo.json'
 }
 
 buildscript {

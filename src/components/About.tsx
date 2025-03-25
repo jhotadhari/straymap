@@ -271,7 +271,13 @@ const About : FC = () => {
             <Text style={ { marginTop: 20 } } >Version { versionChangelog }</Text>
             { 'Unreleased' === versionChangelog && <View>
                 <Text>Latest release { getChangelogVersion( 1 ) || packageJson.version }</Text>
-                { Object.keys( debugInfo ).map( ( key: string ) => <Text key={ key } >{ t( key ) + ': ' + get( debugInfo, key ) }</Text> ) }
+                { Object.keys( debugInfo ).map( ( key: string ) => {
+                    let string = get( debugInfo, key, '' );
+                    if ( 'gitStatus' === key ) {
+                        string = string.replace( /#/g, '\n' );
+                    }
+                    return <Text key={ key } >{ t( key ) + ': ' + string }</Text>;
+                } ) }
             </View> }
             <Text style={ { marginTop: 10 } } >{ t( 'sourceHostedOnGithub' ) }</Text>
             <Text style={ { color: get( theme.colors, 'link' ) } } onPress={ () => Linking.openURL( 'https://github.com/jhotadhari/straymap' ) }>
