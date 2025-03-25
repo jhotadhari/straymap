@@ -552,6 +552,36 @@ const MapsforgeProfilesControl = ( {
                     label={ t( 'overlay', { count: 1 } ) }
                 />
 
+                <RadioListItem
+                    opt={ {
+                        label: t( 'hasLabels' ),
+                        key: 'hasLabels',
+                    } }
+                    onPress={ () => updateProfile && updateProfile( {
+                        ...editProfile,
+                        hasLabels: ! editProfile.hasLabels,
+                    } ) }
+                    labelStyle={ theme.fonts.bodyMedium }
+                    labelExtractor={ a => a.label }
+                    status={ editProfile.hasLabels ? 'checked' : 'unchecked' }
+                    radioAlign={ 'left' }
+                />
+
+                <RadioListItem
+                    opt={ {
+                        label: t( 'hasBuildings' ),
+                        key: 'hasBuildings',
+                    } }
+                    onPress={ () => updateProfile && updateProfile( {
+                        ...editProfile,
+                        hasBuildings: ! editProfile.hasBuildings,
+                    } ) }
+                    labelStyle={ theme.fonts.bodyMedium }
+                    labelExtractor={ a => a.label }
+                    status={ editProfile.hasBuildings ? 'checked' : 'unchecked' }
+                    radioAlign={ 'left' }
+                />
+
                 { ! isBusy && <View style={ { marginTop: 20, marginBottom: 40, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' } }>
                     <ButtonHighlight
                         onPress={ () => {

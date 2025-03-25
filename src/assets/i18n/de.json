@@ -53,7 +53,7 @@
             },
             "typeDesc": {
                 "online-raster-xyz": "Kann für verschiedene Online-Kartenserver mit xyz-Kacheln verwendet werden.",
-                "mapsforge": "Freie, quelloffene Offline-Vektorkarten auf der Grundlage von open-street-map-Daten. Gute Wahl für detaillierte Kartenausschnitte.",
+                "mapsforge": "Offline-Vektorkarten. Beste Wahl für detaillierte Kartenausschnitte.",
                 "raster-MBtiles": "Offline-Rasterkarten im MBtiles-Format sind gut geeignet für Übersichtskarten in geringer Auflösung",
                 "hillshading": "Offline-Höhenschattierung mit digitalen Höhenmodellen (DEM) im hgt-Format."
             }
@@ -83,6 +83,8 @@
         "style": "Stil",
         "overlay_one": "Overlay",
         "overlay_other": "Overlays",
+        "hasLabels": "Beschriftungen",
+        "hasBuildings": "Gebäude",
         "changesWillBeLost": "Änderungen gehen verloren!",
         "keepEdit": "Weiter bearbeiten",
         "enabled": "Aktiviert",

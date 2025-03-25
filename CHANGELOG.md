@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 ### Added
 - *Mapsforge General Settings* to *Settings / Maps*. To control `lineScale`, `textScale` and `symbolScale` of all mapsforge layers. Changes require a restart of the app.
+- Added new mapsforge-profile settings, whether to show buildings and labels or not.
 - Add some debug/commit information to *About* page in app debug mode.
 - Update routine on app start. Compares current version with last installed version and maybe run several updates until the settings structure meets the structure of the current version.
 - More source options for layer `online-raster-xyz`:

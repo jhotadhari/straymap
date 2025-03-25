@@ -19,6 +19,7 @@ import { useTranslation } from 'react-i18next';
  */
 import { OptionBase } from '../types';
 import { modalWidthFactor } from '../constants';
+import { labelStyle as labelWrapStyle } from './InfoRowControl';
 
 const space = 6;
 
@@ -30,6 +31,7 @@ const RadioListItem = ( {
     labelStyle,
     descStyle,
     status = 'unchecked',
+    radioAlign = 'right',
 } : {
     opt: OptionBase;
     onPress: () => void;
@@ -37,7 +39,8 @@ const RadioListItem = ( {
     descExtractor?: ( opt: OptionBase ) => string | null;
     labelStyle?: TextStyle;
     descStyle?: TextStyle;
-    status?: 'unchecked' | 'checked' | undefined;
+    status?: 'unchecked' | 'checked';
+    radioAlign?: 'left' | 'right';
 } ) => {
 	const { width } = useWindowDimensions();
 	const { t } = useTranslation();
@@ -56,14 +59,16 @@ const RadioListItem = ( {
             width: width * modalWidthFactor - 4 * space,
         } }
     >
-        <View
-            style={ {
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                flexDirection: 'row',
-            } }
-        >
-            <View style={ { flexGrow: 1, maxWidth: '85%' } }>
+        <View style={ {
+            justifyContent: 'right' === radioAlign ? 'space-between' : 'flex-start',
+            alignItems: 'center',
+            flexDirection: 'row',
+        } } >
+            <View style={ {
+                ...( 'right' === radioAlign && { flexGrow: 1 } ),
+                maxWidth: '85%',
+                ...labelWrapStyle,
+            } }>
                 { label && <Text style={ { ...theme.fonts.bodyLarge, ...labelStyle } } >{ t( label ) }</Text> }
                 { desc && <Text style={ { ...theme.fonts.bodySmall, ...descStyle } } >{ t( desc ) }</Text> }
             </View>

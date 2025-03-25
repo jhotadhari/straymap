@@ -276,7 +276,7 @@ const About : FC = () => {
                     if ( 'gitStatus' === key ) {
                         string = string.replace( /#/g, '\n' );
                     }
-                    return <Text key={ key } >{ t( key ) + ': ' + string }</Text>;
+                    return <Text key={ key } >{ t( key ) + ': ' + removeLeadingTrailingEmptyLines( string ) }</Text>;
                 } ) }
             </View> }
             <Text style={ { marginTop: 10 } } >{ t( 'sourceHostedOnGithub' ) }</Text>

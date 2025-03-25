@@ -53,7 +53,7 @@
             },
             "typeDesc": {
                 "online-raster-xyz": "Can be used for various online map servers with xyz tiles.",
-                "mapsforge": "Free, open-source offline vector maps based on open-street-map data. Good choice for detailed map sections.",
+                "mapsforge": "Offline vector maps. Best choice for detailed map sections.",
                 "raster-MBtiles": "Offline raster maps in MBtiles format are well suited for overview maps with low resolution.",
                 "hillshading": "Offline hillshading with digital elevation models (DEM) in hgt format."
             }
@@ -83,6 +83,8 @@
         "style": "Style",
         "overlay_one": "Overlay",
         "overlay_other": "Overlays",
+        "hasLabels": "Labels",
+        "hasBuildings": "Buildings",
         "changesWillBeLost": "Changes will be lost!",
         "keepEdit": "Keep editing",
         "enabled": "Enabled",

@@ -219,6 +219,8 @@ const AppView = ( {
                                         renderTheme={ profile.theme as LayerMapsforgeProps['renderTheme'] }
                                         renderStyle={ profile.renderStyle || undefined }
                                         renderOverlays={ profile.renderOverlays }
+                                        hasBuildings={ profile.hasBuildings }
+                                        hasLabels={ profile.hasLabels }
                                         onCreate={ response => onLayerChange( layer.key, response ) }
                                         onChange={ response => onLayerChange( layer.key, response ) }
                                     />;

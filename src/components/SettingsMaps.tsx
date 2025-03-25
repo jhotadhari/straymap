@@ -37,6 +37,8 @@ const getNewProfile = () : MapsforgeProfile => ( {
     theme: 'DEFAULT',
     renderStyle: null,
     renderOverlays: [],
+	hasBuildings: true,
+	hasLabels: true,
 } );
 
 const useProfiles = () => {

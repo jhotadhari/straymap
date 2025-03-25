@@ -32,6 +32,8 @@ export const labelPadding = {
     paddingRight: 4,
 };
 
+export const labelStyle = { ...labelPadding, minWidth: labelMinWidth + 12 };
+
 const InfoRowControl = ( {
     label,
     children,
@@ -52,7 +54,6 @@ const InfoRowControl = ( {
 	const { t } = useTranslation();
 	const theme = useTheme();
 	const [modalVisible, setModalVisible] = useState( false );
-    const textStyle = { ...labelPadding, minWidth: labelMinWidth + 12 };
     return <InfoControlWrapper
         label={ label }
         Info={ Info }
@@ -68,9 +69,9 @@ const InfoRowControl = ( {
                 onPress={ () => setModalVisible( true ) }
                 style={ { borderRadius: theme.roundness } }
             >
-                <Text style={ { ...textStyle, textDecorationLine: 'underline' } }>{ label }</Text>
+                <Text style={ { ...labelStyle, textDecorationLine: 'underline' } }>{ label }</Text>
             </TouchableHighlight> }
-            { ! Info && <Text style={ textStyle }>{ label }</Text> }
+            { ! Info && <Text style={ labelStyle }>{ label }</Text> }
             { children }
         </View>
     </InfoControlWrapper>;

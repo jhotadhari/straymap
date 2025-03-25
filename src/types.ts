@@ -134,6 +134,8 @@ export type MapsforgeProfile = {
     theme: string; // It is AbsPath or built-in
     renderStyle: null | string;
     renderOverlays: string[];
+	hasBuildings?: boolean;
+	hasLabels?: boolean;
 };
 
 export type HgtDirPath = LayerConfigOptionsHillshading['hgtDirPath'] | MapContainerProps['hgtDirPath'];
