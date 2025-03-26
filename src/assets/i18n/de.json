@@ -113,6 +113,7 @@
         "whatIs_other": "Was sind \"%s\"?",
         "cacheSize": "Cache Größe",
         "cacheDir": "Cache Verzeichnis",
+        "opacity": "Deckkraft",
         "language": "Sprache",
         "selectLang": "Sprache wählen",
         "hardwareKeyAssignment": "Hardware-Tastenbelegung",
@@ -223,6 +224,7 @@
                 "lineScale": "Linien-Skalierungsfaktor > 0.0\n\nZur Skalierung der Liniendicke auf der Karte\n\nStandard: 1. = keine Skalierung der Liniendicke",
                 "textScale": "Text-Skalierungsfaktor > 0.0\n\nZur Skalierung der Größe von Beschriftungen auf der Karte\n\nStandard: 1. = keine Skalierung der Textgröße",
                 "symbolScale": "Symbol-Skalierungsfaktor > 0.0\n\nZur Skalierung der Symbolgröße auf der Karte\n\nStandard: 1. = keine Skalierung der Symbolgröße",
+                "opacity": "Die Deckkraft der Kartenebene.\n\nEin Wert zwischen 0 und 1.\n\n- 0 bedeutet, dass die Ebene transparent ist.\n- 1 bedeutet, dass die Ebene volle Deckkraft hat und darunter liegende Ebenen nicht sichtbar sind.",
                 "cache": "Ein Cache (Pufferspeicher) speichert Kartenbilder. So müssen sie nicht erneut heruntergeladen oder erstellt werden.",
                 "cacheDir": "Das Verzeichnis, in dem der Cache gespeichert werden soll.\n\n Auf ein internes Verzeichnis kann nur die App selbst zugreifen. Auf ein externes Verzeichnis können auch andere Apps, wie z. B. Datei-Explorer-Apps, zugreifen.",
                 "cacheSize": "Die Größe des Caches in mb."

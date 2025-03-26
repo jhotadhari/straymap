@@ -202,6 +202,7 @@ const AppView = ( {
                                     enabledZoomMin={ options.enabledZoomMin }
                                     enabledZoomMax={ options.enabledZoomMax }
                                     url={ get( layer.options, 'url', '' ) }
+                                    alpha={ options.alpha }
                                     cacheSize={ options.cacheSize }
                                     cacheDirChild={ stringifyProp( options.url || '' ) }
                                     cacheDirBase={ ( cacheDirBase || '/' ) as LayerBitmapTileProps['cacheDirBase'] }    // if `/`, will fallback to java getReactApplicationContext().getCacheDir();

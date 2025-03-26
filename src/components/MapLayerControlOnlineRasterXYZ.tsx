@@ -27,7 +27,7 @@ import dayjs from 'dayjs';
 import ButtonHighlight from './ButtonHighlight';
 import MenuItem from './MenuItem';
 import { LayerConfig, LayerConfigOptionsOnlineRasterXYZ, OptionBase, ThemePropExtended } from '../types';
-import { NumericMultiRowControl } from './NumericRowControls';
+import { NumericMultiRowControl, NumericRowControl } from './NumericRowControls';
 import InfoRowControl from './InfoRowControl';
 import CacheControl from './CacheControl';
 import { fillLayerConfigOptionsWithDefaults, stringifyProp } from '../utils';
@@ -319,6 +319,16 @@ const MapLayerControlOnlineRasterXYZ = ( {
             setOptions={ setOptions }
             validate={ val => val >= 0 }
             Info={ t( 'hint.maps.zoom' ) + '\n\n' + t( 'hint.maps.zoomGeneralInfo' ) }
+        />
+
+        <NumericRowControl
+            label={ t( 'opacity' ) }
+            optKey={ 'alpha' }
+            numType={ 'float' }
+            options={ options }
+            setOptions={ setOptions }
+            validate={ val => val >= 0 && val <= 1 }
+            Info={ t( 'hint.maps.opacity' ) }
         />
 
         <CacheControl

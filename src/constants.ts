@@ -22,6 +22,7 @@ export const defaults = {
 	},
 	layerConfigOptions: {
 		['online-raster-xyz']: {
+			alpha: 1,
 			cacheSize: 0,
 			cacheDirBase: 'internal',
 			zoomMin: 1,

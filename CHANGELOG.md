@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 ### Added
+- Opacity setting for map layer `online-raster-xyz`.
 - *Mapsforge General Settings* to *Settings / Maps*. To control `lineScale`, `textScale` and `symbolScale` of all mapsforge layers. Changes require a restart of the app.
 - Added new mapsforge-profile settings, whether to show buildings and labels or not.
 - Add some debug/commit information to *About* page in app debug mode.

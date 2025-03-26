@@ -83,6 +83,7 @@ export interface LayerOption extends OptionBase {
 
 export interface LayerConfigOptionsOnlineRasterXYZ {
 	url?: LayerBitmapTileProps['url'];
+	alpha?: LayerBitmapTileProps['alpha'];
 	cacheSize?: LayerBitmapTileProps['cacheSize'];
 	cacheDirBase?: 'internal' | LayerBitmapTileProps['cacheDirBase'];
 	enabledZoomMin?: LayerBitmapTileProps['enabledZoomMin'],
