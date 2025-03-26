@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [0.1.0] - 2025-03-26
 ### Added
 - Opacity setting for map layer `online-raster-xyz`.
 - *Mapsforge General Settings* to *Settings / Maps*. To control `lineScale`, `textScale` and `symbolScale` of all mapsforge layers. Changes require a restart of the app.
@@ -45,5 +45,5 @@ Basic app structure and map viewer functionality.
 - Topbar with breadcrumbs and a menu.
 - Structure for settings and some settings pages.
 
-[Unreleased]: https://github.com/jhotadhari/straymap/compare/v0.0.2...HEAD
+[0.1.0]: https://github.com/jhotadhari/straymap/compare/v0.0.2...v0.1.0
 [0.0.2]: https://github.com/jhotadhari/straymap/releases/tag/v0.0.2
