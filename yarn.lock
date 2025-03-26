@@ -3860,7 +3860,7 @@ __metadata:
     react-native-default-preference: ^1.4.4
     react-native-draggable-grid: ^2.2.1
     react-native-fs: ^2.20.0
-    react-native-mapsforge-vtm: ^0.5.3
+    react-native-mapsforge-vtm: ^0.6.0
     react-native-markdown-display: ^7.0.2
     react-native-paper: ^5.12.5
     react-native-safe-area-context: ^4.11.1
@@ -8481,9 +8481,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-mapsforge-vtm@npm:^0.5.3":
-  version: 0.5.3
-  resolution: "react-native-mapsforge-vtm@npm:0.5.3"
+"react-native-mapsforge-vtm@npm:^0.6.0":
+  version: 0.6.0
+  resolution: "react-native-mapsforge-vtm@npm:0.6.0"
   dependencies:
     events: ^3.3.0
     lodash-es: ^4.17.21
@@ -8491,7 +8491,7 @@ __metadata:
   peerDependencies:
     react: "*"
     react-native: "*"
-  checksum: 32a16af327ee105838bfe62e38af31a60101fbc5fe74a0d2758b3f1a9d99e58ac236b7fbaaf93118d7fe67abb855d0087948710dc6ef0e729e1c01cf83f4bd8c
+  checksum: bd13de4ce65ac3f2b41d56ff60160e247e3642eec04af1f43f1254d1c159f7e8a8deaecb94444f740c1ccb81733d13628501b3f7e40f3bec10b98b26ea9620a1
   languageName: node
   linkType: hard
 
