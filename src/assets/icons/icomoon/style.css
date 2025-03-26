@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'icomoon';
-  src:  url('fonts/icomoon.eot?ol1j7r');
-  src:  url('fonts/icomoon.eot?ol1j7r#iefix') format('embedded-opentype'),
-    url('fonts/icomoon.ttf?ol1j7r') format('truetype'),
-    url('fonts/icomoon.woff?ol1j7r') format('woff'),
-    url('fonts/icomoon.svg?ol1j7r#icomoon') format('svg');
+  src:  url('fonts/icomoon.eot?b7wgrv');
+  src:  url('fonts/icomoon.eot?b7wgrv#iefix') format('embedded-opentype'),
+    url('fonts/icomoon.ttf?b7wgrv') format('truetype'),
+    url('fonts/icomoon.woff?b7wgrv') format('woff'),
+    url('fonts/icomoon.svg?b7wgrv#icomoon') format('svg');
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -25,6 +25,10 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icon-mapsforge_puzzle_cog:before {
+  content: "\e902";
+  color: #97bf0d;
+}
 .icon-mapsforge_puzzle_only:before {
   content: "\e901";
   color: #97bf0d;
@@ -32,4 +36,7 @@
 .icon-mapsforge_puzzle:before {
   content: "\e900";
   color: #97bf0d;
+}
+.icon-chevron-down:before {
+  content: "\f078";
 }

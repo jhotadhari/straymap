@@ -1,3 +1,8 @@
+
+exec {
+    commandLine 'sh', '-c', 'echo \'{\' > ../.debugInfo.json && echo "    \\"gitStatus\\": \\"$( git status --short --branch | sed \'s/##\s//\' | tr \'\n\' \'#\' )\\"," >> ../.debugInfo.json && echo "    \\"latestCommit\\": \\"$( git rev-parse HEAD )\\"" >> ../.debugInfo.json && echo \'}\' >> ../.debugInfo.json'
+}
+
 buildscript {
     ext {
         buildToolsVersion = "34.0.0"

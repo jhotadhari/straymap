@@ -123,7 +123,7 @@ const CenterControl = () => {
 					},
 				]
 			} }
-            filePattern={ /.*\.(svg|png)$/ }
+            extensions={ ['svg','png'] }
             dirs={ appDirs ? appDirs.cursor : [] }
             Info={ t( 'hint.center.file' ) }
             filesHeading={ sprintf( t( 'filesIn' ), '(svg|png)' ) }

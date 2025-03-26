@@ -1,3 +1,14 @@
+/**
+ * External dependencies
+ */
+import { get, omit, set } from "lodash-es";
+import slugify from "slugify";
+
+/**
+ * Internal dependencies
+ */
+import { LayerConfigOptionsAny, LayerConfigOptionsHillshading } from "./types";
+import { defaults } from "./constants";
 
 export const randomNumber = ( min : number, max : number ) : number => Math.random() * ( max - min ) + min;
 
@@ -47,4 +58,41 @@ export const removeLines = ( str: string, pattern: RegExp ) : string => {
     return lines.filter( ( line: string ) => {
         return ! line.match( pattern );
     } ).join( '\n' );
+};
+
+export const fillLayerConfigOptionsWithDefaults = ( type : string, options : LayerConfigOptionsAny ) : LayerConfigOptionsAny => {
+    const newOptions = {...options};
+    const defaultOptions = get( defaults.layerConfigOptions, type );
+    Object.keys( defaultOptions ).map( optKey => {
+        if ( null === get( newOptions, optKey, null ) ) {
+            set( newOptions, optKey, defaultOptions[optKey] );
+        }
+    } );
+    return newOptions;
+};
+
+export const stringifyProp = ( prop: any ) : string => {
+    switch( true ) {
+        case ( 'string' === typeof prop ):
+        case ( 'number' === typeof prop ):
+            return slugify( prop + '', { strict: true } );
+        case ( 'object' === typeof prop ):
+            return Object.keys( prop ).sort().reduce( ( acc: string, optKey: string ) => {
+                return acc + stringifyProp( get( prop, optKey ) );
+            }, '' );
+        default:
+            return '';
+    }
+};
+
+export const getHillshadingCacheDirChild = ( options: LayerConfigOptionsHillshading ) : string => {
+    return 'shading' + stringifyProp( omit( options, [
+        'enabledZoomMin',
+        'enabledZoomMax',
+        'zoomMin',
+        'zoomMax',
+        'cacheSize',
+        'cacheDirBase',
+        'hgtDirPath',
+    ] ) );
 };

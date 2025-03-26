@@ -5,6 +5,8 @@
         "license": "Lizenz",
         "sourceHostedOnGithub": "Der Quellcode ist auf Github gehostet",
         "slogan": "Android-Offline-Karten-App für umherstreunende Radreisende und Vagabund*innen",
+        "gitStatus": "Git Status",
+        "latestCommit": "Letzter commit",
         "themeOptions": {
             "light": "Hell",
             "dark": "Dunkel",
@@ -20,6 +22,7 @@
             "saved": "%s Einstellungen gespeichert",
             "general": "Allgemein",
             "maps": "Karten",
+            "mapsforgeGeneral": "Allgemeine Mapsforge Einstellungen",
             "appearance": "Aussehen"
         },
         "map": {
@@ -50,11 +53,14 @@
             },
             "typeDesc": {
                 "online-raster-xyz": "Kann für verschiedene Online-Kartenserver mit xyz-Kacheln verwendet werden.",
-                "mapsforge": "Freie, quelloffene Offline-Vektorkarten auf der Grundlage von open-street-map-Daten. Gute Wahl für detaillierte Kartenausschnitte.",
+                "mapsforge": "Offline-Vektorkarten. Beste Wahl für detaillierte Kartenausschnitte.",
                 "raster-MBtiles": "Offline-Rasterkarten im MBtiles-Format sind gut geeignet für Übersichtskarten in geringer Auflösung",
                 "hillshading": "Offline-Höhenschattierung mit digitalen Höhenmodellen (DEM) im hgt-Format."
             }
         },
+        "lineScale": "Linien-Skalierung",
+        "textScale": "Text-Skalierung",
+        "symbolScale": "Symbol-Skalierung",
         "useFirstOne": "Das erste benutzen",
         "layerAttributions": "Zuschreibungen und Lizenzen für Kartenebenen",
         "createdBy": "Erstellt von",
@@ -77,6 +83,8 @@
         "style": "Stil",
         "overlay_one": "Overlay",
         "overlay_other": "Overlays",
+        "hasLabels": "Beschriftungen",
+        "hasBuildings": "Gebäude",
         "changesWillBeLost": "Änderungen gehen verloren!",
         "keepEdit": "Weiter bearbeiten",
         "enabled": "Aktiviert",
@@ -104,6 +112,8 @@
         "whatIs_one": "Was ist \"%s\"?",
         "whatIs_other": "Was sind \"%s\"?",
         "cacheSize": "Cache Größe",
+        "cacheDir": "Cache Verzeichnis",
+        "opacity": "Deckkraft",
         "language": "Sprache",
         "selectLang": "Sprache wählen",
         "hardwareKeyAssignment": "Hardware-Tastenbelegung",
@@ -164,8 +174,18 @@
         "selectXType": "%s-Typ auswählen",
         "filesIn": "Dateien %s in",
         "noFilesIn": "Keine Dateien %s in",
+        "success": "Erfolgreich",
+        "failed": "Fehlgeschlagen",
+        "updating": "Am aktualisieren",
+        "errorMsg": "Fehlermeldung",
+        "errorMsgFallback": "Etwas ist schief gelaufen.",
+        "updaterFail": "Du kannst versuchen die App zu starten, aber es kann sein, dass sie nicht richtig funktioniert.",
+        "updaterProceed": "App starten",
+        "updaterCloseApp": "App schließen",
         "hint": {
             "nameId": "Irgendein beliebiger Name zur Identifizierung. Es ist wirklich egal wie du es nennst.",
+            "applyToAllMapsforge": "Diese Einstellungen gelten für alle mapsforge Kartenebenen.",
+            "changeNeedsRestart": "Änderungen erfordern einen Neustart der App.",
             "dashboard": {
                 "elements": "Das dashboard kann uns verschiedene Informationen über die Karte, unsere Position und die Route oder den Track anzeigen.\n\nDie einzelnen Elemente können per Drag-and-Drop sortiert werden",
                 "fontSize": "Standardschriftgröße für alle Dashboard-Elemente.\n\nGilt für alle Dashboard-Elemente, für die keine Schriftgröße angegeben ist.",
@@ -182,7 +202,7 @@
             },
             "maps": {
                 "layers": "Die Kartenebenen werden übereinander angezeigt. Ebenen, die in den Einstellungen weiter oben stehen, werden über den anderen Ebenen in der Karte angezeigt.\n\nDie Ebenen können per Drag & Drop sortiert werden.\n\nDie einzelnen Kartenebenen können in verschiedenen Zoomstufen ein- oder ausgeschaltet werden.\n\nDadurch können Übersichts- und Detailkarten zusammen verwendet werden.\n\nKartenebenen, die vorübergehend nicht benötigt werden, können ausgeblendet werden (Schaltfläche Augensymbol).",
-                "profiles": "Mapsforge ist großartig! Es ist eine freie, quelloffene Offline-Vektorkartenbibliothek für Android- und Java-basierte Anwendungen.\n\n„Profile“ bestimmen, wie die Offline-Vektorkarten von Mapsforge angezeigt werden.\n\nFür die Profile können eingebaute Themes verwendet werden. Oder benutzerdefinierte Themes im xml-Format.\n\nDie Profile können per Drag and Drop sortiert werden. Das oberste Profil wird als Standard für alle Kartenebenen verwendet, denen kein spezifisches Profil zugewiesen ist.",
+                "profiles": "„Profile“ bestimmen, wie die Offline-Vektorkarten von Mapsforge angezeigt werden.\n\nFür die Profile können eingebaute Themes verwendet werden. Oder benutzerdefinierte Themes im xml-Format.\n\nDie Profile können per Drag and Drop sortiert werden. Das oberste Profil wird als Standard für alle Kartenebenen verwendet, denen kein spezifisches Profil zugewiesen ist.",
                 "visibility": "Ob die Kartenebene eingeschaltet ist oder nicht.\n\nKartenebenen, die vorübergehend nicht benötigt werden, können ausgeschaltet werden.",
                 "xyzSource": "Die URL zum xyz Karten Tile-Server.\n\nDie URL muss vorzugsweise mit https:// beginnen. Unsichere Verbindungen mit http:// sind möglich, werden aber nicht empfohlen.\n\nDie URL muss die Platzhalter {X}, {Y} und {Z} enthalten (in geschweiften Klammern).\n\nDiese Kartenebene ruft Rasterbilder von einer Online-Quelle ab. Bei jeder Anfrage an jeden beliebigen Server werden personenbezogene Daten (Ihre IP-Adresse) übertragen. Dies ist technisch notwendig.",
                 "enabled": "Zwischen welchen Zoomstufen die Kartenebene angezeigt wird.",
@@ -201,7 +221,13 @@
                 "mapsforgeProfileStyle": "Themes können verschiedene Stile enthalten. Diese Stile sind leichte Variationen des Themes.",
                 "mapsforgeProfileOverlays": "Overlays bestimmen, welche Elemente der Karte sichtbar sind und welche nicht.\n\nTipp: Du kannst den Kartenhintergrund ausschalten. Und stattdessen eine andere Kartenebene (z. B. eine Satellitenkarte) dahinter anzeigen.",
                 "hgtReadFileRate": "Bestimmt die Geschwindigkeit (in Millisekunden), mit der neue Höhenmodelle in den Speicher geladen werden, wenn die Karte verschoben wird.",
-                "cacheSize": "xxx???xxx"
+                "lineScale": "Linien-Skalierungsfaktor > 0.0\n\nZur Skalierung der Liniendicke auf der Karte\n\nStandard: 1. = keine Skalierung der Liniendicke",
+                "textScale": "Text-Skalierungsfaktor > 0.0\n\nZur Skalierung der Größe von Beschriftungen auf der Karte\n\nStandard: 1. = keine Skalierung der Textgröße",
+                "symbolScale": "Symbol-Skalierungsfaktor > 0.0\n\nZur Skalierung der Symbolgröße auf der Karte\n\nStandard: 1. = keine Skalierung der Symbolgröße",
+                "opacity": "Die Deckkraft der Kartenebene.\n\nEin Wert zwischen 0 und 1.\n\n- 0 bedeutet, dass die Ebene transparent ist.\n- 1 bedeutet, dass die Ebene volle Deckkraft hat und darunter liegende Ebenen nicht sichtbar sind.",
+                "cache": "Ein Cache (Pufferspeicher) speichert Kartenbilder. So müssen sie nicht erneut heruntergeladen oder erstellt werden.",
+                "cacheDir": "Das Verzeichnis, in dem der Cache gespeichert werden soll.\n\n Auf ein internes Verzeichnis kann nur die App selbst zugreifen. Auf ein externes Verzeichnis können auch andere Apps, wie z. B. Datei-Explorer-Apps, zugreifen.",
+                "cacheSize": "Die Größe des Caches in mb."
             },
             "link": {
                 "xmlRenderThemes": "Render-Themes im Xml-Format",

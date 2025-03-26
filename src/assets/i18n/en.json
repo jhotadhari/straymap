@@ -5,6 +5,8 @@
         "license": "License",
         "sourceHostedOnGithub": "Source code is hosted on github",
         "slogan": "Android offline map app for stray cyclists and roaming vagabonds",
+        "gitStatus": "Git Status",
+        "latestCommit": "Latest commit",
         "themeOptions": {
             "light": "Light",
             "dark": "Dark",
@@ -20,6 +22,7 @@
             "saved": "Saved %s settings",
             "general": "General",
             "maps": "Maps",
+            "mapsforgeGeneral": "Mapsforge General Settings",
             "appearance": "Appearance"
         },
         "map": {
@@ -50,11 +53,14 @@
             },
             "typeDesc": {
                 "online-raster-xyz": "Can be used for various online map servers with xyz tiles.",
-                "mapsforge": "Free, open-source offline vector maps based on open-street-map data. Good choice for detailed map sections.",
+                "mapsforge": "Offline vector maps. Best choice for detailed map sections.",
                 "raster-MBtiles": "Offline raster maps in MBtiles format are well suited for overview maps with low resolution.",
                 "hillshading": "Offline hillshading with digital elevation models (DEM) in hgt format."
             }
         },
+        "lineScale": "Line scale",
+        "textScale": "Text scale",
+        "symbolScale": "Symbol scale",
         "useFirstOne": "Use first one",
         "layerAttributions": "Attributions and licenses for map layers",
         "createdBy": "Created by",
@@ -77,6 +83,8 @@
         "style": "Style",
         "overlay_one": "Overlay",
         "overlay_other": "Overlays",
+        "hasLabels": "Labels",
+        "hasBuildings": "Buildings",
         "changesWillBeLost": "Changes will be lost!",
         "keepEdit": "Keep editing",
         "enabled": "Enabled",
@@ -104,6 +112,8 @@
         "whatIs_one": "What is \"%s\"?",
         "whatIs_other": "What are \"%s\"?",
         "cacheSize": "Cache size",
+        "cacheDir": "Cache directory",
+        "opacity": "Opacity",
         "language": "language",
         "selectLang": "Select language",
         "hardwareKeyAssignment": "Hardware key assignment",
@@ -164,8 +174,18 @@
         "selectXType": "Select %s type",
         "filesIn": "Files %s in",
         "noFilesIn": "No files %s in",
+        "success": "Success",
+        "failed": "Failed",
+        "updating": "Updating",
+        "errorMsg": "Error message",
+        "errorMsgFallback": "Something went wrong.",
+        "updaterFail": "You can try to proceed using the App, but it might not work properly.",
+        "updaterProceed": "Try to proceed",
+        "updaterCloseApp": "Close the app",
         "hint": {
             "nameId": "Any name for identification. It doesn't really matter what you call it.",
+            "applyToAllMapsforge": "These settings apply to all mapsforge map layers.",
+            "changeNeedsRestart": "Changes require a restart of the app.",
             "dashboard": {
                 "elements": "It can show us various information about the map, our position and the route or track.\n\nThe individual elements can be sorted using drag-and-drop",
                 "fontSize": "Default font size for all dashboard elements.\n\nApplies to all dashboard elements for which no font size is specified.",
@@ -182,7 +202,7 @@
             },
             "maps": {
                 "layers": "Map layers are displayed on top of each other. Layers that are higher up in the settings are displayed above the other layers in the map.\n\nThe layers can be sorted by drag and drop.\n\nThe individual map layers can be switched on or off at different zoom levels.\n\nThis allows overview and detail maps to be used together.\n\nMap layers that are temporarily not needed can be hidden (eye symbol button).",
-                "profiles": "Mapsforge is great! It is a free, open-source, offline vector map library for Android and Java-based applications.\n\n“Profiles” determine how the offline vector maps are displayed by mapsforge.\n\nBuilt-in themes can be used for the profiles. Or custom themes in xml format.\n\nThe profiles can be sorted by drag and drop. The top profile is used as default for all maps that do not have a specific profile assigned.",
+                "profiles": "“Profiles” determine how the offline vector maps are displayed by mapsforge.\n\nBuilt-in themes can be used for the profiles. Or custom themes in xml format.\n\nThe profiles can be sorted by drag and drop. The top profile is used as default for all maps that do not have a specific profile assigned.",
                 "visibility": "Whether the map layer is switched on or not.\n\nMap layers that are temporarily not required can be switched off.",
                 "xyzSource": "The url to the xyz map tile server.\n\nThe url must preferably start with https://. Insecure connections with http:// are possible, but are not recommended.\n\nThe url must contain the placeholders {X}, {Y} and {Z} (in curly braces).\n\nThis map layer requests raster images from an online source. Any request to any server, transferees personal data (your IP address). This is technically necessary.",
                 "enabled": "Between which zoom levels the map layer is displayed.",
@@ -201,12 +221,18 @@
                 "mapsforgeProfileStyle": "Themes can contain different styles. These styles are slight variations of the theme.",
                 "mapsforgeProfileOverlays": "Overlays determine which elements of the map are visible or not.\n\nTip: You can switch off the map background. And instead display another map layer (e.g. a satellite map) behind it.",
                 "hgtReadFileRate": "Determines the speed (in milliseconds) at which new elevation models are loaded into the memory when the map is moved.",
-                "cacheSize": "xxx???xxx"
+                "lineScale": "Line scale factor > 0.0\n\nTo scale thickness of lines on map\n\nDefault: 1. = no line thickness scaling",
+                "textScale": "Text scale factor > 0.0\n\nTo scale size of labels on map\n\nDefault: 1. = no text size scaling",
+                "symbolScale": "Symbol scale factor > 0.0\n\nTo scale size of symbols on map\n\nDefault: 1. = no symbol size scaling",
+                "opacity": "The opacity of the map layer.\n\nValue between 0 and 1.\n\n- 0 means the layer is transparent.\n- 1 means the layer has full opacity and underlying layers are not visible.",
+                "cache": "A cache stores map images. So they don't have to get downloaded or generated again.",
+                "cacheDir": "The directory where the cache is to be saved.\n\nAn internal directory can only be accessed by the app itself. An external directory can also be accessed by other apps, such as File Explorer apps.",
+                "cacheSize": "The size of the cache in mb."
             },
             "link": {
                 "xmlRenderThemes": "Render themes in xml format",
                 "xmlRenderThemesModify": "Advanced: modify or create your own theme",
-                "openandromapsDownloads": "Vector maps in mapsforge V5 format based on open-street-map data And xml render themes",
+                "openandromapsDownloads": "Vector maps in mapsforge V5 format based on open-street-map data and xml render themes",
                 "openandromapsDownloadsRaster": "Raster overview maps in mbtiles format",
                 "digitalEleData": "Digital Elevation Data",
                 "digitalEleDataCoverage": "Easiest way to download elevation data in hgt format at 3 arc second resolution"

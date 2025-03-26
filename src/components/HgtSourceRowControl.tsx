@@ -30,6 +30,7 @@ import { AbsPath, HgtDirPath, LayerConfigOptionsHillshading, OptionBase } from '
 import InfoRowControl from './InfoRowControl';
 import ModalWrapper from './ModalWrapper';
 import RadioListItem from './RadioListItem';
+import HintLink from './HintLink';
 
 const HgtSourceRowControl = ( {
     dirs,
@@ -91,18 +92,18 @@ const HgtSourceRowControl = ( {
         label={ t( 'map.demDir' ) }
         Info={ <View>
             <Text>{ t( 'hint.maps.demDir' ) }</Text>
-            <View style={ { marginTop: 10 } }>
-                <Text>{ t( 'hint.link.digitalEleData' ) }</Text>
-                <Text style={ { color: get( theme.colors, 'link' ) } } onPress={ () => Linking.openURL( 'https://viewfinderpanoramas.org/dem3.html' ) }>
-                    https://viewfinderpanoramas.org/dem3.html
-                </Text>
-            </View>
-            <View style={ { marginTop: 10 } }>
-                <Text>{ t( 'hint.link.digitalEleDataCoverage' ) }</Text>
-                <Text style={ { color: get( theme.colors, 'link' ) } } onPress={ () => Linking.openURL( 'https://viewfinderpanoramas.org/Coverage%20map%20viewfinderpanoramas_org3.htm' ) }>
-                    https://viewfinderpanoramas.org/Coverage%20map%20viewfinderpanoramas_org3.htm
-                </Text>
-            </View>
+            <Text style={ {
+                marginTop: 20,
+                ...theme.fonts.bodyLarge,
+            } }>{ 'DEM Downloads:' }</Text>
+            <HintLink
+                label={ t( 'hint.link.digitalEleData' ) }
+                url={ 'https://viewfinderpanoramas.org/dem3.html' }
+            />
+            <HintLink
+                label={ t( 'hint.link.digitalEleDataCoverage' ) }
+                url={ 'https://viewfinderpanoramas.org/Coverage%20map%20viewfinderpanoramas_org3.htm' }
+            />
         </View> }
     >
         { modalVisible && <ModalWrapper

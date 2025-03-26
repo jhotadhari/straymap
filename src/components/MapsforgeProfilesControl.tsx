@@ -49,22 +49,10 @@ import FileSourceRowControl, { AlternativeButtonType } from './FileSourceRowCont
 import MenuItem from './MenuItem';
 import { modalWidthFactor } from '../constants';
 import useUiState from '../compose/useUiState';
+import LoadingIndicator from './LoadingIndicator';
+import HintLink from './HintLink';
 
 const itemHeight = 50;
-
-
-const LoadingIndicator = () => {
-	const theme = useTheme();
-	return <ActivityIndicator
-		animating={ true }
-		// size={ 'large' }
-		style={ {
-			backgroundColor: theme.colors.background,
-			borderRadius: theme.roundness,
-		} }
-		color={ theme.colors.primary }
-	/>;
-};
 
 const DraggableItem = ( {
     width,
@@ -467,7 +455,10 @@ const MapsforgeProfilesControl = ( {
                             } ),
                         } );
                         maybeIsBusyRemove && maybeIsBusyRemove( busyKey );
-                    } ).catch( ( err: any ) => console.log( 'ERROR', err ) );
+                    } ).catch( ( err: any ) => {
+                        console.log( 'ERROR', err );
+                        maybeIsBusyRemove && maybeIsBusyRemove( busyKey );
+                    } );
                 }, 1 );
             }
 		}
@@ -522,7 +513,7 @@ const MapsforgeProfilesControl = ( {
                             theme: selectedOpt,
                         } )
                     } }
-                    filePattern={ /.*\.xml$/ }
+                    extensions={ ['xml'] }
                     dirs={ appDirs ? appDirs.mapstyles : [] }
                     Info={ isBusy ? undefined : <View>
                         <Text>{ t( 'hint.maps.mapsforgeProfileFile' ) }</Text>
@@ -559,6 +550,36 @@ const MapsforgeProfilesControl = ( {
                     updateProfile={ updateProfile }
                     renderStyleOptionsMap={ renderStyleOptionsMap }
                     label={ t( 'overlay', { count: 1 } ) }
+                />
+
+                <RadioListItem
+                    opt={ {
+                        label: t( 'hasLabels' ),
+                        key: 'hasLabels',
+                    } }
+                    onPress={ () => updateProfile && updateProfile( {
+                        ...editProfile,
+                        hasLabels: ! editProfile.hasLabels,
+                    } ) }
+                    labelStyle={ theme.fonts.bodyMedium }
+                    labelExtractor={ a => a.label }
+                    status={ editProfile.hasLabels ? 'checked' : 'unchecked' }
+                    radioAlign={ 'left' }
+                />
+
+                <RadioListItem
+                    opt={ {
+                        label: t( 'hasBuildings' ),
+                        key: 'hasBuildings',
+                    } }
+                    onPress={ () => updateProfile && updateProfile( {
+                        ...editProfile,
+                        hasBuildings: ! editProfile.hasBuildings,
+                    } ) }
+                    labelStyle={ theme.fonts.bodyMedium }
+                    labelExtractor={ a => a.label }
+                    status={ editProfile.hasBuildings ? 'checked' : 'unchecked' }
+                    radioAlign={ 'left' }
                 />
 
                 { ! isBusy && <View style={ { marginTop: 20, marginBottom: 40, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' } }>
@@ -647,18 +668,28 @@ const MapsforgeProfilesControl = ( {
                     backgroundBlur={ true }
                     Info={ <View>
                         <Text>{ t( 'hint.maps.profiles' ) }</Text>
-                        <View style={ { marginTop: 10 } }>
-                            <Text>Mapsforge</Text>
-                            <Text style={ { color: get( theme.colors, 'link' ) } } onPress={ () => Linking.openURL( 'https://github.com/mapsforge/mapsforge' ) }>
-                                https://github.com/mapsforge/mapsforge
-                            </Text>
-                        </View>
-                        <View style={ { marginTop: 10 } }>
-                            <Text>{ t( 'hint.link.openandromapsDownloads' ) }</Text>
-                            <Text style={ { color: get( theme.colors, 'link' ) } } onPress={ () => Linking.openURL( 'https://www.openandromaps.org/en/downloads' ) }>
-                                https://www.openandromaps.org/en/downloads
-                            </Text>
-                        </View>
+                        <Text style={ {
+                            marginTop: 20,
+                            ...theme.fonts.bodyLarge,
+                        } }>{ 'Render theme downloads:' }</Text>
+                        { [
+                            {
+                                label: 'OpenAndroMaps Elevate & Elements by Tobias Kuehn',
+                                url: 'https://www.openandromaps.org/en/downloads',
+                            },
+                            {
+                                label: 'Outdoor & Desert by Bernard Mai',
+                                url: 'https://www.maiwolf.de/locus/',
+                            },
+                            {
+                                label: 'Tiramisù by Maki',
+                                url: 'https://github.com/IgorMagellan/Tiramisu',
+                            },
+                            {
+                                label: 'Alti by jhotadhari. Just a copy of elevate and andromaps_hike with landscape names copy of Desert',
+                                url: 'https://github.com/jhotadhari/Alti',
+                            },
+                        ].map( ( { label, url } ) => <HintLink key={ url } label={ label } url={ url } /> ) }
                     </View> }
                     buttonProps={ {
                         style: { marginTop: 0, marginBottom: 0, marginLeft: -23 },

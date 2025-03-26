@@ -16,6 +16,7 @@ import {
 	LayerHillshadingProps,
 	MapEventResponse,
 	MapContainerProps,
+	Location,
 } from 'react-native-mapsforge-vtm';
 import { ViewStyle } from "react-native";
 
@@ -29,6 +30,11 @@ export type LayerInfo = {
 	description?: string | null;
 	comment?: string | null;
 	createdBy?: string | null;
+};
+
+export type InitialPosition = {
+	center: Location,
+	zoomLevel: number,
 };
 
 export type LayerInfos = { [value: string]: LayerInfo };
@@ -77,7 +83,9 @@ export interface LayerOption extends OptionBase {
 
 export interface LayerConfigOptionsOnlineRasterXYZ {
 	url?: LayerBitmapTileProps['url'];
+	alpha?: LayerBitmapTileProps['alpha'];
 	cacheSize?: LayerBitmapTileProps['cacheSize'];
+	cacheDirBase?: 'internal' | LayerBitmapTileProps['cacheDirBase'];
 	enabledZoomMin?: LayerBitmapTileProps['enabledZoomMin'],
 	enabledZoomMax?: LayerBitmapTileProps['enabledZoomMax'],
 	zoomMin?: LayerBitmapTileProps['zoomMin'],
@@ -107,6 +115,7 @@ export interface LayerConfigOptionsHillshading {
 	shadingAlgorithmOptions?: LayerHillshadingProps['shadingAlgorithmOptions'];
 	magnitude?: LayerHillshadingProps['magnitude'];
 	cacheSize?: LayerHillshadingProps['cacheSize'];
+	cacheDirBase?: 'internal' | LayerBitmapTileProps['cacheDirBase'];
 };
 
 export type LayerConfigOptionsAny = LayerConfigOptionsOnlineRasterXYZ
@@ -128,6 +137,8 @@ export type MapsforgeProfile = {
     theme: string; // It is AbsPath or built-in
     renderStyle: null | string;
     renderOverlays: string[];
+	hasBuildings?: boolean;
+	hasLabels?: boolean;
 };
 
 export type HgtDirPath = LayerConfigOptionsHillshading['hgtDirPath'] | MapContainerProps['hgtDirPath'];
@@ -137,12 +148,31 @@ export type UiState = {
 	mapsforgeProfilesExpanded: Boolean;
 };
 
+export type MapsforgeGeneral = {
+	textScale: number;
+	lineScale: number;
+	symbolScale: number;
+};
+
 export type MapSettings = {
 	layers: LayerConfig[];
 	mapsforgeProfiles: MapsforgeProfile[];
 	hgtDirPath: MapContainerProps['hgtDirPath'];
 	hgtReadFileRate: MapContainerProps['hgtReadFileRate'];
+	mapsforgeGeneral: MapsforgeGeneral;
 };
+
+export type UpdateResults = {
+	[value: string]: 	// the version updating from
+	{
+		state: 'failed' | 'updating' | 'success';
+		msg?: string;
+	}
+};
+
+export type UpdaterSettings = {
+	installedVersion: string;
+}
 
 export type CursorConfig = {
 	iconSource: string;

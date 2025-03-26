@@ -57,7 +57,6 @@ public class HelperModule extends ReactContextBaseJavaModule {
 	};
 
 	public void addAppSubDirsToResponse( WritableMap responseParams ) {
-
 		// externalMediaDirs
 		File[] externalMediaDirs = getReactApplicationContext().getExternalMediaDirs();
 		for ( int i = 0; i < externalMediaDirs.length; i++ ) {
@@ -65,7 +64,6 @@ public class HelperModule extends ReactContextBaseJavaModule {
 			dirs.pushString( externalMediaDirs[i].toString() );
 			responseParams.putArray( "externalMediaDirs", dirs );
 		}
-
 		// externalFileDirs
 		File[] filesDirs = getReactApplicationContext().getExternalFilesDirs( null );
 		for ( int i = 0; i < filesDirs.length; i++ ) {
@@ -73,7 +71,17 @@ public class HelperModule extends ReactContextBaseJavaModule {
 			dirs.pushString( filesDirs[i].toString() );
 			responseParams.putArray( "externalFileDirs", dirs );
 		}
-
+		// externalCacheDirs
+		File[] externalCacheDirs = getReactApplicationContext().getExternalCacheDirs();
+		for ( int i = 0; i < externalCacheDirs.length; i++ ) {
+			WritableArray dirs = new WritableNativeArray();
+			dirs.pushString( externalCacheDirs[i].toString() );
+			responseParams.putArray( "externalCacheDirs", dirs );
+		}
+		// internalCacheDir
+		responseParams.putString( "internalCacheDir", getReactApplicationContext().getCacheDir().toString() );
+		// externalCacheDir
+		responseParams.putString( "externalCacheDir", getReactApplicationContext().getExternalCacheDir().toString() );
 		// Subdirs
 		File[] allDirs = Arrays.copyOf( externalMediaDirs, externalMediaDirs.length + filesDirs.length );
 		System.arraycopy( filesDirs, 0, allDirs, externalMediaDirs.length, filesDirs.length );

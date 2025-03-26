@@ -26,9 +26,10 @@ import { openDocument } from 'react-native-scoped-storage';
 import ButtonHighlight from './ButtonHighlight';
 import { AbsPath, OptionBase } from '../types';
 import InfoRowControl from './InfoRowControl';
-import { useDirsInfo } from '../compose/useDirInfo';
+import useDirsInfo from '../compose/useDirsInfo';
 import ModalWrapper from './ModalWrapper';
 import RadioListItem from './RadioListItem';
+import LoadingIndicator from './LoadingIndicator';
 
 interface Option extends OptionBase {
     key: string;
@@ -52,6 +53,7 @@ export type AlternativeButtonType = null | ( ( {
 
 const FileSourceRowControl = ( {
     filePattern,
+    extensions,
     dirs,
     options,
     optionsKey,
@@ -66,6 +68,7 @@ const FileSourceRowControl = ( {
     AlternativeButton = null,
 } : {
     filePattern?: RegExp;
+    extensions?: string[];
     dirs?: AbsPath[],
     options: object;
     optionsKey: string;
@@ -84,8 +87,18 @@ const FileSourceRowControl = ( {
     const theme = useTheme();
 
 	const [modalVisible, setModalVisible] = useState( false );
+	const [start, setStart] = useState( false );
 
-    const dirsInfos = useDirsInfo( dirs || [] );
+    const dirsInfos = useDirsInfo(
+        dirs || [],
+        extensions,
+        true,
+        start
+    );
+
+    useEffect( () => {
+        setTimeout( () => setStart( true ), 100 );
+    }, [] );
 
     const [optsMap,setOptsMap] = useState<OptsMap>( {} );
 
@@ -99,7 +112,10 @@ const FileSourceRowControl = ( {
                     const nameArr = child.name.split( '/' );
                     return {
                         key: child.name,
-                        label: nameArr[nameArr.length-1],
+                        label: nameArr.slice( - ( child.depth
+                            ? child.depth + 1
+                            : 1
+                        ) ).join( '/' ),
                     };
                 } ) : []
             }
@@ -222,7 +238,7 @@ const FileSourceRowControl = ( {
         </ModalWrapper> }
 
         <View style={ { flexDirection: 'row', alignItems: 'center' } }>
-            { ! AlternativeButton && <ButtonHighlight style={ { marginTop: 3} } onPress={ () => setModalVisible( true ) } >
+            { ! AlternativeButton && Object.keys( dirsInfos ).length > 0 && <ButtonHighlight style={ { marginTop: 3} } onPress={ () => setModalVisible( true ) } >
                 <Text>{ t(
                     'custom' === selectedOpt
                         ? getLabelFromUri( customUri )
@@ -231,6 +247,8 @@ const FileSourceRowControl = ( {
                             : 'selected.none' )
                 ) }</Text>
             </ButtonHighlight> }
+
+            { ! AlternativeButton && Object.keys( dirsInfos ).length === 0 && <LoadingIndicator/> }
 
             { !! AlternativeButton && <AlternativeButton setModalVisible={ setModalVisible } /> }
         </View>

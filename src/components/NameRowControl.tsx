@@ -8,7 +8,6 @@ import {
 } from 'react';
 import {
 	useTheme,
-    Text,
     TextInput,
 } from 'react-native-paper';
 import { debounce } from 'lodash-es';

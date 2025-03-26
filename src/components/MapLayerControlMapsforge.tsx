@@ -10,7 +10,6 @@ import {
     useState,
 } from 'react';
 import {
-    Linking,
     TouchableHighlight,
 	View,
 } from 'react-native';
@@ -34,6 +33,8 @@ import InfoRowControl from './InfoRowControl';
 import ButtonHighlight from './ButtonHighlight';
 import MenuItem from './MenuItem';
 import { sprintf } from 'sprintf-js';
+import HintLink from './HintLink';
+import { fillLayerConfigOptionsWithDefaults } from '../utils';
 
 const ProfileRowControl = ( {
     options,
@@ -155,7 +156,9 @@ const MapLayerControlMapsforge = ( {
 
     const { appDirs } = useContext( AppContext );
 
-    const [options,setOptions] = useState<LayerConfigOptionsMapsforge>( editLayer.options as LayerConfigOptionsMapsforge );
+    const [options,setOptions] = useState<LayerConfigOptionsMapsforge>(
+        fillLayerConfigOptionsWithDefaults( 'mapsforge', editLayer.options ) as LayerConfigOptionsMapsforge
+    );
 
     const doUpdate = debounce( () => {
         updateLayer( {
@@ -178,16 +181,18 @@ const MapLayerControlMapsforge = ( {
                 ...options,
                 mapFile: selectedOpt,
             } ) }
-            filePattern={ /.*\.map$/ }
+            extensions={ ['map'] }
             dirs={ appDirs ? appDirs.mapfiles : [] }
             Info={ <View>
                 <Text>{ t( 'hint.maps.mapsforgeFile' ) }</Text>
-                <View style={ { marginTop: 10 } }>
-                    <Text>{ t( 'hint.link.openandromapsDownloads' ) }</Text>
-                    <Text style={ { color: get( theme.colors, 'link' ) } } onPress={ () => Linking.openURL( 'https://www.openandromaps.org/en/downloads' ) }>
-                        https://www.openandromaps.org/en/downloads
-                    </Text>
-                </View>
+                <Text style={ {
+                    marginTop: 20,
+                    ...theme.fonts.bodyLarge,
+                } }>{ 'Downloads:' }</Text>
+                <HintLink
+                    label={ t( 'hint.link.openandromapsDownloads' ) }
+                    url={ 'https://www.openandromaps.org/en/downloads' }
+                />
             </View> }
             filesHeading={ sprintf( t( 'filesIn' ), '(.map)' ) }
             noFilesHeading={ sprintf( t( 'noFilesIn' ), '(.map)' ) }

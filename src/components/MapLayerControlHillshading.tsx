@@ -19,7 +19,7 @@ import { debounce, get } from 'lodash-es';
 /**
  * react-native-mapsforge-vtm dependencies
  */
-import { LayerHillshading, MapContainerProps, ShadingAlgorithm, ShadingAlgorithmOptions } from 'react-native-mapsforge-vtm';
+import { LayerHillshading, ShadingAlgorithm, ShadingAlgorithmOptions } from 'react-native-mapsforge-vtm';
 
 /**
  * Internal dependencies
@@ -32,6 +32,9 @@ import ModalWrapper from './ModalWrapper';
 import { NumericRowControl, NumericMultiRowControl } from './NumericRowControls';
 import ListItemMenuControl from './ListItemMenuControl';
 import HgtSourceRowControl from './HgtSourceRowControl';
+import { fillLayerConfigOptionsWithDefaults, getHillshadingCacheDirChild } from '../utils';
+import CacheControl from './CacheControl';
+import { defaults } from '../constants';
 
 const AlgorithmControl = ( {
     options,
@@ -170,7 +173,9 @@ const MapLayerControlHillshading = ( {
 
     const { appDirs } = useContext( AppContext );
 
-    const [options,setOptions] = useState<LayerConfigOptionsHillshading>( editLayer.options as LayerConfigOptionsHillshading );
+    const [options,setOptions] = useState<LayerConfigOptionsHillshading>(
+        fillLayerConfigOptionsWithDefaults( 'hillshading', editLayer.options ) as LayerConfigOptionsHillshading
+    );
 
     const doUpdate = debounce( () => {
         updateLayer( {
@@ -225,13 +230,11 @@ const MapLayerControlHillshading = ( {
             Info={ t( 'hint.maps.shadingMagnitude' ) }
         />
 
-        <NumericRowControl
-            label={ t( 'cacheSize' ) }
-            optKey={ 'cacheSize' }
+        <CacheControl
             options={ options }
             setOptions={ setOptions }
-            validate={ val => val >= 0 }
-            // Info={ t( 'hint.maps.cacheSize' ) }  // ??? is it mb.is the cache working at all ???
+            baseDefault={ defaults.layerConfigOptions.hillshading.cacheDirBase }
+            cacheDirChild={ getHillshadingCacheDirChild( options ) }
         />
 
     </View>;

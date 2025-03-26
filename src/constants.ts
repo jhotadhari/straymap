@@ -1,3 +1,12 @@
+/**
+ * External dependencies
+ */
+import { LayerHillshading } from 'react-native-mapsforge-vtm';
+
+/**
+ * Internal dependencies
+ */
+import packageJson from '../package.json';
 
 export const LINKING_ERROR =
 	'The package doesn\'t seem to be linked. Make sure: \n\n' +
@@ -10,6 +19,41 @@ export const defaults = {
 	uiState: {
 		mapLayersExpanded: false,
 		mapsforgeProfilesExpanded: false,
+	},
+	layerConfigOptions: {
+		['online-raster-xyz']: {
+			alpha: 1,
+			cacheSize: 0,
+			cacheDirBase: 'internal',
+			zoomMin: 1,
+			zoomMax: 20,
+			enabledZoomMin: 1,
+			enabledZoomMax: 20,
+		},
+		['mapsforge']: {
+			enabledZoomMin: 1,
+			enabledZoomMax: 20,
+			profile: 'default',
+		},
+		['raster-MBtiles']: {
+			enabledZoomMin: 1,
+			enabledZoomMax: 20,
+		},
+		['hillshading']: {
+			cacheSize: 64,
+			cacheDirBase: 'internal',
+			zoomMin: 1,
+			zoomMax: 20,
+			enabledZoomMin: 1,
+			enabledZoomMax: 20,
+			magnitude: 90,
+			shadingAlgorithm: Object.values( LayerHillshading.shadingAlgorithms )[0],
+			shadingAlgorithmOptions: {
+				linearity: 0.1,
+				scale: 0.666,
+				heightAngle: 50,
+			},
+		},
 	},
 	mapSettings: {
 		layers: [
@@ -39,6 +83,11 @@ export const defaults = {
 		],
 		hgtDirPath: undefined,
 		hgtReadFileRate: 500,
+		mapsforgeGeneral: {
+			textScale: 1,
+			lineScale: 1,
+			symbolScale: 1,
+		},
 	},
 	appearanceSettings: {
 		cursor: {
@@ -46,6 +95,9 @@ export const defaults = {
 			size: 25,
 			color: '#ed1c23',
 		},
+	},
+	updaterSettings: {
+		installedVersion: packageJson.version,
 	},
 	generalSettings: {
 		hardwareKeys: [

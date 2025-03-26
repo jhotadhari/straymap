@@ -13,9 +13,11 @@ import {
     Image,
     Linking,
     ScrollView,
+    StyleProp,
     StyleSheet,
 	useWindowDimensions,
 	View,
+    ViewStyle,
 } from 'react-native';
 import {
     Icon,
@@ -24,6 +26,7 @@ import {
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import Markdown from 'react-native-markdown-display';
+import { get } from 'lodash-es';
 
 /**
  * Internal dependencies
@@ -33,11 +36,11 @@ import AnimatedLogo from './AnimatedLogo';
 import readme from '../../README.md';
 import license from '../../LICENSE.md';
 import changelog from '../../CHANGELOG.md';
+import debugInfo from '../../.debugInfo.json';
 import packageJson from '../../package.json';
 import { removeLeadingTrailingEmptyLines, removeLines } from '../utils';
 import renderRules from '../markdown/renderRules';
 import { styles } from '../markdown/styles';
-import { get } from 'lodash-es';
 import ButtonHighlight from './ButtonHighlight';
 
 type MdPart = {
@@ -80,10 +83,7 @@ const AccordionItem = ( {
         setTimeout( () => setExpanded( false ), 0 );
     }, [] );
 
-    return <View style={ {
-        marginTop: -20,
-        marginBottom: 20,
-    } }>
+    return <View style={ { marginBottom: 20 } }>
         <ButtonHighlight
             onPress={ () => setExpanded( ! expanded ) }
             labelStyle={ {
@@ -128,6 +128,74 @@ const AccordionItem = ( {
     </View>;
 };
 
+const MdPartsRenderPart = ( {
+    part,
+    style,
+} : {
+    part: MdPart;
+    style: StyleProp<ViewStyle>;
+} ) => {
+	const theme = useTheme();
+    return <View style={ style } >
+        { part.key.length > 0 && <Text style={ theme.fonts.displaySmall }>{ part.key }</Text> }
+        <Markdown
+            rules={ renderRules }
+            style={ styles( theme ) as StyleSheet.NamedStyles<any> }
+        >
+            { part.str }
+        </Markdown>
+    </View>;
+};
+
+const MdPartsRenderPartDonation = ( {
+    part,
+    style,
+} : {
+    part: MdPart;
+    style: StyleProp<ViewStyle>;
+} ) => {
+	const { t } = useTranslation();
+	const theme = useTheme();
+
+    const parts = part.str.split( '\n\n' );
+
+    if ( parts.length < 2 ) {
+        return <MdPartsRenderPart
+            key={ part.key }
+            style={ style }
+            part={ part }
+        />;
+    }
+
+    const linkStyle = { height: 50, color: get( theme.colors, 'link' ) };
+
+    return <View style={ style } >
+        { part.key.length > 0 && <Text style={ theme.fonts.displaySmall }>{ part.key }</Text> }
+
+        <Markdown
+            rules={ renderRules }
+            style={ styles( theme ) as StyleSheet.NamedStyles<any> }
+        >
+            { parts.slice( 0, parts.length - 1).join( '\n\n' ) }
+        </Markdown>
+
+        <Text style={ linkStyle } onPress={ () => Linking.openURL( 'https://ko-fi.com/H2H3162PAG' ) }>
+            <Image source={ require( '../assets/images/ko-fi_donate.png' ) } />
+        </Text>
+        <Text style={ {...linkStyle, marginBottom: 20} } onPress={ () => Linking.openURL( 'https://liberapay.com/jhotadhari/donate' ) }>
+            <Image source={ require( '../assets/images/liberapay_donate.png' ) } />
+        </Text>
+
+        <Markdown
+            rules={ renderRules }
+            style={ styles( theme ) as StyleSheet.NamedStyles<any> }
+        >
+            { parts[parts.length-1] }
+        </Markdown>
+
+    </View>;
+};
+
 const MdPartsRender = ( {
     include,
     mbParts,
@@ -136,7 +204,6 @@ const MdPartsRender = ( {
     mbParts: MdPart[];
 } ) => {
 	const { t } = useTranslation();
-	const theme = useTheme();
     return <View>{ [...( include || [...mbParts].map( part => part.key ) )].map( key => {
 
         const part: undefined | MdPart = mbParts.find( part => part.key === key );
@@ -144,6 +211,9 @@ const MdPartsRender = ( {
         if ( ! part ) {
             return null;
         }
+
+        // Remove lines with linked images.
+        part.str = removeLines( part.str, /\[!\[[^\]]+\]\([^\(]+\)\]\([^\(]+\)/ );
 
         if ( 'License' === part.key ) {
             return <AccordionItem
@@ -153,35 +223,25 @@ const MdPartsRender = ( {
             >{ license }</AccordionItem>;
         }
 
+        const style: StyleProp<ViewStyle> = {
+            maxWidth: '93%',
+            marginBottom: 20,
+        };
+
         if ( 'Donation' === part.key ) {
-            part.str = removeLines( part.str, /(?:liberapay|ko-fi)/ );
+            return <MdPartsRenderPartDonation
+                key={ part.key }
+                style={ style }
+                part={ part }
+            />
         }
 
-        return <View
+        return <MdPartsRenderPart
             key={ part.key }
-            style={ {
-                maxWidth: '93%',
-                marginBottom: 20,
-            } }
-        >
-            { part.key.length > 0 && <Text style={ theme.fonts.displaySmall }>{ part.key }</Text> }
-            <Markdown
-                rules={ renderRules }
-                style={ styles( theme ) as StyleSheet.NamedStyles<any> }
-            >
-                { part.str }
-            </Markdown>
+            style={ style }
+            part={ part }
+        />;
 
-            { 'Donation' === part.key && <View>
-                <Text style={ { height: 50, color: get( theme.colors, 'link' ) } } onPress={ () => Linking.openURL( 'https://ko-fi.com/H2H3162PAG' ) }>
-                    <Image source={ require( '../assets/images/ko-fi_donate.png' ) } />
-                </Text>
-                <Text style={ { height: 50, color: get( theme.colors, 'link' ) } } onPress={ () => Linking.openURL( 'https://liberapay.com/jhotadhari/donate' ) }>
-                    <Image source={ require( '../assets/images/liberapay_donate.png' ) } />
-                </Text>
-            </View> }
-
-        </View>
     } ) }</View>;
 };
 
@@ -208,10 +268,17 @@ const About : FC = () => {
 
             <Text style={ theme.fonts.displaySmall }>Straymap</Text>
             <Text style={ { marginTop: 10 } } >{ t( 'slogan' ) }</Text>
-            <Text style={ { marginTop: 20 } } >version { versionChangelog }</Text>
-            { 'Unreleased' === versionChangelog &&
-                <Text>last { getChangelogVersion( 1 ) || packageJson.version }</Text>
-            }
+            <Text style={ { marginTop: 20 } } >Version { versionChangelog }</Text>
+            { 'Unreleased' === versionChangelog && <View>
+                <Text>Latest release { getChangelogVersion( 1 ) || packageJson.version }</Text>
+                { Object.keys( debugInfo ).map( ( key: string ) => {
+                    let string = get( debugInfo, key, '' );
+                    if ( 'gitStatus' === key ) {
+                        string = string.replace( /#/g, '\n' );
+                    }
+                    return <Text key={ key } >{ t( key ) + ': ' + removeLeadingTrailingEmptyLines( string ) }</Text>;
+                } ) }
+            </View> }
             <Text style={ { marginTop: 10 } } >{ t( 'sourceHostedOnGithub' ) }</Text>
             <Text style={ { color: get( theme.colors, 'link' ) } } onPress={ () => Linking.openURL( 'https://github.com/jhotadhari/straymap' ) }>
                 https://github.com/jhotadhari/straymap

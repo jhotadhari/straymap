@@ -3,7 +3,7 @@
  * External dependencies
  */
 import { Text, useTheme } from "react-native-paper";
-import { useWindowDimensions } from "react-native";
+import { useWindowDimensions, View, ViewStyle } from "react-native";
 
 /**
  * Internal dependencies
@@ -11,8 +11,17 @@ import { useWindowDimensions } from "react-native";
 import ModalWrapper from "./ModalWrapper";
 import AnimatedLogo from "./AnimatedLogo";
 import { modalWidthFactor } from "../constants";
+import { ReactNode } from "react";
 
-const SplashScreen = () => {
+const SplashScreen = ( {
+    displayLogo = true,
+    children,
+    innerStyle,
+} : {
+    displayLogo?: boolean;
+    children?: ReactNode;
+    innerStyle?: ViewStyle | null;
+} ) => {
 
     const theme = useTheme();
     const { width, height } = useWindowDimensions();
@@ -29,6 +38,7 @@ const SplashScreen = () => {
             justifyContent: 'center',
             alignItems: 'center',
             height: height * 0.75 - 2 * 20,
+            ...( innerStyle || {} ),
         } }
     >
 
@@ -36,10 +46,16 @@ const SplashScreen = () => {
             { 'Straymap' }
         </Text>
 
-        <AnimatedLogo
-            animateLoop={ true }
-            size={ width * modalWidthFactor }
-        />
+        <View style={ { marginTop: 20 } }>
+
+            { displayLogo && <AnimatedLogo
+                animateLoop={ true }
+                size={ width * modalWidthFactor }
+            /> }
+
+            { children && children }
+
+        </View>
 
     </ModalWrapper>;
 };

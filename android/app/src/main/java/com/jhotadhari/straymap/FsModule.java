@@ -11,14 +11,18 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.WritableNativeArray;
 import com.facebook.react.bridge.WritableNativeMap;
 
+import org.apache.commons.io.FileUtils;
+
 import java.io.File;
 import java.io.FileFilter;
 import java.nio.file.Path;
+import java.util.Iterator;
 
 public class FsModule extends ReactContextBaseJavaModule {
 
@@ -37,7 +41,7 @@ public class FsModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void getInfo( String navDir, Promise promise ) {
+    public void getInfo( String navDir, @Nullable ReadableArray extensions, Boolean recursive, Promise promise ) {
         try {
             WritableMap response = new WritableNativeMap();
             File path = new File( navDir );
@@ -45,20 +49,33 @@ public class FsModule extends ReactContextBaseJavaModule {
             // navParent
 			response.putString( "navParent", String.valueOf( path.getParent() ) );
 
+			@Nullable String[] extensionsStrings =  null == extensions
+				? null
+				: extensions.toArrayList().toArray( new String[ 0 ] );
+
             // navChildren
             WritableArray navChildrenArray = new WritableNativeArray();
             if ( path.isDirectory() ) {
-                File[] files = path.listFiles();
-                for (int i = 0; i < files.length; i++) {
-                    WritableMap fileInfoMap = new WritableNativeMap();
-                    fileInfoMap.putString( "name", files[i].toString() );
-                    fileInfoMap.putBoolean( "isDir", files[i].isDirectory() );
-                    fileInfoMap.putBoolean( "isFile", files[i].isFile() );
-                    fileInfoMap.putBoolean( "canRead", files[i].canRead() );
-                    fileInfoMap.putBoolean( "canExecute", files[i].canExecute() );
-                    navChildrenArray.pushMap( fileInfoMap );
-                }
-
+				Iterator<File> fileIterator = FileUtils.iterateFiles(
+					path,
+					extensionsStrings,
+					recursive
+				);
+				while ( fileIterator.hasNext() ) {
+					File file = fileIterator.next();
+					int depth = file.toString().replace(
+						path.toString() + '/',
+						""
+					).split( "/" ).length - 1;
+					WritableMap fileInfoMap = new WritableNativeMap();
+					fileInfoMap.putString( "name", file.toString() );
+					fileInfoMap.putInt( "depth", depth );
+					fileInfoMap.putBoolean( "isDir", file.isDirectory() );
+					fileInfoMap.putBoolean( "isFile", file.isFile() );
+					fileInfoMap.putBoolean( "canRead", file.canRead() );
+					fileInfoMap.putBoolean( "canExecute", file.canExecute() );
+					navChildrenArray.pushMap( fileInfoMap );
+				}
             }
 			response.putArray( "navChildren", navChildrenArray );
 
