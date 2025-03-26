@@ -24,6 +24,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
     - Rename *Google Maps* to *Google Road*
 
 ### Changed
+- Each cache has its own directory now. Makes it easier to control the size and clear each cache individually. The old cache directory and files are obsolete now.
+- Option to select the cache base-directory for each layer that supports caching. Options include the internal cache directory and the external directories.
 - Some info texts and added more external download links.
 
 ### Fixed

@@ -84,6 +84,7 @@ export interface LayerOption extends OptionBase {
 export interface LayerConfigOptionsOnlineRasterXYZ {
 	url?: LayerBitmapTileProps['url'];
 	cacheSize?: LayerBitmapTileProps['cacheSize'];
+	cacheDirBase?: 'internal' | LayerBitmapTileProps['cacheDirBase'];
 	enabledZoomMin?: LayerBitmapTileProps['enabledZoomMin'],
 	enabledZoomMax?: LayerBitmapTileProps['enabledZoomMax'],
 	zoomMin?: LayerBitmapTileProps['zoomMin'],
@@ -113,6 +114,7 @@ export interface LayerConfigOptionsHillshading {
 	shadingAlgorithmOptions?: LayerHillshadingProps['shadingAlgorithmOptions'];
 	magnitude?: LayerHillshadingProps['magnitude'];
 	cacheSize?: LayerHillshadingProps['cacheSize'];
+	cacheDirBase?: 'internal' | LayerBitmapTileProps['cacheDirBase'];
 };
 
 export type LayerConfigOptionsAny = LayerConfigOptionsOnlineRasterXYZ

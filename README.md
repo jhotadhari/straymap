@@ -117,6 +117,7 @@ This is one way to run your app — you can also run it directly from within And
 [react-native-vector-icons](https://www.npmjs.com/package/react-native-vector-icons),
 [react-native-wheel-color-picker](https://www.npmjs.com/package/react-native-wheel-color-picker),
 [semver-compare](https://www.npmjs.com/package/semver-compare),
+[slugify](https://www.npmjs.com/package/slugify),
 [sprintf-js](https://www.npmjs.com/package/sprintf-js),
 [use-deep-compare-effect](https://www.npmjs.com/package/use-deep-compare-effect),
 [Keep a Changelog](https://www.npmjs.com/package/keep-a-changelog)

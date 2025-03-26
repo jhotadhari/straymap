@@ -27,9 +27,11 @@ import dayjs from 'dayjs';
 import ButtonHighlight from './ButtonHighlight';
 import MenuItem from './MenuItem';
 import { LayerConfig, LayerConfigOptionsOnlineRasterXYZ, OptionBase, ThemePropExtended } from '../types';
-import { NumericRowControl, NumericMultiRowControl } from './NumericRowControls';
+import { NumericMultiRowControl } from './NumericRowControls';
 import InfoRowControl from './InfoRowControl';
-import { fillLayerConfigOptionsWithDefaults } from '../utils';
+import CacheControl from './CacheControl';
+import { fillLayerConfigOptionsWithDefaults, stringifyProp } from '../utils';
+import { defaults } from '../constants';
 
 interface SourceOption extends OptionBase {
     url?: `http://${string}` | `https://${string}`;
@@ -227,6 +229,7 @@ const SourceRowControl = ( {
                 placeholder="https://...{Z}/{X}/{Y}.png"
                 underlineColor="transparent"
                 multiline={ true }
+                numberOfLines={ 4 } // ??? set automatically
                 dense={ true }
                 error={ ! urlIsValid }
                 theme={ { fonts: { bodyLarge: {
@@ -318,13 +321,11 @@ const MapLayerControlOnlineRasterXYZ = ( {
             Info={ t( 'hint.maps.zoom' ) + '\n\n' + t( 'hint.maps.zoomGeneralInfo' ) }
         />
 
-        <NumericRowControl
-            label={ t( 'cacheSize' ) }
-            optKey={ 'cacheSize' }
+        <CacheControl
             options={ options }
             setOptions={ setOptions }
-            validate={ val => val >= 0 }
-            // Info={ t( 'hint.maps.cacheSize' ) }  // ??? is the cache working at all ???
+            baseDefault={ defaults.layerConfigOptions['online-raster-xyz'].cacheDirBase }
+            cacheDirChild={ stringifyProp( options.url || '' ) }
         />
 
     </View>;

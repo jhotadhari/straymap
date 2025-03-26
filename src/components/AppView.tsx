@@ -36,6 +36,8 @@ import {
 	ResponseInclude,
 	LayerMBTilesBitmapResponse,
 	LayerMapsforgeResponse,
+    LayerBitmapTileProps,
+    LayerHillshadingProps,
 } from 'react-native-mapsforge-vtm';
 
 /**
@@ -59,6 +61,7 @@ import { Dashboard } from './Dashboard';
 import * as dashboardElementComponents from "./Dashboard/elements";
 import SplashScreen from './SplashScreen';
 import MapLayersAttribution from './MapLayersAttribution';
+import { fillLayerConfigOptionsWithDefaults, getHillshadingCacheDirChild, stringifyProp } from '../utils';
 
 const AppView = ( {
     showSplash,
@@ -92,6 +95,7 @@ const AppView = ( {
 		appInnerHeight,
 		bottomBarHeight,
 		selectedHierarchyItems,
+		appDirs,
 		mapSettings,
 		generalSettings,
 		currentMapEvent,
@@ -184,9 +188,13 @@ const AppView = ( {
                 { [...mapSettings.layers].reverse().map( ( layer : LayerConfig ) => {
                     if ( layer.type && layer.visible ) {
                         let options;
+                        let cacheDirBase;
                         switch( layer.type ) {
                             case 'online-raster-xyz':
                                 options = fillLayerConfigOptionsWithDefaults( layer.type, layer.options ) as LayerConfigOptionsOnlineRasterXYZ
+                                cacheDirBase = 'internal' === options?.cacheDirBase
+                                    ? get( appDirs, 'internalCacheDir', undefined )
+                                    : options?.cacheDirBase as LayerConfigOptionsOnlineRasterXYZ['cacheDirBase'];
                                 return <LayerBitmapTile
                                     key={ layer.key }
                                     zoomMin={ options.zoomMin }
@@ -195,6 +203,8 @@ const AppView = ( {
                                     enabledZoomMax={ options.enabledZoomMax }
                                     url={ get( layer.options, 'url', '' ) }
                                     cacheSize={ options.cacheSize }
+                                    cacheDirChild={ stringifyProp( options.url || '' ) }
+                                    cacheDirBase={ ( cacheDirBase || '/' ) as LayerBitmapTileProps['cacheDirBase'] }    // if `/`, will fallback to java getReactApplicationContext().getCacheDir();
                                 />;
                             case 'raster-MBtiles':
                                 options = fillLayerConfigOptionsWithDefaults( layer.type, layer.options ) as LayerConfigOptionsRasterMBtiles
@@ -228,6 +238,9 @@ const AppView = ( {
                                 return null;
                             case 'hillshading':
                                 options = fillLayerConfigOptionsWithDefaults( layer.type, layer.options ) as LayerConfigOptionsHillshading
+                                cacheDirBase = 'internal' === options?.cacheDirBase
+                                    ? get( appDirs, 'internalCacheDir', undefined )
+                                    : options?.cacheDirBase as LayerConfigOptionsHillshading['cacheDirBase']
                                 return <LayerHillshading
                                     key={ layer.key }
                                     hgtDirPath={ options.hgtDirPath }
@@ -237,6 +250,8 @@ const AppView = ( {
                                     enabledZoomMax={ options.enabledZoomMax }
                                     magnitude={ options.magnitude }
                                     cacheSize={ options.cacheSize }
+                                    cacheDirChild={ getHillshadingCacheDirChild( options ) }
+                                    cacheDirBase={ ( cacheDirBase || '/' ) as LayerHillshadingProps['cacheDirBase'] }    // if ``, will fallback to cache dbname;
                                     shadingAlgorithm={ options.shadingAlgorithm }
                                     shadingAlgorithmOptions={ options.shadingAlgorithmOptions }
                                 />;

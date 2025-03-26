@@ -112,6 +112,7 @@
         "whatIs_one": "What is \"%s\"?",
         "whatIs_other": "What are \"%s\"?",
         "cacheSize": "Cache size",
+        "cacheDir": "Cache directory",
         "language": "language",
         "selectLang": "Select language",
         "hardwareKeyAssignment": "Hardware key assignment",
@@ -222,7 +223,9 @@
                 "lineScale": "Line scale factor > 0.0\n\nTo scale thickness of lines on map\n\nDefault: 1. = no line thickness scaling",
                 "textScale": "Text scale factor > 0.0\n\nTo scale size of labels on map\n\nDefault: 1. = no text size scaling",
                 "symbolScale": "Symbol scale factor > 0.0\n\nTo scale size of symbols on map\n\nDefault: 1. = no symbol size scaling",
-                "cacheSize": "xxx???xxx"
+                "cache": "A cache stores map images. So they don't have to get downloaded or generated again.",
+                "cacheDir": "The directory where the cache is to be saved.\n\nAn internal directory can only be accessed by the app itself. An external directory can also be accessed by other apps, such as File Explorer apps.",
+                "cacheSize": "The size of the cache in mb."
             },
             "link": {
                 "xmlRenderThemes": "Render themes in xml format",

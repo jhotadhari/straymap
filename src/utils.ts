@@ -1,13 +1,13 @@
 /**
  * External dependencies
  */
-import { get, set } from "lodash-es";
-import { LayerHillshading } from "react-native-mapsforge-vtm";
+import { get, omit, set } from "lodash-es";
+import slugify from "slugify";
 
 /**
  * Internal dependencies
  */
-import { LayerConfigOptionsAny } from "./types";
+import { LayerConfigOptionsAny, LayerConfigOptionsHillshading } from "./types";
 import { defaults } from "./constants";
 
 export const randomNumber = ( min : number, max : number ) : number => Math.random() * ( max - min ) + min;
@@ -69,4 +69,30 @@ export const fillLayerConfigOptionsWithDefaults = ( type : string, options : Lay
         }
     } );
     return newOptions;
+};
+
+export const stringifyProp = ( prop: any ) : string => {
+    switch( true ) {
+        case ( 'string' === typeof prop ):
+        case ( 'number' === typeof prop ):
+            return slugify( prop + '', { strict: true } );
+        case ( 'object' === typeof prop ):
+            return Object.keys( prop ).sort().reduce( ( acc: string, optKey: string ) => {
+                return acc + stringifyProp( get( prop, optKey ) );
+            }, '' );
+        default:
+            return '';
+    }
+};
+
+export const getHillshadingCacheDirChild = ( options: LayerConfigOptionsHillshading ) : string => {
+    return 'shading' + stringifyProp( omit( options, [
+        'enabledZoomMin',
+        'enabledZoomMax',
+        'zoomMin',
+        'zoomMax',
+        'cacheSize',
+        'cacheDirBase',
+        'hgtDirPath',
+    ] ) );
 };

@@ -23,7 +23,7 @@ export const defaults = {
 	layerConfigOptions: {
 		['online-raster-xyz']: {
 			cacheSize: 0,
-			cacheStorage: 'external',
+			cacheDirBase: 'internal',
 			zoomMin: 1,
 			zoomMax: 20,
 			enabledZoomMin: 1,
@@ -39,8 +39,8 @@ export const defaults = {
 			enabledZoomMax: 20,
 		},
 		['hillshading']: {
-			cacheSize: 0,
-			cacheStorage: 'external',
+			cacheSize: 64,
+			cacheDirBase: 'internal',
 			zoomMin: 1,
 			zoomMax: 20,
 			enabledZoomMin: 1,
