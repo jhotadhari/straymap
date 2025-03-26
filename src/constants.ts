@@ -1,4 +1,9 @@
 /**
+ * External dependencies
+ */
+import { LayerHillshading } from 'react-native-mapsforge-vtm';
+
+/**
  * Internal dependencies
  */
 import packageJson from '../package.json';
@@ -14,6 +19,40 @@ export const defaults = {
 	uiState: {
 		mapLayersExpanded: false,
 		mapsforgeProfilesExpanded: false,
+	},
+	layerConfigOptions: {
+		['online-raster-xyz']: {
+			cacheSize: 0,
+			cacheStorage: 'external',
+			zoomMin: 1,
+			zoomMax: 20,
+			enabledZoomMin: 1,
+			enabledZoomMax: 20,
+		},
+		['mapsforge']: {
+			enabledZoomMin: 1,
+			enabledZoomMax: 20,
+			profile: 'default',
+		},
+		['raster-MBtiles']: {
+			enabledZoomMin: 1,
+			enabledZoomMax: 20,
+		},
+		['hillshading']: {
+			cacheSize: 0,
+			cacheStorage: 'external',
+			zoomMin: 1,
+			zoomMax: 20,
+			enabledZoomMin: 1,
+			enabledZoomMax: 20,
+			magnitude: 90,
+			shadingAlgorithm: Object.values( LayerHillshading.shadingAlgorithms )[0],
+			shadingAlgorithmOptions: {
+				linearity: 0.1,
+				scale: 0.666,
+				heightAngle: 50,
+			},
+		},
 	},
 	mapSettings: {
 		layers: [

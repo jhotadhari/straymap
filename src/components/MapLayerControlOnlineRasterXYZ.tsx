@@ -29,6 +29,7 @@ import MenuItem from './MenuItem';
 import { LayerConfig, LayerConfigOptionsOnlineRasterXYZ, OptionBase, ThemePropExtended } from '../types';
 import { NumericRowControl, NumericMultiRowControl } from './NumericRowControls';
 import InfoRowControl from './InfoRowControl';
+import { fillLayerConfigOptionsWithDefaults } from '../utils';
 
 interface SourceOption extends OptionBase {
     url?: `http://${string}` | `https://${string}`;
@@ -276,7 +277,9 @@ const MapLayerControlOnlineRasterXYZ = ( {
 
 	const { t } = useTranslation();
 
-    const [options,setOptions] = useState<LayerConfigOptionsOnlineRasterXYZ>( editLayer.options as LayerConfigOptionsOnlineRasterXYZ );
+    const [options,setOptions] = useState<LayerConfigOptionsOnlineRasterXYZ>(
+        fillLayerConfigOptionsWithDefaults( 'online-raster-xyz', editLayer.options ) as LayerConfigOptionsOnlineRasterXYZ
+    );
 
     const doUpdate = debounce( () => {
         updateLayer( {

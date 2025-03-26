@@ -1,3 +1,14 @@
+/**
+ * External dependencies
+ */
+import { get, set } from "lodash-es";
+import { LayerHillshading } from "react-native-mapsforge-vtm";
+
+/**
+ * Internal dependencies
+ */
+import { LayerConfigOptionsAny } from "./types";
+import { defaults } from "./constants";
 
 export const randomNumber = ( min : number, max : number ) : number => Math.random() * ( max - min ) + min;
 
@@ -47,4 +58,15 @@ export const removeLines = ( str: string, pattern: RegExp ) : string => {
     return lines.filter( ( line: string ) => {
         return ! line.match( pattern );
     } ).join( '\n' );
+};
+
+export const fillLayerConfigOptionsWithDefaults = ( type : string, options : LayerConfigOptionsAny ) : LayerConfigOptionsAny => {
+    const newOptions = {...options};
+    const defaultOptions = get( defaults.layerConfigOptions, type );
+    Object.keys( defaultOptions ).map( optKey => {
+        if ( null === get( newOptions, optKey, null ) ) {
+            set( newOptions, optKey, defaultOptions[optKey] );
+        }
+    } );
+    return newOptions;
 };

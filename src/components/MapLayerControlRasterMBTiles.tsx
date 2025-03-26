@@ -7,7 +7,6 @@ import {
     useState,
 } from 'react';
 import {
-    Linking,
 	View,
 } from 'react-native';
 import {
@@ -15,7 +14,7 @@ import {
     useTheme,
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { debounce, get } from 'lodash-es';
+import { debounce } from 'lodash-es';
 import { sprintf } from 'sprintf-js';
 
 /**
@@ -26,6 +25,7 @@ import { NumericMultiRowControl } from './NumericRowControls';
 import { AppContext } from '../Context';
 import FileSourceRowControl from './FileSourceRowControl';
 import HintLink from './HintLink';
+import { fillLayerConfigOptionsWithDefaults } from '../utils';
 
 const MapLayerControlRasterMBTiles = ( {
     editLayer,
@@ -40,7 +40,9 @@ const MapLayerControlRasterMBTiles = ( {
 
     const { appDirs } = useContext( AppContext );
 
-    const [options,setOptions] = useState<LayerConfigOptionsRasterMBtiles>( editLayer.options as LayerConfigOptionsRasterMBtiles );
+    const [options,setOptions] = useState<LayerConfigOptionsRasterMBtiles>(
+        fillLayerConfigOptionsWithDefaults( 'hillshading', editLayer.options ) as LayerConfigOptionsRasterMBtiles
+    );
 
     const doUpdate = debounce( () => {
         updateLayer( {

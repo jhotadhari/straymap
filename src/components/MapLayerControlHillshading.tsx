@@ -32,6 +32,7 @@ import ModalWrapper from './ModalWrapper';
 import { NumericRowControl, NumericMultiRowControl } from './NumericRowControls';
 import ListItemMenuControl from './ListItemMenuControl';
 import HgtSourceRowControl from './HgtSourceRowControl';
+import { fillLayerConfigOptionsWithDefaults } from '../utils';
 
 const AlgorithmControl = ( {
     options,
@@ -170,7 +171,9 @@ const MapLayerControlHillshading = ( {
 
     const { appDirs } = useContext( AppContext );
 
-    const [options,setOptions] = useState<LayerConfigOptionsHillshading>( editLayer.options as LayerConfigOptionsHillshading );
+    const [options,setOptions] = useState<LayerConfigOptionsHillshading>(
+        fillLayerConfigOptionsWithDefaults( 'hillshading', editLayer.options ) as LayerConfigOptionsHillshading
+    );
 
     const doUpdate = debounce( () => {
         updateLayer( {

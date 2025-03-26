@@ -162,7 +162,7 @@ export type MapSettings = {
 export type UpdateResults = {
 	[value: string]: 	// the version updating from
 	{
-		state: string;	// 'failed'|'running'|'success'
+		state: 'failed' | 'updating' | 'success';
 		msg?: string;
 	}
 };

@@ -186,7 +186,7 @@ const AppView = ( {
                         let options;
                         switch( layer.type ) {
                             case 'online-raster-xyz':
-                                options = layer.options as LayerConfigOptionsOnlineRasterXYZ;
+                                options = fillLayerConfigOptionsWithDefaults( layer.type, layer.options ) as LayerConfigOptionsOnlineRasterXYZ
                                 return <LayerBitmapTile
                                     key={ layer.key }
                                     zoomMin={ options.zoomMin }
@@ -197,7 +197,7 @@ const AppView = ( {
                                     cacheSize={ options.cacheSize }
                                 />;
                             case 'raster-MBtiles':
-                                options = layer.options as LayerConfigOptionsRasterMBtiles;
+                                options = fillLayerConfigOptionsWithDefaults( layer.type, layer.options ) as LayerConfigOptionsRasterMBtiles
                                 return <LayerMBTilesBitmap
                                     key={ layer.key }
                                     mapFile={ options.mapFile }
@@ -208,7 +208,7 @@ const AppView = ( {
                                 />;
                             case 'mapsforge':
                                 if ( mapSettings.mapsforgeProfiles.length > 0 ) {
-                                    const layerMapsforgeOptions = layer.options as LayerConfigOptionsMapsforge;
+                                    const layerMapsforgeOptions = fillLayerConfigOptionsWithDefaults( layer.type, layer.options ) as LayerConfigOptionsMapsforge
                                     let profile = mapSettings.mapsforgeProfiles.find( prof => prof.key === layerMapsforgeOptions.profile );
                                     profile = profile || mapSettings.mapsforgeProfiles[0];
                                     return <LayerMapsforge
@@ -227,7 +227,7 @@ const AppView = ( {
                                 }
                                 return null;
                             case 'hillshading':
-                                options = layer.options as LayerConfigOptionsHillshading;
+                                options = fillLayerConfigOptionsWithDefaults( layer.type, layer.options ) as LayerConfigOptionsHillshading
                                 return <LayerHillshading
                                     key={ layer.key }
                                     hgtDirPath={ options.hgtDirPath }

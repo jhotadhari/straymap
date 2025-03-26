@@ -13,7 +13,6 @@ import {
 	View,
     TouchableHighlight,
     ViewStyle,
-    Linking,
 } from 'react-native';
 import {
     List,
@@ -47,6 +46,7 @@ import InfoButton from './InfoButton';
 import NameRowControl from './NameRowControl';
 import MapLayerControlMapsforge from './MapLayerControlMapsforge';
 import useUiState from '../compose/useUiState';
+import { fillLayerConfigOptionsWithDefaults } from '../utils';
 
 export const mapTypeOptions : LayerOption[] = [
     {
@@ -80,51 +80,6 @@ const getNewLayer = () : LayerConfig => ( {
     type: null,
     options: {},
 } );
-
-const fillLayerConfigOptionsWithDefaults = ( type : string, options : LayerConfigOptionsAny ) : LayerConfigOptionsAny => {
-    switch( type ) {
-        case 'online-raster-xyz':
-            return {
-                ...options,
-                ...( null === get( options, 'cacheSize', null ) && { cacheSize: 0 } ),
-                ...( null === get( options, 'zoomMin', null ) && { zoomMin: 1 } ),
-                ...( null === get( options, 'zoomMax', null ) && { zoomMax: 20 } ),
-                ...( null === get( options, 'enabledZoomMin', null ) && { enabledZoomMin: 1 } ),
-                ...( null === get( options, 'enabledZoomMax', null ) && { enabledZoomMax: 20 } ),
-            };
-        case 'mapsforge':
-            return {
-                ...options,
-                ...( null === get( options, 'enabledZoomMin', null ) && { enabledZoomMin: 1 } ),
-                ...( null === get( options, 'enabledZoomMax', null ) && { enabledZoomMax: 20 } ),
-                ...( null === get( options, 'profile', null ) && { profile: 'default' } ),
-            };
-        case 'raster-MBtiles':
-            return {
-                ...options,
-                ...( null === get( options, 'enabledZoomMin', null ) && { enabledZoomMin: 1 } ),
-                ...( null === get( options, 'enabledZoomMax', null ) && { enabledZoomMax: 20 } ),
-            };
-        case 'hillshading':
-            return {
-                ...options,
-                ...( null === get( options, 'cacheSize', null ) && { cacheSize: 0 } ),
-                ...( null === get( options, 'zoomMin', null ) && { zoomMin: 1 } ),
-                ...( null === get( options, 'zoomMax', null ) && { zoomMax: 20 } ),
-                ...( null === get( options, 'enabledZoomMin', null ) && { enabledZoomMin: 1 } ),
-                ...( null === get( options, 'enabledZoomMax', null ) && { enabledZoomMax: 20 } ),
-                ...( null === get( options, 'magnitude', null ) && { magnitude: 90 } ),
-                ...( null === get( options, 'shadingAlgorithm', null ) && { shadingAlgorithm: Object.values( LayerHillshading.shadingAlgorithms )[0] } ),
-                ...( null === get( options, 'shadingAlgorithmOptions', null ) && { shadingAlgorithmOptions: {
-                    linearity: 0.1,
-                    scale: 0.666,
-                    heightAngle: 50,
-                } } ),
-            };
-        default:
-            return options;
-    }
-};
 
 const VisibleControl = ( {
     item,

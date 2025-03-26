@@ -10,7 +10,6 @@ import {
     useState,
 } from 'react';
 import {
-    Linking,
     TouchableHighlight,
 	View,
 } from 'react-native';
@@ -35,6 +34,7 @@ import ButtonHighlight from './ButtonHighlight';
 import MenuItem from './MenuItem';
 import { sprintf } from 'sprintf-js';
 import HintLink from './HintLink';
+import { fillLayerConfigOptionsWithDefaults } from '../utils';
 
 const ProfileRowControl = ( {
     options,
@@ -156,7 +156,9 @@ const MapLayerControlMapsforge = ( {
 
     const { appDirs } = useContext( AppContext );
 
-    const [options,setOptions] = useState<LayerConfigOptionsMapsforge>( editLayer.options as LayerConfigOptionsMapsforge );
+    const [options,setOptions] = useState<LayerConfigOptionsMapsforge>(
+        fillLayerConfigOptionsWithDefaults( 'mapsforge', editLayer.options ) as LayerConfigOptionsMapsforge
+    );
 
     const doUpdate = debounce( () => {
         updateLayer( {
