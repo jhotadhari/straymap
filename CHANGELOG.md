@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
 ## [0.1.0] - 2025-03-26
 ### Added
 - Opacity setting for map layer `online-raster-xyz`.
@@ -45,5 +47,6 @@ Basic app structure and map viewer functionality.
 - Topbar with breadcrumbs and a menu.
 - Structure for settings and some settings pages.
 
+[Unreleased]: https://github.com/jhotadhari/straymap/compare/v0.1.0...HEAD
 [0.1.0]: https://github.com/jhotadhari/straymap/compare/v0.0.2...v0.1.0
 [0.0.2]: https://github.com/jhotadhari/straymap/releases/tag/v0.0.2
