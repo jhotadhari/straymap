@@ -31,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 - File picker controls should search recursive in nested directories.
+- Save map position and zoom level every half minute.
 
 ## [0.0.2] - 2025-03-19
 Basic app structure and map viewer functionality.

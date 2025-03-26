@@ -5,6 +5,7 @@ import React, {
 	Dispatch,
 	SetStateAction,
 	useEffect,
+	useRef,
 	useState,
 } from 'react';
 import {
@@ -280,7 +281,7 @@ const useSettings = ( {
 
 };
 
-const useInitialCenter = () => {
+const useInitialCenter = ( currentMapEvent: MapEventResponse ) => {
 	const [initialized,setInitialized] = useState( false );
 	const [initialPosition,setInitialPosition] = useState<null | InitialPosition>( null );
 	useEffect( () => {
@@ -307,7 +308,39 @@ const useInitialCenter = () => {
 			}
 			setInitialized( true );
 		}
-	}, [initialPosition] )
+	}, [initialPosition] );
+
+	// Save position every x seconds.
+	const [intervalId,setIntervalId] = useState<null | NodeJS.Timeout>( null );
+	// Store intervalId in ref
+	const intervalIdRef = useRef<null | NodeJS.Timeout>( intervalId );
+	useEffect( () => {
+		intervalIdRef.current = intervalId;
+	}, [intervalId] );
+	// Store currentMapEvent in ref
+	const currentMapEventRef = useRef<MapEventResponse>( currentMapEvent );
+	useEffect( () => {
+		currentMapEventRef.current = currentMapEvent;
+	}, [currentMapEvent] );
+	useEffect( () => {
+		if ( initialized && currentMapEventRef?.current && null === intervalIdRef.current ) {
+			const newIntervalId = setInterval( () => {
+				if ( currentMapEventRef?.current?.center && currentMapEventRef?.current?.zoomLevel ) {
+					setInitialPosition( {
+						center: currentMapEventRef.current.center,
+						zoomLevel: currentMapEventRef.current.zoomLevel,
+					} );
+				}
+			}, 1000 * 30 );
+			setIntervalId( newIntervalId );
+		}
+		return () => {
+			if ( intervalIdRef.current ) {
+				clearInterval( intervalIdRef.current );
+			}
+		};
+	}, [initialized] );
+
 	return {
 		initialPosition,
 		setInitialPosition,
@@ -627,7 +660,7 @@ const App = ( {
 	const {
 		initialPosition,
 		setInitialPosition,
-	} = useInitialCenter();
+	} = useInitialCenter( currentMapEvent );
 
 	const {
 		layerInfos,
