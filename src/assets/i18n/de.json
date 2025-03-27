@@ -200,6 +200,9 @@
             "center": {
                 "file": "Legt fest, welches Symbol für den Cursor verwendet werden soll.\n\nEs können voreingestellte Symbole oder svg- und png-Dateien verwendet werden. Die Dateien können sich in einem der Verzeichnisse der Straymap-App oder in einem öffentlich zugänglichen Verzeichnis befinden."
             },
+            "units": {
+                "heightDepth": "Die Höhe/Tiefe bezieht sich nicht auf die Höhen-/Tiefenbeschriftungen innerhalb einer Kartenebene. Diese sind völlig unabhängig von dieser Einstellung. Die Höhen-/Tiefenbeschriftungen innerhalb einer Kartenebene sind ausschließlich von der Quelle der Kartenebene abhängig."
+            },
             "maps": {
                 "layers": "Die Kartenebenen werden übereinander angezeigt. Ebenen, die in den Einstellungen weiter oben stehen, werden über den anderen Ebenen in der Karte angezeigt.\n\nDie Ebenen können per Drag & Drop sortiert werden.\n\nDie einzelnen Kartenebenen können in verschiedenen Zoomstufen ein- oder ausgeschaltet werden.\n\nDadurch können Übersichts- und Detailkarten zusammen verwendet werden.\n\nKartenebenen, die vorübergehend nicht benötigt werden, können ausgeblendet werden (Schaltfläche Augensymbol).",
                 "profiles": "„Profile“ bestimmen, wie die Offline-Vektorkarten von Mapsforge angezeigt werden.\n\nFür die Profile können eingebaute Themes verwendet werden. Oder benutzerdefinierte Themes im xml-Format.\n\nDie Profile können per Drag and Drop sortiert werden. Das oberste Profil wird als Standard für alle Kartenebenen verwendet, denen kein spezifisches Profil zugewiesen ist.",

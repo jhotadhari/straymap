@@ -200,6 +200,9 @@
             "center": {
                 "file": "Determines which symbol should be used for the cursor.\n\nPreset symbols or svg and png files can be used. The files can be in one of the Straymap app directories, or in a publicly accessible directory."
             },
+            "units": {
+                "heightDepth": "The height/depth does not refer to the height/depth labels within a map layer. These are completely independent of this setting. The height/depth labels within a map layer are solely dependent on the source of the map layer."
+            },
             "maps": {
                 "layers": "Map layers are displayed on top of each other. Layers that are higher up in the settings are displayed above the other layers in the map.\n\nThe layers can be sorted by drag and drop.\n\nThe individual map layers can be switched on or off at different zoom levels.\n\nThis allows overview and detail maps to be used together.\n\nMap layers that are temporarily not needed can be hidden (eye symbol button).",
                 "profiles": "“Profiles” determine how the offline vector maps are displayed by mapsforge.\n\nBuilt-in themes can be used for the profiles. Or custom themes in xml format.\n\nThe profiles can be sorted by drag and drop. The top profile is used as default for all maps that do not have a specific profile assigned.",

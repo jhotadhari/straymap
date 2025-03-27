@@ -2,15 +2,12 @@
  * External dependencies
  */
 import React, {
-	Dispatch,
-	SetStateAction,
 	useContext,
     useEffect,
     useRef,
     useState,
 } from 'react';
 import {
-    useWindowDimensions,
 	View,
 } from 'react-native';
 import {
@@ -105,6 +102,10 @@ export const options : { [value: string]: OptionBase[] } = {
     ],
 };
 
+const hints = {
+    heightDepth: 'hint.units.heightDepth',
+}
+
 const UnitControl = ( {
     unitKey,
     unitPref,
@@ -120,10 +121,16 @@ const UnitControl = ( {
 	const [menuVisible,setMenuVisible] = useState( false );
 
     const opts = get( options, unitKey, [] );
+    const Info = get( hints, unitKey );
 
     return <View style={ { marginBottom: 30 } } >
 
-        <Text style={ theme.fonts.titleLarge } >{ upperFirst( t( unitKey ) ) }</Text>
+        <InfoRowControl
+            label={ upperFirst( t( unitKey ) ) }
+            style={ { marginTop: 0, marginBottom: 0 } }
+            labelStyle={ theme.fonts.titleLarge }
+            Info={ Info && 'string' === typeof Info ? t( Info ) : Info }
+        />
 
         <InfoRowControl
             label={ t( 'unit' ) }

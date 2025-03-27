@@ -10,6 +10,7 @@ import {
 	View,
     TouchableHighlight,
     ViewStyle,
+    TextStyle,
 } from 'react-native';
 import {
 	useTheme,
@@ -32,7 +33,7 @@ export const labelPadding = {
     paddingRight: 4,
 };
 
-export const labelStyle = { ...labelPadding, minWidth: labelMinWidth + 12 };
+export const labelWrapStyle = { ...labelPadding, minWidth: labelMinWidth + 12 };
 
 const InfoRowControl = ( {
     label,
@@ -42,14 +43,16 @@ const InfoRowControl = ( {
     backgroundBlur = false,
     headerPlural = false,
     style = {},
+    labelStyle = {},
 } : {
     label?: string;
-    children: ReactNode;
+    children?: ReactNode;
     Info?: ReactNode | string;
     Below?: ReactNode;
     backgroundBlur?: boolean,
     headerPlural?: boolean,
     style?: ViewStyle,
+    labelStyle?: TextStyle,
 } ) => {
 	const { t } = useTranslation();
 	const theme = useTheme();
@@ -69,9 +72,9 @@ const InfoRowControl = ( {
                 onPress={ () => setModalVisible( true ) }
                 style={ { borderRadius: theme.roundness } }
             >
-                <Text style={ { ...labelStyle, textDecorationLine: 'underline' } }>{ label }</Text>
+                <Text style={ { ...labelWrapStyle, ...labelStyle, textDecorationLine: 'underline' } }>{ label }</Text>
             </TouchableHighlight> }
-            { ! Info && <Text style={ labelStyle }>{ label }</Text> }
+            { ! Info && <Text style={ { ...labelWrapStyle, ...labelStyle } }>{ label }</Text> }
             { children }
         </View>
     </InfoControlWrapper>;
