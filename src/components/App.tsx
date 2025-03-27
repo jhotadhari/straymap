@@ -326,10 +326,11 @@ const useInitialCenter = ( currentMapEvent: MapEventResponse ) => {
 		if ( initialized && currentMapEventRef?.current && null === intervalIdRef.current ) {
 			const newIntervalId = setInterval( () => {
 				if ( currentMapEventRef?.current?.center && currentMapEventRef?.current?.zoomLevel ) {
-					setInitialPosition( {
+					DefaultPreference.set( 'initialPosition', JSON.stringify( {
 						center: currentMapEventRef.current.center,
 						zoomLevel: currentMapEventRef.current.zoomLevel,
-					} );
+					} ) )
+					.catch( err => 'ERROR' + console.log( err ) );
 				}
 			}, 1000 * 30 );
 			setIntervalId( newIntervalId );
