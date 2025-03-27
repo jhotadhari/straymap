@@ -1,7 +1,12 @@
 /**
  * External dependencies
  */
-import { View } from "react-native";
+import { useContext, useEffect } from "react";
+import { get } from "lodash-es";
+import {
+    View,
+    TextInputProps,
+} from "react-native";
 import { useTranslation } from "react-i18next";
 import { TextInput, useTheme } from "react-native-paper";
 
@@ -11,10 +16,9 @@ import { TextInput, useTheme } from "react-native-paper";
 import { NumericRowControl } from "./generic/NumericRowControls";
 import InfoRowControl from "./generic/InfoRowControl";
 import ListItemMenuControl from "./generic/ListItemMenuControl";
-import { get } from "lodash-es";
 import { AppContext } from "../Context";
-import { useContext, useEffect } from "react";
 import { OptionBase } from "../types";
+import { TextInputNativeMultilineControlled } from "./generic/TextInputNativeMultiline";
 
 const CacheControl = ( {
     options,
@@ -106,9 +110,8 @@ const CacheControl = ( {
 
         <TextInput
             disabled={ true }
-            underlineColor="transparent"
             multiline={ true }
-            numberOfLines={ 4 } // ??? set automatically
+            render={ ( props: TextInputProps ) => <TextInputNativeMultilineControlled { ...props } /> }
             dense={ true }
             theme={ { fonts: { bodyLarge: {
                 ...theme.fonts.bodySmall,
