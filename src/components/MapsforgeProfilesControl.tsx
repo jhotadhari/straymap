@@ -21,7 +21,6 @@ import {
     Text,
     Icon,
     Menu,
-    ActivityIndicator,
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import DraggableGrid from 'react-native-draggable-grid';
@@ -36,7 +35,7 @@ import { LayerMapsforge, MapLayerMapsforgeModule, RenderStyleOptionsCollection }
 /**
  * Internal dependencies
  */
-import { LayerConfig, LayerConfigOptionsMapsforge, MapSettings, MapsforgeProfile, OptionBase } from '../types';
+import { LayerConfig, LayerConfigOptionsMapsforge, MapsforgeProfile, OptionBase } from '../types';
 import InfoRowControl from './generic/InfoRowControl';
 import ButtonHighlight from './generic/ButtonHighlight';
 import ModalWrapper from './generic/ModalWrapper';
@@ -51,6 +50,7 @@ import { modalWidthFactor } from '../constants';
 import useUiState from '../compose/useUiState';
 import LoadingIndicator from './generic/LoadingIndicator';
 import HintLink from './generic/HintLink';
+import InfoRadioRow from './generic/InfoRadioRow';
 
 const itemHeight = 50;
 
@@ -552,7 +552,7 @@ const MapsforgeProfilesControl = ( {
                     label={ t( 'overlay', { count: 1 } ) }
                 />
 
-                <RadioListItem
+                <InfoRadioRow
                     opt={ {
                         label: t( 'hasLabels' ),
                         key: 'hasLabels',
@@ -567,7 +567,7 @@ const MapsforgeProfilesControl = ( {
                     radioAlign={ 'left' }
                 />
 
-                <RadioListItem
+                <InfoRadioRow
                     opt={ {
                         label: t( 'hasBuildings' ),
                         key: 'hasBuildings',
@@ -580,6 +580,7 @@ const MapsforgeProfilesControl = ( {
                     labelExtractor={ a => a.label }
                     status={ editProfile.hasBuildings ? 'checked' : 'unchecked' }
                     radioAlign={ 'left' }
+                    Info={ t( 'hint.maps.mapsforgeHasBuildings' ) }
                 />
 
                 { ! isBusy && <View style={ { marginTop: 20, marginBottom: 40, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' } }>
