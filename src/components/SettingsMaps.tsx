@@ -244,8 +244,6 @@ const SettingsMaps : FC = () => {
 
             <SettingsMapsforgeControl/>
 
-            <HgtControl/>
-
         </ScrollView>
     </SettingsMapsContext.Provider>;
 };

@@ -22,6 +22,7 @@ import ListItemMenuControl from './generic/ListItemMenuControl';
 import HardwareKeyControl from './HardwareKeyControl';
 import { DashboardControl } from './Dashboard';
 import UnitPrefControl from './UnitPrefControl';
+import HgtControl from './HgtControl';
 
 const SettingsGeneral : FC = () => {
 
@@ -57,6 +58,8 @@ const SettingsGeneral : FC = () => {
 		<UnitPrefControl/>
 
 		<DashboardControl/>
+
+		<HgtControl/>
 
 	</ScrollView>;
 };
