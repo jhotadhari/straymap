@@ -27,12 +27,12 @@ import { upperFirst, get } from 'lodash-es';
  */
 import { AppContext } from '../Context';
 import { GeneralSettings, OptionBase, UnitPref } from '../types';
-import ListItemModalControl from './ListItemModalControl';
-import ButtonHighlight from './ButtonHighlight';
-import MenuItem from './MenuItem';
+import ListItemModalControl from './generic/ListItemModalControl';
+import ButtonHighlight from './generic/ButtonHighlight';
+import MenuItem from './generic/MenuItem';
 import { defaults } from '../constants';
-import InfoRowControl from './InfoRowControl';
-import { NumericRowControl } from './NumericRowControls';
+import InfoRowControl from './generic/InfoRowControl';
+import { NumericRowControl } from './generic/NumericRowControls';
 
 export const options : { [value: string]: OptionBase[] } = {
     coordinates: [

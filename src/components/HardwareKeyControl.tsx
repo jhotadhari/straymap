@@ -26,9 +26,9 @@ import { get } from 'lodash-es';
  */
 import { AppContext } from '../Context';
 import { GeneralSettings, HardwareKeyActionConf, OptionBase } from '../types';
-import ListItemModalControl from './ListItemModalControl';
-import ButtonHighlight from './ButtonHighlight';
-import MenuItem from './MenuItem';
+import ListItemModalControl from './generic/ListItemModalControl';
+import ButtonHighlight from './generic/ButtonHighlight';
+import MenuItem from './generic/MenuItem';
 
 const keyCodeStringOptions : OptionBase[] = [
 	{

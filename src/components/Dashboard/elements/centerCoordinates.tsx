@@ -18,10 +18,10 @@ import formatcoords from "formatcoords";
 /**
  * Internal dependencies
  */
-import ButtonHighlight from '../../ButtonHighlight';
-import MenuItem from '../../MenuItem';
-import InfoRowControl from '../../InfoRowControl';
-import { NumericRowControl } from '../../NumericRowControls';
+import ButtonHighlight from '../../generic/ButtonHighlight';
+import MenuItem from '../../generic/MenuItem';
+import InfoRowControl from '../../generic/InfoRowControl';
+import { NumericRowControl } from '../../generic/NumericRowControls';
 import { options as unitPrefControlOptions } from '../../UnitPrefControl';
 import { DashboardDisplayComponentProps, DashboardElementConf, UnitPref } from "../../../types";
 

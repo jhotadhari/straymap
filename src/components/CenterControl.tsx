@@ -26,10 +26,10 @@ import { sprintf } from 'sprintf-js';
  * Internal dependencies
  */
 import { AppContext } from '../Context';
-import InfoRowControl from './InfoRowControl';
+import InfoRowControl from './generic/InfoRowControl';
 import { AppearanceSettings, CursorConfig } from '../types';
-import ListItemModalControl from './ListItemModalControl';
-import { NumericRowControl } from './NumericRowControls';
+import ListItemModalControl from './generic/ListItemModalControl';
+import { NumericRowControl } from './generic/NumericRowControls';
 import FileSourceRowControl from './FileSourceRowControl';
 import { CenterInner } from './Center';
 

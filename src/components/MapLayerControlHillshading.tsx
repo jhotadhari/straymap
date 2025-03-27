@@ -24,13 +24,13 @@ import { LayerHillshading, ShadingAlgorithm, ShadingAlgorithmOptions } from 'rea
 /**
  * Internal dependencies
  */
-import ButtonHighlight from './ButtonHighlight';
+import ButtonHighlight from './generic/ButtonHighlight';
 import { LayerConfig, LayerConfigOptionsHillshading, OptionBase } from '../types';
-import InfoRowControl from './InfoRowControl';
+import InfoRowControl from './generic/InfoRowControl';
 import { AppContext } from '../Context';
-import ModalWrapper from './ModalWrapper';
-import { NumericRowControl, NumericMultiRowControl } from './NumericRowControls';
-import ListItemMenuControl from './ListItemMenuControl';
+import ModalWrapper from './generic/ModalWrapper';
+import { NumericRowControl, NumericMultiRowControl } from './generic/NumericRowControls';
+import ListItemMenuControl from './generic/ListItemMenuControl';
 import HgtSourceRowControl from './HgtSourceRowControl';
 import { fillLayerConfigOptionsWithDefaults, getHillshadingCacheDirChild } from '../utils';
 import CacheControl from './CacheControl';

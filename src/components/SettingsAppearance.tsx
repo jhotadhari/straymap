@@ -21,7 +21,7 @@ import { useTranslation } from 'react-i18next';
  * Internal dependencies
  */
 import { AppContext } from '../Context';
-import ListItemMenuControl from './ListItemMenuControl';
+import ListItemMenuControl from './generic/ListItemMenuControl';
 import CenterControl from './CenterControl';
 
 const SettingsAppearance : FC = () => {

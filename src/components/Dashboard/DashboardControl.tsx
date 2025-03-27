@@ -31,18 +31,18 @@ import { sprintf } from 'sprintf-js';
  */
 import { AppContext } from '../../Context';
 import { GeneralSettings, DashboardElementConf, OptionBase, DashboardStyle } from '../../types';
-import ListItemModalControl from '../ListItemModalControl';
-import ButtonHighlight from '../ButtonHighlight';
+import ListItemModalControl from '../generic/ListItemModalControl';
+import ButtonHighlight from '../generic/ButtonHighlight';
 import DraggableGrid from 'react-native-draggable-grid';
-import InfoButton from '../InfoButton';
+import InfoButton from '../generic/InfoButton';
 import { defaults, modalWidthFactor } from '../../constants';
 import { Dashboard } from '.';
-import ModalWrapper from '../ModalWrapper';
-import RadioListItem from '../RadioListItem';
-import { NumericRowControl } from '../NumericRowControls';
+import ModalWrapper from '../generic/ModalWrapper';
+import RadioListItem from '../generic/RadioListItem';
+import { NumericRowControl } from '../generic/NumericRowControls';
 import * as dashboardElementComponents from "./elements";
-import MenuItem from '../MenuItem';
-import InfoRowControl, { labelPadding } from '../InfoRowControl';
+import MenuItem from '../generic/MenuItem';
+import InfoRowControl, { labelPadding } from '../generic/InfoRowControl';
 import { MapContainerProps } from 'react-native-mapsforge-vtm';
 
 const itemHeight = 50;

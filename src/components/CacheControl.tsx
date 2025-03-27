@@ -8,9 +8,9 @@ import { TextInput, useTheme } from "react-native-paper";
 /**
  * Internal dependencies
  */
-import { NumericRowControl } from "./NumericRowControls";
-import InfoRowControl from "./InfoRowControl";
-import ListItemMenuControl from "./ListItemMenuControl";
+import { NumericRowControl } from "./generic/NumericRowControls";
+import InfoRowControl from "./generic/InfoRowControl";
+import ListItemMenuControl from "./generic/ListItemMenuControl";
 import { get } from "lodash-es";
 import { AppContext } from "../Context";
 import { useContext, useEffect } from "react";

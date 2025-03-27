@@ -25,12 +25,12 @@ import { MapContainerProps } from 'react-native-mapsforge-vtm';
 /**
  * Internal dependencies
  */
-import ButtonHighlight from './ButtonHighlight';
+import ButtonHighlight from './generic/ButtonHighlight';
 import { AbsPath, HgtDirPath, LayerConfigOptionsHillshading, OptionBase } from '../types';
-import InfoRowControl from './InfoRowControl';
-import ModalWrapper from './ModalWrapper';
-import RadioListItem from './RadioListItem';
-import HintLink from './HintLink';
+import InfoRowControl from './generic/InfoRowControl';
+import ModalWrapper from './generic/ModalWrapper';
+import RadioListItem from './generic/RadioListItem';
+import HintLink from './generic/HintLink';
 
 const HgtSourceRowControl = ( {
     dirs,

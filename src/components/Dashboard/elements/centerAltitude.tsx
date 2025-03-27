@@ -18,14 +18,14 @@ import convertUnits from "convert-units";
 /**
  * Internal dependencies
  */
-import ButtonHighlight from '../../ButtonHighlight';
-import MenuItem from '../../MenuItem';
-import InfoRowControl from '../../InfoRowControl';
+import ButtonHighlight from '../../generic/ButtonHighlight';
+import MenuItem from '../../generic/MenuItem';
+import InfoRowControl from '../../generic/InfoRowControl';
 import { options as unitPrefControlOptions } from '../../UnitPrefControl';
 import { DashboardDisplayComponentProps, DashboardElementConf, UnitPref } from "../../../types";
 import { TFunction } from 'i18next';
 import { roundTo } from '../../../utils';
-import { NumericRowControl } from '../../NumericRowControls';
+import { NumericRowControl } from '../../generic/NumericRowControls';
 
 const opts = [
     {

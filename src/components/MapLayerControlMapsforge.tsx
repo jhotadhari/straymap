@@ -26,14 +26,14 @@ import { debounce, get } from 'lodash-es';
  * Internal dependencies
  */
 import { LayerConfig, LayerConfigOptionsMapsforge, MapsforgeProfile, OptionBase } from '../types';
-import { NumericMultiRowControl } from './NumericRowControls';
+import { NumericMultiRowControl } from './generic/NumericRowControls';
 import { AppContext } from '../Context';
 import FileSourceRowControl from './FileSourceRowControl';
-import InfoRowControl from './InfoRowControl';
-import ButtonHighlight from './ButtonHighlight';
-import MenuItem from './MenuItem';
+import InfoRowControl from './generic/InfoRowControl';
+import ButtonHighlight from './generic/ButtonHighlight';
+import MenuItem from './generic/MenuItem';
 import { sprintf } from 'sprintf-js';
-import HintLink from './HintLink';
+import HintLink from './generic/HintLink';
 import { fillLayerConfigOptionsWithDefaults } from '../utils';
 
 const ProfileRowControl = ( {

@@ -8,7 +8,7 @@ import { useWindowDimensions, View, ViewStyle } from "react-native";
 /**
  * Internal dependencies
  */
-import ModalWrapper from "./ModalWrapper";
+import ModalWrapper from "./generic/ModalWrapper";
 import AnimatedLogo from "./AnimatedLogo";
 import { modalWidthFactor } from "../constants";
 import { ReactNode } from "react";

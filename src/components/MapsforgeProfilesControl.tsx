@@ -37,20 +37,20 @@ import { LayerMapsforge, MapLayerMapsforgeModule, RenderStyleOptionsCollection }
  * Internal dependencies
  */
 import { LayerConfig, LayerConfigOptionsMapsforge, MapSettings, MapsforgeProfile, OptionBase } from '../types';
-import InfoRowControl from './InfoRowControl';
-import ButtonHighlight from './ButtonHighlight';
-import ModalWrapper from './ModalWrapper';
+import InfoRowControl from './generic/InfoRowControl';
+import ButtonHighlight from './generic/ButtonHighlight';
+import ModalWrapper from './generic/ModalWrapper';
 import { AppContext, SettingsMapsContext } from '../Context';
-import RadioListItem from './RadioListItem';
-import InfoButton from './InfoButton';
-import IconIcomoon from './IconIcomoon';
-import NameRowControl from './NameRowControl';
+import RadioListItem from './generic/RadioListItem';
+import InfoButton from './generic/InfoButton';
+import IconIcomoon from './generic/IconIcomoon';
+import NameRowControl from './generic/NameRowControl';
 import FileSourceRowControl, { AlternativeButtonType } from './FileSourceRowControl';
-import MenuItem from './MenuItem';
+import MenuItem from './generic/MenuItem';
 import { modalWidthFactor } from '../constants';
 import useUiState from '../compose/useUiState';
-import LoadingIndicator from './LoadingIndicator';
-import HintLink from './HintLink';
+import LoadingIndicator from './generic/LoadingIndicator';
+import HintLink from './generic/HintLink';
 
 const itemHeight = 50;
 

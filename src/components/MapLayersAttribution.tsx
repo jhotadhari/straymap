@@ -13,7 +13,7 @@ import { get } from 'lodash-es';
 import { AppContext } from '../Context';
 import { LayerConfig, LayerInfo, LayerInfos, ThemePropExtended } from '../types';
 import { useTranslation } from 'react-i18next';
-import InfoButton from './InfoButton';
+import InfoButton from './generic/InfoButton';
 import { sourceOptions } from './MapLayerControlOnlineRasterXYZ';
 
 type AttributionConf = {

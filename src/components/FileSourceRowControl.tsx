@@ -23,13 +23,13 @@ import { openDocument } from 'react-native-scoped-storage';
 /**
  * Internal dependencies
  */
-import ButtonHighlight from './ButtonHighlight';
+import ButtonHighlight from './generic/ButtonHighlight';
 import { AbsPath, OptionBase } from '../types';
-import InfoRowControl from './InfoRowControl';
+import InfoRowControl from './generic/InfoRowControl';
 import useDirsInfo from '../compose/useDirsInfo';
-import ModalWrapper from './ModalWrapper';
-import RadioListItem from './RadioListItem';
-import LoadingIndicator from './LoadingIndicator';
+import ModalWrapper from './generic/ModalWrapper';
+import RadioListItem from './generic/RadioListItem';
+import LoadingIndicator from './generic/LoadingIndicator';
 
 interface Option extends OptionBase {
     key: string;

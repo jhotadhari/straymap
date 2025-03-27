@@ -21,10 +21,10 @@ import { get } from 'lodash-es';
  */
 import { AppContext } from '../Context';
 import { MapSettings } from '../types';
-import ListItemModalControl from './ListItemModalControl';
+import ListItemModalControl from './generic/ListItemModalControl';
 import { MapContainerProps } from 'react-native-mapsforge-vtm';
 import { defaults } from '../constants';
-import { NumericRowControl } from './NumericRowControls';
+import { NumericRowControl } from './generic/NumericRowControls';
 import HgtSourceRowControl from './HgtSourceRowControl';
 
 const HgtControl = () => {
