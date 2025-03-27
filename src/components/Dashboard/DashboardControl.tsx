@@ -367,21 +367,25 @@ const DashboardControl = () => {
             { ! editElement.type && <View>
                 <Text style={ { marginBottom: 18 } }>{ sprintf( t( 'selectXType' ), t( 'dashboardElement') ) }</Text>
 
-                    { [...elementTypeOptions].map( ( opt : OptionBase, index: number ) => {
-                        const onPress = () => {
-                            updateElement( {
-                                ...editElement,
-                                type: opt.key,
-                            } );
-                        };
-                        return <RadioListItem
-                            key={ opt.key }
-                            opt={ opt }
-                            onPress={ onPress }
-                            labelExtractor={ a => a.key }
-                            descExtractor={ a => a.label }
-                        />;
-                    } ) }
+                { [...elementTypeOptions].map( ( opt : OptionBase, index: number ) => {
+                    const onPress = () => {
+                        updateElement( {
+                            ...editElement,
+                            type: opt.key,
+                        } );
+                        if ( 'lineBreak' === opt.key ) {
+                            setEditElement( null );
+                            setModalVisible( false );
+                        }
+                    };
+                    return <RadioListItem
+                        key={ opt.key }
+                        opt={ opt }
+                        onPress={ onPress }
+                        labelExtractor={ a => a.key }
+                        descExtractor={ a => a.label }
+                    />;
+                } ) }
             </View> }
 
             { editElement.type && <View>
