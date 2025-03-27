@@ -192,10 +192,11 @@
                 "alignment": "Legt fest, wie der Raum zwischen den Dashboard-Elementen und um sie herum entlang der x-Achse verteilt wird.",
                 "updateRate": "Wie schnell die Elemente des Dashboards aktualisiert werden.\n\nEine schnelle Aktualisierungsrate kann auf langsamen Geräten zu Leistungseinbußen führen.",
                 "item": {
-                    "fontSize": "Schriftgröße dieses eine Dashboard-Element.",
+                    "fontSize": "Schriftgröße des Dashboard-Elements.",
                     "minWidth": "Die Mindestbreite des Dashboard-Elements in Pixeln.",
                     "unit": "Die Einheit, in der das Dashboard-Element angezeigt wird.\n\nDie Standardeinstellung der Einheit kann in den allgemeinen Einstellungen unter „Bevorzugte Einheiten“ angepasst werden."
-                }
+                },
+                "missingHgtDirPath": "In den allgemeinen Einstellungen muss ein digitales Höhenmodell definiert werden, damit die Höhe der Kartenmitte angezeigt werden kann."
             },
             "center": {
                 "file": "Legt fest, welches Symbol für den Cursor verwendet werden soll.\n\nEs können voreingestellte Symbole oder svg- und png-Dateien verwendet werden. Die Dateien können sich in einem der Verzeichnisse der Straymap-App oder in einem öffentlich zugänglichen Verzeichnis befinden."

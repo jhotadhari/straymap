@@ -192,10 +192,11 @@
                 "alignment": "Defines how the space between the dashboard elements and around them is distributed along the x-axis.",
                 "updateRate": "How quickly the dashboard elements are updated.\n\nA fast refresh rate can lead to a loss of performance on slow devices.",
                 "item": {
-                    "fontSize": "Font size of this one dashboard element.",
+                    "fontSize": "Font size of this dashboard element.",
                     "minWidth": "The minimum width of the dashboard element in pixels.",
                     "unit": "The unit in which the dashboard element is displayed.\n\nThe default setting of the unit can be adjusted in the general settings under \"Unit preferences\"."
-                }
+                },
+                "missingHgtDirPath": "A digital elevation model must be defined in the general settings so that the elevation of the map center can be displayed."
             },
             "center": {
                 "file": "Determines which symbol should be used for the cursor.\n\nPreset symbols or svg and png files can be used. The files can be in one of the Straymap app directories, or in a publicly accessible directory."
