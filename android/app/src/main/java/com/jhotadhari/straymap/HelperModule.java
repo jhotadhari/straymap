@@ -1,36 +1,15 @@
 package com.jhotadhari.straymap;
-
-import android.app.Activity;
-import android.content.Intent;
-import android.content.pm.ApplicationInfo;
-import android.net.Uri;
-import android.os.Build;
-import android.os.Bundle;
-import android.os.Environment;
-import android.provider.Settings;
-import android.util.Log;
-
-import androidx.annotation.Nullable;
-
-import com.facebook.react.bridge.ActivityEventListener;
-import com.facebook.react.bridge.BaseActivityEventListener;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
-import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.WritableNativeArray;
 import com.facebook.react.bridge.WritableNativeMap;
-import com.jhotadhari.reactnative.mapsforge.vtm.Utils;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class HelperModule extends ReactContextBaseJavaModule {
 
@@ -81,7 +60,10 @@ public class HelperModule extends ReactContextBaseJavaModule {
 		// internalCacheDir
 		responseParams.putString( "internalCacheDir", getReactApplicationContext().getCacheDir().toString() );
 		// externalCacheDir
-		responseParams.putString( "externalCacheDir", getReactApplicationContext().getExternalCacheDir().toString() );
+		File externalCacheDir = getReactApplicationContext().getExternalCacheDir();
+		if ( null != externalCacheDir ) {
+			responseParams.putString( "externalCacheDir", externalCacheDir.toString() );
+		}
 		// Subdirs
 		File[] allDirs = Arrays.copyOf( externalMediaDirs, externalMediaDirs.length + filesDirs.length );
 		System.arraycopy( filesDirs, 0, allDirs, externalMediaDirs.length, filesDirs.length );
