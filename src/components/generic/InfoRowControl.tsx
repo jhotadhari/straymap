@@ -44,6 +44,7 @@ const InfoRowControl = ( {
     headerPlural = false,
     style = {},
     labelStyle = {},
+    onLabelPress,
 } : {
     label?: string;
     children?: ReactNode;
@@ -53,6 +54,7 @@ const InfoRowControl = ( {
     headerPlural?: boolean,
     style?: ViewStyle,
     labelStyle?: TextStyle,
+    onLabelPress?: () => void,
 } ) => {
 	const { t } = useTranslation();
 	const theme = useTheme();
@@ -67,14 +69,17 @@ const InfoRowControl = ( {
         setModalVisible={ setModalVisible }
     >
         <View style={ { marginTop: 10, marginBottom: 10, flexDirection: 'row', alignItems: 'center', ...style } }>
-            { Info && <TouchableHighlight
+            { ( Info || onLabelPress ) && <TouchableHighlight
                 underlayColor={ theme.colors.elevation.level3 }
-                onPress={ () => setModalVisible( true ) }
+                onPress={ () => {
+                    onLabelPress && onLabelPress();
+                    Info && setModalVisible( true );
+                } }
                 style={ { borderRadius: theme.roundness } }
             >
                 <Text style={ { ...labelWrapStyle, ...labelStyle, textDecorationLine: 'underline' } }>{ label }</Text>
             </TouchableHighlight> }
-            { ! Info && <Text style={ { ...labelWrapStyle, ...labelStyle } }>{ label }</Text> }
+            { ! Info && ! onLabelPress && <Text style={ { ...labelWrapStyle, ...labelStyle } }>{ label }</Text> }
             { children }
         </View>
     </InfoControlWrapper>;
