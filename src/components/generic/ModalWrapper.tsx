@@ -166,7 +166,10 @@ const ModalWrapper = ( {
                         </View>}
                     </View>
 
-                    <View style={ innerStyle } >
+                    <View style={ {
+                        paddingBottom: 50,
+                        ...innerStyle,
+                    } } >
                         { children }
                     </View>
                 </ScrollView>

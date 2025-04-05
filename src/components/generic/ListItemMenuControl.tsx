@@ -49,9 +49,6 @@ const ListItemMenuControl = ( {
 			borderColor: theme.colors.outline,
 			borderWidth: 1,
 		} }
-		style={ {
-			marginLeft: 100
-		} }
 		visible={ visible }
 		onDismiss={ () => setVisible( false ) }
 		anchor={ <ListItem
