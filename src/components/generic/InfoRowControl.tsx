@@ -10,6 +10,7 @@ import {
 	View,
     TouchableHighlight,
     ViewStyle,
+    TextStyle,
 } from 'react-native';
 import {
 	useTheme,
@@ -32,7 +33,7 @@ export const labelPadding = {
     paddingRight: 4,
 };
 
-export const labelStyle = { ...labelPadding, minWidth: labelMinWidth + 12 };
+export const labelWrapStyle = { ...labelPadding, minWidth: labelMinWidth + 12 };
 
 const InfoRowControl = ( {
     label,
@@ -42,14 +43,18 @@ const InfoRowControl = ( {
     backgroundBlur = false,
     headerPlural = false,
     style = {},
+    labelStyle = {},
+    onLabelPress,
 } : {
     label?: string;
-    children: ReactNode;
+    children?: ReactNode;
     Info?: ReactNode | string;
     Below?: ReactNode;
     backgroundBlur?: boolean,
     headerPlural?: boolean,
     style?: ViewStyle,
+    labelStyle?: TextStyle,
+    onLabelPress?: () => void,
 } ) => {
 	const { t } = useTranslation();
 	const theme = useTheme();
@@ -64,14 +69,17 @@ const InfoRowControl = ( {
         setModalVisible={ setModalVisible }
     >
         <View style={ { marginTop: 10, marginBottom: 10, flexDirection: 'row', alignItems: 'center', ...style } }>
-            { Info && <TouchableHighlight
+            { ( Info || onLabelPress ) && <TouchableHighlight
                 underlayColor={ theme.colors.elevation.level3 }
-                onPress={ () => setModalVisible( true ) }
+                onPress={ () => {
+                    onLabelPress && onLabelPress();
+                    Info && setModalVisible( true );
+                } }
                 style={ { borderRadius: theme.roundness } }
             >
-                <Text style={ { ...labelStyle, textDecorationLine: 'underline' } }>{ label }</Text>
+                <Text style={ { ...labelWrapStyle, ...labelStyle, textDecorationLine: 'underline' } }>{ label }</Text>
             </TouchableHighlight> }
-            { ! Info && <Text style={ labelStyle }>{ label }</Text> }
+            { ! Info && ! onLabelPress && <Text style={ { ...labelWrapStyle, ...labelStyle } }>{ label }</Text> }
             { children }
         </View>
     </InfoControlWrapper>;

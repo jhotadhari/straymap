@@ -30,9 +30,9 @@ import { BlurView } from '@react-native-community/blur';
 /**
  * Internal dependencies
  */
-import { AppContext } from '../Context';
-import { modalWidthFactor } from '../constants';
-import useKeyboardShown from '../compose/useKeyboardShown';
+import { AppContext } from '../../Context';
+import { modalWidthFactor } from '../../constants';
+import useKeyboardShown from '../../compose/useKeyboardShown';
 
 const styles = StyleSheet.create( {
     absolute: {
@@ -166,7 +166,10 @@ const ModalWrapper = ( {
                         </View>}
                     </View>
 
-                    <View style={ innerStyle } >
+                    <View style={ {
+                        paddingBottom: 50,
+                        ...innerStyle,
+                    } } >
                         { children }
                     </View>
                 </ScrollView>

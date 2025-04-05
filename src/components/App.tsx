@@ -326,10 +326,11 @@ const useInitialCenter = ( currentMapEvent: MapEventResponse ) => {
 		if ( initialized && currentMapEventRef?.current && null === intervalIdRef.current ) {
 			const newIntervalId = setInterval( () => {
 				if ( currentMapEventRef?.current?.center && currentMapEventRef?.current?.zoomLevel ) {
-					setInitialPosition( {
+					DefaultPreference.set( 'initialPosition', JSON.stringify( {
 						center: currentMapEventRef.current.center,
 						zoomLevel: currentMapEventRef.current.zoomLevel,
-					} );
+					} ) )
+					.catch( err => 'ERROR' + console.log( err ) );
 				}
 			}, 1000 * 30 );
 			setIntervalId( newIntervalId );
@@ -556,6 +557,7 @@ const App = ( {
 
 	const { t } = useTranslation();
 	const theme = useTheme();
+	const [ready,setReady] = useState<boolean>( false );
 	const [topAppBarHeight,setTopAppBarHeight] = useState<number>( 0 );
 	const [bottomBarHeight,setBottomBarHeight] = useState<number>( 0 );
 	const [selectedHierarchyItems,setSelectedHierarchyItems] = useState<null | HierarchyItem[]>( null );
@@ -579,7 +581,7 @@ const App = ( {
 		isBusy,
 	} );
 
-	const [appDirs,setAppDirs] = useState<null | AbsPathsMap>( null );
+	const [appDirs,setAppDirs] = useState<undefined | AbsPathsMap>( undefined );
 
 	useEffect( () => {
 		HelperModule.getAppDirs().then( ( dirs : AbsPathsMap ) => {
@@ -610,7 +612,7 @@ const App = ( {
 	} = useSettings( {
 		maybeIsBusyAdd,
 		maybeIsBusyRemove,
-		savedMessage: sprintf( t( 'settings.saved' ), t( 'settings.maps' ) ),
+		savedMessage: ready ? sprintf( t( 'settings.saved' ), t( 'settings.maps' ) ) : undefined,
 		settingsKey: 'mapSettings',
 		initialSettings: defaults.mapSettings,
 	} ) as {
@@ -624,7 +626,7 @@ const App = ( {
 		setSettings: setAppearanceSettings,
 		initialized: appearanceSettingsInitialized,
 	} = useSettings( {
-		savedMessage: sprintf( t( 'settings.saved' ), t( 'settings.appearance' ) ),
+		savedMessage: ready ? sprintf( t( 'settings.saved' ), t( 'settings.appearance' ) ) : undefined,
 		maybeIsBusyAdd,
 		maybeIsBusyRemove,
 		settingsKey: 'appearanceSettings',
@@ -640,7 +642,7 @@ const App = ( {
 		setSettings: setGeneralSettings,
 		initialized: generalSettingsInitialized,
 	} = useSettings( {
-		savedMessage: sprintf( t( 'settings.saved' ), t( 'settings.general' ) ),
+		savedMessage: ready ? sprintf( t( 'settings.saved' ), t( 'settings.general' ) ) : undefined,
 		maybeIsBusyAdd,
 		maybeIsBusyRemove,
 		settingsKey: 'generalSettings',
@@ -678,13 +680,24 @@ const App = ( {
 
 	const appInnerHeight = height - topAppBarHeight;
 
-	const ready = !! ( appDirs
-		&& initialPosition
-		&& mapSettingsInitialized
-		&& appearanceSettingsInitialized
-		&& generalSettingsInitialized
-		&& uiStateInitialized
-	);
+	useEffect( () => {
+		if ( !! ( appDirs
+			&& initialPosition
+			&& mapSettingsInitialized
+			&& appearanceSettingsInitialized
+			&& generalSettingsInitialized
+			&& uiStateInitialized
+		) ) {
+			setReady( true );
+		}
+	}, [
+		appDirs,
+		initialPosition,
+		mapSettingsInitialized,
+		appearanceSettingsInitialized,
+		generalSettingsInitialized,
+		uiStateInitialized,
+	] );
 
 	const {
 		isUpdating,
@@ -746,7 +759,7 @@ const App = ( {
 
 		<AppView
     		showSplash={ showSplash }
-    		initialPosition={ initialPosition }
+    		initialPosition={ initialPosition as InitialPosition }
     		setInitialPosition={ setInitialPosition }
     		setTopAppBarHeight={ setTopAppBarHeight }
     		setBottomBarHeight={ setBottomBarHeight }

@@ -10,6 +10,7 @@ import {
     Image,
     Linking,
 	View,
+    TextInputProps,
 } from 'react-native';
 import {
     Text,
@@ -24,14 +25,15 @@ import dayjs from 'dayjs';
 /**
  * Internal dependencies
  */
-import ButtonHighlight from './ButtonHighlight';
-import MenuItem from './MenuItem';
+import ButtonHighlight from './generic/ButtonHighlight';
+import MenuItem from './generic/MenuItem';
 import { LayerConfig, LayerConfigOptionsOnlineRasterXYZ, OptionBase, ThemePropExtended } from '../types';
-import { NumericMultiRowControl, NumericRowControl } from './NumericRowControls';
-import InfoRowControl from './InfoRowControl';
+import { NumericMultiRowControl, NumericRowControl } from './generic/NumericRowControls';
+import InfoRowControl from './generic/InfoRowControl';
 import CacheControl from './CacheControl';
 import { fillLayerConfigOptionsWithDefaults, stringifyProp } from '../utils';
 import { defaults } from '../constants';
+import { TextInputNativeMultiline, TextInputNativeMultilineControlled } from './generic/TextInputNativeMultiline';
 
 interface SourceOption extends OptionBase {
     url?: `http://${string}` | `https://${string}`;
@@ -227,9 +229,11 @@ const SourceRowControl = ( {
             <TextInput
                 disabled={ 'custom' !== selectedOpt }
                 placeholder="https://...{Z}/{X}/{Y}.png"
-                underlineColor="transparent"
                 multiline={ true }
-                numberOfLines={ 4 } // ??? set automatically
+                render={ ( props: TextInputProps ) => 'custom' === selectedOpt
+                    ? <TextInputNativeMultiline { ...props } />
+                    : <TextInputNativeMultilineControlled { ...props } />
+                }
                 dense={ true }
                 error={ ! urlIsValid }
                 theme={ { fonts: { bodyLarge: {

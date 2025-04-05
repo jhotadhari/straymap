@@ -19,6 +19,7 @@ export const defaults = {
 	uiState: {
 		mapLayersExpanded: false,
 		mapsforgeProfilesExpanded: false,
+		cacheManagerExpanded: false,
 	},
 	layerConfigOptions: {
 		['online-raster-xyz']: {
@@ -48,11 +49,7 @@ export const defaults = {
 			enabledZoomMax: 20,
 			magnitude: 90,
 			shadingAlgorithm: Object.values( LayerHillshading.shadingAlgorithms )[0],
-			shadingAlgorithmOptions: {
-				linearity: 0.1,
-				scale: 0.666,
-				heightAngle: 50,
-			},
+			shadingAlgorithmOptions: LayerHillshading.shadingAlgorithmOptionsDefaults,
 		},
 	},
 	mapSettings: {
@@ -64,6 +61,7 @@ export const defaults = {
 				visible: true,
 				options: {
 					cacheSize: 128,
+					cacheDirBase: 'internal',
 					enabledZoomMax: 20,
 					enabledZoomMin: 1,
 					url: 'https://tile.openstreetmap.org/{Z}/{X}/{Y}.png',
@@ -82,7 +80,9 @@ export const defaults = {
 			},
 		],
 		hgtDirPath: undefined,
-		hgtReadFileRate: 500,
+		hgtReadFileRate: 100,
+		hgtInterpolation:  true,
+		hgtFileInfoPurgeThreshold: 3,
 		mapsforgeGeneral: {
 			textScale: 1,
 			lineScale: 1,
@@ -150,6 +150,6 @@ export const defaults = {
 				round: 2,
 			},
 		},
-		mapEventRate: 100,
+		mapEventRate: 40,
 	},
 };

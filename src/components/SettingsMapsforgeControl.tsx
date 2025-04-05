@@ -8,10 +8,6 @@ import React, {
     useState,
 } from 'react';
 import {
-	View,
-} from 'react-native';
-import {
-	Icon,
     Text,
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -22,10 +18,10 @@ import { get } from 'lodash-es';
  */
 import { AppContext } from '../Context';
 import { MapSettings, MapsforgeGeneral } from '../types';
-import ListItemModalControl from './ListItemModalControl';
+import ListItemModalControl from './generic/ListItemModalControl';
 import { defaults } from '../constants';
-import { NumericRowControl } from './NumericRowControls';
-import IconIcomoon from './IconIcomoon';
+import { NumericRowControl } from './generic/NumericRowControls';
+import IconIcomoon from './generic/IconIcomoon';
 
 const SettingsMapsforgeControl = () => {
 

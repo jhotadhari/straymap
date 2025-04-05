@@ -13,7 +13,7 @@ import { sprintf } from "sprintf-js";
  */
 import { UpdateResults } from "../types";
 import SplashScreen from "./SplashScreen";
-import ButtonHighlight from "./ButtonHighlight";
+import ButtonHighlight from "./generic/ButtonHighlight";
 import { useTranslation } from "react-i18next";
 
 const SplashScreenUpdater = ( {

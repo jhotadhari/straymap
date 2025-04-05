@@ -4,10 +4,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.2.0] - 2025-04-05
+In love with mountains.
+
+### Changed
+- Update `react-native-mapsforge-vtm` dependency, that uses `com.github.mapsforge.vtm` version `0.25.0` and all the new fancy hillshading features.
+    - Hillshading is now much faster, stable and the generated tiles are more accurate.
+    - Implemented all the new *Clear Asymmetry* shading algorithms that came with this update.
+- Change the cache filename for `hillshading` layer: That makes previous caches obsolete.
+- Elevation data can now be interpolated. And reading the DEMs is now multithreaded, better performance and doesn't block the UI.
+- Change *Digital Elevation Model* Control
+    - Move it to *General Settings*
+    - Add settings for *Interpolate Elevation* and *DEM in Memory*
+- Add `CacheManager`: Displays all cache directories, their sizes and allows to delete them.
+- DashboardControl *Map Center Altitude*: Add warning if *Digital Elevation Model* is unset.
+- Add more info texts.
+
+### Removed
+- Remove built in mapsforge themes `MOTORIDER_DARK` and `OSMAGRAY`. Because they are not existing anymore in latest version of `com.github.mapsforge.vtm`.
+
+### Fixed
+- Fix some weird zoom changes when the app is storing the current map position.
+- Fix Unhandled SoftException com.facebook.react.bridge.ReactNoCrashSoftException
+- Fix possible NullPointerException on non existing externalCacheDir
+- Small UI fixes: Some buttons or options-drop-down where out viewport.
+
 ## [0.1.0] - 2025-03-26
 ### Added
-- Opacity setting for map layer `online-raster-xyz`.
-- *Mapsforge General Settings* to *Settings / Maps*. To control `lineScale`, `textScale` and `symbolScale` of all mapsforge layers. Changes require a restart of the app.
+- Add Opacity setting for map layer `online-raster-xyz`.
+- Add *Mapsforge General Settings* to *Settings / Maps*. To control `lineScale`, `textScale` and `symbolScale` of all mapsforge layers. Changes require a restart of the app.
 - Added new mapsforge-profile settings, whether to show buildings and labels or not.
 - Add some debug/commit information to *About* page in app debug mode.
 - Update routine on app start. Compares current version with last installed version and maybe run several updates until the settings structure meets the structure of the current version.
@@ -45,5 +70,6 @@ Basic app structure and map viewer functionality.
 - Topbar with breadcrumbs and a menu.
 - Structure for settings and some settings pages.
 
+[0.2.0]: https://github.com/jhotadhari/straymap/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/jhotadhari/straymap/compare/v0.0.2...v0.1.0
 [0.0.2]: https://github.com/jhotadhari/straymap/releases/tag/v0.0.2

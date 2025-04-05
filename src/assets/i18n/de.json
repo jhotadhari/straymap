@@ -67,6 +67,8 @@
         "dem": "Digitales Höhenmodel",
         "updateRate": "Aktualisierungsrate",
         "hgtReadFileRate": "hgt-Datei-Leserate",
+        "hgtInterpolation": "Interpolieren der Höhe",
+        "hgtFileInfoPurgeThreshold": "DEM im Speicher",
         "nothing": "Nichts",
         "volumeUp": "Lautstärke erhöhen",
         "volumeDown": "Lautstärke reduzieren",
@@ -84,7 +86,7 @@
         "overlay_one": "Overlay",
         "overlay_other": "Overlays",
         "hasLabels": "Beschriftungen",
-        "hasBuildings": "Gebäude",
+        "hasBuildings": "3D Gebäude",
         "changesWillBeLost": "Änderungen gehen verloren!",
         "keepEdit": "Weiter bearbeiten",
         "enabled": "Aktiviert",
@@ -101,10 +103,6 @@
         "cancel": "Abbrechen",
         "custom": "Individuell einstellbar",
         "ok": "OK",
-        "magnitude": "Magnitude",
-        "heightAngle": "Höhenwinkel",
-        "scale": "Skalierung",
-        "linearity": "Linearität",
         "algorithm": "Algorithmus",
         "shadingAlgorithm": "Schattierungs-Algorithmus",
         "gotIt": "Alles klar, verstanden",
@@ -113,6 +111,7 @@
         "whatIs_other": "Was sind \"%s\"?",
         "cacheSize": "Cache Größe",
         "cacheDir": "Cache Verzeichnis",
+        "noLayerUseCache": "Keine Kartenebene verwendet diesen Cache",
         "opacity": "Deckkraft",
         "language": "Sprache",
         "selectLang": "Sprache wählen",
@@ -177,11 +176,86 @@
         "success": "Erfolgreich",
         "failed": "Fehlgeschlagen",
         "updating": "Am aktualisieren",
+        "advancedSettingsShow": "Erweiterte Einstellungen anzeigen",
+        "advancedSettingsHide": "Erweiterte Einstellungen ausblenden",
         "errorMsg": "Fehlermeldung",
         "errorMsgFallback": "Etwas ist schief gelaufen.",
         "updaterFail": "Du kannst versuchen die App zu starten, aber es kann sein, dass sie nicht richtig funktioniert.",
         "updaterProceed": "App starten",
         "updaterCloseApp": "App schließen",
+        "moreInformation": "Weitere Informationen",
+        "shadingOptions": {
+            "magnitude": {
+                "label": "Magnitude",
+                "hint": "Die Magnitude bestimmt die Intensität der Schattierung"
+            },
+            "heightAngle": {
+                "label": "Höhenwinkel",
+                "hint": "Der Höhenwinkel der Lichtquelle über dem Boden, in Grad, zwischen 0 und 90."
+            },
+            "scale": {
+                "label": "Skalierung",
+                "hint": "Skaliert die Eingabesteigungen.\n\nBei niedrigeren Werten werden die Steigungen später gesättigt, aber Nuancen, die näher an flach sind, leiden darunter.\n\nStandardwert: 0.666"
+            },
+            "linearity": {
+                "label": "Linearität",
+                "hint": "1 oder höher für eine lineare Neigung.\n\n0 oder niedriger für einen dreifach angewandten Sinus der Neigung, welcher Neigungsänderungen in nahezu flachen Bereichen stark betont, aber Details in steilen Hängen reduziert.\n\nStandardwert 0.1"
+            },
+            "maxSlope": {
+                "label": "Maximale Steigung",
+                "hint": "Die kleinste Steigung, die den dunkelsten Farbton hat.\n\nAlle größeren Steigungen haben den gleichen Farbton, nämlich den dunkelsten.\n\nSollte größer als Null sein.\n\nDer Standardwert ist 80.\n\n[Prozent, %]"
+            },
+            "minSlope": {
+                "label": "Minimale Steigung",
+                "hint": "Die größte Steigung, die den hellsten Farbton hat.\n\nAlle kleineren Steigungen haben den gleichen Farbton, nämlich den hellsten.\n\nSollte im Bereich zwischen Null und „Maximale Steigung“ liegen.\n\nDer Standardwert ist 0 (Null).\n\n[Prozent, %]"
+            },
+            "asymmetryFactor": {
+                "label": "Asymmetrie-Faktor",
+                "hint": "Zahl zwischen 0 und 1.\n\nBei 1 erhält die Referenzrichtung (standardmäßig NW) eine minimale Schattierung (maximaler Asymmetrieeffekt),\n\nBei 0 ist die Schattierung in allen Richtungen symmetrisch (kein Asymmetrieeffekt).\n\nBei einem Wert größer als 0 wird die Schattierung gleichmäßig asymmetrisch, wobei mit zunehmendem Faktor die Schattierung von Hängen, die näher an der Referenzrichtung liegen, geringer ist als die von Hängen in der entgegengesetzten Richtung.\n\nDer Standardwert ist 0.5"
+            },
+            "qualityScale": {
+                "label": "Qualitäts-Skalierung",
+                "hint": "Ein niedrigerer Wert bedeutet eine geringere Qualität.\nManchmal kann dies nützlich sein, um die Leistung der Hügelschattierung auf Geräten mit hoher Auflösung zu verbessern.\n\n Normalerweise gibt es keinen Grund, diesen Wert höher als 1 (die Standardeinstellung) zu setzen, obwohl dies zulässig ist, da es keinen Sinn macht, die Hügelschattierung mit einer höheren Auflösung als die Anzeige des Geräts zu rendern.\n\nEin Beispiel: Standardmäßig versucht der Algorithmus, die Auflösung der Hügelschattierung an die des Gerätebildschirms anzupassen. Wenn der Bildschirm des Geräts 480 dpi hat und du nicht möchtest, dass die Hügelschattierung mit einer höheren Auflösung als 240 dpi gerendert wird, solltest du den Wert für auf 0,5 = 240 / 480 setzen.\n\nHinweis: Der Algorithmus tut sein Bestes, um die erforderliche Qualität und Auflösung anzugleichen, aber das Ergebnis kann manchmal nicht exakt sein, da die endgültige Auflösung der Hügelschattierung ein Divisor der Auflösung der eingegebenen DEM/HGT-Daten sein muss."
+            },
+            "readingThreadsCount": {
+                "label": "Lesende Threads",
+                "hint": "Anzahl der „Erzeuger“-Threads, die das Lesen durchführen, >= 1.\n\nAnzahl N (>=1) bedeutet, dass es N Threads gibt, die das Lesen durchführen.\n\nNull (0) ist nicht zulässig. \n\nDer einzige Fall, in dem du diesen Wert auf 1 setzen solltest, ist, wenn deine Datenquelle das Überspringen nicht unterstützt, d.h. wenn die Datenquelle keine Datei ist und/oder ihr InputStream ineffizient ist.\n\nDer Standardwert ist -1\n-1 wird auf die maximale Anzahl der verfügbaren Prozessoren berechnet."
+            },
+            "computingThreadsCount": {
+                "label": "Rechenthreads",
+                "hint": "Anzahl der „Konsumenten“-Threads, die die Berechnungen durchführen, >= 0.\n\nAnzahl M (>=0) bedeutet, dass es M Threads gibt, die die Berechnungen durchführen.\n\nNull (0) bedeutet, dass der/die „Erzeuger“-Thread(s) auch die Berechnungen durchführen.\n\nDie einzigen Fälle, in denen du diesen Wert auf Null setzen solltest, sind, wenn die Speichererhaltung oberste Priorität hat oder wenn du auf einem Single-Thread-System arbeitest.\n\nDer Standardwert ist -1\n-1 wird auf die maximale Anzahl der verfügbaren Prozessoren berechnet."
+            }
+        },
+        "shadingAlgorithms": {
+            "CLASY_ADAPTIVE": {
+                "label": "Adaptive - Clear asymmetry",
+                "info": "Adaptive Implementierung des Algorithmus „Standard - Clear asymmetry“.\n\nDieser Algorithmus entscheidet dynamisch über die Auflösung und Qualität der Ausgabe in Abhängigkeit von den Anzeigeparametern, um die Effizienz zu maximieren.\n\nEr spart Speicher und CPU bei niedrigeren Zoomstufen ohne signifikante Qualitätseinbußen, schaltet jedoch auf hohe Qualität um, wenn Details bei höheren Zoomstufen benötigt werden. \n\nDas Umschalten auf hohe Qualität nur bei größeren Zoomstufen ist auch eine ressourcensparende Taktik, da weniger Hill-Shading-Daten verarbeitet werden müssen, je weiter man hineinzoomt.\n\nDu kannst die Qualität/Leistung des Renderings steuern, indem du einen benutzerdefinierten Wert für die Qualitäts-Skalierung festlegst.\n\nDies ist derzeit der Algorithmus der Wahl, da er die besten Ergebnisse mit ausgezeichneter Leistung über den gesamten Zoomstufenbereich liefert."
+            },
+            "CLASY_STANDARD": {
+                "label": "Standard - Clear asymmetry",
+                "info": "Eine Standardimplementierung des Algorithmus „Clear asymmetry hill shading“. Teilt quadratische Einheitselemente in zwei Dreiecke/Ebenen, um ihre durchschnittliche Normale zu berechnen, die dann zur Schattierung des Einheitselements verwendet wird.\n\nHorizontale Flächen oder alle Flächen mit einer Neigung kleiner als Minimale Steigung werden minimal schattiert.\n\nSteigungen werden standardmäßig linear schattiert, d. h. die Hauptschattierung (Schattierung vor Anwendung des azimutalen Asymmetriefaktors) ist aus Leistungsgründen eine lineare Funktion der Steigung.\n\nAus Leistungsgründen ist die azimutale Asymmetrie ebenfalls eine lineare Funktion des Kosinus des Azimutwinkels.\n\nEine standard 1\" DEM-Datei, die quadratische 1°-Daten enthält, wird zu einer Ausgabe-Bitmap von ca. 3600px x 3600px und 13 MB Größe verarbeitet.\n\nDieser Algorithmus ist genauer als „Simplified - Clear asymmetry“ und sollte daher bevorzugt werden."
+            },
+            "CLASY_SIMPLE": {
+                "label": "Simplified - Clear asymmetry",
+                "info": "Vereinfachte Implementierung von „Standard - Clear asymmetry“ zur Maximierung der Leistung auf Kosten der Genauigkeit.\n\nHinweis: Für besser aussehende Ergebnisse und größere Flexibilität solltest du den „Adaptive - Clear asymmetry“ verwenden.\n\nDieser Algorithmus ist vor allem dann nützlich, wenn die Leistung höchste Priorität hat und du dich nicht um die Skalierung kümmerst."
+            },
+            "CLASY_HALF_RES": {
+                "label": "Half resolution - Clear asymmetry",
+                "info": "Implementierung des Algorithmus „Standard - Clear asymmetry“ mit halber Auflösung. Er reduziert die Anzahl der Pixel in der Ausgabebitmap und damit den verwendeten Speicher um den Faktor 1/4 (1/2 in der Breite und 1/2 in der Höhe). \n\nDies geschieht, indem jede zweite Zeile und jede zweite Spalte in der Eingabe übersprungen wird.\n\nHauptzweck ist es, die Leistung zu verbessern und den Speicherverbrauch zu verringern, wenn die Ausgabe-Bitmap ohnehin herunterskaliert wird, z. B. wenn eine Karte auf einer niedrigen Zoomstufe (sehr breit) angezeigt wird.\n\nEine Standard 1\" DEM-Datei mit quadratischen 1°-Daten wird zu einer Ausgabe-Bitmap von etwa 1800x1800 Pixeln und einer Größe von 3,2 MB verarbeitet"
+            },
+            "CLASY_HI_RES": {
+                "label": "High resolution - Clear asymmetry",
+                "info": "Hochauflösende/qualitative Implementierung des Algorithmus „Standard - Clear asymmetry“.\n\nEr vervierfacht die Anzahl der Pixel der Ausgabebitmap (verdoppelt die Breite und Höhe) und verwendet bikubische Interpolation, um die besten visuellen Ergebnisse zu erzielen.\n\nDurch die Vervierfachung erhöht sich zwar der benötigte Speicherplatz, aber das ist nichts Extremes: Die Ausgabebitmap hat etwa die Größe eines 17-Megapixel-Fotos, vorausgesetzt, die Eingabedaten waren eine 1-Bogensekunde (1\", die höchste derzeit mögliche Auflösung). Bei 3-Bogensekunden-Daten (3\") sinkt die Größe auf etwa 6 MB.\n\nMit anderen Worten: Eine standardmäßige 1\" DEM-Datei mit quadratischen 1°-Daten wird zu einer Ausgabe-Bitmap mit einer Größe von etwa 7200x7200 Pixeln und 52 MB verarbeitet.\n\nUm die Effizienz bei größeren Zoomstufen erheblich zu verbessern, solltest su stattdessen die Version mit adaptiver Qualität verwenden: „Adaptive - Clear asymmetry“."
+            },
+            "SIMPLE": {
+                "label": "Simple",
+                "info": "Einfache, aber aussagekräftige Neigungsvisualisierung (z. B. ohne Anspruch auf physikalische Genauigkeit, getrennte Lichtquellen im Norden und Westen statt einer im Nordwesten, so dass eine runde Kuppel nicht rund aussieht, Sättigung wirkt je nach Neigungsrichtung unterschiedlich)\n\nHinweis: Für bessere Ergebnisse und größere Flexibilität solltest du die neueren „Clear asymmetry“-Algorithmen verwenden."
+            },
+            "DIFFUSE_LIGHT": {
+                "label": "Diffuse lighting",
+                "info": "Simuliert diffuses Licht bis zu einem gewissen Grad, wobei horizontale Flächen nicht beschattet werden (gewünschte Eigenschaft).\n\nHinweis: Bessere Ergebnisse und größere Flexibilität erzielst du mit den neueren Algorithmen: „Clear asymmetry“."
+            }
+        },
         "hint": {
             "nameId": "Irgendein beliebiger Name zur Identifizierung. Es ist wirklich egal wie du es nennst.",
             "applyToAllMapsforge": "Diese Einstellungen gelten für alle mapsforge Kartenebenen.",
@@ -192,13 +266,17 @@
                 "alignment": "Legt fest, wie der Raum zwischen den Dashboard-Elementen und um sie herum entlang der x-Achse verteilt wird.",
                 "updateRate": "Wie schnell die Elemente des Dashboards aktualisiert werden.\n\nEine schnelle Aktualisierungsrate kann auf langsamen Geräten zu Leistungseinbußen führen.",
                 "item": {
-                    "fontSize": "Schriftgröße dieses eine Dashboard-Element.",
+                    "fontSize": "Schriftgröße des Dashboard-Elements.",
                     "minWidth": "Die Mindestbreite des Dashboard-Elements in Pixeln.",
                     "unit": "Die Einheit, in der das Dashboard-Element angezeigt wird.\n\nDie Standardeinstellung der Einheit kann in den allgemeinen Einstellungen unter „Bevorzugte Einheiten“ angepasst werden."
-                }
+                },
+                "missingHgtDirPath": "In den allgemeinen Einstellungen muss ein digitales Höhenmodell definiert werden, damit die Höhe der Kartenmitte angezeigt werden kann."
             },
             "center": {
                 "file": "Legt fest, welches Symbol für den Cursor verwendet werden soll.\n\nEs können voreingestellte Symbole oder svg- und png-Dateien verwendet werden. Die Dateien können sich in einem der Verzeichnisse der Straymap-App oder in einem öffentlich zugänglichen Verzeichnis befinden."
+            },
+            "units": {
+                "heightDepth": "Die Höhe/Tiefe bezieht sich nicht auf die Höhen-/Tiefenbeschriftungen innerhalb einer Kartenebene. Diese sind völlig unabhängig von dieser Einstellung. Die Höhen-/Tiefenbeschriftungen innerhalb einer Kartenebene sind ausschließlich von der Quelle der Kartenebene abhängig."
             },
             "maps": {
                 "layers": "Die Kartenebenen werden übereinander angezeigt. Ebenen, die in den Einstellungen weiter oben stehen, werden über den anderen Ebenen in der Karte angezeigt.\n\nDie Ebenen können per Drag & Drop sortiert werden.\n\nDie einzelnen Kartenebenen können in verschiedenen Zoomstufen ein- oder ausgeschaltet werden.\n\nDadurch können Übersichts- und Detailkarten zusammen verwendet werden.\n\nKartenebenen, die vorübergehend nicht benötigt werden, können ausgeblendet werden (Schaltfläche Augensymbol).",
@@ -210,24 +288,24 @@
                 "zoomGeneralInfo": "ûber zoom im allgemeinen:\n\nBei niedrigen Zoomstufen wird die Karte weit herausgezoomt, und es wird ein großer Bereich auf der Karte angezeigt. Bei großen Zoomstufen zeigt die Karte einen detaillierten Ausschnitt.\n\nTipp: Im Dashboard kann die aktuelle Zoomstufe der Karte angezeigt werden.",
                 "mapsforgeFile": "Kartendateien für mapsforge sind einzelne Dateien, die Vektordaten enthalten. Die Dateiendung ist „.map“.\n\n Sie müssen manuell heruntergeladen werden. Nach dem Herunterladen ist keine Internetverbindung erforderlich, um sie zu verwenden.\n\nEs wird empfohlen, die heruntergeladenen Dateien in eines der Verzeichnisse der Straymap-App zu verschieben. Es ist aber auch möglich, die Karte aus jedem öffentlich zugänglichen Verzeichnis zu laden.",
                 "mapsforgeProfile": "Profile bestimmen, wie die Offline-Vektorkarten von mapsforge dargestellt werden. Für die Kartenebene kann ein Profil ausgewählt werden, das zuvor konfiguriert werden muss. Die verschiedenen mapsforge-Profile können allgemein in den Karteneinstellungen verwaltet werden.\n\nIst der Kartenebene kein Profil zugeordnet, wird automatisch das erste Profil verwendet.",
+                "mapsforgeHasBuildings": "Diese Einstellung legt fest, ob Gebäude in 3D gerendert werden. Die Darstellung von 3D-Gebäuden ist unabhängig vom Render-Theme.\n\nIst diese Einstellung ausgeschaltet, werden Gebäude gegebenenfalls in 2D gerendert. Ob und wie sie gerendert werden, hängt allein vom Render-Theme ab. Bei xml-Render-Themes kann dies eventuell über die Overlay-Einstellungen konfiguriert werden, je nach Render-Theme.",
                 "mbTilesFile": "MBtiles-Kartendateien enthalten Rasterbilder, die in einer SQLite-Datenbank gespeichert sind. Die Dateiendung lautet „.mbtiles“.\n\nSie müssen manuell heruntergeladen werden. Nach dem Herunterladen ist keine Internetverbindung erforderlich, um sie zu verwenden.\n\nNach dem Herunterladen müssen die Dateien in eines der Verzeichnisse der Straymap-App verschoben werden. Es ist nicht möglich, die Karte aus einem öffentlich zugänglichen Verzeichnis zu laden.",
-                "demDir": "Das DEM-Verzeichnis enthält die Dateien für die digitalen Höhenmodelle (DEM). Die Dateiendung der Dateien ist „.hgt“.\n\nSie müssen manuell heruntergeladen werden. Nach dem Herunterladen ist keine Internetverbindung erforderlich, um sie zu verwenden.\n\nEs wird dringend empfohlen, die heruntergeladenen Dateien in eines der Verzeichnisse der Straymap-App zu verschieben. Grundsätzlich ist es möglich, die Höhenmodelle aus jedem öffentlich zugänglichen Verzeichnis zu laden, allerdings kann die Leistung darunter leiden.\n\nZurzeit werden nur Höhenmodelle mit einer Auflösung von 3 Bogensekunden unterstützt.",
+                "demDir": "Das DEM-Verzeichnis enthält die Dateien für die digitalen Höhenmodelle (DEM). Die Dateiendung der Dateien ist „.hgt“.\n\nSie müssen manuell heruntergeladen werden. Nach dem Herunterladen ist keine Internetverbindung erforderlich, um sie zu verwenden.\n\nEs wird empfohlen, die heruntergeladenen Dateien in eines der Verzeichnisse der Straymap-App zu verschieben. Grundsätzlich ist es möglich, die Höhenmodelle aus jedem öffentlich zugänglichen Verzeichnis zu laden.\n\nDEM werden meist in einer Auflösung von 1 oder 3 Bogensekunden zur Verfügung gestellt. (Eine Bogensekunde entspricht ungefähr 30m am Äquator)",
+                "demOnly3Sec": "Zurzeit werden nur Höhenmodelle mit einer Auflösung von 3 Bogensekunden unterstützt.",
                 "shadingAlgorithm": "Der Schattierungsalgorithmus bestimmt, wie die digitalen Höhenmodelle verarbeitet werden, wie Licht und Schatten simuliert werden und wie das Relief schattiert wird. Jeder Algorithmus hat seine eigenen Optionen.",
-                "shadingMagnitude": "Das Magnitude bestimmt die Intensität der Schattierung",
-                "shadingLinearity": "1 oder höher für eine lineare Neigung.\n\n0 oder niedriger für einen dreifach angewandten Sinus der Neigung, welcher Neigungsänderungen in nahezu flachen Bereichen stark betont, aber Details in steilen Hängen reduziert.\n\nStandardwert 0.1",
-                "shadingHeightAngle": "Der Höhenwinkel der Lichtquelle über dem Boden, in Grad, zwischen 0 und 90.",
-                "shadingScale": "Skaliert die Eingabesteigungen.\n\nBei niedrigeren Werten werden die Steigungen später gesättigt, aber Nuancen, die näher an flach sind, leiden darunter.\n\nStandardwert: 0.666",
                 "mapsforgeProfileFile": "Themes bestimmen, wie die Offline-Vektorkarten von mapsforge angezeigt werden.\n\nEingebaute Themes können verwendet werden. Oder benutzerdefinierte Themes im xml-Format. Die Dateierweiterung für benutzerdefinierte Themes ist „.xml“.\n\nBenutzerdefinierte Themes müssen manuell heruntergeladen und in eines der Verzeichnisse der Straymap-App verschoben werden. Es ist nicht möglich, die Themes aus einem öffentlich zugänglichen Verzeichnis zu laden.",
                 "mapsforgeProfileStyle": "Themes können verschiedene Stile enthalten. Diese Stile sind leichte Variationen des Themes.",
                 "mapsforgeProfileOverlays": "Overlays bestimmen, welche Elemente der Karte sichtbar sind und welche nicht.\n\nTipp: Du kannst den Kartenhintergrund ausschalten. Und stattdessen eine andere Kartenebene (z. B. eine Satellitenkarte) dahinter anzeigen.",
                 "hgtReadFileRate": "Bestimmt die Geschwindigkeit (in Millisekunden), mit der neue Höhenmodelle in den Speicher geladen werden, wenn die Karte verschoben wird.",
+                "hgtInterpolation": "Wie die Höhe für einen bestimmten Ort aus dem DEM gelesen werden soll.\n\nOhne Interpolation wird die Höhe des nächstgelegenen Rasterpunkts aus dem DEM verwendet.\n\nMit Interpolation wird die Höhe zwischen den Höhen der vier nächstgelegenen Rasterpunkte aus dem DEM bilinear interpoliert.",
+                "hgtFileInfoPurgeThreshold": "Wie viele digitale Höhenmodelle in jede Richtung gleichzeitig im Speicher gehalten werden sollen. ",
                 "lineScale": "Linien-Skalierungsfaktor > 0.0\n\nZur Skalierung der Liniendicke auf der Karte\n\nStandard: 1. = keine Skalierung der Liniendicke",
                 "textScale": "Text-Skalierungsfaktor > 0.0\n\nZur Skalierung der Größe von Beschriftungen auf der Karte\n\nStandard: 1. = keine Skalierung der Textgröße",
                 "symbolScale": "Symbol-Skalierungsfaktor > 0.0\n\nZur Skalierung der Symbolgröße auf der Karte\n\nStandard: 1. = keine Skalierung der Symbolgröße",
                 "opacity": "Die Deckkraft der Kartenebene.\n\nEin Wert zwischen 0 und 1.\n\n- 0 bedeutet, dass die Ebene transparent ist.\n- 1 bedeutet, dass die Ebene volle Deckkraft hat und darunter liegende Ebenen nicht sichtbar sind.",
                 "cache": "Ein Cache (Pufferspeicher) speichert Kartenbilder. So müssen sie nicht erneut heruntergeladen oder erstellt werden.",
                 "cacheDir": "Das Verzeichnis, in dem der Cache gespeichert werden soll.\n\n Auf ein internes Verzeichnis kann nur die App selbst zugreifen. Auf ein externes Verzeichnis können auch andere Apps, wie z. B. Datei-Explorer-Apps, zugreifen.",
-                "cacheSize": "Die Größe des Caches in mb."
+                "cacheSize": "Die Größe des Caches in MB."
             },
             "link": {
                 "xmlRenderThemes": "Render-Themes im Xml-Format",

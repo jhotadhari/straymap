@@ -24,7 +24,7 @@ import { SettingsItem } from '../types';
 import SettingsGeneral from './SettingsGeneral';
 import SettingsAppearance from './SettingsAppearance';
 import SettingsMaps from './SettingsMaps';
-import ListItem from './ListItem';
+import ListItem from './generic/ListItem';
 
 const settingsPages : SettingsItem[] = [
 	{

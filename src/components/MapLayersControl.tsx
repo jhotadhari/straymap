@@ -34,16 +34,16 @@ import { LayerHillshading } from 'react-native-mapsforge-vtm';
  * Internal dependencies
  */
 import { LayerConfig, LayerConfigOptionsAny, LayerOption } from '../types';
-import InfoRowControl from './InfoRowControl';
-import ButtonHighlight from './ButtonHighlight';
-import ModalWrapper from './ModalWrapper';
+import InfoRowControl from './generic/InfoRowControl';
+import ButtonHighlight from './generic/ButtonHighlight';
+import ModalWrapper from './generic/ModalWrapper';
 import MapLayerControlOnlineRasterXYZ from './MapLayerControlOnlineRasterXYZ';
 import { SettingsMapsContext } from '../Context';
 import MapLayerControlRasterMBTiles from './MapLayerControlRasterMBTiles';
-import RadioListItem from './RadioListItem';
+import RadioListItem from './generic/RadioListItem';
 import MapLayerControlHillshading from './MapLayerControlHillshading';
-import InfoButton from './InfoButton';
-import NameRowControl from './NameRowControl';
+import InfoButton from './generic/InfoButton';
+import NameRowControl from './generic/NameRowControl';
 import MapLayerControlMapsforge from './MapLayerControlMapsforge';
 import useUiState from '../compose/useUiState';
 import { fillLayerConfigOptionsWithDefaults } from '../utils';

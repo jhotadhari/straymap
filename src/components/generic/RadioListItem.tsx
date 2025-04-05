@@ -17,9 +17,9 @@ import { useTranslation } from 'react-i18next';
 /**
  * Internal dependencies
  */
-import { OptionBase } from '../types';
-import { modalWidthFactor } from '../constants';
-import { labelStyle as labelWrapStyle } from './InfoRowControl';
+import { OptionBase } from '../../types';
+import { modalWidthFactor } from '../../constants';
+import { labelWrapStyle } from './InfoRowControl';
 
 const space = 6;
 

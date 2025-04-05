@@ -1,14 +1,16 @@
 /**
  * External dependencies
  */
-import { get, omit, set } from "lodash-es";
+import { get, invert, omit, pick, set } from "lodash-es";
 import slugify from "slugify";
+import defaultsAssign from "defaults";
 
 /**
  * Internal dependencies
  */
 import { LayerConfigOptionsAny, LayerConfigOptionsHillshading } from "./types";
 import { defaults } from "./constants";
+import { LayerHillshading } from "react-native-mapsforge-vtm";
 
 export const randomNumber = ( min : number, max : number ) : number => Math.random() * ( max - min ) + min;
 
@@ -61,32 +63,54 @@ export const removeLines = ( str: string, pattern: RegExp ) : string => {
 };
 
 export const fillLayerConfigOptionsWithDefaults = ( type : string, options : LayerConfigOptionsAny ) : LayerConfigOptionsAny => {
-    const newOptions = {...options};
-    const defaultOptions = get( defaults.layerConfigOptions, type );
-    Object.keys( defaultOptions ).map( optKey => {
-        if ( null === get( newOptions, optKey, null ) ) {
-            set( newOptions, optKey, defaultOptions[optKey] );
-        }
-    } );
-    return newOptions;
+    return defaultsAssign(
+        options as Record<string, unknown>,
+        get( defaults.layerConfigOptions, type, {} )
+    ) as LayerConfigOptionsAny;
 };
 
-export const stringifyProp = ( prop: any ) : string => {
+export const stringifyProp = ( prop: any, deli?: string ) : string => {
+    deli = deli || '_';
     switch( true ) {
         case ( 'string' === typeof prop ):
+            return slugify( prop + '', { strict: true, replacement: '_' } );
         case ( 'number' === typeof prop ):
-            return slugify( prop + '', { strict: true } );
+            return [
+                prop < 0 ? 'm' : '',
+                slugify( ( prop + '' ).replace( '.', 'd' ), { strict: true, replacement: '_' } ),
+            ].join( '' );
         case ( 'object' === typeof prop ):
             return Object.keys( prop ).sort().reduce( ( acc: string, optKey: string ) => {
-                return acc + stringifyProp( get( prop, optKey ) );
+                return acc + deli + stringifyProp( get( prop, optKey ) );
             }, '' );
+        case ( 'boolean' === typeof prop ):
+            return true === prop ? '1' : '0';
         default:
             return '';
     }
 };
 
 export const getHillshadingCacheDirChild = ( options: LayerConfigOptionsHillshading ) : string => {
-    return 'shading' + stringifyProp( omit( options, [
+    const shadingAlgoKey = get(
+        invert( LayerHillshading.shadingAlgorithms ),
+        options?.shadingAlgorithm || '',
+        ''
+    );
+    const shadingAlgorithmsOptionKeys = get(
+        LayerHillshading.shadingAlgorithmsOptionKeys,
+        shadingAlgoKey,
+        []
+    ) as string[];
+    return 'shading' + stringifyProp( omit( {
+        ...options,
+        shadingAlgorithmOptions: pick(
+            defaultsAssign(
+                options?.shadingAlgorithmOptions || {},
+                defaults.layerConfigOptions.hillshading.shadingAlgorithmOptions
+            ),
+            shadingAlgorithmsOptionKeys
+        )
+    }, [
         'enabledZoomMin',
         'enabledZoomMax',
         'zoomMin',

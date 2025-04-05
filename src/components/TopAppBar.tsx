@@ -26,7 +26,7 @@ import type { HierarchyItem, MenuItem as MenuItemType } from '../types';
 import Settings from './Settings';
 import About from './About';
 import { AppContext } from '../Context';
-import MenuItem from './MenuItem';
+import MenuItem from './generic/MenuItem';
 
 const EgalTest = () => {
 	const theme = useTheme();

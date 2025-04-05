@@ -2,6 +2,7 @@
  * External dependencies
  */
 import React, {
+    useContext,
     useEffect,
     useState,
 } from 'react';
@@ -18,14 +19,17 @@ import convertUnits from "convert-units";
 /**
  * Internal dependencies
  */
-import ButtonHighlight from '../../ButtonHighlight';
-import MenuItem from '../../MenuItem';
-import InfoRowControl from '../../InfoRowControl';
+import ButtonHighlight from '../../generic/ButtonHighlight';
+import MenuItem from '../../generic/MenuItem';
+import InfoRowControl from '../../generic/InfoRowControl';
 import { options as unitPrefControlOptions } from '../../UnitPrefControl';
 import { DashboardDisplayComponentProps, DashboardElementConf, UnitPref } from "../../../types";
 import { TFunction } from 'i18next';
 import { roundTo } from '../../../utils';
-import { NumericRowControl } from '../../NumericRowControls';
+import { NumericRowControl } from '../../generic/NumericRowControls';
+import { AppContext } from '../../../Context';
+import { defaults } from '../../../constants';
+import { styles as mdStyles } from '../../../markdown/styles';
 
 const opts = [
     {
@@ -45,6 +49,9 @@ const ControlComponent = ( {
     unitPrefs?: { [value: string]: UnitPref };
 } ) => {
 
+    const { mapSettings } = useContext( AppContext );
+    const hgtDirPath = get( mapSettings, 'hgtDirPath', defaults.mapSettings.hgtDirPath );
+
     const { t } = useTranslation();
     const theme = useTheme();
     const [menuVisible,setMenuVisible] = useState( false );
@@ -63,6 +70,16 @@ const ControlComponent = ( {
     useEffect( () => presetUnit(), [activeOpt] );
 
     return activeOpt ? <View>
+
+        { ! hgtDirPath && <View style={ {
+            ...get( mdStyles( theme ), 'blockquote' ),
+            marginVertical: 10,
+            paddingVertical: 10,
+            marginLeft: 0,
+            borderColor: theme.colors.errorContainer,
+        } }>
+            <Text>{ t( 'hint.dashboard.missingHgtDirPath' ) }</Text>
+        </View> }
 
         <InfoRowControl
             label={ t( 'unit' ) }

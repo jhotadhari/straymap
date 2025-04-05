@@ -21,10 +21,10 @@ import { sprintf } from 'sprintf-js';
  * Internal dependencies
  */
 import { LayerConfig, LayerConfigOptionsRasterMBtiles } from '../types';
-import { NumericMultiRowControl } from './NumericRowControls';
+import { NumericMultiRowControl } from './generic/NumericRowControls';
 import { AppContext } from '../Context';
 import FileSourceRowControl from './FileSourceRowControl';
-import HintLink from './HintLink';
+import HintLink from './generic/HintLink';
 import { fillLayerConfigOptionsWithDefaults } from '../utils';
 
 const MapLayerControlRasterMBTiles = ( {

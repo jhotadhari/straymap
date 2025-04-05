@@ -146,6 +146,7 @@ export type HgtDirPath = LayerConfigOptionsHillshading['hgtDirPath'] | MapContai
 export type UiState = {
 	mapLayersExpanded: Boolean;
 	mapsforgeProfilesExpanded: Boolean;
+	cacheManagerExpanded: Boolean;
 };
 
 export type MapsforgeGeneral = {
@@ -159,6 +160,8 @@ export type MapSettings = {
 	mapsforgeProfiles: MapsforgeProfile[];
 	hgtDirPath: MapContainerProps['hgtDirPath'];
 	hgtReadFileRate: MapContainerProps['hgtReadFileRate'];
+	hgtInterpolation: MapContainerProps['hgtInterpolation'];
+	hgtFileInfoPurgeThreshold: MapContainerProps['hgtFileInfoPurgeThreshold'];
 	mapsforgeGeneral: MapsforgeGeneral;
 };
 
