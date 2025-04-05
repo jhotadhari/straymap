@@ -111,6 +111,7 @@
         "whatIs_other": "Was sind \"%s\"?",
         "cacheSize": "Cache Größe",
         "cacheDir": "Cache Verzeichnis",
+        "noLayerUseCache": "Keine Kartenebene verwendet diesen Cache",
         "opacity": "Deckkraft",
         "language": "Sprache",
         "selectLang": "Sprache wählen",

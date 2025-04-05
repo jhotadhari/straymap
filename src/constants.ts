@@ -19,6 +19,7 @@ export const defaults = {
 	uiState: {
 		mapLayersExpanded: false,
 		mapsforgeProfilesExpanded: false,
+		cacheManagerExpanded: false,
 	},
 	layerConfigOptions: {
 		['online-raster-xyz']: {
@@ -60,6 +61,7 @@ export const defaults = {
 				visible: true,
 				options: {
 					cacheSize: 128,
+					cacheDirBase: 'internal',
 					enabledZoomMax: 20,
 					enabledZoomMin: 1,
 					url: 'https://tile.openstreetmap.org/{Z}/{X}/{Y}.png',

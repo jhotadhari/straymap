@@ -146,6 +146,7 @@ export type HgtDirPath = LayerConfigOptionsHillshading['hgtDirPath'] | MapContai
 export type UiState = {
 	mapLayersExpanded: Boolean;
 	mapsforgeProfilesExpanded: Boolean;
+	cacheManagerExpanded: Boolean;
 };
 
 export type MapsforgeGeneral = {

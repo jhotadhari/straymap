@@ -27,8 +27,8 @@ import MapsforgeProfilesControl from './MapsforgeProfilesControl';
 import { LayerConfig, LayerConfigOptionsMapsforge, LayerType, MapSettings, MapsforgeProfile } from '../types';
 import { get } from 'lodash-es';
 import useDeepCompareEffect from 'use-deep-compare-effect';
-import HgtControl from './HgtControl';
 import SettingsMapsforgeControl from './SettingsMapsforgeControl';
+import CacheManager from './CacheManager';
 
 
 const getNewProfile = () : MapsforgeProfile => ( {
@@ -243,6 +243,8 @@ const SettingsMaps : FC = () => {
             />
 
             <SettingsMapsforgeControl/>
+
+            <CacheManager/>
 
         </ScrollView>
     </SettingsMapsContext.Provider>;

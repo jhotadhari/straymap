@@ -111,6 +111,7 @@
         "whatIs_other": "What are \"%s\"?",
         "cacheSize": "Cache size",
         "cacheDir": "Cache directory",
+        "noLayerUseCache": "No map layer uses this cache",
         "opacity": "Opacity",
         "language": "language",
         "selectLang": "Select language",

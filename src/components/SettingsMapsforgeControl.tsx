@@ -8,10 +8,6 @@ import React, {
     useState,
 } from 'react';
 import {
-	View,
-} from 'react-native';
-import {
-	Icon,
     Text,
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
