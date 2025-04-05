@@ -134,6 +134,8 @@ const AppView = ( {
                 mapEventRate={ generalSettings.mapEventRate }
                 nativeNodeHandle={ mapViewNativeNodeHandle }
                 setNativeNodeHandle={ setMapViewNativeNodeHandle }
+                hgtInterpolation={ mapSettings.hgtInterpolation }
+                hgtFileInfoPurgeThreshold={ mapSettings.hgtFileInfoPurgeThreshold }
                 hgtReadFileRate={ mapSettings.hgtReadFileRate }
                 hgtDirPath={ mapSettings?.hgtDirPath && [...generalSettings.dashboardElements.elements].reduce( ( acc: boolean, ele: DashboardElementConf ) => {
                     return acc || ! ele.type ? acc : get( dashboardElementComponents, [ele.type,'shouldSetHgtDirPath'], false );

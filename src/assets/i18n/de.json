@@ -67,6 +67,8 @@
         "dem": "Digitales Höhenmodel",
         "updateRate": "Aktualisierungsrate",
         "hgtReadFileRate": "hgt-Datei-Leserate",
+        "hgtInterpolation": "Interpolieren der Höhe",
+        "hgtFileInfoPurgeThreshold": "DEM im Speicher",
         "nothing": "Nichts",
         "volumeUp": "Lautstärke erhöhen",
         "volumeDown": "Lautstärke reduzieren",
@@ -184,7 +186,7 @@
         "shadingOptions": {
             "magnitude": {
                 "label": "Magnitude",
-                "hint": "Die Magnitude bestimmt die Intensität der Schattierung",
+                "hint": "Die Magnitude bestimmt die Intensität der Schattierung"
             },
             "heightAngle": {
                 "label": "Höhenwinkel",
@@ -294,6 +296,8 @@
                 "mapsforgeProfileStyle": "Themes können verschiedene Stile enthalten. Diese Stile sind leichte Variationen des Themes.",
                 "mapsforgeProfileOverlays": "Overlays bestimmen, welche Elemente der Karte sichtbar sind und welche nicht.\n\nTipp: Du kannst den Kartenhintergrund ausschalten. Und stattdessen eine andere Kartenebene (z. B. eine Satellitenkarte) dahinter anzeigen.",
                 "hgtReadFileRate": "Bestimmt die Geschwindigkeit (in Millisekunden), mit der neue Höhenmodelle in den Speicher geladen werden, wenn die Karte verschoben wird.",
+                "hgtInterpolation": "Wie die Höhe für einen bestimmten Ort aus dem DEM gelesen werden soll.\n\nOhne Interpolation wird die Höhe des nächstgelegenen Rasterpunkts aus dem DEM verwendet.\n\nMit Interpolation wird die Höhe zwischen den Höhen der vier nächstgelegenen Rasterpunkte aus dem DEM bilinear interpoliert.",
+                "hgtFileInfoPurgeThreshold": "Wie viele digitale Höhenmodelle in jede Richtung gleichzeitig im Speicher gehalten werden sollen. ",
                 "lineScale": "Linien-Skalierungsfaktor > 0.0\n\nZur Skalierung der Liniendicke auf der Karte\n\nStandard: 1. = keine Skalierung der Liniendicke",
                 "textScale": "Text-Skalierungsfaktor > 0.0\n\nZur Skalierung der Größe von Beschriftungen auf der Karte\n\nStandard: 1. = keine Skalierung der Textgröße",
                 "symbolScale": "Symbol-Skalierungsfaktor > 0.0\n\nZur Skalierung der Symbolgröße auf der Karte\n\nStandard: 1. = keine Skalierung der Symbolgröße",

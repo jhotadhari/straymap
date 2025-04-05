@@ -159,6 +159,8 @@ export type MapSettings = {
 	mapsforgeProfiles: MapsforgeProfile[];
 	hgtDirPath: MapContainerProps['hgtDirPath'];
 	hgtReadFileRate: MapContainerProps['hgtReadFileRate'];
+	hgtInterpolation: MapContainerProps['hgtInterpolation'];
+	hgtFileInfoPurgeThreshold: MapContainerProps['hgtFileInfoPurgeThreshold'];
 	mapsforgeGeneral: MapsforgeGeneral;
 };
 

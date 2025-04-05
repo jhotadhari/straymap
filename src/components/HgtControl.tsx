@@ -12,9 +12,11 @@ import {
 } from 'react-native';
 import {
 	Icon,
+    useTheme,
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { get } from 'lodash-es';
+import { MapContainerProps } from 'react-native-mapsforge-vtm';
 
 /**
  * Internal dependencies
@@ -22,20 +24,25 @@ import { get } from 'lodash-es';
 import { AppContext } from '../Context';
 import { MapSettings } from '../types';
 import ListItemModalControl from './generic/ListItemModalControl';
-import { MapContainerProps } from 'react-native-mapsforge-vtm';
 import { defaults } from '../constants';
 import { NumericRowControl } from './generic/NumericRowControls';
 import HgtSourceRowControl from './HgtSourceRowControl';
+import InfoRadioRow from './generic/InfoRadioRow';
+import InfoRowControl from './generic/InfoRowControl';
 
 const HgtControl = () => {
 
 	const { t } = useTranslation();
+
+    const theme = useTheme();
 
 	const {
 		mapSettings,
 		setMapSettings,
 		appDirs,
 	} = useContext( AppContext );
+
+    const [showAdvanced,setShowAdvanced] = useState( false );
 
 	const [hgtDirPath,setHgtDirPath] = useState<MapContainerProps['hgtDirPath'] >( get( mapSettings, 'hgtDirPath', defaults.mapSettings.hgtDirPath ) );
 	const hgtDirPathRef = useRef( hgtDirPath );
@@ -49,10 +56,24 @@ const HgtControl = () => {
         hgtReadFileRateRef.current = hgtReadFileRate;
     }, [hgtReadFileRate] );
 
+	const [hgtInterpolation,setHgtInterpolation] = useState<MapContainerProps['hgtInterpolation'] >( get( mapSettings, 'hgtInterpolation', defaults.mapSettings.hgtInterpolation ) );
+	const hgtInterpolationRef = useRef( hgtInterpolation );
+    useEffect( () => {
+        hgtInterpolationRef.current = hgtInterpolation;
+    }, [hgtInterpolation] );
+
+	const [hgtFileInfoPurgeThreshold,setHgtFileInfoPurgeThreshold] = useState<MapContainerProps['hgtFileInfoPurgeThreshold'] >( get( mapSettings, 'hgtFileInfoPurgeThreshold', defaults.mapSettings.hgtFileInfoPurgeThreshold ) );
+	const hgtFileInfoPurgeThresholdRef = useRef( hgtFileInfoPurgeThreshold );
+    useEffect( () => {
+        hgtFileInfoPurgeThresholdRef.current = hgtFileInfoPurgeThreshold;
+    }, [hgtFileInfoPurgeThreshold] );
+
     const save = () => mapSettings && setMapSettings && setMapSettings( ( mapSettings: MapSettings ) => ( {
         ...mapSettings,
         hgtDirPath: hgtDirPathRef.current,
-        ...( hgtReadFileRateRef.current && { hgtReadFileRate: hgtReadFileRateRef.current } ),
+        ...( undefined !== hgtReadFileRateRef?.current && { hgtReadFileRate: hgtReadFileRateRef.current } ),
+        ...( undefined !== hgtInterpolationRef?.current && { hgtInterpolation: hgtInterpolationRef.current } ),
+        ...( undefined !== hgtFileInfoPurgeThresholdRef?.current && { hgtFileInfoPurgeThreshold: hgtFileInfoPurgeThresholdRef.current } ),
     } ) );
     useEffect( () => save, [] );    // Save on unmount.
 
@@ -79,16 +100,46 @@ const HgtControl = () => {
             onlyThreeSeconds={ true }
         />
 
-        <NumericRowControl
-            label={ t( 'hgtReadFileRate' ) }
-            optKey={ 'hgtReadFileRate' }
-            options={ { hgtReadFileRate } }
-            setOptions={ ( { hgtReadFileRate } ) => {
-                setHgtReadFileRate( hgtReadFileRate );
+        <InfoRadioRow
+            opt={ {
+                label: t( 'hgtInterpolation' ),
+                key: 'hgtInterpolation',
             } }
-            validate={ val => val >= 0 }
-            Info={ t( 'hint.maps.hgtReadFileRate' ) }
+            onPress={ () => setHgtInterpolation( ! hgtInterpolation ) }
+            labelStyle={ theme.fonts.bodyMedium }
+            labelExtractor={ a => a.label }
+            status={ hgtInterpolation ? 'checked' : 'unchecked' }
+            radioAlign={ 'left' }
+            Info={ t( 'hint.maps.hgtInterpolation' ) }
         />
+
+        <InfoRowControl
+            label={ showAdvanced ? t( 'advancedSettingsHide' ) : t( 'advancedSettingsShow' ) }
+            onLabelPress={ () => setShowAdvanced( ! showAdvanced ) }
+        />
+            { showAdvanced && <View>
+                <NumericRowControl
+                    label={ t( 'hgtReadFileRate' ) }
+                    optKey={ 'hgtReadFileRate' }
+                    options={ { hgtReadFileRate } }
+                    setOptions={ ( { hgtReadFileRate } ) => {
+                        setHgtReadFileRate( hgtReadFileRate );
+                    } }
+                    validate={ val => val >= 0 }
+                    Info={ t( 'hint.maps.hgtReadFileRate' ) }
+                />
+
+                <NumericRowControl
+                    label={ t( 'hgtFileInfoPurgeThreshold' ) }
+                    optKey={ 'hgtFileInfoPurgeThreshold' }
+                    options={ { hgtFileInfoPurgeThreshold } }
+                    setOptions={ ( { hgtFileInfoPurgeThreshold } ) => {
+                        setHgtFileInfoPurgeThreshold( hgtFileInfoPurgeThreshold );
+                    } }
+                    validate={ val => val >= 0 }
+                    Info={ t( 'hint.maps.hgtFileInfoPurgeThreshold' ) }
+                />
+        </View> }
 
 	</ListItemModalControl>;
 };

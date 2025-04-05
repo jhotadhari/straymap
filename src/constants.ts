@@ -79,6 +79,8 @@ export const defaults = {
 		],
 		hgtDirPath: undefined,
 		hgtReadFileRate: 100,
+		hgtInterpolation:  true,
+		hgtFileInfoPurgeThreshold: 3,
 		mapsforgeGeneral: {
 			textScale: 1,
 			lineScale: 1,
