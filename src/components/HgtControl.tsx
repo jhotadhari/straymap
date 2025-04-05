@@ -76,6 +76,7 @@ const HgtControl = () => {
             } }
             optKey={ 'hgtDirPath' }
             dirs={ appDirs ? appDirs.dem : [] }
+            onlyThreeSeconds={ true }
         />
 
         <NumericRowControl

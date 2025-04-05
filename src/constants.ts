@@ -48,11 +48,7 @@ export const defaults = {
 			enabledZoomMax: 20,
 			magnitude: 90,
 			shadingAlgorithm: Object.values( LayerHillshading.shadingAlgorithms )[0],
-			shadingAlgorithmOptions: {
-				linearity: 0.1,
-				scale: 0.666,
-				heightAngle: 50,
-			},
+			shadingAlgorithmOptions: LayerHillshading.shadingAlgorithmOptionsDefaults,
 		},
 	},
 	mapSettings: {
@@ -82,7 +78,7 @@ export const defaults = {
 			},
 		],
 		hgtDirPath: undefined,
-		hgtReadFileRate: 500,
+		hgtReadFileRate: 100,
 		mapsforgeGeneral: {
 			textScale: 1,
 			lineScale: 1,
@@ -150,6 +146,6 @@ export const defaults = {
 				round: 2,
 			},
 		},
-		mapEventRate: 100,
+		mapEventRate: 40,
 	},
 };

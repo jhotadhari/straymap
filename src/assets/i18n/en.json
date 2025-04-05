@@ -101,10 +101,6 @@
         "cancel": "Cancel",
         "custom": "Custom",
         "ok": "OK",
-        "magnitude": "Magnitude",
-        "heightAngle": "Height Angle",
-        "scale": "Scale",
-        "linearity": "Linearity",
         "algorithm": "Algorithm",
         "shadingAlgorithm": "Shading Algorithm",
         "gotIt": "Alright, got it",
@@ -177,11 +173,86 @@
         "success": "Success",
         "failed": "Failed",
         "updating": "Updating",
+        "advancedSettingsShow": "Show advanced settings",
+        "advancedSettingsHide": "Hide advanced settings",
         "errorMsg": "Error message",
         "errorMsgFallback": "Something went wrong.",
         "updaterFail": "You can try to proceed using the App, but it might not work properly.",
         "updaterProceed": "Try to proceed",
         "updaterCloseApp": "Close the app",
+        "moreInformation": "More Information",
+        "shadingOptions": {
+            "magnitude": {
+                "label": "Magnitude",
+                "hint": "The magnitude determines the intensity of the shading."
+            },
+            "heightAngle": {
+                "label": "Height Angle",
+                "hint": "The height angle of light source over ground.\n\nIn degrees, between 0 and 90."
+            },
+            "scale": {
+                "label": "Scale",
+                "hint": "Scales the input slopes.\n\nWith lower values slopes will saturate later, but nuances closer to flat will suffer.\n\nDefault: 0.666"
+            },
+            "linearity": {
+                "label": "Linearity",
+                "hint": "1 or higher for linear grade.\n\n0 or lower for a triple-applied sine of grade that gives high emphasis on changes in slope in near-flat areas, but reduces details within steep slopes.\n\nDefault 0.1"
+            },
+            "maxSlope": {
+                "label": "Maximum Slope",
+                "hint": "The smallest slope that will have the darkest shade.\n\nAll larger slopes will have the same shade, the darkest one.\n\nShould be larger than zero.\n\nThe default is 80.\n\n[percentage, %]"
+            },
+            "minSlope": {
+                "label": "Minimum Slope",
+                "hint": "The largest slope that will have the lightest shade.\n\nAll smaller slopes will have the same shade, the lightest one.\n\nShould be in the range of zero and \"Maximum Slope\".\n\nThe default is 0 (zero).\n\n[percentage, %]"
+            },
+            "asymmetryFactor": {
+                "label": "Asymmetry Factor",
+                "hint": "Number between 0 and 1.\n\nWhen 1 the reference direction (NW by default) slopes will get minimal shading (max asymmetry effect),\n\nwhen 0 the shading will be symmetrical in all directions (no asymmetry effect).\n\nAny value larger than 0 will make the shading smoothly asymmetrical, with slopes closer to the reference direction less shaded than slopes in the opposite direction as the factor increases.\n\nThe default is 0.5"
+            },
+            "qualityScale": {
+                "label": "Quality Scale",
+                "hint": "A lower value means lower quality.\nSometimes this can be useful to improve the performance of hill shading on high-dpi devices.\n\nThere is usually no reason to set this to a value higher than 1 (the default), although it is allowed, since it makes no sense to have hill shading rendered at a higher resolution than the device's display.\n\nLet's take an example: By default, the algorithm will try to match the hill shading resolution to that of the device's display. If the device's display is 480 dpi and you don't want the hill shading to be rendered at a resolution higher than 240 dpi, you should set the custom quality scale value to 0.5 = 240 / 480.\n\nNote: The algorithm does its best to match the required custom quality scale and resolution, but the result may sometimes not be exact because the final resolution of the hill shading must be a divisor of the input DEM/HGT data resolution."
+            },
+            "readingThreadsCount": {
+                "label": "Reading Threads",
+                "hint": "Number of \"producer\" threads that will do the reading, >= 1.\n\nNumber N (>=1) means there will be N threads that will do the reading.\n\nZero (0) is not permitted.\n\nThe only time you'd want to set this to 1 is when your data source does not support skipping, i.e. the data source is not a file and/or its InputStream is inefficient.\n\nThe default is -1\n-1 will be computed to the maximum number of processors available."
+            },
+            "computingThreadsCount": {
+                "label": "Computing Threads",
+                "hint": "Number of \"consumer\" threads that will do the computations, >= 0.\n\nNumber M (>=0) means there will be M threads that will do the computing.\n\nZero (0) means that producer thread(s) will also do the computing.\n\nThe only times you'd want to set this to zero are when memory conservation is a top priority or when you're running on a single-threaded system.\n\nThe default is -1\n-1 will be computed to the maximum number of processors available."
+            }
+        },
+        "shadingAlgorithms": {
+            "CLASY_ADAPTIVE": {
+                "label": "Adaptive - Clear asymmetry",
+                "info": "Adaptive implementation of \"Standard - Clear asymmetry\".\n\nIt will dynamically decide on the resolution and quality of the output depending on the display parameters, to maximize efficiency.\n\nIt conserves memory and CPU at lower zoom levels without significant quality degradation, yet it switches to high quality when details are needed at larger zoom levels.\n\nSwitching to high quality only at larger zoom levels is also a resource-saving tactic, since less hill shading data needs to be processed the more you zoom in.\n\nYou can control the quality/performance of the rendering by setting a custom quality scale value.\n\nThis is currently the algorithm of choice, as it provides the best results with excellent performance throughout the zoom level range."
+            },
+            "CLASY_STANDARD": {
+                "label": "Standard - Clear asymmetry",
+                "info": "A standard implementation of the \"Clear asymmetry hill shading\". Divides square unit elements into two triangles/planes to calculate their average normal, which is then used to shade the unit element.\n\nHorizontal surfaces, or all surfaces with slope less than \"Minimum Slope\", will have minimum shade.\n\nSlopes are shaded linearly by default, i.e. main shade (shade before applying azimuthal asymmetry factor) is a linear function of slope, for performance.\n\nFor performance reasons, azimuthal asymmetry is also a linear function of the azimuth angle cosine.\n\nStandard 1\" DEM file containing 1° square data will be processed to an output bitmap of about 3600px by 3600px and 13 MB in size.\n\nThis algorithm is more accurate than \"Simplified - Clear asymmetry\", and should be preferred."
+            },
+            "CLASY_SIMPLE": {
+                "label": "Simplified - Clear asymmetry",
+                "info": "Simplified implementation of \"Standard - Clear asymmetry\" intended to maximize performance, at the cost of inaccuracy.\n\nNote: For better-looking results and greater flexibility consider using \"Adaptive - Clear asymmetry\".\n\nThis algorithm is mostly useful when performance is of the highest priority, and you don't care about scaling."
+            },
+            "CLASY_HALF_RES": {
+                "label": "Half resolution - Clear asymmetry",
+                "info": "Half resolution implementation of \"Standard - Clear asymmetry\".\n\nIt reduces the number of pixels in the output bitmap and thus the memory used by a factor of 1/4 (1/2 in width and 1/2 in height).\n\nThis is done by skipping every second row and every second column in the input.\n\nMain purpose is to improve performance and reduce memory use when the output bitmap is going to be down-scaled anyway, for example when viewing a map on a low zoom level (very wide).\n\nStandard 1\" DEM file containing 1° square data will be processed to an output bitmap of about 1800x1800 px and 3.2 MB in size"
+            },
+            "CLASY_HI_RES": {
+                "label": "High resolution - Clear asymmetry",
+                "info": "High resolution / high quality implementation of \"Standard - Clear asymmetry\".\n\nIt quadruples the number of pixels of the output bitmap (doubles the width and height) and uses bicubic interpolation to achieve the best visual results.\n\nQuadrupling does increase the memory used, but it's nothing extreme: The output bitmap is about the size of a 17-megapixel photograph, given that the input data was 1-arcsecond one (1\", the highest resolution you can get at this time). For 3-arcsecond data (3\"), this drops to about 6 MB.\n\nIn other words, a standard 1\" DEM file containing 1° square data will be processed to an output bitmap of about 7200x7200 px and 52 MB in size.\n\nTo greatly improve efficiency at wider zoom levels, you should consider using the adaptive quality version instead: \"Adaptive - Clear asymmetry\"."
+            },
+            "SIMPLE": {
+                "label": "Simple",
+                "info": "Simple, but expressive slope visualisation (e.g. no pretensions of physical accuracy, separate north and west light sources instead of one northwest, so a round dome would not look round, saturation works different depending on slope direction)\n\nNote: For better results and greater flexibility consider using the newer \"Clear asymmetry\" algorithms."
+            },
+            "DIFFUSE_LIGHT": {
+                "label": "Diffuse lighting",
+                "info": "Simulates diffuse lighting to some degree, while leaving horizontal surfaces unshaded (desired property).\n\nNote: For better results and greater flexibility consider using the newer \"Clear asymmetry\" algorithms."
+            }
+        },
         "hint": {
             "nameId": "Any name for identification. It doesn't really matter what you call it.",
             "applyToAllMapsforge": "These settings apply to all mapsforge map layers.",
@@ -216,12 +287,9 @@
                 "mapsforgeProfile": "Profiles determine how the offline vector maps are displayed by mapsforge.\n\nA profile can be selected for the map layer, which must be configured beforehand. The various mapsforge profiles can generally be managed in the map settings.\n\nIf no profile is assigned to the map layer, the first profile is used automatically.",
                 "mapsforgeHasBuildings": "This setting determines whether buildings are rendered in 3D. The display of 3D buildings is independent of the render theme.\n\nIf this setting is switched off, buildings are rendered in 2D if necessary. Whether and how they are rendered depends solely on the render theme. With xml render themes, this can maybe be configured via the overlay settings, depending on the render theme.",
                 "mbTilesFile": "MBtiles map files contain raster images that are stored in an SQLite database. The file extension is “.mbtiles”.\n\nThey must be downloaded manually. After downloading, no internet connection is required to use them.\n\nAfter downloading, the files must be moved to one of the Straymap app directories. It is not possible to load the map from a publicly accessible directory.",
-                "demDir": "The DEM directory contains the files for the digital elevation models (DEM). The file extension of the files is “.hgt”.\n\nThey must be downloaded manually. After downloading, no internet connection is required to use them.\n\nIt is highly recommended to move the downloaded files to one of the directories of the Straymap app. In principle, it is possible to load the elevation models from any publicly accessible directory, but performance may suffer.\n\nCurrently, only elevation models with a resolution of 3 arc seconds are supported.",
+                "demDir": "The DEM directory contains the files for the digital elevation models (DEM). The file extension of the files is “.hgt”.\n\nThey must be downloaded manually. After downloading, no internet connection is required to use them.\n\nIt is recommended to move the downloaded files to one of the directories of the Straymap app, but it is possible to load the elevation models from any publicly accessible directory.\n\nDEM are usually provided with a resolution of 1 or 3 arc seconds. (One arc second corresponds to approximately 30m at the equator)",
+                "demOnly3Sec": "Currently, only elevation models with a resolution of 3 arc seconds are supported.",
                 "shadingAlgorithm": "The shading algorithm determines how the digital elevation models are processed, how light and shadow are simulated and how the relief is shaded. Each algorithm has its own options.",
-                "shadingMagnitude": "The magnitude determines the intensity of the shading.",
-                "shadingLinearity": "1 or higher for linear grade.\n\n0 or lower for a triple-applied sine of grade that gives high emphasis on changes in slope in near-flat areas, but reduces details within steep slopes.\n\nDefault 0.1",
-                "shadingHeightAngle": "The height angle of light source over ground.\n\nIn degrees, between 0 and 90.",
-                "shadingScale": "Scales the input slopes.\n\nWith lower values slopes will saturate later, but nuances closer to flat will suffer.\n\nDefault: 0.666",
                 "mapsforgeProfileFile": "Themes determine how the offline vector maps are displayed by mapsforge.\n\nBuilt-in themes can be used. Or custom themes in xml format. The file extension for custom themes is “.xml”.\n\nCustom themes must be downloaded manually and moved to one of the Straymap app directories. It is not possible to load the themes from a publicly accessible directory.",
                 "mapsforgeProfileStyle": "Themes can contain different styles. These styles are slight variations of the theme.",
                 "mapsforgeProfileOverlays": "Overlays determine which elements of the map are visible or not.\n\nTip: You can switch off the map background. And instead display another map layer (e.g. a satellite map) behind it.",
@@ -232,7 +300,7 @@
                 "opacity": "The opacity of the map layer.\n\nValue between 0 and 1.\n\n- 0 means the layer is transparent.\n- 1 means the layer has full opacity and underlying layers are not visible.",
                 "cache": "A cache stores map images. So they don't have to get downloaded or generated again.",
                 "cacheDir": "The directory where the cache is to be saved.\n\nAn internal directory can only be accessed by the app itself. An external directory can also be accessed by other apps, such as File Explorer apps.",
-                "cacheSize": "The size of the cache in mb."
+                "cacheSize": "The size of the cache in MB."
             },
             "link": {
                 "xmlRenderThemes": "Render themes in xml format",

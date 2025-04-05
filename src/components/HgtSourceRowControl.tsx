@@ -37,11 +37,13 @@ const HgtSourceRowControl = ( {
     options,
     optKey,
     setOptions,
+    onlyThreeSeconds = false,
 } : {
     dirs: AbsPath[],
     options: object;
     optKey: string;
     setOptions: ( options : object ) => void;
+    onlyThreeSeconds?: boolean;
 } ) => {
 
     const { t } = useTranslation();
@@ -92,6 +94,7 @@ const HgtSourceRowControl = ( {
         label={ t( 'map.demDir' ) }
         Info={ <View>
             <Text>{ t( 'hint.maps.demDir' ) }</Text>
+            { onlyThreeSeconds && <Text style={ { marginTop: 20 } }>{ t( 'hint.maps.demOnly3Sec' ) }</Text> }
             <Text style={ {
                 marginTop: 20,
                 ...theme.fonts.bodyLarge,
@@ -103,6 +106,18 @@ const HgtSourceRowControl = ( {
             <HintLink
                 label={ t( 'hint.link.digitalEleDataCoverage' ) }
                 url={ 'https://viewfinderpanoramas.org/Coverage%20map%20viewfinderpanoramas_org3.htm' }
+            />
+            <Text style={ {
+                marginTop: 20,
+                ...theme.fonts.bodyLarge,
+            } }>{ t( 'moreInformation' ) + ':' }</Text>
+            <HintLink
+                label={ 'NASA Shuttle Radar Topography Mission (SRTM)' }
+                url={ 'https://wiki.openstreetmap.org/wiki/SRTM' }
+            />
+            <HintLink
+                label={ 'OpenDEM Arc2Meters Converter' }
+                url={ 'https://www.opendem.info/arc2meters.html' }
             />
         </View> }
     >

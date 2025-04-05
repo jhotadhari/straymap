@@ -2725,6 +2725,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/ungap__structured-clone@npm:^1.2.0":
+  version: 1.2.0
+  resolution: "@types/ungap__structured-clone@npm:1.2.0"
+  checksum: 5399cfc129ecae2986fbe223fdf8f443c27a628e0d24e1be0fd3d041d643e9a041be54d9b9511fdf36279e7a3cb4c9d72493f30d75fdcde52efa3ac9dc0ebb1e
+  languageName: node
+  linkType: hard
+
 "@types/yargs-parser@npm:*":
   version: 21.0.3
   resolution: "@types/yargs-parser@npm:21.0.3"
@@ -2935,6 +2942,13 @@ __metadata:
   version: 1.2.1
   resolution: "@ungap/structured-clone@npm:1.2.1"
   checksum: 1e3b9fef293118861f0b2159b3695fc7f3793c0707095888ebb3ac7183f78c390e68f04cd4b4cf9ac979ae0da454505e08b3aae887cdd639609a3fe529e19e59
+  languageName: node
+  linkType: hard
+
+"@ungap/structured-clone@npm:^1.3.0":
+  version: 1.3.0
+  resolution: "@ungap/structured-clone@npm:1.3.0"
+  checksum: 64ed518f49c2b31f5b50f8570a1e37bde3b62f2460042c50f132430b2d869c4a6586f13aa33a58a4722715b8158c68cae2827389d6752ac54da2893c83e480fc
   languageName: node
   linkType: hard
 
@@ -3843,9 +3857,12 @@ __metadata:
     "@types/react-test-renderer": ^18.0.0
     "@types/semver-compare": ^1.0.3
     "@types/sprintf-js": ^1.1.4
+    "@types/ungap__structured-clone": ^1.2.0
+    "@ungap/structured-clone": ^1.3.0
     babel-jest: ^29.6.3
     convert-units: ^2.3.4
     dayjs: ^1.11.13
+    defaults: ^3.0.0
     eslint: ^8.19.0
     formatcoords: ^1.1.3
     i18next: ^23.16.2
@@ -3860,7 +3877,7 @@ __metadata:
     react-native-default-preference: ^1.4.4
     react-native-draggable-grid: ^2.2.1
     react-native-fs: ^2.20.0
-    react-native-mapsforge-vtm: ^0.6.0
+    react-native-mapsforge-vtm: ^0.7.0
     react-native-markdown-display: ^7.0.2
     react-native-paper: ^5.12.5
     react-native-safe-area-context: ^4.11.1
@@ -4201,6 +4218,13 @@ __metadata:
   dependencies:
     clone: ^1.0.2
   checksum: 3a88b7a587fc076b84e60affad8b85245c01f60f38fc1d259e7ac1d89eb9ce6abb19e27215de46b98568dd5bc48471730b327637e6f20b0f1bc85cf00440c80a
+  languageName: node
+  linkType: hard
+
+"defaults@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "defaults@npm:3.0.0"
+  checksum: 656215c738993a43e436bfbbe8d5aaa3d029e1a3d19fc48c98aba416270eec8d69c194d28d6aaba728366afeadccc923bf2d168613be066fa83a3e232335e65a
   languageName: node
   linkType: hard
 
@@ -8481,9 +8505,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-mapsforge-vtm@npm:^0.6.0":
-  version: 0.6.0
-  resolution: "react-native-mapsforge-vtm@npm:0.6.0"
+"react-native-mapsforge-vtm@npm:^0.7.0":
+  version: 0.7.0
+  resolution: "react-native-mapsforge-vtm@npm:0.7.0"
   dependencies:
     events: ^3.3.0
     lodash-es: ^4.17.21
@@ -8491,7 +8515,7 @@ __metadata:
   peerDependencies:
     react: "*"
     react-native: "*"
-  checksum: bd13de4ce65ac3f2b41d56ff60160e247e3642eec04af1f43f1254d1c159f7e8a8deaecb94444f740c1ccb81733d13628501b3f7e40f3bec10b98b26ea9620a1
+  checksum: 9a9f89efe073409927e73f8c51334274fb8eec6c3b99dd3c4fa00c852546ae9d7ea90d524cb557aa76b3033f3f43deeebabf0bb107bff63ede6958e63b0cef75
   languageName: node
   linkType: hard
 
