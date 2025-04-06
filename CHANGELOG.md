@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
 ## [0.2.1] - 2025-04-06
 ### Changed
 - Changed font: Use system font for normal text.
@@ -81,6 +83,7 @@ Basic app structure and map viewer functionality.
 - Topbar with breadcrumbs and a menu.
 - Structure for settings and some settings pages.
 
+[Unreleased]: https://github.com/jhotadhari/straymap/compare/v0.2.1...HEAD
 [0.2.1]: https://github.com/jhotadhari/straymap/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/jhotadhari/straymap/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/jhotadhari/straymap/compare/v0.0.2...v0.1.0
