@@ -7,7 +7,6 @@ import React, {
     useContext,
 } from 'react';
 import {
-	useWindowDimensions,
 	View,
     Pressable,
     StyleSheet,
@@ -18,6 +17,7 @@ import {
     Keyboard,
     LayoutChangeEvent,
 } from 'react-native';
+import { useSafeAreaFrame } from 'react-native-safe-area-context';
 import {
 	useTheme,
     Text,
@@ -73,7 +73,7 @@ const ModalWrapper = ( {
     onLayout?: ( ( event: LayoutChangeEvent ) => void );
     belowModal?: ReactNode | null;
 } ) => {
-	const { width, height } = useWindowDimensions();
+	const { width, height } = useSafeAreaFrame();
     const theme = useTheme();
     const context = useContext( AppContext );
     const keyboardShown = useKeyboardShown();

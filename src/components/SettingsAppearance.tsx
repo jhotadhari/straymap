@@ -7,10 +7,10 @@ import React, {
 	useContext,
 } from 'react';
 import {
-	useWindowDimensions,
 	View,
 	ScrollView,
 } from 'react-native';
+import { useSafeAreaFrame } from 'react-native-safe-area-context';
 import {
 	Icon,
 	useTheme,
@@ -27,7 +27,7 @@ import CenterControl from './CenterControl';
 const SettingsAppearance : FC = () => {
 
 	const theme = useTheme();
-	const { width } = useWindowDimensions();
+	const { width } = useSafeAreaFrame();
 	const { t } = useTranslation();
     const {
         appInnerHeight,

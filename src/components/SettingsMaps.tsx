@@ -10,9 +10,9 @@ import {
     useState,
 } from 'react';
 import {
-	useWindowDimensions,
 	ScrollView,
 } from 'react-native';
+import { useSafeAreaFrame } from 'react-native-safe-area-context';
 import rnUuid from 'react-native-uuid';
 import {
 	useTheme,
@@ -156,7 +156,7 @@ const SettingsMaps : FC = () => {
 
 	const theme = useTheme();
 
-	const { width } = useWindowDimensions();
+	const { width } = useSafeAreaFrame();
 
     const {
         appInnerHeight,

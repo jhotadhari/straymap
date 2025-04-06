@@ -3,7 +3,8 @@
  * External dependencies
  */
 import { Text, useTheme } from "react-native-paper";
-import { useWindowDimensions, View, ViewStyle } from "react-native";
+import { View, ViewStyle } from "react-native";
+import { useSafeAreaFrame } from 'react-native-safe-area-context';
 
 /**
  * Internal dependencies
@@ -24,7 +25,7 @@ const SplashScreen = ( {
 } ) => {
 
     const theme = useTheme();
-    const { width, height } = useWindowDimensions();
+    const { width, height } = useSafeAreaFrame();
 
     return <ModalWrapper
         visible={ true }

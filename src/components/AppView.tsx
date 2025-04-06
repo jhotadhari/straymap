@@ -9,7 +9,6 @@ import React, {
 import {
 	StatusBar,
 	useColorScheme,
-	useWindowDimensions,
 	View,
 } from 'react-native';
 import 'intl-pluralrules';
@@ -17,6 +16,7 @@ import {
 	useTheme,
 } from 'react-native-paper';
 import { get } from 'lodash-es';
+import { SafeAreaView, useSafeAreaFrame } from 'react-native-safe-area-context';
 
 /**
  * react-native-mapsforge-vtm dependencies
@@ -88,7 +88,7 @@ const AppView = ( {
     const theme = useTheme();
     const systemIsDarkMode = useColorScheme() === 'dark';
 
-    const { width, height } = useWindowDimensions();
+    const { width, height } = useSafeAreaFrame();
 
     const {
 		mapViewNativeNodeHandle,
@@ -111,7 +111,7 @@ const AppView = ( {
 
     const mapHeight = ( appInnerHeight || height ) - ( bottomBarHeight || 0 );
 
-    return <View style={ {
+    return <SafeAreaView style={ {
         backgroundColor: theme.colors.background,
         height,
         width,
@@ -286,7 +286,7 @@ const AppView = ( {
             setBottomBarHeight={ setBottomBarHeight }
         /> }
 
-    </View>;
+    </SafeAreaView>;
 };
 
 export default AppView;

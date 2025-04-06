@@ -9,11 +9,11 @@ import {
     useState,
 } from 'react';
 import {
-	useWindowDimensions,
 	View,
     TouchableHighlight,
     ViewStyle,
 } from 'react-native';
+import { useSafeAreaFrame } from 'react-native-safe-area-context';
 import {
     List,
 	useTheme,
@@ -193,7 +193,7 @@ const MapLayersControl = ( {
     setScrollEnabled: Dispatch<SetStateAction<boolean>>,
 } ) => {
 
-    const { width } = useWindowDimensions();
+    const { width } = useSafeAreaFrame();
 	const { t } = useTranslation();
 	const theme = useTheme();
 

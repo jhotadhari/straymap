@@ -7,9 +7,9 @@ import React, {
 	useContext,
 } from 'react';
 import {
-	useWindowDimensions,
 	View,
 } from 'react-native';
+import { useSafeAreaFrame } from 'react-native-safe-area-context';
 import {
     List,
 	useTheme,
@@ -51,7 +51,7 @@ const Settings : FC = () => {
 
 	const theme = useTheme();
 	const { t } = useTranslation();
-	const { width } = useWindowDimensions();
+	const { width } = useSafeAreaFrame();
     const {
         appInnerHeight,
 		selectedHierarchyItems,

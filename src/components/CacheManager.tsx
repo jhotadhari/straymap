@@ -33,7 +33,6 @@ import useCacheDirsInfo, { CacheDir, CacheSubDir } from '../compose/useCacheDirs
 import { getHillshadingCacheDirChild, stringifyProp } from '../utils';
 import { FsModule } from '../nativeModules';
 
-
 const CacheRow = ( {
     cacheDir,
     cache,

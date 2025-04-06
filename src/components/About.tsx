@@ -15,7 +15,6 @@ import {
     ScrollView,
     StyleProp,
     StyleSheet,
-	useWindowDimensions,
 	View,
     ViewStyle,
 } from 'react-native';
@@ -27,6 +26,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import Markdown from 'react-native-markdown-display';
 import { get } from 'lodash-es';
+import { useSafeAreaFrame } from 'react-native-safe-area-context';
 
 /**
  * Internal dependencies
@@ -249,7 +249,7 @@ const About : FC = () => {
 
 	const theme = useTheme();
 	const { t } = useTranslation();
-	const { width } = useWindowDimensions();
+	const { width } = useSafeAreaFrame();
 
     const {
         appInnerHeight,

@@ -10,11 +10,11 @@ import {
     useState,
 } from 'react';
 import {
-	useWindowDimensions,
 	View,
     TouchableHighlight,
     Linking,
 } from 'react-native';
+import { useSafeAreaFrame } from 'react-native-safe-area-context';
 import {
     List,
 	useTheme,
@@ -400,7 +400,7 @@ const MapsforgeProfilesControl = ( {
         layers,
     } = useContext( SettingsMapsContext );
 
-    const { width } = useWindowDimensions();
+    const { width } = useSafeAreaFrame();
 	const { t } = useTranslation();
 	const theme = useTheme();
 

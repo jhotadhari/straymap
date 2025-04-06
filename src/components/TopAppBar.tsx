@@ -17,7 +17,8 @@ import {
 } from 'react-native-paper';
 import { IconSource } from 'react-native-paper/lib/typescript/components/Icon';
 import { useTranslation } from 'react-i18next';
-import { useWindowDimensions, View, BackHandler, TouchableHighlight, ActivityIndicator } from 'react-native';
+import { View, BackHandler, TouchableHighlight, ActivityIndicator } from 'react-native';
+import { useSafeAreaFrame } from 'react-native-safe-area-context';
 
 /**
  * Internal dependencies
@@ -30,7 +31,7 @@ import MenuItem from './generic/MenuItem';
 
 const EgalTest = () => {
 	const theme = useTheme();
-	const { width } = useWindowDimensions();
+	const { width } = useSafeAreaFrame();
     const {
         appInnerHeight,
     } = useContext( AppContext )

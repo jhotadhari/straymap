@@ -12,9 +12,9 @@ import {
 	NativeModules,
 	ToastAndroid,
 	useColorScheme,
-	useWindowDimensions,
 	View,
 } from 'react-native';
+import { useSafeAreaFrame } from 'react-native-safe-area-context';
 import 'intl-pluralrules';
 import { useTranslation } from 'react-i18next';
 import DefaultPreference from 'react-native-default-preference';
@@ -572,7 +572,7 @@ const App = ( {
 	const {
 		width,
 		height,
-	} = useWindowDimensions();
+	} = useSafeAreaFrame();
 
 	const [mapViewNativeNodeHandle, setMapViewNativeNodeHandle] = useState<null | number>( null );
 
