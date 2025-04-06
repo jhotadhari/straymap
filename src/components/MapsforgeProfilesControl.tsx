@@ -24,7 +24,7 @@ import {
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import DraggableGrid from 'react-native-draggable-grid';
-import { get } from 'lodash-es';
+import { get, omit } from 'lodash-es';
 import { sprintf } from 'sprintf-js';
 
 /**
@@ -51,8 +51,14 @@ import useUiState from '../compose/useUiState';
 import LoadingIndicator from './generic/LoadingIndicator';
 import HintLink from './generic/HintLink';
 import InfoRadioRow from './generic/InfoRadioRow';
+import useSettings from '../compose/useSettings';
 
 const itemHeight = 50;
+
+type RenderStyles = {
+    optionsMap: { [value: string]: RenderStyleOptionsCollection };
+    defaultsMap: { [value: string]: ( string | null ) };
+};
 
 const DraggableItem = ( {
     width,
@@ -434,25 +440,42 @@ const MapsforgeProfilesControl = ( {
         }
     };
 
-    const [renderStyleOptionsMap,setRenderStyleOptionsMap] = useState<{ [value: string]: RenderStyleOptionsCollection }>( {} );
-    const [renderDefaultStylesMap,setRenderDefaultStylesMap] = useState<{ [value: string]: ( string | null ) }>( {} );
+	const {
+		settings: renderStylesCache,
+		setSettings: setRenderStylesCache,
+		initialized: renderStylesInitializedCache,
+	} = useSettings( {
+		maybeIsBusyAdd,
+		maybeIsBusyRemove,
+		settingsKey: 'renderStylesCache',
+		initialSettings: {
+            optionsMap: {},
+            defaultsMap: {},
+        },
+	} ) as {
+		settings: RenderStyles;
+		setSettings: Dispatch<SetStateAction<RenderStyles>>;
+		initialized: boolean;
+	};
 
 	useEffect( () => {
-        if ( editProfile && null !== editProfile.theme && modalOpened ) {
-            if ( ! renderStyleOptionsMap[editProfile.theme] ) {
+        if ( renderStylesInitializedCache && editProfile && null !== editProfile.theme && modalOpened ) {
+            if ( ! renderStylesCache.optionsMap[editProfile.theme] ) {
                 const busyKey = 'MapsforgeProfilesControl' + editProfile.key;
                 maybeIsBusyAdd && maybeIsBusyAdd( busyKey );
                 setTimeout( () => {
                     MapLayerMapsforgeModule.getRenderThemeOptions( editProfile?.theme ).then( ( collection : RenderStyleOptionsCollection ) => {
-                        setRenderStyleOptionsMap( {
-                            ...renderStyleOptionsMap,
-                            ...( 'string' === typeof editProfile.theme && { [editProfile.theme]: collection } ),
-                        } );
-                        setRenderDefaultStylesMap( {
-                            ...renderDefaultStylesMap,
-                            ...( 'string' === typeof editProfile.theme && {
-                                [editProfile.theme]: get( Object.values( collection ).find( obj => obj.default ), 'value', null ),
-                            } ),
+                        setRenderStylesCache( {
+                            optionsMap: {
+                                ...renderStylesCache.optionsMap,
+                                ...( 'string' === typeof editProfile.theme && { [editProfile.theme]: collection } ),
+                            },
+                            defaultsMap: {
+                                ...renderStylesCache.defaultsMap,
+                                ...( 'string' === typeof editProfile.theme && {
+                                    [editProfile.theme]: get( Object.values( collection ).find( obj => obj.default ), 'value', null ),
+                                } ),
+                            },
                         } );
                         maybeIsBusyRemove && maybeIsBusyRemove( busyKey );
                     } ).catch( ( err: any ) => {
@@ -462,7 +485,12 @@ const MapsforgeProfilesControl = ( {
                 }, 1 );
             }
 		}
-    }, [editProfile?.theme, modalOpened] );
+    }, [
+        renderStylesInitializedCache,
+        get( renderStylesCache, ['optionsMap',editProfile ? editProfile?.theme : '' ]),
+        editProfile?.theme,
+        modalOpened,
+    ] );
 
     const renderItem = ( profile : MapsforgeProfile ) => <View key={ profile.key }><DraggableItem
         profile={ profile }
@@ -495,7 +523,7 @@ const MapsforgeProfilesControl = ( {
                     layers={ layers }
                 />
 
-                <FileSourceRowControl
+                { appDirs && appDirs.mapstyles && <FileSourceRowControl
                     AlternativeButton={ isBusy ? () => <LoadingIndicator/> : undefined }
                     label={ t( 'theme' ) }
                     header={ t( 'selectTheme' ) }
@@ -513,8 +541,25 @@ const MapsforgeProfilesControl = ( {
                             theme: selectedOpt,
                         } )
                     } }
+                    After={ isBusy ? undefined : <TouchableHighlight
+                        underlayColor={ theme.colors.elevation.level3 }
+                        onPress={ () => {
+                            if ( renderStylesInitializedCache && editProfile && null !== editProfile.theme && 'string' === typeof editProfile.theme ) {
+                                setRenderStylesCache( {
+                                    optionsMap: omit(renderStylesCache.optionsMap, editProfile.theme ),
+                                    defaultsMap: omit(renderStylesCache.defaultsMap, editProfile.theme )
+                                } );
+                            }
+                        } }
+                        style={ { borderRadius: theme.roundness } }
+                    >
+                        <Icon
+                            source="refresh"
+                            size={ 25 }
+                        />
+                    </TouchableHighlight> }
                     extensions={ ['xml'] }
-                    dirs={ appDirs ? appDirs.mapstyles : [] }
+                    dirs={ appDirs.mapstyles }
                     Info={ isBusy ? undefined : <View>
                         <Text>{ t( 'hint.maps.mapsforgeProfileFile' ) }</Text>
                         <View style={ { marginTop: 10 } }>
@@ -532,15 +577,15 @@ const MapsforgeProfilesControl = ( {
                     </View> }
                     filesHeading={ sprintf( t( 'filesIn' ), '(.xml)' ) }
                     noFilesHeading={ sprintf( t( 'noFilesIn' ), '(.xml)' ) }
-                />
+                /> }
 
                 <RenderStyleRowControl
                     AlternativeButton={ isBusy ? <LoadingIndicator/> : undefined }
                     Info={ isBusy ? undefined : t( 'hint.maps.mapsforgeProfileStyle' ) }
                     profile={ editProfile }
                     updateProfile={ updateProfile }
-                    renderStyleOptionsMap={ renderStyleOptionsMap }
-                    renderDefaultStylesMap={ renderDefaultStylesMap }
+                    renderStyleOptionsMap={ renderStylesCache.optionsMap }
+                    renderDefaultStylesMap={ renderStylesCache.defaultsMap }
                 />
 
                 <RenderOverlaysRowControl
@@ -548,7 +593,7 @@ const MapsforgeProfilesControl = ( {
                     Info={ isBusy ? undefined : t( 'hint.maps.mapsforgeProfileOverlays' ) }
                     profile={ editProfile }
                     updateProfile={ updateProfile }
-                    renderStyleOptionsMap={ renderStyleOptionsMap }
+                    renderStyleOptionsMap={ renderStylesCache.optionsMap }
                     label={ t( 'overlay', { count: 1 } ) }
                 />
 
