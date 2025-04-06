@@ -15,7 +15,6 @@ import {
     ScrollView,
     StyleProp,
     StyleSheet,
-	useWindowDimensions,
 	View,
     ViewStyle,
 } from 'react-native';
@@ -27,6 +26,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import Markdown from 'react-native-markdown-display';
 import { get } from 'lodash-es';
+import { useSafeAreaFrame } from 'react-native-safe-area-context';
 
 /**
  * Internal dependencies
@@ -104,7 +104,7 @@ const AccordionItem = ( {
                     source={ expanded ? 'chevron-down' : 'chevron-right' }
                     size={ 25 }
                 />
-                <Text style={ theme.fonts.displaySmall }>{ label }</Text>
+                <Text style={ { ...theme.fonts.displaySmall, fontFamily: 'jangly_walk' } }>{ label }</Text>
             </View>
 
         </ButtonHighlight>
@@ -137,7 +137,7 @@ const MdPartsRenderPart = ( {
 } ) => {
 	const theme = useTheme();
     return <View style={ style } >
-        { part.key.length > 0 && <Text style={ theme.fonts.displaySmall }>{ part.key }</Text> }
+        { part.key.length > 0 && <Text style={ { ...theme.fonts.displaySmall, fontFamily: 'jangly_walk' } }>{ part.key }</Text> }
         <Markdown
             rules={ renderRules }
             style={ styles( theme ) as StyleSheet.NamedStyles<any> }
@@ -170,7 +170,7 @@ const MdPartsRenderPartDonation = ( {
     const linkStyle = { height: 50, color: get( theme.colors, 'link' ) };
 
     return <View style={ style } >
-        { part.key.length > 0 && <Text style={ theme.fonts.displaySmall }>{ part.key }</Text> }
+        { part.key.length > 0 && <Text style={ { ...theme.fonts.displaySmall, fontFamily: 'jangly_walk' } }>{ part.key }</Text> }
 
         <Markdown
             rules={ renderRules }
@@ -182,7 +182,7 @@ const MdPartsRenderPartDonation = ( {
         <Text style={ linkStyle } onPress={ () => Linking.openURL( 'https://ko-fi.com/H2H3162PAG' ) }>
             <Image source={ require( '../assets/images/ko-fi_donate.png' ) } />
         </Text>
-        <Text style={ {...linkStyle, marginBottom: 20} } onPress={ () => Linking.openURL( 'https://liberapay.com/jhotadhari/donate' ) }>
+        <Text style={ {...linkStyle } } onPress={ () => Linking.openURL( 'https://liberapay.com/jhotadhari/donate' ) }>
             <Image source={ require( '../assets/images/liberapay_donate.png' ) } />
         </Text>
 
@@ -249,7 +249,7 @@ const About : FC = () => {
 
 	const theme = useTheme();
 	const { t } = useTranslation();
-	const { width } = useWindowDimensions();
+	const { width } = useSafeAreaFrame();
 
     const {
         appInnerHeight,
@@ -266,7 +266,7 @@ const About : FC = () => {
     } } >
         <ScrollView style={ { padding: 15, paddingLeft: 20 } } >
 
-            <Text style={ theme.fonts.displaySmall }>Straymap</Text>
+            <Text style={ { ...theme.fonts.displaySmall, fontFamily: 'jangly_walk' } }>Straymap</Text>
             <Text style={ { marginTop: 10 } } >{ t( 'slogan' ) }</Text>
             <Text style={ { marginTop: 20 } } >Version { versionChangelog }</Text>
             { 'Unreleased' === versionChangelog && <View>

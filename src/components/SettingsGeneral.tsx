@@ -7,9 +7,9 @@ import React, {
 	useContext,
 } from 'react';
 import {
-	useWindowDimensions,
 	ScrollView,
 } from 'react-native';
+import { useSafeAreaFrame } from 'react-native-safe-area-context';
 import { useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -27,7 +27,7 @@ import HgtControl from './HgtControl';
 const SettingsGeneral : FC = () => {
 
 	const theme = useTheme();
-	const { width } = useWindowDimensions();
+	const { width } = useSafeAreaFrame();
 	const { t } = useTranslation();
     const {
         appInnerHeight,

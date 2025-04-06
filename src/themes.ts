@@ -40,21 +40,8 @@ const themes : { [value: string]: ThemePropExtended } = {
     black: BlackTheme,
 };
 
-// Loop themes, apply fonts and custom colors
+// Loop themes, apply custom colors
 Object.keys( themes ).map( ( key : string ) => {
-	const fontConfig = { ...themes[key].fonts };
-	Object.keys( fontConfig ).map( ( key : string ) => {
-		set( fontConfig, key, {
-			...get( fontConfig, key ),
-			fontFamily: key.startsWith( 'display' )
-				? 'jangly_walk'
-				: 'Coustard-Regular-custom',
-		} )
-	} );
-	themes[key] = {
-		...themes[key],
-		fonts: configureFonts( { config: fontConfig } ),
-	};
 	// Custom colors
 	const colorSuccess = themes[key].dark
 		? {

@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.2.1] - 2025-04-06
+### Changed
+- Changed font: Use system font for normal text.
+
+### Fixed
+- Fix app doesn't start up on very first start of the app.
+- Fix overlapping list items About page.
+- Fix Dashboard out of viewport on some devices.
+- Fix CacheManager: doesn't fetch directories on first expand.
+- Fix *Edit mapsforge profile*: Cache renderStyles so they don't have to be parsed every time the Modal opens.
+
 ## [0.2.0] - 2025-04-05
 In love with mountains.
 
@@ -70,6 +81,7 @@ Basic app structure and map viewer functionality.
 - Topbar with breadcrumbs and a menu.
 - Structure for settings and some settings pages.
 
+[0.2.1]: https://github.com/jhotadhari/straymap/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/jhotadhari/straymap/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/jhotadhari/straymap/compare/v0.0.2...v0.1.0
 [0.0.2]: https://github.com/jhotadhari/straymap/releases/tag/v0.0.2

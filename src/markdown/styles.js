@@ -35,10 +35,12 @@ export const styles = theme => ( {
 	// Headings
 	heading1: {
 		...theme.fonts.displaySmall,
+		fontFamily: 'jangly_walk',
 		flexDirection: 'row',
 	},
 	heading2: {
 		...theme.fonts.displaySmall,
+		fontFamily: 'jangly_walk',
 		flexDirection: 'row',
 	},
 	// heading3: {

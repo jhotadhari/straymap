@@ -11,9 +11,9 @@ import React, {
 } from 'react';
 import {
     TouchableHighlight,
-    useWindowDimensions,
 	View,
 } from 'react-native';
+import { useSafeAreaFrame } from 'react-native-safe-area-context';
 import {
 	Icon,
 	Menu,
@@ -269,7 +269,7 @@ const StyleControl = ( {
 
 const DashboardControl = () => {
 
-	const { width } = useWindowDimensions();
+	const { width } = useSafeAreaFrame();
     const theme = useTheme();
 	const { t } = useTranslation();
 

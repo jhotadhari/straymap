@@ -33,7 +33,6 @@ import useCacheDirsInfo, { CacheDir, CacheSubDir } from '../compose/useCacheDirs
 import { getHillshadingCacheDirChild, stringifyProp } from '../utils';
 import { FsModule } from '../nativeModules';
 
-
 const CacheRow = ( {
     cacheDir,
     cache,
@@ -153,7 +152,7 @@ const CacheManager = () => {
         setValue: setExpanded,
     } = useUiState( 'cacheManagerExpanded' );
 
-    const [loadCacheDirs,setLoadCacheDirs] = useState<any>( expanded );
+    const [loadCacheDirs,setLoadCacheDirs] = useState<number | boolean>( expanded );
 
     const cacheDirs = useCacheDirsInfo( loadCacheDirs );
 
@@ -165,7 +164,12 @@ const CacheManager = () => {
             justifyContent: 'center',
         } }><List.Icon {...props } icon="database-outline" /></View> }
         expanded={ expanded }
-        onPress={ () => setExpanded( ! expanded ) }
+        onPress={ () => {
+            if ( ! expanded ) {
+                setLoadCacheDirs( Math.random() );
+            }
+            setExpanded( ! expanded )
+        } }
         titleStyle={ theme.fonts.bodyMedium }
     >
 

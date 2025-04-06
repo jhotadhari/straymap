@@ -9,12 +9,12 @@ import React, {
 	useState,
 } from 'react';
 import {
-	NativeModules,
+	I18nManager,
 	ToastAndroid,
 	useColorScheme,
-	useWindowDimensions,
 	View,
 } from 'react-native';
+import { useSafeAreaFrame } from 'react-native-safe-area-context';
 import 'intl-pluralrules';
 import { useTranslation } from 'react-i18next';
 import DefaultPreference from 'react-native-default-preference';
@@ -22,7 +22,6 @@ import {
 	PaperProvider,
 	useTheme,
 } from 'react-native-paper';
-import useDeepCompareEffect from 'use-deep-compare-effect'
 import { get, pick, without } from 'lodash-es';
 import { sprintf } from 'sprintf-js';
 import semverCompare from 'semver-compare';
@@ -65,6 +64,7 @@ import { defaults } from '../constants';
 import SplashScreen from './SplashScreen';
 import AppView from './AppView';
 import SplashScreenUpdater from './SplashScreenUpdater';
+import useSettings from '../compose/useSettings';
 
 const useAppTheme = () => {
 
@@ -139,7 +139,7 @@ const useAppLang = () => {
 			: 'system';
 		let newLang = i18n.language;
 		if ( newSelectedLang === 'system' ) {
-			const systemLocale = NativeModules.I18nManager.localeIdentifier;
+			const systemLocale = I18nManager.getConstants().localeIdentifier || 'en';
 			const systemLangOpt = langOptions.find( opt => systemLocale.startsWith( opt.key ) );
 			newLang = !! systemLangOpt ? systemLangOpt.key : newLang;
 		} else {
@@ -214,71 +214,6 @@ const AppWrapper = () => {
 			changeLang={ changeLang }
 		/>
 	</PaperProvider>;
-};
-
-const mergeSettingsForKey = ( initialSettings: object, newSettings: object, key: string ) => ( {
-	[key]: {
-		...get( initialSettings, key, {} ),
-		...( newSettings.hasOwnProperty( key ) && pick(
-			get( newSettings, key, {} ),
-			Object.keys( get( initialSettings, key, {} ) )
-		) ),
-	},
-} );
-
-const useSettings = ( {
-	maybeIsBusyAdd,
-	maybeIsBusyRemove,
-	settingsKey,
-	savedMessage,
-	initialSettings = {},
-} : {
-	maybeIsBusyAdd?: ( key: string ) => void;
-	maybeIsBusyRemove?: ( key: string ) => void;
-	savedMessage?: string;
-	settingsKey: string;
-	initialSettings?: object;
-} ) => {
-
-	const [initialized,setInitialized] = useState( false );
-	const [settings,setSettings] = useState<object>( initialSettings );
-
-    useEffect( () => {
-		const busyKey = 'useSettings' + 'load' + settingsKey;
-		maybeIsBusyAdd && maybeIsBusyAdd( busyKey );
-		setTimeout( () => DefaultPreference.get( settingsKey ).then( newSettingsStr => {
-			if ( newSettingsStr ) {
-				const newSettings = JSON.parse( newSettingsStr );
-				setSettings( {
-					...initialSettings,
-					...newSettings,
-					...( 'generalSettings' === settingsKey && {
-						...mergeSettingsForKey( initialSettings, newSettings, 'unitPrefs' ),
-						...mergeSettingsForKey( initialSettings, newSettings, 'dashboardElements' ),
-					} ),
-				} );
-			}
-			setInitialized( true );
-		} ).catch( err => 'ERROR' + console.log( err ) )
-		.finally( () => maybeIsBusyRemove && maybeIsBusyRemove( busyKey ) ), 1 );
-    }, [] );
-
-	useDeepCompareEffect( () => {
-		if ( initialized ) {
-			const busyKey = 'useSettings' + 'changed' + settingsKey;
-			maybeIsBusyAdd && maybeIsBusyAdd( busyKey );
-			setTimeout( () => DefaultPreference.set( settingsKey, JSON.stringify( settings ) )
-			.then( () => savedMessage ? ToastAndroid.show( savedMessage, ToastAndroid.SHORT ) : null )
-			.catch( err => 'ERROR' + console.log( err ) )
-			.finally( () => maybeIsBusyRemove && maybeIsBusyRemove( busyKey ) ), 10 );
-		}
-	}, [settings] )
-	return {
-		settings,
-		setSettings,
-		initialized,
-	};
-
 };
 
 const useInitialCenter = ( currentMapEvent: MapEventResponse ) => {
@@ -572,7 +507,7 @@ const App = ( {
 	const {
 		width,
 		height,
-	} = useWindowDimensions();
+	} = useSafeAreaFrame();
 
 	const [mapViewNativeNodeHandle, setMapViewNativeNodeHandle] = useState<null | number>( null );
 

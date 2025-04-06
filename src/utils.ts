@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { get, invert, omit, pick, set } from "lodash-es";
+import { get, invert, omit, pick } from "lodash-es";
 import slugify from "slugify";
 import defaultsAssign from "defaults";
 

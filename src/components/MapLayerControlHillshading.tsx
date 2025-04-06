@@ -343,7 +343,7 @@ const MapLayerControlHillshading = ( {
             options={ options }
             setOptions={ setOptions }
             validate={ val => val > 0 }
-            Info={ t( 'hint.maps.shadingMagnitude' ) }
+            Info={ t( 'shadingOptions.magnitude.hint' ) }
         />
 
         <CacheControl

@@ -303,6 +303,7 @@ const AnimatedLogo = ( {
                 <Text
                     style={ {
                         ...theme.fonts.displayMedium,
+                        fontFamily: 'jangly_walk',
                         textShadowColor: '#000',
                         textShadowOffset: { width: 5, height: 5 },
                         textShadowRadius: 10,

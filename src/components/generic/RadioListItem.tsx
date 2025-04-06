@@ -4,9 +4,9 @@
 import {
     TextStyle,
 	TouchableHighlight,
-	useWindowDimensions,
 	View,
 } from 'react-native';
+import { useSafeAreaFrame } from 'react-native-safe-area-context';
 import {
     Text,
     useTheme,
@@ -42,7 +42,7 @@ const RadioListItem = ( {
     status?: 'unchecked' | 'checked';
     radioAlign?: 'left' | 'right';
 } ) => {
-	const { width } = useWindowDimensions();
+	const { width } = useSafeAreaFrame();
 	const { t } = useTranslation();
 	const theme = useTheme();
     const label = labelExtractor ? labelExtractor( opt ) : null;

@@ -61,6 +61,7 @@ const FileSourceRowControl = ( {
     label,
     header,
     Info,
+    After,
     filesHeading,
     noFilesHeading,
     hasCustom,
@@ -76,6 +77,7 @@ const FileSourceRowControl = ( {
     label: string;
     header?: string;
     Info?: ReactNode | string;
+    After?: ReactNode;
     filesHeading?: string;
     noFilesHeading?: string;
     hasCustom?: boolean;
@@ -237,7 +239,12 @@ const FileSourceRowControl = ( {
 
         </ModalWrapper> }
 
-        <View style={ { flexDirection: 'row', alignItems: 'center' } }>
+        <View style={ {
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            width: '65%',
+        } }>
             { ! AlternativeButton && Object.keys( dirsInfos ).length > 0 && <ButtonHighlight style={ { marginTop: 3} } onPress={ () => setModalVisible( true ) } >
                 <Text>{ t(
                     'custom' === selectedOpt
@@ -251,6 +258,8 @@ const FileSourceRowControl = ( {
             { ! AlternativeButton && Object.keys( dirsInfos ).length === 0 && <LoadingIndicator/> }
 
             { !! AlternativeButton && <AlternativeButton setModalVisible={ setModalVisible } /> }
+
+            { !! After && Object.keys( dirsInfos ).length !== 0 && After }
         </View>
 
     </InfoRowControl>;
