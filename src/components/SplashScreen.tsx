@@ -42,7 +42,7 @@ const SplashScreen = ( {
         } }
     >
 
-        <Text style={ theme.fonts.displayMedium }>
+        <Text style={ { ...theme.fonts.displayMedium, fontFamily: 'jangly_walk' } }>
             { 'Straymap' }
         </Text>
 
