@@ -9,7 +9,7 @@ import React, {
 	useState,
 } from 'react';
 import {
-	NativeModules,
+	I18nManager,
 	ToastAndroid,
 	useColorScheme,
 	View,
@@ -139,7 +139,7 @@ const useAppLang = () => {
 			: 'system';
 		let newLang = i18n.language;
 		if ( newSelectedLang === 'system' ) {
-			const systemLocale = NativeModules.I18nManager.localeIdentifier;
+			const systemLocale = I18nManager.getConstants().localeIdentifier || 'en';
 			const systemLangOpt = langOptions.find( opt => systemLocale.startsWith( opt.key ) );
 			newLang = !! systemLangOpt ? systemLangOpt.key : newLang;
 		} else {
