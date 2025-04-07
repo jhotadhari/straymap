@@ -7,6 +7,7 @@ import {
 	useState,
 } from 'react';
 import {
+	InteractionManager,
 	ToastAndroid,
 } from 'react-native';
 import DefaultPreference from 'react-native-default-preference';
@@ -42,31 +43,35 @@ const useSettings = ( {
     useEffect( () => {
 		const busyKey = 'useSettings' + 'load' + settingsKey;
 		maybeIsBusyAdd && maybeIsBusyAdd( busyKey );
-		setTimeout( () => DefaultPreference.get( settingsKey ).then( newSettingsStr => {
-			if ( newSettingsStr ) {
-				const newSettings = JSON.parse( newSettingsStr );
-				setSettings( {
-					...initialSettings,
-					...newSettings,
-					...( 'generalSettings' === settingsKey && {
-						...mergeSettingsForKey( initialSettings, newSettings, 'unitPrefs' ),
-						...mergeSettingsForKey( initialSettings, newSettings, 'dashboardElements' ),
-					} ),
-				} );
-			}
-			setInitialized( true );
-		} ).catch( err => 'ERROR' + console.log( err ) )
-		.finally( () => maybeIsBusyRemove && maybeIsBusyRemove( busyKey ) ), 1 );
+		InteractionManager.runAfterInteractions( () => {
+			DefaultPreference.get( settingsKey ).then( newSettingsStr => {
+				if ( newSettingsStr ) {
+					const newSettings = JSON.parse( newSettingsStr );
+					setSettings( {
+						...initialSettings,
+						...newSettings,
+						...( 'generalSettings' === settingsKey && {
+							...mergeSettingsForKey( initialSettings, newSettings, 'unitPrefs' ),
+							...mergeSettingsForKey( initialSettings, newSettings, 'dashboardElements' ),
+						} ),
+					} );
+				}
+				setInitialized( true );
+			} ).catch( err => 'ERROR' + console.log( err ) )
+			.finally( () => maybeIsBusyRemove && maybeIsBusyRemove( busyKey ) );
+		} );
     }, [] );
 
 	useDeepCompareEffect( () => {
 		if ( initialized ) {
 			const busyKey = 'useSettings' + 'changed' + settingsKey;
 			maybeIsBusyAdd && maybeIsBusyAdd( busyKey );
-			setTimeout( () => DefaultPreference.set( settingsKey, JSON.stringify( settings ) )
-			.then( () => savedMessage ? ToastAndroid.show( savedMessage, ToastAndroid.SHORT ) : null )
-			.catch( err => 'ERROR' + console.log( err ) )
-			.finally( () => maybeIsBusyRemove && maybeIsBusyRemove( busyKey ) ), 10 );
+			InteractionManager.runAfterInteractions( () => {
+				DefaultPreference.set( settingsKey, JSON.stringify( settings ) )
+				.then( () => savedMessage ? ToastAndroid.show( savedMessage, ToastAndroid.SHORT ) : null )
+				.catch( err => 'ERROR' + console.log( err ) )
+				.finally( () => maybeIsBusyRemove && maybeIsBusyRemove( busyKey ) )
+			} );
 		}
 	}, [settings] );
 

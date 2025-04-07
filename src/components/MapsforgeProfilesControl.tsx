@@ -13,6 +13,7 @@ import {
 	View,
     TouchableHighlight,
     Linking,
+    InteractionManager,
 } from 'react-native';
 import { useSafeAreaFrame } from 'react-native-safe-area-context';
 import {
@@ -463,7 +464,7 @@ const MapsforgeProfilesControl = ( {
             if ( ! renderStylesCache.optionsMap[editProfile.theme] ) {
                 const busyKey = 'MapsforgeProfilesControl' + editProfile.key;
                 maybeIsBusyAdd && maybeIsBusyAdd( busyKey );
-                setTimeout( () => {
+                InteractionManager.runAfterInteractions( () => {
                     MapLayerMapsforgeModule.getRenderThemeOptions( editProfile?.theme ).then( ( collection : RenderStyleOptionsCollection ) => {
                         setRenderStylesCache( {
                             optionsMap: {
@@ -482,7 +483,7 @@ const MapsforgeProfilesControl = ( {
                         console.log( 'ERROR', err );
                         maybeIsBusyRemove && maybeIsBusyRemove( busyKey );
                     } );
-                }, 1 );
+                } );
             }
 		}
     }, [

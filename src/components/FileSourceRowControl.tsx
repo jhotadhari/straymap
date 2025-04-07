@@ -10,6 +10,7 @@ import {
     useState,
 } from 'react';
 import {
+    InteractionManager,
 	View,
 } from 'react-native';
 import {
@@ -89,7 +90,7 @@ const FileSourceRowControl = ( {
     const theme = useTheme();
 
 	const [modalVisible, setModalVisible] = useState( false );
-	const [start, setStart] = useState( false );
+	const [start, setStart] = useState<boolean | number>( false );
 
     const dirsInfos = useDirsInfo(
         dirs || [],
@@ -99,7 +100,9 @@ const FileSourceRowControl = ( {
     );
 
     useEffect( () => {
-        setTimeout( () => setStart( true ), 100 );
+        InteractionManager.runAfterInteractions( () => {
+            setStart( Math.random() )
+        } );
     }, [] );
 
     const [optsMap,setOptsMap] = useState<OptsMap>( {} );
