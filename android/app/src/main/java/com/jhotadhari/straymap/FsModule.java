@@ -1,9 +1,5 @@
 package com.jhotadhari.straymap;
 
-import android.os.Build;
-import android.os.Environment;
-import android.util.Log;
-
 import androidx.annotation.Nullable;
 
 import com.facebook.react.bridge.Promise;
@@ -20,11 +16,8 @@ import com.facebook.react.bridge.WritableNativeMap;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
-import java.io.FileFilter;
-import java.nio.file.Path;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
