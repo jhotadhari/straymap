@@ -1,4 +1,5 @@
-const {getDefaultConfig, mergeConfig} = require('@react-native/metro-config');
+const { getDefaultConfig, mergeConfig } = require('@react-native/metro-config');
+const { wrapWithReanimatedMetroConfig } = require('react-native-reanimated/metro-config');
 
 /**
  * Metro configuration
@@ -7,9 +8,11 @@ const {getDefaultConfig, mergeConfig} = require('@react-native/metro-config');
  */
 const defaultConfig = getDefaultConfig(__dirname);
 
+
 const { assetExts, sourceExts } = defaultConfig.resolver;
 
 const customConfig = {
+    resetCache: true,
     transformer: {
         babelTransformerPath: require.resolve(
             './transformer/md-transformer'
@@ -21,4 +24,7 @@ const customConfig = {
     }
 };
 
-module.exports = mergeConfig( defaultConfig, customConfig );
+module.exports = wrapWithReanimatedMetroConfig( mergeConfig(
+    defaultConfig,
+    customConfig
+) );
