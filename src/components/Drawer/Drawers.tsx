@@ -1,45 +1,45 @@
 import { View } from "react-native";
 import { useState } from "react";
-import { SharedValue,  useAnimatedStyle, useSharedValue } from "react-native-reanimated";
+import { SharedValue, useAnimatedStyle, useSharedValue } from "react-native-reanimated";
 import { Gesture } from "react-native-gesture-handler";
 
 import Drawer, { DrawerState } from "./Drawer";
 
-const clamp = ( val: number, min: number, max: number ) : number => {
-	return Math.min( Math.max( val, min), max );
+const clamp = (val: number, min: number, max: number): number => {
+    return Math.min(Math.max(val, min), max);
 };
 
-const useDrawerState = ( {
-	side,
-	drawerWidth = 300,
-	outerWidth,
-	translationX,
-	translationXOther,
-} : {
-	side: string;
-	drawerWidth?: number;
-	outerWidth: number;
-	translationX: SharedValue<number>;
-	translationXOther: SharedValue<number>;
-} ) : DrawerState => {
+const useDrawerState = ({
+    side,
+    drawerWidth = 300,
+    outerWidth,
+    translationX,
+    translationXOther,
+}: {
+    side: string;
+    drawerWidth?: number;
+    outerWidth: number;
+    translationX: SharedValue<number>;
+    translationXOther: SharedValue<number>;
+}): DrawerState => {
 
-    drawerWidth = drawerWidth <= outerWidth * 2/3
+    drawerWidth = drawerWidth <= outerWidth * 2 / 3
         ? drawerWidth
-        : outerWidth * 2/3;
+        : outerWidth * 2 / 3;
 
-    const prevTranslationX = useSharedValue( 'left' === side ? - drawerWidth : drawerWidth );
+    const prevTranslationX = useSharedValue('left' === side ? - drawerWidth : drawerWidth);
 
-	const [showInner,setShowInner] = useState( false );
+    const [showInner, setShowInner] = useState(false);
 
-    const animatedStyles = useAnimatedStyle( () => ( {
+    const animatedStyles = useAnimatedStyle(() => ({
         transform: [{ translateX: translationX.value }],
-    } ) );
+    }));
 
-    const setTranslationX = ( newVal: number ) => {
+    const setTranslationX = (newVal: number) => {
         translationX.value = newVal;
         // Render inner on initial open.
-        if ( ! showInner ) {
-            setShowInner( true );
+        if (!showInner) {
+            setShowInner(true);
         }
         // Maybe shrink other
         const remaining = 'left' === side
@@ -48,44 +48,44 @@ const useDrawerState = ( {
         const remainingOther = 'left' === side
             ? outerWidth + translationXOther.value - drawerWidth
             : outerWidth - translationXOther.value - drawerWidth;
-        if ( remaining - ( outerWidth - remainingOther ) < outerWidth / 3 ) {
+        if (remaining - (outerWidth - remainingOther) < outerWidth / 3) {
             translationXOther.value = clamp(
                 'right' === side
-                    ? newVal - ( outerWidth * 2 / 3 )
-                    : newVal + ( outerWidth * 2 / 3 ),
+                    ? newVal - (outerWidth * 2 / 3)
+                    : newVal + (outerWidth * 2 / 3),
                 'right' === side ? - drawerWidth : 0,
                 'right' === side ? 0 : drawerWidth
             );
         }
     };
 
-    const expand = ( expanded: boolean ) => setTranslationX( expanded
-        ? ( 'left' === side ? 0 : 0 )
-        : ( 'left' === side ? - drawerWidth : drawerWidth )
+    const expand = (expanded: boolean) => setTranslationX(expanded
+        ? ('left' === side ? 0 : 0)
+        : ('left' === side ? - drawerWidth : drawerWidth)
     );
 
     const gesture = Gesture.Pan()
-        .minDistance( 1 )
-        .onStart( () => {
+        .minDistance(1)
+        .onStart(() => {
             prevTranslationX.value = translationX.value;
-        } )
-        .onUpdate( ( event ) => {
-            setTranslationX( clamp(
+        })
+        .onUpdate((event) => {
+            setTranslationX(clamp(
                 prevTranslationX.value + event.translationX,
                 'left' === side ? - drawerWidth : 0,
                 'left' === side ? 0 : drawerWidth
-            ) );
-        } )
-        .runOnJS( true );
+            ));
+        })
+        .runOnJS(true);
 
     const getIsFullyCollapsed = () => 'left' === side
         ? translationX.value === - drawerWidth
         : translationX.value === drawerWidth;
 
     return {
-		side,
-		drawerWidth,
-		outerWidth,
+        side,
+        drawerWidth,
+        outerWidth,
         showInner,
         gesture,
         animatedStyles,
@@ -95,62 +95,71 @@ const useDrawerState = ( {
 
 };
 
-const Drawers = ( {
-	drawerWidth = 300,
-	outerWidth,
-	height,
-} : {
-	drawerWidth?: number;
-	outerWidth: number;
-	height: number;
-} ) => {
+const Drawers = ({
+    drawerWidth = 300,
+    outerWidth,
+    height,
+}: {
+    drawerWidth?: number;
+    outerWidth: number;
+    height: number;
+}) => {
 
-	const translationXLeft = useSharedValue( - drawerWidth );
+    const translationXLeft = useSharedValue(- drawerWidth);
 
-	const translationXRight = useSharedValue( drawerWidth );
+    const translationXRight = useSharedValue(drawerWidth);
 
-    const drawerStateLeft = useDrawerState( {
+    const drawerStateLeft = useDrawerState({
         side: 'left',
         drawerWidth,
         outerWidth,
         translationX: translationXLeft,
         translationXOther: translationXRight,
-    } );
+    });
 
-    const drawerStateRight = useDrawerState( {
+    const drawerStateRight = useDrawerState({
         side: 'right',
         drawerWidth,
         outerWidth,
         translationX: translationXRight,
         translationXOther: translationXLeft,
-    } );
+    });
 
-    return <View style={ { position: 'absolute' } }>
+    return <View style={{ position: 'absolute' }}>
 
         <Drawer
-            elements={ [
+            elements={[
                 {
                     type: 'gps',
                 },
                 {
-                    type: 'brouter',
+                    type: 'tracksRoutes',
                 },
-            ] }
-            drawerState={ drawerStateLeft }
-            height={ height }
+                {
+                    type: 'waypoints',
+                },
+            ]}
+            drawerState={drawerStateLeft}
+            height={height}
         />
 
         <Drawer
-            elements={ [
+            elements={[
                 {
                     type: 'maps',
                 },
                 {
                     type: 'searchPlace',
                 },
-            ] }
-            drawerState={ drawerStateRight }
-            height={ height }
+                {
+                    type: 'brouter',
+                },
+                {
+                    type: 'ioverlander',
+                },
+            ]}
+            drawerState={drawerStateRight}
+            height={height}
         />
 
     </View>;

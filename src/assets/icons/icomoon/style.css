@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'icomoon';
-  src:  url('fonts/icomoon.eot?nzzhyn');
-  src:  url('fonts/icomoon.eot?nzzhyn#iefix') format('embedded-opentype'),
-    url('fonts/icomoon.ttf?nzzhyn') format('truetype'),
-    url('fonts/icomoon.woff?nzzhyn') format('woff'),
-    url('fonts/icomoon.svg?nzzhyn#icomoon') format('svg');
+  src:  url('fonts/icomoon.eot?nw2wpp');
+  src:  url('fonts/icomoon.eot?nw2wpp#iefix') format('embedded-opentype'),
+    url('fonts/icomoon.ttf?nw2wpp') format('truetype'),
+    url('fonts/icomoon.woff?nw2wpp') format('woff'),
+    url('fonts/icomoon.svg?nw2wpp#icomoon') format('svg');
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -25,6 +25,12 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icon-map-marker-search:before {
+  content: "\e904";
+}
+.icon-routes_search:before {
+  content: "\e903";
+}
 .icon-mapsforge_puzzle_cog:before {
   content: "\e902";
   color: #97bf0d;

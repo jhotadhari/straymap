@@ -8,11 +8,6 @@ import {
 import { useTranslation } from 'react-i18next';
 import { View } from "react-native";
 
-/**
- * Internal dependencies
- */
-import IconIcomoon from '../../generic/IconIcomoon';
-
 const DisplayComponent = ({
     // currentMapEvent,
     // dashboardElement,
@@ -29,22 +24,18 @@ const DisplayComponent = ({
         // minWidth: get( dashboardElement, ['style','minWidth'], undefined ),
         // ...style,
     }}>
-        <Text>bla routes</Text>
+        <Text>bla iOverlander</Text>
 
 
     </View>;
 };
 
-const IconComponent = ({ color }: { color: string }) => {
-    return <IconIcomoon style={{ color }} name="routes_search" size={25} />;
-};
-
-
 export default {
-    key: 'brouter',
-    label: 'brouter',
+    key: 'ioverlander',
+    label: 'iOverlander',
     DisplayComponent,
-    IconComponent,
+    // IconComponent,
+    iconSource: 'routes',
 
     // ControlComponent,
     // hasStyleControl: true,

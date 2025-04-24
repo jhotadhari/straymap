@@ -29,22 +29,18 @@ const DisplayComponent = ({
         // minWidth: get( dashboardElement, ['style','minWidth'], undefined ),
         // ...style,
     }}>
-        <Text>bla routes</Text>
+        <Text>bla waypoints</Text>
 
 
     </View>;
 };
 
-const IconComponent = ({ color }: { color: string }) => {
-    return <IconIcomoon style={{ color }} name="routes_search" size={25} />;
-};
-
-
 export default {
-    key: 'brouter',
-    label: 'brouter',
+    key: 'waypoints',
+    label: 'waypoints',
     DisplayComponent,
-    IconComponent,
+    // IconComponent,
+    iconSource: 'map-marker',
 
     // ControlComponent,
     // hasStyleControl: true,

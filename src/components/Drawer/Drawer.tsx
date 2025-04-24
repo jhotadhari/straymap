@@ -87,9 +87,11 @@ const DrawerHandle = ( {
 	expand: ( expanded: boolean ) => void;
 } ) => {
 	const theme = useTheme();
-	const IconComponent = get( drawerElementComponents, [element.type as string,'IconComponent'] );
-	const iconSource = IconComponent ? undefined : get( drawerElementComponents, [element.type as string,'iconSource'] );
-	const color = element.type === activeElementKey ? theme.colors.onBackground : theme.colors.background;
+	const IconComponent = get( drawerElementComponents, [element.type as string, 'IconComponent'] );
+	const iconSource = IconComponent ? undefined : get( drawerElementComponents, [element.type as string, 'iconSource'] );
+	const color = element.type === activeElementKey
+		? theme.colors.onBackground
+		: ( theme.dark ? theme.colors.background : theme.colors.onBackground );
 	return <GestureDetector key={ index } gesture={ gesture }>
 		<View
 			style={ {
@@ -102,7 +104,7 @@ const DrawerHandle = ( {
 				backgroundColor: element.type === activeElementKey
 					? theme.colors.background
 					: 'transparent',
-				borderColor: theme.colors.background,
+				borderColor: theme.dark ? theme.colors.background : theme.colors.onBackground,
 				borderWidth: 1,
 				...( 'left' === side && {
 					right: 0,
