@@ -65,6 +65,7 @@ import SplashScreen from './SplashScreen';
 import AppView from './AppView';
 import SplashScreenUpdater from './SplashScreenUpdater';
 import useSettings from '../compose/useSettings';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 const useAppTheme = () => {
 
@@ -692,17 +693,19 @@ const App = ( {
 		currentMapEvent,
 	} }>
 
-		<AppView
-    		showSplash={ showSplash }
-    		initialPosition={ initialPosition as InitialPosition }
-    		setInitialPosition={ setInitialPosition }
-    		setTopAppBarHeight={ setTopAppBarHeight }
-    		setBottomBarHeight={ setBottomBarHeight }
-    		setCurrentMapEvent={ setCurrentMapEvent }
-    		setMapViewNativeNodeHandle={ setMapViewNativeNodeHandle }
-    		layerInfos={ layerInfos }
-    		onLayerChange={ onLayerChange }
-		/>
+		<GestureHandlerRootView>
+			<AppView
+				showSplash={ showSplash }
+				initialPosition={ initialPosition as InitialPosition }
+				setInitialPosition={ setInitialPosition }
+				setTopAppBarHeight={ setTopAppBarHeight }
+				setBottomBarHeight={ setBottomBarHeight }
+				setCurrentMapEvent={ setCurrentMapEvent }
+				setMapViewNativeNodeHandle={ setMapViewNativeNodeHandle }
+				layerInfos={ layerInfos }
+				onLayerChange={ onLayerChange }
+			/>
+		</GestureHandlerRootView>
 
 	</AppContext.Provider>;
 };

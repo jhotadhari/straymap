@@ -9,7 +9,7 @@ import { SvgXml } from 'react-native-svg';
 import { readFile } from 'react-native-fs';
 
 /**
- * react-native-mapsforge-vtm dependencies
+ * Internal dependencies
  */
 import { AppContext } from '../Context';
 import { CursorConfig } from '../types';
@@ -82,17 +82,15 @@ const Center = ( {
 		isBusy,
     } = useContext( AppContext )
 
-	return <View
-		style={ {
-			position: 'absolute',
-			top: 0,
-			left: 0,
-			justifyContent: 'center',
-			alignItems: 'center',
-			width,
-			height,
-		} }
-	>
+	return <View style={ {
+		position: 'absolute',
+		top: 0,
+		left: 0,
+		justifyContent: 'center',
+		alignItems: 'center',
+		width,
+		height,
+	} } >
 		{ isBusy && <ActivityIndicator
 			animating={ true }
 			size={ 'large' }
