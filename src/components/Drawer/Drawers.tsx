@@ -130,7 +130,7 @@ const Drawers = ( {
         <Drawer
             elements={ [
                 {
-                    type: 'maps',
+                    type: 'gps',
                 },
                 {
                     type: 'brouter',
@@ -146,7 +146,7 @@ const Drawers = ( {
                     type: 'maps',
                 },
                 {
-                    type: 'brouter',
+                    type: 'searchPlace',
                 },
             ] }
             drawerState={ drawerStateRight }
