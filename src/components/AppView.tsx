@@ -58,7 +58,7 @@ import type {
 import { AppContext } from '../Context';
 import Center from './Center';
 import { Dashboard } from './Dashboard';
-import { Drawer } from './Drawer';
+import { Drawers } from './Drawer';
 import * as dashboardElementComponents from "./Dashboard/elements";
 import SplashScreen from './SplashScreen';
 import MapLayersAttribution from './MapLayersAttribution';
@@ -273,30 +273,7 @@ const AppView = ( {
                 width={ width }
             />
 
-            <Drawer
-                elements={ [
-                    {
-                        type: 'maps',
-                    },
-                    {
-                        type: 'brouter',
-                    },
-                ] }
-                side='left'
-                height={ mapHeight }
-                outerWidth={ width }
-            />
-
-            <Drawer
-                elements={ [
-                    {
-                        type: 'maps',
-                    },
-                    {
-                        type: 'brouter',
-                    },
-                ] }
-                side='right'
+            <Drawers
                 height={ mapHeight }
                 outerWidth={ width }
             />
