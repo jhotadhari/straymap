@@ -273,7 +273,7 @@ const AppView = ( {
                 width={ width }
             />
 
-            { <Drawer
+            <Drawer
                 elements={ [
                     {
                         type: 'maps',
@@ -282,10 +282,24 @@ const AppView = ( {
                         type: 'brouter',
                     },
                 ] }
+                side='left'
                 height={ mapHeight }
                 outerWidth={ width }
-                drawerWidth={ 300 }
-            /> }
+            />
+
+            <Drawer
+                elements={ [
+                    {
+                        type: 'maps',
+                    },
+                    {
+                        type: 'brouter',
+                    },
+                ] }
+                side='right'
+                height={ mapHeight }
+                outerWidth={ width }
+            />
 
             <MapLayersAttribution
                 layerInfos={ layerInfos }

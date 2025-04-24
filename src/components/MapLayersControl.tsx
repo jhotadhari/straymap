@@ -152,9 +152,8 @@ const DraggableItem = ( {
             justifyContent:'space-between',
             alignItems: 'center',
             flexDirection: reverse ? 'row-reverse' : 'row',
-            marginLeft: -20,
-            paddingLeft: 3,
-            paddingRight: 24,
+            paddingLeft: reverse ? 14 : 24,
+            paddingRight: reverse ? 24 : 14,
         } }
         key={ item.key }
     >
@@ -162,7 +161,11 @@ const DraggableItem = ( {
         <VisibleControl
             item={ item }
             updateLayer={ updateLayer }
-            style={ { padding: 10 } }
+            style={ {
+                padding: 10,
+                ...( reverse && { marginRight: -10 } ),
+                ...( ! reverse && { marginLeft: -10 } ),
+            } }
         />
 
         <View style={ {
@@ -376,6 +379,9 @@ const MapLayersControl = ( {
                 width,
             } } >
                 <DraggableGrid
+                    style={ {
+                        marginLeft: -40, // revert paper paddingLeft 40
+                    } }
                     itemHeight={ itemHeight }
                     numColumns={ 1 }
                     renderItem={ renderItem }

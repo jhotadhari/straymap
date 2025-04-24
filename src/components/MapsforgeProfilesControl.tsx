@@ -64,12 +64,10 @@ type RenderStyles = {
 const DraggableItem = ( {
     width,
     profile,
-    paddingLeft = 3,
     reverse,
 } : {
     profile: MapsforgeProfile;
     width: number;
-    paddingLeft: number;
     reverse: boolean;
 } ) => {
 
@@ -93,37 +91,28 @@ const DraggableItem = ( {
 
     return <View
         style={ {
-            width: width * modalWidthFactor,
+            width,
             height: itemHeight,
             justifyContent:'space-between',
             alignItems: 'center',
             flexDirection: reverse ? 'row-reverse' : 'row',
-            // flexDirection: 'row',
-            marginLeft: -20,
-            paddingLeft,
-            paddingRight: 24,
+            overflow: 'hidden',
+            paddingLeft: reverse ? 14 : 24,
+            paddingRight: reverse ? 24 : 14,
         } }
         key={ profile.key }
     >
 
-        <View style={ {
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            flexDirection: reverse ? 'row-reverse' : 'row',
-            flexGrow: 1,
-            marginLeft: 5,
-            marginRight: reverse ? -15 : 5,
-        } } >
-            <Text style={ {
-                textAlign: reverse ? 'right' : 'left',
-                marginLeft: 0,
-                width: 100
-            } } >{ profile.name }</Text>
-            <Text style={ { flexGrow: 1 } } >{ sprintf( '%s ' + t( 'layer', { count: layersCount } ), layersCount ) }</Text>
+        <Text style={ {
+            textAlign: reverse ? 'right' : 'left',
+            marginLeft: 0,
+            width: 100,
+            ...( reverse && { marginRight: 3 } ),
+        } } >{ profile.name }</Text>
 
+        <Text style={ { flexGrow: 1 } } >{ sprintf( '%s ' + t( 'layer', { count: layersCount } ), layersCount ) }</Text>
 
-            { ! isToWide && <Text>[{ themeLabel }]</Text> }
-        </View>
+        { ! isToWide && <Text style={ reverse ? { marginRight: 10 } : {} }>[{ themeLabel }]</Text> }
 
         <TouchableHighlight
             underlayColor={ theme.colors.elevation.level3 }
@@ -193,7 +182,6 @@ const RenderStyleRowControl = ( {
     updateProfile?: ( newProfile: MapsforgeProfile ) => void;
     Info?: ReactNode | string;
     AlternativeButton?: ReactNode;
-    // AlternativeButton?: AlternativeButtonType;
     renderStyleOptionsMap: { [value: string]: RenderStyleOptionsCollection };
     renderDefaultStylesMap: { [value: string]: ( string | null ) };
 } ) => {
@@ -415,13 +403,11 @@ const MapsforgeProfilesControl = ( {
     setScrollEnabled,
     width,
     reverseDraggableItem,
-    paddingLeftDraggableItem = 3,
     newLabel,
     uiStateKey = 'mapsforgeProfilesExpanded',
 } : {
     setScrollEnabled: Dispatch<SetStateAction<boolean>>,
     width?: number;
-    paddingLeftDraggableItem?: number;
     reverseDraggableItem?: boolean;
     newLabel?: string;
     uiStateKey?: string;
@@ -529,7 +515,6 @@ const MapsforgeProfilesControl = ( {
     const renderItem = ( profile : MapsforgeProfile ) => <View key={ profile.key }><DraggableItem
         profile={ profile }
         width={ width }
-        paddingLeft={ paddingLeftDraggableItem }
         reverse={ !! reverseDraggableItem }
     /></View>;
 
@@ -718,10 +703,13 @@ const MapsforgeProfilesControl = ( {
         >
 
             <View style={ {
-                height: itemHeight * profiles.length + 8 ,
+                height: itemHeight * profiles.length + 8,
                 width,
             } } >
                 <DraggableGrid
+                    style={ {
+                        marginLeft: -40, // revert paper paddingLeft 40
+                    } }
                     itemHeight={ itemHeight }
                     numColumns={ 1 }
                     renderItem={ renderItem }

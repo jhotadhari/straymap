@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import React, { Dispatch, SetStateAction, useState } from 'react';
 import { View } from 'react-native';
 import { Button, Icon, useTheme } from 'react-native-paper';
 import Animated, {
@@ -31,10 +31,12 @@ const DrawerInner = ( {
 	activeElement,
 	drawerWidth,
 	drawerHeight,
+	side,
 } : {
 	activeElement: any;
 	drawerWidth: number;
 	drawerHeight: number;
+	side: string;
 } ) => {
 	if ( ! activeElement ) {
 		return null;
@@ -51,28 +53,29 @@ const DrawerInner = ( {
 		<DisplayComponent
 			drawerWidth={ drawerWidth }
 			drawerHeight={ drawerHeight }
+			drawerSide={ side }
 		/>
 	</View>;
 };
 
 const DrawerHandle = ( {
 	index,
+	side,
 	element,
 	activeElementKey,
 	setActiveElementKey,
 	gesture,
-	drawerWidth,
-	translationX,
-	setTranslationX,
+	getIsFullyCollapsed,
+	expand,
 } : {
 	index: number;
+	side: string;
 	element: any;
 	activeElementKey?: string;
 	setActiveElementKey: Dispatch<SetStateAction<string | undefined>>;
 	gesture: ComposedGesture | GestureType;
-	drawerWidth: number;
-	translationX: number;
-	setTranslationX: ( newVal: number ) => void;
+	getIsFullyCollapsed: () => boolean;
+	expand: ( expanded: boolean ) => void;
 } ) => {
 	const theme = useTheme();
 	const IconComponent = get( drawerElementComponents, [element.type as string,'IconComponent'] );
@@ -86,20 +89,30 @@ const DrawerHandle = ( {
 				height: handleSize,
 				justifyContent: 'center',
 				alignItems: 'center',
-				right: 0,
 				top: index * handleSize + ( ( index + 1 ) * ( handleSize / 2 ) ),
-				transform: [
-					{ translateX: '100%' },
-				],
 				backgroundColor: element.type === activeElementKey
 					? theme.colors.background
 					: 'transparent',
-				borderTopRightRadius: '50%',
-				borderBottomRightRadius: '50%',
 				borderColor: theme.colors.background,
 				borderWidth: 1,
-				borderLeftWidth: 0,
-
+				...( 'left' === side && {
+					right: 0,
+					transform: [
+						{ translateX: '100%' },
+					],
+					borderTopRightRadius: '50%',
+					borderBottomRightRadius: '50%',
+					borderLeftWidth: 0,
+				} ),
+				...( 'right' === side && {
+					left: 0,
+					transform: [
+						{ translateX: '-100%' },
+					],
+					borderTopLeftRadius: '50%',
+					borderBottomLeftRadius: '50%',
+					borderRightWidth: 0,
+				} ),
 			} }
 		>
 			<Button
@@ -109,14 +122,11 @@ const DrawerHandle = ( {
 				} }
 				onPress={ () => {
 					if ( activeElementKey === element.type ) {
-						setTranslationX( translationX === -drawerWidth
-							? 0
-							: - drawerWidth
-						)
+						expand( getIsFullyCollapsed() );
 					} else {
 						setActiveElementKey( element.type );
-						if ( translationX === -drawerWidth ) {
-							setTranslationX( 0 );
+						if ( getIsFullyCollapsed() ) {
+							expand( true );
 						}
 					}
 				} }
@@ -135,12 +145,14 @@ const DrawerHandle = ( {
 
 const Drawer = ( {
 	elements,
-	drawerWidth,
+	side,
+	drawerWidth = 300,
 	outerWidth,
 	height,
 } : {
 	elements: any;
-	drawerWidth: number;
+	side: string;
+	drawerWidth?: number;
 	outerWidth: number;
 	height: number;
 } ) => {
@@ -152,19 +164,24 @@ const Drawer = ( {
 	const theme = useTheme();
 	const [activeElementKey,setActiveElementKey] = useState<string | undefined>( elements.length ? elements[0]['type'] : undefined );
 	const activeElement = elements.find( ( el: any ) => el.type === activeElementKey );
-	const translationX = useSharedValue( - drawerWidth );
-	const prevTranslationX = useSharedValue( - drawerWidth );
+	const translationX = useSharedValue( 'left' === side ? -drawerWidth : drawerWidth );
+	const prevTranslationX = useSharedValue( 'left' === side ? -drawerWidth : drawerWidth );
 
 	const [showInner,setShowInner] = useState( false );
 
 	const animatedStyles = useAnimatedStyle( () => ( {
-	  transform: [{ translateX: translationX.value }],
+	  	transform: [{ translateX: translationX.value }],
 	} ) );
 
 	const setTranslationX = ( newVal: number ) => {
 		translationX.value = newVal;
 		setShowInner( true );
 	};
+
+	const expand = ( expanded: boolean ) => setTranslationX( expanded
+		? ( 'left' === side ? 0 : 0 )
+		: ( 'left' === side ? - drawerWidth : drawerWidth )
+	);
 
 	const pan = Gesture.Pan()
 		.minDistance( 1 )
@@ -174,8 +191,8 @@ const Drawer = ( {
 		.onUpdate( ( event ) => {
 			setTranslationX( clamp(
 				prevTranslationX.value + event.translationX,
-				- drawerWidth,
-				0
+				'left' === side ? - drawerWidth : 0,
+				'left' === side ? 0 : drawerWidth
 			) );
 		} )
 		.runOnJS( true );
@@ -184,7 +201,7 @@ const Drawer = ( {
 		position: 'absolute',
 		top: 0,
 		left: 0,
-		alignItems: 'flex-start',
+		alignItems: 'left' === side ? 'flex-start' : 'flex-end',
 		width: outerWidth,
 		height,
 	} } >
@@ -196,18 +213,22 @@ const Drawer = ( {
 
 			{ elements && [...elements].map( ( element, index ) => <DrawerHandle
 				key={ index }
+				side={ side }
 				index={ index }
 				element={ element }
 				activeElementKey={ activeElementKey }
 				setActiveElementKey={ setActiveElementKey }
 				gesture={ pan }
-				drawerWidth={ drawerWidth }
-				translationX={ translationX.value }
-				setTranslationX={ setTranslationX }
+				getIsFullyCollapsed={ () => 'left' === side
+					? translationX.value === -drawerWidth
+					: translationX.value === drawerWidth
+				}
+				expand={ expand }
 			/> ) }
 
 			{ activeElement && showInner && <DrawerInner
 				activeElement={ activeElement }
+				side={ side }
 				drawerWidth={ drawerWidth }
 				drawerHeight={ height }
 			/> }

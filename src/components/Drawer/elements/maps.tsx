@@ -22,10 +22,12 @@ import MapsforgeProfilesControl from '../../MapsforgeProfilesControl';
 const DisplayComponent = ( {
 	drawerWidth,
 	drawerHeight,
+	drawerSide,
 } : {
 
 	drawerWidth: number;
 	drawerHeight: number;
+	drawerSide: string;
 } ) => {
 
     const { t } = useTranslation();
@@ -89,17 +91,16 @@ const DisplayComponent = ( {
             <MapLayersControl
                 setScrollEnabled={ setScrollEnabled }
                 width={ drawerWidth }
-                reverseDraggableItem={ true }
-                uiStateKey='DrawerMapLayersExpanded'
+                reverseDraggableItem={ 'left' === drawerSide }
+                uiStateKey={ 'DrawerMapLayersExpanded' + drawerSide }
                 newLabel={ t( 'addNew' ) }
             />
 
             <MapsforgeProfilesControl
                 setScrollEnabled={ setScrollEnabled }
                 width={ drawerWidth }
-                paddingLeftDraggableItem={ 19 }
-                reverseDraggableItem={ true }
-                uiStateKey='DrawerMapLayersExpanded'
+                reverseDraggableItem={ 'left' === drawerSide }
+                uiStateKey={ 'DrawerMapsforgeProfilesExpanded' + drawerSide }
                 newLabel={ t( 'addNew' ) }
             />
 
