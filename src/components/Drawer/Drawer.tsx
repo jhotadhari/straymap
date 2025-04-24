@@ -57,6 +57,7 @@ const DrawerInner = ( {
 
 	return <View style={ {
 		padding: 20,
+		marginTop: handleSize / 2,
 	} }>
 		<DisplayComponent
 			drawerWidth={ drawerWidth }

@@ -2,9 +2,11 @@
  * External dependencies
  */
 import React, {
+    useContext,
     useState,
 } from 'react';
 import {
+    Text,
 	useTheme,
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -13,22 +15,28 @@ import { ScrollView } from "react-native";
 /**
  * Internal dependencies
  */
-import { SettingsMapsContext } from '../../../Context';
+import { AppContext, SettingsMapsContext } from '../../../Context';
 import useProfiles from '../../../compose/useProfiles';
 import useLayers from '../../../compose/useLayers';
 import MapLayersControl from '../../MapLayersControl';
 import MapsforgeProfilesControl from '../../MapsforgeProfilesControl';
+import ButtonHighlight from '../../generic/ButtonHighlight';
+import { setSelectedHierarchyItemsByKey } from '../../../hierarchyItems';
 
 const DisplayComponent = ( {
 	drawerWidth,
 	drawerHeight,
 	drawerSide,
 } : {
-
 	drawerWidth: number;
 	drawerHeight: number;
 	drawerSide: string;
 } ) => {
+
+
+    const {
+        setSelectedHierarchyItems,
+    } = useContext( AppContext )
 
     const { t } = useTranslation();
 
@@ -85,8 +93,19 @@ const DisplayComponent = ( {
                 height: drawerHeight,
                 width: drawerWidth,
                 position: 'absolute',
+                marginTop: 3,
             } }
         >
+            <ButtonHighlight
+                style={ { marginHorizontal: 20, marginBottom: 20 } }
+                mode='outlined'
+                onPress={ () => setSelectedHierarchyItemsByKey(
+                    ['menuItems.settings','settingsPages.maps'],
+                    setSelectedHierarchyItems
+                ) }
+            >
+                <Text>{ t( 'openMapsSettings' ) }</Text>
+            </ButtonHighlight>
 
             <MapLayersControl
                 setScrollEnabled={ setScrollEnabled }

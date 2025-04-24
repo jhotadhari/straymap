@@ -25,6 +25,7 @@
             "mapsforgeGeneral": "Mapsforge General Settings",
             "appearance": "Appearance"
         },
+        "openMapsSettings": "Open maps settings",
         "addNew": "Add new",
         "map": {
             "file": "Map file",

@@ -10,42 +10,14 @@ import {
 	View,
 } from 'react-native';
 import { useSafeAreaFrame } from 'react-native-safe-area-context';
-import {
-    List,
-	useTheme,
-} from 'react-native-paper';
+import { useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 /**
  * Internal dependencies
  */
 import { AppContext } from '../Context';
-import { SettingsItem } from '../types';
-import SettingsGeneral from './SettingsGeneral';
-import SettingsAppearance from './SettingsAppearance';
-import SettingsMaps from './SettingsMaps';
 import ListItem from './generic/ListItem';
-
-const settingsPages : SettingsItem[] = [
-	{
-		key: 'maps',
-		label: 'settings.maps',
-        left: props => <List.Icon {...props} icon="map" />,
-		SubActivity: <SettingsMaps/>,
-	},
-	{
-		key: 'general',
-		label: 'settings.general',
-        left: props => <List.Icon {...props} icon="application-cog-outline" />,
-		SubActivity: <SettingsGeneral/>,
-	},
-	{
-		key: 'appearance',
-        label: 'settings.appearance',
-        left: ( { color, style } ) => <MaterialIcons style={ style } name="style" size={ 25 } color={ color } />,
-        SubActivity: <SettingsAppearance/>,
-	},
-];
+import { settingsPages } from '../hierarchyItems';
 
 const Settings : FC = () => {
 
@@ -56,7 +28,7 @@ const Settings : FC = () => {
         appInnerHeight,
 		selectedHierarchyItems,
 		setSelectedHierarchyItems,
-    } = useContext( AppContext )
+    } = useContext( AppContext );
 
 	return <View style={ {
         backgroundColor: theme.colors.background,
