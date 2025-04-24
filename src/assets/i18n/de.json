@@ -25,6 +25,7 @@
             "mapsforgeGeneral": "Allgemeine Mapsforge Einstellungen",
             "appearance": "Aussehen"
         },
+        "addNew": "Hinzufügen",
         "map": {
             "file": "Karten Datei",
             "selectFile": "Karten Datei auswählen",

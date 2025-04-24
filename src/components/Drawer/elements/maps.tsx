@@ -2,75 +2,115 @@
  * External dependencies
  */
 import React, {
-    useContext,
-    useEffect,
     useState,
 } from 'react';
 import {
-    Icon,
-	Menu,
-	Text,
 	useTheme,
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { upperFirst, get, set } from 'lodash-es';
-import { View } from "react-native";
-import convertUnits from "convert-units";
+import { ScrollView } from "react-native";
 
 /**
  * Internal dependencies
  */
-import ButtonHighlight from '../../generic/ButtonHighlight';
-import MenuItem from '../../generic/MenuItem';
-import InfoRowControl from '../../generic/InfoRowControl';
-import { options as unitPrefControlOptions } from '../../UnitPrefControl';
-import { DashboardDisplayComponentProps, DashboardElementConf, UnitPref } from "../../../types";
-import { TFunction } from 'i18next';
-import { roundTo } from '../../../utils';
-import { NumericRowControl } from '../../generic/NumericRowControls';
-import { AppContext } from '../../../Context';
-import { defaults } from '../../../constants';
-import { styles as mdStyles } from '../../../markdown/styles';
-
+import { SettingsMapsContext } from '../../../Context';
+import useProfiles from '../../../compose/useProfiles';
+import useLayers from '../../../compose/useLayers';
+import MapLayersControl from '../../MapLayersControl';
+import MapsforgeProfilesControl from '../../MapsforgeProfilesControl';
 
 const DisplayComponent = ( {
-    // currentMapEvent,
-    // dashboardElement,
-    // style = {},
-    // unitPrefs,
-    // dashboardStyle,
+	drawerWidth,
+	drawerHeight,
 } : {
 
+	drawerWidth: number;
+	drawerHeight: number;
 } ) => {
 
     const { t } = useTranslation();
 
-    return <View style={ {
-        // minWidth: get( dashboardElement, ['style','minWidth'], undefined ),
-        // ...style,
-    } }>
-        <Text>bla maps</Text>
+	const theme = useTheme();
 
+    const {
+        editProfile,
+        setEditProfile,
+        updateProfile,
+        profiles,
+        setProfiles,
+        saveProfiles,
+        getNewProfile,
+    } = useProfiles( {
+        saveOnSet: true,
+        saveOnSetDelay: 300,
+    } );
 
-    </View>;
+    const {
+        editLayer,
+        setEditLayer,
+        updateLayer,
+        layers,
+        setLayers,
+        saveLayers,
+    } = useLayers( {
+        saveOnSet: true,
+        saveOnSetDelay: 300,
+    } );
+
+    const [scrollEnabled,setScrollEnabled] = useState( true );
+
+    return <SettingsMapsContext.Provider value={ {
+        // layers
+        layers,
+        editLayer,
+        setEditLayer,
+        updateLayer,
+        setLayers,
+        saveLayers,
+        // profiles
+        profiles,
+        editProfile,
+        setEditProfile,
+        updateProfile,
+        setProfiles,
+        saveProfiles,
+        getNewProfile,
+	} }>
+        <ScrollView
+            scrollEnabled={ scrollEnabled }
+            style={ {
+                backgroundColor: theme.colors.background,
+                height: drawerHeight,
+                width: drawerWidth,
+                position: 'absolute',
+            } }
+        >
+
+            <MapLayersControl
+                setScrollEnabled={ setScrollEnabled }
+                width={ drawerWidth }
+                reverseDraggableItem={ true }
+                uiStateKey='DrawerMapLayersExpanded'
+                newLabel={ t( 'addNew' ) }
+            />
+
+            <MapsforgeProfilesControl
+                setScrollEnabled={ setScrollEnabled }
+                width={ drawerWidth }
+                paddingLeftDraggableItem={ 19 }
+                reverseDraggableItem={ true }
+                uiStateKey='DrawerMapLayersExpanded'
+                newLabel={ t( 'addNew' ) }
+            />
+
+        </ScrollView>
+    </SettingsMapsContext.Provider>;;
 };
 
-// const IconComponent = ( { color }: { color: string } ) => <Icon
-//     source="map"
-//     size={ 25 }
-//     color={ color }
-// />;
 
 export default {
     key: 'maps',
     label: 'maps',
     DisplayComponent,
-    // IconComponent,
     iconSource: 'map',
-
-    // ControlComponent,
-    // hasStyleControl: true,
-    // shouldSetHgtDirPath: true,
-    // defaultMinWidth: 75,
-    // responseInclude: { center: 2 },
 };

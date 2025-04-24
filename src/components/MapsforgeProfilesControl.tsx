@@ -64,13 +64,19 @@ type RenderStyles = {
 const DraggableItem = ( {
     width,
     profile,
+    paddingLeft = 3,
+    reverse,
 } : {
     profile: MapsforgeProfile;
     width: number;
+    paddingLeft: number;
+    reverse: boolean;
 } ) => {
 
     const { t } = useTranslation();
     const theme = useTheme();
+
+    const [isToWide,setIsToWide] = useState( false );
 
     const { setEditProfile, layers, profiles } = useContext( SettingsMapsContext );
 
@@ -91,9 +97,10 @@ const DraggableItem = ( {
             height: itemHeight,
             justifyContent:'space-between',
             alignItems: 'center',
-            flexDirection: 'row',
+            flexDirection: reverse ? 'row-reverse' : 'row',
+            // flexDirection: 'row',
             marginLeft: -20,
-            paddingLeft: 3,
+            paddingLeft,
             paddingRight: 24,
         } }
         key={ profile.key }
@@ -102,20 +109,34 @@ const DraggableItem = ( {
         <View style={ {
             justifyContent: 'space-between',
             alignItems: 'center',
-            flexDirection: 'row',
+            flexDirection: reverse ? 'row-reverse' : 'row',
             flexGrow: 1,
             marginLeft: 5,
-            marginRight: 5,
+            marginRight: reverse ? -15 : 5,
         } } >
-            <Text style={ { marginLeft: 0, width: 100 } } >{ profile.name }</Text>
+            <Text style={ {
+                textAlign: reverse ? 'right' : 'left',
+                marginLeft: 0,
+                width: 100
+            } } >{ profile.name }</Text>
             <Text style={ { flexGrow: 1 } } >{ sprintf( '%s ' + t( 'layer', { count: layersCount } ), layersCount ) }</Text>
-            <Text style={ {} } >[{ themeLabel }]</Text>
+
+
+            { ! isToWide && <Text>[{ themeLabel }]</Text> }
         </View>
 
         <TouchableHighlight
             underlayColor={ theme.colors.elevation.level3 }
             onPress={ () => setEditProfile && setEditProfile( profile ) }
             style={ { padding: 10, borderRadius: theme.roundness } }
+            onLayout={ ( event ) => {
+                if (
+                    ( reverse && ( event.nativeEvent.layout.x < 0 ) )
+                    || ( ! reverse && ( event.nativeEvent.layout.x + event.nativeEvent.layout.width > width ) )
+                ) {
+                    setIsToWide( true );
+                }
+            } }
         >
             <Icon
                 source="cog"
@@ -392,8 +413,18 @@ const RenderOverlaysRowControl = ( {
 
 const MapsforgeProfilesControl = ( {
     setScrollEnabled,
+    width,
+    reverseDraggableItem,
+    paddingLeftDraggableItem = 3,
+    newLabel,
+    uiStateKey = 'mapsforgeProfilesExpanded',
 } : {
     setScrollEnabled: Dispatch<SetStateAction<boolean>>,
+    width?: number;
+    paddingLeftDraggableItem?: number;
+    reverseDraggableItem?: boolean;
+    newLabel?: string;
+    uiStateKey?: string;
 } ) => {
 
     const {
@@ -407,7 +438,9 @@ const MapsforgeProfilesControl = ( {
         layers,
     } = useContext( SettingsMapsContext );
 
-    const { width } = useSafeAreaFrame();
+    const { width: width_ } = useSafeAreaFrame();
+	width = width ? width : width_;
+
 	const { t } = useTranslation();
 	const theme = useTheme();
 
@@ -430,7 +463,7 @@ const MapsforgeProfilesControl = ( {
     const {
         value: expanded,
         setValue: setExpanded,
-    } = useUiState( 'mapsforgeProfilesExpanded' );
+    } = useUiState( uiStateKey );
 
     const setModalVisible = ( visible: boolean ) => {
         if ( visible ) {
@@ -496,6 +529,8 @@ const MapsforgeProfilesControl = ( {
     const renderItem = ( profile : MapsforgeProfile ) => <View key={ profile.key }><DraggableItem
         profile={ profile }
         width={ width }
+        paddingLeft={ paddingLeftDraggableItem }
+        reverse={ !! reverseDraggableItem }
     /></View>;
 
     return <View>
@@ -759,7 +794,7 @@ const MapsforgeProfilesControl = ( {
                         }
                     } }
                 >
-                    { t( 'map.mapsforge.profileAddNew' ) }
+                    { newLabel }
                 </ButtonHighlight>
             </View>
         </List.Accordion>

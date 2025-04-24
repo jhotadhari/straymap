@@ -129,12 +129,16 @@ const VisibleRowControl = ( {
 const DraggableItem = ( {
     item,
     width,
+    reverse,
 } : {
     item: LayerConfig;
     width: number;
+    reverse: boolean;
 } ) => {
 
     const theme = useTheme();
+
+    const [isToWide,setIsToWide] = useState( false );
 
     const {
         setEditLayer,
@@ -147,7 +151,7 @@ const DraggableItem = ( {
             height: itemHeight,
             justifyContent:'space-between',
             alignItems: 'center',
-            flexDirection: 'row',
+            flexDirection: reverse ? 'row-reverse' : 'row',
             marginLeft: -20,
             paddingLeft: 3,
             paddingRight: 24,
@@ -164,19 +168,28 @@ const DraggableItem = ( {
         <View style={ {
             justifyContent: 'space-between',
             alignItems: 'center',
-            flexDirection: 'row',
+            flexDirection: reverse ? 'row-reverse' : 'row',
             flexGrow: 1,
             marginLeft: 5,
             marginRight: 5,
         } } >
             <Text>{ item.name }</Text>
-            <Text>[{ item.type }]</Text>
+            { ! isToWide && <Text>[{ item.type }]</Text>}
         </View>
 
         <TouchableHighlight
             underlayColor={ theme.colors.elevation.level3 }
             onPress={ () => setEditLayer( item ) }
             style={ { padding: 10, borderRadius: theme.roundness } }
+            onLayout={ ( event ) => {
+                if (
+                    ( reverse && ( event.nativeEvent.layout.x < 0 ) )
+                    || ( ! reverse && ( event.nativeEvent.layout.x + event.nativeEvent.layout.width > width ) )
+                ) {
+                    setIsToWide( true );
+                }
+            } }
+
         >
             <Icon
                 source="cog"
@@ -189,12 +202,22 @@ const DraggableItem = ( {
 
 const MapLayersControl = ( {
     setScrollEnabled,
+    width,
+    reverseDraggableItem,
+    newLabel,
+    uiStateKey = 'mapLayersExpanded',
 } : {
-    setScrollEnabled: Dispatch<SetStateAction<boolean>>,
+    setScrollEnabled: Dispatch<SetStateAction<boolean>>;
+    width?: number;
+    reverseDraggableItem?: boolean;
+    newLabel?: string;
+    uiStateKey?: string;
 } ) => {
 
-    const { width } = useSafeAreaFrame();
-	const { t } = useTranslation();
+    const { width: width_ } = useSafeAreaFrame();
+	width = width ? width : width_;
+
+    const { t } = useTranslation();
 	const theme = useTheme();
 
     const {
@@ -204,7 +227,6 @@ const MapLayersControl = ( {
         layers,
         setLayers,
         saveLayers,
-
         setEditProfile,
         profiles,
     } = useContext( SettingsMapsContext );
@@ -212,7 +234,7 @@ const MapLayersControl = ( {
     const {
         value: expanded,
         setValue: setExpanded,
-    } = useUiState( 'mapLayersExpanded' );
+    } = useUiState( uiStateKey );
 
 	const [modalVisible, setModalVisible] = useState( false );
 
@@ -223,6 +245,7 @@ const MapLayersControl = ( {
     const renderItem = ( item : LayerConfig ) => <View key={ item.key }><DraggableItem
         item={ item }
         width={ width }
+        reverse={ !! reverseDraggableItem }
     /></View>;
 
     return <View>
@@ -394,7 +417,7 @@ const MapLayersControl = ( {
                     mode="outlined"
                     onPress={ () => setEditLayer( getNewLayer() ) }
                 >
-                    { t( 'map.addNewLayer' ) }
+                    { newLabel }
                 </ButtonHighlight>
             </View>
         </List.Accordion> }
