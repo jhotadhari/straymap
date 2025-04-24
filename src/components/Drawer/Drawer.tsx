@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { Dispatch, SetStateAction, useState } from 'react';
+import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { Button, Icon, useTheme } from 'react-native-paper';
 import Animated, {
@@ -150,10 +150,12 @@ const Drawer = ( {
 		: outerWidth * 2/3;
 
 	const theme = useTheme();
-	const [activeElementKey,setActiveElementKey] = useState<string | undefined>( elements.length ? elements[0]['key'] : undefined );
+	const [activeElementKey,setActiveElementKey] = useState<string | undefined>( elements.length ? elements[0]['type'] : undefined );
 	const activeElement = elements.find( ( el: any ) => el.type === activeElementKey );
 	const translationX = useSharedValue( - drawerWidth );
-	const prevTranslationX = useSharedValue( 0 );
+	const prevTranslationX = useSharedValue( - drawerWidth );
+
+	const [showInner,setShowInner] = useState( false );
 
 	const animatedStyles = useAnimatedStyle( () => ( {
 	  transform: [{ translateX: translationX.value }],
@@ -161,6 +163,7 @@ const Drawer = ( {
 
 	const setTranslationX = ( newVal: number ) => {
 		translationX.value = newVal;
+		setShowInner( true );
 	};
 
 	const pan = Gesture.Pan()
@@ -203,7 +206,7 @@ const Drawer = ( {
 				setTranslationX={ setTranslationX }
 			/> ) }
 
-			{ activeElement && <DrawerInner
+			{ activeElement && showInner && <DrawerInner
 				activeElement={ activeElement }
 				drawerWidth={ drawerWidth }
 				drawerHeight={ height }
