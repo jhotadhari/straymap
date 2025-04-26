@@ -4,6 +4,7 @@ import { SharedValue, useAnimatedStyle, useSharedValue } from "react-native-rean
 import { Gesture } from "react-native-gesture-handler";
 
 import Drawer, { DrawerState } from "./Drawer";
+import { MapEventResponse } from "react-native-mapsforge-vtm";
 
 const clamp = (val: number, min: number, max: number): number => {
     return Math.min(Math.max(val, min), max);
@@ -99,10 +100,12 @@ const Drawers = ({
     drawerWidth = 300,
     outerWidth,
     height,
+    currentMapEvent,
 }: {
     drawerWidth?: number;
     outerWidth: number;
     height: number;
+    currentMapEvent: MapEventResponse;
 }) => {
 
     const translationXLeft = useSharedValue(- drawerWidth);
@@ -141,6 +144,7 @@ const Drawers = ({
             ]}
             drawerState={drawerStateLeft}
             height={height}
+            currentMapEvent={currentMapEvent}
         />
 
         <Drawer
@@ -160,6 +164,7 @@ const Drawers = ({
             ]}
             drawerState={drawerStateRight}
             height={height}
+            currentMapEvent={currentMapEvent}
         />
 
     </View>;

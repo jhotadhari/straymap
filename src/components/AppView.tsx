@@ -38,6 +38,9 @@ import {
 	LayerMapsforgeResponse,
     LayerBitmapTileProps,
     LayerHillshadingProps,
+    LayerMarker,
+    Marker,
+    LayerPathSlopeGradient,
 } from 'react-native-mapsforge-vtm';
 
 /**
@@ -100,6 +103,8 @@ const AppView = ( {
 		mapSettings,
 		generalSettings,
 		currentMapEvent,
+		routingPoints,
+		routingSegments,
     } = useContext( AppContext );
 
     if (
@@ -264,6 +269,29 @@ const AppView = ( {
                     return null
                 } ) }
 
+                { routingSegments && routingSegments.length > 0 && [...routingSegments].map( ( segment, index ) => {
+                    return segment.positions && segment.positions.length > 0 ? <LayerPathSlopeGradient
+                        key={ index }
+                        positions={ segment.positions }
+                        style={ {
+                            strokeWidth: 5,
+                        } }
+                    /> : null;
+                } ) }
+
+                { routingPoints && routingPoints.length > 0 && <LayerMarker>
+                    { [...routingPoints].map( ( point, index ) => <Marker
+                        key={ index }
+                        position={ point.location }
+                        symbol={ {
+                            text: index + '',
+                        } }
+                        // onTab,
+                        // tabDistanceThreshold,
+                        // icon,
+                    /> ) }
+                </LayerMarker> }
+
                 <LayerScalebar/>
 
             </MapContainer>
@@ -276,6 +304,7 @@ const AppView = ( {
             <Drawers
                 height={ mapHeight }
                 outerWidth={ width }
+                currentMapEvent={ currentMapEvent || {} }
             />
 
             <MapLayersAttribution

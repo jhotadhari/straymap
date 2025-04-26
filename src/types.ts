@@ -231,3 +231,16 @@ export type DashboardDisplayComponentProps = {
 	unitPrefs: { [value: string]: UnitPref };
 	dashboardStyle: DashboardStyle;
 }
+
+export type RoutingPoint = {
+	id: string;
+	location: Location;
+};
+
+export type RoutingSegment = {
+	fromId: string;
+	toId: string;
+	positions?: Location[];
+	isFetching?: boolean;
+	errorMsg?: string;
+};

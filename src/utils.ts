@@ -12,6 +12,16 @@ import { LayerConfigOptionsAny, LayerConfigOptionsHillshading } from "./types";
 import { defaults } from "./constants";
 import { LayerHillshading } from "react-native-mapsforge-vtm";
 
+export const parseSerialized = ( str: string, fallback?: any ) : string | false => {
+	fallback = fallback ? fallback : false;
+	let object = fallback;
+	try {
+		object = JSON.parse( str );
+	} catch( e ) {
+		object = object;
+	}
+	return object;
+};
 export const randomNumber = ( min : number, max : number ) : number => Math.random() * ( max - min ) + min;
 
 export const formatSeconds = ( secNum : number ) : string => {

@@ -21,6 +21,7 @@ import { get } from 'lodash-es';
  * Internal dependencies
  */
 import * as drawerElementComponents from "./elements";
+import { MapEventResponse } from 'react-native-mapsforge-vtm';
 
 export type DrawerState = {
 	showInner: boolean;
@@ -40,11 +41,13 @@ const DrawerInner = ( {
 	drawerWidth,
 	drawerHeight,
 	side,
+	currentMapEvent,
 } : {
 	activeElement: any;
 	drawerWidth: number;
 	drawerHeight: number;
 	side: string;
+	currentMapEvent: MapEventResponse;
 } ) => {
 	if ( ! activeElement ) {
 		return null;
@@ -63,6 +66,7 @@ const DrawerInner = ( {
 			drawerWidth={ drawerWidth }
 			drawerHeight={ drawerHeight }
 			drawerSide={ side }
+			currentMapEvent={ currentMapEvent }
 		/>
 	</View>;
 };
@@ -76,6 +80,7 @@ const DrawerHandle = ( {
 	gesture,
 	getIsFullyCollapsed,
 	expand,
+	currentMapEvent,
 } : {
 	index: number;
 	side: string;
@@ -85,8 +90,10 @@ const DrawerHandle = ( {
 	gesture: ComposedGesture | GestureType;
 	getIsFullyCollapsed: () => boolean;
 	expand: ( expanded: boolean ) => void;
+	currentMapEvent: MapEventResponse;
 } ) => {
 	const theme = useTheme();
+	const IconActions = get( drawerElementComponents, [element.type as string, 'IconActions'] );
 	const IconComponent = get( drawerElementComponents, [element.type as string, 'IconComponent'] );
 	const iconSource = IconComponent ? undefined : get( drawerElementComponents, [element.type as string, 'iconSource'] );
 	const color = element.type === activeElementKey
@@ -150,8 +157,25 @@ const DrawerHandle = ( {
 					color={ color }
 				/> }
 			</Button>
+
+			{ element.type === activeElementKey && IconActions && <View style={ {
+				position: 'absolute',
+				left: '-100%',						// ??? turn around for otherside
+				transform: [{ translateX: - 20 }],	// ??? turn around for otherside
+			} }>
+				<IconActions
+					drawerSide={ side }
+					currentMapEvent={ currentMapEvent }
+					style={ {
+						color,
+						backgroundColor: theme.colors.background,
+					} }
+				/>
+			</View> }
+
+
 		</View>
-	</GestureDetector>;;
+	</GestureDetector>;
 };
 
 const Drawer = ( {
@@ -167,10 +191,12 @@ const Drawer = ( {
 		expand,
 		getIsFullyCollapsed,
 	},
+	currentMapEvent,
 } : {
 	elements: any;
 	height: number;
 	drawerState: DrawerState;
+	currentMapEvent: MapEventResponse;
 } ) => {
 
 	const theme = useTheme();
@@ -201,6 +227,7 @@ const Drawer = ( {
 				gesture={ gesture }
 				getIsFullyCollapsed={ getIsFullyCollapsed }
 				expand={ expand }
+				currentMapEvent={ currentMapEvent }
 			/> ) }
 
 			{ activeElement && showInner && <DrawerInner
@@ -208,6 +235,7 @@ const Drawer = ( {
 				side={ side }
 				drawerWidth={ drawerWidth }
 				drawerHeight={ height }
+				currentMapEvent={ currentMapEvent }
 			/> }
 
 		</Animated.View>

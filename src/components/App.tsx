@@ -66,6 +66,7 @@ import AppView from './AppView';
 import SplashScreenUpdater from './SplashScreenUpdater';
 import useSettings from '../compose/useSettings';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import useRouting from '../compose/useRouting';
 
 const useAppTheme = () => {
 
@@ -605,6 +606,12 @@ const App = ( {
 		onLayerChange,
 	} = useLayerInfos();
 
+	const {
+		points: routingPoints,
+		setPoints: setRoutingPoints,
+		segments: routingSegments
+	} = useRouting();
+
 	// Set CanvasAdapter props on app start, when mapSettingsInitialized, before the map gets initialized.
 	useEffect( () => {
 		if ( mapSettingsInitialized ) {
@@ -691,6 +698,9 @@ const App = ( {
 		maybeIsBusyAdd,
 		maybeIsBusyRemove,
 		currentMapEvent,
+		routingPoints,
+		setRoutingPoints,
+		routingSegments,
 	} }>
 
 		<GestureHandlerRootView>
