@@ -154,9 +154,6 @@ const Drawers = ({
                 {
                     type: 'brouter',
                 },
-                {
-                    type: 'ioverlander',
-                },
             ]}
             drawerState={drawerStateRight}
             height={height}
