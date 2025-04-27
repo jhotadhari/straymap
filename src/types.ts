@@ -239,12 +239,23 @@ export type RoutingPoint = {
 	location: Location;
 };
 
+export interface LocationExtended extends Location {
+	lng: number;
+	lat: number;
+	alt?: number;
+	distance?: number;
+	slope?: number;
+	time?: number;
+};
+
 export type RoutingSegment = {
 	fromId: string;
 	toId: string;
 	positions?: Location[];
 	isFetching?: boolean;
 	errorMsg?: string;
+
+	coordinatesSimplified?: LocationExtended[],
 };
 
 export type RoutingTriggeredSegment = {

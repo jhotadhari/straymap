@@ -48,6 +48,7 @@ export type RoutingContextType = {
     points?: RoutingPoint[];
     setPoints?: Dispatch<SetStateAction<RoutingPoint[]>>;
     segments?: RoutingSegment[];
+    setSegments?: Dispatch<SetStateAction<RoutingSegment[]>>;
     markerLayerUuid?: null | string;
     setMarkerLayerUuid?: Dispatch<SetStateAction<null | string>>;
     pathLayerUuids?: null | string[];

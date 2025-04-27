@@ -59,6 +59,7 @@ import type {
 	LayerInfos,
     InitialPosition,
     BottomBarHeight,
+    RoutingSegment,
 } from '../types';
 import { AppContext, RoutingContext } from '../Context';
 import Center from './Center';
@@ -112,6 +113,7 @@ const AppView = ( {
     const {
 		points,
 		segments,
+		setSegments,
         markerLayerUuid,
         setMarkerLayerUuid,
         pathLayerUuids,
@@ -302,7 +304,24 @@ const AppView = ( {
 
                     return <LayerPathSlopeGradient
                         key={ segment.fromId + segment.toId }
-                        onCreate={ response => response.uuid && setPathLayerUuids ? setPathLayerUuids( [...( pathLayerUuids || [] ), response.uuid] ) : null }
+                        responseInclude={ {
+	                        // coordinates: 1,
+	                        coordinatesSimplified: 1,
+                        } }
+                        onCreate={ response => {
+                            if ( response?.uuid && setPathLayerUuids ) {
+                                setPathLayerUuids( [...( pathLayerUuids || [] ), response.uuid] );
+                            }
+                            if ( response?.coordinatesSimplified && setSegments ) {
+                                const newSegments = [...segments];
+                                const newSegment: RoutingSegment = {
+                                    ...segment,
+                                    coordinatesSimplified: response.coordinatesSimplified,
+                                };
+                                newSegments.splice( index, 1, newSegment );
+                                setSegments( newSegments );
+                            }
+                        } }
                         onRemove={ response => {
                             const idx = pathLayerUuids?.findIndex( routingPathLayerUuid => routingPathLayerUuid === response.uuid );
                             if ( idx && idx > -1 && pathLayerUuids && setPathLayerUuids ) {
