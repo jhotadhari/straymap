@@ -4,12 +4,12 @@
  */
 import React, { useContext, useEffect, useState } from 'react';
 import { Image, View } from 'react-native';
-import { ActivityIndicator, Icon, useTheme } from 'react-native-paper';
+import { Icon } from 'react-native-paper';
 import { SvgXml } from 'react-native-svg';
 import { readFile } from 'react-native-fs';
 
 /**
- * react-native-mapsforge-vtm dependencies
+ * Internal dependencies
  */
 import { AppContext } from '../Context';
 import { CursorConfig } from '../types';
@@ -75,39 +75,16 @@ const Center = ( {
 } : {
 	width: number;
 	height: number;
-} ) => {
-
-	const theme = useTheme();
-    const {
-		isBusy,
-    } = useContext( AppContext )
-
-	return <View
-		style={ {
-			position: 'absolute',
-			top: 0,
-			left: 0,
-			justifyContent: 'center',
-			alignItems: 'center',
-			width,
-			height,
-		} }
-	>
-		{ isBusy && <ActivityIndicator
-			animating={ true }
-			size={ 'large' }
-			style={ {
-				backgroundColor: theme.colors.background,
-				borderRadius: theme.roundness * 2,
-				padding: 15
-
-			 } }
-			color={ theme.colors.primary }
-		/> }
-
-		{ ! isBusy && <CenterInner/> }
-
-	</View>;
-};
+} ) => <View style={ {
+	position: 'absolute',
+	top: 0,
+	left: 0,
+	justifyContent: 'center',
+	alignItems: 'center',
+	width,
+	height,
+} } >
+	<CenterInner/>
+</View>;
 
 export default Center;
