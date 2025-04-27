@@ -59,7 +59,7 @@ import type {
 	LayerInfos,
     InitialPosition,
 } from '../types';
-import { AppContext } from '../Context';
+import { AppContext, RoutingContext } from '../Context';
 import Center from './Center';
 import { Dashboard } from './Dashboard';
 import { Drawers } from './Drawer';
@@ -104,20 +104,21 @@ const AppView = ( {
 		mapSettings,
 		generalSettings,
 		currentMapEvent,
-		routingPoints,
-		routingSegments,
 		mapHeight,
-        routingMarkerLayerUuid,
-        setRoutingMarkerLayerUuid,
-        routingPathLayerUuids,
-        setRoutingPathLayerUuids,
-
-
-		routingTriggeredMarkerIdx,
-		setRoutingTriggeredMarkerIdx,
-		routingTriggeredSegment,
-		setRoutingTriggeredSegment,
     } = useContext( AppContext );
+
+    const {
+		points,
+		segments,
+        markerLayerUuid,
+        setMarkerLayerUuid,
+        pathLayerUuids,
+        setPathLayerUuids,
+		triggeredMarkerIdx,
+		setTriggeredMarkerIdx,
+		triggeredSegment,
+		setTriggeredSegment,
+    } = useContext( RoutingContext );
 
     if (
         ! generalSettings
@@ -279,16 +280,16 @@ const AppView = ( {
                     return null
                 } ) }
 
-                { routingSegments && routingSegments.length > 0 && [...routingSegments].map( ( segment, index ) => {
+                { segments && segments.length > 0 && [...segments].map( ( segment, index ) => {
                     if (
                         ! segment.positions
                         || ! segment.positions.length
-                        || ! routingPoints
+                        || ! points
                     ) {
                         return null;
                     }
-                    const fromPointIdx = routingPoints.findIndex( point => segment.fromId === point.id );
-                    const toPointIdx = routingPoints.findIndex( point => segment.toId === point.id );
+                    const fromPointIdx = points.findIndex( point => segment.fromId === point.id );
+                    const toPointIdx = points.findIndex( point => segment.toId === point.id );
                     if (
                         -1 === fromPointIdx
                         || -1 === toPointIdx
@@ -299,13 +300,13 @@ const AppView = ( {
 
                     return <LayerPathSlopeGradient
                         key={ segment.fromId + segment.toId }
-                        onCreate={ response => response.uuid && setRoutingPathLayerUuids ? setRoutingPathLayerUuids( [...( routingPathLayerUuids || [] ), response.uuid] ) : null }
+                        onCreate={ response => response.uuid && setPathLayerUuids ? setPathLayerUuids( [...( pathLayerUuids || [] ), response.uuid] ) : null }
                         onRemove={ response => {
-                            const idx = routingPathLayerUuids?.findIndex( routingPathLayerUuid => routingPathLayerUuid === response.uuid );
-                            if ( idx && idx > -1 && routingPathLayerUuids && setRoutingPathLayerUuids ) {
-                                const newRoutingPathLayerUuids = [...routingPathLayerUuids];
+                            const idx = pathLayerUuids?.findIndex( routingPathLayerUuid => routingPathLayerUuid === response.uuid );
+                            if ( idx && idx > -1 && pathLayerUuids && setPathLayerUuids ) {
+                                const newRoutingPathLayerUuids = [...pathLayerUuids];
                                 newRoutingPathLayerUuids.splice( idx, 1 );
-                                setRoutingPathLayerUuids( newRoutingPathLayerUuids );
+                                setPathLayerUuids( newRoutingPathLayerUuids );
                             }
                         } }
                         positions={ segment.positions }
@@ -313,7 +314,7 @@ const AppView = ( {
                             strokeWidth: 5,
                         } }
                         onTrigger={ response => {
-                            setRoutingTriggeredSegment && setRoutingTriggeredSegment( {
+                            setTriggeredSegment && setTriggeredSegment( {
                                 index,
                                 nearestPoint: response.nearestPoint
                             } );
@@ -321,18 +322,18 @@ const AppView = ( {
                     />;
                 } ) }
 
-                { routingPoints && routingPoints.length > 0 && <LayerMarker
-                    onCreate={ response => response.uuid && setRoutingMarkerLayerUuid ? setRoutingMarkerLayerUuid( response.uuid ) : null }
-                    onRemove={ () => setRoutingMarkerLayerUuid && setRoutingMarkerLayerUuid( null ) }
+                { points && points.length > 0 && <LayerMarker
+                    onCreate={ response => response.uuid && setMarkerLayerUuid ? setMarkerLayerUuid( response.uuid ) : null }
+                    onRemove={ () => setMarkerLayerUuid && setMarkerLayerUuid( null ) }
                 >
-                    { [...routingPoints].map( ( point, index ) => <Marker
+                    { [...points].map( ( point, index ) => <Marker
                         key={ point.id }
                         position={ point.location }
                         symbol={ {
                             text: index + '',
                         } }
                         onTrigger={ response => {
-                            setRoutingTriggeredMarkerIdx && setRoutingTriggeredMarkerIdx( index );
+                            setTriggeredMarkerIdx && setTriggeredMarkerIdx( index );
                         } }
                     /> ) }
                 </LayerMarker> }

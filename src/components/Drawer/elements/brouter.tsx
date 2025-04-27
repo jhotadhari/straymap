@@ -20,7 +20,7 @@ import { useSafeAreaFrame } from 'react-native-safe-area-context';
  * Internal dependencies
  */
 import IconIcomoon from '../../generic/IconIcomoon';
-import { AppContext } from '../../../Context';
+import { AppContext, RoutingContext } from '../../../Context';
 import { pick } from 'lodash-es';
 import MenuItem from '../../generic/MenuItem';
 
@@ -36,9 +36,9 @@ const DisplayComponent = ({
 
 
     const {
-        routingPoints,
-        routingSegments,
-    } = useContext( AppContext );
+        points,
+        segments,
+    } = useContext( RoutingContext );
 
     const { t } = useTranslation();
 
@@ -47,9 +47,9 @@ const DisplayComponent = ({
         // minWidth: get( dashboardElement, ['style','minWidth'], undefined ),
         // ...style,
     }}>
-        { routingPoints && [...routingPoints].map( ( point, index ) => {
+        { points && [...points].map( ( point, index ) => {
 
-            const segment = routingSegments ? routingSegments.find( segment =>
+            const segment = segments ? segments.find( segment =>
                 segment.fromId === point.id
             ) : undefined;
 
@@ -90,18 +90,21 @@ const IconActions = ( {
 }) => {
 
     const {
-        routingPoints,
-        routingSegments,
-        setRoutingPoints,
-        mapViewNativeNodeHandle,
         mapHeight,
-        routingMarkerLayerUuid,
-        routingPathLayerUuids,
-		routingTriggeredMarkerIdx,
-		setRoutingTriggeredMarkerIdx,
-		routingTriggeredSegment,
-		setRoutingTriggeredSegment,
+        mapViewNativeNodeHandle,
     } = useContext( AppContext );
+
+    const {
+        points,
+        segments,
+        setPoints,
+        markerLayerUuid,
+        pathLayerUuids,
+		triggeredMarkerIdx,
+		setTriggeredMarkerIdx,
+		triggeredSegment,
+		setTriggeredSegment,
+    } = useContext( RoutingContext );
 
     const { width } = useSafeAreaFrame();
     const theme = useTheme();
@@ -110,8 +113,8 @@ const IconActions = ( {
 
     const dismissMenu = () => {
         setMenuVisible( false );
-        setRoutingTriggeredMarkerIdx && setRoutingTriggeredMarkerIdx( undefined );
-        setRoutingTriggeredSegment && setRoutingTriggeredSegment( undefined );
+        setTriggeredMarkerIdx && setTriggeredMarkerIdx( undefined );
+        setTriggeredSegment && setTriggeredSegment( undefined );
     };
 
     const options = [
@@ -120,9 +123,9 @@ const IconActions = ( {
             label: 'appendPoint',
             onPress: () => {
 				dismissMenu()
-                if ( setRoutingPoints && routingPoints && currentMapEvent?.center ) {
-                    setRoutingPoints( [
-                        ...routingPoints,
+                if ( setPoints && points && currentMapEvent?.center ) {
+                    setPoints( [
+                        ...points,
                         {
                             id: rnUuid.v4(),
                             location: currentMapEvent?.center,
@@ -134,18 +137,18 @@ const IconActions = ( {
         },
         {
             value: 'movePoint',
-            label: 'movePoint ' + ( routingTriggeredMarkerIdx ? routingTriggeredMarkerIdx : '' ),
+            label: 'movePoint ' + ( triggeredMarkerIdx ? triggeredMarkerIdx : '' ),
             onPress: () => {
 				dismissMenu()
-                if ( setRoutingPoints && routingPoints && routingPoints.length > 0 ) {
+                if ( setPoints && points && points.length > 0 ) {
 
-                    console.log( 'debug routingTriggeredMarkerIdx', routingTriggeredMarkerIdx ); // debug
-                    // const newPoints = [...routingPoints];
+                    console.log( 'debug triggeredMarkerIdx', triggeredMarkerIdx ); // debug
+                    // const newPoints = [...points];
                     // newPoints.splice( -1, 1 );
-                    // setRoutingPoints( newPoints );
+                    // setPoints( newPoints );
                 }
 			},
-            disabled: () => ! routingPoints || ! routingPoints.length || undefined === routingTriggeredMarkerIdx,
+            disabled: () => ! points || ! points.length || undefined === triggeredMarkerIdx,
             leadingIcon: 'arrow-all',
         },
         {
@@ -154,49 +157,49 @@ const IconActions = ( {
             onPress: () => {
 				dismissMenu()
                 if (
-                    setRoutingPoints
-                    && routingPoints
-                    && routingPoints.length > 0
-                    && routingSegments
-                    && undefined !== routingTriggeredSegment?.index
-                    && routingSegments.length > routingTriggeredSegment?.index
+                    setPoints
+                    && points
+                    && points.length > 0
+                    && segments
+                    && undefined !== triggeredSegment?.index
+                    && segments.length > triggeredSegment?.index
                 ) {
-                    const segment = routingSegments[routingTriggeredSegment?.index];
-                    const pointToIdIdx = routingPoints.findIndex( point => point.id === segment.toId );
+                    const segment = segments[triggeredSegment?.index];
+                    const pointToIdIdx = points.findIndex( point => point.id === segment.toId );
                     if ( -1 !== pointToIdIdx ) {
-                        const newPoints = [...routingPoints];
+                        const newPoints = [...points];
                         newPoints.splice(
                             pointToIdIdx,
                             0,
                             {
                                 id: rnUuid.v4(),
-                                location: routingTriggeredSegment.nearestPoint,
+                                location: triggeredSegment.nearestPoint,
                             }
                         )
-                        setRoutingPoints( newPoints );
+                        setPoints( newPoints );
                     }
                 }
 			},
-            disabled: () => ! routingPoints || ! routingPoints.length || undefined === routingTriggeredSegment,
+            disabled: () => ! points || ! points.length || undefined === triggeredSegment,
             leadingIcon: 'content-cut',
         },
         {
             value: 'deletePoint',
-            label: 'deletePoint ' + ( undefined !== routingTriggeredMarkerIdx ? routingTriggeredMarkerIdx : '' ),
+            label: 'deletePoint ' + ( undefined !== triggeredMarkerIdx ? triggeredMarkerIdx : '' ),
             onPress: () => {
 				dismissMenu()
                 if (
-                    setRoutingPoints
-                    && routingPoints
-                    && undefined !== routingTriggeredMarkerIdx
-                    && routingPoints.length >= routingTriggeredMarkerIdx + 1
+                    setPoints
+                    && points
+                    && undefined !== triggeredMarkerIdx
+                    && points.length >= triggeredMarkerIdx + 1
                 ) {
-                    const newPoints = [...routingPoints];
-                    newPoints.splice( routingTriggeredMarkerIdx, 1 );
-                    setRoutingPoints( newPoints );
+                    const newPoints = [...points];
+                    newPoints.splice( triggeredMarkerIdx, 1 );
+                    setPoints( newPoints );
                 }
 			},
-            disabled: () => ! routingPoints || ! routingPoints.length || undefined === routingTriggeredMarkerIdx,
+            disabled: () => ! points || ! points.length || undefined === triggeredMarkerIdx,
             leadingIcon: 'minus',
         },
         {
@@ -204,13 +207,13 @@ const IconActions = ( {
             label: 'deleteLastPoint',
             onPress: () => {
 				dismissMenu()
-                if ( setRoutingPoints && routingPoints && routingPoints.length > 0 ) {
-                    const newPoints = [...routingPoints];
+                if ( setPoints && points && points.length > 0 ) {
+                    const newPoints = [...points];
                     newPoints.splice( -1, 1 );
-                    setRoutingPoints( newPoints );
+                    setPoints( newPoints );
                 }
 			},
-            disabled: () => ! routingPoints || ! routingPoints.length,
+            disabled: () => ! points || ! points.length,
             leadingIcon: 'minus',
         },
     ];
@@ -233,16 +236,16 @@ const IconActions = ( {
                     if ( mapViewNativeNodeHandle ) {
                         const left = PixelRatio.getPixelSizeForLayoutSize( width ) / 2;
                         const top = PixelRatio.getPixelSizeForLayoutSize( mapHeight || 0 ) / 2;
-                        if (  routingMarkerLayerUuid ) {
+                        if (  markerLayerUuid ) {
                             MapLayerMarkerModule.triggerEvent(
                                 mapViewNativeNodeHandle,
-                                routingMarkerLayerUuid,
+                                markerLayerUuid,
                                 left,
                                 top
                             ).catch( ( err: any ) => console.log( 'ERROR', err ) );
                         }
-                        if (  routingPathLayerUuids ) {
-                            [...routingPathLayerUuids].map( routingPathLayerUuid => {
+                        if (  pathLayerUuids ) {
+                            [...pathLayerUuids].map( routingPathLayerUuid => {
                                 MapLayerPathSlopeGradientModule.triggerEvent(
                                     mapViewNativeNodeHandle,
                                     routingPathLayerUuid,

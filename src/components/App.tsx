@@ -56,10 +56,9 @@ import type {
 	InitialPosition,
 	UpdaterSettings,
 	UpdateResults,
-	RoutingTriggeredSegment,
 } from '../types';
 import customThemes from '../themes';
-import { AppContext } from '../Context';
+import { AppContext, RoutingContext } from '../Context';
 import { HelperModule } from '../nativeModules';
 import { defaults } from '../constants';
 import SplashScreen from './SplashScreen';
@@ -67,7 +66,7 @@ import AppView from './AppView';
 import SplashScreenUpdater from './SplashScreenUpdater';
 import useSettings from '../compose/useSettings';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import useRouting from '../compose/useRouting';
+import RoutingProvider from './RoutingProvider';
 
 const useAppTheme = () => {
 
@@ -607,16 +606,6 @@ const App = ( {
 		onLayerChange,
 	} = useLayerInfos();
 
-	const {
-		points: routingPoints,
-		setPoints: setRoutingPoints,
-		segments: routingSegments
-	} = useRouting();
-	const [routingMarkerLayerUuid, setRoutingMarkerLayerUuid] = useState<null | string>( null );
-	const [routingPathLayerUuids, setRoutingPathLayerUuids] = useState<null | string[]>( null );
-	const [routingTriggeredMarkerIdx, setRoutingTriggeredMarkerIdx] = useState<undefined | number>( undefined );
-	const [routingTriggeredSegment, setRoutingTriggeredSegment] = useState<undefined | RoutingTriggeredSegment>( undefined );
-
 	// Set CanvasAdapter props on app start, when mapSettingsInitialized, before the map gets initialized.
 	useEffect( () => {
 		if ( mapSettingsInitialized ) {
@@ -703,34 +692,23 @@ const App = ( {
 		maybeIsBusyAdd,
 		maybeIsBusyRemove,
 		currentMapEvent,
-		routingPoints,
-		setRoutingPoints,
-		routingSegments,
 		mapHeight: ( appInnerHeight || height ) - ( bottomBarHeight || 0 ),
-		routingMarkerLayerUuid,
-		setRoutingMarkerLayerUuid,
-		routingPathLayerUuids,
-		setRoutingPathLayerUuids,
-		routingTriggeredMarkerIdx,
-		setRoutingTriggeredMarkerIdx,
-		routingTriggeredSegment,
-		setRoutingTriggeredSegment,
 	} }>
-
-		<GestureHandlerRootView>
-			<AppView
-				showSplash={ showSplash }
-				initialPosition={ initialPosition as InitialPosition }
-				setInitialPosition={ setInitialPosition }
-				setTopAppBarHeight={ setTopAppBarHeight }
-				setBottomBarHeight={ setBottomBarHeight }
-				setCurrentMapEvent={ setCurrentMapEvent }
-				setMapViewNativeNodeHandle={ setMapViewNativeNodeHandle }
-				layerInfos={ layerInfos }
-				onLayerChange={ onLayerChange }
-			/>
-		</GestureHandlerRootView>
-
+		<RoutingProvider>
+			<GestureHandlerRootView>
+				<AppView
+					showSplash={ showSplash }
+					initialPosition={ initialPosition as InitialPosition }
+					setInitialPosition={ setInitialPosition }
+					setTopAppBarHeight={ setTopAppBarHeight }
+					setBottomBarHeight={ setBottomBarHeight }
+					setCurrentMapEvent={ setCurrentMapEvent }
+					setMapViewNativeNodeHandle={ setMapViewNativeNodeHandle }
+					layerInfos={ layerInfos }
+					onLayerChange={ onLayerChange }
+				/>
+			</GestureHandlerRootView>
+		</RoutingProvider>
 	</AppContext.Provider>;
 };
 

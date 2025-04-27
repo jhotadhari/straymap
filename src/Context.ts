@@ -39,21 +39,26 @@ export type AppContextType = {
 	maybeIsBusyAdd?: ( key: string ) => void;
 	maybeIsBusyRemove?: ( key: string ) => void;
     currentMapEvent?: MapEventResponse;
-    routingPoints?: RoutingPoint[];
-    setRoutingPoints?: Dispatch<SetStateAction<RoutingPoint[]>>;
-    routingSegments?: RoutingSegment[];
     mapHeight?: number;
-    routingMarkerLayerUuid?: null | string;
-    setRoutingMarkerLayerUuid?: Dispatch<SetStateAction<null | string>>;
-    routingPathLayerUuids?: null | string[];
-    setRoutingPathLayerUuids?: Dispatch<SetStateAction<null | string[]>>;
-    routingTriggeredMarkerIdx?: number
-    setRoutingTriggeredMarkerIdx?: Dispatch<SetStateAction<undefined | number>>;
-    routingTriggeredSegment?: RoutingTriggeredSegment;
-    setRoutingTriggeredSegment?: Dispatch<SetStateAction<undefined | RoutingTriggeredSegment>>;
 };
 
 export const AppContext = createContext<AppContextType>( {} );
+
+export type RoutingContextType = {
+    points?: RoutingPoint[];
+    setPoints?: Dispatch<SetStateAction<RoutingPoint[]>>;
+    segments?: RoutingSegment[];
+    markerLayerUuid?: null | string;
+    setMarkerLayerUuid?: Dispatch<SetStateAction<null | string>>;
+    pathLayerUuids?: null | string[];
+    setPathLayerUuids?: Dispatch<SetStateAction<null | string[]>>;
+    triggeredMarkerIdx?: number
+    setTriggeredMarkerIdx?: Dispatch<SetStateAction<undefined | number>>;
+    triggeredSegment?: RoutingTriggeredSegment;
+    setTriggeredSegment?: Dispatch<SetStateAction<undefined | RoutingTriggeredSegment>>;
+};
+
+export const RoutingContext = createContext<RoutingContextType>( {} );
 
 export type SettingsMapsContextType = {
 	// layers
