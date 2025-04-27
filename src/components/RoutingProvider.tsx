@@ -3,6 +3,7 @@
 */
 import {
     ReactNode,
+	useCallback,
 	useEffect,
 	useState,
 } from 'react';
@@ -87,76 +88,89 @@ const RoutingProvider = ( {
     const [triggeredMarkerIdx, setTriggeredMarkerIdx] = useState<undefined | number>( undefined );
     const [triggeredSegment, setTriggeredSegment] = useState<undefined | RoutingTriggeredSegment>( undefined );
 
-    useEffect( () => {
-        let newSegments = [...segments];
-        [...points].map( ( point, index ) => {
+    const getNewSegments = useCallback( () => {
+        return [...points].reduce( ( newSegmentsPromise, point, index ) => {
+            return newSegmentsPromise.then( ( newSegments ) => {
+                return new Promise( ( resolve ) => {
+                    if ( points.length > index + 1 ) {
 
-            if ( points.length > index + 1 ) {
+                        let segmentIndex = segments.findIndex( segment =>
+                            segment.fromId === point.id
+                            && segment.toId === points[index+1].id
+                        );
 
-                let segmentIndex = segments.findIndex( segment =>
-                    segment.fromId === point.id
-                    && segment.toId === points[index+1].id
-                );
+                        if ( -1 === segmentIndex || ( ! segments[segmentIndex].isFetching && ! segments[segmentIndex].positions ) ) {
 
-                if ( -1 === segmentIndex || ( ! segments[segmentIndex].isFetching && ! segments[segmentIndex].positions ) ) {
-
-                    let newSegment: RoutingSegment = {
-                        fromId: point.id,
-                        toId:  points[index+1].id,
-                        isFetching: true,
-                    };
-                    if ( -1 === segmentIndex ) {
-                        newSegments = [...newSegments, newSegment];
-                        segmentIndex = newSegments.length - 1;
-                    } else {
-                        newSegments.splice( segmentIndex, 1, newSegment );
-                    }
-                    setSegments( filterSegments( newSegments, points ) );
-
-                    const params : GetTrackParams = {
-                        lonlats: [
-                            Object.values( pick( point.location, ['lng','lat'] ) ).join( ',' ),
-                            Object.values( pick( points[index+1].location, ['lng','lat'] ) ).join( ',' ),
-                        ].join( '|' ),
-                        trackFormat: 'json',
-                        fast: false,
-                        v: 'bicycle',
-                    };
-
-                    getTrackFromParams( params ).then( ( result: string ) => {
-                        const parsed : false | JSONTracKParsed = parseSerialized( result ) as false | JSONTracKParsed;
-                        if ( parsed && parsed.features ) {
-                            newSegment = {
-                                ...newSegment,
-                                positions: [...parsed.features].map( feature => [...feature.geometry.coordinates].map( coord => ( {
-                                    lng: coord[0],
-                                    lat: coord[1],
-                                    alt: coord[2],
-                                } ) ) ).flat(),
-                                isFetching: false,
+                            let newSegment: RoutingSegment = {
+                                fromId: point.id,
+                                toId:  points[index+1].id,
+                                isFetching: true,
+                            };
+                            if ( -1 === segmentIndex ) {
+                                newSegments = [...newSegments, newSegment];
+                                segmentIndex = newSegments.length - 1;
+                            } else {
+                                newSegments.splice( segmentIndex, 1, newSegment );
                             }
-                            newSegments.splice( segmentIndex, 1, newSegment );
                             setSegments( filterSegments( newSegments, points ) );
+
+                            const params : GetTrackParams = {
+                                lonlats: [
+                                    Object.values( pick( point.location, ['lng','lat'] ) ).join( ',' ),
+                                    Object.values( pick( points[index+1].location, ['lng','lat'] ) ).join( ',' ),
+                                ].join( '|' ),
+                                trackFormat: 'json',
+                                fast: false,
+                                v: 'bicycle',
+                            };
+
+                            getTrackFromParams( params ).then( ( result: string ) => {
+                                const parsed : false | JSONTracKParsed = parseSerialized( result ) as false | JSONTracKParsed;
+                                if ( parsed && parsed.features ) {
+                                    newSegment = {
+                                        ...newSegment,
+                                        positions: [...parsed.features].map( feature => [...feature.geometry.coordinates].map( coord => ( {
+                                            lng: coord[0],
+                                            lat: coord[1],
+                                            alt: coord[2],
+                                        } ) ) ).flat(),
+                                        isFetching: false,
+                                    }
+                                    newSegments.splice( segmentIndex, 1, newSegment );
+                                    resolve( newSegments );
+                                } else {
+                                    newSegment = {
+                                        ...newSegment,
+                                        isFetching: false,
+                                        errorMsg: result,
+                                    }
+                                    newSegments.splice( segmentIndex, 1, newSegment );
+                                    resolve( newSegments );
+                                }
+                            } ).catch( ( e: any ) => {
+                                newSegment = {
+                                    ...newSegment,
+                                    isFetching: false,
+                                    errorMsg: e?.userInfo?.errorMsg,
+                                }
+                                newSegments.splice( segmentIndex, 1, newSegment );
+                                resolve( newSegments );
+                            } );
                         } else {
-                            newSegment = {
-                                ...newSegment,
-                                isFetching: false,
-                                errorMsg: result,
-                            }
-                            newSegments.splice( segmentIndex, 1, newSegment );
-                            setSegments( filterSegments( newSegments, points ) );
+                            resolve( newSegments );
                         }
-                    } ).catch( ( e: any ) => {
-                        newSegment = {
-                            ...newSegment,
-                            isFetching: false,
-                            errorMsg: e?.userInfo?.errorMsg,
-                        }
-                        newSegments.splice( segmentIndex, 1, newSegment );
-                        setSegments( filterSegments( newSegments, points ) );
-                    } );
-                }
-            }
+                    } else {
+                        resolve( newSegments );
+                    }
+                } );
+
+            } );
+        }, Promise.resolve( [...segments] ) );
+    }, [points, segments] );
+
+    useEffect( () => {
+        getNewSegments().then( ( newSegments: RoutingSegment[] ) => {
+            setSegments( filterSegments( newSegments, points ) );
         } );
     }, [points] );
 
@@ -164,6 +178,7 @@ const RoutingProvider = ( {
         points,
         setPoints,
         segments,
+        setSegments,
         markerLayerUuid,
         setMarkerLayerUuid,
         pathLayerUuids,
