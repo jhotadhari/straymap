@@ -11,7 +11,7 @@ import {
 	Text,
 } from 'react-native-paper';
 import { IconSource } from 'react-native-paper/lib/typescript/components/Icon';
-import { View, TouchableHighlight, ViewStyle } from 'react-native';
+import { View, TouchableHighlight, ViewStyle, TextStyle } from 'react-native';
 
 const MenuItem = ( {
 	onPress,
@@ -19,12 +19,16 @@ const MenuItem = ( {
 	iconSize,
 	title,
 	style,
+	iconColor,
+	textStyle,
 	active,
 } : {
 	onPress?: () => void;
 	leadingIcon?: IconSource;
 	iconSize?: number;
 	style?: null | ViewStyle;
+	iconColor?: string;
+	textStyle?: null | TextStyle;
 	title?: ReactNode;
 	active?: boolean;
 } ) => {
@@ -43,9 +47,12 @@ const MenuItem = ( {
 			{ leadingIcon && <View style={ { marginRight: 10 } } ><Icon
 				source={ leadingIcon }
 				size={ iconSize || 25 }
-				color={ active ? theme.colors.onPrimary : undefined }
+				color={ iconColor ? iconColor : ( active ? theme.colors.onPrimary : undefined )}
 			/></View> }
-			{ title && 'string' === typeof title && <Text style={ active ? { color: theme.colors.onPrimary } : {} } >{ title }</Text> }
+			{ title && 'string' === typeof title && <Text style={ {
+				...( active && { color: theme.colors.onPrimary } ),
+				...( textStyle ? textStyle : {} ),
+			} } >{ title }</Text> }
 			{ title && 'string' !== typeof title && title }
 		</View>
 	</TouchableHighlight>;

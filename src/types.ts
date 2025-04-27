@@ -244,3 +244,8 @@ export type RoutingSegment = {
 	isFetching?: boolean;
 	errorMsg?: string;
 };
+
+export type RoutingTriggeredSegment = {
+	index: number;
+	nearestPoint: Location;
+};

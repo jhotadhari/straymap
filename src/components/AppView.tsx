@@ -5,6 +5,7 @@ import React, {
 	Dispatch,
 	SetStateAction,
 	useContext,
+    useState,
 } from 'react';
 import {
 	StatusBar,
@@ -105,6 +106,17 @@ const AppView = ( {
 		currentMapEvent,
 		routingPoints,
 		routingSegments,
+		mapHeight,
+        routingMarkerLayerUuid,
+        setRoutingMarkerLayerUuid,
+        routingPathLayerUuids,
+        setRoutingPathLayerUuids,
+
+
+		routingTriggeredMarkerIdx,
+		setRoutingTriggeredMarkerIdx,
+		routingTriggeredSegment,
+		setRoutingTriggeredSegment,
     } = useContext( AppContext );
 
     if (
@@ -114,8 +126,6 @@ const AppView = ( {
     ) {
         return null;
     }
-
-    const mapHeight = ( appInnerHeight || height ) - ( bottomBarHeight || 0 );
 
     return <SafeAreaView style={ {
         backgroundColor: theme.colors.background,
@@ -152,7 +162,7 @@ const AppView = ( {
                         ...get( dashboardElementComponents, [ele.type,'responseInclude'], {} ),
                     } : acc;
                 }, { zoomLevel: 2 } ) as ResponseInclude }
-                height={ mapHeight }
+                height={ mapHeight || 0 }
                 width={ width }
                 center={ initialPosition.center }
                 zoomLevel={ initialPosition.zoomLevel }
@@ -270,25 +280,60 @@ const AppView = ( {
                 } ) }
 
                 { routingSegments && routingSegments.length > 0 && [...routingSegments].map( ( segment, index ) => {
-                    return segment.positions && segment.positions.length > 0 ? <LayerPathSlopeGradient
-                        key={ index }
+                    if (
+                        ! segment.positions
+                        || ! segment.positions.length
+                        || ! routingPoints
+                    ) {
+                        return null;
+                    }
+                    const fromPointIdx = routingPoints.findIndex( point => segment.fromId === point.id );
+                    const toPointIdx = routingPoints.findIndex( point => segment.toId === point.id );
+                    if (
+                        -1 === fromPointIdx
+                        || -1 === toPointIdx
+                        || toPointIdx !== fromPointIdx + 1
+                    ) {
+                        return null;
+                    }
+
+                    return <LayerPathSlopeGradient
+                        key={ segment.fromId + segment.toId }
+                        onCreate={ response => response.uuid && setRoutingPathLayerUuids ? setRoutingPathLayerUuids( [...( routingPathLayerUuids || [] ), response.uuid] ) : null }
+                        onRemove={ response => {
+                            const idx = routingPathLayerUuids?.findIndex( routingPathLayerUuid => routingPathLayerUuid === response.uuid );
+                            if ( idx && idx > -1 && routingPathLayerUuids && setRoutingPathLayerUuids ) {
+                                const newRoutingPathLayerUuids = [...routingPathLayerUuids];
+                                newRoutingPathLayerUuids.splice( idx, 1 );
+                                setRoutingPathLayerUuids( newRoutingPathLayerUuids );
+                            }
+                        } }
                         positions={ segment.positions }
                         style={ {
                             strokeWidth: 5,
                         } }
-                    /> : null;
+                        onTrigger={ response => {
+                            setRoutingTriggeredSegment && setRoutingTriggeredSegment( {
+                                index,
+                                nearestPoint: response.nearestPoint
+                            } );
+                        } }
+                    />;
                 } ) }
 
-                { routingPoints && routingPoints.length > 0 && <LayerMarker>
+                { routingPoints && routingPoints.length > 0 && <LayerMarker
+                    onCreate={ response => response.uuid && setRoutingMarkerLayerUuid ? setRoutingMarkerLayerUuid( response.uuid ) : null }
+                    onRemove={ () => setRoutingMarkerLayerUuid && setRoutingMarkerLayerUuid( null ) }
+                >
                     { [...routingPoints].map( ( point, index ) => <Marker
-                        key={ index }
+                        key={ point.id }
                         position={ point.location }
                         symbol={ {
                             text: index + '',
                         } }
-                        // onTab,
-                        // tabDistanceThreshold,
-                        // icon,
+                        onTrigger={ response => {
+                            setRoutingTriggeredMarkerIdx && setRoutingTriggeredMarkerIdx( index );
+                        } }
                     /> ) }
                 </LayerMarker> }
 
@@ -297,12 +342,12 @@ const AppView = ( {
             </MapContainer>
 
             <Center
-                height={ mapHeight }
+                height={ mapHeight || 0 }
                 width={ width }
             />
 
             <Drawers
-                height={ mapHeight }
+                height={ mapHeight || 0 }
                 outerWidth={ width }
                 currentMapEvent={ currentMapEvent || {} }
             />

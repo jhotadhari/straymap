@@ -11,7 +11,7 @@ import { MapEventResponse } from "react-native-mapsforge-vtm";
 /**
  * Internal dependencies
  */
-import { ThemeOption, OptionBase, HierarchyItem, AbsPathsMap, MapSettings, LayerConfig, MapsforgeProfile, AppearanceSettings, GeneralSettings, UiState, RoutingSegment, RoutingPoint } from "./types";
+import { ThemeOption, OptionBase, HierarchyItem, AbsPathsMap, MapSettings, LayerConfig, MapsforgeProfile, AppearanceSettings, GeneralSettings, UiState, RoutingSegment, RoutingPoint, RoutingTriggeredSegment } from "./types";
 
 export type AppContextType = {
 	appDirs?: AbsPathsMap;
@@ -42,6 +42,15 @@ export type AppContextType = {
     routingPoints?: RoutingPoint[];
     setRoutingPoints?: Dispatch<SetStateAction<RoutingPoint[]>>;
     routingSegments?: RoutingSegment[];
+    mapHeight?: number;
+    routingMarkerLayerUuid?: null | string;
+    setRoutingMarkerLayerUuid?: Dispatch<SetStateAction<null | string>>;
+    routingPathLayerUuids?: null | string[];
+    setRoutingPathLayerUuids?: Dispatch<SetStateAction<null | string[]>>;
+    routingTriggeredMarkerIdx?: number
+    setRoutingTriggeredMarkerIdx?: Dispatch<SetStateAction<undefined | number>>;
+    routingTriggeredSegment?: RoutingTriggeredSegment;
+    setRoutingTriggeredSegment?: Dispatch<SetStateAction<undefined | RoutingTriggeredSegment>>;
 };
 
 export const AppContext = createContext<AppContextType>( {} );

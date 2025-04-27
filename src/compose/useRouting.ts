@@ -14,6 +14,7 @@ import { getTrackFromParams, type GetTrackParams } from 'react-native-brouter';
 import { pick } from 'lodash-es';
 import { parseSerialized } from '../utils';
 import { RoutingSegment, type RoutingPoint } from '../types';
+import { Location } from 'react-native-mapsforge-vtm';
 
 type FeatureGeometry = {
 	type: string;
@@ -44,6 +45,32 @@ type JSONTracKParsed = {
 	features: Feature[];
 };
 
+// Remove unused segments
+const filterSegments = ( segments: RoutingSegment[], points: RoutingPoint[] ) => {
+	if ( ! points || ! points.length ) {
+		return [];
+	}
+
+	const segmentIdxsDelete = [...segments].map( ( segment, index ) => {
+		const fromPointIdx = points.findIndex( point => segment.fromId === point.id );
+		const toPointIdx = points.findIndex( point => segment.toId === point.id );
+		if (
+			-1 === fromPointIdx
+			|| -1 === toPointIdx
+			|| toPointIdx !== fromPointIdx + 1
+		) {
+			return index;
+		}
+		return false;
+	} ).filter( a => false !== a );
+
+	if ( segmentIdxsDelete.length > 0 ) {
+		return segments.filter( ( segment, index ) => ! segmentIdxsDelete.includes( index ) );
+	} else {
+		return segments;
+	}
+};
+
 const useRouting = () => {
 
 	const [points,setPoints] = useState<RoutingPoint[]>( [] );
@@ -53,20 +80,18 @@ const useRouting = () => {
 		let newSegments = [...segments];
 		[...points].map( ( point, index ) => {
 
-			// if ( points.length > index + 1 && ! point.isFetching && ! point.positions ) {
 			if ( points.length > index + 1 ) {
 
 				let segmentIndex = segments.findIndex( segment =>
 					segment.fromId === point.id
-					&& segment.toId === points[points.length-1].id
+					&& segment.toId === points[index+1].id
 				);
 
-				if ( -1 === segmentIndex || ! segments[segmentIndex].isFetching && ! segments[segmentIndex].positions ) {
+				if ( -1 === segmentIndex || ( ! segments[segmentIndex].isFetching && ! segments[segmentIndex].positions ) ) {
 
-					let newSegment = {
-						...( -1 === segmentIndex ? {} : segments[segmentIndex] ),
+					let newSegment: RoutingSegment = {
 						fromId: point.id,
-						toId:  points[points.length-1].id,
+						toId:  points[index+1].id,
 						isFetching: true,
 					};
 					if ( -1 === segmentIndex ) {
@@ -75,7 +100,7 @@ const useRouting = () => {
 					} else {
 						newSegments.splice( segmentIndex, 1, newSegment );
 					}
-					setSegments( newSegments );
+					setSegments( filterSegments( newSegments, points ) );
 
 					const params : GetTrackParams = {
 						lonlats: [
@@ -90,7 +115,6 @@ const useRouting = () => {
 					getTrackFromParams( params ).then( ( result: string ) => {
 						const parsed : false | JSONTracKParsed = parseSerialized( result ) as false | JSONTracKParsed;
 						if ( parsed && parsed.features ) {
-							// let newSegments = [...segments]
 							newSegment = {
 								...newSegment,
 								positions: [...parsed.features].map( feature => [...feature.geometry.coordinates].map( coord => ( {
@@ -101,7 +125,7 @@ const useRouting = () => {
 								isFetching: false,
 							}
 							newSegments.splice( segmentIndex, 1, newSegment );
-							setSegments( newSegments );
+							setSegments( filterSegments( newSegments, points ) );
 						} else {
 							newSegment = {
 								...newSegment,
@@ -109,7 +133,7 @@ const useRouting = () => {
 								errorMsg: result,
 							}
 							newSegments.splice( segmentIndex, 1, newSegment );
-							setSegments( newSegments );
+							setSegments( filterSegments( newSegments, points ) );
 						}
 					} ).catch( ( e: any ) => {
 						newSegment = {
@@ -118,28 +142,11 @@ const useRouting = () => {
 							errorMsg: e?.userInfo?.errorMsg,
 						}
 						newSegments.splice( segmentIndex, 1, newSegment );
-						setSegments( newSegments );
+						setSegments( filterSegments( newSegments, points ) );
 					} );
 				}
 			}
 		} );
-
-		// Remove unused segments
-		const segmentIdxsDelete = [...newSegments].map( ( segment, index ) => {
-			if (
-				-1 === points.findIndex( point => segment.fromId === point.id )
-				|| -1 === points.findIndex( point => segment.toId === point.id )
-			) {
-				return index;
-			}
-			return false;
-		} ).filter( a => false !== a );
-		if ( segmentIdxsDelete.length > 0 ) {
-			setSegments(
-				[...newSegments].filter( ( segment, index ) => ! segmentIdxsDelete.includes( index ) )
-			);
-		}
-
 	}, [points] );
 
 	return {

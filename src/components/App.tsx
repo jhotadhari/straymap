@@ -56,6 +56,7 @@ import type {
 	InitialPosition,
 	UpdaterSettings,
 	UpdateResults,
+	RoutingTriggeredSegment,
 } from '../types';
 import customThemes from '../themes';
 import { AppContext } from '../Context';
@@ -611,6 +612,10 @@ const App = ( {
 		setPoints: setRoutingPoints,
 		segments: routingSegments
 	} = useRouting();
+	const [routingMarkerLayerUuid, setRoutingMarkerLayerUuid] = useState<null | string>( null );
+	const [routingPathLayerUuids, setRoutingPathLayerUuids] = useState<null | string[]>( null );
+	const [routingTriggeredMarkerIdx, setRoutingTriggeredMarkerIdx] = useState<undefined | number>( undefined );
+	const [routingTriggeredSegment, setRoutingTriggeredSegment] = useState<undefined | RoutingTriggeredSegment>( undefined );
 
 	// Set CanvasAdapter props on app start, when mapSettingsInitialized, before the map gets initialized.
 	useEffect( () => {
@@ -701,6 +706,15 @@ const App = ( {
 		routingPoints,
 		setRoutingPoints,
 		routingSegments,
+		mapHeight: ( appInnerHeight || height ) - ( bottomBarHeight || 0 ),
+		routingMarkerLayerUuid,
+		setRoutingMarkerLayerUuid,
+		routingPathLayerUuids,
+		setRoutingPathLayerUuids,
+		routingTriggeredMarkerIdx,
+		setRoutingTriggeredMarkerIdx,
+		routingTriggeredSegment,
+		setRoutingTriggeredSegment,
 	} }>
 
 		<GestureHandlerRootView>
