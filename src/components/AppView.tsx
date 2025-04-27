@@ -58,6 +58,7 @@ import type {
 	DashboardElementConf,
 	LayerInfos,
     InitialPosition,
+    BottomBarHeight,
 } from '../types';
 import { AppContext, RoutingContext } from '../Context';
 import Center from './Center';
@@ -67,6 +68,7 @@ import * as dashboardElementComponents from "./Dashboard/elements";
 import SplashScreen from './SplashScreen';
 import MapLayersAttribution from './MapLayersAttribution';
 import { fillLayerConfigOptionsWithDefaults, getHillshadingCacheDirChild, stringifyProp } from '../utils';
+import AltitudeProfile from './AltitudeProfile';
 
 const AppView = ( {
     showSplash,
@@ -83,7 +85,7 @@ const AppView = ( {
     initialPosition: InitialPosition;
     setInitialPosition: Dispatch<SetStateAction<null | InitialPosition>>;
     setTopAppBarHeight: Dispatch<SetStateAction<number>>;
-    setBottomBarHeight: Dispatch<SetStateAction<number>>;
+    setBottomBarHeight: Dispatch<SetStateAction<BottomBarHeight>>;
     setCurrentMapEvent: Dispatch<SetStateAction<MapEventResponse>>;
     setMapViewNativeNodeHandle: Dispatch<SetStateAction<null | number>>;
     layerInfos: LayerInfos;
@@ -359,12 +361,18 @@ const AppView = ( {
 
         </View>
 
+        <AltitudeProfile
+            outerWidth={ width }
+            setBottomBarHeight={ setBottomBarHeight }
+        />
+
         { generalSettings?.dashboardElements?.elements && generalSettings?.dashboardElements?.elements.length > 0 && generalSettings.unitPrefs && <Dashboard
             elements={ generalSettings.dashboardElements.elements }
             dashboardStyle={ generalSettings.dashboardElements.style }
             unitPrefs={ generalSettings.unitPrefs }
             currentMapEvent={ currentMapEvent || {} }
             setBottomBarHeight={ setBottomBarHeight }
+            outerWidth={ width }
         /> }
 
     </SafeAreaView>;

@@ -2,28 +2,42 @@ import { View } from "react-native";
 import { Dispatch, SetStateAction } from "react";
 import { MapEventResponse } from "react-native-mapsforge-vtm";
 
-import { DashboardElementConf, DashboardStyle, UnitPref } from "../../types";
+import { BottomBarHeight, DashboardElementConf, DashboardStyle, UnitPref } from "../../types";
 import * as dashboardElementComponents from "./elements";
 import { get } from "lodash-es";
+import { useTheme } from "react-native-paper";
 
 const Dashboard = ( {
     elements,
     dashboardStyle,
     unitPrefs,
     currentMapEvent,
+    // bottomBarHeight,
     setBottomBarHeight,
+    outerWidth,
 } : {
     elements: DashboardElementConf[];
     dashboardStyle: DashboardStyle;
 	unitPrefs: { [value: string]: UnitPref };
     currentMapEvent: MapEventResponse;
-    setBottomBarHeight?: Dispatch<SetStateAction<number>>;
+    setBottomBarHeight?: Dispatch<SetStateAction<BottomBarHeight>>;
+    outerWidth: number;
 } ) => {
 
-    return <View
+    const theme = useTheme();
+    return <View style={ {
+        bottom: 0,
+        position: 'absolute',
+        width: outerWidth,
+        zIndex: 100,
+        backgroundColor: theme.colors.background,
+    } }><View
         onLayout={ e => {
             const { height } = e.nativeEvent.layout;
-            setBottomBarHeight ? setBottomBarHeight( height ) : null;
+            setBottomBarHeight ? setBottomBarHeight( bottomBarHeight => ( {
+                ...bottomBarHeight,
+                dashboard: height,
+            } ) ) : null;
         } }
         style={ {
             flexDirection: 'row',
@@ -55,7 +69,7 @@ const Dashboard = ( {
                 dashboardStyle={ dashboardStyle }
             /> : null;
         } ) }
-    </View>;
+    </View></View>;
 };
 
 export default Dashboard;

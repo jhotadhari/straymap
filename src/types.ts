@@ -39,6 +39,8 @@ export type InitialPosition = {
 
 export type LayerInfos = { [value: string]: LayerInfo };
 
+export type BottomBarHeight = { [value: string]: number };
+
 export interface MenuItem {
 	key: string;
 	leadingIcon: string;

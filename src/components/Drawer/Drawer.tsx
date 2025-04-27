@@ -4,14 +4,9 @@
 import React, { Dispatch, SetStateAction, useState } from 'react';
 import { View } from 'react-native';
 import { Button, Icon, useTheme } from 'react-native-paper';
-import Animated, {
-	useSharedValue,
-	useAnimatedStyle,
-	SharedValue,
-} from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
 import {
 	ComposedGesture,
-	Gesture,
 	GestureDetector,
 	GestureType,
 } from 'react-native-gesture-handler';

@@ -56,6 +56,7 @@ import type {
 	InitialPosition,
 	UpdaterSettings,
 	UpdateResults,
+	BottomBarHeight,
 } from '../types';
 import customThemes from '../themes';
 import { AppContext, RoutingContext } from '../Context';
@@ -496,7 +497,7 @@ const App = ( {
 	const theme = useTheme();
 	const [ready,setReady] = useState<boolean>( false );
 	const [topAppBarHeight,setTopAppBarHeight] = useState<number>( 0 );
-	const [bottomBarHeight,setBottomBarHeight] = useState<number>( 0 );
+	const [bottomBarHeight,setBottomBarHeight] = useState<BottomBarHeight>( {} );
 	const [selectedHierarchyItems,setSelectedHierarchyItems] = useState<null | HierarchyItem[]>( null );
     const [currentMapEvent,setCurrentMapEvent] = useState<MapEventResponse>( {} );
 
@@ -592,7 +593,10 @@ const App = ( {
 	// Remove bottomBar if no dashboard elements.
 	useEffect( () => {
 		if ( ! generalSettings?.dashboardElements?.elements || ( generalSettings?.dashboardElements?.elements && ! generalSettings?.dashboardElements?.elements.length ) ) {
-			setBottomBarHeight( 0 );
+			setBottomBarHeight( bottomBarHeight => ( {
+				...bottomBarHeight,
+				dashboard: 0,
+			} ) );
 		}
 	}, [generalSettings?.dashboardElements?.elements] );
 
@@ -692,7 +696,7 @@ const App = ( {
 		maybeIsBusyAdd,
 		maybeIsBusyRemove,
 		currentMapEvent,
-		mapHeight: ( appInnerHeight || height ) - ( bottomBarHeight || 0 ),
+		mapHeight: ( appInnerHeight || height ) - ( Object.values( bottomBarHeight ).reduce( ( acc, nb ) => acc + nb, 0 ) || 0 ),
 	} }>
 		<RoutingProvider>
 			<GestureHandlerRootView>

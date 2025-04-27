@@ -449,6 +449,7 @@ const DashboardControl = () => {
                 bottom: 0,
             } } >
                 <Dashboard
+                    outerWidth={ width }
                     elements={ dashboardElementConfigs }
                     dashboardStyle={ dashboardStyle }
                     currentMapEvent={ currentMapEvent }

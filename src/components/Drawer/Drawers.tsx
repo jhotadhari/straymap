@@ -5,10 +5,7 @@ import { Gesture } from "react-native-gesture-handler";
 
 import Drawer, { DrawerState } from "./Drawer";
 import { MapEventResponse } from "react-native-mapsforge-vtm";
-
-const clamp = (val: number, min: number, max: number): number => {
-    return Math.min(Math.max(val, min), max);
-};
+import { clamp } from "lodash-es";
 
 const useDrawerState = ({
     side,
