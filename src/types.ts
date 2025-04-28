@@ -236,7 +236,7 @@ export type DashboardDisplayComponentProps = {
 }
 
 export type RoutingPoint = {
-	id: string;
+	key: string;
 	location: Location;
 };
 
@@ -250,8 +250,8 @@ export interface LocationExtended extends Location {
 };
 
 export type RoutingSegment = {
-	fromId: string;
-	toId: string;
+	fromKey: string;
+	toKey: string;
 	positions?: Location[];
 	isFetching?: boolean;
 	errorMsg?: string;

@@ -292,8 +292,8 @@ const AppView = ( {
                     ) {
                         return null;
                     }
-                    const fromPointIdx = points.findIndex( point => segment.fromId === point.id );
-                    const toPointIdx = points.findIndex( point => segment.toId === point.id );
+                    const fromPointIdx = points.findIndex( point => segment.fromKey === point.key );
+                    const toPointIdx = points.findIndex( point => segment.toKey === point.key );
                     if (
                         -1 === fromPointIdx
                         || -1 === toPointIdx
@@ -303,7 +303,7 @@ const AppView = ( {
                     }
 
                     return <LayerPathSlopeGradient
-                        key={ segment.fromId + segment.toId }
+                        key={ segment.fromKey + segment.toKey }
                         responseInclude={ {
 	                        // coordinates: 1,
 	                        coordinatesSimplified: 1,
@@ -348,10 +348,12 @@ const AppView = ( {
                     onRemove={ () => setMarkerLayerUuid && setMarkerLayerUuid( null ) }
                 >
                     { [...points].map( ( point, index ) => <Marker
-                        key={ point.id }
+                        key={ point.key }
                         position={ point.location }
                         symbol={ {
-                            text: index + '',
+                            text: index + 1 + '',
+                            textMargin: 15,
+
                         } }
                         onTrigger={ response => {
                             setTriggeredMarkerIdx && setTriggeredMarkerIdx( index );

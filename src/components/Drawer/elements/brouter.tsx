@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { useContext, useState } from 'react';
+import React, { Dispatch, SetStateAction, useContext, useState } from 'react';
 import {
     Button,
     Icon,
@@ -10,25 +10,204 @@ import {
     useTheme,
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { PixelRatio, ScrollView, TextStyle, View } from "react-native";
+import { PixelRatio, ScrollView, TextStyle, TouchableHighlight, View } from "react-native";
 import rnUuid from 'react-native-uuid';
 import { MapEventResponse, MapLayerMarkerModule, MapLayerPathSlopeGradientModule } from 'react-native-mapsforge-vtm';
 import formatcoords from 'formatcoords';
 import { useSafeAreaFrame } from 'react-native-safe-area-context';
+import { sprintf } from 'sprintf-js';
+import DraggableGrid from 'react-native-draggable-grid';
+import { get } from 'lodash-es';
 
 /**
  * Internal dependencies
  */
 import IconIcomoon from '../../generic/IconIcomoon';
 import { AppContext, RoutingContext } from '../../../Context';
-import { get, pick } from 'lodash-es';
 import MenuItem from '../../generic/MenuItem';
 import ButtonHighlight from '../../generic/ButtonHighlight';
-import { DrawerState } from '../../../types';
+import { DrawerState, RoutingPoint } from '../../../types';
 import ModalWrapper from '../../generic/ModalWrapper';
-import { sprintf } from 'sprintf-js';
+import LoadingIndicator from '../../generic/LoadingIndicator';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
-const DisplayComponent = ({
+const itemHeight = 80;
+const itemPaddingH = 20;
+
+const DraggableItem = ( {
+    item,
+    width,
+    order,
+    draggingItemIndex,
+} : {
+    item: RoutingPoint;
+    width: number;
+    order: number;
+    draggingItemIndex: null | number;
+} ) => {
+
+    const theme = useTheme();
+
+    const {
+        points,
+        setPoints,
+        segments,
+    } = useContext( RoutingContext );
+
+    const segment = segments ? segments.find( segment =>
+        segment.fromKey === item.key
+    ) : undefined;
+
+    let StateIcon : null | React.JSX.Element = null;
+    switch( true ) {
+        case ( !! ( segment && segment?.errorMsg ) ):
+            // error
+            StateIcon = <MaterialIcons
+                name="error"
+                size={ 25 }
+                color={ theme.colors.errorContainer }
+            />;
+            break;
+        case ( !! ( segment && segment?.isFetching ) ):
+            // fetching
+            StateIcon = <LoadingIndicator/>;
+            break;
+        case ( !! ( segment && ! segment?.isFetching && segment?.positions ) ):
+            // ok
+            StateIcon = <Icon
+                source="check"
+                size={ 25 }
+                color={ get( theme, ['colors','success'], undefined ) }
+            />;
+            break;
+    }
+
+    return <View
+        style={ {
+            width,
+            height: itemHeight,
+            // justifyContent:'space-between',
+            alignItems: 'center',
+            justifyContent: 'flex-start',
+            // flexDirection: 'row',
+            marginLeft: - itemPaddingH * 2,
+            paddingHorizontal: itemPaddingH,
+        } }
+        key={ item.key }
+    >
+        <View style={ {
+            justifyContent: 'flex-start',
+            alignItems: 'center',
+            flexDirection: 'row',
+        } } >
+
+            <View style={ { flexDirection: 'row', flexGrow: 1 } }>
+                <Text style={ { marginRight: 10 } }>{ order + 1 }</Text>
+
+                <Text>{ formatcoords( item.location ).format( 'dd',{
+                    decimalPlaces: 4,
+                } ) }</Text>
+            </View>
+
+            <View style={ {
+                flexDirection: 'row',
+            } }>
+                <TouchableHighlight
+                    underlayColor={ theme.colors.elevation.level3 }
+                    onPress={ () => {
+                        if (
+                            setPoints
+                            && points
+                            && undefined !== order
+                            && points.length >= order + 1
+                        ) {
+                            const newPoints = [...points];
+                            newPoints.splice( order, 1 );
+                            setPoints( newPoints );
+                        }
+                    } }
+                    style={ { padding: 10, borderRadius: theme.roundness } }
+                >
+                    <Icon
+                        source="delete"
+                        size={ 25 }
+                    />
+                </TouchableHighlight>
+            </View>
+
+        </View>
+
+        { segment && (
+            null === draggingItemIndex || (
+                draggingItemIndex !== order
+                && draggingItemIndex - 1 !== order
+            )
+        ) && <View style={ {
+            // flexGrow: 1,
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexDirection: 'row',
+            marginLeft: -8,
+            paddingRight: itemPaddingH,
+            width: width - itemPaddingH * 2,
+        } }>
+
+            { StateIcon && <View style={ { marginRight: 10 } }>{ StateIcon }</View> }
+
+            { segment?.errorMsg && <Text style={ { flexGrow: 1 } }>{ 'Error' + ': ' + segment?.errorMsg }</Text> }
+            { ! segment?.isFetching && segment?.positions && <Text style={ { flexGrow: 1 } }>{ 'positions' + ': ' + segment?.positions.length }</Text> }
+        </View> }
+
+    </View>;
+};
+
+const PointsList = ( {
+    drawerWidth,
+    setScrollEnabled,
+} : {
+	drawerWidth: number;
+    setScrollEnabled: Dispatch<SetStateAction<boolean>>;
+} ) => {
+
+    const {
+        points,
+        setPoints,
+    } = useContext( RoutingContext );
+
+    const [draggingItemIndex,setDraggingItemIndex] = useState<null | number>( null );
+
+    const renderItem = ( item : RoutingPoint, order: number ) => <View key={ item.key }><DraggableItem
+        item={ item }
+        width={ drawerWidth }
+        order={ order }
+        draggingItemIndex={ draggingItemIndex }
+    /></View>;
+
+    return points ? <View style={ {
+        height: itemHeight * points.length + 8 ,
+        width: drawerWidth,
+    } } >
+        <DraggableGrid
+            style={ { width: drawerWidth } }
+            itemHeight={ itemHeight }
+            numColumns={ 1 }
+            renderItem={ renderItem }
+            data={ points }
+            onDragStart={ ( item: RoutingPoint ) => {
+                setScrollEnabled( false );
+                const newDraggingItemIndex = points.findIndex( point => point.key === item.key );
+                setDraggingItemIndex( -1 === newDraggingItemIndex ? null : newDraggingItemIndex );
+            } }
+            onDragRelease={ ( newPoints : RoutingPoint[] ) => {
+                setScrollEnabled( true );
+                setPoints && setPoints( newPoints );
+                setDraggingItemIndex( null );
+            } }
+        />
+    </View> : null;
+};
+
+const DisplayComponent = ( {
 	drawerWidth,
 	drawerHeight,
 	drawerSide,
@@ -56,6 +235,7 @@ const DisplayComponent = ({
 	const [modalVisible, setModalVisible] = useState( false );
     const [scrollEnabled,setScrollEnabled] = useState( true );
 
+
     return <ScrollView
         scrollEnabled={ scrollEnabled }
         style={ {
@@ -64,7 +244,7 @@ const DisplayComponent = ({
             width: drawerWidth,
             position: 'absolute',
             marginTop: 3,
-            paddingHorizontal: 20
+            paddingHorizontal: 20,
         } }
     >
 
@@ -151,34 +331,11 @@ const DisplayComponent = ({
             </ButtonHighlight>
         </View> }
 
+        { points && <PointsList
+            setScrollEnabled={ setScrollEnabled }
+            drawerWidth={ drawerWidth }
+        /> }
 
-        { points && [...points].map( ( point, index ) => {
-
-            const segment = segments ? segments.find( segment =>
-                segment.fromId === point.id
-            ) : undefined;
-
-            return <View key={ index } style={ { marginBottom: 10 } }>
-
-                <View style={ { flexDirection: 'row' } }>
-
-                    <Text style={ { marginRight: 10 } }>{ index }</Text>
-
-                    <Text>{ formatcoords( point.location ).format( 'dd',{
-                        decimalPlaces: 4,
-                    } ) }</Text>
-
-                </View>
-
-                { segment && <View style={ { } }>
-                    {/* <Text>ok</Text> */}
-                    { segment?.errorMsg && <Text style={ { } }>{ 'Error' + ': ' + segment?.errorMsg }</Text> }
-                    { segment?.isFetching && <Text style={ { } }>{ 'fetching...' }</Text> }
-                    { ! segment?.isFetching && segment?.positions && <Text style={ { } }>{ 'positions' + ': ' + segment?.positions.length }</Text> }
-                </View> }
-
-            </View>;
-        } ) }
     </ScrollView>;
 };
 
@@ -237,7 +394,7 @@ const IconActions = ( {
                     setPoints( [
                         ...points,
                         {
-                            id: rnUuid.v4(),
+                            key: rnUuid.v4(),
                             location: currentMapEvent?.center,
                         }
                     ] );
@@ -247,7 +404,7 @@ const IconActions = ( {
         },
         {
             value: 'movePoint',
-            label: 'movePoint ' + ( triggeredMarkerIdx ? triggeredMarkerIdx : '' ),
+            label: 'movePoint ' + ( triggeredMarkerIdx ? triggeredMarkerIdx + 1 : '' ),
             onPress: () => {
 				dismissMenu()
                 if ( setPoints && points && points.length > 0 ) {
@@ -275,14 +432,14 @@ const IconActions = ( {
                     && segments.length > triggeredSegment?.index
                 ) {
                     const segment = segments[triggeredSegment?.index];
-                    const pointToIdIdx = points.findIndex( point => point.id === segment.toId );
+                    const pointToIdIdx = points.findIndex( point => point.key === segment.toKey );
                     if ( -1 !== pointToIdIdx ) {
                         const newPoints = [...points];
                         newPoints.splice(
                             pointToIdIdx,
                             0,
                             {
-                                id: rnUuid.v4(),
+                                key: rnUuid.v4(),
                                 location: triggeredSegment.nearestPoint,
                             }
                         )
@@ -295,7 +452,7 @@ const IconActions = ( {
         },
         {
             value: 'deletePoint',
-            label: 'deletePoint ' + ( undefined !== triggeredMarkerIdx ? triggeredMarkerIdx : '' ),
+            label: 'deletePoint ' + ( undefined !== triggeredMarkerIdx ? triggeredMarkerIdx + 1 : '' ),
             onPress: () => {
 				dismissMenu()
                 if (

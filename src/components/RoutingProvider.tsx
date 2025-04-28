@@ -53,8 +53,8 @@ const filterSegments = ( segments: RoutingSegment[], points: RoutingPoint[], sor
     }
 
     const segmentIdxsDelete = [...segments].map( ( segment, index ) => {
-        const fromPointIdx = points.findIndex( point => segment.fromId === point.id );
-        const toPointIdx = points.findIndex( point => segment.toId === point.id );
+        const fromPointIdx = points.findIndex( point => segment.fromKey === point.key );
+        const toPointIdx = points.findIndex( point => segment.toKey === point.key );
         if (
             -1 === fromPointIdx
             || -1 === toPointIdx
@@ -70,7 +70,7 @@ const filterSegments = ( segments: RoutingSegment[], points: RoutingPoint[], sor
         : [...segments];
 
     return sort
-        ? sortArrayByOrderArray( newSegments, [...points].map( point => point.id ), 'fromId' ) as RoutingSegment[]
+        ? sortArrayByOrderArray( newSegments, [...points].map( point => point.key ), 'fromKey' ) as RoutingSegment[]
         : newSegments;
 };
 
@@ -101,15 +101,15 @@ const RoutingProvider = ( {
                     if ( points.length > index + 1 ) {
 
                         let segmentIndex = segments.findIndex( segment =>
-                            segment.fromId === point.id
-                            && segment.toId === points[index+1].id
+                            segment.fromKey === point.key
+                            && segment.toKey === points[index+1].key
                         );
 
                         if ( -1 === segmentIndex || ( ! segments[segmentIndex].isFetching && ! segments[segmentIndex].positions ) ) {
 
                             let newSegment: RoutingSegment = {
-                                fromId: point.id,
-                                toId:  points[index+1].id,
+                                fromKey: point.key,
+                                toKey:  points[index+1].key,
                                 isFetching: true,
                             };
                             if ( -1 === segmentIndex ) {
