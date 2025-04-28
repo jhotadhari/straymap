@@ -31,6 +31,7 @@ import useDirsInfo from '../compose/useDirsInfo';
 import ModalWrapper from './generic/ModalWrapper';
 import RadioListItem from './generic/RadioListItem';
 import LoadingIndicator from './generic/LoadingIndicator';
+import { runAfterInteractions } from '../utils';
 
 interface Option extends OptionBase {
     key: string;
@@ -100,7 +101,7 @@ const FileSourceRowControl = ( {
     );
 
     useEffect( () => {
-        InteractionManager.runAfterInteractions( () => {
+        runAfterInteractions( () => {
             setStart( Math.random() )
         } );
     }, [] );

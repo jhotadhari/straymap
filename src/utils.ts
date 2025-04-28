@@ -11,6 +11,7 @@ import defaultsAssign from "defaults";
 import { LayerConfigOptionsAny, LayerConfigOptionsHillshading } from "./types";
 import { defaults } from "./constants";
 import { LayerHillshading } from "react-native-mapsforge-vtm";
+import { InteractionManager, PromiseTask, SimpleTask } from "react-native";
 
 export const parseSerialized = ( str: string, fallback?: any ) : string | false => {
 	fallback = fallback ? fallback : false;
@@ -148,4 +149,21 @@ export const sortArrayByOrderArray = ( inputArr: ( string | { [value: string]: a
 		return aIndex > bIndex ? 1 : ( bIndex < aIndex ? -1 : 0 );
 	} );
 	return inputArr;
+};
+
+export const runAfterInteractions = (
+    task: ( () => any ),
+    delayFallback?: number, // runs the task after milliseconds, if InteractionManager didn't start it.
+) => {
+    delayFallback = delayFallback ? delayFallback : 1000;
+    let shouldRun = true;
+    const taskWrapped = () => {
+        if ( shouldRun ) {
+            shouldRun = false;
+            clearTimeout( timeout );
+            task();
+        }
+    } ;
+    const timeout = setTimeout( taskWrapped, delayFallback );
+    InteractionManager.runAfterInteractions( taskWrapped );
 };

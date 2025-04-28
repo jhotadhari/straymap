@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import DefaultPreference from 'react-native-default-preference';
 import useDeepCompareEffect from 'use-deep-compare-effect'
+import { runAfterInteractions } from '../utils';
 
 const mergeSettingsForKey = ( initialSettings: object, newSettings: object, key: string ) => ( {
     [key]: {
@@ -43,7 +44,7 @@ const useSettings = ( {
     useEffect( () => {
 		const busyKey = 'useSettings' + 'load' + settingsKey;
 		maybeIsBusyAdd && maybeIsBusyAdd( busyKey );
-		InteractionManager.runAfterInteractions( () => {
+		runAfterInteractions( () => {
 			DefaultPreference.get( settingsKey ).then( newSettingsStr => {
 				if ( newSettingsStr ) {
 					const newSettings = JSON.parse( newSettingsStr );
@@ -66,11 +67,11 @@ const useSettings = ( {
 		if ( initialized ) {
 			const busyKey = 'useSettings' + 'changed' + settingsKey;
 			maybeIsBusyAdd && maybeIsBusyAdd( busyKey );
-			InteractionManager.runAfterInteractions( () => {
+			runAfterInteractions( () => {
 				DefaultPreference.set( settingsKey, JSON.stringify( settings ) )
-				.then( () => savedMessage ? ToastAndroid.show( savedMessage, ToastAndroid.SHORT ) : null )
-				.catch( err => 'ERROR' + console.log( err ) )
-				.finally( () => maybeIsBusyRemove && maybeIsBusyRemove( busyKey ) )
+					.then( () => savedMessage ? ToastAndroid.show( savedMessage, ToastAndroid.SHORT ) : null )
+					.catch( err => 'ERROR' + console.log( err ) )
+					.finally( () => maybeIsBusyRemove && maybeIsBusyRemove( busyKey ) )
 			} );
 		}
 	}, [settings] );

@@ -53,6 +53,7 @@ import LoadingIndicator from './generic/LoadingIndicator';
 import HintLink from './generic/HintLink';
 import InfoRadioRow from './generic/InfoRadioRow';
 import useSettings from '../compose/useSettings';
+import { runAfterInteractions } from '../utils';
 
 const itemHeight = 50;
 
@@ -483,7 +484,7 @@ const MapsforgeProfilesControl = ( {
             if ( ! renderStylesCache.optionsMap[editProfile.theme] ) {
                 const busyKey = 'MapsforgeProfilesControl' + editProfile.key;
                 maybeIsBusyAdd && maybeIsBusyAdd( busyKey );
-                InteractionManager.runAfterInteractions( () => {
+                runAfterInteractions( () => {
                     MapLayerMapsforgeModule.getRenderThemeOptions( editProfile?.theme ).then( ( collection : RenderStyleOptionsCollection ) => {
                         setRenderStylesCache( {
                             optionsMap: {
@@ -497,9 +498,6 @@ const MapsforgeProfilesControl = ( {
                                 } ),
                             },
                         } );
-                        maybeIsBusyRemove && maybeIsBusyRemove( busyKey );
-                    } ).catch( ( err: any ) => {
-                        console.log( 'ERROR', err );
                         maybeIsBusyRemove && maybeIsBusyRemove( busyKey );
                     } );
                 } );
