@@ -1,3 +1,6 @@
+/**
+ * External dependencies
+*/
 import { LayoutChangeEvent, View } from "react-native";
 import { Dispatch, SetStateAction, useContext, useMemo } from "react";
 import Animated, { useAnimatedStyle, useSharedValue } from "react-native-reanimated";
@@ -5,10 +8,12 @@ import { ComposedGesture, Gesture, GestureDetector, GestureType } from "react-na
 import { Button, Icon, useTheme } from "react-native-paper";
 import { clamp, get } from "lodash-es";
 import { CartesianChart, Line } from "victory-native";
-
-
+/**
+ * Internal dependencies
+*/
 import { BottomBarHeight } from "../types";
 import { RoutingContext } from "../Context";
+import { listFontFamilies, matchFont } from "@shopify/react-native-skia";
 
 const handleSize = 50;
 
@@ -75,13 +80,16 @@ const AltitudeProfileInner = ( {
         segments,
     } = useContext( RoutingContext );
 
-    if ( ! segments || ! segments?.length ) {
-        return null;
-    }
+    const theme = useTheme();
+
+    const font = matchFont( {
+        fontFamily: listFontFamilies()[0],
+        fontSize: 12,
+    } );
 
     // data: concatenated segment?.coordinatesSimplified with accumulated distance.
     let lastDist: number = 0;
-    const data : Record<string, any>[] = useMemo( () => [...segments].map( ( segment, index ) => {
+    const data : Record<string, any>[] = useMemo( () => segments && segments?.length ? [...segments].map( ( segment, index ) => {
         if ( ! segment?.coordinatesSimplified ) {
             return false;
         }
@@ -93,30 +101,59 @@ const AltitudeProfileInner = ( {
         // accumulated distance
         lastDist += get( segment?.coordinatesSimplified[segment?.coordinatesSimplified.length-1], 'distance', 0 );
         return coordsAdjusted;
-    } ).filter( segment => !! segment ).flat(), [segments] );
+    } ).filter( segment => !! segment ).flat() : [], [segments] );
+
+    const axisOpts = useMemo( () => ( {
+        lineWidth: 1,
+        font,
+        lineColor: theme.colors.onSurfaceDisabled,
+        labelColor: theme.colors.onBackground,
+        labelPosition: 'outset' as 'outset',
+        enableRescaling: true,
+    } ), [] );
 
     return <View
         style={ {
             position: 'absolute',
-            padding: 10,
             height,
             width: outerWidth,
         } }
     >
-
         <CartesianChart
             data={ data }
+            padding={ 10 }
             xKey='distance'
-            yKeys={ ['alt'] }
-        >{ ( { points } ) => {
-
-            return <Line
-                points={ points.alt }
-                color="red"
-                strokeWidth={ 3 }
-            />;
-        } }</CartesianChart>
-
+            yKeys={ ['alt','slope'] }
+            yAxis={ [
+                {
+                    ...axisOpts,
+                    yKeys: ['alt'],
+                },
+                {
+                    ...axisOpts,
+                    yKeys: ['slope'],
+                    axisSide: 'right',
+                    formatYLabel: labelNb => Math.round( labelNb ) + '',
+                },
+            ] }
+            xAxis={ {
+                ...axisOpts,
+                formatXLabel: labelNb => ( labelNb / 1000 ) + '',
+            } }
+        >
+            { ( { points } ) => <View>
+                <Line
+                    points={ points.slope }
+                    color="green"
+                    strokeWidth={ 2 }
+                />
+                <Line
+                    points={ points.alt }
+                    color="red"
+                    strokeWidth={ 2 }
+                />
+            </View> }
+        </CartesianChart>
     </View>;
 };
 
@@ -129,6 +166,11 @@ const AltitudeProfile = ( {
     outerWidth: number;
     setBottomBarHeight?: Dispatch<SetStateAction<BottomBarHeight>>;
 } ) => {
+
+
+    const {
+        segments,
+    } = useContext( RoutingContext );
 
     const translationY = useSharedValue( 0 );
 
@@ -185,10 +227,10 @@ const AltitudeProfile = ( {
                 expand={ expand }
             />
 
-            <AltitudeProfileInner
+            { segments && segments?.length > 0 && <AltitudeProfileInner
                 height={ height }
                 outerWidth={ outerWidth }
-            />
+            /> }
 
         </Animated.View>;
 };
