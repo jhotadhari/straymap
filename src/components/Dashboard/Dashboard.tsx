@@ -1,18 +1,23 @@
+/**
+ * External dependencies
+*/
 import { View } from "react-native";
 import { Dispatch, SetStateAction } from "react";
 import { MapEventResponse } from "react-native-mapsforge-vtm";
-
-import { BottomBarHeight, DashboardElementConf, DashboardStyle, UnitPref } from "../../types";
-import * as dashboardElementComponents from "./elements";
 import { get } from "lodash-es";
 import { useTheme } from "react-native-paper";
+
+/**
+ * Internal dependencies
+*/
+import { BottomBarHeight, DashboardElementConf, DashboardStyle, UnitPref } from "../../types";
+import * as dashboardElementComponents from "./elements";
 
 const Dashboard = ( {
     elements,
     dashboardStyle,
     unitPrefs,
     currentMapEvent,
-    // bottomBarHeight,
     setBottomBarHeight,
     outerWidth,
 } : {
@@ -29,7 +34,7 @@ const Dashboard = ( {
         bottom: 0,
         position: 'absolute',
         width: outerWidth,
-        zIndex: 100,
+        // zIndex: 100,
         backgroundColor: theme.colors.background,
     } }><View
         onLayout={ e => {
