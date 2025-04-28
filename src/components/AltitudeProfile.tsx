@@ -1,11 +1,14 @@
 import { LayoutChangeEvent, View } from "react-native";
-import { Dispatch, SetStateAction } from "react";
-
-import { BottomBarHeight } from "../types";
+import { Dispatch, SetStateAction, useContext, useMemo } from "react";
 import Animated, { useAnimatedStyle, useSharedValue } from "react-native-reanimated";
 import { ComposedGesture, Gesture, GestureDetector, GestureType } from "react-native-gesture-handler";
-import { Button, Icon, Text, useTheme } from "react-native-paper";
-import { clamp } from "lodash-es";
+import { Button, Icon, useTheme } from "react-native-paper";
+import { clamp, get } from "lodash-es";
+import { CartesianChart, Line } from "victory-native";
+
+
+import { BottomBarHeight } from "../types";
+import { RoutingContext } from "../Context";
 
 const handleSize = 50;
 
@@ -62,20 +65,58 @@ const AltitudeProfileHandle = ( {
 
 const AltitudeProfileInner = ( {
     height,
+    outerWidth,
 } : {
     height: number;
+    outerWidth: number;
 } ) => {
+
+    const {
+        segments,
+    } = useContext( RoutingContext );
+
+    if ( ! segments || ! segments?.length ) {
+        return null;
+    }
+
+    // data: concatenated segment?.coordinatesSimplified with accumulated distance.
+    let lastDist: number = 0;
+    const data : Record<string, any>[] = useMemo( () => [...segments].map( ( segment, index ) => {
+        if ( ! segment?.coordinatesSimplified ) {
+            return false;
+        }
+        // coords with accumulated distance.
+        const coordsAdjusted = 0 === index ? [...segment?.coordinatesSimplified] : [...segment?.coordinatesSimplified].map( coord => ( {
+            ...coord,
+            distance: ( coord.distance || 0 ) + lastDist,
+        } ) );
+        // accumulated distance
+        lastDist += get( segment?.coordinatesSimplified[segment?.coordinatesSimplified.length-1], 'distance', 0 );
+        return coordsAdjusted;
+    } ).filter( segment => !! segment ).flat(), [segments] );
 
     return <View
         style={ {
             position: 'absolute',
             padding: 10,
             height,
+            width: outerWidth,
         } }
     >
-        <Text>bla</Text>
-        <Text>bla</Text>
-        <Text>bla</Text>
+
+        <CartesianChart
+            data={ data }
+            xKey='distance'
+            yKeys={ ['alt'] }
+        >{ ( { points } ) => {
+
+            return <Line
+                points={ points.alt }
+                color="red"
+                strokeWidth={ 3 }
+            />;
+        } }</CartesianChart>
+
     </View>;
 };
 
@@ -146,6 +187,7 @@ const AltitudeProfile = ( {
 
             <AltitudeProfileInner
                 height={ height }
+                outerWidth={ outerWidth }
             />
 
         </Animated.View>;
