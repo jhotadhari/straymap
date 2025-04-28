@@ -53,6 +53,8 @@ export type RoutingContextType = {
         saved: boolean,
         exported: boolean,
     }>>;
+    movingPointIdx?: number;
+    setMovingPointIdx?: Dispatch<SetStateAction<undefined | number>>;
     isRouting?: boolean;
     setIsRouting?: Dispatch<SetStateAction<boolean>>;
     points?: RoutingPoint[];

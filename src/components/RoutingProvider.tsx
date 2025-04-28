@@ -8,12 +8,13 @@ import {
 	useState,
 } from 'react';
 import { pick } from 'lodash-es';
+import rnUuid from 'react-native-uuid';
 import { getTrackFromParams, type GetTrackParams } from 'react-native-brouter';
 
 /**
  * Internal dependencies
 */
-import { parseSerialized, sortArrayByOrderArray } from '../utils';
+import { parseSerialized, runAfterInteractions, sortArrayByOrderArray } from '../utils';
 import { RoutingSegment, RoutingTriggeredSegment, type RoutingPoint } from '../types';
 import { RoutingContext } from "../Context";
 
@@ -88,6 +89,7 @@ const RoutingProvider = ( {
     const [points,setPoints] = useState<RoutingPoint[]>( [] );
     const [segments,setSegments] = useState<RoutingSegment[]>( [] );
 
+    const [movingPointIdx,setMovingPointIdx] = useState<undefined | number>( undefined );
 
     const [markerLayerUuid, setMarkerLayerUuid] = useState<null | string>( null );
     const [pathLayerUuids, setPathLayerUuids] = useState<null | string[]>( null );
@@ -108,6 +110,7 @@ const RoutingProvider = ( {
                         if ( -1 === segmentIndex || ( ! segments[segmentIndex].isFetching && ! segments[segmentIndex].positions ) ) {
 
                             let newSegment: RoutingSegment = {
+                                key: rnUuid.v4(),
                                 fromKey: point.key,
                                 toKey:  points[index+1].key,
                                 isFetching: true,
@@ -130,38 +133,40 @@ const RoutingProvider = ( {
                                 v: 'bicycle',
                             };
 
-                            getTrackFromParams( params ).then( ( result: string ) => {
-                                const parsed : false | JSONTracKParsed = parseSerialized( result ) as false | JSONTracKParsed;
-                                if ( parsed && parsed.features ) {
+                            runAfterInteractions( () => {
+                                setTimeout( () => getTrackFromParams( params ).then( ( result: string ) => {
+                                    const parsed : false | JSONTracKParsed = parseSerialized( result ) as false | JSONTracKParsed;
+                                    if ( parsed && parsed.features ) {
+                                        newSegment = {
+                                            ...newSegment,
+                                            positions: [...parsed.features].map( feature => [...feature.geometry.coordinates].map( coord => ( {
+                                                lng: coord[0],
+                                                lat: coord[1],
+                                                alt: coord[2],
+                                            } ) ) ).flat(),
+                                            isFetching: false,
+                                        }
+                                        newSegments.splice( segmentIndex, 1, newSegment );
+                                        resolve( newSegments );
+                                    } else {
+                                        newSegment = {
+                                            ...newSegment,
+                                            isFetching: false,
+                                            errorMsg: result,
+                                        }
+                                        newSegments.splice( segmentIndex, 1, newSegment );
+                                        resolve( newSegments );
+                                    }
+                                } ).catch( ( e: any ) => {
                                     newSegment = {
                                         ...newSegment,
-                                        positions: [...parsed.features].map( feature => [...feature.geometry.coordinates].map( coord => ( {
-                                            lng: coord[0],
-                                            lat: coord[1],
-                                            alt: coord[2],
-                                        } ) ) ).flat(),
                                         isFetching: false,
+                                        errorMsg: e?.userInfo?.errorMsg,
                                     }
                                     newSegments.splice( segmentIndex, 1, newSegment );
                                     resolve( newSegments );
-                                } else {
-                                    newSegment = {
-                                        ...newSegment,
-                                        isFetching: false,
-                                        errorMsg: result,
-                                    }
-                                    newSegments.splice( segmentIndex, 1, newSegment );
-                                    resolve( newSegments );
-                                }
-                            } ).catch( ( e: any ) => {
-                                newSegment = {
-                                    ...newSegment,
-                                    isFetching: false,
-                                    errorMsg: e?.userInfo?.errorMsg,
-                                }
-                                newSegments.splice( segmentIndex, 1, newSegment );
-                                resolve( newSegments );
-                            } );
+                                } ), 0 === index ? 0 : 400 );
+                            }, 0 === index ? 0 : 100 );
                         } else {
                             resolve( newSegments );
                         }
@@ -181,9 +186,10 @@ const RoutingProvider = ( {
     }, [points] );
 
     useEffect( () => {
-        if ( ! isRouting && ( segments.length || points.length ) ) {
+        if ( ! isRouting && ( segments.length || points.length || undefined !== movingPointIdx ) ) {
             setSegments( [] );
             setPoints( [] );
+            setMovingPointIdx( undefined );
         }
         if ( isRouting ) {
             setSavedExported( {
@@ -196,11 +202,13 @@ const RoutingProvider = ( {
     return <RoutingContext.Provider value={ {
         savedExported,
         setSavedExported,
+        movingPointIdx,
+        setMovingPointIdx,
         isRouting,
         setIsRouting,
         points,
         setPoints,
-        segments,
+        segments: filterSegments( segments, points ),
         setSegments,
         markerLayerUuid,
         setMarkerLayerUuid,

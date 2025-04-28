@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { Dispatch, SetStateAction, useContext, useState } from 'react';
+import React, { Dispatch, SetStateAction, useContext, useMemo, useState } from 'react';
 import {
     Button,
     Icon,
@@ -30,6 +30,7 @@ import { DrawerState, RoutingPoint } from '../../../types';
 import ModalWrapper from '../../generic/ModalWrapper';
 import LoadingIndicator from '../../generic/LoadingIndicator';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { runAfterInteractions } from '../../../utils';
 
 const itemHeight = 80;
 const itemPaddingH = 20;
@@ -222,11 +223,10 @@ const DisplayComponent = ( {
 
     const {
         savedExported,
-        setSavedExported,
+        setMovingPointIdx,
         isRouting,
         setIsRouting,
         points,
-        segments,
     } = useContext( RoutingContext );
 
     const theme = useTheme();
@@ -240,7 +240,7 @@ const DisplayComponent = ( {
         scrollEnabled={ scrollEnabled }
         style={ {
             backgroundColor: theme.colors.background,
-            height: drawerHeight,
+            height: drawerHeight - 50,
             width: drawerWidth,
             position: 'absolute',
             marginTop: 3,
@@ -275,11 +275,12 @@ const DisplayComponent = ( {
                         expand( false );
                         setModalVisible( false );
                         setIsRouting && setIsRouting( false );
+                        setMovingPointIdx && setMovingPointIdx( undefined );
                     } }
                     mode="contained"
                     buttonColor={ theme.colors.errorContainer }
                     textColor={ theme.colors.onErrorContainer }
-                ><Text>{ t( 'cancel???' ) }</Text></ButtonHighlight>
+                ><Text>{ t( 'stopRouting???' ) }</Text></ButtonHighlight>
             </View>
         </ModalWrapper> }
 
@@ -367,6 +368,8 @@ const IconActions = ( {
 		setTriggeredMarkerIdx,
 		triggeredSegment,
 		setTriggeredSegment,
+		movingPointIdx,
+		setMovingPointIdx,
     } = useContext( RoutingContext );
 
     const { width } = useSafeAreaFrame();
@@ -374,22 +377,20 @@ const IconActions = ( {
     const { t } = useTranslation();
     const [menuVisible,setMenuVisible] = useState( false );
 
-    if ( ! isRouting ) {
-        return null;
-    }
-
-    const dismissMenu = () => {
+    const dismissMenu = ( cleanTriggeredMarkerIdx?: boolean, cleanTriggeredSegment?: boolean ) => {
+        cleanTriggeredMarkerIdx = undefined === cleanTriggeredMarkerIdx ? true : cleanTriggeredMarkerIdx;
+        cleanTriggeredSegment = undefined === cleanTriggeredSegment ? true : cleanTriggeredSegment;
         setMenuVisible( false );
-        setTriggeredMarkerIdx && setTriggeredMarkerIdx( undefined );
-        setTriggeredSegment && setTriggeredSegment( undefined );
+        setTriggeredMarkerIdx && cleanTriggeredMarkerIdx && setTriggeredMarkerIdx( undefined );
+        setTriggeredSegment && cleanTriggeredSegment && setTriggeredSegment( undefined );
     };
 
-    const options = [
-        {
+    const options = useMemo( () => ( [
+        ...( undefined === movingPointIdx ? [{
             value: 'appendPoint',
             label: 'appendPoint',
             onPress: () => {
-				dismissMenu()
+				dismissMenu();
                 if ( setPoints && points && currentMapEvent?.center ) {
                     setPoints( [
                         ...points,
@@ -401,28 +402,25 @@ const IconActions = ( {
                 }
 			},
             leadingIcon: 'plus',
-        },
-        {
+        }] : [] ),
+        ...( undefined === movingPointIdx ? [{
             value: 'movePoint',
             label: 'movePoint ' + ( triggeredMarkerIdx ? triggeredMarkerIdx + 1 : '' ),
             onPress: () => {
-				dismissMenu()
+				dismissMenu( false );
                 if ( setPoints && points && points.length > 0 ) {
-
-                    console.log( 'debug triggeredMarkerIdx', triggeredMarkerIdx ); // debug
-                    // const newPoints = [...points];
-                    // newPoints.splice( -1, 1 );
-                    // setPoints( newPoints );
+                    setMovingPointIdx && undefined !== triggeredMarkerIdx && setMovingPointIdx( triggeredMarkerIdx );
+                    setTriggeredMarkerIdx && setTriggeredMarkerIdx( undefined );
                 }
 			},
             disabled: () => ! points || ! points.length || undefined === triggeredMarkerIdx,
             leadingIcon: 'arrow-all',
-        },
-        {
+        }] : [] ),
+        ...( undefined === movingPointIdx ? [{
             value: 'cutSegment',
             label: 'cutSegment',
             onPress: () => {
-				dismissMenu()
+				dismissMenu( true, false );
                 if (
                     setPoints
                     && points
@@ -444,17 +442,19 @@ const IconActions = ( {
                             }
                         )
                         setPoints( newPoints );
+                        setTriggeredSegment && setTriggeredSegment( undefined );
+                        setTimeout( () => setMovingPointIdx && setMovingPointIdx( pointToIdIdx ), 300 );
                     }
                 }
 			},
-            disabled: () => ! points || ! points.length || undefined === triggeredSegment,
+            disabled: () => undefined !== triggeredMarkerIdx || ( ! points || ! points.length || undefined === triggeredSegment ),
             leadingIcon: 'content-cut',
-        },
-        {
+        }] : [] ),
+        ...( undefined === movingPointIdx ? [{
             value: 'deletePoint',
             label: 'deletePoint ' + ( undefined !== triggeredMarkerIdx ? triggeredMarkerIdx + 1 : '' ),
             onPress: () => {
-				dismissMenu()
+				dismissMenu();
                 if (
                     setPoints
                     && points
@@ -468,12 +468,12 @@ const IconActions = ( {
 			},
             disabled: () => ! points || ! points.length || undefined === triggeredMarkerIdx,
             leadingIcon: 'minus',
-        },
-        {
+        }] : [] ),
+        ...( undefined === movingPointIdx ? [{
             value: 'deleteLastPoint',
             label: 'deleteLastPoint',
             onPress: () => {
-				dismissMenu()
+				dismissMenu();
                 if ( setPoints && points && points.length > 0 ) {
                     const newPoints = [...points];
                     newPoints.splice( -1, 1 );
@@ -482,8 +482,42 @@ const IconActions = ( {
 			},
             disabled: () => ! points || ! points.length,
             leadingIcon: 'minus',
-        },
-    ];
+        }] : [] ),
+        ...( undefined !== movingPointIdx ? [{
+            value: 'setPointPosition',
+            label: 'setPointPosition',
+            onPress: () => {
+                if ( setPoints && points && undefined !== movingPointIdx && currentMapEvent?.center ) {
+                    const newPoints = [...points];
+                    const newPoint : RoutingPoint = {
+                        ...points[movingPointIdx],
+                        key: rnUuid.v4(),
+                        location: currentMapEvent?.center,
+                    };
+                    newPoints.splice( movingPointIdx, 1, newPoint );
+                    setPoints( newPoints );
+                    setMovingPointIdx && setMovingPointIdx( undefined );
+                }
+                dismissMenu();
+			},
+            disabled: () => ! points || ! points.length,
+            leadingIcon: 'check',
+        }] : [] ),
+        ...( undefined !== movingPointIdx ? [{
+            value: 'cancelMoving',
+            label: 'cancelMoving',
+            onPress: () => {
+				dismissMenu();
+                setMovingPointIdx && setMovingPointIdx( undefined );
+			},
+            disabled: () => ! points || ! points.length,
+            leadingIcon: 'cancel',
+        }] : [] ),
+    ] ), [
+        points,
+        movingPointIdx,
+        segments,
+    ] );
 
     return <Menu
         contentStyle={ {
@@ -500,28 +534,32 @@ const IconActions = ( {
                     dismissMenu();
                 } else {
                     setMenuVisible( true );
-                    if ( mapViewNativeNodeHandle ) {
-                        const left = PixelRatio.getPixelSizeForLayoutSize( width ) / 2;
-                        const top = PixelRatio.getPixelSizeForLayoutSize( mapHeight || 0 ) / 2;
-                        if (  markerLayerUuid ) {
-                            MapLayerMarkerModule.triggerEvent(
-                                mapViewNativeNodeHandle,
-                                markerLayerUuid,
-                                left,
-                                top
-                            ).catch( ( err: any ) => console.log( 'ERROR', err ) );
-                        }
-                        if (  pathLayerUuids ) {
-                            [...pathLayerUuids].map( routingPathLayerUuid => {
-                                MapLayerPathSlopeGradientModule.triggerEvent(
-                                    mapViewNativeNodeHandle,
-                                    routingPathLayerUuid,
-                                    left,
-                                    top
-                                ).catch( ( err: any ) => console.log( 'ERROR', err ) );
-                            } );
-                        }
-                    }
+                    runAfterInteractions( () => {
+                        setTimeout( () => {
+                            if ( mapViewNativeNodeHandle ) {
+                                const left = PixelRatio.getPixelSizeForLayoutSize( width ) / 2;
+                                const top = PixelRatio.getPixelSizeForLayoutSize( mapHeight || 0 ) / 2;
+                                if (  markerLayerUuid ) {
+                                    MapLayerMarkerModule.triggerEvent(
+                                        mapViewNativeNodeHandle,
+                                        markerLayerUuid,
+                                        left,
+                                        top
+                                    ).catch( ( err: any ) => console.log( 'ERROR', err ) );
+                                }
+                                if (  pathLayerUuids ) {
+                                    [...pathLayerUuids].map( routingPathLayerUuid => {
+                                        MapLayerPathSlopeGradientModule.triggerEvent(
+                                            mapViewNativeNodeHandle,
+                                            routingPathLayerUuid,
+                                            left,
+                                            top
+                                        ).catch( ( err: any ) => console.log( 'ERROR', err ) );
+                                    } );
+                                }
+                            }
+                        }, 100 )
+                    }, 100 );
                 }
             } }
             style={ style }
@@ -533,7 +571,7 @@ const IconActions = ( {
             />
         </Button> }
     >
-        { options && [...options].map( opt => {
+        { menuVisible && options && [...options].map( opt => {
             const disabled = opt?.disabled ? opt?.disabled() : false;
             return <MenuItem
                 key={ opt.value }
@@ -545,10 +583,6 @@ const IconActions = ( {
                 iconColor={ disabled ? theme.colors.onSurfaceDisabled : undefined }
             />;
         } ) }
-
-
-
-
     </Menu>;
 };
 

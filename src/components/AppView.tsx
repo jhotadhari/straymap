@@ -100,8 +100,6 @@ const AppView = ( {
 
     const {
 		mapViewNativeNodeHandle,
-		appInnerHeight,
-		bottomBarHeight,
 		selectedHierarchyItems,
 		appDirs,
 		mapSettings,
@@ -111,18 +109,23 @@ const AppView = ( {
     } = useContext( AppContext );
 
     const {
+		isRouting,
 		points,
 		segments,
 		setSegments,
-        markerLayerUuid,
+        movingPointIdx,
         setMarkerLayerUuid,
         pathLayerUuids,
         setPathLayerUuids,
-		triggeredMarkerIdx,
 		setTriggeredMarkerIdx,
-		triggeredSegment,
 		setTriggeredSegment,
     } = useContext( RoutingContext );
+
+    // console.log( 'debug points', points ); // debug
+    // console.log( 'debug segments', segments ); // debug
+
+    // console.log( 'debug movingPointIdx', movingPointIdx ); // debug
+    // console.log( 'debug theme.colors.surfaceDisabled', theme.colors.surfaceDisabled ); // debug
 
     if (
         ! generalSettings
@@ -284,10 +287,11 @@ const AppView = ( {
                     return null
                 } ) }
 
-                { segments && segments.length > 0 && [...segments].map( ( segment, index ) => {
+                { isRouting && segments && segments.length > 0 && [...segments].map( ( segment, index ) => {
                     if (
                         ! segment.positions
                         || ! segment.positions.length
+                        || segment?.isFetching
                         || ! points
                     ) {
                         return null;
@@ -303,7 +307,7 @@ const AppView = ( {
                     }
 
                     return <LayerPathSlopeGradient
-                        key={ segment.fromKey + segment.toKey }
+                        key={ segment.key }
                         responseInclude={ {
 	                        // coordinates: 1,
 	                        coordinatesSimplified: 1,
@@ -343,7 +347,26 @@ const AppView = ( {
                     />;
                 } ) }
 
-                { points && points.length > 0 && <LayerMarker
+                {/* { isRouting && undefined !== movingPointIdx && currentMapEvent?.center && points && points.length > movingPointIdx-1 && <LayerPath
+                    positions={[
+                        points[movingPointIdx-1].location,
+                        currentMapEvent?.center,
+                    ]}
+                    style={ {
+                        strokeWidth: 2,
+                    } }
+                /> }
+                { isRouting && undefined !== movingPointIdx && currentMapEvent?.center && points && points.length > movingPointIdx+1 && <LayerPath
+                    positions={[
+                        points[movingPointIdx+1].location,
+                        currentMapEvent?.center,
+                    ]}
+                    style={ {
+                        strokeWidth: 2,
+                    } }
+                /> } */}
+
+                { isRouting && points && points.length > 0 && <LayerMarker
                     onCreate={ response => response.uuid && setMarkerLayerUuid ? setMarkerLayerUuid( response.uuid ) : null }
                     onRemove={ () => setMarkerLayerUuid && setMarkerLayerUuid( null ) }
                 >
@@ -353,9 +376,9 @@ const AppView = ( {
                         symbol={ {
                             text: index + 1 + '',
                             textMargin: 15,
-
+                            ...( index === movingPointIdx && { fillColor: '#dddddd', strokeColor: '#111111' } ),
                         } }
-                        onTrigger={ response => {
+                        onTrigger={ () => {
                             setTriggeredMarkerIdx && setTriggeredMarkerIdx( index );
                         } }
                     /> ) }
