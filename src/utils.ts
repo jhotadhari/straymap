@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { get, invert, omit, pick } from "lodash-es";
+import { get, invert, isObject, omit, pick } from "lodash-es";
 import slugify from "slugify";
 import defaultsAssign from "defaults";
 
@@ -129,4 +129,23 @@ export const getHillshadingCacheDirChild = ( options: LayerConfigOptionsHillshad
         'cacheDirBase',
         'hgtDirPath',
     ] ) );
+};
+
+// Sort array of strings or objects based on another array.
+export const sortArrayByOrderArray = ( inputArr: ( string | { [value: string]: any } )[], orderArr: string[], key?: string ) => {
+	inputArr.sort( ( a, b ) => {
+		const aVal = isObject( a ) && key ? a[key] : a;
+		const bVal = isObject( b ) && key ? b[key] : b;
+		// Get sort order from orderArr.
+		let aIndex = orderArr.indexOf( aVal );
+		let bIndex = orderArr.indexOf( bVal );
+		// If not found in orderArr, move to the end.
+		if ( aIndex === -1 && bIndex !== -1 ) {
+			aIndex = bIndex + 1;
+		} else if ( aIndex !== -1 && bIndex === -1 ) {
+			bIndex = aIndex + 1;
+		}
+		return aIndex > bIndex ? 1 : ( bIndex < aIndex ? -1 : 0 );
+	} );
+	return inputArr;
 };

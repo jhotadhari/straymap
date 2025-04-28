@@ -13,7 +13,7 @@ import { getTrackFromParams, type GetTrackParams } from 'react-native-brouter';
 /**
  * Internal dependencies
 */
-import { parseSerialized } from '../utils';
+import { parseSerialized, sortArrayByOrderArray } from '../utils';
 import { RoutingSegment, RoutingTriggeredSegment, type RoutingPoint } from '../types';
 import { RoutingContext } from "../Context";
 
@@ -47,7 +47,7 @@ type JSONTracKParsed = {
 };
 
 // Remove unused segments
-const filterSegments = ( segments: RoutingSegment[], points: RoutingPoint[] ) => {
+const filterSegments = ( segments: RoutingSegment[], points: RoutingPoint[], sort?: boolean ): RoutingSegment[] => {
     if ( ! points || ! points.length ) {
         return [];
     }
@@ -65,11 +65,13 @@ const filterSegments = ( segments: RoutingSegment[], points: RoutingPoint[] ) =>
         return false;
     } ).filter( a => false !== a );
 
-    if ( segmentIdxsDelete.length > 0 ) {
-        return segments.filter( ( segment, index ) => ! segmentIdxsDelete.includes( index ) );
-    } else {
-        return segments;
-    }
+    const newSegments = segmentIdxsDelete.length > 0
+        ? [...segments].filter( ( _, index ) => ! segmentIdxsDelete.includes( index ) )
+        : [...segments];
+
+    return sort
+        ? sortArrayByOrderArray( newSegments, [...points].map( point => point.id ), 'fromId' ) as RoutingSegment[]
+        : newSegments;
 };
 
 const RoutingProvider = ( {
