@@ -80,7 +80,11 @@ const RoutingProvider = ( {
     children: ReactNode;
 } ) => {
 
-
+    const [savedExported,setSavedExported] = useState( {
+        saved: false,
+        exported: false,
+    } );
+    const [isRouting,setIsRouting] = useState<boolean>( false );
     const [points,setPoints] = useState<RoutingPoint[]>( [] );
     const [segments,setSegments] = useState<RoutingSegment[]>( [] );
 
@@ -176,7 +180,24 @@ const RoutingProvider = ( {
         } );
     }, [points] );
 
+    useEffect( () => {
+        if ( ! isRouting && ( segments.length || points.length ) ) {
+            setSegments( [] );
+            setPoints( [] );
+        }
+        if ( isRouting ) {
+            setSavedExported( {
+                saved: false,
+                exported: false,
+            } );
+        }
+    }, [isRouting] );
+
     return <RoutingContext.Provider value={ {
+        savedExported,
+        setSavedExported,
+        isRouting,
+        setIsRouting,
         points,
         setPoints,
         segments,

@@ -10,7 +10,7 @@ import {
     useTheme,
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { PixelRatio, TextStyle, View } from "react-native";
+import { PixelRatio, ScrollView, TextStyle, View } from "react-native";
 import rnUuid from 'react-native-uuid';
 import { MapEventResponse, MapLayerMarkerModule, MapLayerPathSlopeGradientModule } from 'react-native-mapsforge-vtm';
 import formatcoords from 'formatcoords';
@@ -21,32 +21,137 @@ import { useSafeAreaFrame } from 'react-native-safe-area-context';
  */
 import IconIcomoon from '../../generic/IconIcomoon';
 import { AppContext, RoutingContext } from '../../../Context';
-import { pick } from 'lodash-es';
+import { get, pick } from 'lodash-es';
 import MenuItem from '../../generic/MenuItem';
+import ButtonHighlight from '../../generic/ButtonHighlight';
+import { DrawerState } from '../../../types';
+import ModalWrapper from '../../generic/ModalWrapper';
+import { sprintf } from 'sprintf-js';
 
 const DisplayComponent = ({
-    // currentMapEvent,
-    // dashboardElement,
-    // style = {},
-    // unitPrefs,
-    // dashboardStyle,
-}: {
-
+	drawerWidth,
+	drawerHeight,
+	drawerSide,
+	expand,
+} : {
+	drawerWidth: number;
+	drawerHeight: number;
+	drawerSide: string;
+    expand: DrawerState['expand'];
 } ) => {
 
 
     const {
+        savedExported,
+        setSavedExported,
+        isRouting,
+        setIsRouting,
         points,
         segments,
     } = useContext( RoutingContext );
 
+    const theme = useTheme();
     const { t } = useTranslation();
 
+	const [modalVisible, setModalVisible] = useState( false );
+    const [scrollEnabled,setScrollEnabled] = useState( true );
 
-    return <View style={{
-        // minWidth: get( dashboardElement, ['style','minWidth'], undefined ),
-        // ...style,
-    }}>
+    return <ScrollView
+        scrollEnabled={ scrollEnabled }
+        style={ {
+            backgroundColor: theme.colors.background,
+            height: drawerHeight,
+            width: drawerWidth,
+            position: 'absolute',
+            marginTop: 3,
+            paddingHorizontal: 20
+        } }
+    >
+
+        { modalVisible && <ModalWrapper
+            visible={ modalVisible }
+            onDismiss={ () => setModalVisible( false ) }
+            onHeaderBackPress={ () => setModalVisible( false ) }
+            header={ 'sicher???' }
+        >
+            <View style={ { marginTop: 20 } }>
+                <Text style={ { marginBottom: 20 } }>{ 'sicher das du routing abbrechen möchtest???' }</Text>
+                { Object.keys( savedExported || {} ).map( key => ! get( savedExported, key )
+                    ? <Text key={ key } style={ { marginBottom: 20 } }>{ sprintf( 'The route is not %s. ???', key ) }</Text>
+                    : null
+                ) }
+            </View>
+
+            <View style={ { marginTop: 20, marginBottom: 40, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' } }>
+                <ButtonHighlight
+                    onPress={ () => setModalVisible( false ) }
+                    mode="contained"
+                    buttonColor={ get( theme.colors, 'successContainer' ) }
+                    textColor={ get( theme.colors, 'onSuccessContainer' ) }
+                ><Text>{ t( 'continue???' ) }</Text></ButtonHighlight>
+
+                <ButtonHighlight
+                    onPress={ () => {
+                        expand( false );
+                        setModalVisible( false );
+                        setIsRouting && setIsRouting( false );
+                    } }
+                    mode="contained"
+                    buttonColor={ theme.colors.errorContainer }
+                    textColor={ theme.colors.onErrorContainer }
+                ><Text>{ t( 'cancel???' ) }</Text></ButtonHighlight>
+            </View>
+        </ModalWrapper> }
+
+        <ButtonHighlight
+            style={ { marginBottom: 20 } }
+            mode='outlined'
+            onPress={ () => {
+                if ( isRouting ) {
+                    if ( points && points.length && Object.values( savedExported || {} ).includes( false ) ) {
+                        setModalVisible( true );
+                    } else {
+                        expand( false );
+                        setIsRouting && setIsRouting( false );
+                    }
+                } else {
+                    expand( false );
+                    setIsRouting && setIsRouting( true );
+                }
+            } }
+        >
+            <Text>{ t( isRouting ? 'stopRouting???' : 'startRouting???'  ) }</Text>
+        </ButtonHighlight>
+
+        { ! isRouting && <ButtonHighlight
+            style={ { marginBottom: 20 } }
+            mode='outlined'
+            onPress={ () => null }
+        >
+            <Text>{ t( 'load TODO???'  ) }</Text>
+        </ButtonHighlight> }
+
+        { isRouting && <View style={ {
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            marginBottom: 20,
+        } }>
+            <ButtonHighlight
+                mode='outlined'
+                onPress={ () => null }
+            >
+                <Text>{ t( 'save TODO???'  ) }</Text>
+            </ButtonHighlight>
+
+            <ButtonHighlight
+                mode='outlined'
+                onPress={ () => null }
+            >
+                <Text>{ t( 'export TODO???'  ) }</Text>
+            </ButtonHighlight>
+        </View> }
+
+
         { points && [...points].map( ( point, index ) => {
 
             const segment = segments ? segments.find( segment =>
@@ -74,7 +179,7 @@ const DisplayComponent = ({
 
             </View>;
         } ) }
-    </View>;
+    </ScrollView>;
 };
 
 const IconComponent = ({ color }: { color: string }) => {
@@ -95,6 +200,7 @@ const IconActions = ( {
     } = useContext( AppContext );
 
     const {
+        isRouting,
         points,
         segments,
         setPoints,
@@ -110,6 +216,10 @@ const IconActions = ( {
     const theme = useTheme();
     const { t } = useTranslation();
     const [menuVisible,setMenuVisible] = useState( false );
+
+    if ( ! isRouting ) {
+        return null;
+    }
 
     const dismissMenu = () => {
         setMenuVisible( false );

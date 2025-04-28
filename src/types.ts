@@ -19,6 +19,7 @@ import {
 	Location,
 } from 'react-native-mapsforge-vtm';
 import { ViewStyle } from "react-native";
+import { ComposedGesture, GestureType } from "react-native-gesture-handler";
 
 
 export type AbsPath = `/${string}`;
@@ -261,4 +262,15 @@ export type RoutingSegment = {
 export type RoutingTriggeredSegment = {
 	index: number;
 	nearestPoint: Location;
+};
+
+export type DrawerState = {
+	showInner: boolean;
+	gesture: ComposedGesture | GestureType;
+	animatedStyles: any;
+	side: string;
+	drawerWidth: number;
+	outerWidth: number;
+	expand: ( expanded: boolean ) => void;
+	getIsFullyCollapsed: () => boolean;
 };

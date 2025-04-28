@@ -45,6 +45,16 @@ export type AppContextType = {
 export const AppContext = createContext<AppContextType>( {} );
 
 export type RoutingContextType = {
+    savedExported?: {
+        saved: boolean,
+        exported: boolean,
+    };
+    setSavedExported?: Dispatch<SetStateAction<{
+        saved: boolean,
+        exported: boolean,
+    }>>;
+    isRouting?: boolean;
+    setIsRouting?: Dispatch<SetStateAction<boolean>>;
     points?: RoutingPoint[];
     setPoints?: Dispatch<SetStateAction<RoutingPoint[]>>;
     segments?: RoutingSegment[];

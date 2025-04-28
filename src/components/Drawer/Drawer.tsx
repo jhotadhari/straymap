@@ -17,17 +17,7 @@ import { get } from 'lodash-es';
  */
 import * as drawerElementComponents from "./elements";
 import { MapEventResponse } from 'react-native-mapsforge-vtm';
-
-export type DrawerState = {
-	showInner: boolean;
-	gesture: ComposedGesture | GestureType;
-	animatedStyles: any;
-	side: string;
-	drawerWidth: number;
-	outerWidth: number;
-	expand: ( expanded: boolean ) => void;
-	getIsFullyCollapsed: () => boolean;
-};
+import { DrawerState } from '../../types';
 
 const handleSize = 50;
 
@@ -37,12 +27,14 @@ const DrawerInner = ( {
 	drawerHeight,
 	side,
 	currentMapEvent,
+	expand,
 } : {
 	activeElement: any;
 	drawerWidth: number;
 	drawerHeight: number;
 	side: string;
 	currentMapEvent: MapEventResponse;
+	expand: DrawerState['expand'];
 } ) => {
 	if ( ! activeElement ) {
 		return null;
@@ -62,6 +54,7 @@ const DrawerInner = ( {
 			drawerHeight={ drawerHeight }
 			drawerSide={ side }
 			currentMapEvent={ currentMapEvent }
+			expand={ expand }
 		/>
 	</View>;
 };
@@ -231,6 +224,7 @@ const Drawer = ( {
 				drawerWidth={ drawerWidth }
 				drawerHeight={ height }
 				currentMapEvent={ currentMapEvent }
+				expand={ expand }
 			/> }
 
 		</Animated.View>
