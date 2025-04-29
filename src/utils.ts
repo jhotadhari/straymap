@@ -8,7 +8,7 @@ import defaultsAssign from "defaults";
 /**
  * Internal dependencies
  */
-import { LayerConfigOptionsAny, LayerConfigOptionsHillshading } from "./types";
+import { LayerConfigOptionsAny, LayerConfigOptionsHillshading, UnitPref } from "./types";
 import { defaults } from "./constants";
 import { LayerHillshading } from "react-native-mapsforge-vtm";
 import { InteractionManager, PromiseTask, SimpleTask } from "react-native";
@@ -166,4 +166,21 @@ export const runAfterInteractions = (
     } ;
     const timeout = setTimeout( taskWrapped, delayFallback );
     InteractionManager.runAfterInteractions( taskWrapped );
+};
+
+
+// ??? todo
+export const formatDistance = ( distance: number, unitPref: UnitPref ): string => {
+
+    let string = '';
+    switch( unitPref.unit ) {
+        case 'metric':
+            string = roundTo( distance / 1000, 2 ) + ' km';
+            break;
+    }
+
+
+
+
+    return string;
 };

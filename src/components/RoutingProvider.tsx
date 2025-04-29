@@ -115,22 +115,17 @@ const RoutingProvider = ( {
             const prevSegment = segments.find( seg => seg.toKey === point.key );
 
             let newSegment: RoutingSegment = {
-                // key: '',
-
+                ...( -1 === segmentIndex && point && nextPoint ? {
+                    profile: {
+                        fast: prevSegment?.profile?.fast || true,   // ??? from defaults, or from previous or from cut segment
+                        v: prevSegment?.profile?.v || 'motorcar',   // ??? from defaults, or from previous or from cut segment
+                    },
+                } : {
+                    ...segments[segmentIndex],
+                } ),
                 key: rnUuid.v4() as string,
                 fromKey: point.key,
                 toKey:  nextPoint.key,
-                profile: {
-                    fast: prevSegment?.profile?.fast || false,    // ??? from defaults, or from previous or from cut segment
-                    v: prevSegment?.profile?.v || 'bicycle',   // ??? from defaults, or from previous or from cut segment
-                },
-                // ...( -1 === segmentIndex && point && nextPoint && {
-                //     key: rnUuid.v4() as string,
-                // } ),
-                ...( -1 !== segmentIndex && {
-                    ...segments[segmentIndex],
-                    // key: get( segments[segmentIndex], 'key', '' ) as string,
-                } ),
                 isFetching: true,
             };
 
