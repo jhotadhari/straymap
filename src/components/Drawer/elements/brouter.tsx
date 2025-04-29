@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { Dispatch, SetStateAction, useContext, useMemo, useState } from 'react';
+import React, { Dispatch, SetStateAction, useContext, useEffect, useMemo, useState } from 'react';
 import {
     Button,
     Icon,
@@ -17,7 +17,7 @@ import formatcoords from 'formatcoords';
 import { useSafeAreaFrame } from 'react-native-safe-area-context';
 import { sprintf } from 'sprintf-js';
 import DraggableGrid from 'react-native-draggable-grid';
-import { get } from 'lodash-es';
+import { get, omit } from 'lodash-es';
 
 /**
  * Internal dependencies
@@ -26,13 +26,18 @@ import IconIcomoon from '../../generic/IconIcomoon';
 import { AppContext, RoutingContext } from '../../../Context';
 import MenuItem from '../../generic/MenuItem';
 import ButtonHighlight from '../../generic/ButtonHighlight';
-import { DrawerState, RoutingPoint } from '../../../types';
+import { DrawerState, RoutingPoint, RoutingSegment } from '../../../types';
 import ModalWrapper from '../../generic/ModalWrapper';
 import LoadingIndicator from '../../generic/LoadingIndicator';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { runAfterInteractions } from '../../../utils';
+import ListItemMenuControl from '../../generic/ListItemMenuControl';
+import InfoRowControl from '../../generic/InfoRowControl';
+import InfoRadioRow from '../../generic/InfoRadioRow';
+import { GetTrackParams } from 'react-native-brouter';
+import { usePrevious } from 'victory-native';
 
-const itemHeight = 80;
+const itemHeight = 100;
 const itemPaddingH = 20;
 
 const DraggableItem = ( {
@@ -40,11 +45,15 @@ const DraggableItem = ( {
     width,
     order,
     draggingItemIndex,
+    // editSegment,
+    setEditSegment,
 } : {
     item: RoutingPoint;
     width: number;
     order: number;
     draggingItemIndex: null | number;
+    // editSegment: null | RoutingSegment;
+    setEditSegment: Dispatch<SetStateAction<null | RoutingSegment>>;
 } ) => {
 
     const theme = useTheme();
@@ -144,19 +153,31 @@ const DraggableItem = ( {
                 && draggingItemIndex - 1 !== order
             )
         ) && <View style={ {
-            // flexGrow: 1,
-            justifyContent: 'space-between',
             alignItems: 'center',
-            flexDirection: 'row',
             marginLeft: -8,
             paddingRight: itemPaddingH,
             width: width - itemPaddingH * 2,
         } }>
+            <View style={ {
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                flexDirection: 'row',
+            } }>
+                { StateIcon && <View style={ { marginRight: 10 } }>{ StateIcon }</View> }
+                { segment?.errorMsg && <Text style={ { flexGrow: 1 } }>{ 'Error' + ': ' + segment?.errorMsg }</Text> }
+                { ! segment?.isFetching && segment?.positions && <Text style={ { flexGrow: 1 } }>{ 'positions' + ': ' + segment?.positions.length }</Text> }
+            </View>
 
-            { StateIcon && <View style={ { marginRight: 10 } }>{ StateIcon }</View> }
+            <ButtonHighlight
+                style={ { marginBottom: 20 } }
+                // mode='outlined'
+                onPress={ () => {
+                    setEditSegment( segment );
+                } }
+            >
+                <Text>{ 'profile???' }</Text>
+            </ButtonHighlight>
 
-            { segment?.errorMsg && <Text style={ { flexGrow: 1 } }>{ 'Error' + ': ' + segment?.errorMsg }</Text> }
-            { ! segment?.isFetching && segment?.positions && <Text style={ { flexGrow: 1 } }>{ 'positions' + ': ' + segment?.positions.length }</Text> }
         </View> }
 
     </View>;
@@ -165,9 +186,13 @@ const DraggableItem = ( {
 const PointsList = ( {
     drawerWidth,
     setScrollEnabled,
+    // editSegment,
+    setEditSegment,
 } : {
 	drawerWidth: number;
     setScrollEnabled: Dispatch<SetStateAction<boolean>>;
+    // editSegment: null | RoutingSegment;
+    setEditSegment: Dispatch<SetStateAction<null | RoutingSegment>>;
 } ) => {
 
     const {
@@ -182,6 +207,8 @@ const PointsList = ( {
         width={ drawerWidth }
         order={ order }
         draggingItemIndex={ draggingItemIndex }
+        // editSegment={ editSegment }
+        setEditSegment={ setEditSegment }
     /></View>;
 
     return points ? <View style={ {
@@ -208,6 +235,51 @@ const PointsList = ( {
     </View> : null;
 };
 
+const ProfileRowControl = ( {
+    editSegment,
+    setEditSegment,
+} : {
+    editSegment: RoutingSegment;
+    setEditSegment: Dispatch<SetStateAction<null | RoutingSegment>>;
+} ) => {
+
+    const { t } = useTranslation();
+
+    const options = useMemo( () => [
+        {
+            key: 'motorcar',
+            label: 'motorcar',
+        },
+        {
+            key: 'bicycle',
+            label: 'bicycle',
+        },
+        {
+            key: 'foot',
+            label: 'foot',
+        },
+    ], [] );
+
+    const selectedOpt = options.find( opt => opt.key === editSegment.profile.v );
+
+    return <InfoRowControl
+        label={ t( 'profile???' ) }
+    >
+        <ListItemMenuControl
+            options={ options }
+            value={ get( selectedOpt, 'key' ) }
+            setValue={ newValue => setEditSegment( {
+                ...editSegment,
+                profile: {
+                    ...editSegment.profile,
+                    v: newValue as GetTrackParams['v'],
+                }
+            } ) }
+            anchorLabel={ get( selectedOpt, 'label', '' ) }
+        />
+    </InfoRowControl>;
+};
+
 const DisplayComponent = ( {
 	drawerWidth,
 	drawerHeight,
@@ -220,21 +292,37 @@ const DisplayComponent = ( {
     expand: DrawerState['expand'];
 } ) => {
 
-
     const {
         savedExported,
         setMovingPointIdx,
         isRouting,
         setIsRouting,
         points,
+        segments,
+        setSegments,
+        triggerSegmentsUpdate,
     } = useContext( RoutingContext );
 
     const theme = useTheme();
     const { t } = useTranslation();
 
-	const [modalVisible, setModalVisible] = useState( false );
+	const [dismissModalVisible, setDismissModalVisible] = useState( false );
     const [scrollEnabled,setScrollEnabled] = useState( true );
+    const [editSegment,setEditSegment] = useState<null | RoutingSegment >( null );
 
+    const updateSegment = () => {
+        if ( segments && editSegment && setSegments ) {
+            const segmentIdx = segments.findIndex( segment => segment.key === editSegment.key );
+            if ( -1 !== segmentIdx ) {
+                if ( JSON.stringify( segments[segmentIdx].profile ) !== JSON.stringify( editSegment.profile ) ) {
+                    const newSegments = [...segments];
+                    newSegments.splice( segmentIdx, 1, omit( editSegment, ['positions'] ) );
+                    setSegments( newSegments );
+                    triggerSegmentsUpdate && triggerSegmentsUpdate();
+                }
+            }
+        }
+    };
 
     return <ScrollView
         scrollEnabled={ scrollEnabled }
@@ -248,10 +336,49 @@ const DisplayComponent = ( {
         } }
     >
 
-        { modalVisible && <ModalWrapper
-            visible={ modalVisible }
-            onDismiss={ () => setModalVisible( false ) }
-            onHeaderBackPress={ () => setModalVisible( false ) }
+        { editSegment && <ModalWrapper
+            visible={ !! editSegment }
+            onDismiss={ () => {
+                updateSegment();
+                setEditSegment( null );
+            } }
+            onHeaderBackPress={ () => {
+                updateSegment();
+                setEditSegment( null );
+            } }
+            header={ 'editProfile???' }
+        >
+
+            <ProfileRowControl
+                editSegment={ editSegment }
+                setEditSegment={ setEditSegment }
+            />
+
+            <InfoRadioRow
+                opt={ {
+                    label: t( 'fast' ),
+                    key: 'fast',
+                } }
+                onPress={ () => setEditSegment( {
+                    ...editSegment,
+                    profile: {
+                        ...editSegment.profile,
+                        fast: ! editSegment.profile.fast,
+                    }
+                } ) }
+                labelStyle={ theme.fonts.bodyMedium }
+                labelExtractor={ a => a.label }
+                status={ editSegment.profile.fast ? 'checked' : 'unchecked' }
+                radioAlign={ 'left' }
+                Info={ t( 'hint.maps.hgtInterpolation' ) }
+            />
+
+        </ModalWrapper> }
+
+        { dismissModalVisible && <ModalWrapper
+            visible={ dismissModalVisible }
+            onDismiss={ () => setDismissModalVisible( false ) }
+            onHeaderBackPress={ () => setDismissModalVisible( false ) }
             header={ 'sicher???' }
         >
             <View style={ { marginTop: 20 } }>
@@ -264,7 +391,7 @@ const DisplayComponent = ( {
 
             <View style={ { marginTop: 20, marginBottom: 40, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' } }>
                 <ButtonHighlight
-                    onPress={ () => setModalVisible( false ) }
+                    onPress={ () => setDismissModalVisible( false ) }
                     mode="contained"
                     buttonColor={ get( theme.colors, 'successContainer' ) }
                     textColor={ get( theme.colors, 'onSuccessContainer' ) }
@@ -273,7 +400,7 @@ const DisplayComponent = ( {
                 <ButtonHighlight
                     onPress={ () => {
                         expand( false );
-                        setModalVisible( false );
+                        setDismissModalVisible( false );
                         setIsRouting && setIsRouting( false );
                         setMovingPointIdx && setMovingPointIdx( undefined );
                     } }
@@ -290,7 +417,7 @@ const DisplayComponent = ( {
             onPress={ () => {
                 if ( isRouting ) {
                     if ( points && points.length && Object.values( savedExported || {} ).includes( false ) ) {
-                        setModalVisible( true );
+                        setDismissModalVisible( true );
                     } else {
                         expand( false );
                         setIsRouting && setIsRouting( false );
@@ -335,6 +462,8 @@ const DisplayComponent = ( {
         { points && <PointsList
             setScrollEnabled={ setScrollEnabled }
             drawerWidth={ drawerWidth }
+            // editSegment={ editSegment }
+            setEditSegment={ setEditSegment }
         /> }
 
     </ScrollView>;
@@ -376,6 +505,17 @@ const IconActions = ( {
     const theme = useTheme();
     const { t } = useTranslation();
     const [menuVisible,setMenuVisible] = useState( false );
+
+    // open menu on start routing, hopefully after drawer has closed.
+    const prevIsRouting = usePrevious( isRouting );
+    useEffect( () => {
+        if ( isRouting && ! prevIsRouting ) {
+            runAfterInteractions(
+                () => setMenuVisible( true ),
+                750
+            );
+        }
+    }, [isRouting, prevIsRouting] );
 
     const dismissMenu = ( cleanTriggeredMarkerIdx?: boolean, cleanTriggeredSegment?: boolean ) => {
         cleanTriggeredMarkerIdx = undefined === cleanTriggeredMarkerIdx ? true : cleanTriggeredMarkerIdx;
@@ -519,7 +659,7 @@ const IconActions = ( {
         segments,
     ] );
 
-    return <Menu
+    return isRouting ? <Menu
         contentStyle={ {
             borderColor: theme.colors.outline,
             borderWidth: 1,
@@ -583,7 +723,7 @@ const IconActions = ( {
                 iconColor={ disabled ? theme.colors.onSurfaceDisabled : undefined }
             />;
         } ) }
-    </Menu>;
+    </Menu> : null;
 };
 
 export default {

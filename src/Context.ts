@@ -69,6 +69,7 @@ export type RoutingContextType = {
     setTriggeredMarkerIdx?: Dispatch<SetStateAction<undefined | number>>;
     triggeredSegment?: RoutingTriggeredSegment;
     setTriggeredSegment?: Dispatch<SetStateAction<undefined | RoutingTriggeredSegment>>;
+    triggerSegmentsUpdate?: () => void;
 };
 
 export const RoutingContext = createContext<RoutingContextType>( {} );

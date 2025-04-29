@@ -20,6 +20,7 @@ import {
 } from 'react-native-mapsforge-vtm';
 import { ViewStyle } from "react-native";
 import { ComposedGesture, GestureType } from "react-native-gesture-handler";
+import { GetTrackParams } from "react-native-brouter";
 
 
 export type AbsPath = `/${string}`;
@@ -249,6 +250,11 @@ export interface LocationExtended extends Location {
 	time?: number;
 };
 
+export type RoutingProfile = {
+	fast: GetTrackParams['fast'],
+	v: GetTrackParams['v'],
+};
+
 export type RoutingSegment = {
 	key: string;
 	fromKey: string;
@@ -256,7 +262,7 @@ export type RoutingSegment = {
 	positions?: Location[];
 	isFetching?: boolean;
 	errorMsg?: string;
-
+	profile: RoutingProfile;
 	coordinatesSimplified?: LocationExtended[],
 };
 

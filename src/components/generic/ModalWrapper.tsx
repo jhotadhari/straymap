@@ -130,6 +130,7 @@ const ModalWrapper = ( {
                         borderColor: theme.colors.outline,
                         borderWidth: 1,
                         borderRadius: theme.roundness,
+                        position: 'relative',
                         ...innerContainerStyle,
                     } }
                 >

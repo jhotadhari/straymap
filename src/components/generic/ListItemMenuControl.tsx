@@ -61,10 +61,10 @@ const ListItemMenuControl = ( {
 			onPress={ () => setVisible( ! visible ) }
 		/> }
 	>
-		{ options && setValue && [...options].map( opt => <MenuItem
+		{ options && [...options].map( opt => <MenuItem
 			key={ opt.key }
 			onPress={ () => {
-				setValue( opt.key );
+				setValue && setValue( opt.key );
 				setVisible( false );
 			} }
 			title={ t( opt.label ) }

@@ -121,8 +121,8 @@ const AppView = ( {
 		setTriggeredSegment,
     } = useContext( RoutingContext );
 
-    // console.log( 'debug points', points ); // debug
-    // console.log( 'debug segments', segments ); // debug
+    console.log( 'debug points', points ); // debug
+    console.log( 'debug segments', segments ); // debug
 
     // console.log( 'debug movingPointIdx', movingPointIdx ); // debug
     // console.log( 'debug theme.colors.surfaceDisabled', theme.colors.surfaceDisabled ); // debug
