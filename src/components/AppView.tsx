@@ -37,9 +37,6 @@ import {
 	LayerMapsforgeResponse,
     LayerBitmapTileProps,
     LayerHillshadingProps,
-    LayerMarker,
-    Marker,
-    LayerPathSlopeGradient,
 } from 'react-native-mapsforge-vtm';
 
 /**
@@ -57,9 +54,8 @@ import type {
 	LayerInfos,
     InitialPosition,
     BottomBarHeight,
-    RoutingSegment,
 } from '../types';
-import { AppContext, MapContext, RoutingContext } from '../Context';
+import { AppContext, MapContext } from '../Context';
 import Center from './Center';
 import { Dashboard } from './Dashboard';
 import { Drawers } from './Drawer';
@@ -68,6 +64,7 @@ import SplashScreen from './SplashScreen';
 import MapLayersAttribution from './MapLayersAttribution';
 import { fillLayerConfigOptionsWithDefaults, getHillshadingCacheDirChild, stringifyProp } from '../utils';
 import AltitudeProfile from './AltitudeProfile';
+import RoutingMapView from './RoutingMapView';
 
 const AppView = ( {
     showSplash,
@@ -106,25 +103,6 @@ const AppView = ( {
     const {
 		setCurrentMapEvent,
     } = useContext( MapContext );
-
-    const {
-		isRouting,
-		points,
-		segments,
-		setSegments,
-        movingPointIdx,
-        setMarkerLayerUuid,
-        pathLayerUuids,
-        setPathLayerUuids,
-		setTriggeredMarkerIdx,
-		setTriggeredSegment,
-    } = useContext( RoutingContext );
-
-    console.log( 'debug points', points ); // debug
-    console.log( 'debug segments', segments ); // debug
-
-    // console.log( 'debug movingPointIdx', movingPointIdx ); // debug
-    // console.log( 'debug theme.colors.surfaceDisabled', theme.colors.surfaceDisabled ); // debug
 
     if (
         ! generalSettings
@@ -191,7 +169,7 @@ const AppView = ( {
                 onResume={ response => console.log( 'lifecycle event onResume', response ) }
                 onMapEvent={ ( response: MapEventResponse ) => {
                     // console.log( 'onMapEvent event', response ); // debug
-                    setCurrentMapEvent( response );
+                    setCurrentMapEvent && setCurrentMapEvent( response );   // ??? Throws error max update depth exceeded Maybe change to ref.
                 } }
                 emitsHardwareKeyUp={ [...generalSettings.hardwareKeys].filter( keyConf => 'none' !== keyConf.actionKey ).map( keyConf => keyConf.keyCodeString ) as MapContainerProps['emitsHardwareKeyUp'] }
                 onHardwareKeyUp={ generalSettings.hardwareKeys.length > 0 ? ( response: HardwareKeyEventResponse ) => {
@@ -286,104 +264,9 @@ const AppView = ( {
                     return null
                 } ) }
 
-                { isRouting && segments && segments.length > 0 && [...segments].map( ( segment, index ) => {
-                    if (
-                        ! segment.positions
-                        || ! segment.positions.length
-                        || segment?.isFetching
-                        || ! points
-                    ) {
-                        return null;
-                    }
-                    const fromPointIdx = points.findIndex( point => segment.fromKey === point.key );
-                    const toPointIdx = points.findIndex( point => segment.toKey === point.key );
-                    if (
-                        -1 === fromPointIdx
-                        || -1 === toPointIdx
-                        || toPointIdx !== fromPointIdx + 1
-                    ) {
-                        return null;
-                    }
-
-                    return <LayerPathSlopeGradient
-                        key={ segment.key }
-                        responseInclude={ {
-	                        // coordinates: 1,
-	                        coordinatesSimplified: 1,
-                        } }
-                        onCreate={ response => {
-                            if ( response?.uuid && setPathLayerUuids ) {
-                                setPathLayerUuids( [...( pathLayerUuids || [] ), response.uuid] );
-                            }
-                            if ( response?.coordinatesSimplified && setSegments ) {
-                                const newSegments = [...segments];
-                                const newSegment: RoutingSegment = {
-                                    ...segment,
-                                    coordinatesSimplified: response.coordinatesSimplified,
-                                };
-                                newSegments.splice( index, 1, newSegment );
-                                setSegments( newSegments );
-                            }
-                        } }
-                        onRemove={ response => {
-                            const idx = pathLayerUuids?.findIndex( routingPathLayerUuid => routingPathLayerUuid === response.uuid );
-                            if ( idx && idx > -1 && pathLayerUuids && setPathLayerUuids ) {
-                                const newRoutingPathLayerUuids = [...pathLayerUuids];
-                                newRoutingPathLayerUuids.splice( idx, 1 );
-                                setPathLayerUuids( newRoutingPathLayerUuids );
-                            }
-                        } }
-                        positions={ segment.positions }
-                        style={ {
-                            strokeWidth: 5,
-                        } }
-                        onTrigger={ response => {
-                            setTriggeredSegment && setTriggeredSegment( {
-                                index,
-                                nearestPoint: response.nearestPoint
-                            } );
-                        } }
-                    />;
-                } ) }
-
-                {/* { isRouting && undefined !== movingPointIdx && currentMapEvent?.center && points && points.length > movingPointIdx-1 && <LayerPath
-                    positions={[
-                        points[movingPointIdx-1].location,
-                        currentMapEvent?.center,
-                    ]}
-                    style={ {
-                        strokeWidth: 2,
-                    } }
-                /> }
-                { isRouting && undefined !== movingPointIdx && currentMapEvent?.center && points && points.length > movingPointIdx+1 && <LayerPath
-                    positions={[
-                        points[movingPointIdx+1].location,
-                        currentMapEvent?.center,
-                    ]}
-                    style={ {
-                        strokeWidth: 2,
-                    } }
-                /> } */}
-
-                { isRouting && points && points.length > 0 && <LayerMarker
-                    onCreate={ response => response.uuid && setMarkerLayerUuid ? setMarkerLayerUuid( response.uuid ) : null }
-                    onRemove={ () => setMarkerLayerUuid && setMarkerLayerUuid( null ) }
-                >
-                    { [...points].map( ( point, index ) => <Marker
-                        key={ point.key }
-                        position={ point.location }
-                        symbol={ {
-                            text: index + 1 + '',
-                            textMargin: 15,
-                            ...( index === movingPointIdx && { fillColor: '#dddddd', strokeColor: '#111111' } ),
-                        } }
-                        onTrigger={ () => {
-                            setTriggeredMarkerIdx && setTriggeredMarkerIdx( index );
-                        } }
-                    /> ) }
-                </LayerMarker> }
-
                 <LayerScalebar/>
+
+                <RoutingMapView/>   { /* has to be last. bug until MapContainer.View is mixing up reactTreeIndex */ }
 
             </MapContainer>
 
