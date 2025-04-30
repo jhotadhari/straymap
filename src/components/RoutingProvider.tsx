@@ -19,8 +19,8 @@ import { point as turfPoint } from "@turf/helpers";
 /**
  * Internal dependencies
 */
-import { parseSerialized, runAfterInteractions, sortArrayByOrderArray } from '../utils';
-import { NearestSimplifiedCoord, RoutingSegment, RoutingTriggeredSegment, RoutingPoint } from '../types';
+import { getUpDown, parseSerialized, runAfterInteractions, sortArrayByOrderArray } from '../utils';
+import { NearestSimplifiedCoord, RoutingSegment, RoutingTriggeredSegment, RoutingPoint, RoutingStats } from '../types';
 import { MapContext, RoutingContext } from "../Context";
 import { LocationExtended } from 'react-native-mapsforge-vtm';
 
@@ -51,6 +51,34 @@ type Feature = {
 type JSONTracKParsed = {
     type: string;
     features: Feature[];
+};
+
+const useRoutingStats = ( segments?: RoutingSegment[] ) : RoutingStats => {
+
+    const stats = useMemo( () => segments ? [...segments].reduce( ( acc, segment ) => {
+        const {
+            up,
+            down,
+        } = getUpDown( segment?.coordinatesSimplified );
+
+        return {
+            up: acc.up + up,
+            down: acc.down + down,
+            distance: acc.distance + ( segment?.coordinatesSimplified
+                ? segment.coordinatesSimplified[segment.coordinatesSimplified.length-1].distance || 0
+                : 0
+            ),
+        }
+    }, {
+        up: 0,
+        down: 0,
+        distance: 0,
+    } ) : {
+        up: 0,
+        down: 0,
+        distance: 0,
+    }, [segments] );
+    return stats;
 };
 
 // Remove unused segments
@@ -116,6 +144,8 @@ const RoutingProvider = ( {
         ] ) ) )
         : false
     ) : [], [segments] );
+
+    const stats = useRoutingStats( segments );
 
     const {
         nearestSimplifiedCoord,
@@ -326,6 +356,7 @@ const RoutingProvider = ( {
         triggerSegmentsUpdate,
         nearestSimplifiedCoord,
         nearestSimplifiedLocation,
+        stats,
     } } >
         { children }
     </RoutingContext.Provider>;

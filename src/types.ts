@@ -286,3 +286,9 @@ export type DrawerState = {
 	expand: ( expanded: boolean ) => void;
 	getIsFullyCollapsed: () => boolean;
 };
+
+export type RoutingStats = {
+	up: number;
+	down: number;
+	distance: number;
+}

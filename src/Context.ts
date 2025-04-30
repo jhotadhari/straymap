@@ -27,6 +27,7 @@ import {
     RoutingTriggeredSegment,
     BottomBarHeight,
     NearestSimplifiedCoord,
+    RoutingStats,
 } from "./types";
 
 export type AppContextType = {
@@ -93,6 +94,7 @@ export type RoutingContextType = {
     triggerSegmentsUpdate?: () => void;
     nearestSimplifiedCoord?: NearestSimplifiedCoord;
     nearestSimplifiedLocation?: LocationExtended;
+    stats?: RoutingStats;
 };
 
 export const RoutingContext = createContext<RoutingContextType>( {} );

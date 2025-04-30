@@ -10,7 +10,7 @@ import defaultsAssign from "defaults";
  */
 import { LayerConfigOptionsAny, LayerConfigOptionsHillshading, UnitPref } from "./types";
 import { defaults } from "./constants";
-import { LayerHillshading } from "react-native-mapsforge-vtm";
+import { LayerHillshading, Location } from "react-native-mapsforge-vtm";
 import { InteractionManager, PromiseTask, SimpleTask } from "react-native";
 
 export const parseSerialized = ( str: string, fallback?: any ) : string | false => {
@@ -184,3 +184,30 @@ export const formatDistance = ( distance: number, unitPref: UnitPref ): string =
 
     return string;
 };
+
+export const getUpDown = ( locations?: Location[] ) : {
+    up: number;
+    down: number;
+} => {
+    return locations ? locations.reduce( ( acc, coord, index ) => {
+        if ( 0 === index ) {
+            return acc;
+        }
+        const prevCoord = locations[index-1];
+        const altDiff = undefined !== coord?.alt && undefined !== prevCoord?.alt
+            ? coord?.alt - prevCoord.alt
+            : 0;
+        if ( altDiff > 0 ) {
+            acc.up = acc.up + altDiff;
+        } else {
+            acc.down = acc.down - altDiff;
+        }
+        return acc;
+    }, {
+        up: 0,
+        down: 0,
+    } ) : {
+        up: 0,
+        down: 0,
+    };
+}

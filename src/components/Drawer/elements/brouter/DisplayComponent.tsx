@@ -27,7 +27,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import ListItemMenuControl from '../../../generic/ListItemMenuControl';
 import InfoRowControl from '../../../generic/InfoRowControl';
 import InfoRadioRow from '../../../generic/InfoRadioRow';
-import { formatDistance } from '../../../../utils';
+import { formatDistance, getUpDown } from '../../../../utils';
 
 const itemHeight = 130;
 const itemPaddingH = 20;
@@ -55,24 +55,7 @@ const SegmentInfo = ( {
         const {
             up,
             down,
-        } = segment.coordinatesSimplified.reduce( ( acc, coord, index ) => {
-            if ( 0 === index || ! segment?.coordinatesSimplified ) {
-                return acc;
-            }
-            const prevCoord = segment.coordinatesSimplified[index-1];
-            const altDiff = undefined !== coord?.alt && undefined !== prevCoord?.alt
-                ? coord?.alt - prevCoord.alt
-                : 0;
-            if ( altDiff > 0 ) {
-                acc.up = acc.up + altDiff;
-            } else {
-                acc.down = acc.down + altDiff;
-            }
-            return acc;
-        }, {
-            up: 0,
-            down: 0,
-        } )
+        } = getUpDown( segment?.coordinatesSimplified );
 
         return  <View style={ {
             justifyContent: 'flex-start',
@@ -90,7 +73,7 @@ const SegmentInfo = ( {
             <Icon
                 source="arrow-down"
                 size={ 15 }
-            /><Text style={ { marginRight: 5 } }>{ Math.round( down * -1 ) + ' m' }{ /* ??? should format with units */}</Text>
+            /><Text style={ { marginRight: 5 } }>{ Math.round( down ) + ' m' }{ /* ??? should format with units */}</Text>
 
         </View>
 
