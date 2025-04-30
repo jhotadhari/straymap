@@ -270,6 +270,12 @@ export type RoutingTriggeredSegment = {
 	nearestPoint: Location;
 };
 
+export type NearestSimplifiedCoord = {
+	segmentIndex: number;
+	featureIndex: number;
+	distanceToPoint: number;
+};
+
 export type DrawerState = {
 	showInner: boolean;
 	gesture: ComposedGesture | GestureType;

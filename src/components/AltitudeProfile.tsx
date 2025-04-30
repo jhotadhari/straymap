@@ -2,18 +2,18 @@
  * External dependencies
 */
 import { LayoutChangeEvent, View } from "react-native";
-import { Dispatch, SetStateAction, useContext, useMemo } from "react";
+import React, { Dispatch, SetStateAction, useContext, useEffect, useMemo, useState } from "react";
 import Animated, { useAnimatedStyle, useSharedValue } from "react-native-reanimated";
 import { ComposedGesture, Gesture, GestureDetector, GestureType } from "react-native-gesture-handler";
 import { Button, Icon, useTheme } from "react-native-paper";
 import { clamp, get } from "lodash-es";
-import { CartesianChart, Line } from "victory-native";
+import { CartesianChart, Line, PointsArray, Scale, Scatter } from "victory-native";
+import { Circle, listFontFamilies, matchFont, Path } from "@shopify/react-native-skia";
 /**
  * Internal dependencies
 */
-import { BottomBarHeight } from "../types";
-import { RoutingContext } from "../Context";
-import { listFontFamilies, matchFont } from "@shopify/react-native-skia";
+import { BottomBarHeight, LocationExtended } from "../types";
+import { AppContext, MapContext, RoutingContext } from "../Context";
 
 const handleSize = 50;
 
@@ -68,6 +68,11 @@ const AltitudeProfileHandle = ( {
     </GestureDetector>;
 };
 
+interface LocationForChart extends LocationExtended {
+    pointAlt?: number,
+    currentAlt?: number,
+};
+
 const AltitudeProfileInner = ( {
     height,
     outerWidth,
@@ -78,6 +83,7 @@ const AltitudeProfileInner = ( {
 
     const {
         segments,
+        nearestSimplifiedCoord,
     } = useContext( RoutingContext );
 
     const theme = useTheme();
@@ -88,20 +94,59 @@ const AltitudeProfileInner = ( {
     } );
 
     // data: concatenated segment?.coordinatesSimplified with accumulated distance.
-    let lastDist: number = 0;
-    const data : Record<string, any>[] = useMemo( () => segments && segments?.length ? [...segments].map( ( segment, index ) => {
-        if ( ! segment?.coordinatesSimplified ) {
-            return false;
+    const [data,setData] = useState<null | Record<string, any>[]>( null );
+
+    useEffect( () => {
+        let lastDist: number = 0;
+        const newData = segments && segments?.length ? [...segments].map( ( segment, index ) => {
+            if ( ! segment?.coordinatesSimplified ) {
+                return false;
+            }
+            // coords with accumulated distance.
+            const coordsAdjusted: LocationForChart[] = 0 === index ? [...segment?.coordinatesSimplified] : [...segment?.coordinatesSimplified].map( coord => ( {
+                ...coord,
+                distance: ( coord.distance || 0 ) + lastDist,
+            } ) );
+
+            // Should render points.
+            coordsAdjusted[0] = {
+                ...coordsAdjusted[0],
+                pointAlt: coordsAdjusted[0].alt,
+            };
+            if ( index === segments.length -1 ) {
+                coordsAdjusted[coordsAdjusted.length-1] = {
+                    ...coordsAdjusted[coordsAdjusted.length-1],
+                    pointAlt: coordsAdjusted[coordsAdjusted.length-1].alt,
+                };
+            }
+            // accumulate distance
+            lastDist += get( segment?.coordinatesSimplified[segment?.coordinatesSimplified.length-1], 'distance', 0 );
+            return coordsAdjusted;
+        } ).filter( segment => !! segment ).flat() : [];
+        setData( newData );
+    }, [segments] );
+
+    const getDataIndexFromNearestSimplifiedCoord = () : number | undefined => {
+        if ( nearestSimplifiedCoord && segments ) {
+            let dataIndex = 0;
+
+            let counter = 0;
+            while ( counter < nearestSimplifiedCoord?.segmentIndex ) {
+
+                dataIndex += get( segments, [counter,'coordinatesSimplified'], [] ).length;
+                counter += 1;
+            }
+
+            return dataIndex + nearestSimplifiedCoord.featureIndex;
         }
-        // coords with accumulated distance.
-        const coordsAdjusted = 0 === index ? [...segment?.coordinatesSimplified] : [...segment?.coordinatesSimplified].map( coord => ( {
-            ...coord,
-            distance: ( coord.distance || 0 ) + lastDist,
-        } ) );
-        // accumulated distance
-        lastDist += get( segment?.coordinatesSimplified[segment?.coordinatesSimplified.length-1], 'distance', 0 );
-        return coordsAdjusted;
-    } ).filter( segment => !! segment ).flat() : [], [segments] );
+    };
+
+    const dataIndex = getDataIndexFromNearestSimplifiedCoord();
+    const dataWithCurrent = data && undefined !== dataIndex ? [...data] : undefined;
+    dataWithCurrent && undefined !== dataIndex && dataWithCurrent.splice( dataIndex, 1, {
+        ...dataWithCurrent[dataIndex],
+        currentAlt: dataWithCurrent[dataIndex]?.alt,
+    } );
 
     const axisOpts = useMemo( () => ( {
         lineWidth: 1,
@@ -119,15 +164,24 @@ const AltitudeProfileInner = ( {
             width: outerWidth,
         } }
     >
-        <CartesianChart
-            data={ data }
+        { dataWithCurrent && <CartesianChart
+            data={ dataWithCurrent }
             padding={ 10 }
             xKey='distance'
-            yKeys={ ['alt','slope'] }
+            yKeys={ [
+                'alt',
+                'pointAlt',
+                ...( undefined !== dataIndex ? ['currentAlt'] : [] ),
+                'slope',
+            ] }
             yAxis={ [
                 {
                     ...axisOpts,
-                    yKeys: ['alt'],
+                    yKeys: [
+                        'alt',
+                        'pointAlt',
+                        ...( undefined !== dataIndex ? ['currentAlt'] : [] ),
+                    ],
                 },
                 {
                     ...axisOpts,
@@ -141,19 +195,37 @@ const AltitudeProfileInner = ( {
                 formatXLabel: labelNb => ( labelNb / 1000 ) + '',
             } }
         >
-            { ( { points } ) => <View>
-                <Line
-                    points={ points.slope }
-                    color="green"
-                    strokeWidth={ 2 }
-                />
-                <Line
-                    points={ points.alt }
-                    color="red"
-                    strokeWidth={ 2 }
-                />
-            </View> }
-        </CartesianChart>
+            { ( { points: dataPoints } ) => {
+
+                return <View>
+
+                    <Line
+                        points={ dataPoints.slope }
+                        color="green"
+                        strokeWidth={ 2 }
+                    />
+                    <Line
+                        points={ dataPoints.alt }
+                        color="red"
+                        strokeWidth={ 2 }
+                    />
+
+                    <Scatter
+                        points={ dataPoints.pointAlt }
+                        radius={ 5 }
+                        style="fill"
+                        color="yellow"
+                    />
+
+                    { undefined !== dataIndex && <Scatter
+                        points={ dataPoints.currentAlt }
+                        radius={ 5 }
+                        style="fill"
+                        color="pink"
+                    /> }
+                </View>;
+            } }
+        </CartesianChart> }
     </View>;
 };
 

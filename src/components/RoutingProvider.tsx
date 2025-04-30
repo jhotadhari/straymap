@@ -4,19 +4,25 @@
 import {
     ReactNode,
 	useCallback,
+	useContext,
 	useEffect,
+	useMemo,
 	useState,
 } from 'react';
 import { get, pick } from 'lodash-es';
 import rnUuid from 'react-native-uuid';
 import { getTrackFromParams, type GetTrackParams } from 'react-native-brouter';
+import { nearestPoint } from '@turf/nearest-point';
+import { featureCollection } from "@turf/helpers";
+import { point as turfPoint } from "@turf/helpers";
 
 /**
  * Internal dependencies
 */
 import { parseSerialized, runAfterInteractions, sortArrayByOrderArray } from '../utils';
-import { RoutingSegment, RoutingTriggeredSegment, type RoutingPoint } from '../types';
-import { RoutingContext } from "../Context";
+import { NearestSimplifiedCoord, RoutingSegment, RoutingTriggeredSegment, RoutingPoint } from '../types';
+import { MapContext, RoutingContext } from "../Context";
+import { LocationExtended } from 'react-native-mapsforge-vtm';
 
 type FeatureGeometry = {
     type: string;
@@ -81,6 +87,10 @@ const RoutingProvider = ( {
     children: ReactNode;
 } ) => {
 
+    const {
+        currentMapEvent,
+    } = useContext( MapContext );
+
     const [savedExported,setSavedExported] = useState( {
         saved: false,
         exported: false,
@@ -98,6 +108,68 @@ const RoutingProvider = ( {
 
     const [shouldSegmentsUpdate, setShouldSegmentsUpdate] = useState<number>( 0 );
     const triggerSegmentsUpdate = () => setShouldSegmentsUpdate( Math.random() );
+
+    const lines = useMemo( () => segments ? [...segments].map( segment => segment?.coordinatesSimplified
+        ? featureCollection( [...segment.coordinatesSimplified].map( coord => turfPoint( [
+            coord.lng,  // ??? should be other way around. shit in react-native-mapsforge-vtm
+            coord.lat,  // ??? should be other way around. shit in react-native-mapsforge-vtm
+        ] ) ) )
+        : false
+    ) : [], [segments] );
+
+    const {
+        nearestSimplifiedCoord,
+        nearestSimplifiedLocation,
+    } = ( () : {
+        nearestSimplifiedCoord?: NearestSimplifiedCoord;
+        nearestSimplifiedLocation?: LocationExtended;
+    } => {
+        if ( currentMapEvent?.center ) {
+            const centerPoint = turfPoint( [currentMapEvent?.center.lng, currentMapEvent.center.lat] );
+            const nearestSimplifiedCoord = [...lines].reduce( ( acc: any | number, line, index ) => {
+                if ( ! line || ! currentMapEvent?.center ) {
+                    return acc;
+                }
+                const nearest_ = nearestPoint( centerPoint, line );
+                // nearest.geometry.
+                if ( undefined === acc ) {
+                    return {
+                        segmentIndex: index,
+                        featureIndex: nearest_.properties.featureIndex,
+                        distanceToPoint: nearest_.properties.distanceToPoint,
+                    };
+                } else if (
+                    nearest_?.properties?.distanceToPoint
+                    && acc?.distanceToPoint
+                    && nearest_.properties.distanceToPoint < acc.distanceToPoint
+                ) {
+                    return {
+                        segmentIndex: index,
+                        featureIndex: nearest_.properties.featureIndex,
+                        distanceToPoint: nearest_.properties.distanceToPoint,
+                    };
+                } else {
+                    return acc;
+                }
+            }, undefined );
+
+
+            return {
+                nearestSimplifiedCoord,
+                nearestSimplifiedLocation: segments && nearestSimplifiedCoord && get( segments, [
+                    nearestSimplifiedCoord.segmentIndex,
+                    'coordinatesSimplified',
+                    nearestSimplifiedCoord.featureIndex
+                ], undefined ),
+            };
+
+        } else {
+            return {
+                nearestSimplifiedCoord: undefined,
+                nearestSimplifiedLocation: undefined,
+            };
+        }
+    } )();
 
     const updateSegmentForIndex = (
         segmentIndex: number,
@@ -251,7 +323,9 @@ const RoutingProvider = ( {
         setTriggeredMarkerIdx,
         triggeredSegment,
         setTriggeredSegment,
-        triggerSegmentsUpdate
+        triggerSegmentsUpdate,
+        nearestSimplifiedCoord,
+        nearestSimplifiedLocation,
     } } >
         { children }
     </RoutingContext.Provider>;

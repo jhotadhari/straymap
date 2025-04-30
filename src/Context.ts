@@ -6,7 +6,7 @@ import {
     Dispatch,
     SetStateAction,
 } from "react";
-import { MapEventResponse } from "react-native-mapsforge-vtm";
+import { LocationExtended, MapEventResponse } from "react-native-mapsforge-vtm";
 
 /**
  * Internal dependencies
@@ -26,6 +26,7 @@ import {
     RoutingPoint,
     RoutingTriggeredSegment,
     BottomBarHeight,
+    NearestSimplifiedCoord,
 } from "./types";
 
 export type AppContextType = {
@@ -90,6 +91,8 @@ export type RoutingContextType = {
     triggeredSegment?: RoutingTriggeredSegment;
     setTriggeredSegment?: Dispatch<SetStateAction<undefined | RoutingTriggeredSegment>>;
     triggerSegmentsUpdate?: () => void;
+    nearestSimplifiedCoord?: NearestSimplifiedCoord;
+    nearestSimplifiedLocation?: LocationExtended;
 };
 
 export const RoutingContext = createContext<RoutingContextType>( {} );
