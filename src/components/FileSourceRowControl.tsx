@@ -10,7 +10,6 @@ import {
     useState,
 } from 'react';
 import {
-    InteractionManager,
 	View,
 } from 'react-native';
 import {

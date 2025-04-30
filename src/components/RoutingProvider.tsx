@@ -326,13 +326,16 @@ const RoutingProvider = ( {
             setPoints( [] );
             setMovingPointIdx( undefined );
         }
+    }, [isRouting] );
+
+    useEffect( () => {
         if ( isRouting ) {
             setSavedExported( {
                 saved: false,
                 exported: false,
             } );
         }
-    }, [isRouting] );
+    }, [segments,points,isRouting] );
 
     return <RoutingContext.Provider value={ {
         savedExported,

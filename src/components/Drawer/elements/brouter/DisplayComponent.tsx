@@ -28,6 +28,8 @@ import ListItemMenuControl from '../../../generic/ListItemMenuControl';
 import InfoRowControl from '../../../generic/InfoRowControl';
 import InfoRadioRow from '../../../generic/InfoRadioRow';
 import { formatDistance, getUpDown } from '../../../../utils';
+import { LocationExtended } from 'react-native-mapsforge-vtm';
+import { createDocument } from 'react-native-scoped-storage';
 
 const itemHeight = 130;
 const itemPaddingH = 20;
@@ -406,6 +408,7 @@ const DisplayComponent = ( {
 
     const {
         savedExported,
+        setSavedExported,
         setMovingPointIdx,
         isRouting,
         setIsRouting,
@@ -413,6 +416,7 @@ const DisplayComponent = ( {
         segments,
         setSegments,
         triggerSegmentsUpdate,
+        stats,
     } = useContext( RoutingContext );
 
     const theme = useTheme();
@@ -565,9 +569,51 @@ const DisplayComponent = ( {
 
             <ButtonHighlight
                 mode='outlined'
-                onPress={ () => null }
+                onPress={ async () => {
+                    const allPositions = segments && segments?.length ? [...segments].map( ( segment ) => {
+                        return segment?.positions;
+                    } ).filter( segment => !! segment ).flat() : [];
+
+                    const gpxString = [
+                        '<?xml version="1.0" encoding="UTF-8"?>',
+                        '<gpx',
+                        '  xmlns="http://www.topografix.com/GPX/1/1"',
+                        '  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"',
+                        '  xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd"',
+                        '  version="1.1" >',
+                        '  <trk>',
+                        '    <trkseg>',
+                        ...[...allPositions].map( pos => '      <trkpt lat="' + pos.lat + '" lon="' + pos.lng + '">' + ( undefined !== pos?.alt
+                            ? '<ele>' + pos?.alt + '</ele>'
+                            : ''
+                        ) + '</trkpt>' ),
+                        '    </trkseg>',
+                        '  </trk>',
+                        '</gpx>',
+                    ].join( '\n' );
+
+                    const fileName = [
+                        Math.round( ( stats?.distance || 0 ) / 1000 ) + 'km',
+                        Math.round( stats?.up || 0 ) + 'm_up',
+                        Math.round( stats?.down || 0 ) + 'm_down',
+                    ].join( '_' ) + '.gpx';
+
+                    const file = await createDocument(
+                        fileName,
+                        'application/gpx+xml',
+                        gpxString,
+                        'utf8'
+                    );
+
+                    if ( file && setSavedExported ) {
+                        setSavedExported( savedExported => ( {
+                            ...savedExported,
+                            exported: true,
+                        } ) );
+                    }
+                } }
             >
-                <Text>{ t( 'export TODO???'  ) }</Text>
+                <Text>{ t( 'export???'  ) }</Text>
             </ButtonHighlight>
         </View> }
 
