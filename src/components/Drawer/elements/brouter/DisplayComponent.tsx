@@ -32,6 +32,73 @@ import { formatDistance } from '../../../../utils';
 const itemHeight = 130;
 const itemPaddingH = 20;
 
+const SegmentInfo = ( {
+    segment,
+} : {
+    segment: RoutingSegment;
+} ) => {
+
+    const {
+        generalSettings,
+    } = useContext( AppContext );
+
+    if ( segment?.coordinatesSimplified
+        && segment.coordinatesSimplified.length > 0
+        && undefined !== segment.coordinatesSimplified[segment.coordinatesSimplified.length-1].distance
+        && undefined !== generalSettings?.unitPrefs.distance
+    ) {
+        const distanceString = formatDistance(
+            segment.coordinatesSimplified[segment.coordinatesSimplified.length-1].distance || 0,
+            generalSettings?.unitPrefs.distance
+        );
+
+        const {
+            up,
+            down,
+        } = segment.coordinatesSimplified.reduce( ( acc, coord, index ) => {
+            if ( 0 === index || ! segment?.coordinatesSimplified ) {
+                return acc;
+            }
+            const prevCoord = segment.coordinatesSimplified[index-1];
+            const altDiff = undefined !== coord?.alt && undefined !== prevCoord?.alt
+                ? coord?.alt - prevCoord.alt
+                : 0;
+            if ( altDiff > 0 ) {
+                acc.up = acc.up + altDiff;
+            } else {
+                acc.down = acc.down + altDiff;
+            }
+            return acc;
+        }, {
+            up: 0,
+            down: 0,
+        } )
+
+        return  <View style={ {
+            justifyContent: 'flex-start',
+            alignItems: 'center',
+            flexDirection: 'row',
+            flexGrow: 1,
+            // marginRight: 10,
+        } }>
+
+            <Text style={ { marginRight: 5 } }>{ distanceString }</Text>
+            <Icon
+                source="arrow-up"
+                size={ 15 }
+            /><Text style={ { marginRight: 5 } }>{ Math.round( up ) + ' m' }{ /* ??? should format with units */}</Text>
+            <Icon
+                source="arrow-down"
+                size={ 15 }
+            /><Text style={ { marginRight: 5 } }>{ Math.round( down * -1 ) + ' m' }{ /* ??? should format with units */}</Text>
+
+        </View>
+
+    } else {
+        return null;
+    }
+}
+
 const DraggableItem = ( {
     item,
     width,
@@ -57,10 +124,6 @@ const DraggableItem = ( {
         setSegments,
         triggerSegmentsUpdate,
     } = useContext( RoutingContext );
-
-    const {
-        generalSettings,
-    } = useContext( AppContext );
 
     const segmentIdx = segments ? segments.findIndex( segment =>
         segment.fromKey === item.key
@@ -88,14 +151,14 @@ const DraggableItem = ( {
                 size={ 25 }
             />;
             break;
-        case ( !! ( segment && ! segment?.isFetching && segment?.positions ) ):
-            // ok
-            StateIcon = <Icon
-                source="check"
-                size={ 25 }
-                color={ get( theme, ['colors','success'], undefined ) }
-            />;
-            break;
+        // case ( !! ( segment && ! segment?.isFetching && segment?.positions ) ):
+        //     // ok
+        //     StateIcon = <Icon
+        //         source="check"
+        //         size={ 25 }
+        //         color={ get( theme, ['colors','success'], undefined ) }
+        //     />;
+        //     break;
     }
 
     return <View
@@ -162,12 +225,8 @@ const DraggableItem = ( {
             )
         ) && <View style={ {
             alignItems: 'center',
-            // position: 'relative',
             justifyContent: 'flex-start',
             backgroundColor: theme.colors.surfaceDisabled,
-            // marginLeft: -8,
-            // paddingRight: itemPaddingH + 1,
-            // paddingLeft: 20,
             width: width - itemPaddingH * 2 - 10,
             marginRight: -5,
             borderLeftWidth: 1,
@@ -177,22 +236,13 @@ const DraggableItem = ( {
                 justifyContent: 'flex-start',
                 alignItems: 'center',
                 flexDirection: 'row',
-                // width: width - itemPaddingH * 2,
-                // marginLeft: itemPaddingH,
+                marginLeft: StateIcon ? 0 : 10,
             } }>
-                <View style={ { marginRight: -4, padding: 10 } }>{ StateIcon ? StateIcon : null }</View>
+                { StateIcon && <View style={ { marginRight: -4, padding: 10 } }>{ StateIcon }</View> }
 
                 { segment?.errorMsg && <Text style={ { marginRight: 10, flexGrow: 1 } }>{ 'Error' + ': ' + segment?.errorMsg }</Text> }
 
-                <Text style={ { marginRight: 10, flexGrow: 1 } }>
-                    { segment?.coordinatesSimplified
-                        && segment.coordinatesSimplified.length > 0
-                        && undefined !== segment.coordinatesSimplified[segment.coordinatesSimplified.length-1].distance
-                        && undefined !== generalSettings?.unitPrefs.distance ? formatDistance(
-                            segment.coordinatesSimplified[segment.coordinatesSimplified.length-1].distance || 0,
-                            generalSettings?.unitPrefs.distance
-                    ) : '' }
-                </Text>
+                <SegmentInfo segment={ segment }/>
 
                 {/* { ! segment?.isFetching && segment?.positions && <Text style={ { marginRight: 10, flexGrow: 1 } }>{ 'positions' + ': ' + segment?.positions.length }</Text> } */}
 
@@ -216,8 +266,6 @@ const DraggableItem = ( {
                         size={ 25 }
                     />
                 </ButtonHighlight>
-
-
 
             </View>
 
