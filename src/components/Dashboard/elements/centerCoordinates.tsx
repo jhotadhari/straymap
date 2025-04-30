@@ -2,6 +2,7 @@
  * External dependencies
  */
 import React, {
+    useContext,
     useEffect,
     useState,
 } from 'react';
@@ -24,6 +25,7 @@ import InfoRowControl from '../../generic/InfoRowControl';
 import { NumericRowControl } from '../../generic/NumericRowControls';
 import { options as unitPrefControlOptions } from '../../UnitPrefControl';
 import { DashboardDisplayComponentProps, DashboardElementConf, UnitPref } from "../../../types";
+import { MapContext } from '../../../Context';
 
 const opts = [
     {
@@ -111,12 +113,16 @@ const ControlComponent = ( {
 };
 
 const DisplayComponent = ( {
-    currentMapEvent,
     dashboardElement,
     style = {},
     unitPrefs,
     dashboardStyle,
 } : DashboardDisplayComponentProps ) => {
+
+    const {
+		currentMapEvent,
+    } = useContext( MapContext );
+
     const unit = 'default' === get( dashboardElement, ['options','unit','key'], 'default' )
         ? {
             ...get( unitPrefs, 'coordinates' ),
@@ -131,7 +137,7 @@ const DisplayComponent = ( {
         minWidth: get( dashboardElement, ['style','minWidth'], undefined ),
         ...style,
     } }>
-        { currentMapEvent.center && <Text style={ {
+        { currentMapEvent && currentMapEvent?.center && <Text style={ {
             fontSize,
         } }>{ formatcoords( currentMapEvent.center).format( get( {
             // https://www.npmjs.com/package/formatcoords#user-content-formatting

@@ -14,7 +14,6 @@ import { View } from "react-native";
 import IconIcomoon from '../../generic/IconIcomoon';
 
 const DisplayComponent = ({
-    // currentMapEvent,
     // dashboardElement,
     // style = {},
     // unitPrefs,

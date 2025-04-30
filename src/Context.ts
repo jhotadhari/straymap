@@ -11,7 +11,22 @@ import { MapEventResponse } from "react-native-mapsforge-vtm";
 /**
  * Internal dependencies
  */
-import { ThemeOption, OptionBase, HierarchyItem, AbsPathsMap, MapSettings, LayerConfig, MapsforgeProfile, AppearanceSettings, GeneralSettings, UiState, RoutingSegment, RoutingPoint, RoutingTriggeredSegment, BottomBarHeight } from "./types";
+import {
+    ThemeOption,
+    OptionBase,
+    HierarchyItem,
+    AbsPathsMap,
+    MapSettings,
+    LayerConfig,
+    MapsforgeProfile,
+    AppearanceSettings,
+    GeneralSettings,
+    UiState,
+    RoutingSegment,
+    RoutingPoint,
+    RoutingTriggeredSegment,
+    BottomBarHeight,
+} from "./types";
 
 export type AppContextType = {
 	appDirs?: AbsPathsMap;
@@ -38,11 +53,16 @@ export type AppContextType = {
     isBusy?: boolean;
 	maybeIsBusyAdd?: ( key: string ) => void;
 	maybeIsBusyRemove?: ( key: string ) => void;
-    currentMapEvent?: MapEventResponse;
     mapHeight?: number;
 };
 
 export const AppContext = createContext<AppContextType>( {} );
+
+export type MapContextType = {
+    currentMapEvent?: MapEventResponse;
+    setCurrentMapEvent?: Dispatch<SetStateAction<MapEventResponse>>;
+};
+export const MapContext = createContext<MapContextType>( {} );
 
 export type RoutingContextType = {
     savedExported?: {

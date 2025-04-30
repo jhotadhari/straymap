@@ -17,17 +17,15 @@ import { usePrevious } from 'victory-native';
 /**
  * Internal dependencies
  */
-import { AppContext, RoutingContext } from '../../../../Context';
+import { AppContext, MapContext, RoutingContext } from '../../../../Context';
 import MenuItem from '../../../generic/MenuItem';
 import { RoutingPoint } from '../../../../types';
 import { runAfterInteractions } from '../../../../utils';
 
 const IconActions = ( {
     style,
-    currentMapEvent,
 } : {
     style: TextStyle,
-    currentMapEvent: MapEventResponse;
 }) => {
 
     const {
@@ -49,6 +47,10 @@ const IconActions = ( {
 		movingPointIdx,
 		setMovingPointIdx,
     } = useContext( RoutingContext );
+
+    const {
+		currentMapEvent,
+    } = useContext( MapContext );
 
     const { width } = useSafeAreaFrame();
     const theme = useTheme();

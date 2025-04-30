@@ -276,7 +276,6 @@ const DashboardControl = () => {
 	const {
 		generalSettings,
 		setGeneralSettings,
-		currentMapEvent,
 	} = useContext( AppContext );
 
     const [menuVisible,setMenuVisible] = useState( false );
@@ -439,7 +438,7 @@ const DashboardControl = () => {
             anchorIcon={ ( { color, style } ) => <MaterialIcons style={ style } name="dashboard" size={ 25 } color={ color } /> }
             header={ t( 'dashboard' ) }
             hasHeaderBackPress={ true }
-            belowModal={ currentMapEvent && generalSettings?.unitPrefs ? <View style={ {
+            belowModal={ generalSettings?.unitPrefs ? <View style={ {
                 width,
                 marginTop: 20,
                 borderColor: theme.colors.outline,
@@ -452,7 +451,6 @@ const DashboardControl = () => {
                     outerWidth={ width }
                     elements={ dashboardElementConfigs }
                     dashboardStyle={ dashboardStyle }
-                    currentMapEvent={ currentMapEvent }
                     unitPrefs={ generalSettings?.unitPrefs }
                 />
             </View> : null }

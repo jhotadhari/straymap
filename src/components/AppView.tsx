@@ -5,7 +5,6 @@ import React, {
 	Dispatch,
 	SetStateAction,
 	useContext,
-    useState,
 } from 'react';
 import {
 	StatusBar,
@@ -14,11 +13,10 @@ import {
 } from 'react-native';
 import 'intl-pluralrules';
 import {
-	useTheme,
+    useTheme,
 } from 'react-native-paper';
 import { get } from 'lodash-es';
 import { SafeAreaView, useSafeAreaFrame } from 'react-native-safe-area-context';
-
 /**
  * react-native-mapsforge-vtm dependencies
  */
@@ -61,7 +59,7 @@ import type {
     BottomBarHeight,
     RoutingSegment,
 } from '../types';
-import { AppContext, RoutingContext } from '../Context';
+import { AppContext, MapContext, RoutingContext } from '../Context';
 import Center from './Center';
 import { Dashboard } from './Dashboard';
 import { Drawers } from './Drawer';
@@ -77,7 +75,6 @@ const AppView = ( {
     setInitialPosition,
     setTopAppBarHeight,
     setBottomBarHeight,
-    setCurrentMapEvent,
     setMapViewNativeNodeHandle,
     layerInfos,
     onLayerChange,
@@ -87,7 +84,6 @@ const AppView = ( {
     setInitialPosition: Dispatch<SetStateAction<null | InitialPosition>>;
     setTopAppBarHeight: Dispatch<SetStateAction<number>>;
     setBottomBarHeight: Dispatch<SetStateAction<BottomBarHeight>>;
-    setCurrentMapEvent: Dispatch<SetStateAction<MapEventResponse>>;
     setMapViewNativeNodeHandle: Dispatch<SetStateAction<null | number>>;
     layerInfos: LayerInfos;
     onLayerChange: ( key: string, response: LayerMapsforgeResponse | LayerMBTilesBitmapResponse ) => void;
@@ -104,9 +100,12 @@ const AppView = ( {
 		appDirs,
 		mapSettings,
 		generalSettings,
-		currentMapEvent,
 		mapHeight,
     } = useContext( AppContext );
+
+    const {
+		setCurrentMapEvent,
+    } = useContext( MapContext );
 
     const {
 		isRouting,
@@ -396,7 +395,6 @@ const AppView = ( {
             <Drawers
                 height={ mapHeight || 0 }
                 outerWidth={ width }
-                currentMapEvent={ currentMapEvent || {} }
             />
 
             <MapLayersAttribution
@@ -414,7 +412,6 @@ const AppView = ( {
             elements={ generalSettings.dashboardElements.elements }
             dashboardStyle={ generalSettings.dashboardElements.style }
             unitPrefs={ generalSettings.unitPrefs }
-            currentMapEvent={ currentMapEvent || {} }
             setBottomBarHeight={ setBottomBarHeight }
             outerWidth={ width }
         /> }

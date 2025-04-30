@@ -9,7 +9,6 @@ import { useTranslation } from 'react-i18next';
 import { View } from "react-native";
 
 const DisplayComponent = ({
-    // currentMapEvent,
     // dashboardElement,
     // style = {},
     // unitPrefs,

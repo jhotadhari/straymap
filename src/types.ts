@@ -230,7 +230,6 @@ export type GeneralSettings = {
 
 export type DashboardDisplayComponentProps = {
 	dashboardElement: DashboardElementConf;
-	currentMapEvent: MapEventResponse;
 	style?: ViewStyle;
 	unitPrefs: { [value: string]: UnitPref };
 	dashboardStyle: DashboardStyle;

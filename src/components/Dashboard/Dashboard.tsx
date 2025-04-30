@@ -17,14 +17,12 @@ const Dashboard = ( {
     elements,
     dashboardStyle,
     unitPrefs,
-    currentMapEvent,
     setBottomBarHeight,
     outerWidth,
 } : {
     elements: DashboardElementConf[];
     dashboardStyle: DashboardStyle;
 	unitPrefs: { [value: string]: UnitPref };
-    currentMapEvent: MapEventResponse;
     setBottomBarHeight?: Dispatch<SetStateAction<BottomBarHeight>>;
     outerWidth: number;
 } ) => {
@@ -69,7 +67,6 @@ const Dashboard = ( {
                     paddingRight: 10,
                 } }
                 dashboardElement={ element }
-                currentMapEvent={ currentMapEvent }
                 unitPrefs={ unitPrefs }
                 dashboardStyle={ dashboardStyle }
             /> : null;

@@ -26,14 +26,12 @@ const DrawerInner = ( {
 	drawerWidth,
 	drawerHeight,
 	side,
-	currentMapEvent,
 	expand,
 } : {
 	activeElement: any;
 	drawerWidth: number;
 	drawerHeight: number;
 	side: string;
-	currentMapEvent: MapEventResponse;
 	expand: DrawerState['expand'];
 } ) => {
 	if ( ! activeElement ) {
@@ -53,7 +51,6 @@ const DrawerInner = ( {
 			drawerWidth={ drawerWidth }
 			drawerHeight={ drawerHeight }
 			drawerSide={ side }
-			currentMapEvent={ currentMapEvent }
 			expand={ expand }
 		/>
 	</View>;
@@ -68,7 +65,6 @@ const DrawerHandle = ( {
 	gesture,
 	getIsFullyCollapsed,
 	expand,
-	currentMapEvent,
 } : {
 	index: number;
 	side: string;
@@ -78,7 +74,6 @@ const DrawerHandle = ( {
 	gesture: ComposedGesture | GestureType;
 	getIsFullyCollapsed: () => boolean;
 	expand: ( expanded: boolean ) => void;
-	currentMapEvent: MapEventResponse;
 } ) => {
 	const theme = useTheme();
 	const IconActions = get( drawerElementComponents, [element.type as string, 'IconActions'] );
@@ -153,7 +148,6 @@ const DrawerHandle = ( {
 			} }>
 				<IconActions
 					drawerSide={ side }
-					currentMapEvent={ currentMapEvent }
 					style={ {
 						color,
 						backgroundColor: theme.colors.background,
@@ -179,12 +173,10 @@ const Drawer = ( {
 		expand,
 		getIsFullyCollapsed,
 	},
-	currentMapEvent,
 } : {
 	elements: any;
 	height: number;
 	drawerState: DrawerState;
-	currentMapEvent: MapEventResponse;
 } ) => {
 
 	const theme = useTheme();
@@ -215,7 +207,6 @@ const Drawer = ( {
 				gesture={ gesture }
 				getIsFullyCollapsed={ getIsFullyCollapsed }
 				expand={ expand }
-				currentMapEvent={ currentMapEvent }
 			/> ) }
 
 			{ activeElement && showInner && <DrawerInner
@@ -223,7 +214,6 @@ const Drawer = ( {
 				side={ side }
 				drawerWidth={ drawerWidth }
 				drawerHeight={ height }
-				currentMapEvent={ currentMapEvent }
 				expand={ expand }
 			/> }
 

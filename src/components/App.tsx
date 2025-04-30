@@ -59,7 +59,7 @@ import type {
 	BottomBarHeight,
 } from '../types';
 import customThemes from '../themes';
-import { AppContext, RoutingContext } from '../Context';
+import { AppContext, MapContext, RoutingContext } from '../Context';
 import { HelperModule } from '../nativeModules';
 import { defaults } from '../constants';
 import SplashScreen from './SplashScreen';
@@ -695,24 +695,27 @@ const App = ( {
 		isBusy,
 		maybeIsBusyAdd,
 		maybeIsBusyRemove,
-		currentMapEvent,
 		mapHeight: ( appInnerHeight || height ) - ( Object.values( bottomBarHeight ).reduce( ( acc, nb ) => acc + nb, 0 ) || 0 ),
 	} }>
-		<RoutingProvider>
-			<GestureHandlerRootView>
-				<AppView
-					showSplash={ showSplash }
-					initialPosition={ initialPosition as InitialPosition }
-					setInitialPosition={ setInitialPosition }
-					setTopAppBarHeight={ setTopAppBarHeight }
-					setBottomBarHeight={ setBottomBarHeight }
-					setCurrentMapEvent={ setCurrentMapEvent }
-					setMapViewNativeNodeHandle={ setMapViewNativeNodeHandle }
-					layerInfos={ layerInfos }
-					onLayerChange={ onLayerChange }
-				/>
-			</GestureHandlerRootView>
-		</RoutingProvider>
+		<MapContext.Provider value={ {
+			currentMapEvent,
+			setCurrentMapEvent,
+		} }>
+			<RoutingProvider>
+				<GestureHandlerRootView>
+					<AppView
+						showSplash={ showSplash }
+						initialPosition={ initialPosition as InitialPosition }
+						setInitialPosition={ setInitialPosition }
+						setTopAppBarHeight={ setTopAppBarHeight }
+						setBottomBarHeight={ setBottomBarHeight }
+						setMapViewNativeNodeHandle={ setMapViewNativeNodeHandle }
+						layerInfos={ layerInfos }
+						onLayerChange={ onLayerChange }
+					/>
+				</GestureHandlerRootView>
+			</RoutingProvider>
+		</MapContext.Provider>
 	</AppContext.Provider>;
 };
 

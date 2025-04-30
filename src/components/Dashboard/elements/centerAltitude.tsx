@@ -27,7 +27,7 @@ import { DashboardDisplayComponentProps, DashboardElementConf, UnitPref } from "
 import { TFunction } from 'i18next';
 import { roundTo } from '../../../utils';
 import { NumericRowControl } from '../../generic/NumericRowControls';
-import { AppContext } from '../../../Context';
+import { AppContext, MapContext } from '../../../Context';
 import { defaults } from '../../../constants';
 import { styles as mdStyles } from '../../../markdown/styles';
 
@@ -144,7 +144,6 @@ const formatOutput = ( altitudeM: ( number | null ), unit: UnitPref, t: TFunctio
 };
 
 const DisplayComponent = ( {
-    currentMapEvent,
     dashboardElement,
     style = {},
     unitPrefs,
@@ -152,6 +151,10 @@ const DisplayComponent = ( {
 } : DashboardDisplayComponentProps ) => {
 
     const { t } = useTranslation();
+
+    const {
+        currentMapEvent,
+    } = useContext( MapContext );
 
     const unit = 'default' === get( dashboardElement, ['options','unit','key'], 'default' )
         ? {
@@ -170,7 +173,7 @@ const DisplayComponent = ( {
         minWidth: get( dashboardElement, ['style','minWidth'], undefined ),
         ...style,
     } }>
-        { currentMapEvent.center && currentMapEvent?.center.hasOwnProperty( 'alt' ) && <Text style={ {
+        { currentMapEvent && currentMapEvent?.center && currentMapEvent?.center.hasOwnProperty( 'alt' ) && <Text style={ {
             fontSize,
         } }>{
             formatOutput( currentMapEvent.center.alt as ( number | null ), unit, t )

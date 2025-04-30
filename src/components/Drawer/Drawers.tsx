@@ -2,10 +2,11 @@ import { View } from "react-native";
 import { useState } from "react";
 import { SharedValue, useAnimatedStyle, useSharedValue } from "react-native-reanimated";
 import { Gesture } from "react-native-gesture-handler";
-
-import Drawer, { DrawerState } from "./Drawer";
 import { MapEventResponse } from "react-native-mapsforge-vtm";
 import { clamp } from "lodash-es";
+
+import Drawer from "./Drawer";
+import { DrawerState } from "../../types";
 
 const useDrawerState = ({
     side,
@@ -97,12 +98,10 @@ const Drawers = ({
     drawerWidth = 300,
     outerWidth,
     height,
-    currentMapEvent,
 }: {
     drawerWidth?: number;
     outerWidth: number;
     height: number;
-    currentMapEvent: MapEventResponse;
 }) => {
 
     const translationXLeft = useSharedValue(- drawerWidth);
@@ -141,7 +140,6 @@ const Drawers = ({
             ]}
             drawerState={drawerStateLeft}
             height={height}
-            currentMapEvent={currentMapEvent}
         />
 
         <Drawer
@@ -158,7 +156,6 @@ const Drawers = ({
             ]}
             drawerState={drawerStateRight}
             height={height}
-            currentMapEvent={currentMapEvent}
         />
 
     </View>;
