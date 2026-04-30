@@ -266,7 +266,8 @@ const AppView = ( {
 
                 <LayerScalebar/>
 
-                <RoutingMapView/>   { /* has to be last. bug until MapContainer.View is mixing up reactTreeIndex */ }
+                { /* has to be last. bug until MapContainer.View is mixing up reactTreeIndex */ }
+                <RoutingMapView/>
 
             </MapContainer>
 

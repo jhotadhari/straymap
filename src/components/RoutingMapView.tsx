@@ -51,7 +51,11 @@ const RoutingMapView = () => {
         setTriggeredSegment,
     } = useContext( RoutingContext );
 
-    return isRouting ? <MapContainer.View>
+    if ( ! isRouting ) {
+        return null;
+    }
+
+    return <MapContainer.View>
 
         { segments && segments.length > 0 && [...segments].map( ( segment, index ) => {
             if (
@@ -110,7 +114,7 @@ const RoutingMapView = () => {
                         nearestPoint: response.nearestPoint
                     } );
                 } }
-            />;
+            />
         } ) }
 
         {/* { undefined !== movingPointIdx && currentMapEvent?.center && points && points.length > movingPointIdx-1 && <LayerPath
@@ -152,7 +156,7 @@ const RoutingMapView = () => {
 
         {/* <NearestToLine/> */}
 
-    </MapContainer.View> : null;
+    </MapContainer.View>;
 };
 
 export default RoutingMapView;
