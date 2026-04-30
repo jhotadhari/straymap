@@ -3,6 +3,7 @@
  */
 import React, {
 	Dispatch,
+	MutableRefObject,
 	SetStateAction,
 	useEffect,
 	useRef,
@@ -219,7 +220,7 @@ const AppWrapper = () => {
 	</PaperProvider>;
 };
 
-const useInitialCenter = ( currentMapEvent: MapEventResponse ) => {
+const useInitialCenter = ( currentMapEventRef: MutableRefObject<MapEventResponse | null> ) => {
 	const [initialized,setInitialized] = useState( false );
 	const [initialPosition,setInitialPosition] = useState<null | InitialPosition>( null );
 	useEffect( () => {
@@ -255,11 +256,6 @@ const useInitialCenter = ( currentMapEvent: MapEventResponse ) => {
 	useEffect( () => {
 		intervalIdRef.current = intervalId;
 	}, [intervalId] );
-	// Store currentMapEvent in ref
-	const currentMapEventRef = useRef<MapEventResponse>( currentMapEvent );
-	useEffect( () => {
-		currentMapEventRef.current = currentMapEvent;
-	}, [currentMapEvent] );
 	useEffect( () => {
 		if ( initialized && currentMapEventRef?.current && null === intervalIdRef.current ) {
 			const newIntervalId = setInterval( () => {
@@ -499,7 +495,8 @@ const App = ( {
 	const [topAppBarHeight,setTopAppBarHeight] = useState<number>( 0 );
 	const [bottomBarHeight,setBottomBarHeight] = useState<BottomBarHeight>( {} );
 	const [selectedHierarchyItems,setSelectedHierarchyItems] = useState<null | HierarchyItem[]>( null );
-    const [currentMapEvent,setCurrentMapEvent] = useState<MapEventResponse>( {} );
+
+	const currentMapEventRef = useRef<MapEventResponse | null>( null );
 
 	const {
 		isBusy,
@@ -603,7 +600,7 @@ const App = ( {
 	const {
 		initialPosition,
 		setInitialPosition,
-	} = useInitialCenter( currentMapEvent );
+	} = useInitialCenter( currentMapEventRef );
 
 	const {
 		layerInfos,
@@ -698,8 +695,7 @@ const App = ( {
 		mapHeight: ( appInnerHeight || height ) - ( Object.values( bottomBarHeight ).reduce( ( acc, nb ) => acc + nb, 0 ) || 0 ),
 	} }>
 		<MapContext.Provider value={ {
-			currentMapEvent,
-			setCurrentMapEvent,
+			currentMapEventRef,
 		} }>
 			<RoutingProvider>
 				<GestureHandlerRootView>

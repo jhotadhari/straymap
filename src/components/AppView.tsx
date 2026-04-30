@@ -101,7 +101,7 @@ const AppView = ( {
     } = useContext( AppContext );
 
     const {
-		setCurrentMapEvent,
+		currentMapEventRef,
     } = useContext( MapContext );
 
     if (
@@ -169,7 +169,7 @@ const AppView = ( {
                 onResume={ response => console.log( 'lifecycle event onResume', response ) }
                 onMapEvent={ ( response: MapEventResponse ) => {
                     // console.log( 'onMapEvent event', response ); // debug
-                    setCurrentMapEvent && setCurrentMapEvent( response );   // ??? Throws error max update depth exceeded Maybe change to ref.
+                    currentMapEventRef.current = response;
                 } }
                 emitsHardwareKeyUp={ [...generalSettings.hardwareKeys].filter( keyConf => 'none' !== keyConf.actionKey ).map( keyConf => keyConf.keyCodeString ) as MapContainerProps['emitsHardwareKeyUp'] }
                 onHardwareKeyUp={ generalSettings.hardwareKeys.length > 0 ? ( response: HardwareKeyEventResponse ) => {

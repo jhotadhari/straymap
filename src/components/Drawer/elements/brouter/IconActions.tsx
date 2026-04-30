@@ -10,7 +10,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { PixelRatio, TextStyle } from "react-native";
 import rnUuid from 'react-native-uuid';
-import { MapEventResponse, MapLayerMarkerModule, MapLayerPathSlopeGradientModule } from 'react-native-mapsforge-vtm';
+import { MapLayerMarkerModule, MapLayerPathSlopeGradientModule } from 'react-native-mapsforge-vtm';
 import { useSafeAreaFrame } from 'react-native-safe-area-context';
 import { usePrevious } from 'victory-native';
 
@@ -49,7 +49,7 @@ const IconActions = ( {
     } = useContext( RoutingContext );
 
     const {
-		currentMapEvent,
+		currentMapEventRef,
     } = useContext( MapContext );
 
     const { width } = useSafeAreaFrame();
@@ -82,12 +82,12 @@ const IconActions = ( {
             label: 'appendPoint',
             onPress: () => {
 				dismissMenu();
-                if ( setPoints && points && currentMapEvent?.center ) {
+                if ( setPoints && points && currentMapEventRef?.current?.center ) {
                     setPoints( [
                         ...points,
                         {
                             key: rnUuid.v4(),
-                            location: currentMapEvent?.center,
+                            location: currentMapEventRef?.current?.center,
                         }
                     ] );
                 }
@@ -178,12 +178,12 @@ const IconActions = ( {
             value: 'setPointPosition',
             label: 'setPointPosition',
             onPress: () => {
-                if ( setPoints && points && undefined !== movingPointIdx && currentMapEvent?.center ) {
+                if ( setPoints && points && undefined !== movingPointIdx && currentMapEventRef?.current?.center ) {
                     const newPoints = [...points];
                     const newPoint : RoutingPoint = {
                         ...points[movingPointIdx],
                         key: rnUuid.v4(),
-                        location: currentMapEvent?.center,
+                        location: currentMapEventRef?.current?.center,
                     };
                     newPoints.splice( movingPointIdx, 1, newPoint );
                     setPoints( newPoints );

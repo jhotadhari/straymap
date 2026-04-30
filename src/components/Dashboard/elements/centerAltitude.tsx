@@ -4,6 +4,7 @@
 import React, {
     useContext,
     useEffect,
+    useRef,
     useState,
 } from 'react';
 import {
@@ -153,7 +154,7 @@ const DisplayComponent = ( {
     const { t } = useTranslation();
 
     const {
-        currentMapEvent,
+        currentMapEventRef,
     } = useContext( MapContext );
 
     const unit = 'default' === get( dashboardElement, ['options','unit','key'], 'default' )
@@ -169,15 +170,26 @@ const DisplayComponent = ( {
     let fontSize = get( dashboardElement, ['style','fontSize'], 'default' );
     fontSize = 'default' === fontSize ? dashboardStyle.fontSize : fontSize;
 
+    const [altitudeM, setAltitudeM] = useState<number | null>( null );
+	const intervalRef = useRef<NodeJS.Timeout | null>(null);
+    useEffect( () => {
+        intervalRef.current = setInterval(() => {
+            setAltitudeM( currentMapEventRef?.current?.center?.alt || null );
+        }, 40 );   // ??? 40???
+        return () => {
+            intervalRef.current && clearInterval( intervalRef.current );
+        };
+    }, [] );
+
     return <View style={ {
         minWidth: get( dashboardElement, ['style','minWidth'], undefined ),
         ...style,
     } }>
-        { currentMapEvent && currentMapEvent?.center && currentMapEvent?.center.hasOwnProperty( 'alt' ) && <Text style={ {
+        <Text style={ {
             fontSize,
         } }>{
-            formatOutput( currentMapEvent.center.alt as ( number | null ), unit, t )
-        }</Text> }
+            formatOutput( altitudeM, unit, t )
+        }</Text>
     </View>;
 };
 

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import {
 	Text,
 } from 'react-native-paper';
@@ -13,6 +13,7 @@ import { View } from "react-native";
  */
 import { DashboardDisplayComponentProps } from "../../../types";
 import { MapContext } from '../../../Context';
+import { MapEventResponse } from 'react-native-mapsforge-vtm';
 
 const DisplayComponent = ( {
     dashboardElement,
@@ -21,8 +22,19 @@ const DisplayComponent = ( {
 } : DashboardDisplayComponentProps ) => {
 
     const {
-		currentMapEvent,
+		currentMapEventRef,
     } = useContext( MapContext );
+
+    const [zoomLevel, setZoomLevel] = useState<MapEventResponse['zoomLevel']>( undefined );
+    const intervalRef = useRef<NodeJS.Timeout | null>(null);
+    useEffect( () => {
+        intervalRef.current = setInterval(() => {
+            setZoomLevel( currentMapEventRef?.current?.zoomLevel );
+        }, 40 );   // ??? 40???
+        return () => {
+            intervalRef.current && clearInterval( intervalRef.current );
+        };
+    }, [] );
 
     let fontSize = get( dashboardElement, ['style','fontSize'], 'default' );
     fontSize = 'default' === fontSize ? dashboardStyle.fontSize : fontSize;
@@ -31,9 +43,9 @@ const DisplayComponent = ( {
         minWidth: get( dashboardElement, ['style','minWidth'], undefined ),
         ...style,
     } }>
-        { currentMapEvent && undefined !== currentMapEvent?.zoomLevel && <Text style={ {
+        { zoomLevel && <Text style={ {
             fontSize,
-        } }>{ currentMapEvent.zoomLevel }</Text>  }
+        } }>{ zoomLevel }</Text>  }
     </View>;
 };
 

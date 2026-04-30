@@ -3,7 +3,9 @@
  */
 import {
     createContext,
+    createRef,
     Dispatch,
+    MutableRefObject,
     SetStateAction,
 } from "react";
 import { LocationExtended, MapEventResponse } from "react-native-mapsforge-vtm";
@@ -61,10 +63,11 @@ export type AppContextType = {
 export const AppContext = createContext<AppContextType>( {} );
 
 export type MapContextType = {
-    currentMapEvent?: MapEventResponse;
-    setCurrentMapEvent?: Dispatch<SetStateAction<MapEventResponse>>;
+    currentMapEventRef: MutableRefObject<MapEventResponse | null>;
 };
-export const MapContext = createContext<MapContextType>( {} );
+export const MapContext = createContext<MapContextType>( {
+    currentMapEventRef: createRef<MapEventResponse>(),
+} );
 
 export type RoutingContextType = {
     savedExported?: {

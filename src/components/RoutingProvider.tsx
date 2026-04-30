@@ -7,6 +7,7 @@ import {
 	useContext,
 	useEffect,
 	useMemo,
+	useRef,
 	useState,
 } from 'react';
 import { get, pick } from 'lodash-es';
@@ -116,7 +117,7 @@ const RoutingProvider = ( {
 } ) => {
 
     const {
-        currentMapEvent,
+        currentMapEventRef,
     } = useContext( MapContext );
 
     const [savedExported,setSavedExported] = useState( {
@@ -137,8 +138,8 @@ const RoutingProvider = ( {
     const [shouldSegmentsUpdate, setShouldSegmentsUpdate] = useState<number>( 0 );
     const triggerSegmentsUpdate = () => setShouldSegmentsUpdate( Math.random() );
 
-    const lines = useMemo( () => segments ? [...segments].map( segment => segment?.coordinatesSimplified
-        ? featureCollection( [...segment.coordinatesSimplified].map( coord => turfPoint( [
+    const lines = useMemo( () => segments ? segments.map( segment => segment?.coordinatesSimplified
+        ? featureCollection( segment.coordinatesSimplified.map( coord => turfPoint( [
             coord.lng,  // ??? should be other way around. shit in react-native-mapsforge-vtm
             coord.lat,  // ??? should be other way around. shit in react-native-mapsforge-vtm
         ] ) ) )
@@ -147,17 +148,34 @@ const RoutingProvider = ( {
 
     const stats = useRoutingStats( segments );
 
+    const [centerLng, setCenterLng] = useState<number | undefined>( undefined );
+    const [centerLat, setCenterLat] = useState<number | undefined>( undefined );
+    const intervalRef = useRef<NodeJS.Timeout | null>(null);
+    useEffect( () => {
+        intervalRef.current = setInterval(() => {
+            setCenterLng( currentMapEventRef?.current?.center?.lng );
+            setCenterLat( currentMapEventRef?.current?.center?.lat );
+        }, 40 );   // ??? 40???
+        return () => {
+            intervalRef.current && clearInterval( intervalRef.current );
+        };
+    }, [] );
+
+    // Thats a bit weird!!! rewrite that please haha
     const {
         nearestSimplifiedCoord,
         nearestSimplifiedLocation,
-    } = ( () : {
+    } = useMemo( () : {
         nearestSimplifiedCoord?: NearestSimplifiedCoord;
         nearestSimplifiedLocation?: LocationExtended;
     } => {
-        if ( currentMapEvent?.center ) {
-            const centerPoint = turfPoint( [currentMapEvent?.center.lng, currentMapEvent.center.lat] );
+        if ( undefined !== centerLng && undefined !== centerLat ) {
+            const centerPoint = turfPoint( [
+                centerLng,
+                centerLat,
+            ] );
             const nearestSimplifiedCoord = [...lines].reduce( ( acc: any | number, line, index ) => {
-                if ( ! line || ! currentMapEvent?.center ) {
+                if ( ! line  ) {
                     return acc;
                 }
                 const nearest_ = nearestPoint( centerPoint, line );
@@ -199,7 +217,12 @@ const RoutingProvider = ( {
                 nearestSimplifiedLocation: undefined,
             };
         }
-    } )();
+    }, [
+        centerLng,
+        centerLat,
+        lines,
+        segments,
+    ] );
 
     const updateSegmentForIndex = (
         segmentIndex: number,

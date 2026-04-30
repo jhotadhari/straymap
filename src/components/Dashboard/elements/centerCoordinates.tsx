@@ -4,6 +4,7 @@
 import React, {
     useContext,
     useEffect,
+    useRef,
     useState,
 } from 'react';
 import {
@@ -120,8 +121,21 @@ const DisplayComponent = ( {
 } : DashboardDisplayComponentProps ) => {
 
     const {
-		currentMapEvent,
+		currentMapEventRef,
     } = useContext( MapContext );
+
+    const [centerLng, setCenterLng] = useState<number | undefined>( undefined );
+    const [centerLat, setCenterLat] = useState<number | undefined>( undefined );
+    const intervalRef = useRef<NodeJS.Timeout | null>(null);
+    useEffect( () => {
+        intervalRef.current = setInterval(() => {
+            setCenterLng( currentMapEventRef?.current?.center?.lng );
+            setCenterLat( currentMapEventRef?.current?.center?.lat );
+        }, 40 );   // ??? 40???
+        return () => {
+            intervalRef.current && clearInterval( intervalRef.current );
+        };
+    }, [] );
 
     const unit = 'default' === get( dashboardElement, ['options','unit','key'], 'default' )
         ? {
@@ -137,9 +151,12 @@ const DisplayComponent = ( {
         minWidth: get( dashboardElement, ['style','minWidth'], undefined ),
         ...style,
     } }>
-        { currentMapEvent && currentMapEvent?.center && <Text style={ {
+        { undefined !== centerLng && undefined !== centerLat && <Text style={ {
             fontSize,
-        } }>{ formatcoords( currentMapEvent.center).format( get( {
+        } }>{ formatcoords( {
+            lng: centerLng,
+            lat: centerLat,
+        } ).format( get( {
             // https://www.npmjs.com/package/formatcoords#user-content-formatting
             'dd': 'f',
             'dmm': 'Ff',
