@@ -181,16 +181,6 @@ export type UpdaterSettings = {
 	installedVersion: string;
 }
 
-export type CursorConfig = {
-	iconSource: string;
-	size: number;
-	color: string;
-};
-
-export type AppearanceSettings = {
-	cursor: CursorConfig;
-};
-
 export type HardwareKeyActionConf = {
 	keyCodeString: string;
 	actionKey: string;

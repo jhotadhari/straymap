@@ -2,17 +2,15 @@
 /**
  * External dependencies
  */
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Image, View } from 'react-native';
 import { Icon } from 'react-native-paper';
 import { SvgXml } from 'react-native-svg';
 import { readFile } from 'react-native-fs';
 
-/**
- * Internal dependencies
- */
-import { AppContext } from '../Context';
 import { CursorConfig } from '../types';
+import { useAppSelector } from '../store/hooks';
+import { selectCursor } from '../store/features/appearance/selectors';
 
 export const CenterInner = ( {
 	cursor,
@@ -20,9 +18,9 @@ export const CenterInner = ( {
 	cursor?: CursorConfig;
 } ) => {
 
-	const { appearanceSettings } = useContext( AppContext );
+	const cursorConfigFromStore = useAppSelector( selectCursor );
 
-	const cursorConfig = cursor || appearanceSettings?.cursor;
+	const cursorConfig = cursor || cursorConfigFromStore;
 
 	const [xml,setXml] = useState( '' );
 

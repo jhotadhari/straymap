@@ -21,7 +21,6 @@ import {
     MapSettings,
     LayerConfig,
     MapsforgeProfile,
-    AppearanceSettings,
     GeneralSettings,
     UiState,
     RoutingSegment,
@@ -50,8 +49,6 @@ export type AppContextType = {
 	setMapSettings?: Dispatch<SetStateAction<MapSettings>>;
 	uiState?: UiState;
 	setUiState?: Dispatch<SetStateAction<UiState>>;
-	appearanceSettings?: AppearanceSettings;
-	setAppearanceSettings?: Dispatch<SetStateAction<AppearanceSettings>>;
 	generalSettings?: GeneralSettings;
 	setGeneralSettings?: Dispatch<SetStateAction<GeneralSettings>>;
     isBusy?: boolean;

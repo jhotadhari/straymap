@@ -5,8 +5,10 @@
 import React, {
 	Dispatch,
 	SetStateAction,
+	useCallback,
 	useContext,
     useEffect,
+    useMemo,
     useRef,
     useState,
 } from 'react';
@@ -27,33 +29,50 @@ import { sprintf } from 'sprintf-js';
  */
 import { AppContext } from '../Context';
 import InfoRowControl from './generic/InfoRowControl';
-import { AppearanceSettings, CursorConfig } from '../types';
 import ListItemModalControl from './generic/ListItemModalControl';
 import { NumericRowControl } from './generic/NumericRowControls';
 import FileSourceRowControl from './FileSourceRowControl';
 import { CenterInner } from './Center';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { setCursor, CursorConfig } from '../store/features/appearance/appearanceSlice';
+import { selectCursor } from '../store/features/appearance/selectors';
 
 const ColorRowControl = ( {
 	cursorConfig,
-	setCursorConfig,
+	setOptions,
 } : {
 	cursorConfig: CursorConfig;
-	setCursorConfig?: Dispatch<SetStateAction<CursorConfig | undefined>>;
+	setOptions: (options: any) => void,
 } ) => {
 
 	const { t } = useTranslation();
 
+	const handleChange = useCallback( ( newColor: string ) => {
+		setOptions( {
+			...cursorConfig,
+			color: newColor,
+		} )
+	}, [cursorConfig ] )
+
 	return  <InfoRowControl label={ t( 'color' ) } >
 		<ColorPicker
 			color= { cursorConfig?.color }
-			onColorChange={ ( newColor: string ) => {
-				setCursorConfig && setCursorConfig( {
-					...cursorConfig,
-					color: newColor,
-				} )
-			} }
+			onColorChange={ handleChange }
 		/>
 	</InfoRowControl>;
+};
+
+const initialOptsMap = {
+	[ ' ']: [
+		{
+			key: 'target',
+			label: 'target',
+		},
+		{
+			key: 'target-variant',
+			label: 'target-variant',
+		},
+	]
 };
 
 const CenterControl = () => {
@@ -62,22 +81,19 @@ const CenterControl = () => {
 	const { t } = useTranslation();
 
 	const {
-		appearanceSettings,
-		setAppearanceSettings,
 		appDirs,
 	} = useContext( AppContext );
 
-	const [cursorConfig,setCursorConfig] = useState<CursorConfig | undefined >( get( appearanceSettings, 'cursor', undefined ) );
-	const cursorConfigRef = useRef( cursorConfig );
-    useEffect( () => {
-        cursorConfigRef.current = cursorConfig;
-    }, [cursorConfig] );
+	const cursorConfig = useAppSelector( selectCursor );
 
-    const saveCursor = () => appearanceSettings && setAppearanceSettings && setAppearanceSettings( ( appearanceSettings: AppearanceSettings ) => ( {
-        ...appearanceSettings,
-        ...( cursorConfigRef.current && { cursor: cursorConfigRef.current } ),
-    } ) );
-    useEffect( () => saveCursor, [] );    // Save on unmount.
+	const dispatch = useAppDispatch();
+
+	const updateCursor = useCallback( ( options: CursorConfig ) => dispatch( setCursor( options ) ), [] );
+
+	const handleFileSelect = useCallback( ( newFileSource: string ) => updateCursor( {
+		...( cursorConfig as CursorConfig ),
+		iconSource: newFileSource,
+	} ), [cursorConfig] );
 
 	return <ListItemModalControl
 		anchorLabel={ 'Cursor' }
@@ -105,24 +121,8 @@ const CenterControl = () => {
             label={ t( 'file' ) }
             options={ cursorConfig as object }
             optionsKey={ 'iconSource' }
-            onSelect={ selectedOpt => {
-				setCursorConfig( {
-					...( cursorConfig as CursorConfig ),
-					iconSource: selectedOpt,
-				} );
-			} }
-			initialOptsMap={ {
-				[ ' ']: [
-					{
-						key: 'target',
-						label: 'target',
-					},
-					{
-						key: 'target-variant',
-						label: 'target-variant',
-					},
-				]
-			} }
+            onSelect={ handleFileSelect }
+			initialOptsMap={ initialOptsMap }
             extensions={ ['svg','png'] }
             dirs={ appDirs ? appDirs.cursor : [] }
             Info={ t( 'hint.center.file' ) }
@@ -135,13 +135,13 @@ const CenterControl = () => {
             label={ t( 'size [px]' ) }
             optKey={ 'size' }
             options={ cursorConfig as object }
-            setOptions={ setCursorConfig }
+            setOptions={ updateCursor }
             validate={ val => val >= 0 }
         />
 
 		{ cursorConfig?.iconSource && ! cursorConfig.iconSource.startsWith( '/' ) && ! cursorConfig.iconSource.startsWith( 'content://' ) && <ColorRowControl
 			cursorConfig={ cursorConfig }
-			setCursorConfig={ setCursorConfig }
+            setOptions={ updateCursor }
 		/> }
 
 		<InfoRowControl label={ t( 'preview' ) } >

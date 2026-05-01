@@ -50,7 +50,6 @@ import type {
 	ThemeOption,
 	AbsPathsMap,
 	MapSettings,
-	AppearanceSettings,
 	GeneralSettings,
 	LayerInfos,
 	UiState,
@@ -69,6 +68,8 @@ import SplashScreenUpdater from './SplashScreenUpdater';
 import useSettings from '../compose/useSettings';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import RoutingProvider from './RoutingProvider';
+import { selectInitialized as selectAppearanceSettingsInitialized } from '../store/features/appearance/selectors';
+import { useAppSelector } from '../store/hooks';
 
 const useAppTheme = () => {
 
@@ -524,6 +525,8 @@ const App = ( {
 		} ).catch( ( err: any ) => console.log( 'ERROR', err ) );
 	}, [] );
 
+	const appearanceSettingsInitialized = useAppSelector( selectAppearanceSettingsInitialized );
+
 	let {
 		settings: uiState,
 		setSettings: setUiState,
@@ -553,22 +556,6 @@ const App = ( {
 	} ) as {
 		settings: MapSettings;
 		setSettings: Dispatch<SetStateAction<MapSettings>>;
-		initialized: boolean;
-	};
-
-	let {
-		settings: appearanceSettings,
-		setSettings: setAppearanceSettings,
-		initialized: appearanceSettingsInitialized,
-	} = useSettings( {
-		savedMessage: ready ? sprintf( t( 'settings.saved' ), t( 'settings.appearance' ) ) : undefined,
-		maybeIsBusyAdd,
-		maybeIsBusyRemove,
-		settingsKey: 'appearanceSettings',
-		initialSettings: defaults.appearanceSettings,
-	} ) as {
-		settings: AppearanceSettings;
-		setSettings: Dispatch<SetStateAction<AppearanceSettings>>;
 		initialized: boolean;
 	};
 
@@ -685,8 +672,6 @@ const App = ( {
 		setMapSettings,
 		uiState,
 		setUiState,
-		appearanceSettings,
-		setAppearanceSettings,
 		generalSettings,
 		setGeneralSettings,
 		isBusy,

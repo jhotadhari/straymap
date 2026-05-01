@@ -89,13 +89,6 @@ export const defaults = {
 			symbolScale: 1,
 		},
 	},
-	appearanceSettings: {
-		cursor: {
-			iconSource: 'target',
-			size: 25,
-			color: '#ed1c23',
-		},
-	},
 	updaterSettings: {
 		installedVersion: packageJson.version,
 	},
