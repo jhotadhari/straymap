@@ -1,4 +1,3 @@
-
 /**
  * External dependencies
  */
@@ -8,9 +7,12 @@ import { Icon } from 'react-native-paper';
 import { SvgXml } from 'react-native-svg';
 import { readFile } from 'react-native-fs';
 
-import { CursorConfig } from '../types';
+/**
+ * Internal dependencies
+ */
 import { useAppSelector } from '../store/hooks';
 import { selectCursor } from '../store/features/appearance/selectors';
+import { CursorConfig } from '../store/features/appearance/types';
 
 export const CenterInner = ( {
 	cursor,

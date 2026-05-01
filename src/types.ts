@@ -22,6 +22,9 @@ import { ViewStyle } from "react-native";
 import { ComposedGesture, GestureType } from "react-native-gesture-handler";
 import { GetTrackParams } from "react-native-brouter";
 
+export interface SliceSettingsBase {
+	initialized: boolean;
+}
 
 export type AbsPath = `/${string}`;
 

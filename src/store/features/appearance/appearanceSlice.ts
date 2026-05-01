@@ -6,17 +6,15 @@ import { createSlice } from '@reduxjs/toolkit';
 
 /**
  * Internal dependencies
- */
-
-export type CursorConfig = {
-	iconSource: string;
-	size: number;
-	color: string;
-};
+*/
+import { SliceSettingsBase } from '../../../types';
+import { CursorConfig } from './types';
 
 export interface AppearanceSettings {
 	cursor: CursorConfig;
 }
+
+export interface AppearanceState extends SliceSettingsBase, AppearanceSettings {}
 
 export const initialSettings : AppearanceSettings = {
 	cursor: {
@@ -25,10 +23,6 @@ export const initialSettings : AppearanceSettings = {
 		color: '#ed1c23',
 	},
 };
-
-export interface AppearanceState extends AppearanceSettings {
-	initialized: boolean;
-}
 
 const initialState: AppearanceState = {
 	initialized: false,

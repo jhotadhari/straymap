@@ -13,6 +13,11 @@ import { startAppListening } from '../../listenerMiddleware';
 
 const settingsKey = 'appearanceSettings';
 
+/**
+ * Loads settings from defaultPreferences and dispatches them to the store.
+ *
+ * Has to be called in index.js after the store got initialized.
+ */
 export const initializeFromStorage = ( store: EnhancedStore ) => {
 	DefaultPreference.get( settingsKey ).then( newSettingsStr => {
 		if ( newSettingsStr ) {
@@ -25,6 +30,10 @@ export const initializeFromStorage = ( store: EnhancedStore ) => {
 	} )	.catch( err => 'ERROR' + console.log( err ) );
 };
 
+/**
+ * Compares settings in this store slice with initialSettings,
+ * and saves anything that differs to initialSettings to defaultPreferences.
+ */
 export const saveToStorage = ( appearanceState: AppearanceState ) => {
 	if ( ! appearanceState.initialized ) {
 		return;
@@ -41,10 +50,13 @@ export const saveToStorage = ( appearanceState: AppearanceState ) => {
 	DefaultPreference.set( settingsKey, JSON.stringify( settingsToSave ) )
 };
 
+/**
+ * Listens to action that change settings in this store slice,
+ * and calls the function to save them to defaultPreferences.
+ *  */
 startAppListening( {
 	matcher: isAnyOf(
 		setCursor,
-		// ...appearanceSlice.actions
 	),
 	effect: async (_action, listenerApi) => {
 		saveToStorage( listenerApi.getState().appearance );

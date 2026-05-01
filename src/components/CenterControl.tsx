@@ -3,14 +3,8 @@
  * External dependencies
  */
 import React, {
-	Dispatch,
-	SetStateAction,
 	useCallback,
 	useContext,
-    useEffect,
-    useMemo,
-    useRef,
-    useState,
 } from 'react';
 import {
 	View,
@@ -20,7 +14,6 @@ import {
 	useTheme,
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { get } from 'lodash-es';
 import ColorPicker from 'react-native-wheel-color-picker'
 import { sprintf } from 'sprintf-js';
 
@@ -34,8 +27,9 @@ import { NumericRowControl } from './generic/NumericRowControls';
 import FileSourceRowControl from './FileSourceRowControl';
 import { CenterInner } from './Center';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { setCursor, CursorConfig } from '../store/features/appearance/appearanceSlice';
+import { setCursor } from '../store/features/appearance/appearanceSlice';
 import { selectCursor } from '../store/features/appearance/selectors';
+import { CursorConfig } from '../store/features/appearance/types';
 
 const ColorRowControl = ( {
 	cursorConfig,
