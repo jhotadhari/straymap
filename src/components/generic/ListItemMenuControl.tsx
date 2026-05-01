@@ -54,7 +54,7 @@ const ListItemMenuControl = ( {
 		anchor={ <ListItem
 			style={ listItemStyle }
 			title={ anchorLabel + ( anchorLabelAppendSelected
-				? ' (' + get( options?.find( opt => opt.key === value ), 'label', '' ) + ')'
+				? ' (' + t( get( options?.find( opt => opt.key === value ), 'label', '' ) ) + ')'
 				: ''
 			) }
 			icon={ anchorIcon ? anchorIcon : undefined }

@@ -12,7 +12,6 @@ import React, {
 import {
 	I18nManager,
 	ToastAndroid,
-	useColorScheme,
 	View,
 } from 'react-native';
 import { useSafeAreaFrame } from 'react-native-safe-area-context';
@@ -47,7 +46,6 @@ import '../assets/i18n/i18n';
 import type {
 	OptionBase,
 	HierarchyItem,
-	ThemeOption,
 	AbsPathsMap,
 	MapSettings,
 	GeneralSettings,
@@ -58,8 +56,7 @@ import type {
 	UpdateResults,
 	BottomBarHeight,
 } from '../types';
-import customThemes from '../themes';
-import { AppContext, MapContext, RoutingContext } from '../Context';
+import { AppContext, MapContext } from '../Context';
 import { HelperModule } from '../nativeModules';
 import { defaults } from '../constants';
 import SplashScreen from './SplashScreen';
@@ -70,60 +67,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import RoutingProvider from './RoutingProvider';
 import { selectInitialized as selectAppearanceSettingsInitialized } from '../store/features/appearance/selectors';
 import { useAppSelector } from '../store/hooks';
-
-const useAppTheme = () => {
-
-	const { t } = useTranslation();
-
-	const [initialized,setInitialized] = useState( false );
-	const systemIsDarkMode = useColorScheme() === 'dark';
-	const [selectedTheme,setSelectedTheme] = useState<null | string>( null );
-
-	let themeOptions : ThemeOption[] = Object.keys( customThemes ).map( ( customThemeKey : string ) => (  {
-		key: customThemeKey,
-		label: t( customThemes[customThemeKey]?.label || '' ),
-		value: customThemes[customThemeKey],
-	} ) );
-
-	const systemOpt = themeOptions.find( opt => opt.key === ( systemIsDarkMode ? 'dark' : 'light' ) );
-
-	if ( systemOpt ) {
-		themeOptions = [
-			{
-				key: 'system',
-				label: t( 'systemSetting' ),
-				value: systemOpt.value
-			},
-			...themeOptions,
-		];
-	}
-
-	useEffect( () => {
-		if ( null === selectedTheme ) {
-			DefaultPreference.get( 'theme' ).then( themePref => {
-				setSelectedTheme( themePref != null && [...themeOptions].map( opt => opt.key ).includes( themePref )
-					? themePref
-					: 'system'
-				)
-			} ).catch( err => 'ERROR' + console.log( err ) );
-		}
-	}, [] );
-
-	useEffect( () => {
-		if ( null !== selectedTheme ) {
-			DefaultPreference.set( 'theme', selectedTheme ).catch( err => 'ERROR' + console.log( err ) )
-			.then( () => initialized && ToastAndroid.show( sprintf( t( 'settings.saved' ), t( 'theme' ) ), ToastAndroid.SHORT ) )
-			.catch( err => 'ERROR' + console.log( err ) );
-			setInitialized( true );
-		}
-	}, [selectedTheme] );
-
-	return {
-		selectedTheme,
-		setSelectedTheme,
-		themeOptions,
-	};
-};
+import { useCustomTheme } from '../store/features/appearance/hooks';
 
 const useAppLang = () => {
 
@@ -181,11 +125,7 @@ const useAppLang = () => {
 
 const AppWrapper = () => {
 
-	const {
-		selectedTheme,
-		setSelectedTheme,
-		themeOptions,
-	} = useAppTheme();
+	const theme = useCustomTheme();
 
 	const {
 		selectedLang,
@@ -193,28 +133,15 @@ const AppWrapper = () => {
 		changeLang,
 	} = useAppLang();
 
-	const theme = themeOptions.find( opt => opt.key === selectedTheme );
-
-	if ( selectedTheme === null ) {
-		return null;
-	}
-
 	if ( selectedLang === null ) {
 		return null;
 	}
 
-	if ( ! theme ) {
-		return null;
-	}
-
 	return <PaperProvider
-		theme={ theme.value }
+		theme={ theme }
 	>
 		<App
 			selectedLang={ selectedLang }
-			selectedTheme={ selectedTheme }
-			setSelectedTheme={ setSelectedTheme }
-			themeOptions={ themeOptions }
 			langOptions={ langOptions }
 			changeLang={ changeLang }
 		/>
@@ -475,16 +402,10 @@ const useUpdater = ( {
 };
 
 const App = ( {
-	selectedTheme,
-	setSelectedTheme,
-	themeOptions,
 	langOptions,
 	changeLang,
 	selectedLang,
 } : {
-	selectedTheme: string,
-	setSelectedTheme: Dispatch<SetStateAction<string | null>>;
-	themeOptions: ThemeOption[],
 	langOptions: OptionBase[],
 	changeLang: ( newSelectedLang : string ) => void;
 	selectedLang: string,
@@ -656,9 +577,6 @@ const App = ( {
 
 	return <AppContext.Provider value={ {
 		appDirs,
-		selectedTheme,
-		setSelectedTheme,
-		themeOptions,
 		langOptions,
 		changeLang,
 		selectedLang,

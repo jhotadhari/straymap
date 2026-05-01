@@ -33,8 +33,6 @@ import {
 
 export type AppContextType = {
 	appDirs?: AbsPathsMap;
-	selectedTheme?: string;
-	setSelectedTheme?: Dispatch<SetStateAction<string | null>>;
 	themeOptions?: ThemeOption[];
 	langOptions?: OptionBase[];
 	changeLang?: ( newSelectedLang : string ) => void;

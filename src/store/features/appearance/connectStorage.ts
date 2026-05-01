@@ -8,8 +8,9 @@ import { get, isEqual, set } from 'lodash-es';
 /**
  * Internal dependencies
  */
-import { AppearanceSettings, AppearanceState, initialSettings, setCursor, setInitialized } from './appearanceSlice';
+import { AppearanceSettings, AppearanceState, initialSettings, setCursor, setInitialized, setTheme } from './appearanceSlice';
 import { startAppListening } from '../../listenerMiddleware';
+import customThemes from '../../../themes';
 
 const settingsKey = 'appearanceSettings';
 
@@ -22,6 +23,12 @@ export const initializeFromStorage = ( store: EnhancedStore ) => {
 	DefaultPreference.get( settingsKey ).then( newSettingsStr => {
 		if ( newSettingsStr ) {
 			const newSettings = JSON.parse( newSettingsStr ) as Partial<AppearanceState>;
+			if ( newSettings?.theme && (
+				'system' === newSettings.theme ||
+				Object.keys( customThemes ).includes( newSettings.theme )
+			) ) {
+				store.dispatch( setTheme( newSettings.theme ) );
+			}
 			if ( newSettings?.cursor ) {
 				store.dispatch( setCursor( newSettings.cursor ) );
 			}
@@ -56,6 +63,7 @@ export const saveToStorage = ( appearanceState: AppearanceState ) => {
  *  */
 startAppListening( {
 	matcher: isAnyOf(
+		setTheme,
 		setCursor,
 	),
 	effect: async (_action, listenerApi) => {

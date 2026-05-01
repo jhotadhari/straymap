@@ -11,12 +11,14 @@ import { SliceSettingsBase } from '../../../types';
 import { CursorConfig } from './types';
 
 export interface AppearanceSettings {
+	theme: string;
 	cursor: CursorConfig;
 }
 
 export interface AppearanceState extends SliceSettingsBase, AppearanceSettings {}
 
 export const initialSettings : AppearanceSettings = {
+	theme: 'system',
 	cursor: {
 		iconSource: 'target',
 		size: 25,
@@ -38,6 +40,9 @@ export const appearanceSlice = createSlice({
 		setInitialized: (state, action: PayloadAction<boolean>) => {
 			state.initialized = action.payload;
 		},
+		setTheme: (state, action: PayloadAction<string>) => {
+			state.theme = action.payload;
+		},
 		setCursor: (state, action: PayloadAction<CursorConfig>) => {
 			state.cursor = action.payload;
 		},
@@ -47,6 +52,7 @@ export const appearanceSlice = createSlice({
 // Export the generated action creators for use in components.
 export const {
 	setInitialized,
+	setTheme,
 	setCursor,
 } = appearanceSlice.actions;
 
