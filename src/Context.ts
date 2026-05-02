@@ -15,13 +15,11 @@ import { LocationExtended, MapEventResponse } from "react-native-mapsforge-vtm";
  */
 import {
     ThemeOption,
-    OptionBase,
     HierarchyItem,
     AbsPathsMap,
     MapSettings,
     LayerConfig,
     MapsforgeProfile,
-    GeneralSettings,
     UiState,
     RoutingSegment,
     RoutingPoint,
@@ -44,8 +42,6 @@ export type AppContextType = {
 	setMapSettings?: Dispatch<SetStateAction<MapSettings>>;
 	uiState?: UiState;
 	setUiState?: Dispatch<SetStateAction<UiState>>;
-	generalSettings?: GeneralSettings;
-	setGeneralSettings?: Dispatch<SetStateAction<GeneralSettings>>;
     isBusy?: boolean;
 	maybeIsBusyAdd?: ( key: string ) => void;
 	maybeIsBusyRemove?: ( key: string ) => void;

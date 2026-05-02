@@ -24,13 +24,16 @@ import ButtonHighlight from '../../generic/ButtonHighlight';
 import MenuItem from '../../generic/MenuItem';
 import InfoRowControl from '../../generic/InfoRowControl';
 import { options as unitPrefControlOptions } from '../../UnitPrefControl';
-import { DashboardDisplayComponentProps, DashboardElementConf, UnitPref } from "../../../types";
 import { TFunction } from 'i18next';
 import { roundTo } from '../../../utils';
 import { NumericRowControl } from '../../generic/NumericRowControls';
 import { AppContext, MapContext } from '../../../Context';
 import { defaults } from '../../../constants';
 import { styles as mdStyles } from '../../../markdown/styles';
+import { selectMapEventRate } from '../../../store/features/general/selectors';
+import { useAppSelector } from '../../../store/hooks';
+import { DashboardDisplayComponentProps, DashboardElementConf } from '../../../store/features/dashboard/types';
+import { UnitPref } from '../../../store/features/general/types';
 
 const opts = [
     {
@@ -151,6 +154,8 @@ const DisplayComponent = ( {
     dashboardStyle,
 } : DashboardDisplayComponentProps ) => {
 
+    const mapEventRate = useAppSelector( selectMapEventRate );
+
     const { t } = useTranslation();
 
     const {
@@ -175,11 +180,11 @@ const DisplayComponent = ( {
     useEffect( () => {
         intervalRef.current = setInterval(() => {
             setAltitudeM( currentMapEventRef?.current?.center?.alt || null );
-        }, 40 );   // ??? 40???
+        }, mapEventRate );
         return () => {
             intervalRef.current && clearInterval( intervalRef.current );
         };
-    }, [] );
+    }, [mapEventRate] );
 
     return <View style={ {
         minWidth: get( dashboardElement, ['style','minWidth'], undefined ),

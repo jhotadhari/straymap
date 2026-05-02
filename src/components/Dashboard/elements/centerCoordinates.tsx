@@ -25,8 +25,11 @@ import MenuItem from '../../generic/MenuItem';
 import InfoRowControl from '../../generic/InfoRowControl';
 import { NumericRowControl } from '../../generic/NumericRowControls';
 import { options as unitPrefControlOptions } from '../../UnitPrefControl';
-import { DashboardDisplayComponentProps, DashboardElementConf, UnitPref } from "../../../types";
 import { MapContext } from '../../../Context';
+import { useAppSelector } from '../../../store/hooks';
+import { selectMapEventRate } from '../../../store/features/general/selectors';
+import { DashboardElementConf, DashboardDisplayComponentProps } from '../../../store/features/dashboard/types';
+import { UnitPref } from '../../../store/features/general/types';
 
 const opts = [
     {
@@ -124,6 +127,8 @@ const DisplayComponent = ( {
 		currentMapEventRef,
     } = useContext( MapContext );
 
+    const mapEventRate = useAppSelector( selectMapEventRate );
+
     const [centerLng, setCenterLng] = useState<number | undefined>( undefined );
     const [centerLat, setCenterLat] = useState<number | undefined>( undefined );
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -131,7 +136,7 @@ const DisplayComponent = ( {
         intervalRef.current = setInterval(() => {
             setCenterLng( currentMapEventRef?.current?.center?.lng );
             setCenterLat( currentMapEventRef?.current?.center?.lat );
-        }, 40 );   // ??? 40???
+        }, mapEventRate );
         return () => {
             intervalRef.current && clearInterval( intervalRef.current );
         };

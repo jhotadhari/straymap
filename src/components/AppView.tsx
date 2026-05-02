@@ -50,7 +50,6 @@ import type {
 	LayerConfigOptionsRasterMBtiles,
 	LayerConfigOptionsHillshading,
 	LayerConfigOptionsMapsforge,
-	DashboardElementConf,
 	LayerInfos,
     InitialPosition,
     BottomBarHeight,
@@ -66,7 +65,9 @@ import { fillLayerConfigOptionsWithDefaults, getHillshadingCacheDirChild, string
 import AltitudeProfile from './AltitudeProfile';
 import RoutingMapView from './RoutingMapView';
 import { useAppSelector } from '../store/hooks';
-import { selectHardwareKeys } from '../store/features/general/selectors';
+import { selectHardwareKeys, selectMapEventRate, selectUnitPrefs } from '../store/features/general/selectors';
+import { selectDashboardStyle, selectElements } from '../store/features/dashboard/selectors';
+import { DashboardElementConf } from '../store/features/dashboard/types';
 
 const AppView = ( {
     showSplash,
@@ -93,6 +94,11 @@ const AppView = ( {
 
     const hardwareKeys = useAppSelector( selectHardwareKeys );
 
+    const dashboardElements = useAppSelector( selectElements );
+    const unitPrefs = useAppSelector( selectUnitPrefs );
+    const dashboardStyle = useAppSelector( selectDashboardStyle );
+    const mapEventRate = useAppSelector( selectMapEventRate );
+
     const { width, height } = useSafeAreaFrame();
 
     const {
@@ -100,7 +106,6 @@ const AppView = ( {
 		selectedHierarchyItems,
 		appDirs,
 		mapSettings,
-		generalSettings,
 		mapHeight,
     } = useContext( AppContext );
 
@@ -109,8 +114,7 @@ const AppView = ( {
     } = useContext( MapContext );
 
     if (
-        ! generalSettings
-        || ! mapSettings
+        ! mapSettings
 
     ) {
         return null;
@@ -136,16 +140,16 @@ const AppView = ( {
             { selectedHierarchyItems && selectedHierarchyItems[selectedHierarchyItems.length-1].SubActivity && selectedHierarchyItems[selectedHierarchyItems.length-1].SubActivity }
 
             <MapContainer
-                mapEventRate={ generalSettings.mapEventRate }
+                mapEventRate={ mapEventRate }
                 nativeNodeHandle={ mapViewNativeNodeHandle }
                 setNativeNodeHandle={ setMapViewNativeNodeHandle }
                 hgtInterpolation={ mapSettings.hgtInterpolation }
                 hgtFileInfoPurgeThreshold={ mapSettings.hgtFileInfoPurgeThreshold }
                 hgtReadFileRate={ mapSettings.hgtReadFileRate }
-                hgtDirPath={ mapSettings?.hgtDirPath && [...generalSettings.dashboardElements.elements].reduce( ( acc: boolean, ele: DashboardElementConf ) => {
+                hgtDirPath={ mapSettings?.hgtDirPath && dashboardElements.reduce( ( acc: boolean, ele: DashboardElementConf ) => {
                     return acc || ! ele.type ? acc : get( dashboardElementComponents, [ele.type,'shouldSetHgtDirPath'], false );
                 }, false ) as boolean ? mapSettings.hgtDirPath : undefined }
-                responseInclude={ [...generalSettings.dashboardElements.elements].reduce( ( acc: object, ele: DashboardElementConf ) => {
+                responseInclude={ dashboardElements.reduce( ( acc: object, ele: DashboardElementConf ) => {
                     return ele.type ? {
                         ...acc,
                         ...get( dashboardElementComponents, [ele.type,'responseInclude'], {} ),
@@ -296,10 +300,10 @@ const AppView = ( {
             setBottomBarHeight={ setBottomBarHeight }
         />
 
-        { generalSettings?.dashboardElements?.elements && generalSettings?.dashboardElements?.elements.length > 0 && generalSettings.unitPrefs && <Dashboard
-            elements={ generalSettings.dashboardElements.elements }
-            dashboardStyle={ generalSettings.dashboardElements.style }
-            unitPrefs={ generalSettings.unitPrefs }
+        { dashboardElements.length > 0 && <Dashboard
+            elements={ dashboardElements }
+            dashboardStyle={ dashboardStyle }
+            unitPrefs={ unitPrefs }
             setBottomBarHeight={ setBottomBarHeight }
             outerWidth={ width }
         /> }

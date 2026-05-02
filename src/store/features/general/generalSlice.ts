@@ -3,22 +3,19 @@
  */
 import type { PayloadAction } from '@reduxjs/toolkit';
 import { createSlice } from '@reduxjs/toolkit';
+import { MapContainerProps } from 'react-native-mapsforge-vtm';
 
 /**
  * Internal dependencies
 */
 import { SliceSettingsBase } from '../../../types';
-import { HardwareKeyActionConf } from './types';
+import { HardwareKeyActionConf, UnitPref } from './types';
 
 export interface GeneralSettings {
 	lang: string;
 	hardwareKeys: HardwareKeyActionConf[];
-	// dashboardElements: {
-	// 	elements: DashboardElementConf[];
-	// 	style: DashboardStyle;
-	// };
-	// unitPrefs: { [value: string]: UnitPref };
-	// mapEventRate: MapContainerProps['mapEventRate'];
+	unitPrefs: { [value: string]: UnitPref };
+	mapEventRate: MapContainerProps['mapEventRate'];
 }
 
 export interface GeneralState extends SliceSettingsBase, GeneralSettings {}
@@ -35,6 +32,25 @@ export const initialSettings : GeneralSettings = {
 			actionKey: 'zoomOut',
 		},
 	],
+	unitPrefs: {
+		coordinates: {
+			unit: 'dd',
+			round: 4,
+		},
+		distance: {
+			unit: 'metric',
+			round: 2,
+		},
+		heightDepth: {
+			unit: 'm',
+			round: 2,
+		},
+		speed: {
+			unit: 'kmh',
+			round: 2,
+		},
+	},
+	mapEventRate: 40,
 };
 
 const initialState: GeneralState = {
@@ -57,6 +73,12 @@ export const generalSlice = createSlice({
 		setHardwareKeys: (state, action: PayloadAction<GeneralSettings['hardwareKeys']>) => {
 			state.hardwareKeys = action.payload;
 		},
+		setMapEventRate: (state, action: PayloadAction<GeneralSettings['mapEventRate']>) => {
+			state.mapEventRate = action.payload;
+		},
+		setUnitPrefs: (state, action: PayloadAction<GeneralSettings['unitPrefs']>) => {
+			state.unitPrefs = action.payload;
+		},
 	},
 });
 
@@ -65,6 +87,8 @@ export const {
 	setInitialized,
 	setLang,
 	setHardwareKeys,
+	setMapEventRate,
+	setUnitPrefs,
 } = generalSlice.actions;
 
 // Export the slice reducer for use in the store configuration

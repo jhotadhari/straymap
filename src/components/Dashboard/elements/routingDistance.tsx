@@ -11,9 +11,11 @@ import { View } from "react-native";
 /**
  * Internal dependencies
  */
-import { DashboardDisplayComponentProps } from "../../../types";
-import { AppContext, RoutingContext } from '../../../Context';
+import { RoutingContext } from '../../../Context';
 import { formatDistance } from '../../../utils';
+import { useAppSelector } from '../../../store/hooks';
+import { selectUnitPrefs } from '../../../store/features/general/selectors';
+import { DashboardDisplayComponentProps } from '../../../store/features/dashboard/types';
 
 const DisplayComponent = ( {
     dashboardElement,
@@ -21,12 +23,10 @@ const DisplayComponent = ( {
     dashboardStyle,
 } : DashboardDisplayComponentProps ) => {
 
+    const unitPrefs = useAppSelector( selectUnitPrefs );
+
     let fontSize = get( dashboardElement, ['style','fontSize'], 'default' );
     fontSize = 'default' === fontSize ? dashboardStyle.fontSize : fontSize;
-
-    const {
-        generalSettings,
-    } = useContext( AppContext );
 
     const {
         isRouting,
@@ -37,7 +37,7 @@ const DisplayComponent = ( {
         minWidth: get( dashboardElement, ['style','minWidth'], undefined ),
         ...style,
     } }>
-        <Text style={ { fontSize } }>{ generalSettings && formatDistance( stats?.distance || 0, generalSettings?.unitPrefs.distance ) }</Text>
+        <Text style={ { fontSize } }>{ formatDistance( stats?.distance || 0, unitPrefs.distance ) }</Text>
     </View> : null;
 };
 

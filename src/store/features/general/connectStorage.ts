@@ -8,7 +8,7 @@ import { get, isEqual, set } from 'lodash-es';
 /**
  * Internal dependencies
  */
-import { GeneralSettings, GeneralState, initialSettings, setHardwareKeys, setInitialized, setLang } from './generalSlice';
+import { GeneralSettings, GeneralState, initialSettings, setHardwareKeys, setInitialized, setLang, setMapEventRate, setUnitPrefs } from './generalSlice';
 import { startAppListening } from '../../listenerMiddleware';
 import { changeLang, SUPPORTED_LANGUAGES } from '../../../assets/i18n/i18n';
 
@@ -41,6 +41,12 @@ export const initializeFromStorage = ( store: EnhancedStore ) => {
 			}
 			if ( newSettings?.hardwareKeys ) {
 				store.dispatch( setHardwareKeys( newSettings.hardwareKeys ) );
+			}
+			if ( newSettings?.unitPrefs ) {
+				store.dispatch( setUnitPrefs( newSettings.unitPrefs ) );
+			}
+			if ( newSettings?.mapEventRate ) {
+				store.dispatch( setMapEventRate( newSettings.mapEventRate ) );
 			}
 		}
 		store.dispatch( setInitialized( true ) );
@@ -75,6 +81,8 @@ startAppListening( {
 	matcher: isAnyOf(
 		setLang,
 		setHardwareKeys,
+		setUnitPrefs,
+		setMapEventRate,
 	),
 	effect: async (_action, listenerApi) => {
 		saveToStorage( listenerApi.getState().general );

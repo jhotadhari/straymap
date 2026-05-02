@@ -24,6 +24,8 @@ import { getUpDown, parseSerialized, runAfterInteractions, sortArrayByOrderArray
 import { NearestSimplifiedCoord, RoutingSegment, RoutingTriggeredSegment, RoutingPoint, RoutingStats } from '../types';
 import { MapContext, RoutingContext } from "../Context";
 import { LocationExtended } from 'react-native-mapsforge-vtm';
+import { useAppSelector } from '../store/hooks';
+import { selectMapEventRate } from '../store/features/general/selectors';
 
 type FeatureGeometry = {
     type: string;
@@ -148,6 +150,8 @@ const RoutingProvider = ( {
 
     const stats = useRoutingStats( segments );
 
+    const mapEventRate = useAppSelector( selectMapEventRate );
+
     const [centerLng, setCenterLng] = useState<number | undefined>( undefined );
     const [centerLat, setCenterLat] = useState<number | undefined>( undefined );
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -155,11 +159,11 @@ const RoutingProvider = ( {
         intervalRef.current = setInterval(() => {
             setCenterLng( currentMapEventRef?.current?.center?.lng );
             setCenterLat( currentMapEventRef?.current?.center?.lat );
-        }, 40 );   // ??? 40???
+        }, mapEventRate );
         return () => {
             intervalRef.current && clearInterval( intervalRef.current );
         };
-    }, [] );
+    }, [mapEventRate] );
 
     // Thats a bit weird!!! rewrite that please haha
     const {

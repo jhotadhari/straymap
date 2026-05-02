@@ -29,13 +29,12 @@ import { sprintf } from 'sprintf-js';
 /**
  * Internal dependencies
  */
-import { AppContext } from '../../Context';
-import { GeneralSettings, DashboardElementConf, OptionBase, DashboardStyle } from '../../types';
+import { OptionBase } from '../../types';
 import ListItemModalControl from '../generic/ListItemModalControl';
 import ButtonHighlight from '../generic/ButtonHighlight';
 import DraggableGrid from 'react-native-draggable-grid';
 import InfoButton from '../generic/InfoButton';
-import { defaults, modalWidthFactor } from '../../constants';
+import { modalWidthFactor } from '../../constants';
 import { Dashboard } from '.';
 import ModalWrapper from '../generic/ModalWrapper';
 import RadioListItem from '../generic/RadioListItem';
@@ -43,7 +42,12 @@ import { NumericRowControl } from '../generic/NumericRowControls';
 import * as dashboardElementComponents from "./elements";
 import MenuItem from '../generic/MenuItem';
 import InfoRowControl, { labelPadding } from '../generic/InfoRowControl';
-import { MapContainerProps } from 'react-native-mapsforge-vtm';
+import { DashboardElementConf } from '../../store/features/dashboard/types';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { selectDashboardStyle, selectElements } from '../../store/features/dashboard/selectors';
+import { setDashboardStyle, setElements } from '../../store/features/dashboard/dashboardSlice';
+import { selectMapEventRate, selectUnitPrefs } from '../../store/features/general/selectors';
+import { setMapEventRate } from '../../store/features/general/generalSlice';
 
 const itemHeight = 50;
 
@@ -273,44 +277,26 @@ const DashboardControl = () => {
     const theme = useTheme();
 	const { t } = useTranslation();
 
-	const {
-		generalSettings,
-		setGeneralSettings,
-	} = useContext( AppContext );
+    const dispatch = useAppDispatch();
+
+    const dashboardElements = useAppSelector( selectElements );
+    const dashboardStyle = useAppSelector( selectDashboardStyle );
+    const mapEventRate = useAppSelector( selectMapEventRate );
+    const unitPrefs = useAppSelector( selectUnitPrefs );
 
     const [menuVisible,setMenuVisible] = useState( false );
 
     const [scrollEnabled,setScrollEnabled] = useState( true );
 
-	const [dashboardElementConfigs,setDashboardElementConfigs] = useState<DashboardElementConf[] >( get( generalSettings, ['dashboardElements','elements'], defaults.generalSettings.dashboardElements.elements ) );
-	const dashboardElementConfigRef = useRef( dashboardElementConfigs );
+	const [dashboardElementsEdit,setDashboardElementsEdit] = useState<DashboardElementConf[] >( dashboardElements );
+	const dashboardElementsEditRef = useRef( dashboardElementsEdit );
     useEffect( () => {
-        dashboardElementConfigRef.current = dashboardElementConfigs;
-    }, [dashboardElementConfigs] );
-
-	const [dashboardStyle,setDashboardStyle] = useState<DashboardStyle>( get( generalSettings, ['dashboardElements','style'], defaults.generalSettings.dashboardElements.style ) );
-	const dashboardStyleRef = useRef( dashboardStyle );
-    useEffect( () => {
-        dashboardStyleRef.current = dashboardStyle;
-    }, [dashboardStyle] );
-
-
-    const [mapEventRate,setMapEventRate] = useState<MapContainerProps['mapEventRate'] >( get( generalSettings, 'mapEventRate', defaults.generalSettings.mapEventRate ) );
-    const mapEventRateRef = useRef( mapEventRate );
-    useEffect( () => {
-        mapEventRateRef.current = mapEventRate;
-    }, [mapEventRate] );
-
-    const save = () => generalSettings && setGeneralSettings && setGeneralSettings( ( generalSettings: GeneralSettings ) => ( {
-        ...generalSettings,
-        dashboardElements: {
-            ...get( generalSettings, 'dashboardElements' ),
-            ...( dashboardElementConfigRef.current && { elements: dashboardElementConfigRef.current } ),
-            ...( dashboardStyleRef.current && { style: dashboardStyleRef.current } ),
-        },
-        ...( mapEventRateRef.current && { mapEventRate: mapEventRateRef.current } ),
-    } ) );
-    useEffect( () => save, [] );    // Save on unmount.
+        dashboardElementsEditRef.current = dashboardElementsEdit;
+    }, [dashboardElementsEdit] );
+    const saveElements = () => {
+        dispatch( setElements( dashboardElementsEditRef.current ) )
+    };
+    useEffect( () => saveElements, [] );    // Save on unmount.
 
     const [editElement, setEditElement] = useState<null | DashboardElementConf>( null );
 
@@ -327,14 +313,14 @@ const DashboardControl = () => {
                 : null
             );
         }
-        const itemIndex = dashboardElementConfigs.findIndex( item => item.key === newElement.key );
+        const itemIndex = dashboardElementsEdit.findIndex( item => item.key === newElement.key );
         if ( -1 !== itemIndex ) {
-            const newElements = [...dashboardElementConfigs];
+            const newElements = [...dashboardElementsEdit];
             newElements[itemIndex] = newElement;
-            setDashboardElementConfigs( newElements );
+            setDashboardElementsEdit( newElements );
         } else {
-            const newElements = [...dashboardElementConfigs, newElement];
-            setDashboardElementConfigs( newElements );
+            const newElements = [...dashboardElementsEdit, newElement];
+            setDashboardElementsEdit( newElements );
         }
     };
 
@@ -392,7 +378,7 @@ const DashboardControl = () => {
                 { ControlComponent && <ControlComponent
                     editElement={ editElement }
                     updateElement={ updateElement }
-                    unitPrefs={ generalSettings?.unitPrefs }
+                    unitPrefs={ unitPrefs }
                 /> }
 
                 { get( dashboardElementComponents, [editElement.type as string,'hasStyleControl'] ) && <StyleControl
@@ -415,11 +401,11 @@ const DashboardControl = () => {
 
                 <ButtonHighlight
                     onPress={ () => {
-                        const layerIndex = dashboardElementConfigs.findIndex( element => element.key === editElement.key )
+                        const layerIndex = dashboardElementsEdit.findIndex( element => element.key === editElement.key )
                         if ( layerIndex !== -1 ) {
-                            const newElements = [...dashboardElementConfigs];
+                            const newElements = [...dashboardElementsEdit];
                             newElements.splice( layerIndex, 1 );
-                            setDashboardElementConfigs( newElements );
+                            setDashboardElementsEdit( newElements );
                             setEditElement( null );
                             setModalVisible( false );
                         }
@@ -438,7 +424,7 @@ const DashboardControl = () => {
             anchorIcon={ ( { color, style } ) => <MaterialIcons style={ style } name="dashboard" size={ 25 } color={ color } /> }
             header={ t( 'dashboard' ) }
             hasHeaderBackPress={ true }
-            belowModal={ generalSettings?.unitPrefs ? <View style={ {
+            belowModal={ <View style={ {
                 width,
                 marginTop: 20,
                 borderColor: theme.colors.outline,
@@ -449,34 +435,34 @@ const DashboardControl = () => {
             } } >
                 <Dashboard
                     outerWidth={ width }
-                    elements={ dashboardElementConfigs }
+                    elements={ dashboardElementsEdit }
                     dashboardStyle={ dashboardStyle }
-                    unitPrefs={ generalSettings?.unitPrefs }
+                    unitPrefs={ unitPrefs }
                 />
-            </View> : null }
+            </View> }
         >
 
             <View>
                 <Text style={ { ...labelPadding } }>{ t( 'dashboardElement', { count: 0 } ) }</Text>
                 <View style={ {
-                    height: itemHeight * dashboardElementConfigs.length + 8,
+                    height: itemHeight * dashboardElementsEdit.length + 8,
                     width: width * modalWidthFactor,
                 } } >
                     <DraggableGrid
                         itemHeight={ itemHeight }
                         numColumns={ 1 }
                         renderItem={ renderItem }
-                        data={ dashboardElementConfigs.filter( el => !! el.key ) }
+                        data={ dashboardElementsEdit.filter( el => !! el.key ) }
                         onDragStart={ () => setScrollEnabled( false ) }
                         onDragRelease={ ( newElements : DashboardElementConf[] ) => {
                             setScrollEnabled( true );
-                            setDashboardElementConfigs( newElements );
+                            setDashboardElementsEdit( newElements );
                         } }
                     />
                 </View>
             </View>
 
-            { ! dashboardElementConfigs.length && <Text style={ { marginLeft: 18, marginBottom: 35 } } >{ t( 'dashboardElementsNone' ) }</Text> }
+            { ! dashboardElementsEdit.length && <Text style={ { marginLeft: 18, marginBottom: 35 } } >{ t( 'dashboardElementsNone' ) }</Text> }
 
             <View
                 style={ {
@@ -515,10 +501,10 @@ const DashboardControl = () => {
                 optKey={ 'fontSize' }
                 options={ dashboardStyle }
                 setOptions={ ( { fontSize } ) => {
-                    setDashboardStyle( {
+                    dispatch( setDashboardStyle( {
                         ...dashboardStyle,
                         fontSize,
-                    } );
+                    } ) );
                 } }
                 validate={ val => val >= 0 }
                 Info={ t( 'hint.dashboard.fontSize' ) }
@@ -544,10 +530,10 @@ const DashboardControl = () => {
                         key={ opt.key }
                         onPress={ () => {
                             setMenuVisible( false );
-                            setDashboardStyle( {
+                            dispatch( setDashboardStyle( {
                                 ...dashboardStyle,
                                 align: opt.key,
-                            } );
+                            } ) );
                         } }
                         title={ t( opt.label ) }
                         active={ opt.key === dashboardStyle.align }
@@ -560,7 +546,7 @@ const DashboardControl = () => {
                 optKey={ 'mapEventRate' }
                 options={ { mapEventRate } }
                 setOptions={ ( { mapEventRate } ) => {
-                    setMapEventRate( mapEventRate );
+                    dispatch( setMapEventRate( mapEventRate ) );
                 } }
                 validate={ val => val >= 0 }
                 Info={ t( 'hint.dashboard.updateRate' ) }

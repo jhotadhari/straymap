@@ -11,9 +11,11 @@ import { View } from "react-native";
 /**
  * Internal dependencies
  */
-import { DashboardDisplayComponentProps } from "../../../types";
 import { MapContext } from '../../../Context';
 import { MapEventResponse } from 'react-native-mapsforge-vtm';
+import { DashboardDisplayComponentProps } from '../../../store/features/dashboard/types';
+import { selectMapEventRate } from '../../../store/features/general/selectors';
+import { useAppSelector } from '../../../store/hooks';
 
 const DisplayComponent = ( {
     dashboardElement,
@@ -25,12 +27,14 @@ const DisplayComponent = ( {
 		currentMapEventRef,
     } = useContext( MapContext );
 
+    const mapEventRate = useAppSelector( selectMapEventRate );
+
     const [zoomLevel, setZoomLevel] = useState<MapEventResponse['zoomLevel']>( undefined );
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
     useEffect( () => {
         intervalRef.current = setInterval(() => {
             setZoomLevel( currentMapEventRef?.current?.zoomLevel );
-        }, 40 );   // ??? 40???
+        }, mapEventRate );
         return () => {
             intervalRef.current && clearInterval( intervalRef.current );
         };

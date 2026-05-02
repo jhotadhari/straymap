@@ -3,15 +3,16 @@
 */
 import { View } from "react-native";
 import { Dispatch, SetStateAction } from "react";
-import { MapEventResponse } from "react-native-mapsforge-vtm";
 import { get } from "lodash-es";
 import { useTheme } from "react-native-paper";
 
 /**
  * Internal dependencies
 */
-import { BottomBarHeight, DashboardElementConf, DashboardStyle, UnitPref } from "../../types";
+import { BottomBarHeight } from "../../types";
 import * as dashboardElementComponents from "./elements";
+import { DashboardElementConf, DashboardStyle } from "../../store/features/dashboard/types";
+import { UnitPref } from "../../store/features/general/types";
 
 const Dashboard = ( {
     elements,
@@ -61,7 +62,7 @@ const Dashboard = ( {
         { elements && [...elements].map( ( element, index ) => {
             const DisplayComponent = get( dashboardElementComponents, [element.type as string,'DisplayComponent'] );
             return DisplayComponent ? <DisplayComponent
-                key={ element.key || index }
+                key={ element?.key || index }
                 style={ {
                     paddingLeft: 10,
                     paddingRight: 10,

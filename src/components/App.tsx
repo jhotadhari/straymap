@@ -45,7 +45,6 @@ import type {
 	HierarchyItem,
 	AbsPathsMap,
 	MapSettings,
-	GeneralSettings,
 	LayerInfos,
 	UiState,
 	InitialPosition,
@@ -62,9 +61,12 @@ import SplashScreenUpdater from './SplashScreenUpdater';
 import useSettings from '../compose/useSettings';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import RoutingProvider from './RoutingProvider';
-import { selectInitialized as selectAppearanceSettingsInitialized } from '../store/features/appearance/selectors';
+import { selectInitialized as selectSettingsInitialized_appearance } from '../store/features/appearance/selectors';
+import { selectInitialized as selectSettingsInitialized_dashboard } from '../store/features/dashboard/selectors';
+import { selectInitialized as selectSettingsInitialized_general } from '../store/features/general/selectors';
 import { useAppSelector } from '../store/hooks';
 import { useSetupTheme } from '../store/features/appearance/hooks';
+import { selectElements } from '../store/features/dashboard/selectors';
 
 const AppWrapper = () => {
 
@@ -367,7 +369,9 @@ const App = () => {
 		} ).catch( ( err: any ) => console.log( 'ERROR', err ) );
 	}, [] );
 
-	const appearanceSettingsInitialized = useAppSelector( selectAppearanceSettingsInitialized );
+	const settingsInitialized_appearance = useAppSelector( selectSettingsInitialized_appearance );
+	const settingsInitialized_dashboard = useAppSelector( selectSettingsInitialized_dashboard );
+	const settingsInitialized_general = useAppSelector( selectSettingsInitialized_general );
 
 	let {
 		settings: uiState,
@@ -401,30 +405,16 @@ const App = () => {
 		initialized: boolean;
 	};
 
-	let {
-		settings: generalSettings,
-		setSettings: setGeneralSettings,
-		initialized: generalSettingsInitialized,
-	} = useSettings( {
-		savedMessage: ready ? sprintf( t( 'settings.saved' ), t( 'settings.general' ) ) : undefined,
-		maybeIsBusyAdd,
-		maybeIsBusyRemove,
-		settingsKey: 'generalSettings',
-		initialSettings: defaults.generalSettings,
-	} ) as {
-		settings: GeneralSettings;
-		setSettings: Dispatch<SetStateAction<GeneralSettings>>;
-		initialized: boolean;
-	};
 	// Remove bottomBar if no dashboard elements.
+	const dashboardElements = useAppSelector( selectElements );
 	useEffect( () => {
-		if ( ! generalSettings?.dashboardElements?.elements || ( generalSettings?.dashboardElements?.elements && ! generalSettings?.dashboardElements?.elements.length ) ) {
+		if ( ! dashboardElements.length ) {
 			setBottomBarHeight( bottomBarHeight => ( {
 				...bottomBarHeight,
 				dashboard: 0,
 			} ) );
 		}
-	}, [generalSettings?.dashboardElements?.elements] );
+	}, [dashboardElements] );
 
 	const {
 		initialPosition,
@@ -451,8 +441,9 @@ const App = () => {
 		if ( !! ( appDirs
 			&& initialPosition
 			&& mapSettingsInitialized
-			&& appearanceSettingsInitialized
-			&& generalSettingsInitialized
+			&& settingsInitialized_appearance
+			&& settingsInitialized_dashboard
+			&& settingsInitialized_general
 			&& uiStateInitialized
 		) ) {
 			setReady( true );
@@ -461,8 +452,9 @@ const App = () => {
 		appDirs,
 		initialPosition,
 		mapSettingsInitialized,
-		appearanceSettingsInitialized,
-		generalSettingsInitialized,
+		settingsInitialized_appearance,
+		settingsInitialized_dashboard,
+		settingsInitialized_general,
 		uiStateInitialized,
 	] );
 
@@ -508,8 +500,6 @@ const App = () => {
 		setMapSettings,
 		uiState,
 		setUiState,
-		generalSettings,
-		setGeneralSettings,
 		isBusy,
 		maybeIsBusyAdd,
 		maybeIsBusyRemove,

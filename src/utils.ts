@@ -4,14 +4,15 @@
 import { get, invert, isObject, omit, pick } from "lodash-es";
 import slugify from "slugify";
 import defaultsAssign from "defaults";
+import { LayerHillshading, Location } from "react-native-mapsforge-vtm";
+import { InteractionManager } from "react-native";
 
 /**
  * Internal dependencies
  */
-import { LayerConfigOptionsAny, LayerConfigOptionsHillshading, UnitPref } from "./types";
+import { LayerConfigOptionsAny, LayerConfigOptionsHillshading } from "./types";
 import { defaults } from "./constants";
-import { LayerHillshading, Location } from "react-native-mapsforge-vtm";
-import { InteractionManager, PromiseTask, SimpleTask } from "react-native";
+import { UnitPref } from "./store/features/general/types";
 
 export const parseSerialized = ( str: string, fallback?: any ) : string | false => {
 	fallback = fallback ? fallback : false;

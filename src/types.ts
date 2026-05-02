@@ -5,6 +5,8 @@
 import { ReactElement, ReactNode } from "react";
 import { Style as ListStyle } from "react-native-paper/lib/typescript/components/List/utils";
 import { MD3Theme } from 'react-native-paper/lib/typescript/types';
+import { ComposedGesture, GestureType } from "react-native-gesture-handler";
+import { GetTrackParams } from "react-native-brouter";
 
 /**
  * react-native-mapsforge-vtm dependencies
@@ -14,14 +16,9 @@ import {
 	LayerBitmapTileProps,
 	LayerMapsforgeProps,
 	LayerHillshadingProps,
-	MapEventResponse,
 	MapContainerProps,
 	Location,
 } from 'react-native-mapsforge-vtm';
-import { ViewStyle } from "react-native";
-import { ComposedGesture, GestureType } from "react-native-gesture-handler";
-import { GetTrackParams } from "react-native-brouter";
-import { HardwareKeyActionConf } from "./store/features/general/types";
 
 export interface SliceSettingsBase {
 	initialized: boolean;
@@ -183,45 +180,6 @@ export type UpdateResults = {
 
 export type UpdaterSettings = {
 	installedVersion: string;
-}
-
-export type DashboardElementStyle = {
-	fontSize?: 'default' | number;
-	minWidth?: number;
-};
-
-export type DashboardElementConf = {
-	key: string;
-	type: string | null;
-	options?: object;
-	style?: DashboardElementStyle;
-};
-
-export type UnitPref = {
-	unit: string;
-	round: number;
-};
-
-export type DashboardStyle = {
-	align: string;
-	fontSize: number;
-};
-
-export type GeneralSettings = {
-	hardwareKeys: HardwareKeyActionConf[];
-	dashboardElements: {
-		elements: DashboardElementConf[];
-		style: DashboardStyle;
-	};
-	unitPrefs: { [value: string]: UnitPref };
-	mapEventRate: MapContainerProps['mapEventRate'];
-};
-
-export type DashboardDisplayComponentProps = {
-	dashboardElement: DashboardElementConf;
-	style?: ViewStyle;
-	unitPrefs: { [value: string]: UnitPref };
-	dashboardStyle: DashboardStyle;
 }
 
 export type RoutingPoint = {

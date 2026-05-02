@@ -18,7 +18,7 @@ import { GetTrackParams } from 'react-native-brouter';
 /**
  * Internal dependencies
  */
-import { AppContext, RoutingContext } from '../../../../Context';
+import { RoutingContext } from '../../../../Context';
 import ButtonHighlight from '../../../generic/ButtonHighlight';
 import { DrawerState, RoutingPoint, RoutingSegment } from '../../../../types';
 import ModalWrapper from '../../../generic/ModalWrapper';
@@ -28,8 +28,9 @@ import ListItemMenuControl from '../../../generic/ListItemMenuControl';
 import InfoRowControl from '../../../generic/InfoRowControl';
 import InfoRadioRow from '../../../generic/InfoRadioRow';
 import { formatDistance, getUpDown } from '../../../../utils';
-import { LocationExtended } from 'react-native-mapsforge-vtm';
 import { createDocument } from 'react-native-scoped-storage';
+import { useAppSelector } from '../../../../store/hooks';
+import { selectUnitPrefs } from '../../../../store/features/general/selectors';
 
 const itemHeight = 130;
 const itemPaddingH = 20;
@@ -40,18 +41,15 @@ const SegmentInfo = ( {
     segment: RoutingSegment;
 } ) => {
 
-    const {
-        generalSettings,
-    } = useContext( AppContext );
+    const unitPrefs = useAppSelector( selectUnitPrefs );
 
     if ( segment?.coordinatesSimplified
         && segment.coordinatesSimplified.length > 0
         && undefined !== segment.coordinatesSimplified[segment.coordinatesSimplified.length-1].distance
-        && undefined !== generalSettings?.unitPrefs.distance
     ) {
         const distanceString = formatDistance(
             segment.coordinatesSimplified[segment.coordinatesSimplified.length-1].distance || 0,
-            generalSettings?.unitPrefs.distance
+            unitPrefs.distance
         );
 
         const {

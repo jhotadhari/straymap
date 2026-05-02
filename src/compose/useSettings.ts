@@ -14,16 +14,6 @@ import DefaultPreference from 'react-native-default-preference';
 import useDeepCompareEffect from 'use-deep-compare-effect'
 import { runAfterInteractions } from '../utils';
 
-const mergeSettingsForKey = ( initialSettings: object, newSettings: object, key: string ) => ( {
-    [key]: {
-        ...get( initialSettings, key, {} ),
-        ...( newSettings.hasOwnProperty( key ) && pick(
-            get( newSettings, key, {} ),
-            Object.keys( get( initialSettings, key, {} ) )
-        ) ),
-    },
-} );
-
 const useSettings = ( {
 	maybeIsBusyAdd,
 	maybeIsBusyRemove,
@@ -51,10 +41,6 @@ const useSettings = ( {
 					setSettings( {
 						...initialSettings,
 						...newSettings,
-						...( 'generalSettings' === settingsKey && {
-							...mergeSettingsForKey( initialSettings, newSettings, 'unitPrefs' ),
-							...mergeSettingsForKey( initialSettings, newSettings, 'dashboardElements' ),
-						} ),
 					} );
 				}
 				setInitialized( true );

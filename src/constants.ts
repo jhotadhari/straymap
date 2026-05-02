@@ -92,47 +92,4 @@ export const defaults = {
 	updaterSettings: {
 		installedVersion: packageJson.version,
 	},
-	generalSettings: {
-		dashboardElements: {
-			elements: [
-				{
-					type: 'zoomLevel',
-					key: '10277705-6ba8-4687-b68e-2d7cb6d59ca8',
-				},
-				{
-					type: 'centerCoordinates',
-					key: '6b2a062e-60b9-4d9c-ba68-d36ef75ccd49',
-					options: {
-						unit: {
-							key: 'default',
-							round: 4,
-						},
-					},
-				},
-			],
-			style: {
-				align: 'left',
-				fontSize: 14,
-			}
-		},
-		unitPrefs: {
-			coordinates: {
-				unit: 'dd',
-				round: 4,
-			},
-			distance: {
-				unit: 'metric',
-				round: 2,
-			},
-			heightDepth: {
-				unit: 'm',
-				round: 2,
-			},
-			speed: {
-				unit: 'kmh',
-				round: 2,
-			},
-		},
-		mapEventRate: 40,
-	},
 };

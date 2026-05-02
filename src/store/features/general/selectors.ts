@@ -11,3 +11,9 @@ export const selectLang = (state: RootState) =>
 
 export const selectHardwareKeys = (state: RootState) =>
 	state.general.hardwareKeys;
+
+export const selectUnitPrefs = (state: RootState) =>
+	state.general.unitPrefs;
+
+export const selectMapEventRate = (state: RootState) =>
+	state.general.mapEventRate;

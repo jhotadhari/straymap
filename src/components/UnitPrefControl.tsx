@@ -2,9 +2,6 @@
  * External dependencies
  */
 import React, {
-	useContext,
-    useEffect,
-    useRef,
     useState,
 } from 'react';
 import {
@@ -22,14 +19,16 @@ import { upperFirst, get } from 'lodash-es';
 /**
  * Internal dependencies
  */
-import { AppContext } from '../Context';
-import { GeneralSettings, OptionBase, UnitPref } from '../types';
+import { OptionBase } from '../types';
 import ListItemModalControl from './generic/ListItemModalControl';
 import ButtonHighlight from './generic/ButtonHighlight';
 import MenuItem from './generic/MenuItem';
-import { defaults } from '../constants';
 import InfoRowControl from './generic/InfoRowControl';
 import { NumericRowControl } from './generic/NumericRowControls';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { selectUnitPrefs } from '../store/features/general/selectors';
+import { setUnitPrefs } from '../store/features/general/generalSlice';
+import { UnitPref } from '../store/features/general/types';
 
 export const options : { [value: string]: OptionBase[] } = {
     coordinates: [
@@ -177,39 +176,26 @@ const UnitControl = ( {
 const UnitPrefControl = () => {
 
 	const { t } = useTranslation();
-	const {
-		generalSettings,
-		setGeneralSettings,
-	} = useContext( AppContext );
 
-	const [unitPrefs,setUnitPrefs] = useState<{ [value: string]: UnitPref }>( get( generalSettings, 'unitPrefs', defaults.generalSettings.unitPrefs ) );
-	const unitPrefsRef = useRef( unitPrefs );
-    useEffect( () => {
-        unitPrefsRef.current = unitPrefs;
-    }, [unitPrefs] );
+    const dispatch = useAppDispatch();
 
-    const save = () => generalSettings && setGeneralSettings && setGeneralSettings( ( generalSettings: GeneralSettings ) => ( {
-        ...generalSettings,
-        ...( unitPrefsRef.current && { unitPrefs: unitPrefsRef.current } ),
-    } ) );
-    useEffect( () => save, [] );    // Save on unmount.
+    const unitPrefs = useAppSelector( selectUnitPrefs );
 
 	return  <ListItemModalControl
         anchorLabel={ t( 'unitPref', { count: 0 } ) }
         anchorIcon={ ( { color } ) => <Icon source="alphabet-greek" size={ 25 } color={ color } /> }
         header={ t( 'unitPref', { count: 0 } ) }
         hasHeaderBackPress={ true }
-        afterDismiss={ save }
     >
         { Object.keys( unitPrefs ).map( key => <UnitControl
             key={ key }
             unitKey={ key }
             unitPref={ unitPrefs[key] }
             onChange={ newPref => {
-                setUnitPrefs( {
+                dispatch( setUnitPrefs( {
                     ...unitPrefs,
                     [key]: newPref,
-                } );
+                } ) );
             } }
         /> ) }
     </ListItemModalControl>;
