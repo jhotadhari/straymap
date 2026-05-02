@@ -5,6 +5,7 @@ import React, {
 	Dispatch,
 	SetStateAction,
 	useContext,
+    useMemo,
 } from 'react';
 import {
 	StatusBar,
@@ -45,15 +46,17 @@ import {
 import '../assets/i18n/i18n';
 import TopAppBar from './TopAppBar';
 import type {
+	LayerInfos,
+    InitialPosition,
+    BottomBarHeight,
+} from '../types';
+import type {
 	LayerConfig,
 	LayerConfigOptionsOnlineRasterXYZ,
 	LayerConfigOptionsRasterMBtiles,
 	LayerConfigOptionsHillshading,
 	LayerConfigOptionsMapsforge,
-	LayerInfos,
-    InitialPosition,
-    BottomBarHeight,
-} from '../types';
+} from '../store/features/baseMap/types';
 import { AppContext, MapContext } from '../Context';
 import Center from './Center';
 import { Dashboard } from './Dashboard';
@@ -68,6 +71,7 @@ import { useAppSelector } from '../store/hooks';
 import { selectHardwareKeys, selectMapEventRate, selectUnitPrefs } from '../store/features/general/selectors';
 import { selectDashboardStyle, selectElements } from '../store/features/dashboard/selectors';
 import { DashboardElementConf } from '../store/features/dashboard/types';
+import { selectHgtDirPath, selectHgtFileInfoPurgeThreshold, selectHgtInterpolation, selectHgtReadFileRate, selectLayers, selectMapsforgeProfiles } from '../store/features/baseMap/selectors';
 
 const AppView = ( {
     showSplash,
@@ -98,6 +102,14 @@ const AppView = ( {
     const unitPrefs = useAppSelector( selectUnitPrefs );
     const dashboardStyle = useAppSelector( selectDashboardStyle );
     const mapEventRate = useAppSelector( selectMapEventRate );
+    const hgtInterpolation = useAppSelector( selectHgtInterpolation );
+    const hgtFileInfoPurgeThreshold = useAppSelector( selectHgtFileInfoPurgeThreshold );
+    const hgtDirPath = useAppSelector( selectHgtDirPath );
+    const hgtReadFileRate = useAppSelector( selectHgtReadFileRate );
+    const layers = useAppSelector( selectLayers );
+    const mapsforgeProfiles = useAppSelector( selectMapsforgeProfiles );
+
+    const layersReverse = useMemo( () => [...layers].reverse(), [layers] );
 
     const { width, height } = useSafeAreaFrame();
 
@@ -105,20 +117,12 @@ const AppView = ( {
 		mapViewNativeNodeHandle,
 		selectedHierarchyItems,
 		appDirs,
-		mapSettings,
 		mapHeight,
     } = useContext( AppContext );
 
     const {
 		currentMapEventRef,
     } = useContext( MapContext );
-
-    if (
-        ! mapSettings
-
-    ) {
-        return null;
-    }
 
     return <SafeAreaView style={ {
         backgroundColor: theme.colors.background,
@@ -143,12 +147,12 @@ const AppView = ( {
                 mapEventRate={ mapEventRate }
                 nativeNodeHandle={ mapViewNativeNodeHandle }
                 setNativeNodeHandle={ setMapViewNativeNodeHandle }
-                hgtInterpolation={ mapSettings.hgtInterpolation }
-                hgtFileInfoPurgeThreshold={ mapSettings.hgtFileInfoPurgeThreshold }
-                hgtReadFileRate={ mapSettings.hgtReadFileRate }
-                hgtDirPath={ mapSettings?.hgtDirPath && dashboardElements.reduce( ( acc: boolean, ele: DashboardElementConf ) => {
+                hgtInterpolation={ hgtInterpolation }
+                hgtFileInfoPurgeThreshold={ hgtFileInfoPurgeThreshold }
+                hgtReadFileRate={ hgtReadFileRate }
+                hgtDirPath={ hgtDirPath && dashboardElements.reduce( ( acc: boolean, ele: DashboardElementConf ) => {
                     return acc || ! ele.type ? acc : get( dashboardElementComponents, [ele.type,'shouldSetHgtDirPath'], false );
-                }, false ) as boolean ? mapSettings.hgtDirPath : undefined }
+                }, false ) as boolean ? hgtDirPath : undefined }
                 responseInclude={ dashboardElements.reduce( ( acc: object, ele: DashboardElementConf ) => {
                     return ele.type ? {
                         ...acc,
@@ -196,7 +200,7 @@ const AppView = ( {
                 } : null }
             >
 
-                { [...mapSettings.layers].reverse().map( ( layer : LayerConfig ) => {
+                { layersReverse.map( ( layer : LayerConfig ) => {
                     if ( layer.type && layer.visible ) {
                         let options;
                         let cacheDirBase;
@@ -229,10 +233,10 @@ const AppView = ( {
                                     onChange={ response => onLayerChange( layer.key, response ) }
                                 />;
                             case 'mapsforge':
-                                if ( mapSettings.mapsforgeProfiles.length > 0 ) {
+                                if ( mapsforgeProfiles.length > 0 ) {
                                     const layerMapsforgeOptions = fillLayerConfigOptionsWithDefaults( layer.type, layer.options ) as LayerConfigOptionsMapsforge
-                                    let profile = mapSettings.mapsforgeProfiles.find( prof => prof.key === layerMapsforgeOptions.profile );
-                                    profile = profile || mapSettings.mapsforgeProfiles[0];
+                                    let profile = mapsforgeProfiles.find( prof => prof.key === layerMapsforgeOptions.profile );
+                                    profile = profile || mapsforgeProfiles[0];
                                     return <LayerMapsforge
                                         key={ layer.key }
                                         enabledZoomMin={ layerMapsforgeOptions.enabledZoomMin }

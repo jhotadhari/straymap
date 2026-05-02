@@ -22,10 +22,12 @@ import { store } from './src/store/store';
 import { initializeFromStorage as initializeFromStorage_appearance } from './src/store/features/appearance/connectStorage';
 import { initializeFromStorage as initializeFromStorage_general } from './src/store/features/general/connectStorage';
 import { initializeFromStorage as initializeFromStorage_dashboard } from './src/store/features/dashboard/connectStorage';
+import { initializeFromStorage as initializeFromStorage_baseMap } from './src/store/features/baseMap/connectStorage';
 
 initializeFromStorage_appearance( store );
 initializeFromStorage_general( store );
 initializeFromStorage_dashboard( store );
+initializeFromStorage_baseMap( store );
 
 const AppWithStore = () => (
     <Provider store={store}>

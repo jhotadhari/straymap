@@ -24,14 +24,15 @@ import { get } from 'lodash-es';
 /**
  * Internal dependencies
  */
-import { LayerConfig } from '../types';
 import InfoRowControl from './generic/InfoRowControl';
-import { AppContext, SettingsMapsContext } from '../Context';
 import useUiState from '../compose/useUiState';
 import LoadingIndicator from './generic/LoadingIndicator';
 import useCacheDirsInfo, { CacheDir, CacheSubDir } from '../compose/useCacheDirsInfo';
 import { getHillshadingCacheDirChild, stringifyProp } from '../utils';
 import { FsModule } from '../nativeModules';
+import { ContextSettingsMaps } from '../store/features/baseMap/ContextSettingsMaps';
+import { AppContext } from '../Context';
+import { LayerConfig } from '../store/features/baseMap/types';
 
 const CacheRow = ( {
     cacheDir,
@@ -123,7 +124,7 @@ const CacheManager = () => {
 
     const {
         layers,
-    } = useContext( SettingsMapsContext );
+    } = useContext( ContextSettingsMaps );
 
     const { appDirs } = useContext( AppContext );
 

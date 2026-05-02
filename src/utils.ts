@@ -10,9 +10,9 @@ import { InteractionManager } from "react-native";
 /**
  * Internal dependencies
  */
-import { LayerConfigOptionsAny, LayerConfigOptionsHillshading } from "./types";
 import { defaults } from "./constants";
 import { UnitPref } from "./store/features/general/types";
+import { LayerConfigOptionsAny, LayerConfigOptionsHillshading } from "./store/features/baseMap/types";
 
 export const parseSerialized = ( str: string, fallback?: any ) : string | false => {
 	fallback = fallback ? fallback : false;

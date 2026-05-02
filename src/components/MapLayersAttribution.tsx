@@ -2,7 +2,7 @@
 /**
  * External dependencies
  */
-import React, { ReactElement, useContext } from 'react';
+import React, { ReactElement } from 'react';
 import { View } from 'react-native';
 import { Icon, Text, useTheme } from 'react-native-paper';
 import { get } from 'lodash-es';
@@ -10,11 +10,13 @@ import { get } from 'lodash-es';
 /**
  * react-native-mapsforge-vtm dependencies
  */
-import { AppContext } from '../Context';
-import { LayerConfig, LayerInfo, LayerInfos, ThemePropExtended } from '../types';
+import { LayerInfo, LayerInfos, ThemePropExtended } from '../types';
 import { useTranslation } from 'react-i18next';
 import InfoButton from './generic/InfoButton';
 import { sourceOptions } from './MapLayerControlOnlineRasterXYZ';
+import { useAppSelector } from '../store/hooks';
+import { selectLayers } from '../store/features/baseMap/selectors';
+import { LayerConfig } from '../store/features/baseMap/types';
 
 type AttributionConf = {
     key: string;
@@ -53,13 +55,10 @@ const Inner = ( {
 } ) => {
     const { t } = useTranslation();
 	const theme = useTheme();
-    const {
-		mapSettings,
-    } = useContext( AppContext );
-    if ( ! mapSettings ) {
-        return null;
-    }
-    const attributions : AttributionConf[] = [...mapSettings.layers].filter( layer => {
+
+    const layers = useAppSelector( selectLayers );
+
+    const attributions : AttributionConf[] = layers.filter( layer => {
         return layer.type && layer.visible;
     } ).map( ( layer : LayerConfig ) => {
         switch( layer.type ) {

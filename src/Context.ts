@@ -17,9 +17,6 @@ import {
     ThemeOption,
     HierarchyItem,
     AbsPathsMap,
-    MapSettings,
-    LayerConfig,
-    MapsforgeProfile,
     UiState,
     RoutingSegment,
     RoutingPoint,
@@ -38,8 +35,6 @@ export type AppContextType = {
     bottomBarHeight?: BottomBarHeight;
 	selectedHierarchyItems?: null | HierarchyItem[];
 	setSelectedHierarchyItems?: Dispatch<SetStateAction<null | HierarchyItem[]>>;
-	mapSettings?: MapSettings;
-	setMapSettings?: Dispatch<SetStateAction<MapSettings>>;
 	uiState?: UiState;
 	setUiState?: Dispatch<SetStateAction<UiState>>;
     isBusy?: boolean;
@@ -89,28 +84,3 @@ export type RoutingContextType = {
 };
 
 export const RoutingContext = createContext<RoutingContextType>( {} );
-
-export type SettingsMapsContextType = {
-	// layers
-    layers: LayerConfig[];
-    editLayer: null | LayerConfig;
-    setEditLayer?: Dispatch<SetStateAction<null | LayerConfig>>
-    updateLayer?: ( newLayer: LayerConfig ) => void;
-    setLayers?: Dispatch<SetStateAction<LayerConfig[]>>;
-    saveLayers?: () => void;
-	// profiles
-    profiles: MapsforgeProfile[];
-    editProfile: null | MapsforgeProfile;
-    setEditProfile?: Dispatch<SetStateAction<null | MapsforgeProfile>>;
-    updateProfile?: ( newProfile: MapsforgeProfile ) => void;
-    setProfiles?: Dispatch<SetStateAction<MapsforgeProfile[]>>;
-    saveProfiles?: () => void;
-    getNewProfile?: () => MapsforgeProfile;
-};
-
-export const SettingsMapsContext = createContext<SettingsMapsContextType>( {
-	layers: [],
-    editLayer: null,
-	profiles: [],
-    editProfile: null,
-} );

@@ -3,19 +3,23 @@
  * External dependencies
  */
 import {
-	useContext,
+    useCallback,
     useEffect,
+    useMemo,
     useRef,
     useState,
 } from 'react';
+import { debounce, get } from 'lodash-es';
 
 /**
  * Internal dependencies
  */
-import { AppContext } from '../Context';
-import { mapTypeOptions } from '../components/MapLayersControl';
-import { LayerConfig, LayerType, MapSettings } from '../types';
-import { debounce, get, throttle } from 'lodash-es';
+import { mapTypeOptions } from '../../../../components/MapLayersControl';
+import { LayerConfig } from '../types';
+import { LayerType } from '../../../../types';
+import { useAppDispatch, useAppSelector } from '../../../hooks';
+import { selectLayers } from '../selectors';
+import { setLayers as setLayersStore } from '../baseMapSlice';
 
 const getLayerType = ( layer : LayerConfig ) : ( LayerType | null ) => get( mapTypeOptions.find( opt => opt.key === layer.type ), 'type', null );
 
@@ -27,33 +31,44 @@ const useLayers = ( {
     saveOnSetDelay?: number;
 } ) => {
 
-    const {
-		mapSettings,
-		setMapSettings,
-    } = useContext( AppContext );
+    const dispatch = useAppDispatch();
 
-    const [layers,setLayers] = useState<LayerConfig[]>( mapSettings?.layers || [] );
+    const layersStore = useAppSelector( selectLayers );
+
+    const [layers,setLayers_] = useState<LayerConfig[]>( layersStore );
     const layersRef = useRef<LayerConfig[]>( layers );
+
     useEffect( () => {
-        layersRef.current = layers;
-    }, [layers])
-    const saveLayers = () => mapSettings && setMapSettings && setMapSettings( ( mapSettings: MapSettings ) => ( {
-        ...mapSettings,
-        layers: layersRef.current,
-    } ) );
-    const saveLayersDebounced = debounce( saveLayers, saveOnSetDelay );
-    // Save on unmount.
-    useEffect( () => saveLayers, [] );
-    // Maybe save on setLayers..
-    useEffect( () => {
+        setLayers_( layersStore );
+        layersRef.current = layersStore;
+    }, [layersStore] );
+
+    const saveLayers = useCallback( () => {
+        dispatch( setLayersStore( layersRef.current ) );
+    }, [] );
+
+    const saveLayersDebounced = useMemo(
+        () => debounce( saveLayers, saveOnSetDelay ),
+        [saveLayers, saveOnSetDelay]
+    );
+
+    const setLayers = useCallback( ( newLayers: LayerConfig[] ) => {
+        setLayers_( newLayers );
+        layersRef.current = newLayers;
         if ( saveOnSet ) {
             saveLayersDebounced();
         }
-    }, [layers] );
+    }, [
+        saveOnSet,
+        saveLayersDebounced,
+    ] );
+
+    // Save on unmount.
+    useEffect( () => saveLayers, [] );
 
     const [editLayer, setEditLayer] = useState<null | LayerConfig>( null );
 
-    const updateLayer = ( newLayer : LayerConfig ) => {
+    const updateLayer = useCallback( ( newLayer : LayerConfig ) => {
         if ( editLayer && editLayer.key === newLayer.key ) {
             setEditLayer( newLayer );
         }
@@ -62,7 +77,7 @@ const useLayers = ( {
             const newLayers = [...layers];
             newLayers[itemIndex] = newLayer;
             setLayers( newLayers );
-            // if ( saveOnSet ) { saveLayers() }
+            if ( saveOnSet ) { saveLayersDebounced() }
         } else {
             let insertIndex = 0;
             if ( 'base' === getLayerType( newLayer ) ) {
@@ -76,9 +91,14 @@ const useLayers = ( {
                 newLayer
             );
             setLayers( newLayers );
-            // if ( saveOnSet ) { saveLayers() }
+            if ( saveOnSet ) { saveLayersDebounced() }
         }
-    };
+    }, [
+        layers,
+        editLayer,
+        saveOnSet,
+        saveLayersDebounced,
+    ] );
 
     return {
         editLayer,

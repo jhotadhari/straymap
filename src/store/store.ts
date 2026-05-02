@@ -10,6 +10,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import appearanceReducer from './features/appearance/appearanceSlice';
 import generalReducer from './features/general/generalSlice';
 import dashboardReducer from './features/dashboard/dashboardSlice';
+import baseMapReducer from './features/baseMap/baseMapSlice';
 import { listenerMiddleware } from './listenerMiddleware';
 
 export const store = configureStore({
@@ -17,11 +18,7 @@ export const store = configureStore({
 		appearance: appearanceReducer,
 		general: generalReducer,
 		dashboard: dashboardReducer,
-		// availability: availabilityReducer,
-		// selection: selectionReducer,
-		// picker: pickerReducer,
-		// poi: poiReducer,
-		// geocoder: geocoderReducer,
+		baseMap: baseMapReducer,
 	},
 	devTools: true,
 	// Add the listener middleware to the store.

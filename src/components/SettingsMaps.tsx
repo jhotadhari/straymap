@@ -5,6 +5,7 @@
 import {
 	FC,
 	useContext,
+    useEffect,
     useState,
 } from 'react';
 import {
@@ -19,15 +20,15 @@ import { useTranslation } from 'react-i18next';
 /**
  * Internal dependencies
  */
-import { AppContext, SettingsMapsContext } from '../Context';
+import { AppContext } from '../Context';
 import MapLayersControl from './MapLayersControl';
 import MapsforgeProfilesControl from './MapsforgeProfilesControl';
-import { LayerConfig, LayerConfigOptionsMapsforge } from '../types';
-import useDeepCompareEffect from 'use-deep-compare-effect';
 import SettingsMapsforgeControl from './SettingsMapsforgeControl';
 import CacheManager from './CacheManager';
-import useProfiles from '../compose/useProfiles';
-import useLayers from '../compose/useLayers';
+import useProfiles from '../store/features/baseMap/hooks/useProfiles';
+import useLayers from '../store/features/baseMap/hooks/useLayers';
+import useLayerEnsureProfile from '../store/features/baseMap/hooks/useLayerEnsureProfile';
+import { ContextSettingsMaps } from '../store/features/baseMap/ContextSettingsMaps';
 
 const SettingsMaps : FC = () => {
 
@@ -62,30 +63,24 @@ const SettingsMaps : FC = () => {
 
     const [scrollEnabled,setScrollEnabled] = useState( true );
 
-    useDeepCompareEffect( () => {
-        const layerProfileExisting = ( layer: LayerConfig ) => {
-            if ( 'mapsforge' !== layer.type ) {
-                return false;
-            }
-            const options = layer.options as LayerConfigOptionsMapsforge;
-            return 'default' === options.profile || !! profiles.find( prof => prof.key === options.profile );
-        };
-        const newLayers = [...layers].map( layer => {
-            return 'mapsforge' !== layer.type ? layer : ( layerProfileExisting( layer )
-                ? layer
-                : {
-                    ...layer,
-                    options: {
-                        ...layer.options,
-                        profile: 'default',
-                    },
-                }
-            );
-        } );
-        setLayers && setLayers( newLayers );
-    }, [profiles,layers] );
+    const {
+        layerMissingProfile,
+        layerEnsureProfile,
+    } = useLayerEnsureProfile();
 
-    return <SettingsMapsContext.Provider value={ {
+    useEffect( () => {
+        if ( layers.some( layer => layerMissingProfile( layer, profiles ) ) ) {
+            const newLayers = [...layers].map( layer => layerEnsureProfile( layer, profiles ) );
+            setLayers && setLayers( newLayers );
+        }
+    }, [
+        profiles,
+        layers,
+        layerMissingProfile,
+        layerEnsureProfile,
+    ] );
+
+    return <ContextSettingsMaps.Provider value={ {
         // layers
         layers,
         editLayer,
@@ -128,7 +123,7 @@ const SettingsMaps : FC = () => {
             <CacheManager/>
 
         </ScrollView>
-    </SettingsMapsContext.Provider>;
+    </ContextSettingsMaps.Provider>;
 };
 
 export default SettingsMaps;

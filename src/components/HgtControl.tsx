@@ -3,8 +3,6 @@
  */
 import React, {
 	useContext,
-    useEffect,
-    useRef,
     useState,
 } from 'react';
 import {
@@ -16,19 +14,19 @@ import {
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { get } from 'lodash-es';
-import { MapContainerProps } from 'react-native-mapsforge-vtm';
 
 /**
  * Internal dependencies
  */
 import { AppContext } from '../Context';
-import { MapSettings } from '../types';
 import ListItemModalControl from './generic/ListItemModalControl';
-import { defaults } from '../constants';
 import { NumericRowControl } from './generic/NumericRowControls';
 import HgtSourceRowControl from './HgtSourceRowControl';
 import InfoRadioRow from './generic/InfoRadioRow';
 import InfoRowControl from './generic/InfoRowControl';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { selectHgtDirPath, selectHgtFileInfoPurgeThreshold, selectHgtInterpolation, selectHgtReadFileRate } from '../store/features/baseMap/selectors';
+import { setHgtDirPath, setHgtFileInfoPurgeThreshold, setHgtInterpolation, setHgtReadFileRate } from '../store/features/baseMap/baseMapSlice';
 
 const HgtControl = () => {
 
@@ -37,45 +35,17 @@ const HgtControl = () => {
     const theme = useTheme();
 
 	const {
-		mapSettings,
-		setMapSettings,
 		appDirs,
 	} = useContext( AppContext );
 
     const [showAdvanced,setShowAdvanced] = useState( false );
 
-	const [hgtDirPath,setHgtDirPath] = useState<MapContainerProps['hgtDirPath'] >( get( mapSettings, 'hgtDirPath', defaults.mapSettings.hgtDirPath ) );
-	const hgtDirPathRef = useRef( hgtDirPath );
-    useEffect( () => {
-        hgtDirPathRef.current = hgtDirPath;
-    }, [hgtDirPath] );
+    const dispatch = useAppDispatch();
 
-	const [hgtReadFileRate,setHgtReadFileRate] = useState<MapContainerProps['hgtReadFileRate'] >( get( mapSettings, 'hgtReadFileRate', defaults.mapSettings.hgtReadFileRate ) );
-	const hgtReadFileRateRef = useRef( hgtReadFileRate );
-    useEffect( () => {
-        hgtReadFileRateRef.current = hgtReadFileRate;
-    }, [hgtReadFileRate] );
-
-	const [hgtInterpolation,setHgtInterpolation] = useState<MapContainerProps['hgtInterpolation'] >( get( mapSettings, 'hgtInterpolation', defaults.mapSettings.hgtInterpolation ) );
-	const hgtInterpolationRef = useRef( hgtInterpolation );
-    useEffect( () => {
-        hgtInterpolationRef.current = hgtInterpolation;
-    }, [hgtInterpolation] );
-
-	const [hgtFileInfoPurgeThreshold,setHgtFileInfoPurgeThreshold] = useState<MapContainerProps['hgtFileInfoPurgeThreshold'] >( get( mapSettings, 'hgtFileInfoPurgeThreshold', defaults.mapSettings.hgtFileInfoPurgeThreshold ) );
-	const hgtFileInfoPurgeThresholdRef = useRef( hgtFileInfoPurgeThreshold );
-    useEffect( () => {
-        hgtFileInfoPurgeThresholdRef.current = hgtFileInfoPurgeThreshold;
-    }, [hgtFileInfoPurgeThreshold] );
-
-    const save = () => mapSettings && setMapSettings && setMapSettings( ( mapSettings: MapSettings ) => ( {
-        ...mapSettings,
-        hgtDirPath: hgtDirPathRef.current,
-        ...( undefined !== hgtReadFileRateRef?.current && { hgtReadFileRate: hgtReadFileRateRef.current } ),
-        ...( undefined !== hgtInterpolationRef?.current && { hgtInterpolation: hgtInterpolationRef.current } ),
-        ...( undefined !== hgtFileInfoPurgeThresholdRef?.current && { hgtFileInfoPurgeThreshold: hgtFileInfoPurgeThresholdRef.current } ),
-    } ) );
-    useEffect( () => save, [] );    // Save on unmount.
+    const hgtDirPath = useAppSelector( selectHgtDirPath );
+    const hgtReadFileRate = useAppSelector( selectHgtReadFileRate );
+    const hgtInterpolation = useAppSelector( selectHgtInterpolation );
+    const hgtFileInfoPurgeThreshold = useAppSelector( selectHgtFileInfoPurgeThreshold );
 
 	return <ListItemModalControl
 		anchorLabel={ t( 'dem' ) }
@@ -93,7 +63,7 @@ const HgtControl = () => {
         <HgtSourceRowControl
             options={ { hgtDirPath } }
             setOptions={ options => {
-                setHgtDirPath( get( options, 'hgtDirPath' ) || undefined );
+                dispatch( setHgtDirPath( get( options, 'hgtDirPath' ) || undefined ) );
             } }
             optKey={ 'hgtDirPath' }
             dirs={ appDirs ? appDirs.dem : [] }
@@ -105,7 +75,7 @@ const HgtControl = () => {
                 label: t( 'hgtInterpolation' ),
                 key: 'hgtInterpolation',
             } }
-            onPress={ () => setHgtInterpolation( ! hgtInterpolation ) }
+            onPress={ () => dispatch( setHgtInterpolation( ! hgtInterpolation ) ) }
             labelStyle={ theme.fonts.bodyMedium }
             labelExtractor={ a => a.label }
             status={ hgtInterpolation ? 'checked' : 'unchecked' }
@@ -123,7 +93,7 @@ const HgtControl = () => {
                     optKey={ 'hgtReadFileRate' }
                     options={ { hgtReadFileRate } }
                     setOptions={ ( { hgtReadFileRate } ) => {
-                        setHgtReadFileRate( hgtReadFileRate );
+                        dispatch( setHgtReadFileRate( hgtReadFileRate ) );
                     } }
                     validate={ val => val >= 0 }
                     Info={ t( 'hint.maps.hgtReadFileRate' ) }
@@ -134,7 +104,7 @@ const HgtControl = () => {
                     optKey={ 'hgtFileInfoPurgeThreshold' }
                     options={ { hgtFileInfoPurgeThreshold } }
                     setOptions={ ( { hgtFileInfoPurgeThreshold } ) => {
-                        setHgtFileInfoPurgeThreshold( hgtFileInfoPurgeThreshold );
+                        dispatch( setHgtFileInfoPurgeThreshold( hgtFileInfoPurgeThreshold ) );
                     } }
                     validate={ val => val >= 0 }
                     Info={ t( 'hint.maps.hgtFileInfoPurgeThreshold' ) }

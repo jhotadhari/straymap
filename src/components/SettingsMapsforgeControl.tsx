@@ -2,48 +2,35 @@
  * External dependencies
  */
 import React, {
-	useContext,
-    useEffect,
-    useRef,
-    useState,
+    useCallback,
 } from 'react';
 import {
     Text,
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { get } from 'lodash-es';
 
 /**
  * Internal dependencies
  */
-import { AppContext } from '../Context';
-import { MapSettings, MapsforgeGeneral } from '../types';
 import ListItemModalControl from './generic/ListItemModalControl';
-import { defaults } from '../constants';
 import { NumericRowControl } from './generic/NumericRowControls';
 import IconIcomoon from './generic/IconIcomoon';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { selectMapsforgeGeneral } from '../store/features/baseMap/selectors';
+import { setMapsforgeGeneral } from '../store/features/baseMap/baseMapSlice';
+import { MapsforgeGeneral } from '../store/features/baseMap/types';
 
 const SettingsMapsforgeControl = () => {
 
 	const { t } = useTranslation();
 
-	const {
-		mapSettings,
-		setMapSettings,
-	} = useContext( AppContext );
+    const dispatch = useAppDispatch();
 
-	const [value,setValue] = useState<MapsforgeGeneral>( get( mapSettings, ['mapsforgeGeneral'], defaults.mapSettings.mapsforgeGeneral ) );
-	const valueRef = useRef( value );
-    useEffect( () => {
-        valueRef.current = value;
-    }, [value] );
-    const save = () => {
-        return setMapSettings && setMapSettings( ( mapSettings: MapSettings ) => ( {
-            ...mapSettings,
-            ...( valueRef.current && { mapsforgeGeneral: valueRef.current } ),
-        } ) );
-    }
-    useEffect( () => save, [] );    // Save on unmount.
+    const settings = useAppSelector( selectMapsforgeGeneral );
+
+    const handleChange = useCallback( ( newSettings: MapsforgeGeneral ) => {
+        dispatch( setMapsforgeGeneral( newSettings ) );
+    }, [] );
 
 	return <ListItemModalControl
 		anchorLabel={ t( 'settings.mapsforgeGeneral' ) }
@@ -59,10 +46,8 @@ const SettingsMapsforgeControl = () => {
             label={ t( 'lineScale' ) }
             optKey={ 'lineScale' }
             numType={ 'float' }
-            options={ value }
-            setOptions={ ( newValue ) => {
-                setValue( newValue );
-            } }
+            options={ settings }
+            setOptions={ handleChange }
             validate={ val => val >= 0 }
             Info={ t( 'hint.maps.lineScale' ) }
         />
@@ -71,10 +56,8 @@ const SettingsMapsforgeControl = () => {
             label={ t( 'textScale' ) }
             optKey={ 'textScale' }
             numType={ 'float' }
-            options={ value }
-            setOptions={ ( newValue ) => {
-                setValue( newValue );
-            } }
+            options={ settings }
+            setOptions={ handleChange }
             validate={ val => val >= 0 }
             Info={ t( 'hint.maps.textScale' ) }
         />
@@ -83,10 +66,8 @@ const SettingsMapsforgeControl = () => {
             label={ t( 'symbolScale' ) }
             optKey={ 'symbolScale' }
             numType={ 'float' }
-            options={ value }
-            setOptions={ ( newValue ) => {
-                setValue( newValue );
-            } }
+            options={ settings }
+            setOptions={ handleChange }
             validate={ val => val >= 0 }
             Info={ t( 'hint.maps.symbolScale' ) }
         />

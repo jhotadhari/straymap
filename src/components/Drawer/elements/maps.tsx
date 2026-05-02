@@ -15,13 +15,14 @@ import { ScrollView } from "react-native";
 /**
  * Internal dependencies
  */
-import { AppContext, SettingsMapsContext } from '../../../Context';
-import useProfiles from '../../../compose/useProfiles';
-import useLayers from '../../../compose/useLayers';
 import MapLayersControl from '../../MapLayersControl';
 import MapsforgeProfilesControl from '../../MapsforgeProfilesControl';
 import ButtonHighlight from '../../generic/ButtonHighlight';
 import { setSelectedHierarchyItemsByKey } from '../../../hierarchyItems';
+import { AppContext } from '../../../Context';
+import useLayers from '../../../store/features/baseMap/hooks/useLayers';
+import useProfiles from '../../../store/features/baseMap/hooks/useProfiles';
+import { ContextSettingsMaps } from '../../../store/features/baseMap/ContextSettingsMaps';
 
 const DisplayComponent = ( {
 	drawerWidth,
@@ -69,7 +70,7 @@ const DisplayComponent = ( {
 
     const [scrollEnabled,setScrollEnabled] = useState( true );
 
-    return <SettingsMapsContext.Provider value={ {
+    return <ContextSettingsMaps.Provider value={ {
         // layers
         layers,
         editLayer,
@@ -124,7 +125,7 @@ const DisplayComponent = ( {
             />
 
         </ScrollView>
-    </SettingsMapsContext.Provider>;;
+    </ContextSettingsMaps.Provider>;;
 };
 
 

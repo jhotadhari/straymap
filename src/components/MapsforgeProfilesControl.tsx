@@ -36,11 +36,10 @@ import { LayerMapsforge, MapLayerMapsforgeModule, RenderStyleOptionsCollection }
 /**
  * Internal dependencies
  */
-import { LayerConfig, LayerConfigOptionsMapsforge, MapsforgeProfile, OptionBase } from '../types';
 import InfoRowControl from './generic/InfoRowControl';
 import ButtonHighlight from './generic/ButtonHighlight';
 import ModalWrapper from './generic/ModalWrapper';
-import { AppContext, SettingsMapsContext } from '../Context';
+import { AppContext } from '../Context';
 import RadioListItem from './generic/RadioListItem';
 import InfoButton from './generic/InfoButton';
 import IconIcomoon from './generic/IconIcomoon';
@@ -54,6 +53,9 @@ import HintLink from './generic/HintLink';
 import InfoRadioRow from './generic/InfoRadioRow';
 import useSettings from '../compose/useSettings';
 import { runAfterInteractions } from '../utils';
+import { ContextSettingsMaps } from '../store/features/baseMap/ContextSettingsMaps';
+import { MapsforgeProfile, LayerConfigOptionsMapsforge, LayerConfig } from '../store/features/baseMap/types';
+import { OptionBase } from '../types';
 
 const itemHeight = 50;
 
@@ -77,7 +79,7 @@ const DraggableItem = ( {
 
     const [isToWide,setIsToWide] = useState( false );
 
-    const { setEditProfile, layers, profiles } = useContext( SettingsMapsContext );
+    const { setEditProfile, layers, profiles } = useContext( ContextSettingsMaps );
 
     let themeLabel = '';
     if ( profile.theme ) {
@@ -423,7 +425,7 @@ const MapsforgeProfilesControl = ( {
         saveProfiles,
         getNewProfile,
         layers,
-    } = useContext( SettingsMapsContext );
+    } = useContext( ContextSettingsMaps );
 
     const { width: width_ } = useSafeAreaFrame();
 	width = width ? width : width_;

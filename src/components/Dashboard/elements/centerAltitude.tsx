@@ -27,13 +27,13 @@ import { options as unitPrefControlOptions } from '../../UnitPrefControl';
 import { TFunction } from 'i18next';
 import { roundTo } from '../../../utils';
 import { NumericRowControl } from '../../generic/NumericRowControls';
-import { AppContext, MapContext } from '../../../Context';
-import { defaults } from '../../../constants';
+import { MapContext } from '../../../Context';
 import { styles as mdStyles } from '../../../markdown/styles';
 import { selectMapEventRate } from '../../../store/features/general/selectors';
 import { useAppSelector } from '../../../store/hooks';
 import { DashboardDisplayComponentProps, DashboardElementConf } from '../../../store/features/dashboard/types';
 import { UnitPref } from '../../../store/features/general/types';
+import { selectHgtDirPath } from '../../../store/features/baseMap/selectors';
 
 const opts = [
     {
@@ -53,8 +53,7 @@ const ControlComponent = ( {
     unitPrefs?: { [value: string]: UnitPref };
 } ) => {
 
-    const { mapSettings } = useContext( AppContext );
-    const hgtDirPath = get( mapSettings, 'hgtDirPath', defaults.mapSettings.hgtDirPath );
+    const hgtDirPath = useAppSelector( selectHgtDirPath );
 
     const { t } = useTranslation();
     const theme = useTheme();

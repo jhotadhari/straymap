@@ -44,7 +44,6 @@ import '../assets/i18n/i18n';
 import type {
 	HierarchyItem,
 	AbsPathsMap,
-	MapSettings,
 	LayerInfos,
 	UiState,
 	InitialPosition,
@@ -64,6 +63,7 @@ import RoutingProvider from './RoutingProvider';
 import { selectInitialized as selectSettingsInitialized_appearance } from '../store/features/appearance/selectors';
 import { selectInitialized as selectSettingsInitialized_dashboard } from '../store/features/dashboard/selectors';
 import { selectInitialized as selectSettingsInitialized_general } from '../store/features/general/selectors';
+import { selectMapsforgeGeneral, selectInitialized as selectSettingsInitialized_baseMap } from '../store/features/baseMap/selectors';
 import { useAppSelector } from '../store/hooks';
 import { useSetupTheme } from '../store/features/appearance/hooks';
 import { selectElements } from '../store/features/dashboard/selectors';
@@ -372,6 +372,7 @@ const App = () => {
 	const settingsInitialized_appearance = useAppSelector( selectSettingsInitialized_appearance );
 	const settingsInitialized_dashboard = useAppSelector( selectSettingsInitialized_dashboard );
 	const settingsInitialized_general = useAppSelector( selectSettingsInitialized_general );
+	const settingsInitialized_baseMap = useAppSelector( selectSettingsInitialized_baseMap );
 
 	let {
 		settings: uiState,
@@ -398,12 +399,14 @@ const App = () => {
 		maybeIsBusyRemove,
 		savedMessage: ready ? sprintf( t( 'settings.saved' ), t( 'settings.maps' ) ) : undefined,
 		settingsKey: 'mapSettings',
-		initialSettings: defaults.mapSettings,
+		initialSettings: {},
 	} ) as {
-		settings: MapSettings;
-		setSettings: Dispatch<SetStateAction<MapSettings>>;
+		settings: any;
+		setSettings: Dispatch<SetStateAction<any>>;
 		initialized: boolean;
 	};
+
+	console.log( 'debug mapSettings', mapSettings ); // debug
 
 	// Remove bottomBar if no dashboard elements.
 	const dashboardElements = useAppSelector( selectElements );
@@ -426,24 +429,26 @@ const App = () => {
 		onLayerChange,
 	} = useLayerInfos();
 
-	// Set CanvasAdapter props on app start, when mapSettingsInitialized, before the map gets initialized.
+	const mapsforgeGeneral = useAppSelector( selectMapsforgeGeneral );
+
+	// Set CanvasAdapter props on app start, when settingsInitialized_baseMap, before the map gets initialized.
 	useEffect( () => {
-		if ( mapSettingsInitialized ) {
-			CanvasAdapterModule.setLineScale( get( mapSettings, ['mapsforgeGeneral','lineScale'], defaults.mapSettings.mapsforgeGeneral.lineScale ) );
-			CanvasAdapterModule.setTextScale( get( mapSettings, ['mapsforgeGeneral','textScale'], defaults.mapSettings.mapsforgeGeneral.textScale ) );
-			CanvasAdapterModule.setSymbolScale( get( mapSettings, ['mapsforgeGeneral','symbolScale'], defaults.mapSettings.mapsforgeGeneral.symbolScale ) );
+		if ( settingsInitialized_baseMap ) {
+			CanvasAdapterModule.setLineScale( mapsforgeGeneral.lineScale );
+			CanvasAdapterModule.setTextScale( mapsforgeGeneral.textScale );
+			CanvasAdapterModule.setSymbolScale( mapsforgeGeneral.symbolScale );
 		}
-	}, [mapSettingsInitialized] );
+	}, [settingsInitialized_baseMap, mapsforgeGeneral] );
 
 	const appInnerHeight = height - topAppBarHeight;
 
 	useEffect( () => {
 		if ( !! ( appDirs
 			&& initialPosition
-			&& mapSettingsInitialized
 			&& settingsInitialized_appearance
 			&& settingsInitialized_dashboard
 			&& settingsInitialized_general
+			&& settingsInitialized_baseMap
 			&& uiStateInitialized
 		) ) {
 			setReady( true );
@@ -451,10 +456,10 @@ const App = () => {
 	}, [
 		appDirs,
 		initialPosition,
-		mapSettingsInitialized,
 		settingsInitialized_appearance,
 		settingsInitialized_dashboard,
 		settingsInitialized_general,
+		settingsInitialized_baseMap,
 		uiStateInitialized,
 	] );
 
@@ -496,8 +501,6 @@ const App = () => {
 		bottomBarHeight,
 		selectedHierarchyItems,
 		setSelectedHierarchyItems,
-		mapSettings,
-		setMapSettings,
 		uiState,
 		setUiState,
 		isBusy,

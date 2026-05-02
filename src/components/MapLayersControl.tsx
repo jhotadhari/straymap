@@ -4,6 +4,7 @@
 import {
     Dispatch,
     SetStateAction,
+    useCallback,
     useContext,
     useEffect,
     useState,
@@ -26,19 +27,12 @@ import { get } from 'lodash-es';
 import rnUuid from 'react-native-uuid';
 
 /**
- * react-native-mapsforge-vtm dependencies
- */
-import { LayerHillshading } from 'react-native-mapsforge-vtm';
-
-/**
  * Internal dependencies
  */
-import { LayerConfig, LayerConfigOptionsAny, LayerOption } from '../types';
 import InfoRowControl from './generic/InfoRowControl';
 import ButtonHighlight from './generic/ButtonHighlight';
 import ModalWrapper from './generic/ModalWrapper';
 import MapLayerControlOnlineRasterXYZ from './MapLayerControlOnlineRasterXYZ';
-import { SettingsMapsContext } from '../Context';
 import MapLayerControlRasterMBTiles from './MapLayerControlRasterMBTiles';
 import RadioListItem from './generic/RadioListItem';
 import MapLayerControlHillshading from './MapLayerControlHillshading';
@@ -47,6 +41,9 @@ import NameRowControl from './generic/NameRowControl';
 import MapLayerControlMapsforge from './MapLayerControlMapsforge';
 import useUiState from '../compose/useUiState';
 import { fillLayerConfigOptionsWithDefaults } from '../utils';
+import { LayerConfig } from '../store/features/baseMap/types';
+import { LayerOption } from '../types';
+import { ContextSettingsMaps } from '../store/features/baseMap/ContextSettingsMaps';
 
 export const mapTypeOptions : LayerOption[] = [
     {
@@ -143,7 +140,7 @@ const DraggableItem = ( {
     const {
         setEditLayer,
         updateLayer,
-    } = useContext( SettingsMapsContext );
+    } = useContext( ContextSettingsMaps );
 
     return setEditLayer && updateLayer ? <View
         style={ {
@@ -232,7 +229,7 @@ const MapLayersControl = ( {
         saveLayers,
         setEditProfile,
         profiles,
-    } = useContext( SettingsMapsContext );
+    } = useContext( ContextSettingsMaps );
 
     const {
         value: expanded,
@@ -245,11 +242,11 @@ const MapLayersControl = ( {
         setModalVisible( !! editLayer );
     }, [editLayer] );
 
-    const renderItem = ( item : LayerConfig ) => <View key={ item.key }><DraggableItem
+    const renderItem = useCallback( ( item : LayerConfig ) => <View key={ item.key }><DraggableItem
         item={ item }
         width={ width }
         reverse={ !! reverseDraggableItem }
-    /></View>;
+    /></View>, [width, reverseDraggableItem] );
 
     return <View>
 
