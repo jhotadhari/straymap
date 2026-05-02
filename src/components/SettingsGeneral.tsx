@@ -4,7 +4,9 @@
  */
 import React, {
 	FC,
+	useCallback,
 	useContext,
+	useMemo,
 } from 'react';
 import {
 	ScrollView,
@@ -23,18 +25,46 @@ import HardwareKeyControl from './HardwareKeyControl';
 import { DashboardControl } from './Dashboard';
 import UnitPrefControl from './UnitPrefControl';
 import HgtControl from './HgtControl';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { selectLang } from '../store/features/general/selectors';
+import { LANGUAGE_NAMES } from '../assets/i18n/i18n';
+import { get } from 'lodash-es';
+import { setLang } from '../store/features/general/generalSlice';
+
+const LangControl : FC = () => {
+
+	const { t } = useTranslation();
+	const dispatch = useAppDispatch();
+
+	const lang = useAppSelector( selectLang );
+	const handleChange = useCallback( ( newLang: string ) => dispatch( setLang( newLang ) ), [] );
+
+	const options = useMemo( () => [
+		{
+			key: 'system',
+			label: 'systemSetting',
+		},
+		...Object.keys( LANGUAGE_NAMES ).map( ( langKey: string ) => ( {
+			key: langKey,
+			label: get( LANGUAGE_NAMES, [langKey,'native' ], '' ),
+		} ) ),
+	], [] );
+
+	return <ListItemMenuControl
+		anchorLabel={ t( 'selectLang' ) }
+		anchorLabelAppendSelected={ true }
+		options={ options }
+		setValue={ handleChange }
+		value={ lang }
+		anchorIcon={ ( { style, color } ) => <MaterialIcons style={ style } name="language" size={ 25 } color={ color } /> }
+	/>;
+};
 
 const SettingsGeneral : FC = () => {
 
 	const theme = useTheme();
 	const { width } = useSafeAreaFrame();
-	const { t } = useTranslation();
-    const {
-        appInnerHeight,
-		langOptions,
-		changeLang,
-		selectedLang,
-    } = useContext( AppContext );
+    const { appInnerHeight } = useContext( AppContext );
 
 	return <ScrollView style={ {
         backgroundColor: theme.colors.background,
@@ -44,14 +74,7 @@ const SettingsGeneral : FC = () => {
         zIndex: 9,
     } } >
 
-		<ListItemMenuControl
-			anchorLabel={ t( 'selectLang' ) }
-			anchorLabelAppendSelected={ true }
-			options={ langOptions }
-			setValue={ changeLang }
-			value={ selectedLang }
-			anchorIcon={ ( { style, color } ) => <MaterialIcons style={ style } name="language" size={ 25 } color={ color } /> }
-		/>
+		<LangControl/>
 
 		<HardwareKeyControl/>
 

@@ -8,10 +8,21 @@ import { get, isEqual, set } from 'lodash-es';
 /**
  * Internal dependencies
  */
-import { GeneralSettings, GeneralState, initialSettings, setHardwareKeys, setInitialized } from './generalSlice';
+import { GeneralSettings, GeneralState, initialSettings, setHardwareKeys, setInitialized, setLang } from './generalSlice';
 import { startAppListening } from '../../listenerMiddleware';
+import { changeLang, SUPPORTED_LANGUAGES } from '../../../assets/i18n/i18n';
 
 const settingsKey = 'generalSettings';
+
+/**
+ * Listen to state lang changes and change i18n lang.
+ */
+startAppListening( {
+	actionCreator: setLang,
+	effect: async (action) => {
+		changeLang( action.payload );
+	},
+} );
 
 /**
  * Loads settings from defaultPreferences and dispatches them to the store.
@@ -22,6 +33,12 @@ export const initializeFromStorage = ( store: EnhancedStore ) => {
 	DefaultPreference.get( settingsKey ).then( newSettingsStr => {
 		if ( newSettingsStr ) {
 			const newSettings = JSON.parse( newSettingsStr ) as Partial<GeneralState>;
+			if ( newSettings?.lang && (
+				'system' === newSettings.lang ||
+				( [...SUPPORTED_LANGUAGES] as string[] ).includes( newSettings.lang )
+			) ) {
+				store.dispatch( setLang( newSettings.lang ) );
+			}
 			if ( newSettings?.hardwareKeys ) {
 				store.dispatch( setHardwareKeys( newSettings.hardwareKeys ) );
 			}
@@ -56,10 +73,10 @@ export const saveToStorage = ( generalState: GeneralState ) => {
  *  */
 startAppListening( {
 	matcher: isAnyOf(
+		setLang,
 		setHardwareKeys,
 	),
 	effect: async (_action, listenerApi) => {
 		saveToStorage( listenerApi.getState().general );
 	},
 } );
-

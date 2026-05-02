@@ -34,9 +34,6 @@ import {
 export type AppContextType = {
 	appDirs?: AbsPathsMap;
 	themeOptions?: ThemeOption[];
-	langOptions?: OptionBase[];
-	changeLang?: ( newSelectedLang : string ) => void;
-	selectedLang?: string;
     mapViewNativeNodeHandle?: number | null;
     appInnerHeight?: number;
     topAppBarHeight?: number;

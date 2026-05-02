@@ -11,6 +11,7 @@ import { SliceSettingsBase } from '../../../types';
 import { HardwareKeyActionConf } from './types';
 
 export interface GeneralSettings {
+	lang: string;
 	hardwareKeys: HardwareKeyActionConf[];
 	// dashboardElements: {
 	// 	elements: DashboardElementConf[];
@@ -23,6 +24,7 @@ export interface GeneralSettings {
 export interface GeneralState extends SliceSettingsBase, GeneralSettings {}
 
 export const initialSettings : GeneralSettings = {
+	lang: 'system',
 	hardwareKeys: [
 		{
 			keyCodeString: 'KEYCODE_VOLUME_UP',
@@ -49,6 +51,9 @@ export const generalSlice = createSlice({
 		setInitialized: (state, action: PayloadAction<boolean>) => {
 			state.initialized = action.payload;
 		},
+		setLang: (state, action: PayloadAction<GeneralSettings['lang']>) => {
+			state.lang = action.payload;
+		},
 		setHardwareKeys: (state, action: PayloadAction<GeneralSettings['hardwareKeys']>) => {
 			state.hardwareKeys = action.payload;
 		},
@@ -58,6 +63,7 @@ export const generalSlice = createSlice({
 // Export the generated action creators for use in components.
 export const {
 	setInitialized,
+	setLang,
 	setHardwareKeys,
 } = generalSlice.actions;
 

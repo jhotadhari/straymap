@@ -11,7 +11,7 @@ import { useAppSelector } from "../../hooks";
 import { selectTheme } from "./selectors";
 import customThemes from '../../../themes';
 
-export const useCustomTheme = () => {
+export const useSetupTheme = () => {
 
     const systemIsDarkMode = useColorScheme() === 'dark';
 

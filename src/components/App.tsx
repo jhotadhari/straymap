@@ -10,8 +10,6 @@ import React, {
 	useState,
 } from 'react';
 import {
-	I18nManager,
-	ToastAndroid,
 	View,
 } from 'react-native';
 import { useSafeAreaFrame } from 'react-native-safe-area-context';
@@ -44,7 +42,6 @@ import {
 import packageJson from '../../package.json';
 import '../assets/i18n/i18n';
 import type {
-	OptionBase,
 	HierarchyItem,
 	AbsPathsMap,
 	MapSettings,
@@ -67,84 +64,16 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import RoutingProvider from './RoutingProvider';
 import { selectInitialized as selectAppearanceSettingsInitialized } from '../store/features/appearance/selectors';
 import { useAppSelector } from '../store/hooks';
-import { useCustomTheme } from '../store/features/appearance/hooks';
-
-const useAppLang = () => {
-
-	const {t, i18n} = useTranslation();
-
-	let langOptions = [
-		{ key: 'system', label: t( 'systemSetting' ) },
-		{ key: 'en', label: 'English' },
-		{ key: 'de', label: 'Deutsch' },
-	];
-
-	const [initialized,setInitialized] = useState( false );
-	const [selectedLang,setSelectedLang] = useState<null | string>( null );
-
-	const changeLang = ( newSelectedLang : ( string | null ) ) : void => {
-		newSelectedLang = !! newSelectedLang && [...langOptions].map( opt => opt.key ).includes( newSelectedLang )
-			? newSelectedLang
-			: 'system';
-		let newLang = i18n.language;
-		if ( newSelectedLang === 'system' ) {
-			const systemLocale = I18nManager.getConstants().localeIdentifier || 'en';
-			const systemLangOpt = langOptions.find( opt => systemLocale.startsWith( opt.key ) );
-			newLang = !! systemLangOpt ? systemLangOpt.key : newLang;
-		} else {
-			newLang = newSelectedLang;
-		}
-		i18n.changeLanguage( newLang )
-			.then( () => setSelectedLang( newSelectedLang ) )
-			.catch( err => 'ERROR' + console.log( err ) );
-	};
-
-	useEffect( () => {
-		if ( null === selectedLang ) {
-			DefaultPreference.get( 'lang' ).then( ( newSelectedLang?: string | null ) => {
-				changeLang( newSelectedLang || null );
-			} ).catch( err => 'ERROR' + console.log( err ) );
-		}
-	}, [] );
-
-	useEffect( () => {
-		if ( selectedLang ) {
-			DefaultPreference.set( 'lang', selectedLang ).catch( err => 'ERROR' + console.log( err ) )
-			.then( () => initialized && ToastAndroid.show( sprintf( t( 'settings.saved' ), t( 'language' ) ), ToastAndroid.SHORT ) )
-			.catch( err => 'ERROR' + console.log( err ) );
-			setInitialized( true );
-		}
-	}, [selectedLang]);
-
-	return {
-		selectedLang,
-		langOptions,
-		changeLang,
-	};
-};
+import { useSetupTheme } from '../store/features/appearance/hooks';
 
 const AppWrapper = () => {
 
-	const theme = useCustomTheme();
-
-	const {
-		selectedLang,
-		langOptions,
-		changeLang,
-	} = useAppLang();
-
-	if ( selectedLang === null ) {
-		return null;
-	}
+	const theme = useSetupTheme();
 
 	return <PaperProvider
 		theme={ theme }
 	>
-		<App
-			selectedLang={ selectedLang }
-			langOptions={ langOptions }
-			changeLang={ changeLang }
-		/>
+		<App/>
 	</PaperProvider>;
 };
 
@@ -401,15 +330,7 @@ const useUpdater = ( {
 	};
 };
 
-const App = ( {
-	langOptions,
-	changeLang,
-	selectedLang,
-} : {
-	langOptions: OptionBase[],
-	changeLang: ( newSelectedLang : string ) => void;
-	selectedLang: string,
-} ) => {
+const App = () => {
 
 	const { t } = useTranslation();
 	const theme = useTheme();
@@ -577,9 +498,6 @@ const App = ( {
 
 	return <AppContext.Provider value={ {
 		appDirs,
-		langOptions,
-		changeLang,
-		selectedLang,
 		mapViewNativeNodeHandle,
 		appInnerHeight,
 		topAppBarHeight,

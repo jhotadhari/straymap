@@ -39,7 +39,7 @@ const ThemeControl : FC = () => {
 			key: 'system',
 			label: 'systemSetting',
 		},
-		...Object.keys( customThemes ).map( ( customThemeKey : string ) => (  {
+		...Object.keys( customThemes ).map( ( customThemeKey : string ) => ( {
 			key: customThemeKey,
 			label: customThemes[customThemeKey]?.label || '',
 		} ) ),
