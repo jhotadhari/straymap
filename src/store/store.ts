@@ -8,12 +8,13 @@ import { configureStore } from '@reduxjs/toolkit';
  * Internal dependencies
  */
 import appearanceReducer from './features/appearance/appearanceSlice';
+import generalReducer from './features/general/generalSlice';
 import { listenerMiddleware } from './listenerMiddleware';
 
 export const store = configureStore({
 	reducer: {
 		appearance: appearanceReducer,
-		// general: generalReducer,
+		general: generalReducer,
 		// availability: availabilityReducer,
 		// selection: selectionReducer,
 		// picker: pickerReducer,

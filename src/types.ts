@@ -21,6 +21,7 @@ import {
 import { ViewStyle } from "react-native";
 import { ComposedGesture, GestureType } from "react-native-gesture-handler";
 import { GetTrackParams } from "react-native-brouter";
+import { HardwareKeyActionConf } from "./store/features/general/types";
 
 export interface SliceSettingsBase {
 	initialized: boolean;
@@ -183,11 +184,6 @@ export type UpdateResults = {
 export type UpdaterSettings = {
 	installedVersion: string;
 }
-
-export type HardwareKeyActionConf = {
-	keyCodeString: string;
-	actionKey: string;
-};
 
 export type DashboardElementStyle = {
 	fontSize?: 'default' | number;

@@ -65,6 +65,8 @@ import MapLayersAttribution from './MapLayersAttribution';
 import { fillLayerConfigOptionsWithDefaults, getHillshadingCacheDirChild, stringifyProp } from '../utils';
 import AltitudeProfile from './AltitudeProfile';
 import RoutingMapView from './RoutingMapView';
+import { useAppSelector } from '../store/hooks';
+import { selectHardwareKeys } from '../store/features/general/selectors';
 
 const AppView = ( {
     showSplash,
@@ -88,6 +90,8 @@ const AppView = ( {
 
     const theme = useTheme();
     const systemIsDarkMode = useColorScheme() === 'dark';
+
+    const hardwareKeys = useAppSelector( selectHardwareKeys );
 
     const { width, height } = useSafeAreaFrame();
 
@@ -171,9 +175,9 @@ const AppView = ( {
                     // console.log( 'onMapEvent event', response ); // debug
                     currentMapEventRef.current = response;
                 } }
-                emitsHardwareKeyUp={ [...generalSettings.hardwareKeys].filter( keyConf => 'none' !== keyConf.actionKey ).map( keyConf => keyConf.keyCodeString ) as MapContainerProps['emitsHardwareKeyUp'] }
-                onHardwareKeyUp={ generalSettings.hardwareKeys.length > 0 ? ( response: HardwareKeyEventResponse ) => {
-                    [...generalSettings.hardwareKeys].map( keyConf => {
+                emitsHardwareKeyUp={ hardwareKeys.filter( keyConf => 'none' !== keyConf.actionKey ).map( keyConf => keyConf.keyCodeString ) as MapContainerProps['emitsHardwareKeyUp'] }
+                onHardwareKeyUp={ hardwareKeys.length > 0 ? ( response: HardwareKeyEventResponse ) => {
+                    hardwareKeys.forEach( keyConf => {
                         if ( response.keyCodeString === keyConf.keyCodeString ) {
                             switch( keyConf.actionKey ) {
                                 case 'zoomIn':

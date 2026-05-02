@@ -93,16 +93,6 @@ export const defaults = {
 		installedVersion: packageJson.version,
 	},
 	generalSettings: {
-		hardwareKeys: [
-			{
-				keyCodeString: 'KEYCODE_VOLUME_UP',
-				actionKey: 'zoomIn',
-			},
-			{
-				keyCodeString: 'KEYCODE_VOLUME_DOWN',
-				actionKey: 'zoomOut',
-			},
-		],
 		dashboardElements: {
 			elements: [
 				{

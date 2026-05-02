@@ -19,9 +19,11 @@ if ( ! ( 'structuredClone' in globalThis ) ) {
 import { name as appName } from './app.json';
 import App from './src/components/App';
 import { store } from './src/store/store';
-import { initializeFromStorage as appearanceInitializeFromStorage } from './src/store/features/appearance/connectStorage';
+import { initializeFromStorage as initializeFromStorage_appearance } from './src/store/features/appearance/connectStorage';
+import { initializeFromStorage as initializeFromStorage_general } from './src/store/features/general/connectStorage';
 
-appearanceInitializeFromStorage( store );
+initializeFromStorage_appearance( store );
+initializeFromStorage_general( store );
 
 const AppWithStore = () => (
     <Provider store={store}>
