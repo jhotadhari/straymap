@@ -38,12 +38,14 @@ import MapLayerControlHillshading from './MapLayerControlHillshading';
 import InfoButton from './generic/InfoButton';
 import NameRowControl from './generic/NameRowControl';
 import MapLayerControlMapsforge from './MapLayerControlMapsforge';
-import useUiState from '../compose/useUiState';
 import { fillLayerConfigOptionsWithDefaults } from '../utils';
 import { LayerConfig } from '../store/features/baseMap/types';
 import { LayerOption } from '../types';
 import { ContextSettingsMaps } from '../store/features/baseMap/ContextSettingsMaps';
 import { getNewLayer } from '../store/features/baseMap/utils';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { selectElementExpanded } from '../store/features/ui/selectors';
+import { setElementExpanded } from '../store/features/ui/uiSlice';
 
 export const mapTypeOptions : LayerOption[] = [
     {
@@ -206,6 +208,8 @@ const MapLayersControl = ( {
     uiStateKey?: string;
 } ) => {
 
+    const dispatch = useAppDispatch();
+
     const { width: width_ } = useSafeAreaFrame();
 	width = width ? width : width_;
 
@@ -223,10 +227,7 @@ const MapLayersControl = ( {
         profiles,
     } = useContext( ContextSettingsMaps );
 
-    const {
-        value: expanded,
-        setValue: setExpanded,
-    } = useUiState( uiStateKey );
+    const expanded = useAppSelector( state => selectElementExpanded( state, uiStateKey ) );
 
 	const [modalVisible, setModalVisible] = useState( false );
 
@@ -357,7 +358,10 @@ const MapLayersControl = ( {
                 if ( expanded ) {
                     saveLayers();
                 }
-                setExpanded( ! expanded )
+                dispatch( setElementExpanded( {
+                    key: uiStateKey,
+                    expanded: ! expanded,
+                } ) );
             } }
             titleStyle={ theme.fonts.bodyMedium }
             // style={ expanded ? { marginBottom: 20 } : {} }

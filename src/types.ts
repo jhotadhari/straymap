@@ -86,12 +86,6 @@ export interface LayerOption extends OptionBase {
     type: LayerType;
 };
 
-export type UiState = {
-	mapLayersExpanded: Boolean;
-	mapsforgeProfilesExpanded: Boolean;
-	cacheManagerExpanded: Boolean;
-};
-
 export type UpdateResults = {
 	[value: string]: 	// the version updating from
 	{

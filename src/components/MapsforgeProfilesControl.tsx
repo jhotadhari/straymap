@@ -13,7 +13,6 @@ import {
 	View,
     TouchableHighlight,
     Linking,
-    InteractionManager,
 } from 'react-native';
 import { useSafeAreaFrame } from 'react-native-safe-area-context';
 import {
@@ -46,7 +45,6 @@ import IconIcomoon from './generic/IconIcomoon';
 import NameRowControl from './generic/NameRowControl';
 import FileSourceRowControl, { AlternativeButtonType } from './FileSourceRowControl';
 import MenuItem from './generic/MenuItem';
-import useUiState from '../compose/useUiState';
 import LoadingIndicator from './generic/LoadingIndicator';
 import HintLink from './generic/HintLink';
 import InfoRadioRow from './generic/InfoRadioRow';
@@ -56,6 +54,9 @@ import { ContextSettingsMaps } from '../store/features/baseMap/ContextSettingsMa
 import { MapsforgeProfile, LayerConfigOptionsMapsforge, LayerConfig } from '../store/features/baseMap/types';
 import { OptionBase } from '../types';
 import { getNewProfile } from '../store/features/baseMap/utils';
+import { selectElementExpanded } from '../store/features/ui/selectors';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { setElementExpanded } from '../store/features/ui/uiSlice';
 
 const itemHeight = 50;
 
@@ -416,6 +417,8 @@ const MapsforgeProfilesControl = ( {
     uiStateKey?: string;
 } ) => {
 
+    const dispatch = useAppDispatch();
+
     const {
         editProfile,
         setEditProfile,
@@ -448,10 +451,7 @@ const MapsforgeProfilesControl = ( {
         }
     }, [editProfile] );
 
-    const {
-        value: expanded,
-        setValue: setExpanded,
-    } = useUiState( uiStateKey );
+    const expanded = useAppSelector( state => selectElementExpanded( state, uiStateKey ) );
 
     const setModalVisible = ( visible: boolean ) => {
         if ( visible ) {
@@ -696,7 +696,10 @@ const MapsforgeProfilesControl = ( {
                 if ( expanded && saveProfiles ) {
                     saveProfiles();
                 }
-                setExpanded( ! expanded )
+                dispatch( setElementExpanded( {
+                    key: uiStateKey,
+                    expanded: ! expanded,
+                } ) );
             } }
             titleStyle={ theme.fonts.bodyMedium }
         >

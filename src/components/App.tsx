@@ -45,7 +45,6 @@ import type {
 	HierarchyItem,
 	AbsPathsMap,
 	LayerInfos,
-	UiState,
 	InitialPosition,
 	UpdaterSettings,
 	UpdateResults,
@@ -374,22 +373,6 @@ const App = () => {
 	const settingsInitialized_general = useAppSelector( selectSettingsInitialized_general );
 	const settingsInitialized_baseMap = useAppSelector( selectSettingsInitialized_baseMap );
 
-	let {
-		settings: uiState,
-		setSettings: setUiState,
-		initialized: uiStateInitialized,
-	} = useSettings( {
-		maybeIsBusyAdd,
-		maybeIsBusyRemove,
-		savedMessage: undefined,
-		settingsKey: 'uiState',
-		initialSettings: defaults.uiState,
-	} ) as {
-		settings: UiState;
-		setSettings: Dispatch<SetStateAction<UiState>>;
-		initialized: boolean;
-	};
-
 	// Remove bottomBar if no dashboard elements.
 	const dashboardElements = useAppSelector( selectElements );
 	useEffect( () => {
@@ -431,7 +414,6 @@ const App = () => {
 			&& settingsInitialized_dashboard
 			&& settingsInitialized_general
 			&& settingsInitialized_baseMap
-			&& uiStateInitialized
 		) ) {
 			setReady( true );
 		}
@@ -442,7 +424,6 @@ const App = () => {
 		settingsInitialized_dashboard,
 		settingsInitialized_general,
 		settingsInitialized_baseMap,
-		uiStateInitialized,
 	] );
 
 	const {
@@ -483,8 +464,6 @@ const App = () => {
 		bottomBarHeight,
 		selectedHierarchyItems,
 		setSelectedHierarchyItems,
-		uiState,
-		setUiState,
 		isBusy,
 		maybeIsBusyAdd,
 		maybeIsBusyRemove,

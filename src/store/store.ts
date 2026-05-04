@@ -9,6 +9,7 @@ import { configureStore } from '@reduxjs/toolkit';
  */
 import appearanceReducer from './features/appearance/appearanceSlice';
 import generalReducer from './features/general/generalSlice';
+import uiReducer from './features/ui/uiSlice';
 import dashboardReducer from './features/dashboard/dashboardSlice';
 import baseMapReducer from './features/baseMap/baseMapSlice';
 import { listenerMiddleware } from './listenerMiddleware';
@@ -17,6 +18,7 @@ export const store = configureStore({
 	reducer: {
 		appearance: appearanceReducer,
 		general: generalReducer,
+		ui: uiReducer,
 		dashboard: dashboardReducer,
 		baseMap: baseMapReducer,
 	},

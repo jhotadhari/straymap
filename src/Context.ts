@@ -17,7 +17,6 @@ import {
     ThemeOption,
     HierarchyItem,
     AbsPathsMap,
-    UiState,
     RoutingSegment,
     RoutingPoint,
     RoutingTriggeredSegment,
@@ -35,8 +34,6 @@ export type AppContextType = {
     bottomBarHeight?: BottomBarHeight;
 	selectedHierarchyItems?: null | HierarchyItem[];
 	setSelectedHierarchyItems?: Dispatch<SetStateAction<null | HierarchyItem[]>>;
-	uiState?: UiState;
-	setUiState?: Dispatch<SetStateAction<UiState>>;
     isBusy?: boolean;
 	maybeIsBusyAdd?: ( key: string ) => void;
 	maybeIsBusyRemove?: ( key: string ) => void;

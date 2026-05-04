@@ -25,7 +25,6 @@ import { get } from 'lodash-es';
  * Internal dependencies
  */
 import InfoRowControl from './generic/InfoRowControl';
-import useUiState from '../compose/useUiState';
 import LoadingIndicator from './generic/LoadingIndicator';
 import useCacheDirsInfo, { CacheDir, CacheSubDir } from '../compose/useCacheDirsInfo';
 import { getHillshadingCacheDirChild, stringifyProp } from '../utils';
@@ -33,6 +32,9 @@ import { FsModule } from '../nativeModules';
 import { ContextSettingsMaps } from '../store/features/baseMap/ContextSettingsMaps';
 import { AppContext } from '../Context';
 import { LayerConfig } from '../store/features/baseMap/types';
+import { selectElementExpanded } from '../store/features/ui/selectors';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { setElementExpanded } from '../store/features/ui/uiSlice';
 
 const CacheRow = ( {
     cacheDir,
@@ -118,7 +120,11 @@ const CacheRow = ( {
 
 };
 
+const uiStateKey = 'cacheManagerExpanded';
+
 const CacheManager = () => {
+
+    const dispatch = useAppDispatch();
 
 	const theme = useTheme();
 
@@ -148,10 +154,7 @@ const CacheManager = () => {
         return [cacheDirBase,cacheDirChild].join( '/' ) === pathFull;
     } );
 
-    const {
-        value: expanded,
-        setValue: setExpanded,
-    } = useUiState( 'cacheManagerExpanded' );
+    const expanded = useAppSelector( state => selectElementExpanded( state, uiStateKey ) );
 
     const [loadCacheDirs,setLoadCacheDirs] = useState<number | boolean>( expanded );
 
@@ -169,7 +172,10 @@ const CacheManager = () => {
             if ( ! expanded ) {
                 setLoadCacheDirs( Math.random() );
             }
-            setExpanded( ! expanded )
+            dispatch( setElementExpanded( {
+                key: uiStateKey,
+                expanded: ! expanded,
+            } ) );
         } }
         titleStyle={ theme.fonts.bodyMedium }
     >
