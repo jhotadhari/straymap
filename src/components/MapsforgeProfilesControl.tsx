@@ -7,6 +7,7 @@ import {
     SetStateAction,
     useContext,
     useEffect,
+    useMemo,
     useState,
 } from 'react';
 import {
@@ -48,7 +49,6 @@ import MenuItem from './generic/MenuItem';
 import LoadingIndicator from './generic/LoadingIndicator';
 import HintLink from './generic/HintLink';
 import InfoRadioRow from './generic/InfoRadioRow';
-import useSettings from '../compose/useSettings';
 import { runAfterInteractions } from '../utils';
 import { ContextSettingsMaps } from '../store/features/baseMap/ContextSettingsMaps';
 import { MapsforgeProfile, LayerConfigOptionsMapsforge, LayerConfig } from '../store/features/baseMap/types';
@@ -57,13 +57,11 @@ import { getNewProfile } from '../store/features/baseMap/utils';
 import { selectElementExpanded } from '../store/features/ui/selectors';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { setElementExpanded } from '../store/features/ui/uiSlice';
+import { selectRenderStylesCache } from '../store/features/baseMap/selectors';
+import { setRenderStylesCache } from '../store/features/baseMap/baseMapSlice';
 
 const itemHeight = 50;
 
-type RenderStyles = {
-    optionsMap: { [value: string]: RenderStyleOptionsCollection };
-    defaultsMap: { [value: string]: ( string | null ) };
-};
 
 const DraggableItem = ( {
     width,
@@ -462,32 +460,23 @@ const MapsforgeProfilesControl = ( {
         }
     };
 
-	const {
-		settings: renderStylesCache,
-		setSettings: setRenderStylesCache,
-		initialized: renderStylesInitializedCache,
-	} = useSettings( {
-		maybeIsBusyAdd,
-		maybeIsBusyRemove,
-		settingsKey: 'renderStylesCache',
-		initialSettings: {
-            optionsMap: {},
-            defaultsMap: {},
-        },
-	} ) as {
-		settings: RenderStyles;
-		setSettings: Dispatch<SetStateAction<RenderStyles>>;
-		initialized: boolean;
-	};
+    const renderStylesCache = useAppSelector( selectRenderStylesCache );
+
+    const hasEditProfileRenderStylesCacheEntry = useMemo( () => {
+        return !! ( editProfile?.theme && get( renderStylesCache.optionsMap, editProfile.theme ) );
+    }, [
+        editProfile?.theme,
+        renderStylesCache.optionsMap,
+    ] );
 
 	useEffect( () => {
-        if ( renderStylesInitializedCache && editProfile && null !== editProfile.theme && modalOpened ) {
-            if ( ! renderStylesCache.optionsMap[editProfile.theme] ) {
+        if ( editProfile && null !== editProfile.theme && modalOpened ) {
+            if ( ! hasEditProfileRenderStylesCacheEntry ) {
                 const busyKey = 'MapsforgeProfilesControl' + editProfile.key;
                 maybeIsBusyAdd && maybeIsBusyAdd( busyKey );
                 runAfterInteractions( () => {
                     MapLayerMapsforgeModule.getRenderThemeOptions( editProfile?.theme ).then( ( collection : RenderStyleOptionsCollection ) => {
-                        setRenderStylesCache( {
+                        dispatch( setRenderStylesCache( {
                             optionsMap: {
                                 ...renderStylesCache.optionsMap,
                                 ...( 'string' === typeof editProfile.theme && { [editProfile.theme]: collection } ),
@@ -498,15 +487,14 @@ const MapsforgeProfilesControl = ( {
                                     [editProfile.theme]: get( Object.values( collection ).find( obj => obj.default ), 'value', null ),
                                 } ),
                             },
-                        } );
+                        } ) );
                         maybeIsBusyRemove && maybeIsBusyRemove( busyKey );
                     } );
                 } );
             }
 		}
     }, [
-        renderStylesInitializedCache,
-        get( renderStylesCache, ['optionsMap',editProfile ? editProfile?.theme : '' ]),
+        hasEditProfileRenderStylesCacheEntry,
         editProfile?.theme,
         modalOpened,
     ] );
@@ -564,11 +552,11 @@ const MapsforgeProfilesControl = ( {
                     After={ isBusy ? undefined : <TouchableHighlight
                         underlayColor={ theme.colors.elevation.level3 }
                         onPress={ () => {
-                            if ( renderStylesInitializedCache && editProfile && null !== editProfile.theme && 'string' === typeof editProfile.theme ) {
-                                setRenderStylesCache( {
+                            if ( editProfile && null !== editProfile.theme && 'string' === typeof editProfile.theme ) {
+                                dispatch( setRenderStylesCache( {
                                     optionsMap: omit(renderStylesCache.optionsMap, editProfile.theme ),
                                     defaultsMap: omit(renderStylesCache.defaultsMap, editProfile.theme )
-                                } );
+                                } ) );
                             }
                         } }
                         style={ { borderRadius: theme.roundness } }

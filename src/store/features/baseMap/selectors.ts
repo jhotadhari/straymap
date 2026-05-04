@@ -34,3 +34,6 @@ export const selectHgtFileInfoPurgeThreshold = ( state: RootState ) =>
 
 export const selectMapsforgeGeneral = ( state: RootState ) =>
 	state.baseMap.mapsforgeGeneral;
+
+export const selectRenderStylesCache = ( state: RootState ) =>
+	state.baseMap.renderStylesCache;

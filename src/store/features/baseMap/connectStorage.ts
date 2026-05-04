@@ -8,7 +8,7 @@ import { get, isEqual, set } from 'lodash-es';
 /**
  * Internal dependencies
  */
-import { BaseMapSettings, BaseMapState, initialSettings, setHgtDirPath, setHgtFileInfoPurgeThreshold, setHgtInterpolation, setHgtReadFileRate, setInitialized, setLayers, setMapsforgeGeneral, setMapsforgeProfiles } from './baseMapSlice';
+import { BaseMapSettings, BaseMapState, initialSettings, setHgtDirPath, setHgtFileInfoPurgeThreshold, setHgtInterpolation, setHgtReadFileRate, setInitialized, setLayers, setMapsforgeGeneral, setMapsforgeProfiles, setRenderStylesCache } from './baseMapSlice';
 import { startAppListening } from '../../listenerMiddleware';
 
 const settingsKey = 'baseMapSettings';
@@ -48,6 +48,9 @@ export const initializeFromStorage = ( store: EnhancedStore ) => {
 			}
 			if ( newSettings?.mapsforgeGeneral ) {
 				store.dispatch( setMapsforgeGeneral( newSettings.mapsforgeGeneral ) );
+			}
+			if ( newSettings?.renderStylesCache ) {
+				store.dispatch( setRenderStylesCache( newSettings.renderStylesCache ) );
 			}
 		}
 		store.dispatch( setInitialized( true ) );
@@ -94,6 +97,7 @@ startAppListening( {
 		setHgtInterpolation,
 		setHgtFileInfoPurgeThreshold,
 		setMapsforgeGeneral,
+		setRenderStylesCache,
 	),
 	effect: async (
 		action: PayloadAction<

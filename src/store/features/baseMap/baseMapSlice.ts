@@ -10,7 +10,7 @@ import { LayerHillshadingProps } from 'react-native-mapsforge-vtm';
  * Internal dependencies
 */
 import { SliceSettingsBase } from '../../../types';
-import { LayerConfig, MapsforgeGeneral, MapsforgeProfile } from './types';
+import { LayerConfig, MapsforgeGeneral, MapsforgeProfile, RenderStylesCache } from './types';
 import { getNewProfile } from './utils';
 
 export interface BaseMapSettings {
@@ -21,6 +21,7 @@ export interface BaseMapSettings {
 	hgtInterpolation: boolean;
 	hgtFileInfoPurgeThreshold: number;
 	mapsforgeGeneral: MapsforgeGeneral;
+	renderStylesCache: RenderStylesCache;
 }
 
 export interface BaseMapState extends SliceSettingsBase, BaseMapSettings {
@@ -64,6 +65,10 @@ export const initialSettings : BaseMapSettings = {
 		symbolScale: 1,
 		textScale: 1.4,
 	},
+	renderStylesCache: {
+		optionsMap: {},
+		defaultsMap: {},
+	}
 };
 
 const initialState: BaseMapState = {
@@ -139,6 +144,9 @@ export const baseMapSlice = createSlice({
 		setMapsforgeGeneral: (state, action: PayloadAction<BaseMapSettings['mapsforgeGeneral']>) => {
 			state.mapsforgeGeneral = action.payload;
 		},
+		setRenderStylesCache: (state, action: PayloadAction<BaseMapSettings['renderStylesCache']>) => {
+			state.renderStylesCache = action.payload;
+		},
 	},
 });
 
@@ -152,6 +160,7 @@ export const {
 	setHgtInterpolation,
 	setHgtFileInfoPurgeThreshold,
 	setMapsforgeGeneral,
+	setRenderStylesCache,
 } = baseMapSlice.actions;
 
 // Export the slice reducer for use in the store configuration

@@ -8,13 +8,13 @@ import {
 	LayerMapsforgeProps,
 	LayerHillshadingProps,
 	MapContainerProps,
+	RenderStyleOptionsCollection,
 } from 'react-native-mapsforge-vtm';
 
-/**
- * Internal dependencies
-*/
-import { UnitPref } from "../general/types";
-
+export type RenderStylesCache = {
+    optionsMap: { [value: string]: RenderStyleOptionsCollection };
+    defaultsMap: { [value: string]: ( string | null ) };
+};
 
 export interface LayerConfigOptionsOnlineRasterXYZ {
 	url?: LayerBitmapTileProps['url'];
