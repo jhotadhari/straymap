@@ -13,8 +13,6 @@ import {
 	View,
 } from 'react-native';
 import { useSafeAreaFrame } from 'react-native-safe-area-context';
-import 'intl-pluralrules';
-import { useTranslation } from 'react-i18next';
 import DefaultPreference from 'react-native-default-preference';
 import {
 	PaperProvider,
@@ -38,7 +36,6 @@ import {
  * Internal dependencies
  */
 import packageJson from '../../package.json';
-import '../assets/i18n/i18n';
 import type {
 	HierarchyItem,
 	AbsPathsMap,

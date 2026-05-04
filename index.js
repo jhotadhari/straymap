@@ -7,6 +7,7 @@
  */
 import { AppRegistry } from 'react-native';
 import { Provider } from 'react-redux';
+import 'intl-pluralrules';
 // structuredClone polyfill
 import structuredClone from "@ungap/structured-clone";
 if ( ! ( 'structuredClone' in globalThis ) ) {
@@ -17,6 +18,7 @@ if ( ! ( 'structuredClone' in globalThis ) ) {
  * Internal dependencies
  */
 import { name as appName } from './app.json';
+import './src/assets/i18n/i18n';
 import App from './src/components/App';
 import { store } from './src/store/store';
 import { initializeFromStorage as initializeFromStorage_appearance } from './src/store/features/appearance/connectStorage';
