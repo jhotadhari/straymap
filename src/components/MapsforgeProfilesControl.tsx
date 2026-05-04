@@ -46,7 +46,6 @@ import IconIcomoon from './generic/IconIcomoon';
 import NameRowControl from './generic/NameRowControl';
 import FileSourceRowControl, { AlternativeButtonType } from './FileSourceRowControl';
 import MenuItem from './generic/MenuItem';
-import { modalWidthFactor } from '../constants';
 import useUiState from '../compose/useUiState';
 import LoadingIndicator from './generic/LoadingIndicator';
 import HintLink from './generic/HintLink';
@@ -56,6 +55,7 @@ import { runAfterInteractions } from '../utils';
 import { ContextSettingsMaps } from '../store/features/baseMap/ContextSettingsMaps';
 import { MapsforgeProfile, LayerConfigOptionsMapsforge, LayerConfig } from '../store/features/baseMap/types';
 import { OptionBase } from '../types';
+import { getNewProfile } from '../store/features/baseMap/utils';
 
 const itemHeight = 50;
 
@@ -423,7 +423,6 @@ const MapsforgeProfilesControl = ( {
         profiles,
         setProfiles,
         saveProfiles,
-        getNewProfile,
         layers,
     } = useContext( ContextSettingsMaps );
 
@@ -774,7 +773,7 @@ const MapsforgeProfilesControl = ( {
                     icon="map-plus"
                     mode="outlined"
                     onPress={ () => {
-                        if ( getNewProfile && setEditProfile && updateProfile ) {
+                        if ( setEditProfile && updateProfile ) {
                             const newEditProfile = getNewProfile();
                             setIsNewKey( newEditProfile.key );
                             setEditProfile( newEditProfile );

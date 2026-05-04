@@ -24,7 +24,6 @@ import {
 import { useTranslation } from 'react-i18next';
 import DraggableGrid from 'react-native-draggable-grid';
 import { get } from 'lodash-es';
-import rnUuid from 'react-native-uuid';
 
 /**
  * Internal dependencies
@@ -44,6 +43,7 @@ import { fillLayerConfigOptionsWithDefaults } from '../utils';
 import { LayerConfig } from '../store/features/baseMap/types';
 import { LayerOption } from '../types';
 import { ContextSettingsMaps } from '../store/features/baseMap/ContextSettingsMaps';
+import { getNewLayer } from '../store/features/baseMap/utils';
 
 export const mapTypeOptions : LayerOption[] = [
     {
@@ -69,14 +69,6 @@ export const mapTypeOptions : LayerOption[] = [
 
 const itemHeight = 50;
 const labelMinWidth = 90;
-
-const getNewLayer = () : LayerConfig => ( {
-    key: rnUuid.v4(),
-    name: '',
-    visible: true,
-    type: null,
-    options: {},
-} );
 
 const VisibleControl = ( {
     item,

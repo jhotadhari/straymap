@@ -27,13 +27,14 @@ import dayjs from 'dayjs';
  */
 import ButtonHighlight from './generic/ButtonHighlight';
 import MenuItem from './generic/MenuItem';
-import { LayerConfig, LayerConfigOptionsOnlineRasterXYZ, OptionBase, ThemePropExtended } from '../types';
+import { OptionBase, ThemePropExtended } from '../types';
 import { NumericMultiRowControl, NumericRowControl } from './generic/NumericRowControls';
 import InfoRowControl from './generic/InfoRowControl';
 import CacheControl from './CacheControl';
 import { fillLayerConfigOptionsWithDefaults, stringifyProp } from '../utils';
 import { defaults } from '../constants';
 import { TextInputNativeMultiline, TextInputNativeMultilineControlled } from './generic/TextInputNativeMultiline';
+import { LayerConfig, LayerConfigOptionsOnlineRasterXYZ } from '../store/features/baseMap/types';
 
 interface SourceOption extends OptionBase {
     url?: `http://${string}` | `https://${string}`;

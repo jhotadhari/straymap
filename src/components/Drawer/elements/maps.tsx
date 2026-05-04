@@ -50,7 +50,6 @@ const DisplayComponent = ( {
         profiles,
         setProfiles,
         saveProfiles,
-        getNewProfile,
     } = useProfiles( {
         saveOnSet: true,
         saveOnSetDelay: 300,
@@ -85,7 +84,6 @@ const DisplayComponent = ( {
         updateProfile,
         setProfiles,
         saveProfiles,
-        getNewProfile,
 	} }>
         <ScrollView
             scrollEnabled={ scrollEnabled }

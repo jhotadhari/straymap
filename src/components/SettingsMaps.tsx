@@ -27,7 +27,6 @@ import SettingsMapsforgeControl from './SettingsMapsforgeControl';
 import CacheManager from './CacheManager';
 import useProfiles from '../store/features/baseMap/hooks/useProfiles';
 import useLayers from '../store/features/baseMap/hooks/useLayers';
-import useLayerEnsureProfile from '../store/features/baseMap/hooks/useLayerEnsureProfile';
 import { ContextSettingsMaps } from '../store/features/baseMap/ContextSettingsMaps';
 
 const SettingsMaps : FC = () => {
@@ -49,7 +48,6 @@ const SettingsMaps : FC = () => {
         profiles,
         setProfiles,
         saveProfiles,
-        getNewProfile,
     } = useProfiles( {} );
 
     const {
@@ -62,23 +60,6 @@ const SettingsMaps : FC = () => {
     } = useLayers( {} );
 
     const [scrollEnabled,setScrollEnabled] = useState( true );
-
-    const {
-        layerMissingProfile,
-        layerEnsureProfile,
-    } = useLayerEnsureProfile();
-
-    useEffect( () => {
-        if ( layers.some( layer => layerMissingProfile( layer, profiles ) ) ) {
-            const newLayers = [...layers].map( layer => layerEnsureProfile( layer, profiles ) );
-            setLayers && setLayers( newLayers );
-        }
-    }, [
-        profiles,
-        layers,
-        layerMissingProfile,
-        layerEnsureProfile,
-    ] );
 
     return <ContextSettingsMaps.Provider value={ {
         // layers
@@ -95,7 +76,6 @@ const SettingsMaps : FC = () => {
         updateProfile,
         setProfiles,
         saveProfiles,
-        getNewProfile,
 	} }>
         <ScrollView
             scrollEnabled={ scrollEnabled }

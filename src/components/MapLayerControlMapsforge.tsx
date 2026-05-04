@@ -25,7 +25,7 @@ import { debounce, get } from 'lodash-es';
 /**
  * Internal dependencies
  */
-import { LayerConfig, LayerConfigOptionsMapsforge, MapsforgeProfile, OptionBase } from '../types';
+import { OptionBase } from '../types';
 import { NumericMultiRowControl } from './generic/NumericRowControls';
 import { AppContext } from '../Context';
 import FileSourceRowControl from './FileSourceRowControl';
@@ -35,6 +35,7 @@ import MenuItem from './generic/MenuItem';
 import { sprintf } from 'sprintf-js';
 import HintLink from './generic/HintLink';
 import { fillLayerConfigOptionsWithDefaults } from '../utils';
+import { LayerConfigOptionsMapsforge, MapsforgeProfile, LayerConfig } from '../store/features/baseMap/types';
 
 const ProfileRowControl = ( {
     options,

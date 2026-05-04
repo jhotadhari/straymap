@@ -11,6 +11,7 @@ import { LayerHillshadingProps } from 'react-native-mapsforge-vtm';
 */
 import { SliceSettingsBase } from '../../../types';
 import { LayerConfig, MapsforgeGeneral, MapsforgeProfile } from './types';
+import { getNewProfile } from './utils';
 
 export interface BaseMapSettings {
 	layers: LayerConfig[];
@@ -22,7 +23,10 @@ export interface BaseMapSettings {
 	mapsforgeGeneral: MapsforgeGeneral;
 }
 
-export interface BaseMapState extends SliceSettingsBase, BaseMapSettings {}
+export interface BaseMapState extends SliceSettingsBase, BaseMapSettings {
+	layersTemp?: LayerConfig[];
+	mapsforgeProfilesTemp?: MapsforgeProfile[];
+}
 
 export const initialSettings : BaseMapSettings = {
 	layers: [
@@ -64,6 +68,8 @@ export const initialSettings : BaseMapSettings = {
 
 const initialState: BaseMapState = {
 	initialized: false,
+	layersTemp: undefined,
+	mapsforgeProfilesTemp: undefined,
 	...initialSettings,
 };
 
@@ -76,11 +82,47 @@ export const baseMapSlice = createSlice({
 		setInitialized: (state, action: PayloadAction<boolean>) => {
 			state.initialized = action.payload;
 		},
-		setLayers: (state, action: PayloadAction<BaseMapSettings['layers']>) => {
-			state.layers = action.payload;
+		setLayers: (state, action: PayloadAction<{
+			layers?: BaseMapSettings['layers'],
+			temp?: boolean,
+		}>) => {
+			if ( action.payload?.temp ) {
+				if ( action.payload?.layers ) {
+					state.layersTemp = action.payload?.layers;
+				}
+			} else {
+				if ( action.payload?.layers ) {
+					state.layers = action.payload?.layers;
+					state.layersTemp = undefined;
+				} else if ( state.layersTemp ) {
+					state.layers = state.layersTemp;
+					state.layersTemp = undefined;
+				}
+			}
 		},
-		setMapsforgeProfiles: (state, action: PayloadAction<BaseMapSettings['mapsforgeProfiles']>) => {
-			state.mapsforgeProfiles = action.payload;
+		setMapsforgeProfiles: (state, action: PayloadAction<{
+			mapsforgeProfiles?: BaseMapSettings['mapsforgeProfiles'],
+			temp?: boolean,
+		}>) => {
+			if ( action.payload?.temp ) {
+				if ( action.payload?.mapsforgeProfiles && Array.isArray( action.payload?.mapsforgeProfiles ) && action.payload?.mapsforgeProfiles.length ) {
+					state.mapsforgeProfilesTemp = action.payload.mapsforgeProfiles;
+				}
+			} else {
+				if ( action.payload?.mapsforgeProfiles && Array.isArray( action.payload?.mapsforgeProfiles ) && action.payload?.mapsforgeProfiles.length ) {
+					state.mapsforgeProfiles = action.payload.mapsforgeProfiles;
+					state.mapsforgeProfilesTemp = undefined;
+				} else if ( state?.mapsforgeProfilesTemp && Array.isArray( state?.mapsforgeProfilesTemp ) && state?.mapsforgeProfilesTemp.length ) {
+					state.mapsforgeProfiles = state.mapsforgeProfilesTemp;
+					state.mapsforgeProfilesTemp = undefined;
+				} else if ( ! state.mapsforgeProfiles.length ) {
+					state.mapsforgeProfiles = [{
+						...getNewProfile(),
+						name: 'default',
+					}];
+					state.mapsforgeProfilesTemp = undefined;
+				}
+			}
 		},
 		setHgtDirPath: (state, action: PayloadAction<BaseMapSettings['hgtDirPath']>) => {
 			state.hgtDirPath = action.payload;

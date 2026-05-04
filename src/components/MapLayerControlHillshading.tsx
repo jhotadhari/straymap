@@ -26,7 +26,7 @@ import { LayerHillshading, ShadingAlgorithm, ShadingAlgorithmOptions } from 'rea
  * Internal dependencies
  */
 import ButtonHighlight from './generic/ButtonHighlight';
-import { LayerConfig, LayerConfigOptionsHillshading, OptionBase } from '../types';
+import { OptionBase } from '../types';
 import InfoRowControl from './generic/InfoRowControl';
 import { AppContext } from '../Context';
 import ModalWrapper from './generic/ModalWrapper';
@@ -38,6 +38,7 @@ import CacheControl from './CacheControl';
 import { defaults } from '../constants';
 import { styles as mdStyles } from '../markdown/styles';
 import HintLink from './generic/HintLink';
+import { LayerConfigOptionsHillshading, LayerConfig } from '../store/features/baseMap/types';
 
 const algorithmLinks = {
     CLASY_ADAPTIVE: 'https://github.com/mapsforge/mapsforge/blob/master/mapsforge-map/src/main/java/org/mapsforge/map/layer/hills/AdaptiveClasyHillShading.java',

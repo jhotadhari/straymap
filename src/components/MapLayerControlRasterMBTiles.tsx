@@ -20,12 +20,12 @@ import { sprintf } from 'sprintf-js';
 /**
  * Internal dependencies
  */
-import { LayerConfig, LayerConfigOptionsRasterMBtiles } from '../types';
 import { NumericMultiRowControl } from './generic/NumericRowControls';
 import { AppContext } from '../Context';
 import FileSourceRowControl from './FileSourceRowControl';
 import HintLink from './generic/HintLink';
 import { fillLayerConfigOptionsWithDefaults } from '../utils';
+import { LayerConfig, LayerConfigOptionsRasterMBtiles } from '../store/features/baseMap/types';
 
 const MapLayerControlRasterMBTiles = ( {
     editLayer,

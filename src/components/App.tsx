@@ -390,24 +390,6 @@ const App = () => {
 		initialized: boolean;
 	};
 
-	let {
-		settings: mapSettings,
-		setSettings: setMapSettings,
-		initialized: mapSettingsInitialized,
-	} = useSettings( {
-		maybeIsBusyAdd,
-		maybeIsBusyRemove,
-		savedMessage: ready ? sprintf( t( 'settings.saved' ), t( 'settings.maps' ) ) : undefined,
-		settingsKey: 'mapSettings',
-		initialSettings: {},
-	} ) as {
-		settings: any;
-		setSettings: Dispatch<SetStateAction<any>>;
-		initialized: boolean;
-	};
-
-	console.log( 'debug mapSettings', mapSettings ); // debug
-
 	// Remove bottomBar if no dashboard elements.
 	const dashboardElements = useAppSelector( selectElements );
 	useEffect( () => {

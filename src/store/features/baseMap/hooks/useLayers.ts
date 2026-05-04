@@ -6,7 +6,6 @@ import {
     useCallback,
     useEffect,
     useMemo,
-    useRef,
     useState,
 } from 'react';
 import { debounce, get } from 'lodash-es';
@@ -25,7 +24,7 @@ const getLayerType = ( layer : LayerConfig ) : ( LayerType | null ) => get( mapT
 
 const useLayers = ( {
     saveOnSet,
-    saveOnSetDelay = 0,
+    saveOnSetDelay = 300,
 } : {
     saveOnSet?: boolean;
     saveOnSetDelay?: number;
@@ -33,18 +32,10 @@ const useLayers = ( {
 
     const dispatch = useAppDispatch();
 
-    const layersStore = useAppSelector( selectLayers );
-
-    const [layers,setLayers_] = useState<LayerConfig[]>( layersStore );
-    const layersRef = useRef<LayerConfig[]>( layers );
-
-    useEffect( () => {
-        setLayers_( layersStore );
-        layersRef.current = layersStore;
-    }, [layersStore] );
+    const layersTemp = useAppSelector( state => selectLayers( state, { temp: true } ) );
 
     const saveLayers = useCallback( () => {
-        dispatch( setLayersStore( layersRef.current ) );
+        dispatch( setLayersStore( { temp: false } ) );
     }, [] );
 
     const saveLayersDebounced = useMemo(
@@ -53,13 +44,16 @@ const useLayers = ( {
     );
 
     const setLayers = useCallback( ( newLayers: LayerConfig[] ) => {
-        setLayers_( newLayers );
-        layersRef.current = newLayers;
-        if ( saveOnSet ) {
+        dispatch( setLayersStore( {
+            temp: ! saveOnSet || ( saveOnSet && saveOnSetDelay > 0 ),
+            layers: newLayers,
+        } ) );
+        if ( saveOnSet && saveOnSetDelay > 0 ) {
             saveLayersDebounced();
         }
     }, [
         saveOnSet,
+        saveOnSetDelay,
         saveLayersDebounced,
     ] );
 
@@ -72,43 +66,39 @@ const useLayers = ( {
         if ( editLayer && editLayer.key === newLayer.key ) {
             setEditLayer( newLayer );
         }
-        const itemIndex = layers.findIndex( item => item.key === newLayer.key );
+        const itemIndex = layersTemp.findIndex( item => item.key === newLayer.key );
         if ( -1 !== itemIndex ) {
-            const newLayers = [...layers];
+            const newLayers = [...layersTemp];
             newLayers[itemIndex] = newLayer;
             setLayers( newLayers );
-            if ( saveOnSet ) { saveLayersDebounced() }
         } else {
             let insertIndex = 0;
             if ( 'base' === getLayerType( newLayer ) ) {
-                const indexFirstBase = layers.findIndex( layer => 'base' === getLayerType( layer ) );
+                const indexFirstBase = layersTemp.findIndex( layer => 'base' === getLayerType( layer ) );
                 insertIndex = indexFirstBase !== -1 ? indexFirstBase : insertIndex;
             }
-            const newLayers = [...layers];
+            const newLayers = [...layersTemp];
             newLayers.splice(
                 insertIndex,
                 0,
                 newLayer
             );
             setLayers( newLayers );
-            if ( saveOnSet ) { saveLayersDebounced() }
         }
     }, [
-        layers,
+        setLayers,
+        layersTemp,
         editLayer,
-        saveOnSet,
-        saveLayersDebounced,
     ] );
 
     return {
         editLayer,
         setEditLayer,
         updateLayer,
-        layers,
+        layers: layersTemp,
         setLayers,
         saveLayers,
     };
-
 };
 
 export default useLayers;

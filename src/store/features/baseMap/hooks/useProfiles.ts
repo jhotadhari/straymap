@@ -6,10 +6,8 @@ import {
     useCallback,
     useEffect,
     useMemo,
-    useRef,
     useState,
 } from 'react';
-import rnUuid from 'react-native-uuid';
 import { debounce } from 'lodash-es';
 
 /**
@@ -20,19 +18,9 @@ import { useAppDispatch, useAppSelector } from '../../../hooks';
 import { selectMapsforgeProfiles } from '../selectors';
 import { setMapsforgeProfiles as setProfilesStore } from '../baseMapSlice';
 
-const getNewProfile = () : MapsforgeProfile => ( {
-    key: rnUuid.v4(),
-    name: '',
-    theme: 'DEFAULT',
-    renderStyle: null,
-    renderOverlays: [],
-	hasBuildings: true,
-	hasLabels: true,
-} );
-
 const useProfiles = ( {
     saveOnSet,
-    saveOnSetDelay = 0,
+    saveOnSetDelay = 300,
 } : {
     saveOnSet?: boolean;
     saveOnSetDelay?: number;
@@ -40,18 +28,10 @@ const useProfiles = ( {
 
     const dispatch = useAppDispatch();
 
-    const profilesStore = useAppSelector( selectMapsforgeProfiles );
-
-    const [profiles,setProfiles_] = useState<MapsforgeProfile[]>( profilesStore );
-    const profilesRef = useRef<MapsforgeProfile[]>( profiles );
-
-    useEffect( () => {
-        setProfiles_( profilesStore );
-        profilesRef.current = profilesStore;
-    }, [profilesStore] );
+    const profilesTemp = useAppSelector( state => selectMapsforgeProfiles( state, { temp: true } ) );
 
     const saveProfiles = useCallback( () => {
-        dispatch( setProfilesStore( profilesRef.current ) );
+        dispatch( setProfilesStore( { temp: false } ) );
     }, [] );
 
     const saveProfilesDebounced = useMemo(
@@ -60,12 +40,18 @@ const useProfiles = ( {
     );
 
     const setProfiles = useCallback( ( newProfiles: MapsforgeProfile[] ) => {
-        setProfiles_( newProfiles );
-        profilesRef.current = newProfiles;
-        if ( saveOnSet ) {
+        dispatch( setProfilesStore( {
+            temp: ! saveOnSet || ( saveOnSet && saveOnSetDelay > 0 ),
+            mapsforgeProfiles: newProfiles,
+        } ) );
+        if ( saveOnSet && saveOnSetDelay > 0 ) {
             saveProfilesDebounced();
         }
-    }, [saveOnSet,saveProfilesDebounced] );
+    }, [
+        saveOnSet,
+        saveOnSetDelay,
+        saveProfilesDebounced,
+    ] );
 
     // Save on unmount.
     useEffect( () => saveProfiles, [] );
@@ -76,34 +62,30 @@ const useProfiles = ( {
         if ( editProfile && editProfile.key === newProfile.key ) {
             setEditProfile( newProfile );
         }
-        const itemIndex = profiles.findIndex( item => item.key === newProfile.key );
+        const itemIndex = profilesTemp.findIndex( item => item.key === newProfile.key );
         if ( -1 !== itemIndex ) {
-            const newProfiles = [...profiles];
+            const newProfiles = [...profilesTemp];
             newProfiles[itemIndex] = newProfile;
             setProfiles( newProfiles );
-            if ( saveOnSet ) { saveProfilesDebounced() }
         } else {
             setProfiles( [
-                ...profiles,
+                ...profilesTemp,
                 newProfile,
             ] );
-            if ( saveOnSet ) { saveProfilesDebounced() }
         }
     }, [
-        profiles,
+        setProfiles,
+        profilesTemp,
         editProfile,
-        saveOnSet,
-        saveProfilesDebounced,
     ] );
 
     return {
         editProfile,
         setEditProfile,
         updateProfile,
-        profiles,
+        profiles: profilesTemp,
         setProfiles,
         saveProfiles,
-        getNewProfile,
     };
 };
 

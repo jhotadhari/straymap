@@ -23,7 +23,6 @@ export type ContextSettingsMapsType = {
     updateProfile?: ( newProfile: MapsforgeProfile ) => void;
     setProfiles?: ( newProfiles: MapsforgeProfile[] ) => void;
     saveProfiles?: () => void;
-    getNewProfile?: () => MapsforgeProfile;
 };
 
 export const ContextSettingsMaps = createContext<ContextSettingsMapsType>( {

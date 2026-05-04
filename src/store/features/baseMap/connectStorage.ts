@@ -1,10 +1,9 @@
 /**
  * External dependencies
  */
-import { isAnyOf, type EnhancedStore } from '@reduxjs/toolkit';
+import { isAnyOf, PayloadAction, type EnhancedStore } from '@reduxjs/toolkit';
 import DefaultPreference from 'react-native-default-preference';
-import { get, isEqual, omit, set } from 'lodash-es';
-import rnUuid from 'react-native-uuid';
+import { get, isEqual, set } from 'lodash-es';
 
 /**
  * Internal dependencies
@@ -24,16 +23,16 @@ export const initializeFromStorage = ( store: EnhancedStore ) => {
 		if ( newSettingsStr ) {
 			const newSettings = JSON.parse( newSettingsStr ) as Partial<BaseMapState>;
 			if ( newSettings?.layers ) {
-				store.dispatch( setLayers( newSettings.layers.map( layer => ( {
-					...layer,
-					key: rnUuid.v4(),
-			 	} ) ) ) );
+				store.dispatch( setLayers( {
+					temp: false,
+					layers: newSettings.layers,
+				} ) );
 			}
 			if ( newSettings?.mapsforgeProfiles ) {
-				store.dispatch( setMapsforgeProfiles( newSettings.mapsforgeProfiles.map( profile => ( {
-					...profile,
-					key: rnUuid.v4(),
-			 	} ) ) ) );
+				store.dispatch( setMapsforgeProfiles( {
+					temp: false,
+					mapsforgeProfiles: newSettings.mapsforgeProfiles,
+			 	} ) );
 			}
 			if ( newSettings?.hgtDirPath ) {
 				store.dispatch( setHgtDirPath( newSettings.hgtDirPath ) );
@@ -68,13 +67,6 @@ export const saveToStorage = ( baseMapState: BaseMapState ) => {
 		let shouldSave = false;
 		let valueToSave;
 		switch( key ) {
-			case 'layers':
-			case 'mapsforgeProfiles':
-				valueToSave = get( baseMapState, key ).map( ele => omit( ele, 'key' ) );
-				shouldSave = ! isEqual(
-					valueToSave,
-					get( initialSettings, key ).map( ele => omit( ele, 'key' ) ),
-				);
 			default:
 				valueToSave = get( baseMapState, key );
 				shouldSave = ! isEqual(
@@ -103,7 +95,16 @@ startAppListening( {
 		setHgtFileInfoPurgeThreshold,
 		setMapsforgeGeneral,
 	),
-	effect: async (_action, listenerApi) => {
+	effect: async (
+		action: PayloadAction<
+			| any
+			| { temp?: boolean }
+		>,
+		listenerApi
+	) => {
+		if ( action.payload?.temp ) {
+			return;
+		}
 		saveToStorage( listenerApi.getState().baseMap );
 	},
 } );
