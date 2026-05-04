@@ -13,27 +13,27 @@ import {
 import DefaultPreference from 'react-native-default-preference';
 import useDeepCompareEffect from 'use-deep-compare-effect'
 import { runAfterInteractions } from '../utils';
+import { useAppDispatch } from '../store/hooks';
+import { addBusyKey, removeBusyKey } from '../store/features/ui/uiSlice';
 
 const useSettings = ( {
-	maybeIsBusyAdd,
-	maybeIsBusyRemove,
 	settingsKey,
 	savedMessage,
 	initialSettings = {},
 } : {
-	maybeIsBusyAdd?: ( key: string ) => void;
-	maybeIsBusyRemove?: ( key: string ) => void;
 	savedMessage?: string;
 	settingsKey: string;
 	initialSettings?: object;
 } ) => {
+
+	const dispatch = useAppDispatch();
 
 	const [initialized,setInitialized] = useState( false );
 	const [settings,setSettings] = useState<object>( initialSettings );
 
     useEffect( () => {
 		const busyKey = 'useSettings' + 'load' + settingsKey;
-		maybeIsBusyAdd && maybeIsBusyAdd( busyKey );
+		dispatch( addBusyKey( busyKey ) );
 		runAfterInteractions( () => {
 			DefaultPreference.get( settingsKey ).then( newSettingsStr => {
 				if ( newSettingsStr ) {
@@ -45,19 +45,19 @@ const useSettings = ( {
 				}
 				setInitialized( true );
 			} ).catch( err => 'ERROR' + console.log( err ) )
-			.finally( () => maybeIsBusyRemove && maybeIsBusyRemove( busyKey ) );
+			.finally( () => dispatch( removeBusyKey( busyKey ) ) );
 		} );
     }, [] );
 
 	useDeepCompareEffect( () => {
 		if ( initialized ) {
 			const busyKey = 'useSettings' + 'changed' + settingsKey;
-			maybeIsBusyAdd && maybeIsBusyAdd( busyKey );
+			dispatch( addBusyKey( busyKey ) );
 			runAfterInteractions( () => {
 				DefaultPreference.set( settingsKey, JSON.stringify( settings ) )
 					.then( () => savedMessage ? ToastAndroid.show( savedMessage, ToastAndroid.SHORT ) : null )
 					.catch( err => 'ERROR' + console.log( err ) )
-					.finally( () => maybeIsBusyRemove && maybeIsBusyRemove( busyKey ) )
+					.finally( () => dispatch( removeBusyKey( busyKey ) ) )
 			} );
 		}
 	}, [settings] );

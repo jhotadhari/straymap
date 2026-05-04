@@ -34,9 +34,6 @@ export type AppContextType = {
     bottomBarHeight?: BottomBarHeight;
 	selectedHierarchyItems?: null | HierarchyItem[];
 	setSelectedHierarchyItems?: Dispatch<SetStateAction<null | HierarchyItem[]>>;
-    isBusy?: boolean;
-	maybeIsBusyAdd?: ( key: string ) => void;
-	maybeIsBusyRemove?: ( key: string ) => void;
     mapHeight?: number;
 };
 

@@ -57,7 +57,7 @@ export const saveToStorage = ( uiState: UiState ) => {
 startAppListening( {
 	matcher: isAnyOf(
 		setExpandedElements,
-		setElementExpanded
+		setElementExpanded,
 	),
 	effect: async (_action, listenerApi) => {
 		saveToStorage( listenerApi.getState().ui );

@@ -54,9 +54,9 @@ import { ContextSettingsMaps } from '../store/features/baseMap/ContextSettingsMa
 import { MapsforgeProfile, LayerConfigOptionsMapsforge, LayerConfig } from '../store/features/baseMap/types';
 import { OptionBase } from '../types';
 import { getNewProfile } from '../store/features/baseMap/utils';
-import { selectElementExpanded } from '../store/features/ui/selectors';
+import { selectElementExpanded, selectIsBusy } from '../store/features/ui/selectors';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { setElementExpanded } from '../store/features/ui/uiSlice';
+import { addBusyKey, removeBusyKey, setElementExpanded } from '../store/features/ui/uiSlice';
 import { selectRenderStylesCache } from '../store/features/baseMap/selectors';
 import { setRenderStylesCache } from '../store/features/baseMap/baseMapSlice';
 
@@ -417,6 +417,8 @@ const MapsforgeProfilesControl = ( {
 
     const dispatch = useAppDispatch();
 
+    const isBusy = useAppSelector( selectIsBusy );
+
     const {
         editProfile,
         setEditProfile,
@@ -433,7 +435,7 @@ const MapsforgeProfilesControl = ( {
 	const { t } = useTranslation();
 	const theme = useTheme();
 
-    const { appDirs, isBusy, maybeIsBusyAdd, maybeIsBusyRemove } = useContext( AppContext );
+    const { appDirs } = useContext( AppContext );
 
     const [modalOpened,setModalOpened] = useState( false )
 	const [modalVisible, setModalVisible_] = useState( false );
@@ -473,7 +475,7 @@ const MapsforgeProfilesControl = ( {
         if ( editProfile && null !== editProfile.theme && modalOpened ) {
             if ( ! hasEditProfileRenderStylesCacheEntry ) {
                 const busyKey = 'MapsforgeProfilesControl' + editProfile.key;
-                maybeIsBusyAdd && maybeIsBusyAdd( busyKey );
+                dispatch( addBusyKey( busyKey ) );
                 runAfterInteractions( () => {
                     MapLayerMapsforgeModule.getRenderThemeOptions( editProfile?.theme ).then( ( collection : RenderStyleOptionsCollection ) => {
                         dispatch( setRenderStylesCache( {
@@ -488,7 +490,7 @@ const MapsforgeProfilesControl = ( {
                                 } ),
                             },
                         } ) );
-                        maybeIsBusyRemove && maybeIsBusyRemove( busyKey );
+                        dispatch( removeBusyKey( busyKey ) );
                     } );
                 } );
             }

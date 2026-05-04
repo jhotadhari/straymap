@@ -20,15 +20,13 @@ import {
 	PaperProvider,
 	useTheme,
 } from 'react-native-paper';
-import { get, pick, without } from 'lodash-es';
-import { sprintf } from 'sprintf-js';
+import { get, pick } from 'lodash-es';
 import semverCompare from 'semver-compare';
 
 /**
  * react-native-mapsforge-vtm dependencies
  */
 import {
-	usePromiseQueueState,
 	CanvasAdapterModule,
 	MapEventResponse,
 	useMapLayersCreated,
@@ -66,6 +64,8 @@ import { selectMapsforgeGeneral, selectInitialized as selectSettingsInitialized_
 import { useAppSelector } from '../store/hooks';
 import { useSetupTheme } from '../store/features/appearance/hooks';
 import { selectElements } from '../store/features/dashboard/selectors';
+import { selectInitialized as selectSettingsInitialized_ui, selectIsBusy } from '../store/features/ui/selectors';
+import { useIsBusyPromiseQueueState } from '../store/features/ui/hooks';
 
 const AppWrapper = () => {
 
@@ -140,21 +140,6 @@ const useInitialCenter = ( currentMapEventRef: MutableRefObject<MapEventResponse
 	};
 };
 
-const useIsBusy = () => {
-	const [isBusy,setIsBusy] = useState( true );
-	const [maybeIsBusy,setMaybeIsBusy] = useState<string[]>( [] );
-	const maybeIsBusyAdd = ( key: string ) => setMaybeIsBusy( [...maybeIsBusy, key] );
-	const maybeIsBusyRemove = ( key: string ) => setMaybeIsBusy( without( maybeIsBusy, key ) );
-	const promiseQueueState = usePromiseQueueState();
-	useEffect( () => {
-		setIsBusy( promiseQueueState !== 0 || maybeIsBusy.length > 0 );
-	}, [maybeIsBusy, promiseQueueState] );
-	return {
-		isBusy,
-		maybeIsBusyAdd,
-		maybeIsBusyRemove,
-	};
-};
 
 const useShowSplash = ( {
 	mapViewNativeNodeHandle,
@@ -233,12 +218,8 @@ const updateCbs: {
 
 const useUpdater = ( {
 	ready,
-	maybeIsBusyAdd,
-	maybeIsBusyRemove,
 } : {
 	ready: boolean;
-	maybeIsBusyAdd: ( key: string ) => void;
-	maybeIsBusyRemove: ( key: string ) => void;
 } ) => {
 
 	let {
@@ -246,8 +227,6 @@ const useUpdater = ( {
 		setSettings: setUpdaterSettings,
 		initialized: updaterSettingsInitialized,
 	} = useSettings( {
-		maybeIsBusyAdd,
-		maybeIsBusyRemove,
 		settingsKey: 'updaterSettings',
 		initialSettings: defaults.updaterSettings,
 	} ) as {
@@ -333,7 +312,6 @@ const useUpdater = ( {
 
 const App = () => {
 
-	const { t } = useTranslation();
 	const theme = useTheme();
 	const [ready,setReady] = useState<boolean>( false );
 	const [topAppBarHeight,setTopAppBarHeight] = useState<number>( 0 );
@@ -342,11 +320,8 @@ const App = () => {
 
 	const currentMapEventRef = useRef<MapEventResponse | null>( null );
 
-	const {
-		isBusy,
-		maybeIsBusyAdd,
-		maybeIsBusyRemove,
-	} = useIsBusy();
+	useIsBusyPromiseQueueState();
+	const isBusy = useAppSelector( selectIsBusy );
 
 	const {
 		width,
@@ -371,6 +346,7 @@ const App = () => {
 	const settingsInitialized_appearance = useAppSelector( selectSettingsInitialized_appearance );
 	const settingsInitialized_dashboard = useAppSelector( selectSettingsInitialized_dashboard );
 	const settingsInitialized_general = useAppSelector( selectSettingsInitialized_general );
+	const settingsInitialized_ui = useAppSelector( selectSettingsInitialized_ui );
 	const settingsInitialized_baseMap = useAppSelector( selectSettingsInitialized_baseMap );
 
 	// Remove bottomBar if no dashboard elements.
@@ -413,6 +389,7 @@ const App = () => {
 			&& settingsInitialized_appearance
 			&& settingsInitialized_dashboard
 			&& settingsInitialized_general
+			&& settingsInitialized_ui
 			&& settingsInitialized_baseMap
 		) ) {
 			setReady( true );
@@ -423,6 +400,7 @@ const App = () => {
 		settingsInitialized_appearance,
 		settingsInitialized_dashboard,
 		settingsInitialized_general,
+		settingsInitialized_ui,
 		settingsInitialized_baseMap,
 	] );
 
@@ -431,8 +409,6 @@ const App = () => {
 		setIsUpdating,
 	} = useUpdater( {
 		ready,
-		maybeIsBusyAdd,
-		maybeIsBusyRemove,
 	} );
 
 	const style = {
@@ -464,9 +440,6 @@ const App = () => {
 		bottomBarHeight,
 		selectedHierarchyItems,
 		setSelectedHierarchyItems,
-		isBusy,
-		maybeIsBusyAdd,
-		maybeIsBusyRemove,
 		mapHeight: ( appInnerHeight || height ) - ( Object.values( bottomBarHeight ).reduce( ( acc, nb ) => acc + nb, 0 ) || 0 ),
 	} }>
 		<MapContext.Provider value={ {

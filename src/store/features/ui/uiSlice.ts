@@ -8,13 +8,14 @@ import { createSlice } from '@reduxjs/toolkit';
  * Internal dependencies
 */
 import { SliceSettingsBase } from '../../../types';
-import { omit } from 'lodash-es';
 
 export interface UiSettings {
 	expandedElements: string[];
 }
 
-export interface UiState extends SliceSettingsBase, UiSettings {}
+export interface UiState extends SliceSettingsBase, UiSettings {
+	busyKeys: string[];
+}
 
 export const initialSettings : UiSettings = {
 	expandedElements: [],
@@ -22,6 +23,7 @@ export const initialSettings : UiSettings = {
 
 const initialState: UiState = {
 	initialized: false,
+	busyKeys: [],
 	...initialSettings,
 };
 
@@ -45,9 +47,25 @@ export const uiSlice = createSlice({
 			if ( action.payload.expanded ) {
 				newExpandedElements.push( action.payload.key );
 			} else {
-				newExpandedElements = omit( newExpandedElements, action.payload.key ) as string[];
+				newExpandedElements = newExpandedElements.filter( key => action.payload.key !== key );
 			}
 			state.expandedElements = newExpandedElements;
+		},
+		setBusyKeys: (state, action: PayloadAction<string[]>) => {
+			state.busyKeys = action.payload;
+		},
+		addBusyKey: (state, action: PayloadAction<string>) => {
+			if ( ! state.busyKeys.includes( action.payload ) ) {
+				state.busyKeys = [
+					...state.busyKeys,
+					action.payload,
+				];
+			}
+		},
+		removeBusyKey: (state, action: PayloadAction<string>) => {
+			if ( state.busyKeys.includes( action.payload ) ) {
+				state.busyKeys = state.busyKeys.filter( key => action.payload !== key );
+			}
 		},
 	},
 });
@@ -57,6 +75,9 @@ export const {
 	setInitialized,
 	setExpandedElements,
 	setElementExpanded,
+	setBusyKeys,
+	addBusyKey,
+	removeBusyKey,
 } = uiSlice.actions;
 
 // Export the slice reducer for use in the store configuration
