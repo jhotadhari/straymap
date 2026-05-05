@@ -26,12 +26,11 @@ import { openDocument } from 'react-native-scoped-storage';
 import ButtonHighlight from './generic/ButtonHighlight';
 import { OptionBase } from '../types';
 import InfoRowControl from './generic/InfoRowControl';
-import useDirsInfo from '../compose/useDirsInfo';
 import ModalWrapper from './generic/ModalWrapper';
 import RadioListItem from './generic/RadioListItem';
 import LoadingIndicator from './generic/LoadingIndicator';
-import { runAfterInteractions } from '../utils';
 import { AbsPath } from '../store/features/dirs/types';
+import useDirsInfo from '../store/features/dirs/hooks/useDirsInfo';
 
 interface Option extends OptionBase {
     key: string;
@@ -91,41 +90,35 @@ const FileSourceRowControl = ( {
     const theme = useTheme();
 
 	const [modalVisible, setModalVisible] = useState( false );
-	const [start, setStart] = useState<boolean | number>( false );
 
-    const dirsInfos = useDirsInfo(
-        dirs || [],
+    const dirsInfos = useDirsInfo( {
+        navDirs: dirs || [],
         extensions,
-        true,
-        start
-    );
-
-    useEffect( () => {
-        runAfterInteractions( () => {
-            setStart( Math.random() )
-        } );
-    }, [] );
+        recursive: true,
+    } );
 
     const [optsMap,setOptsMap] = useState<OptsMap>( {} );
 
     useEffect( () => {
         let newOptsMap = {...initialOptsMap};
-        Object.keys( dirsInfos ).map( key => {
-            const dirInfo = dirsInfos[key];
-            newOptsMap = {
-                ...newOptsMap,
-                [key]: dirInfo && dirInfo.navChildren ? [...dirInfo.navChildren].filter( child => child.isFile && child.canRead && ( filePattern ? filePattern.test( child.name ) : true ) ).map( child => {
-                    const nameArr = child.name.split( '/' );
-                    return {
-                        key: child.name,
-                        label: nameArr.slice( - ( child.depth
-                            ? child.depth + 1
-                            : 1
-                        ) ).join( '/' ),
-                    };
-                } ) : []
-            }
-        } );
+        if ( dirsInfos ) {
+            Object.keys( dirsInfos ).map( key => {
+                const dirInfo = dirsInfos[key];
+                newOptsMap = {
+                    ...newOptsMap,
+                    [key]: dirInfo && dirInfo?.navChildren ? [...dirInfo.navChildren].filter( child => child.isFile && child.canRead && ( filePattern ? filePattern.test( child.name ) : true ) ).map( child => {
+                        const nameArr = child.name.split( '/' );
+                        return {
+                            key: child.name,
+                            label: nameArr.slice( - ( child.depth
+                                ? child.depth + 1
+                                : 1
+                            ) ).join( '/' ),
+                        };
+                    } ) : []
+                }
+            } );
+        }
         if ( hasCustom ) {
             newOptsMap = {
                 ...newOptsMap,
@@ -137,7 +130,12 @@ const FileSourceRowControl = ( {
         }
 
         setOptsMap( newOptsMap );
-    }, [dirsInfos] );
+    }, [
+        dirsInfos,
+        filePattern,
+        hasCustom,
+        t,
+    ] );
 
     const getInitialSelectedOpt = () => {
         const selected = get( options, optionsKey, '' );
@@ -249,7 +247,7 @@ const FileSourceRowControl = ( {
             justifyContent: 'space-between',
             width: '65%',
         } }>
-            { ! AlternativeButton && Object.keys( dirsInfos ).length > 0 && <ButtonHighlight style={ { marginTop: 3} } onPress={ () => setModalVisible( true ) } >
+            { ! AlternativeButton && dirsInfos && Object.keys( dirsInfos ).length > 0 && <ButtonHighlight style={ { marginTop: 3} } onPress={ () => setModalVisible( true ) } >
                 <Text>{ t(
                     'custom' === selectedOpt
                         ? getLabelFromUri( customUri )
@@ -259,11 +257,11 @@ const FileSourceRowControl = ( {
                 ) }</Text>
             </ButtonHighlight> }
 
-            { ! AlternativeButton && Object.keys( dirsInfos ).length === 0 && <LoadingIndicator/> }
+            { ! AlternativeButton && dirsInfos && Object.keys( dirsInfos ).length === 0 && <LoadingIndicator/> }
 
             { !! AlternativeButton && <AlternativeButton setModalVisible={ setModalVisible } /> }
 
-            { !! After && Object.keys( dirsInfos ).length !== 0 && After }
+            { !! After && dirsInfos && Object.keys( dirsInfos ).length !== 0 && After }
         </View>
 
     </InfoRowControl>;

@@ -8,13 +8,15 @@ import { createSlice } from '@reduxjs/toolkit';
  * Internal dependencies
 */
 import { SliceSettingsBase } from '../../../types';
-import { AbsPathsMap } from './types';
+import { AbsPath, AbsPathsMap, DirInfoMap } from './types';
+import { omit, pick, set } from 'lodash-es';
 
 export interface DirsSettings {
 }
 
 export interface DirsState extends SliceSettingsBase, DirsSettings {
 	appDirs: AbsPathsMap;
+	dirInfoCache: { [id: string]: DirInfoMap };
 }
 
 export const initialSettings : DirsSettings = {
@@ -24,6 +26,7 @@ const initialState: DirsState = {
 	initialized: false,
 	...initialSettings,
 	appDirs: {},
+	dirInfoCache: {},
 };
 
 // Slices contain Redux reducer logic for updating state, and
@@ -38,6 +41,24 @@ export const dirsSlice = createSlice({
 		setAppDirs: (state, action: PayloadAction<DirsState['appDirs']>) => {
 			state.appDirs = action.payload;
 		},
+		setDirInfoCache: (state, action: PayloadAction<DirsState['dirInfoCache']>) => {
+			state.dirInfoCache = action.payload;
+		},
+		addDirInfoCacheEntry: (state, action: PayloadAction<{
+			id: string;
+			entry: DirInfoMap;
+		}>) => {
+			set(
+				state.dirInfoCache,
+				action.payload.id,
+				action.payload.entry
+			);
+		},
+		removeDirInfoCacheEntry: (state, action: PayloadAction<string>) => {
+			if ( Object.keys( state.dirInfoCache ).includes( action.payload ) ) {
+				state.dirInfoCache = omit( state.dirInfoCache, [action.payload] );
+			}
+		},
 	},
 });
 
@@ -45,6 +66,9 @@ export const dirsSlice = createSlice({
 export const {
 	setInitialized,
 	setAppDirs,
+	setDirInfoCache,
+	addDirInfoCacheEntry,
+	removeDirInfoCacheEntry,
 } = dirsSlice.actions;
 
 // Export the slice reducer for use in the store configuration

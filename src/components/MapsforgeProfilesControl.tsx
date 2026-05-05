@@ -59,6 +59,8 @@ import { addBusyKey, removeBusyKey, setElementExpanded } from '../store/features
 import { selectRenderStylesCache } from '../store/features/baseMap/selectors';
 import { setRenderStylesCache } from '../store/features/baseMap/baseMapSlice';
 import { selectAppDirs } from '../store/features/dirs/selectors';
+import { getDirInfoCacheId } from '../store/features/dirs/utils';
+import { removeDirInfoCacheEntry } from '../store/features/dirs/dirsSlice';
 
 const itemHeight = 50;
 
@@ -559,6 +561,11 @@ const MapsforgeProfilesControl = ( {
                                     defaultsMap: omit(renderStylesCache.defaultsMap, editProfile.theme )
                                 } ) );
                             }
+                            dispatch( removeDirInfoCacheEntry( getDirInfoCacheId( {
+                                navDirs: appDirs.mapstyles,
+                                extensions: ['xml'],
+                                recursive: true,
+                            } ) ) );
                         } }
                         style={ { borderRadius: theme.roundness } }
                     >
