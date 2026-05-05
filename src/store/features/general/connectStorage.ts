@@ -8,7 +8,7 @@ import { get, isEqual, set } from 'lodash-es';
 /**
  * Internal dependencies
  */
-import { GeneralSettings, GeneralState, initialSettings, setHardwareKeys, setInitialized, setLang, setMapEventRate, setUnitPrefs } from './generalSlice';
+import { GeneralSettings, GeneralState, initialSettings, setHardwareKeys, setInitialized, setInstalledVersion, setLang, setMapEventRate, setUnitPrefs } from './generalSlice';
 import { startAppListening } from '../../listenerMiddleware';
 import { changeLang, SUPPORTED_LANGUAGES } from '../../../assets/i18n/i18n';
 
@@ -39,6 +39,9 @@ export const initializeFromStorage = ( store: EnhancedStore ) => {
 			) ) {
 				store.dispatch( setLang( newSettings.lang ) );
 			}
+			if ( newSettings?.installedVersion ) {
+				store.dispatch( setInstalledVersion( newSettings.installedVersion ) );
+			}
 			if ( newSettings?.hardwareKeys ) {
 				store.dispatch( setHardwareKeys( newSettings.hardwareKeys ) );
 			}
@@ -63,11 +66,18 @@ export const saveToStorage = ( generalState: GeneralState ) => {
 	}
 	const settingsToSave: Partial<GeneralSettings> = {};
 	Object.keys( initialSettings ).forEach( key => {
-		if ( ! isEqual(
-			get( generalState, key ),
-			get( initialSettings, key )
-		) ) {
-			set( settingsToSave, key, get( generalState, key ) );
+		let shouldSave = false;
+		let valueToSave;
+		switch( key ) {
+			default:
+				valueToSave = get( generalState, key );
+				shouldSave = ! isEqual(
+					valueToSave,
+					get( initialSettings, key )
+				);
+		}
+		if ( shouldSave ) {
+			set( settingsToSave, key, valueToSave );
 		}
 	} );
 	DefaultPreference.set( settingsKey, JSON.stringify( settingsToSave ) )
@@ -80,6 +90,7 @@ export const saveToStorage = ( generalState: GeneralState ) => {
 startAppListening( {
 	matcher: isAnyOf(
 		setLang,
+		setInstalledVersion,
 		setHardwareKeys,
 		setUnitPrefs,
 		setMapEventRate,

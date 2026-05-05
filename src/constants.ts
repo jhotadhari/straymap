@@ -3,11 +3,6 @@
  */
 import { LayerHillshading } from 'react-native-mapsforge-vtm';
 
-/**
- * Internal dependencies
- */
-import packageJson from '../package.json';
-
 export const LINKING_ERROR =
 	'The package doesn\'t seem to be linked. Make sure: \n\n' +
 	'- You rebuilt the app after installing the package\n' +
@@ -46,8 +41,5 @@ export const defaults = {
 			shadingAlgorithm: Object.values( LayerHillshading.shadingAlgorithms )[0],
 			shadingAlgorithmOptions: LayerHillshading.shadingAlgorithmOptionsDefaults,
 		},
-	},
-	updaterSettings: {
-		installedVersion: packageJson.version,
 	},
 };

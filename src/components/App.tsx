@@ -2,9 +2,7 @@
  * External dependencies
  */
 import React, {
-	Dispatch,
 	MutableRefObject,
-	SetStateAction,
 	useEffect,
 	useRef,
 	useState,
@@ -18,12 +16,7 @@ import {
 	PaperProvider,
 	useTheme,
 } from 'react-native-paper';
-import { get, pick } from 'lodash-es';
-import semverCompare from 'semver-compare';
-
-/**
- * react-native-mapsforge-vtm dependencies
- */
+import { pick } from 'lodash-es';
 import {
 	CanvasAdapterModule,
 	MapEventResponse,
@@ -35,23 +28,18 @@ import {
 /**
  * Internal dependencies
  */
-import packageJson from '../../package.json';
 import type {
 	HierarchyItem,
 	AbsPathsMap,
 	LayerInfos,
 	InitialPosition,
-	UpdaterSettings,
-	UpdateResults,
 	BottomBarHeight,
 } from '../types';
 import { AppContext, MapContext } from '../Context';
 import { HelperModule } from '../nativeModules';
-import { defaults } from '../constants';
 import SplashScreen from './SplashScreen';
 import AppView from './AppView';
 import SplashScreenUpdater from './SplashScreenUpdater';
-import useSettings from '../compose/useSettings';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import RoutingProvider from './RoutingProvider';
 import { selectInitialized as selectSettingsInitialized_appearance } from '../store/features/appearance/selectors';
@@ -63,6 +51,7 @@ import { useSetupTheme } from '../store/features/appearance/hooks';
 import { selectElements } from '../store/features/dashboard/selectors';
 import { selectInitialized as selectSettingsInitialized_ui, selectIsBusy } from '../store/features/ui/selectors';
 import { useIsBusyPromiseQueueState } from '../store/features/ui/hooks';
+import useUpdater from '../store/features/general/hooks/useUpdater';
 
 const AppWrapper = () => {
 
@@ -186,126 +175,6 @@ const useLayerInfos = () => {
 	};
 };
 
-const updateCbs: {
-	[value: string]: 												// the version updating from
-	null | ( ( results: UpdateResults ) => Promise<UpdateResults> )	// function to run when updating from this version.
-} = {
-	['0.0.2']: null,
-	// ['x.x.x']: ( results: UpdateResults ) => new Promise( resolve => {
-	// 	const version = 'x.x.x';
-	// 	const success = true;
-	// 	if ( success ) {
-	// 		resolve( {
-	// 			...results,
-	// 			[version]: {
-	// 				state: 'success',
-	// 			},
-	// 		} );
-	// 	} else {
-	// 		resolve( {
-	// 			...results,
-	// 			[version]: {
-	// 				state: 'failed',
-	// 				msg: 'Some Error wtf'
-	// 			},
-	// 		} );
-	// 	}
-	// } ),
-};
-
-const useUpdater = ( {
-	ready,
-} : {
-	ready: boolean;
-} ) => {
-
-	let {
-		settings: updaterSettings,
-		setSettings: setUpdaterSettings,
-		initialized: updaterSettingsInitialized,
-	} = useSettings( {
-		settingsKey: 'updaterSettings',
-		initialSettings: defaults.updaterSettings,
-	} ) as {
-		settings: UpdaterSettings;
-		setSettings: Dispatch<SetStateAction<UpdaterSettings>>;
-		initialized: boolean;
-	};
-
-	const [isUpdating,setIsUpdating] = useState<boolean | UpdateResults>( true );
-
-	const runUpdates = ( updateCbsKeys: string[] ): Promise<UpdateResults> => new Promise( ( resolve, reject ) => {
-		updateCbsKeys.sort( semverCompare );
-		const results: UpdateResults = {};
-		resolve( [...updateCbsKeys].reduce( ( accumulatorPromise: Promise<UpdateResults>, updateCbsKey: string ) => {
-			const cb = ( results: UpdateResults ): Promise<UpdateResults> => new Promise( resolveCb => {
-				const updateCb = get( updateCbs, updateCbsKey );
-				setIsUpdating( {
-					...results,
-					[updateCbsKey]: { state: 'updating' },
-				} );
-				const updateInstalledVersion = () => setUpdaterSettings( updaterSettings => ( {
-					...updaterSettings,
-					installedVersion: updateCbsKey
-				} ) );
-				if ( updateCb ) {
-					updateCb( results ).then( results => {
-						switch( get( results, [updateCbsKey,'state'] ) ) {
-							case 'success':
-								updateInstalledVersion();
-								resolveCb( results );
-								break;
-							case 'failed':
-								setIsUpdating( results );
-								reject( results );
-								break;
-						}
-					} )
-				} else {
-					updateInstalledVersion();
-					resolveCb( {
-						...results,
-						[updateCbsKey]: { state: 'success' },
-					} );
-				}
-			} );
-			return accumulatorPromise.then( results => cb( results ) );
-		}, Promise.resolve( results ) ) );
-	} );
-
-	useEffect( () => {
-		if ( ready && updaterSettingsInitialized ) {
-			// current version (packageJson.version) is greater than installedVersion.
-			if ( 1 === semverCompare( packageJson.version, updaterSettings.installedVersion ) ) {
-				// updateCbs keys to run updates for. All that ones lower than packageJson.version and same or higher than installedVersion.
-				const updateCbsKeys = Object.keys( updateCbs ).filter( cbVersion => {
-					return 1 === semverCompare( packageJson.version, cbVersion )
-						&& 1 > semverCompare( updaterSettings.installedVersion, cbVersion );
-				} );
-				// Run updates, then check if all updates are success.
-				runUpdates( updateCbsKeys ).then( ( results: UpdateResults ) => {
-					if ( Object.values( results ).every( result => 'success' === result.state ) ) {
-						setIsUpdating( false );
-						setUpdaterSettings( updaterSettings => ( {
-							...updaterSettings,
-							installedVersion: packageJson.version
-						} ) );
-					}
-				} ).catch( () => null );	// catch the error, do nothing, no need to handle it.
-			} else {
-				setIsUpdating( false );
-			}
-		}
-	}, [
-		ready,
-		updaterSettingsInitialized,
-	] );
-
-	return {
-		isUpdating,
-		setIsUpdating,
-	};
-};
 
 const App = () => {
 

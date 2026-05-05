@@ -86,18 +86,6 @@ export interface LayerOption extends OptionBase {
     type: LayerType;
 };
 
-export type UpdateResults = {
-	[value: string]: 	// the version updating from
-	{
-		state: 'failed' | 'updating' | 'success';
-		msg?: string;
-	}
-};
-
-export type UpdaterSettings = {
-	installedVersion: string;
-}
-
 export type RoutingPoint = {
 	key: string;
 	location: Location;
