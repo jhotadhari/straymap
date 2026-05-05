@@ -5,8 +5,10 @@ import React, {
 	Dispatch,
 	MutableRefObject,
 	SetStateAction,
+	useCallback,
 	useContext,
     useMemo,
+    useState,
 } from 'react';
 import {
 	StatusBar,
@@ -17,7 +19,7 @@ import 'intl-pluralrules';
 import {
     useTheme,
 } from 'react-native-paper';
-import { get } from 'lodash-es';
+import { get, pick } from 'lodash-es';
 import { SafeAreaView, useSafeAreaFrame } from 'react-native-safe-area-context';
 /**
  * react-native-mapsforge-vtm dependencies
@@ -45,7 +47,6 @@ import {
 /**
  * Internal dependencies
  */
-import '../assets/i18n/i18n';
 import TopAppBar from './TopAppBar';
 import type {
 	LayerInfos,
@@ -75,6 +76,28 @@ import { selectDashboardStyle, selectElements } from '../store/features/dashboar
 import { DashboardElementConf } from '../store/features/dashboard/types';
 import { selectHgtDirPath, selectHgtFileInfoPurgeThreshold, selectHgtInterpolation, selectHgtReadFileRate, selectLayers, selectMapsforgeProfiles } from '../store/features/baseMap/selectors';
 
+const useLayerInfos = () => {
+    const [layerInfos,setLayerInfos] = useState<LayerInfos>( {} );
+    const onLayerChange = useCallback( (
+        key: string,
+        response: LayerMapsforgeResponse | LayerMBTilesBitmapResponse // ??? should handle other layer types as well.
+    ) => {
+        setLayerInfos( layerInfos => ( {
+            ...layerInfos,
+            [key]: pick( response, [
+                'attribution',
+                'description',
+                'comment',
+                'createdBy',
+            ] ),
+        } ) );
+    }, [] );
+    return {
+        layerInfos,
+        onLayerChange,
+    };
+};
+
 const AppView = ( {
     showSplash,
     initialPositionRef,
@@ -82,8 +105,6 @@ const AppView = ( {
     setTopAppBarHeight,
     setBottomBarHeight,
     setMapViewNativeNodeHandle,
-    layerInfos,
-    onLayerChange,
 } : {
     showSplash: boolean;
     initialPositionRef: MutableRefObject<InitialPosition | undefined>;
@@ -91,8 +112,6 @@ const AppView = ( {
     setTopAppBarHeight: Dispatch<SetStateAction<number>>;
     setBottomBarHeight: Dispatch<SetStateAction<BottomBarHeight>>;
     setMapViewNativeNodeHandle: Dispatch<SetStateAction<null | number>>;
-    layerInfos: LayerInfos;
-    onLayerChange: ( key: string, response: LayerMapsforgeResponse | LayerMBTilesBitmapResponse ) => void;
 } ) => {
 
     const theme = useTheme();
@@ -114,6 +133,11 @@ const AppView = ( {
     const layersReverse = useMemo( () => [...layers].reverse(), [layers] );
 
     const { width, height } = useSafeAreaFrame();
+
+    const {
+        layerInfos,
+        onLayerChange,
+    } = useLayerInfos();
 
     const {
 		mapViewNativeNodeHandle,

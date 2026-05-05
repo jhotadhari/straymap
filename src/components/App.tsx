@@ -22,8 +22,6 @@ import {
 	CanvasAdapterModule,
 	MapEventResponse,
 	useMapLayersCreated,
-	LayerMBTilesBitmapResponse,
-	LayerMapsforgeResponse,
 	MapLifeCycleResponse,
 } from 'react-native-mapsforge-vtm';
 
@@ -33,7 +31,6 @@ import {
 import type {
 	HierarchyItem,
 	AbsPathsMap,
-	LayerInfos,
 	InitialPosition,
 	BottomBarHeight,
 } from '../types';
@@ -169,25 +166,6 @@ const useShowSplash = ( {
 	return showSplash;
 };
 
-const useLayerInfos = () => {
-	const [layerInfos,setLayerInfos] = useState<LayerInfos>( {} );
-	const onLayerChange = ( key: string, response: LayerMapsforgeResponse | LayerMBTilesBitmapResponse ) => {
-		setLayerInfos( layerInfos => ( {
-			...layerInfos,
-			[key]: pick( response, [
-				'attribution',
-				'description',
-				'comment',
-				'createdBy',
-			] ),
-		} ) );
-	};
-	return {
-		layerInfos,
-		onLayerChange,
-	};
-};
-
 const App = () => {
 
 	const theme = useTheme();
@@ -243,11 +221,6 @@ const App = () => {
 		initialPositionRef,
 		saveCurrentPositionToInitial,
 	} = useInitialCenter( currentMapEventRef );
-
-	const {
-		layerInfos,
-		onLayerChange,
-	} = useLayerInfos();
 
 	const mapsforgeGeneral = useAppSelector( selectMapsforgeGeneral );
 
@@ -333,8 +306,6 @@ const App = () => {
 						setTopAppBarHeight={ setTopAppBarHeight }
 						setBottomBarHeight={ setBottomBarHeight }
 						setMapViewNativeNodeHandle={ setMapViewNativeNodeHandle }
-						layerInfos={ layerInfos }
-						onLayerChange={ onLayerChange }
 					/>
 				</GestureHandlerRootView>
 			</RoutingProvider>
