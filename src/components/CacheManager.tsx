@@ -4,6 +4,7 @@
 import {
     Dispatch,
     SetStateAction,
+    useCallback,
     useContext,
     useMemo,
     useState,
@@ -62,7 +63,7 @@ const CacheRow = ( {
 
     const cacheLayers = useMemo(
         () => findLayers( pathFull ),
-        [pathFull]
+        [pathFull, findLayers]
     );
 
     return <InfoRowControl
@@ -135,9 +136,9 @@ const CacheManager = () => {
 
     const appDirs = useAppSelector( selectAppDirs );
 
-    const internalCacheDir = useMemo( () => get( appDirs, ['internalCacheDir',0], undefined ), [appDirs] );
+    const internalCacheDir = useMemo( () => get( appDirs, ['internalCacheDirs',0], undefined ), [appDirs] );
 
-    const findLayers = ( pathFull: string ) => [...layers].filter( layer => {
+    const findLayers = useCallback( ( pathFull: string ) => [...layers].filter( layer => {
         let cacheDirBase = get( layer, ['options','cacheDirBase'], undefined );
         if ( undefined === cacheDirBase ) {
             return false;
@@ -155,14 +156,17 @@ const CacheManager = () => {
                 break;
         }
         return [cacheDirBase,cacheDirChild].join( '/' ) === pathFull;
-    } );
+    } ), [
+        layers,
+        internalCacheDir,
+    ] );
 
     const expanded = useAppSelector( state => selectElementExpanded( state, uiStateKey ) );
 
     const {
 		updateCacheDirs,
 		cacheDirs,
-	} = useCacheDirsInfo();
+	} = useCacheDirsInfo( expanded );
 
     return <List.Accordion
         title={ 'Cache Manager' }
