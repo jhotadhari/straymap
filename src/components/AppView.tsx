@@ -3,6 +3,7 @@
  */
 import React, {
 	Dispatch,
+	MutableRefObject,
 	SetStateAction,
 	useContext,
     useMemo,
@@ -38,6 +39,7 @@ import {
 	LayerMapsforgeResponse,
     LayerBitmapTileProps,
     LayerHillshadingProps,
+    MapLifeCycleResponse,
 } from 'react-native-mapsforge-vtm';
 
 /**
@@ -75,8 +77,8 @@ import { selectHgtDirPath, selectHgtFileInfoPurgeThreshold, selectHgtInterpolati
 
 const AppView = ( {
     showSplash,
-    initialPosition,
-    setInitialPosition,
+    initialPositionRef,
+    saveCurrentPositionToInitial,
     setTopAppBarHeight,
     setBottomBarHeight,
     setMapViewNativeNodeHandle,
@@ -84,8 +86,8 @@ const AppView = ( {
     onLayerChange,
 } : {
     showSplash: boolean;
-    initialPosition: InitialPosition;
-    setInitialPosition: Dispatch<SetStateAction<null | InitialPosition>>;
+    initialPositionRef: MutableRefObject<InitialPosition | undefined>;
+    saveCurrentPositionToInitial: ( response?: MapLifeCycleResponse | MapEventResponse ) => void;
     setTopAppBarHeight: Dispatch<SetStateAction<number>>;
     setBottomBarHeight: Dispatch<SetStateAction<BottomBarHeight>>;
     setMapViewNativeNodeHandle: Dispatch<SetStateAction<null | number>>;
@@ -161,26 +163,18 @@ const AppView = ( {
                 }, { zoomLevel: 2 } ) as ResponseInclude }
                 height={ mapHeight || 0 }
                 width={ width }
-                center={ initialPosition.center }
-                zoomLevel={ initialPosition.zoomLevel }
+                center={ initialPositionRef?.current?.center }
+                zoomLevel={ initialPositionRef?.current?.zoomLevel }
                 zoomMin={ 2 }
                 zoomMax={ 20 }
                 moveEnabled={ true }
                 tiltEnabled={ false }
                 rotationEnabled={ false }
                 zoomEnabled={ true }
-                onPause={ response => {
-                    if ( response.center && response.zoomLevel ) {
-                        setInitialPosition( {
-                            center: response.center,
-                            zoomLevel: response.zoomLevel,
-                        } );
-                    }
-                } }
+                onPause={ saveCurrentPositionToInitial }
                 onError={ err => console.log( 'Error', err ) }
                 onResume={ response => console.log( 'lifecycle event onResume', response ) }
                 onMapEvent={ ( response: MapEventResponse ) => {
-                    // console.log( 'onMapEvent event', response ); // debug
                     currentMapEventRef.current = response;
                 } }
                 emitsHardwareKeyUp={ hardwareKeys.filter( keyConf => 'none' !== keyConf.actionKey ).map( keyConf => keyConf.keyCodeString ) as MapContainerProps['emitsHardwareKeyUp'] }

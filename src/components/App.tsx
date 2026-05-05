@@ -3,6 +3,7 @@
  */
 import React, {
 	MutableRefObject,
+	useCallback,
 	useEffect,
 	useRef,
 	useState,
@@ -23,6 +24,7 @@ import {
 	useMapLayersCreated,
 	LayerMBTilesBitmapResponse,
 	LayerMapsforgeResponse,
+	MapLifeCycleResponse,
 } from 'react-native-mapsforge-vtm';
 
 /**
@@ -65,67 +67,78 @@ const AppWrapper = () => {
 };
 
 const useInitialCenter = ( currentMapEventRef: MutableRefObject<MapEventResponse | null> ) => {
+
 	const [initialized,setInitialized] = useState( false );
-	const [initialPosition,setInitialPosition] = useState<null | InitialPosition>( null );
+
+	const initialPositionRef = useRef<undefined | InitialPosition>( undefined );
+
 	useEffect( () => {
 		DefaultPreference.get( 'initialPosition' ).then( newInitialPosition => {
 			if ( newInitialPosition ) {
-				setInitialPosition( JSON.parse( newInitialPosition ) );
+				initialPositionRef.current = JSON.parse( newInitialPosition );
 			} else {
-				setInitialPosition( {
+				initialPositionRef.current = {
 					center: {
 						lng: -70.239,
 						lat: -10.65,
 					},
 					zoomLevel: 5,
-				} );
+				};
 			}
+			setInitialized( true  );
 		} ).catch( err => 'ERROR' + console.log( err ) );
 	}, [] );
 
-	useEffect( () => {
-		if ( initialPosition ) {
-			if ( initialized ) {
-				DefaultPreference.set( 'initialPosition', JSON.stringify( initialPosition ) )
-				.catch( err => 'ERROR' + console.log( err ) );
-			}
-			setInitialized( true );
+	const getCurrentPosition = useCallback( ( response?: MapLifeCycleResponse | MapEventResponse ) => {
+		let newPosition : undefined | InitialPosition = undefined;
+		if ( response && response?.center && response?.zoomLevel ) {
+			newPosition = {
+				center: response.center,
+				zoomLevel: response.zoomLevel,
+			};
+		} else if ( currentMapEventRef?.current?.center && currentMapEventRef?.current?.zoomLevel ) {
+			newPosition = {
+				center: currentMapEventRef.current.center,
+				zoomLevel: currentMapEventRef.current.zoomLevel,
+			};
+		} else if ( initialPositionRef?.current?.center && initialPositionRef?.current?.zoomLevel ) {
+			newPosition = {
+				center: initialPositionRef.current.center,
+				zoomLevel: initialPositionRef.current.zoomLevel,
+			};
 		}
-	}, [initialPosition] );
+		return newPosition;
+	}, [] );
+
+	const saveCurrentPositionToInitial = useCallback( ( response?: MapLifeCycleResponse | MapEventResponse ) => {
+		const newPosition = getCurrentPosition( response );
+		if ( newPosition ) {
+			DefaultPreference.set( 'initialPosition', JSON.stringify( newPosition ) )
+			.catch( err => 'ERROR' + console.log( err ) );
+		}
+
+	}, [getCurrentPosition] );
 
 	// Save position every x seconds.
-	const [intervalId,setIntervalId] = useState<null | NodeJS.Timeout>( null );
-	// Store intervalId in ref
-	const intervalIdRef = useRef<null | NodeJS.Timeout>( intervalId );
-	useEffect( () => {
-		intervalIdRef.current = intervalId;
-	}, [intervalId] );
+	const intervalIdRef = useRef<null | NodeJS.Timeout>( null );
 	useEffect( () => {
 		if ( initialized && currentMapEventRef?.current && null === intervalIdRef.current ) {
-			const newIntervalId = setInterval( () => {
-				if ( currentMapEventRef?.current?.center && currentMapEventRef?.current?.zoomLevel ) {
-					DefaultPreference.set( 'initialPosition', JSON.stringify( {
-						center: currentMapEventRef.current.center,
-						zoomLevel: currentMapEventRef.current.zoomLevel,
-					} ) )
-					.catch( err => 'ERROR' + console.log( err ) );
-				}
-			}, 1000 * 30 );
-			setIntervalId( newIntervalId );
+			const newIntervalId = setInterval( saveCurrentPositionToInitial, 1000 * 30 );
+			intervalIdRef.current = newIntervalId;
 		}
 		return () => {
 			if ( intervalIdRef.current ) {
 				clearInterval( intervalIdRef.current );
 			}
 		};
-	}, [initialized] );
+	}, [initialized, saveCurrentPositionToInitial] );
 
 	return {
-		initialPosition,
-		setInitialPosition,
+		initialized,
+		initialPositionRef,
+		saveCurrentPositionToInitial,
 	};
 };
-
 
 const useShowSplash = ( {
 	mapViewNativeNodeHandle,
@@ -174,7 +187,6 @@ const useLayerInfos = () => {
 		onLayerChange,
 	};
 };
-
 
 const App = () => {
 
@@ -227,8 +239,9 @@ const App = () => {
 	}, [dashboardElements] );
 
 	const {
-		initialPosition,
-		setInitialPosition,
+		initialized: initialPositionInitialized,
+		initialPositionRef,
+		saveCurrentPositionToInitial,
 	} = useInitialCenter( currentMapEventRef );
 
 	const {
@@ -251,7 +264,7 @@ const App = () => {
 
 	useEffect( () => {
 		if ( !! ( appDirs
-			&& initialPosition
+			&& initialPositionInitialized
 			&& settingsInitialized_appearance
 			&& settingsInitialized_dashboard
 			&& settingsInitialized_general
@@ -262,7 +275,7 @@ const App = () => {
 		}
 	}, [
 		appDirs,
-		initialPosition,
+		initialPositionInitialized,
 		settingsInitialized_appearance,
 		settingsInitialized_dashboard,
 		settingsInitialized_general,
@@ -315,8 +328,8 @@ const App = () => {
 				<GestureHandlerRootView>
 					<AppView
 						showSplash={ showSplash }
-						initialPosition={ initialPosition as InitialPosition }
-						setInitialPosition={ setInitialPosition }
+						initialPositionRef={ initialPositionRef }
+						saveCurrentPositionToInitial={ saveCurrentPositionToInitial }
 						setTopAppBarHeight={ setTopAppBarHeight }
 						setBottomBarHeight={ setBottomBarHeight }
 						setMapViewNativeNodeHandle={ setMapViewNativeNodeHandle }
