@@ -30,11 +30,11 @@ import useCacheDirsInfo, { CacheDir, CacheSubDir } from '../compose/useCacheDirs
 import { getHillshadingCacheDirChild, stringifyProp } from '../utils';
 import { FsModule } from '../nativeModules';
 import { ContextSettingsMaps } from '../store/features/baseMap/ContextSettingsMaps';
-import { AppContext } from '../Context';
 import { LayerConfig } from '../store/features/baseMap/types';
 import { selectElementExpanded } from '../store/features/ui/selectors';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { setElementExpanded } from '../store/features/ui/uiSlice';
+import { selectAppDirs } from '../store/features/dirs/selectors';
 
 const CacheRow = ( {
     cacheDir,
@@ -132,7 +132,9 @@ const CacheManager = () => {
         layers,
     } = useContext( ContextSettingsMaps );
 
-    const { appDirs } = useContext( AppContext );
+    const appDirs = useAppSelector( selectAppDirs );
+
+    const internalCacheDir = useMemo( () => get( appDirs, ['internalCacheDir',0], undefined ), [appDirs] );
 
     const findLayers = ( pathFull: string ) => [...layers].filter( layer => {
         let cacheDirBase = get( layer, ['options','cacheDirBase'], undefined );
@@ -140,7 +142,7 @@ const CacheManager = () => {
             return false;
         }
         cacheDirBase = 'internal' === cacheDirBase
-            ? ( appDirs && appDirs?.internalCacheDir )
+            ? internalCacheDir
             : cacheDirBase;
         let cacheDirChild = '';
         switch( layer?.type ) {
@@ -190,7 +192,7 @@ const CacheManager = () => {
             } }>
 
                 <InfoRowControl
-                    label={ appDirs && get( appDirs, 'internalCacheDir', '' ) === cacheDir.path ? 'Internal' : 'External' }
+                    label={ internalCacheDir === cacheDir.path ? 'Internal' : 'External' }
                 >
                     <Text style={ { maxWidth: '70%'} }>{ cacheDir.path }</Text>
                 </InfoRowControl>

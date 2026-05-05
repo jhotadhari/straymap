@@ -75,6 +75,7 @@ import { selectHardwareKeys, selectMapEventRate, selectUnitPrefs } from '../stor
 import { selectDashboardStyle, selectElements } from '../store/features/dashboard/selectors';
 import { DashboardElementConf } from '../store/features/dashboard/types';
 import { selectHgtDirPath, selectHgtFileInfoPurgeThreshold, selectHgtInterpolation, selectHgtReadFileRate, selectLayers, selectMapsforgeProfiles } from '../store/features/baseMap/selectors';
+import { selectAppDirs } from '../store/features/dirs/selectors';
 
 const useLayerInfos = () => {
     const [layerInfos,setLayerInfos] = useState<LayerInfos>( {} );
@@ -129,6 +130,7 @@ const AppView = ( {
     const hgtReadFileRate = useAppSelector( selectHgtReadFileRate );
     const layers = useAppSelector( selectLayers );
     const mapsforgeProfiles = useAppSelector( selectMapsforgeProfiles );
+    const appDirs = useAppSelector( selectAppDirs );
 
     const layersReverse = useMemo( () => [...layers].reverse(), [layers] );
 
@@ -142,9 +144,10 @@ const AppView = ( {
     const {
 		mapViewNativeNodeHandle,
 		selectedHierarchyItems,
-		appDirs,
 		mapHeight,
     } = useContext( AppContext );
+
+    const internalCacheDir = useMemo( () => get( appDirs, ['internalCacheDirs',0], undefined ), [appDirs] );
 
     const {
 		currentMapEventRef,
@@ -226,7 +229,7 @@ const AppView = ( {
                             case 'online-raster-xyz':
                                 options = fillLayerConfigOptionsWithDefaults( layer.type, layer.options ) as LayerConfigOptionsOnlineRasterXYZ
                                 cacheDirBase = 'internal' === options?.cacheDirBase
-                                    ? get( appDirs, 'internalCacheDir', undefined )
+                                    ? internalCacheDir
                                     : options?.cacheDirBase as LayerConfigOptionsOnlineRasterXYZ['cacheDirBase'];
                                 return <LayerBitmapTile
                                     key={ layer.key }
@@ -273,7 +276,7 @@ const AppView = ( {
                             case 'hillshading':
                                 options = fillLayerConfigOptionsWithDefaults( layer.type, layer.options ) as LayerConfigOptionsHillshading
                                 cacheDirBase = 'internal' === options?.cacheDirBase
-                                    ? get( appDirs, 'internalCacheDir', undefined )
+                                    ? internalCacheDir
                                     : options?.cacheDirBase as LayerConfigOptionsHillshading['cacheDirBase']
                                 return <LayerHillshading
                                     key={ layer.key }

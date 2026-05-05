@@ -2,7 +2,6 @@
  * External dependencies
  */
 import {
-    useContext,
     useEffect,
     useState,
 } from 'react';
@@ -10,7 +9,6 @@ import {
 	View,
 } from 'react-native';
 import {
-    MD3Theme,
     Text,
     useTheme,
 } from 'react-native-paper';
@@ -28,7 +26,6 @@ import { LayerHillshading, ShadingAlgorithm, ShadingAlgorithmOptions } from 'rea
 import ButtonHighlight from './generic/ButtonHighlight';
 import { OptionBase } from '../types';
 import InfoRowControl from './generic/InfoRowControl';
-import { AppContext } from '../Context';
 import ModalWrapper from './generic/ModalWrapper';
 import { NumericRowControl, NumericMultiRowControl } from './generic/NumericRowControls';
 import ListItemMenuControl from './generic/ListItemMenuControl';
@@ -39,6 +36,8 @@ import { defaults } from '../constants';
 import { styles as mdStyles } from '../markdown/styles';
 import HintLink from './generic/HintLink';
 import { LayerConfigOptionsHillshading, LayerConfig } from '../store/features/baseMap/types';
+import { selectAppDirs } from '../store/features/dirs/selectors';
+import { useAppSelector } from '../store/hooks';
 
 const algorithmLinks = {
     CLASY_ADAPTIVE: 'https://github.com/mapsforge/mapsforge/blob/master/mapsforge-map/src/main/java/org/mapsforge/map/layer/hills/AdaptiveClasyHillShading.java',
@@ -288,7 +287,7 @@ const MapLayerControlHillshading = ( {
 
 	const { t } = useTranslation();
 
-    const { appDirs } = useContext( AppContext );
+    const appDirs = useAppSelector( selectAppDirs );
 
     const [options,setOptions] = useState<LayerConfigOptionsHillshading>(
         fillLayerConfigOptionsWithDefaults( 'hillshading', editLayer.options ) as LayerConfigOptionsHillshading
@@ -310,7 +309,7 @@ const MapLayerControlHillshading = ( {
             options={ options }
             setOptions={ setOptions }
             optKey={ 'hgtDirPath' }
-            dirs={ appDirs ? appDirs.dem : [] }
+            dirs={ get( appDirs, 'dem', [] ) }
         />
 
         <AlgorithmControl

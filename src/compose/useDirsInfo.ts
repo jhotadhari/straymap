@@ -7,8 +7,7 @@ import { useState, useEffect } from 'react';
  * Internal dependencies
  */
 import { FsModule } from '../nativeModules';
-import { type AbsPath } from '../types';
-import { flatten } from 'lodash-es';
+import { AbsPath } from '../store/features/dirs/types';
 
 type NavChild = {
 	name: string;

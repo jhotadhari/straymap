@@ -17,7 +17,6 @@ import {
 	PaperProvider,
 	useTheme,
 } from 'react-native-paper';
-import { pick } from 'lodash-es';
 import {
 	CanvasAdapterModule,
 	MapEventResponse,
@@ -30,12 +29,10 @@ import {
  */
 import type {
 	HierarchyItem,
-	AbsPathsMap,
 	InitialPosition,
 	BottomBarHeight,
 } from '../types';
 import { AppContext, MapContext } from '../Context';
-import { HelperModule } from '../nativeModules';
 import SplashScreen from './SplashScreen';
 import AppView from './AppView';
 import SplashScreenUpdater from './SplashScreenUpdater';
@@ -44,6 +41,7 @@ import RoutingProvider from './RoutingProvider';
 import { selectInitialized as selectSettingsInitialized_appearance } from '../store/features/appearance/selectors';
 import { selectInitialized as selectSettingsInitialized_dashboard } from '../store/features/dashboard/selectors';
 import { selectInitialized as selectSettingsInitialized_general } from '../store/features/general/selectors';
+import { selectInitialized as selectSettingsInitialized_dirs } from '../store/features/dirs/selectors';
 import { selectMapsforgeGeneral, selectInitialized as selectSettingsInitialized_baseMap } from '../store/features/baseMap/selectors';
 import { useAppSelector } from '../store/hooks';
 import { useSetupTheme } from '../store/features/appearance/hooks';
@@ -191,17 +189,10 @@ const App = () => {
 		isBusy,
 	} );
 
-	const [appDirs,setAppDirs] = useState<undefined | AbsPathsMap>( undefined );
-
-	useEffect( () => {
-		HelperModule.getAppDirs().then( ( dirs : AbsPathsMap ) => {
-			setAppDirs( dirs );
-		} ).catch( ( err: any ) => console.log( 'ERROR', err ) );
-	}, [] );
-
 	const settingsInitialized_appearance = useAppSelector( selectSettingsInitialized_appearance );
 	const settingsInitialized_dashboard = useAppSelector( selectSettingsInitialized_dashboard );
 	const settingsInitialized_general = useAppSelector( selectSettingsInitialized_general );
+	const settingsInitialized_dirs = useAppSelector( selectSettingsInitialized_dirs );
 	const settingsInitialized_ui = useAppSelector( selectSettingsInitialized_ui );
 	const settingsInitialized_baseMap = useAppSelector( selectSettingsInitialized_baseMap );
 
@@ -236,21 +227,22 @@ const App = () => {
 	const appInnerHeight = height - topAppBarHeight;
 
 	useEffect( () => {
-		if ( !! ( appDirs
-			&& initialPositionInitialized
-			&& settingsInitialized_appearance
-			&& settingsInitialized_dashboard
-			&& settingsInitialized_general
-			&& settingsInitialized_ui
-			&& settingsInitialized_baseMap
+		if ( !! (
+			initialPositionInitialized &&
+			settingsInitialized_appearance &&
+			settingsInitialized_dashboard &&
+			settingsInitialized_dirs &&
+			settingsInitialized_general &&
+			settingsInitialized_ui &&
+			settingsInitialized_baseMap
 		) ) {
 			setReady( true );
 		}
 	}, [
-		appDirs,
 		initialPositionInitialized,
 		settingsInitialized_appearance,
 		settingsInitialized_dashboard,
+		settingsInitialized_dirs,
 		settingsInitialized_general,
 		settingsInitialized_ui,
 		settingsInitialized_baseMap,
@@ -285,7 +277,6 @@ const App = () => {
 	}
 
 	return <AppContext.Provider value={ {
-		appDirs,
 		mapViewNativeNodeHandle,
 		appInnerHeight,
 		topAppBarHeight,

@@ -2,7 +2,6 @@
  * External dependencies
  */
 import React, {
-	useContext,
     useState,
 } from 'react';
 import {
@@ -18,7 +17,6 @@ import { get } from 'lodash-es';
 /**
  * Internal dependencies
  */
-import { AppContext } from '../Context';
 import ListItemModalControl from './generic/ListItemModalControl';
 import { NumericRowControl } from './generic/NumericRowControls';
 import HgtSourceRowControl from './HgtSourceRowControl';
@@ -27,6 +25,7 @@ import InfoRowControl from './generic/InfoRowControl';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { selectHgtDirPath, selectHgtFileInfoPurgeThreshold, selectHgtInterpolation, selectHgtReadFileRate } from '../store/features/baseMap/selectors';
 import { setHgtDirPath, setHgtFileInfoPurgeThreshold, setHgtInterpolation, setHgtReadFileRate } from '../store/features/baseMap/baseMapSlice';
+import { selectAppDirs } from '../store/features/dirs/selectors';
 
 const HgtControl = () => {
 
@@ -34,9 +33,7 @@ const HgtControl = () => {
 
     const theme = useTheme();
 
-	const {
-		appDirs,
-	} = useContext( AppContext );
+    const appDirs = useAppSelector( selectAppDirs );
 
     const [showAdvanced,setShowAdvanced] = useState( false );
 
@@ -66,7 +63,7 @@ const HgtControl = () => {
                 dispatch( setHgtDirPath( get( options, 'hgtDirPath' ) || undefined ) );
             } }
             optKey={ 'hgtDirPath' }
-            dirs={ appDirs ? appDirs.dem : [] }
+            dirs={ get( appDirs, 'dem', [] ) }
             onlyThreeSeconds={ true }
         />
 

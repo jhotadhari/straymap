@@ -16,7 +16,6 @@ import { LocationExtended, MapEventResponse } from "react-native-mapsforge-vtm";
 import {
     ThemeOption,
     HierarchyItem,
-    AbsPathsMap,
     RoutingSegment,
     RoutingPoint,
     RoutingTriggeredSegment,
@@ -26,7 +25,6 @@ import {
 } from "./types";
 
 export type AppContextType = {
-	appDirs?: AbsPathsMap;
 	themeOptions?: ThemeOption[];
     mapViewNativeNodeHandle?: number | null;
     appInnerHeight?: number;

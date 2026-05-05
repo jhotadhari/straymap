@@ -4,7 +4,6 @@
  */
 import React, {
 	useCallback,
-	useContext,
 } from 'react';
 import {
 	View,
@@ -16,11 +15,11 @@ import {
 import { useTranslation } from 'react-i18next';
 import ColorPicker from 'react-native-wheel-color-picker'
 import { sprintf } from 'sprintf-js';
+import { get } from 'lodash-es';
 
 /**
  * Internal dependencies
  */
-import { AppContext } from '../Context';
 import InfoRowControl from './generic/InfoRowControl';
 import ListItemModalControl from './generic/ListItemModalControl';
 import { NumericRowControl } from './generic/NumericRowControls';
@@ -30,6 +29,7 @@ import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { setCursor } from '../store/features/appearance/appearanceSlice';
 import { selectCursor } from '../store/features/appearance/selectors';
 import { CursorConfig } from '../store/features/appearance/types';
+import { selectAppDirs } from '../store/features/dirs/selectors';
 
 const ColorRowControl = ( {
 	cursorConfig,
@@ -74,9 +74,7 @@ const CenterControl = () => {
 	const theme = useTheme();
 	const { t } = useTranslation();
 
-	const {
-		appDirs,
-	} = useContext( AppContext );
+	const appDirs = useAppSelector( selectAppDirs );
 
 	const cursorConfig = useAppSelector( selectCursor );
 
@@ -118,7 +116,7 @@ const CenterControl = () => {
             onSelect={ handleFileSelect }
 			initialOptsMap={ initialOptsMap }
             extensions={ ['svg','png'] }
-            dirs={ appDirs ? appDirs.cursor : [] }
+            dirs={ get( appDirs, 'cursor', [] ) }
             Info={ t( 'hint.center.file' ) }
             filesHeading={ sprintf( t( 'filesIn' ), '(svg|png)' ) }
             noFilesHeading={ sprintf( t( 'noFilesIn' ), '(svg|png)' ) }

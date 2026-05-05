@@ -12,21 +12,12 @@ import { GetTrackParams } from "react-native-brouter";
  * react-native-mapsforge-vtm dependencies
  */
 import {
-	LayerMBTilesBitmapProps,
-	LayerBitmapTileProps,
-	LayerMapsforgeProps,
-	LayerHillshadingProps,
-	MapContainerProps,
 	Location,
 } from 'react-native-mapsforge-vtm';
 
 export interface SliceSettingsBase {
 	initialized: boolean;
 }
-
-export type AbsPath = `/${string}`;
-
-export type AbsPathsMap = { [value: string]: AbsPath[] };
 
 export type LayerInfo = {
 	attribution?: string | null;

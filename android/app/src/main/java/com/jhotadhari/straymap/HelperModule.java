@@ -57,13 +57,12 @@ public class HelperModule extends ReactContextBaseJavaModule {
 			dirs.pushString( externalCacheDirs[i].toString() );
 			responseParams.putArray( "externalCacheDirs", dirs );
 		}
-		// internalCacheDir
-		responseParams.putString( "internalCacheDir", getReactApplicationContext().getCacheDir().toString() );
-		// externalCacheDir
-		File externalCacheDir = getReactApplicationContext().getExternalCacheDir();
-		if ( null != externalCacheDir ) {
-			responseParams.putString( "externalCacheDir", externalCacheDir.toString() );
-		}
+
+		// internalCacheDirs ... it's just one. But as array with one element to not confuse types.
+		WritableArray internalCacheDirs = new WritableNativeArray();
+		internalCacheDirs.pushString( getReactApplicationContext().getCacheDir().toString() );
+		responseParams.putArray( "internalCacheDirs", internalCacheDirs );
+
 		// Subdirs
 		File[] allDirs = Arrays.copyOf( externalMediaDirs, externalMediaDirs.length + filesDirs.length );
 		System.arraycopy( filesDirs, 0, allDirs, externalMediaDirs.length, filesDirs.length );

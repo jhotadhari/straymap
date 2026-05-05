@@ -2,7 +2,6 @@
  * External dependencies
  */
 import {
-    useContext,
     useEffect,
     useState,
 } from 'react';
@@ -14,18 +13,19 @@ import {
     useTheme,
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { debounce } from 'lodash-es';
+import { debounce, get } from 'lodash-es';
 import { sprintf } from 'sprintf-js';
 
 /**
  * Internal dependencies
  */
 import { NumericMultiRowControl } from './generic/NumericRowControls';
-import { AppContext } from '../Context';
 import FileSourceRowControl from './FileSourceRowControl';
 import HintLink from './generic/HintLink';
 import { fillLayerConfigOptionsWithDefaults } from '../utils';
 import { LayerConfig, LayerConfigOptionsRasterMBtiles } from '../store/features/baseMap/types';
+import { selectAppDirs } from '../store/features/dirs/selectors';
+import { useAppSelector } from '../store/hooks';
 
 const MapLayerControlRasterMBTiles = ( {
     editLayer,
@@ -38,7 +38,7 @@ const MapLayerControlRasterMBTiles = ( {
     const theme = useTheme();
 	const { t } = useTranslation();
 
-    const { appDirs } = useContext( AppContext );
+    const appDirs = useAppSelector( selectAppDirs );
 
     const [options,setOptions] = useState<LayerConfigOptionsRasterMBtiles>(
         fillLayerConfigOptionsWithDefaults( 'hillshading', editLayer.options ) as LayerConfigOptionsRasterMBtiles
@@ -66,7 +66,7 @@ const MapLayerControlRasterMBTiles = ( {
                 mapFile: selectedOpt,
             } ) }
             extensions={ ['mbtiles'] }
-            dirs={ appDirs ? appDirs.mapfiles : [] }
+            dirs={ get( appDirs, 'mapfiles', [] ) }
             Info={ <View>
                 <Text>{ t( 'hint.maps.mbTilesFile' ) }</Text>
                 <Text style={ {

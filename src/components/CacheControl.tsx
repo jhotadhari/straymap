@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useContext, useEffect } from "react";
+import {  useEffect, useMemo } from "react";
 import { get } from "lodash-es";
 import {
     View,
@@ -16,9 +16,10 @@ import { TextInput, useTheme } from "react-native-paper";
 import { NumericRowControl } from "./generic/NumericRowControls";
 import InfoRowControl from "./generic/InfoRowControl";
 import ListItemMenuControl from "./generic/ListItemMenuControl";
-import { AppContext } from "../Context";
 import { OptionBase } from "../types";
 import { TextInputNativeMultilineControlled } from "./generic/TextInputNativeMultiline";
+import { useAppSelector } from "../store/hooks";
+import { selectAppDirs } from "../store/features/dirs/selectors";
 
 const CacheControl = ( {
     options,
@@ -35,10 +36,10 @@ const CacheControl = ( {
     const { t } = useTranslation();
     const theme = useTheme();
 
-    const {
-        appDirs,
-    } = useContext( AppContext )
-    const externalCacheDir = get( appDirs, 'externalCacheDir', undefined ) as ( undefined | `/${string}` );
+    const appDirs = useAppSelector( selectAppDirs );
+
+    const externalCacheDir = useMemo( () => get( appDirs, ['externalCacheDirs',0], undefined ), [appDirs] );
+
     const opts = [
         {
             key: 'internal',
@@ -74,7 +75,7 @@ const CacheControl = ( {
     }
 
     const cachePath = ( 'internal' === get( selectedOpt, 'key' )
-        ? get( appDirs, 'internalCacheDir', '' )
+        ? get( appDirs, ['internalCacheDirs',0], '' )
         : get( selectedOpt, 'key' )
     ) + '/' + cacheDirChild;
 

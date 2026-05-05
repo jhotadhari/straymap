@@ -5,7 +5,6 @@ import {
     Dispatch,
     ReactNode,
     SetStateAction,
-    useContext,
     useEffect,
     useState,
 } from 'react';
@@ -27,7 +26,6 @@ import { debounce, get } from 'lodash-es';
  */
 import { OptionBase } from '../types';
 import { NumericMultiRowControl } from './generic/NumericRowControls';
-import { AppContext } from '../Context';
 import FileSourceRowControl from './FileSourceRowControl';
 import InfoRowControl from './generic/InfoRowControl';
 import ButtonHighlight from './generic/ButtonHighlight';
@@ -36,6 +34,8 @@ import { sprintf } from 'sprintf-js';
 import HintLink from './generic/HintLink';
 import { fillLayerConfigOptionsWithDefaults } from '../utils';
 import { LayerConfigOptionsMapsforge, MapsforgeProfile, LayerConfig } from '../store/features/baseMap/types';
+import { selectAppDirs } from '../store/features/dirs/selectors';
+import { useAppSelector } from '../store/hooks';
 
 const ProfileRowControl = ( {
     options,
@@ -155,7 +155,7 @@ const MapLayerControlMapsforge = ( {
 	const { t } = useTranslation();
     const theme = useTheme();
 
-    const { appDirs } = useContext( AppContext );
+    const appDirs = useAppSelector( selectAppDirs );
 
     const [options,setOptions] = useState<LayerConfigOptionsMapsforge>(
         fillLayerConfigOptionsWithDefaults( 'mapsforge', editLayer.options ) as LayerConfigOptionsMapsforge
@@ -183,7 +183,7 @@ const MapLayerControlMapsforge = ( {
                 mapFile: selectedOpt,
             } ) }
             extensions={ ['map'] }
-            dirs={ appDirs ? appDirs.mapfiles : [] }
+            dirs={ get( appDirs, 'mapfiles', [] ) }
             Info={ <View>
                 <Text>{ t( 'hint.maps.mapsforgeFile' ) }</Text>
                 <Text style={ {

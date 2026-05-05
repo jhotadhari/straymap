@@ -39,7 +39,6 @@ import { LayerMapsforge, MapLayerMapsforgeModule, RenderStyleOptionsCollection }
 import InfoRowControl from './generic/InfoRowControl';
 import ButtonHighlight from './generic/ButtonHighlight';
 import ModalWrapper from './generic/ModalWrapper';
-import { AppContext } from '../Context';
 import RadioListItem from './generic/RadioListItem';
 import InfoButton from './generic/InfoButton';
 import IconIcomoon from './generic/IconIcomoon';
@@ -59,9 +58,9 @@ import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { addBusyKey, removeBusyKey, setElementExpanded } from '../store/features/ui/uiSlice';
 import { selectRenderStylesCache } from '../store/features/baseMap/selectors';
 import { setRenderStylesCache } from '../store/features/baseMap/baseMapSlice';
+import { selectAppDirs } from '../store/features/dirs/selectors';
 
 const itemHeight = 50;
-
 
 const DraggableItem = ( {
     width,
@@ -435,7 +434,7 @@ const MapsforgeProfilesControl = ( {
 	const { t } = useTranslation();
 	const theme = useTheme();
 
-    const { appDirs } = useContext( AppContext );
+    const appDirs = useAppSelector( selectAppDirs );
 
     const [modalOpened,setModalOpened] = useState( false )
 	const [modalVisible, setModalVisible_] = useState( false );
@@ -533,7 +532,7 @@ const MapsforgeProfilesControl = ( {
                     layers={ layers }
                 />
 
-                { appDirs && appDirs.mapstyles && <FileSourceRowControl
+                { appDirs?.mapstyles && <FileSourceRowControl
                     AlternativeButton={ isBusy ? () => <LoadingIndicator/> : undefined }
                     label={ t( 'theme' ) }
                     header={ t( 'selectTheme' ) }
