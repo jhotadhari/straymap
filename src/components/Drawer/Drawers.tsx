@@ -1,8 +1,7 @@
 import { View } from "react-native";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { SharedValue, useAnimatedStyle, useSharedValue } from "react-native-reanimated";
 import { Gesture } from "react-native-gesture-handler";
-import { MapEventResponse } from "react-native-mapsforge-vtm";
 import { clamp } from "lodash-es";
 
 import Drawer from "./Drawer";
@@ -34,7 +33,12 @@ const useDrawerState = ({
         transform: [{ translateX: translationX.value }],
     }));
 
-    const setTranslationX = (newVal: number) => {
+    useEffect( () => {
+        console.log( 'debug side, translationX', side, translationX ); // debug
+
+    }, [side, translationX] )
+
+    const setTranslationX = useCallback( (newVal: number) => {
         translationX.value = newVal;
         // Render inner on initial open.
         if (!showInner) {
@@ -56,12 +60,23 @@ const useDrawerState = ({
                 'right' === side ? 0 : drawerWidth
             );
         }
-    };
+    }, [
+        side,
+        drawerWidth,
+        outerWidth,
+        translationX,
+        translationXOther,
+        showInner,
+    ] );
 
-    const expand = (expanded: boolean) => setTranslationX(expanded
+    const expand = useCallback( (expanded: boolean) => setTranslationX(expanded
         ? ('left' === side ? 0 : 0)
         : ('left' === side ? - drawerWidth : drawerWidth)
-    );
+    ), [
+        setTranslationX,
+        side,
+        drawerWidth,
+    ] );
 
     const gesture = Gesture.Pan()
         .minDistance(1)
@@ -98,10 +113,12 @@ const Drawers = ({
     drawerWidth = 300,
     outerWidth,
     height,
+    hidden,
 }: {
     drawerWidth?: number;
     outerWidth: number;
     height: number;
+    hidden?: boolean;
 }) => {
 
     const translationXLeft = useSharedValue(- drawerWidth);
@@ -124,7 +141,7 @@ const Drawers = ({
         translationXOther: translationXLeft,
     });
 
-    return <View style={{ position: 'absolute' }}>
+    return ! hidden && <View style={{ position: 'absolute' }}>
 
         <Drawer
             elements={[

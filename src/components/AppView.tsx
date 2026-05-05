@@ -153,6 +153,13 @@ const AppView = ( {
 		currentMapEventRef,
     } = useContext( MapContext );
 
+    const SubActivity = useMemo( () => {
+        if ( selectedHierarchyItems && selectedHierarchyItems[selectedHierarchyItems.length-1].SubActivity ) {
+            return () => selectedHierarchyItems[selectedHierarchyItems.length-1].SubActivity;
+        }
+        return undefined;
+    }, [selectedHierarchyItems] );
+
     return <SafeAreaView style={ {
         backgroundColor: theme.colors.background,
         height,
@@ -170,7 +177,7 @@ const AppView = ( {
             width,
         } } >
 
-            { selectedHierarchyItems && selectedHierarchyItems[selectedHierarchyItems.length-1].SubActivity && selectedHierarchyItems[selectedHierarchyItems.length-1].SubActivity }
+            { SubActivity && <SubActivity/> }
 
             <MapContainer
                 mapEventRate={ mapEventRate }
@@ -312,6 +319,7 @@ const AppView = ( {
             <Drawers
                 height={ mapHeight || 0 }
                 outerWidth={ width }
+                hidden={ !! SubActivity }
             />
 
             <MapLayersAttribution

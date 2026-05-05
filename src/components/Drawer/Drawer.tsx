@@ -16,7 +16,6 @@ import { get } from 'lodash-es';
  * Internal dependencies
  */
 import * as drawerElementComponents from "./elements";
-import { MapEventResponse } from 'react-native-mapsforge-vtm';
 import { DrawerState } from '../../types';
 
 const handleSize = 50;
