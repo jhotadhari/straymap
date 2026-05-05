@@ -20,3 +20,6 @@ export const selectDirsInfoCache = (state: RootState) =>
 export const selectDirsInfoCacheEntry = (state: RootState, id: string ) =>
 	get( state.dirs.dirInfoCache, id );
 
+export const selectCacheDirsCache = (state: RootState ) =>
+	state.dirs.cacheDirsCache;
+

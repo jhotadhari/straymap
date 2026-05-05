@@ -8,6 +8,7 @@ import { createSlice } from '@reduxjs/toolkit';
  * Internal dependencies
 */
 import { SliceSettingsBase } from '../../../types';
+import { uniq } from 'lodash-es';
 
 export interface UiSettings {
 	expandedElements: string[];
@@ -49,7 +50,7 @@ export const uiSlice = createSlice({
 			} else {
 				newExpandedElements = newExpandedElements.filter( key => action.payload.key !== key );
 			}
-			state.expandedElements = newExpandedElements;
+			state.expandedElements = uniq( newExpandedElements );
 		},
 		setBusyKeys: (state, action: PayloadAction<string[]>) => {
 			state.busyKeys = action.payload;

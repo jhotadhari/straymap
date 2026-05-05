@@ -8,8 +8,8 @@ import { createSlice } from '@reduxjs/toolkit';
  * Internal dependencies
 */
 import { SliceSettingsBase } from '../../../types';
-import { AbsPath, AbsPathsMap, DirInfoMap } from './types';
-import { omit, pick, set } from 'lodash-es';
+import { AbsPathsMap, CacheDir, DirInfoMap } from './types';
+import { omit, set } from 'lodash-es';
 
 export interface DirsSettings {
 }
@@ -17,6 +17,7 @@ export interface DirsSettings {
 export interface DirsState extends SliceSettingsBase, DirsSettings {
 	appDirs: AbsPathsMap;
 	dirInfoCache: { [id: string]: DirInfoMap };
+	cacheDirsCache: CacheDir[],
 }
 
 export const initialSettings : DirsSettings = {
@@ -27,6 +28,7 @@ const initialState: DirsState = {
 	...initialSettings,
 	appDirs: {},
 	dirInfoCache: {},
+	cacheDirsCache: [],
 };
 
 // Slices contain Redux reducer logic for updating state, and
@@ -59,6 +61,9 @@ export const dirsSlice = createSlice({
 				state.dirInfoCache = omit( state.dirInfoCache, [action.payload] );
 			}
 		},
+		setCacheDirsCache: (state, action: PayloadAction<DirsState['cacheDirsCache']>) => {
+			state.cacheDirsCache = action.payload;
+		},
 	},
 });
 
@@ -69,6 +74,7 @@ export const {
 	setDirInfoCache,
 	addDirInfoCacheEntry,
 	removeDirInfoCacheEntry,
+	setCacheDirsCache,
 } = dirsSlice.actions;
 
 // Export the slice reducer for use in the store configuration

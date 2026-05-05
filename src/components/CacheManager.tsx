@@ -26,7 +26,6 @@ import { get } from 'lodash-es';
  */
 import InfoRowControl from './generic/InfoRowControl';
 import LoadingIndicator from './generic/LoadingIndicator';
-import useCacheDirsInfo, { CacheDir, CacheSubDir } from '../compose/useCacheDirsInfo';
 import { getHillshadingCacheDirChild, stringifyProp } from '../utils';
 import { FsModule } from '../nativeModules';
 import { ContextSettingsMaps } from '../store/features/baseMap/ContextSettingsMaps';
@@ -35,17 +34,19 @@ import { selectElementExpanded } from '../store/features/ui/selectors';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { setElementExpanded } from '../store/features/ui/uiSlice';
 import { selectAppDirs } from '../store/features/dirs/selectors';
+import useCacheDirsInfo from '../store/features/dirs/hooks/useCacheDirsInfo';
+import { CacheDir, CacheSubDir } from '../store/features/dirs/types';
 
 const CacheRow = ( {
     cacheDir,
     cache,
     findLayers,
-    setLoadCacheDirs,
+    updateCacheDirs,
 } : {
     cacheDir: CacheDir;
     cache: CacheSubDir;
     findLayers: ( pathFull: string ) => LayerConfig[];
-    setLoadCacheDirs: Dispatch<SetStateAction<any>>;
+    updateCacheDirs: () => void;
 } ) => {
 
     const [deleting,setDeleting] = useState( false );
@@ -101,7 +102,7 @@ const CacheRow = ( {
                     setDeleting( true );
                     FsModule.deleteDir( pathFull ).finally( () => {
                         setDeleting( false );
-                        setLoadCacheDirs( Math.random() );
+                        updateCacheDirs();
                     } );
                 } }
                 style={ { borderRadius: theme.roundness } }
@@ -158,9 +159,10 @@ const CacheManager = () => {
 
     const expanded = useAppSelector( state => selectElementExpanded( state, uiStateKey ) );
 
-    const [loadCacheDirs,setLoadCacheDirs] = useState<number | boolean>( expanded );
-
-    const cacheDirs = useCacheDirsInfo( loadCacheDirs );
+    const {
+		updateCacheDirs,
+		cacheDirs,
+	} = useCacheDirsInfo();
 
     return <List.Accordion
         title={ 'Cache Manager' }
@@ -172,7 +174,7 @@ const CacheManager = () => {
         expanded={ expanded }
         onPress={ () => {
             if ( ! expanded ) {
-                setLoadCacheDirs( Math.random() );
+                updateCacheDirs();
             }
             dispatch( setElementExpanded( {
                 key: uiStateKey,
@@ -202,7 +204,7 @@ const CacheManager = () => {
                     cache={ cache }
                     cacheDir={ cacheDir }
                     findLayers={ findLayers }
-                    setLoadCacheDirs={ setLoadCacheDirs }
+                    updateCacheDirs={ updateCacheDirs }
                 /> ) }
 
             </View>;

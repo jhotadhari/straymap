@@ -18,3 +18,13 @@ export type DirInfo = {
 };
 
 export type DirInfoMap = { [absPath: string]: DirInfo };
+
+export type CacheSubDir = {
+	readableSize: string;
+	basename: string;
+};
+
+export type CacheDir = {
+	path: string;
+	caches: CacheSubDir[];
+};
