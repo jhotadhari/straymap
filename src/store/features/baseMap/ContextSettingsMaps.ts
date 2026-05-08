@@ -12,22 +12,30 @@ export type ContextSettingsMapsType = {
 	// layers
     layers: LayerConfig[];
     editLayer: null | LayerConfig;
-    setEditLayer?: Dispatch<SetStateAction<null | LayerConfig>>
-    updateLayer?: ( newLayer: LayerConfig ) => void;
-    setLayers?: ( newLayers: LayerConfig[] ) => void;
-    saveLayers?: () => void;
+    setEditLayer: Dispatch<SetStateAction<null | LayerConfig>>
+    updateLayer: ( newLayer: LayerConfig ) => void;
+    setLayers: ( newLayers: LayerConfig[] ) => void;
+    saveLayers: () => void;
 	// profiles
     profiles: MapsforgeProfile[];
     editProfile: null | MapsforgeProfile;
-    setEditProfile?: Dispatch<SetStateAction<null | MapsforgeProfile>>;
-    updateProfile?: ( newProfile: MapsforgeProfile ) => void;
-    setProfiles?: ( newProfiles: MapsforgeProfile[] ) => void;
-    saveProfiles?: () => void;
+    setEditProfile: Dispatch<SetStateAction<null | MapsforgeProfile>>;
+    updateProfile: ( newProfile: MapsforgeProfile ) => void;
+    setProfiles: ( newProfiles: MapsforgeProfile[] ) => void;
+    saveProfiles: () => void;
 };
 
 export const ContextSettingsMaps = createContext<ContextSettingsMapsType>( {
 	layers: [],
     editLayer: null,
-	profiles: [],
+    setEditLayer: () => null,
+    updateLayer: () => null,
+    setLayers: () => null,
+    saveLayers: () => null,
+    profiles: [],
     editProfile: null,
+    setEditProfile: () => null,
+    updateProfile: () => null,
+    setProfiles: () => null,
+    saveProfiles: () => null,
 } );

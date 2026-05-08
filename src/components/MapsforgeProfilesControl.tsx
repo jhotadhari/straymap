@@ -119,7 +119,7 @@ const DraggableItem = ( {
 
         <TouchableHighlight
             underlayColor={ theme.colors.elevation.level3 }
-            onPress={ () => setEditProfile && setEditProfile( profile ) }
+            onPress={ () => setEditProfile( profile ) }
             style={ { padding: 10, borderRadius: theme.roundness } }
             onLayout={ ( event ) => {
                 if (
@@ -182,7 +182,7 @@ const RenderStyleRowControl = ( {
     AlternativeButton,
 } : {
     profile: MapsforgeProfile;
-    updateProfile?: ( newProfile: MapsforgeProfile ) => void;
+    updateProfile: ( newProfile: MapsforgeProfile ) => void;
     Info?: ReactNode | string;
     AlternativeButton?: ReactNode;
     renderStyleOptionsMap: { [value: string]: RenderStyleOptionsCollection };
@@ -218,7 +218,7 @@ const RenderStyleRowControl = ( {
 	const [menuVisible,setMenuVisible] = useState( false );
 
     useEffect( () => {
-        if ( selectedOpt && updateProfile ) {
+        if ( selectedOpt ) {
             updateProfile( {
                 ...profile,
                 renderStyle: selectedOpt,
@@ -266,7 +266,7 @@ const RenderOverlaysRowControl = ( {
     AlternativeButton = null,
 } : {
     profile: MapsforgeProfile;
-    updateProfile?: ( newProfile: MapsforgeProfile ) => void;
+    updateProfile: ( newProfile: MapsforgeProfile ) => void;
     Info?: ReactNode | string;
     label: string;
     header?: string;
@@ -298,7 +298,7 @@ const RenderOverlaysRowControl = ( {
 	const [modalVisible, setModalVisible] = useState( false );
 
     useEffect( () => {
-        updateProfile && updateProfile( {
+        updateProfile( {
             ...profile,
             renderOverlays: selectedOpts,
         } );
@@ -516,7 +516,7 @@ const MapsforgeProfilesControl = ( {
             onDismiss={ () => {
                 setModalVisible( false );
                 setIsNewKey( null );
-                setEditProfile && setEditProfile( null );
+                setEditProfile( null );
             } }
             header={ isNewKey === editProfile.key ? t( 'map.mapsforge.profileAddNewShort' ) : t( 'map.mapsforge.profileEdit' ) }
         >
@@ -547,7 +547,7 @@ const MapsforgeProfilesControl = ( {
                     options={ editProfile }
                     optionsKey={ 'theme' }
                     onSelect={ selectedOpt => {
-                        updateProfile && updateProfile( {
+                        updateProfile( {
                             ...editProfile,
                             theme: selectedOpt,
                         } )
@@ -618,7 +618,7 @@ const MapsforgeProfilesControl = ( {
                         label: t( 'hasLabels' ),
                         key: 'hasLabels',
                     } }
-                    onPress={ () => updateProfile && updateProfile( {
+                    onPress={ () => updateProfile( {
                         ...editProfile,
                         hasLabels: ! editProfile.hasLabels,
                     } ) }
@@ -633,7 +633,7 @@ const MapsforgeProfilesControl = ( {
                         label: t( 'hasBuildings' ),
                         key: 'hasBuildings',
                     } }
-                    onPress={ () => updateProfile && updateProfile( {
+                    onPress={ () => updateProfile( {
                         ...editProfile,
                         hasBuildings: ! editProfile.hasBuildings,
                     } ) }
@@ -647,7 +647,7 @@ const MapsforgeProfilesControl = ( {
                 { ! isBusy && <View style={ { marginTop: 20, marginBottom: 40, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' } }>
                     <ButtonHighlight
                         onPress={ () => {
-                            setEditProfile && setEditProfile( null );
+                            setEditProfile( null );
                             setModalVisible( false );
                             setIsNewKey( null );
                         } }
@@ -658,7 +658,7 @@ const MapsforgeProfilesControl = ( {
 
                     <ButtonHighlight
                         onPress={ () => {
-                            if ( profiles && setProfiles && setEditProfile ) {
+                            if ( profiles ) {
                                 const profileIndex = profiles.findIndex( profile => profile.key === editProfile.key )
                                 if ( profileIndex !== -1 ) {
                                     const newProfiles = [...profiles];
@@ -689,7 +689,7 @@ const MapsforgeProfilesControl = ( {
             } }><IconIcomoon size={ 25 } name="mapsforge_puzzle_only" {...props}/></View> }
             expanded={ expanded }
             onPress={ () => {
-                if ( expanded && saveProfiles ) {
+                if ( expanded ) {
                     saveProfiles();
                 }
                 dispatch( setElementExpanded( {
@@ -715,7 +715,7 @@ const MapsforgeProfilesControl = ( {
                     onDragStart={ () => setScrollEnabled( false ) }
                     onDragRelease={ ( newProfiles : MapsforgeProfile[] ) => {
                         setScrollEnabled( true );
-                        setProfiles && setProfiles( newProfiles );
+                        setProfiles( newProfiles );
                     } }
                 />
             </View>
@@ -772,12 +772,10 @@ const MapsforgeProfilesControl = ( {
                     icon="map-plus"
                     mode="outlined"
                     onPress={ () => {
-                        if ( setEditProfile && updateProfile ) {
-                            const newEditProfile = getNewProfile();
-                            setIsNewKey( newEditProfile.key );
-                            setEditProfile( newEditProfile );
-                            updateProfile( newEditProfile );
-                        }
+                        const newEditProfile = getNewProfile();
+                        setIsNewKey( newEditProfile.key );
+                        setEditProfile( newEditProfile );
+                        updateProfile( newEditProfile );
                     } }
                 >
                     { newLabel }

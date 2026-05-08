@@ -46,7 +46,7 @@ const ProfileRowControl = ( {
 } : {
     options: LayerConfigOptionsMapsforge;
     setOptions: ( options : LayerConfigOptionsMapsforge ) => void;
-    setEditProfile?: Dispatch<SetStateAction<null | MapsforgeProfile>>;
+    setEditProfile: Dispatch<SetStateAction<null | MapsforgeProfile>>;
     profiles: MapsforgeProfile[];
     Info?: ReactNode | string;
 } ) => {
@@ -124,7 +124,7 @@ const ProfileRowControl = ( {
                 underlayColor={ theme.colors.elevation.level3 }
                 onPress={ () => {
                     const newEditProfile = profiles.find( prof => prof.key === selectedOpt )
-                    if ( newEditProfile && setEditProfile ) {
+                    if ( newEditProfile ) {
                         setEditProfile( newEditProfile );
                     }
                 } }
@@ -148,7 +148,7 @@ const MapLayerControlMapsforge = ( {
 } : {
     editLayer: LayerConfig;
     updateLayer: ( newItem : LayerConfig ) => void;
-    setEditProfile?: Dispatch<SetStateAction<null | MapsforgeProfile>>;
+    setEditProfile: Dispatch<SetStateAction<null | MapsforgeProfile>>;
     profiles: MapsforgeProfile[];
 } ) => {
 

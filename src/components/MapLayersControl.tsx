@@ -79,13 +79,13 @@ const VisibleControl = ( {
 } : {
     item: LayerConfig;
     style?: ViewStyle,
-    updateLayer?: ( newLayer: LayerConfig ) => void;
+    updateLayer: ( newLayer: LayerConfig ) => void;
 } ) => {
     const theme = useTheme();
 
     return <TouchableHighlight
         underlayColor={ theme.colors.elevation.level3 }
-        onPress={ () => updateLayer && updateLayer( {
+        onPress={ () => updateLayer( {
             ...item,
             visible: ! item.visible,
         } ) }
@@ -103,7 +103,7 @@ const VisibleRowControl = ( {
     updateLayer,
 } : {
     item: LayerConfig;
-    updateLayer?: ( newLayer: LayerConfig ) => void;
+    updateLayer: ( newLayer: LayerConfig ) => void;
 } ) => {
 	const { t } = useTranslation();
     return <InfoRowControl
@@ -136,7 +136,7 @@ const DraggableItem = ( {
         updateLayer,
     } = useContext( ContextSettingsMaps );
 
-    return setEditLayer && updateLayer ? <View
+    return <View
         style={ {
             width,
             height: itemHeight,
@@ -191,7 +191,7 @@ const DraggableItem = ( {
             />
         </TouchableHighlight>
 
-    </View> : null;
+    </View>;
 };
 
 const MapLayersControl = ( {
@@ -247,7 +247,7 @@ const MapLayersControl = ( {
             visible={ modalVisible }
             onDismiss={ () => {
                 setModalVisible( false );
-                setEditLayer && setEditLayer( null );
+                setEditLayer( null );
             } }
             header={ editLayer.type ? t( 'map.layerEdit' ) : t( 'map.addNewLayerShort' ) }
         >
@@ -256,7 +256,7 @@ const MapLayersControl = ( {
 
                     { [...mapTypeOptions].map( ( opt : LayerOption, index: number ) => {
                         const onPress = () => {
-                            updateLayer && updateLayer( {
+                            updateLayer( {
                                 ...editLayer,
                                 type: opt.key,
                                 options: fillLayerConfigOptionsWithDefaults( opt.key, editLayer.options ),
@@ -273,7 +273,7 @@ const MapLayersControl = ( {
                     } ) }
             </View> }
 
-            { editLayer.type && updateLayer && setEditLayer && setLayers && <View>
+            { editLayer.type && <View>
 
                 <View style={ { marginBottom: 10, flexDirection: 'row' } }>
                     <Text style={ { minWidth: labelMinWidth + 12 } }>{ t( 'map.mapType' ) }:</Text>
@@ -346,7 +346,7 @@ const MapLayersControl = ( {
 
         </ModalWrapper> }
 
-        { saveLayers && setEditLayer && setLayers && <List.Accordion
+        <List.Accordion
             title={ t( 'map.layer', { count: 0 } ) }
             left={ props => <View style={ {
                 marginLeft:   7,
@@ -419,7 +419,7 @@ const MapLayersControl = ( {
                     { newLabel }
                 </ButtonHighlight>
             </View>
-        </List.Accordion> }
+        </List.Accordion>
 
     </View>;
 };

@@ -33,11 +33,6 @@ const useDrawerState = ({
         transform: [{ translateX: translationX.value }],
     }));
 
-    useEffect( () => {
-        console.log( 'debug side, translationX', side, translationX ); // debug
-
-    }, [side, translationX] )
-
     const setTranslationX = useCallback( (newVal: number) => {
         translationX.value = newVal;
         // Render inner on initial open.
