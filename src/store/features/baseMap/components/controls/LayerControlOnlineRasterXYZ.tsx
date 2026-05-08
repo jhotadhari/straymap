@@ -43,8 +43,8 @@ interface SourceOption extends OptionBase {
 
 const AttributionGoogle = ( { theme } : { theme: ThemePropExtended } ) => <View>
     <Image source={ theme.dark
-        ? require( '../assets/images/google_on_non_white.png' )
-        : require( '../assets/images/google_on_white.png' )
+        ? require( '../../../../../assets/images/google_on_non_white.png' )
+        : require( '../../../../../assets/images/google_on_white.png' )
     } />
     <Text style={ { color: get( theme.colors, 'link' ) } } onPress={ () => Linking.openURL( 'https://cloud.google.com/maps-platform/terms' ) }>
         &copy; Map data ©{ dayjs().format( 'YYYY' ) } Google
