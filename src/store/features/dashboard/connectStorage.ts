@@ -42,7 +42,7 @@ export const initializeFromStorage = ( store: EnhancedStore ) => {
  * Compares settings in this store slice with initialSettings,
  * and saves anything that esdiffers to initialSettings to defaultPreferences.
  */
-export const saveToStorage = ( dashboardState: DashboardState ) => {
+export const saveToStorage = ( dashboardState: DashboardState, actionType: string ) => {
 	if ( ! dashboardState.initialized ) {
 		return;
 	}
@@ -68,19 +68,22 @@ export const saveToStorage = ( dashboardState: DashboardState ) => {
 			set( settingsToSave, key, valueToSave );
 		}
 	} );
+	if ( __DEV__ && globalThis.shouldLog.saveToStorage ) {
+		console.log( 'DEBUG saveToStorage', settingsKey, actionType, settingsToSave );
+	}
 	DefaultPreference.set( settingsKey, JSON.stringify( settingsToSave ) )
 };
 
 /**
  * Listens to action that change settings in this store slice,
  * and calls the function to save them to defaultPreferences.
- *  */
+ */
 startAppListening( {
 	matcher: isAnyOf(
 		setElements,
 		setDashboardStyle,
 	),
-	effect: async (_action, listenerApi) => {
-		saveToStorage( listenerApi.getState().dashboard );
+	effect: async (action, listenerApi) => {
+		saveToStorage( listenerApi.getState().dashboard, action.type );
 	},
 } );

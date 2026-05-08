@@ -60,7 +60,7 @@ export const initializeFromStorage = ( store: EnhancedStore ) => {
  * Compares settings in this store slice with initialSettings,
  * and saves anything that differs to initialSettings to defaultPreferences.
  */
-export const saveToStorage = ( generalState: GeneralState ) => {
+export const saveToStorage = ( generalState: GeneralState, actionType: string ) => {
 	if ( ! generalState.initialized ) {
 		return;
 	}
@@ -80,13 +80,16 @@ export const saveToStorage = ( generalState: GeneralState ) => {
 			set( settingsToSave, key, valueToSave );
 		}
 	} );
+	if ( __DEV__ && globalThis.shouldLog.saveToStorage ) {
+		console.log( 'DEBUG saveToStorage', settingsKey, actionType, settingsToSave );
+	}
 	DefaultPreference.set( settingsKey, JSON.stringify( settingsToSave ) )
 };
 
 /**
  * Listens to action that change settings in this store slice,
  * and calls the function to save them to defaultPreferences.
- *  */
+ */
 startAppListening( {
 	matcher: isAnyOf(
 		setLang,
@@ -95,7 +98,7 @@ startAppListening( {
 		setUnitPrefs,
 		setMapEventRate,
 	),
-	effect: async (_action, listenerApi) => {
-		saveToStorage( listenerApi.getState().general );
+	effect: async (action, listenerApi) => {
+		saveToStorage( listenerApi.getState().general, action.type );
 	},
 } );

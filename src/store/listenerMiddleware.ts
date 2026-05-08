@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { createListenerMiddleware, addListener } from '@reduxjs/toolkit';
+import { createListenerMiddleware, addListener, UnknownAction } from '@reduxjs/toolkit';
 
 /**
  * Internal dependencies
@@ -21,3 +21,19 @@ export const startAppListening = listenerMiddleware.startListening.withTypes<
 >();
 
 export const addAppListener = addListener.withTypes<RootState, AppDispatch>();
+
+if ( __DEV__ && globalThis.shouldLog.dispatchAction ) {
+	startAppListening( {
+		predicate: () => true,
+		effect: async (
+			action: UnknownAction
+		) => {
+			if ( true === globalThis.shouldLog.dispatchAction || (
+				Array.isArray( globalThis.shouldLog.dispatchAction ) &&
+				globalThis.shouldLog.dispatchAction.includes( action.type )
+			) ) {
+				console.log( 'DEBUG dispatch action', action?.type, action?.payload ); // debug
+			}
+		},
+	} );
+}

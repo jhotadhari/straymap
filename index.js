@@ -17,6 +17,7 @@ if ( ! ( 'structuredClone' in globalThis ) ) {
 /**
  * Internal dependencies
  */
+import './src/globals';
 import { name as appName } from './app.json';
 import './src/assets/i18n/i18n';
 import App from './src/components/App';

@@ -34,7 +34,7 @@ export const initializeFromStorage = ( store: EnhancedStore ) => {
  * Compares settings in this store slice with initialSettings,
  * and saves anything that differs to initialSettings to defaultPreferences.
  */
-export const saveToStorage = ( uiState: UiState ) => {
+export const saveToStorage = ( uiState: UiState, actionType: string ) => {
 	if ( ! uiState.initialized ) {
 		return;
 	}
@@ -47,19 +47,22 @@ export const saveToStorage = ( uiState: UiState ) => {
 			set( settingsToSave, key, get( uiState, key ) );
 		}
 	} );
+	if ( __DEV__ && globalThis.shouldLog.saveToStorage ) {
+		console.log( 'DEBUG saveToStorage', settingsKey, actionType, settingsToSave );
+	}
 	DefaultPreference.set( settingsKey, JSON.stringify( settingsToSave ) )
 };
 
 /**
  * Listens to action that change settings in this store slice,
  * and calls the function to save them to defaultPreferences.
- *  */
+ */
 startAppListening( {
 	matcher: isAnyOf(
 		setExpandedElements,
 		setElementExpanded,
 	),
-	effect: async (_action, listenerApi) => {
-		saveToStorage( listenerApi.getState().ui );
+	effect: async (action, listenerApi) => {
+		saveToStorage( listenerApi.getState().ui, action.type );
 	},
 } );

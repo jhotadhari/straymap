@@ -61,7 +61,10 @@ export const initializeFromStorage = ( store: EnhancedStore ) => {
  * Compares settings in this store slice with initialSettings,
  * and saves anything that esdiffers to initialSettings to defaultPreferences.
  */
-export const saveToStorage = ( baseMapState: BaseMapState ) => {
+export const saveToStorage = (
+	baseMapState: BaseMapState,
+	actionType: string,
+) => {
 	if ( ! baseMapState.initialized ) {
 		return;
 	}
@@ -81,13 +84,16 @@ export const saveToStorage = ( baseMapState: BaseMapState ) => {
 			set( settingsToSave, key, valueToSave );
 		}
 	} );
+	if ( __DEV__ && globalThis.shouldLog.saveToStorage ) {
+		console.log( 'DEBUG saveToStorage', settingsKey, actionType, settingsToSave );
+	}
 	DefaultPreference.set( settingsKey, JSON.stringify( settingsToSave ) )
 };
 
 /**
  * Listens to action that change settings in this store slice,
  * and calls the function to save them to defaultPreferences.
- *  */
+ */
 startAppListening( {
 	matcher: isAnyOf(
 		setLayers,
@@ -109,6 +115,6 @@ startAppListening( {
 		if ( action.payload?.temp ) {
 			return;
 		}
-		saveToStorage( listenerApi.getState().baseMap );
+		saveToStorage( listenerApi.getState().baseMap, action.type );
 	},
 } );

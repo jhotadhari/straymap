@@ -41,7 +41,7 @@ export const initializeFromStorage = ( store: EnhancedStore ) => {
  * Compares settings in this store slice with initialSettings,
  * and saves anything that differs to initialSettings to defaultPreferences.
  */
-export const saveToStorage = ( appearanceState: AppearanceState ) => {
+export const saveToStorage = ( appearanceState: AppearanceState, actionType: string ) => {
 	if ( ! appearanceState.initialized ) {
 		return;
 	}
@@ -54,20 +54,23 @@ export const saveToStorage = ( appearanceState: AppearanceState ) => {
 			set( settingsToSave, key, get( appearanceState, key ) );
 		}
 	} );
+	if ( __DEV__ && globalThis.shouldLog.saveToStorage ) {
+		console.log( 'DEBUG saveToStorage', settingsKey, actionType, settingsToSave );
+	}
 	DefaultPreference.set( settingsKey, JSON.stringify( settingsToSave ) )
 };
 
 /**
  * Listens to action that change settings in this store slice,
  * and calls the function to save them to defaultPreferences.
- *  */
+ */
 startAppListening( {
 	matcher: isAnyOf(
 		setTheme,
 		setCursor,
 	),
-	effect: async (_action, listenerApi) => {
-		saveToStorage( listenerApi.getState().appearance );
+	effect: async (action, listenerApi) => {
+		saveToStorage( listenerApi.getState().appearance, action.type );
 	},
 } );
 
