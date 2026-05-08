@@ -12,15 +12,15 @@ import { useTranslation } from 'react-i18next';
 /**
  * Internal dependencies
  */
-import ListItemModalControl from './generic/ListItemModalControl';
-import { NumericRowControl } from './generic/NumericRowControls';
-import IconIcomoon from './generic/IconIcomoon';
-import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { selectMapsforgeGeneral } from '../store/features/baseMap/selectors';
-import { setMapsforgeGeneral } from '../store/features/baseMap/baseMapSlice';
-import { MapsforgeGeneral } from '../store/features/baseMap/types';
+import ListItemModalControl from '../../../../../components/generic/ListItemModalControl';
+import { NumericRowControl } from '../../../../../components/generic/NumericRowControls';
+import IconIcomoon from '../../../../../components/generic/IconIcomoon';
+import { useAppDispatch, useAppSelector } from '../../../../hooks';
+import { selectMapsforgeGeneral } from '../../selectors';
+import { setMapsforgeGeneral } from '../../baseMapSlice';
+import { MapsforgeGeneral } from '../../types';
 
-const SettingsMapsforgeControl = () => {
+const MapsforgeGeneralControl = () => {
 
 	const { t } = useTranslation();
 
@@ -75,4 +75,4 @@ const SettingsMapsforgeControl = () => {
 	</ListItemModalControl>;
 };
 
-export default SettingsMapsforgeControl;
+export default MapsforgeGeneralControl;

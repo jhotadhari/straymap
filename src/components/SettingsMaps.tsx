@@ -21,9 +21,9 @@ import { useTranslation } from 'react-i18next';
  * Internal dependencies
  */
 import { AppContext } from '../Context';
-import MapLayersControl from './MapLayersControl';
-import MapsforgeProfilesControl from './MapsforgeProfilesControl';
-import SettingsMapsforgeControl from './SettingsMapsforgeControl';
+import LayersControl from '../store/features/baseMap/components/controls/LayersControl';
+import ProfilesControl from '../store/features/baseMap/components/controls/ProfilesControl';
+import MapsforgeGeneralControl from '../store/features/baseMap/components/controls/MapsforgeGeneralControl';
 import CacheManager from './CacheManager';
 import useProfiles from '../store/features/baseMap/hooks/useProfiles';
 import useLayers from '../store/features/baseMap/hooks/useLayers';
@@ -88,17 +88,17 @@ const SettingsMaps : FC = () => {
             } }
         >
 
-            <MapLayersControl
+            <LayersControl
                 setScrollEnabled={ setScrollEnabled }
                 newLabel={ t( 'map.addNewLayer' ) }
             />
 
-            <MapsforgeProfilesControl
+            <ProfilesControl
                 setScrollEnabled={ setScrollEnabled }
                 newLabel={ t( 'map.mapsforge.profileAddNew' ) }
             />
 
-            <SettingsMapsforgeControl/>
+            <MapsforgeGeneralControl/>
 
             <CacheManager/>
 

@@ -19,15 +19,15 @@ import { sprintf } from 'sprintf-js';
 /**
  * Internal dependencies
  */
-import { NumericMultiRowControl } from './generic/NumericRowControls';
-import FileSourceRowControl from './FileSourceRowControl';
-import HintLink from './generic/HintLink';
-import { fillLayerConfigOptionsWithDefaults } from '../utils';
-import { LayerConfig, LayerConfigOptionsRasterMBtiles } from '../store/features/baseMap/types';
-import { selectAppDirs } from '../store/features/dirs/selectors';
-import { useAppSelector } from '../store/hooks';
+import { NumericMultiRowControl } from '../../../../../components/generic/NumericRowControls';
+import FileSourceRowControl from '../../../../../components/FileSourceRowControl';
+import HintLink from '../../../../../components/generic/HintLink';
+import { fillLayerConfigOptionsWithDefaults } from '../../../../../utils';
+import { LayerConfig, LayerConfigOptionsRasterMBtiles } from '../../types';
+import { selectAppDirs } from '../../../dirs/selectors';
+import { useAppSelector } from '../../../../hooks';
 
-const MapLayerControlRasterMBTiles = ( {
+const LayerControlRasterMBTiles = ( {
     editLayer,
     updateLayer,
 } : {
@@ -96,4 +96,4 @@ const MapLayerControlRasterMBTiles = ( {
 
 };
 
-export default MapLayerControlRasterMBTiles;
+export default LayerControlRasterMBTiles;

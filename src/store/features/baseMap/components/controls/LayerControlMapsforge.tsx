@@ -24,18 +24,18 @@ import { debounce, get } from 'lodash-es';
 /**
  * Internal dependencies
  */
-import { OptionBase } from '../types';
-import { NumericMultiRowControl } from './generic/NumericRowControls';
-import FileSourceRowControl from './FileSourceRowControl';
-import InfoRowControl from './generic/InfoRowControl';
-import ButtonHighlight from './generic/ButtonHighlight';
-import MenuItem from './generic/MenuItem';
+import { OptionBase } from '../../../../../types';
+import { NumericMultiRowControl } from '../../../../../components/generic/NumericRowControls';
+import FileSourceRowControl from '../../../../../components/FileSourceRowControl';
+import InfoRowControl from '../../../../../components/generic/InfoRowControl';
+import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
+import MenuItem from '../../../../../components/generic/MenuItem';
 import { sprintf } from 'sprintf-js';
-import HintLink from './generic/HintLink';
-import { fillLayerConfigOptionsWithDefaults } from '../utils';
-import { LayerConfigOptionsMapsforge, MapsforgeProfile, LayerConfig } from '../store/features/baseMap/types';
-import { selectAppDirs } from '../store/features/dirs/selectors';
-import { useAppSelector } from '../store/hooks';
+import HintLink from '../../../../../components/generic/HintLink';
+import { fillLayerConfigOptionsWithDefaults } from '../../../../../utils';
+import { LayerConfigOptionsMapsforge, MapsforgeProfile, LayerConfig } from '../../types';
+import { selectAppDirs } from '../../../dirs/selectors';
+import { useAppSelector } from '../../../../hooks';
 
 const ProfileRowControl = ( {
     options,
@@ -140,7 +140,7 @@ const ProfileRowControl = ( {
     </InfoRowControl>;
 };
 
-const MapLayerControlMapsforge = ( {
+const LayerControlMapsforge = ( {
     editLayer,
     updateLayer,
     setEditProfile,
@@ -222,4 +222,4 @@ const MapLayerControlMapsforge = ( {
 
 };
 
-export default MapLayerControlMapsforge;
+export default LayerControlMapsforge;

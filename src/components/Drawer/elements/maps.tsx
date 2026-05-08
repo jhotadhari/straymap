@@ -15,8 +15,8 @@ import { ScrollView } from "react-native";
 /**
  * Internal dependencies
  */
-import MapLayersControl from '../../MapLayersControl';
-import MapsforgeProfilesControl from '../../MapsforgeProfilesControl';
+import LayersControl from '../../../store/features/baseMap/components/controls/LayersControl';
+import ProfilesControl from '../../../store/features/baseMap/components/controls/ProfilesControl';
 import ButtonHighlight from '../../generic/ButtonHighlight';
 import { setSelectedHierarchyItemsByKey } from '../../../hierarchyItems';
 import { AppContext } from '../../../Context';
@@ -106,7 +106,7 @@ const DisplayComponent = ( {
                 <Text>{ t( 'openMapsSettings' ) }</Text>
             </ButtonHighlight>
 
-            <MapLayersControl
+            <LayersControl
                 setScrollEnabled={ setScrollEnabled }
                 width={ drawerWidth }
                 reverseDraggableItem={ 'left' === drawerSide }
@@ -114,7 +114,7 @@ const DisplayComponent = ( {
                 newLabel={ t( 'addNew' ) }
             />
 
-            <MapsforgeProfilesControl
+            <ProfilesControl
                 setScrollEnabled={ setScrollEnabled }
                 width={ drawerWidth }
                 reverseDraggableItem={ 'left' === drawerSide }

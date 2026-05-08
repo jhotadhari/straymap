@@ -23,21 +23,21 @@ import { LayerHillshading, ShadingAlgorithm, ShadingAlgorithmOptions } from 'rea
 /**
  * Internal dependencies
  */
-import ButtonHighlight from './generic/ButtonHighlight';
-import { OptionBase } from '../types';
-import InfoRowControl from './generic/InfoRowControl';
-import ModalWrapper from './generic/ModalWrapper';
-import { NumericRowControl, NumericMultiRowControl } from './generic/NumericRowControls';
-import ListItemMenuControl from './generic/ListItemMenuControl';
-import HgtSourceRowControl from './HgtSourceRowControl';
-import { fillLayerConfigOptionsWithDefaults, getHillshadingCacheDirChild } from '../utils';
-import CacheControl from './CacheControl';
-import { defaults } from '../constants';
-import { styles as mdStyles } from '../markdown/styles';
-import HintLink from './generic/HintLink';
-import { LayerConfigOptionsHillshading, LayerConfig } from '../store/features/baseMap/types';
-import { selectAppDirs } from '../store/features/dirs/selectors';
-import { useAppSelector } from '../store/hooks';
+import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
+import { OptionBase } from '../../../../../types';
+import InfoRowControl from '../../../../../components/generic/InfoRowControl';
+import ModalWrapper from '../../../../../components/generic/ModalWrapper';
+import { NumericRowControl, NumericMultiRowControl } from '../../../../../components/generic/NumericRowControls';
+import ListItemMenuControl from '../../../../../components/generic/ListItemMenuControl';
+import HgtSourceRowControl from '../../../../../components/HgtSourceRowControl';
+import { fillLayerConfigOptionsWithDefaults, getHillshadingCacheDirChild } from '../../../../../utils';
+import CacheControl from '../../../../../components/CacheControl';
+import { defaults } from '../../../../../constants';
+import { styles as mdStyles } from '../../../../../markdown/styles';
+import HintLink from '../../../../../components/generic/HintLink';
+import { LayerConfigOptionsHillshading, LayerConfig } from '../../types';
+import { selectAppDirs } from '../../../dirs/selectors';
+import { useAppSelector } from '../../../../hooks';
 
 const algorithmLinks = {
     CLASY_ADAPTIVE: 'https://github.com/mapsforge/mapsforge/blob/master/mapsforge-map/src/main/java/org/mapsforge/map/layer/hills/AdaptiveClasyHillShading.java',
@@ -277,7 +277,7 @@ const AlgorithmControl = ( {
     </InfoRowControl>;
 };
 
-const MapLayerControlHillshading = ( {
+const LayerControlHillshading = ( {
     editLayer,
     updateLayer,
 } : {
@@ -357,4 +357,4 @@ const MapLayerControlHillshading = ( {
 
 };
 
-export default MapLayerControlHillshading;
+export default LayerControlHillshading;

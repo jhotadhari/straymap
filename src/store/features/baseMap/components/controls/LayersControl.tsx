@@ -28,24 +28,24 @@ import { get } from 'lodash-es';
 /**
  * Internal dependencies
  */
-import InfoRowControl from './generic/InfoRowControl';
-import ButtonHighlight from './generic/ButtonHighlight';
-import ModalWrapper from './generic/ModalWrapper';
-import MapLayerControlOnlineRasterXYZ from './MapLayerControlOnlineRasterXYZ';
-import MapLayerControlRasterMBTiles from './MapLayerControlRasterMBTiles';
-import RadioListItem from './generic/RadioListItem';
-import MapLayerControlHillshading from './MapLayerControlHillshading';
-import InfoButton from './generic/InfoButton';
-import NameRowControl from './generic/NameRowControl';
-import MapLayerControlMapsforge from './MapLayerControlMapsforge';
-import { fillLayerConfigOptionsWithDefaults } from '../utils';
-import { LayerConfig } from '../store/features/baseMap/types';
-import { LayerOption } from '../types';
-import { ContextSettingsMaps } from '../store/features/baseMap/ContextSettingsMaps';
-import { getNewLayer } from '../store/features/baseMap/utils';
-import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { selectElementExpanded } from '../store/features/ui/selectors';
-import { setElementExpanded } from '../store/features/ui/uiSlice';
+import InfoRowControl from '../../../../../components/generic/InfoRowControl';
+import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
+import ModalWrapper from '../../../../../components/generic/ModalWrapper';
+import LayerControlOnlineRasterXYZ from './LayerControlOnlineRasterXYZ';
+import LayerControlRasterMBTiles from './LayerControlRasterMBTiles';
+import RadioListItem from '../../../../../components/generic/RadioListItem';
+import LayerControlHillshading from './LayerControlHillshading';
+import InfoButton from '../../../../../components/generic/InfoButton';
+import NameRowControl from '../../../../../components/generic/NameRowControl';
+import LayerControlMapsforge from './LayerControlMapsforge';
+import { fillLayerConfigOptionsWithDefaults } from '../../../../../utils';
+import { LayerConfig } from '../../types';
+import { LayerOption } from '../../../../../types';
+import { ContextSettingsMaps } from '../../ContextSettingsMaps';
+import { getNewLayer } from '../../utils';
+import { useAppDispatch, useAppSelector } from '../../../../hooks';
+import { selectElementExpanded } from '../../../ui/selectors';
+import { setElementExpanded } from '../../../ui/uiSlice';
 
 export const mapTypeOptions : LayerOption[] = [
     {
@@ -194,7 +194,7 @@ const DraggableItem = ( {
     </View>;
 };
 
-const MapLayersControl = ( {
+const LayersControl = ( {
     setScrollEnabled,
     width,
     reverseDraggableItem,
@@ -291,24 +291,24 @@ const MapLayersControl = ( {
                     updateLayer={ updateLayer }
                 />
 
-                { 'online-raster-xyz' === editLayer.type && <MapLayerControlOnlineRasterXYZ
+                { 'online-raster-xyz' === editLayer.type && <LayerControlOnlineRasterXYZ
                     editLayer={ editLayer }
                     updateLayer={ updateLayer }
                 /> }
 
-                { 'mapsforge' === editLayer.type && <MapLayerControlMapsforge
+                { 'mapsforge' === editLayer.type && <LayerControlMapsforge
                     editLayer={ editLayer }
                     updateLayer={ updateLayer }
                     setEditProfile={ setEditProfile }
                     profiles={ profiles }
                 /> }
 
-                { 'raster-MBtiles' === editLayer.type && <MapLayerControlRasterMBTiles
+                { 'raster-MBtiles' === editLayer.type && <LayerControlRasterMBTiles
                     editLayer={ editLayer }
                     updateLayer={ updateLayer }
                 /> }
 
-                { 'hillshading' === editLayer.type && <MapLayerControlHillshading
+                { 'hillshading' === editLayer.type && <LayerControlHillshading
                     editLayer={ editLayer }
                     updateLayer={ updateLayer }
                 /> }
@@ -424,4 +424,4 @@ const MapLayersControl = ( {
     </View>;
 };
 
-export default MapLayersControl;
+export default LayersControl;

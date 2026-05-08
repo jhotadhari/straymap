@@ -13,7 +13,7 @@ import { get } from 'lodash-es';
 import { LayerInfo, LayerInfos, ThemePropExtended } from '../types';
 import { useTranslation } from 'react-i18next';
 import InfoButton from './generic/InfoButton';
-import { sourceOptions } from './MapLayerControlOnlineRasterXYZ';
+import { sourceOptions } from './LayerControlOnlineRasterXYZ';
 import { useAppSelector } from '../store/hooks';
 import { selectLayers } from '../store/features/baseMap/selectors';
 import { LayerConfig } from '../store/features/baseMap/types';

@@ -25,16 +25,16 @@ import dayjs from 'dayjs';
 /**
  * Internal dependencies
  */
-import ButtonHighlight from './generic/ButtonHighlight';
-import MenuItem from './generic/MenuItem';
-import { OptionBase, ThemePropExtended } from '../types';
-import { NumericMultiRowControl, NumericRowControl } from './generic/NumericRowControls';
-import InfoRowControl from './generic/InfoRowControl';
-import CacheControl from './CacheControl';
-import { fillLayerConfigOptionsWithDefaults, stringifyProp } from '../utils';
-import { defaults } from '../constants';
-import { TextInputNativeMultiline, TextInputNativeMultilineControlled } from './generic/TextInputNativeMultiline';
-import { LayerConfig, LayerConfigOptionsOnlineRasterXYZ } from '../store/features/baseMap/types';
+import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
+import MenuItem from '../../../../../components/generic/MenuItem';
+import { OptionBase, ThemePropExtended } from '../../../../../types';
+import { NumericMultiRowControl, NumericRowControl } from '../../../../../components/generic/NumericRowControls';
+import InfoRowControl from '../../../../../components/generic/InfoRowControl';
+import CacheControl from '../../../../../components/CacheControl';
+import { fillLayerConfigOptionsWithDefaults, stringifyProp } from '../../../../../utils';
+import { defaults } from '../../../../../constants';
+import { TextInputNativeMultiline, TextInputNativeMultilineControlled } from '../../../../../components/generic/TextInputNativeMultiline';
+import { LayerConfig, LayerConfigOptionsOnlineRasterXYZ } from '../../types';
 
 interface SourceOption extends OptionBase {
     url?: `http://${string}` | `https://${string}`;
@@ -275,7 +275,7 @@ const SourceRowControl = ( {
     </InfoRowControl>;
 };
 
-const MapLayerControlOnlineRasterXYZ = ( {
+const LayerControlOnlineRasterXYZ = ( {
     editLayer,
     updateLayer,
 } : {
@@ -347,4 +347,4 @@ const MapLayerControlOnlineRasterXYZ = ( {
 
 };
 
-export default MapLayerControlOnlineRasterXYZ;
+export default LayerControlOnlineRasterXYZ;

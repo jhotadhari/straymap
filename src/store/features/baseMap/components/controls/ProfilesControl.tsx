@@ -36,31 +36,31 @@ import { LayerMapsforge, MapLayerMapsforgeModule, RenderStyleOptionsCollection }
 /**
  * Internal dependencies
  */
-import InfoRowControl from './generic/InfoRowControl';
-import ButtonHighlight from './generic/ButtonHighlight';
-import ModalWrapper from './generic/ModalWrapper';
-import RadioListItem from './generic/RadioListItem';
-import InfoButton from './generic/InfoButton';
-import IconIcomoon from './generic/IconIcomoon';
-import NameRowControl from './generic/NameRowControl';
-import FileSourceRowControl, { AlternativeButtonType } from './FileSourceRowControl';
-import MenuItem from './generic/MenuItem';
-import LoadingIndicator from './generic/LoadingIndicator';
-import HintLink from './generic/HintLink';
-import InfoRadioRow from './generic/InfoRadioRow';
-import { runAfterInteractions } from '../utils';
-import { ContextSettingsMaps } from '../store/features/baseMap/ContextSettingsMaps';
-import { MapsforgeProfile, LayerConfigOptionsMapsforge, LayerConfig } from '../store/features/baseMap/types';
-import { OptionBase } from '../types';
-import { getNewProfile } from '../store/features/baseMap/utils';
-import { selectElementExpanded, selectIsBusy } from '../store/features/ui/selectors';
-import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { addBusyKey, removeBusyKey, setElementExpanded } from '../store/features/ui/uiSlice';
-import { selectRenderStylesCache } from '../store/features/baseMap/selectors';
-import { setRenderStylesCache } from '../store/features/baseMap/baseMapSlice';
-import { selectAppDirs } from '../store/features/dirs/selectors';
-import { getDirInfoCacheId } from '../store/features/dirs/utils';
-import { removeDirInfoCacheEntry } from '../store/features/dirs/dirsSlice';
+import InfoRowControl from '../../../../../components/generic/InfoRowControl';
+import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
+import ModalWrapper from '../../../../../components/generic/ModalWrapper';
+import RadioListItem from '../../../../../components/generic/RadioListItem';
+import InfoButton from '../../../../../components/generic/InfoButton';
+import IconIcomoon from '../../../../../components/generic/IconIcomoon';
+import NameRowControl from '../../../../../components/generic/NameRowControl';
+import FileSourceRowControl, { AlternativeButtonType } from '../../../../../components/FileSourceRowControl';
+import MenuItem from '../../../../../components/generic/MenuItem';
+import LoadingIndicator from '../../../../../components/generic/LoadingIndicator';
+import HintLink from '../../../../../components/generic/HintLink';
+import InfoRadioRow from '../../../../../components/generic/InfoRadioRow';
+import { runAfterInteractions } from '../../../../../utils';
+import { ContextSettingsMaps } from '../../ContextSettingsMaps';
+import { MapsforgeProfile, LayerConfigOptionsMapsforge, LayerConfig } from '../../types';
+import { OptionBase } from '../../../../../types';
+import { getNewProfile } from '../../utils';
+import { selectElementExpanded, selectIsBusy } from '../../../ui/selectors';
+import { useAppDispatch, useAppSelector } from '../../../../hooks';
+import { addBusyKey, removeBusyKey, setElementExpanded } from '../../../ui/uiSlice';
+import { selectRenderStylesCache } from '../../selectors';
+import { setRenderStylesCache } from '../../baseMapSlice';
+import { selectAppDirs } from '../../../dirs/selectors';
+import { getDirInfoCacheId } from '../../../dirs/utils';
+import { removeDirInfoCacheEntry } from '../../../dirs/dirsSlice';
 
 const itemHeight = 50;
 
@@ -402,7 +402,7 @@ const RenderOverlaysRowControl = ( {
     </InfoRowControl> : null;
 };
 
-const MapsforgeProfilesControl = ( {
+const ProfilesControl = ( {
     setScrollEnabled,
     width,
     reverseDraggableItem,
@@ -475,7 +475,7 @@ const MapsforgeProfilesControl = ( {
 	useEffect( () => {
         if ( editProfile && null !== editProfile.theme && modalOpened ) {
             if ( ! hasEditProfileRenderStylesCacheEntry ) {
-                const busyKey = 'MapsforgeProfilesControl' + editProfile.key;
+                const busyKey = 'ProfilesControl' + editProfile.key;
                 dispatch( addBusyKey( busyKey ) );
                 runAfterInteractions( () => {
                     MapLayerMapsforgeModule.getRenderThemeOptions( editProfile?.theme ).then( ( collection : RenderStyleOptionsCollection ) => {
@@ -786,4 +786,4 @@ const MapsforgeProfilesControl = ( {
     </View>;
 };
 
-export default MapsforgeProfilesControl;
+export default ProfilesControl;

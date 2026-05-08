@@ -13,7 +13,7 @@ import { debounce, get } from 'lodash-es';
 /**
  * Internal dependencies
  */
-import { mapTypeOptions } from '../../../../components/MapLayersControl';
+import { mapTypeOptions } from '../components/controls/LayersControl';
 import { LayerConfig } from '../types';
 import { LayerType } from '../../../../types';
 import { useAppDispatch, useAppSelector } from '../../../hooks';
