@@ -1,0 +1,15 @@
+# ignore all
+*/**/*
+/*
+
+# include dir src
+!/src
+!src/**/*
+
+# include dir scripts
+!/scripts
+!scripts/**/*
+
+# include dir transformer
+!/transformer
+!transformer/**/*

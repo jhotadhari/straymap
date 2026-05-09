@@ -9,6 +9,7 @@
     "start": "react-native start",
     "typecheck": "tsc",
     "test": "jest",
+    "format": "prettier . --write",
     "publish": "bash ./scripts/publish.sh"
   },
   "dependencies": {
@@ -74,7 +75,8 @@
     "convert-units": "^2.3.4",
     "eslint": "^8.19.0",
     "jest": "^29.6.3",
-    "prettier": "2.8.8",
+    "prettier": "^3.8.3",
+    "prettier-plugin-multiline-arrays": "^4.1.8",
     "react-native-clean-project": "^4.0.3",
     "react-test-renderer": "19.0.0",
     "typescript": "5.0.4"
