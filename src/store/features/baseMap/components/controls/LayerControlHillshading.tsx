@@ -2,6 +2,8 @@
  * External dependencies
  */
 import {
+    FC,
+    useContext,
     useEffect,
     useState,
 } from 'react';
@@ -38,6 +40,7 @@ import HintLink from '../../../../../components/generic/HintLink';
 import { LayerConfigOptionsHillshading, LayerConfig } from '../../types';
 import { selectAppDirs } from '../../../dirs/selectors';
 import { useAppSelector } from '../../../../hooks';
+import { ContextSettingsMaps } from '../../ContextSettingsMaps';
 
 const algorithmLinks = {
     CLASY_ADAPTIVE: 'https://github.com/mapsforge/mapsforge/blob/master/mapsforge-map/src/main/java/org/mapsforge/map/layer/hills/AdaptiveClasyHillShading.java',
@@ -277,24 +280,24 @@ const AlgorithmControl = ( {
     </InfoRowControl>;
 };
 
-const LayerControlHillshading = ( {
-    editLayer,
-    updateLayer,
-} : {
-    editLayer: LayerConfig;
-    updateLayer: ( newItem : LayerConfig ) => void;
-} ) => {
+const LayerControlHillshading : FC<{}> = () => {
+
+
+    const {
+        editLayer,
+        updateLayer,
+    } = useContext( ContextSettingsMaps );
 
 	const { t } = useTranslation();
 
     const appDirs = useAppSelector( selectAppDirs );
 
     const [options,setOptions] = useState<LayerConfigOptionsHillshading>(
-        fillLayerConfigOptionsWithDefaults( 'hillshading', editLayer.options ) as LayerConfigOptionsHillshading
+        fillLayerConfigOptionsWithDefaults( 'hillshading', editLayer?.options ?? {} ) as LayerConfigOptionsHillshading
     );
 
     const doUpdate = debounce( () => {
-        updateLayer( {
+        editLayer && updateLayer( {
             ...editLayer,
             options,
         } );

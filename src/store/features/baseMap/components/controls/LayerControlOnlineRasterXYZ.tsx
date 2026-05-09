@@ -2,7 +2,9 @@
  * External dependencies
  */
 import {
+    FC,
     ReactElement,
+    useContext,
     useEffect,
     useState,
 } from 'react';
@@ -35,6 +37,7 @@ import { fillLayerConfigOptionsWithDefaults, stringifyProp } from '../../../../.
 import { defaults } from '../../../../../constants';
 import { TextInputNativeMultiline, TextInputNativeMultilineControlled } from '../../../../../components/generic/TextInputNativeMultiline';
 import { LayerConfig, LayerConfigOptionsOnlineRasterXYZ } from '../../types';
+import { ContextSettingsMaps } from '../../ContextSettingsMaps';
 
 interface SourceOption extends OptionBase {
     url?: `http://${string}` | `https://${string}`;
@@ -83,7 +86,7 @@ export const sourceOptions : SourceOption[] = [
         key: 'EsriWorldImagery',
         label: 'Esri World Imagery',
         url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{Z}/{Y}/{X}',
-        Attribution: ( { theme } : { theme: ThemePropExtended } ) => <Text>
+        Attribution: ( ) => <Text>
             Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community
         </Text>
     },
@@ -91,7 +94,7 @@ export const sourceOptions : SourceOption[] = [
         key: 'EsriWorldStreetMap',
         label: 'Esri World StreetMap',
         url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{Z}/{Y}/{X}',
-        Attribution: ( { theme } : { theme: ThemePropExtended } ) => <Text>
+        Attribution: ( ) => <Text>
             Tiles &copy; Esri &mdash; Source: Esri, DeLorme, NAVTEQ, USGS, Intermap, iPC, NRCAN, Esri Japan, METI, Esri China (Hong Kong), Esri (Thailand), TomTom, 2012
         </Text>
     },
@@ -99,7 +102,7 @@ export const sourceOptions : SourceOption[] = [
         key: 'EsriWorldTopoMap',
         label: 'Esri World TopoMap',
         url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{Z}/{Y}/{X}',
-        Attribution: ( { theme } : { theme: ThemePropExtended } ) => <Text>
+        Attribution: ( ) => <Text>
             Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ, TomTom, Intermap, iPC, USGS, FAO, NPS, NRCAN, GeoBase, Kadaster NL, Ordnance Survey, Esri Japan, METI, Esri China (Hong Kong), and the GIS User Community
         </Text>
     },
@@ -107,7 +110,7 @@ export const sourceOptions : SourceOption[] = [
         key: 'EsriWorldGrayCanvas',
         label: 'Esri World GrayCanvas',
         url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{Z}/{Y}/{X}',
-        Attribution: ( { theme } : { theme: ThemePropExtended } ) => <Text>
+        Attribution: ( ) => <Text>
             Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ
         </Text>
     },
@@ -115,7 +118,7 @@ export const sourceOptions : SourceOption[] = [
         key: 'EsriWorldTerrain',
         label: 'Esri World Terrain',
         url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Terrain_Base/MapServer/tile/{Z}/{Y}/{X}',
-        Attribution: ( { theme } : { theme: ThemePropExtended } ) => <Text>
+        Attribution: ( ) => <Text>
             Tiles &copy; Esri &mdash; Source: USGS, Esri, TANA, DeLorme, and NPS
         </Text>
     },
@@ -123,7 +126,7 @@ export const sourceOptions : SourceOption[] = [
         key: 'EsriWorldShadedRelief',
         label: 'Esri World ShadedRelief',
         url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Shaded_Relief/MapServer/tile/{Z}/{Y}/{X}',
-        Attribution: ( { theme } : { theme: ThemePropExtended } ) => <Text>
+        Attribution: ( ) => <Text>
             Tiles &copy; Esri &mdash; Source: Esri
         </Text>
     },
@@ -131,7 +134,7 @@ export const sourceOptions : SourceOption[] = [
         key: 'EsriWorldPhysical',
         label: 'Esri World Physical',
         url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Physical_Map/MapServer/tile/{Z}/{Y}/{X}',
-        Attribution: ( { theme } : { theme: ThemePropExtended } ) => <Text>
+        Attribution: ( ) => <Text>
             Tiles &copy; Esri &mdash; Source: US National Park Service
         </Text>
     },
@@ -139,7 +142,7 @@ export const sourceOptions : SourceOption[] = [
         key: 'EsriOceanBasemap',
         label: 'Esri Ocean Basemap',
         url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Base/MapServer/tile/{Z}/{Y}/{X}',
-        Attribution: ( { theme } : { theme: ThemePropExtended } ) => <Text>
+        Attribution: ( ) => <Text>
             Tiles &copy; Esri &mdash; Sources: GEBCO, NOAA, CHS, OSU, UNH, CSUMB, National Geographic, DeLorme, NAVTEQ, and Esri
         </Text>
     },
@@ -147,7 +150,7 @@ export const sourceOptions : SourceOption[] = [
         key: 'EsriNatGeoWorldMap',
         label: 'Esri NatGeo World Map',
         url: 'https://server.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/tile/{Z}/{Y}/{X}',
-        Attribution: ( { theme } : { theme: ThemePropExtended } ) => <Text>
+        Attribution: ( ) => <Text>
             Tiles &copy; Esri &mdash; National Geographic, Esri, DeLorme, NAVTEQ, UNEP-WCMC, USGS, NASA, ESA, METI, NRCAN, GEBCO, NOAA, iPC
         </Text>
     },
@@ -275,22 +278,21 @@ const SourceRowControl = ( {
     </InfoRowControl>;
 };
 
-const LayerControlOnlineRasterXYZ = ( {
-    editLayer,
-    updateLayer,
-} : {
-    editLayer: LayerConfig;
-    updateLayer: ( newItem : LayerConfig ) => void;
-} ) => {
+const LayerControlOnlineRasterXYZ : FC<{}> = () => {
+
+    const {
+        editLayer,
+        updateLayer,
+    } = useContext( ContextSettingsMaps );
 
 	const { t } = useTranslation();
 
     const [options,setOptions] = useState<LayerConfigOptionsOnlineRasterXYZ>(
-        fillLayerConfigOptionsWithDefaults( 'online-raster-xyz', editLayer.options ) as LayerConfigOptionsOnlineRasterXYZ
+        fillLayerConfigOptionsWithDefaults( 'online-raster-xyz', editLayer?.options ?? {} ) as LayerConfigOptionsOnlineRasterXYZ
     );
 
     const doUpdate = debounce( () => {
-        updateLayer( {
+        editLayer && updateLayer( {
             ...editLayer,
             options,
         } );

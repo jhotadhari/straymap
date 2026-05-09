@@ -3,8 +3,10 @@
  */
 import {
     Dispatch,
+    FC,
     ReactNode,
     SetStateAction,
+    useContext,
     useEffect,
     useState,
 } from 'react';
@@ -36,6 +38,7 @@ import { fillLayerConfigOptionsWithDefaults } from '../../../../../utils';
 import { LayerConfigOptionsMapsforge, MapsforgeProfile, LayerConfig } from '../../types';
 import { selectAppDirs } from '../../../dirs/selectors';
 import { useAppSelector } from '../../../../hooks';
+import { ContextSettingsMaps } from '../../ContextSettingsMaps';
 
 const ProfileRowControl = ( {
     options,
@@ -140,17 +143,14 @@ const ProfileRowControl = ( {
     </InfoRowControl>;
 };
 
-const LayerControlMapsforge = ( {
-    editLayer,
-    updateLayer,
-    setEditProfile,
-    profiles,
-} : {
-    editLayer: LayerConfig;
-    updateLayer: ( newItem : LayerConfig ) => void;
-    setEditProfile: Dispatch<SetStateAction<null | MapsforgeProfile>>;
-    profiles: MapsforgeProfile[];
-} ) => {
+const LayerControlMapsforge : FC<{}> = () => {
+
+    const {
+        editLayer,
+        updateLayer,
+        setEditProfile,
+        profiles,
+    } = useContext( ContextSettingsMaps );
 
 	const { t } = useTranslation();
     const theme = useTheme();
@@ -158,11 +158,11 @@ const LayerControlMapsforge = ( {
     const appDirs = useAppSelector( selectAppDirs );
 
     const [options,setOptions] = useState<LayerConfigOptionsMapsforge>(
-        fillLayerConfigOptionsWithDefaults( 'mapsforge', editLayer.options ) as LayerConfigOptionsMapsforge
+        fillLayerConfigOptionsWithDefaults( 'mapsforge', editLayer?.options ?? {} ) as LayerConfigOptionsMapsforge
     );
 
     const doUpdate = debounce( () => {
-        updateLayer( {
+        editLayer && updateLayer( {
             ...editLayer,
             options,
         } );

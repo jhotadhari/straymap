@@ -2,6 +2,8 @@
  * External dependencies
  */
 import {
+    FC,
+    useContext,
     useEffect,
     useState,
 } from 'react';
@@ -23,17 +25,17 @@ import { NumericMultiRowControl } from '../../../../../components/generic/Numeri
 import FileSourceRowControl from '../../../../../components/FileSourceRowControl';
 import HintLink from '../../../../../components/generic/HintLink';
 import { fillLayerConfigOptionsWithDefaults } from '../../../../../utils';
-import { LayerConfig, LayerConfigOptionsRasterMBtiles } from '../../types';
+import { LayerConfigOptionsRasterMBtiles } from '../../types';
 import { selectAppDirs } from '../../../dirs/selectors';
 import { useAppSelector } from '../../../../hooks';
+import { ContextSettingsMaps } from '../../ContextSettingsMaps';
 
-const LayerControlRasterMBTiles = ( {
-    editLayer,
-    updateLayer,
-} : {
-    editLayer: LayerConfig;
-    updateLayer: ( newItem : LayerConfig ) => void;
-} ) => {
+const LayerControlRasterMBTiles : FC<{}> = () => {
+
+    const {
+        editLayer,
+        updateLayer,
+    } = useContext( ContextSettingsMaps );
 
     const theme = useTheme();
 	const { t } = useTranslation();
@@ -41,11 +43,11 @@ const LayerControlRasterMBTiles = ( {
     const appDirs = useAppSelector( selectAppDirs );
 
     const [options,setOptions] = useState<LayerConfigOptionsRasterMBtiles>(
-        fillLayerConfigOptionsWithDefaults( 'hillshading', editLayer.options ) as LayerConfigOptionsRasterMBtiles
+        fillLayerConfigOptionsWithDefaults( 'hillshading', editLayer?.options ?? {} ) as LayerConfigOptionsRasterMBtiles
     );
 
     const doUpdate = debounce( () => {
-        updateLayer( {
+        editLayer && updateLayer( {
             ...editLayer,
             options,
         } );
