@@ -15,7 +15,7 @@ import {
  */
 import { OptionBase } from '../../../types';
 
-export type LayerType = 'base' | 'overlay';
+export type LayerType = 'base' | 'overlay';	// ??? rename to LayerKind
 
 export interface LayerOption extends OptionBase {
 	type: LayerType;

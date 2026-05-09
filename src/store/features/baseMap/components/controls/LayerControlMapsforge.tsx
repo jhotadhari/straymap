@@ -2,24 +2,18 @@
  * External dependencies
  */
 import {
-    Dispatch,
-    FC,
-    ReactNode,
-    SetStateAction,
-    useContext,
-    useEffect,
-    useState,
+	Dispatch,
+	FC,
+	ReactNode,
+	SetStateAction,
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useState,
 } from 'react';
-import {
-    TouchableHighlight,
-	View,
-} from 'react-native';
-import {
-    Icon,
-    Menu,
-    Text,
-    useTheme,
-} from 'react-native-paper';
+import { TouchableHighlight, View } from 'react-native';
+import { Icon, Menu, Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { debounce, get } from 'lodash-es';
 
@@ -34,192 +28,230 @@ import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
 import MenuItem from '../../../../../components/generic/MenuItem';
 import { sprintf } from 'sprintf-js';
 import HintLink from '../../../../../components/generic/HintLink';
-import { fillLayerConfigOptionsWithDefaults } from '../../../../../utils';
-import { LayerConfigOptionsMapsforge, MapsforgeProfile, LayerConfig } from '../../types';
+import {
+	LayerConfigOptionsMapsforge,
+	MapsforgeProfile,
+	LayerConfig,
+	LayerConfigOptionsAny,
+} from '../../types';
 import { selectAppDirs } from '../../../dirs/selectors';
-import { useAppSelector } from '../../../../hooks';
+import { useAppDispatch, useAppSelector } from '../../../../hooks';
+import { setLayerTemp, setMapsforgeProfileTemp } from '../../baseMapSlice';
 import { ContextSettingsMaps } from '../../ContextSettingsMaps';
+import { selectLayerTemp, selectMapsforgeProfiles } from '../../selectors';
+import { fillLayerConfigOptionsWithDefaults } from '../../utils';
 
-const ProfileRowControl = ( {
-    options,
-    setOptions,
-    setEditProfile,
-    profiles,
-    Info,
-} : {
-    options: LayerConfigOptionsMapsforge;
-    setOptions: ( options : LayerConfigOptionsMapsforge ) => void;
-    setEditProfile: Dispatch<SetStateAction<null | MapsforgeProfile>>;
-    profiles: MapsforgeProfile[];
-    Info?: ReactNode | string;
-} ) => {
+const ProfileRowControl = ({
+	options,
+	setOptions,
+	Info,
+}: {
+	options: LayerConfigOptionsMapsforge;
+	setOptions: (options: LayerConfigOptionsMapsforge) => void;
+	Info?: ReactNode | string;
+}) => {
+	const { t } = useTranslation();
+	const theme = useTheme();
 
-    const { t } = useTranslation();
-    const theme = useTheme();
+	const profiles = useAppSelector(selectMapsforgeProfiles);
 
-    const [menuVisible,setMenuVisible] = useState( false );
+	const dispatch = useAppDispatch();
 
-    const opts : OptionBase[] = [
-        {
-            key: 'default',
-            label: 'useFirstOne',
-        },
-        ...[...profiles].map( prof => {
-            const themeArr = prof.theme.split( '/' );
-            return {
-                key: prof.key,
-                label: [prof.name,'[' + themeArr[themeArr.length-1] + ']'].join( ' ' ),
-            }
-        } )
-    ];
+	const [menuVisible, setMenuVisible] = useState(false);
 
-    const getInitialSelectedOpt = () => get( opts.find( opt => opt.key === options.profile ), 'key', 'default' );
+	const opts: OptionBase[] = useMemo( () => [
+		{
+			key: 'default',
+			label: 'useFirstOne',
+		},
+		...[...profiles].map((prof) => {
+			const themeArr = prof.theme.split('/');
+			return {
+				key: prof.key,
+				label: [prof.name, '[' + themeArr[themeArr.length - 1] + ']'].join(' '),
+			};
+		}),
+	], [profiles] );
 
-    const [selectedOpt,setSelectedOpt] = useState<string | null>( getInitialSelectedOpt() );
+	const getInitialSelectedOpt = () =>
+		get(
+			opts.find((opt) => opt.key === options.profile),
+			'key',
+			'default'
+		);
 
-    useEffect( () => {
-        setSelectedOpt( getInitialSelectedOpt() )
-    }, [profiles] )
+	const [selectedOpt, setSelectedOpt] = useState<string | null>(getInitialSelectedOpt());
 
-    useEffect( () => {
-        if ( selectedOpt ) {
-            setOptions( {
-                ...options,
-                profile: selectedOpt,
-            } );
-        }
-    }, [selectedOpt] );
+	useEffect(() => {
+		setSelectedOpt(getInitialSelectedOpt());
+	}, [profiles]);
 
-    return <InfoRowControl
-        label={ t( 'map.mapsforge.profile', { count: 1 } ) }
-        Info={ Info }
-    >
+	useEffect(() => {
+		if (selectedOpt) {
+			setOptions({
+				...options,
+				profile: selectedOpt,
+			});
+		}
+	}, [selectedOpt]);
 
-        <View style={ { flexDirection: 'row' } }>
-            <Menu
-                contentStyle={ {
-                    borderColor: theme.colors.outline,
-                    borderWidth: 1,
-                } }
-                visible={ menuVisible }
-                onDismiss={ () => setMenuVisible( false ) }
-                anchor={ <ButtonHighlight style={ { marginTop: 3} } onPress={ () => setMenuVisible( true ) } >
-                    <Text>{ t( get( opts.find( opt => opt.key === selectedOpt ), 'label', '' ) ) }</Text>
-                </ButtonHighlight> }
-            >
-                { opts && [...opts].map( ( opt, index ) => <MenuItem
-                    key={ opt.key }
-                    onPress={ () => {
-                        setSelectedOpt( opt.key );
-                        setMenuVisible( false );
-                    } }
-                    title={ t( opt.label ) }
-                    active={ opt.key === selectedOpt }
-                    style={ 'default' === selectedOpt && index === 1 ? {
-                        borderLeftColor: theme.colors.primary,
-                        borderLeftWidth: 5,
-                    } : {} }
-                /> ) }
-            </Menu>
+	return (
+		<InfoRowControl
+			label={t('map.mapsforge.profile', { count: 1 })}
+			Info={Info}
+		>
+			<View style={{ flexDirection: 'row' }}>
+				<Menu
+					contentStyle={{
+						borderColor: theme.colors.outline,
+						borderWidth: 1,
+					}}
+					visible={menuVisible}
+					onDismiss={() => setMenuVisible(false)}
+					anchor={
+						<ButtonHighlight
+							style={{ marginTop: 3 }}
+							onPress={() => setMenuVisible(true)}
+						>
+							<Text>
+								{t(
+									get(
+										opts.find((opt) => opt.key === selectedOpt),
+										'label',
+										''
+									)
+								)}
+							</Text>
+						</ButtonHighlight>
+					}
+				>
+					{opts &&
+						[...opts].map((opt, index) => (
+							<MenuItem
+								key={opt.key}
+								onPress={() => {
+									setSelectedOpt(opt.key);
+									setMenuVisible(false);
+								}}
+								title={t(opt.label)}
+								active={opt.key === selectedOpt}
+								style={
+									'default' === selectedOpt && index === 1
+										? {
+												borderLeftColor: theme.colors.primary,
+												borderLeftWidth: 5,
+											}
+										: {}
+								}
+							/>
+						))}
+				</Menu>
 
-
-            { 'default' !== selectedOpt && <TouchableHighlight
-                underlayColor={ theme.colors.elevation.level3 }
-                onPress={ () => {
-                    const newEditProfile = profiles.find( prof => prof.key === selectedOpt )
-                    if ( newEditProfile ) {
-                        setEditProfile( newEditProfile );
-                    }
-                } }
-                style={ { padding: 10, borderRadius: theme.roundness } }
-            >
-                <Icon
-                    source="cog"
-                    size={ 25 }
-                />
-            </TouchableHighlight> }
-
-        </View>
-    </InfoRowControl>;
+				{'default' !== selectedOpt && (
+					<TouchableHighlight
+						underlayColor={theme.colors.elevation.level3}
+						onPress={() => {
+							const newProfileTemp = profiles.find(
+								(prof) => prof.key === selectedOpt
+							);
+							if (newProfileTemp) {
+								dispatch(setMapsforgeProfileTemp(newProfileTemp));
+								// updateItem( newEditProfile );
+							}
+						}}
+						style={{ padding: 10, borderRadius: theme.roundness }}
+					>
+						<Icon
+							source="cog"
+							size={25}
+						/>
+					</TouchableHighlight>
+				)}
+			</View>
+		</InfoRowControl>
+	);
 };
 
-const LayerControlMapsforge : FC<{}> = () => {
+const LayerControlMapsforge: FC<{}> = ({}) => {
 
-    const {
-        editLayer,
-        updateLayer,
-        setEditProfile,
-        profiles,
-    } = useContext( ContextSettingsMaps );
+	const dispatch = useAppDispatch();
+	const layerTemp = useAppSelector(selectLayerTemp);
 
 	const { t } = useTranslation();
-    const theme = useTheme();
+	const theme = useTheme();
 
-    const appDirs = useAppSelector( selectAppDirs );
+	const appDirs = useAppSelector(selectAppDirs);
 
-    const [options,setOptions] = useState<LayerConfigOptionsMapsforge>(
-        fillLayerConfigOptionsWithDefaults( 'mapsforge', editLayer?.options ?? {} ) as LayerConfigOptionsMapsforge
-    );
+	const setOptions = useCallback(
+		(newOptions: LayerConfigOptionsMapsforge) => {
+			dispatch(
+				setLayerTemp({
+					...layerTemp,
+					options: newOptions,
+				} as LayerConfig)
+			);
+		},
+		[layerTemp]
+	);
 
-    const doUpdate = debounce( () => {
-        editLayer && updateLayer( {
-            ...editLayer,
-            options,
-        } );
-    }, 300 );
-    useEffect( () => {
-        doUpdate();
-    }, [Object.values( options ).join( '' )] );
+	if (!layerTemp?.options) {
+		return undefined;
+	}
 
-    return <View>
+	return (
+		<View>
+			<FileSourceRowControl
+				header={t('map.selectFile')}
+				label={t('map.file')}
+				options={layerTemp.options}
+				optionsKey={'mapFile'}
+				onSelect={(selectedOpt) =>
+					setOptions({
+						...layerTemp.options,
+						mapFile: selectedOpt,
+					})
+				}
+				extensions={['map']}
+				dirs={get(appDirs, 'mapfiles', [])}
+				Info={
+					<View>
+						<Text>{t('hint.maps.mapsforgeFile')}</Text>
+						<Text
+							style={{
+								marginTop: 20,
+								...theme.fonts.bodyLarge,
+							}}
+						>
+							{'Downloads:'}
+						</Text>
+						<HintLink
+							label={t('hint.link.openandromapsDownloads')}
+							url={'https://www.openandromaps.org/en/downloads'}
+						/>
+					</View>
+				}
+				filesHeading={sprintf(t('filesIn'), '(.map)')}
+				noFilesHeading={sprintf(t('noFilesIn'), '(.map)')}
+				hasCustom={true}
+			/>
 
-        <FileSourceRowControl
-            header={ t( 'map.selectFile' ) }
-            label={ t( 'map.file' ) }
-            options={ options }
-            optionsKey={ 'mapFile' }
-            onSelect={ selectedOpt => setOptions( {
-                ...options,
-                mapFile: selectedOpt,
-            } ) }
-            extensions={ ['map'] }
-            dirs={ get( appDirs, 'mapfiles', [] ) }
-            Info={ <View>
-                <Text>{ t( 'hint.maps.mapsforgeFile' ) }</Text>
-                <Text style={ {
-                    marginTop: 20,
-                    ...theme.fonts.bodyLarge,
-                } }>{ 'Downloads:' }</Text>
-                <HintLink
-                    label={ t( 'hint.link.openandromapsDownloads' ) }
-                    url={ 'https://www.openandromaps.org/en/downloads' }
-                />
-            </View> }
-            filesHeading={ sprintf( t( 'filesIn' ), '(.map)' ) }
-            noFilesHeading={ sprintf( t( 'noFilesIn' ), '(.map)' ) }
-            hasCustom={ true }
-        />
+			<ProfileRowControl
+				options={layerTemp.options}
+				setOptions={setOptions}
+				Info={t('hint.maps.mapsforgeProfile')}
+			/>
 
-        <ProfileRowControl
-            options={ options }
-            setOptions={ setOptions }
-            setEditProfile={ setEditProfile }
-            profiles={ profiles }
-            Info={ t( 'hint.maps.mapsforgeProfile' ) }
-        />
-
-        <NumericMultiRowControl
-            label={ t( 'enabled' ) }
-            optKeys={ ['enabledZoomMin','enabledZoomMax'] }
-            optLabels={ ['min','max'] }
-            options={ options }
-            setOptions={ setOptions }
-            validate={ val => val >= 0 }
-            Info={ t( 'hint.maps.enabled' ) + '\n\n' + t( 'hint.maps.zoomGeneralInfo' ) }
-        />
-
-    </View>;
-
+			<NumericMultiRowControl
+				label={t('enabled')}
+				optKeys={['enabledZoomMin', 'enabledZoomMax']}
+				optLabels={['min', 'max']}
+				options={layerTemp.options}
+				setOptions={setOptions}
+				validate={(val) => val >= 0}
+				Info={t('hint.maps.enabled') + '\n\n' + t('hint.maps.zoomGeneralInfo')}
+			/>
+		</View>
+	);
 };
 
 export default LayerControlMapsforge;

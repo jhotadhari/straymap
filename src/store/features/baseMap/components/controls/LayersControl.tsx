@@ -6,7 +6,6 @@ import {
 	FC,
 	SetStateAction,
 	useCallback,
-	useContext,
 	useEffect,
 	useMemo,
 	useState,
@@ -30,10 +29,8 @@ import RadioListItem from '../../../../../components/generic/RadioListItem';
 import LayerControlHillshading from './LayerControlHillshading';
 import InfoButton from '../../../../../components/generic/InfoButton';
 import NameRowControl from '../../../../../components/generic/NameRowControl';
-// import LayerControlMapsforge from './LayerControlMapsforge';
-import { fillLayerConfigOptionsWithDefaults } from '../../utils';
+import LayerControlMapsforge from './LayerControlMapsforge';
 import { LayerOption, LayerConfig } from '../../types';
-import { ContextSettingsMaps } from '../../ContextSettingsMaps';
 import { getNewLayer } from '../../utils';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { selectElementExpanded } from '../../../ui/selectors';
@@ -407,10 +404,11 @@ const EditModal: FC<{
 						updateLayer={updateItemTemp}
 					/>
 
+					{'mapsforge' === layerTemp.type && <LayerControlMapsforge/>}
+
 					{/*
 					{'online-raster-xyz' === layerTemp.type && <LayerControlOnlineRasterXYZ />}
 
-					{'mapsforge' === layerTemp.type && <LayerControlMapsforge />}
 
 					{'hillshading' === layerTemp.type && <LayerControlHillshading />}
 
@@ -536,7 +534,7 @@ const LayersControl = ({
 			height: itemHeight * layers.length + 8,
 			width,
 		}),
-		[width]
+		[width,layers]
 	);
 
 	const handleDragStart = useCallback(() => setScrollEnabled(false), []);

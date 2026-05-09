@@ -1148,7 +1148,7 @@ const ProfilesControl = ({
 			height: itemHeight * layers.length + 8,
 			width,
 		}),
-		[width]
+		[width,layers]
 	);
 
 	const handleDragStart = useCallback(() => setScrollEnabled(false), []);
