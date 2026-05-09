@@ -65,8 +65,43 @@ export const mapTypeOptions: LayerOption[] = [
 	label: 'map.typeDesc.' + opt.key,
 }));
 
-const itemHeight = 50;
-const labelMinWidth = 90;
+export const itemHeight = 50;
+
+export const labelMinWidth = 90;
+
+export const styleSelectType: TextStyle = { marginBottom: 18 };
+
+export const styleModalRowType: ViewStyle = { marginBottom: 10, flexDirection: 'row' };
+
+export const styleModalRowTypeLabel: TextStyle = { minWidth: labelMinWidth + 12 };
+
+export const styleModalControls: ViewStyle = {
+	marginTop: 20,
+	marginBottom: 40,
+	flexDirection: 'row',
+	justifyContent: 'space-between',
+	alignItems: 'center',
+};
+
+export const controlIconStyle: ViewStyle = {
+	marginLeft: 7,
+	marginRight: -7,
+	justifyContent: 'center',
+};
+
+export const styleDraggableGrid = {
+	marginLeft: -40, // revert paper paddingLeft 40
+};
+
+export const styleItemsNone = { marginLeft: 18, marginBottom: 35 };
+
+export const styleControls: ViewStyle = {
+	justifyContent: 'space-between',
+	flexDirection: 'row',
+	marginBottom: 25,
+};
+
+export const styleAddItem = { marginRight: 20 };
 
 const VisibilityControl: FC<{
 	style?: ViewStyle;
@@ -137,6 +172,7 @@ const DraggableItem: FC<{
 			justifyContent: 'space-between',
 			alignItems: 'center',
 			flexDirection: reverse ? 'row-reverse' : 'row',
+			overflow: 'hidden',
 			paddingLeft: reverse ? 14 : 24,
 			paddingRight: reverse ? 24 : 14,
 		}),
@@ -190,7 +226,7 @@ const DraggableItem: FC<{
 		[reverse]
 	);
 
-	const updateLayer = useCallback(
+	const updateItem = useCallback(
 		(newLayer: LayerConfig) => {
 			const layerIndex = layers.findIndex((layer) => layer.key === newLayer?.key);
 			if (layerIndex !== -1) {
@@ -222,7 +258,7 @@ const DraggableItem: FC<{
 			<VisibilityControl
 				style={styleVisibility}
 				layer={item}
-				updateLayer={updateLayer}
+				updateLayer={updateItem}
 			/>
 
 			<View style={styleName}>
@@ -271,10 +307,6 @@ const OptionSelectType: FC<{
 	);
 };
 
-const styleSelectType: TextStyle = { marginBottom: 18 };
-const styleModalRowType: ViewStyle = { marginBottom: 10, flexDirection: 'row' };
-const styleModalRowTypeLabel: TextStyle = { minWidth: labelMinWidth + 12 };
-
 const EditModal: FC<{
 	saveOnChange: boolean;
 	saveLayers: () => void;
@@ -294,24 +326,20 @@ const EditModal: FC<{
 
 	const handleDismissModal = useCallback(() => {
 		setModalVisible(false);
-
-		// update layer
-
 		dispatch(setLayerTemp(undefined));
 		if (saveOnChange) {
 			saveLayers();
 		}
 	}, [
-		// updateLayer,
 		saveOnChange,
 		saveLayers,
 	]);
 
-	const handleRemoveLayer = useCallback(() => {
-		const layerIndex = layers.findIndex((layer) => layer.key === layerTemp?.key);
-		if (layerIndex !== -1) {
+	const handleRemoveItem = useCallback(() => {
+		const idx = layers.findIndex((layer) => layer.key === layerTemp?.key);
+		if (idx !== -1) {
 			const newLayers = [...layers];
-			newLayers.splice(layerIndex, 1);
+			newLayers.splice(idx, 1);
 			dispatch(
 				setLayersStore({
 					temp: true,
@@ -326,7 +354,7 @@ const EditModal: FC<{
 		layerTemp?.key,
 	]);
 
-	const updateLayer = useCallback((newLayer: LayerConfig) => {
+	const updateItemTemp = useCallback((newLayer: LayerConfig) => {
 		dispatch(setLayerTemp(newLayer));
 	}, []);
 
@@ -376,7 +404,7 @@ const EditModal: FC<{
 
 					<VisibilityRowControl
 						layer={layerTemp}
-						updateLayer={updateLayer}
+						updateLayer={updateItemTemp}
 					/>
 
 					{/*
@@ -389,15 +417,7 @@ const EditModal: FC<{
 					{'raster-MBtiles' === layerTemp.type && <LayerControlRasterMBTiles />}
 					*/}
 
-					<View
-						style={{
-							marginTop: 20,
-							marginBottom: 40,
-							flexDirection: 'row',
-							justifyContent: 'space-between',
-							alignItems: 'center',
-						}}
-					>
+					<View style={styleModalControls}>
 						<ButtonHighlight
 							onPress={handleDismissModal}
 							mode="contained"
@@ -408,7 +428,7 @@ const EditModal: FC<{
 						</ButtonHighlight>
 
 						<ButtonHighlight
-							onPress={handleRemoveLayer}
+							onPress={handleRemoveItem}
 							mode="contained"
 							buttonColor={theme.colors.errorContainer}
 							textColor={theme.colors.onErrorContainer}
@@ -422,12 +442,6 @@ const EditModal: FC<{
 	);
 };
 
-const controlIconStyle: ViewStyle = {
-	marginLeft: 7,
-	marginRight: -7,
-	justifyContent: 'center',
-};
-
 const ControlIcon: FC<{
 	color: string;
 	style: Style;
@@ -439,20 +453,6 @@ const ControlIcon: FC<{
 		/>
 	</View>
 );
-
-const styleDraggableGrid = {
-	marginLeft: -40, // revert paper paddingLeft 40
-};
-
-const styleLayersNone = { marginLeft: 18, marginBottom: 35 };
-
-const styleControls: ViewStyle = {
-	justifyContent: 'space-between',
-	flexDirection: 'row',
-	marginBottom: 25,
-};
-
-const styleAddLayer = { marginRight: 20 };
 
 const LayersControl = ({
 	setScrollEnabled,
@@ -598,7 +598,7 @@ const LayersControl = ({
 					</View>
 				)}
 
-				{!layers.length && <Text style={styleLayersNone}>{t('map.layersNone')}</Text>}
+				{!layers.length && <Text style={styleItemsNone}>{t('map.layersNone')}</Text>}
 
 				<View style={styleControls}>
 					<InfoButton
@@ -610,7 +610,7 @@ const LayersControl = ({
 					/>
 
 					<ButtonHighlight
-						style={styleAddLayer}
+						style={styleAddItem}
 						icon="map-plus"
 						mode="outlined"
 						onPress={handleAddNewLayer}

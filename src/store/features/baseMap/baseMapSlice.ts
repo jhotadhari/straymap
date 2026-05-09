@@ -181,6 +181,19 @@ export const baseMapSlice = createSlice({
 			action: PayloadAction<BaseMapState['mapsforgeProfileTemp']>
 		) => {
 			state.mapsforgeProfileTemp = action.payload;
+			if (!action.payload) {
+				return;
+			}
+			const newProfile = action.payload;
+			let newProfiles = state.mapsforgeProfilesTemp ?? state.mapsforgeProfiles;
+			const itemIndex = newProfiles.findIndex((item) => item.key === newProfile.key);
+			if (-1 !== itemIndex) {
+				newProfiles[itemIndex] = newProfile;
+				state.mapsforgeProfilesTemp = newProfiles;
+			} else {
+				newProfiles.splice(0, 0, newProfile);
+				state.mapsforgeProfilesTemp = newProfiles;
+			}
 		},
 		setHgtDirPath: (state, action: PayloadAction<BaseMapSettings['hgtDirPath']>) => {
 			state.hgtDirPath = action.payload;

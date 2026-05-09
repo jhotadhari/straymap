@@ -15,8 +15,6 @@ import LayersControl from '../store/features/baseMap/components/controls/LayersC
 import ProfilesControl from '../store/features/baseMap/components/controls/ProfilesControl';
 import MapsforgeGeneralControl from '../store/features/baseMap/components/controls/MapsforgeGeneralControl';
 import CacheManager from './CacheManager';
-import useProfiles from '../store/features/baseMap/hooks/useProfiles';
-import { ContextSettingsMaps } from '../store/features/baseMap/ContextSettingsMaps';
 
 const SettingsMaps: FC = () => {
 	const theme = useTheme();
@@ -27,50 +25,37 @@ const SettingsMaps: FC = () => {
 
 	const { appInnerHeight } = useContext(AppContext);
 
-	const { editProfile, setEditProfile, updateProfile, profiles, setProfiles, saveProfiles } =
-		useProfiles({});
-
 	const [scrollEnabled, setScrollEnabled] = useState(true);
 
 	return (
-		<ContextSettingsMaps.Provider
-			value={{
-				// profiles
-				profiles,
-				editProfile,
-				setEditProfile,
-				updateProfile,
-				setProfiles,
-				saveProfiles,
+		<ScrollView
+			scrollEnabled={scrollEnabled}
+			style={{
+				backgroundColor: theme.colors.background,
+				height: appInnerHeight,
+				width,
+				position: 'absolute',
+				zIndex: 9,
 			}}
 		>
-			<ScrollView
-				scrollEnabled={scrollEnabled}
-				style={{
-					backgroundColor: theme.colors.background,
-					height: appInnerHeight,
-					width,
-					position: 'absolute',
-					zIndex: 9,
-				}}
-			>
-				<LayersControl
-					newLabel={t('map.addNewLayer')}
-					setScrollEnabled={setScrollEnabled}
-					saveOnChange={false}
-					saveOnUnmount={true}
-				/>
+			<LayersControl
+				newLabel={t('map.addNewLayer')}
+				setScrollEnabled={setScrollEnabled}
+				saveOnChange={false}
+				saveOnUnmount={true}
+			/>
 
-				{/* <ProfilesControl
-                setScrollEnabled={ setScrollEnabled }
-                newLabel={ t( 'map.mapsforge.profileAddNew' ) }
-            /> */}
+			<ProfilesControl
+				newLabel={t('map.mapsforge.profileAddNew')}
+				setScrollEnabled={setScrollEnabled}
+				saveOnChange={false}
+				saveOnUnmount={true}
+			/>
 
-				<MapsforgeGeneralControl />
+			<MapsforgeGeneralControl />
 
-				{/* <CacheManager/> */}
-			</ScrollView>
-		</ContextSettingsMaps.Provider>
+			{/* <CacheManager/> */}
+		</ScrollView>
 	);
 };
 
