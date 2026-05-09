@@ -33,7 +33,7 @@ import { OptionBase, ThemePropExtended } from '../../../../../types';
 import { NumericMultiRowControl, NumericRowControl } from '../../../../../components/generic/NumericRowControls';
 import InfoRowControl from '../../../../../components/generic/InfoRowControl';
 import CacheControl from '../../../../../components/CacheControl';
-import { fillLayerConfigOptionsWithDefaults, stringifyProp } from '../../../../../utils';
+import { stringifyProp } from '../../../../../utils';
 import { defaults } from '../../../../../constants';
 import { TextInputNativeMultiline, TextInputNativeMultilineControlled } from '../../../../../components/generic/TextInputNativeMultiline';
 import { LayerConfig, LayerConfigOptionsOnlineRasterXYZ } from '../../types';
@@ -287,9 +287,11 @@ const LayerControlOnlineRasterXYZ : FC<{}> = () => {
 
 	const { t } = useTranslation();
 
-    const [options,setOptions] = useState<LayerConfigOptionsOnlineRasterXYZ>(
-        fillLayerConfigOptionsWithDefaults( 'online-raster-xyz', editLayer?.options ?? {} ) as LayerConfigOptionsOnlineRasterXYZ
+    const [options,setOptions] = useState(
+        ( editLayer?.options ?? {} ) as LayerConfigOptionsOnlineRasterXYZ
     );
+
+    console.log( 'debug options', options ); // debug
 
     const doUpdate = debounce( () => {
         editLayer && updateLayer( {

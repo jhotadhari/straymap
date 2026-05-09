@@ -27,7 +27,7 @@ import { get } from 'lodash-es';
  */
 import InfoRowControl from './generic/InfoRowControl';
 import LoadingIndicator from './generic/LoadingIndicator';
-import { getHillshadingCacheDirChild, stringifyProp } from '../utils';
+import { stringifyProp } from '../utils';
 import { FsModule } from '../nativeModules';
 import { ContextSettingsMaps } from '../store/features/baseMap/ContextSettingsMaps';
 import { LayerConfig } from '../store/features/baseMap/types';
@@ -37,6 +37,7 @@ import { setElementExpanded } from '../store/features/ui/uiSlice';
 import { selectAppDirs } from '../store/features/dirs/selectors';
 import useCacheDirsInfo from '../store/features/dirs/hooks/useCacheDirsInfo';
 import { CacheDir, CacheSubDir } from '../store/features/dirs/types';
+import { getHillshadingCacheDirChild } from '../store/features/baseMap/utils';
 
 const CacheRow = ( {
     cacheDir,

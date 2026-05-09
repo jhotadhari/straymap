@@ -14,7 +14,7 @@ export const defaults = {
 	layerConfigOptions: {
 		['online-raster-xyz']: {
 			alpha: 1,
-			cacheSize: 0,
+			cacheSize: 100,
 			cacheDirBase: 'internal',
 			zoomMin: 1,
 			zoomMax: 20,
@@ -24,14 +24,14 @@ export const defaults = {
 		['mapsforge']: {
 			enabledZoomMin: 1,
 			enabledZoomMax: 20,
-			profile: 'default',
+			profile: 'default',	// will use the first one.
 		},
 		['raster-MBtiles']: {
 			enabledZoomMin: 1,
 			enabledZoomMax: 20,
 		},
 		['hillshading']: {
-			cacheSize: 64,
+			cacheSize: 100,
 			cacheDirBase: 'internal',
 			zoomMin: 1,
 			zoomMax: 20,

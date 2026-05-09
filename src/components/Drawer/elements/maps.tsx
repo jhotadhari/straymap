@@ -20,7 +20,6 @@ import ProfilesControl from '../../../store/features/baseMap/components/controls
 import ButtonHighlight from '../../generic/ButtonHighlight';
 import { setSelectedHierarchyItemsByKey } from '../../../hierarchyItems';
 import { AppContext } from '../../../Context';
-import useLayers from '../../../store/features/baseMap/hooks/useLayers';
 import useProfiles from '../../../store/features/baseMap/hooks/useProfiles';
 import { ContextSettingsMaps } from '../../../store/features/baseMap/ContextSettingsMaps';
 
@@ -55,28 +54,9 @@ const DisplayComponent = ( {
         saveOnSetDelay: 300,
     } );
 
-    const {
-        editLayer,
-        setEditLayer,
-        updateLayer,
-        layers,
-        setLayers,
-        saveLayers,
-    } = useLayers( {
-        saveOnSet: true,
-        saveOnSetDelay: 300,
-    } );
-
     const [scrollEnabled,setScrollEnabled] = useState( true );
 
     return <ContextSettingsMaps.Provider value={ {
-        // layers
-        layers,
-        editLayer,
-        setEditLayer,
-        updateLayer,
-        setLayers,
-        saveLayers,
         // profiles
         profiles,
         editProfile,
@@ -112,15 +92,17 @@ const DisplayComponent = ( {
                 reverseDraggableItem={ 'left' === drawerSide }
                 uiStateKey={ 'DrawerMapLayersExpanded' + drawerSide }
                 newLabel={ t( 'addNew' ) }
+                saveOnChange={ true }
+                saveOnUnmount={ false }
             />
 
-            <ProfilesControl
+            {/* <ProfilesControl
                 setScrollEnabled={ setScrollEnabled }
                 width={ drawerWidth }
                 reverseDraggableItem={ 'left' === drawerSide }
                 uiStateKey={ 'DrawerMapsforgeProfilesExpanded' + drawerSide }
                 newLabel={ t( 'addNew' ) }
-            />
+            /> */}
 
         </ScrollView>
     </ContextSettingsMaps.Provider>;;

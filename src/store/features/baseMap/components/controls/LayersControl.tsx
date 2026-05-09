@@ -11,13 +11,7 @@ import {
 	useMemo,
 	useState,
 } from 'react';
-import {
-	View,
-	TouchableHighlight,
-	ViewStyle,
-	LayoutChangeEvent,
-	TextStyle,
-} from 'react-native';
+import { View, TouchableHighlight, ViewStyle, LayoutChangeEvent, TextStyle } from 'react-native';
 import { useSafeAreaFrame } from 'react-native-safe-area-context';
 import { List, useTheme, Text, Icon, IconButtonProps } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -36,16 +30,18 @@ import RadioListItem from '../../../../../components/generic/RadioListItem';
 import LayerControlHillshading from './LayerControlHillshading';
 import InfoButton from '../../../../../components/generic/InfoButton';
 import NameRowControl from '../../../../../components/generic/NameRowControl';
-import LayerControlMapsforge from './LayerControlMapsforge';
-import { fillLayerConfigOptionsWithDefaults } from '../../../../../utils';
-import { LayerConfig } from '../../types';
-import { LayerOption } from '../../../../../types';
+// import LayerControlMapsforge from './LayerControlMapsforge';
+import { fillLayerConfigOptionsWithDefaults } from '../../utils';
+import { LayerOption, LayerConfig } from '../../types';
 import { ContextSettingsMaps } from '../../ContextSettingsMaps';
 import { getNewLayer } from '../../utils';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { selectElementExpanded } from '../../../ui/selectors';
 import { setElementExpanded } from '../../../ui/uiSlice';
 import { Style } from 'react-native-paper/lib/typescript/components/List/utils';
+import { selectLayers, selectLayerTemp } from '../../selectors';
+
+import { setLayers as setLayersStore, setLayerTemp } from '../../baseMapSlice';
 
 export const mapTypeOptions: LayerOption[] = [
 	{
@@ -72,25 +68,21 @@ export const mapTypeOptions: LayerOption[] = [
 const itemHeight = 50;
 const labelMinWidth = 90;
 
-const VisibilityControl = ({
-	item,
-	style,
-	updateLayer,
-}: {
-	item: LayerConfig;
+const VisibilityControl: FC<{
 	style?: ViewStyle;
+	layer: LayerConfig;
 	updateLayer: (newLayer: LayerConfig) => void;
-}) => {
+}> = ({ style, layer, updateLayer }) => {
 	const theme = useTheme();
 
-	const handlePress = useCallback(
-		() =>
-			updateLayer({
-				...item,
-				visible: !item.visible,
-			}),
-		[updateLayer, item]
-	);
+	const handlePress = useCallback(() => {
+		updateLayer({
+			...layer,
+			visible: !layer.visible,
+		});
+	}, [
+		layer,
+	]);
 
 	return (
 		<TouchableHighlight
@@ -99,20 +91,17 @@ const VisibilityControl = ({
 			style={{ borderRadius: theme.roundness, ...style }}
 		>
 			<Icon
-				source={item.visible ? 'eye-outline' : 'eye-off-outline'}
+				source={layer?.visible ? 'eye-outline' : 'eye-off-outline'}
 				size={25}
 			/>
 		</TouchableHighlight>
 	);
 };
 
-const VisibilityRowControl = ({
-	item,
-	updateLayer,
-}: {
-	item: LayerConfig;
+const VisibilityRowControl: FC<{
+	layer: LayerConfig;
 	updateLayer: (newLayer: LayerConfig) => void;
-}) => {
+}> = ({ layer, updateLayer }) => {
 	const { t } = useTranslation();
 	return (
 		<InfoRowControl
@@ -120,27 +109,26 @@ const VisibilityRowControl = ({
 			Info={t('hint.maps.visibility')}
 		>
 			<VisibilityControl
-				item={item}
+				layer={layer}
 				updateLayer={updateLayer}
 			/>
 		</InfoRowControl>
 	);
 };
 
-const DraggableItem = ({
-	item,
-	width,
-	reverse,
-}: {
+const DraggableItem: FC<{
 	item: LayerConfig;
 	width: number;
 	reverse: boolean;
-}) => {
+	saveOnChange: boolean;
+	saveLayers: () => void;
+}> = ({ item, width, reverse, saveOnChange, saveLayers }) => {
 	const theme = useTheme();
+	const dispatch = useAppDispatch();
+
+	const layers = useAppSelector((state) => selectLayers(state, { temp: true }));
 
 	const [isToWide, setIsToWide] = useState(false);
-
-	const { setEditLayer, updateLayer } = useContext(ContextSettingsMaps);
 
 	const style: ViewStyle = useMemo(
 		() => ({
@@ -188,7 +176,7 @@ const DraggableItem = ({
 		[theme]
 	);
 
-	const handlePress = useCallback(() => setEditLayer(item), [setEditLayer, item]);
+	const handlePress = useCallback(() => dispatch(setLayerTemp(item)), [item]);
 
 	const handleLayout = useCallback(
 		(event: LayoutChangeEvent) => {
@@ -202,15 +190,39 @@ const DraggableItem = ({
 		[reverse]
 	);
 
+	const updateLayer = useCallback(
+		(newLayer: LayerConfig) => {
+			const layerIndex = layers.findIndex((layer) => layer.key === newLayer?.key);
+			if (layerIndex !== -1) {
+				const newLayers = [...layers];
+				newLayers[layerIndex] = newLayer;
+				dispatch(
+					setLayersStore({
+						temp: true,
+						layers: newLayers,
+					})
+				);
+				if (saveOnChange) {
+					saveLayers();
+				}
+			}
+		},
+		[
+			layers,
+			saveOnChange,
+			saveLayers,
+		]
+	);
+
 	return (
 		<View
 			style={style}
 			key={item.key}
 		>
 			<VisibilityControl
-				item={item}
-				updateLayer={updateLayer}
 				style={styleVisibility}
+				layer={item}
+				updateLayer={updateLayer}
 			/>
 
 			<View style={styleName}>
@@ -236,17 +248,18 @@ const DraggableItem = ({
 const OptionSelectType: FC<{
 	option: LayerOption;
 }> = ({ option }) => {
-	const { editLayer, updateLayer } = useContext(ContextSettingsMaps);
+	const dispatch = useAppDispatch();
+	const layerTemp = useAppSelector(selectLayerTemp);
 
 	const onPress = useCallback(() => {
-		editLayer &&
-			updateLayer({
-				...editLayer,
-				type: option.key as string,
-				options: fillLayerConfigOptionsWithDefaults(option.key, editLayer.options),
-			});
-		// setModalDismissable( false );
-	}, [editLayer, option]);
+		layerTemp &&
+			dispatch(
+				setLayerTemp({
+					...layerTemp,
+					type: option.key,
+				})
+			);
+	}, [layerTemp, option]);
 
 	return (
 		<RadioListItem
@@ -262,45 +275,81 @@ const styleSelectType: TextStyle = { marginBottom: 18 };
 const styleModalRowType: ViewStyle = { marginBottom: 10, flexDirection: 'row' };
 const styleModalRowTypeLabel: TextStyle = { minWidth: labelMinWidth + 12 };
 
-const EditModal: FC<{}> = () => {
+const EditModal: FC<{
+	saveOnChange: boolean;
+	saveLayers: () => void;
+}> = ({ saveOnChange, saveLayers }) => {
 	const { t } = useTranslation();
 	const theme = useTheme();
 
-	const { editLayer, setEditLayer, updateLayer, layers, setLayers } =
-		useContext(ContextSettingsMaps);
+	const dispatch = useAppDispatch();
+	const layerTemp = useAppSelector(selectLayerTemp);
+	const layers = useAppSelector((state) => selectLayers(state, { temp: true }));
 
 	const [modalVisible, setModalVisible] = useState(false);
 
 	useEffect(() => {
-		setModalVisible(!!editLayer);
-	}, [editLayer]);
+		setModalVisible(!!layerTemp);
+	}, [layerTemp]);
 
 	const handleDismissModal = useCallback(() => {
 		setModalVisible(false);
-		setEditLayer(null);
-	}, []);
+
+		// update layer
+
+		dispatch(setLayerTemp(undefined));
+		if (saveOnChange) {
+			saveLayers();
+		}
+	}, [
+		// updateLayer,
+		saveOnChange,
+		saveLayers,
+	]);
 
 	const handleRemoveLayer = useCallback(() => {
-		const layerIndex = layers.findIndex((layer) => layer.key === editLayer?.key);
+		const layerIndex = layers.findIndex((layer) => layer.key === layerTemp?.key);
 		if (layerIndex !== -1) {
 			const newLayers = [...layers];
 			newLayers.splice(layerIndex, 1);
-			setLayers(newLayers);
+			dispatch(
+				setLayersStore({
+					temp: true,
+					layers: newLayers,
+				})
+			);
 			handleDismissModal();
 		}
 	}, [
 		handleDismissModal,
 		layers,
-		editLayer?.key,
+		layerTemp?.key,
 	]);
 
-	return !editLayer ? undefined : (
+	const updateLayer = useCallback((newLayer: LayerConfig) => {
+		dispatch(setLayerTemp(newLayer));
+	}, []);
+
+	const handleNameUpdate = useCallback(
+		({ name }: { name: string }) => {
+			layerTemp &&
+				dispatch(
+					setLayerTemp({
+						...layerTemp,
+						name,
+					})
+				);
+		},
+		[layerTemp]
+	);
+
+	return !layerTemp ? undefined : (
 		<ModalWrapper
 			visible={modalVisible}
 			onDismiss={handleDismissModal}
-			header={editLayer.type ? t('map.layerEdit') : t('map.addNewLayerShort')}
+			header={layerTemp.type ? t('map.layerEdit') : t('map.addNewLayerShort')}
 		>
-			{!editLayer.type && (
+			{!layerTemp.type && (
 				<View>
 					<Text style={styleSelectType}>{t('map.selectType')}</Text>
 					{[...mapTypeOptions].map((opt: LayerOption) => (
@@ -312,31 +361,33 @@ const EditModal: FC<{}> = () => {
 				</View>
 			)}
 
-			{editLayer.type && (
+			{layerTemp.type && (
 				<View>
 					<View style={styleModalRowType}>
 						<Text style={styleModalRowTypeLabel}>{t('map.mapType')}:</Text>
-						<Text>{editLayer.type}</Text>
+						<Text>{layerTemp.type}</Text>
 					</View>
 
 					<NameRowControl
-						item={editLayer}
-						update={updateLayer as (newItem: { name: string }) => void}
+						item={layerTemp}
+						update={handleNameUpdate}
 						Info={t('hint.nameId')}
 					/>
 
 					<VisibilityRowControl
-						item={editLayer}
+						layer={layerTemp}
 						updateLayer={updateLayer}
 					/>
 
-					{'online-raster-xyz' === editLayer.type && <LayerControlOnlineRasterXYZ />}
+					{/*
+					{'online-raster-xyz' === layerTemp.type && <LayerControlOnlineRasterXYZ />}
 
-					{'mapsforge' === editLayer.type && <LayerControlMapsforge />}
+					{'mapsforge' === layerTemp.type && <LayerControlMapsforge />}
 
-					{'raster-MBtiles' === editLayer.type && <LayerControlRasterMBTiles />}
+					{'hillshading' === layerTemp.type && <LayerControlHillshading />}
 
-					{'hillshading' === editLayer.type && <LayerControlHillshading />}
+					{'raster-MBtiles' === layerTemp.type && <LayerControlRasterMBTiles />}
+					*/}
 
 					<View
 						style={{
@@ -348,10 +399,7 @@ const EditModal: FC<{}> = () => {
 						}}
 					>
 						<ButtonHighlight
-							onPress={() => {
-								setEditLayer(null);
-								setModalVisible(false);
-							}}
+							onPress={handleDismissModal}
 							mode="contained"
 							buttonColor={get(theme.colors, 'successContainer')}
 							textColor={get(theme.colors, 'onSuccessContainer')}
@@ -410,12 +458,16 @@ const LayersControl = ({
 	setScrollEnabled,
 	width,
 	reverseDraggableItem,
+	saveOnChange,
+	saveOnUnmount,
 	newLabel,
 	uiStateKey = 'mapLayersExpanded',
 }: {
 	setScrollEnabled: Dispatch<SetStateAction<boolean>>;
 	width?: number;
 	reverseDraggableItem?: boolean;
+	saveOnChange: boolean;
+	saveOnUnmount: boolean;
 	newLabel?: string;
 	uiStateKey?: string;
 }) => {
@@ -427,9 +479,21 @@ const LayersControl = ({
 	const { t } = useTranslation();
 	const theme = useTheme();
 
-	const { setEditLayer, layers, setLayers, saveLayers } = useContext(ContextSettingsMaps);
+	const layers = useAppSelector((state) => selectLayers(state, { temp: true }));
 
 	const expanded = useAppSelector((state) => selectElementExpanded(state, uiStateKey));
+
+	const saveLayers = useCallback(() => {
+		dispatch(
+			setLayersStore({
+				temp: false,
+			})
+		);
+	}, []);
+
+	useEffect(() => {
+		return saveOnUnmount ? saveLayers : undefined;
+	}, [saveOnUnmount]);
 
 	const renderItem = useCallback(
 		(item: LayerConfig) => (
@@ -438,10 +502,17 @@ const LayersControl = ({
 					item={item}
 					width={width}
 					reverse={!!reverseDraggableItem}
+					saveOnChange={saveOnChange}
+					saveLayers={saveLayers}
 				/>
 			</View>
 		),
-		[width, reverseDraggableItem]
+		[
+			width,
+			reverseDraggableItem,
+			saveOnChange,
+			saveLayers,
+		]
 	);
 
 	const handleAccordionPress = useCallback(() => {
@@ -473,9 +544,14 @@ const LayersControl = ({
 	const handleDragRelease = useCallback(
 		(newLayers: LayerConfig[]) => {
 			setScrollEnabled(true);
-			setLayers(newLayers);
+			dispatch(
+				setLayersStore({
+					temp: !saveOnChange,
+					layers: newLayers,
+				})
+			);
 		},
-		[setLayers]
+		[saveOnChange]
 	);
 
 	const infoButtonProps: IconButtonProps = useMemo(
@@ -492,11 +568,14 @@ const LayersControl = ({
 		[theme]
 	);
 
-	const handleAddNewLayer = useCallback(() => setEditLayer(getNewLayer()), [setEditLayer]);
+	const handleAddNewLayer = useCallback(() => dispatch(setLayerTemp(getNewLayer())), []);
 
 	return (
 		<View>
-			<EditModal />
+			<EditModal
+				saveOnChange={saveOnChange}
+				saveLayers={saveLayers}
+			/>
 
 			<List.Accordion
 				title={t('map.layer', { count: 0 })}
@@ -505,17 +584,19 @@ const LayersControl = ({
 				onPress={handleAccordionPress}
 				titleStyle={theme.fonts.bodyMedium}
 			>
-				<View style={styleAccordion}>
-					<DraggableGrid
-						style={styleDraggableGrid}
-						itemHeight={itemHeight}
-						numColumns={1}
-						renderItem={renderItem}
-						data={layers}
-						onDragStart={handleDragStart}
-						onDragRelease={handleDragRelease}
-					/>
-				</View>
+				{layers.length && (
+					<View style={styleAccordion}>
+						<DraggableGrid
+							style={styleDraggableGrid}
+							itemHeight={itemHeight}
+							numColumns={1}
+							renderItem={renderItem}
+							data={layers}
+							onDragStart={handleDragStart}
+							onDragRelease={handleDragRelease}
+						/>
+					</View>
+				)}
 
 				{!layers.length && <Text style={styleLayersNone}>{t('map.layersNone')}</Text>}
 

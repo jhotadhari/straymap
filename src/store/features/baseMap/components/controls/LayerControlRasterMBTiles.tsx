@@ -24,7 +24,6 @@ import { sprintf } from 'sprintf-js';
 import { NumericMultiRowControl } from '../../../../../components/generic/NumericRowControls';
 import FileSourceRowControl from '../../../../../components/FileSourceRowControl';
 import HintLink from '../../../../../components/generic/HintLink';
-import { fillLayerConfigOptionsWithDefaults } from '../../../../../utils';
 import { LayerConfigOptionsRasterMBtiles } from '../../types';
 import { selectAppDirs } from '../../../dirs/selectors';
 import { useAppSelector } from '../../../../hooks';
@@ -42,9 +41,7 @@ const LayerControlRasterMBTiles : FC<{}> = () => {
 
     const appDirs = useAppSelector( selectAppDirs );
 
-    const [options,setOptions] = useState<LayerConfigOptionsRasterMBtiles>(
-        fillLayerConfigOptionsWithDefaults( 'hillshading', editLayer?.options ?? {} ) as LayerConfigOptionsRasterMBtiles
-    );
+    const [options,setOptions] = useState( ( editLayer?.options ?? {} ) as LayerConfigOptionsRasterMBtiles );
 
     const doUpdate = debounce( () => {
         editLayer && updateLayer( {

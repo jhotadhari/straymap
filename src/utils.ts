@@ -1,18 +1,15 @@
 /**
  * External dependencies
  */
-import { get, invert, isObject, omit, pick } from "lodash-es";
+import { get, isObject } from "lodash-es";
 import slugify from "slugify";
-import defaultsAssign from "defaults";
-import { LayerHillshading, Location } from "react-native-mapsforge-vtm";
+import { Location } from "react-native-mapsforge-vtm";
 import { InteractionManager } from "react-native";
 
 /**
  * Internal dependencies
  */
-import { defaults } from "./constants";
 import { UnitPref } from "./store/features/general/types";
-import { LayerConfigOptionsAny, LayerConfigOptionsHillshading } from "./store/features/baseMap/types";
 
 export const parseSerialized = ( str: string, fallback?: any ) : string | false => {
 	fallback = fallback ? fallback : false;
@@ -74,13 +71,6 @@ export const removeLines = ( str: string, pattern: RegExp ) : string => {
     } ).join( '\n' );
 };
 
-export const fillLayerConfigOptionsWithDefaults = ( type : string, options : LayerConfigOptionsAny ) : LayerConfigOptionsAny => {
-    return defaultsAssign(
-        options as Record<string, unknown>,
-        get( defaults.layerConfigOptions, type, {} )
-    ) as LayerConfigOptionsAny;
-};
-
 export const stringifyProp = ( prop: any, deli?: string ) : string => {
     deli = deli || '_';
     switch( true ) {
@@ -102,36 +92,6 @@ export const stringifyProp = ( prop: any, deli?: string ) : string => {
     }
 };
 
-export const getHillshadingCacheDirChild = ( options: LayerConfigOptionsHillshading ) : string => {
-    const shadingAlgoKey = get(
-        invert( LayerHillshading.shadingAlgorithms ),
-        options?.shadingAlgorithm || '',
-        ''
-    );
-    const shadingAlgorithmsOptionKeys = get(
-        LayerHillshading.shadingAlgorithmsOptionKeys,
-        shadingAlgoKey,
-        []
-    ) as string[];
-    return 'shading' + stringifyProp( omit( {
-        ...options,
-        shadingAlgorithmOptions: pick(
-            defaultsAssign(
-                options?.shadingAlgorithmOptions || {},
-                defaults.layerConfigOptions.hillshading.shadingAlgorithmOptions
-            ),
-            shadingAlgorithmsOptionKeys
-        )
-    }, [
-        'enabledZoomMin',
-        'enabledZoomMax',
-        'zoomMin',
-        'zoomMax',
-        'cacheSize',
-        'cacheDirBase',
-        'hgtDirPath',
-    ] ) );
-};
 
 // Sort array of strings or objects based on another array.
 export const sortArrayByOrderArray = ( inputArr: ( string | { [value: string]: any } )[], orderArr: string[], key?: string ) => {

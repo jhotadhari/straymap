@@ -32,7 +32,7 @@ import ModalWrapper from '../../../../../components/generic/ModalWrapper';
 import { NumericRowControl, NumericMultiRowControl } from '../../../../../components/generic/NumericRowControls';
 import ListItemMenuControl from '../../../../../components/generic/ListItemMenuControl';
 import HgtSourceRowControl from '../../../../../components/HgtSourceRowControl';
-import { fillLayerConfigOptionsWithDefaults, getHillshadingCacheDirChild } from '../../../../../utils';
+import { getHillshadingCacheDirChild } from '../../utils';
 import CacheControl from '../../../../../components/CacheControl';
 import { defaults } from '../../../../../constants';
 import { styles as mdStyles } from '../../../../../markdown/styles';
@@ -292,9 +292,7 @@ const LayerControlHillshading : FC<{}> = () => {
 
     const appDirs = useAppSelector( selectAppDirs );
 
-    const [options,setOptions] = useState<LayerConfigOptionsHillshading>(
-        fillLayerConfigOptionsWithDefaults( 'hillshading', editLayer?.options ?? {} ) as LayerConfigOptionsHillshading
-    );
+    const [options,setOptions] = useState( ( editLayer?.options ?? {} ) as LayerConfigOptionsHillshading );
 
     const doUpdate = debounce( () => {
         editLayer && updateLayer( {

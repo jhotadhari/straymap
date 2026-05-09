@@ -6,16 +6,9 @@ import { Dispatch, SetStateAction, createContext } from "react";
 /**
  * Internal dependencies
  */
-import { LayerConfig, MapsforgeProfile } from "./types";
+import { MapsforgeProfile } from "./types";
 
 export type ContextSettingsMapsType = {
-	// layers
-    layers: LayerConfig[];
-    editLayer: null | LayerConfig;
-    setEditLayer: Dispatch<SetStateAction<null | LayerConfig>>
-    updateLayer: ( newLayer: LayerConfig ) => void;
-    setLayers: ( newLayers: LayerConfig[] ) => void;
-    saveLayers: () => void;
 	// profiles
     profiles: MapsforgeProfile[];
     editProfile: null | MapsforgeProfile;
@@ -26,12 +19,6 @@ export type ContextSettingsMapsType = {
 };
 
 export const ContextSettingsMaps = createContext<ContextSettingsMapsType>( {
-	layers: [],
-    editLayer: null,
-    setEditLayer: () => null,
-    updateLayer: () => null,
-    setLayers: () => null,
-    saveLayers: () => null,
     profiles: [],
     editProfile: null,
     setEditProfile: () => null,

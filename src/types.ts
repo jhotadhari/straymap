@@ -1,19 +1,16 @@
-
 /**
  * External dependencies
  */
-import { ReactElement, ReactNode } from "react";
-import { Style as ListStyle } from "react-native-paper/lib/typescript/components/List/utils";
+import { ReactElement, ReactNode } from 'react';
+import { Style as ListStyle } from 'react-native-paper/lib/typescript/components/List/utils';
 import { MD3Theme } from 'react-native-paper/lib/typescript/types';
-import { ComposedGesture, GestureType } from "react-native-gesture-handler";
-import { GetTrackParams } from "react-native-brouter";
+import { ComposedGesture, GestureType } from 'react-native-gesture-handler';
+import { GetTrackParams } from 'react-native-brouter';
 
 /**
  * react-native-mapsforge-vtm dependencies
  */
-import {
-	Location,
-} from 'react-native-mapsforge-vtm';
+import { Location } from 'react-native-mapsforge-vtm';
 
 export interface SliceSettingsBase {
 	initialized: boolean;
@@ -27,8 +24,8 @@ export type LayerInfo = {
 };
 
 export type InitialPosition = {
-	center: Location,
-	zoomLevel: number,
+	center: Location;
+	zoomLevel: number;
 };
 
 export type LayerInfos = { [value: string]: LayerInfo };
@@ -42,40 +39,31 @@ export interface MenuItem {
 	hierarchyIncludeParents?: boolean;
 	SubActivity?: ReactElement;
 	children?: MenuItem[];
-};
+}
 
 export interface SettingsItem {
 	key: string;
-	left?: ( ( props: {
-		color: string;
-		style: ListStyle;
-	} ) => ReactNode );
+	left?: (props: { color: string; style: ListStyle }) => ReactNode;
 	label: string;
 	description?: string;
 	SubActivity?: ReactElement;
 	children?: SettingsItem[];
-};
+}
 
 export interface ThemePropExtended extends MD3Theme {
-    label?: string;
-};
+	label?: string;
+}
 
 export interface OptionBase {
 	key: string;
 	label: string;
-};
+}
 
 export interface ThemeOption extends OptionBase {
 	value: ThemePropExtended;
-};
+}
 
 export type HierarchyItem = MenuItem | SettingsItem;
-
-export type LayerType = 'base' | 'overlay';
-
-export interface LayerOption extends OptionBase {
-    type: LayerType;
-};
 
 export type RoutingPoint = {
 	key: string;
@@ -89,11 +77,11 @@ export interface LocationExtended extends Location {
 	distance?: number;
 	slope?: number;
 	time?: number;
-};
+}
 
 export type RoutingProfile = {
-	fast: GetTrackParams['fast'],
-	v: GetTrackParams['v'],
+	fast: GetTrackParams['fast'];
+	v: GetTrackParams['v'];
 };
 
 export type RoutingSegment = {
@@ -104,7 +92,7 @@ export type RoutingSegment = {
 	isFetching?: boolean;
 	errorMsg?: string;
 	profile: RoutingProfile;
-	coordinatesSimplified?: LocationExtended[],
+	coordinatesSimplified?: LocationExtended[];
 };
 
 export type RoutingTriggeredSegment = {
@@ -125,7 +113,7 @@ export type DrawerState = {
 	side: string;
 	drawerWidth: number;
 	outerWidth: number;
-	expand: ( expanded: boolean ) => void;
+	expand: (expanded: boolean) => void;
 	getIsFullyCollapsed: () => boolean;
 };
 
@@ -133,4 +121,4 @@ export type RoutingStats = {
 	up: number;
 	down: number;
 	distance: number;
-}
+};
