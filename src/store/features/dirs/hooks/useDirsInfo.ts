@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import {  useEffect, useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 
 /**
  * Internal dependencies
@@ -13,64 +13,75 @@ import { getDirInfoCacheId } from '../utils';
 import { addDirInfoCacheEntry } from '../dirsSlice';
 import { selectDirsInfoCacheEntry } from '../selectors';
 
-const useDirsInfo = ( {
+const useDirsInfo = ({
 	navDirs,
 	extensions,
 	recursive,
-} : {
-	navDirs: AbsPath[],
-	extensions?: string[],
-	recursive?: boolean,
-} ) : DirInfoMap | undefined => {
-
+}: {
+	navDirs: AbsPath[];
+	extensions?: string[];
+	recursive?: boolean;
+}): DirInfoMap | undefined => {
 	const dispatch = useAppDispatch();
 
-	const dirInfoCacheId = useMemo( () => getDirInfoCacheId( {
-		navDirs,
-		extensions,
-		recursive,
-	} ), [
-		navDirs,
-		extensions,
-		recursive,
-	] );
+	const dirInfoCacheId = useMemo(
+		() =>
+			getDirInfoCacheId({
+				navDirs,
+				extensions,
+				recursive,
+			}),
+		[
+			navDirs,
+			extensions,
+			recursive,
+		]
+	);
 
-	const infos = useAppSelector( state => selectDirsInfoCacheEntry( state, dirInfoCacheId ) );
+	const infos = useAppSelector((state) => selectDirsInfoCacheEntry(state, dirInfoCacheId));
 
-	useEffect( () => {
-		if ( undefined === infos ) {
-			Promise.all( [...navDirs].map( ( navDir ) => {
-				return new Promise( ( resolve : ( value: ( DirInfoMap | false ) ) => void ) => {
-					FsModule.getInfo(
-						navDir,
-						extensions && extensions.length ? extensions : null,
-						!! recursive
-					).then( async ( info : DirInfo ) => {
-						if ( info ) {
-							resolve( { [navDir]: info } );
-						} else {
-							resolve( false );
+	useEffect(() => {
+		if (undefined === infos) {
+			Promise.all(
+				[...navDirs].map((navDir) => {
+					return new Promise((resolve: (value: DirInfoMap | false) => void) => {
+						FsModule.getInfo(
+							navDir,
+							extensions && extensions.length ? extensions : null,
+							!!recursive
+						)
+							.then(async (info: DirInfo) => {
+								if (info) {
+									resolve({ [navDir]: info });
+								} else {
+									resolve(false);
+								}
+							})
+							.catch((err: any) => {
+								console.log(err);
+								resolve(false);
+							});
+					});
+				})
+			)
+				.then((maps: (false | DirInfoMap)[]) => {
+					let newInfos: DirInfoMap = {};
+					[...maps].map((dirInfoMap: DirInfoMap | false) => {
+						if (dirInfoMap) {
+							newInfos = {
+								...newInfos,
+								...dirInfoMap,
+							};
 						}
-					} ).catch( ( err : any ) => {
-						console.log( err );
-						resolve( false );
-					} );
-				} );
-			} ) ).then( ( maps : ( false | DirInfoMap )[] ) => {
-				let newInfos: DirInfoMap = {};
-				[...maps].map( ( dirInfoMap: DirInfoMap | false ) => {
-					if ( dirInfoMap ) {
-						newInfos = {
-							...newInfos,
-							...dirInfoMap,
-						};
-					}
-				} )
-				dispatch( addDirInfoCacheEntry( {
-					id: dirInfoCacheId,
-					entry: newInfos,
-				} ) );
-			} ).catch( ( err : any ) => console.log( err ) );
+					});
+					dispatch(
+						addDirInfoCacheEntry({
+							id: dirInfoCacheId,
+							entry: newInfos,
+						})
+					);
+				})
+				.catch((err: any) => console.log(err));
 		}
 	}, [
 		navDirs,
@@ -78,7 +89,7 @@ const useDirsInfo = ( {
 		recursive,
 		infos,
 		dirInfoCacheId,
-	] );
+	]);
 
 	return infos;
 };

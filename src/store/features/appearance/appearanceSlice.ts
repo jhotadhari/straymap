@@ -6,7 +6,7 @@ import { createSlice } from '@reduxjs/toolkit';
 
 /**
  * Internal dependencies
-*/
+ */
 import { SliceSettingsBase } from '../../../types';
 import { CursorConfig } from './types';
 
@@ -17,7 +17,7 @@ export interface AppearanceSettings {
 
 export interface AppearanceState extends SliceSettingsBase, AppearanceSettings {}
 
-export const initialSettings : AppearanceSettings = {
+export const initialSettings: AppearanceSettings = {
 	theme: 'system',
 	cursor: {
 		iconSource: 'target',
@@ -50,11 +50,7 @@ export const appearanceSlice = createSlice({
 });
 
 // Export the generated action creators for use in components.
-export const {
-	setInitialized,
-	setTheme,
-	setCursor,
-} = appearanceSlice.actions;
+export const { setInitialized, setTheme, setCursor } = appearanceSlice.actions;
 
 // Export the slice reducer for use in the store configuration
 export default appearanceSlice.reducer;

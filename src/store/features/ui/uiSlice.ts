@@ -6,7 +6,7 @@ import { createSlice } from '@reduxjs/toolkit';
 
 /**
  * Internal dependencies
-*/
+ */
 import { SliceSettingsBase } from '../../../types';
 import { uniq } from 'lodash-es';
 
@@ -18,7 +18,7 @@ export interface UiState extends SliceSettingsBase, UiSettings {
 	busyKeys: string[];
 }
 
-export const initialSettings : UiSettings = {
+export const initialSettings: UiSettings = {
 	expandedElements: [],
 };
 
@@ -40,23 +40,28 @@ export const uiSlice = createSlice({
 		setExpandedElements: (state, action: PayloadAction<string[]>) => {
 			state.expandedElements = action.payload;
 		},
-		setElementExpanded: (state, action: PayloadAction<{
-			key: string;
-			expanded: boolean;
-		}>) => {
+		setElementExpanded: (
+			state,
+			action: PayloadAction<{
+				key: string;
+				expanded: boolean;
+			}>
+		) => {
 			let newExpandedElements = [...state.expandedElements];
-			if ( action.payload.expanded ) {
-				newExpandedElements.push( action.payload.key );
+			if (action.payload.expanded) {
+				newExpandedElements.push(action.payload.key);
 			} else {
-				newExpandedElements = newExpandedElements.filter( key => action.payload.key !== key );
+				newExpandedElements = newExpandedElements.filter(
+					(key) => action.payload.key !== key
+				);
 			}
-			state.expandedElements = uniq( newExpandedElements );
+			state.expandedElements = uniq(newExpandedElements);
 		},
 		setBusyKeys: (state, action: PayloadAction<string[]>) => {
 			state.busyKeys = action.payload;
 		},
 		addBusyKey: (state, action: PayloadAction<string>) => {
-			if ( ! state.busyKeys.includes( action.payload ) ) {
+			if (!state.busyKeys.includes(action.payload)) {
 				state.busyKeys = [
 					...state.busyKeys,
 					action.payload,
@@ -64,8 +69,8 @@ export const uiSlice = createSlice({
 			}
 		},
 		removeBusyKey: (state, action: PayloadAction<string>) => {
-			if ( state.busyKeys.includes( action.payload ) ) {
-				state.busyKeys = state.busyKeys.filter( key => action.payload !== key );
+			if (state.busyKeys.includes(action.payload)) {
+				state.busyKeys = state.busyKeys.filter((key) => action.payload !== key);
 			}
 		},
 	},

@@ -86,22 +86,22 @@ const LayerControlRasterMBTiles: FC<{}> = () => {
 		[]
 	);
 
-    const enabledOptions = useMemo(() => {
-        const options = [
-            {
-                key: 'enabledZoomMin',
-                label: 'min',
-            },
-            {
-                key: 'enabledZoomMax',
-                label: 'max',
-            },
-        ];
-        return {
-            keys: options.map((opt) => opt.key),
-            labels: options.map((opt) => opt.label),
-        };
-    }, []);
+	const enabledOptions = useMemo(() => {
+		const options = [
+			{
+				key: 'enabledZoomMin',
+				label: 'min',
+			},
+			{
+				key: 'enabledZoomMax',
+				label: 'max',
+			},
+		];
+		return {
+			keys: options.map((opt) => opt.key),
+			labels: options.map((opt) => opt.label),
+		};
+	}, []);
 
 	const validateZoom = useCallback((val: number) => val >= 0, []);
 

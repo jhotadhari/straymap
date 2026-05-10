@@ -30,7 +30,6 @@ export const store = configureStore({
 	// it should go before the serializability check middleware
 	middleware: (getDefaultMiddleware) =>
 		getDefaultMiddleware().prepend(listenerMiddleware.middleware),
-
 });
 
 // Infer the type of `store`

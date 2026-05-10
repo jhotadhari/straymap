@@ -1,5 +1,4 @@
-
 globalThis.shouldLog = {
-    saveToStorage: true,
-    dispatchAction: true,
+	saveToStorage: true,
+	dispatchAction: true,
 };

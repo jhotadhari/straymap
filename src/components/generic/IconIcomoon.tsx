@@ -8,9 +8,6 @@ import { createIconSetFromIcoMoon } from 'react-native-vector-icons';
  */
 import icoMoonConfig from '../../assets/icons/icomoon/selection.json';
 
-const IconIcomoon = createIconSetFromIcoMoon(
-    icoMoonConfig,
-    'icomoon'
-);
+const IconIcomoon = createIconSetFromIcoMoon(icoMoonConfig, 'icomoon');
 
 export default IconIcomoon;

@@ -1,7 +1,4 @@
-import Dashboard from "./Dashboard";
-import DashboardControl from "./DashboardControl";
+import Dashboard from './Dashboard';
+import DashboardControl from './DashboardControl';
 
-export {
-    Dashboard,
-    DashboardControl,
-};
+export { Dashboard, DashboardControl };

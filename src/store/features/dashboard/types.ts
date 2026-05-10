@@ -1,13 +1,12 @@
-
 /**
  * External dependencies
  */
-import { ViewStyle } from "react-native";
+import { ViewStyle } from 'react-native';
 
 /**
  * Internal dependencies
-*/
-import { UnitPref } from "../general/types";
+ */
+import { UnitPref } from '../general/types';
 
 export type DashboardStyle = {
 	align: string;
@@ -31,4 +30,4 @@ export type DashboardDisplayComponentProps = {
 	style?: ViewStyle;
 	unitPrefs: { [value: string]: UnitPref };
 	dashboardStyle: DashboardStyle;
-}
+};

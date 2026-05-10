@@ -7,7 +7,7 @@ import rnUuid from 'react-native-uuid';
 
 /**
  * Internal dependencies
-*/
+ */
 import { SliceSettingsBase } from '../../../types';
 import { DashboardElementConf, DashboardStyle } from './types';
 
@@ -18,7 +18,7 @@ export interface DashboardSettings {
 
 export interface DashboardState extends SliceSettingsBase, DashboardSettings {}
 
-export const initialSettings : DashboardSettings = {
+export const initialSettings: DashboardSettings = {
 	elements: [
 		{
 			type: 'zoomLevel',
@@ -38,7 +38,7 @@ export const initialSettings : DashboardSettings = {
 	dashboardStyle: {
 		align: 'left',
 		fontSize: 14,
-	}
+	},
 };
 
 const initialState: DashboardState = {
@@ -65,11 +65,7 @@ export const dashboardSlice = createSlice({
 });
 
 // Export the generated action creators for use in components.
-export const {
-	setInitialized,
-	setElements,
-	setDashboardStyle,
-} = dashboardSlice.actions;
+export const { setInitialized, setElements, setDashboardStyle } = dashboardSlice.actions;
 
 // Export the slice reducer for use in the store configuration
 export default dashboardSlice.reducer;

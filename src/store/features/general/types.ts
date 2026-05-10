@@ -9,9 +9,9 @@ export type HardwareKeyActionConf = {
 };
 
 export type UpdateResults = {
-	[value: string]: 	// the version updating from
+	[value: string]: // the version updating from
 	{
 		state: 'failed' | 'updating' | 'success';
 		msg?: string;
-	}
+	};
 };

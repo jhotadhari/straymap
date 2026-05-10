@@ -77,7 +77,7 @@ const RenderStyleControl = ({
 		? renderStylesCache.optionsMap[profileTemp.theme]
 		: null;
 
-	const opts : OptionBase[] = useMemo(() => {
+	const opts: OptionBase[] = useMemo(() => {
 		if (profileTemp?.theme && renderStyleOptions) {
 			return Object.keys(renderStyleOptions).map((key) => ({ key, label: key }));
 		}

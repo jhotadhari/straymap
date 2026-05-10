@@ -7,7 +7,7 @@ import { MapContainerProps } from 'react-native-mapsforge-vtm';
 
 /**
  * Internal dependencies
-*/
+ */
 import packageJson from '../../../../package.json';
 import { SliceSettingsBase } from '../../../types';
 import { HardwareKeyActionConf, UnitPref } from './types';
@@ -22,7 +22,7 @@ export interface GeneralSettings {
 
 export interface GeneralState extends SliceSettingsBase, GeneralSettings {}
 
-export const initialSettings : GeneralSettings = {
+export const initialSettings: GeneralSettings = {
 	installedVersion: undefined,
 	lang: 'system',
 	hardwareKeys: [
@@ -70,7 +70,10 @@ export const generalSlice = createSlice({
 		setInitialized: (state, action: PayloadAction<boolean>) => {
 			state.initialized = action.payload;
 		},
-		setInstalledVersion: (state, action: PayloadAction<GeneralSettings['installedVersion']>) => {
+		setInstalledVersion: (
+			state,
+			action: PayloadAction<GeneralSettings['installedVersion']>
+		) => {
 			state.installedVersion = action.payload;
 		},
 		setLang: (state, action: PayloadAction<GeneralSettings['lang']>) => {

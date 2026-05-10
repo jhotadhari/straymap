@@ -1,22 +1,8 @@
 /**
  * External dependencies
  */
-import {
-	Dispatch,
-	FC,
-	SetStateAction,
-	useCallback,
-	useEffect,
-	useMemo,
-	useState,
-} from 'react';
-import {
-	View,
-	TouchableHighlight,
-	ViewStyle,
-	LayoutChangeEvent,
-	TextStyle,
-} from 'react-native';
+import { Dispatch, FC, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react';
+import { View, TouchableHighlight, ViewStyle, LayoutChangeEvent, TextStyle } from 'react-native';
 import { useSafeAreaFrame } from 'react-native-safe-area-context';
 import { List, useTheme, Text, Icon, IconButtonProps } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -27,10 +13,7 @@ import { sprintf } from 'sprintf-js';
 /**
  * react-native-mapsforge-vtm dependencies
  */
-import {
-	MapLayerMapsforgeModule,
-	RenderStyleOptionsCollection,
-} from 'react-native-mapsforge-vtm';
+import { MapLayerMapsforgeModule, RenderStyleOptionsCollection } from 'react-native-mapsforge-vtm';
 
 import ButtonHighlight from '../../../../../../components/generic/ButtonHighlight';
 import ModalWrapper from '../../../../../../components/generic/ModalWrapper';
@@ -40,10 +23,7 @@ import NameRowControl from '../../../../../../components/generic/NameRowControl'
 import LoadingIndicator from '../../../../../../components/generic/LoadingIndicator';
 import HintLink from '../../../../../../components/generic/HintLink';
 import { runAfterInteractions } from '../../../../../../utils';
-import {
-	MapsforgeProfile,
-	LayerConfigOptionsMapsforge,
-} from '../../../types';
+import { MapsforgeProfile, LayerConfigOptionsMapsforge } from '../../../types';
 import { getNewProfile } from '../../../utils';
 import { selectElementExpanded, selectIsBusy } from '../../../../ui/selectors';
 import { useAppDispatch, useAppSelector } from '../../../../../hooks';
@@ -216,9 +196,7 @@ const EditModal: FC<{
 
 				<LayerCount profile={profileTemp} />
 
-				<ThemeControl
-					renderStylesCache={renderStylesCache}
-				/>
+				<ThemeControl renderStylesCache={renderStylesCache} />
 
 				<RenderStyleControl
 					AlternativeButton={isBusy ? <LoadingIndicator /> : undefined}
@@ -532,7 +510,7 @@ const ProfilesControl = ({
 			height: itemHeight * profiles.length + 8,
 			width,
 		}),
-		[width,profiles]
+		[width, profiles]
 	);
 
 	const handleDragStart = useCallback(() => setScrollEnabled(false), []);

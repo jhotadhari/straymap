@@ -18,8 +18,8 @@ import { AbsPathsMap } from './types';
  *
  * Has to be called in index.js after the store got initialized.
  */
-export const initializeFromStorage = ( store: EnhancedStore ) => {
-	Promise.all( [
+export const initializeFromStorage = (store: EnhancedStore) => {
+	Promise.all([
 		// new Promise( ( resolve: ( value: boolean ) => void ) => {
 		// 	DefaultPreference.get( settingsKey ).then( newSettingsStr => {
 		// 		// if ( newSettingsStr ) {
@@ -34,18 +34,22 @@ export const initializeFromStorage = ( store: EnhancedStore ) => {
 		// 		resolve( false );
 		// 	} );
 		// } ),
-		new Promise( ( resolve: ( value: boolean ) => void ) => {
-			HelperModule.getAppDirs().then( ( dirs : AbsPathsMap ) => {
-				store.dispatch( setAppDirs( dirs ) );
-					resolve( true );
-			} ).catch( ( err: any ) => {
-				console.log( 'ERROR', err );
-				resolve( false );
-			} );
-		} ),
-	] ).then( ( results: boolean[] ) => {
-		if ( results.every( result => !! result ) ) {
-			store.dispatch( setInitialized( true ) );
-		}
-	} ).catch( ( err : any ) => console.log( err ) );
+		new Promise((resolve: (value: boolean) => void) => {
+			HelperModule.getAppDirs()
+				.then((dirs: AbsPathsMap) => {
+					store.dispatch(setAppDirs(dirs));
+					resolve(true);
+				})
+				.catch((err: any) => {
+					console.log('ERROR', err);
+					resolve(false);
+				});
+		}),
+	])
+		.then((results: boolean[]) => {
+			if (results.every((result) => !!result)) {
+				store.dispatch(setInitialized(true));
+			}
+		})
+		.catch((err: any) => console.log(err));
 };

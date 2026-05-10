@@ -25,7 +25,7 @@ const HasBuildingsControl: FC<{}> = () => {
 			setMapsforgeProfileTemp(
 				(profileTemp) =>
 					({
-						...( profileTemp ?? {} ),
+						...(profileTemp ?? {}),
 						hasBuildings: !profileTemp?.hasBuildings,
 					}) as MapsforgeProfile
 			)

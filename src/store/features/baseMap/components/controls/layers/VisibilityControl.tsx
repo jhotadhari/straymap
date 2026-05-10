@@ -1,10 +1,7 @@
 /**
  * External dependencies
  */
-import {
-	FC,
-	useCallback,
-} from 'react';
+import { FC, useCallback } from 'react';
 import { TouchableHighlight, ViewStyle, TextStyle } from 'react-native';
 import { useTheme, Icon } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -14,7 +11,6 @@ import { useTranslation } from 'react-i18next';
  */
 import InfoRowControl from '../../../../../../components/generic/InfoRowControl';
 import { LayerOption, LayerConfig } from '../../../types';
-
 
 export const mapTypeOptions: LayerOption[] = [
 	{

@@ -1,11 +1,10 @@
-
 import { get } from 'lodash-es';
 
 // see https://github.com/iamacup/react-native-markdown-display/blob/master/src/lib/styles.js
-export const styles = theme => ( {
+export const styles = (theme) => ({
 	link: {
 		textDecorationLine: 'none',
-		color: get( theme.colors, 'link' )
+		color: get(theme.colors, 'link'),
 	},
 	code_inline: {
 		borderWidth: 1,
@@ -59,5 +58,4 @@ export const styles = theme => ( {
 	// 	flexDirection: 'row',
 	// 	fontSize: 11,
 	// },
-
-} );
+});

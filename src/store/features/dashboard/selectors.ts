@@ -1,13 +1,10 @@
 /**
  * Internal dependencies
  */
-import { RootState } from "../../store";
+import { RootState } from '../../store';
 
-export const selectInitialized = (state: RootState) =>
-	state.dashboard.initialized;
+export const selectInitialized = (state: RootState) => state.dashboard.initialized;
 
-export const selectElements = (state: RootState) =>
-	state.dashboard.elements;
+export const selectElements = (state: RootState) => state.dashboard.elements;
 
-export const selectDashboardStyle = (state: RootState) =>
-	state.dashboard.dashboardStyle;
+export const selectDashboardStyle = (state: RootState) => state.dashboard.dashboardStyle;

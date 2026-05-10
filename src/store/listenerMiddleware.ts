@@ -22,18 +22,17 @@ export const startAppListening = listenerMiddleware.startListening.withTypes<
 
 export const addAppListener = addListener.withTypes<RootState, AppDispatch>();
 
-if ( __DEV__ && globalThis.shouldLog.dispatchAction ) {
-	startAppListening( {
+if (__DEV__ && globalThis.shouldLog.dispatchAction) {
+	startAppListening({
 		predicate: () => true,
-		effect: async (
-			action: UnknownAction
-		) => {
-			if ( true === globalThis.shouldLog.dispatchAction || (
-				Array.isArray( globalThis.shouldLog.dispatchAction ) &&
-				globalThis.shouldLog.dispatchAction.includes( action.type )
-			) ) {
-				console.log( 'DEBUG dispatch action', action?.type, action?.payload ); // debug
+		effect: async (action: UnknownAction) => {
+			if (
+				true === globalThis.shouldLog.dispatchAction ||
+				(Array.isArray(globalThis.shouldLog.dispatchAction) &&
+					globalThis.shouldLog.dispatchAction.includes(action.type))
+			) {
+				console.log('DEBUG dispatch action', action?.type, action?.payload); // debug
 			}
 		},
-	} );
+	});
 }
