@@ -13,6 +13,7 @@ import {
 	LayerHillshadingProps,
 	LayerMapsforgeResponse,
 	LayerMBTilesBitmapResponse,
+	MapContainer,
 } from 'react-native-mapsforge-vtm';
 
 /**
@@ -50,124 +51,164 @@ const BaseMap: FC<{
 
 	const profiles = useAppSelector((state) => selectMapsforgeProfiles(state, { temp: false }));
 
-	return layersReverse.map((layer: LayerConfig) => {
-		if (layer.type && layer.visible) {
-			let cacheDirBase;
-			switch (layer.type) {
-				case 'online-raster-xyz':
-					cacheDirBase =
-						'internal' ===
-						(layer.options as LayerConfigOptionsOnlineRasterXYZ)?.cacheDirBase
-							? internalCacheDir
-							: ((layer.options as LayerConfigOptionsOnlineRasterXYZ)
-									?.cacheDirBase as LayerConfigOptionsOnlineRasterXYZ['cacheDirBase']);
-					return (
-						<LayerBitmapTile
-							key={layer.key}
-							zoomMin={(layer.options as LayerConfigOptionsOnlineRasterXYZ).zoomMin}
-							zoomMax={(layer.options as LayerConfigOptionsOnlineRasterXYZ).zoomMax}
-							enabledZoomMin={
-								(layer.options as LayerConfigOptionsOnlineRasterXYZ).enabledZoomMin
+	return (
+		<MapContainer.View>
+			{layersReverse.map((layer: LayerConfig) => {
+				if (layer.type && layer.visible) {
+					let cacheDirBase;
+					switch (layer.type) {
+						case 'online-raster-xyz':
+							cacheDirBase =
+								'internal' ===
+								(layer.options as LayerConfigOptionsOnlineRasterXYZ)?.cacheDirBase
+									? internalCacheDir
+									: ((layer.options as LayerConfigOptionsOnlineRasterXYZ)
+											?.cacheDirBase as LayerConfigOptionsOnlineRasterXYZ['cacheDirBase']);
+							return (
+								<LayerBitmapTile
+									key={layer.key}
+									zoomMin={
+										(layer.options as LayerConfigOptionsOnlineRasterXYZ).zoomMin
+									}
+									zoomMax={
+										(layer.options as LayerConfigOptionsOnlineRasterXYZ).zoomMax
+									}
+									enabledZoomMin={
+										(layer.options as LayerConfigOptionsOnlineRasterXYZ)
+											.enabledZoomMin
+									}
+									enabledZoomMax={
+										(layer.options as LayerConfigOptionsOnlineRasterXYZ)
+											.enabledZoomMax
+									}
+									url={get(layer.options, 'url', '')}
+									alpha={
+										(layer.options as LayerConfigOptionsOnlineRasterXYZ).alpha
+									}
+									cacheSize={
+										(layer.options as LayerConfigOptionsOnlineRasterXYZ)
+											.cacheSize
+									}
+									cacheDirChild={stringifyProp(
+										(layer.options as LayerConfigOptionsOnlineRasterXYZ).url ||
+											''
+									)}
+									cacheDirBase={
+										(cacheDirBase ??
+											'/') as LayerBitmapTileProps['cacheDirBase']
+									} // if `/`, will fallback to java getReactApplicationContext().getCacheDir();
+								/>
+							);
+						case 'raster-MBtiles':
+							return (
+								<LayerMBTilesBitmap
+									key={layer.key}
+									mapFile={
+										(layer.options as LayerConfigOptionsRasterMBtiles).mapFile
+									}
+									enabledZoomMin={
+										(layer.options as LayerConfigOptionsRasterMBtiles)
+											.enabledZoomMin
+									}
+									enabledZoomMax={
+										(layer.options as LayerConfigOptionsRasterMBtiles)
+											.enabledZoomMax
+									}
+									onCreate={(response) => onLayerChange(layer.key, response)}
+									onChange={(response) => onLayerChange(layer.key, response)}
+								/>
+							);
+						case 'mapsforge':
+							if (profiles.length > 0) {
+								let profile = profiles.find(
+									(prof) =>
+										prof.key ===
+										(layer.options as LayerConfigOptionsMapsforge).profile
+								);
+								profile = profile || profiles[0];
+								return (
+									<LayerMapsforge
+										key={layer.key}
+										enabledZoomMin={
+											(layer.options as LayerConfigOptionsMapsforge)
+												.enabledZoomMin
+										}
+										enabledZoomMax={
+											(layer.options as LayerConfigOptionsMapsforge)
+												.enabledZoomMax
+										}
+										mapFile={
+											(layer.options as LayerConfigOptionsMapsforge).mapFile
+										}
+										renderTheme={
+											profile.theme as LayerMapsforgeProps['renderTheme']
+										}
+										renderStyle={profile.renderStyle || undefined}
+										renderOverlays={profile.renderOverlays}
+										hasBuildings={profile.hasBuildings}
+										hasLabels={profile.hasLabels}
+										onCreate={(response) => onLayerChange(layer.key, response)}
+										onChange={(response) => onLayerChange(layer.key, response)}
+									/>
+								);
 							}
-							enabledZoomMax={
-								(layer.options as LayerConfigOptionsOnlineRasterXYZ).enabledZoomMax
-							}
-							url={get(layer.options, 'url', '')}
-							alpha={(layer.options as LayerConfigOptionsOnlineRasterXYZ).alpha}
-							cacheSize={
-								(layer.options as LayerConfigOptionsOnlineRasterXYZ).cacheSize
-							}
-							cacheDirChild={stringifyProp(
-								(layer.options as LayerConfigOptionsOnlineRasterXYZ).url || ''
-							)}
-							cacheDirBase={
-								(cacheDirBase ?? '/') as LayerBitmapTileProps['cacheDirBase']
-							} // if `/`, will fallback to java getReactApplicationContext().getCacheDir();
-						/>
-					);
-				case 'raster-MBtiles':
-					return (
-						<LayerMBTilesBitmap
-							key={layer.key}
-							mapFile={(layer.options as LayerConfigOptionsRasterMBtiles).mapFile}
-							enabledZoomMin={
-								(layer.options as LayerConfigOptionsRasterMBtiles).enabledZoomMin
-							}
-							enabledZoomMax={
-								(layer.options as LayerConfigOptionsRasterMBtiles).enabledZoomMax
-							}
-							onCreate={(response) => onLayerChange(layer.key, response)}
-							onChange={(response) => onLayerChange(layer.key, response)}
-						/>
-					);
-				case 'mapsforge':
-					if (profiles.length > 0) {
-						let profile = profiles.find(
-							(prof) =>
-								prof.key === (layer.options as LayerConfigOptionsMapsforge).profile
-						);
-						profile = profile || profiles[0];
-						return (
-							<LayerMapsforge
-								key={layer.key}
-								enabledZoomMin={
-									(layer.options as LayerConfigOptionsMapsforge).enabledZoomMin
-								}
-								enabledZoomMax={
-									(layer.options as LayerConfigOptionsMapsforge).enabledZoomMax
-								}
-								mapFile={(layer.options as LayerConfigOptionsMapsforge).mapFile}
-								renderTheme={profile.theme as LayerMapsforgeProps['renderTheme']}
-								renderStyle={profile.renderStyle || undefined}
-								renderOverlays={profile.renderOverlays}
-								hasBuildings={profile.hasBuildings}
-								hasLabels={profile.hasLabels}
-								onCreate={(response) => onLayerChange(layer.key, response)}
-								onChange={(response) => onLayerChange(layer.key, response)}
-							/>
-						);
+							return null;
+						case 'hillshading':
+							cacheDirBase =
+								'internal' ===
+								(layer.options as LayerConfigOptionsHillshading)?.cacheDirBase
+									? internalCacheDir
+									: ((layer.options as LayerConfigOptionsHillshading)
+											?.cacheDirBase as LayerConfigOptionsHillshading['cacheDirBase']);
+							return (
+								<LayerHillshading
+									key={layer.key}
+									hgtDirPath={
+										(layer.options as LayerConfigOptionsHillshading).hgtDirPath
+									}
+									zoomMin={
+										(layer.options as LayerConfigOptionsHillshading).zoomMin
+									}
+									zoomMax={
+										(layer.options as LayerConfigOptionsHillshading).zoomMax
+									}
+									enabledZoomMin={
+										(layer.options as LayerConfigOptionsHillshading)
+											.enabledZoomMin
+									}
+									enabledZoomMax={
+										(layer.options as LayerConfigOptionsHillshading)
+											.enabledZoomMax
+									}
+									magnitude={
+										(layer.options as LayerConfigOptionsHillshading).magnitude
+									}
+									cacheSize={
+										(layer.options as LayerConfigOptionsHillshading).cacheSize
+									}
+									cacheDirChild={getHillshadingCacheDirChild(
+										layer.options as LayerConfigOptionsHillshading
+									)}
+									cacheDirBase={
+										(cacheDirBase ??
+											'/') as LayerHillshadingProps['cacheDirBase']
+									} // if ``, will fallback to cache dbname;
+									shadingAlgorithm={
+										(layer.options as LayerConfigOptionsHillshading)
+											.shadingAlgorithm
+									}
+									shadingAlgorithmOptions={
+										(layer.options as LayerConfigOptionsHillshading)
+											.shadingAlgorithmOptions
+									}
+								/>
+							);
 					}
-					return null;
-				case 'hillshading':
-					cacheDirBase =
-						'internal' ===
-						(layer.options as LayerConfigOptionsHillshading)?.cacheDirBase
-							? internalCacheDir
-							: ((layer.options as LayerConfigOptionsHillshading)
-									?.cacheDirBase as LayerConfigOptionsHillshading['cacheDirBase']);
-					return (
-						<LayerHillshading
-							key={layer.key}
-							hgtDirPath={(layer.options as LayerConfigOptionsHillshading).hgtDirPath}
-							zoomMin={(layer.options as LayerConfigOptionsHillshading).zoomMin}
-							zoomMax={(layer.options as LayerConfigOptionsHillshading).zoomMax}
-							enabledZoomMin={
-								(layer.options as LayerConfigOptionsHillshading).enabledZoomMin
-							}
-							enabledZoomMax={
-								(layer.options as LayerConfigOptionsHillshading).enabledZoomMax
-							}
-							magnitude={(layer.options as LayerConfigOptionsHillshading).magnitude}
-							cacheSize={(layer.options as LayerConfigOptionsHillshading).cacheSize}
-							cacheDirChild={getHillshadingCacheDirChild(
-								layer.options as LayerConfigOptionsHillshading
-							)}
-							cacheDirBase={
-								(cacheDirBase ?? '/') as LayerHillshadingProps['cacheDirBase']
-							} // if ``, will fallback to cache dbname;
-							shadingAlgorithm={
-								(layer.options as LayerConfigOptionsHillshading).shadingAlgorithm
-							}
-							shadingAlgorithmOptions={
-								(layer.options as LayerConfigOptionsHillshading)
-									.shadingAlgorithmOptions
-							}
-						/>
-					);
-			}
-		}
-		return null;
-	});
+				}
+				return null;
+			})}
+		</MapContainer.View>
+	);
 };
 
 export default BaseMap;
