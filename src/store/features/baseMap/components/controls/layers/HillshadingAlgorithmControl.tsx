@@ -3,8 +3,9 @@
  */
 import {
     FC,
-    useContext,
+    useCallback,
     useEffect,
+    useMemo,
     useState,
 } from 'react';
 import {
@@ -15,32 +16,28 @@ import {
     useTheme,
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { debounce, get, invert } from 'lodash-es';
+import { get, invert } from 'lodash-es';
 
 /**
  * react-native-mapsforge-vtm dependencies
  */
-import { LayerHillshading, ShadingAlgorithm, ShadingAlgorithmOptions } from 'react-native-mapsforge-vtm';
+import { LayerHillshading, ShadingAlgorithmOptions } from 'react-native-mapsforge-vtm';
 
 /**
  * Internal dependencies
  */
-import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
-import { OptionBase } from '../../../../../types';
-import InfoRowControl from '../../../../../components/generic/InfoRowControl';
-import ModalWrapper from '../../../../../components/generic/ModalWrapper';
-import { NumericRowControl, NumericMultiRowControl } from '../../../../../components/generic/NumericRowControls';
-import ListItemMenuControl from '../../../../../components/generic/ListItemMenuControl';
-import HgtSourceRowControl from '../../../../../components/HgtSourceRowControl';
-import { getHillshadingCacheDirChild } from '../../utils';
-import CacheControl from '../../../../../components/CacheControl';
-import { defaults } from '../../../../../constants';
-import { styles as mdStyles } from '../../../../../markdown/styles';
-import HintLink from '../../../../../components/generic/HintLink';
-import { LayerConfigOptionsHillshading, LayerConfig } from '../../types';
-import { selectAppDirs } from '../../../dirs/selectors';
-import { useAppSelector } from '../../../../hooks';
-import { ContextSettingsMaps } from '../../ContextSettingsMaps';
+import ButtonHighlight from '../../../../../../components/generic/ButtonHighlight';
+import { OptionBase } from '../../../../../../types';
+import InfoRowControl from '../../../../../../components/generic/InfoRowControl';
+import ModalWrapper from '../../../../../../components/generic/ModalWrapper';
+import { NumericRowControl } from '../../../../../../components/generic/NumericRowControls';
+import ListItemMenuControl from '../../../../../../components/generic/ListItemMenuControl';
+import { styles as mdStyles } from '../../../../../../markdown/styles';
+import HintLink from '../../../../../../components/generic/HintLink';
+import { LayerConfigOptionsHillshading, LayerConfig } from '../../../types';
+import { useAppDispatch, useAppSelector } from '../../../../../hooks';
+import { setLayerTemp } from '../../../baseMapSlice';
+import { selectLayerTemp } from '../../../selectors';
 
 const algorithmLinks = {
     CLASY_ADAPTIVE: 'https://github.com/mapsforge/mapsforge/blob/master/mapsforge-map/src/main/java/org/mapsforge/map/layer/hills/AdaptiveClasyHillShading.java',
@@ -52,13 +49,28 @@ const algorithmLinks = {
     DIFFUSE_LIGHT: 'https://github.com/mapsforge/mapsforge/blob/master/mapsforge-map/src/main/java/org/mapsforge/map/layer/hills/DiffuseLightShadingAlgorithm.java',
 };
 
-const AlgorithmControl = ( {
-    options,
-    setOptions,
-} : {
-    options: LayerConfigOptionsHillshading;
-    setOptions: ( options : LayerConfigOptionsHillshading ) => void;
-} ) => {
+const HillshadingAlgorithmControl : FC<{}> = () => {
+
+    const dispatch = useAppDispatch();
+
+    const layerTemp = useAppSelector(selectLayerTemp) as
+        | undefined
+        | LayerConfig<LayerConfigOptionsHillshading>;
+
+    const setOptions = useCallback((newOptions: LayerConfigOptionsHillshading) => {
+        dispatch(
+            setLayerTemp(
+                (layerTemp) =>
+                    layerTemp &&
+                    ({
+                        ...layerTemp,
+                        options: newOptions,
+                    } as LayerConfig)
+            )
+        );
+    }, []);
+
+    const options = layerTemp?.options ?? {};
 
     const { t } = useTranslation();
 	const theme = useTheme();
@@ -67,30 +79,31 @@ const AlgorithmControl = ( {
     const [algoInfo,setAlgoInfo] = useState( false );
     const [showAdvanced,setShowAdvanced] = useState( false );
 
-    const opts : OptionBase[] = Object.keys( LayerHillshading.shadingAlgorithms ).map( key => ( {
+    const opts : OptionBase[] = useMemo( () => Object.keys( LayerHillshading.shadingAlgorithms ).map( key => ( {
         key: LayerHillshading.shadingAlgorithms[key],
         label: t( 'shadingAlgorithms.' + key + '.label' ),
-    } ) );
-    const getInitialSelectedOpt = () : ( null | LayerConfigOptionsHillshading['shadingAlgorithm'] ) => {
-        if ( options.shadingAlgorithm ) {
-            const opt = opts.find( opt => opt.key === options.shadingAlgorithm );
-            return get( opt, 'key', null ) as ( null | LayerConfigOptionsHillshading['shadingAlgorithm'] );
-        } else {
-            return null;
-        }
-    };
-	const [selectedOpt,setSelectedOpt] = useState<null | LayerConfigOptionsHillshading['shadingAlgorithm']>( getInitialSelectedOpt() );
+    } ) ), [
+        t,
+    ] );
+
+    const handleShadingAlgorithmChange = useCallback( ( newValue?: string ) => {
+        dispatch(
+            setLayerTemp(
+                (layerTemp) =>
+                    layerTemp &&
+                    ({
+                        ...layerTemp,
+                        options: {
+                            ...layerTemp.options,
+                            shadingAlgorithm: newValue,
+
+                        },
+                    } as LayerConfig)
+            )
+        );
+    }, [] );
 
     const [algOpts,setAlgOpts] = useState<ShadingAlgorithmOptions>( options.shadingAlgorithmOptions || {} as ShadingAlgorithmOptions );
-
-    useEffect( () => {
-        if ( selectedOpt ) {
-            setOptions( {
-                ...options,
-                shadingAlgorithm: selectedOpt,
-            } );
-        }
-    }, [selectedOpt] );
 
     useEffect( () => {
         if ( algOpts ) {
@@ -113,6 +126,8 @@ const AlgorithmControl = ( {
         []
     ) as string[];
 
+    const toggleAlgoInfo = useCallback( () => setAlgoInfo( algoInfo => ! algoInfo ), []);
+
     return <InfoRowControl
         label={ t( 'algorithm' ) }
         Info={ t( 'hint.maps.shadingAlgorithm' ) }
@@ -126,7 +141,7 @@ const AlgorithmControl = ( {
         >
             <InfoRowControl
                 label={ t( 'algorithm' ) }
-                onLabelPress={ () => setAlgoInfo( ! algoInfo ) }
+                onLabelPress={ toggleAlgoInfo }
             >
                 <ListItemMenuControl
                     options={ opts }
@@ -134,8 +149,8 @@ const AlgorithmControl = ( {
                         marginLeft: 0,
                         paddingLeft: 10,
                     } }
-                    value={ selectedOpt || undefined }
-                    setValue={ newValue => setSelectedOpt( newValue as ShadingAlgorithm ) }
+                    value={ layerTemp?.options?.shadingAlgorithm }
+                    setValue={ handleShadingAlgorithmChange }
                     anchorLabel={ get( opts.find( opt => opt.key === options.shadingAlgorithm ), 'label', '' ) }
                 />
             </InfoRowControl>
@@ -270,8 +285,8 @@ const AlgorithmControl = ( {
 
         <View style={ { flexDirection: 'row', alignItems: 'center' } }>
             <ButtonHighlight style={ { marginTop: 3 } } onPress={ () => setModalVisible( true ) } >
-                <Text>{ t( selectedOpt
-                    ? get( opts.find( opt => opt.key === selectedOpt ), 'label', '' )
+                <Text>{ t( layerTemp?.options?.shadingAlgorithm
+                    ? get( opts.find( opt => opt.key === layerTemp?.options?.shadingAlgorithm ), 'label', '' )
                     : 'selected.none'
                 ) }</Text>
             </ButtonHighlight>
@@ -280,82 +295,4 @@ const AlgorithmControl = ( {
     </InfoRowControl>;
 };
 
-const LayerControlHillshading : FC<{}> = () => {
-
-
-    const {
-        editLayer,
-        updateLayer,
-    } = useContext( ContextSettingsMaps );
-
-	const { t } = useTranslation();
-
-    const appDirs = useAppSelector( selectAppDirs );
-
-    const [options,setOptions] = useState( ( editLayer?.options ?? {} ) as LayerConfigOptionsHillshading );
-
-    const doUpdate = debounce( () => {
-        editLayer && updateLayer( {
-            ...editLayer,
-            options,
-        } );
-    }, 300 );
-    useEffect( () => {
-        doUpdate();
-    }, [Object.values( options ).join( '' )] );
-
-    return <View>
-
-        <HgtSourceRowControl
-            options={ options }
-            setOptions={ setOptions }
-            optKey={ 'hgtDirPath' }
-            dirs={ get( appDirs, 'dem', [] ) }
-        />
-
-        <AlgorithmControl
-            options={ options }
-            setOptions={ setOptions }
-        />
-
-        <NumericMultiRowControl
-            label={ t( 'enabled' ) }
-            optKeys={ ['enabledZoomMin','enabledZoomMax'] }
-            optLabels={ ['min','max'] }
-            options={ options }
-            setOptions={ setOptions }
-            validate={ val => val >= 0 }
-            Info={ t( 'hint.maps.enabled' ) + '\n\n' + t( 'hint.maps.zoomGeneralInfo' ) }
-        />
-
-        <NumericMultiRowControl
-            label={ 'Zoom' }
-            optKeys={ ['zoomMin','zoomMax'] }
-            optLabels={ ['min','max'] }
-            options={ options }
-            setOptions={ setOptions }
-            validate={ val => val >= 0 }
-            Info={ t( 'hint.maps.zoom' ) + '\n\n' + t( 'hint.maps.zoomGeneralInfo' ) }
-        />
-
-        <NumericRowControl
-            label={ t( 'shadingOptions.magnitude.label' ) }
-            optKey={ 'magnitude' }
-            options={ options }
-            setOptions={ setOptions }
-            validate={ val => val > 0 }
-            Info={ t( 'shadingOptions.magnitude.hint' ) }
-        />
-
-        <CacheControl
-            options={ options }
-            setOptions={ setOptions }
-            baseDefault={ defaults.layerConfigOptions.hillshading.cacheDirBase }
-            cacheDirChild={ getHillshadingCacheDirChild( options ) }
-        />
-
-    </View>;
-
-};
-
-export default LayerControlHillshading;
+export default HillshadingAlgorithmControl;

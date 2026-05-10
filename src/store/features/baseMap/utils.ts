@@ -18,7 +18,7 @@ import {
 import { stringifyProp } from '../../../utils';
 import { defaults } from '../../../constants';
 import { LayerType } from './types';
-import { mapTypeOptions } from './components/controls/LayersControl';
+import { mapTypeOptions } from './components/controls/layers/LayersControl';
 
 export const getNewLayer = (): LayerConfig => ({
 	key: rnUuid.v4(),

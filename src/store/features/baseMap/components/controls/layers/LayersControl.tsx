@@ -1,15 +1,7 @@
 /**
  * External dependencies
  */
-import {
-	Dispatch,
-	FC,
-	SetStateAction,
-	useCallback,
-	useEffect,
-	useMemo,
-	useState,
-} from 'react';
+import { Dispatch, FC, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react';
 import { View, TouchableHighlight, ViewStyle, LayoutChangeEvent, TextStyle } from 'react-native';
 import { useSafeAreaFrame } from 'react-native-safe-area-context';
 import { List, useTheme, Text, Icon, IconButtonProps } from 'react-native-paper';
@@ -20,25 +12,25 @@ import { get } from 'lodash-es';
 /**
  * Internal dependencies
  */
-import InfoRowControl from '../../../../../components/generic/InfoRowControl';
-import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
-import ModalWrapper from '../../../../../components/generic/ModalWrapper';
+import ButtonHighlight from '../../../../../../components/generic/ButtonHighlight';
+import ModalWrapper from '../../../../../../components/generic/ModalWrapper';
+import RadioListItem from '../../../../../../components/generic/RadioListItem';
+import InfoButton from '../../../../../../components/generic/InfoButton';
+import NameRowControl from '../../../../../../components/generic/NameRowControl';
+import LayerControlMapsforge from './LayerControlMapsforge';
+import { LayerOption, LayerConfig } from '../../../types';
+import { getNewLayer } from '../../../utils';
+import { useAppDispatch, useAppSelector } from '../../../../../hooks';
+import { selectElementExpanded } from '../../../../ui/selectors';
+import { setElementExpanded } from '../../../../ui/uiSlice';
+import { Style } from 'react-native-paper/lib/typescript/components/List/utils';
+import { selectLayers, selectLayerTemp } from '../../../selectors';
+
+import { setLayers as setLayersStore, setLayerTemp } from '../../../baseMapSlice';
+import VisibilityControl, { VisibilityRowControl } from './VisibilityControl';
 import LayerControlOnlineRasterXYZ from './LayerControlOnlineRasterXYZ';
 import LayerControlRasterMBTiles from './LayerControlRasterMBTiles';
-import RadioListItem from '../../../../../components/generic/RadioListItem';
 import LayerControlHillshading from './LayerControlHillshading';
-import InfoButton from '../../../../../components/generic/InfoButton';
-import NameRowControl from '../../../../../components/generic/NameRowControl';
-import LayerControlMapsforge from './LayerControlMapsforge';
-import { LayerOption, LayerConfig } from '../../types';
-import { getNewLayer } from '../../utils';
-import { useAppDispatch, useAppSelector } from '../../../../hooks';
-import { selectElementExpanded } from '../../../ui/selectors';
-import { setElementExpanded } from '../../../ui/uiSlice';
-import { Style } from 'react-native-paper/lib/typescript/components/List/utils';
-import { selectLayers, selectLayerTemp } from '../../selectors';
-
-import { setLayers as setLayersStore, setLayerTemp } from '../../baseMapSlice';
 
 export const mapTypeOptions: LayerOption[] = [
 	{
@@ -99,54 +91,6 @@ export const styleControls: ViewStyle = {
 };
 
 export const styleAddItem = { marginRight: 20 };
-
-const VisibilityControl: FC<{
-	style?: ViewStyle;
-	layer: LayerConfig;
-	updateLayer: (newLayer: LayerConfig) => void;
-}> = ({ style, layer, updateLayer }) => {
-	const theme = useTheme();
-
-	const handlePress = useCallback(() => {
-		updateLayer({
-			...layer,
-			visible: !layer.visible,
-		});
-	}, [
-		layer,
-	]);
-
-	return (
-		<TouchableHighlight
-			underlayColor={theme.colors.elevation.level3}
-			onPress={handlePress}
-			style={{ borderRadius: theme.roundness, ...style }}
-		>
-			<Icon
-				source={layer?.visible ? 'eye-outline' : 'eye-off-outline'}
-				size={25}
-			/>
-		</TouchableHighlight>
-	);
-};
-
-const VisibilityRowControl: FC<{
-	layer: LayerConfig;
-	updateLayer: (newLayer: LayerConfig) => void;
-}> = ({ layer, updateLayer }) => {
-	const { t } = useTranslation();
-	return (
-		<InfoRowControl
-			label={t('visibility')}
-			Info={t('hint.maps.visibility')}
-		>
-			<VisibilityControl
-				layer={layer}
-				updateLayer={updateLayer}
-			/>
-		</InfoRowControl>
-	);
-};
 
 const DraggableItem: FC<{
 	item: LayerConfig;
@@ -282,17 +226,19 @@ const OptionSelectType: FC<{
 	option: LayerOption;
 }> = ({ option }) => {
 	const dispatch = useAppDispatch();
-	const layerTemp = useAppSelector(selectLayerTemp);
 
 	const onPress = useCallback(() => {
-		layerTemp &&
-			dispatch(
-				setLayerTemp({
-					...layerTemp,
-					type: option.key,
-				})
-			);
-	}, [layerTemp, option]);
+		dispatch(
+			setLayerTemp(
+				(layerTemp) =>
+					layerTemp &&
+					({
+						...layerTemp,
+						type: option.key,
+					} as LayerConfig)
+			)
+		);
+	}, [option]);
 
 	return (
 		<RadioListItem
@@ -355,18 +301,18 @@ const EditModal: FC<{
 		dispatch(setLayerTemp(newLayer));
 	}, []);
 
-	const handleNameUpdate = useCallback(
-		({ name }: { name: string }) => {
-			layerTemp &&
-				dispatch(
-					setLayerTemp({
+	const handleNameUpdate = useCallback(({ name }: { name: string }) => {
+		dispatch(
+			setLayerTemp(
+				(layerTemp) =>
+					layerTemp &&
+					({
 						...layerTemp,
 						name,
-					})
-				);
-		},
-		[layerTemp]
-	);
+					} as LayerConfig)
+			)
+		);
+	}, []);
 
 	return !layerTemp ? undefined : (
 		<ModalWrapper
@@ -404,16 +350,13 @@ const EditModal: FC<{
 						updateLayer={updateItemTemp}
 					/>
 
-					{'mapsforge' === layerTemp.type && <LayerControlMapsforge/>}
+					{'mapsforge' === layerTemp.type && <LayerControlMapsforge />}
 
-					{/*
 					{'online-raster-xyz' === layerTemp.type && <LayerControlOnlineRasterXYZ />}
-
 
 					{'hillshading' === layerTemp.type && <LayerControlHillshading />}
 
 					{'raster-MBtiles' === layerTemp.type && <LayerControlRasterMBTiles />}
-					*/}
 
 					<View style={styleModalControls}>
 						<ButtonHighlight
@@ -534,7 +477,7 @@ const LayersControl = ({
 			height: itemHeight * layers.length + 8,
 			width,
 		}),
-		[width,layers]
+		[width, layers]
 	);
 
 	const handleDragStart = useCallback(() => setScrollEnabled(false), []);

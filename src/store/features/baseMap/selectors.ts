@@ -12,8 +12,6 @@ type OptionsWithTemp = {
 
 export const selectInitialized = (state: RootState) => state.baseMap.initialized;
 
-// export const selectLayerTemp = (state: RootState) => state.baseMap.layerTemp;
-
 export const selectMapsforgeProfiles = (state: RootState, options?: OptionsWithTemp) =>
 	options && options?.temp && state.baseMap?.mapsforgeProfilesTemp
 		? state.baseMap.mapsforgeProfilesTemp

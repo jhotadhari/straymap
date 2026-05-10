@@ -9,8 +9,8 @@ import { ScrollView } from 'react-native';
 /**
  * Internal dependencies
  */
-import LayersControl from '../../../store/features/baseMap/components/controls/LayersControl';
-import ProfilesControl from '../../../store/features/baseMap/components/controls/ProfilesControl';
+import LayersControl from '../../../store/features/baseMap/components/controls/layers/LayersControl';
+import ProfilesControl from '../../../store/features/baseMap/components/controls/profiles/ProfilesControl';
 import ButtonHighlight from '../../generic/ButtonHighlight';
 import { setSelectedHierarchyItemsByKey } from '../../../hierarchyItems';
 import { AppContext } from '../../../Context';

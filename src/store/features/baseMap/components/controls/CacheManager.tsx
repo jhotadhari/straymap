@@ -25,19 +25,19 @@ import { get } from 'lodash-es';
 /**
  * Internal dependencies
  */
-import InfoRowControl from './generic/InfoRowControl';
-import LoadingIndicator from './generic/LoadingIndicator';
-import { stringifyProp } from '../utils';
-import { FsModule } from '../nativeModules';
-import { ContextSettingsMaps } from '../store/features/baseMap/ContextSettingsMaps';
-import { LayerConfig } from '../store/features/baseMap/types';
-import { selectElementExpanded } from '../store/features/ui/selectors';
-import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { setElementExpanded } from '../store/features/ui/uiSlice';
-import { selectAppDirs } from '../store/features/dirs/selectors';
-import useCacheDirsInfo from '../store/features/dirs/hooks/useCacheDirsInfo';
-import { CacheDir, CacheSubDir } from '../store/features/dirs/types';
-import { getHillshadingCacheDirChild } from '../store/features/baseMap/utils';
+import InfoRowControl from '../../../../../components/generic/InfoRowControl';
+import LoadingIndicator from '../../../../../components/generic/LoadingIndicator';
+import { stringifyProp } from '../../../../../utils';
+import { FsModule } from '../../../../../nativeModules';
+import { LayerConfig } from '../../types';
+import { selectElementExpanded } from '../../../ui/selectors';
+import { useAppDispatch, useAppSelector } from '../../../../hooks';
+import { setElementExpanded } from '../../../ui/uiSlice';
+import { selectAppDirs } from '../../../dirs/selectors';
+import useCacheDirsInfo from '../../../dirs/hooks/useCacheDirsInfo';
+import { CacheDir, CacheSubDir } from '../../../dirs/types';
+import { getHillshadingCacheDirChild } from '../../utils';
+import { selectLayers } from '../../selectors';
 
 const CacheRow = ( {
     cacheDir,
@@ -131,9 +131,7 @@ const CacheManager = () => {
 
 	const theme = useTheme();
 
-    const {
-        layers,
-    } = useContext( ContextSettingsMaps );
+    const layers = useAppSelector((state) => selectLayers(state, { temp: true }));
 
     const appDirs = useAppSelector( selectAppDirs );
 

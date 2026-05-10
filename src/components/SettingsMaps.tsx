@@ -11,10 +11,10 @@ import { useTranslation } from 'react-i18next';
  * Internal dependencies
  */
 import { AppContext } from '../Context';
-import LayersControl from '../store/features/baseMap/components/controls/LayersControl';
-import ProfilesControl from '../store/features/baseMap/components/controls/ProfilesControl';
+import LayersControl from '../store/features/baseMap/components/controls/layers/LayersControl';
+import ProfilesControl from '../store/features/baseMap/components/controls/profiles/ProfilesControl';
 import MapsforgeGeneralControl from '../store/features/baseMap/components/controls/MapsforgeGeneralControl';
-import CacheManager from './CacheManager';
+import CacheManager from '../store/features/baseMap/components/controls/CacheManager';
 
 const SettingsMaps: FC = () => {
 	const theme = useTheme();
@@ -54,7 +54,7 @@ const SettingsMaps: FC = () => {
 
 			<MapsforgeGeneralControl />
 
-			{/* <CacheManager/> */}
+			<CacheManager />
 		</ScrollView>
 	);
 };

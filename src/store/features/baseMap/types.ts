@@ -69,12 +69,12 @@ export type LayerConfigOptionsAny =
 	| LayerConfigOptionsRasterMBtiles
 	| LayerConfigOptionsHillshading;
 
-export type LayerConfig = {
+export type LayerConfig<OptionsType = LayerConfigOptionsAny> = {
 	key: string;
 	name: string;
 	type: null | string; // 'online-raster-xyz' | 'mapsforge' | 'raster-MBtiles' | 'hillshading';
 	visible: boolean;
-	options: LayerConfigOptionsAny;
+	options: OptionsType;
 };
 
 export type MapsforgeProfile = {

@@ -12,6 +12,8 @@ import { LayerHillshadingProps } from 'react-native-mapsforge-vtm';
 import { SliceSettingsBase } from '../../../types';
 import { LayerConfig, MapsforgeGeneral, MapsforgeProfile, RenderStylesCache } from './types';
 import { getLayerType, getNewProfile } from './utils';
+import { AppThunk } from '../../store';
+import { selectLayerTemp, selectMapsforgeProfileTemp } from './selectors';
 
 export interface BaseMapSettings {
 	layers: LayerConfig[];
@@ -232,9 +234,9 @@ export const baseMapSlice = createSlice({
 export const {
 	setInitialized,
 	setLayers,
-	setLayerTemp,
+	setLayerTemp: setLayerTempAction,
 	setMapsforgeProfiles,
-	setMapsforgeProfileTemp,
+	setMapsforgeProfileTemp: setMapsforgeProfileTempAction,
 	setHgtDirPath,
 	setHgtReadFileRate,
 	setHgtInterpolation,
@@ -242,6 +244,38 @@ export const {
 	setMapsforgeGeneral,
 	setRenderStylesCache,
 } = baseMapSlice.actions;
+
+export const setLayerTemp = (
+	newValueOrGetter:
+		| BaseMapState['layerTemp']
+		| ((currentValue: BaseMapState['layerTemp']) => BaseMapState['layerTemp'])
+): AppThunk => {
+	return (dispatch, getState) => {
+		const currentValue = selectLayerTemp(getState());
+		const newValue: BaseMapState['layerTemp'] | undefined =
+			'function' === typeof newValueOrGetter
+				? newValueOrGetter(currentValue)
+				: newValueOrGetter;
+		dispatch(baseMapSlice.actions.setLayerTemp(newValue));
+	};
+};
+
+export const setMapsforgeProfileTemp = (
+	newValueOrGetter:
+		| BaseMapState['mapsforgeProfileTemp']
+		| ((
+				currentValue: BaseMapState['mapsforgeProfileTemp']
+		  ) => BaseMapState['mapsforgeProfileTemp'])
+): AppThunk => {
+	return (dispatch, getState) => {
+		const currentValue = selectMapsforgeProfileTemp(getState());
+		const newValue: BaseMapState['mapsforgeProfileTemp'] | undefined =
+			'function' === typeof newValueOrGetter
+				? newValueOrGetter(currentValue)
+				: newValueOrGetter;
+		dispatch(baseMapSlice.actions.setMapsforgeProfileTemp(newValue));
+	};
+};
 
 // Export the slice reducer for use in the store configuration
 export default baseMapSlice.reducer;
