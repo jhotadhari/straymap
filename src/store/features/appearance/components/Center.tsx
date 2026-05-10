@@ -10,9 +10,9 @@ import { readFile } from 'react-native-fs';
 /**
  * Internal dependencies
  */
-import { useAppSelector } from '../store/hooks';
-import { selectCursor } from '../store/features/appearance/selectors';
-import { CursorConfig } from '../store/features/appearance/types';
+import { useAppSelector } from '../../../hooks';
+import { selectCursor } from '../selectors';
+import { CursorConfig } from '../types';
 
 export const CenterInner = ( {
 	cursor,

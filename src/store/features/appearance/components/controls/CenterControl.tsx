@@ -20,16 +20,16 @@ import { get } from 'lodash-es';
 /**
  * Internal dependencies
  */
-import InfoRowControl from './generic/InfoRowControl';
-import ListItemModalControl from './generic/ListItemModalControl';
-import { NumericRowControl } from './generic/NumericRowControls';
-import FileSourceRowControl from './FileSourceRowControl';
-import { CenterInner } from './Center';
-import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { setCursor } from '../store/features/appearance/appearanceSlice';
-import { selectCursor } from '../store/features/appearance/selectors';
-import { CursorConfig } from '../store/features/appearance/types';
-import { selectAppDirs } from '../store/features/dirs/selectors';
+import InfoRowControl from '../../../../../components/generic/InfoRowControl';
+import ListItemModalControl from '../../../../../components/generic/ListItemModalControl';
+import { NumericRowControl } from '../../../../../components/generic/NumericRowControls';
+import FileSourceRowControl from '../../../../../components/generic/controls/FileSourceRowControl';
+import { CenterInner } from '../Center';
+import { useAppDispatch, useAppSelector } from '../../../../hooks';
+import { setCursor } from '../../appearanceSlice';
+import { selectCursor } from '../../selectors';
+import { CursorConfig } from '../../types';
+import { selectAppDirs } from '../../../dirs/selectors';
 
 const ColorRowControl = ( {
 	cursorConfig,

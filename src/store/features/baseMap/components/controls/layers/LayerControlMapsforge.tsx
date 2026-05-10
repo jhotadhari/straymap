@@ -12,7 +12,7 @@ import { get } from 'lodash-es';
  */
 import { OptionBase } from '../../../../../../types';
 import { NumericMultiRowControl } from '../../../../../../components/generic/NumericRowControls';
-import FileSourceRowControl from '../../../../../../components/FileSourceRowControl';
+import FileSourceRowControl from '../../../../../../components/generic/controls/FileSourceRowControl';
 import InfoRowControl from '../../../../../../components/generic/InfoRowControl';
 import ButtonHighlight from '../../../../../../components/generic/ButtonHighlight';
 import MenuItem from '../../../../../../components/generic/MenuItem';

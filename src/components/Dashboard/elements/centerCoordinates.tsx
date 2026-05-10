@@ -24,7 +24,7 @@ import ButtonHighlight from '../../generic/ButtonHighlight';
 import MenuItem from '../../generic/MenuItem';
 import InfoRowControl from '../../generic/InfoRowControl';
 import { NumericRowControl } from '../../generic/NumericRowControls';
-import { options as unitPrefControlOptions } from '../../UnitPrefControl';
+import { options as unitPrefControlOptions } from '../../../store/features/general/components/controls/UnitPrefControl';
 import { MapContext } from '../../../Context';
 import { useAppSelector } from '../../../store/hooks';
 import { selectMapEventRate } from '../../../store/features/general/selectors';

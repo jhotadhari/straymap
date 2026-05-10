@@ -19,13 +19,13 @@ import { get } from 'lodash-es';
 /**
  * Internal dependencies
  */
-import { OptionBase } from '../types';
-import ListItemModalControl from './generic/ListItemModalControl';
-import ButtonHighlight from './generic/ButtonHighlight';
-import MenuItem from './generic/MenuItem';
-import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { selectHardwareKeys } from '../store/features/general/selectors';
-import { setHardwareKeys } from '../store/features/general/generalSlice';
+import { OptionBase } from '../../../../../types';
+import ListItemModalControl from '../../../../../components/generic/ListItemModalControl';
+import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
+import MenuItem from '../../../../../components/generic/MenuItem';
+import { useAppDispatch, useAppSelector } from '../../../../hooks';
+import { selectHardwareKeys } from '../../selectors';
+import { setHardwareKeys } from '../../generalSlice';
 
 const keyCodeStringOptions : OptionBase[] = [
 	{

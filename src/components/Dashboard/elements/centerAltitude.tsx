@@ -23,7 +23,7 @@ import convertUnits from "convert-units";
 import ButtonHighlight from '../../generic/ButtonHighlight';
 import MenuItem from '../../generic/MenuItem';
 import InfoRowControl from '../../generic/InfoRowControl';
-import { options as unitPrefControlOptions } from '../../UnitPrefControl';
+import { options as unitPrefControlOptions } from '../../../store/features/general/components/controls/UnitPrefControl';
 import { TFunction } from 'i18next';
 import { roundTo } from '../../../utils';
 import { NumericRowControl } from '../../generic/NumericRowControls';

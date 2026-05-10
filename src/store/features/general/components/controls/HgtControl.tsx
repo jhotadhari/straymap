@@ -17,15 +17,15 @@ import { get } from 'lodash-es';
 /**
  * Internal dependencies
  */
-import ListItemModalControl from './generic/ListItemModalControl';
-import { NumericRowControl } from './generic/NumericRowControls';
-import HgtSourceRowControl from './HgtSourceRowControl';
-import InfoRadioRow from './generic/InfoRadioRow';
-import InfoRowControl from './generic/InfoRowControl';
-import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { selectHgtDirPath, selectHgtFileInfoPurgeThreshold, selectHgtInterpolation, selectHgtReadFileRate } from '../store/features/baseMap/selectors';
-import { setHgtDirPath, setHgtFileInfoPurgeThreshold, setHgtInterpolation, setHgtReadFileRate } from '../store/features/baseMap/baseMapSlice';
-import { selectAppDirs } from '../store/features/dirs/selectors';
+import ListItemModalControl from '../../../../../components/generic/ListItemModalControl';
+import { NumericRowControl } from '../../../../../components/generic/NumericRowControls';
+import HgtSourceRowControl from '../../../../../components/generic/controls/HgtSourceRowControl';
+import InfoRadioRow from '../../../../../components/generic/InfoRadioRow';
+import InfoRowControl from '../../../../../components/generic/InfoRowControl';
+import { useAppDispatch, useAppSelector } from '../../../../hooks';
+import { selectHgtDirPath, selectHgtFileInfoPurgeThreshold, selectHgtInterpolation, selectHgtReadFileRate } from '../../../baseMap/selectors';
+import { setHgtDirPath, setHgtFileInfoPurgeThreshold, setHgtInterpolation, setHgtReadFileRate } from '../../../baseMap/baseMapSlice';
+import { selectAppDirs } from '../../../dirs/selectors';
 
 const HgtControl = () => {
 

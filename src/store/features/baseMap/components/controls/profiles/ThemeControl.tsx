@@ -13,7 +13,7 @@ import { sprintf } from 'sprintf-js';
  */
 import { LayerMapsforge } from 'react-native-mapsforge-vtm';
 
-import FileSourceRowControl from '../../../../../../components/FileSourceRowControl';
+import FileSourceRowControl from '../../../../../../components/generic/controls/FileSourceRowControl';
 import LoadingIndicator from '../../../../../../components/generic/LoadingIndicator';
 import { MapsforgeProfile, RenderStylesCache } from '../../../types';
 import { selectIsBusy } from '../../../../ui/selectors';

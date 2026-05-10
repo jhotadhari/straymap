@@ -15,7 +15,7 @@ import InfoRowControl from '../../../../../../components/generic/InfoRowControl'
 import ButtonHighlight from '../../../../../../components/generic/ButtonHighlight';
 import ModalWrapper from '../../../../../../components/generic/ModalWrapper';
 import RadioListItem from '../../../../../../components/generic/RadioListItem';
-import { AlternativeButtonType } from '../../../../../../components/FileSourceRowControl';
+import { AlternativeButtonType } from '../../../../../../components/generic/controls/FileSourceRowControl';
 import { MapsforgeProfile } from '../../../types';
 import { OptionBase } from '../../../../../../types';
 import { useAppDispatch, useAppSelector } from '../../../../../hooks';

@@ -21,10 +21,10 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 */
 import { AppContext } from '../Context';
 import ListItemMenuControl from './generic/ListItemMenuControl';
-import HardwareKeyControl from './HardwareKeyControl';
+import HardwareKeyControl from '../store/features/general/components/controls/HardwareKeyControl';
 import { DashboardControl } from './Dashboard';
-import UnitPrefControl from './UnitPrefControl';
-import HgtControl from './HgtControl';
+import UnitPrefControl from '../store/features/general/components/controls/UnitPrefControl';
+import HgtControl from '../store/features/general/components/controls/HgtControl';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { selectLang } from '../store/features/general/selectors';
 import { LANGUAGE_NAMES } from '../assets/i18n/i18n';

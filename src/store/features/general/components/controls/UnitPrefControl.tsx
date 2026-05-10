@@ -19,16 +19,16 @@ import { upperFirst, get } from 'lodash-es';
 /**
  * Internal dependencies
  */
-import { OptionBase } from '../types';
-import ListItemModalControl from './generic/ListItemModalControl';
-import ButtonHighlight from './generic/ButtonHighlight';
-import MenuItem from './generic/MenuItem';
-import InfoRowControl from './generic/InfoRowControl';
-import { NumericRowControl } from './generic/NumericRowControls';
-import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { selectUnitPrefs } from '../store/features/general/selectors';
-import { setUnitPrefs } from '../store/features/general/generalSlice';
-import { UnitPref } from '../store/features/general/types';
+import { OptionBase } from '../../../../../types';
+import ListItemModalControl from '../../../../../components/generic/ListItemModalControl';
+import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
+import MenuItem from '../../../../../components/generic/MenuItem';
+import InfoRowControl from '../../../../../components/generic/InfoRowControl';
+import { NumericRowControl } from '../../../../../components/generic/NumericRowControls';
+import { useAppDispatch, useAppSelector } from '../../../../hooks';
+import { selectUnitPrefs } from '../../selectors';
+import { setUnitPrefs } from '../../generalSlice';
+import { UnitPref } from '../../types';
 
 export const options : { [value: string]: OptionBase[] } = {
     coordinates: [
