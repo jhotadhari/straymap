@@ -18,7 +18,7 @@ import {
 } from './types';
 import { stringifyProp } from '../../../utils';
 import { defaults } from '../../../constants';
-import { LayerType } from './types';
+import { LayerKind } from './types';
 import { mapTypeOptions } from './components/controls/layers/LayersControl';
 import { AppThunk, RootState } from '../../store';
 
@@ -46,7 +46,7 @@ export const getNewLayer = (): LayerConfig => ({
 	options: {},
 });
 
-export const getLayerType = (layer: LayerConfig): LayerType | null =>
+export const getLayerKind = (layer: LayerConfig): LayerKind | null =>
 	get(
 		mapTypeOptions.find((opt) => opt.key === layer.type),
 		'type',

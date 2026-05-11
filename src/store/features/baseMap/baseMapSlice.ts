@@ -9,10 +9,9 @@ import { LayerHillshadingProps } from 'react-native-mapsforge-vtm';
 /**
  * Internal dependencies
  */
-import { LayerInfos, SliceSettingsBase } from '../../../types';
-import { LayerConfig, MapsforgeGeneral, MapsforgeProfile, RenderStylesCache } from './types';
-import { getLayerType, getNewProfile, getSetterThunkWithGetter } from './utils';
-import { AppThunk, RootState } from '../../store';
+import { SliceSettingsBase } from '../../../types';
+import { LayerConfig, LayerInfo, MapsforgeGeneral, MapsforgeProfile, RenderStylesCache } from './types';
+import { getLayerKind, getNewProfile, getSetterThunkWithGetter } from './utils';
 import { selectLayerInfos, selectLayerTemp, selectMapsforgeProfileTemp } from './selectors';
 
 export interface BaseMapSettings {
@@ -31,7 +30,7 @@ export interface BaseMapState extends SliceSettingsBase, BaseMapSettings {
 	layerTemp?: LayerConfig;
 	mapsforgeProfilesTemp?: MapsforgeProfile[];
 	mapsforgeProfileTemp?: MapsforgeProfile;
-	layerInfos: LayerInfos;
+	layerInfos: { [value: string]: LayerInfo };
 }
 
 export const initialSettings: BaseMapSettings = {
@@ -129,9 +128,9 @@ export const baseMapSlice = createSlice({
 				state.layersTemp = newLayers;
 			} else {
 				let insertIndex = 0;
-				if ('base' === getLayerType(newLayer)) {
+				if ('base' === getLayerKind(newLayer)) {
 					const indexFirstBase = newLayers.findIndex(
-						(layer) => 'base' === getLayerType(layer)
+						(layer) => 'base' === getLayerKind(layer)
 					);
 					insertIndex = indexFirstBase !== -1 ? indexFirstBase : insertIndex;
 				}

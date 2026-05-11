@@ -15,11 +15,20 @@ import {
  */
 import { OptionBase } from '../../../types';
 
-export type LayerType = 'base' | 'overlay'; // ??? rename to LayerKind
+export type LayerKind = 'base' | 'overlay';
 
 export interface LayerOption extends OptionBase {
-	type: LayerType;
+	kind: LayerKind;
 }
+
+export type LayerInfo = {
+	attribution?: string | null;
+	description?: string | null;
+	comment?: string | null;
+	createdBy?: string | null;
+};
+
+export type LayerInfos = { [value: string]: LayerInfo };
 
 export type RenderStylesCache = {
 	optionsMap: { [value: string]: RenderStyleOptionsCollection };

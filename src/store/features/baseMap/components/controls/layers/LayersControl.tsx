@@ -35,19 +35,19 @@ import LayerControlHillshading from './LayerControlHillshading';
 export const mapTypeOptions: LayerOption[] = [
 	{
 		key: 'online-raster-xyz',
-		type: 'base' as LayerOption['type'],
+		kind: 'base' as LayerOption['kind'],
 	},
 	{
 		key: 'mapsforge',
-		type: 'base' as LayerOption['type'],
+		kind: 'base' as LayerOption['kind'],
 	},
 	{
 		key: 'raster-MBtiles',
-		type: 'base' as LayerOption['type'],
+		kind: 'base' as LayerOption['kind'],
 	},
 	{
 		key: 'hillshading',
-		type: 'overlay' as LayerOption['type'],
+		kind: 'overlay' as LayerOption['kind'],
 	},
 ].map((opt) => ({
 	...opt,

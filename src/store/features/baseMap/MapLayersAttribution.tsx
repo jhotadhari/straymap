@@ -9,13 +9,13 @@ import { get } from 'lodash-es';
 /**
  * react-native-mapsforge-vtm dependencies
  */
-import { LayerInfo, LayerInfos, ThemePropExtended } from '../../../types';
+import { ThemePropExtended } from '../../../types';
 import { useTranslation } from 'react-i18next';
 import InfoButton from '../../../components/generic/InfoButton';
 import { sourceOptions } from './components/controls/layers/LayerControlOnlineRasterXYZ';
 import { useAppSelector } from '../../hooks';
 import { selectLayerInfos, selectLayers } from './selectors';
-import { LayerConfig } from './types';
+import { LayerConfig, LayerInfo } from './types';
 
 type AttributionConf = {
 	key: string;
@@ -48,7 +48,7 @@ const LayerInfoComponent = ({ layerInfo }: { layerInfo: null | LayerInfo }) => {
 	);
 };
 
-const Inner = ({ layerInfos }: { layerInfos: LayerInfos }) => {
+const Inner = ({ layerInfos }: { layerInfos: { [value: string]: LayerInfo } }) => {
 	const { t } = useTranslation();
 	const theme = useTheme();
 

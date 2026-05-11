@@ -16,39 +16,13 @@ export interface SliceSettingsBase {
 	initialized: boolean;
 }
 
-export type LayerInfo = {
-	attribution?: string | null;
-	description?: string | null;
-	comment?: string | null;
-	createdBy?: string | null;
-};
-
 export type InitialPosition = {
 	center: Location;
 	zoomLevel: number;
 };
 
-export type LayerInfos = { [value: string]: LayerInfo };
 
 export type BottomBarHeight = { [value: string]: number };
-
-export interface MenuItem {
-	key: string;
-	leadingIcon: string;
-	label: string;
-	hierarchyIncludeParents?: boolean;
-	SubActivity?: ReactElement;
-	children?: MenuItem[];
-}
-
-export interface SettingsItem {
-	key: string;
-	left?: (props: { color: string; style: ListStyle }) => ReactNode;
-	label: string;
-	description?: string;
-	SubActivity?: ReactElement;
-	children?: SettingsItem[];
-}
 
 export interface ThemePropExtended extends MD3Theme {
 	label?: string;
@@ -63,7 +37,6 @@ export interface ThemeOption extends OptionBase {
 	value: ThemePropExtended;
 }
 
-export type HierarchyItem = MenuItem | SettingsItem;
 
 export type RoutingPoint = {
 	key: string;

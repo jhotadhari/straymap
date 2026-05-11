@@ -10,29 +10,7 @@ import { useTranslation } from 'react-i18next';
  * Internal dependencies
  */
 import InfoRowControl from '../../../../../../components/generic/InfoRowControl';
-import { LayerOption, LayerConfig } from '../../../types';
-
-export const mapTypeOptions: LayerOption[] = [
-	{
-		key: 'online-raster-xyz',
-		type: 'base' as LayerOption['type'],
-	},
-	{
-		key: 'mapsforge',
-		type: 'base' as LayerOption['type'],
-	},
-	{
-		key: 'raster-MBtiles',
-		type: 'base' as LayerOption['type'],
-	},
-	{
-		key: 'hillshading',
-		type: 'overlay' as LayerOption['type'],
-	},
-].map((opt) => ({
-	...opt,
-	label: 'map.typeDesc.' + opt.key,
-}));
+import { LayerConfig } from '../../../types';
 
 const VisibilityControl: FC<{
 	style?: ViewStyle;
