@@ -8,7 +8,6 @@ import { MapContainerProps } from 'react-native-mapsforge-vtm';
 /**
  * Internal dependencies
  */
-import packageJson from '../../../../package.json';
 import { SliceSettingsBase } from '../../../types';
 import { HardwareKeyActionConf, UnitPref } from './types';
 

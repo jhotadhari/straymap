@@ -12,11 +12,12 @@ import { usePrevious } from 'victory-native';
 
 /**
  * Internal dependencies
- */
-import { AppContext, MapContext, RoutingContext } from '../../../../Context';
-import MenuItem from '../../../generic/MenuItem';
-import { RoutingPoint } from '../../../../types';
-import { runAfterInteractions } from '../../../../lib/utils';
+*/
+import { AppContext, RoutingContext } from '../../../../../Context';
+import { runAfterInteractions } from '../../../../../lib/utils';
+import { RoutingPoint } from '../../../../../types';
+import { MapContext } from '../../../../../Context';
+import MenuItem from '../../../../../components/generic/MenuItem';
 
 const IconActions = ({ style }: { style: TextStyle }) => {
 	const { mapHeight, mapViewNativeNodeHandle } = useContext(AppContext);

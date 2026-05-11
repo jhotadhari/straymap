@@ -8,17 +8,11 @@ import { View } from 'react-native';
 
 /**
  * Internal dependencies
- */
-import IconIcomoon from '../../generic/IconIcomoon';
+*/
+import IconIcomoon from '../../../../components/generic/IconIcomoon';
+import { DrawerItem } from '../types';
 
-const DisplayComponent = (
-	{
-		// dashboardElement,
-		// style = {},
-		// unitPrefs,
-		// dashboardStyle,
-	}: {}
-) => {
+const DisplayComponent = () => {
 	const { t } = useTranslation();
 
 	return (
@@ -30,21 +24,31 @@ const DisplayComponent = (
 				}
 			}
 		>
-			<Text>bla waypoints</Text>
+			<Text>bla searchPlace</Text>
 		</View>
 	);
 };
 
+const IconComponent = ({ color }: { color: string }) => {
+	return (
+		<IconIcomoon
+			style={{ color }}
+			name="map-marker-search"
+			size={25}
+		/>
+	);
+};
+
 export default {
-	key: 'waypoints',
-	label: 'waypoints',
+	key: 'searchPlace',
+	label: 'searchPlace',
 	DisplayComponent,
-	// IconComponent,
-	iconSource: 'map-marker',
+	IconComponent,
+	// iconSource: 'search',
 
 	// ControlComponent,
 	// hasStyleControl: true,
 	// shouldSetHgtDirPath: true,
 	// defaultMinWidth: 75,
 	// responseInclude: { center: 2 },
-};
+} as DrawerItem;

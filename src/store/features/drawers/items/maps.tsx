@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { ScrollView } from 'react-native';
@@ -9,22 +9,22 @@ import { ScrollView } from 'react-native';
 /**
  * Internal dependencies
  */
-import LayersControl from '../../../store/features/baseMap/components/controls/layers/LayersControl';
-import ProfilesControl from '../../../store/features/baseMap/components/controls/profiles/ProfilesControl';
-import ButtonHighlight from '../../generic/ButtonHighlight';
-import { useAppDispatch } from '../../../store/hooks';
-import { setUiItemKeys } from '../../../store/features/ui/uiSlice';
+import LayersControl from '../../baseMap/components/controls/layers/LayersControl';
+import ProfilesControl from '../../baseMap/components/controls/profiles/ProfilesControl';
+import { useAppDispatch } from '../../../hooks';
+import { setUiItemKeys } from '../../ui/uiSlice';
+import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
+import DrawerContext from '../DrawerContext';
+import { DrawerItem } from '../types';
 
-const DisplayComponent = ({
-	drawerWidth,
-	drawerHeight,
-	drawerSide,
-}: {
-	drawerWidth: number;
-	drawerHeight: number;
-	drawerSide: string;
-}) => {
+const DisplayComponent = () => {
 	const { t } = useTranslation();
+
+	const {
+		width,
+		height,
+		side,
+	} = useContext( DrawerContext );
 
 	const theme = useTheme();
 
@@ -37,8 +37,8 @@ const DisplayComponent = ({
 			scrollEnabled={scrollEnabled}
 			style={{
 				backgroundColor: theme.colors.background,
-				height: drawerHeight,
-				width: drawerWidth,
+				height: height,
+				width,
 				position: 'absolute',
 				marginTop: 3,
 			}}
@@ -53,9 +53,9 @@ const DisplayComponent = ({
 
 			<LayersControl
 				setScrollEnabled={setScrollEnabled}
-				width={drawerWidth}
-				reverseDraggableItem={'left' === drawerSide}
-				uiStateKey={'DrawerMapLayersExpanded' + drawerSide}
+				width={width}
+				reverseDraggableItem={'left' === side}
+				uiStateKey={'DrawerMapLayersExpanded' + side}
 				newLabel={t('addNew')}
 				saveOnChange={true}
 				saveOnUnmount={false}
@@ -63,9 +63,9 @@ const DisplayComponent = ({
 
 			<ProfilesControl
 				setScrollEnabled={setScrollEnabled}
-				width={drawerWidth}
-				reverseDraggableItem={'left' === drawerSide}
-				uiStateKey={'DrawerMapsforgeProfilesExpanded' + drawerSide}
+				width={width}
+				reverseDraggableItem={'left' === side}
+				uiStateKey={'DrawerMapsforgeProfilesExpanded' + side}
 				newLabel={t('addNew')}
 				saveOnChange={true}
 				saveOnUnmount={false}
@@ -79,4 +79,4 @@ export default {
 	label: 'maps',
 	DisplayComponent,
 	iconSource: 'map',
-};
+} as DrawerItem;

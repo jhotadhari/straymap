@@ -10,23 +10,25 @@ import { sprintf } from 'sprintf-js';
 import DraggableGrid from 'react-native-draggable-grid';
 import { get, omit } from 'lodash-es';
 import { GetTrackParams } from 'react-native-brouter';
+import { createDocument } from 'react-native-scoped-storage';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 /**
  * Internal dependencies
  */
-import { RoutingContext } from '../../../../Context';
-import ButtonHighlight from '../../../generic/ButtonHighlight';
-import { DrawerState, RoutingPoint, RoutingSegment } from '../../../../types';
-import ModalWrapper from '../../../generic/ModalWrapper';
-import LoadingIndicator from '../../../generic/LoadingIndicator';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import ListItemMenuControl from '../../../generic/ListItemMenuControl';
-import InfoRowControl from '../../../generic/InfoRowControl';
-import InfoRadioRow from '../../../generic/InfoRadioRow';
-import { formatDistance, getUpDown } from '../../../../lib/utils';
-import { createDocument } from 'react-native-scoped-storage';
-import { useAppSelector } from '../../../../store/hooks';
-import { selectUnitPrefs } from '../../../../store/features/general/selectors';
+import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
+import InfoRadioRow from '../../../../../components/generic/InfoRadioRow';
+import InfoRowControl from '../../../../../components/generic/InfoRowControl';
+import ListItemMenuControl from '../../../../../components/generic/ListItemMenuControl';
+import LoadingIndicator from '../../../../../components/generic/LoadingIndicator';
+import ModalWrapper from '../../../../../components/generic/ModalWrapper';
+import { RoutingContext } from '../../../../../Context';
+import { formatDistance, getUpDown } from '../../../../../lib/utils';
+import { RoutingSegment, RoutingPoint } from '../../../../../types';
+import { useAppSelector } from '../../../../hooks';
+import { selectUnitPrefs } from '../../../general/selectors';
+import { DrawerState } from '../../types';
+import DrawerContext from '../../DrawerContext';
 
 const itemHeight = 130;
 const itemPaddingH = 20;
@@ -329,17 +331,17 @@ const DraggableItem = ({
 };
 
 const PointsList = ({
-	drawerWidth,
 	setScrollEnabled,
 	// editSegment,
 	setEditSegment,
 }: {
-	drawerWidth: number;
 	setScrollEnabled: Dispatch<SetStateAction<boolean>>;
 	// editSegment: null | RoutingSegment;
 	setEditSegment: Dispatch<SetStateAction<null | RoutingSegment>>;
 }) => {
 	const { points, setPoints } = useContext(RoutingContext);
+
+	const { width } = useContext(DrawerContext);
 
 	const [draggingItemIndex, setDraggingItemIndex] = useState<null | number>(null);
 
@@ -347,7 +349,7 @@ const PointsList = ({
 		<View key={item.key}>
 			<DraggableItem
 				item={item}
-				width={drawerWidth}
+				width={width}
 				order={order}
 				draggingItemIndex={draggingItemIndex}
 				// editSegment={ editSegment }
@@ -360,11 +362,11 @@ const PointsList = ({
 		<View
 			style={{
 				height: itemHeight * points.length + 8,
-				width: drawerWidth,
+				width,
 			}}
 		>
 			<DraggableGrid
-				style={{ width: drawerWidth }}
+				style={{ width }}
 				itemHeight={itemHeight}
 				numColumns={1}
 				renderItem={renderItem}
@@ -435,17 +437,9 @@ const ProfileRowControl = ({
 	);
 };
 
-const DisplayComponent = ({
-	drawerWidth,
-	drawerHeight,
-	drawerSide,
-	expand,
-}: {
-	drawerWidth: number;
-	drawerHeight: number;
-	drawerSide: string;
-	expand: DrawerState['expand'];
-}) => {
+const DisplayComponent = () => {
+	const { width, height, expand } = useContext(DrawerContext);
+
 	const {
 		savedExported,
 		setSavedExported,
@@ -488,8 +482,8 @@ const DisplayComponent = ({
 			scrollEnabled={scrollEnabled}
 			style={{
 				backgroundColor: theme.colors.background,
-				height: drawerHeight - 50,
-				width: drawerWidth,
+				height: height - 50,
+				width,
 				position: 'absolute',
 				marginTop: 3,
 				paddingHorizontal: 20,
@@ -712,7 +706,7 @@ const DisplayComponent = ({
 			{points && (
 				<PointsList
 					setScrollEnabled={setScrollEnabled}
-					drawerWidth={drawerWidth}
+					// drawerWidth={drawerWidth}
 					// editSegment={ editSegment }
 					setEditSegment={setEditSegment}
 				/>

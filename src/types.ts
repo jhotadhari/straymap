@@ -77,17 +77,6 @@ export type NearestSimplifiedCoord = {
 	distanceToPoint: number;
 };
 
-export type DrawerState = {
-	showInner: boolean;
-	gesture: ComposedGesture | GestureType;
-	animatedStyles: any;
-	side: string;
-	drawerWidth: number;
-	outerWidth: number;
-	expand: (expanded: boolean) => void;
-	getIsFullyCollapsed: () => boolean;
-};
-
 export type RoutingStats = {
 	up: number;
 	down: number;

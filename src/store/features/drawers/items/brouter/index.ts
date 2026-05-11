@@ -1,6 +1,7 @@
 /**
  * Internal dependencies
  */
+import { DrawerItem } from '../../types';
 import DisplayComponent from './DisplayComponent';
 import IconActions from './IconActions';
 import IconComponent from './IconComponent';
@@ -17,4 +18,4 @@ export default {
 	// shouldSetHgtDirPath: true,
 	// defaultMinWidth: 75,
 	// responseInclude: { center: 2 },
-};
+} as DrawerItem;

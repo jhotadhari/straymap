@@ -37,7 +37,7 @@ import type { InitialPosition, BottomBarHeight } from '../types';
 import { AppContext, MapContext } from '../Context';
 import Center from '../store/features/appearance/components/Center';
 import { Dashboard } from './Dashboard';
-import { Drawers } from './Drawer';
+import Drawers from '../store/features/drawers/components/Drawers';
 import * as dashboardElementComponents from './Dashboard/elements';
 import SplashScreen from './SplashScreen';
 import AltitudeProfile from './AltitudeProfile';

@@ -8,17 +8,10 @@ import { View } from 'react-native';
 
 /**
  * Internal dependencies
- */
-import IconIcomoon from '../../generic/IconIcomoon';
+*/
+import { DrawerItem } from '../types';
 
-const DisplayComponent = (
-	{
-		// dashboardElement,
-		// style = {},
-		// unitPrefs,
-		// dashboardStyle,
-	}: {}
-) => {
+const DisplayComponent = () => {
 	const { t } = useTranslation();
 
 	return (
@@ -30,31 +23,21 @@ const DisplayComponent = (
 				}
 			}
 		>
-			<Text>bla searchPlace</Text>
+			<Text>bla tracksRoutes</Text>
 		</View>
 	);
 };
 
-const IconComponent = ({ color }: { color: string }) => {
-	return (
-		<IconIcomoon
-			style={{ color }}
-			name="map-marker-search"
-			size={25}
-		/>
-	);
-};
-
 export default {
-	key: 'searchPlace',
-	label: 'searchPlace',
+	key: 'tracksRoutes',
+	label: 'tracksRoutes',
 	DisplayComponent,
-	IconComponent,
-	// iconSource: 'search',
+	// IconComponent,
+	iconSource: 'go-kart-track',
 
 	// ControlComponent,
 	// hasStyleControl: true,
 	// shouldSetHgtDirPath: true,
 	// defaultMinWidth: 75,
 	// responseInclude: { center: 2 },
-};
+} as DrawerItem;

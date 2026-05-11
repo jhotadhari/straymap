@@ -9,16 +9,9 @@ import { View } from 'react-native';
 /**
  * Internal dependencies
  */
-import IconIcomoon from '../../generic/IconIcomoon';
+import { DrawerItem } from '../types';
 
-const DisplayComponent = (
-	{
-		// dashboardElement,
-		// style = {},
-		// unitPrefs,
-		// dashboardStyle,
-	}: {}
-) => {
+const DisplayComponent = () => {
 	const { t } = useTranslation();
 
 	return (
@@ -30,21 +23,21 @@ const DisplayComponent = (
 				}
 			}
 		>
-			<Text>bla tracksRoutes</Text>
+			<Text>bla gps</Text>
 		</View>
 	);
 };
 
 export default {
-	key: 'tracksRoutes',
-	label: 'tracksRoutes',
+	key: 'gps',
+	label: 'gps',
 	DisplayComponent,
 	// IconComponent,
-	iconSource: 'go-kart-track',
+	iconSource: 'crosshairs-gps',
 
 	// ControlComponent,
 	// hasStyleControl: true,
 	// shouldSetHgtDirPath: true,
 	// defaultMinWidth: 75,
 	// responseInclude: { center: 2 },
-};
+} as DrawerItem;

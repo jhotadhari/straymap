@@ -23,23 +23,18 @@ import AppView from './AppView';
 import SplashScreenUpdater from './SplashScreenUpdater';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import RoutingProvider from './RoutingProvider';
-import { selectInitialized as selectSettingsInitialized_appearance } from '../store/features/appearance/selectors';
-import { selectInitialized as selectSettingsInitialized_dashboard } from '../store/features/dashboard/selectors';
-import { selectInitialized as selectSettingsInitialized_general } from '../store/features/general/selectors';
-import { selectInitialized as selectSettingsInitialized_dirs } from '../store/features/dirs/selectors';
 import {
 	selectMapsforgeGeneral,
-	selectInitialized as selectSettingsInitialized_baseMap,
 } from '../store/features/baseMap/selectors';
 import { useAppSelector } from '../store/hooks';
 import { useSetupTheme } from '../store/features/appearance/hooks';
 import { selectElements } from '../store/features/dashboard/selectors';
 import {
-	selectInitialized as selectSettingsInitialized_ui,
 	selectIsBusy,
 } from '../store/features/ui/selectors';
 import { useIsBusyPromiseQueueState } from '../store/features/ui/hooks';
 import useUpdater from '../store/features/general/hooks/useUpdater';
+import { useSettingsInitialized } from '../store/store';
 
 const AppWrapper = () => {
 	const theme = useSetupTheme();
@@ -178,12 +173,7 @@ const App = () => {
 		isBusy,
 	});
 
-	const settingsInitialized_appearance = useAppSelector(selectSettingsInitialized_appearance);
-	const settingsInitialized_dashboard = useAppSelector(selectSettingsInitialized_dashboard);
-	const settingsInitialized_general = useAppSelector(selectSettingsInitialized_general);
-	const settingsInitialized_dirs = useAppSelector(selectSettingsInitialized_dirs);
-	const settingsInitialized_ui = useAppSelector(selectSettingsInitialized_ui);
-	const settingsInitialized_baseMap = useAppSelector(selectSettingsInitialized_baseMap);
+	const settingsInitialized = useSettingsInitialized();
 
 	// Remove bottomBar if no dashboard elements.
 	const dashboardElements = useAppSelector(selectElements);
@@ -206,12 +196,12 @@ const App = () => {
 
 	// Set CanvasAdapter props on app start, when settingsInitialized_baseMap, before the map gets initialized.
 	useEffect(() => {
-		if (settingsInitialized_baseMap) {
+		if (settingsInitialized) {
 			CanvasAdapterModule.setLineScale(mapsforgeGeneral.lineScale);
 			CanvasAdapterModule.setTextScale(mapsforgeGeneral.textScale);
 			CanvasAdapterModule.setSymbolScale(mapsforgeGeneral.symbolScale);
 		}
-	}, [settingsInitialized_baseMap, mapsforgeGeneral]);
+	}, [settingsInitialized, mapsforgeGeneral]);
 
 	const appInnerHeight = height - topAppBarHeight;
 
@@ -219,24 +209,14 @@ const App = () => {
 		if (
 			!!(
 				initialPositionInitialized &&
-				settingsInitialized_appearance &&
-				settingsInitialized_dashboard &&
-				settingsInitialized_dirs &&
-				settingsInitialized_general &&
-				settingsInitialized_ui &&
-				settingsInitialized_baseMap
+				settingsInitialized
 			)
 		) {
 			setReady(true);
 		}
 	}, [
 		initialPositionInitialized,
-		settingsInitialized_appearance,
-		settingsInitialized_dashboard,
-		settingsInitialized_dirs,
-		settingsInitialized_general,
-		settingsInitialized_ui,
-		settingsInitialized_baseMap,
+		settingsInitialized,
 	]);
 
 	const { isUpdating, setIsUpdating } = useUpdater({

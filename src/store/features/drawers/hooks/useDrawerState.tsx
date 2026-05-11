@@ -1,11 +1,15 @@
-import { View } from 'react-native';
-import { useCallback, useEffect, useState } from 'react';
+/**
+ * External dependencies
+ */
+import { useCallback, useState } from 'react';
 import { SharedValue, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
 import { Gesture } from 'react-native-gesture-handler';
 import { clamp } from 'lodash-es';
 
-import Drawer from './Drawer';
-import { DrawerState } from '../../types';
+/**
+ * Internal dependencies
+ */
+import { DrawerState } from '../types';
 
 const useDrawerState = ({
 	side,
@@ -24,7 +28,7 @@ const useDrawerState = ({
 
 	const prevTranslationX = useSharedValue('left' === side ? -drawerWidth : drawerWidth);
 
-	const [showInner, setShowInner] = useState(false);
+	const [showContent, setShowContent] = useState(false);
 
 	const animatedStyles = useAnimatedStyle(() => ({
 		transform: [{ translateX: translationX.value }],
@@ -34,8 +38,8 @@ const useDrawerState = ({
 		(newVal: number) => {
 			translationX.value = newVal;
 			// Render inner on initial open.
-			if (!showInner) {
-				setShowInner(true);
+			if (!showContent) {
+				setShowContent(true);
 			}
 			// Maybe shrink other
 			const remaining =
@@ -62,7 +66,7 @@ const useDrawerState = ({
 			outerWidth,
 			translationX,
 			translationXOther,
-			showInner,
+			showContent,
 		]
 	);
 
@@ -101,7 +105,7 @@ const useDrawerState = ({
 		side,
 		drawerWidth,
 		outerWidth,
-		showInner,
+		showContent,
 		gesture,
 		animatedStyles,
 		expand,
@@ -109,74 +113,4 @@ const useDrawerState = ({
 	};
 };
 
-const Drawers = ({
-	drawerWidth = 300,
-	outerWidth,
-	height,
-	hidden,
-}: {
-	drawerWidth?: number;
-	outerWidth: number;
-	height: number;
-	hidden?: boolean;
-}) => {
-	const translationXLeft = useSharedValue(-drawerWidth);
-
-	const translationXRight = useSharedValue(drawerWidth);
-
-	const drawerStateLeft = useDrawerState({
-		side: 'left',
-		drawerWidth,
-		outerWidth,
-		translationX: translationXLeft,
-		translationXOther: translationXRight,
-	});
-
-	const drawerStateRight = useDrawerState({
-		side: 'right',
-		drawerWidth,
-		outerWidth,
-		translationX: translationXRight,
-		translationXOther: translationXLeft,
-	});
-
-	return (
-		!hidden && (
-			<View style={{ position: 'absolute' }}>
-				<Drawer
-					elements={[
-						{
-							type: 'gps',
-						},
-						{
-							type: 'tracksRoutes',
-						},
-						{
-							type: 'waypoints',
-						},
-					]}
-					drawerState={drawerStateLeft}
-					height={height}
-				/>
-
-				<Drawer
-					elements={[
-						{
-							type: 'maps',
-						},
-						{
-							type: 'searchPlace',
-						},
-						{
-							type: 'brouter',
-						},
-					]}
-					drawerState={drawerStateRight}
-					height={height}
-				/>
-			</View>
-		)
-	);
-};
-
-export default Drawers;
+export default useDrawerState;
