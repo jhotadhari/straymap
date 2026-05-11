@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { ReactElement } from 'react';
+import React, { FC, ReactElement } from 'react';
 import { View } from 'react-native';
 import { Icon, Text, useTheme } from 'react-native-paper';
 import { get } from 'lodash-es';
@@ -9,13 +9,13 @@ import { get } from 'lodash-es';
 /**
  * react-native-mapsforge-vtm dependencies
  */
-import { LayerInfo, LayerInfos, ThemePropExtended } from '../types';
+import { LayerInfo, LayerInfos, ThemePropExtended } from '../../../types';
 import { useTranslation } from 'react-i18next';
-import InfoButton from './generic/InfoButton';
-import { sourceOptions } from '../store/features/baseMap/components/controls/layers/LayerControlOnlineRasterXYZ';
-import { useAppSelector } from '../store/hooks';
-import { selectLayers } from '../store/features/baseMap/selectors';
-import { LayerConfig } from '../store/features/baseMap/types';
+import InfoButton from '../../../components/generic/InfoButton';
+import { sourceOptions } from './components/controls/layers/LayerControlOnlineRasterXYZ';
+import { useAppSelector } from '../../hooks';
+import { selectLayerInfos, selectLayers } from './selectors';
+import { LayerConfig } from './types';
 
 type AttributionConf = {
 	key: string;
@@ -116,9 +116,11 @@ const PADDING = 8; // see node_modules/react-native-paper/src/components/IconBut
 
 const buttonSize = 18;
 
-const MapLayersAttribution = ({ layerInfos }: { layerInfos: LayerInfos }) => {
+const MapLayersAttribution : FC<{}> = () => {
 	const theme = useTheme();
 	const { t } = useTranslation();
+
+	const layerInfos = useAppSelector( selectLayerInfos );
 
 	return (
 		<View

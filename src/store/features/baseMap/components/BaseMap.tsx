@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
-import { get } from 'lodash-es';
-import { FC, useMemo } from 'react';
+import { get, pick } from 'lodash-es';
+import { FC, useCallback, useMemo } from 'react';
 import {
 	LayerBitmapTile,
 	LayerBitmapTileProps,
@@ -28,21 +28,39 @@ import {
 	LayerConfigOptionsHillshading,
 } from '../types';
 import { getHillshadingCacheDirChild } from '../utils';
-import { useAppSelector } from '../../../hooks';
+import { useAppDispatch, useAppSelector } from '../../../hooks';
 import { selectLayers, selectMapsforgeProfiles } from '../selectors';
 import { selectAppDirs } from '../../dirs/selectors';
+import { setLayerInfos } from '../baseMapSlice';
 
-const BaseMap: FC<{
-	onLayerChange: (
-		key: string,
-		response: LayerMapsforgeResponse | LayerMBTilesBitmapResponse
-	) => void;
-}> = ({ onLayerChange }) => {
+const BaseMap: FC<{}> = () => {
 	const appDirs = useAppSelector(selectAppDirs);
 
 	const internalCacheDir = useMemo(
 		() => get(appDirs, ['internalCacheDirs', 0], undefined),
 		[appDirs]
+	);
+
+	const dispatch = useAppDispatch();
+
+	const handleLayerChange = useCallback(
+		(
+			key: string,
+			response: LayerMapsforgeResponse | LayerMBTilesBitmapResponse // ??? should handle other layer types as well.
+		) => {
+			dispatch(
+				setLayerInfos((layerInfos) => ({
+					...layerInfos,
+					[key]: pick(response, [
+						'attribution',
+						'description',
+						'comment',
+						'createdBy',
+					]),
+				}))
+			);
+		},
+		[]
 	);
 
 	const layers = useAppSelector((state) => selectLayers(state, { temp: false }));
@@ -114,8 +132,8 @@ const BaseMap: FC<{
 										(layer.options as LayerConfigOptionsRasterMBtiles)
 											.enabledZoomMax
 									}
-									onCreate={(response) => onLayerChange(layer.key, response)}
-									onChange={(response) => onLayerChange(layer.key, response)}
+									onCreate={(response) => handleLayerChange(layer.key, response)}
+									onChange={(response) => handleLayerChange(layer.key, response)}
 								/>
 							);
 						case 'mapsforge':
@@ -147,8 +165,12 @@ const BaseMap: FC<{
 										renderOverlays={profile.renderOverlays}
 										hasBuildings={profile.hasBuildings}
 										hasLabels={profile.hasLabels}
-										onCreate={(response) => onLayerChange(layer.key, response)}
-										onChange={(response) => onLayerChange(layer.key, response)}
+										onCreate={(response) =>
+											handleLayerChange(layer.key, response)
+										}
+										onChange={(response) =>
+											handleLayerChange(layer.key, response)
+										}
 									/>
 								);
 							}

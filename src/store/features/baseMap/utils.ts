@@ -5,6 +5,7 @@ import rnUuid from 'react-native-uuid';
 import defaultsAssign from 'defaults';
 import { get, invert, omit, pick } from 'lodash-es';
 import { LayerHillshading } from 'react-native-mapsforge-vtm';
+import { ActionCreatorWithPayload } from '@reduxjs/toolkit';
 
 /**
  * Internal dependencies
@@ -19,6 +20,26 @@ import { stringifyProp } from '../../../utils';
 import { defaults } from '../../../constants';
 import { LayerType } from './types';
 import { mapTypeOptions } from './components/controls/layers/LayersControl';
+import { AppThunk, RootState } from '../../store';
+
+export const getSetterThunkWithGetter = <T>(
+	selector: (state: RootState) => T,
+	setter: ActionCreatorWithPayload<T, any>
+) => {
+	return (
+		newValueOrGetter: T | ( ( currentValue: T ) => T )
+	): AppThunk => {
+		return (dispatch, getState) => {
+			const currentValue = selector(getState());
+			const newValue: T =
+				newValueOrGetter instanceof Function
+					? newValueOrGetter(currentValue)
+					: newValueOrGetter;
+			dispatch(setter(newValue));
+		};
+	};
+};
+
 
 export const getNewLayer = (): LayerConfig => ({
 	key: rnUuid.v4(),

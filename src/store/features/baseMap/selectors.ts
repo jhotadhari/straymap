@@ -32,6 +32,8 @@ export const selectMapsforgeGeneral = (state: RootState) => state.baseMap.mapsfo
 
 export const selectRenderStylesCache = (state: RootState) => state.baseMap.renderStylesCache;
 
+export const selectLayerInfos = (state: RootState) => state.baseMap.layerInfos;
+
 export const selectLayers = createAppSelector(
 	(state: RootState) => state.baseMap.layers,
 	(state: RootState) => state.baseMap.layersTemp,
