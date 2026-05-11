@@ -9,9 +9,9 @@ import { useTheme } from 'react-native-paper';
 /**
  * Internaö dependencies
  */
-import { AppContext } from '../Context';
-import CenterControl from '../store/features/appearance/components/controls/CenterControl';
-import ThemeControl from '../store/features/appearance/components/controls/ThemeControl';
+import { AppContext } from '../../../../Context';
+import CenterControl from '../../appearance/components/controls/CenterControl';
+import ThemeControl from '../../appearance/components/controls/ThemeControl';
 
 const SettingsAppearance: FC = () => {
 	const theme = useTheme();

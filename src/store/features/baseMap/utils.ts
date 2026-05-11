@@ -26,9 +26,7 @@ export const getSetterThunkWithGetter = <T>(
 	selector: (state: RootState) => T,
 	setter: ActionCreatorWithPayload<T, any>
 ) => {
-	return (
-		newValueOrGetter: T | ( ( currentValue: T ) => T )
-	): AppThunk => {
+	return (newValueOrGetter: T | ((currentValue: T) => T)): AppThunk => {
 		return (dispatch, getState) => {
 			const currentValue = selector(getState());
 			const newValue: T =
@@ -39,7 +37,6 @@ export const getSetterThunkWithGetter = <T>(
 		};
 	};
 };
-
 
 export const getNewLayer = (): LayerConfig => ({
 	key: rnUuid.v4(),

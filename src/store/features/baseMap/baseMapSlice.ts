@@ -259,13 +259,11 @@ export const setLayerTemp = getSetterThunkWithGetter<BaseMapState['layerTemp']>(
 	baseMapSlice.actions.setLayerTemp
 );
 
-export const setMapsforgeProfileTemp = getSetterThunkWithGetter<BaseMapState['mapsforgeProfileTemp']>(
-	selectMapsforgeProfileTemp,
-	baseMapSlice.actions.setMapsforgeProfileTemp
-);
+export const setMapsforgeProfileTemp = getSetterThunkWithGetter<
+	BaseMapState['mapsforgeProfileTemp']
+>(selectMapsforgeProfileTemp, baseMapSlice.actions.setMapsforgeProfileTemp);
 
 export const setLayerInfos = getSetterThunkWithGetter<BaseMapState['layerInfos']>(
 	selectLayerInfos,
 	baseMapSlice.actions.setLayerInfos
 );
-

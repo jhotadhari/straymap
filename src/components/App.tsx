@@ -163,9 +163,6 @@ const App = () => {
 	const [ready, setReady] = useState<boolean>(false);
 	const [topAppBarHeight, setTopAppBarHeight] = useState<number>(0);
 	const [bottomBarHeight, setBottomBarHeight] = useState<BottomBarHeight>({});
-	const [selectedHierarchyItems, setSelectedHierarchyItems] = useState<null | HierarchyItem[]>(
-		null
-	);
 
 	const currentMapEventRef = useRef<MapEventResponse | null>(null);
 
@@ -278,8 +275,6 @@ const App = () => {
 				appInnerHeight,
 				topAppBarHeight,
 				bottomBarHeight,
-				selectedHierarchyItems,
-				setSelectedHierarchyItems,
 				mapHeight:
 					(appInnerHeight || height) -
 					(Object.values(bottomBarHeight).reduce((acc, nb) => acc + nb, 0) || 0),

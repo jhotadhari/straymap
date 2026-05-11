@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import { Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { ScrollView } from 'react-native';
@@ -12,8 +12,8 @@ import { ScrollView } from 'react-native';
 import LayersControl from '../../../store/features/baseMap/components/controls/layers/LayersControl';
 import ProfilesControl from '../../../store/features/baseMap/components/controls/profiles/ProfilesControl';
 import ButtonHighlight from '../../generic/ButtonHighlight';
-import { setSelectedHierarchyItemsByKey } from '../../../hierarchyItems';
-import { AppContext } from '../../../Context';
+import { useAppDispatch } from '../../../store/hooks';
+import { setHierarchyItemKeys } from '../../../store/features/ui/uiSlice';
 
 const DisplayComponent = ({
 	drawerWidth,
@@ -24,11 +24,11 @@ const DisplayComponent = ({
 	drawerHeight: number;
 	drawerSide: string;
 }) => {
-	const { setSelectedHierarchyItems } = useContext(AppContext);
-
 	const { t } = useTranslation();
 
 	const theme = useTheme();
+
+	const dispatch = useAppDispatch();
 
 	const [scrollEnabled, setScrollEnabled] = useState(true);
 
@@ -46,12 +46,7 @@ const DisplayComponent = ({
 			<ButtonHighlight
 				style={{ marginHorizontal: 20, marginBottom: 20 }}
 				mode="outlined"
-				onPress={() =>
-					setSelectedHierarchyItemsByKey(
-						['menuItems.settings', 'settingsPages.maps'],
-						setSelectedHierarchyItems
-					)
-				}
+				onPress={() => dispatch(setHierarchyItemKeys(['settings', 'maps']))}
 			>
 				<Text>{t('openMapsSettings')}</Text>
 			</ButtonHighlight>

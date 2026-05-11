@@ -8,8 +8,6 @@ import { LocationExtended, MapEventResponse } from 'react-native-mapsforge-vtm';
  * Internal dependencies
  */
 import {
-	ThemeOption,
-	HierarchyItem,
 	RoutingSegment,
 	RoutingPoint,
 	RoutingTriggeredSegment,
@@ -19,13 +17,10 @@ import {
 } from './types';
 
 export type AppContextType = {
-	themeOptions?: ThemeOption[];
 	mapViewNativeNodeHandle?: number | null;
 	appInnerHeight?: number;
 	topAppBarHeight?: number;
 	bottomBarHeight?: BottomBarHeight;
-	selectedHierarchyItems?: null | HierarchyItem[];
-	setSelectedHierarchyItems?: Dispatch<SetStateAction<null | HierarchyItem[]>>;
 	mapHeight?: number;
 };
 

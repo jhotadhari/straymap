@@ -6,6 +6,7 @@ import React, {
 	FC,
 	MutableRefObject,
 	SetStateAction,
+	useCallback,
 	useContext,
 	useMemo,
 } from 'react';
@@ -31,7 +32,7 @@ import {
 /**
  * Internal dependencies
  */
-import TopAppBar from './TopAppBar';
+import TopAppBar from '../store/features/ui/components/TopAppBar';
 import type { InitialPosition, BottomBarHeight } from '../types';
 import { AppContext, MapContext } from '../Context';
 import Center from '../store/features/appearance/components/Center';
@@ -57,22 +58,8 @@ import {
 	selectHgtReadFileRate,
 } from '../store/features/baseMap/selectors';
 import BaseMap from '../store/features/baseMap/components/BaseMap';
-
-const SubActivity: FC<{}> = () => {
-	const { selectedHierarchyItems } = useContext(AppContext);
-
-	const SubActivityComponent = useMemo(() => {
-		if (
-			selectedHierarchyItems &&
-			selectedHierarchyItems[selectedHierarchyItems.length - 1].SubActivity
-		) {
-			return () => selectedHierarchyItems[selectedHierarchyItems.length - 1].SubActivity;
-		}
-		return undefined;
-	}, [selectedHierarchyItems]);
-
-	return SubActivityComponent ? <SubActivityComponent /> : undefined;
-};
+import SubActivity from '../store/features/ui/components/SubActivity';
+import { selectHierarchyItemKeys } from '../store/features/ui/selectors';
 
 const AppView = ({
 	showSplash,
@@ -102,8 +89,7 @@ const AppView = ({
 	const hgtFileInfoPurgeThreshold = useAppSelector(selectHgtFileInfoPurgeThreshold);
 	const hgtDirPathStore = useAppSelector(selectHgtDirPath);
 	const hgtReadFileRate = useAppSelector(selectHgtReadFileRate);
-
-	const { selectedHierarchyItems } = useContext(AppContext);
+	const hierarchyItems = useAppSelector(selectHierarchyItemKeys);
 
 	const { width, height } = useSafeAreaFrame();
 
@@ -144,6 +130,35 @@ const AppView = ({
 		[dashboardElements]
 	);
 
+	const emitsHardwareKeyUp = useMemo(
+		() =>
+			hardwareKeys
+				.filter((keyConf) => 'none' !== keyConf.actionKey)
+				.map((keyConf) => keyConf.keyCodeString) as MapContainerProps['emitsHardwareKeyUp'],
+		[hardwareKeys]
+	);
+
+	const handleHardwareKeyUp = useCallback(
+		() =>
+			hardwareKeys.length > 0
+				? (response: HardwareKeyEventResponse) => {
+						hardwareKeys.forEach((keyConf) => {
+							if (response.keyCodeString === keyConf.keyCodeString) {
+								switch (keyConf.actionKey) {
+									case 'zoomIn':
+										MapContainerModule.zoomIn(mapViewNativeNodeHandle);
+										break;
+									case 'zoomOut':
+										MapContainerModule.zoomOut(mapViewNativeNodeHandle);
+										break;
+								}
+							}
+						});
+					}
+				: null,
+		[hardwareKeys]
+	);
+
 	return (
 		<SafeAreaView
 			style={{
@@ -164,7 +179,7 @@ const AppView = ({
 					width,
 				}}
 			>
-				{SubActivity && <SubActivity />}
+				<SubActivity />
 
 				<MapContainer
 					mapEventRate={mapEventRate}
@@ -191,37 +206,10 @@ const AppView = ({
 					onMapEvent={(response: MapEventResponse) => {
 						currentMapEventRef.current = response;
 					}}
-					emitsHardwareKeyUp={
-						hardwareKeys
-							.filter((keyConf) => 'none' !== keyConf.actionKey)
-							.map(
-								(keyConf) => keyConf.keyCodeString
-							) as MapContainerProps['emitsHardwareKeyUp']
-					}
-					onHardwareKeyUp={
-						hardwareKeys.length > 0
-							? (response: HardwareKeyEventResponse) => {
-									hardwareKeys.forEach((keyConf) => {
-										if (response.keyCodeString === keyConf.keyCodeString) {
-											switch (keyConf.actionKey) {
-												case 'zoomIn':
-													MapContainerModule.zoomIn(
-														mapViewNativeNodeHandle
-													);
-													break;
-												case 'zoomOut':
-													MapContainerModule.zoomOut(
-														mapViewNativeNodeHandle
-													);
-													break;
-											}
-										}
-									});
-								}
-							: null
-					}
+					emitsHardwareKeyUp={emitsHardwareKeyUp}
+					onHardwareKeyUp={handleHardwareKeyUp}
 				>
-					<BaseMap/>
+					<BaseMap />
 
 					<LayerScalebar />
 
@@ -237,7 +225,7 @@ const AppView = ({
 				<Drawers
 					height={mapHeight || 0}
 					outerWidth={width}
-					hidden={!!selectedHierarchyItems?.length}
+					hidden={!!hierarchyItems?.length}
 				/>
 
 				<MapLayersAttribution />

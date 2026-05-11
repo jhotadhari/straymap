@@ -116,11 +116,11 @@ const PADDING = 8; // see node_modules/react-native-paper/src/components/IconBut
 
 const buttonSize = 18;
 
-const MapLayersAttribution : FC<{}> = () => {
+const MapLayersAttribution: FC<{}> = () => {
 	const theme = useTheme();
 	const { t } = useTranslation();
 
-	const layerInfos = useAppSelector( selectLayerInfos );
+	const layerInfos = useAppSelector(selectLayerInfos);
 
 	return (
 		<View

@@ -11,17 +11,17 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 /**
  * Internal dependencies
  */
-import { AppContext } from '../Context';
-import ListItemMenuControl from './generic/ListItemMenuControl';
-import HardwareKeyControl from '../store/features/general/components/controls/HardwareKeyControl';
-import { DashboardControl } from './Dashboard';
-import UnitPrefControl from '../store/features/general/components/controls/UnitPrefControl';
-import HgtControl from '../store/features/general/components/controls/HgtControl';
-import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { selectLang } from '../store/features/general/selectors';
-import { LANGUAGE_NAMES } from '../assets/i18n/i18n';
+import { AppContext } from '../../../../Context';
+import ListItemMenuControl from '../../../../components/generic/ListItemMenuControl';
+import HardwareKeyControl from '../../general/components/controls/HardwareKeyControl';
+import { DashboardControl } from '../../../../components/Dashboard';
+import UnitPrefControl from '../../general/components/controls/UnitPrefControl';
+import HgtControl from '../../general/components/controls/HgtControl';
+import { useAppDispatch, useAppSelector } from '../../../hooks';
+import { selectLang } from '../../general/selectors';
+import { LANGUAGE_NAMES } from '../../../../assets/i18n/i18n';
 import { get } from 'lodash-es';
-import { setLang } from '../store/features/general/generalSlice';
+import { setLang } from '../../general/generalSlice';
 
 const LangControl: FC = () => {
 	const { t } = useTranslation();

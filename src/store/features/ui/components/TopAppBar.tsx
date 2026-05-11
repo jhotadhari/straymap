@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { Dispatch, SetStateAction, useContext, useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useContext, useEffect, useMemo, useState } from 'react';
 import { useTheme, Appbar, Menu, Icon } from 'react-native-paper';
 import { IconSource } from 'react-native-paper/lib/typescript/components/Icon';
 import { useTranslation } from 'react-i18next';
@@ -10,10 +10,13 @@ import { View, BackHandler, TouchableHighlight, ActivityIndicator } from 'react-
 /**
  * Internal dependencies
  */
-import type { HierarchyItem, MenuItem as MenuItemType } from '../types';
-import { AppContext } from '../Context';
-import MenuItem from './generic/MenuItem';
-import { menuItems } from '../hierarchyItems';
+import type { HierarchyItem, MenuItem as MenuItemType } from '../../../../types';
+import { AppContext } from '../../../../Context';
+import MenuItem from '../../../../components/generic/MenuItem';
+import { getHierarchyItemsByKey, menuItems } from '../hierarchyItems';
+import { useAppDispatch, useAppSelector } from '../../../hooks';
+import { selectHierarchyItemKeys, selectIsBusy } from '../selectors';
+import { setHierarchyItemKeys } from '../uiSlice';
 
 const TopAppBarMenu = ({
 	items,
@@ -23,7 +26,6 @@ const TopAppBarMenu = ({
 	parents,
 	closeParentMenus,
 	selectedHierarchyItems,
-	setSelectedHierarchyItems,
 }: {
 	items: MenuItemType[];
 	anchorIcon: IconSource;
@@ -32,9 +34,10 @@ const TopAppBarMenu = ({
 	parents?: HierarchyItem[];
 	closeParentMenus?: () => void;
 	selectedHierarchyItems?: null | HierarchyItem[];
-	setSelectedHierarchyItems: Dispatch<SetStateAction<null | HierarchyItem[]>>;
 }) => {
 	const { t } = useTranslation();
+
+	const dispatch = useAppDispatch();
 
 	const theme = useTheme();
 
@@ -94,7 +97,6 @@ const TopAppBarMenu = ({
 						<TopAppBarMenu
 							key={index}
 							selectedHierarchyItems={selectedHierarchyItems}
-							setSelectedHierarchyItems={setSelectedHierarchyItems}
 							closeParentMenus={closeMenu}
 							parents={[
 								...(parents ? parents : []),
@@ -111,12 +113,16 @@ const TopAppBarMenu = ({
 						<MenuItem
 							key={index}
 							onPress={() => {
-								setSelectedHierarchyItems([
-									...(parents && false !== item.hierarchyIncludeParents
-										? parents
-										: []),
-									item,
-								]);
+								dispatch(
+									setHierarchyItemKeys(
+										[
+											...(parents && false !== item.hierarchyIncludeParents
+												? parents
+												: []),
+											item,
+										].map((items) => items.key)
+									)
+								);
 								closeMenu();
 							}}
 							leadingIcon={item.leadingIcon}
@@ -154,11 +160,20 @@ const TopAppBar = ({
 
 	const theme = useTheme();
 
-	const { selectedHierarchyItems, setSelectedHierarchyItems, isBusy } = useContext(AppContext);
+	const dispatch = useAppDispatch();
+
+	const isBusy = useAppSelector(selectIsBusy);
+
+	const hierarchyItemsKeys = useAppSelector(selectHierarchyItemKeys);
+
+	const hierarchyItems = useMemo(
+		() => getHierarchyItemsByKey(hierarchyItemsKeys),
+		[hierarchyItemsKeys]
+	);
 
 	const backAction = () => {
-		if (setSelectedHierarchyItems && selectedHierarchyItems) {
-			let newSelectedHierarchyItems = [...selectedHierarchyItems];
+		if (hierarchyItems) {
+			let newSelectedHierarchyItems = [...hierarchyItems];
 			newSelectedHierarchyItems.pop();
 			const maybeTraverseUp = (
 				newSelectedHierarchyItems: HierarchyItem[]
@@ -173,8 +188,12 @@ const TopAppBar = ({
 				return newSelectedHierarchyItems;
 			};
 			newSelectedHierarchyItems = maybeTraverseUp(newSelectedHierarchyItems);
-			setSelectedHierarchyItems(
-				newSelectedHierarchyItems.length ? newSelectedHierarchyItems : null
+			dispatch(
+				setHierarchyItemKeys(
+					newSelectedHierarchyItems.length
+						? newSelectedHierarchyItems.map((items) => items.key)
+						: []
+				)
 			);
 		}
 		return true;
@@ -183,7 +202,7 @@ const TopAppBar = ({
 	useEffect(() => {
 		const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
 		return () => backHandler.remove();
-	}, [selectedHierarchyItems]);
+	}, [hierarchyItemsKeys]);
 
 	return (
 		<Appbar
@@ -195,7 +214,7 @@ const TopAppBar = ({
 				justifyContent: 'space-between',
 			}}
 		>
-			{selectedHierarchyItems && (
+			{hierarchyItems && (
 				<TouchableHighlight
 					style={{
 						padding: 10,
@@ -220,29 +239,26 @@ const TopAppBar = ({
 
 			<Appbar.Content
 				title={
-					selectedHierarchyItems
-						? [...selectedHierarchyItems].map((item) => t(item.label)).join(' / ')
+					hierarchyItems
+						? [...hierarchyItems].map((item) => t(item.label)).join(' / ')
 						: '' // Empty element, but moves the menu right
 				}
 			/>
 
-			{setSelectedHierarchyItems && (
-				<TopAppBarMenu
-					selectedHierarchyItems={selectedHierarchyItems}
-					setSelectedHierarchyItems={setSelectedHierarchyItems}
-					items={menuItems}
-					anchorIcon={(props) =>
-						isBusy ? (
-							<LoadingIndicator />
-						) : (
-							<Icon
-								size={30}
-								source="menu"
-							/>
-						)
-					}
-				/>
-			)}
+			<TopAppBarMenu
+				selectedHierarchyItems={hierarchyItems}
+				items={menuItems}
+				anchorIcon={(props) =>
+					isBusy ? (
+						<LoadingIndicator />
+					) : (
+						<Icon
+							size={30}
+							source="menu"
+						/>
+					)
+				}
+			/>
 		</Appbar>
 	);
 };

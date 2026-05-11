@@ -1,12 +1,11 @@
 import { List } from 'react-native-paper';
-import { SettingsItem, MenuItem as MenuItemType, HierarchyItem } from './types';
+import { SettingsItem, MenuItem as MenuItemType } from '../../../types';
 import SettingsMaps from './components/SettingsMaps';
 import SettingsGeneral from './components/SettingsGeneral';
 import SettingsAppearance from './components/SettingsAppearance';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Settings from './components/Settings';
-import About from './components/About';
-import { Dispatch, SetStateAction } from 'react';
+import About from '../../../components/About';
 
 export const menuItems: MenuItemType[] = [
 	// {
@@ -19,6 +18,7 @@ export const menuItems: MenuItemType[] = [
 	// 			label: 'menu.routing',
 	// 			hierarchyIncludeParents: false,
 	// 			leadingIcon: 'routes',
+	//             SubActivity: <About/>,
 	// 		},
 	// 	]
 	// },
@@ -31,13 +31,13 @@ export const menuItems: MenuItemType[] = [
 	//             key: 'egalSub1',
 	// 			label: 'menu.egalSub1',
 	// 			leadingIcon: 'progress-question',
-	//             SubActivity: <EgalTest/>,
+	//             SubActivity: <About/>,
 	// 		},
 	// 		{
 	//             key: 'egalSub2',
 	// 			label: 'menu.egalSub2',
 	// 			leadingIcon: 'progress-question',
-	//             SubActivity: <EgalTest/>,
+	//             SubActivity: <About/>,
 	// 		},
 	// 	]
 	// },
@@ -93,19 +93,15 @@ export const settingsPages: SettingsItem[] = [
 	},
 ];
 
-export const setSelectedHierarchyItemsByKey = (
-	keys: string[], // eg ['menuItems.settings','settingsPages.maps']
-	setSelectedHierarchyItems?: Dispatch<SetStateAction<null | HierarchyItem[]>>
+export const getHierarchyItemsByKey = (
+	keys: string[] // eg ['menuItems.settings','settingsPages.maps']
 ) => {
-	if (setSelectedHierarchyItems) {
-		const newItems = [...keys]
-			.map((key) => {
-				const [type, itemKey] = key.split('.');
-				return ('menuItems' === type ? menuItems : settingsPages).find(
-					(item) => item.key === itemKey
-				);
-			})
-			.filter((a) => !!a);
-		setSelectedHierarchyItems(newItems);
-	}
+	return [...keys]
+		.map((key) => {
+			return (
+				menuItems.find((item) => item.key === key) ??
+				settingsPages.find((item) => item.key === key)
+			);
+		})
+		.filter((a) => !!a);
 };
