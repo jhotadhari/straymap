@@ -10,7 +10,7 @@ import { View } from 'react-native';
  * Internal dependencies
  */
 import { RoutingContext } from '../../../Context';
-import { formatDistance } from '../../../utils';
+import { formatDistance } from '../../../lib/utils';
 import { useAppSelector } from '../../../store/hooks';
 import { selectUnitPrefs } from '../../../store/features/general/selectors';
 import { DashboardDisplayComponentProps } from '../../../store/features/dashboard/types';

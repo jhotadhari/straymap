@@ -19,7 +19,7 @@ import license from '../../LICENSE.md';
 import changelog from '../../CHANGELOG.md';
 import debugInfo from '../../.debugInfo.json';
 import packageJson from '../../package.json';
-import { removeLeadingTrailingEmptyLines, removeLines } from '../utils';
+import { removeLeadingTrailingEmptyLines, removeLines } from '../lib/utils';
 import renderRules from '../markdown/renderRules';
 import { styles } from '../markdown/styles';
 import ButtonHighlight from './generic/ButtonHighlight';

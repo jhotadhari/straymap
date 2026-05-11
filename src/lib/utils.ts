@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { get, isObject } from 'lodash-es';
+import { get } from 'lodash-es';
 import slugify from 'slugify';
 import { Location } from 'react-native-mapsforge-vtm';
 import { InteractionManager } from 'react-native';
@@ -9,19 +9,8 @@ import { InteractionManager } from 'react-native';
 /**
  * Internal dependencies
  */
-import { UnitPref } from './store/features/general/types';
-
-export const parseSerialized = (str: string, fallback?: any): string | false => {
-	fallback = fallback ? fallback : false;
-	let object = fallback;
-	try {
-		object = JSON.parse(str);
-	} catch (e) {
-		object = object;
-	}
-	return object;
-};
-export const randomNumber = (min: number, max: number): number => Math.random() * (max - min) + min;
+import { UnitPref } from '../store/features/general/types';
+import { roundTo } from './utilsGeneral';
 
 export const formatSeconds = (secNum: number): string => {
 	secNum = Math.round(secNum);
@@ -33,11 +22,6 @@ export const formatSeconds = (secNum: number): string => {
 		(minutes < 10 ? '0' : '') + minutes + 'm',
 		(seconds < 10 ? '0' : '') + seconds + 's',
 	].join(' ');
-};
-
-export const roundTo = (num: number, precision: number): number => {
-	const factor = Math.pow(10, precision);
-	return Math.round(num * factor) / factor;
 };
 
 let firstNonEmptyLine: null | number = null;
@@ -90,29 +74,6 @@ export const stringifyProp = (prop: any, deli?: string): string => {
 		default:
 			return '';
 	}
-};
-
-// Sort array of strings or objects based on another array.
-export const sortArrayByOrderArray = (
-	inputArr: (string | { [value: string]: any })[],
-	orderArr: string[],
-	key?: string
-) => {
-	inputArr.sort((a, b) => {
-		const aVal = isObject(a) && key ? a[key] : a;
-		const bVal = isObject(b) && key ? b[key] : b;
-		// Get sort order from orderArr.
-		let aIndex = orderArr.indexOf(aVal);
-		let bIndex = orderArr.indexOf(bVal);
-		// If not found in orderArr, move to the end.
-		if (aIndex === -1 && bIndex !== -1) {
-			aIndex = bIndex + 1;
-		} else if (aIndex !== -1 && bIndex === -1) {
-			bIndex = aIndex + 1;
-		}
-		return aIndex > bIndex ? 1 : bIndex < aIndex ? -1 : 0;
-	});
-	return inputArr;
 };
 
 export const runAfterInteractions = (

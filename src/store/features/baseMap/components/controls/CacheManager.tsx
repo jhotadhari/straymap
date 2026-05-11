@@ -12,7 +12,7 @@ import { get } from 'lodash-es';
  */
 import InfoRowControl from '../../../../../components/generic/InfoRowControl';
 import LoadingIndicator from '../../../../../components/generic/LoadingIndicator';
-import { stringifyProp } from '../../../../../utils';
+import { stringifyProp } from '../../../../../lib/utils';
 import { FsModule } from '../../../../../nativeModules';
 import { LayerConfig } from '../../types';
 import { selectElementExpanded } from '../../../ui/selectors';

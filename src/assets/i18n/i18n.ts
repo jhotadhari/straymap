@@ -11,23 +11,7 @@ import { I18nManager } from 'react-native';
  */
 import en from './en.json';
 import de from './de.json';
-
-export const FALLBACK_LANGUAGE = 'en';
-
-export const SUPPORTED_LANGUAGES = [
-	'de',
-	'en',
-] as const;
-
-export type SupportedLanguage = (typeof SUPPORTED_LANGUAGES)[number];
-
-/**
- * Language display names
- */
-export const LANGUAGE_NAMES: Record<SupportedLanguage, { english: string; native: string }> = {
-	de: { english: 'German', native: 'Deutsch' },
-	en: { english: 'English', native: 'English' },
-};
+import { SUPPORTED_LANGUAGES, FALLBACK_LANGUAGE, LANGUAGE_NAMES } from './constants';
 
 const intiOptions = {
 	lng: FALLBACK_LANGUAGE,

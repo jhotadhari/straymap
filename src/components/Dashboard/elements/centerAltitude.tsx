@@ -16,7 +16,7 @@ import MenuItem from '../../generic/MenuItem';
 import InfoRowControl from '../../generic/InfoRowControl';
 import { options as unitPrefControlOptions } from '../../../store/features/general/components/controls/UnitPrefControl';
 import { TFunction } from 'i18next';
-import { roundTo } from '../../../utils';
+import { roundTo } from '../../../lib/utilsGeneral';
 import { NumericRowControl } from '../../generic/NumericRowControls';
 import { MapContext } from '../../../Context';
 import { styles as mdStyles } from '../../../markdown/styles';

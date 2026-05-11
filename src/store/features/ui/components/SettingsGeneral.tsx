@@ -7,6 +7,7 @@ import { useSafeAreaFrame } from 'react-native-safe-area-context';
 import { useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { get } from 'lodash-es';
 
 /**
  * Internal dependencies
@@ -19,9 +20,9 @@ import UnitPrefControl from '../../general/components/controls/UnitPrefControl';
 import HgtControl from '../../general/components/controls/HgtControl';
 import { useAppDispatch, useAppSelector } from '../../../hooks';
 import { selectLang } from '../../general/selectors';
-import { LANGUAGE_NAMES } from '../../../../assets/i18n/i18n';
-import { get } from 'lodash-es';
+import { LANGUAGE_NAMES, SUPPORTED_LANGUAGES } from '../../../../assets/i18n/constants';
 import { setLang } from '../../general/generalSlice';
+import { sortArrayByOrderArray } from '../../../../lib/utilsGeneral';
 
 const LangControl: FC = () => {
 	const { t } = useTranslation();
@@ -46,7 +47,9 @@ const LangControl: FC = () => {
 
 	return (
 		<ListItemMenuControl
-			anchorLabel={t('selectLang')}
+			anchorLabel={(sortArrayByOrderArray([...SUPPORTED_LANGUAGES], [lang]) as string[])
+				.map((l) => t('selectLang', { lng: l }))
+				.join(' / ')}
 			anchorLabelAppendSelected={true}
 			options={options}
 			setValue={handleChange}

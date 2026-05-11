@@ -8,6 +8,7 @@
     "clean": "react-native-clean-project",
     "start": "react-native start",
     "typecheck": "tsc",
+    "sortI18n": "./scripts/sortI18n.js",
     "test": "jest",
     "format": "prettier . --write",
     "publish": "bash ./scripts/publish.sh"
@@ -74,11 +75,13 @@
     "babel-jest": "^29.6.3",
     "convert-units": "^2.3.4",
     "eslint": "^8.19.0",
+    "glob": "^13.0.6",
     "jest": "^29.6.3",
     "prettier": "^3.8.3",
     "prettier-plugin-multiline-arrays": "^4.1.8",
     "react-native-clean-project": "^4.0.3",
     "react-test-renderer": "19.0.0",
+    "tsx": "^4.21.0",
     "typescript": "5.0.4"
   },
   "engines": {

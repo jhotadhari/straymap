@@ -22,7 +22,7 @@ import IconIcomoon from '../../../../../../components/generic/IconIcomoon';
 import NameRowControl from '../../../../../../components/generic/NameRowControl';
 import LoadingIndicator from '../../../../../../components/generic/LoadingIndicator';
 import HintLink from '../../../../../../components/generic/HintLink';
-import { runAfterInteractions } from '../../../../../../utils';
+import { runAfterInteractions } from '../../../../../../lib/utils';
 import { MapsforgeProfile, LayerConfigOptionsMapsforge } from '../../../types';
 import { getNewProfile } from '../../../utils';
 import { selectElementExpanded, selectIsBusy } from '../../../../ui/selectors';

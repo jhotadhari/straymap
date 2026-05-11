@@ -20,7 +20,8 @@ import {
 	setUnitPrefs,
 } from './generalSlice';
 import { startAppListening } from '../../listenerMiddleware';
-import { changeLang, SUPPORTED_LANGUAGES } from '../../../assets/i18n/i18n';
+import { changeLang } from '../../../assets/i18n/i18n';
+import { SUPPORTED_LANGUAGES } from '../../../assets/i18n/constants';
 
 const settingsKey = 'generalSettings';
 

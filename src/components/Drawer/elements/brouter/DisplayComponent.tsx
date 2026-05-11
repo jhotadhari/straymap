@@ -23,7 +23,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import ListItemMenuControl from '../../../generic/ListItemMenuControl';
 import InfoRowControl from '../../../generic/InfoRowControl';
 import InfoRadioRow from '../../../generic/InfoRadioRow';
-import { formatDistance, getUpDown } from '../../../../utils';
+import { formatDistance, getUpDown } from '../../../../lib/utils';
 import { createDocument } from 'react-native-scoped-storage';
 import { useAppSelector } from '../../../../store/hooks';
 import { selectUnitPrefs } from '../../../../store/features/general/selectors';

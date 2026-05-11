@@ -19,7 +19,7 @@ import {
 /**
  * Internal dependencies
  */
-import { stringifyProp } from '../../../../utils';
+import { stringifyProp } from '../../../../lib/utils';
 import {
 	LayerConfig,
 	LayerConfigOptionsOnlineRasterXYZ,

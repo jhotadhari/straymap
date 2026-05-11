@@ -12,7 +12,8 @@ import { point as turfPoint } from '@turf/helpers';
 /**
  * Internal dependencies
  */
-import { getUpDown, parseSerialized, runAfterInteractions, sortArrayByOrderArray } from '../utils';
+import { getUpDown, runAfterInteractions } from '../lib/utils';
+import { parseSerialized, sortArrayByOrderArray } from '../lib/utilsGeneral';
 import {
 	NearestSimplifiedCoord,
 	RoutingSegment,

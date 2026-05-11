@@ -20,7 +20,7 @@ import {
 } from '../../../../../../components/generic/NumericRowControls';
 import InfoRowControl from '../../../../../../components/generic/InfoRowControl';
 import CacheControl from './CacheControl';
-import { stringifyProp } from '../../../../../../utils';
+import { stringifyProp } from '../../../../../../lib/utils';
 import { defaults } from '../../../../../../constants';
 import {
 	TextInputNativeMultiline,

@@ -16,7 +16,7 @@ import { usePrevious } from 'victory-native';
 import { AppContext, MapContext, RoutingContext } from '../../../../Context';
 import MenuItem from '../../../generic/MenuItem';
 import { RoutingPoint } from '../../../../types';
-import { runAfterInteractions } from '../../../../utils';
+import { runAfterInteractions } from '../../../../lib/utils';
 
 const IconActions = ({ style }: { style: TextStyle }) => {
 	const { mapHeight, mapViewNativeNodeHandle } = useContext(AppContext);

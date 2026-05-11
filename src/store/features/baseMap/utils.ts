@@ -16,7 +16,7 @@ import {
 	LayerConfigOptionsHillshading,
 	MapsforgeProfile,
 } from './types';
-import { stringifyProp } from '../../../utils';
+import { stringifyProp } from '../../../lib/utils';
 import { defaults } from '../../../constants';
 import { LayerKind } from './types';
 import { mapTypeOptions } from './components/controls/layers/LayersControl';
