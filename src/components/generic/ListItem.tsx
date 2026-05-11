@@ -15,7 +15,7 @@ const ListItem = ({
 	active,
 }: {
 	onPress?: () => void;
-	icon?: (props: { color: string; style: ListStyle }) => ReactNode;
+	icon?: string | ( (props: { color: string; style: ListStyle }) => ReactNode );
 	iconSize?: number;
 	style?: null | ViewStyle;
 	title?: ReactNode;

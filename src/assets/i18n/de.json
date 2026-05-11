@@ -12,18 +12,16 @@
 			"dark": "Dunkel",
 			"black": "Schwarz"
 		},
-		"menu": {
-			"tools": "Werkzeuge",
-			"routing": "Routenplanung",
+		"uiItems": {
 			"settings": "Einstellungen",
-			"about": "Über"
+			"about": "Über",
+			"general": "Allgemein",
+			"maps": "Karten",
+			"appearance": "Aussehen"
 		},
 		"settings": {
 			"saved": "%s Einstellungen gespeichert",
-			"general": "Allgemein",
-			"maps": "Karten",
-			"mapsforgeGeneral": "Allgemeine Mapsforge Einstellungen",
-			"appearance": "Aussehen"
+			"mapsforgeGeneral": "Allgemeine Mapsforge Einstellungen"
 		},
 		"openMapsSettings": "Karten Einstellungen öffnen",
 		"addNew": "Hinzufügen",

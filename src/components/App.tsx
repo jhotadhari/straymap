@@ -16,7 +16,7 @@ import {
 /**
  * Internal dependencies
  */
-import type { HierarchyItem, InitialPosition, BottomBarHeight } from '../types';
+import type { InitialPosition, BottomBarHeight } from '../types';
 import { AppContext, MapContext } from '../Context';
 import SplashScreen from './SplashScreen';
 import AppView from './AppView';

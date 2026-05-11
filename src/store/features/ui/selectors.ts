@@ -12,4 +12,4 @@ export const selectElementExpanded = (state: RootState, key: string) =>
 
 export const selectIsBusy = (state: RootState) => state.ui.busyKeys.length > 0;
 
-export const selectHierarchyItemKeys = (state: RootState) => state.ui.hierarchyItemKeys;
+export const selectUiItemKeys = (state: RootState) => state.ui.uiItemKeys;

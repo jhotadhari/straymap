@@ -16,7 +16,7 @@ export interface UiSettings {
 
 export interface UiState extends SliceSettingsBase, UiSettings {
 	busyKeys: string[];
-	hierarchyItemKeys: string[];
+	uiItemKeys: string[];
 }
 
 export const initialSettings: UiSettings = {
@@ -26,7 +26,7 @@ export const initialSettings: UiSettings = {
 const initialState: UiState = {
 	initialized: false,
 	busyKeys: [],
-	hierarchyItemKeys: [],
+	uiItemKeys: [],
 	...initialSettings,
 };
 
@@ -39,8 +39,8 @@ export const uiSlice = createSlice({
 		setInitialized: (state, action: PayloadAction<boolean>) => {
 			state.initialized = action.payload;
 		},
-		setHierarchyItemKeys: (state, action: PayloadAction<string[]>) => {
-			state.hierarchyItemKeys = action.payload;
+		setUiItemKeys: (state, action: PayloadAction<string[]>) => {
+			state.uiItemKeys = action.payload;
 		},
 		setExpandedElements: (state, action: PayloadAction<string[]>) => {
 			state.expandedElements = action.payload;
@@ -86,7 +86,7 @@ export const {
 	setInitialized,
 	setExpandedElements,
 	setElementExpanded,
-	setHierarchyItemKeys,
+	setUiItemKeys,
 	setBusyKeys,
 	addBusyKey,
 	removeBusyKey,

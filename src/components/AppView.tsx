@@ -57,8 +57,8 @@ import {
 	selectHgtReadFileRate,
 } from '../store/features/baseMap/selectors';
 import BaseMap from '../store/features/baseMap/components/BaseMap';
-import SubActivity from '../store/features/ui/components/SubActivity';
-import { selectHierarchyItemKeys } from '../store/features/ui/selectors';
+import UiItemComponent from '../store/features/ui/components/UiItemComponent';
+import { selectUiItemKeys } from '../store/features/ui/selectors';
 import MapLayersAttribution from '../store/features/baseMap/MapLayersAttribution';
 
 const AppView = ({
@@ -89,7 +89,7 @@ const AppView = ({
 	const hgtFileInfoPurgeThreshold = useAppSelector(selectHgtFileInfoPurgeThreshold);
 	const hgtDirPathStore = useAppSelector(selectHgtDirPath);
 	const hgtReadFileRate = useAppSelector(selectHgtReadFileRate);
-	const hierarchyItems = useAppSelector(selectHierarchyItemKeys);
+	const uiItems = useAppSelector(selectUiItemKeys);
 
 	const { width, height } = useSafeAreaFrame();
 
@@ -179,7 +179,7 @@ const AppView = ({
 					width,
 				}}
 			>
-				<SubActivity />
+				<UiItemComponent />
 
 				<MapContainer
 					mapEventRate={mapEventRate}
@@ -225,7 +225,7 @@ const AppView = ({
 				<Drawers
 					height={mapHeight || 0}
 					outerWidth={width}
-					hidden={!!hierarchyItems?.length}
+					hidden={!!uiItems?.length}
 				/>
 
 				<MapLayersAttribution />

@@ -2,8 +2,8 @@
  * External dependencies
  */
 import { ReactNode } from 'react';
+import { Style as ListStyle } from 'react-native-paper/lib/typescript/components/List/utils';
 import { useTheme, Icon, Text } from 'react-native-paper';
-import { IconSource } from 'react-native-paper/lib/typescript/components/Icon';
 import { View, TouchableHighlight, ViewStyle, TextStyle } from 'react-native';
 
 const MenuItem = ({
@@ -17,7 +17,7 @@ const MenuItem = ({
 	active,
 }: {
 	onPress?: () => void;
-	leadingIcon?: IconSource;
+	leadingIcon?: string | ( (props: { color: string; style: ListStyle }) => ReactNode );
 	iconSize?: number;
 	style?: null | ViewStyle;
 	iconColor?: string;

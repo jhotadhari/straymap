@@ -12,18 +12,15 @@
 			"dark": "Dark",
 			"black": "Black"
 		},
-		"menu": {
-			"tools": "Tools",
-			"routing": "Routing",
+		"uiItems": {
 			"settings": "Settings",
-			"about": "About"
+			"about": "About",
+			"general": "General",
+			"appearance": "Appearance",
+			"maps": "Maps"
 		},
 		"settings": {
-			"saved": "Saved %s settings",
-			"general": "General",
-			"maps": "Maps",
-			"mapsforgeGeneral": "Mapsforge General Settings",
-			"appearance": "Appearance"
+			"mapsforgeGeneral": "Mapsforge General Settings"
 		},
 		"openMapsSettings": "Open maps settings",
 		"addNew": "Add new",

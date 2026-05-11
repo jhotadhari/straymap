@@ -13,7 +13,7 @@ import LayersControl from '../../../store/features/baseMap/components/controls/l
 import ProfilesControl from '../../../store/features/baseMap/components/controls/profiles/ProfilesControl';
 import ButtonHighlight from '../../generic/ButtonHighlight';
 import { useAppDispatch } from '../../../store/hooks';
-import { setHierarchyItemKeys } from '../../../store/features/ui/uiSlice';
+import { setUiItemKeys } from '../../../store/features/ui/uiSlice';
 
 const DisplayComponent = ({
 	drawerWidth,
@@ -46,7 +46,7 @@ const DisplayComponent = ({
 			<ButtonHighlight
 				style={{ marginHorizontal: 20, marginBottom: 20 }}
 				mode="outlined"
-				onPress={() => dispatch(setHierarchyItemKeys(['settings', 'maps']))}
+				onPress={() => dispatch(setUiItemKeys(['settings', 'maps']))}
 			>
 				<Text>{t('openMapsSettings')}</Text>
 			</ButtonHighlight>

@@ -11,10 +11,10 @@ import { useTranslation } from 'react-i18next';
  */
 import { AppContext } from '../../../../Context';
 import ListItem from '../../../../components/generic/ListItem';
-import { getHierarchyItemsByKey, settingsPages } from '../hierarchyItems';
+import { getUiItemsByKey } from '../uiItems';
 import { useAppDispatch, useAppSelector } from '../../../hooks';
-import { selectHierarchyItemKeys } from '../selectors';
-import { setHierarchyItemKeys } from '../uiSlice';
+import { selectUiItemKeys } from '../selectors';
+import { setUiItemKeys } from '../uiSlice';
 
 const Settings: FC = () => {
 	const theme = useTheme();
@@ -24,12 +24,16 @@ const Settings: FC = () => {
 
 	const dispatch = useAppDispatch();
 
-	const hierarchyItemsKeys = useAppSelector(selectHierarchyItemKeys);
+	const uiItemsKeys = useAppSelector(selectUiItemKeys);
 
-	// const hierarchyItems = useMemo(
-	// 	() => getHierarchyItemsByKey(hierarchyItemsKeys),
-	// 	[hierarchyItemsKeys]
-	// );
+	const settingsPages = useMemo(
+		() => getUiItemsByKey([
+			'maps',
+			'general',
+			'appearance',
+		]),
+		[]
+	);
 
 	return (
 		<View
@@ -45,11 +49,11 @@ const Settings: FC = () => {
 				<ListItem
 					key={index}
 					title={t(item.label)}
-					icon={item.left ? item.left : undefined}
+					icon={item?.icon}
 					onPress={() =>
 						dispatch(
-							setHierarchyItemKeys([
-								...hierarchyItemsKeys,
+							setUiItemKeys([
+								...uiItemsKeys,
 								item.key,
 							])
 						)
