@@ -3,17 +3,16 @@
  */
 import React, {
 	Dispatch,
+	FC,
 	MutableRefObject,
 	SetStateAction,
-	useCallback,
 	useContext,
 	useMemo,
-	useState,
 } from 'react';
 import { StatusBar, useColorScheme, View } from 'react-native';
 import 'intl-pluralrules';
 import { useTheme } from 'react-native-paper';
-import { get, pick } from 'lodash-es';
+import { get } from 'lodash-es';
 import { SafeAreaView, useSafeAreaFrame } from 'react-native-safe-area-context';
 /**
  * react-native-mapsforge-vtm dependencies
@@ -26,8 +25,6 @@ import {
 	MapContainerModule,
 	MapEventResponse,
 	ResponseInclude,
-	LayerMBTilesBitmapResponse,
-	LayerMapsforgeResponse,
 	MapLifeCycleResponse,
 } from 'react-native-mapsforge-vtm';
 
@@ -35,14 +32,14 @@ import {
  * Internal dependencies
  */
 import TopAppBar from './TopAppBar';
-import type { LayerInfos, InitialPosition, BottomBarHeight } from '../types';
+import type { InitialPosition, BottomBarHeight } from '../types';
 import { AppContext, MapContext } from '../Context';
 import Center from '../store/features/appearance/components/Center';
 import { Dashboard } from './Dashboard';
 import { Drawers } from './Drawer';
 import * as dashboardElementComponents from './Dashboard/elements';
 import SplashScreen from './SplashScreen';
-import MapLayersAttribution from './MapLayersAttribution';
+import MapLayersAttribution from '../store/features/baseMap/MapLayersAttribution';
 import AltitudeProfile from './AltitudeProfile';
 import RoutingMapView from './RoutingMapView';
 import { useAppSelector } from '../store/hooks';
@@ -61,29 +58,20 @@ import {
 } from '../store/features/baseMap/selectors';
 import BaseMap from '../store/features/baseMap/components/BaseMap';
 
-const useLayerInfos = () => {
-	const [layerInfos, setLayerInfos] = useState<LayerInfos>({});
-	const onLayerChange = useCallback(
-		(
-			key: string,
-			response: LayerMapsforgeResponse | LayerMBTilesBitmapResponse // ??? should handle other layer types as well.
-		) => {
-			setLayerInfos((layerInfos) => ({
-				...layerInfos,
-				[key]: pick(response, [
-					'attribution',
-					'description',
-					'comment',
-					'createdBy',
-				]),
-			}));
-		},
-		[]
-	);
-	return {
-		layerInfos,
-		onLayerChange,
-	};
+const SubActivity: FC<{}> = () => {
+	const { selectedHierarchyItems } = useContext(AppContext);
+
+	const SubActivityComponent = useMemo(() => {
+		if (
+			selectedHierarchyItems &&
+			selectedHierarchyItems[selectedHierarchyItems.length - 1].SubActivity
+		) {
+			return () => selectedHierarchyItems[selectedHierarchyItems.length - 1].SubActivity;
+		}
+		return undefined;
+	}, [selectedHierarchyItems]);
+
+	return SubActivityComponent ? <SubActivityComponent /> : undefined;
 };
 
 const AppView = ({
@@ -112,26 +100,49 @@ const AppView = ({
 	const mapEventRate = useAppSelector(selectMapEventRate);
 	const hgtInterpolation = useAppSelector(selectHgtInterpolation);
 	const hgtFileInfoPurgeThreshold = useAppSelector(selectHgtFileInfoPurgeThreshold);
-	const hgtDirPath = useAppSelector(selectHgtDirPath);
+	const hgtDirPathStore = useAppSelector(selectHgtDirPath);
 	const hgtReadFileRate = useAppSelector(selectHgtReadFileRate);
+
+	const { selectedHierarchyItems } = useContext(AppContext);
 
 	const { width, height } = useSafeAreaFrame();
 
-	const { layerInfos, onLayerChange } = useLayerInfos();
-
-	const { mapViewNativeNodeHandle, selectedHierarchyItems, mapHeight } = useContext(AppContext);
+	const { mapViewNativeNodeHandle, mapHeight } = useContext(AppContext);
 
 	const { currentMapEventRef } = useContext(MapContext);
 
-	const SubActivity = useMemo(() => {
-		if (
-			selectedHierarchyItems &&
-			selectedHierarchyItems[selectedHierarchyItems.length - 1].SubActivity
-		) {
-			return () => selectedHierarchyItems[selectedHierarchyItems.length - 1].SubActivity;
-		}
-		return undefined;
-	}, [selectedHierarchyItems]);
+	const hgtDirPath = useMemo(
+		() =>
+			hgtDirPathStore &&
+			(dashboardElements.reduce((acc: boolean, ele: DashboardElementConf) => {
+				return acc || !ele.type
+					? acc
+					: get(dashboardElementComponents, [ele.type, 'shouldSetHgtDirPath'], false);
+			}, false) as boolean)
+				? hgtDirPathStore
+				: undefined,
+		[hgtDirPathStore, dashboardElements]
+	);
+
+	const responseInclude = useMemo(
+		() =>
+			dashboardElements.reduce(
+				(acc: object, ele: DashboardElementConf) => {
+					return ele.type
+						? {
+								...acc,
+								...get(
+									dashboardElementComponents,
+									[ele.type, 'responseInclude'],
+									{}
+								),
+							}
+						: acc;
+				},
+				{ zoomLevel: 2 }
+			) as ResponseInclude,
+		[dashboardElements]
+	);
 
 	return (
 		<SafeAreaView
@@ -162,37 +173,8 @@ const AppView = ({
 					hgtInterpolation={hgtInterpolation}
 					hgtFileInfoPurgeThreshold={hgtFileInfoPurgeThreshold}
 					hgtReadFileRate={hgtReadFileRate}
-					hgtDirPath={
-						hgtDirPath &&
-						(dashboardElements.reduce((acc: boolean, ele: DashboardElementConf) => {
-							return acc || !ele.type
-								? acc
-								: get(
-										dashboardElementComponents,
-										[ele.type, 'shouldSetHgtDirPath'],
-										false
-									);
-						}, false) as boolean)
-							? hgtDirPath
-							: undefined
-					}
-					responseInclude={
-						dashboardElements.reduce(
-							(acc: object, ele: DashboardElementConf) => {
-								return ele.type
-									? {
-											...acc,
-											...get(
-												dashboardElementComponents,
-												[ele.type, 'responseInclude'],
-												{}
-											),
-										}
-									: acc;
-							},
-							{ zoomLevel: 2 }
-						) as ResponseInclude
-					}
+					hgtDirPath={hgtDirPath}
+					responseInclude={responseInclude}
 					height={mapHeight || 0}
 					width={width}
 					center={initialPositionRef?.current?.center}
@@ -239,7 +221,7 @@ const AppView = ({
 							: null
 					}
 				>
-					<BaseMap onLayerChange={onLayerChange} />
+					<BaseMap/>
 
 					<LayerScalebar />
 
@@ -255,10 +237,10 @@ const AppView = ({
 				<Drawers
 					height={mapHeight || 0}
 					outerWidth={width}
-					hidden={!!SubActivity}
+					hidden={!!selectedHierarchyItems?.length}
 				/>
 
-				<MapLayersAttribution layerInfos={layerInfos} />
+				<MapLayersAttribution />
 			</View>
 
 			<AltitudeProfile
