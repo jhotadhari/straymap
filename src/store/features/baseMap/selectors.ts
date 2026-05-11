@@ -37,9 +37,9 @@ export const selectLayerInfos = (state: RootState) => state.baseMap.layerInfos;
 export const selectLayers = createAppSelector(
 	(state: RootState) => state.baseMap.layers,
 	(state: RootState) => state.baseMap.layersTemp,
-	(_state: RootState, options?: OptionsWithTemp) => options,
-	(layers, layersTemp, options?: OptionsWithTemp): LayerConfig[] => {
-		return (options && options?.temp && layersTemp ? layersTemp : layers).map((layer) => ({
+	(_state: RootState, options?: OptionsWithTemp) => !!options?.temp,
+	(layers, layersTemp, temp: boolean): LayerConfig[] => {
+		return (temp && layersTemp ? layersTemp : layers).map((layer) => ({
 			...layer,
 			options: fillLayerConfigOptionsWithDefaults(layer.type, layer.options),
 		}));
