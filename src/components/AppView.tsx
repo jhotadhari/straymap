@@ -6,7 +6,6 @@ import React, {
 	FC,
 	MutableRefObject,
 	SetStateAction,
-	useCallback,
 	useContext,
 	useMemo,
 } from 'react';
