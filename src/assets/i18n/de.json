@@ -16,11 +16,10 @@
 			"settings": "Einstellungen",
 			"about": "Über",
 			"general": "Allgemein",
-			"maps": "Karten",
-			"appearance": "Aussehen"
+			"appearance": "Aussehen",
+			"maps": "Karten"
 		},
 		"settings": {
-			"saved": "%s Einstellungen gespeichert",
 			"mapsforgeGeneral": "Allgemeine Mapsforge Einstellungen"
 		},
 		"openMapsSettings": "Karten Einstellungen öffnen",
