@@ -6,6 +6,7 @@ import React, {
 	FC,
 	MutableRefObject,
 	SetStateAction,
+	useCallback,
 	useContext,
 	useMemo,
 } from 'react';
@@ -39,7 +40,6 @@ import { Dashboard } from './Dashboard';
 import { Drawers } from './Drawer';
 import * as dashboardElementComponents from './Dashboard/elements';
 import SplashScreen from './SplashScreen';
-import MapLayersAttribution from '../store/features/baseMap/MapLayersAttribution';
 import AltitudeProfile from './AltitudeProfile';
 import RoutingMapView from './RoutingMapView';
 import { useAppSelector } from '../store/hooks';
@@ -59,6 +59,7 @@ import {
 import BaseMap from '../store/features/baseMap/components/BaseMap';
 import SubActivity from '../store/features/ui/components/SubActivity';
 import { selectHierarchyItemKeys } from '../store/features/ui/selectors';
+import MapLayersAttribution from '../store/features/baseMap/MapLayersAttribution';
 
 const AppView = ({
 	showSplash,
