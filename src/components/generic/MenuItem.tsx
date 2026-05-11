@@ -17,7 +17,7 @@ const MenuItem = ({
 	active,
 }: {
 	onPress?: () => void;
-	leadingIcon?: string | ( (props: { color: string; style: ListStyle }) => ReactNode );
+	leadingIcon?: string | ((props: { color: string; style: ListStyle }) => ReactNode);
 	iconSize?: number;
 	style?: null | ViewStyle;
 	iconColor?: string;

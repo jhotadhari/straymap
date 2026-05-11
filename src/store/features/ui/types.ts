@@ -10,4 +10,3 @@ export interface UiItem {
 	label: string;
 	Component?: ReactElement;
 }
-

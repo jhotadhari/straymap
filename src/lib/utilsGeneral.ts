@@ -16,10 +16,7 @@ export const roundTo = (num: number, precision: number): number => {
 	return Math.round(num * factor) / factor;
 };
 
-export const parseSerialized = (
-	str: string,
-	fallback?: any
-): object | false => {
+export const parseSerialized = (str: string, fallback?: any): object | false => {
 	fallback = fallback ? fallback : false;
 	let object = fallback;
 	try {
@@ -60,85 +57,75 @@ export const sortDeep = (
 	objInput: { [key: string]: any },
 	objOrder: { [key: string]: any },
 	options?: {
-		verbose?: false | {
-			objInputLabel?: string,
-			objOrderLabel?: string,
-		},
-		strict?: false, // if strict, will only copy if existing in objOrder
+		verbose?:
+			| false
+			| {
+					objInputLabel?: string;
+					objOrderLabel?: string;
+			  };
+		strict?: false; // if strict, will only copy if existing in objOrder
 	},
-	parentKeys?: string[],
-) : { [key: string]: any } => {
-
+	parentKeys?: string[]
+): { [key: string]: any } => {
 	const { verbose, strict } = {
 		verbose: false,
 		strict: false,
-		...( options ?? {} ),
+		...(options ?? {}),
 	};
-	const {
-		objInputLabel,
-		objOrderLabel,
-	} = {
+	const { objInputLabel, objOrderLabel } = {
 		objInputLabel: 'input',
 		objOrderLabel: 'order',
-		...( 'object' === typeof verbose ? verbose : {} ),
+		...('object' === typeof verbose ? verbose : {}),
 	};
 
 	parentKeys = parentKeys ?? [];
 
 	// Object.keys( objInput )
 	const objInputKeysOrdered = sortArrayByOrderArray(
-		Object.keys( objInput ),
-		Object.keys( objOrder )
+		Object.keys(objInput),
+		Object.keys(objOrder)
 	) as string[];
 
-	const result : { [key: string]: any } = {};
-	if ( verbose ) {
-		Object.keys( objOrder ).forEach( key => {
-			if ( ! objInput.hasOwnProperty( key ) ) {
-				console.log( 'Warning: Key "' + [...parentKeys,key].join( '.' ) + '" not existing in ' + upperCase( objInputLabel ) + ' but in ' + upperCase( objOrderLabel ) + '' );
+	const result: { [key: string]: any } = {};
+	if (verbose) {
+		Object.keys(objOrder).forEach((key) => {
+			if (!objInput.hasOwnProperty(key)) {
+				console.log(
+					'Warning: Key "' +
+						[...parentKeys, key].join('.') +
+						'" not existing in ' +
+						upperCase(objInputLabel) +
+						' but in ' +
+						upperCase(objOrderLabel) +
+						''
+				);
 			}
-		} );
+		});
 	}
 
-	objInputKeysOrdered.forEach( key => {
-		if ( ! objOrder.hasOwnProperty( key ) ) {
-
-			if (verbose ) {
-				console.log( 'Warning: Key "' + [...parentKeys,key].join( '.' ) + '" not existing in objOrder but in objInput.' + ( strict
-					? ' Removed in result'
-					: ''
-				) );
-			}
-			if ( ! strict ) {
-				set(
-					result,
-					key,
-					objInput[key]
+	objInputKeysOrdered.forEach((key) => {
+		if (!objOrder.hasOwnProperty(key)) {
+			if (verbose) {
+				console.log(
+					'Warning: Key "' +
+						[...parentKeys, key].join('.') +
+						'" not existing in objOrder but in objInput.' +
+						(strict ? ' Removed in result' : '')
 				);
+			}
+			if (!strict) {
+				set(result, key, objInput[key]);
 			}
 			return;
 		}
-		if ( 'string' === typeof objOrder[key] ) {
-			set(
-				result,
-				key,
-				objInput[key]
-			);
+		if ('string' === typeof objOrder[key]) {
+			set(result, key, objInput[key]);
 			return;
 		}
-		if ( 'object' === typeof objOrder[key] ) {
-				set(
-					result,
-					key,
-					sortDeep(
-						objInput[key],
-						objOrder[key],
-						options,
-						[...parentKeys,key]
-					)
-				);
-				return;
-			}
-	} );
+		if ('object' === typeof objOrder[key]) {
+			set(result, key, sortDeep(objInput[key], objOrder[key], options, [...parentKeys, key]));
+			return;
+		}
+	});
 	return result;
-}
+};

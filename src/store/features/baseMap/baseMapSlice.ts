@@ -10,7 +10,13 @@ import { LayerHillshadingProps } from 'react-native-mapsforge-vtm';
  * Internal dependencies
  */
 import { SliceSettingsBase } from '../../../types';
-import { LayerConfig, LayerInfo, MapsforgeGeneral, MapsforgeProfile, RenderStylesCache } from './types';
+import {
+	LayerConfig,
+	LayerInfo,
+	MapsforgeGeneral,
+	MapsforgeProfile,
+	RenderStylesCache,
+} from './types';
 import { getLayerKind, getNewProfile, getSetterThunkWithGetter } from './utils';
 import { selectLayerInfos, selectLayerTemp, selectMapsforgeProfileTemp } from './selectors';
 

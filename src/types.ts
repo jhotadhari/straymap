@@ -21,7 +21,6 @@ export type InitialPosition = {
 	zoomLevel: number;
 };
 
-
 export type BottomBarHeight = { [value: string]: number };
 
 export interface ThemePropExtended extends MD3Theme {
@@ -36,7 +35,6 @@ export interface OptionBase {
 export interface ThemeOption extends OptionBase {
 	value: ThemePropExtended;
 }
-
 
 export type RoutingPoint = {
 	key: string;

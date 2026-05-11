@@ -14,7 +14,10 @@ const UiItemComponent: FC<{}> = () => {
 	const uiItemsKeys = useAppSelector(selectUiItemKeys);
 
 	const Component = useMemo(() => {
-		return () => uiItemsKeys.length ? getUiItemsByKey(uiItemsKeys)[uiItemsKeys.length - 1].Component : undefined;
+		return () =>
+			uiItemsKeys.length
+				? getUiItemsByKey(uiItemsKeys)[uiItemsKeys.length - 1].Component
+				: undefined;
 	}, [uiItemsKeys]);
 
 	return Component ? <Component /> : undefined;

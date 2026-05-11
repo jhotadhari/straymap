@@ -46,10 +46,6 @@ export const uiItems: UiItem[] = [
 	},
 ];
 
-export const getUiItemsByKey = (
-	keys: string[]
-) => {
-	return [...keys]
-		.map((key) => uiItems.find((item) => item.key === key))
-		.filter((a) => !!a);
+export const getUiItemsByKey = (keys: string[]) => {
+	return [...keys].map((key) => uiItems.find((item) => item.key === key)).filter((a) => !!a);
 };

@@ -27,11 +27,12 @@ const Settings: FC = () => {
 	const uiItemsKeys = useAppSelector(selectUiItemKeys);
 
 	const settingsPages = useMemo(
-		() => getUiItemsByKey([
-			'maps',
-			'general',
-			'appearance',
-		]),
+		() =>
+			getUiItemsByKey([
+				'maps',
+				'general',
+				'appearance',
+			]),
 		[]
 	);
 
