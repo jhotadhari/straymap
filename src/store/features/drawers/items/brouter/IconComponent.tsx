@@ -2,8 +2,8 @@
  * Internal dependencies
  */
 
-import { TextStyle } from "react-native";
-import IconIcomoon from "../../../../../components/generic/IconIcomoon";
+import { TextStyle } from 'react-native';
+import IconIcomoon from '../../../../../components/generic/IconIcomoon';
 
 const IconComponent = ({ color }: { color: TextStyle['color'] }) => {
 	return (

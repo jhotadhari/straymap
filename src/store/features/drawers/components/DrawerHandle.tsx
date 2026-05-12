@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { useCallback, useContext, useMemo } from 'react';
+import React, { useContext, useMemo } from 'react';
 import { View, ViewStyle } from 'react-native';
 import { Button, Icon, useTheme } from 'react-native-paper';
 import { ComposedGesture, GestureDetector, GestureType } from 'react-native-gesture-handler';
@@ -12,36 +12,32 @@ import { get } from 'lodash-es';
  */
 import * as drawerItems from '../items';
 import DrawerContext from '../DrawerContext';
-import { useAppDispatch } from '../../../hooks';
-import { removeItemKey } from '../drawersSlice';
 import { DrawerItem } from '../types';
-
-const handleSize = 50;
+import { handleSize } from '../constants';
 
 const DrawerHandle = ({
-	index,
 	itemKey,
+	panEnabled,
 	gesture,
 	overwriteDrawerItem,
 	onPress,
-	onLongPress,
+	style,
 }: {
-	index: number;
+	panEnabled: boolean;
 	itemKey?: string;
 	gesture: ComposedGesture | GestureType;
 	overwriteDrawerItem?: DrawerItem;
-	onPress?: false | ( () => void );
-	onLongPress?: false | ( () => void );
+	onPress?: () => void;
+	style?: ViewStyle;
 }) => {
 	const theme = useTheme();
 
-	const dispatch = useAppDispatch();
-
-	const { side, activeItemKey, setActiveItemKey, getIsFullyCollapsed, expand } =
-		useContext(DrawerContext);
+	const { side, activeItemKey } = useContext(DrawerContext);
 
 	const drawerItem = useMemo(
-		() => overwriteDrawerItem ?? get(drawerItems as { [itemKey: string]: DrawerItem }, [itemKey ?? '']),
+		() =>
+			overwriteDrawerItem ??
+			get(drawerItems as { [itemKey: string]: DrawerItem }, [itemKey ?? '']),
 		[itemKey, overwriteDrawerItem]
 	);
 
@@ -66,104 +62,50 @@ const DrawerHandle = ({
 				: theme.colors.onBackground;
 	}, [isActive, theme]);
 
-	const style: ViewStyle = useMemo(
+	const containerStyle: ViewStyle = useMemo(
 		() => ({
-			position: 'absolute',
 			width: handleSize,
-			height: handleSize,
+			height: handleSize + handleSize / 2,
 			justifyContent: 'center',
 			alignItems: 'center',
-			top: index * handleSize + (index + 1) * (handleSize / 2),
-			backgroundColor: isActive ? theme.colors.background : 'transparent',
-			borderColor: theme.dark ? theme.colors.background : theme.colors.onBackground,
-			borderWidth: 1,
-			...('left' === side && {
-				right: 0,
-				transform: [
-					{ translateX: '100%' },
-				],
-				borderTopRightRadius: '50%',
-				borderBottomRightRadius: '50%',
-				borderLeftWidth: 0,
-			}),
-			...('right' === side && {
-				left: 0,
-				transform: [
-					{ translateX: '-100%' },
-				],
-				borderTopLeftRadius: '50%',
-				borderBottomLeftRadius: '50%',
-				borderRightWidth: 0,
-			}),
+			...style,
 		}),
 		[
-			index,
 			isActive,
 			theme,
 			side,
+			style,
 		]
 	);
 
-	const handlePress = useCallback(() => {
-		if ( onPress instanceof Function ) {
-			onPress();
-			return;
-		} else if ( false === onPress ) {
-			return;
-		}
-
-		if (isActive) {
-			expand(getIsFullyCollapsed());
-		} else if (itemKey) {
-			setActiveItemKey(itemKey);
-			if (getIsFullyCollapsed()) {
-				expand(true);
-			}
-		}
-	}, [isActive, itemKey, onPress]);
-
-	const handleLongPress = useCallback(() => {
-		// ??? should enable for sorting items.
-
-		// ??? Should prompt some warning before removing
-
-
-		if ( onLongPress instanceof Function ) {
-			onLongPress();
-			return;
-		} else if ( false === onLongPress ) {
-			return;
-		}
-
-		if (isActive) {
-			expand(false);
-		}
-
-		itemKey &&
-			dispatch(
-				removeItemKey({
-					side,
-					itemKey,
-				})
-			);
-
-	}, [
-		isActive,
-		side,
-		itemKey,
-		onLongPress,
-	]);
-
-	return (
-		<GestureDetector
-			key={index}
-			gesture={gesture}
-		>
-			<View style={style}>
+	const handlesNode = useMemo(() => {
+		return (
+			<View
+				style={{
+					width: handleSize,
+					height: handleSize,
+					backgroundColor: isActive ? theme.colors.background : 'transparent',
+					borderColor: theme.dark ? theme.colors.background : theme.colors.onBackground,
+					borderWidth: 1,
+					justifyContent: 'center',
+					alignItems: 'center',
+					...('left' === side && {
+						borderTopRightRadius: '50%',
+						borderBottomRightRadius: '50%',
+						borderLeftWidth: 0,
+					}),
+					...('right' === side && {
+						borderTopLeftRadius: '50%',
+						borderBottomLeftRadius: '50%',
+						borderRightWidth: 0,
+					}),
+				}}
+			>
 				<Button
-					onPress={handlePress}
-					onLongPress={handleLongPress}
 					compact={true}
+					{...{
+						...(onPress && { onPress }),
+					}}
 				>
 					{IconComponent && <IconComponent color={color} />}
 					{iconSource && (
@@ -179,8 +121,14 @@ const DrawerHandle = ({
 					<View
 						style={{
 							position: 'absolute',
-							left: '-100%', // ??? turn around for otherside
-							transform: [{ translateX: -20 }], // ??? turn around for otherside
+							...('left' === side && {
+								left: '100%',
+								transform: [{ translateX: 10 }],
+							}),
+							...('right' === side && {
+								left: '-100%',
+								transform: [{ translateX: -20 }],
+							}),
 						}}
 					>
 						<IconActions
@@ -192,7 +140,22 @@ const DrawerHandle = ({
 					</View>
 				)}
 			</View>
-		</GestureDetector>
+		);
+	}, [
+		IconComponent,
+		iconSource,
+		color,
+		isActive,
+		IconActions,
+		theme,
+		onPress,
+	]);
+
+	return (
+		<View style={containerStyle}>
+			{!panEnabled && handlesNode}
+			{panEnabled && <GestureDetector gesture={gesture}>{handlesNode}</GestureDetector>}
+		</View>
 	);
 };
 

@@ -20,11 +20,7 @@ import { DrawerItem } from '../types';
 const DisplayComponent = () => {
 	const { t } = useTranslation();
 
-	const {
-		width,
-		height,
-		side,
-	} = useContext( DrawerContext );
+	const { width, height, side } = useContext(DrawerContext);
 
 	const theme = useTheme();
 

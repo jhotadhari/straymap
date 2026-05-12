@@ -12,12 +12,13 @@ import { usePrevious } from 'victory-native';
 
 /**
  * Internal dependencies
-*/
+ */
 import { AppContext, RoutingContext } from '../../../../../Context';
 import { runAfterInteractions } from '../../../../../lib/utils';
 import { RoutingPoint } from '../../../../../types';
 import { MapContext } from '../../../../../Context';
 import MenuItem from '../../../../../components/generic/MenuItem';
+import DrawerContext from '../../DrawerContext';
 
 const IconActions = ({ style }: { style: TextStyle }) => {
 	const { mapHeight, mapViewNativeNodeHandle } = useContext(AppContext);
@@ -38,6 +39,8 @@ const IconActions = ({ style }: { style: TextStyle }) => {
 	} = useContext(RoutingContext);
 
 	const { currentMapEventRef } = useContext(MapContext);
+
+	const { side } = useContext(DrawerContext);
 
 	const { width } = useSafeAreaFrame();
 	const theme = useTheme();
@@ -250,8 +253,13 @@ const IconActions = ({ style }: { style: TextStyle }) => {
 			contentStyle={{
 				borderColor: theme.colors.outline,
 				borderWidth: 1,
-				marginLeft: -100, // ??? turn around for other side
 				marginTop: -5,
+				...('left' === side && {
+					marginLeft: 0,
+				}),
+				...('right' === side && {
+					marginLeft: -100,
+				}),
 			}}
 			visible={menuVisible}
 			onDismiss={dismissMenu}

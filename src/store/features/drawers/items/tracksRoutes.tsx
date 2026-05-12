@@ -8,7 +8,7 @@ import { View } from 'react-native';
 
 /**
  * Internal dependencies
-*/
+ */
 import { DrawerItem } from '../types';
 
 const DisplayComponent = () => {

@@ -57,6 +57,8 @@
 				"hillshading": "Offline hillshading with digital elevation models (DEM) in hgt format."
 			}
 		},
+		"drawer_one": "Drawer",
+		"drawer_other": "Drawers",
 		"lineScale": "Line scale",
 		"textScale": "Text scale",
 		"symbolScale": "Symbol scale",

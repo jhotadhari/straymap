@@ -13,6 +13,7 @@ import { without } from 'lodash-es';
 export interface DrawersSettings {
 	itemKeysLeft: string[];
 	itemKeysRight: string[];
+	controlHandleSide: string;
 }
 
 export interface DrawersState extends SliceSettingsBase, DrawersSettings {
@@ -22,7 +23,7 @@ export interface DrawersState extends SliceSettingsBase, DrawersSettings {
 
 export const initialSettings: DrawersSettings = {
 	itemKeysLeft: [
-		'gps',
+		'position',
 		'tracksRoutes',
 		'waypoints',
 	],
@@ -31,6 +32,7 @@ export const initialSettings: DrawersSettings = {
 		'searchPlace',
 		'brouter',
 	],
+	controlHandleSide: 'right',
 };
 
 const initialState: DrawersState = {
@@ -46,6 +48,10 @@ export const drawersSlice = createSlice({
 	reducers: {
 		setInitialized: (state, action: PayloadAction<boolean>) => {
 			state.initialized = action.payload;
+		},
+		setControlHandleSide: (state, action: PayloadAction<DrawersState['controlHandleSide']>) => {
+			console.log('debug action.payload', action.payload); // debug
+			state.controlHandleSide = action.payload;
 		},
 		setItemKeys: (
 			state,
@@ -113,8 +119,14 @@ export const drawersSlice = createSlice({
 });
 
 // Export the generated action creators for use in components.
-export const { setInitialized, setItemKeys, addItemKey, removeItemKey, setActiveKey } =
-	drawersSlice.actions;
+export const {
+	setInitialized,
+	setControlHandleSide,
+	setItemKeys,
+	addItemKey,
+	removeItemKey,
+	setActiveKey,
+} = drawersSlice.actions;
 
 // Export the slice reducer for use in the store configuration
 export default drawersSlice.reducer;

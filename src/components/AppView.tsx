@@ -138,6 +138,8 @@ const AppView = ({
 		[hardwareKeys]
 	);
 
+	console.log('debug MapContainerModule', MapContainerModule); // debug
+
 	const handleHardwareKeyUp = useCallback(
 		() =>
 			hardwareKeys.length > 0

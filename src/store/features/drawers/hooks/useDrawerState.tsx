@@ -97,7 +97,6 @@ const useDrawerState = ({
 			);
 		})
 		.runOnJS(true);
-
 	const getIsFullyCollapsed = () =>
 		'left' === side ? translationX.value === -drawerWidth : translationX.value === drawerWidth;
 

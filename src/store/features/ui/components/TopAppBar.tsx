@@ -136,7 +136,10 @@ const TopAppBar = ({
 				const { height } = e.nativeEvent.layout;
 				setTopAppBarHeight(height);
 			}}
-			style={styles.justifyBetween}
+			style={[
+				styles.justifyBetween,
+				styles.zObove,
+			]}
 		>
 			{uiItemsKeys.length && (
 				<TouchableHighlight
@@ -162,6 +165,7 @@ const styles = StyleSheet.create({
 	justifyBetween: {
 		justifyContent: 'space-between',
 	},
+	zObove: { zIndex: 999 },
 	button: {
 		padding: 10,
 		marginLeft: 5,

@@ -8,7 +8,7 @@ import { View } from 'react-native';
 
 /**
  * Internal dependencies
-*/
+ */
 import IconIcomoon from '../../../../components/generic/IconIcomoon';
 import { DrawerItem } from '../types';
 

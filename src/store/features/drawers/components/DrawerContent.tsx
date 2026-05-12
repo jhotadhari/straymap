@@ -14,16 +14,17 @@ import { DrawerItem } from '../types';
 
 const handleSize = 50;
 
-const DrawerContent : FC<{}> = () => {
-
+const DrawerContent: FC<{}> = () => {
 	const { activeItemKey } = useContext(DrawerContext);
 
 	const DisplayComponent = useMemo(
 		() =>
-			activeItemKey ? get( drawerItems as { [itemKey: string]: DrawerItem }, [
-				activeItemKey,
-				'DisplayComponent',
-			]) : undefined,
+			activeItemKey
+				? get(drawerItems as { [itemKey: string]: DrawerItem }, [
+						activeItemKey,
+						'DisplayComponent',
+					])
+				: undefined,
 		[activeItemKey]
 	);
 
@@ -35,10 +36,10 @@ const DrawerContent : FC<{}> = () => {
 		<View
 			style={{
 				padding: 20,
-				marginTop: handleSize / 2,
+				marginTop: handleSize / 4,
 			}}
 		>
-			<DisplayComponent/>
+			<DisplayComponent />
 		</View>
 	);
 };

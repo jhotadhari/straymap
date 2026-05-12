@@ -62,13 +62,13 @@ export type AppThunk<ThunkReturnType = void> = ThunkAction<
 	Action
 >;
 
-initializeFromStorage_appearance( store );
-initializeFromStorage_baseMap( store );
-initializeFromStorage_dashboard( store );
-initializeFromStorage_dirs( store );
-initializeFromStorage_drawers( store );
-initializeFromStorage_general( store );
-initializeFromStorage_ui( store );
+initializeFromStorage_appearance(store);
+initializeFromStorage_baseMap(store);
+initializeFromStorage_dashboard(store);
+initializeFromStorage_dirs(store);
+initializeFromStorage_drawers(store);
+initializeFromStorage_general(store);
+initializeFromStorage_ui(store);
 
 export const useSettingsInitialized = () => {
 	const settingsInitialized_appearance = useAppSelector(selectSettingsInitialized_appearance);
@@ -78,11 +78,13 @@ export const useSettingsInitialized = () => {
 	const settingsInitialized_drawers = useAppSelector(selectSettingsInitialized_drawers);
 	const settingsInitialized_general = useAppSelector(selectSettingsInitialized_general);
 	const settingsInitialized_ui = useAppSelector(selectSettingsInitialized_ui);
-	return settingsInitialized_appearance &&
+	return (
+		settingsInitialized_appearance &&
 		settingsInitialized_baseMap &&
 		settingsInitialized_dashboard &&
 		settingsInitialized_dirs &&
 		settingsInitialized_drawers &&
 		settingsInitialized_general &&
-		settingsInitialized_ui;
+		settingsInitialized_ui
+	);
 };

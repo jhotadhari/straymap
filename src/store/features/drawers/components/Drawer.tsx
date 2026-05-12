@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { Dispatch, FC, SetStateAction, useCallback, useState } from 'react';
+import React, { FC, useCallback, useEffect } from 'react';
 import { View } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import Animated from 'react-native-reanimated';
@@ -9,23 +9,16 @@ import Animated from 'react-native-reanimated';
 /**
  * Internal dependencies
  */
-import { DrawerState } from '../types';
+import { DrawerProps } from '../types';
 import { selectActiveKey, selectItemKeys } from '../selectors';
 import { useAppDispatch, useAppSelector } from '../../../hooks';
 import DrawerContent from './DrawerContent';
-import DrawerHandle from './DrawerHandle';
 import { setActiveKey } from '../drawersSlice';
 import DrawerContext from '../DrawerContext';
-
-interface DrawerProps extends DrawerState {
-	height: number;
-	showControlHandle?: boolean;
-	setModalVisible: Dispatch<SetStateAction<boolean>>;
-}
+import DrawerHandles from './DrawerHandles';
 
 const Drawer: FC<DrawerProps> = ({
 	height,
-	showControlHandle,
 	side,
 	drawerWidth,
 	outerWidth,
@@ -35,7 +28,6 @@ const Drawer: FC<DrawerProps> = ({
 	expand,
 	getIsFullyCollapsed,
 	setModalVisible,
-
 }) => {
 	const theme = useTheme();
 
@@ -56,6 +48,16 @@ const Drawer: FC<DrawerProps> = ({
 		},
 		[side]
 	);
+
+	useEffect(() => {
+		if (showContent && !activeItemKey && itemKeys.length) {
+			setActiveItemKey(itemKeys[0]);
+		}
+	}, [
+		showContent,
+		activeItemKey,
+		itemKeys,
+	]);
 
 	return (
 		<DrawerContext.Provider
@@ -89,27 +91,13 @@ const Drawer: FC<DrawerProps> = ({
 						},
 					]}
 				>
-					{itemKeys &&
-						[...itemKeys].map((itemKey, index) => (
-							<DrawerHandle
-								key={index}
-								index={index}
-								itemKey={itemKey}
-								gesture={gesture}
-							/>
-						))}
-
-					{showControlHandle && (
-						<DrawerHandle
-							index={itemKeys.length}
-							gesture={gesture}
-							onPress={() => setModalVisible((visible) => !visible)}
-							overwriteDrawerItem={{
-								key: null,
-								iconSource: 'plus',
-							}}
-						/>
-					)}
+					<DrawerHandles
+						setModalVisible={setModalVisible}
+						side={side}
+						gesture={gesture}
+						expand={expand}
+						getIsFullyCollapsed={getIsFullyCollapsed}
+					/>
 
 					{activeItemKey && showContent && <DrawerContent />}
 				</Animated.View>

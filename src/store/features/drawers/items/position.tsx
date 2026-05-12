@@ -23,14 +23,14 @@ const DisplayComponent = () => {
 				}
 			}
 		>
-			<Text>bla gps</Text>
+			<Text>bla position</Text>
 		</View>
 	);
 };
 
 export default {
-	key: 'gps',
-	label: 'gps',
+	key: 'position',
+	label: 'position',
 	DisplayComponent,
 	// IconComponent,
 	iconSource: 'crosshairs-gps',

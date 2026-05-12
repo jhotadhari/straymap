@@ -16,6 +16,7 @@ import {
 	setItemKeys,
 	removeItemKey,
 	addItemKey,
+	setControlHandleSide,
 } from './drawersSlice';
 import { startAppListening } from '../../listenerMiddleware';
 
@@ -46,6 +47,9 @@ export const initializeFromStorage = (store: EnhancedStore) => {
 							itemKeys: newSettings.itemKeysRight,
 						})
 					);
+				}
+				if (newSettings?.controlHandleSide) {
+					store.dispatch(setControlHandleSide(newSettings.controlHandleSide));
 				}
 			}
 			store.dispatch(setInitialized(true));
@@ -85,12 +89,7 @@ export const saveToStorage = (drawersState: DrawersState, actionType: string) =>
  * and calls the function to save them to defaultPreferences.
  */
 startAppListening({
-	matcher:
-		isAnyOf(
-			setItemKeys,
-			addItemKey,
-			removeItemKey,
-		),
+	matcher: isAnyOf(setControlHandleSide, setItemKeys, addItemKey, removeItemKey),
 	effect: async (action, listenerApi) => {
 		saveToStorage(listenerApi.getState().drawers, action.type);
 	},

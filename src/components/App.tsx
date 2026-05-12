@@ -23,15 +23,11 @@ import AppView from './AppView';
 import SplashScreenUpdater from './SplashScreenUpdater';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import RoutingProvider from './RoutingProvider';
-import {
-	selectMapsforgeGeneral,
-} from '../store/features/baseMap/selectors';
+import { selectMapsforgeGeneral } from '../store/features/baseMap/selectors';
 import { useAppSelector } from '../store/hooks';
 import { useSetupTheme } from '../store/features/appearance/hooks';
 import { selectElements } from '../store/features/dashboard/selectors';
-import {
-	selectIsBusy,
-} from '../store/features/ui/selectors';
+import { selectIsBusy } from '../store/features/ui/selectors';
 import { useIsBusyPromiseQueueState } from '../store/features/ui/hooks';
 import useUpdater from '../store/features/general/hooks/useUpdater';
 import { useSettingsInitialized } from '../store/store';
@@ -206,12 +202,7 @@ const App = () => {
 	const appInnerHeight = height - topAppBarHeight;
 
 	useEffect(() => {
-		if (
-			!!(
-				initialPositionInitialized &&
-				settingsInitialized
-			)
-		) {
+		if (!!(initialPositionInitialized && settingsInitialized)) {
 			setReady(true);
 		}
 	}, [
