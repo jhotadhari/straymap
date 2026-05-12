@@ -2,7 +2,7 @@
  * External dependencies
  */
 import React, { FC, useContext, useMemo } from 'react';
-import { View } from 'react-native';
+import { ScrollView } from 'react-native';
 import { useSafeAreaFrame } from 'react-native-safe-area-context';
 import { useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -32,12 +32,13 @@ const Settings: FC = () => {
 				'maps',
 				'general',
 				'appearance',
+				'dashboard',
 			]),
 		[]
 	);
 
 	return (
-		<View
+		<ScrollView
 			style={{
 				backgroundColor: theme.colors.background,
 				height: appInnerHeight,
@@ -61,7 +62,7 @@ const Settings: FC = () => {
 					}
 				/>
 			))}
-		</View>
+		</ScrollView>
 	);
 };
 

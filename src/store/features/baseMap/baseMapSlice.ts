@@ -200,7 +200,7 @@ export const baseMapSlice = createSlice({
 				newProfiles[itemIndex] = newProfile;
 				state.mapsforgeProfilesTemp = newProfiles;
 			} else {
-				newProfiles.splice(0, 0, newProfile);
+				newProfiles.splice(newProfiles.length, 0, newProfile);
 				state.mapsforgeProfilesTemp = newProfiles;
 			}
 		},

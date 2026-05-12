@@ -3,7 +3,6 @@
  */
 import React, {
 	Dispatch,
-	FC,
 	MutableRefObject,
 	SetStateAction,
 	useCallback,
@@ -36,9 +35,9 @@ import TopAppBar from '../store/features/ui/components/TopAppBar';
 import type { InitialPosition, BottomBarHeight } from '../types';
 import { AppContext, MapContext } from '../Context';
 import Center from '../store/features/appearance/components/Center';
-import { Dashboard } from './Dashboard';
+import Dashboard from '../store/features/dashboard/components/Dashboard';
 import Drawers from '../store/features/drawers/components/Drawers';
-import * as dashboardElementComponents from './Dashboard/elements';
+import * as dashboardElementComponents from '../store/features/dashboard/elements';
 import SplashScreen from './SplashScreen';
 import AltitudeProfile from './AltitudeProfile';
 import RoutingMapView from './RoutingMapView';
@@ -46,9 +45,8 @@ import { useAppSelector } from '../store/hooks';
 import {
 	selectHardwareKeys,
 	selectMapEventRate,
-	selectUnitPrefs,
 } from '../store/features/general/selectors';
-import { selectDashboardStyle, selectElements } from '../store/features/dashboard/selectors';
+import { selectElements } from '../store/features/dashboard/selectors';
 import { DashboardElementConf } from '../store/features/dashboard/types';
 import {
 	selectHgtDirPath,
@@ -82,8 +80,6 @@ const AppView = ({
 	const hardwareKeys = useAppSelector(selectHardwareKeys);
 
 	const dashboardElements = useAppSelector(selectElements);
-	const unitPrefs = useAppSelector(selectUnitPrefs);
-	const dashboardStyle = useAppSelector(selectDashboardStyle);
 	const mapEventRate = useAppSelector(selectMapEventRate);
 	const hgtInterpolation = useAppSelector(selectHgtInterpolation);
 	const hgtFileInfoPurgeThreshold = useAppSelector(selectHgtFileInfoPurgeThreshold);
@@ -240,9 +236,6 @@ const AppView = ({
 
 			{dashboardElements.length > 0 && (
 				<Dashboard
-					elements={dashboardElements}
-					dashboardStyle={dashboardStyle}
-					unitPrefs={unitPrefs}
 					setBottomBarHeight={setBottomBarHeight}
 					outerWidth={width}
 				/>

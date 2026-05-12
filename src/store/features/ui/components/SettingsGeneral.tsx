@@ -15,7 +15,6 @@ import { get } from 'lodash-es';
 import { AppContext } from '../../../../Context';
 import ListItemMenuControl from '../../../../components/generic/ListItemMenuControl';
 import HardwareKeyControl from '../../general/components/controls/HardwareKeyControl';
-import { DashboardControl } from '../../../../components/Dashboard';
 import UnitPrefControl from '../../general/components/controls/UnitPrefControl';
 import HgtControl from '../../general/components/controls/HgtControl';
 import { useAppDispatch, useAppSelector } from '../../../hooks';
@@ -23,6 +22,7 @@ import { selectLang } from '../../general/selectors';
 import { LANGUAGE_NAMES, SUPPORTED_LANGUAGES } from '../../../../assets/i18n/constants';
 import { setLang } from '../../general/generalSlice';
 import { sortArrayByOrderArray } from '../../../../lib/utilsGeneral';
+import DashboardControl from '../../dashboard/components/DashboardControlOld';
 
 const LangControl: FC = () => {
 	const { t } = useTranslation();

@@ -6,8 +6,8 @@ import { View } from 'react-native';
 
 /**
  * Internal dependencies
- */
-import { DashboardDisplayComponentProps } from '../../../types';
+*/
+import { DashboardDisplayComponentProps } from '../types';
 
 const DisplayComponent = ({ style = {} }: DashboardDisplayComponentProps) => {
 	return (

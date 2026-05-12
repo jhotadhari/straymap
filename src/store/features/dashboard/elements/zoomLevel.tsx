@@ -9,11 +9,11 @@ import { View } from 'react-native';
 /**
  * Internal dependencies
  */
-import { MapContext } from '../../../Context';
+import { MapContext } from '../../../../Context';
 import { MapEventResponse } from 'react-native-mapsforge-vtm';
-import { DashboardDisplayComponentProps } from '../../../store/features/dashboard/types';
-import { selectMapEventRate } from '../../../store/features/general/selectors';
-import { useAppSelector } from '../../../store/hooks';
+import { DashboardDisplayComponentProps } from '../../dashboard/types';
+import { selectMapEventRate } from '../../general/selectors';
+import { useAppSelector } from '../../../hooks';
 
 const DisplayComponent = ({
 	dashboardElement,

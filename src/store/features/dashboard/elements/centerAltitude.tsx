@@ -11,23 +11,23 @@ import convertUnits from 'convert-units';
 /**
  * Internal dependencies
  */
-import ButtonHighlight from '../../generic/ButtonHighlight';
-import MenuItem from '../../generic/MenuItem';
-import InfoRowControl from '../../generic/InfoRowControl';
-import { options as unitPrefControlOptions } from '../../../store/features/general/components/controls/UnitPrefControl';
+import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
+import MenuItem from '../../../../components/generic/MenuItem';
+import InfoRowControl from '../../../../components/generic/InfoRowControl';
+import { options as unitPrefControlOptions } from '../../general/components/controls/UnitPrefControl';
 import { TFunction } from 'i18next';
-import { roundTo } from '../../../lib/utilsGeneral';
-import { NumericRowControl } from '../../generic/NumericRowControls';
-import { MapContext } from '../../../Context';
-import { styles as mdStyles } from '../../../markdown/styles';
-import { selectMapEventRate } from '../../../store/features/general/selectors';
-import { useAppSelector } from '../../../store/hooks';
+import { roundTo } from '../../../../lib/utilsGeneral';
+import { NumericRowControl } from '../../../../components/generic/NumericRowControls';
+import { MapContext } from '../../../../Context';
+import { styles as mdStyles } from '../../../../markdown/styles';
+import { selectMapEventRate } from '../../general/selectors';
+import { useAppSelector } from '../../../hooks';
 import {
 	DashboardDisplayComponentProps,
 	DashboardElementConf,
-} from '../../../store/features/dashboard/types';
-import { UnitPref } from '../../../store/features/general/types';
-import { selectHgtDirPath } from '../../../store/features/baseMap/selectors';
+} from '../../dashboard/types';
+import { UnitPref } from '../../general/types';
+import { selectHgtDirPath } from '../../baseMap/selectors';
 
 const opts = [
 	{

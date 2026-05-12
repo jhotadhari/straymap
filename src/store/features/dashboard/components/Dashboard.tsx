@@ -1,42 +1,43 @@
 /**
  * External dependencies
  */
-import { View } from 'react-native';
-import { Dispatch, SetStateAction } from 'react';
+import { View, ViewStyle } from 'react-native';
+import { Dispatch, FC, SetStateAction } from 'react';
 import { get } from 'lodash-es';
 import { useTheme } from 'react-native-paper';
 
 /**
  * Internal dependencies
  */
-import { BottomBarHeight } from '../../types';
-import * as dashboardElementComponents from './elements';
-import { DashboardElementConf, DashboardStyle } from '../../store/features/dashboard/types';
-import { UnitPref } from '../../store/features/general/types';
+import { BottomBarHeight } from '../../../../types';
+import * as dashboardElementComponents from '../elements';
+import { useAppSelector } from '../../../hooks';
+import { selectUnitPrefs } from '../../general/selectors';
+import { selectElements, selectDashboardStyle } from '../selectors';
 
-const Dashboard = ({
-	elements,
-	dashboardStyle,
-	unitPrefs,
-	setBottomBarHeight,
-	outerWidth,
-}: {
-	elements: DashboardElementConf[];
-	dashboardStyle: DashboardStyle;
-	unitPrefs: { [value: string]: UnitPref };
+const Dashboard : FC<{
 	setBottomBarHeight?: Dispatch<SetStateAction<BottomBarHeight>>;
 	outerWidth: number;
+	style?: ViewStyle;
+}> = ({
+	setBottomBarHeight,
+	outerWidth,
+	style
 }) => {
 	const theme = useTheme();
+
+	const elements = useAppSelector(selectElements);
+	const dashboardStyle = useAppSelector(selectDashboardStyle);
+	const unitPrefs = useAppSelector(selectUnitPrefs);
+
 	return (
 		<View
-			style={{
+			style={[{
 				bottom: 0,
 				position: 'absolute',
 				width: outerWidth,
-				// zIndex: 100,
 				backgroundColor: theme.colors.background,
-			}}
+			}, style]}
 		>
 			<View
 				onLayout={(e) => {

@@ -14,25 +14,25 @@ import { sprintf } from 'sprintf-js';
 /**
  * Internal dependencies
  */
-import { OptionBase } from '../../types';
-import ListItemModalControl from '../generic/ListItemModalControl';
-import ButtonHighlight from '../generic/ButtonHighlight';
+import { OptionBase } from '../../../../types';
+import ListItemModalControl from '../../../../components/generic/ListItemModalControl';
+import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
 import DraggableGrid from 'react-native-draggable-grid';
-import InfoButton from '../generic/InfoButton';
-import { modalWidthFactor } from '../../constants';
-import { Dashboard } from '.';
-import ModalWrapper from '../generic/ModalWrapper';
-import RadioListItem from '../generic/RadioListItem';
-import { NumericRowControl } from '../generic/NumericRowControls';
-import * as dashboardElementComponents from './elements';
-import MenuItem from '../generic/MenuItem';
-import InfoRowControl, { labelPadding } from '../generic/InfoRowControl';
-import { DashboardElementConf } from '../../store/features/dashboard/types';
-import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { selectDashboardStyle, selectElements } from '../../store/features/dashboard/selectors';
-import { setDashboardStyle, setElements } from '../../store/features/dashboard/dashboardSlice';
-import { selectMapEventRate, selectUnitPrefs } from '../../store/features/general/selectors';
-import { setMapEventRate } from '../../store/features/general/generalSlice';
+import InfoButton from '../../../../components/generic/InfoButton';
+import { modalWidthFactor } from '../../../../constants';
+import ModalWrapper from '../../../../components/generic/ModalWrapper';
+import RadioListItem from '../../../../components/generic/RadioListItem';
+import { NumericRowControl } from '../../../../components/generic/NumericRowControls';
+import * as dashboardElementComponents from '../elements';
+import MenuItem from '../../../../components/generic/MenuItem';
+import InfoRowControl, { labelPadding } from '../../../../components/generic/InfoRowControl';
+import { DashboardElementConf } from '../types';
+import { useAppDispatch, useAppSelector } from '../../../hooks';
+import { selectDashboardStyle, selectElements } from '../selectors';
+import { setDashboardStyle, setElements } from '../dashboardSlice';
+import { selectMapEventRate, selectUnitPrefs } from '../../general/selectors';
+import { setMapEventRate } from '../../general/generalSlice';
+import Dashboard from './Dashboard';
 
 const itemHeight = 50;
 
@@ -504,9 +504,6 @@ const DashboardControl = () => {
 					>
 						<Dashboard
 							outerWidth={width}
-							elements={dashboardElementsEdit}
-							dashboardStyle={dashboardStyle}
-							unitPrefs={unitPrefs}
 						/>
 					</View>
 				}

@@ -5,6 +5,7 @@ import SettingsAppearance from './components/SettingsAppearance';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Settings from './components/Settings';
 import About from '../../../components/About';
+import SettingsDashboard from './components/SettingsDashboard';
 
 export const uiItems: UiItem[] = [
 	{
@@ -30,6 +31,19 @@ export const uiItems: UiItem[] = [
 		label: 'uiItems.general',
 		icon: 'application-cog-outline',
 		Component: <SettingsGeneral />,
+	},
+	{
+		key: 'dashboard',
+		label: 'uiItems.dashboard',
+		icon: ({ color, style }) => (
+			<MaterialIcons
+				style={style}
+				name="dashboard"
+				size={25}
+				color={color}
+			/>
+		),
+		Component: <SettingsDashboard />,
 	},
 	{
 		key: 'appearance',

@@ -11,19 +11,19 @@ import formatcoords from 'formatcoords';
 /**
  * Internal dependencies
  */
-import ButtonHighlight from '../../generic/ButtonHighlight';
-import MenuItem from '../../generic/MenuItem';
-import InfoRowControl from '../../generic/InfoRowControl';
-import { NumericRowControl } from '../../generic/NumericRowControls';
-import { options as unitPrefControlOptions } from '../../../store/features/general/components/controls/UnitPrefControl';
-import { MapContext } from '../../../Context';
-import { useAppSelector } from '../../../store/hooks';
-import { selectMapEventRate } from '../../../store/features/general/selectors';
+import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
+import MenuItem from '../../../../components/generic/MenuItem';
+import InfoRowControl from '../../../../components/generic/InfoRowControl';
+import { NumericRowControl } from '../../../../components/generic/NumericRowControls';
+import { options as unitPrefControlOptions } from '../../general/components/controls/UnitPrefControl';
+import { MapContext } from '../../../../Context';
+import { useAppSelector } from '../../../hooks';
+import { selectMapEventRate } from '../../general/selectors';
 import {
 	DashboardElementConf,
 	DashboardDisplayComponentProps,
-} from '../../../store/features/dashboard/types';
-import { UnitPref } from '../../../store/features/general/types';
+} from '../../dashboard/types';
+import { UnitPref } from '../../general/types';
 
 const opts = [
 	{

@@ -9,8 +9,8 @@ import { View } from 'react-native';
 /**
  * Internal dependencies
  */
-import { DashboardDisplayComponentProps } from '../../../types';
-import { RoutingContext } from '../../../Context';
+import { DashboardDisplayComponentProps } from '../types';
+import { RoutingContext } from '../../../../Context';
 
 const DisplayComponent = ({
 	dashboardElement,
