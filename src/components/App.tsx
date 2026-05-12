@@ -2,7 +2,7 @@
  * External dependencies
  */
 import React, { MutableRefObject, useCallback, useEffect, useRef, useState } from 'react';
-import { View } from 'react-native';
+import { BackHandler, View } from 'react-native';
 import { useSafeAreaFrame } from 'react-native-safe-area-context';
 import DefaultPreference from 'react-native-default-preference';
 import { PaperProvider, useTheme } from 'react-native-paper';
@@ -156,6 +156,12 @@ const App = () => {
 	const [bottomBarHeight, setBottomBarHeight] = useState<BottomBarHeight>({});
 
 	const currentMapEventRef = useRef<MapEventResponse | null>(null);
+
+	// Prevent app from closing on hardwareBackPress.
+	useEffect(() => {
+		const backHandler = BackHandler.addEventListener('hardwareBackPress', () => true );
+		return () => backHandler.remove();
+	}, []);
 
 	useIsBusyPromiseQueueState();
 	const isBusy = useAppSelector(selectIsBusy);

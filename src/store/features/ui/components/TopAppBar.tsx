@@ -33,6 +33,19 @@ const TopAppBarMenu = ({ items }: { items: UiItem[] }) => {
 	const closeMenu = useCallback(() => setMenuVisible(false), []);
 	const toggleMenu = useCallback(() => setMenuVisible((menuVisible) => !menuVisible), []);
 
+	const backAction = useCallback(() => {
+		if ( menuVisible ) {
+			closeMenu();
+			return true;
+		}
+		return false;
+	}, [menuVisible,closeMenu]);
+
+	useEffect(() => {
+		const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+		return () => backHandler.remove();
+	}, [backAction]);
+
 	const anchor = useMemo(
 		() => (
 			<TouchableHighlight
@@ -121,8 +134,11 @@ const TopAppBar = ({
 	);
 
 	const backAction = useCallback(() => {
-		dispatch(setUiItemKeys([...uiItemsKeys].slice(0, Math.max(0, uiItemsKeys.length - 1))));
-		return true;
+		if ( uiItemsKeys.length ) {
+			dispatch(setUiItemKeys([...uiItemsKeys].slice(0, Math.max(0, uiItemsKeys.length - 1))));
+			return true;
+		}
+		return false;
 	}, [uiItemsKeys]);
 
 	useEffect(() => {

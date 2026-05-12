@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { SharedValue, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
 import { Gesture } from 'react-native-gesture-handler';
 import { clamp } from 'lodash-es';
@@ -82,23 +82,42 @@ const useDrawerState = ({
 		]
 	);
 
-	const gesture = Gesture.Pan()
-		.minDistance(1)
-		.onStart(() => {
-			prevTranslationX.value = translationX.value;
-		})
-		.onUpdate((event) => {
-			setTranslationX(
-				clamp(
-					prevTranslationX.value + event.translationX,
-					'left' === side ? -drawerWidth : 0,
-					'left' === side ? 0 : drawerWidth
-				)
-			);
-		})
-		.runOnJS(true);
-	const getIsFullyCollapsed = () =>
-		'left' === side ? translationX.value === -drawerWidth : translationX.value === drawerWidth;
+	const gesture = useMemo(
+		() =>
+			Gesture.Pan()
+				.minDistance(1)
+				.onStart(() => {
+					prevTranslationX.value = translationX.value;
+				})
+				.onUpdate((event) => {
+					setTranslationX(
+						clamp(
+							prevTranslationX.value + event.translationX,
+							'left' === side ? -drawerWidth : 0,
+							'left' === side ? 0 : drawerWidth
+						)
+					);
+				})
+				.runOnJS(true),
+		[
+			side,
+			prevTranslationX,
+			translationX,
+			drawerWidth,
+		]
+	);
+
+	const getIsFullyCollapsed = useCallback(
+		() =>
+			'left' === side
+				? translationX.value === -drawerWidth
+				: translationX.value === drawerWidth,
+		[
+			drawerWidth,
+			translationX,
+			side,
+		]
+	);
 
 	return {
 		side,

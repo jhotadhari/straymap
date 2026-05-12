@@ -1,9 +1,9 @@
 /**
  * External dependencies
  */
-import { View } from 'react-native';
+import { BackHandler, View } from 'react-native';
 import { useSharedValue } from 'react-native-reanimated';
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 /**
  * Internal dependencies
@@ -42,6 +42,29 @@ const Drawers = ({
 		translationX: translationXRight,
 		translationXOther: translationXLeft,
 	});
+
+	const backAction = useCallback( () => {
+		let bubble = true;
+		if ( ! drawerStateLeft.getIsFullyCollapsed() ) {
+			drawerStateLeft.expand( false );
+			bubble = false;
+		}
+		if ( ! drawerStateRight.getIsFullyCollapsed() ) {
+			drawerStateRight.expand( false );
+			bubble = false;
+		}
+		return ! bubble;
+	}, [
+		drawerStateLeft.getIsFullyCollapsed,
+		drawerStateLeft.expand,
+		drawerStateRight.getIsFullyCollapsed,
+		drawerStateRight.expand,
+	]);
+
+	useEffect(() => {
+		const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+		return () => backHandler.remove();
+	}, [backAction]);
 
 	const [modalVisible, setModalVisible] = useState(false);
 
