@@ -8,8 +8,8 @@ import { useTranslation } from 'react-i18next';
 /**
  * Internal dependencies
  */
-import ListItemModalControl from '../../../../../components/generic/ListItemModalControl';
-import { NumericRowControl } from '../../../../../components/generic/NumericRowControls';
+import ListItemModalControl from '../../../../../components/generic/controls/ListItemModalControl';
+import { NumericRowControl } from '../../../../../components/generic/controls/NumericRowControls';
 import IconIcomoon from '../../../../../components/generic/IconIcomoon';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { selectMapsforgeGeneral } from '../../selectors';

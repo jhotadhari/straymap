@@ -11,7 +11,7 @@ import { get } from 'lodash-es';
 /**
  * Internal dependencies
  */
-import InfoControlWrapper from './InfoControlWrapper';
+import InfoControlWrapper from '../InfoControlWrapper';
 
 const labelMinWidth = 90;
 

@@ -12,7 +12,7 @@ import { get } from 'lodash-es';
 import {
 	NumericRowControl,
 	NumericMultiRowControl,
-} from '../../../../../../components/generic/NumericRowControls';
+} from '../../../../../../components/generic/controls/NumericRowControls';
 import HgtSourceRowControl from '../../../../../../components/generic/controls/HgtSourceRowControl';
 import { getHillshadingCacheDirChild } from '../../../utils';
 import CacheControl from './CacheControl';

@@ -17,10 +17,10 @@ import { LayerHillshading, ShadingAlgorithmOptions } from 'react-native-mapsforg
  */
 import ButtonHighlight from '../../../../../../components/generic/ButtonHighlight';
 import { OptionBase } from '../../../../../../types';
-import InfoRowControl from '../../../../../../components/generic/InfoRowControl';
+import InfoRowControl from '../../../../../../components/generic/controls/InfoRowControl';
 import ModalWrapper from '../../../../../../components/generic/ModalWrapper';
-import { NumericRowControl } from '../../../../../../components/generic/NumericRowControls';
-import ListItemMenuControl from '../../../../../../components/generic/ListItemMenuControl';
+import { NumericRowControl } from '../../../../../../components/generic/controls/NumericRowControls';
+import ListItemMenuControl from '../../../../../../components/generic/controls/ListItemMenuControl';
 import { styles as mdStyles } from '../../../../../../markdown/styles';
 import HintLink from '../../../../../../components/generic/HintLink';
 import { LayerConfigOptionsHillshading, LayerConfig } from '../../../types';

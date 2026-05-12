@@ -13,7 +13,7 @@ import { openDocument } from 'react-native-scoped-storage';
  */
 import ButtonHighlight from '../ButtonHighlight';
 import { OptionBase } from '../../../types';
-import InfoRowControl from '../InfoRowControl';
+import InfoRowControl from './InfoRowControl';
 import ModalWrapper from '../ModalWrapper';
 import RadioListItem from '../RadioListItem';
 import LoadingIndicator from '../LoadingIndicator';

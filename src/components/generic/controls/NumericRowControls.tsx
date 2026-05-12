@@ -10,7 +10,7 @@ import { get } from 'lodash-es';
  * Internal dependencies
  */
 import InfoRowControl from './InfoRowControl';
-import useKeyboardShown from '../../compose/useKeyboardShown';
+import useKeyboardShown from '../../../compose/useKeyboardShown';
 
 type NumType = 'int' | 'float';
 

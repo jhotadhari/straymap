@@ -12,9 +12,9 @@ import { get } from 'lodash-es';
 /**
  * Internal dependencies
  */
-import InfoRowControl from '../../../../../components/generic/InfoRowControl';
-import ListItemModalControl from '../../../../../components/generic/ListItemModalControl';
-import { NumericRowControl } from '../../../../../components/generic/NumericRowControls';
+import InfoRowControl from '../../../../../components/generic/controls/InfoRowControl';
+import ListItemModalControl from '../../../../../components/generic/controls/ListItemModalControl';
+import { NumericRowControl } from '../../../../../components/generic/controls/NumericRowControls';
 import FileSourceRowControl from '../../../../../components/generic/controls/FileSourceRowControl';
 import { CenterInner } from '../Center';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';

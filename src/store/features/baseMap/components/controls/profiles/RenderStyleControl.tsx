@@ -24,7 +24,7 @@ import { RenderStyleOptionsCollection } from 'react-native-mapsforge-vtm';
 /**
  * Internal dependencies
  */
-import InfoRowControl from '../../../../../../components/generic/InfoRowControl';
+import InfoRowControl from '../../../../../../components/generic/controls/InfoRowControl';
 import ButtonHighlight from '../../../../../../components/generic/ButtonHighlight';
 import MenuItem from '../../../../../../components/generic/MenuItem';
 import { MapsforgeProfile } from '../../../types';

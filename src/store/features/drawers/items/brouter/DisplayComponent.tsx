@@ -18,8 +18,8 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
  */
 import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
 import InfoRadioRow from '../../../../../components/generic/InfoRadioRow';
-import InfoRowControl from '../../../../../components/generic/InfoRowControl';
-import ListItemMenuControl from '../../../../../components/generic/ListItemMenuControl';
+import InfoRowControl from '../../../../../components/generic/controls/InfoRowControl';
+import ListItemMenuControl from '../../../../../components/generic/controls/ListItemMenuControl';
 import LoadingIndicator from '../../../../../components/generic/LoadingIndicator';
 import ModalWrapper from '../../../../../components/generic/ModalWrapper';
 import { RoutingContext } from '../../../../../Context';

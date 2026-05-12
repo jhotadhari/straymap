@@ -16,7 +16,7 @@ import ButtonHighlight from '../../../../../../components/generic/ButtonHighligh
 import ModalWrapper from '../../../../../../components/generic/ModalWrapper';
 import RadioListItem from '../../../../../../components/generic/RadioListItem';
 import InfoButton from '../../../../../../components/generic/InfoButton';
-import NameRowControl from '../../../../../../components/generic/NameRowControl';
+import NameRowControl from '../../../../../../components/generic/controls/NameRowControl';
 import LayerControlMapsforge from './LayerControlMapsforge';
 import { LayerOption, LayerConfig } from '../../../types';
 import { getNewLayer } from '../../../utils';

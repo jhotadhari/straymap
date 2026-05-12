@@ -13,7 +13,7 @@ import { get } from 'lodash-es';
  * Internal dependencies
  */
 import { AppContext } from '../../../../Context';
-import ListItemMenuControl from '../../../../components/generic/ListItemMenuControl';
+import ListItemMenuControl from '../../../../components/generic/controls/ListItemMenuControl';
 import HardwareKeyControl from '../../general/components/controls/HardwareKeyControl';
 import UnitPrefControl from '../../general/components/controls/UnitPrefControl';
 import HgtControl from '../../general/components/controls/HgtControl';

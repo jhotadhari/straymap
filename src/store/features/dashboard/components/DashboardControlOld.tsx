@@ -15,17 +15,17 @@ import { sprintf } from 'sprintf-js';
  * Internal dependencies
  */
 import { OptionBase } from '../../../../types';
-import ListItemModalControl from '../../../../components/generic/ListItemModalControl';
+import ListItemModalControl from '../../../../components/generic/controls/ListItemModalControl';
 import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
 import DraggableGrid from 'react-native-draggable-grid';
 import InfoButton from '../../../../components/generic/InfoButton';
 import { modalWidthFactor } from '../../../../constants';
 import ModalWrapper from '../../../../components/generic/ModalWrapper';
 import RadioListItem from '../../../../components/generic/RadioListItem';
-import { NumericRowControl } from '../../../../components/generic/NumericRowControls';
+import { NumericRowControl } from '../../../../components/generic/controls/NumericRowControls';
 import * as dashboardElementComponents from '../elements';
 import MenuItem from '../../../../components/generic/MenuItem';
-import InfoRowControl, { labelPadding } from '../../../../components/generic/InfoRowControl';
+import InfoRowControl, { labelPadding } from '../../../../components/generic/controls/InfoRowControl';
 import { DashboardElementConf } from '../types';
 import { useAppDispatch, useAppSelector } from '../../../hooks';
 import { selectDashboardStyle, selectElements } from '../selectors';

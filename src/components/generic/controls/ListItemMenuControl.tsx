@@ -10,9 +10,9 @@ import { get } from 'lodash-es';
 /**
  * Internal dependencies
  */
-import { OptionBase } from '../../types';
-import MenuItem from './MenuItem';
-import ListItem from './ListItem';
+import { OptionBase } from '../../../types';
+import MenuItem from '../MenuItem';
+import ListItem from '../ListItem';
 import { ViewStyle } from 'react-native';
 
 const ListItemMenuControl = ({

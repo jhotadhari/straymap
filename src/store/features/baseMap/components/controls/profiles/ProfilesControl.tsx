@@ -19,7 +19,7 @@ import ButtonHighlight from '../../../../../../components/generic/ButtonHighligh
 import ModalWrapper from '../../../../../../components/generic/ModalWrapper';
 import InfoButton from '../../../../../../components/generic/InfoButton';
 import IconIcomoon from '../../../../../../components/generic/IconIcomoon';
-import NameRowControl from '../../../../../../components/generic/NameRowControl';
+import NameRowControl from '../../../../../../components/generic/controls/NameRowControl';
 import LoadingIndicator from '../../../../../../components/generic/LoadingIndicator';
 import HintLink from '../../../../../../components/generic/HintLink';
 import { runAfterInteractions } from '../../../../../../lib/utils';

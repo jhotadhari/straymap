@@ -13,8 +13,8 @@ import formatcoords from 'formatcoords';
  */
 import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
 import MenuItem from '../../../../components/generic/MenuItem';
-import InfoRowControl from '../../../../components/generic/InfoRowControl';
-import { NumericRowControl } from '../../../../components/generic/NumericRowControls';
+import InfoRowControl from '../../../../components/generic/controls/InfoRowControl';
+import { NumericRowControl } from '../../../../components/generic/controls/NumericRowControls';
 import { options as unitPrefControlOptions } from '../../general/components/controls/UnitPrefControl';
 import { MapContext } from '../../../../Context';
 import { useAppSelector } from '../../../hooks';

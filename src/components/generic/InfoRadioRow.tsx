@@ -8,7 +8,7 @@ import { RadioButton } from 'react-native-paper';
  * Internal dependencies
  */
 import { OptionBase } from '../../types';
-import InfoRowControl from './InfoRowControl';
+import InfoRowControl from './controls/InfoRowControl';
 import { ReactNode } from 'react';
 
 const InfoRadioRow = ({

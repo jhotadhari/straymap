@@ -17,8 +17,8 @@ import { OptionBase, ThemePropExtended } from '../../../../../../types';
 import {
 	NumericMultiRowControl,
 	NumericRowControl,
-} from '../../../../../../components/generic/NumericRowControls';
-import InfoRowControl from '../../../../../../components/generic/InfoRowControl';
+} from '../../../../../../components/generic/controls/NumericRowControls';
+import InfoRowControl from '../../../../../../components/generic/controls/InfoRowControl';
 import CacheControl from './CacheControl';
 import { stringifyProp } from '../../../../../../lib/utils';
 import { defaults } from '../../../../../../constants';

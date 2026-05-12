@@ -9,10 +9,10 @@ import { useTranslation } from 'react-i18next';
 /**
  * Internal dependencies
  */
-import ListItem from './ListItem';
+import ListItem from '../ListItem';
 import { LayoutChangeEvent, View, ViewStyle } from 'react-native';
-import ModalWrapper from './ModalWrapper';
-import ButtonHighlight from './ButtonHighlight';
+import ModalWrapper from '../ModalWrapper';
+import ButtonHighlight from '../ButtonHighlight';
 import { get } from 'lodash-es';
 
 const ListItemModalControl = ({

@@ -11,7 +11,7 @@ import { get } from 'lodash-es';
  * Internal dependencies
  */
 import { OptionBase } from '../../../../../types';
-import ListItemModalControl from '../../../../../components/generic/ListItemModalControl';
+import ListItemModalControl from '../../../../../components/generic/controls/ListItemModalControl';
 import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
 import MenuItem from '../../../../../components/generic/MenuItem';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';

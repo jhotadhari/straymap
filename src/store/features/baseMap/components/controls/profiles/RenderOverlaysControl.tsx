@@ -11,7 +11,7 @@ import { sprintf } from 'sprintf-js';
 /**
  * Internal dependencies
  */
-import InfoRowControl from '../../../../../../components/generic/InfoRowControl';
+import InfoRowControl from '../../../../../../components/generic/controls/InfoRowControl';
 import ButtonHighlight from '../../../../../../components/generic/ButtonHighlight';
 import ModalWrapper from '../../../../../../components/generic/ModalWrapper';
 import RadioListItem from '../../../../../../components/generic/RadioListItem';

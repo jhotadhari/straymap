@@ -10,11 +10,11 @@ import { get } from 'lodash-es';
 /**
  * Internal dependencies
  */
-import ListItemModalControl from '../../../../../components/generic/ListItemModalControl';
-import { NumericRowControl } from '../../../../../components/generic/NumericRowControls';
+import ListItemModalControl from '../../../../../components/generic/controls/ListItemModalControl';
+import { NumericRowControl } from '../../../../../components/generic/controls/NumericRowControls';
 import HgtSourceRowControl from '../../../../../components/generic/controls/HgtSourceRowControl';
 import InfoRadioRow from '../../../../../components/generic/InfoRadioRow';
-import InfoRowControl from '../../../../../components/generic/InfoRowControl';
+import InfoRowControl from '../../../../../components/generic/controls/InfoRowControl';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import {
 	selectHgtDirPath,

@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next';
 /**
  * Internal dependencies
  */
-import InfoRowControl from '../../../../../../components/generic/InfoRowControl';
+import InfoRowControl from '../../../../../../components/generic/controls/InfoRowControl';
 import { LayerConfig } from '../../../types';
 
 const VisibilityControl: FC<{

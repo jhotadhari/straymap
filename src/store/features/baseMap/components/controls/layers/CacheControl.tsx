@@ -10,9 +10,9 @@ import { TextInput, useTheme } from 'react-native-paper';
 /**
  * Internal dependencies
  */
-import { NumericRowControl } from '../../../../../../components/generic/NumericRowControls';
-import InfoRowControl from '../../../../../../components/generic/InfoRowControl';
-import ListItemMenuControl from '../../../../../../components/generic/ListItemMenuControl';
+import { NumericRowControl } from '../../../../../../components/generic/controls/NumericRowControls';
+import InfoRowControl from '../../../../../../components/generic/controls/InfoRowControl';
+import ListItemMenuControl from '../../../../../../components/generic/controls/ListItemMenuControl';
 import { OptionBase } from '../../../../../../types';
 import { TextInputNativeMultilineControlled } from '../../../../../../components/generic/TextInputNativeMultiline';
 import { useAppSelector } from '../../../../../hooks';

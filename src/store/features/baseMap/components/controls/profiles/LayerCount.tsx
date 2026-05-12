@@ -10,7 +10,7 @@ import { sprintf } from 'sprintf-js';
 /**
  * Internal dependencies
  */
-import InfoRowControl from '../../../../../../components/generic/InfoRowControl';
+import InfoRowControl from '../../../../../../components/generic/controls/InfoRowControl';
 import { MapsforgeProfile, LayerConfigOptionsMapsforge } from '../../../types';
 import { useAppSelector } from '../../../../../hooks';
 import { selectLayers, selectMapsforgeProfiles } from '../../../selectors';

@@ -10,7 +10,7 @@ import { get } from 'lodash-es';
 /**
  * Internal dependencies
  */
-import InfoRowControl from '../../../../../components/generic/InfoRowControl';
+import InfoRowControl from '../../../../../components/generic/controls/InfoRowControl';
 import LoadingIndicator from '../../../../../components/generic/LoadingIndicator';
 import { stringifyProp } from '../../../../../lib/utils';
 import { FsModule } from '../../../../../nativeModules';

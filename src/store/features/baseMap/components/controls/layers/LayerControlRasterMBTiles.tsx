@@ -10,7 +10,7 @@ import { sprintf } from 'sprintf-js';
 /**
  * Internal dependencies
  */
-import { NumericMultiRowControl } from '../../../../../../components/generic/NumericRowControls';
+import { NumericMultiRowControl } from '../../../../../../components/generic/controls/NumericRowControls';
 import FileSourceRowControl from '../../../../../../components/generic/controls/FileSourceRowControl';
 import HintLink from '../../../../../../components/generic/HintLink';
 import { LayerConfig, LayerConfigOptionsRasterMBtiles } from '../../../types';

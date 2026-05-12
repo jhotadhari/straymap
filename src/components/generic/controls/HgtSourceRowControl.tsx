@@ -18,7 +18,7 @@ import { MapContainerProps } from 'react-native-mapsforge-vtm';
  */
 import ButtonHighlight from '../ButtonHighlight';
 import { OptionBase } from '../../../types';
-import InfoRowControl from '../InfoRowControl';
+import InfoRowControl from './InfoRowControl';
 import ModalWrapper from '../ModalWrapper';
 import RadioListItem from '../RadioListItem';
 import HintLink from '../HintLink';

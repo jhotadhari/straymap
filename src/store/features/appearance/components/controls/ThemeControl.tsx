@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next';
  * Internal dependencies
  */
 import customThemes from '../../../../../themes';
-import ListItemMenuControl from '../../../../../components/generic/ListItemMenuControl';
+import ListItemMenuControl from '../../../../../components/generic/controls/ListItemMenuControl';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { setTheme } from '../../appearanceSlice';
 import { selectTheme } from '../../selectors';

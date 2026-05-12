@@ -13,11 +13,11 @@ import convertUnits from 'convert-units';
  */
 import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
 import MenuItem from '../../../../components/generic/MenuItem';
-import InfoRowControl from '../../../../components/generic/InfoRowControl';
+import InfoRowControl from '../../../../components/generic/controls/InfoRowControl';
 import { options as unitPrefControlOptions } from '../../general/components/controls/UnitPrefControl';
 import { TFunction } from 'i18next';
 import { roundTo } from '../../../../lib/utilsGeneral';
-import { NumericRowControl } from '../../../../components/generic/NumericRowControls';
+import { NumericRowControl } from '../../../../components/generic/controls/NumericRowControls';
 import { MapContext } from '../../../../Context';
 import { styles as mdStyles } from '../../../../markdown/styles';
 import { selectMapEventRate } from '../../general/selectors';
