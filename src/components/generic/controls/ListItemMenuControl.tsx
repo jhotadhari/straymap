@@ -1,11 +1,12 @@
 /**
  * External dependencies
  */
-import React, { useState } from 'react';
-import { Menu, useTheme } from 'react-native-paper';
+import React, { useMemo, useState } from 'react';
+import { Menu, Text, useTheme } from 'react-native-paper';
 import { Style as ListStyle } from 'react-native-paper/lib/typescript/components/List/utils';
 import { useTranslation } from 'react-i18next';
 import { get } from 'lodash-es';
+import { View, ViewStyle } from 'react-native';
 
 /**
  * Internal dependencies
@@ -13,7 +14,6 @@ import { get } from 'lodash-es';
 import { OptionBase } from '../../../types';
 import MenuItem from '../MenuItem';
 import ListItem from '../ListItem';
-import { ViewStyle } from 'react-native';
 
 const ListItemMenuControl = ({
 	listItemStyle,
@@ -35,6 +35,30 @@ const ListItemMenuControl = ({
 	const theme = useTheme();
 	const { t } = useTranslation();
 	const [visible, setVisible] = useState(false);
+	const title = useMemo( () => {
+		if ( ! anchorLabelAppendSelected ) {
+			return anchorLabel;
+		}
+		return <View>
+			<Text>{ anchorLabel }</Text>
+			<Text>{ '(' +
+			t(
+				get(
+					options?.find((opt) => opt.key === value),
+					'label',
+					''
+				)
+			) +
+			')' }</Text>
+		</View>;
+	}, [
+		anchorLabelAppendSelected,
+		anchorLabel,
+		t,
+		options,
+		value,
+	] );
+
 	return (
 		<Menu
 			contentStyle={{
@@ -46,20 +70,7 @@ const ListItemMenuControl = ({
 			anchor={
 				<ListItem
 					style={listItemStyle}
-					title={
-						anchorLabel +
-						(anchorLabelAppendSelected
-							? ' (' +
-								t(
-									get(
-										options?.find((opt) => opt.key === value),
-										'label',
-										''
-									)
-								) +
-								')'
-							: '')
-					}
+					title={title}
 					icon={anchorIcon ? anchorIcon : undefined}
 					onPress={() => setVisible(!visible)}
 				/>
