@@ -5,15 +5,13 @@ import { ReactNode, useState } from 'react';
 import { View, TouchableHighlight, ViewStyle, TextStyle } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { sprintf } from 'sprintf-js';
-import { get } from 'lodash-es';
 
 /**
  * Internal dependencies
  */
 import InfoControlWrapper from '../InfoControlWrapper';
 
-const labelMinWidth = 90;
+export const labelMinWidth = 90;
 
 export const labelPadding = {
 	paddingTop: 4,

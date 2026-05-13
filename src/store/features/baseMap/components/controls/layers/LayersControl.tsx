@@ -2,7 +2,14 @@
  * External dependencies
  */
 import { Dispatch, FC, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react';
-import { View, TouchableHighlight, ViewStyle, LayoutChangeEvent, TextStyle } from 'react-native';
+import {
+	View,
+	TouchableHighlight,
+	ViewStyle,
+	LayoutChangeEvent,
+	TextStyle,
+	StyleSheet,
+} from 'react-native';
 import { useSafeAreaFrame } from 'react-native-safe-area-context';
 import { List, useTheme, Text, Icon, IconButtonProps } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -31,6 +38,7 @@ import VisibilityControl, { VisibilityRowControl } from './VisibilityControl';
 import LayerControlOnlineRasterXYZ from './LayerControlOnlineRasterXYZ';
 import LayerControlRasterMBTiles from './LayerControlRasterMBTiles';
 import LayerControlHillshading from './LayerControlHillshading';
+import { labelMinWidth } from '../../../../../../components/generic/controls/InfoRowControl';
 
 export const mapTypeOptions: LayerOption[] = [
 	{
@@ -56,42 +64,6 @@ export const mapTypeOptions: LayerOption[] = [
 
 export const itemHeight = 50;
 
-export const labelMinWidth = 90;
-
-export const styleSelectType: TextStyle = { marginBottom: 18 };
-
-export const styleModalRowType: ViewStyle = { marginBottom: 10, flexDirection: 'row' };
-
-export const styleModalRowTypeLabel: TextStyle = { minWidth: labelMinWidth + 12 };
-
-export const styleModalControls: ViewStyle = {
-	marginTop: 20,
-	marginBottom: 40,
-	flexDirection: 'row',
-	justifyContent: 'space-between',
-	alignItems: 'center',
-};
-
-export const controlIconStyle: ViewStyle = {
-	marginLeft: 7,
-	marginRight: -7,
-	justifyContent: 'center',
-};
-
-export const styleDraggableGrid = {
-	marginLeft: -40, // revert paper paddingLeft 40
-};
-
-export const styleItemsNone = { marginLeft: 18, marginBottom: 35 };
-
-export const styleControls: ViewStyle = {
-	justifyContent: 'space-between',
-	flexDirection: 'row',
-	marginBottom: 25,
-};
-
-export const styleAddItem = { marginRight: 20 };
-
 const DraggableItem: FC<{
 	item: LayerConfig;
 	width: number;
@@ -110,17 +82,12 @@ const DraggableItem: FC<{
 		() => ({
 			width,
 			height: itemHeight,
-			justifyContent: 'space-between',
-			alignItems: 'center',
-			flexDirection: reverse ? 'row-reverse' : 'row',
-			overflow: 'hidden',
-			paddingLeft: reverse ? 14 : 24,
-			paddingRight: reverse ? 24 : 14,
+			...(reverse ? stylesGeneric.itemReverse : stylesGeneric.item),
 		}),
 		[
+			reverse,
 			width,
 			itemHeight,
-			reverse,
 		]
 	);
 
@@ -322,7 +289,7 @@ const EditModal: FC<{
 		>
 			{!layerTemp.type && (
 				<View>
-					<Text style={styleSelectType}>{t('map.selectType')}</Text>
+					<Text style={styles.selectType}>{t('map.selectType')}</Text>
 					{[...mapTypeOptions].map((opt: LayerOption) => (
 						<OptionSelectType
 							key={opt.key}
@@ -334,8 +301,8 @@ const EditModal: FC<{
 
 			{layerTemp.type && (
 				<View>
-					<View style={styleModalRowType}>
-						<Text style={styleModalRowTypeLabel}>{t('map.mapType')}:</Text>
+					<View style={styles.modalRowType}>
+						<Text style={styles.modalRowTypeLabel}>{t('map.mapType')}:</Text>
 						<Text>{layerTemp.type}</Text>
 					</View>
 
@@ -358,7 +325,7 @@ const EditModal: FC<{
 
 					{'raster-MBtiles' === layerTemp.type && <LayerControlRasterMBTiles />}
 
-					<View style={styleModalControls}>
+					<View style={stylesGeneric.modalControls}>
 						<ButtonHighlight
 							onPress={handleDismissModal}
 							mode="contained"
@@ -387,7 +354,7 @@ const ControlIcon: FC<{
 	color: string;
 	style: Style;
 }> = (props) => (
-	<View style={controlIconStyle}>
+	<View style={stylesGeneric.controlIcon}>
 		<List.Icon
 			{...props}
 			icon="layers-triple"
@@ -528,7 +495,7 @@ const LayersControl = ({
 				{layers.length && (
 					<View style={styleAccordion}>
 						<DraggableGrid
-							style={styleDraggableGrid}
+							style={stylesGeneric.grid}
 							itemHeight={itemHeight}
 							numColumns={1}
 							renderItem={renderItem}
@@ -539,9 +506,11 @@ const LayersControl = ({
 					</View>
 				)}
 
-				{!layers.length && <Text style={styleItemsNone}>{t('map.layersNone')}</Text>}
+				{!layers.length && (
+					<Text style={stylesGeneric.itemsNone}>{t('map.layersNone')}</Text>
+				)}
 
-				<View style={styleControls}>
+				<View style={stylesGeneric.controls}>
 					<InfoButton
 						label={t('map.layer', { count: 0 })}
 						headerPlural={true}
@@ -551,7 +520,7 @@ const LayersControl = ({
 					/>
 
 					<ButtonHighlight
-						style={styleAddItem}
+						style={stylesGeneric.addItem}
 						icon="map-plus"
 						mode="outlined"
 						onPress={handleAddNewLayer}
@@ -563,5 +532,52 @@ const LayersControl = ({
 		</View>
 	);
 };
+
+export const styles = StyleSheet.create({
+	selectType: { marginBottom: 18 },
+	modalRowTypeLabel: { minWidth: labelMinWidth + 12 },
+	modalRowType: { marginBottom: 10, flexDirection: 'row' },
+});
+
+export const stylesGeneric = StyleSheet.create({
+	addItem: { marginRight: 20 },
+	itemsNone: { marginLeft: 18, marginBottom: 35 },
+	controls: {
+		justifyContent: 'space-between',
+		flexDirection: 'row',
+		marginBottom: 25,
+	},
+	grid: {
+		marginLeft: -40, // revert paper paddingLeft 40
+	},
+	controlIcon: {
+		marginLeft: 7,
+		marginRight: -7,
+		justifyContent: 'center',
+	},
+	modalControls: {
+		marginTop: 20,
+		marginBottom: 40,
+		flexDirection: 'row',
+		justifyContent: 'space-between',
+		alignItems: 'center',
+	},
+	item: {
+		justifyContent: 'space-between',
+		alignItems: 'center',
+		flexDirection: 'row',
+		overflow: 'hidden',
+		paddingLeft: 24,
+		paddingRight: 14,
+	},
+	itemReverse: {
+		justifyContent: 'space-between',
+		alignItems: 'center',
+		flexDirection: 'row-reverse',
+		overflow: 'hidden',
+		paddingLeft: 14,
+		paddingRight: 24,
+	},
+});
 
 export default LayersControl;

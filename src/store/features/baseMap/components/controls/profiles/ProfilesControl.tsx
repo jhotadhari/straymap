@@ -41,12 +41,7 @@ import {
 } from '../../../baseMapSlice';
 import { Style } from 'react-native-paper/lib/typescript/components/List/utils';
 import {
-	controlIconStyle,
-	styleAddItem,
-	styleControls,
-	styleDraggableGrid,
-	styleItemsNone,
-	styleModalControls,
+	stylesGeneric,
 } from '../layers/LayersControl';
 import RenderOverlaysControl from './RenderOverlaysControl';
 import RenderStyleControl from './RenderStyleControl';
@@ -213,7 +208,7 @@ const EditModal: FC<{
 
 				<HasBuildingsControl />
 
-				<View style={styleModalControls}>
+				<View style={stylesGeneric.modalControls}>
 					<ButtonHighlight
 						onPress={handleDismissModal}
 						mode="contained"
@@ -241,7 +236,7 @@ const ControlIcon: FC<{
 	color: string;
 	style: Style;
 }> = (props) => (
-	<View style={controlIconStyle}>
+	<View style={stylesGeneric.controlIcon}>
 		<IconIcomoon
 			size={25}
 			name="mapsforge_puzzle_only"
@@ -350,17 +345,12 @@ const DraggableItem = ({
 		() => ({
 			width,
 			height: itemHeight,
-			justifyContent: 'space-between',
-			alignItems: 'center',
-			flexDirection: reverse ? 'row-reverse' : 'row',
-			overflow: 'hidden',
-			paddingLeft: reverse ? 14 : 24,
-			paddingRight: reverse ? 24 : 14,
+			...(reverse ? stylesGeneric.itemReverse : stylesGeneric.item),
 		}),
 		[
+			reverse,
 			width,
 			itemHeight,
-			reverse,
 		]
 	);
 
@@ -567,7 +557,7 @@ const ProfilesControl = ({
 				{profiles.length && (
 					<View style={styleAccordion}>
 						<DraggableGrid
-							style={styleDraggableGrid}
+							style={stylesGeneric.grid}
 							itemHeight={itemHeight}
 							numColumns={1}
 							renderItem={renderItem}
@@ -579,10 +569,10 @@ const ProfilesControl = ({
 				)}
 
 				{!profiles.length && (
-					<Text style={styleItemsNone}>{t('map.mapsforge.profilesNone')}</Text>
+					<Text style={stylesGeneric.itemsNone}>{t('map.mapsforge.profilesNone')}</Text>
 				)}
 
-				<View style={styleControls}>
+				<View style={stylesGeneric.controls}>
 					<InfoButton
 						label={t('map.mapsforge.profile', { count: 0 })}
 						headerPlural={true}
@@ -592,7 +582,7 @@ const ProfilesControl = ({
 					/>
 
 					<ButtonHighlight
-						style={styleAddItem}
+						style={stylesGeneric.addItem}
 						icon="map-plus"
 						mode="outlined"
 						onPress={handleAddNewProfile}
