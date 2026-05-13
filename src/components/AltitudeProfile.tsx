@@ -255,13 +255,13 @@ const AltitudeProfileInner = ({ height, outerWidth }: { height: number; outerWid
 const AltitudeProfile = ({
 	height = 200,
 	outerWidth,
-	setBottomBarHeight,
 }: {
 	height?: number;
 	outerWidth: number;
-	setBottomBarHeight?: Dispatch<SetStateAction<BottomBarHeight>>;
 }) => {
 	const { segments } = useContext(RoutingContext);
+
+	const { setBottomBarHeight } = useContext(AppContext);
 
 	const translationY = useSharedValue(0);
 

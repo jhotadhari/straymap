@@ -32,22 +32,18 @@ import {
  * Internal dependencies
  */
 import TopAppBar from '../store/features/ui/components/TopAppBar';
-import type { InitialPosition, BottomBarHeight } from '../types';
+import type { InitialPosition } from '../types';
 import { AppContext, MapContext } from '../Context';
 import Center from '../store/features/appearance/components/Center';
-import Dashboard from '../store/features/dashboard/components/Dashboard';
 import Drawers from '../store/features/drawers/components/Drawers';
 import * as dashboardElementComponents from '../store/features/dashboard/elements';
 import SplashScreen from './SplashScreen';
 import AltitudeProfile from './AltitudeProfile';
 import RoutingMapView from './RoutingMapView';
 import { useAppSelector } from '../store/hooks';
-import {
-	selectHardwareKeys,
-	selectMapEventRate,
-} from '../store/features/general/selectors';
-import { selectElements } from '../store/features/dashboard/selectors';
-import { DashboardElementConf } from '../store/features/dashboard/types';
+import { selectHardwareKeys, selectMapEventRate } from '../store/features/general/selectors';
+import { selectItems } from '../store/features/dashboard/selectors';
+import { DashboardItem } from '../store/features/dashboard/types';
 import {
 	selectHgtDirPath,
 	selectHgtFileInfoPurgeThreshold,
@@ -58,20 +54,17 @@ import BaseMap from '../store/features/baseMap/components/BaseMap';
 import UiItemComponent from '../store/features/ui/components/UiItemComponent';
 import { selectUiItemKeys } from '../store/features/ui/selectors';
 import MapLayersAttribution from '../store/features/baseMap/MapLayersAttribution';
+import Dashboard from '../store/features/dashboard/components/Dashboard';
 
 const AppView = ({
 	showSplash,
 	initialPositionRef,
 	saveCurrentPositionToInitial,
-	setTopAppBarHeight,
-	setBottomBarHeight,
 	setMapViewNativeNodeHandle,
 }: {
 	showSplash: boolean;
 	initialPositionRef: MutableRefObject<InitialPosition | undefined>;
 	saveCurrentPositionToInitial: (response?: MapLifeCycleResponse | MapEventResponse) => void;
-	setTopAppBarHeight: Dispatch<SetStateAction<number>>;
-	setBottomBarHeight: Dispatch<SetStateAction<BottomBarHeight>>;
 	setMapViewNativeNodeHandle: Dispatch<SetStateAction<null | number>>;
 }) => {
 	const theme = useTheme();
@@ -79,7 +72,7 @@ const AppView = ({
 
 	const hardwareKeys = useAppSelector(selectHardwareKeys);
 
-	const dashboardElements = useAppSelector(selectElements);
+	const dashboardElements = useAppSelector((state) => selectItems(state, { position: 'bottom' }));
 	const mapEventRate = useAppSelector(selectMapEventRate);
 	const hgtInterpolation = useAppSelector(selectHgtInterpolation);
 	const hgtFileInfoPurgeThreshold = useAppSelector(selectHgtFileInfoPurgeThreshold);
@@ -96,10 +89,14 @@ const AppView = ({
 	const hgtDirPath = useMemo(
 		() =>
 			hgtDirPathStore &&
-			(dashboardElements.reduce((acc: boolean, ele: DashboardElementConf) => {
-				return acc || !ele.type
+			(dashboardElements.reduce((acc: boolean, ele: DashboardItem) => {
+				return acc || !ele.elementType
 					? acc
-					: get(dashboardElementComponents, [ele.type, 'shouldSetHgtDirPath'], false);
+					: get(
+							dashboardElementComponents,
+							[ele.elementType, 'shouldSetHgtDirPath'],
+							false
+						);
 			}, false) as boolean)
 				? hgtDirPathStore
 				: undefined,
@@ -109,13 +106,13 @@ const AppView = ({
 	const responseInclude = useMemo(
 		() =>
 			dashboardElements.reduce(
-				(acc: object, ele: DashboardElementConf) => {
-					return ele.type
+				(acc: object, ele: DashboardItem) => {
+					return ele.elementType
 						? {
 								...acc,
 								...get(
 									dashboardElementComponents,
-									[ele.type, 'responseInclude'],
+									[ele.elementType, 'responseInclude'],
 									{}
 								),
 							}
@@ -133,8 +130,6 @@ const AppView = ({
 				.map((keyConf) => keyConf.keyCodeString) as MapContainerProps['emitsHardwareKeyUp'],
 		[hardwareKeys]
 	);
-
-	console.log('debug MapContainerModule', MapContainerModule); // debug
 
 	const handleHardwareKeyUp = useCallback(
 		() =>
@@ -169,7 +164,7 @@ const AppView = ({
 
 			<StatusBar barStyle={systemIsDarkMode ? 'light-content' : 'dark-content'} />
 
-			<TopAppBar setTopAppBarHeight={setTopAppBarHeight} />
+			<TopAppBar />
 
 			<View
 				style={{
@@ -229,17 +224,14 @@ const AppView = ({
 				<MapLayersAttribution />
 			</View>
 
-			<AltitudeProfile
-				outerWidth={width}
-				setBottomBarHeight={setBottomBarHeight}
+			<AltitudeProfile outerWidth={width} />
+
+			<Dashboard
+				position="bottom"
+				sortEnabled={false}
+				shouldSetBottomBarHeight={true}
 			/>
 
-			{dashboardElements.length > 0 && (
-				<Dashboard
-					setBottomBarHeight={setBottomBarHeight}
-					outerWidth={width}
-				/>
-			)}
 		</SafeAreaView>
 	);
 };

@@ -1,27 +1,36 @@
 /**
  * External dependencies
  */
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { FC, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { Text } from 'react-native-paper';
 import { get } from 'lodash-es';
-import { View } from 'react-native';
+import { GestureResponderEvent, TouchableHighlight, View } from 'react-native';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 /**
  * Internal dependencies
  */
 import { MapContext } from '../../../../Context';
 import { MapEventResponse } from 'react-native-mapsforge-vtm';
-import { DashboardDisplayComponentProps } from '../../dashboard/types';
+import { DashboardElement, DashboardElementProps, DashboardItemOptionsBase } from '../types';
 import { selectMapEventRate } from '../../general/selectors';
 import { useAppSelector } from '../../../hooks';
+import { selectDashboardStyle } from '../selectors';
 
-const DisplayComponent = ({
-	dashboardElement,
-	style = {},
-	dashboardStyle,
-}: DashboardDisplayComponentProps) => {
+interface Options extends DashboardItemOptionsBase {}
+
+const DisplayComponent: FC<DashboardElementProps<Options>> = ({ item, style = {}, onPress }) => {
+	const handlePress = useMemo(() => {
+		if (onPress) {
+			return (event: GestureResponderEvent) => onPress(item.key, event);
+		}
+	}, [
+		onPress,
+		item.key,
+	]);
+
+	const dashboardStyle = useAppSelector(selectDashboardStyle);
 	const { currentMapEventRef } = useContext(MapContext);
-
 	const mapEventRate = useAppSelector(selectMapEventRate);
 
 	const [zoomLevel, setZoomLevel] = useState<MapEventResponse['zoomLevel']>(undefined);
@@ -35,35 +44,56 @@ const DisplayComponent = ({
 		};
 	}, []);
 
-	let fontSize = get(dashboardElement, ['style', 'fontSize'], 'default');
-	fontSize = 'default' === fontSize ? dashboardStyle.fontSize : fontSize;
+	const fontSize = item?.options?.fontSize ?? dashboardStyle.fontSize;
 
 	return (
-		<View
-			style={{
-				minWidth: get(dashboardElement, ['style', 'minWidth'], undefined),
-				...style,
-			}}
-		>
-			{zoomLevel && (
-				<Text
-					style={{
-						fontSize,
-					}}
-				>
-					{zoomLevel}
-				</Text>
-			)}
-		</View>
+		<TouchableHighlight onPress={handlePress}>
+			<View
+				style={{
+					minWidth: get(item, ['style', 'minWidth'], undefined),
+					...style,
+				}}
+			>
+				{zoomLevel && (
+					<Text
+						style={{
+							fontSize,
+						}}
+					>
+						{zoomLevel}
+					</Text>
+				)}
+			</View>
+		</TouchableHighlight>
 	);
 };
 
+const IconComponent: FC<{
+	color: string;
+	size: number;
+}> = ({ color, size }) => {
+	return (
+		<MaterialIcons
+			color={color}
+			size={size}
+			name="search"
+		/>
+	);
+	// return (
+	// 	<Icon
+	// 		source={'cog'}
+	// 		size={size}
+	// 		color={color}
+	// 	/>
+	// );
+};
 export default {
 	key: 'zoomLevel',
 	label: 'zoomLevel',
 	DisplayComponent,
-	ControlComponent: null,
+	ControlComponent: undefined,
+	IconComponent,
 	hasStyleControl: true,
 	defaultMinWidth: 75,
 	responseInclude: { zoomLevel: 2 },
-};
+} as DashboardElement<Options>;

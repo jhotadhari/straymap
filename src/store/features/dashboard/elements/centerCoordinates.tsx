@@ -1,12 +1,13 @@
 /**
  * External dependencies
  */
-import React, { useContext, useEffect, useRef, useState } from 'react';
-import { Menu, Text, useTheme } from 'react-native-paper';
+import React, { FC, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { Icon, Menu, Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { upperFirst, get, set } from 'lodash-es';
-import { View } from 'react-native';
+import { GestureResponderEvent, TouchableHighlight, View } from 'react-native';
 import formatcoords from 'formatcoords';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 /**
  * Internal dependencies
@@ -18,12 +19,14 @@ import { NumericRowControl } from '../../../../components/generic/controls/Numer
 import { options as unitPrefControlOptions } from '../../general/components/controls/UnitPrefControl';
 import { MapContext } from '../../../../Context';
 import { useAppSelector } from '../../../hooks';
-import { selectMapEventRate } from '../../general/selectors';
+import { selectMapEventRate, selectUnitPrefs } from '../../general/selectors';
 import {
-	DashboardElementConf,
-	DashboardDisplayComponentProps,
-} from '../../dashboard/types';
+	DashboardElementProps,
+	DashboardElement,
+	DashboardItemOptionsBase,
+} from '../types';
 import { UnitPref } from '../../general/types';
+import { selectDashboardStyle } from '../selectors';
 
 const opts = [
 	{
@@ -33,15 +36,11 @@ const opts = [
 	...unitPrefControlOptions.coordinates,
 ];
 
-const ControlComponent = ({
-	editElement,
-	updateElement,
-	unitPrefs,
-}: {
-	editElement: null | DashboardElementConf;
-	updateElement: (newElement: DashboardElementConf) => void;
-	unitPrefs?: { [value: string]: UnitPref };
+const ControlComponent: FC<DashboardElementProps> = ({
+	item,
+	// updateElement,
 }) => {
+	const unitPrefs = useAppSelector(selectUnitPrefs);
 	const { t } = useTranslation();
 	const theme = useTheme();
 	const [menuVisible, setMenuVisible] = useState(false);
@@ -49,7 +48,7 @@ const ControlComponent = ({
 	const activeOpt = opts.find(
 		(opt) =>
 			opt.key ===
-			get(editElement, [
+			get(item, [
 				'options',
 				'unit',
 				'key',
@@ -58,7 +57,7 @@ const ControlComponent = ({
 
 	const presetUnit = () => {
 		if (!activeOpt) {
-			const newEditElement = { ...editElement };
+			const newEditElement = { ...item };
 			set(
 				newEditElement,
 				[
@@ -77,15 +76,15 @@ const ControlComponent = ({
 				],
 				4
 			);
-			updateElement(newEditElement as DashboardElementConf);
+			// updateElement(newEditElement as DashboardItem);	// ???
 		}
 	};
 	useEffect(() => presetUnit(), []);
 	useEffect(() => presetUnit(), [activeOpt]);
 
-	return activeOpt ? (
+	return (
 		<View>
-			<InfoRowControl
+			{/* <InfoRowControl
 				label={t('unit')}
 				Info={t('hint.dashboard.item.unit')}
 			>
@@ -110,7 +109,7 @@ const ControlComponent = ({
 							key={opt.key}
 							onPress={() => {
 								setMenuVisible(false);
-								const newEditElement = { ...editElement };
+								const newEditElement = { ...item };
 								set(
 									newEditElement,
 									[
@@ -120,7 +119,7 @@ const ControlComponent = ({
 									],
 									opt.key
 								);
-								updateElement(newEditElement as DashboardElementConf);
+								// updateElement(newEditElement as DashboardItem);	// ???
 							}}
 							title={t(opt.label)}
 							active={activeOpt ? opt.key === activeOpt.key : false}
@@ -137,31 +136,41 @@ const ControlComponent = ({
 						/>
 					))}
 				</Menu>
-			</InfoRowControl>
+			</InfoRowControl> */}
 
-			{activeOpt && 'default' !== activeOpt.key && (
+			{/* {activeOpt && 'default' !== activeOpt.key && ( */}
 				<NumericRowControl
 					label={upperFirst(t('decimalPlace', { count: 0 }))}
 					optKey={'round'}
-					options={get(editElement, ['options', 'unit'], {})}
+					options={get(item, ['options', 'unit'], {})}
 					setOptions={(newUnit) => {
-						const newEditElement = { ...editElement };
-						set(newEditElement, ['options', 'unit'], newUnit);
-						updateElement(newEditElement as DashboardElementConf);
+						// const newEditElement = { ...item };
+						// set(newEditElement, ['options', 'unit'], newUnit);
+						// // updateElement(newEditElement as DashboardItem);	// ???
 					}}
 					validate={(val) => val >= 0}
 				/>
-			)}
+			{/* )} */}
 		</View>
-	) : null;
+	);
 };
 
-const DisplayComponent = ({
-	dashboardElement,
-	style = {},
-	unitPrefs,
-	dashboardStyle,
-}: DashboardDisplayComponentProps) => {
+interface Options extends DashboardItemOptionsBase {
+	unitPref?: UnitPref;
+}
+
+const DisplayComponent: FC<DashboardElementProps<Options>> = ({ item, style = {}, onPress }) => {
+	const handlePress = useMemo(() => {
+		if (onPress) {
+			return (event: GestureResponderEvent) => onPress(item.key, event);
+		}
+	}, [
+		onPress,
+		item.key,
+	]);
+
+	const dashboardStyle = useAppSelector(selectDashboardStyle);
+	const unitPrefs = useAppSelector(selectUnitPrefs);
 	const { currentMapEventRef } = useContext(MapContext);
 
 	const mapEventRate = useAppSelector(selectMapEventRate);
@@ -179,61 +188,67 @@ const DisplayComponent = ({
 		};
 	}, []);
 
-	const unit =
-		'default' ===
-		get(
-			dashboardElement,
-			[
-				'options',
-				'unit',
-				'key',
-			],
-			'default'
-		)
-			? {
-					...get(unitPrefs, 'coordinates'),
-					key: get(unitPrefs, ['coordinates', 'unit']),
-				}
-			: get(dashboardElement, ['options', 'unit']);
+	const unitPref = item?.options?.unitPref ?? get(unitPrefs, 'coordinates');
 
-	let fontSize = get(dashboardElement, ['style', 'fontSize'], 'default');
-	fontSize = 'default' === fontSize ? dashboardStyle.fontSize : fontSize;
+	const fontSize = item?.options?.fontSize ?? dashboardStyle.fontSize;
 
 	return (
-		<View
-			style={{
-				minWidth: get(dashboardElement, ['style', 'minWidth'], undefined),
-				...style,
-			}}
-		>
-			{undefined !== centerLng && undefined !== centerLat && (
-				<Text
-					style={{
-						fontSize,
-					}}
-				>
-					{formatcoords({
-						lng: centerLng,
-						lat: centerLat,
-					}).format(
-						get(
+		<TouchableHighlight onPress={handlePress}>
+			<View
+				style={{
+					minWidth: get(item, ['style', 'minWidth'], undefined),
+					...style,
+				}}
+			>
+				{undefined !== centerLng && undefined !== centerLat && (
+					<Text
+						style={{
+							fontSize,
+						}}
+					>
+						{formatcoords({
+							lng: centerLng,
+							lat: centerLat,
+						}).format(
+							get(
+								{
+									// https://www.npmjs.com/package/formatcoords#user-content-formatting
+									dd: 'f',
+									dmm: 'Ff',
+									dms: 'FFf',
+								},
+								unitPref.unit,
+								'f'
+							),
 							{
-								// https://www.npmjs.com/package/formatcoords#user-content-formatting
-								dd: 'f',
-								dmm: 'Ff',
-								dms: 'FFf',
-							},
-							unit.key,
-							'f'
-						),
-						{
-							decimalPlaces: unit.round,
-						}
-					)}
-				</Text>
-			)}
-		</View>
+								decimalPlaces: unitPref.round,
+							}
+						)}
+					</Text>
+				)}
+			</View>
+		</TouchableHighlight>
 	);
+};
+
+const IconComponent: FC<{
+	color: string;
+	size: number;
+}> = ({ color, size }) => {
+	return (
+		<MaterialIcons
+			color={color}
+			size={size}
+			name="compass-calibration"
+		/>
+	);
+	// return (
+	// 	<Icon
+	// 		source={'cog'}
+	// 		size={size}
+	// 		color={color}
+	// 	/>
+	// );
 };
 
 export default {
@@ -241,7 +256,8 @@ export default {
 	label: 'centerCoordinates',
 	DisplayComponent,
 	ControlComponent,
+	IconComponent,
 	hasStyleControl: true,
 	defaultMinWidth: 200,
 	responseInclude: { center: 2 },
-};
+} as DashboardElement<Options>;

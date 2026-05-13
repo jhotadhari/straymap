@@ -1,33 +1,43 @@
 /**
  * External dependencies
  */
-import { ViewStyle } from 'react-native';
-
-/**
- * Internal dependencies
- */
-import { UnitPref } from '../general/types';
+import { GestureResponderEvent, ViewStyle } from 'react-native';
+import { ElementType } from 'react';
+import { ResponseInclude } from 'react-native-mapsforge-vtm';
 
 export type DashboardStyle = {
 	align: string;
 	fontSize: number;
 };
 
-export type DashboardElementStyle = {
-	fontSize?: 'default' | number;
+export interface DashboardItemOptionsBase {
+	fontSize?: number;
 	minWidth?: number;
-};
+}
 
-export type DashboardElementConf = {
+export type DashboardItem<Options = DashboardItemOptionsBase> = {
 	key: string;
-	type: string | null;
-	options?: object;
-	style?: DashboardElementStyle;
+	elementType: string;
+	options?: Options;
 };
 
-export type DashboardDisplayComponentProps = {
-	dashboardElement: DashboardElementConf;
+export type DashboardElementProps<Options = DashboardItemOptionsBase> = {
+	item: DashboardItem<Options>;
 	style?: ViewStyle;
-	unitPrefs: { [value: string]: UnitPref };
-	dashboardStyle: DashboardStyle;
+	onPress?: (itemKey: string, event: GestureResponderEvent) => void;
+};
+
+export type DashboardElement<Options = DashboardItemOptionsBase> = {
+	key: string;
+	label: string;
+	DisplayComponent: ElementType<DashboardElementProps<Options>>;
+	ControlComponent?: ElementType<DashboardElementProps<Options>>;
+	IconComponent?: ElementType<{
+		color: string;
+		size: number;
+	}>;
+	hasStyleControl: boolean;
+	shouldSetHgtDirPath?: boolean;
+	defaultMinWidth: number;
+	responseInclude?: ResponseInclude;
 };

@@ -9,14 +9,16 @@ import { View } from 'react-native';
 /**
  * Internal dependencies
  */
-import { DashboardDisplayComponentProps } from '../types';
-import { RoutingContext } from '../../../../Context';
+import { DashboardElementProps } from '../../types';
+import { RoutingContext } from '../../../../../Context';
+import { selectDashboardStyle } from '../../selectors';
+import { useAppSelector } from '../../../../hooks';
 
 const DisplayComponent = ({
 	dashboardElement,
 	style = {},
-	dashboardStyle,
-}: DashboardDisplayComponentProps) => {
+}: DashboardElementProps) => {
+	const dashboardStyle = useAppSelector(selectDashboardStyle);
 	let fontSize = get(dashboardElement, ['style', 'fontSize'], 'default');
 	fontSize = 'default' === fontSize ? dashboardStyle.fontSize : fontSize;
 

@@ -21,6 +21,8 @@ export type AppContextType = {
 	appInnerHeight?: number;
 	topAppBarHeight?: number;
 	bottomBarHeight?: BottomBarHeight;
+	setBottomBarHeight?: Dispatch<SetStateAction<BottomBarHeight>>;
+	setTopAppBarHeight?: Dispatch<SetStateAction<number>>;
 	mapHeight?: number;
 };
 

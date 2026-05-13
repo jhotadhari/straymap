@@ -1,7 +1,14 @@
 /**
  * External dependencies
  */
-import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react';
+import {
+	FC,
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useState,
+} from 'react';
 import { useTheme, Appbar, Menu, Icon } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { View, BackHandler, TouchableHighlight, StyleSheet } from 'react-native';
@@ -16,8 +23,9 @@ import { useAppDispatch, useAppSelector } from '../../../hooks';
 import { selectUiItemKeys, selectIsBusy } from '../selectors';
 import { setUiItemKeys } from '../uiSlice';
 import LoadingIndicator from '../../../../components/generic/LoadingIndicator';
+import { AppContext } from '../../../../Context';
 
-const TopAppBarMenu = ({ items }: { items: UiItem[] }) => {
+const TopAppBarMenu: FC<{ items: UiItem[] }> = ({ items }) => {
 	const { t } = useTranslation();
 
 	const dispatch = useAppDispatch();
@@ -34,12 +42,12 @@ const TopAppBarMenu = ({ items }: { items: UiItem[] }) => {
 	const toggleMenu = useCallback(() => setMenuVisible((menuVisible) => !menuVisible), []);
 
 	const backAction = useCallback(() => {
-		if ( menuVisible ) {
+		if (menuVisible) {
 			closeMenu();
 			return true;
 		}
 		return false;
-	}, [menuVisible,closeMenu]);
+	}, [menuVisible, closeMenu]);
 
 	useEffect(() => {
 		const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
@@ -103,12 +111,10 @@ const TopAppBarMenu = ({ items }: { items: UiItem[] }) => {
 	);
 };
 
-const TopAppBar = ({
-	setTopAppBarHeight,
-}: {
-	setTopAppBarHeight: Dispatch<SetStateAction<number>>;
-}) => {
+const TopAppBar: FC = () => {
 	const { t } = useTranslation();
+
+	const { setTopAppBarHeight } = useContext(AppContext);
 
 	const theme = useTheme();
 
@@ -134,7 +140,7 @@ const TopAppBar = ({
 	);
 
 	const backAction = useCallback(() => {
-		if ( uiItemsKeys.length ) {
+		if (uiItemsKeys.length) {
 			dispatch(setUiItemKeys([...uiItemsKeys].slice(0, Math.max(0, uiItemsKeys.length - 1))));
 			return true;
 		}
@@ -150,7 +156,7 @@ const TopAppBar = ({
 		<Appbar
 			onLayout={(e) => {
 				const { height } = e.nativeEvent.layout;
-				setTopAppBarHeight(height);
+				setTopAppBarHeight && setTopAppBarHeight(height);
 			}}
 			style={[
 				styles.justifyBetween,

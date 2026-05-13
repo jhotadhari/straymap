@@ -1,29 +1,23 @@
 /**
  * External dependencies
  */
-import { FC, useContext, useState } from 'react';
-import { ScrollView, View } from 'react-native';
+import { FC, useContext } from 'react';
+import { View } from 'react-native';
 import { useSafeAreaFrame } from 'react-native-safe-area-context';
 import { useTheme } from 'react-native-paper';
-import { useTranslation } from 'react-i18next';
 
 /**
  * Internal dependencies
  */
 import { AppContext } from '../../../../Context';
-import LayersControl from '../../baseMap/components/controls/layers/LayersControl';
-import Dashboard from '../../dashboard/components/Dashboard';
+import DashboardControlView from '../../dashboard/components/controls/DashboardControlView';
 
 const SettingsDashboard: FC = () => {
 	const theme = useTheme();
 
-	const { t } = useTranslation();
-
 	const { width } = useSafeAreaFrame();
 
 	const { appInnerHeight } = useContext(AppContext);
-
-	const [scrollEnabled, setScrollEnabled] = useState(true);
 
 	return (
 		<View
@@ -33,27 +27,9 @@ const SettingsDashboard: FC = () => {
 				width,
 				position: 'absolute',
 				zIndex: 9,
-				display: 'flex',
-				flexDirection: 'column',
-				justifyContent: 'space-between',
 			}}
 		>
-
-			<ScrollView scrollEnabled={scrollEnabled}>
-				<LayersControl
-					newLabel={t('map.addNewLayer')}
-					setScrollEnabled={setScrollEnabled}
-					saveOnChange={false}
-					saveOnUnmount={true}
-				/>
-			</ScrollView>
-
-			<Dashboard
-				outerWidth={width}
-				// style={{
-				// 	// zIndex: 999,
-				// }}
-			/>
+			<DashboardControlView />
 		</View>
 	);
 };

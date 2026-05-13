@@ -26,7 +26,6 @@ import RoutingProvider from './RoutingProvider';
 import { selectMapsforgeGeneral } from '../store/features/baseMap/selectors';
 import { useAppSelector } from '../store/hooks';
 import { useSetupTheme } from '../store/features/appearance/hooks';
-import { selectElements } from '../store/features/dashboard/selectors';
 import { selectIsBusy } from '../store/features/ui/selectors';
 import { useIsBusyPromiseQueueState } from '../store/features/ui/hooks';
 import useUpdater from '../store/features/general/hooks/useUpdater';
@@ -151,7 +150,9 @@ const useShowSplash = ({
 
 const App = () => {
 	const theme = useTheme();
+
 	const [ready, setReady] = useState<boolean>(false);
+
 	const [topAppBarHeight, setTopAppBarHeight] = useState<number>(0);
 	const [bottomBarHeight, setBottomBarHeight] = useState<BottomBarHeight>({});
 
@@ -176,17 +177,6 @@ const App = () => {
 	});
 
 	const settingsInitialized = useSettingsInitialized();
-
-	// Remove bottomBar if no dashboard elements.
-	const dashboardElements = useAppSelector(selectElements);
-	useEffect(() => {
-		if (!dashboardElements.length) {
-			setBottomBarHeight((bottomBarHeight) => ({
-				...bottomBarHeight,
-				dashboard: 0,
-			}));
-		}
-	}, [dashboardElements]);
 
 	const {
 		initialized: initialPositionInitialized,
@@ -252,6 +242,8 @@ const App = () => {
 				appInnerHeight,
 				topAppBarHeight,
 				bottomBarHeight,
+				setTopAppBarHeight,
+				setBottomBarHeight,
 				mapHeight:
 					(appInnerHeight || height) -
 					(Object.values(bottomBarHeight).reduce((acc, nb) => acc + nb, 0) || 0),
@@ -268,8 +260,6 @@ const App = () => {
 							showSplash={showSplash}
 							initialPositionRef={initialPositionRef}
 							saveCurrentPositionToInitial={saveCurrentPositionToInitial}
-							setTopAppBarHeight={setTopAppBarHeight}
-							setBottomBarHeight={setBottomBarHeight}
 							setMapViewNativeNodeHandle={setMapViewNativeNodeHandle}
 						/>
 					</GestureHandlerRootView>

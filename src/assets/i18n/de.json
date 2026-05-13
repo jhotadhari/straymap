@@ -17,6 +17,7 @@
 			"about": "Über",
 			"general": "Allgemein",
 			"appearance": "Aussehen",
+			"dashboard": "Dashboard",
 			"maps": "Karten"
 		},
 		"settings": {
@@ -123,7 +124,6 @@
 		"color": "Farbe",
 		"file": "Datei",
 		"selectFile": "Datei auswählen",
-		"size [px]": "Größe [px]",
 		"preview": "Vorschau",
 		"coordinates": "Koordinaten",
 		"distance": "Distanz",

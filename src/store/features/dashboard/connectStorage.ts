@@ -10,10 +10,13 @@ import rnUuid from 'react-native-uuid';
  * Internal dependencies
  */
 import {
+	addItem,
 	DashboardSettings,
 	DashboardState,
 	initialSettings,
+	removeItemKey,
 	setInitialized,
+	setItems,
 } from './dashboardSlice';
 import { startAppListening } from '../../listenerMiddleware';
 import { setDashboardStyle, setElements } from './dashboardSlice';
@@ -30,14 +33,20 @@ export const initializeFromStorage = (store: EnhancedStore) => {
 		.then((newSettingsStr) => {
 			if (newSettingsStr) {
 				const newSettings = JSON.parse(newSettingsStr) as Partial<DashboardState>;
-				if (newSettings?.elements) {
+				if (newSettings?.itemsTop) {
 					store.dispatch(
-						setElements(
-							newSettings.elements.map((ele) => ({
-								...ele,
-								key: rnUuid.v4(),
-							}))
-						)
+						setItems({
+							position: 'top',
+							items: newSettings.itemsTop,
+						})
+					);
+				}
+				if (newSettings?.itemsBottom) {
+					store.dispatch(
+						setItems({
+							position: 'bottom',
+							items: newSettings.itemsBottom,
+						})
 					);
 				}
 				if (newSettings?.dashboardStyle) {
@@ -51,7 +60,7 @@ export const initializeFromStorage = (store: EnhancedStore) => {
 
 /**
  * Compares settings in this store slice with initialSettings,
- * and saves anything that esdiffers to initialSettings to defaultPreferences.
+ * and saves anything that differs to initialSettings to defaultPreferences.
  */
 export const saveToStorage = (dashboardState: DashboardState, actionType: string) => {
 	if (!dashboardState.initialized) {
@@ -62,12 +71,6 @@ export const saveToStorage = (dashboardState: DashboardState, actionType: string
 		let shouldSave = false;
 		let valueToSave;
 		switch (key) {
-			case 'elements':
-				valueToSave = get(dashboardState, key).map((ele) => omit(ele, 'key'));
-				shouldSave = !isEqual(
-					valueToSave,
-					get(initialSettings, key).map((ele) => omit(ele, 'key'))
-				);
 			default:
 				valueToSave = get(dashboardState, key);
 				shouldSave = !isEqual(valueToSave, get(initialSettings, key));
@@ -87,7 +90,7 @@ export const saveToStorage = (dashboardState: DashboardState, actionType: string
  * and calls the function to save them to defaultPreferences.
  */
 startAppListening({
-	matcher: isAnyOf(setElements, setDashboardStyle),
+	matcher: isAnyOf(setDashboardStyle, setItems, addItem, removeItemKey),
 	effect: async (action, listenerApi) => {
 		saveToStorage(listenerApi.getState().dashboard, action.type);
 	},

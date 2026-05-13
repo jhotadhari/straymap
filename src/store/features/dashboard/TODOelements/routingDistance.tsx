@@ -2,21 +2,27 @@
  * External dependencies
  */
 import React, { useContext } from 'react';
-import { Icon, Text } from 'react-native-paper';
+import { Text } from 'react-native-paper';
 import { get } from 'lodash-es';
 import { View } from 'react-native';
 
 /**
  * Internal dependencies
  */
-import { RoutingContext } from '../../../../Context';
-import { DashboardDisplayComponentProps } from '../types';
+import { RoutingContext } from '../../../../../Context';
+import { formatDistance } from '../../../../../lib/utils';
+import { useAppSelector } from '../../../../hooks';
+import { selectUnitPrefs } from '../../../general/selectors';
+import { DashboardElementProps } from '../../types';
+import { selectDashboardStyle } from '../../selectors';
 
 const DisplayComponent = ({
 	dashboardElement,
 	style = {},
-	dashboardStyle,
-}: DashboardDisplayComponentProps) => {
+}: DashboardElementProps) => {
+	const dashboardStyle = useAppSelector(selectDashboardStyle);
+	const unitPrefs = useAppSelector(selectUnitPrefs);
+
 	let fontSize = get(dashboardElement, ['style', 'fontSize'], 'default');
 	fontSize = 'default' === fontSize ? dashboardStyle.fontSize : fontSize;
 
@@ -26,23 +32,19 @@ const DisplayComponent = ({
 		<View
 			style={{
 				minWidth: get(dashboardElement, ['style', 'minWidth'], undefined),
-				flexDirection: 'row',
-				alignItems: 'center',
 				...style,
 			}}
 		>
-			<Icon
-				source="arrow-down"
-				size={17}
-			/>
-			<Text style={{ marginLeft: 5, fontSize }}>{Math.round(stats?.down || 0) + ' m'}</Text>
+			<Text style={{ fontSize }}>
+				{formatDistance(stats?.distance || 0, unitPrefs.distance)}
+			</Text>
 		</View>
 	) : null;
 };
 
 export default {
-	key: 'routingDown',
-	label: 'routingDown', // ???
+	key: 'routingDistance',
+	label: 'routingDistance', // ???
 	DisplayComponent,
 	ControlComponent: null,
 	hasStyleControl: true,

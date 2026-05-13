@@ -26,13 +26,13 @@ import { NumericRowControl } from '../../../../components/generic/controls/Numer
 import * as dashboardElementComponents from '../elements';
 import MenuItem from '../../../../components/generic/MenuItem';
 import InfoRowControl, { labelPadding } from '../../../../components/generic/controls/InfoRowControl';
-import { DashboardElementConf } from '../types';
+import { DashboardItem } from '../types';
 import { useAppDispatch, useAppSelector } from '../../../hooks';
-import { selectDashboardStyle, selectElements } from '../selectors';
+import { selectDashboardStyle, selectItems } from '../selectors';
 import { setDashboardStyle, setElements } from '../dashboardSlice';
 import { selectMapEventRate, selectUnitPrefs } from '../../general/selectors';
 import { setMapEventRate } from '../../general/generalSlice';
-import Dashboard from './Dashboard';
+import Dashboard from './DashboardOld';
 
 const itemHeight = 50;
 
@@ -68,9 +68,9 @@ const styleAlignOptions: OptionBase[] = [
 	},
 ];
 
-const getNewElement = (): DashboardElementConf => ({
+const getNewElement = (): DashboardItem => ({
 	key: rnUuid.v4(),
-	type: null,
+	elementType: '',
 });
 
 const DraggableItem = ({
@@ -78,9 +78,9 @@ const DraggableItem = ({
 	width,
 	setEditElement,
 }: {
-	item: DashboardElementConf;
+	item: DashboardItem;
 	width: number;
-	setEditElement: Dispatch<SetStateAction<null | DashboardElementConf>>;
+	setEditElement: Dispatch<SetStateAction<null | DashboardItem>>;
 }) => {
 	const { t } = useTranslation();
 	const theme = useTheme();
@@ -113,7 +113,7 @@ const DraggableItem = ({
 					[
 					{t(
 						get(
-							elementTypeOptions.find((opt) => opt.key === item.type),
+							elementTypeOptions.find((opt) => opt.key === item.elementType),
 							'label',
 							''
 						)
@@ -140,8 +140,8 @@ const StyleControlFontSize = ({
 	editElement,
 	updateElement,
 }: {
-	editElement: null | DashboardElementConf;
-	updateElement: (newElement: DashboardElementConf) => void;
+	editElement: null | DashboardItem;
+	updateElement: (newElement: DashboardItem) => void;
 }) => {
 	const { t } = useTranslation();
 	const theme = useTheme();
@@ -203,7 +203,7 @@ const StyleControlFontSize = ({
 									['style', 'fontSize'],
 									'default' === opt.key ? opt.key : numVal
 								);
-								updateElement(newEditElement as DashboardElementConf);
+								updateElement(newEditElement as DashboardItem);
 							}}
 							title={t(opt.label)}
 							active={activeOpt ? opt.key === activeOpt.key : false}
@@ -221,7 +221,7 @@ const StyleControlFontSize = ({
 							...editElement,
 							style: newStyle,
 						};
-						updateElement(newEditElement as DashboardElementConf);
+						updateElement(newEditElement as DashboardItem);
 						setNumVal(newStyle['fontSize']);
 					}}
 					validate={(val) => val > 0}
@@ -235,8 +235,8 @@ const StyleControl = ({
 	editElement,
 	updateElement,
 }: {
-	editElement: null | DashboardElementConf;
-	updateElement: (newElement: DashboardElementConf) => void;
+	editElement: null | DashboardItem;
+	updateElement: (newElement: DashboardItem) => void;
 }) => {
 	const { t } = useTranslation();
 	const theme = useTheme();
@@ -249,12 +249,12 @@ const StyleControl = ({
 					fontSize: 'default',
 					minWidth: get(
 						dashboardElementComponents,
-						[editElement?.type || '', 'defaultMinWidth'],
+						[editElement?.elementType || '', 'defaultMinWidth'],
 						75
 					),
 				},
 			};
-			updateElement(newEditElement as DashboardElementConf);
+			updateElement(newEditElement as DashboardItem);
 		}
 	};
 	useEffect(() => presetStyle(), []);
@@ -275,7 +275,7 @@ const StyleControl = ({
 						...editElement,
 						style: newStyle,
 					};
-					updateElement(newEditElement as DashboardElementConf);
+					updateElement(newEditElement as DashboardItem);
 				}}
 				validate={(val) => val >= 0}
 				Info={t('hint.dashboard.item.minWidth')}
@@ -291,7 +291,7 @@ const DashboardControl = () => {
 
 	const dispatch = useAppDispatch();
 
-	const dashboardElements = useAppSelector(selectElements);
+	const dashboardElements = useAppSelector(state => selectItems( state, { position: 'bottom'} ));
 	const dashboardStyle = useAppSelector(selectDashboardStyle);
 	const mapEventRate = useAppSelector(selectMapEventRate);
 	const unitPrefs = useAppSelector(selectUnitPrefs);
@@ -301,7 +301,7 @@ const DashboardControl = () => {
 	const [scrollEnabled, setScrollEnabled] = useState(true);
 
 	const [dashboardElementsEdit, setDashboardElementsEdit] =
-		useState<DashboardElementConf[]>(dashboardElements);
+		useState<DashboardItem[]>(dashboardElements);
 	const dashboardElementsEditRef = useRef(dashboardElementsEdit);
 	useEffect(() => {
 		dashboardElementsEditRef.current = dashboardElementsEdit;
@@ -311,7 +311,7 @@ const DashboardControl = () => {
 	};
 	useEffect(() => saveElements, []); // Save on unmount.
 
-	const [editElement, setEditElement] = useState<null | DashboardElementConf>(null);
+	const [editElement, setEditElement] = useState<null | DashboardItem>(null);
 
 	const [modalVisible, setModalVisible] = useState(false);
 
@@ -319,9 +319,9 @@ const DashboardControl = () => {
 		setModalVisible(!!editElement);
 	}, [editElement]);
 
-	const updateElement = (newElement: DashboardElementConf) => {
+	const updateElement = (newElement: DashboardItem) => {
 		if (editElement && editElement.key === newElement.key) {
-			setEditElement((editElement: null | DashboardElementConf) =>
+			setEditElement((editElement: null | DashboardItem) =>
 				editElement ? { ...editElement, ...newElement } : null
 			);
 		}
@@ -336,7 +336,7 @@ const DashboardControl = () => {
 		}
 	};
 
-	const renderItem = (item: DashboardElementConf) => (
+	const renderItem = (item: DashboardItem) => (
 		<View key={item.key}>
 			<DraggableItem
 				item={item}
@@ -347,8 +347,8 @@ const DashboardControl = () => {
 	);
 
 	const ControlComponent =
-		editElement && editElement?.type
-			? get(dashboardElementComponents, [editElement.type as string, 'ControlComponent'])
+		editElement && editElement?.elementType && '' !== editElement.elementType
+			? get(dashboardElementComponents, [editElement.elementType as string, 'ControlComponent'])
 			: null;
 
 	return (
@@ -363,13 +363,13 @@ const DashboardControl = () => {
 						setEditElement(null);
 					}}
 					header={
-						editElement.type
+						editElement.elementType
 							? sprintf(
 									t('edit"X"'),
 									t(
 										get(
 											elementTypeOptions.find(
-												(opt) => opt.key === editElement.type
+												(opt) => opt.key === editElement.elementType
 											),
 											'label',
 											''
@@ -379,7 +379,7 @@ const DashboardControl = () => {
 							: t('dashboardElementNew')
 					}
 				>
-					{!editElement.type && (
+					{!editElement.elementType && (
 						<View>
 							<Text style={{ marginBottom: 18 }}>
 								{sprintf(t('selectXType'), t('dashboardElement'))}
@@ -389,7 +389,7 @@ const DashboardControl = () => {
 								const onPress = () => {
 									updateElement({
 										...editElement,
-										type: opt.key,
+										elementType: opt.key,
 									});
 									if ('lineBreak' === opt.key) {
 										setEditElement(null);
@@ -409,7 +409,7 @@ const DashboardControl = () => {
 						</View>
 					)}
 
-					{editElement.type && (
+					{editElement.elementType && (
 						<View>
 							{ControlComponent && (
 								<ControlComponent
@@ -420,7 +420,7 @@ const DashboardControl = () => {
 							)}
 
 							{get(dashboardElementComponents, [
-								editElement.type as string,
+								editElement.elementType as string,
 								'hasStyleControl',
 							]) && (
 								<StyleControl
@@ -431,7 +431,7 @@ const DashboardControl = () => {
 						</View>
 					)}
 
-					{editElement.type && (
+					{editElement.elementType && (
 						<View
 							style={{
 								marginTop: 20,
@@ -522,7 +522,7 @@ const DashboardControl = () => {
 							renderItem={renderItem}
 							data={dashboardElementsEdit.filter((el) => !!el.key)}
 							onDragStart={() => setScrollEnabled(false)}
-							onDragRelease={(newElements: DashboardElementConf[]) => {
+							onDragRelease={(newElements: DashboardItem[]) => {
 								setScrollEnabled(true);
 								setDashboardElementsEdit(newElements);
 							}}

@@ -1,8 +1,15 @@
+/**
+ * External dependencies
+ */
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+
+/**
+ * Internal dependencies
+ */
 import { UiItem } from './types';
 import SettingsMaps from './components/SettingsMaps';
 import SettingsGeneral from './components/SettingsGeneral';
 import SettingsAppearance from './components/SettingsAppearance';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Settings from './components/Settings';
 import About from '../../../components/About';
 import SettingsDashboard from './components/SettingsDashboard';
