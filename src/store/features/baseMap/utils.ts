@@ -49,7 +49,7 @@ export const getNewLayer = (): LayerConfig => ({
 export const getLayerKind = (layer: LayerConfig): LayerKind | null =>
 	get(
 		mapTypeOptions.find((opt) => opt.key === layer.type),
-		'type',
+		'kind',
 		null
 	);
 

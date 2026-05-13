@@ -32,7 +32,7 @@ export const parseSerialized = (str: string, fallback?: any): object | false => 
 
 // Sort array of strings or objects based on another array.
 export const sortArrayByOrderArray = (
-	inputArr: (string | { [value: string]: any })[],
+	inputArr: (string | { [key: string]: any })[],
 	orderArr: string[],
 	key?: string,
 	mutate?: boolean
@@ -49,7 +49,8 @@ export const sortArrayByOrderArray = (
 		} else if (aIndex !== -1 && bIndex === -1) {
 			bIndex = aIndex + 1;
 		}
-		return aIndex > bIndex ? 1 : bIndex < aIndex ? -1 : 0;
+		// return aIndex > bIndex ? 1 : bIndex < aIndex ? -1 : 0;
+		return aIndex - bIndex;
 	});
 };
 
