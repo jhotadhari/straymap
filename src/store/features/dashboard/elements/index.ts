@@ -1,5 +1,5 @@
 import centerAltitude from './centerAltitude';
-import centerCoordinates from './centerCoordinates';
+import centerCoordinates from './centerCoordinates/centerCoordinates';
 // import lineBreak from './lineBreak';
 import zoomLevel from './zoomLevel';
 // import routingDistance from './routingDistance';

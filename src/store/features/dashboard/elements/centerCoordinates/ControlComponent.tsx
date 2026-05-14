@@ -12,21 +12,21 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 /**
  * Internal dependencies
  */
-import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
-import MenuItem from '../../../../components/generic/MenuItem';
-import InfoRowControl from '../../../../components/generic/controls/InfoRowControl';
-import { NumericRowControl } from '../../../../components/generic/controls/NumericRowControls';
-import { options as unitPrefControlOptions } from '../../general/components/controls/UnitPrefControl';
-import { MapContext } from '../../../../Context';
-import { useAppSelector } from '../../../hooks';
-import { selectMapEventRate, selectUnitPrefs } from '../../general/selectors';
+import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
+import MenuItem from '../../../../../components/generic/MenuItem';
+import InfoRowControl from '../../../../../components/generic/controls/InfoRowControl';
+import { NumericRowControl } from '../../../../../components/generic/controls/NumericRowControls';
+import { options as unitPrefControlOptions } from '../../../general/components/controls/UnitPrefControl';
+import { MapContext } from '../../../../../Context';
+import { useAppSelector } from '../../../../hooks';
+import { selectMapEventRate, selectUnitPrefs } from '../../../general/selectors';
 import {
 	DashboardElementProps,
 	DashboardElement,
 	DashboardItemOptionsBase,
-} from '../types';
-import { UnitPref } from '../../general/types';
-import { selectDashboardStyle } from '../selectors';
+} from '../../types';
+import { UnitPref } from '../../../general/types';
+import { selectDashboardStyle } from '../../selectors';
 
 const opts = [
 	{
@@ -155,109 +155,5 @@ const ControlComponent: FC<DashboardElementProps> = ({
 	);
 };
 
-interface Options extends DashboardItemOptionsBase {
-	unitPref?: UnitPref;
-}
 
-const DisplayComponent: FC<DashboardElementProps<Options>> = ({ item, style = {}, onPress }) => {
-	const handlePress = useMemo(() => {
-		if (onPress) {
-			return (event: GestureResponderEvent) => onPress(item.key, event);
-		}
-	}, [
-		onPress,
-		item.key,
-	]);
-
-	const dashboardStyle = useAppSelector(selectDashboardStyle);
-	const unitPrefs = useAppSelector(selectUnitPrefs);
-	const { currentMapEventRef } = useContext(MapContext);
-
-	const mapEventRate = useAppSelector(selectMapEventRate);
-
-	const [centerLng, setCenterLng] = useState<number | undefined>(undefined);
-	const [centerLat, setCenterLat] = useState<number | undefined>(undefined);
-	const intervalRef = useRef<NodeJS.Timeout | null>(null);
-	useEffect(() => {
-		intervalRef.current = setInterval(() => {
-			setCenterLng(currentMapEventRef?.current?.center?.lng);
-			setCenterLat(currentMapEventRef?.current?.center?.lat);
-		}, mapEventRate);
-		return () => {
-			intervalRef.current && clearInterval(intervalRef.current);
-		};
-	}, []);
-
-	const unitPref = item?.options?.unitPref ?? get(unitPrefs, 'coordinates');
-
-	const fontSize = item?.options?.fontSize ?? dashboardStyle.fontSize;
-
-	return (
-		<TouchableHighlight onPress={handlePress}>
-			<View
-				style={{
-					minWidth: get(item, ['style', 'minWidth'], undefined),
-					...style,
-				}}
-			>
-				{undefined !== centerLng && undefined !== centerLat && (
-					<Text
-						style={{
-							fontSize,
-						}}
-					>
-						{formatcoords({
-							lng: centerLng,
-							lat: centerLat,
-						}).format(
-							get(
-								{
-									// https://www.npmjs.com/package/formatcoords#user-content-formatting
-									dd: 'f',
-									dmm: 'Ff',
-									dms: 'FFf',
-								},
-								unitPref.unit,
-								'f'
-							),
-							{
-								decimalPlaces: unitPref.round,
-							}
-						)}
-					</Text>
-				)}
-			</View>
-		</TouchableHighlight>
-	);
-};
-
-const IconComponent: FC<{
-	color: string;
-	size: number;
-}> = ({ color, size }) => {
-	return (
-		<MaterialIcons
-			color={color}
-			size={size}
-			name="compass-calibration"
-		/>
-	);
-	// return (
-	// 	<Icon
-	// 		source={'cog'}
-	// 		size={size}
-	// 		color={color}
-	// 	/>
-	// );
-};
-
-export default {
-	key: 'centerCoordinates',
-	label: 'centerCoordinates',
-	DisplayComponent,
-	ControlComponent,
-	IconComponent,
-	hasStyleControl: true,
-	defaultMinWidth: 200,
-	responseInclude: { center: 2 },
-} as DashboardElement<Options>;
+export default ControlComponent;

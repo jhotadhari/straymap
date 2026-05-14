@@ -11,9 +11,22 @@ export const selectInitialized = (state: RootState) => state.dashboard.initializ
 
 export const selectDashboardStyle = (state: RootState) => state.dashboard.dashboardStyle;
 
-export const selectEditItem = (state: RootState) =>
-	state.dashboard.itemsTop.find((item) => item.key === state.dashboard.editItemKey) ??
-	state.dashboard.itemsBottom.find((item) => item.key === state.dashboard.editItemKey);
+export const selectEditItem = (state: RootState) => {
+	let position = 'top';
+	let editItem = state.dashboard.itemsTop.find(
+		(item) => item.key === state.dashboard.editItemKey
+	);
+	if (!editItem) {
+		position = 'bottom';
+		editItem = state.dashboard.itemsBottom.find(
+			(item) => item.key === state.dashboard.editItemKey
+		);
+	}
+	return {
+		editItem,
+		position,
+	};
+};
 
 export const selectItems = createAppSelector(
 	(state: RootState) => state.dashboard.itemsTop,

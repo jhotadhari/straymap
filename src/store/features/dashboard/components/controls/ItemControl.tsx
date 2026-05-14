@@ -20,11 +20,13 @@ import { setMapEventRate } from '../../../general/generalSlice';
 import { stylesGeneric } from '../../../baseMap/components/controls/layers/LayersControl';
 import AlignmentControl from './AlignmentControl';
 import { selectDashboardStyle, selectEditItem } from '../../selectors';
-import { setDashboardStyle } from '../../dashboardSlice';
+import { removeItemKey, setDashboardStyle } from '../../dashboardSlice';
 import * as elements from '../../elements';
 import { get } from 'lodash-es';
 import { DashboardElement } from '../../types';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
+import InfoButton from '../../../../../components/generic/InfoButton';
 
 const ICON_SIZE = 24;
 
@@ -35,7 +37,7 @@ const ItemControl: FC<{}> = ({}) => {
 	const dispatch = useAppDispatch();
 
 	const dashboardStyle = useAppSelector(selectDashboardStyle);
-	const editItem = useAppSelector(selectEditItem);
+	const { position, editItem } = useAppSelector(selectEditItem);
 
 	const uiStateKey = 'dashboardControlItem';
 	const notExpanded = useAppSelector((state) => selectElementExpanded(state, uiStateKey));
@@ -92,7 +94,10 @@ const ItemControl: FC<{}> = ({}) => {
 	return (
 		editItem && (
 			<List.Accordion
-				title={'dashboard item ... ???'}
+				title={ sprintf(
+					'??? dashboard item: %s',
+					t( label ?? '' )
+				) }
 				left={ControlIcon}
 				expanded={!notExpanded}
 				onPress={handleAccordionPress}
@@ -101,7 +106,35 @@ const ItemControl: FC<{}> = ({}) => {
 				<View style={styles.controls}>
 					<Text>{editItem.key}</Text>
 
+
 					{ControlComponent && <ControlComponent item={editItem} />}
+
+					{/* style component */}
+
+
+					{/* has linebreak after component */}
+
+
+					<View
+						style={{
+							justifyContent: 'flex-end',
+							flexDirection: 'row',
+						}}
+					>
+						<ButtonHighlight
+							icon="delete-outline"
+							mode="outlined"
+							onPress={() =>
+								dispatch( removeItemKey({
+									position,
+									itemKey: editItem.key,
+								}) )
+							}
+						>
+							{t('remove Item ???')}
+						</ButtonHighlight>
+					</View>
+
 				</View>
 			</List.Accordion>
 		)
@@ -110,8 +143,9 @@ const ItemControl: FC<{}> = ({}) => {
 
 const styles = StyleSheet.create({
 	controls: {
-		maxWidth: '70%',
+		// maxWidth: '70%',
 		marginBottom: 25,
+		paddingRight: 16,
 	},
 	icon: {
 		marginRight: -16,
