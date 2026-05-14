@@ -10,7 +10,7 @@ import { View } from 'react-native';
 /**
  * Internal dependencies
  */
-import { NumericRowControl } from '../../../../../components/generic/controls/NumericRowControls';
+import { NumericRowControl } from '../../../../../components/generic/controls/NumericRowControlsNew';
 import { options, options as unitPrefControlOptions } from '../../../general/components/controls/UnitPrefControl';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { selectUnitPrefs } from '../../../general/selectors';
@@ -63,20 +63,7 @@ const UnitPrefControl: FC<{
 				return;
 			}
 			let newItem = { ...item };
-			console.log(
-				'debug item?, newItem',
-				item,
-				newItem,
-				value,
-				Object.keys(value).length
-			); // debug
-
-			// if (!newItem?.options) {
-			// 	newItem.options = {};
-			// }
-
 			if (Object.keys(value).length > 0) {
-
 				newItem = {
 					...newItem,
 					options: {
@@ -84,27 +71,13 @@ const UnitPrefControl: FC<{
 						unitPref: value,
 					}
 				}
-
-				// set(newItem, ['options', 'unitPref'], value);
 			} else {
-				// set(newItem, ['options'], omit(newItem?.options ?? {}, 'unitPref'));
-
-
 				newItem = {
 					...newItem,
 					options: omit(newItem?.options ?? {}, 'unitPref')
 				}
 			}
-
-			console.log(
-				'debug item?.options?.unitPref, newItem?.options?.unitPref',
-				item?.options?.unitPref,
-				newItem?.options?.unitPref,
-				value
-			); // debug
-
 			if (!isEqual(item?.options?.unitPref, newItem?.options?.unitPref)) {
-				console.log('debug newItem', newItem); // debug
 				dispatch(setItem(newItem));
 			}
 		};
@@ -119,7 +92,6 @@ const UnitPrefControl: FC<{
 	// Save item on value change.
 	useEffect(() => {
 		if ( isSetByControl ) {
-			console.log('debug changed value', value); // debug
 			updateItemRef?.current && updateItemRef.current();
 		}
 	}, [isSetByControl, value]);
@@ -178,25 +150,24 @@ const UnitPrefControl: FC<{
 				</Menu>
 			</InfoRowControl>
 
-			{/* <NumericRowControl
+			<NumericRowControl
 				label={upperFirst(t('decimalPlace', { count: 0 }))}
-				optKey={'round'}
-				options={{ round: value.round ?? get(unitPrefs, [unitPrefsKey, 'round']) }}
-				setOptions={(newOptions) => {
-					console.log('debug newOptions', newOptions); // debug
-					if (newOptions.round === get(unitPrefs, [unitPrefsKey, 'round'])) {
+				value={value.round ?? get(unitPrefs, [unitPrefsKey, 'round'])}
+				onUpdate={(newValue) => {
+					console.log('debug newValue', newValue); // debug
+					if (newValue === get(unitPrefs, [unitPrefsKey, 'round'])) {
 						setValue(omit(value, 'round'));
 					} else {
 						setValue({
 							...value,
-							...newOptions,
+							round: newValue,
 						});
 					}
 					setIsSetByControl( true );
 				}}
 				numType="int"
 				validate={(val) => val >= 0 && val <= 20}
-			/> */}
+			/>
 		</View>
 	);
 };

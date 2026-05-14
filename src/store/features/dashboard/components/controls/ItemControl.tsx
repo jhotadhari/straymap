@@ -1,9 +1,9 @@
 /**
  * External dependencies
  */
-import React, { FC, useCallback, useEffect, useMemo } from 'react';
+import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Icon, List, Text, useTheme } from 'react-native-paper';
+import { List, Text, useTheme } from 'react-native-paper';
 import { StyleSheet, View } from 'react-native';
 import { Style } from 'react-native-paper/lib/typescript/components/List/utils';
 import { sprintf } from 'sprintf-js';
@@ -14,19 +14,12 @@ import { sprintf } from 'sprintf-js';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { setElementExpanded } from '../../../ui/uiSlice';
 import { selectElementExpanded } from '../../../ui/selectors';
-import { selectMapEventRate } from '../../../general/selectors';
-import { NumericRowControl } from '../../../../../components/generic/controls/NumericRowControls';
-import { setMapEventRate } from '../../../general/generalSlice';
-import { stylesGeneric } from '../../../baseMap/components/controls/layers/LayersControl';
-import AlignmentControl from './AlignmentControl';
 import { selectDashboardStyle, selectEditItem } from '../../selectors';
-import { removeItemKey, setDashboardStyle } from '../../dashboardSlice';
+import { removeItemKey } from '../../dashboardSlice';
 import * as elements from '../../elements';
 import { get } from 'lodash-es';
 import { DashboardElement } from '../../types';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
-import InfoButton from '../../../../../components/generic/InfoButton';
 import InfoRowControl from '../../../../../components/generic/controls/InfoRowControl';
 
 const ICON_SIZE = 24;
@@ -37,7 +30,6 @@ const ItemControl: FC<{}> = ({}) => {
 
 	const dispatch = useAppDispatch();
 
-	const dashboardStyle = useAppSelector(selectDashboardStyle);
 	const { position, editItem } = useAppSelector(selectEditItem);
 
 	const uiStateKey = 'dashboardControlItem';
@@ -54,6 +46,17 @@ const ItemControl: FC<{}> = ({}) => {
 		uiStateKey,
 	]);
 
+	// Force remount of all children on item key change.
+	const [show, setShow] = useState(false);
+	useEffect(() => {
+		setShow(false);
+		setTimeout(() => {
+			if (editItem?.key) {
+				setShow(true);
+			}
+		}, 1);
+	}, [editItem?.key]);
+
 	const { label, Control, Icon, hasStyleControl, defaultMinWidth } = useMemo(
 		() =>
 			editItem?.elementType
@@ -67,10 +70,6 @@ const ItemControl: FC<{}> = ({}) => {
 					},
 		[editItem?.elementType]
 	);
-
-	// useEffect(() => {
-	// 	console.log('debug Control', Control); // debug
-	// }, [Control]);
 
 	const ControlIcon = useCallback(
 		({ color, style }: { color: string; style: Style }) => {
@@ -101,41 +100,43 @@ const ItemControl: FC<{}> = ({}) => {
 				onPress={handleAccordionPress}
 				titleStyle={theme.fonts.bodyMedium}
 			>
-				<View style={styles.controls}>
-					{__DEV__ && (
-						<InfoRowControl label={'Key'}>
-							<Text>{editItem.key}</Text>
-						</InfoRowControl>
-					)}
+				{show && (
+					<View style={styles.controls}>
+						{__DEV__ && (
+							<InfoRowControl label={'Key'}>
+								<Text>{editItem.key}</Text>
+							</InfoRowControl>
+						)}
 
-					{Control && <Control item={editItem} />}
+						{Control && <Control item={editItem} />}
 
-					{/* style component */}
+						{/* style component */}
 
-					{/* has linebreak after component */}
+						{/* has linebreak after component */}
 
-					<View
-						style={{
-							justifyContent: 'flex-end',
-							flexDirection: 'row',
-						}}
-					>
-						<ButtonHighlight
-							icon="delete-outline"
-							mode="outlined"
-							onPress={() =>
-								dispatch(
-									removeItemKey({
-										position,
-										itemKey: editItem.key,
-									})
-								)
-							}
+						<View
+							style={{
+								justifyContent: 'flex-end',
+								flexDirection: 'row',
+							}}
 						>
-							{t('remove Item ???')}
-						</ButtonHighlight>
+							<ButtonHighlight
+								icon="delete-outline"
+								mode="outlined"
+								onPress={() =>
+									dispatch(
+										removeItemKey({
+											position,
+											itemKey: editItem.key,
+										})
+									)
+								}
+							>
+								{t('remove Item ???')}
+							</ButtonHighlight>
+						</View>
 					</View>
-				</View>
+				)}
 			</List.Accordion>
 		)
 	);
