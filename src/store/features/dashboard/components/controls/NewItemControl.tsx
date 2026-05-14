@@ -132,7 +132,6 @@ const NewItemControl: FC<{}> = () => {
 			)}
 
 			<ButtonHighlight
-				// style={{ marginTop: 100 }}
 				icon={({ color }) => (
 					<MaterialIcons
 						name="dashboard-customize"
@@ -141,7 +140,6 @@ const NewItemControl: FC<{}> = () => {
 					/>
 				)}
 				mode="outlined"
-				// onPress={() => dispatch(setElements([...items, getNewElement()]))}
 				onPress={() => setModalVisible(true)}
 			>
 				{t('dashboardElementNew')}

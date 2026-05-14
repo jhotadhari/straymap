@@ -28,8 +28,6 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 const ICON_SIZE = 24;
 
-
-
 const ItemControl: FC<{}> = ({}) => {
 	const { t } = useTranslation();
 	const theme = useTheme();
@@ -76,8 +74,8 @@ const ItemControl: FC<{}> = ({}) => {
 			return !IconComponent ? undefined : (
 				<View
 					style={[
-						stylesCopyPaper.item,
 						style,
+						styles.icon,
 					]}
 					pointerEvents="box-none"
 				>
@@ -115,26 +113,10 @@ const styles = StyleSheet.create({
 		maxWidth: '70%',
 		marginBottom: 25,
 	},
-
-	// controlIcon:
-	// {
-	//     margin: number;
-	//     height: number;
-	//     width: number;
-	//     alignItems: "center";
-	//     justifyContent: "center";
-	// }
-});
-
-const stylesCopyPaper = StyleSheet.create({
-	item: {
-		margin: 8,
+	icon: {
+		marginRight: -16,
 		height: 40,
 		width: 40,
-		alignItems: 'center',
-		justifyContent: 'center',
-	},
-	itemV3: {
 		alignItems: 'center',
 		justifyContent: 'center',
 	},

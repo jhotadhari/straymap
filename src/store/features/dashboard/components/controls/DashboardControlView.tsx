@@ -110,9 +110,10 @@ const DashboardControlView: FC<{}> = () => {
 
 				<OneControl position="bottom" />
 
-				<GeneralControl />
+				{/* <GeneralControl /> */}
 
 				<ItemControl />
+
 			</ScrollView>
 
 			<Dashboard

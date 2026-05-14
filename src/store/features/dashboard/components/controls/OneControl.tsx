@@ -52,24 +52,14 @@ const OneControl: FC<{
 	}> = useMemo(
 		() => (props) => (
 			<View style={stylesGeneric.controlIcon}>
-				<View style={{ opacity: 0.5 }}>
-					<List.Icon
-						{...props}
-						icon="view-dashboard"
-					/>
-				</View>
-
-				<View
-					style={{
-						position: 'absolute',
-						zIndex: 9,
-					}}
-				>
-					<List.Icon
-						{...props}
-						icon={'top' === position ? 'arrow-up' : 'arrow-down'}
-					/>
-				</View>
+				<List.Icon
+					{...props}
+					icon={
+						'top' === position
+							? 'arrow-up-bold-box-outline'
+							: 'arrow-down-bold-box-outline'
+					}
+				/>
 			</View>
 		),
 		[position]
