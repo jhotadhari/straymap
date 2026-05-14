@@ -25,7 +25,9 @@ import RadioListItem from '../../../../components/generic/RadioListItem';
 import { NumericRowControl } from '../../../../components/generic/controls/NumericRowControls';
 import * as dashboardElementComponents from '../elements';
 import MenuItem from '../../../../components/generic/MenuItem';
-import InfoRowControl, { labelPadding } from '../../../../components/generic/controls/InfoRowControl';
+import InfoRowControl, {
+	labelPadding,
+} from '../../../../components/generic/controls/InfoRowControl';
 import { DashboardItem } from '../types';
 import { useAppDispatch, useAppSelector } from '../../../hooks';
 import { selectDashboardStyle, selectItems } from '../selectors';
@@ -291,7 +293,7 @@ const DashboardControl = () => {
 
 	const dispatch = useAppDispatch();
 
-	const dashboardElements = useAppSelector(state => selectItems( state, { position: 'bottom'} ));
+	const dashboardElements = useAppSelector((state) => selectItems(state, { position: 'bottom' }));
 	const dashboardStyle = useAppSelector(selectDashboardStyle);
 	const mapEventRate = useAppSelector(selectMapEventRate);
 	const unitPrefs = useAppSelector(selectUnitPrefs);
@@ -346,9 +348,9 @@ const DashboardControl = () => {
 		</View>
 	);
 
-	const ControlComponent =
+	const Control =
 		editElement && editElement?.elementType && '' !== editElement.elementType
-			? get(dashboardElementComponents, [editElement.elementType as string, 'ControlComponent'])
+			? get(dashboardElementComponents, [editElement.elementType as string, 'Control'])
 			: null;
 
 	return (
@@ -411,8 +413,8 @@ const DashboardControl = () => {
 
 					{editElement.elementType && (
 						<View>
-							{ControlComponent && (
-								<ControlComponent
+							{Control && (
+								<Control
 									editElement={editElement}
 									updateElement={updateElement}
 									unitPrefs={unitPrefs}
@@ -502,9 +504,7 @@ const DashboardControl = () => {
 							bottom: 0,
 						}}
 					>
-						<Dashboard
-							outerWidth={width}
-						/>
+						<Dashboard outerWidth={width} />
 					</View>
 				}
 			>

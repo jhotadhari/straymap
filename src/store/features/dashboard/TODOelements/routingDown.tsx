@@ -14,10 +14,7 @@ import { DashboardElementProps } from '../../types';
 import { useAppSelector } from '../../../../hooks';
 import { selectDashboardStyle } from '../../selectors';
 
-const DisplayComponent = ({
-	dashboardElement,
-	style = {},
-}: DashboardElementProps) => {
+const Display = ({ dashboardElement, style = {} }: DashboardElementProps) => {
 	const dashboardStyle = useAppSelector(selectDashboardStyle);
 	let fontSize = get(dashboardElement, ['style', 'fontSize'], 'default');
 	fontSize = 'default' === fontSize ? dashboardStyle.fontSize : fontSize;
@@ -45,8 +42,8 @@ const DisplayComponent = ({
 export default {
 	key: 'routingDown',
 	label: 'routingDown', // ???
-	DisplayComponent,
-	ControlComponent: null,
+	Display,
+	Control: null,
 	hasStyleControl: true,
 	defaultMinWidth: 75,
 };

@@ -133,7 +133,7 @@ const CenterControl = () => {
 				optKey={'size'}
 				options={cursorConfig as object}
 				setOptions={updateCursor}
-				validate={(val) => val >= 0}
+				validate={(val) => val >= 0 && val <= 1000 }
 			/>
 
 			{cursorConfig?.iconSource &&

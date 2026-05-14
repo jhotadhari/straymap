@@ -9,7 +9,6 @@ import { GestureResponderEvent } from 'react-native';
 import * as elements from '../elements';
 import { DashboardItem } from '../types';
 
-
 const Item: FC<{
 	isHandle: boolean;
 	item: DashboardItem;
@@ -17,32 +16,32 @@ const Item: FC<{
 }> = ({ isHandle, item, onPress }) => {
 	const isFixed = 'Portugal' === item.key;
 
-	const DisplayComponent = useMemo(
+	const Display = useMemo(
 		() =>
 			get(elements, [
 				item.elementType,
-				'DisplayComponent',
+				'Display',
 			]),
 		[item.elementType]
 	);
 
 	const node = useMemo(
 		() =>
-			DisplayComponent && (
-				<DisplayComponent
-					style={ {
+			Display && (
+				<Display
+					style={{
 						paddingHorizontal: 10,
 						paddingVertical: 2,
-					} }
+					}}
 					key={item.key}
 					dashboardElement={item}
-					onPress={ onPress }
+					onPress={onPress}
 					item={item}
 				/>
 			),
 		[
 			onPress,
-			DisplayComponent,
+			Display,
 			item,
 		]
 	);

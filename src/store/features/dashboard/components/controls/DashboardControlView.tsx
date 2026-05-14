@@ -39,9 +39,12 @@ const DashboardControlView: FC<{}> = () => {
 		setScrollEnabled(false);
 	}, []);
 
-	useEffect( () => () => {
-		dispatch(setEditItemKey(undefined));
-	}, [] );
+	useEffect(
+		() => () => {
+			dispatch(setEditItemKey(undefined));
+		},
+		[]
+	);
 
 	const handleItemPress = useCallback((itemKey: string) => {
 		dispatch(setEditItemKey(itemKey));
@@ -113,7 +116,6 @@ const DashboardControlView: FC<{}> = () => {
 				{/* <GeneralControl /> */}
 
 				<ItemControl />
-
 			</ScrollView>
 
 			<Dashboard

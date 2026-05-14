@@ -172,7 +172,7 @@ const UnitControl = ({
 				optKey={'round'}
 				options={unitPref}
 				setOptions={onChange}
-				validate={(val) => val >= 0}
+				validate={(val) => val >= 0 && val <= 20 }
 				style={{ marginTop: 0, marginBottom: 0 }}
 			/>
 		</View>

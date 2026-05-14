@@ -19,7 +19,7 @@ import { selectDashboardStyle } from '../selectors';
 
 interface Options extends DashboardItemOptionsBase {}
 
-const DisplayComponent: FC<DashboardElementProps<Options>> = ({ item, style = {}, onPress }) => {
+const Display: FC<DashboardElementProps<Options>> = ({ item, style = {}, onPress }) => {
 	const handlePress = useMemo(() => {
 		if (onPress) {
 			return (event: GestureResponderEvent) => onPress(item.key, event);
@@ -68,7 +68,7 @@ const DisplayComponent: FC<DashboardElementProps<Options>> = ({ item, style = {}
 	);
 };
 
-const IconComponent: FC<{
+const Icon: FC<{
 	color: string;
 	size: number;
 }> = ({ color, size }) => {
@@ -90,9 +90,9 @@ const IconComponent: FC<{
 export default {
 	key: 'zoomLevel',
 	label: 'zoomLevel',
-	DisplayComponent,
-	ControlComponent: undefined,
-	IconComponent,
+	Display,
+	Control: undefined,
+	Icon,
 	hasStyleControl: true,
 	defaultMinWidth: 75,
 	responseInclude: { zoomLevel: 2 },

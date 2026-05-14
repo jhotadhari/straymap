@@ -65,7 +65,7 @@ const LayerControlHillshading: FC<{}> = () => {
 				optLabels={['min', 'max']}
 				options={layerTemp?.options ?? {}}
 				setOptions={setOptions}
-				validate={(val) => val >= 0}
+				validate={(val) => val >= 0 && val <= 20 }
 				Info={t('hint.maps.enabled') + '\n\n' + t('hint.maps.zoomGeneralInfo')}
 			/>
 
@@ -75,7 +75,7 @@ const LayerControlHillshading: FC<{}> = () => {
 				optLabels={['min', 'max']}
 				options={layerTemp?.options ?? {}}
 				setOptions={setOptions}
-				validate={(val) => val >= 0}
+				validate={(val) => val >= 0 && val <= 20 }
 				Info={t('hint.maps.zoom') + '\n\n' + t('hint.maps.zoomGeneralInfo')}
 			/>
 
@@ -84,7 +84,7 @@ const LayerControlHillshading: FC<{}> = () => {
 				optKey={'magnitude'}
 				options={layerTemp?.options ?? {}}
 				setOptions={setOptions}
-				validate={(val) => val > 0}
+				validate={(val) => val >= 0 && val <= 1000 }
 				Info={t('shadingOptions.magnitude.hint')}
 			/>
 

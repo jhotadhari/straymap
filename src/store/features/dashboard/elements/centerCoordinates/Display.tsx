@@ -2,38 +2,26 @@
  * External dependencies
  */
 import React, { FC, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { Icon, Menu, Text, useTheme } from 'react-native-paper';
-import { useTranslation } from 'react-i18next';
-import { upperFirst, get, set } from 'lodash-es';
+import { Text } from 'react-native-paper';
+import { get } from 'lodash-es';
 import { GestureResponderEvent, TouchableHighlight, View } from 'react-native';
 import formatcoords from 'formatcoords';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 /**
  * Internal dependencies
  */
-import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
-import MenuItem from '../../../../../components/generic/MenuItem';
-import InfoRowControl from '../../../../../components/generic/controls/InfoRowControl';
-import { NumericRowControl } from '../../../../../components/generic/controls/NumericRowControls';
-import { options as unitPrefControlOptions } from '../../../general/components/controls/UnitPrefControl';
 import { MapContext } from '../../../../../Context';
 import { useAppSelector } from '../../../../hooks';
 import { selectMapEventRate, selectUnitPrefs } from '../../../general/selectors';
-import {
-	DashboardElementProps,
-	DashboardElement,
-	DashboardItemOptionsBase,
-} from '../../types';
+import { DashboardElementProps, DashboardItemOptionsBase } from '../../types';
 import { UnitPref } from '../../../general/types';
 import { selectDashboardStyle } from '../../selectors';
-import ControlComponent from './ControlComponent';
 
 export interface Options extends DashboardItemOptionsBase {
-	unitPref?: UnitPref;
+	unitPref?: Partial<UnitPref>;
 }
 
-const DisplayComponent: FC<DashboardElementProps<Options>> = ({ item, style = {}, onPress }) => {
+const Display: FC<DashboardElementProps<Options>> = ({ item, style = {}, onPress }) => {
 	const handlePress = useMemo(() => {
 		if (onPress) {
 			return (event: GestureResponderEvent) => onPress(item.key, event);
@@ -62,7 +50,8 @@ const DisplayComponent: FC<DashboardElementProps<Options>> = ({ item, style = {}
 		};
 	}, []);
 
-	const unitPref = item?.options?.unitPref ?? get(unitPrefs, 'coordinates');
+	const unit = item?.options?.unitPref?.unit ?? get(unitPrefs, ['coordinates','unit']);
+	const round = item?.options?.unitPref?.round ?? get(unitPrefs, ['coordinates','round']);
 
 	const fontSize = item?.options?.fontSize ?? dashboardStyle.fontSize;
 
@@ -91,11 +80,11 @@ const DisplayComponent: FC<DashboardElementProps<Options>> = ({ item, style = {}
 									dmm: 'Ff',
 									dms: 'FFf',
 								},
-								unitPref.unit,
+								unit,
 								'f'
 							),
 							{
-								decimalPlaces: unitPref.round,
+								decimalPlaces: round,
 							}
 						)}
 					</Text>
@@ -105,4 +94,4 @@ const DisplayComponent: FC<DashboardElementProps<Options>> = ({ item, style = {}
 	);
 };
 
-export default DisplayComponent;
+export default Display;

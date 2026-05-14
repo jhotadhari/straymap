@@ -35,29 +35,33 @@ const ListItemMenuControl = ({
 	const theme = useTheme();
 	const { t } = useTranslation();
 	const [visible, setVisible] = useState(false);
-	const title = useMemo( () => {
-		if ( ! anchorLabelAppendSelected ) {
+	const title = useMemo(() => {
+		if (!anchorLabelAppendSelected) {
 			return anchorLabel;
 		}
-		return <View>
-			<Text>{ anchorLabel }</Text>
-			<Text>{ '(' +
-			t(
-				get(
-					options?.find((opt) => opt.key === value),
-					'label',
-					''
-				)
-			) +
-			')' }</Text>
-		</View>;
+		return (
+			<View>
+				<Text>{anchorLabel}</Text>
+				<Text>
+					{'(' +
+						t(
+							get(
+								options?.find((opt) => opt.key === value),
+								'label',
+								''
+							)
+						) +
+						')'}
+				</Text>
+			</View>
+		);
 	}, [
 		anchorLabelAppendSelected,
 		anchorLabel,
 		t,
 		options,
 		value,
-	] );
+	]);
 
 	return (
 		<Menu

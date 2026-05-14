@@ -16,10 +16,7 @@ import { selectUnitPrefs } from '../../../general/selectors';
 import { DashboardElementProps } from '../../types';
 import { selectDashboardStyle } from '../../selectors';
 
-const DisplayComponent = ({
-	dashboardElement,
-	style = {},
-}: DashboardElementProps) => {
+const Display = ({ dashboardElement, style = {} }: DashboardElementProps) => {
 	const dashboardStyle = useAppSelector(selectDashboardStyle);
 	const unitPrefs = useAppSelector(selectUnitPrefs);
 
@@ -45,8 +42,8 @@ const DisplayComponent = ({
 export default {
 	key: 'routingDistance',
 	label: 'routingDistance', // ???
-	DisplayComponent,
-	ControlComponent: null,
+	Display,
+	Control: null,
 	hasStyleControl: true,
 	defaultMinWidth: 75,
 };

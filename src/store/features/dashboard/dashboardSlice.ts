@@ -10,6 +10,8 @@ import rnUuid from 'react-native-uuid';
  */
 import { SliceSettingsBase } from '../../../types';
 import { DashboardItem, DashboardStyle } from './types';
+import { selectItemByKey } from './selectors';
+import { AppThunk } from '../../store';
 
 export interface DashboardSettings {
 	// elements: DashboardItem[];
@@ -151,3 +153,33 @@ export const {
 
 // Export the slice reducer for use in the store configuration
 export default dashboardSlice.reducer;
+
+export const setItem = (
+	newItem: DashboardItem,
+): AppThunk => {
+	return (dispatch, getState) => {
+		// const state = getState();
+		let position;
+		let newItems;
+		let idx = getState().dashboard.itemsTop.findIndex((item) => item.key === newItem.key);
+		if (-1 !== idx ) {
+			position = 'top';
+			newItems = [...getState().dashboard.itemsTop];
+		} else {
+			idx = getState().dashboard.itemsBottom.findIndex((item) => item.key === newItem.key);
+			position = 'bottom';
+			newItems = [...getState().dashboard.itemsBottom];
+		}
+		if (! position || -1 === idx) {
+			return;
+		}
+		newItems[idx] = newItem;
+
+		console.log( 'debug new item', newItem, idx ); // debug
+		console.log( 'debug new newItems', newItems ); // debug
+		dispatch( dashboardSlice.actions.setItems( {
+			position,
+			items: newItems,
+		} ) );
+	};
+};

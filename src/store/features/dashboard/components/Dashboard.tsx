@@ -1,12 +1,7 @@
 /**
  * External dependencies
  */
-import React, {
-	FC,
-	useCallback,
-	useContext,
-	useMemo,
-} from 'react';
+import React, { FC, useCallback, useContext, useMemo } from 'react';
 import { GestureResponderEvent, LayoutChangeEvent, View, ViewStyle } from 'react-native';
 import { get } from 'lodash-es';
 import {
@@ -68,7 +63,7 @@ const Dashboard: FC<{
 	const handleLayout = useCallback(
 		(event: LayoutChangeEvent) => {
 			const { layout } = event.nativeEvent;
-			if ('bottom' === position && setBottomBarHeight && shouldSetBottomBarHeight ) {
+			if ('bottom' === position && setBottomBarHeight && shouldSetBottomBarHeight) {
 				setBottomBarHeight((bottomBarHeight) => ({
 					...bottomBarHeight,
 					dashboard: items.length ? layout.height : 0,

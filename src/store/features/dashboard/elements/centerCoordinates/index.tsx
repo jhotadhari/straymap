@@ -7,13 +7,11 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 /**
  * Internal dependencies
  */
-import {
-	DashboardElement,
-} from '../../types';
-import ControlComponent from './ControlComponent';
-import DisplayComponent, { Options } from './DisplayComponent';
+import { DashboardElement } from '../../types';
+import Control from './Control';
+import Display, { Options } from './Display';
 
-const IconComponent: FC<{
+const Icon: FC<{
 	color: string;
 	size: number;
 }> = ({ color, size }) => {
@@ -36,9 +34,9 @@ const IconComponent: FC<{
 export default {
 	key: 'centerCoordinates',
 	label: 'centerCoordinates',
-	DisplayComponent,
-	ControlComponent,
-	IconComponent,
+	Display,
+	Control,
+	Icon,
 	hasStyleControl: true,
 	defaultMinWidth: 200,
 	responseInclude: { center: 2 },

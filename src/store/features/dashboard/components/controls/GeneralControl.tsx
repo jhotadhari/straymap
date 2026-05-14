@@ -67,7 +67,7 @@ const GeneralControl: FC<{}> = () => {
 					setOptions={({ mapEventRate }) => {
 						dispatch(setMapEventRate(mapEventRate));
 					}}
-					validate={(val) => val >= 0}
+					validate={(val) => val >= 0 && val <= 20000 }
 					Info={t('hint.dashboard.updateRate')}
 				/>
 			</View>
@@ -75,12 +75,11 @@ const GeneralControl: FC<{}> = () => {
 	);
 };
 
-
 const styles = StyleSheet.create({
-    controls: {
-        maxWidth: '70%',
-        marginBottom: 25,
-    },
-} );
+	controls: {
+		maxWidth: '70%',
+		marginBottom: 25,
+	},
+});
 
 export default GeneralControl;

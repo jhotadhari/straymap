@@ -252,13 +252,7 @@ const AltitudeProfileInner = ({ height, outerWidth }: { height: number; outerWid
 	);
 };
 
-const AltitudeProfile = ({
-	height = 200,
-	outerWidth,
-}: {
-	height?: number;
-	outerWidth: number;
-}) => {
+const AltitudeProfile = ({ height = 200, outerWidth }: { height?: number; outerWidth: number }) => {
 	const { segments } = useContext(RoutingContext);
 
 	const { setBottomBarHeight } = useContext(AppContext);

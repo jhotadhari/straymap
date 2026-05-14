@@ -27,6 +27,7 @@ import { DashboardElement } from '../../types';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
 import InfoButton from '../../../../../components/generic/InfoButton';
+import InfoRowControl from '../../../../../components/generic/controls/InfoRowControl';
 
 const ICON_SIZE = 24;
 
@@ -53,27 +54,27 @@ const ItemControl: FC<{}> = ({}) => {
 		uiStateKey,
 	]);
 
-	const { label, ControlComponent, IconComponent, hasStyleControl, defaultMinWidth } = useMemo(
+	const { label, Control, Icon, hasStyleControl, defaultMinWidth } = useMemo(
 		() =>
 			editItem?.elementType
 				? get(elements as { [itemKey: string]: DashboardElement }, editItem?.elementType)
 				: {
 						label: undefined,
-						ControlComponent: undefined,
-						IconComponent: undefined,
+						Control: undefined,
+						Icon: undefined,
 						hasStyleControl: undefined,
 						defaultMinWidth: undefined,
 					},
 		[editItem?.elementType]
 	);
 
-	useEffect(() => {
-		console.log('debug ControlComponent', ControlComponent); // debug
-	}, [ControlComponent]);
+	// useEffect(() => {
+	// 	console.log('debug Control', Control); // debug
+	// }, [Control]);
 
 	const ControlIcon = useCallback(
 		({ color, style }: { color: string; style: Style }) => {
-			return !IconComponent ? undefined : (
+			return !Icon ? undefined : (
 				<View
 					style={[
 						style,
@@ -81,39 +82,37 @@ const ItemControl: FC<{}> = ({}) => {
 					]}
 					pointerEvents="box-none"
 				>
-					<IconComponent
+					<Icon
 						size={ICON_SIZE}
 						color={color}
 					/>
 				</View>
 			);
 		},
-		[IconComponent]
+		[Icon]
 	);
 
 	return (
 		editItem && (
 			<List.Accordion
-				title={ sprintf(
-					'??? dashboard item: %s',
-					t( label ?? '' )
-				) }
+				title={sprintf('??? dashboard item: %s', t(label ?? ''))}
 				left={ControlIcon}
 				expanded={!notExpanded}
 				onPress={handleAccordionPress}
 				titleStyle={theme.fonts.bodyMedium}
 			>
 				<View style={styles.controls}>
-					<Text>{editItem.key}</Text>
+					{__DEV__ && (
+						<InfoRowControl label={'Key'}>
+							<Text>{editItem.key}</Text>
+						</InfoRowControl>
+					)}
 
-
-					{ControlComponent && <ControlComponent item={editItem} />}
+					{Control && <Control item={editItem} />}
 
 					{/* style component */}
 
-
 					{/* has linebreak after component */}
-
 
 					<View
 						style={{
@@ -125,16 +124,17 @@ const ItemControl: FC<{}> = ({}) => {
 							icon="delete-outline"
 							mode="outlined"
 							onPress={() =>
-								dispatch( removeItemKey({
-									position,
-									itemKey: editItem.key,
-								}) )
+								dispatch(
+									removeItemKey({
+										position,
+										itemKey: editItem.key,
+									})
+								)
 							}
 						>
 							{t('remove Item ???')}
 						</ButtonHighlight>
 					</View>
-
 				</View>
 			</List.Accordion>
 		)

@@ -30,9 +30,9 @@ export type DashboardElementProps<Options = DashboardItemOptionsBase> = {
 export type DashboardElement<Options = DashboardItemOptionsBase> = {
 	key: string;
 	label: string;
-	DisplayComponent: ElementType<DashboardElementProps<Options>>;
-	ControlComponent?: ElementType<DashboardElementProps<Options>>;
-	IconComponent?: ElementType<{
+	Display: ElementType<DashboardElementProps<Options>>;
+	Control?: ElementType<DashboardElementProps<Options>>;
+	Icon?: ElementType<{
 		color: string;
 		size: number;
 	}>;

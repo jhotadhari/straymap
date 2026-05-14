@@ -43,17 +43,17 @@ const Drawers = ({
 		translationXOther: translationXLeft,
 	});
 
-	const backAction = useCallback( () => {
+	const backAction = useCallback(() => {
 		let bubble = true;
-		if ( ! drawerStateLeft.getIsFullyCollapsed() ) {
-			drawerStateLeft.expand( false );
+		if (!drawerStateLeft.getIsFullyCollapsed()) {
+			drawerStateLeft.expand(false);
 			bubble = false;
 		}
-		if ( ! drawerStateRight.getIsFullyCollapsed() ) {
-			drawerStateRight.expand( false );
+		if (!drawerStateRight.getIsFullyCollapsed()) {
+			drawerStateRight.expand(false);
 			bubble = false;
 		}
-		return ! bubble;
+		return !bubble;
 	}, [
 		drawerStateLeft.getIsFullyCollapsed,
 		drawerStateLeft.expand,

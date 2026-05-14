@@ -6,10 +6,10 @@ import { View } from 'react-native';
 
 /**
  * Internal dependencies
-*/
+ */
 import { DashboardElementProps } from '../types';
 
-const DisplayComponent = ({ style = {} }: DashboardElementProps) => {
+const Display = ({ style = {} }: DashboardElementProps) => {
 	return (
 		<View
 			style={{
@@ -24,8 +24,8 @@ const DisplayComponent = ({ style = {} }: DashboardElementProps) => {
 export default {
 	key: 'lineBreak',
 	label: 'lineBreak',
-	DisplayComponent,
-	ControlComponent: null,
+	Display,
+	Control: null,
 	hasStyleControl: false,
 	defaultMinWidth: 75,
 	responseInclude: {},

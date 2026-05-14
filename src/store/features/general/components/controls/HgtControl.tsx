@@ -97,7 +97,7 @@ const HgtControl = () => {
 						setOptions={({ hgtReadFileRate }) => {
 							dispatch(setHgtReadFileRate(hgtReadFileRate));
 						}}
-						validate={(val) => val >= 0}
+						validate={(val) => val >= 0 && val <= 20000 }
 						Info={t('hint.maps.hgtReadFileRate')}
 					/>
 
@@ -108,7 +108,7 @@ const HgtControl = () => {
 						setOptions={({ hgtFileInfoPurgeThreshold }) => {
 							dispatch(setHgtFileInfoPurgeThreshold(hgtFileInfoPurgeThreshold));
 						}}
-						validate={(val) => val >= 0}
+						validate={(val) => val >= 0 && val <= 200 }
 						Info={t('hint.maps.hgtFileInfoPurgeThreshold')}
 					/>
 				</View>

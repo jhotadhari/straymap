@@ -16,28 +16,28 @@ import { selectUnitPrefs } from '../../general/selectors';
 import { selectItems, selectDashboardStyle } from '../selectors';
 import { AppContext } from '../../../../Context';
 
-const Dashboard : FC<{
+const Dashboard: FC<{
 	outerWidth: number;
 	style?: ViewStyle;
-}> = ({
-	outerWidth,
-	style
-}) => {
+}> = ({ outerWidth, style }) => {
 	const theme = useTheme();
 
-	const { setBottomBarHeight } = useContext( AppContext );
+	const { setBottomBarHeight } = useContext(AppContext);
 
-	const elements = useAppSelector(state => selectItems( state, { position: 'bottom'} ));
+	const elements = useAppSelector((state) => selectItems(state, { position: 'bottom' }));
 	const dashboardStyle = useAppSelector(selectDashboardStyle);
 
 	return (
 		<View
-			style={[{
-				bottom: 0,
-				position: 'absolute',
-				width: outerWidth,
-				backgroundColor: theme.colors.background,
-			}, style]}
+			style={[
+				{
+					bottom: 0,
+					position: 'absolute',
+					width: outerWidth,
+					backgroundColor: theme.colors.background,
+				},
+				style,
+			]}
 		>
 			<View
 				onLayout={(e) => {
@@ -71,12 +71,12 @@ const Dashboard : FC<{
 			>
 				{elements &&
 					[...elements].map((element, index) => {
-						const DisplayComponent = get(dashboardElementComponents, [
+						const Display = get(dashboardElementComponents, [
 							element.elementType as string,
-							'DisplayComponent',
+							'Display',
 						]);
-						return DisplayComponent ? (
-							<DisplayComponent
+						return Display ? (
+							<Display
 								key={element?.key || index}
 								dashboardElement={element}
 							/>

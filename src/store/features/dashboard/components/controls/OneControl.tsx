@@ -88,7 +88,7 @@ const OneControl: FC<{
 							})
 						);
 					}}
-					validate={(val) => val >= 0}
+					validate={(val) => val >= 0 && val <= 300 }
 					Info={t('hint.dashboard.fontSize')}
 				/>
 			</View>

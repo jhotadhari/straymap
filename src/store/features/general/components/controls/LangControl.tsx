@@ -39,7 +39,9 @@ const LangControl: FC = () => {
 
 	return (
 		<ListItemMenuControl
-			anchorLabel={(sortArrayByOrderArray([...SUPPORTED_LANGUAGES], [i18n.language]) as string[])
+			anchorLabel={(
+				sortArrayByOrderArray([...SUPPORTED_LANGUAGES], [i18n.language]) as string[]
+			)
 				.map((l) => t('selectLang', { lng: l }))
 				.reverse()
 				.join(' / ')}

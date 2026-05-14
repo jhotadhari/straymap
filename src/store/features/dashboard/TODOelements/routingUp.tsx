@@ -14,10 +14,7 @@ import { RoutingContext } from '../../../../../Context';
 import { selectDashboardStyle } from '../../selectors';
 import { useAppSelector } from '../../../../hooks';
 
-const DisplayComponent = ({
-	dashboardElement,
-	style = {},
-}: DashboardElementProps) => {
+const Display = ({ dashboardElement, style = {} }: DashboardElementProps) => {
 	const dashboardStyle = useAppSelector(selectDashboardStyle);
 	let fontSize = get(dashboardElement, ['style', 'fontSize'], 'default');
 	fontSize = 'default' === fontSize ? dashboardStyle.fontSize : fontSize;
@@ -45,8 +42,8 @@ const DisplayComponent = ({
 export default {
 	key: 'routingUp',
 	label: 'routingUp', // ???
-	DisplayComponent,
-	ControlComponent: null,
+	Display,
+	Control: null,
 	hasStyleControl: true,
 	defaultMinWidth: 75,
 };

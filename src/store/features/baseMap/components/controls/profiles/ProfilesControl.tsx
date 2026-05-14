@@ -40,9 +40,7 @@ import {
 	setRenderStylesCache,
 } from '../../../baseMapSlice';
 import { Style } from 'react-native-paper/lib/typescript/components/List/utils';
-import {
-	stylesGeneric,
-} from '../layers/LayersControl';
+import { stylesGeneric } from '../layers/LayersControl';
 import RenderOverlaysControl from './RenderOverlaysControl';
 import RenderStyleControl from './RenderStyleControl';
 import LayerCount from './LayerCount';

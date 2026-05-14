@@ -49,7 +49,7 @@ const MapsforgeGeneralControl = () => {
 				numType={'float'}
 				options={settings}
 				setOptions={handleChange}
-				validate={(val) => val >= 0}
+				validate={(val) => val >= 0 && val <= 20 }
 				Info={t('hint.maps.lineScale')}
 			/>
 
@@ -59,7 +59,7 @@ const MapsforgeGeneralControl = () => {
 				numType={'float'}
 				options={settings}
 				setOptions={handleChange}
-				validate={(val) => val >= 0}
+				validate={(val) => val >= 0 && val <= 20 }
 				Info={t('hint.maps.textScale')}
 			/>
 
@@ -69,7 +69,7 @@ const MapsforgeGeneralControl = () => {
 				numType={'float'}
 				options={settings}
 				setOptions={handleChange}
-				validate={(val) => val >= 0}
+				validate={(val) => val >= 0 && val <= 20 }
 				Info={t('hint.maps.symbolScale')}
 			/>
 		</ListItemModalControl>

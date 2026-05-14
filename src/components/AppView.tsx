@@ -231,7 +231,6 @@ const AppView = ({
 				sortEnabled={false}
 				shouldSetBottomBarHeight={true}
 			/>
-
 		</SafeAreaView>
 	);
 };
