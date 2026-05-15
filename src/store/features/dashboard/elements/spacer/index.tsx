@@ -37,7 +37,5 @@ export default {
 	Display,
 	Control,
 	Icon,
-	hasMinWidthControl: true,
-	hasFontSizeControl: false,
 	defaultMinWidth: 75,
 } as DashboardElement<Options>;

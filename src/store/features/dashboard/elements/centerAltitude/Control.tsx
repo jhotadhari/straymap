@@ -21,6 +21,8 @@ import { useAppSelector } from '../../../../hooks';
 import { DashboardItem } from '../../types';
 import { selectHgtDirPath } from '../../../baseMap/selectors';
 import { Options } from './Display';
+import ItemFontSizeControl from '../../components/controls/ItemFontSizeControl';
+import ItemMinWidthControl from '../../components/controls/ItemMinWidthControl';
 
 const opts = [
 	{
@@ -160,9 +162,12 @@ const Control: FC<{
 						set(newEditElement, ['options', 'unit'], newUnit);
 						// updateElement(newEditElement as DashboardItem);
 					}}
-					validate={(val) => val >= 0 && val <= 20 }
+					validate={(val) => val >= 0 && val <= 20}
 				/>
 			)}
+
+			<ItemMinWidthControl />
+			<ItemFontSizeControl />
 		</View>
 	) : null;
 };

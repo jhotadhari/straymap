@@ -60,7 +60,7 @@ const ItemControl: FC<{}> = ({}) => {
 		}, 1);
 	}, [item?.key]);
 
-	const { label, Control, Icon, hasMinWidthControl, hasFontSizeControl, defaultMinWidth } =
+	const { label, Control, Icon } =
 		useMemo(
 			() =>
 				item?.elementType
@@ -72,9 +72,6 @@ const ItemControl: FC<{}> = ({}) => {
 							label: undefined,
 							Control: undefined,
 							Icon: undefined,
-							hasMinWidthControl: undefined,
-							hasFontSizeControl: undefined,
-							defaultMinWidth: undefined,
 						},
 			[item?.elementType]
 		);
@@ -117,10 +114,6 @@ const ItemControl: FC<{}> = ({}) => {
 						)}
 
 						{Control && <Control item={item} />}
-
-						{hasMinWidthControl && <ItemMinWidthControl />}
-
-						{hasFontSizeControl && <ItemFontSizeControl />}
 
 						<View
 							style={{

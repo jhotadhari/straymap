@@ -36,8 +36,6 @@ export type DashboardElement<Options = {}> = {
 		color: string;
 		size: number;
 	}>;
-	hasMinWidthControl?: boolean;
-	hasFontSizeControl?: boolean;
 	shouldSetHgtDirPath?: boolean;
 	defaultMinWidth: number;
 	responseInclude?: ResponseInclude;

@@ -21,6 +21,7 @@ import { useAppSelector } from '../../../../hooks';
 import { DashboardItem } from '../../types';
 import { selectHgtDirPath } from '../../../baseMap/selectors';
 import { Options } from './Display';
+import ItemMinWidthControl from '../../components/controls/ItemMinWidthControl';
 
 // const opts = [
 // 	{
@@ -163,6 +164,9 @@ const Control: FC<{
 					validate={(val) => val >= 0 && val <= 20 }
 				/>
 			)} */}
+
+
+			<ItemMinWidthControl />
 		</View>
 	);
 };

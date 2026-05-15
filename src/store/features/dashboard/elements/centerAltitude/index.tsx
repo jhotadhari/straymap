@@ -37,8 +37,6 @@ export default {
 	Display,
 	Control,
 	Icon,
-	hasMinWidthControl: true,
-	hasFontSizeControl: true,
 	shouldSetHgtDirPath: true,
 	defaultMinWidth: 75,
 	responseInclude: { center: 2 },

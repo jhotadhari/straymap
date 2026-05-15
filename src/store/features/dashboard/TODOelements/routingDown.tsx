@@ -43,8 +43,5 @@ export default {
 	key: 'routingDown',
 	label: 'routingDown', // ???
 	Display,
-	Control: null,
-	hasMinWidthControl: true,
-	hasFontSizeControl: true,
 	defaultMinWidth: 75,
 };
