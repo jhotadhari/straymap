@@ -44,9 +44,11 @@ const ItemMinWidthControl: FC<{ buttonLabel?: string }> = ({ buttonLabel }) => {
 		item,
 	]);
 
+	const numValueActive = undefined !== item?.minWidth;
+
 	const handleUpdate = useCallback(
 		(newValue: number) => {
-			item &&
+			numValueActive &&
 				dispatch(
 					setItem({
 						...item,
@@ -54,7 +56,7 @@ const ItemMinWidthControl: FC<{ buttonLabel?: string }> = ({ buttonLabel }) => {
 					})
 				);
 		},
-		[item]
+		[item,numValueActive]
 	);
 
 	return (

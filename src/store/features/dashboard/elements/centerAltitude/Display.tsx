@@ -26,6 +26,12 @@ const formatOutput = (altitudeM: number | null, unit: UnitPref): string => {
 	if (null === altitudeM) {
 		return '-';
 	}
+
+
+	console.log( 'debug altitudeM', altitudeM, unit.round ); // debug
+
+
+
 	switch (unit.unit) {
 		case 'ft':
 			return roundTo(convertUnits(altitudeM).from('m').to('ft'), unit.round) + ' ft';
@@ -52,7 +58,13 @@ const Display: FC<DashboardElementProps<Options>> = ({ item, style = {}, onPress
 
 	const { currentMapEventRef } = useContext(MapContext);
 
-	const unitPref = item?.options?.unitPref ?? get(unitPrefs, 'heightDepth');
+	const unitPref: UnitPref = useMemo(
+		() => ({
+			...get(unitPrefs, ['heightDepth']),
+			...item?.options?.unitPref,
+		}),
+		[item, unitPrefs]
+	);
 
 	const fontSize = item?.fontSize ?? dashboardStyle.fontSize;
 

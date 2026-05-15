@@ -16,6 +16,9 @@ import { DashboardElement, DashboardElementProps } from '../types';
 import { selectMapEventRate } from '../../general/selectors';
 import { useAppSelector } from '../../../hooks';
 import { selectDashboardStyle } from '../selectors';
+import { useTranslation } from 'react-i18next';
+import ItemMinWidthControl from '../components/controls/ItemMinWidthControl';
+import ItemFontSizeControl from '../components/controls/ItemFontSizeControl';
 
 interface Options {}
 
@@ -89,11 +92,27 @@ const Icon: FC<{
 	// 	/>
 	// );
 };
+
+const Control: FC = () => {
+	const { t } = useTranslation();
+	return (
+		<View>
+			<ItemMinWidthControl
+				buttonLabel={t('Use default')} // ???
+			/>
+
+			<ItemFontSizeControl
+				buttonLabel={t('follow dashboard setting')} // ???
+			/>
+		</View>
+	);
+};
+
 export default {
 	key: 'zoomLevel',
 	label: 'zoomLevel',
 	Display,
-	Control: undefined,
+	Control,
 	Icon,
 	defaultMinWidth: 75,
 	responseInclude: { zoomLevel: 2 },

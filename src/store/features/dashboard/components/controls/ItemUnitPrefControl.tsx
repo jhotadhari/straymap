@@ -112,6 +112,9 @@ const ItemUnitPrefControl: FC<{ unitPrefsKey: string; buttonLabel?: string }> = 
 
 	const [value, setValue] = useState<Partial<UnitPref>>(item?.options?.unitPref ?? {});
 
+	console.log( 'debug value', value ); // debug
+
+
 	const selectedOpt = opts.find((opt) => opt.key === (value?.unit ?? 'default'));
 
 	const updateItemRef = useRef<undefined | (() => void)>(undefined);
@@ -174,6 +177,9 @@ const ItemUnitPrefControl: FC<{ unitPrefsKey: string; buttonLabel?: string }> = 
 
 	const handleUpdate = useCallback(
 		(newValue: number) => {
+
+			console.log( 'debug newValue', newValue ); // debug
+
 			numValueActive &&
 				setValue({
 					...value,

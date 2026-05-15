@@ -2,16 +2,14 @@
  * External dependencies
  */
 import {
-	createRef,
 	ReactNode,
-	RefObject,
 	useCallback,
 	useEffect,
 	useMemo,
 	useRef,
 	useState,
 } from 'react';
-import { StyleSheet, TextStyle, View, ViewStyle, TextInput as RNTextInput } from 'react-native';
+import { StyleSheet, TextStyle, View, ViewStyle } from 'react-native';
 import { Text, useTheme, TextInput } from 'react-native-paper';
 
 /**
@@ -20,7 +18,6 @@ import { Text, useTheme, TextInput } from 'react-native-paper';
 import InfoRowControl from './InfoRowControl';
 import useKeyboardShown from '../../../compose/useKeyboardShown';
 import ButtonHighlight from '../ButtonHighlight';
-import { useTranslation } from 'react-i18next';
 
 type NumType = 'int' | 'float';
 
@@ -205,7 +202,7 @@ export const SegmentedNumericRowControl = ({
 	const saveCbRef = useRef<undefined | ((newValue: number) => void)>(undefined);
 	useEffect(() => {
 		saveCbRef.current = (newValue: number) => {
-			if (newValue && newValue !== strValToNb(value + '', numType)) {
+			if ( newValue !== strValToNb(value + '', numType)) {
 				onUpdate(newValue);
 			}
 		};
@@ -282,7 +279,6 @@ export const SegmentedNumericRowControl = ({
 		[handleBlurCbRef?.current]
 	);
 
-	const textRef = useRef<RNTextInput | null>(null);
 
 	const handleButtonPress = useCallback(() => {
 		numValueActive && toggleOption();
@@ -291,6 +287,7 @@ export const SegmentedNumericRowControl = ({
 		toggleOption,
 	]);
 
+	// const textRef = useRef<RNTextInput | null>(null);
 	const handleFocus = useCallback(() => {
 		if (!numValueActive) {
 			toggleOption();
@@ -305,7 +302,7 @@ export const SegmentedNumericRowControl = ({
 	}, [
 		numValueActive,
 		toggleOption,
-		textRef?.current,
+		// textRef?.current,
 	]);
 
 	return (
@@ -329,7 +326,7 @@ export const SegmentedNumericRowControl = ({
 				</ButtonHighlight>
 
 				<TextInput
-					ref={textRef}
+					// ref={textRef}
 					style={{
 						flexGrow: 1,
 						opacity: numValueActive ? 1 : 0.5,

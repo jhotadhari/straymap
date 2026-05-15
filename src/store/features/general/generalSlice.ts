@@ -45,7 +45,7 @@ export const initialSettings: GeneralSettings = {
 		},
 		heightDepth: {
 			unit: 'm',
-			round: 2,
+			round: 0,
 		},
 		speed: {
 			unit: 'kmh',
