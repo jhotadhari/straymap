@@ -24,6 +24,7 @@ export interface DashboardSettings {
 }
 
 export interface DashboardState extends SliceSettingsBase, DashboardSettings {
+	isEditingDashboard: boolean;
 	editItemKey?: string;
 }
 
@@ -70,6 +71,7 @@ export const initialSettings: DashboardSettings = {
 
 const initialState: DashboardState = {
 	initialized: false,
+	isEditingDashboard: false,
 	...initialSettings,
 };
 
@@ -81,6 +83,9 @@ export const dashboardSlice = createSlice({
 	reducers: {
 		setInitialized: (state, action: PayloadAction<boolean>) => {
 			state.initialized = action.payload;
+		},
+		setIsEditingDashboard: (state, action: PayloadAction<boolean>) => {
+			state.isEditingDashboard = action.payload;
 		},
 		setElements: (state, action: PayloadAction<any>) => {
 			// ??? delete this
@@ -149,6 +154,7 @@ export const dashboardSlice = createSlice({
 // Export the generated action creators for use in components.
 export const {
 	setInitialized,
+	setIsEditingDashboard,
 	setElements,
 	setDashboardStyle,
 	setItems,

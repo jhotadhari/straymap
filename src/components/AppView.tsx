@@ -54,7 +54,7 @@ import BaseMap from '../store/features/baseMap/components/BaseMap';
 import UiItemComponent from '../store/features/ui/components/UiItemComponent';
 import { selectUiItemKeys } from '../store/features/ui/selectors';
 import MapLayersAttribution from '../store/features/baseMap/MapLayersAttribution';
-import Dashboard from '../store/features/dashboard/components/Dashboard';
+import { DashboardWrapped } from '../store/features/dashboard/components/Dashboard';
 
 const AppView = ({
 	showSplash,
@@ -223,11 +223,7 @@ const AppView = ({
 
 			<AltitudeProfile outerWidth={width} />
 
-			<Dashboard
-				position="bottom"
-				sortEnabled={false}
-				shouldSetBottomBarHeight={true}
-			/>
+			<DashboardWrapped position="bottom" />
 		</SafeAreaView>
 	);
 };
