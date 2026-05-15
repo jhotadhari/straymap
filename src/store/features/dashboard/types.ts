@@ -10,25 +10,24 @@ export type DashboardStyle = {
 	fontSize: number;
 };
 
-export interface DashboardItemOptionsBase {
-	fontSize?: number;
-	minWidth?: number;
-}
-
-export type DashboardItem<Options = DashboardItemOptionsBase> = {
+export type DashboardItem<Options = {}> = {
 	key: string;
 	elementType: string;
-	style?: ViewStyle;
 	options?: Options;
+	style?: ViewStyle;
+
+
+	fontSize?: number;
+	minWidth?: number;
 };
 
-export type DashboardElementProps<Options = DashboardItemOptionsBase> = {
+export type DashboardElementProps<Options = {}> = {
 	item: DashboardItem<Options>;
 	style?: ViewStyle;
 	onPress?: (itemKey: string, event: GestureResponderEvent) => void;
 };
 
-export type DashboardElement<Options = DashboardItemOptionsBase> = {
+export type DashboardElement<Options = {}> = {
 	key: string;
 	label: string;
 	Display: ElementType<DashboardElementProps<Options>>;

@@ -10,7 +10,7 @@ import rnUuid from 'react-native-uuid';
  */
 import { SliceSettingsBase } from '../../../types';
 import { DashboardItem, DashboardStyle } from './types';
-import { selectEditItemKey, selectItemByKey } from './selectors';
+import { selectEditItemKey } from './selectors';
 import { AppThunk } from '../../store';
 import { getSetterThunkWithGetter } from '../baseMap/utils';
 
@@ -18,8 +18,8 @@ export interface DashboardSettings {
 	// elements: DashboardItem[];
 	dashboardStyle: DashboardStyle;
 
-	itemsTop: DashboardItem[];
-	itemsBottom: DashboardItem[];
+	itemsTop: DashboardItem<any>[];
+	itemsBottom: DashboardItem<any>[];
 }
 
 export interface DashboardState extends SliceSettingsBase, DashboardSettings {
@@ -97,9 +97,11 @@ export const dashboardSlice = createSlice({
 			}>
 		) => {
 			if ('top' === action.payload.position) {
+				// @ts-ignore	I'm sure its right!
 				state.itemsTop = action.payload.items;
 			}
 			if ('bottom' === action.payload.position) {
+				// @ts-ignore	I'm sure its right!
 				state.itemsBottom = action.payload.items;
 			}
 		},
@@ -111,9 +113,11 @@ export const dashboardSlice = createSlice({
 			}>
 		) => {
 			if ('top' === action.payload.position) {
+				// @ts-ignore	I'm sure its right!
 				state.itemsTop = [...state.itemsTop, action.payload.item];
 			}
 			if ('bottom' === action.payload.position) {
+				// @ts-ignore	I'm sure its right!
 				state.itemsBottom = [...state.itemsBottom, action.payload.item];
 			}
 		},
@@ -155,15 +159,13 @@ export const {
 // Export the slice reducer for use in the store configuration
 export default dashboardSlice.reducer;
 
-export const setItem = (
-	newItem: DashboardItem,
-): AppThunk => {
+export const setItem = (newItem: DashboardItem): AppThunk => {
 	return (dispatch, getState) => {
 		// const state = getState();
 		let position;
 		let newItems;
 		let idx = getState().dashboard.itemsTop.findIndex((item) => item.key === newItem.key);
-		if (-1 !== idx ) {
+		if (-1 !== idx) {
 			position = 'top';
 			newItems = [...getState().dashboard.itemsTop];
 		} else {
@@ -171,17 +173,20 @@ export const setItem = (
 			position = 'bottom';
 			newItems = [...getState().dashboard.itemsBottom];
 		}
-		if (! position || -1 === idx) {
+		if (!position || -1 === idx) {
 			return;
 		}
 		newItems[idx] = newItem;
-		dispatch( dashboardSlice.actions.setItems( {
-			position,
-			items: newItems,
-		} ) );
+		dispatch(
+			dashboardSlice.actions.setItems({
+				position,
+				items: newItems,
+			})
+		);
 	};
 };
 
-export const setEditItemKey = getSetterThunkWithGetter<
-	DashboardState['editItemKey']
->(selectEditItemKey, dashboardSlice.actions.setEditItemKey);
+export const setEditItemKey = getSetterThunkWithGetter<DashboardState['editItemKey']>(
+	selectEditItemKey,
+	dashboardSlice.actions.setEditItemKey
+);

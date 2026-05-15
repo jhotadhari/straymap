@@ -39,32 +39,32 @@ const ItemMinWidthControl = (
 	const { t } = useTranslation();
 	const theme = useTheme();
 
-	const { position, editItem } = useAppSelector(selectEditItem);
+	const { position, item } = useAppSelector(selectEditItem);
 
 	const presetStyle = () => {
-		if (!editItem?.style) {
+		if (!item?.style) {
 			const newEditElement = {
-				...editItem,
+				...item,
 				style: {
 					fontSize: 'default',
-					minWidth: get(elements, [editItem?.elementType || '', 'defaultMinWidth'], 75),
+					minWidth: get(elements, [item?.elementType || '', 'defaultMinWidth'], 75),
 				},
 			};
 			// updateElement(newEditElement as DashboardItem);
 		}
 	};
 	useEffect(() => presetStyle(), []);
-	useEffect(() => presetStyle(), [editItem?.style]);
+	useEffect(() => presetStyle(), [item?.style]);
 
 	return (
 		<View>
 			<NumericRowControl
 				label={t('minWidth')}
 				optKey={'minWidth'}
-				options={get(editItem, 'style', {})}
+				options={get(item, 'style', {})}
 				setOptions={(newStyle) => {
 					const newEditElement = {
-						...editItem,
+						...item,
 						style: newStyle,
 					};
 					// updateElement(newEditElement as DashboardItem);

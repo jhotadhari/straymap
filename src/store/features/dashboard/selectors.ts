@@ -11,15 +11,18 @@ export const selectInitialized = (state: RootState) => state.dashboard.initializ
 
 export const selectDashboardStyle = (state: RootState) => state.dashboard.dashboardStyle;
 
-export const selectItemByKey = (state: RootState, key?: string) => {
+export const selectItemByKey = <Options = {}>(state: RootState, key?: string) : {
+	position: string;
+	item: undefined | DashboardItem<Options>;
+} => {
 	let position = 'top';
-	let editItem = !key ? undefined : state.dashboard.itemsTop.find((item) => item.key === key);
-	if (key && !editItem) {
+	let item = !key ? undefined : state.dashboard.itemsTop.find((item) => item.key === key) as undefined | DashboardItem<Options>;
+	if (key && !item) {
 		position = 'bottom';
-		editItem = state.dashboard.itemsBottom.find((item) => item.key === key);
+		item = state.dashboard.itemsBottom.find((item) => item.key === key) as undefined | DashboardItem<Options>;
 	}
 	return {
-		editItem,
+		item,
 		position,
 	};
 };
@@ -27,8 +30,8 @@ export const selectItemByKey = (state: RootState, key?: string) => {
 export const selectEditItemKey = (state: RootState) =>
 	state.dashboard.editItemKey;
 
-export const selectEditItem = (state: RootState) =>
-	selectItemByKey(state, state.dashboard.editItemKey);
+export const selectEditItem = <Options = {}>(state: RootState) =>
+	selectItemByKey<Options>(state, state.dashboard.editItemKey);
 
 export const selectItems = createAppSelector(
 	(state: RootState) => state.dashboard.itemsTop,

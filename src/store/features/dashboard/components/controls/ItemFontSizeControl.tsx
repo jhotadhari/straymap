@@ -38,13 +38,13 @@ const StyleControlFontSize = (
 	const { t } = useTranslation();
 	const theme = useTheme();
 
-	const { position, editItem } = useAppSelector(selectEditItem);
+	const { position, item } = useAppSelector(selectEditItem);
 
 	const [menuVisible, setMenuVisible] = useState(false);
 
 	const [numVal, setNumVal] = useState(
-		isNumber(get(editItem, ['style', 'fontSize']))
-			? get(editItem, ['style', 'fontSize'])
+		isNumber(get(item, ['style', 'fontSize']))
+			? get(item, ['style', 'fontSize'])
 			: theme.fonts.bodyMedium.fontSize
 	);
 
@@ -60,7 +60,7 @@ const StyleControlFontSize = (
 	];
 
 	const activeOpt =
-		'default' === get(editItem, ['style', 'fontSize'])
+		'default' === get(item, ['style', 'fontSize'])
 			? opts.find((opt) => opt.key === 'default')
 			: opts.find((opt) => opt.key === 'custom');
 
@@ -91,7 +91,7 @@ const StyleControlFontSize = (
 							key={opt.key}
 							onPress={() => {
 								setMenuVisible(false);
-								const newEditElement = { ...editItem };
+								const newEditElement = { ...item };
 								set(
 									newEditElement,
 									['style', 'fontSize'],
@@ -109,10 +109,10 @@ const StyleControlFontSize = (
 			{activeOpt && 'custom' === activeOpt.key && (
 				<NumericRowControl
 					optKey={'fontSize'}
-					options={get(editItem, 'style', {})}
+					options={get(item, 'style', {})}
 					setOptions={(newStyle) => {
 						const newEditElement = {
-							...editItem,
+							...item,
 							style: newStyle,
 						};
 						// updateElement(newEditElement as DashboardItem);
@@ -137,22 +137,22 @@ const ItemFontSizeControl = (
 	const { t } = useTranslation();
 	const theme = useTheme();
 
-	const { position, editItem } = useAppSelector(selectEditItem);
+	const { position, item } = useAppSelector(selectEditItem);
 
 	const presetStyle = () => {
-		if (!editItem?.style) {
+		if (!item?.style) {
 			const newEditElement = {
-				...editItem,
+				...item,
 				style: {
 					fontSize: 'default',
-					minWidth: get(elements, [editItem?.elementType || '', 'defaultMinWidth'], 75),
+					minWidth: get(elements, [item?.elementType || '', 'defaultMinWidth'], 75),
 				},
 			};
 			// updateElement(newEditElement as DashboardItem);
 		}
 	};
 	useEffect(() => presetStyle(), []);
-	useEffect(() => presetStyle(), [editItem?.style]);
+	useEffect(() => presetStyle(), [item?.style]);
 
 	return (
 		<View>

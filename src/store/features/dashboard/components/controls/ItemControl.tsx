@@ -33,7 +33,7 @@ const ItemControl: FC<{}> = ({}) => {
 
 	const dispatch = useAppDispatch();
 
-	const { position, editItem } = useAppSelector(selectEditItem);
+	const { position, item } = useAppSelector(selectEditItem);
 
 	const uiStateKey = 'dashboardControlItem';
 	const notExpanded = useAppSelector((state) => selectElementExpanded(state, uiStateKey));
@@ -54,19 +54,19 @@ const ItemControl: FC<{}> = ({}) => {
 	useEffect(() => {
 		setShow(false);
 		setTimeout(() => {
-			if (editItem?.key) {
+			if (item?.key) {
 				setShow(true);
 			}
 		}, 1);
-	}, [editItem?.key]);
+	}, [item?.key]);
 
 	const { label, Control, Icon, hasMinWidthControl, hasFontSizeControl, defaultMinWidth } =
 		useMemo(
 			() =>
-				editItem?.elementType
+				item?.elementType
 					? get(
 							elements as { [itemKey: string]: DashboardElement },
-							editItem?.elementType
+							item?.elementType
 						)
 					: {
 							label: undefined,
@@ -76,7 +76,7 @@ const ItemControl: FC<{}> = ({}) => {
 							hasFontSizeControl: undefined,
 							defaultMinWidth: undefined,
 						},
-			[editItem?.elementType]
+			[item?.elementType]
 		);
 
 	const ControlIcon = useCallback(
@@ -100,7 +100,7 @@ const ItemControl: FC<{}> = ({}) => {
 	);
 
 	return (
-		editItem && (
+		item && (
 			<List.Accordion
 				title={sprintf('??? dashboard item: %s', t(label ?? ''))}
 				left={ControlIcon}
@@ -112,11 +112,11 @@ const ItemControl: FC<{}> = ({}) => {
 					<View style={styles.controls}>
 						{__DEV__ && (
 							<InfoRowControl label={'Key'}>
-								<Text>{editItem.key}</Text>
+								<Text>{item.key}</Text>
 							</InfoRowControl>
 						)}
 
-						{Control && <Control item={editItem} />}
+						{Control && <Control item={item} />}
 
 						{hasMinWidthControl && <ItemMinWidthControl />}
 
@@ -135,7 +135,7 @@ const ItemControl: FC<{}> = ({}) => {
 									dispatch(
 										removeItemKey({
 											position,
-											itemKey: editItem.key,
+											itemKey: item.key,
 										})
 									)
 								}

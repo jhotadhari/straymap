@@ -14,11 +14,11 @@ import { roundTo } from '../../../../../lib/utilsGeneral';
 import { MapContext } from '../../../../../Context';
 import { selectMapEventRate, selectUnitPrefs } from '../../../general/selectors';
 import { useAppSelector } from '../../../../hooks';
-import { DashboardElementProps, DashboardItemOptionsBase } from '../../types';
+import { DashboardElementProps } from '../../types';
 import { UnitPref } from '../../../general/types';
 import { selectDashboardStyle } from '../../selectors';
 
-export interface Options extends DashboardItemOptionsBase {
+export interface Options {
 	// unitPref?: UnitPref;
 }
 

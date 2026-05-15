@@ -11,19 +11,14 @@ import { View } from 'react-native';
  */
 import { DashboardItem } from '../../types';
 import { Options } from './Display';
-import UnitPrefControl from './UnitPrefControl';
+import ItemUnitPrefControl from '../../components/controls/ItemUnitPrefControl';
 
 
-const Control: FC<{
-	item: DashboardItem<Options>;
-}> = ({
-	item,
-}) => {
+const Control: FC = () => {
 
 	return (
 		<View>
-			<UnitPrefControl
-				item={item}
+			<ItemUnitPrefControl
 				unitPrefsKey="coordinates"
 			/>
 		</View>

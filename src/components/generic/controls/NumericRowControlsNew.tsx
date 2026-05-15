@@ -278,7 +278,6 @@ export const SegmentedNumericRowControl = ({
 		[handleBlurCbRef?.current]
 	);
 
-	// const textRef = createRef<RNTextInput>();
 	const textRef = useRef<RNTextInput | null>(null);
 
 	const handleButtonPress = useCallback(() => {
@@ -319,8 +318,6 @@ export const SegmentedNumericRowControl = ({
 						opacity: numValueActive ? 0.5 : 1,
 						marginRight: 10,
 						borderRadius: theme.roundness,
-
-						// alignItems: 'flex-start',
 					}}
 					onPress={handleButtonPress}
 				>
@@ -351,14 +348,9 @@ export const SegmentedNumericRowControl = ({
 
 const styles = StyleSheet.create({
 	flexRow: {
-		// width: '100%',
 		position:'relative',
 		display: 'flex',
 		flexDirection: 'row',
-		// alignItems: 'stretch',
 		justifyContent: 'space-between',
-		// alignContent:'stretch'
-		// flexGrow: 1
-		// alignSelf: 'flex-end'
 	},
 });

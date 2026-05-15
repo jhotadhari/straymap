@@ -23,14 +23,13 @@ import { SegmentedNumericRowControl } from '../../../../../components/generic/co
 import { options as unitPrefControlOptions } from '../../../general/components/controls/UnitPrefControl';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { selectUnitPrefs } from '../../../general/selectors';
-import { DashboardItem } from '../../types';
 import MenuItem from '../../../../../components/generic/MenuItem';
 import InfoRowControl from '../../../../../components/generic/controls/InfoRowControl';
 import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
-import { Options } from './Display';
 import { UnitPref } from '../../../general/types';
 import { setItem } from '../../dashboardSlice';
 import { OptionBase } from '../../../../../types';
+import { selectEditItem } from '../../selectors';
 
 const UnitOption: FC<{
 	setMenuVisible: Dispatch<SetStateAction<boolean>>;
@@ -82,10 +81,14 @@ const UnitOption: FC<{
 	);
 };
 
-const UnitPrefControl: FC<{
-	item: DashboardItem<Options>;
-	unitPrefsKey: string;
-}> = ({ item, unitPrefsKey }) => {
+type OptionsWithUnitPref = {
+	unitPref?: Partial<UnitPref>;
+};
+
+const ItemUnitPrefControl = ({ unitPrefsKey }: { unitPrefsKey: string }) => {
+
+	const { item } = useAppSelector( state => selectEditItem<OptionsWithUnitPref>( state ) );
+
 	const dispatch = useAppDispatch();
 	const unitPrefs = useAppSelector(selectUnitPrefs);
 	const { t } = useTranslation();
@@ -110,6 +113,9 @@ const UnitPrefControl: FC<{
 	const updateItemRef = useRef<undefined | (() => void)>(undefined);
 	useEffect(() => {
 		updateItemRef.current = () => {
+			if ( ! item ) {
+				return;
+			}
 			let newItem = { ...item };
 			if (Object.keys(value).length > 0) {
 				newItem = {
@@ -209,4 +215,4 @@ const UnitPrefControl: FC<{
 	);
 };
 
-export default UnitPrefControl;
+export default ItemUnitPrefControl;

@@ -12,12 +12,12 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
  */
 import { MapContext } from '../../../../Context';
 import { MapEventResponse } from 'react-native-mapsforge-vtm';
-import { DashboardElement, DashboardElementProps, DashboardItemOptionsBase } from '../types';
+import { DashboardElement, DashboardElementProps } from '../types';
 import { selectMapEventRate } from '../../general/selectors';
 import { useAppSelector } from '../../../hooks';
 import { selectDashboardStyle } from '../selectors';
 
-interface Options extends DashboardItemOptionsBase {}
+interface Options {}
 
 const Display: FC<DashboardElementProps<Options>> = ({ item, style = {}, onPress }) => {
 	const handlePress = useMemo(() => {
@@ -44,7 +44,7 @@ const Display: FC<DashboardElementProps<Options>> = ({ item, style = {}, onPress
 		};
 	}, []);
 
-	const fontSize = item?.options?.fontSize ?? dashboardStyle.fontSize;
+	const fontSize = item?.fontSize ?? dashboardStyle.fontSize;
 
 	return (
 		<TouchableHighlight onPress={handlePress}>

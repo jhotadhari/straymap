@@ -13,11 +13,11 @@ import formatcoords from 'formatcoords';
 import { MapContext } from '../../../../../Context';
 import { useAppSelector } from '../../../../hooks';
 import { selectMapEventRate, selectUnitPrefs } from '../../../general/selectors';
-import { DashboardElementProps, DashboardItemOptionsBase } from '../../types';
+import { DashboardElementProps } from '../../types';
 import { UnitPref } from '../../../general/types';
 import { selectDashboardStyle } from '../../selectors';
 
-export interface Options extends DashboardItemOptionsBase {
+export interface Options {
 	unitPref?: Partial<UnitPref>;
 }
 
@@ -53,7 +53,7 @@ const Display: FC<DashboardElementProps<Options>> = ({ item, style = {}, onPress
 	const unit = item?.options?.unitPref?.unit ?? get(unitPrefs, ['coordinates', 'unit']);
 	const round = item?.options?.unitPref?.round ?? get(unitPrefs, ['coordinates', 'round']);
 
-	const fontSize = item?.options?.fontSize ?? dashboardStyle.fontSize;
+	const fontSize = item?.fontSize ?? dashboardStyle.fontSize;
 
 	return (
 		<TouchableHighlight onPress={handlePress}>
