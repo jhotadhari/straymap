@@ -1,40 +1,20 @@
 /**
  * External dependencies
  */
-import React, { FC, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { FC, useMemo } from 'react';
 import { Text } from 'react-native-paper';
 import { get } from 'lodash-es';
 import { GestureResponderEvent, TouchableHighlight, View } from 'react-native';
-import convertUnits from 'convert-units';
 
 /**
  * Internal dependencies
  */
-import { roundTo } from '../../../../../lib/utilsGeneral';
-import { MapContext } from '../../../../../Context';
-import { selectMapEventRate, selectUnitPrefs } from '../../../general/selectors';
 import { useAppSelector } from '../../../../hooks';
 import { DashboardElementProps } from '../../types';
-import { UnitPref } from '../../../general/types';
 import { selectDashboardStyle } from '../../selectors';
+import * as elements from '../../elements';
 
-export interface Options {
-	// unitPref?: UnitPref;
-}
-
-// const formatOutput = (altitudeM: number | null, unit: UnitPref): string => {
-// 	if (null === altitudeM) {
-// 		return '-';
-// 	}
-// 	switch (unit.unit) {
-// 		case 'ft':
-// 			return roundTo(convertUnits(altitudeM).from('m').to('ft'), unit.round) + ' ft';
-// 		case 'fath':
-// 			return roundTo(altitudeM * 0.5468066492, unit.round) + ' fathom';
-// 		default:
-// 			return roundTo(altitudeM, unit.round) + ' m';
-// 	}
-// };
+export interface Options {}
 
 const Display: FC<DashboardElementProps<Options>> = ({ item, style = {}, onPress }) => {
 	const handlePress = useMemo(() => {
@@ -46,34 +26,20 @@ const Display: FC<DashboardElementProps<Options>> = ({ item, style = {}, onPress
 		item.key,
 	]);
 
-	// const mapEventRate = useAppSelector(selectMapEventRate);
 	const dashboardStyle = useAppSelector(selectDashboardStyle);
-	// const unitPrefs = useAppSelector(selectUnitPrefs);
-
-	// const { currentMapEventRef } = useContext(MapContext);
-
-	// const unitPref = item?.options?.unitPref ?? get(unitPrefs, 'heightDepth');
 
 	const fontSize = dashboardStyle.fontSize;
 
-	// const [altitudeM, setAltitudeM] = useState<number | null>(null);
-	// const intervalRef = useRef<NodeJS.Timeout | null>(null);
-	// useEffect(() => {
-	// 	intervalRef.current = setInterval(() => {
-	// 		setAltitudeM(currentMapEventRef?.current?.center?.alt || null);
-	// 	}, mapEventRate);
-	// 	return () => {
-	// 		intervalRef.current && clearInterval(intervalRef.current);
-	// 	};
-	// }, [mapEventRate]);
+	const minWidth = useMemo(
+		() => item?.minWidth ?? get(elements, [item?.elementType || '', 'defaultMinWidth'], 75),
+		[item?.minWidth, item?.elementType]
+	);
 
 	return (
 		<TouchableHighlight onPress={handlePress}>
 			<View
 				style={[
-					{
-						minWidth: get(item, ['style', 'minWidth'], undefined),
-					},
+					{ minWidth },
 					style,
 				]}
 			>

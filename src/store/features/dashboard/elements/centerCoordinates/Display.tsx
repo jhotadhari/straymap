@@ -16,6 +16,7 @@ import { selectMapEventRate, selectUnitPrefs } from '../../../general/selectors'
 import { DashboardElementProps } from '../../types';
 import { UnitPref } from '../../../general/types';
 import { selectDashboardStyle } from '../../selectors';
+import * as elements from '../../elements';
 
 export interface Options {
 	unitPref?: Partial<UnitPref>;
@@ -55,13 +56,16 @@ const Display: FC<DashboardElementProps<Options>> = ({ item, style = {}, onPress
 
 	const fontSize = item?.fontSize ?? dashboardStyle.fontSize;
 
+	const minWidth = useMemo(
+		() => item?.minWidth ?? get(elements, [item?.elementType || '', 'defaultMinWidth'], 75),
+		[item?.minWidth, item?.elementType]
+	);
+
 	return (
 		<TouchableHighlight onPress={handlePress}>
 			<View
 				style={[
-					{
-						minWidth: get(item, ['style', 'minWidth'], undefined),
-					},
+					{ minWidth },
 					style,
 				]}
 			>
@@ -86,7 +90,7 @@ const Display: FC<DashboardElementProps<Options>> = ({ item, style = {}, onPress
 								'f'
 							),
 							{
-								decimalPlaces: Math.min( round, 99 ),
+								decimalPlaces: Math.min(round, 99),
 							}
 						)}
 					</Text>

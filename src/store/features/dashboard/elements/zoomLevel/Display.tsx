@@ -5,22 +5,19 @@ import React, { FC, useContext, useEffect, useMemo, useRef, useState } from 'rea
 import { Text } from 'react-native-paper';
 import { get } from 'lodash-es';
 import { GestureResponderEvent, TouchableHighlight, View } from 'react-native';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { MapEventResponse } from 'react-native-mapsforge-vtm';
 
 /**
  * Internal dependencies
- */
-import { MapContext } from '../../../../Context';
-import { MapEventResponse } from 'react-native-mapsforge-vtm';
-import { DashboardElement, DashboardElementProps } from '../types';
-import { selectMapEventRate } from '../../general/selectors';
-import { useAppSelector } from '../../../hooks';
-import { selectDashboardStyle } from '../selectors';
-import { useTranslation } from 'react-i18next';
-import ItemMinWidthControl from '../components/controls/ItemMinWidthControl';
-import ItemFontSizeControl from '../components/controls/ItemFontSizeControl';
+*/
+import { useAppSelector } from '../../../../hooks';
+import { selectMapEventRate } from '../../../general/selectors';
+import { selectDashboardStyle } from '../../selectors';
+import { DashboardElementProps } from '../../types';
+import { MapContext } from '../../../../../Context';
+import * as elements from '../../elements';
 
-interface Options {}
+export interface Options {}
 
 const Display: FC<DashboardElementProps<Options>> = ({ item, style = {}, onPress }) => {
 	const handlePress = useMemo(() => {
@@ -49,13 +46,16 @@ const Display: FC<DashboardElementProps<Options>> = ({ item, style = {}, onPress
 
 	const fontSize = item?.fontSize ?? dashboardStyle.fontSize;
 
+		const minWidth = useMemo(
+			() => item?.minWidth ?? get(elements, [item?.elementType || '', 'defaultMinWidth'], 75),
+			[item?.minWidth, item?.elementType]
+		);
+
 	return (
 		<TouchableHighlight onPress={handlePress}>
 			<View
 				style={[
-					{
-						minWidth: get(item, ['style', 'minWidth'], undefined),
-					},
+					{ minWidth },
 					style,
 				]}
 			>
@@ -73,47 +73,4 @@ const Display: FC<DashboardElementProps<Options>> = ({ item, style = {}, onPress
 	);
 };
 
-const Icon: FC<{
-	color: string;
-	size: number;
-}> = ({ color, size }) => {
-	return (
-		<MaterialIcons
-			color={color}
-			size={size}
-			name="search"
-		/>
-	);
-	// return (
-	// 	<Icon
-	// 		source={'cog'}
-	// 		size={size}
-	// 		color={color}
-	// 	/>
-	// );
-};
-
-const Control: FC = () => {
-	const { t } = useTranslation();
-	return (
-		<View>
-			<ItemMinWidthControl
-				buttonLabel={t('Use default')} // ???
-			/>
-
-			<ItemFontSizeControl
-				buttonLabel={t('follow dashboard setting')} // ???
-			/>
-		</View>
-	);
-};
-
-export default {
-	key: 'zoomLevel',
-	label: 'zoomLevel',
-	Display,
-	Control,
-	Icon,
-	defaultMinWidth: 75,
-	responseInclude: { zoomLevel: 2 },
-} as DashboardElement<Options>;
+export default Display;

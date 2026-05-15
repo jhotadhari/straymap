@@ -49,9 +49,11 @@ const Item: FC<{
 									borderColor: theme.colors.primary,
 								}
 							: undefined,
-						highlightEditItem && 'spacer' === item.elementType ? {
-							backgroundColor: theme.colors.surfaceDisabled,
-						} : undefined,
+						highlightEditItem && editItemKey !== item?.key
+							? {
+									borderColor: theme.colors.inverseOnSurface,
+								}
+							: undefined,
 					]}
 					key={item.key}
 					dashboardElement={item}	// rename ???

@@ -12,12 +12,8 @@ import { isObject, set, upperCase } from 'lodash-es';
 export const randomNumber = (min: number, max: number): number => Math.random() * (max - min) + min;
 
 export const roundTo = (num: number, precision: number): number => {
-	if (precision) {
-		const factor = Math.pow(10, precision);
-		return Math.round(num * factor) / factor;
-	} else {
-		return Math.round(num);
-	}
+	const factor = Math.pow(10, precision);
+	return Math.round(num * factor) / factor;
 };
 
 export const parseSerialized = (str: string, fallback?: any): object | false => {
