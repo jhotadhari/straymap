@@ -7,6 +7,7 @@ import { List, Text, useTheme } from 'react-native-paper';
 import { StyleSheet, View } from 'react-native';
 import { Style } from 'react-native-paper/lib/typescript/components/List/utils';
 import { sprintf } from 'sprintf-js';
+import { Icon as IconPaper } from 'react-native-paper';
 
 /**
  * Internal dependencies
@@ -14,16 +15,13 @@ import { sprintf } from 'sprintf-js';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { setElementExpanded } from '../../../ui/uiSlice';
 import { selectElementExpanded } from '../../../ui/selectors';
-import { selectEditItem } from '../../selectors';
-import { removeItemKey } from '../../dashboardSlice';
+import { selectEditItem, selectItemsCount } from '../../selectors';
+import { moveItem, removeItemKey } from '../../dashboardSlice';
 import * as elements from '../../elements';
 import { get } from 'lodash-es';
 import { DashboardElement } from '../../types';
 import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
 import InfoRowControl from '../../../../../components/generic/controls/InfoRowControl';
-import ItemMinWidthControl from './ItemMinWidthControl';
-import ItemFontSizeControl from './ItemFontSizeControl';
-import { useSafeAreaFrame } from 'react-native-safe-area-context';
 
 const ICON_SIZE = 24;
 
@@ -33,7 +31,9 @@ const ItemControl: FC<{}> = ({}) => {
 
 	const dispatch = useAppDispatch();
 
-	const { position, item } = useAppSelector(selectEditItem);
+	const { position, item, idx } = useAppSelector(selectEditItem);
+
+	const itemsCount = useAppSelector((state) => selectItemsCount(state, position));
 
 	const uiStateKey = 'dashboardControlItem';
 	const notExpanded = useAppSelector((state) => selectElementExpanded(state, uiStateKey));
@@ -60,21 +60,17 @@ const ItemControl: FC<{}> = ({}) => {
 		}, 1);
 	}, [item?.key]);
 
-	const { label, Control, Icon } =
-		useMemo(
-			() =>
-				item?.elementType
-					? get(
-							elements as { [itemKey: string]: DashboardElement },
-							item?.elementType
-						)
-					: {
-							label: undefined,
-							Control: undefined,
-							Icon: undefined,
-						},
-			[item?.elementType]
-		);
+	const { label, Control, Icon } = useMemo(
+		() =>
+			item?.elementType
+				? get(elements as { [itemKey: string]: DashboardElement }, item?.elementType)
+				: {
+						label: undefined,
+						Control: undefined,
+						Icon: undefined,
+					},
+		[item?.elementType]
+	);
 
 	const ControlIcon = useCallback(
 		({ color, style }: { color: string; style: Style }) => {
@@ -94,6 +90,40 @@ const ItemControl: FC<{}> = ({}) => {
 			);
 		},
 		[Icon]
+	);
+
+	const handleRemove = useCallback(
+		() =>
+			item?.key &&
+			dispatch(
+				removeItemKey({
+					position,
+					itemKey: item.key,
+				})
+			),
+		[position, item?.key]
+	);
+	const handleMoveLeft = useCallback(
+		() =>
+			item?.key &&
+			dispatch(
+				moveItem({
+					itemKey: item.key,
+					direction: 'left',
+				})
+			),
+		[position, item?.key]
+	);
+	const handleMoveRight = useCallback(
+		() =>
+			item?.key &&
+			dispatch(
+				moveItem({
+					itemKey: item.key,
+					direction: 'right',
+				})
+			),
+		[position, item?.key]
 	);
 
 	return (
@@ -117,23 +147,39 @@ const ItemControl: FC<{}> = ({}) => {
 
 						<View
 							style={{
-								justifyContent: 'flex-end',
+								justifyContent: 'space-between',
 								flexDirection: 'row',
+								marginTop: 20,
 							}}
 						>
 							<ButtonHighlight
+								mode="outlined"
+								onPress={0 === idx ? undefined : handleMoveLeft}
+								disabled={0 === idx}
+							>
+								<IconPaper
+									source={'chevron-left'}
+									size={20}
+								/>
+							</ButtonHighlight>
+
+							<ButtonHighlight
+								mode="outlined"
+								onPress={itemsCount - 1 === idx ? undefined : handleMoveRight}
+								disabled={itemsCount - 1 === idx}
+							>
+								<IconPaper
+									source={'chevron-right'}
+									size={20}
+								/>
+							</ButtonHighlight>
+
+							<ButtonHighlight
 								icon="delete-outline"
 								mode="outlined"
-								onPress={() =>
-									dispatch(
-										removeItemKey({
-											position,
-											itemKey: item.key,
-										})
-									)
-								}
+								onPress={handleRemove}
 							>
-								{t('remove Item ???')}
+								{t('remove')} {/* // ??? */}
 							</ButtonHighlight>
 						</View>
 					</View>

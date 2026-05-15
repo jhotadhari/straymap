@@ -13,19 +13,35 @@ export const selectDashboardStyle = (state: RootState) => state.dashboard.dashbo
 
 export const selectItemByKey = <Options = {}>(state: RootState, key?: string) : {
 	position: string;
+	idx: number;
 	item: undefined | DashboardItem<Options>;
 } => {
 	let position = 'top';
-	let item = !key ? undefined : state.dashboard.itemsTop.find((item) => item.key === key) as undefined | DashboardItem<Options>;
-	if (key && !item) {
+	let idx = !key ? -1 : state.dashboard.itemsTop.findIndex((item) => item.key === key);
+	let item : undefined | DashboardItem<Options> = undefined;
+	if (key && -1 === idx ) {
 		position = 'bottom';
-		item = state.dashboard.itemsBottom.find((item) => item.key === key) as undefined | DashboardItem<Options>;
+		idx = !key ? -1 : state.dashboard.itemsBottom.findIndex((item) => item.key === key);
+	}
+	if ( key && -1 !== idx ) {
+		item = ( 'top' === position ? state.dashboard.itemsTop : state.dashboard.itemsBottom )[idx];
 	}
 	return {
 		item,
+		idx,
 		position,
 	};
 };
+
+export const selectItemsCount = (state: RootState, position?: string) => {
+	if ( 'top' === position) {
+		return state.dashboard.itemsTop.length;
+	} else if ('bottom' === position) {
+		return state.dashboard.itemsBottom.length;
+	} else {
+		return state.dashboard.itemsTop.length + state.dashboard.itemsBottom.length;
+	}
+}
 
 export const selectEditItemKey = (state: RootState) =>
 	state.dashboard.editItemKey;

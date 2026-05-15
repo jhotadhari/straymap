@@ -13,6 +13,7 @@ import { DashboardItem, DashboardStyle } from './types';
 import { selectEditItemKey } from './selectors';
 import { AppThunk } from '../../store';
 import { getSetterThunkWithGetter } from '../baseMap/utils';
+import { arrayMoveMutable } from 'array-move';
 
 export interface DashboardSettings {
 	// elements: DashboardItem[];
@@ -177,6 +178,44 @@ export const setItem = (newItem: DashboardItem): AppThunk => {
 			return;
 		}
 		newItems[idx] = newItem;
+		dispatch(
+			dashboardSlice.actions.setItems({
+				position,
+				items: newItems,
+			})
+		);
+	};
+};
+
+export const moveItem = ({
+	itemKey,
+	direction,
+}: {
+	itemKey: string;
+	direction: 'left' | 'right';
+}): AppThunk => {
+	return (dispatch, getState) => {
+		let position;
+		let newItems;
+		let idx = getState().dashboard.itemsTop.findIndex((item) => item.key === itemKey);
+		if (-1 !== idx) {
+			position = 'top';
+			newItems = [...getState().dashboard.itemsTop];
+		} else {
+			idx = getState().dashboard.itemsBottom.findIndex((item) => item.key === itemKey);
+			position = 'bottom';
+			newItems = [...getState().dashboard.itemsBottom];
+		}
+		if (!position || -1 === idx) {
+			return;
+		}
+		if ('left' === direction && 0 === idx) {
+			return;
+		}
+		if ('right' === direction && newItems.length - 1 === idx) {
+			return;
+		}
+		arrayMoveMutable(newItems, idx, 'left' === direction ? idx - 1 : idx + 1);
 		dispatch(
 			dashboardSlice.actions.setItems({
 				position,
