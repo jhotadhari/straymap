@@ -44,6 +44,7 @@ export default {
 	label: 'routingDistance', // ???
 	Display,
 	Control: null,
-	hasStyleControl: true,
+	hasMinWidthControl: true,
+	hasFontSizeControl: true,
 	defaultMinWidth: 75,
 };

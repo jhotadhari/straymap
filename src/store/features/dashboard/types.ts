@@ -20,7 +20,6 @@ export type DashboardItem<Options = DashboardItemOptionsBase> = {
 	elementType: string;
 	style?: ViewStyle;
 	options?: Options;
-	hasLineBreak?: boolean;
 };
 
 export type DashboardElementProps<Options = DashboardItemOptionsBase> = {
@@ -38,7 +37,8 @@ export type DashboardElement<Options = DashboardItemOptionsBase> = {
 		color: string;
 		size: number;
 	}>;
-	hasStyleControl: boolean;
+	hasMinWidthControl: boolean;
+	hasFontSizeControl: boolean;
 	shouldSetHgtDirPath?: boolean;
 	defaultMinWidth: number;
 	responseInclude?: ResponseInclude;

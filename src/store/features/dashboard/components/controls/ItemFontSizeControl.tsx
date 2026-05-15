@@ -125,7 +125,7 @@ const StyleControlFontSize = (
 	);
 };
 
-const ItemStyleControl = (
+const ItemFontSizeControl = (
 	{
 		// editItem,
 		// updateElement,
@@ -157,22 +157,8 @@ const ItemStyleControl = (
 	return (
 		<View>
 			<StyleControlFontSize />
-			<NumericRowControl
-				label={t('minWidth')}
-				optKey={'minWidth'}
-				options={get(editItem, 'style', {})}
-				setOptions={(newStyle) => {
-					const newEditElement = {
-						...editItem,
-						style: newStyle,
-					};
-					// updateElement(newEditElement as DashboardItem);
-				}}
-				validate={(val) => val >= 0}
-				Info={t('hint.dashboard.item.minWidth')}
-			/>
 		</View>
 	);
 };
 
-export default ItemStyleControl;
+export default ItemFontSizeControl;

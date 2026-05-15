@@ -34,10 +34,4 @@ export default {
 	DisplayComponent,
 	// IconComponent,
 	iconSource: 'crosshairs-gps',
-
-	// ControlComponent,
-	// hasStyleControl: true,
-	// shouldSetHgtDirPath: true,
-	// defaultMinWidth: 75,
-	// responseInclude: { center: 2 },
 } as DrawerItem;

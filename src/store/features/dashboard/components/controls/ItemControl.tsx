@@ -21,7 +21,8 @@ import { get } from 'lodash-es';
 import { DashboardElement } from '../../types';
 import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
 import InfoRowControl from '../../../../../components/generic/controls/InfoRowControl';
-import ItemStyleControl from './ItemStyleControl';
+import ItemMinWidthControl from './ItemMinWidthControl';
+import ItemFontSizeControl from './ItemFontSizeControl';
 
 const ICON_SIZE = 24;
 
@@ -58,19 +59,24 @@ const ItemControl: FC<{}> = ({}) => {
 		}, 1);
 	}, [editItem?.key]);
 
-	const { label, Control, Icon, hasStyleControl, defaultMinWidth } = useMemo(
-		() =>
-			editItem?.elementType
-				? get(elements as { [itemKey: string]: DashboardElement }, editItem?.elementType)
-				: {
-						label: undefined,
-						Control: undefined,
-						Icon: undefined,
-						hasStyleControl: undefined,
-						defaultMinWidth: undefined,
-					},
-		[editItem?.elementType]
-	);
+	const { label, Control, Icon, hasMinWidthControl, hasFontSizeControl, defaultMinWidth } =
+		useMemo(
+			() =>
+				editItem?.elementType
+					? get(
+							elements as { [itemKey: string]: DashboardElement },
+							editItem?.elementType
+						)
+					: {
+							label: undefined,
+							Control: undefined,
+							Icon: undefined,
+							hasMinWidthControl: undefined,
+							hasFontSizeControl: undefined,
+							defaultMinWidth: undefined,
+						},
+			[editItem?.elementType]
+		);
 
 	const ControlIcon = useCallback(
 		({ color, style }: { color: string; style: Style }) => {
@@ -111,7 +117,9 @@ const ItemControl: FC<{}> = ({}) => {
 
 						{Control && <Control item={editItem} />}
 
-						{hasStyleControl && <ItemStyleControl />}
+						{hasMinWidthControl && <ItemMinWidthControl />}
+
+						{hasFontSizeControl && <ItemFontSizeControl />}
 
 						<View
 							style={{

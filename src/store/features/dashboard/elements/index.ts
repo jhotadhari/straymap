@@ -1,6 +1,6 @@
 import centerAltitude from './centerAltitude';
 import centerCoordinates from './centerCoordinates';
-// import lineBreak from './lineBreak';
+import spacer from './spacer';
 import zoomLevel from './zoomLevel';
 // import routingDistance from './routingDistance';
 // import routingUp from './routingUp';
@@ -9,7 +9,7 @@ import zoomLevel from './zoomLevel';
 export {
 	centerAltitude,
 	centerCoordinates,
-	// lineBreak,
+	spacer,
 	zoomLevel,
 	// routingDistance,
 	// routingUp,

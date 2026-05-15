@@ -44,6 +44,7 @@ export default {
 	label: 'routingUp', // ???
 	Display,
 	Control: null,
-	hasStyleControl: true,
+	hasMinWidthControl: true,
+	hasFontSizeControl: true,
 	defaultMinWidth: 75,
 };

@@ -95,7 +95,8 @@ export default {
 	Display,
 	Control: undefined,
 	Icon,
-	hasStyleControl: true,
+	hasMinWidthControl: true,
+	hasFontSizeControl: true,
 	defaultMinWidth: 75,
 	responseInclude: { zoomLevel: 2 },
 } as DashboardElement<Options>;
