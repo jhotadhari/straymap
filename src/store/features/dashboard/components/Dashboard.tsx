@@ -94,7 +94,6 @@ const Dashboard: FC<{
 		]
 	);
 
-
 	// const [isDraggingKey, setIsDraggingKey] = useState<undefined | string>(undefined);
 	const handleDragStart = useCallback(
 		(params: DragStartParams) => {
@@ -151,12 +150,10 @@ const Dashboard: FC<{
 
 export const DashboardWrapped: FC<{
 	position: string;
-}> = ( {
-	position,
-} ) => {
+}> = ({ position }) => {
 	const dispatch = useAppDispatch();
 
-	const isEditingDashboard = useAppSelector( selectIsEditingDashboard );
+	const isEditingDashboard = useAppSelector(selectIsEditingDashboard);
 
 	const items = useAppSelector((state) => selectItems(state, { position }));
 
@@ -184,7 +181,7 @@ export const DashboardWrapped: FC<{
 		[items, position]
 	);
 
-	if ( isEditingDashboard ) {
+	if (isEditingDashboard) {
 		return (
 			<Dashboard
 				position={position}

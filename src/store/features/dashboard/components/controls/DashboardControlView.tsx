@@ -29,7 +29,7 @@ const DashboardControlView: FC<{}> = () => {
 
 	useEffect(() => {
 		dispatch(setIsEditingDashboard(true));
-		() => {
+		return () => {
 			dispatch(setIsEditingDashboard(false));
 			dispatch(setEditItemKey(undefined));
 		};
