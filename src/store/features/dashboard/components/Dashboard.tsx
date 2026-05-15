@@ -32,6 +32,7 @@ const Dashboard: FC<{
 	shouldSetBottomBarHeight?: boolean;
 	shouldSetTopBarHeight?: boolean;
 	onPressItem?: (itemKey: string, event: GestureResponderEvent) => void;
+	onLayout?: (event: LayoutChangeEvent) => void;
 }> = ({
 	style,
 	itemStyle,
@@ -43,6 +44,7 @@ const Dashboard: FC<{
 	shouldSetBottomBarHeight,
 	shouldSetTopBarHeight,
 	onPressItem,
+	onLayout,
 }) => {
 	const { setBottomBarHeight, setTopAppBarHeight } = useContext(AppContext);
 
@@ -78,6 +80,7 @@ const Dashboard: FC<{
 			if ('top' === position && setTopAppBarHeight && shouldSetTopBarHeight) {
 				// setTopAppBarHeight( height );	// ??? todo
 			}
+			onLayout && onLayout(event);
 		},
 		[
 			position,
@@ -86,6 +89,7 @@ const Dashboard: FC<{
 			setTopAppBarHeight,
 			shouldSetBottomBarHeight,
 			shouldSetTopBarHeight,
+			onLayout,
 		]
 	);
 

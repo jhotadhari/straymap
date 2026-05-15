@@ -132,23 +132,20 @@ const AppView = ({
 	);
 
 	const handleHardwareKeyUp = useCallback(
-		() =>
-			hardwareKeys.length > 0
-				? (response: HardwareKeyEventResponse) => {
-						hardwareKeys.forEach((keyConf) => {
-							if (response.keyCodeString === keyConf.keyCodeString) {
-								switch (keyConf.actionKey) {
-									case 'zoomIn':
-										MapContainerModule.zoomIn(mapViewNativeNodeHandle);
-										break;
-									case 'zoomOut':
-										MapContainerModule.zoomOut(mapViewNativeNodeHandle);
-										break;
-								}
-							}
-						});
+		(response: HardwareKeyEventResponse) => {
+			hardwareKeys.forEach((keyConf) => {
+				if (response.keyCodeString === keyConf.keyCodeString) {
+					switch (keyConf.actionKey) {
+						case 'zoomIn':
+							MapContainerModule.zoomIn(mapViewNativeNodeHandle);
+							break;
+						case 'zoomOut':
+							MapContainerModule.zoomOut(mapViewNativeNodeHandle);
+							break;
 					}
-				: null,
+				}
+			});
+		},
 		[hardwareKeys]
 	);
 
