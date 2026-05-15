@@ -79,6 +79,16 @@ const Display: FC<DashboardElementProps<Options>> = ({ item, style = {}, onPress
 		};
 	}, [mapEventRate]);
 
+	const textAlign : 'left' | 'right' | 'center' = useMemo(() => {
+		switch (dashboardStyle.align) {
+			case 'left':
+			case 'right':
+				return dashboardStyle.align;
+			default:
+				return 'center';
+		}
+	}, [dashboardStyle]);
+
 	return (
 		<TouchableHighlight onPress={handlePress}>
 			<View
@@ -90,6 +100,7 @@ const Display: FC<DashboardElementProps<Options>> = ({ item, style = {}, onPress
 				<Text
 					style={{
 						fontSize,
+						textAlign,
 					}}
 				>
 					{formatOutput(altitudeM, unitPref)}

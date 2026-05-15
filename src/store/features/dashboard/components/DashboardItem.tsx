@@ -56,7 +56,6 @@ const Item: FC<{
 							: undefined,
 					]}
 					key={item.key}
-					dashboardElement={item}	// rename ???
 					onPress={onPress}
 					item={item}
 				/>

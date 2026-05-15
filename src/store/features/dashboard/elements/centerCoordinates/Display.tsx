@@ -61,6 +61,16 @@ const Display: FC<DashboardElementProps<Options>> = ({ item, style = {}, onPress
 		[item?.minWidth, item?.elementType]
 	);
 
+	const textAlign : 'left' | 'right' | 'center' = useMemo(() => {
+		switch (dashboardStyle.align) {
+			case 'left':
+			case 'right':
+				return dashboardStyle.align;
+			default:
+				return 'center';
+		}
+	}, [dashboardStyle]);
+
 	return (
 		<TouchableHighlight onPress={handlePress}>
 			<View
@@ -73,6 +83,7 @@ const Display: FC<DashboardElementProps<Options>> = ({ item, style = {}, onPress
 					<Text
 						style={{
 							fontSize,
+							textAlign,
 						}}
 					>
 						{formatcoords({

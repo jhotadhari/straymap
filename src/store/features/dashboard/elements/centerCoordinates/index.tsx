@@ -37,6 +37,6 @@ export default {
 	Display,
 	Control,
 	Icon,
-	defaultMinWidth: 200,
+	defaultMinWidth: 250,
 	responseInclude: { center: 2 },
 } as DashboardElement<Options>;

@@ -9,7 +9,7 @@ import { MapEventResponse } from 'react-native-mapsforge-vtm';
 
 /**
  * Internal dependencies
-*/
+ */
 import { useAppSelector } from '../../../../hooks';
 import { selectMapEventRate } from '../../../general/selectors';
 import { selectDashboardStyle } from '../../selectors';
@@ -46,10 +46,20 @@ const Display: FC<DashboardElementProps<Options>> = ({ item, style = {}, onPress
 
 	const fontSize = item?.fontSize ?? dashboardStyle.fontSize;
 
-		const minWidth = useMemo(
-			() => item?.minWidth ?? get(elements, [item?.elementType || '', 'defaultMinWidth'], 75),
-			[item?.minWidth, item?.elementType]
-		);
+	const minWidth = useMemo(
+		() => item?.minWidth ?? get(elements, [item?.elementType || '', 'defaultMinWidth'], 75),
+		[item?.minWidth, item?.elementType]
+	);
+
+	const textAlign: 'left' | 'right' | 'center' = useMemo(() => {
+		switch (dashboardStyle.align) {
+			case 'left':
+			case 'right':
+				return dashboardStyle.align;
+			default:
+				return 'center';
+		}
+	}, [dashboardStyle]);
 
 	return (
 		<TouchableHighlight onPress={handlePress}>
@@ -63,6 +73,7 @@ const Display: FC<DashboardElementProps<Options>> = ({ item, style = {}, onPress
 					<Text
 						style={{
 							fontSize,
+							textAlign,
 						}}
 					>
 						{zoomLevel}
