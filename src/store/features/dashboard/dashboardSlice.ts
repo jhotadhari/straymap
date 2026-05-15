@@ -10,8 +10,9 @@ import rnUuid from 'react-native-uuid';
  */
 import { SliceSettingsBase } from '../../../types';
 import { DashboardItem, DashboardStyle } from './types';
-import { selectItemByKey } from './selectors';
+import { selectEditItemKey, selectItemByKey } from './selectors';
 import { AppThunk } from '../../store';
+import { getSetterThunkWithGetter } from '../baseMap/utils';
 
 export interface DashboardSettings {
 	// elements: DashboardItem[];
@@ -148,7 +149,7 @@ export const {
 	setItems,
 	addItem,
 	removeItemKey,
-	setEditItemKey,
+	setEditItemKey: setEditItemKeyAction,
 } = dashboardSlice.actions;
 
 // Export the slice reducer for use in the store configuration
@@ -174,12 +175,13 @@ export const setItem = (
 			return;
 		}
 		newItems[idx] = newItem;
-
-		console.log( 'debug new item', newItem, idx ); // debug
-		console.log( 'debug new newItems', newItems ); // debug
 		dispatch( dashboardSlice.actions.setItems( {
 			position,
 			items: newItems,
 		} ) );
 	};
 };
+
+export const setEditItemKey = getSetterThunkWithGetter<
+	DashboardState['editItemKey']
+>(selectEditItemKey, dashboardSlice.actions.setEditItemKey);

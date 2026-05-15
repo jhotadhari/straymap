@@ -18,7 +18,9 @@ export interface DashboardItemOptionsBase {
 export type DashboardItem<Options = DashboardItemOptionsBase> = {
 	key: string;
 	elementType: string;
+	style?: ViewStyle;
 	options?: Options;
+	hasLineBreak?: boolean;
 };
 
 export type DashboardElementProps<Options = DashboardItemOptionsBase> = {

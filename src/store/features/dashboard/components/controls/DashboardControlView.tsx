@@ -2,7 +2,8 @@
  * External dependencies
  */
 import React, { FC, useCallback, useContext, useEffect, useState } from 'react';
-import { ScrollView, View } from 'react-native';
+import { View } from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
 import { useTranslation } from 'react-i18next';
 import { DragStartParams, SortableFlexDragEndParams } from 'react-native-sortables';
 import { useTheme } from 'react-native-paper';
@@ -17,7 +18,6 @@ import { AppContext } from '../../../../../Context';
 import Dashboard from '../Dashboard';
 import NewItemControl from './NewItemControl';
 import InfoButton from '../../../../../components/generic/InfoButton';
-import GeneralControl from './GeneralControl';
 import OneControl from './OneControl';
 import ItemControl from './ItemControl';
 
@@ -47,7 +47,7 @@ const DashboardControlView: FC<{}> = () => {
 	);
 
 	const handleItemPress = useCallback((itemKey: string) => {
-		dispatch(setEditItemKey(itemKey));
+		dispatch(setEditItemKey((editItemKey) => (itemKey === editItemKey ? undefined : itemKey)));
 	}, []);
 
 	const handleDragEnd = useCallback(
@@ -121,6 +121,7 @@ const DashboardControlView: FC<{}> = () => {
 			<Dashboard
 				position={'bottom'}
 				sortEnabled={true}
+				highlightEditItem={true}
 				onDragStart={handleDragStart}
 				onDragEnd={handleDragEnd}
 				onPressItem={handleItemPress}

@@ -50,18 +50,20 @@ const Display: FC<DashboardElementProps<Options>> = ({ item, style = {}, onPress
 		};
 	}, []);
 
-	const unit = item?.options?.unitPref?.unit ?? get(unitPrefs, ['coordinates','unit']);
-	const round = item?.options?.unitPref?.round ?? get(unitPrefs, ['coordinates','round']);
+	const unit = item?.options?.unitPref?.unit ?? get(unitPrefs, ['coordinates', 'unit']);
+	const round = item?.options?.unitPref?.round ?? get(unitPrefs, ['coordinates', 'round']);
 
 	const fontSize = item?.options?.fontSize ?? dashboardStyle.fontSize;
 
 	return (
 		<TouchableHighlight onPress={handlePress}>
 			<View
-				style={{
-					minWidth: get(item, ['style', 'minWidth'], undefined),
-					...style,
-				}}
+				style={[
+					{
+						minWidth: get(item, ['style', 'minWidth'], undefined),
+					},
+					style,
+				]}
 			>
 				{undefined !== centerLng && undefined !== centerLat && (
 					<Text

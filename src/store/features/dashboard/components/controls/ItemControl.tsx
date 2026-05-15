@@ -14,13 +14,14 @@ import { sprintf } from 'sprintf-js';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { setElementExpanded } from '../../../ui/uiSlice';
 import { selectElementExpanded } from '../../../ui/selectors';
-import { selectDashboardStyle, selectEditItem } from '../../selectors';
+import { selectEditItem } from '../../selectors';
 import { removeItemKey } from '../../dashboardSlice';
 import * as elements from '../../elements';
 import { get } from 'lodash-es';
 import { DashboardElement } from '../../types';
 import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
 import InfoRowControl from '../../../../../components/generic/controls/InfoRowControl';
+import ItemStyleControl from './ItemStyleControl';
 
 const ICON_SIZE = 24;
 
@@ -110,9 +111,7 @@ const ItemControl: FC<{}> = ({}) => {
 
 						{Control && <Control item={editItem} />}
 
-						{/* style component */}
-
-						{/* has linebreak after component */}
+						{hasStyleControl && <ItemStyleControl />}
 
 						<View
 							style={{

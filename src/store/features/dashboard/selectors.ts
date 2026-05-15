@@ -24,6 +24,9 @@ export const selectItemByKey = (state: RootState, key?: string) => {
 	};
 };
 
+export const selectEditItemKey = (state: RootState) =>
+	state.dashboard.editItemKey;
+
 export const selectEditItem = (state: RootState) =>
 	selectItemByKey(state, state.dashboard.editItemKey);
 

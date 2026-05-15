@@ -4,14 +4,14 @@
 import React, { FC, useEffect, useMemo, useRef, useState } from 'react';
 import { Menu, Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { upperFirst, get, set, omit, isEqual } from 'lodash-es';
+import { upperFirst, get, omit, isEqual } from 'lodash-es';
 import { View } from 'react-native';
 
 /**
  * Internal dependencies
  */
 import { NumericRowControl } from '../../../../../components/generic/controls/NumericRowControlsNew';
-import { options, options as unitPrefControlOptions } from '../../../general/components/controls/UnitPrefControl';
+import { options as unitPrefControlOptions } from '../../../general/components/controls/UnitPrefControl';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { selectUnitPrefs } from '../../../general/selectors';
 import { DashboardItem } from '../../types';

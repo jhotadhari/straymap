@@ -70,10 +70,12 @@ const Display: FC<DashboardElementProps<Options>> = ({ item, style = {}, onPress
 	return (
 		<TouchableHighlight onPress={handlePress}>
 			<View
-				style={{
-					minWidth: get(item, ['style', 'minWidth'], undefined),
-					...style,
-				}}
+				style={[
+					{
+						minWidth: get(item, ['style', 'minWidth'], undefined),
+					},
+					style,
+				]}
 			>
 				<Text
 					style={{

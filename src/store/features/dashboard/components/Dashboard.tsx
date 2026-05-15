@@ -1,13 +1,15 @@
 /**
  * External dependencies
  */
-import React, { FC, useCallback, useContext, useMemo } from 'react';
+import React, { FC, Fragment, useCallback, useContext, useMemo, useState } from 'react';
 import { GestureResponderEvent, LayoutChangeEvent, View, ViewStyle } from 'react-native';
 import { get } from 'lodash-es';
 import {
 	DragStartCallback,
+	DragStartParams,
 	JustifyContent,
 	SortableFlexDragEndCallback,
+	SortableFlexDragEndParams,
 } from 'react-native-sortables/dist/typescript/types';
 import Sortable from 'react-native-sortables';
 
@@ -21,19 +23,23 @@ import { AppContext } from '../../../../Context';
 
 const Dashboard: FC<{
 	style?: ViewStyle;
+	itemStyle?: ViewStyle;
 	position: string;
 	onDragStart?: DragStartCallback;
 	onDragEnd?: SortableFlexDragEndCallback;
 	sortEnabled?: boolean;
+	highlightEditItem?: boolean;
 	shouldSetBottomBarHeight?: boolean;
 	shouldSetTopBarHeight?: boolean;
 	onPressItem?: (itemKey: string, event: GestureResponderEvent) => void;
 }> = ({
 	style,
+	itemStyle,
 	position,
 	onDragStart,
 	onDragEnd,
 	sortEnabled,
+	highlightEditItem,
 	shouldSetBottomBarHeight,
 	shouldSetTopBarHeight,
 	onPressItem,
@@ -83,6 +89,24 @@ const Dashboard: FC<{
 		]
 	);
 
+	const [isDraggingKey, setIsDraggingKey] = useState<undefined | string>(undefined);
+
+	const handleDragStart = useCallback(
+		(params: DragStartParams) => {
+			setIsDraggingKey(params.key.replace('.$', ''));
+			onDragStart && onDragStart(params);
+		},
+		[onDragStart]
+	);
+
+	const handleDragEnd = useCallback(
+		(params: SortableFlexDragEndParams) => {
+			setIsDraggingKey(undefined);
+			onDragEnd && onDragEnd(params);
+		},
+		[onDragEnd]
+	);
+
 	return (
 		<View
 			style={style}
@@ -94,17 +118,22 @@ const Dashboard: FC<{
 				sortEnabled={sortEnabled}
 				customHandle={true}
 				justifyContent={justifyContent}
-				onDragStart={onDragStart}
-				onDragEnd={onDragEnd}
+				alignItems="center"
+				onDragStart={handleDragStart}
+				onDragEnd={handleDragEnd}
 			>
-				{items.map((item) => (
-					<DashboardItem
-						isHandle={true}
-						key={item.key}
-						item={item}
-						onPress={onPressItem}
-					/>
-				))}
+				{items.map((item) => {
+					return (
+						<DashboardItem
+							isHandle={true}
+							key={item.key}
+							item={item}
+							onPress={onPressItem}
+							style={itemStyle}
+							highlightEditItem={highlightEditItem}
+						/>
+					);
+				})}
 			</Sortable.Flex>
 
 			{/* <WeirdFix
