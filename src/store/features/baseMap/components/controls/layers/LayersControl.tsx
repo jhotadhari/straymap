@@ -124,8 +124,6 @@ const DraggableItem: FC<{
 
 	const handleLayout = useCallback(
 		(event: LayoutChangeEvent) => {
-			console.log('debug event.nativeEvent.layout.x', event.nativeEvent.layout.x); // debug
-
 			if (
 				(reverse && event.nativeEvent.layout.x < 0) ||
 				(!reverse && event.nativeEvent.layout.x + event.nativeEvent.layout.width > width)

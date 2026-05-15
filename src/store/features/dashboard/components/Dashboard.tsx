@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { FC, Fragment, useCallback, useContext, useMemo, useState } from 'react';
+import React, { FC, useCallback, useContext, useMemo, useState } from 'react';
 import { GestureResponderEvent, LayoutChangeEvent, View, ViewStyle } from 'react-native';
 import { get } from 'lodash-es';
 import {
@@ -16,10 +16,11 @@ import Sortable from 'react-native-sortables';
 /**
  * Internal dependencies
  */
-import { useAppSelector } from '../../../hooks';
-import { selectDashboardStyle, selectItems } from '../selectors';
+import { useAppDispatch, useAppSelector } from '../../../hooks';
+import { selectDashboardStyle, selectIsEditingDashboard, selectItems } from '../selectors';
 import DashboardItem from './DashboardItem';
 import { AppContext } from '../../../../Context';
+import { setEditItemKey, setItems } from '../dashboardSlice';
 
 const Dashboard: FC<{
 	style?: ViewStyle;
@@ -32,6 +33,7 @@ const Dashboard: FC<{
 	shouldSetBottomBarHeight?: boolean;
 	shouldSetTopBarHeight?: boolean;
 	onPressItem?: (itemKey: string, event: GestureResponderEvent) => void;
+	onLayout?: (event: LayoutChangeEvent) => void;
 }> = ({
 	style,
 	itemStyle,
@@ -43,6 +45,7 @@ const Dashboard: FC<{
 	shouldSetBottomBarHeight,
 	shouldSetTopBarHeight,
 	onPressItem,
+	onLayout,
 }) => {
 	const { setBottomBarHeight, setTopAppBarHeight } = useContext(AppContext);
 
@@ -78,6 +81,7 @@ const Dashboard: FC<{
 			if ('top' === position && setTopAppBarHeight && shouldSetTopBarHeight) {
 				// setTopAppBarHeight( height );	// ??? todo
 			}
+			onLayout && onLayout(event);
 		},
 		[
 			position,
@@ -86,14 +90,14 @@ const Dashboard: FC<{
 			setTopAppBarHeight,
 			shouldSetBottomBarHeight,
 			shouldSetTopBarHeight,
+			onLayout,
 		]
 	);
 
-	const [isDraggingKey, setIsDraggingKey] = useState<undefined | string>(undefined);
-
+	// const [isDraggingKey, setIsDraggingKey] = useState<undefined | string>(undefined);
 	const handleDragStart = useCallback(
 		(params: DragStartParams) => {
-			setIsDraggingKey(params.key.replace('.$', ''));
+			// setIsDraggingKey(params.key.replace('.$', ''));
 			onDragStart && onDragStart(params);
 		},
 		[onDragStart]
@@ -101,7 +105,7 @@ const Dashboard: FC<{
 
 	const handleDragEnd = useCallback(
 		(params: SortableFlexDragEndParams) => {
-			setIsDraggingKey(undefined);
+			// setIsDraggingKey(undefined);
 			onDragEnd && onDragEnd(params);
 		},
 		[onDragEnd]
@@ -142,6 +146,63 @@ const Dashboard: FC<{
 			/> */}
 		</View>
 	);
+};
+
+export const DashboardWrapped: FC<{
+	position: string;
+}> = ({ position }) => {
+	const dispatch = useAppDispatch();
+
+	const isEditingDashboard = useAppSelector(selectIsEditingDashboard);
+
+	const items = useAppSelector((state) => selectItems(state, { position }));
+
+	const handleDragStart = useCallback((event: DragStartParams) => {
+		dispatch(setEditItemKey(event.key.replace('.$', '')));
+	}, []);
+
+	const handleItemPress = useCallback((itemKey: string) => {
+		dispatch(setEditItemKey((editItemKey) => (itemKey === editItemKey ? undefined : itemKey)));
+	}, []);
+
+	const handleDragEnd = useCallback(
+		({ indexToKey }: SortableFlexDragEndParams) => {
+			dispatch(
+				setItems({
+					position,
+					items: indexToKey
+						.map((toKey) => {
+							return items.find((item) => item.key === toKey.replace('.$', ''));
+						})
+						.filter((a) => !!a),
+				})
+			);
+		},
+		[items, position]
+	);
+
+	if (isEditingDashboard) {
+		return (
+			<Dashboard
+				position={position}
+				sortEnabled={true}
+				highlightEditItem={true}
+				onDragStart={handleDragStart}
+				onDragEnd={handleDragEnd}
+				onPressItem={handleItemPress}
+				shouldSetBottomBarHeight={'bottom' === position}
+				shouldSetTopBarHeight={'top' === position}
+			/>
+		);
+	} else {
+		return (
+			<Dashboard
+				position={position}
+				sortEnabled={false}
+				shouldSetBottomBarHeight={true}
+			/>
+		);
+	}
 };
 
 // const WeirdFix: FC<{

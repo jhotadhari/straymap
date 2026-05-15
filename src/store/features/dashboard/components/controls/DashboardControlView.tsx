@@ -1,21 +1,18 @@
 /**
  * External dependencies
  */
-import React, { FC, useCallback, useContext, useEffect, useState } from 'react';
+import React, { FC, useContext, useEffect } from 'react';
 import { View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useTranslation } from 'react-i18next';
-import { DragStartParams, SortableFlexDragEndParams } from 'react-native-sortables';
 import { useTheme } from 'react-native-paper';
 
 /**
  * Internal dependencies
  */
-import { useAppDispatch, useAppSelector } from '../../../../hooks';
-import { selectItems } from '../../selectors';
-import { setEditItemKey, setItems } from '../../dashboardSlice';
+import { useAppDispatch } from '../../../../hooks';
+import { setEditItemKey, setIsEditingDashboard } from '../../dashboardSlice';
 import { AppContext } from '../../../../../Context';
-import Dashboard from '../Dashboard';
 import NewItemControl from './NewItemControl';
 import InfoButton from '../../../../../components/generic/InfoButton';
 import OneControl from './OneControl';
@@ -24,67 +21,30 @@ import ItemControl from './ItemControl';
 const DashboardControlView: FC<{}> = () => {
 	const theme = useTheme();
 
-	const [scrollEnabled, setScrollEnabled] = useState(true);
-
-	const { appInnerHeight } = useContext(AppContext);
+	const { mapHeight } = useContext(AppContext);
 
 	const dispatch = useAppDispatch();
 
 	const { t } = useTranslation();
 
-	const items = useAppSelector((state) => selectItems(state, { position: 'bottom' }));
-
-	const handleDragStart = useCallback((event: DragStartParams) => {
-		dispatch(setEditItemKey(event.key.replace('.$', '')));
-		setScrollEnabled(false);
-	}, []);
-
-	useEffect(
-		() => () => {
+	useEffect(() => {
+		dispatch(setIsEditingDashboard(true));
+		return () => {
+			dispatch(setIsEditingDashboard(false));
 			dispatch(setEditItemKey(undefined));
-		},
-		[]
-	);
-
-	const handleItemPress = useCallback((itemKey: string) => {
-		dispatch(setEditItemKey((editItemKey) => (itemKey === editItemKey ? undefined : itemKey)));
+		};
 	}, []);
-
-	const handleDragEnd = useCallback(
-		({ indexToKey }: SortableFlexDragEndParams) => {
-			setScrollEnabled(true);
-			dispatch(
-				setItems({
-					position: 'bottom',
-					items: indexToKey
-						.map((toKey) => {
-							return items.find((item) => item.key === toKey.replace('.$', ''));
-						})
-						.filter((a) => !!a),
-				})
-			);
-		},
-		[items]
-	);
 
 	return (
 		<View
 			style={{
-				height: appInnerHeight,
+				height: mapHeight,
 				display: 'flex',
 				flexDirection: 'column',
 				justifyContent: 'space-between',
 			}}
 		>
-			<ScrollView
-				style={
-					{
-						// padding: 20,
-						// backgroundColor: 'rgba(0,255,0,0.51)'
-					}
-				}
-				scrollEnabled={scrollEnabled}
-			>
+			<ScrollView scrollEnabled={true}>
 				<View
 					style={{
 						justifyContent: 'space-between',
@@ -118,14 +78,9 @@ const DashboardControlView: FC<{}> = () => {
 				<ItemControl />
 			</ScrollView>
 
-			<Dashboard
-				position={'bottom'}
-				sortEnabled={true}
-				highlightEditItem={true}
-				onDragStart={handleDragStart}
-				onDragEnd={handleDragEnd}
-				onPressItem={handleItemPress}
-			/>
+			{/*
+				Can't render the sortable dashboard here because it will break the buttons if scrollView scrolled.
+			 */}
 		</View>
 	);
 };

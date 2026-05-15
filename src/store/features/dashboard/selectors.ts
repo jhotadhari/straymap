@@ -9,6 +9,8 @@ import { DashboardItem } from './types';
 
 export const selectInitialized = (state: RootState) => state.dashboard.initialized;
 
+export const selectIsEditingDashboard = (state: RootState) => state.dashboard.isEditingDashboard;
+
 export const selectDashboardStyle = (state: RootState) => state.dashboard.dashboardStyle;
 
 export const selectItemByKey = <Options = {}>(state: RootState, key?: string) : {

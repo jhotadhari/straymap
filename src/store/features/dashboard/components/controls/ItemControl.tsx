@@ -4,7 +4,7 @@
 import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { List, Text, useTheme } from 'react-native-paper';
-import { StyleSheet, View } from 'react-native';
+import { LayoutChangeEvent, StyleSheet, View } from 'react-native';
 import { Style } from 'react-native-paper/lib/typescript/components/List/utils';
 import { sprintf } from 'sprintf-js';
 import { Icon as IconPaper } from 'react-native-paper';
@@ -126,6 +126,22 @@ const ItemControl: FC<{}> = ({}) => {
 		[position, item?.key]
 	);
 
+	const [accuHeight, setAccuHeight] = useState<number | undefined>(undefined);
+	const handleLayout = useCallback(
+		(event: LayoutChangeEvent) => {
+			const { layout } = event.nativeEvent;
+			if (!accuHeight || layout.height > accuHeight) {
+				setAccuHeight(layout.height);
+			}
+		},
+		[accuHeight]
+	);
+	useEffect(() => {
+		if (!item?.key) {
+			setAccuHeight(undefined);
+		}
+	}, [item?.key]);
+
 	return (
 		item && (
 			<List.Accordion
@@ -135,55 +151,68 @@ const ItemControl: FC<{}> = ({}) => {
 				onPress={handleAccordionPress}
 				titleStyle={theme.fonts.bodyMedium}
 			>
-				{show && (
-					<View style={styles.controls}>
-						{__DEV__ && (
-							<InfoRowControl label={'Key'}>
-								<Text>{item.key}</Text>
-							</InfoRowControl>
-						)}
-
-						{Control && <Control item={item} />}
-
+				<View
+					style={
+						undefined === accuHeight
+							? undefined
+							: {
+									minHeight: accuHeight,
+								}
+					}
+				>
+					{show && (
 						<View
-							style={{
-								justifyContent: 'space-between',
-								flexDirection: 'row',
-								marginTop: 20,
-							}}
+							style={styles.controls}
+							onLayout={handleLayout}
 						>
-							<ButtonHighlight
-								mode="outlined"
-								onPress={0 === idx ? undefined : handleMoveLeft}
-								disabled={0 === idx}
-							>
-								<IconPaper
-									source={'chevron-left'}
-									size={20}
-								/>
-							</ButtonHighlight>
+							{__DEV__ && (
+								<InfoRowControl label={'Key'}>
+									<Text>{item.key}</Text>
+								</InfoRowControl>
+							)}
 
-							<ButtonHighlight
-								mode="outlined"
-								onPress={itemsCount - 1 === idx ? undefined : handleMoveRight}
-								disabled={itemsCount - 1 === idx}
-							>
-								<IconPaper
-									source={'chevron-right'}
-									size={20}
-								/>
-							</ButtonHighlight>
+							{Control && <Control item={item} />}
 
-							<ButtonHighlight
-								icon="delete-outline"
-								mode="outlined"
-								onPress={handleRemove}
+							<View
+								style={{
+									justifyContent: 'space-between',
+									flexDirection: 'row',
+									marginTop: 20,
+								}}
 							>
-								{t('remove')} {/* // ??? */}
-							</ButtonHighlight>
+								<ButtonHighlight
+									mode="outlined"
+									onPress={0 === idx ? undefined : handleMoveLeft}
+									disabled={0 === idx}
+								>
+									<IconPaper
+										source={'chevron-left'}
+										size={20}
+									/>
+								</ButtonHighlight>
+
+								<ButtonHighlight
+									mode="outlined"
+									onPress={itemsCount - 1 === idx ? undefined : handleMoveRight}
+									disabled={itemsCount - 1 === idx}
+								>
+									<IconPaper
+										source={'chevron-right'}
+										size={20}
+									/>
+								</ButtonHighlight>
+
+								<ButtonHighlight
+									icon="delete-outline"
+									mode="outlined"
+									onPress={handleRemove}
+								>
+									{t('remove')} {/* // ??? */}
+								</ButtonHighlight>
+							</View>
 						</View>
-					</View>
-				)}
+					)}
+				</View>
 			</List.Accordion>
 		)
 	);

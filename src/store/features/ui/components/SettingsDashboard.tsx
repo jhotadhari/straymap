@@ -17,13 +17,13 @@ const SettingsDashboard: FC = () => {
 
 	const { width } = useSafeAreaFrame();
 
-	const { appInnerHeight } = useContext(AppContext);
+	const { mapHeight } = useContext(AppContext);
 
 	return (
 		<View
 			style={{
 				backgroundColor: theme.colors.background,
-				height: appInnerHeight,
+				height: mapHeight,
 				width,
 				position: 'absolute',
 				zIndex: 9,
