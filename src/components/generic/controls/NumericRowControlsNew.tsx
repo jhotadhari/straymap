@@ -217,6 +217,9 @@ export const SegmentedNumericRowControl = ({
 	const handleBlurCbRef = useRef<undefined | (() => void)>(undefined);
 	useEffect(() => {
 		handleBlurCbRef.current = () => {
+			if ( ! numValueActive ) {
+				return;
+			}
 			let newValNb = strValToNb(val, numType);
 			if (
 				'number' !== typeof newValNb ||
@@ -235,6 +238,7 @@ export const SegmentedNumericRowControl = ({
 		numType,
 		validate,
 		value,
+		numValueActive,
 	]);
 
 	// call handleBlur on keyboard hide.
@@ -290,13 +294,13 @@ export const SegmentedNumericRowControl = ({
 	const handleFocus = useCallback(() => {
 		if (!numValueActive) {
 			toggleOption();
-			// Fix set focus again.
-			setTimeout(() => {
-				textRef?.current?.blur();
-				setTimeout(() => {
-					textRef?.current?.focus();
-				}, 0);
-			}, 0);
+			// // Fix set focus again.
+			// setTimeout(() => {
+			// 	textRef?.current?.blur();
+			// 	setTimeout(() => {
+			// 		textRef?.current?.focus();
+			// 	}, 0);
+			// }, 0);
 		}
 	}, [
 		numValueActive,

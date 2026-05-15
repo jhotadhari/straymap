@@ -85,9 +85,13 @@ type OptionsWithUnitPref = {
 	unitPref?: Partial<UnitPref>;
 };
 
-const ItemUnitPrefControl = ({ unitPrefsKey }: { unitPrefsKey: string }) => {
+const validate = (val: number) => val >= 0 && val <= 99; // formatting function is limited to 99
 
-	const { item } = useAppSelector( state => selectEditItem<OptionsWithUnitPref>( state ) );
+const ItemUnitPrefControl: FC<{ unitPrefsKey: string; buttonLabel?: string }> = ({
+	unitPrefsKey,
+	buttonLabel,
+}) => {
+	const { item } = useAppSelector((state) => selectEditItem<OptionsWithUnitPref>(state));
 
 	const dispatch = useAppDispatch();
 	const unitPrefs = useAppSelector(selectUnitPrefs);
@@ -113,7 +117,7 @@ const ItemUnitPrefControl = ({ unitPrefsKey }: { unitPrefsKey: string }) => {
 	const updateItemRef = useRef<undefined | (() => void)>(undefined);
 	useEffect(() => {
 		updateItemRef.current = () => {
-			if ( ! item ) {
+			if (!item) {
 				return;
 			}
 			let newItem = { ...item };
@@ -152,6 +156,33 @@ const ItemUnitPrefControl = ({ unitPrefsKey }: { unitPrefsKey: string }) => {
 		value,
 	]);
 
+	const handleToggleOption = useCallback(() => {
+		if (undefined === value?.round) {
+			setValue({
+				...value,
+				round: get(unitPrefs, [unitPrefsKey, 'round']),
+			});
+		} else {
+			setValue(omit(value, 'round'));
+		}
+	}, [
+		value,
+		unitPrefs,
+	]);
+
+	const numValueActive = undefined !== value?.round;
+
+	const handleUpdate = useCallback(
+		(newValue: number) => {
+			numValueActive &&
+				setValue({
+					...value,
+					round: newValue,
+				});
+		},
+		[numValueActive]
+	);
+
 	return (
 		<View>
 			<InfoRowControl
@@ -189,27 +220,13 @@ const ItemUnitPrefControl = ({ unitPrefsKey }: { unitPrefsKey: string }) => {
 
 			<SegmentedNumericRowControl
 				label={upperFirst(t('decimalPlace', { count: 0 }))}
-				buttonLabel={t('follow global setting')}
-				numValueActive={value.hasOwnProperty('round')}
-				toggleOption={() => {
-					if (undefined === value?.round) {
-						setValue({
-							...value,
-							round: get(unitPrefs, [unitPrefsKey, 'round']),
-						});
-					} else {
-						setValue(omit(value, 'round'));
-					}
-				}}
-				value={value.round ?? get(unitPrefs, [unitPrefsKey, 'round'])}
-				onUpdate={(newValue) => {
-					setValue({
-						...value,
-						round: newValue,
-					});
-				}}
+				buttonLabel={buttonLabel}
+				numValueActive={numValueActive}
+				toggleOption={handleToggleOption}
+				value={value?.round ?? get(unitPrefs, [unitPrefsKey, 'round'])}
+				onUpdate={handleUpdate}
 				numType="int"
-				validate={(val) => val >= 0 && val <= 20}
+				validate={validate}
 			/>
 		</View>
 	);

@@ -171,7 +171,7 @@ const DraggableItem = ({
 
 					<Text>
 						{formatcoords(item.location).format('dd', {
-							decimalPlaces: 4,
+							decimalPlaces: Math.min( 4, 99 ),
 						})}
 					</Text>
 				</View>

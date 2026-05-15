@@ -3,6 +3,7 @@
  */
 import React, { FC } from 'react';
 import { View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 /**
  * Internal dependencies
@@ -12,13 +13,21 @@ import ItemFontSizeControl from '../../components/controls/ItemFontSizeControl';
 import ItemMinWidthControl from '../../components/controls/ItemMinWidthControl';
 
 const Control: FC = () => {
+	const { t } = useTranslation();
 	return (
 		<View>
-			<ItemUnitPrefControl unitPrefsKey="coordinates" />
+			<ItemUnitPrefControl
+				buttonLabel={t('follow global setting')} // ???
+				unitPrefsKey="coordinates"
+			/>
 
-			<ItemMinWidthControl />
+			<ItemMinWidthControl
+				buttonLabel={t('Use default')} // ???
+			/>
 
-			<ItemFontSizeControl />
+			<ItemFontSizeControl
+				buttonLabel={t('follow dashboard setting')} // ???
+			/>
 		</View>
 	);
 };

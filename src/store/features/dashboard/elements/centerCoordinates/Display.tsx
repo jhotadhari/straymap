@@ -86,7 +86,7 @@ const Display: FC<DashboardElementProps<Options>> = ({ item, style = {}, onPress
 								'f'
 							),
 							{
-								decimalPlaces: round,
+								decimalPlaces: Math.min( round, 99 ),
 							}
 						)}
 					</Text>

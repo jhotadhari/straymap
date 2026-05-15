@@ -1,78 +1,73 @@
 /**
  * External dependencies
  */
-import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { FC, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { List, Menu, Text, useTheme } from 'react-native-paper';
-import { StyleSheet, View } from 'react-native';
-import { Style } from 'react-native-paper/lib/typescript/components/List/utils';
-import { sprintf } from 'sprintf-js';
 
 /**
  * Internal dependencies
  */
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
-import { setElementExpanded } from '../../../ui/uiSlice';
-import { selectElementExpanded } from '../../../ui/selectors';
-import { selectDashboardStyle, selectEditItem } from '../../selectors';
-import { removeItemKey } from '../../dashboardSlice';
+import { selectEditItem } from '../../selectors';
+import { setItem } from '../../dashboardSlice';
 import * as elements from '../../elements';
-import { get, isNumber, set } from 'lodash-es';
-import { DashboardItem } from '../../types';
-import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
-import InfoRowControl from '../../../../../components/generic/controls/InfoRowControl';
-import MenuItem from '../../../../../components/generic/MenuItem';
-import { NumericRowControl } from '../../../../../components/generic/controls/NumericRowControls';
+import { get, omit } from 'lodash-es';
+import { SegmentedNumericRowControl } from '../../../../../components/generic/controls/NumericRowControlsNew';
 
-const ICON_SIZE = 24;
+const validate = (val: number) => val >= 0 && val <= 300;
 
-
-const ItemMinWidthControl = (
-	{
-		// editItem,
-		// updateElement,
-	}: {
-		// editItem: null | DashboardItem;
-		// updateElement: (newElement: DashboardItem) => void;
-	}
-) => {
+const ItemMinWidthControl: FC<{ buttonLabel?: string }> = ({ buttonLabel }) => {
 	const { t } = useTranslation();
-	const theme = useTheme();
 
-	const { position, item } = useAppSelector(selectEditItem);
+	const dispatch = useAppDispatch();
 
-	const presetStyle = () => {
-		if (!item?.style) {
-			const newEditElement = {
-				...item,
-				style: {
-					fontSize: 'default',
-					minWidth: get(elements, [item?.elementType || '', 'defaultMinWidth'], 75),
-				},
-			};
-			// updateElement(newEditElement as DashboardItem);
+	const { item } = useAppSelector(selectEditItem);
+
+	const defaultMinWidth = useMemo(
+		() => get(elements, [item?.elementType || '', 'defaultMinWidth'], 75),
+		[item?.elementType]
+	);
+
+	const handleToggleOption = useCallback(() => {
+		if (undefined === item?.minWidth) {
+			item &&
+				dispatch(
+					setItem({
+						...item,
+						minWidth: defaultMinWidth,
+					})
+				);
+		} else {
+			item && dispatch(setItem(omit(item, 'minWidth')));
 		}
-	};
-	useEffect(() => presetStyle(), []);
-	useEffect(() => presetStyle(), [item?.style]);
+	}, [
+		item,
+	]);
+
+	const handleUpdate = useCallback(
+		(newValue: number) => {
+			item &&
+				dispatch(
+					setItem({
+						...item,
+						minWidth: newValue,
+					})
+				);
+		},
+		[item]
+	);
 
 	return (
-		<View>
-			<NumericRowControl
-				label={t('minWidth')}
-				optKey={'minWidth'}
-				options={get(item, 'style', {})}
-				setOptions={(newStyle) => {
-					const newEditElement = {
-						...item,
-						style: newStyle,
-					};
-					// updateElement(newEditElement as DashboardItem);
-				}}
-				validate={(val) => val >= 0}
-				Info={t('hint.dashboard.item.minWidth')}
-			/>
-		</View>
+		<SegmentedNumericRowControl
+			label={t('minWidth')}
+			buttonLabel={buttonLabel}
+			numValueActive={undefined !== item?.minWidth}
+			toggleOption={handleToggleOption}
+			value={item?.minWidth ?? defaultMinWidth}
+			onUpdate={handleUpdate}
+			numType="int"
+			validate={validate}
+		/>
 	);
 };
 
