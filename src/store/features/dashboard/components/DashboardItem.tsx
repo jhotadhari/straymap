@@ -28,8 +28,6 @@ const Item: FC<{
 
 	const editItemKey = useAppSelector(selectEditItemKey);
 
-	console.log('debug editItemKey', editItemKey); // debug
-
 	const Display = useMemo(
 		() =>
 			get(elements, [

@@ -23,6 +23,7 @@ import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
 import InfoRowControl from '../../../../../components/generic/controls/InfoRowControl';
 import ItemMinWidthControl from './ItemMinWidthControl';
 import ItemFontSizeControl from './ItemFontSizeControl';
+import { useSafeAreaFrame } from 'react-native-safe-area-context';
 
 const ICON_SIZE = 24;
 
@@ -151,7 +152,6 @@ const ItemControl: FC<{}> = ({}) => {
 
 const styles = StyleSheet.create({
 	controls: {
-		// maxWidth: '70%',
 		marginBottom: 25,
 		paddingRight: 16,
 	},

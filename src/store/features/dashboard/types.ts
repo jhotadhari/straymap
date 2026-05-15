@@ -37,8 +37,8 @@ export type DashboardElement<Options = DashboardItemOptionsBase> = {
 		color: string;
 		size: number;
 	}>;
-	hasMinWidthControl: boolean;
-	hasFontSizeControl: boolean;
+	hasMinWidthControl?: boolean;
+	hasFontSizeControl?: boolean;
 	shouldSetHgtDirPath?: boolean;
 	defaultMinWidth: number;
 	responseInclude?: ResponseInclude;
