@@ -14,13 +14,3 @@ export const LANGUAGE_NAMES: Record<SupportedLanguage, { english: string; native
 	de: { english: 'German', native: 'Deutsch' },
 	en: { english: 'English', native: 'English' },
 };
-
-export const SLICES_WITH_LANG = [
-	'appearance',
-	'baseMap',
-	'dashboard',
-	'dirs',
-	'drawers',
-	'general',
-	'ui',
-] as const;

@@ -6,7 +6,7 @@ const { readFileSync, writeFileSync } = require('fs');
 const tsx = require('tsx/cjs/api');
 
 // Load languages from constants.
-const { SUPPORTED_LANGUAGES, FALLBACK_LANGUAGE, SLICES_WITH_LANG } = tsx.require(
+const { SUPPORTED_LANGUAGES, FALLBACK_LANGUAGE } = tsx.require(
 	path.resolve(__dirname, '../src/assets/i18n/constants.ts'),
 	__filename
 );
@@ -14,16 +14,18 @@ const { SUPPORTED_LANGUAGES, FALLBACK_LANGUAGE, SLICES_WITH_LANG } = tsx.require
 // Load utils
 const { sortDeep } = tsx.require(path.resolve(__dirname, '../src/lib/utilsGeneral.ts'), __filename);
 
+const slicesPath = '../src/store/features';
+const slices = globSync(path.resolve(__dirname, slicesPath + '/*')).map((file) => {
+	return file.replace(path.resolve(__dirname, slicesPath) + '/', '');
+});
+
 [
 	'../src/assets/i18n/',
-	...[...SLICES_WITH_LANG].map((slice) => '../src/store/features/' + slice + '/assets/i18n/'),
+	...[...slices].map((slice) => '../src/store/features/' + slice + '/assets/i18n/'),
 ].forEach((langPath) => {
-
 	// Load dataLang for fallback language.
 	const fileLangFallback = path.resolve(__dirname, langPath + FALLBACK_LANGUAGE + '.json');
-	const dataLangFallback = JSON.parse(
-		readFileSync(fileLangFallback, 'utf8')
-	);
+	const dataLangFallback = JSON.parse(readFileSync(fileLangFallback, 'utf8'));
 
 	// Loop languages and process them according to fallback language
 	[...SUPPORTED_LANGUAGES].map((lang) => {
