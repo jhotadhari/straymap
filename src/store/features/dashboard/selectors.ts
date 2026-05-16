@@ -4,10 +4,11 @@
 import createAppSelector from '../../createAppSelector';
 import { RootState } from '../../store';
 
-import * as elements from './elements';
 import { DashboardItem } from './types';
 
 export const selectInitialized = (state: RootState) => state.dashboard.initialized;
+
+export const selectElementsSettings = (state: RootState) => state.dashboard.elementsSettings;
 
 export const selectIsEditingDashboard = (state: RootState) => state.dashboard.isEditingDashboard;
 
@@ -69,10 +70,11 @@ export const selectEditItem = createAppSelector(
 );
 
 export const selectItems = createAppSelector(
+	(state: RootState) => selectElementsSettings(state),
 	(state: RootState) => state.dashboard.itemsTop,
 	(state: RootState) => state.dashboard.itemsBottom,
 	(_state: RootState, { position }: { position: string }) => position,
-	(itemsTop, itemsBottom, position): DashboardItem[] => {
+	(elementsSettings, itemsTop, itemsBottom, position): DashboardItem[] => {
 		let items: DashboardItem[] = [];
 		if ('top' === position) {
 			items = itemsTop;
@@ -80,7 +82,7 @@ export const selectItems = createAppSelector(
 			items = itemsBottom;
 		}
 		return items.filter((item) =>
-			Object.keys(elements as { [itemKey: string]: any }).includes(item.elementType)
+			Object.keys(elementsSettings).includes(item.elementType)
 		);
 	}
 );

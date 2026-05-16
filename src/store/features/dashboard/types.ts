@@ -40,3 +40,5 @@ export type DashboardElement<Options = {}> = {
 	defaultMinWidth: number;
 	responseInclude?: ResponseInclude;
 };
+
+export interface DashboardElementSetting extends Omit<DashboardElement, 'Display' | 'Control' | 'Icon'> {};

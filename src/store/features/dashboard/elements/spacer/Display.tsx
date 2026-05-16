@@ -3,16 +3,13 @@
  */
 import React, { FC, useMemo } from 'react';
 import { Text } from 'react-native-paper';
-import { get } from 'lodash-es';
 import { GestureResponderEvent, TouchableHighlight, View } from 'react-native';
 
 /**
  * Internal dependencies
  */
-import { useAppSelector } from '../../../../hooks';
 import { DashboardElementProps } from '../../types';
-import { selectDashboardStyle } from '../../selectors';
-import * as elements from '../../elements';
+import useItemStyle from '../../hooks/useItemStyle';
 
 export interface Options {}
 
@@ -26,14 +23,7 @@ const Display: FC<DashboardElementProps<Options>> = ({ item, style = {}, onPress
 		item.key,
 	]);
 
-	const dashboardStyle = useAppSelector(selectDashboardStyle);
-
-	const fontSize = dashboardStyle.fontSize;
-
-	const minWidth = useMemo(
-		() => item?.minWidth ?? get(elements, [item?.elementType || '', 'defaultMinWidth'], 75),
-		[item?.minWidth, item?.elementType]
-	);
+	const { fontSize, minWidth } = useItemStyle(item);
 
 	return (
 		<TouchableHighlight onPress={handlePress}>

@@ -3,7 +3,7 @@
  */
 import { isAnyOf, type EnhancedStore } from '@reduxjs/toolkit';
 import DefaultPreference from 'react-native-default-preference';
-import { get, isEqual, omit, set } from 'lodash-es';
+import { get, isEqual, omit, pick, set } from 'lodash-es';
 import rnUuid from 'react-native-uuid';
 
 /**
@@ -11,15 +11,18 @@ import rnUuid from 'react-native-uuid';
  */
 import {
 	addItem,
+	setDashboardStyle,
 	DashboardSettings,
 	DashboardState,
 	initialSettings,
 	removeItemKey,
 	setInitialized,
 	setItems,
+	setElementsSettings,
 } from './dashboardSlice';
 import { startAppListening } from '../../listenerMiddleware';
-import { setDashboardStyle, setElements } from './dashboardSlice';
+import * as elements from './elements';
+import { DashboardElement, DashboardElementSetting } from './types';
 
 const settingsKey = 'dashboardSettings';
 
@@ -29,33 +32,58 @@ const settingsKey = 'dashboardSettings';
  * Has to be called in index.js after the store got initialized.
  */
 export const initializeFromStorage = (store: EnhancedStore) => {
-	DefaultPreference.get(settingsKey)
-		.then((newSettingsStr) => {
-			if (newSettingsStr) {
-				const newSettings = JSON.parse(newSettingsStr) as Partial<DashboardState>;
-				if (newSettings?.itemsTop) {
-					store.dispatch(
-						setItems({
-							position: 'top',
-							items: newSettings.itemsTop,
-						})
-					);
-				}
-				if (newSettings?.itemsBottom) {
-					store.dispatch(
-						setItems({
-							position: 'bottom',
-							items: newSettings.itemsBottom,
-						})
-					);
-				}
-				if (newSettings?.dashboardStyle) {
-					store.dispatch(setDashboardStyle(newSettings.dashboardStyle));
-				}
+	Promise.all([
+		new Promise((resolve: (value: boolean) => void) => {
+			DefaultPreference.get(settingsKey)
+				.then((newSettingsStr) => {
+					if (newSettingsStr) {
+						const newSettings = JSON.parse(newSettingsStr) as Partial<DashboardState>;
+						if (newSettings?.itemsTop) {
+							store.dispatch(
+								setItems({
+									position: 'top',
+									items: newSettings.itemsTop,
+								})
+							);
+						}
+						if (newSettings?.itemsBottom) {
+							store.dispatch(
+								setItems({
+									position: 'bottom',
+									items: newSettings.itemsBottom,
+								})
+							);
+						}
+						if (newSettings?.dashboardStyle) {
+							store.dispatch(setDashboardStyle(newSettings.dashboardStyle));
+						}
+					}
+					resolve(true);
+				})
+				.catch((err: any) => {
+					console.log('ERROR', err);
+					resolve(false);
+				});
+		}),
+		new Promise((resolve: (value: boolean) => void) => {
+			const elementsSettings: { [key: string]: DashboardElementSetting } = {};
+			Object.keys(elements as { [key: string]: DashboardElement }).forEach((key) => {
+				elementsSettings[key] = omit(get(elements, key) as DashboardElement, [
+					'Display',
+					'Control',
+					'Icon',
+				]);
+			});
+			store.dispatch(setElementsSettings(elementsSettings));
+			resolve(true);
+		}),
+	])
+		.then((results: boolean[]) => {
+			if (results.every((result) => !!result)) {
+				store.dispatch(setInitialized(true));
 			}
-			store.dispatch(setInitialized(true));
 		})
-		.catch((err) => 'ERROR' + console.log(err));
+		.catch((err: any) => console.log(err));
 };
 
 /**

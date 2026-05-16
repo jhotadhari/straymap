@@ -8,9 +8,8 @@ import { useTranslation } from 'react-i18next';
  * Internal dependencies
  */
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
-import { selectEditItem } from '../../selectors';
+import { selectEditItem, selectElementsSettings } from '../../selectors';
 import { setItem } from '../../dashboardSlice';
-import * as elements from '../../elements';
 import { get, omit } from 'lodash-es';
 import { SegmentedNumericRowControl } from '../../../../../components/generic/controls/NumericRowControlsNew';
 
@@ -22,10 +21,11 @@ const ItemMinWidthControl: FC<{ buttonLabel?: string }> = ({ buttonLabel }) => {
 	const dispatch = useAppDispatch();
 
 	const { item } = useAppSelector(selectEditItem);
+	const dashboardElements = useAppSelector(selectElementsSettings);
 
 	const defaultMinWidth = useMemo(
-		() => get(elements, [item?.elementType || '', 'defaultMinWidth'], 75),
-		[item?.elementType]
+		() => get(dashboardElements, [item?.elementType || '', 'defaultMinWidth'], 75),
+		[item?.elementType,dashboardElements]
 	);
 
 	const handleToggleOption = useCallback(() => {

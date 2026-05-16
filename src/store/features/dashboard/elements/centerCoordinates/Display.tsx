@@ -15,8 +15,7 @@ import { useAppSelector } from '../../../../hooks';
 import { selectMapEventRate, selectUnitPrefs } from '../../../general/selectors';
 import { DashboardElementProps } from '../../types';
 import { UnitPref } from '../../../general/types';
-import { selectDashboardStyle } from '../../selectors';
-import * as elements from '../../elements';
+import useItemStyle from '../../hooks/useItemStyle';
 
 export interface Options {
 	unitPref?: Partial<UnitPref>;
@@ -32,9 +31,10 @@ const Display: FC<DashboardElementProps<Options>> = ({ item, style = {}, onPress
 		item.key,
 	]);
 
-	const dashboardStyle = useAppSelector(selectDashboardStyle);
 	const unitPrefs = useAppSelector(selectUnitPrefs);
 	const { currentMapEventRef } = useContext(MapContext);
+
+	const { fontSize, minWidth, textAlign } = useItemStyle(item);
 
 	const mapEventRate = useAppSelector(selectMapEventRate);
 
@@ -53,23 +53,6 @@ const Display: FC<DashboardElementProps<Options>> = ({ item, style = {}, onPress
 
 	const unit = item?.options?.unitPref?.unit ?? get(unitPrefs, ['coordinates', 'unit']);
 	const round = item?.options?.unitPref?.round ?? get(unitPrefs, ['coordinates', 'round']);
-
-	const fontSize = item?.fontSize ?? dashboardStyle.fontSize;
-
-	const minWidth = useMemo(
-		() => item?.minWidth ?? get(elements, [item?.elementType || '', 'defaultMinWidth'], 75),
-		[item?.minWidth, item?.elementType]
-	);
-
-	const textAlign : 'left' | 'right' | 'center' = useMemo(() => {
-		switch (dashboardStyle.align) {
-			case 'left':
-			case 'right':
-				return dashboardStyle.align;
-			default:
-				return 'center';
-		}
-	}, [dashboardStyle]);
 
 	return (
 		<TouchableHighlight onPress={handlePress}>

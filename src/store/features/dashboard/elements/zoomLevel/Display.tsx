@@ -3,7 +3,6 @@
  */
 import React, { FC, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { Text } from 'react-native-paper';
-import { get } from 'lodash-es';
 import { GestureResponderEvent, TouchableHighlight, View } from 'react-native';
 import { MapEventResponse } from 'react-native-mapsforge-vtm';
 
@@ -12,10 +11,9 @@ import { MapEventResponse } from 'react-native-mapsforge-vtm';
  */
 import { useAppSelector } from '../../../../hooks';
 import { selectMapEventRate } from '../../../general/selectors';
-import { selectDashboardStyle } from '../../selectors';
 import { DashboardElementProps } from '../../types';
 import { MapContext } from '../../../../../Context';
-import * as elements from '../../elements';
+import useItemStyle from '../../hooks/useItemStyle';
 
 export interface Options {}
 
@@ -29,9 +27,10 @@ const Display: FC<DashboardElementProps<Options>> = ({ item, style = {}, onPress
 		item.key,
 	]);
 
-	const dashboardStyle = useAppSelector(selectDashboardStyle);
 	const { currentMapEventRef } = useContext(MapContext);
 	const mapEventRate = useAppSelector(selectMapEventRate);
+
+	const { fontSize, minWidth, textAlign } = useItemStyle(item);
 
 	const [zoomLevel, setZoomLevel] = useState<MapEventResponse['zoomLevel']>(undefined);
 	const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -43,23 +42,6 @@ const Display: FC<DashboardElementProps<Options>> = ({ item, style = {}, onPress
 			intervalRef.current && clearInterval(intervalRef.current);
 		};
 	}, []);
-
-	const fontSize = item?.fontSize ?? dashboardStyle.fontSize;
-
-	const minWidth = useMemo(
-		() => item?.minWidth ?? get(elements, [item?.elementType || '', 'defaultMinWidth'], 75),
-		[item?.minWidth, item?.elementType]
-	);
-
-	const textAlign: 'left' | 'right' | 'center' = useMemo(() => {
-		switch (dashboardStyle.align) {
-			case 'left':
-			case 'right':
-				return dashboardStyle.align;
-			default:
-				return 'center';
-		}
-	}, [dashboardStyle]);
 
 	return (
 		<TouchableHighlight onPress={handlePress}>

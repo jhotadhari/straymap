@@ -9,47 +9,29 @@ import rnUuid from 'react-native-uuid';
  * Internal dependencies
  */
 import { SliceSettingsBase } from '../../../types';
-import { DashboardItem, DashboardStyle } from './types';
+import { DashboardElementSetting, DashboardItem, DashboardStyle } from './types';
 import { selectEditItemKey } from './selectors';
 import { AppThunk } from '../../store';
 import { getSetterThunkWithGetter } from '../baseMap/utils';
 import { arrayMoveMutable } from 'array-move';
 
 export interface DashboardSettings {
-	// elements: DashboardItem[];
 	dashboardStyle: DashboardStyle;
-
 	itemsTop: DashboardItem<any>[];
 	itemsBottom: DashboardItem<any>[];
 }
 
 export interface DashboardState extends SliceSettingsBase, DashboardSettings {
 	isEditingDashboard: boolean;
+	elementsSettings: { [key: string]: DashboardElementSetting };
 	editItemKey?: string;
 }
 
 export const initialSettings: DashboardSettings = {
-	// elements: [
-	// 	{
-	// 		elementType: 'zoomLevel',
-	// 		key: rnUuid.v4(),
-	// 	},
-	// 	{
-	// 		elementType: 'centerCoordinates',
-	// 		key: rnUuid.v4(),
-	// 		options: {
-	// 			unit: {
-	// 				key: 'default',
-	// 				round: 4,
-	// 			},
-	// 		},
-	// 	},
-	// ],
 	dashboardStyle: {
 		align: 'top',
 		fontSize: 14,
 	},
-
 	itemsTop: [],
 	itemsBottom: [
 		{
@@ -59,18 +41,13 @@ export const initialSettings: DashboardSettings = {
 		{
 			elementType: 'centerCoordinates',
 			key: rnUuid.v4(),
-			// options: {
-			// 	unit: {
-			// 		key: 'default',
-			// 		round: 4,
-			// 	},
-			// },
 		},
 	],
 };
 
 const initialState: DashboardState = {
 	initialized: false,
+	elementsSettings: {},
 	isEditingDashboard: false,
 	...initialSettings,
 };
@@ -84,11 +61,11 @@ export const dashboardSlice = createSlice({
 		setInitialized: (state, action: PayloadAction<boolean>) => {
 			state.initialized = action.payload;
 		},
+		setElementsSettings: (state, action: PayloadAction<DashboardState['elementsSettings']>) => {
+			state.elementsSettings = action.payload;
+		},
 		setIsEditingDashboard: (state, action: PayloadAction<boolean>) => {
 			state.isEditingDashboard = action.payload;
-		},
-		setElements: (state, action: PayloadAction<any>) => {
-			// ??? delete this
 		},
 		setDashboardStyle: (state, action: PayloadAction<DashboardSettings['dashboardStyle']>) => {
 			state.dashboardStyle = action.payload;
@@ -154,8 +131,8 @@ export const dashboardSlice = createSlice({
 // Export the generated action creators for use in components.
 export const {
 	setInitialized,
+	setElementsSettings,
 	setIsEditingDashboard,
-	setElements,
 	setDashboardStyle,
 	setItems,
 	addItem,

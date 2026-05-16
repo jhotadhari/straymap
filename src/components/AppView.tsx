@@ -36,13 +36,12 @@ import type { InitialPosition } from '../types';
 import { AppContext, MapContext } from '../Context';
 import Center from '../store/features/appearance/components/Center';
 import Drawers from '../store/features/drawers/components/Drawers';
-import * as dashboardElementComponents from '../store/features/dashboard/elements';
 import SplashScreen from './SplashScreen';
 import AltitudeProfile from './AltitudeProfile';
 import RoutingMapView from './RoutingMapView';
 import { useAppSelector } from '../store/hooks';
 import { selectHardwareKeys, selectMapEventRate } from '../store/features/general/selectors';
-import { selectItems } from '../store/features/dashboard/selectors';
+import { selectElementsSettings, selectItems } from '../store/features/dashboard/selectors';
 import { DashboardItem } from '../store/features/dashboard/types';
 import {
 	selectHgtDirPath,
@@ -72,13 +71,14 @@ const AppView = ({
 
 	const hardwareKeys = useAppSelector(selectHardwareKeys);
 
-	const dashboardElements = useAppSelector((state) => selectItems(state, { position: 'bottom' }));
+	const dashboardItems = useAppSelector((state) => selectItems(state, { position: 'bottom' }));
 	const mapEventRate = useAppSelector(selectMapEventRate);
 	const hgtInterpolation = useAppSelector(selectHgtInterpolation);
 	const hgtFileInfoPurgeThreshold = useAppSelector(selectHgtFileInfoPurgeThreshold);
 	const hgtDirPathStore = useAppSelector(selectHgtDirPath);
 	const hgtReadFileRate = useAppSelector(selectHgtReadFileRate);
 	const uiItems = useAppSelector(selectUiItemKeys);
+	const dashboardElements = useAppSelector(selectElementsSettings);
 
 	const { width, height } = useSafeAreaFrame();
 
@@ -89,38 +89,34 @@ const AppView = ({
 	const hgtDirPath = useMemo(
 		() =>
 			hgtDirPathStore &&
-			(dashboardElements.reduce((acc: boolean, ele: DashboardItem) => {
+			(dashboardItems.reduce((acc: boolean, ele: DashboardItem) => {
 				return acc || !ele.elementType
 					? acc
-					: get(
-							dashboardElementComponents,
-							[ele.elementType, 'shouldSetHgtDirPath'],
-							false
-						);
+					: get(dashboardElements, [ele.elementType, 'shouldSetHgtDirPath'], false);
 			}, false) as boolean)
 				? hgtDirPathStore
 				: undefined,
-		[hgtDirPathStore, dashboardElements]
+		[
+			hgtDirPathStore,
+			dashboardItems,
+			dashboardElements,
+		]
 	);
 
 	const responseInclude = useMemo(
 		() =>
-			dashboardElements.reduce(
+			dashboardItems.reduce(
 				(acc: object, ele: DashboardItem) => {
 					return ele.elementType
 						? {
 								...acc,
-								...get(
-									dashboardElementComponents,
-									[ele.elementType, 'responseInclude'],
-									{}
-								),
+								...get(dashboardElements, [ele.elementType, 'responseInclude'], {}),
 							}
 						: acc;
 				},
 				{ zoomLevel: 2 }
 			) as ResponseInclude,
-		[dashboardElements]
+		[dashboardItems, dashboardElements]
 	);
 
 	const emitsHardwareKeyUp = useMemo(

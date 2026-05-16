@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { Dispatch, FC, SetStateAction, useCallback, useState } from 'react';
+import React, { Dispatch, FC, SetStateAction, useCallback, useMemo, useState } from 'react';
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import rnUuid from 'react-native-uuid';
@@ -12,20 +12,12 @@ import { SegmentedButtons, useTheme } from 'react-native-paper';
  * Internal dependencies
  */
 import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
-import { useAppDispatch } from '../../../../hooks';
+import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { addItem, setEditItemKey } from '../../dashboardSlice';
 import ModalWrapper from '../../../../../components/generic/ModalWrapper';
 import RadioListItem from '../../../../../components/generic/RadioListItem';
 import { OptionBase } from '../../../../../types';
-import * as elements from '../../elements';
-import { DashboardElement } from '../../types';
-
-const options: OptionBase[] = Object.values(
-	elements as { [itemKey: string]: DashboardElement }
-).map((element: any) => ({
-	key: element.key,
-	label: element.label,
-}));
+import { selectElementsSettings } from '../../selectors';
 
 const SelectType: FC<{
 	option: OptionBase;
@@ -50,6 +42,17 @@ const Modal: FC<{
 	const { t } = useTranslation();
 
 	const theme = useTheme();
+
+	const elementSettings = useAppSelector(selectElementsSettings);
+
+	const options: OptionBase[] = useMemo(
+		() =>
+			Object.values(elementSettings).map((element: any) => ({
+				key: element.key,
+				label: element.label,
+			})),
+		[elementSettings]
+	);
 
 	const [position, setPosition] = useState('bottom');
 
