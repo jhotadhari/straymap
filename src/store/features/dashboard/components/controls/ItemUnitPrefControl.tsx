@@ -30,6 +30,7 @@ import { UnitPref } from '../../../general/types';
 import { setItem } from '../../dashboardSlice';
 import { OptionBase } from '../../../../../types';
 import { selectEditItem } from '../../selectors';
+import { DashboardItem } from '../../types';
 
 const UnitOption: FC<{
 	setMenuVisible: Dispatch<SetStateAction<boolean>>;
@@ -91,7 +92,7 @@ const ItemUnitPrefControl: FC<{ unitPrefsKey: string; buttonLabel?: string }> = 
 	unitPrefsKey,
 	buttonLabel,
 }) => {
-	const { item } = useAppSelector((state) => selectEditItem<OptionsWithUnitPref>(state));
+	const { item } = useAppSelector((state) => selectEditItem(state)) as { item: DashboardItem<OptionsWithUnitPref> };
 
 	const dispatch = useAppDispatch();
 	const unitPrefs = useAppSelector(selectUnitPrefs);
