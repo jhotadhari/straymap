@@ -16,7 +16,6 @@ export type DashboardItem<Options = {}> = {
 	options?: Options;
 	style?: ViewStyle;
 
-
 	fontSize?: number;
 	minWidth?: number;
 };
@@ -41,4 +40,7 @@ export type DashboardElement<Options = {}> = {
 	responseInclude?: ResponseInclude;
 };
 
-export interface DashboardElementSetting extends Omit<DashboardElement, 'Display' | 'Control' | 'Icon'> {};
+export interface DashboardElementSetting extends Omit<
+	DashboardElement,
+	'Display' | 'Control' | 'Icon'
+> {}

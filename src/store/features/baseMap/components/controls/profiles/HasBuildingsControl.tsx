@@ -34,7 +34,7 @@ const HasBuildingsControl: FC<{}> = () => {
 
 	const opt: OptionBase = useMemo(
 		() => ({
-			label: t('hasBuildings'),
+			label: t('baseMap.hasBuildings'),
 			key: 'hasBuildings',
 		}),
 		[t]

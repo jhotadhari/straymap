@@ -182,7 +182,7 @@ const DrawerControlModal: FC<{
 			visible={modalVisible}
 			onDismiss={() => setModalVisible(false)}
 			onHeaderBackPress={() => setModalVisible(false)}
-			header={t('drawer', { count: 0 })}
+			header={t('drawers.drawer', { count: 0 })}
 		>
 			{Object.values(drawerItems).map((drawerItem: DrawerItem) => (
 				<Item

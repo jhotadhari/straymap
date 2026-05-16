@@ -38,7 +38,7 @@ const LayerInfoComponent = ({ layerInfo }: { layerInfo: null | LayerInfo }) => {
 				return (
 					<View key={key}>
 						<Text>
-							{'createdBy' === key ? t('createdBy') + ': ' : ''}
+							{'createdBy' === key ? t('baseMap.createdBy') + ': ' : ''}
 							{get(layerInfo, key)}
 						</Text>
 					</View>
@@ -99,7 +99,7 @@ const Inner = ({ layerInfos }: { layerInfos: { [value: string]: LayerInfo } }) =
 						style={index + 1 !== attributions.length ? { marginBottom: 25 } : {}}
 					>
 						<Text>
-							{t('map.layer', { count: 1 })}: {attribution.name}
+							{t('baseMap.layer', { count: 1 })}: {attribution.name}
 						</Text>
 						<Text>({attribution.type})</Text>
 						<View style={{ marginLeft: 10, marginTop: 10 }}>
@@ -135,7 +135,7 @@ const MapLayersAttribution: FC<{}> = () => {
 			}}
 		>
 			<InfoButton
-				labelPattern={t('layerAttributions')}
+				labelPattern={t('baseMap.layerAttributions')}
 				headerPlural={true}
 				backgroundBlur={true}
 				Info={<Inner layerInfos={layerInfos} />}

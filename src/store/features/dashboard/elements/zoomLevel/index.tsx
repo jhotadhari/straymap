@@ -34,7 +34,7 @@ const Icon: FC<{
 
 export default {
 	key: 'zoomLevel',
-	label: 'zoomLevel',
+	label: 'dashboard.zoomLevel',
 	Display,
 	Control,
 	Icon,

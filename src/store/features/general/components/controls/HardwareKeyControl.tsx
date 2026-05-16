@@ -21,25 +21,25 @@ import { setHardwareKeys } from '../../generalSlice';
 const keyCodeStringOptions: OptionBase[] = [
 	{
 		key: 'KEYCODE_VOLUME_UP',
-		label: 'volumeUp',
+		label: 'baseMap.volumeUp',
 	},
 	{
 		key: 'KEYCODE_VOLUME_DOWN',
-		label: 'volumeDown',
+		label: 'baseMap.volumeDown',
 	},
 ];
 const actionKeyOptions: OptionBase[] = [
 	{
-		key: 'none',
+		key: 'baseMap.none',
 		label: 'nothing',
 	},
 	{
 		key: 'zoomIn',
-		label: 'zoomIn',
+		label: 'baseMap.zoomIn',
 	},
 	{
 		key: 'zoomOut',
-		label: 'zoomOut',
+		label: 'baseMap.zoomOut',
 	},
 ];
 
@@ -130,7 +130,7 @@ const HardwareKeyControl = () => {
 
 	return (
 		<ListItemModalControl
-			anchorLabel={t('hardwareKeyAssignment')}
+			anchorLabel={t('general.hardwareKeyAssignment')}
 			anchorIcon={({ color, style }) => (
 				<View style={style}>
 					<Icon
@@ -140,7 +140,7 @@ const HardwareKeyControl = () => {
 					/>
 				</View>
 			)}
-			header={t('hardwareKey', { count: 0 })}
+			header={t('general.hardwareKey', { count: 0 })}
 			hasHeaderBackPress={true}
 		>
 			{keyCodeStringOptions.map((keyCodeStringOption: OptionBase) => (

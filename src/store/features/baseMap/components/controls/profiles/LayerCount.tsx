@@ -52,15 +52,15 @@ const LayerCount = ({ profile }: { profile: MapsforgeProfile }) => {
 	);
 
 	return (
-		<InfoRowControl label={t('layer', { count: 0 })}>
+		<InfoRowControl label={t('baseMap.layerShort', { count: 0 })}>
 			<View style={styles.content}>
 				<Text style={styles.listItem}>
-					{sprintf(t('layerSelectedCount', { count: layersCount }), layersCount)}
+					{sprintf(t('baseMap.layerSelectedCount', { count: layersCount }), layersCount)}
 				</Text>
 				{isDefaultProfile && (
 					<Text style={styles.listItem}>
 						{sprintf(
-							t('layerSelectedDefaultCount', { count: layersCountDefault }),
+							t('baseMap.layerSelectedDefaultCount', { count: layersCountDefault }),
 							layersCountDefault
 						)}
 					</Text>

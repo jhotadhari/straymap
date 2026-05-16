@@ -43,7 +43,7 @@ const ColorRowControl = ({
 	);
 
 	return (
-		<InfoRowControl label={t('color')}>
+		<InfoRowControl label={t('appearance.color')}>
 			<ColorPicker
 				color={cursorConfig?.color}
 				onColorChange={handleChange}
@@ -56,11 +56,11 @@ const initialOptsMap = {
 	[' ']: [
 		{
 			key: 'target',
-			label: 'target',
+			label: 'appearance.target',
 		},
 		{
 			key: 'target-variant',
-			label: 'target-variant',
+			label: 'appearance.target-variant',
 		},
 	],
 };
@@ -110,7 +110,7 @@ const CenterControl = () => {
 					)}
 				</View>
 			)}
-			header={t('cursor')}
+			header={t('appearance.cursor')}
 			hasHeaderBackPress={true}
 		>
 			<FileSourceRowControl
@@ -122,18 +122,18 @@ const CenterControl = () => {
 				initialOptsMap={initialOptsMap}
 				extensions={['svg', 'png']}
 				dirs={get(appDirs, 'cursor', [])}
-				Info={t('hint.center.file')}
+				Info={t('appearance.hint.center.file')}
 				filesHeading={sprintf(t('filesIn'), '(svg|png)')}
 				noFilesHeading={sprintf(t('noFilesIn'), '(svg|png)')}
 				hasCustom={true}
 			/>
 
 			<NumericRowControl
-				label={t('size [px]')}
+				label={t('sizePx]')}
 				optKey={'size'}
 				options={cursorConfig as object}
 				setOptions={updateCursor}
-				validate={(val) => val >= 0 && val <= 1000 }
+				validate={(val) => val >= 0 && val <= 1000}
 			/>
 
 			{cursorConfig?.iconSource &&
@@ -145,7 +145,7 @@ const CenterControl = () => {
 					/>
 				)}
 
-			<InfoRowControl label={t('preview')}>
+			<InfoRowControl label={t('appearance.preview')}>
 				<CenterInner cursor={cursorConfig} />
 			</InfoRowControl>
 		</ListItemModalControl>

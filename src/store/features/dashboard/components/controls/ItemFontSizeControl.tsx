@@ -53,13 +53,13 @@ const ItemFontSizeControl: FC<{ buttonLabel?: string }> = ({ buttonLabel }) => {
 					})
 				);
 		},
-		[item,numValueActive]
+		[item, numValueActive]
 	);
 
 	return (
 		<SegmentedNumericRowControl
-			label={t('fontSize')}
-			Info={t('hint.dashboard.item.fontSize')}
+			label={t('dashboard.fontSize')}
+			Info={t('dashboard.hint.item.fontSize')}
 			buttonLabel={buttonLabel}
 			numValueActive={undefined !== item?.fontSize}
 			toggleOption={handleToggleOption}

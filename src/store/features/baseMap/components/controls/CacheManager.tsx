@@ -71,8 +71,8 @@ const CacheRow = ({
 
 					<Text style={{ marginTop: 5 }}>
 						{cacheLayers.length
-							? t('map.layer', { count: cacheLayers.length }) + ': '
-							: t('noLayerUseCache')}
+							? t('baseMap.layer', { count: cacheLayers.length }) + ': '
+							: t('baseMap.noLayerUseCache')}
 						{cacheLayers.length
 							? [...cacheLayers].map((layer) => layer.name).join(', ')
 							: ''}

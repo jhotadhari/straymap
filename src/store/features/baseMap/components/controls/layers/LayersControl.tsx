@@ -285,11 +285,11 @@ const EditModal: FC<{
 		<ModalWrapper
 			visible={modalVisible}
 			onDismiss={handleDismissModal}
-			header={layerTemp.type ? t('map.layerEdit') : t('map.addNewLayerShort')}
+			header={layerTemp.type ? t('baseMap.layerEdit') : t('baseMap.addNewLayerShort')}
 		>
 			{!layerTemp.type && (
 				<View>
-					<Text style={styles.selectType}>{t('map.selectType')}</Text>
+					<Text style={styles.selectType}>{t('baseMap.selectType')}</Text>
 					{[...mapTypeOptions].map((opt: LayerOption) => (
 						<OptionSelectType
 							key={opt.key}
@@ -302,14 +302,14 @@ const EditModal: FC<{
 			{layerTemp.type && (
 				<View>
 					<View style={styles.modalRowType}>
-						<Text style={styles.modalRowTypeLabel}>{t('map.mapType')}:</Text>
+						<Text style={styles.modalRowTypeLabel}>{t('baseMap.mapType')}:</Text>
 						<Text>{layerTemp.type}</Text>
 					</View>
 
 					<NameRowControl
 						item={layerTemp}
 						update={handleNameUpdate}
-						Info={t('hint.nameId')}
+						Info={t('basemap.hint.nameId')}
 					/>
 
 					<VisibilityRowControl
@@ -341,7 +341,7 @@ const EditModal: FC<{
 							buttonColor={theme.colors.errorContainer}
 							textColor={theme.colors.onErrorContainer}
 						>
-							<Text>{t('map.layerRemove')}</Text>
+							<Text>{t('baseMap.layerRemove')}</Text>
 						</ButtonHighlight>
 					</View>
 				</View>
@@ -486,7 +486,7 @@ const LayersControl = ({
 			/>
 
 			<List.Accordion
-				title={t('map.layer', { count: 0 })}
+				title={t('baseMap.layer', { count: 0 })}
 				left={ControlIcon}
 				expanded={expanded}
 				onPress={handleAccordionPress}
@@ -507,15 +507,15 @@ const LayersControl = ({
 				)}
 
 				{!layers.length && (
-					<Text style={stylesGeneric.itemsNone}>{t('map.layersNone')}</Text>
+					<Text style={stylesGeneric.itemsNone}>{t('baseMap.layersNone')}</Text>
 				)}
 
 				<View style={stylesGeneric.controls}>
 					<InfoButton
-						label={t('map.layer', { count: 0 })}
+						label={t('baseMap.layer', { count: 0 })}
 						headerPlural={true}
 						backgroundBlur={true}
-						Info={t('hint.maps.layers')}
+						Info={t('baseMap.hint.layers')}
 						buttonProps={infoButtonProps}
 					/>
 

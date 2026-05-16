@@ -46,7 +46,7 @@ const ProfileRowControl = ({
 		() => [
 			{
 				key: 'default',
-				label: 'useFirstOne',
+				label: 'baseMap.useFirstOne',
 			},
 			...[...profiles].map((prof) => {
 				const themeArr = prof.theme.split('/');
@@ -94,7 +94,7 @@ const ProfileRowControl = ({
 
 	return (
 		<InfoRowControl
-			label={t('map.mapsforge.profile', { count: 1 })}
+			label={t('baseMap.mapsforge.profile', { count: 1 })}
 			Info={Info}
 		>
 			<View style={styles.flexRow}>
@@ -178,10 +178,10 @@ const MapFileControlInfo: FC<{}> = ({}) => {
 
 	return (
 		<View>
-			<Text>{t('hint.maps.mapsforgeFile')}</Text>
+			<Text>{t('baseMap.hint.mapsforgeFile')}</Text>
 			<Text style={style}>{'Downloads:'}</Text>
 			<HintLink
-				label={t('hint.link.openandromapsDownloads')}
+				label={t('link.openandromapsDownloads')}
 				url={'https://www.openandromaps.org/en/downloads'}
 			/>
 		</View>
@@ -259,8 +259,8 @@ const LayerControlMapsforge: FC<{}> = ({}) => {
 	return (
 		<View>
 			<FileSourceRowControl
-				header={t('map.selectFile')}
-				label={t('map.file')}
+				header={t('baseMap.selectFile')}
+				label={t('baseMap.file')}
 				options={layerTemp.options}
 				optionsKey={'mapFile'}
 				onSelect={handleMapFileChange}
@@ -275,7 +275,7 @@ const LayerControlMapsforge: FC<{}> = ({}) => {
 			<ProfileRowControl
 				options={layerTemp.options}
 				setOptions={setOptions}
-				Info={t('hint.maps.mapsforgeProfile')}
+				Info={t('baseMap.hint.mapsforgeProfile')}
 			/>
 
 			<NumericMultiRowControl
@@ -285,7 +285,7 @@ const LayerControlMapsforge: FC<{}> = ({}) => {
 				options={layerTemp.options}
 				setOptions={setOptions}
 				validate={validateZoom}
-				Info={t('hint.maps.enabled') + '\n\n' + t('hint.maps.zoomGeneralInfo')}
+				Info={t('baseMap.hint.enabled') + '\n\n' + t('baseMap.hint.zoomGeneralInfo')}
 			/>
 		</View>
 	);

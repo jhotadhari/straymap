@@ -1,0 +1,36 @@
+{
+	"alignment": "Ausrichtung",
+	"dashboard": "Dashboard",
+	"dashboardItem": "Dashboard-Element",
+	"dashboardItem_other": "Dashboard-Elemente",
+	"dashboardItemNew": "Neues Dashboard-Element",
+	"dashboardItemsNone": "Keine Dashboard-Elemente",
+	"updateRate": "Aktualisierungsrate",
+	"fontSize": "Schriftgröße",
+	"minWidth": "Mindestbreite",
+	"useUnitPref": "Bevorzugte Einheit verwenden",
+	"zoomLevel": "Kartenzoomstufe",
+	"centerCoordinates": "Koordinaten der Kartenmitte",
+	"centerAltitude": "Höhe der Kartenmitte",
+	"spacer": "Platzhalter",
+	"align": {
+		"center": "Mittig",
+		"left": "Links",
+		"right": "Rechts",
+		"around": "Ringsherum",
+		"between": "Dazwischen",
+		"evenly": "Gleichmäßig"
+	},
+	"hint": {
+		"missingHgtDirPath": "In den allgemeinen Einstellungen muss ein digitales Höhenmodell definiert werden, damit die Höhe der Kartenmitte angezeigt werden kann.",
+		"items": "Das dashboard kann uns verschiedene Informationen über die Karte, unsere Position und die Route oder den Track anzeigen.\n\nDie einzelnen Elemente können per Drag-and-Drop sortiert werden",
+		"fontSize": "Standardschriftgröße für alle Dashboard-Elemente.\n\nGilt für alle Dashboard-Elemente, für die keine Schriftgröße angegeben ist.",
+		"alignment": "Legt fest, wie der Raum zwischen den Dashboard-Elementen und um sie herum entlang der x-Achse verteilt wird.",
+		"updateRate": "Wie schnell die Elemente des Dashboards aktualisiert werden.\n\nEine schnelle Aktualisierungsrate kann auf langsamen Geräten zu Leistungseinbußen führen.",
+		"item": {
+			"fontSize": "Schriftgröße des Dashboard-Elements.",
+			"minWidth": "Die Mindestbreite des Dashboard-Elements in Pixeln.",
+			"unit": "Die Einheit, in der das Dashboard-Element angezeigt wird.\n\nDie Standardeinstellung der Einheit kann in den allgemeinen Einstellungen unter „Bevorzugte Einheiten“ angepasst werden."
+		}
+	}
+}

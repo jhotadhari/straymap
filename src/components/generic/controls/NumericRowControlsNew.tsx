@@ -1,14 +1,7 @@
 /**
  * External dependencies
  */
-import {
-	ReactNode,
-	useCallback,
-	useEffect,
-	useMemo,
-	useRef,
-	useState,
-} from 'react';
+import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { StyleSheet, TextStyle, View, ViewStyle } from 'react-native';
 import { Text, useTheme, TextInput } from 'react-native-paper';
 
@@ -202,7 +195,7 @@ export const SegmentedNumericRowControl = ({
 	const saveCbRef = useRef<undefined | ((newValue: number) => void)>(undefined);
 	useEffect(() => {
 		saveCbRef.current = (newValue: number) => {
-			if ( newValue !== strValToNb(value + '', numType)) {
+			if (newValue !== strValToNb(value + '', numType)) {
 				onUpdate(newValue);
 			}
 		};
@@ -214,7 +207,7 @@ export const SegmentedNumericRowControl = ({
 	const handleBlurCbRef = useRef<undefined | (() => void)>(undefined);
 	useEffect(() => {
 		handleBlurCbRef.current = () => {
-			if ( ! numValueActive ) {
+			if (!numValueActive) {
 				return;
 			}
 			let newValNb = strValToNb(val, numType);
@@ -278,7 +271,6 @@ export const SegmentedNumericRowControl = ({
 		() => handleBlurCbRef?.current && handleBlurCbRef?.current(),
 		[handleBlurCbRef?.current]
 	);
-
 
 	const handleButtonPress = useCallback(() => {
 		numValueActive && toggleOption();
@@ -349,7 +341,7 @@ export const SegmentedNumericRowControl = ({
 
 const styles = StyleSheet.create({
 	flexRow: {
-		position:'relative',
+		position: 'relative',
 		display: 'flex',
 		flexDirection: 'row',
 		justifyContent: 'space-between',

@@ -40,7 +40,7 @@ const ThemeControl: FC = () => {
 
 	return (
 		<ListItemMenuControl
-			anchorLabel={t('selectTheme')}
+			anchorLabel={t('appearance.selectTheme')}
 			anchorLabelAppendSelected={true}
 			options={options}
 			setValue={handleChange}

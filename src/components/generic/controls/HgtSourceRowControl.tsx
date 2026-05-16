@@ -104,11 +104,11 @@ const HgtSourceRowControl = ({
 						{'DEM Downloads:'}
 					</Text>
 					<HintLink
-						label={t('hint.link.digitalEleData')}
+						label={t('link.digitalEleData')}
 						url={'https://viewfinderpanoramas.org/dem3.html'}
 					/>
 					<HintLink
-						label={t('hint.link.digitalEleDataCoverage')}
+						label={t('link.digitalEleDataCoverage')}
 						url={
 							'https://viewfinderpanoramas.org/Coverage%20map%20viewfinderpanoramas_org3.htm'
 						}

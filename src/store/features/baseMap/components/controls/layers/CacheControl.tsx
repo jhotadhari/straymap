@@ -107,17 +107,17 @@ const CacheControl = ({
 	return (
 		<View>
 			<NumericRowControl
-				label={t('cacheSize')}
+				label={t('baseMap.cacheSize')}
 				optKey={'cacheSize'}
 				options={options}
 				setOptions={setOptions}
 				validate={(val) => val >= 0}
-				Info={t('hint.maps.cache') + '\n\n' + t('hint.maps.cacheSize')}
+				Info={t('baseMap.hint.cache') + '\n\n' + t('baseMap.hint.cacheSize')}
 			/>
 
 			<InfoRowControl
-				label={t('cacheDir')}
-				Info={t('hint.maps.cache') + '\n\n' + t('hint.maps.cacheDir')}
+				label={t('baseMap.cacheDir')}
+				Info={t('baseMap.hint.cache') + '\n\n' + t('baseMap.hint.cacheDir')}
 			>
 				<ListItemMenuControl
 					options={opts}

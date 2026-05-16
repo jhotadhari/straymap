@@ -17,31 +17,31 @@ import SettingsDashboard from './components/SettingsDashboard';
 export const uiItems: UiItem[] = [
 	{
 		key: 'settings',
-		label: 'uiItems.settings',
+		label: 'ui.items.settings',
 		icon: 'cog',
 		Component: <Settings />,
 	},
 	{
 		key: 'about',
-		label: 'uiItems.about',
+		label: 'ui.items.about',
 		icon: 'information-variant',
 		Component: <About />,
 	},
 	{
 		key: 'maps',
-		label: 'uiItems.maps',
+		label: 'ui.items.maps',
 		icon: 'map',
 		Component: <SettingsMaps />,
 	},
 	{
 		key: 'general',
-		label: 'uiItems.general',
+		label: 'ui.items.general',
 		icon: 'application-cog-outline',
 		Component: <SettingsGeneral />,
 	},
 	{
 		key: 'dashboard',
-		label: 'uiItems.dashboard',
+		label: 'ui.items.dashboard',
 		icon: ({ color, style }) => (
 			<MaterialIcons
 				style={style}
@@ -54,7 +54,7 @@ export const uiItems: UiItem[] = [
 	},
 	{
 		key: 'appearance',
-		label: 'uiItems.appearance',
+		label: 'ui.items.appearance',
 		icon: ({ color, style }) => (
 			<MaterialIcons
 				style={style}

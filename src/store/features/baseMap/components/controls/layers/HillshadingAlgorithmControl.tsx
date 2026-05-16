@@ -77,7 +77,7 @@ const HillshadingAlgorithmControl: FC<{}> = () => {
 		() =>
 			Object.keys(LayerHillshading.shadingAlgorithms).map((key) => ({
 				key: LayerHillshading.shadingAlgorithms[key],
-				label: t('shadingAlgorithms.' + key + '.label'),
+				label: t('baseMap.shadingAlgorithms.' + key + '.label'),
 			})),
 		[
 			t,
@@ -129,8 +129,8 @@ const HillshadingAlgorithmControl: FC<{}> = () => {
 
 	return (
 		<InfoRowControl
-			label={t('algorithm')}
-			Info={t('hint.maps.shadingAlgorithm')}
+			label={t('baseMap.algorithm')}
+			Info={t('baseMap.hint.shadingAlgorithm')}
 		>
 			{modalVisible && (
 				<ModalWrapper
@@ -138,10 +138,10 @@ const HillshadingAlgorithmControl: FC<{}> = () => {
 					backgroundBlur={false}
 					onDismiss={() => setModalVisible(false)}
 					onHeaderBackPress={() => setModalVisible(false)}
-					header={t('shadingAlgorithm')}
+					header={t('baseMap.shadingAlgorithm')}
 				>
 					<InfoRowControl
-						label={t('algorithm')}
+						label={t('baseMap.algorithm')}
 						onLabelPress={toggleAlgoInfo}
 					>
 						<ListItemMenuControl
@@ -170,10 +170,12 @@ const HillshadingAlgorithmControl: FC<{}> = () => {
 								marginLeft: 0,
 							}}
 						>
-							<Text>{t('shadingAlgorithms.' + shadingAlgoKey + '.info')}</Text>
+							<Text>
+								{t('baseMap.shadingAlgorithms.' + shadingAlgoKey + '.info')}
+							</Text>
 							{get(algorithmLinks, shadingAlgoKey) && (
 								<HintLink
-									label={t('More information, read the code') + ':'}
+									label={t('More information, read the code') + ':'} // ??? missing translation
 									url={get(algorithmLinks, shadingAlgoKey)}
 								/>
 							)}
@@ -182,71 +184,71 @@ const HillshadingAlgorithmControl: FC<{}> = () => {
 
 					{shadingAlgorithmsOptionKeys.includes('linearity') && (
 						<NumericRowControl
-							label={t('shadingOptions.linearity.label')}
+							label={t('baseMap.shadingOptions.linearity.label')}
 							optKey={'linearity'}
 							options={algOpts}
 							setOptions={setAlgOpts}
 							numType="float"
-							Info={t('shadingOptions.linearity.hint')}
+							Info={t('baseMap.shadingOptions.linearity.hint')}
 						/>
 					)}
 
 					{shadingAlgorithmsOptionKeys.includes('scale') && (
 						<NumericRowControl
-							label={t('shadingOptions.scale.label')}
+							label={t('baseMap.shadingOptions.scale.label')}
 							optKey={'scale'}
 							options={algOpts}
 							setOptions={setAlgOpts}
 							validate={(val) => val > 0}
 							numType="float"
-							Info={t('shadingOptions.scale.hint')}
+							Info={t('baseMap.shadingOptions.scale.hint')}
 						/>
 					)}
 
 					{shadingAlgorithmsOptionKeys.includes('heightAngle') && (
 						<NumericRowControl
-							label={t('shadingOptions.heightAngle.label')}
+							label={t('baseMap.shadingOptions.heightAngle.label')}
 							optKey={'heightAngle'}
 							options={algOpts}
 							setOptions={setAlgOpts}
 							validate={(val) => val >= 0 && val <= 90}
-							Info={t('shadingOptions.heightAngle.hint')}
+							Info={t('baseMap.shadingOptions.heightAngle.hint')}
 						/>
 					)}
 
 					{shadingAlgorithmsOptionKeys.includes('maxSlope') && (
 						<NumericRowControl
-							label={t('shadingOptions.maxSlope.label')}
+							label={t('baseMap.shadingOptions.maxSlope.label')}
 							optKey={'maxSlope'}
 							options={algOpts}
 							setOptions={setAlgOpts}
 							validate={(val) => val > 0 && val < 100}
 							numType="float"
-							Info={t('shadingOptions.maxSlope.hint')}
+							Info={t('baseMap.shadingOptions.maxSlope.hint')}
 						/>
 					)}
 
 					{shadingAlgorithmsOptionKeys.includes('minSlope') && (
 						<NumericRowControl
-							label={t('shadingOptions.minSlope.label')}
+							label={t('baseMap.shadingOptions.minSlope.label')}
 							optKey={'minSlope'}
 							options={algOpts}
 							setOptions={setAlgOpts}
 							validate={(val) => val >= 0 && val < 100}
 							numType="float"
-							Info={t('shadingOptions.minSlope.hint')}
+							Info={t('baseMap.shadingOptions.minSlope.hint')}
 						/>
 					)}
 
 					{shadingAlgorithmsOptionKeys.includes('asymmetryFactor') && (
 						<NumericRowControl
-							label={t('shadingOptions.asymmetryFactor.label')}
+							label={t('baseMap.shadingOptions.asymmetryFactor.label')}
 							optKey={'asymmetryFactor'}
 							options={algOpts}
 							setOptions={setAlgOpts}
 							validate={(val) => val >= 0 && val <= 1}
 							numType="float"
-							Info={t('shadingOptions.asymmetryFactor.hint')}
+							Info={t('baseMap.shadingOptions.asymmetryFactor.hint')}
 						/>
 					)}
 
@@ -267,13 +269,13 @@ const HillshadingAlgorithmControl: FC<{}> = () => {
 								<View>
 									{shadingAlgorithmsOptionKeys.includes('qualityScale') && (
 										<NumericRowControl
-											label={t('shadingOptions.qualityScale.label')}
+											label={t('baseMap.shadingOptions.qualityScale.label')}
 											optKey={'qualityScale'}
 											options={algOpts}
 											setOptions={setAlgOpts}
 											validate={(val) => val >= 0 && val <= 1}
 											numType="float"
-											Info={t('shadingOptions.qualityScale.hint')}
+											Info={t('baseMap.shadingOptions.qualityScale.hint')}
 										/>
 									)}
 
@@ -281,12 +283,16 @@ const HillshadingAlgorithmControl: FC<{}> = () => {
 										'readingThreadsCount'
 									) && (
 										<NumericRowControl
-											label={t('shadingOptions.readingThreadsCount.label')}
+											label={t(
+												'baseMap.shadingOptions.readingThreadsCount.label'
+											)}
 											optKey={'readingThreadsCount'}
 											options={algOpts}
 											setOptions={setAlgOpts}
 											validate={(val) => val > 0 || val === -1}
-											Info={t('shadingOptions.readingThreadsCount.hint')}
+											Info={t(
+												'baseMap.shadingOptions.readingThreadsCount.hint'
+											)}
 										/>
 									)}
 
@@ -294,12 +300,16 @@ const HillshadingAlgorithmControl: FC<{}> = () => {
 										'computingThreadsCount'
 									) && (
 										<NumericRowControl
-											label={t('shadingOptions.computingThreadsCount.label')}
+											label={t(
+												'baseMap.shadingOptions.computingThreadsCount.label'
+											)}
 											optKey={'computingThreadsCount'}
 											options={algOpts}
 											setOptions={setAlgOpts}
 											validate={(val) => val > 0 || val === -1}
-											Info={t('shadingOptions.computingThreadsCount.hint')}
+											Info={t(
+												'baseMap.shadingOptions.computingThreadsCount.hint'
+											)}
 										/>
 									)}
 								</View>

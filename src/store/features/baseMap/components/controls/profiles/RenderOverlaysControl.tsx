@@ -135,7 +135,7 @@ const ControlModal: FC<{
 							buttonColor={get(theme.colors, 'primaryContainer')}
 							textColor={get(theme.colors, 'onPrimaryContainer')}
 						>
-							<Text>{t('select.toggle')}</Text>
+							<Text>{t('baseMap.select.toggle')}</Text>
 						</ButtonHighlight>
 					)}
 
@@ -149,8 +149,8 @@ const ControlModal: FC<{
 					<Text>
 						{t(
 							profileTemp && profileTemp.renderOverlays.length < opts.length
-								? 'select.all'
-								: 'select.none'
+								? 'baseMap.select.all'
+								: 'baseMap.select.none'
 						)}
 					</Text>
 				</ButtonHighlight>
@@ -238,18 +238,18 @@ const RenderOverlaysControl: FC<{
 						{profileTemp && (
 							<Text>
 								{opts.length === profileTemp.renderOverlays.length
-									? t('selected.all')
+									? t('baseMap.selected.all')
 									: 0 === profileTemp.renderOverlays.length
-										? t('selected.none')
+										? t('baseMap.selected.none')
 										: t(
 												profileTemp.renderOverlays
 													? sprintf(
-															t('selected.count'),
+															t('baseMap.selected.count'),
 															profileTemp.renderOverlays.length +
 																'/' +
 																opts.length
 														)
-													: 'selected.none'
+													: 'baseMap.selected.none'
 											)}
 							</Text>
 						)}

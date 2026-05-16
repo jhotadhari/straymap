@@ -290,8 +290,8 @@ const SourceRowControl: FC<{}> = () => {
 
 	return (
 		<InfoRowControl
-			label={t('map.source')}
-			Info={t('hint.maps.xyzSource')}
+			label={t('baseMap.source')}
+			Info={t('baseMap.hint.xyzSource')}
 			Below={
 				<View
 					style={{
@@ -455,7 +455,7 @@ const LayerControlOnlineRasterXYZ: FC<{}> = () => {
 				options={layerTemp?.options ?? {}}
 				setOptions={setOptions}
 				validate={validateZoom}
-				Info={t('hint.maps.enabled') + '\n\n' + t('hint.maps.zoomGeneralInfo')}
+				Info={t('baseMap.hint.enabled') + '\n\n' + t('baseMap.hint.zoomGeneralInfo')}
 			/>
 
 			<NumericMultiRowControl
@@ -465,7 +465,7 @@ const LayerControlOnlineRasterXYZ: FC<{}> = () => {
 				options={layerTemp?.options ?? {}}
 				setOptions={setOptions}
 				validate={validateZoom}
-				Info={t('hint.maps.zoom') + '\n\n' + t('hint.maps.zoomGeneralInfo')}
+				Info={t('baseMap.hint.zoom') + '\n\n' + t('baseMap.hint.zoomGeneralInfo')}
 			/>
 
 			<NumericRowControl
@@ -475,7 +475,7 @@ const LayerControlOnlineRasterXYZ: FC<{}> = () => {
 				options={layerTemp?.options ?? {}}
 				setOptions={setOptions}
 				validate={(val) => val >= 0 && val <= 1}
-				Info={t('hint.maps.opacity')}
+				Info={t('baseMap.hint.opacity')}
 			/>
 
 			<CacheControl

@@ -61,14 +61,14 @@ const GeneralControl: FC<{}> = () => {
 		>
 			<View style={styles.controls}>
 				<NumericRowControl
-					label={t('updateRate')}
+					label={t('dashboard.updateRate')}
 					optKey={'mapEventRate'}
 					options={{ mapEventRate }}
 					setOptions={({ mapEventRate }) => {
 						dispatch(setMapEventRate(mapEventRate));
 					}}
-					validate={(val) => val >= 0 && val <= 20000 }
-					Info={t('hint.dashboard.updateRate')}
+					validate={(val) => val >= 0 && val <= 20000}
+					Info={t('dashboard.hint.updateRate')}
 				/>
 			</View>
 		</List.Accordion>

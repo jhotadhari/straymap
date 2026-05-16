@@ -44,7 +44,7 @@ const DisplayComponent = () => {
 				mode="outlined"
 				onPress={() => dispatch(setUiItemKeys(['settings', 'maps']))}
 			>
-				<Text>{t('openMapsSettings')}</Text>
+				<Text>{t('drawers.openMapsSettings')}</Text>
 			</ButtonHighlight>
 
 			<LayersControl

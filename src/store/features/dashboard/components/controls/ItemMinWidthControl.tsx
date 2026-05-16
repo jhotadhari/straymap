@@ -25,7 +25,7 @@ const ItemMinWidthControl: FC<{ buttonLabel?: string }> = ({ buttonLabel }) => {
 
 	const defaultMinWidth = useMemo(
 		() => get(dashboardElements, [item?.elementType || '', 'defaultMinWidth'], 75),
-		[item?.elementType,dashboardElements]
+		[item?.elementType, dashboardElements]
 	);
 
 	const handleToggleOption = useCallback(() => {
@@ -56,12 +56,12 @@ const ItemMinWidthControl: FC<{ buttonLabel?: string }> = ({ buttonLabel }) => {
 					})
 				);
 		},
-		[item,numValueActive]
+		[item, numValueActive]
 	);
 
 	return (
 		<SegmentedNumericRowControl
-			label={t('minWidth')}
+			label={t('dashboard.minWidth')}
 			buttonLabel={buttonLabel}
 			numValueActive={undefined !== item?.minWidth}
 			toggleOption={handleToggleOption}

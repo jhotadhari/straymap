@@ -175,8 +175,8 @@ const EditModal: FC<{
 			onDismiss={handleDismissModal}
 			header={
 				isNewKey === profileTemp.key
-					? t('map.mapsforge.profileAddNewShort')
-					: t('map.mapsforge.profileEdit')
+					? t('baseMap.mapsforge.profileAddNewShort')
+					: t('baseMap.mapsforge.profileEdit')
 			}
 		>
 			<View>
@@ -184,7 +184,7 @@ const EditModal: FC<{
 					item={profileTemp}
 					update={handleNameUpdate}
 					// Info={isBusy ? undefined : t('hint.nameId')}
-					Info={t('hint.nameId')}
+					Info={t('baseMap.hint.nameId')}
 				/>
 
 				<LayerCount profile={profileTemp} />
@@ -193,13 +193,13 @@ const EditModal: FC<{
 
 				<RenderStyleControl
 					AlternativeButton={isBusy ? <LoadingIndicator /> : undefined}
-					Info={isBusy ? undefined : t('hint.maps.mapsforgeProfileStyle')}
+					Info={isBusy ? undefined : t('baseMap.hint.mapsforgeProfileStyle')}
 				/>
 
 				<RenderOverlaysControl
 					AlternativeButton={isBusy ? () => <LoadingIndicator /> : undefined}
-					Info={isBusy ? undefined : t('hint.maps.mapsforgeProfileOverlays')}
-					label={t('overlay', { count: 1 })}
+					Info={isBusy ? undefined : t('baseMap.hint.mapsforgeProfileOverlays')}
+					label={t('baseMap.overlay', { count: 1 })}
 				/>
 
 				<HasLabelsControl />
@@ -222,7 +222,7 @@ const EditModal: FC<{
 						buttonColor={theme.colors.errorContainer}
 						textColor={theme.colors.onErrorContainer}
 					>
-						<Text>{t('map.mapsforge.profileRemove')}</Text>
+						<Text>{t('baseMap.mapsforge.profileRemove')}</Text>
 					</ButtonHighlight>
 				</View>
 			</View>
@@ -249,7 +249,7 @@ const ControlInfo: FC<{}> = () => {
 
 	return (
 		<View>
-			<Text>{t('hint.maps.profiles')}</Text>
+			<Text>{t('baseMap.hint.profiles')}</Text>
 			<Text
 				style={{
 					marginTop: 20,
@@ -392,7 +392,7 @@ const DraggableItem = ({
 			<Text style={styleName}>{item.name}</Text>
 
 			<Text style={styleLayerCount}>
-				{sprintf('%s ' + t('layer', { count: layersCount }), layersCount)}
+				{sprintf('%s ' + t('baseMap.layerShort', { count: layersCount }), layersCount)}
 			</Text>
 
 			{!isToWide && <Text style={reverse ? { marginRight: 10 } : {}}>[{themeLabel}]</Text>}
@@ -546,7 +546,7 @@ const ProfilesControl = ({
 			/>
 
 			<List.Accordion
-				title={t('map.mapsforge.profile', { count: 0 })}
+				title={t('baseMap.mapsforge.profile', { count: 0 })}
 				left={ControlIcon}
 				expanded={expanded}
 				onPress={handleAccordionPress}
@@ -567,12 +567,14 @@ const ProfilesControl = ({
 				)}
 
 				{!profiles.length && (
-					<Text style={stylesGeneric.itemsNone}>{t('map.mapsforge.profilesNone')}</Text>
+					<Text style={stylesGeneric.itemsNone}>
+						{t('baseMap.mapsforge.profilesNone')}
+					</Text>
 				)}
 
 				<View style={stylesGeneric.controls}>
 					<InfoButton
-						label={t('map.mapsforge.profile', { count: 0 })}
+						label={t('baseMap.mapsforge.profile', { count: 0 })}
 						headerPlural={true}
 						backgroundBlur={true}
 						Info={<ControlInfo />}

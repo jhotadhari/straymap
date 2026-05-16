@@ -207,7 +207,7 @@ const ItemControl: FC<{}> = ({}) => {
 									mode="outlined"
 									onPress={handleRemove}
 								>
-									{t('remove')} {/* // ??? */}
+									{t('remove')}
 								</ButtonHighlight>
 							</View>
 						</View>

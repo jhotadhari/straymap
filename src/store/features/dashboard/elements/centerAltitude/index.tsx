@@ -33,7 +33,7 @@ const Icon: FC<{
 
 export default {
 	key: 'centerAltitude',
-	label: 'centerAltitude',
+	label: 'dashboard.centerAltitude',
 	Display,
 	Control,
 	Icon,

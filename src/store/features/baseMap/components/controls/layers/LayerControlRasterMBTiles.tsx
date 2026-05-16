@@ -27,7 +27,7 @@ const MapFileInfo: FC<{}> = () => {
 
 	return (
 		<View>
-			<Text>{t('hint.maps.mbTilesFile')}</Text>
+			<Text>{t('baseMap.hint.mbTilesFile')}</Text>
 			<Text
 				style={{
 					marginTop: 20,
@@ -37,7 +37,7 @@ const MapFileInfo: FC<{}> = () => {
 				{'Downloads:'}
 			</Text>
 			<HintLink
-				label={t('hint.link.openandromapsDownloadsRaster')}
+				label={t('.baseMap.link.openandromapsDownloadsRaster')}
 				url={'https://www.openandromaps.org/en/downloads/general-maps'}
 			/>
 		</View>
@@ -108,8 +108,8 @@ const LayerControlRasterMBTiles: FC<{}> = () => {
 	return (
 		<View>
 			<FileSourceRowControl
-				header={t('map.selectFile')}
-				label={t('map.file')}
+				header={t('baseMap.selectFile')}
+				label={t('baseMap.file')}
 				options={layerTemp?.options ?? {}}
 				optionsKey={'mapFile'}
 				onSelect={handleMapFileChange}
@@ -127,7 +127,7 @@ const LayerControlRasterMBTiles: FC<{}> = () => {
 				options={layerTemp?.options ?? {}}
 				setOptions={setOptions}
 				validate={validateZoom}
-				Info={t('hint.maps.enabled') + '\n\n' + t('hint.maps.zoomGeneralInfo')}
+				Info={t('baseMap.hint.enabled') + '\n\n' + t('baseMap.hint.zoomGeneralInfo')}
 			/>
 		</View>
 	);

@@ -77,7 +77,7 @@ const OneControl: FC<{
 				<AlignmentControl />
 
 				<NumericRowControl
-					label={t('fontSize')}
+					label={t('dashboard.fontSize')}
 					optKey={'fontSize'}
 					options={dashboardStyle}
 					setOptions={({ fontSize }) => {
@@ -88,8 +88,8 @@ const OneControl: FC<{
 							})
 						);
 					}}
-					validate={(val) => val >= 0 && val <= 300 }
-					Info={t('hint.dashboard.fontSize')}
+					validate={(val) => val >= 0 && val <= 300}
+					Info={t('dashboard.hint.fontSize')}
 				/>
 			</View>
 		</List.Accordion>

@@ -33,7 +33,7 @@ const Icon: FC<{
 
 export default {
 	key: 'centerCoordinates',
-	label: 'centerCoordinates',
+	label: 'dashboard.centerCoordinates',
 	Display,
 	Control,
 	Icon,

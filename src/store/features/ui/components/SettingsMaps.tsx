@@ -39,14 +39,14 @@ const SettingsMaps: FC = () => {
 			}}
 		>
 			<LayersControl
-				newLabel={t('map.addNewLayer')}
+				newLabel={t('baseMap.addNewLayer')} // ??? move label into control
 				setScrollEnabled={setScrollEnabled}
 				saveOnChange={false}
 				saveOnUnmount={true}
 			/>
 
 			<ProfilesControl
-				newLabel={t('map.mapsforge.profileAddNew')}
+				newLabel={t('baseMap.mapsforge.profileAddNew')} // ??? move label into control
 				setScrollEnabled={setScrollEnabled}
 				saveOnChange={false}
 				saveOnUnmount={true}

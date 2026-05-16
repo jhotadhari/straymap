@@ -83,7 +83,7 @@ const Modal: FC<{
 				setModalVisible(false);
 				// setEditElemlent(null);
 			}}
-			header={t('dashboardElementNew')}
+			header={t('dashboard.dashboardItemNew')}
 		>
 			<SegmentedButtons
 				style={{ marginBottom: 20 }}
@@ -145,7 +145,7 @@ const NewItemControl: FC<{}> = () => {
 				mode="outlined"
 				onPress={() => setModalVisible(true)}
 			>
-				{t('dashboardElementNew')}
+				{t('dashboard.dashboardItemNew')}
 			</ButtonHighlight>
 		</View>
 	);

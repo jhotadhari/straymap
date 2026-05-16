@@ -49,8 +49,8 @@ export const VisibilityRowControl: FC<{
 	const { t } = useTranslation();
 	return (
 		<InfoRowControl
-			label={t('visibility')}
-			Info={t('hint.maps.visibility')}
+			label={t('baseMap.visibility')}
+			Info={t('baseMap.hint.visibility')}
 		>
 			<VisibilityControl
 				layer={layer}

@@ -92,7 +92,9 @@ const ItemUnitPrefControl: FC<{ unitPrefsKey: string; buttonLabel?: string }> = 
 	unitPrefsKey,
 	buttonLabel,
 }) => {
-	const { item } = useAppSelector((state) => selectEditItem(state)) as { item: DashboardItem<OptionsWithUnitPref> };
+	const { item } = useAppSelector((state) => selectEditItem(state)) as {
+		item: DashboardItem<OptionsWithUnitPref>;
+	};
 
 	const dispatch = useAppDispatch();
 	const unitPrefs = useAppSelector(selectUnitPrefs);
@@ -104,7 +106,7 @@ const ItemUnitPrefControl: FC<{ unitPrefsKey: string; buttonLabel?: string }> = 
 		() => [
 			{
 				key: 'default',
-				label: 'useUnitPref',
+				label: 'dashboard.useUnitPref',
 			},
 			...get(unitPrefControlOptions, unitPrefsKey, []),
 		],
@@ -175,8 +177,7 @@ const ItemUnitPrefControl: FC<{ unitPrefsKey: string; buttonLabel?: string }> = 
 
 	const handleUpdate = useCallback(
 		(newValue: number) => {
-
-			console.log( 'debug newValue', newValue ); // debug
+			console.log('debug newValue', newValue); // debug
 
 			numValueActive &&
 				setValue({
@@ -191,7 +192,7 @@ const ItemUnitPrefControl: FC<{ unitPrefsKey: string; buttonLabel?: string }> = 
 		<View>
 			<InfoRowControl
 				label={t('unit')}
-				Info={t('hint.dashboard.item.unit')}
+				Info={t('dashboard.hint.item.unit')}
 			>
 				<Menu
 					contentStyle={{

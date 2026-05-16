@@ -32,7 +32,7 @@ const HasLabelsControl: FC<{}> = () => {
 	}, []);
 	const opt: OptionBase = useMemo(
 		() => ({
-			label: t('hasLabels'),
+			label: t('baseMap.hasLabels'),
 			key: 'hasLabels',
 		}),
 		[t]

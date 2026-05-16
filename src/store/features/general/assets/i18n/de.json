@@ -1,0 +1,30 @@
+{
+	"hardwareKeyAssignment": "Hardware-Tastenbelegung",
+	"hardwareKey_one": "Hardware-Taste",
+	"hardwareKey_other": "Hardware-Tasten",
+	"hgtReadFileRate": "hgt-Datei-Leserate",
+	"hgtInterpolation": "Interpolieren der Höhe",
+	"hgtFileInfoPurgeThreshold": "DEM im Speicher",
+	"language": "Sprache",
+	"selectLang": "Sprache wählen",
+	"nothing": "Nichts",
+	"volumeUp": "Lautstärke erhöhen",
+	"volumeDown": "Lautstärke reduzieren",
+	"zoomIn": "Heranzoomen",
+	"zoomOut": "Herauszoomen",
+	"failed": "Fehlgeschlagen",
+	"updating": "Am aktualisieren",
+	"errorMsg": "Fehlermeldung",
+	"errorMsgFallback": "Etwas ist schief gelaufen.",
+	"updaterFail": "Du kannst versuchen die App zu starten, aber es kann sein, dass sie nicht richtig funktioniert.",
+	"updaterProceed": "App starten",
+	"updaterCloseApp": "App schließen",
+	"hint": {
+		"units": {
+			"heightDepth": "Die Höhe/Tiefe bezieht sich nicht auf die Höhen-/Tiefenbeschriftungen innerhalb einer Kartenebene. Diese sind völlig unabhängig von dieser Einstellung. Die Höhen-/Tiefenbeschriftungen innerhalb einer Kartenebene sind ausschließlich von der Quelle der Kartenebene abhängig."
+		},
+		"hgtReadFileRate": "Bestimmt die Geschwindigkeit (in Millisekunden), mit der neue Höhenmodelle in den Speicher geladen werden, wenn die Karte verschoben wird.",
+		"hgtInterpolation": "Wie die Höhe für einen bestimmten Ort aus dem DEM gelesen werden soll.\n\nOhne Interpolation wird die Höhe des nächstgelegenen Rasterpunkts aus dem DEM verwendet.\n\nMit Interpolation wird die Höhe zwischen den Höhen der vier nächstgelegenen Rasterpunkte aus dem DEM bilinear interpoliert.",
+		"hgtFileInfoPurgeThreshold": "Wie viele digitale Höhenmodelle in jede Richtung gleichzeitig im Speicher gehalten werden sollen."
+	}
+}

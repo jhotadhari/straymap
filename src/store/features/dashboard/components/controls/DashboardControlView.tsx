@@ -54,10 +54,10 @@ const DashboardControlView: FC<{}> = () => {
 					}}
 				>
 					<InfoButton
-						label={t('dashboardElement', { count: 0 })}
+						label={t('dashboard.dashboardItem', { count: 0 })}
 						headerPlural={true}
 						backgroundBlur={false}
-						Info={t('hint.dashboard.elements')}
+						Info={t('dashboard.hint.items')}
 						buttonProps={{
 							style: { marginTop: 0, marginBottom: 0 },
 							icon: 'information-variant',

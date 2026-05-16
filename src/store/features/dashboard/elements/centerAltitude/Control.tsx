@@ -36,7 +36,7 @@ const Control: FC = () => {
 						borderColor: theme.colors.errorContainer,
 					}}
 				>
-					<Text>{t('hint.dashboard.missingHgtDirPath')}</Text>
+					<Text>{t('dashboard.hint.missingHgtDirPath')}</Text>
 				</View>
 			)}
 

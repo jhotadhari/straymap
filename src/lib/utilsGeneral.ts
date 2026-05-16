@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { isObject, set, upperCase } from 'lodash-es';
+import { isObject, set } from 'lodash-es';
 
 /**
  * General utils
@@ -95,9 +95,9 @@ export const sortDeep = (
 					'Warning: Key "' +
 						[...parentKeys, key].join('.') +
 						'" not existing in ' +
-						upperCase(objInputLabel) +
+						objInputLabel +
 						' but in ' +
-						upperCase(objOrderLabel) +
+						objOrderLabel +
 						''
 				);
 			}
@@ -110,7 +110,7 @@ export const sortDeep = (
 				console.log(
 					'Warning: Key "' +
 						[...parentKeys, key].join('.') +
-						'" not existing in objOrder but in objInput.' +
+						'" not existing in ' + objOrderLabel + ' but in ' + objInputLabel + '.' +
 						(strict ? ' Removed in result' : '')
 				);
 			}

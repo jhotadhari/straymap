@@ -76,11 +76,11 @@ const ResetCacheButton: FC<{
 
 const themeInfoLinks = [
 	{
-		label: 'hint.link.xmlRenderThemes',
+		label: 'link.xmlRenderThemes',
 		url: 'https://www.openandromaps.org/en/legend/elevate-mountain-hike-theme',
 	},
 	{
-		label: 'hint.link.xmlRenderThemesModify',
+		label: 'link.xmlRenderThemesModify',
 		url: 'https://github.com/mapsforge/mapsforge/blob/master/docs/Rendertheme.md',
 	},
 ];
@@ -91,7 +91,7 @@ const ThemeInfo: FC<{}> = () => {
 	const styleThemeInfoLinkText = useMemo(() => ({ color: get(theme.colors, 'link') }), [theme]);
 	return (
 		<View>
-			<Text>{t('hint.maps.mapsforgeProfileFile')}</Text>
+			<Text>{t('baseMap.hint.mapsforgeProfileFile')}</Text>
 			{themeInfoLinks.map((link) => (
 				<View style={styleThemeInfoLink}>
 					<Text>{t(link.label)}</Text>
@@ -134,7 +134,7 @@ const ThemeControl: FC<{
 
 	const initialOptsMap = useMemo(
 		() => ({
-			[t('builtInThemes') + ':']: [...LayerMapsforge.BUILT_IN_THEMES].map((key) => ({
+			[t('baseMap.builtInThemes') + ':']: [...LayerMapsforge.BUILT_IN_THEMES].map((key) => ({
 				key,
 				label: key,
 			})),
@@ -149,8 +149,8 @@ const ThemeControl: FC<{
 	return (
 		<FileSourceRowControl
 			AlternativeButton={isBusy ? () => <LoadingIndicator /> : undefined}
-			label={t('theme')}
-			header={t('selectTheme')}
+			label={t('baseMap.theme')}
+			header={t('baseMap.selectTheme')}
 			initialOptsMap={initialOptsMap}
 			options={profileTemp}
 			optionsKey={'theme'}

@@ -12,7 +12,7 @@ import type { ThemePropExtended } from './types';
 
 const BlackTheme: ThemePropExtended = {
 	...MD3DarkTheme,
-	label: 'themeOptions.black',
+	label: 'appearance.themeOptions.black',
 	colors: {
 		...MD3DarkTheme.colors,
 		background: '#000',
@@ -31,9 +31,10 @@ const BlackTheme: ThemePropExtended = {
 	},
 };
 
+// ??? refactor move this block into appearance.... or all file somehow?
 const themes: { [value: string]: ThemePropExtended } = {
-	light: { ...MD3LightTheme, label: 'themeOptions.light' },
-	dark: { ...MD3DarkTheme, label: 'themeOptions.dark' },
+	light: { ...MD3LightTheme, label: 'appearance.themeOptions.light' },
+	dark: { ...MD3DarkTheme, label: 'appearance.themeOptions.dark' },
 	black: BlackTheme,
 };
 

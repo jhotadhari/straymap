@@ -9,9 +9,49 @@ import { I18nManager } from 'react-native';
 /**
  * Internal dependencies
  */
-import en from './en.json';
-import de from './de.json';
+import en_ from './en.json';
+import en_appearance from '../../store/features/appearance/assets/i18n/en.json';
+import en_baseMap from '../../store/features/baseMap/assets/i18n/en.json';
+import en_dashboard from '../../store/features/dashboard/assets/i18n/en.json';
+import en_dirs from '../../store/features/dirs/assets/i18n/en.json';
+import en_drawers from '../../store/features/drawers/assets/i18n/en.json';
+import en_general from '../../store/features/general/assets/i18n/en.json';
+import en_ui from '../../store/features/ui/assets/i18n/en.json';
+import de_ from './en.json';
+import de_appearance from '../../store/features/appearance/assets/i18n/de.json';
+import de_baseMap from '../../store/features/baseMap/assets/i18n/de.json';
+import de_dashboard from '../../store/features/dashboard/assets/i18n/de.json';
+import de_dirs from '../../store/features/dirs/assets/i18n/de.json';
+import de_drawers from '../../store/features/drawers/assets/i18n/de.json';
+import de_general from '../../store/features/general/assets/i18n/de.json';
+import de_ui from '../../store/features/ui/assets/i18n/de.json';
 import { SUPPORTED_LANGUAGES, FALLBACK_LANGUAGE, LANGUAGE_NAMES } from './constants';
+
+const en = {
+	translation: {
+		...en_,
+		appearance: en_appearance,
+		baseMap: en_baseMap,
+		dashboard: en_dashboard,
+		dirs: en_dirs,
+		drawers: en_drawers,
+		general: en_general,
+		ui: en_ui,
+	},
+};
+
+const de = {
+	translation: {
+		...de_,
+		appearance: de_appearance,
+		baseMap: de_baseMap,
+		dashboard: de_dashboard,
+		dirs: de_dirs,
+		drawers: de_drawers,
+		general: de_general,
+		ui: de_ui,
+	},
+};
 
 const intiOptions = {
 	lng: FALLBACK_LANGUAGE,

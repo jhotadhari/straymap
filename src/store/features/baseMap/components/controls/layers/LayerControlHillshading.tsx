@@ -65,8 +65,8 @@ const LayerControlHillshading: FC<{}> = () => {
 				optLabels={['min', 'max']}
 				options={layerTemp?.options ?? {}}
 				setOptions={setOptions}
-				validate={(val) => val >= 0 && val <= 20 }
-				Info={t('hint.maps.enabled') + '\n\n' + t('hint.maps.zoomGeneralInfo')}
+				validate={(val) => val >= 0 && val <= 20}
+				Info={t('baseMap.hint.enabled') + '\n\n' + t('baseMap.hint.zoomGeneralInfo')}
 			/>
 
 			<NumericMultiRowControl
@@ -75,17 +75,17 @@ const LayerControlHillshading: FC<{}> = () => {
 				optLabels={['min', 'max']}
 				options={layerTemp?.options ?? {}}
 				setOptions={setOptions}
-				validate={(val) => val >= 0 && val <= 20 }
-				Info={t('hint.maps.zoom') + '\n\n' + t('hint.maps.zoomGeneralInfo')}
+				validate={(val) => val >= 0 && val <= 20}
+				Info={t('baseMap.hint.zoom') + '\n\n' + t('baseMap.hint.zoomGeneralInfo')}
 			/>
 
 			<NumericRowControl
-				label={t('shadingOptions.magnitude.label')}
+				label={t('baseMap.shadingOptions.magnitude.label')}
 				optKey={'magnitude'}
 				options={layerTemp?.options ?? {}}
 				setOptions={setOptions}
-				validate={(val) => val >= 0 && val <= 1000 }
-				Info={t('shadingOptions.magnitude.hint')}
+				validate={(val) => val >= 0 && val <= 1000}
+				Info={t('baseMap.shadingOptions.magnitude.hint')}
 			/>
 
 			<CacheControl

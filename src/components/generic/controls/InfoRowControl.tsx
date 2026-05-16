@@ -64,7 +64,7 @@ const InfoRowControl = ({
 						display: 'flex',
 						alignItems: 'center',
 						width: '100%',
-						position:'relative',
+						position: 'relative',
 					},
 					style,
 				]}
@@ -92,11 +92,14 @@ const InfoRowControl = ({
 				{!Info && !onLabelPress && (
 					<Text style={{ ...labelWrapStyle, ...labelStyle }}>{label}</Text>
 				)}
-				<View style={{
-					position: 'relative',
-					flexGrow: 1,
-
-				}}>{children}</View>
+				<View
+					style={{
+						position: 'relative',
+						flexGrow: 1,
+					}}
+				>
+					{children}
+				</View>
 			</View>
 		</InfoControlWrapper>
 	);

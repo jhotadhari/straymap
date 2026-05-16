@@ -175,8 +175,8 @@ const StyleControlFontSize = ({
 	return (
 		<View>
 			<InfoRowControl
-				label={t('fontSize')}
-				Info={t('hint.dashboard.item.fontSize')}
+				label={t('dashboard.fontSize')}
+				Info={t('dashboard.hint.item.fontSize')}
 			>
 				<Menu
 					contentStyle={{
@@ -280,7 +280,7 @@ const StyleControl = ({
 					updateElement(newEditElement as DashboardItem);
 				}}
 				validate={(val) => val >= 0}
-				Info={t('hint.dashboard.item.minWidth')}
+				Info={t('dashboard.hint.item.minWidth')}
 			/>
 		</View>
 	) : null;
@@ -378,13 +378,13 @@ const DashboardControl = () => {
 										)
 									)
 								)
-							: t('dashboardElementNew')
+							: t('dashboard.dashboardItemNew')
 					}
 				>
 					{!editElement.elementType && (
 						<View>
 							<Text style={{ marginBottom: 18 }}>
-								{sprintf(t('selectXType'), t('dashboardElement'))}
+								{sprintf(t('selectXType'), t('dashboard.dashboardItem'))}
 							</Text>
 
 							{[...elementTypeOptions].map((opt: OptionBase, index: number) => {
@@ -509,7 +509,9 @@ const DashboardControl = () => {
 				}
 			>
 				<View>
-					<Text style={{ ...labelPadding }}>{t('dashboardElement', { count: 0 })}</Text>
+					<Text style={{ ...labelPadding }}>
+						{t('dashboard.dashboardItem', { count: 0 })}
+					</Text>
 					<View
 						style={{
 							height: itemHeight * dashboardElementsEdit.length + 8,
@@ -532,7 +534,7 @@ const DashboardControl = () => {
 
 				{!dashboardElementsEdit.length && (
 					<Text style={{ marginLeft: 18, marginBottom: 35 }}>
-						{t('dashboardElementsNone')}
+						{t('dashboard.dashboardItemsNone')}
 					</Text>
 				)}
 
@@ -545,10 +547,10 @@ const DashboardControl = () => {
 					}}
 				>
 					<InfoButton
-						label={t('dashboardElement', { count: 0 })}
+						label={t('dashboard.dashboardItem', { count: 0 })}
 						headerPlural={true}
 						backgroundBlur={false}
-						Info={t('hint.dashboard.elements')}
+						Info={t('dashboard.hint.elements')}
 						buttonProps={{
 							style: { marginTop: 0, marginBottom: 0 },
 							icon: 'information-variant',
@@ -569,7 +571,7 @@ const DashboardControl = () => {
 						mode="outlined"
 						onPress={() => setEditElement(getNewElement())}
 					>
-						{t('dashboardElementNew')}
+						{t('dashboard.dashboardItemNew')}
 					</ButtonHighlight>
 				</View>
 
@@ -586,12 +588,12 @@ const DashboardControl = () => {
 						);
 					}}
 					validate={(val) => val >= 0}
-					Info={t('hint.dashboard.fontSize')}
+					Info={t('dashboard.hint.fontSize')}
 				/>
 
 				<InfoRowControl
 					label={t('alignment')}
-					Info={t('hint.dashboard.alignment')}
+					Info={t('dashboard.hint.alignment')}
 					style={{ marginTop: 0, marginBottom: 0 }}
 				>
 					<Menu
@@ -648,7 +650,7 @@ const DashboardControl = () => {
 						dispatch(setMapEventRate(mapEventRate));
 					}}
 					validate={(val) => val >= 0}
-					Info={t('hint.dashboard.updateRate')}
+					Info={t('dashboard.hint.updateRate')}
 				/>
 			</ListItemModalControl>
 		</View>

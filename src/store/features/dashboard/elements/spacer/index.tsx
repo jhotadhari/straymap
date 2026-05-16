@@ -33,7 +33,7 @@ const Icon: FC<{
 
 export default {
 	key: 'spacer',
-	label: 'spacer',
+	label: 'dashboard.spacer',
 	Display,
 	Control,
 	Icon,

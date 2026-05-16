@@ -42,7 +42,7 @@ const LangControl: FC = () => {
 			anchorLabel={(
 				sortArrayByOrderArray([...SUPPORTED_LANGUAGES], [i18n.language]) as string[]
 			)
-				.map((l) => t('selectLang', { lng: l }))
+				.map((l) => t('general.selectLang', { lng: l }))
 				.reverse()
 				.join(' / ')}
 			anchorLabelAppendSelected={true}

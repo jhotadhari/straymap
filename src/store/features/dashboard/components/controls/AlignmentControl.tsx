@@ -20,27 +20,27 @@ import MenuItem from '../../../../../components/generic/MenuItem';
 const styleAlignOptions: OptionBase[] = [
 	{
 		key: 'center',
-		label: 'center',
+		label: 'dashboard.align.center',
 	},
 	{
 		key: 'left',
-		label: 'left',
+		label: 'dashboard.align.left',
 	},
 	{
 		key: 'right',
-		label: 'right',
+		label: 'dashboard.align.right',
 	},
 	{
 		key: 'around',
-		label: 'around',
+		label: 'dashboard.align.around',
 	},
 	{
 		key: 'between',
-		label: 'between',
+		label: 'dashboard.align.between',
 	},
 	{
 		key: 'evenly',
-		label: 'evenly',
+		label: 'dashboard.align.evenly',
 	},
 ];
 
@@ -56,8 +56,8 @@ const AlignmentControl: FC<{}> = () => {
 
 	return (
 		<InfoRowControl
-			label={t('alignment')}
-			Info={t('hint.dashboard.alignment')}
+			label={t('dashboard.alignment')}
+			Info={t('dashboard.hint.alignment')}
 			style={{ marginTop: 0, marginBottom: 0 }}
 		>
 			<Menu

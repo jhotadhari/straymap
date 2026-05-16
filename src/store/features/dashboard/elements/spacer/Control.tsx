@@ -11,7 +11,6 @@ import { View } from 'react-native';
 import ItemMinWidthControl from '../../components/controls/ItemMinWidthControl';
 
 const Control: FC = () => {
-
 	const { t } = useTranslation();
 
 	return (

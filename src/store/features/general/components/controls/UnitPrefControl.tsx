@@ -93,7 +93,7 @@ export const options: { [value: string]: OptionBase[] } = {
 };
 
 const hints = {
-	heightDepth: 'hint.units.heightDepth',
+	heightDepth: 'general.hint.units.heightDepth',
 };
 
 const UnitControl = ({
@@ -172,7 +172,7 @@ const UnitControl = ({
 				optKey={'round'}
 				options={unitPref}
 				setOptions={onChange}
-				validate={(val) => val >= 0 && val <= 20 }
+				validate={(val) => val >= 0 && val <= 20}
 				style={{ marginTop: 0, marginBottom: 0 }}
 			/>
 		</View>

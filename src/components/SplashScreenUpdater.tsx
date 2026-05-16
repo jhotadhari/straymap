@@ -26,7 +26,7 @@ const FailControls: FC<{
 
 	return (
 		<View>
-			<Text style={{ marginTop: 10 }}>{t('updaterFail')}</Text>
+			<Text style={{ marginTop: 10 }}>{t('general.updaterFail')}</Text>
 			<View
 				style={{
 					flexDirection: 'row',
@@ -40,7 +40,7 @@ const FailControls: FC<{
 					buttonColor={get(theme.colors, 'primaryContainer')}
 					textColor={get(theme.colors, 'onPrimaryContainer')}
 				>
-					<Text>{t('updaterProceed')}</Text>
+					<Text>{t('general.updaterProceed')}</Text>
 				</ButtonHighlight>
 				<ButtonHighlight
 					style={{ marginTop: 20, marginBottom: 40 }}
@@ -49,7 +49,7 @@ const FailControls: FC<{
 					buttonColor={get(theme.colors, 'primaryContainer')}
 					textColor={get(theme.colors, 'onPrimaryContainer')}
 				>
-					<Text>{t('updaterCloseApp')}</Text>
+					<Text>{t('general.updaterCloseApp')}</Text>
 				</ButtonHighlight>
 			</View>
 		</View>
@@ -111,7 +111,7 @@ const SplashScreenUpdater = ({
 									},
 									updateResult.state,
 									''
-								) + t(updateResult.state)}
+								) + t('general.' + updateResult.state)}
 							</Text>
 						</View>
 					);
@@ -120,7 +120,9 @@ const SplashScreenUpdater = ({
 			{failedResult && isUpdating && (
 				<View style={{ marginTop: 10 }}>
 					<Text style={{ marginTop: 10 }}>
-						{t('errorMsg') + ': ' + get(failedResult, 'msg', t('errorMsgFallback'))}
+						{t('general.errorMsg') +
+							': ' +
+							get(failedResult, 'msg', t('general.errorMsgFallback'))}
 					</Text>
 					<FailControls setIsUpdating={setIsUpdating} />
 				</View>

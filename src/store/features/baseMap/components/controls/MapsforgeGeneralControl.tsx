@@ -29,7 +29,7 @@ const MapsforgeGeneralControl = () => {
 
 	return (
 		<ListItemModalControl
-			anchorLabel={t('settings.mapsforgeGeneral')}
+			anchorLabel={t('baseMap.mapsforgeGeneral')}
 			anchorIcon={(props) => (
 				<IconIcomoon
 					size={25}
@@ -37,40 +37,40 @@ const MapsforgeGeneralControl = () => {
 					{...props}
 				/>
 			)}
-			header={t('settings.mapsforgeGeneral')}
+			header={t('baseMap.mapsforgeGeneral')}
 			hasHeaderBackPress={true}
 		>
-			<Text style={{ marginBottom: 10 }}>{t('hint.applyToAllMapsforge')}</Text>
-			<Text style={{ marginBottom: 10 }}>{t('hint.changeNeedsRestart')}</Text>
+			<Text style={{ marginBottom: 10 }}>{t('baseMap.hint.applyToAllMapsforge')}</Text>
+			<Text style={{ marginBottom: 10 }}>{t('baseMap.hint.changeNeedsRestart')}</Text>
 
 			<NumericRowControl
-				label={t('lineScale')}
+				label={t('baseMap.lineScale')}
 				optKey={'lineScale'}
 				numType={'float'}
 				options={settings}
 				setOptions={handleChange}
-				validate={(val) => val >= 0 && val <= 20 }
-				Info={t('hint.maps.lineScale')}
+				validate={(val) => val >= 0 && val <= 20}
+				Info={t('baseMap.hint.maps.lineScale')}
 			/>
 
 			<NumericRowControl
-				label={t('textScale')}
+				label={t('baseMap.textScale')}
 				optKey={'textScale'}
 				numType={'float'}
 				options={settings}
 				setOptions={handleChange}
-				validate={(val) => val >= 0 && val <= 20 }
-				Info={t('hint.maps.textScale')}
+				validate={(val) => val >= 0 && val <= 20}
+				Info={t('baseMap.hint.maps.textScale')}
 			/>
 
 			<NumericRowControl
-				label={t('symbolScale')}
+				label={t('baseMap.symbolScale')}
 				optKey={'symbolScale'}
 				numType={'float'}
 				options={settings}
 				setOptions={handleChange}
-				validate={(val) => val >= 0 && val <= 20 }
-				Info={t('hint.maps.symbolScale')}
+				validate={(val) => val >= 0 && val <= 20}
+				Info={t('baseMap.hint.maps.symbolScale')}
 			/>
 		</ListItemModalControl>
 	);

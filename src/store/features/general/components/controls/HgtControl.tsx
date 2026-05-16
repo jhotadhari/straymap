@@ -73,7 +73,7 @@ const HgtControl = () => {
 
 			<InfoRadioRow
 				opt={{
-					label: t('hgtInterpolation'),
+					label: t('general.hgtInterpolation'),
 					key: 'hgtInterpolation',
 				}}
 				onPress={() => dispatch(setHgtInterpolation(!hgtInterpolation))}
@@ -81,7 +81,7 @@ const HgtControl = () => {
 				labelExtractor={(a) => a.label}
 				status={hgtInterpolation ? 'checked' : 'unchecked'}
 				radioAlign={'left'}
-				Info={t('hint.maps.hgtInterpolation')}
+				Info={t('general.hint.hgtInterpolation')}
 			/>
 
 			<InfoRowControl
@@ -91,25 +91,25 @@ const HgtControl = () => {
 			{showAdvanced && (
 				<View>
 					<NumericRowControl
-						label={t('hgtReadFileRate')}
+						label={t('general.hgtReadFileRate')}
 						optKey={'hgtReadFileRate'}
 						options={{ hgtReadFileRate }}
 						setOptions={({ hgtReadFileRate }) => {
 							dispatch(setHgtReadFileRate(hgtReadFileRate));
 						}}
-						validate={(val) => val >= 0 && val <= 20000 }
-						Info={t('hint.maps.hgtReadFileRate')}
+						validate={(val) => val >= 0 && val <= 20000}
+						Info={t('general.hint.hgtReadFileRate')}
 					/>
 
 					<NumericRowControl
-						label={t('hgtFileInfoPurgeThreshold')}
+						label={t('general.hgtFileInfoPurgeThreshold')}
 						optKey={'hgtFileInfoPurgeThreshold'}
 						options={{ hgtFileInfoPurgeThreshold }}
 						setOptions={({ hgtFileInfoPurgeThreshold }) => {
 							dispatch(setHgtFileInfoPurgeThreshold(hgtFileInfoPurgeThreshold));
 						}}
-						validate={(val) => val >= 0 && val <= 200 }
-						Info={t('hint.maps.hgtFileInfoPurgeThreshold')}
+						validate={(val) => val >= 0 && val <= 200}
+						Info={t('general.hint.hgtFileInfoPurgeThreshold')}
 					/>
 				</View>
 			)}
