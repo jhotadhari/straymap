@@ -13,7 +13,7 @@ import { setItem } from '../../dashboardSlice';
 import { get, omit } from 'lodash-es';
 import { SegmentedNumericRowControl } from '../../../../../components/generic/controls/NumericRowControlsNew';
 
-const validate = (val: number) => val >= 0 && val <= 300;
+const validate = (val: number) => val >= 0 && val <= 999;
 
 const ItemMinWidthControl: FC<{ buttonLabel?: string }> = ({ buttonLabel }) => {
 	const { t } = useTranslation();

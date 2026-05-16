@@ -12,7 +12,15 @@ export const selectElementsSettings = (state: RootState) => state.dashboard.elem
 
 export const selectIsEditingDashboard = (state: RootState) => state.dashboard.isEditingDashboard;
 
-export const selectDashboardStyle = (state: RootState) => state.dashboard.dashboardStyle;
+// export const selectDashboardStyle = (state: RootState) => state.dashboard.dashboardStyle;
+
+export const selectDashboardStyle = (state: RootState, position?: string) => {
+	if ('top' === position) {
+		return state.dashboard.dashboardStyleTop;
+	} else {
+		return state.dashboard.dashboardStyleBottom;
+	}
+};
 
 export const selectItemsCount = (state: RootState, position?: string) => {
 	if ('top' === position) {

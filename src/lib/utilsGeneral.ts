@@ -110,7 +110,11 @@ export const sortDeep = (
 				console.log(
 					'Warning: Key "' +
 						[...parentKeys, key].join('.') +
-						'" not existing in ' + objOrderLabel + ' but in ' + objInputLabel + '.' +
+						'" not existing in ' +
+						objOrderLabel +
+						' but in ' +
+						objInputLabel +
+						'.' +
 						(strict ? ' Removed in result' : '')
 				);
 			}

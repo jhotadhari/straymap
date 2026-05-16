@@ -14,7 +14,7 @@ import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { setElementExpanded } from '../../../ui/uiSlice';
 import { selectElementExpanded } from '../../../ui/selectors';
 import { selectMapEventRate } from '../../../general/selectors';
-import { NumericRowControl } from '../../../../../components/generic/controls/NumericRowControls';
+import { NumericRowControl } from '../../../../../components/generic/controls/NumericRowControlsNew';
 import { setMapEventRate } from '../../../general/generalSlice';
 import { stylesGeneric } from '../../../baseMap/components/controls/layers/LayersControl';
 
@@ -62,10 +62,9 @@ const GeneralControl: FC<{}> = () => {
 			<View style={styles.controls}>
 				<NumericRowControl
 					label={t('dashboard.updateRate')}
-					optKey={'mapEventRate'}
-					options={{ mapEventRate }}
-					setOptions={({ mapEventRate }) => {
-						dispatch(setMapEventRate(mapEventRate));
+					value={mapEventRate ?? 40}
+					onUpdate={(newValue) => {
+						dispatch(setMapEventRate(newValue));
 					}}
 					validate={(val) => val >= 0 && val <= 20000}
 					Info={t('dashboard.hint.updateRate')}

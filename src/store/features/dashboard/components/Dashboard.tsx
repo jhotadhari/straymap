@@ -21,6 +21,7 @@ import { selectDashboardStyle, selectIsEditingDashboard, selectItems } from '../
 import DashboardItem from './DashboardItem';
 import { AppContext } from '../../../../Context';
 import { setEditItemKey, setItems } from '../dashboardSlice';
+import { ControlContext } from '../ControlContext';
 
 const Dashboard: FC<{
 	style?: ViewStyle;
@@ -50,7 +51,7 @@ const Dashboard: FC<{
 	const { setBottomBarHeight, setTopAppBarHeight } = useContext(AppContext);
 
 	const items = useAppSelector((state) => selectItems(state, { position }));
-	const dashboardStyle = useAppSelector(selectDashboardStyle);
+	const dashboardStyle = useAppSelector((state) => selectDashboardStyle(state, position));
 
 	const justifyContent: JustifyContent = useMemo(
 		() =>
@@ -112,39 +113,44 @@ const Dashboard: FC<{
 	);
 
 	return (
-		<View
-			style={style}
-			onLayout={handleLayout}
-		>
-			<Sortable.Flex
-				gap={0}
-				padding={0}
-				sortEnabled={sortEnabled}
-				customHandle={true}
-				justifyContent={justifyContent}
-				alignItems="center"
-				onDragStart={handleDragStart}
-				onDragEnd={handleDragEnd}
+		<ControlContext.Provider value={{ position }}>
+			<View
+				style={[
+					style,
+				]}
+				onLayout={handleLayout}
 			>
-				{items.map((item) => {
-					return (
-						<DashboardItem
-							isHandle={true}
-							key={item.key}
-							item={item}
-							onPress={onPressItem}
-							style={itemStyle}
-							highlightEditItem={highlightEditItem}
-						/>
-					);
-				})}
-			</Sortable.Flex>
+				<Sortable.Flex
+					itemEntering={null}
+					gap={0}
+					padding={0}
+					sortEnabled={sortEnabled}
+					customHandle={true}
+					justifyContent={justifyContent}
+					alignItems="center"
+					onDragStart={handleDragStart}
+					onDragEnd={handleDragEnd}
+				>
+					{items.map((item) => {
+						return (
+							<DashboardItem
+								isHandle={true}
+								key={item.key}
+								item={item}
+								onPress={onPressItem}
+								style={itemStyle}
+								highlightEditItem={highlightEditItem}
+							/>
+						);
+					})}
+				</Sortable.Flex>
 
-			{/* <WeirdFix
+				{/* <WeirdFix
 				data={data}
 				setData={setData}
 			/> */}
-		</View>
+			</View>
+		</ControlContext.Provider>
 	);
 };
 

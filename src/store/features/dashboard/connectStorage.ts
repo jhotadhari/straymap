@@ -54,8 +54,21 @@ export const initializeFromStorage = (store: EnhancedStore) => {
 								})
 							);
 						}
-						if (newSettings?.dashboardStyle) {
-							store.dispatch(setDashboardStyle(newSettings.dashboardStyle));
+						if (newSettings?.dashboardStyleTop) {
+							store.dispatch(
+								setDashboardStyle({
+									position: 'top',
+									style: newSettings.dashboardStyleTop,
+								})
+							);
+						}
+						if (newSettings?.dashboardStyleBottom) {
+							store.dispatch(
+								setDashboardStyle({
+									position: 'bottom',
+									style: newSettings.dashboardStyleBottom,
+								})
+							);
 						}
 					}
 					resolve(true);

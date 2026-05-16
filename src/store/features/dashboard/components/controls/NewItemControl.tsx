@@ -1,7 +1,15 @@
 /**
  * External dependencies
  */
-import React, { Dispatch, FC, SetStateAction, useCallback, useMemo, useState } from 'react';
+import React, {
+	Dispatch,
+	FC,
+	SetStateAction,
+	useCallback,
+	useContext,
+	useMemo,
+	useState,
+} from 'react';
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import rnUuid from 'react-native-uuid';
@@ -18,6 +26,7 @@ import ModalWrapper from '../../../../../components/generic/ModalWrapper';
 import RadioListItem from '../../../../../components/generic/RadioListItem';
 import { OptionBase } from '../../../../../types';
 import { selectElementsSettings } from '../../selectors';
+import { ControlContext } from '../../ControlContext';
 
 const SelectType: FC<{
 	option: OptionBase;
@@ -54,7 +63,9 @@ const Modal: FC<{
 		[elementSettings]
 	);
 
-	const [position, setPosition] = useState('bottom');
+	const { position } = useContext(ControlContext);
+
+	// const [position, setPosition] = useState('bottom');
 
 	const dispatch = useAppDispatch();
 
@@ -65,12 +76,13 @@ const Modal: FC<{
 				key: rnUuid.v4(),
 				elementType,
 			};
-			dispatch(
-				addItem({
-					position,
-					item: newItem,
-				})
-			);
+			position &&
+				dispatch(
+					addItem({
+						position,
+						item: newItem,
+					})
+				);
 			dispatch(setEditItemKey(newItem.key));
 		},
 		[position]
@@ -85,30 +97,6 @@ const Modal: FC<{
 			}}
 			header={t('dashboard.dashboardItemNew')}
 		>
-			<SegmentedButtons
-				style={{ marginBottom: 20 }}
-				value={position}
-				onValueChange={setPosition}
-				theme={{
-					colors: {
-						secondaryContainer: theme.colors.primaryContainer,
-						textColor: theme.colors.onPrimaryContainer,
-					},
-				}}
-				buttons={[
-					{
-						value: 'bottom',
-						label: t('bottom'),
-						icon: 'arrow-down',
-					},
-					{
-						value: 'top',
-						label: t('top'),
-						icon: 'arrow-up',
-					},
-				]}
-			/>
-
 			{options.map((option) => (
 				<SelectType
 					key={option.key}

@@ -15,7 +15,7 @@ import { setEditItemKey, setIsEditingDashboard } from '../../dashboardSlice';
 import { AppContext } from '../../../../../Context';
 import NewItemControl from './NewItemControl';
 import InfoButton from '../../../../../components/generic/InfoButton';
-import OneControl from './OneControl';
+import DashboardControl from './DashboardControl';
 import ItemControl from './ItemControl';
 
 const DashboardControlView: FC<{}> = () => {
@@ -45,33 +45,9 @@ const DashboardControlView: FC<{}> = () => {
 			}}
 		>
 			<ScrollView scrollEnabled={true}>
-				<View
-					style={{
-						justifyContent: 'space-between',
-						flexDirection: 'row',
-						marginBottom: 15,
-						padding: 17,
-					}}
-				>
-					<InfoButton
-						label={t('dashboard.dashboardItem', { count: 0 })}
-						headerPlural={true}
-						backgroundBlur={false}
-						Info={t('dashboard.hint.items')}
-						buttonProps={{
-							style: { marginTop: 0, marginBottom: 0 },
-							icon: 'information-variant',
-							mode: 'outlined',
-							iconColor: theme.colors.primary,
-						}}
-					/>
+				<DashboardControl />
 
-					<NewItemControl />
-				</View>
-
-				<OneControl position="top" />
-
-				<OneControl position="bottom" />
+				{/* <DashboardControl position="bottom" /> */}
 
 				{/* <GeneralControl /> */}
 

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useMemo } from 'react';
+import { useContext, useMemo } from 'react';
 import { get } from 'lodash-es';
 
 /**
@@ -10,13 +10,17 @@ import { get } from 'lodash-es';
 import { DashboardElementProps } from '../types';
 import { useAppSelector } from '../../../hooks';
 import { selectDashboardStyle, selectElementsSettings } from '../selectors';
+import { ControlContext } from '../ControlContext';
 
 const useItemStyle = (item: DashboardElementProps['item']) => {
 	const dashboardElements = useAppSelector(selectElementsSettings);
-	const dashboardStyle = useAppSelector(selectDashboardStyle);
+
+	const { position } = useContext(ControlContext);
+	const dashboardStyle = useAppSelector((state) => selectDashboardStyle(state, position));
 
 	const fontSize = item?.fontSize ?? dashboardStyle.fontSize;
 
+	console.log('debug fontSize', fontSize); // debug
 	const minWidth = useMemo(
 		() =>
 			item?.minWidth ??

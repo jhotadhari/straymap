@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
-import { FC, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { useTheme, Appbar, Menu, Icon } from 'react-native-paper';
+import { FC, Fragment, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { useTheme, Appbar, Menu, Icon, Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { View, BackHandler, TouchableHighlight, StyleSheet } from 'react-native';
 
@@ -17,6 +17,7 @@ import { selectUiItemKeys, selectIsBusy } from '../selectors';
 import { setUiItemKeys } from '../uiSlice';
 import LoadingIndicator from '../../../../components/generic/LoadingIndicator';
 import { AppContext } from '../../../../Context';
+import { DashboardWrapped } from '../../dashboard/components/Dashboard';
 
 const TopAppBarMenu: FC<{ items: UiItem[] }> = ({ items }) => {
 	const { t } = useTranslation();
@@ -145,40 +146,69 @@ const TopAppBar: FC = () => {
 		return () => backHandler.remove();
 	}, [backAction]);
 
+	const showTopDashboard =
+		!uiItemsKeys.length || uiItemsKeys[uiItemsKeys.length - 1] === 'dashboard';
+
 	return (
-		<Appbar
+		<View
 			onLayout={(e) => {
 				const { height } = e.nativeEvent.layout;
 				setTopAppBarHeight && setTopAppBarHeight(height);
 			}}
 			style={[
-				styles.justifyBetween,
+				styles.bar,
 				styles.zObove,
 			]}
 		>
-			{uiItemsKeys.length && (
-				<TouchableHighlight
-					style={styles.button}
-					underlayColor={theme.colors.elevation.level3}
-					onPress={backAction}
-				>
-					<Icon
-						source="arrow-left"
-						size={30}
-					/>
-				</TouchableHighlight>
+			{!showTopDashboard && (
+				<Fragment>
+					{uiItemsKeys.length && (
+						<TouchableHighlight
+							style={styles.button}
+							underlayColor={theme.colors.elevation.level3}
+							onPress={backAction}
+						>
+							<Icon
+								source="arrow-left"
+								size={30}
+							/>
+						</TouchableHighlight>
+					)}
+
+					<Text style={theme.fonts.headlineSmall}>{appBarTitle}</Text>
+				</Fragment>
 			)}
 
-			<Appbar.Content title={appBarTitle} />
+			{showTopDashboard && <DashboardWrapped position="top" />}
 
-			<TopAppBarMenu items={menuItems} />
-		</Appbar>
+			{/* Fix app bar height. because the visible button is absolute and dosen't provide a height */}
+			<View
+				style={{
+					right: 999,
+				}}
+			>
+				<TopAppBarMenu items={menuItems} />
+			</View>
+
+			<View
+				style={{
+					position: 'absolute',
+					right: 4,
+					zIndex: 9,
+				}}
+			>
+				<TopAppBarMenu items={menuItems} />
+			</View>
+		</View>
 	);
 };
 
 const styles = StyleSheet.create({
-	justifyBetween: {
-		justifyContent: 'space-between',
+	bar: {
+		// justifyContent: 'space-between',
+		flexDirection: 'row',
+		alignItems: 'center',
+		position: 'relative',
 	},
 	zObove: { zIndex: 999 },
 	button: {

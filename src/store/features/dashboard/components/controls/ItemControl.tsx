@@ -22,6 +22,7 @@ import { get } from 'lodash-es';
 import { DashboardElement } from '../../types';
 import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
 import InfoRowControl from '../../../../../components/generic/controls/InfoRowControl';
+import { ControlContext } from '../../ControlContext';
 
 const ICON_SIZE = 24;
 
@@ -144,76 +145,85 @@ const ItemControl: FC<{}> = ({}) => {
 
 	return (
 		item && (
-			<List.Accordion
-				title={sprintf('??? dashboard item: %s', t(label ?? ''))}
-				left={ControlIcon}
-				expanded={!notExpanded}
-				onPress={handleAccordionPress}
-				titleStyle={theme.fonts.bodyMedium}
+			<ControlContext.Provider
+				value={{
+					position,
+				}}
 			>
-				<View
-					style={
-						undefined === accuHeight
-							? undefined
-							: {
-									minHeight: accuHeight,
-								}
-					}
+				<List.Accordion
+					// title={t('dashboard.dashboardItem')}
+					title={sprintf(t('dashboard.dashboardItem') + ': %s', t(label ?? ''))}
+					left={ControlIcon}
+					expanded={!notExpanded}
+					onPress={handleAccordionPress}
+					titleStyle={theme.fonts.bodyMedium}
 				>
-					{show && (
-						<View
-							style={styles.controls}
-							onLayout={handleLayout}
-						>
-							{__DEV__ && (
-								<InfoRowControl label={'Key'}>
-									<Text>{item.key}</Text>
-								</InfoRowControl>
-							)}
-
-							{Control && <Control item={item} />}
-
+					<View
+						style={
+							undefined === accuHeight
+								? undefined
+								: {
+										minHeight: accuHeight,
+									}
+						}
+					>
+						{show && (
 							<View
-								style={{
-									justifyContent: 'space-between',
-									flexDirection: 'row',
-									marginTop: 20,
-								}}
+								style={styles.controls}
+								onLayout={handleLayout}
 							>
-								<ButtonHighlight
-									mode="outlined"
-									onPress={0 === idx ? undefined : handleMoveLeft}
-									disabled={0 === idx}
-								>
-									<IconPaper
-										source={'chevron-left'}
-										size={20}
-									/>
-								</ButtonHighlight>
+								{__DEV__ && (
+									<InfoRowControl label={'Key'}>
+										<Text>{item.key}</Text>
+									</InfoRowControl>
+								)}
 
-								<ButtonHighlight
-									mode="outlined"
-									onPress={itemsCount - 1 === idx ? undefined : handleMoveRight}
-									disabled={itemsCount - 1 === idx}
-								>
-									<IconPaper
-										source={'chevron-right'}
-										size={20}
-									/>
-								</ButtonHighlight>
+								{Control && <Control item={item} />}
 
-								<ButtonHighlight
-									icon="delete-outline"
-									mode="outlined"
-									onPress={handleRemove}
+								<View
+									style={{
+										justifyContent: 'space-between',
+										flexDirection: 'row',
+										// marginTop: 20,
+									}}
 								>
-									{t('remove')}
-								</ButtonHighlight>
+									<ButtonHighlight
+										mode="outlined"
+										onPress={0 === idx ? undefined : handleMoveLeft}
+										disabled={0 === idx}
+									>
+										<IconPaper
+											source={'chevron-left'}
+											size={20}
+										/>
+									</ButtonHighlight>
+
+									<ButtonHighlight
+										mode="outlined"
+										onPress={
+											itemsCount - 1 === idx ? undefined : handleMoveRight
+										}
+										disabled={itemsCount - 1 === idx}
+									>
+										<IconPaper
+											source={'chevron-right'}
+											size={20}
+										/>
+									</ButtonHighlight>
+
+									<ButtonHighlight
+										icon="delete-outline"
+										mode="outlined"
+										onPress={handleRemove}
+									>
+										{t('remove')}
+									</ButtonHighlight>
+								</View>
 							</View>
-						</View>
-					)}
-				</View>
-			</List.Accordion>
+						)}
+					</View>
+				</List.Accordion>
+			</ControlContext.Provider>
 		)
 	);
 };
@@ -221,7 +231,8 @@ const ItemControl: FC<{}> = ({}) => {
 const styles = StyleSheet.create({
 	controls: {
 		marginBottom: 25,
-		paddingRight: 16,
+		paddingRight: 32,
+		gap: 16,
 	},
 	icon: {
 		marginRight: -16,

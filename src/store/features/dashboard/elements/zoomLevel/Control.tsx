@@ -14,7 +14,11 @@ import { useTranslation } from 'react-i18next';
 const Control: FC = () => {
 	const { t } = useTranslation();
 	return (
-		<View>
+		<View
+			style={{
+				gap: 16,
+			}}
+		>
 			<ItemMinWidthControl
 				buttonLabel={t('Use default')} // ???
 			/>

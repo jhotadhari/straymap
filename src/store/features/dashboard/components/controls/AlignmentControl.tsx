@@ -44,7 +44,9 @@ const styleAlignOptions: OptionBase[] = [
 	},
 ];
 
-const AlignmentControl: FC<{}> = () => {
+const AlignmentControl: FC<{
+	position: string;
+}> = ({ position }) => {
 	const { t } = useTranslation();
 	const theme = useTheme();
 
@@ -52,7 +54,7 @@ const AlignmentControl: FC<{}> = () => {
 
 	const [menuVisible, setMenuVisible] = useState(false);
 
-	const dashboardStyle = useAppSelector(selectDashboardStyle);
+	const dashboardStyle = useAppSelector((state) => selectDashboardStyle(state, position));
 
 	return (
 		<InfoRowControl
@@ -94,8 +96,11 @@ const AlignmentControl: FC<{}> = () => {
 								setMenuVisible(false);
 								dispatch(
 									setDashboardStyle({
-										...dashboardStyle,
-										align: opt.key,
+										position,
+										style: {
+											...dashboardStyle,
+											align: opt.key,
+										},
 									})
 								);
 							}}

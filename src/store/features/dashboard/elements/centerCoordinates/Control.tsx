@@ -15,7 +15,11 @@ import ItemMinWidthControl from '../../components/controls/ItemMinWidthControl';
 const Control: FC = () => {
 	const { t } = useTranslation();
 	return (
-		<View>
+		<View
+			style={{
+				gap: 16,
+			}}
+		>
 			<ItemUnitPrefControl
 				buttonLabel={t('follow global setting')} // ???
 				unitPrefsKey="coordinates"

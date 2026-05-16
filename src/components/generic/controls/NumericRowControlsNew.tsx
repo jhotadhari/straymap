@@ -52,9 +52,13 @@ export const NumericRowControl = ({
 	validate?: (val: number) => boolean;
 }) => {
 	const theme = useTheme();
-	const keyboardShown = useKeyboardShown();
+	// const keyboardShown = useKeyboardShown();
 
-	const [val, setVal] = useState(value + '');
+	const [val, setVal] = useState<string | undefined>();
+
+	useEffect(() => {
+		setVal(value + '');
+	}, [value]);
 
 	const [isValid, setIsValid] = useState(true);
 
@@ -73,6 +77,9 @@ export const NumericRowControl = ({
 	const handleBlurCbRef = useRef<undefined | (() => void)>(undefined);
 	useEffect(() => {
 		handleBlurCbRef.current = () => {
+			if (!val) {
+				return;
+			}
 			let newValNb = strValToNb(val, numType);
 			if (
 				'number' !== typeof newValNb ||
@@ -93,14 +100,14 @@ export const NumericRowControl = ({
 		value,
 	]);
 
-	// call handleBlur on keyboard hide.
-	useEffect(() => {
-		if (!keyboardShown && handleBlurCbRef?.current) {
-			handleBlurCbRef.current();
-		}
-	}, [
-		keyboardShown,
-	]);
+	// // call handleBlur on keyboard hide.
+	// useEffect(() => {
+	// 	if (!keyboardShown && handleBlurCbRef?.current) {
+	// 		handleBlurCbRef.current();
+	// 	}
+	// }, [
+	// 	keyboardShown,
+	// ]);
 
 	const handleChangeText = useCallback(
 		(newVal: string) => {
@@ -181,7 +188,7 @@ export const SegmentedNumericRowControl = ({
 	validate?: (val: number) => boolean;
 }) => {
 	const theme = useTheme();
-	const keyboardShown = useKeyboardShown();
+	// const keyboardShown = useKeyboardShown();
 
 	const [val, setVal] = useState(value + '');
 	useEffect(() => {
@@ -231,14 +238,14 @@ export const SegmentedNumericRowControl = ({
 		numValueActive,
 	]);
 
-	// call handleBlur on keyboard hide.
-	useEffect(() => {
-		if (!keyboardShown && handleBlurCbRef?.current) {
-			handleBlurCbRef.current();
-		}
-	}, [
-		keyboardShown,
-	]);
+	// // call handleBlur on keyboard hide.
+	// useEffect(() => {
+	// 	if (!keyboardShown && handleBlurCbRef?.current) {
+	// 		handleBlurCbRef.current();
+	// 	}
+	// }, [
+	// 	keyboardShown,
+	// ]);
 
 	const handleChangeText = useCallback(
 		(newVal: string) => {

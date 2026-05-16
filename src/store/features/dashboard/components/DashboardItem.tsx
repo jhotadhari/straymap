@@ -54,6 +54,7 @@ const Item: FC<{
 									borderColor: theme.colors.inverseOnSurface,
 								}
 							: undefined,
+						{ transition: 0 },
 					]}
 					key={item.key}
 					onPress={onPress}

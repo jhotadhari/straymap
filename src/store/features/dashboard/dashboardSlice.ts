@@ -16,7 +16,8 @@ import { getSetterThunkWithGetter } from '../baseMap/utils';
 import { arrayMoveMutable } from 'array-move';
 
 export interface DashboardSettings {
-	dashboardStyle: DashboardStyle;
+	dashboardStyleTop: DashboardStyle;
+	dashboardStyleBottom: DashboardStyle;
 	itemsTop: DashboardItem<any>[];
 	itemsBottom: DashboardItem<any>[];
 }
@@ -28,9 +29,13 @@ export interface DashboardState extends SliceSettingsBase, DashboardSettings {
 }
 
 export const initialSettings: DashboardSettings = {
-	dashboardStyle: {
-		align: 'top',
-		fontSize: 14,
+	dashboardStyleTop: {
+		align: 'between',
+		fontSize: 20,
+	},
+	dashboardStyleBottom: {
+		align: 'between',
+		fontSize: 20,
 	},
 	itemsTop: [],
 	itemsBottom: [
@@ -67,10 +72,20 @@ export const dashboardSlice = createSlice({
 		setIsEditingDashboard: (state, action: PayloadAction<boolean>) => {
 			state.isEditingDashboard = action.payload;
 		},
-		setDashboardStyle: (state, action: PayloadAction<DashboardSettings['dashboardStyle']>) => {
-			state.dashboardStyle = action.payload;
+		setDashboardStyle: (
+			state,
+			action: PayloadAction<{
+				position: string;
+				style: DashboardStyle;
+			}>
+		) => {
+			if ('top' === action.payload.position) {
+				state.dashboardStyleTop = action.payload.style;
+			}
+			if ('bottom' === action.payload.position) {
+				state.dashboardStyleBottom = action.payload.style;
+			}
 		},
-
 		setItems: (
 			// ??? should be thunk
 			state,

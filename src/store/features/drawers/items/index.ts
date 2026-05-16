@@ -5,7 +5,14 @@ import searchPlace from './searchPlace';
 import tracksRoutes from './tracksRoutes';
 import waypoints from './waypoints';
 
-export { maps, brouter, position, searchPlace, tracksRoutes, waypoints };
+export {
+    maps,
+    brouter,
+    position,
+    searchPlace,
+    tracksRoutes,
+    waypoints,
+};
 
 // export const egal1 = {
 // 	key: 'egal1',

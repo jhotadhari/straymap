@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { FC, useCallback } from 'react';
+import React, { FC, useCallback, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 
 /**
@@ -12,6 +12,7 @@ import { selectDashboardStyle, selectEditItem } from '../../selectors';
 import { setItem } from '../../dashboardSlice';
 import { omit } from 'lodash-es';
 import { SegmentedNumericRowControl } from '../../../../../components/generic/controls/NumericRowControlsNew';
+import { ControlContext } from '../../ControlContext';
 
 const validate = (val: number) => val >= 0 && val <= 99;
 
@@ -20,9 +21,11 @@ const ItemFontSizeControl: FC<{ buttonLabel?: string }> = ({ buttonLabel }) => {
 
 	const dispatch = useAppDispatch();
 
+	const { position } = useContext(ControlContext);
+
 	const { item } = useAppSelector(selectEditItem);
 
-	const dashboardStyle = useAppSelector(selectDashboardStyle);
+	const dashboardStyle = useAppSelector((state) => selectDashboardStyle(state, position));
 
 	const handleToggleOption = useCallback(() => {
 		if (undefined === item?.fontSize) {

@@ -25,7 +25,11 @@ const Control: FC = () => {
 	const theme = useTheme();
 
 	return (
-		<View>
+		<View
+			style={{
+				gap: 16,
+			}}
+		>
 			{!hgtDirPath && (
 				<View
 					style={{
