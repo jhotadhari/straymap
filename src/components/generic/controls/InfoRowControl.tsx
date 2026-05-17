@@ -58,8 +58,6 @@ const InfoRowControl = ({
 			<View
 				style={[
 					{
-						marginTop: 10,
-						marginBottom: 10,
 						flexDirection: 'row',
 						display: 'flex',
 						alignItems: 'center',

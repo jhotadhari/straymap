@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { Dispatch, SetStateAction, useCallback, useContext, useMemo, useState } from 'react';
-import { View, TouchableHighlight } from 'react-native';
+import { View, TouchableHighlight, StyleSheet } from 'react-native';
 import { List, useTheme, Text, Icon } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { get } from 'lodash-es';
@@ -49,25 +49,41 @@ const CacheRow = ({
 		<InfoRowControl
 			key={cache.basename}
 			label={cache.readableSize}
-			labelStyle={{ marginLeft: 25, marginRight: -25 }}
+			labelStyle={{
+				marginLeft: 16,
+				marginRight: -16,
+			}}
 		>
 			<View
 				style={{
-					maxWidth: '70%',
 					flexDirection: 'row',
-
+					gap: 8,
 					justifyContent: 'space-between',
 					alignItems: 'center',
 				}}
 			>
 				<View
 					style={{
-						marginRight: 10,
 						flexShrink: 1,
 						flexGrow: 1,
 					}}
 				>
-					<Text style={{ color: theme.colors.surfaceVariant }}>{cache.basename}</Text>
+					<View
+						style={{
+							flexDirection: 'row',
+						}}
+					>
+						<Text
+							style={{
+								color: theme.colors.surfaceVariant,
+								width: 1,
+								flexShrink: 1,
+								flexGrow: 1,
+							}}
+						>
+							{cache.basename}
+						</Text>
+					</View>
 
 					<Text style={{ marginTop: 5 }}>
 						{cacheLayers.length
@@ -151,7 +167,7 @@ const CacheManager = () => {
 
 	return (
 		<List.Accordion
-			title={'Cache Manager'}
+			title={'Cache Manager'} // ??? translation
 			left={(props) => (
 				<View
 					style={{
@@ -180,37 +196,47 @@ const CacheManager = () => {
 			}}
 			titleStyle={theme.fonts.bodyMedium}
 		>
-			{cacheDirs.length == 0 && <LoadingIndicator />}
+			<View style={styles.controls}>
+				{cacheDirs.length == 0 && <LoadingIndicator />}
 
-			{[...cacheDirs].map((cacheDir: CacheDir) => {
-				return (
-					<View
-						key={cacheDir.path}
-						style={{
-							marginBottom: 10,
-							marginLeft: -12,
-						}}
-					>
-						<InfoRowControl
-							label={internalCacheDir === cacheDir.path ? 'Internal' : 'External'}
+				{[...cacheDirs].map((cacheDir: CacheDir) => {
+					return (
+						<View
+							key={cacheDir.path}
+							style={{
+								marginLeft: -12,
+								gap: 16,
+							}}
 						>
-							<Text style={{ maxWidth: '70%' }}>{cacheDir.path}</Text>
-						</InfoRowControl>
+							<InfoRowControl
+								label={internalCacheDir === cacheDir.path ? 'Internal' : 'External'}
+							>
+								<Text>{cacheDir.path}</Text>
+							</InfoRowControl>
 
-						{[...cacheDir.caches].map((cache: CacheSubDir) => (
-							<CacheRow
-								key={cache.basename}
-								cache={cache}
-								cacheDir={cacheDir}
-								findLayers={findLayers}
-								updateCacheDirs={updateCacheDirs}
-							/>
-						))}
-					</View>
-				);
-			})}
+							{[...cacheDir.caches].map((cache: CacheSubDir) => (
+								<CacheRow
+									key={cache.basename}
+									cache={cache}
+									cacheDir={cacheDir}
+									findLayers={findLayers}
+									updateCacheDirs={updateCacheDirs}
+								/>
+							))}
+						</View>
+					);
+				})}
+			</View>
 		</List.Accordion>
 	);
 };
+
+const styles = StyleSheet.create({
+	controls: {
+		marginBottom: 24,
+		paddingRight: 24,
+		gap: 16,
+	},
+});
 
 export default CacheManager;

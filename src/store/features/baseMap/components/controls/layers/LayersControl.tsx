@@ -62,7 +62,7 @@ export const mapTypeOptions: LayerOption[] = [
 	label: 'map.typeDesc.' + opt.key,
 }));
 
-export const itemHeight = 50;
+export const itemHeight = 56;
 
 const DraggableItem: FC<{
 	item: LayerConfig;
@@ -300,7 +300,7 @@ const EditModal: FC<{
 			)}
 
 			{layerTemp.type && (
-				<View>
+				<View style={ stylesGeneric.modal }>
 					<View style={styles.modalRowType}>
 						<Text style={styles.modalRowTypeLabel}>{t('baseMap.mapType')}:</Text>
 						<Text>{layerTemp.type}</Text>
@@ -555,8 +555,12 @@ export const stylesGeneric = StyleSheet.create({
 		marginRight: -7,
 		justifyContent: 'center',
 	},
+	modal: {
+		marginTop: 16,
+		gap: 24
+	},
 	modalControls: {
-		marginTop: 20,
+		marginTop: 16,
 		marginBottom: 40,
 		flexDirection: 'row',
 		justifyContent: 'space-between',
@@ -575,7 +579,7 @@ export const stylesGeneric = StyleSheet.create({
 		alignItems: 'center',
 		flexDirection: 'row-reverse',
 		overflow: 'hidden',
-		paddingLeft: 14,
+		paddingLeft: 12,
 		paddingRight: 24,
 	},
 });

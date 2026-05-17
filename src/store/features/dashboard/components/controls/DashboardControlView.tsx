@@ -4,8 +4,6 @@
 import React, { FC, useContext, useEffect } from 'react';
 import { View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
-import { useTranslation } from 'react-i18next';
-import { useTheme } from 'react-native-paper';
 
 /**
  * Internal dependencies
@@ -13,19 +11,14 @@ import { useTheme } from 'react-native-paper';
 import { useAppDispatch } from '../../../../hooks';
 import { setEditItemKey, setIsEditingDashboard } from '../../dashboardSlice';
 import { AppContext } from '../../../../../Context';
-import NewItemControl from './NewItemControl';
-import InfoButton from '../../../../../components/generic/InfoButton';
 import DashboardControl from './DashboardControl';
 import ItemControl from './ItemControl';
 
 const DashboardControlView: FC<{}> = () => {
-	const theme = useTheme();
 
 	const { mapHeight } = useContext(AppContext);
 
 	const dispatch = useAppDispatch();
-
-	const { t } = useTranslation();
 
 	useEffect(() => {
 		dispatch(setIsEditingDashboard(true));
@@ -46,8 +39,6 @@ const DashboardControlView: FC<{}> = () => {
 		>
 			<ScrollView scrollEnabled={true}>
 				<DashboardControl />
-
-				{/* <DashboardControl position="bottom" /> */}
 
 				{/* <GeneralControl /> */}
 

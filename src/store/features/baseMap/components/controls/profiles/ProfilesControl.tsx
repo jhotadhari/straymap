@@ -179,7 +179,7 @@ const EditModal: FC<{
 					: t('baseMap.mapsforge.profileEdit')
 			}
 		>
-			<View>
+			<View style={ stylesGeneric.modal}>
 				<NameRowControl
 					item={profileTemp}
 					update={handleNameUpdate}
@@ -496,9 +496,8 @@ const ProfilesControl = ({
 	const styleAccordion = useMemo(
 		() => ({
 			height: itemHeight * profiles.length + 8,
-			width,
 		}),
-		[width, profiles]
+		[profiles]
 	);
 
 	const handleDragStart = useCallback(() => setScrollEnabled(false), []);

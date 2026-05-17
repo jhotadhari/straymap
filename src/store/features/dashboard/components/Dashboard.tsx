@@ -130,6 +130,7 @@ const Dashboard: FC<{
 		<ControlContext.Provider value={{ position }}>
 			<View
 				style={[
+					{ backgroundColor: theme.colors.background },
 					style,
 				]}
 				onLayout={handleLayout}
@@ -172,7 +173,8 @@ const Dashboard: FC<{
 
 export const DashboardWrapped: FC<{
 	position: string;
-}> = ({ position }) => {
+	style?: ViewStyle;
+}> = ({ position, style }) => {
 	const dispatch = useAppDispatch();
 
 	const isEditingDashboard = useAppSelector(selectIsEditingDashboard);
@@ -206,6 +208,7 @@ export const DashboardWrapped: FC<{
 	if (isEditingDashboard) {
 		return (
 			<Dashboard
+				style={style}
 				position={position}
 				sortEnabled={true}
 				highlightEditItem={true}
@@ -219,6 +222,7 @@ export const DashboardWrapped: FC<{
 	} else {
 		return (
 			<Dashboard
+				style={style}
 				position={position}
 				sortEnabled={false}
 				shouldSetBottomBarHeight={true}
