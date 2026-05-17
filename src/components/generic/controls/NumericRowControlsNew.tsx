@@ -40,6 +40,7 @@ export const NumericRowControl = ({
 	style,
 	Info,
 	numType = 'int',
+	saveOnType = true,
 	validate,
 }: {
 	label?: string;
@@ -49,12 +50,13 @@ export const NumericRowControl = ({
 	style?: ViewStyle;
 	Info?: ReactNode;
 	numType?: NumType;
+	saveOnType?:boolean;
 	validate?: (val: number) => boolean;
 }) => {
 	const theme = useTheme();
 	// const keyboardShown = useKeyboardShown();
 
-	const [val, setVal] = useState<string | undefined>();
+	const [val, setVal] = useState<string>( value + '' );
 
 	useEffect(() => {
 		setVal(value + '');
@@ -77,9 +79,6 @@ export const NumericRowControl = ({
 	const handleBlurCbRef = useRef<undefined | (() => void)>(undefined);
 	useEffect(() => {
 		handleBlurCbRef.current = () => {
-			if (!val) {
-				return;
-			}
 			let newValNb = strValToNb(val, numType);
 			if (
 				'number' !== typeof newValNb ||
@@ -99,6 +98,33 @@ export const NumericRowControl = ({
 		validate,
 		value,
 	]);
+
+	const saveOnTypeCbRef = useRef<undefined | (() => void)>(undefined);
+	useEffect(() => {
+		saveOnTypeCbRef.current = () => {
+			if ( !saveOnType) {
+				return;
+			}
+			let newValNb = strValToNb(val, numType);
+			if (
+				'number' === typeof newValNb &&
+				!isNaN(newValNb) &&
+				(!validate || validate(newValNb))
+			) {
+				saveCbRef?.current && saveCbRef.current(newValNb);
+			}
+		};
+	}, [
+		val,
+		numType,
+		validate,
+		value,
+		saveOnType,
+	]);
+
+	useEffect(() => {
+		saveOnTypeCbRef?.current && saveOnTypeCbRef.current();
+	}, [val]);
 
 	// // call handleBlur on keyboard hide.
 	// useEffect(() => {
@@ -173,11 +199,13 @@ export const SegmentedNumericRowControl = ({
 	style,
 	Info,
 	numType = 'int',
+	saveOnType = true,
 	validate,
 }: {
 	label?: string;
 	buttonLabel?: string;
 	numValueActive: boolean;
+	saveOnType?: boolean;
 	toggleOption: () => void;
 	value: number | string;
 	onUpdate: (newValue: number) => void;
@@ -237,6 +265,34 @@ export const SegmentedNumericRowControl = ({
 		value,
 		numValueActive,
 	]);
+
+	const saveOnTypeCbRef = useRef<undefined | (() => void)>(undefined);
+	useEffect(() => {
+		saveOnTypeCbRef.current = () => {
+			if (!numValueActive || !saveOnType) {
+				return;
+			}
+			let newValNb = strValToNb(val, numType);
+			if (
+				'number' === typeof newValNb &&
+				!isNaN(newValNb) &&
+				(!validate || validate(newValNb))
+			) {
+				saveCbRef?.current && saveCbRef.current(newValNb);
+			}
+		};
+	}, [
+		val,
+		numType,
+		validate,
+		value,
+		numValueActive,
+		saveOnType,
+	]);
+
+	useEffect(() => {
+		saveOnTypeCbRef?.current && saveOnTypeCbRef.current();
+	}, [val]);
 
 	// // call handleBlur on keyboard hide.
 	// useEffect(() => {
