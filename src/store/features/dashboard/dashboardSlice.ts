@@ -140,6 +140,16 @@ export const dashboardSlice = createSlice({
 		setEditItemKey: (state, action: PayloadAction<string | undefined>) => {
 			state.editItemKey = action.payload;
 		},
+		setEditItemAccordingToPosition: (state, action: PayloadAction<string | undefined>) => {
+			if ('top' === action.payload && state.itemsTop.length) {
+				state.editItemKey = state.itemsTop[0].key;
+				return;
+			} else if ('bottom' === action.payload && state.itemsBottom.length) {
+				state.editItemKey = state.itemsBottom[0].key;
+				return;
+			}
+			state.editItemKey = undefined;
+		},
 	},
 });
 
@@ -152,6 +162,7 @@ export const {
 	setItems,
 	addItem,
 	removeItemKey,
+	setEditItemAccordingToPosition,
 	setEditItemKey: setEditItemKeyAction,
 } = dashboardSlice.actions;
 

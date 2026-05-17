@@ -20,7 +20,7 @@ import { setMapEventRate } from '../../../general/generalSlice';
 import { stylesGeneric } from '../../../baseMap/components/controls/layers/LayersControl';
 import AlignmentControl from './AlignmentControl';
 import { selectDashboardStyle, selectEditItem } from '../../selectors';
-import { setDashboardStyle } from '../../dashboardSlice';
+import { setDashboardStyle, setEditItemAccordingToPosition } from '../../dashboardSlice';
 import { ControlContext } from '../../ControlContext';
 import NewItemControl from './NewItemControl';
 import InfoButton from '../../../../../components/generic/InfoButton';
@@ -31,14 +31,29 @@ const DashboardControl: FC = () => {
 
 	const dispatch = useAppDispatch();
 
-	const [position, setPosition] = useState('bottom');
-
 	const { position: editItemPosition, item } = useAppSelector(selectEditItem);
 	useEffect(() => {
 		if (item?.key) {
 			setPosition(editItemPosition);
 		}
 	}, [editItemPosition, item?.key]);
+
+	const [position, setPosition_] = useState(editItemPosition);
+
+	const setPosition = useCallback(
+		(newPosition: string) => {
+			setPosition_(newPosition);
+
+			if (!item?.key || (item?.key && editItemPosition != newPosition)) {
+				dispatch(setEditItemAccordingToPosition(newPosition));
+			}
+		},
+		[
+			item?.key,
+			editItemPosition,
+			position,
+		]
+	);
 
 	const dashboardStyle = useAppSelector((state) => selectDashboardStyle(state, position));
 

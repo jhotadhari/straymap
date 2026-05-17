@@ -13,7 +13,6 @@ import { AppContext } from '../../../../Context';
 import HardwareKeyControl from '../../general/components/controls/HardwareKeyControl';
 import UnitPrefControl from '../../general/components/controls/UnitPrefControl';
 import HgtControl from '../../general/components/controls/HgtControl';
-// import DashboardControl from '../../dashboard/OLD/DashboardControlOld';
 import LangControl from '../../general/components/controls/LangControl';
 
 const SettingsGeneral: FC = () => {
@@ -36,8 +35,6 @@ const SettingsGeneral: FC = () => {
 			<HardwareKeyControl />
 
 			<UnitPrefControl />
-
-			{/* <DashboardControl /> */}
 
 			<HgtControl />
 		</ScrollView>
