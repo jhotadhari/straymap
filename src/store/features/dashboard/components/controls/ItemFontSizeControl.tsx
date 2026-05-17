@@ -14,7 +14,7 @@ import { omit } from 'lodash-es';
 import { SegmentedNumericRowControl } from '../../../../../components/generic/controls/NumericRowControlsNew';
 import { ControlContext } from '../../ControlContext';
 
-const validate = (val: number) => val >= 0 && val <= 99;
+const validate = (val: number) => val > 0 && val <= 99;
 
 const ItemFontSizeControl: FC<{ buttonLabel?: string }> = ({ buttonLabel }) => {
 	const { t } = useTranslation();

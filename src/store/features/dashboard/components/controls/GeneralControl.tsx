@@ -66,7 +66,7 @@ const GeneralControl: FC<{}> = () => {
 					onUpdate={(newValue) => {
 						dispatch(setMapEventRate(newValue));
 					}}
-					validate={(val) => val >= 0 && val <= 20000}
+					validate={(val) => val > 0 && val <= 20000}
 					Info={t('dashboard.hint.updateRate')}
 				/>
 			</View>

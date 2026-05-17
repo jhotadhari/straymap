@@ -128,7 +128,7 @@ const DashboardControl: FC = () => {
 								})
 							);
 						}}
-						validate={(val) => val >= 0 && val <= 300}
+						validate={(val) => val > 0 && val <= 300}
 						Info={t('dashboard.hint.fontSize')}
 					/>
 

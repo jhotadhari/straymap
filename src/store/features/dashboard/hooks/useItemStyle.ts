@@ -20,7 +20,6 @@ const useItemStyle = (item: DashboardElementProps['item']) => {
 
 	const fontSize = item?.fontSize ?? dashboardStyle.fontSize;
 
-	console.log('debug fontSize', fontSize); // debug
 	const minWidth = useMemo(
 		() =>
 			item?.minWidth ??
@@ -43,8 +42,8 @@ const useItemStyle = (item: DashboardElementProps['item']) => {
 	}, [dashboardStyle]);
 
 	return {
-		fontSize,
-		minWidth,
+		fontSize: fontSize ? fontSize : 1,
+		minWidth: minWidth ? minWidth : 1,
 		textAlign,
 	};
 };
