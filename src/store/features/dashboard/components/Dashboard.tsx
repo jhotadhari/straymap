@@ -22,6 +22,7 @@ import DashboardItem from './DashboardItem';
 import { AppContext } from '../../../../Context';
 import { setEditItemKey, setItems } from '../dashboardSlice';
 import { ControlContext } from '../ControlContext';
+import { useTheme } from 'react-native-paper';
 
 const Dashboard: FC<{
 	style?: ViewStyle;
@@ -52,6 +53,8 @@ const Dashboard: FC<{
 
 	const items = useAppSelector((state) => selectItems(state, { position }));
 	const dashboardStyle = useAppSelector((state) => selectDashboardStyle(state, position));
+
+	const theme = useTheme();
 
 	const justifyContent: JustifyContent = useMemo(
 		() =>
@@ -112,6 +115,17 @@ const Dashboard: FC<{
 		[onDragEnd]
 	);
 
+	const dropIndicatorStyle = useMemo(
+		() => ({
+			backgroundColor: theme.colors.primaryContainer,
+			borderColor: theme.colors.primary,
+			borderWidth: 1,
+			opacity: 0.5,
+			borderRadius: theme.roundness,
+		}),
+		[theme]
+	);
+
 	return (
 		<ControlContext.Provider value={{ position }}>
 			<View
@@ -126,6 +140,8 @@ const Dashboard: FC<{
 					padding={0}
 					sortEnabled={sortEnabled}
 					customHandle={true}
+					showDropIndicator={true}
+					dropIndicatorStyle={dropIndicatorStyle}
 					justifyContent={justifyContent}
 					alignItems="center"
 					onDragStart={handleDragStart}

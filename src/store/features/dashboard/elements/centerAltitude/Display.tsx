@@ -2,7 +2,7 @@
  * External dependencies
  */
 import React, { FC, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { Text } from 'react-native-paper';
+import { Text, useTheme } from 'react-native-paper';
 import { get } from 'lodash-es';
 import { GestureResponderEvent, TouchableHighlight, View } from 'react-native';
 import convertUnits from 'convert-units';
@@ -46,6 +46,8 @@ const Display: FC<DashboardElementProps<Options>> = ({ item, style = {}, onPress
 		item.key,
 	]);
 
+	const theme = useTheme();
+
 	const mapEventRate = useAppSelector(selectMapEventRate);
 
 	const unitPrefs = useAppSelector(selectUnitPrefs);
@@ -74,7 +76,10 @@ const Display: FC<DashboardElementProps<Options>> = ({ item, style = {}, onPress
 	}, [mapEventRate]);
 
 	return (
-		<TouchableHighlight onPress={handlePress}>
+		<TouchableHighlight
+			underlayColor={theme.colors.primaryContainer}
+			onPress={handlePress}
+		>
 			<View
 				style={[
 					{ minWidth },

@@ -2,7 +2,7 @@
  * External dependencies
  */
 import React, { FC, useMemo } from 'react';
-import { Text } from 'react-native-paper';
+import { Text, useTheme } from 'react-native-paper';
 import { GestureResponderEvent, TouchableHighlight, View } from 'react-native';
 
 /**
@@ -23,10 +23,15 @@ const Display: FC<DashboardElementProps<Options>> = ({ item, style = {}, onPress
 		item.key,
 	]);
 
+	const theme = useTheme();
+
 	const { fontSize, minWidth } = useItemStyle(item);
 
 	return (
-		<TouchableHighlight onPress={handlePress}>
+		<TouchableHighlight
+			underlayColor={theme.colors.primaryContainer}
+			onPress={handlePress}
+		>
 			<View
 				style={[
 					{ minWidth },

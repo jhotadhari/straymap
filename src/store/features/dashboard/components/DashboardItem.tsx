@@ -44,6 +44,7 @@ const Item: FC<{
 					style={[
 						styles.display,
 						style,
+						{ borderRadius: theme.roundness },
 						highlightEditItem && editItemKey === item?.key
 							? {
 									borderColor: theme.colors.primary,
@@ -54,7 +55,6 @@ const Item: FC<{
 									borderColor: theme.colors.inverseOnSurface,
 								}
 							: undefined,
-						{ transition: 0 },
 					]}
 					key={item.key}
 					onPress={onPress}
@@ -84,6 +84,7 @@ const styles = StyleSheet.create({
 		paddingVertical: 2,
 		borderWidth: 1,
 		borderStyle: 'solid',
+		borderColor: 'transparent',
 	},
 });
 

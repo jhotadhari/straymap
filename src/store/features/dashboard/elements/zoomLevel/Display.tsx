@@ -2,7 +2,7 @@
  * External dependencies
  */
 import React, { FC, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { Text } from 'react-native-paper';
+import { Text, useTheme } from 'react-native-paper';
 import { GestureResponderEvent, TouchableHighlight, View } from 'react-native';
 import { MapEventResponse } from 'react-native-mapsforge-vtm';
 
@@ -27,6 +27,8 @@ const Display: FC<DashboardElementProps<Options>> = ({ item, style = {}, onPress
 		item.key,
 	]);
 
+	const theme = useTheme();
+
 	const { currentMapEventRef } = useContext(MapContext);
 	const mapEventRate = useAppSelector(selectMapEventRate);
 
@@ -44,7 +46,10 @@ const Display: FC<DashboardElementProps<Options>> = ({ item, style = {}, onPress
 	}, []);
 
 	return (
-		<TouchableHighlight onPress={handlePress}>
+		<TouchableHighlight
+			underlayColor={theme.colors.primaryContainer}
+			onPress={handlePress}
+		>
 			<View
 				style={[
 					{ minWidth },
