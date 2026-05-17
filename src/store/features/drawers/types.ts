@@ -20,7 +20,10 @@ export interface DrawerItem {
 	key?: string;
 	label?: string;
 	iconSource?: string;
-	DisplayComponent?: ElementType<{}>;
+	DisplayComponent?: ElementType<{
+		scrollEnabled: boolean;
+		setScrollEnabled: Dispatch<SetStateAction<boolean>>;
+	}>;
 	IconComponent?: ElementType<{
 		color: TextStyle['color'];
 	}>;

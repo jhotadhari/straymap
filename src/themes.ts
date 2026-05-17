@@ -2,13 +2,12 @@
  * External dependencies
  */
 import { MD3DarkTheme, MD3LightTheme } from 'react-native-paper';
-import { configureFonts } from 'react-native-paper';
-import { get, set } from 'lodash-es';
+import { set } from 'lodash-es';
 
 /**
  * Internal dependencies
- */
-import type { ThemePropExtended } from './types';
+*/
+import { ThemePropExtended } from './store/features/appearance/types';
 
 const BlackTheme: ThemePropExtended = {
 	...MD3DarkTheme,

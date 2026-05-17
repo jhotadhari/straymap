@@ -1,13 +1,4 @@
 /**
- * External dependencies
- */
-import { ReactElement, ReactNode } from 'react';
-import { Style as ListStyle } from 'react-native-paper/lib/typescript/components/List/utils';
-import { MD3Theme } from 'react-native-paper/lib/typescript/types';
-import { ComposedGesture, GestureType } from 'react-native-gesture-handler';
-import { GetTrackParams } from 'react-native-brouter';
-
-/**
  * react-native-mapsforge-vtm dependencies
  */
 import { Location } from 'react-native-mapsforge-vtm';
@@ -23,62 +14,7 @@ export type InitialPosition = {
 
 export type BottomBarHeight = { [value: string]: number };
 
-export interface ThemePropExtended extends MD3Theme {
-	label?: string;
-}
-
 export interface OptionBase {
 	key: string;
 	label: string;
 }
-
-export interface ThemeOption extends OptionBase {
-	value: ThemePropExtended;
-}
-
-export type RoutingPoint = {
-	key: string;
-	location: Location;
-};
-
-export interface LocationExtended extends Location {
-	lng: number;
-	lat: number;
-	alt?: number;
-	distance?: number;
-	slope?: number;
-	time?: number;
-}
-
-export type RoutingProfile = {
-	fast: GetTrackParams['fast'];
-	v: GetTrackParams['v'];
-};
-
-export type RoutingSegment = {
-	key: string;
-	fromKey: string;
-	toKey: string;
-	positions?: Location[];
-	isFetching?: boolean;
-	errorMsg?: string;
-	profile: RoutingProfile;
-	coordinatesSimplified?: LocationExtended[];
-};
-
-export type RoutingTriggeredSegment = {
-	index: number;
-	nearestPoint: Location;
-};
-
-export type NearestSimplifiedCoord = {
-	segmentIndex: number;
-	featureIndex: number;
-	distanceToPoint: number;
-};
-
-export type RoutingStats = {
-	up: number;
-	down: number;
-	distance: number;
-};

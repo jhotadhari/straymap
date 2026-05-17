@@ -37,8 +37,8 @@ import { AppContext, MapContext } from '../Context';
 import Center from '../store/features/appearance/components/Center';
 import Drawers from '../store/features/drawers/components/Drawers';
 import SplashScreen from './SplashScreen';
-import AltitudeProfile from './AltitudeProfile';
-import RoutingMapView from './RoutingMapView';
+import AltitudeProfile from '../store/features/routing/components/AltitudeProfile';
+import RoutingMapView from '../store/features/routing/components/RoutingMapView';
 import { useAppSelector } from '../store/hooks';
 import { selectHardwareKeys, selectMapEventRate } from '../store/features/general/selectors';
 import { selectElementsSettings, selectItems } from '../store/features/dashboard/selectors';
@@ -217,9 +217,23 @@ const AppView = ({
 				<MapLayersAttribution />
 			</View>
 
-			<AltitudeProfile outerWidth={width} />
+			<View
+				// style={{
+				// 	justifyContent: 'space-between',
+				// 	flexDirection: 'column',
+				// }}
+			>
+				<AltitudeProfile outerWidth={width} />
 
-			<DashboardWrapped position="bottom" />
+				<DashboardWrapped
+					// style={ {
+					// 	position: 'absolute',
+					// 	bottom: 0,
+					// 	transform: [{ translateY: '100%' }],
+					// } }
+					position="bottom"
+				/>
+			</View>
 		</SafeAreaView>
 	);
 };

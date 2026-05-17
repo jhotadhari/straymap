@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
-import React from 'react';
-import { Text } from 'react-native-paper';
+import React, { Dispatch, FC, SetStateAction } from 'react';
+import { Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
@@ -11,20 +11,21 @@ import { View } from 'react-native';
  */
 import IconIcomoon from '../../../../components/generic/IconIcomoon';
 import { DrawerItem } from '../types';
+import { handleSize, iconSize, itemStyles } from '../constants';
 
-const DisplayComponent = () => {
+const DisplayComponent: FC<{
+	scrollEnabled: boolean;
+	setScrollEnabled: Dispatch<SetStateAction<boolean>>;
+}> = ({ scrollEnabled, setScrollEnabled }) => {
 	const { t } = useTranslation();
 
 	return (
-		<View
-			style={
-				{
-					// minWidth: get( dashboardElement, ['style','minWidth'], undefined ),
-					// ...style,
-				}
-			}
-		>
-			<Text>bla searchPlace</Text>
+		<View style={itemStyles.item}>
+			<View style={itemStyles.buttonRow}>
+				<Text>
+					bla searchPlace
+				</Text>
+			</View>
 		</View>
 	);
 };

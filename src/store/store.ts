@@ -10,6 +10,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import appearanceReducer from './features/appearance/appearanceSlice';
 import generalReducer from './features/general/generalSlice';
 import dirsReducer from './features/dirs/dirsSlice';
+import routingReducer from './features/routing/routingSlice';
 import uiReducer from './features/ui/uiSlice';
 import dashboardReducer from './features/dashboard/dashboardSlice';
 import baseMapReducer from './features/baseMap/baseMapSlice';
@@ -21,6 +22,7 @@ import { initializeFromStorage as initializeFromStorage_dashboard } from './feat
 import { initializeFromStorage as initializeFromStorage_dirs } from './features/dirs/connectStorage';
 import { initializeFromStorage as initializeFromStorage_drawers } from './features/drawers/connectStorage';
 import { initializeFromStorage as initializeFromStorage_general } from './features/general/connectStorage';
+import { initializeFromStorage as initializeFromStorage_routing } from './features/routing/connectStorage';
 import { initializeFromStorage as initializeFromStorage_ui } from './features/ui/connectStorage';
 import { selectInitialized as selectSettingsInitialized_appearance } from '../store/features/appearance/selectors';
 import { selectInitialized as selectSettingsInitialized_baseMap } from '../store/features/baseMap/selectors';
@@ -28,6 +30,7 @@ import { selectInitialized as selectSettingsInitialized_dashboard } from '../sto
 import { selectInitialized as selectSettingsInitialized_dirs } from '../store/features/dirs/selectors';
 import { selectInitialized as selectSettingsInitialized_drawers } from '../store/features/drawers/selectors';
 import { selectInitialized as selectSettingsInitialized_general } from '../store/features/general/selectors';
+import { selectInitialized as selectSettingsInitialized_routing } from '../store/features/routing/selectors';
 import { selectInitialized as selectSettingsInitialized_ui } from '../store/features/ui/selectors';
 import { useAppSelector } from './hooks';
 
@@ -40,6 +43,7 @@ export const store = configureStore({
 		dashboard: dashboardReducer,
 		baseMap: baseMapReducer,
 		drawers: drawersReducer,
+		routing: routingReducer,
 	},
 	devTools: true,
 	// Add the listener middleware to the store.
@@ -68,6 +72,7 @@ initializeFromStorage_dashboard(store);
 initializeFromStorage_dirs(store);
 initializeFromStorage_drawers(store);
 initializeFromStorage_general(store);
+initializeFromStorage_routing(store);
 initializeFromStorage_ui(store);
 
 export const useSettingsInitialized = () => {
@@ -77,6 +82,7 @@ export const useSettingsInitialized = () => {
 	const settingsInitialized_dirs = useAppSelector(selectSettingsInitialized_dirs);
 	const settingsInitialized_drawers = useAppSelector(selectSettingsInitialized_drawers);
 	const settingsInitialized_general = useAppSelector(selectSettingsInitialized_general);
+	const settingsInitialized_routing = useAppSelector(selectSettingsInitialized_routing);
 	const settingsInitialized_ui = useAppSelector(selectSettingsInitialized_ui);
 	return (
 		settingsInitialized_appearance &&
@@ -85,6 +91,7 @@ export const useSettingsInitialized = () => {
 		settingsInitialized_dirs &&
 		settingsInitialized_drawers &&
 		settingsInitialized_general &&
+		settingsInitialized_routing &&
 		settingsInitialized_ui
 	);
 };

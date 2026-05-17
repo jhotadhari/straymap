@@ -7,8 +7,8 @@ import IconActions from './IconActions';
 import IconComponent from './IconComponent';
 
 export default {
-	key: 'brouter',
-	label: 'brouter',
+	key: 'routing',
+	label: 'routing',
 	DisplayComponent,
 	IconComponent,
 	IconActions,

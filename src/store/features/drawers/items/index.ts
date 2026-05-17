@@ -1,5 +1,5 @@
 import maps from './maps';
-import brouter from './brouter';
+import routing from './routing';
 import position from './position';
 import searchPlace from './searchPlace';
 import tracksRoutes from './tracksRoutes';
@@ -7,7 +7,7 @@ import waypoints from './waypoints';
 
 export {
     maps,
-    brouter,
+    routing,
     position,
     searchPlace,
     tracksRoutes,

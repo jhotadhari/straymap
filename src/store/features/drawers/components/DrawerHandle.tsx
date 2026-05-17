@@ -13,7 +13,7 @@ import { get } from 'lodash-es';
 import * as drawerItems from '../items';
 import DrawerContext from '../DrawerContext';
 import { DrawerItem } from '../types';
-import { handleSize } from '../constants';
+import { handleSize, iconSize } from '../constants';
 
 const DrawerHandle = ({
 	itemKey,
@@ -111,7 +111,7 @@ const DrawerHandle = ({
 					{iconSource && (
 						<Icon
 							source={iconSource}
-							size={25}
+							size={iconSize}
 							color={color}
 						/>
 					)}

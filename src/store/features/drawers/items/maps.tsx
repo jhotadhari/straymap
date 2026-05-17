@@ -1,10 +1,10 @@
 /**
  * External dependencies
  */
-import React, { useContext, useState } from 'react';
+import React, { Dispatch, FC, SetStateAction, useContext, useState } from 'react';
 import { Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { ScrollView } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 
 /**
  * Internal dependencies
@@ -16,8 +16,12 @@ import { setUiItemKeys } from '../../ui/uiSlice';
 import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
 import DrawerContext from '../DrawerContext';
 import { DrawerItem } from '../types';
+import { handleSize, iconSize, itemStyles } from '../constants';
 
-const DisplayComponent = () => {
+const DisplayComponent: FC<{
+	scrollEnabled: boolean;
+	setScrollEnabled: Dispatch<SetStateAction<boolean>>;
+}> = ({ scrollEnabled, setScrollEnabled }) => {
 	const { t } = useTranslation();
 
 	const { width, height, side } = useContext(DrawerContext);
@@ -26,47 +30,39 @@ const DisplayComponent = () => {
 
 	const dispatch = useAppDispatch();
 
-	const [scrollEnabled, setScrollEnabled] = useState(true);
-
 	return (
-		<ScrollView
-			scrollEnabled={scrollEnabled}
-			style={{
-				backgroundColor: theme.colors.background,
-				height: height,
-				width,
-				position: 'absolute',
-				marginTop: 3,
-			}}
-		>
+		<View style={itemStyles.item}>
 			<ButtonHighlight
-				style={{ marginHorizontal: 20, marginBottom: 20 }}
+				style={itemStyles.buttonRow}
 				mode="outlined"
 				onPress={() => dispatch(setUiItemKeys(['settings', 'maps']))}
 			>
 				<Text>{t('drawers.openMapsSettings')}</Text>
 			</ButtonHighlight>
 
-			<LayersControl
-				setScrollEnabled={setScrollEnabled}
-				width={width}
-				reverseDraggableItem={'left' === side}
-				uiStateKey={'DrawerMapLayersExpanded' + side}
-				newLabel={t('addNew')}
-				saveOnChange={true}
-				saveOnUnmount={false}
-			/>
-
-			<ProfilesControl
-				setScrollEnabled={setScrollEnabled}
-				width={width}
-				reverseDraggableItem={'left' === side}
-				uiStateKey={'DrawerMapsforgeProfilesExpanded' + side}
-				newLabel={t('addNew')}
-				saveOnChange={true}
-				saveOnUnmount={false}
-			/>
-		</ScrollView>
+			<View style={itemStyles.itemRow}>
+				<LayersControl
+					setScrollEnabled={setScrollEnabled}
+					width={width}
+					reverseDraggableItem={'left' === side}
+					uiStateKey={'DrawerMapLayersExpanded' + side}
+					newLabel={t('addNew')}
+					saveOnChange={true}
+					saveOnUnmount={false}
+				/>
+			</View>
+			<View style={itemStyles.itemRow}>
+				<ProfilesControl
+					setScrollEnabled={setScrollEnabled}
+					width={width}
+					reverseDraggableItem={'left' === side}
+					uiStateKey={'DrawerMapsforgeProfilesExpanded' + side}
+					newLabel={t('addNew')}
+					saveOnChange={true}
+					saveOnUnmount={false}
+				/>
+			</View>
+		</View>
 	);
 };
 

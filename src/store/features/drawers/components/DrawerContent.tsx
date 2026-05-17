@@ -1,9 +1,10 @@
 /**
  * External dependencies
  */
-import React, { FC, useContext, useMemo } from 'react';
-import { View } from 'react-native';
+import React, { FC, useContext, useEffect, useMemo, useState } from 'react';
+import { ScrollView, View } from 'react-native';
 import { get } from 'lodash-es';
+import { useTheme } from 'react-native-paper';
 
 /**
  * Internal dependencies
@@ -11,12 +12,14 @@ import { get } from 'lodash-es';
 import * as drawerItems from '../items';
 import DrawerContext from '../DrawerContext';
 import { DrawerItem } from '../types';
+import { iconSize } from '../constants';
 
 const handleSize = 50;
 
 const DrawerContent: FC<{}> = () => {
-	const { activeItemKey } = useContext(DrawerContext);
+	const { activeItemKey, width, height, side } = useContext(DrawerContext);
 
+	const theme = useTheme();
 	const DisplayComponent = useMemo(
 		() =>
 			activeItemKey
@@ -28,6 +31,12 @@ const DrawerContent: FC<{}> = () => {
 		[activeItemKey]
 	);
 
+	const [scrollEnabled, setScrollEnabled] = useState(true);
+
+	useEffect(() => {
+		setScrollEnabled(true);
+	}, [DisplayComponent]);
+
 	if (!DisplayComponent) {
 		return null;
 	}
@@ -35,11 +44,23 @@ const DrawerContent: FC<{}> = () => {
 	return (
 		<View
 			style={{
-				padding: 20,
 				marginTop: handleSize / 4,
 			}}
 		>
-			<DisplayComponent />
+			<ScrollView
+				scrollEnabled={scrollEnabled}
+				style={{
+					backgroundColor: theme.colors.background,
+					height,
+					width,
+					position: 'absolute',
+				}}
+			>
+				<DisplayComponent
+					scrollEnabled={scrollEnabled}
+					setScrollEnabled={setScrollEnabled}
+				/>
+			</ScrollView>
 		</View>
 	);
 };

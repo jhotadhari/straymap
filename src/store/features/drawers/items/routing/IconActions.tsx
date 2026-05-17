@@ -13,30 +13,30 @@ import { usePrevious } from 'victory-native';
 /**
  * Internal dependencies
  */
-import { AppContext, RoutingContext } from '../../../../../Context';
+import { AppContext } from '../../../../../Context';
 import { runAfterInteractions } from '../../../../../lib/utils';
-import { RoutingPoint } from '../../../../../types';
 import { MapContext } from '../../../../../Context';
 import MenuItem from '../../../../../components/generic/MenuItem';
 import DrawerContext from '../../DrawerContext';
+import { RoutingContext } from '../../../routing/RoutingContext';
+import { RoutingPoint } from '../../../routing/types';
+import { useAppDispatch, useAppSelector } from '../../../../hooks';
+import { setMovingPointIdx, setPoints, setTriggeredMarkerIdx, setTriggeredSegment } from '../../../routing/routingSlice';
+import { selectIsRouting, selectMarkerLayerUuid, selectMovingPointIdx, selectPathLayerUuids, selectPoints, selectSegments, selectTriggeredMarkerIdx, selectTriggeredSegment } from '../../../routing/selectors';
 
 const IconActions = ({ style }: { style: TextStyle }) => {
 	const { mapHeight, mapViewNativeNodeHandle } = useContext(AppContext);
 
-	const {
-		isRouting,
-		points,
-		segments,
-		setPoints,
-		markerLayerUuid,
-		pathLayerUuids,
-		triggeredMarkerIdx,
-		setTriggeredMarkerIdx,
-		triggeredSegment,
-		setTriggeredSegment,
-		movingPointIdx,
-		setMovingPointIdx,
-	} = useContext(RoutingContext);
+	const dispatch = useAppDispatch();
+
+	const isRouting = useAppSelector( selectIsRouting );
+	const points = useAppSelector( selectPoints );
+	const segments = useAppSelector( selectSegments );
+	const markerLayerUuid = useAppSelector( selectMarkerLayerUuid );
+	const pathLayerUuids = useAppSelector( selectPathLayerUuids );
+	const movingPointIdx = useAppSelector( selectMovingPointIdx );
+	const triggeredMarkerIdx = useAppSelector( selectTriggeredMarkerIdx );
+	const triggeredSegment = useAppSelector( selectTriggeredSegment );
 
 	const { currentMapEventRef } = useContext(MapContext);
 
@@ -60,8 +60,8 @@ const IconActions = ({ style }: { style: TextStyle }) => {
 			undefined === cleanTriggeredMarkerIdx ? true : cleanTriggeredMarkerIdx;
 		cleanTriggeredSegment = undefined === cleanTriggeredSegment ? true : cleanTriggeredSegment;
 		setMenuVisible(false);
-		setTriggeredMarkerIdx && cleanTriggeredMarkerIdx && setTriggeredMarkerIdx(undefined);
-		setTriggeredSegment && cleanTriggeredSegment && setTriggeredSegment(undefined);
+		setTriggeredMarkerIdx && cleanTriggeredMarkerIdx && dispatch( setTriggeredMarkerIdx(undefined));
+		setTriggeredSegment && cleanTriggeredSegment && dispatch(setTriggeredSegment(undefined));
 	};
 
 	const options = useMemo(
@@ -74,13 +74,13 @@ const IconActions = ({ style }: { style: TextStyle }) => {
 							onPress: () => {
 								dismissMenu();
 								if (setPoints && points && currentMapEventRef?.current?.center) {
-									setPoints([
+									dispatch(setPoints([
 										...points,
 										{
 											key: rnUuid.v4(),
 											location: currentMapEventRef?.current?.center,
 										},
-									]);
+									]));
 								}
 							},
 							leadingIcon: 'plus',
@@ -95,11 +95,11 @@ const IconActions = ({ style }: { style: TextStyle }) => {
 								'movePoint ' + (triggeredMarkerIdx ? triggeredMarkerIdx + 1 : ''),
 							onPress: () => {
 								dismissMenu(false);
-								if (setPoints && points && points.length > 0) {
+								if ( points && points.length > 0) {
 									setMovingPointIdx &&
 										undefined !== triggeredMarkerIdx &&
 										setMovingPointIdx(triggeredMarkerIdx);
-									setTriggeredMarkerIdx && setTriggeredMarkerIdx(undefined);
+									setTriggeredMarkerIdx && dispatch( setTriggeredMarkerIdx(undefined));
 								}
 							},
 							disabled: () =>
@@ -133,8 +133,8 @@ const IconActions = ({ style }: { style: TextStyle }) => {
 											key: rnUuid.v4(),
 											location: triggeredSegment.nearestPoint,
 										});
-										setPoints(newPoints);
-										setTriggeredSegment && setTriggeredSegment(undefined);
+										dispatch(setPoints(newPoints));
+										setTriggeredSegment && dispatch(setTriggeredSegment(undefined));
 										setTimeout(
 											() =>
 												setMovingPointIdx &&
@@ -170,7 +170,7 @@ const IconActions = ({ style }: { style: TextStyle }) => {
 								) {
 									const newPoints = [...points];
 									newPoints.splice(triggeredMarkerIdx, 1);
-									setPoints(newPoints);
+									dispatch(setPoints(newPoints));
 								}
 							},
 							disabled: () =>
@@ -189,7 +189,7 @@ const IconActions = ({ style }: { style: TextStyle }) => {
 								if (setPoints && points && points.length > 0) {
 									const newPoints = [...points];
 									newPoints.splice(-1, 1);
-									setPoints(newPoints);
+									dispatch(setPoints(newPoints));
 								}
 							},
 							disabled: () => !points || !points.length,
@@ -216,7 +216,7 @@ const IconActions = ({ style }: { style: TextStyle }) => {
 										location: currentMapEventRef?.current?.center,
 									};
 									newPoints.splice(movingPointIdx, 1, newPoint);
-									setPoints(newPoints);
+									dispatch(setPoints(newPoints));
 									setMovingPointIdx && setMovingPointIdx(undefined);
 								}
 								dismissMenu();

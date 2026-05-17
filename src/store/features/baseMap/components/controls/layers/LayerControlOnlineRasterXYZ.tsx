@@ -13,7 +13,7 @@ import dayjs from 'dayjs';
  */
 import ButtonHighlight from '../../../../../../components/generic/ButtonHighlight';
 import MenuItem from '../../../../../../components/generic/MenuItem';
-import { OptionBase, ThemePropExtended } from '../../../../../../types';
+import { OptionBase } from '../../../../../../types';
 import {
 	NumericMultiRowControl,
 	NumericRowControl,
@@ -33,11 +33,12 @@ import { setLayerTemp } from '../../../baseMapSlice';
 
 interface SourceOption extends OptionBase {
 	url?: `http://${string}` | `https://${string}`;
-	Attribution?: ({ theme }: { theme: ThemePropExtended }) => ReactElement;
+	Attribution?: () => ReactElement;
 }
 
-const AttributionGoogle = ({ theme }: { theme: ThemePropExtended }) => (
-	<View>
+const AttributionGoogle = () => {
+	const theme = useTheme()
+	return <View>
 		<Image
 			source={
 				theme.dark
@@ -52,28 +53,30 @@ const AttributionGoogle = ({ theme }: { theme: ThemePropExtended }) => (
 			&copy; Map data ©{dayjs().format('YYYY')} Google
 		</Text>
 	</View>
-);
+};
 
 export const sourceOptions: SourceOption[] = [
 	{
 		key: 'OpenStreetMap',
 		label: 'OpenStreetMap',
 		url: 'https://tile.openstreetmap.org/{Z}/{X}/{Y}.png',
-		Attribution: ({ theme }: { theme: ThemePropExtended }) => (
-			<Text
+		Attribution: () => {
+			const theme = useTheme()
+			return <Text
 				style={{ color: get(theme.colors, 'link') }}
 				onPress={() => Linking.openURL('https://www.openstreetmap.org/copyright')}
 			>
 				&copy; OpenStreetMap contributors
 			</Text>
-		),
+		},
 	},
 	{
 		key: 'OpenTopoMap',
 		label: 'OpenTopoMap',
 		url: 'https://a.tile.opentopomap.org/{Z}/{X}/{Y}.png',
-		Attribution: ({ theme }: { theme: ThemePropExtended }) => (
-			<View>
+		Attribution: () => {
+			const theme = useTheme();
+			return <View>
 				<Text
 					style={{ color: get(theme.colors, 'link') }}
 					onPress={() => Linking.openURL('https://www.openstreetmap.org/copyright')}
@@ -101,7 +104,7 @@ export const sourceOptions: SourceOption[] = [
 					CC-BY-SA
 				</Text>
 			</View>
-		),
+		},
 	},
 	{
 		key: 'EsriWorldImagery',
@@ -335,7 +338,7 @@ const SourceRowControl: FC<{}> = () => {
 
 					{Attribution && (
 						<View style={{ marginTop: 10 }}>
-							<Attribution theme={theme} />
+							<Attribution/>
 						</View>
 					)}
 				</View>

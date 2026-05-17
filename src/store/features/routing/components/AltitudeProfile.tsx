@@ -2,7 +2,15 @@
  * External dependencies
  */
 import { LayoutChangeEvent, View } from 'react-native';
-import React, { Dispatch, SetStateAction, useContext, useEffect, useMemo, useState } from 'react';
+import React, {
+	Dispatch,
+	SetStateAction,
+	useContext,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
 import Animated, { useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
 import {
 	ComposedGesture,
@@ -17,8 +25,15 @@ import { Circle, listFontFamilies, matchFont, Path } from '@shopify/react-native
 /**
  * Internal dependencies
  */
-import { BottomBarHeight, LocationExtended } from '../types';
-import { AppContext, MapContext, RoutingContext } from '../Context';
+import { AppContext, MapContext } from '../../../../Context';
+import { LocationExtended } from 'react-native-mapsforge-vtm';
+import { RoutingContext } from '../RoutingContext';
+import { useAppDispatch, useAppSelector } from '../../../hooks';
+import { selectIsRouting, selectPoints, selectSegments } from '../selectors';
+import { featureCollection, point as turfPoint } from '@turf/helpers';
+import { selectMapEventRate } from '../../general/selectors';
+import { NearestSimplifiedCoord } from '../types';
+import nearestPoint from '@turf/nearest-point';
 
 const handleSize = 50;
 
@@ -82,7 +97,108 @@ interface LocationForChart extends LocationExtended {
 }
 
 const AltitudeProfileInner = ({ height, outerWidth }: { height: number; outerWidth: number }) => {
-	const { segments, nearestSimplifiedCoord } = useContext(RoutingContext);
+	// const { nearestSimplifiedCoord } = useContext(RoutingContext);
+	const { currentMapEventRef } = useContext(MapContext);
+
+	const segments = useAppSelector(selectSegments);
+	const lines = useMemo(
+		() =>
+			segments
+				? segments.map((segment) =>
+						segment?.coordinatesSimplified
+							? featureCollection(
+									segment.coordinatesSimplified.map((coord) =>
+										turfPoint([
+											coord.lng, // ??? should be other way around. shit in react-native-mapsforge-vtm
+											coord.lat, // ??? should be other way around. shit in react-native-mapsforge-vtm
+										])
+									)
+								)
+							: false
+					)
+				: [],
+		[segments]
+	);
+
+	const mapEventRate = useAppSelector(selectMapEventRate);
+
+	const [centerLng, setCenterLng] = useState<number | undefined>(undefined);
+	const [centerLat, setCenterLat] = useState<number | undefined>(undefined);
+	const intervalRef = useRef<NodeJS.Timeout | null>(null);
+	useEffect(() => {
+		intervalRef.current = setInterval(() => {
+			setCenterLng(currentMapEventRef?.current?.center?.lng);
+			setCenterLat(currentMapEventRef?.current?.center?.lat);
+		}, mapEventRate);
+		return () => {
+			intervalRef.current && clearInterval(intervalRef.current);
+		};
+	}, [mapEventRate]);
+
+	// Thats a bit weird!!! rewrite that please haha
+	const { nearestSimplifiedCoord, nearestSimplifiedLocation } = useMemo((): {
+		nearestSimplifiedCoord?: NearestSimplifiedCoord;
+		nearestSimplifiedLocation?: LocationExtended;
+	} => {
+		if (undefined !== centerLng && undefined !== centerLat) {
+			const centerPoint = turfPoint([
+				centerLat, // ??? what?
+				centerLng, // ??? what?
+			]);
+			const nearestSimplifiedCoord = [...lines].reduce((acc: any | number, line, index) => {
+				if (!line) {
+					return acc;
+				}
+				const nearest_ = nearestPoint(centerPoint, line);
+				// nearest.geometry.
+				if (undefined === acc) {
+					return {
+						segmentIndex: index,
+						featureIndex: nearest_.properties.featureIndex,
+						distanceToPoint: nearest_.properties.distanceToPoint,
+					};
+				} else if (
+					nearest_?.properties?.distanceToPoint &&
+					acc?.distanceToPoint &&
+					nearest_.properties.distanceToPoint < acc.distanceToPoint
+				) {
+					return {
+						segmentIndex: index,
+						featureIndex: nearest_.properties.featureIndex,
+						distanceToPoint: nearest_.properties.distanceToPoint,
+					};
+				} else {
+					return acc;
+				}
+			}, undefined);
+
+			return {
+				nearestSimplifiedCoord,
+				nearestSimplifiedLocation:
+					segments &&
+					nearestSimplifiedCoord &&
+					get(
+						segments,
+						[
+							nearestSimplifiedCoord.segmentIndex,
+							'coordinatesSimplified',
+							nearestSimplifiedCoord.featureIndex,
+						],
+						undefined
+					),
+			};
+		} else {
+			return {
+				nearestSimplifiedCoord: undefined,
+				nearestSimplifiedLocation: undefined,
+			};
+		}
+	}, [
+		centerLng,
+		centerLat,
+		lines,
+		segments,
+	]);
 
 	const theme = useTheme();
 
@@ -253,7 +369,7 @@ const AltitudeProfileInner = ({ height, outerWidth }: { height: number; outerWid
 };
 
 const AltitudeProfile = ({ height = 200, outerWidth }: { height?: number; outerWidth: number }) => {
-	const { segments } = useContext(RoutingContext);
+	const segments = useAppSelector(selectSegments);
 
 	const { setBottomBarHeight } = useContext(AppContext);
 

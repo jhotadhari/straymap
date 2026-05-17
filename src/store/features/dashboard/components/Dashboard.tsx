@@ -136,6 +136,7 @@ const Dashboard: FC<{
 				onLayout={handleLayout}
 			>
 				<Sortable.Flex
+					// dimensionsAnimationType='none'
 					itemEntering={null}
 					gap={0}
 					padding={0}

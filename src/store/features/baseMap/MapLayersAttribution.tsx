@@ -5,12 +5,11 @@ import React, { FC, ReactElement } from 'react';
 import { View } from 'react-native';
 import { Icon, Text, useTheme } from 'react-native-paper';
 import { get } from 'lodash-es';
+import { useTranslation } from 'react-i18next';
 
 /**
  * react-native-mapsforge-vtm dependencies
  */
-import { ThemePropExtended } from '../../../types';
-import { useTranslation } from 'react-i18next';
 import InfoButton from '../../../components/generic/InfoButton';
 import { sourceOptions } from './components/controls/layers/LayerControlOnlineRasterXYZ';
 import { useAppSelector } from '../../hooks';
@@ -21,7 +20,7 @@ type AttributionConf = {
 	key: string;
 	name: string;
 	type: string;
-	Component: ({ theme }: { theme: ThemePropExtended }) => ReactElement;
+	Component: () => ReactElement;
 };
 
 const LayerInfoComponent = ({ layerInfo }: { layerInfo: null | LayerInfo }) => {
@@ -103,7 +102,7 @@ const Inner = ({ layerInfos }: { layerInfos: { [value: string]: LayerInfo } }) =
 						</Text>
 						<Text>({attribution.type})</Text>
 						<View style={{ marginLeft: 10, marginTop: 10 }}>
-							<Component theme={theme} />
+							<Component/>
 						</View>
 					</View>
 				);
