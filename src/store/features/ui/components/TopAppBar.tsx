@@ -18,6 +18,7 @@ import { setUiItemKeys } from '../uiSlice';
 import LoadingIndicator from '../../../../components/generic/LoadingIndicator';
 import { AppContext } from '../../../../Context';
 import { DashboardWrapped } from '../../dashboard/components/Dashboard';
+import { selectItemsCount } from '../../dashboard/selectors';
 
 const TopAppBarMenu: FC<{ items: UiItem[] }> = ({ items }) => {
 	const { t } = useTranslation();
@@ -146,8 +147,11 @@ const TopAppBar: FC = () => {
 		return () => backHandler.remove();
 	}, [backAction]);
 
+	const topItemsCount = useAppSelector((state) => selectItemsCount(state, 'top'));
+
 	const showTopDashboard =
-		!uiItemsKeys.length || uiItemsKeys[uiItemsKeys.length - 1] === 'dashboard';
+		!uiItemsKeys.length ||
+		(topItemsCount > 0 && uiItemsKeys[uiItemsKeys.length - 1] === 'dashboard');
 
 	return (
 		<View
