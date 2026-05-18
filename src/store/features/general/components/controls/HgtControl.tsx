@@ -93,9 +93,7 @@ const HgtControl = () => {
 					<NumericRowControl
 						label={t('general.hgtReadFileRate')}
 						value={hgtReadFileRate}
-						onUpdate={(newValue) =>
-							dispatch(setHgtReadFileRate(newValue))
-						}
+						onUpdate={(newValue) => dispatch(setHgtReadFileRate(newValue))}
 						validate={(val) => val >= 0 && val <= 20000}
 						Info={t('general.hint.hgtReadFileRate')}
 					/>
@@ -103,9 +101,7 @@ const HgtControl = () => {
 					<NumericRowControl
 						label={t('general.hgtFileInfoPurgeThreshold')}
 						value={hgtFileInfoPurgeThreshold}
-						onUpdate={(newValue) =>
-							dispatch(setHgtFileInfoPurgeThreshold(newValue))
-						}
+						onUpdate={(newValue) => dispatch(setHgtFileInfoPurgeThreshold(newValue))}
 						validate={(val) => val >= 0 && val <= 200}
 						Info={t('general.hint.hgtFileInfoPurgeThreshold')}
 					/>

@@ -9,34 +9,33 @@ import packageJson from '../../../../package.json';
 class Updater {
 	store: EnhancedStore;
 
-    updateCbs: {
-        [versionFrom: string]: // the version updating from
-            null | ((results: UpdateResults, versionFrom: string) => Promise<UpdateResults>); // function to run when updating from this version.
-    } = {
-        ['0.0.2']: null,
-        // ['x.x.x']: ( results: UpdateResults, versionFrom ) => new Promise( resolve => {
-        //     setTimeout( () => {
-        //         const success = true;
-        //         if ( success ) {
-        //             resolve( {
-        //                 ...results,
-        //                 [versionFrom]: {
-        //                     state: 'success',
-        //                 },
-        //             } );
-        //         } else {
-        //             resolve( {
-        //                 ...results,
-        //                 [versionFrom]: {
-        //                     state: 'failed',
-        //                     msg: 'Some Error wtf'
-        //                 },
-        //             } );
-        //         }
-        //     }, 500 );
-        // } ),
-    };
-
+	updateCbs: {
+		[versionFrom: string]: // the version updating from
+			null | ((results: UpdateResults, versionFrom: string) => Promise<UpdateResults>); // function to run when updating from this version.
+	} = {
+		['0.0.2']: null,
+		// ['x.x.x']: ( results: UpdateResults, versionFrom ) => new Promise( resolve => {
+		//     setTimeout( () => {
+		//         const success = true;
+		//         if ( success ) {
+		//             resolve( {
+		//                 ...results,
+		//                 [versionFrom]: {
+		//                     state: 'success',
+		//                 },
+		//             } );
+		//         } else {
+		//             resolve( {
+		//                 ...results,
+		//                 [versionFrom]: {
+		//                     state: 'failed',
+		//                     msg: 'Some Error wtf'
+		//                 },
+		//             } );
+		//         }
+		//     }, 500 );
+		// } ),
+	};
 
 	constructor(store: EnhancedStore) {
 		this.store = store;

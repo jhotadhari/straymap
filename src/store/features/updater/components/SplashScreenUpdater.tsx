@@ -132,9 +132,7 @@ const SplashScreenUpdater: FC = () => {
 
 			{'isDowngrade' === isUpdating && (
 				<View style={{ marginTop: 10 }}>
-					<Text style={{ marginTop: 10 }}>
-						{t('updater.errorDowngrade')}
-					</Text>
+					<Text style={{ marginTop: 10 }}>{t('updater.errorDowngrade')}</Text>
 					<Text style={{ marginTop: 10 }}>
 						{sprintf(t('updater.versionLast'), installedVersionStore)}
 					</Text>

@@ -18,7 +18,12 @@ import {
 	RenderStylesCache,
 } from './types';
 import { getLayerKind, getNewProfile, getSetterThunkWithGetter } from './utils';
-import { selectLayerInfos, selectLayerTemp, selectMapsforgeGeneral, selectMapsforgeProfileTemp } from './selectors';
+import {
+	selectLayerInfos,
+	selectLayerTemp,
+	selectMapsforgeGeneral,
+	selectMapsforgeProfileTemp,
+} from './selectors';
 
 export interface BaseMapSettings {
 	layers: LayerConfig[];

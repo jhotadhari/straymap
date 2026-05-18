@@ -78,12 +78,8 @@ export const generalSlice = createSlice({
 });
 
 // Export the generated action creators for use in components.
-export const {
-	setInitialized,
-	setHardwareKeys,
-	setMapEventRate,
-	setUnitPrefs,
-} = generalSlice.actions;
+export const { setInitialized, setHardwareKeys, setMapEventRate, setUnitPrefs } =
+	generalSlice.actions;
 
 // Export the slice reducer for use in the store configuration
 export default generalSlice.reducer;

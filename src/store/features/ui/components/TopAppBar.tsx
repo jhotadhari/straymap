@@ -122,7 +122,7 @@ const TopAppBar: FC = () => {
 			getUiItemsByKey(uiItemsKeys)
 				.map((item) => t(item.label))
 				.join(' / '),
-		[uiItemsKeys,t]
+		[uiItemsKeys, t]
 	);
 
 	const menuItems = useMemo(

@@ -166,34 +166,32 @@ export const NumericRowControlMulti = ({
 			label={label}
 			Info={Info}
 		>
-			<View style={[
-                styles.flexRow,
-                {
-                    flexGrow: 1,
-                    gap: 8,
-                }
-            ]}>
+			<View
+				style={[
+					styles.flexRow,
+					{
+						flexGrow: 1,
+						gap: 8,
+					},
+				]}
+			>
 				{values.map((_value, idx) => (
 					<View
 						key={idx}
 						style={{
 							flexDirection: 'row',
 							alignItems: 'center',
-                            gap: 8.
+							gap: 8,
 						}}
 					>
-						{get(optLabels, idx, undefined) && (
-							<Text>
-								{get(optLabels, idx)}
-							</Text>
-						)}
+						{get(optLabels, idx, undefined) && <Text>{get(optLabels, idx)}</Text>}
 						<TextInput
 							style={{ maxWidth: 50 }}
 							underlineColor="transparent"
 							error={!isValids[idx]}
 							dense={true}
 							theme={overwriteTheme}
-							onChangeText={(newVal) => handleChangeText( newVal, idx )}
+							onChangeText={(newVal) => handleChangeText(newVal, idx)}
 							onBlur={handleBlur}
 							value={vals[idx]}
 							keyboardType="numeric"

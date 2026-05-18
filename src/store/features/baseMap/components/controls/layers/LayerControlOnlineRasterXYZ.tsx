@@ -423,12 +423,12 @@ const LayerControlOnlineRasterXYZ: FC<{}> = () => {
 
 			<NumericRowControlMulti
 				label={t('enabled')}
-				optLabels={['min','max']}
+				optLabels={['min', 'max']}
 				saveOnType={false}
-				values={ [
+				values={[
 					layerTemp?.options?.enabledZoomMin ?? 0,
 					layerTemp?.options?.enabledZoomMax ?? 0,
-				] }
+				]}
 				onUpdate={(newValues) =>
 					setOptions({
 						...(layerTemp?.options ?? {}),
@@ -442,12 +442,12 @@ const LayerControlOnlineRasterXYZ: FC<{}> = () => {
 
 			<NumericRowControlMulti
 				label={'Zoom'}
-				optLabels={['min','max']}
+				optLabels={['min', 'max']}
 				saveOnType={false}
-				values={ [
+				values={[
 					layerTemp?.options?.zoomMin ?? 0,
 					layerTemp?.options?.zoomMax ?? 0,
-				] }
+				]}
 				onUpdate={(newValues) =>
 					setOptions({
 						...(layerTemp?.options ?? {}),

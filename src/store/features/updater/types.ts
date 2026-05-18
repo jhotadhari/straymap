@@ -1,4 +1,3 @@
-
 export type UpdateResults = {
 	[value: string]: // the version updating from
 	{

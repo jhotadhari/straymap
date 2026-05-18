@@ -8,13 +8,7 @@ import { get, isEqual, set } from 'lodash-es';
 /**
  * Internal dependencies
  */
-import {
-	LangSettings,
-	LangState,
-	initialSettings,
-	setInitialized,
-	setLang,
-} from './langSlice';
+import { LangSettings, LangState, initialSettings, setInitialized, setLang } from './langSlice';
 import { startAppListening } from '../../listenerMiddleware';
 import { changeLang } from '../../../assets/i18n/i18n';
 import { SUPPORTED_LANGUAGES } from '../../../assets/i18n/constants';

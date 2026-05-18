@@ -5,9 +5,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { BackHandler, View } from 'react-native';
 import { useSafeAreaFrame } from 'react-native-safe-area-context';
 import { PaperProvider, useTheme } from 'react-native-paper';
-import {
-	MapEventResponse,
-} from 'react-native-mapsforge-vtm';
+import { MapEventResponse } from 'react-native-mapsforge-vtm';
 
 /**
  * Internal dependencies
@@ -63,7 +61,7 @@ const App = () => {
 		width,
 	};
 
-	if ( isUpdating ) {
+	if (isUpdating) {
 		return (
 			<View style={style}>
 				<SplashScreenUpdater />
@@ -71,7 +69,7 @@ const App = () => {
 		);
 	}
 
-	if (!initialPositionInitialized || ! settingsInitialized ) {
+	if (!initialPositionInitialized || !settingsInitialized) {
 		return (
 			<View style={style}>
 				<SplashScreen />
@@ -117,4 +115,4 @@ export default () => {
 			<App />
 		</PaperProvider>
 	);
-};;
+};

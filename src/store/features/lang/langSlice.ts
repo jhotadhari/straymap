@@ -40,10 +40,7 @@ export const langSlice = createSlice({
 });
 
 // Export the generated action creators for use in components.
-export const {
-	setInitialized,
-	setLang,
-} = langSlice.actions;
+export const { setInitialized, setLang } = langSlice.actions;
 
 // Export the slice reducer for use in the store configuration
 export default langSlice.reducer;

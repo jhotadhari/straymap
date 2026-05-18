@@ -50,11 +50,7 @@ export const updaterSlice = createSlice({
 });
 
 // Export the generated action creators for use in components.
-export const {
-	setInitialized,
-	setIsUpdating,
-	setInstalledVersion,
-} = updaterSlice.actions;
+export const { setInitialized, setIsUpdating, setInstalledVersion } = updaterSlice.actions;
 
 // Export the slice reducer for use in the store configuration
 export default updaterSlice.reducer;

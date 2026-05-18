@@ -207,9 +207,7 @@ const HgtSourceRowControl = ({
 			)}
 
 			<View style={{ flexDirection: 'row', alignItems: 'center' }}>
-				<ButtonHighlight
-					onPress={() => setModalVisible(true)}
-				>
+				<ButtonHighlight onPress={() => setModalVisible(true)}>
 					<Text>
 						{t(
 							selectedOpt
