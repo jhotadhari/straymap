@@ -17,6 +17,8 @@ import en_dirs from '../../store/features/dirs/assets/i18n/en.json';
 import en_drawers from '../../store/features/drawers/assets/i18n/en.json';
 import en_general from '../../store/features/general/assets/i18n/en.json';
 import en_ui from '../../store/features/ui/assets/i18n/en.json';
+import en_updater from '../../store/features/updater/assets/i18n/en.json';
+import en_lang from '../../store/features/lang/assets/i18n/en.json';
 import de_ from './en.json';
 import de_appearance from '../../store/features/appearance/assets/i18n/de.json';
 import de_baseMap from '../../store/features/baseMap/assets/i18n/de.json';
@@ -25,6 +27,8 @@ import de_dirs from '../../store/features/dirs/assets/i18n/de.json';
 import de_drawers from '../../store/features/drawers/assets/i18n/de.json';
 import de_general from '../../store/features/general/assets/i18n/de.json';
 import de_ui from '../../store/features/ui/assets/i18n/de.json';
+import de_updater from '../../store/features/updater/assets/i18n/de.json';
+import de_lang from '../../store/features/lang/assets/i18n/de.json';
 import { SUPPORTED_LANGUAGES, FALLBACK_LANGUAGE, LANGUAGE_NAMES } from './constants';
 
 const en = {
@@ -37,6 +41,8 @@ const en = {
 		drawers: en_drawers,
 		general: en_general,
 		ui: en_ui,
+		updater: en_updater,
+		lang: en_lang,
 	},
 };
 
@@ -50,6 +56,8 @@ const de = {
 		drawers: de_drawers,
 		general: de_general,
 		ui: de_ui,
+		updater: de_updater,
+		lang: de_lang,
 	},
 };
 

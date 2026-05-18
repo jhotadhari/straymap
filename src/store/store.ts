@@ -16,6 +16,7 @@ import updaterReducer from './features/updater/updaterSlice';
 import dashboardReducer from './features/dashboard/dashboardSlice';
 import baseMapReducer from './features/baseMap/baseMapSlice';
 import drawersReducer from './features/drawers/drawersSlice';
+import langReducer from './features/lang/langSlice';
 import { listenerMiddleware } from './listenerMiddleware';
 import { initializeFromStorage as initializeFromStorage_appearance } from './features/appearance/connectStorage';
 import { initializeFromStorage as initializeFromStorage_baseMap } from './features/baseMap/connectStorage';
@@ -26,6 +27,7 @@ import { initializeFromStorage as initializeFromStorage_general } from './featur
 import { initializeFromStorage as initializeFromStorage_routing } from './features/routing/connectStorage';
 import { initializeFromStorage as initializeFromStorage_ui } from './features/ui/connectStorage';
 import { initializeFromStorage as initializeFromStorage_updater } from './features/updater/connectStorage';
+import { initializeFromStorage as initializeFromStorage_lang } from './features/lang/connectStorage';
 import { selectInitialized as selectSettingsInitialized_appearance } from '../store/features/appearance/selectors';
 import { selectInitialized as selectSettingsInitialized_baseMap } from '../store/features/baseMap/selectors';
 import { selectInitialized as selectSettingsInitialized_dashboard } from '../store/features/dashboard/selectors';
@@ -35,6 +37,7 @@ import { selectInitialized as selectSettingsInitialized_general } from '../store
 import { selectInitialized as selectSettingsInitialized_routing } from '../store/features/routing/selectors';
 import { selectInitialized as selectSettingsInitialized_ui } from '../store/features/ui/selectors';
 import { selectInitialized as selectSettingsInitialized_updater } from '../store/features/updater/selectors';
+import { selectInitialized as selectSettingsInitialized_lang } from '../store/features/lang/selectors';
 import { useAppSelector } from './hooks';
 
 export const store = configureStore({
@@ -48,6 +51,7 @@ export const store = configureStore({
 		drawers: drawersReducer,
 		routing: routingReducer,
 		updater: updaterReducer,
+		lang: langReducer,
 	},
 	devTools: true,
 	// Add the listener middleware to the store.
@@ -70,6 +74,7 @@ export type AppThunk<ThunkReturnType = void> = ThunkAction<
 	Action
 >;
 
+initializeFromStorage_lang(store);
 initializeFromStorage_updater(store).then((success) => {
 	if (success) {
 		initializeFromStorage_appearance(store);
@@ -93,6 +98,7 @@ export const useSettingsInitialized = () => {
 	const settingsInitialized_routing = useAppSelector(selectSettingsInitialized_routing);
 	const settingsInitialized_ui = useAppSelector(selectSettingsInitialized_ui);
 	const settingsInitialized_updater = useAppSelector(selectSettingsInitialized_updater);
+	const settingsInitialized_lang = useAppSelector(selectSettingsInitialized_lang);
 	return (
 		settingsInitialized_appearance &&
 		settingsInitialized_baseMap &&
@@ -102,6 +108,7 @@ export const useSettingsInitialized = () => {
 		settingsInitialized_general &&
 		settingsInitialized_routing &&
 		settingsInitialized_ui &&
-		settingsInitialized_updater
+		settingsInitialized_updater &&
+		settingsInitialized_lang
 	);
 };

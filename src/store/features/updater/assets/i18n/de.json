@@ -1,2 +1,13 @@
 {
+	"updaterFail": "Du kannst versuchen die App zu starten, aber es kann sein, dass sie nicht richtig funktioniert.",
+	"updaterProceed": "App starten",
+	"updaterCloseApp": "App schließen",
+	"success": "Erfolgreich",
+	"failed": "Fehlgeschlagen",
+	"updating": "Am aktualisieren",
+	"errorMsg": "Fehlermeldung",
+	"versionLast": "Zuletzt installierte Version: %s",
+	"versionCurrent": "Derzeitig installierte version: %s",
+	"errorDowngrade": "Die App wurde auf eine ältere Version zurückgesetzt. Die zuletzt installierte Version ist höher als die aktuelle Version.",
+	"errorMsgFallback": "Etwas ist schief gelaufen."
 }

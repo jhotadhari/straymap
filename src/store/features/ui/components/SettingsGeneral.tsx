@@ -13,7 +13,7 @@ import { AppContext } from '../../../../Context';
 import HardwareKeyControl from '../../general/components/controls/HardwareKeyControl';
 import UnitPrefControl from '../../general/components/controls/UnitPrefControl';
 import HgtControl from '../../general/components/controls/HgtControl';
-import LangControl from '../../general/components/controls/LangControl';
+import LangControl from '../../lang/components/controls/LangControl';
 
 const SettingsGeneral: FC = () => {
 	const theme = useTheme();

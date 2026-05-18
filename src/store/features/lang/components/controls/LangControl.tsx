@@ -13,7 +13,7 @@ import ListItemMenuControl from '../../../../../components/generic/controls/List
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { selectLang } from '../../selectors';
 import { LANGUAGE_NAMES, SUPPORTED_LANGUAGES } from '../../../../../assets/i18n/constants';
-import { setLang } from '../../generalSlice';
+import { setLang } from '../../langSlice';
 import { sortArrayByOrderArray } from '../../../../../lib/utilsGeneral';
 
 const LangControl: FC = () => {
@@ -42,7 +42,7 @@ const LangControl: FC = () => {
 			anchorLabel={(
 				sortArrayByOrderArray([...SUPPORTED_LANGUAGES], [i18n.language]) as string[]
 			)
-				.map((l) => t('general.selectLang', { lng: l }))
+				.map((l) => t('lang.selectLang', { lng: l }))
 				.reverse()
 				.join(' / ')}
 			anchorLabelAppendSelected={true}

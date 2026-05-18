@@ -1,22 +1,22 @@
 /**
  * External dependencies
  */
-import { FC } from 'react';
+import { FC, useMemo } from 'react';
 import { Text, useTheme } from 'react-native-paper';
 import { BackHandler, View } from 'react-native';
 import { get } from 'lodash-es';
 import { sprintf } from 'sprintf-js';
+import { useTranslation } from 'react-i18next';
 
 /**
  * Internal dependencies
  */
-import SplashScreen from './SplashScreen';
-import ButtonHighlight from './generic/ButtonHighlight';
-import { useTranslation } from 'react-i18next';
-import { useAppDispatch, useAppSelector } from '../store/hooks';
-import packageJson from '../../package.json';
-import { selectInstalledVersion, selectIsUpdating } from '../store/features/updater/selectors';
-import { setInstalledVersion, setIsUpdating } from '../store/features/updater/updaterSlice';
+import SplashScreen from '../../../../components/SplashScreen';
+import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
+import { useAppDispatch, useAppSelector } from '../../../hooks';
+import packageJson from '../../../../../package.json';
+import { selectInstalledVersion, selectIsUpdating } from '../selectors';
+import { setIsUpdating } from '../updaterSlice';
 
 const FailControls: FC = () => {
 	const theme = useTheme();
@@ -26,7 +26,7 @@ const FailControls: FC = () => {
 
 	return (
 		<View>
-			<Text style={{ marginTop: 10 }}>{t('general.updaterFail')}</Text>
+			<Text style={{ marginTop: 10 }}>{t('updater.updaterFail')}</Text>
 			<View
 				style={{
 					flexDirection: 'row',
@@ -38,12 +38,12 @@ const FailControls: FC = () => {
 					onPress={() => {
 						// dispatch(setInstalledVersion(packageJson.version));
 						dispatch(setIsUpdating(false));
-					} }
+					}}
 					mode="contained"
 					buttonColor={get(theme.colors, 'primaryContainer')}
 					textColor={get(theme.colors, 'onPrimaryContainer')}
 				>
-					<Text>{t('general.updaterProceed')}</Text>
+					<Text>{t('updater.updaterProceed')}</Text>
 				</ButtonHighlight>
 				<ButtonHighlight
 					style={{ marginTop: 20, marginBottom: 40 }}
@@ -52,7 +52,7 @@ const FailControls: FC = () => {
 					buttonColor={get(theme.colors, 'primaryContainer')}
 					textColor={get(theme.colors, 'onPrimaryContainer')}
 				>
-					<Text>{t('general.updaterCloseApp')}</Text>
+					<Text>{t('updater.updaterCloseApp')}</Text>
 				</ButtonHighlight>
 			</View>
 		</View>
@@ -65,10 +65,15 @@ const SplashScreenUpdater: FC = () => {
 	const installedVersionStore = useAppSelector(selectInstalledVersion);
 
 	const theme = useTheme();
+
 	const { t } = useTranslation();
-	const failedResult =
-		'object' === typeof isUpdating &&
-		Object.values(isUpdating).find((result) => 'failed' === result.state);
+
+	const failedResult = useMemo(
+		() =>
+			'object' === typeof isUpdating &&
+			Object.values(isUpdating).find((result) => 'failed' === result.state),
+		[isUpdating]
+	);
 
 	return (
 		<SplashScreen
@@ -108,7 +113,7 @@ const SplashScreenUpdater: FC = () => {
 									},
 									updateResult.state,
 									''
-								) + t('general.' + updateResult.state)}
+								) + t('updater.' + updateResult.state)}
 							</Text>
 						</View>
 					);
@@ -117,9 +122,9 @@ const SplashScreenUpdater: FC = () => {
 			{failedResult && isUpdating && (
 				<View style={{ marginTop: 10 }}>
 					<Text style={{ marginTop: 10 }}>
-						{t('general.errorMsg') +
+						{t('updater.errorMsg') +
 							': ' +
-							get(failedResult, 'msg', t('general.errorMsgFallback'))}
+							get(failedResult, 'msg', t('updater.errorMsgFallback'))}
 					</Text>
 					<FailControls />
 				</View>
@@ -128,15 +133,13 @@ const SplashScreenUpdater: FC = () => {
 			{'isDowngrade' === isUpdating && (
 				<View style={{ marginTop: 10 }}>
 					<Text style={{ marginTop: 10 }}>
-						{t(
-							'The app got downgraded. The last installed version is higher than the current version.'
-						)}
+						{t('updater.errorDowngrade')}
 					</Text>
 					<Text style={{ marginTop: 10 }}>
-						{sprintf(t('Last installed version: %s'), installedVersionStore)}
+						{sprintf(t('updater.versionLast'), installedVersionStore)}
 					</Text>
 					<Text style={{ marginTop: 10 }}>
-						{sprintf(t('Current version: %s'), packageJson.version)}
+						{sprintf(t('updater.versionCurrent'), packageJson.version)}
 					</Text>
 					<FailControls />
 				</View>

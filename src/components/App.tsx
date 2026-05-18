@@ -19,7 +19,7 @@ import type { InitialPosition, BottomBarHeight } from '../types';
 import { AppContext, MapContext } from '../Context';
 import SplashScreen from './SplashScreen';
 import AppView from './AppView';
-import SplashScreenUpdater from './SplashScreenUpdater';
+import SplashScreenUpdater from '../store/features/updater/components/SplashScreenUpdater';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useAppSelector } from '../store/hooks';
 import { useSetupTheme } from '../store/features/appearance/hooks';

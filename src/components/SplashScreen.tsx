@@ -4,6 +4,7 @@
 import { Text, useTheme } from 'react-native-paper';
 import { View, ViewStyle } from 'react-native';
 import { useSafeAreaFrame } from 'react-native-safe-area-context';
+import { ReactNode } from 'react';
 
 /**
  * Internal dependencies
@@ -11,7 +12,6 @@ import { useSafeAreaFrame } from 'react-native-safe-area-context';
 import ModalWrapper from './generic/ModalWrapper';
 import AnimatedLogo from './AnimatedLogo';
 import { modalWidthFactor } from '../constants';
-import { ReactNode } from 'react';
 
 const SplashScreen = ({
 	displayLogo = true,
@@ -20,7 +20,7 @@ const SplashScreen = ({
 }: {
 	displayLogo?: boolean;
 	children?: ReactNode;
-	innerStyle?: ViewStyle | null;
+	innerStyle?: ViewStyle;
 }) => {
 	const theme = useTheme();
 	const { width, height } = useSafeAreaFrame();
