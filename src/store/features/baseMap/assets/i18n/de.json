@@ -99,7 +99,6 @@
 	"hint": {
 		"nameId": "Irgendein beliebiger Name zur Identifizierung. Es ist wirklich egal wie du es nennst.",
 		"applyToAllMapsforge": "Diese Einstellungen gelten für alle mapsforge Kartenebenen.",
-		"changeNeedsRestart": "Änderungen erfordern einen Neustart der App.",
 		"lineScale": "Linien-Skalierungsfaktor > 0.0\n\nZur Skalierung der Liniendicke auf der Karte\n\nStandard: 1. = keine Skalierung der Liniendicke",
 		"textScale": "Text-Skalierungsfaktor > 0.0\n\nZur Skalierung der Größe von Beschriftungen auf der Karte\n\nStandard: 1. = keine Skalierung der Textgröße",
 		"symbolScale": "Symbol-Skalierungsfaktor > 0.0\n\nZur Skalierung der Symbolgröße auf der Karte\n\nStandard: 1. = keine Skalierung der Symbolgröße",

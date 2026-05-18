@@ -41,7 +41,6 @@ const MapsforgeGeneralControl = () => {
 			hasHeaderBackPress={true}
 		>
 			<Text style={{ marginBottom: 10 }}>{t('baseMap.hint.applyToAllMapsforge')}</Text>
-			<Text style={{ marginBottom: 10 }}>{t('baseMap.hint.changeNeedsRestart')}</Text>
 
 			<NumericRowControl
 				label={t('baseMap.lineScale')}

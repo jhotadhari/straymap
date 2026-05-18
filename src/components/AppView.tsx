@@ -7,7 +7,9 @@ import React, {
 	SetStateAction,
 	useCallback,
 	useContext,
+	useEffect,
 	useMemo,
+	useState,
 } from 'react';
 import { StatusBar, useColorScheme, View } from 'react-native';
 import 'intl-pluralrules';
@@ -26,6 +28,7 @@ import {
 	MapEventResponse,
 	ResponseInclude,
 	MapLifeCycleResponse,
+	CanvasAdapterModule,
 } from 'react-native-mapsforge-vtm';
 
 /**
@@ -48,6 +51,7 @@ import {
 	selectHgtFileInfoPurgeThreshold,
 	selectHgtInterpolation,
 	selectHgtReadFileRate,
+	selectMapsforgeGeneral,
 } from '../store/features/baseMap/selectors';
 import BaseMap from '../store/features/baseMap/components/BaseMap';
 import UiItemComponent from '../store/features/ui/components/UiItemComponent';
@@ -145,6 +149,20 @@ const AppView = ({
 		[hardwareKeys]
 	);
 
+	const [showMap, setShowMap] = useState(false);
+	const mapsforgeGeneral = useAppSelector(selectMapsforgeGeneral);
+	useEffect(() => {
+		setShowMap(false);
+		setTimeout(() => {
+			CanvasAdapterModule.setLineScale(mapsforgeGeneral.lineScale);
+			CanvasAdapterModule.setTextScale(mapsforgeGeneral.textScale);
+			CanvasAdapterModule.setSymbolScale(mapsforgeGeneral.symbolScale);
+			setShowMap(true);
+		}, 1);
+	}, [
+		mapsforgeGeneral,
+	]);
+
 	return (
 		<SafeAreaView
 			style={{
@@ -167,41 +185,52 @@ const AppView = ({
 			>
 				<UiItemComponent />
 
-				<MapContainer
-					mapEventRate={mapEventRate}
-					nativeNodeHandle={mapViewNativeNodeHandle}
-					setNativeNodeHandle={setMapViewNativeNodeHandle}
-					hgtInterpolation={hgtInterpolation}
-					hgtFileInfoPurgeThreshold={hgtFileInfoPurgeThreshold}
-					hgtReadFileRate={hgtReadFileRate}
-					hgtDirPath={hgtDirPath}
-					responseInclude={responseInclude}
-					height={mapHeight || 0}
-					width={width}
-					center={initialPositionRef?.current?.center}
-					zoomLevel={initialPositionRef?.current?.zoomLevel}
-					zoomMin={2}
-					zoomMax={20}
-					moveEnabled={true}
-					tiltEnabled={false}
-					rotationEnabled={false}
-					zoomEnabled={true}
-					onPause={saveCurrentPositionToInitial}
-					onError={(err) => console.log('Error', err)}
-					onResume={(response) => console.log('lifecycle event onResume', response)}
-					onMapEvent={(response: MapEventResponse) => {
-						currentMapEventRef.current = response;
-					}}
-					emitsHardwareKeyUp={emitsHardwareKeyUp}
-					onHardwareKeyUp={handleHardwareKeyUp}
-				>
-					<BaseMap />
+				{showMap && (
+					<MapContainer
+						mapEventRate={mapEventRate}
+						nativeNodeHandle={mapViewNativeNodeHandle}
+						setNativeNodeHandle={setMapViewNativeNodeHandle}
+						hgtInterpolation={hgtInterpolation}
+						hgtFileInfoPurgeThreshold={hgtFileInfoPurgeThreshold}
+						hgtReadFileRate={hgtReadFileRate}
+						hgtDirPath={hgtDirPath}
+						responseInclude={responseInclude}
+						height={mapHeight || 0}
+						width={width}
+						center={initialPositionRef?.current?.center}
+						zoomLevel={initialPositionRef?.current?.zoomLevel}
+						zoomMin={2}
+						zoomMax={20}
+						moveEnabled={true}
+						tiltEnabled={false}
+						rotationEnabled={false}
+						zoomEnabled={true}
+						onPause={saveCurrentPositionToInitial}
+						onError={(err) => console.log('Error', err)}
+						onResume={(response) => console.log('lifecycle event onResume', response)}
+						onMapEvent={(response: MapEventResponse) => {
+							currentMapEventRef.current = response;
+						}}
+						emitsHardwareKeyUp={emitsHardwareKeyUp}
+						onHardwareKeyUp={handleHardwareKeyUp}
+					>
+						<BaseMap />
 
-					<LayerScalebar />
+						<LayerScalebar />
 
-					{/* has to be last. bug until MapContainer.View is mixing up reactTreeIndex */}
-					<RoutingMapView />
-				</MapContainer>
+						{/* has to be last. bug until MapContainer.View is mixing up reactTreeIndex */}
+						<RoutingMapView />
+					</MapContainer>
+				)}
+
+				{!showMap && (
+					<View
+						style={{
+							height: mapHeight || 0,
+							width: width,
+						}}
+					/>
+				)}
 
 				<Center
 					height={mapHeight || 0}

@@ -99,7 +99,6 @@
 	"hint": {
 		"nameId": "Any name for identification. It doesn't really matter what you call it.",
 		"applyToAllMapsforge": "These settings apply to all mapsforge map layers.",
-		"changeNeedsRestart": "Changes require a restart of the app.",
 		"lineScale": "Line scale factor > 0.0\n\nTo scale thickness of lines on map\n\nDefault: 1. = no line thickness scaling",
 		"textScale": "Text scale factor > 0.0\n\nTo scale size of labels on map\n\nDefault: 1. = no text size scaling",
 		"symbolScale": "Symbol scale factor > 0.0\n\nTo scale size of symbols on map\n\nDefault: 1. = no symbol size scaling",
