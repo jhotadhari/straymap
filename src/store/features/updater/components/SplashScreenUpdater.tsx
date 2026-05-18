@@ -81,7 +81,7 @@ const SplashScreenUpdater: FC = () => {
 			innerStyle={{ justifyContent: 'flex-start' }}
 		>
 			{!failedResult && 'isDowngrade' !== isUpdating && (
-				<Text>{'Updating the database, please wait ...'}</Text>
+				<Text>{t('updater.updatingMsg')}</Text>
 			)}
 
 			{'object' === typeof isUpdating &&
@@ -95,7 +95,7 @@ const SplashScreenUpdater: FC = () => {
 								flexDirection: 'row',
 							}}
 						>
-							<Text>{sprintf('Update from %s', updatingKey) + ': '}</Text>
+							<Text>{sprintf(t('updater.updateFrom'), updatingKey) + ': '}</Text>
 							<Text
 								style={{
 									...('success' === updateResult.state && {

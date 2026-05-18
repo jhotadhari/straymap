@@ -30,33 +30,28 @@ const settingsKey = 'updaterSettings';
 export const initializeFromStorage = (store: EnhancedStore) => {
 	return new Promise<boolean>((resolve) => {
 		if (selectInitialized(store.getState())) {
-			resolve( false );
+			resolve(false);
 			return;
 		}
 		DefaultPreference.get(settingsKey)
 			.then((newSettingsStr) => {
-				let initialInstalledVersionStore;
 				const newSettings = (
 					newSettingsStr ? JSON.parse(newSettingsStr) : {}
 				) as Partial<UpdaterState>;
-				if (newSettings?.installedVersion) {
-					initialInstalledVersionStore = newSettings.installedVersion;
-				} else {
-					initialInstalledVersionStore = packageJson.version;
-				}
-				store.dispatch(setInstalledVersion(initialInstalledVersionStore));
-				new Updater(store).run(initialInstalledVersionStore).then(() => {
+				const version = newSettings?.installedVersion ?? packageJson.version;
+				store.dispatch(setInstalledVersion(version));
+				new Updater(store).run(version).then(() => {
 					//
 					//
 					// If there were other settings for this slice to load from DefaultPreference into store, it should be done here.
 					//
 					//
 					store.dispatch(setInitialized(true));
-					resolve( true );
+					resolve(true);
 				});
 			})
 			.catch((err) => 'ERROR' + console.log(err));
-	} );
+	});
 };
 
 /**
@@ -64,9 +59,15 @@ export const initializeFromStorage = (store: EnhancedStore) => {
  * and saves anything that differs to initialSettings to defaultPreferences.
  */
 export const saveToStorage = (updaterState: UpdaterState, actionType: string) => {
-	if (!updaterState.initialized) {
-		return;
-	}
+	//
+	//
+	// If there were other settings for this slice to save then the following had to be splitted somehow and wait for initialized
+	//
+	//
+	// if (!updaterState.initialized) {
+	// 	return;
+	// }
+
 	const settingsToSave: Partial<UpdaterSettings> = {};
 	Object.keys(initialSettings).forEach((key) => {
 		let shouldSave = false;

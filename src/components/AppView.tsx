@@ -58,20 +58,21 @@ import UiItemComponent from '../store/features/ui/components/UiItemComponent';
 import { selectUiItemKeys } from '../store/features/ui/selectors';
 import MapLayersAttribution from '../store/features/baseMap/MapLayersAttribution';
 import { DashboardWrapped } from '../store/features/dashboard/components/Dashboard';
+import useShowInitialSplash from '../compose/useShowInitialSplash';
 
 const AppView = ({
-	showSplash,
 	initialPositionRef,
 	saveCurrentPositionToInitial,
 	setMapViewNativeNodeHandle,
 }: {
-	showSplash: boolean;
 	initialPositionRef: MutableRefObject<InitialPosition | undefined>;
 	saveCurrentPositionToInitial: (response?: MapLifeCycleResponse | MapEventResponse) => void;
 	setMapViewNativeNodeHandle: Dispatch<SetStateAction<null | number>>;
 }) => {
 	const theme = useTheme();
 	const systemIsDarkMode = useColorScheme() === 'dark';
+
+	const showSplash = useShowInitialSplash();
 
 	const hardwareKeys = useAppSelector(selectHardwareKeys);
 

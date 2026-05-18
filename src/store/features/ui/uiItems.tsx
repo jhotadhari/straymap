@@ -19,25 +19,25 @@ export const uiItems: UiItem[] = [
 		key: 'settings',
 		label: 'ui.items.settings',
 		icon: 'cog',
-		Component: <Settings />,
+		Component: Settings,
 	},
 	{
 		key: 'about',
 		label: 'ui.items.about',
 		icon: 'information-variant',
-		Component: <About />,
+		Component: About,
 	},
 	{
 		key: 'maps',
 		label: 'ui.items.maps',
 		icon: 'map',
-		Component: <SettingsMaps />,
+		Component: SettingsMaps,
 	},
 	{
 		key: 'general',
 		label: 'ui.items.general',
 		icon: 'application-cog-outline',
-		Component: <SettingsGeneral />,
+		Component: SettingsGeneral,
 	},
 	{
 		key: 'dashboard',
@@ -50,7 +50,7 @@ export const uiItems: UiItem[] = [
 				color={color}
 			/>
 		),
-		Component: <SettingsDashboard />,
+		Component: SettingsDashboard,
 	},
 	{
 		key: 'appearance',
@@ -63,7 +63,7 @@ export const uiItems: UiItem[] = [
 				color={color}
 			/>
 		),
-		Component: <SettingsAppearance />,
+		Component: SettingsAppearance,
 	},
 ];
 

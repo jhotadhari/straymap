@@ -5,6 +5,8 @@
 	"success": "Success",
 	"failed": "Failed",
 	"updating": "Updating",
+	"updateFrom": "Update from %s",
+	"updatingMsg": "Updating the database, please wait ...",
 	"errorMsg": "Error message",
 	"versionLast": "Last installed version: %s",
 	"versionCurrent": "Current installed version: %s",

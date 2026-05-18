@@ -19,7 +19,7 @@ import en_general from '../../store/features/general/assets/i18n/en.json';
 import en_ui from '../../store/features/ui/assets/i18n/en.json';
 import en_updater from '../../store/features/updater/assets/i18n/en.json';
 import en_lang from '../../store/features/lang/assets/i18n/en.json';
-import de_ from './en.json';
+import de_ from './de.json';
 import de_appearance from '../../store/features/appearance/assets/i18n/de.json';
 import de_baseMap from '../../store/features/baseMap/assets/i18n/de.json';
 import de_dashboard from '../../store/features/dashboard/assets/i18n/de.json';

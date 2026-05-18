@@ -71,9 +71,9 @@ export const initialSettings: BaseMapSettings = {
 	hgtInterpolation: true,
 	hgtFileInfoPurgeThreshold: 3,
 	mapsforgeGeneral: {
-		lineScale: 1.6,
+		lineScale: 1.1,
 		symbolScale: 1,
-		textScale: 1.4,
+		textScale: 1.2,
 	},
 	renderStylesCache: {
 		optionsMap: {},
