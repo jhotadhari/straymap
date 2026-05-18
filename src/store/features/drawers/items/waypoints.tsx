@@ -21,9 +21,7 @@ const DisplayComponent: FC<{
 	return (
 		<View style={itemStyles.item}>
 			<View style={itemStyles.buttonRow}>
-				<Text>
-					bla waypoints
-				</Text>
+				<Text>bla waypoints</Text>
 			</View>
 		</View>
 	);

@@ -179,7 +179,7 @@ const EditModal: FC<{
 					: t('baseMap.mapsforge.profileEdit')
 			}
 		>
-			<View style={ stylesGeneric.modal}>
+			<View style={stylesGeneric.modal}>
 				<NameRowControl
 					item={profileTemp}
 					update={handleNameUpdate}

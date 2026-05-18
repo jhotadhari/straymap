@@ -84,11 +84,8 @@ startAppListening({
 startAppListening({
 	matcher: isAnyOf(setPoints),
 	effect: async (action: PayloadAction<RoutingPoint[]>, listenerApi) => {
-		const dispatchSetSegments = ( newSegments: RoutingSegment[]) => listenerApi.dispatch( setSegments( newSegments, { filter: true } ) );
-		updateSegments(
-			action.payload,
-			selectSegments(listenerApi.getState()),
-			dispatchSetSegments
-		)
+		const dispatchSetSegments = (newSegments: RoutingSegment[]) =>
+			listenerApi.dispatch(setSegments(newSegments, { filter: true }));
+		updateSegments(action.payload, selectSegments(listenerApi.getState()), dispatchSetSegments);
 	},
 });

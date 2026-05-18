@@ -12,17 +12,17 @@ import { useSafeAreaFrame } from 'react-native-safe-area-context';
 /**
  * Internal dependencies
  */
-import { AppContext } from '../Context';
-import AnimatedLogo from './AnimatedLogo';
-import readme from '../../README.md';
-import license from '../../LICENSE.md';
-import changelog from '../../CHANGELOG.md';
-import debugInfo from '../../.debugInfo.json';
-import packageJson from '../../package.json';
-import { removeLeadingTrailingEmptyLines, removeLines } from '../lib/utils';
-import renderRules from '../markdown/renderRules';
-import { styles } from '../markdown/styles';
-import ButtonHighlight from './generic/ButtonHighlight';
+import { AppContext } from '../../../../Context';
+import AnimatedLogo from '../../../../components/AnimatedLogo';
+import readme from '../../../../../README.md';
+import license from '../../../../../LICENSE.md';
+import changelog from '../../../../../CHANGELOG.md';
+import debugInfo from '../../../../../.debugInfo.json';
+import packageJson from '../../../../../package.json';
+import { removeLeadingTrailingEmptyLines, removeLines } from '../../../../lib/utils';
+import renderRules from '../../../../markdown/renderRules';
+import { styles } from '../../../../markdown/styles';
+import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
 
 type MdPart = {
 	key: string;
@@ -186,13 +186,13 @@ const MdPartsRenderPartDonation = ({
 				style={linkStyle}
 				onPress={() => Linking.openURL('https://ko-fi.com/H2H3162PAG')}
 			>
-				<Image source={require('../assets/images/ko-fi_donate.png')} />
+				<Image source={require('../../../../assets/images/ko-fi_donate.png')} />
 			</Text>
 			<Text
 				style={{ ...linkStyle }}
 				onPress={() => Linking.openURL('https://liberapay.com/jhotadhari/donate')}
 			>
-				<Image source={require('../assets/images/liberapay_donate.png')} />
+				<Image source={require('../../../../assets/images/liberapay_donate.png')} />
 			</Text>
 
 			<Markdown
@@ -222,7 +222,7 @@ const MdPartsRender = ({ include, mbParts }: { include?: string[]; mbParts: MdPa
 				if ('License' === part.key) {
 					return (
 						<AccordionItem
-							label={t('license')}
+							label={t('ui.license')}
 							key={part.key}
 							notExpandedContent={license.split('\n')[0]}
 						>
@@ -281,7 +281,7 @@ const About: FC = () => {
 				<Text style={{ ...theme.fonts.displaySmall, fontFamily: 'jangly_walk' }}>
 					Straymap
 				</Text>
-				<Text style={{ marginTop: 10 }}>{t('slogan')}</Text>
+				<Text style={{ marginTop: 10 }}>{t('ui.slogan')}</Text>
 				<Text style={{ marginTop: 20 }}>Version {versionChangelog}</Text>
 				{'Unreleased' === versionChangelog && (
 					<View>
@@ -293,13 +293,15 @@ const About: FC = () => {
 							}
 							return (
 								<Text key={key}>
-									{t(key) + ': ' + removeLeadingTrailingEmptyLines(string)}
+									{t('ui.' + key) +
+										': ' +
+										removeLeadingTrailingEmptyLines(string)}
 								</Text>
 							);
 						})}
 					</View>
 				)}
-				<Text style={{ marginTop: 10 }}>{t('sourceHostedOnGithub')}</Text>
+				<Text style={{ marginTop: 10 }}>{t('ui.sourceHostedOnGithub')}</Text>
 				<Text
 					style={{ color: get(theme.colors, 'link') }}
 					onPress={() => Linking.openURL('https://github.com/jhotadhari/straymap')}

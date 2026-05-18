@@ -1,4 +1,9 @@
 {
+	"license": "Lizenz",
+	"slogan": "Android-Offline-Karten-App für umherstreunende Radreisende und Vagabund*innen",
+	"sourceHostedOnGithub": "Der Quellcode ist auf Github gehostet",
+	"gitStatus": "Git Status",
+	"latestCommit": "Letzter commit",
 	"items": {
 		"settings": "Einstellungen",
 		"about": "Über",

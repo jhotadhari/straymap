@@ -7,9 +7,7 @@ import { MapEventResponse } from 'react-native-mapsforge-vtm';
 /**
  * Internal dependencies
  */
-import {
-	BottomBarHeight,
-} from './types';
+import { BottomBarHeight } from './types';
 
 export type AppContextType = {
 	mapViewNativeNodeHandle?: number | null;

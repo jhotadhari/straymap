@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, {  } from 'react';
+import React from 'react';
 import { Icon, Text } from 'react-native-paper';
 import { View } from 'react-native';
 
@@ -9,7 +9,6 @@ import { formatDistance, getUpDown } from '../../../../lib/utils';
 import { useAppSelector } from '../../../hooks';
 import { selectUnitPrefs } from '../../general/selectors';
 import { RoutingSegment } from '../types';
-
 
 const SegmentInfo = ({ segment }: { segment: RoutingSegment }) => {
 	const unitPrefs = useAppSelector(selectUnitPrefs);

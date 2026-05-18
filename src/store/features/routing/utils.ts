@@ -150,43 +150,43 @@ export const updateSegments = (
 			resolve([]);
 		});
 	}
-	[...points].reduce(
-		(newSegmentsPromise, point, index) => {
-			return newSegmentsPromise.then((newSegments) => {
-				return new Promise((resolve) => {
-					if (points.length > index + 1) {
-						const segmentIndex = segments.findIndex(
-							(segment) =>
-								segment.fromKey === point.key &&
-								segment.toKey === points[index + 1].key
-						);
-						if (
-							-1 === segmentIndex ||
-							(!segments[segmentIndex].isFetching &&
-								!segments[segmentIndex].positions)
-						) {
-							updateSegmentForIndex(
-								segmentIndex,
-								point,
-								points[index + 1],
-								0 !== index,
-								newSegments,
-								resolve,
-								dispatchSetSegments
+	[...points]
+		.reduce(
+			(newSegmentsPromise, point, index) => {
+				return newSegmentsPromise.then((newSegments) => {
+					return new Promise((resolve) => {
+						if (points.length > index + 1) {
+							const segmentIndex = segments.findIndex(
+								(segment) =>
+									segment.fromKey === point.key &&
+									segment.toKey === points[index + 1].key
 							);
+							if (
+								-1 === segmentIndex ||
+								(!segments[segmentIndex].isFetching &&
+									!segments[segmentIndex].positions)
+							) {
+								updateSegmentForIndex(
+									segmentIndex,
+									point,
+									points[index + 1],
+									0 !== index,
+									newSegments,
+									resolve,
+									dispatchSetSegments
+								);
+							} else {
+								resolve(newSegments);
+							}
 						} else {
 							resolve(newSegments);
 						}
-					} else {
-						resolve(newSegments);
-					}
+					});
 				});
-			});
-		},
-		Promise.resolve([...segments])
-	).then(
-		(newSegments: RoutingSegment[]) => {
+			},
+			Promise.resolve([...segments])
+		)
+		.then((newSegments: RoutingSegment[]) => {
 			dispatchSetSegments(newSegments);
-		}
-	);;
+		});
 };

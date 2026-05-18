@@ -63,7 +63,7 @@ const Drawer: FC<DrawerProps> = ({
 
 	// On no items, close drawer and set active item undefined.
 	useEffect(() => {
-		if (! itemKeys.length) {
+		if (!itemKeys.length) {
 			expand(false);
 			setActiveItemKey(undefined);
 		}

@@ -18,8 +18,20 @@ import {
  */
 import { RoutingSegment } from '../types';
 import { useAppDispatch, useAppSelector } from '../../../hooks';
-import { setMarkerLayerUuid, setPathLayerUuids, setSegments, setTriggeredMarkerIdx, setTriggeredSegment } from '../routingSlice';
-import { selectIsRouting, selectMovingPointIdx, selectPathLayerUuids, selectPoints, selectSegments } from '../selectors';
+import {
+	setMarkerLayerUuid,
+	setPathLayerUuids,
+	setSegments,
+	setTriggeredMarkerIdx,
+	setTriggeredSegment,
+} from '../routingSlice';
+import {
+	selectIsRouting,
+	selectMovingPointIdx,
+	selectPathLayerUuids,
+	selectPoints,
+	selectSegments,
+} from '../selectors';
 
 // const NearestToLine = () => {
 // 	const { nearestSimplifiedLocation } = useContext(RoutingContext);
@@ -34,17 +46,15 @@ import { selectIsRouting, selectMovingPointIdx, selectPathLayerUuids, selectPoin
 // };
 
 const RoutingMapView = () => {
-
 	const dispatch = useAppDispatch();
 
-	const isRouting = useAppSelector( selectIsRouting );
-	const points = useAppSelector( selectPoints );
-	const segments = useAppSelector( selectSegments );
+	const isRouting = useAppSelector(selectIsRouting);
+	const points = useAppSelector(selectPoints);
+	const segments = useAppSelector(selectSegments);
 
-	const pathLayerUuids = useAppSelector( selectPathLayerUuids );
+	const pathLayerUuids = useAppSelector(selectPathLayerUuids);
 
-
-		const movingPointIdx = useAppSelector( selectMovingPointIdx );
+	const movingPointIdx = useAppSelector(selectMovingPointIdx);
 
 	if (!isRouting) {
 		return null;
@@ -82,7 +92,12 @@ const RoutingMapView = () => {
 							}}
 							onCreate={(response) => {
 								if (response?.uuid && setPathLayerUuids) {
-									dispatch(setPathLayerUuids([...(pathLayerUuids || []), response.uuid]));
+									dispatch(
+										setPathLayerUuids([
+											...(pathLayerUuids || []),
+											response.uuid,
+										])
+									);
 								}
 								if (response?.coordinatesSimplified && setSegments) {
 									const newSegments = [...segments];
@@ -91,7 +106,7 @@ const RoutingMapView = () => {
 										coordinatesSimplified: response.coordinatesSimplified,
 									};
 									newSegments.splice(index, 1, newSegment);
-									dispatch( setSegments( newSegments ));
+									dispatch(setSegments(newSegments));
 								}
 							}}
 							onRemove={(response) => {
@@ -101,7 +116,7 @@ const RoutingMapView = () => {
 								if (idx && idx > -1 && pathLayerUuids && setPathLayerUuids) {
 									const newRoutingPathLayerUuids = [...pathLayerUuids];
 									newRoutingPathLayerUuids.splice(idx, 1);
-									dispatch( setPathLayerUuids(newRoutingPathLayerUuids));
+									dispatch(setPathLayerUuids(newRoutingPathLayerUuids));
 								}
 							}}
 							positions={segment.positions}
@@ -142,9 +157,7 @@ const RoutingMapView = () => {
 			{points && points.length > 0 && (
 				<LayerMarker
 					onCreate={(response) =>
-						response.uuid
-							? dispatch(setMarkerLayerUuid(response.uuid))
-							: null
+						response.uuid ? dispatch(setMarkerLayerUuid(response.uuid)) : null
 					}
 					onRemove={() => dispatch(setMarkerLayerUuid(null))}
 				>
@@ -161,7 +174,7 @@ const RoutingMapView = () => {
 								}),
 							}}
 							onTrigger={() => {
-								dispatch( setTriggeredMarkerIdx(index));
+								dispatch(setTriggeredMarkerIdx(index));
 							}}
 						/>
 					))}

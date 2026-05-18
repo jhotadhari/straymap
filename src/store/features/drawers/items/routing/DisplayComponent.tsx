@@ -1,14 +1,7 @@
 /**
  * External dependencies
  */
-import React, {
-	Dispatch,
-	FC,
-	Fragment,
-	SetStateAction,
-	useContext,
-	useState,
-} from 'react';
+import React, { Dispatch, FC, Fragment, SetStateAction, useContext, useState } from 'react';
 import { Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
@@ -26,7 +19,13 @@ import PointsList from '../../../routing/components/PointsList';
 import EditSegmentModal from '../../../routing/components/EditSegmentModal';
 import DismissProceedModal from '../../../routing/components/DismissProceedModal';
 import { setIsRouting, setSavedExported } from '../../../routing/routingSlice';
-import { selectIsRouting, selectPoints, selectSavedExported, selectSegments, selectStats } from '../../../routing/selectors';
+import {
+	selectIsRouting,
+	selectPoints,
+	selectSavedExported,
+	selectSegments,
+	selectStats,
+} from '../../../routing/selectors';
 
 const DisplayComponent: FC<{
 	scrollEnabled: boolean;
@@ -172,10 +171,12 @@ const DisplayComponent: FC<{
 								);
 
 								if (file && setSavedExported) {
-									dispatch( setSavedExported((savedExported) => ({
-										...savedExported,
-										exported: true,
-									})) );
+									dispatch(
+										setSavedExported((savedExported) => ({
+											...savedExported,
+											exported: true,
+										}))
+									);
 								}
 							}}
 						>

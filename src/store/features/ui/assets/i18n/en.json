@@ -1,4 +1,9 @@
 {
+	"license": "License",
+	"slogan": "Android offline map app for stray cyclists and roaming vagabonds",
+	"sourceHostedOnGithub": "Source code is hosted on github",
+	"gitStatus": "Git Status",
+	"latestCommit": "Latest commit",
 	"items": {
 		"settings": "Settings",
 		"about": "About",

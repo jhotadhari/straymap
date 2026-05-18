@@ -22,7 +22,6 @@ const DismissProceedModal: FC<{
 	dismissModalVisible: boolean;
 	setDismissModalVisible: Dispatch<SetStateAction<boolean>>;
 }> = ({ dismissModalVisible, setDismissModalVisible }) => {
-
 	const savedExported = useAppSelector(selectSavedExported);
 
 	const dispatch = useAppDispatch();

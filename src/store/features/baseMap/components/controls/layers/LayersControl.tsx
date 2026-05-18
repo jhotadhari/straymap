@@ -300,7 +300,7 @@ const EditModal: FC<{
 			)}
 
 			{layerTemp.type && (
-				<View style={ stylesGeneric.modal }>
+				<View style={stylesGeneric.modal}>
 					<View style={styles.modalRowType}>
 						<Text style={styles.modalRowTypeLabel}>{t('baseMap.mapType')}:</Text>
 						<Text>{layerTemp.type}</Text>
@@ -557,7 +557,7 @@ export const stylesGeneric = StyleSheet.create({
 	},
 	modal: {
 		marginTop: 16,
-		gap: 24
+		gap: 24,
 	},
 	modalControls: {
 		marginTop: 16,

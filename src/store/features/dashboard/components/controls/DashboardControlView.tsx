@@ -15,7 +15,6 @@ import DashboardControl from './DashboardControl';
 import ItemControl from './ItemControl';
 
 const DashboardControlView: FC<{}> = () => {
-
 	const { mapHeight } = useContext(AppContext);
 
 	const dispatch = useAppDispatch();

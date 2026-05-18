@@ -102,7 +102,7 @@ const Inner = ({ layerInfos }: { layerInfos: { [value: string]: LayerInfo } }) =
 						</Text>
 						<Text>({attribution.type})</Text>
 						<View style={{ marginLeft: 10, marginTop: 10 }}>
-							<Component/>
+							<Component />
 						</View>
 					</View>
 				);

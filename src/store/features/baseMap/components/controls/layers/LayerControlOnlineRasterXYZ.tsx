@@ -37,22 +37,24 @@ interface SourceOption extends OptionBase {
 }
 
 const AttributionGoogle = () => {
-	const theme = useTheme()
-	return <View>
-		<Image
-			source={
-				theme.dark
-					? require('../../../../../../assets/images/google_on_non_white.png')
-					: require('../../../../../../assets/images/google_on_white.png')
-			}
-		/>
-		<Text
-			style={{ color: get(theme.colors, 'link') }}
-			onPress={() => Linking.openURL('https://cloud.google.com/maps-platform/terms')}
-		>
-			&copy; Map data ©{dayjs().format('YYYY')} Google
-		</Text>
-	</View>
+	const theme = useTheme();
+	return (
+		<View>
+			<Image
+				source={
+					theme.dark
+						? require('../../../../../../assets/images/google_on_non_white.png')
+						: require('../../../../../../assets/images/google_on_white.png')
+				}
+			/>
+			<Text
+				style={{ color: get(theme.colors, 'link') }}
+				onPress={() => Linking.openURL('https://cloud.google.com/maps-platform/terms')}
+			>
+				&copy; Map data ©{dayjs().format('YYYY')} Google
+			</Text>
+		</View>
+	);
 };
 
 export const sourceOptions: SourceOption[] = [
@@ -61,13 +63,15 @@ export const sourceOptions: SourceOption[] = [
 		label: 'OpenStreetMap',
 		url: 'https://tile.openstreetmap.org/{Z}/{X}/{Y}.png',
 		Attribution: () => {
-			const theme = useTheme()
-			return <Text
-				style={{ color: get(theme.colors, 'link') }}
-				onPress={() => Linking.openURL('https://www.openstreetmap.org/copyright')}
-			>
-				&copy; OpenStreetMap contributors
-			</Text>
+			const theme = useTheme();
+			return (
+				<Text
+					style={{ color: get(theme.colors, 'link') }}
+					onPress={() => Linking.openURL('https://www.openstreetmap.org/copyright')}
+				>
+					&copy; OpenStreetMap contributors
+				</Text>
+			);
 		},
 	},
 	{
@@ -76,34 +80,36 @@ export const sourceOptions: SourceOption[] = [
 		url: 'https://a.tile.opentopomap.org/{Z}/{X}/{Y}.png',
 		Attribution: () => {
 			const theme = useTheme();
-			return <View>
-				<Text
-					style={{ color: get(theme.colors, 'link') }}
-					onPress={() => Linking.openURL('https://www.openstreetmap.org/copyright')}
-				>
-					&copy; OpenStreetMap contributors
-				</Text>
-				<Text
-					style={{ color: get(theme.colors, 'link') }}
-					onPress={() => Linking.openURL('http://viewfinderpanoramas.org')}
-				>
-					SRTM
-				</Text>
-				<Text
-					style={{ color: get(theme.colors, 'link') }}
-					onPress={() => Linking.openURL('https://opentopomap.org')}
-				>
-					Map style: &copy; OpenTopoMap
-				</Text>
-				<Text
-					style={{ color: get(theme.colors, 'link') }}
-					onPress={() =>
-						Linking.openURL('https://creativecommons.org/licenses/by-sa/3.0')
-					}
-				>
-					CC-BY-SA
-				</Text>
-			</View>
+			return (
+				<View>
+					<Text
+						style={{ color: get(theme.colors, 'link') }}
+						onPress={() => Linking.openURL('https://www.openstreetmap.org/copyright')}
+					>
+						&copy; OpenStreetMap contributors
+					</Text>
+					<Text
+						style={{ color: get(theme.colors, 'link') }}
+						onPress={() => Linking.openURL('http://viewfinderpanoramas.org')}
+					>
+						SRTM
+					</Text>
+					<Text
+						style={{ color: get(theme.colors, 'link') }}
+						onPress={() => Linking.openURL('https://opentopomap.org')}
+					>
+						Map style: &copy; OpenTopoMap
+					</Text>
+					<Text
+						style={{ color: get(theme.colors, 'link') }}
+						onPress={() =>
+							Linking.openURL('https://creativecommons.org/licenses/by-sa/3.0')
+						}
+					>
+						CC-BY-SA
+					</Text>
+				</View>
+			);
 		},
 	},
 	{
@@ -338,7 +344,7 @@ const SourceRowControl: FC<{}> = () => {
 
 					{Attribution && (
 						<View style={{ marginTop: 10 }}>
-							<Attribution/>
+							<Attribution />
 						</View>
 					)}
 				</View>

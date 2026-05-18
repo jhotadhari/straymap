@@ -50,13 +50,13 @@ export const NumericRowControl = ({
 	style?: ViewStyle;
 	Info?: ReactNode;
 	numType?: NumType;
-	saveOnType?:boolean;
+	saveOnType?: boolean;
 	validate?: (val: number) => boolean;
 }) => {
 	const theme = useTheme();
 	// const keyboardShown = useKeyboardShown();
 
-	const [val, setVal] = useState<string>( value + '' );
+	const [val, setVal] = useState<string>(value + '');
 
 	useEffect(() => {
 		setVal(value + '');
@@ -102,7 +102,7 @@ export const NumericRowControl = ({
 	const saveOnTypeCbRef = useRef<undefined | (() => void)>(undefined);
 	useEffect(() => {
 		saveOnTypeCbRef.current = () => {
-			if ( !saveOnType) {
+			if (!saveOnType) {
 				return;
 			}
 			let newValNb = strValToNb(val, numType);

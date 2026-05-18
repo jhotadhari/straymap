@@ -218,10 +218,10 @@ const AppView = ({
 			</View>
 
 			<View
-				// style={{
-				// 	justifyContent: 'space-between',
-				// 	flexDirection: 'column',
-				// }}
+			// style={{
+			// 	justifyContent: 'space-between',
+			// 	flexDirection: 'column',
+			// }}
 			>
 				<AltitudeProfile outerWidth={width} />
 

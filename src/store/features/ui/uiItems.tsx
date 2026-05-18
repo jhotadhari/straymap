@@ -11,7 +11,7 @@ import SettingsMaps from './components/SettingsMaps';
 import SettingsGeneral from './components/SettingsGeneral';
 import SettingsAppearance from './components/SettingsAppearance';
 import Settings from './components/Settings';
-import About from '../../../components/About';
+import About from './components/About';
 import SettingsDashboard from './components/SettingsDashboard';
 
 export const uiItems: UiItem[] = [

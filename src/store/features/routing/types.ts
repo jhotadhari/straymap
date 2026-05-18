@@ -43,7 +43,6 @@ export type RoutingTriggeredSegment = {
 	nearestPoint: Location;
 };
 
-
 export type NearestSimplifiedCoord = {
 	segmentIndex: number;
 	featureIndex: number;
@@ -55,10 +54,6 @@ export type RoutingStats = {
 	down: number;
 	distance: number;
 };
-
-
-
-
 
 export type FeatureGeometry = {
 	type: string;
