@@ -49,14 +49,28 @@ const Drawer: FC<DrawerProps> = ({
 		[side]
 	);
 
+	// On first open, set first item active, if nothing active.
 	useEffect(() => {
 		if (showContent && !activeItemKey && itemKeys.length) {
 			setActiveItemKey(itemKeys[0]);
 		}
 	}, [
+		setActiveItemKey,
 		showContent,
 		activeItemKey,
 		itemKeys,
+	]);
+
+	// On no items, close drawer and set active item undefined.
+	useEffect(() => {
+		if (! itemKeys.length) {
+			expand(false);
+			setActiveItemKey(undefined);
+		}
+	}, [
+		setActiveItemKey,
+		itemKeys.length,
+		expand,
 	]);
 
 	return (
