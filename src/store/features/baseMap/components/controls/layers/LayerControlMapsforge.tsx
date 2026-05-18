@@ -11,7 +11,7 @@ import { get } from 'lodash-es';
  * Internal dependencies
  */
 import { OptionBase } from '../../../../../../types';
-import { NumericMultiRowControl } from '../../../../../../components/generic/controls/NumericRowControls';
+import { NumericMultiRowControl } from '../../../../../../components/generic/controls/NumericRowControlsOLD';
 import FileSourceRowControl from '../../../../../../components/generic/controls/FileSourceRowControl';
 import InfoRowControl from '../../../../../../components/generic/controls/InfoRowControl';
 import ButtonHighlight from '../../../../../../components/generic/ButtonHighlight';

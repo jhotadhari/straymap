@@ -9,7 +9,7 @@ import { get } from 'lodash-es';
 /**
  * Internal dependencies
  */
-import { NumericMultiRowControl } from '../../../../../../components/generic/controls/NumericRowControls';
+import { NumericMultiRowControl } from '../../../../../../components/generic/controls/NumericRowControlsOLD';
 import { NumericRowControl } from '../../../../../../components/generic/controls/NumericRowControlsNew';
 import HgtSourceRowControl from '../../../../../../components/generic/controls/HgtSourceRowControl';
 import { getHillshadingCacheDirChild } from '../../../utils';

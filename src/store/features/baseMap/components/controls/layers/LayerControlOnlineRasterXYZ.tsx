@@ -14,7 +14,7 @@ import dayjs from 'dayjs';
 import ButtonHighlight from '../../../../../../components/generic/ButtonHighlight';
 import MenuItem from '../../../../../../components/generic/MenuItem';
 import { OptionBase } from '../../../../../../types';
-import { NumericMultiRowControl } from '../../../../../../components/generic/controls/NumericRowControls';
+import { NumericMultiRowControl } from '../../../../../../components/generic/controls/NumericRowControlsOLD';
 import { NumericRowControl } from '../../../../../../components/generic/controls/NumericRowControlsNew';
 import InfoRowControl from '../../../../../../components/generic/controls/InfoRowControl';
 import CacheControl from './CacheControl';
