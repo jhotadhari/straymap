@@ -25,7 +25,6 @@ import { handleSize, iconSize, itemStyles } from '../../constants';
 import PointsList from '../../../routing/components/PointsList';
 import EditSegmentModal from '../../../routing/components/EditSegmentModal';
 import DismissProceedModal from '../../../routing/components/DismissProceedModal';
-import { RoutingContext } from '../../../routing/RoutingContext';
 import { setIsRouting, setSavedExported } from '../../../routing/routingSlice';
 import { selectIsRouting, selectPoints, selectSavedExported, selectSegments, selectStats } from '../../../routing/selectors';
 

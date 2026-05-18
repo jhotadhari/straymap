@@ -1,17 +1,12 @@
 /**
  * External dependencies
  */
-import React, { Dispatch, FC, SetStateAction, useContext, useMemo, useState } from 'react';
-import { Icon, Text, useTheme } from 'react-native-paper';
+import React, { Dispatch, FC, SetStateAction, useContext } from 'react';
+import { Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { ScrollView, TouchableHighlight, View } from 'react-native';
-import formatcoords from 'formatcoords';
+import { View } from 'react-native';
 import { sprintf } from 'sprintf-js';
-import DraggableGrid from 'react-native-draggable-grid';
-import { get, omit } from 'lodash-es';
-import { GetTrackParams } from 'react-native-brouter';
-import { createDocument } from 'react-native-scoped-storage';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { get } from 'lodash-es';
 
 /**
  * Internal dependencies
@@ -19,19 +14,16 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import ModalWrapper from '../../../../components/generic/ModalWrapper';
 import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
 import DrawerContext from '../../drawers/DrawerContext';
-import { RoutingContext } from '../RoutingContext';
 import { useAppDispatch, useAppSelector } from '../../../hooks';
-import { setIsRouting } from '../routingSlice';
-import { selectIsRouting, selectPoints, selectSegments } from '../selectors';
+import { setIsRouting, setMovingPointIdx } from '../routingSlice';
+import { selectSavedExported } from '../selectors';
 
 const DismissProceedModal: FC<{
 	dismissModalVisible: boolean;
 	setDismissModalVisible: Dispatch<SetStateAction<boolean>>;
 }> = ({ dismissModalVisible, setDismissModalVisible }) => {
-	const {
-		savedExported,
-		setMovingPointIdx,
-	} = useContext(RoutingContext);
+
+	const savedExported = useAppSelector(selectSavedExported);
 
 	const dispatch = useAppDispatch();
 
@@ -85,8 +77,8 @@ const DismissProceedModal: FC<{
 					onPress={() => {
 						expand(false);
 						setDismissModalVisible(false);
-						setIsRouting && dispatch(setIsRouting(false));
-						setMovingPointIdx && setMovingPointIdx(undefined);
+						dispatch(setIsRouting(false));
+						dispatch(setMovingPointIdx(undefined));
 					}}
 					mode="contained"
 					buttonColor={theme.colors.errorContainer}

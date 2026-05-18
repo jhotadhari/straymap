@@ -22,7 +22,6 @@ import SplashScreen from './SplashScreen';
 import AppView from './AppView';
 import SplashScreenUpdater from './SplashScreenUpdater';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import RoutingProvider from '../store/features/routing/components/RoutingProvider';
 import { selectMapsforgeGeneral } from '../store/features/baseMap/selectors';
 import { useAppSelector } from '../store/hooks';
 import { useSetupTheme } from '../store/features/appearance/hooks';
@@ -254,16 +253,14 @@ const App = () => {
 					currentMapEventRef,
 				}}
 			>
-				<RoutingProvider>
-					<GestureHandlerRootView>
-						<AppView
-							showSplash={showSplash}
-							initialPositionRef={initialPositionRef}
-							saveCurrentPositionToInitial={saveCurrentPositionToInitial}
-							setMapViewNativeNodeHandle={setMapViewNativeNodeHandle}
-						/>
-					</GestureHandlerRootView>
-				</RoutingProvider>
+				<GestureHandlerRootView>
+					<AppView
+						showSplash={showSplash}
+						initialPositionRef={initialPositionRef}
+						saveCurrentPositionToInitial={saveCurrentPositionToInitial}
+						setMapViewNativeNodeHandle={setMapViewNativeNodeHandle}
+					/>
+				</GestureHandlerRootView>
 			</MapContext.Provider>
 		</AppContext.Provider>
 	);

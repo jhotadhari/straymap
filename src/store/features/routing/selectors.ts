@@ -27,8 +27,6 @@ export const selectSavedExported = (state: RootState) => state.routing.savedExpo
 
 export const selectStats = createAppSelector(
 	(state: RootState) => state.routing.segments,
-	// (state: RootState) => state.drawers.itemKeysRight,
-	// (_state: RootState, { side }: { side: string }) => side,
 	(segments) => {
 		if (!segments.length) {
 			return {

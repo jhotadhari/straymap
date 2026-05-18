@@ -29,7 +29,6 @@ import DrawerContext from '../../drawers/DrawerContext';
 import { RoutingSegment, RoutingPoint } from '../types';
 import { handleSize, iconSize, itemStyles } from '../../drawers/constants';
 import PointsList from './PointsList';
-import { RoutingContext } from '../RoutingContext';
 import { setSegments } from '../routingSlice';
 import { selectIsRouting, selectPoints, selectSegments } from '../selectors';
 
@@ -92,8 +91,6 @@ const EditSegmentModal: FC<{
 
 	const segments = useAppSelector(selectSegments);
 
-	const { triggerSegmentsUpdate } = useContext(RoutingContext);
-
 	const theme = useTheme();
 	const { t } = useTranslation();
 
@@ -108,7 +105,7 @@ const EditSegmentModal: FC<{
 					const newSegments = [...segments];
 					newSegments.splice(segmentIdx, 1, omit(editSegment, ['positions']));
 					dispatch(setSegments(newSegments));
-					triggerSegmentsUpdate && triggerSegmentsUpdate();
+					// triggerSegmentsUpdate && triggerSegmentsUpdate();
 				}
 			}
 		}

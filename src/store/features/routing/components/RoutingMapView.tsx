@@ -16,7 +16,6 @@ import {
 /**
  * Internal dependencies
  */
-import { RoutingContext } from '../RoutingContext';
 import { RoutingSegment } from '../types';
 import { useAppDispatch, useAppSelector } from '../../../hooks';
 import { setMarkerLayerUuid, setPathLayerUuids, setSegments, setTriggeredMarkerIdx, setTriggeredSegment } from '../routingSlice';
@@ -92,7 +91,7 @@ const RoutingMapView = () => {
 										coordinatesSimplified: response.coordinatesSimplified,
 									};
 									newSegments.splice(index, 1, newSegment);
-									dispatch( setSegments(newSegments ));
+									dispatch( setSegments( newSegments ));
 								}
 							}}
 							onRemove={(response) => {

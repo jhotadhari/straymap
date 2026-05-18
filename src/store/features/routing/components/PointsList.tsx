@@ -17,7 +17,6 @@ import DrawerContext from '../../drawers/DrawerContext';
 import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
 import LoadingIndicator from '../../../../components/generic/LoadingIndicator';
 import SegmentInfo from './SegmentInfo';
-import { RoutingContext } from '../RoutingContext';
 import { useAppDispatch, useAppSelector } from '../../../hooks';
 import { setPoints, setSegments } from '../routingSlice';
 import { selectIsRouting, selectPoints, selectSegments } from '../selectors';
@@ -46,8 +45,6 @@ const DraggableItem = ({
 	const isRouting = useAppSelector(selectIsRouting);
 	const points = useAppSelector(selectPoints);
 	const segments = useAppSelector(selectSegments);
-
-	const { triggerSegmentsUpdate } = useContext(RoutingContext);
 
 	const segmentIdx = segments
 		? segments.findIndex((segment) => segment.fromKey === item.key)
@@ -210,7 +207,7 @@ const DraggableItem = ({
 											)
 										);
 										dispatch(setSegments(newSegments));
-										triggerSegmentsUpdate && triggerSegmentsUpdate();
+										// triggerSegmentsUpdate && triggerSegmentsUpdate();
 									}
 								}}
 							>
@@ -329,7 +326,7 @@ const PointsList = ({
 				}}
 				onDragRelease={(newPoints: RoutingPoint[]) => {
 					setScrollEnabled(true);
-					setPoints && dispatch(setPoints(newPoints));
+					dispatch(setPoints(newPoints));
 					setDraggingItemIndex(null);
 				}}
 			/>

@@ -3,7 +3,6 @@
  */
 import type { PayloadAction } from '@reduxjs/toolkit';
 import { createSlice } from '@reduxjs/toolkit';
-import { MapContainerProps } from 'react-native-mapsforge-vtm';
 
 /**
  * Internal dependencies
@@ -11,7 +10,9 @@ import { MapContainerProps } from 'react-native-mapsforge-vtm';
 import { SliceSettingsBase } from '../../../types';
 import { RoutingPoint, RoutingSegment, RoutingTriggeredSegment } from './types';
 import { getSetterThunkWithGetter } from '../baseMap/utils';
-import { selectSavedExported } from './selectors';
+import { selectPoints, selectSavedExported } from './selectors';
+import { AppThunk } from '../../store';
+import { filterSegments } from './utils';
 
 export interface RoutingSettings {
 	// bla?: string;
@@ -61,7 +62,7 @@ export const routingSlice = createSlice({
 		},
 		setIsRouting: (state, action: PayloadAction<RoutingState['isRouting']>) => {
 			state.isRouting = action.payload;
-			if ( ! action.payload ) {
+			if (!action.payload) {
 				state.segments = [];
 				state.points = [];
 				state.movingPointIdx = undefined;
@@ -84,12 +85,13 @@ export const routingSlice = createSlice({
 			state.pathLayerUuids = action.payload;
 		},
 
-
-
 		setMovingPointIdx: (state, action: PayloadAction<RoutingState['movingPointIdx']>) => {
 			state.movingPointIdx = action.payload;
 		},
-		setTriggeredMarkerIdx: (state, action: PayloadAction<RoutingState['triggeredMarkerIdx']>) => {
+		setTriggeredMarkerIdx: (
+			state,
+			action: PayloadAction<RoutingState['triggeredMarkerIdx']>
+		) => {
 			state.triggeredMarkerIdx = action.payload;
 		},
 		setTriggeredSegment: (state, action: PayloadAction<RoutingState['triggeredSegment']>) => {
@@ -106,7 +108,7 @@ export const {
 	setInitialized,
 	setIsRouting,
 	setPoints,
-	setSegments,
+	setSegments: setSegmentsAction,
 	setMarkerLayerUuid,
 	setPathLayerUuids,
 	setMovingPointIdx,
@@ -118,8 +120,24 @@ export const {
 // Export the slice reducer for use in the store configuration
 export default routingSlice.reducer;
 
-
 export const setSavedExported = getSetterThunkWithGetter<RoutingState['savedExported']>(
 	selectSavedExported,
 	routingSlice.actions.setSavedExported
 );
+
+export const setSegments = (
+	segments: RoutingSegment[],
+	options?: {
+		filter?: boolean;
+	}
+): AppThunk => {
+	return (dispatch, getState) => {
+		if (options?.filter) {
+			dispatch(
+				routingSlice.actions.setSegments(filterSegments(segments, selectPoints(getState())))
+			);
+		} else {
+			dispatch(routingSlice.actions.setSegments(segments));
+		}
+	};
+};

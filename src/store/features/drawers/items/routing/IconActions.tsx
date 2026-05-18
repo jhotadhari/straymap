@@ -18,25 +18,38 @@ import { runAfterInteractions } from '../../../../../lib/utils';
 import { MapContext } from '../../../../../Context';
 import MenuItem from '../../../../../components/generic/MenuItem';
 import DrawerContext from '../../DrawerContext';
-import { RoutingContext } from '../../../routing/RoutingContext';
 import { RoutingPoint } from '../../../routing/types';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
-import { setMovingPointIdx, setPoints, setTriggeredMarkerIdx, setTriggeredSegment } from '../../../routing/routingSlice';
-import { selectIsRouting, selectMarkerLayerUuid, selectMovingPointIdx, selectPathLayerUuids, selectPoints, selectSegments, selectTriggeredMarkerIdx, selectTriggeredSegment } from '../../../routing/selectors';
+import {
+	setMovingPointIdx,
+	setPoints,
+	setTriggeredMarkerIdx,
+	setTriggeredSegment,
+} from '../../../routing/routingSlice';
+import {
+	selectIsRouting,
+	selectMarkerLayerUuid,
+	selectMovingPointIdx,
+	selectPathLayerUuids,
+	selectPoints,
+	selectSegments,
+	selectTriggeredMarkerIdx,
+	selectTriggeredSegment,
+} from '../../../routing/selectors';
 
 const IconActions = ({ style }: { style: TextStyle }) => {
 	const { mapHeight, mapViewNativeNodeHandle } = useContext(AppContext);
 
 	const dispatch = useAppDispatch();
 
-	const isRouting = useAppSelector( selectIsRouting );
-	const points = useAppSelector( selectPoints );
-	const segments = useAppSelector( selectSegments );
-	const markerLayerUuid = useAppSelector( selectMarkerLayerUuid );
-	const pathLayerUuids = useAppSelector( selectPathLayerUuids );
-	const movingPointIdx = useAppSelector( selectMovingPointIdx );
-	const triggeredMarkerIdx = useAppSelector( selectTriggeredMarkerIdx );
-	const triggeredSegment = useAppSelector( selectTriggeredSegment );
+	const isRouting = useAppSelector(selectIsRouting);
+	const points = useAppSelector(selectPoints);
+	const segments = useAppSelector(selectSegments);
+	const markerLayerUuid = useAppSelector(selectMarkerLayerUuid);
+	const pathLayerUuids = useAppSelector(selectPathLayerUuids);
+	const movingPointIdx = useAppSelector(selectMovingPointIdx);
+	const triggeredMarkerIdx = useAppSelector(selectTriggeredMarkerIdx);
+	const triggeredSegment = useAppSelector(selectTriggeredSegment);
 
 	const { currentMapEventRef } = useContext(MapContext);
 
@@ -60,7 +73,9 @@ const IconActions = ({ style }: { style: TextStyle }) => {
 			undefined === cleanTriggeredMarkerIdx ? true : cleanTriggeredMarkerIdx;
 		cleanTriggeredSegment = undefined === cleanTriggeredSegment ? true : cleanTriggeredSegment;
 		setMenuVisible(false);
-		setTriggeredMarkerIdx && cleanTriggeredMarkerIdx && dispatch( setTriggeredMarkerIdx(undefined));
+		setTriggeredMarkerIdx &&
+			cleanTriggeredMarkerIdx &&
+			dispatch(setTriggeredMarkerIdx(undefined));
 		setTriggeredSegment && cleanTriggeredSegment && dispatch(setTriggeredSegment(undefined));
 	};
 
@@ -74,13 +89,15 @@ const IconActions = ({ style }: { style: TextStyle }) => {
 							onPress: () => {
 								dismissMenu();
 								if (setPoints && points && currentMapEventRef?.current?.center) {
-									dispatch(setPoints([
-										...points,
-										{
-											key: rnUuid.v4(),
-											location: currentMapEventRef?.current?.center,
-										},
-									]));
+									dispatch(
+										setPoints([
+											...points,
+											{
+												key: rnUuid.v4(),
+												location: currentMapEventRef?.current?.center,
+											},
+										])
+									);
 								}
 							},
 							leadingIcon: 'plus',
@@ -95,11 +112,12 @@ const IconActions = ({ style }: { style: TextStyle }) => {
 								'movePoint ' + (triggeredMarkerIdx ? triggeredMarkerIdx + 1 : ''),
 							onPress: () => {
 								dismissMenu(false);
-								if ( points && points.length > 0) {
+								if (points && points.length > 0) {
 									setMovingPointIdx &&
 										undefined !== triggeredMarkerIdx &&
 										setMovingPointIdx(triggeredMarkerIdx);
-									setTriggeredMarkerIdx && dispatch( setTriggeredMarkerIdx(undefined));
+									setTriggeredMarkerIdx &&
+										dispatch(setTriggeredMarkerIdx(undefined));
 								}
 							},
 							disabled: () =>
@@ -134,7 +152,8 @@ const IconActions = ({ style }: { style: TextStyle }) => {
 											location: triggeredSegment.nearestPoint,
 										});
 										dispatch(setPoints(newPoints));
-										setTriggeredSegment && dispatch(setTriggeredSegment(undefined));
+										setTriggeredSegment &&
+											dispatch(setTriggeredSegment(undefined));
 										setTimeout(
 											() =>
 												setMovingPointIdx &&

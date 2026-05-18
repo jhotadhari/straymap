@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { isAnyOf, type EnhancedStore } from '@reduxjs/toolkit';
+import { isAnyOf, PayloadAction, type EnhancedStore } from '@reduxjs/toolkit';
 import DefaultPreference from 'react-native-default-preference';
 import { get, isEqual, set } from 'lodash-es';
 
@@ -13,8 +13,13 @@ import {
 	RoutingState,
 	initialSettings,
 	setInitialized,
+	setPoints,
+	setSegments,
 } from './routingSlice';
 import { startAppListening } from '../../listenerMiddleware';
+import { updateSegments as updateSegments } from './utils';
+import { RoutingPoint, RoutingSegment } from './types';
+import { selectSegments } from './selectors';
 
 const settingsKey = 'routingSettings';
 
@@ -69,10 +74,21 @@ export const saveToStorage = (routingState: RoutingState, actionType: string) =>
  * and calls the function to save them to defaultPreferences.
  */
 startAppListening({
-	matcher: isAnyOf(
-		// setBla,
-	),
+	matcher: isAnyOf(),
+	// setBla,
 	effect: async (action, listenerApi) => {
 		saveToStorage(listenerApi.getState().routing, action.type);
+	},
+});
+
+startAppListening({
+	matcher: isAnyOf(setPoints),
+	effect: async (action: PayloadAction<RoutingPoint[]>, listenerApi) => {
+		const dispatchSetSegments = ( newSegments: RoutingSegment[]) => listenerApi.dispatch( setSegments( newSegments, { filter: true } ) );
+		updateSegments(
+			action.payload,
+			selectSegments(listenerApi.getState()),
+			dispatchSetSegments
+		)
 	},
 });
