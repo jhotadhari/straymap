@@ -14,7 +14,6 @@ import {
 	initialSettings,
 	setHardwareKeys,
 	setInitialized,
-	setInstalledVersion,
 	setLang,
 	setMapEventRate,
 	setUnitPrefs,
@@ -22,6 +21,7 @@ import {
 import { startAppListening } from '../../listenerMiddleware';
 import { changeLang } from '../../../assets/i18n/i18n';
 import { SUPPORTED_LANGUAGES } from '../../../assets/i18n/constants';
+import { selectInitialized } from './selectors';
 
 const settingsKey = 'generalSettings';
 
@@ -41,6 +41,9 @@ startAppListening({
  * Has to be called in index.js after the store got initialized.
  */
 export const initializeFromStorage = (store: EnhancedStore) => {
+	if (selectInitialized(store.getState())) {
+		return;
+	}
 	DefaultPreference.get(settingsKey)
 		.then((newSettingsStr) => {
 			if (newSettingsStr) {
@@ -51,9 +54,6 @@ export const initializeFromStorage = (store: EnhancedStore) => {
 						([...SUPPORTED_LANGUAGES] as string[]).includes(newSettings.lang))
 				) {
 					store.dispatch(setLang(newSettings.lang));
-				}
-				if (newSettings?.installedVersion) {
-					store.dispatch(setInstalledVersion(newSettings.installedVersion));
 				}
 				if (newSettings?.hardwareKeys) {
 					store.dispatch(setHardwareKeys(newSettings.hardwareKeys));
@@ -102,7 +102,7 @@ export const saveToStorage = (generalState: GeneralState, actionType: string) =>
  * and calls the function to save them to defaultPreferences.
  */
 startAppListening({
-	matcher: isAnyOf(setLang, setInstalledVersion, setHardwareKeys, setUnitPrefs, setMapEventRate),
+	matcher: isAnyOf(setLang, setHardwareKeys, setUnitPrefs, setMapEventRate),
 	effect: async (action, listenerApi) => {
 		saveToStorage(listenerApi.getState().general, action.type);
 	},

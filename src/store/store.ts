@@ -12,6 +12,7 @@ import generalReducer from './features/general/generalSlice';
 import dirsReducer from './features/dirs/dirsSlice';
 import routingReducer from './features/routing/routingSlice';
 import uiReducer from './features/ui/uiSlice';
+import updaterReducer from './features/updater/updaterSlice';
 import dashboardReducer from './features/dashboard/dashboardSlice';
 import baseMapReducer from './features/baseMap/baseMapSlice';
 import drawersReducer from './features/drawers/drawersSlice';
@@ -24,6 +25,7 @@ import { initializeFromStorage as initializeFromStorage_drawers } from './featur
 import { initializeFromStorage as initializeFromStorage_general } from './features/general/connectStorage';
 import { initializeFromStorage as initializeFromStorage_routing } from './features/routing/connectStorage';
 import { initializeFromStorage as initializeFromStorage_ui } from './features/ui/connectStorage';
+import { initializeFromStorage as initializeFromStorage_updater } from './features/updater/connectStorage';
 import { selectInitialized as selectSettingsInitialized_appearance } from '../store/features/appearance/selectors';
 import { selectInitialized as selectSettingsInitialized_baseMap } from '../store/features/baseMap/selectors';
 import { selectInitialized as selectSettingsInitialized_dashboard } from '../store/features/dashboard/selectors';
@@ -32,6 +34,7 @@ import { selectInitialized as selectSettingsInitialized_drawers } from '../store
 import { selectInitialized as selectSettingsInitialized_general } from '../store/features/general/selectors';
 import { selectInitialized as selectSettingsInitialized_routing } from '../store/features/routing/selectors';
 import { selectInitialized as selectSettingsInitialized_ui } from '../store/features/ui/selectors';
+import { selectInitialized as selectSettingsInitialized_updater } from '../store/features/updater/selectors';
 import { useAppSelector } from './hooks';
 
 export const store = configureStore({
@@ -44,6 +47,7 @@ export const store = configureStore({
 		baseMap: baseMapReducer,
 		drawers: drawersReducer,
 		routing: routingReducer,
+		updater: updaterReducer,
 	},
 	devTools: true,
 	// Add the listener middleware to the store.
@@ -66,14 +70,18 @@ export type AppThunk<ThunkReturnType = void> = ThunkAction<
 	Action
 >;
 
-initializeFromStorage_appearance(store);
-initializeFromStorage_baseMap(store);
-initializeFromStorage_dashboard(store);
-initializeFromStorage_dirs(store);
-initializeFromStorage_drawers(store);
-initializeFromStorage_general(store);
-initializeFromStorage_routing(store);
-initializeFromStorage_ui(store);
+initializeFromStorage_updater(store).then((success) => {
+	if (success) {
+		initializeFromStorage_appearance(store);
+		initializeFromStorage_baseMap(store);
+		initializeFromStorage_dashboard(store);
+		initializeFromStorage_dirs(store);
+		initializeFromStorage_drawers(store);
+		initializeFromStorage_general(store);
+		initializeFromStorage_routing(store);
+		initializeFromStorage_ui(store);
+	}
+});
 
 export const useSettingsInitialized = () => {
 	const settingsInitialized_appearance = useAppSelector(selectSettingsInitialized_appearance);
@@ -84,6 +92,7 @@ export const useSettingsInitialized = () => {
 	const settingsInitialized_general = useAppSelector(selectSettingsInitialized_general);
 	const settingsInitialized_routing = useAppSelector(selectSettingsInitialized_routing);
 	const settingsInitialized_ui = useAppSelector(selectSettingsInitialized_ui);
+	const settingsInitialized_updater = useAppSelector(selectSettingsInitialized_updater);
 	return (
 		settingsInitialized_appearance &&
 		settingsInitialized_baseMap &&
@@ -92,6 +101,7 @@ export const useSettingsInitialized = () => {
 		settingsInitialized_drawers &&
 		settingsInitialized_general &&
 		settingsInitialized_routing &&
-		settingsInitialized_ui
+		settingsInitialized_ui &&
+		settingsInitialized_updater
 	);
 };

@@ -18,6 +18,7 @@ import {
 } from './appearanceSlice';
 import { startAppListening } from '../../listenerMiddleware';
 import customThemes from '../../../themes';
+import { selectInitialized } from './selectors';
 
 const settingsKey = 'appearanceSettings';
 
@@ -27,6 +28,9 @@ const settingsKey = 'appearanceSettings';
  * Has to be called in index.js after the store got initialized.
  */
 export const initializeFromStorage = (store: EnhancedStore) => {
+	if (selectInitialized(store.getState())) {
+		return;
+	}
 	DefaultPreference.get(settingsKey)
 		.then((newSettingsStr) => {
 			if (newSettingsStr) {

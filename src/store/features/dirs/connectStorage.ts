@@ -10,6 +10,7 @@ import { type EnhancedStore } from '@reduxjs/toolkit';
 import { setAppDirs, setInitialized } from './dirsSlice';
 import { HelperModule } from '../../../nativeModules';
 import { AbsPathsMap } from './types';
+import { selectInitialized } from './selectors';
 
 // const settingsKey = 'dirsSettings';
 
@@ -19,6 +20,9 @@ import { AbsPathsMap } from './types';
  * Has to be called in index.js after the store got initialized.
  */
 export const initializeFromStorage = (store: EnhancedStore) => {
+	if (selectInitialized(store.getState())) {
+		return;
+	}
 	Promise.all([
 		// new Promise( ( resolve: ( value: boolean ) => void ) => {
 		// 	DefaultPreference.get( settingsKey ).then( newSettingsStr => {

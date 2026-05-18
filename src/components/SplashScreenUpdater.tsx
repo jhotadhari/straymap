@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { Dispatch, FC, SetStateAction } from 'react';
+import { FC } from 'react';
 import { Text, useTheme } from 'react-native-paper';
 import { BackHandler, View } from 'react-native';
 import { get } from 'lodash-es';
@@ -13,16 +13,16 @@ import { sprintf } from 'sprintf-js';
 import SplashScreen from './SplashScreen';
 import ButtonHighlight from './generic/ButtonHighlight';
 import { useTranslation } from 'react-i18next';
-import { UpdateResults } from '../store/features/general/types';
-import { selectInstalledVersion } from '../store/features/general/selectors';
-import { useAppSelector } from '../store/hooks';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
 import packageJson from '../../package.json';
+import { selectInstalledVersion, selectIsUpdating } from '../store/features/updater/selectors';
+import { setInstalledVersion, setIsUpdating } from '../store/features/updater/updaterSlice';
 
-const FailControls: FC<{
-	setIsUpdating: Dispatch<SetStateAction<boolean | UpdateResults | 'isDowngrade'>>;
-}> = ({ setIsUpdating }) => {
+const FailControls: FC = () => {
 	const theme = useTheme();
 	const { t } = useTranslation();
+
+	const dispatch = useAppDispatch();
 
 	return (
 		<View>
@@ -35,7 +35,10 @@ const FailControls: FC<{
 			>
 				<ButtonHighlight
 					style={{ marginTop: 20, marginBottom: 40 }}
-					onPress={() => setIsUpdating(false)}
+					onPress={() => {
+						// dispatch(setInstalledVersion(packageJson.version));
+						dispatch(setIsUpdating(false));
+					} }
 					mode="contained"
 					buttonColor={get(theme.colors, 'primaryContainer')}
 					textColor={get(theme.colors, 'onPrimaryContainer')}
@@ -56,14 +59,8 @@ const FailControls: FC<{
 	);
 };
 
-const SplashScreenUpdater = ({
-	isUpdating,
-	setIsUpdating,
-}: {
-	isUpdating: boolean | UpdateResults | 'isDowngrade';
-	setIsUpdating: Dispatch<SetStateAction<boolean | UpdateResults | 'isDowngrade'>>;
-}) => {
-	console.log('debug isUpdating', isUpdating); // debug
+const SplashScreenUpdater: FC = () => {
+	const isUpdating = useAppSelector(selectIsUpdating);
 
 	const installedVersionStore = useAppSelector(selectInstalledVersion);
 
@@ -124,7 +121,7 @@ const SplashScreenUpdater = ({
 							': ' +
 							get(failedResult, 'msg', t('general.errorMsgFallback'))}
 					</Text>
-					<FailControls setIsUpdating={setIsUpdating} />
+					<FailControls />
 				</View>
 			)}
 
@@ -141,7 +138,7 @@ const SplashScreenUpdater = ({
 					<Text style={{ marginTop: 10 }}>
 						{sprintf(t('Current version: %s'), packageJson.version)}
 					</Text>
-					<FailControls setIsUpdating={setIsUpdating} />
+					<FailControls />
 				</View>
 			)}
 		</SplashScreen>

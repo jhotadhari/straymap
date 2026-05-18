@@ -23,6 +23,7 @@ import {
 import { startAppListening } from '../../listenerMiddleware';
 import * as elements from './elements';
 import { DashboardElement, DashboardElementSetting } from './types';
+import { selectInitialized } from './selectors';
 
 const settingsKey = 'dashboardSettings';
 
@@ -32,6 +33,9 @@ const settingsKey = 'dashboardSettings';
  * Has to be called in index.js after the store got initialized.
  */
 export const initializeFromStorage = (store: EnhancedStore) => {
+	if (selectInitialized(store.getState())) {
+		return;
+	}
 	Promise.all([
 		new Promise((resolve: (value: boolean) => void) => {
 			DefaultPreference.get(settingsKey)

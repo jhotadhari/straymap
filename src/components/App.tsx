@@ -7,7 +7,6 @@ import { useSafeAreaFrame } from 'react-native-safe-area-context';
 import DefaultPreference from 'react-native-default-preference';
 import { PaperProvider, useTheme } from 'react-native-paper';
 import {
-	CanvasAdapterModule,
 	MapEventResponse,
 	useMapLayersCreated,
 	MapLifeCycleResponse,
@@ -22,23 +21,12 @@ import SplashScreen from './SplashScreen';
 import AppView from './AppView';
 import SplashScreenUpdater from './SplashScreenUpdater';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { selectMapsforgeGeneral } from '../store/features/baseMap/selectors';
 import { useAppSelector } from '../store/hooks';
 import { useSetupTheme } from '../store/features/appearance/hooks';
 import { selectIsBusy } from '../store/features/ui/selectors';
 import { useIsBusyPromiseQueueState } from '../store/features/ui/hooks';
-import useUpdater from '../store/features/general/hooks/useUpdater';
 import { useSettingsInitialized } from '../store/store';
-
-const AppWrapper = () => {
-	const theme = useSetupTheme();
-
-	return (
-		<PaperProvider theme={theme}>
-			<App />
-		</PaperProvider>
-	);
-};
+import { selectIsUpdating } from '../store/features/updater/selectors';
 
 const useInitialCenter = (currentMapEventRef: MutableRefObject<MapEventResponse | null>) => {
 	const [initialized, setInitialized] = useState(false);
@@ -118,7 +106,7 @@ const useInitialCenter = (currentMapEventRef: MutableRefObject<MapEventResponse 
 	};
 };
 
-const useShowSplash = ({
+const useShowInitialSplash = ({
 	mapViewNativeNodeHandle,
 	isBusy,
 }: {
@@ -150,8 +138,6 @@ const useShowSplash = ({
 const App = () => {
 	const theme = useTheme();
 
-	const [ready, setReady] = useState<boolean>(false);
-
 	const [topAppBarHeight, setTopAppBarHeight] = useState<number>(0);
 	const [bottomBarHeight, setBottomBarHeight] = useState<BottomBarHeight>({});
 
@@ -164,13 +150,14 @@ const App = () => {
 	}, []);
 
 	useIsBusyPromiseQueueState();
+
 	const isBusy = useAppSelector(selectIsBusy);
 
 	const { width, height } = useSafeAreaFrame();
 
 	const [mapViewNativeNodeHandle, setMapViewNativeNodeHandle] = useState<null | number>(null);
 
-	const showSplash = useShowSplash({
+	const showSplash = useShowInitialSplash({
 		mapViewNativeNodeHandle,
 		isBusy,
 	});
@@ -183,31 +170,9 @@ const App = () => {
 		saveCurrentPositionToInitial,
 	} = useInitialCenter(currentMapEventRef);
 
-	const mapsforgeGeneral = useAppSelector(selectMapsforgeGeneral);
-
-	// Set CanvasAdapter props on app start, when settingsInitialized_baseMap, before the map gets initialized.
-	useEffect(() => {
-		if (settingsInitialized) {
-			CanvasAdapterModule.setLineScale(mapsforgeGeneral.lineScale);
-			CanvasAdapterModule.setTextScale(mapsforgeGeneral.textScale);
-			CanvasAdapterModule.setSymbolScale(mapsforgeGeneral.symbolScale);
-		}
-	}, [settingsInitialized, mapsforgeGeneral]);
-
 	const appInnerHeight = height - topAppBarHeight;
 
-	useEffect(() => {
-		if (!!(initialPositionInitialized && settingsInitialized)) {
-			setReady(true);
-		}
-	}, [
-		initialPositionInitialized,
-		settingsInitialized,
-	]);
-
-	const { isUpdating, setIsUpdating } = useUpdater({
-		ready,
-	});
+	const isUpdating = useAppSelector(selectIsUpdating);
 
 	const style = {
 		backgroundColor: theme.colors.background,
@@ -215,21 +180,18 @@ const App = () => {
 		width,
 	};
 
-	if (!ready || true === isUpdating) {
+	if ( isUpdating ) {
 		return (
 			<View style={style}>
-				<SplashScreen />
+				<SplashScreenUpdater />
 			</View>
 		);
 	}
 
-	if (false !== isUpdating) {
+	if (!initialPositionInitialized || ! settingsInitialized ) {
 		return (
 			<View style={style}>
-				<SplashScreenUpdater
-					isUpdating={isUpdating}
-					setIsUpdating={setIsUpdating}
-				/>
+				<SplashScreen />
 			</View>
 		);
 	}
@@ -266,4 +228,11 @@ const App = () => {
 	);
 };
 
-export default AppWrapper;
+export default () => {
+	const theme = useSetupTheme();
+	return (
+		<PaperProvider theme={theme}>
+			<App />
+		</PaperProvider>
+	);
+};;

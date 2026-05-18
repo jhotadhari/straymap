@@ -17,6 +17,7 @@ import {
 	setInitialized,
 } from './uiSlice';
 import { startAppListening } from '../../listenerMiddleware';
+import { selectInitialized } from './selectors';
 
 const settingsKey = 'uiSettings';
 
@@ -26,6 +27,9 @@ const settingsKey = 'uiSettings';
  * Has to be called in index.js after the store got initialized.
  */
 export const initializeFromStorage = (store: EnhancedStore) => {
+	if (selectInitialized(store.getState())) {
+		return;
+	}
 	DefaultPreference.get(settingsKey)
 		.then((newSettingsStr) => {
 			if (newSettingsStr) {

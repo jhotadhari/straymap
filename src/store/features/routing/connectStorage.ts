@@ -19,7 +19,7 @@ import {
 import { startAppListening } from '../../listenerMiddleware';
 import { updateSegments as updateSegments } from './utils';
 import { RoutingPoint, RoutingSegment } from './types';
-import { selectSegments } from './selectors';
+import { selectInitialized, selectSegments } from './selectors';
 
 const settingsKey = 'routingSettings';
 
@@ -29,6 +29,9 @@ const settingsKey = 'routingSettings';
  * Has to be called in index.js after the store got initialized.
  */
 export const initializeFromStorage = (store: EnhancedStore) => {
+	if (selectInitialized(store.getState())) {
+		return;
+	}
 	DefaultPreference.get(settingsKey)
 		.then((newSettingsStr) => {
 			if (newSettingsStr) {
