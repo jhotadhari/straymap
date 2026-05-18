@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { useState } from 'react';
+import React, { Fragment, useState } from 'react';
 import { View } from 'react-native';
 import { Icon, Menu, Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -15,7 +15,7 @@ import ListItemModalControl from '../../../../../components/generic/controls/Lis
 import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
 import MenuItem from '../../../../../components/generic/MenuItem';
 import InfoRowControl from '../../../../../components/generic/controls/InfoRowControl';
-import { NumericRowControl } from '../../../../../components/generic/controls/NumericRowControls';
+import { NumericRowControl } from '../../../../../components/generic/controls/NumericRowControlsNew';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { selectUnitPrefs } from '../../selectors';
 import { setUnitPrefs } from '../../generalSlice';
@@ -113,7 +113,7 @@ const UnitControl = ({
 	const Info = get(hints, unitKey);
 
 	return (
-		<View style={{ marginBottom: 30 }}>
+		<Fragment>
 			<InfoRowControl
 				label={upperFirst(t(unitKey))}
 				style={{ marginTop: 0, marginBottom: 0 }}
@@ -134,7 +134,7 @@ const UnitControl = ({
 					onDismiss={() => setMenuVisible(false)}
 					anchor={
 						<ButtonHighlight
-							style={{ marginTop: 3, alignItems: 'flex-start' }}
+							style={{ alignItems: 'flex-start' }}
 							onPress={() => setMenuVisible(true)}
 						>
 							<Text>
@@ -169,13 +169,17 @@ const UnitControl = ({
 
 			<NumericRowControl
 				label={upperFirst(t('decimalPlace', { count: 0 }))}
-				optKey={'round'}
-				options={unitPref}
-				setOptions={onChange}
+				value={unitPref.round}
+				onUpdate={(newValue) =>
+					onChange({
+						...unitPref,
+						round: newValue,
+					})
+				}
 				validate={(val) => val >= 0 && val <= 20}
-				style={{ marginTop: 0, marginBottom: 0 }}
+				style={{ marginTop: -24, marginBottom: 0 }}
 			/>
-		</View>
+		</Fragment>
 	);
 };
 

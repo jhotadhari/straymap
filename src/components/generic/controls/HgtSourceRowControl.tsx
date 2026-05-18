@@ -208,7 +208,6 @@ const HgtSourceRowControl = ({
 
 			<View style={{ flexDirection: 'row', alignItems: 'center' }}>
 				<ButtonHighlight
-					style={{ marginTop: 3 }}
 					onPress={() => setModalVisible(true)}
 				>
 					<Text>

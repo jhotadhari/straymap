@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next';
  * Internal dependencies
  */
 import ListItem from '../ListItem';
-import { LayoutChangeEvent, View, ViewStyle } from 'react-native';
+import { LayoutChangeEvent, StyleSheet, View, ViewStyle } from 'react-native';
 import ModalWrapper from '../ModalWrapper';
 import ButtonHighlight from '../ButtonHighlight';
 import { get } from 'lodash-es';
@@ -72,19 +72,21 @@ const ListItemModalControl = ({
 					onLayout={onLayout}
 					belowModal={belowModal}
 				>
-					{children}
+					<View style={styles.content}>
+						{children}
 
-					<ButtonHighlight
-						style={{ marginTop: 10, marginBottom: 40 }}
-						onPress={() => {
-							setVisible(false);
-						}}
-						mode="contained"
-						buttonColor={get(theme.colors, 'successContainer')}
-						textColor={get(theme.colors, 'onSuccessContainer')}
-					>
-						<Text>{t('ok')}</Text>
-					</ButtonHighlight>
+						<ButtonHighlight
+							style={styles.controls}
+							onPress={() => {
+								setVisible(false);
+							}}
+							mode="contained"
+							buttonColor={get(theme.colors, 'successContainer')}
+							textColor={get(theme.colors, 'onSuccessContainer')}
+						>
+							<Text>{t('ok')}</Text>
+						</ButtonHighlight>
+					</View>
 				</ModalWrapper>
 			)}
 
@@ -97,5 +99,14 @@ const ListItemModalControl = ({
 		</View>
 	);
 };
+
+const styles = StyleSheet.create({
+	content: {
+		gap: 32,
+	},
+	controls: {
+		marginBottom: 40,
+	},
+});
 
 export default ListItemModalControl;

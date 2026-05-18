@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { FC, useCallback } from 'react';
+import { FC, Fragment, useCallback } from 'react';
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { get } from 'lodash-es';
@@ -9,10 +9,8 @@ import { get } from 'lodash-es';
 /**
  * Internal dependencies
  */
-import {
-	NumericRowControl,
-	NumericMultiRowControl,
-} from '../../../../../../components/generic/controls/NumericRowControls';
+import { NumericMultiRowControl } from '../../../../../../components/generic/controls/NumericRowControls';
+import { NumericRowControl } from '../../../../../../components/generic/controls/NumericRowControlsNew';
 import HgtSourceRowControl from '../../../../../../components/generic/controls/HgtSourceRowControl';
 import { getHillshadingCacheDirChild } from '../../../utils';
 import CacheControl from './CacheControl';
@@ -49,7 +47,7 @@ const LayerControlHillshading: FC<{}> = () => {
 	const appDirs = useAppSelector(selectAppDirs);
 
 	return (
-		<View>
+		<Fragment>
 			<HgtSourceRowControl
 				options={layerTemp?.options ?? {}}
 				setOptions={setOptions}
@@ -81,9 +79,13 @@ const LayerControlHillshading: FC<{}> = () => {
 
 			<NumericRowControl
 				label={t('baseMap.shadingOptions.magnitude.label')}
-				optKey={'magnitude'}
-				options={layerTemp?.options ?? {}}
-				setOptions={setOptions}
+				value={layerTemp?.options?.magnitude ?? 0}
+				onUpdate={(newValue) =>
+					setOptions({
+						...(layerTemp?.options ?? {}),
+						magnitude: newValue,
+					})
+				}
 				validate={(val) => val >= 0 && val <= 1000}
 				Info={t('baseMap.shadingOptions.magnitude.hint')}
 			/>
@@ -94,7 +96,7 @@ const LayerControlHillshading: FC<{}> = () => {
 				baseDefault={defaults.layerConfigOptions.hillshading.cacheDirBase as string}
 				cacheDirChild={getHillshadingCacheDirChild(layerTemp?.options ?? {})}
 			/>
-		</View>
+		</Fragment>
 	);
 };
 

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { FC, useCallback, useMemo } from 'react';
+import { FC, Fragment, useCallback, useMemo } from 'react';
 import { View } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -106,7 +106,7 @@ const LayerControlRasterMBTiles: FC<{}> = () => {
 	const validateZoom = useCallback((val: number) => val >= 0, []);
 
 	return (
-		<View>
+		<Fragment>
 			<FileSourceRowControl
 				header={t('baseMap.selectFile')}
 				label={t('baseMap.file')}
@@ -129,7 +129,7 @@ const LayerControlRasterMBTiles: FC<{}> = () => {
 				validate={validateZoom}
 				Info={t('baseMap.hint.enabled') + '\n\n' + t('baseMap.hint.zoomGeneralInfo')}
 			/>
-		</View>
+		</Fragment>
 	);
 };
 

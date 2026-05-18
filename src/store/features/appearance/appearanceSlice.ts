@@ -9,6 +9,8 @@ import { createSlice } from '@reduxjs/toolkit';
  */
 import { SliceSettingsBase } from '../../../types';
 import { CursorConfig } from './types';
+import { getSetterThunkWithGetter } from '../baseMap/utils';
+import { selectCursor } from './selectors';
 
 export interface AppearanceSettings {
 	theme: string;
@@ -50,7 +52,12 @@ export const appearanceSlice = createSlice({
 });
 
 // Export the generated action creators for use in components.
-export const { setInitialized, setTheme, setCursor } = appearanceSlice.actions;
+export const { setInitialized, setTheme, setCursor: setCursorAction } = appearanceSlice.actions;
 
 // Export the slice reducer for use in the store configuration
 export default appearanceSlice.reducer;
+
+export const setCursor = getSetterThunkWithGetter<AppearanceState['cursor']>(
+	selectCursor,
+	appearanceSlice.actions.setCursor
+);

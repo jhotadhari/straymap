@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { useState } from 'react';
+import React, { Fragment, useState } from 'react';
 import { View } from 'react-native';
 import { Icon, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -11,7 +11,7 @@ import { get } from 'lodash-es';
  * Internal dependencies
  */
 import ListItemModalControl from '../../../../../components/generic/controls/ListItemModalControl';
-import { NumericRowControl } from '../../../../../components/generic/controls/NumericRowControls';
+import { NumericRowControl } from '../../../../../components/generic/controls/NumericRowControlsNew';
 import HgtSourceRowControl from '../../../../../components/generic/controls/HgtSourceRowControl';
 import InfoRadioRow from '../../../../../components/generic/InfoRadioRow';
 import InfoRowControl from '../../../../../components/generic/controls/InfoRowControl';
@@ -89,29 +89,27 @@ const HgtControl = () => {
 				onLabelPress={() => setShowAdvanced(!showAdvanced)}
 			/>
 			{showAdvanced && (
-				<View>
+				<Fragment>
 					<NumericRowControl
 						label={t('general.hgtReadFileRate')}
-						optKey={'hgtReadFileRate'}
-						options={{ hgtReadFileRate }}
-						setOptions={({ hgtReadFileRate }) => {
-							dispatch(setHgtReadFileRate(hgtReadFileRate));
-						}}
+						value={hgtReadFileRate}
+						onUpdate={(newValue) =>
+							dispatch(setHgtReadFileRate(newValue))
+						}
 						validate={(val) => val >= 0 && val <= 20000}
 						Info={t('general.hint.hgtReadFileRate')}
 					/>
 
 					<NumericRowControl
 						label={t('general.hgtFileInfoPurgeThreshold')}
-						optKey={'hgtFileInfoPurgeThreshold'}
-						options={{ hgtFileInfoPurgeThreshold }}
-						setOptions={({ hgtFileInfoPurgeThreshold }) => {
-							dispatch(setHgtFileInfoPurgeThreshold(hgtFileInfoPurgeThreshold));
-						}}
+						value={hgtFileInfoPurgeThreshold}
+						onUpdate={(newValue) =>
+							dispatch(setHgtFileInfoPurgeThreshold(newValue))
+						}
 						validate={(val) => val >= 0 && val <= 200}
 						Info={t('general.hint.hgtFileInfoPurgeThreshold')}
 					/>
-				</View>
+				</Fragment>
 			)}
 		</ListItemModalControl>
 	);

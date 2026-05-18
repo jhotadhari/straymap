@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { FC, ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
+import { FC, Fragment, ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
 import { Image, Linking, View, TextInputProps } from 'react-native';
 import { Text, Menu, useTheme, TextInput } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -14,10 +14,8 @@ import dayjs from 'dayjs';
 import ButtonHighlight from '../../../../../../components/generic/ButtonHighlight';
 import MenuItem from '../../../../../../components/generic/MenuItem';
 import { OptionBase } from '../../../../../../types';
-import {
-	NumericMultiRowControl,
-	NumericRowControl,
-} from '../../../../../../components/generic/controls/NumericRowControls';
+import { NumericMultiRowControl } from '../../../../../../components/generic/controls/NumericRowControls';
+import { NumericRowControl } from '../../../../../../components/generic/controls/NumericRowControlsNew';
 import InfoRowControl from '../../../../../../components/generic/controls/InfoRowControl';
 import CacheControl from './CacheControl';
 import { stringifyProp } from '../../../../../../lib/utils';
@@ -454,7 +452,7 @@ const LayerControlOnlineRasterXYZ: FC<{}> = () => {
 	}, []);
 
 	return (
-		<View>
+		<Fragment>
 			<SourceRowControl />
 
 			<NumericMultiRowControl
@@ -479,10 +477,14 @@ const LayerControlOnlineRasterXYZ: FC<{}> = () => {
 
 			<NumericRowControl
 				label={t('opacity')}
-				optKey={'alpha'}
 				numType={'float'}
-				options={layerTemp?.options ?? {}}
-				setOptions={setOptions}
+				value={layerTemp?.options?.alpha ?? 0}
+				onUpdate={(newValue) =>
+					setOptions({
+						...(layerTemp?.options ?? {}),
+						alpha: newValue,
+					})
+				}
 				validate={(val) => val >= 0 && val <= 1}
 				Info={t('baseMap.hint.opacity')}
 			/>
@@ -495,7 +497,7 @@ const LayerControlOnlineRasterXYZ: FC<{}> = () => {
 				}
 				cacheDirChild={cacheDirChild}
 			/>
-		</View>
+		</Fragment>
 	);
 };
 

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { FC, ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
+import { FC, Fragment, ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
 import { StyleSheet, TouchableHighlight, View } from 'react-native';
 import { Icon, Menu, Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -257,7 +257,7 @@ const LayerControlMapsforge: FC<{}> = ({}) => {
 	}
 
 	return (
-		<View>
+		<Fragment>
 			<FileSourceRowControl
 				header={t('baseMap.selectFile')}
 				label={t('baseMap.file')}
@@ -287,7 +287,7 @@ const LayerControlMapsforge: FC<{}> = ({}) => {
 				validate={validateZoom}
 				Info={t('baseMap.hint.enabled') + '\n\n' + t('baseMap.hint.zoomGeneralInfo')}
 			/>
-		</View>
+		</Fragment>
 	);
 };
 

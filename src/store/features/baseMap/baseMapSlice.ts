@@ -18,7 +18,7 @@ import {
 	RenderStylesCache,
 } from './types';
 import { getLayerKind, getNewProfile, getSetterThunkWithGetter } from './utils';
-import { selectLayerInfos, selectLayerTemp, selectMapsforgeProfileTemp } from './selectors';
+import { selectLayerInfos, selectLayerTemp, selectMapsforgeGeneral, selectMapsforgeProfileTemp } from './selectors';
 
 export interface BaseMapSettings {
 	layers: LayerConfig[];
@@ -251,7 +251,7 @@ export const {
 	setHgtReadFileRate,
 	setHgtInterpolation,
 	setHgtFileInfoPurgeThreshold,
-	setMapsforgeGeneral,
+	setMapsforgeGeneral: setMapsforgeGeneralAction,
 	setRenderStylesCache,
 	setLayerInfos: setLayerInfosAction,
 } = baseMapSlice.actions;
@@ -267,6 +267,11 @@ export const setLayerTemp = getSetterThunkWithGetter<BaseMapState['layerTemp']>(
 export const setMapsforgeProfileTemp = getSetterThunkWithGetter<
 	BaseMapState['mapsforgeProfileTemp']
 >(selectMapsforgeProfileTemp, baseMapSlice.actions.setMapsforgeProfileTemp);
+
+export const setMapsforgeGeneral = getSetterThunkWithGetter<BaseMapState['mapsforgeGeneral']>(
+	selectMapsforgeGeneral,
+	baseMapSlice.actions.setMapsforgeGeneral
+);
 
 export const setLayerInfos = getSetterThunkWithGetter<BaseMapState['layerInfos']>(
 	selectLayerInfos,

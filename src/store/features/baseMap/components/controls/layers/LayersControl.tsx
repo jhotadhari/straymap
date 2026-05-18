@@ -560,7 +560,6 @@ export const stylesGeneric = StyleSheet.create({
 		gap: 24,
 	},
 	modalControls: {
-		marginTop: 16,
 		marginBottom: 40,
 		flexDirection: 'row',
 		justifyContent: 'space-between',

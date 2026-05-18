@@ -14,7 +14,7 @@ import { get } from 'lodash-es';
  */
 import InfoRowControl from '../../../../../components/generic/controls/InfoRowControl';
 import ListItemModalControl from '../../../../../components/generic/controls/ListItemModalControl';
-import { NumericRowControl } from '../../../../../components/generic/controls/NumericRowControls';
+import { NumericRowControl } from '../../../../../components/generic/controls/NumericRowControlsNew';
 import FileSourceRowControl from '../../../../../components/generic/controls/FileSourceRowControl';
 import { CenterInner } from '../Center';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
@@ -22,35 +22,6 @@ import { setCursor } from '../../appearanceSlice';
 import { selectCursor } from '../../selectors';
 import { CursorConfig } from '../../types';
 import { selectAppDirs } from '../../../dirs/selectors';
-
-const ColorRowControl = ({
-	cursorConfig,
-	setOptions,
-}: {
-	cursorConfig: CursorConfig;
-	setOptions: (options: any) => void;
-}) => {
-	const { t } = useTranslation();
-
-	const handleChange = useCallback(
-		(newColor: string) => {
-			setOptions({
-				...cursorConfig,
-				color: newColor,
-			});
-		},
-		[cursorConfig]
-	);
-
-	return (
-		<InfoRowControl label={t('appearance.color')}>
-			<ColorPicker
-				color={cursorConfig?.color}
-				onColorChange={handleChange}
-			/>
-		</InfoRowControl>
-	);
-};
 
 const initialOptsMap = {
 	[' ']: [
@@ -65,6 +36,8 @@ const initialOptsMap = {
 	],
 };
 
+const validate = (val: number) => val >= 0 && val <= 1000;
+
 const CenterControl = () => {
 	const theme = useTheme();
 	const { t } = useTranslation();
@@ -77,14 +50,34 @@ const CenterControl = () => {
 
 	const updateCursor = useCallback((options: CursorConfig) => dispatch(setCursor(options)), []);
 
-	const handleFileSelect = useCallback(
-		(newFileSource: string) =>
-			updateCursor({
-				...(cursorConfig as CursorConfig),
-				iconSource: newFileSource,
-			}),
-		[cursorConfig]
+	const handleSizeUpdate = useCallback(
+		(newValue: number) =>
+			dispatch(
+				setCursor((cursor) => ({
+					...cursor,
+					size: newValue,
+				}))
+			),
+		[]
 	);
+
+	const handleFileSelect = useCallback((newFileSource: string) => {
+		dispatch(
+			setCursor((cursor) => ({
+				...cursor,
+				iconSource: newFileSource,
+			}))
+		);
+	}, []);
+
+	const handleColorChange = useCallback((newColor: string) => {
+		dispatch(
+			setCursor((cursor) => ({
+				...cursor,
+				color: newColor,
+			}))
+		);
+	}, []);
 
 	return (
 		<ListItemModalControl
@@ -129,20 +122,21 @@ const CenterControl = () => {
 			/>
 
 			<NumericRowControl
-				label={t('sizePx]')}
-				optKey={'size'}
-				options={cursorConfig as object}
-				setOptions={updateCursor}
-				validate={(val) => val >= 0 && val <= 1000}
+				label={t('sizePx')}
+				value={cursorConfig.size}
+				onUpdate={handleSizeUpdate}
+				validate={validate}
 			/>
 
 			{cursorConfig?.iconSource &&
 				!cursorConfig.iconSource.startsWith('/') &&
 				!cursorConfig.iconSource.startsWith('content://') && (
-					<ColorRowControl
-						cursorConfig={cursorConfig}
-						setOptions={updateCursor}
-					/>
+					<InfoRowControl label={t('appearance.color')}>
+						<ColorPicker
+							color={cursorConfig?.color}
+							onColorChange={handleColorChange}
+						/>
+					</InfoRowControl>
 				)}
 
 			<InfoRowControl label={t('appearance.preview')}>

@@ -3,14 +3,14 @@
  */
 import { useEffect, useMemo } from 'react';
 import { get } from 'lodash-es';
-import { View, TextInputProps } from 'react-native';
+import { View, TextInputProps, StyleSheet } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { TextInput, useTheme } from 'react-native-paper';
 
 /**
  * Internal dependencies
  */
-import { NumericRowControl } from '../../../../../../components/generic/controls/NumericRowControls';
+import { NumericRowControl } from '../../../../../../components/generic/controls/NumericRowControlsNew';
 import InfoRowControl from '../../../../../../components/generic/controls/InfoRowControl';
 import ListItemMenuControl from '../../../../../../components/generic/controls/ListItemMenuControl';
 import { OptionBase } from '../../../../../../types';
@@ -24,7 +24,9 @@ const CacheControl = ({
 	baseDefault,
 	cacheDirChild,
 }: {
-	options: object;
+	options: {
+		cacheSize?: number;
+	};
 	setOptions: (options: any) => void;
 	baseDefault: string;
 	cacheDirChild: string;
@@ -87,10 +89,6 @@ const CacheControl = ({
 		appDirs,
 	]);
 
-	if (!appDirs) {
-		return null;
-	}
-
 	const cachePath = useMemo(
 		() =>
 			('internal' === get(selectedOpt, 'key')
@@ -104,64 +102,79 @@ const CacheControl = ({
 		]
 	);
 
+	if (!appDirs) {
+		return null;
+	}
+
 	return (
-		<View>
+		<View style={styles.gap}>
 			<NumericRowControl
 				label={t('baseMap.cacheSize')}
-				optKey={'cacheSize'}
-				options={options}
-				setOptions={setOptions}
+				onUpdate={(newValue) => {
+					setOptions({
+						...options,
+						cacheSize: newValue,
+					});
+				}}
+				value={options?.cacheSize ?? 0}
 				validate={(val) => val >= 0}
 				Info={t('baseMap.hint.cache') + '\n\n' + t('baseMap.hint.cacheSize')}
 			/>
 
-			<InfoRowControl
-				label={t('baseMap.cacheDir')}
-				Info={t('baseMap.hint.cache') + '\n\n' + t('baseMap.hint.cacheDir')}
-			>
-				<ListItemMenuControl
-					options={opts}
-					listItemStyle={{
-						marginLeft: 0,
-						paddingLeft: 10,
-					}}
-					value={get(selectedOpt, 'key')}
-					setValue={(newValue) =>
-						setOptions({
-							...options,
-							cacheDirBase: newValue,
-						})
-					}
-					anchorLabel={get(selectedOpt, 'label', '')}
-				/>
-			</InfoRowControl>
+			<View>
+				<InfoRowControl
+					label={t('baseMap.cacheDir')}
+					Info={t('baseMap.hint.cache') + '\n\n' + t('baseMap.hint.cacheDir')}
+				>
+					<ListItemMenuControl
+						options={opts}
+						listItemStyle={{
+							marginLeft: 0,
+							paddingLeft: 10,
+						}}
+						value={get(selectedOpt, 'key')}
+						setValue={(newValue) =>
+							setOptions({
+								...options,
+								cacheDirBase: newValue,
+							})
+						}
+						anchorLabel={get(selectedOpt, 'label', '')}
+					/>
+				</InfoRowControl>
 
-			<TextInput
-				disabled={true}
-				multiline={true}
-				render={(props: TextInputProps) => (
-					<TextInputNativeMultilineControlled {...props} />
-				)}
-				dense={true}
-				theme={{
-					fonts: {
-						bodyLarge: {
-							...theme.fonts.bodySmall,
-							fontFamily: 'sans-serif',
+				<TextInput
+					disabled={true}
+					multiline={true}
+					render={(props: TextInputProps) => (
+						<TextInputNativeMultilineControlled {...props} />
+					)}
+					dense={true}
+					theme={{
+						fonts: {
+							bodyLarge: {
+								...theme.fonts.bodySmall,
+								fontFamily: 'sans-serif',
+							},
 						},
-					},
-				}}
-				style={{
-					width: '100%',
-					marginTop: -18,
-					marginBottom: 10,
-				}}
-				value={cachePath}
-			/>
+					}}
+					style={{
+						width: '100%',
+						marginTop: -18,
+					}}
+					value={cachePath}
+				/>
+			</View>
 
 			{/* ??? cache size info and clear btn */}
 		</View>
 	);
 };
+
+const styles = StyleSheet.create({
+	gap: {
+		gap: 24,
+	},
+});
 
 export default CacheControl;
