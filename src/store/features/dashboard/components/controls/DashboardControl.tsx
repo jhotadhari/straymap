@@ -6,7 +6,6 @@ import { useTranslation } from 'react-i18next';
 import { List, SegmentedButtons, useTheme } from 'react-native-paper';
 import { StyleSheet, View } from 'react-native';
 import { Style } from 'react-native-paper/lib/typescript/components/List/utils';
-import { sprintf } from 'sprintf-js';
 
 /**
  * Internal dependencies
@@ -14,16 +13,13 @@ import { sprintf } from 'sprintf-js';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { setElementExpanded } from '../../../ui/uiSlice';
 import { selectElementExpanded } from '../../../ui/selectors';
-import { selectMapEventRate } from '../../../general/selectors';
-import { NumericRowControl } from '../../../../../components/generic/controls/NumericRowControlsNew';
-import { setMapEventRate } from '../../../general/generalSlice';
+import NumericRowControl from '../../../../../components/generic/controls/NumericRowControl';
 import { stylesGeneric } from '../../../baseMap/components/controls/layers/LayersControl';
 import AlignmentControl from './AlignmentControl';
 import { selectDashboardStyle, selectEditItem } from '../../selectors';
 import { setDashboardStyle, setEditItemAccordingToPosition } from '../../dashboardSlice';
 import { ControlContext } from '../../ControlContext';
 import NewItemControl from './NewItemControl';
-import InfoButton from '../../../../../components/generic/InfoButton';
 
 const DashboardControl: FC = () => {
 	const { t } = useTranslation();

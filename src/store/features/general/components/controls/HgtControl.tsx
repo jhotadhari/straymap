@@ -11,7 +11,7 @@ import { get } from 'lodash-es';
  * Internal dependencies
  */
 import ListItemModalControl from '../../../../../components/generic/controls/ListItemModalControl';
-import { NumericRowControl } from '../../../../../components/generic/controls/NumericRowControlsNew';
+import NumericRowControl from '../../../../../components/generic/controls/NumericRowControl';
 import HgtSourceRowControl from '../../../../../components/generic/controls/HgtSourceRowControl';
 import InfoRadioRow from '../../../../../components/generic/InfoRadioRow';
 import InfoRowControl from '../../../../../components/generic/controls/InfoRowControl';

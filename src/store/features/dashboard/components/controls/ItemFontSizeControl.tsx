@@ -11,8 +11,8 @@ import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { selectDashboardStyle, selectEditItem } from '../../selectors';
 import { setItem } from '../../dashboardSlice';
 import { omit } from 'lodash-es';
-import { SegmentedNumericRowControl } from '../../../../../components/generic/controls/NumericRowControlsNew';
 import { ControlContext } from '../../ControlContext';
+import NumericRowControlSegmented from '../../../../../components/generic/controls/NumericRowControlSegmented';
 
 const validate = (val: number) => val > 0 && val <= 99;
 
@@ -60,7 +60,7 @@ const ItemFontSizeControl: FC<{ buttonLabel?: string }> = ({ buttonLabel }) => {
 	);
 
 	return (
-		<SegmentedNumericRowControl
+		<NumericRowControlSegmented
 			label={t('dashboard.fontSize')}
 			Info={t('dashboard.hint.item.fontSize')}
 			buttonLabel={buttonLabel}

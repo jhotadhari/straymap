@@ -15,7 +15,7 @@ import ListItemModalControl from '../../../../../components/generic/controls/Lis
 import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
 import MenuItem from '../../../../../components/generic/MenuItem';
 import InfoRowControl from '../../../../../components/generic/controls/InfoRowControl';
-import { NumericRowControl } from '../../../../../components/generic/controls/NumericRowControlsNew';
+import NumericRowControl from '../../../../../components/generic/controls/NumericRowControl';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { selectUnitPrefs } from '../../selectors';
 import { setUnitPrefs } from '../../generalSlice';

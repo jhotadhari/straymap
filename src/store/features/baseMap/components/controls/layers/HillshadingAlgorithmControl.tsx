@@ -19,7 +19,7 @@ import ButtonHighlight from '../../../../../../components/generic/ButtonHighligh
 import { OptionBase } from '../../../../../../types';
 import InfoRowControl from '../../../../../../components/generic/controls/InfoRowControl';
 import ModalWrapper from '../../../../../../components/generic/ModalWrapper';
-import { NumericRowControl } from '../../../../../../components/generic/controls/NumericRowControlsNew';
+import NumericRowControl from '../../../../../../components/generic/controls/NumericRowControl';
 import ListItemMenuControl from '../../../../../../components/generic/controls/ListItemMenuControl';
 import { styles as mdStyles } from '../../../../../../markdown/styles';
 import HintLink from '../../../../../../components/generic/HintLink';

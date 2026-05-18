@@ -9,8 +9,7 @@ import { get } from 'lodash-es';
 /**
  * Internal dependencies
  */
-import { NumericMultiRowControl } from '../../../../../../components/generic/controls/NumericRowControlsOLD';
-import { NumericRowControl } from '../../../../../../components/generic/controls/NumericRowControlsNew';
+import NumericRowControl from '../../../../../../components/generic/controls/NumericRowControl';
 import HgtSourceRowControl from '../../../../../../components/generic/controls/HgtSourceRowControl';
 import { getHillshadingCacheDirChild } from '../../../utils';
 import CacheControl from './CacheControl';
@@ -21,6 +20,9 @@ import { useAppDispatch, useAppSelector } from '../../../../../hooks';
 import { setLayerTemp } from '../../../baseMapSlice';
 import { selectLayerTemp } from '../../../selectors';
 import HillshadingAlgorithmControl from './HillshadingAlgorithmControl';
+import NumericRowControlMulti from '../../../../../../components/generic/controls/NumericRowControlMulti';
+
+const validateZoom = (val: number) => val >= 0;
 
 const LayerControlHillshading: FC<{}> = () => {
 	const dispatch = useAppDispatch();
@@ -57,23 +59,41 @@ const LayerControlHillshading: FC<{}> = () => {
 
 			<HillshadingAlgorithmControl />
 
-			<NumericMultiRowControl
+			<NumericRowControlMulti
 				label={t('enabled')}
-				optKeys={['enabledZoomMin', 'enabledZoomMax']}
 				optLabels={['min', 'max']}
-				options={layerTemp?.options ?? {}}
-				setOptions={setOptions}
-				validate={(val) => val >= 0 && val <= 20}
+				saveOnType={false}
+				values={[
+					layerTemp?.options?.enabledZoomMin ?? 0,
+					layerTemp?.options?.enabledZoomMax ?? 0,
+				]}
+				onUpdate={(newValues) =>
+					setOptions({
+						...(layerTemp?.options ?? {}),
+						['enabledZoomMin']: newValues[0],
+						['enabledZoomMax']: newValues[1],
+					})
+				}
+				validate={validateZoom}
 				Info={t('baseMap.hint.enabled') + '\n\n' + t('baseMap.hint.zoomGeneralInfo')}
 			/>
 
-			<NumericMultiRowControl
+			<NumericRowControlMulti
 				label={'Zoom'}
-				optKeys={['zoomMin', 'zoomMax']}
 				optLabels={['min', 'max']}
-				options={layerTemp?.options ?? {}}
-				setOptions={setOptions}
-				validate={(val) => val >= 0 && val <= 20}
+				saveOnType={false}
+				values={[
+					layerTemp?.options?.zoomMin ?? 0,
+					layerTemp?.options?.zoomMax ?? 0,
+				]}
+				onUpdate={(newValues) =>
+					setOptions({
+						...(layerTemp?.options ?? {}),
+						['zoomMin']: newValues[0],
+						['zoomMax']: newValues[1],
+					})
+				}
+				validate={validateZoom}
 				Info={t('baseMap.hint.zoom') + '\n\n' + t('baseMap.hint.zoomGeneralInfo')}
 			/>
 

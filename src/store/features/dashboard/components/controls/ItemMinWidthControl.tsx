@@ -11,7 +11,7 @@ import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { selectEditItem, selectElementsSettings } from '../../selectors';
 import { setItem } from '../../dashboardSlice';
 import { get, omit } from 'lodash-es';
-import { SegmentedNumericRowControl } from '../../../../../components/generic/controls/NumericRowControlsNew';
+import NumericRowControlSegmented from '../../../../../components/generic/controls/NumericRowControlSegmented';
 
 const validate = (val: number) => val > 0 && val <= 999;
 
@@ -60,7 +60,7 @@ const ItemMinWidthControl: FC<{ buttonLabel?: string }> = ({ buttonLabel }) => {
 	);
 
 	return (
-		<SegmentedNumericRowControl
+		<NumericRowControlSegmented
 			label={t('dashboard.minWidth')}
 			buttonLabel={buttonLabel}
 			numValueActive={undefined !== item?.minWidth}

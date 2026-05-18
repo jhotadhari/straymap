@@ -5,7 +5,7 @@ import { FC, Fragment, ReactElement, useCallback, useEffect, useMemo, useState }
 import { Image, Linking, View, TextInputProps } from 'react-native';
 import { Text, Menu, useTheme, TextInput } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { get } from 'lodash-es';
+import { get, values } from 'lodash-es';
 import dayjs from 'dayjs';
 
 /**
@@ -14,8 +14,7 @@ import dayjs from 'dayjs';
 import ButtonHighlight from '../../../../../../components/generic/ButtonHighlight';
 import MenuItem from '../../../../../../components/generic/MenuItem';
 import { OptionBase } from '../../../../../../types';
-import { NumericMultiRowControl } from '../../../../../../components/generic/controls/NumericRowControlsOLD';
-import { NumericRowControl } from '../../../../../../components/generic/controls/NumericRowControlsNew';
+import NumericRowControl from '../../../../../../components/generic/controls/NumericRowControl';
 import InfoRowControl from '../../../../../../components/generic/controls/InfoRowControl';
 import CacheControl from './CacheControl';
 import { stringifyProp } from '../../../../../../lib/utils';
@@ -28,6 +27,7 @@ import { LayerConfig, LayerConfigOptionsOnlineRasterXYZ } from '../../../types';
 import { useAppDispatch, useAppSelector } from '../../../../../hooks';
 import { selectLayerTemp } from '../../../selectors';
 import { setLayerTemp } from '../../../baseMapSlice';
+import NumericRowControlMulti from '../../../../../../components/generic/controls/NumericRowControlMulti';
 
 interface SourceOption extends OptionBase {
 	url?: `http://${string}` | `https://${string}`;
@@ -389,6 +389,8 @@ const SourceRowControl: FC<{}> = () => {
 	);
 };
 
+const validateZoom = (val: number) => val >= 0;
+
 const LayerControlOnlineRasterXYZ: FC<{}> = () => {
 	const dispatch = useAppDispatch();
 	const layerTemp = useAppSelector(selectLayerTemp) as
@@ -396,42 +398,6 @@ const LayerControlOnlineRasterXYZ: FC<{}> = () => {
 		| LayerConfig<LayerConfigOptionsOnlineRasterXYZ>;
 
 	const { t } = useTranslation();
-
-	const enabledOptions = useMemo(() => {
-		const options = [
-			{
-				key: 'enabledZoomMin',
-				label: 'min',
-			},
-			{
-				key: 'enabledZoomMax',
-				label: 'max',
-			},
-		];
-		return {
-			keys: options.map((opt) => opt.key),
-			labels: options.map((opt) => opt.label),
-		};
-	}, []);
-
-	const zoomOptions = useMemo(() => {
-		const options = [
-			{
-				key: 'zoomMin',
-				label: 'min',
-			},
-			{
-				key: 'zoomMax',
-				label: 'max',
-			},
-		];
-		return {
-			keys: options.map((opt) => opt.key),
-			labels: options.map((opt) => opt.label),
-		};
-	}, []);
-
-	const validateZoom = useCallback((val: number) => val >= 0, []);
 
 	const cacheDirChild = useMemo(
 		() => stringifyProp(layerTemp?.options?.url || ''),
@@ -455,22 +421,40 @@ const LayerControlOnlineRasterXYZ: FC<{}> = () => {
 		<Fragment>
 			<SourceRowControl />
 
-			<NumericMultiRowControl
+			<NumericRowControlMulti
 				label={t('enabled')}
-				optKeys={enabledOptions.keys}
-				optLabels={enabledOptions.labels}
-				options={layerTemp?.options ?? {}}
-				setOptions={setOptions}
+				optLabels={['min','max']}
+				saveOnType={false}
+				values={ [
+					layerTemp?.options?.enabledZoomMin ?? 0,
+					layerTemp?.options?.enabledZoomMax ?? 0,
+				] }
+				onUpdate={(newValues) =>
+					setOptions({
+						...(layerTemp?.options ?? {}),
+						['enabledZoomMin']: newValues[0],
+						['enabledZoomMax']: newValues[1],
+					})
+				}
 				validate={validateZoom}
 				Info={t('baseMap.hint.enabled') + '\n\n' + t('baseMap.hint.zoomGeneralInfo')}
 			/>
 
-			<NumericMultiRowControl
+			<NumericRowControlMulti
 				label={'Zoom'}
-				optKeys={zoomOptions.keys}
-				optLabels={zoomOptions.labels}
-				options={layerTemp?.options ?? {}}
-				setOptions={setOptions}
+				optLabels={['min','max']}
+				saveOnType={false}
+				values={ [
+					layerTemp?.options?.zoomMin ?? 0,
+					layerTemp?.options?.zoomMax ?? 0,
+				] }
+				onUpdate={(newValues) =>
+					setOptions({
+						...(layerTemp?.options ?? {}),
+						['zoomMin']: newValues[0],
+						['zoomMax']: newValues[1],
+					})
+				}
 				validate={validateZoom}
 				Info={t('baseMap.hint.zoom') + '\n\n' + t('baseMap.hint.zoomGeneralInfo')}
 			/>

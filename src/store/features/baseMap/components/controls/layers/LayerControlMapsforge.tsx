@@ -11,7 +11,6 @@ import { get } from 'lodash-es';
  * Internal dependencies
  */
 import { OptionBase } from '../../../../../../types';
-import { NumericMultiRowControl } from '../../../../../../components/generic/controls/NumericRowControlsOLD';
 import FileSourceRowControl from '../../../../../../components/generic/controls/FileSourceRowControl';
 import InfoRowControl from '../../../../../../components/generic/controls/InfoRowControl';
 import ButtonHighlight from '../../../../../../components/generic/ButtonHighlight';
@@ -23,6 +22,7 @@ import { selectAppDirs } from '../../../../dirs/selectors';
 import { useAppDispatch, useAppSelector } from '../../../../../hooks';
 import { setLayerTemp, setMapsforgeProfileTemp } from '../../../baseMapSlice';
 import { selectLayerTemp, selectMapsforgeProfiles } from '../../../selectors';
+import NumericRowControlMulti from '../../../../../../components/generic/controls/NumericRowControlMulti';
 
 const ProfileRowControl = ({
 	options,
@@ -232,24 +232,6 @@ const LayerControlMapsforge: FC<{}> = ({}) => {
 		[]
 	);
 
-	const enabledOptions = useMemo(() => {
-		const options = [
-			{
-				key: 'enabledZoomMin',
-				label: 'min',
-			},
-			{
-				key: 'enabledZoomMax',
-				label: 'max',
-			},
-		];
-
-		return {
-			keys: options.map((opt) => opt.key),
-			labels: options.map((opt) => opt.label),
-		};
-	}, []);
-
 	const validateZoom = useCallback((val: number) => val >= 0, []);
 
 	if (!layerTemp?.options) {
@@ -278,12 +260,21 @@ const LayerControlMapsforge: FC<{}> = ({}) => {
 				Info={t('baseMap.hint.mapsforgeProfile')}
 			/>
 
-			<NumericMultiRowControl
+			<NumericRowControlMulti
 				label={t('enabled')}
-				optKeys={enabledOptions.keys}
-				optLabels={enabledOptions.labels}
-				options={layerTemp.options}
-				setOptions={setOptions}
+				optLabels={['min', 'max']}
+				saveOnType={false}
+				values={[
+					layerTemp?.options?.enabledZoomMin ?? 0,
+					layerTemp?.options?.enabledZoomMax ?? 0,
+				]}
+				onUpdate={(newValues) =>
+					setOptions({
+						...(layerTemp?.options ?? {}),
+						['enabledZoomMin']: newValues[0],
+						['enabledZoomMax']: newValues[1],
+					})
+				}
 				validate={validateZoom}
 				Info={t('baseMap.hint.enabled') + '\n\n' + t('baseMap.hint.zoomGeneralInfo')}
 			/>

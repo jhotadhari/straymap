@@ -10,7 +10,6 @@ import { sprintf } from 'sprintf-js';
 /**
  * Internal dependencies
  */
-import { NumericMultiRowControl } from '../../../../../../components/generic/controls/NumericRowControlsOLD';
 import FileSourceRowControl from '../../../../../../components/generic/controls/FileSourceRowControl';
 import HintLink from '../../../../../../components/generic/HintLink';
 import { LayerConfig, LayerConfigOptionsRasterMBtiles } from '../../../types';
@@ -18,6 +17,7 @@ import { selectAppDirs } from '../../../../dirs/selectors';
 import { useAppDispatch, useAppSelector } from '../../../../../hooks';
 import { selectLayerTemp } from '../../../selectors';
 import { setLayerTemp } from '../../../baseMapSlice';
+import NumericRowControlMulti from '../../../../../../components/generic/controls/NumericRowControlMulti';
 
 const extensions = ['mbtiles'];
 
@@ -86,23 +86,6 @@ const LayerControlRasterMBTiles: FC<{}> = () => {
 		[]
 	);
 
-	const enabledOptions = useMemo(() => {
-		const options = [
-			{
-				key: 'enabledZoomMin',
-				label: 'min',
-			},
-			{
-				key: 'enabledZoomMax',
-				label: 'max',
-			},
-		];
-		return {
-			keys: options.map((opt) => opt.key),
-			labels: options.map((opt) => opt.label),
-		};
-	}, []);
-
 	const validateZoom = useCallback((val: number) => val >= 0, []);
 
 	return (
@@ -120,12 +103,21 @@ const LayerControlRasterMBTiles: FC<{}> = () => {
 				noFilesHeading={sprintf(t('noFilesIn'), '(.mbtiles)')}
 			/>
 
-			<NumericMultiRowControl
+			<NumericRowControlMulti
 				label={t('enabled')}
-				optKeys={enabledOptions.keys}
-				optLabels={enabledOptions.labels}
-				options={layerTemp?.options ?? {}}
-				setOptions={setOptions}
+				optLabels={['min', 'max']}
+				saveOnType={false}
+				values={[
+					layerTemp?.options?.enabledZoomMin ?? 0,
+					layerTemp?.options?.enabledZoomMax ?? 0,
+				]}
+				onUpdate={(newValues) =>
+					setOptions({
+						...(layerTemp?.options ?? {}),
+						['enabledZoomMin']: newValues[0],
+						['enabledZoomMax']: newValues[1],
+					})
+				}
 				validate={validateZoom}
 				Info={t('baseMap.hint.enabled') + '\n\n' + t('baseMap.hint.zoomGeneralInfo')}
 			/>

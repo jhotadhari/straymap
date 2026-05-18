@@ -19,7 +19,6 @@ import { View } from 'react-native';
 /**
  * Internal dependencies
  */
-import { SegmentedNumericRowControl } from '../../../../../components/generic/controls/NumericRowControlsNew';
 import { options as unitPrefControlOptions } from '../../../general/components/controls/UnitPrefControl';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { selectUnitPrefs } from '../../../general/selectors';
@@ -31,6 +30,7 @@ import { setItem } from '../../dashboardSlice';
 import { OptionBase } from '../../../../../types';
 import { selectEditItem } from '../../selectors';
 import { DashboardItem } from '../../types';
+import NumericRowControlSegmented from '../../../../../components/generic/controls/NumericRowControlSegmented';
 
 const UnitOption: FC<{
 	setMenuVisible: Dispatch<SetStateAction<boolean>>;
@@ -223,7 +223,7 @@ const ItemUnitPrefControl: FC<{ unitPrefsKey: string; buttonLabel?: string }> = 
 				</Menu>
 			</InfoRowControl>
 
-			<SegmentedNumericRowControl
+			<NumericRowControlSegmented
 				label={upperFirst(t('decimalPlace', { count: 0 }))}
 				buttonLabel={buttonLabel}
 				numValueActive={numValueActive}

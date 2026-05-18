@@ -18,3 +18,5 @@ export interface OptionBase {
 	key: string;
 	label: string;
 }
+
+export type NumType = 'int' | 'float';

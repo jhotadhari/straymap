@@ -14,7 +14,7 @@ import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { setElementExpanded } from '../../../ui/uiSlice';
 import { selectElementExpanded } from '../../../ui/selectors';
 import { selectMapEventRate } from '../../../general/selectors';
-import { NumericRowControl } from '../../../../../components/generic/controls/NumericRowControlsNew';
+import NumericRowControl from '../../../../../components/generic/controls/NumericRowControl';
 import { setMapEventRate } from '../../../general/generalSlice';
 import { stylesGeneric } from '../../../baseMap/components/controls/layers/LayersControl';
 

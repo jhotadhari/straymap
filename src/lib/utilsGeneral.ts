@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { isObject, set } from 'lodash-es';
+import { NumType } from '../types';
 
 /**
  * General utils
@@ -28,6 +29,24 @@ export const parseSerialized = (str: string, fallback?: any): object | false => 
 		object = object;
 	}
 	return object;
+};
+
+export const strValToNb = (val: string, numType: NumType = 'int'): number => {
+	switch (numType) {
+		case 'int':
+			return parseInt(
+				(val.trim().startsWith('-') ? '-' : '') + val.trim().replace(/[^0-9]/g, ''),
+				10
+			);
+		case 'float':
+			return parseFloat(
+				(val.trim().startsWith('-') ? '-' : '') +
+					val
+						.trim()
+						.replace(/,/g, '.')
+						.replace(/[^0-9.]/g, '')
+			);
+	}
 };
 
 // Sort array of strings or objects based on another array.

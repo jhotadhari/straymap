@@ -10,7 +10,7 @@ import { StyleSheet, View } from 'react-native';
  * Internal dependencies
  */
 import ListItemModalControl from '../../../../../components/generic/controls/ListItemModalControl';
-import { NumericRowControl } from '../../../../../components/generic/controls/NumericRowControlsNew';
+import NumericRowControl from '../../../../../components/generic/controls/NumericRowControl';
 import IconIcomoon from '../../../../../components/generic/IconIcomoon';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { selectMapsforgeGeneral } from '../../selectors';
