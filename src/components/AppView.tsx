@@ -11,7 +11,7 @@ import React, {
 	useMemo,
 	useState,
 } from 'react';
-import { StatusBar, useColorScheme, View } from 'react-native';
+import { StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
 import 'intl-pluralrules';
 import { useTheme } from 'react-native-paper';
 import { get } from 'lodash-es';
@@ -129,7 +129,7 @@ const AppView = ({
 			hardwareKeys
 				.filter((keyConf) => 'none' !== keyConf.actionKey)
 				.map((keyConf) => keyConf.keyCodeString) as MapContainerProps['emitsHardwareKeyUp'],
-		[hardwareKeys,mapViewNativeNodeHandle]
+		[hardwareKeys, mapViewNativeNodeHandle]
 	);
 
 	const handleHardwareKeyUp = useCallback(
@@ -247,25 +247,19 @@ const AppView = ({
 				<MapLayersAttribution />
 			</View>
 
-			<View
-			// style={{
-			// 	justifyContent: 'space-between',
-			// 	flexDirection: 'column',
-			// }}
-			>
+			<View>
 				<AltitudeProfile outerWidth={width} />
-
 				<DashboardWrapped
-					// style={ {
-					// 	position: 'absolute',
-					// 	bottom: 0,
-					// 	transform: [{ translateY: '100%' }],
-					// } }
+					style={styles.zObove}
 					position="bottom"
 				/>
 			</View>
 		</SafeAreaView>
 	);
 };
+
+const styles = StyleSheet.create({
+	zObove: { zIndex: 999 },
+});
 
 export default AppView;
