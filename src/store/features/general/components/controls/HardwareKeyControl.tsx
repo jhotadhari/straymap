@@ -1,9 +1,9 @@
 /**
  * External dependencies
  */
-import React, { useState } from 'react';
-import { View } from 'react-native';
-import { Icon, Menu, Text, useTheme } from 'react-native-paper';
+import React from 'react';
+import { StyleSheet, View } from 'react-native';
+import { Icon } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { get } from 'lodash-es';
 
@@ -12,46 +12,44 @@ import { get } from 'lodash-es';
  */
 import { OptionBase } from '../../../../../types';
 import ListItemModalControl from '../../../../../components/generic/controls/ListItemModalControl';
-import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
-import MenuItem from '../../../../../components/generic/MenuItem';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { selectHardwareKeys } from '../../selectors';
 import { setHardwareKeys } from '../../generalSlice';
+import ListItemMenuControl from '../../../../../components/generic/controls/ListItemMenuControl';
+import InfoRowControl from '../../../../../components/generic/controls/InfoRowControl';
 
 const keyCodeStringOptions: OptionBase[] = [
 	{
 		key: 'KEYCODE_VOLUME_UP',
-		label: 'baseMap.volumeUp',
+		label: 'general.volumeUp',
 	},
 	{
 		key: 'KEYCODE_VOLUME_DOWN',
-		label: 'baseMap.volumeDown',
+		label: 'general.volumeDown',
 	},
 ];
+
 const actionKeyOptions: OptionBase[] = [
 	{
-		key: 'baseMap.none',
+		key: 'general.none',
 		label: 'nothing',
 	},
 	{
 		key: 'zoomIn',
-		label: 'baseMap.zoomIn',
+		label: 'general.zoomIn',
 	},
 	{
 		key: 'zoomOut',
-		label: 'baseMap.zoomOut',
+		label: 'general.zoomOut',
 	},
 ];
 
 const RowItem = ({ keyCodeStringOption }: { keyCodeStringOption: OptionBase }) => {
 	const { t } = useTranslation();
-	const theme = useTheme();
 
 	const hardwareKeyActionConfigs = useAppSelector(selectHardwareKeys);
 
 	const dispatch = useAppDispatch();
-
-	const [visible, setVisible] = useState(false);
 
 	const hardwareKeyActionConfig = hardwareKeyActionConfigs.find(
 		(conf) => conf.keyCodeString === keyCodeStringOption.key
@@ -61,67 +59,28 @@ const RowItem = ({ keyCodeStringOption }: { keyCodeStringOption: OptionBase }) =
 	);
 
 	return (
-		<View
-			style={{
-				flexDirection: 'row',
-				marginTop: 10,
-				marginBottom: 10,
-				alignItems: 'center',
-			}}
-		>
-			<Text
-				style={{
-					minWidth: '40%',
+		<InfoRowControl label={t(keyCodeStringOption.label)}>
+			<ListItemMenuControl
+				listItemStyle={{
+					marginLeft: 0,
+					paddingLeft: 10,
 				}}
-			>
-				{t(keyCodeStringOption.label)}
-			</Text>
-
-			<Menu
-				contentStyle={{
-					borderColor: theme.colors.outline,
-					borderWidth: 1,
+				options={actionKeyOptions}
+				value={hardwareKeyActionConfig?.actionKey}
+				setValue={(newValue) => {
+					const newHardwareKeyActionConfigs = [...hardwareKeyActionConfigs];
+					const index = newHardwareKeyActionConfigs.findIndex(
+						(conf) => conf.keyCodeString === keyCodeStringOption.key
+					);
+					newHardwareKeyActionConfigs.splice(index, 1, {
+						actionKey: newValue,
+						keyCodeString: keyCodeStringOption.key,
+					});
+					dispatch(setHardwareKeys(newHardwareKeyActionConfigs));
 				}}
-				style={{
-					marginLeft: 100,
-				}}
-				visible={visible}
-				onDismiss={() => setVisible(false)}
-				anchor={
-					<ButtonHighlight
-						mode="outlined"
-						// style={ {
-						// 	minWidth: '40%',
-						// } }
-						onPress={() => setVisible(!visible)}
-						buttonColor={theme.colors.background}
-						textColor={theme.colors.onBackground}
-					>
-						<Text>{t(get(selectedActionKeyOption, 'label', ''))}</Text>
-					</ButtonHighlight>
-				}
-			>
-				{actionKeyOptions.map((actionKeyOption) => (
-					<MenuItem
-						key={actionKeyOption.key}
-						onPress={() => {
-							const newHardwareKeyActionConfigs = [...hardwareKeyActionConfigs];
-							const index = newHardwareKeyActionConfigs.findIndex(
-								(conf) => conf.keyCodeString === keyCodeStringOption.key
-							);
-							newHardwareKeyActionConfigs.splice(index, 1, {
-								actionKey: actionKeyOption.key,
-								keyCodeString: keyCodeStringOption.key,
-							});
-							dispatch(setHardwareKeys(newHardwareKeyActionConfigs));
-							setVisible(false);
-						}}
-						title={t(actionKeyOption.label)}
-						active={actionKeyOption.key === hardwareKeyActionConfig?.actionKey}
-					/>
-				))}
-			</Menu>
-		</View>
+				anchorLabel={t(get(selectedActionKeyOption, 'label', ''))}
+			/>
+		</InfoRowControl>
 	);
 };
 
@@ -143,14 +102,22 @@ const HardwareKeyControl = () => {
 			header={t('general.hardwareKey', { count: 0 })}
 			hasHeaderBackPress={true}
 		>
-			{keyCodeStringOptions.map((keyCodeStringOption: OptionBase) => (
-				<RowItem
-					key={keyCodeStringOption.key}
-					keyCodeStringOption={keyCodeStringOption}
-				/>
-			))}
+			<View style={styles.gap}>
+				{keyCodeStringOptions.map((keyCodeStringOption: OptionBase) => (
+					<RowItem
+						key={keyCodeStringOption.key}
+						keyCodeStringOption={keyCodeStringOption}
+					/>
+				))}
+			</View>
 		</ListItemModalControl>
 	);
 };
+
+const styles = StyleSheet.create({
+	gap: {
+		gap: 16,
+	},
+});
 
 export default HardwareKeyControl;

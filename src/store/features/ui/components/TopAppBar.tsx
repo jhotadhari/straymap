@@ -1,10 +1,18 @@
 /**
  * External dependencies
  */
-import { FC, Fragment, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { useTheme, Appbar, Menu, Icon, Text } from 'react-native-paper';
+import {
+	FC,
+	Fragment,
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useState,
+} from 'react';
+import { useTheme, Icon, Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { View, BackHandler, TouchableHighlight, StyleSheet } from 'react-native';
+import { View, BackHandler, TouchableHighlight, StyleSheet, ScrollView } from 'react-native';
 
 /**
  * Internal dependencies
@@ -19,6 +27,7 @@ import LoadingIndicator from '../../../../components/generic/LoadingIndicator';
 import { AppContext } from '../../../../Context';
 import { DashboardWrapped } from '../../dashboard/components/Dashboard';
 import { selectItemsCount } from '../../dashboard/selectors';
+import Popover, { PopoverPlacement } from 'react-native-popover-view';
 
 const TopAppBarMenu: FC<{ items: UiItem[] }> = ({ items }) => {
 	const { t } = useTranslation();
@@ -73,38 +82,50 @@ const TopAppBarMenu: FC<{ items: UiItem[] }> = ({ items }) => {
 		]
 	);
 
+	const popoverStyle = useMemo(
+		() => ({
+			backgroundColor: theme.colors.background,
+			borderWidth: 1,
+			borderColor: theme.colors.outline,
+			minWidth: 150,
+		}),
+		[theme]
+	);
+
 	return (
-		<Menu
-			contentStyle={{
-				borderColor: theme.colors.outline,
-				borderWidth: 1,
-			}}
-			style={styles.menu}
-			visible={menuVisible}
-			onDismiss={() => closeMenu()}
-			anchor={anchor}
+		<Popover
+			popoverStyle={popoverStyle}
+			arrowSize={arrowSize}
+			isVisible={menuVisible}
+			placement={PopoverPlacement.BOTTOM}
+			onRequestClose={() => setMenuVisible(false)}
+			from={anchor}
 		>
-			{[...items].map((item, index) => {
-				return (
-					<MenuItem
-						key={index}
-						onPress={() => {
-							dispatch(
-								setUiItemKeys([
-									item.key,
-								])
-							);
-							closeMenu();
-						}}
-						leadingIcon={item?.icon}
-						title={t(item.label)}
-						active={uiItemsKeys.includes(item.key)}
-					/>
-				);
-			})}
-		</Menu>
+			<ScrollView>
+				{[...items].map((item, index) => {
+					return (
+						<MenuItem
+							key={index}
+							onPress={() => {
+								dispatch(
+									setUiItemKeys([
+										item.key,
+									])
+								);
+								closeMenu();
+							}}
+							leadingIcon={item?.icon}
+							title={t(item.label)}
+							active={uiItemsKeys.includes(item.key)}
+						/>
+					);
+				})}
+			</ScrollView>
+		</Popover>
 	);
 };
+
+const arrowSize = { height: 0, width: 0 };
 
 const TopAppBar: FC = () => {
 	const { t } = useTranslation();

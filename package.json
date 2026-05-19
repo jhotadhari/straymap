@@ -41,6 +41,7 @@
     "react-native-mapsforge-vtm": "^0.7.0",
     "react-native-markdown-display": "^7.0.2",
     "react-native-paper": "^5.12.5",
+    "react-native-popover-view": "^6.1.0",
     "react-native-reanimated": "^3.17.4",
     "react-native-safe-area-context": "^5.4.0",
     "react-native-scoped-storage": "^1.9.5",

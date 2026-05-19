@@ -123,11 +123,11 @@ const DrawerHandle = ({
 							position: 'absolute',
 							...('left' === side && {
 								left: '100%',
-								transform: [{ translateX: 10 }],
+								transform: [{ translateX: 8 }],
 							}),
 							...('right' === side && {
 								left: '-100%',
-								transform: [{ translateX: -20 }],
+								transform: [{ translateX: -4 }],
 							}),
 						}}
 					>
@@ -135,6 +135,8 @@ const DrawerHandle = ({
 							style={{
 								color,
 								backgroundColor: theme.colors.background,
+								padding: 8,
+								borderRadius: theme.roundness,
 							}}
 						/>
 					</View>

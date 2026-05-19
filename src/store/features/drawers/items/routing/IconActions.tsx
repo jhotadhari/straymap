@@ -1,10 +1,10 @@
 /**
  * External dependencies
  */
-import React, { useContext, useEffect, useMemo, useState } from 'react';
-import { Button, Icon, Menu, useTheme } from 'react-native-paper';
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { Icon, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { PixelRatio, TextStyle } from 'react-native';
+import { PixelRatio, ScrollView, TextStyle, TouchableHighlight } from 'react-native';
 import rnUuid from 'react-native-uuid';
 import { MapLayerMarkerModule, MapLayerPathSlopeGradientModule } from 'react-native-mapsforge-vtm';
 import { useSafeAreaFrame } from 'react-native-safe-area-context';
@@ -36,6 +36,7 @@ import {
 	selectTriggeredMarkerIdx,
 	selectTriggeredSegment,
 } from '../../../routing/selectors';
+import Popover, { PopoverPlacement } from 'react-native-popover-view';
 
 const IconActions = ({ style }: { style: TextStyle }) => {
 	const { mapHeight, mapViewNativeNodeHandle } = useContext(AppContext);
@@ -68,16 +69,18 @@ const IconActions = ({ style }: { style: TextStyle }) => {
 		}
 	}, [isRouting, prevIsRouting]);
 
-	const dismissMenu = (cleanTriggeredMarkerIdx?: boolean, cleanTriggeredSegment?: boolean) => {
-		cleanTriggeredMarkerIdx =
-			undefined === cleanTriggeredMarkerIdx ? true : cleanTriggeredMarkerIdx;
-		cleanTriggeredSegment = undefined === cleanTriggeredSegment ? true : cleanTriggeredSegment;
-		setMenuVisible(false);
-		setTriggeredMarkerIdx &&
-			cleanTriggeredMarkerIdx &&
-			dispatch(setTriggeredMarkerIdx(undefined));
-		setTriggeredSegment && cleanTriggeredSegment && dispatch(setTriggeredSegment(undefined));
-	};
+	const dismissMenu = useCallback(
+		(cleanTriggeredMarkerIdx?: boolean, cleanTriggeredSegment?: boolean) => {
+			setMenuVisible(false);
+			if (undefined === cleanTriggeredMarkerIdx ? true : cleanTriggeredMarkerIdx) {
+				dispatch(setTriggeredMarkerIdx(undefined));
+			}
+			if (undefined === cleanTriggeredSegment ? true : cleanTriggeredSegment) {
+				dispatch(setTriggeredSegment(undefined));
+			}
+		},
+		[]
+	);
 
 	const options = useMemo(
 		() => [
@@ -152,8 +155,7 @@ const IconActions = ({ style }: { style: TextStyle }) => {
 											location: triggeredSegment.nearestPoint,
 										});
 										dispatch(setPoints(newPoints));
-										setTriggeredSegment &&
-											dispatch(setTriggeredSegment(undefined));
+										dispatch(setTriggeredSegment(undefined));
 										setTimeout(
 											() =>
 												setMovingPointIdx &&
@@ -236,7 +238,7 @@ const IconActions = ({ style }: { style: TextStyle }) => {
 									};
 									newPoints.splice(movingPointIdx, 1, newPoint);
 									dispatch(setPoints(newPoints));
-									setMovingPointIdx && setMovingPointIdx(undefined);
+									setMovingPointIdx(undefined);
 								}
 								dismissMenu();
 							},
@@ -252,7 +254,7 @@ const IconActions = ({ style }: { style: TextStyle }) => {
 							label: 'cancelMoving',
 							onPress: () => {
 								dismissMenu();
-								setMovingPointIdx && setMovingPointIdx(undefined);
+								setMovingPointIdx(undefined);
 							},
 							disabled: () => !points || !points.length,
 							leadingIcon: 'cancel',
@@ -264,96 +266,131 @@ const IconActions = ({ style }: { style: TextStyle }) => {
 			points,
 			movingPointIdx,
 			segments,
+			triggeredMarkerIdx,
+			dismissMenu,
+			triggeredSegment,
 		]
 	);
 
-	return isRouting ? (
-		<Menu
-			contentStyle={{
-				borderColor: theme.colors.outline,
-				borderWidth: 1,
-				marginTop: -5,
-				...('left' === side && {
-					marginLeft: 0,
-				}),
-				...('right' === side && {
-					marginLeft: -100,
-				}),
-			}}
-			visible={menuVisible}
-			onDismiss={dismissMenu}
-			anchor={
-				<Button
-					onPress={() => {
-						if (menuVisible) {
-							dismissMenu();
-						} else {
-							setMenuVisible(true);
-							runAfterInteractions(() => {
-								setTimeout(() => {
-									if (mapViewNativeNodeHandle) {
-										const left =
-											PixelRatio.getPixelSizeForLayoutSize(width) / 2;
-										const top =
-											PixelRatio.getPixelSizeForLayoutSize(mapHeight || 0) /
-											2;
-										if (markerLayerUuid) {
-											MapLayerMarkerModule.triggerEvent(
-												mapViewNativeNodeHandle,
-												markerLayerUuid,
-												left,
-												top
-											).catch((err: any) => console.log('ERROR', err));
-										}
-										if (pathLayerUuids) {
-											[...pathLayerUuids].map((routingPathLayerUuid) => {
-												MapLayerPathSlopeGradientModule.triggerEvent(
-													mapViewNativeNodeHandle,
-													routingPathLayerUuid,
-													left,
-													top
-												).catch((err: any) => console.log('ERROR', err));
-											});
-										}
-									}
-								}, 100);
-							}, 100);
-						}
-					}}
-					style={style}
-				>
-					<Icon
-						source={'menu'}
-						size={25}
-						color={style?.color as string | undefined}
-					/>
-				</Button>
-			}
+	const handleButtonPress = useCallback(() => {
+		if (menuVisible) {
+			dismissMenu();
+		} else {
+			setMenuVisible(true);
+			runAfterInteractions(() => {
+				// setTimeout(() => {
+				if (mapViewNativeNodeHandle) {
+					const left = PixelRatio.getPixelSizeForLayoutSize(width) / 2;
+					const top = PixelRatio.getPixelSizeForLayoutSize(mapHeight || 0) / 2;
+					if (markerLayerUuid) {
+						MapLayerMarkerModule.triggerEvent(
+							mapViewNativeNodeHandle,
+							markerLayerUuid,
+							left,
+							top
+						).catch((err: any) => console.log('ERROR', err));
+					}
+					if (pathLayerUuids) {
+						[...pathLayerUuids].map((routingPathLayerUuid) => {
+							MapLayerPathSlopeGradientModule.triggerEvent(
+								mapViewNativeNodeHandle,
+								routingPathLayerUuid,
+								left,
+								top
+							).catch((err: any) => console.log('ERROR', err));
+						});
+					}
+				}
+				// }, 100);
+			}, 100);
+		}
+	}, [
+		menuVisible,
+		mapViewNativeNodeHandle,
+		markerLayerUuid,
+		pathLayerUuids,
+		width,
+		mapHeight,
+	]);
+
+	const anchor = useMemo(
+		() => (
+			<TouchableHighlight
+				style={style}
+				underlayColor={theme.colors.elevation.level3}
+				onPress={handleButtonPress}
+			>
+				{/* <View> */}
+				<Icon
+					size={30}
+					source="menu"
+				/>
+				{/* </View> */}
+			</TouchableHighlight>
+		),
+		[
+			theme,
+			handleButtonPress,
+		]
+	);
+
+	const popoverStyle = useMemo(
+		() => ({
+			backgroundColor: theme.colors.background,
+			borderWidth: 1,
+			borderColor: theme.colors.outline,
+			minWidth: 150,
+		}),
+		[theme]
+	);
+
+	if (!isRouting) {
+		return undefined;
+	}
+
+	return (
+		<Popover
+			popoverStyle={popoverStyle}
+			arrowSize={arrowSize}
+			isVisible={menuVisible}
+			placement={PopoverPlacement.BOTTOM}
+			onRequestClose={() => dismissMenu()}
+			from={anchor}
 		>
-			{menuVisible &&
-				options &&
-				[...options].map((opt) => {
-					const disabled = opt?.disabled ? opt?.disabled() : false;
-					return (
-						<MenuItem
-							key={opt.value}
-							leadingIcon={opt?.leadingIcon}
-							onPress={opt.onPress}
-							title={t(opt.label)}
-							style={
-								disabled
-									? { backgroundColor: theme.colors.surfaceDisabled }
-									: undefined
-							}
-							textStyle={
-								disabled ? { color: theme.colors.onSurfaceDisabled } : undefined
-							}
-							iconColor={disabled ? theme.colors.onSurfaceDisabled : undefined}
-						/>
-					);
-				})}
-		</Menu>
-	) : null;
+			{options && (
+				<ScrollView>
+					{menuVisible &&
+						options &&
+						[...options].map((opt) => {
+							const disabled = opt?.disabled ? opt?.disabled() : false;
+							return (
+								<MenuItem
+									key={opt.value}
+									leadingIcon={opt?.leadingIcon}
+									onPress={opt.onPress}
+									title={t(opt.label)}
+									style={
+										disabled
+											? { backgroundColor: theme.colors.surfaceDisabled }
+											: undefined
+									}
+									textStyle={
+										disabled
+											? { color: theme.colors.onSurfaceDisabled }
+											: undefined
+									}
+									iconColor={
+										disabled ? theme.colors.onSurfaceDisabled : undefined
+									}
+								/>
+							);
+						})}
+				</ScrollView>
+			)}
+		</Popover>
+	);
 };
+
+const arrowSize = { height: 0, width: 0 };
 
 export default IconActions;

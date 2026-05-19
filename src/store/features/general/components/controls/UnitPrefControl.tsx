@@ -1,9 +1,8 @@
 /**
  * External dependencies
  */
-import React, { Fragment, useState } from 'react';
-import { View } from 'react-native';
-import { Icon, Menu, Text, useTheme } from 'react-native-paper';
+import React, { Fragment } from 'react';
+import { Icon, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { upperFirst, get } from 'lodash-es';
 
@@ -12,14 +11,13 @@ import { upperFirst, get } from 'lodash-es';
  */
 import { OptionBase } from '../../../../../types';
 import ListItemModalControl from '../../../../../components/generic/controls/ListItemModalControl';
-import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
-import MenuItem from '../../../../../components/generic/MenuItem';
 import InfoRowControl from '../../../../../components/generic/controls/InfoRowControl';
 import NumericRowControl from '../../../../../components/generic/controls/NumericRowControl';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { selectUnitPrefs } from '../../selectors';
 import { setUnitPrefs } from '../../generalSlice';
 import { UnitPref } from '../../types';
+import ListItemMenuControl from '../../../../../components/generic/controls/ListItemMenuControl';
 
 export const options: { [value: string]: OptionBase[] } = {
 	coordinates: [
@@ -107,7 +105,6 @@ const UnitControl = ({
 }) => {
 	const { t } = useTranslation();
 	const theme = useTheme();
-	const [menuVisible, setMenuVisible] = useState(false);
 
 	const opts = get(options, unitKey, []);
 	const Info = get(hints, unitKey);
@@ -116,55 +113,35 @@ const UnitControl = ({
 		<Fragment>
 			<InfoRowControl
 				label={upperFirst(t(unitKey))}
-				style={{ marginTop: 0, marginBottom: 0 }}
+				style={{ marginTop: 0, marginBottom: -32 }}
 				labelStyle={theme.fonts.titleLarge}
 				Info={Info && 'string' === typeof Info ? t(Info) : Info}
 			/>
 
 			<InfoRowControl
 				label={t('unit')}
-				style={{ marginTop: 0, marginBottom: 0 }}
 			>
-				<Menu
-					contentStyle={{
-						borderColor: theme.colors.outline,
-						borderWidth: 1,
+				<ListItemMenuControl
+					listItemStyle={{
+						marginLeft: 0,
+						paddingLeft: 10,
 					}}
-					visible={menuVisible}
-					onDismiss={() => setMenuVisible(false)}
-					anchor={
-						<ButtonHighlight
-							style={{ alignItems: 'flex-start' }}
-							onPress={() => setMenuVisible(true)}
-						>
-							<Text>
-								{t(
-									get(
-										opts.find((opt) => opt.key === unitPref.unit),
-										'label',
-										''
-									)
-								)}
-							</Text>
-						</ButtonHighlight>
-					}
-				>
-					{opts &&
-						[...opts].map((opt) => (
-							<MenuItem
-								key={opt.key}
-								onPress={() => {
-									setMenuVisible(false);
-									onChange({
-										...unitPref,
-										unit: opt.key,
-									});
-								}}
-								title={t(opt.label)}
-								active={opt.key === unitPref.unit}
-							/>
-						))}
-				</Menu>
+					options={opts}
+					value={unitPref.unit}
+					setValue={(newValue) => {
+						onChange({
+							...unitPref,
+							unit: newValue,
+						});
+					}}
+					anchorLabel={t(
+						get(
+							opts.find((opt) => opt.key === unitPref.unit),
+							'label',
+							''
+						)
+					)}
+				/>
 			</InfoRowControl>
 
 			<NumericRowControl

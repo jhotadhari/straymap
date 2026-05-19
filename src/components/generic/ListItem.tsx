@@ -26,7 +26,7 @@ const ListItem = ({
 		<TouchableHighlight
 			underlayColor={theme.colors.elevation.level3}
 			onPress={onPress}
-			style={{ borderRadius: theme.roundness }}
+			style={{ borderRadius: theme.roundness, overflow: 'visible' }}
 		>
 			<View
 				style={{
@@ -34,6 +34,7 @@ const ListItem = ({
 					marginLeft: 8,
 					flexDirection: 'row',
 					alignItems: 'center',
+					overflow: 'visible',
 					...(active && { backgroundColor: theme.colors.primary }),
 					...style,
 				}}

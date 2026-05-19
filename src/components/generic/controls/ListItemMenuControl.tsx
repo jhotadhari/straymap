@@ -1,12 +1,12 @@
 /**
  * External dependencies
  */
-import React, { useMemo, useState } from 'react';
-import { Menu, Text, useTheme } from 'react-native-paper';
+import React, { RefObject, useMemo, useState } from 'react';
+import { Text, useTheme } from 'react-native-paper';
 import { Style as ListStyle } from 'react-native-paper/lib/typescript/components/List/utils';
 import { useTranslation } from 'react-i18next';
 import { get } from 'lodash-es';
-import { View, ViewStyle } from 'react-native';
+import { ScrollView, View, ViewStyle } from 'react-native';
 
 /**
  * Internal dependencies
@@ -14,9 +14,11 @@ import { View, ViewStyle } from 'react-native';
 import { OptionBase } from '../../../types';
 import MenuItem from '../MenuItem';
 import ListItem from '../ListItem';
+import Popover, { PopoverPlacement } from 'react-native-popover-view';
 
 const ListItemMenuControl = ({
 	listItemStyle,
+	menuItemStyle,
 	options,
 	value,
 	setValue,
@@ -25,6 +27,7 @@ const ListItemMenuControl = ({
 	anchorIcon,
 }: {
 	listItemStyle?: ViewStyle;
+	menuItemStyle?: ViewStyle | ((idx: number) => ViewStyle);
 	anchorLabel: string;
 	anchorLabelAppendSelected?: boolean;
 	options?: OptionBase[];
@@ -63,37 +66,59 @@ const ListItemMenuControl = ({
 		value,
 	]);
 
+	const popoverStyle = useMemo(
+		() => ({
+			backgroundColor: theme.colors.background,
+			borderWidth: 1,
+			borderColor: theme.colors.outline,
+			minWidth: 100,
+		}),
+		[theme]
+	);
+
 	return (
-		<Menu
-			contentStyle={{
-				borderColor: theme.colors.outline,
-				borderWidth: 1,
-			}}
-			visible={visible}
-			onDismiss={() => setVisible(false)}
-			anchor={
-				<ListItem
-					style={listItemStyle}
-					title={title}
-					icon={anchorIcon ? anchorIcon : undefined}
-					onPress={() => setVisible(!visible)}
-				/>
-			}
-		>
-			{options &&
-				[...options].map((opt) => (
-					<MenuItem
-						key={opt.key}
-						onPress={() => {
-							setValue && setValue(opt.key);
-							setVisible(false);
-						}}
-						title={t(opt.label)}
-						active={opt.key === value}
+		<Popover
+			popoverStyle={popoverStyle}
+			arrowSize={arrowSize}
+			isVisible={visible}
+			placement={PopoverPlacement.BOTTOM}
+			onRequestClose={() => setVisible(false)}
+			from={(sourceRef) => (
+				<View>
+					<View ref={sourceRef as RefObject<View>} />
+					<ListItem
+						style={listItemStyle}
+						title={title}
+						icon={anchorIcon ? anchorIcon : undefined}
+						onPress={() => setVisible(!visible)}
 					/>
-				))}
-		</Menu>
+				</View>
+			)}
+		>
+			{options && (
+				<ScrollView>
+					{options.map((opt, idx) => (
+						<MenuItem
+							style={
+								menuItemStyle instanceof Function
+									? menuItemStyle(idx)
+									: menuItemStyle
+							}
+							key={opt.key}
+							onPress={() => {
+								setValue && setValue(opt.key);
+								setVisible(false);
+							}}
+							title={t(opt.label)}
+							active={opt.key === value}
+						/>
+					))}
+				</ScrollView>
+			)}
+		</Popover>
 	);
 };
+
+const arrowSize = { height: 0, width: 0 };
 
 export default ListItemMenuControl;

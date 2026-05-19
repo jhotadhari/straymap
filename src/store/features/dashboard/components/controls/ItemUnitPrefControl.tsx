@@ -2,16 +2,14 @@
  * External dependencies
  */
 import React, {
-	Dispatch,
 	FC,
-	SetStateAction,
 	useCallback,
 	useEffect,
 	useMemo,
 	useRef,
 	useState,
 } from 'react';
-import { Menu, Text, useTheme } from 'react-native-paper';
+import { useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { upperFirst, get, omit, isEqual } from 'lodash-es';
 import { View } from 'react-native';
@@ -22,65 +20,14 @@ import { View } from 'react-native';
 import { options as unitPrefControlOptions } from '../../../general/components/controls/UnitPrefControl';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { selectUnitPrefs } from '../../../general/selectors';
-import MenuItem from '../../../../../components/generic/MenuItem';
 import InfoRowControl from '../../../../../components/generic/controls/InfoRowControl';
-import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
 import { UnitPref } from '../../../general/types';
 import { setItem } from '../../dashboardSlice';
-import { OptionBase } from '../../../../../types';
 import { selectEditItem } from '../../selectors';
 import { DashboardItem } from '../../types';
 import NumericRowControlSegmented from '../../../../../components/generic/controls/NumericRowControlSegmented';
+import ListItemMenuControl from '../../../../../components/generic/controls/ListItemMenuControl';
 
-const UnitOption: FC<{
-	setMenuVisible: Dispatch<SetStateAction<boolean>>;
-	opt: OptionBase;
-	setValue: Dispatch<SetStateAction<Partial<UnitPref>>>;
-	value: Partial<UnitPref>;
-	unitPrefsKey: string;
-}> = ({ setMenuVisible, opt, setValue, value, unitPrefsKey }) => {
-	const unitPrefs = useAppSelector(selectUnitPrefs);
-	const theme = useTheme();
-	const { t } = useTranslation();
-
-	const handleMenuPress = useCallback(() => {
-		setMenuVisible(false);
-		if ('default' === opt.key) {
-			setValue(omit(value, 'unit'));
-		} else {
-			setValue({
-				...value,
-				unit: opt.key,
-			});
-		}
-	}, []);
-
-	const style = useMemo(
-		() =>
-			!value?.unit && get(unitPrefs, [unitPrefsKey, 'unit']) === opt.key
-				? {
-						borderLeftColor: theme.colors.primary,
-						borderLeftWidth: 5,
-					}
-				: {},
-		[
-			get(unitPrefs, [unitPrefsKey, 'unit']),
-			value?.unit,
-			opt.key,
-			theme,
-		]
-	);
-
-	return (
-		<MenuItem
-			key={opt.key}
-			onPress={handleMenuPress}
-			title={t(opt.label)}
-			active={value ? opt.key === value.unit : false}
-			style={style}
-		/>
-	);
-};
 
 type OptionsWithUnitPref = {
 	unitPref?: Partial<UnitPref>;
@@ -100,7 +47,6 @@ const ItemUnitPrefControl: FC<{ unitPrefsKey: string; buttonLabel?: string }> = 
 	const unitPrefs = useAppSelector(selectUnitPrefs);
 	const { t } = useTranslation();
 	const theme = useTheme();
-	const [menuVisible, setMenuVisible] = useState(false);
 
 	const opts = useMemo(
 		() => [
@@ -177,8 +123,6 @@ const ItemUnitPrefControl: FC<{ unitPrefsKey: string; buttonLabel?: string }> = 
 
 	const handleUpdate = useCallback(
 		(newValue: number) => {
-			console.log('debug newValue', newValue); // debug
-
 			numValueActive &&
 				setValue({
 					...value,
@@ -188,39 +132,50 @@ const ItemUnitPrefControl: FC<{ unitPrefsKey: string; buttonLabel?: string }> = 
 		[numValueActive]
 	);
 
+	const handleMenuPress = useCallback((newValue: string) => {
+		if ('default' === newValue) {
+			setValue((value) => omit(value, 'unit'));
+		} else {
+			setValue((value) => ({
+				...value,
+				unit: newValue,
+			}));
+		}
+	}, []);
+
+	const getMenuItemStyle = useCallback(
+		(idx: number) =>
+			!value?.unit && get(unitPrefs, [unitPrefsKey, 'unit']) === opts[idx].key
+				? {
+						borderLeftColor: theme.colors.primary,
+						borderLeftWidth: 5,
+					}
+				: {},
+		[
+			get(unitPrefs, [unitPrefsKey, 'unit']),
+			value?.unit,
+			opts,
+			theme,
+		]
+	);
+
 	return (
 		<View>
 			<InfoRowControl
 				label={t('unit')}
 				Info={t('dashboard.hint.item.unit')}
 			>
-				<Menu
-					contentStyle={{
-						borderColor: theme.colors.outline,
-						borderWidth: 1,
+				<ListItemMenuControl
+					listItemStyle={{
+						marginLeft: 0,
+						paddingLeft: 10,
 					}}
-					visible={menuVisible}
-					onDismiss={() => setMenuVisible(false)}
-					anchor={
-						<ButtonHighlight
-							style={{ marginTop: 3, alignItems: 'flex-start' }}
-							onPress={() => setMenuVisible(true)}
-						>
-							<Text>{t(selectedOpt?.label ?? '')}</Text>
-						</ButtonHighlight>
-					}
-				>
-					{[...opts].map((opt) => (
-						<UnitOption
-							key={opt.key}
-							unitPrefsKey={unitPrefsKey}
-							setMenuVisible={setMenuVisible}
-							opt={opt}
-							setValue={setValue}
-							value={value}
-						/>
-					))}
-				</Menu>
+					options={opts}
+					value={get(selectedOpt, 'key')}
+					setValue={handleMenuPress}
+					anchorLabel={t(selectedOpt?.label ?? '')}
+					menuItemStyle={getMenuItemStyle}
+				/>
 			</InfoRowControl>
 
 			<NumericRowControlSegmented

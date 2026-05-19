@@ -3,16 +3,14 @@
  */
 import { FC, Fragment, ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
 import { Image, Linking, View, TextInputProps } from 'react-native';
-import { Text, Menu, useTheme, TextInput } from 'react-native-paper';
+import { Text, useTheme, TextInput } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { get, values } from 'lodash-es';
+import { get } from 'lodash-es';
 import dayjs from 'dayjs';
 
 /**
  * Internal dependencies
  */
-import ButtonHighlight from '../../../../../../components/generic/ButtonHighlight';
-import MenuItem from '../../../../../../components/generic/MenuItem';
 import { OptionBase } from '../../../../../../types';
 import NumericRowControl from '../../../../../../components/generic/controls/NumericRowControl';
 import InfoRowControl from '../../../../../../components/generic/controls/InfoRowControl';
@@ -28,6 +26,7 @@ import { useAppDispatch, useAppSelector } from '../../../../../hooks';
 import { selectLayerTemp } from '../../../selectors';
 import { setLayerTemp } from '../../../baseMapSlice';
 import NumericRowControlMulti from '../../../../../../components/generic/controls/NumericRowControlMulti';
+import ListItemMenuControl from '../../../../../../components/generic/controls/ListItemMenuControl';
 
 interface SourceOption extends OptionBase {
 	url?: `http://${string}` | `https://${string}`;
@@ -348,43 +347,24 @@ const SourceRowControl: FC<{}> = () => {
 				</View>
 			}
 		>
-			<Menu
-				contentStyle={{
-					borderColor: theme.colors.outline,
-					borderWidth: 1,
+			<ListItemMenuControl
+				listItemStyle={{
+					marginLeft: 0,
+					paddingLeft: 10,
 				}}
-				visible={menuVisible}
-				onDismiss={() => setMenuVisible(false)}
-				anchor={
-					<ButtonHighlight
-						style={{ marginTop: 3 }}
-						onPress={() => setMenuVisible(true)}
-					>
-						<Text>
-							{t(
-								get(
-									sourceOptions.find((opt) => opt.key === selectedOpt),
-									'label',
-									''
-								)
-							)}
-						</Text>
-					</ButtonHighlight>
-				}
-			>
-				{sourceOptions &&
-					[...sourceOptions].map((opt) => (
-						<MenuItem
-							key={opt.key}
-							onPress={() => {
-								setSelectedOpt(opt.key);
-								setMenuVisible(false);
-							}}
-							title={t(opt.label)}
-							active={opt.key === selectedOpt}
-						/>
-					))}
-			</Menu>
+				options={sourceOptions}
+				value={selectedOpt}
+				setValue={(newValue) => {
+					setSelectedOpt(newValue);
+				}}
+				anchorLabel={t(
+					get(
+						sourceOptions.find((opt) => opt.key === selectedOpt),
+						'label',
+						''
+					)
+				)}
+			/>
 		</InfoRowControl>
 	);
 };

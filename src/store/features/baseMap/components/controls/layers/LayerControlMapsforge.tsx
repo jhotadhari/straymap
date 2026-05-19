@@ -3,7 +3,7 @@
  */
 import { FC, Fragment, ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
 import { StyleSheet, TouchableHighlight, View } from 'react-native';
-import { Icon, Menu, Text, useTheme } from 'react-native-paper';
+import { Icon, Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { get } from 'lodash-es';
 
@@ -13,8 +13,6 @@ import { get } from 'lodash-es';
 import { OptionBase } from '../../../../../../types';
 import FileSourceRowControl from '../../../../../../components/generic/controls/FileSourceRowControl';
 import InfoRowControl from '../../../../../../components/generic/controls/InfoRowControl';
-import ButtonHighlight from '../../../../../../components/generic/ButtonHighlight';
-import MenuItem from '../../../../../../components/generic/MenuItem';
 import { sprintf } from 'sprintf-js';
 import HintLink from '../../../../../../components/generic/HintLink';
 import { LayerConfigOptionsMapsforge, LayerConfig } from '../../../types';
@@ -23,6 +21,7 @@ import { useAppDispatch, useAppSelector } from '../../../../../hooks';
 import { setLayerTemp, setMapsforgeProfileTemp } from '../../../baseMapSlice';
 import { selectLayerTemp, selectMapsforgeProfiles } from '../../../selectors';
 import NumericRowControlMulti from '../../../../../../components/generic/controls/NumericRowControlMulti';
+import ListItemMenuControl from '../../../../../../components/generic/controls/ListItemMenuControl';
 
 const ProfileRowControl = ({
 	options,
@@ -66,7 +65,7 @@ const ProfileRowControl = ({
 			'default'
 		);
 
-	const [selectedOpt, setSelectedOpt] = useState<string | null>(getInitialSelectedOpt());
+	const [selectedOpt, setSelectedOpt] = useState<string>(getInitialSelectedOpt());
 
 	useEffect(() => {
 		setSelectedOpt(getInitialSelectedOpt());
@@ -81,64 +80,38 @@ const ProfileRowControl = ({
 		}
 	}, [selectedOpt]);
 
-	const contentStyle = useMemo(
-		() => ({
-			borderColor: theme.colors.outline,
-			borderWidth: 1,
-		}),
-		[theme]
-	);
-
-	const handleDismissMenu = useCallback(() => setMenuVisible(false), []);
-	const handleOpenMenu = useCallback(() => setMenuVisible(true), []);
-
 	return (
 		<InfoRowControl
 			label={t('baseMap.mapsforge.profile', { count: 1 })}
 			Info={Info}
 		>
 			<View style={styles.flexRow}>
-				<Menu
-					contentStyle={contentStyle}
-					visible={menuVisible}
-					onDismiss={handleDismissMenu}
-					anchor={
-						<ButtonHighlight
-							style={styles.contentBtn}
-							onPress={handleOpenMenu}
-						>
-							<Text>
-								{t(
-									get(
-										opts.find((opt) => opt.key === selectedOpt),
-										'label',
-										''
-									)
-								)}
-							</Text>
-						</ButtonHighlight>
-					}
-				>
-					{[...opts].map((opt, index) => (
-						<MenuItem
-							key={opt.key}
-							onPress={() => {
-								setSelectedOpt(opt.key);
-								handleDismissMenu();
-							}}
-							title={t(opt.label)}
-							active={opt.key === selectedOpt}
-							style={
-								'default' === selectedOpt && index === 1
-									? {
-											borderLeftColor: theme.colors.primary,
-											borderLeftWidth: 5,
-										}
-									: {}
-							}
-						/>
-					))}
-				</Menu>
+				<ListItemMenuControl
+					listItemStyle={{
+						marginLeft: 0,
+						paddingLeft: 10,
+					}}
+					options={opts}
+					value={selectedOpt}
+					setValue={(newValue) => {
+						setSelectedOpt(newValue);
+					}}
+					anchorLabel={t(
+						get(
+							opts.find((opt) => opt.key === selectedOpt),
+							'label',
+							''
+						)
+					)}
+					menuItemStyle={(idx) => {
+						return 'default' === selectedOpt && idx === 1
+							? {
+									borderLeftColor: theme.colors.primary,
+									borderLeftWidth: 5,
+								}
+							: {};
+					}}
+				/>
 
 				{'default' !== selectedOpt && (
 					<TouchableHighlight
