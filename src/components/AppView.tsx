@@ -129,7 +129,7 @@ const AppView = ({
 			hardwareKeys
 				.filter((keyConf) => 'none' !== keyConf.actionKey)
 				.map((keyConf) => keyConf.keyCodeString) as MapContainerProps['emitsHardwareKeyUp'],
-		[hardwareKeys]
+		[hardwareKeys,mapViewNativeNodeHandle]
 	);
 
 	const handleHardwareKeyUp = useCallback(
@@ -147,7 +147,7 @@ const AppView = ({
 				}
 			});
 		},
-		[hardwareKeys]
+		[hardwareKeys, mapViewNativeNodeHandle]
 	);
 
 	const [showMap, setShowMap] = useState(false);
