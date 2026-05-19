@@ -18,12 +18,13 @@ import {
 	setHgtReadFileRate,
 	setInitialized,
 	setLayers,
-	setMapsforgeGeneral,
+	setMapsforgeGeneralAction,
 	setMapsforgeProfiles,
 	setRenderStylesCache,
 } from './baseMapSlice';
 import { startAppListening } from '../../listenerMiddleware';
 import { selectInitialized } from './selectors';
+import { MapsforgeGeneral } from './types';
 
 const settingsKey = 'baseMapSettings';
 
@@ -71,7 +72,7 @@ export const initializeFromStorage = (store: EnhancedStore) => {
 					);
 				}
 				if (newSettings?.mapsforgeGeneral) {
-					store.dispatch(setMapsforgeGeneral(newSettings.mapsforgeGeneral));
+					store.dispatch(setMapsforgeGeneralAction(newSettings.mapsforgeGeneral));
 				}
 				if (newSettings?.renderStylesCache) {
 					store.dispatch(setRenderStylesCache(newSettings.renderStylesCache));
@@ -121,7 +122,7 @@ startAppListening({
 		setHgtReadFileRate,
 		setHgtInterpolation,
 		setHgtFileInfoPurgeThreshold,
-		setMapsforgeGeneral,
+		setMapsforgeGeneralAction,
 		setRenderStylesCache
 	),
 	effect: async (action: PayloadAction<any | { temp?: boolean }>, listenerApi) => {

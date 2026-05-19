@@ -12,7 +12,7 @@ import {
 	AppearanceSettings,
 	AppearanceState,
 	initialSettings,
-	setCursor,
+	setCursorAction,
 	setInitialized,
 	setTheme,
 } from './appearanceSlice';
@@ -43,7 +43,7 @@ export const initializeFromStorage = (store: EnhancedStore) => {
 					store.dispatch(setTheme(newSettings.theme));
 				}
 				if (newSettings?.cursor) {
-					store.dispatch(setCursor(newSettings.cursor));
+					store.dispatch(setCursorAction(newSettings.cursor));
 				}
 			}
 			store.dispatch(setInitialized(true));
@@ -76,7 +76,7 @@ export const saveToStorage = (appearanceState: AppearanceState, actionType: stri
  * and calls the function to save them to defaultPreferences.
  */
 startAppListening({
-	matcher: isAnyOf(setTheme, setCursor),
+	matcher: isAnyOf(setTheme, setCursorAction),
 	effect: async (action, listenerApi) => {
 		saveToStorage(listenerApi.getState().appearance, action.type);
 	},
