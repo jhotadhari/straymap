@@ -1,26 +1,20 @@
 /**
  * External dependencies
  */
-import React, { FC, useContext, useMemo } from 'react';
-import { ScrollView } from 'react-native';
-import { useSafeAreaFrame } from 'react-native-safe-area-context';
-import { useTheme } from 'react-native-paper';
+import React, { FC, useMemo } from 'react';
+import { ScrollView, ViewStyle } from 'react-native';
 import { useTranslation } from 'react-i18next';
 /**
  * Internal dependencies
  */
-import { AppContext } from '../../../../Context';
 import ListItem from '../../../../components/generic/ListItem';
 import { getUiItemsByKey } from '../uiItems';
 import { useAppDispatch, useAppSelector } from '../../../hooks';
 import { selectUiItemKeys } from '../selectors';
 import { setUiItemKeys } from '../uiSlice';
 
-const Settings: FC = () => {
-	const theme = useTheme();
+const Settings: FC<{ style?: ViewStyle }> = ({ style }) => {
 	const { t } = useTranslation();
-	const { width } = useSafeAreaFrame();
-	const { appInnerHeight } = useContext(AppContext);
 
 	const dispatch = useAppDispatch();
 
@@ -38,15 +32,7 @@ const Settings: FC = () => {
 	);
 
 	return (
-		<ScrollView
-			style={{
-				backgroundColor: theme.colors.background,
-				height: appInnerHeight,
-				width,
-				position: 'absolute',
-				zIndex: 9,
-			}}
-		>
+		<ScrollView style={style}>
 			{[...settingsPages].map((item, index) => (
 				<ListItem
 					key={index}

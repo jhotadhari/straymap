@@ -77,9 +77,7 @@ const AlignmentControl: FC<{
 				}}
 				anchorLabel={t(
 					get(
-						styleAlignOptions.find(
-							(opt) => opt.key === dashboardStyle.align
-						),
+						styleAlignOptions.find((opt) => opt.key === dashboardStyle.align),
 						'label',
 						''
 					)

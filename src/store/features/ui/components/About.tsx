@@ -258,25 +258,15 @@ const MdPartsRender = ({ include, mbParts }: { include?: string[]; mbParts: MdPa
 	);
 };
 
-const About: FC = () => {
+const About: FC<{ style?: ViewStyle }> = ({ style }) => {
 	const theme = useTheme();
 	const { t } = useTranslation();
 	const { width } = useSafeAreaFrame();
 
-	const { appInnerHeight } = useContext(AppContext);
-
 	const versionChangelog = useMemo(() => getChangelogVersion(), []);
 
 	return (
-		<View
-			style={{
-				backgroundColor: theme.colors.background,
-				height: appInnerHeight,
-				width,
-				position: 'absolute',
-				zIndex: 9,
-			}}
-		>
+		<View style={style}>
 			<ScrollView style={{ padding: 15, paddingLeft: 20 }}>
 				<Text style={{ ...theme.fonts.displaySmall, fontFamily: 'jangly_walk' }}>
 					Straymap

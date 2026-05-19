@@ -1,33 +1,23 @@
 /**
  * External dependencies
  */
-import { FC, useContext } from 'react';
-import { View } from 'react-native';
-import { useSafeAreaFrame } from 'react-native-safe-area-context';
-import { useTheme } from 'react-native-paper';
+import { FC } from 'react';
+import { View, ViewStyle } from 'react-native';
 
 /**
  * Internal dependencies
  */
-import { AppContext } from '../../../../Context';
 import DashboardControlView from '../../dashboard/components/controls/DashboardControlView';
 
-const SettingsDashboard: FC = () => {
-	const theme = useTheme();
-
-	const { width } = useSafeAreaFrame();
-
-	const { mapHeight } = useContext(AppContext);
-
+const SettingsDashboard: FC<{ style?: ViewStyle }> = ({ style }) => {
 	return (
 		<View
-			style={{
-				backgroundColor: theme.colors.background,
-				height: mapHeight,
-				width,
-				position: 'absolute',
-				zIndex: 9,
-			}}
+			style={[
+				style,
+				{
+					zIndex: 10,
+				},
+			]}
 		>
 			<DashboardControlView />
 		</View>

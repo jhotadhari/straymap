@@ -1,15 +1,7 @@
 /**
  * External dependencies
  */
-import {
-	FC,
-	Fragment,
-	useCallback,
-	useContext,
-	useEffect,
-	useMemo,
-	useState,
-} from 'react';
+import { FC, Fragment, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useTheme, Icon, Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { View, BackHandler, TouchableHighlight, StyleSheet, ScrollView } from 'react-native';

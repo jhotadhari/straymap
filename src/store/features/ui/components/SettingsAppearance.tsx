@@ -1,33 +1,18 @@
 /**
  * External dependencies
  */
-import React, { FC, useContext } from 'react';
-import { ScrollView } from 'react-native';
-import { useSafeAreaFrame } from 'react-native-safe-area-context';
-import { useTheme } from 'react-native-paper';
+import React, { FC } from 'react';
+import { ScrollView, ViewStyle } from 'react-native';
 
 /**
- * Internaö dependencies
+ * Internal dependencies
  */
-import { AppContext } from '../../../../Context';
 import CenterControl from '../../appearance/components/controls/CenterControl';
 import ThemeControl from '../../appearance/components/controls/ThemeControl';
 
-const SettingsAppearance: FC = () => {
-	const theme = useTheme();
-	const { width } = useSafeAreaFrame();
-	const { appInnerHeight } = useContext(AppContext);
-
+const SettingsAppearance: FC<{ style?: ViewStyle }> = ({ style }) => {
 	return (
-		<ScrollView
-			style={{
-				backgroundColor: theme.colors.background,
-				height: appInnerHeight,
-				width,
-				position: 'absolute',
-				zIndex: 9,
-			}}
-		>
+		<ScrollView style={style}>
 			<ThemeControl />
 
 			<CenterControl />

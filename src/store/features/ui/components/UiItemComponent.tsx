@@ -1,7 +1,10 @@
 /**
  * External dependencies
  */
-import React, { FC, useMemo } from 'react';
+import React, { FC, useContext, useMemo } from 'react';
+import { useSafeAreaFrame } from 'react-native-safe-area-context';
+import { useTheme } from 'react-native-paper';
+import { ViewStyle } from 'react-native';
 
 /**
  * Internal dependencies
@@ -9,9 +12,16 @@ import React, { FC, useMemo } from 'react';
 import { selectUiItemKeys } from '../selectors';
 import { useAppSelector } from '../../../hooks';
 import { getUiItemsByKey } from '../uiItems';
+import { AppContext } from '../../../../Context';
 
 const UiItemComponent: FC<{}> = () => {
 	const uiItemsKeys = useAppSelector(selectUiItemKeys);
+
+	const { width } = useSafeAreaFrame();
+
+	const theme = useTheme();
+
+	const { appInnerHeight } = useContext(AppContext);
 
 	const Component = useMemo(() => {
 		return uiItemsKeys.length
@@ -19,7 +29,18 @@ const UiItemComponent: FC<{}> = () => {
 			: undefined;
 	}, [uiItemsKeys]);
 
-	return Component ? <Component /> : undefined;
+	const style: ViewStyle = useMemo(
+		() => ({
+			backgroundColor: theme.colors.background,
+			height: appInnerHeight,
+			width,
+			position: 'absolute',
+			zIndex: 30,
+		}),
+		[theme]
+	);
+
+	return Component ? <Component style={style} /> : undefined;
 };
 
 export default UiItemComponent;

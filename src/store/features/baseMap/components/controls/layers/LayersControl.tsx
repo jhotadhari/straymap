@@ -368,7 +368,6 @@ const LayersControl = ({
 	reverseDraggableItem,
 	saveOnChange,
 	saveOnUnmount,
-	newLabel,
 	uiStateKey = 'mapLayersExpanded',
 }: {
 	setScrollEnabled: Dispatch<SetStateAction<boolean>>;
@@ -376,7 +375,6 @@ const LayersControl = ({
 	reverseDraggableItem?: boolean;
 	saveOnChange: boolean;
 	saveOnUnmount: boolean;
-	newLabel?: string;
 	uiStateKey?: string;
 }) => {
 	const dispatch = useAppDispatch();
@@ -525,7 +523,7 @@ const LayersControl = ({
 						mode="outlined"
 						onPress={handleAddNewLayer}
 					>
-						{newLabel}
+						{t('baseMap.addNewLayer')}
 					</ButtonHighlight>
 				</View>
 			</List.Accordion>

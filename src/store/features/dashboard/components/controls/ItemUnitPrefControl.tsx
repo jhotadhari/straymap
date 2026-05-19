@@ -1,14 +1,7 @@
 /**
  * External dependencies
  */
-import React, {
-	FC,
-	useCallback,
-	useEffect,
-	useMemo,
-	useRef,
-	useState,
-} from 'react';
+import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { upperFirst, get, omit, isEqual } from 'lodash-es';
@@ -27,7 +20,6 @@ import { selectEditItem } from '../../selectors';
 import { DashboardItem } from '../../types';
 import NumericRowControlSegmented from '../../../../../components/generic/controls/NumericRowControlSegmented';
 import ListItemMenuControl from '../../../../../components/generic/controls/ListItemMenuControl';
-
 
 type OptionsWithUnitPref = {
 	unitPref?: Partial<UnitPref>;

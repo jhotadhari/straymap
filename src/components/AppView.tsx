@@ -259,7 +259,7 @@ const AppView = ({
 };
 
 const styles = StyleSheet.create({
-	zObove: { zIndex: 999 },
+	zObove: { zIndex: 20 },
 });
 
 export default AppView;

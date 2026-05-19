@@ -418,7 +418,6 @@ const ProfilesControl = ({
 	reverseDraggableItem,
 	saveOnChange,
 	saveOnUnmount,
-	newLabel,
 	uiStateKey = 'mapsforgeProfilesExpanded',
 }: {
 	setScrollEnabled: Dispatch<SetStateAction<boolean>>;
@@ -426,7 +425,6 @@ const ProfilesControl = ({
 	reverseDraggableItem?: boolean;
 	saveOnChange: boolean;
 	saveOnUnmount: boolean;
-	newLabel?: string;
 	uiStateKey?: string;
 }) => {
 	const dispatch = useAppDispatch();
@@ -586,7 +584,7 @@ const ProfilesControl = ({
 						mode="outlined"
 						onPress={handleAddNewProfile}
 					>
-						{newLabel}
+						{t('baseMap.mapsforge.profileAddNew')}
 					</ButtonHighlight>
 				</View>
 			</List.Accordion>

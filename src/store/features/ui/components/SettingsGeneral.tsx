@@ -1,35 +1,20 @@
 /**
  * External dependencies
  */
-import React, { FC, useContext } from 'react';
-import { ScrollView } from 'react-native';
-import { useSafeAreaFrame } from 'react-native-safe-area-context';
-import { useTheme } from 'react-native-paper';
+import React, { FC } from 'react';
+import { ScrollView, ViewStyle } from 'react-native';
 
 /**
  * Internal dependencies
  */
-import { AppContext } from '../../../../Context';
 import HardwareKeyControl from '../../general/components/controls/HardwareKeyControl';
 import UnitPrefControl from '../../general/components/controls/UnitPrefControl';
 import HgtControl from '../../general/components/controls/HgtControl';
 import LangControl from '../../lang/components/controls/LangControl';
 
-const SettingsGeneral: FC = () => {
-	const theme = useTheme();
-	const { width } = useSafeAreaFrame();
-	const { appInnerHeight } = useContext(AppContext);
-
+const SettingsGeneral: FC<{ style?: ViewStyle }> = ({ style }) => {
 	return (
-		<ScrollView
-			style={{
-				backgroundColor: theme.colors.background,
-				height: appInnerHeight,
-				width,
-				position: 'absolute',
-				zIndex: 9,
-			}}
-		>
+		<ScrollView style={style}>
 			<LangControl />
 
 			<HardwareKeyControl />

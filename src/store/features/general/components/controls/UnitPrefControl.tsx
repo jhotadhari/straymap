@@ -118,9 +118,7 @@ const UnitControl = ({
 				Info={Info && 'string' === typeof Info ? t(Info) : Info}
 			/>
 
-			<InfoRowControl
-				label={t('unit')}
-			>
+			<InfoRowControl label={t('unit')}>
 				<ListItemMenuControl
 					listItemStyle={{
 						marginLeft: 0,
