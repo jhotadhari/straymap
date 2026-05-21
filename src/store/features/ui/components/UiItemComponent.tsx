@@ -2,9 +2,8 @@
  * External dependencies
  */
 import React, { FC, useContext, useMemo } from 'react';
-import { useSafeAreaFrame } from 'react-native-safe-area-context';
 import { useTheme } from 'react-native-paper';
-import { ViewStyle } from 'react-native';
+import { Dimensions, ViewStyle } from 'react-native';
 
 /**
  * Internal dependencies
@@ -17,7 +16,7 @@ import { AppContext } from '../../../../Context';
 const UiItemComponent: FC<{}> = () => {
 	const uiItemsKeys = useAppSelector(selectUiItemKeys);
 
-	const { width } = useSafeAreaFrame();
+	const { width } = Dimensions.get('window');
 
 	const theme = useTheme();
 

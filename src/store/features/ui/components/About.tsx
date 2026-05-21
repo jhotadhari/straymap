@@ -2,12 +2,11 @@
  * External dependencies
  */
 import React, { FC, ReactNode, useEffect, useMemo, useState } from 'react';
-import { Image, Linking, ScrollView, StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
+import { Dimensions, Image, Linking, ScrollView, StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 import { Icon, Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import Markdown from 'react-native-markdown-display';
 import { get } from 'lodash-es';
-import { useSafeAreaFrame } from 'react-native-safe-area-context';
 
 /**
  * Internal dependencies
@@ -258,10 +257,12 @@ const MdPartsRender = ({ include, mbParts }: { include?: string[]; mbParts: MdPa
 	);
 };
 
+const paddingLeft = 24;
+
 const About: FC<{ style?: ViewStyle }> = ({ style }) => {
 	const theme = useTheme();
 	const { t } = useTranslation();
-	const { width } = useSafeAreaFrame();
+	const { width } = Dimensions.get('window');
 
 	const versionChangelog = useMemo(() => getChangelogVersion(), []);
 
@@ -269,7 +270,7 @@ const About: FC<{ style?: ViewStyle }> = ({ style }) => {
 		<ScrollView style={style}>
 			<View
 				style={{
-					paddingLeft: 24,
+					paddingLeft,
 					gap: 16,
 				}}
 			>
@@ -308,6 +309,7 @@ const About: FC<{ style?: ViewStyle }> = ({ style }) => {
 					style={{
 						justifyContent: 'center',
 						alignItems: 'center',
+						marginLeft: -paddingLeft/2,
 					}}
 				>
 					<AnimatedLogo

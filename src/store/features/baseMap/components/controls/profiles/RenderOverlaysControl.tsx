@@ -122,7 +122,6 @@ const ControlModal: FC<{
 			visible={modalVisible}
 			backgroundBlur={false}
 			onDismiss={handleDismissModal}
-			onHeaderBackPress={handleDismissModal}
 			header={header || label}
 		>
 			<View style={styles.modalControlsTop}>

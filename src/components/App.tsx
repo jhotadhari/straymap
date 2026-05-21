@@ -2,8 +2,7 @@
  * External dependencies
  */
 import React, { useEffect, useRef, useState } from 'react';
-import { BackHandler, View } from 'react-native';
-import { useSafeAreaFrame } from 'react-native-safe-area-context';
+import { BackHandler, Dimensions, View } from 'react-native';
 import { PaperProvider, useTheme } from 'react-native-paper';
 import { MapEventResponse } from 'react-native-mapsforge-vtm';
 
@@ -39,7 +38,7 @@ const App = () => {
 
 	useIsBusyPromiseQueueState();
 
-	const { width, height } = useSafeAreaFrame();
+	const { width, height } = Dimensions.get('window');
 
 	const [mapViewNativeNodeHandle, setMapViewNativeNodeHandle] = useState<null | number>(null);
 

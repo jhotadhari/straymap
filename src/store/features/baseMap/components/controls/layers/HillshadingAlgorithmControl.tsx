@@ -137,7 +137,6 @@ const HillshadingAlgorithmControl: FC<{}> = () => {
 					visible={modalVisible}
 					backgroundBlur={false}
 					onDismiss={() => setModalVisible(false)}
-					onHeaderBackPress={() => setModalVisible(false)}
 					header={t('baseMap.shadingAlgorithm')}
 				>
 					<View style={styles.content}>

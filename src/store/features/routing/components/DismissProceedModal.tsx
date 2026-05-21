@@ -35,7 +35,6 @@ const DismissProceedModal: FC<{
 		<ModalWrapper
 			visible={dismissModalVisible}
 			onDismiss={() => setDismissModalVisible(false)}
-			onHeaderBackPress={() => setDismissModalVisible(false)}
 			header={'sicher???'}
 		>
 			<View style={{ marginTop: 20 }}>

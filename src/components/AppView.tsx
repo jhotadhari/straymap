@@ -11,11 +11,10 @@ import React, {
 	useMemo,
 	useState,
 } from 'react';
-import { StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
+import { Dimensions, StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
 import 'intl-pluralrules';
 import { useTheme } from 'react-native-paper';
 import { get } from 'lodash-es';
-import { SafeAreaView, useSafeAreaFrame } from 'react-native-safe-area-context';
 /**
  * react-native-mapsforge-vtm dependencies
  */
@@ -85,7 +84,7 @@ const AppView = ({
 	const uiItems = useAppSelector(selectUiItemKeys);
 	const dashboardElements = useAppSelector(selectElementsSettings);
 
-	const { width, height } = useSafeAreaFrame();
+	const { width, height } = Dimensions.get('window');
 
 	const { mapViewNativeNodeHandle, mapHeight } = useContext(AppContext);
 
@@ -165,7 +164,7 @@ const AppView = ({
 	]);
 
 	return (
-		<SafeAreaView
+		<View
 			style={{
 				backgroundColor: theme.colors.background,
 				height,
@@ -254,7 +253,7 @@ const AppView = ({
 					position="bottom"
 				/>
 			</View>
-		</SafeAreaView>
+		</View>
 	);
 };
 

@@ -138,7 +138,6 @@ const HgtSourceRowControl = ({
 					backgroundBlur={false}
 					onDismiss={() => setModalVisible(false)}
 					header={t('map.selectDemDir')}
-					onHeaderBackPress={() => setModalVisible(false)}
 				>
 					{[...opts].map((opt) => {
 						return (

@@ -2,8 +2,7 @@
  * External dependencies
  */
 import { Dispatch, FC, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react';
-import { View, TouchableHighlight, ViewStyle, LayoutChangeEvent, TextStyle } from 'react-native';
-import { useSafeAreaFrame } from 'react-native-safe-area-context';
+import { View, TouchableHighlight, ViewStyle, LayoutChangeEvent, TextStyle, Dimensions } from 'react-native';
 import { List, useTheme, Text, Icon, IconButtonProps } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import DraggableGrid from 'react-native-draggable-grid';
@@ -428,7 +427,7 @@ const ProfilesControl = ({
 }) => {
 	const dispatch = useAppDispatch();
 
-	const { width: width_ } = useSafeAreaFrame();
+	const { width: width_ } = Dimensions.get('window');
 	width = width ? width : width_;
 
 	const { t } = useTranslation();

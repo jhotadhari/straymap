@@ -181,7 +181,6 @@ const DrawerControlModal: FC<{
 		<ModalWrapper
 			visible={modalVisible}
 			onDismiss={() => setModalVisible(false)}
-			onHeaderBackPress={() => setModalVisible(false)}
 			header={t('drawers.drawer', { count: 0 })}
 		>
 			{Object.values(drawerItems).map((drawerItem: DrawerItem) => (

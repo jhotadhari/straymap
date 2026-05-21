@@ -4,10 +4,9 @@
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { Icon, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { PixelRatio, ScrollView, TextStyle, TouchableHighlight } from 'react-native';
+import { Dimensions, PixelRatio, ScrollView, TextStyle, TouchableHighlight } from 'react-native';
 import rnUuid from 'react-native-uuid';
 import { MapLayerMarkerModule, MapLayerPathSlopeGradientModule } from 'react-native-mapsforge-vtm';
-import { useSafeAreaFrame } from 'react-native-safe-area-context';
 import { usePrevious } from 'victory-native';
 
 /**
@@ -17,7 +16,6 @@ import { AppContext } from '../../../../../Context';
 import { runAfterInteractions } from '../../../../../lib/utils';
 import { MapContext } from '../../../../../Context';
 import MenuItem from '../../../../../components/generic/MenuItem';
-import DrawerContext from '../../DrawerContext';
 import { RoutingPoint } from '../../../routing/types';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import {
@@ -54,9 +52,7 @@ const IconActions = ({ style }: { style: TextStyle }) => {
 
 	const { currentMapEventRef } = useContext(MapContext);
 
-	const { side } = useContext(DrawerContext);
-
-	const { width } = useSafeAreaFrame();
+	const { width } = Dimensions.get('window');
 	const theme = useTheme();
 	const { t } = useTranslation();
 	const [menuVisible, setMenuVisible] = useState(false);

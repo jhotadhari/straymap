@@ -44,7 +44,6 @@ const InfoControlWrapper = ({
 					visible={modalVisible}
 					backgroundBlur={!!backgroundBlur}
 					onDismiss={() => setModalVisible(false)}
-					onHeaderBackPress={() => setModalVisible(false)}
 					header={sprintf(t(labelPattern, { count: headerPlural ? 0 : 1 }), label || '')}
 				>
 					<View style={{ marginTop: 20, marginBottom: 20 }}>

@@ -118,10 +118,6 @@ const EditSegmentModal: FC<{
 				updateSegment();
 				setEditSegment(null);
 			}}
-			onHeaderBackPress={() => {
-				updateSegment();
-				setEditSegment(null);
-			}}
 			header={'editProfile???'}
 		>
 			<ProfileRowControl

@@ -2,8 +2,7 @@
  * External dependencies
  */
 import { Text, useTheme } from 'react-native-paper';
-import { View, ViewStyle } from 'react-native';
-import { useSafeAreaFrame } from 'react-native-safe-area-context';
+import { Dimensions, View, ViewStyle } from 'react-native';
 import { ReactNode } from 'react';
 
 /**
@@ -23,7 +22,7 @@ const SplashScreen = ({
 	innerStyle?: ViewStyle;
 }) => {
 	const theme = useTheme();
-	const { width, height } = useSafeAreaFrame();
+	const { width, height } = Dimensions.get('window');
 
 	return (
 		<ModalWrapper
@@ -40,6 +39,8 @@ const SplashScreen = ({
 				height: height * 0.75 - 2 * 20,
 				...(innerStyle || {}),
 			}}
+			scrollEnabled={displayLogo && ! children }
+			hasBackButton={ false }
 		>
 			<Text style={{ ...theme.fonts.displayMedium, fontFamily: 'jangly_walk' }}>
 				{'Straymap'}

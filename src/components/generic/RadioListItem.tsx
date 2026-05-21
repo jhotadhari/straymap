@@ -1,8 +1,7 @@
 /**
  * External dependencies
  */
-import { TextStyle, TouchableHighlight, View } from 'react-native';
-import { useSafeAreaFrame } from 'react-native-safe-area-context';
+import { Dimensions, TextStyle, TouchableHighlight, View } from 'react-native';
 import { Text, useTheme, RadioButton } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 
@@ -34,7 +33,7 @@ const RadioListItem = ({
 	status?: 'unchecked' | 'checked';
 	radioAlign?: 'left' | 'right';
 }) => {
-	const { width } = useSafeAreaFrame();
+	const { width } = Dimensions.get('window');
 	const { t } = useTranslation();
 	const theme = useTheme();
 	const label = labelExtractor ? labelExtractor(opt) : null;

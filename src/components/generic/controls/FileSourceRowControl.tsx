@@ -191,7 +191,6 @@ const FileSourceRowControl: FC<{
 					visible={modalVisible}
 					backgroundBlur={false}
 					onDismiss={() => setModalVisible(false)}
-					onHeaderBackPress={() => setModalVisible(false)}
 					header={header || label}
 				>
 					{Object.keys(optsMap).map((key) => {

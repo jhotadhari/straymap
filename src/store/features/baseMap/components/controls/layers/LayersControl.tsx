@@ -7,10 +7,9 @@ import {
 	TouchableHighlight,
 	ViewStyle,
 	LayoutChangeEvent,
-	TextStyle,
 	StyleSheet,
+	Dimensions,
 } from 'react-native';
-import { useSafeAreaFrame } from 'react-native-safe-area-context';
 import { List, useTheme, Text, Icon, IconButtonProps } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import DraggableGrid from 'react-native-draggable-grid';
@@ -379,7 +378,7 @@ const LayersControl = ({
 }) => {
 	const dispatch = useAppDispatch();
 
-	const { width: width_ } = useSafeAreaFrame();
+	const { width: width_ } = Dimensions.get('window');
 	width = width ? width : width_;
 
 	const { t } = useTranslation();
