@@ -14,7 +14,6 @@ import { useAppDispatch } from '../../../hooks';
 import { setIsEditingDashboard, setEditItemKey } from '../../dashboard/dashboardSlice';
 
 const SettingsDashboard: FC<{ style?: ViewStyle }> = ({ style }) => {
-
 	const { mapHeight } = useContext(AppContext);
 
 	const dispatch = useAppDispatch();

@@ -39,8 +39,8 @@ const SplashScreen = ({
 				height: height * 0.75 - 2 * 20,
 				...(innerStyle || {}),
 			}}
-			scrollEnabled={displayLogo && ! children }
-			hasBackButton={ false }
+			scrollEnabled={displayLogo && !children}
+			hasBackButton={false}
 		>
 			<Text style={{ ...theme.fonts.displayMedium, fontFamily: 'jangly_walk' }}>
 				{'Straymap'}

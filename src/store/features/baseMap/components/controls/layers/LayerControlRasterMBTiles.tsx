@@ -81,7 +81,7 @@ const LayerControlRasterMBTiles: FC<{}> = () => {
 								...layerTemp?.options,
 								mapFile: selectedOpt as LayerConfigOptionsRasterMBtiles['mapFile'],
 							},
-						} as LayerConfig)
+						}) as LayerConfig
 				)
 			);
 	}, []);

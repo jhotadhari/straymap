@@ -95,7 +95,7 @@ const RenderStyleControl: FC<{
 		}
 	}, [selectedOpt]);
 
-	if ( ! opts.length && ! AlternativeButton ) {
+	if (!opts.length && !AlternativeButton) {
 		return undefined;
 	}
 

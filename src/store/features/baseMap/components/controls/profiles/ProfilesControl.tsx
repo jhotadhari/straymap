@@ -2,7 +2,14 @@
  * External dependencies
  */
 import { Dispatch, FC, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react';
-import { View, TouchableHighlight, ViewStyle, LayoutChangeEvent, TextStyle, Dimensions } from 'react-native';
+import {
+	View,
+	TouchableHighlight,
+	ViewStyle,
+	LayoutChangeEvent,
+	TextStyle,
+	Dimensions,
+} from 'react-native';
 import { List, useTheme, Text, Icon, IconButtonProps } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import DraggableGrid from 'react-native-draggable-grid';
@@ -247,7 +254,7 @@ const ControlInfo: FC<{}> = () => {
 	const theme = useTheme();
 
 	return (
-		<View style={ { gap: 16} }>
+		<View style={{ gap: 16 }}>
 			<Text>{t('baseMap.hint.profiles')}</Text>
 			<Text
 				style={{

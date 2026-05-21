@@ -179,7 +179,7 @@ const FileSourceRowControl: FC<{
 		if (selectedOpt) {
 			onSelect(selectedOpt === 'custom' && undefined !== customUri ? customUri : selectedOpt);
 		}
-	}, [selectedOpt,customUri]);
+	}, [selectedOpt, customUri]);
 
 	return (
 		<InfoRowControl

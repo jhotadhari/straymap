@@ -2,7 +2,16 @@
  * External dependencies
  */
 import React, { FC, ReactNode, useEffect, useMemo, useState } from 'react';
-import { Dimensions, Image, Linking, ScrollView, StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
+import {
+	Dimensions,
+	Image,
+	Linking,
+	ScrollView,
+	StyleProp,
+	StyleSheet,
+	View,
+	ViewStyle,
+} from 'react-native';
 import { Icon, Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import Markdown from 'react-native-markdown-display';
@@ -301,7 +310,7 @@ const About: FC<{ style?: ViewStyle }> = ({ style }) => {
 				)}
 
 				<HintLink
-					label={ t('ui.sourceHostedOnGithub') }
+					label={t('ui.sourceHostedOnGithub')}
 					url="https://github.com/jhotadhari/straymap"
 				/>
 
@@ -309,7 +318,7 @@ const About: FC<{ style?: ViewStyle }> = ({ style }) => {
 					style={{
 						justifyContent: 'center',
 						alignItems: 'center',
-						marginLeft: -paddingLeft/2,
+						marginLeft: -paddingLeft / 2,
 					}}
 				>
 					<AnimatedLogo
