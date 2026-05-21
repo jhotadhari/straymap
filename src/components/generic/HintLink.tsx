@@ -6,7 +6,7 @@ import { Text, useTheme } from 'react-native-paper';
 const HintLink: FC<{ label: string; url: string; style?: ViewStyle }> = ({ label, url, style }) => {
 	const theme = useTheme();
 	return (
-		<View>
+		<View style={style}>
 			<Text>{label}</Text>
 			<Text
 				style={{ color: get(theme.colors, 'link') }}
