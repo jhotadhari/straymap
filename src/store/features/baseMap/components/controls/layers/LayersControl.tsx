@@ -534,7 +534,7 @@ const LayersControl = ({
 export const styles = StyleSheet.create({
 	selectType: { marginBottom: 18 },
 	modalRowTypeLabel: { minWidth: labelMinWidth + 12 },
-	modalRowType: { marginBottom: 10, flexDirection: 'row' },
+	modalRowType: { flexDirection: 'row' },
 });
 
 export const stylesGeneric = StyleSheet.create({

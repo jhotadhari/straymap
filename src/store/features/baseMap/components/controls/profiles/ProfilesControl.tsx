@@ -248,11 +248,10 @@ const ControlInfo: FC<{}> = () => {
 	const theme = useTheme();
 
 	return (
-		<View>
+		<View style={ { gap: 16} }>
 			<Text>{t('baseMap.hint.profiles')}</Text>
 			<Text
 				style={{
-					marginTop: 20,
 					...theme.fonts.bodyLarge,
 				}}
 			>

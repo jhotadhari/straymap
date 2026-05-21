@@ -19,105 +19,32 @@ import LoadingIndicator from '../../../../components/generic/LoadingIndicator';
 import { AppContext } from '../../../../Context';
 import { DashboardWrapped } from '../../dashboard/components/Dashboard';
 import { selectItemsCount } from '../../dashboard/selectors';
-import Popover, { PopoverPlacement } from 'react-native-popover-view';
 
-const TopAppBarMenu: FC<{ items: UiItem[] }> = ({ items }) => {
-	const { t } = useTranslation();
-
-	const dispatch = useAppDispatch();
-
+const TopAppBarMenu: FC<{ handleMenuPress?: () => void }> = ({ handleMenuPress }) => {
 	const theme = useTheme();
-
-	const [menuVisible, setMenuVisible] = useState(false);
 
 	const isBusy = useAppSelector(selectIsBusy);
 
-	const uiItemsKeys = useAppSelector(selectUiItemKeys);
-
-	const closeMenu = useCallback(() => setMenuVisible(false), []);
-	const toggleMenu = useCallback(() => setMenuVisible((menuVisible) => !menuVisible), []);
-
-	const backAction = useCallback(() => {
-		if (menuVisible) {
-			closeMenu();
-			return true;
-		}
-		return false;
-	}, [menuVisible, closeMenu]);
-
-	useEffect(() => {
-		const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
-		return () => backHandler.remove();
-	}, [backAction]);
-
-	const anchor = useMemo(
-		() => (
-			<TouchableHighlight
-				style={styles.button}
-				underlayColor={theme.colors.elevation.level3}
-				onPress={toggleMenu}
-			>
-				<View>
-					{isBusy && <LoadingIndicator size={30} />}
-					{!isBusy && (
-						<Icon
-							size={30}
-							source="menu"
-						/>
-					)}
-				</View>
-			</TouchableHighlight>
-		),
-		[
-			theme,
-			isBusy,
-		]
-	);
-
-	const popoverStyle = useMemo(
-		() => ({
-			backgroundColor: theme.colors.background,
-			borderWidth: 1,
-			borderColor: theme.colors.outline,
-			minWidth: 150,
-		}),
-		[theme]
-	);
-
 	return (
-		<Popover
-			popoverStyle={popoverStyle}
-			arrowSize={arrowSize}
-			isVisible={menuVisible}
-			placement={PopoverPlacement.BOTTOM}
-			onRequestClose={() => setMenuVisible(false)}
-			from={anchor}
+		<TouchableHighlight
+			style={styles.button}
+			underlayColor={theme.colors.elevation.level3}
+			onPress={handleMenuPress}
 		>
-			<ScrollView>
-				{[...items].map((item, index) => {
-					return (
-						<MenuItem
-							key={index}
-							onPress={() => {
-								dispatch(
-									setUiItemKeys([
-										item.key,
-									])
-								);
-								closeMenu();
-							}}
-							leadingIcon={item?.icon}
-							title={t(item.label)}
-							active={uiItemsKeys.includes(item.key)}
-						/>
-					);
-				})}
-			</ScrollView>
-		</Popover>
+			<View>
+				{isBusy && <LoadingIndicator size={30} />}
+				{!isBusy && (
+					<Icon
+						size={30}
+						source="menu"
+					/>
+				)}
+			</View>
+		</TouchableHighlight>
 	);
 };
 
-const arrowSize = { height: 0, width: 0 };
+// const arrowSize = { height: 0, width: 0 };
 
 const TopAppBar: FC = () => {
 	const { t } = useTranslation();
@@ -138,14 +65,14 @@ const TopAppBar: FC = () => {
 		[uiItemsKeys, t]
 	);
 
-	const menuItems = useMemo(
-		() =>
-			getUiItemsByKey([
-				'settings',
-				'about',
-			]),
-		[t]
-	);
+	// const menuItems = useMemo(
+	// 	() =>
+	// 		getUiItemsByKey([
+	// 			'settings',
+	// 			'about',
+	// 		]),
+	// 	[t]
+	// );
 
 	const backAction = useCallback(() => {
 		if (uiItemsKeys.length) {
@@ -162,9 +89,18 @@ const TopAppBar: FC = () => {
 
 	const topItemsCount = useAppSelector((state) => selectItemsCount(state, 'top'));
 
-	const showTopDashboard =
-		!uiItemsKeys.length ||
-		(topItemsCount > 0 && uiItemsKeys[uiItemsKeys.length - 1] === 'dashboard');
+	const isDashboardSettings =
+		uiItemsKeys.length && uiItemsKeys[uiItemsKeys.length - 1] === 'dashboard';
+
+	const showTopDashboard = !uiItemsKeys.length || (topItemsCount > 0 && isDashboardSettings);
+
+	const showMenuBtn = !uiItemsKeys.length || (topItemsCount > 0 && isDashboardSettings);
+
+	const handleMenuPress = useCallback(() => {
+		if (!uiItemsKeys.length) {
+			dispatch(setUiItemKeys(['settings']));
+		}
+	}, [uiItemsKeys]);
 
 	return (
 		<View
@@ -204,18 +140,20 @@ const TopAppBar: FC = () => {
 					right: 999,
 				}}
 			>
-				<TopAppBarMenu items={menuItems} />
+				<TopAppBarMenu />
 			</View>
 
-			<View
-				style={{
-					position: 'absolute',
-					right: 4,
-					zIndex: 9,
-				}}
-			>
-				<TopAppBarMenu items={menuItems} />
-			</View>
+			{showMenuBtn && (
+				<View
+					style={{
+						position: 'absolute',
+						right: 4,
+						zIndex: 9,
+					}}
+				>
+					<TopAppBarMenu handleMenuPress={handleMenuPress} />
+				</View>
+			)}
 		</View>
 	);
 };

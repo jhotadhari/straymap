@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { FC, ReactNode, useContext, useEffect, useMemo, useState } from 'react';
+import React, { FC, ReactNode, useEffect, useMemo, useState } from 'react';
 import { Image, Linking, ScrollView, StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 import { Icon, Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -12,7 +12,6 @@ import { useSafeAreaFrame } from 'react-native-safe-area-context';
 /**
  * Internal dependencies
  */
-import { AppContext } from '../../../../Context';
 import AnimatedLogo from '../../../../components/AnimatedLogo';
 import readme from '../../../../../README.md';
 import license from '../../../../../LICENSE.md';
@@ -23,6 +22,7 @@ import { removeLeadingTrailingEmptyLines, removeLines } from '../../../../lib/ut
 import renderRules from '../../../../markdown/renderRules';
 import { styles } from '../../../../markdown/styles';
 import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
+import HintLink from '../../../../components/generic/HintLink';
 
 type MdPart = {
 	key: string;
@@ -266,15 +266,22 @@ const About: FC<{ style?: ViewStyle }> = ({ style }) => {
 	const versionChangelog = useMemo(() => getChangelogVersion(), []);
 
 	return (
-		<View style={style}>
-			<ScrollView style={{ padding: 15, paddingLeft: 20 }}>
+		<ScrollView style={style}>
+			<View
+				style={{
+					paddingLeft: 24,
+					gap: 16,
+				}}
+			>
 				<Text style={{ ...theme.fonts.displaySmall, fontFamily: 'jangly_walk' }}>
 					Straymap
 				</Text>
-				<Text style={{ marginTop: 10 }}>{t('ui.slogan')}</Text>
-				<Text style={{ marginTop: 20 }}>Version {versionChangelog}</Text>
+
+				<Text>{t('ui.slogan')}</Text>
+
 				{'Unreleased' === versionChangelog && (
 					<View>
+						<Text>Version {versionChangelog}</Text>
 						<Text>Latest release {getChangelogVersion(1) || packageJson.version}</Text>
 						{Object.keys(debugInfo).map((key: string) => {
 							let string = get(debugInfo, key, '');
@@ -291,17 +298,15 @@ const About: FC<{ style?: ViewStyle }> = ({ style }) => {
 						})}
 					</View>
 				)}
-				<Text style={{ marginTop: 10 }}>{t('ui.sourceHostedOnGithub')}</Text>
-				<Text
-					style={{ color: get(theme.colors, 'link') }}
-					onPress={() => Linking.openURL('https://github.com/jhotadhari/straymap')}
-				>
-					https://github.com/jhotadhari/straymap
-				</Text>
+
+				<HintLink
+					label={ t('ui.sourceHostedOnGithub') }
+					url="https://github.com/jhotadhari/straymap"
+				/>
 
 				<View
 					style={{
-						justifyContent: 'space-evenly',
+						justifyContent: 'center',
 						alignItems: 'center',
 					}}
 				>
@@ -337,8 +342,8 @@ const About: FC<{ style?: ViewStyle }> = ({ style }) => {
 						]}
 					/>
 				</AccordionItem>
-			</ScrollView>
-		</View>
+			</View>
+		</ScrollView>
 	);
 };
 

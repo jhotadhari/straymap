@@ -27,6 +27,7 @@ const Settings: FC<{ style?: ViewStyle }> = ({ style }) => {
 				'general',
 				'appearance',
 				'dashboard',
+				'about',
 			]),
 		[]
 	);

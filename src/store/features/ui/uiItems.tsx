@@ -24,7 +24,14 @@ export const uiItems: UiItem[] = [
 	{
 		key: 'about',
 		label: 'ui.items.about',
-		icon: 'information-variant',
+		icon: ({ color, style }) => (
+			<MaterialIcons
+				style={style}
+				name="info-outline"
+				size={25}
+				color={color}
+			/>
+		),
 		Component: About,
 	},
 	{
