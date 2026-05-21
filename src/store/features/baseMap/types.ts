@@ -32,7 +32,7 @@ export type LayerInfos = { [value: string]: LayerInfo };
 
 export type RenderStylesCache = {
 	optionsMap: { [value: string]: RenderStyleOptionsCollection };
-	defaultsMap: { [value: string]: string | null };
+	defaultsMap: { [value: string]: string | undefined };
 };
 
 export interface LayerConfigOptionsOnlineRasterXYZ {

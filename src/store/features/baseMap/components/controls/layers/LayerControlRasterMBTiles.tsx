@@ -67,34 +67,37 @@ const LayerControlRasterMBTiles: FC<{}> = () => {
 		);
 	}, []);
 
-	const handleMapFileChange = useCallback(
-		(selectedOpt: LayerConfigOptionsRasterMBtiles['mapFile']) => {
+	const handleMapFileChange = useCallback((selectedOpt?: string) => {
+		layerTemp &&
+			(undefined === selectedOpt ||
+				selectedOpt.startsWith('/') ||
+				selectedOpt.startsWith('content://')) &&
 			dispatch(
 				setLayerTemp(
 					(layerTemp) =>
-						layerTemp &&
 						({
 							...layerTemp,
 							options: {
-								...layerTemp.options,
-								mapFile: selectedOpt,
+								...layerTemp?.options,
+								mapFile: selectedOpt as LayerConfigOptionsRasterMBtiles['mapFile'],
 							},
 						} as LayerConfig)
 				)
 			);
-		},
-		[]
-	);
+	}, []);
 
 	const validateZoom = useCallback((val: number) => val >= 0, []);
+
+	if (!layerTemp?.options) {
+		return undefined;
+	}
 
 	return (
 		<Fragment>
 			<FileSourceRowControl
 				header={t('baseMap.selectFile')}
 				label={t('baseMap.file')}
-				options={layerTemp?.options ?? {}}
-				optionsKey={'mapFile'}
+				value={layerTemp.options?.mapFile}
 				onSelect={handleMapFileChange}
 				extensions={extensions}
 				dirs={appDirs?.mapfiles ?? []}

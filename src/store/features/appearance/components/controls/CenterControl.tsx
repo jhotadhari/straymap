@@ -18,7 +18,7 @@ import NumericRowControl from '../../../../../components/generic/controls/Numeri
 import FileSourceRowControl from '../../../../../components/generic/controls/FileSourceRowControl';
 import { CenterInner } from '../Center';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
-import { setCursor } from '../../appearanceSlice';
+import { initialSettings, setCursor } from '../../appearanceSlice';
 import { selectCursor } from '../../selectors';
 import { CursorConfig } from '../../types';
 import { selectAppDirs } from '../../../dirs/selectors';
@@ -61,11 +61,11 @@ const CenterControl = () => {
 		[]
 	);
 
-	const handleFileSelect = useCallback((newFileSource: string) => {
+	const handleFileSelect = useCallback((newFileSource?: string) => {
 		dispatch(
 			setCursor((cursor) => ({
 				...cursor,
-				iconSource: newFileSource,
+				iconSource: newFileSource ?? initialSettings.cursor.iconSource,
 			}))
 		);
 	}, []);
@@ -109,8 +109,7 @@ const CenterControl = () => {
 			<FileSourceRowControl
 				header={t('selectFile')}
 				label={t('file')}
-				options={cursorConfig as object}
-				optionsKey={'iconSource'}
+				value={cursorConfig.iconSource}
 				onSelect={handleFileSelect}
 				initialOptsMap={initialOptsMap}
 				extensions={['svg', 'png']}

@@ -1,7 +1,16 @@
 /**
  * External dependencies
  */
-import { Dispatch, ReactElement, ReactNode, SetStateAction, useEffect, useState } from 'react';
+import {
+	Dispatch,
+	FC,
+	ReactElement,
+	ReactNode,
+	SetStateAction,
+	useCallback,
+	useEffect,
+	useState,
+} from 'react';
 import { View } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -42,12 +51,26 @@ export type AlternativeButtonType =
 			setModalVisible?: Dispatch<SetStateAction<boolean>>;
 	  }) => ReactElement);
 
-const FileSourceRowControl = ({
+const FileSourceRowControl: FC<{
+	filePattern?: RegExp;
+	extensions?: string[];
+	dirs?: AbsPath[];
+	value?: string;
+	onSelect: (newValue?: string | undefined) => void;
+	label: string;
+	header?: string;
+	Info?: ReactNode | string;
+	After?: ReactNode;
+	filesHeading?: string;
+	noFilesHeading?: string;
+	hasCustom?: boolean;
+	initialOptsMap?: OptsMap;
+	AlternativeButton?: AlternativeButtonType;
+}> = ({
 	filePattern,
 	extensions,
 	dirs,
-	options,
-	optionsKey,
+	value,
 	onSelect,
 	label,
 	header,
@@ -58,22 +81,6 @@ const FileSourceRowControl = ({
 	hasCustom,
 	initialOptsMap = {},
 	AlternativeButton = null,
-}: {
-	filePattern?: RegExp;
-	extensions?: string[];
-	dirs?: AbsPath[];
-	options: object;
-	optionsKey: string;
-	onSelect: (option: any) => void;
-	label: string;
-	header?: string;
-	Info?: ReactNode | string;
-	After?: ReactNode;
-	filesHeading?: string;
-	noFilesHeading?: string;
-	hasCustom?: boolean;
-	initialOptsMap?: OptsMap;
-	AlternativeButton?: AlternativeButtonType;
 }) => {
 	const { t } = useTranslation();
 	const theme = useTheme();
@@ -137,41 +144,42 @@ const FileSourceRowControl = ({
 		t,
 	]);
 
-	const getInitialSelectedOpt = () => {
-		const selected = get(options, optionsKey, '');
-		if (selected) {
+	const getInitialSelectedOpt = useCallback(() => {
+		if (value) {
 			const opt = Object.values(optsMap)
 				.flat()
-				.find((opt) => opt.key === selected);
+				.find((opt) => opt.key === value);
 			return opt
-				? (get(opt, 'key', null) as null | string)
-				: hasCustom && (selected as string).startsWith('content://')
+				? get(opt, 'key')
+				: hasCustom && (value as string).startsWith('content://')
 					? 'custom'
-					: null;
+					: undefined;
 		} else {
-			return null;
+			return undefined;
 		}
-	};
+	}, [
+		value,
+		optsMap,
+		hasCustom,
+	]);
 
-	const [selectedOpt, setSelectedOpt] = useState<null | string>(null);
+	const [selectedOpt, setSelectedOpt] = useState<undefined | string>(undefined);
 
 	const [customUri, setCustomUri] = useState<undefined | `content://${string}`>(
-		get(options, optionsKey, '').startsWith('content://')
-			? (get(options, optionsKey, '') as `content://${string}`)
-			: undefined
+		value?.startsWith('content://') ? (value as `content://${string}`) : undefined
 	);
 
 	useEffect(() => {
-		if (null === selectedOpt) {
+		if (undefined === selectedOpt) {
 			setSelectedOpt(getInitialSelectedOpt());
 		}
-	}, [optsMap]);
+	}, [optsMap, getInitialSelectedOpt]);
 
 	useEffect(() => {
 		if (selectedOpt) {
-			onSelect(selectedOpt === 'custom' ? customUri : selectedOpt);
+			onSelect(selectedOpt === 'custom' && undefined !== customUri ? customUri : selectedOpt);
 		}
-	}, [selectedOpt]);
+	}, [selectedOpt,customUri]);
 
 	return (
 		<InfoRowControl
@@ -209,7 +217,7 @@ const FileSourceRowControl = ({
 												opt={opt}
 												onPress={() => {
 													if (opt.key === selectedOpt) {
-														setSelectedOpt(null);
+														setSelectedOpt(undefined);
 													} else {
 														if ('custom' === opt.key) {
 															openDocument(false)

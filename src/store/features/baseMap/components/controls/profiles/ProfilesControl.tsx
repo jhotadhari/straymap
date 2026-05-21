@@ -137,7 +137,7 @@ const EditModal: FC<{
 													(obj) => obj.default
 												),
 												'value',
-												null
+												undefined
 											),
 										}),
 									},

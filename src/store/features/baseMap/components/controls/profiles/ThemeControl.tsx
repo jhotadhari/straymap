@@ -120,7 +120,7 @@ const ThemeControl: FC<{
 
 	const appDirs = useAppSelector(selectAppDirs);
 
-	const handleSelect = useCallback((selectedOpt: string) => {
+	const handleSelect = useCallback((selectedOpt?: string) => {
 		dispatch(
 			setMapsforgeProfileTemp(
 				(profileTemp) =>
@@ -152,8 +152,7 @@ const ThemeControl: FC<{
 			label={t('baseMap.theme')}
 			header={t('baseMap.selectTheme')}
 			initialOptsMap={initialOptsMap}
-			options={profileTemp}
-			optionsKey={'theme'}
+			value={profileTemp?.theme}
 			onSelect={handleSelect}
 			After={<ResetCacheButton renderStylesCache={renderStylesCache} />}
 			extensions={extensions}

@@ -213,6 +213,10 @@ const RenderOverlaysControl: FC<{
 
 	const handleOpenModal = useCallback(() => setModalVisible(true), []);
 
+	if ( ! opts.length && ! AlternativeButton ) {
+		return undefined;
+	}
+
 	return (
 		<InfoRowControl
 			label={label}

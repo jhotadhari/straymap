@@ -186,24 +186,24 @@ const LayerControlMapsforge: FC<{}> = ({}) => {
 		);
 	}, []);
 
-	const handleMapFileChange = useCallback(
-		(selectedOpt: LayerConfigOptionsMapsforge['mapFile']) => {
+	const handleMapFileChange = useCallback((selectedOpt?: string) => {
+		layerTemp &&
+			(undefined === selectedOpt ||
+				selectedOpt.startsWith('/') ||
+				selectedOpt.startsWith('content://')) &&
 			dispatch(
 				setLayerTemp(
 					(layerTemp) =>
-						layerTemp &&
 						({
 							...layerTemp,
 							options: {
-								...layerTemp.options,
-								mapFile: selectedOpt,
+								...layerTemp?.options,
+								mapFile: selectedOpt as LayerConfigOptionsMapsforge['mapFile'],
 							},
-						} as LayerConfig)
+						}) as LayerConfig
 				)
 			);
-		},
-		[]
-	);
+	}, []);
 
 	const validateZoom = useCallback((val: number) => val >= 0, []);
 
@@ -216,8 +216,7 @@ const LayerControlMapsforge: FC<{}> = ({}) => {
 			<FileSourceRowControl
 				header={t('baseMap.selectFile')}
 				label={t('baseMap.file')}
-				options={layerTemp.options}
-				optionsKey={'mapFile'}
+				value={layerTemp.options?.mapFile}
 				onSelect={handleMapFileChange}
 				extensions={extensions}
 				dirs={appDirs?.mapfiles ?? []}

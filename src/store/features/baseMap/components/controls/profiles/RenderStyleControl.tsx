@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { ReactNode, useEffect, useMemo, useState } from 'react';
+import { FC, ReactNode, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { get } from 'lodash-es';
 
@@ -19,14 +19,13 @@ import ListItemMenuControl from '../../../../../../components/generic/controls/L
 const getDefaultSelectedOpt = (
 	profile: MapsforgeProfile,
 	opts: OptionBase[],
-	defaultRenderStyle: string | null
+	defaultRenderStyle?: string
 ) => {
-	let defaultSelected = null;
+	let defaultSelected = undefined;
 	if (profile.renderStyle) {
 		defaultSelected = get(
 			opts.find((opt) => opt.key === profile.renderStyle),
-			'key',
-			null
+			'key'
 		);
 		if (defaultSelected) {
 			return defaultSelected;
@@ -35,19 +34,15 @@ const getDefaultSelectedOpt = (
 	return opts.length && defaultRenderStyle
 		? get(
 				opts.find((opt) => opt.key === defaultRenderStyle),
-				'key',
-				null
+				'key'
 			)
-		: null;
+		: undefined;
 };
 
-const RenderStyleControl = ({
-	Info,
-	AlternativeButton,
-}: {
+const RenderStyleControl: FC<{
 	Info?: ReactNode | string;
 	AlternativeButton?: ReactNode;
-}) => {
+}> = ({ Info, AlternativeButton }) => {
 	const { t } = useTranslation();
 	const dispatch = useAppDispatch();
 
@@ -64,11 +59,11 @@ const RenderStyleControl = ({
 	}, [profileTemp?.theme, renderStylesCache]);
 
 	const defaultRenderStyle = profileTemp?.theme
-		? get(renderStylesCache.defaultsMap, profileTemp.theme, null)
-		: null;
+		? get(renderStylesCache.defaultsMap, profileTemp.theme)
+		: undefined;
 
 	const [selectedOpt, setSelectedOpt] = useState(
-		profileTemp ? getDefaultSelectedOpt(profileTemp, opts, defaultRenderStyle) : null
+		profileTemp ? getDefaultSelectedOpt(profileTemp, opts, defaultRenderStyle) : undefined
 	);
 	useEffect(() => {
 		if (
@@ -100,6 +95,10 @@ const RenderStyleControl = ({
 		}
 	}, [selectedOpt]);
 
+	if ( ! opts.length && ! AlternativeButton ) {
+		return undefined;
+	}
+
 	return (
 		<InfoRowControl
 			label={t('style')}
@@ -112,7 +111,7 @@ const RenderStyleControl = ({
 						paddingLeft: 10,
 					}}
 					options={opts}
-					value={get(selectedOpt, 'key')}
+					value={selectedOpt}
 					setValue={(newValue) => {
 						setSelectedOpt(newValue);
 					}}
