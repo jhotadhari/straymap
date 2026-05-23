@@ -38,7 +38,7 @@ const MapsforgeGeneralControl = () => {
 		dispatch(
 			setMapsforgeGeneral((current) => ({
 				...current,
-				symbolScale: newValue,
+				textScale: newValue,
 			}))
 		);
 	}, []);
@@ -47,7 +47,7 @@ const MapsforgeGeneralControl = () => {
 		dispatch(
 			setMapsforgeGeneral((current) => ({
 				...current,
-				lineScale: newValue,
+				symbolScale: newValue,
 			}))
 		);
 	}, []);
