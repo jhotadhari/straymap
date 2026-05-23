@@ -9,65 +9,37 @@ import { I18nManager } from 'react-native';
 /**
  * Internal dependencies
  */
-import en_ from './en.json';
-import en_appearance from '../../store/features/appearance/assets/i18n/en.json';
-import en_baseMap from '../../store/features/baseMap/assets/i18n/en.json';
-import en_dashboard from '../../store/features/dashboard/assets/i18n/en.json';
-import en_dirs from '../../store/features/dirs/assets/i18n/en.json';
-import en_drawers from '../../store/features/drawers/assets/i18n/en.json';
-import en_general from '../../store/features/general/assets/i18n/en.json';
-import en_ui from '../../store/features/ui/assets/i18n/en.json';
-import en_updater from '../../store/features/updater/assets/i18n/en.json';
-import en_lang from '../../store/features/lang/assets/i18n/en.json';
-import de_ from './de.json';
-import de_appearance from '../../store/features/appearance/assets/i18n/de.json';
-import de_baseMap from '../../store/features/baseMap/assets/i18n/de.json';
-import de_dashboard from '../../store/features/dashboard/assets/i18n/de.json';
-import de_dirs from '../../store/features/dirs/assets/i18n/de.json';
-import de_drawers from '../../store/features/drawers/assets/i18n/de.json';
-import de_general from '../../store/features/general/assets/i18n/de.json';
-import de_ui from '../../store/features/ui/assets/i18n/de.json';
-import de_updater from '../../store/features/updater/assets/i18n/de.json';
-import de_lang from '../../store/features/lang/assets/i18n/de.json';
+import en from './en.json';
+import de from './de.json';
 import { SUPPORTED_LANGUAGES, FALLBACK_LANGUAGE, LANGUAGE_NAMES } from './constants';
+import features from '../../store/features';
 
-const en = {
-	translation: {
-		...en_,
-		appearance: en_appearance,
-		baseMap: en_baseMap,
-		dashboard: en_dashboard,
-		dirs: en_dirs,
-		drawers: en_drawers,
-		general: en_general,
-		ui: en_ui,
-		updater: en_updater,
-		lang: en_lang,
+const resources = SUPPORTED_LANGUAGES.reduce(
+	(accL, lang) => {
+		accL[lang] = {
+			translation: {
+				...{
+					de,
+					en,
+				}[lang],
+				...Object.keys(features).reduce(
+					(acc, featureKey) => {
+						acc[featureKey] = features[featureKey].translation[lang];
+						return acc;
+					},
+					{} as { [featureKey: string]: any }
+				),
+			},
+		};
+		return accL;
 	},
-};
-
-const de = {
-	translation: {
-		...de_,
-		appearance: de_appearance,
-		baseMap: de_baseMap,
-		dashboard: de_dashboard,
-		dirs: de_dirs,
-		drawers: de_drawers,
-		general: de_general,
-		ui: de_ui,
-		updater: de_updater,
-		lang: de_lang,
-	},
-};
+	{} as { [lang: string]: any }
+);
 
 const intiOptions = {
 	lng: FALLBACK_LANGUAGE,
 	fallbackLng: FALLBACK_LANGUAGE,
-	resources: {
-		en,
-		de,
-	},
+	resources,
 	interpolation: {
 		escapeValue: false, // react already safes from xss
 	},

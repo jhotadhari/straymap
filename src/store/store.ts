@@ -18,27 +18,10 @@ import baseMapReducer from './features/baseMap/baseMapSlice';
 import drawersReducer from './features/drawers/drawersSlice';
 import langReducer from './features/lang/langSlice';
 import { listenerMiddleware } from './listenerMiddleware';
-import { initializeFromStorage as initializeFromStorage_appearance } from './features/appearance/connectStorage';
-import { initializeFromStorage as initializeFromStorage_baseMap } from './features/baseMap/connectStorage';
-import { initializeFromStorage as initializeFromStorage_dashboard } from './features/dashboard/connectStorage';
-import { initializeFromStorage as initializeFromStorage_dirs } from './features/dirs/connectStorage';
-import { initializeFromStorage as initializeFromStorage_drawers } from './features/drawers/connectStorage';
-import { initializeFromStorage as initializeFromStorage_general } from './features/general/connectStorage';
-import { initializeFromStorage as initializeFromStorage_routing } from './features/routing/connectStorage';
-import { initializeFromStorage as initializeFromStorage_ui } from './features/ui/connectStorage';
 import { initializeFromStorage as initializeFromStorage_updater } from './features/updater/connectStorage';
 import { initializeFromStorage as initializeFromStorage_lang } from './features/lang/connectStorage';
-import { selectInitialized as selectSettingsInitialized_appearance } from '../store/features/appearance/selectors';
-import { selectInitialized as selectSettingsInitialized_baseMap } from '../store/features/baseMap/selectors';
-import { selectInitialized as selectSettingsInitialized_dashboard } from '../store/features/dashboard/selectors';
-import { selectInitialized as selectSettingsInitialized_dirs } from '../store/features/dirs/selectors';
-import { selectInitialized as selectSettingsInitialized_drawers } from '../store/features/drawers/selectors';
-import { selectInitialized as selectSettingsInitialized_general } from '../store/features/general/selectors';
-import { selectInitialized as selectSettingsInitialized_routing } from '../store/features/routing/selectors';
-import { selectInitialized as selectSettingsInitialized_ui } from '../store/features/ui/selectors';
-import { selectInitialized as selectSettingsInitialized_updater } from '../store/features/updater/selectors';
-import { selectInitialized as selectSettingsInitialized_lang } from '../store/features/lang/selectors';
 import { useAppSelector } from './hooks';
+import features from './features';
 
 export const store = configureStore({
 	reducer: {
@@ -53,7 +36,7 @@ export const store = configureStore({
 		updater: updaterReducer,
 		lang: langReducer,
 	},
-	devTools: true,
+	devTools: __DEV__,
 	// Add the listener middleware to the store.
 	// NOTE: Since this can receive actions with functions inside,
 	// it should go before the serializability check middleware
@@ -77,38 +60,18 @@ export type AppThunk<ThunkReturnType = void> = ThunkAction<
 initializeFromStorage_lang(store);
 initializeFromStorage_updater(store).then((success) => {
 	if (success) {
-		initializeFromStorage_appearance(store);
-		initializeFromStorage_baseMap(store);
-		initializeFromStorage_dashboard(store);
-		initializeFromStorage_dirs(store);
-		initializeFromStorage_drawers(store);
-		initializeFromStorage_general(store);
-		initializeFromStorage_routing(store);
-		initializeFromStorage_ui(store);
+		Object.values(features).forEach((feature) => {
+			if (feature?.initializeFromStorage) {
+				feature?.initializeFromStorage(store);
+			}
+		});
 	}
 });
 
 export const useSettingsInitialized = () => {
-	const settingsInitialized_appearance = useAppSelector(selectSettingsInitialized_appearance);
-	const settingsInitialized_baseMap = useAppSelector(selectSettingsInitialized_baseMap);
-	const settingsInitialized_dashboard = useAppSelector(selectSettingsInitialized_dashboard);
-	const settingsInitialized_dirs = useAppSelector(selectSettingsInitialized_dirs);
-	const settingsInitialized_drawers = useAppSelector(selectSettingsInitialized_drawers);
-	const settingsInitialized_general = useAppSelector(selectSettingsInitialized_general);
-	const settingsInitialized_routing = useAppSelector(selectSettingsInitialized_routing);
-	const settingsInitialized_ui = useAppSelector(selectSettingsInitialized_ui);
-	const settingsInitialized_updater = useAppSelector(selectSettingsInitialized_updater);
-	const settingsInitialized_lang = useAppSelector(selectSettingsInitialized_lang);
-	return (
-		settingsInitialized_appearance &&
-		settingsInitialized_baseMap &&
-		settingsInitialized_dashboard &&
-		settingsInitialized_dirs &&
-		settingsInitialized_drawers &&
-		settingsInitialized_general &&
-		settingsInitialized_routing &&
-		settingsInitialized_ui &&
-		settingsInitialized_updater &&
-		settingsInitialized_lang
-	);
+	return Object.values(features).reduce((acc, feature) => {
+		const settingsInitialized = useAppSelector(feature.selectInitialized);
+		acc.push(settingsInitialized);
+		return acc;
+	}, [] as boolean[]);
 };

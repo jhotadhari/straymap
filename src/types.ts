@@ -1,6 +1,7 @@
 /**
  * react-native-mapsforge-vtm dependencies
  */
+import { EnhancedStore } from '@reduxjs/toolkit';
 import { Location } from 'react-native-mapsforge-vtm';
 
 export interface SliceSettingsBase {
@@ -20,3 +21,12 @@ export interface OptionBase {
 }
 
 export type NumType = 'int' | 'float';
+
+export interface AppFeature {
+	// Used by useSettingsInitialized.
+	selectInitialized: (state: any) => boolean;
+	// Used by i18n to build resources.
+	translation: { [lang: string]: any };
+	// If AppFeature does not expose a initializeFromStorage function, it has to be called manually.
+	initializeFromStorage?: (store: EnhancedStore) => void | Promise<boolean>;
+}
