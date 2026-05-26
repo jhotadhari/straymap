@@ -45,10 +45,7 @@ const LayerCount = ({ profile }: { profile: MapsforgeProfile }) => {
 							get(lay.options as LayerConfigOptionsMapsforge, 'profile') === 'default'
 					).length
 				: 0,
-		[
-			isDefaultProfile,
-			layers,
-		]
+		[isDefaultProfile, layers]
 	);
 
 	return (

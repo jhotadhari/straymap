@@ -2,6 +2,7 @@
  * react-native-mapsforge-vtm dependencies
  */
 import { EnhancedStore } from '@reduxjs/toolkit';
+import { SQLiteTable, SQLiteTableWithColumns, TableConfig } from 'drizzle-orm/sqlite-core';
 import { Location } from 'react-native-mapsforge-vtm';
 
 export interface SliceSettingsBase {
@@ -29,4 +30,6 @@ export interface AppFeature {
 	translation: { [lang: string]: any };
 	// If AppFeature does not expose a initializeFromStorage function, it has to be called manually.
 	initializeFromStorage?: (store: EnhancedStore) => void | Promise<boolean>;
+
+	schema?: { [table: string]: SQLiteTableWithColumns<TableConfig> }; // The schema files have to be in a schema subfolder in order to drizzle-kit can find them. See glob in drizzle.config.ts
 }

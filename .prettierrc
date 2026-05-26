@@ -12,7 +12,11 @@
     "proseWrap": "preserve",
     "endOfLine": "lf",
     "plugins": [
+        "prettier-plugin-embed",
+        "prettier-plugin-sql",
         "prettier-plugin-multiline-arrays"
     ],
+    "language": "sqlite",
+    "linesBetweenQueries": 0,
     "multilineArraysWrapThreshold": 2
 }

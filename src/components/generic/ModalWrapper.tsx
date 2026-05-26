@@ -182,9 +182,7 @@ const ModalWrapper: FC<{
 							<ScrollView
 								scrollEnabled={scrollEnabled}
 								onLayout={onLayout}
-								style={[
-									modalStyles,
-								]}
+								style={[modalStyles]}
 							>
 								<View
 									style={{

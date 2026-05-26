@@ -80,10 +80,7 @@ const ItemUnitPrefControl: FC<{ unitPrefsKey: string; buttonLabel?: string }> = 
 				dispatch(setItem(newItem));
 			}
 		};
-	}, [
-		value,
-		item,
-	]);
+	}, [value, item]);
 
 	// Reset component state on item change.
 	useEffect(() => {
@@ -93,9 +90,7 @@ const ItemUnitPrefControl: FC<{ unitPrefsKey: string; buttonLabel?: string }> = 
 	// Save item on value change.
 	useEffect(() => {
 		updateItemRef?.current && updateItemRef.current();
-	}, [
-		value,
-	]);
+	}, [value]);
 
 	const handleToggleOption = useCallback(() => {
 		if (undefined === value?.round) {
@@ -106,10 +101,7 @@ const ItemUnitPrefControl: FC<{ unitPrefsKey: string; buttonLabel?: string }> = 
 		} else {
 			setValue(omit(value, 'round'));
 		}
-	}, [
-		value,
-		unitPrefs,
-	]);
+	}, [value, unitPrefs]);
 
 	const numValueActive = undefined !== value?.round;
 

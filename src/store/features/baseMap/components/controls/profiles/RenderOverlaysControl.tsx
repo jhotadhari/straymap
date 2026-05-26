@@ -40,19 +40,14 @@ const Option: FC<{
 				}
 
 				if (isSelected) {
-					const newSelectedOpts = [
-						...profileTemp.renderOverlays,
-					];
+					const newSelectedOpts = [...profileTemp.renderOverlays];
 					const index = newSelectedOpts.findIndex((optKey) => optKey === opt.key);
 					if (index !== -1) {
 						newSelectedOpts.splice(index, 1);
 					}
 					setOverlays(newSelectedOpts);
 				} else {
-					setOverlays([
-						...profileTemp.renderOverlays,
-						opt.key,
-					]);
+					setOverlays([...profileTemp.renderOverlays, opt.key]);
 				}
 			}}
 			labelStyle={theme.fonts.bodyMedium}

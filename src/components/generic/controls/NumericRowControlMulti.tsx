@@ -79,10 +79,7 @@ export const NumericRowControlMulti = ({
 				}
 				return newValNb;
 			};
-			const newValues = [
-				getNewValNb(0),
-				getNewValNb(1),
-			];
+			const newValues = [getNewValNb(0), getNewValNb(1)];
 			setIsValids([true, true]);
 			saveCbRef?.current && saveCbRef.current(newValues);
 		};

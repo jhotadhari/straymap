@@ -47,10 +47,7 @@ const GeneralControl: FC<{}> = () => {
 				expanded: !expanded,
 			})
 		);
-	}, [
-		expanded,
-		uiStateKey,
-	]);
+	}, [expanded, uiStateKey]);
 	return (
 		<List.Accordion
 			title={'general advanced ... ???'}

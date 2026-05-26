@@ -45,10 +45,7 @@ const ItemControl: FC<{}> = ({}) => {
 				expanded: !notExpanded,
 			})
 		);
-	}, [
-		notExpanded,
-		uiStateKey,
-	]);
+	}, [notExpanded, uiStateKey]);
 
 	// Force remount of all children on item key change.
 	const [show, setShow] = useState(false);
@@ -77,10 +74,7 @@ const ItemControl: FC<{}> = ({}) => {
 		({ color, style }: { color: string; style: Style }) => {
 			return !Icon ? undefined : (
 				<View
-					style={[
-						style,
-						styles.icon,
-					]}
+					style={[style, styles.icon]}
 					pointerEvents="box-none"
 				>
 					<Icon

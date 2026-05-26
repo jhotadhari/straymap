@@ -35,9 +35,7 @@ const DrawerHandles: FC<
 
 	const [panEnabled, setPanEnabled] = useState<boolean>(true);
 
-	const draggableItems = [
-		...itemKeys,
-	].map((key) => ({ key }));
+	const draggableItems = [...itemKeys].map((key) => ({ key }));
 
 	const RenderItem = useCallback(
 		({ key }: { key?: string }) => {
@@ -51,10 +49,7 @@ const DrawerHandles: FC<
 				</View>
 			);
 		},
-		[
-			gesture,
-			panEnabled,
-		]
+		[gesture, panEnabled]
 	);
 
 	const handleDraggableItemPress = useCallback(
@@ -114,15 +109,11 @@ const DrawerHandles: FC<
 				height,
 				...('left' === side && {
 					right: 0,
-					transform: [
-						{ translateX: '100%' },
-					],
+					transform: [{ translateX: '100%' }],
 				}),
 				...('right' === side && {
 					left: 0,
-					transform: [
-						{ translateX: '-100%' },
-					],
+					transform: [{ translateX: '-100%' }],
 				}),
 			}}
 		>

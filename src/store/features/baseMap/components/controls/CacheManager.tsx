@@ -155,10 +155,7 @@ const CacheManager = () => {
 				}
 				return [cacheDirBase, cacheDirChild].join('/') === pathFull;
 			}),
-		[
-			layers,
-			internalCacheDir,
-		]
+		[layers, internalCacheDir]
 	);
 
 	const expanded = useAppSelector((state) => selectElementExpanded(state, uiStateKey));

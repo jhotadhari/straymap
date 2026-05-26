@@ -64,10 +64,7 @@ const AltitudeProfileHandle = ({
 					borderBottomWidth: 0,
 					top: 0,
 					left: '50%',
-					transform: [
-						{ translateY: '-100%' },
-						{ translateX: '-50%' },
-					],
+					transform: [{ translateY: '-100%' }, { translateX: '-50%' }],
 				}}
 			>
 				<Button

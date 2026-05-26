@@ -41,10 +41,7 @@ const Display: FC<DashboardElementProps<Options>> = ({ item, style = {}, onPress
 		if (onPress) {
 			return (event: GestureResponderEvent) => onPress(item.key, event);
 		}
-	}, [
-		onPress,
-		item.key,
-	]);
+	}, [onPress, item.key]);
 
 	const theme = useTheme();
 
@@ -80,12 +77,7 @@ const Display: FC<DashboardElementProps<Options>> = ({ item, style = {}, onPress
 			underlayColor={theme.colors.primaryContainer}
 			onPress={handlePress}
 		>
-			<View
-				style={[
-					{ minWidth },
-					style,
-				]}
-			>
+			<View style={[{ minWidth }, style]}>
 				<Text
 					style={{
 						fontSize,

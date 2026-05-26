@@ -47,9 +47,7 @@ export const NumericRowControlSegmented = ({
 	const [val, setVal] = useState(value + '');
 	useEffect(() => {
 		setVal(value + '');
-	}, [
-		value,
-	]);
+	}, [value]);
 
 	const [isValid, setIsValid] = useState(true);
 
@@ -164,10 +162,7 @@ export const NumericRowControlSegmented = ({
 
 	const handleButtonPress = useCallback(() => {
 		numValueActive && toggleOption();
-	}, [
-		numValueActive,
-		toggleOption,
-	]);
+	}, [numValueActive, toggleOption]);
 
 	// const textRef = useRef<RNTextInput | null>(null);
 	const handleFocus = useCallback(() => {

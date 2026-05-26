@@ -62,10 +62,7 @@ const DashboardControl: FC = () => {
 				expanded: !expanded,
 			})
 		);
-	}, [
-		expanded,
-		uiStateKey,
-	]);
+	}, [expanded, uiStateKey]);
 
 	const ControlIcon: FC<{
 		color: string;

@@ -129,10 +129,7 @@ const Dashboard: FC<{
 	return (
 		<ControlContext.Provider value={{ position }}>
 			<View
-				style={[
-					{ backgroundColor: theme.colors.background },
-					style,
-				]}
+				style={[{ backgroundColor: theme.colors.background }, style]}
 				onLayout={handleLayout}
 			>
 				<Sortable.Flex

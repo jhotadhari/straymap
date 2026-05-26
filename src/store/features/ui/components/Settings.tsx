@@ -39,14 +39,7 @@ const Settings: FC<{ style?: ViewStyle }> = ({ style }) => {
 					key={index}
 					title={t(item.label)}
 					icon={item?.icon}
-					onPress={() =>
-						dispatch(
-							setUiItemKeys([
-								...uiItemsKeys,
-								item.key,
-							])
-						)
-					}
+					onPress={() => dispatch(setUiItemKeys([...uiItemsKeys, item.key]))}
 				/>
 			))}
 		</ScrollView>

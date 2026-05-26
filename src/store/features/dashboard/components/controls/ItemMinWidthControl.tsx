@@ -40,9 +40,7 @@ const ItemMinWidthControl: FC<{ buttonLabel?: string }> = ({ buttonLabel }) => {
 		} else {
 			item && dispatch(setItem(omit(item, 'minWidth')));
 		}
-	}, [
-		item,
-	]);
+	}, [item]);
 
 	const numValueActive = undefined !== item?.minWidth;
 

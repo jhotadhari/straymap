@@ -84,10 +84,7 @@ const CacheControl = ({
 				cacheDirBase: baseDefault,
 			});
 		}
-	}, [
-		selectedOpt,
-		appDirs,
-	]);
+	}, [selectedOpt, appDirs]);
 
 	const cachePath = useMemo(
 		() =>
@@ -96,10 +93,7 @@ const CacheControl = ({
 				: get(selectedOpt, 'key')) +
 			'/' +
 			cacheDirChild,
-		[
-			selectedOpt,
-			appDirs,
-		]
+		[selectedOpt, appDirs]
 	);
 
 	if (!appDirs) {

@@ -424,10 +424,7 @@ const LayerControlOnlineRasterXYZ: FC<{}> = () => {
 				label={'Zoom'}
 				optLabels={['min', 'max']}
 				saveOnType={false}
-				values={[
-					layerTemp?.options?.zoomMin ?? 0,
-					layerTemp?.options?.zoomMax ?? 0,
-				]}
+				values={[layerTemp?.options?.zoomMin ?? 0, layerTemp?.options?.zoomMax ?? 0]}
 				onUpdate={(newValues) =>
 					setOptions({
 						...(layerTemp?.options ?? {}),

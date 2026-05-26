@@ -16,6 +16,7 @@ export interface UpdaterSettings {
 
 export interface UpdaterState extends SliceSettingsBase, UpdaterSettings {
 	isUpdating?: false | UpdateResults | 'isDowngrade';
+	dbMigrated?: string | true;
 }
 
 export const initialSettings: UpdaterSettings = {
@@ -37,6 +38,9 @@ export const updaterSlice = createSlice({
 		setInitialized: (state, action: PayloadAction<boolean>) => {
 			state.initialized = action.payload;
 		},
+		setDbMigrated: (state, action: PayloadAction<UpdaterState['dbMigrated']>) => {
+			state.dbMigrated = action.payload;
+		},
 		setIsUpdating: (state, action: PayloadAction<UpdaterState['isUpdating']>) => {
 			state.isUpdating = action.payload;
 		},
@@ -50,7 +54,8 @@ export const updaterSlice = createSlice({
 });
 
 // Export the generated action creators for use in components.
-export const { setInitialized, setIsUpdating, setInstalledVersion } = updaterSlice.actions;
+export const { setInitialized, setDbMigrated, setIsUpdating, setInstalledVersion } =
+	updaterSlice.actions;
 
 // Export the slice reducer for use in the store configuration
 export default updaterSlice.reducer;

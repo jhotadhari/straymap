@@ -24,9 +24,7 @@ const VisibilityControl: FC<{
 			...layer,
 			visible: !layer.visible,
 		});
-	}, [
-		layer,
-	]);
+	}, [layer]);
 
 	return (
 		<TouchableHighlight

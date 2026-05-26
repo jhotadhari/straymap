@@ -108,10 +108,7 @@ const TopAppBar: FC = () => {
 				const { height } = e.nativeEvent.layout;
 				setTopAppBarHeight && setTopAppBarHeight(height);
 			}}
-			style={[
-				styles.bar,
-				styles.zObove,
-			]}
+			style={[styles.bar, styles.zObove]}
 		>
 			{!showTopDashboard && (
 				<Fragment>

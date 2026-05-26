@@ -239,10 +239,7 @@ const EditModal: FC<{
 		if (saveOnChange) {
 			saveLayers();
 		}
-	}, [
-		saveOnChange,
-		saveLayers,
-	]);
+	}, [saveOnChange, saveLayers]);
 
 	const handleRemoveItem = useCallback(() => {
 		const idx = layers.findIndex((layer) => layer.key === layerTemp?.key);

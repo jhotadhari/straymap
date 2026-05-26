@@ -261,10 +261,7 @@ const AnimatedLogo = ({
 					position: 'absolute',
 					width: size,
 					height: size,
-					transform: [
-						{ scale: catScale },
-						{ translateY: catTranslateY },
-					],
+					transform: [{ scale: catScale }, { translateY: catTranslateY }],
 				}}
 			>
 				<VectorDrawable
@@ -286,18 +283,12 @@ const AnimatedLogo = ({
 						top: 0,
 						left: 0,
 						opacity: textOpacity,
-						transform: [
-							{ translateX: textX },
-							{ translateY: textY },
-						],
+						transform: [{ translateX: textX }, { translateY: textY }],
 					}}
 				>
 					<View
 						onLayout={(e) =>
-							setTextDims([
-								e.nativeEvent.layout.width,
-								e.nativeEvent.layout.height,
-							])
+							setTextDims([e.nativeEvent.layout.width, e.nativeEvent.layout.height])
 						}
 						style={{ padding: 10 }}
 					>

@@ -28,14 +28,7 @@ const Item: FC<{
 
 	const editItemKey = useAppSelector(selectEditItemKey);
 
-	const Display = useMemo(
-		() =>
-			get(elements, [
-				item.elementType,
-				'Display',
-			]),
-		[item.elementType]
-	);
+	const Display = useMemo(() => get(elements, [item.elementType, 'Display']), [item.elementType]);
 
 	const node = useMemo(
 		() =>

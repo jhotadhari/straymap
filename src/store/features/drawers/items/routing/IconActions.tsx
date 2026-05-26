@@ -324,10 +324,7 @@ const IconActions = ({ style }: { style: TextStyle }) => {
 				{/* </View> */}
 			</TouchableHighlight>
 		),
-		[
-			theme,
-			handleButtonPress,
-		]
+		[theme, handleButtonPress]
 	);
 
 	const popoverStyle = useMemo(

@@ -76,10 +76,7 @@ const SplashScreenUpdater: FC = () => {
 	);
 
 	return (
-		<SplashScreen
-			displayLogo={false}
-			innerStyle={{ justifyContent: 'flex-start' }}
-		>
+		<SplashScreen displayLogo={false}>
 			{!failedResult && 'isDowngrade' !== isUpdating && (
 				<Text>{t('updater.updatingMsg')}</Text>
 			)}

@@ -22,10 +22,7 @@ export const useSetupTheme = () => {
 		return 'system' === option
 			? customThemes[systemIsDarkMode ? 'dark' : 'light']
 			: customThemes[option];
-	}, [
-		selectedTheme,
-		systemIsDarkMode,
-	]);
+	}, [selectedTheme, systemIsDarkMode]);
 
 	return theme;
 };

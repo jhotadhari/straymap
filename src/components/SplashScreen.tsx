@@ -34,7 +34,7 @@ const SplashScreen = ({
 				borderColor: undefined,
 			}}
 			innerStyle={{
-				justifyContent: 'center',
+				justifyContent: 'flex-start',
 				alignItems: 'center',
 				height: height * 0.75 - 2 * 20,
 				...(innerStyle || {}),
@@ -42,20 +42,31 @@ const SplashScreen = ({
 			scrollEnabled={displayLogo && !children}
 			hasBackButton={false}
 		>
-			<Text style={{ ...theme.fonts.displayMedium, fontFamily: 'jangly_walk' }}>
+			<Text
+				style={{
+					...theme.fonts.displayMedium,
+					fontFamily: 'jangly_walk',
+					marginBottom: 16,
+				}}
+			>
 				{'Straymap'}
 			</Text>
 
-			<View style={{ marginTop: 20 }}>
-				{displayLogo && (
+			{displayLogo && (
+				<View
+					style={{
+						justifyContent: 'center',
+						flexGrow: 1,
+					}}
+				>
 					<AnimatedLogo
 						animateLoop={true}
 						size={width * modalWidthFactor}
 					/>
-				)}
+				</View>
+			)}
 
-				{children && children}
-			</View>
+			{children && children}
 		</ModalWrapper>
 	);
 };

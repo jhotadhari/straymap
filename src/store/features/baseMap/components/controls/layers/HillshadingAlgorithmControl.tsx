@@ -79,9 +79,7 @@ const HillshadingAlgorithmControl: FC<{}> = () => {
 				key: LayerHillshading.shadingAlgorithms[key],
 				label: t('baseMap.shadingAlgorithms.' + key + '.label'),
 			})),
-		[
-			t,
-		]
+		[t]
 	);
 
 	const handleShadingAlgorithmChange = useCallback((newValue?: string) => {

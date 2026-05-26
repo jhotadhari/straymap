@@ -8,23 +8,40 @@ const { wrapWithReanimatedMetroConfig } = require('react-native-reanimated/metro
  */
 const defaultConfig = getDefaultConfig(__dirname);
 
-
 const { assetExts, sourceExts } = defaultConfig.resolver;
 
-const customConfig = {
-    resetCache: true,
-    transformer: {
-        babelTransformerPath: require.resolve(
-            './transformer/md-transformer'
-        )
-    },
-    resolver: {
-        assetExts: assetExts.filter( ( ext ) => ext !== 'md' ),
-        sourceExts: [...sourceExts, 'md']
-    }
+const mdConfig = {
+	resetCache: true,
+	transformer: {
+		babelTransformerPath: require.resolve('./transformer/md-transformer'),
+	},
+	resolver: {
+		assetExts: assetExts.filter((ext) => ext !== 'md'),
+		sourceExts: [...sourceExts, 'md'],
+	},
 };
 
-module.exports = wrapWithReanimatedMetroConfig( mergeConfig(
-    defaultConfig,
-    customConfig
-) );
+// const sqlConfig = {
+//     resetCache: true,
+//     transformer: {
+//         babelTransformerPath: require.resolve(
+//             './transformer/sql-transformer'
+//         )
+//     },
+//     resolver: {
+//         assetExts: assetExts.filter( ( ext ) => ext !== 'sql' ),
+//         sourceExts: [...sourceExts, 'sql']
+//     }
+// };
+
+const config = wrapWithReanimatedMetroConfig(
+	mergeConfig(
+		defaultConfig,
+		mdConfig
+		// sqlConfig
+	)
+);
+
+config.resolver.sourceExts.push('sql');
+
+module.exports = config;

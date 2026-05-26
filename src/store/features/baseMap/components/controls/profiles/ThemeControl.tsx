@@ -55,10 +55,7 @@ const ResetCacheButton: FC<{
 				})
 			)
 		);
-	}, [
-		profileTemp?.theme,
-		appDirs?.mapstyles,
-	]);
+	}, [profileTemp?.theme, appDirs?.mapstyles]);
 
 	return isBusy ? undefined : (
 		<TouchableHighlight

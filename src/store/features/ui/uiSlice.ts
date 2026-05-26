@@ -67,10 +67,7 @@ export const uiSlice = createSlice({
 		},
 		addBusyKey: (state, action: PayloadAction<string>) => {
 			if (!state.busyKeys.includes(action.payload)) {
-				state.busyKeys = [
-					...state.busyKeys,
-					action.payload,
-				];
+				state.busyKeys = [...state.busyKeys, action.payload];
 			}
 		},
 		removeBusyKey: (state, action: PayloadAction<string>) => {

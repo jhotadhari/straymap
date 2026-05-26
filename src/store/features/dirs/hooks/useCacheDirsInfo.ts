@@ -29,10 +29,7 @@ const useCacheDirsInfo = (shouldUpdate?: any): any => {
 		if (shouldUpdate) {
 			updateCacheDirs();
 		}
-	}, [
-		updateCacheDirs,
-		shouldUpdate,
-	]);
+	}, [updateCacheDirs, shouldUpdate]);
 
 	return {
 		updateCacheDirs,

@@ -84,10 +84,7 @@ const EditModal: FC<{
 		if (saveOnChange) {
 			saveProfiles();
 		}
-	}, [
-		saveOnChange,
-		saveProfiles,
-	]);
+	}, [saveOnChange, saveProfiles]);
 
 	const handleRemoveItem = useCallback(() => {
 		const idx = profiles.findIndex((layer) => layer.key === profileTemp?.key);
@@ -114,10 +111,7 @@ const EditModal: FC<{
 
 	const hasEditProfileRenderStylesCacheEntry = useMemo(() => {
 		return !!(profileTemp?.theme && get(renderStylesCache.optionsMap, profileTemp.theme));
-	}, [
-		profileTemp?.theme,
-		renderStylesCache.optionsMap,
-	]);
+	}, [profileTemp?.theme, renderStylesCache.optionsMap]);
 
 	useEffect(() => {
 		if (profileTemp && profileTemp?.theme && modalVisible) {

@@ -12,7 +12,7 @@ import generalReducer from './features/general/generalSlice';
 import dirsReducer from './features/dirs/dirsSlice';
 import routingReducer from './features/routing/routingSlice';
 import uiReducer from './features/ui/uiSlice';
-import updaterReducer from './features/updater/updaterSlice';
+import updaterReducer, { setDbMigrated } from './features/updater/updaterSlice';
 import dashboardReducer from './features/dashboard/dashboardSlice';
 import baseMapReducer from './features/baseMap/baseMapSlice';
 import drawersReducer from './features/drawers/drawersSlice';
@@ -22,6 +22,10 @@ import { initializeFromStorage as initializeFromStorage_updater } from './featur
 import { initializeFromStorage as initializeFromStorage_lang } from './features/lang/connectStorage';
 import { useAppSelector } from './hooks';
 import features from './features';
+import { migrate } from 'drizzle-orm/op-sqlite/migrator';
+import { dbZ } from '../db/client';
+import migrations from '../../drizzle/migrations';
+import { dbOpExecute } from '../db/utils';
 
 export const store = configureStore({
 	reducer: {
@@ -57,8 +61,26 @@ export type AppThunk<ThunkReturnType = void> = ThunkAction<
 	Action
 >;
 
-initializeFromStorage_lang(store);
-initializeFromStorage_updater(store).then((success) => {
+const initialize = async () => {
+	// Initialize store language. Will as well set i18n language according to lang settings in default preference.
+	initializeFromStorage_lang(store);
+	// Migrate database.
+	await new Promise((resolve) => {
+		migrate(dbZ, migrations)
+			.then(async () => {
+				store.dispatch(setDbMigrated(true));
+				resolve(true);
+			})
+			.catch((error) => {
+				store.dispatch(setDbMigrated(error.message));
+
+				// ??? somehow add button to src/store/features/updater/components/SplashScreenDbMigration.tsx
+				// to allow to backup existing db and start a new one.
+			});
+	});
+	// Initialize the updater .
+	const success = await initializeFromStorage_updater(store);
+	// Initialize all other features: All features that expose a initializeFromStorage function.
 	if (success) {
 		Object.values(features).forEach((feature) => {
 			if (feature?.initializeFromStorage) {
@@ -66,7 +88,8 @@ initializeFromStorage_updater(store).then((success) => {
 			}
 		});
 	}
-});
+};
+initialize();
 
 export const useSettingsInitialized = () => {
 	return Object.values(features).reduce((acc, feature) => {

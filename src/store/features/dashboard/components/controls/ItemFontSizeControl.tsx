@@ -39,10 +39,7 @@ const ItemFontSizeControl: FC<{ buttonLabel?: string }> = ({ buttonLabel }) => {
 		} else {
 			item && dispatch(setItem(omit(item, 'fontSize')));
 		}
-	}, [
-		item,
-		dashboardStyle,
-	]);
+	}, [item, dashboardStyle]);
 
 	const numValueActive = undefined !== item?.fontSize;
 
