@@ -9,6 +9,7 @@ import lang from './lang';
 import routing from './routing';
 import ui from './ui';
 import updater from './updater';
+import lines from './lines';
 
 export default {
 	appearance,
@@ -21,4 +22,5 @@ export default {
 	routing,
 	ui,
 	updater,
+	lines,
 } as { [featureKey: string]: AppFeature };

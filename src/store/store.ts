@@ -17,6 +17,7 @@ import dashboardReducer from './features/dashboard/dashboardSlice';
 import baseMapReducer from './features/baseMap/baseMapSlice';
 import drawersReducer from './features/drawers/drawersSlice';
 import langReducer from './features/lang/langSlice';
+import linesReducer from './features/lines/linesSlice';
 import { listenerMiddleware } from './listenerMiddleware';
 import { initializeFromStorage as initializeFromStorage_updater } from './features/updater/connectStorage';
 import { initializeFromStorage as initializeFromStorage_lang } from './features/lang/connectStorage';
@@ -39,6 +40,7 @@ export const store = configureStore({
 		routing: routingReducer,
 		updater: updaterReducer,
 		lang: langReducer,
+		lines: linesReducer,
 	},
 	devTools: __DEV__,
 	// Add the listener middleware to the store.

@@ -4,7 +4,7 @@ import {
 	open,
 } from '@op-engineering/op-sqlite';
 
-import schema from './schema';
+import * as schema from './schema';
 
 export const dbOp = open({
 	name: 'db',

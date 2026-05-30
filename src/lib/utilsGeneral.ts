@@ -52,7 +52,7 @@ export const strValToNb = (val: string, numType: NumType = 'int'): number => {
 // Sort array of strings or objects based on another array.
 export const sortArrayByOrderArray = (
 	inputArr: (string | { [key: string]: any })[],
-	orderArr: string[],
+	orderArr: (string | number)[],
 	key?: string,
 	mutate?: boolean
 ) => {

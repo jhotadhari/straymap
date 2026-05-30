@@ -58,7 +58,7 @@ import { selectUiItemKeys } from '../store/features/ui/selectors';
 import MapLayersAttribution from '../store/features/baseMap/MapLayersAttribution';
 import { DashboardWrapped } from '../store/features/dashboard/components/Dashboard';
 import useShowInitialSplash from '../compose/useShowInitialSplash';
-import DebugBla from './DebugBla';
+import DebugBla from '../store/features/lines/components/DebugBla';
 
 const AppView = ({
 	initialPositionRef,

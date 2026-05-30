@@ -1,7 +1,8 @@
 import { sql } from 'drizzle-orm/sql';
 import { sqliteTable, integer, text } from 'drizzle-orm/sqlite-core';
-import { point } from '../../../../db/types';
-import { linesTable } from '../../../../db/schema/schemaBase';
+
+import { point } from '../../../../../db/types';
+import { linesTable } from '../../../lines/db/schema/schema';
 
 export const routesTable = sqliteTable('routes', {
 	id: integer('id').primaryKey({ autoIncrement: true }),

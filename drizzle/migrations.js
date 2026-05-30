@@ -1,5 +1,5 @@
 import journal from './meta/_journal.json';
-import m0000 from './0000_brown_william_stryker.sql';
+import m0000 from './0000_elite_nitro.sql';
 import m0001 from './0001_initSpatial.sql';
 
   export default {

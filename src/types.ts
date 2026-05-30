@@ -31,5 +31,5 @@ export interface AppFeature {
 	// If AppFeature does not expose a initializeFromStorage function, it has to be called manually.
 	initializeFromStorage?: (store: EnhancedStore) => void | Promise<boolean>;
 
-	schema?: { [table: string]: SQLiteTableWithColumns<TableConfig> }; // The schema files have to be in a schema subfolder in order to drizzle-kit can find them. See glob in drizzle.config.ts
+	schema?: { [table: string]: SQLiteTableWithColumns<any> }; // The schema files have to be in a schema subfolder in order to drizzle-kit can find them. See glob in drizzle.config.ts
 }

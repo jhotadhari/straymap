@@ -5,7 +5,7 @@ import path from 'path';
 const schema = ['./src/db/schema'];
 
 const slicesPath = './src/store/features';
-globSync(path.resolve(__dirname, slicesPath + '/*/schema')).map((file) => {
+globSync(path.resolve(__dirname, slicesPath + '/*/db/schema')).map((file) => {
 	schema.push(file);
 });
 
