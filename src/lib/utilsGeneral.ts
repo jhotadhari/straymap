@@ -17,9 +17,8 @@ export const roundTo = (num: number, precision: number): number => {
 	return Math.round(num * factor) / factor;
 };
 
-export const parseSerialized = (str: string, fallback?: any): object | false => {
-	fallback = fallback ? fallback : false;
-	let object = fallback;
+export const parseSerialized = <T>(str: string, fallback?: T): T | undefined => {
+	let object = fallback ?? undefined;
 	try {
 		object = JSON.parse(str);
 	} catch (e) {

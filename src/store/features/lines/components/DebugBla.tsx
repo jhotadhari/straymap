@@ -1,4 +1,4 @@
-import { FC, useEffect } from 'react';
+import { Dispatch, FC, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react';
 import { QueryResult, Scalar } from '@op-engineering/op-sqlite';
 import { lineString, point } from '@turf/helpers';
 import { gt, isNotNull, sql, eq } from 'drizzle-orm';
@@ -9,9 +9,18 @@ import { createLines } from '../db/actionsLine';
 import { createTags } from '../db/actionsTag';
 import { getLinesWithTags } from '../db/selectors';
 import { dbOpExecute } from '../../../../db/utils';
-import { getRoutesWithPoints } from '../../routing/db/selectors';
+import {
+	AggregateRow,
+	getRoutesWithPoints,
+	getRoutesWithPointsQuery,
+	routesWithPointsAggregate,
+} from '../../routing/db/selectors';
 import { createRoutingPoints, deleteRoutingPoint } from '../../routing/db/actionsRoutingPoint';
 import { createRoute, createRoutes, deleteRoute, updateRoute } from '../../routing/db/actionsRoute';
+import { View } from 'react-native';
+import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
+import { Text } from 'react-native-paper';
+import { RoutingProfile } from '../../routing/types';
 
 const coords = [
 	[
@@ -75,12 +84,12 @@ const mockPoints = async (route_id: number) => {
 				return {
 					feature: point(coord),
 					profile: {
-						egal: [
-							'was',
-							'auch',
-							'immer',
-						],
-					},
+						// egal: [
+						// 	'was',
+						// 	'auch',
+						// 	'immer',
+						// ],
+					} as RoutingProfile,
 				};
 			}),
 			route_id
@@ -201,50 +210,130 @@ const mockTags = async () => {
 	// console.log('debug resultTags', resultTags); // debug
 };
 
+const DebugBlaSub: FC<{
+	routeId: number | false;
+}> = ({ routeId }) => {
+	// const { data } = useLiveQuery(getRoutesWithPointsQuery({ routeId })) as {
+	// 	data: AggregateRow[];
+	// };
+
+	// const routes = useMemo(() => routesWithPointsAggregate(data), [data]);
+
+	// useEffect(() => {
+	// 	console.log('debug routes', routes); // debug
+	// }, [routes]);
+
+	// useEffect(() => {
+	// 	(async () => {
+	// 		const resG = await dbOpExecute('SELECT * FROM geometry_columns');
+	// 		console.log('debug res geometry_columns', resG); // debug
+	// 	})();
+	// }, []);
+
+	return undefined;
+};
+const DebugBlaButtonAdd: FC<{
+	routeId: false | number;
+	setRouteId: Dispatch<SetStateAction<false | number>>;
+}> = ({ routeId, setRouteId }) => {
+	const handlePress = useCallback(async () => {
+		const route_id = await mockRoutes();
+		if (route_id) {
+			setRouteId(route_id);
+		}
+	}, []);
+
+	return (
+		<ButtonHighlight
+			style={{
+				backgroundColor: 'green',
+			}}
+			onPress={handlePress}
+		>
+			<Text>{'x'}</Text>
+		</ButtonHighlight>
+	);
+};
+
+const DebugBlaButtonMockPoints: FC<{
+	routeId: false | number;
+	// setRouteId: Dispatch<SetStateAction<false | number>>;
+}> = ({ routeId }) => {
+	const handlePress = useCallback(async () => {
+		if (routeId) {
+			await mockPoints(routeId);
+		}
+	}, [routeId]);
+
+	return (
+		<ButtonHighlight
+			style={{
+				backgroundColor: 'green',
+			}}
+			onPress={handlePress}
+		>
+			<Text>{'Mock points'}</Text>
+		</ButtonHighlight>
+	);
+};
+
 const DebugBla: FC = () => {
+	const [routeId, setRouteId] = useState<false | number>(false);
+
 	useEffect(() => {
 		(async () => {
-			const resG = await dbOpExecute('SELECT * FROM geometry_columns');
-			console.log('debug res geometry_columns', resG); // debug
-
 			// // mockTags();
 			// // mockLines();
 			// const lines = await getLinesWithTags({
 			// 	// tagId: 3
 			// });
 			// console.log('debug lines', lines); // debug
-
-			const route_id = await mockRoutes();
-			if (route_id) {
-				await mockPoints(route_id);
-				const routes = await getRoutesWithPoints({
-					routeId: route_id,
-				});
-				console.log('debug routes', routes); // debug
-
-				await deleteRoute(route_id);
-
-
-				const resultPoint = await dbZ
-					.select({
-						id: routingPointsTable.id,
-						route_id: routingPointsTable.route_id,
-					})
-					.from(routingPointsTable);
-				console.log('debug resultPoint', resultPoint); // debug
-
-
-				const routes2 = await getRoutesWithPoints({
-					routeId: route_id,
-				});
-				console.log('debug routes2', routes2); // debug
-			}
-
-
+			// const route_id = await mockRoutes();
+			// if (route_id) {
+			// 	await mockPoints(route_id);
+			// const routes = await getRoutesWithPoints({
+			// 	routeId: route_id,
+			// });
+			// console.log('debug routes', routes); // debug
+			// await deleteRoute(route_id);
+			// const resultPoint = await dbZ
+			// 	.select({
+			// 		id: routingPointsTable.id,
+			// 		route_id: routingPointsTable.route_id,
+			// 	})
+			// 	.from(routingPointsTable);
+			// console.log('debug resultPoint', resultPoint); // debug
+			// const routes2 = await getRoutesWithPoints({
+			// 	routeId: route_id,
+			// });
+			// console.log('debug routes2', routes2); // debug
+			// }
 		})();
 	}, []);
 
 	return undefined;
+	return (
+		<View
+			style={{
+				position: 'absolute',
+				left: '75%',
+				top: '75%',
+				zIndex: 99999,
+				backgroundColor: 'red',
+			}}
+		>
+			{routeId && <DebugBlaSub routeId={routeId} />}
+
+			<DebugBlaButtonAdd
+				routeId={routeId}
+				setRouteId={setRouteId}
+			/>
+
+			<DebugBlaButtonMockPoints
+				routeId={routeId}
+			/>
+		</View>
+	);
 };
 
 export default DebugBla;

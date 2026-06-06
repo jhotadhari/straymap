@@ -39,7 +39,7 @@ import { AppContext, MapContext } from '../Context';
 import Center from '../store/features/appearance/components/Center';
 import Drawers from '../store/features/drawers/components/Drawers';
 import SplashScreen from './SplashScreen';
-import AltitudeProfile from '../store/features/routing/components/AltitudeProfile';
+// import AltitudeProfile from '../store/features/routing/components/AltitudeProfile';
 import RoutingMapView from '../store/features/routing/components/RoutingMapView';
 import { useAppSelector } from '../store/hooks';
 import { selectHardwareKeys, selectMapEventRate } from '../store/features/general/selectors';
@@ -248,7 +248,9 @@ const AppView = ({
 			</View>
 
 			<View>
+				{ /*
 				<AltitudeProfile outerWidth={width} />
+				*/ }
 				<DashboardWrapped
 					style={styles.zObove}
 					position="bottom"

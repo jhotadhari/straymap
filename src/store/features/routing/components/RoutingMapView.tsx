@@ -60,6 +60,8 @@ const RoutingMapView = () => {
 		return null;
 	}
 
+	// return null;
+
 	return (
 		<MapContainer.View>
 			{segments &&
@@ -73,8 +75,8 @@ const RoutingMapView = () => {
 					) {
 						return null;
 					}
-					const fromPointIdx = points.findIndex((point) => segment.fromKey === point.key);
-					const toPointIdx = points.findIndex((point) => segment.toKey === point.key);
+					const fromPointIdx = points.findIndex((point) => segment.fromId === point.id);
+					const toPointIdx = points.findIndex((point) => segment.toId === point.id);
 					if (
 						-1 === fromPointIdx ||
 						-1 === toPointIdx ||
@@ -163,8 +165,11 @@ const RoutingMapView = () => {
 				>
 					{[...points].map((point, index) => (
 						<Marker
-							key={point.key}
-							position={point.location}
+							key={point.id}
+							position={{
+								lng: point.geometry.coordinates[0],
+								lat: point.geometry.coordinates[1],
+							}}
 							symbol={{
 								text: index + 1 + '',
 								textMargin: 15,

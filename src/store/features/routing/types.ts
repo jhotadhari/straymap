@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { GetTrackParams } from 'react-native-brouter';
+import { Point, GeoJsonProperties } from 'geojson';
 
 /**
  * react-native-mapsforge-vtm dependencies
@@ -9,8 +10,10 @@ import { GetTrackParams } from 'react-native-brouter';
 import { Location } from 'react-native-mapsforge-vtm';
 
 export type RoutingPoint = {
-	key: string;
-	location: Location;
+	id: number;
+	geometry: Point;
+	profile: RoutingProfile;
+	// feature: Feature<Point, GeoJsonProperties>;
 };
 
 export type RoutingProfile = {
@@ -29,12 +32,11 @@ export interface LocationExtended extends Location {
 
 export type RoutingSegment = {
 	key: string;
-	fromKey: string;
-	toKey: string;
+	fromId: number;
+	toId: number;
 	positions?: Location[];
 	isFetching?: boolean;
 	errorMsg?: string;
-	profile: RoutingProfile;
 	coordinatesSimplified?: LocationExtended[];
 };
 

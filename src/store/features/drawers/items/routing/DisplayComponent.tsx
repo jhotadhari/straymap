@@ -13,10 +13,10 @@ import { createDocument } from 'react-native-scoped-storage';
 import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import DrawerContext from '../../DrawerContext';
-import { RoutingSegment } from '../../../routing/types';
+import { RoutingPoint, RoutingProfile, RoutingSegment } from '../../../routing/types';
 import { handleSize, iconSize, itemStyles } from '../../constants';
 import PointsList from '../../../routing/components/PointsList';
-import EditSegmentModal from '../../../routing/components/EditSegmentModal';
+import EditPointModal from '../../../routing/components/EditPointModal';
 import DismissProceedModal from '../../../routing/components/DismissProceedModal';
 import { setIsRouting, setSavedExported } from '../../../routing/routingSlice';
 import {
@@ -26,6 +26,7 @@ import {
 	selectSegments,
 	selectStats,
 } from '../../../routing/selectors';
+import { createRoute } from '../../../routing/db/actionsRoute';
 
 const DisplayComponent: FC<{
 	scrollEnabled: boolean;
@@ -44,14 +45,15 @@ const DisplayComponent: FC<{
 	const { t } = useTranslation();
 
 	const [dismissModalVisible, setDismissModalVisible] = useState(false);
-	const [editSegment, setEditSegment] = useState<null | RoutingSegment>(null);
+
+	const [editPoint, setEditPoint] = useState<undefined | RoutingPoint>(undefined);
 
 	return (
 		<Fragment>
-			{editSegment && (
-				<EditSegmentModal
-					editSegment={editSegment}
-					setEditSegment={setEditSegment}
+			{editPoint && (
+				<EditPointModal
+					editPoint={editPoint}
+					setEditPoint={setEditPoint}
 				/>
 			)}
 
@@ -66,7 +68,7 @@ const DisplayComponent: FC<{
 				<ButtonHighlight
 					style={itemStyles.buttonRow}
 					mode="outlined"
-					onPress={() => {
+					onPress={ async() => {
 						if (isRouting) {
 							if (
 								points &&
@@ -79,8 +81,11 @@ const DisplayComponent: FC<{
 								dispatch(setIsRouting(false));
 							}
 						} else {
-							expand(false);
-							dispatch(setIsRouting(true));
+							const routeId = await createRoute();
+							if ( routeId ) {
+								dispatch(setIsRouting(routeId));
+								expand(false);
+							}
 						}
 					}}
 				>
@@ -188,7 +193,7 @@ const DisplayComponent: FC<{
 				{points && (
 					<PointsList
 						setScrollEnabled={setScrollEnabled}
-						setEditSegment={setEditSegment}
+						setEditPoint={setEditPoint}
 					/>
 				)}
 			</View>

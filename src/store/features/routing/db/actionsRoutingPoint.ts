@@ -5,11 +5,12 @@ import { dbZ } from '../../../../db/client';
 import { routesTable, routingPointsTable } from './schema/schema';
 import { getRoutesWithPoints } from './selectors';
 import { updateRoute } from './actionsRoute';
+import { RoutingProfile } from '../types';
 
 export const createRoutingPoints = async (
 	newPoints: {
 		feature: Feature<Point, GeoJsonProperties>;
-		profile?: any; // ??? any
+		profile?: RoutingProfile;
 	}[],
 	route_id: number
 ) => {
@@ -45,17 +46,17 @@ export const updateRoutingPoint = async (
 	id: number,
 	newPoint: Partial<{
 		feature: Feature<Point, GeoJsonProperties>;
-		profile?: any; // ??? any
+		profile?: RoutingProfile;
 	}>
 ) => {
-	const routingPoints = await dbZ
-		.select()
-		.from(routingPointsTable)
-		.where(eq(routingPointsTable.id, id))
-		.limit(1);
-	if (!routingPoints.length) {
-		return;
-	}
+	// const routingPoints = await dbZ
+	// 	.select()
+	// 	.from(routingPointsTable)
+	// 	.where(eq(routingPointsTable.id, id))
+	// 	.limit(1);
+	// if (!routingPoints.length) {
+	// 	return;
+	// }
 	await dbZ
 		.update(routingPointsTable)
 		.set({

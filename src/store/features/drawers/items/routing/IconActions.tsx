@@ -8,6 +8,7 @@ import { Dimensions, PixelRatio, ScrollView, TextStyle, TouchableHighlight } fro
 import rnUuid from 'react-native-uuid';
 import { MapLayerMarkerModule, MapLayerPathSlopeGradientModule } from 'react-native-mapsforge-vtm';
 import { usePrevious } from 'victory-native';
+import { Feature, Point, GeoJsonProperties } from 'geojson';
 
 /**
  * Internal dependencies
@@ -35,13 +36,18 @@ import {
 	selectTriggeredSegment,
 } from '../../../routing/selectors';
 import Popover, { PopoverPlacement } from 'react-native-popover-view';
+import { createRoutingPoints } from '../../../routing/db/actionsRoutingPoint';
+import { point } from '@turf/helpers';
+import { getRoutesWithPoints } from '../../../routing/db/selectors';
+import { parseSerialized } from '../../../../../lib/utilsGeneral';
+import { omit } from 'lodash-es';
 
 const IconActions = ({ style }: { style: TextStyle }) => {
 	const { mapHeight, mapViewNativeNodeHandle } = useContext(AppContext);
 
 	const dispatch = useAppDispatch();
 
-	const isRouting = useAppSelector(selectIsRouting);
+	const routeId = useAppSelector(selectIsRouting);
 	const points = useAppSelector(selectPoints);
 	const segments = useAppSelector(selectSegments);
 	const markerLayerUuid = useAppSelector(selectMarkerLayerUuid);
@@ -58,12 +64,12 @@ const IconActions = ({ style }: { style: TextStyle }) => {
 	const [menuVisible, setMenuVisible] = useState(false);
 
 	// open menu on start routing, hopefully after drawer has closed.
-	const prevIsRouting = usePrevious(isRouting);
+	const prevIsRouting = usePrevious(routeId);
 	useEffect(() => {
-		if (isRouting && !prevIsRouting) {
-			runAfterInteractions(() => setMenuVisible(true), 750);
+		if (routeId && !prevIsRouting) {
+			runAfterInteractions(() => setMenuVisible(true), 300);
 		}
-	}, [isRouting, prevIsRouting]);
+	}, [routeId, prevIsRouting]);
 
 	const dismissMenu = useCallback(
 		(cleanTriggeredMarkerIdx?: boolean, cleanTriggeredSegment?: boolean) => {
@@ -78,187 +84,231 @@ const IconActions = ({ style }: { style: TextStyle }) => {
 		[]
 	);
 
-	const options = useMemo(
+	const options: {
+		value: string;
+		label: string;
+		onPress: () => void | Promise<void>;
+		leadingIcon: string;
+		disabled?: () => boolean;
+	}[] = useMemo(
 		() => [
 			...(undefined === movingPointIdx
 				? [
 						{
 							value: 'appendPoint',
 							label: 'appendPoint',
-							onPress: () => {
+							onPress: async () => {
 								dismissMenu();
-								if (setPoints && points && currentMapEventRef?.current?.center) {
-									dispatch(
-										setPoints([
-											...points,
+
+								if (routeId && points && currentMapEventRef?.current?.center) {
+									const feature = point([
+										currentMapEventRef?.current?.center.lng,
+										currentMapEventRef?.current?.center.lat,
+										0,
+									]);
+
+									const lastPoint = points.length ? points[points.length-1] : undefined;
+
+									const inserted = await createRoutingPoints(
+										[
 											{
-												key: rnUuid.v4(),
-												location: currentMapEventRef?.current?.center,
+												feature,
+												profile: {
+													fast: lastPoint?.profile?.fast ?? true, // ??? from defaults, or from previous or from cut segment
+													v: lastPoint?.profile?.v ?? 'motorcar', // ??? from defaults, or from previous or from cut segment
+												},
 											},
-										])
+										],
+										routeId
 									);
+
+									if (!inserted?.length) {
+										return;
+									}
+
+									const routes = await getRoutesWithPoints({
+										routeId,
+									});
+
+									if (!routes?.length) {
+										return;
+									}
+
+									const newPointsFromDb = routes[0].points.map((point) => {
+										return {
+											...omit(point, 'geometryGeoJSON'),
+											geometry: parseSerialized<Point>(
+												point.geometryGeoJSON
+											)!,
+										};
+									});
+
+									console.log('debug newPointsFromDb', newPointsFromDb); // debug
+
+									dispatch(setPoints(newPointsFromDb));
 								}
 							},
 							leadingIcon: 'plus',
 						},
 					]
 				: []),
-			...(undefined === movingPointIdx
-				? [
-						{
-							value: 'movePoint',
-							label:
-								'movePoint ' + (triggeredMarkerIdx ? triggeredMarkerIdx + 1 : ''),
-							onPress: () => {
-								dismissMenu(false);
-								if (points && points.length > 0) {
-									setMovingPointIdx &&
-										undefined !== triggeredMarkerIdx &&
-										setMovingPointIdx(triggeredMarkerIdx);
-									setTriggeredMarkerIdx &&
-										dispatch(setTriggeredMarkerIdx(undefined));
-								}
-							},
-							disabled: () =>
-								!points || !points.length || undefined === triggeredMarkerIdx,
-							leadingIcon: 'arrow-all',
-						},
-					]
-				: []),
-			...(undefined === movingPointIdx
-				? [
-						{
-							value: 'cutSegment',
-							label: 'cutSegment',
-							onPress: () => {
-								dismissMenu(true, false);
-								if (
-									setPoints &&
-									points &&
-									points.length > 0 &&
-									segments &&
-									undefined !== triggeredSegment?.index &&
-									segments.length > triggeredSegment?.index
-								) {
-									const segment = segments[triggeredSegment?.index];
-									const pointToIdIdx = points.findIndex(
-										(point) => point.key === segment.toKey
-									);
-									if (-1 !== pointToIdIdx) {
-										const newPoints = [...points];
-										newPoints.splice(pointToIdIdx, 0, {
-											key: rnUuid.v4(),
-											location: triggeredSegment.nearestPoint,
-										});
-										dispatch(setPoints(newPoints));
-										dispatch(setTriggeredSegment(undefined));
-										setTimeout(
-											() =>
-												setMovingPointIdx &&
-												setMovingPointIdx(pointToIdIdx),
-											300
-										);
-									}
-								}
-							},
-							disabled: () =>
-								undefined !== triggeredMarkerIdx ||
-								!points ||
-								!points.length ||
-								undefined === triggeredSegment,
-							leadingIcon: 'content-cut',
-						},
-					]
-				: []),
-			...(undefined === movingPointIdx
-				? [
-						{
-							value: 'deletePoint',
-							label:
-								'deletePoint ' +
-								(undefined !== triggeredMarkerIdx ? triggeredMarkerIdx + 1 : ''),
-							onPress: () => {
-								dismissMenu();
-								if (
-									setPoints &&
-									points &&
-									undefined !== triggeredMarkerIdx &&
-									points.length >= triggeredMarkerIdx + 1
-								) {
-									const newPoints = [...points];
-									newPoints.splice(triggeredMarkerIdx, 1);
-									dispatch(setPoints(newPoints));
-								}
-							},
-							disabled: () =>
-								!points || !points.length || undefined === triggeredMarkerIdx,
-							leadingIcon: 'minus',
-						},
-					]
-				: []),
-			...(undefined === movingPointIdx
-				? [
-						{
-							value: 'deleteLastPoint',
-							label: 'deleteLastPoint',
-							onPress: () => {
-								dismissMenu();
-								if (setPoints && points && points.length > 0) {
-									const newPoints = [...points];
-									newPoints.splice(-1, 1);
-									dispatch(setPoints(newPoints));
-								}
-							},
-							disabled: () => !points || !points.length,
-							leadingIcon: 'minus',
-						},
-					]
-				: []),
-			...(undefined !== movingPointIdx
-				? [
-						{
-							value: 'setPointPosition',
-							label: 'setPointPosition',
-							onPress: () => {
-								if (
-									setPoints &&
-									points &&
-									undefined !== movingPointIdx &&
-									currentMapEventRef?.current?.center
-								) {
-									const newPoints = [...points];
-									const newPoint: RoutingPoint = {
-										...points[movingPointIdx],
-										key: rnUuid.v4(),
-										location: currentMapEventRef?.current?.center,
-									};
-									newPoints.splice(movingPointIdx, 1, newPoint);
-									dispatch(setPoints(newPoints));
-									setMovingPointIdx(undefined);
-								}
-								dismissMenu();
-							},
-							disabled: () => !points || !points.length,
-							leadingIcon: 'check',
-						},
-					]
-				: []),
-			...(undefined !== movingPointIdx
-				? [
-						{
-							value: 'cancelMoving',
-							label: 'cancelMoving',
-							onPress: () => {
-								dismissMenu();
-								setMovingPointIdx(undefined);
-							},
-							disabled: () => !points || !points.length,
-							leadingIcon: 'cancel',
-						},
-					]
-				: []),
+			// ...(undefined === movingPointIdx
+			// 	? [
+			// 			{
+			// 				value: 'movePoint',
+			// 				label:
+			// 					'movePoint ' + (triggeredMarkerIdx ? triggeredMarkerIdx + 1 : ''),
+			// 				onPress: () => {
+			// 					dismissMenu(false);
+			// 					if (points && points.length > 0) {
+			// 						setMovingPointIdx &&
+			// 							undefined !== triggeredMarkerIdx &&
+			// 							setMovingPointIdx(triggeredMarkerIdx);
+			// 						setTriggeredMarkerIdx &&
+			// 							dispatch(setTriggeredMarkerIdx(undefined));
+			// 					}
+			// 				},
+			// 				disabled: () =>
+			// 					!points || !points.length || undefined === triggeredMarkerIdx,
+			// 				leadingIcon: 'arrow-all',
+			// 			},
+			// 		]
+			// 	: []),
+			// ...(undefined === movingPointIdx
+			// 	? [
+			// 			{
+			// 				value: 'cutSegment',
+			// 				label: 'cutSegment',
+			// 				onPress: () => {
+			// 					dismissMenu(true, false);
+			// 					if (
+			// 						setPoints &&
+			// 						points &&
+			// 						points.length > 0 &&
+			// 						segments &&
+			// 						undefined !== triggeredSegment?.index &&
+			// 						segments.length > triggeredSegment?.index
+			// 					) {
+			// 						const segment = segments[triggeredSegment?.index];
+			// 						const pointToIdIdx = points.findIndex(
+			// 							(point) => point.id === segment.toKey
+			// 						);
+			// 						if (-1 !== pointToIdIdx) {
+			// 							const newPoints = [...points];
+			// 							newPoints.splice(pointToIdIdx, 0, {
+			// 								id: rnUuid.v4(),
+			// 								geometry: triggeredSegment.nearestPoint,
+			// 							});
+			// 							dispatch(setPoints(newPoints));
+			// 							dispatch(setTriggeredSegment(undefined));
+			// 							setTimeout(
+			// 								() =>
+			// 									setMovingPointIdx &&
+			// 									setMovingPointIdx(pointToIdIdx),
+			// 								300
+			// 							);
+			// 						}
+			// 					}
+			// 				},
+			// 				disabled: () =>
+			// 					undefined !== triggeredMarkerIdx ||
+			// 					!points ||
+			// 					!points.length ||
+			// 					undefined === triggeredSegment,
+			// 				leadingIcon: 'content-cut',
+			// 			},
+			// 		]
+			// 	: []),
+			// ...(undefined === movingPointIdx
+			// 	? [
+			// 			{
+			// 				value: 'deletePoint',
+			// 				label:
+			// 					'deletePoint ' +
+			// 					(undefined !== triggeredMarkerIdx ? triggeredMarkerIdx + 1 : ''),
+			// 				onPress: () => {
+			// 					dismissMenu();
+			// 					if (
+			// 						setPoints &&
+			// 						points &&
+			// 						undefined !== triggeredMarkerIdx &&
+			// 						points.length >= triggeredMarkerIdx + 1
+			// 					) {
+			// 						const newPoints = [...points];
+			// 						newPoints.splice(triggeredMarkerIdx, 1);
+			// 						dispatch(setPoints(newPoints));
+			// 					}
+			// 				},
+			// 				disabled: () =>
+			// 					!points || !points.length || undefined === triggeredMarkerIdx,
+			// 				leadingIcon: 'minus',
+			// 			},
+			// 		]
+			// 	: []),
+			// ...(undefined === movingPointIdx
+			// 	? [
+			// 			{
+			// 				value: 'deleteLastPoint',
+			// 				label: 'deleteLastPoint',
+			// 				onPress: () => {
+			// 					dismissMenu();
+			// 					if (setPoints && points && points.length > 0) {
+			// 						const newPoints = [...points];
+			// 						newPoints.splice(-1, 1);
+			// 						dispatch(setPoints(newPoints));
+			// 					}
+			// 				},
+			// 				disabled: () => !points || !points.length,
+			// 				leadingIcon: 'minus',
+			// 			},
+			// 		]
+			// 	: []),
+			// ...(undefined !== movingPointIdx
+			// 	? [
+			// 			{
+			// 				value: 'setPointPosition',
+			// 				label: 'setPointPosition',
+			// 				onPress: () => {
+			// 					if (
+			// 						setPoints &&
+			// 						points &&
+			// 						undefined !== movingPointIdx &&
+			// 						currentMapEventRef?.current?.center
+			// 					) {
+			// 						const newPoints = [...points];
+			// 						const newPoint: RoutingPoint = {
+			// 							...points[movingPointIdx],
+			// 							id: rnUuid.v4(),
+			// 							geometry: currentMapEventRef?.current?.center,
+			// 						};
+			// 						newPoints.splice(movingPointIdx, 1, newPoint);
+			// 						dispatch(setPoints(newPoints));
+			// 						setMovingPointIdx(undefined);
+			// 					}
+			// 					dismissMenu();
+			// 				},
+			// 				disabled: () => !points || !points.length,
+			// 				leadingIcon: 'check',
+			// 			},
+			// 		]
+			// 	: []),
+			// ...(undefined !== movingPointIdx
+			// 	? [
+			// 			{
+			// 				value: 'cancelMoving',
+			// 				label: 'cancelMoving',
+			// 				onPress: () => {
+			// 					dismissMenu();
+			// 					setMovingPointIdx(undefined);
+			// 				},
+			// 				disabled: () => !points || !points.length,
+			// 				leadingIcon: 'cancel',
+			// 			},
+			// 		]
+			// 	: []),
 		],
 		[
+			routeId,
 			points,
 			movingPointIdx,
 			segments,
@@ -337,7 +387,7 @@ const IconActions = ({ style }: { style: TextStyle }) => {
 		[theme]
 	);
 
-	if (!isRouting) {
+	if (!routeId) {
 		return undefined;
 	}
 

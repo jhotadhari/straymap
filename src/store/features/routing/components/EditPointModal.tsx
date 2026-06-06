@@ -1,7 +1,15 @@
 /**
  * External dependencies
  */
-import React, { Dispatch, FC, SetStateAction, useContext, useMemo, useState } from 'react';
+import React, {
+	Dispatch,
+	FC,
+	SetStateAction,
+	useCallback,
+	useContext,
+	useMemo,
+	useState,
+} from 'react';
 import { Icon, Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, TouchableHighlight, View } from 'react-native';
@@ -26,18 +34,19 @@ import { formatDistance, getUpDown } from '../../../../lib/utils';
 import { useAppDispatch, useAppSelector } from '../../../hooks';
 import { selectUnitPrefs } from '../../general/selectors';
 import DrawerContext from '../../drawers/DrawerContext';
-import { RoutingSegment, RoutingPoint } from '../types';
+import { RoutingSegment, RoutingPoint, RoutingProfile } from '../types';
 import { handleSize, iconSize, itemStyles } from '../../drawers/constants';
 import PointsList from './PointsList';
 import { setSegments } from '../routingSlice';
 import { selectIsRouting, selectPoints, selectSegments } from '../selectors';
+import { updateRoutingPoint } from '../db/actionsRoutingPoint';
 
 const ProfileRowControl = ({
-	editSegment,
-	setEditSegment,
+	editPoint,
+	setEditPoint,
 }: {
-	editSegment: RoutingSegment;
-	setEditSegment: Dispatch<SetStateAction<null | RoutingSegment>>;
+	editPoint: RoutingPoint;
+	setEditPoint: Dispatch<SetStateAction<RoutingPoint | undefined>>;
 }) => {
 	const { t } = useTranslation();
 
@@ -59,7 +68,7 @@ const ProfileRowControl = ({
 		[]
 	);
 
-	const selectedOpt = options.find((opt) => opt.key === editSegment.profile.v);
+	const selectedOpt = options.find((opt) => opt.key === editPoint.profile?.v);
 
 	return (
 		<InfoRowControl label={t('profile???')}>
@@ -67,12 +76,10 @@ const ProfileRowControl = ({
 				options={options}
 				value={get(selectedOpt, 'key')}
 				setValue={(newValue) =>
-					setEditSegment({
-						...editSegment,
-						profile: {
-							...editSegment.profile,
-							v: newValue as GetTrackParams['v'],
-						},
+					editPoint.profile &&
+					setEditPoint({
+						...editPoint,
+						profile: { ...editPoint.profile, v: newValue as GetTrackParams['v'] },
 					})
 				}
 				anchorLabel={get(selectedOpt, 'label', '')}
@@ -81,12 +88,14 @@ const ProfileRowControl = ({
 	);
 };
 
-const EditSegmentModal: FC<{
-	editSegment: RoutingSegment;
-	setEditSegment: Dispatch<SetStateAction<RoutingSegment | null>>;
+const EditPointModal: FC<{
+	// editSegment: RoutingSegment;
+	// setEditSegment: Dispatch<SetStateAction<RoutingSegment | null>>;
+	editPoint: RoutingPoint;
+	setEditPoint: Dispatch<SetStateAction<RoutingPoint | undefined>>;
 	// scrollEnabled: boolean;
 	// setScrollEnabled: Dispatch<SetStateAction<boolean>>;
-}> = ({ editSegment, setEditSegment }) => {
+}> = ({ editPoint, setEditPoint }) => {
 	const dispatch = useAppDispatch();
 
 	const segments = useAppSelector(selectSegments);
@@ -94,35 +103,45 @@ const EditSegmentModal: FC<{
 	const theme = useTheme();
 	const { t } = useTranslation();
 
-	const updateSegment = () => {
-		if (segments && editSegment && setSegments) {
-			const segmentIdx = segments.findIndex((segment) => segment.key === editSegment.key);
+	const points = useAppSelector(selectPoints);
+
+	const resetSegmentPositions = useCallback(() => {
+		if (segments && editPoint.profile && points) {
+			const segmentIdx = segments.findIndex((segment) => segment.fromId === editPoint.id);
 			if (-1 !== segmentIdx) {
-				if (
-					JSON.stringify(segments[segmentIdx].profile) !==
-					JSON.stringify(editSegment.profile)
-				) {
+				const point = points.find((p) => p.id === editPoint.id);
+				if (JSON.stringify(point?.profile) !== JSON.stringify(editPoint.profile)) {
 					const newSegments = [...segments];
-					newSegments.splice(segmentIdx, 1, omit(editSegment, ['positions']));
-					dispatch(setSegments(newSegments));
-					// triggerSegmentsUpdate && triggerSegmentsUpdate();
+					newSegments.splice(segmentIdx, 1, omit(segments[segmentIdx], ['positions']));
+					dispatch(setSegments(newSegments, { updateRoutes: true }));
 				}
 			}
 		}
-	};
+	}, [
+		segments,
+		editPoint,
+		points,
+	]);
+
+	const savePointToDb = useCallback(async () => {
+		await updateRoutingPoint(editPoint.id, {
+			profile: editPoint.profile,
+		});
+	}, [editPoint]);
 
 	return (
 		<ModalWrapper
-			visible={!!editSegment}
-			onDismiss={() => {
-				updateSegment();
-				setEditSegment(null);
+			visible={!!editPoint.profile}
+			onDismiss={async () => {
+				resetSegmentPositions();
+				await savePointToDb();
+				setEditPoint(undefined);
 			}}
-			header={'editProfile???'}
+			header={'editPoint.profile???'}
 		>
 			<ProfileRowControl
-				editSegment={editSegment}
-				setEditSegment={setEditSegment}
+				editPoint={editPoint}
+				setEditPoint={setEditPoint}
 			/>
 
 			<InfoRadioRow
@@ -131,17 +150,18 @@ const EditSegmentModal: FC<{
 					key: 'fast',
 				}}
 				onPress={() =>
-					setEditSegment({
-						...editSegment,
+					editPoint.profile &&
+					setEditPoint({
+						...editPoint,
 						profile: {
-							...editSegment.profile,
-							fast: !editSegment.profile.fast,
+							...editPoint.profile,
+							fast: !editPoint.profile.fast,
 						},
 					})
 				}
 				labelStyle={theme.fonts.bodyMedium}
 				labelExtractor={(a) => a.label}
-				status={editSegment.profile.fast ? 'checked' : 'unchecked'}
+				status={editPoint.profile?.fast ? 'checked' : 'unchecked'}
 				radioAlign={'left'}
 				Info={t('hint.maps.hgtInterpolation')}
 			/>
@@ -149,4 +169,4 @@ const EditSegmentModal: FC<{
 	);
 };
 
-export default EditSegmentModal;
+export default EditPointModal;

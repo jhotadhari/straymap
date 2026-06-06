@@ -13,6 +13,8 @@ declare module globalThis {
 		/**Log when some connectStorage writes to DefaultPreference */
 		saveToStorage: boolean;
 
+		saveToDb: boolean;
+
 		/** Log all dispatched actions. boolean or array of action types */
 		dispatchAction: boolean | string[];
 	};

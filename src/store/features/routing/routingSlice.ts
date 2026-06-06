@@ -15,13 +15,15 @@ import { AppThunk } from '../../store';
 import { filterSegments } from './utils';
 
 export interface RoutingSettings {
-	// bla?: string;
+	isRouting: false | number;
 }
 
-export interface RoutingState extends SliceSettingsBase, RoutingSettings {
-	isRouting: boolean;
+export interface RoutingDb {
 	points: RoutingPoint[];
 	segments: RoutingSegment[];
+}
+
+export interface RoutingState extends SliceSettingsBase, RoutingSettings, RoutingDb {
 	markerLayerUuid: null | string;
 	pathLayerUuids: null | string[];
 	movingPointIdx?: number;
@@ -34,14 +36,16 @@ export interface RoutingState extends SliceSettingsBase, RoutingSettings {
 }
 
 export const initialSettings: RoutingSettings = {
-	// bla: '',
+	isRouting: false,
+};
+
+export const initialDb: RoutingDb = {
+	points: [],
+	segments: [],
 };
 
 const initialState: RoutingState = {
 	initialized: false,
-	isRouting: false,
-	points: [],
-	segments: [],
 	markerLayerUuid: null,
 	pathLayerUuids: null,
 	savedExported: {
@@ -49,6 +53,7 @@ const initialState: RoutingState = {
 		exported: false,
 	},
 	...initialSettings,
+	...initialDb,
 };
 
 // Slices contain Redux reducer logic for updating state, and
@@ -70,12 +75,22 @@ export const routingSlice = createSlice({
 				state.savedExported = initialState.savedExported;
 			}
 		},
+
 		setPoints: (state, action: PayloadAction<RoutingState['points']>) => {
 			state.points = action.payload;
+
+			// state.isRouting;
+
 			state.savedExported = initialState.savedExported;
 		},
-		setSegments: (state, action: PayloadAction<RoutingState['segments']>) => {
-			state.segments = action.payload;
+		setSegments: (
+			state,
+			action: PayloadAction<{
+				segments: RoutingState['segments'];
+				updateRoutes: boolean;
+			}>
+		) => {
+			state.segments = action.payload.segments;
 			state.savedExported = initialState.savedExported;
 		},
 		setMarkerLayerUuid: (state, action: PayloadAction<RoutingState['markerLayerUuid']>) => {
@@ -109,6 +124,7 @@ export const {
 	setIsRouting,
 	setPoints,
 	setSegments: setSegmentsAction,
+
 	setMarkerLayerUuid,
 	setPathLayerUuids,
 	setMovingPointIdx,
@@ -129,15 +145,24 @@ export const setSegments = (
 	segments: RoutingSegment[],
 	options?: {
 		filter?: boolean;
+		updateRoutes?: boolean;
 	}
 ): AppThunk => {
 	return (dispatch, getState) => {
 		if (options?.filter) {
 			dispatch(
-				routingSlice.actions.setSegments(filterSegments(segments, selectPoints(getState())))
+				routingSlice.actions.setSegments({
+					segments: filterSegments(segments, selectPoints(getState())),
+					updateRoutes: !!options?.updateRoutes,
+				})
 			);
 		} else {
-			dispatch(routingSlice.actions.setSegments(segments));
+			dispatch(
+				routingSlice.actions.setSegments({
+					segments,
+					updateRoutes: !!options?.updateRoutes,
+				})
+			);
 		}
 	};
 };

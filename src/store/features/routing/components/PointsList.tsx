@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { Dispatch, SetStateAction, useContext, useState } from 'react';
+import React, { Dispatch, SetStateAction, useContext, useMemo, useState } from 'react';
 import { TouchableHighlight, View } from 'react-native';
 import DraggableGrid from 'react-native-draggable-grid';
 import { Icon, Text, useTheme } from 'react-native-paper';
@@ -12,7 +12,7 @@ import { get, omit } from 'lodash-es';
 /**
  * Internal dependencies
  */
-import { RoutingPoint, RoutingSegment } from '../types';
+import { RoutingPoint } from '../types';
 import DrawerContext from '../../drawers/DrawerContext';
 import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
 import LoadingIndicator from '../../../../components/generic/LoadingIndicator';
@@ -20,6 +20,7 @@ import SegmentInfo from './SegmentInfo';
 import { useAppDispatch, useAppSelector } from '../../../hooks';
 import { setPoints, setSegments } from '../routingSlice';
 import { selectIsRouting, selectPoints, selectSegments } from '../selectors';
+import { updateRoute } from '../db/actionsRoute';
 
 const itemHeight = 130;
 const itemPaddingH = 20;
@@ -29,15 +30,13 @@ const DraggableItem = ({
 	width,
 	order,
 	draggingItemIndex,
-	// editSegment,
-	setEditSegment,
+	setEditPoint,
 }: {
 	item: RoutingPoint;
 	width: number;
 	order: number;
 	draggingItemIndex: null | number;
-	// editSegment: null | RoutingSegment;
-	setEditSegment: Dispatch<SetStateAction<null | RoutingSegment>>;
+	setEditPoint: Dispatch<SetStateAction<undefined | RoutingPoint>>;
 }) => {
 	const theme = useTheme();
 	const dispatch = useAppDispatch();
@@ -46,9 +45,7 @@ const DraggableItem = ({
 	const points = useAppSelector(selectPoints);
 	const segments = useAppSelector(selectSegments);
 
-	const segmentIdx = segments
-		? segments.findIndex((segment) => segment.fromKey === item.key)
-		: -1;
+	const segmentIdx = segments ? segments.findIndex((segment) => segment.fromId === item.id) : -1;
 	const segment = segments && -1 !== segmentIdx ? segments[segmentIdx] : undefined;
 
 	let StateIcon: null | React.JSX.Element = null;
@@ -98,7 +95,7 @@ const DraggableItem = ({
 				marginLeft: -itemPaddingH * 2,
 				paddingHorizontal: itemPaddingH,
 			}}
-			key={item.key}
+			key={item.id}
 		>
 			<View
 				style={{
@@ -113,13 +110,17 @@ const DraggableItem = ({
 					<Text style={{ marginRight: 10 }}>{order + 1}</Text>
 
 					<Text>
-						{formatcoords(item.location).format('dd', {
-							decimalPlaces: Math.min(4, 99),
-						})}
+						{item?.geometry?.coordinates &&
+							formatcoords(
+								item.geometry.coordinates[1],
+								item.geometry.coordinates[0]
+							).format('dd', {
+								decimalPlaces: Math.min(4, 99),
+							})}
 					</Text>
 				</View>
 
-				<View
+				{/* <View
 					style={{
 						flexDirection: 'row',
 					}}
@@ -145,7 +146,7 @@ const DraggableItem = ({
 							size={25}
 						/>
 					</TouchableHighlight>
-				</View>
+				</View> */}
 			</View>
 
 			{segment &&
@@ -228,7 +229,9 @@ const DraggableItem = ({
 							<ButtonHighlight
 								// style={ { marginLeft: -17 } }
 								compact={true}
-								onPress={() => setEditSegment(segment)}
+								onPress={() => {
+									setEditPoint(item);
+								}}
 							>
 								<Icon
 									source="cog"
@@ -244,12 +247,8 @@ const DraggableItem = ({
 									flexGrow: 1,
 								}}
 							>
-								{Object.keys(segment.profile).map((profileKey) => {
-									let inner: string | boolean = get(
-										segment.profile,
-										profileKey,
-										''
-									);
+								{Object.keys(item?.profile).map((profileKey) => {
+									let inner: string | boolean = get(item.profile, profileKey, '');
 									if ('fast' === profileKey) {
 										inner = inner ? 'fast' : 'slow';
 									}
@@ -275,30 +274,37 @@ const DraggableItem = ({
 
 const PointsList = ({
 	setScrollEnabled,
-	// editSegment,
-	setEditSegment,
+	setEditPoint,
 }: {
 	setScrollEnabled: Dispatch<SetStateAction<boolean>>;
-	// editSegment: null | RoutingSegment;
-	setEditSegment: Dispatch<SetStateAction<null | RoutingSegment>>;
+	setEditPoint: Dispatch<SetStateAction<undefined | RoutingPoint>>;
 }) => {
 	const { width } = useContext(DrawerContext);
 
-	const points = useAppSelector(selectPoints);
+	const routeId = useAppSelector(selectIsRouting);
+	const points_ = useAppSelector(selectPoints);
+
+	const points = useMemo(
+		() =>
+			points_.map((point) => ({
+				...point,
+				key: point.id,
+			})),
+		[points_]
+	);
 
 	const [draggingItemIndex, setDraggingItemIndex] = useState<null | number>(null);
 
 	const dispatch = useAppDispatch();
 
 	const renderItem = (item: RoutingPoint, order: number) => (
-		<View key={item.key}>
+		<View key={item.id}>
 			<DraggableItem
 				item={item}
 				width={width}
 				order={order}
 				draggingItemIndex={draggingItemIndex}
-				// editSegment={ editSegment }
-				setEditSegment={setEditSegment}
+				setEditPoint={setEditPoint}
 			/>
 		</View>
 	);
@@ -319,14 +325,19 @@ const PointsList = ({
 				data={points}
 				onDragStart={(item: RoutingPoint) => {
 					setScrollEnabled(false);
-					const newDraggingItemIndex = points.findIndex(
-						(point) => point.key === item.key
-					);
+					const newDraggingItemIndex = points.findIndex((point) => point.id === item.id);
 					setDraggingItemIndex(-1 === newDraggingItemIndex ? null : newDraggingItemIndex);
 				}}
-				onDragRelease={(newPoints: RoutingPoint[]) => {
+				onDragRelease={async (newPoints: RoutingPoint[]) => {
 					setScrollEnabled(true);
-					dispatch(setPoints(newPoints));
+
+					if (routeId) {
+						await updateRoute(routeId, {
+							point_order: newPoints.map((p) => p.id),
+						});
+						dispatch(setPoints(newPoints));
+					}
+
 					setDraggingItemIndex(null);
 				}}
 			/>

@@ -18,8 +18,8 @@ export const filterSegments = (
 
 	const segmentIdxsDelete = [...segments]
 		.map((segment, index) => {
-			const fromPointIdx = points.findIndex((point) => segment.fromKey === point.key);
-			const toPointIdx = points.findIndex((point) => segment.toKey === point.key);
+			const fromPointIdx = points.findIndex((point) => segment.fromId === point.id);
+			const toPointIdx = points.findIndex((point) => segment.toId === point.id);
 			if (-1 === fromPointIdx || -1 === toPointIdx || toPointIdx !== fromPointIdx + 1) {
 				return index;
 			}
@@ -35,39 +35,39 @@ export const filterSegments = (
 	return sort
 		? (sortArrayByOrderArray(
 				newSegments,
-				[...points].map((point) => point.key),
-				'fromKey'
+				[...points].map((point) => point.id),
+				'fromId'
 			) as RoutingSegment[])
 		: newSegments;
 };
 
-export const updateSegmentForIndex = (
-	segmentIndex: number,
-	point: RoutingPoint,
-	nextPoint: RoutingPoint,
-	hasDelay: boolean,
-	newSegments: RoutingSegment[],
-	resolve: (value: RoutingSegment[] | PromiseLike<RoutingSegment[]>) => void,
-	dispatchSetSegments: (newSegments: RoutingSegment[]) => void
-) => {
-	// newSegments = newSegments ? newSegments : [...segments];
-
-	const prevSegment = newSegments.find((seg) => seg.toKey === point.key);
+export const updateSegmentForIndex = ({
+	segmentIndex,
+	point,
+	nextPoint,
+	hasDelay,
+	newSegments,
+	resolve,
+	dispatchSetSegments,
+}: {
+	segmentIndex: number;
+	point: RoutingPoint;
+	nextPoint: RoutingPoint;
+	hasDelay: boolean;
+	newSegments: RoutingSegment[];
+	resolve: (value: RoutingSegment[] | PromiseLike<RoutingSegment[]>) => void;
+	dispatchSetSegments: (newSegments: RoutingSegment[]) => void;
+}) => {
 
 	let newSegment: RoutingSegment = {
 		...(-1 === segmentIndex && point && nextPoint
-			? {
-					profile: {
-						fast: prevSegment?.profile?.fast || true, // ??? from defaults, or from previous or from cut segment
-						v: prevSegment?.profile?.v || 'motorcar', // ??? from defaults, or from previous or from cut segment
-					},
-				}
+			? {}
 			: {
 					...newSegments[segmentIndex],
 				}),
 		key: rnUuid.v4() as string,
-		fromKey: point.key,
-		toKey: nextPoint.key,
+		fromId: point.id,
+		toId: nextPoint.id,
 		isFetching: true,
 	};
 
@@ -81,12 +81,18 @@ export const updateSegmentForIndex = (
 
 	const params: GetTrackParams = {
 		lonlats: [
-			Object.values(pick(point.location, ['lng', 'lat'])).join(','),
-			Object.values(pick(nextPoint.location, ['lng', 'lat'])).join(','),
+			[
+				point.geometry.coordinates[0],
+				point.geometry.coordinates[1],
+			].join(','),
+			[
+				nextPoint.geometry.coordinates[0],
+				nextPoint.geometry.coordinates[1],
+			].join(','),
 		].join('|'),
 		trackFormat: 'json',
-		fast: newSegment.profile.fast,
-		v: newSegment.profile.v,
+		fast: point?.profile?.fast,
+		v: point?.profile?.v,
 	};
 
 	runAfterInteractions(
@@ -158,23 +164,25 @@ export const updateSegments = (
 						if (points.length > index + 1) {
 							const segmentIndex = segments.findIndex(
 								(segment) =>
-									segment.fromKey === point.key &&
-									segment.toKey === points[index + 1].key
+									segment.fromId === point.id &&
+									segment.toId === points[index + 1].id
 							);
+
+							console.log( 'debug segmentIndex, segment', segmentIndex, segments[segmentIndex] ); // debug
 							if (
 								-1 === segmentIndex ||
 								(!segments[segmentIndex].isFetching &&
 									!segments[segmentIndex].positions)
 							) {
-								updateSegmentForIndex(
-									segmentIndex,
-									point,
-									points[index + 1],
-									0 !== index,
-									newSegments,
-									resolve,
-									dispatchSetSegments
-								);
+								updateSegmentForIndex({
+									segmentIndex: segmentIndex,
+									point: point,
+									nextPoint: points[index + 1],
+									hasDelay: 0 !== index,
+									newSegments: newSegments,
+									resolve: resolve,
+									dispatchSetSegments: dispatchSetSegments,
+								});
 							} else {
 								resolve(newSegments);
 							}
@@ -187,6 +195,9 @@ export const updateSegments = (
 			Promise.resolve([...segments])
 		)
 		.then((newSegments: RoutingSegment[]) => {
+
+			console.log( 'debug newSegments', newSegments ); // debug
+
 			dispatchSetSegments(newSegments);
 		});
 };
