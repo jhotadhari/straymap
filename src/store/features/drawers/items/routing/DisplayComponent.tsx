@@ -109,7 +109,7 @@ const DisplayComponent: FC<{
 							{
 								flexDirection: 'row',
 								justifyContent: 'space-between',
-								marginHorizontal: 20,
+								marginHorizontal: 16,
 								marginTop: (handleSize - iconSize) / 2,
 								// marginBottom: 16,
 							},

@@ -36,7 +36,6 @@ import { selectUnitPrefs } from '../../general/selectors';
 import DrawerContext from '../../drawers/DrawerContext';
 import { RoutingSegment, RoutingPoint, RoutingProfile } from '../types';
 import { handleSize, iconSize, itemStyles } from '../../drawers/constants';
-import PointsList from './PointsList';
 import { setSegments } from '../routingSlice';
 import { selectIsRouting, selectPoints, selectSegments } from '../selectors';
 import { updateRoutingPoint } from '../db/actionsRoutingPoint';

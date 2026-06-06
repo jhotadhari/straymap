@@ -22,7 +22,7 @@ export const routingPointsTable = sqliteTable('routing_points', {
 		.default(sql`(current_timestamp)`)
 		.notNull(),
 	geometry: point('geometry').notNull(),
-	profile: text('profile', { mode: 'json' }).$type<any>(), // ??? any
+	profile: text('profile', { mode: 'json' }).notNull().$type<any>(), // ??? any
 	route_id: integer('route_id')
 		.references(() => routesTable.id)
 		.notNull(),

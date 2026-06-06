@@ -15,15 +15,13 @@ import { AppThunk } from '../../store';
 import { filterSegments } from './utils';
 
 export interface RoutingSettings {
-	isRouting: false | number;
+	isRouting: false | number;	// false or routeId.
 }
 
-export interface RoutingDb {
+
+export interface RoutingState extends SliceSettingsBase, RoutingSettings {
 	points: RoutingPoint[];
 	segments: RoutingSegment[];
-}
-
-export interface RoutingState extends SliceSettingsBase, RoutingSettings, RoutingDb {
 	markerLayerUuid: null | string;
 	pathLayerUuids: null | string[];
 	movingPointIdx?: number;
@@ -39,11 +37,6 @@ export const initialSettings: RoutingSettings = {
 	isRouting: false,
 };
 
-export const initialDb: RoutingDb = {
-	points: [],
-	segments: [],
-};
-
 const initialState: RoutingState = {
 	initialized: false,
 	markerLayerUuid: null,
@@ -52,8 +45,9 @@ const initialState: RoutingState = {
 		saved: false,
 		exported: false,
 	},
+	points: [],
+	segments: [],
 	...initialSettings,
-	...initialDb,
 };
 
 // Slices contain Redux reducer logic for updating state, and

@@ -1,10 +1,20 @@
+/**
+ * External dependencies
+ */
 import rnUuid from 'react-native-uuid';
+import { Point } from 'geojson';
+import { getTrackFromParams, GetTrackParams } from 'react-native-brouter';
+import { omit } from 'lodash-es';
 
+/**
+ * Internal dependencies
+ */
 import { parseSerialized, sortArrayByOrderArray } from '../../../lib/utilsGeneral';
 import { JSONTracKParsed, RoutingPoint, RoutingSegment } from './types';
 import { runAfterInteractions } from '../../../lib/utils';
-import { getTrackFromParams, GetTrackParams } from 'react-native-brouter';
-import { pick } from 'lodash-es';
+import { getRoutesWithPoints } from './db/selectors';
+import { store } from '../../store';
+import { setPoints } from './routingSlice';
 
 // Remove unused segments
 export const filterSegments = (
@@ -58,7 +68,6 @@ export const updateSegmentForIndex = ({
 	resolve: (value: RoutingSegment[] | PromiseLike<RoutingSegment[]>) => void;
 	dispatchSetSegments: (newSegments: RoutingSegment[]) => void;
 }) => {
-
 	let newSegment: RoutingSegment = {
 		...(-1 === segmentIndex && point && nextPoint
 			? {}
@@ -167,8 +176,6 @@ export const updateSegments = (
 									segment.fromId === point.id &&
 									segment.toId === points[index + 1].id
 							);
-
-							console.log( 'debug segmentIndex, segment', segmentIndex, segments[segmentIndex] ); // debug
 							if (
 								-1 === segmentIndex ||
 								(!segments[segmentIndex].isFetching &&
@@ -195,9 +202,25 @@ export const updateSegments = (
 			Promise.resolve([...segments])
 		)
 		.then((newSegments: RoutingSegment[]) => {
-
-			console.log( 'debug newSegments', newSegments ); // debug
-
 			dispatchSetSegments(newSegments);
 		});
+};
+
+export const updateStorePointsFromDb = async (routeId: number) => {
+	const routes = await getRoutesWithPoints({
+		routeId,
+	});
+
+	if (!routes?.length) {
+		return;
+	}
+
+	const newPointsFromDb = routes[0].points.map((point) => {
+		return {
+			...omit(point, 'geometryGeoJSON'),
+			geometry: parseSerialized<Point>(point.geometryGeoJSON)!,
+		};
+	});
+
+	store.dispatch(setPoints(newPointsFromDb));
 };

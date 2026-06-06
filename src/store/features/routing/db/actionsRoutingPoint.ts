@@ -10,7 +10,7 @@ import { RoutingProfile } from '../types';
 export const createRoutingPoints = async (
 	newPoints: {
 		feature: Feature<Point, GeoJsonProperties>;
-		profile?: RoutingProfile;
+		profile: RoutingProfile;
 	}[],
 	route_id: number
 ) => {
@@ -21,7 +21,7 @@ export const createRoutingPoints = async (
 				newPoints.map(({ feature, profile }) => ({
 					route_id: route_id,
 					geometry: feature.geometry,
-					profile: profile ?? null,
+					profile: profile,
 				}))
 			)
 			.returning({ id: routingPointsTable.id });
