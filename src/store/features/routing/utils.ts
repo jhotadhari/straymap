@@ -161,49 +161,52 @@ export const updateSegments = (
 	dispatchSetSegments: (newSegments: RoutingSegment[]) => void
 ) => {
 	if (points.length <= 1) {
-		return new Promise((resolve) => {
-			resolve([]);
+		return new Promise<RoutingSegment[]>((resolveOuter) => {
+			resolveOuter([]);
 		});
 	}
-	[...points]
-		.reduce(
-			(newSegmentsPromise, point, index) => {
-				return newSegmentsPromise.then((newSegments) => {
-					return new Promise((resolve) => {
-						if (points.length > index + 1) {
-							const segmentIndex = segments.findIndex(
-								(segment) =>
-									segment.fromId === point.id &&
-									segment.toId === points[index + 1].id
-							);
-							if (
-								-1 === segmentIndex ||
-								(!segments[segmentIndex].isFetching &&
-									!segments[segmentIndex].positions)
-							) {
-								updateSegmentForIndex({
-									segmentIndex: segmentIndex,
-									point: point,
-									nextPoint: points[index + 1],
-									hasDelay: 0 !== index,
-									newSegments: newSegments,
-									resolve: resolve,
-									dispatchSetSegments: dispatchSetSegments,
-								});
+	return new Promise<RoutingSegment[]>((resolveOuter) => {
+		[...points]
+			.reduce(
+				(newSegmentsPromise, point, index) => {
+					return newSegmentsPromise.then((newSegments) => {
+						return new Promise((resolve) => {
+							if (points.length > index + 1) {
+								const segmentIndex = segments.findIndex(
+									(segment) =>
+										segment.fromId === point.id &&
+										segment.toId === points[index + 1].id
+								);
+								if (
+									-1 === segmentIndex ||
+									(!segments[segmentIndex].isFetching &&
+										!segments[segmentIndex].positions)
+								) {
+									updateSegmentForIndex({
+										segmentIndex: segmentIndex,
+										point: point,
+										nextPoint: points[index + 1],
+										hasDelay: 0 !== index,
+										newSegments: newSegments,
+										resolve: resolve,
+										dispatchSetSegments: dispatchSetSegments,
+									});
+								} else {
+									resolve(newSegments);
+								}
 							} else {
 								resolve(newSegments);
 							}
-						} else {
-							resolve(newSegments);
-						}
+						});
 					});
-				});
-			},
-			Promise.resolve([...segments])
-		)
-		.then((newSegments: RoutingSegment[]) => {
-			dispatchSetSegments(newSegments);
-		});
+				},
+				Promise.resolve([...segments])
+			)
+			.then((newSegments: RoutingSegment[]) => {
+				dispatchSetSegments(newSegments);
+				resolveOuter(newSegments);
+			});
+	});
 };
 
 export const updateStorePointsFromDb = async (routeId: number) => {

@@ -42,7 +42,7 @@ export const store = configureStore({
 		lang: langReducer,
 		lines: linesReducer,
 	},
-	devTools: __DEV__,
+	devTools: false,	// not working in react native currently. If ever working again, set to `__DEV__`.
 	// Add the listener middleware to the store.
 	// NOTE: Since this can receive actions with functions inside,
 	// it should go before the serializability check middleware

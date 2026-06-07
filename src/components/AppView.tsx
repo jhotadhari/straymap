@@ -59,6 +59,7 @@ import MapLayersAttribution from '../store/features/baseMap/MapLayersAttribution
 import { DashboardWrapped } from '../store/features/dashboard/components/Dashboard';
 import useShowInitialSplash from '../compose/useShowInitialSplash';
 import DebugBla from '../store/features/lines/components/DebugBla';
+import LinesMapView from '../store/features/lines/components/LinesMapView';
 
 const AppView = ({
 	initialPositionRef,
@@ -220,6 +221,7 @@ const AppView = ({
 						<LayerScalebar />
 
 						{/* has to be last. bug until MapContainer.View is mixing up reactTreeIndex */}
+						<LinesMapView />
 						<RoutingMapView />
 					</MapContainer>
 				)}

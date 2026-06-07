@@ -30,8 +30,6 @@ const settingsKey = 'baseMapSettings';
 
 /**
  * Loads settings from defaultPreferences and dispatches them to the store.
- *
- * Has to be called in index.js after the store got initialized.
  */
 export const initializeFromStorage = (store: EnhancedStore) => {
 	if (selectInitialized(store.getState())) {

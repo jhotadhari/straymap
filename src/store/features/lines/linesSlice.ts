@@ -9,14 +9,21 @@ import { createSlice } from '@reduxjs/toolkit';
  */
 import { SliceSettingsBase } from '../../../types';
 
-export interface LinesSettings {}
+export interface LinesSettings {
+	selectedIds: number[];
+}
 
-export interface LinesState extends SliceSettingsBase, LinesSettings {}
+export interface LinesState extends SliceSettingsBase, LinesSettings {
+	lines: any[];
+}
 
-export const initialSettings: LinesSettings = {};
+export const initialSettings: LinesSettings = {
+	selectedIds: [],
+};
 
 const initialState: LinesState = {
 	initialized: false,
+	lines: [],
 	...initialSettings,
 };
 
@@ -29,11 +36,17 @@ export const linesSlice = createSlice({
 		setInitialized: (state, action: PayloadAction<boolean>) => {
 			state.initialized = action.payload;
 		},
+		setSelectedIds: (state, action: PayloadAction<LinesState['selectedIds']>) => {
+			state.selectedIds = action.payload;
+		},
+		setLines: (state, action: PayloadAction<LinesState['lines']>) => {
+			state.lines = action.payload;
+		},
 	},
 });
 
 // Export the generated action creators for use in components.
-export const { setInitialized } = linesSlice.actions;
+export const { setInitialized, setSelectedIds, setLines } = linesSlice.actions;
 
 // Export the slice reducer for use in the store configuration
 export default linesSlice.reducer;

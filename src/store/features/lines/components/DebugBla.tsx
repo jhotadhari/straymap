@@ -21,6 +21,8 @@ import { View } from 'react-native';
 import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
 import { Text } from 'react-native-paper';
 import { RoutingProfile } from '../../routing/types';
+import { setSelectedIds } from '../linesSlice';
+import { useAppDispatch } from '../../../hooks';
 
 const coords = [
 	[
@@ -280,14 +282,25 @@ const DebugBlaButtonMockPoints: FC<{
 const DebugBla: FC = () => {
 	const [routeId, setRouteId] = useState<false | number>(false);
 
+
+	const dispatch = useAppDispatch();
+
 	useEffect(() => {
+
+		// dispatch( setSelectedIds( [4,5,6] ) );
+
+
 		(async () => {
 			// // mockTags();
 			// // mockLines();
+
 			// const lines = await getLinesWithTags({
-			// 	// tagId: 3
+			// 	lineIds: [3],
+			// 	allLines: true,
 			// });
 			// console.log('debug lines', lines); // debug
+
+
 			// const route_id = await mockRoutes();
 			// if (route_id) {
 			// 	await mockPoints(route_id);

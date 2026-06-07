@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { Feature, Point, GeoJsonProperties } from 'geojson';
+import { Point } from 'geojson';
 import { isAnyOf, PayloadAction, type EnhancedStore } from '@reduxjs/toolkit';
 import DefaultPreference from 'react-native-default-preference';
 import { get, isEqual, omit, set } from 'lodash-es';
@@ -12,28 +12,28 @@ import { get, isEqual, omit, set } from 'lodash-es';
 import {
 	RoutingSettings,
 	RoutingState,
-	initialDb,
 	initialSettings,
 	setInitialized,
 	setIsRouting,
 	setPoints,
+	setPointsAction,
 	setSegments,
 	setSegmentsAction,
 } from './routingSlice';
 import { startAppListening } from '../../listenerMiddleware';
 import { updateSegments as updateSegments } from './utils';
 import { RoutingPoint, RoutingSegment } from './types';
-import { selectInitialized, selectPoints, selectSegments } from './selectors';
+import { selectInitialized, selectIsRouting, selectPoints, selectSegments } from './selectors';
 import { getRoutesWithPoints } from './db/selectors';
-// import { Point } from 'react-native-popover-view/dist/Types';
 import { parseSerialized } from '../../../lib/utilsGeneral';
+import { createLines, updateLine } from '../lines/db/actionsLine';
+import { lineString } from '@turf/helpers';
+import { updateRoute } from './db/actionsRoute';
 
 const settingsKey = 'routingSettings';
 
 /**
  * Loads settings from defaultPreferences and dispatches them to the store.
- *
- * Has to be called in index.js after the store got initialized.
  */
 export const initializeFromStorage = (store: EnhancedStore) => {
 	if (selectInitialized(store.getState())) {
@@ -56,7 +56,7 @@ export const initializeFromStorage = (store: EnhancedStore) => {
 							};
 						});
 						console.log('debug newPointsFromDb', newPointsFromDb); // debug
-						store.dispatch(setPoints(newPointsFromDb));
+						store.dispatch(setPointsAction({ points: newPointsFromDb, updateLine: false }));
 					}
 				}
 			}
@@ -103,68 +103,107 @@ startAppListening({
 	},
 });
 
-// export const saveToDb = (routingState: RoutingState, actionType: string) => {
-// 	if (!routingState.initialized) {
-// 		return;
-// 	}
-// 	const toSave: Partial<RoutingSettings> = {};
-// 	Object.keys(initialDb).forEach((key) => {
-// 		let shouldSave = false;
-// 		let valueToSave;
-// 		switch (key) {
-// 			default:
-// 				valueToSave = get(routingState, key);
-// 				shouldSave = !isEqual(valueToSave, get(initialSettings, key));
-// 		}
-// 		if (shouldSave) {
-// 			set(toSave, key, valueToSave);
-// 		}
-// 	});
-// 	if (__DEV__ && globalThis.shouldLog.saveToDb) {
-// 		console.log('DEBUG saveToDb', settingsKey, actionType, toSave);
-// 	}
-// 	// DefaultPreference.set(settingsKey, JSON.stringify(settingsToSave));
-// };
+// ??? move helper fn somewhere else
+const aggregateSegmentsToCoords = (segments: RoutingSegment[]) =>
+	segments.reduce((acc, seg) => {
+		seg?.positions?.forEach((pos) => {
+			acc.push([
+				pos.lng,
+				pos.lat,
+				...(undefined === pos?.alt ? [] : [pos?.alt]),
+			]);
+		});
+		return acc;
+	}, [] as number[][]);
 
-// /**
-//  * Listens to action that change settings in this store slice,
-//  * and calls the function to save them to db.
-//  */
-// startAppListening({
-// 	matcher: isAnyOf(
-// 		setPoints,
-// 		// setSegmentsAction,
-// 	),
-// 	effect: async (action, listenerApi) => {
-// 		saveToDb(listenerApi.getState().routing, action.type);
-// 	},
-// });
+
+// ??? move helper fn somewhere else
+const updateLineFromSegments = async( routeId: number, segments: RoutingSegment[] ) => {
+
+
+	// ??? should not run on app start!!
+
+	if (!routeId) {
+		return;
+	}
+
+	if (!segments.some((seg) => seg?.positions?.length)) {
+		// ??? delete line if no positions ???.... NO Deletion now, but maybe delete on stop routing.
+
+		return;
+	}
+
+	const routes = await getRoutesWithPoints({ routeId });
+
+	console.log( 'debug updateLineFromSegments', routeId, routes ); // debug
+	if (!routes.length) {
+		return;
+	}
+	const coords = aggregateSegmentsToCoords(segments);
+	console.log( 'debug updateLineFromSegments coords', coords ); // debug
+
+	const lineStringFeature = lineString(coords);
+
+	console.log( 'debug lineStringFeature', lineStringFeature ); // debug
+	if (routes[0].line_id) {
+		// Update line with new positions.
+		await updateLine(routes[0].line_id, {
+			lineStringFeature,
+		});
+	} else {
+		// Create line and update route with line_id.
+		const insertedLines = await createLines([
+			{
+				lineStringFeature,
+			},
+		]);
+
+		if (!insertedLines?.length) {
+			return undefined;
+		}
+		await updateRoute(routeId, { line_id: insertedLines[0].id });
+	}
+};
+
 
 startAppListening({
-	matcher: isAnyOf(setPoints),
-	effect: async (action: PayloadAction<RoutingPoint[]>, listenerApi) => {
+	actionCreator: setPointsAction,
+	effect: async (action, listenerApi) => {
 		const dispatchSetSegments = (newSegments: RoutingSegment[]) =>
 			listenerApi.dispatch(setSegments(newSegments, { filter: true }));
-		updateSegments(action.payload, selectSegments(listenerApi.getState()), dispatchSetSegments);
+		const updatedSegments = await updateSegments(
+			action.payload.points,
+			selectSegments(listenerApi.getState()),
+			dispatchSetSegments
+		);
+		if ( action.payload.updateLine ) {
+			const routeId = selectIsRouting(listenerApi.getState());
+			routeId && updateLineFromSegments( routeId, updatedSegments );
+		}
+
 	},
 });
 
 startAppListening({
-	matcher: isAnyOf(setSegmentsAction),
-	effect: async (
-		action: PayloadAction<{
-			segments: RoutingSegment[];
-			updateRoutes: boolean;
-		}>,
-		listenerApi
-	) => {
-		if ( ! action.payload?.updateRoutes ) {
+	actionCreator: setSegmentsAction,
+	effect: async (action, listenerApi) => {
+		if (!action.payload?.updateRoutes) {
 			return;
 		}
 		const dispatchSetSegments = (newSegments: RoutingSegment[]) =>
-			listenerApi.dispatch(setSegments(newSegments, {
-				filter: true,
-			}));
-		updateSegments(selectPoints(listenerApi.getState()), action.payload.segments, dispatchSetSegments);
+			listenerApi.dispatch(
+				setSegments(newSegments, {
+					filter: true,
+				})
+			);
+		const updatedSegments = await updateSegments(
+			selectPoints(listenerApi.getState()),
+			action.payload.segments,
+			dispatchSetSegments
+		);
+		if ( action.payload.updateLine ) {
+			const routeId = selectIsRouting(listenerApi.getState());
+			routeId && updateLineFromSegments( routeId, updatedSegments );
+		}
 	},
 });

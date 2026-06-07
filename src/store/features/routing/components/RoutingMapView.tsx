@@ -60,8 +60,6 @@ const RoutingMapView = () => {
 		return null;
 	}
 
-	// return null;
-
 	return (
 		<MapContainer.View>
 			{segments &&

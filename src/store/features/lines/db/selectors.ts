@@ -1,20 +1,20 @@
 import { Scalar, QueryResult } from '@op-engineering/op-sqlite';
 import { Feature, LineString, GeoJsonProperties, Point } from 'geojson';
 import { lineString } from '@turf/helpers';
-import { gt, isNotNull, sql, eq, and } from 'drizzle-orm';
+import { gt, isNotNull, sql, eq, and, inArray } from 'drizzle-orm';
 
 import { dbOp, dbZ } from '../../../../db/client';
 import { linesTable, tagsTable, tagsToLinesTable } from './schema/schema';
 
 interface LinesWithTagsParams {
-	lineId?: number;
+	lineIds?: number[];
 	allLines?: boolean;
 	tagId?: number;
 	allTags?: boolean;
 }
 
 export const getLinesWithTagsQuery = (params?: LinesWithTagsParams) => {
-	const { lineId, allLines, tagId, allTags } = params ?? {};
+	const { lineIds, allLines, tagId, allTags } = params ?? {};
 
 	const query = dbZ
 		.select({
@@ -45,7 +45,7 @@ export const getLinesWithTagsQuery = (params?: LinesWithTagsParams) => {
 
 	query.where(
 		and(
-			lineId ? eq(linesTable.id, lineId) : undefined,
+			lineIds ? inArray(linesTable.id, lineIds) : undefined,
 			tagId ? eq(tagsTable.id, tagId) : undefined
 		)
 	);
@@ -54,7 +54,7 @@ export const getLinesWithTagsQuery = (params?: LinesWithTagsParams) => {
 };
 
 export const getLinesWithTags = (params?: LinesWithTagsParams) => {
-	const { lineId, allLines, tagId, allTags } = params ?? {};
+	const { lineIds, allLines, tagId, allTags } = params ?? {};
 
 	return new Promise<
 		{

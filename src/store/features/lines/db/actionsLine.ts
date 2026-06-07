@@ -86,7 +86,7 @@ export const updateLine = async (
 	}
 
 	// get tags fo line.
-	const linesWithTags = await getLinesWithTags({ lineId: id });
+	const linesWithTags = await getLinesWithTags({ lineIds: [id] });
 	const currentTagIds = linesWithTags.length ? linesWithTags[0].tags.map((tag) => tag.id) : [];
 
 	newLine.tagIds.forEach(async (tagId) => {
@@ -112,7 +112,7 @@ export const updateLine = async (
 };
 
 export const lineAddTag = async (lineId: number, tagId: number) => {
-	const linesWithTags = await getLinesWithTags({ lineId, tagId });
+	const linesWithTags = await getLinesWithTags({ lineIds: [lineId], tagId });
 	if (!linesWithTags.length) {
 		await dbZ.insert(tagsToLinesTable).values([
 			{

@@ -2474,7 +2474,7 @@
   resolved "https://registry.yarnpkg.com/@types/formatcoords/-/formatcoords-1.1.2.tgz#74af915771c5fadce81ac5c8a61093fb15a4e3e7"
   integrity sha512-fFGxlSIZmHRM+84FVpDj4aKj2ZMuCzxX5k2hKehCH6JTdoB76Sj7AXNM0dsWn+wO6guEPV3vs2sifhaEqUt/HQ==
 
-"@types/geojson@^7946.0.10":
+"@types/geojson@^7946.0.10", "@types/geojson@^7946.0.16":
   version "7946.0.16"
   resolved "https://registry.yarnpkg.com/@types/geojson/-/geojson-7946.0.16.tgz#8ebe53d69efada7044454e3305c19017d97ced2a"
   integrity sha512-6C8nqWur3j98U6+lXDfTUWIfgvZU+EumvpHKcYjujKH7woYyLj2sUmff0tRhrqM7BohUw7Pz3ZB1jj2gW9Fvmg==

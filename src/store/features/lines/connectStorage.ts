@@ -3,7 +3,8 @@
  */
 import { isAnyOf, type EnhancedStore } from '@reduxjs/toolkit';
 import DefaultPreference from 'react-native-default-preference';
-import { get, isEqual, set } from 'lodash-es';
+import { get, isEqual, omit, set } from 'lodash-es';
+import { LineString } from 'geojson';
 
 /**
  * Internal dependencies
@@ -13,39 +14,58 @@ import {
 	LinesState,
 	initialSettings,
 	setInitialized,
+	setLines,
+	setSelectedIds,
 } from './linesSlice';
 import { startAppListening } from '../../listenerMiddleware';
 import { selectInitialized } from './selectors';
+import { getLinesWithTags } from './db/selectors';
+import { parseSerialized } from '../../../lib/utilsGeneral';
 
 const settingsKey = 'linesSettings';
 
+
+
+
+
+export const updateStoreLinesFromDb = async (lineIds: number[], dispatch: EnhancedStore['dispatch'] ) => {
+	const lines = await getLinesWithTags({
+		lineIds,
+		allLines: true,
+	});
+	const newLinesFromDb = lines.map((line) => {
+		return {
+			...omit(line, 'geometryGeoJSON'),
+			geometry: parseSerialized<LineString>(line.geometryGeoJSON)!,
+		};
+	});
+	dispatch(setLines(newLinesFromDb));
+};
+
+
+
+
+
+
 /**
  * Loads settings from defaultPreferences and dispatches them to the store.
- *
- * Has to be called in index.js after the store got initialized.
  */
 export const initializeFromStorage = (store: EnhancedStore) => {
 	if (selectInitialized(store.getState())) {
 		return;
 	}
-	// DefaultPreference.get(settingsKey)
-	// 	.then((newSettingsStr) => {
-	// 		if (newSettingsStr) {
-	// 			const newSettings = JSON.parse(newSettingsStr) as Partial<LinesState>;
-	// 			// if (newSettings?.hardwareKeys) {
-	// 			// 	store.dispatch(setHardwareKeys(newSettings.hardwareKeys));
-	// 			// }
-	// 			// if (newSettings?.unitPrefs) {
-	// 			// 	store.dispatch(setUnitPrefs(newSettings.unitPrefs));
-	// 			// }
-	// 			// if (newSettings?.mapEventRate) {
-	// 			// 	store.dispatch(setMapEventRate(newSettings.mapEventRate));
-	// 			// }
-	// 		}
-	// 		store.dispatch(setInitialized(true));
-	// 	})
-	// 	.catch((err) => 'ERROR' + console.log(err));
-	store.dispatch(setInitialized(true));
+	DefaultPreference.get(settingsKey)
+		.then((newSettingsStr) => {
+			if (newSettingsStr) {
+				const newSettings = JSON.parse(newSettingsStr) as Partial<LinesState>;
+				if (newSettings?.selectedIds) {
+					store.dispatch(setSelectedIds(newSettings.selectedIds));
+				}
+			}
+			store.dispatch(setInitialized(true));
+
+		})
+		.catch((err) => 'ERROR' + console.log(err));
 };
 
 /**
@@ -81,9 +101,19 @@ export const saveToStorage = (linesState: LinesState, actionType: string) => {
  */
 startAppListening({
 	matcher: isAnyOf(
-		// setHardwareKeys, setUnitPrefs, setMapEventRate,
+		setSelectedIds,
 	),
 	effect: async (action, listenerApi) => {
 		saveToStorage(listenerApi.getState().lines, action.type);
+	},
+});
+
+
+
+
+startAppListening({
+	actionCreator: setSelectedIds,
+	effect: async (action, listenerApi) => {
+		updateStoreLinesFromDb( action.payload, listenerApi.dispatch )
 	},
 });

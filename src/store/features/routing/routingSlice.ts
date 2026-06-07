@@ -18,7 +18,6 @@ export interface RoutingSettings {
 	isRouting: false | number;	// false or routeId.
 }
 
-
 export interface RoutingState extends SliceSettingsBase, RoutingSettings {
 	points: RoutingPoint[];
 	segments: RoutingSegment[];
@@ -70,8 +69,11 @@ export const routingSlice = createSlice({
 			}
 		},
 
-		setPoints: (state, action: PayloadAction<RoutingState['points']>) => {
-			state.points = action.payload;
+		setPoints: (state, action: PayloadAction<{
+			points: RoutingState['points'],
+			updateLine: boolean;
+		}>) => {
+			state.points = action.payload.points;
 
 			// state.isRouting;
 
@@ -82,6 +84,7 @@ export const routingSlice = createSlice({
 			action: PayloadAction<{
 				segments: RoutingState['segments'];
 				updateRoutes: boolean;
+				updateLine: boolean;
 			}>
 		) => {
 			state.segments = action.payload.segments;
@@ -116,7 +119,7 @@ export const routingSlice = createSlice({
 export const {
 	setInitialized,
 	setIsRouting,
-	setPoints,
+	setPoints: setPointsAction,
 	setSegments: setSegmentsAction,
 
 	setMarkerLayerUuid,
@@ -140,6 +143,7 @@ export const setSegments = (
 	options?: {
 		filter?: boolean;
 		updateRoutes?: boolean;
+		updateLine?: boolean;	// defaults to true.
 	}
 ): AppThunk => {
 	return (dispatch, getState) => {
@@ -148,6 +152,7 @@ export const setSegments = (
 				routingSlice.actions.setSegments({
 					segments: filterSegments(segments, selectPoints(getState())),
 					updateRoutes: !!options?.updateRoutes,
+					updateLine: false !== options?.updateLine,
 				})
 			);
 		} else {
@@ -155,8 +160,25 @@ export const setSegments = (
 				routingSlice.actions.setSegments({
 					segments,
 					updateRoutes: !!options?.updateRoutes,
+					updateLine: false !== options?.updateLine,
 				})
 			);
 		}
+	};
+};
+
+export const setPoints = (
+	points: RoutingPoint[],
+	options?: {
+		updateLine?: boolean;	// defaults to true.
+	}
+): AppThunk => {
+	return (dispatch, getState) => {
+			dispatch(
+				routingSlice.actions.setPoints({
+					points,
+					updateLine: false !== options?.updateLine,
+				})
+			);
 	};
 };

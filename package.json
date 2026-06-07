@@ -70,6 +70,7 @@
     "@react-native/typescript-config": "0.79.1",
     "@types/convert-units": "^2.3.11",
     "@types/formatcoords": "^1.1.2",
+    "@types/geojson": "^7946.0.16",
     "@types/jest": "^29.5.13",
     "@types/lodash-es": "^4.17.12",
     "@types/react": "^19.2.17",
