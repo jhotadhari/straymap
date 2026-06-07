@@ -7,7 +7,6 @@
  */
 import { AppRegistry } from 'react-native';
 import { Provider } from 'react-redux';
-import 'intl-pluralrules';
 // structuredClone polyfill
 import structuredClone from '@ungap/structured-clone';
 if (!('structuredClone' in globalThis)) {
@@ -20,6 +19,7 @@ if (!('structuredClone' in globalThis)) {
 import './src/globals';
 import { name as appName } from './app.json';
 import './src/assets/i18n/i18n';
+import 'intl-pluralrules';
 import App from './src/components/App';
 import { store } from './src/store/store';
 

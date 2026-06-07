@@ -12,7 +12,6 @@ import React, {
 	useState,
 } from 'react';
 import { Dimensions, StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
-import 'intl-pluralrules';
 import { useTheme } from 'react-native-paper';
 import { get } from 'lodash-es';
 /**

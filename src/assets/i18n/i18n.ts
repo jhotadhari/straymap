@@ -43,6 +43,7 @@ const intiOptions = {
 	interpolation: {
 		escapeValue: false, // react already safes from xss
 	},
+	debug: shouldLog.i18n,
 };
 
 // Prompt console error if langs misconfigured.
