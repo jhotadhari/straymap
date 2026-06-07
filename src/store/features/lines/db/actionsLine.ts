@@ -2,7 +2,7 @@ import { Feature, LineString, GeoJsonProperties } from 'geojson';
 import { eq, and } from 'drizzle-orm';
 
 import { dbZ } from '../../../../db/client';
-import { getLinesWithTags } from './selectors';
+import { fetchLinesWithTags } from './fetch';
 import { linesTable, tagsTable, tagsToLinesTable } from './schema/schema';
 
 export const createLines = async (
@@ -86,7 +86,7 @@ export const updateLine = async (
 	}
 
 	// get tags fo line.
-	const linesWithTags = await getLinesWithTags({ lineIds: [id] });
+	const linesWithTags = await fetchLinesWithTags({ lineIds: [id] });
 	const currentTagIds = linesWithTags.length ? linesWithTags[0].tags.map((tag) => tag.id) : [];
 
 	newLine.tagIds.forEach(async (tagId) => {
@@ -112,7 +112,7 @@ export const updateLine = async (
 };
 
 export const lineAddTag = async (lineId: number, tagId: number) => {
-	const linesWithTags = await getLinesWithTags({ lineIds: [lineId], tagId });
+	const linesWithTags = await fetchLinesWithTags({ lineIds: [lineId], tagId });
 	if (!linesWithTags.length) {
 		await dbZ.insert(tagsToLinesTable).values([
 			{

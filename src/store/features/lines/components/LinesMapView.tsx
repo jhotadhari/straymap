@@ -11,8 +11,8 @@ import { MapContainer, LayerPath } from 'react-native-mapsforge-vtm';
 import { useAppSelector } from '../../../hooks';
 import { selectIsRouting } from '../../routing/selectors';
 import { selectSelectedIds } from '../selectors';
-import { getRoutesWithPoints } from '../../routing/db/selectors';
-import { getLinesWithTags } from '../db/selectors';
+import { queryRoutingLineId } from '../../routing/db/queries';
+import { queryLines } from '../db/queries';
 
 const Line: FC<{
 	line: any;
@@ -47,22 +47,7 @@ const Line: FC<{
 	);
 };
 
-const getLines = async (lineIds: number[]) => {
-	return await getLinesWithTags({
-		lineIds,
-		allLines: true,
-	});
-};
 
-const getRoutingLineId = async (routeId?: number | false) => {
-	if (routeId) {
-		const routes = await getRoutesWithPoints({ routeId });
-		if (routes.length) {
-			return routes[0].line_id || null;
-		}
-	}
-	return null;
-};
 
 const LinesMapView = () => {
 	const isRouting = useAppSelector(selectIsRouting);
@@ -72,19 +57,19 @@ const LinesMapView = () => {
 
 	// console.log( 'debug queryClient', queryClient ); // debug
 
-	const queryLines = useQuery({
+	const { data: lines } = useQuery({
 		queryKey: ['lines', selectedIds],
-		queryFn: () => getLines(selectedIds),
+		queryFn: () => queryLines(selectedIds),
 	});
 
-	const queryRoutingLineId = useQuery({
+	const { data: routingLineId } = useQuery({
 		queryKey: ['routingLineId', isRouting],
-		queryFn: () => getRoutingLineId(isRouting),
+		queryFn: () => queryRoutingLineId(isRouting),
 	});
 
-	return queryLines.data?.map((line) => {
+	return lines?.map((line) => {
 		return (
-			queryRoutingLineId.data !== line.id && (
+			routingLineId !== line.id && (
 				<Line
 					key={line.id}
 					line={line}

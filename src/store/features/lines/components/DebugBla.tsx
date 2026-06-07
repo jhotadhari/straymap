@@ -7,14 +7,14 @@ import { dbZ, dbOp } from '../../../../db/client';
 import { routesTable, routingPointsTable } from '../../routing/db/schema/schema';
 import { createLines } from '../db/actionsLine';
 import { createTags } from '../db/actionsTag';
-import { getLinesWithTags } from '../db/selectors';
+import { fetchLinesWithTags } from '../db/fetch';
 import { dbOpExecute } from '../../../../db/utils';
 import {
 	AggregateRow,
-	getRoutesWithPoints,
-	getRoutesWithPointsQuery,
+	fetchRoutesWithPoints,
+	fetchRoutesWithPointsQuery,
 	routesWithPointsAggregate,
-} from '../../routing/db/selectors';
+} from '../../routing/db/fetch';
 import { createRoutingPoints, deleteRoutingPoint } from '../../routing/db/actionsRoutingPoint';
 import { createRoute, createRoutes, deleteRoute, updateRoute } from '../../routing/db/actionsRoute';
 import { View } from 'react-native';
@@ -287,7 +287,7 @@ const DebugBla: FC = () => {
 
 	useEffect(() => {
 
-		// dispatch( setSelectedIds( [4,5,6] ) );
+		// dispatch( setSelectedIds( [5,6,7,8] ) );
 
 
 		(async () => {

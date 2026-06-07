@@ -34,7 +34,7 @@ import {
 	selectTriggeredSegment,
 } from '../../../routing/selectors';
 import { createRoutingPoints } from '../../../routing/db/actionsRoutingPoint';
-import { getRoutesWithPoints } from '../../../routing/db/selectors';
+import { fetchRoutesWithPoints } from '../../../routing/db/fetch';
 
 const IconActions = ({ style }: { style: TextStyle }) => {
 	const { mapHeight, mapViewNativeNodeHandle } = useContext(AppContext);
@@ -120,7 +120,7 @@ const IconActions = ({ style }: { style: TextStyle }) => {
 										return;
 									}
 
-									const routes = await getRoutesWithPoints({
+									const routes = await fetchRoutesWithPoints({
 										routeId,
 									});
 

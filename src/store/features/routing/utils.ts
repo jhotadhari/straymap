@@ -10,7 +10,7 @@ import { getTrackFromParams, GetTrackParams } from 'react-native-brouter';
 import { parseSerialized, sortArrayByOrderArray } from '../../../lib/utilsGeneral';
 import { JSONTracKParsed, RoutingPoint, RoutingSegment } from './types';
 import { runAfterInteractions } from '../../../lib/utils';
-import { getRoutesWithPoints } from './db/selectors';
+import { fetchRoutesWithPoints } from './db/fetch';
 import { store } from '../../store';
 import { setPoints } from './routingSlice';
 
@@ -207,8 +207,9 @@ export const updateSegments = (
 	});
 };
 
+// ??? should be done by mutations somehow
 export const updateStorePointsFromDb = async (routeId: number) => {
-	const routes = await getRoutesWithPoints({
+	const routes = await fetchRoutesWithPoints({
 		routeId,
 	});
 

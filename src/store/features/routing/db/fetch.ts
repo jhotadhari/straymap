@@ -13,6 +13,14 @@ import { sortArrayByOrderArray } from '../../../../lib/utilsGeneral';
 import { RoutingProfile } from '../types';
 import { rowParseGeometryGeoJSON } from '../../../../db/utils';
 
+/**
+ * Functions to fetch/retrieve data from database.
+ * They are actually db selectors or drizzle queries. But to avoid naming collisions, let's call/prefix them "fetch".
+ *
+ */
+/**
+ */
+
 interface RoutesWithPointsParams {
 	routeId?: number;
 	pointId?: number;
@@ -31,7 +39,7 @@ interface RouteWithPoints {
 	}[];
 }
 
-export const getRoutesWithPointsQuery = (params?: RoutesWithPointsParams) => {
+export const fetchRoutesWithPointsQuery = (params?: RoutesWithPointsParams) => {
 	const { routeId, pointId } = params ?? {};
 
 	const query = dbZ
@@ -103,9 +111,9 @@ export const routesWithPointsAggregate = (rows: AggregateRow[]) => {
 	return aggregated;
 };
 
-export const getRoutesWithPoints = (params?: RoutesWithPointsParams) => {
+export const fetchRoutesWithPoints = (params?: RoutesWithPointsParams) => {
 	return new Promise<RouteWithPoints[]>((resolve) => {
-		const query = getRoutesWithPointsQuery(params);
+		const query = fetchRoutesWithPointsQuery(params);
 		query
 			.all() /// ??? add limit. if routeID or pointID limit 1
 			.then((rows) => {

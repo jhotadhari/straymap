@@ -254,6 +254,7 @@ const DraggableItem: FC<{
 
 	const handleDeletePoint = useCallback(async () => {
 		await deleteRoutingPoint(item.id);
+		// ??? should be done by mutations somehow
 		await updateStorePointsFromDb(routeId as number);
 	}, [item.id, routeId]);
 

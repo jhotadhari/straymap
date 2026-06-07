@@ -23,7 +23,7 @@ import { startAppListening } from '../../listenerMiddleware';
 import { updateSegments as updateSegments } from './utils';
 import { RoutingSegment } from './types';
 import { selectInitialized, selectIsRouting, selectPoints, selectSegments } from './selectors';
-import { getRoutesWithPoints } from './db/selectors';
+import { fetchRoutesWithPoints } from './db/fetch';
 import { createLines, updateLine } from '../lines/db/actionsLine';
 import { updateRoute } from './db/actionsRoute';
 
@@ -42,7 +42,7 @@ export const initializeFromStorage = (store: EnhancedStore) => {
 				const newSettings = JSON.parse(newSettingsStr) as Partial<RoutingState>;
 				if (newSettings?.isRouting) {
 					store.dispatch(setIsRouting(newSettings.isRouting));
-					const routes = await getRoutesWithPoints({
+					const routes = await fetchRoutesWithPoints({
 						routeId: newSettings.isRouting,
 					});
 					if (routes.length) {
@@ -121,7 +121,7 @@ const updateLineFromSegments = async (routeId: number, segments: RoutingSegment[
 		return;
 	}
 
-	const routes = await getRoutesWithPoints({ routeId });
+	const routes = await fetchRoutesWithPoints({ routeId });
 	if (!routes.length) {
 		return;
 	}

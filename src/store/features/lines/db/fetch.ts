@@ -12,6 +12,14 @@ import { linesTable, tagsTable, tagsToLinesTable } from './schema/schema';
 import { rowsParseGeometryGeoJSON } from '../../../../db/utils';
 import { ArrayElement } from '../../../../types';
 
+/**
+ * Functions to fetch/retrieve data from database.
+ * They are actually db selectors or drizzle queries. But to avoid naming collisions, let's call/prefix them "fetch".
+ *
+ */
+/**
+ */
+
 interface LinesWithTagsParams {
 	lineIds?: number[];
 	allLines?: boolean;
@@ -19,7 +27,7 @@ interface LinesWithTagsParams {
 	allTags?: boolean;
 }
 
-export const getLinesWithTagsQuery = (params?: LinesWithTagsParams) => {
+export const fetchLinesWithTagsQuery = (params?: LinesWithTagsParams) => {
 	const { lineIds, allLines, tagId, allTags } = params ?? {};
 
 	const query = dbZ
@@ -59,7 +67,7 @@ export const getLinesWithTagsQuery = (params?: LinesWithTagsParams) => {
 	return query;
 };
 
-export const getLinesWithTags = (params?: LinesWithTagsParams) => {
+export const fetchLinesWithTags = (params?: LinesWithTagsParams) => {
 	const { lineIds, allLines, tagId, allTags } = params ?? {};
 
 	return new Promise<
@@ -76,7 +84,7 @@ export const getLinesWithTags = (params?: LinesWithTagsParams) => {
 			}[];
 		}[]
 	>((resolve) => {
-		const query = getLinesWithTagsQuery(params);
+		const query = fetchLinesWithTagsQuery(params);
 
 		query
 			.all() /// ??? add limit.
