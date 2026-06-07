@@ -3,13 +3,11 @@
  */
 import { DrawerItem } from '../../types';
 import DisplayComponent from './DisplayComponent';
-import IconActions from './IconActions';
-import IconComponent from './IconComponent';
 
 export default {
-	key: 'routing',
-	label: 'routing.routePlanning',
+	key: 'lines',
+	label: 'lines.tracksRoutes',
 	DisplayComponent,
-	IconComponent,
-	IconActions,
+	// IconComponent,
+	iconSource: 'go-kart-track',
 } as DrawerItem;

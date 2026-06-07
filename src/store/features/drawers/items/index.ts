@@ -2,10 +2,10 @@ import maps from './maps';
 import routing from './routing';
 import position from './position';
 import searchPlace from './searchPlace';
-import tracksRoutes from './tracksRoutes';
+import lines from './lines';
 import waypoints from './waypoints';
 
-export { maps, routing, position, searchPlace, tracksRoutes, waypoints };
+export { maps, routing, position, searchPlace, lines, waypoints };
 
 // export const egal1 = {
 // 	key: 'egal1',

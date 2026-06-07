@@ -24,7 +24,7 @@ export interface DrawersState extends SliceSettingsBase, DrawersSettings {
 export const initialSettings: DrawersSettings = {
 	itemKeysLeft: [
 		'position',
-		'tracksRoutes',
+		'lines',
 		'waypoints',
 	],
 	itemKeysRight: [

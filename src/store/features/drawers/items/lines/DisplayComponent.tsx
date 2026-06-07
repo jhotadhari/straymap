@@ -9,8 +9,7 @@ import { View } from 'react-native';
 /**
  * Internal dependencies
  */
-import { DrawerItem } from '../types';
-import { handleSize, iconSize, itemStyles } from '../constants';
+import { itemStyles } from '../../constants';
 
 const DisplayComponent: FC<{
 	scrollEnabled: boolean;
@@ -21,16 +20,10 @@ const DisplayComponent: FC<{
 	return (
 		<View style={itemStyles.item}>
 			<View style={itemStyles.buttonRow}>
-				<Text>bla tracksRoutes</Text>
+				<Text>bla lines</Text>
 			</View>
 		</View>
 	);
 };
 
-export default {
-	key: 'tracksRoutes',
-	label: 'tracksRoutes',
-	DisplayComponent,
-	// IconComponent,
-	iconSource: 'go-kart-track',
-} as DrawerItem;
+export default DisplayComponent;
