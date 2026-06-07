@@ -55,8 +55,9 @@ export const initializeFromStorage = (store: EnhancedStore) => {
 								geometry: parseSerialized<Point>(point.geometryGeoJSON)!,
 							};
 						});
-						console.log('debug newPointsFromDb', newPointsFromDb); // debug
-						store.dispatch(setPointsAction({ points: newPointsFromDb, updateLine: false }));
+						store.dispatch(
+							setPointsAction({ points: newPointsFromDb, updateLine: false })
+						);
 					}
 				}
 			}
@@ -116,13 +117,8 @@ const aggregateSegmentsToCoords = (segments: RoutingSegment[]) =>
 		return acc;
 	}, [] as number[][]);
 
-
 // ??? move helper fn somewhere else
-const updateLineFromSegments = async( routeId: number, segments: RoutingSegment[] ) => {
-
-
-	// ??? should not run on app start!!
-
+const updateLineFromSegments = async (routeId: number, segments: RoutingSegment[]) => {
 	if (!routeId) {
 		return;
 	}
@@ -134,17 +130,11 @@ const updateLineFromSegments = async( routeId: number, segments: RoutingSegment[
 	}
 
 	const routes = await getRoutesWithPoints({ routeId });
-
-	console.log( 'debug updateLineFromSegments', routeId, routes ); // debug
 	if (!routes.length) {
 		return;
 	}
 	const coords = aggregateSegmentsToCoords(segments);
-	console.log( 'debug updateLineFromSegments coords', coords ); // debug
-
 	const lineStringFeature = lineString(coords);
-
-	console.log( 'debug lineStringFeature', lineStringFeature ); // debug
 	if (routes[0].line_id) {
 		// Update line with new positions.
 		await updateLine(routes[0].line_id, {
@@ -165,7 +155,6 @@ const updateLineFromSegments = async( routeId: number, segments: RoutingSegment[
 	}
 };
 
-
 startAppListening({
 	actionCreator: setPointsAction,
 	effect: async (action, listenerApi) => {
@@ -176,11 +165,10 @@ startAppListening({
 			selectSegments(listenerApi.getState()),
 			dispatchSetSegments
 		);
-		if ( action.payload.updateLine ) {
+		if (action.payload.updateLine) {
 			const routeId = selectIsRouting(listenerApi.getState());
-			routeId && updateLineFromSegments( routeId, updatedSegments );
+			routeId && updateLineFromSegments(routeId, updatedSegments);
 		}
-
 	},
 });
 
@@ -201,9 +189,9 @@ startAppListening({
 			action.payload.segments,
 			dispatchSetSegments
 		);
-		if ( action.payload.updateLine ) {
+		if (action.payload.updateLine) {
 			const routeId = selectIsRouting(listenerApi.getState());
-			routeId && updateLineFromSegments( routeId, updatedSegments );
+			routeId && updateLineFromSegments(routeId, updatedSegments);
 		}
 	},
 });
