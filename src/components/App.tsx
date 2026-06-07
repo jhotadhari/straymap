@@ -7,6 +7,7 @@ import { PaperProvider, Text, useTheme } from 'react-native-paper';
 import { MapEventResponse } from 'react-native-mapsforge-vtm';
 import { sprintf } from 'sprintf-js';
 import { useTranslation } from 'react-i18next';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 /**
  * Internal dependencies
@@ -135,11 +136,21 @@ const App = () => {
 	);
 };
 
+const queryClient = new QueryClient({
+	defaultOptions: {
+		queries: {
+			staleTime: Infinity, // Never trigger a refetch until the Query is invalidated manually.
+		},
+	},
+});
+
 export default () => {
 	const theme = useSetupTheme();
 	return (
-		<PaperProvider theme={theme}>
-			<App />
-		</PaperProvider>
+		<QueryClientProvider client={queryClient}>
+			<PaperProvider theme={theme}>
+				<App />
+			</PaperProvider>
+		</QueryClientProvider>
 	);
 };

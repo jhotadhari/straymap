@@ -3,8 +3,7 @@
  */
 import { isAnyOf, type EnhancedStore } from '@reduxjs/toolkit';
 import DefaultPreference from 'react-native-default-preference';
-import { get, isEqual, omit, set } from 'lodash-es';
-import { LineString } from 'geojson';
+import { get, isEqual, set } from 'lodash-es';
 
 /**
  * Internal dependencies
@@ -14,38 +13,12 @@ import {
 	LinesState,
 	initialSettings,
 	setInitialized,
-	setLines,
 	setSelectedIds,
 } from './linesSlice';
 import { startAppListening } from '../../listenerMiddleware';
 import { selectInitialized } from './selectors';
-import { getLinesWithTags } from './db/selectors';
-import { parseSerialized } from '../../../lib/utilsGeneral';
 
 const settingsKey = 'linesSettings';
-
-
-
-
-
-export const updateStoreLinesFromDb = async (lineIds: number[], dispatch: EnhancedStore['dispatch'] ) => {
-	const lines = await getLinesWithTags({
-		lineIds,
-		allLines: true,
-	});
-	const newLinesFromDb = lines.map((line) => {
-		return {
-			...omit(line, 'geometryGeoJSON'),
-			geometry: parseSerialized<LineString>(line.geometryGeoJSON)!,
-		};
-	});
-	dispatch(setLines(newLinesFromDb));
-};
-
-
-
-
-
 
 /**
  * Loads settings from defaultPreferences and dispatches them to the store.
@@ -63,7 +36,6 @@ export const initializeFromStorage = (store: EnhancedStore) => {
 				}
 			}
 			store.dispatch(setInitialized(true));
-
 		})
 		.catch((err) => 'ERROR' + console.log(err));
 };
@@ -100,20 +72,8 @@ export const saveToStorage = (linesState: LinesState, actionType: string) => {
  * and calls the function to save them to defaultPreferences.
  */
 startAppListening({
-	matcher: isAnyOf(
-		setSelectedIds,
-	),
+	matcher: isAnyOf(setSelectedIds),
 	effect: async (action, listenerApi) => {
 		saveToStorage(listenerApi.getState().lines, action.type);
-	},
-});
-
-
-
-
-startAppListening({
-	actionCreator: setSelectedIds,
-	effect: async (action, listenerApi) => {
-		updateStoreLinesFromDb( action.payload, listenerApi.dispatch )
 	},
 });

@@ -1,26 +1,25 @@
 /**
  * External dependencies
  */
-import React, { FC, useEffect, useMemo, useState } from 'react';
+import React, { FC, useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { omit } from 'lodash-es';
+import { LineString } from 'geojson';
 
 /**
  * react-native-mapsforge-vtm dependencies
  */
-import {
-	MapContainer,
-	LayerPath,
-} from 'react-native-mapsforge-vtm';
+import { MapContainer, LayerPath } from 'react-native-mapsforge-vtm';
 
 /**
  * Internal dependencies
  */
 import { useAppSelector } from '../../../hooks';
-import {
-	selectIsRouting,
-} from '../../routing/selectors';
-import { selectLines } from '../selectors';
+import { selectIsRouting } from '../../routing/selectors';
+import { selectSelectedIds } from '../selectors';
 import { getRoutesWithPoints } from '../../routing/db/selectors';
-
+import { getLinesWithTags } from '../db/selectors';
+import { parseSerialized } from '../../../../lib/utilsGeneral';
 
 const Line: FC<{
 	line: any;
@@ -55,34 +54,57 @@ const Line: FC<{
 	);
 };
 
+const getLines = async (lineIds: number[]) => {
+	const lines = await getLinesWithTags({
+		lineIds,
+		allLines: true,
+	});
+	const newLinesFromDb = lines.map((line) => {
+		return {
+			...omit(line, 'geometryGeoJSON'),
+			geometry: parseSerialized<LineString>(line.geometryGeoJSON)!,
+		};
+	});
+	return newLinesFromDb;
+};
+
+const getRoutingLineId = async (routeId?: number | false) => {
+	if (routeId) {
+		const routes = await getRoutesWithPoints({ routeId });
+		if (routes.length) {
+			return routes[0].line_id || null;
+		}
+	}
+	return null;
+};
+
 const LinesMapView = () => {
-	const lines = useAppSelector(selectLines);
-
-	const [routingLineId, setRoutingLineId] = useState<number | undefined>(undefined);
-
 	const isRouting = useAppSelector(selectIsRouting);
+	const selectedIds = useAppSelector(selectSelectedIds);
 
-	useEffect(() => {
-		(async () => {
-			if (isRouting) {
-				const routes = await getRoutesWithPoints({ routeId: isRouting });
-				if (routes.length) {
-					setRoutingLineId(routes[0].line_id || undefined);
-					return;
-				}
-			}
-			setRoutingLineId(undefined);
-		})();
-	}, [isRouting]);
+	// const queryClient = useQueryClient();
 
-	return lines.map(
-		(line) =>
-			routingLineId !== line.id && (
-				<Line
-					key={line.id}
-					line={line}
-				/>
-			)
+	const queryLines = useQuery({
+		queryKey: ['lines', selectedIds],
+		queryFn: () => getLines(selectedIds),
+	});
+
+	const queryRoutingLineId = useQuery({
+		queryKey: ['routingLineId', isRouting],
+		queryFn: () => getRoutingLineId(isRouting),
+	});
+
+	return (
+		queryLines.data?.map((line) => {
+			return (
+				queryRoutingLineId.data !== line.id && (
+					<Line
+						key={line.id}
+						line={line}
+					/>
+				)
+			);
+		})
 	);
 };
 

@@ -13,9 +13,7 @@ export interface LinesSettings {
 	selectedIds: number[];
 }
 
-export interface LinesState extends SliceSettingsBase, LinesSettings {
-	lines: any[];
-}
+export interface LinesState extends SliceSettingsBase, LinesSettings {}
 
 export const initialSettings: LinesSettings = {
 	selectedIds: [],
@@ -23,7 +21,6 @@ export const initialSettings: LinesSettings = {
 
 const initialState: LinesState = {
 	initialized: false,
-	lines: [],
 	...initialSettings,
 };
 
@@ -39,14 +36,11 @@ export const linesSlice = createSlice({
 		setSelectedIds: (state, action: PayloadAction<LinesState['selectedIds']>) => {
 			state.selectedIds = action.payload;
 		},
-		setLines: (state, action: PayloadAction<LinesState['lines']>) => {
-			state.lines = action.payload;
-		},
 	},
 });
 
 // Export the generated action creators for use in components.
-export const { setInitialized, setSelectedIds, setLines } = linesSlice.actions;
+export const { setInitialized, setSelectedIds } = linesSlice.actions;
 
 // Export the slice reducer for use in the store configuration
 export default linesSlice.reducer;
