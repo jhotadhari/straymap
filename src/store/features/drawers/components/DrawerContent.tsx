@@ -12,7 +12,6 @@ import { useTheme } from 'react-native-paper';
 import * as drawerItems from '../items';
 import DrawerContext from '../DrawerContext';
 import { DrawerItem } from '../types';
-import { iconSize } from '../constants';
 
 const handleSize = 50;
 
@@ -60,6 +59,9 @@ const DrawerContent: FC<{}> = () => {
 					scrollEnabled={scrollEnabled}
 					setScrollEnabled={setScrollEnabled}
 				/>
+
+				{/* Thats a weird fix for a padding that doesn't work */}
+				<View style={ {height: 8} }/>
 			</ScrollView>
 		</View>
 	);

@@ -11,6 +11,7 @@ import { dbZ } from '../../../../db/client';
 import { linesTable, tagsTable, tagsToLinesTable } from './schema/schema';
 import { rowsParseGeometryGeoJSON } from '../../../../db/utils';
 import { ArrayElement } from '../../../../types';
+import { LineWithTags } from '../types';
 
 /**
  * Functions to fetch/retrieve data from database.
@@ -26,6 +27,7 @@ interface LinesWithTagsParams {
 	tagId?: number;
 	allTags?: boolean;
 }
+
 
 export const fetchLinesWithTagsQuery = (params?: LinesWithTagsParams) => {
 	const { lineIds, allLines, tagId, allTags } = params ?? {};
@@ -70,20 +72,7 @@ export const fetchLinesWithTagsQuery = (params?: LinesWithTagsParams) => {
 export const fetchLinesWithTags = (params?: LinesWithTagsParams) => {
 	const { lineIds, allLines, tagId, allTags } = params ?? {};
 
-	return new Promise<
-		{
-			id: number;
-			title: string | null;
-			// geometryGeoJSON: string;
-			geometry: LineString;
-			tags: {
-				id: number;
-				label: string | null;
-				notes: string | null;
-				params: any; // ??? any
-			}[];
-		}[]
-	>((resolve) => {
+	return new Promise<LineWithTags[]>((resolve) => {
 		const query = fetchLinesWithTagsQuery(params);
 
 		query

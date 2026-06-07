@@ -10,6 +10,8 @@ import { View } from 'react-native';
  * Internal dependencies
  */
 import { itemStyles } from '../../constants';
+import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
+import SelectedLinesList from '../../../lines/components/SelectedLinesList';
 
 const DisplayComponent: FC<{
 	scrollEnabled: boolean;
@@ -19,9 +21,17 @@ const DisplayComponent: FC<{
 
 	return (
 		<View style={itemStyles.item}>
-			<View style={itemStyles.buttonRow}>
-				<Text>bla lines</Text>
-			</View>
+			<ButtonHighlight
+				style={itemStyles.buttonRow}
+				mode="outlined"
+				onPress={() => {
+					// ???
+				}}
+			>
+				<Text>{t('???')}</Text>
+			</ButtonHighlight>
+
+			<SelectedLinesList/>
 		</View>
 	);
 };

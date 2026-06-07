@@ -314,12 +314,12 @@ const DraggableItem: FC<{
 };
 
 const itemPaddingH = 16;
-const PointsList = ({
-	setScrollEnabled,
-	setEditPoint,
-}: {
+const PointsList: FC<{
 	setScrollEnabled: Dispatch<SetStateAction<boolean>>;
 	setEditPoint: Dispatch<SetStateAction<undefined | RoutingPoint>>;
+}> = ({
+	setScrollEnabled,
+	setEditPoint,
 }) => {
 	const { width } = useContext(DrawerContext);
 

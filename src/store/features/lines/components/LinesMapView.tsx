@@ -13,9 +13,10 @@ import { selectIsRouting } from '../../routing/selectors';
 import { selectSelectedIds } from '../selectors';
 import { queryRoutingLineId } from '../../routing/db/queries';
 import { queryLines } from '../db/queries';
+import { LineWithTags } from '../types';
 
 const Line: FC<{
-	line: any;
+	line: LineWithTags;
 }> = ({ line }) => {
 	const positions = useMemo(
 		() =>
