@@ -1,10 +1,10 @@
 /**
  * External dependencies
  */
-import { Point } from 'geojson';
-import { isAnyOf, PayloadAction, type EnhancedStore } from '@reduxjs/toolkit';
+import { isAnyOf, type EnhancedStore } from '@reduxjs/toolkit';
 import DefaultPreference from 'react-native-default-preference';
-import { get, isEqual, omit, set } from 'lodash-es';
+import { get, isEqual, set } from 'lodash-es';
+import { lineString } from '@turf/helpers';
 
 /**
  * Internal dependencies
@@ -15,19 +15,16 @@ import {
 	initialSettings,
 	setInitialized,
 	setIsRouting,
-	setPoints,
 	setPointsAction,
 	setSegments,
 	setSegmentsAction,
 } from './routingSlice';
 import { startAppListening } from '../../listenerMiddleware';
 import { updateSegments as updateSegments } from './utils';
-import { RoutingPoint, RoutingSegment } from './types';
+import { RoutingSegment } from './types';
 import { selectInitialized, selectIsRouting, selectPoints, selectSegments } from './selectors';
 import { getRoutesWithPoints } from './db/selectors';
-import { parseSerialized } from '../../../lib/utilsGeneral';
 import { createLines, updateLine } from '../lines/db/actionsLine';
-import { lineString } from '@turf/helpers';
 import { updateRoute } from './db/actionsRoute';
 
 const settingsKey = 'routingSettings';
@@ -49,14 +46,8 @@ export const initializeFromStorage = (store: EnhancedStore) => {
 						routeId: newSettings.isRouting,
 					});
 					if (routes.length) {
-						const newPointsFromDb = routes[0].points.map((point) => {
-							return {
-								...omit(point, 'geometryGeoJSON'),
-								geometry: parseSerialized<Point>(point.geometryGeoJSON)!,
-							};
-						});
 						store.dispatch(
-							setPointsAction({ points: newPointsFromDb, updateLine: false })
+							setPointsAction({ points: routes[0].points, updateLine: false })
 						);
 					}
 				}
@@ -118,6 +109,7 @@ const aggregateSegmentsToCoords = (segments: RoutingSegment[]) =>
 	}, [] as number[][]);
 
 // ??? move helper fn somewhere else
+// ??? this should be done by query mutation somehow
 const updateLineFromSegments = async (routeId: number, segments: RoutingSegment[]) => {
 	if (!routeId) {
 		return;

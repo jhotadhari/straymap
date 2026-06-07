@@ -1,9 +1,17 @@
+/**
+ * External dependencies
+ */
 import { sql, eq, and } from 'drizzle-orm';
+import { Point } from 'geojson';
 
+/**
+ * Internal dependencies
+ */
 import { dbZ } from '../../../../db/client';
 import { routesTable, routingPointsTable } from './schema/schema';
 import { sortArrayByOrderArray } from '../../../../lib/utilsGeneral';
 import { RoutingProfile } from '../types';
+import { rowParseGeometryGeoJSON } from '../../../../db/utils';
 
 interface RoutesWithPointsParams {
 	routeId?: number;
@@ -18,7 +26,7 @@ interface RouteWithPoints {
 	points: {
 		id: number;
 		timestamp: string;
-		geometryGeoJSON: string;
+		geometry: Point;
 		profile: RoutingProfile;
 	}[];
 }
@@ -68,11 +76,9 @@ export interface AggregateRow {
 		geometryGeoJSON: string;
 		profile: RoutingProfile;
 	} | null;
-};
+}
 
-export const routesWithPointsAggregate = (
-	rows: AggregateRow[]
-) => {
+export const routesWithPointsAggregate = (rows: AggregateRow[]) => {
 	const aggregated = Object.values(
 		rows.reduce<Record<number, RouteWithPoints>>((acc, row) => {
 			if (row?.route?.id && !acc[row.route.id]) {
@@ -82,7 +88,9 @@ export const routesWithPointsAggregate = (
 				};
 			}
 			if (row?.point && row?.route?.id) {
-				acc[row.route.id].points.push(row.point);
+				acc[row.route.id].points.push(
+					rowParseGeometryGeoJSON<typeof row.point, Point>(row.point)
+				);
 			}
 			return acc;
 		}, {})

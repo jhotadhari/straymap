@@ -3,12 +3,6 @@
  */
 import React, { FC, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { omit } from 'lodash-es';
-import { LineString } from 'geojson';
-
-/**
- * react-native-mapsforge-vtm dependencies
- */
 import { MapContainer, LayerPath } from 'react-native-mapsforge-vtm';
 
 /**
@@ -19,7 +13,6 @@ import { selectIsRouting } from '../../routing/selectors';
 import { selectSelectedIds } from '../selectors';
 import { getRoutesWithPoints } from '../../routing/db/selectors';
 import { getLinesWithTags } from '../db/selectors';
-import { parseSerialized } from '../../../../lib/utilsGeneral';
 
 const Line: FC<{
 	line: any;
@@ -55,17 +48,10 @@ const Line: FC<{
 };
 
 const getLines = async (lineIds: number[]) => {
-	const lines = await getLinesWithTags({
+	return await getLinesWithTags({
 		lineIds,
 		allLines: true,
 	});
-	const newLinesFromDb = lines.map((line) => {
-		return {
-			...omit(line, 'geometryGeoJSON'),
-			geometry: parseSerialized<LineString>(line.geometryGeoJSON)!,
-		};
-	});
-	return newLinesFromDb;
 };
 
 const getRoutingLineId = async (routeId?: number | false) => {
@@ -84,6 +70,8 @@ const LinesMapView = () => {
 
 	// const queryClient = useQueryClient();
 
+	// console.log( 'debug queryClient', queryClient ); // debug
+
 	const queryLines = useQuery({
 		queryKey: ['lines', selectedIds],
 		queryFn: () => getLines(selectedIds),
@@ -94,18 +82,16 @@ const LinesMapView = () => {
 		queryFn: () => getRoutingLineId(isRouting),
 	});
 
-	return (
-		queryLines.data?.map((line) => {
-			return (
-				queryRoutingLineId.data !== line.id && (
-					<Line
-						key={line.id}
-						line={line}
-					/>
-				)
-			);
-		})
-	);
+	return queryLines.data?.map((line) => {
+		return (
+			queryRoutingLineId.data !== line.id && (
+				<Line
+					key={line.id}
+					line={line}
+				/>
+			)
+		);
+	});
 };
 
 export default LinesMapView;

@@ -5,10 +5,10 @@ import React, { useCallback, useContext, useEffect, useMemo, useState } from 're
 import { Icon, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { Dimensions, PixelRatio, ScrollView, TextStyle, TouchableHighlight } from 'react-native';
-import rnUuid from 'react-native-uuid';
 import { MapLayerMarkerModule, MapLayerPathSlopeGradientModule } from 'react-native-mapsforge-vtm';
 import { usePrevious } from 'victory-native';
-import { Feature, Point, GeoJsonProperties } from 'geojson';
+import Popover, { PopoverPlacement } from 'react-native-popover-view';
+import { point } from '@turf/helpers';
 
 /**
  * Internal dependencies
@@ -17,10 +17,8 @@ import { AppContext } from '../../../../../Context';
 import { runAfterInteractions } from '../../../../../lib/utils';
 import { MapContext } from '../../../../../Context';
 import MenuItem from '../../../../../components/generic/MenuItem';
-import { RoutingPoint } from '../../../routing/types';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import {
-	setMovingPointIdx,
 	setPoints,
 	setTriggeredMarkerIdx,
 	setTriggeredSegment,
@@ -35,12 +33,8 @@ import {
 	selectTriggeredMarkerIdx,
 	selectTriggeredSegment,
 } from '../../../routing/selectors';
-import Popover, { PopoverPlacement } from 'react-native-popover-view';
 import { createRoutingPoints } from '../../../routing/db/actionsRoutingPoint';
-import { point } from '@turf/helpers';
 import { getRoutesWithPoints } from '../../../routing/db/selectors';
-import { parseSerialized } from '../../../../../lib/utilsGeneral';
-import { omit } from 'lodash-es';
 
 const IconActions = ({ style }: { style: TextStyle }) => {
 	const { mapHeight, mapViewNativeNodeHandle } = useContext(AppContext);
@@ -134,18 +128,7 @@ const IconActions = ({ style }: { style: TextStyle }) => {
 										return;
 									}
 
-									const newPointsFromDb = routes[0].points.map((point) => {
-										return {
-											...omit(point, 'geometryGeoJSON'),
-											geometry: parseSerialized<Point>(
-												point.geometryGeoJSON
-											)!,
-										};
-									});
-
-									console.log('debug newPointsFromDb', newPointsFromDb); // debug
-
-									dispatch(setPoints(newPointsFromDb));
+									dispatch(setPoints(routes[0].points));
 								}
 							},
 							leadingIcon: 'plus',

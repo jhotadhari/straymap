@@ -5,6 +5,10 @@ import { EnhancedStore } from '@reduxjs/toolkit';
 import { SQLiteTable, SQLiteTableWithColumns, TableConfig } from 'drizzle-orm/sqlite-core';
 import { Location } from 'react-native-mapsforge-vtm';
 
+// source: https://stackoverflow.com/questions/41253310/typescript-retrieve-element-type-information-from-array-type#answer-51399781
+export type ArrayElement<ArrayType extends readonly unknown[]> =
+	ArrayType extends readonly (infer ElementType)[] ? ElementType : never;
+
 export interface SliceSettingsBase {
 	initialized: boolean;
 }
@@ -32,5 +36,5 @@ export interface AppFeature {
 	initializeFromStorage?: (store: EnhancedStore) => void | Promise<boolean>;
 
 	// The schema files have to be in a schema subfolder in order to drizzle-kit can find them. See glob in drizzle.config.ts
-	schema?: { [table: string]: SQLiteTableWithColumns<any> }; 	// ??? any
+	schema?: { [table: string]: SQLiteTableWithColumns<any> }; // ??? any
 }

@@ -1,10 +1,16 @@
-import { Scalar, QueryResult } from '@op-engineering/op-sqlite';
-import { Feature, LineString, GeoJsonProperties, Point } from 'geojson';
-import { lineString } from '@turf/helpers';
-import { gt, isNotNull, sql, eq, and, inArray } from 'drizzle-orm';
+/**
+ * External dependencies
+ */
+import { LineString } from 'geojson';
+import { sql, eq, and, inArray } from 'drizzle-orm';
 
-import { dbOp, dbZ } from '../../../../db/client';
+/**
+ * Internal dependencies
+ */
+import { dbZ } from '../../../../db/client';
 import { linesTable, tagsTable, tagsToLinesTable } from './schema/schema';
+import { rowsParseGeometryGeoJSON } from '../../../../db/utils';
+import { ArrayElement } from '../../../../types';
 
 interface LinesWithTagsParams {
 	lineIds?: number[];
@@ -60,7 +66,8 @@ export const getLinesWithTags = (params?: LinesWithTagsParams) => {
 		{
 			id: number;
 			title: string | null;
-			geometryGeoJSON: string;
+			// geometryGeoJSON: string;
+			geometry: LineString;
 			tags: {
 				id: number;
 				label: string | null;
@@ -69,7 +76,7 @@ export const getLinesWithTags = (params?: LinesWithTagsParams) => {
 			}[];
 		}[]
 	>((resolve) => {
-		const query = getLinesWithTagsQuery( params );
+		const query = getLinesWithTagsQuery(params);
 
 		query
 			.all() /// ??? add limit.
@@ -101,7 +108,11 @@ export const getLinesWithTags = (params?: LinesWithTagsParams) => {
 					}, {})
 				);
 
-				resolve(aggregated);
+				resolve(
+					rowsParseGeometryGeoJSON<ArrayElement<typeof aggregated>, LineString>(
+						aggregated
+					)
+				);
 			});
 	});
 };

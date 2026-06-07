@@ -2,9 +2,7 @@
  * External dependencies
  */
 import rnUuid from 'react-native-uuid';
-import { Point } from 'geojson';
 import { getTrackFromParams, GetTrackParams } from 'react-native-brouter';
-import { omit } from 'lodash-es';
 
 /**
  * Internal dependencies
@@ -218,12 +216,5 @@ export const updateStorePointsFromDb = async (routeId: number) => {
 		return;
 	}
 
-	const newPointsFromDb = routes[0].points.map((point) => {
-		return {
-			...omit(point, 'geometryGeoJSON'),
-			geometry: parseSerialized<Point>(point.geometryGeoJSON)!,
-		};
-	});
-
-	store.dispatch(setPoints(newPointsFromDb));
+	store.dispatch(setPoints(routes[0].points));
 };
