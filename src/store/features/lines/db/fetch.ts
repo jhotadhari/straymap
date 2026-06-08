@@ -12,6 +12,7 @@ import { linesTable, tagsTable, tagsToLinesTable } from './schema/schema';
 import { rowsParseGeometryGeoJSON } from '../../../../db/utils';
 import { ArrayElement } from '../../../../types';
 import { LineWithTags } from '../types';
+import { mapValues } from 'lodash-es';
 
 /**
  * Functions to fetch/retrieve data from database.
@@ -28,7 +29,6 @@ interface LinesWithTagsParams {
 	allTags?: boolean;
 }
 
-
 export const fetchLinesWithTagsQuery = (params?: LinesWithTagsParams) => {
 	const { lineIds, allLines, tagId, allTags } = params ?? {};
 
@@ -37,7 +37,11 @@ export const fetchLinesWithTagsQuery = (params?: LinesWithTagsParams) => {
 			line: {
 				id: linesTable.id,
 				title: linesTable.title,
-				geometryGeoJSON: sql<string>`AsGeoJSON (${linesTable.geometry})`,
+				timestamp: linesTable.timestamp,
+				geometryGeoJSON: sql<string>`AsGeoJSON(${linesTable.geometry})`,
+				length: sql<string>`GreatCircleLength(${linesTable.geometry})`,
+				uphill: sql<string>`UphillHeight(${linesTable.geometry})`,
+				downhill: sql<string>`DownhillHeight(${linesTable.geometry})`,
 			},
 			tag: {
 				id: tagsTable.id,
@@ -72,7 +76,7 @@ export const fetchLinesWithTagsQuery = (params?: LinesWithTagsParams) => {
 export const fetchLinesWithTags = (params?: LinesWithTagsParams) => {
 	const { lineIds, allLines, tagId, allTags } = params ?? {};
 
-	return new Promise<LineWithTags[]>((resolve) => {
+	return new Promise<LineWithTags[]>((resolve, reject) => {
 		const query = fetchLinesWithTagsQuery(params);
 
 		query
@@ -80,23 +84,18 @@ export const fetchLinesWithTags = (params?: LinesWithTagsParams) => {
 			.then((rows) => {
 				const aggregated = Object.values(
 					rows.reduce<
-						Record<
-							number,
-							{
-								id: number;
-								title: string | null;
-								geometryGeoJSON: string;
-								tags: {
-									id: number;
-									label: string | null;
-									notes: string | null;
-									params: any; // ??? any
-								}[];
-							}
-						>
+						Record<number, Omit<LineWithTags, 'geometry'> & { geometryGeoJSON: string }>
 					>((acc, row) => {
 						if (row?.line?.id && !acc[row.line.id]) {
-							acc[row.line.id] = { ...row.line, tags: [] };
+							const { id, title, timestamp, geometryGeoJSON, ...stats } = row.line;
+							acc[row.line.id] = {
+								id,
+								title,
+								timestamp,
+								geometryGeoJSON,
+								stats: mapValues(stats, (str) => parseFloat(str)),
+								tags: [],
+							};
 						}
 						if (row?.tag && row?.line?.id) {
 							acc[row.line.id].tags.push(row.tag);
@@ -110,6 +109,9 @@ export const fetchLinesWithTags = (params?: LinesWithTagsParams) => {
 						aggregated
 					)
 				);
+			})
+			.catch((err) => {
+				reject(err);
 			});
 	});
 };

@@ -140,6 +140,14 @@ const queryClient = new QueryClient({
 	defaultOptions: {
 		queries: {
 			staleTime: Infinity, // Never trigger a refetch until the Query is invalidated manually.
+			gcTime: 0, // The time in milliseconds that unused/inactive cache data remains in memory. When a query's cache becomes unused or inactive, that cache data will be garbage collected after this duration.
+			networkMode: 'always', // We don't care for network, we fetch from a local db.
+			throwOnError: (error, query) => {
+				if (__DEV__) {
+					console.error('DEBUG error query ', { error, query }); // debug
+				}
+				return false;
+			},
 		},
 	},
 });

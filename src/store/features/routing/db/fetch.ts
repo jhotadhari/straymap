@@ -112,13 +112,16 @@ export const routesWithPointsAggregate = (rows: AggregateRow[]) => {
 };
 
 export const fetchRoutesWithPoints = (params?: RoutesWithPointsParams) => {
-	return new Promise<RouteWithPoints[]>((resolve) => {
+	return new Promise<RouteWithPoints[]>((resolve, reject) => {
 		const query = fetchRoutesWithPointsQuery(params);
 		query
 			.all() /// ??? add limit. if routeID or pointID limit 1
 			.then((rows) => {
 				const aggregated = routesWithPointsAggregate(rows);
 				resolve(aggregated);
+			})
+			.catch((err) => {
+				reject(err);
 			});
 	});
 };
