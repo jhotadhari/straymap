@@ -17,6 +17,7 @@ export const dbOp = open({
 	location: ANDROID_DATABASE_PATH,
 });
 
+// source https://github.com/tigawanna/react-native-spatialite-artifacts/releases/tag/v0.0.1
 const path = 'libspatialite';
 dbOp.loadExtension(path, 'sqlite3_modspatialite_init');
 
