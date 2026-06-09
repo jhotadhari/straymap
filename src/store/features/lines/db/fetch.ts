@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { LineString } from 'geojson';
-import { sql, eq, and, inArray } from 'drizzle-orm';
+import { sql, eq, and, inArray, desc } from 'drizzle-orm';
 
 /**
  * Internal dependencies
@@ -70,6 +70,8 @@ export const fetchLinesWithTagsQuery = (params?: LinesWithTagsParams) => {
 		)
 	);
 
+	query.orderBy(desc(linesTable.timestamp));
+
 	return query;
 };
 
@@ -82,26 +84,32 @@ export const fetchLinesWithTags = (params?: LinesWithTagsParams) => {
 		query
 			.all() /// ??? add limit.
 			.then((rows) => {
-				const aggregated = Object.values(
-					rows.reduce<
-						Record<number, Omit<LineWithTags, 'geometry'> & { geometryGeoJSON: string }>
-					>((acc, row) => {
-						if (row?.line?.id && !acc[row.line.id]) {
-							const { id, title, timestamp, geometryGeoJSON, ...stats } = row.line;
-							acc[row.line.id] = {
-								id,
-								title,
-								timestamp,
-								geometryGeoJSON,
-								stats: mapValues(stats, (str) => parseFloat(str)),
-								tags: [],
-							};
-						}
-						if (row?.tag && row?.line?.id) {
-							acc[row.line.id].tags.push(row.tag);
-						}
-						return acc;
-					}, {})
+				const aggregated = Array.from(
+					rows
+						.reduce<
+							Map<
+								number,
+								Omit<LineWithTags, 'geometry'> & { geometryGeoJSON: string }
+							>
+						>((acc, row) => {
+							if (row?.line?.id && !acc.has(row.line.id)) {
+								const { id, title, timestamp, geometryGeoJSON, ...stats } =
+									row.line;
+								acc.set(row.line.id, {
+									id,
+									title,
+									timestamp,
+									geometryGeoJSON,
+									stats: mapValues(stats, (str) => parseFloat(str)),
+									tags: [],
+								});
+							}
+							if (row?.tag && row?.line?.id) {
+								acc.get(row.line.id)!.tags.push(row.tag);
+							}
+							return acc;
+						}, new Map())
+						.values()
 				);
 
 				resolve(

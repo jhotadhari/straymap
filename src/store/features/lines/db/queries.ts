@@ -13,7 +13,7 @@ import { fetchLinesWithTags } from './fetch';
  * Used with:
  *  queryKey: ['lines', selectedIds],
  */
-export const queryLines = async (lineIds: number[]) => {
+export const queryLines = async (lineIds?: number[]) => {
 	return await fetchLinesWithTags({
 		lineIds,
 		allLines: true,

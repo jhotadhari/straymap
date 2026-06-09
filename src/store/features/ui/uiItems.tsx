@@ -13,6 +13,7 @@ import SettingsAppearance from './components/SettingsAppearance';
 import Settings from './components/Settings';
 import About from './components/About';
 import SettingsDashboard from './components/SettingsDashboard';
+import LinesDirectory from './components/LinesDirectory';
 
 export const uiItems: UiItem[] = [
 	{
@@ -71,6 +72,12 @@ export const uiItems: UiItem[] = [
 			/>
 		),
 		Component: SettingsAppearance,
+	},
+	{
+		key: 'linesDirectory',
+		label: '???linesDirectory',
+		icon: 'go-kart-track',
+		Component: LinesDirectory,
 	},
 ];
 

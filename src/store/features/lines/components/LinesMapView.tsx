@@ -10,7 +10,7 @@ import { MapContainer, LayerPath } from 'react-native-mapsforge-vtm';
  */
 import { useAppSelector } from '../../../hooks';
 import { selectIsRouting } from '../../routing/selectors';
-import { selectSelectedIds } from '../selectors';
+import { selectSelected } from '../selectors';
 import { queryRoutingLineId } from '../../routing/db/queries';
 import { queryLines } from '../db/queries';
 import { LineWithTags } from '../types';
@@ -50,11 +50,22 @@ const Line: FC<{
 
 const LinesMapView = () => {
 	const isRouting = useAppSelector(selectIsRouting);
-	const selectedIds = useAppSelector(selectSelectedIds);
+	const selected = useAppSelector(selectSelected);
 
 	// const queryClient = useQueryClient();
 
 	// console.log( 'debug queryClient', queryClient ); // debug
+
+	const { selectedIds, visibleMap } = useMemo(
+		() => ({
+			selectedIds: selected.map((a) => a.id),
+			visibleMap: selected.reduce<{ [id: string]: boolean }>((acc, a) => {
+				acc[a.id] = a.visible;
+				return acc;
+			}, {}),
+		}),
+		[selected]
+	);
 
 	const { data: lines } = useQuery({
 		queryKey: ['lines', selectedIds],
@@ -68,7 +79,8 @@ const LinesMapView = () => {
 
 	return lines?.map((line) => {
 		return (
-			routingLineId !== line.id && (
+			routingLineId !== line.id &&
+			visibleMap[line.id] && (
 				<Line
 					key={line.id}
 					line={line}

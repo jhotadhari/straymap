@@ -9,6 +9,8 @@ import { createSlice } from '@reduxjs/toolkit';
  */
 import { SliceSettingsBase } from '../../../types';
 import { uniq } from 'lodash-es';
+import { AppThunk } from '../../store';
+import { selectUiItemKeys } from './selectors';
 
 export interface UiSettings {
 	expandedElements: string[];
@@ -91,3 +93,15 @@ export const {
 
 // Export the slice reducer for use in the store configuration
 export default uiSlice.reducer;
+
+export const addUiItemKey = (key: string): AppThunk => {
+	return (dispatch, getState) => {
+		const uiItemsKeys = selectUiItemKeys(getState());
+		// Nothing to do, get out.
+		if (uiItemsKeys.includes(key)) {
+			return;
+		}
+		// Create new array, add key and dispatch.
+		dispatch(uiSlice.actions.setUiItemKeys([...uiItemsKeys, key]));
+	};
+};

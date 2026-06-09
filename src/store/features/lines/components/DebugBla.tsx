@@ -5,7 +5,7 @@ import { gt, isNotNull, sql, eq } from 'drizzle-orm';
 
 import { dbZ, dbOp } from '../../../../db/client';
 import { routesTable, routingPointsTable } from '../../routing/db/schema/schema';
-import { createLines } from '../db/actionsLine';
+import { createLines, lineAddTag, updateLine } from '../db/actionsLine';
 import { createTags } from '../db/actionsTag';
 import { fetchLinesWithTags } from '../db/fetch';
 import { dbOpExecute } from '../../../../db/utils';
@@ -21,7 +21,7 @@ import { View } from 'react-native';
 import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
 import { Text } from 'react-native-paper';
 import { RoutingProfile } from '../../routing/types';
-import { setSelectedIds } from '../linesSlice';
+import { setSelected } from '../linesSlice';
 import { useAppDispatch } from '../../../hooks';
 
 const coords = [
@@ -285,10 +285,21 @@ const DebugBla: FC = () => {
 	const dispatch = useAppDispatch();
 
 	useEffect(() => {
-		// dispatch( setSelectedIds( [5,6,7,8] ) );
+		// dispatch( setSelected( [5,6,7,8].map( id => ( {
+		// 	id,
+		// 	visible: true,
+		// } ) ) ) );
 
 		(async () => {
-			// // mockTags();
+			// updateLine(5, {
+			// 	title: 'wtf',
+			// 	tagIds: [3, 4],
+			// });
+			// updateLine(8, {
+			// 	tagIds: [4],
+			// });
+			// lineAddTag( 7, 3) ;
+			// mockTags();
 			// // mockLines();
 			// const lines = await getLinesWithTags({
 			// 	lineIds: [3],

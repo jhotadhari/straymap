@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { useQuery } from '@tanstack/react-query';
-import { FC, useCallback, useMemo, ReactNode } from 'react';
+import { FC, useCallback, useMemo } from 'react';
 import { StyleSheet, View, ViewStyle } from 'react-native';
 import { List, useTheme, Text, Icon } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -14,126 +14,62 @@ import { useAppDispatch, useAppSelector } from '../../../hooks';
 import { queryRoutingLineId } from '../../routing/db/queries';
 import { selectIsRouting } from '../../routing/selectors';
 import { queryLines } from '../db/queries';
-import { selectSelectedIds } from '../selectors';
+import { selectSelectedInfos } from '../selectors';
 import { selectElementExpanded } from '../../ui/selectors';
 import { setElementExpanded } from '../../ui/uiSlice';
-import { LineWithTags, Tag } from '../types';
+import { LineWithTags } from '../types';
 import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
 import { iconSize } from '../../drawers/constants';
-import { selectUnitPrefs } from '../../general/selectors';
-import { formatDistance, formatHeightDepth } from '../../../../lib/utils';
-import { UnitPref } from '../../general/types';
-
-const TagBadge: FC<{
-	tag: Tag;
-}> = ({ tag }) => {
-	return (
-		<View>
-			<Text>{'???tag'}</Text>
-		</View>
-	);
-};
-
-const Stat: FC<{
-	value: number;
-	unitPrefKey: string;
-	iconSource?: string;
-}> = ({ value, unitPrefKey, iconSource }) => {
-	const unitPrefs = useAppSelector(selectUnitPrefs);
-	const formatted = useMemo(() => {
-		switch (unitPrefKey) {
-			case 'distance':
-				return formatDistance(value, {
-					...unitPrefs[unitPrefKey]!,
-					round: 0,
-				});
-			case 'heightDepth':
-				return formatHeightDepth(value, {
-					...unitPrefs[unitPrefKey]!,
-					round: 0,
-				});
-		}
-	}, [
-		unitPrefs[unitPrefKey],
-		value,
-		unitPrefKey,
-	]);
-	return (
-		formatted &&
-		formatted.length > 0 && (
-			<View style={styles.stat}>
-				{iconSource && (
-					<Icon
-						source={iconSource}
-						size={16}
-					/>
-				)}
-				<Text>{formatted}</Text>
-			</View>
-		)
-	);
-};
+import { setLineSelected, setLineVisible } from '../linesSlice';
+import LineStats from './LineStats';
+import TagBadge from './TagBadge';
 
 const LineRow: FC<{
 	line: LineWithTags;
 	idx: number;
 	routingLineId: number | null | undefined;
-}> = ({ line, idx, routingLineId }) => {
+	visible: boolean;
+}> = ({ line, idx, routingLineId, visible }) => {
 	const { t } = useTranslation();
 
 	const dispatch = useAppDispatch();
 
 	const theme = useTheme();
 
-	const visible = true; // ???
+	const style: ViewStyle = useMemo(
+		() => ({
+			...(!idx && { paddingTop: 0 }),
+			...(idx % 2 === 1 && { backgroundColor: theme.colors.surfaceDisabled }),
+		}),
+		[idx, theme]
+	);
 
-	const colNodes = useMemo(() => {
-		const nodes: ReactNode[] = [];
+	const toggleVisible = useCallback(() => dispatch(setLineVisible(line.id)), [line.id]);
 
-		// checked node
-		nodes.push(
+	const toggleSelected = useCallback(() => dispatch(setLineSelected(line.id)), [line.id]);
+
+	return (
+		<View style={[styles.row, style]}>
 			<ButtonHighlight
-				key="btn.checked"
 				style={styles.noShrink}
 				mode="text"
 				compact={true}
-				onPress={() => {
-					// ???
-				}}
+				onPress={toggleSelected}
 			>
 				<Icon
-					source={'checkbox-outline'}
+					source={'undo'}
 					size={iconSize}
 				/>
 			</ButtonHighlight>
-		);
 
-		// center node
-		nodes.push(
-			<View
-				key="center"
-				style={styles.rowColCenter}
-			>
+			<View style={styles.rowColCenter}>
 				<View style={styles.rowColCenterRow}>
 					{line.title && <Text>{line.title}</Text>}
 					<Text>{line.timestamp}</Text>
 				</View>
 
 				<View style={styles.rowColCenterRow}>
-					<Stat
-						value={line.stats.length}
-						unitPrefKey="distance"
-					/>
-					<Stat
-						value={line.stats.uphill}
-						unitPrefKey="heightDepth"
-						iconSource="arrow-up"
-					/>
-					<Stat
-						value={line.stats.downhill}
-						unitPrefKey="heightDepth"
-						iconSource="arrow-down"
-					/>
+					<LineStats line={line} />
 				</View>
 
 				{line.tags.length > 0 && (
@@ -147,20 +83,12 @@ const LineRow: FC<{
 					</View>
 				)}
 			</View>
-		);
 
-		// controls node
-		nodes.push(
-			<View
-				key="btn.visible"
-				style={styles.noShrink}
-			>
+			<View style={styles.noShrink}>
 				<ButtonHighlight
 					mode="text"
 					compact={true}
-					onPress={() => {
-						// ???
-					}}
+					onPress={toggleVisible}
 				>
 					<Icon
 						source={visible ? 'eye-outline' : 'eye-off-outline'}
@@ -180,23 +108,8 @@ const LineRow: FC<{
 					/>
 				</ButtonHighlight>
 			</View>
-		);
-
-		return nodes;
-	}, [
-		t,
-		line,
-		routingLineId,
-	]);
-
-	const style: ViewStyle = useMemo(
-		() => ({
-			...(!idx && { paddingTop: 0 }),
-			...(idx % 2 === 1 && { backgroundColor: theme.colors.surfaceDisabled }),
-		}),
-		[idx, theme]
+		</View>
 	);
-	return <View style={[styles.row, style]}>{colNodes}</View>;
 };
 
 const uiStateKey = 'selectedLinesDrawer';
@@ -208,7 +121,7 @@ const SelectedLinesList: FC = () => {
 	const theme = useTheme();
 
 	const isRouting = useAppSelector(selectIsRouting);
-	const selectedIds = useAppSelector(selectSelectedIds);
+	const { selectedIds, visibleMap } = useAppSelector(selectSelectedInfos);
 
 	const notExpanded = useAppSelector((state) => selectElementExpanded(state, uiStateKey));
 
@@ -250,6 +163,7 @@ const SelectedLinesList: FC = () => {
 							line={line}
 							routingLineId={routingLineId}
 							idx={idx}
+							visible={visibleMap[line.id]}
 						/>
 					))}
 				</View>
@@ -278,11 +192,6 @@ const styles = StyleSheet.create({
 		flexDirection: 'row',
 		flexWrap: 'wrap',
 		gap: 8,
-	},
-	stat: {
-		flexDirection: 'row',
-		alignItems: 'center',
-		flexWrap: 'nowrap',
 	},
 });
 

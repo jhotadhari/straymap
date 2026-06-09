@@ -9,16 +9,13 @@ import { useTranslation } from 'react-i18next';
  */
 import ListItem from '../../../../components/generic/ListItem';
 import { getUiItemsByKey } from '../uiItems';
-import { useAppDispatch, useAppSelector } from '../../../hooks';
-import { selectUiItemKeys } from '../selectors';
-import { setUiItemKeys } from '../uiSlice';
+import { useAppDispatch } from '../../../hooks';
+import { addUiItemKey } from '../uiSlice';
 
 const Settings: FC<{ style?: ViewStyle }> = ({ style }) => {
 	const { t } = useTranslation();
 
 	const dispatch = useAppDispatch();
-
-	const uiItemsKeys = useAppSelector(selectUiItemKeys);
 
 	const settingsPages = useMemo(
 		() =>
@@ -39,7 +36,7 @@ const Settings: FC<{ style?: ViewStyle }> = ({ style }) => {
 					key={index}
 					title={t(item.label)}
 					icon={item?.icon}
-					onPress={() => dispatch(setUiItemKeys([...uiItemsKeys, item.key]))}
+					onPress={() => dispatch(addUiItemKey(item.key))}
 				/>
 			))}
 		</ScrollView>

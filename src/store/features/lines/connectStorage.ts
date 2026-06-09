@@ -13,7 +13,7 @@ import {
 	LinesState,
 	initialSettings,
 	setInitialized,
-	setSelectedIds,
+	setSelected,
 } from './linesSlice';
 import { startAppListening } from '../../listenerMiddleware';
 import { selectInitialized } from './selectors';
@@ -31,8 +31,8 @@ export const initializeFromStorage = (store: EnhancedStore) => {
 		.then((newSettingsStr) => {
 			if (newSettingsStr) {
 				const newSettings = JSON.parse(newSettingsStr) as Partial<LinesState>;
-				if (newSettings?.selectedIds) {
-					store.dispatch(setSelectedIds(newSettings.selectedIds));
+				if (newSettings?.selected) {
+					store.dispatch(setSelected(newSettings.selected));
 				}
 			}
 			store.dispatch(setInitialized(true));
@@ -72,7 +72,7 @@ export const saveToStorage = (linesState: LinesState, actionType: string) => {
  * and calls the function to save them to defaultPreferences.
  */
 startAppListening({
-	matcher: isAnyOf(setSelectedIds),
+	matcher: isAnyOf(setSelected),
 	effect: async (action, listenerApi) => {
 		saveToStorage(listenerApi.getState().lines, action.type);
 	},

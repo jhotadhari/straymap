@@ -1,10 +1,10 @@
 /**
  * External dependencies
  */
-import React, { Dispatch, FC, SetStateAction, useContext, useState } from 'react';
+import React, { Dispatch, FC, SetStateAction, useContext } from 'react';
 import { Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
 
 /**
  * Internal dependencies
@@ -16,7 +16,7 @@ import { setUiItemKeys } from '../../ui/uiSlice';
 import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
 import DrawerContext from '../DrawerContext';
 import { DrawerItem } from '../types';
-import { handleSize, iconSize, itemStyles } from '../constants';
+import { itemStyles } from '../constants';
 
 const DisplayComponent: FC<{
 	scrollEnabled: boolean;

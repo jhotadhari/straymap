@@ -6,7 +6,15 @@ import { RootState } from '../../store';
 
 export const selectInitialized = (state: RootState) => state.lines.initialized;
 
-export const selectSelectedIds = createAppSelector(
-	(state: RootState) => state.lines.selectedIds,
-	(selectedIds): number[] => [...selectedIds].sort()
+export const selectSelected = (state: RootState) => state.lines.selected;
+
+export const selectSelectedInfos = createAppSelector(
+	(state: RootState) => state.lines.selected,
+	(selected) => ({
+		selectedIds: selected.map((a) => a.id),
+		visibleMap: selected.reduce<{ [id: string]: boolean }>((acc, a) => {
+			acc[a.id] = a.visible;
+			return acc;
+		}, {}),
+	})
 );
