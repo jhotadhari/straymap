@@ -101,7 +101,9 @@ const IconActions = ({ style }: { style: TextStyle }) => {
 										0,
 									]);
 
-									const lastPoint = points.length ? points[points.length-1] : undefined;
+									const lastPoint = points.length
+										? points[points.length - 1]
+										: undefined;
 
 									const inserted = await createRoutingPoints(
 										[

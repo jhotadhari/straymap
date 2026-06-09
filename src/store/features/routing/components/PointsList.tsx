@@ -13,7 +13,7 @@ import React, {
 import { StyleSheet, View } from 'react-native';
 import DraggableGrid from 'react-native-draggable-grid';
 import { Icon, Text, useTheme } from 'react-native-paper';
-import MaterialIcons from "@react-native-vector-icons/material-icons/static";
+import MaterialIcons from '@react-native-vector-icons/material-icons/static';
 import formatcoords from 'formatcoords';
 import { get, omit } from 'lodash-es';
 
@@ -317,10 +317,7 @@ const itemPaddingH = 16;
 const PointsList: FC<{
 	setScrollEnabled: Dispatch<SetStateAction<boolean>>;
 	setEditPoint: Dispatch<SetStateAction<undefined | RoutingPoint>>;
-}> = ({
-	setScrollEnabled,
-	setEditPoint,
-}) => {
+}> = ({ setScrollEnabled, setEditPoint }) => {
 	const { width } = useContext(DrawerContext);
 
 	const routeId = useAppSelector(selectIsRouting);

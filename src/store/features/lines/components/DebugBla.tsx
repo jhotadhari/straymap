@@ -282,25 +282,19 @@ const DebugBlaButtonMockPoints: FC<{
 const DebugBla: FC = () => {
 	const [routeId, setRouteId] = useState<false | number>(false);
 
-
 	const dispatch = useAppDispatch();
 
 	useEffect(() => {
-
 		// dispatch( setSelectedIds( [5,6,7,8] ) );
-
 
 		(async () => {
 			// // mockTags();
 			// // mockLines();
-
 			// const lines = await getLinesWithTags({
 			// 	lineIds: [3],
 			// 	allLines: true,
 			// });
 			// console.log('debug lines', lines); // debug
-
-
 			// const route_id = await mockRoutes();
 			// if (route_id) {
 			// 	await mockPoints(route_id);
@@ -342,9 +336,7 @@ const DebugBla: FC = () => {
 				setRouteId={setRouteId}
 			/>
 
-			<DebugBlaButtonMockPoints
-				routeId={routeId}
-			/>
+			<DebugBlaButtonMockPoints routeId={routeId} />
 		</View>
 	);
 };

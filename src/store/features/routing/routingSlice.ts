@@ -15,7 +15,7 @@ import { AppThunk } from '../../store';
 import { filterSegments } from './utils';
 
 export interface RoutingSettings {
-	isRouting: false | number;	// false or routeId.
+	isRouting: false | number; // false or routeId.
 }
 
 export interface RoutingState extends SliceSettingsBase, RoutingSettings {
@@ -69,10 +69,13 @@ export const routingSlice = createSlice({
 			}
 		},
 
-		setPoints: (state, action: PayloadAction<{
-			points: RoutingState['points'],
-			updateLine: boolean;
-		}>) => {
+		setPoints: (
+			state,
+			action: PayloadAction<{
+				points: RoutingState['points'];
+				updateLine: boolean;
+			}>
+		) => {
 			state.points = action.payload.points;
 
 			// state.isRouting;
@@ -143,7 +146,7 @@ export const setSegments = (
 	options?: {
 		filter?: boolean;
 		updateRoutes?: boolean;
-		updateLine?: boolean;	// defaults to true.
+		updateLine?: boolean; // defaults to true.
 	}
 ): AppThunk => {
 	return (dispatch, getState) => {
@@ -170,15 +173,15 @@ export const setSegments = (
 export const setPoints = (
 	points: RoutingPoint[],
 	options?: {
-		updateLine?: boolean;	// defaults to true.
+		updateLine?: boolean; // defaults to true.
 	}
 ): AppThunk => {
 	return (dispatch, getState) => {
-			dispatch(
-				routingSlice.actions.setPoints({
-					points,
-					updateLine: false !== options?.updateLine,
-				})
-			);
+		dispatch(
+			routingSlice.actions.setPoints({
+				points,
+				updateLine: false !== options?.updateLine,
+			})
+		);
 	};
 };

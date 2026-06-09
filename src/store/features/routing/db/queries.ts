@@ -8,7 +8,6 @@ import { fetchRoutesWithPoints } from './fetch';
 /**
  */
 
-
 /**
  *
  * Used with:

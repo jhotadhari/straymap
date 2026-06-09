@@ -38,5 +38,5 @@ export const rowParseGeometryGeoJSON = <T, G>(row: T & { geometryGeoJSON: string
 };
 
 export const rowsParseGeometryGeoJSON = <T, G>(rows: (T & { geometryGeoJSON: string })[]) => {
-	return rows.map( row => rowParseGeometryGeoJSON<T,G>( row ) );
+	return rows.map((row) => rowParseGeometryGeoJSON<T, G>(row));
 };

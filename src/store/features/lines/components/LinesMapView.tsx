@@ -48,8 +48,6 @@ const Line: FC<{
 	);
 };
 
-
-
 const LinesMapView = () => {
 	const isRouting = useAppSelector(selectIsRouting);
 	const selectedIds = useAppSelector(selectSelectedIds);

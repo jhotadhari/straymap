@@ -29,13 +29,13 @@ export const createRoutingPoints = async (
 		if (inserted.length !== newPoints.length) {
 			return inserted;
 		}
-        const routes = await fetchRoutesWithPoints({ routeId: route_id });
+		const routes = await fetchRoutesWithPoints({ routeId: route_id });
 		if (!routes.length) {
 			return inserted;
 		}
-        await updateRoute(routes[0].id, {
-            point_order: routes[0].points.map((p) => p.id),
-        });
+		await updateRoute(routes[0].id, {
+			point_order: routes[0].points.map((p) => p.id),
+		});
 		return inserted;
 	} catch (error) {
 		console.log('debug error', error); // debug

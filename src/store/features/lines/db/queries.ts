@@ -8,7 +8,6 @@ import { fetchLinesWithTags } from './fetch';
 /**
  */
 
-
 /**
  *
  * Used with:

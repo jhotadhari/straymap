@@ -68,7 +68,7 @@ const DisplayComponent: FC<{
 				<ButtonHighlight
 					style={itemStyles.buttonRow}
 					mode="outlined"
-					onPress={ async() => {
+					onPress={async () => {
 						if (isRouting) {
 							if (
 								points &&
@@ -82,7 +82,7 @@ const DisplayComponent: FC<{
 							}
 						} else {
 							const routeId = await createRoute();
-							if ( routeId ) {
+							if (routeId) {
 								dispatch(setIsRouting(routeId));
 								expand(false);
 							}

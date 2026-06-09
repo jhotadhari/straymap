@@ -19,7 +19,7 @@ import DraggableGrid from 'react-native-draggable-grid';
 import { get, omit } from 'lodash-es';
 import { GetTrackParams } from 'react-native-brouter';
 import { createDocument } from 'react-native-scoped-storage';
-import MaterialIcons from "@react-native-vector-icons/material-icons/static";
+import MaterialIcons from '@react-native-vector-icons/material-icons/static';
 
 /**
  * Internal dependencies

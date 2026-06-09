@@ -194,14 +194,14 @@ const LayerControlMapsforge: FC<{}> = ({}) => {
 			dispatch(
 				setLayerTemp(
 					(layerTemp) =>
-						(({
-                            ...layerTemp,
+						({
+							...layerTemp,
 
-                            options: {
+							options: {
 								...layerTemp?.options,
 								mapFile: selectedOpt as LayerConfigOptionsMapsforge['mapFile'],
-							}
-                        }) as LayerConfig)
+							},
+						}) as LayerConfig
 				)
 			);
 	}, []);

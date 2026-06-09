@@ -249,9 +249,9 @@ const AppView = ({
 			</View>
 
 			<View>
-				{ /*
+				{/*
 				<AltitudeProfile outerWidth={width} />
-				*/ }
+				*/}
 				<DashboardWrapped
 					style={styles.zObove}
 					position="bottom"

@@ -31,7 +31,7 @@ const DisplayComponent: FC<{
 				<Text>{t('???')}</Text>
 			</ButtonHighlight>
 
-			<SelectedLinesList/>
+			<SelectedLinesList />
 		</View>
 	);
 };

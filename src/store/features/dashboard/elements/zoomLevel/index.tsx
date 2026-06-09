@@ -3,7 +3,7 @@
  */
 import { FC } from 'react';
 import { Icon as IconPaper } from 'react-native-paper';
-import MaterialIcons from "@react-native-vector-icons/material-icons/static";
+import MaterialIcons from '@react-native-vector-icons/material-icons/static';
 
 /**
  * Internal dependencies

@@ -102,10 +102,10 @@ const ControlModal: FC<{
 		dispatch(
 			setMapsforgeProfileTemp(
 				(profileTemp) =>
-					(({
-                        ...(profileTemp ?? {}),
-                        renderOverlays: newRenderOverlays
-                    }) as MapsforgeProfile)
+					({
+						...(profileTemp ?? {}),
+						renderOverlays: newRenderOverlays,
+					}) as MapsforgeProfile
 			)
 		);
 	}, []);

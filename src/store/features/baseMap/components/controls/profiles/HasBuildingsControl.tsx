@@ -24,10 +24,10 @@ const HasBuildingsControl: FC<{}> = () => {
 		dispatch(
 			setMapsforgeProfileTemp(
 				(profileTemp) =>
-					(({
-                        ...(profileTemp ?? {}),
-                        hasBuildings: !profileTemp?.hasBuildings
-                    }) as MapsforgeProfile)
+					({
+						...(profileTemp ?? {}),
+						hasBuildings: !profileTemp?.hasBuildings,
+					}) as MapsforgeProfile
 			)
 		);
 	}, []);

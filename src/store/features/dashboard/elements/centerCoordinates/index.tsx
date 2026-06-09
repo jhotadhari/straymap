@@ -2,7 +2,7 @@
  * External dependencies
  */
 import React, { FC } from 'react';
-import MaterialIcons from "@react-native-vector-icons/material-icons/static";
+import MaterialIcons from '@react-native-vector-icons/material-icons/static';
 
 /**
  * Internal dependencies

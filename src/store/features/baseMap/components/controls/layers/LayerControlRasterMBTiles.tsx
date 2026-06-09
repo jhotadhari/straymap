@@ -75,14 +75,14 @@ const LayerControlRasterMBTiles: FC<{}> = () => {
 			dispatch(
 				setLayerTemp(
 					(layerTemp) =>
-						(({
-                            ...layerTemp,
+						({
+							...layerTemp,
 
-                            options: {
+							options: {
 								...layerTemp?.options,
 								mapFile: selectedOpt as LayerConfigOptionsRasterMBtiles['mapFile'],
-							}
-                        }) as LayerConfig)
+							},
+						}) as LayerConfig
 				)
 			);
 	}, []);

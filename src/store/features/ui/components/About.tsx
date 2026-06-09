@@ -216,8 +216,8 @@ const MdPartsRenderPartDonation = ({
 const MdPartsRender = ({ include, mbParts }: { include?: string[]; mbParts: MdPart[] }) => {
 	const { t } = useTranslation();
 	return (
-        <View>
-            {[...(include || [...mbParts].map((part) => part.key))].map((key) => {
+		<View>
+			{[...(include || [...mbParts].map((part) => part.key))].map((key) => {
 				const part: undefined | MdPart = mbParts.find((part) => part.key === key);
 
 				if (!part) {
@@ -262,8 +262,8 @@ const MdPartsRender = ({ include, mbParts }: { include?: string[]; mbParts: MdPa
 					/>
 				);
 			})}
-        </View>
-    );
+		</View>
+	);
 };
 
 const paddingLeft = 24;
@@ -276,8 +276,8 @@ const About: FC<{ style?: ViewStyle }> = ({ style }) => {
 	const versionChangelog = useMemo(() => getChangelogVersion(), []);
 
 	return (
-        <ScrollView style={style}>
-            <View
+		<ScrollView style={style}>
+			<View
 				style={{
 					paddingLeft,
 					gap: 16,
@@ -354,8 +354,8 @@ const About: FC<{ style?: ViewStyle }> = ({ style }) => {
 					/>
 				</AccordionItem>
 			</View>
-        </ScrollView>
-    );
+		</ScrollView>
+	);
 };
 
 export default About;

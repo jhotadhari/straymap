@@ -61,7 +61,7 @@ const DrawerContent: FC<{}> = () => {
 				/>
 
 				{/* Thats a weird fix for a padding that doesn't work */}
-				<View style={ {height: 8} }/>
+				<View style={{ height: 8 }} />
 			</ScrollView>
 		</View>
 	);

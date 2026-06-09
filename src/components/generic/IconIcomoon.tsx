@@ -9,10 +9,10 @@ import { createIconSet } from '@react-native-vector-icons/common';
  */
 import icoMoonConfig from '../../assets/icons/icomoon/selection.json';
 
-const glyphMap = icoMoonConfig.icons.reduce<{ [key: string]: number }>(( acc, icon) => {
+const glyphMap = icoMoonConfig.icons.reduce<{ [key: string]: number }>((acc, icon) => {
 	acc[icon.properties.name] = icon.properties.code;
-    return acc;
-}, {} );
+	return acc;
+}, {});
 
 const IconIcomoon = createIconSet(glyphMap, {
 	postScriptName: 'icomoon',

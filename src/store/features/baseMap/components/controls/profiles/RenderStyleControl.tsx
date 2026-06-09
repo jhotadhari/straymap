@@ -85,11 +85,11 @@ const RenderStyleControl: FC<{
 			dispatch(
 				setMapsforgeProfileTemp(
 					(profileTemp) =>
-						(({
-                            ...(profileTemp ?? {}),
-                            renderStyle: selectedOpt,
-                            renderOverlays: []
-                        }) as MapsforgeProfile)
+						({
+							...(profileTemp ?? {}),
+							renderStyle: selectedOpt,
+							renderOverlays: [],
+						}) as MapsforgeProfile
 				)
 			);
 		}

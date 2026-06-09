@@ -61,7 +61,7 @@ const Stat: FC<{
 	return (
 		formatted &&
 		formatted.length > 0 && (
-			<View style={ styles.stat}>
+			<View style={styles.stat}>
 				{iconSource && (
 					<Icon
 						source={iconSource}
