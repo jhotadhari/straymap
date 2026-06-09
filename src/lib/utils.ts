@@ -94,12 +94,31 @@ export const runAfterInteractions = (
 };
 
 // ??? todo
-export const formatDistance = (distance: number, unitPref: UnitPref): string => {
+export const formatDistance = (value: number, unitPref: UnitPref): string => {
 	let string = '';
 	switch (unitPref.unit) {
 		case 'metric':
-			string = roundTo(distance / 1000, 2) + ' km';
+			string = roundTo(value / 1000, unitPref.round) + ' km';
 			break;
+
+
+
+
+	}
+
+	return string;
+};
+// ??? todo
+export const formatHeightDepth = (value: number, unitPref: UnitPref): string => {
+	let string = '';
+	switch (unitPref.unit) {
+		case 'm':
+			string = roundTo(value, unitPref.round) + ' m';
+			break;
+
+
+
+
 	}
 
 	return string;

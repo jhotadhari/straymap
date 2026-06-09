@@ -20,6 +20,9 @@ import { setElementExpanded } from '../../ui/uiSlice';
 import { LineWithTags, Tag } from '../types';
 import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
 import { iconSize } from '../../drawers/constants';
+import { selectUnitPrefs } from '../../general/selectors';
+import { formatDistance, formatHeightDepth } from '../../../../lib/utils';
+import { UnitPref } from '../../general/types';
 
 const TagBadge: FC<{
 	tag: Tag;
@@ -28,6 +31,46 @@ const TagBadge: FC<{
 		<View>
 			<Text>{'???tag'}</Text>
 		</View>
+	);
+};
+
+const Stat: FC<{
+	value: number;
+	unitPrefKey: string;
+	iconSource?: string;
+}> = ({ value, unitPrefKey, iconSource }) => {
+	const unitPrefs = useAppSelector(selectUnitPrefs);
+	const formatted = useMemo(() => {
+		switch (unitPrefKey) {
+			case 'distance':
+				return formatDistance(value, {
+					...unitPrefs[unitPrefKey]!,
+					round: 0,
+				});
+			case 'heightDepth':
+				return formatHeightDepth(value, {
+					...unitPrefs[unitPrefKey]!,
+					round: 0,
+				});
+		}
+	}, [
+		unitPrefs[unitPrefKey],
+		value,
+		unitPrefKey,
+	]);
+	return (
+		formatted &&
+		formatted.length > 0 && (
+			<View style={ styles.stat}>
+				{iconSource && (
+					<Icon
+						source={iconSource}
+						size={16}
+					/>
+				)}
+				<Text>{formatted}</Text>
+			</View>
+		)
 	);
 };
 
@@ -72,14 +115,25 @@ const LineRow: FC<{
 				style={styles.rowColCenter}
 			>
 				<View style={styles.rowColCenterRow}>
-					<Text>{'???name'}</Text>
-					<Text>{'???created'}</Text>
+					{line.title && <Text>{line.title}</Text>}
+					<Text>{line.timestamp}</Text>
 				</View>
 
 				<View style={styles.rowColCenterRow}>
-					<Text>{'???length'}</Text>
-					<Text>{'???up'}</Text>
-					<Text>{'???down'}</Text>
+					<Stat
+						value={line.stats.length}
+						unitPrefKey="distance"
+					/>
+					<Stat
+						value={line.stats.uphill}
+						unitPrefKey="heightDepth"
+						iconSource="arrow-up"
+					/>
+					<Stat
+						value={line.stats.downhill}
+						unitPrefKey="heightDepth"
+						iconSource="arrow-down"
+					/>
 				</View>
 
 				{line.tags.length > 0 && (
@@ -223,7 +277,12 @@ const styles = StyleSheet.create({
 	rowColCenterRow: {
 		flexDirection: 'row',
 		flexWrap: 'wrap',
-		gap: 4,
+		gap: 8,
+	},
+	stat: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		flexWrap: 'nowrap',
 	},
 });
 
