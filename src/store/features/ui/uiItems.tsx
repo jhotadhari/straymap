@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import MaterialIcons from "@react-native-vector-icons/material-icons/static";
 
 /**
  * Internal dependencies

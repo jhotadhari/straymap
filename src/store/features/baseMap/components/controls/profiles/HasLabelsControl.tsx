@@ -23,10 +23,10 @@ const HasLabelsControl: FC<{}> = () => {
 		dispatch(
 			setMapsforgeProfileTemp(
 				(profileTemp) =>
-					({
-						...(profileTemp ?? {}),
-						hasLabels: !profileTemp?.hasLabels,
-					}) as MapsforgeProfile
+					(({
+                        ...(profileTemp ?? {}),
+                        hasLabels: !profileTemp?.hasLabels
+                    }) as MapsforgeProfile)
 			)
 		);
 	}, []);

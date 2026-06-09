@@ -121,10 +121,10 @@ const ThemeControl: FC<{
 		dispatch(
 			setMapsforgeProfileTemp(
 				(profileTemp) =>
-					({
-						...(profileTemp ?? {}),
-						theme: selectedOpt,
-					}) as MapsforgeProfile
+					(({
+                        ...(profileTemp ?? {}),
+                        theme: selectedOpt
+                    }) as MapsforgeProfile)
 			)
 		);
 	}, []);

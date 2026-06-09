@@ -3,7 +3,7 @@
  */
 import React, { FC, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import MaterialIcons from "@react-native-vector-icons/material-icons/static";
 import { get } from 'lodash-es';
 
 /**

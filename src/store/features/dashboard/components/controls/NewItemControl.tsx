@@ -13,7 +13,7 @@ import React, {
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import rnUuid from 'react-native-uuid';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import MaterialIcons from "@react-native-vector-icons/material-icons/static";
 import { SegmentedButtons, useTheme } from 'react-native-paper';
 
 /**
