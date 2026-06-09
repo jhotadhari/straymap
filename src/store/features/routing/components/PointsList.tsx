@@ -28,10 +28,11 @@ import { useAppDispatch, useAppSelector } from '../../../hooks';
 import { setPoints, setSegments } from '../routingSlice';
 import { selectIsRouting, selectPoints, selectSegments } from '../selectors';
 import { updateRoute } from '../db/actionsRoute';
-import { formatDistance, getUpDown } from '../../../../lib/utils';
+import { getUpDown } from '../../../../lib/utils';
 import { selectUnitPrefs } from '../../general/selectors';
 import { deleteRoutingPoint } from '../db/actionsRoutingPoint';
 import { updateStorePointsFromDb } from '../utils';
+import { formatDistance } from '../../../../lib/formatting';
 
 const itemHeight = 130;
 

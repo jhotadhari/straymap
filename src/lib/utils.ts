@@ -1,28 +1,8 @@
 /**
  * External dependencies
  */
-import { get } from 'lodash-es';
-import slugify from 'slugify';
 import { Location } from 'react-native-mapsforge-vtm';
 import { InteractionManager } from 'react-native';
-
-/**
- * Internal dependencies
- */
-import { UnitPref } from '../store/features/general/types';
-import { roundTo } from './utilsGeneral';
-
-export const formatSeconds = (secNum: number): string => {
-	secNum = Math.round(secNum);
-	const hours: number = Math.floor(secNum / 3600);
-	const minutes: number = Math.floor((secNum - hours * 3600) / 60);
-	const seconds: number = secNum - hours * 3600 - minutes * 60;
-	return [
-		(hours < 10 ? '0' : '') + hours + 'h',
-		(minutes < 10 ? '0' : '') + minutes + 'm',
-		(seconds < 10 ? '0' : '') + seconds + 's',
-	].join(' ');
-};
 
 let firstNonEmptyLine: null | number = null;
 const filterCb = (line: string, idx: number) => {
@@ -53,29 +33,6 @@ export const removeLines = (str: string, pattern: RegExp): string => {
 		.join('\n');
 };
 
-export const stringifyProp = (prop: any, deli?: string): string => {
-	deli = deli || '_';
-	switch (true) {
-		case 'string' === typeof prop:
-			return slugify(prop + '', { strict: true, replacement: '_' });
-		case 'number' === typeof prop:
-			return [
-				prop < 0 ? 'm' : '',
-				slugify((prop + '').replace('.', 'd'), { strict: true, replacement: '_' }),
-			].join('');
-		case 'object' === typeof prop:
-			return Object.keys(prop)
-				.sort()
-				.reduce((acc: string, optKey: string) => {
-					return acc + deli + stringifyProp(get(prop, optKey));
-				}, '');
-		case 'boolean' === typeof prop:
-			return true === prop ? '1' : '0';
-		default:
-			return '';
-	}
-};
-
 export const runAfterInteractions = (
 	task: () => any,
 	delayFallback?: number // runs the task after milliseconds, if InteractionManager didn't start it.
@@ -91,37 +48,6 @@ export const runAfterInteractions = (
 	};
 	const timeout = setTimeout(taskWrapped, delayFallback);
 	InteractionManager.runAfterInteractions(taskWrapped);
-};
-
-// ??? todo
-export const formatDistance = (value: number, unitPref: UnitPref): string => {
-	let string = '';
-	switch (unitPref.unit) {
-		case 'metric':
-			string = roundTo(value / 1000, unitPref.round) + ' km';
-			break;
-
-
-
-
-	}
-
-	return string;
-};
-// ??? todo
-export const formatHeightDepth = (value: number, unitPref: UnitPref): string => {
-	let string = '';
-	switch (unitPref.unit) {
-		case 'm':
-			string = roundTo(value, unitPref.round) + ' m';
-			break;
-
-
-
-
-	}
-
-	return string;
 };
 
 export const getUpDown = (

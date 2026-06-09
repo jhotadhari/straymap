@@ -6,6 +6,7 @@ import defaultsAssign from 'defaults';
 import { get, invert, omit, pick } from 'lodash-es';
 import { LayerHillshading } from 'react-native-mapsforge-vtm';
 import { ActionCreatorWithPayload } from '@reduxjs/toolkit';
+import slugify from 'slugify';
 
 /**
  * Internal dependencies
@@ -16,11 +17,33 @@ import {
 	LayerConfigOptionsHillshading,
 	MapsforgeProfile,
 } from './types';
-import { stringifyProp } from '../../../lib/utils';
 import { defaults } from '../../../constants';
 import { LayerKind } from './types';
 import { mapTypeOptions } from './components/controls/layers/LayersControl';
 import { AppThunk, RootState } from '../../store';
+
+export const stringifyProp = (prop: any, deli?: string): string => {
+	deli = deli || '_';
+	switch (true) {
+		case 'string' === typeof prop:
+			return slugify(prop + '', { strict: true, replacement: '_' });
+		case 'number' === typeof prop:
+			return [
+				prop < 0 ? 'm' : '',
+				slugify((prop + '').replace('.', 'd'), { strict: true, replacement: '_' }),
+			].join('');
+		case 'object' === typeof prop:
+			return Object.keys(prop)
+				.sort()
+				.reduce((acc: string, optKey: string) => {
+					return acc + deli + stringifyProp(get(prop, optKey));
+				}, '');
+		case 'boolean' === typeof prop:
+			return true === prop ? '1' : '0';
+		default:
+			return '';
+	}
+};
 
 export const getSetterThunkWithGetter = <T>(
 	selector: (state: RootState) => T,

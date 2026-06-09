@@ -1,43 +1,23 @@
 /**
  * External dependencies
  */
-import React, {
-	Dispatch,
-	FC,
-	SetStateAction,
-	useCallback,
-	useContext,
-	useMemo,
-	useState,
-} from 'react';
-import { Icon, Text, useTheme } from 'react-native-paper';
+import React, { Dispatch, FC, SetStateAction, useCallback, useMemo } from 'react';
+import { useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { ScrollView, TouchableHighlight, View } from 'react-native';
-import formatcoords from 'formatcoords';
-import { sprintf } from 'sprintf-js';
-import DraggableGrid from 'react-native-draggable-grid';
 import { get, omit } from 'lodash-es';
 import { GetTrackParams } from 'react-native-brouter';
-import { createDocument } from 'react-native-scoped-storage';
-import MaterialIcons from '@react-native-vector-icons/material-icons/static';
 
 /**
  * Internal dependencies
  */
-import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
 import InfoRadioRow from '../../../../components/generic/InfoRadioRow';
 import InfoRowControl from '../../../../components/generic/controls/InfoRowControl';
 import ListItemMenuControl from '../../../../components/generic/controls/ListItemMenuControl';
-import LoadingIndicator from '../../../../components/generic/LoadingIndicator';
 import ModalWrapper from '../../../../components/generic/ModalWrapper';
-import { formatDistance, getUpDown } from '../../../../lib/utils';
 import { useAppDispatch, useAppSelector } from '../../../hooks';
-import { selectUnitPrefs } from '../../general/selectors';
-import DrawerContext from '../../drawers/DrawerContext';
-import { RoutingSegment, RoutingPoint, RoutingProfile } from '../types';
-import { handleSize, iconSize, itemStyles } from '../../drawers/constants';
+import { RoutingPoint } from '../types';
 import { setSegments } from '../routingSlice';
-import { selectIsRouting, selectPoints, selectSegments } from '../selectors';
+import { selectPoints, selectSegments } from '../selectors';
 import { updateRoutingPoint } from '../db/actionsRoutingPoint';
 
 const ProfileRowControl = ({

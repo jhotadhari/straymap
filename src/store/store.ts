@@ -12,21 +12,14 @@ import generalReducer from './features/general/generalSlice';
 import dirsReducer from './features/dirs/dirsSlice';
 import routingReducer from './features/routing/routingSlice';
 import uiReducer from './features/ui/uiSlice';
-import updaterReducer, { setDbMigrated } from './features/updater/updaterSlice';
+import updaterReducer from './features/updater/updaterSlice';
 import dashboardReducer from './features/dashboard/dashboardSlice';
 import baseMapReducer from './features/baseMap/baseMapSlice';
 import drawersReducer from './features/drawers/drawersSlice';
 import langReducer from './features/lang/langSlice';
 import linesReducer from './features/lines/linesSlice';
 import { listenerMiddleware } from './listenerMiddleware';
-import { initializeFromStorage as initializeFromStorage_updater } from './features/updater/connectStorage';
-import { initializeFromStorage as initializeFromStorage_lang } from './features/lang/connectStorage';
-import { useAppSelector } from './hooks';
-import features from './features';
-import { migrate } from 'drizzle-orm/op-sqlite/migrator';
-import { dbZ } from '../db/client';
-import migrations from '../../drizzle/migrations';
-import { dbOpExecute } from '../db/utils';
+import { initializeAppState } from './utils';
 
 export const store = configureStore({
 	reducer: {
@@ -63,40 +56,4 @@ export type AppThunk<ThunkReturnType = void> = ThunkAction<
 	Action
 >;
 
-const initialize = async () => {
-	// Initialize store language. Will as well set i18n language according to lang settings in default preference.
-	initializeFromStorage_lang(store);
-	// Migrate database.
-	await new Promise((resolve) => {
-		migrate(dbZ, migrations)
-			.then(async () => {
-				store.dispatch(setDbMigrated(true));
-				resolve(true);
-			})
-			.catch((error) => {
-				store.dispatch(setDbMigrated(error.message));
-
-				// ??? somehow add button to src/store/features/updater/components/SplashScreenDbMigration.tsx
-				// to allow to backup existing db and start a new one.
-			});
-	});
-	// Initialize the updater .
-	const success = await initializeFromStorage_updater(store);
-	// Initialize all other features: All features that expose a initializeFromStorage function.
-	if (success) {
-		Object.values(features).forEach((feature) => {
-			if (feature?.initializeFromStorage) {
-				feature?.initializeFromStorage(store);
-			}
-		});
-	}
-};
-initialize();
-
-export const useSettingsInitialized = () => {
-	return Object.values(features).reduce((acc, feature) => {
-		const settingsInitialized = useAppSelector(feature.selectInitialized);
-		acc.push(settingsInitialized);
-		return acc;
-	}, [] as boolean[]);
-};
+initializeAppState(store);

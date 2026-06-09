@@ -11,7 +11,7 @@ import { Text, Icon } from 'react-native-paper';
 import { useAppSelector } from '../../../hooks';
 import { LineWithTags } from '../types';
 import { selectUnitPrefs } from '../../general/selectors';
-import { formatDistance, formatHeightDepth } from '../../../../lib/utils';
+import { formatDistance, formatHeightDepth } from '../../../../lib/formatting';
 
 const Stat: FC<{
 	value: number;

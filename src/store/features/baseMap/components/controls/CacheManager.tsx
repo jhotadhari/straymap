@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { Dispatch, SetStateAction, useCallback, useContext, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { View, TouchableHighlight, StyleSheet } from 'react-native';
 import { List, useTheme, Text, Icon } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -12,7 +12,6 @@ import { get } from 'lodash-es';
  */
 import InfoRowControl from '../../../../../components/generic/controls/InfoRowControl';
 import LoadingIndicator from '../../../../../components/generic/LoadingIndicator';
-import { stringifyProp } from '../../../../../lib/utils';
 import { FsModule } from '../../../../../nativeModules';
 import { LayerConfig } from '../../types';
 import { selectElementExpanded } from '../../../ui/selectors';
@@ -21,7 +20,7 @@ import { setElementExpanded } from '../../../ui/uiSlice';
 import { selectAppDirs } from '../../../dirs/selectors';
 import useCacheDirsInfo from '../../../dirs/hooks/useCacheDirsInfo';
 import { CacheDir, CacheSubDir } from '../../../dirs/types';
-import { getHillshadingCacheDirChild } from '../../utils';
+import { getHillshadingCacheDirChild, stringifyProp } from '../../utils';
 import { selectLayers } from '../../selectors';
 
 const CacheRow = ({

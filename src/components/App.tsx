@@ -18,10 +18,9 @@ import SplashScreen from './SplashScreen';
 import AppView from './AppView';
 import SplashScreenUpdater from '../store/features/updater/components/SplashScreenUpdater';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { useAppSelector } from '../store/hooks';
+import { useAppSelector, useSettingsInitialized } from '../store/hooks';
 import { useSetupTheme } from '../store/features/appearance/hooks';
 import { useIsBusyPromiseQueueState } from '../store/features/ui/hooks';
-import { useSettingsInitialized } from '../store/store';
 import { selectDbMigrated, selectIsUpdating } from '../store/features/updater/selectors';
 import useInitialCenter from '../compose/useInitialCenter';
 

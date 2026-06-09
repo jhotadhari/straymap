@@ -15,7 +15,6 @@ import { OptionBase } from '../../../../../../types';
 import NumericRowControl from '../../../../../../components/generic/controls/NumericRowControl';
 import InfoRowControl from '../../../../../../components/generic/controls/InfoRowControl';
 import CacheControl from './CacheControl';
-import { stringifyProp } from '../../../../../../lib/utils';
 import { defaults } from '../../../../../../constants';
 import {
 	TextInputNativeMultiline,
@@ -27,6 +26,7 @@ import { selectLayerTemp } from '../../../selectors';
 import { setLayerTemp } from '../../../baseMapSlice';
 import NumericRowControlMulti from '../../../../../../components/generic/controls/NumericRowControlMulti';
 import ListItemMenuControl from '../../../../../../components/generic/controls/ListItemMenuControl';
+import { stringifyProp } from '../../../utils';
 
 interface SourceOption extends OptionBase {
 	url?: `http://${string}` | `https://${string}`;

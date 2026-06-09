@@ -19,7 +19,6 @@ import {
 /**
  * Internal dependencies
  */
-import { stringifyProp } from '../../../../lib/utils';
 import {
 	LayerConfig,
 	LayerConfigOptionsOnlineRasterXYZ,
@@ -27,7 +26,7 @@ import {
 	LayerConfigOptionsMapsforge,
 	LayerConfigOptionsHillshading,
 } from '../types';
-import { getHillshadingCacheDirChild } from '../utils';
+import { getHillshadingCacheDirChild, stringifyProp } from '../utils';
 import { useAppDispatch, useAppSelector } from '../../../hooks';
 import { selectLayers, selectMapsforgeProfiles } from '../selectors';
 import { selectAppDirs } from '../../dirs/selectors';
