@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { FC, useCallback } from 'react';
+import React, { FC, ReactNode, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { List, useTheme } from 'react-native-paper';
 import { StyleSheet, View } from 'react-native';
@@ -18,10 +18,7 @@ import NumericRowControl from '../../../../../components/generic/controls/Numeri
 import { setMapEventRate } from '../../../general/generalSlice';
 import { stylesGeneric } from '../../../baseMap/components/controls/layers/LayersControl';
 
-const ControlIcon: FC<{
-	color: string;
-	style: Style;
-}> = (props) => (
+const ControlIcon: (props: { color: string; style: Style }) => ReactNode = (props) => (
 	<View style={stylesGeneric.controlIcon}>
 		<List.Icon
 			{...props}

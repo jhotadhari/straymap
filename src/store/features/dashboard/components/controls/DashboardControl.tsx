@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { FC, ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { List, SegmentedButtons, useTheme } from 'react-native-paper';
 import { StyleSheet, View } from 'react-native';
@@ -64,10 +64,7 @@ const DashboardControl: FC = () => {
 		);
 	}, [expanded, uiStateKey]);
 
-	const ControlIcon: FC<{
-		color: string;
-		style: Style;
-	}> = useMemo(
+	const ControlIcon: (props: { color: string; style: Style }) => ReactNode = useMemo(
 		() => (props) => (
 			<View style={stylesGeneric.controlIcon}>
 				<List.Icon

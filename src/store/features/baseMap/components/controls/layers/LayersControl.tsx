@@ -1,7 +1,16 @@
 /**
  * External dependencies
  */
-import { Dispatch, FC, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react';
+import {
+	Dispatch,
+	FC,
+	ReactNode,
+	SetStateAction,
+	useCallback,
+	useEffect,
+	useMemo,
+	useState,
+} from 'react';
 import {
 	View,
 	TouchableHighlight,
@@ -346,10 +355,7 @@ const EditModal: FC<{
 	);
 };
 
-const ControlIcon: FC<{
-	color: string;
-	style: Style;
-}> = (props) => (
+const ControlIcon: (props: { color: string; style: Style }) => ReactNode = (props) => (
 	<View style={stylesGeneric.controlIcon}>
 		<List.Icon
 			{...props}
@@ -358,20 +364,22 @@ const ControlIcon: FC<{
 	</View>
 );
 
-const LayersControl = ({
-	setScrollEnabled,
-	width,
-	reverseDraggableItem,
-	saveOnChange,
-	saveOnUnmount,
-	uiStateKey = 'mapLayersExpanded',
-}: {
+const LayersControl: FC<{
 	setScrollEnabled: Dispatch<SetStateAction<boolean>>;
 	width?: number;
 	reverseDraggableItem?: boolean;
 	saveOnChange: boolean;
 	saveOnUnmount: boolean;
 	uiStateKey?: string;
+	newLabel?: string;
+}> = ({
+	setScrollEnabled,
+	width,
+	reverseDraggableItem,
+	saveOnChange,
+	saveOnUnmount,
+	uiStateKey = 'mapLayersExpanded',
+	newLabel,
 }) => {
 	const dispatch = useAppDispatch();
 
@@ -519,7 +527,7 @@ const LayersControl = ({
 						mode="outlined"
 						onPress={handleAddNewLayer}
 					>
-						{t('baseMap.addNewLayer')}
+						{newLabel ?? t('baseMap.addNewLayer')}
 					</ButtonHighlight>
 				</View>
 			</List.Accordion>
