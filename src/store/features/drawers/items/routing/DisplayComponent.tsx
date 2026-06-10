@@ -2,7 +2,7 @@
  * External dependencies
  */
 import React, { Dispatch, FC, Fragment, SetStateAction, useContext, useState } from 'react';
-import { Text, useTheme } from 'react-native-paper';
+import { Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 import { createDocument } from 'react-native-scoped-storage';
@@ -13,7 +13,7 @@ import { createDocument } from 'react-native-scoped-storage';
 import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import DrawerContext from '../../DrawerContext';
-import { RoutingPoint, RoutingProfile, RoutingSegment } from '../../../routing/types';
+import { RoutingPoint } from '../../../routing/types';
 import { handleSize, iconSize, itemStyles } from '../../constants';
 import PointsList from '../../../routing/components/PointsList';
 import EditPointModal from '../../../routing/components/EditPointModal';
@@ -24,9 +24,10 @@ import {
 	selectPoints,
 	selectSavedExported,
 	selectSegments,
-	selectStats,
 } from '../../../routing/selectors';
 import { createRoute } from '../../../routing/db/actionsRoute';
+import { lineString } from '@turf/helpers';
+import { lineStringToStats, locationsToCoordsArr } from '../../../../../lib/utils';
 
 const DisplayComponent: FC<{
 	scrollEnabled: boolean;
@@ -39,7 +40,7 @@ const DisplayComponent: FC<{
 	const isRouting = useAppSelector(selectIsRouting);
 	const points = useAppSelector(selectPoints);
 	const segments = useAppSelector(selectSegments);
-	const stats = useAppSelector(selectStats);
+
 	const savedExported = useAppSelector(selectSavedExported);
 
 	const { t } = useTranslation();
@@ -135,6 +136,10 @@ const DisplayComponent: FC<{
 												.flat()
 										: [];
 
+								const stats = await lineStringToStats(
+									lineString(locationsToCoordsArr(allPositions)).geometry
+								);
+
 								const gpxString = [
 									'<?xml version="1.0" encoding="UTF-8"?>',
 									'<gpx',
@@ -163,9 +168,9 @@ const DisplayComponent: FC<{
 
 								const fileName =
 									[
-										Math.round((stats?.distance || 0) / 1000) + 'km',
-										Math.round(stats?.up || 0) + 'm_up',
-										Math.round(stats?.down || 0) + 'm_down',
+										Math.round((stats?.length || 0) / 1000) + 'km',
+										Math.round(stats?.uphill || 0) + 'm_up',
+										Math.round(stats?.downhill || 0) + 'm_down',
 									].join('_') + '.gpx';
 
 								const file = await createDocument(

@@ -26,6 +26,8 @@ import { selectInitialized, selectIsRouting, selectPoints, selectSegments } from
 import { fetchRoutesWithPoints } from './db/fetch';
 import { createLines, updateLine } from '../lines/db/actionsLine';
 import { updateRoute } from './db/actionsRoute';
+import { Location } from 'react-native-mapsforge-vtm';
+import { locationsToCoordsArr } from '../../../lib/utils';
 
 const settingsKey = 'routingSettings';
 
@@ -95,16 +97,11 @@ startAppListening({
 	},
 });
 
-// ??? move helper fn somewhere else
 const aggregateSegmentsToCoords = (segments: RoutingSegment[]) =>
 	segments.reduce((acc, seg) => {
-		seg?.positions?.forEach((pos) => {
-			acc.push([
-				pos.lng,
-				pos.lat,
-				...(undefined === pos?.alt ? [] : [pos?.alt]),
-			]);
-		});
+		if (seg?.positions) {
+			acc.push(...locationsToCoordsArr(seg?.positions));
+		}
 		return acc;
 	}, [] as number[][]);
 

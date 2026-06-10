@@ -3,6 +3,13 @@
  */
 import { Location } from 'react-native-mapsforge-vtm';
 import { InteractionManager } from 'react-native';
+import { LineString } from 'geojson';
+
+/**
+ * Internal dependencies
+ */
+import { LineStats as LineStatsType } from '../store/features/lines/types';
+import { dbOpExecute } from '../db/utils';
 
 let firstNonEmptyLine: null | number = null;
 const filterCb = (line: string, idx: number) => {
@@ -50,37 +57,38 @@ export const runAfterInteractions = (
 	InteractionManager.runAfterInteractions(taskWrapped);
 };
 
-export const getUpDown = (
-	locations?: Location[]
-): {
-	up: number;
-	down: number;
-} => {
-	return locations
-		? locations.reduce(
-				(acc, coord, index) => {
-					if (0 === index) {
-						return acc;
-					}
-					const prevCoord = locations[index - 1];
-					const altDiff =
-						undefined !== coord?.alt && undefined !== prevCoord?.alt
-							? coord?.alt - prevCoord.alt
-							: 0;
-					if (altDiff > 0) {
-						acc.up = acc.up + altDiff;
-					} else {
-						acc.down = acc.down - altDiff;
-					}
-					return acc;
-				},
-				{
-					up: 0,
-					down: 0,
-				}
-			)
-		: {
-				up: 0,
-				down: 0,
-			};
+export const locationsToCoordsArr = (positions: Location[]) => {
+	return positions.map((pos) => [
+		pos.lng,
+		pos.lat,
+		...(undefined === pos?.alt ? [] : [pos?.alt]),
+	]);
+};
+
+export const lineStringToStats = async (
+	lineStr: LineString
+): Promise<LineStatsType | undefined> => {
+	const lineStringEpsgStr = JSON.stringify({
+		...lineStr,
+		crs: {
+			type: 'name',
+			properties: { name: 'EPSG:4326' },
+		},
+	});
+
+	const res = await dbOpExecute(
+		`
+        select
+            GreatCircleLength ("geometry") as length,
+            UphillHeight ("geometry") as uphill,
+            DownhillHeight ("geometry") as downhill
+        from (
+            SELECT GeomFromGeoJSON( ? ) as geometry
+        )
+        `,
+		[
+			lineStringEpsgStr,
+		]
+	);
+	return res?.rows?.length ? (res.rows[0] as LineStatsType) : undefined;
 };

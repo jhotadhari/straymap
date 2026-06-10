@@ -8,9 +8,9 @@ export interface Tag {
 }
 
 export interface LineStats {
-	length: number;
-	uphill: number;
-	downhill: number;
+	length?: number;
+	uphill?: number;
+	downhill?: number;
 }
 
 // ???!!! this will change soon

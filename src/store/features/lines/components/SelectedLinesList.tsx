@@ -69,7 +69,7 @@ const LineRow: FC<{
 				</View>
 
 				<View style={styles.rowColCenterRow}>
-					<LineStats line={line} />
+					<LineStats stats={line.stats} />
 				</View>
 
 				{line.tags.length > 0 && (

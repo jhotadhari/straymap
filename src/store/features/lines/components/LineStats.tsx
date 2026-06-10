@@ -9,7 +9,7 @@ import { Text, Icon } from 'react-native-paper';
  * Internal dependencies
  */
 import { useAppSelector } from '../../../hooks';
-import { LineWithTags } from '../types';
+import { LineStats as LineStatsType } from '../types';
 import { selectUnitPrefs } from '../../general/selectors';
 import { formatDistance, formatHeightDepth } from '../../../../lib/formatting';
 
@@ -54,24 +54,30 @@ const Stat: FC<{
 };
 
 const LineStats: FC<{
-	line: LineWithTags;
-}> = ({ line }) => {
+	stats: LineStatsType;
+}> = ({ stats }) => {
 	return (
 		<Fragment>
-			<Stat
-				value={line.stats.length}
-				unitPrefKey="distance"
-			/>
-			<Stat
-				value={line.stats.uphill}
-				unitPrefKey="heightDepth"
-				iconSource="arrow-up"
-			/>
-			<Stat
-				value={line.stats.downhill}
-				unitPrefKey="heightDepth"
-				iconSource="arrow-down"
-			/>
+			{stats?.length && (
+				<Stat
+					value={stats.length}
+					unitPrefKey="distance"
+				/>
+			)}
+			{stats?.uphill && (
+				<Stat
+					value={stats.uphill}
+					unitPrefKey="heightDepth"
+					iconSource="arrow-up"
+				/>
+			)}
+			{stats?.downhill && (
+				<Stat
+					value={stats.downhill}
+					unitPrefKey="heightDepth"
+					iconSource="arrow-down"
+				/>
+			)}
 		</Fragment>
 	);
 };

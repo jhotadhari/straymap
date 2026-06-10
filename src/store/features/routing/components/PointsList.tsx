@@ -7,6 +7,7 @@ import React, {
 	SetStateAction,
 	useCallback,
 	useContext,
+	useEffect,
 	useMemo,
 	useState,
 } from 'react';
@@ -16,11 +17,12 @@ import { Icon, Text, useTheme } from 'react-native-paper';
 import MaterialIcons from '@react-native-vector-icons/material-icons/static';
 import formatcoords from 'formatcoords';
 import { get, omit } from 'lodash-es';
+import { lineString } from '@turf/helpers';
 
 /**
  * Internal dependencies
  */
-import { RoutingPoint, RoutingSegment } from '../types';
+import { RoutingPoint } from '../types';
 import DrawerContext from '../../drawers/DrawerContext';
 import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
 import LoadingIndicator from '../../../../components/generic/LoadingIndicator';
@@ -28,63 +30,13 @@ import { useAppDispatch, useAppSelector } from '../../../hooks';
 import { setPoints, setSegments } from '../routingSlice';
 import { selectIsRouting, selectPoints, selectSegments } from '../selectors';
 import { updateRoute } from '../db/actionsRoute';
-import { getUpDown } from '../../../../lib/utils';
-import { selectUnitPrefs } from '../../general/selectors';
+import { lineStringToStats, locationsToCoordsArr } from '../../../../lib/utils';
 import { deleteRoutingPoint } from '../db/actionsRoutingPoint';
 import { updateStorePointsFromDb } from '../utils';
-import { formatDistance } from '../../../../lib/formatting';
+import { LineStats as LineStatsType } from '../../lines/types';
+import LineStats from '../../lines/components/LineStats';
 
 const itemHeight = 130;
-
-const SegmentInfo = ({ segment }: { segment: RoutingSegment }) => {
-	const unitPrefs = useAppSelector(selectUnitPrefs);
-
-	if (
-		segment?.coordinatesSimplified &&
-		segment.coordinatesSimplified.length > 0 &&
-		undefined !==
-			segment.coordinatesSimplified[segment.coordinatesSimplified.length - 1].distance
-	) {
-		const distanceString = formatDistance(
-			segment.coordinatesSimplified[segment.coordinatesSimplified.length - 1].distance || 0,
-			unitPrefs.distance
-		);
-
-		const { up, down } = getUpDown(segment?.coordinatesSimplified);
-
-		return (
-			<View
-				style={{
-					justifyContent: 'flex-start',
-					alignItems: 'center',
-					flexDirection: 'row',
-					flexGrow: 1,
-					// marginRight: 10,
-				}}
-			>
-				<Text style={{ marginRight: 5 }}>{distanceString}</Text>
-				<Icon
-					source="arrow-up"
-					size={15}
-				/>
-				<Text style={{ marginRight: 5 }}>
-					{Math.round(up) + ' m'}
-					{/* ??? should format with units */}
-				</Text>
-				<Icon
-					source="arrow-down"
-					size={15}
-				/>
-				<Text style={{ marginRight: 5 }}>
-					{Math.round(down) + ' m'}
-					{/* ??? should format with units */}
-				</Text>
-			</View>
-		);
-	} else {
-		return null;
-	}
-};
 
 const Segment: FC<{
 	item: RoutingPoint;
@@ -163,6 +115,15 @@ const Segment: FC<{
 		return undefined;
 	}
 
+	const [lineStats, setLineStats] = useState<LineStatsType>({});
+	useEffect(() => {
+		lineStringToStats(lineString(locationsToCoordsArr(segment?.positions ?? [])).geometry).then(
+			(newStats) => {
+				setLineStats(newStats ?? {});
+			}
+		);
+	}, [segment?.positions]);
+
 	return (
 		<View
 			style={{
@@ -185,10 +146,9 @@ const Segment: FC<{
 						</Text>
 					)}
 
-					{/* { !segment?.isFetching && <SegmentInfo segment={segment} /> } */}
-
-					{!segment?.isFetching && segment?.positions && (
-						<Text>{'positions' + ': ' + segment?.positions.length}</Text>
+					{!segment?.isFetching && (
+						<LineStats stats={lineStats} />
+						// <Text>{'positions' + ': ' + segment?.positions.length}</Text>
 					)}
 				</View>
 
