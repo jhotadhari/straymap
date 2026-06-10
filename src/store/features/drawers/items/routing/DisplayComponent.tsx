@@ -17,14 +17,8 @@ import { RoutingPoint } from '../../../routing/types';
 import { handleSize, iconSize, itemStyles } from '../../constants';
 import PointsList from '../../../routing/components/PointsList';
 import EditPointModal from '../../../routing/components/EditPointModal';
-import DismissProceedModal from '../../../routing/components/DismissProceedModal';
-import { setIsRouting, setSavedExported } from '../../../routing/routingSlice';
-import {
-	selectIsRouting,
-	selectPoints,
-	selectSavedExported,
-	selectSegments,
-} from '../../../routing/selectors';
+import { setIsRouting } from '../../../routing/routingSlice';
+import { selectIsRouting, selectPoints, selectSegments } from '../../../routing/selectors';
 import { createRoute } from '../../../routing/db/actionsRoute';
 import { lineString } from '@turf/helpers';
 import { lineStringToStats, locationsToCoordsArr } from '../../../../../lib/utils';
@@ -41,11 +35,7 @@ const DisplayComponent: FC<{
 	const points = useAppSelector(selectPoints);
 	const segments = useAppSelector(selectSegments);
 
-	const savedExported = useAppSelector(selectSavedExported);
-
 	const { t } = useTranslation();
-
-	const [dismissModalVisible, setDismissModalVisible] = useState(false);
 
 	const [editPoint, setEditPoint] = useState<undefined | RoutingPoint>(undefined);
 
@@ -58,29 +48,14 @@ const DisplayComponent: FC<{
 				/>
 			)}
 
-			{dismissModalVisible && (
-				<DismissProceedModal
-					dismissModalVisible={dismissModalVisible}
-					setDismissModalVisible={setDismissModalVisible}
-				/>
-			)}
-
 			<View style={itemStyles.item}>
 				<ButtonHighlight
 					style={itemStyles.buttonRow}
 					mode="outlined"
 					onPress={async () => {
 						if (isRouting) {
-							if (
-								points &&
-								points.length &&
-								Object.values(savedExported || {}).includes(false)
-							) {
-								setDismissModalVisible(true);
-							} else {
-								expand(false);
-								dispatch(setIsRouting(false));
-							}
+							expand(false);
+							dispatch(setIsRouting(false));
 						} else {
 							const routeId = await createRoute();
 							if (routeId) {
@@ -93,7 +68,7 @@ const DisplayComponent: FC<{
 					<Text>{t(isRouting ? 'stopRouting???' : 'startRouting???')}</Text>
 				</ButtonHighlight>
 
-				{!isRouting && (
+				{/* {!isRouting && (
 					<ButtonHighlight
 						style={itemStyles.buttonRow}
 						mode="outlined"
@@ -101,7 +76,7 @@ const DisplayComponent: FC<{
 					>
 						<Text>{t('load TODO???')}</Text>
 					</ButtonHighlight>
-				)}
+				)} */}
 
 				{isRouting && (
 					<View
@@ -116,13 +91,6 @@ const DisplayComponent: FC<{
 							},
 						]}
 					>
-						<ButtonHighlight
-							mode="outlined"
-							onPress={() => null}
-						>
-							<Text>{t('save TODO???')}</Text>
-						</ButtonHighlight>
-
 						<ButtonHighlight
 							mode="outlined"
 							onPress={async () => {
@@ -177,21 +145,12 @@ const DisplayComponent: FC<{
 										Math.round(stats?.downhill || 0) + 'm_down',
 									].join('_') + '.gpx';
 
-								const file = await createDocument(
+								await createDocument(
 									fileName,
 									'application/gpx+xml',
 									gpxString,
 									'utf8'
 								);
-
-								if (file && setSavedExported) {
-									dispatch(
-										setSavedExported((savedExported) => ({
-											...savedExported,
-											exported: true,
-										}))
-									);
-								}
 							}}
 						>
 							<Text>{t('export???')}</Text>

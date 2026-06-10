@@ -20,5 +20,3 @@ export const selectMovingPointIdx = (state: RootState) => state.routing.movingPo
 export const selectTriggeredMarkerIdx = (state: RootState) => state.routing.triggeredMarkerIdx;
 
 export const selectTriggeredSegment = (state: RootState) => state.routing.triggeredSegment;
-
-export const selectSavedExported = (state: RootState) => state.routing.savedExported;
