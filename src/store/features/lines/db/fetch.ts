@@ -42,6 +42,8 @@ export const fetchLinesWithTagsQuery = (params?: LinesWithTagsParams) => {
 				length: sql<string>`GreatCircleLength (${linesTable.geometry})`,
 				uphill: sql<string>`UphillHeight (${linesTable.geometry})`,
 				downhill: sql<string>`DownhillHeight (${linesTable.geometry})`,
+				minZ: sql<string>`ST_MinZ (${linesTable.geometry})`,
+				maxZ: sql<string>`ST_MaxZ (${linesTable.geometry})`,
 			},
 			tag: {
 				id: tagsTable.id,

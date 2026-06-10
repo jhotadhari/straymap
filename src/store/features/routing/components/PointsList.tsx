@@ -4,6 +4,7 @@
 import React, {
 	Dispatch,
 	FC,
+	Fragment,
 	SetStateAction,
 	useCallback,
 	useContext,
@@ -16,7 +17,7 @@ import DraggableGrid from 'react-native-draggable-grid';
 import { Icon, Text, useTheme } from 'react-native-paper';
 import MaterialIcons from '@react-native-vector-icons/material-icons/static';
 import formatcoords from 'formatcoords';
-import { get, omit } from 'lodash-es';
+import { get, omit, pick } from 'lodash-es';
 import { lineString } from '@turf/helpers';
 
 /**
@@ -36,7 +37,7 @@ import { updateStorePointsFromDb } from '../utils';
 import { LineStats as LineStatsType } from '../../lines/types';
 import LineStats from '../../lines/components/LineStats';
 
-const itemHeight = 130;
+const itemHeight = 180;
 
 const Segment: FC<{
 	item: RoutingPoint;
@@ -117,14 +118,14 @@ const Segment: FC<{
 
 	const [lineStats, setLineStats] = useState<LineStatsType>({});
 	useEffect(() => {
-		if ( segment && segment?.positions && segment?.positions.length  > 1) {
+		if (segment && segment?.positions && segment?.positions.length > 1) {
 			lineStringToStats(lineString(locationsToCoordsArr(segment.positions)).geometry).then(
 				(newStats) => {
 					setLineStats(newStats ?? {});
 				}
 			);
 		}
-		setLineStats( {});
+		setLineStats({});
 	}, [segment?.positions]);
 
 	return (
@@ -150,8 +151,10 @@ const Segment: FC<{
 					)}
 
 					{!segment?.isFetching && (
-						<LineStats stats={lineStats} />
-						// <Text>{'positions' + ': ' + segment?.positions.length}</Text>
+						<LineStats
+							stats={omit(lineStats, ['minZ', 'maxZ'])}
+							round={0}
+						/>
 					)}
 				</View>
 
@@ -167,6 +170,20 @@ const Segment: FC<{
 					</ButtonHighlight>
 				</View>
 			</View>
+
+			{!segment?.isFetching && (
+				<View style={styles.segmentRow}>
+					<LineStats
+						stats={pick(lineStats, ['minZ', 'maxZ'])}
+						round={0}
+					/>
+					<View style={styles.segmentRowAction}>
+						<ButtonHighlight compact={true}>
+							<View style={{ width: 25, height: 25 }}/>
+						</ButtonHighlight>
+					</View>
+				</View>
+			)}
 
 			<View style={styles.segmentRow}>
 				<View
@@ -361,10 +378,12 @@ const styles = StyleSheet.create({
 		justifyContent: 'space-between',
 		width: '100%',
 		flexDirection: 'row',
+		alignItems: 'center',
 	},
 	segmentRowContent: {
 		alignItems: 'center',
 		flexDirection: 'row',
+		gap: 8,
 	},
 	segmentRowAction: {},
 });

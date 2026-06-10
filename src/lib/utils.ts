@@ -81,7 +81,9 @@ export const lineStringToStats = async (
         select
             GreatCircleLength ("geometry") as length,
             UphillHeight ("geometry") as uphill,
-            DownhillHeight ("geometry") as downhill
+            DownhillHeight ("geometry") as downhill,
+            ST_MinZ ("geometry") as minZ,
+            ST_MaxZ ("geometry") as maxZ
         from (
             SELECT GeomFromGeoJSON( ? ) as geometry
         )

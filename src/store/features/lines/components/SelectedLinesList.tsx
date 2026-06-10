@@ -6,6 +6,7 @@ import { FC, useCallback, useMemo } from 'react';
 import { StyleSheet, View, ViewStyle } from 'react-native';
 import { List, useTheme, Text, Icon } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
+import { omit, pick } from 'lodash-es';
 
 /**
  * Internal dependencies
@@ -69,7 +70,16 @@ const LineRow: FC<{
 				</View>
 
 				<View style={styles.rowColCenterRow}>
-					<LineStats stats={line.stats} />
+					<LineStats
+						stats={omit(line.stats, ['minZ', 'maxZ'])}
+						round={0}
+					/>
+				</View>
+				<View style={styles.rowColCenterRow}>
+					<LineStats
+						stats={pick(line.stats, ['minZ', 'maxZ'])}
+						round={0}
+					/>
 				</View>
 
 				{line.tags.length > 0 && (

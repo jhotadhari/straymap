@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { FC, useMemo, Fragment } from 'react';
+import { FC, useMemo, ReactNode, ElementType, PropsWithChildren } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Text, Icon } from 'react-native-paper';
 
@@ -17,30 +17,34 @@ const Stat: FC<{
 	value: number;
 	unitPrefKey: string;
 	iconSource?: string;
-}> = ({ value, unitPrefKey, iconSource }) => {
+	round?: number;
+	prependStr?: string;
+}> = ({ value, unitPrefKey, iconSource, round, prependStr }) => {
 	const unitPrefs = useAppSelector(selectUnitPrefs);
 	const formatted = useMemo(() => {
 		switch (unitPrefKey) {
 			case 'distance':
 				return formatDistance(value, {
 					...unitPrefs[unitPrefKey]!,
-					round: 0,
+					...(undefined !== round && { round }),
 				});
 			case 'heightDepth':
 				return formatHeightDepth(value, {
 					...unitPrefs[unitPrefKey]!,
-					round: 0,
+					...(undefined !== round && { round }),
 				});
 		}
 	}, [
 		unitPrefs[unitPrefKey],
 		value,
 		unitPrefKey,
+		round,
 	]);
 	return (
 		formatted &&
 		formatted.length > 0 && (
 			<View style={styles.stat}>
+				{prependStr && <Text>{prependStr}</Text>}
 				{iconSource && (
 					<Icon
 						source={iconSource}
@@ -55,31 +59,77 @@ const Stat: FC<{
 
 const LineStats: FC<{
 	stats: LineStatsType;
-}> = ({ stats }) => {
-	return (
-		<Fragment>
-			{stats?.length && (
+	round?: number;
+	NodeWrapper?: ElementType<PropsWithChildren>;
+}> = ({ stats, round, NodeWrapper }) => {
+	const nodes = useMemo(() => {
+		const newNodes: { [key: string]: ReactNode } = {};
+
+		if (stats?.length) {
+			newNodes['distance'] = (
 				<Stat
+					key="distance"
 					value={stats.length}
+					round={round}
 					unitPrefKey="distance"
 				/>
-			)}
-			{stats?.uphill && (
+			);
+		}
+		if (stats?.uphill) {
+			newNodes['uphill'] = (
 				<Stat
+					key="uphill"
 					value={stats.uphill}
+					round={round}
 					unitPrefKey="heightDepth"
 					iconSource="arrow-up"
 				/>
-			)}
-			{stats?.downhill && (
+			);
+		}
+		if (stats?.downhill) {
+			newNodes['downhill'] = (
 				<Stat
+					key="downhill"
 					value={stats.downhill}
+					round={round}
 					unitPrefKey="heightDepth"
 					iconSource="arrow-down"
 				/>
-			)}
-		</Fragment>
-	);
+			);
+		}
+		if (stats?.minZ) {
+			newNodes['minZ'] = (
+				<Stat
+					key="minZ"
+					prependStr="min"
+					value={stats.minZ}
+					round={round}
+					unitPrefKey="heightDepth"
+					iconSource="arrow-down"
+				/>
+			);
+		}
+		if (stats?.maxZ) {
+			newNodes['maxZ'] = (
+				<Stat
+					key="maxZ"
+					prependStr="max"
+					value={stats.maxZ}
+					round={round}
+					unitPrefKey="heightDepth"
+					iconSource="arrow-up"
+				/>
+			);
+		}
+
+		return newNodes;
+	}, [stats, round]);
+
+	if (undefined === NodeWrapper) {
+		return Object.values(nodes);
+	} else {
+		return Object.keys(nodes).map((key) => <NodeWrapper key={key}>{nodes[key]}</NodeWrapper>);
+	}
 };
 
 const styles = StyleSheet.create({

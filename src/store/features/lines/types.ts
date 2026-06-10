@@ -11,6 +11,8 @@ export interface LineStats {
 	length?: number;
 	uphill?: number;
 	downhill?: number;
+	minZ?: number;
+	maxZ?: number;
 }
 
 // ???!!! this will change soon

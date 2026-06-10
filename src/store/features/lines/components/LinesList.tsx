@@ -19,7 +19,7 @@ import { LineWithTags } from '../types';
 import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
 import { iconSize } from '../../drawers/constants';
 import { setLineSelected } from '../linesSlice';
-import { without } from 'lodash-es';
+import { omit, pick, without } from 'lodash-es';
 import { sprintf } from 'sprintf-js';
 import TagBadge from './TagBadge';
 import LineStats from './LineStats';
@@ -81,6 +81,7 @@ const LineRow: FC<{
 			isChecked,
 		]
 	);
+
 	return (
 		<View style={style}>
 			<ButtonHighlight
@@ -103,7 +104,16 @@ const LineRow: FC<{
 					</View>
 
 					<View style={styles.rowColCenterRow}>
-						<LineStats stats={line.stats} />
+						<LineStats
+							stats={omit(line.stats, ['minZ', 'maxZ'])}
+							round={0}
+						/>
+					</View>
+					<View style={styles.rowColCenterRow}>
+						<LineStats
+							stats={pick(line.stats, ['minZ', 'maxZ'])}
+							round={0}
+						/>
 					</View>
 
 					{line.tags.length > 0 && (
