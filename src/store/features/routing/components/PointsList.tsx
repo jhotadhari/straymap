@@ -117,11 +117,14 @@ const Segment: FC<{
 
 	const [lineStats, setLineStats] = useState<LineStatsType>({});
 	useEffect(() => {
-		lineStringToStats(lineString(locationsToCoordsArr(segment?.positions ?? [])).geometry).then(
-			(newStats) => {
-				setLineStats(newStats ?? {});
-			}
-		);
+		if ( segment && segment?.positions && segment?.positions.length  > 1) {
+			lineStringToStats(lineString(locationsToCoordsArr(segment.positions)).geometry).then(
+				(newStats) => {
+					setLineStats(newStats ?? {});
+				}
+			);
+		}
+		setLineStats( {});
 	}, [segment?.positions]);
 
 	return (
