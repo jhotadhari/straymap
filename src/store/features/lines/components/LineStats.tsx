@@ -61,7 +61,8 @@ const LineStats: FC<{
 	stats: LineStatsType;
 	round?: number;
 	NodeWrapper?: ElementType<PropsWithChildren>;
-}> = ({ stats, round, NodeWrapper }) => {
+	plain?: boolean;
+}> = ({ stats, round, NodeWrapper, plain }) => {
 	const nodes = useMemo(() => {
 		const newNodes: { [key: string]: ReactNode } = {};
 
@@ -82,7 +83,7 @@ const LineStats: FC<{
 					value={stats.uphill}
 					round={round}
 					unitPrefKey="heightDepth"
-					iconSource="arrow-up"
+					iconSource={plain ? undefined : 'arrow-up'}
 				/>
 			);
 		}
@@ -93,7 +94,7 @@ const LineStats: FC<{
 					value={stats.downhill}
 					round={round}
 					unitPrefKey="heightDepth"
-					iconSource="arrow-down"
+					iconSource={plain ? undefined : 'arrow-down'}
 				/>
 			);
 		}
@@ -101,11 +102,11 @@ const LineStats: FC<{
 			newNodes['minZ'] = (
 				<Stat
 					key="minZ"
-					prependStr="min"
+					prependStr={plain ? undefined : 'min'}
 					value={stats.minZ}
 					round={round}
 					unitPrefKey="heightDepth"
-					iconSource="arrow-down"
+					iconSource={plain ? undefined : 'arrow-down'}
 				/>
 			);
 		}
@@ -113,11 +114,11 @@ const LineStats: FC<{
 			newNodes['maxZ'] = (
 				<Stat
 					key="maxZ"
-					prependStr="max"
+					prependStr={plain ? undefined : 'max'}
 					value={stats.maxZ}
 					round={round}
 					unitPrefKey="heightDepth"
-					iconSource="arrow-up"
+					iconSource={plain ? undefined : 'arrow-up'}
 				/>
 			);
 		}

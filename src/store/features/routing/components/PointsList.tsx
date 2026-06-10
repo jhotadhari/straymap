@@ -179,7 +179,7 @@ const Segment: FC<{
 					/>
 					<View style={styles.segmentRowAction}>
 						<ButtonHighlight compact={true}>
-							<View style={{ width: 25, height: 25 }}/>
+							<View style={{ width: 25, height: 25 }} />
 						</ButtonHighlight>
 					</View>
 				</View>

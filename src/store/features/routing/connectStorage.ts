@@ -28,6 +28,7 @@ import { createLines, updateLine } from '../lines/db/actionsLine';
 import { updateRoute } from './db/actionsRoute';
 import { Location } from 'react-native-mapsforge-vtm';
 import { locationsToCoordsArr } from '../../../lib/utils';
+import { setLineSelected } from '../lines/linesSlice';
 
 const settingsKey = 'routingSettings';
 
@@ -129,6 +130,7 @@ const updateLineFromSegments = async (routeId: number, segments: RoutingSegment[
 		await updateLine(routes[0].line_id, {
 			lineStringFeature,
 		});
+		return routes[0].line_id;
 	} else {
 		// Create line and update route with line_id.
 		const insertedLines = await createLines([
@@ -141,6 +143,7 @@ const updateLineFromSegments = async (routeId: number, segments: RoutingSegment[
 			return undefined;
 		}
 		await updateRoute(routeId, { line_id: insertedLines[0].id });
+		return insertedLines[0].id;
 	}
 };
 
@@ -156,7 +159,10 @@ startAppListening({
 		);
 		if (action.payload.updateLine) {
 			const routeId = selectIsRouting(listenerApi.getState());
-			routeId && updateLineFromSegments(routeId, updatedSegments);
+			if (routeId) {
+				const lineId = await updateLineFromSegments(routeId, updatedSegments);
+				lineId && listenerApi.dispatch(setLineSelected(lineId, true));
+			}
 		}
 	},
 });
@@ -180,7 +186,10 @@ startAppListening({
 		);
 		if (action.payload.updateLine) {
 			const routeId = selectIsRouting(listenerApi.getState());
-			routeId && updateLineFromSegments(routeId, updatedSegments);
+			if (routeId) {
+				const lineId = await updateLineFromSegments(routeId, updatedSegments);
+				lineId && listenerApi.dispatch(setLineSelected(lineId, true));
+			}
 		}
 	},
 });

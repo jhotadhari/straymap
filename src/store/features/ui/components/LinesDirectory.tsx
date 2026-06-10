@@ -7,12 +7,12 @@ import { View, ViewStyle } from 'react-native';
 /**
  * Internal dependencies
  */
-import LinesList from '../../lines/components/LinesList';
+import LinesTable from '../../lines/components/LinesTable/LinesTable';
 
 const LinesDirectory: FC<{ style?: ViewStyle }> = ({ style }) => {
 	return (
 		<View style={style}>
-			<LinesList />
+			<LinesTable />
 		</View>
 	);
 };

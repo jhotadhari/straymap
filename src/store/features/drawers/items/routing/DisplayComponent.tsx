@@ -136,9 +136,13 @@ const DisplayComponent: FC<{
 												.flat()
 										: [];
 
-								const stats = allPositions.length > 1 ? await lineStringToStats(
-									lineString(locationsToCoordsArr(allPositions)).geometry
-								) : {};
+								const stats =
+									allPositions.length > 1
+										? await lineStringToStats(
+												lineString(locationsToCoordsArr(allPositions))
+													.geometry
+											)
+										: {};
 
 								const gpxString = [
 									'<?xml version="1.0" encoding="UTF-8"?>',
