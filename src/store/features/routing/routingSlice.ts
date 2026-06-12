@@ -18,7 +18,7 @@ import { lineString } from '@turf/turf';
 import { createLines, updateLine } from '../lines/db/actionsLine';
 import { updateRoute } from './db/actionsRoute';
 import { GetTrackParams } from 'react-native-brouter';
-import { queryClient } from '../../../db/client';
+import { queryClient } from '../../../db/clients';
 import { lineStringToStats } from '../../../lib/utils';
 import { LineStats } from '../lines/types';
 

@@ -11,7 +11,7 @@ import { Text, useTheme, TextInput } from 'react-native-paper';
 import InfoRowControl from './InfoRowControl';
 import ButtonHighlight from '../ButtonHighlight';
 import { styles } from './NumericRowControl';
-import { strValToNb } from '../../../lib/utilsGeneral';
+import { strValToNb } from '../../../lib/utils';
 import { NumType } from '../../../types';
 
 export const NumericRowControlSegmented = ({

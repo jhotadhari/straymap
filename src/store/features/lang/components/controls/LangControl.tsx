@@ -14,7 +14,7 @@ import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { selectLang } from '../../selectors';
 import { LANGUAGE_NAMES, SUPPORTED_LANGUAGES } from '../../../../../assets/i18n/constants';
 import { setLang } from '../../langSlice';
-import { sortArrayByOrderArray } from '../../../../../lib/utilsGeneral';
+import { sortArrayByOrderArray } from '../../../../../lib/utilsLight';
 
 const LangControl: FC = () => {
 	const { t, i18n } = useTranslation();

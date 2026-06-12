@@ -7,9 +7,9 @@ import { Point } from 'geojson';
 /**
  * Internal dependencies
  */
-import { dbZ } from '../../../../db/client';
+import { dbZ } from '../../../../db/clients';
 import { routesTable, routingPointsTable } from './schema/schema';
-import { sortArrayByOrderArray } from '../../../../lib/utilsGeneral';
+import { sortArrayByOrderArray } from '../../../../lib/utilsLight';
 import { RoutingProfile } from '../types';
 import { rowParseGeometryGeoJSON } from '../../../../db/utils';
 

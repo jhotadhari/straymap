@@ -1,7 +1,7 @@
 import { Feature, LineString, GeoJsonProperties } from 'geojson';
 import { eq, and } from 'drizzle-orm';
 
-import { dbZ } from '../../../../db/client';
+import { dbZ } from '../../../../db/clients';
 import { fetchLinesWithTags } from './fetch';
 import { linesTable, tagsTable, tagsToLinesTable } from './schema/schema';
 

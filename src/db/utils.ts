@@ -6,9 +6,9 @@ import { Scalar, QueryResult } from '@op-engineering/op-sqlite';
 /**
  * Internal dependencies
  */
-import { dbOp } from './client';
+import { dbOp } from './clients';
 import { omit } from 'lodash-es';
-import { parseSerialized } from '../lib/utilsGeneral';
+import { parseSerialized } from '../lib/utilsLight';
 
 export const dbOpExecute = (query: string, params?: Scalar[]): Promise<QueryResult> => {
 	return new Promise(async (resolve, reject) => {
@@ -23,11 +23,6 @@ export const dbOpExecute = (query: string, params?: Scalar[]): Promise<QueryResu
 			}
 		});
 	});
-};
-
-export const dbOpLongLatToDMS = async (lngLat: number[]) => {
-	const res = await dbOpExecute('SELECT LongLatToDMS( ?, ? )', lngLat.slice(0, 2));
-	return Object.values(res.rows[0])[0];
 };
 
 export const rowParseGeometryGeoJSON = <T, G>(row: T & { geometryGeoJSON: string }) => {

@@ -23,7 +23,7 @@ import { useSetupTheme } from '../store/features/appearance/hooks';
 import { useIsBusyPromiseQueueState } from '../store/features/ui/hooks';
 import { selectDbMigrated, selectIsUpdating } from '../store/features/updater/selectors';
 import useInitialCenter from '../compose/useInitialCenter';
-import { queryClient } from '../db/client';
+import { queryClient } from '../db/clients';
 import { DrawerControls } from '../store/features/drawers/types';
 
 const App = () => {

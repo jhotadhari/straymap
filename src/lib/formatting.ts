@@ -1,5 +1,5 @@
 import { UnitPref } from '../store/features/general/types';
-import { roundTo } from './utilsGeneral';
+import { roundTo } from './utilsLight';
 
 export const formatSeconds = (secNum: number): string => {
 	secNum = Math.round(secNum);

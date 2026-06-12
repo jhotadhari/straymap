@@ -1,6 +1,6 @@
 import { eq } from 'drizzle-orm';
 
-import { dbZ } from '../../../../db/client';
+import { dbZ } from '../../../../db/clients';
 import { tagsTable, tagsToLinesTable } from './schema/schema';
 
 export const createTags = async (

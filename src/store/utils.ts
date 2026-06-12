@@ -11,7 +11,7 @@ import { RootState, AppThunk } from './store';
 import { initializeFromStorage as initializeFromStorage_updater } from './features/updater/connectStorage';
 import { initializeFromStorage as initializeFromStorage_lang } from './features/lang/connectStorage';
 import { setDbMigrated } from './features/updater/updaterSlice';
-import { dbZ } from '../db/client';
+import { dbZ } from '../db/clients';
 import migrations from '../../drizzle/migrations';
 import features from './features';
 

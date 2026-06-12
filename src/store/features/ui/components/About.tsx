@@ -26,29 +26,16 @@ import license from '../../../../../LICENSE.md';
 import changelog from '../../../../../CHANGELOG.md';
 import debugInfo from '../../../../../.debugInfo.json';
 import packageJson from '../../../../../package.json';
-import { removeLeadingTrailingEmptyLines, removeLines } from '../../../../lib/utils';
 import renderRules from '../../../../markdown/renderRules';
 import { styles } from '../../../../markdown/styles';
 import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
 import HintLink from '../../../../components/generic/HintLink';
-
-type MdPart = {
-	key: string;
-	str: string;
-};
-
-const getMdParts = (fileContent: string): MdPart[] =>
-	[...fileContent.split(/\n##\s[\s\S]*?/g)]
-		.map((str: string): null | MdPart => {
-			const key = str.match(/(.*?)\n/);
-			return key
-				? {
-						key: key[1],
-						str: removeLeadingTrailingEmptyLines(str, 1),
-					}
-				: null;
-		})
-		.filter((a) => null !== a) as MdPart[];
+import {
+	getMdParts,
+	removeLeadingTrailingEmptyLines,
+	removeLines,
+} from '../../../../markdown/utils';
+import { MdPart } from '../../../../markdown/types';
 
 const readmeParts = getMdParts(readme);
 const changelogParts = getMdParts(changelog).slice(1);

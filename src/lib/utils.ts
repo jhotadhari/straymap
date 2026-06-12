@@ -10,34 +10,24 @@ import { LineString } from 'geojson';
  */
 import { LineStats as LineStatsType } from '../store/features/lines/types';
 import { dbOpExecute } from '../db/utils';
+import { NumType } from '../types';
 
-let firstNonEmptyLine: null | number = null;
-const filterCb = (line: string, idx: number) => {
-	if (0 === idx) {
-		firstNonEmptyLine = null;
+export const strValToNb = (val: string, numType: NumType = 'int'): number => {
+	switch (numType) {
+		case 'int':
+			return parseInt(
+				(val.trim().startsWith('-') ? '-' : '') + val.trim().replace(/[^0-9]/g, ''),
+				10
+			);
+		case 'float':
+			return parseFloat(
+				(val.trim().startsWith('-') ? '-' : '') +
+					val
+						.trim()
+						.replace(/,/g, '.')
+						.replace(/[^0-9.]/g, '')
+			);
 	}
-	if (null !== firstNonEmptyLine) {
-		return true;
-	}
-	if (line.replace(/\s/, '').length) {
-		firstNonEmptyLine = idx;
-		return true;
-	}
-	return false;
-};
-export const removeLeadingTrailingEmptyLines = (str: string, skipLinesNb?: number): string => {
-	skipLinesNb = undefined === skipLinesNb ? 0 : skipLinesNb;
-	const lines = str.split('\n').slice(skipLinesNb);
-	return lines.filter(filterCb).reverse().filter(filterCb).reverse().join('\n');
-};
-
-export const removeLines = (str: string, pattern: RegExp): string => {
-	const lines = str.split('\n');
-	return lines
-		.filter((line: string) => {
-			return !line.match(pattern);
-		})
-		.join('\n');
 };
 
 export const runAfterInteractions = (

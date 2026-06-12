@@ -6,7 +6,7 @@ import { eq } from 'drizzle-orm';
 /**
  * Internal dependencies
  */
-import { dbZ } from '../../../../db/client';
+import { dbZ } from '../../../../db/clients';
 import { routesTable, routingPointsTable } from './schema/schema';
 
 export const createRoutes = async (

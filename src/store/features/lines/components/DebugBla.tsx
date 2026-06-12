@@ -3,7 +3,7 @@ import { QueryResult, Scalar } from '@op-engineering/op-sqlite';
 import { lineString, point } from '@turf/turf';
 import { gt, isNotNull, sql, eq } from 'drizzle-orm';
 
-import { dbZ, dbOp } from '../../../../db/client';
+import { dbZ, dbOp } from '../../../../db/clients';
 import { routesTable, routingPointsTable } from '../../routing/db/schema/schema';
 import { createLines, lineAddTag, updateLine } from '../db/actionsLine';
 import { createTags } from '../db/actionsTag';

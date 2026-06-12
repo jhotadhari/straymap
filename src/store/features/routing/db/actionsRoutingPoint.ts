@@ -1,7 +1,7 @@
 import { eq } from 'drizzle-orm';
 import { Feature, Point, GeoJsonProperties } from 'geojson';
 
-import { dbZ } from '../../../../db/client';
+import { dbZ } from '../../../../db/clients';
 import { routesTable, routingPointsTable } from './schema/schema';
 import { fetchRoutesWithPoints } from './fetch';
 import { updateRoute } from './actionsRoute';

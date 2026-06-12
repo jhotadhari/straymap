@@ -2,7 +2,7 @@
 
 const { globSync } = require('glob');
 const path = require('path');
-const { readFileSync, writeFileSync } = require('fs');
+const { readFileSync, writeFileSync, lstatSync } = require('fs');
 const tsx = require('tsx/cjs/api');
 
 // Load languages from constants.
@@ -12,12 +12,16 @@ const { SUPPORTED_LANGUAGES, FALLBACK_LANGUAGE } = tsx.require(
 );
 
 // Load utils
-const { sortDeep } = tsx.require(path.resolve(__dirname, '../src/lib/utilsGeneral.ts'), __filename);
+const { sortDeep } = tsx.require(path.resolve(__dirname, '../src/lib/utilsLight.ts'), __filename);
 
 const slicesPath = '../src/store/features';
-const slices = globSync(path.resolve(__dirname, slicesPath + '/*')).map((file) => {
-	return file.replace(path.resolve(__dirname, slicesPath) + '/', '');
-});
+const slices = globSync(path.resolve(__dirname, slicesPath + '/*'))
+	.map((file) => {
+		return lstatSync(file).isDirectory()
+			? file.replace(path.resolve(__dirname, slicesPath) + '/', '')
+			: undefined;
+	})
+	.filter((s) => !!s);
 
 [
 	'../src/assets/i18n/',

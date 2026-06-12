@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { TextStyle, View, ViewStyle } from 'react-native';
+import { View } from 'react-native';
 import { Text, useTheme, TextInput } from 'react-native-paper';
 import { get } from 'lodash-es';
 
@@ -10,7 +10,7 @@ import { get } from 'lodash-es';
  * Internal dependencies
  */
 import InfoRowControl from './InfoRowControl';
-import { strValToNb } from '../../../lib/utilsGeneral';
+import { strValToNb } from '../../../lib/utils';
 import { NumType } from '../../../types';
 import { styles } from './NumericRowControl';
 

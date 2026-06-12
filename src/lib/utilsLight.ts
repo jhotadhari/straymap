@@ -2,12 +2,12 @@
  * External dependencies
  */
 import { isObject, set } from 'lodash-es';
-import { NumType } from '../types';
 
 /**
- * General utils
- *
- * Used by scripts as well. So keep them clean from overhead imports.
+ * Used by scripts as well. So keep them light clean from overhead imports.
+ */
+
+/**
  */
 
 export const randomNumber = (min: number, max: number): number => Math.random() * (max - min) + min;
@@ -28,24 +28,6 @@ export const parseSerialized = <T>(str: string, fallback?: T): T | undefined => 
 		object = object;
 	}
 	return object;
-};
-
-export const strValToNb = (val: string, numType: NumType = 'int'): number => {
-	switch (numType) {
-		case 'int':
-			return parseInt(
-				(val.trim().startsWith('-') ? '-' : '') + val.trim().replace(/[^0-9]/g, ''),
-				10
-			);
-		case 'float':
-			return parseFloat(
-				(val.trim().startsWith('-') ? '-' : '') +
-					val
-						.trim()
-						.replace(/,/g, '.')
-						.replace(/[^0-9.]/g, '')
-			);
-	}
 };
 
 // Sort array of strings or objects based on another array.

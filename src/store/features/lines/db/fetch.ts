@@ -7,7 +7,7 @@ import { sql, eq, and, inArray, desc } from 'drizzle-orm';
 /**
  * Internal dependencies
  */
-import { dbZ } from '../../../../db/client';
+import { dbZ } from '../../../../db/clients';
 import { linesTable, tagsTable, tagsToLinesTable } from './schema/schema';
 import { rowsParseGeometryGeoJSON } from '../../../../db/utils';
 import { ArrayElement } from '../../../../types';

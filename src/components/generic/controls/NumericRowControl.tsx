@@ -2,35 +2,15 @@
  * External dependencies
  */
 import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { StyleSheet, TextStyle, View, ViewStyle } from 'react-native';
-import { Text, useTheme, TextInput } from 'react-native-paper';
+import { StyleSheet, TextStyle, ViewStyle } from 'react-native';
+import { useTheme, TextInput } from 'react-native-paper';
 
 /**
  * Internal dependencies
  */
 import InfoRowControl from './InfoRowControl';
-import useKeyboardShown from '../../../compose/useKeyboardShown';
-import ButtonHighlight from '../ButtonHighlight';
-
-type NumType = 'int' | 'float';
-
-const strValToNb = (val: string, numType: NumType = 'int'): number => {
-	switch (numType) {
-		case 'int':
-			return parseInt(
-				(val.trim().startsWith('-') ? '-' : '') + val.trim().replace(/[^0-9]/g, ''),
-				10
-			);
-		case 'float':
-			return parseFloat(
-				(val.trim().startsWith('-') ? '-' : '') +
-					val
-						.trim()
-						.replace(/,/g, '.')
-						.replace(/[^0-9.]/g, '')
-			);
-	}
-};
+import { strValToNb } from '../../../lib/utils';
+import { NumType } from '../../../types';
 
 const NumericRowControl = ({
 	label,

@@ -9,7 +9,7 @@ import VectorDrawable from '@klarna/react-native-vector-drawable';
 /**
  * Internal dependencies
  */
-import { randomNumber } from '../lib/utilsGeneral';
+import { randomNumber } from '../lib/utilsLight';
 
 const rotationInterpolateConfig = {
 	inputRange: [-360, 360],

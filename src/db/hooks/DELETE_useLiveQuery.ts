@@ -14,7 +14,7 @@
  */
 
 import { useState, useEffect, useRef, useMemo } from 'react';
-import { dbOp } from '../client';
+import { dbOp } from '../clients';
 
 type DrizzleQuery = {
 	toSQL: () => { sql: string; params: unknown[] };

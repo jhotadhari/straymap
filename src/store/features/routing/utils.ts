@@ -6,7 +6,7 @@ import { getTrackFromParams, GetTrackParams } from 'react-native-brouter';
 /**
  * Internal dependencies
  */
-import { parseSerialized } from '../../../lib/utilsGeneral';
+import { parseSerialized } from '../../../lib/utilsLight';
 import { JSONTracKParsed, RoutingSegment } from './types';
 import { locationsToCoordsArr, runAfterInteractions } from '../../../lib/utils';
 import { fetchRoutesWithPoints } from './db/fetch';

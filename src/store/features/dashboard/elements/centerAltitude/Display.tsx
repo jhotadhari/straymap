@@ -10,7 +10,7 @@ import convertUnits from 'convert-units';
 /**
  * Internal dependencies
  */
-import { roundTo } from '../../../../../lib/utilsGeneral';
+import { roundTo } from '../../../../../lib/utilsLight';
 import { MapContext } from '../../../../../Context';
 import { selectMapEventRate, selectUnitPrefs } from '../../../general/selectors';
 import { useAppSelector } from '../../../../hooks';
