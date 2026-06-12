@@ -3,7 +3,6 @@
  */
 import type { PayloadAction } from '@reduxjs/toolkit';
 import { createSlice } from '@reduxjs/toolkit';
-import rnUuid from 'react-native-uuid';
 import { get } from 'lodash-es';
 
 /**
@@ -12,7 +11,7 @@ import { get } from 'lodash-es';
 import { SliceSettingsBase } from '../../../types';
 import { RoutingPoint, RoutingSegment, RoutingTriggeredSegment } from './types';
 import { AppThunk } from '../../store';
-import { getCoordsFromRouting } from './utils';
+import { getCoordsFromRouting, getSegmentRecordId } from './utils';
 import { setLineSelected } from '../lines/linesSlice';
 import { fetchRoutesWithPoints } from './db/fetch';
 import { lineString } from '@turf/helpers';
@@ -89,17 +88,11 @@ export const routingSlice = createSlice({
 		// 	state.segments = action.payload.segments;
 		// },
 		setSegment: (state, action: PayloadAction<RoutingSegment>) => {
-			const segmentRecordId = [
-				action.payload.fromId,
-				action.payload.toId,
-			].join('_');
+			const segmentRecordId = getSegmentRecordId( action.payload );
 			state.segments[segmentRecordId] = action.payload;
 		},
 		deleteSegment: (state, action: PayloadAction<RoutingSegment>) => {
-			const segmentRecordId = [
-				action.payload.fromId,
-				action.payload.toId,
-			].join('_');
+			const segmentRecordId = getSegmentRecordId( action.payload );
 			delete state.segments[segmentRecordId];
 		},
 		setMarkerLayerUuid: (state, action: PayloadAction<RoutingState['markerLayerUuid']>) => {
@@ -248,7 +241,6 @@ export const processRouting = (options?: {
 
 									const newSegment: RoutingSegment = {
 										...(segment ?? {}),
-										key: rnUuid.v4() as string,
 										fromId: point.id,
 										toId: nextPoint.id,
 										isFetching: true,

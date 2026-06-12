@@ -31,7 +31,6 @@ export interface LocationExtended extends Location {
 }
 
 export type RoutingSegment = {
-	key: string;
 	fromId: number;
 	toId: number;
 	positions?: Location[];

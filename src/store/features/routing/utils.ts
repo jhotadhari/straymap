@@ -7,11 +7,16 @@ import { getTrackFromParams, GetTrackParams } from 'react-native-brouter';
  * Internal dependencies
  */
 import { parseSerialized } from '../../../lib/utilsGeneral';
-import { JSONTracKParsed } from './types';
+import { JSONTracKParsed, RoutingSegment } from './types';
 import { runAfterInteractions } from '../../../lib/utils';
 import { fetchRoutesWithPoints } from './db/fetch';
 import { store } from '../../store';
 import { setPoints } from './routingSlice';
+
+export const getSegmentRecordId = ( segment: RoutingSegment ) => [
+	segment.fromId,
+	segment.toId,
+].join('_');
 
 export const getCoordsFromRouting = ({
 	params,

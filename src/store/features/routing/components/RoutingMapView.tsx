@@ -30,6 +30,7 @@ import {
 	selectPoints,
 	selectSegments,
 } from '../selectors';
+import { getCoordsFromRouting, getSegmentRecordId } from '../utils';
 
 // const NearestToLine = () => {
 // 	const { nearestSimplifiedLocation } = useContext(RoutingContext);
@@ -61,23 +62,22 @@ const RoutingMapView = () => {
 	return (
 		<MapContainer.View>
 			{Object.values(segments).map((segment, index) => {
-				if (
-					!segment.positions ||
-					!segment.positions.length ||
-					segment?.isFetching ||
-					!points
-				) {
-					return null;
+
+				if( segment?.isFetching ) {
+					// ??? show placeholder line instead
+					return undefined;
 				}
-				const fromPointIdx = points.findIndex((point) => segment.fromId === point.id);
-				const toPointIdx = points.findIndex((point) => segment.toId === point.id);
-				if (-1 === fromPointIdx || -1 === toPointIdx || toPointIdx !== fromPointIdx + 1) {
-					return null;
+
+				if ((segment?.positions?.length ?? 0) < 2 || segment?.errorMsg ) {
+					// ??? show error placeholder line instead
+					return undefined;
 				}
+
+				const segmentRecordId = getSegmentRecordId(segment);
 
 				return (
 					<LayerPathSlopeGradient
-						key={segment.key}
+						key={segmentRecordId}
 						onCreate={(response) => {
 							if (response?.uuid && setPathLayerUuids) {
 								dispatch(
@@ -133,7 +133,7 @@ const RoutingMapView = () => {
             } }
         /> } */}
 
-			{points && points.length > 0 && (
+			{points.length > 0 && (
 				<LayerMarker
 					onCreate={(response) =>
 						response.uuid ? dispatch(setMarkerLayerUuid(response.uuid)) : null
