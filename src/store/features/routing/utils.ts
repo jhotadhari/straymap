@@ -13,10 +13,11 @@ import { fetchRoutesWithPoints } from './db/fetch';
 import { store } from '../../store';
 import { setPoints } from './routingSlice';
 
-export const getSegmentRecordId = ( segment: RoutingSegment ) => [
-	segment.fromId,
-	segment.toId,
-].join('_');
+export const getSegmentRecordId = (segment: RoutingSegment) =>
+	[
+		segment.fromId,
+		segment.toId,
+	].join('_');
 
 export const aggregateSegmentsToCoords = (segments: RoutingSegment[]) =>
 	segments.reduce((acc, seg) => {
@@ -31,7 +32,7 @@ export const getCoordsFromRouting = ({
 	hasDelay,
 }: {
 	params: GetTrackParams;
-	hasDelay: boolean;		// ??? do we really need that delay???
+	hasDelay: boolean; // ??? do we really need that delay???
 }) => {
 	return new Promise<number[][]>((resolve, reject) => {
 		runAfterInteractions(

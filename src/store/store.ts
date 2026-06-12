@@ -40,9 +40,9 @@ export const store = configureStore({
 	// NOTE: Since this can receive actions with functions inside,
 	// it should go before the serializability check middleware
 	middleware: (getDefaultMiddleware) =>
-		getDefaultMiddleware( {
+		getDefaultMiddleware({
 			serializableCheck: global.shouldLog.serializableCheck,
-		} ).prepend(listenerMiddleware.middleware),
+		}).prepend(listenerMiddleware.middleware),
 });
 
 // Infer the type of `store`

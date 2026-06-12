@@ -20,7 +20,6 @@ import Header from './Header';
 import Footer from './Footer';
 
 const LinesTable: FC = () => {
-
 	const theme = useTheme();
 
 	const { selectedIds: onMapIds, visibleMap } = useAppSelector(selectSelectedInfos);

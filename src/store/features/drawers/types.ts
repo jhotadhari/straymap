@@ -40,10 +40,9 @@ export interface DrawerProps extends DrawerState {
 export interface DrawerControl {
 	getIsFullyCollapsed: DrawerState['getIsFullyCollapsed'];
 	expand: DrawerState['expand'];
-
-};
+}
 
 export interface DrawerControls {
-    left: DrawerControl;
-    right: DrawerControl;
-};
+	left: DrawerControl;
+	right: DrawerControl;
+}

@@ -93,7 +93,7 @@ startAppListening({
 	actionCreator: setPointsAction,
 	effect: async (action, listenerApi) => {
 		listenerApi.dispatch(
-			processRouting( {
+			processRouting({
 				updateLine: action.payload.updateLine,
 			})
 		);
