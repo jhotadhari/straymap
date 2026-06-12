@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { FC, useCallback, useMemo, Dispatch, SetStateAction } from 'react';
+import { FC, useCallback, useMemo, Dispatch, SetStateAction, useContext } from 'react';
 import { StyleProp, TouchableWithoutFeedback, View, ViewStyle } from 'react-native';
 import { useTheme, Text, Icon } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -23,6 +23,9 @@ import { selectIsRouting } from '../../../routing/selectors';
 import { queryRoutingLineId } from '../../../routing/db/queries';
 import { setActiveKey } from '../../../drawers/drawersSlice';
 import IconRouting from '../../../drawers/items/routing/IconComponent';
+import { AppContext } from '../../../../../Context';
+import { selectSideForKey } from '../../../drawers/selectors';
+import { DrawerControl } from '../../../drawers/types';
 import { setUiItemKeys } from '../../../ui/uiSlice';
 
 const OtherCell: FC<{
@@ -61,6 +64,25 @@ const TableRow: FC<{
 	const dispatch = useAppDispatch();
 
 	const theme = useTheme();
+
+	const { drawerControlsRef } = useContext(AppContext);
+	const drawerSideWithRouting = useAppSelector((state) => selectSideForKey(state, 'routing'));
+	const handleRoutingBtnPress = useCallback( () => {
+		if (drawerSideWithRouting) {
+			dispatch(
+				setActiveKey({
+					activeKey: 'routing',
+				})
+			);
+			(
+				get(
+					drawerControlsRef?.current,
+					drawerSideWithRouting
+				) as DrawerControl
+			).expand(true);
+			dispatch(setUiItemKeys([]));
+		}
+	}, [drawerSideWithRouting] );
 
 	const routeId = useAppSelector(selectIsRouting);
 	const { data: routingLineId } = useQuery({
@@ -131,15 +153,7 @@ const TableRow: FC<{
 					<ButtonHighlight
 						mode="text"
 						compact={true}
-						onPress={() => {
-							dispatch(
-								setActiveKey({
-									// ??? should expand
-									activeKey: 'routing',
-								})
-							);
-							dispatch(setUiItemKeys([]));
-						}}
+						onPress={handleRoutingBtnPress}
 					>
 						<IconRouting color={theme.colors.primary} />
 					</ButtonHighlight>

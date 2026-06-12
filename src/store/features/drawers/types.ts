@@ -36,3 +36,14 @@ export interface DrawerProps extends DrawerState {
 	height: number;
 	setModalVisible: Dispatch<SetStateAction<boolean>>;
 }
+
+export interface DrawerControl {
+	getIsFullyCollapsed: DrawerState['getIsFullyCollapsed'];
+	expand: DrawerState['expand'];
+
+};
+
+export interface DrawerControls {
+    left: DrawerControl;
+    right: DrawerControl;
+};

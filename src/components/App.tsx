@@ -24,6 +24,7 @@ import { useIsBusyPromiseQueueState } from '../store/features/ui/hooks';
 import { selectDbMigrated, selectIsUpdating } from '../store/features/updater/selectors';
 import useInitialCenter from '../compose/useInitialCenter';
 import { queryClient } from '../db/client';
+import { DrawerControls } from '../store/features/drawers/types';
 
 const App = () => {
 	const theme = useTheme();
@@ -33,6 +34,7 @@ const App = () => {
 	const [bottomBarHeight, setBottomBarHeight] = useState<BottomBarHeight>({});
 
 	const currentMapEventRef = useRef<MapEventResponse | null>(null);
+	const drawerControlsRef = useRef<DrawerControls | null>(null);
 
 	// Prevent app from closing on hardwareBackPress.
 	useEffect(() => {
@@ -114,6 +116,7 @@ const App = () => {
 				bottomBarHeight,
 				setTopAppBarHeight,
 				setBottomBarHeight,
+				drawerControlsRef,
 				mapHeight:
 					(appInnerHeight || height) -
 					(Object.values(bottomBarHeight).reduce((acc, nb) => acc + nb, 0) || 0),

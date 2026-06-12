@@ -2,11 +2,11 @@
  * External dependencies
  */
 import { useQuery } from '@tanstack/react-query';
-import { FC, useCallback, useMemo } from 'react';
+import { FC, useCallback, useContext, useMemo } from 'react';
 import { StyleSheet, View, ViewStyle } from 'react-native';
 import { List, useTheme, Text, Icon } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { omit, pick } from 'lodash-es';
+import { get, omit, pick } from 'lodash-es';
 
 /**
  * Internal dependencies
@@ -26,6 +26,9 @@ import LineStats from './LineStats';
 import TagBadge from './TagBadge';
 import { setActiveKey } from '../../drawers/drawersSlice';
 import IconRouting from '../../drawers/items/routing/IconComponent';
+import { selectSideForKey } from '../../drawers/selectors';
+import { AppContext } from '../../../../Context';
+import { DrawerControl } from '../../drawers/types';
 
 const LineRow: FC<{
 	line: LineWithTags;
@@ -35,6 +38,24 @@ const LineRow: FC<{
 	const { t } = useTranslation();
 
 	const dispatch = useAppDispatch();
+
+	const { drawerControlsRef } = useContext(AppContext);
+	const drawerSideWithRouting = useAppSelector((state) => selectSideForKey(state, 'routing'));
+	const handleRoutingBtnPress = useCallback( () => {
+		if (drawerSideWithRouting) {
+			dispatch(
+				setActiveKey({
+					activeKey: 'routing',
+				})
+			);
+			(
+				get(
+					drawerControlsRef?.current,
+					drawerSideWithRouting
+				) as DrawerControl
+			).expand(true);
+		}
+	}, [drawerSideWithRouting] );
 
 	const theme = useTheme();
 
@@ -77,14 +98,7 @@ const LineRow: FC<{
 					style={styles.noShrink}
 					mode="text"
 					compact={true}
-					onPress={() => {
-						dispatch(
-							setActiveKey({
-								// ??? should expand
-								activeKey: 'routing',
-							})
-						);
-					}}
+					onPress={handleRoutingBtnPress}
 				>
 					<IconRouting color={theme.colors.primary} />
 				</ButtonHighlight>

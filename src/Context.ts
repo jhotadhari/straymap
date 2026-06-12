@@ -8,6 +8,7 @@ import { MapEventResponse } from 'react-native-mapsforge-vtm';
  * Internal dependencies
  */
 import { BottomBarHeight } from './types';
+import { DrawerControls } from './store/features/drawers/types';
 
 export type AppContextType = {
 	mapViewNativeNodeHandle?: number | null;
@@ -17,9 +18,12 @@ export type AppContextType = {
 	setBottomBarHeight?: Dispatch<SetStateAction<BottomBarHeight>>;
 	setTopAppBarHeight?: Dispatch<SetStateAction<number>>;
 	mapHeight?: number;
+	drawerControlsRef: MutableRefObject<DrawerControls | null>;
 };
 
-export const AppContext = createContext<AppContextType>({});
+export const AppContext = createContext<AppContextType>({
+	drawerControlsRef: createRef<DrawerControls>(),
+});
 
 export type MapContextType = {
 	currentMapEventRef: MutableRefObject<MapEventResponse | null>;

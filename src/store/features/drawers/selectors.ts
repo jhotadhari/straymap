@@ -36,3 +36,18 @@ export const selectItemKeys = createAppSelector(
 		);
 	}
 );
+
+export const selectSideForKey = createAppSelector(
+	(state: RootState) => state.drawers.itemKeysLeft,
+	(state: RootState) => state.drawers.itemKeysRight,
+	(_state: RootState, key: string) => key,
+	(itemKeysLeft, itemKeysRight, key): string | undefined => {
+		if (itemKeysLeft.includes(key)) {
+			return 'left';
+		}
+		if (itemKeysRight.includes(key)) {
+			return 'right';
+		}
+		return undefined;
+	}
+);

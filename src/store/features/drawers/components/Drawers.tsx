@@ -3,7 +3,7 @@
  */
 import { BackHandler, View } from 'react-native';
 import { useSharedValue } from 'react-native-reanimated';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 
 /**
  * Internal dependencies
@@ -11,6 +11,7 @@ import { useCallback, useEffect, useState } from 'react';
 import Drawer from './Drawer';
 import useDrawerState from '../hooks/useDrawerState';
 import DrawerControlModal from './controls/DrawerControlModal';
+import { AppContext } from '../../../../Context';
 
 const Drawers = ({
 	drawerWidth = 300,
@@ -23,6 +24,8 @@ const Drawers = ({
 	height: number;
 	hidden?: boolean;
 }) => {
+	const { drawerControlsRef } = useContext(AppContext);
+
 	const translationXLeft = useSharedValue(-drawerWidth);
 
 	const translationXRight = useSharedValue(drawerWidth);
@@ -54,6 +57,24 @@ const Drawers = ({
 			bubble = false;
 		}
 		return !bubble;
+	}, [
+		drawerStateLeft.getIsFullyCollapsed,
+		drawerStateLeft.expand,
+		drawerStateRight.getIsFullyCollapsed,
+		drawerStateRight.expand,
+	]);
+
+	useEffect(() => {
+		drawerControlsRef.current = {
+			left: {
+				getIsFullyCollapsed: drawerStateLeft.getIsFullyCollapsed,
+				expand: drawerStateLeft.expand,
+			},
+			right: {
+				getIsFullyCollapsed: drawerStateRight.getIsFullyCollapsed,
+				expand: drawerStateRight.expand,
+			},
+		};
 	}, [
 		drawerStateLeft.getIsFullyCollapsed,
 		drawerStateLeft.expand,
