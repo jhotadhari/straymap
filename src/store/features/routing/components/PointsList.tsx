@@ -4,7 +4,6 @@
 import React, {
 	Dispatch,
 	FC,
-	Fragment,
 	SetStateAction,
 	useCallback,
 	useContext,
@@ -28,7 +27,7 @@ import DrawerContext from '../../drawers/DrawerContext';
 import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
 import LoadingIndicator from '../../../../components/generic/LoadingIndicator';
 import { useAppDispatch, useAppSelector } from '../../../hooks';
-import { setPoints, setSegments } from '../routingSlice';
+import { processRouting, setPoints, setSegment } from '../routingSlice';
 import { selectIsRouting, selectPoints, selectSegments } from '../selectors';
 import { updateRoute } from '../db/actionsRoute';
 import { lineStringToStats, locationsToCoordsArr } from '../../../../lib/utils';
@@ -52,8 +51,7 @@ const Segment: FC<{
 
 	const segments = useAppSelector(selectSegments);
 
-	const segmentIdx = segments ? segments.findIndex((segment) => segment.fromId === item.id) : -1;
-	const segment = segments && -1 !== segmentIdx ? segments[segmentIdx] : undefined;
+	const segment = Object.values(segments).find((seg) => seg.fromId === item.id);
 
 	const StateIcon = useCallback(() => {
 		switch (true) {
@@ -89,32 +87,23 @@ const Segment: FC<{
 	}, [segment]);
 
 	const refreshSegment = useCallback(() => {
-		const newSegments = [...segments];
-		newSegments.splice(
-			segmentIdx,
-			1,
-			omit(
-				{
-					...newSegments[segmentIdx],
-					isFetching: false,
-				},
-				['positions']
-			)
+		if (!segment) {
+			return;
+		}
+		const newSegment = omit(
+			{
+				...segment,
+				isFetching: false,
+			},
+			['positions']
 		);
-		dispatch(setSegments(newSegments, { updateRoutes: true }));
-	}, [segments, segmentIdx]);
+		dispatch(setSegment(newSegment));
+		dispatch(processRouting());
+	}, [segment]);
 
 	const handleSetEdit = useCallback(() => {
 		setEditPoint(item);
 	}, [item]);
-
-	// Hide if dragging
-	if (
-		undefined !== draggingItemIndex &&
-		(draggingItemIndex === order || draggingItemIndex - 1 === order)
-	) {
-		return undefined;
-	}
 
 	const [lineStats, setLineStats] = useState<LineStatsType>({});
 	useEffect(() => {
@@ -127,6 +116,14 @@ const Segment: FC<{
 		}
 		setLineStats({});
 	}, [segment?.positions]);
+
+	// Hide if dragging
+	if (
+		undefined !== draggingItemIndex &&
+		(draggingItemIndex === order || draggingItemIndex - 1 === order)
+	) {
+		return undefined;
+	}
 
 	return (
 		<View

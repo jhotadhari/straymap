@@ -104,15 +104,30 @@ export const drawersSlice = createSlice({
 		setActiveKey: (
 			state,
 			action: PayloadAction<{
-				side: string;
+				side?: string;
 				activeKey?: string;
 			}>
 		) => {
-			if ('left' === action.payload.side) {
-				state.activeKeyLeft = action.payload.activeKey;
-			}
-			if ('right' === action.payload.side) {
-				state.activeKeyRight = action.payload.activeKey;
+			if (action.payload.side) {
+				if (
+					'left' === action.payload.side &&
+					(!action.payload.activeKey ||
+						state.itemKeysLeft.includes(action.payload.activeKey))
+				) {
+					state.activeKeyLeft = action.payload.activeKey;
+				} else if (
+					'right' === action.payload.side &&
+					(!action.payload.activeKey ||
+						state.itemKeysRight.includes(action.payload.activeKey))
+				) {
+					state.activeKeyRight = action.payload.activeKey;
+				}
+			} else if (action.payload.activeKey) {
+				if (state.itemKeysLeft.includes(action.payload.activeKey)) {
+					state.activeKeyLeft = action.payload.activeKey;
+				} else if (state.itemKeysRight.includes(action.payload.activeKey)) {
+					state.activeKeyRight = action.payload.activeKey;
+				}
 			}
 		},
 	},

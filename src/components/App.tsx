@@ -7,7 +7,7 @@ import { PaperProvider, Text, useTheme } from 'react-native-paper';
 import { MapEventResponse } from 'react-native-mapsforge-vtm';
 import { sprintf } from 'sprintf-js';
 import { useTranslation } from 'react-i18next';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
 
 /**
  * Internal dependencies
@@ -23,6 +23,7 @@ import { useSetupTheme } from '../store/features/appearance/hooks';
 import { useIsBusyPromiseQueueState } from '../store/features/ui/hooks';
 import { selectDbMigrated, selectIsUpdating } from '../store/features/updater/selectors';
 import useInitialCenter from '../compose/useInitialCenter';
+import { queryClient } from '../db/client';
 
 const App = () => {
 	const theme = useTheme();
@@ -134,22 +135,6 @@ const App = () => {
 		</AppContext.Provider>
 	);
 };
-
-const queryClient = new QueryClient({
-	defaultOptions: {
-		queries: {
-			staleTime: Infinity, // Never trigger a refetch until the Query is invalidated manually.
-			gcTime: 0, // The time in milliseconds that unused/inactive cache data remains in memory. When a query's cache becomes unused or inactive, that cache data will be garbage collected after this duration.
-			networkMode: 'always', // We don't care for network, we fetch from a local db.
-			throwOnError: (error, query) => {
-				if (__DEV__) {
-					console.error('DEBUG error query ', { error, query }); // debug
-				}
-				return false;
-			},
-		},
-	},
-});
 
 export default () => {
 	const theme = useSetupTheme();

@@ -24,13 +24,14 @@ import { iconSize } from '../../drawers/constants';
 import { setLineSelected, setLineVisible } from '../linesSlice';
 import LineStats from './LineStats';
 import TagBadge from './TagBadge';
+import { setActiveKey } from '../../drawers/drawersSlice';
+import IconRouting from '../../drawers/items/routing/IconComponent';
 
 const LineRow: FC<{
 	line: LineWithTags;
 	idx: number;
-	routingLineId: number | null | undefined;
 	visible: boolean;
-}> = ({ line, idx, routingLineId, visible }) => {
+}> = ({ line, idx, visible }) => {
 	const { t } = useTranslation();
 
 	const dispatch = useAppDispatch();
@@ -49,19 +50,45 @@ const LineRow: FC<{
 
 	const toggleSelected = useCallback(() => dispatch(setLineSelected(line.id)), [line.id]);
 
+	const routeId = useAppSelector(selectIsRouting);
+	const { data: routingLineId } = useQuery({
+		queryKey: ['routingLineId', routeId],
+		queryFn: () => queryRoutingLineId(routeId),
+	});
+
 	return (
 		<View style={[styles.row, style]}>
-			<ButtonHighlight
-				style={styles.noShrink}
-				mode="text"
-				compact={true}
-				onPress={toggleSelected}
-			>
-				<Icon
-					source={'undo'}
-					size={iconSize}
-				/>
-			</ButtonHighlight>
+			{line.id !== routingLineId && (
+				<ButtonHighlight
+					style={styles.noShrink}
+					mode="text"
+					compact={true}
+					onPress={toggleSelected}
+				>
+					<Icon
+						source={'undo'}
+						size={iconSize}
+					/>
+				</ButtonHighlight>
+			)}
+
+			{line.id === routingLineId && (
+				<ButtonHighlight
+					style={styles.noShrink}
+					mode="text"
+					compact={true}
+					onPress={() => {
+						dispatch(
+							setActiveKey({
+								// ??? should expand
+								activeKey: 'routing',
+							})
+						);
+					}}
+				>
+					<IconRouting color={theme.colors.primary} />
+				</ButtonHighlight>
+			)}
 
 			<View style={styles.rowColCenter}>
 				<View style={styles.rowColCenterRow}>
@@ -99,6 +126,8 @@ const LineRow: FC<{
 					mode="text"
 					compact={true}
 					onPress={toggleVisible}
+					disabled={line.id === routingLineId}
+					style={line.id === routingLineId ? { opacity: 0.5 } : undefined}
 				>
 					<Icon
 						source={visible ? 'eye-outline' : 'eye-off-outline'}
@@ -130,7 +159,6 @@ const SelectedLinesList: FC = () => {
 
 	const theme = useTheme();
 
-	const isRouting = useAppSelector(selectIsRouting);
 	const { selectedIds, visibleMap } = useAppSelector(selectSelectedInfos);
 
 	const notExpanded = useAppSelector((state) => selectElementExpanded(state, uiStateKey));
@@ -152,11 +180,6 @@ const SelectedLinesList: FC = () => {
 		queryFn: () => queryLines(selectedIds),
 	});
 
-	const { data: routingLineId } = useQuery({
-		queryKey: ['routingLineId', isRouting],
-		queryFn: () => queryRoutingLineId(isRouting),
-	});
-
 	return (
 		<View>
 			<List.Accordion
@@ -171,7 +194,6 @@ const SelectedLinesList: FC = () => {
 						<LineRow
 							key={line.id}
 							line={line}
-							routingLineId={routingLineId}
 							idx={idx}
 							visible={visibleMap[line.id]}
 						/>

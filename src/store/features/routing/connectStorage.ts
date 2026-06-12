@@ -4,7 +4,6 @@
 import { isAnyOf, type EnhancedStore } from '@reduxjs/toolkit';
 import DefaultPreference from 'react-native-default-preference';
 import { get, isEqual, set } from 'lodash-es';
-import { lineString } from '@turf/helpers';
 
 /**
  * Internal dependencies
@@ -13,22 +12,14 @@ import {
 	RoutingSettings,
 	RoutingState,
 	initialSettings,
+	processRouting,
 	setInitialized,
 	setIsRouting,
 	setPointsAction,
-	setSegments,
-	setSegmentsAction,
 } from './routingSlice';
 import { startAppListening } from '../../listenerMiddleware';
-import { updateSegments as updateSegments } from './utils';
-import { RoutingSegment } from './types';
-import { selectInitialized, selectIsRouting, selectPoints, selectSegments } from './selectors';
+import { selectInitialized } from './selectors';
 import { fetchRoutesWithPoints } from './db/fetch';
-import { createLines, updateLine } from '../lines/db/actionsLine';
-import { updateRoute } from './db/actionsRoute';
-import { Location } from 'react-native-mapsforge-vtm';
-import { locationsToCoordsArr } from '../../../lib/utils';
-import { setLineSelected } from '../lines/linesSlice';
 
 const settingsKey = 'routingSettings';
 
@@ -98,98 +89,13 @@ startAppListening({
 	},
 });
 
-const aggregateSegmentsToCoords = (segments: RoutingSegment[]) =>
-	segments.reduce((acc, seg) => {
-		if (seg?.positions) {
-			acc.push(...locationsToCoordsArr(seg?.positions));
-		}
-		return acc;
-	}, [] as number[][]);
-
-// ??? move helper fn somewhere else
-// ??? this should be done by query mutation somehow
-const updateLineFromSegments = async (routeId: number, segments: RoutingSegment[]) => {
-	if (!routeId) {
-		return;
-	}
-
-	if (!segments.some((seg) => seg?.positions?.length)) {
-		// ??? delete line if no positions ???.... NO Deletion now, but maybe delete on stop routing.
-
-		return;
-	}
-
-	const routes = await fetchRoutesWithPoints({ routeId });
-	if (!routes.length) {
-		return;
-	}
-	const coords = aggregateSegmentsToCoords(segments);
-	const lineStringFeature = lineString(coords);
-	if (routes[0].line_id) {
-		// Update line with new positions.
-		await updateLine(routes[0].line_id, {
-			lineStringFeature,
-		});
-		return routes[0].line_id;
-	} else {
-		// Create line and update route with line_id.
-		const insertedLines = await createLines([
-			{
-				lineStringFeature,
-			},
-		]);
-
-		if (!insertedLines?.length) {
-			return undefined;
-		}
-		await updateRoute(routeId, { line_id: insertedLines[0].id });
-		return insertedLines[0].id;
-	}
-};
-
 startAppListening({
 	actionCreator: setPointsAction,
 	effect: async (action, listenerApi) => {
-		const dispatchSetSegments = (newSegments: RoutingSegment[]) =>
-			listenerApi.dispatch(setSegments(newSegments, { filter: true }));
-		const updatedSegments = await updateSegments(
-			action.payload.points,
-			selectSegments(listenerApi.getState()),
-			dispatchSetSegments
+		listenerApi.dispatch(
+			processRouting( {
+				updateLine: action.payload.updateLine,
+			})
 		);
-		if (action.payload.updateLine) {
-			const routeId = selectIsRouting(listenerApi.getState());
-			if (routeId) {
-				const lineId = await updateLineFromSegments(routeId, updatedSegments);
-				lineId && listenerApi.dispatch(setLineSelected(lineId, true));
-			}
-		}
-	},
-});
-
-startAppListening({
-	actionCreator: setSegmentsAction,
-	effect: async (action, listenerApi) => {
-		if (!action.payload?.updateRoutes) {
-			return;
-		}
-		const dispatchSetSegments = (newSegments: RoutingSegment[]) =>
-			listenerApi.dispatch(
-				setSegments(newSegments, {
-					filter: true,
-				})
-			);
-		const updatedSegments = await updateSegments(
-			selectPoints(listenerApi.getState()),
-			action.payload.segments,
-			dispatchSetSegments
-		);
-		if (action.payload.updateLine) {
-			const routeId = selectIsRouting(listenerApi.getState());
-			if (routeId) {
-				const lineId = await updateLineFromSegments(routeId, updatedSegments);
-				lineId && listenerApi.dispatch(setLineSelected(lineId, true));
-			}
-		}
 	},
 });

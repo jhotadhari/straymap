@@ -3,15 +3,24 @@
  */
 import type { PayloadAction } from '@reduxjs/toolkit';
 import { createSlice } from '@reduxjs/toolkit';
+import rnUuid from 'react-native-uuid';
+import { get } from 'lodash-es';
 
 /**
  * Internal dependencies
  */
 import { SliceSettingsBase } from '../../../types';
 import { RoutingPoint, RoutingSegment, RoutingTriggeredSegment } from './types';
-import { selectPoints } from './selectors';
 import { AppThunk } from '../../store';
-import { filterSegments } from './utils';
+import { getCoordsFromRouting } from './utils';
+import { setLineSelected } from '../lines/linesSlice';
+import { fetchRoutesWithPoints } from './db/fetch';
+import { lineString } from '@turf/helpers';
+import { createLines, updateLine } from '../lines/db/actionsLine';
+import { updateRoute } from './db/actionsRoute';
+import { locationsToCoordsArr } from '../../../lib/utils';
+import { GetTrackParams } from 'react-native-brouter';
+import { queryClient } from '../../../db/client';
 
 export interface RoutingSettings {
 	isRouting: false | number; // false or routeId.
@@ -19,7 +28,10 @@ export interface RoutingSettings {
 
 export interface RoutingState extends SliceSettingsBase, RoutingSettings {
 	points: RoutingPoint[];
-	segments: RoutingSegment[];
+	segments: Record<
+		string, // fromId_toId
+		RoutingSegment
+	>;
 	markerLayerUuid: null | string;
 	pathLayerUuids: null | string[];
 	movingPointIdx?: number;
@@ -36,7 +48,7 @@ const initialState: RoutingState = {
 	markerLayerUuid: null,
 	pathLayerUuids: null,
 	points: [],
-	segments: [],
+	segments: {},
 	...initialSettings,
 };
 
@@ -50,14 +62,13 @@ export const routingSlice = createSlice({
 			state.initialized = action.payload;
 		},
 		setIsRouting: (state, action: PayloadAction<RoutingState['isRouting']>) => {
-			state.isRouting = action.payload;
-			if (!action.payload) {
-				state.segments = [];
+			if (state.isRouting !== action.payload || !action.payload) {
+				state.segments = {};
 				state.points = [];
 				state.movingPointIdx = undefined;
 			}
+			state.isRouting = action.payload;
 		},
-
 		setPoints: (
 			state,
 			action: PayloadAction<{
@@ -67,15 +78,29 @@ export const routingSlice = createSlice({
 		) => {
 			state.points = action.payload.points;
 		},
-		setSegments: (
-			state,
-			action: PayloadAction<{
-				segments: RoutingState['segments'];
-				updateRoutes: boolean;
-				updateLine: boolean;
-			}>
-		) => {
-			state.segments = action.payload.segments;
+		// setSegments: (
+		// 	state,
+		// 	action: PayloadAction<{
+		// 		segments: RoutingState['segments'];
+		// 		updateRoutes: boolean;
+		// 		updateLine: boolean;
+		// 	}>
+		// ) => {
+		// 	state.segments = action.payload.segments;
+		// },
+		setSegment: (state, action: PayloadAction<RoutingSegment>) => {
+			const segmentRecordId = [
+				action.payload.fromId,
+				action.payload.toId,
+			].join('_');
+			state.segments[segmentRecordId] = action.payload;
+		},
+		deleteSegment: (state, action: PayloadAction<RoutingSegment>) => {
+			const segmentRecordId = [
+				action.payload.fromId,
+				action.payload.toId,
+			].join('_');
+			delete state.segments[segmentRecordId];
 		},
 		setMarkerLayerUuid: (state, action: PayloadAction<RoutingState['markerLayerUuid']>) => {
 			state.markerLayerUuid = action.payload;
@@ -104,8 +129,9 @@ export const {
 	setInitialized,
 	setIsRouting,
 	setPoints: setPointsAction,
-	setSegments: setSegmentsAction,
-
+	// setSegments: setSegmentsAction,
+	setSegment,
+	deleteSegment,
 	setMarkerLayerUuid,
 	setPathLayerUuids,
 	setMovingPointIdx,
@@ -116,32 +142,56 @@ export const {
 // Export the slice reducer for use in the store configuration
 export default routingSlice.reducer;
 
-export const setSegments = (
-	segments: RoutingSegment[],
-	options?: {
-		filter?: boolean;
-		updateRoutes?: boolean;
-		updateLine?: boolean; // defaults to true.
-	}
-): AppThunk => {
+// export const setSegments = (
+// 	segments: Record<string, RoutingSegment>,
+// 	options?: {
+// 		filter?: boolean;
+// 		updateRoutes?: boolean;
+// 		updateLine?: boolean; // defaults to true.
+// 	}
+// ): AppThunk => {
+// 	return (dispatch, getState) => {
+// 		if (options?.filter) {
+// 			const pointIds = selectPointIds(getState());
+// 			dispatch(
+// 				routingSlice.actions.setSegments({
+// 					segments: omit(
+// 						segments,
+// 						Object.keys(segments).filter((fromId_toId) => {
+// 							const { fromId, toId } = segments[fromId_toId];
+// 							return !pointIds.includes(fromId) || !pointIds.includes(toId);
+// 						})
+// 					),
+// 					updateRoutes: !!options?.updateRoutes,
+// 					updateLine: false !== options?.updateLine,
+// 				})
+// 			);
+// 		} else {
+// 			dispatch(
+// 				routingSlice.actions.setSegments({
+// 					segments,
+// 					updateRoutes: !!options?.updateRoutes,
+// 					updateLine: false !== options?.updateLine,
+// 				})
+// 			);
+// 		}
+// 	};
+// };
+
+export const filterSegments = (): AppThunk => {
 	return (dispatch, getState) => {
-		if (options?.filter) {
-			dispatch(
-				routingSlice.actions.setSegments({
-					segments: filterSegments(segments, selectPoints(getState())),
-					updateRoutes: !!options?.updateRoutes,
-					updateLine: false !== options?.updateLine,
-				})
+		const {
+			routing: { points, segments },
+		} = getState();
+		const pointIds = points.map((p) => p.id);
+		Object.keys(segments)
+			.filter((fromId_toId) => {
+				const { fromId, toId } = segments[fromId_toId];
+				return !pointIds.includes(fromId) || !pointIds.includes(toId);
+			})
+			.map((fromId_toId) =>
+				dispatch(routingSlice.actions.deleteSegment(segments[fromId_toId]))
 			);
-		} else {
-			dispatch(
-				routingSlice.actions.setSegments({
-					segments,
-					updateRoutes: !!options?.updateRoutes,
-					updateLine: false !== options?.updateLine,
-				})
-			);
-		}
 	};
 };
 
@@ -159,4 +209,172 @@ export const setPoints = (
 			})
 		);
 	};
+};
+
+export const processRouting = (options?: {
+	updateLine?: boolean; // defaults to true. Only initializeFromStorage will call that with false.
+}): AppThunk => {
+	return async (dispatch, getState) => {
+		const {
+			routing: { points, segments, isRouting: routeId },
+		} = getState();
+
+		const updatedSegments = await new Promise<Record<string, RoutingSegment>>(
+			(resolveOuter) => {
+				points
+					.reduce(
+						(segmentsPromise, point, pointIdx) => {
+							return segmentsPromise.then((newSegments) => {
+								return new Promise((resolve) => {
+									if (pointIdx >= points.length - 1) {
+										resolve(newSegments);
+										return;
+									}
+
+									const nextPoint = points[pointIdx + 1];
+
+									const segmentRecordId = [
+										point.id,
+										nextPoint.id,
+									].join('_');
+
+									const segment = get(segments, segmentRecordId);
+
+									if (segment && (!segment.isFetching || segment.positions)) {
+										newSegments[segmentRecordId] = segment;
+										resolve(newSegments);
+										return;
+									}
+
+									const newSegment: RoutingSegment = {
+										...(segment ?? {}),
+										key: rnUuid.v4() as string,
+										fromId: point.id,
+										toId: nextPoint.id,
+										isFetching: true,
+									};
+
+									newSegments[segmentRecordId] = newSegment;
+									dispatch(
+										routingSlice.actions.setSegment({
+											...newSegment, // spread, because it has to be a new reference. Otherwise newSegment would be read only after dispatching it.
+										})
+									);
+
+									const params: GetTrackParams = {
+										lonlats: [
+											[
+												point.geometry.coordinates[0],
+												point.geometry.coordinates[1],
+											].join(','),
+											[
+												nextPoint.geometry.coordinates[0],
+												nextPoint.geometry.coordinates[1],
+											].join(','),
+										].join('|'),
+										trackFormat: 'json',
+										fast: point?.profile?.fast,
+										v: point?.profile?.v,
+									};
+
+									getCoordsFromRouting({
+										params,
+										hasDelay: !!pointIdx,
+									})
+										.then((coords) => {
+											const positions = coords.map((coord) => ({
+												lng: coord[0],
+												lat: coord[1],
+												alt: coord[2],
+											}));
+											newSegment.positions = positions;
+											newSegment.isFetching = false;
+											newSegments[segmentRecordId] = newSegment;
+											dispatch(routingSlice.actions.setSegment(newSegment));
+											resolve(newSegments);
+										})
+										.catch((errorMsg) => {
+											newSegment.errorMsg = errorMsg;
+											newSegment.isFetching = false;
+											newSegments[segmentRecordId] = newSegment;
+											dispatch(routingSlice.actions.setSegment(newSegment));
+											resolve(newSegments);
+										});
+								});
+							});
+						},
+						Promise.resolve({} as Record<string, RoutingSegment>)
+					)
+					.then((newSegments) => {
+						resolveOuter(newSegments);
+					});
+			}
+		);
+
+		dispatch(filterSegments());
+
+		if (routeId) {
+			if (false !== options?.updateLine) {
+				const lineId = await updateLineFromSegments(
+					routeId,
+					Object.values(updatedSegments)
+				);
+				if (lineId) {
+					dispatch(setLineSelected(lineId, true));
+				}
+			}
+			queryClient.invalidateQueries({ queryKey: ['routingLineId', routeId] });
+		}
+	};
+};
+
+const aggregateSegmentsToCoords = (segments: RoutingSegment[]) =>
+	segments.reduce((acc, seg) => {
+		if (seg?.positions) {
+			acc.push(...locationsToCoordsArr(seg?.positions));
+		}
+		return acc;
+	}, [] as number[][]);
+
+// ??? move helper fn somewhere else
+// ??? this should be done by query mutation somehow
+const updateLineFromSegments = async (routeId: number, segments: RoutingSegment[]) => {
+	if (!routeId) {
+		return;
+	}
+
+	if (!segments.some((seg) => seg?.positions?.length ?? 0 > 1)) {
+		// ??? delete line if no positions ???.... NO Deletion now, but maybe delete on stop routing.
+
+		return;
+	}
+
+	const routes = await fetchRoutesWithPoints({ routeId });
+
+	if (!routes.length) {
+		return;
+	}
+
+	const coords = aggregateSegmentsToCoords(segments);
+	const lineStringFeature = lineString(coords);
+	if (routes[0].line_id) {
+		// Update line with new positions.
+		await updateLine(routes[0].line_id, {
+			lineStringFeature,
+		});
+		return routes[0].line_id;
+	} else {
+		// Create line and update route with line_id.
+		const insertedLines = await createLines([
+			{
+				lineStringFeature,
+			},
+		]);
+
+		if (!insertedLines?.length) {
+			return undefined;
+		}
+		await updateRoute(routeId, { line_id: insertedLines[0].id });
+		return insertedLines[0].id;
+	}
 };

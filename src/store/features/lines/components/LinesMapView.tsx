@@ -31,30 +31,19 @@ const Line: FC<{
 	return (
 		<MapContainer.View>
 			<LayerPath
-				// responseInclude={{
-				// 	coordinates: 1,
-				// 	// 	// coordinatesSimplified: 1,
-				// }}
 				positions={positions}
 				style={{
 					strokeColor: '#ff0000',
 					strokeWidth: 5,
 				}}
-				// onCreate={(response) => {
-				// 	console.log('debug response', response); // debug
-				// }}
 			/>
 		</MapContainer.View>
 	);
 };
 
 const LinesMapView = () => {
-	const isRouting = useAppSelector(selectIsRouting);
+	const routeId = useAppSelector(selectIsRouting);
 	const selected = useAppSelector(selectSelected);
-
-	// const queryClient = useQueryClient();
-
-	// console.log( 'debug queryClient', queryClient ); // debug
 
 	const { selectedIds, visibleMap } = useMemo(
 		() => ({
@@ -73,8 +62,8 @@ const LinesMapView = () => {
 	});
 
 	const { data: routingLineId } = useQuery({
-		queryKey: ['routingLineId', isRouting],
-		queryFn: () => queryRoutingLineId(isRouting),
+		queryKey: ['routingLineId', routeId],
+		queryFn: () => queryRoutingLineId(routeId),
 	});
 
 	return lines?.map((line) => {

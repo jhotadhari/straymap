@@ -3,6 +3,9 @@
  */
 import React, { FC, useCallback, useContext, useState } from 'react';
 import { View } from 'react-native';
+import DraggableGrid from 'react-native-draggable-grid';
+import { ScrollView } from 'react-native-gesture-handler';
+import { MapContainerModule } from 'react-native-mapsforge-vtm';
 
 /**
  * Internal dependencies
@@ -14,9 +17,6 @@ import DrawerHandle from './DrawerHandle';
 import { setItemKeys } from '../drawersSlice';
 import DrawerContext from '../DrawerContext';
 import { handleSize } from '../constants';
-import DraggableGrid from 'react-native-draggable-grid';
-import { ScrollView } from 'react-native-gesture-handler';
-import { MapContainerModule } from 'react-native-mapsforge-vtm';
 import { AppContext } from '../../../../Context';
 
 const DrawerHandles: FC<

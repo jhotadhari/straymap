@@ -1,16 +1,14 @@
 /**
  * External dependencies
  */
-import { FC, Fragment, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { FC, Fragment, useCallback, useContext, useEffect, useMemo } from 'react';
 import { useTheme, Icon, Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { View, BackHandler, TouchableHighlight, StyleSheet, ScrollView } from 'react-native';
+import { View, BackHandler, TouchableHighlight, StyleSheet } from 'react-native';
 
 /**
  * Internal dependencies
  */
-import type { UiItem } from '../types';
-import MenuItem from '../../../../components/generic/MenuItem';
 import { getUiItemsByKey } from '../uiItems';
 import { useAppDispatch, useAppSelector } from '../../../hooks';
 import { selectUiItemKeys, selectIsBusy } from '../selectors';

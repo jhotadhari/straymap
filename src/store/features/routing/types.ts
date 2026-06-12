@@ -37,7 +37,6 @@ export type RoutingSegment = {
 	positions?: Location[];
 	isFetching?: boolean;
 	errorMsg?: string;
-	coordinatesSimplified?: LocationExtended[];
 };
 
 export type RoutingTriggeredSegment = {

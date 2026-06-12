@@ -5,14 +5,11 @@ import { useQuery } from '@tanstack/react-query';
 import { FC, useCallback, useMemo, useState } from 'react';
 import { FlatList, ListRenderItem, ScrollView, StyleProp, View, ViewStyle } from 'react-native';
 import { useTheme } from 'react-native-paper';
-import { useTranslation } from 'react-i18next';
 
 /**
  * Internal dependencies
  */
-import { useAppDispatch, useAppSelector } from '../../../../hooks';
-import { queryRoutingLineId } from '../../../routing/db/queries';
-import { selectIsRouting } from '../../../routing/selectors';
+import { useAppSelector } from '../../../../hooks';
 import { queryLines } from '../../db/queries';
 import { selectSelectedInfos } from '../../selectors';
 import { LineWithTags } from '../../types';
@@ -23,23 +20,14 @@ import Header from './Header';
 import Footer from './Footer';
 
 const LinesTable: FC = () => {
-	const { t } = useTranslation();
-
-	const dispatch = useAppDispatch();
 
 	const theme = useTheme();
 
-	const isRouting = useAppSelector(selectIsRouting);
 	const { selectedIds: onMapIds, visibleMap } = useAppSelector(selectSelectedInfos);
 
 	const { data: lines } = useQuery({
 		queryKey: ['lines'],
 		queryFn: () => queryLines(),
-	});
-
-	const { data: routingLineId } = useQuery({
-		queryKey: ['routingLineId', isRouting],
-		queryFn: () => queryRoutingLineId(isRouting),
 	});
 
 	const [checkedIds, setCheckedIds] = useState<number[]>([]);
@@ -67,7 +55,6 @@ const LinesTable: FC = () => {
 					styleCell={styleCell}
 					line={line}
 					idx={index}
-					routingLineId={routingLineId}
 					visible={visibleMap[line.id]}
 					onMapIds={onMapIds}
 					checkedIds={checkedIds}
@@ -76,7 +63,6 @@ const LinesTable: FC = () => {
 			);
 		},
 		[
-			routingLineId,
 			visibleMap,
 			onMapIds,
 			checkedIds,

@@ -28,7 +28,7 @@ import { Circle, listFontFamilies, matchFont, Path } from '@shopify/react-native
 import { AppContext, MapContext } from '../../../../Context';
 import { LocationExtended } from 'react-native-mapsforge-vtm';
 import { useAppDispatch, useAppSelector } from '../../../hooks';
-import { selectIsRouting, selectPoints, selectSegments } from '../selectors';
+import { selectIsRouting, selectPoints, selectSegmentsArr } from '../selectors';
 import { featureCollection, point as turfPoint } from '@turf/helpers';
 import { selectMapEventRate } from '../../general/selectors';
 import { NearestSimplifiedCoord } from '../types';
@@ -95,7 +95,7 @@ interface LocationForChart extends LocationExtended {
 const AltitudeProfileInner = ({ height, outerWidth }: { height: number; outerWidth: number }) => {
 	const { currentMapEventRef } = useContext(MapContext);
 
-	const segments = useAppSelector(selectSegments);
+	const segments = useAppSelector(selectSegmentsArr);
 	const lines = useMemo(
 		() =>
 			segments
@@ -364,7 +364,7 @@ const AltitudeProfileInner = ({ height, outerWidth }: { height: number; outerWid
 };
 
 const AltitudeProfile = ({ height = 200, outerWidth }: { height?: number; outerWidth: number }) => {
-	const segments = useAppSelector(selectSegments);
+	const segments = useAppSelector(selectSegmentsArr);
 
 	const { setBottomBarHeight } = useContext(AppContext);
 

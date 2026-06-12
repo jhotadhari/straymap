@@ -5,19 +5,25 @@ import { FC, useCallback, useMemo, Dispatch, SetStateAction } from 'react';
 import { StyleProp, TouchableWithoutFeedback, View, ViewStyle } from 'react-native';
 import { useTheme, Text, Icon } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
+import { useQuery } from '@tanstack/react-query';
+import { get, pick, without } from 'lodash-es';
 
 /**
  * Internal dependencies
  */
-import { useAppDispatch } from '../../../../hooks';
+import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { LineWithTags } from '../../types';
 import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
 import { iconSize } from '../../../drawers/constants';
 import { setLineSelected } from '../../linesSlice';
-import { get, pick, without } from 'lodash-es';
 import LineStats from '../LineStats';
 import { lineCells, statsCells, otherCells, styles } from './sharedDeps';
 import TagBadge from '../TagBadge';
+import { selectIsRouting } from '../../../routing/selectors';
+import { queryRoutingLineId } from '../../../routing/db/queries';
+import { setActiveKey } from '../../../drawers/drawersSlice';
+import IconRouting from '../../../drawers/items/routing/IconComponent';
+import { setUiItemKeys } from '../../../ui/uiSlice';
 
 const OtherCell: FC<{
 	cellKey: string;
@@ -45,17 +51,22 @@ const TableRow: FC<{
 	line: LineWithTags;
 	styleCell: StyleProp<ViewStyle>;
 	idx: number;
-	routingLineId: number | null | undefined;
 	visible: boolean;
 	onMapIds: number[]; // ids of lines loaded on map.visible and invisible.
 	checkedIds: number[];
 	setCheckedIds: Dispatch<SetStateAction<number[]>>;
-}> = ({ line, styleCell, idx, routingLineId, visible, onMapIds, checkedIds, setCheckedIds }) => {
+}> = ({ line, styleCell, idx, visible, onMapIds, checkedIds, setCheckedIds }) => {
 	const { t } = useTranslation();
 
 	const dispatch = useAppDispatch();
 
 	const theme = useTheme();
+
+	const routeId = useAppSelector(selectIsRouting);
+	const { data: routingLineId } = useQuery({
+		queryKey: ['routingLineId', routeId],
+		queryFn: () => queryRoutingLineId(routeId),
+	});
 
 	const isOnMap = useMemo(() => onMapIds.includes(line.id), [onMapIds, line.id]);
 
@@ -102,17 +113,37 @@ const TableRow: FC<{
 	return (
 		<View style={style}>
 			<View style={styleCell}>
-				<ButtonHighlight
-					mode="text"
-					compact={true}
-					onPress={toggleOnMap}
-				>
-					<Icon
-						source={isOnMap ? 'map-check' : 'map'}
-						size={iconSize}
-						color={isOnMap ? undefined : theme.colors.onSurfaceDisabled}
-					/>
-				</ButtonHighlight>
+				{line.id !== routingLineId && (
+					<ButtonHighlight
+						mode="text"
+						compact={true}
+						onPress={toggleOnMap}
+					>
+						<Icon
+							source={isOnMap ? 'map-check' : 'map'}
+							size={iconSize}
+							color={isOnMap ? undefined : theme.colors.onSurfaceDisabled}
+						/>
+					</ButtonHighlight>
+				)}
+
+				{line.id === routingLineId && (
+					<ButtonHighlight
+						mode="text"
+						compact={true}
+						onPress={() => {
+							dispatch(
+								setActiveKey({
+									// ??? should expand
+									activeKey: 'routing',
+								})
+							);
+							dispatch(setUiItemKeys([]));
+						}}
+					>
+						<IconRouting color={theme.colors.primary} />
+					</ButtonHighlight>
+				)}
 
 				<ButtonHighlight
 					mode="text"

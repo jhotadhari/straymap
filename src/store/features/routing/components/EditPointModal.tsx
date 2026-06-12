@@ -16,8 +16,7 @@ import ListItemMenuControl from '../../../../components/generic/controls/ListIte
 import ModalWrapper from '../../../../components/generic/ModalWrapper';
 import { useAppDispatch, useAppSelector } from '../../../hooks';
 import { RoutingPoint } from '../types';
-import { setSegments } from '../routingSlice';
-import { selectPoints, selectSegments } from '../selectors';
+import { selectPoints } from '../selectors';
 import { updateRoutingPoint } from '../db/actionsRoutingPoint';
 
 const ProfileRowControl = ({
@@ -77,7 +76,7 @@ const EditPointModal: FC<{
 }> = ({ editPoint, setEditPoint }) => {
 	const dispatch = useAppDispatch();
 
-	const segments = useAppSelector(selectSegments);
+	// const segments = useAppSelector(selectSegmentsArr);
 
 	const theme = useTheme();
 	const { t } = useTranslation();
@@ -85,19 +84,23 @@ const EditPointModal: FC<{
 	const points = useAppSelector(selectPoints);
 
 	const resetSegmentPositions = useCallback(() => {
-		if (segments && editPoint.profile && points) {
-			const segmentIdx = segments.findIndex((segment) => segment.fromId === editPoint.id);
-			if (-1 !== segmentIdx) {
-				const point = points.find((p) => p.id === editPoint.id);
-				if (JSON.stringify(point?.profile) !== JSON.stringify(editPoint.profile)) {
-					const newSegments = [...segments];
-					newSegments.splice(segmentIdx, 1, omit(segments[segmentIdx], ['positions']));
-					dispatch(setSegments(newSegments, { updateRoutes: true }));
-				}
-			}
-		}
+
+		// ??? TODO
+
+
+		// if (segments && editPoint.profile && points) {
+		// 	const segmentIdx = segments.findIndex((segment) => segment.fromId === editPoint.id);
+		// 	if (-1 !== segmentIdx) {
+		// 		const point = points.find((p) => p.id === editPoint.id);
+		// 		if (JSON.stringify(point?.profile) !== JSON.stringify(editPoint.profile)) {
+		// 			const newSegments = [...segments];
+		// 			newSegments.splice(segmentIdx, 1, omit(segments[segmentIdx], ['positions']));
+		// 			dispatch(setSegments(newSegments, { updateRoutes: true }));
+		// 		}
+		// 	}
+		// }
 	}, [
-		segments,
+		// segments,
 		editPoint,
 		points,
 	]);
