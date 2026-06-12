@@ -49,12 +49,6 @@ export type NearestSimplifiedCoord = {
 	distanceToPoint: number;
 };
 
-export type RoutingStats = {
-	up: number;
-	down: number;
-	distance: number;
-};
-
 export type FeatureGeometry = {
 	type: string;
 	coordinates: number[][];

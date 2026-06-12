@@ -11,15 +11,16 @@ import { get } from 'lodash-es';
 import { SliceSettingsBase } from '../../../types';
 import { RoutingPoint, RoutingSegment, RoutingTriggeredSegment } from './types';
 import { AppThunk } from '../../store';
-import { getCoordsFromRouting, getSegmentRecordId } from './utils';
+import { aggregateSegmentsToCoords, getCoordsFromRouting, getSegmentRecordId } from './utils';
 import { setLineSelected } from '../lines/linesSlice';
 import { fetchRoutesWithPoints } from './db/fetch';
 import { lineString } from '@turf/turf';
 import { createLines, updateLine } from '../lines/db/actionsLine';
 import { updateRoute } from './db/actionsRoute';
-import { locationsToCoordsArr } from '../../../lib/utils';
 import { GetTrackParams } from 'react-native-brouter';
 import { queryClient } from '../../../db/client';
+import { lineStringToStats } from '../../../lib/utils';
+import { LineStats } from '../lines/types';
 
 export interface RoutingSettings {
 	isRouting: false | number; // false or routeId.
@@ -36,6 +37,7 @@ export interface RoutingState extends SliceSettingsBase, RoutingSettings {
 	movingPointIdx?: number;
 	triggeredMarkerIdx?: number;
 	triggeredSegment?: RoutingTriggeredSegment;
+	stats: LineStats;
 }
 
 export const initialSettings: RoutingSettings = {
@@ -48,6 +50,7 @@ const initialState: RoutingState = {
 	pathLayerUuids: null,
 	points: [],
 	segments: {},
+	stats: {},
 	...initialSettings,
 };
 
@@ -88,11 +91,11 @@ export const routingSlice = createSlice({
 		// 	state.segments = action.payload.segments;
 		// },
 		setSegment: (state, action: PayloadAction<RoutingSegment>) => {
-			const segmentRecordId = getSegmentRecordId( action.payload );
+			const segmentRecordId = getSegmentRecordId(action.payload);
 			state.segments[segmentRecordId] = action.payload;
 		},
 		deleteSegment: (state, action: PayloadAction<RoutingSegment>) => {
-			const segmentRecordId = getSegmentRecordId( action.payload );
+			const segmentRecordId = getSegmentRecordId(action.payload);
 			delete state.segments[segmentRecordId];
 		},
 		setMarkerLayerUuid: (state, action: PayloadAction<RoutingState['markerLayerUuid']>) => {
@@ -114,6 +117,9 @@ export const routingSlice = createSlice({
 		setTriggeredSegment: (state, action: PayloadAction<RoutingState['triggeredSegment']>) => {
 			state.triggeredSegment = action.payload;
 		},
+		setStats: (state, action: PayloadAction<RoutingState['stats']>) => {
+			state.stats = action.payload;
+		},
 	},
 });
 
@@ -130,6 +136,7 @@ export const {
 	setMovingPointIdx,
 	setTriggeredMarkerIdx,
 	setTriggeredSegment,
+	setStats,
 } = routingSlice.actions;
 
 // Export the slice reducer for use in the store configuration
@@ -315,18 +322,20 @@ export const processRouting = (options?: {
 					dispatch(setLineSelected(lineId, true));
 				}
 			}
+			// invalidateQueries
 			queryClient.invalidateQueries({ queryKey: ['routingLineId', routeId] });
+			// Update routing stats.
+			if (Object.keys(updatedSegments).length) {
+				const stats = await lineStringToStats(
+					lineString(aggregateSegmentsToCoords(Object.values(updatedSegments))).geometry
+				);
+				dispatch(routingSlice.actions.setStats(stats ?? {}));
+			} else {
+				dispatch(routingSlice.actions.setStats({}));
+			}
 		}
 	};
 };
-
-const aggregateSegmentsToCoords = (segments: RoutingSegment[]) =>
-	segments.reduce((acc, seg) => {
-		if (seg?.positions) {
-			acc.push(...locationsToCoordsArr(seg?.positions));
-		}
-		return acc;
-	}, [] as number[][]);
 
 // ??? move helper fn somewhere else
 // ??? this should be done by query mutation somehow

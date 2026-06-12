@@ -19,7 +19,7 @@ import { setLineSelected } from '../../linesSlice';
 import LineStats from '../LineStats';
 import { lineCells, statsCells, otherCells, styles } from './sharedDeps';
 import TagBadge from '../TagBadge';
-import { selectIsRouting } from '../../../routing/selectors';
+import { selectIsRouting, selectStats } from '../../../routing/selectors';
 import { queryRoutingLineId } from '../../../routing/db/queries';
 import { setActiveKey } from '../../../drawers/drawersSlice';
 import IconRouting from '../../../drawers/items/routing/IconComponent';
@@ -67,22 +67,17 @@ const TableRow: FC<{
 
 	const { drawerControlsRef } = useContext(AppContext);
 	const drawerSideWithRouting = useAppSelector((state) => selectSideForKey(state, 'routing'));
-	const handleRoutingBtnPress = useCallback( () => {
+	const handleRoutingBtnPress = useCallback(() => {
 		if (drawerSideWithRouting) {
 			dispatch(
 				setActiveKey({
 					activeKey: 'routing',
 				})
 			);
-			(
-				get(
-					drawerControlsRef?.current,
-					drawerSideWithRouting
-				) as DrawerControl
-			).expand(true);
+			(get(drawerControlsRef?.current, drawerSideWithRouting) as DrawerControl).expand(true);
 			dispatch(setUiItemKeys([]));
 		}
-	}, [drawerSideWithRouting] );
+	}, [drawerSideWithRouting]);
 
 	const routeId = useAppSelector(selectIsRouting);
 	const { data: routingLineId } = useQuery({
@@ -131,6 +126,9 @@ const TableRow: FC<{
 			isChecked,
 		]
 	);
+
+	const routingStats = useAppSelector(selectStats);
+	const stats = line.id !== routingLineId ? line.stats : routingStats;
 
 	return (
 		<View style={style}>
@@ -208,9 +206,9 @@ const TableRow: FC<{
 									: styleCell
 							}
 						>
-							{undefined !== get(line.stats, key) && (
+							{undefined !== get(stats, key) && (
 								<LineStats
-									stats={pick(line.stats, key)}
+									stats={pick(stats, key)}
 									round={0}
 									plain={true}
 								/>

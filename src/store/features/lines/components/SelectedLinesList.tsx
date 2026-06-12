@@ -13,7 +13,7 @@ import { get, omit, pick } from 'lodash-es';
  */
 import { useAppDispatch, useAppSelector } from '../../../hooks';
 import { queryRoutingLineId } from '../../routing/db/queries';
-import { selectIsRouting } from '../../routing/selectors';
+import { selectIsRouting, selectStats } from '../../routing/selectors';
 import { queryLines } from '../db/queries';
 import { selectSelectedInfos } from '../selectors';
 import { selectElementExpanded } from '../../ui/selectors';
@@ -41,21 +41,16 @@ const LineRow: FC<{
 
 	const { drawerControlsRef } = useContext(AppContext);
 	const drawerSideWithRouting = useAppSelector((state) => selectSideForKey(state, 'routing'));
-	const handleRoutingBtnPress = useCallback( () => {
+	const handleRoutingBtnPress = useCallback(() => {
 		if (drawerSideWithRouting) {
 			dispatch(
 				setActiveKey({
 					activeKey: 'routing',
 				})
 			);
-			(
-				get(
-					drawerControlsRef?.current,
-					drawerSideWithRouting
-				) as DrawerControl
-			).expand(true);
+			(get(drawerControlsRef?.current, drawerSideWithRouting) as DrawerControl).expand(true);
 		}
-	}, [drawerSideWithRouting] );
+	}, [drawerSideWithRouting]);
 
 	const theme = useTheme();
 
@@ -76,6 +71,9 @@ const LineRow: FC<{
 		queryKey: ['routingLineId', routeId],
 		queryFn: () => queryRoutingLineId(routeId),
 	});
+
+	const routingStats = useAppSelector(selectStats);
+	const stats = line.id !== routingLineId ? line.stats : routingStats;
 
 	return (
 		<View style={[styles.row, style]}>
@@ -112,13 +110,13 @@ const LineRow: FC<{
 
 				<View style={styles.rowColCenterRow}>
 					<LineStats
-						stats={omit(line.stats, ['minZ', 'maxZ'])}
+						stats={omit(stats, ['minZ', 'maxZ'])}
 						round={0}
 					/>
 				</View>
 				<View style={styles.rowColCenterRow}>
 					<LineStats
-						stats={pick(line.stats, ['minZ', 'maxZ'])}
+						stats={pick(stats, ['minZ', 'maxZ'])}
 						round={0}
 					/>
 				</View>
