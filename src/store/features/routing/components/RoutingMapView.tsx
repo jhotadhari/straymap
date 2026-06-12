@@ -1,16 +1,14 @@
 /**
  * External dependencies
  */
-import React from 'react';
-
-/**
- * react-native-mapsforge-vtm dependencies
- */
+import React, { Fragment } from 'react';
+import { midpoint } from '@turf/turf';
 import {
 	LayerMarker,
 	Marker,
 	LayerPathSlopeGradient,
 	MapContainer,
+	LayerPath,
 } from 'react-native-mapsforge-vtm';
 
 /**
@@ -30,7 +28,7 @@ import {
 	selectPoints,
 	selectSegments,
 } from '../selectors';
-import { getCoordsFromRouting, getSegmentRecordId } from '../utils';
+import { getSegmentRecordId } from '../utils';
 
 // const NearestToLine = () => {
 // 	const { nearestSimplifiedLocation } = useContext(RoutingContext);
@@ -62,18 +60,68 @@ const RoutingMapView = () => {
 	return (
 		<MapContainer.View>
 			{Object.values(segments).map((segment, index) => {
-
-				if( segment?.isFetching ) {
-					// ??? show placeholder line instead
-					return undefined;
-				}
-
-				if ((segment?.positions?.length ?? 0) < 2 || segment?.errorMsg ) {
-					// ??? show error placeholder line instead
-					return undefined;
-				}
-
 				const segmentRecordId = getSegmentRecordId(segment);
+
+				if (
+					segment?.isFetching ||
+					(segment?.positions?.length ?? 0) < 2 ||
+					segment?.errorMsg
+				) {
+					const fromPoint = points.find((point) => segment.fromId === point.id);
+					const toPoint = points.find((point) => segment.toId === point.id);
+					if (!fromPoint || !toPoint) {
+						return undefined;
+					}
+
+					const placeholderPositions = [
+						fromPoint?.geometry.coordinates,
+						toPoint?.geometry.coordinates,
+					].map((arr) => ({
+						lng: arr[0],
+						lat: arr[1],
+						...(arr.length > 2 && { alt: arr[2] }),
+					}));
+
+					if (segment?.isFetching) {
+						return (
+							<LayerPath
+								key={segmentRecordId}
+								positions={placeholderPositions}
+								style={{
+									strokeColor: '#0000ff',
+									strokeWidth: 3,
+								}}
+							/>
+						);
+					} else {
+						const center = midpoint(fromPoint.geometry, toPoint.geometry);
+						return (
+							<MapContainer.View key={segmentRecordId}>
+								<LayerPath
+									positions={placeholderPositions}
+									style={{
+										strokeColor: '#ff0000',
+										strokeWidth: 3,
+									}}
+								/>
+								<LayerMarker>
+									<Marker
+										position={{
+											lng: center.geometry.coordinates[0],
+											lat: center.geometry.coordinates[1],
+										}}
+										symbol={{
+											text: 'Error',
+											textMargin: 20,
+											fillColor: '#ff0000',
+											strokeColor: '#000000',
+										}}
+									/>
+								</LayerMarker>
+							</MapContainer.View>
+						);
+					}
+				}
 
 				return (
 					<LayerPathSlopeGradient
