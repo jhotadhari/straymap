@@ -16,6 +16,14 @@ declare module globalThis {
 		/** Log all dispatched actions. boolean or array of action types */
 		dispatchAction: boolean | string[];
 
+		/**
+		 * Whether the store is configured with serializableCheck middleware.
+		 * If true, it will log non-serializable values that are dispatched to the store.
+		 * It is disabled anyway in production.
+		 * And in development it slows down the store if objects are huge (e.g. routing segments).
+		 * */
+		serializableCheck: boolean;
+
 		/** drizzle logger. Used in src/db/client.ts */
 		drizzle: boolean;
 
