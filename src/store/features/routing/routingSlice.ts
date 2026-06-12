@@ -14,7 +14,7 @@ import { AppThunk } from '../../store';
 import { getCoordsFromRouting, getSegmentRecordId } from './utils';
 import { setLineSelected } from '../lines/linesSlice';
 import { fetchRoutesWithPoints } from './db/fetch';
-import { lineString } from '@turf/helpers';
+import { lineString } from '@turf/turf';
 import { createLines, updateLine } from '../lines/db/actionsLine';
 import { updateRoute } from './db/actionsRoute';
 import { locationsToCoordsArr } from '../../../lib/utils';

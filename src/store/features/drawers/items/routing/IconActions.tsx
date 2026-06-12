@@ -8,7 +8,7 @@ import { Dimensions, PixelRatio, ScrollView, TextStyle, TouchableHighlight } fro
 import { MapLayerMarkerModule, MapLayerPathSlopeGradientModule } from 'react-native-mapsforge-vtm';
 import { usePrevious } from 'victory-native';
 import Popover, { PopoverPlacement } from 'react-native-popover-view';
-import { point } from '@turf/helpers';
+import { point } from '@turf/turf';
 
 /**
  * Internal dependencies

@@ -1,6 +1,6 @@
 import { Dispatch, FC, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react';
 import { QueryResult, Scalar } from '@op-engineering/op-sqlite';
-import { lineString, point } from '@turf/helpers';
+import { lineString, point } from '@turf/turf';
 import { gt, isNotNull, sql, eq } from 'drizzle-orm';
 
 import { dbZ, dbOp } from '../../../../db/client';

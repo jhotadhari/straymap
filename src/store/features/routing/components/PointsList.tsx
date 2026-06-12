@@ -17,7 +17,7 @@ import { Icon, Text, useTheme } from 'react-native-paper';
 import MaterialIcons from '@react-native-vector-icons/material-icons/static';
 import formatcoords from 'formatcoords';
 import { get, omit, pick } from 'lodash-es';
-import { lineString } from '@turf/helpers';
+import { lineString } from '@turf/turf';
 
 /**
  * Internal dependencies

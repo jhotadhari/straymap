@@ -29,10 +29,9 @@ import { AppContext, MapContext } from '../../../../Context';
 import { LocationExtended } from 'react-native-mapsforge-vtm';
 import { useAppDispatch, useAppSelector } from '../../../hooks';
 import { selectIsRouting, selectPoints, selectSegmentsArr } from '../selectors';
-import { featureCollection, point as turfPoint } from '@turf/helpers';
+import { featureCollection, nearestPoint, point as turfPoint } from '@turf/turf';
 import { selectMapEventRate } from '../../general/selectors';
 import { NearestSimplifiedCoord } from '../types';
-import nearestPoint from '@turf/nearest-point';
 
 const handleSize = 50;
 
