@@ -2,11 +2,7 @@
  * External dependencies
  */
 import { GetTrackParams } from 'react-native-brouter';
-import { Point, GeoJsonProperties } from 'geojson';
-
-/**
- * react-native-mapsforge-vtm dependencies
- */
+import { Point } from 'geojson';
 import { Location } from 'react-native-mapsforge-vtm';
 
 export type RoutingProfile = {
@@ -52,40 +48,4 @@ export type NearestSimplifiedCoord = {
 	segmentIndex: number;
 	featureIndex: number;
 	distanceToPoint: number;
-};
-
-
-
-
-
-
-
-
-export type FeatureGeometry = {
-	type: string;
-	coordinates: number[][];
-};
-
-export type FeatureProperties = {
-	cost: string;
-	creator: string;
-	'filtered ascend': string;
-	// messages: any[]	// ???
-	name: string;
-	'plain-ascend': string;
-	times: number[];
-	'total-energy': string;
-	'total-time': string;
-	'track-length': string;
-};
-
-export type Feature = {
-	type: string;
-	geometry: FeatureGeometry;
-	properties: FeatureProperties;
-};
-
-export type JSONTracKParsed = {
-	type: string;
-	features: Feature[];
 };

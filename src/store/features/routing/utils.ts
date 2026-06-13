@@ -2,12 +2,13 @@
  * External dependencies
  */
 import { getTrackFromParams, GetTrackParams } from 'react-native-brouter';
+import { FeatureCollection, LineString } from 'geojson';
 
 /**
  * Internal dependencies
  */
 import { parseSerialized } from '../../../lib/utilsLight';
-import { JSONTracKParsed, RoutingSegment } from './types';
+import { RoutingSegment } from './types';
 import { locationsToCoordsArr, runAfterInteractions } from '../../../lib/utils';
 import { fetchRoutes } from './db/fetch';
 import { store } from '../../store';
@@ -41,10 +42,10 @@ export const getCoordsFromRouting = ({
 					() =>
 						getTrackFromParams(params)
 							.then((result: string) => {
-								const parsed: false | JSONTracKParsed = parseSerialized(result) as
+								const parsed = parseSerialized(result) as
 									| false
-									| JSONTracKParsed;
-								if (parsed && parsed.features) {
+									| FeatureCollection<LineString,any>;
+								if (parsed) {
 									const coords = [...parsed.features]
 										.map((feature) => feature.geometry.coordinates)
 										.flat();
