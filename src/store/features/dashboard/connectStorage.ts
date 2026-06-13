@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { isAnyOf, type EnhancedStore } from '@reduxjs/toolkit';
+import { isAnyOf } from '@reduxjs/toolkit';
 import DefaultPreference from 'react-native-default-preference';
 import { get, isEqual, omit, pick, set } from 'lodash-es';
 import rnUuid from 'react-native-uuid';
@@ -24,13 +24,14 @@ import { startAppListening } from '../../listenerMiddleware';
 import * as elements from './elements';
 import { DashboardElement, DashboardElementSetting } from './types';
 import { selectInitialized } from './selectors';
+import { AppStore } from '../../store';
 
 const settingsKey = 'dashboardSettings';
 
 /**
  * Loads settings from defaultPreferences and dispatches them to the store.
  */
-export const initializeFromStorage = (store: EnhancedStore) => {
+export const initializeFromStorage = (store: AppStore) => {
 	if (selectInitialized(store.getState())) {
 		return;
 	}

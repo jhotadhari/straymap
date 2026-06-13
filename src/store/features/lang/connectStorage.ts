@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { isAnyOf, type EnhancedStore } from '@reduxjs/toolkit';
+import { isAnyOf } from '@reduxjs/toolkit';
 import DefaultPreference from 'react-native-default-preference';
 import { get, isEqual, set } from 'lodash-es';
 
@@ -13,6 +13,7 @@ import { startAppListening } from '../../listenerMiddleware';
 import { changeLang } from '../../../assets/i18n/i18n';
 import { SUPPORTED_LANGUAGES } from '../../../assets/i18n/constants';
 import { selectInitialized } from './selectors';
+import { AppStore } from '../../store';
 
 const settingsKey = 'langSettings';
 
@@ -29,7 +30,7 @@ startAppListening({
 /**
  * Loads settings from defaultPreferences and dispatches them to the store.
  */
-export const initializeFromStorage = (store: EnhancedStore) => {
+export const initializeFromStorage = (store: AppStore) => {
 	if (selectInitialized(store.getState())) {
 		return;
 	}

@@ -1,23 +1,18 @@
 /**
- * External dependencies
- */
-import { type EnhancedStore } from '@reduxjs/toolkit';
-// import DefaultPreference from 'react-native-default-preference';
-
-/**
  * Internal dependencies
  */
 import { setAppDirs, setInitialized } from './slice';
 import { HelperModule } from '../../../nativeModules';
 import { AbsPathsMap } from './types';
 import { selectInitialized } from './selectors';
+import { AppStore } from '../../store';
 
 // const settingsKey = 'dirsSettings';
 
 /**
  * Loads settings from defaultPreferences and dispatches them to the store.
  */
-export const initializeFromStorage = (store: EnhancedStore) => {
+export const initializeFromStorage = (store: AppStore) => {
 	if (selectInitialized(store.getState())) {
 		return;
 	}

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { isAnyOf, PayloadAction, type EnhancedStore } from '@reduxjs/toolkit';
+import { isAnyOf, PayloadAction } from '@reduxjs/toolkit';
 import DefaultPreference from 'react-native-default-preference';
 import { get, isEqual, set } from 'lodash-es';
 
@@ -24,14 +24,14 @@ import {
 } from './slice';
 import { startAppListening } from '../../listenerMiddleware';
 import { selectInitialized } from './selectors';
-import { MapsforgeGeneral } from './types';
+import { AppStore } from '../../store';
 
 const settingsKey = 'baseMapSettings';
 
 /**
  * Loads settings from defaultPreferences and dispatches them to the store.
  */
-export const initializeFromStorage = (store: EnhancedStore) => {
+export const initializeFromStorage = (store: AppStore) => {
 	if (selectInitialized(store.getState())) {
 		return;
 	}
