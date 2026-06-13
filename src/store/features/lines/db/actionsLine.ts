@@ -142,7 +142,9 @@ export const lineRemoveTag = async (lineId: number, tagId: number) => {
 		.where(and(eq(tagsToLinesTable.tag_id, tagId), eq(tagsToLinesTable.line_id, lineId)));
 };
 
-export const deleteLine = async (id: number) => {
-	await dbZ.delete(linesTable).where(eq(linesTable.id, id));
-	await dbZ.delete(tagsToLinesTable).where(eq(tagsToLinesTable.line_id, id));
+export const deleteLine = async (id: number | false ) => {
+	if ( id ) {
+		await dbZ.delete(linesTable).where(eq(linesTable.id, id));
+		await dbZ.delete(tagsToLinesTable).where(eq(tagsToLinesTable.line_id, id));
+	}
 };

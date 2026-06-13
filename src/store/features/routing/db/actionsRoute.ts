@@ -39,12 +39,15 @@ export const createRoute = async () => {
 };
 
 export const updateRoute = async (
-	id: number,
+	id: number | false,
 	newRoute: Partial<{
 		line_id: number | null;
 		point_order: number[];
 	}>
 ) => {
+	if (!id || !Object.keys(newRoute).length) {
+		return;
+	}
 	const routes = await dbZ.select().from(routesTable).where(eq(routesTable.id, id)).limit(1);
 	if (!routes.length) {
 		return;
@@ -58,7 +61,9 @@ export const updateRoute = async (
 		.where(eq(routesTable.id, id));
 };
 
-export const deleteRoute = async (id: number) => {
-	await dbZ.delete(routingPointsTable).where(eq(routingPointsTable.route_id, id));
-	await dbZ.delete(routesTable).where(eq(routesTable.id, id));
+export const deleteRoute = async (id: number | false ) => {
+	if (id) {
+		await dbZ.delete(routingPointsTable).where(eq(routingPointsTable.route_id, id));
+		await dbZ.delete(routesTable).where(eq(routesTable.id, id));
+	}
 };

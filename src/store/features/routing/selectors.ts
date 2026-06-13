@@ -10,8 +10,6 @@ export const selectInitialized = (state: RootState) => state.routing.initialized
 
 export const selectIsRouting = (state: RootState) => state.routing.isRouting;
 
-export const selectPoints = (state: RootState) => state.routing.points;
-
 export const selectSegments = (state: RootState) => state.routing.segments;
 
 export const selectMarkerLayerUuid = (state: RootState) => state.routing.markerLayerUuid;

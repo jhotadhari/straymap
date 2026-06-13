@@ -15,11 +15,12 @@ import InfoRowControl from '../../../../components/generic/controls/InfoRowContr
 import ListItemMenuControl from '../../../../components/generic/controls/ListItemMenuControl';
 import ModalWrapper from '../../../../components/generic/ModalWrapper';
 import { useAppDispatch, useAppSelector } from '../../../hooks';
-import { RoutingPoint } from '../types';
-import { selectIsRouting, selectPoints } from '../selectors';
+import { RoutingPoint, RoutingProfile } from '../types';
+import { selectIsRouting } from '../selectors';
 import { updateRoutingPoint } from '../db/actionsRoutingPoint';
 import { deleteSegmentByKeyVal, processRouting } from '../slice';
-import { updateStorePointsFromDb } from '../utils';
+import useRoutingPoints from '../hooks/useRoutingPoints';
+import { useMutation } from '@tanstack/react-query';
 
 const ProfileRowControl = ({
 	editPoint,
@@ -84,29 +85,35 @@ const EditPointModal: FC<{
 	const { t } = useTranslation();
 
 	const routeId = useAppSelector(selectIsRouting);
-	const points = useAppSelector(selectPoints);
+
+	const points = useRoutingPoints();
 
 	const point = useMemo(() => points.find((p) => p.id, editPoint.id), [points, editPoint.id]);
 
-	const onDismiss = useCallback(async () => {
-		// !!! use Mutation ???
-
-		if (routeId && !isEqual(editPoint?.profile, point?.profile)) {
-			await updateRoutingPoint(editPoint.id, {
-				profile: editPoint.profile,
-			});
-
-			// ??? !!! invalidate query. and use mutations instead
-
-			await updateStorePointsFromDb(routeId);
+	const mutation = useMutation({
+		mutationFn: ( profile: RoutingProfile ) =>
+			updateRoutingPoint(editPoint.id, {
+				profile: profile,
+			}),
+		onMutate: async (_, context) => {
+			await context.client.cancelQueries({ queryKey: ['routes', routeId] });
+		},
+		onSuccess: async (_result, _variables, _onMutateResult, context) => {
+			await context.client.invalidateQueries({ queryKey: ['routes', routeId] });
 			dispatch(deleteSegmentByKeyVal('fromId', editPoint.id));
 			dispatch(processRouting());
-
 			setEditPoint(undefined);
+		},
+	});
+
+	const onDismiss = useCallback(() => {
+		if (!isEqual(editPoint?.profile, point?.profile)) {
+			mutation.mutate(editPoint.profile);
 		} else {
 			setEditPoint(undefined);
 		}
 	}, [
+		mutation.mutate,
 		editPoint,
 		point,
 		routeId,

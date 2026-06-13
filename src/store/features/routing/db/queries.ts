@@ -27,8 +27,7 @@ export const queryRoutingLineId = async (routeId?: number | false) => {
  *
  * Used with:
  *
- * 	??? not used yet. Still everything is using fetchRoutes directly.
- *
+ * 	queryKey: ['routes', routeId],
  */
 export const queryRoutes = async (params?: FetchRoutesParams) => {
 	return await fetchRoutes( params );

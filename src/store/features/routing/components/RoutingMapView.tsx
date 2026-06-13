@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { useMemo } from 'react';
 import { midpoint } from '@turf/turf';
 import {
 	LayerMarker,
@@ -26,23 +26,23 @@ import {
 	selectIsRouting,
 	selectMovingPointIdx,
 	selectPathLayerUuids,
-	selectPoints,
 	selectSegments,
 } from '../selectors';
 import { getSegmentRecordId } from '../utils';
+import useRoutingPoints from '../hooks/useRoutingPoints';
 
 const RoutingMapView = () => {
 	const dispatch = useAppDispatch();
 
-	const isRouting = useAppSelector(selectIsRouting);
-	const points = useAppSelector(selectPoints);
+	const points = useRoutingPoints();
+
 	const segments = useAppSelector(selectSegments);
 
 	const pathLayerUuids = useAppSelector(selectPathLayerUuids);
 
 	const movingPointIdx = useAppSelector(selectMovingPointIdx);
 
-	if (!isRouting) {
+	if (!points.length) {
 		return null;
 	}
 

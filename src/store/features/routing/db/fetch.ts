@@ -22,13 +22,17 @@ import { rowParseGeometryGeoJSON } from '../../../../db/utils';
  */
 
 export interface FetchRoutesParams {
-	routeId?: number;
+	routeId?: number | false;
 	pointId?: number;
 }
 
 export const fetchRoutes = (params?: FetchRoutesParams) => {
 	return new Promise<Route[]>((resolve, reject) => {
 		const { routeId, pointId } = params ?? {};
+
+		if ( false === routeId ) {
+			return [];
+		}
 
 		const query = dbZ
 			.select({

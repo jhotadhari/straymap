@@ -19,7 +19,7 @@ import { MapContext } from '../../../../../Context';
 import MenuItem from '../../../../../components/generic/MenuItem';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import {
-	setPoints,
+	processRouting,
 	setTriggeredMarkerIdx,
 	setTriggeredSegment,
 } from '../../../routing/slice';
@@ -28,13 +28,15 @@ import {
 	selectMarkerLayerUuid,
 	selectMovingPointIdx,
 	selectPathLayerUuids,
-	selectPoints,
 	selectSegments,
 	selectTriggeredMarkerIdx,
 	selectTriggeredSegment,
 } from '../../../routing/selectors';
 import { createRoutingPoints } from '../../../routing/db/actionsRoutingPoint';
-import { fetchRoutes } from '../../../routing/db/fetch';
+import useRoutingPoints from '../../../routing/hooks/useRoutingPoints';
+import { RoutingPoint, RoutingProfile } from '../../../routing/types';
+import { useMutation } from '@tanstack/react-query';
+import { Feature, GeoJsonProperties, Point } from 'geojson';
 
 const IconActions = ({ style }: { style: TextStyle }) => {
 	const { mapHeight, mapViewNativeNodeHandle } = useContext(AppContext);
@@ -42,7 +44,7 @@ const IconActions = ({ style }: { style: TextStyle }) => {
 	const dispatch = useAppDispatch();
 
 	const routeId = useAppSelector(selectIsRouting);
-	const points = useAppSelector(selectPoints);
+
 	const segments = useAppSelector(selectSegments);
 	const markerLayerUuid = useAppSelector(selectMarkerLayerUuid);
 	const pathLayerUuids = useAppSelector(selectPathLayerUuids);
@@ -78,6 +80,59 @@ const IconActions = ({ style }: { style: TextStyle }) => {
 		[]
 	);
 
+	const points = useRoutingPoints();
+
+	const mutationAppendPoint = useMutation({
+		mutationFn: ( {
+			feature,
+			profile,
+		} : {
+			feature: Feature<Point, GeoJsonProperties>;
+			profile: RoutingProfile;
+		} ) =>
+			createRoutingPoints(
+				[
+					{
+						feature,
+						profile,
+					},
+				],
+				routeId
+			),
+		onMutate: async (_, context) => {
+			await context.client.cancelQueries({ queryKey: ['routes', routeId] });
+		},
+		onSuccess: async (_result, _variables, _onMutateResult, context) => {
+			await context.client.invalidateQueries({ queryKey: ['routes', routeId] });
+			dispatch( processRouting() );
+		},
+	});
+
+	const getNextProfile = useCallback( () => {
+		const lastPoint = points.length
+			? points[points.length - 1]
+			: undefined;
+		return {
+			fast: lastPoint?.profile?.fast ?? true, // ??? from defaults, or from previous or from cut segment
+			v: lastPoint?.profile?.v ?? 'motorcar', // ??? from defaults, or from previous or from cut segment
+		};
+	}, [points] )
+
+	const handleAppendPoint = useCallback( async () => {
+		dismissMenu();
+		if ( currentMapEventRef?.current?.center) {
+			const feature = point([
+				currentMapEventRef?.current?.center.lng,
+				currentMapEventRef?.current?.center.lat,
+				0,
+			]);
+			mutationAppendPoint.mutate( {
+				feature,
+				profile: getNextProfile(),
+			} );
+		}
+	}, [getNextProfile,mutationAppendPoint.mutate] );
+
 	const options: {
 		value: string;
 		label: string;
@@ -91,48 +146,7 @@ const IconActions = ({ style }: { style: TextStyle }) => {
 						{
 							value: 'appendPoint',
 							label: 'appendPoint',
-							onPress: async () => {
-								dismissMenu();
-
-								if (routeId && points && currentMapEventRef?.current?.center) {
-									const feature = point([
-										currentMapEventRef?.current?.center.lng,
-										currentMapEventRef?.current?.center.lat,
-										0,
-									]);
-
-									const lastPoint = points.length
-										? points[points.length - 1]
-										: undefined;
-
-									const inserted = await createRoutingPoints(
-										[
-											{
-												feature,
-												profile: {
-													fast: lastPoint?.profile?.fast ?? true, // ??? from defaults, or from previous or from cut segment
-													v: lastPoint?.profile?.v ?? 'motorcar', // ??? from defaults, or from previous or from cut segment
-												},
-											},
-										],
-										routeId
-									);
-
-									if (!inserted?.length) {
-										return;
-									}
-
-									const routes = await fetchRoutes({
-										routeId,
-									});
-
-									if (!routes?.length) {
-										return;
-									}
-
-									dispatch(setPoints(routes[0].points));
-								}
-							},
+							onPress: handleAppendPoint,
 							leadingIcon: 'plus',
 						},
 					]
@@ -293,13 +307,14 @@ const IconActions = ({ style }: { style: TextStyle }) => {
 			// 	: []),
 		],
 		[
-			routeId,
-			points,
-			movingPointIdx,
-			segments,
-			triggeredMarkerIdx,
-			dismissMenu,
-			triggeredSegment,
+			// routeId,
+			// points,
+			// movingPointIdx,
+			// segments,
+			// triggeredMarkerIdx,
+			// dismissMenu,
+			// triggeredSegment,
+			handleAppendPoint,
 		]
 	);
 

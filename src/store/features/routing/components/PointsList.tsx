@@ -18,6 +18,7 @@ import MaterialIcons from '@react-native-vector-icons/material-icons/static';
 import formatcoords from 'formatcoords';
 import { get, omit, pick } from 'lodash-es';
 import { lineString } from '@turf/turf';
+import { useMutation } from '@tanstack/react-query';
 
 /**
  * Internal dependencies
@@ -27,14 +28,15 @@ import DrawerContext from '../../drawers/DrawerContext';
 import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
 import LoadingIndicator from '../../../../components/generic/LoadingIndicator';
 import { useAppDispatch, useAppSelector } from '../../../hooks';
-import { processRouting, setPoints, setSegment } from '../slice';
-import { selectIsRouting, selectPoints, selectSegments } from '../selectors';
+import { processRouting, setSegment } from '../slice';
+import { selectIsRouting, selectSegments } from '../selectors';
 import { updateRoute } from '../db/actionsRoute';
 import { lineStringToStats, locationsToCoordsArr } from '../../../../lib/utils';
 import { deleteRoutingPoint } from '../db/actionsRoutingPoint';
-import { updateStorePointsFromDb } from '../utils';
 import { LineStats as LineStatsType } from '../../lines/types';
 import LineStats from '../../lines/components/LineStats';
+import useRoutingPoints from '../hooks/useRoutingPoints';
+import { queryClient } from '../../../../db/clients';
 
 const itemHeight = 180;
 
@@ -230,11 +232,28 @@ const DraggableItem: FC<{
 }> = ({ item, width, order, draggingItemIndex, setEditPoint, hasNext }) => {
 	const routeId = useAppSelector(selectIsRouting);
 
-	const handleDeletePoint = useCallback(async () => {
-		await deleteRoutingPoint(item.id);
-		// ??? should be done by mutations somehow
-		await updateStorePointsFromDb(routeId as number);
-	}, [item.id, routeId]);
+	const dispatch = useAppDispatch();
+
+	const [isDeleting,setIsDeleting] = useState( false );
+
+	const mutation = useMutation({
+		mutationFn: (id: number) => deleteRoutingPoint(id),
+		onMutate: async (_, context) => {
+			await context.client.cancelQueries({ queryKey: ['routes', routeId] });
+			setIsDeleting(true)
+		},
+		onSuccess: async (_result, _variables, _onMutateResult, context) => {
+			await context.client.invalidateQueries({ queryKey: ['routes', routeId] });
+			dispatch( processRouting() );
+		},
+		onSettled: () => {
+			setIsDeleting(false)
+		}
+	});
+
+	const handleDeletePoint = useCallback(() => {
+		mutation.mutate(item.id);
+	}, [item.id,mutation.mutate]);
 
 	return (
 		<View
@@ -243,6 +262,8 @@ const DraggableItem: FC<{
 				paddingHorizontal: 8,
 				height: itemHeight,
 				justifyContent: 'flex-start',
+
+				...( isDeleting && { backgroundColor: '#ff0000' } ), 	// ??? we need dome other nice placeholder.
 			}}
 			key={item.id}
 		>
@@ -298,21 +319,46 @@ const PointsList: FC<{
 }> = ({ setScrollEnabled, setEditPoint }) => {
 	const { width } = useContext(DrawerContext);
 
+	const dispatch = useAppDispatch();
+
 	const routeId = useAppSelector(selectIsRouting);
-	const points_ = useAppSelector(selectPoints);
+
+	const points_ = useRoutingPoints();
+	const [optimisticPoints,setOptimisticPoints] = useState<undefined | RoutingPoint[]>( undefined );
+
+	const mutation = useMutation({
+		mutationFn: (newPoints: RoutingPoint[]) =>
+			updateRoute(routeId, {
+				point_order: newPoints.map((p) => p.id),
+			}),
+		onMutate: async (newPoints, context) => {
+			await context.client.cancelQueries({ queryKey: ['routes', routeId] });
+			setOptimisticPoints( newPoints );
+		},
+		onSuccess: async (_result, _variables, _onMutateResult, context) => {
+			await context.client.invalidateQueries({ queryKey: ['routes', routeId] });
+			dispatch( processRouting() );
+		},
+		onSettled: () => {
+			setScrollEnabled(true);
+			setDraggingItemIndex(undefined);
+			setOptimisticPoints( undefined );
+		},
+	});
 
 	const points = useMemo(
 		() =>
-			points_.map((point) => ({
+			( optimisticPoints ?? points_ ).map((point) => ({
 				...point,
 				key: point.id,
 			})),
-		[points_]
+		[
+			points_,
+			optimisticPoints,
+		]
 	);
 
 	const [draggingItemIndex, setDraggingItemIndex] = useState<undefined | number>(undefined);
-
-	const dispatch = useAppDispatch();
 
 	const renderItem = (item: RoutingPoint, order: number) => (
 		<View key={item.id}>
@@ -337,17 +383,10 @@ const PointsList: FC<{
 	);
 
 	const handleDragRelease = useCallback(
-		async (newPoints: RoutingPoint[]) => {
-			setScrollEnabled(true);
-			if (routeId) {
-				await updateRoute(routeId, {
-					point_order: newPoints.map((p) => p.id),
-				});
-				dispatch(setPoints(newPoints));
-			}
-			setDraggingItemIndex(undefined);
+		(newPoints: RoutingPoint[]) => {
+			mutation.mutate(newPoints);
 		},
-		[routeId]
+		[routeId,mutation.mutate]
 	);
 
 	return (

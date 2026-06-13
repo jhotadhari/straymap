@@ -15,7 +15,6 @@ import {
 	processRouting,
 	setInitialized,
 	setIsRouting,
-	setPointsAction,
 } from './slice';
 import { startAppListening } from '../../listenerMiddleware';
 import { selectInitialized } from './selectors';
@@ -36,14 +35,11 @@ export const initializeFromStorage = (store: AppStore) => {
 				const newSettings = JSON.parse(newSettingsStr) as Partial<RoutingState>;
 				if (newSettings?.isRouting) {
 					store.dispatch(setIsRouting(newSettings.isRouting));
-					const routes = await fetchRoutes({
-						routeId: newSettings.isRouting,
-					});
-					if (routes.length) {
-						store.dispatch(
-							setPointsAction({ points: routes[0].points, updateLine: false })
-						);
-					}
+					store.dispatch(
+						processRouting({
+							updateLine: false,
+						})
+					);
 				}
 			}
 			store.dispatch(setInitialized(true));
@@ -86,16 +82,5 @@ startAppListening({
 	matcher: isAnyOf(setIsRouting),
 	effect: async (action, listenerApi) => {
 		saveToStorage(listenerApi.getState().routing, action.type);
-	},
-});
-
-startAppListening({
-	actionCreator: setPointsAction,
-	effect: async (action, listenerApi) => {
-		listenerApi.dispatch(
-			processRouting({
-				updateLine: action.payload.updateLine,
-			})
-		);
 	},
 });

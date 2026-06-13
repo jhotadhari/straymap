@@ -12,8 +12,11 @@ export const createRoutingPoints = async (
 		feature: Feature<Point, GeoJsonProperties>;
 		profile: RoutingProfile;
 	}[],
-	route_id: number
+	route_id: number | false,
 ) => {
+	if ( ! route_id ) {
+		return;
+	}
 	try {
 		const inserted = await dbZ
 			.insert(routingPointsTable)
@@ -68,10 +71,12 @@ export const updateRoutingPoint = async (
 
 export const deleteRoutingPoint = async (id: number) => {
 	const routes = await fetchRoutes({ pointId: id });
-	routes.forEach(async (route) => {
-		await updateRoute(route.id, {
-			point_order: route.point_order.filter((pId) => pId !== id),
-		});
-	});
+	await Promise.all(
+		routes.map(async (route) => {
+			await updateRoute(route.id, {
+				point_order: route.point_order.filter((pId) => pId !== id),
+			});
+		})
+	);
 	await dbZ.delete(routingPointsTable).where(eq(routingPointsTable.id, id));
 };

@@ -13,7 +13,6 @@ import { RoutingPoint, RoutingSegment, RoutingTriggeredSegment } from './types';
 import { AppThunk } from '../../store';
 import { aggregateSegmentsToCoords, getCoordsFromRouting, getSegmentRecordId } from './utils';
 import { setLineSelected } from '../lines/slice';
-import { fetchRoutes } from './db/fetch';
 import { lineString } from '@turf/turf';
 import { createLines, updateLine } from '../lines/db/actionsLine';
 import { updateRoute } from './db/actionsRoute';
@@ -21,13 +20,13 @@ import { GetTrackParams } from 'react-native-brouter';
 import { queryClient } from '../../../db/clients';
 import { lineStringToStats } from '../../../lib/utils';
 import { LineStats } from '../lines/types';
+import { queryRoutes, queryRoutingLineId } from './db/queries';
 
 export interface RoutingSettings {
 	isRouting: false | number; // false or routeId.
 }
 
 export interface RoutingState extends SliceSettingsBase, RoutingSettings {
-	points: RoutingPoint[];
 	segments: Record<
 		string, // fromId_toId
 		RoutingSegment
@@ -48,7 +47,6 @@ const initialState: RoutingState = {
 	initialized: false,
 	markerLayerUuid: null,
 	pathLayerUuids: null,
-	points: [],
 	segments: {},
 	stats: {},
 	...initialSettings,
@@ -66,19 +64,9 @@ export const routingSlice = createSlice({
 		setIsRouting: (state, action: PayloadAction<RoutingState['isRouting']>) => {
 			if (state.isRouting !== action.payload || !action.payload) {
 				state.segments = {};
-				state.points = [];
 				state.movingPointIdx = undefined;
 			}
 			state.isRouting = action.payload;
-		},
-		setPoints: (
-			state,
-			action: PayloadAction<{
-				points: RoutingState['points'];
-				updateLine: boolean;
-			}>
-		) => {
-			state.points = action.payload.points;
 		},
 		// setSegments: (
 		// 	state,
@@ -127,7 +115,6 @@ export const routingSlice = createSlice({
 export const {
 	setInitialized,
 	setIsRouting,
-	setPoints: setPointsAction,
 	// setSegments: setSegmentsAction,
 	setSegment,
 	deleteSegment,
@@ -190,11 +177,24 @@ export const deleteSegmentByKeyVal = (key: keyof RoutingSegment, val: any): AppT
 	};
 };
 
+const getPointsForRouteId = async ( routeId: number | false ) => {
+	if ( ! routeId ) {
+		return [];
+	}
+	const routes = await queryClient.fetchQuery({	// ??? maybe should use queryRoutes routes directX.
+		queryKey: ['routes', routeId],
+		queryFn: () => queryRoutes({ routeId: routeId }),
+	})
+	const points : RoutingPoint[] = get( routes, [0,'points'], [] );
+	return points;
+};
+
 export const filterSegments = (): AppThunk => {
-	return (dispatch, getState) => {
+	return async (dispatch, getState) => {
 		const {
-			routing: { points, segments },
+			routing: { segments, isRouting: routeId },
 		} = getState();
+		const points = await getPointsForRouteId( routeId );
 		const pointIds = points.map((p) => p.id);
 		Object.keys(segments)
 			.filter((fromId_toId) => {
@@ -207,29 +207,14 @@ export const filterSegments = (): AppThunk => {
 	};
 };
 
-export const setPoints = (
-	points: RoutingPoint[],
-	options?: {
-		updateLine?: boolean; // defaults to true.
-	}
-): AppThunk => {
-	return (dispatch, getState) => {
-		dispatch(
-			routingSlice.actions.setPoints({
-				points,
-				updateLine: false !== options?.updateLine,
-			})
-		);
-	};
-};
-
 export const processRouting = (options?: {
 	updateLine?: boolean; // defaults to true. Only initializeFromStorage will call that with false.
 }): AppThunk => {
 	return async (dispatch, getState) => {
 		const {
-			routing: { points, segments, isRouting: routeId },
+			routing: { segments, isRouting: routeId },
 		} = getState();
+		const points = await getPointsForRouteId( routeId );
 
 		const updatedSegments = await new Promise<Record<string, RoutingSegment>>(
 			(resolveOuter) => {
@@ -336,7 +321,7 @@ export const processRouting = (options?: {
 			}
 			// invalidateQueries
 			// No need to invalidate lines queries with selectedIds, because either selectedIds changed, or line info changed that components don't care-
-			queryClient.invalidateQueries({ queryKey: ['routingLineId', routeId] });
+			await queryClient.invalidateQueries({ queryKey: ['routingLineId', routeId] });
 			// Update routing stats.
 			if (Object.keys(updatedSegments).length) {
 				const stats = await lineStringToStats(
@@ -350,34 +335,30 @@ export const processRouting = (options?: {
 	};
 };
 
-// ??? move helper fn somewhere else
-// ??? this should be done by query mutation somehow
 const updateLineFromSegments = async (routeId: number, segments: RoutingSegment[]) => {
 	if (!routeId) {
 		return;
 	}
 
 	if (!segments.some((seg) => seg?.positions?.length ?? 0 > 1)) {
-		// ??? delete line if no positions ???.... NO Deletion now, but maybe delete on stop routing.
-
+		// Just get out. no line deletion here. stop-routing will handle that case.
 		return;
 	}
 
-	const routes = await fetchRoutes({ routeId });
-
-	if (!routes.length) {
-		return;
-	}
+	const lineId = await queryClient.fetchQuery( {
+		queryKey: ['routingLineId', routeId],
+		queryFn: () => queryRoutingLineId(routeId),
+	} );
 
 	const coords = aggregateSegmentsToCoords(segments);
 	const lineStringFeature = lineString(coords);
-	if (routes[0].line_id) {
+	if (lineId) {
 		// Update line with new positions.
-		await updateLine(routes[0].line_id, {
+		await updateLine(lineId, {
 			lineStringFeature,
 		});	// ... invalidation handled by outer function after return.
 
-		return routes[0].line_id;
+		return lineId;
 	} else {
 		// Create line and update route with line_id.
 		const insertedLines = await createLines([

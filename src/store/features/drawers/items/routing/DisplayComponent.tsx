@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { Dispatch, FC, Fragment, SetStateAction, useContext, useState } from 'react';
+import React, { Dispatch, FC, Fragment, SetStateAction, useCallback, useContext, useState } from 'react';
 import { Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
@@ -17,8 +17,12 @@ import { itemStyles } from '../../constants';
 import PointsList from '../../../routing/components/PointsList';
 import EditPointModal from '../../../routing/components/EditPointModal';
 import { setIsRouting } from '../../../routing/slice';
-import { selectIsRouting, selectPoints } from '../../../routing/selectors';
-import { createRoute } from '../../../routing/db/actionsRoute';
+import { selectIsRouting } from '../../../routing/selectors';
+import { createRoute, deleteRoute } from '../../../routing/db/actionsRoute';
+import useRoutingPoints from '../../../routing/hooks/useRoutingPoints';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { queryRoutingLineId } from '../../../routing/db/queries';
+import { deleteLine } from '../../../lines/db/actionsLine';
 
 const DisplayComponent: FC<{
 	scrollEnabled: boolean;
@@ -28,12 +32,75 @@ const DisplayComponent: FC<{
 
 	const dispatch = useAppDispatch();
 
-	const isRouting = useAppSelector(selectIsRouting);
-	const points = useAppSelector(selectPoints);
+	const routeId = useAppSelector(selectIsRouting);
+	const { data: routingLineId } = useQuery({
+		queryKey: ['routingLineId', routeId],
+		queryFn: () => queryRoutingLineId(routeId),
+	});
+
+	const points = useRoutingPoints();
 
 	const { t } = useTranslation();
 
 	const [editPoint, setEditPoint] = useState<undefined | RoutingPoint>(undefined);
+
+	const [isToggling,setIsToggling] = useState( false );
+
+	const createRouteMutation = useMutation({
+		mutationFn: () =>
+			createRoute(),
+		onMutate: async () => {
+			setIsToggling( true );
+		},
+		onSuccess: async ( newRouteId, _variables, _onMutateResult, context) => {
+			if (newRouteId) {
+				dispatch(setIsRouting(newRouteId));
+				expand(false);
+			}
+		},
+		onSettled: () => {
+			setIsToggling( false );
+		}
+	});
+
+	const deleteMutation = useMutation({
+		mutationFn: () => Promise.all( [
+			deleteRoute( routeId ),
+			deleteLine( routingLineId || false ),
+		] ),
+		onMutate: async (_, context) => {
+			await context.client.cancelQueries({ queryKey: ['routes', routeId] });
+			await context.client.cancelQueries({ queryKey: ['linesMeta'] });
+			setIsToggling( true );
+		},
+		onSuccess: async ( _, _variables, _onMutateResult, context) => {
+			expand(false);
+			dispatch(setIsRouting(false));
+			await context.client.invalidateQueries({ queryKey: ['routes', routeId] });
+			await context.client.invalidateQueries({ queryKey: ['linesMeta'] });
+		},
+		onSettled: () => {
+			setIsToggling( false );
+		}
+	});
+
+	const handleToggleRouting = useCallback(async () => {
+		if (routeId) {
+			if ( points.length < 2 ) {
+				deleteMutation.mutate();
+			} else {
+				expand(false);
+				dispatch(setIsRouting(false));
+			}
+		} else {
+			createRouteMutation.mutate();
+		}
+	}, [
+		routeId,
+		points,
+		createRouteMutation.mutate,
+		deleteMutation.mutate,
+	] );
 
 	return (
 		<Fragment>
@@ -48,23 +115,13 @@ const DisplayComponent: FC<{
 				<ButtonHighlight
 					style={itemStyles.buttonRow}
 					mode="outlined"
-					onPress={async () => {
-						if (isRouting) {
-							expand(false);
-							dispatch(setIsRouting(false));
-						} else {
-							const routeId = await createRoute();
-							if (routeId) {
-								dispatch(setIsRouting(routeId));
-								expand(false);
-							}
-						}
-					}}
+					onPress={handleToggleRouting}
+					disabled={isToggling}
 				>
-					<Text>{t(isRouting ? 'stopRouting???' : 'startRouting???')}</Text>
+					<Text>{t(routeId ? 'stopRouting???' : 'startRouting???')}</Text>
 				</ButtonHighlight>
 
-				{/* {!isRouting && (
+				{/* {!routeId && (
 					<ButtonHighlight
 						style={itemStyles.buttonRow}
 						mode="outlined"
@@ -74,7 +131,7 @@ const DisplayComponent: FC<{
 					</ButtonHighlight>
 				)} */}
 
-				{/* {isRouting && (
+				{/* {routeId && (
 					<View
 						style={[
 							itemStyles.itemRow,
