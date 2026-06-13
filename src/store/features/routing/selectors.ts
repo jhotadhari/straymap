@@ -1,7 +1,10 @@
 /**
  * Internal dependencies
  */
+// import { sortArrayByOrderArray } from '../../../lib/utilsLight';
+// import createAppSelector from '../../createAppSelector';
 import { RootState } from '../../store';
+// import { RoutingSegment } from './types';
 
 export const selectInitialized = (state: RootState) => state.routing.initialized;
 
@@ -20,6 +23,8 @@ export const selectMovingPointIdx = (state: RootState) => state.routing.movingPo
 export const selectTriggeredMarkerIdx = (state: RootState) => state.routing.triggeredMarkerIdx;
 
 export const selectTriggeredSegment = (state: RootState) => state.routing.triggeredSegment;
+
+export const selectStats = (state: RootState) => state.routing.stats;
 
 // export const selectPointIds = createAppSelector(
 // 	(state: RootState) => state.routing.points,
