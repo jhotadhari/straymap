@@ -178,6 +178,18 @@ export default routingSlice.reducer;
 // 	};
 // };
 
+export const deleteSegmentByKeyVal = (key: keyof RoutingSegment, val: any): AppThunk => {
+	return (dispatch, getState) => {
+		const {
+			routing: { segments },
+		} = getState();
+		const segment = Object.values(segments).find((seg) => get(seg, key) === val);
+		if (segment) {
+			dispatch(routingSlice.actions.deleteSegment(segment));
+		}
+	};
+};
+
 export const filterSegments = (): AppThunk => {
 	return (dispatch, getState) => {
 		const {

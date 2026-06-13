@@ -384,6 +384,9 @@ const IconActions = ({ style }: { style: TextStyle }) => {
 			placement={PopoverPlacement.BOTTOM}
 			onRequestClose={() => dismissMenu()}
 			from={anchor}
+			animationConfig={{
+				duration: 0,
+			}}
 		>
 			{options && (
 				<ScrollView>

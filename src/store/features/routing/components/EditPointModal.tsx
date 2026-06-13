@@ -4,7 +4,7 @@
 import React, { Dispatch, FC, SetStateAction, useCallback, useMemo } from 'react';
 import { useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { get, omit } from 'lodash-es';
+import { get, isEqual, omit } from 'lodash-es';
 import { GetTrackParams } from 'react-native-brouter';
 
 /**
@@ -16,8 +16,10 @@ import ListItemMenuControl from '../../../../components/generic/controls/ListIte
 import ModalWrapper from '../../../../components/generic/ModalWrapper';
 import { useAppDispatch, useAppSelector } from '../../../hooks';
 import { RoutingPoint } from '../types';
-import { selectPoints } from '../selectors';
+import { selectIsRouting, selectPoints } from '../selectors';
 import { updateRoutingPoint } from '../db/actionsRoutingPoint';
+import { deleteSegmentByKeyVal, processRouting } from '../routingSlice';
+import { updateStorePointsFromDb } from '../utils';
 
 const ProfileRowControl = ({
 	editPoint,
@@ -81,44 +83,39 @@ const EditPointModal: FC<{
 	const theme = useTheme();
 	const { t } = useTranslation();
 
+	const routeId = useAppSelector(selectIsRouting);
 	const points = useAppSelector(selectPoints);
 
-	const resetSegmentPositions = useCallback(() => {
+	const point = useMemo(() => points.find((p) => p.id, editPoint.id), [points, editPoint.id]);
 
-		// ??? TODO
+	const onDismiss = useCallback(async () => {
+		// !!! use Mutation ???
 
+		if (routeId && !isEqual(editPoint?.profile, point?.profile)) {
+			await updateRoutingPoint(editPoint.id, {
+				profile: editPoint.profile,
+			});
 
-		// if (segments && editPoint.profile && points) {
-		// 	const segmentIdx = segments.findIndex((segment) => segment.fromId === editPoint.id);
-		// 	if (-1 !== segmentIdx) {
-		// 		const point = points.find((p) => p.id === editPoint.id);
-		// 		if (JSON.stringify(point?.profile) !== JSON.stringify(editPoint.profile)) {
-		// 			const newSegments = [...segments];
-		// 			newSegments.splice(segmentIdx, 1, omit(segments[segmentIdx], ['positions']));
-		// 			dispatch(setSegments(newSegments, { updateRoutes: true }));
-		// 		}
-		// 	}
-		// }
+			// ??? !!! invalidate query. and use mutations instead
+
+			await updateStorePointsFromDb(routeId);
+			dispatch(deleteSegmentByKeyVal('fromId', editPoint.id));
+			dispatch(processRouting());
+
+			setEditPoint(undefined);
+		} else {
+			setEditPoint(undefined);
+		}
 	}, [
-		// segments,
 		editPoint,
-		points,
+		point,
+		routeId,
 	]);
-
-	const savePointToDb = useCallback(async () => {
-		await updateRoutingPoint(editPoint.id, {
-			profile: editPoint.profile,
-		});
-	}, [editPoint]);
 
 	return (
 		<ModalWrapper
 			visible={!!editPoint.profile}
-			onDismiss={async () => {
-				resetSegmentPositions();
-				await savePointToDb();
-				setEditPoint(undefined);
-			}}
+			onDismiss={onDismiss}
 			header={'editPoint.profile???'}
 		>
 			<ProfileRowControl
