@@ -15,18 +15,18 @@ import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { Line, LinePartial } from '../../types';
 import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
 import { iconSize } from '../../../drawers/constants';
-import { setLineSelected } from '../../linesSlice';
+import { setLineSelected } from '../../slice';
 import LineStats from '../LineStats';
 import { lineCells, statsCells, otherCells, styles } from './sharedDeps';
 import TagBadge from '../TagBadge';
 import { selectIsRouting, selectStats } from '../../../routing/selectors';
 import { queryRoutingLineId } from '../../../routing/db/queries';
-import { setActiveKey } from '../../../drawers/drawersSlice';
+import { setActiveKey } from '../../../drawers/slice';
 import IconRouting from '../../../drawers/items/routing/IconComponent';
 import { AppContext } from '../../../../../Context';
 import { selectSideForKey } from '../../../drawers/selectors';
 import { DrawerControl } from '../../../drawers/types';
-import { setUiItemKeys } from '../../../ui/uiSlice';
+import { setUiItemKeys } from '../../../ui/slice';
 
 const OtherCell: FC<{
 	cellKey: string;

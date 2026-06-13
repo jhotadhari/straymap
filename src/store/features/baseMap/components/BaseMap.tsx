@@ -30,7 +30,7 @@ import { getHillshadingCacheDirChild, stringifyProp } from '../utils';
 import { useAppDispatch, useAppSelector } from '../../../hooks';
 import { selectLayers, selectMapsforgeProfiles } from '../selectors';
 import { selectAppDirs } from '../../dirs/selectors';
-import { setLayerInfos } from '../baseMapSlice';
+import { setLayerInfos } from '../slice';
 
 const BaseMap: FC<{}> = () => {
 	const appDirs = useAppSelector(selectAppDirs);

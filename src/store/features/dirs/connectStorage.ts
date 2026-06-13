@@ -7,7 +7,7 @@ import { type EnhancedStore } from '@reduxjs/toolkit';
 /**
  * Internal dependencies
  */
-import { setAppDirs, setInitialized } from './dirsSlice';
+import { setAppDirs, setInitialized } from './slice';
 import { HelperModule } from '../../../nativeModules';
 import { AbsPathsMap } from './types';
 import { selectInitialized } from './selectors';

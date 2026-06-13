@@ -13,7 +13,7 @@ import ListItemMenuControl from '../../../../../components/generic/controls/List
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { selectLang } from '../../selectors';
 import { LANGUAGE_NAMES, SUPPORTED_LANGUAGES } from '../../../../../assets/i18n/constants';
-import { setLang } from '../../langSlice';
+import { setLang } from '../../slice';
 import { sortArrayByOrderArray } from '../../../../../lib/utilsLight';
 
 const LangControl: FC = () => {

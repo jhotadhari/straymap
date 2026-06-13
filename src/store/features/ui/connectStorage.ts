@@ -15,7 +15,7 @@ import {
 	setElementExpanded,
 	setExpandedElements,
 	setInitialized,
-} from './uiSlice';
+} from './slice';
 import { startAppListening } from '../../listenerMiddleware';
 import { selectInitialized } from './selectors';
 

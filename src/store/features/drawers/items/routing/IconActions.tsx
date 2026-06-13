@@ -22,7 +22,7 @@ import {
 	setPoints,
 	setTriggeredMarkerIdx,
 	setTriggeredSegment,
-} from '../../../routing/routingSlice';
+} from '../../../routing/slice';
 import {
 	selectIsRouting,
 	selectMarkerLayerUuid,

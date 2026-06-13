@@ -10,7 +10,7 @@ import { MapsforgeProfile } from '../../../types';
 import { OptionBase } from '../../../../../../types';
 import { useAppDispatch, useAppSelector } from '../../../../../hooks';
 import { selectMapsforgeProfileTemp } from '../../../selectors';
-import { setMapsforgeProfileTemp } from '../../../baseMapSlice';
+import { setMapsforgeProfileTemp } from '../../../slice';
 
 const labelExtractor = (a: { label: string }) => a.label;
 

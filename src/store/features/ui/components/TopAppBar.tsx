@@ -12,7 +12,7 @@ import { View, BackHandler, TouchableHighlight, StyleSheet } from 'react-native'
 import { getUiItemsByKey } from '../uiItems';
 import { useAppDispatch, useAppSelector } from '../../../hooks';
 import { selectUiItemKeys, selectIsBusy } from '../selectors';
-import { setUiItemKeys } from '../uiSlice';
+import { setUiItemKeys } from '../slice';
 import LoadingIndicator from '../../../../components/generic/LoadingIndicator';
 import { AppContext } from '../../../../Context';
 import { DashboardWrapped } from '../../dashboard/components/Dashboard';

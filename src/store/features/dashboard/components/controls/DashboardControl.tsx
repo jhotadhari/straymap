@@ -11,13 +11,13 @@ import { Style } from 'react-native-paper/lib/typescript/components/List/utils';
  * Internal dependencies
  */
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
-import { setElementExpanded } from '../../../ui/uiSlice';
+import { setElementExpanded } from '../../../ui/slice';
 import { selectElementExpanded } from '../../../ui/selectors';
 import NumericRowControl from '../../../../../components/generic/controls/NumericRowControl';
 import { stylesGeneric } from '../../../baseMap/components/controls/layers/LayersControl';
 import AlignmentControl from './AlignmentControl';
 import { selectDashboardStyle, selectEditItem } from '../../selectors';
-import { setDashboardStyle, setEditItemAccordingToPosition } from '../../dashboardSlice';
+import { setDashboardStyle, setEditItemAccordingToPosition } from '../../slice';
 import { ControlContext } from '../../ControlContext';
 import NewItemControl from './NewItemControl';
 

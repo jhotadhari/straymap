@@ -14,7 +14,7 @@ import { DrawerProps } from '../types';
 import { selectActiveKey, selectControlHandleSide, selectItemKeys } from '../selectors';
 import { useAppDispatch, useAppSelector } from '../../../hooks';
 import DrawerHandle from './DrawerHandle';
-import { setItemKeys } from '../drawersSlice';
+import { setItemKeys } from '../slice';
 import DrawerContext from '../DrawerContext';
 import { handleSize } from '../constants';
 import { AppContext } from '../../../../Context';

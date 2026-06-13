@@ -27,7 +27,7 @@ import {
 	setHgtFileInfoPurgeThreshold,
 	setHgtInterpolation,
 	setHgtReadFileRate,
-} from '../../../baseMap/baseMapSlice';
+} from '../../../baseMap/slice';
 import { selectAppDirs } from '../../../dirs/selectors';
 
 const HgtControl = () => {

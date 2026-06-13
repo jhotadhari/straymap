@@ -16,7 +16,7 @@ import { RoutingPoint } from '../../../routing/types';
 import { itemStyles } from '../../constants';
 import PointsList from '../../../routing/components/PointsList';
 import EditPointModal from '../../../routing/components/EditPointModal';
-import { setIsRouting } from '../../../routing/routingSlice';
+import { setIsRouting } from '../../../routing/slice';
 import { selectIsRouting, selectPoints } from '../../../routing/selectors';
 import { createRoute } from '../../../routing/db/actionsRoute';
 

@@ -13,7 +13,7 @@ import { DrawerProps } from '../types';
 import { selectActiveKey, selectItemKeys } from '../selectors';
 import { useAppDispatch, useAppSelector } from '../../../hooks';
 import DrawerContent from './DrawerContent';
-import { setActiveKey } from '../drawersSlice';
+import { setActiveKey } from '../slice';
 import DrawerContext from '../DrawerContext';
 import DrawerHandles from './DrawerHandles';
 

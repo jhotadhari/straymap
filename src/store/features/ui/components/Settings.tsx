@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next';
 import ListItem from '../../../../components/generic/ListItem';
 import { getUiItemsByKey } from '../uiItems';
 import { useAppDispatch } from '../../../hooks';
-import { addUiItemKey } from '../uiSlice';
+import { addUiItemKey } from '../slice';
 
 const Settings: FC<{ style?: ViewStyle }> = ({ style }) => {
 	const { t } = useTranslation();

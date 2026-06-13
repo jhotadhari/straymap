@@ -12,7 +12,7 @@ import { RoutingSegment } from './types';
 import { locationsToCoordsArr, runAfterInteractions } from '../../../lib/utils';
 import { fetchRoutes } from './db/fetch';
 import { store } from '../../store';
-import { setPoints } from './routingSlice';
+import { setPoints } from './slice';
 
 export const getSegmentRecordId = (segment: Pick<RoutingSegment, 'fromId' | 'toId'>) =>
 	[

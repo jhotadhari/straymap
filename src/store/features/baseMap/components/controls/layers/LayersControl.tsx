@@ -37,11 +37,11 @@ import { LayerOption, LayerConfig } from '../../../types';
 import { getNewLayer } from '../../../utils';
 import { useAppDispatch, useAppSelector } from '../../../../../hooks';
 import { selectElementExpanded } from '../../../../ui/selectors';
-import { setElementExpanded } from '../../../../ui/uiSlice';
+import { setElementExpanded } from '../../../../ui/slice';
 import { Style } from 'react-native-paper/lib/typescript/components/List/utils';
 import { selectLayers, selectLayerTemp } from '../../../selectors';
 
-import { setLayers as setLayersStore, setLayerTemp } from '../../../baseMapSlice';
+import { setLayers as setLayersStore, setLayerTemp } from '../../../slice';
 import VisibilityControl, { VisibilityRowControl } from './VisibilityControl';
 import LayerControlOnlineRasterXYZ from './LayerControlOnlineRasterXYZ';
 import LayerControlRasterMBTiles from './LayerControlRasterMBTiles';

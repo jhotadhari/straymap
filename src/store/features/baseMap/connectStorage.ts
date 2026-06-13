@@ -21,7 +21,7 @@ import {
 	setMapsforgeGeneralAction,
 	setMapsforgeProfiles,
 	setRenderStylesCache,
-} from './baseMapSlice';
+} from './slice';
 import { startAppListening } from '../../listenerMiddleware';
 import { selectInitialized } from './selectors';
 import { MapsforgeGeneral } from './types';

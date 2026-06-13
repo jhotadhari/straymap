@@ -3,7 +3,7 @@ import semverCompare from 'semver-compare';
 import { get } from 'lodash-es';
 
 import { UpdateResults } from './types';
-import { setInstalledVersion, setIsUpdating, UpdaterState } from './updaterSlice';
+import { setInstalledVersion, setIsUpdating, UpdaterState } from './slice';
 import packageJson from '../../../../package.json';
 
 class Updater {

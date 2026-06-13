@@ -17,7 +17,7 @@ import { defaults } from '../../../../../../constants';
 import { LayerConfigOptionsHillshading, LayerConfig } from '../../../types';
 import { selectAppDirs } from '../../../../dirs/selectors';
 import { useAppDispatch, useAppSelector } from '../../../../../hooks';
-import { setLayerTemp } from '../../../baseMapSlice';
+import { setLayerTemp } from '../../../slice';
 import { selectLayerTemp } from '../../../selectors';
 import HillshadingAlgorithmControl from './HillshadingAlgorithmControl';
 import NumericRowControlMulti from '../../../../../../components/generic/controls/NumericRowControlMulti';

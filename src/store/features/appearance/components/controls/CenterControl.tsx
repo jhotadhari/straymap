@@ -18,7 +18,7 @@ import NumericRowControl from '../../../../../components/generic/controls/Numeri
 import FileSourceRowControl from '../../../../../components/generic/controls/FileSourceRowControl';
 import { CenterInner } from '../Center';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
-import { initialSettings, setCursor } from '../../appearanceSlice';
+import { initialSettings, setCursor } from '../../slice';
 import { selectCursor } from '../../selectors';
 import { CursorConfig } from '../../types';
 import { selectAppDirs } from '../../../dirs/selectors';

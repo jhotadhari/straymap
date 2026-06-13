@@ -10,7 +10,7 @@ import { get } from 'lodash-es';
  */
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { selectDashboardStyle } from '../../selectors';
-import { setDashboardStyle } from '../../dashboardSlice';
+import { setDashboardStyle } from '../../slice';
 import { OptionBase } from '../../../../../types';
 import InfoRowControl from '../../../../../components/generic/controls/InfoRowControl';
 import ListItemMenuControl from '../../../../../components/generic/controls/ListItemMenuControl';

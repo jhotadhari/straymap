@@ -10,11 +10,11 @@ import { useTranslation } from 'react-i18next';
 /**
  * react-native-mapsforge-vtm dependencies
  */
-import InfoButton from '../../../components/generic/InfoButton';
-import { sourceOptions } from './components/controls/layers/LayerControlOnlineRasterXYZ';
-import { useAppSelector } from '../../hooks';
-import { selectLayerInfos, selectLayers } from './selectors';
-import { LayerConfig, LayerInfo } from './types';
+import InfoButton from '../../../../components/generic/InfoButton';
+import { sourceOptions } from './controls/layers/LayerControlOnlineRasterXYZ';
+import { useAppSelector } from '../../../hooks';
+import { selectLayerInfos, selectLayers } from '../selectors';
+import { LayerConfig, LayerInfo } from '../types';
 
 type AttributionConf = {
 	key: string;

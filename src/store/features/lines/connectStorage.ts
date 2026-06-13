@@ -14,7 +14,7 @@ import {
 	initialSettings,
 	setInitialized,
 	setSelected,
-} from './linesSlice';
+} from './slice';
 import { startAppListening } from '../../listenerMiddleware';
 import { selectInitialized } from './selectors';
 

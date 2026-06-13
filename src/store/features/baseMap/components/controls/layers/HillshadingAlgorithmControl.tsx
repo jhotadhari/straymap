@@ -25,7 +25,7 @@ import { styles as mdStyles } from '../../../../../../markdown/styles';
 import HintLink from '../../../../../../components/generic/HintLink';
 import { LayerConfigOptionsHillshading, LayerConfig } from '../../../types';
 import { useAppDispatch, useAppSelector } from '../../../../../hooks';
-import { setLayerTemp } from '../../../baseMapSlice';
+import { setLayerTemp } from '../../../slice';
 import { selectLayerTemp } from '../../../selectors';
 
 const algorithmLinks = {

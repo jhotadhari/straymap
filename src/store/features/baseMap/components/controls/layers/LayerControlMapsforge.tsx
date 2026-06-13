@@ -18,7 +18,7 @@ import HintLink from '../../../../../../components/generic/HintLink';
 import { LayerConfigOptionsMapsforge, LayerConfig } from '../../../types';
 import { selectAppDirs } from '../../../../dirs/selectors';
 import { useAppDispatch, useAppSelector } from '../../../../../hooks';
-import { setLayerTemp, setMapsforgeProfileTemp } from '../../../baseMapSlice';
+import { setLayerTemp, setMapsforgeProfileTemp } from '../../../slice';
 import { selectLayerTemp, selectMapsforgeProfiles } from '../../../selectors';
 import NumericRowControlMulti from '../../../../../../components/generic/controls/NumericRowControlMulti';
 import ListItemMenuControl from '../../../../../../components/generic/controls/ListItemMenuControl';

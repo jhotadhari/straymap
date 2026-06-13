@@ -10,7 +10,7 @@ import { FsModule } from '../../../../nativeModules';
 import { CacheDir } from '../types';
 import { useAppDispatch, useAppSelector } from '../../../hooks';
 import { selectCacheDirsCache } from '../selectors';
-import { setCacheDirsCache } from '../dirsSlice';
+import { setCacheDirsCache } from '../slice';
 
 const useCacheDirsInfo = (shouldUpdate?: any): any => {
 	const dispatch = useAppDispatch();

@@ -42,7 +42,7 @@ import { MapsforgeProfile, LayerConfigOptionsMapsforge } from '../../../types';
 import { getNewProfile } from '../../../utils';
 import { selectElementExpanded, selectIsBusy } from '../../../../ui/selectors';
 import { useAppDispatch, useAppSelector } from '../../../../../hooks';
-import { addBusyKey, removeBusyKey, setElementExpanded } from '../../../../ui/uiSlice';
+import { addBusyKey, removeBusyKey, setElementExpanded } from '../../../../ui/slice';
 import {
 	selectLayers,
 	selectMapsforgeProfiles,
@@ -53,7 +53,7 @@ import {
 	setMapsforgeProfiles as setMapsforgeProfilesStore,
 	setMapsforgeProfileTemp,
 	setRenderStylesCache,
-} from '../../../baseMapSlice';
+} from '../../../slice';
 import { Style } from 'react-native-paper/lib/typescript/components/List/utils';
 import { stylesGeneric } from '../layers/LayersControl';
 import RenderOverlaysControl from './RenderOverlaysControl';

@@ -10,7 +10,7 @@ import { FsModule } from '../../../../nativeModules';
 import { useAppDispatch, useAppSelector } from '../../../hooks';
 import { AbsPath, DirInfo, DirInfoMap } from '../types';
 import { getDirInfoCacheId } from '../utils';
-import { addDirInfoCacheEntry } from '../dirsSlice';
+import { addDirInfoCacheEntry } from '../slice';
 import { selectDirsInfoCacheEntry } from '../selectors';
 
 const useDirsInfo = ({

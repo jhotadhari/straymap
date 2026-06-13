@@ -13,7 +13,7 @@ import { itemStyles } from '../../constants';
 import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
 import SelectedLinesList from '../../../lines/components/SelectedLinesList';
 import { useAppDispatch } from '../../../../hooks';
-import { addUiItemKey } from '../../../ui/uiSlice';
+import { addUiItemKey } from '../../../ui/slice';
 
 const DisplayComponent: FC<{
 	scrollEnabled: boolean;

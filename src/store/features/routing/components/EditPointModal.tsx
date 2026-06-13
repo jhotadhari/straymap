@@ -18,7 +18,7 @@ import { useAppDispatch, useAppSelector } from '../../../hooks';
 import { RoutingPoint } from '../types';
 import { selectIsRouting, selectPoints } from '../selectors';
 import { updateRoutingPoint } from '../db/actionsRoutingPoint';
-import { deleteSegmentByKeyVal, processRouting } from '../routingSlice';
+import { deleteSegmentByKeyVal, processRouting } from '../slice';
 import { updateStorePointsFromDb } from '../utils';
 
 const ProfileRowControl = ({

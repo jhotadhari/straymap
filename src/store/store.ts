@@ -7,17 +7,17 @@ import { configureStore } from '@reduxjs/toolkit';
 /**
  * Internal dependencies
  */
-import appearanceReducer from './features/appearance/appearanceSlice';
-import generalReducer from './features/general/generalSlice';
-import dirsReducer from './features/dirs/dirsSlice';
-import routingReducer from './features/routing/routingSlice';
-import uiReducer from './features/ui/uiSlice';
-import updaterReducer from './features/updater/updaterSlice';
-import dashboardReducer from './features/dashboard/dashboardSlice';
-import baseMapReducer from './features/baseMap/baseMapSlice';
-import drawersReducer from './features/drawers/drawersSlice';
-import langReducer from './features/lang/langSlice';
-import linesReducer from './features/lines/linesSlice';
+import appearanceReducer from './features/appearance/slice';
+import generalReducer from './features/general/slice';
+import dirsReducer from './features/dirs/slice';
+import routingReducer from './features/routing/slice';
+import uiReducer from './features/ui/slice';
+import updaterReducer from './features/updater/slice';
+import dashboardReducer from './features/dashboard/slice';
+import baseMapReducer from './features/baseMap/slice';
+import drawersReducer from './features/drawers/slice';
+import langReducer from './features/lang/slice';
+import linesReducer from './features/lines/slice';
 import { listenerMiddleware } from './listenerMiddleware';
 import { initializeAppState } from './utils';
 

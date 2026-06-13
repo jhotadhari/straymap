@@ -12,7 +12,7 @@ import { useTranslation } from 'react-i18next';
 import customThemes from '../../../../../themes';
 import ListItemMenuControl from '../../../../../components/generic/controls/ListItemMenuControl';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
-import { setTheme } from '../../appearanceSlice';
+import { setTheme } from '../../slice';
 import { selectTheme } from '../../selectors';
 
 const ThemeControl: FC = () => {

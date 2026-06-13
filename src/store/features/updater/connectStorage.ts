@@ -14,7 +14,7 @@ import {
 	initialSettings,
 	setInitialized,
 	setInstalledVersion,
-} from './updaterSlice';
+} from './slice';
 import packageJson from '../../../../package.json';
 import { startAppListening } from '../../listenerMiddleware';
 import { selectInitialized } from './selectors';

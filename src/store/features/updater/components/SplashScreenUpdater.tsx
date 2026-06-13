@@ -16,7 +16,7 @@ import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
 import { useAppDispatch, useAppSelector } from '../../../hooks';
 import packageJson from '../../../../../package.json';
 import { selectInstalledVersion, selectIsUpdating } from '../selectors';
-import { setIsUpdating } from '../updaterSlice';
+import { setIsUpdating } from '../slice';
 
 const FailControls: FC = () => {
 	const theme = useTheme();

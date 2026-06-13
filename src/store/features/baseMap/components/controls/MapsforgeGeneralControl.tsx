@@ -14,7 +14,7 @@ import NumericRowControl from '../../../../../components/generic/controls/Numeri
 import IconIcomoon from '../../../../../components/generic/IconIcomoon';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { selectMapsforgeGeneral } from '../../selectors';
-import { setMapsforgeGeneral } from '../../baseMapSlice';
+import { setMapsforgeGeneral } from '../../slice';
 
 const validate = (val: number) => val >= 0 && val <= 20;
 

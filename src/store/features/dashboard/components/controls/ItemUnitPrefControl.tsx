@@ -15,7 +15,7 @@ import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { selectUnitPrefs } from '../../../general/selectors';
 import InfoRowControl from '../../../../../components/generic/controls/InfoRowControl';
 import { UnitPref } from '../../../general/types';
-import { setItem } from '../../dashboardSlice';
+import { setItem } from '../../slice';
 import { selectEditItem } from '../../selectors';
 import { DashboardItem } from '../../types';
 import NumericRowControlSegmented from '../../../../../components/generic/controls/NumericRowControlSegmented';

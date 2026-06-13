@@ -11,11 +11,11 @@ import { Style } from 'react-native-paper/lib/typescript/components/List/utils';
  * Internal dependencies
  */
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
-import { setElementExpanded } from '../../../ui/uiSlice';
+import { setElementExpanded } from '../../../ui/slice';
 import { selectElementExpanded } from '../../../ui/selectors';
 import { selectMapEventRate } from '../../../general/selectors';
 import NumericRowControl from '../../../../../components/generic/controls/NumericRowControl';
-import { setMapEventRate } from '../../../general/generalSlice';
+import { setMapEventRate } from '../../../general/slice';
 import { stylesGeneric } from '../../../baseMap/components/controls/layers/LayersControl';
 
 const ControlIcon: (props: { color: string; style: Style }) => ReactNode = (props) => (

@@ -11,7 +11,7 @@ import DashboardControl from '../../dashboard/components/controls/DashboardContr
 import ItemControl from '../../dashboard/components/controls/ItemControl';
 import { AppContext } from '../../../../Context';
 import { useAppDispatch } from '../../../hooks';
-import { setIsEditingDashboard, setEditItemKey } from '../../dashboard/dashboardSlice';
+import { setIsEditingDashboard, setEditItemKey } from '../../dashboard/slice';
 
 const SettingsDashboard: FC<{ style?: ViewStyle }> = ({ style }) => {
 	const { mapHeight } = useContext(AppContext);

@@ -23,7 +23,7 @@ import {
 import { LayerConfig, LayerConfigOptionsOnlineRasterXYZ } from '../../../types';
 import { useAppDispatch, useAppSelector } from '../../../../../hooks';
 import { selectLayerTemp } from '../../../selectors';
-import { setLayerTemp } from '../../../baseMapSlice';
+import { setLayerTemp } from '../../../slice';
 import NumericRowControlMulti from '../../../../../../components/generic/controls/NumericRowControlMulti';
 import ListItemMenuControl from '../../../../../../components/generic/controls/ListItemMenuControl';
 import { stringifyProp } from '../../../utils';

@@ -15,7 +15,7 @@ import InfoRowControl from '../../../../../components/generic/controls/InfoRowCo
 import NumericRowControl from '../../../../../components/generic/controls/NumericRowControl';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { selectUnitPrefs } from '../../selectors';
-import { setUnitPrefs } from '../../generalSlice';
+import { setUnitPrefs } from '../../slice';
 import { UnitPref } from '../../types';
 import ListItemMenuControl from '../../../../../components/generic/controls/ListItemMenuControl';
 

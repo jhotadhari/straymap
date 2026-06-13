@@ -21,7 +21,7 @@ import { SegmentedButtons, useTheme } from 'react-native-paper';
  */
 import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
-import { addItem, setEditItemKey } from '../../dashboardSlice';
+import { addItem, setEditItemKey } from '../../slice';
 import ModalWrapper from '../../../../../components/generic/ModalWrapper';
 import RadioListItem from '../../../../../components/generic/RadioListItem';
 import { OptionBase } from '../../../../../types';

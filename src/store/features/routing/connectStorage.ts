@@ -16,7 +16,7 @@ import {
 	setInitialized,
 	setIsRouting,
 	setPointsAction,
-} from './routingSlice';
+} from './slice';
 import { startAppListening } from '../../listenerMiddleware';
 import { selectInitialized } from './selectors';
 import { fetchRoutes } from './db/fetch';

@@ -14,7 +14,7 @@ import { View } from 'react-native';
 import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
 import { Text } from 'react-native-paper';
 import { RoutingProfile } from '../../routing/types';
-import { setSelected } from '../linesSlice';
+import { setSelected } from '../slice';
 import { useAppDispatch } from '../../../hooks';
 
 const coords = [

@@ -14,7 +14,7 @@ import { OptionBase } from '../../../../../types';
 import ListItemModalControl from '../../../../../components/generic/controls/ListItemModalControl';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { selectHardwareKeys } from '../../selectors';
-import { setHardwareKeys } from '../../generalSlice';
+import { setHardwareKeys } from '../../slice';
 import ListItemMenuControl from '../../../../../components/generic/controls/ListItemMenuControl';
 import InfoRowControl from '../../../../../components/generic/controls/InfoRowControl';
 

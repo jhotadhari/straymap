@@ -27,7 +27,7 @@ import DrawerContext from '../../drawers/DrawerContext';
 import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
 import LoadingIndicator from '../../../../components/generic/LoadingIndicator';
 import { useAppDispatch, useAppSelector } from '../../../hooks';
-import { processRouting, setPoints, setSegment } from '../routingSlice';
+import { processRouting, setPoints, setSegment } from '../slice';
 import { selectIsRouting, selectPoints, selectSegments } from '../selectors';
 import { updateRoute } from '../db/actionsRoute';
 import { lineStringToStats, locationsToCoordsArr } from '../../../../lib/utils';

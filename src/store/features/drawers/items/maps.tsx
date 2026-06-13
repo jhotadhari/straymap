@@ -12,7 +12,7 @@ import { View } from 'react-native';
 import LayersControl from '../../baseMap/components/controls/layers/LayersControl';
 import ProfilesControl from '../../baseMap/components/controls/profiles/ProfilesControl';
 import { useAppDispatch } from '../../../hooks';
-import { setUiItemKeys } from '../../ui/uiSlice';
+import { setUiItemKeys } from '../../ui/slice';
 import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
 import DrawerContext from '../DrawerContext';
 import { DrawerItem } from '../types';

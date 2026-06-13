@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next';
  */
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { selectDashboardStyle, selectEditItem } from '../../selectors';
-import { setItem } from '../../dashboardSlice';
+import { setItem } from '../../slice';
 import { omit } from 'lodash-es';
 import { ControlContext } from '../../ControlContext';
 import NumericRowControlSegmented from '../../../../../components/generic/controls/NumericRowControlSegmented';

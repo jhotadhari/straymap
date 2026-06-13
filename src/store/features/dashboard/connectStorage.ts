@@ -19,7 +19,7 @@ import {
 	setInitialized,
 	setItems,
 	setElementsSettings,
-} from './dashboardSlice';
+} from './slice';
 import { startAppListening } from '../../listenerMiddleware';
 import * as elements from './elements';
 import { DashboardElement, DashboardElementSetting } from './types';

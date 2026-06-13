@@ -19,10 +19,10 @@ import { MapsforgeProfile, RenderStylesCache } from '../../../types';
 import { selectIsBusy } from '../../../../ui/selectors';
 import { useAppDispatch, useAppSelector } from '../../../../../hooks';
 import { selectMapsforgeProfileTemp } from '../../../selectors';
-import { setMapsforgeProfileTemp, setRenderStylesCache } from '../../../baseMapSlice';
+import { setMapsforgeProfileTemp, setRenderStylesCache } from '../../../slice';
 import { selectAppDirs } from '../../../../dirs/selectors';
 import { getDirInfoCacheId } from '../../../../dirs/utils';
-import { removeDirInfoCacheEntry } from '../../../../dirs/dirsSlice';
+import { removeDirInfoCacheEntry } from '../../../../dirs/slice';
 
 const extensions = ['xml'];
 

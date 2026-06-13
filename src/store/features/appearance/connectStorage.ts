@@ -15,7 +15,7 @@ import {
 	setCursorAction,
 	setInitialized,
 	setTheme,
-} from './appearanceSlice';
+} from './slice';
 import { startAppListening } from '../../listenerMiddleware';
 import customThemes from '../../../themes';
 import { selectInitialized } from './selectors';

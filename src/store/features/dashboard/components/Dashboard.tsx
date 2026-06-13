@@ -20,7 +20,7 @@ import { useAppDispatch, useAppSelector } from '../../../hooks';
 import { selectDashboardStyle, selectIsEditingDashboard, selectItems } from '../selectors';
 import DashboardItem from './DashboardItem';
 import { AppContext } from '../../../../Context';
-import { setEditItemKey, setItems } from '../dashboardSlice';
+import { setEditItemKey, setItems } from '../slice';
 import { ControlContext } from '../ControlContext';
 import { useTheme } from 'react-native-paper';
 

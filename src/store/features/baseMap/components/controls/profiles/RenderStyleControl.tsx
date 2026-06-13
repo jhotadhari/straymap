@@ -12,7 +12,7 @@ import InfoRowControl from '../../../../../../components/generic/controls/InfoRo
 import { MapsforgeProfile } from '../../../types';
 import { OptionBase } from '../../../../../../types';
 import { useAppDispatch, useAppSelector } from '../../../../../hooks';
-import { setMapsforgeProfileTemp } from '../../../baseMapSlice';
+import { setMapsforgeProfileTemp } from '../../../slice';
 import { selectMapsforgeProfileTemp, selectRenderStylesCache } from '../../../selectors';
 import ListItemMenuControl from '../../../../../../components/generic/controls/ListItemMenuControl';
 

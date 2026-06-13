@@ -8,7 +8,7 @@ import { usePromiseQueueState } from 'react-native-mapsforge-vtm';
  * Internal dependencies
  */
 import { useAppDispatch } from '../../hooks';
-import { removeBusyKey, addBusyKey } from './uiSlice';
+import { removeBusyKey, addBusyKey } from './slice';
 
 export const useIsBusyPromiseQueueState = () => {
 	const dispatch = useAppDispatch();

@@ -16,7 +16,7 @@ import { LayerConfig, LayerConfigOptionsRasterMBtiles } from '../../../types';
 import { selectAppDirs } from '../../../../dirs/selectors';
 import { useAppDispatch, useAppSelector } from '../../../../../hooks';
 import { selectLayerTemp } from '../../../selectors';
-import { setLayerTemp } from '../../../baseMapSlice';
+import { setLayerTemp } from '../../../slice';
 import NumericRowControlMulti from '../../../../../../components/generic/controls/NumericRowControlMulti';
 
 const extensions = ['mbtiles'];

@@ -17,7 +17,7 @@ import {
 	removeItemKey,
 	addItemKey,
 	setControlHandleSide,
-} from './drawersSlice';
+} from './slice';
 import { startAppListening } from '../../listenerMiddleware';
 import { selectInitialized } from './selectors';
 

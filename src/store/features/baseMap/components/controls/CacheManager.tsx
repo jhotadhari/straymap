@@ -16,7 +16,7 @@ import { FsModule } from '../../../../../nativeModules';
 import { LayerConfig } from '../../types';
 import { selectElementExpanded } from '../../../ui/selectors';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
-import { setElementExpanded } from '../../../ui/uiSlice';
+import { setElementExpanded } from '../../../ui/slice';
 import { selectAppDirs } from '../../../dirs/selectors';
 import useCacheDirsInfo from '../../../dirs/hooks/useCacheDirsInfo';
 import { CacheDir, CacheSubDir } from '../../../dirs/types';

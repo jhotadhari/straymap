@@ -19,7 +19,7 @@ import { AlternativeButtonType } from '../../../../../../components/generic/cont
 import { MapsforgeProfile } from '../../../types';
 import { OptionBase } from '../../../../../../types';
 import { useAppDispatch, useAppSelector } from '../../../../../hooks';
-import { setMapsforgeProfileTemp } from '../../../baseMapSlice';
+import { setMapsforgeProfileTemp } from '../../../slice';
 import { selectMapsforgeProfileTemp, selectRenderStylesCache } from '../../../selectors';
 
 const Option: FC<{

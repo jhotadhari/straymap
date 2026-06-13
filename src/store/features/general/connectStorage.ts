@@ -16,7 +16,7 @@ import {
 	setInitialized,
 	setMapEventRate,
 	setUnitPrefs,
-} from './generalSlice';
+} from './slice';
 import { startAppListening } from '../../listenerMiddleware';
 import { selectInitialized } from './selectors';
 

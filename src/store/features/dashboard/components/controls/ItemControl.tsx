@@ -13,10 +13,10 @@ import { Icon as IconPaper } from 'react-native-paper';
  * Internal dependencies
  */
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
-import { setElementExpanded } from '../../../ui/uiSlice';
+import { setElementExpanded } from '../../../ui/slice';
 import { selectElementExpanded } from '../../../ui/selectors';
 import { selectEditItem, selectItemsCount } from '../../selectors';
-import { moveItem, removeItemKey } from '../../dashboardSlice';
+import { moveItem, removeItemKey } from '../../slice';
 import * as elements from '../../elements';
 import { get } from 'lodash-es';
 import { DashboardElement } from '../../types';

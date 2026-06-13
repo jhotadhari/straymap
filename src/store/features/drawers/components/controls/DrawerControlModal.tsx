@@ -17,7 +17,7 @@ import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
 import { DrawerItem } from '../../types';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { selectControlHandleSide, selectItemKeys } from '../../selectors';
-import { addItemKey, removeItemKey, setControlHandleSide } from '../../drawersSlice';
+import { addItemKey, removeItemKey, setControlHandleSide } from '../../slice';
 
 const Item: FC<{
 	drawerItem: DrawerItem;

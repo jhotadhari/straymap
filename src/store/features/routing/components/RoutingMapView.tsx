@@ -21,7 +21,7 @@ import {
 	setPathLayerUuids,
 	setTriggeredMarkerIdx,
 	setTriggeredSegment,
-} from '../routingSlice';
+} from '../slice';
 import {
 	selectIsRouting,
 	selectMovingPointIdx,

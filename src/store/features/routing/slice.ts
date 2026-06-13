@@ -12,7 +12,7 @@ import { SliceSettingsBase } from '../../../types';
 import { RoutingPoint, RoutingSegment, RoutingTriggeredSegment } from './types';
 import { AppThunk } from '../../store';
 import { aggregateSegmentsToCoords, getCoordsFromRouting, getSegmentRecordId } from './utils';
-import { setLineSelected } from '../lines/linesSlice';
+import { setLineSelected } from '../lines/slice';
 import { fetchRoutes } from './db/fetch';
 import { lineString } from '@turf/turf';
 import { createLines, updateLine } from '../lines/db/actionsLine';
