@@ -14,7 +14,7 @@ import { fetchRoutes } from './db/fetch';
 import { store } from '../../store';
 import { setPoints } from './routingSlice';
 
-export const getSegmentRecordId = (segment: RoutingSegment) =>
+export const getSegmentRecordId = (segment: Pick<RoutingSegment, 'fromId' | 'toId'>) =>
 	[
 		segment.fromId,
 		segment.toId,
@@ -44,7 +44,7 @@ export const getCoordsFromRouting = ({
 							.then((result: string) => {
 								const parsed = parseSerialized(result) as
 									| false
-									| FeatureCollection<LineString,any>;
+									| FeatureCollection<LineString, any>;
 								if (parsed) {
 									const coords = [...parsed.features]
 										.map((feature) => feature.geometry.coordinates)

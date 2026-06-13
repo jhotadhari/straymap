@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { Fragment } from 'react';
+import React from 'react';
 import { midpoint } from '@turf/turf';
 import {
 	LayerMarker,
@@ -10,6 +10,7 @@ import {
 	MapContainer,
 	LayerPath,
 } from 'react-native-mapsforge-vtm';
+import { get } from 'lodash-es';
 
 /**
  * Internal dependencies
@@ -30,18 +31,6 @@ import {
 } from '../selectors';
 import { getSegmentRecordId } from '../utils';
 
-// const NearestToLine = () => {
-// 	const { nearestSimplifiedLocation } = useContext(RoutingContext);
-
-// 	return nearestSimplifiedLocation ? (
-// 		<MapContainer.View>
-// 			<LayerMarker>
-// 				<Marker position={nearestSimplifiedLocation} />
-// 			</LayerMarker>
-// 		</MapContainer.View>
-// 	) : null;
-// };
-
 const RoutingMapView = () => {
 	const dispatch = useAppDispatch();
 
@@ -59,20 +48,26 @@ const RoutingMapView = () => {
 
 	return (
 		<MapContainer.View>
-			{Object.values(segments).map((segment, index) => {
-				const segmentRecordId = getSegmentRecordId(segment);
+			{[...points].map((fromPoint, index) => {
+				const segment = Object.values(segments).find((seg) => seg.fromId === fromPoint.id);
+
+				const toPoint = get(points, index + 1);
+
+				if (!toPoint) {
+					return undefined;
+				}
+
+				const segmentRecordId = getSegmentRecordId({
+					fromId: fromPoint.id,
+					toId: toPoint.id,
+				});
 
 				if (
+					!segment ||
 					segment?.isFetching ||
 					(segment?.positions?.length ?? 0) < 2 ||
 					segment?.errorMsg
 				) {
-					const fromPoint = points.find((point) => segment.fromId === point.id);
-					const toPoint = points.find((point) => segment.toId === point.id);
-					if (!fromPoint || !toPoint) {
-						return undefined;
-					}
-
 					const placeholderPositions = [
 						fromPoint?.geometry.coordinates,
 						toPoint?.geometry.coordinates,
@@ -82,7 +77,7 @@ const RoutingMapView = () => {
 						...(arr.length > 2 && { alt: arr[2] }),
 					}));
 
-					if (segment?.isFetching) {
+					if (! segment || segment?.isFetching) {
 						return (
 							<LayerPath
 								key={segmentRecordId}
@@ -121,65 +116,46 @@ const RoutingMapView = () => {
 							</MapContainer.View>
 						);
 					}
-				}
-
-				return (
-					<LayerPathSlopeGradient
-						key={segmentRecordId}
-						onCreate={(response) => {
-							if (response?.uuid && setPathLayerUuids) {
-								dispatch(
-									setPathLayerUuids([
-										...(pathLayerUuids || []),
-										response.uuid,
-									])
+				} else {
+					return (
+						<LayerPathSlopeGradient
+							key={segmentRecordId}
+							onCreate={(response) => {
+								if (response?.uuid && setPathLayerUuids) {
+									dispatch(
+										setPathLayerUuids([
+											...(pathLayerUuids || []),
+											response.uuid,
+										])
+									);
+								}
+							}}
+							onRemove={(response) => {
+								const idx = pathLayerUuids?.findIndex(
+									(routingPathLayerUuid) => routingPathLayerUuid === response.uuid
 								);
-							}
-						}}
-						onRemove={(response) => {
-							const idx = pathLayerUuids?.findIndex(
-								(routingPathLayerUuid) => routingPathLayerUuid === response.uuid
-							);
-							if (idx && idx > -1 && pathLayerUuids && setPathLayerUuids) {
-								const newRoutingPathLayerUuids = [...pathLayerUuids];
-								newRoutingPathLayerUuids.splice(idx, 1);
-								dispatch(setPathLayerUuids(newRoutingPathLayerUuids));
-							}
-						}}
-						positions={segment.positions}
-						style={{
-							strokeWidth: 5,
-						}}
-						onTrigger={(response) => {
-							dispatch(
-								setTriggeredSegment({
-									index,
-									nearestPoint: response.nearestPoint,
-								})
-							);
-						}}
-					/>
-				);
+								if (idx && idx > -1 && pathLayerUuids && setPathLayerUuids) {
+									const newRoutingPathLayerUuids = [...pathLayerUuids];
+									newRoutingPathLayerUuids.splice(idx, 1);
+									dispatch(setPathLayerUuids(newRoutingPathLayerUuids));
+								}
+							}}
+							positions={segment.positions}
+							style={{
+								strokeWidth: 5,
+							}}
+							onTrigger={(response) => {
+								dispatch(
+									setTriggeredSegment({
+										index,
+										nearestPoint: response.nearestPoint,
+									})
+								);
+							}}
+						/>
+					);
+				}
 			})}
-
-			{/* { undefined !== movingPointIdx && currentMapEvent?.center && points && points.length > movingPointIdx-1 && <LayerPath
-            positions={[
-                points[movingPointIdx-1].location,
-                currentMapEvent?.center,
-            ]}
-            style={ {
-                strokeWidth: 2,
-            } }
-        /> }
-        { undefined !== movingPointIdx && currentMapEvent?.center && points && points.length > movingPointIdx+1 && <LayerPath
-            positions={[
-                points[movingPointIdx+1].location,
-                currentMapEvent?.center,
-            ]}
-            style={ {
-                strokeWidth: 2,
-            } }
-        /> } */}
 
 			{points.length > 0 && (
 				<LayerMarker
