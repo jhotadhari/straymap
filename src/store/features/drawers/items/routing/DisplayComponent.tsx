@@ -1,7 +1,15 @@
 /**
  * External dependencies
  */
-import React, { Dispatch, FC, Fragment, SetStateAction, useCallback, useContext, useState } from 'react';
+import React, {
+	Dispatch,
+	FC,
+	Fragment,
+	SetStateAction,
+	useCallback,
+	useContext,
+	useState,
+} from 'react';
 import { Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
@@ -44,49 +52,49 @@ const DisplayComponent: FC<{
 
 	const [editPoint, setEditPoint] = useState<undefined | RoutingPoint>(undefined);
 
-	const [isToggling,setIsToggling] = useState( false );
+	const [isToggling, setIsToggling] = useState(false);
 
 	const createRouteMutation = useMutation({
-		mutationFn: () =>
-			createRoute(),
+		mutationFn: () => createRoute(),
 		onMutate: async () => {
-			setIsToggling( true );
+			setIsToggling(true);
 		},
-		onSuccess: async ( newRouteId, _variables, _onMutateResult, context) => {
+		onSuccess: async (newRouteId, _variables, _onMutateResult, context) => {
 			if (newRouteId) {
 				dispatch(setIsRouting(newRouteId));
 				expand(false);
 			}
 		},
 		onSettled: () => {
-			setIsToggling( false );
-		}
+			setIsToggling(false);
+		},
 	});
 
 	const deleteMutation = useMutation({
-		mutationFn: () => Promise.all( [
-			deleteRoute( routeId ),
-			deleteLine( routingLineId || false ),
-		] ),
+		mutationFn: () =>
+			Promise.all([
+				deleteRoute(routeId),
+				deleteLine(routingLineId || false),
+			]),
 		onMutate: async (_, context) => {
 			await context.client.cancelQueries({ queryKey: ['routes', routeId] });
 			await context.client.cancelQueries({ queryKey: ['linesMeta'] });
-			setIsToggling( true );
+			setIsToggling(true);
 		},
-		onSuccess: async ( _, _variables, _onMutateResult, context) => {
+		onSuccess: async (_, _variables, _onMutateResult, context) => {
 			expand(false);
 			dispatch(setIsRouting(false));
 			await context.client.invalidateQueries({ queryKey: ['routes', routeId] });
 			await context.client.invalidateQueries({ queryKey: ['linesMeta'] });
 		},
 		onSettled: () => {
-			setIsToggling( false );
-		}
+			setIsToggling(false);
+		},
 	});
 
 	const handleToggleRouting = useCallback(async () => {
 		if (routeId) {
-			if ( points.length < 2 ) {
+			if (points.length < 2) {
 				deleteMutation.mutate();
 			} else {
 				expand(false);
@@ -100,7 +108,7 @@ const DisplayComponent: FC<{
 		points,
 		createRouteMutation.mutate,
 		deleteMutation.mutate,
-	] );
+	]);
 
 	return (
 		<Fragment>

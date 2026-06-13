@@ -77,7 +77,7 @@ const RoutingMapView = () => {
 						...(arr.length > 2 && { alt: arr[2] }),
 					}));
 
-					if (! segment || segment?.isFetching) {
+					if (!segment || segment?.isFetching) {
 						return (
 							<LayerPath
 								key={segmentRecordId}

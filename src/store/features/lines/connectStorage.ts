@@ -8,13 +8,7 @@ import { get, isEqual, set } from 'lodash-es';
 /**
  * Internal dependencies
  */
-import {
-	LinesSettings,
-	LinesState,
-	initialSettings,
-	setInitialized,
-	setSelected,
-} from './slice';
+import { LinesSettings, LinesState, initialSettings, setInitialized, setSelected } from './slice';
 import { startAppListening } from '../../listenerMiddleware';
 import { selectInitialized } from './selectors';
 import { AppStore } from '../../store';

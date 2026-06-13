@@ -41,7 +41,7 @@ interface FetchLinesWithTagsParams {
 	fieldsExclude?: (keyof Omit<Line, 'id'>)[];
 }
 
-export interface FetchLinesParams extends FetchLinesWithTagsParams {};
+export interface FetchLinesParams extends FetchLinesWithTagsParams {}
 
 const statsFields = [
 	'length',
@@ -162,8 +162,8 @@ const fetchLinesWithTags = (params?: FetchLinesWithTagsParams) => {
 		fields = difference(fields, fieldsExclude);
 	}
 
-	if ( ! ( fields as string[] ).includes( 'tags') ) {
-		return fetchLinesWithoutTags( params as FetchLinesWithoutTagsParams );
+	if (!(fields as string[]).includes('tags')) {
+		return fetchLinesWithoutTags(params as FetchLinesWithoutTagsParams);
 	}
 
 	return new Promise<LinePartial[]>((resolve, reject) => {
@@ -278,6 +278,4 @@ const fetchLinesWithTags = (params?: FetchLinesWithTagsParams) => {
 	});
 };
 
-export {
-	fetchLinesWithTags as fetchLines,
-}
+export { fetchLinesWithTags as fetchLines };

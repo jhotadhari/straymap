@@ -26,9 +26,10 @@ const LinesTable: FC = () => {
 
 	const { data: lines } = useQuery({
 		queryKey: ['linesMeta'],
-		queryFn: () => fetchLines( {
-			fieldsExclude: ['geometry'],
-		}) as Promise<Omit<Line, 'geometry'>[]>,
+		queryFn: () =>
+			fetchLines({
+				fieldsExclude: ['geometry'],
+			}) as Promise<Omit<Line, 'geometry'>[]>,
 	});
 
 	const [checkedIds, setCheckedIds] = useState<number[]>([]);
@@ -87,7 +88,10 @@ const LinesTable: FC = () => {
 				</View>
 			</ScrollView>
 
-			<Footer checkedIds={checkedIds} linesCount={ lines?.length || 0 } />
+			<Footer
+				checkedIds={checkedIds}
+				linesCount={lines?.length || 0}
+			/>
 		</View>
 	);
 };

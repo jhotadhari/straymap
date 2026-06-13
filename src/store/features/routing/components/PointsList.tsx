@@ -234,26 +234,26 @@ const DraggableItem: FC<{
 
 	const dispatch = useAppDispatch();
 
-	const [isDeleting,setIsDeleting] = useState( false );
+	const [isDeleting, setIsDeleting] = useState(false);
 
 	const mutation = useMutation({
 		mutationFn: (id: number) => deleteRoutingPoint(id),
 		onMutate: async (_, context) => {
 			await context.client.cancelQueries({ queryKey: ['routes', routeId] });
-			setIsDeleting(true)
+			setIsDeleting(true);
 		},
 		onSuccess: async (_result, _variables, _onMutateResult, context) => {
 			await context.client.invalidateQueries({ queryKey: ['routes', routeId] });
-			dispatch( processRouting() );
+			dispatch(processRouting());
 		},
 		onSettled: () => {
-			setIsDeleting(false)
-		}
+			setIsDeleting(false);
+		},
 	});
 
 	const handleDeletePoint = useCallback(() => {
 		mutation.mutate(item.id);
-	}, [item.id,mutation.mutate]);
+	}, [item.id, mutation.mutate]);
 
 	return (
 		<View
@@ -263,7 +263,7 @@ const DraggableItem: FC<{
 				height: itemHeight,
 				justifyContent: 'flex-start',
 
-				...( isDeleting && { backgroundColor: '#ff0000' } ), 	// ??? we need dome other nice placeholder.
+				...(isDeleting && { backgroundColor: '#ff0000' }), // ??? we need dome other nice placeholder.
 			}}
 			key={item.id}
 		>
@@ -324,7 +324,7 @@ const PointsList: FC<{
 	const routeId = useAppSelector(selectIsRouting);
 
 	const points_ = useRoutingPoints();
-	const [optimisticPoints,setOptimisticPoints] = useState<undefined | RoutingPoint[]>( undefined );
+	const [optimisticPoints, setOptimisticPoints] = useState<undefined | RoutingPoint[]>(undefined);
 
 	const mutation = useMutation({
 		mutationFn: (newPoints: RoutingPoint[]) =>
@@ -333,22 +333,22 @@ const PointsList: FC<{
 			}),
 		onMutate: async (newPoints, context) => {
 			await context.client.cancelQueries({ queryKey: ['routes', routeId] });
-			setOptimisticPoints( newPoints );
+			setOptimisticPoints(newPoints);
 		},
 		onSuccess: async (_result, _variables, _onMutateResult, context) => {
 			await context.client.invalidateQueries({ queryKey: ['routes', routeId] });
-			dispatch( processRouting() );
+			dispatch(processRouting());
 		},
 		onSettled: () => {
 			setScrollEnabled(true);
 			setDraggingItemIndex(undefined);
-			setOptimisticPoints( undefined );
+			setOptimisticPoints(undefined);
 		},
 	});
 
 	const points = useMemo(
 		() =>
-			( optimisticPoints ?? points_ ).map((point) => ({
+			(optimisticPoints ?? points_).map((point) => ({
 				...point,
 				key: point.id,
 			})),
@@ -386,7 +386,7 @@ const PointsList: FC<{
 		(newPoints: RoutingPoint[]) => {
 			mutation.mutate(newPoints);
 		},
-		[routeId,mutation.mutate]
+		[routeId, mutation.mutate]
 	);
 
 	return (

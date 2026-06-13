@@ -30,7 +30,7 @@ export const fetchRoutes = (params?: FetchRoutesParams) => {
 	return new Promise<Route[]>((resolve, reject) => {
 		const { routeId, pointId } = params ?? {};
 
-		if ( false === routeId ) {
+		if (false === routeId) {
 			return [];
 		}
 

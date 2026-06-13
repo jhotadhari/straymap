@@ -188,15 +188,17 @@ const SelectedLinesList: FC = () => {
 		uiStateKey,
 	]);
 
-	const linesQueryParams : FetchLinesParams = useMemo( () => ( {
-		lineIds: selectedIds,
-		fieldsExclude: ['geometry'],
-	} ), [selectedIds] );
+	const linesQueryParams: FetchLinesParams = useMemo(
+		() => ({
+			lineIds: selectedIds,
+			fieldsExclude: ['geometry'],
+		}),
+		[selectedIds]
+	);
 
 	const { data: lines } = useQuery({
 		queryKey: ['linesMeta', selectedIds],
-		queryFn: () =>
-			queryLines(linesQueryParams) as Promise<Omit<Line, 'geometry'>[]>,
+		queryFn: () => queryLines(linesQueryParams) as Promise<Omit<Line, 'geometry'>[]>,
 	});
 
 	return (

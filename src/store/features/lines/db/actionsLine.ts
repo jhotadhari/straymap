@@ -120,12 +120,16 @@ export const updateLine = async (
 
 export const lineAddTag = async (lineId: number, tagId: number) => {
 	// Check if line has tag already
-	if ((await fetchLines({
-		lineIds: [lineId],
-		allLines: false,
-		limit: 1,
-		fieldsInclude: ['tags'],
-	}) as WithRequired<LinePartial, 'tags'>[]).length) {
+	if (
+		(
+			(await fetchLines({
+				lineIds: [lineId],
+				allLines: false,
+				limit: 1,
+				fieldsInclude: ['tags'],
+			})) as WithRequired<LinePartial, 'tags'>[]
+		).length
+	) {
 		return;
 	}
 	await dbZ.insert(tagsToLinesTable).values([
@@ -142,8 +146,8 @@ export const lineRemoveTag = async (lineId: number, tagId: number) => {
 		.where(and(eq(tagsToLinesTable.tag_id, tagId), eq(tagsToLinesTable.line_id, lineId)));
 };
 
-export const deleteLine = async (id: number | false ) => {
-	if ( id ) {
+export const deleteLine = async (id: number | false) => {
+	if (id) {
 		await dbZ.delete(linesTable).where(eq(linesTable.id, id));
 		await dbZ.delete(tagsToLinesTable).where(eq(tagsToLinesTable.line_id, id));
 	}

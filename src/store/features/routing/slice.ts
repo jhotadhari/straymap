@@ -177,15 +177,16 @@ export const deleteSegmentByKeyVal = (key: keyof RoutingSegment, val: any): AppT
 	};
 };
 
-const getPointsForRouteId = async ( routeId: number | false ) => {
-	if ( ! routeId ) {
+const getPointsForRouteId = async (routeId: number | false) => {
+	if (!routeId) {
 		return [];
 	}
-	const routes = await queryClient.fetchQuery({	// ??? maybe should use queryRoutes routes directX.
+	const routes = await queryClient.fetchQuery({
+		// ??? maybe should use queryRoutes routes directX.
 		queryKey: ['routes', routeId],
 		queryFn: () => queryRoutes({ routeId: routeId }),
-	})
-	const points : RoutingPoint[] = get( routes, [0,'points'], [] );
+	});
+	const points: RoutingPoint[] = get(routes, [0, 'points'], []);
 	return points;
 };
 
@@ -194,7 +195,7 @@ export const filterSegments = (): AppThunk => {
 		const {
 			routing: { segments, isRouting: routeId },
 		} = getState();
-		const points = await getPointsForRouteId( routeId );
+		const points = await getPointsForRouteId(routeId);
 		const pointIds = points.map((p) => p.id);
 		Object.keys(segments)
 			.filter((fromId_toId) => {
@@ -214,7 +215,7 @@ export const processRouting = (options?: {
 		const {
 			routing: { segments, isRouting: routeId },
 		} = getState();
-		const points = await getPointsForRouteId( routeId );
+		const points = await getPointsForRouteId(routeId);
 
 		const updatedSegments = await new Promise<Record<string, RoutingSegment>>(
 			(resolveOuter) => {
@@ -345,10 +346,10 @@ const updateLineFromSegments = async (routeId: number, segments: RoutingSegment[
 		return;
 	}
 
-	const lineId = await queryClient.fetchQuery( {
+	const lineId = await queryClient.fetchQuery({
 		queryKey: ['routingLineId', routeId],
 		queryFn: () => queryRoutingLineId(routeId),
-	} );
+	});
 
 	const coords = aggregateSegmentsToCoords(segments);
 	const lineStringFeature = lineString(coords);
@@ -356,7 +357,7 @@ const updateLineFromSegments = async (routeId: number, segments: RoutingSegment[
 		// Update line with new positions.
 		await updateLine(lineId, {
 			lineStringFeature,
-		});	// ... invalidation handled by outer function after return.
+		}); // ... invalidation handled by outer function after return.
 
 		return lineId;
 	} else {
@@ -365,7 +366,7 @@ const updateLineFromSegments = async (routeId: number, segments: RoutingSegment[
 			{
 				lineStringFeature,
 			},
-		]);	// ... invalidation handled by outer function after return.
+		]); // ... invalidation handled by outer function after return.
 		if (!insertedLines?.length) {
 			return undefined;
 		}

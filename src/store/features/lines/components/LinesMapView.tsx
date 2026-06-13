@@ -57,14 +57,18 @@ const LinesMapView = () => {
 		[selected]
 	);
 
-	const linesQueryParams : FetchLinesParams = useMemo( () => ( {
-		lineIds: selectedIds,
-		fieldsInclude: ['geometry'],
-	} ), [selectedIds] );
+	const linesQueryParams: FetchLinesParams = useMemo(
+		() => ({
+			lineIds: selectedIds,
+			fieldsInclude: ['geometry'],
+		}),
+		[selectedIds]
+	);
 
 	const { data: lines } = useQuery({
 		queryKey: ['linesGeom', selectedIds],
-		queryFn: () => queryLines( linesQueryParams ) as Promise<WithRequired<LinePartial, 'geometry'>[]>,
+		queryFn: () =>
+			queryLines(linesQueryParams) as Promise<WithRequired<LinePartial, 'geometry'>[]>,
 	});
 
 	const { data: routingLineId } = useQuery({

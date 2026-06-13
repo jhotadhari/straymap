@@ -30,5 +30,5 @@ export const queryRoutingLineId = async (routeId?: number | false) => {
  * 	queryKey: ['routes', routeId],
  */
 export const queryRoutes = async (params?: FetchRoutesParams) => {
-	return await fetchRoutes( params );
+	return await fetchRoutes(params);
 };

@@ -91,7 +91,7 @@ const EditPointModal: FC<{
 	const point = useMemo(() => points.find((p) => p.id, editPoint.id), [points, editPoint.id]);
 
 	const mutation = useMutation({
-		mutationFn: ( profile: RoutingProfile ) =>
+		mutationFn: (profile: RoutingProfile) =>
 			updateRoutingPoint(editPoint.id, {
 				profile: profile,
 			}),

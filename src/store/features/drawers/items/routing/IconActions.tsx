@@ -18,11 +18,7 @@ import { runAfterInteractions } from '../../../../../lib/utils';
 import { MapContext } from '../../../../../Context';
 import MenuItem from '../../../../../components/generic/MenuItem';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
-import {
-	processRouting,
-	setTriggeredMarkerIdx,
-	setTriggeredSegment,
-} from '../../../routing/slice';
+import { processRouting, setTriggeredMarkerIdx, setTriggeredSegment } from '../../../routing/slice';
 import {
 	selectIsRouting,
 	selectMarkerLayerUuid,
@@ -83,13 +79,13 @@ const IconActions = ({ style }: { style: TextStyle }) => {
 	const points = useRoutingPoints();
 
 	const mutationAppendPoint = useMutation({
-		mutationFn: ( {
+		mutationFn: ({
 			feature,
 			profile,
-		} : {
+		}: {
 			feature: Feature<Point, GeoJsonProperties>;
 			profile: RoutingProfile;
-		} ) =>
+		}) =>
 			createRoutingPoints(
 				[
 					{
@@ -104,34 +100,32 @@ const IconActions = ({ style }: { style: TextStyle }) => {
 		},
 		onSuccess: async (_result, _variables, _onMutateResult, context) => {
 			await context.client.invalidateQueries({ queryKey: ['routes', routeId] });
-			dispatch( processRouting() );
+			dispatch(processRouting());
 		},
 	});
 
-	const getNextProfile = useCallback( () => {
-		const lastPoint = points.length
-			? points[points.length - 1]
-			: undefined;
+	const getNextProfile = useCallback(() => {
+		const lastPoint = points.length ? points[points.length - 1] : undefined;
 		return {
 			fast: lastPoint?.profile?.fast ?? true, // ??? from defaults, or from previous or from cut segment
 			v: lastPoint?.profile?.v ?? 'motorcar', // ??? from defaults, or from previous or from cut segment
 		};
-	}, [points] )
+	}, [points]);
 
-	const handleAppendPoint = useCallback( async () => {
+	const handleAppendPoint = useCallback(async () => {
 		dismissMenu();
-		if ( currentMapEventRef?.current?.center) {
+		if (currentMapEventRef?.current?.center) {
 			const feature = point([
 				currentMapEventRef?.current?.center.lng,
 				currentMapEventRef?.current?.center.lat,
 				0,
 			]);
-			mutationAppendPoint.mutate( {
+			mutationAppendPoint.mutate({
 				feature,
 				profile: getNextProfile(),
-			} );
+			});
 		}
-	}, [getNextProfile,mutationAppendPoint.mutate] );
+	}, [getNextProfile, mutationAppendPoint.mutate]);
 
 	const options: {
 		value: string;
