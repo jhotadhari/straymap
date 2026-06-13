@@ -9,26 +9,17 @@ import { Point, GeoJsonProperties } from 'geojson';
  */
 import { Location } from 'react-native-mapsforge-vtm';
 
-export type RoutingPoint = {
-	id: number;
-	geometry: Point;
-	profile: RoutingProfile;
-	// feature: Feature<Point, GeoJsonProperties>;
-};
-
 export type RoutingProfile = {
 	fast: GetTrackParams['fast'];
 	v: GetTrackParams['v'];
 };
 
-export interface LocationExtended extends Location {
-	lng: number;
-	lat: number;
-	alt?: number;
-	distance?: number;
-	slope?: number;
-	time?: number;
-}
+export type RoutingPoint = {
+	id: number;
+	timestamp: string;
+	geometry: Point;
+	profile: RoutingProfile;
+};
 
 export type RoutingSegment = {
 	fromId: number;
@@ -37,6 +28,20 @@ export type RoutingSegment = {
 	isFetching?: boolean;
 	errorMsg?: string;
 };
+
+export interface Route {
+	id: number;
+	timestamp: string;
+	point_order: number[];
+	line_id: number | null;
+	points: RoutingPoint[];
+}
+
+
+
+
+
+
 
 export type RoutingTriggeredSegment = {
 	index: number;
@@ -48,6 +53,13 @@ export type NearestSimplifiedCoord = {
 	featureIndex: number;
 	distanceToPoint: number;
 };
+
+
+
+
+
+
+
 
 export type FeatureGeometry = {
 	type: string;

@@ -1,4 +1,4 @@
-import { fetchRoutesWithPoints } from './fetch';
+import { fetchRoutes, FetchRoutesParams } from './fetch';
 
 /**
  * Functions to be used by react query:
@@ -15,10 +15,21 @@ import { fetchRoutesWithPoints } from './fetch';
  */
 export const queryRoutingLineId = async (routeId?: number | false) => {
 	if (routeId) {
-		const routes = await fetchRoutesWithPoints({ routeId });
+		const routes = await fetchRoutes({ routeId });
 		if (routes.length) {
 			return routes[0].line_id || null;
 		}
 	}
 	return null;
+};
+
+/**
+ *
+ * Used with:
+ *
+ * 	??? not used yet. Still everything is using fetchRoutes directly.
+ *
+ */
+export const queryRoutes = async (params?: FetchRoutesParams) => {
+	return await fetchRoutes( params );
 };

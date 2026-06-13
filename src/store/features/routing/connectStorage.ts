@@ -19,7 +19,7 @@ import {
 } from './routingSlice';
 import { startAppListening } from '../../listenerMiddleware';
 import { selectInitialized } from './selectors';
-import { fetchRoutesWithPoints } from './db/fetch';
+import { fetchRoutes } from './db/fetch';
 
 const settingsKey = 'routingSettings';
 
@@ -36,7 +36,7 @@ export const initializeFromStorage = (store: EnhancedStore) => {
 				const newSettings = JSON.parse(newSettingsStr) as Partial<RoutingState>;
 				if (newSettings?.isRouting) {
 					store.dispatch(setIsRouting(newSettings.isRouting));
-					const routes = await fetchRoutesWithPoints({
+					const routes = await fetchRoutes({
 						routeId: newSettings.isRouting,
 					});
 					if (routes.length) {

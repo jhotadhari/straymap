@@ -7,14 +7,7 @@ import { dbZ, dbOp } from '../../../../db/clients';
 import { routesTable, routingPointsTable } from '../../routing/db/schema/schema';
 import { createLines, lineAddTag, updateLine } from '../db/actionsLine';
 import { createTags } from '../db/actionsTag';
-import { fetchLinesWithTags } from '../db/fetch';
 import { dbOpExecute } from '../../../../db/utils';
-import {
-	AggregateRow,
-	fetchRoutesWithPoints,
-	fetchRoutesWithPointsQuery,
-	routesWithPointsAggregate,
-} from '../../routing/db/fetch';
 import { createRoutingPoints, deleteRoutingPoint } from '../../routing/db/actionsRoutingPoint';
 import { createRoute, createRoutes, deleteRoute, updateRoute } from '../../routing/db/actionsRoute';
 import { View } from 'react-native';
@@ -212,28 +205,6 @@ const mockTags = async () => {
 	// console.log('debug resultTags', resultTags); // debug
 };
 
-const DebugBlaSub: FC<{
-	routeId: number | false;
-}> = ({ routeId }) => {
-	// const { data } = useLiveQuery(getRoutesWithPointsQuery({ routeId })) as {
-	// 	data: AggregateRow[];
-	// };
-
-	// const routes = useMemo(() => routesWithPointsAggregate(data), [data]);
-
-	// useEffect(() => {
-	// 	console.log('debug routes', routes); // debug
-	// }, [routes]);
-
-	// useEffect(() => {
-	// 	(async () => {
-	// 		const resG = await dbOpExecute('SELECT * FROM geometry_columns');
-	// 		console.log('debug res geometry_columns', resG); // debug
-	// 	})();
-	// }, []);
-
-	return undefined;
-};
 const DebugBlaButtonAdd: FC<{
 	routeId: false | number;
 	setRouteId: Dispatch<SetStateAction<false | number>>;
@@ -340,7 +311,6 @@ const DebugBla: FC = () => {
 				backgroundColor: 'red',
 			}}
 		>
-			{routeId && <DebugBlaSub routeId={routeId} />}
 
 			<DebugBlaButtonAdd
 				routeId={routeId}

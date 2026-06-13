@@ -9,7 +9,7 @@ import { getTrackFromParams, GetTrackParams } from 'react-native-brouter';
 import { parseSerialized } from '../../../lib/utilsLight';
 import { JSONTracKParsed, RoutingSegment } from './types';
 import { locationsToCoordsArr, runAfterInteractions } from '../../../lib/utils';
-import { fetchRoutesWithPoints } from './db/fetch';
+import { fetchRoutes } from './db/fetch';
 import { store } from '../../store';
 import { setPoints } from './routingSlice';
 
@@ -66,7 +66,7 @@ export const getCoordsFromRouting = ({
 
 // ??? should be done by mutations somehow
 export const updateStorePointsFromDb = async (routeId: number) => {
-	const routes = await fetchRoutesWithPoints({
+	const routes = await fetchRoutes({
 		routeId,
 	});
 

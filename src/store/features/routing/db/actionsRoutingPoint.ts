@@ -2,8 +2,8 @@ import { eq } from 'drizzle-orm';
 import { Feature, Point, GeoJsonProperties } from 'geojson';
 
 import { dbZ } from '../../../../db/clients';
-import { routesTable, routingPointsTable } from './schema/schema';
-import { fetchRoutesWithPoints } from './fetch';
+import { routingPointsTable } from './schema/schema';
+import { fetchRoutes } from './fetch';
 import { updateRoute } from './actionsRoute';
 import { RoutingProfile } from '../types';
 
@@ -29,7 +29,7 @@ export const createRoutingPoints = async (
 		if (inserted.length !== newPoints.length) {
 			return inserted;
 		}
-		const routes = await fetchRoutesWithPoints({ routeId: route_id });
+		const routes = await fetchRoutes({ routeId: route_id });
 		if (!routes.length) {
 			return inserted;
 		}
@@ -67,7 +67,7 @@ export const updateRoutingPoint = async (
 };
 
 export const deleteRoutingPoint = async (id: number) => {
-	const routes = await fetchRoutesWithPoints({ pointId: id });
+	const routes = await fetchRoutes({ pointId: id });
 	routes.forEach(async (route) => {
 		await updateRoute(route.id, {
 			point_order: route.point_order.filter((pId) => pId !== id),

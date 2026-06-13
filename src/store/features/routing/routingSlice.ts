@@ -13,7 +13,7 @@ import { RoutingPoint, RoutingSegment, RoutingTriggeredSegment } from './types';
 import { AppThunk } from '../../store';
 import { aggregateSegmentsToCoords, getCoordsFromRouting, getSegmentRecordId } from './utils';
 import { setLineSelected } from '../lines/linesSlice';
-import { fetchRoutesWithPoints } from './db/fetch';
+import { fetchRoutes } from './db/fetch';
 import { lineString } from '@turf/turf';
 import { createLines, updateLine } from '../lines/db/actionsLine';
 import { updateRoute } from './db/actionsRoute';
@@ -323,6 +323,7 @@ export const processRouting = (options?: {
 				}
 			}
 			// invalidateQueries
+			// No need to invalidate lines queries with selectedIds, because either selectedIds changed, or line info changed that components don't care-
 			queryClient.invalidateQueries({ queryKey: ['routingLineId', routeId] });
 			// Update routing stats.
 			if (Object.keys(updatedSegments).length) {
@@ -350,7 +351,7 @@ const updateLineFromSegments = async (routeId: number, segments: RoutingSegment[
 		return;
 	}
 
-	const routes = await fetchRoutesWithPoints({ routeId });
+	const routes = await fetchRoutes({ routeId });
 
 	if (!routes.length) {
 		return;
@@ -362,7 +363,8 @@ const updateLineFromSegments = async (routeId: number, segments: RoutingSegment[
 		// Update line with new positions.
 		await updateLine(routes[0].line_id, {
 			lineStringFeature,
-		});
+		});	// ... invalidation handled by outer function after return.
+
 		return routes[0].line_id;
 	} else {
 		// Create line and update route with line_id.
@@ -370,8 +372,7 @@ const updateLineFromSegments = async (routeId: number, segments: RoutingSegment[
 			{
 				lineStringFeature,
 			},
-		]);
-
+		]);	// ... invalidation handled by outer function after return.
 		if (!insertedLines?.length) {
 			return undefined;
 		}
