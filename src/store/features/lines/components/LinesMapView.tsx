@@ -2,7 +2,7 @@
  * External dependencies
  */
 import React, { FC, useMemo } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, WithRequired } from '@tanstack/react-query';
 import { MapContainer, LayerPath } from 'react-native-mapsforge-vtm';
 
 /**
@@ -12,11 +12,12 @@ import { useAppSelector } from '../../../hooks';
 import { selectIsRouting } from '../../routing/selectors';
 import { selectSelected } from '../selectors';
 import { queryRoutingLineId } from '../../routing/db/queries';
+import { LinePartial } from '../types';
+import { FetchLinesParams } from '../db/fetch';
 import { queryLines } from '../db/queries';
-import { LineWithTags } from '../types';
 
-const Line: FC<{
-	line: LineWithTags;
+const LineItem: FC<{
+	line: WithRequired<LinePartial, 'geometry'>;
 }> = ({ line }) => {
 	const positions = useMemo(
 		() =>
@@ -56,9 +57,14 @@ const LinesMapView = () => {
 		[selected]
 	);
 
+	const linesQueryParams : FetchLinesParams = useMemo( () => ( {
+		lineIds: selectedIds,
+		fieldsInclude: ['geometry'],
+	} ), [selectedIds] );
+
 	const { data: lines } = useQuery({
-		queryKey: ['lines', selectedIds],
-		queryFn: () => queryLines(selectedIds),
+		queryKey: ['linesGeom', selectedIds],
+		queryFn: () => queryLines( linesQueryParams ) as Promise<WithRequired<LinePartial, 'geometry'>[]>,
 	});
 
 	const { data: routingLineId } = useQuery({
@@ -70,7 +76,7 @@ const LinesMapView = () => {
 		return (
 			routingLineId !== line.id &&
 			visibleMap[line.id] && (
-				<Line
+				<LineItem
 					key={line.id}
 					line={line}
 				/>

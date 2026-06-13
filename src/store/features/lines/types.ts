@@ -1,3 +1,4 @@
+import { WithRequired } from '@tanstack/react-query';
 import { LineString } from 'geojson';
 
 export interface Tag {
@@ -15,8 +16,7 @@ export interface LineStats {
 	maxZ?: number;
 }
 
-// ???!!! this will change soon
-export interface LineWithTags {
+export interface Line {
 	id: number;
 	title: string | null;
 	geometry: LineString;
@@ -24,3 +24,5 @@ export interface LineWithTags {
 	tags: Tag[];
 	stats: LineStats;
 }
+
+export type LinePartial = WithRequired<Partial<Line>, 'id'>;

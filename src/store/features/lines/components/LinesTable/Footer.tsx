@@ -15,7 +15,8 @@ import { styles } from './sharedDeps';
 
 const Footer: FC<{
 	checkedIds: number[];
-}> = ({ checkedIds }) => {
+	linesCount: number;
+}> = ({ checkedIds, linesCount }) => {
 	const theme = useTheme();
 
 	const style = useMemo(
@@ -55,7 +56,7 @@ const Footer: FC<{
 			<Text style={labelStyle}>
 				{[
 					'???Bulk actions',
-					sprintf('%s selected???', checkedIds.length),
+					sprintf('%s/%s selected???', checkedIds.length, linesCount),
 				].join(', ')}
 			</Text>
 		</View>

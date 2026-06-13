@@ -2,8 +2,10 @@ import { Feature, LineString, GeoJsonProperties } from 'geojson';
 import { eq, and } from 'drizzle-orm';
 
 import { dbZ } from '../../../../db/clients';
-import { fetchLinesWithTags } from './fetch';
+import { fetchLines } from './fetch';
 import { linesTable, tagsTable, tagsToLinesTable } from './schema/schema';
+import { Line, LinePartial } from '../types';
+import { WithRequired } from '@tanstack/react-query';
 
 export const createLines = async (
 	newLines: {
@@ -86,7 +88,12 @@ export const updateLine = async (
 	}
 
 	// get tags fo line.
-	const linesWithTags = await fetchLinesWithTags({ lineIds: [id] });
+	const linesWithTags = (await fetchLines({
+		lineIds: [id],
+		allLines: false,
+		limit: 1,
+		fieldsInclude: ['tags'],
+	})) as WithRequired<LinePartial, 'tags'>[];
 	const currentTagIds = linesWithTags.length ? linesWithTags[0].tags.map((tag) => tag.id) : [];
 
 	newLine.tagIds.forEach(async (tagId) => {
@@ -112,15 +119,21 @@ export const updateLine = async (
 };
 
 export const lineAddTag = async (lineId: number, tagId: number) => {
-	const linesWithTags = await fetchLinesWithTags({ lineIds: [lineId], tagId });
-	if (!linesWithTags.length) {
-		await dbZ.insert(tagsToLinesTable).values([
-			{
-				tag_id: tagId,
-				line_id: lineId,
-			},
-		]);
+	// Check if line has tag already
+	if ((await fetchLines({
+		lineIds: [lineId],
+		allLines: false,
+		limit: 1,
+		fieldsInclude: ['tags'],
+	}) as WithRequired<LinePartial, 'tags'>[]).length) {
+		return;
 	}
+	await dbZ.insert(tagsToLinesTable).values([
+		{
+			tag_id: tagId,
+			line_id: lineId,
+		},
+	]);
 };
 
 export const lineRemoveTag = async (lineId: number, tagId: number) => {

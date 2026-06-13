@@ -14,11 +14,10 @@ import { get, omit, pick } from 'lodash-es';
 import { useAppDispatch, useAppSelector } from '../../../hooks';
 import { queryRoutingLineId } from '../../routing/db/queries';
 import { selectIsRouting, selectStats } from '../../routing/selectors';
-import { queryLines } from '../db/queries';
 import { selectSelectedInfos } from '../selectors';
 import { selectElementExpanded } from '../../ui/selectors';
 import { setElementExpanded } from '../../ui/uiSlice';
-import { LineWithTags } from '../types';
+import { Line } from '../types';
 import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
 import { iconSize } from '../../drawers/constants';
 import { setLineSelected, setLineVisible } from '../linesSlice';
@@ -29,9 +28,11 @@ import IconRouting from '../../drawers/items/routing/IconComponent';
 import { selectSideForKey } from '../../drawers/selectors';
 import { AppContext } from '../../../../Context';
 import { DrawerControl } from '../../drawers/types';
+import { FetchLinesParams } from '../db/fetch';
+import { queryLines } from '../db/queries';
 
 const LineRow: FC<{
-	line: LineWithTags;
+	line: Omit<Line, 'geometry'>;
 	idx: number;
 	visible: boolean;
 }> = ({ line, idx, visible }) => {
@@ -73,7 +74,7 @@ const LineRow: FC<{
 	});
 
 	const routingStats = useAppSelector(selectStats);
-	const stats = line.id !== routingLineId ? line.stats : routingStats;
+	const stats = (line.id !== routingLineId ? line?.stats : routingStats) ?? {};
 
 	return (
 		<View style={[styles.row, style]}>
@@ -121,7 +122,7 @@ const LineRow: FC<{
 					/>
 				</View>
 
-				{line.tags.length > 0 && (
+				{line?.tags && line?.tags.length > 0 && (
 					<View style={styles.rowColCenterRow}>
 						{line.tags.map((tag) => (
 							<TagBadge
@@ -187,9 +188,15 @@ const SelectedLinesList: FC = () => {
 		uiStateKey,
 	]);
 
+	const linesQueryParams : FetchLinesParams = useMemo( () => ( {
+		lineIds: selectedIds,
+		fieldsExclude: ['geometry'],
+	} ), [selectedIds] );
+
 	const { data: lines } = useQuery({
-		queryKey: ['lines', selectedIds],
-		queryFn: () => queryLines(selectedIds),
+		queryKey: ['linesMeta', selectedIds],
+		queryFn: () =>
+			queryLines(linesQueryParams) as Promise<Omit<Line, 'geometry'>[]>,
 	});
 
 	return (
@@ -202,14 +209,16 @@ const SelectedLinesList: FC = () => {
 				containerStyle={{ marginRight: -12 }}
 			>
 				<View>
-					{lines?.map((line, idx) => (
-						<LineRow
-							key={line.id}
-							line={line}
-							idx={idx}
-							visible={visibleMap[line.id]}
-						/>
-					))}
+					{lines?.map((line, idx) => {
+						return (
+							<LineRow
+								key={line.id}
+								line={line}
+								idx={idx}
+								visible={visibleMap[line.id]}
+							/>
+						);
+					})}
 				</View>
 			</List.Accordion>
 		</View>

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, WithRequired } from '@tanstack/react-query';
 import { FC, useCallback, useMemo, useState } from 'react';
 import { FlatList, ListRenderItem, ScrollView, StyleProp, View, ViewStyle } from 'react-native';
 import { useTheme } from 'react-native-paper';
@@ -10,14 +10,14 @@ import { useTheme } from 'react-native-paper';
  * Internal dependencies
  */
 import { useAppSelector } from '../../../../hooks';
-import { queryLines } from '../../db/queries';
 import { selectSelectedInfos } from '../../selectors';
-import { LineWithTags } from '../../types';
+import { Line } from '../../types';
 import { styles } from './sharedDeps';
 import TableHeader from './TableHeader';
 import TableRow from './TableRow';
 import Header from './Header';
 import Footer from './Footer';
+import { fetchLines } from '../../db/fetch';
 
 const LinesTable: FC = () => {
 	const theme = useTheme();
@@ -25,8 +25,10 @@ const LinesTable: FC = () => {
 	const { selectedIds: onMapIds, visibleMap } = useAppSelector(selectSelectedInfos);
 
 	const { data: lines } = useQuery({
-		queryKey: ['lines'],
-		queryFn: () => queryLines(),
+		queryKey: ['linesMeta'],
+		queryFn: () => fetchLines( {
+			fieldsExclude: ['geometry'],
+		}) as Promise<Omit<Line, 'geometry'>[]>,
 	});
 
 	const [checkedIds, setCheckedIds] = useState<number[]>([]);
@@ -47,7 +49,7 @@ const LinesTable: FC = () => {
 		return <TableHeader styleCell={styleCell} />;
 	}, [styleCell]);
 
-	const renderItem: ListRenderItem<LineWithTags> = useCallback(
+	const renderItem: ListRenderItem<Omit<Line, 'geometry'>> = useCallback(
 		({ item: line, index }) => {
 			return (
 				<TableRow
@@ -85,7 +87,7 @@ const LinesTable: FC = () => {
 				</View>
 			</ScrollView>
 
-			<Footer checkedIds={checkedIds} />
+			<Footer checkedIds={checkedIds} linesCount={ lines?.length || 0 } />
 		</View>
 	);
 };

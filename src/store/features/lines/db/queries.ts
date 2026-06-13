@@ -1,4 +1,4 @@
-import { fetchLinesWithTags } from './fetch';
+import { fetchLines, FetchLinesParams } from './fetch';
 
 /**
  * Functions to be used by react query:
@@ -11,11 +11,10 @@ import { fetchLinesWithTags } from './fetch';
 /**
  *
  * Used with:
- *  queryKey: ['lines', selectedIds],
+ *  queryKey: ['linesMeta', selectedIds],
+ *  queryKey: ['linesMeta'],
+ *  queryKey: ['linesGeom', selectedIds],
  */
-export const queryLines = async (lineIds?: number[]) => {
-	return await fetchLinesWithTags({
-		lineIds,
-		allLines: true,
-	});
+export const queryLines = async (params: FetchLinesParams) => {
+	return await fetchLines(params);
 };

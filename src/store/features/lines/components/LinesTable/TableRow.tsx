@@ -5,14 +5,14 @@ import { FC, useCallback, useMemo, Dispatch, SetStateAction, useContext } from '
 import { StyleProp, TouchableWithoutFeedback, View, ViewStyle } from 'react-native';
 import { useTheme, Text, Icon } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, WithRequired } from '@tanstack/react-query';
 import { get, pick, without } from 'lodash-es';
 
 /**
  * Internal dependencies
  */
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
-import { LineWithTags } from '../../types';
+import { Line, LinePartial } from '../../types';
 import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
 import { iconSize } from '../../../drawers/constants';
 import { setLineSelected } from '../../linesSlice';
@@ -30,7 +30,7 @@ import { setUiItemKeys } from '../../../ui/uiSlice';
 
 const OtherCell: FC<{
 	cellKey: string;
-	line: LineWithTags;
+	line: Omit<Line, 'geometry'>;
 	style: StyleProp<ViewStyle>;
 }> = ({ cellKey, line, style }) => {
 	const cellStyle = useMemo(() => [style, { gap: 16 }], []);
@@ -51,7 +51,7 @@ const OtherCell: FC<{
 };
 
 const TableRow: FC<{
-	line: LineWithTags;
+	line: Omit<Line, 'geometry'>;
 	styleCell: StyleProp<ViewStyle>;
 	idx: number;
 	visible: boolean;
