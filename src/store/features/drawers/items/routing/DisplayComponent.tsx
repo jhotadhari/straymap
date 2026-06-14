@@ -18,19 +18,17 @@ import { View } from 'react-native';
  * Internal dependencies
  */
 import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
-import { useAppDispatch, useAppSelector } from '../../../../hooks';
+import { useAppDispatch } from '../../../../hooks';
 import DrawerContext from '../../DrawerContext';
 import { RoutingPoint } from '../../../routing/types';
 import { itemStyles } from '../../constants';
 import PointsList from '../../../routing/components/PointsList';
 import EditPointModal from '../../../routing/components/EditPointModal';
 import { setIsRouting } from '../../../routing/slice';
-import { selectIsRouting } from '../../../routing/selectors';
 import { createRoute, deleteRoute } from '../../../routing/db/actionsRoute';
-import useRoutingPoints from '../../../routing/hooks/useRoutingPoints';
-import { useMutation, useQuery } from '@tanstack/react-query';
-import { queryRoutingLineId } from '../../../routing/db/queries';
+import { useMutation } from '@tanstack/react-query';
 import { deleteLine } from '../../../lines/db/actionsLine';
+import useRoute from '../../../routing/hooks/useRoute';
 
 const DisplayComponent: FC<{
 	scrollEnabled: boolean;
@@ -40,13 +38,15 @@ const DisplayComponent: FC<{
 
 	const dispatch = useAppDispatch();
 
-	const routeId = useAppSelector(selectIsRouting);
-	const { data: routingLineId } = useQuery({
-		queryKey: ['routingLineId', routeId],
-		queryFn: () => queryRoutingLineId(routeId),
-	});
-
-	const points = useRoutingPoints();
+	const {
+		id: routeId,
+		line_id: routingLineId,
+		point_order: pointIds,
+	} = useRoute([
+		'id',
+		'line_id',
+		'point_order',
+	]) || {};
 
 	const { t } = useTranslation();
 
@@ -77,14 +77,14 @@ const DisplayComponent: FC<{
 				deleteLine(routingLineId || false),
 			]),
 		onMutate: async (_, context) => {
-			await context.client.cancelQueries({ queryKey: ['routes', routeId] });
+			await context.client.cancelQueries({ queryKey: ['route', routeId] });
 			await context.client.cancelQueries({ queryKey: ['linesMeta'] });
 			setIsToggling(true);
 		},
 		onSuccess: async (_, _variables, _onMutateResult, context) => {
 			expand(false);
 			dispatch(setIsRouting(false));
-			await context.client.invalidateQueries({ queryKey: ['routes', routeId] });
+			await context.client.invalidateQueries({ queryKey: ['route', routeId] });
 			await context.client.invalidateQueries({ queryKey: ['linesMeta'] });
 		},
 		onSettled: () => {
@@ -94,7 +94,7 @@ const DisplayComponent: FC<{
 
 	const handleToggleRouting = useCallback(async () => {
 		if (routeId) {
-			if (points.length < 2) {
+			if (!pointIds || pointIds.length < 2) {
 				deleteMutation.mutate();
 			} else {
 				expand(false);
@@ -105,7 +105,7 @@ const DisplayComponent: FC<{
 		}
 	}, [
 		routeId,
-		points,
+		pointIds,
 		createRouteMutation.mutate,
 		deleteMutation.mutate,
 	]);
@@ -219,7 +219,7 @@ const DisplayComponent: FC<{
 					</View>
 				)} */}
 
-				{points.length > 0 && (
+				{pointIds && pointIds.length > 0 && (
 					<PointsList
 						setScrollEnabled={setScrollEnabled}
 						setEditPoint={setEditPoint}

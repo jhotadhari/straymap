@@ -39,7 +39,7 @@ export const createRoute = async () => {
 };
 
 export const updateRoute = async (
-	id: number | false,
+	id: number | false | undefined,
 	newRoute: Partial<{
 		line_id: number | null;
 		point_order: number[];
@@ -61,7 +61,7 @@ export const updateRoute = async (
 		.where(eq(routesTable.id, id));
 };
 
-export const deleteRoute = async (id: number | false) => {
+export const deleteRoute = async (id?: number | false) => {
 	if (id) {
 		await dbZ.delete(routingPointsTable).where(eq(routingPointsTable.route_id, id));
 		await dbZ.delete(routesTable).where(eq(routesTable.id, id));

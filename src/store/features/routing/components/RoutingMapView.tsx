@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { useMemo } from 'react';
+import React from 'react';
 import { midpoint } from '@turf/turf';
 import {
 	LayerMarker,
@@ -22,19 +22,17 @@ import {
 	setTriggeredMarkerIdx,
 	setTriggeredSegment,
 } from '../slice';
-import {
-	selectIsRouting,
-	selectMovingPointIdx,
-	selectPathLayerUuids,
-	selectSegments,
-} from '../selectors';
+import { selectMovingPointIdx, selectPathLayerUuids, selectSegments } from '../selectors';
 import { getSegmentRecordId } from '../utils';
-import useRoutingPoints from '../hooks/useRoutingPoints';
+import useRoute from '../hooks/useRoute';
 
 const RoutingMapView = () => {
 	const dispatch = useAppDispatch();
 
-	const points = useRoutingPoints();
+	const { points } =
+		useRoute([
+			'points',
+		]) || {};
 
 	const segments = useAppSelector(selectSegments);
 
@@ -42,7 +40,7 @@ const RoutingMapView = () => {
 
 	const movingPointIdx = useAppSelector(selectMovingPointIdx);
 
-	if (!points.length) {
+	if (!points || !points.length) {
 		return null;
 	}
 

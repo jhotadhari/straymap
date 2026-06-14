@@ -9,7 +9,7 @@ import { get } from 'lodash-es';
  * Internal dependencies
  */
 import { SliceSettingsBase } from '../../../types';
-import { RoutingPoint, RoutingSegment, RoutingTriggeredSegment } from './types';
+import { RoutingSegment, RoutingTriggeredSegment } from './types';
 import { AppThunk } from '../../store';
 import { aggregateSegmentsToCoords, getCoordsFromRouting, getSegmentRecordId } from './utils';
 import { setLineSelected } from '../lines/slice';
@@ -20,7 +20,7 @@ import { GetTrackParams } from 'react-native-brouter';
 import { queryClient } from '../../../db/clients';
 import { lineStringToStats } from '../../../lib/utils';
 import { LineStats } from '../lines/types';
-import { queryRoutes, queryRoutingLineId } from './db/queries';
+import { queryRoute } from './db/queryFns';
 
 export interface RoutingSettings {
 	isRouting: false | number; // false or routeId.
@@ -181,13 +181,15 @@ const getPointsForRouteId = async (routeId: number | false) => {
 	if (!routeId) {
 		return [];
 	}
-	const routes = await queryClient.fetchQuery({
-		// ??? maybe should use queryRoutes routes directX.
-		queryKey: ['routes', routeId],
-		queryFn: () => queryRoutes({ routeId: routeId }),
+	await queryClient.refetchQueries({
+		queryKey: ['route', routeId],
 	});
-	const points: RoutingPoint[] = get(routes, [0, 'points'], []);
-	return points;
+	const { points } =
+		(await queryClient.fetchQuery({
+			queryKey: ['route', routeId],
+			queryFn: queryRoute,
+		})) || {};
+	return points ?? [];
 };
 
 export const filterSegments = (): AppThunk => {
@@ -321,8 +323,9 @@ export const processRouting = (options?: {
 				}
 			}
 			// invalidateQueries
-			// No need to invalidate lines queries with selectedIds, because either selectedIds changed, or line info changed that components don't care-
-			await queryClient.invalidateQueries({ queryKey: ['routingLineId', routeId] });
+			// No need to invalidate lines queries with selectedIds, because either selectedIds changed, or line info changed that components don't care.
+			await queryClient.invalidateQueries({ queryKey: ['route', routeId] });
+
 			// Update routing stats.
 			if (Object.keys(updatedSegments).length) {
 				const stats = await lineStringToStats(
@@ -346,20 +349,24 @@ const updateLineFromSegments = async (routeId: number, segments: RoutingSegment[
 		return;
 	}
 
-	const lineId = await queryClient.fetchQuery({
-		queryKey: ['routingLineId', routeId],
-		queryFn: () => queryRoutingLineId(routeId),
+	await queryClient.refetchQueries({
+		queryKey: ['route', routeId],
 	});
+	const { line_id } =
+		(await queryClient.fetchQuery({
+			queryKey: ['route', routeId],
+			queryFn: queryRoute,
+		})) || {};
 
 	const coords = aggregateSegmentsToCoords(segments);
 	const lineStringFeature = lineString(coords);
-	if (lineId) {
+	if (line_id) {
 		// Update line with new positions.
-		await updateLine(lineId, {
+		await updateLine(line_id, {
 			lineStringFeature,
 		}); // ... invalidation handled by outer function after return.
 
-		return lineId;
+		return line_id;
 	} else {
 		// Create line and update route with line_id.
 		const insertedLines = await createLines([

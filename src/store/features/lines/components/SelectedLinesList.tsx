@@ -12,8 +12,7 @@ import { get, omit, pick } from 'lodash-es';
  * Internal dependencies
  */
 import { useAppDispatch, useAppSelector } from '../../../hooks';
-import { queryRoutingLineId } from '../../routing/db/queries';
-import { selectIsRouting, selectStats } from '../../routing/selectors';
+import { selectStats } from '../../routing/selectors';
 import { selectSelectedInfos } from '../selectors';
 import { selectElementExpanded } from '../../ui/selectors';
 import { setElementExpanded } from '../../ui/slice';
@@ -30,6 +29,7 @@ import { AppContext } from '../../../../Context';
 import { DrawerControl } from '../../drawers/types';
 import { FetchLinesParams } from '../db/fetch';
 import { queryLines } from '../db/queries';
+import useRoute from '../../routing/hooks/useRoute';
 
 const LineRow: FC<{
 	line: Omit<Line, 'geometry'>;
@@ -67,11 +67,7 @@ const LineRow: FC<{
 
 	const toggleSelected = useCallback(() => dispatch(setLineSelected(line.id)), [line.id]);
 
-	const routeId = useAppSelector(selectIsRouting);
-	const { data: routingLineId } = useQuery({
-		queryKey: ['routingLineId', routeId],
-		queryFn: () => queryRoutingLineId(routeId),
-	});
+	const { line_id: routingLineId } = useRoute(['line_id']) || {};
 
 	const routingStats = useAppSelector(selectStats);
 	const stats = (line.id !== routingLineId ? line?.stats : routingStats) ?? {};

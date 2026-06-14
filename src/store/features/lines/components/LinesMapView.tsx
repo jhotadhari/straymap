@@ -9,12 +9,11 @@ import { MapContainer, LayerPath } from 'react-native-mapsforge-vtm';
  * Internal dependencies
  */
 import { useAppSelector } from '../../../hooks';
-import { selectIsRouting } from '../../routing/selectors';
 import { selectSelected } from '../selectors';
-import { queryRoutingLineId } from '../../routing/db/queries';
 import { LinePartial } from '../types';
 import { FetchLinesParams } from '../db/fetch';
 import { queryLines } from '../db/queries';
+import useRoute from '../../routing/hooks/useRoute';
 
 const LineItem: FC<{
 	line: WithRequired<LinePartial, 'geometry'>;
@@ -43,7 +42,6 @@ const LineItem: FC<{
 };
 
 const LinesMapView = () => {
-	const routeId = useAppSelector(selectIsRouting);
 	const selected = useAppSelector(selectSelected);
 
 	const { selectedIds, visibleMap } = useMemo(
@@ -71,10 +69,7 @@ const LinesMapView = () => {
 			queryLines(linesQueryParams) as Promise<WithRequired<LinePartial, 'geometry'>[]>,
 	});
 
-	const { data: routingLineId } = useQuery({
-		queryKey: ['routingLineId', routeId],
-		queryFn: () => queryRoutingLineId(routeId),
-	});
+	const { line_id: routingLineId } = useRoute(['line_id']) || {};
 
 	return lines?.map((line) => {
 		return (

@@ -12,7 +12,7 @@ export const createRoutingPoints = async (
 		feature: Feature<Point, GeoJsonProperties>;
 		profile: RoutingProfile;
 	}[],
-	route_id: number | false
+	route_id?: number | false
 ) => {
 	if (!route_id) {
 		return;

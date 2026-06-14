@@ -9,6 +9,8 @@ import { MapLayerMarkerModule, MapLayerPathSlopeGradientModule } from 'react-nat
 import { usePrevious } from 'victory-native';
 import Popover, { PopoverPlacement } from 'react-native-popover-view';
 import { point } from '@turf/turf';
+import { useMutation } from '@tanstack/react-query';
+import { Feature, GeoJsonProperties, Point } from 'geojson';
 
 /**
  * Internal dependencies
@@ -20,33 +22,27 @@ import MenuItem from '../../../../../components/generic/MenuItem';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { processRouting, setTriggeredMarkerIdx, setTriggeredSegment } from '../../../routing/slice';
 import {
-	selectIsRouting,
 	selectMarkerLayerUuid,
 	selectMovingPointIdx,
 	selectPathLayerUuids,
-	selectSegments,
-	selectTriggeredMarkerIdx,
-	selectTriggeredSegment,
 } from '../../../routing/selectors';
 import { createRoutingPoints } from '../../../routing/db/actionsRoutingPoint';
-import useRoutingPoints from '../../../routing/hooks/useRoutingPoints';
-import { RoutingPoint, RoutingProfile } from '../../../routing/types';
-import { useMutation } from '@tanstack/react-query';
-import { Feature, GeoJsonProperties, Point } from 'geojson';
+import { RoutingProfile } from '../../../routing/types';
+import useRoute from '../../../routing/hooks/useRoute';
 
 const IconActions = ({ style }: { style: TextStyle }) => {
 	const { mapHeight, mapViewNativeNodeHandle } = useContext(AppContext);
 
 	const dispatch = useAppDispatch();
 
-	const routeId = useAppSelector(selectIsRouting);
+	const { id: routeId, points } = useRoute(['id', 'points']) || {};
 
-	const segments = useAppSelector(selectSegments);
+	// const segments = useAppSelector(selectSegments);
 	const markerLayerUuid = useAppSelector(selectMarkerLayerUuid);
 	const pathLayerUuids = useAppSelector(selectPathLayerUuids);
 	const movingPointIdx = useAppSelector(selectMovingPointIdx);
-	const triggeredMarkerIdx = useAppSelector(selectTriggeredMarkerIdx);
-	const triggeredSegment = useAppSelector(selectTriggeredSegment);
+	// const triggeredMarkerIdx = useAppSelector(selectTriggeredMarkerIdx);
+	// const triggeredSegment = useAppSelector(selectTriggeredSegment);
 
 	const { currentMapEventRef } = useContext(MapContext);
 
@@ -76,8 +72,6 @@ const IconActions = ({ style }: { style: TextStyle }) => {
 		[]
 	);
 
-	const points = useRoutingPoints();
-
 	const mutationAppendPoint = useMutation({
 		mutationFn: ({
 			feature,
@@ -96,16 +90,16 @@ const IconActions = ({ style }: { style: TextStyle }) => {
 				routeId
 			),
 		onMutate: async (_, context) => {
-			await context.client.cancelQueries({ queryKey: ['routes', routeId] });
+			await context.client.cancelQueries({ queryKey: ['route', routeId] });
 		},
 		onSuccess: async (_result, _variables, _onMutateResult, context) => {
-			await context.client.invalidateQueries({ queryKey: ['routes', routeId] });
+			await context.client.invalidateQueries({ queryKey: ['route', routeId] });
 			dispatch(processRouting());
 		},
 	});
 
 	const getNextProfile = useCallback(() => {
-		const lastPoint = points.length ? points[points.length - 1] : undefined;
+		const lastPoint = points && points.length ? points[points.length - 1] : undefined;
 		return {
 			fast: lastPoint?.profile?.fast ?? true, // ??? from defaults, or from previous or from cut segment
 			v: lastPoint?.profile?.v ?? 'motorcar', // ??? from defaults, or from previous or from cut segment

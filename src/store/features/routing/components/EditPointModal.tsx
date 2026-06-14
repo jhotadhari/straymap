@@ -4,7 +4,7 @@
 import React, { Dispatch, FC, SetStateAction, useCallback, useMemo } from 'react';
 import { useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { get, isEqual, omit } from 'lodash-es';
+import { get, isEqual } from 'lodash-es';
 import { GetTrackParams } from 'react-native-brouter';
 
 /**
@@ -14,13 +14,12 @@ import InfoRadioRow from '../../../../components/generic/InfoRadioRow';
 import InfoRowControl from '../../../../components/generic/controls/InfoRowControl';
 import ListItemMenuControl from '../../../../components/generic/controls/ListItemMenuControl';
 import ModalWrapper from '../../../../components/generic/ModalWrapper';
-import { useAppDispatch, useAppSelector } from '../../../hooks';
+import { useAppDispatch } from '../../../hooks';
 import { RoutingPoint, RoutingProfile } from '../types';
-import { selectIsRouting } from '../selectors';
 import { updateRoutingPoint } from '../db/actionsRoutingPoint';
 import { deleteSegmentByKeyVal, processRouting } from '../slice';
-import useRoutingPoints from '../hooks/useRoutingPoints';
 import { useMutation } from '@tanstack/react-query';
+import useRoute from '../hooks/useRoute';
 
 const ProfileRowControl = ({
 	editPoint,
@@ -84,11 +83,12 @@ const EditPointModal: FC<{
 	const theme = useTheme();
 	const { t } = useTranslation();
 
-	const routeId = useAppSelector(selectIsRouting);
+	const { id: routeId, points } = useRoute(['id', 'points']) || {};
 
-	const points = useRoutingPoints();
-
-	const point = useMemo(() => points.find((p) => p.id, editPoint.id), [points, editPoint.id]);
+	const point = useMemo(
+		() => (points ? points.find((p) => p.id, editPoint.id) : undefined),
+		[points, editPoint.id]
+	);
 
 	const mutation = useMutation({
 		mutationFn: (profile: RoutingProfile) =>
@@ -96,10 +96,10 @@ const EditPointModal: FC<{
 				profile: profile,
 			}),
 		onMutate: async (_, context) => {
-			await context.client.cancelQueries({ queryKey: ['routes', routeId] });
+			await context.client.cancelQueries({ queryKey: ['route', routeId] });
 		},
 		onSuccess: async (_result, _variables, _onMutateResult, context) => {
-			await context.client.invalidateQueries({ queryKey: ['routes', routeId] });
+			await context.client.invalidateQueries({ queryKey: ['route', routeId] });
 			dispatch(deleteSegmentByKeyVal('fromId', editPoint.id));
 			dispatch(processRouting());
 			setEditPoint(undefined);

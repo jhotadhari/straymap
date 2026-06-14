@@ -5,28 +5,27 @@ import { FC, useCallback, useMemo, Dispatch, SetStateAction, useContext } from '
 import { StyleProp, TouchableWithoutFeedback, View, ViewStyle } from 'react-native';
 import { useTheme, Text, Icon } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { useQuery, WithRequired } from '@tanstack/react-query';
 import { get, pick, without } from 'lodash-es';
 
 /**
  * Internal dependencies
  */
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
-import { Line, LinePartial } from '../../types';
+import { Line } from '../../types';
 import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
 import { iconSize } from '../../../drawers/constants';
 import { setLineSelected } from '../../slice';
 import LineStats from '../LineStats';
 import { lineCells, statsCells, otherCells, styles } from './sharedDeps';
 import TagBadge from '../TagBadge';
-import { selectIsRouting, selectStats } from '../../../routing/selectors';
-import { queryRoutingLineId } from '../../../routing/db/queries';
+import { selectStats } from '../../../routing/selectors';
 import { setActiveKey } from '../../../drawers/slice';
 import IconRouting from '../../../drawers/items/routing/IconComponent';
 import { AppContext } from '../../../../../Context';
 import { selectSideForKey } from '../../../drawers/selectors';
 import { DrawerControl } from '../../../drawers/types';
 import { setUiItemKeys } from '../../../ui/slice';
+import useRoute from '../../../routing/hooks/useRoute';
 
 const OtherCell: FC<{
 	cellKey: string;
@@ -79,11 +78,7 @@ const TableRow: FC<{
 		}
 	}, [drawerSideWithRouting]);
 
-	const routeId = useAppSelector(selectIsRouting);
-	const { data: routingLineId } = useQuery({
-		queryKey: ['routingLineId', routeId],
-		queryFn: () => queryRoutingLineId(routeId),
-	});
+	const { line_id: routingLineId } = useRoute(['line_id']) || {};
 
 	const isOnMap = useMemo(() => onMapIds.includes(line.id), [onMapIds, line.id]);
 

@@ -35,8 +35,7 @@ import { lineStringToStats, locationsToCoordsArr } from '../../../../lib/utils';
 import { deleteRoutingPoint } from '../db/actionsRoutingPoint';
 import { LineStats as LineStatsType } from '../../lines/types';
 import LineStats from '../../lines/components/LineStats';
-import useRoutingPoints from '../hooks/useRoutingPoints';
-import { queryClient } from '../../../../db/clients';
+import useRoute from '../hooks/useRoute';
 
 const itemHeight = 180;
 
@@ -239,11 +238,11 @@ const DraggableItem: FC<{
 	const mutation = useMutation({
 		mutationFn: (id: number) => deleteRoutingPoint(id),
 		onMutate: async (_, context) => {
-			await context.client.cancelQueries({ queryKey: ['routes', routeId] });
+			await context.client.cancelQueries({ queryKey: ['route', routeId] });
 			setIsDeleting(true);
 		},
 		onSuccess: async (_result, _variables, _onMutateResult, context) => {
-			await context.client.invalidateQueries({ queryKey: ['routes', routeId] });
+			await context.client.invalidateQueries({ queryKey: ['route', routeId] });
 			dispatch(processRouting());
 		},
 		onSettled: () => {
@@ -276,7 +275,7 @@ const DraggableItem: FC<{
 			>
 				<View style={{ flexDirection: 'row', flexGrow: 1, gap: 8 }}>
 					<Text>{order + 1}</Text>
-
+					<Text>{item.id}</Text>
 					<Text>
 						{item?.geometry?.coordinates &&
 							formatcoords(
@@ -321,9 +320,8 @@ const PointsList: FC<{
 
 	const dispatch = useAppDispatch();
 
-	const routeId = useAppSelector(selectIsRouting);
+	const { id: routeId, points: points_ } = useRoute(['id', 'points']) || {};
 
-	const points_ = useRoutingPoints();
 	const [optimisticPoints, setOptimisticPoints] = useState<undefined | RoutingPoint[]>(undefined);
 
 	const mutation = useMutation({
@@ -332,11 +330,11 @@ const PointsList: FC<{
 				point_order: newPoints.map((p) => p.id),
 			}),
 		onMutate: async (newPoints, context) => {
-			await context.client.cancelQueries({ queryKey: ['routes', routeId] });
+			await context.client.cancelQueries({ queryKey: ['route', routeId] });
 			setOptimisticPoints(newPoints);
 		},
 		onSuccess: async (_result, _variables, _onMutateResult, context) => {
-			await context.client.invalidateQueries({ queryKey: ['routes', routeId] });
+			await context.client.invalidateQueries({ queryKey: ['route', routeId] });
 			dispatch(processRouting());
 		},
 		onSettled: () => {
@@ -348,7 +346,7 @@ const PointsList: FC<{
 
 	const points = useMemo(
 		() =>
-			(optimisticPoints ?? points_).map((point) => ({
+			(optimisticPoints ?? (points_ || [])).map((point) => ({
 				...point,
 				key: point.id,
 			})),
