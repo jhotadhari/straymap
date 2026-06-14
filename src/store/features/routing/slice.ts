@@ -3,13 +3,13 @@
  */
 import type { PayloadAction } from '@reduxjs/toolkit';
 import { createSlice } from '@reduxjs/toolkit';
-import { get } from 'lodash-es';
+import { difference, get } from 'lodash-es';
 
 /**
  * Internal dependencies
  */
 import { SliceSettingsBase } from '../../../types';
-import { RoutingSegment, RoutingTriggeredSegment } from './types';
+import { RoutingPoint, RoutingSegment, RoutingTriggeredSegment } from './types';
 import { AppThunk } from '../../store';
 import { aggregateSegmentsToCoords, getCoordsFromRouting, getSegmentRecordId } from './utils';
 import { setLineSelected } from '../lines/slice';
@@ -68,23 +68,18 @@ export const routingSlice = createSlice({
 			}
 			state.isRouting = action.payload;
 		},
-		// setSegments: (
-		// 	state,
-		// 	action: PayloadAction<{
-		// 		segments: RoutingState['segments'];
-		// 		updateRoutes: boolean;
-		// 		updateLine: boolean;
-		// 	}>
-		// ) => {
-		// 	state.segments = action.payload.segments;
-		// },
 		setSegment: (state, action: PayloadAction<RoutingSegment>) => {
 			const segmentRecordId = getSegmentRecordId(action.payload);
 			state.segments[segmentRecordId] = action.payload;
 		},
-		deleteSegment: (state, action: PayloadAction<RoutingSegment>) => {
-			const segmentRecordId = getSegmentRecordId(action.payload);
-			delete state.segments[segmentRecordId];
+		deleteSegment: (state, action: PayloadAction<RoutingSegment | string>) => {
+			const segmentRecordId =
+				'string' === typeof action.payload
+					? action.payload
+					: getSegmentRecordId(action.payload);
+			if ( Object.keys( state.segments ).includes( segmentRecordId ) ) {
+				delete state.segments[segmentRecordId];
+			}
 		},
 		setMarkerLayerUuid: (state, action: PayloadAction<RoutingState['markerLayerUuid']>) => {
 			state.markerLayerUuid = action.payload;
@@ -129,42 +124,6 @@ export const {
 // Export the slice reducer for use in the store configuration
 export default routingSlice.reducer;
 
-// export const setSegments = (
-// 	segments: Record<string, RoutingSegment>,
-// 	options?: {
-// 		filter?: boolean;
-// 		updateRoutes?: boolean;
-// 		updateLine?: boolean; // defaults to true.
-// 	}
-// ): AppThunk => {
-// 	return (dispatch, getState) => {
-// 		if (options?.filter) {
-// 			const pointIds = selectPointIds(getState());
-// 			dispatch(
-// 				routingSlice.actions.setSegments({
-// 					segments: omit(
-// 						segments,
-// 						Object.keys(segments).filter((fromId_toId) => {
-// 							const { fromId, toId } = segments[fromId_toId];
-// 							return !pointIds.includes(fromId) || !pointIds.includes(toId);
-// 						})
-// 					),
-// 					updateRoutes: !!options?.updateRoutes,
-// 					updateLine: false !== options?.updateLine,
-// 				})
-// 			);
-// 		} else {
-// 			dispatch(
-// 				routingSlice.actions.setSegments({
-// 					segments,
-// 					updateRoutes: !!options?.updateRoutes,
-// 					updateLine: false !== options?.updateLine,
-// 				})
-// 			);
-// 		}
-// 	};
-// };
-
 export const deleteSegmentByKeyVal = (key: keyof RoutingSegment, val: any): AppThunk => {
 	return (dispatch, getState) => {
 		const {
@@ -192,24 +151,6 @@ const getPointsForRouteId = async (routeId: number | false) => {
 	return points ?? [];
 };
 
-export const filterSegments = (): AppThunk => {
-	return async (dispatch, getState) => {
-		const {
-			routing: { segments, isRouting: routeId },
-		} = getState();
-		const points = await getPointsForRouteId(routeId);
-		const pointIds = points.map((p) => p.id);
-		Object.keys(segments)
-			.filter((fromId_toId) => {
-				const { fromId, toId } = segments[fromId_toId];
-				return !pointIds.includes(fromId) || !pointIds.includes(toId);
-			})
-			.map((fromId_toId) =>
-				dispatch(routingSlice.actions.deleteSegment(segments[fromId_toId]))
-			);
-	};
-};
-
 export const processRouting = (options?: {
 	updateLine?: boolean; // defaults to true. Only initializeFromStorage will call that with false.
 }): AppThunk => {
@@ -217,6 +158,7 @@ export const processRouting = (options?: {
 		const {
 			routing: { segments, isRouting: routeId },
 		} = getState();
+
 		const points = await getPointsForRouteId(routeId);
 
 		const updatedSegments = await new Promise<Record<string, RoutingSegment>>(
@@ -310,7 +252,10 @@ export const processRouting = (options?: {
 			}
 		);
 
-		dispatch(filterSegments());
+		// Delete segments not used anymore.
+		difference(Object.keys(segments), Object.keys(updatedSegments)).forEach((fromId_toId) => {
+			dispatch(routingSlice.actions.deleteSegment(fromId_toId));
+		});
 
 		if (routeId) {
 			if (false !== options?.updateLine) {
