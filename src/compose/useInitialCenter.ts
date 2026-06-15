@@ -70,9 +70,8 @@ const useInitialCenter = (currentMapEventRef: MutableRefObject<MapEventResponse 
 	// Save position every x seconds.
 	const intervalIdRef = useRef<null | NodeJS.Timeout>(null);
 	useEffect(() => {
-		if (initialized && currentMapEventRef?.current && null === intervalIdRef.current) {
-			const newIntervalId = setInterval(saveCurrentPositionToInitial, 1000 * 30);
-			intervalIdRef.current = newIntervalId;
+		if (initialized) {
+			intervalIdRef.current = setInterval(saveCurrentPositionToInitial, 1000 * 30);
 		}
 		return () => {
 			if (intervalIdRef.current) {
