@@ -28,7 +28,7 @@ import DrawerContext from '../../drawers/DrawerContext';
 import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
 import LoadingIndicator from '../../../../components/generic/LoadingIndicator';
 import { useAppDispatch, useAppSelector } from '../../../hooks';
-import { processRouting, setSegment } from '../slice';
+import { deleteSegments, processRouting } from '../slice';
 import { selectIsRouting, selectSegments } from '../selectors';
 import { updateRoute } from '../db/actionsRoute';
 import { lineStringToStats, locationsToCoordsArr } from '../../../../lib/utils';
@@ -91,14 +91,7 @@ const Segment: FC<{
 		if (!segment) {
 			return;
 		}
-		const newSegment = omit(
-			{
-				...segment,
-				isFetching: false,
-			},
-			['positions']
-		);
-		dispatch(setSegment(newSegment));
+		dispatch(deleteSegments([segment]));
 		dispatch(processRouting());
 	}, [segment]);
 
