@@ -27,8 +27,7 @@ import IconRouting from '../../drawers/items/routing/IconComponent';
 import { selectSideForKey } from '../../drawers/selectors';
 import { AppContext } from '../../../../Context';
 import { DrawerControl } from '../../drawers/types';
-import { FetchLinesParams } from '../db/fetch';
-import { queryLines } from '../db/queries';
+import { queryLinesWithoutGeom } from '../db/queryFns';
 import useRoute from '../../routing/hooks/useRoute';
 
 const LineRow: FC<{
@@ -184,17 +183,9 @@ const SelectedLinesList: FC = () => {
 		uiStateKey,
 	]);
 
-	const linesQueryParams: FetchLinesParams = useMemo(
-		() => ({
-			lineIds: selectedIds,
-			fieldsExclude: ['geometry'],
-		}),
-		[selectedIds]
-	);
-
 	const { data: lines } = useQuery({
-		queryKey: ['linesMeta', selectedIds],
-		queryFn: () => queryLines(linesQueryParams) as Promise<Omit<Line, 'geometry'>[]>,
+		queryKey: ['lines', selectedIds],
+		queryFn: queryLinesWithoutGeom,
 	});
 
 	return (

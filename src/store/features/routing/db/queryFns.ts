@@ -19,7 +19,7 @@ export const queryRoute = ({ queryKey }: { queryKey: (string | number | false)[]
 	const [_key, routeId] = queryKey;
 	return new Promise<Route | null>((resolve, reject) => {
 		if (!routeId) {
-			resolve(null);
+			return resolve(null);
 		}
 		fetchRoutes({
 			routeId: routeId as number | false,

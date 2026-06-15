@@ -273,16 +273,18 @@ export const processRouting = (options?: {
 
 		if (routeId) {
 			if (false !== options?.updateLine) {
-				const lineId = await updateLineFromSegments(
+				const { lineId, isNew } = await updateLineFromSegments(
 					routeId,
 					Object.values(updatedSegments)
 				);
 				if (lineId) {
 					dispatch(setLineSelected(lineId, true));
+					await queryClient.invalidateQueries({ queryKey: ['lineGeom', lineId] });
+				}
+				if (isNew) {
+					await queryClient.invalidateQueries({ queryKey: ['lines'], exact: true });
 				}
 			}
-			// invalidateQueries
-			// No need to invalidate lines queries with selectedIds, because either selectedIds changed, or line info changed that components don't care.
 			await queryClient.invalidateQueries({ queryKey: ['route', routeId] });
 
 			// Update routing stats.
@@ -300,12 +302,12 @@ export const processRouting = (options?: {
 
 const updateLineFromSegments = async (routeId: number, segments: RoutingSegment[]) => {
 	if (!routeId) {
-		return;
+		return {};
 	}
 
 	if (!segments.some((seg) => seg?.positions?.length ?? 0 > 1)) {
 		// Just get out. no line deletion here. stop-routing will handle that case.
-		return;
+		return {};
 	}
 
 	await queryClient.refetchQueries({
@@ -324,8 +326,10 @@ const updateLineFromSegments = async (routeId: number, segments: RoutingSegment[
 		await updateLine(line_id, {
 			lineStringFeature,
 		}); // ... invalidation handled by outer function after return.
-
-		return line_id;
+		return {
+			lineId: line_id,
+			isNew: false,
+		};
 	} else {
 		// Create line and update route with line_id.
 		const insertedLines = await createLines([
@@ -334,9 +338,12 @@ const updateLineFromSegments = async (routeId: number, segments: RoutingSegment[
 			},
 		]); // ... invalidation handled by outer function after return.
 		if (!insertedLines?.length) {
-			return undefined;
+			return {};
 		}
 		await updateRoute(routeId, { line_id: insertedLines[0].id });
-		return insertedLines[0].id;
+		return {
+			lineId: insertedLines[0].id,
+			isNew: true,
+		};
 	}
 };

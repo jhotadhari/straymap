@@ -17,7 +17,7 @@ import TableHeader from './TableHeader';
 import TableRow from './TableRow';
 import Header from './Header';
 import Footer from './Footer';
-import { fetchLines } from '../../db/fetch';
+import { queryLinesWithoutGeom } from '../../db/queryFns';
 
 const LinesTable: FC = () => {
 	const theme = useTheme();
@@ -25,11 +25,8 @@ const LinesTable: FC = () => {
 	const { selectedIds: onMapIds, visibleMap } = useAppSelector(selectSelectedInfos);
 
 	const { data: lines } = useQuery({
-		queryKey: ['linesMeta'],
-		queryFn: () =>
-			fetchLines({
-				fieldsExclude: ['geometry'],
-			}) as Promise<Omit<Line, 'geometry'>[]>,
+		queryKey: ['lines'],
+		queryFn: queryLinesWithoutGeom,
 	});
 
 	const [checkedIds, setCheckedIds] = useState<number[]>([]);

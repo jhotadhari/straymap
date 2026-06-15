@@ -10,26 +10,31 @@ import { MapContainer, LayerPath } from 'react-native-mapsforge-vtm';
  */
 import { useAppSelector } from '../../../hooks';
 import { selectSelected } from '../selectors';
-import { LinePartial } from '../types';
-import { FetchLinesParams } from '../db/fetch';
-import { queryLines } from '../db/queries';
+import { queryLineGeom } from '../db/queryFns';
 import useRoute from '../../routing/hooks/useRoute';
 
 const LineItem: FC<{
-	line: WithRequired<LinePartial, 'geometry'>;
-}> = ({ line }) => {
+	lineId: number;
+}> = ({ lineId }) => {
+	const { data: line } = useQuery({
+		queryKey: ['lineGeom', lineId],
+		queryFn: queryLineGeom,
+	});
+
 	const positions = useMemo(
 		() =>
-			line.geometry.coordinates.map((arr: number[]) => ({
-				lng: arr[0],
-				lat: arr[1],
-				...(arr.length > 2 && { alt: arr[2] }),
-			})),
-		[line.geometry.coordinates]
+			line
+				? line.geometry.coordinates.map((arr: number[]) => ({
+						lng: arr[0],
+						lat: arr[1],
+						...(arr.length > 2 && { alt: arr[2] }),
+					}))
+				: undefined,
+		[line?.geometry?.coordinates]
 	);
 
 	return (
-		<MapContainer.View>
+		positions && <MapContainer.View>
 			<LayerPath
 				positions={positions}
 				style={{
@@ -55,29 +60,15 @@ const LinesMapView = () => {
 		[selected]
 	);
 
-	const linesQueryParams: FetchLinesParams = useMemo(
-		() => ({
-			lineIds: selectedIds,
-			fieldsInclude: ['geometry'],
-		}),
-		[selectedIds]
-	);
-
-	const { data: lines } = useQuery({
-		queryKey: ['linesGeom', selectedIds],
-		queryFn: () =>
-			queryLines(linesQueryParams) as Promise<WithRequired<LinePartial, 'geometry'>[]>,
-	});
-
 	const { line_id: routingLineId } = useRoute(['line_id']) || {};
 
-	return lines?.map((line) => {
+	return selectedIds?.map((lineId) => {
 		return (
-			routingLineId !== line.id &&
-			visibleMap[line.id] && (
+			routingLineId !== lineId &&
+			visibleMap[lineId] && (
 				<LineItem
-					key={line.id}
-					line={line}
+					key={lineId}
+					lineId={lineId}
 				/>
 			)
 		);
