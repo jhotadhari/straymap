@@ -157,59 +157,22 @@ const LineRow: FC<{
 	);
 };
 
-const uiStateKey = 'selectedLinesDrawer';
 const SelectedLinesList: FC = () => {
-	const { t } = useTranslation();
-
-	const dispatch = useAppDispatch();
-
-	const theme = useTheme();
-
 	const { selectedIds, visibleMap } = useAppSelector(selectSelectedInfos);
-
-	const notExpanded = useAppSelector((state) => selectElementExpanded(state, uiStateKey));
-
-	const handleAccordionPress = useCallback(() => {
-		dispatch(
-			setElementExpanded({
-				key: uiStateKey,
-				expanded: !notExpanded,
-			})
-		);
-	}, [
-		notExpanded,
-		uiStateKey,
-	]);
 
 	const { data: lines } = useQuery({
 		queryKey: ['lines', selectedIds],
 		queryFn: queryLinesWithoutGeom,
 	});
 
-	return (
-		<View>
-			<List.Accordion
-				title={t('???SelectedLines', { count: 0 })}
-				expanded={!notExpanded}
-				onPress={handleAccordionPress}
-				titleStyle={theme.fonts.bodyMedium}
-				containerStyle={{ marginRight: -12 }}
-			>
-				<View>
-					{lines?.map((line, idx) => {
-						return (
-							<LineRow
-								key={line.id}
-								line={line}
-								idx={idx}
-								visible={visibleMap[line.id]}
-							/>
-						);
-					})}
-				</View>
-			</List.Accordion>
-		</View>
-	);
+	return lines?.map((line, idx) => (
+		<LineRow
+			key={line.id}
+			line={line}
+			idx={idx}
+			visible={visibleMap[line.id]}
+		/>
+	));
 };
 
 const styles = StyleSheet.create({
