@@ -8,13 +8,15 @@ export interface Tag {
 	params: any; // ??? any
 }
 
-export interface LineStats {
-	length?: number;
-	uphill?: number;
-	downhill?: number;
-	minZ?: number;
-	maxZ?: number;
-}
+export const STATS_FIELDS = [
+	'length',
+	'uphill',
+	'downhill',
+	'minZ',
+	'maxZ',
+] as const;
+
+export type LineStats = Partial<Record<(typeof STATS_FIELDS)[number], number>>
 
 export interface Line {
 	id: number;

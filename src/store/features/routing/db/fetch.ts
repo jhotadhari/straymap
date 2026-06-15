@@ -10,8 +10,11 @@ import { Point } from 'geojson';
 import { dbZ } from '../../../../db/clients';
 import { routesTable, routingPointsTable } from './schema/schema';
 import { sortArrayByOrderArray } from '../../../../lib/utilsLight';
-import { Route, RoutingPoint } from '../types';
+import { Route } from '../types';
 import { rowParseGeometryGeoJSON } from '../../../../db/utils';
+import { linesTable } from '../../lines/db/schema/schema';
+import { mapValues, omit, pick } from 'lodash-es';
+import { STATS_FIELDS } from '../../lines/types';
 
 /**
  * Functions to fetch/retrieve data from database.
@@ -25,6 +28,8 @@ export interface FetchRoutesParams {
 	routeId?: number | false;
 	pointId?: number;
 }
+
+const statsFields = [...STATS_FIELDS] as string[];
 
 export const fetchRoutes = (params?: FetchRoutesParams) => {
 	return new Promise<Route[]>((resolve, reject) => {
@@ -41,6 +46,11 @@ export const fetchRoutes = (params?: FetchRoutesParams) => {
 					timestamp: routesTable.timestamp,
 					point_order: routesTable.point_order,
 					line_id: routesTable.line_id,
+					length: sql<string>`GreatCircleLength (${linesTable.geometry})`,
+					uphill: sql<string>`UphillHeight (${linesTable.geometry})`,
+					downhill: sql<string>`DownhillHeight (${linesTable.geometry})`,
+					minZ: sql<string>`ST_MinZ (${linesTable.geometry})`,
+					maxZ: sql<string>`ST_MaxZ (${linesTable.geometry})`,
 				},
 				point: {
 					id: routingPointsTable.id,
@@ -52,6 +62,8 @@ export const fetchRoutes = (params?: FetchRoutesParams) => {
 			.from(routesTable);
 
 		query.leftJoin(routingPointsTable, eq(routingPointsTable.route_id, routesTable.id));
+
+		query.leftJoin(linesTable, eq(linesTable.id, routesTable.line_id));
 
 		query.where(
 			and(
@@ -67,9 +79,12 @@ export const fetchRoutes = (params?: FetchRoutesParams) => {
 					rows.reduce<Record<number, Route>>((acc, row) => {
 						if (row?.route?.id && !acc[row.route.id]) {
 							acc[row.route.id] = {
-								...row.route,
+								...omit(row.route, statsFields),
+								stats: mapValues(pick(row.route, statsFields), (str: string) =>
+									parseFloat(str)
+								),
 								points: [],
-							};
+							} as Route;
 						}
 						if (row?.point && row?.route?.id) {
 							acc[row.route.id].points.push(

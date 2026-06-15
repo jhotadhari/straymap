@@ -36,7 +36,6 @@ export interface RoutingState extends SliceSettingsBase, RoutingSettings {
 	movingPointIdx?: number;
 	triggeredMarkerIdx?: number;
 	triggeredSegment?: RoutingTriggeredSegment;
-	stats: LineStats;
 }
 
 export const initialSettings: RoutingSettings = {
@@ -48,7 +47,6 @@ const initialState: RoutingState = {
 	markerLayerUuid: null,
 	pathLayerUuids: null,
 	segments: {},
-	stats: {},
 	...initialSettings,
 };
 
@@ -100,9 +98,6 @@ export const routingSlice = createSlice({
 		setTriggeredSegment: (state, action: PayloadAction<RoutingState['triggeredSegment']>) => {
 			state.triggeredSegment = action.payload;
 		},
-		setStats: (state, action: PayloadAction<RoutingState['stats']>) => {
-			state.stats = action.payload;
-		},
 	},
 });
 
@@ -117,7 +112,6 @@ export const {
 	setMovingPointIdx,
 	setTriggeredMarkerIdx,
 	setTriggeredSegment,
-	setStats,
 } = routingSlice.actions;
 
 // Export the slice reducer for use in the store configuration
@@ -280,22 +274,13 @@ export const processRouting = (options?: {
 				if (lineId) {
 					dispatch(setLineSelected(lineId, true));
 					await queryClient.invalidateQueries({ queryKey: ['lineGeom', lineId] });
+					await queryClient.invalidateQueries({ queryKey: ['lines', [lineId]] });
 				}
 				if (isNew) {
 					await queryClient.invalidateQueries({ queryKey: ['lines'], exact: true });
 				}
 			}
 			await queryClient.invalidateQueries({ queryKey: ['route', routeId] });
-
-			// Update routing stats.
-			if (Object.keys(updatedSegments).length) {
-				const stats = await lineStringToStats(
-					lineString(aggregateSegmentsToCoords(Object.values(updatedSegments))).geometry
-				);
-				dispatch(routingSlice.actions.setStats(stats ?? {}));
-			} else {
-				dispatch(routingSlice.actions.setStats({}));
-			}
 		}
 	};
 };

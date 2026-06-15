@@ -16,6 +16,9 @@ import { fetchRoutes } from './fetch';
  * 	queryKey: ['route', routeId],
  */
 export const queryRoute = ({ queryKey }: { queryKey: (string | number | false)[] }) => {
+	if (queryKey.length < 2) {
+		return Promise.resolve(null);
+	}
 	const [_key, routeId] = queryKey;
 	return new Promise<Route | null>((resolve, reject) => {
 		if (!routeId) {

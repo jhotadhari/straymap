@@ -13,7 +13,7 @@ import { dbZ } from '../../../../db/clients';
 import { linesTable, tagsTable, tagsToLinesTable } from './schema/schema';
 import { rowsParseGeometryGeoJSON } from '../../../../db/utils';
 import { ArrayElement } from '../../../../types';
-import { Line, LinePartial, Tag } from '../types';
+import { Line, LinePartial, STATS_FIELDS, Tag } from '../types';
 
 /**
  * Functions to fetch/retrieve data from database.
@@ -37,19 +37,12 @@ interface FetchLinesWithTagsParams {
 	tagId?: number;
 	allTags?: boolean;
 	fieldsInclude?: (keyof Omit<Line, 'id'>)[];
-	// fieldsExclude?: (keyof Omit<Line, 'id' | 'tags'>)[];
 	fieldsExclude?: (keyof Omit<Line, 'id'>)[];
 }
 
 export interface FetchLinesParams extends FetchLinesWithTagsParams {}
 
-const statsFields = [
-	'length',
-	'uphill',
-	'downhill',
-	'minZ',
-	'maxZ',
-];
+const statsFields = [...STATS_FIELDS] as string[];
 
 const getLineColumns = (fields: (keyof Omit<Line, 'id'>)[]) => {
 	return {

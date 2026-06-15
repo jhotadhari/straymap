@@ -12,7 +12,6 @@ import { get, omit, pick } from 'lodash-es';
  * Internal dependencies
  */
 import { useAppDispatch, useAppSelector } from '../../../hooks';
-import { selectStats } from '../../routing/selectors';
 import { selectSelectedInfos } from '../selectors';
 import { selectElementExpanded } from '../../ui/selectors';
 import { setElementExpanded } from '../../ui/slice';
@@ -66,9 +65,8 @@ const LineRow: FC<{
 
 	const toggleSelected = useCallback(() => dispatch(setLineSelected(line.id)), [line.id]);
 
-	const { line_id: routingLineId } = useRoute(['line_id']) || {};
+	const { line_id: routingLineId, stats: routingStats } = useRoute(['line_id', 'stats']) || {};
 
-	const routingStats = useAppSelector(selectStats);
 	const stats = (line.id !== routingLineId ? line?.stats : routingStats) ?? {};
 
 	return (

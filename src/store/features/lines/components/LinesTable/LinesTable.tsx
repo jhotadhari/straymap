@@ -12,7 +12,7 @@ import { get, without } from 'lodash-es';
  */
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { selectSelectedInfos } from '../../selectors';
-import { Line } from '../../types';
+import { Line, LineStats } from '../../types';
 import { styles } from './sharedDeps';
 import TableHeader from './TableHeader';
 import TableRow, { TableRowProps } from './TableRow';
@@ -26,7 +26,6 @@ import { selectSideForKey } from '../../../drawers/selectors';
 import { DrawerControl } from '../../../drawers/types';
 import { setUiItemKeys } from '../../../ui/slice';
 import useRoute from '../../../routing/hooks/useRoute';
-import { selectStats } from '../../../routing/selectors';
 
 const keyExtractor = (line: { id: number }) => line.id.toString();
 
@@ -121,9 +120,7 @@ const LinesTable: FC = () => {
 		return <TableHeader styleCell={styleCell} />;
 	}, [styleCell]);
 
-	const { line_id: routingLineId } = useRoute(['line_id']) || {};
-
-	const routingStats = useAppSelector(selectStats);
+	const { line_id: routingLineId, stats: routingStats } = useRoute(['line_id', 'stats']) || {};
 
 	const renderItem: ListRenderItem<Omit<Line, 'geometry'>> = useCallback(
 		({ item: line, index }) => {
@@ -139,7 +136,11 @@ const LinesTable: FC = () => {
 					toggleOnMapId={toggleOnMapId}
 					isChecked={checkedIds.includes(line.id)}
 					isRoutingLine={line.id === routingLineId}
-					stats={line.id !== routingLineId ? undefined : routingStats}
+					stats={
+						line.id !== routingLineId
+							? undefined
+							: (routingStats as LineStats | undefined)
+					}
 				/>
 			);
 		},

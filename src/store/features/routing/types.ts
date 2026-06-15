@@ -4,6 +4,7 @@
 import { GetTrackParams } from 'react-native-brouter';
 import { Point } from 'geojson';
 import { Location } from 'react-native-mapsforge-vtm';
+import { LineStats } from '../lines/types';
 
 export type RoutingProfile = {
 	fast: GetTrackParams['fast'];
@@ -30,6 +31,7 @@ export interface Route {
 	timestamp: string;
 	point_order: number[];
 	line_id: number | null;
+	stats?: LineStats;
 	points: RoutingPoint[];
 }
 
