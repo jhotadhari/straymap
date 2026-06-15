@@ -38,9 +38,11 @@ export interface Route {
 
 
 
-
-
-
+/**
+ * ??? TODO change vtm library and how to trigger segments and simplified bla bla
+ *
+ *
+ */
 export type RoutingTriggeredSegment = {
 	index: number;
 	nearestPoint: Location;

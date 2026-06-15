@@ -34,15 +34,17 @@ const LineItem: FC<{
 	);
 
 	return (
-		positions && <MapContainer.View>
-			<LayerPath
-				positions={positions}
-				style={{
-					strokeColor: '#ff0000',
-					strokeWidth: 5,
-				}}
-			/>
-		</MapContainer.View>
+		positions && (
+			<MapContainer.View>
+				<LayerPath
+					positions={positions}
+					style={{
+						strokeColor: '#ff0000',
+						strokeWidth: 5,
+					}}
+				/>
+			</MapContainer.View>
+		)
 	);
 };
 

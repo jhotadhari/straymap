@@ -16,7 +16,7 @@ export const STATS_FIELDS = [
 	'maxZ',
 ] as const;
 
-export type LineStats = Partial<Record<(typeof STATS_FIELDS)[number], number>>
+export type LineStats = Partial<Record<(typeof STATS_FIELDS)[number], number>>;
 
 export interface Line {
 	id: number;

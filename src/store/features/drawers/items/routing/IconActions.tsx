@@ -72,37 +72,46 @@ const IconActions = ({ style }: { style: TextStyle }) => {
 		[]
 	);
 
-	const mutationAppendPointOptions : UseMutationOptions<{
-		id: number;
-	}[] | undefined, Error, {
-		feature: Feature<Point, GeoJsonProperties>;
-		profile: RoutingProfile;
-	}, void> = useMemo( () => ({
-		mutationFn: ({
-			feature,
-			profile,
-		}: {
+	const mutationAppendPointOptions: UseMutationOptions<
+		| {
+				id: number;
+		  }[]
+		| undefined,
+		Error,
+		{
 			feature: Feature<Point, GeoJsonProperties>;
 			profile: RoutingProfile;
-		}) =>
-			createRoutingPoints(
-				[
-					{
-						feature,
-						profile,
-					},
-				],
-				routeId
-			),
-		onMutate: async (_, context) => {
-			await context.client.cancelQueries({ queryKey: ['route', routeId] });
 		},
-		onSuccess: async (_result, _variables, _onMutateResult, context) => {
-			await context.client.invalidateQueries({ queryKey: ['route', routeId] });
-			dispatch(processRouting());
-		},
-	}), [routeId] ) ;
-	const mutationAppendPoint = useMutation( mutationAppendPointOptions );
+		void
+	> = useMemo(
+		() => ({
+			mutationFn: ({
+				feature,
+				profile,
+			}: {
+				feature: Feature<Point, GeoJsonProperties>;
+				profile: RoutingProfile;
+			}) =>
+				createRoutingPoints(
+					[
+						{
+							feature,
+							profile,
+						},
+					],
+					routeId
+				),
+			onMutate: async (_, context) => {
+				await context.client.cancelQueries({ queryKey: ['route', routeId] });
+			},
+			onSuccess: async (_result, _variables, _onMutateResult, context) => {
+				await context.client.invalidateQueries({ queryKey: ['route', routeId] });
+				dispatch(processRouting());
+			},
+		}),
+		[routeId]
+	);
+	const mutationAppendPoint = useMutation(mutationAppendPointOptions);
 
 	const getNextProfile = useCallback(() => {
 		const lastPoint = points && points.length ? points[points.length - 1] : undefined;

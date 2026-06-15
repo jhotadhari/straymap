@@ -55,46 +55,52 @@ const DisplayComponent: FC<{
 
 	const [isToggling, setIsToggling] = useState(false);
 
-	const createMutationOptions : UseMutationOptions<number | undefined> = useMemo( () => ( {
-		mutationFn: createRoute,
-		onMutate: async () => {
-			setIsToggling(true);
-		},
-		onSuccess: async (newRouteId) => {
-			if (newRouteId) {
-				dispatch(setIsRouting(newRouteId));
-				expand(false);
-			}
-		},
-		onSettled: () => {
-			setIsToggling(false);
-		},
-	}), [] );
-	const createRouteMutation = useMutation( createMutationOptions );
+	const createMutationOptions: UseMutationOptions<number | undefined> = useMemo(
+		() => ({
+			mutationFn: createRoute,
+			onMutate: async () => {
+				setIsToggling(true);
+			},
+			onSuccess: async (newRouteId) => {
+				if (newRouteId) {
+					dispatch(setIsRouting(newRouteId));
+					expand(false);
+				}
+			},
+			onSettled: () => {
+				setIsToggling(false);
+			},
+		}),
+		[]
+	);
+	const createRouteMutation = useMutation(createMutationOptions);
 
-	const deleteMutationOptions : UseMutationOptions = useMemo( () => ( {
-		mutationFn: () =>
-			Promise.all([
-				deleteRoute(routeId),
-				deleteLine(routingLineId || false),
-			]),
-		onMutate: async (_, context) => {
-			await context.client.cancelQueries({ queryKey: ['route', routeId] });
-			await context.client.cancelQueries({ queryKey: ['lines'] });
-			await context.client.cancelQueries({ queryKey: ['lineGeom', routingLineId] });
-			setIsToggling(true);
-		},
-		onSuccess: async (_, _variables, _onMutateResult, context) => {
-			expand(false);
-			dispatch(setIsRouting(false));
-			await context.client.invalidateQueries({ queryKey: ['route', routeId] });
-			await context.client.invalidateQueries({ queryKey: ['lines'] });
-			await context.client.invalidateQueries({ queryKey: ['lineGeom', routingLineId] });
-		},
-		onSettled: () => {
-			setIsToggling(false);
-		},
-	}), [routeId,routingLineId] );
+	const deleteMutationOptions: UseMutationOptions = useMemo(
+		() => ({
+			mutationFn: () =>
+				Promise.all([
+					deleteRoute(routeId),
+					deleteLine(routingLineId || false),
+				]),
+			onMutate: async (_, context) => {
+				await context.client.cancelQueries({ queryKey: ['route', routeId] });
+				await context.client.cancelQueries({ queryKey: ['lines'] });
+				await context.client.cancelQueries({ queryKey: ['lineGeom', routingLineId] });
+				setIsToggling(true);
+			},
+			onSuccess: async (_, _variables, _onMutateResult, context) => {
+				expand(false);
+				dispatch(setIsRouting(false));
+				await context.client.invalidateQueries({ queryKey: ['route', routeId] });
+				await context.client.invalidateQueries({ queryKey: ['lines'] });
+				await context.client.invalidateQueries({ queryKey: ['lineGeom', routingLineId] });
+			},
+			onSettled: () => {
+				setIsToggling(false);
+			},
+		}),
+		[routeId, routingLineId]
+	);
 	const deleteMutation = useMutation(deleteMutationOptions);
 
 	const handleToggleRouting = useCallback(async () => {
