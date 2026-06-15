@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { FC, useCallback, useMemo } from 'react';
+import { Dispatch, FC, SetStateAction, useCallback, useMemo } from 'react';
 import { StyleProp, TouchableWithoutFeedback, View, ViewStyle } from 'react-native';
 import { useTheme, Text, Icon } from 'react-native-paper';
 import { get, pick } from 'lodash-es';
@@ -9,7 +9,7 @@ import { get, pick } from 'lodash-es';
 /**
  * Internal dependencies
  */
-import { Line, LineStats as LineStatsType } from '../../types';
+import { Line, LinePartial, LineStats as LineStatsType } from '../../types';
 import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
 import { iconSize } from '../../../drawers/constants';
 import LineStats from '../LineStats';
@@ -43,6 +43,7 @@ export interface TableRowProps {
 	styleCell: StyleProp<ViewStyle>;
 	idx: number;
 	isOnMap: boolean;
+	setLineTemp: Dispatch<SetStateAction<undefined| LinePartial>>;
 	handleRoutingBtnPress: () => void;
 	isChecked: boolean;
 	toggleCheckedId: (id: number) => void;
@@ -58,6 +59,7 @@ const TableRow: FC<TableRowProps> = ({
 	handleRoutingBtnPress,
 	isChecked,
 	isOnMap,
+	setLineTemp,
 	toggleCheckedId,
 	toggleOnMapId,
 	isRoutingLine,
@@ -99,6 +101,10 @@ const TableRow: FC<TableRowProps> = ({
 
 	const stats = stats_ ?? line.stats;
 
+	const handleEditPress = useCallback(() => {
+		setLineTemp({ id: line.id });
+	}, [line.id]);
+
 	return (
 		<View style={style}>
 			<View style={styleCell}>
@@ -129,7 +135,7 @@ const TableRow: FC<TableRowProps> = ({
 				<ButtonHighlight
 					mode="text"
 					compact={true}
-					// onPress={toggleOnMap}
+					onPress={handleEditPress}
 				>
 					<Icon
 						source="cog"

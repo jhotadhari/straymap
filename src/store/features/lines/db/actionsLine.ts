@@ -61,13 +61,16 @@ export const createLines = async (
 };
 
 export const updateLine = async (
-	id: number,
+	id: number | undefined,
 	newLine: Partial<{
 		title: string | null;
 		lineStringFeature: Feature<LineString, GeoJsonProperties>;
 		tagIds?: number[];
 	}>
 ) => {
+	if (!id) {
+		return;
+	}
 	const lines = await dbZ.select().from(linesTable).where(eq(linesTable.id, id)).limit(1);
 	if (!lines.length) {
 		return;

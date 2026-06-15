@@ -12,7 +12,7 @@ import { get, without } from 'lodash-es';
  */
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { selectSelectedInfos } from '../../selectors';
-import { Line, LineStats } from '../../types';
+import { Line, LinePartial, LineStats } from '../../types';
 import { styles } from './sharedDeps';
 import TableHeader from './TableHeader';
 import TableRow, { TableRowProps } from './TableRow';
@@ -26,6 +26,7 @@ import { selectSideForKey } from '../../../drawers/selectors';
 import { DrawerControl } from '../../../drawers/types';
 import { setUiItemKeys } from '../../../ui/slice';
 import useRoute from '../../../routing/hooks/useRoute';
+import LineEditModal from '../LineEditModal';
 
 const keyExtractor = (line: { id: number }) => line.id.toString();
 
@@ -35,7 +36,9 @@ const TableRowMemo = memo(
 	(props: TableRowProps) => <TableRow {...props} />,
 	(prevProps, nextProps) => {
 		return (
-			prevProps.isOnMap === nextProps.isOnMap && prevProps.isChecked === nextProps.isChecked
+			prevProps.isOnMap === nextProps.isOnMap &&
+			prevProps.isChecked === nextProps.isChecked &&
+			prevProps.line?.title === nextProps.line?.title
 		);
 	}
 );
@@ -44,6 +47,8 @@ const LinesTable: FC = () => {
 	const theme = useTheme();
 
 	const dispatch = useAppDispatch();
+
+	const [lineTemp, setLineTemp] = useState<undefined | LinePartial>(undefined);
 
 	const { selectedIds: onMapIds } = useAppSelector(selectSelectedInfos);
 
@@ -72,10 +77,6 @@ const LinesTable: FC = () => {
 		queryKey: ['lines'],
 		queryFn: queryLinesWithoutGeom,
 	});
-
-	useEffect(() => {
-		console.log('debug lines', lines); // debug
-	}, [lines]);
 
 	const [checkedIds, setCheckedIds] = useState<number[]>([]);
 	const toggleCheckedId = useCallback((id: number) => {
@@ -133,6 +134,7 @@ const LinesTable: FC = () => {
 					isOnMap={onMapIdsTemp.includes(line.id)}
 					handleRoutingBtnPress={handleRoutingBtnPress}
 					toggleCheckedId={toggleCheckedId}
+					setLineTemp={setLineTemp}
 					toggleOnMapId={toggleOnMapId}
 					isChecked={checkedIds.includes(line.id)}
 					isRoutingLine={line.id === routingLineId}
@@ -156,6 +158,11 @@ const LinesTable: FC = () => {
 
 	return (
 		<View style={styles.container}>
+			<LineEditModal
+				lineTemp={lineTemp}
+				setLineTemp={setLineTemp}
+			/>
+
 			<Header checkedIds={checkedIds} />
 
 			<ScrollView horizontal={true}>

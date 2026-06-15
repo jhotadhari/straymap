@@ -2,9 +2,9 @@
  * External dependencies
  */
 import { useQuery } from '@tanstack/react-query';
-import { FC, useCallback, useContext, useMemo } from 'react';
+import { FC, useCallback, useContext, useMemo, useState } from 'react';
 import { StyleSheet, View, ViewStyle } from 'react-native';
-import { List, useTheme, Text, Icon } from 'react-native-paper';
+import { useTheme, Text, Icon } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { get, omit, pick } from 'lodash-es';
 
@@ -13,9 +13,7 @@ import { get, omit, pick } from 'lodash-es';
  */
 import { useAppDispatch, useAppSelector } from '../../../hooks';
 import { selectSelectedInfos } from '../selectors';
-import { selectElementExpanded } from '../../ui/selectors';
-import { setElementExpanded } from '../../ui/slice';
-import { Line } from '../types';
+import { Line, LinePartial } from '../types';
 import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
 import { iconSize } from '../../drawers/constants';
 import { setLineSelected, setLineVisible } from '../slice';
@@ -28,6 +26,7 @@ import { AppContext } from '../../../../Context';
 import { DrawerControl } from '../../drawers/types';
 import { queryLinesWithoutGeom } from '../db/queryFns';
 import useRoute from '../../routing/hooks/useRoute';
+import LineEditModal from './LineEditModal';
 
 const LineRow: FC<{
 	line: Omit<Line, 'geometry'>;
@@ -37,6 +36,8 @@ const LineRow: FC<{
 	const { t } = useTranslation();
 
 	const dispatch = useAppDispatch();
+
+	const [lineTemp, setLineTemp] = useState<undefined | LinePartial>(undefined);
 
 	const { drawerControlsRef } = useContext(AppContext);
 	const drawerSideWithRouting = useAppSelector((state) => selectSideForKey(state, 'routing'));
@@ -65,12 +66,21 @@ const LineRow: FC<{
 
 	const toggleSelected = useCallback(() => dispatch(setLineSelected(line.id)), [line.id]);
 
+	const handleEditPress = useCallback(() => {
+		setLineTemp({ id: line.id });
+	}, [line.id]);
+
 	const { line_id: routingLineId, stats: routingStats } = useRoute(['line_id', 'stats']) || {};
 
 	const stats = (line.id !== routingLineId ? line?.stats : routingStats) ?? {};
 
 	return (
 		<View style={[styles.row, style]}>
+			<LineEditModal
+				lineTemp={lineTemp}
+				setLineTemp={setLineTemp}
+			/>
+
 			{line.id !== routingLineId && (
 				<ButtonHighlight
 					style={styles.noShrink}
@@ -143,9 +153,7 @@ const LineRow: FC<{
 				<ButtonHighlight
 					mode="text"
 					compact={true}
-					onPress={() => {
-						// ???
-					}}
+					onPress={handleEditPress}
 				>
 					<Icon
 						source={'cog'}
