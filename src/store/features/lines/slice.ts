@@ -92,3 +92,16 @@ export const setLineSelected = (id: number, isSelected?: boolean): AppThunk => {
 		dispatch(linesSlice.actions.setSelected(newSelected));
 	};
 };
+
+export const setLinesSelected = (newSelectedIds: number[]): AppThunk => {
+	return (dispatch, getState) => {
+		const selected = selectSelected(getState());
+
+		const newSelected = newSelectedIds.map((newSelectedId) => ({
+			id: newSelectedId,
+			...(selected.find((item) => item.id === newSelectedId) ?? {}),
+			visible: true,
+		}));
+		dispatch(linesSlice.actions.setSelected(newSelected));
+	};
+};

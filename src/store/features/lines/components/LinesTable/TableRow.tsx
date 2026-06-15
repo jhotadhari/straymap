@@ -1,31 +1,21 @@
 /**
  * External dependencies
  */
-import { FC, useCallback, useMemo, Dispatch, SetStateAction, useContext } from 'react';
+import { FC, useCallback, useMemo } from 'react';
 import { StyleProp, TouchableWithoutFeedback, View, ViewStyle } from 'react-native';
 import { useTheme, Text, Icon } from 'react-native-paper';
-import { useTranslation } from 'react-i18next';
-import { get, pick, without } from 'lodash-es';
+import { get, pick } from 'lodash-es';
 
 /**
  * Internal dependencies
  */
-import { useAppDispatch, useAppSelector } from '../../../../hooks';
-import { Line } from '../../types';
+import { Line, LineStats as LineStatsType } from '../../types';
 import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
 import { iconSize } from '../../../drawers/constants';
-import { setLineSelected } from '../../slice';
 import LineStats from '../LineStats';
 import { lineCells, statsCells, otherCells, styles } from './sharedDeps';
 import TagBadge from '../TagBadge';
-import { selectStats } from '../../../routing/selectors';
-import { setActiveKey } from '../../../drawers/slice';
 import IconRouting from '../../../drawers/items/routing/IconComponent';
-import { AppContext } from '../../../../../Context';
-import { selectSideForKey } from '../../../drawers/selectors';
-import { DrawerControl } from '../../../drawers/types';
-import { setUiItemKeys } from '../../../ui/slice';
-import useRoute from '../../../routing/hooks/useRoute';
 
 const OtherCell: FC<{
 	cellKey: string;
@@ -48,53 +38,38 @@ const OtherCell: FC<{
 	}
 	return undefined;
 };
-
-const TableRow: FC<{
+export interface TableRowProps {
 	line: Omit<Line, 'geometry'>;
 	styleCell: StyleProp<ViewStyle>;
 	idx: number;
-	visible: boolean;
-	onMapIds: number[]; // ids of lines loaded on map.visible and invisible.
-	checkedIds: number[];
-	setCheckedIds: Dispatch<SetStateAction<number[]>>;
-}> = ({ line, styleCell, idx, visible, onMapIds, checkedIds, setCheckedIds }) => {
-	const { t } = useTranslation();
+	isOnMap: boolean;
+	handleRoutingBtnPress: () => void;
+	isChecked: boolean;
+	toggleCheckedId: (id: number) => void;
+	toggleOnMapId: (id: number) => void;
+	isRoutingLine: boolean;
+	stats?: LineStatsType;
+}
 
-	const dispatch = useAppDispatch();
-
+const TableRow: FC<TableRowProps> = ({
+	line,
+	styleCell,
+	idx,
+	handleRoutingBtnPress,
+	isChecked,
+	isOnMap,
+	toggleCheckedId,
+	toggleOnMapId,
+	isRoutingLine,
+	stats: stats_,
+}) => {
 	const theme = useTheme();
 
-	const { drawerControlsRef } = useContext(AppContext);
-	const drawerSideWithRouting = useAppSelector((state) => selectSideForKey(state, 'routing'));
-	const handleRoutingBtnPress = useCallback(() => {
-		if (drawerSideWithRouting) {
-			dispatch(
-				setActiveKey({
-					activeKey: 'routing',
-				})
-			);
-			(get(drawerControlsRef?.current, drawerSideWithRouting) as DrawerControl).expand(true);
-			dispatch(setUiItemKeys([]));
-		}
-	}, [drawerSideWithRouting]);
-
-	const { line_id: routingLineId } = useRoute(['line_id']) || {};
-
-	const isOnMap = useMemo(() => onMapIds.includes(line.id), [onMapIds, line.id]);
-
-	const isChecked = useMemo(() => checkedIds.includes(line.id), [checkedIds, line.id]);
-
-	// const toggleVisible = useCallback(() => dispatch(setLineVisible(line.id)), [line.id]);
-
-	const toggleOnMap = useCallback(() => dispatch(setLineSelected(line.id)), [line.id]);
+	const toggleOnMap = useCallback(() => toggleOnMapId(line.id), [line.id]);
 
 	const toggleChecked = useCallback(() => {
-		if (checkedIds.includes(line.id)) {
-			setCheckedIds(without(checkedIds, line.id));
-		} else {
-			setCheckedIds([...checkedIds, line.id]);
-		}
-	}, [line.id, checkedIds]);
+		toggleCheckedId(line.id);
+	}, [line.id, toggleCheckedId]);
 
 	const style = useMemo(
 		() => [
@@ -122,13 +97,12 @@ const TableRow: FC<{
 		]
 	);
 
-	const routingStats = useAppSelector(selectStats);
-	const stats = line.id !== routingLineId ? line.stats : routingStats;
+	const stats = stats_ ?? line.stats;
 
 	return (
 		<View style={style}>
 			<View style={styleCell}>
-				{line.id !== routingLineId && (
+				{!isRoutingLine && (
 					<ButtonHighlight
 						mode="text"
 						compact={true}
@@ -142,7 +116,7 @@ const TableRow: FC<{
 					</ButtonHighlight>
 				)}
 
-				{line.id === routingLineId && (
+				{isRoutingLine && (
 					<ButtonHighlight
 						mode="text"
 						compact={true}
