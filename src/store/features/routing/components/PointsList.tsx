@@ -18,7 +18,7 @@ import MaterialIcons from '@react-native-vector-icons/material-icons/static';
 import formatcoords from 'formatcoords';
 import { get, omit, pick } from 'lodash-es';
 import { lineString } from '@turf/turf';
-import { useMutation } from '@tanstack/react-query';
+import { mutationOptions, useMutation, UseMutationOptions } from '@tanstack/react-query';
 
 /**
  * Internal dependencies
@@ -235,20 +235,24 @@ const DraggableItem: FC<{
 
 	const [isDeleting, setIsDeleting] = useState(false);
 
-	const mutation = useMutation({
-		mutationFn: (id: number) => deleteRoutingPoint(id),
-		onMutate: async (_, context) => {
-			await context.client.cancelQueries({ queryKey: ['route', routeId] });
-			setIsDeleting(true);
-		},
-		onSuccess: async (_result, _variables, _onMutateResult, context) => {
-			await context.client.invalidateQueries({ queryKey: ['route', routeId] });
-			dispatch(processRouting());
-		},
-		onSettled: () => {
-			setIsDeleting(false);
-		},
-	});
+	const mutationOptions: UseMutationOptions<void, Error, number, void> = useMemo(
+		() => ({
+			mutationFn: deleteRoutingPoint,
+			onMutate: async (_, context) => {
+				await context.client.cancelQueries({ queryKey: ['route', routeId] });
+				setIsDeleting(true);
+			},
+			onSuccess: async (_result, _variables, _onMutateResult, context) => {
+				await context.client.invalidateQueries({ queryKey: ['route', routeId] });
+				dispatch(processRouting());
+			},
+			onSettled: () => {
+				setIsDeleting(false);
+			},
+		}),
+		[routeId]
+	);
+	const mutation = useMutation(mutationOptions);
 
 	const handleDeletePoint = useCallback(() => {
 		mutation.mutate(item.id);
@@ -324,25 +328,29 @@ const PointsList: FC<{
 
 	const [optimisticPoints, setOptimisticPoints] = useState<undefined | RoutingPoint[]>(undefined);
 
-	const mutation = useMutation({
-		mutationFn: (newPoints: RoutingPoint[]) =>
-			updateRoute(routeId, {
-				point_order: newPoints.map((p) => p.id),
-			}),
-		onMutate: async (newPoints, context) => {
-			await context.client.cancelQueries({ queryKey: ['route', routeId] });
-			setOptimisticPoints(newPoints);
-		},
-		onSuccess: async (_result, _variables, _onMutateResult, context) => {
-			await context.client.invalidateQueries({ queryKey: ['route', routeId] });
-			dispatch(processRouting());
-		},
-		onSettled: () => {
-			setScrollEnabled(true);
-			setDraggingItemIndex(undefined);
-			setOptimisticPoints(undefined);
-		},
-	});
+	const mutationOptions: UseMutationOptions<void, Error, RoutingPoint[], void> = useMemo(
+		() => ({
+			mutationFn: (newPoints: RoutingPoint[]) =>
+				updateRoute(routeId, {
+					point_order: newPoints.map((p) => p.id),
+				}),
+			onMutate: async (newPoints, context) => {
+				await context.client.cancelQueries({ queryKey: ['route', routeId] });
+				setOptimisticPoints(newPoints);
+			},
+			onSuccess: async (_result, _variables, _onMutateResult, context) => {
+				await context.client.invalidateQueries({ queryKey: ['route', routeId] });
+				dispatch(processRouting());
+			},
+			onSettled: () => {
+				setScrollEnabled(true);
+				setDraggingItemIndex(undefined);
+				setOptimisticPoints(undefined);
+			},
+		}),
+		[routeId]
+	);
+	const mutation = useMutation(mutationOptions);
 
 	const points = useMemo(
 		() =>

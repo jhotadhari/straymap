@@ -9,7 +9,7 @@ import { MapLayerMarkerModule, MapLayerPathSlopeGradientModule } from 'react-nat
 import { usePrevious } from 'victory-native';
 import Popover, { PopoverPlacement } from 'react-native-popover-view';
 import { point } from '@turf/turf';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, UseMutationOptions } from '@tanstack/react-query';
 import { Feature, GeoJsonProperties, Point } from 'geojson';
 
 /**
@@ -72,7 +72,12 @@ const IconActions = ({ style }: { style: TextStyle }) => {
 		[]
 	);
 
-	const mutationAppendPoint = useMutation({
+	const mutationAppendPointOptions : UseMutationOptions<{
+		id: number;
+	}[] | undefined, Error, {
+		feature: Feature<Point, GeoJsonProperties>;
+		profile: RoutingProfile;
+	}, void> = useMemo( () => ({
 		mutationFn: ({
 			feature,
 			profile,
@@ -96,7 +101,8 @@ const IconActions = ({ style }: { style: TextStyle }) => {
 			await context.client.invalidateQueries({ queryKey: ['route', routeId] });
 			dispatch(processRouting());
 		},
-	});
+	}), [routeId] ) ;
+	const mutationAppendPoint = useMutation( mutationAppendPointOptions );
 
 	const getNextProfile = useCallback(() => {
 		const lastPoint = points && points.length ? points[points.length - 1] : undefined;

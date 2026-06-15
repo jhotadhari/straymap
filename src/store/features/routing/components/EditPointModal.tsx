@@ -18,7 +18,7 @@ import { useAppDispatch } from '../../../hooks';
 import { RoutingPoint, RoutingProfile } from '../types';
 import { updateRoutingPoint } from '../db/actionsRoutingPoint';
 import { deleteSegmentByKeyVal, processRouting } from '../slice';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, UseMutationOptions } from '@tanstack/react-query';
 import useRoute from '../hooks/useRoute';
 
 const ProfileRowControl = ({
@@ -90,21 +90,25 @@ const EditPointModal: FC<{
 		[points, editPoint.id]
 	);
 
-	const mutation = useMutation({
-		mutationFn: (profile: RoutingProfile) =>
-			updateRoutingPoint(editPoint.id, {
-				profile: profile,
-			}),
-		onMutate: async (_, context) => {
-			await context.client.cancelQueries({ queryKey: ['route', routeId] });
-		},
-		onSuccess: async (_result, _variables, _onMutateResult, context) => {
-			await context.client.invalidateQueries({ queryKey: ['route', routeId] });
-			dispatch(deleteSegmentByKeyVal('fromId', editPoint.id));
-			dispatch(processRouting());
-			setEditPoint(undefined);
-		},
-	});
+	const mutationOptions: UseMutationOptions<void, Error, RoutingProfile, void> = useMemo(
+		() => ({
+			mutationFn: (profile: RoutingProfile) =>
+				updateRoutingPoint(editPoint.id, {
+					profile: profile,
+				}),
+			onMutate: async (_, context) => {
+				await context.client.cancelQueries({ queryKey: ['route', routeId] });
+			},
+			onSuccess: async (_result, _variables, _onMutateResult, context) => {
+				await context.client.invalidateQueries({ queryKey: ['route', routeId] });
+				dispatch(deleteSegmentByKeyVal('fromId', editPoint.id));
+				dispatch(processRouting());
+				setEditPoint(undefined);
+			},
+		}),
+		[editPoint.id, routeId]
+	);
+	const mutation = useMutation(mutationOptions);
 
 	const onDismiss = useCallback(() => {
 		if (!isEqual(editPoint?.profile, point?.profile)) {

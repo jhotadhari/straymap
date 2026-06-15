@@ -8,6 +8,7 @@ import React, {
 	SetStateAction,
 	useCallback,
 	useContext,
+	useMemo,
 	useState,
 } from 'react';
 import { Text } from 'react-native-paper';
@@ -26,7 +27,7 @@ import PointsList from '../../../routing/components/PointsList';
 import EditPointModal from '../../../routing/components/EditPointModal';
 import { setIsRouting } from '../../../routing/slice';
 import { createRoute, deleteRoute } from '../../../routing/db/actionsRoute';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, UseMutationOptions } from '@tanstack/react-query';
 import { deleteLine } from '../../../lines/db/actionsLine';
 import useRoute from '../../../routing/hooks/useRoute';
 
@@ -54,12 +55,12 @@ const DisplayComponent: FC<{
 
 	const [isToggling, setIsToggling] = useState(false);
 
-	const createRouteMutation = useMutation({
-		mutationFn: () => createRoute(),
+	const createMutationOptions : UseMutationOptions<number | undefined> = useMemo( () => ( {
+		mutationFn: createRoute,
 		onMutate: async () => {
 			setIsToggling(true);
 		},
-		onSuccess: async (newRouteId, _variables, _onMutateResult, context) => {
+		onSuccess: async (newRouteId) => {
 			if (newRouteId) {
 				dispatch(setIsRouting(newRouteId));
 				expand(false);
@@ -68,9 +69,10 @@ const DisplayComponent: FC<{
 		onSettled: () => {
 			setIsToggling(false);
 		},
-	});
+	}), [] );
+	const createRouteMutation = useMutation( createMutationOptions );
 
-	const deleteMutation = useMutation({
+	const deleteMutationOptions : UseMutationOptions = useMemo( () => ( {
 		mutationFn: () =>
 			Promise.all([
 				deleteRoute(routeId),
@@ -78,19 +80,22 @@ const DisplayComponent: FC<{
 			]),
 		onMutate: async (_, context) => {
 			await context.client.cancelQueries({ queryKey: ['route', routeId] });
-			await context.client.cancelQueries({ queryKey: ['linesMeta'] });
+			await context.client.cancelQueries({ queryKey: ['lines'] });
+			await context.client.cancelQueries({ queryKey: ['lineGeom', routingLineId] });
 			setIsToggling(true);
 		},
 		onSuccess: async (_, _variables, _onMutateResult, context) => {
 			expand(false);
 			dispatch(setIsRouting(false));
 			await context.client.invalidateQueries({ queryKey: ['route', routeId] });
-			await context.client.invalidateQueries({ queryKey: ['linesMeta'] });
+			await context.client.invalidateQueries({ queryKey: ['lines'] });
+			await context.client.invalidateQueries({ queryKey: ['lineGeom', routingLineId] });
 		},
 		onSettled: () => {
 			setIsToggling(false);
 		},
-	});
+	}), [routeId,routingLineId] );
+	const deleteMutation = useMutation(deleteMutationOptions);
 
 	const handleToggleRouting = useCallback(async () => {
 		if (routeId) {
