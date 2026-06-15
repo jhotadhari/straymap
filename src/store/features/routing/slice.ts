@@ -72,14 +72,14 @@ export const routingSlice = createSlice({
 			const segmentRecordId = getSegmentRecordId(action.payload);
 			state.segments[segmentRecordId] = action.payload;
 		},
-		deleteSegment: (state, action: PayloadAction<RoutingSegment | string>) => {
-			const segmentRecordId =
-				'string' === typeof action.payload
-					? action.payload
-					: getSegmentRecordId(action.payload);
-			if ( Object.keys( state.segments ).includes( segmentRecordId ) ) {
-				delete state.segments[segmentRecordId];
-			}
+		deleteSegments: (state, action: PayloadAction<(RoutingSegment | string)[]>) => {
+			action.payload.forEach((segOrId) => {
+				const segmentRecordId =
+					'string' === typeof segOrId ? segOrId : getSegmentRecordId(segOrId);
+				if (Object.keys(state.segments).includes(segmentRecordId)) {
+					delete state.segments[segmentRecordId];
+				}
+			});
 		},
 		setMarkerLayerUuid: (state, action: PayloadAction<RoutingState['markerLayerUuid']>) => {
 			state.markerLayerUuid = action.payload;
@@ -110,9 +110,8 @@ export const routingSlice = createSlice({
 export const {
 	setInitialized,
 	setIsRouting,
-	// setSegments: setSegmentsAction,
 	setSegment,
-	deleteSegment,
+	deleteSegments,
 	setMarkerLayerUuid,
 	setPathLayerUuids,
 	setMovingPointIdx,
@@ -131,7 +130,7 @@ export const deleteSegmentByKeyVal = (key: keyof RoutingSegment, val: any): AppT
 		} = getState();
 		const segment = Object.values(segments).find((seg) => get(seg, key) === val);
 		if (segment) {
-			dispatch(routingSlice.actions.deleteSegment(segment));
+			dispatch(routingSlice.actions.deleteSegments([segment]));
 		}
 	};
 };
@@ -160,6 +159,26 @@ export const processRouting = (options?: {
 		} = getState();
 
 		const points = await getPointsForRouteId(routeId);
+
+		// Delete segments not used anymore.
+		const newSegmentRecordIds = points
+			.map((point, pointIdx) => {
+				if (pointIdx >= points.length - 1) {
+					return;
+				}
+				const nextPoint = points[pointIdx + 1];
+				const segmentRecordId = [
+					point.id,
+					nextPoint.id,
+				].join('_');
+				return segmentRecordId;
+			})
+			.filter((a) => undefined !== a);
+		dispatch(
+			routingSlice.actions.deleteSegments(
+				difference(Object.keys(segments), newSegmentRecordIds)
+			)
+		);
 
 		const updatedSegments = await new Promise<Record<string, RoutingSegment>>(
 			(resolveOuter) => {
@@ -251,11 +270,6 @@ export const processRouting = (options?: {
 					});
 			}
 		);
-
-		// Delete segments not used anymore.
-		difference(Object.keys(segments), Object.keys(updatedSegments)).forEach((fromId_toId) => {
-			dispatch(routingSlice.actions.deleteSegment(fromId_toId));
-		});
 
 		if (routeId) {
 			if (false !== options?.updateLine) {
