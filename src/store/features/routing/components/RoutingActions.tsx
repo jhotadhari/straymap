@@ -54,14 +54,14 @@ const useToggleRouting = ({
 			onSuccess: async (newRouteId) => {
 				if (newRouteId) {
 					dispatch(setIsRouting(newRouteId));
-					expand(false);
+					expand(0.35);
 				}
 			},
 			onSettled: () => {
 				setIsToggling(false);
 			},
 		}),
-		[]
+		[expand]
 	);
 	const createRouteMutation = useMutation(createMutationOptions);
 

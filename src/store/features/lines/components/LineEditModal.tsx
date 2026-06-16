@@ -123,7 +123,7 @@ const LineEditModal: FC = () => {
 					onPress={() => {
 						if (route?.id) {
 							dispatch(setIsRouting(route.id));
-							activateRoutingDrawerItem();
+							activateRoutingDrawerItem(0.35);
 						}
 						onDismiss();
 					}}

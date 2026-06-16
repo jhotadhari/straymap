@@ -18,14 +18,16 @@ const useActivateDrawerItem = (key: string) => {
 	const { drawerControlsRef } = useContext(AppContext);
 	const drawerSideWithRouting = useAppSelector((state) => selectSideForKey(state, key));
 
-	const activateDrawerItem = useCallback(() => {
+	const activateDrawerItem = useCallback((expanded?: number | boolean) => {
 		if (drawerSideWithRouting) {
 			dispatch(
 				setActiveKey({
 					activeKey: key,
 				})
 			);
-			(get(drawerControlsRef?.current, drawerSideWithRouting) as DrawerControl).expand(true);
+			(get(drawerControlsRef?.current, drawerSideWithRouting) as DrawerControl).expand(
+				undefined !== expanded ? expanded : true
+			);
 		}
 	}, [
 		drawerSideWithRouting,

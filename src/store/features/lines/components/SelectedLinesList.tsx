@@ -28,7 +28,6 @@ const LineRow: FC<{
 	idx: number;
 	visible: boolean;
 }> = ({ line, idx, visible }) => {
-
 	const dispatch = useAppDispatch();
 
 	const activateRoutingDrawerItem = useActivateDrawerItem('routing');
@@ -55,9 +54,13 @@ const LineRow: FC<{
 
 	const stats = (line.id !== routingLineId ? line?.stats : routingStats) ?? {};
 
+	const handleActivateRouting = useCallback(
+		() => activateRoutingDrawerItem(0.35),
+		[activateRoutingDrawerItem]
+	);
+
 	return (
 		<View style={[styles.row, style]}>
-
 			{line.id !== routingLineId && (
 				<ButtonHighlight
 					style={styles.noShrink}
@@ -77,7 +80,7 @@ const LineRow: FC<{
 					style={styles.noShrink}
 					mode="text"
 					compact={true}
-					onPress={activateRoutingDrawerItem}
+					onPress={handleActivateRouting}
 				>
 					<IconRouting color={theme.colors.primary} />
 				</ButtonHighlight>

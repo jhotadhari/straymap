@@ -14,7 +14,7 @@ export type DrawerContextType = {
 	height: number;
 	getIsFullyCollapsed: () => boolean;
 	setActiveItemKey: (newActiveKey?: string) => void;
-	expand: (expanded: boolean) => void;
+	expand: (expanded: number | boolean) => void;
 };
 
 const DrawerContext = createContext<DrawerContextType>({
@@ -24,7 +24,7 @@ const DrawerContext = createContext<DrawerContextType>({
 	height: 0,
 	getIsFullyCollapsed: () => true,
 	setActiveItemKey: (newActiveKey?: string) => {},
-	expand: (expanded: boolean) => {},
+	expand: (expanded: number | boolean) => {},
 });
 
 export default DrawerContext;
