@@ -11,14 +11,14 @@ import React, {
 	useMemo,
 	useState,
 } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import DraggableGrid from 'react-native-draggable-grid';
 import { Icon, Text, useTheme } from 'react-native-paper';
 import MaterialIcons from '@react-native-vector-icons/material-icons/static';
 import formatcoords from 'formatcoords';
 import { get, omit, pick } from 'lodash-es';
 import { lineString } from '@turf/turf';
-import { mutationOptions, useMutation, UseMutationOptions } from '@tanstack/react-query';
+import { useMutation, UseMutationOptions } from '@tanstack/react-query';
 
 /**
  * Internal dependencies
@@ -36,6 +36,7 @@ import { deleteRoutingPoint } from '../db/actionsRoutingPoint';
 import { LineStats as LineStatsType } from '../../lines/types';
 import LineStats from '../../lines/components/LineStats';
 import useRoute from '../hooks/useRoute';
+import EditPointModal from './EditPointModal';
 
 const itemHeight = 180;
 
@@ -309,11 +310,14 @@ const DraggableItem: FC<{
 };
 
 const itemPaddingH = 16;
-const PointsList: FC<{
-	setScrollEnabled: Dispatch<SetStateAction<boolean>>;
-	setEditPoint: Dispatch<SetStateAction<undefined | RoutingPoint>>;
-}> = ({ setScrollEnabled, setEditPoint }) => {
+const PointsList: FC = () => {
 	const { width } = useContext(DrawerContext);
+
+	const [editPoint, setEditPoint] = useState<undefined | RoutingPoint>(undefined);
+
+
+	const [scrollEnabled, setScrollEnabled] = useState(true);
+
 
 	const dispatch = useAppDispatch();
 
@@ -389,13 +393,22 @@ const PointsList: FC<{
 	);
 
 	return (
-		<View
+		<ScrollView
+			scrollEnabled={scrollEnabled}
 			style={{
-				height: itemHeight * points.length + 8,
+				// height: itemHeight * points.length + 8,
 				width,
 				paddingHorizontal: itemPaddingH,
 			}}
 		>
+
+			{editPoint && (
+				<EditPointModal
+					editPoint={editPoint}
+					setEditPoint={setEditPoint}
+				/>
+			)}
+
 			<DraggableGrid
 				itemHeight={itemHeight}
 				numColumns={1}
@@ -404,7 +417,7 @@ const PointsList: FC<{
 				onDragStart={handleDragStart}
 				onDragRelease={handleDragRelease}
 			/>
-		</View>
+		</ScrollView>
 	);
 };
 

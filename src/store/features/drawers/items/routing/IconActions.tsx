@@ -51,13 +51,13 @@ const IconActions = ({ style }: { style: TextStyle }) => {
 	const { t } = useTranslation();
 	const [menuVisible, setMenuVisible] = useState(false);
 
-	// open menu on start routing, hopefully after drawer has closed.
-	const prevIsRouting = usePrevious(routeId);
-	useEffect(() => {
-		if (routeId && !prevIsRouting) {
-			runAfterInteractions(() => setMenuVisible(true), 300);
-		}
-	}, [routeId, prevIsRouting]);
+	// // open menu on start routing, hopefully after drawer has closed.
+	// const prevIsRouting = usePrevious(routeId);
+	// useEffect(() => {
+	// 	if (routeId && !prevIsRouting) {
+	// 		runAfterInteractions(() => setMenuVisible(true), 300);
+	// 	}
+	// }, [routeId, prevIsRouting]);
 
 	const dismissMenu = useCallback(
 		(cleanTriggeredMarkerIdx?: boolean, cleanTriggeredSegment?: boolean) => {
