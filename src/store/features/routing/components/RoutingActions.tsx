@@ -1,14 +1,12 @@
 /**
  * External dependencies
  */
-import { FC, useCallback, useContext, useMemo, useState } from 'react';
+import { FC, Fragment, useCallback, useContext, useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useMutation, UseMutationOptions, useQuery } from '@tanstack/react-query';
 import { Icon, Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { point } from '@turf/turf';
 import { get } from 'lodash-es';
-import { Feature, GeoJsonProperties, Point } from 'geojson';
 
 /**
  * Internal dependencies
@@ -20,10 +18,7 @@ import { deleteLine } from '../../lines/db/actionsLine';
 import DrawerContext from '../../drawers/DrawerContext';
 import { useAppDispatch } from '../../../hooks';
 import useRoute from '../hooks/useRoute';
-import { processRouting, setIsRouting } from '../slice';
-import { RoutingPoint, RoutingProfile } from '../types';
-import { MapContext } from '../../../../Context';
-import { createRoutingPoints } from '../db/actionsRoutingPoint';
+import { setIsRouting } from '../slice';
 import { queryLinesWithoutGeom } from '../../lines/db/queryFns';
 import { LinePartial } from '../../lines/types';
 import { setLineTemp } from '../../lines/slice';
@@ -124,6 +119,8 @@ const DrawerActions: FC = () => {
 
 	const dispatch = useAppDispatch();
 
+	const { side } = useContext(DrawerContext);
+
 	const {
 		id: routeId,
 		line_id: routingLineId,
@@ -169,6 +166,9 @@ const DrawerActions: FC = () => {
 					style={[
 						itemStyles.buttonRow,
 						styles.flexRow,
+						'left' === side && {
+							flexDirection: 'row-reverse',
+						},
 					]}
 				>
 					{routeId && (
@@ -211,34 +211,39 @@ const DrawerActions: FC = () => {
 				</View>
 			</View>
 
-			{line && (
+			<View
+				style={[
+					itemStyles.item,
+					styles.item,
+				]}
+			>
 				<View
 					style={[
-						itemStyles.item,
-						styles.item,
+						itemStyles.buttonRow,
+						styles.flexRow,
+						'left' === side && {
+							flexDirection: 'row-reverse',
+						},
 					]}
 				>
-					<View
-						style={[
-							itemStyles.buttonRow,
-							styles.flexRow,
-						]}
-					>
-						<Text>{line?.title}</Text>
+					{line && (
+						<Fragment>
+							<Text>{line?.title}</Text>
 
-						<ButtonHighlight
-							mode="outlined"
-							onPress={handleEditPress}
-							disabled={isToggling}
-						>
-							<Icon
-								size={20}
-								source="cog"
-							/>
-						</ButtonHighlight>
-					</View>
+							<ButtonHighlight
+								mode="outlined"
+								onPress={handleEditPress}
+								disabled={isToggling}
+							>
+								<Icon
+									size={20}
+									source="cog"
+								/>
+							</ButtonHighlight>
+						</Fragment>
+					)}
 				</View>
-			)}
+			</View>
 		</View>
 	);
 };
