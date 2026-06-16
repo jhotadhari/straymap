@@ -35,11 +35,6 @@ export const initializeFromStorage = (store: AppStore) => {
 				const newSettings = JSON.parse(newSettingsStr) as Partial<RoutingState>;
 				if (newSettings?.isRouting) {
 					store.dispatch(setIsRouting(newSettings.isRouting));
-					store.dispatch(
-						processRouting({
-							updateLine: false,
-						})
-					);
 				}
 			}
 			store.dispatch(setInitialized(true));
@@ -82,5 +77,18 @@ startAppListening({
 	matcher: isAnyOf(setIsRouting),
 	effect: async (action, listenerApi) => {
 		saveToStorage(listenerApi.getState().routing, action.type);
+	},
+});
+
+startAppListening({
+	actionCreator: setIsRouting,
+	effect: async (action, listenerApi) => {
+		if (action.payload) {
+			listenerApi.dispatch(
+				processRouting({
+					updateLine: false,
+				})
+			);
+		}
 	},
 });

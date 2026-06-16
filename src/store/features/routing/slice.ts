@@ -9,7 +9,7 @@ import { difference, get } from 'lodash-es';
  * Internal dependencies
  */
 import { SliceSettingsBase } from '../../../types';
-import { RoutingPoint, RoutingSegment, RoutingTriggeredSegment } from './types';
+import { RoutingSegment, RoutingTriggeredSegment } from './types';
 import { AppThunk } from '../../store';
 import { aggregateSegmentsToCoords, getCoordsFromRouting, getSegmentRecordId } from './utils';
 import { setLineSelected } from '../lines/slice';
@@ -18,8 +18,6 @@ import { createLines, updateLine } from '../lines/db/actionsLine';
 import { updateRoute } from './db/actionsRoute';
 import { GetTrackParams } from 'react-native-brouter';
 import { queryClient } from '../../../db/clients';
-import { lineStringToStats } from '../../../lib/utils';
-import { LineStats } from '../lines/types';
 import { queryRoute } from './db/queryFns';
 
 export interface RoutingSettings {
@@ -60,10 +58,8 @@ export const routingSlice = createSlice({
 			state.initialized = action.payload;
 		},
 		setIsRouting: (state, action: PayloadAction<RoutingState['isRouting']>) => {
-			if (state.isRouting !== action.payload || !action.payload) {
-				state.segments = {};
-				state.movingPointIdx = undefined;
-			}
+			state.segments = {};
+			state.movingPointIdx = undefined;
 			state.isRouting = action.payload;
 		},
 		setSegment: (state, action: PayloadAction<RoutingSegment>) => {

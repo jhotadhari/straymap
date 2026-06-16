@@ -35,3 +35,33 @@ export const queryRoute = ({ queryKey }: { queryKey: (string | number | false)[]
 			});
 	});
 };
+
+
+/**
+ *
+ * ??? Better to unify this with queryRoute
+ *
+ * Used with:
+ *
+ * 	queryKey: ['routeForLine', lineId],
+ */
+export const queryRouteForLine = ({ queryKey }: { queryKey: (string | number | undefined)[] }) => {
+	if (queryKey.length < 2) {
+		return Promise.resolve(null);
+	}
+	const [_key, lineId] = queryKey;
+	return new Promise<Route | null>((resolve, reject) => {
+		if (!lineId || 'string' === typeof lineId ) {
+			return resolve(null);
+		}
+		fetchRoutes({
+			lineId,
+		})
+			.then((routes) => {
+				resolve(routes.length ? routes[0] : null);
+			})
+			.catch((error) => {
+				reject(error);
+			});
+	});
+};

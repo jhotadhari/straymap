@@ -27,13 +27,14 @@ import { STATS_FIELDS } from '../../lines/types';
 export interface FetchRoutesParams {
 	routeId?: number | false;
 	pointId?: number;
+	lineId?: number;
 }
 
 const statsFields = [...STATS_FIELDS] as string[];
 
 export const fetchRoutes = (params?: FetchRoutesParams) => {
 	return new Promise<Route[]>((resolve, reject) => {
-		const { routeId, pointId } = params ?? {};
+		const { routeId, pointId, lineId } = params ?? {};
 
 		if (false === routeId) {
 			return [];
@@ -68,7 +69,8 @@ export const fetchRoutes = (params?: FetchRoutesParams) => {
 		query.where(
 			and(
 				routeId ? eq(routesTable.id, routeId) : undefined,
-				pointId ? eq(routingPointsTable.id, pointId) : undefined
+				pointId ? eq(routingPointsTable.id, pointId) : undefined,
+				lineId ? eq(routesTable.line_id, lineId) : undefined
 			)
 		);
 
