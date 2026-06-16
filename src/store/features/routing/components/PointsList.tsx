@@ -4,6 +4,7 @@
 import React, {
 	Dispatch,
 	FC,
+	ReactNode,
 	SetStateAction,
 	useCallback,
 	useContext,
@@ -12,7 +13,6 @@ import React, {
 	useState,
 } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import DraggableGrid from 'react-native-draggable-grid';
 import { Icon, Text, useTheme } from 'react-native-paper';
 import MaterialIcons from '@react-native-vector-icons/material-icons/static';
 import formatcoords from 'formatcoords';
@@ -37,8 +37,10 @@ import { LineStats as LineStatsType } from '../../lines/types';
 import LineStats from '../../lines/components/LineStats';
 import useRoute from '../hooks/useRoute';
 import EditPointModal from './EditPointModal';
+import Sortable, { DragStartParams, SortableFlexDragEndParams } from 'react-native-sortables';
+import useDropIndicatorStyle from '../../../../compose/useDropIndicatorStyle';
 
-const itemHeight = 180;
+const iconSize = 25;
 
 const Segment: FC<{
 	item: RoutingPoint;
@@ -56,36 +58,48 @@ const Segment: FC<{
 	const segment = Object.values(segments).find((seg) => seg.fromId === item.id);
 
 	const StateIcon = useCallback(() => {
+		let node: undefined | ReactNode = undefined;
+
 		switch (true) {
 			case !!(segment && segment?.errorMsg):
 				// error
-				return (
+				node = (
 					<MaterialIcons
 						name="error"
-						size={25}
+						size={iconSize}
 						color={theme.colors.errorContainer}
 					/>
 				);
 			case !!(segment && segment?.isFetching):
 				// fetching
-				return <LoadingIndicator style={{ marginRight: 1, paddingTop: 1 }} />;
+				node = <LoadingIndicator style={{ marginRight: 1, paddingTop: 1 }} />;
 			case !segment || !segment?.positions:
 				// some placeholder until start fetching
-				return (
+				node = (
 					<Icon
 						source="dots-horizontal"
-						size={25}
+						size={iconSize}
 					/>
 				);
 			// case ( !! ( segment && ! segment?.isFetching && segment?.positions ) ):
 			//     // ok
-			//     return <Icon
+			//     node = <Icon
 			//         source="check"
 			//         size={ 25 }
 			//         color={ get( theme, ['colors','success'], undefined ) }
 			//     />;
 		}
-		return undefined;
+
+		return node ? (
+			<View
+				style={{
+					// marginLeft: -8,
+					marginVertical: -4,
+				}}
+			>
+				{node}
+			</View>
+		) : undefined;
 	}, [segment]);
 
 	const refreshSegment = useCallback(() => {
@@ -113,12 +127,19 @@ const Segment: FC<{
 	}, [segment?.positions]);
 
 	// Hide if dragging
-	if (
-		undefined !== draggingItemIndex &&
-		(draggingItemIndex === order || draggingItemIndex - 1 === order)
-	) {
-		return undefined;
-	}
+	const hidden = undefined !== draggingItemIndex;
+	// const hidden = undefined !== draggingItemIndex &&
+	// 	(draggingItemIndex === order || draggingItemIndex - 1 === order);
+
+	const styleSegmentRow = useMemo(
+		() => [
+			styles.segmentRow,
+			hidden && {
+				opacity: 0,
+			},
+		],
+		[hidden]
+	);
 
 	return (
 		<View
@@ -132,7 +153,7 @@ const Segment: FC<{
 				paddingLeft: 8,
 			}}
 		>
-			<View style={styles.segmentRow}>
+			<View style={styleSegmentRow}>
 				<View style={styles.segmentRowContent}>
 					<StateIcon />
 
@@ -154,30 +175,39 @@ const Segment: FC<{
 					<ButtonHighlight
 						compact={true}
 						onPress={refreshSegment}
+						style={{
+							marginLeft: -8,
+							marginVertical: -4,
+						}}
 					>
 						<Icon
 							source="refresh"
-							size={25}
+							size={iconSize}
 						/>
 					</ButtonHighlight>
 				</View>
 			</View>
 
-			{!segment?.isFetching && (
-				<View style={styles.segmentRow}>
-					<LineStats
-						stats={pick(lineStats, ['minZ', 'maxZ'])}
-						round={0}
-					/>
-					<View style={styles.segmentRowAction}>
-						<ButtonHighlight compact={true}>
-							<View style={{ width: 25, height: 25 }} />
-						</ButtonHighlight>
-					</View>
+			{/* {!segment?.isFetching && ( */}
+			<View style={styleSegmentRow}>
+				<LineStats
+					stats={pick(lineStats, ['minZ', 'maxZ'])}
+					round={0}
+				/>
+				<View style={styles.segmentRowAction}>
+					<ButtonHighlight compact={true}>
+						<View
+							style={{
+								width: iconSize,	// icon size as empty placeholder
+								height: 1,	// any number to prevent layout jumps on refresh process routing.
+							}}
+						/>
+					</ButtonHighlight>
 				</View>
-			)}
+			</View>
+			{/* )} */}
 
-			<View style={styles.segmentRow}>
+			<View style={styleSegmentRow}>
 				<View
 					style={[
 						styles.segmentRowContent,
@@ -202,11 +232,14 @@ const Segment: FC<{
 					<ButtonHighlight
 						compact={true}
 						onPress={handleSetEdit}
-						style={{ marginLeft: -8 }}
+						style={{
+							marginLeft: -8,
+							marginVertical: -4,
+						}}
 					>
 						<Icon
 							source="cog"
-							size={25}
+							size={iconSize}
 						/>
 					</ButtonHighlight>
 				</View>
@@ -257,9 +290,7 @@ const DraggableItem: FC<{
 			style={{
 				width,
 				paddingHorizontal: 8,
-				height: itemHeight,
 				justifyContent: 'flex-start',
-
 				...(isDeleting && { backgroundColor: '#ff0000' }), // ??? we need dome other nice placeholder.
 			}}
 			key={item.id}
@@ -271,7 +302,10 @@ const DraggableItem: FC<{
 					flexDirection: 'row',
 				}}
 			>
-				<View style={{ flexDirection: 'row', flexGrow: 1, gap: 8 }}>
+				<Sortable.Handle
+					mode="draggable"
+					style={{ flexDirection: 'row', flexGrow: 1, gap: 8 }}
+				>
 					<Text>{order + 1}</Text>
 					<Text>{item.id}</Text>
 					<Text>
@@ -283,15 +317,19 @@ const DraggableItem: FC<{
 								decimalPlaces: Math.min(4, 99),
 							})}
 					</Text>
-				</View>
+				</Sortable.Handle>
 
 				<ButtonHighlight
 					compact={true}
 					onPress={handleDeletePoint}
+					style={{
+						marginLeft: -8,
+						marginVertical: -4,
+					}}
 				>
 					<Icon
 						source="delete"
-						size={25}
+						size={iconSize}
 					/>
 				</ButtonHighlight>
 			</View>
@@ -315,9 +353,7 @@ const PointsList: FC = () => {
 
 	const [editPoint, setEditPoint] = useState<undefined | RoutingPoint>(undefined);
 
-
 	const [scrollEnabled, setScrollEnabled] = useState(true);
-
 
 	const dispatch = useAppDispatch();
 
@@ -353,7 +389,7 @@ const PointsList: FC = () => {
 		() =>
 			(optimisticPoints ?? (points_ || [])).map((point) => ({
 				...point,
-				key: point.id,
+				key: point.id + '',
 			})),
 		[
 			points_,
@@ -363,45 +399,44 @@ const PointsList: FC = () => {
 
 	const [draggingItemIndex, setDraggingItemIndex] = useState<undefined | number>(undefined);
 
-	const renderItem = (item: RoutingPoint, order: number) => (
-		<View key={item.id}>
-			<DraggableItem
-				item={item}
-				width={width - itemPaddingH * 2}
-				order={order}
-				draggingItemIndex={draggingItemIndex}
-				setEditPoint={setEditPoint}
-				hasNext={points.length > order + 1}
-			/>
-		</View>
-	);
-
 	const handleDragStart = useCallback(
-		(item: RoutingPoint) => {
+		(params: DragStartParams) => {
 			setScrollEnabled(false);
-			const newDraggingItemIndex = points.findIndex((point) => point.id === item.id);
+			const newDraggingItemIndex = points.findIndex(
+				(point) => point.id === parseInt(params.key.replace('.$', ''), 10)
+			);
 			setDraggingItemIndex(-1 === newDraggingItemIndex ? undefined : newDraggingItemIndex);
 		},
 		[points]
 	);
 
-	const handleDragRelease = useCallback(
-		(newPoints: RoutingPoint[]) => {
+	const handleDragEnd = useCallback(
+		({ indexToKey }: SortableFlexDragEndParams) => {
+			const newPoints: RoutingPoint[] = indexToKey
+				.map((toKey) => {
+					return points.find((point) => point.key === toKey.replace('.$', ''));
+				})
+				.filter((a) => !!a)
+				.map((point) => omit(point, 'key'));
 			mutation.mutate(newPoints);
 		},
-		[routeId, mutation.mutate]
+		[
+			points,
+			routeId,
+			mutation.mutate,
+		]
 	);
+
+	const dropIndicatorStyle = useDropIndicatorStyle();
 
 	return (
 		<ScrollView
 			scrollEnabled={scrollEnabled}
 			style={{
-				// height: itemHeight * points.length + 8,
 				width,
 				paddingHorizontal: itemPaddingH,
 			}}
 		>
-
 			{editPoint && (
 				<EditPointModal
 					editPoint={editPoint}
@@ -409,14 +444,35 @@ const PointsList: FC = () => {
 				/>
 			)}
 
-			<DraggableGrid
-				itemHeight={itemHeight}
-				numColumns={1}
-				renderItem={renderItem}
-				data={points}
+			<Sortable.Flex
+				itemEntering={null}
+				gap={0}
+				padding={0}
+				sortEnabled={true}
+				customHandle={true}
+				showDropIndicator={true}
+				dropIndicatorStyle={dropIndicatorStyle}
+				flexDirection="column"
+				reorderTriggerOrigin="touch"
+				alignItems="center"
 				onDragStart={handleDragStart}
-				onDragRelease={handleDragRelease}
-			/>
+				onDragEnd={handleDragEnd}
+			>
+				{points.map((item: RoutingPoint, order: number) => {
+					return (
+						<View key={item.id}>
+							<DraggableItem
+								item={item}
+								width={width - itemPaddingH * 2}
+								order={order}
+								draggingItemIndex={draggingItemIndex}
+								setEditPoint={setEditPoint}
+								hasNext={points.length > order + 1}
+							/>
+						</View>
+					);
+				})}
+			</Sortable.Flex>
 		</ScrollView>
 	);
 };

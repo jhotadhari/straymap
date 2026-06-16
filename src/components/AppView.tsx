@@ -240,13 +240,13 @@ const AppView = ({
 					width={width}
 				/>
 
+				<MapLayersAttribution />
+
 				<Drawers
 					height={mapHeight || 0}
 					outerWidth={width}
 					hidden={!!uiItems?.length}
 				/>
-
-				<MapLayersAttribution />
 			</View>
 
 			<View>

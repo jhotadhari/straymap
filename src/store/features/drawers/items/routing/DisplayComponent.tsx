@@ -1,20 +1,37 @@
 /**
  * External dependencies
  */
-import React, { FC, Fragment } from 'react';
+import React, { FC, Fragment, useContext, useMemo } from 'react';
 import { View } from 'react-native';
 
 /**
  * Internal dependencies
  */
-import { itemStyles } from '../../constants';
+import { handleSize, iconSize, itemStyles } from '../../constants';
 import PointsList from '../../../routing/components/PointsList';
 import RoutingActions from '../../../routing/components/RoutingActions';
+import DrawerContext from '../../DrawerContext';
 
 const DisplayComponent: FC = () => {
+	const { height } = useContext(DrawerContext);
+
+	const style = useMemo(
+		() => [
+			itemStyles.item,
+			{
+				height: height - (handleSize - iconSize),
+			},
+		],
+		[
+			height,
+			handleSize,
+			iconSize,
+		]
+	);
+
 	return (
 		<Fragment>
-			<View style={itemStyles.item}>
+			<View style={style}>
 				<RoutingActions />
 
 				<PointsList />

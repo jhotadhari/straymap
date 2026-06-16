@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { FC, useCallback, useContext, useMemo, useState } from 'react';
+import React, { FC, useCallback, useContext, useMemo } from 'react';
 import { GestureResponderEvent, LayoutChangeEvent, View, ViewStyle } from 'react-native';
 import { get } from 'lodash-es';
 import {
@@ -23,6 +23,7 @@ import { AppContext } from '../../../../Context';
 import { setEditItemKey, setItems } from '../slice';
 import { ControlContext } from '../ControlContext';
 import { useTheme } from 'react-native-paper';
+import useDropIndicatorStyle from '../../../../compose/useDropIndicatorStyle';
 
 const Dashboard: FC<{
 	style?: ViewStyle;
@@ -98,10 +99,8 @@ const Dashboard: FC<{
 		]
 	);
 
-	// const [isDraggingKey, setIsDraggingKey] = useState<undefined | string>(undefined);
 	const handleDragStart = useCallback(
 		(params: DragStartParams) => {
-			// setIsDraggingKey(params.key.replace('.$', ''));
 			onDragStart && onDragStart(params);
 		},
 		[onDragStart]
@@ -109,22 +108,12 @@ const Dashboard: FC<{
 
 	const handleDragEnd = useCallback(
 		(params: SortableFlexDragEndParams) => {
-			// setIsDraggingKey(undefined);
 			onDragEnd && onDragEnd(params);
 		},
 		[onDragEnd]
 	);
 
-	const dropIndicatorStyle = useMemo(
-		() => ({
-			backgroundColor: theme.colors.primaryContainer,
-			borderColor: theme.colors.primary,
-			borderWidth: 1,
-			opacity: 0.5,
-			borderRadius: theme.roundness,
-		}),
-		[theme]
-	);
+	const dropIndicatorStyle = useDropIndicatorStyle();
 
 	return (
 		<ControlContext.Provider value={{ position }}>
