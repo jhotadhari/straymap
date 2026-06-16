@@ -12,7 +12,7 @@ import { without } from 'lodash-es';
  */
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { selectSelectedInfos } from '../../selectors';
-import { Line, LinePartial, LineStats } from '../../types';
+import { Line, LineStats } from '../../types';
 import { styles } from './sharedDeps';
 import TableHeader from './TableHeader';
 import TableRow, { TableRowProps } from './TableRow';
@@ -22,7 +22,6 @@ import { queryLinesWithoutGeom } from '../../db/queryFns';
 import { setLinesSelected } from '../../slice';
 import { setUiItemKeys } from '../../../ui/slice';
 import useRoute from '../../../routing/hooks/useRoute';
-import LineEditModal from '../LineEditModal';
 import useActivateDrawerItem from '../../../drawers/hooks/useActivateDrawerItem';
 
 const keyExtractor = (line: { id: number }) => line.id.toString();
@@ -44,8 +43,6 @@ const LinesTable: FC = () => {
 	const theme = useTheme();
 
 	const dispatch = useAppDispatch();
-
-	const [lineTemp, setLineTemp] = useState<undefined | LinePartial>(undefined);
 
 	const { selectedIds: onMapIds } = useAppSelector(selectSelectedInfos);
 
@@ -124,7 +121,6 @@ const LinesTable: FC = () => {
 					isOnMap={onMapIdsTemp.includes(line.id)}
 					handleRoutingBtnPress={handleRoutingBtnPress}
 					toggleCheckedId={toggleCheckedId}
-					setLineTemp={setLineTemp}
 					toggleOnMapId={toggleOnMapId}
 					isChecked={checkedIds.includes(line.id)}
 					isRoutingLine={line.id === routingLineId}
@@ -148,10 +144,6 @@ const LinesTable: FC = () => {
 
 	return (
 		<View style={styles.container}>
-			<LineEditModal
-				lineTemp={lineTemp}
-				setLineTemp={setLineTemp}
-			/>
 
 			<Header checkedIds={checkedIds} />
 

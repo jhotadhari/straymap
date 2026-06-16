@@ -8,6 +8,8 @@ export const selectInitialized = (state: RootState) => state.lines.initialized;
 
 export const selectSelected = (state: RootState) => state.lines.selected;
 
+export const selectLineTemp = (state: RootState) => state.lines.lineTemp;
+
 export const selectSelectedInfos = createAppSelector(
 	(state: RootState) => state.lines.selected,
 	(selected) => ({

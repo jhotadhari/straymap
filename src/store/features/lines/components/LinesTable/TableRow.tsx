@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { Dispatch, FC, SetStateAction, useCallback, useMemo } from 'react';
+import { FC, useCallback, useMemo } from 'react';
 import { StyleProp, TouchableWithoutFeedback, View, ViewStyle } from 'react-native';
 import { useTheme, Text, Icon } from 'react-native-paper';
 import { get, pick } from 'lodash-es';
@@ -9,13 +9,15 @@ import { get, pick } from 'lodash-es';
 /**
  * Internal dependencies
  */
-import { Line, LinePartial, LineStats as LineStatsType } from '../../types';
+import { Line, LineStats as LineStatsType } from '../../types';
 import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
 import { iconSize } from '../../../drawers/constants';
 import LineStats from '../LineStats';
 import { lineCells, statsCells, otherCells, styles } from './sharedDeps';
 import TagBadge from '../TagBadge';
 import IconRouting from '../../../drawers/items/routing/IconComponent';
+import { useAppDispatch } from '../../../../hooks';
+import { setLineTemp } from '../../slice';
 
 const OtherCell: FC<{
 	cellKey: string;
@@ -43,7 +45,6 @@ export interface TableRowProps {
 	styleCell: StyleProp<ViewStyle>;
 	idx: number;
 	isOnMap: boolean;
-	setLineTemp: Dispatch<SetStateAction<undefined| LinePartial>>;
 	handleRoutingBtnPress: () => void;
 	isChecked: boolean;
 	toggleCheckedId: (id: number) => void;
@@ -59,13 +60,14 @@ const TableRow: FC<TableRowProps> = ({
 	handleRoutingBtnPress,
 	isChecked,
 	isOnMap,
-	setLineTemp,
 	toggleCheckedId,
 	toggleOnMapId,
 	isRoutingLine,
 	stats: stats_,
 }) => {
 	const theme = useTheme();
+
+	const dispatch = useAppDispatch();
 
 	const toggleOnMap = useCallback(() => toggleOnMapId(line.id), [line.id]);
 
@@ -102,7 +104,7 @@ const TableRow: FC<TableRowProps> = ({
 	const stats = stats_ ?? line.stats;
 
 	const handleEditPress = useCallback(() => {
-		setLineTemp({ id: line.id });
+		dispatch(setLineTemp({ id: line.id }));
 	}, [line.id]);
 
 	return (

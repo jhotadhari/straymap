@@ -2,10 +2,9 @@
  * External dependencies
  */
 import { useQuery } from '@tanstack/react-query';
-import { FC, useCallback, useMemo, useState } from 'react';
+import { FC, useCallback, useMemo } from 'react';
 import { StyleSheet, View, ViewStyle } from 'react-native';
 import { useTheme, Text, Icon } from 'react-native-paper';
-import { useTranslation } from 'react-i18next';
 import { omit, pick } from 'lodash-es';
 
 /**
@@ -16,13 +15,12 @@ import { selectSelectedInfos } from '../selectors';
 import { Line, LinePartial } from '../types';
 import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
 import { iconSize } from '../../drawers/constants';
-import { setLineSelected, setLineVisible } from '../slice';
+import { setLineSelected, setLineTemp, setLineVisible } from '../slice';
 import LineStats from './LineStats';
 import TagBadge from './TagBadge';
 import IconRouting from '../../drawers/items/routing/IconComponent';
 import { queryLinesWithoutGeom } from '../db/queryFns';
 import useRoute from '../../routing/hooks/useRoute';
-import LineEditModal from './LineEditModal';
 import useActivateDrawerItem from '../../drawers/hooks/useActivateDrawerItem';
 
 const LineRow: FC<{
@@ -30,11 +28,8 @@ const LineRow: FC<{
 	idx: number;
 	visible: boolean;
 }> = ({ line, idx, visible }) => {
-	const { t } = useTranslation();
 
 	const dispatch = useAppDispatch();
-
-	const [lineTemp, setLineTemp] = useState<undefined | LinePartial>(undefined);
 
 	const activateRoutingDrawerItem = useActivateDrawerItem('routing');
 
@@ -53,7 +48,7 @@ const LineRow: FC<{
 	const toggleSelected = useCallback(() => dispatch(setLineSelected(line.id)), [line.id]);
 
 	const handleEditPress = useCallback(() => {
-		setLineTemp({ id: line.id });
+		dispatch(setLineTemp({ id: line.id }));
 	}, [line.id]);
 
 	const { line_id: routingLineId, stats: routingStats } = useRoute(['line_id', 'stats']) || {};
@@ -62,10 +57,6 @@ const LineRow: FC<{
 
 	return (
 		<View style={[styles.row, style]}>
-			<LineEditModal
-				lineTemp={lineTemp}
-				setLineTemp={setLineTemp}
-			/>
 
 			{line.id !== routingLineId && (
 				<ButtonHighlight

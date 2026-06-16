@@ -59,6 +59,7 @@ import { DashboardWrapped } from '../store/features/dashboard/components/Dashboa
 import useShowInitialSplash from '../compose/useShowInitialSplash';
 import DebugBla from '../store/features/lines/components/DebugBla';
 import LinesMapView from '../store/features/lines/components/LinesMapView';
+import LineEditModal from '../store/features/lines/components/LineEditModal';
 
 const AppView = ({
 	initialPositionRef,
@@ -257,6 +258,8 @@ const AppView = ({
 					position="bottom"
 				/>
 			</View>
+
+			<LineEditModal/>
 		</View>
 	);
 };
