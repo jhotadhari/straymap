@@ -100,7 +100,7 @@ const LinesTable: FC = () => {
 	const activateRoutingDrawerItem = useActivateDrawerItem('routing');
 
 	const handleRoutingBtnPress = useCallback(() => {
-		activateRoutingDrawerItem(0.35);
+		activateRoutingDrawerItem();
 		dispatch(setUiItemKeys([]));
 	}, [activateRoutingDrawerItem]);
 

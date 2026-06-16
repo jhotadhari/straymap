@@ -55,7 +55,7 @@ const LineRow: FC<{
 	const stats = (line.id !== routingLineId ? line?.stats : routingStats) ?? {};
 
 	const handleActivateRouting = useCallback(
-		() => activateRoutingDrawerItem(0.35),
+		() => activateRoutingDrawerItem(),
 		[activateRoutingDrawerItem]
 	);
 

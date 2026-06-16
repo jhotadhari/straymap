@@ -19,6 +19,7 @@ import { updateRoute } from './db/actionsRoute';
 import { GetTrackParams } from 'react-native-brouter';
 import { queryClient } from '../../../db/clients';
 import { queryRoute } from './db/queryFns';
+import { selectIsRouting } from './selectors';
 
 export interface RoutingSettings {
 	isRouting: false | number; // false or routeId.
@@ -100,7 +101,7 @@ export const routingSlice = createSlice({
 // Export the generated action creators for use in components.
 export const {
 	setInitialized,
-	setIsRouting,
+	setIsRouting: setIsRoutingAction,
 	setSegment,
 	deleteSegments,
 	setMarkerLayerUuid,
@@ -112,6 +113,16 @@ export const {
 
 // Export the slice reducer for use in the store configuration
 export default routingSlice.reducer;
+
+export const setIsRouting = (newIsRouting: number | false): AppThunk => {
+	return (dispatch, getState) => {
+		const isRouting = selectIsRouting(getState());
+
+		if (isRouting !== newIsRouting) {
+			dispatch(routingSlice.actions.setIsRouting(newIsRouting));
+		}
+	};
+};
 
 export const deleteSegmentByKeyVal = (key: keyof RoutingSegment, val: any): AppThunk => {
 	return (dispatch, getState) => {
