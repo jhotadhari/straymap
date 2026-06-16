@@ -27,6 +27,8 @@ import { createRoutingPoints } from '../db/actionsRoutingPoint';
 import { queryLinesWithoutGeom } from '../../lines/db/queryFns';
 import { LinePartial } from '../../lines/types';
 import { setLineTemp } from '../../lines/slice';
+import useActions from '../hooks/useActions';
+import RoutingActionsButton from './RoutingActionsButton';
 
 const useToggleRouting = ({
 	pointIds,
@@ -115,81 +117,6 @@ const useToggleRouting = ({
 	};
 };
 
-const useActions = ({ points, routeId }: { points?: RoutingPoint[]; routeId?: number }) => {
-	const { t } = useTranslation();
-
-	const dispatch = useAppDispatch();
-
-	const { currentMapEventRef } = useContext(MapContext);
-
-	const mutationAppendPointOptions: UseMutationOptions<
-		| {
-				id: number;
-		  }[]
-		| undefined,
-		Error,
-		{
-			feature: Feature<Point, GeoJsonProperties>;
-			profile: RoutingProfile;
-		},
-		void
-	> = useMemo(
-		() => ({
-			mutationFn: ({
-				feature,
-				profile,
-			}: {
-				feature: Feature<Point, GeoJsonProperties>;
-				profile: RoutingProfile;
-			}) =>
-				createRoutingPoints(
-					[
-						{
-							feature,
-							profile,
-						},
-					],
-					routeId
-				),
-			onMutate: async (_, context) => {
-				await context.client.cancelQueries({ queryKey: ['route', routeId] });
-			},
-			onSuccess: async (_result, _variables, _onMutateResult, context) => {
-				await context.client.invalidateQueries({ queryKey: ['route', routeId] });
-				dispatch(processRouting());
-			},
-		}),
-		[routeId]
-	);
-	const mutationAppendPoint = useMutation(mutationAppendPointOptions);
-
-	const getNextProfile = useCallback(() => {
-		const lastPoint = points && points.length ? points[points.length - 1] : undefined;
-		return {
-			fast: lastPoint?.profile?.fast ?? true, // ??? from defaults, or from previous or from cut segment
-			v: lastPoint?.profile?.v ?? 'motorcar', // ??? from defaults, or from previous or from cut segment
-		};
-	}, [points]);
-
-	const handleAppendPoint = useCallback(async () => {
-		if (currentMapEventRef?.current?.center) {
-			const feature = point([
-				currentMapEventRef?.current?.center.lng,
-				currentMapEventRef?.current?.center.lat,
-				0,
-			]);
-			mutationAppendPoint.mutate({
-				feature,
-				profile: getNextProfile(),
-			});
-		}
-	}, [getNextProfile, mutationAppendPoint.mutate]);
-
-	return {
-		handleAppendPoint,
-	};
-};
-
 const DrawerActions: FC = () => {
 	const { t } = useTranslation();
 
@@ -221,11 +148,10 @@ const DrawerActions: FC = () => {
 		routingLineId,
 	});
 
-	const { handleAppendPoint } = useActions({
+	const actions = useActions({
 		routeId,
 		points,
 	});
-
 
 	const handleEditPress = useCallback(() => {
 		routingLineId && dispatch(setLineTemp({ id: routingLineId }));
@@ -233,7 +159,6 @@ const DrawerActions: FC = () => {
 
 	return (
 		<View>
-
 			<View
 				style={[
 					itemStyles.item,
@@ -248,7 +173,7 @@ const DrawerActions: FC = () => {
 				>
 					{routeId && (
 						<ButtonHighlight
-							onPress={handleAppendPoint}
+							onPress={actions.appendPoint.cb}
 							disabled={isToggling}
 							mode="contained"
 							buttonColor={get(theme.colors, 'successContainer')}
@@ -260,17 +185,12 @@ const DrawerActions: FC = () => {
 							/>
 						</ButtonHighlight>
 					)}
+
 					{routeId && (
-						<ButtonHighlight
-							// onPress={handleToggleMenu}  // ???
+						<RoutingActionsButton
+							actions={actions}
 							disabled={isToggling}
-							mode="outlined"
-						>
-							<Icon
-								source={'menu'}
-								size={20}
-							/>
-						</ButtonHighlight>
+						/>
 					)}
 
 					<ButtonHighlight

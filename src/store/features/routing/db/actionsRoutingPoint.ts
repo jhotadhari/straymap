@@ -69,7 +69,10 @@ export const updateRoutingPoint = async (
 		.where(eq(routingPointsTable.id, id));
 };
 
-export const deleteRoutingPoint = async (id: number) => {
+export const deleteRoutingPoint = async (id?: number) => {
+	if (!id) {
+		return;
+	}
 	const routes = await fetchRoutes({ pointId: id });
 	await Promise.all(
 		routes.map(async (route) => {
