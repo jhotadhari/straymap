@@ -2,10 +2,10 @@
  * External dependencies
  */
 import { useQuery } from '@tanstack/react-query';
-import { FC, memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { FC, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FlatList, ListRenderItem, ScrollView, StyleProp, View, ViewStyle } from 'react-native';
 import { useTheme } from 'react-native-paper';
-import { get, without } from 'lodash-es';
+import { without } from 'lodash-es';
 
 /**
  * Internal dependencies
@@ -20,13 +20,10 @@ import Header from './Header';
 import Footer from './Footer';
 import { queryLinesWithoutGeom } from '../../db/queryFns';
 import { setLinesSelected } from '../../slice';
-import { setActiveKey } from '../../../drawers/slice';
-import { AppContext } from '../../../../../Context';
-import { selectSideForKey } from '../../../drawers/selectors';
-import { DrawerControl } from '../../../drawers/types';
 import { setUiItemKeys } from '../../../ui/slice';
 import useRoute from '../../../routing/hooks/useRoute';
 import LineEditModal from '../LineEditModal';
+import useActivateDrawerItem from '../../../drawers/hooks/useActivateDrawerItem';
 
 const keyExtractor = (line: { id: number }) => line.id.toString();
 
@@ -103,19 +100,12 @@ const LinesTable: FC = () => {
 		]
 	);
 
-	const { drawerControlsRef } = useContext(AppContext);
-	const drawerSideWithRouting = useAppSelector((state) => selectSideForKey(state, 'routing'));
+	const activateRoutingDrawerItem = useActivateDrawerItem('routing');
+
 	const handleRoutingBtnPress = useCallback(() => {
-		if (drawerSideWithRouting) {
-			dispatch(
-				setActiveKey({
-					activeKey: 'routing',
-				})
-			);
-			(get(drawerControlsRef?.current, drawerSideWithRouting) as DrawerControl).expand(true);
-			dispatch(setUiItemKeys([]));
-		}
-	}, [drawerSideWithRouting]);
+		activateRoutingDrawerItem();
+		dispatch(setUiItemKeys([]));
+	}, [activateRoutingDrawerItem]);
 
 	const renderHeader = useCallback(() => {
 		return <TableHeader styleCell={styleCell} />;

@@ -2,11 +2,11 @@
  * External dependencies
  */
 import { useQuery } from '@tanstack/react-query';
-import { FC, useCallback, useContext, useMemo, useState } from 'react';
+import { FC, useCallback, useMemo, useState } from 'react';
 import { StyleSheet, View, ViewStyle } from 'react-native';
 import { useTheme, Text, Icon } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { get, omit, pick } from 'lodash-es';
+import { omit, pick } from 'lodash-es';
 
 /**
  * Internal dependencies
@@ -19,14 +19,11 @@ import { iconSize } from '../../drawers/constants';
 import { setLineSelected, setLineVisible } from '../slice';
 import LineStats from './LineStats';
 import TagBadge from './TagBadge';
-import { setActiveKey } from '../../drawers/slice';
 import IconRouting from '../../drawers/items/routing/IconComponent';
-import { selectSideForKey } from '../../drawers/selectors';
-import { AppContext } from '../../../../Context';
-import { DrawerControl } from '../../drawers/types';
 import { queryLinesWithoutGeom } from '../db/queryFns';
 import useRoute from '../../routing/hooks/useRoute';
 import LineEditModal from './LineEditModal';
+import useActivateDrawerItem from '../../drawers/hooks/useActivateDrawerItem';
 
 const LineRow: FC<{
 	line: Omit<Line, 'geometry'>;
@@ -39,18 +36,7 @@ const LineRow: FC<{
 
 	const [lineTemp, setLineTemp] = useState<undefined | LinePartial>(undefined);
 
-	const { drawerControlsRef } = useContext(AppContext);
-	const drawerSideWithRouting = useAppSelector((state) => selectSideForKey(state, 'routing'));
-	const handleRoutingBtnPress = useCallback(() => {
-		if (drawerSideWithRouting) {
-			dispatch(
-				setActiveKey({
-					activeKey: 'routing',
-				})
-			);
-			(get(drawerControlsRef?.current, drawerSideWithRouting) as DrawerControl).expand(true);
-		}
-	}, [drawerSideWithRouting]);
+	const activateRoutingDrawerItem = useActivateDrawerItem('routing');
 
 	const theme = useTheme();
 
@@ -100,7 +86,7 @@ const LineRow: FC<{
 					style={styles.noShrink}
 					mode="text"
 					compact={true}
-					onPress={handleRoutingBtnPress}
+					onPress={activateRoutingDrawerItem}
 				>
 					<IconRouting color={theme.colors.primary} />
 				</ButtonHighlight>
