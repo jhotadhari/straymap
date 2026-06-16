@@ -3,7 +3,6 @@
  */
 import { DrawerItem } from '../../types';
 import DisplayComponent from './DisplayComponent';
-import IconActions from './IconActions';
 import IconComponent from './IconComponent';
 
 export default {
@@ -11,5 +10,4 @@ export default {
 	label: 'routing.routePlanning',
 	DisplayComponent,
 	IconComponent,
-	IconActions,
 } as DrawerItem;

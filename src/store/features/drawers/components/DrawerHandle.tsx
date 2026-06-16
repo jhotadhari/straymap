@@ -117,30 +117,6 @@ const DrawerHandle = ({
 					)}
 				</Button>
 
-				{isActive && IconActions && (
-					<View
-						style={{
-							position: 'absolute',
-							...('left' === side && {
-								left: '100%',
-								transform: [{ translateX: 8 }],
-							}),
-							...('right' === side && {
-								left: '-100%',
-								transform: [{ translateX: -4 }],
-							}),
-						}}
-					>
-						<IconActions
-							style={{
-								color,
-								backgroundColor: theme.colors.background,
-								padding: 8,
-								borderRadius: theme.roundness,
-							}}
-						/>
-					</View>
-				)}
 			</View>
 		);
 	}, [

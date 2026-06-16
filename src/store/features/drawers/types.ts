@@ -28,9 +28,6 @@ export interface DrawerItem {
 	IconComponent?: ElementType<{
 		color: TextStyle['color'];
 	}>;
-	IconActions?: ElementType<{
-		style?: TextStyle;
-	}>;
 }
 
 export interface DrawerProps extends DrawerState {
