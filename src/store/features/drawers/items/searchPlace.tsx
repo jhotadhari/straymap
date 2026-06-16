@@ -13,7 +13,7 @@ import IconIcomoon from '../../../../components/generic/IconIcomoon';
 import { DrawerItem } from '../types';
 import { handleSize, iconSize, itemStyles } from '../constants';
 
-const DisplayComponent: FC<{
+const DisplayComponentScroll: FC<{
 	scrollEnabled: boolean;
 	setScrollEnabled: Dispatch<SetStateAction<boolean>>;
 }> = ({ scrollEnabled, setScrollEnabled }) => {
@@ -41,7 +41,7 @@ const IconComponent = ({ color }: { color: string }) => {
 export default {
 	key: 'searchPlace',
 	label: 'searchPlace',
-	DisplayComponent,
+	DisplayComponentScroll,
 	IconComponent,
 	// iconSource: 'search',
 } as DrawerItem;

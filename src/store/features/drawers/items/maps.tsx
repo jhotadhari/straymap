@@ -18,7 +18,7 @@ import DrawerContext from '../DrawerContext';
 import { DrawerItem } from '../types';
 import { itemStyles } from '../constants';
 
-const DisplayComponent: FC<{
+const DisplayComponentScroll: FC<{
 	scrollEnabled: boolean;
 	setScrollEnabled: Dispatch<SetStateAction<boolean>>;
 }> = ({ scrollEnabled, setScrollEnabled }) => {
@@ -69,6 +69,6 @@ const DisplayComponent: FC<{
 export default {
 	key: 'maps',
 	label: 'maps',
-	DisplayComponent,
+	DisplayComponentScroll,
 	iconSource: 'map',
 } as DrawerItem;

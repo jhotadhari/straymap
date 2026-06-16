@@ -12,7 +12,7 @@ import { View } from 'react-native';
 import { DrawerItem } from '../types';
 import { itemStyles, handleSize, iconSize } from '../constants';
 
-const DisplayComponent: FC<{
+const DisplayComponentScroll: FC<{
 	scrollEnabled: boolean;
 	setScrollEnabled: Dispatch<SetStateAction<boolean>>;
 }> = ({ scrollEnabled, setScrollEnabled }) => {
@@ -30,7 +30,7 @@ const DisplayComponent: FC<{
 export default {
 	key: 'position',
 	label: 'position',
-	DisplayComponent,
+	DisplayComponentScroll,
 	// IconComponent,
 	iconSource: 'crosshairs-gps',
 } as DrawerItem;

@@ -19,16 +19,35 @@ const DrawerContent: FC<{}> = () => {
 	const { activeItemKey, width, height, side } = useContext(DrawerContext);
 
 	const theme = useTheme();
-	const DisplayComponent = useMemo(
-		() =>
-			activeItemKey
-				? get(drawerItems as { [itemKey: string]: DrawerItem }, [
-						activeItemKey,
-						'DisplayComponent',
-					])
-				: undefined,
-		[activeItemKey]
-	);
+	const { isScrollContent, DisplayComponent } = useMemo(() => {
+		if (!activeItemKey) {
+			return {};
+		}
+		let isScrollContent = false;
+		let DisplayComponent:
+			| DrawerItem['DisplayComponent']
+			| DrawerItem['DisplayComponentScroll'] = get(
+			drawerItems as { [itemKey: string]: DrawerItem },
+			[
+				activeItemKey,
+				'DisplayComponentScroll',
+			]
+		);
+
+		if (DisplayComponent) {
+			isScrollContent = true;
+		} else {
+			DisplayComponent = get(drawerItems as { [itemKey: string]: DrawerItem }, [
+				activeItemKey,
+				'DisplayComponent',
+			]);
+		}
+
+		return {
+			isScrollContent,
+			DisplayComponent,
+		};
+	}, [activeItemKey]);
 
 	const [scrollEnabled, setScrollEnabled] = useState(true);
 
@@ -46,23 +65,27 @@ const DrawerContent: FC<{}> = () => {
 				marginTop: handleSize / 4,
 			}}
 		>
-			<ScrollView
-				scrollEnabled={scrollEnabled}
-				style={{
-					backgroundColor: theme.colors.background,
-					height,
-					width,
-					position: 'absolute',
-				}}
-			>
-				<DisplayComponent
+			{isScrollContent && DisplayComponent && (
+				<ScrollView
 					scrollEnabled={scrollEnabled}
-					setScrollEnabled={setScrollEnabled}
-				/>
+					style={{
+						backgroundColor: theme.colors.background,
+						height,
+						width,
+						position: 'absolute',
+					}}
+				>
+					<DisplayComponent
+						scrollEnabled={scrollEnabled}
+						setScrollEnabled={setScrollEnabled}
+					/>
 
-				{/* Thats a weird fix for a padding that doesn't work */}
-				<View style={{ height: 8 }} />
-			</ScrollView>
+					{/* Thats a weird fix for a padding that doesn't work */}
+					<View style={{ height: 8 }} />
+				</ScrollView>
+			)}
+
+			{!isScrollContent && DisplayComponent && <DisplayComponent />}
 		</View>
 	);
 };
