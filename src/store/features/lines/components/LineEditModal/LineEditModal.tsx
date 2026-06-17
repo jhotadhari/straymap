@@ -22,6 +22,7 @@ import RowDelete from './RowDelete';
 import RowName from './RowName';
 import RowRouting from './RowRouting';
 import RowExport from './RowExport';
+import RowStats from './RowStats';
 
 const LineEditModal: FC<{
 	selectLine: (id: number, isSelected: boolean) => void;
@@ -101,6 +102,8 @@ const LineEditModal: FC<{
 				<RowName />
 
 				<RowRouting />
+
+				<RowStats />
 
 				<RowExport />
 

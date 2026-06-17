@@ -1,10 +1,9 @@
 /**
  * External dependencies
  */
-import { ReactNode, useState } from 'react';
-import { View, TouchableHighlight, ViewStyle, TextStyle } from 'react-native';
+import { ReactNode, useMemo, useState } from 'react';
+import { View, TouchableHighlight, ViewStyle, TextStyle, StyleSheet } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
-import { useTranslation } from 'react-i18next';
 
 /**
  * Internal dependencies
@@ -12,14 +11,6 @@ import { useTranslation } from 'react-i18next';
 import InfoControlWrapper from '../InfoControlWrapper';
 
 export const labelMinWidth = 90;
-
-export const labelPadding = {
-	paddingTop: 4,
-	paddingBottom: 4,
-	paddingRight: 4,
-};
-
-export const labelWrapStyle = { ...labelPadding, minWidth: labelMinWidth + 12 };
 
 const InfoRowControl = ({
 	label,
@@ -42,9 +33,25 @@ const InfoRowControl = ({
 	labelStyle?: TextStyle;
 	onLabelPress?: () => void;
 }) => {
-	const { t } = useTranslation();
 	const theme = useTheme();
+
 	const [modalVisible, setModalVisible] = useState(false);
+
+	const dynamicStyles = useMemo(
+		() => ({
+			container: [
+				styles.container,
+				style,
+			],
+			button: { borderRadius: theme.roundness },
+			label: [
+				styles.label,
+				labelStyle,
+			],
+		}),
+		[style, theme]
+	);
+
 	return (
 		<InfoControlWrapper
 			label={label}
@@ -55,18 +62,7 @@ const InfoRowControl = ({
 			modalVisible={modalVisible}
 			setModalVisible={setModalVisible}
 		>
-			<View
-				style={[
-					{
-						flexDirection: 'row',
-						display: 'flex',
-						alignItems: 'center',
-						width: '100%',
-						position: 'relative',
-					},
-					style,
-				]}
-			>
+			<View style={dynamicStyles.container}>
 				{(Info || onLabelPress) && (
 					<TouchableHighlight
 						underlayColor={theme.colors.elevation.level3}
@@ -74,33 +70,39 @@ const InfoRowControl = ({
 							onLabelPress && onLabelPress();
 							Info && setModalVisible(true);
 						}}
-						style={{ borderRadius: theme.roundness }}
+						style={dynamicStyles.button}
 					>
-						<Text
-							style={{
-								...labelWrapStyle,
-								...labelStyle,
-								textDecorationLine: 'underline',
-							}}
-						>
-							{label}
-						</Text>
+						<Text style={[dynamicStyles.label, styles.underline]}>{label}</Text>
 					</TouchableHighlight>
 				)}
-				{!Info && !onLabelPress && (
-					<Text style={{ ...labelWrapStyle, ...labelStyle }}>{label}</Text>
-				)}
-				<View
-					style={{
-						position: 'relative',
-						flexGrow: 1,
-					}}
-				>
-					{children}
-				</View>
+				{!Info && !onLabelPress && <Text style={dynamicStyles.label}>{label}</Text>}
+				<View style={styles.controlView}>{children}</View>
 			</View>
 		</InfoControlWrapper>
 	);
 };
+
+export const styles = StyleSheet.create({
+	container: {
+		flexDirection: 'row',
+		display: 'flex',
+		alignItems: 'center',
+		width: '100%',
+		position: 'relative',
+	},
+	controlView: {
+		position: 'relative',
+		flexGrow: 1,
+	},
+	label: {
+		paddingTop: 4,
+		paddingBottom: 4,
+		paddingRight: 4,
+		minWidth: labelMinWidth + 12,
+	},
+	underline: {
+		textDecorationLine: 'underline',
+	},
+});
 
 export default InfoRowControl;
