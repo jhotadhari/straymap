@@ -311,17 +311,18 @@ const RoutingActionsButton: FC<{
 			arrowSize={arrowSize}
 			isVisible={menuVisible}
 			placement={PopoverPlacement.BOTTOM}
-			onRequestClose={() => dismissMenu()}
+			onRequestClose={dismissMenu}
 			from={anchor}
-			animationConfig={{
-				duration: 0,
-			}}
+			animationConfig={animationConfig}
 		>
 			<ScrollView>{menuVisible && <PopoverMenuItems options={options} />}</ScrollView>
 		</Popover>
 	);
 };
 
+const animationConfig = {
+	duration: 0,
+};
 const arrowSize = { height: 0, width: 0 };
 
 export default RoutingActionsButton;

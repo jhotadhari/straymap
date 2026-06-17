@@ -1,6 +1,12 @@
+/**
+ * External dependencies
+ */
 import { Feature, LineString, GeoJsonProperties } from 'geojson';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, or } from 'drizzle-orm';
 
+/**
+ * Internal dependencies
+ */
 import { dbZ } from '../../../../db/clients';
 import { fetchLines } from './fetch';
 import { linesTable, tagsTable, tagsToLinesTable } from './schema/schema';
@@ -149,9 +155,24 @@ export const lineRemoveTag = async (lineId: number, tagId: number) => {
 		.where(and(eq(tagsToLinesTable.tag_id, tagId), eq(tagsToLinesTable.line_id, lineId)));
 };
 
-export const deleteLine = async (id: number | false) => {
+export const deleteLine = async (id?: number | false) => {
 	if (id) {
 		await dbZ.delete(linesTable).where(eq(linesTable.id, id));
-		await dbZ.delete(tagsToLinesTable).where(eq(tagsToLinesTable.line_id, id));
+
+		// ??? do that with schema
+		// await dbZ.delete(tagsToLinesTable).where(eq(tagsToLinesTable.line_id, id));
 	}
+};
+
+export const deleteLines = async (ids?: number[]) => {
+	if (!ids) {
+		return;
+	}
+
+	await dbZ.delete(linesTable).where(or(...ids.map((id) => eq(linesTable.id, id))));
+
+	// ??? do that with schema
+	// await dbZ.delete(tagsToLinesTable).where(or(
+	// 	...ids.map((id) => eq(tagsToLinesTable.line_id, id) )
+	// ));
 };

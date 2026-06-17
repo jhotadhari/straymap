@@ -2,6 +2,7 @@
  * react-native-mapsforge-vtm dependencies
  */
 import { EnhancedStore } from '@reduxjs/toolkit';
+import { ReactNode } from 'react';
 import { Location } from 'react-native-mapsforge-vtm';
 
 // source: https://stackoverflow.com/questions/41253310/typescript-retrieve-element-type-information-from-array-type#answer-51399781
@@ -28,6 +29,7 @@ export interface MenuActionOption extends OptionBase {
 	leadingIcon: string;
 	cb: () => Promise<void> | void;
 	disabled?: () => boolean;
+	modalNode?: ReactNode;
 }
 
 export type NumType = 'int' | 'float';

@@ -136,7 +136,15 @@ const LinesTable: FC = () => {
 		return <TableHeader styleCell={styleCell} />;
 	}, [styleCell]);
 
-	const { line_id: routingLineId, stats: routingStats } = useRoute(['line_id', 'stats']) || {};
+	const {
+		id: routeId,
+		line_id: routingLineId,
+		stats: routingStats,
+	} = useRoute([
+		'id',
+		'line_id',
+		'stats',
+	]) || {};
 
 	const renderItem: ListRenderItem<Omit<Line, 'geometry'>> = useCallback(
 		({ item: line, index }) => {
@@ -207,6 +215,7 @@ const LinesTable: FC = () => {
 					setCheckedIds,
 					setOnMapIdsTemp,
 					routingLineId,
+					routeId,
 				}}
 			>
 				<Footer />

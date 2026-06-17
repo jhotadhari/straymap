@@ -1,6 +1,12 @@
+/**
+ * External dependencies
+ */
 import { useContext, useCallback } from 'react';
 import { uniq } from 'lodash-es';
 
+/**
+ * Internal dependencies
+ */
 import { FooterContext } from '../../components/LinesTable/Context';
 
 const useAddToMap = () => {

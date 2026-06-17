@@ -1,3 +1,6 @@
+/**
+ * Internal dependencies
+ */
 import { Route } from '../types';
 import { fetchRoutes } from './fetch';
 
