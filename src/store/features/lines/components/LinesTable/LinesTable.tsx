@@ -3,7 +3,15 @@
  */
 import { useQuery } from '@tanstack/react-query';
 import { FC, memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { FlatList, ListRenderItem, ScrollView, StyleProp, View, ViewStyle } from 'react-native';
+import {
+	BackHandler,
+	FlatList,
+	ListRenderItem,
+	ScrollView,
+	StyleProp,
+	View,
+	ViewStyle,
+} from 'react-native';
 import { useTheme } from 'react-native-paper';
 import { isEqual, uniq, without } from 'lodash-es';
 
@@ -87,6 +95,21 @@ const LinesTable: FC = () => {
 			}
 		});
 	}, []);
+
+	const backAction = useCallback(() => {
+		let bubble = true;
+		if (checkedIds.length) {
+			setCheckedIds([]);
+			bubble = false;
+		}
+		return !bubble;
+	}, [
+		checkedIds.length,
+	]);
+	useEffect(() => {
+		const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+		return () => backHandler.remove();
+	}, [backAction]);
 
 	const styleCell: StyleProp<ViewStyle> = useMemo(
 		() => [
