@@ -1,0 +1,113 @@
+/**
+ * External dependencies
+ */
+import { FC, useCallback, useMemo } from 'react';
+import { get } from 'lodash-es';
+import { useMutation, UseMutationOptions, useQuery } from '@tanstack/react-query';
+
+/**
+ * Internal dependencies
+ */
+import ModalWrapper from '../../../../../components/generic/ModalWrapper';
+import { useAppDispatch, useAppSelector } from '../../../../hooks';
+import { LinePartial } from '../../types';
+import { queryLinesWithoutGeom } from '../../db/queryFns';
+import { updateLine } from '../../db/actionsLine';
+import { queryRouteForLine } from '../../../routing/db/queryFns';
+import { selectLineTemp } from '../../selectors';
+import { setLineTemp } from '../../slice';
+import { LineEditModalContext } from './Context';
+import { styles } from './sharedDeps';
+import RowDelete from './RowDelete';
+import RowName from './RowName';
+import RowRouting from './RowRouting';
+import RowExport from './RowExport';
+
+const LineEditModal: FC<{
+	selectLine: (id: number, isSelected: boolean) => void;
+	onDeleteSuccess?: (lineId?: number) => void;
+}> = ({ selectLine, onDeleteSuccess }) => {
+	const dispatch = useAppDispatch();
+
+	const lineTemp = useAppSelector(selectLineTemp);
+
+	const { data: route } = useQuery({
+		queryKey: ['routeForLine', lineTemp?.id],
+		queryFn: queryRouteForLine,
+	});
+
+	const { data: line } = useQuery({
+		queryKey: ['lines', lineTemp?.id ? [lineTemp?.id] : []],
+		queryFn: queryLinesWithoutGeom,
+		select: (lines: LinePartial[]) => (lines.length ? lines[0] : null),
+	});
+
+	const mutationOptions: UseMutationOptions<void, Error, LinePartial, unknown> = useMemo(
+		() => ({
+			mutationFn: (newLinePartial: LinePartial) =>
+				updateLine(newLinePartial?.id, newLinePartial),
+			onMutate: async (_, context) => {
+				await context.client.cancelQueries({ queryKey: ['lines'] });
+				if (route?.id) {
+					await context.client.cancelQueries({ queryKey: ['route', route?.id] });
+				}
+			},
+			onSuccess: async (_, _variables, _onMutateResult, context) => {
+				await context.client.invalidateQueries({ queryKey: ['lines'] });
+				if (route?.id) {
+					await context.client.invalidateQueries({ queryKey: ['route', route?.id] });
+				}
+			},
+			onSettled: () => {
+				dispatch(setLineTemp(undefined));
+			},
+		}),
+		[route?.id]
+	);
+	const mutation = useMutation(mutationOptions);
+
+	const onDismiss = useCallback(() => {
+		if (
+			line &&
+			lineTemp &&
+			Object.keys(lineTemp).some((key: string) => get(line, key) !== get(lineTemp, key))
+		) {
+			mutation.mutate(lineTemp);
+		} else {
+			dispatch(setLineTemp(undefined));
+		}
+	}, [
+		mutation.mutate,
+		line,
+		lineTemp,
+	]);
+
+	return (
+		<ModalWrapper
+			visible={!!lineTemp}
+			onDismiss={onDismiss}
+			header={'line???'}
+			innerStyle={styles.gap}
+		>
+			<LineEditModalContext.Provider
+				value={{
+					selectLine,
+					line,
+					route,
+					onDismiss,
+					onDeleteSuccess,
+				}}
+			>
+				<RowName />
+
+				<RowRouting />
+
+				<RowExport />
+
+				<RowDelete />
+			</LineEditModalContext.Provider>
+		</ModalWrapper>
+	);
+};
+
+export default LineEditModal;

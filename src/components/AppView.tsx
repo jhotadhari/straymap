@@ -60,7 +60,7 @@ import { DashboardWrapped } from '../store/features/dashboard/components/Dashboa
 import useShowInitialSplash from '../compose/useShowInitialSplash';
 import DebugBla from '../store/features/lines/components/DebugBla';
 import LinesMapView from '../store/features/lines/components/LinesMapView';
-import LineEditModal from '../store/features/lines/components/LineEditModal';
+import LineEditModal from '../store/features/lines/components/LineEditModal/LineEditModal';
 import { setLineSelected } from '../store/features/lines/slice';
 
 const AppView = ({

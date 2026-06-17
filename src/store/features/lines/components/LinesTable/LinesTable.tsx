@@ -32,7 +32,7 @@ import { setUiItemKeys } from '../../../ui/slice';
 import useRoute from '../../../routing/hooks/useRoute';
 import useActivateDrawerItem from '../../../drawers/hooks/useActivateDrawerItem';
 import { FooterContext, HeaderContext } from './Context';
-import LineEditModal from '../LineEditModal';
+import LineEditModal from '../LineEditModal/LineEditModal';
 
 const keyExtractor = (line: { id: number }) => line.id.toString();
 

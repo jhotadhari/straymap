@@ -25,12 +25,14 @@ const useDeleteLinesCbModal = ({
 	routingLineId,
 	removeLinesFromMap,
 	onSuccess,
+	backgroundBlur,
 }: {
 	deleteIdsOrId?: number | number[];
 	routeId?: number | null;
 	routingLineId?: number | null;
 	removeLinesFromMap: () => void;
 	onSuccess?: () => void;
+	backgroundBlur?: boolean;
 }) => {
 	const dispatch = useAppDispatch();
 
@@ -87,8 +89,6 @@ const useDeleteLinesCbModal = ({
 				// Call onSuccess (eg LinesTable uncheck lines).
 				onSuccess && onSuccess();
 
-
-
 				// ??? maybe unexpand drawer with routing if was active
 				// ??? maybe unexpand drawer with lines if was active and no lines anymore
 			},
@@ -124,8 +124,9 @@ const useDeleteLinesCbModal = ({
 		return (
 			<ModalWrapper
 				visible={modalVisible}
+				backgroundBlur={backgroundBlur}
 				onDismiss={handleDismissModal}
-				header={'realy delete???'}
+				header={'really delete???'}
 				innerStyle={stylesGeneric.modal}
 			>
 				<Text>
