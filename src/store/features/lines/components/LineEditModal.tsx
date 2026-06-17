@@ -1,8 +1,11 @@
 /**
  * External dependencies
  */
-import { Dispatch, FC, SetStateAction, useCallback, useMemo } from 'react';
+import { FC, useCallback, useMemo } from 'react';
 import { Icon, Text, TextInput, useTheme } from 'react-native-paper';
+import { get } from 'lodash-es';
+import { StyleSheet, View } from 'react-native';
+import { useMutation, UseMutationOptions, useQuery } from '@tanstack/react-query';
 
 /**
  * Internal dependencies
@@ -11,24 +14,23 @@ import ModalWrapper from '../../../../components/generic/ModalWrapper';
 import { useAppDispatch, useAppSelector } from '../../../hooks';
 import InfoRowControl from '../../../../components/generic/controls/InfoRowControl';
 import { LinePartial } from '../types';
-import { useMutation, UseMutationOptions, useQuery } from '@tanstack/react-query';
 import { queryLinesWithoutGeom } from '../db/queryFns';
 import { updateLine } from '../db/actionsLine';
-import { get } from 'lodash-es';
 import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
 import IconRouting from '../../drawers/items/routing/IconComponent';
 import { setIsRouting } from '../../routing/slice';
 import { queryRouteForLine } from '../../routing/db/queryFns';
 import useActivateDrawerItem from '../../drawers/hooks/useActivateDrawerItem';
 import { selectLineTemp } from '../selectors';
-import { setLineSelected, setLineTemp } from '../slice';
-import { StyleSheet, View } from 'react-native';
+import { setLineTemp } from '../slice';
 import { selectIsRouting } from '../../routing/selectors';
 import { iconSize } from '../../drawers/constants';
+import useDeleteLinesCbModal from '../hooks/useDeleteLinesCbModal';
 
 const LineEditModal: FC<{
-	selectLine: (id: number) => void;
-}> = ({ selectLine }) => {
+	selectLine: (id: number, isSelected: boolean) => void;
+	onDeleteSuccess?: (lineId?: number) => void;
+}> = ({ selectLine, onDeleteSuccess }) => {
 	const dispatch = useAppDispatch();
 
 	const activateRoutingDrawerItem = useActivateDrawerItem('routing');
@@ -89,10 +91,29 @@ const LineEditModal: FC<{
 	const handleSetRouting = useCallback(() => {
 		if (line?.id && route?.id) {
 			dispatch(setIsRouting(route.id));
-			selectLine(line.id);
+			selectLine(line.id, true);
 			activateRoutingDrawerItem();
 		}
 	}, [line?.id, route?.id]);
+
+	const removeFromMap = useCallback(() => {
+		line?.id && selectLine(line.id, false);
+	}, [line?.id]);
+	const handleDeleteSuccess = useCallback(() => {
+		onDeleteSuccess && onDeleteSuccess(line?.id);
+		onDismiss();
+	}, [
+		onDeleteSuccess,
+		onDismiss,
+		line?.id,
+	]);
+	const { cb: handleDelete, modalNode: modalNodeDelete } = useDeleteLinesCbModal({
+		deleteIdsOrId: line?.id,
+		routeId: route?.id,
+		routingLineId: line?.id,
+		removeLinesFromMap: removeFromMap,
+		onSuccess: handleDeleteSuccess,
+	});
 
 	return (
 		<ModalWrapper
@@ -149,13 +170,7 @@ const LineEditModal: FC<{
 						disabled={!route?.id || isRouting === route?.id}
 						onPress={handleSetRouting}
 					>
-						<View
-							style={{
-								alignItems: 'center',
-								flexDirection: 'row',
-								gap: 8,
-							}}
-						>
+						<View style={styles.buttonInner}>
 							<IconRouting color={theme.colors.onBackground} />
 							{!route?.id && <Text>{'no routing data???'}</Text>}
 							{route?.id && isRouting !== route?.id && (
@@ -236,18 +251,32 @@ const LineEditModal: FC<{
 					// 	// );
 					// }}
 				>
-					<View
-						style={{
-							alignItems: 'center',
-							flexDirection: 'row',
-							gap: 8,
-						}}
-					>
+					<View style={styles.buttonInner}>
 						<Icon
 							source="content-save-outline"
 							size={iconSize}
 						/>
 						<Text>{'??? TODO export '}</Text>
+					</View>
+				</ButtonHighlight>
+			</InfoRowControl>
+
+			{modalNodeDelete}
+			<InfoRowControl
+				label={'delete???'}
+				// Info={Info}
+			>
+				<ButtonHighlight
+					mode="outlined"
+					compact={true}
+					onPress={handleDelete}
+				>
+					<View style={styles.buttonInner}>
+						<Icon
+							source="delete"
+							size={iconSize}
+						/>
+						<Text>{'delete???'}</Text>
 					</View>
 				</ButtonHighlight>
 			</InfoRowControl>
@@ -257,6 +286,11 @@ const LineEditModal: FC<{
 
 const styles = StyleSheet.create({
 	gap: {
+		gap: 8,
+	},
+	buttonInner: {
+		alignItems: 'center',
+		flexDirection: 'row',
 		gap: 8,
 	},
 });

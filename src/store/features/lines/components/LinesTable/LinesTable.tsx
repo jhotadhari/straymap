@@ -229,14 +229,27 @@ const LinesTable: FC = () => {
 const LineEditModalWrapper: FC = () => {
 	const dispatch = useAppDispatch();
 
-	const { setOnMapIdsTemp } = useContext(FooterContext);
+	const { setOnMapIdsTemp, setCheckedIds } = useContext(FooterContext);
 
-	const selectLine = useCallback((id: number) => {
-		setOnMapIdsTemp && setOnMapIdsTemp((ids) => uniq([...ids, id]));
-		dispatch(setLineSelected(id, true));
+	const selectLine = useCallback((id: number, isSelected: boolean) => {
+		setOnMapIdsTemp && isSelected && setOnMapIdsTemp((ids) => uniq([...ids, id]));
+		setOnMapIdsTemp && !isSelected && setOnMapIdsTemp((ids) => uniq(without(ids, id)));
+		dispatch(setLineSelected(id, isSelected));
 	}, []);
 
-	return <LineEditModal selectLine={selectLine} />;
+	const handleDeleteSuccess = useCallback(
+		(lineId?: number) => {
+			setCheckedIds && lineId && setCheckedIds((ids) => uniq(without(ids, lineId)));
+		},
+		[setCheckedIds]
+	);
+
+	return (
+		<LineEditModal
+			selectLine={selectLine}
+			onDeleteSuccess={handleDeleteSuccess}
+		/>
+	);
 };
 
 export default LinesTable;

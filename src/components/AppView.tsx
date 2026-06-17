@@ -270,8 +270,8 @@ const LineEditModalWrapper: FC = () => {
 	const dispatch = useAppDispatch();
 	const uiItemsKeys = useAppSelector(selectUiItemKeys);
 
-	const selectLine = useCallback((id: number) => {
-		dispatch(setLineSelected(id, true));
+	const selectLine = useCallback((id: number, isSelected: boolean) => {
+		dispatch(setLineSelected(id, isSelected));
 	}, []);
 
 	// Hide if linesDirectory, because selectLine has to be different. See LinesTable.

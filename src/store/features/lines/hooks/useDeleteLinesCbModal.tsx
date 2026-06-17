@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
-import { useContext, useCallback, useMemo, useState } from 'react';
-import { get, uniq } from 'lodash-es';
+import { useCallback, useMemo, useState } from 'react';
+import { get, isNumber } from 'lodash-es';
 import { useMutation, UseMutationOptions } from '@tanstack/react-query';
 import { Text, useTheme } from 'react-native-paper';
 import { sprintf } from 'sprintf-js';
@@ -12,27 +12,45 @@ import { useTranslation } from 'react-i18next';
 /**
  * Internal dependencies
  */
-import { FooterContext } from '../Context';
-import { deleteLines } from '../../../db/actionsLine';
-import { useAppDispatch } from '../../../../../hooks';
-import { setIsRouting } from '../../../../routing/slice';
-import ModalWrapper from '../../../../../../components/generic/ModalWrapper';
-import ButtonHighlight from '../../../../../../components/generic/ButtonHighlight';
-import { stylesGeneric } from '../../../../baseMap/components/controls/layers/LayersControl';
+import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
+import ModalWrapper from '../../../../components/generic/ModalWrapper';
+import { useAppDispatch } from '../../../hooks';
+import { stylesGeneric } from '../../baseMap/components/controls/layers/LayersControl';
+import { setIsRouting } from '../../routing/slice';
+import { deleteLines } from '../db/actionsLine';
 
-const useDeleteLines = () => {
-	const { checkedIds, setOnMapIdsTemp, routingLineId, routeId, setCheckedIds } =
-		useContext(FooterContext);
-
+const useDeleteLinesCbModal = ({
+	deleteIdsOrId,
+	routeId,
+	routingLineId,
+	removeLinesFromMap,
+	onSuccess,
+}: {
+	deleteIdsOrId?: number | number[];
+	routeId?: number | null;
+	routingLineId?: number | null;
+	removeLinesFromMap: () => void;
+	onSuccess?: () => void;
+}) => {
 	const dispatch = useAppDispatch();
 
 	const { t } = useTranslation();
 
 	const theme = useTheme();
 
+	const deleteIds = useMemo(
+		() =>
+			Array.isArray(deleteIdsOrId)
+				? deleteIdsOrId
+				: isNumber(deleteIdsOrId)
+					? [deleteIdsOrId]
+					: [],
+		[deleteIdsOrId]
+	);
+
 	const includesRoute = useMemo(
-		() => routingLineId && checkedIds.includes(routingLineId),
-		[checkedIds, routingLineId]
+		() => routingLineId && deleteIds.includes(routingLineId),
+		[deleteIds, routingLineId]
 	);
 
 	const [modalVisible, setModalVisible] = useState(false);
@@ -49,14 +67,14 @@ const useDeleteLines = () => {
 			onMutate: async (_, context) => {
 				await context.client.cancelQueries({ queryKey: ['lines'] });
 				await Promise.all(
-					checkedIds.map(async (id) => {
+					deleteIds.map(async (id) => {
 						await context.client.cancelQueries({ queryKey: ['lineGeom', id] });
 					})
 				);
 				if (includesRoute) {
 					await context.client.cancelQueries({ queryKey: ['route', routeId] });
 					await Promise.all(
-						checkedIds.map(async (id) => {
+						deleteIds.map(async (id) => {
 							await context.client.cancelQueries({ queryKey: ['routeForLine', id] });
 						})
 					);
@@ -64,36 +82,37 @@ const useDeleteLines = () => {
 			},
 			onSuccess: async (_result, _variables, _onMutateResult, context) => {
 				await context.client.invalidateQueries({ queryKey: ['lines'] });
-
-				// Uncheck lines.
-				setCheckedIds && setCheckedIds([]);
-				// close modal
+				// Close modal.
 				handleDismissModal();
+				// Call onSuccess (eg LinesTable uncheck lines).
+				onSuccess && onSuccess();
+
+
+
+				// ??? maybe unexpand drawer with routing if was active
+				// ??? maybe unexpand drawer with lines if was active and no lines anymore
 			},
 		}),
 		[
 			routeId,
 			includesRoute,
-			checkedIds,
+			deleteIds,
 		]
 	);
 
 	const mutation = useMutation(mutationOptions);
 
-	const handleDeleteCheckedLines = useCallback(async () => {
+	const handleDeleteLines = useCallback(async () => {
 		// Maybe unset routing.
 		includesRoute && dispatch(setIsRouting(false));
-		// remove from map temp
-		setOnMapIdsTemp &&
-			setOnMapIdsTemp((ids) => {
-				return uniq([...ids, ...checkedIds]);
-			});
+		// remove from map
+		removeLinesFromMap();
 		// delete lines and uncheck and dismiss modal
-		mutation.mutate(checkedIds);
+		mutation.mutate(deleteIds);
 	}, [
-		checkedIds,
+		deleteIds,
 		includesRoute,
-		setOnMapIdsTemp,
+		removeLinesFromMap,
 		mutation.mutate,
 	]);
 
@@ -112,7 +131,7 @@ const useDeleteLines = () => {
 				<Text>
 					{sprintf(
 						'???are you really sure to delete %s lines and any corresponding data. This can not be undone',
-						checkedIds.length
+						deleteIds.length
 					)}
 				</Text>
 
@@ -127,7 +146,7 @@ const useDeleteLines = () => {
 					</ButtonHighlight>
 
 					<ButtonHighlight
-						onPress={handleDeleteCheckedLines}
+						onPress={handleDeleteLines}
 						mode="contained"
 						buttonColor={theme.colors.errorContainer}
 						textColor={theme.colors.onErrorContainer}
@@ -139,20 +158,17 @@ const useDeleteLines = () => {
 		);
 	}, [
 		t,
-		checkedIds.length,
+		deleteIds.length,
 		modalVisible,
 		handleDismissModal,
 		theme,
-		handleDeleteCheckedLines,
+		handleDeleteLines,
 	]);
 
 	return {
-		key: 'deleteLines',
 		cb,
-		label: 'deleteLines',
-		leadingIcon: 'delete',
 		modalNode,
 	};
 };
 
-export default useDeleteLines;
+export default useDeleteLinesCbModal;

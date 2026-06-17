@@ -26,7 +26,6 @@ import useActions from './useActions';
 import RoutingActionsButton from '../RoutingActionsButton';
 import useToggleRouting from './useToggleRouting';
 
-
 const RoutingBar: FC = () => {
 	const { t } = useTranslation();
 
