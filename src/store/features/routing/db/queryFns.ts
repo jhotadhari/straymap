@@ -36,7 +36,6 @@ export const queryRoute = ({ queryKey }: { queryKey: (string | number | false)[]
 	});
 };
 
-
 /**
  *
  * ??? Better to unify this with queryRoute
@@ -51,7 +50,7 @@ export const queryRouteForLine = ({ queryKey }: { queryKey: (string | number | u
 	}
 	const [_key, lineId] = queryKey;
 	return new Promise<Route | null>((resolve, reject) => {
-		if (!lineId || 'string' === typeof lineId ) {
+		if (!lineId || 'string' === typeof lineId) {
 			return resolve(null);
 		}
 		fetchRoutes({

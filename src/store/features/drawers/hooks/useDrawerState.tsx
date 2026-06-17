@@ -76,10 +76,14 @@ const useDrawerState = ({
 				| number // fraction between 0 and 1
 				| boolean
 		) => {
-			const newTranslationX = !! expanded
+			const newTranslationX = !!expanded
 				? 'left' === side
-					? (isNumber( expanded ) ? -drawerWidth * (1-expanded) : 0)
-					: (isNumber( expanded ) ? drawerWidth * (1-expanded) : 0)
+					? isNumber(expanded)
+						? -drawerWidth * (1 - expanded)
+						: 0
+					: isNumber(expanded)
+						? drawerWidth * (1 - expanded)
+						: 0
 				: 'left' === side
 					? -drawerWidth
 					: drawerWidth;

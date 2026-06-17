@@ -12,7 +12,7 @@ export type DrawerState = {
 	side: string;
 	drawerWidth: number;
 	outerWidth: number;
-	expand: (expanded: number| boolean) => void;
+	expand: (expanded: number | boolean) => void;
 	getIsFullyCollapsed: () => boolean;
 };
 

@@ -116,7 +116,6 @@ const DrawerHandle = ({
 						/>
 					)}
 				</Button>
-
 			</View>
 		);
 	}, [

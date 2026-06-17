@@ -198,8 +198,8 @@ const Segment: FC<{
 					<ButtonHighlight compact={true}>
 						<View
 							style={{
-								width: iconSize,	// icon size as empty placeholder
-								height: 1,	// any number to prevent layout jumps on refresh process routing.
+								width: iconSize, // icon size as empty placeholder
+								height: 1, // any number to prevent layout jumps on refresh process routing.
 							}}
 						/>
 					</ButtonHighlight>

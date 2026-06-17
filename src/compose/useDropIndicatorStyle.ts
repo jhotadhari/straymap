@@ -1,5 +1,5 @@
-import { useMemo } from "react";
-import { useTheme } from "react-native-paper";
+import { useMemo } from 'react';
+import { useTheme } from 'react-native-paper';
 
 const useDropIndicatorStyle = () => {
 	const theme = useTheme();
@@ -14,5 +14,5 @@ const useDropIndicatorStyle = () => {
 		[theme]
 	);
 	return dropIndicatorStyle;
-}
-export default useDropIndicatorStyle
+};
+export default useDropIndicatorStyle;

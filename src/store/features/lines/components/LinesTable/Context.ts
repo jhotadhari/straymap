@@ -17,7 +17,7 @@ export type FooterContextType = {
 	linesCount: number;
 	routingLineId?: number | null;
 	setOnMapIdsTemp?: Dispatch<SetStateAction<number[]>>;
-	setCheckedIds?: Dispatch<SetStateAction<number[]>>
+	setCheckedIds?: Dispatch<SetStateAction<number[]>>;
 };
 
 export const FooterContext = createContext<FooterContextType>({

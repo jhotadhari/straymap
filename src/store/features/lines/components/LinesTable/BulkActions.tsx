@@ -94,10 +94,12 @@ const BulkActions: FC = () => {
 			// }}
 		>
 			<ScrollView>
-				{menuVisible && <PopoverMenuItems
-                    options={Object.values(actions)}
-                    onPress={() =>setMenuVisible(false)}
-                /> }
+				{menuVisible && (
+					<PopoverMenuItems
+						options={Object.values(actions)}
+						onPress={() => setMenuVisible(false)}
+					/>
+				)}
 			</ScrollView>
 		</Popover>
 	);

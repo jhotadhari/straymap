@@ -9,7 +9,7 @@ const useActions = ({ points, routeId }: { points?: RoutingPoint[]; routeId?: nu
 	const actionAppendPoint = useActionAppendPoint({ points, routeId });
 	actions[actionAppendPoint.key] = actionAppendPoint;
 
-    const actionDeleteLastPoint = useActionDeleteLastPoint({ points, routeId });
+	const actionDeleteLastPoint = useActionDeleteLastPoint({ points, routeId });
 	actions[actionDeleteLastPoint.key] = actionDeleteLastPoint;
 
 	return actions;
