@@ -1,9 +1,10 @@
 /**
  * External dependencies
  */
-import { FC, useMemo } from 'react';
+import { FC, useCallback, useContext, useMemo } from 'react';
 import { View } from 'react-native';
 import { useTheme, Text, Icon } from 'react-native-paper';
+import { without } from 'lodash-es';
 
 /**
  * Internal dependencies
@@ -12,12 +13,13 @@ import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
 import { iconSize } from '../../../drawers/constants';
 import { sprintf } from 'sprintf-js';
 import { styles } from './sharedDeps';
+import BulkActions from './BulkActions';
+import { FooterContext } from './Context';
 
-const Footer: FC<{
-	checkedIds: number[];
-	linesCount: number;
-}> = ({ checkedIds, linesCount }) => {
+const Footer: FC = () => {
 	const theme = useTheme();
+
+	const { checkedIds, linesCount, setCheckedIds, lineIds } = useContext(FooterContext);
 
 	const style = useMemo(
 		() => [
@@ -29,6 +31,13 @@ const Footer: FC<{
 		[theme]
 	);
 
+	const toggleCheckedIds = useCallback(() => {
+		setCheckedIds &&
+			setCheckedIds((ids) => {
+				return without(lineIds, ...ids);
+			});
+	}, [lineIds]);
+
 	const labelStyle = useMemo(
 		() => ({
 			color: checkedIds.length ? theme.colors.onBackground : theme.colors.onSurfaceDisabled,
@@ -38,20 +47,7 @@ const Footer: FC<{
 
 	return (
 		<View style={style}>
-			<ButtonHighlight
-				mode="text"
-				compact={true}
-				disabled={!checkedIds.length}
-				onPress={() => {
-					// ???
-				}}
-			>
-				<Icon
-					source={'square-edit-outline'}
-					size={iconSize}
-					color={checkedIds.length ? undefined : theme.colors.onSurfaceDisabled}
-				/>
-			</ButtonHighlight>
+			<BulkActions />
 
 			<Text style={labelStyle}>
 				{[
@@ -59,6 +55,17 @@ const Footer: FC<{
 					sprintf('%s/%s selected???', checkedIds.length, linesCount),
 				].join(', ')}
 			</Text>
+
+			<ButtonHighlight
+				mode="text"
+				compact={true}
+				onPress={toggleCheckedIds}
+			>
+				<Icon
+					source={'swap-horizontal-variant'}
+					size={iconSize}
+				/>
+			</ButtonHighlight>
 		</View>
 	);
 };

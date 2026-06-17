@@ -23,6 +23,7 @@ import { setLinesSelected } from '../../slice';
 import { setUiItemKeys } from '../../../ui/slice';
 import useRoute from '../../../routing/hooks/useRoute';
 import useActivateDrawerItem from '../../../drawers/hooks/useActivateDrawerItem';
+import { FooterContext, HeaderContext } from './Context';
 
 const keyExtractor = (line: { id: number }) => line.id.toString();
 
@@ -71,6 +72,8 @@ const LinesTable: FC = () => {
 		queryKey: ['lines'],
 		queryFn: queryLinesWithoutGeom,
 	});
+
+	const lineIds = useMemo(() => lines?.map((line) => line.id) ?? [], [lines]);
 
 	const [checkedIds, setCheckedIds] = useState<number[]>([]);
 	const toggleCheckedId = useCallback((id: number) => {
@@ -144,8 +147,13 @@ const LinesTable: FC = () => {
 
 	return (
 		<View style={styles.container}>
-
-			<Header checkedIds={checkedIds} />
+			<HeaderContext.Provider
+				value={{
+					checkedIds,
+				}}
+			>
+				<Header/>
+			</HeaderContext.Provider>
 
 			<ScrollView horizontal={true}>
 				<View style={{ flex: 1 }}>
@@ -166,10 +174,18 @@ const LinesTable: FC = () => {
 				</View>
 			</ScrollView>
 
-			<Footer
-				checkedIds={checkedIds}
-				linesCount={lines?.length || 0}
-			/>
+			<FooterContext.Provider
+				value={{
+					checkedIds,
+					lineIds,
+					linesCount: lines?.length || 0,
+					setCheckedIds,
+					setOnMapIdsTemp,
+					routingLineId,
+				}}
+			>
+				<Footer />
+			</FooterContext.Provider>
 		</View>
 	);
 };

@@ -35,14 +35,6 @@ export interface Route {
 	points: RoutingPoint[];
 }
 
-export interface RoutingAction {
-	key: string;
-	label: string;
-	leadingIcon: string;
-	cb: () => Promise<void> | void;
-	disabled?: () => boolean;
-}
-
 
 
 

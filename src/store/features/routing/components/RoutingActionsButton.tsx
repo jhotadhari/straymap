@@ -18,14 +18,15 @@ import MenuItem from '../../../../components/generic/MenuItem';
 import { useAppDispatch, useAppSelector } from '../../../hooks';
 import { setTriggeredMarkerIdx, setTriggeredSegment } from '../slice';
 import { selectMarkerLayerUuid, selectMovingPointIdx, selectPathLayerUuids } from '../selectors';
-import { RoutingAction } from '../types';
 import useRoute from '../hooks/useRoute';
 import { pick } from 'lodash-es';
 import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
+import { MenuActionOption } from '../../../../types';
+import PopoverMenuItems from '../../../../components/generic/PopoverMenuItems';
 
 const RoutingActionsButton: FC<{
 	disabled?: boolean;
-	actions?: Record<string, RoutingAction>;
+	actions?: Record<string, MenuActionOption>;
 }> = ({ disabled: disabled_, actions }) => {
 	const { mapHeight, mapViewNativeNodeHandle } = useContext(AppContext);
 
@@ -68,7 +69,7 @@ const RoutingActionsButton: FC<{
 		[]
 	);
 
-	const options: RoutingAction[] = useMemo(() => {
+	const options: MenuActionOption[] = useMemo(() => {
 		const keys: string[] = [];
 
 		if (undefined === movingPointIdx) {
@@ -259,6 +260,7 @@ const RoutingActionsButton: FC<{
 			// }, 100);
 		}
 	}, [
+		dismissMenu,
 		menuVisible,
 		mapViewNativeNodeHandle,
 		markerLayerUuid,
@@ -315,33 +317,7 @@ const RoutingActionsButton: FC<{
 				duration: 0,
 			}}
 		>
-				<ScrollView>
-					{menuVisible &&
-						options.map((opt) => {
-							const disabled = opt?.disabled ? opt?.disabled() : false;
-							return (
-								<MenuItem
-									key={opt.key}
-									leadingIcon={opt?.leadingIcon}
-									onPress={opt.cb}
-									title={t(opt.label)}
-									style={
-										disabled
-											? { backgroundColor: theme.colors.surfaceDisabled }
-											: undefined
-									}
-									textStyle={
-										disabled
-											? { color: theme.colors.onSurfaceDisabled }
-											: undefined
-									}
-									iconColor={
-										disabled ? theme.colors.onSurfaceDisabled : undefined
-									}
-								/>
-							);
-						})}
-				</ScrollView>
+			<ScrollView>{menuVisible && <PopoverMenuItems options={options} />}</ScrollView>
 		</Popover>
 	);
 };

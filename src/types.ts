@@ -24,6 +24,12 @@ export interface OptionBase {
 	label: string;
 }
 
+export interface MenuActionOption extends OptionBase {
+	leadingIcon: string;
+	cb: () => Promise<void> | void;
+	disabled?: () => boolean;
+}
+
 export type NumType = 'int' | 'float';
 
 export interface AppFeature {
