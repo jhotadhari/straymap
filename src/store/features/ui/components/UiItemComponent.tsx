@@ -35,7 +35,6 @@ const UiItemComponent: FC<{}> = () => {
 			width,
 			position: 'absolute',
 			zIndex: 30,
-			paddingBottom: 24,
 		}),
 		[theme]
 	);
