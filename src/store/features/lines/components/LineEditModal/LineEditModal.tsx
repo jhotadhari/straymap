@@ -17,7 +17,7 @@ import { queryRouteForLine } from '../../../routing/db/queryFns';
 import { selectLineTemp } from '../../selectors';
 import { setLineTemp } from '../../slice';
 import { LineEditModalContext } from './Context';
-import { styles } from './sharedDeps';
+import { sharedStyles } from './sharedDeps';
 import RowDelete from './RowDelete';
 import RowName from './RowName';
 import RowRouting from './RowRouting';
@@ -88,7 +88,7 @@ const LineEditModal: FC<{
 			visible={!!lineTemp}
 			onDismiss={onDismiss}
 			header={'line???'}
-			innerStyle={styles.gap}
+			innerStyle={sharedStyles.modalInner}
 		>
 			<LineEditModalContext.Provider
 				value={{

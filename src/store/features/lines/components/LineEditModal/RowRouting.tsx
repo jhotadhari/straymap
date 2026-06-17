@@ -16,7 +16,7 @@ import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
 import { selectIsRouting } from '../../../routing/selectors';
 import { setIsRouting } from '../../../routing/slice';
 import useActivateDrawerItem from '../../../drawers/hooks/useActivateDrawerItem';
-import { styles } from './sharedDeps';
+import { sharedStyles } from './sharedDeps';
 import IconRouting from '../../../drawers/items/routing/IconComponent';
 
 const RowRouting: FC = () => {
@@ -74,9 +74,12 @@ const RowRouting: FC = () => {
 				compact={true}
 				disabled={disabled}
 				onPress={handlePress}
+				icon={({ color }) => <IconRouting color={color} />}
+				contentStyle={sharedStyles.buttonContent}
+				labelStyle={sharedStyles.buttonLabel}
+				textColor={theme.colors.onBackground}
 			>
-				<View style={styles.buttonInner}>
-					<IconRouting color={theme.colors.onBackground} />
+				<View>
 					{!route?.id && <Text>{'no routing data???'}</Text>}
 					{route?.id && isRouting !== route?.id && <Text>{'load routing???'}</Text>}
 					{route?.id && isRouting === route?.id && <Text>{'is already routing???'}</Text>}

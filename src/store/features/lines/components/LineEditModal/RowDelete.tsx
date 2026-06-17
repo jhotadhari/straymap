@@ -3,7 +3,7 @@
  */
 import { FC, useCallback, useContext } from 'react';
 import { View } from 'react-native';
-import { Icon, Text } from 'react-native-paper';
+import { Icon, Text, useTheme } from 'react-native-paper';
 
 /**
  * Internal dependencies
@@ -12,12 +12,13 @@ import { LineEditModalContext } from './Context';
 import InfoRowControl from '../../../../../components/generic/controls/InfoRowControl';
 import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
 import useDeleteLinesCbModal from '../../hooks/useDeleteLinesCbModal';
-import { styles } from './sharedDeps';
-import { iconSize } from '../../../drawers/constants';
+import { sharedStyles } from './sharedDeps';
 import { selectLineTemp } from '../../selectors';
 import { useAppSelector } from '../../../../hooks';
 
 const RowDelete: FC = () => {
+	const theme = useTheme();
+
 	const lineTemp = useAppSelector(selectLineTemp);
 
 	const { selectLine, route, onDismiss, onDeleteSuccess } = useContext(LineEditModalContext);
@@ -53,12 +54,12 @@ const RowDelete: FC = () => {
 				mode="outlined"
 				compact={true}
 				onPress={handleDelete}
+				icon="delete"
+				contentStyle={sharedStyles.buttonContent}
+				labelStyle={sharedStyles.buttonLabel}
+				textColor={theme.colors.onBackground}
 			>
-				<View style={styles.buttonInner}>
-					<Icon
-						source="delete"
-						size={iconSize}
-					/>
+				<View>
 					<Text>{'delete???'}</Text>
 				</View>
 			</ButtonHighlight>

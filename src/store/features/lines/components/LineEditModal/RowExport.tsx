@@ -10,7 +10,7 @@ import { View } from 'react-native';
  */
 import InfoRowControl from '../../../../../components/generic/controls/InfoRowControl';
 import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
-import { styles } from './sharedDeps';
+import { sharedStyles } from './sharedDeps';
 import { iconSize } from '../../../drawers/constants';
 
 const RowExport: FC = () => {
@@ -89,12 +89,12 @@ const RowExport: FC = () => {
 				mode="outlined"
 				compact={true}
 				onPress={handlePress}
+				icon="content-save-outline"
+				contentStyle={sharedStyles.buttonContent}
+				labelStyle={sharedStyles.buttonLabel}
+				textColor={theme.colors.onBackground}
 			>
-				<View style={styles.buttonInner}>
-					<Icon
-						source="content-save-outline"
-						size={iconSize}
-					/>
+				<View>
 					<Text>{'??? TODO export '}</Text>
 				</View>
 			</ButtonHighlight>

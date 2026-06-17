@@ -1,12 +1,15 @@
 import { StyleSheet } from 'react-native';
 
-export const styles = StyleSheet.create({
-	gap: {
+export const sharedStyles = StyleSheet.create({
+	modalInner: {
 		gap: 16,
 	},
-	buttonInner: {
-		alignItems: 'center',
+	buttonContent: {
+		paddingHorizontal: 8,
+	},
+	buttonLabel: {
+		display: 'flex',
 		flexDirection: 'row',
-		gap: 8,
+		flexGrow: 1,
 	},
 });

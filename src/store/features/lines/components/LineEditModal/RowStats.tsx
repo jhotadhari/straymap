@@ -13,8 +13,7 @@ import InfoRowControl, {
 	styles as stylesInfoRowControl,
 } from '../../../../../components/generic/controls/InfoRowControl';
 import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
-import { styles as sharedStyles } from './sharedDeps';
-import { iconSize } from '../../../drawers/constants';
+import { sharedStyles } from './sharedDeps';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { selectElementExpanded } from '../../../ui/selectors';
 import { setElementExpanded } from '../../../ui/slice';
@@ -71,12 +70,12 @@ const RowStats: FC = () => {
 					mode="outlined"
 					compact={true}
 					onPress={handlePress}
+					icon="chart-box-outline"
+					contentStyle={sharedStyles.buttonContent}
+					labelStyle={sharedStyles.buttonLabel}
+					textColor={theme.colors.onBackground}
 				>
-					<View style={sharedStyles.buttonInner}>
-						<Icon
-							source="chart-box-outline"
-							size={iconSize}
-						/>
+					<View>
 						<Text>{expanded ? '??? hide Stats' : '??? show Stats'}</Text>
 					</View>
 				</ButtonHighlight>
