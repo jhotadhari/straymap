@@ -1,4 +1,4 @@
-import { MenuActionOption } from '../../../../../types';
+import { MenuActionOption } from '../../../../../../types';
 import useAddToMap from './useAddToMap';
 import useDeleteLines from './useDeleteLines';
 import useRemoveFromMap from './useRemoveFromMap';

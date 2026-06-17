@@ -12,7 +12,7 @@ import Popover, { PopoverPlacement } from 'react-native-popover-view';
  */
 import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
 import { iconSize } from '../../../drawers/constants';
-import useBulkActions from '../../hooks/useBulkActions';
+import useBulkActions from './useBulkActions';
 import { FooterContext } from './Context';
 import PopoverMenuItems from '../../../../../components/generic/PopoverMenuItems';
 

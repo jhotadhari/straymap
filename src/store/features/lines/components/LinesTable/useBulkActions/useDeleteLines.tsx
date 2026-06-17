@@ -12,13 +12,13 @@ import { useTranslation } from 'react-i18next';
 /**
  * Internal dependencies
  */
-import { FooterContext } from '../../components/LinesTable/Context';
-import { deleteLines } from '../../db/actionsLine';
-import { useAppDispatch } from '../../../../hooks';
-import { setIsRouting } from '../../../routing/slice';
-import ModalWrapper from '../../../../../components/generic/ModalWrapper';
-import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
-import { stylesGeneric } from '../../../baseMap/components/controls/layers/LayersControl';
+import { FooterContext } from '../Context';
+import { deleteLines } from '../../../db/actionsLine';
+import { useAppDispatch } from '../../../../../hooks';
+import { setIsRouting } from '../../../../routing/slice';
+import ModalWrapper from '../../../../../../components/generic/ModalWrapper';
+import ButtonHighlight from '../../../../../../components/generic/ButtonHighlight';
+import { stylesGeneric } from '../../../../baseMap/components/controls/layers/LayersControl';
 
 const useDeleteLines = () => {
 	const { checkedIds, setOnMapIdsTemp, routingLineId, routeId, setCheckedIds } =

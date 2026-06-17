@@ -7,19 +7,17 @@ import { useTranslation } from 'react-i18next';
 import { Dimensions, PixelRatio, ScrollView } from 'react-native';
 import { MapLayerMarkerModule, MapLayerPathSlopeGradientModule } from 'react-native-mapsforge-vtm';
 import Popover, { PopoverPlacement } from 'react-native-popover-view';
+import { pick } from 'lodash-es';
 
 /**
  * Internal dependencies
  */
 import { AppContext } from '../../../../Context';
-import { runAfterInteractions } from '../../../../lib/utils';
 import { MapContext } from '../../../../Context';
-import MenuItem from '../../../../components/generic/MenuItem';
 import { useAppDispatch, useAppSelector } from '../../../hooks';
 import { setTriggeredMarkerIdx, setTriggeredSegment } from '../slice';
 import { selectMarkerLayerUuid, selectMovingPointIdx, selectPathLayerUuids } from '../selectors';
 import useRoute from '../hooks/useRoute';
-import { pick } from 'lodash-es';
 import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
 import { MenuActionOption } from '../../../../types';
 import PopoverMenuItems from '../../../../components/generic/PopoverMenuItems';

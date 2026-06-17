@@ -1,5 +1,5 @@
-import { MenuActionOption } from '../../../../../types';
-import { RoutingPoint } from '../../types';
+import { MenuActionOption } from '../../../../../../types';
+import { RoutingPoint } from '../../../types';
 import useActionAppendPoint from './useActionAppendPoint';
 import useActionDeleteLastPoint from './useActionDeleteLastPoint';
 

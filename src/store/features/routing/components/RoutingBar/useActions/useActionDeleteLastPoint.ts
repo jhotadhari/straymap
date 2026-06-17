@@ -7,10 +7,10 @@ import { useMemo, useCallback } from 'react';
 /**
  * Internal dependencies
  */
-import { useAppDispatch } from '../../../../hooks';
-import { deleteRoutingPoint } from '../../db/actionsRoutingPoint';
-import { processRouting } from '../../slice';
-import { RoutingPoint } from '../../types';
+import { useAppDispatch } from '../../../../../hooks';
+import { deleteRoutingPoint } from '../../../db/actionsRoutingPoint';
+import { processRouting } from '../../../slice';
+import { RoutingPoint } from '../../../types';
 
 const useActionDeleteLastPoint = ({
 	points,

@@ -7,9 +7,9 @@ import { without } from 'lodash-es';
 /**
  * Internal dependencies
  */
-import { FooterContext } from '../../components/LinesTable/Context';
-import { useAppDispatch } from '../../../../hooks';
-import { setIsRouting } from '../../../routing/slice';
+import { FooterContext } from '../Context';
+import { useAppDispatch } from '../../../../../hooks';
+import { setIsRouting } from '../../../../routing/slice';
 
 const useRemoveFromMap = () => {
 	const { checkedIds, setOnMapIdsTemp, routingLineId } = useContext(FooterContext);

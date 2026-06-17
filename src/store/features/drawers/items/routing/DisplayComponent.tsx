@@ -9,7 +9,7 @@ import { View } from 'react-native';
  */
 import { handleSize, iconSize, itemStyles } from '../../constants';
 import PointsList from '../../../routing/components/PointsList';
-import RoutingActions from '../../../routing/components/RoutingActions';
+import RoutingBar from '../../../routing/components/RoutingBar';
 import DrawerContext from '../../DrawerContext';
 
 const DisplayComponent: FC = () => {
@@ -32,7 +32,7 @@ const DisplayComponent: FC = () => {
 	return (
 		<Fragment>
 			<View style={style}>
-				<RoutingActions />
+				<RoutingBar />
 
 				<PointsList />
 			</View>

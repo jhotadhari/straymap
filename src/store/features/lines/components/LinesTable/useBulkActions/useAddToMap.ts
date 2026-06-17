@@ -7,7 +7,7 @@ import { uniq } from 'lodash-es';
 /**
  * Internal dependencies
  */
-import { FooterContext } from '../../components/LinesTable/Context';
+import { FooterContext } from '../Context';
 
 const useAddToMap = () => {
 	const { checkedIds, setOnMapIdsTemp } = useContext(FooterContext);

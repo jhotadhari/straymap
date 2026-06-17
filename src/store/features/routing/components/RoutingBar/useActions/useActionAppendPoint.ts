@@ -3,11 +3,11 @@ import { Feature, Point, GeoJsonProperties } from 'geojson';
 import { useContext, useMemo, useCallback } from 'react';
 import { point } from '@turf/turf';
 
-import { useAppDispatch } from '../../../../hooks';
-import { createRoutingPoints } from '../../db/actionsRoutingPoint';
-import { processRouting } from '../../slice';
-import { RoutingPoint, RoutingProfile } from '../../types';
-import { MapContext } from '../../../../../Context';
+import { useAppDispatch } from '../../../../../hooks';
+import { createRoutingPoints } from '../../../db/actionsRoutingPoint';
+import { processRouting } from '../../../slice';
+import { RoutingPoint, RoutingProfile } from '../../../types';
+import { MapContext } from '../../../../../../Context';
 
 const useActionAppendPoint = ({
 	points,
