@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { Dispatch, FC, SetStateAction, useCallback, useMemo } from 'react';
-import { TextInput, useTheme } from 'react-native-paper';
+import { Icon, Text, TextInput, useTheme } from 'react-native-paper';
 
 /**
  * Internal dependencies
@@ -21,14 +21,21 @@ import { setIsRouting } from '../../routing/slice';
 import { queryRouteForLine } from '../../routing/db/queryFns';
 import useActivateDrawerItem from '../../drawers/hooks/useActivateDrawerItem';
 import { selectLineTemp } from '../selectors';
-import { setLineTemp } from '../slice';
+import { setLineSelected, setLineTemp } from '../slice';
+import { StyleSheet, View } from 'react-native';
+import { selectIsRouting } from '../../routing/selectors';
+import { iconSize } from '../../drawers/constants';
 
-const LineEditModal: FC = () => {
+const LineEditModal: FC<{
+	selectLine: (id: number) => void;
+}> = ({ selectLine }) => {
 	const dispatch = useAppDispatch();
 
 	const activateRoutingDrawerItem = useActivateDrawerItem('routing');
 
 	const lineTemp = useAppSelector(selectLineTemp);
+
+	const isRouting = useAppSelector(selectIsRouting);
 
 	const theme = useTheme();
 
@@ -79,14 +86,23 @@ const LineEditModal: FC = () => {
 		lineTemp,
 	]);
 
+	const handleSetRouting = useCallback(() => {
+		if (line?.id && route?.id) {
+			dispatch(setIsRouting(route.id));
+			selectLine(line.id);
+			activateRoutingDrawerItem();
+		}
+	}, [line?.id, route?.id]);
+
 	return (
 		<ModalWrapper
 			visible={!!lineTemp}
 			onDismiss={onDismiss}
 			header={'bla???'}
+			innerStyle={styles.gap}
 		>
 			<InfoRowControl
-				label={'name'}
+				label={'name'} // ??? translation
 				// Info={Info}
 			>
 				<TextInput
@@ -116,88 +132,133 @@ const LineEditModal: FC = () => {
 			</InfoRowControl>
 
 			{route?.id && (
-				<ButtonHighlight
-					// style={styles.noShrink}
-					mode="text"
-					compact={true}
-					onPress={() => {
-						if (route?.id) {
-							dispatch(setIsRouting(route.id));
-							activateRoutingDrawerItem();
-						}
-						onDismiss();
-					}}
+				<InfoRowControl
+					label={'routing???'}
+					// Info={Info}
 				>
-					<IconRouting color={theme.colors.primary} />
-				</ButtonHighlight>
-			)}
-
-			{/* <ButtonHighlight
-							mode="outlined"
-							onPress={async () => {
-								// const allPositions =
-								// 	segments && segments?.length
-								// 		? [...segments]
-								// 				.map((segment) => {
-								// 					return segment?.positions;
-								// 				})
-								// 				.filter((segment) => !!segment)
-								// 				.flat()
-								// 		: [];
-
-								// const stats =
-								// 	allPositions.length > 1
-								// 		? await lineStringToStats(
-								// 				lineString(locationsToCoordsArr(allPositions))
-								// 					.geometry
-								// 			)
-								// 		: {};
-
-								// const gpxString = [
-								// 	'<?xml version="1.0" encoding="UTF-8"?>',
-								// 	'<gpx',
-								// 	'  xmlns="http://www.topografix.com/GPX/1/1"',
-								// 	'  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"',
-								// 	'  xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd"',
-								// 	'  version="1.1" >',
-								// 	'  <trk>',
-								// 	'    <trkseg>',
-								// 	...[...allPositions].map(
-								// 		(pos) =>
-								// 			'      <trkpt lat="' +
-								// 			pos.lat +
-								// 			'" lon="' +
-								// 			pos.lng +
-								// 			'">' +
-								// 			(undefined !== pos?.alt
-								// 				? '<ele>' + pos?.alt + '</ele>'
-								// 				: '') +
-								// 			'</trkpt>'
-								// 	),
-								// 	'    </trkseg>',
-								// 	'  </trk>',
-								// 	'</gpx>',
-								// ].join('\n');
-
-								// const fileName =
-								// 	[
-								// 		Math.round((stats?.length || 0) / 1000) + 'km',
-								// 		Math.round(stats?.uphill || 0) + 'm_up',
-								// 		Math.round(stats?.downhill || 0) + 'm_down',
-								// 	].join('_') + '.gpx';
-
-								// await createDocument(
-								// 	fileName,
-								// 	'application/gpx+xml',
-								// 	gpxString,
-								// 	'utf8'
-								// );
+					<ButtonHighlight
+						style={{
+							borderColor: theme.colors.onBackground,
+							...((!route?.id || isRouting === route?.id) && {
+								opacity: 0.5,
+								borderColor: theme.colors.onSurfaceDisabled,
+							}),
+						}}
+						mode="outlined"
+						compact={true}
+						disabled={!route?.id || isRouting === route?.id}
+						onPress={handleSetRouting}
+					>
+						<View
+							style={{
+								alignItems: 'center',
+								flexDirection: 'row',
+								gap: 8,
 							}}
 						>
-							<Text>{t('export???')}</Text>
-						</ButtonHighlight> */}
+							<IconRouting color={theme.colors.onBackground} />
+							{!route?.id && <Text>{'no routing data???'}</Text>}
+							{route?.id && isRouting !== route?.id && (
+								<Text>{'load routing???'}</Text>
+							)}
+							{route?.id && isRouting === route?.id && (
+								<Text>{'is already routing???'}</Text>
+							)}
+						</View>
+					</ButtonHighlight>
+				</InfoRowControl>
+			)}
+
+			<InfoRowControl
+				label={'export???'}
+				// Info={Info}
+			>
+				<ButtonHighlight
+					mode="outlined"
+					compact={true}
+					// onPress={async () => {
+					// 	// const allPositions =
+					// 	// 	segments && segments?.length
+					// 	// 		? [...segments]
+					// 	// 				.map((segment) => {
+					// 	// 					return segment?.positions;
+					// 	// 				})
+					// 	// 				.filter((segment) => !!segment)
+					// 	// 				.flat()
+					// 	// 		: [];
+
+					// 	// const stats =
+					// 	// 	allPositions.length > 1
+					// 	// 		? await lineStringToStats(
+					// 	// 				lineString(locationsToCoordsArr(allPositions))
+					// 	// 					.geometry
+					// 	// 			)
+					// 	// 		: {};
+
+					// 	// const gpxString = [
+					// 	// 	'<?xml version="1.0" encoding="UTF-8"?>',
+					// 	// 	'<gpx',
+					// 	// 	'  xmlns="http://www.topografix.com/GPX/1/1"',
+					// 	// 	'  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"',
+					// 	// 	'  xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd"',
+					// 	// 	'  version="1.1" >',
+					// 	// 	'  <trk>',
+					// 	// 	'    <trkseg>',
+					// 	// 	...[...allPositions].map(
+					// 	// 		(pos) =>
+					// 	// 			'      <trkpt lat="' +
+					// 	// 			pos.lat +
+					// 	// 			'" lon="' +
+					// 	// 			pos.lng +
+					// 	// 			'">' +
+					// 	// 			(undefined !== pos?.alt
+					// 	// 				? '<ele>' + pos?.alt + '</ele>'
+					// 	// 				: '') +
+					// 	// 			'</trkpt>'
+					// 	// 	),
+					// 	// 	'    </trkseg>',
+					// 	// 	'  </trk>',
+					// 	// 	'</gpx>',
+					// 	// ].join('\n');
+
+					// 	// const fileName =
+					// 	// 	[
+					// 	// 		Math.round((stats?.length || 0) / 1000) + 'km',
+					// 	// 		Math.round(stats?.uphill || 0) + 'm_up',
+					// 	// 		Math.round(stats?.downhill || 0) + 'm_down',
+					// 	// 	].join('_') + '.gpx';
+
+					// 	// await createDocument(
+					// 	// 	fileName,
+					// 	// 	'application/gpx+xml',
+					// 	// 	gpxString,
+					// 	// 	'utf8'
+					// 	// );
+					// }}
+				>
+					<View
+						style={{
+							alignItems: 'center',
+							flexDirection: 'row',
+							gap: 8,
+						}}
+					>
+						<Icon
+							source="content-save-outline"
+							size={iconSize}
+						/>
+						<Text>{'??? TODO export '}</Text>
+					</View>
+				</ButtonHighlight>
+			</InfoRowControl>
 		</ModalWrapper>
 	);
 };
+
+const styles = StyleSheet.create({
+	gap: {
+		gap: 8,
+	},
+});
 
 export default LineEditModal;

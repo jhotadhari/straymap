@@ -3,6 +3,7 @@
  */
 import React, {
 	Dispatch,
+	FC,
 	MutableRefObject,
 	SetStateAction,
 	useCallback,
@@ -40,7 +41,7 @@ import Drawers from '../store/features/drawers/components/Drawers';
 import SplashScreen from './SplashScreen';
 // import AltitudeProfile from '../store/features/routing/components/AltitudeProfile';
 import RoutingMapView from '../store/features/routing/components/RoutingMapView';
-import { useAppSelector } from '../store/hooks';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { selectHardwareKeys, selectMapEventRate } from '../store/features/general/selectors';
 import { selectElementsSettings, selectItems } from '../store/features/dashboard/selectors';
 import { DashboardItem } from '../store/features/dashboard/types';
@@ -60,6 +61,7 @@ import useShowInitialSplash from '../compose/useShowInitialSplash';
 import DebugBla from '../store/features/lines/components/DebugBla';
 import LinesMapView from '../store/features/lines/components/LinesMapView';
 import LineEditModal from '../store/features/lines/components/LineEditModal';
+import { setLineSelected } from '../store/features/lines/slice';
 
 const AppView = ({
 	initialPositionRef,
@@ -259,9 +261,23 @@ const AppView = ({
 				/>
 			</View>
 
-			<LineEditModal/>
+			<LineEditModalWrapper />
 		</View>
 	);
+};
+
+const LineEditModalWrapper: FC = () => {
+	const dispatch = useAppDispatch();
+	const uiItemsKeys = useAppSelector(selectUiItemKeys);
+
+	const selectLine = useCallback((id: number) => {
+		dispatch(setLineSelected(id, true));
+	}, []);
+
+	// Hide if linesDirectory, because selectLine has to be different. See LinesTable.
+	return !uiItemsKeys.length || 'linesDirectory' !== uiItemsKeys[uiItemsKeys.length - 1] ? (
+		<LineEditModal selectLine={selectLine} />
+	) : undefined;
 };
 
 const styles = StyleSheet.create({

@@ -11,6 +11,7 @@ import { SliceSettingsBase } from '../../../types';
 import { selectSelected } from './selectors';
 import { AppThunk } from '../../store';
 import { LinePartial } from './types';
+import { uniq } from 'lodash-es';
 
 export interface LinesSettings {
 	selected: {
@@ -45,7 +46,7 @@ export const linesSlice = createSlice({
 			state.lineTemp = action.payload;
 		},
 		setSelected: (state, action: PayloadAction<LinesState['selected']>) => {
-			state.selected = [...action.payload].sort((a, b) => {
+			state.selected = uniq(action.payload).sort((a, b) => {
 				return a.id - b.id;
 			});
 		},

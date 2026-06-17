@@ -22,7 +22,7 @@ const useRemoveFromMap = () => {
 		key: 'removeFromMap',
 		cb,
 		label: 'removeFromMap',
-		leadingIcon: 'map-plus',
+		leadingIcon: 'map-minus',
 	};
 };
 

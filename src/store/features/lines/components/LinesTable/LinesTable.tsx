@@ -2,10 +2,10 @@
  * External dependencies
  */
 import { useQuery } from '@tanstack/react-query';
-import { FC, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { FC, memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { FlatList, ListRenderItem, ScrollView, StyleProp, View, ViewStyle } from 'react-native';
 import { useTheme } from 'react-native-paper';
-import { without } from 'lodash-es';
+import { isEqual, uniq, without } from 'lodash-es';
 
 /**
  * Internal dependencies
@@ -19,11 +19,12 @@ import TableRow, { TableRowProps } from './TableRow';
 import Header from './Header';
 import Footer from './Footer';
 import { queryLinesWithoutGeom } from '../../db/queryFns';
-import { setLinesSelected } from '../../slice';
+import { setLineSelected, setLinesSelected } from '../../slice';
 import { setUiItemKeys } from '../../../ui/slice';
 import useRoute from '../../../routing/hooks/useRoute';
 import useActivateDrawerItem from '../../../drawers/hooks/useActivateDrawerItem';
 import { FooterContext, HeaderContext } from './Context';
+import LineEditModal from '../LineEditModal';
 
 const keyExtractor = (line: { id: number }) => line.id.toString();
 
@@ -35,6 +36,7 @@ const TableRowMemo = memo(
 		return (
 			prevProps.isOnMap === nextProps.isOnMap &&
 			prevProps.isChecked === nextProps.isChecked &&
+			prevProps.isRoutingLine === nextProps.isRoutingLine &&
 			prevProps.line?.title === nextProps.line?.title
 		);
 	}
@@ -63,7 +65,7 @@ const LinesTable: FC = () => {
 	}, [onMapIdsTemp]);
 	useEffect(
 		() => () => {
-			onMapIdsTempRef?.current && dispatch(setLinesSelected(onMapIdsTempRef.current));
+			onMapIdsTempRef?.current && dispatch(setLinesSelected(uniq(onMapIdsTempRef.current)));
 		},
 		[]
 	);
@@ -152,7 +154,7 @@ const LinesTable: FC = () => {
 					checkedIds,
 				}}
 			>
-				<Header/>
+				<Header />
 			</HeaderContext.Provider>
 
 			<ScrollView horizontal={true}>
@@ -185,9 +187,24 @@ const LinesTable: FC = () => {
 				}}
 			>
 				<Footer />
+
+				<LineEditModalWrapper />
 			</FooterContext.Provider>
 		</View>
 	);
+};
+
+const LineEditModalWrapper: FC = () => {
+	const dispatch = useAppDispatch();
+
+	const { setOnMapIdsTemp } = useContext(FooterContext);
+
+	const selectLine = useCallback((id: number) => {
+		setOnMapIdsTemp && setOnMapIdsTemp((ids) => uniq([...ids, id]));
+		dispatch(setLineSelected(id, true));
+	}, []);
+
+	return <LineEditModal selectLine={selectLine} />;
 };
 
 export default LinesTable;
