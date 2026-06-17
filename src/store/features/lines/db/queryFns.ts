@@ -15,6 +15,7 @@ import { fetchLines } from './fetch';
  * Used with:
  *  queryKey: ['lines'],
  *  queryKey: ['lines', selectedIds],
+ * 	queryKey: ['lines', checkedIds],
  */
 export const queryLinesWithoutGeom = ({ queryKey }: { queryKey: (string | number[])[] }) => {
 	if (queryKey.length > 1 && !queryKey[1].length) {
