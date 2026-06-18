@@ -1,5 +1,5 @@
 import { WithRequired } from '@tanstack/react-query';
-import { LineString } from 'geojson';
+import { LineString, Polygon } from 'geojson';
 
 export interface Tag {
 	id: number;
@@ -22,6 +22,7 @@ export interface Line {
 	id: number;
 	title: string | null; // ??? rename to name
 	geometry: LineString;
+	envelope: Polygon;
 	timestamp: string;
 	tags: Tag[];
 	stats: LineStats;

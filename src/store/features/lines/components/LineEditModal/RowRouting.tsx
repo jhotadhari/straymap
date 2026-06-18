@@ -4,6 +4,8 @@
 import { FC, useCallback, useContext, useMemo } from 'react';
 import { Text, useTheme } from 'react-native-paper';
 import { View } from 'react-native';
+import { MapContainerModule } from 'react-native-mapsforge-vtm';
+import { centerOfMass } from '@turf/turf';
 
 /**
  * Internal dependencies
@@ -18,6 +20,7 @@ import { setIsRouting } from '../../../routing/slice';
 import useActivateDrawerItem from '../../../drawers/hooks/useActivateDrawerItem';
 import { sharedStyles } from './sharedDeps';
 import IconRouting from '../../../drawers/items/routing/IconComponent';
+import { AppContext } from '../../../../../Context';
 
 const RowRouting: FC = () => {
 	const theme = useTheme();
@@ -30,15 +33,30 @@ const RowRouting: FC = () => {
 
 	const isRouting = useAppSelector(selectIsRouting);
 
-	const { route, selectLine } = useContext(LineEditModalContext);
+	const { mapViewNativeNodeHandle } = useContext(AppContext);
+
+	const { route, selectLine, line } = useContext(LineEditModalContext);
 
 	const handlePress = useCallback(() => {
 		if (lineTemp?.id && route?.id) {
+			// set bounds. ??? have to implement set bounds. use center for now,
+			if (line?.envelope) {
+				const centerPoint = centerOfMass(line?.envelope);
+				MapContainerModule.setCenter(mapViewNativeNodeHandle, {
+					lng: centerPoint.geometry.coordinates[0],
+					lat: centerPoint.geometry.coordinates[1],
+				});
+			}
 			dispatch(setIsRouting(route.id));
 			selectLine(lineTemp.id, true);
 			activateRoutingDrawerItem();
 		}
-	}, [lineTemp?.id, route?.id]);
+	}, [
+		mapViewNativeNodeHandle,
+		lineTemp?.id,
+		route?.id,
+		line?.envelope,
+	]);
 
 	const buttonStyle = useMemo(
 		() => ({

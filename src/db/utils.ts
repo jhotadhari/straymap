@@ -35,3 +35,14 @@ export const rowParseGeometryGeoJSON = <T, G>(row: T & { geometryGeoJSON: string
 export const rowsParseGeometryGeoJSON = <T, G>(rows: (T & { geometryGeoJSON: string })[]) => {
 	return rows.map((row) => rowParseGeometryGeoJSON<T, G>(row));
 };
+
+export const rowParseEnvelopeGeoJSON = <T, G>(row: T & { envelopeGeoJSON: string }) => {
+	return {
+		...omit(row, 'envelopeGeoJSON'),
+		envelope: parseSerialized<G>(row.envelopeGeoJSON)!,
+	} as Omit<T, 'envelopeGeoJSON'> & { envelope: G };
+};
+
+export const rowsParseEnvelopeGeoJSON = <T, G>(rows: (T & { envelopeGeoJSON: string })[]) => {
+	return rows.map((row) => rowParseEnvelopeGeoJSON<T, G>(row));
+};

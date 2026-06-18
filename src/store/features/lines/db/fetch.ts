@@ -1,9 +1,9 @@
 /**
  * External dependencies
  */
-import { LineString } from 'geojson';
+import { LineString, Polygon } from 'geojson';
 import { sql, eq, and, inArray, desc } from 'drizzle-orm';
-import { difference, includes, intersection, mapValues, omit, pick } from 'lodash-es';
+import { difference, intersection, mapValues, omit, pick } from 'lodash-es';
 import { WithRequired } from '@tanstack/react-query';
 
 /**
@@ -11,7 +11,7 @@ import { WithRequired } from '@tanstack/react-query';
  */
 import { dbZ } from '../../../../db/clients';
 import { linesTable, tagsTable, tagsToLinesTable } from './schema/schema';
-import { rowsParseGeometryGeoJSON } from '../../../../db/utils';
+import { rowsParseEnvelopeGeoJSON, rowsParseGeometryGeoJSON } from '../../../../db/utils';
 import { ArrayElement } from '../../../../types';
 import { Line, LinePartial, STATS_FIELDS, Tag } from '../types';
 
@@ -50,6 +50,40 @@ interface LineColumnsOptions {
 	simplify?: number;
 }
 
+const parseRows = (
+	aggregated: (Partial<
+		Omit<Line, 'geometry' | 'envelope'> & {
+			geometryGeoJSON?: string;
+			envelopeGeoJSON?: string;
+		}
+	> & {
+		id: number;
+	})[],
+	fields: (keyof Omit<Line, 'id'>)[]
+) => {
+	if (fields.includes('geometry')) {
+		const aggregated_ = aggregated as WithRequired<
+			ArrayElement<typeof aggregated>,
+			'geometryGeoJSON'
+		>[];
+		aggregated = rowsParseGeometryGeoJSON<ArrayElement<typeof aggregated_>, LineString>(
+			aggregated_
+		);
+	}
+
+	if (fields.includes('envelope')) {
+		const aggregated_ = aggregated as WithRequired<
+			ArrayElement<typeof aggregated>,
+			'envelopeGeoJSON'
+		>[];
+		aggregated = rowsParseEnvelopeGeoJSON<ArrayElement<typeof aggregated_>, Polygon>(
+			aggregated_
+		);
+	}
+
+	return aggregated;
+};
+
 const getLineColumns = (fields: (keyof Omit<Line, 'id'>)[], options?: LineColumnsOptions) => {
 	return {
 		id: linesTable.id,
@@ -70,6 +104,9 @@ const getLineColumns = (fields: (keyof Omit<Line, 'id'>)[], options?: LineColumn
 					)
 				`,
 			}),
+		...(fields.includes('envelope') && {
+			envelopeGeoJSON: sql<string>`AsGeoJSON (ST_Envelope (${linesTable.geometry}))`,
+		}),
 		...(fields.includes('stats') && {
 			length: sql<string>`GreatCircleLength (${linesTable.geometry})`,
 		}),
@@ -100,6 +137,7 @@ const fetchLinesWithoutTags = (params?: FetchLinesWithoutTagsParams) => {
 	let fields: (keyof Omit<Line, 'id'>)[] = [
 		'title',
 		'geometry',
+		'envelope',
 		'timestamp',
 		'stats',
 	];
@@ -127,18 +165,7 @@ const fetchLinesWithoutTags = (params?: FetchLinesWithoutTagsParams) => {
 
 		query
 			.then((rows) => {
-				let aggregated = rows;
-				if (fields.includes('geometry')) {
-					const aggregatedWithGeo = aggregated as WithRequired<
-						ArrayElement<typeof aggregated>,
-						'geometryGeoJSON'
-					>[];
-					aggregated = rowsParseGeometryGeoJSON<
-						ArrayElement<typeof aggregatedWithGeo>,
-						LineString
-					>(aggregatedWithGeo);
-				}
-				resolve(aggregated);
+				resolve(parseRows(rows, fields));
 			})
 			.catch((err) => {
 				reject(err);
@@ -164,6 +191,7 @@ const fetchLinesWithTags = (params?: FetchLinesWithTagsParams) => {
 	let fields: (keyof Omit<Line, 'id'>)[] = [
 		'title',
 		'geometry',
+		'envelope',
 		'timestamp',
 		'tags',
 		'stats',
@@ -229,6 +257,7 @@ const fetchLinesWithTags = (params?: FetchLinesWithTagsParams) => {
 							title?: string | null;
 							timestamp?: string;
 							geometryGeoJSON?: string;
+							envelopeGeoJSON?: string;
 							length?: string;
 							uphill?: string;
 							downhill?: string;
@@ -238,13 +267,16 @@ const fetchLinesWithTags = (params?: FetchLinesWithTagsParams) => {
 						tag: Tag;
 					}[]
 				) => {
-					let aggregated = Array.from(
+					const aggregated = Array.from(
 						rows
 							.reduce<
 								Map<
 									number, // line.id
 									Partial<
-										Omit<Line, 'geometry'> & { geometryGeoJSON: string }
+										Omit<Line, 'geometry' | 'envelope'> & {
+											geometryGeoJSON: string;
+											envelopeGeoJSON: string;
+										}
 									> & {
 										id: number;
 										tags: Tag[];
@@ -271,18 +303,7 @@ const fetchLinesWithTags = (params?: FetchLinesWithTagsParams) => {
 							}, new Map())
 							.values()
 					);
-
-					if (fields.includes('geometry')) {
-						const aggregatedWithGeo = aggregated as WithRequired<
-							ArrayElement<typeof aggregated>,
-							'geometryGeoJSON'
-						>[];
-						aggregated = rowsParseGeometryGeoJSON<
-							ArrayElement<typeof aggregatedWithGeo>,
-							LineString
-						>(aggregatedWithGeo);
-					}
-					resolve(aggregated);
+					resolve(parseRows(aggregated, fields));
 				}
 			)
 			.catch((err) => {
