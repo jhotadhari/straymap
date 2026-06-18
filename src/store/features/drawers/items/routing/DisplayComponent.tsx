@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { FC, Fragment, useContext, useMemo } from 'react';
+import React, { FC, useContext, useMemo } from 'react';
 import { View } from 'react-native';
 
 /**
@@ -9,7 +9,7 @@ import { View } from 'react-native';
  */
 import { handleSize, iconSize, itemStyles } from '../../constants';
 import PointsList from '../../../routing/components/PointsList';
-import RoutingBar from '../../../routing/components/RoutingBar';
+import DrawerTopBar from '../../../routing/components/DrawerTopBar/DrawerTopBar';
 import DrawerContext from '../../DrawerContext';
 
 const DisplayComponent: FC = () => {
@@ -30,13 +30,11 @@ const DisplayComponent: FC = () => {
 	);
 
 	return (
-		<Fragment>
-			<View style={style}>
-				<RoutingBar />
+		<View style={style}>
+			<DrawerTopBar />
 
-				<PointsList />
-			</View>
-		</Fragment>
+			<PointsList />
+		</View>
 	);
 };
 

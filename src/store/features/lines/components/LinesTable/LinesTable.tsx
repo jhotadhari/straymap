@@ -21,7 +21,7 @@ import { isEqual, uniq, without } from 'lodash-es';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { selectSelectedInfos } from '../../selectors';
 import { Line, LineStats } from '../../types';
-import { styles } from './sharedDeps';
+import { sharedStyles } from './sharedDeps';
 import TableHeader from './TableHeader';
 import TableRow, { TableRowProps } from './TableRow';
 import Header from './Header';
@@ -113,7 +113,7 @@ const LinesTable: FC = () => {
 
 	const styleCell: StyleProp<ViewStyle> = useMemo(
 		() => [
-			styles.cell,
+			sharedStyles.cell,
 			{
 				// height: ITEM_HEIGHT,
 				// overflow: 'hidden',
@@ -179,7 +179,7 @@ const LinesTable: FC = () => {
 	);
 
 	return (
-		<View style={styles.container}>
+		<View style={sharedStyles.container}>
 			<HeaderContext.Provider
 				value={{
 					checkedIds,

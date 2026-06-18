@@ -8,7 +8,7 @@ import { useTheme, Text } from 'react-native-paper';
 /**
  * Internal dependencies
  */
-import { styles } from './sharedDeps';
+import { sharedStyles } from './sharedDeps';
 import { HeaderContext } from './Context';
 
 const Header: FC = () => {
@@ -18,7 +18,7 @@ const Header: FC = () => {
 
 	const style = useMemo(
 		() => [
-			styles.header,
+			sharedStyles.header,
 			{
 				borderColor: theme.colors.onBackground,
 			},

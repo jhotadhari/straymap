@@ -13,7 +13,7 @@ import { Line, LineStats as LineStatsType } from '../../types';
 import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
 import { iconSize } from '../../../drawers/constants';
 import LineStats from '../LineStats';
-import { lineCells, statsCells, otherCells, styles } from './sharedDeps';
+import { lineCells, statsCells, otherCells, sharedStyles } from './sharedDeps';
 import TagBadge from '../TagBadge';
 import IconRouting from '../../../drawers/items/routing/IconComponent';
 import { useAppDispatch } from '../../../../hooks';
@@ -77,7 +77,7 @@ const TableRow: FC<TableRowProps> = ({
 
 	const style = useMemo(
 		() => [
-			styles.flexRow,
+			sharedStyles.flexRow,
 			{
 				...(idx % 2 === 1 && {
 					backgroundColor: theme.colors.surfaceDisabled,
@@ -147,7 +147,7 @@ const TableRow: FC<TableRowProps> = ({
 			</View>
 
 			<TouchableWithoutFeedback onPress={toggleChecked}>
-				<View style={styles.flexRow}>
+				<View style={sharedStyles.flexRow}>
 					{Object.keys(lineCells).map((key) => (
 						<View
 							key={key}

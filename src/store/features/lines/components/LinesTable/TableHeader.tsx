@@ -8,7 +8,7 @@ import { Text, useTheme } from 'react-native-paper';
 /**
  * Internal dependencies
  */
-import { styles, lineCells, statsCells, otherCells } from './sharedDeps';
+import { sharedStyles, lineCells, statsCells, otherCells } from './sharedDeps';
 
 const TableHeader: FC<{
 	styleCell: StyleProp<ViewStyle>;
@@ -27,7 +27,7 @@ const TableHeader: FC<{
 
 	const styleContainer: StyleProp<ViewStyle> = useMemo(
 		() => [
-			styles.flexRow,
+			sharedStyles.flexRow,
 			{
 				backgroundColor: theme.colors.background,
 				borderBottomWidth: 1,

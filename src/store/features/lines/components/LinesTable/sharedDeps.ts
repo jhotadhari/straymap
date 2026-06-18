@@ -1,6 +1,6 @@
 import { StyleSheet, ViewStyle } from 'react-native';
 
-export const styles = StyleSheet.create({
+export const sharedStyles = StyleSheet.create({
 	cell: {
 		flexDirection: 'row',
 		width: 100,

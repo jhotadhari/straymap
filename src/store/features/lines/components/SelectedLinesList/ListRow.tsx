@@ -1,29 +1,27 @@
 /**
  * External dependencies
  */
-import { useQuery } from '@tanstack/react-query';
 import { FC, useCallback, useMemo } from 'react';
-import { StyleSheet, View, ViewStyle } from 'react-native';
+import { View, ViewStyle } from 'react-native';
 import { useTheme, Text, Icon } from 'react-native-paper';
 import { omit, pick } from 'lodash-es';
 
 /**
  * Internal dependencies
  */
-import { useAppDispatch, useAppSelector } from '../../../hooks';
-import { selectSelectedInfos } from '../selectors';
-import { Line, LinePartial } from '../types';
-import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
-import { iconSize } from '../../drawers/constants';
-import { setLineSelected, setLineTemp, setLineVisible } from '../slice';
-import LineStats from './LineStats';
-import TagBadge from './TagBadge';
-import IconRouting from '../../drawers/items/routing/IconComponent';
-import { queryLinesWithoutGeom } from '../db/queryFns';
-import useRoute from '../../routing/hooks/useRoute';
-import useActivateDrawerItem from '../../drawers/hooks/useActivateDrawerItem';
+import { useAppDispatch } from '../../../../hooks';
+import { Line } from '../../types';
+import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
+import { iconSize } from '../../../drawers/constants';
+import { setLineSelected, setLineTemp, setLineVisible } from '../../slice';
+import LineStats from '../LineStats';
+import TagBadge from '../TagBadge';
+import IconRouting from '../../../drawers/items/routing/IconComponent';
+import useRoute from '../../../routing/hooks/useRoute';
+import useActivateDrawerItem from '../../../drawers/hooks/useActivateDrawerItem';
+import { sharedStyles } from './sharedDeps';
 
-const LineRow: FC<{
+const ListRow: FC<{
 	line: Omit<Line, 'geometry'>;
 	idx: number;
 	visible: boolean;
@@ -60,10 +58,10 @@ const LineRow: FC<{
 	);
 
 	return (
-		<View style={[styles.row, style]}>
+		<View style={[sharedStyles.row, style]}>
 			{line.id !== routingLineId && (
 				<ButtonHighlight
-					style={styles.noShrink}
+					style={sharedStyles.noShrink}
 					mode="text"
 					compact={true}
 					onPress={toggleSelected}
@@ -77,7 +75,7 @@ const LineRow: FC<{
 
 			{line.id === routingLineId && (
 				<ButtonHighlight
-					style={styles.noShrink}
+					style={sharedStyles.noShrink}
 					mode="text"
 					compact={true}
 					onPress={handleActivateRouting}
@@ -86,19 +84,19 @@ const LineRow: FC<{
 				</ButtonHighlight>
 			)}
 
-			<View style={styles.rowColCenter}>
-				<View style={styles.rowColCenterRow}>
+			<View style={sharedStyles.rowColCenter}>
+				<View style={sharedStyles.rowColCenterRow}>
 					{line.title && <Text>{line.title}</Text>}
 					<Text>{line.timestamp}</Text>
 				</View>
 
-				<View style={styles.rowColCenterRow}>
+				<View style={sharedStyles.rowColCenterRow}>
 					<LineStats
 						stats={omit(stats, ['minZ', 'maxZ'])}
 						round={0}
 					/>
 				</View>
-				<View style={styles.rowColCenterRow}>
+				<View style={sharedStyles.rowColCenterRow}>
 					<LineStats
 						stats={pick(stats, ['minZ', 'maxZ'])}
 						round={0}
@@ -106,7 +104,7 @@ const LineRow: FC<{
 				</View>
 
 				{line?.tags && line?.tags.length > 0 && (
-					<View style={styles.rowColCenterRow}>
+					<View style={sharedStyles.rowColCenterRow}>
 						{line.tags.map((tag) => (
 							<TagBadge
 								key={tag.id}
@@ -117,7 +115,7 @@ const LineRow: FC<{
 				)}
 			</View>
 
-			<View style={styles.noShrink}>
+			<View style={sharedStyles.noShrink}>
 				<ButtonHighlight
 					mode="text"
 					compact={true}
@@ -144,46 +142,4 @@ const LineRow: FC<{
 		</View>
 	);
 };
-
-const SelectedLinesList: FC = () => {
-	const { selectedIds, visibleMap } = useAppSelector(selectSelectedInfos);
-
-	const { data: lines } = useQuery({
-		queryKey: ['lines', selectedIds],
-		queryFn: queryLinesWithoutGeom,
-	});
-
-	return lines?.map((line, idx) => (
-		<LineRow
-			key={line.id}
-			line={line}
-			idx={idx}
-			visible={visibleMap[line.id]}
-		/>
-	));
-};
-
-const styles = StyleSheet.create({
-	noShrink: { flexShrink: 0 },
-	row: {
-		justifyContent: 'space-between',
-		alignItems: 'center',
-		flexDirection: 'row',
-		paddingBottom: 4,
-		paddingLeft: 4,
-		paddingRight: 2,
-		paddingTop: 4,
-	},
-	rowColCenter: {
-		flexShrink: 1,
-		gap: 8,
-		width: '100%',
-	},
-	rowColCenterRow: {
-		flexDirection: 'row',
-		flexWrap: 'wrap',
-		gap: 8,
-	},
-});
-
-export default SelectedLinesList;
+export default ListRow;

@@ -12,7 +12,7 @@ import { without } from 'lodash-es';
 import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
 import { iconSize } from '../../../drawers/constants';
 import { sprintf } from 'sprintf-js';
-import { styles } from './sharedDeps';
+import { sharedStyles } from './sharedDeps';
 import BulkActions from './BulkActions';
 import { FooterContext } from './Context';
 
@@ -23,7 +23,7 @@ const Footer: FC = () => {
 
 	const style = useMemo(
 		() => [
-			styles.footer,
+			sharedStyles.footer,
 			{
 				borderColor: theme.colors.onBackground,
 			},

@@ -1,9 +1,9 @@
 /**
  * External dependencies
  */
-import { FC, Fragment, useCallback, useContext, useMemo, useState } from 'react';
+import { FC, Fragment, useCallback, useContext } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { useMutation, UseMutationOptions, useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { Icon, Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { get } from 'lodash-es';
@@ -13,12 +13,9 @@ import { get } from 'lodash-es';
  */
 import { handleSize, iconSize as handleIconSize, itemStyles } from '../../../drawers/constants';
 import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
-import { createRoute, deleteRoute } from '../../db/actionsRoute';
-import { deleteLine } from '../../../lines/db/actionsLine';
 import DrawerContext from '../../../drawers/DrawerContext';
 import { useAppDispatch } from '../../../../hooks';
 import useRoute from '../../hooks/useRoute';
-import { setIsRouting } from '../../slice';
 import { queryLinesWithoutGeom } from '../../../lines/db/queryFns';
 import { LinePartial } from '../../../lines/types';
 import { setLineTemp } from '../../../lines/slice';
@@ -26,7 +23,7 @@ import useActions from './useActions';
 import RoutingActionsButton from '../RoutingActionsButton';
 import useToggleRouting from './useToggleRouting';
 
-const RoutingBar: FC = () => {
+const DrawerTopBar: FC = () => {
 	const { t } = useTranslation();
 
 	const theme = useTheme();
@@ -173,4 +170,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export default RoutingBar;
+export default DrawerTopBar;
