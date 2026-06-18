@@ -18,7 +18,7 @@ import { fetchLines } from './fetch';
  * 	queryKey: ['lines', checkedIds],
  */
 export const queryLinesWithoutGeom = ({ queryKey }: { queryKey: (string | number[])[] }) => {
-	if (queryKey.length > 1 && ( !queryKey[1].length || 'number' !== typeof queryKey[1][0] ) ) {
+	if (queryKey.length > 1 && (!queryKey[1].length || 'number' !== typeof queryKey[1][0])) {
 		return Promise.resolve([] as Omit<Line, 'geometry'>[]);
 	}
 	return fetchLines({

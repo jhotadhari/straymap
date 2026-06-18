@@ -82,20 +82,18 @@ const LinesMapView = () => {
 
 	const simplify = useSimplificationTolerance();
 
-	return (
-		selectedIds?.map((lineId) => {
-			return (
-				routingLineId !== lineId &&
-				visibleMap[lineId] && (
-					<LineItem
-						key={lineId}
-						lineId={lineId}
-						simplify={simplify}
-					/>
-				)
-			);
-		})
-	);
+	return selectedIds?.map((lineId) => {
+		return (
+			routingLineId !== lineId &&
+			visibleMap[lineId] && (
+				<LineItem
+					key={lineId}
+					lineId={lineId}
+					simplify={simplify}
+				/>
+			)
+		);
+	});
 };
 
 export default LinesMapView;

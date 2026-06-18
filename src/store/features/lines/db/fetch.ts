@@ -50,23 +50,26 @@ interface LineColumnsOptions {
 	simplify?: number;
 }
 
-const getLineColumns = (fields: (keyof Omit<Line, 'id'>)[], options?: LineColumnsOptions ) => {
+const getLineColumns = (fields: (keyof Omit<Line, 'id'>)[], options?: LineColumnsOptions) => {
 	return {
 		id: linesTable.id,
 		...(fields.includes('title') && { title: linesTable.title }),
 		...(fields.includes('timestamp') && { timestamp: linesTable.timestamp }),
-		...(fields.includes('geometry') && ! options?.simplify && {
-			geometryGeoJSON: sql<string>`
-				AsGeoJSON (${linesTable.geometry})
-			`,
-		}),
-		...(fields.includes('geometry') && options?.simplify&& {
-			geometryGeoJSON: sql<string>`
-				AsGeoJSON (
-					Simplify (${linesTable.geometry}, ${options.simplify})
-				)
-			`,
-		}),
+		...(fields.includes('geometry') &&
+			!options?.simplify && {
+				geometryGeoJSON: sql<string>` AsGeoJSON (${linesTable.geometry}) `,
+			}),
+		...(fields.includes('geometry') &&
+			options?.simplify && {
+				geometryGeoJSON: sql<string>`
+					AsGeoJSON (
+						Simplify (
+							${linesTable.geometry},
+							${options.simplify}
+						)
+					)
+				`,
+			}),
 		...(fields.includes('stats') && {
 			length: sql<string>`GreatCircleLength (${linesTable.geometry})`,
 		}),
@@ -108,7 +111,7 @@ const fetchLinesWithoutTags = (params?: FetchLinesWithoutTagsParams) => {
 	}
 
 	return new Promise<LinePartial[]>((resolve, reject) => {
-		const query = dbZ.select(getLineColumns(fields, { simplify } )).from(linesTable);
+		const query = dbZ.select(getLineColumns(fields, { simplify })).from(linesTable);
 
 		query.where(and(lineIds ? inArray(linesTable.id, lineIds) : undefined));
 
@@ -179,7 +182,7 @@ const fetchLinesWithTags = (params?: FetchLinesWithTagsParams) => {
 	return new Promise<LinePartial[]>((resolve, reject) => {
 		const query = dbZ
 			.select({
-				line: getLineColumns(fields, { simplify } ),
+				line: getLineColumns(fields, { simplify }),
 				tag: {
 					id: tagsTable.id,
 					label: tagsTable.label,

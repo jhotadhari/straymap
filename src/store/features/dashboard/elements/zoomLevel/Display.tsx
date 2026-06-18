@@ -7,7 +7,7 @@ import { GestureResponderEvent, TouchableHighlight, View } from 'react-native';
 
 /**
  * Internal dependencies
-*/
+ */
 import { DashboardElementProps } from '../../types';
 import useItemStyle from '../../hooks/useItemStyle';
 import useMapZoomLevel from '../../../../../compose/useMapZoomLevel';

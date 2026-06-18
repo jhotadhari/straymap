@@ -108,10 +108,7 @@ export const setLinesSelected = (newSelectedIds: number[]): AppThunk => {
 			...(selected.find((item) => item.id === newSelectedId) ?? {}),
 			visible: true,
 		}));
-		if ( ! isEqual(
-			selected,
-			newSelected,
-		) ) {
+		if (!isEqual(selected, newSelected)) {
 			dispatch(linesSlice.actions.setSelected(newSelected));
 		}
 	};

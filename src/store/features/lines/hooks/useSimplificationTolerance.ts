@@ -27,7 +27,6 @@ const steps = [
 const interpolation = linearInterpolation(steps);
 
 const useSimplificationTolerance = () => {
-
 	const zoomLevel = useMapZoomLevel();
 
 	const [simplify, setSimplify] = useState<number | undefined>(undefined);
@@ -41,8 +40,8 @@ const useSimplificationTolerance = () => {
 				newSimplify = roundTo(interpolation({ x: zoomLevel }), 7);
 			}
 			setSimplify(newSimplify);
-		}, 1000 );
-	}, [] );
+		}, 1000);
+	}, []);
 
 	useEffect(() => {
 		updateSimplify(zoomLevel);

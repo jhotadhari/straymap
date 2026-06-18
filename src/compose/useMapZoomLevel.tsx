@@ -6,13 +6,12 @@ import { MapEventResponse } from 'react-native-mapsforge-vtm';
 
 /**
  * Internal dependencies
-*/
+ */
 import { MapContext } from '../Context';
 import { selectMapEventRate } from '../store/features/general/selectors';
 import { useAppSelector } from '../store/hooks';
 
 const useMapZoomLevel = () => {
-
 	const { currentMapEventRef } = useContext(MapContext);
 	const mapEventRate = useAppSelector(selectMapEventRate);
 
