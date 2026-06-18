@@ -23,10 +23,9 @@ import { queryLinesWithoutGeom } from '../db/queryFns';
 const StatsModal: FC<{
 	lineIds: number[];
 	handleDismissModal: () => void;
-    backgroundBlur?: boolean;
+	backgroundBlur?: boolean;
 }> = ({ lineIds, handleDismissModal, backgroundBlur }) => {
-
-    const { data: lines } = useQuery({
+	const { data: lines } = useQuery({
 		queryKey: ['lines', lineIds],
 		queryFn: queryLinesWithoutGeom,
 		select: (lines: LinePartial[]) => lines.map((line) => pick(line, ['stats'])),
@@ -85,7 +84,6 @@ const useShowStatsCbModal = ({
 	lineIds: number[];
 	backgroundBlur?: boolean;
 }) => {
-
 	const { t } = useTranslation();
 
 	const theme = useTheme();
@@ -102,11 +100,13 @@ const useShowStatsCbModal = ({
 		if (!modalVisible) {
 			return undefined;
 		}
-		return <StatsModal
-            handleDismissModal={handleDismissModal}
-            backgroundBlur={backgroundBlur}
-            lineIds={lineIds}
-        />;
+		return (
+			<StatsModal
+				handleDismissModal={handleDismissModal}
+				backgroundBlur={backgroundBlur}
+				lineIds={lineIds}
+			/>
+		);
 	}, [
 		t,
 		lineIds,
@@ -118,7 +118,7 @@ const useShowStatsCbModal = ({
 	return {
 		cb,
 		modalNode,
-        iconSource: 'chart-box-outline',
+		iconSource: 'chart-box-outline',
 	};
 };
 

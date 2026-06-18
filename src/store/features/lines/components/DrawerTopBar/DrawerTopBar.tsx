@@ -122,7 +122,6 @@ const DrawerTopBar: FC = () => {
 						{/* ??? translation */}
 						{lineIds.length === 0 && <Text>{t('no lines selected')}</Text>}
 					</View>
-
 				</View>
 			</View>
 		</View>

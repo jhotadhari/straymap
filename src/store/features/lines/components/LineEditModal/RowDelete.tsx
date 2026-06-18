@@ -36,7 +36,11 @@ const RowDelete: FC = () => {
 		lineTemp?.id,
 	]);
 
-	const { cb: handleDelete, modalNode: modalNodeDelete, iconSource: iconSourceDelete } = useDeleteLinesCbModal({
+	const {
+		cb: handleDelete,
+		modalNode: modalNodeDelete,
+		iconSource: iconSourceDelete,
+	} = useDeleteLinesCbModal({
 		deleteIdsOrId: lineTemp?.id,
 		routeId: route?.id,
 		routingLineId: lineTemp?.id,
@@ -54,7 +58,7 @@ const RowDelete: FC = () => {
 				mode="outlined"
 				compact={true}
 				onPress={handleDelete}
-				icon={ iconSourceDelete }
+				icon={iconSourceDelete}
 				contentStyle={sharedStyles.buttonContent}
 				labelStyle={sharedStyles.buttonLabel}
 				textColor={theme.colors.onBackground}

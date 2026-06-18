@@ -10,16 +10,11 @@ import { FooterContext } from '../Context';
 import useShowStatsCbModal from '../../../hooks/useShowStatsCbModal';
 
 const useShowStats = () => {
-
 	const { checkedIds } = useContext(FooterContext);
 
-	const {
-		cb,
-		modalNode,
-		iconSource,
-	} = useShowStatsCbModal( {
-		lineIds: checkedIds ,
-	} );
+	const { cb, modalNode, iconSource } = useShowStatsCbModal({
+		lineIds: checkedIds,
+	});
 
 	return {
 		key: 'showStats',

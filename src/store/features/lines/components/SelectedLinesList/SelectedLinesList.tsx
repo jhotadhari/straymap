@@ -4,6 +4,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { FC, memo, useCallback, useContext } from 'react';
 import { FlatList } from 'react-native-gesture-handler';
+import { ListRenderItem } from 'react-native';
 
 /**
  * Internal dependencies
@@ -13,7 +14,6 @@ import { selectSelectedInfos } from '../../selectors';
 import { queryLinesWithoutGeom } from '../../db/queryFns';
 import ListRow, { ListRowProps } from './ListRow';
 import DrawerContext from '../../../drawers/DrawerContext';
-import { ListRenderItem } from 'react-native';
 import { Line, LineStats } from '../../types';
 import { get } from 'lodash-es';
 import useRoute from '../../../routing/hooks/useRoute';
@@ -42,10 +42,7 @@ const SelectedLinesList: FC = () => {
 		gcTime: 1000 * 60 * 5, // The time in milliseconds that unused/inactive cache data remains in memory. When a query's cache becomes unused or inactive, that cache data will be garbage collected after this duration.
 	});
 
-	const {
-		line_id: routingLineId,
-		stats: routingStats,
-	} =
+	const { line_id: routingLineId, stats: routingStats } =
 		useRoute([
 			'line_id',
 			'stats',
