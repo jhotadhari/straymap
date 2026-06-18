@@ -81,6 +81,7 @@ const LinesTable: FC = () => {
 	const { data: lines } = useQuery({
 		queryKey: ['lines'],
 		queryFn: queryLinesWithoutGeom,
+		gcTime: 1000 * 60 * 5, // The time in milliseconds that unused/inactive cache data remains in memory. When a query's cache becomes unused or inactive, that cache data will be garbage collected after this duration.
 	});
 
 	const lineIds = useMemo(() => lines?.map((line) => line.id) ?? [], [lines]);
@@ -198,11 +199,6 @@ const LinesTable: FC = () => {
 						keyExtractor={keyExtractor}
 						ListHeaderComponent={renderHeader}
 						renderItem={renderItem}
-						// getItemLayout={(data, index) => ({
-						// 	length: ITEM_HEIGHT,
-						// 	offset: ITEM_HEIGHT * index,
-						// 	index,
-						// })}
 					/>
 				</View>
 			</ScrollView>

@@ -9,7 +9,7 @@ import { View } from 'react-native';
  */
 import SelectedLinesList from '../../../lines/components/SelectedLinesList/SelectedLinesList';
 import DrawerTopBar from '../../../lines/components/DrawerTopBar/DrawerTopBar';
-import { itemStyles, handleSize, iconSize } from '../../constants';
+import { itemStyles } from '../../constants';
 import DrawerContext from '../../DrawerContext';
 
 const DisplayComponent: FC = () => {
@@ -19,13 +19,11 @@ const DisplayComponent: FC = () => {
 		() => [
 			itemStyles.item,
 			{
-				height: height - (handleSize - iconSize),
+				height,
 			},
 		],
 		[
 			height,
-			handleSize,
-			iconSize,
 		]
 	);
 	return (

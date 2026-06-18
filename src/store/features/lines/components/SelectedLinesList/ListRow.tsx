@@ -10,7 +10,7 @@ import { omit, pick } from 'lodash-es';
  * Internal dependencies
  */
 import { useAppDispatch } from '../../../../hooks';
-import { Line } from '../../types';
+import { Line, LineStats as LineStatsType } from '../../types';
 import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
 import { iconSize } from '../../../drawers/constants';
 import { setLineSelected, setLineTemp, setLineVisible } from '../../slice';
@@ -21,11 +21,15 @@ import useRoute from '../../../routing/hooks/useRoute';
 import useActivateDrawerItem from '../../../drawers/hooks/useActivateDrawerItem';
 import { sharedStyles } from './sharedDeps';
 
-const ListRow: FC<{
+export interface ListRowProps {
 	line: Omit<Line, 'geometry'>;
 	idx: number;
 	visible: boolean;
-}> = ({ line, idx, visible }) => {
+	isRoutingLine: boolean;
+	stats?: LineStatsType;
+}
+
+const ListRow: FC<ListRowProps> = ({ line, idx, visible }) => {
 	const dispatch = useAppDispatch();
 
 	const activateRoutingDrawerItem = useActivateDrawerItem('routing');
