@@ -88,9 +88,11 @@ const LinesTable: FC = () => {
 
 	// Remove not existing ids from selection.
 	useEffect(() => {
-		const notExistingIds = without(onMapIdsTemp, ...lineIds);
-		if (notExistingIds.length) {
-			setOnMapIdsTemp(without(onMapIds, ...notExistingIds));
+		if ( lineIds.length ) {
+			const notExistingIds = without(onMapIdsTemp, ...lineIds);
+			if (notExistingIds.length) {
+				setOnMapIdsTemp(without(onMapIds, ...notExistingIds));
+			}
 		}
 	}, [
 		lineIds,
