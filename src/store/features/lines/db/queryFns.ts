@@ -18,7 +18,7 @@ import { fetchLines } from './fetch';
  * 	queryKey: ['lines', checkedIds],
  */
 export const queryLinesWithoutGeom = ({ queryKey }: { queryKey: (string | number[])[] }) => {
-	if (queryKey.length > 1 && !queryKey[1].length) {
+	if (queryKey.length > 1 && ( !queryKey[1].length || 'number' !== typeof queryKey[1][0] ) ) {
 		return Promise.resolve([] as Omit<Line, 'geometry'>[]);
 	}
 	return fetchLines({
@@ -34,12 +34,14 @@ export const queryLinesWithoutGeom = ({ queryKey }: { queryKey: (string | number
  */
 export const queryLineGeom = ({ queryKey }: { queryKey: (string | number)[] }) => {
 	return new Promise<null | WithRequired<LinePartial, 'geometry'>>((resolve, reject) => {
-		if (queryKey.length < 2) {
+		if (queryKey.length < 2 || 'number' !== typeof queryKey[1]) {
 			return resolve(null);
 		}
 		fetchLines({
-			lineIds: [queryKey[1]] as number[],
+			lineIds: [queryKey[1]],
 			fieldsInclude: ['geometry'],
+			...(queryKey.length > 2 &&
+				'number' === typeof queryKey[2] && { simplify: queryKey[2] }),
 		})
 			.then((lines) => {
 				resolve(lines.length ? (lines[0] as WithRequired<LinePartial, 'geometry'>) : null);

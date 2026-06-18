@@ -28,6 +28,7 @@ interface FetchLinesWithoutTagsParams {
 	limit?: number;
 	fieldsInclude?: (keyof Omit<Line, 'id' | 'tags'>)[];
 	fieldsExclude?: (keyof Omit<Line, 'id'>)[];
+	simplify?: number;
 }
 
 interface FetchLinesWithTagsParams {
@@ -38,19 +39,33 @@ interface FetchLinesWithTagsParams {
 	allTags?: boolean;
 	fieldsInclude?: (keyof Omit<Line, 'id'>)[];
 	fieldsExclude?: (keyof Omit<Line, 'id'>)[];
+	simplify?: number;
 }
 
 export interface FetchLinesParams extends FetchLinesWithTagsParams {}
 
 const statsFields = [...STATS_FIELDS] as string[];
 
-const getLineColumns = (fields: (keyof Omit<Line, 'id'>)[]) => {
+interface LineColumnsOptions {
+	simplify?: number;
+}
+
+const getLineColumns = (fields: (keyof Omit<Line, 'id'>)[], options?: LineColumnsOptions ) => {
 	return {
 		id: linesTable.id,
 		...(fields.includes('title') && { title: linesTable.title }),
 		...(fields.includes('timestamp') && { timestamp: linesTable.timestamp }),
-		...(fields.includes('geometry') && {
-			geometryGeoJSON: sql<string>`AsGeoJSON (${linesTable.geometry})`,
+		...(fields.includes('geometry') && ! options?.simplify && {
+			geometryGeoJSON: sql<string>`
+				AsGeoJSON (${linesTable.geometry})
+			`,
+		}),
+		...(fields.includes('geometry') && options?.simplify&& {
+			geometryGeoJSON: sql<string>`
+				AsGeoJSON (
+					Simplify (${linesTable.geometry}, ${options.simplify})
+				)
+			`,
 		}),
 		...(fields.includes('stats') && {
 			length: sql<string>`GreatCircleLength (${linesTable.geometry})`,
@@ -76,6 +91,7 @@ const fetchLinesWithoutTags = (params?: FetchLinesWithoutTagsParams) => {
 		limit,
 		fieldsInclude,
 		fieldsExclude,
+		simplify,
 	} = params ?? {};
 
 	let fields: (keyof Omit<Line, 'id'>)[] = [
@@ -92,7 +108,7 @@ const fetchLinesWithoutTags = (params?: FetchLinesWithoutTagsParams) => {
 	}
 
 	return new Promise<LinePartial[]>((resolve, reject) => {
-		const query = dbZ.select(getLineColumns(fields)).from(linesTable);
+		const query = dbZ.select(getLineColumns(fields, { simplify } )).from(linesTable);
 
 		query.where(and(lineIds ? inArray(linesTable.id, lineIds) : undefined));
 
@@ -136,6 +152,7 @@ const fetchLinesWithTags = (params?: FetchLinesWithTagsParams) => {
 		limit,
 		fieldsInclude,
 		fieldsExclude,
+		simplify,
 	} = {
 		allLines: true,
 		...(params ?? {}),
@@ -162,7 +179,7 @@ const fetchLinesWithTags = (params?: FetchLinesWithTagsParams) => {
 	return new Promise<LinePartial[]>((resolve, reject) => {
 		const query = dbZ
 			.select({
-				line: getLineColumns(fields),
+				line: getLineColumns(fields, { simplify } ),
 				tag: {
 					id: tagsTable.id,
 					label: tagsTable.label,
