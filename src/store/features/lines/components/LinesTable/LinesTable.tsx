@@ -86,6 +86,17 @@ const LinesTable: FC = () => {
 
 	const lineIds = useMemo(() => lines?.map((line) => line.id) ?? [], [lines]);
 
+	// Remove not existing ids from selection.
+	useEffect(() => {
+		const notExistingIds = without(onMapIdsTemp, ...lineIds);
+		if (notExistingIds.length) {
+			setOnMapIdsTemp(without(onMapIds, ...notExistingIds));
+		}
+	}, [
+		lineIds,
+		onMapIdsTemp,
+	]);
+
 	const [checkedIds, setCheckedIds] = useState<number[]>([]);
 	const toggleCheckedId = useCallback((id: number) => {
 		setCheckedIds((ids) => {

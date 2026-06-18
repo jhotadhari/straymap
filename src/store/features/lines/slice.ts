@@ -11,7 +11,7 @@ import { SliceSettingsBase } from '../../../types';
 import { selectSelected } from './selectors';
 import { AppThunk } from '../../store';
 import { LinePartial } from './types';
-import { uniq } from 'lodash-es';
+import { isEqual, uniq } from 'lodash-es';
 
 export interface LinesSettings {
 	selected: {
@@ -103,12 +103,16 @@ export const setLineSelected = (id: number, isSelected?: boolean): AppThunk => {
 export const setLinesSelected = (newSelectedIds: number[]): AppThunk => {
 	return (dispatch, getState) => {
 		const selected = selectSelected(getState());
-
-		const newSelected = newSelectedIds.map((newSelectedId) => ({
+		const newSelected = [...newSelectedIds].sort().map((newSelectedId) => ({
 			id: newSelectedId,
 			...(selected.find((item) => item.id === newSelectedId) ?? {}),
 			visible: true,
 		}));
-		dispatch(linesSlice.actions.setSelected(newSelected));
+		if ( ! isEqual(
+			selected,
+			newSelected,
+		) ) {
+			dispatch(linesSlice.actions.setSelected(newSelected));
+		}
 	};
 };
