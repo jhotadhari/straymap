@@ -12,6 +12,11 @@ export const sharedStyles = StyleSheet.create({
 	flexRow: {
 		flexDirection: 'row',
 	},
+	flexRowGap: {
+		alignItems: 'center',
+		flexDirection: 'row',
+		gap: 8,
+	},
 	header: {
 		flexDirection: 'row',
 		justifyContent: 'flex-start',

@@ -169,6 +169,7 @@ const useDeleteLinesCbModal = ({
 	return {
 		cb,
 		modalNode,
+		iconSource: 'delete',
 	};
 };
 

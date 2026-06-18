@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { FC, useContext, useMemo } from 'react';
+import { FC, useMemo } from 'react';
 import { View } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
 
@@ -9,12 +9,11 @@ import { useTheme, Text } from 'react-native-paper';
  * Internal dependencies
  */
 import { sharedStyles } from './sharedDeps';
-import { HeaderContext } from './Context';
 
 const Header: FC = () => {
 	const theme = useTheme();
 
-	const { checkedIds } = useContext(HeaderContext);
+	// const { checkedIds } = useContext(HeaderContext);
 
 	const style = useMemo(
 		() => [
@@ -28,7 +27,8 @@ const Header: FC = () => {
 
 	return (
 		<View style={style}>
-			<Text>{'... Some filters ???'}</Text>
+			{/* ??? translation */}
+			<Text>{'... Some filters ??? TODO'}</Text>
 		</View>
 	);
 };

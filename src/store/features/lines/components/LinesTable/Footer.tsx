@@ -47,14 +47,15 @@ const Footer: FC = () => {
 
 	return (
 		<View style={style}>
-			<BulkActions />
-
-			<Text style={labelStyle}>
-				{[
-					'???Bulk actions',
-					sprintf('%s/%s selected???', checkedIds.length, linesCount),
-				].join(', ')}
-			</Text>
+			<View style={sharedStyles.flexRowGap}>
+				<BulkActions />
+				{/* ??? translation */}
+				<Text style={labelStyle}>{'Bulk actions'}</Text>
+				<Text style={labelStyle}>
+					{/* ??? translation */}
+					{sprintf('%s/%s selected', checkedIds.length, linesCount)}
+				</Text>
+			</View>
 
 			<ButtonHighlight
 				mode="text"

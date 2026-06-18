@@ -21,7 +21,7 @@ import PopoverMenuItems from '../../../../../components/generic/PopoverMenuItems
 //      delete lines
 //  ??? add tags
 //  ??? remove tags
-//  ??? show stats
+//      show stats
 
 const BulkActions: FC = () => {
 	const theme = useTheme();

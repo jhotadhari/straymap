@@ -26,7 +26,7 @@ const useDeleteLines = () => {
 		setCheckedIds && setCheckedIds([]);
 	}, [setCheckedIds]);
 
-	const { cb, modalNode } = useDeleteLinesCbModal({
+	const { cb, modalNode, iconSource } = useDeleteLinesCbModal({
 		deleteIdsOrId: checkedIds,
 		routeId,
 		routingLineId,
@@ -38,7 +38,7 @@ const useDeleteLines = () => {
 		key: 'deleteLines',
 		cb,
 		label: 'deleteLines',
-		leadingIcon: 'delete',
+		leadingIcon: iconSource,
 		modalNode,
 	};
 };
