@@ -26,28 +26,33 @@ const steps = [
 ];
 const interpolation = linearInterpolation(steps);
 
+/**
+ * ??? TODO once vtm is updated
+ *
+ */
 const useSimplificationTolerance = () => {
-	const zoomLevel = useMapZoomLevel();
+	// const zoomLevel = useMapZoomLevel();
 
-	const [simplify, setSimplify] = useState<number | undefined>(undefined);
+	// const [simplify, setSimplify] = useState<number | undefined>(undefined);
 
-	const updateSimplify = useMemo(() => {
-		return debounce((zoomLevel?: number) => {
-			let newSimplify;
-			if (undefined === zoomLevel || zoomLevel > steps[steps.length - 1].x) {
-				newSimplify = undefined;
-			} else {
-				newSimplify = roundTo(interpolation({ x: zoomLevel }), 7);
-			}
-			setSimplify(newSimplify);
-		}, 1000);
-	}, []);
+	// const updateSimplify = useMemo(() => {
+	// 	return debounce((zoomLevel?: number) => {
+	// 		let newSimplify;
+	// 		if (undefined === zoomLevel || zoomLevel > steps[steps.length - 1].x) {
+	// 			newSimplify = undefined;
+	// 		} else {
+	// 			newSimplify = roundTo(interpolation({ x: zoomLevel }), 7);
+	// 		}
+	// 		setSimplify(newSimplify);
+	// 	}, 100);
+	// }, []);
 
-	useEffect(() => {
-		updateSimplify(zoomLevel);
-	}, [zoomLevel]);
+	// useEffect(() => {
+	// 	updateSimplify(zoomLevel);
+	// }, [zoomLevel]);
 
-	return simplify;
+	// return simplify;
+	return 0.00001;
 };
 
 export default useSimplificationTolerance;
