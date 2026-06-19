@@ -42,6 +42,7 @@ export const store = configureStore({
 	middleware: (getDefaultMiddleware) =>
 		getDefaultMiddleware({
 			serializableCheck: global.shouldLog.serializableCheck,
+			immutableStateInvariant: global.shouldLog.immutableStateInvariant,
 		}).prepend(listenerMiddleware.middleware),
 });
 
