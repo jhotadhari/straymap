@@ -11,7 +11,5 @@
 	"versionLast": "Zuletzt installierte Version: %s",
 	"versionCurrent": "Derzeitig installierte version: %s",
 	"errorDowngrade": "Die App wurde auf eine ältere Version zurückgesetzt. Die zuletzt installierte Version ist höher als die aktuelle Version.",
-	"errorMsgFallback": "Etwas ist schief gelaufen.",
-	"dbMigration": "Die Datenbankmigration läuft gerade...",
-	"dbMigrationError": "Fehler bei der Datenbankmigration: %s"
+	"errorMsgFallback": "Etwas ist schief gelaufen."
 }

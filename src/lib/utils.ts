@@ -9,7 +9,7 @@ import { LineString } from 'geojson';
  * Internal dependencies
  */
 import { LineStats as LineStatsType } from '../store/features/lines/types';
-import { dbOpExecute } from '../db/utils';
+import { dbOpExecute } from '../store/features/dbLoader/utils';
 import { NumType } from '../types';
 
 export const strValToNb = (val: string, numType: NumType = 'int'): number => {

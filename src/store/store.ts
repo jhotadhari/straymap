@@ -9,6 +9,7 @@ import { configureStore } from '@reduxjs/toolkit';
  */
 import appearanceReducer from './features/appearance/slice';
 import generalReducer from './features/general/slice';
+import dbLoaderReducer from './features/dbLoader/slice';
 import dirsReducer from './features/dirs/slice';
 import routingReducer from './features/routing/slice';
 import uiReducer from './features/ui/slice';
@@ -25,6 +26,7 @@ export const store = configureStore({
 	reducer: {
 		appearance: appearanceReducer,
 		general: generalReducer,
+		dbLoader: dbLoaderReducer,
 		dirs: dirsReducer,
 		ui: uiReducer,
 		dashboard: dashboardReducer,

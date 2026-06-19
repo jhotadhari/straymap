@@ -1,7 +1,7 @@
 import { sql } from 'drizzle-orm/sql';
 import { sqliteTable, integer, text } from 'drizzle-orm/sqlite-core';
 
-import { point } from '../../../../../db/types';
+import { point } from '../../../dbLoader/types';
 import { linesTable } from '../../../lines/db/schema/schema';
 
 export const routesTable = sqliteTable('routes', {

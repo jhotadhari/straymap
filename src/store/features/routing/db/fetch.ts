@@ -7,11 +7,11 @@ import { Point } from 'geojson';
 /**
  * Internal dependencies
  */
-import { dbZ } from '../../../../db/clients';
+import { dbConnection } from '../../dbLoader/DBConnection';
 import { routesTable, routingPointsTable } from './schema/schema';
 import { sortArrayByOrderArray } from '../../../../lib/utilsLight';
 import { Route } from '../types';
-import { rowParseGeometryGeoJSON } from '../../../../db/utils';
+import { rowParseGeometryGeoJSON } from '../../dbLoader/utils';
 import { linesTable } from '../../lines/db/schema/schema';
 import { mapValues, omit, pick } from 'lodash-es';
 import { STATS_FIELDS } from '../../lines/types';
@@ -36,11 +36,11 @@ export const fetchRoutes = (params?: FetchRoutesParams) => {
 	return new Promise<Route[]>((resolve, reject) => {
 		const { routeId, pointId, lineId } = params ?? {};
 
-		if (false === routeId) {
+		if (false === routeId || !dbConnection?.drizzle) {
 			return [];
 		}
 
-		const query = dbZ
+		const query = dbConnection.drizzle
 			.select({
 				route: {
 					id: routesTable.id,

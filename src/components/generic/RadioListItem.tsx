@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next';
  */
 import { OptionBase } from '../../types';
 import { modalWidthFactor } from '../../constants';
-import { labelWrapStyle } from './controls/InfoRowControl';
+// import { labelWrapStyle } from './controls/InfoRowControl';
 
 const space = 6;
 
@@ -62,7 +62,7 @@ const RadioListItem = ({
 					style={{
 						...('right' === radioAlign && { flexGrow: 1 }),
 						maxWidth: '85%',
-						...labelWrapStyle,
+						// ...labelWrapStyle,
 					}}
 				>
 					{label && (

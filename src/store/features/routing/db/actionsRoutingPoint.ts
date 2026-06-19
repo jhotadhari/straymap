@@ -1,7 +1,7 @@
 import { eq } from 'drizzle-orm';
 import { Feature, Point, GeoJsonProperties } from 'geojson';
 
-import { dbZ } from '../../../../db/clients';
+import { dbConnection } from '../../dbLoader/DBConnection';
 import { routingPointsTable } from './schema/schema';
 import { fetchRoutes } from './fetch';
 import { updateRoute } from './actionsRoute';
@@ -14,11 +14,11 @@ export const createRoutingPoints = async (
 	}[],
 	route_id?: number | false
 ) => {
-	if (!route_id) {
+	if (!route_id || !dbConnection?.drizzle) {
 		return;
 	}
 	try {
-		const inserted = await dbZ
+		const inserted = await dbConnection.drizzle
 			.insert(routingPointsTable)
 			.values(
 				newPoints.map(({ feature, profile }) => ({
@@ -60,7 +60,10 @@ export const updateRoutingPoint = async (
 	// if (!routingPoints.length) {
 	// 	return;
 	// }
-	await dbZ
+	if (!dbConnection?.drizzle) {
+		return;
+	}
+	await dbConnection.drizzle
 		.update(routingPointsTable)
 		.set({
 			...(undefined !== newPoint?.profile && { profile: newPoint.profile }),
@@ -70,7 +73,7 @@ export const updateRoutingPoint = async (
 };
 
 export const deleteRoutingPoint = async (id?: number) => {
-	if (!id) {
+	if (!id || !dbConnection?.drizzle) {
 		return;
 	}
 	const routes = await fetchRoutes({ pointId: id });
@@ -81,5 +84,5 @@ export const deleteRoutingPoint = async (id?: number) => {
 			});
 		})
 	);
-	await dbZ.delete(routingPointsTable).where(eq(routingPointsTable.id, id));
+	await dbConnection.drizzle.delete(routingPointsTable).where(eq(routingPointsTable.id, id));
 };

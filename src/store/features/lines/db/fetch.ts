@@ -9,9 +9,9 @@ import { WithRequired } from '@tanstack/react-query';
 /**
  * Internal dependencies
  */
-import { dbZ } from '../../../../db/clients';
+import { dbConnection } from '../../dbLoader/DBConnection';
 import { linesTable, tagsTable, tagsToLinesTable } from './schema/schema';
-import { rowsParseEnvelopeGeoJSON, rowsParseGeometryGeoJSON } from '../../../../db/utils';
+import { rowsParseEnvelopeGeoJSON, rowsParseGeometryGeoJSON } from '../../dbLoader/utils';
 import { ArrayElement } from '../../../../types';
 import { Line, LinePartial, STATS_FIELDS, Tag } from '../types';
 
@@ -149,7 +149,13 @@ const fetchLinesWithoutTags = (params?: FetchLinesWithoutTagsParams) => {
 	}
 
 	return new Promise<LinePartial[]>((resolve, reject) => {
-		const query = dbZ.select(getLineColumns(fields, { simplify })).from(linesTable);
+		if (!dbConnection?.drizzle) {
+			reject('ERROR dbZ undefined');
+			return;
+		}
+		const query = dbConnection.drizzle
+			.select(getLineColumns(fields, { simplify }))
+			.from(linesTable);
 
 		query.where(and(lineIds ? inArray(linesTable.id, lineIds) : undefined));
 
@@ -208,7 +214,11 @@ const fetchLinesWithTags = (params?: FetchLinesWithTagsParams) => {
 	}
 
 	return new Promise<LinePartial[]>((resolve, reject) => {
-		const query = dbZ
+		if (!dbConnection?.drizzle) {
+			reject('ERROR dbZ undefined');
+			return;
+		}
+		const query = dbConnection.drizzle
 			.select({
 				line: getLineColumns(fields, { simplify }),
 				tag: {

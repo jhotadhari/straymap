@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { useEffect, useRef, useState } from 'react';
+import React, { FC, useEffect, useRef, useState } from 'react';
 import { BackHandler, Dimensions, View } from 'react-native';
 import { PaperProvider, Text, useTheme } from 'react-native-paper';
 import { MapEventResponse } from 'react-native-mapsforge-vtm';
@@ -21,12 +21,13 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useAppSelector, useSettingsInitialized } from '../store/hooks';
 import { useSetupTheme } from '../store/features/appearance/hooks';
 import { useIsBusyPromiseQueueState } from '../store/features/ui/hooks';
-import { selectDbMigrated, selectIsUpdating } from '../store/features/updater/selectors';
+import { selectIsUpdating } from '../store/features/updater/selectors';
 import useInitialCenter from '../compose/useInitialCenter';
-import { queryClient } from '../db/clients';
 import { DrawerControls } from '../store/features/drawers/types';
+import { selectDbMigrated, selectInitialized } from '../store/features/dbLoader/selectors';
+import { dbConnection } from '../store/features/dbLoader/DBConnection';
 
-const App = () => {
+const App: FC = () => {
 	const theme = useTheme();
 	const { t } = useTranslation();
 
@@ -50,6 +51,8 @@ const App = () => {
 
 	const settingsInitialized = useSettingsInitialized();
 
+	console.log('debug settingsInitialized', settingsInitialized); // debug
+
 	const {
 		initialized: initialPositionInitialized,
 		initialPositionRef,
@@ -68,22 +71,6 @@ const App = () => {
 		width,
 	};
 
-	// if (true !== dbMigrated) {
-	// 	return (
-	// 		<View style={style}>
-	// 			<SplashScreen displayLogo={!dbMigrated}>
-	// 				{dbMigrated && (
-	// 					<Text>{sprintf(t('updater.dbMigrationError'), dbMigrated)}</Text>
-	// 				)}
-	// 				{/* {!dbMigrated && (
-	// 					<Text>{t('updater.dbMigration')}</Text>
-	// 				)} */}
-	// 			</SplashScreen>
-	// 		</View>
-	// 	);
-	// }
-
-	// console.log( 'debug isUpdating', isUpdating ); // debug
 	if (isUpdating) {
 		return (
 			<View style={style}>
@@ -93,15 +80,13 @@ const App = () => {
 	}
 
 	if (!initialPositionInitialized || !settingsInitialized || true !== dbMigrated) {
+		const isDbError = dbMigrated && 'string' === typeof dbMigrated;
 		return (
 			<View style={style}>
-				<SplashScreen displayLogo={!dbMigrated}>
-					{dbMigrated && (
-						<Text>{sprintf(t('updater.dbMigrationError'), dbMigrated)}</Text>
+				<SplashScreen displayLogo={!isDbError}>
+					{isDbError && (
+						<Text>{sprintf(t('dbLoader.dbMigrationError'), dbMigrated)}</Text>
 					)}
-					{/* {!dbMigrated && (
-					<Text>{t('updater.dbMigration')}</Text>
-				)} */}
 				</SplashScreen>
 			</View>
 		);
@@ -141,11 +126,17 @@ const App = () => {
 
 export default () => {
 	const theme = useSetupTheme();
+
+	const dbLoaderInitialized = useAppSelector(selectInitialized);
+
 	return (
-		<QueryClientProvider client={queryClient}>
-			<PaperProvider theme={theme}>
-				<App />
-			</PaperProvider>
-		</QueryClientProvider>
+		dbLoaderInitialized &&
+		dbConnection?.queryClient && (
+			<QueryClientProvider client={dbConnection.queryClient}>
+				<PaperProvider theme={theme}>
+					<App />
+				</PaperProvider>
+			</QueryClientProvider>
+		)
 	);
 };

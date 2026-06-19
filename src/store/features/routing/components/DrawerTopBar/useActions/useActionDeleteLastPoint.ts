@@ -11,6 +11,7 @@ import { useAppDispatch } from '../../../../../hooks';
 import { deleteRoutingPoint } from '../../../db/actionsRoutingPoint';
 import { processRouting } from '../../../slice';
 import { RoutingPoint } from '../../../types';
+import { dbConnection } from '../../../../dbLoader/DBConnection';
 
 const useActionDeleteLastPoint = ({
 	points,
@@ -33,10 +34,10 @@ const useActionDeleteLastPoint = ({
 			},
 			onSuccess: async (_result, _variables, _onMutateResult, context) => {
 				await context.client.invalidateQueries({ queryKey: ['route', routeId] });
-				dispatch(processRouting());
+				dbConnection?.queryClient && dispatch(processRouting(dbConnection.queryClient));
 			},
 		}),
-		[lastPointId]
+		[lastPointId, dbConnection?.queryClient]
 	);
 
 	const mutation = useMutation(mutationOptions);

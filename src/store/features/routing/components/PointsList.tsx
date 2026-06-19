@@ -39,6 +39,7 @@ import useRoute from '../hooks/useRoute';
 import EditPointModal from './EditPointModal';
 import Sortable, { DragStartParams, SortableFlexDragEndParams } from 'react-native-sortables';
 import useDropIndicatorStyle from '../../../../compose/useDropIndicatorStyle';
+import { dbConnection } from '../../dbLoader/DBConnection';
 
 const iconSize = 25;
 
@@ -107,8 +108,8 @@ const Segment: FC<{
 			return;
 		}
 		dispatch(deleteSegments([segment]));
-		dispatch(processRouting());
-	}, [segment]);
+		dbConnection?.queryClient && dispatch(processRouting(dbConnection?.queryClient));
+	}, [segment, dbConnection?.queryClient]);
 
 	const handleSetEdit = useCallback(() => {
 		setEditPoint(item);
@@ -271,13 +272,13 @@ const DraggableItem: FC<{
 			},
 			onSuccess: async (_result, _variables, _onMutateResult, context) => {
 				await context.client.invalidateQueries({ queryKey: ['route', routeId] });
-				dispatch(processRouting());
+				dbConnection?.queryClient && dispatch(processRouting(dbConnection.queryClient));
 			},
 			onSettled: () => {
 				setIsDeleting(false);
 			},
 		}),
-		[routeId]
+		[routeId, dbConnection?.queryClient]
 	);
 	const mutation = useMutation(mutationOptions);
 
@@ -373,7 +374,7 @@ const PointsList: FC = () => {
 			},
 			onSuccess: async (_result, _variables, _onMutateResult, context) => {
 				await context.client.invalidateQueries({ queryKey: ['route', routeId] });
-				dispatch(processRouting());
+				dbConnection?.queryClient && dispatch(processRouting(dbConnection.queryClient));
 			},
 			onSettled: () => {
 				setScrollEnabled(true);
@@ -381,7 +382,7 @@ const PointsList: FC = () => {
 				setOptimisticPoints(undefined);
 			},
 		}),
-		[routeId]
+		[routeId, dbConnection?.queryClient]
 	);
 	const mutation = useMutation(mutationOptions);
 

@@ -13,7 +13,7 @@ import {
 	ViewStyle,
 } from 'react-native';
 import { useTheme } from 'react-native-paper';
-import { isEqual, uniq, without } from 'lodash-es';
+import { uniq, without } from 'lodash-es';
 
 /**
  * Internal dependencies
@@ -88,7 +88,7 @@ const LinesTable: FC = () => {
 
 	// Remove not existing ids from selection.
 	useEffect(() => {
-		if ( lineIds.length ) {
+		if (lineIds.length) {
 			const notExistingIds = without(onMapIdsTemp, ...lineIds);
 			if (notExistingIds.length) {
 				setOnMapIdsTemp(without(onMapIds, ...notExistingIds));

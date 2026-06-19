@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { Dispatch, FC, SetStateAction, useCallback, useMemo } from 'react';
+import React, { Dispatch, FC, SetStateAction, useCallback, useContext, useMemo } from 'react';
 import { useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { get, isEqual } from 'lodash-es';
@@ -20,6 +20,7 @@ import { updateRoutingPoint } from '../db/actionsRoutingPoint';
 import { deleteSegmentByKeyVal, processRouting } from '../slice';
 import { useMutation, UseMutationOptions } from '@tanstack/react-query';
 import useRoute from '../hooks/useRoute';
+import { dbConnection } from '../../dbLoader/DBConnection';
 
 const ProfileRowControl = ({
 	editPoint,
@@ -78,8 +79,6 @@ const EditPointModal: FC<{
 }> = ({ editPoint, setEditPoint }) => {
 	const dispatch = useAppDispatch();
 
-	// const segments = useAppSelector(selectSegmentsArr);
-
 	const theme = useTheme();
 	const { t } = useTranslation();
 
@@ -102,11 +101,15 @@ const EditPointModal: FC<{
 			onSuccess: async (_result, _variables, _onMutateResult, context) => {
 				await context.client.invalidateQueries({ queryKey: ['route', routeId] });
 				dispatch(deleteSegmentByKeyVal('fromId', editPoint.id));
-				dispatch(processRouting());
+				dbConnection?.queryClient && dispatch(processRouting(dbConnection?.queryClient));
 				setEditPoint(undefined);
 			},
 		}),
-		[editPoint.id, routeId]
+		[
+			editPoint.id,
+			routeId,
+			dbConnection?.queryClient,
+		]
 	);
 	const mutation = useMutation(mutationOptions);
 

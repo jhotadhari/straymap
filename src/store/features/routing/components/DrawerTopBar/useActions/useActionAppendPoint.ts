@@ -8,6 +8,7 @@ import { createRoutingPoints } from '../../../db/actionsRoutingPoint';
 import { processRouting } from '../../../slice';
 import { RoutingPoint, RoutingProfile } from '../../../types';
 import { MapContext } from '../../../../../../Context';
+import { dbConnection } from '../../../../dbLoader/DBConnection';
 
 const useActionAppendPoint = ({
 	points,
@@ -54,10 +55,10 @@ const useActionAppendPoint = ({
 			},
 			onSuccess: async (_result, _variables, _onMutateResult, context) => {
 				await context.client.invalidateQueries({ queryKey: ['route', routeId] });
-				dispatch(processRouting());
+				dbConnection?.queryClient && dispatch(processRouting(dbConnection.queryClient));
 			},
 		}),
-		[routeId]
+		[routeId, dbConnection?.queryClient]
 	);
 	const mutation = useMutation(mutationOptions);
 

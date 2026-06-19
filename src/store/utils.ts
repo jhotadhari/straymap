@@ -8,31 +8,17 @@ import { migrate } from 'drizzle-orm/op-sqlite/migrator';
  * Internal dependencies
  */
 import { RootState, AppThunk, AppStore } from './store';
+import { initializeFromStorage as initializeFromStorage_dbLoader } from './features/dbLoader/connectStorage';
 import { initializeFromStorage as initializeFromStorage_updater } from './features/updater/connectStorage';
 import { initializeFromStorage as initializeFromStorage_lang } from './features/lang/connectStorage';
-import { setDbMigrated } from './features/updater/slice';
-import { dbZ } from '../db/clients';
-import migrations from '../../drizzle/migrations';
 import features from './features';
 
 export const initializeAppState = async (store: AppStore) => {
 	// Initialize store language. Will as well set i18n language according to lang settings in default preference.
 	initializeFromStorage_lang(store);
-	// Migrate database.
-	await new Promise((resolve) => {
-		migrate(dbZ, migrations)
-			.then(async () => {
-				store.dispatch(setDbMigrated(true));
-				resolve(true);
-			})
-			.catch((error) => {
-				store.dispatch(setDbMigrated(error.message));
-
-				// ??? somehow add button to src/store/features/updater/components/SplashScreenDbMigration.tsx
-				// to allow to backup existing db and start a new one.
-			});
-	});
-	// Initialize the updater .
+	// Initialize dbConnection clients.
+	await initializeFromStorage_dbLoader(store);
+	// Initialize the updater.
 	const success = await initializeFromStorage_updater(store);
 	// Initialize all other features: All features that expose a initializeFromStorage function.
 	if (success) {

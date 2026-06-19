@@ -11,7 +11,5 @@
 	"versionLast": "Last installed version: %s",
 	"versionCurrent": "Current installed version: %s",
 	"errorDowngrade": "The app got downgraded. The last installed version is higher than the current version.",
-	"errorMsgFallback": "Something went wrong.",
-	"dbMigration": "Database migration is in progress...",
-	"dbMigrationError": "Database migration error: %s"
+	"errorMsgFallback": "Something went wrong."
 }

@@ -2,7 +2,7 @@ import { sql } from 'drizzle-orm/sql';
 import { relations } from 'drizzle-orm';
 import { AnySQLiteColumn, integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 
-import { lineString } from '../../../../../db/types';
+import { lineString } from '../../../dbLoader/types';
 
 export const linesTable = sqliteTable('lines', {
 	id: integer('id').primaryKey({ autoIncrement: true }),

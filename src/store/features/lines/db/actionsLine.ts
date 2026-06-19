@@ -7,7 +7,7 @@ import { eq, and, or } from 'drizzle-orm';
 /**
  * Internal dependencies
  */
-import { dbZ } from '../../../../db/clients';
+import { dbConnection } from '../../dbLoader/DBConnection';
 import { fetchLines } from './fetch';
 import { linesTable, tagsTable, tagsToLinesTable } from './schema/schema';
 import { Line, LinePartial } from '../types';
@@ -20,8 +20,11 @@ export const createLines = async (
 		tagIds?: number[];
 	}[]
 ) => {
+	if (!dbConnection?.drizzle) {
+		return;
+	}
 	try {
-		const insertedLines = await dbZ
+		const insertedLines = await dbConnection.drizzle
 			.insert(linesTable)
 			.values(
 				newLines.map(({ title, lineStringFeature }) => ({
@@ -40,8 +43,8 @@ export const createLines = async (
 		insertedLines.forEach(({ id }, idx) => {
 			if (newLines[idx]?.tagIds) {
 				newLines[idx].tagIds.forEach(async (tagId) => {
-					if (undefined === tagIdsExisting[tagId]) {
-						const tags = await dbZ
+					if (undefined === tagIdsExisting[tagId] && dbConnection?.drizzle) {
+						const tags = await dbConnection.drizzle
 							.select()
 							.from(tagsTable)
 							.where(eq(tagsTable.id, tagId))
@@ -49,8 +52,8 @@ export const createLines = async (
 						tagIdsExisting[tagId] = !!tags.length;
 					}
 
-					if (true === tagIdsExisting[tagId]) {
-						await dbZ.insert(tagsToLinesTable).values([
+					if (true === tagIdsExisting[tagId] && dbConnection?.drizzle) {
+						await dbConnection.drizzle.insert(tagsToLinesTable).values([
 							{
 								tag_id: tagId,
 								line_id: id,
@@ -74,14 +77,18 @@ export const updateLine = async (
 		tagIds?: number[];
 	}>
 ) => {
-	if (!id) {
+	if (!id || !dbConnection?.drizzle) {
 		return;
 	}
-	const lines = await dbZ.select().from(linesTable).where(eq(linesTable.id, id)).limit(1);
+	const lines = await dbConnection.drizzle
+		.select()
+		.from(linesTable)
+		.where(eq(linesTable.id, id))
+		.limit(1);
 	if (!lines.length) {
 		return;
 	}
-	await dbZ
+	await dbConnection.drizzle
 		.update(linesTable)
 		.set({
 			// ...line,
@@ -106,9 +113,9 @@ export const updateLine = async (
 	const currentTagIds = linesWithTags.length ? linesWithTags[0].tags.map((tag) => tag.id) : [];
 
 	newLine.tagIds.forEach(async (tagId) => {
-		if (!currentTagIds.includes(tagId)) {
+		if (!currentTagIds.includes(tagId) && dbConnection?.drizzle) {
 			// create relation
-			await dbZ.insert(tagsToLinesTable).values([
+			await dbConnection.drizzle.insert(tagsToLinesTable).values([
 				{
 					tag_id: tagId,
 					line_id: id,
@@ -118,9 +125,9 @@ export const updateLine = async (
 	});
 
 	currentTagIds.forEach(async (tagId) => {
-		if (newLine.tagIds!.includes(tagId)) {
+		if (newLine.tagIds!.includes(tagId) && dbConnection?.drizzle) {
 			// delete existing relation
-			await dbZ
+			await dbConnection.drizzle
 				.delete(tagsToLinesTable)
 				.where(and(eq(tagsToLinesTable.tag_id, tagId), eq(tagsToLinesTable.line_id, id)));
 		}
@@ -130,6 +137,7 @@ export const updateLine = async (
 export const lineAddTag = async (lineId: number, tagId: number) => {
 	// Check if line has tag already
 	if (
+		!dbConnection?.drizzle ||
 		(
 			(await fetchLines({
 				lineIds: [lineId],
@@ -141,7 +149,7 @@ export const lineAddTag = async (lineId: number, tagId: number) => {
 	) {
 		return;
 	}
-	await dbZ.insert(tagsToLinesTable).values([
+	await dbConnection.drizzle.insert(tagsToLinesTable).values([
 		{
 			tag_id: tagId,
 			line_id: lineId,
@@ -150,29 +158,32 @@ export const lineAddTag = async (lineId: number, tagId: number) => {
 };
 
 export const lineRemoveTag = async (lineId: number, tagId: number) => {
-	await dbZ
-		.delete(tagsToLinesTable)
-		.where(and(eq(tagsToLinesTable.tag_id, tagId), eq(tagsToLinesTable.line_id, lineId)));
+	dbConnection?.drizzle &&
+		(await dbConnection.drizzle
+			.delete(tagsToLinesTable)
+			.where(and(eq(tagsToLinesTable.tag_id, tagId), eq(tagsToLinesTable.line_id, lineId))));
 };
 
 export const deleteLine = async (id?: number | false) => {
-	if (id) {
-		await dbZ.delete(linesTable).where(eq(linesTable.id, id));
+	if (id && dbConnection?.drizzle) {
+		await dbConnection.drizzle.delete(linesTable).where(eq(linesTable.id, id));
 
 		// ??? do that with schema
-		// await dbZ.delete(tagsToLinesTable).where(eq(tagsToLinesTable.line_id, id));
+		// await clients.dbZ.delete(tagsToLinesTable).where(eq(tagsToLinesTable.line_id, id));
 	}
 };
 
 export const deleteLines = async (ids?: number[]) => {
-	if (!ids) {
+	if (!ids || !dbConnection?.drizzle) {
 		return;
 	}
 
-	await dbZ.delete(linesTable).where(or(...ids.map((id) => eq(linesTable.id, id))));
+	await dbConnection.drizzle
+		.delete(linesTable)
+		.where(or(...ids.map((id) => eq(linesTable.id, id))));
 
 	// ??? do that with schema
-	// await dbZ.delete(tagsToLinesTable).where(or(
+	// await clients.dbZ.delete(tagsToLinesTable).where(or(
 	// 	...ids.map((id) => eq(tagsToLinesTable.line_id, id) )
 	// ));
 };

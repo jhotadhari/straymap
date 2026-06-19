@@ -25,7 +25,7 @@ export interface LinesState extends SliceSettingsBase, LinesSettings {
 }
 
 export const initialSettings: LinesSettings = {
-	selected: [],
+	selected: [], // ??? has to be reset on db change
 };
 
 const initialState: LinesState = {

@@ -35,9 +35,6 @@ export interface Route {
 	points: RoutingPoint[];
 }
 
-
-
-
 /**
  * ??? TODO change vtm library and how to trigger segments and simplified bla bla
  *

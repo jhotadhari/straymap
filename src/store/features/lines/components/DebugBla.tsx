@@ -3,11 +3,10 @@ import { QueryResult, Scalar } from '@op-engineering/op-sqlite';
 import { lineString, point } from '@turf/turf';
 import { gt, isNotNull, sql, eq } from 'drizzle-orm';
 
-import { dbZ, dbOp } from '../../../../db/clients';
 import { routesTable, routingPointsTable } from '../../routing/db/schema/schema';
 import { createLines, lineAddTag, updateLine } from '../db/actionsLine';
 import { createTags } from '../db/actionsTag';
-import { dbOpExecute } from '../../../../db/utils';
+import { dbOpExecute } from '../../dbLoader/utils';
 import { createRoutingPoints, deleteRoutingPoint } from '../../routing/db/actionsRoutingPoint';
 import { createRoute, createRoutes, deleteRoute, updateRoute } from '../../routing/db/actionsRoute';
 import { View } from 'react-native';

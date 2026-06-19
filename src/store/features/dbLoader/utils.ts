@@ -2,26 +2,30 @@
  * External dependencies
  */
 import { Scalar, QueryResult } from '@op-engineering/op-sqlite';
+import { omit } from 'lodash-es';
 
 /**
  * Internal dependencies
  */
-import { dbOp } from './clients';
-import { omit } from 'lodash-es';
-import { parseSerialized } from '../lib/utilsLight';
+import { dbConnection } from './DBConnection';
+import { parseSerialized } from '../../../lib/utilsLight';
 
 export const dbOpExecute = (query: string, params?: Scalar[]): Promise<QueryResult> => {
 	return new Promise(async (resolve, reject) => {
-		dbOp.transaction(async (tx) => {
-			try {
-				const res = await tx.execute(query, params);
-				resolve(res);
-				await tx.commit();
-			} catch (error) {
-				reject(error);
-				tx.rollback();
-			}
-		});
+		if (dbConnection?.op) {
+			dbConnection.op.transaction(async (tx) => {
+				try {
+					const res = await tx.execute(query, params);
+					resolve(res);
+					await tx.commit();
+				} catch (error) {
+					reject(error);
+					tx.rollback();
+				}
+			});
+		} else {
+			reject('ERROR dbOp is undefined');
+		}
 	});
 };
 

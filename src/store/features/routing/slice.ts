@@ -17,9 +17,9 @@ import { lineString } from '@turf/turf';
 import { createLines, updateLine } from '../lines/db/actionsLine';
 import { updateRoute } from './db/actionsRoute';
 import { GetTrackParams } from 'react-native-brouter';
-import { queryClient } from '../../../db/clients';
 import { queryRoute } from './db/queryFns';
 import { selectIsRouting } from './selectors';
+import { QueryClient } from '@tanstack/react-query';
 
 export interface RoutingSettings {
 	isRouting: false | number; // false or routeId.
@@ -38,7 +38,7 @@ export interface RoutingState extends SliceSettingsBase, RoutingSettings {
 }
 
 export const initialSettings: RoutingSettings = {
-	isRouting: false,
+	isRouting: false, // ??? has to be reset on db change
 };
 
 const initialState: RoutingState = {
@@ -136,7 +136,7 @@ export const deleteSegmentByKeyVal = (key: keyof RoutingSegment, val: any): AppT
 	};
 };
 
-const getPointsForRouteId = async (routeId: number | false) => {
+const getPointsForRouteId = async (routeId: number | false, queryClient: QueryClient) => {
 	if (!routeId) {
 		return [];
 	}
@@ -151,15 +151,22 @@ const getPointsForRouteId = async (routeId: number | false) => {
 	return points ?? [];
 };
 
-export const processRouting = (options?: {
-	updateLine?: boolean; // defaults to true. Only initializeFromStorage will call that with false.
-}): AppThunk => {
+export const processRouting = (
+	queryClient: QueryClient,
+	options?: {
+		updateLine?: boolean; // defaults to true. Only initializeFromStorage will call that with false.
+	}
+): AppThunk => {
 	return async (dispatch, getState) => {
+		if (!queryClient) {
+			return;
+		}
+
 		const {
 			routing: { segments, isRouting: routeId },
 		} = getState();
 
-		const points = await getPointsForRouteId(routeId);
+		const points = await getPointsForRouteId(routeId, queryClient);
 
 		// Delete segments not used anymore.
 		const newSegmentRecordIds = points
@@ -276,7 +283,8 @@ export const processRouting = (options?: {
 			if (false !== options?.updateLine) {
 				const { lineId, isNew } = await updateLineFromSegments(
 					routeId,
-					Object.values(updatedSegments)
+					Object.values(updatedSegments),
+					queryClient
 				);
 				if (lineId) {
 					dispatch(setLineSelected(lineId, true));
@@ -292,7 +300,11 @@ export const processRouting = (options?: {
 	};
 };
 
-const updateLineFromSegments = async (routeId: number, segments: RoutingSegment[]) => {
+const updateLineFromSegments = async (
+	routeId: number,
+	segments: RoutingSegment[],
+	queryClient: QueryClient
+) => {
 	if (!routeId) {
 		return {};
 	}
@@ -302,14 +314,17 @@ const updateLineFromSegments = async (routeId: number, segments: RoutingSegment[
 		return {};
 	}
 
-	await queryClient.refetchQueries({
-		queryKey: ['route', routeId],
-	});
-	const { line_id } =
-		(await queryClient.fetchQuery({
+	queryClient &&
+		(await queryClient.refetchQueries({
 			queryKey: ['route', routeId],
-			queryFn: queryRoute,
-		})) || {};
+		}));
+	const { line_id } =
+		(queryClient &&
+			(await queryClient.fetchQuery({
+				queryKey: ['route', routeId],
+				queryFn: queryRoute,
+			}))) ||
+		{};
 
 	const coords = aggregateSegmentsToCoords(segments);
 	const lineStringFeature = lineString(coords);

@@ -1,6 +1,6 @@
 import { eq } from 'drizzle-orm';
 
-import { dbZ } from '../../../../db/clients';
+import { dbConnection } from '../../dbLoader/DBConnection';
 import { tagsTable, tagsToLinesTable } from './schema/schema';
 
 export const createTags = async (
@@ -10,8 +10,11 @@ export const createTags = async (
 		params: any; // ??? any
 	}[]
 ) => {
+	if (!dbConnection?.drizzle) {
+		return;
+	}
 	try {
-		const inserted = await dbZ
+		const inserted = await dbConnection.drizzle
 			.insert(tagsTable)
 			.values(
 				newTags.map(({ label, notes, params }) => ({
@@ -35,11 +38,18 @@ export const updateTag = async (
 		params: any; // ??? any
 	}>
 ) => {
-	const tags = await dbZ.select().from(tagsTable).where(eq(tagsTable.id, id)).limit(1);
+	if (!dbConnection?.drizzle) {
+		return;
+	}
+	const tags = await dbConnection.drizzle
+		.select()
+		.from(tagsTable)
+		.where(eq(tagsTable.id, id))
+		.limit(1);
 	if (!tags.length) {
 		return;
 	}
-	await dbZ
+	await dbConnection.drizzle
 		.update(tagsTable)
 		.set({
 			...(undefined !== newTag?.label && { label: newTag.label }),
@@ -50,6 +60,10 @@ export const updateTag = async (
 };
 
 export const deleteTag = async (id: number) => {
-	await dbZ.delete(tagsTable).where(eq(tagsTable.id, id));
-	await dbZ.delete(tagsToLinesTable).where(eq(tagsToLinesTable.tag_id, id));
+	dbConnection?.drizzle &&
+		(await dbConnection.drizzle.delete(tagsTable).where(eq(tagsTable.id, id)));
+	dbConnection?.drizzle &&
+		(await dbConnection.drizzle
+			.delete(tagsToLinesTable)
+			.where(eq(tagsToLinesTable.tag_id, id)));
 };
