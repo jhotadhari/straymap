@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { ActionCreatorWithPayload } from '@reduxjs/toolkit';
-import { migrate } from 'drizzle-orm/op-sqlite/migrator';
 
 /**
  * Internal dependencies

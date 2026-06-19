@@ -11,6 +11,7 @@ import HardwareKeyControl from '../../general/components/controls/HardwareKeyCon
 import UnitPrefControl from '../../general/components/controls/UnitPrefControl';
 import HgtControl from '../../general/components/controls/HgtControl';
 import LangControl from '../../lang/components/controls/LangControl';
+import DBControl from '../../dbLoader/components/DBControl';
 
 const SettingsGeneral: FC<{ style?: ViewStyle }> = ({ style }) => {
 	return (
@@ -22,6 +23,8 @@ const SettingsGeneral: FC<{ style?: ViewStyle }> = ({ style }) => {
 			<UnitPrefControl />
 
 			<HgtControl />
+
+			<DBControl />
 		</ScrollView>
 	);
 };

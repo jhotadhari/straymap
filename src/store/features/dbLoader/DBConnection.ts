@@ -23,12 +23,16 @@ class DBConnection {
 
 	constructor() {}
 
-	initialize(dbPath: string, store: AppStore) {
-		return new Promise<true>((resolve) => {
+	initialize(dbPath: string) {
+		return new Promise<true>((resolve, reject) => {
 			this.setDbOp(dbPath);
 			console.log('debug dbPath', dbPath); // debug
 			this.setQueryClient();
-			this.setDbZ(store).then(() => resolve(true));
+			this.setDbZ()
+				.then((result) => resolve(result))
+				.catch((error) => {
+					reject(error);
+				});
 		});
 	}
 
@@ -45,35 +49,27 @@ class DBConnection {
 		this.op.loadExtension('libspatialite', 'sqlite3_modspatialite_init');
 	}
 
-	setDbZ(store: AppStore) {
-		return new Promise<true>((resolve) => {
+	setDbZ() {
+		return new Promise<true>((resolve, reject) => {
 			this.drizzle = drizzle(this.op, {
 				logger: shouldLog.drizzle,
 				schema,
 			});
-
 			// Migrate database.
 			migrate(this.drizzle, migrations)
 				.then(() => {
-					store.dispatch(setDbMigrated(true));
 					resolve(true);
 				})
 				.catch((error) => {
-					store.dispatch(setDbMigrated(error.message));
-					resolve(true);
-
-					// ??? somehow add button to src/store/features/updater/components/SplashScreenDbMigration.tsx
-					// to allow to backup existing db and start a new one.
-				})
-				.finally(() => resolve(true));
+					reject(error);
+				});
 		});
 	}
 
 	setQueryClient() {
-		if (this.queryClient) {
-			// ???! cancel queries
+		if (this?.queryClient) {
+			this.queryClient.cancelQueries();
 		}
-
 		this.queryClient = new QueryClient({
 			defaultOptions: {
 				queries: {

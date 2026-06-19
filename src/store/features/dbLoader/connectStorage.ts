@@ -12,7 +12,8 @@ import {
 	DbLoaderSettings,
 	DbLoaderState,
 	initialSettings,
-	setDbPath,
+	setDbMigrated,
+	setDbPathAction,
 	setInitialized,
 } from './slice';
 import { startAppListening } from '../../listenerMiddleware';
@@ -31,7 +32,6 @@ export const initializeFromStorage = (store: AppStore) => {
 			resolve(false);
 			return;
 		}
-
 		DefaultPreference.get(settingsKey)
 			.then((newSettingsStr) => {
 				let dbPath = initialSettings.dbPath;
@@ -39,13 +39,27 @@ export const initializeFromStorage = (store: AppStore) => {
 					const newSettings = JSON.parse(newSettingsStr) as Partial<DbLoaderState>;
 					if (newSettings?.dbPath) {
 						dbPath = newSettings?.dbPath;
-						store.dispatch(setDbPath(newSettings.dbPath));
+						store.dispatch(setDbPathAction(newSettings.dbPath));
 					}
 				}
-				dbConnection.initialize(dbPath, store).then(() => {
-					store.dispatch(setInitialized(true));
-					resolve(true);
-				});
+				dbConnection
+					.initialize(dbPath)
+					.then(() => {
+						store.dispatch(setDbMigrated(true));
+						store.dispatch(setInitialized(true));
+						resolve(true);
+					})
+					.catch((error) => {
+						store.dispatch(
+							setDbMigrated('string' === error?.message ? error.message : 'Error')
+						);
+
+						// ??? somehow add button to src/store/features/updater/components/SplashScreenDbMigration.tsx
+						// to allow to backup existing db and start a new one.
+
+						store.dispatch(setInitialized(true));
+						resolve(true);
+					});
 			})
 			.catch((err) => 'ERROR' + console.log(err));
 	});
@@ -83,7 +97,7 @@ export const saveToStorage = (dbLoaderState: DbLoaderState, actionType: string) 
  * and calls the function to save them to defaultPreferences.
  */
 startAppListening({
-	matcher: isAnyOf(setDbPath),
+	matcher: isAnyOf(setDbPathAction),
 	effect: async (action, listenerApi) => {
 		saveToStorage(listenerApi.getState().dbLoader, action.type);
 	},

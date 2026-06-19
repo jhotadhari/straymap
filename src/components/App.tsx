@@ -24,7 +24,7 @@ import { useIsBusyPromiseQueueState } from '../store/features/ui/hooks';
 import { selectIsUpdating } from '../store/features/updater/selectors';
 import useInitialCenter from '../compose/useInitialCenter';
 import { DrawerControls } from '../store/features/drawers/types';
-import { selectDbMigrated, selectInitialized } from '../store/features/dbLoader/selectors';
+import { selectDbMigrated, selectInitialized, selectRequireReload } from '../store/features/dbLoader/selectors';
 import { dbConnection } from '../store/features/dbLoader/DBConnection';
 
 const App: FC = () => {
@@ -65,6 +65,8 @@ const App: FC = () => {
 
 	const dbMigrated = useAppSelector(selectDbMigrated);
 
+	const requireReload = useAppSelector(selectRequireReload);
+
 	const style = {
 		backgroundColor: theme.colors.background,
 		height,
@@ -79,13 +81,17 @@ const App: FC = () => {
 		);
 	}
 
-	if (!initialPositionInitialized || !settingsInitialized || true !== dbMigrated) {
+	if (!initialPositionInitialized || !settingsInitialized || true !== dbMigrated || requireReload) {
 		const isDbError = dbMigrated && 'string' === typeof dbMigrated;
 		return (
 			<View style={style}>
-				<SplashScreen displayLogo={!isDbError}>
+				<SplashScreen displayLogo={!isDbError && ! requireReload}>
 					{isDbError && (
 						<Text>{sprintf(t('dbLoader.dbMigrationError'), dbMigrated)}</Text>
+					)}
+					{/* ??? missing translation */}
+					{requireReload && (
+						<Text>{sprintf(t('dbLoader.requireReload'), dbMigrated)}</Text>
 					)}
 				</SplashScreen>
 			</View>
