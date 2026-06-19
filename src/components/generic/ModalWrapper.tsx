@@ -23,6 +23,7 @@ import Animated, {
 	useSharedValue,
 	withTiming,
 } from 'react-native-reanimated';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 /**
  * Internal dependencies
@@ -179,63 +180,73 @@ const ModalWrapper: FC<{
 
 					<View style={contentContainerStyle}>
 						<Animated.View style={modalAnimatedStyles}>
-							<ScrollView
-								scrollEnabled={scrollEnabled}
-								onLayout={onLayout}
-								style={[modalStyles]}
-							>
-								<View
-									style={{
-										width: '90%',
-										flexDirection: 'row',
-										alignItems: 'center',
-										marginBottom: 8,
-										gap: 8,
-										justifyContent: 'flex-start',
-									}}
+							<GestureHandlerRootView>
+								<ScrollView
+									scrollEnabled={scrollEnabled}
+									onLayout={onLayout}
+									style={[
+										modalStyles,
+										// {
+										// 	height: modalHeight,
+										// },
+									]}
 								>
-									{hasBackButton && (
-										<TouchableHighlight
-											underlayColor={theme.colors.elevation.level3}
-											style={{
-												padding: 5,
-												borderRadius: theme.roundness,
-											}}
-											onPress={handleDismiss}
-										>
-											<Icon
-												source="arrow-left"
-												size={25}
-											/>
-										</TouchableHighlight>
-									)}
+									<View
+										style={{
+											width: '90%',
+											flexDirection: 'row',
+											alignItems: 'center',
+											marginBottom: 8,
+											gap: 8,
+											justifyContent: 'flex-start',
+										}}
+									>
+										{hasBackButton && (
+											<TouchableHighlight
+												underlayColor={theme.colors.elevation.level3}
+												style={{
+													padding: 5,
+													borderRadius: theme.roundness,
+												}}
+												onPress={handleDismiss}
+											>
+												<Icon
+													source="arrow-left"
+													size={25}
+												/>
+											</TouchableHighlight>
+										)}
 
-									{header && (
-										<View>
-											{header.split('-').map((str, index) => (
-												<Text
-													key={index}
-													style={theme.fonts.headlineSmall}
-												>
-													{str +
-														(index < header.split('-').length - 1
-															? '-'
-															: '')}
+										{header && (
+											<View>
+												{/* {header.split('-').map((str, index) => (
+													<Text
+														key={index}
+														style={theme.fonts.headlineSmall}
+													>
+														{str +
+															(index < header.split('-').length - 1
+																? '-'
+																: '')}
+													</Text>
+												))} */}
+												<Text style={theme.fonts.headlineSmall}>
+													{header}
 												</Text>
-											))}
-										</View>
-									)}
-								</View>
+											</View>
+										)}
+									</View>
 
-								<View
-									style={{
-										paddingBottom: 50,
-										...innerStyle,
-									}}
-								>
-									{children}
-								</View>
-							</ScrollView>
+									<View
+										style={{
+											paddingBottom: 50,
+											...innerStyle,
+										}}
+									>
+										{children}
+									</View>
+								</ScrollView>
+							</GestureHandlerRootView>
 						</Animated.View>
 					</View>
 				</Modal>
