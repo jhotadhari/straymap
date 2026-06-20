@@ -12,7 +12,7 @@ import {
 	useMemo,
 	useState,
 } from 'react';
-import { View } from 'react-native';
+import { View, ViewStyle } from 'react-native';
 import { Text, TextInput, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { get } from 'lodash-es';
@@ -122,9 +122,9 @@ const CreateNewOption: FC<{
 		(filename: string) =>
 			[
 				path,
-				filename + (extensions && extensions.length ? extensions[0] : '' ),
+				filename + (extensions && extensions.length ? '.' + extensions[0] : ''),
 			].join('/'),
-		[path,extensions]
+		[path, extensions]
 	);
 
 	const { newFileNameTemp, newSelectedOpt } = useMemo(() => {
@@ -150,7 +150,6 @@ const CreateNewOption: FC<{
 		return (
 			fileNameTemp && (
 				<TextInput
-					// style={{ maxWidth: 200 }} // ???
 					underlineColor="transparent"
 					dense={true}
 					theme={{
@@ -286,6 +285,7 @@ const FileSourceRowControl: FC<{
 	hasCustom?: boolean;
 	initialOptionsByPath?: OptionsByPathType;
 	AlternativeButton?: AlternativeButtonType;
+	styleContent?: ViewStyle;
 	newOptionLabel?: string;
 }> = ({
 	filePattern,
@@ -305,6 +305,7 @@ const FileSourceRowControl: FC<{
 	hasCustom,
 	initialOptionsByPath = {},
 	AlternativeButton = null,
+	styleContent,
 	newOptionLabel,
 }) => {
 	const { t } = useTranslation();
@@ -413,7 +414,6 @@ const FileSourceRowControl: FC<{
 		onModalDismiss,
 	]);
 
-
 	useEffect(() => {
 		if (selectedOpt && onSelect) {
 			onSelect(selectedOpt === 'custom' && undefined !== customUri ? customUri : selectedOpt);
@@ -421,9 +421,6 @@ const FileSourceRowControl: FC<{
 		if (selectedOpt && dismissModalOnSelect) {
 			dismissModal();
 		}
-
-
-
 	}, [
 		selectedOpt,
 		customUri,
@@ -499,12 +496,12 @@ const FileSourceRowControl: FC<{
 			{/* )} */}
 
 			<View
-				style={{
+				style={[{
 					flexDirection: 'row',
 					alignItems: 'center',
 					justifyContent: 'space-between',
 					width: '65%',
-				}}
+				},styleContent]}
 			>
 				{!AlternativeButton && dirsInfos && Object.keys(dirsInfos).length > 0 && (
 					<ButtonHighlight

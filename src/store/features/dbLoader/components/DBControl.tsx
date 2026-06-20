@@ -17,6 +17,7 @@ import FileSourceRowControl from '../../../../components/generic/controls/FileSo
 import { selectAppDirs } from '../../dirs/selectors';
 import InfoRowControl from '../../../../components/generic/controls/InfoRowControl';
 import { dbExtension } from '../constants';
+import { StyleSheet } from 'react-native';
 
 const extensions = [dbExtension];
 
@@ -36,7 +37,7 @@ const RowFile: FC = () => {
 	return (
 		<FileSourceRowControl
 			label={t('file')} // ??? translation
-			header={t('file')} // ??? translation
+			header={t('selectDbFile')} // ??? translation
 			newOptionLabel={'Create new database'} // ??? translation
 			value={dbPath}
 			onModalDismiss={handleSelect}
@@ -45,6 +46,7 @@ const RowFile: FC = () => {
 			filesHeading={sprintf(t('filesIn'), '(.' + dbExtension + ')')}
 			noFilesHeading={sprintf(t('noFilesIn'), '(.' + dbExtension + ')')}
 			canCreateNewOption={true}
+			styleContent={styles.contentButton}
 		/>
 	);
 };
@@ -72,10 +74,6 @@ const RowMoveFile: FC = () => {
 const DBControl: FC = () => {
 	const { t } = useTranslation();
 
-	// const dispatch = useAppDispatch();
-
-	// const dbPath = useAppSelector(selectDbPath);
-
 	return (
 		<ListItemModalControl
 			anchorLabel={t('Database')} // ??? translation
@@ -98,4 +96,7 @@ const DBControl: FC = () => {
 	);
 };
 
+const styles = StyleSheet.create({
+	contentButton: { marginLeft: -12 },
+});
 export default DBControl;
