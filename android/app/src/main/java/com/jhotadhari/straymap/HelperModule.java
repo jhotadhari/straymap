@@ -64,27 +64,36 @@ public class HelperModule extends ReactContextBaseJavaModule {
 		responseParams.putArray( "internalCacheDirs", internalCacheDirs );
 
 		// Subdirs
-		File[] allDirs = Arrays.copyOf( externalMediaDirs, externalMediaDirs.length + filesDirs.length );
-		System.arraycopy( filesDirs, 0, allDirs, externalMediaDirs.length, filesDirs.length );
-		String[] subdirs = {
+		File[] publicDirs = Arrays.copyOf( externalMediaDirs, externalMediaDirs.length + filesDirs.length );
+		System.arraycopy( filesDirs, 0, publicDirs, externalMediaDirs.length, filesDirs.length );
+		String[] subDirs = {
 			"dem",
 			"mapfiles",
+			"databases",
 			"mapstyles",
 			"tracks",
 			"marker",
 			"cursor",
 		};
-		for ( int si = 0; si < subdirs.length; si++ ) {
+		for ( int si = 0; si < subDirs.length; si++ ) {
 			WritableArray dirs = new WritableNativeArray();
-			for ( int i = 0; i < allDirs.length; i++ ) {
-				String pathName = allDirs[i].toString() + File.separator + subdirs[si];
+			if ( "databases".equals( subDirs[ si ] ) ) {
+				String pathName = getReactApplicationContext().getApplicationInfo().dataDir + File.separator + subDirs[si];
 				File dir = new File( pathName );
 				if ( ! dir.exists() ) {
 					dir.mkdirs();
 				}
 				dirs.pushString( pathName );
 			}
-			responseParams.putArray( subdirs[si], dirs );
+			for ( int i = 0; i < publicDirs.length; i++ ) {
+				String pathName = publicDirs[i].toString() + File.separator + subDirs[si];
+				File dir = new File( pathName );
+				if ( ! dir.exists() ) {
+					dir.mkdirs();
+				}
+				dirs.pushString( pathName );
+			}
+			responseParams.putArray( subDirs[si], dirs );
 		}
 	}
 }

@@ -23,7 +23,7 @@ import { selectCursor } from '../../selectors';
 import { CursorConfig } from '../../types';
 import { selectAppDirs } from '../../../dirs/selectors';
 
-const initialOptsMap = {
+const initialOptionsByPath = {
 	[' ']: [
 		{
 			key: 'target',
@@ -111,7 +111,7 @@ const CenterControl = () => {
 				label={t('file')}
 				value={cursorConfig.iconSource}
 				onSelect={handleFileSelect}
-				initialOptsMap={initialOptsMap}
+				initialOptionsByPath={initialOptionsByPath}
 				extensions={['svg', 'png']}
 				dirs={get(appDirs, 'cursor', [])}
 				Info={t('appearance.hint.center.file')}

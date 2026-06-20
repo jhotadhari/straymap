@@ -174,7 +174,7 @@ const CacheManager = () => {
 				>
 					<List.Icon
 						{...props}
-						icon="database-outline"
+						icon="content-save-outline"
 					/>
 				</View>
 			)}

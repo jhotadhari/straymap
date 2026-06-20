@@ -9,11 +9,11 @@ import { ANDROID_DATABASE_PATH } from '@op-engineering/op-sqlite';
  * Internal dependencies
  */
 import { SliceSettingsBase } from '../../../types';
-import { AppThunk, store } from '../../store';
+import { AppThunk } from '../../store';
 import { selectDbPath } from './selectors';
 import { setSelected } from '../lines/slice';
 import { setIsRouting } from '../routing/slice';
-import { dbConnection } from './DBConnection';
+import { dbExtension } from './constants';
 
 export interface DbLoaderSettings {
 	dbPath: string;
@@ -25,7 +25,7 @@ export interface DbLoaderState extends SliceSettingsBase, DbLoaderSettings {
 }
 
 export const initialSettings: DbLoaderSettings = {
-	dbPath: ANDROID_DATABASE_PATH + 'db',
+	dbPath: ANDROID_DATABASE_PATH + 'db.' + dbExtension,
 };
 
 const initialState: DbLoaderState = {

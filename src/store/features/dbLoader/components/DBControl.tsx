@@ -1,9 +1,10 @@
 /**
  * External dependencies
  */
-import React, { FC, useCallback, useEffect, useRef, useState } from 'react';
-import { Icon, TextInput, useTheme } from 'react-native-paper';
+import React, { FC, useCallback } from 'react';
+import { Icon, Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
+import { sprintf } from 'sprintf-js';
 
 /**
  * Internal dependencies
@@ -11,59 +12,59 @@ import { useTranslation } from 'react-i18next';
 import { useAppDispatch, useAppSelector } from '../../../hooks';
 import { selectDbPath } from '../selectors';
 import ListItemModalControl from '../../../../components/generic/controls/ListItemModalControl';
-import InfoRowControl from '../../../../components/generic/controls/InfoRowControl';
 import { setDbPath } from '../slice';
+import FileSourceRowControl from '../../../../components/generic/controls/FileSourceRowControl';
+import { selectAppDirs } from '../../dirs/selectors';
+import InfoRowControl from '../../../../components/generic/controls/InfoRowControl';
+import { dbExtension } from '../constants';
 
-const RowName: FC = () => {
-	const theme = useTheme();
+const extensions = [dbExtension];
+
+const RowFile: FC = () => {
+	const { t } = useTranslation();
+
+	const appDirs = useAppSelector(selectAppDirs);
 
 	const dispatch = useAppDispatch();
 
-	const dbPathSetting = useAppSelector(selectDbPath);
+	const dbPath = useAppSelector(selectDbPath);
 
-	const [dbPathTemp, setDbPathTemp] = useState(dbPathSetting);
-
-	useEffect(() => {
-		setDbPathTemp(dbPathSetting);
-	}, [dbPathSetting]);
-
-	const dbPathTempRef = useRef(dbPathTemp);
-
-	useEffect(() => {
-		dbPathTempRef.current = dbPathTemp;
-	}, [dbPathTemp]);
-
-	useEffect(
-		() => () => {
-			dbPathTempRef?.current && dispatch(setDbPath(dbPathTempRef?.current));
-		},
-		[]
-	);
-
-	const handleChangeText = useCallback((newVal: string) => {
-		setDbPathTemp(newVal);
+	const handleSelect = useCallback((selectedOpt?: string) => {
+		selectedOpt && selectedOpt.length && dispatch(setDbPath(selectedOpt));
 	}, []);
 
 	return (
+		<FileSourceRowControl
+			label={t('file')} // ??? translation
+			header={t('file')} // ??? translation
+			newOptionLabel={'Create new database'} // ??? translation
+			value={dbPath}
+			onModalDismiss={handleSelect}
+			extensions={extensions}
+			dirs={appDirs.databases}
+			filesHeading={sprintf(t('filesIn'), '(.' + dbExtension + ')')}
+			noFilesHeading={sprintf(t('noFilesIn'), '(.' + dbExtension + ')')}
+			canCreateNewOption={true}
+		/>
+	);
+};
+
+const RowSize: FC = () => {
+	return (
 		<InfoRowControl
-			label={'path'} // ??? translation
-			// Info={Info}
+			label={'size'} // ??? translation
 		>
-			<TextInput
-				style={{ maxWidth: 200 }} // ???
-				underlineColor="transparent"
-				dense={true}
-				theme={{
-					fonts: {
-						bodyLarge: {
-							...theme.fonts.bodySmall,
-							fontFamily: 'sans-serif',
-						},
-					},
-				}}
-				onChangeText={handleChangeText}
-				value={dbPathTemp}
-			/>
+			<Text>{'TODO size mb ???'}</Text>
+		</InfoRowControl>
+	);
+};
+
+const RowMoveFile: FC = () => {
+	return (
+		<InfoRowControl
+			label={'moveFile'} // ??? translation
+		>
+			<Text>{'TODO moveFile ???'}</Text>
 		</InfoRowControl>
 	);
 };
@@ -80,7 +81,7 @@ const DBControl: FC = () => {
 			anchorLabel={t('Database')} // ??? translation
 			anchorIcon={({ color }) => (
 				<Icon
-					source="???"
+					source="database-outline"
 					size={25}
 					color={color}
 				/>
@@ -88,25 +89,11 @@ const DBControl: FC = () => {
 			header={t('Database')} // ??? translation
 			hasHeaderBackPress={true}
 		>
-			{/* <Text>{dbPath}</Text> */}
+			<RowFile />
 
-			<RowName />
+			<RowSize />
 
-			{/* {Object.keys(unitPrefs).map((key) => (
-				<UnitControl
-					key={key}
-					unitKey={key}
-					unitPref={unitPrefs[key]}
-					onChange={(newPref) => {
-						dispatch(
-							setUnitPrefs({
-								...unitPrefs,
-								[key]: newPref,
-							})
-						);
-					}}
-				/>
-			))} */}
+			<RowMoveFile />
 		</ListItemModalControl>
 	);
 };

@@ -129,7 +129,7 @@ const ThemeControl: FC<{
 		);
 	}, []);
 
-	const initialOptsMap = useMemo(
+	const initialOptionsByPath = useMemo(
 		() => ({
 			[t('baseMap.builtInThemes') + ':']: [...LayerMapsforge.BUILT_IN_THEMES].map((key) => ({
 				key,
@@ -148,7 +148,7 @@ const ThemeControl: FC<{
 			AlternativeButton={isBusy ? () => <LoadingIndicator /> : undefined}
 			label={t('baseMap.theme')}
 			header={t('baseMap.selectTheme')}
-			initialOptsMap={initialOptsMap}
+			initialOptionsByPath={initialOptionsByPath}
 			value={profileTemp?.theme}
 			onSelect={handleSelect}
 			After={<ResetCacheButton renderStylesCache={renderStylesCache} />}

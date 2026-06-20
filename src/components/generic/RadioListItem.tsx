@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { ReactNode } from 'react';
 import { Dimensions, TextStyle, TouchableHighlight, View } from 'react-native';
 import { Text, useTheme, RadioButton } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -19,6 +20,7 @@ const RadioListItem = ({
 	onPress,
 	labelExtractor,
 	descExtractor,
+	labelNode,
 	labelStyle,
 	descStyle,
 	status = 'unchecked',
@@ -28,6 +30,7 @@ const RadioListItem = ({
 	onPress: () => void;
 	labelExtractor?: (opt: OptionBase) => string | null;
 	descExtractor?: (opt: OptionBase) => string | null;
+	labelNode?: ReactNode;
 	labelStyle?: TextStyle;
 	descStyle?: TextStyle;
 	status?: 'unchecked' | 'checked';
@@ -36,7 +39,7 @@ const RadioListItem = ({
 	const { width } = Dimensions.get('window');
 	const { t } = useTranslation();
 	const theme = useTheme();
-	const label = labelExtractor ? labelExtractor(opt) : null;
+	const label = ! labelNode && labelExtractor ? labelExtractor(opt) : null;
 	const desc = descExtractor ? descExtractor(opt) : null;
 	return (
 		<TouchableHighlight
@@ -65,6 +68,7 @@ const RadioListItem = ({
 						// ...labelWrapStyle,
 					}}
 				>
+					{ labelNode }
 					{label && (
 						<Text style={{ ...theme.fonts.bodyLarge, ...labelStyle }}>{t(label)}</Text>
 					)}
