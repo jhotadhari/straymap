@@ -38,7 +38,7 @@ export interface RoutingState extends SliceSettingsBase, RoutingSettings {
 }
 
 export const initialSettings: RoutingSettings = {
-	isRouting: false, // ??? has to be reset on db change
+	isRouting: false,
 };
 
 const initialState: RoutingState = {
@@ -353,4 +353,10 @@ const updateLineFromSegments = async (
 			isNew: true,
 		};
 	}
+};
+
+export const onSetDbPath = (): AppThunk => {
+	return (dispatch) => {
+		dispatch(routingSlice.actions.setIsRouting( false ));
+	};
 };

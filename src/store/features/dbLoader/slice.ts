@@ -14,6 +14,7 @@ import { selectDbPath } from './selectors';
 import { setSelected } from '../lines/slice';
 import { setIsRouting } from '../routing/slice';
 import { dbExtension } from './constants';
+import features from '..';
 
 export interface DbLoaderSettings {
 	dbPath: string;
@@ -66,8 +67,11 @@ export const setDbPath = (newDbPath: string): AppThunk => {
 		if ( dbPath === newDbPath ) {
 			return;
 		}
-		dispatch(setSelected( [] ));
-		dispatch(setIsRouting( false ));
+		Object.values(features).forEach((feature) => {
+			if (feature?.onSetDbPath) {
+				dispatch(feature.onSetDbPath());
+			}
+		});
 		dispatch(dbLoaderSlice.actions.setDbPath( newDbPath ));
 		dispatch(dbLoaderSlice.actions.setRequireReload( true ));
 	};

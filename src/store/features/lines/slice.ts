@@ -25,7 +25,7 @@ export interface LinesState extends SliceSettingsBase, LinesSettings {
 }
 
 export const initialSettings: LinesSettings = {
-	selected: [], // ??? has to be reset on db change
+	selected: [],
 };
 
 const initialState: LinesState = {
@@ -111,5 +111,11 @@ export const setLinesSelected = (newSelectedIds: number[]): AppThunk => {
 		if (!isEqual(selected, newSelected)) {
 			dispatch(linesSlice.actions.setSelected(newSelected));
 		}
+	};
+};
+
+export const onSetDbPath = (): AppThunk => {
+	return (dispatch) => {
+		dispatch(linesSlice.actions.setSelected( [] ));
 	};
 };

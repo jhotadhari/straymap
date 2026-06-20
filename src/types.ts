@@ -4,6 +4,7 @@
 import { EnhancedStore } from '@reduxjs/toolkit';
 import { ReactNode } from 'react';
 import { Location } from 'react-native-mapsforge-vtm';
+import { AppThunk } from './store/store';
 
 // source: https://stackoverflow.com/questions/41253310/typescript-retrieve-element-type-information-from-array-type#answer-51399781
 export type ArrayElement<ArrayType extends readonly unknown[]> =
@@ -41,4 +42,6 @@ export interface AppFeature {
 	translation: { [lang: string]: any };
 	// If AppFeature does not expose a initializeFromStorage function, it has to be called manually.
 	initializeFromStorage?: (store: EnhancedStore) => void | Promise<boolean>;
+
+	onSetDbPath?: () => AppThunk
 }

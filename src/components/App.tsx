@@ -51,8 +51,6 @@ const App: FC = () => {
 
 	const settingsInitialized = useSettingsInitialized();
 
-	console.log('debug settingsInitialized', settingsInitialized); // debug
-
 	const {
 		initialized: initialPositionInitialized,
 		initialPositionRef,
