@@ -73,7 +73,7 @@ const Segment: FC<{
 				);
 			case !!(segment && segment?.isFetching):
 				// fetching
-				node = <LoadingIndicator style={{ marginRight: 1, paddingTop: 1 }} />;
+				node = <LoadingIndicator style={styles.loadingIndicatorIcon} />;
 			case !segment || !segment?.positions:
 				// some placeholder until start fetching
 				node = (
@@ -91,16 +91,7 @@ const Segment: FC<{
 			//     />;
 		}
 
-		return node ? (
-			<View
-				style={{
-					// marginLeft: -8,
-					marginVertical: -4,
-				}}
-			>
-				{node}
-			</View>
-		) : undefined;
+		return node ? <View style={styles.stateIconWrapper}>{node}</View> : undefined;
 	}, [segment]);
 
 	const refreshSegment = useCallback(() => {
@@ -142,26 +133,25 @@ const Segment: FC<{
 		[hidden]
 	);
 
-	return (
-		<View
-			style={{
-				alignItems: 'center',
-				justifyContent: 'flex-start',
+	const styleWrapper = useMemo(
+		() => [
+			styles.segmentWrapper,
+			{
 				backgroundColor: theme.colors.surfaceDisabled,
-				borderLeftWidth: 1,
 				borderColor: theme.colors.onSurfaceDisabled,
-				marginLeft: 8,
-				paddingLeft: 8,
-			}}
-		>
+			},
+		],
+		[theme]
+	);
+
+	return (
+		<View style={styleWrapper}>
 			<View style={styleSegmentRow}>
 				<View style={styles.segmentRowContent}>
 					<StateIcon />
 
 					{segment?.errorMsg && (
-						<Text style={{ marginRight: 10, flexGrow: 1 }}>
-							{'Error' + ': ' + segment?.errorMsg}
-						</Text>
+						<Text style={styles.errorText}>{'Error' + ': ' + segment?.errorMsg}</Text>
 					)}
 
 					{!segment?.isFetching && (
@@ -176,10 +166,7 @@ const Segment: FC<{
 					<ButtonHighlight
 						compact={true}
 						onPress={refreshSegment}
-						style={{
-							marginLeft: -8,
-							marginVertical: -4,
-						}}
+						style={styles.compactButtonAction}
 					>
 						<Icon
 							source="refresh"
@@ -197,26 +184,14 @@ const Segment: FC<{
 				/>
 				<View style={styles.segmentRowAction}>
 					<ButtonHighlight compact={true}>
-						<View
-							style={{
-								width: iconSize, // icon size as empty placeholder
-								height: 1, // any number to prevent layout jumps on refresh process routing.
-							}}
-						/>
+						<View style={styles.placeholderIcon} />
 					</ButtonHighlight>
 				</View>
 			</View>
 			{/* )} */}
 
 			<View style={styleSegmentRow}>
-				<View
-					style={[
-						styles.segmentRowContent,
-						{
-							gap: 8,
-						},
-					]}
-				>
+				<View style={styles.segmentRowContent}>
 					{Object.keys(item?.profile).map((profileKey) => {
 						let inner: string | boolean = get(item.profile, profileKey, '');
 						if ('fast' === profileKey) {
@@ -233,10 +208,7 @@ const Segment: FC<{
 					<ButtonHighlight
 						compact={true}
 						onPress={handleSetEdit}
-						style={{
-							marginLeft: -8,
-							marginVertical: -4,
-						}}
+						style={styles.compactButtonAction}
 					>
 						<Icon
 							source="cog"
@@ -286,26 +258,25 @@ const DraggableItem: FC<{
 		mutation.mutate(item.id);
 	}, [item.id, mutation.mutate]);
 
+	const styleDraggableItem = useMemo(
+		// ??? we need dome other nice placeholder than backgroundColor for isDeleting.
+		() => [
+			styles.draggableItem,
+			{ width },
+			isDeleting && styles.draggableItemDeleting,
+		],
+		[width, isDeleting]
+	);
+
 	return (
 		<View
-			style={{
-				width,
-				paddingHorizontal: 8,
-				justifyContent: 'flex-start',
-				...(isDeleting && { backgroundColor: '#ff0000' }), // ??? we need dome other nice placeholder.
-			}}
+			style={styleDraggableItem}
 			key={item.id}
 		>
-			<View
-				style={{
-					justifyContent: 'space-between',
-					alignItems: 'center',
-					flexDirection: 'row',
-				}}
-			>
+			<View style={styles.itemRow}>
 				<Sortable.Handle
 					mode="draggable"
-					style={{ flexDirection: 'row', flexGrow: 1, gap: 8 }}
+					style={styles.handle}
 				>
 					<Text>{order + 1}</Text>
 					<Text>{item.id}</Text>
@@ -323,10 +294,7 @@ const DraggableItem: FC<{
 				<ButtonHighlight
 					compact={true}
 					onPress={handleDeletePoint}
-					style={{
-						marginLeft: -8,
-						marginVertical: -4,
-					}}
+					style={styles.compactButtonAction}
 				>
 					<Icon
 						source="delete"
@@ -430,13 +398,12 @@ const PointsList: FC = () => {
 
 	const dropIndicatorStyle = useDropIndicatorStyle();
 
+	const styleScrollView = useMemo(() => [styles.scrollView, { width }], [width]);
+
 	return (
 		<ScrollView
 			scrollEnabled={scrollEnabled}
-			style={{
-				width,
-				paddingHorizontal: itemPaddingH,
-			}}
+			style={styleScrollView}
 		>
 			{editPoint && (
 				<EditPointModal
@@ -491,6 +458,52 @@ const styles = StyleSheet.create({
 		gap: 8,
 	},
 	segmentRowAction: {},
+	segmentWrapper: {
+		alignItems: 'center',
+		justifyContent: 'flex-start',
+		borderLeftWidth: 1,
+		marginLeft: 8,
+		paddingLeft: 8,
+	},
+	loadingIndicatorIcon: {
+		marginRight: 1,
+		paddingTop: 1,
+	},
+	stateIconWrapper: {
+		marginVertical: -4,
+	},
+	errorText: {
+		marginRight: 10,
+		flexGrow: 1,
+	},
+	compactButtonAction: {
+		marginLeft: -8,
+		marginVertical: -4,
+	},
+	placeholderIcon: {
+		width: iconSize, // icon size as empty placeholder
+		height: 1, // any number to prevent layout jumps on refresh process routing.
+	},
+	draggableItem: {
+		paddingHorizontal: 8,
+		justifyContent: 'flex-start',
+	},
+	draggableItemDeleting: {
+		backgroundColor: '#ff0000',
+	},
+	itemRow: {
+		justifyContent: 'space-between',
+		alignItems: 'center',
+		flexDirection: 'row',
+	},
+	handle: {
+		flexDirection: 'row',
+		flexGrow: 1,
+		gap: 8,
+	},
+	scrollView: {
+		paddingHorizontal: itemPaddingH,
+	},
 });
 
 export default PointsList;

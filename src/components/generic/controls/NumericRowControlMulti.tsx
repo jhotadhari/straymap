@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { Text, useTheme, TextInput } from 'react-native-paper';
 import { get } from 'lodash-es';
 
@@ -12,7 +12,7 @@ import { get } from 'lodash-es';
 import InfoRowControl from './InfoRowControl';
 import { strValToNb } from '../../../lib/utils';
 import { NumType } from '../../../types';
-import { styles } from './NumericRowControl';
+import { sharedStyles } from './sharedDeps';
 
 export const NumericRowControlMulti = ({
 	label,
@@ -163,27 +163,15 @@ export const NumericRowControlMulti = ({
 			label={label}
 			Info={Info}
 		>
-			<View
-				style={[
-					styles.flexRow,
-					{
-						flexGrow: 1,
-						gap: 8,
-					},
-				]}
-			>
+			<View style={[sharedStyles.flexRow, localStyles.optionsRow]}>
 				{values.map((_value, idx) => (
 					<View
 						key={idx}
-						style={{
-							flexDirection: 'row',
-							alignItems: 'center',
-							gap: 8,
-						}}
+						style={localStyles.optionRow}
 					>
 						{get(optLabels, idx, undefined) && <Text>{get(optLabels, idx)}</Text>}
 						<TextInput
-							style={{ maxWidth: 50 }}
+							style={localStyles.input}
 							underlineColor="transparent"
 							error={!isValids[idx]}
 							dense={true}
@@ -199,5 +187,11 @@ export const NumericRowControlMulti = ({
 		</InfoRowControl>
 	);
 };
+
+const localStyles = StyleSheet.create({
+	optionsRow: { flexGrow: 1, gap: 8 },
+	optionRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+	input: { maxWidth: 50 },
+});
 
 export default NumericRowControlMulti;

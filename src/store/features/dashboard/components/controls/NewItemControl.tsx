@@ -10,7 +10,7 @@ import React, {
 	useMemo,
 	useState,
 } from 'react';
-import { View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import rnUuid from 'react-native-uuid';
 import MaterialIcons from '@react-native-vector-icons/material-icons/static';
@@ -33,7 +33,7 @@ const SelectType: FC<{
 	onPress: (elementType: string) => void;
 }> = ({ option, onPress }) => {
 	return (
-		<View style={{ marginTop: 10 }}>
+		<View style={styles.optionRow}>
 			<RadioListItem
 				opt={option}
 				onPress={() => onPress(option.key)}
@@ -138,5 +138,9 @@ const NewItemControl: FC<{}> = () => {
 		</View>
 	);
 };
+
+const styles = StyleSheet.create({
+	optionRow: { marginTop: 10 },
+});
 
 export default NewItemControl;

@@ -130,22 +130,12 @@ const TopAppBar: FC = () => {
 			{showTopDashboard && <DashboardWrapped position="top" />}
 
 			{/* Fix app bar height. because the visible button is absolute and dosen't provide a height */}
-			<View
-				style={{
-					right: 999,
-				}}
-			>
+			<View style={styles.menuFix}>
 				<TopAppBarMenu />
 			</View>
 
 			{showMenuBtn && (
-				<View
-					style={{
-						position: 'absolute',
-						right: 4,
-						zIndex: 9,
-					}}
-				>
+				<View style={styles.menuAbsolute}>
 					<TopAppBarMenu handleMenuPress={handleMenuPress} />
 				</View>
 			)}
@@ -167,6 +157,12 @@ const styles = StyleSheet.create({
 		marginRight: 5,
 	},
 	menu: { minWidth: 175 },
+	menuFix: { right: 999 },
+	menuAbsolute: {
+		position: 'absolute',
+		right: 4,
+		zIndex: 9,
+	},
 });
 
 export default TopAppBar;

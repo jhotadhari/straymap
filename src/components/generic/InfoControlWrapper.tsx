@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { ReactNode } from 'react';
-import { View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { get } from 'lodash-es';
@@ -46,13 +46,13 @@ const InfoControlWrapper = ({
 					onDismiss={() => setModalVisible(false)}
 					header={sprintf(t(labelPattern, { count: headerPlural ? 0 : 1 }), label || '')}
 				>
-					<View style={{ marginTop: 20, marginBottom: 20 }}>
+					<View style={styles.infoWrapper}>
 						{Info && 'string' === typeof Info && <Text>{Info}</Text>}
 						{Info && 'string' !== typeof Info && Info}
 					</View>
 
 					<ButtonHighlight
-						style={{ marginTop: 20, marginBottom: 40 }}
+						style={styles.okButton}
 						onPress={() => setModalVisible(false)}
 						mode="contained"
 						buttonColor={get(theme.colors, 'successContainer')}
@@ -69,5 +69,10 @@ const InfoControlWrapper = ({
 		</View>
 	);
 };
+
+const styles = StyleSheet.create({
+	infoWrapper: { marginTop: 20, marginBottom: 20 },
+	okButton: { marginTop: 20, marginBottom: 40 },
+});
 
 export default InfoControlWrapper;

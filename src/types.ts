@@ -43,5 +43,5 @@ export interface AppFeature {
 	// If AppFeature does not expose a initializeFromStorage function, it has to be called manually.
 	initializeFromStorage?: (store: EnhancedStore) => void | Promise<boolean>;
 
-	onSetDbPath?: () => AppThunk
+	onSetDbPath?: () => AppThunk;
 }

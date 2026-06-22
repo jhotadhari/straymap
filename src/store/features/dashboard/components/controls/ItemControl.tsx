@@ -137,6 +137,11 @@ const ItemControl: FC<{}> = ({}) => {
 		}
 	}, [item?.key]);
 
+	const styleAccordionContent = useMemo(
+		() => (undefined === accuHeight ? undefined : { minHeight: accuHeight }),
+		[accuHeight]
+	);
+
 	return (
 		item && (
 			<ControlContext.Provider
@@ -152,15 +157,7 @@ const ItemControl: FC<{}> = ({}) => {
 					onPress={handleAccordionPress}
 					titleStyle={theme.fonts.bodyMedium}
 				>
-					<View
-						style={
-							undefined === accuHeight
-								? undefined
-								: {
-										minHeight: accuHeight,
-									}
-						}
-					>
+					<View style={styleAccordionContent}>
 						{show && (
 							<View
 								style={styles.controls}
@@ -174,13 +171,7 @@ const ItemControl: FC<{}> = ({}) => {
 
 								{Control && <Control item={item} />}
 
-								<View
-									style={{
-										justifyContent: 'space-between',
-										flexDirection: 'row',
-										// marginTop: 20,
-									}}
-								>
+								<View style={styles.actionsRow}>
 									<ButtonHighlight
 										mode="outlined"
 										onPress={0 === idx ? undefined : handleMoveLeft}
@@ -234,6 +225,10 @@ const styles = StyleSheet.create({
 		width: 40,
 		alignItems: 'center',
 		justifyContent: 'center',
+	},
+	actionsRow: {
+		justifyContent: 'space-between',
+		flexDirection: 'row',
 	},
 });
 

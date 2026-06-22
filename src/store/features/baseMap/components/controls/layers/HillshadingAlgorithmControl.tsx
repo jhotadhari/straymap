@@ -27,6 +27,7 @@ import { LayerConfigOptionsHillshading, LayerConfig } from '../../../types';
 import { useAppDispatch, useAppSelector } from '../../../../../hooks';
 import { setLayerTemp } from '../../../slice';
 import { selectLayerTemp } from '../../../selectors';
+import { sharedStyles as globalSharedStyles } from '../../../../../../sharedStyles';
 
 const algorithmLinks = {
 	CLASY_ADAPTIVE:
@@ -125,6 +126,11 @@ const HillshadingAlgorithmControl: FC<{}> = () => {
 
 	const toggleAlgoInfo = useCallback(() => setAlgoInfo((algoInfo) => !algoInfo), []);
 
+	const styleBlockquote = useMemo(
+		() => [get(mdStyles(theme), 'blockquote'), styles.blockquote],
+		[theme]
+	);
+
 	return (
 		<InfoRowControl
 			label={t('baseMap.algorithm')}
@@ -144,10 +150,7 @@ const HillshadingAlgorithmControl: FC<{}> = () => {
 						>
 							<ListItemMenuControl
 								options={opts}
-								listItemStyle={{
-									marginLeft: 0,
-									paddingLeft: 10,
-								}}
+								listItemStyle={globalSharedStyles.listItem}
 								value={layerTemp?.options?.shadingAlgorithm}
 								setValue={handleShadingAlgorithmChange}
 								anchorLabel={get(
@@ -159,15 +162,7 @@ const HillshadingAlgorithmControl: FC<{}> = () => {
 						</InfoRowControl>
 
 						{algoInfo && shadingAlgoKey && (
-							<View
-								style={{
-									...get(mdStyles(theme), 'blockquote'),
-									marginTop: -10,
-									marginBottom: 20,
-									paddingVertical: 10,
-									marginLeft: 0,
-								}}
-							>
+							<View style={styleBlockquote}>
 								<Text>
 									{t('baseMap.shadingAlgorithms.' + shadingAlgoKey + '.info')}
 								</Text>
@@ -356,9 +351,9 @@ const HillshadingAlgorithmControl: FC<{}> = () => {
 				</ModalWrapper>
 			)}
 
-			<View style={{ flexDirection: 'row', alignItems: 'center' }}>
+			<View style={globalSharedStyles.flexRowCenter}>
 				<ButtonHighlight
-					style={{ marginTop: 3 }}
+					style={styles.triggerButton}
 					onPress={() => setModalVisible(true)}
 				>
 					<Text>
@@ -387,6 +382,15 @@ const styles = StyleSheet.create({
 	},
 	controls: {
 		marginBottom: 40,
+	},
+	blockquote: {
+		marginTop: -10,
+		marginBottom: 20,
+		paddingVertical: 10,
+		marginLeft: 0,
+	},
+	triggerButton: {
+		marginTop: 3,
 	},
 });
 

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { Dispatch, FC, SetStateAction, useCallback, useMemo } from 'react';
 import { Props as ButtonProps } from 'react-native-paper/lib/typescript/components/Button/Button';
 import { useTranslation } from 'react-i18next';
@@ -107,7 +107,7 @@ const Item: FC<{
 						? theme.colors.onErrorContainer
 						: get(theme.colors, 'onSuccessContainer'),
 				disabled,
-				style: disabled ? { opacity: 0.5 } : undefined,
+				style: disabled ? styles.disabled : undefined,
 			};
 		},
 		[
@@ -118,16 +118,7 @@ const Item: FC<{
 	);
 
 	return (
-		<View
-			style={{
-				display: 'flex',
-				flexDirection: 'row',
-				justifyContent: 'space-between',
-				alignItems: 'center',
-				padding: 5,
-				margin: 5,
-			}}
-		>
+		<View style={styles.itemRow}>
 			<ButtonHighlight
 				onPress={handlePress.left}
 				{...getBtnProps('left')}
@@ -138,12 +129,7 @@ const Item: FC<{
 				/>
 			</ButtonHighlight>
 
-			<View
-				style={{
-					justifyContent: 'center',
-					alignItems: 'center',
-				}}
-			>
+			<View style={styles.iconWrapper}>
 				{IconComponent && <IconComponent color={theme.colors.onBackground} />}
 				{iconSource && (
 					<Icon
@@ -153,7 +139,7 @@ const Item: FC<{
 					/>
 				)}
 				{drawerItem?.label && (
-					<Text style={{ marginTop: 4 }}>{t(drawerItem?.label ?? '')}</Text>
+					<Text style={styles.label}>{t(drawerItem?.label ?? '')}</Text>
 				)}
 			</View>
 
@@ -192,7 +178,7 @@ const DrawerControlModal: FC<{
 
 			<Divider
 				bold={true}
-				style={{ marginTop: 10, marginBottom: 10 }}
+				style={styles.divider}
 			/>
 
 			<Item
@@ -202,7 +188,7 @@ const DrawerControlModal: FC<{
 			/>
 
 			<ButtonHighlight
-				style={{ marginTop: 30 }}
+				style={styles.okButton}
 				onPress={() => {
 					setModalVisible(false);
 				}}
@@ -215,5 +201,24 @@ const DrawerControlModal: FC<{
 		</ModalWrapper>
 	);
 };
+
+const styles = StyleSheet.create({
+	itemRow: {
+		display: 'flex',
+		flexDirection: 'row',
+		justifyContent: 'space-between',
+		alignItems: 'center',
+		padding: 5,
+		margin: 5,
+	},
+	iconWrapper: {
+		justifyContent: 'center',
+		alignItems: 'center',
+	},
+	label: { marginTop: 4 },
+	disabled: { opacity: 0.5 },
+	divider: { marginTop: 10, marginBottom: 10 },
+	okButton: { marginTop: 30 },
+});
 
 export default DrawerControlModal;

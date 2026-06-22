@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { ReactNode, useEffect, useState } from 'react';
+import { StyleSheet } from 'react-native';
 import { useTheme, TextInput } from 'react-native-paper';
 import { debounce } from 'lodash-es';
 
@@ -37,7 +38,7 @@ const NameRowControl = ({
 			Info={Info}
 		>
 			<TextInput
-				style={{ flexGrow: 1 }}
+				style={styles.input}
 				underlineColor="transparent"
 				dense={true}
 				theme={{
@@ -54,5 +55,9 @@ const NameRowControl = ({
 		</InfoRowControl>
 	);
 };
+
+const styles = StyleSheet.create({
+	input: { flexGrow: 1 },
+});
 
 export default NameRowControl;

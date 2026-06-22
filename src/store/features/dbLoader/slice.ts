@@ -56,7 +56,12 @@ export const dbLoaderSlice = createSlice({
 });
 
 // Export the generated action creators for use in components.
-export const { setInitialized, setDbPath: setDbPathAction, setDbMigrated, setRequireReload } = dbLoaderSlice.actions;
+export const {
+	setInitialized,
+	setDbPath: setDbPathAction,
+	setDbMigrated,
+	setRequireReload,
+} = dbLoaderSlice.actions;
 
 // Export the slice reducer for use in the store configuration
 export default dbLoaderSlice.reducer;
@@ -64,7 +69,7 @@ export default dbLoaderSlice.reducer;
 export const setDbPath = (newDbPath: string): AppThunk => {
 	return (dispatch, getState) => {
 		const dbPath = selectDbPath(getState());
-		if ( dbPath === newDbPath ) {
+		if (dbPath === newDbPath) {
 			return;
 		}
 		Object.values(features).forEach((feature) => {
@@ -72,7 +77,7 @@ export const setDbPath = (newDbPath: string): AppThunk => {
 				dispatch(feature.onSetDbPath());
 			}
 		});
-		dispatch(dbLoaderSlice.actions.setDbPath( newDbPath ));
-		dispatch(dbLoaderSlice.actions.setRequireReload( true ));
+		dispatch(dbLoaderSlice.actions.setDbPath(newDbPath));
+		dispatch(dbLoaderSlice.actions.setRequireReload(true));
 	};
 };

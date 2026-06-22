@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { FC, Fragment, ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
-import { Image, Linking, View, TextInputProps } from 'react-native';
+import { Image, Linking, StyleSheet, View, TextInputProps } from 'react-native';
 import { Text, useTheme, TextInput } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { get } from 'lodash-es';
@@ -27,6 +27,7 @@ import { setLayerTemp } from '../../../slice';
 import NumericRowControlMulti from '../../../../../../components/generic/controls/NumericRowControlMulti';
 import ListItemMenuControl from '../../../../../../components/generic/controls/ListItemMenuControl';
 import { stringifyProp } from '../../../utils';
+import { sharedStyles } from '../../../../../../sharedStyles';
 
 interface SourceOption extends OptionBase {
 	url?: `http://${string}` | `https://${string}`;
@@ -35,6 +36,7 @@ interface SourceOption extends OptionBase {
 
 const AttributionGoogle = () => {
 	const theme = useTheme();
+	const linkStyle = useMemo(() => ({ color: get(theme.colors, 'link') }), [theme]);
 	return (
 		<View>
 			<Image
@@ -45,7 +47,7 @@ const AttributionGoogle = () => {
 				}
 			/>
 			<Text
-				style={{ color: get(theme.colors, 'link') }}
+				style={linkStyle}
 				onPress={() => Linking.openURL('https://cloud.google.com/maps-platform/terms')}
 			>
 				&copy; Map data ©{dayjs().format('YYYY')} Google
@@ -61,9 +63,10 @@ export const sourceOptions: SourceOption[] = [
 		url: 'https://tile.openstreetmap.org/{Z}/{X}/{Y}.png',
 		Attribution: () => {
 			const theme = useTheme();
+			const linkStyle = useMemo(() => ({ color: get(theme.colors, 'link') }), [theme]);
 			return (
 				<Text
-					style={{ color: get(theme.colors, 'link') }}
+					style={linkStyle}
 					onPress={() => Linking.openURL('https://www.openstreetmap.org/copyright')}
 				>
 					&copy; OpenStreetMap contributors
@@ -77,28 +80,29 @@ export const sourceOptions: SourceOption[] = [
 		url: 'https://a.tile.opentopomap.org/{Z}/{X}/{Y}.png',
 		Attribution: () => {
 			const theme = useTheme();
+			const linkStyle = useMemo(() => ({ color: get(theme.colors, 'link') }), [theme]);
 			return (
 				<View>
 					<Text
-						style={{ color: get(theme.colors, 'link') }}
+						style={linkStyle}
 						onPress={() => Linking.openURL('https://www.openstreetmap.org/copyright')}
 					>
 						&copy; OpenStreetMap contributors
 					</Text>
 					<Text
-						style={{ color: get(theme.colors, 'link') }}
+						style={linkStyle}
 						onPress={() => Linking.openURL('http://viewfinderpanoramas.org')}
 					>
 						SRTM
 					</Text>
 					<Text
-						style={{ color: get(theme.colors, 'link') }}
+						style={linkStyle}
 						onPress={() => Linking.openURL('https://opentopomap.org')}
 					>
 						Map style: &copy; OpenTopoMap
 					</Text>
 					<Text
-						style={{ color: get(theme.colors, 'link') }}
+						style={linkStyle}
 						onPress={() =>
 							Linking.openURL('https://creativecommons.org/licenses/by-sa/3.0')
 						}
@@ -299,12 +303,7 @@ const SourceRowControl: FC<{}> = () => {
 			label={t('baseMap.source')}
 			Info={t('baseMap.hint.xyzSource')}
 			Below={
-				<View
-					style={{
-						marginTop: -18,
-						marginBottom: 10,
-					}}
-				>
+				<View style={styles.belowWrapper}>
 					<TextInput
 						disabled={'custom' !== selectedOpt}
 						placeholder="https://...{Z}/{X}/{Y}.png"
@@ -326,7 +325,7 @@ const SourceRowControl: FC<{}> = () => {
 								},
 							},
 						}}
-						style={{ width: '100%' }}
+						style={styles.textInput}
 						value={
 							'custom' === selectedOpt
 								? customUrl || ''
@@ -340,7 +339,7 @@ const SourceRowControl: FC<{}> = () => {
 					/>
 
 					{Attribution && (
-						<View style={{ marginTop: 10 }}>
+						<View style={styles.attributionWrapper}>
 							<Attribution />
 						</View>
 					)}
@@ -348,10 +347,7 @@ const SourceRowControl: FC<{}> = () => {
 			}
 		>
 			<ListItemMenuControl
-				listItemStyle={{
-					marginLeft: 0,
-					paddingLeft: 10,
-				}}
+				listItemStyle={sharedStyles.listItem}
 				options={sourceOptions}
 				value={selectedOpt}
 				setValue={(newValue) => {
@@ -461,5 +457,14 @@ const LayerControlOnlineRasterXYZ: FC<{}> = () => {
 		</Fragment>
 	);
 };
+
+const styles = StyleSheet.create({
+	belowWrapper: {
+		marginTop: -18,
+		marginBottom: 10,
+	},
+	textInput: { width: '100%' },
+	attributionWrapper: { marginTop: 10 },
+});
 
 export default LayerControlOnlineRasterXYZ;

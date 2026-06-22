@@ -34,8 +34,7 @@ export const initializeFromStorage = (store: AppStore) => {
 		new Promise((resolve: (value: boolean) => void) => {
 			HelperModule.getAppDirs()
 				.then((dirs) => {
-
-					console.log( 'debug dirs', dirs ); // debug
+					console.log('debug dirs', dirs); // debug
 
 					store.dispatch(setAppDirs(dirs as AbsPathsMap));
 					resolve(true);

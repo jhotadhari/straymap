@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
-import React, { FC, useCallback, useEffect } from 'react';
-import { View } from 'react-native';
+import React, { FC, useCallback, useEffect, useMemo } from 'react';
+import { StyleSheet, View, ViewStyle } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import Animated from 'react-native-reanimated';
 
@@ -73,6 +73,39 @@ const Drawer: FC<DrawerProps> = ({
 		expand,
 	]);
 
+	const styleWrapper: ViewStyle[] = useMemo(
+		() => [
+			styles.wrapper,
+			{
+				alignItems: 'left' === side ? 'flex-start' : 'flex-end',
+				width: outerWidth,
+				height,
+			},
+		],
+		[
+			side,
+			outerWidth,
+			height,
+		]
+	);
+
+	const styleDrawer = useMemo(
+		() => [
+			animatedStyles,
+			{
+				width: drawerWidth,
+				height,
+				backgroundColor: theme.colors.background,
+			},
+		],
+		[
+			animatedStyles,
+			drawerWidth,
+			height,
+			theme,
+		]
+	);
+
 	return (
 		<DrawerContext.Provider
 			value={{
@@ -85,26 +118,8 @@ const Drawer: FC<DrawerProps> = ({
 				expand,
 			}}
 		>
-			<View
-				style={{
-					position: 'absolute',
-					top: 0,
-					left: 0,
-					alignItems: 'left' === side ? 'flex-start' : 'flex-end',
-					width: outerWidth,
-					height,
-				}}
-			>
-				<Animated.View
-					style={[
-						animatedStyles,
-						{
-							width: drawerWidth,
-							height,
-							backgroundColor: theme.colors.background,
-						},
-					]}
-				>
+			<View style={styleWrapper}>
+				<Animated.View style={styleDrawer}>
 					<DrawerHandles
 						setModalVisible={setModalVisible}
 						side={side}
@@ -119,5 +134,13 @@ const Drawer: FC<DrawerProps> = ({
 		</DrawerContext.Provider>
 	);
 };
+
+const styles = StyleSheet.create({
+	wrapper: {
+		position: 'absolute',
+		top: 0,
+		left: 0,
+	},
+});
 
 export default Drawer;

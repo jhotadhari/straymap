@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
-import React, { useEffect, useState } from 'react';
-import { Animated, useAnimatedValue, View, Pressable, Easing } from 'react-native';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Animated, useAnimatedValue, View, Pressable, Easing, StyleSheet } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import VectorDrawable from '@klarna/react-native-vector-drawable';
 
@@ -206,14 +206,67 @@ const AnimatedLogo = ({
 		]).start();
 	};
 
-	return (
-		<Pressable
-			style={{
+	const stylePressable = useMemo(() => [styles.pressable, { width: size, height: size }], [size]);
+
+	const styleWaterWrapper = useMemo(
+		() => [
+			styles.waterLandWrapper,
+			{ transform: [{ rotate: waterRotate.interpolate(rotationInterpolateConfig) }] },
+		],
+		[waterRotate]
+	);
+
+	const styleLandWrapper = useMemo(
+		() => [
+			styles.waterLandWrapper,
+			{ transform: [{ rotate: landRotate.interpolate(rotationInterpolateConfig) }] },
+		],
+		[landRotate]
+	);
+
+	const styleDrawableHalf = useMemo(() => ({ width: size * 0.8, height: size * 0.8 }), [size]);
+
+	const styleCatWrapper = useMemo(
+		() => [
+			styles.catWrapper,
+			{
 				width: size,
 				height: size,
-				justifyContent: 'center',
-				alignItems: 'center',
-			}}
+				transform: [{ scale: catScale }, { translateY: catTranslateY }],
+			},
+		],
+		[
+			size,
+			catScale,
+			catTranslateY,
+		]
+	);
+
+	const styleDrawableFull = useMemo(() => ({ width: size, height: size }), [size]);
+
+	const styleTextWrapper = useMemo(
+		() => [
+			styles.textWrapper,
+			{
+				width: size,
+				height: size,
+				opacity: textOpacity,
+				transform: [{ translateX: textX }, { translateY: textY }],
+			},
+		],
+		[
+			size,
+			textOpacity,
+			textX,
+			textY,
+		]
+	);
+
+	const styleText = useMemo(() => [theme.fonts.displayMedium, styles.text], [theme]);
+
+	return (
+		<Pressable
+			style={stylePressable}
 			onPress={() => {
 				if (shouldShit) {
 					setTextIsInitialized(true);
@@ -222,93 +275,72 @@ const AnimatedLogo = ({
 				animateOnPress && onPressAnimate();
 			}}
 		>
-			<Animated.View
-				style={{
-					position: 'absolute',
-					justifyContent: 'center',
-					alignItems: 'center',
-					transform: [{ rotate: waterRotate.interpolate(rotationInterpolateConfig) }],
-				}}
-			>
+			<Animated.View style={styleWaterWrapper}>
 				<VectorDrawable
 					resourceName="world_map_water"
-					style={{
-						width: size * 0.8,
-						height: size * 0.8,
-					}}
+					style={styleDrawableHalf}
 				/>
 			</Animated.View>
 
-			<Animated.View
-				style={{
-					position: 'absolute',
-					justifyContent: 'center',
-					alignItems: 'center',
-					transform: [{ rotate: landRotate.interpolate(rotationInterpolateConfig) }],
-				}}
-			>
+			<Animated.View style={styleLandWrapper}>
 				<VectorDrawable
 					resourceName="world_map_land"
-					style={{
-						width: size * 0.8,
-						height: size * 0.8,
-					}}
+					style={styleDrawableHalf}
 				/>
 			</Animated.View>
 
-			<Animated.View
-				style={{
-					position: 'absolute',
-					width: size,
-					height: size,
-					transform: [{ scale: catScale }, { translateY: catTranslateY }],
-				}}
-			>
+			<Animated.View style={styleCatWrapper}>
 				<VectorDrawable
 					resourceName="ic_launcher_foreground"
-					style={{
-						width: size,
-						height: size,
-					}}
+					style={styleDrawableFull}
 				/>
 			</Animated.View>
 
 			{textIsInitialized && (
-				<Animated.View
-					style={{
-						position: 'absolute',
-						alignItems: 'flex-start',
-						width: size,
-						height: size,
-						top: 0,
-						left: 0,
-						opacity: textOpacity,
-						transform: [{ translateX: textX }, { translateY: textY }],
-					}}
-				>
+				<Animated.View style={styleTextWrapper}>
 					<View
 						onLayout={(e) =>
 							setTextDims([e.nativeEvent.layout.width, e.nativeEvent.layout.height])
 						}
-						style={{ padding: 10 }}
+						style={styles.textInner}
 					>
-						<Text
-							style={{
-								...theme.fonts.displayMedium,
-								fontFamily: 'jangly_walk',
-								textShadowColor: '#000',
-								textShadowOffset: { width: 5, height: 5 },
-								textShadowRadius: 10,
-								color: '#fff',
-							}}
-						>
-							{strings[stringIndex]}
-						</Text>
+						<Text style={styleText}>{strings[stringIndex]}</Text>
 					</View>
 				</Animated.View>
 			)}
 		</Pressable>
 	);
 };
+
+const styles = StyleSheet.create({
+	pressable: {
+		justifyContent: 'center',
+		alignItems: 'center',
+	},
+	waterLandWrapper: {
+		position: 'absolute',
+		justifyContent: 'center',
+		alignItems: 'center',
+	},
+	catWrapper: {
+		position: 'absolute',
+	},
+	textWrapper: {
+		position: 'absolute',
+		alignItems: 'flex-start',
+		top: 0,
+		left: 0,
+	},
+	textInner: {
+		padding: 10,
+	},
+	text: {
+		fontFamily: 'jangly_walk',
+		textShadowColor: '#000',
+		textShadowOffset: { width: 5, height: 5 },
+		textShadowRadius: 10,
+		color: '#fff',
+	},
+});
 
 export default AnimatedLogo;

@@ -125,7 +125,7 @@ const ListRow: FC<ListRowProps> = ({ line, idx, visible }) => {
 					compact={true}
 					onPress={toggleVisible}
 					disabled={line.id === routingLineId}
-					style={line.id === routingLineId ? { opacity: 0.5 } : undefined}
+					style={line.id === routingLineId ? sharedStyles.disabled : undefined}
 				>
 					<Icon
 						source={visible ? 'eye-outline' : 'eye-off-outline'}

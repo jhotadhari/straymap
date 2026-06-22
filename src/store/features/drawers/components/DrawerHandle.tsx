@@ -2,7 +2,7 @@
  * External dependencies
  */
 import React, { useContext, useMemo } from 'react';
-import { View, ViewStyle } from 'react-native';
+import { StyleSheet, View, ViewStyle } from 'react-native';
 import { Button, Icon, useTheme } from 'react-native-paper';
 import { ComposedGesture, GestureDetector, GestureType } from 'react-native-gesture-handler';
 import { get } from 'lodash-es';
@@ -78,29 +78,26 @@ const DrawerHandle = ({
 		]
 	);
 
+	const styleHandle = useMemo(
+		() => [
+			styles.handle,
+			{
+				backgroundColor: isActive ? theme.colors.background : 'transparent',
+				borderColor: theme.dark ? theme.colors.background : theme.colors.onBackground,
+			},
+			'left' === side && styles.handleLeft,
+			'right' === side && styles.handleRight,
+		],
+		[
+			isActive,
+			theme,
+			side,
+		]
+	);
+
 	const handlesNode = useMemo(() => {
 		return (
-			<View
-				style={{
-					width: handleSize,
-					height: handleSize,
-					backgroundColor: isActive ? theme.colors.background : 'transparent',
-					borderColor: theme.dark ? theme.colors.background : theme.colors.onBackground,
-					borderWidth: 1,
-					justifyContent: 'center',
-					alignItems: 'center',
-					...('left' === side && {
-						borderTopRightRadius: '50%',
-						borderBottomRightRadius: '50%',
-						borderLeftWidth: 0,
-					}),
-					...('right' === side && {
-						borderTopLeftRadius: '50%',
-						borderBottomLeftRadius: '50%',
-						borderRightWidth: 0,
-					}),
-				}}
-			>
+			<View style={styleHandle}>
 				<Button
 					compact={true}
 					{...{
@@ -122,9 +119,8 @@ const DrawerHandle = ({
 		IconComponent,
 		iconSource,
 		color,
-		isActive,
+		styleHandle,
 		IconActions,
-		theme,
 		onPress,
 	]);
 
@@ -135,5 +131,25 @@ const DrawerHandle = ({
 		</View>
 	);
 };
+
+const styles = StyleSheet.create({
+	handle: {
+		width: handleSize,
+		height: handleSize,
+		borderWidth: 1,
+		justifyContent: 'center',
+		alignItems: 'center',
+	},
+	handleLeft: {
+		borderTopRightRadius: '50%',
+		borderBottomRightRadius: '50%',
+		borderLeftWidth: 0,
+	},
+	handleRight: {
+		borderTopLeftRadius: '50%',
+		borderBottomLeftRadius: '50%',
+		borderRightWidth: 0,
+	},
+});
 
 export default DrawerHandle;

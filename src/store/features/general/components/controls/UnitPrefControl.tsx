@@ -2,6 +2,7 @@
  * External dependencies
  */
 import React, { Fragment } from 'react';
+import { StyleSheet } from 'react-native';
 import { Icon, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { upperFirst, get } from 'lodash-es';
@@ -18,6 +19,7 @@ import { selectUnitPrefs } from '../../selectors';
 import { setUnitPrefs } from '../../slice';
 import { UnitPref } from '../../types';
 import ListItemMenuControl from '../../../../../components/generic/controls/ListItemMenuControl';
+import { sharedStyles } from '../../../../../sharedStyles';
 
 export const options: { [value: string]: OptionBase[] } = {
 	coordinates: [
@@ -113,17 +115,14 @@ const UnitControl = ({
 		<Fragment>
 			<InfoRowControl
 				label={upperFirst(t(unitKey))}
-				style={{ marginTop: 0, marginBottom: -32 }}
+				style={styles.unitLabel}
 				labelStyle={theme.fonts.titleLarge}
 				Info={Info && 'string' === typeof Info ? t(Info) : Info}
 			/>
 
 			<InfoRowControl label={t('unit')}>
 				<ListItemMenuControl
-					listItemStyle={{
-						marginLeft: 0,
-						paddingLeft: 10,
-					}}
+					listItemStyle={sharedStyles.listItem}
 					options={opts}
 					value={unitPref.unit}
 					setValue={(newValue) => {
@@ -152,7 +151,7 @@ const UnitControl = ({
 					})
 				}
 				validate={(val) => val >= 0 && val <= 20}
-				style={{ marginTop: -24, marginBottom: 0 }}
+				style={styles.decimalPlace}
 			/>
 		</Fragment>
 	);
@@ -196,5 +195,10 @@ const UnitPrefControl = () => {
 		</ListItemModalControl>
 	);
 };
+
+const styles = StyleSheet.create({
+	unitLabel: { marginTop: 0, marginBottom: -32 },
+	decimalPlace: { marginTop: -24, marginBottom: 0 },
+});
 
 export default UnitPrefControl;

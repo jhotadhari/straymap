@@ -3,7 +3,7 @@
  */
 import React, { FC, useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { MapContainer, LayerPath } from 'react-native-mapsforge-vtm';
+import { GeometryStyle, MapContainer, LayerPath } from 'react-native-mapsforge-vtm';
 
 /**
  * Internal dependencies
@@ -13,6 +13,12 @@ import { selectSelected } from '../selectors';
 import { queryLineGeom } from '../db/queryFns';
 import useRoute from '../../routing/hooks/useRoute';
 import useSimplificationTolerance from '../hooks/useSimplificationTolerance';
+
+// GeometryStyle is a custom map-layer style type, not an RN ViewStyle, so it stays a plain object.
+const pathStyle: GeometryStyle = {
+	strokeColor: '#ff0000',
+	strokeWidth: 5,
+};
 
 const LineItem: FC<{
 	lineId: number;
@@ -54,10 +60,7 @@ const LineItem: FC<{
 			<MapContainer.View>
 				<LayerPath
 					positions={positions}
-					style={{
-						strokeColor: '#ff0000',
-						strokeWidth: 5,
-					}}
+					style={pathStyle}
 				/>
 			</MapContainer.View>
 		)

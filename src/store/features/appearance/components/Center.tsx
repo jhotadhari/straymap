@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
-import React, { useEffect, useState } from 'react';
-import { Image, View } from 'react-native';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Image, StyleSheet, View } from 'react-native';
 import { Icon } from 'react-native-paper';
 import { SvgXml } from 'react-native-svg';
 import { readFile } from 'react-native-fs';
@@ -40,6 +40,11 @@ export const CenterInner = ({ cursor }: { cursor?: CursorConfig }) => {
 		}
 	}, [cursorConfig?.iconSource]);
 
+	const styleSize = useMemo(
+		() => ({ width: cursorConfig?.size, height: cursorConfig?.size }),
+		[cursorConfig?.size]
+	);
+
 	return (
 		<View>
 			{cursorConfig &&
@@ -53,12 +58,7 @@ export const CenterInner = ({ cursor }: { cursor?: CursorConfig }) => {
 				)}
 
 			{cursorConfig && cursorConfig.iconSource.toLowerCase().endsWith('.svg') && xml && (
-				<View
-					style={{
-						width: cursorConfig.size,
-						height: cursorConfig.size,
-					}}
-				>
+				<View style={styleSize}>
 					<SvgXml
 						xml={xml}
 						width="100%"
@@ -68,22 +68,14 @@ export const CenterInner = ({ cursor }: { cursor?: CursorConfig }) => {
 			)}
 
 			{cursorConfig && cursorConfig.iconSource.toLowerCase().endsWith('.png') && (
-				<View
-					style={{
-						width: cursorConfig.size,
-						height: cursorConfig.size,
-					}}
-				>
+				<View style={styleSize}>
 					<Image
 						source={{
 							uri: cursorConfig.iconSource.startsWith('/')
 								? 'file://' + cursorConfig.iconSource
 								: cursorConfig.iconSource,
 						}}
-						style={{
-							width: cursorConfig.size,
-							height: cursorConfig.size,
-						}}
+						style={styleSize}
 					/>
 				</View>
 			)}
@@ -91,20 +83,23 @@ export const CenterInner = ({ cursor }: { cursor?: CursorConfig }) => {
 	);
 };
 
-const Center = ({ width, height }: { width: number; height: number }) => (
-	<View
-		style={{
-			position: 'absolute',
-			top: 0,
-			left: 0,
-			justifyContent: 'center',
-			alignItems: 'center',
-			width,
-			height,
-		}}
-	>
-		<CenterInner />
-	</View>
-);
+const Center = ({ width, height }: { width: number; height: number }) => {
+	const styleWrapper = useMemo(() => [styles.wrapper, { width, height }], [width, height]);
+	return (
+		<View style={styleWrapper}>
+			<CenterInner />
+		</View>
+	);
+};
+
+const styles = StyleSheet.create({
+	wrapper: {
+		position: 'absolute',
+		top: 0,
+		left: 0,
+		justifyContent: 'center',
+		alignItems: 'center',
+	},
+});
 
 export default Center;

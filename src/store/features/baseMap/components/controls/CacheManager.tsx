@@ -22,6 +22,7 @@ import useCacheDirsInfo from '../../../dirs/hooks/useCacheDirsInfo';
 import { CacheDir, CacheSubDir } from '../../../dirs/types';
 import { getHillshadingCacheDirChild, stringifyProp } from '../../utils';
 import { selectLayers } from '../../selectors';
+import { sharedStyles } from '../../../../../sharedStyles';
 
 const CacheRow = ({
 	cacheDir,
@@ -44,47 +45,26 @@ const CacheRow = ({
 
 	const cacheLayers = useMemo(() => findLayers(pathFull), [pathFull, findLayers]);
 
+	const styleBasename = useMemo(
+		() => [styles.basename, { color: theme.colors.surfaceVariant }],
+		[theme]
+	);
+
+	const styleDeleteAction = useMemo(() => ({ borderRadius: theme.roundness }), [theme]);
+
 	return (
 		<InfoRowControl
 			key={cache.basename}
 			label={cache.readableSize}
-			labelStyle={{
-				marginLeft: 16,
-				marginRight: -16,
-			}}
+			labelStyle={styles.cacheLabel}
 		>
-			<View
-				style={{
-					flexDirection: 'row',
-					gap: 8,
-					justifyContent: 'space-between',
-					alignItems: 'center',
-				}}
-			>
-				<View
-					style={{
-						flexShrink: 1,
-						flexGrow: 1,
-					}}
-				>
-					<View
-						style={{
-							flexDirection: 'row',
-						}}
-					>
-						<Text
-							style={{
-								color: theme.colors.surfaceVariant,
-								width: 1,
-								flexShrink: 1,
-								flexGrow: 1,
-							}}
-						>
-							{cache.basename}
-						</Text>
+			<View style={styles.cacheRow}>
+				<View style={styles.cacheInfo}>
+					<View style={sharedStyles.flexRow}>
+						<Text style={styleBasename}>{cache.basename}</Text>
 					</View>
 
-					<Text style={{ marginTop: 5 }}>
+					<Text style={styles.layersText}>
 						{cacheLayers.length
 							? t('baseMap.layer', { count: cacheLayers.length }) + ': '
 							: t('baseMap.noLayerUseCache')}
@@ -104,7 +84,7 @@ const CacheRow = ({
 								updateCacheDirs();
 							});
 						}}
-						style={{ borderRadius: theme.roundness }}
+						style={styleDeleteAction}
 					>
 						<Icon
 							source="delete-outline"
@@ -165,13 +145,7 @@ const CacheManager = () => {
 		<List.Accordion
 			title={'Cache Manager'} // ??? translation
 			left={(props) => (
-				<View
-					style={{
-						marginLeft: 7,
-						marginRight: -7,
-						justifyContent: 'center',
-					}}
-				>
+				<View style={sharedStyles.controlIcon}>
 					<List.Icon
 						{...props}
 						icon="content-save-outline"
@@ -199,10 +173,7 @@ const CacheManager = () => {
 					return (
 						<View
 							key={cacheDir.path}
-							style={{
-								marginLeft: -12,
-								gap: 16,
-							}}
+							style={styles.cacheDirRow}
 						>
 							<InfoRowControl
 								label={internalCacheDir === cacheDir.path ? 'Internal' : 'External'}
@@ -231,6 +202,32 @@ const styles = StyleSheet.create({
 	controls: {
 		marginBottom: 24,
 		paddingRight: 24,
+		gap: 16,
+	},
+	cacheLabel: {
+		marginLeft: 16,
+		marginRight: -16,
+	},
+	cacheRow: {
+		flexDirection: 'row',
+		gap: 8,
+		justifyContent: 'space-between',
+		alignItems: 'center',
+	},
+	cacheInfo: {
+		flexShrink: 1,
+		flexGrow: 1,
+	},
+	basename: {
+		width: 1,
+		flexShrink: 1,
+		flexGrow: 1,
+	},
+	layersText: {
+		marginTop: 5,
+	},
+	cacheDirRow: {
+		marginLeft: -12,
 		gap: 16,
 	},
 });

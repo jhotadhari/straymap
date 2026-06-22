@@ -17,6 +17,7 @@ import { selectHardwareKeys } from '../../selectors';
 import { setHardwareKeys } from '../../slice';
 import ListItemMenuControl from '../../../../../components/generic/controls/ListItemMenuControl';
 import InfoRowControl from '../../../../../components/generic/controls/InfoRowControl';
+import { sharedStyles } from '../../../../../sharedStyles';
 
 const keyCodeStringOptions: OptionBase[] = [
 	{
@@ -61,10 +62,7 @@ const RowItem = ({ keyCodeStringOption }: { keyCodeStringOption: OptionBase }) =
 	return (
 		<InfoRowControl label={t(keyCodeStringOption.label)}>
 			<ListItemMenuControl
-				listItemStyle={{
-					marginLeft: 0,
-					paddingLeft: 10,
-				}}
+				listItemStyle={sharedStyles.listItem}
 				options={actionKeyOptions}
 				value={hardwareKeyActionConfig?.actionKey}
 				setValue={(newValue) => {

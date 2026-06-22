@@ -116,6 +116,6 @@ export const setLinesSelected = (newSelectedIds: number[]): AppThunk => {
 
 export const onSetDbPath = (): AppThunk => {
 	return (dispatch) => {
-		dispatch(linesSlice.actions.setSelected( [] ));
+		dispatch(linesSlice.actions.setSelected([]));
 	};
 };

@@ -17,6 +17,7 @@ import { OptionBase } from '../../../../../../types';
 import { TextInputNativeMultilineControlled } from '../../../../../../components/generic/TextInputNativeMultiline';
 import { useAppSelector } from '../../../../../hooks';
 import { selectAppDirs } from '../../../../dirs/selectors';
+import { sharedStyles } from '../../../../../../sharedStyles';
 
 const CacheControl = ({
 	options,
@@ -122,10 +123,7 @@ const CacheControl = ({
 				>
 					<ListItemMenuControl
 						options={opts}
-						listItemStyle={{
-							marginLeft: 0,
-							paddingLeft: 10,
-						}}
+						listItemStyle={sharedStyles.listItem}
 						value={get(selectedOpt, 'key')}
 						setValue={(newValue) =>
 							setOptions({
@@ -152,10 +150,7 @@ const CacheControl = ({
 							},
 						},
 					}}
-					style={{
-						width: '100%',
-						marginTop: -18,
-					}}
+					style={styles.textInput}
 					value={cachePath}
 				/>
 			</View>
@@ -168,6 +163,10 @@ const CacheControl = ({
 const styles = StyleSheet.create({
 	gap: {
 		gap: 24,
+	},
+	textInput: {
+		width: '100%',
+		marginTop: -18,
 	},
 });
 

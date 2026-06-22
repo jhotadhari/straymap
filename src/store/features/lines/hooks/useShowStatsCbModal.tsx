@@ -12,7 +12,7 @@ import { useTranslation } from 'react-i18next';
  * Internal dependencies
  */
 import ModalWrapper from '../../../../components/generic/ModalWrapper';
-import { stylesGeneric } from '../../baseMap/components/controls/layers/LayersControl';
+import { sharedStyles } from '../../../../sharedStyles';
 import LineStats from '../components/LineStats';
 import { LinePartial, LineStats as LineStatsType } from '../types';
 import { queryLinesWithoutGeom } from '../db/queryFns';
@@ -68,7 +68,7 @@ const StatsModal: FC<{
 			visible={true}
 			onDismiss={handleDismissModal}
 			header={'some stats???'}
-			innerStyle={stylesGeneric.modal}
+			innerStyle={sharedStyles.modal}
 		>
 			<Text>{sprintf('??? some stats for %s lines', lineIds.length)}</Text>
 

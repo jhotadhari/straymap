@@ -66,7 +66,7 @@ const MapsforgeGeneralControl = () => {
 			hasHeaderBackPress={true}
 		>
 			<View style={styles.gap}>
-				<Text style={{ marginBottom: 10 }}>{t('baseMap.hint.applyToAllMapsforge')}</Text>
+				<Text style={styles.applyHint}>{t('baseMap.hint.applyToAllMapsforge')}</Text>
 
 				<NumericRowControl
 					label={t('baseMap.lineScale')}
@@ -102,6 +102,9 @@ const MapsforgeGeneralControl = () => {
 const styles = StyleSheet.create({
 	gap: {
 		gap: 24,
+	},
+	applyHint: {
+		marginBottom: 10,
 	},
 });
 

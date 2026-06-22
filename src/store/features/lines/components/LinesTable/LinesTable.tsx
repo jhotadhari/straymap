@@ -9,6 +9,7 @@ import {
 	ListRenderItem,
 	ScrollView,
 	StyleProp,
+	StyleSheet,
 	View,
 	ViewStyle,
 } from 'react-native';
@@ -203,7 +204,7 @@ const LinesTable: FC = () => {
 			</HeaderContext.Provider>
 
 			<ScrollView horizontal={true}>
-				<View style={{ flex: 1 }}>
+				<View style={styles.flexOne}>
 					<FlatList
 						stickyHeaderIndices={[0]}
 						scrollEnabled={true}
@@ -260,5 +261,9 @@ const LineEditModalWrapper: FC = () => {
 		/>
 	);
 };
+
+const styles = StyleSheet.create({
+	flexOne: { flex: 1 },
+});
 
 export default LinesTable;

@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
-import { FC, useContext, useEffect } from 'react';
-import { ScrollView, ViewStyle } from 'react-native';
+import { FC, useContext, useEffect, useMemo } from 'react';
+import { ScrollView, StyleSheet, ViewStyle } from 'react-native';
 
 /**
  * Internal dependencies
@@ -26,16 +26,19 @@ const SettingsDashboard: FC<{ style?: ViewStyle }> = ({ style }) => {
 		};
 	}, []);
 
+	const styleScrollView = useMemo(
+		() => [
+			style,
+			styles.scrollView,
+			{ height: mapHeight },
+		],
+		[style, mapHeight]
+	);
+
 	return (
 		<ScrollView
 			scrollEnabled={true}
-			style={[
-				style,
-				{
-					zIndex: 10,
-					height: mapHeight,
-				},
-			]}
+			style={styleScrollView}
 		>
 			<DashboardControl />
 
@@ -45,5 +48,9 @@ const SettingsDashboard: FC<{ style?: ViewStyle }> = ({ style }) => {
 		</ScrollView>
 	);
 };
+
+const styles = StyleSheet.create({
+	scrollView: { zIndex: 10 },
+});
 
 export default SettingsDashboard;

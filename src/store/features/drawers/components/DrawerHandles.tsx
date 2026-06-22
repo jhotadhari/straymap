@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
-import React, { FC, useCallback, useContext, useState } from 'react';
-import { View } from 'react-native';
+import React, { FC, useCallback, useContext, useMemo, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
 import DraggableGrid from 'react-native-draggable-grid';
 import { ScrollView } from 'react-native-gesture-handler';
 import { MapContainerModule } from 'react-native-mapsforge-vtm';
@@ -96,44 +96,50 @@ const DrawerHandles: FC<
 		[]
 	);
 
+	const styleWrapper = useMemo(
+		() => [
+			styles.wrapper,
+			{ height },
+			'left' === side && styles.wrapperLeft,
+			'right' === side && styles.wrapperRight,
+		],
+		[height, side]
+	);
+
+	const styleScrollView = useMemo(() => [styles.scrollView, { height }], [height]);
+
+	const styleContainer = useMemo(
+		() => ({
+			height: getContainerHeight(
+				controlHandleSide === side ? draggableItems.length + 1 : draggableItems.length
+			),
+		}),
+		[
+			controlHandleSide,
+			side,
+			draggableItems.length,
+			getContainerHeight,
+		]
+	);
+
+	const styleControlHandle = useMemo(
+		() => ({
+			top: draggableItems.length > 1 ? getContainerHeight(draggableItems.length) : 0,
+		}),
+		[draggableItems.length, getContainerHeight]
+	);
+
 	if (controlHandleSide !== side && draggableItems.length === 0) {
 		return undefined;
 	}
 
 	return (
-		<View
-			style={{
-				position: 'absolute',
-				width: handleSize,
-				backgroundColor: 'transparent',
-				height,
-				...('left' === side && {
-					right: 0,
-					transform: [{ translateX: '100%' }],
-				}),
-				...('right' === side && {
-					left: 0,
-					transform: [{ translateX: '-100%' }],
-				}),
-			}}
-		>
+		<View style={styleWrapper}>
 			<ScrollView
 				scrollEnabled={scrollEnabled}
-				style={{
-					overflow: 'visible',
-					width: handleSize,
-					height,
-				}}
+				style={styleScrollView}
 			>
-				<View
-					style={{
-						height: getContainerHeight(
-							controlHandleSide === side
-								? draggableItems.length + 1
-								: draggableItems.length
-						),
-					}}
-				>
+				<View style={styleContainer}>
 					<View>
 						{draggableItems.length > 1 && (
 							<DraggableGrid
@@ -158,12 +164,7 @@ const DrawerHandles: FC<
 
 					{controlHandleSide === side && (
 						<DrawerHandle
-							style={{
-								top:
-									draggableItems.length > 1
-										? getContainerHeight(draggableItems.length)
-										: 0,
-							}}
+							style={styleControlHandle}
 							gesture={gesture}
 							panEnabled={panEnabled}
 							onPress={() => setModalVisible((visible) => !visible)}
@@ -177,5 +178,25 @@ const DrawerHandles: FC<
 		</View>
 	);
 };
+
+const styles = StyleSheet.create({
+	wrapper: {
+		position: 'absolute',
+		width: handleSize,
+		backgroundColor: 'transparent',
+	},
+	wrapperLeft: {
+		right: 0,
+		transform: [{ translateX: '100%' }],
+	},
+	wrapperRight: {
+		left: 0,
+		transform: [{ translateX: '-100%' }],
+	},
+	scrollView: {
+		overflow: 'visible',
+		width: handleSize,
+	},
+});
 
 export default DrawerHandles;

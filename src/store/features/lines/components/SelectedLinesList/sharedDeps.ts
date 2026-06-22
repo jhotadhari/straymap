@@ -21,4 +21,5 @@ export const sharedStyles = StyleSheet.create({
 		flexWrap: 'wrap',
 		gap: 8,
 	},
+	disabled: { opacity: 0.5 },
 });

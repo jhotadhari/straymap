@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { TextStyle, View, ViewStyle } from 'react-native';
+import { StyleSheet, TextStyle, View, ViewStyle } from 'react-native';
 import { Text, useTheme, TextInput } from 'react-native-paper';
 
 /**
@@ -10,7 +10,7 @@ import { Text, useTheme, TextInput } from 'react-native-paper';
  */
 import InfoRowControl from './InfoRowControl';
 import ButtonHighlight from '../ButtonHighlight';
-import { styles } from './NumericRowControl';
+import { sharedStyles } from './sharedDeps';
 import { strValToNb } from '../../../lib/utils';
 import { NumType } from '../../../types';
 
@@ -182,21 +182,36 @@ export const NumericRowControlSegmented = ({
 		// textRef?.current,
 	]);
 
+	const styleButton = useMemo(
+		() => [
+			localStyles.button,
+			{
+				borderColor: numValueActive ? 'transparent' : theme.colors.primary,
+				opacity: numValueActive ? 0.5 : 1,
+				borderRadius: theme.roundness,
+			},
+		],
+		[numValueActive, theme]
+	);
+
+	const styleInput = useMemo(
+		() => [
+			localStyles.input,
+			{ opacity: numValueActive ? 1 : 0.5 },
+			inputStyle,
+		],
+		[numValueActive, inputStyle]
+	);
+
 	return (
 		<InfoRowControl
 			label={label}
 			Info={Info}
 			style={style}
 		>
-			<View style={styles.flexRow}>
+			<View style={sharedStyles.flexRow}>
 				<ButtonHighlight
-					style={{
-						borderWidth: 1,
-						borderColor: numValueActive ? 'transparent' : theme.colors.primary,
-						opacity: numValueActive ? 0.5 : 1,
-						marginRight: 10,
-						borderRadius: theme.roundness,
-					}}
+					style={styleButton}
 					onPress={handleButtonPress}
 				>
 					<Text>{buttonLabel}</Text>
@@ -204,11 +219,7 @@ export const NumericRowControlSegmented = ({
 
 				<TextInput
 					// ref={textRef}
-					style={{
-						flexGrow: 1,
-						opacity: numValueActive ? 1 : 0.5,
-						...inputStyle,
-					}}
+					style={styleInput}
 					underlineColor="transparent"
 					error={!isValid}
 					dense={true}
@@ -223,5 +234,13 @@ export const NumericRowControlSegmented = ({
 		</InfoRowControl>
 	);
 };
+
+const localStyles = StyleSheet.create({
+	button: {
+		borderWidth: 1,
+		marginRight: 10,
+	},
+	input: { flexGrow: 1 },
+});
 
 export default NumericRowControlSegmented;

@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
-import { FC } from 'react';
-import { ViewStyle } from 'react-native';
+import { FC, useMemo } from 'react';
+import { StyleSheet, ViewStyle } from 'react-native';
 import { useTheme, ActivityIndicator } from 'react-native-paper';
 
 const LoadingIndicator: FC<{
@@ -10,18 +10,28 @@ const LoadingIndicator: FC<{
 	size?: number | 'small' | 'large' | undefined;
 }> = ({ style, size }) => {
 	const theme = useTheme();
+
+	const styleIndicator = useMemo(
+		() => [
+			styles.base,
+			{ borderRadius: theme.roundness },
+			style,
+		],
+		[theme, style]
+	);
+
 	return (
 		<ActivityIndicator
 			animating={true}
 			size={size}
-			style={{
-				backgroundColor: 'transparent',
-				borderRadius: theme.roundness,
-				...style,
-			}}
+			style={styleIndicator}
 			color={theme.colors.primary}
 		/>
 	);
 };
+
+const styles = StyleSheet.create({
+	base: { backgroundColor: 'transparent' },
+});
 
 export default LoadingIndicator;

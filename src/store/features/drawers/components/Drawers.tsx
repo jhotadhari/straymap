@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { BackHandler, View } from 'react-native';
+import { BackHandler, StyleSheet, View } from 'react-native';
 import { useSharedValue } from 'react-native-reanimated';
 import { useCallback, useContext, useEffect, useState } from 'react';
 
@@ -90,9 +90,9 @@ const Drawers = ({
 	const [modalVisible, setModalVisible] = useState(false);
 
 	return (
-		<View style={{ position: 'absolute' }}>
+		<View style={styles.absolute}>
 			{!hidden && (
-				<View style={{ position: 'absolute' }}>
+				<View style={styles.absolute}>
 					<Drawer
 						height={height}
 						setModalVisible={setModalVisible}
@@ -116,5 +116,9 @@ const Drawers = ({
 		</View>
 	);
 };
+
+const styles = StyleSheet.create({
+	absolute: { position: 'absolute' },
+});
 
 export default Drawers;

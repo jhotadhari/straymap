@@ -18,6 +18,7 @@ import {
 	LayoutChangeEvent,
 	TextStyle,
 	Dimensions,
+	StyleSheet,
 } from 'react-native';
 import { List, useTheme, Text, Icon, IconButtonProps } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -55,7 +56,8 @@ import {
 	setRenderStylesCache,
 } from '../../../slice';
 import { Style } from 'react-native-paper/lib/typescript/components/List/utils';
-import { stylesGeneric } from '../layers/LayersControl';
+import { sharedStyles } from '../../../../../../sharedStyles';
+import { sharedStyles as sharedStylesBaseMapControls } from '../sharedDeps';
 import RenderOverlaysControl from './RenderOverlaysControl';
 import RenderStyleControl from './RenderStyleControl';
 import LayerCount from './LayerCount';
@@ -188,7 +190,7 @@ const EditModal: FC<{
 					: t('baseMap.mapsforge.profileEdit')
 			}
 		>
-			<View style={stylesGeneric.modal}>
+			<View style={sharedStyles.modal}>
 				<NameRowControl
 					item={profileTemp}
 					update={handleNameUpdate}
@@ -215,7 +217,7 @@ const EditModal: FC<{
 
 				<HasBuildingsControl />
 
-				<View style={stylesGeneric.modalControls}>
+				<View style={sharedStyles.modalControls}>
 					<ButtonHighlight
 						onPress={handleDismissModal}
 						mode="contained"
@@ -240,7 +242,7 @@ const EditModal: FC<{
 };
 
 const ControlIcon: (props: { color: string; style: Style }) => ReactNode = (props) => (
-	<View style={stylesGeneric.controlIcon}>
+	<View style={sharedStyles.controlIcon}>
 		<IconIcomoon
 			size={25}
 			name="mapsforge_puzzle_only"
@@ -254,15 +256,9 @@ const ControlInfo: FC<{}> = () => {
 	const theme = useTheme();
 
 	return (
-		<View style={{ gap: 16 }}>
+		<View style={styles.controlInfo}>
 			<Text>{t('baseMap.hint.profiles')}</Text>
-			<Text
-				style={{
-					...theme.fonts.bodyLarge,
-				}}
-			>
-				{'Render theme downloads:'}
-			</Text>
+			<Text style={theme.fonts.bodyLarge}>{'Render theme downloads:'}</Text>
 			{[
 				{
 					label: 'OpenAndroMaps Elevate & Elements by Tobias Kuehn',
@@ -348,7 +344,9 @@ const DraggableItem = ({
 		() => ({
 			width,
 			height: itemHeight,
-			...(reverse ? stylesGeneric.itemReverse : stylesGeneric.item),
+			...(reverse
+				? sharedStylesBaseMapControls.itemReverse
+				: sharedStylesBaseMapControls.item),
 		}),
 		[
 			reverse,
@@ -400,7 +398,9 @@ const DraggableItem = ({
 				{sprintf('%s ' + t('baseMap.layerShort', { count: layersCount }), layersCount)}
 			</Text>
 
-			{!isToWide && <Text style={reverse ? { marginRight: 10 } : {}}>[{themeLabel}]</Text>}
+			{!isToWide && (
+				<Text style={reverse ? styles.themeLabelReverse : undefined}>[{themeLabel}]</Text>
+			)}
 
 			<TouchableHighlight
 				underlayColor={theme.colors.elevation.level3}
@@ -559,7 +559,7 @@ const ProfilesControl: FC<{
 				{profiles.length && (
 					<View style={styleAccordion}>
 						<DraggableGrid
-							style={stylesGeneric.grid}
+							style={sharedStylesBaseMapControls.grid}
 							itemHeight={itemHeight}
 							numColumns={1}
 							renderItem={renderItem}
@@ -571,12 +571,12 @@ const ProfilesControl: FC<{
 				)}
 
 				{!profiles.length && (
-					<Text style={stylesGeneric.itemsNone}>
+					<Text style={sharedStylesBaseMapControls.itemsNone}>
 						{t('baseMap.mapsforge.profilesNone')}
 					</Text>
 				)}
 
-				<View style={stylesGeneric.controls}>
+				<View style={sharedStylesBaseMapControls.controls}>
 					<InfoButton
 						label={t('baseMap.mapsforge.profile', { count: 0 })}
 						headerPlural={true}
@@ -586,7 +586,7 @@ const ProfilesControl: FC<{
 					/>
 
 					<ButtonHighlight
-						style={stylesGeneric.addItem}
+						style={sharedStylesBaseMapControls.addItem}
 						icon="map-plus"
 						mode="outlined"
 						onPress={handleAddNewProfile}
@@ -598,5 +598,10 @@ const ProfilesControl: FC<{
 		</View>
 	);
 };
+
+const styles = StyleSheet.create({
+	controlInfo: { gap: 16 },
+	themeLabelReverse: { marginRight: 10 },
+});
 
 export default ProfilesControl;

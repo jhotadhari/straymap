@@ -13,6 +13,7 @@ import {
 	ViewStyle,
 } from 'react-native';
 import { Icon, Text, useTheme } from 'react-native-paper';
+import { MD3Theme } from 'react-native-paper/lib/typescript/types';
 import { useTranslation } from 'react-i18next';
 import Markdown from 'react-native-markdown-display';
 import { get } from 'lodash-es';
@@ -27,7 +28,7 @@ import changelog from '../../../../../CHANGELOG.md';
 import debugInfo from '../../../../../.debugInfo.json';
 import packageJson from '../../../../../package.json';
 import renderRules from '../../../../markdown/renderRules';
-import { styles } from '../../../../markdown/styles';
+import { styles as markdownStyles } from '../../../../markdown/styles';
 import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
 import HintLink from '../../../../components/generic/HintLink';
 import {
@@ -36,6 +37,10 @@ import {
 	removeLines,
 } from '../../../../markdown/utils';
 import { MdPart } from '../../../../markdown/types';
+import { sharedStyles } from '../../../../sharedStyles';
+
+const useJanglyTitleStyle = (theme: MD3Theme) =>
+	useMemo(() => [theme.fonts.displaySmall, pageStyles.fontJangly], [theme]);
 
 const readmeParts = getMdParts(readme);
 const changelogParts = getMdParts(changelog).slice(1);
@@ -58,6 +63,8 @@ const AccordionItem = ({
 	const theme = useTheme();
 	const [expanded, setExpanded] = useState(false);
 
+	const titleStyle = useJanglyTitleStyle(theme);
+
 	// Fix vertical align. toggle expand and back.
 	useEffect(() => {
 		setExpanded(true);
@@ -65,52 +72,29 @@ const AccordionItem = ({
 	}, []);
 
 	return (
-		<View style={{ marginBottom: 20 }}>
+		<View style={pageStyles.accordionContainer}>
 			<ButtonHighlight
 				onPress={() => setExpanded(!expanded)}
-				labelStyle={{
-					flexDirection: 'row',
-					flexBasis: '100%',
-					textAlign: 'left',
-					alignItems: 'center',
-					justifyContent: 'center',
-				}}
+				labelStyle={pageStyles.accordionLabel}
 			>
-				<View
-					style={{
-						flexDirection: 'row',
-						alignItems: 'center',
-					}}
-				>
+				<View style={sharedStyles.flexRowCenter}>
 					<Icon
 						source={expanded ? 'chevron-down' : 'chevron-right'}
 						size={25}
 					/>
-					<Text style={{ ...theme.fonts.displaySmall, fontFamily: 'jangly_walk' }}>
-						{label}
-					</Text>
+					<Text style={titleStyle}>{label}</Text>
 				</View>
 			</ButtonHighlight>
 
 			{expanded && (
-				<View
-					style={{
-						paddingLeft: 10,
-						paddingRight: 10,
-					}}
-				>
+				<View style={pageStyles.accordionContent}>
 					{'string' === typeof children && <Text>{children}</Text>}
 					{'string' !== typeof children && children}
 				</View>
 			)}
 
 			{!expanded && undefined !== notExpandedContent && (
-				<View
-					style={{
-						paddingLeft: 10,
-						paddingRight: 10,
-					}}
-				>
+				<View style={pageStyles.accordionContent}>
 					{'string' === typeof notExpandedContent && <Text>{notExpandedContent}</Text>}
 					{'string' !== typeof notExpandedContent && notExpandedContent}
 				</View>
@@ -121,16 +105,13 @@ const AccordionItem = ({
 
 const MdPartsRenderPart = ({ part, style }: { part: MdPart; style: StyleProp<ViewStyle> }) => {
 	const theme = useTheme();
+	const titleStyle = useJanglyTitleStyle(theme);
 	return (
 		<View style={style}>
-			{part.key.length > 0 && (
-				<Text style={{ ...theme.fonts.displaySmall, fontFamily: 'jangly_walk' }}>
-					{part.key}
-				</Text>
-			)}
+			{part.key.length > 0 && <Text style={titleStyle}>{part.key}</Text>}
 			<Markdown
 				rules={renderRules}
-				style={styles(theme) as StyleSheet.NamedStyles<any>}
+				style={markdownStyles(theme) as StyleSheet.NamedStyles<any>}
 			>
 				{part.str}
 			</Markdown>
@@ -148,6 +129,13 @@ const MdPartsRenderPartDonation = ({
 	const { t } = useTranslation();
 	const theme = useTheme();
 
+	const titleStyle = useJanglyTitleStyle(theme);
+
+	const linkStyle = useMemo(
+		() => [pageStyles.donationLink, { color: get(theme.colors, 'link') }],
+		[theme]
+	);
+
 	const parts = part.str.split('\n\n');
 
 	if (parts.length < 2) {
@@ -160,19 +148,13 @@ const MdPartsRenderPartDonation = ({
 		);
 	}
 
-	const linkStyle = { height: 50, color: get(theme.colors, 'link') };
-
 	return (
 		<View style={style}>
-			{part.key.length > 0 && (
-				<Text style={{ ...theme.fonts.displaySmall, fontFamily: 'jangly_walk' }}>
-					{part.key}
-				</Text>
-			)}
+			{part.key.length > 0 && <Text style={titleStyle}>{part.key}</Text>}
 
 			<Markdown
 				rules={renderRules}
-				style={styles(theme) as StyleSheet.NamedStyles<any>}
+				style={markdownStyles(theme) as StyleSheet.NamedStyles<any>}
 			>
 				{parts.slice(0, parts.length - 1).join('\n\n')}
 			</Markdown>
@@ -184,7 +166,7 @@ const MdPartsRenderPartDonation = ({
 				<Image source={require('../../../../assets/images/ko-fi_donate.png')} />
 			</Text>
 			<Text
-				style={{ ...linkStyle }}
+				style={linkStyle}
 				onPress={() => Linking.openURL('https://liberapay.com/jhotadhari/donate')}
 			>
 				<Image source={require('../../../../assets/images/liberapay_donate.png')} />
@@ -192,7 +174,7 @@ const MdPartsRenderPartDonation = ({
 
 			<Markdown
 				rules={renderRules}
-				style={styles(theme) as StyleSheet.NamedStyles<any>}
+				style={markdownStyles(theme) as StyleSheet.NamedStyles<any>}
 			>
 				{parts[parts.length - 1]}
 			</Markdown>
@@ -226,16 +208,11 @@ const MdPartsRender = ({ include, mbParts }: { include?: string[]; mbParts: MdPa
 					);
 				}
 
-				const style: StyleProp<ViewStyle> = {
-					maxWidth: '93%',
-					marginBottom: 20,
-				};
-
 				if ('Donation' === part.key) {
 					return (
 						<MdPartsRenderPartDonation
 							key={part.key}
-							style={style}
+							style={pageStyles.mdPart}
 							part={part}
 						/>
 					);
@@ -244,7 +221,7 @@ const MdPartsRender = ({ include, mbParts }: { include?: string[]; mbParts: MdPa
 				return (
 					<MdPartsRenderPart
 						key={part.key}
-						style={style}
+						style={pageStyles.mdPart}
 						part={part}
 					/>
 				);
@@ -255,6 +232,36 @@ const MdPartsRender = ({ include, mbParts }: { include?: string[]; mbParts: MdPa
 
 const paddingLeft = 24;
 
+const pageStyles = StyleSheet.create({
+	fontJangly: { fontFamily: 'jangly_walk' },
+	accordionContainer: { marginBottom: 20 },
+	accordionLabel: {
+		flexDirection: 'row',
+		flexBasis: '100%',
+		textAlign: 'left',
+		alignItems: 'center',
+		justifyContent: 'center',
+	},
+	accordionContent: {
+		paddingLeft: 10,
+		paddingRight: 10,
+	},
+	donationLink: { height: 50 },
+	mdPart: {
+		maxWidth: '93%',
+		marginBottom: 20,
+	},
+	container: {
+		paddingLeft,
+		gap: 16,
+	},
+	logoWrapper: {
+		justifyContent: 'center',
+		alignItems: 'center',
+		marginLeft: -paddingLeft / 2,
+	},
+});
+
 const About: FC<{ style?: ViewStyle }> = ({ style }) => {
 	const theme = useTheme();
 	const { t } = useTranslation();
@@ -262,17 +269,12 @@ const About: FC<{ style?: ViewStyle }> = ({ style }) => {
 
 	const versionChangelog = useMemo(() => getChangelogVersion(), []);
 
+	const titleStyle = useJanglyTitleStyle(theme);
+
 	return (
 		<ScrollView style={style}>
-			<View
-				style={{
-					paddingLeft,
-					gap: 16,
-				}}
-			>
-				<Text style={{ ...theme.fonts.displaySmall, fontFamily: 'jangly_walk' }}>
-					Straymap
-				</Text>
+			<View style={pageStyles.container}>
+				<Text style={titleStyle}>Straymap</Text>
 
 				<Text>{t('ui.slogan')}</Text>
 
@@ -301,13 +303,7 @@ const About: FC<{ style?: ViewStyle }> = ({ style }) => {
 					url="https://github.com/jhotadhari/straymap"
 				/>
 
-				<View
-					style={{
-						justifyContent: 'center',
-						alignItems: 'center',
-						marginLeft: -paddingLeft / 2,
-					}}
-				>
+				<View style={pageStyles.logoWrapper}>
 					<AnimatedLogo
 						size={width}
 						shouldShit={true}

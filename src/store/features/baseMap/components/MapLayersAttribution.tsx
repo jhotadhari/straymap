@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
-import React, { FC, ReactElement } from 'react';
-import { View } from 'react-native';
+import React, { FC, ReactElement, useMemo } from 'react';
+import { StyleSheet, View } from 'react-native';
 import { Icon, Text, useTheme } from 'react-native-paper';
 import { get } from 'lodash-es';
 import { useTranslation } from 'react-i18next';
@@ -95,13 +95,17 @@ const Inner = ({ layerInfos }: { layerInfos: { [value: string]: LayerInfo } }) =
 				return (
 					<View
 						key={attribution.key}
-						style={index + 1 !== attributions.length ? { marginBottom: 25 } : {}}
+						style={
+							index + 1 !== attributions.length
+								? styles.attributionSpacing
+								: undefined
+						}
 					>
 						<Text>
 							{t('baseMap.layer', { count: 1 })}: {attribution.name}
 						</Text>
 						<Text>({attribution.type})</Text>
-						<View style={{ marginLeft: 10, marginTop: 10 }}>
+						<View style={styles.componentWrapper}>
 							<Component />
 						</View>
 					</View>
@@ -121,29 +125,20 @@ const MapLayersAttribution: FC<{}> = () => {
 
 	const layerInfos = useAppSelector(selectLayerInfos);
 
+	const buttonStyle = useMemo(
+		() => ({ borderColor: theme.colors.background, marginTop: 0, marginBottom: 0 }),
+		[theme]
+	);
+
 	return (
-		<View
-			style={{
-				position: 'absolute',
-				bottom: 0 + PADDING + 3,
-				right: 0 + PADDING + 6,
-				justifyContent: 'center',
-				alignItems: 'center',
-				width: buttonSize,
-				height: buttonSize,
-			}}
-		>
+		<View style={styles.wrapper}>
 			<InfoButton
 				labelPattern={t('baseMap.layerAttributions')}
 				headerPlural={true}
 				backgroundBlur={true}
 				Info={<Inner layerInfos={layerInfos} />}
 				buttonProps={{
-					style: {
-						borderColor: theme.colors.background,
-						marginTop: 0,
-						marginBottom: 0,
-					},
+					style: buttonStyle,
 					size: buttonSize,
 					icon: ({ color }) => (
 						<Icon
@@ -159,5 +154,24 @@ const MapLayersAttribution: FC<{}> = () => {
 		</View>
 	);
 };
+
+const styles = StyleSheet.create({
+	attributionSpacing: {
+		marginBottom: 25,
+	},
+	componentWrapper: {
+		marginLeft: 10,
+		marginTop: 10,
+	},
+	wrapper: {
+		position: 'absolute',
+		bottom: 0 + PADDING + 3,
+		right: 0 + PADDING + 6,
+		justifyContent: 'center',
+		alignItems: 'center',
+		width: buttonSize,
+		height: buttonSize,
+	},
+});
 
 export default MapLayersAttribution;

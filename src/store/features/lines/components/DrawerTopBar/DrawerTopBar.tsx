@@ -44,6 +44,15 @@ const DrawerTopBar: FC = () => {
 		iconSource,
 	} = useShowStatsCbModal({ lineIds });
 
+	const styleButtonRowFirst = useMemo(
+		() => [
+			itemStyles.buttonRow,
+			styles.flexRow,
+			'left' === side && styles.buttonRowReverse,
+		],
+		[side]
+	);
+
 	return (
 		<View>
 			{statsModalNode}
@@ -54,15 +63,7 @@ const DrawerTopBar: FC = () => {
 					styles.item,
 				]}
 			>
-				<View
-					style={[
-						itemStyles.buttonRow,
-						styles.flexRow,
-						'left' === side && {
-							flexDirection: 'row-reverse',
-						},
-					]}
-				>
+				<View style={styleButtonRowFirst}>
 					<ButtonHighlight
 						mode="outlined"
 						onPress={openLinesDirectory}
@@ -98,15 +99,7 @@ const DrawerTopBar: FC = () => {
 						// },
 					]}
 				>
-					<View
-						style={[
-							{
-								marginHorizontal: 8,
-								flexDirection: 'row',
-								gap: 16,
-							},
-						]}
-					>
+					<View style={styles.linesInfoRow}>
 						{lineIds.length > 0 && (
 							<Fragment>
 								{/* ??? translation */}
@@ -136,6 +129,14 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		justifyContent: 'space-between',
 		height: handleSize,
+	},
+	buttonRowReverse: {
+		flexDirection: 'row-reverse',
+	},
+	linesInfoRow: {
+		marginHorizontal: 8,
+		flexDirection: 'row',
+		gap: 16,
 	},
 });
 

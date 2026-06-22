@@ -12,7 +12,7 @@ import {
 	useMemo,
 	useState,
 } from 'react';
-import { View, ViewStyle } from 'react-native';
+import { StyleSheet, View, ViewStyle } from 'react-native';
 import { Text, TextInput, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { get } from 'lodash-es';
@@ -232,15 +232,16 @@ const OptionsByPath: FC<{
 	const { t } = useTranslation();
 	const theme = useTheme();
 
+	const stylePath = useMemo(
+		() => (path.startsWith('/') ? theme.fonts.bodySmall : undefined),
+		[path, theme]
+	);
+
 	return (
-		<View
-			style={{
-				marginBottom: 18,
-			}}
-		>
+		<View style={styles.optionsByPathWrapper}>
 			{options.length === 0 && <Text>{noFilesHeading || ''}:</Text>}
 			{options.length > 0 && path.startsWith('/') && <Text>{filesHeading || ''}:</Text>}
-			<Text style={path.startsWith('/') ? theme.fonts.bodySmall : {}}>{path}</Text>
+			<Text style={stylePath}>{path}</Text>
 			{[...options].map((option) => (
 				<Option
 					key={option.key}
@@ -484,7 +485,7 @@ const FileSourceRowControl: FC<{
 				))}
 
 				<ButtonHighlight
-					style={{ marginTop: 10, marginBottom: 40 }}
+					style={styles.okButton}
 					onPress={dismissModal}
 					mode="contained"
 					buttonColor={get(theme.colors, 'successContainer')}
@@ -495,17 +496,10 @@ const FileSourceRowControl: FC<{
 			</ModalWrapper>
 			{/* )} */}
 
-			<View
-				style={[{
-					flexDirection: 'row',
-					alignItems: 'center',
-					justifyContent: 'space-between',
-					width: '65%',
-				},styleContent]}
-			>
+			<View style={[styles.actionsRow, styleContent]}>
 				{!AlternativeButton && dirsInfos && Object.keys(dirsInfos).length > 0 && (
 					<ButtonHighlight
-						style={{ marginTop: 3 }}
+						style={styles.triggerButton}
 						onPress={() => setModalVisible(true)}
 					>
 						<Text>{t(buttonLabel)}</Text>
@@ -523,5 +517,17 @@ const FileSourceRowControl: FC<{
 		</InfoRowControl>
 	);
 };
+
+const styles = StyleSheet.create({
+	optionsByPathWrapper: { marginBottom: 18 },
+	okButton: { marginTop: 10, marginBottom: 40 },
+	actionsRow: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		justifyContent: 'space-between',
+		width: '65%',
+	},
+	triggerButton: { marginTop: 3 },
+});
 
 export default FileSourceRowControl;

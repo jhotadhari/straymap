@@ -148,6 +148,8 @@ const NumericRowControl = ({
 		[handleBlurCbRef?.current]
 	);
 
+	const styleInput = useMemo(() => [styles.flexGrow, inputStyle], [inputStyle]);
+
 	return (
 		<InfoRowControl
 			label={label}
@@ -155,7 +157,7 @@ const NumericRowControl = ({
 			style={style}
 		>
 			<TextInput
-				style={{ flexGrow: 1, ...inputStyle }}
+				style={styleInput}
 				underlineColor="transparent"
 				error={!isValid}
 				dense={true}
@@ -170,11 +172,6 @@ const NumericRowControl = ({
 };
 export default NumericRowControl;
 
-export const styles = StyleSheet.create({
-	flexRow: {
-		position: 'relative',
-		display: 'flex',
-		flexDirection: 'row',
-		justifyContent: 'space-between',
-	},
+const styles = StyleSheet.create({
+	flexGrow: { flexGrow: 1 },
 });

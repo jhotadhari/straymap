@@ -1,8 +1,15 @@
 /**
  * External dependencies
  */
-import { ReactNode } from 'react';
-import { Dimensions, TextStyle, TouchableHighlight, View } from 'react-native';
+import { ReactNode, useMemo } from 'react';
+import {
+	Dimensions,
+	StyleSheet,
+	TextStyle,
+	TouchableHighlight,
+	View,
+	ViewStyle,
+} from 'react-native';
 import { Text, useTheme, RadioButton } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 
@@ -39,42 +46,49 @@ const RadioListItem = ({
 	const { width } = Dimensions.get('window');
 	const { t } = useTranslation();
 	const theme = useTheme();
-	const label = ! labelNode && labelExtractor ? labelExtractor(opt) : null;
+	const label = !labelNode && labelExtractor ? labelExtractor(opt) : null;
 	const desc = descExtractor ? descExtractor(opt) : null;
+
+	const styleTouchable = useMemo(
+		() => [
+			styles.touchable,
+			{
+				borderRadius: theme.roundness,
+				width: width * modalWidthFactor - 4 * space,
+			},
+		],
+		[theme, width]
+	);
+
+	const styleRow: ViewStyle[] = useMemo(
+		() => [
+			styles.row,
+			{ justifyContent: 'right' === radioAlign ? 'space-between' : 'flex-start' },
+		],
+		[radioAlign]
+	);
+
+	const styleLabelWrap = useMemo(
+		() => [styles.labelWrap, 'right' === radioAlign && styles.labelWrapGrow],
+		[radioAlign]
+	);
+
+	const styleLabel = useMemo(() => [theme.fonts.bodyLarge, labelStyle], [theme, labelStyle]);
+
+	const styleDesc = useMemo(() => [theme.fonts.bodySmall, descStyle], [theme, descStyle]);
+
 	return (
 		<TouchableHighlight
 			key={opt.key}
 			onPress={onPress}
 			underlayColor={theme.colors.elevation.level3}
-			style={{
-				padding: space,
-				marginLeft: -space,
-				marginRight: -space,
-				borderRadius: theme.roundness,
-				width: width * modalWidthFactor - 4 * space,
-			}}
+			style={styleTouchable}
 		>
-			<View
-				style={{
-					justifyContent: 'right' === radioAlign ? 'space-between' : 'flex-start',
-					alignItems: 'center',
-					flexDirection: 'row',
-				}}
-			>
-				<View
-					style={{
-						...('right' === radioAlign && { flexGrow: 1 }),
-						maxWidth: '85%',
-						// ...labelWrapStyle,
-					}}
-				>
-					{ labelNode }
-					{label && (
-						<Text style={{ ...theme.fonts.bodyLarge, ...labelStyle }}>{t(label)}</Text>
-					)}
-					{desc && (
-						<Text style={{ ...theme.fonts.bodySmall, ...descStyle }}>{t(desc)}</Text>
-					)}
+			<View style={styleRow}>
+				<View style={styleLabelWrap}>
+					{labelNode}
+					{label && <Text style={styleLabel}>{t(label)}</Text>}
+					{desc && <Text style={styleDesc}>{t(desc)}</Text>}
 				</View>
 				<RadioButton
 					value={opt.key}
@@ -85,5 +99,23 @@ const RadioListItem = ({
 		</TouchableHighlight>
 	);
 };
+
+const styles = StyleSheet.create({
+	touchable: {
+		padding: space,
+		marginLeft: -space,
+		marginRight: -space,
+	},
+	row: {
+		alignItems: 'center',
+		flexDirection: 'row',
+	},
+	labelWrap: {
+		maxWidth: '85%',
+	},
+	labelWrapGrow: {
+		flexGrow: 1,
+	},
+});
 
 export default RadioListItem;

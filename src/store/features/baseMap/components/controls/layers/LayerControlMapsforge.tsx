@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { FC, Fragment, ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
-import { StyleSheet, TouchableHighlight, View } from 'react-native';
+import { TouchableHighlight, View } from 'react-native';
 import { Icon, Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { get } from 'lodash-es';
@@ -22,6 +22,7 @@ import { setLayerTemp, setMapsforgeProfileTemp } from '../../../slice';
 import { selectLayerTemp, selectMapsforgeProfiles } from '../../../selectors';
 import NumericRowControlMulti from '../../../../../../components/generic/controls/NumericRowControlMulti';
 import ListItemMenuControl from '../../../../../../components/generic/controls/ListItemMenuControl';
+import { sharedStyles as globalSharedStyles } from '../../../../../../sharedStyles';
 
 const ProfileRowControl = ({
 	options,
@@ -80,17 +81,16 @@ const ProfileRowControl = ({
 		}
 	}, [selectedOpt]);
 
+	const styleAction = useMemo(() => ({ padding: 10, borderRadius: theme.roundness }), [theme]);
+
 	return (
 		<InfoRowControl
 			label={t('baseMap.mapsforge.profile', { count: 1 })}
 			Info={Info}
 		>
-			<View style={styles.flexRow}>
+			<View style={globalSharedStyles.flexRow}>
 				<ListItemMenuControl
-					listItemStyle={{
-						marginLeft: 0,
-						paddingLeft: 10,
-					}}
+					listItemStyle={globalSharedStyles.listItem}
 					options={opts}
 					value={selectedOpt}
 					setValue={(newValue) => {
@@ -124,7 +124,7 @@ const ProfileRowControl = ({
 								dispatch(setMapsforgeProfileTemp(newProfileTemp));
 							}
 						}}
-						style={{ padding: 10, borderRadius: theme.roundness }}
+						style={styleAction}
 					>
 						<Icon
 							source="cog"
@@ -254,10 +254,5 @@ const LayerControlMapsforge: FC<{}> = ({}) => {
 		</Fragment>
 	);
 };
-
-const styles = StyleSheet.create({
-	contentBtn: { marginTop: 3 },
-	flexRow: { flexDirection: 'row' },
-});
 
 export default LayerControlMapsforge;

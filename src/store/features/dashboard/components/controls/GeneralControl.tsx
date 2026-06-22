@@ -16,10 +16,10 @@ import { selectElementExpanded } from '../../../ui/selectors';
 import { selectMapEventRate } from '../../../general/selectors';
 import NumericRowControl from '../../../../../components/generic/controls/NumericRowControl';
 import { setMapEventRate } from '../../../general/slice';
-import { stylesGeneric } from '../../../baseMap/components/controls/layers/LayersControl';
+import { sharedStyles } from '../../../../../sharedStyles';
 
 const ControlIcon: (props: { color: string; style: Style }) => ReactNode = (props) => (
-	<View style={stylesGeneric.controlIcon}>
+	<View style={sharedStyles.controlIcon}>
 		<List.Icon
 			{...props}
 			icon="integrated-circuit-chip"

@@ -3,7 +3,7 @@
  */
 import { FC, useMemo } from 'react';
 import { Text, useTheme } from 'react-native-paper';
-import { BackHandler, View } from 'react-native';
+import { BackHandler, StyleSheet, View } from 'react-native';
 import { get } from 'lodash-es';
 import { sprintf } from 'sprintf-js';
 import { useTranslation } from 'react-i18next';
@@ -26,15 +26,10 @@ const FailControls: FC = () => {
 
 	return (
 		<View>
-			<Text style={{ marginTop: 10 }}>{t('updater.updaterFail')}</Text>
-			<View
-				style={{
-					flexDirection: 'row',
-					justifyContent: 'space-between',
-				}}
-			>
+			<Text style={styles.marginTop}>{t('updater.updaterFail')}</Text>
+			<View style={styles.failControlsRow}>
 				<ButtonHighlight
-					style={{ marginTop: 20, marginBottom: 40 }}
+					style={styles.failControlsButton}
 					onPress={() => {
 						// dispatch(setInstalledVersion(packageJson.version));
 						dispatch(setIsUpdating(false));
@@ -46,7 +41,7 @@ const FailControls: FC = () => {
 					<Text>{t('updater.updaterProceed')}</Text>
 				</ButtonHighlight>
 				<ButtonHighlight
-					style={{ marginTop: 20, marginBottom: 40 }}
+					style={styles.failControlsButton}
 					onPress={() => BackHandler.exitApp()}
 					mode="contained"
 					buttonColor={get(theme.colors, 'primaryContainer')}
@@ -59,12 +54,42 @@ const FailControls: FC = () => {
 	);
 };
 
+const UpdateResultRow: FC<{ updatingKey: string; updateResult: { state: string } }> = ({
+	updatingKey,
+	updateResult,
+}) => {
+	const theme = useTheme();
+	const { t } = useTranslation();
+
+	const styleResult = useMemo(
+		() => [
+			'success' === updateResult.state && { color: get(theme.colors, 'success') },
+			'failed' === updateResult.state && { color: theme.colors.error },
+		],
+		[theme, updateResult.state]
+	);
+
+	return (
+		<View style={styles.updateResultRow}>
+			<Text>{sprintf(t('updater.updateFrom'), updatingKey) + ': '}</Text>
+			<Text style={styleResult}>
+				{get(
+					{
+						success: '✔ ',
+						failed: '❌ ',
+					},
+					updateResult.state,
+					''
+				) + t('updater.' + updateResult.state)}
+			</Text>
+		</View>
+	);
+};
+
 const SplashScreenUpdater: FC = () => {
 	const isUpdating = useAppSelector(selectIsUpdating);
 
 	const installedVersionStore = useAppSelector(selectInstalledVersion);
-
-	const theme = useTheme();
 
 	const { t } = useTranslation();
 
@@ -82,43 +107,17 @@ const SplashScreenUpdater: FC = () => {
 			)}
 
 			{'object' === typeof isUpdating &&
-				Object.keys(isUpdating).map((updatingKey: string) => {
-					const updateResult = get(isUpdating, updatingKey);
-					return (
-						<View
-							key={updatingKey}
-							style={{
-								marginTop: 10,
-								flexDirection: 'row',
-							}}
-						>
-							<Text>{sprintf(t('updater.updateFrom'), updatingKey) + ': '}</Text>
-							<Text
-								style={{
-									...('success' === updateResult.state && {
-										color: get(theme.colors, 'success'),
-									}),
-									...('failed' === updateResult.state && {
-										color: theme.colors.error,
-									}),
-								}}
-							>
-								{get(
-									{
-										success: '✔ ',
-										failed: '❌ ',
-									},
-									updateResult.state,
-									''
-								) + t('updater.' + updateResult.state)}
-							</Text>
-						</View>
-					);
-				})}
+				Object.keys(isUpdating).map((updatingKey: string) => (
+					<UpdateResultRow
+						key={updatingKey}
+						updatingKey={updatingKey}
+						updateResult={get(isUpdating, updatingKey)}
+					/>
+				))}
 
 			{failedResult && isUpdating && (
-				<View style={{ marginTop: 10 }}>
-					<Text style={{ marginTop: 10 }}>
+				<View style={styles.marginTop}>
+					<Text style={styles.marginTop}>
 						{t('updater.errorMsg') +
 							': ' +
 							get(failedResult, 'msg', t('updater.errorMsgFallback'))}
@@ -128,12 +127,12 @@ const SplashScreenUpdater: FC = () => {
 			)}
 
 			{'isDowngrade' === isUpdating && (
-				<View style={{ marginTop: 10 }}>
-					<Text style={{ marginTop: 10 }}>{t('updater.errorDowngrade')}</Text>
-					<Text style={{ marginTop: 10 }}>
+				<View style={styles.marginTop}>
+					<Text style={styles.marginTop}>{t('updater.errorDowngrade')}</Text>
+					<Text style={styles.marginTop}>
 						{sprintf(t('updater.versionLast'), installedVersionStore)}
 					</Text>
-					<Text style={{ marginTop: 10 }}>
+					<Text style={styles.marginTop}>
 						{sprintf(t('updater.versionCurrent'), packageJson.version)}
 					</Text>
 					<FailControls />
@@ -142,5 +141,23 @@ const SplashScreenUpdater: FC = () => {
 		</SplashScreen>
 	);
 };
+
+const styles = StyleSheet.create({
+	marginTop: {
+		marginTop: 10,
+	},
+	failControlsRow: {
+		flexDirection: 'row',
+		justifyContent: 'space-between',
+	},
+	failControlsButton: {
+		marginTop: 20,
+		marginBottom: 40,
+	},
+	updateResultRow: {
+		marginTop: 10,
+		flexDirection: 'row',
+	},
+});
 
 export default SplashScreenUpdater;

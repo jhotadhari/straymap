@@ -2,9 +2,9 @@
  * External dependencies
  */
 import { useQuery } from '@tanstack/react-query';
-import { FC, memo, useCallback, useContext } from 'react';
+import { FC, memo, useCallback, useContext, useMemo } from 'react';
 import { FlatList } from 'react-native-gesture-handler';
-import { ListRenderItem } from 'react-native';
+import { ListRenderItem, StyleSheet } from 'react-native';
 
 /**
  * Internal dependencies
@@ -72,12 +72,11 @@ const SelectedLinesList: FC = () => {
 		]
 	);
 
+	const styleList = useMemo(() => [styles.list, { width }], [width]);
+
 	return (
 		<FlatList
-			style={{
-				width,
-				flex: 1,
-			}}
+			style={styleList}
 			scrollEnabled={true}
 			initialNumToRender={15}
 			data={lines ?? []}
@@ -86,5 +85,9 @@ const SelectedLinesList: FC = () => {
 		/>
 	);
 };
+
+const styles = StyleSheet.create({
+	list: { flex: 1 },
+});
 
 export default SelectedLinesList;

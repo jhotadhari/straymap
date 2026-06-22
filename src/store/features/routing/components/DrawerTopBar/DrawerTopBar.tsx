@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { FC, Fragment, useCallback, useContext } from 'react';
+import { FC, Fragment, useCallback, useContext, useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
 import { Icon, Text, useTheme } from 'react-native-paper';
@@ -65,6 +65,15 @@ const DrawerTopBar: FC = () => {
 		routingLineId && dispatch(setLineTemp({ id: routingLineId }));
 	}, [routingLineId]);
 
+	const styleButtonRow = useMemo(
+		() => [
+			itemStyles.buttonRow,
+			styles.flexRow,
+			'left' === side && styles.buttonRowReverse,
+		],
+		[side]
+	);
+
 	return (
 		<View>
 			<View
@@ -73,15 +82,7 @@ const DrawerTopBar: FC = () => {
 					styles.item,
 				]}
 			>
-				<View
-					style={[
-						itemStyles.buttonRow,
-						styles.flexRow,
-						'left' === side && {
-							flexDirection: 'row-reverse',
-						},
-					]}
-				>
+				<View style={styleButtonRow}>
 					{routeId && (
 						<ButtonHighlight
 							onPress={actions.appendPoint.cb}
@@ -128,15 +129,7 @@ const DrawerTopBar: FC = () => {
 					styles.item,
 				]}
 			>
-				<View
-					style={[
-						itemStyles.buttonRow,
-						styles.flexRow,
-						'left' === side && {
-							flexDirection: 'row-reverse',
-						},
-					]}
-				>
+				<View style={styleButtonRow}>
 					{line && (
 						<Fragment>
 							<Text>{line?.title}</Text>
@@ -167,6 +160,9 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		justifyContent: 'space-between',
 		height: handleSize,
+	},
+	buttonRowReverse: {
+		flexDirection: 'row-reverse',
 	},
 });
 

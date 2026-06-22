@@ -4,6 +4,7 @@
 import React from 'react';
 import { midpoint } from '@turf/turf';
 import {
+	GeometryStyle,
 	LayerMarker,
 	Marker,
 	LayerPathSlopeGradient,
@@ -80,10 +81,7 @@ const RoutingMapView = () => {
 							<LayerPath
 								key={segmentRecordId}
 								positions={placeholderPositions}
-								style={{
-									strokeColor: '#0000ff',
-									strokeWidth: 3,
-								}}
+								style={stylePathFetching}
 							/>
 						);
 					} else {
@@ -92,10 +90,7 @@ const RoutingMapView = () => {
 							<MapContainer.View key={segmentRecordId}>
 								<LayerPath
 									positions={placeholderPositions}
-									style={{
-										strokeColor: '#ff0000',
-										strokeWidth: 3,
-									}}
+									style={stylePathError}
 								/>
 								<LayerMarker>
 									<Marker
@@ -139,9 +134,7 @@ const RoutingMapView = () => {
 								}
 							}}
 							positions={segment.positions}
-							style={{
-								strokeWidth: 5,
-							}}
+							style={stylePathSegment}
 							onTrigger={(response) => {
 								dispatch(
 									setTriggeredSegment({
@@ -188,6 +181,19 @@ const RoutingMapView = () => {
 			{/* <NearestToLine/> */}
 		</MapContainer.View>
 	);
+};
+
+// GeometryStyle is a custom map-layer style type, not an RN ViewStyle, so these stay plain objects (not StyleSheet.create).
+const stylePathFetching: GeometryStyle = {
+	strokeColor: '#0000ff',
+	strokeWidth: 3,
+};
+const stylePathError: GeometryStyle = {
+	strokeColor: '#ff0000',
+	strokeWidth: 3,
+};
+const stylePathSegment: GeometryStyle = {
+	strokeWidth: 5,
 };
 
 export default RoutingMapView;

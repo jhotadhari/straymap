@@ -10,15 +10,12 @@ import { View } from 'react-native';
 import ItemMinWidthControl from '../../components/controls/ItemMinWidthControl';
 import ItemFontSizeControl from '../../components/controls/ItemFontSizeControl';
 import { useTranslation } from 'react-i18next';
+import { sharedStyles } from '../sharedDeps';
 
 const Control: FC = () => {
 	const { t } = useTranslation();
 	return (
-		<View
-			style={{
-				gap: 16,
-			}}
-		>
+		<View style={sharedStyles.container}>
 			<ItemMinWidthControl
 				buttonLabel={t('Use default')} // ???
 			/>

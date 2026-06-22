@@ -14,7 +14,7 @@ import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { setElementExpanded } from '../../../ui/slice';
 import { selectElementExpanded } from '../../../ui/selectors';
 import NumericRowControl from '../../../../../components/generic/controls/NumericRowControl';
-import { stylesGeneric } from '../../../baseMap/components/controls/layers/LayersControl';
+import { sharedStyles } from '../../../../../sharedStyles';
 import AlignmentControl from './AlignmentControl';
 import { selectDashboardStyle, selectEditItem } from '../../selectors';
 import { setDashboardStyle, setEditItemAccordingToPosition } from '../../slice';
@@ -66,7 +66,7 @@ const DashboardControl: FC = () => {
 
 	const ControlIcon: (props: { color: string; style: Style }) => ReactNode = useMemo(
 		() => (props) => (
-			<View style={stylesGeneric.controlIcon}>
+			<View style={sharedStyles.controlIcon}>
 				<List.Icon
 					{...props}
 					icon={
@@ -137,13 +137,7 @@ const DashboardControl: FC = () => {
 						Info={t('dashboard.hint.fontSize')}
 					/>
 
-					<View
-						style={{
-							justifyContent: 'flex-end',
-							flexDirection: 'row',
-							marginBottom: 15,
-						}}
-					>
+					<View style={styles.newItemRow}>
 						{/* <InfoButton
 							label={t('dashboard.dashboardItem', { count: 0 })}
 							headerPlural={true}
@@ -170,6 +164,11 @@ const styles = StyleSheet.create({
 		marginBottom: 25,
 		paddingRight: 32,
 		gap: 16,
+	},
+	newItemRow: {
+		justifyContent: 'flex-end',
+		flexDirection: 'row',
+		marginBottom: 15,
 	},
 });
 

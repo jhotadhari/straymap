@@ -25,17 +25,18 @@ const MapFileInfo: FC<{}> = () => {
 	const theme = useTheme();
 	const { t } = useTranslation();
 
+	const style = useMemo(
+		() => ({
+			marginTop: 20,
+			...theme.fonts.bodyLarge,
+		}),
+		[theme]
+	);
+
 	return (
 		<View>
 			<Text>{t('baseMap.hint.mbTilesFile')}</Text>
-			<Text
-				style={{
-					marginTop: 20,
-					...theme.fonts.bodyLarge,
-				}}
-			>
-				{'Downloads:'}
-			</Text>
+			<Text style={style}>{'Downloads:'}</Text>
 			<HintLink
 				label={t('.baseMap.link.openandromapsDownloadsRaster')}
 				url={'https://www.openandromaps.org/en/downloads/general-maps'}

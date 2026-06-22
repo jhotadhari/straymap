@@ -2,6 +2,7 @@
  * External dependencies
  */
 import React, { FC } from 'react';
+import { StyleSheet } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { get } from 'lodash-es';
 
@@ -14,6 +15,7 @@ import { setDashboardStyle } from '../../slice';
 import { OptionBase } from '../../../../../types';
 import InfoRowControl from '../../../../../components/generic/controls/InfoRowControl';
 import ListItemMenuControl from '../../../../../components/generic/controls/ListItemMenuControl';
+import { sharedStyles } from '../../../../../sharedStyles';
 
 const styleAlignOptions: OptionBase[] = [
 	{
@@ -55,13 +57,10 @@ const AlignmentControl: FC<{
 		<InfoRowControl
 			label={t('dashboard.alignment')}
 			Info={t('dashboard.hint.alignment')}
-			style={{ marginTop: 0, marginBottom: 0 }}
+			style={styles.label}
 		>
 			<ListItemMenuControl
-				listItemStyle={{
-					marginLeft: 0,
-					paddingLeft: 10,
-				}}
+				listItemStyle={sharedStyles.listItem}
 				options={styleAlignOptions}
 				value={dashboardStyle.align}
 				setValue={(newValue) => {
@@ -86,5 +85,9 @@ const AlignmentControl: FC<{
 		</InfoRowControl>
 	);
 };
+
+const styles = StyleSheet.create({
+	label: { marginTop: 0, marginBottom: 0 },
+});
 
 export default AlignmentControl;

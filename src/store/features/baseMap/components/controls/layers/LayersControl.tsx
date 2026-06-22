@@ -47,6 +47,8 @@ import LayerControlOnlineRasterXYZ from './LayerControlOnlineRasterXYZ';
 import LayerControlRasterMBTiles from './LayerControlRasterMBTiles';
 import LayerControlHillshading from './LayerControlHillshading';
 import { labelMinWidth } from '../../../../../../components/generic/controls/InfoRowControl';
+import { sharedStyles } from '../../../../../../sharedStyles';
+import { sharedStyles as sharedStylesBaseMapControls } from '../sharedDeps';
 
 export const mapTypeOptions: LayerOption[] = [
 	{
@@ -90,7 +92,9 @@ const DraggableItem: FC<{
 		() => ({
 			width,
 			height: itemHeight,
-			...(reverse ? stylesGeneric.itemReverse : stylesGeneric.item),
+			...(reverse
+				? sharedStylesBaseMapControls.itemReverse
+				: sharedStylesBaseMapControls.item),
 		}),
 		[
 			reverse,
@@ -305,7 +309,7 @@ const EditModal: FC<{
 			)}
 
 			{layerTemp.type && (
-				<View style={stylesGeneric.modal}>
+				<View style={sharedStyles.modal}>
 					<View style={styles.modalRowType}>
 						<Text style={styles.modalRowTypeLabel}>{t('baseMap.mapType')}:</Text>
 						<Text>{layerTemp.type}</Text>
@@ -330,7 +334,7 @@ const EditModal: FC<{
 
 					{'raster-MBtiles' === layerTemp.type && <LayerControlRasterMBTiles />}
 
-					<View style={stylesGeneric.modalControls}>
+					<View style={sharedStyles.modalControls}>
 						<ButtonHighlight
 							onPress={handleDismissModal}
 							mode="contained"
@@ -356,7 +360,7 @@ const EditModal: FC<{
 };
 
 const ControlIcon: (props: { color: string; style: Style }) => ReactNode = (props) => (
-	<View style={stylesGeneric.controlIcon}>
+	<View style={sharedStyles.controlIcon}>
 		<List.Icon
 			{...props}
 			icon="layers-triple"
@@ -497,7 +501,7 @@ const LayersControl: FC<{
 				{layers.length && (
 					<View style={styleAccordion}>
 						<DraggableGrid
-							style={stylesGeneric.grid}
+							style={sharedStylesBaseMapControls.grid}
 							itemHeight={itemHeight}
 							numColumns={1}
 							renderItem={renderItem}
@@ -509,10 +513,12 @@ const LayersControl: FC<{
 				)}
 
 				{!layers.length && (
-					<Text style={stylesGeneric.itemsNone}>{t('baseMap.layersNone')}</Text>
+					<Text style={sharedStylesBaseMapControls.itemsNone}>
+						{t('baseMap.layersNone')}
+					</Text>
 				)}
 
-				<View style={stylesGeneric.controls}>
+				<View style={sharedStylesBaseMapControls.controls}>
 					<InfoButton
 						label={t('baseMap.layer', { count: 0 })}
 						headerPlural={true}
@@ -522,7 +528,7 @@ const LayersControl: FC<{
 					/>
 
 					<ButtonHighlight
-						style={stylesGeneric.addItem}
+						style={sharedStylesBaseMapControls.addItem}
 						icon="map-plus"
 						mode="outlined"
 						onPress={handleAddNewLayer}
@@ -539,50 +545,6 @@ export const styles = StyleSheet.create({
 	selectType: { marginBottom: 18 },
 	modalRowTypeLabel: { minWidth: labelMinWidth + 12 },
 	modalRowType: { flexDirection: 'row' },
-});
-
-export const stylesGeneric = StyleSheet.create({
-	addItem: { marginRight: 20 },
-	itemsNone: { marginLeft: 18, marginBottom: 35 },
-	controls: {
-		justifyContent: 'space-between',
-		flexDirection: 'row',
-		marginBottom: 25,
-	},
-	grid: {
-		marginLeft: -40, // revert paper paddingLeft 40
-	},
-	controlIcon: {
-		marginLeft: 7,
-		marginRight: -7,
-		justifyContent: 'center',
-	},
-	modal: {
-		marginTop: 16,
-		gap: 24,
-	},
-	modalControls: {
-		marginBottom: 40,
-		flexDirection: 'row',
-		justifyContent: 'space-between',
-		alignItems: 'center',
-	},
-	item: {
-		justifyContent: 'space-between',
-		alignItems: 'center',
-		flexDirection: 'row',
-		overflow: 'hidden',
-		paddingLeft: 24,
-		paddingRight: 14,
-	},
-	itemReverse: {
-		justifyContent: 'space-between',
-		alignItems: 'center',
-		flexDirection: 'row-reverse',
-		overflow: 'hidden',
-		paddingLeft: 12,
-		paddingRight: 24,
-	},
 });
 
 export default LayersControl;

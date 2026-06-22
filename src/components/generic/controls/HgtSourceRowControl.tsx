@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
-import { useEffect, useState } from 'react';
-import { Linking, View } from 'react-native';
+import { useEffect, useMemo, useState } from 'react';
+import { Linking, StyleSheet, View } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { get } from 'lodash-es';
@@ -24,6 +24,7 @@ import RadioListItem from '../RadioListItem';
 import HintLink from '../HintLink';
 import { HgtDirPath } from '../../../store/features/baseMap/types';
 import { AbsPath } from '../../../store/features/dirs/types';
+import { sharedStyles } from '../../../sharedStyles';
 
 const HgtSourceRowControl = ({
 	dirs,
@@ -86,6 +87,8 @@ const HgtSourceRowControl = ({
 		});
 	}, [selectedOpt]);
 
+	const styleHintLarge = useMemo(() => [theme.fonts.bodyLarge, styles.hintLarge], [theme]);
+
 	return (
 		<InfoRowControl
 			label={t('map.demDir')}
@@ -93,16 +96,9 @@ const HgtSourceRowControl = ({
 				<View>
 					<Text>{t('hint.maps.demDir')}</Text>
 					{onlyThreeSeconds && (
-						<Text style={{ marginTop: 20 }}>{t('hint.maps.demOnly3Sec')}</Text>
+						<Text style={styles.hint}>{t('hint.maps.demOnly3Sec')}</Text>
 					)}
-					<Text
-						style={{
-							marginTop: 20,
-							...theme.fonts.bodyLarge,
-						}}
-					>
-						{'DEM Downloads:'}
-					</Text>
+					<Text style={styleHintLarge}>{'DEM Downloads:'}</Text>
 					<HintLink
 						label={t('link.digitalEleData')}
 						url={'https://viewfinderpanoramas.org/dem3.html'}
@@ -113,14 +109,7 @@ const HgtSourceRowControl = ({
 							'https://viewfinderpanoramas.org/Coverage%20map%20viewfinderpanoramas_org3.htm'
 						}
 					/>
-					<Text
-						style={{
-							marginTop: 20,
-							...theme.fonts.bodyLarge,
-						}}
-					>
-						{t('moreInformation') + ':'}
-					</Text>
+					<Text style={styleHintLarge}>{t('moreInformation') + ':'}</Text>
 					<HintLink
 						label={'NASA Shuttle Radar Topography Mission (SRTM)'}
 						url={'https://wiki.openstreetmap.org/wiki/SRTM'}
@@ -143,9 +132,7 @@ const HgtSourceRowControl = ({
 						return (
 							<View
 								key={opt.key}
-								style={{
-									marginBottom: 18,
-								}}
+								style={styles.optRow}
 							>
 								<RadioListItem
 									key={opt.key}
@@ -192,7 +179,7 @@ const HgtSourceRowControl = ({
 					})}
 
 					<ButtonHighlight
-						style={{ marginTop: 10 }}
+						style={styles.okButton}
 						onPress={() => {
 							setModalVisible(false);
 						}}
@@ -205,7 +192,7 @@ const HgtSourceRowControl = ({
 				</ModalWrapper>
 			)}
 
-			<View style={{ flexDirection: 'row', alignItems: 'center' }}>
+			<View style={sharedStyles.flexRowCenter}>
 				<ButtonHighlight onPress={() => setModalVisible(true)}>
 					<Text>
 						{t(
@@ -227,5 +214,12 @@ const HgtSourceRowControl = ({
 		</InfoRowControl>
 	);
 };
+
+const styles = StyleSheet.create({
+	hint: { marginTop: 20 },
+	hintLarge: { marginTop: 20 },
+	optRow: { marginBottom: 18 },
+	okButton: { marginTop: 10 },
+});
 
 export default HgtSourceRowControl;

@@ -40,6 +40,17 @@ const styles = StyleSheet.create({
 		bottom: 0,
 		right: 0,
 	},
+	modalBase: { opacity: 1 },
+	headerRow: {
+		width: '90%',
+		flexDirection: 'row',
+		alignItems: 'center',
+		marginBottom: 8,
+		gap: 8,
+		justifyContent: 'flex-start',
+	},
+	backButton: { padding: 5 },
+	contentInner: { paddingBottom: 50 },
 });
 
 const duration = 100;
@@ -146,6 +157,15 @@ const ModalWrapper: FC<{
 		}
 	}, [onDismiss, keyboardShown]);
 
+	const styleModal = useMemo(() => [styles.modalBase, modalStyle], [modalStyle]);
+
+	const styleBackButton = useMemo(
+		() => [styles.backButton, { borderRadius: theme.roundness }],
+		[theme]
+	);
+
+	const styleContentInner = useMemo(() => [styles.contentInner, innerStyle], [innerStyle]);
+
 	return (
 		<Portal>
 			<AppContext.Provider value={context}>
@@ -162,7 +182,7 @@ const ModalWrapper: FC<{
 					}
 					onDismiss={handleDismissAll}
 					visible={visible}
-					style={{ opacity: 1, ...modalStyle }}
+					style={styleModal}
 					contentContainerStyle={contentContainerStyle}
 				>
 					<Pressable
@@ -191,23 +211,11 @@ const ModalWrapper: FC<{
 										// },
 									]}
 								>
-									<View
-										style={{
-											width: '90%',
-											flexDirection: 'row',
-											alignItems: 'center',
-											marginBottom: 8,
-											gap: 8,
-											justifyContent: 'flex-start',
-										}}
-									>
+									<View style={styles.headerRow}>
 										{hasBackButton && (
 											<TouchableHighlight
 												underlayColor={theme.colors.elevation.level3}
-												style={{
-													padding: 5,
-													borderRadius: theme.roundness,
-												}}
+												style={styleBackButton}
 												onPress={handleDismiss}
 											>
 												<Icon
@@ -237,14 +245,7 @@ const ModalWrapper: FC<{
 										)}
 									</View>
 
-									<View
-										style={{
-											paddingBottom: 50,
-											...innerStyle,
-										}}
-									>
-										{children}
-									</View>
+									<View style={styleContentInner}>{children}</View>
 								</ScrollView>
 							</GestureHandlerRootView>
 						</Animated.View>

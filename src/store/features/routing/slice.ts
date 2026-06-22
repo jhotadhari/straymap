@@ -357,6 +357,6 @@ const updateLineFromSegments = async (
 
 export const onSetDbPath = (): AppThunk => {
 	return (dispatch) => {
-		dispatch(routingSlice.actions.setIsRouting( false ));
+		dispatch(routingSlice.actions.setIsRouting(false));
 	};
 };

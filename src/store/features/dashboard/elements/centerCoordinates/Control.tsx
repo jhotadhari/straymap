@@ -11,15 +11,12 @@ import { useTranslation } from 'react-i18next';
 import ItemUnitPrefControl from '../../components/controls/ItemUnitPrefControl';
 import ItemFontSizeControl from '../../components/controls/ItemFontSizeControl';
 import ItemMinWidthControl from '../../components/controls/ItemMinWidthControl';
+import { sharedStyles } from '../sharedDeps';
 
 const Control: FC = () => {
 	const { t } = useTranslation();
 	return (
-		<View
-			style={{
-				gap: 16,
-			}}
-		>
+		<View style={sharedStyles.container}>
 			<ItemUnitPrefControl
 				buttonLabel={t('follow global setting')} // ???
 				unitPrefsKey="coordinates"

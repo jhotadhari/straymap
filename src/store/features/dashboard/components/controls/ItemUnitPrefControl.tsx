@@ -20,6 +20,7 @@ import { selectEditItem } from '../../selectors';
 import { DashboardItem } from '../../types';
 import NumericRowControlSegmented from '../../../../../components/generic/controls/NumericRowControlSegmented';
 import ListItemMenuControl from '../../../../../components/generic/controls/ListItemMenuControl';
+import { sharedStyles } from '../../../../../sharedStyles';
 
 type OptionsWithUnitPref = {
 	unitPref?: Partial<UnitPref>;
@@ -150,10 +151,7 @@ const ItemUnitPrefControl: FC<{ unitPrefsKey: string; buttonLabel?: string }> = 
 				Info={t('dashboard.hint.item.unit')}
 			>
 				<ListItemMenuControl
-					listItemStyle={{
-						marginLeft: 0,
-						paddingLeft: 10,
-					}}
+					listItemStyle={sharedStyles.listItem}
 					options={opts}
 					value={get(selectedOpt, 'key')}
 					setValue={handleMenuPress}

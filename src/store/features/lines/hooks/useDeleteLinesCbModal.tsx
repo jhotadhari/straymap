@@ -15,7 +15,7 @@ import { useTranslation } from 'react-i18next';
 import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
 import ModalWrapper from '../../../../components/generic/ModalWrapper';
 import { useAppDispatch } from '../../../hooks';
-import { stylesGeneric } from '../../baseMap/components/controls/layers/LayersControl';
+import { sharedStyles } from '../../../../sharedStyles';
 import { setIsRouting } from '../../routing/slice';
 import { deleteLines } from '../db/actionsLine';
 
@@ -127,7 +127,7 @@ const useDeleteLinesCbModal = ({
 				backgroundBlur={backgroundBlur}
 				onDismiss={handleDismissModal}
 				header={'really delete???'}
-				innerStyle={stylesGeneric.modal}
+				innerStyle={sharedStyles.modal}
 			>
 				<Text>
 					{sprintf(
@@ -136,7 +136,7 @@ const useDeleteLinesCbModal = ({
 					)}
 				</Text>
 
-				<View style={stylesGeneric.modalControls}>
+				<View style={sharedStyles.modalControls}>
 					<ButtonHighlight
 						onPress={handleDismissModal}
 						mode="contained"
