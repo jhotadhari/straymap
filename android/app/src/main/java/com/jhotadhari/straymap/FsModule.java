@@ -9,13 +9,13 @@ import androidx.annotation.Nullable;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContext;
-import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.WritableNativeArray;
 import com.facebook.react.bridge.WritableNativeMap;
+import com.facebook.react.module.annotations.ReactModule;
 
 import org.apache.commons.io.FileUtils;
 
@@ -27,7 +27,10 @@ import java.util.List;
 import java.util.logging.FileHandler;
 
 
-public class FsModule extends ReactContextBaseJavaModule {
+@ReactModule(name = FsModule.NAME)
+public class FsModule extends NativeFsModuleSpec {
+
+	public static final String NAME = "FsModule";
 
 	ReactContext reactContext;
 
@@ -39,11 +42,11 @@ public class FsModule extends ReactContextBaseJavaModule {
 	@NonNull
 	@Override
     public String getName() {
-        return "FsModule";
+        return NAME;
     }
 
     @ReactMethod
-    public void getInfo( String navDir, ReadableArray extensions, Boolean recursive, Promise promise ) {
+    public void getInfo( String navDir, @Nullable ReadableArray extensions, boolean recursive, Promise promise ) {
         try {
             WritableMap response = new WritableNativeMap();
             File path = new File( navDir );

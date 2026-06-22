@@ -19,8 +19,8 @@ const useCacheDirsInfo = (shouldUpdate?: any): any => {
 
 	const updateCacheDirs = useCallback(() => {
 		FsModule.getCacheInfo()
-			.then((newCacheDirs: CacheDir[]) => {
-				dispatch(setCacheDirsCache(newCacheDirs));
+			.then((newCacheDirs) => {
+				dispatch(setCacheDirsCache(newCacheDirs as CacheDir[]));
 			})
 			.catch((err: any) => console.log(err));
 	}, []);

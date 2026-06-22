@@ -1,19 +1,20 @@
 package com.jhotadhari.straymap;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
-import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.WritableNativeArray;
 import com.facebook.react.bridge.WritableNativeMap;
+import com.facebook.react.module.annotations.ReactModule;
 
 import java.io.File;
 import java.util.Arrays;
 
-public class HelperModule extends ReactContextBaseJavaModule {
+@ReactModule(name = HelperModule.NAME)
+public class HelperModule extends NativeHelperModuleSpec {
 
-	public String getName() { return "HelperModule"; };
+	public static final String NAME = "HelperModule";
 
 	public HelperModule(ReactApplicationContext context) {
 		super(context);
@@ -71,7 +72,7 @@ public class HelperModule extends ReactContextBaseJavaModule {
 			"mapfiles",
 			"databases",
 			"mapstyles",
-			"tracks",
+			"export",
 			"marker",
 			"cursor",
 		};

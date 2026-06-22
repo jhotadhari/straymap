@@ -2,6 +2,14 @@
   "name": "com.jhotadhari.straymap",
   "version": "0.2.1",
   "private": true,
+  "codegenConfig": {
+    "name": "AppSpecs",
+    "type": "modules",
+    "jsSrcsDir": "src/specs",
+    "android": {
+      "javaPackageName": "com.jhotadhari.straymap"
+    }
+  },
   "scripts": {
     "android": "react-native run-android",
     "lint": "eslint .",
