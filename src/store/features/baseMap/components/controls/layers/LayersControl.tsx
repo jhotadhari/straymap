@@ -107,6 +107,7 @@ const DraggableItem: FC<{
 	const styleVisibility: ViewStyle = useMemo(
 		() => ({
 			padding: 10,
+			flexShrink: 0,
 			...(reverse && { marginRight: -10 }),
 			...(!reverse && { marginLeft: -10 }),
 		}),
@@ -119,6 +120,8 @@ const DraggableItem: FC<{
 			alignItems: 'center',
 			flexDirection: reverse ? 'row-reverse' : 'row',
 			flexGrow: 1,
+			flexShrink: 1,
+			minWidth: 0,
 			marginLeft: 5,
 			marginRight: 5,
 		}),
@@ -129,6 +132,7 @@ const DraggableItem: FC<{
 		() => ({
 			padding: 10,
 			borderRadius: theme.roundness,
+			flexShrink: 0,
 		}),
 		[theme]
 	);
@@ -182,12 +186,13 @@ const DraggableItem: FC<{
 				updateLayer={updateItem}
 			/>
 
-			<View style={styleName}>
-				<Sortable.Handle mode="draggable">
-					<Text>{item.name}</Text>
-				</Sortable.Handle>
+			<Sortable.Handle
+				mode="draggable"
+				style={styleName}
+			>
+				<Text>{item.name}</Text>
 				{!isToWide && <Text>[{item.type}]</Text>}
-			</View>
+			</Sortable.Handle>
 
 			<TouchableHighlight
 				underlayColor={theme.colors.elevation.level3}

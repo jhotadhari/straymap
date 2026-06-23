@@ -68,7 +68,7 @@ import ThemeControl from './ThemeControl';
 
 const itemHeight = 50;
 
-const styleLayerCount = { flexGrow: 1 };
+const styleLayerCount = { flexGrow: 1, flexShrink: 1, minWidth: 0 };
 
 const EditModal: FC<{
 	isNewKey: false | string;
@@ -360,6 +360,7 @@ const DraggableItem = ({
 		() => ({
 			padding: 10,
 			borderRadius: theme.roundness,
+			flexShrink: 0,
 		}),
 		[theme]
 	);
@@ -379,6 +380,8 @@ const DraggableItem = ({
 			flexDirection: reverse ? 'row-reverse' : 'row',
 			alignItems: 'center',
 			flexGrow: 1,
+			flexShrink: 1,
+			minWidth: 0,
 		}),
 		[reverse]
 	);
