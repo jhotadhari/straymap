@@ -22,7 +22,7 @@ import {
 } from 'react-native';
 import { List, useTheme, Text, Icon, IconButtonProps } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import DraggableGrid from 'react-native-draggable-grid';
+import Sortable, { SortableFlexDragEndParams } from 'react-native-sortables';
 import { get } from 'lodash-es';
 import { sprintf } from 'sprintf-js';
 
@@ -58,6 +58,7 @@ import {
 import { Style } from 'react-native-paper/lib/typescript/components/List/utils';
 import { sharedStyles } from '../../../../../../sharedStyles';
 import { sharedStyles as sharedStylesBaseMapControls } from '../sharedDeps';
+import useDropIndicatorStyle from '../../../../../../compose/useDropIndicatorStyle';
 import RenderOverlaysControl from './RenderOverlaysControl';
 import RenderStyleControl from './RenderStyleControl';
 import LayerCount from './LayerCount';
@@ -373,6 +374,15 @@ const DraggableItem = ({
 		[theme]
 	);
 
+	const styleHandle: ViewStyle = useMemo(
+		() => ({
+			flexDirection: reverse ? 'row-reverse' : 'row',
+			alignItems: 'center',
+			flexGrow: 1,
+		}),
+		[reverse]
+	);
+
 	const handlePress = useCallback(() => dispatch(setMapsforgeProfileTemp(item)), [item]);
 
 	const handleLayout = useCallback(
@@ -392,15 +402,20 @@ const DraggableItem = ({
 			style={style}
 			key={item.key}
 		>
-			<Text style={styleName}>{item.name}</Text>
+			<Sortable.Handle
+				mode="draggable"
+				style={styleHandle}
+			>
+				<Text style={styleName}>{item.name}</Text>
 
-			<Text style={styleLayerCount}>
-				{sprintf('%s ' + t('baseMap.layerShort', { count: layersCount }), layersCount)}
-			</Text>
+				<Text style={styleLayerCount}>
+					{sprintf('%s ' + t('baseMap.layerShort', { count: layersCount }), layersCount)}
+				</Text>
 
-			{!isToWide && (
-				<Text style={reverse ? styles.themeLabelReverse : undefined}>[{themeLabel}]</Text>
-			)}
+				{!isToWide && (
+					<Text style={reverse ? styles.themeLabelReverse : undefined}>[{themeLabel}]</Text>
+				)}
+			</Sortable.Handle>
 
 			<TouchableHighlight
 				underlayColor={theme.colors.elevation.level3}
@@ -462,26 +477,6 @@ const ProfilesControl: FC<{
 		return saveOnUnmount ? saveProfiles : undefined;
 	}, [saveOnUnmount]);
 
-	const renderItem = useCallback(
-		(item: MapsforgeProfile) => (
-			<View key={item.key}>
-				<DraggableItem
-					item={item}
-					width={width}
-					reverse={!!reverseDraggableItem}
-					// saveOnChange={saveOnChange}
-					// saveProfiles={saveProfiles}
-				/>
-			</View>
-		),
-		[
-			width,
-			reverseDraggableItem,
-			// saveOnChange,
-			// saveProfiles,
-		]
-	);
-
 	const handleAccordionPress = useCallback(() => {
 		if (expanded) {
 			saveProfiles();
@@ -507,9 +502,12 @@ const ProfilesControl: FC<{
 
 	const handleDragStart = useCallback(() => setScrollEnabled(false), []);
 
-	const handleDragRelease = useCallback(
-		(newProfiles: MapsforgeProfile[]) => {
+	const handleDragEnd = useCallback(
+		({ indexToKey }: SortableFlexDragEndParams) => {
 			setScrollEnabled(true);
+			const newProfiles = indexToKey
+				.map((toKey) => profiles.find((profile) => profile.key === toKey.replace('.$', '')))
+				.filter((a): a is MapsforgeProfile => !!a);
 			dispatch(
 				setMapsforgeProfilesStore({
 					temp: !saveOnChange,
@@ -517,8 +515,10 @@ const ProfilesControl: FC<{
 				})
 			);
 		},
-		[saveOnChange]
+		[saveOnChange, profiles]
 	);
+
+	const dropIndicatorStyle = useDropIndicatorStyle();
 
 	const infoButtonProps: IconButtonProps = useMemo(
 		() => ({
@@ -557,16 +557,31 @@ const ProfilesControl: FC<{
 				titleStyle={theme.fonts.bodyMedium}
 			>
 				{profiles.length && (
-					<View style={styleAccordion}>
-						<DraggableGrid
-							style={sharedStylesBaseMapControls.grid}
-							itemHeight={itemHeight}
-							numColumns={1}
-							renderItem={renderItem}
-							data={profiles}
+					<View style={[styleAccordion, sharedStylesBaseMapControls.grid]}>
+						<Sortable.Flex
+							itemEntering={null}
+							gap={0}
+							padding={0}
+							sortEnabled={true}
+							customHandle={true}
+							showDropIndicator={true}
+							dropIndicatorStyle={dropIndicatorStyle}
+							flexDirection="column"
+							reorderTriggerOrigin="touch"
+							alignItems="center"
 							onDragStart={handleDragStart}
-							onDragRelease={handleDragRelease}
-						/>
+							onDragEnd={handleDragEnd}
+						>
+							{profiles.map((item) => (
+								<View key={item.key}>
+									<DraggableItem
+										item={item}
+										width={width}
+										reverse={!!reverseDraggableItem}
+									/>
+								</View>
+							))}
+						</Sortable.Flex>
 					</View>
 				)}
 

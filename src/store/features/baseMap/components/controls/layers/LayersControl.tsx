@@ -21,7 +21,7 @@ import {
 } from 'react-native';
 import { List, useTheme, Text, Icon, IconButtonProps } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import DraggableGrid from 'react-native-draggable-grid';
+import Sortable, { SortableFlexDragEndParams } from 'react-native-sortables';
 import { get } from 'lodash-es';
 
 /**
@@ -49,6 +49,7 @@ import LayerControlHillshading from './LayerControlHillshading';
 import { labelMinWidth } from '../../../../../../components/generic/controls/InfoRowControl';
 import { sharedStyles } from '../../../../../../sharedStyles';
 import { sharedStyles as sharedStylesBaseMapControls } from '../sharedDeps';
+import useDropIndicatorStyle from '../../../../../../compose/useDropIndicatorStyle';
 
 export const mapTypeOptions: LayerOption[] = [
 	{
@@ -182,7 +183,9 @@ const DraggableItem: FC<{
 			/>
 
 			<View style={styleName}>
-				<Text>{item.name}</Text>
+				<Sortable.Handle mode="draggable">
+					<Text>{item.name}</Text>
+				</Sortable.Handle>
 				{!isToWide && <Text>[{item.type}]</Text>}
 			</View>
 
@@ -409,26 +412,6 @@ const LayersControl: FC<{
 		return saveOnUnmount ? saveLayers : undefined;
 	}, [saveOnUnmount]);
 
-	const renderItem = useCallback(
-		(item: LayerConfig) => (
-			<View key={item.key}>
-				<DraggableItem
-					item={item}
-					width={width}
-					reverse={!!reverseDraggableItem}
-					saveOnChange={saveOnChange}
-					saveLayers={saveLayers}
-				/>
-			</View>
-		),
-		[
-			width,
-			reverseDraggableItem,
-			saveOnChange,
-			saveLayers,
-		]
-	);
-
 	const handleAccordionPress = useCallback(() => {
 		if (expanded) {
 			saveLayers();
@@ -455,9 +438,12 @@ const LayersControl: FC<{
 
 	const handleDragStart = useCallback(() => setScrollEnabled(false), []);
 
-	const handleDragRelease = useCallback(
-		(newLayers: LayerConfig[]) => {
+	const handleDragEnd = useCallback(
+		({ indexToKey }: SortableFlexDragEndParams) => {
 			setScrollEnabled(true);
+			const newLayers = indexToKey
+				.map((toKey) => layers.find((layer) => layer.key === toKey.replace('.$', '')))
+				.filter((a): a is LayerConfig => !!a);
 			dispatch(
 				setLayersStore({
 					temp: !saveOnChange,
@@ -465,8 +451,10 @@ const LayersControl: FC<{
 				})
 			);
 		},
-		[saveOnChange]
+		[saveOnChange, layers]
 	);
+
+	const dropIndicatorStyle = useDropIndicatorStyle();
 
 	const infoButtonProps: IconButtonProps = useMemo(
 		() => ({
@@ -499,16 +487,33 @@ const LayersControl: FC<{
 				titleStyle={theme.fonts.bodyMedium}
 			>
 				{layers.length && (
-					<View style={styleAccordion}>
-						<DraggableGrid
-							style={sharedStylesBaseMapControls.grid}
-							itemHeight={itemHeight}
-							numColumns={1}
-							renderItem={renderItem}
-							data={layers}
+					<View style={[styleAccordion, sharedStylesBaseMapControls.grid]}>
+						<Sortable.Flex
+							itemEntering={null}
+							gap={0}
+							padding={0}
+							sortEnabled={true}
+							customHandle={true}
+							showDropIndicator={true}
+							dropIndicatorStyle={dropIndicatorStyle}
+							flexDirection="column"
+							reorderTriggerOrigin="touch"
+							alignItems="center"
 							onDragStart={handleDragStart}
-							onDragRelease={handleDragRelease}
-						/>
+							onDragEnd={handleDragEnd}
+						>
+							{layers.map((item) => (
+								<View key={item.key}>
+									<DraggableItem
+										item={item}
+										width={width}
+										reverse={!!reverseDraggableItem}
+										saveOnChange={saveOnChange}
+										saveLayers={saveLayers}
+									/>
+								</View>
+							))}
+						</Sortable.Flex>
 					</View>
 				)}
 
