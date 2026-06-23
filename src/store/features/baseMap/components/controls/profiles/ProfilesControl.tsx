@@ -68,8 +68,6 @@ import ThemeControl from './ThemeControl';
 
 const itemHeight = 50;
 
-const styleLayerCount = { flexGrow: 1, flexShrink: 1, minWidth: 0 };
-
 const EditModal: FC<{
 	isNewKey: false | string;
 	saveOnChange: boolean;
@@ -368,11 +366,11 @@ const DraggableItem = ({
 	const styleName: TextStyle = useMemo(
 		() => ({
 			textAlign: reverse ? 'right' : 'left',
-			marginLeft: 0,
-			width: 100,
-			...(reverse && { marginRight: 3 }),
+			flexGrow: 1,
+			flexShrink: 1,
+			minWidth: 0,
 		}),
-		[theme]
+		[reverse]
 	);
 
 	const styleHandle: ViewStyle = useMemo(
@@ -382,6 +380,17 @@ const DraggableItem = ({
 			flexGrow: 1,
 			flexShrink: 1,
 			minWidth: 0,
+			gap: 8,
+		}),
+		[reverse]
+	);
+
+	const styleMeta: ViewStyle = useMemo(
+		() => ({
+			flexDirection: reverse ? 'row-reverse' : 'row',
+			alignItems: 'center',
+			flexShrink: 0,
+			gap: 8,
 		}),
 		[reverse]
 	);
@@ -409,15 +418,32 @@ const DraggableItem = ({
 				mode="draggable"
 				style={styleHandle}
 			>
-				<Text style={styleName}>{item.name}</Text>
-
-				<Text style={styleLayerCount}>
-					{sprintf('%s ' + t('baseMap.layerShort', { count: layersCount }), layersCount)}
+				<Text
+					style={styleName}
+					numberOfLines={1}
+					ellipsizeMode="tail"
+				>
+					{item.name}
 				</Text>
 
-				{!isToWide && (
-					<Text style={reverse ? styles.themeLabelReverse : undefined}>[{themeLabel}]</Text>
-				)}
+				<View style={styleMeta}>
+					<Text numberOfLines={1}>
+						{sprintf(
+							'%s ' + t('baseMap.layerShort', { count: layersCount }),
+							layersCount
+						)}
+					</Text>
+
+					{!isToWide && (
+						<Text
+							style={reverse ? styles.themeLabelReverse : undefined}
+							numberOfLines={1}
+							ellipsizeMode="tail"
+						>
+							[{themeLabel}]
+						</Text>
+					)}
+				</View>
 			</Sortable.Handle>
 
 			<TouchableHighlight

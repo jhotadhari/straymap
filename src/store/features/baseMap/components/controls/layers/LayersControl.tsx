@@ -116,12 +116,12 @@ const DraggableItem: FC<{
 
 	const styleName: ViewStyle = useMemo(
 		() => ({
-			justifyContent: 'space-between',
 			alignItems: 'center',
 			flexDirection: reverse ? 'row-reverse' : 'row',
 			flexGrow: 1,
 			flexShrink: 1,
 			minWidth: 0,
+			gap: 8,
 			marginLeft: 5,
 			marginRight: 5,
 		}),
@@ -190,8 +190,21 @@ const DraggableItem: FC<{
 				mode="draggable"
 				style={styleName}
 			>
-				<Text>{item.name}</Text>
-				{!isToWide && <Text>[{item.type}]</Text>}
+				<Text
+					style={styles.itemTitle}
+					numberOfLines={1}
+					ellipsizeMode="tail"
+				>
+					{item.name}
+				</Text>
+				{!isToWide && (
+					<Text
+						style={styles.itemType}
+						numberOfLines={1}
+					>
+						[{item.type}]
+					</Text>
+				)}
 			</Sortable.Handle>
 
 			<TouchableHighlight
@@ -553,6 +566,8 @@ const LayersControl: FC<{
 
 export const styles = StyleSheet.create({
 	selectType: { marginBottom: 18 },
+	itemTitle: { flexGrow: 1, flexShrink: 1, minWidth: 0 },
+	itemType: { flexShrink: 0 },
 	modalRowTypeLabel: { minWidth: labelMinWidth + 12 },
 	modalRowType: { flexDirection: 'row' },
 });
