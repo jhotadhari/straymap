@@ -5,6 +5,7 @@ import React, { FC, ReactNode, useCallback, useContext, useEffect, useMemo } fro
 import {
 	Pressable,
 	StyleSheet,
+	StyleProp,
 	ViewStyle,
 	TouchableHighlight,
 	Keyboard,
@@ -61,9 +62,9 @@ const ModalWrapper: FC<{
 	hasBackButton?: boolean;
 	onDismiss: () => void;
 	header: string;
-	innerStyle?: null | ViewStyle;
-	innerContainerStyle?: null | ViewStyle;
-	modalStyle?: null | ViewStyle;
+	innerStyle?: StyleProp<ViewStyle>;
+	innerContainerStyle?: StyleProp<ViewStyle>;
+	modalStyle?: StyleProp<ViewStyle>;
 	backgroundBlur?: boolean;
 	scrollEnabled?: boolean;
 	onLayout?: (event: LayoutChangeEvent) => void;
@@ -134,13 +135,11 @@ const ModalWrapper: FC<{
 			borderColor: theme.colors.outline,
 			borderWidth: 1,
 			borderRadius: theme.roundness,
-			...innerContainerStyle,
 		}),
 		[
 			theme,
 			width,
 			modalWidthFactor,
-			innerContainerStyle,
 		]
 	);
 
@@ -206,6 +205,7 @@ const ModalWrapper: FC<{
 									onLayout={onLayout}
 									style={[
 										modalStyles,
+										innerContainerStyle,
 										// {
 										// 	height: modalHeight,
 										// },

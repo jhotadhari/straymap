@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { Text, useTheme } from 'react-native-paper';
-import { Dimensions, StyleSheet, View, ViewStyle } from 'react-native';
+import { Dimensions, StyleSheet, StyleProp, View, ViewStyle } from 'react-native';
 import { ReactNode, useMemo } from 'react';
 
 /**
@@ -19,19 +19,17 @@ const SplashScreen = ({
 }: {
 	displayLogo?: boolean;
 	children?: ReactNode;
-	innerStyle?: ViewStyle;
+	innerStyle?: StyleProp<ViewStyle>;
 }) => {
 	const theme = useTheme();
 	const { width, height } = Dimensions.get('window');
 
-	// ModalWrapper spreads innerStyle/innerContainerStyle internally, so these must stay plain objects.
-	const innerStyleCombined = useMemo(
-		() => ({
-			justifyContent: 'flex-start' as const,
-			alignItems: 'center' as const,
-			height: height * 0.75 - 2 * 20,
-			...(innerStyle || {}),
-		}),
+	const styleInner = useMemo(
+		() => [
+			styles.innerStyle,
+			{ height: height * 0.75 - 2 * 20 },
+			innerStyle,
+		],
 		[height, innerStyle]
 	);
 
@@ -42,8 +40,8 @@ const SplashScreen = ({
 			visible={true}
 			onDismiss={() => null}
 			header={''}
-			innerContainerStyle={innerContainerStyle}
-			innerStyle={innerStyleCombined}
+			innerContainerStyle={styles.innerContainerStyle}
+			innerStyle={styleInner}
 			scrollEnabled={displayLogo && !children}
 			hasBackButton={false}
 		>
@@ -63,12 +61,6 @@ const SplashScreen = ({
 	);
 };
 
-// ModalWrapper spreads this internally, so it must stay a plain object (not StyleSheet.create).
-const innerContainerStyle = {
-	borderWidth: 0,
-	borderColor: undefined,
-};
-
 const styles = StyleSheet.create({
 	title: {
 		fontFamily: 'jangly_walk',
@@ -77,6 +69,14 @@ const styles = StyleSheet.create({
 	logoWrapper: {
 		justifyContent: 'center',
 		flexGrow: 1,
+	},
+	innerContainerStyle: {
+		borderWidth: 0,
+		borderColor: undefined,
+	},
+	innerStyle: {
+		justifyContent: 'flex-start',
+		alignItems: 'center',
 	},
 });
 
