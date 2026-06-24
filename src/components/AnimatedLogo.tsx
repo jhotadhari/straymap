@@ -1,8 +1,16 @@
 /**
  * External dependencies
  */
-import React, { useEffect, useMemo, useState } from 'react';
-import { Animated, useAnimatedValue, View, Pressable, Easing, StyleSheet } from 'react-native';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+	Animated,
+	useAnimatedValue,
+	View,
+	Pressable,
+	Easing,
+	StyleSheet,
+	LayoutChangeEvent,
+} from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import VectorDrawable from '@klarna/react-native-vector-drawable';
 
@@ -46,7 +54,9 @@ const AnimatedLogo = ({
 
 	const [stringIndex, setStringIndex] = useState(0);
 	const [stringIndexUsed, setStringIndexUsed] = useState<number[]>([]);
-	const getNewStringIndex = (): number => {
+	const [textIsInitialized, setTextIsInitialized] = useState(false);
+
+	const getNewStringIndex = useCallback((): number => {
 		const stringsAvailable = [...strings].filter(
 			(string, index) => !stringIndexUsed.includes(index)
 		);
@@ -60,7 +70,11 @@ const AnimatedLogo = ({
 		return !textIsInitialized || newStringIndex !== stringIndex || stringsAvailable.length <= 1
 			? newStringIndex
 			: getNewStringIndex();
-	};
+	}, [
+		stringIndexUsed,
+		textIsInitialized,
+		stringIndex,
+	]);
 	useEffect(() => {
 		if (textIsInitialized) {
 			const maybeNewVal = [...stringIndexUsed, stringIndex];
@@ -68,7 +82,6 @@ const AnimatedLogo = ({
 		}
 	}, [stringIndex]);
 
-	const [textIsInitialized, setTextIsInitialized] = useState(false);
 	const [textDims, setTextDims] = useState([0, 0]);
 	const textOpacity = useAnimatedValue(0);
 	const textX = useAnimatedValue(10);
@@ -114,7 +127,7 @@ const AnimatedLogo = ({
 		}
 	}, [textDims.join('')]);
 
-	const loopAnimate = () => {
+	const loopAnimate = useCallback(() => {
 		// water
 		Animated.loop(
 			Animated.sequence([
@@ -131,17 +144,13 @@ const AnimatedLogo = ({
 				}),
 			])
 		).start();
-	};
+	}, [waterRotate]);
 
-	const updateLoopAnimate = (animateLoop: boolean) => animateLoop && loopAnimate();
 	useEffect(() => {
-		updateLoopAnimate(!!animateLoop);
-	}, []);
-	useEffect(() => {
-		updateLoopAnimate(!!animateLoop);
-	}, [animateLoop]);
+		animateLoop && loopAnimate();
+	}, [animateLoop, loopAnimate]);
 
-	const onPressAnimate = () => {
+	const onPressAnimate = useCallback(() => {
 		// water
 		Animated.sequence([
 			Animated.timing(waterRotate, {
@@ -204,7 +213,12 @@ const AnimatedLogo = ({
 				useNativeDriver: true,
 			}),
 		]).start();
-	};
+	}, [
+		waterRotate,
+		landRotate,
+		catScale,
+		catTranslateY,
+	]);
 
 	const stylePressable = useMemo(() => [styles.pressable, { width: size, height: size }], [size]);
 
@@ -264,16 +278,29 @@ const AnimatedLogo = ({
 
 	const styleText = useMemo(() => [theme.fonts.displayMedium, styles.text], [theme]);
 
+	const handlePress = useCallback(() => {
+		if (shouldShit) {
+			setTextIsInitialized(true);
+			setStringIndex(getNewStringIndex());
+		}
+		animateOnPress && onPressAnimate();
+	}, [
+		shouldShit,
+		animateOnPress,
+		getNewStringIndex,
+		onPressAnimate,
+	]);
+
+	const handleLayout = useCallback(
+		(e: LayoutChangeEvent) =>
+			setTextDims([e.nativeEvent.layout.width, e.nativeEvent.layout.height]),
+		[]
+	);
+
 	return (
 		<Pressable
 			style={stylePressable}
-			onPress={() => {
-				if (shouldShit) {
-					setTextIsInitialized(true);
-					setStringIndex(getNewStringIndex());
-				}
-				animateOnPress && onPressAnimate();
-			}}
+			onPress={handlePress}
 		>
 			<Animated.View style={styleWaterWrapper}>
 				<VectorDrawable
@@ -299,9 +326,7 @@ const AnimatedLogo = ({
 			{textIsInitialized && (
 				<Animated.View style={styleTextWrapper}>
 					<View
-						onLayout={(e) =>
-							setTextDims([e.nativeEvent.layout.width, e.nativeEvent.layout.height])
-						}
+						onLayout={handleLayout}
 						style={styles.textInner}
 					>
 						<Text style={styleText}>{strings[stringIndex]}</Text>

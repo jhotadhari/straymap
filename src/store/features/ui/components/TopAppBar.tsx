@@ -4,7 +4,13 @@
 import { FC, Fragment, useCallback, useContext, useEffect, useMemo } from 'react';
 import { useTheme, Icon, Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { View, BackHandler, TouchableHighlight, StyleSheet } from 'react-native';
+import {
+	View,
+	BackHandler,
+	TouchableHighlight,
+	StyleSheet,
+	LayoutChangeEvent,
+} from 'react-native';
 
 /**
  * Internal dependencies
@@ -100,13 +106,18 @@ const TopAppBar: FC = () => {
 		}
 	}, [uiItemsKeys]);
 
+	const handleLayout = useCallback(
+		(e: LayoutChangeEvent) => {
+			const { height } = e.nativeEvent.layout;
+			setTopAppBarHeight && setTopAppBarHeight(height);
+		},
+		[setTopAppBarHeight]
+	);
+
 	return (
 		<View
-			onLayout={(e) => {
-				const { height } = e.nativeEvent.layout;
-				setTopAppBarHeight && setTopAppBarHeight(height);
-			}}
-			style={[styles.bar, styles.zObove]}
+			onLayout={handleLayout}
+			style={styleBar}
 		>
 			{!showTopDashboard && (
 				<Fragment>
@@ -164,5 +175,7 @@ const styles = StyleSheet.create({
 		zIndex: 9,
 	},
 });
+
+const styleBar = [styles.bar, styles.zObove];
 
 export default TopAppBar;

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { useTheme, TextInput } from 'react-native-paper';
 import { debounce } from 'lodash-es';
@@ -22,15 +22,38 @@ const NameRowControl = ({
 }) => {
 	const theme = useTheme();
 	const [value, setValue] = useState(item.name);
-	const doUpdate = debounce(() => {
-		update({
-			...item,
-			name: value,
-		});
-	}, 300);
+
+	// Keep latest item/update accessible without recreating the debounced fn.
+	const itemRef = useRef(item);
+	itemRef.current = item;
+	const updateRef = useRef(update);
+	updateRef.current = update;
+
+	const doUpdate = useMemo(
+		() =>
+			debounce((newValue: string) => {
+				updateRef.current({
+					...itemRef.current,
+					name: newValue,
+				});
+			}, 300),
+		[]
+	);
 	useEffect(() => {
-		doUpdate();
-	}, [value]);
+		doUpdate(value);
+	}, [value, doUpdate]);
+
+	const overwriteTheme = useMemo(
+		() => ({
+			fonts: {
+				bodyLarge: {
+					...theme.fonts.bodySmall,
+					fontFamily: 'sans-serif',
+				},
+			},
+		}),
+		[theme]
+	);
 
 	return (
 		<InfoRowControl
@@ -41,15 +64,8 @@ const NameRowControl = ({
 				style={styles.input}
 				underlineColor="transparent"
 				dense={true}
-				theme={{
-					fonts: {
-						bodyLarge: {
-							...theme.fonts.bodySmall,
-							fontFamily: 'sans-serif',
-						},
-					},
-				}}
-				onChangeText={(newVal) => setValue(newVal)}
+				theme={overwriteTheme}
+				onChangeText={setValue}
 				value={value}
 			/>
 		</InfoRowControl>

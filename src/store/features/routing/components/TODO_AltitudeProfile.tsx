@@ -1,10 +1,11 @@
 /**
  * External dependencies
  */
-import { LayoutChangeEvent, View } from 'react-native';
+import { LayoutChangeEvent, StyleSheet, View } from 'react-native';
 import React, {
 	Dispatch,
 	SetStateAction,
+	useCallback,
 	useContext,
 	useEffect,
 	useMemo,
@@ -35,6 +36,9 @@ import { NearestSimplifiedCoord } from '../types';
 
 const handleSize = 50;
 
+const formatSlopeYLabel = (labelNb: number) => Math.round(labelNb) + '';
+const formatDistanceXLabel = (labelNb: number) => labelNb / 1000 + '';
+
 const AltitudeProfileHandle = ({
 	gesture,
 	getIsFullyCollapsed,
@@ -46,32 +50,28 @@ const AltitudeProfileHandle = ({
 }) => {
 	const theme = useTheme();
 
+	const styleHandle = useMemo(
+		() => [
+			handleStyles.handle,
+			{
+				backgroundColor: theme.colors.background,
+				borderColor: theme.colors.onBackground,
+			},
+		],
+		[theme]
+	);
+
+	const handlePress = useCallback(
+		() => expand(getIsFullyCollapsed()),
+		[expand, getIsFullyCollapsed]
+	);
+
 	return (
 		<GestureDetector gesture={gesture}>
-			<View
-				style={{
-					position: 'absolute',
-					width: handleSize,
-					height: handleSize,
-					justifyContent: 'center',
-					alignItems: 'center',
-					backgroundColor: theme.colors.background,
-					borderColor: theme.colors.onBackground,
-					borderWidth: 1,
-					borderTopRightRadius: '50%',
-					borderTopLeftRadius: '50%',
-					borderBottomWidth: 0,
-					top: 0,
-					left: '50%',
-					transform: [{ translateY: '-100%' }, { translateX: '-50%' }],
-				}}
-			>
+			<View style={styleHandle}>
 				<Button
-					style={{
-						borderTopLeftRadius: 0,
-						borderBottomLeftRadius: 0,
-					}}
-					onPress={() => expand(getIsFullyCollapsed())}
+					style={handleStyles.button}
+					onPress={handlePress}
 					compact={true}
 				>
 					<Icon
@@ -85,6 +85,33 @@ const AltitudeProfileHandle = ({
 		</GestureDetector>
 	);
 };
+
+const handleStyles = StyleSheet.create({
+	handle: {
+		position: 'absolute',
+		width: handleSize,
+		height: handleSize,
+		justifyContent: 'center',
+		alignItems: 'center',
+		borderWidth: 1,
+		borderTopRightRadius: '50%',
+		borderTopLeftRadius: '50%',
+		borderBottomWidth: 0,
+		top: 0,
+		left: '50%',
+		transform: [{ translateY: '-100%' }, { translateX: '-50%' }],
+	},
+	button: {
+		borderTopLeftRadius: 0,
+		borderBottomLeftRadius: 0,
+	},
+});
+
+const chartStyles = StyleSheet.create({
+	wrapper: {
+		position: 'absolute',
+	},
+});
 
 interface LocationForChart extends LocationExtended {
 	pointAlt?: number;
@@ -281,48 +308,60 @@ const AltitudeProfileInner = ({ height, outerWidth }: { height: number; outerWid
 			labelPosition: 'outset' as 'outset',
 			enableRescaling: true,
 		}),
-		[]
+		[font, theme]
+	);
+
+	const styleChartWrapper = useMemo(
+		() => [
+			chartStyles.wrapper,
+			{
+				height,
+				width: outerWidth,
+			},
+		],
+		[height, outerWidth]
+	);
+
+	const yKeys = useMemo(
+		() => ['alt', 'pointAlt', ...(undefined !== dataIndex ? ['currentAlt'] : []), 'slope'],
+		[dataIndex]
+	);
+
+	// victory-native's YAxisInputProps generics don't narrow well outside JSX, so this stays loosely typed.
+	const yAxis: any[] = useMemo(
+		() => [
+			{
+				...axisOpts,
+				yKeys: ['alt', 'pointAlt', ...(undefined !== dataIndex ? ['currentAlt'] : [])],
+			},
+			{
+				...axisOpts,
+				yKeys: ['slope'],
+				axisSide: 'right',
+				formatYLabel: formatSlopeYLabel,
+			},
+		],
+		[axisOpts, dataIndex]
+	);
+
+	const xAxis = useMemo(
+		() => ({
+			...axisOpts,
+			formatXLabel: formatDistanceXLabel,
+		}),
+		[axisOpts]
 	);
 
 	return (
-		<View
-			style={{
-				position: 'absolute',
-				height,
-				width: outerWidth,
-			}}
-		>
+		<View style={styleChartWrapper}>
 			{dataWithCurrent && (
 				<CartesianChart
 					data={dataWithCurrent}
 					padding={10}
 					xKey="distance"
-					yKeys={[
-						'alt',
-						'pointAlt',
-						...(undefined !== dataIndex ? ['currentAlt'] : []),
-						'slope',
-					]}
-					yAxis={[
-						{
-							...axisOpts,
-							yKeys: [
-								'alt',
-								'pointAlt',
-								...(undefined !== dataIndex ? ['currentAlt'] : []),
-							],
-						},
-						{
-							...axisOpts,
-							yKeys: ['slope'],
-							axisSide: 'right',
-							formatYLabel: (labelNb) => Math.round(labelNb) + '',
-						},
-					]}
-					xAxis={{
-						...axisOpts,
-						formatXLabel: (labelNb) => labelNb / 1000 + '',
-					}}
+					yKeys={yKeys}
+					yAxis={yAxis}
+					xAxis={xAxis}
 				>
 					{({ points: dataPoints }) => {
 						return (
@@ -376,42 +415,62 @@ const AltitudeProfile = ({ height = 200, outerWidth }: { height?: number; outerW
 		height: translationY.value,
 	}));
 
-	const setTranslationY = (newVal: number) => {
-		translationY.value = newVal;
-	};
+	const setTranslationY = useCallback(
+		(newVal: number) => {
+			translationY.value = newVal;
+		},
+		[translationY]
+	);
 
-	const expand = (expanded: boolean) => setTranslationY(expanded ? height : 0);
+	const expand = useCallback(
+		(expanded: boolean) => setTranslationY(expanded ? height : 0),
+		[setTranslationY, height]
+	);
 
-	const gesture = Gesture.Pan()
-		.minDistance(1)
-		.onStart(() => {
-			prevTranslationY.value = translationY.value;
-		})
-		.onUpdate((event) => {
-			setTranslationY(clamp(prevTranslationY.value - event.translationY, 0, height));
-		})
-		.runOnJS(true);
+	const gesture = useMemo(
+		() =>
+			Gesture.Pan()
+				.minDistance(1)
+				.onStart(() => {
+					prevTranslationY.value = translationY.value;
+				})
+				.onUpdate((event) => {
+					setTranslationY(clamp(prevTranslationY.value - event.translationY, 0, height));
+				})
+				.runOnJS(true),
+		[prevTranslationY, translationY, setTranslationY, height]
+	);
 
-	const getIsFullyCollapsed = () => translationY.value === 0;
+	const getIsFullyCollapsed = useCallback(() => translationY.value === 0, [translationY]);
+
+	const styleOuter = useMemo(
+		() => [
+			animatedStyles,
+			{
+				width: outerWidth,
+				backgroundColor: theme.colors.background,
+			},
+		],
+		[animatedStyles, outerWidth, theme]
+	);
+
+	const handleLayout = useCallback(
+		(e: LayoutChangeEvent) => {
+			if (e?.nativeEvent?.layout && setBottomBarHeight) {
+				const { height: layoutHeight } = e.nativeEvent.layout;
+				setBottomBarHeight((bottomBarHeight) => ({
+					...bottomBarHeight,
+					altitudeProfile: layoutHeight,
+				}));
+			}
+		},
+		[setBottomBarHeight]
+	);
 
 	return (
 		<Animated.View
-			style={[
-				animatedStyles,
-				{
-					width: outerWidth,
-					backgroundColor: theme.colors.background,
-				},
-			]}
-			onLayout={(e: LayoutChangeEvent) => {
-				if (e?.nativeEvent?.layout && setBottomBarHeight) {
-					const { height } = e.nativeEvent.layout;
-					setBottomBarHeight((bottomBarHeight) => ({
-						...bottomBarHeight,
-						altitudeProfile: height,
-					}));
-				}
-			}}
+			style={styleOuter}
+			onLayout={handleLayout}
 		>
 			<AltitudeProfileHandle
 				gesture={gesture}

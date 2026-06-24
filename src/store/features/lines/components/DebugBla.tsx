@@ -9,7 +9,7 @@ import { createTags } from '../db/actionsTag';
 import { dbOpExecute } from '../../dbLoader/utils';
 import { createRoutingPoints, deleteRoutingPoint } from '../../routing/db/actionsRoutingPoint';
 import { createRoute, createRoutes, deleteRoute, updateRoute } from '../../routing/db/actionsRoute';
-import { View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
 import { Text } from 'react-native-paper';
 import { RoutingProfile } from '../../routing/types';
@@ -217,9 +217,7 @@ const DebugBlaButtonAdd: FC<{
 
 	return (
 		<ButtonHighlight
-			style={{
-				backgroundColor: 'green',
-			}}
+			style={styles.button}
 			onPress={handlePress}
 		>
 			<Text>{'x'}</Text>
@@ -239,9 +237,7 @@ const DebugBlaButtonMockPoints: FC<{
 
 	return (
 		<ButtonHighlight
-			style={{
-				backgroundColor: 'green',
-			}}
+			style={styles.button}
 			onPress={handlePress}
 		>
 			<Text>{'Mock points'}</Text>
@@ -301,15 +297,7 @@ const DebugBla: FC = () => {
 
 	return undefined;
 	return (
-		<View
-			style={{
-				position: 'absolute',
-				left: '75%',
-				top: '75%',
-				zIndex: 99999,
-				backgroundColor: 'red',
-			}}
-		>
+		<View style={styles.wrapper}>
 			<DebugBlaButtonAdd
 				routeId={routeId}
 				setRouteId={setRouteId}
@@ -319,5 +307,18 @@ const DebugBla: FC = () => {
 		</View>
 	);
 };
+
+const styles = StyleSheet.create({
+	button: {
+		backgroundColor: 'green',
+	},
+	wrapper: {
+		position: 'absolute',
+		left: '75%',
+		top: '75%',
+		zIndex: 99999,
+		backgroundColor: 'red',
+	},
+});
 
 export default DebugBla;

@@ -3,7 +3,7 @@
  */
 import { FC, useCallback, useContext, useMemo } from 'react';
 import { Text, useTheme } from 'react-native-paper';
-import { View } from 'react-native';
+import { TextStyle, View } from 'react-native';
 import { MapContainerModule } from 'react-native-mapsforge-vtm';
 import { centerOfMass } from '@turf/turf';
 
@@ -21,6 +21,10 @@ import useActivateDrawerItem from '../../../drawers/hooks/useActivateDrawerItem'
 import { sharedStyles } from './sharedDeps';
 import IconRouting from '../../../drawers/items/routing/IconComponent';
 import { AppContext } from '../../../../../Context';
+
+const renderIconRouting = ({ color }: { color: TextStyle['color'] }) => (
+	<IconRouting color={color} />
+);
 
 const RowRouting: FC = () => {
 	const theme = useTheme();
@@ -92,7 +96,7 @@ const RowRouting: FC = () => {
 				compact={true}
 				disabled={disabled}
 				onPress={handlePress}
-				icon={({ color }) => <IconRouting color={color} />}
+				icon={renderIconRouting}
 				contentStyle={sharedStyles.buttonContent}
 				labelStyle={sharedStyles.buttonLabel}
 				textColor={theme.colors.onBackground}

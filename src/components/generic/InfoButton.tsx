@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { ReactNode, useState } from 'react';
+import { ReactNode, useCallback, useState } from 'react';
 import { IconButtonProps } from 'react-native-paper';
 
 /**
@@ -28,6 +28,9 @@ const InfoButton = ({
 	buttonProps: IconButtonProps;
 }) => {
 	const [modalVisible, setModalVisible] = useState(false);
+
+	const handlePress = useCallback(() => setModalVisible(true), []);
+
 	return buttonProps.icon ? (
 		<InfoControlWrapper
 			label={label}
@@ -41,7 +44,7 @@ const InfoButton = ({
 		>
 			<IconButtonHighlight
 				{...buttonProps}
-				onPress={() => setModalVisible(true)}
+				onPress={handlePress}
 			/>
 		</InfoControlWrapper>
 	) : null;

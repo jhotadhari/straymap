@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { FC, useCallback } from 'react';
+import { FC, useCallback, useMemo } from 'react';
 import { TouchableHighlight, ViewStyle, TextStyle } from 'react-native';
 import { useTheme, Icon } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -26,11 +26,16 @@ const VisibilityControl: FC<{
 		});
 	}, [layer]);
 
+	const styleTouchable = useMemo(
+		() => ({ borderRadius: theme.roundness, ...style }),
+		[theme, style]
+	);
+
 	return (
 		<TouchableHighlight
 			underlayColor={theme.colors.elevation.level3}
 			onPress={handlePress}
-			style={{ borderRadius: theme.roundness, ...style }}
+			style={styleTouchable}
 		>
 			<Icon
 				source={layer?.visible ? 'eye-outline' : 'eye-off-outline'}

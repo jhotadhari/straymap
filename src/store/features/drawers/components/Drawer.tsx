@@ -106,18 +106,29 @@ const Drawer: FC<DrawerProps> = ({
 		]
 	);
 
+	const drawerContextValue = useMemo(
+		() => ({
+			side,
+			activeItemKey,
+			width: drawerWidth,
+			height,
+			getIsFullyCollapsed,
+			setActiveItemKey,
+			expand,
+		}),
+		[
+			side,
+			activeItemKey,
+			drawerWidth,
+			height,
+			getIsFullyCollapsed,
+			setActiveItemKey,
+			expand,
+		]
+	);
+
 	return (
-		<DrawerContext.Provider
-			value={{
-				side,
-				activeItemKey,
-				width: drawerWidth,
-				height,
-				getIsFullyCollapsed,
-				setActiveItemKey,
-				expand,
-			}}
-		>
+		<DrawerContext.Provider value={drawerContextValue}>
 			<View style={styleWrapper}>
 				<Animated.View style={styleDrawer}>
 					<DrawerHandles

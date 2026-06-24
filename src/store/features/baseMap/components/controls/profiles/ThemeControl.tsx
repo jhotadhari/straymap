@@ -26,6 +26,8 @@ import { removeDirInfoCacheEntry } from '../../../../dirs/slice';
 
 const extensions = ['xml'];
 
+const renderLoadingIndicator = () => <LoadingIndicator />;
+
 const ResetCacheButton: FC<{
 	renderStylesCache: RenderStylesCache;
 }> = ({ renderStylesCache }) => {
@@ -145,7 +147,7 @@ const ThemeControl: FC<{
 
 	return (
 		<FileSourceRowControl
-			AlternativeButton={isBusy ? () => <LoadingIndicator /> : undefined}
+			AlternativeButton={isBusy ? renderLoadingIndicator : undefined}
 			label={t('baseMap.theme')}
 			header={t('baseMap.selectTheme')}
 			initialOptionsByPath={initialOptionsByPath}

@@ -298,6 +298,28 @@ const SourceRowControl: FC<{}> = () => {
 		[selectedOpt, layerTemp?.options?.url]
 	);
 
+	const renderUrlInput = useCallback(
+		(props: TextInputProps) =>
+			'custom' === selectedOpt ? (
+				<TextInputNativeMultiline {...props} />
+			) : (
+				<TextInputNativeMultilineControlled {...props} />
+			),
+		[selectedOpt]
+	);
+
+	const urlInputTheme = useMemo(
+		() => ({
+			fonts: {
+				bodyLarge: {
+					...theme.fonts.bodySmall,
+					fontFamily: 'sans-serif',
+				},
+			},
+		}),
+		[theme]
+	);
+
 	return (
 		<InfoRowControl
 			label={t('baseMap.source')}
@@ -308,23 +330,10 @@ const SourceRowControl: FC<{}> = () => {
 						disabled={'custom' !== selectedOpt}
 						placeholder="https://...{Z}/{X}/{Y}.png"
 						multiline={true}
-						render={(props: TextInputProps) =>
-							'custom' === selectedOpt ? (
-								<TextInputNativeMultiline {...props} />
-							) : (
-								<TextInputNativeMultilineControlled {...props} />
-							)
-						}
+						render={renderUrlInput}
 						dense={true}
 						error={!urlIsValid}
-						theme={{
-							fonts: {
-								bodyLarge: {
-									...theme.fonts.bodySmall,
-									fontFamily: 'sans-serif',
-								},
-							},
-						}}
+						theme={urlInputTheme}
 						style={styles.textInput}
 						value={
 							'custom' === selectedOpt
@@ -335,7 +344,7 @@ const SourceRowControl: FC<{}> = () => {
 										''
 									)
 						}
-						onChangeText={(newUrl) => setCustomUrl(newUrl)}
+						onChangeText={setCustomUrl}
 					/>
 
 					{Attribution && (
@@ -350,9 +359,7 @@ const SourceRowControl: FC<{}> = () => {
 				listItemStyle={sharedStyles.listItem}
 				options={sourceOptions}
 				value={selectedOpt}
-				setValue={(newValue) => {
-					setSelectedOpt(newValue);
-				}}
+				setValue={setSelectedOpt}
 				anchorLabel={t(
 					get(
 						sourceOptions.find((opt) => opt.key === selectedOpt),
@@ -366,6 +373,8 @@ const SourceRowControl: FC<{}> = () => {
 };
 
 const validateZoom = (val: number) => val >= 0;
+const validateAlpha = (val: number) => val >= 0 && val <= 1;
+const zoomOptLabels = ['min', 'max'];
 
 const LayerControlOnlineRasterXYZ: FC<{}> = () => {
 	const dispatch = useAppDispatch();
@@ -393,41 +402,65 @@ const LayerControlOnlineRasterXYZ: FC<{}> = () => {
 		);
 	}, []);
 
+	const enabledZoomValues = useMemo(
+		() => [layerTemp?.options?.enabledZoomMin ?? 0, layerTemp?.options?.enabledZoomMax ?? 0],
+		[layerTemp?.options?.enabledZoomMin, layerTemp?.options?.enabledZoomMax]
+	);
+
+	const zoomValues = useMemo(
+		() => [layerTemp?.options?.zoomMin ?? 0, layerTemp?.options?.zoomMax ?? 0],
+		[layerTemp?.options?.zoomMin, layerTemp?.options?.zoomMax]
+	);
+
+	const handleEnabledZoomUpdate = useCallback(
+		(newValues: number[]) =>
+			setOptions({
+				...(layerTemp?.options ?? {}),
+				['enabledZoomMin']: newValues[0],
+				['enabledZoomMax']: newValues[1],
+			}),
+		[layerTemp?.options, setOptions]
+	);
+
+	const handleZoomUpdate = useCallback(
+		(newValues: number[]) =>
+			setOptions({
+				...(layerTemp?.options ?? {}),
+				['zoomMin']: newValues[0],
+				['zoomMax']: newValues[1],
+			}),
+		[layerTemp?.options, setOptions]
+	);
+
+	const handleAlphaUpdate = useCallback(
+		(newValue: number) =>
+			setOptions({
+				...(layerTemp?.options ?? {}),
+				alpha: newValue,
+			}),
+		[layerTemp?.options, setOptions]
+	);
+
 	return (
 		<Fragment>
 			<SourceRowControl />
 
 			<NumericRowControlMulti
 				label={t('enabled')}
-				optLabels={['min', 'max']}
+				optLabels={zoomOptLabels}
 				saveOnType={false}
-				values={[
-					layerTemp?.options?.enabledZoomMin ?? 0,
-					layerTemp?.options?.enabledZoomMax ?? 0,
-				]}
-				onUpdate={(newValues) =>
-					setOptions({
-						...(layerTemp?.options ?? {}),
-						['enabledZoomMin']: newValues[0],
-						['enabledZoomMax']: newValues[1],
-					})
-				}
+				values={enabledZoomValues}
+				onUpdate={handleEnabledZoomUpdate}
 				validate={validateZoom}
 				Info={t('baseMap.hint.enabled') + '\n\n' + t('baseMap.hint.zoomGeneralInfo')}
 			/>
 
 			<NumericRowControlMulti
 				label={'Zoom'}
-				optLabels={['min', 'max']}
+				optLabels={zoomOptLabels}
 				saveOnType={false}
-				values={[layerTemp?.options?.zoomMin ?? 0, layerTemp?.options?.zoomMax ?? 0]}
-				onUpdate={(newValues) =>
-					setOptions({
-						...(layerTemp?.options ?? {}),
-						['zoomMin']: newValues[0],
-						['zoomMax']: newValues[1],
-					})
-				}
+				values={zoomValues}
+				onUpdate={handleZoomUpdate}
 				validate={validateZoom}
 				Info={t('baseMap.hint.zoom') + '\n\n' + t('baseMap.hint.zoomGeneralInfo')}
 			/>
@@ -436,13 +469,8 @@ const LayerControlOnlineRasterXYZ: FC<{}> = () => {
 				label={t('opacity')}
 				numType={'float'}
 				value={layerTemp?.options?.alpha ?? 0}
-				onUpdate={(newValue) =>
-					setOptions({
-						...(layerTemp?.options ?? {}),
-						alpha: newValue,
-					})
-				}
-				validate={(val) => val >= 0 && val <= 1}
+				onUpdate={handleAlphaUpdate}
+				validate={validateAlpha}
 				Info={t('baseMap.hint.opacity')}
 			/>
 

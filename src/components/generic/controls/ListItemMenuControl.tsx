@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { RefObject, useMemo, useState } from 'react';
+import React, { RefObject, useCallback, useMemo, useState } from 'react';
 import { Text, useTheme } from 'react-native-paper';
 import { Style as ListStyle } from 'react-native-paper/lib/typescript/components/List/utils';
 import { useTranslation } from 'react-i18next';
@@ -76,24 +76,46 @@ const ListItemMenuControl = ({
 		[theme]
 	);
 
+	const handleRequestClose = useCallback(() => setVisible(false), []);
+
+	const handleAnchorPress = useCallback(() => setVisible((isVisible) => !isVisible), []);
+
+	const handleOptionPress = useCallback(
+		(key: string) => {
+			setValue && setValue(key);
+			setVisible(false);
+		},
+		[setValue]
+	);
+
+	const renderFrom = useCallback(
+		(sourceRef: unknown) => (
+			<View>
+				<View ref={sourceRef as RefObject<View>} />
+				<ListItem
+					style={listItemStyle}
+					title={title}
+					icon={anchorIcon ? anchorIcon : undefined}
+					onPress={handleAnchorPress}
+				/>
+			</View>
+		),
+		[
+			listItemStyle,
+			title,
+			anchorIcon,
+			handleAnchorPress,
+		]
+	);
+
 	return (
 		<Popover
 			popoverStyle={popoverStyle}
 			arrowSize={arrowSize}
 			isVisible={visible}
 			placement={PopoverPlacement.BOTTOM}
-			onRequestClose={() => setVisible(false)}
-			from={(sourceRef) => (
-				<View>
-					<View ref={sourceRef as RefObject<View>} />
-					<ListItem
-						style={listItemStyle}
-						title={title}
-						icon={anchorIcon ? anchorIcon : undefined}
-						onPress={() => setVisible(!visible)}
-					/>
-				</View>
-			)}
+			onRequestClose={handleRequestClose}
+			from={renderFrom}
 		>
 			{options && (
 				<ScrollView>
@@ -105,10 +127,7 @@ const ListItemMenuControl = ({
 									: menuItemStyle
 							}
 							key={opt.key}
-							onPress={() => {
-								setValue && setValue(opt.key);
-								setVisible(false);
-							}}
+							onPress={() => handleOptionPress(opt.key)}
 							title={t(opt.label)}
 							active={opt.key === value}
 						/>

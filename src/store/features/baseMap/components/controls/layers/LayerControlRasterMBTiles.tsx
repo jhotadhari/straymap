@@ -20,6 +20,8 @@ import { setLayerTemp } from '../../../slice';
 import NumericRowControlMulti from '../../../../../../components/generic/controls/NumericRowControlMulti';
 
 const extensions = ['mbtiles'];
+const validateZoom = (val: number) => val >= 0;
+const zoomOptLabels = ['min', 'max'];
 
 const MapFileInfo: FC<{}> = () => {
 	const theme = useTheme();
@@ -88,7 +90,20 @@ const LayerControlRasterMBTiles: FC<{}> = () => {
 			);
 	}, []);
 
-	const validateZoom = useCallback((val: number) => val >= 0, []);
+	const enabledZoomValues = useMemo(
+		() => [layerTemp?.options?.enabledZoomMin ?? 0, layerTemp?.options?.enabledZoomMax ?? 0],
+		[layerTemp?.options?.enabledZoomMin, layerTemp?.options?.enabledZoomMax]
+	);
+
+	const handleEnabledZoomUpdate = useCallback(
+		(newValues: number[]) =>
+			setOptions({
+				...(layerTemp?.options ?? {}),
+				['enabledZoomMin']: newValues[0],
+				['enabledZoomMax']: newValues[1],
+			}),
+		[layerTemp?.options, setOptions]
+	);
 
 	if (!layerTemp?.options) {
 		return undefined;
@@ -110,19 +125,10 @@ const LayerControlRasterMBTiles: FC<{}> = () => {
 
 			<NumericRowControlMulti
 				label={t('enabled')}
-				optLabels={['min', 'max']}
+				optLabels={zoomOptLabels}
 				saveOnType={false}
-				values={[
-					layerTemp?.options?.enabledZoomMin ?? 0,
-					layerTemp?.options?.enabledZoomMax ?? 0,
-				]}
-				onUpdate={(newValues) =>
-					setOptions({
-						...(layerTemp?.options ?? {}),
-						['enabledZoomMin']: newValues[0],
-						['enabledZoomMax']: newValues[1],
-					})
-				}
+				values={enabledZoomValues}
+				onUpdate={handleEnabledZoomUpdate}
 				validate={validateZoom}
 				Info={t('baseMap.hint.enabled') + '\n\n' + t('baseMap.hint.zoomGeneralInfo')}
 			/>

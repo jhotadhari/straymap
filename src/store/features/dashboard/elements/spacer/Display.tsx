@@ -24,19 +24,16 @@ const Display: FC<DashboardElementProps<Options>> = ({ item, style = {}, onPress
 
 	const { fontSize, minWidth } = useItemStyle(item);
 
+	const viewStyle = useMemo(() => [{ minWidth }, style], [minWidth, style]);
+	const textStyle = useMemo(() => ({ fontSize }), [fontSize]);
+
 	return (
 		<TouchableHighlight
 			underlayColor={theme.colors.primaryContainer}
 			onPress={handlePress}
 		>
-			<View style={[{ minWidth }, style]}>
-				<Text
-					style={{
-						fontSize,
-					}}
-				>
-					{''}
-				</Text>
+			<View style={viewStyle}>
+				<Text style={textStyle}>{''}</Text>
 			</View>
 		</TouchableHighlight>
 	);

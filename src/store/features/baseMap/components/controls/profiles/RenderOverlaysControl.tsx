@@ -22,6 +22,8 @@ import { useAppDispatch, useAppSelector } from '../../../../../hooks';
 import { setMapsforgeProfileTemp } from '../../../slice';
 import { selectMapsforgeProfileTemp, selectRenderStylesCache } from '../../../selectors';
 
+const labelExtractor = (a: OptionBase) => a.label;
+
 const Option: FC<{
 	opt: OptionBase;
 	setOverlays: (newRenderOverlays: string[]) => void;
@@ -30,28 +32,30 @@ const Option: FC<{
 	const profileTemp = useAppSelector(selectMapsforgeProfileTemp);
 	const isSelected = profileTemp?.renderOverlays?.includes(opt.key);
 
+	const handlePress = useCallback(() => {
+		if (!profileTemp) {
+			return;
+		}
+
+		if (isSelected) {
+			const newSelectedOpts = [...profileTemp.renderOverlays];
+			const index = newSelectedOpts.findIndex((optKey) => optKey === opt.key);
+			if (index !== -1) {
+				newSelectedOpts.splice(index, 1);
+			}
+			setOverlays(newSelectedOpts);
+		} else {
+			setOverlays([...profileTemp.renderOverlays, opt.key]);
+		}
+	}, [profileTemp, isSelected, opt.key, setOverlays]);
+
 	return (
 		<RadioListItem
 			key={opt.key}
 			opt={opt}
-			onPress={() => {
-				if (!profileTemp) {
-					return;
-				}
-
-				if (isSelected) {
-					const newSelectedOpts = [...profileTemp.renderOverlays];
-					const index = newSelectedOpts.findIndex((optKey) => optKey === opt.key);
-					if (index !== -1) {
-						newSelectedOpts.splice(index, 1);
-					}
-					setOverlays(newSelectedOpts);
-				} else {
-					setOverlays([...profileTemp.renderOverlays, opt.key]);
-				}
-			}}
+			onPress={handlePress}
 			labelStyle={theme.fonts.bodyMedium}
-			labelExtractor={(a) => a.label}
+			labelExtractor={labelExtractor}
 			status={isSelected ? 'checked' : 'unchecked'}
 		/>
 	);

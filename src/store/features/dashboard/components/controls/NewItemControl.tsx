@@ -28,16 +28,20 @@ import { OptionBase } from '../../../../../types';
 import { selectElementsSettings } from '../../selectors';
 import { ControlContext } from '../../ControlContext';
 
+const labelExtractor = (a: OptionBase) => a.label;
+
 const SelectType: FC<{
 	option: OptionBase;
 	onPress: (elementType: string) => void;
 }> = ({ option, onPress }) => {
+	const handlePress = useCallback(() => onPress(option.key), [onPress, option.key]);
+
 	return (
 		<View style={styles.optionRow}>
 			<RadioListItem
 				opt={option}
-				onPress={() => onPress(option.key)}
-				labelExtractor={(a) => a.label}
+				onPress={handlePress}
+				labelExtractor={labelExtractor}
 				// descExtractor={(a) => a.label}
 			/>
 		</View>
@@ -85,16 +89,18 @@ const Modal: FC<{
 				);
 			dispatch(setEditItemKey(newItem.key));
 		},
-		[position]
+		[position, dispatch, setModalVisible]
 	);
+
+	const handleDismiss = useCallback(() => {
+		setModalVisible(false);
+		// setEditElemlent(null);
+	}, [setModalVisible]);
 
 	return (
 		<ModalWrapper
 			visible={modalVisible}
-			onDismiss={() => {
-				setModalVisible(false);
-				// setEditElemlent(null);
-			}}
+			onDismiss={handleDismiss}
 			header={t('dashboard.dashboardItemNew')}
 		>
 			{options.map((option) => (
@@ -108,10 +114,20 @@ const Modal: FC<{
 	);
 };
 
+const renderNewItemIcon = ({ color }: { color: string }) => (
+	<MaterialIcons
+		name="dashboard-customize"
+		size={25}
+		color={color}
+	/>
+);
+
 const NewItemControl: FC<{}> = () => {
 	const { t } = useTranslation();
 
 	const [modalVisible, setModalVisible] = useState(false);
+
+	const handleOpenModal = useCallback(() => setModalVisible(true), [setModalVisible]);
 
 	return (
 		<View>
@@ -123,15 +139,9 @@ const NewItemControl: FC<{}> = () => {
 			)}
 
 			<ButtonHighlight
-				icon={({ color }) => (
-					<MaterialIcons
-						name="dashboard-customize"
-						size={25}
-						color={color}
-					/>
-				)}
+				icon={renderNewItemIcon}
 				mode="outlined"
-				onPress={() => setModalVisible(true)}
+				onPress={handleOpenModal}
 			>
 				{t('dashboard.dashboardItemNew')}
 			</ButtonHighlight>

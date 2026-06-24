@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { useContext } from 'react';
+import React, { useContext, useMemo } from 'react';
 import { Icon, Text } from 'react-native-paper';
 import { get } from 'lodash-es';
 import { View } from 'react-native';
@@ -21,20 +21,24 @@ const Display = ({ dashboardElement, style = {} }: DashboardElementProps) => {
 
 	const { isRouting, stats } = useContext(RoutingContext);
 
+	const viewStyle = useMemo(
+		() => ({
+			minWidth: get(dashboardElement, ['style', 'minWidth'], undefined),
+			flexDirection: 'row' as const,
+			alignItems: 'center' as const,
+			...style,
+		}),
+		[dashboardElement, style]
+	);
+	const textStyle = useMemo(() => ({ marginLeft: 5, fontSize }), [fontSize]);
+
 	return isRouting ? (
-		<View
-			style={{
-				minWidth: get(dashboardElement, ['style', 'minWidth'], undefined),
-				flexDirection: 'row',
-				alignItems: 'center',
-				...style,
-			}}
-		>
+		<View style={viewStyle}>
 			<Icon
 				source="arrow-up"
 				size={17}
 			/>
-			<Text style={{ marginLeft: 5, fontSize }}>{Math.round(stats?.up || 0) + ' m'}</Text>
+			<Text style={textStyle}>{Math.round(stats?.up || 0) + ' m'}</Text>
 		</View>
 	) : null;
 };

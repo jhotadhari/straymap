@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { get } from 'lodash-es';
 import { View, TextInputProps, StyleSheet } from 'react-native';
 import { useTranslation } from 'react-i18next';
@@ -18,6 +18,10 @@ import { TextInputNativeMultilineControlled } from '../../../../../../components
 import { useAppSelector } from '../../../../../hooks';
 import { selectAppDirs } from '../../../../dirs/selectors';
 import { sharedStyles } from '../../../../../../sharedStyles';
+
+const renderTextInput = (props: TextInputProps) => <TextInputNativeMultilineControlled {...props} />;
+
+const validateCacheSize = (val: number) => val >= 0;
 
 const CacheControl = ({
 	options,
@@ -97,6 +101,38 @@ const CacheControl = ({
 		[selectedOpt, appDirs]
 	);
 
+	const handleCacheSizeUpdate = useCallback(
+		(newValue: number) => {
+			setOptions({
+				...options,
+				cacheSize: newValue,
+			});
+		},
+		[options, setOptions]
+	);
+
+	const handleCacheDirBaseChange = useCallback(
+		(newValue: string) => {
+			setOptions({
+				...options,
+				cacheDirBase: newValue,
+			});
+		},
+		[options, setOptions]
+	);
+
+	const textInputTheme = useMemo(
+		() => ({
+			fonts: {
+				bodyLarge: {
+					...theme.fonts.bodySmall,
+					fontFamily: 'sans-serif',
+				},
+			},
+		}),
+		[theme]
+	);
+
 	if (!appDirs) {
 		return null;
 	}
@@ -105,14 +141,9 @@ const CacheControl = ({
 		<View style={styles.gap}>
 			<NumericRowControl
 				label={t('baseMap.cacheSize')}
-				onUpdate={(newValue) => {
-					setOptions({
-						...options,
-						cacheSize: newValue,
-					});
-				}}
+				onUpdate={handleCacheSizeUpdate}
 				value={options?.cacheSize ?? 0}
-				validate={(val) => val >= 0}
+				validate={validateCacheSize}
 				Info={t('baseMap.hint.cache') + '\n\n' + t('baseMap.hint.cacheSize')}
 			/>
 
@@ -125,12 +156,7 @@ const CacheControl = ({
 						options={opts}
 						listItemStyle={sharedStyles.listItem}
 						value={get(selectedOpt, 'key')}
-						setValue={(newValue) =>
-							setOptions({
-								...options,
-								cacheDirBase: newValue,
-							})
-						}
+						setValue={handleCacheDirBaseChange}
 						anchorLabel={get(selectedOpt, 'label', '')}
 					/>
 				</InfoRowControl>
@@ -138,18 +164,9 @@ const CacheControl = ({
 				<TextInput
 					disabled={true}
 					multiline={true}
-					render={(props: TextInputProps) => (
-						<TextInputNativeMultilineControlled {...props} />
-					)}
+					render={renderTextInput}
 					dense={true}
-					theme={{
-						fonts: {
-							bodyLarge: {
-								...theme.fonts.bodySmall,
-								fontFamily: 'sans-serif',
-							},
-						},
-					}}
+					theme={textInputTheme}
 					style={styles.textInput}
 					value={cachePath}
 				/>

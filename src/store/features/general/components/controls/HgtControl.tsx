@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { Fragment, useState } from 'react';
+import React, { Fragment, useCallback, useState } from 'react';
 import { View } from 'react-native';
 import { Icon, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -30,6 +30,9 @@ import {
 } from '../../../baseMap/slice';
 import { selectAppDirs } from '../../../dirs/selectors';
 
+const validateHgtReadFileRate = (val: number) => val >= 0 && val <= 20000;
+const validateHgtFileInfoPurgeThreshold = (val: number) => val >= 0 && val <= 200;
+
 const HgtControl = () => {
 	const { t } = useTranslation();
 
@@ -45,6 +48,31 @@ const HgtControl = () => {
 	const hgtReadFileRate = useAppSelector(selectHgtReadFileRate);
 	const hgtInterpolation = useAppSelector(selectHgtInterpolation);
 	const hgtFileInfoPurgeThreshold = useAppSelector(selectHgtFileInfoPurgeThreshold);
+
+	const handleSetHgtDirPath = useCallback(
+		(options: object) => {
+			dispatch(setHgtDirPath(get(options, 'hgtDirPath') || undefined));
+		},
+		[dispatch]
+	);
+
+	const handleToggleHgtInterpolation = useCallback(() => {
+		dispatch(setHgtInterpolation(!hgtInterpolation));
+	}, [dispatch, hgtInterpolation]);
+
+	const handleToggleShowAdvanced = useCallback(() => {
+		setShowAdvanced((prev) => !prev);
+	}, []);
+
+	const handleHgtReadFileRateUpdate = useCallback(
+		(newValue: number) => dispatch(setHgtReadFileRate(newValue)),
+		[dispatch]
+	);
+
+	const handleHgtFileInfoPurgeThresholdUpdate = useCallback(
+		(newValue: number) => dispatch(setHgtFileInfoPurgeThreshold(newValue)),
+		[dispatch]
+	);
 
 	return (
 		<ListItemModalControl
@@ -63,9 +91,7 @@ const HgtControl = () => {
 		>
 			<HgtSourceRowControl
 				options={{ hgtDirPath }}
-				setOptions={(options) => {
-					dispatch(setHgtDirPath(get(options, 'hgtDirPath') || undefined));
-				}}
+				setOptions={handleSetHgtDirPath}
 				optKey={'hgtDirPath'}
 				dirs={get(appDirs, 'dem', [])}
 				onlyThreeSeconds={true}
@@ -76,7 +102,7 @@ const HgtControl = () => {
 					label: t('general.hgtInterpolation'),
 					key: 'hgtInterpolation',
 				}}
-				onPress={() => dispatch(setHgtInterpolation(!hgtInterpolation))}
+				onPress={handleToggleHgtInterpolation}
 				labelStyle={theme.fonts.bodyMedium}
 				labelExtractor={(a) => a.label}
 				status={hgtInterpolation ? 'checked' : 'unchecked'}
@@ -86,23 +112,23 @@ const HgtControl = () => {
 
 			<InfoRowControl
 				label={showAdvanced ? t('advancedSettingsHide') : t('advancedSettingsShow')}
-				onLabelPress={() => setShowAdvanced(!showAdvanced)}
+				onLabelPress={handleToggleShowAdvanced}
 			/>
 			{showAdvanced && (
 				<Fragment>
 					<NumericRowControl
 						label={t('general.hgtReadFileRate')}
 						value={hgtReadFileRate}
-						onUpdate={(newValue) => dispatch(setHgtReadFileRate(newValue))}
-						validate={(val) => val >= 0 && val <= 20000}
+						onUpdate={handleHgtReadFileRateUpdate}
+						validate={validateHgtReadFileRate}
 						Info={t('general.hint.hgtReadFileRate')}
 					/>
 
 					<NumericRowControl
 						label={t('general.hgtFileInfoPurgeThreshold')}
 						value={hgtFileInfoPurgeThreshold}
-						onUpdate={(newValue) => dispatch(setHgtFileInfoPurgeThreshold(newValue))}
-						validate={(val) => val >= 0 && val <= 200}
+						onUpdate={handleHgtFileInfoPurgeThresholdUpdate}
+						validate={validateHgtFileInfoPurgeThreshold}
 						Info={t('general.hint.hgtFileInfoPurgeThreshold')}
 					/>
 				</Fragment>

@@ -10,7 +10,7 @@ import { MapContainerModule } from 'react-native-mapsforge-vtm';
 /**
  * Internal dependencies
  */
-import { DrawerProps } from '../types';
+import { DrawerItem, DrawerProps } from '../types';
 import { selectActiveKey, selectControlHandleSide, selectItemKeys } from '../selectors';
 import { useAppDispatch, useAppSelector } from '../../../hooks';
 import DrawerHandle from './DrawerHandle';
@@ -18,6 +18,10 @@ import { setItemKeys } from '../slice';
 import DrawerContext from '../DrawerContext';
 import { handleSize } from '../constants';
 import { AppContext } from '../../../../Context';
+
+const settingsOverwriteDrawerItem: DrawerItem = {
+	iconSource: 'cog',
+};
 
 const DrawerHandles: FC<
 	Pick<DrawerProps, 'setModalVisible' | 'side' | 'gesture' | 'expand' | 'getIsFullyCollapsed'>
@@ -35,7 +39,7 @@ const DrawerHandles: FC<
 
 	const [panEnabled, setPanEnabled] = useState<boolean>(true);
 
-	const draggableItems = [...itemKeys].map((key) => ({ key }));
+	const draggableItems = useMemo(() => [...itemKeys].map((key) => ({ key })), [itemKeys]);
 
 	const RenderItem = useCallback(
 		({ key }: { key?: string }) => {
@@ -129,6 +133,16 @@ const DrawerHandles: FC<
 		[draggableItems.length, getContainerHeight]
 	);
 
+	const handleSingleItemPress = useCallback(
+		() => handleDraggableItemPress(draggableItems[0]),
+		[handleDraggableItemPress, draggableItems]
+	);
+
+	const toggleModalVisible = useCallback(
+		() => setModalVisible((visible) => !visible),
+		[setModalVisible]
+	);
+
 	if (controlHandleSide !== side && draggableItems.length === 0) {
 		return undefined;
 	}
@@ -157,7 +171,7 @@ const DrawerHandles: FC<
 								itemKey={draggableItems[0].key}
 								gesture={gesture}
 								panEnabled={panEnabled}
-								onPress={() => handleDraggableItemPress(draggableItems[0])}
+								onPress={handleSingleItemPress}
 							/>
 						)}
 					</View>
@@ -167,10 +181,8 @@ const DrawerHandles: FC<
 							style={styleControlHandle}
 							gesture={gesture}
 							panEnabled={panEnabled}
-							onPress={() => setModalVisible((visible) => !visible)}
-							overwriteDrawerItem={{
-								iconSource: 'cog',
-							}}
+							onPress={toggleModalVisible}
+							overwriteDrawerItem={settingsOverwriteDrawerItem}
 						/>
 					)}
 				</View>

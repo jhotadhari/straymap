@@ -18,6 +18,35 @@ import useShowStatsCbModal from '../../hooks/useShowStatsCbModal';
 import { selectSelected } from '../../selectors';
 import { sprintf } from 'sprintf-js';
 
+const styles = StyleSheet.create({
+	item: {
+		top: -(handleSize - handleIconSize) / 6,
+	},
+	flexRow: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		justifyContent: 'space-between',
+		height: handleSize,
+	},
+	buttonRowReverse: {
+		flexDirection: 'row-reverse',
+	},
+	linesInfoRow: {
+		marginHorizontal: 8,
+		flexDirection: 'row',
+		gap: 16,
+	},
+});
+
+const styleItem = [
+	itemStyles.item,
+	styles.item,
+];
+const styleButtonRowSecond = [
+	itemStyles.buttonRow,
+	styles.flexRow,
+];
+
 const DrawerTopBar: FC = () => {
 	const { t } = useTranslation();
 
@@ -57,12 +86,7 @@ const DrawerTopBar: FC = () => {
 		<View>
 			{statsModalNode}
 
-			<View
-				style={[
-					itemStyles.item,
-					styles.item,
-				]}
-			>
+			<View style={styleItem}>
 				<View style={styleButtonRowFirst}>
 					<ButtonHighlight
 						mode="outlined"
@@ -84,21 +108,8 @@ const DrawerTopBar: FC = () => {
 				</View>
 			</View>
 
-			<View
-				style={[
-					itemStyles.item,
-					styles.item,
-				]}
-			>
-				<View
-					style={[
-						itemStyles.buttonRow,
-						styles.flexRow,
-						// 'left' === side && {
-						// 	flexDirection: 'row-reverse',
-						// },
-					]}
-				>
+			<View style={styleItem}>
+				<View style={styleButtonRowSecond}>
 					<View style={styles.linesInfoRow}>
 						{lineIds.length > 0 && (
 							<Fragment>
@@ -120,24 +131,5 @@ const DrawerTopBar: FC = () => {
 		</View>
 	);
 };
-const styles = StyleSheet.create({
-	item: {
-		top: -(handleSize - handleIconSize) / 6,
-	},
-	flexRow: {
-		flexDirection: 'row',
-		alignItems: 'center',
-		justifyContent: 'space-between',
-		height: handleSize,
-	},
-	buttonRowReverse: {
-		flexDirection: 'row-reverse',
-	},
-	linesInfoRow: {
-		marginHorizontal: 8,
-		flexDirection: 'row',
-		gap: 16,
-	},
-});
 
 export default DrawerTopBar;

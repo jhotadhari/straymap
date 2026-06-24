@@ -27,6 +27,8 @@ const ControlIcon: (props: { color: string; style: Style }) => ReactNode = (prop
 	</View>
 );
 
+const validateMapEventRate = (val: number) => val > 0 && val <= 20000;
+
 const GeneralControl: FC<{}> = () => {
 	const { t } = useTranslation();
 	const theme = useTheme();
@@ -45,6 +47,14 @@ const GeneralControl: FC<{}> = () => {
 			})
 		);
 	}, [expanded, uiStateKey]);
+
+	const handleUpdateMapEventRate = useCallback(
+		(newValue: number) => {
+			dispatch(setMapEventRate(newValue));
+		},
+		[dispatch]
+	);
+
 	return (
 		<List.Accordion
 			title={'general advanced ... ???'}
@@ -57,10 +67,8 @@ const GeneralControl: FC<{}> = () => {
 				<NumericRowControl
 					label={t('dashboard.updateRate')}
 					value={mapEventRate ?? 40}
-					onUpdate={(newValue) => {
-						dispatch(setMapEventRate(newValue));
-					}}
-					validate={(val) => val > 0 && val <= 20000}
+					onUpdate={handleUpdateMapEventRate}
+					validate={validateMapEventRate}
 					Info={t('dashboard.hint.updateRate')}
 				/>
 			</View>

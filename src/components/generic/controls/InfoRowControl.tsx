@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { ReactNode, useMemo, useState } from 'react';
+import { ReactNode, useCallback, useMemo, useState } from 'react';
 import { View, TouchableHighlight, ViewStyle, TextStyle, StyleSheet } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
 
@@ -52,6 +52,11 @@ const InfoRowControl = ({
 		[style, theme]
 	);
 
+	const handleLabelPress = useCallback(() => {
+		onLabelPress && onLabelPress();
+		Info && setModalVisible(true);
+	}, [onLabelPress, Info]);
+
 	return (
 		<InfoControlWrapper
 			label={label}
@@ -66,10 +71,7 @@ const InfoRowControl = ({
 				{(Info || onLabelPress) && (
 					<TouchableHighlight
 						underlayColor={theme.colors.elevation.level3}
-						onPress={() => {
-							onLabelPress && onLabelPress();
-							Info && setModalVisible(true);
-						}}
+						onPress={handleLabelPress}
 						style={dynamicStyles.button}
 					>
 						<Text style={[dynamicStyles.label, styles.underline]}>{label}</Text>

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { ReactNode } from 'react';
+import { ReactNode, useCallback } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -37,13 +37,16 @@ const InfoControlWrapper = ({
 }) => {
 	const { t } = useTranslation();
 	const theme = useTheme();
+
+	const handleClose = useCallback(() => setModalVisible(false), [setModalVisible]);
+
 	return (
 		<View>
 			{modalVisible && (
 				<ModalWrapper
 					visible={modalVisible}
 					backgroundBlur={!!backgroundBlur}
-					onDismiss={() => setModalVisible(false)}
+					onDismiss={handleClose}
 					header={sprintf(t(labelPattern, { count: headerPlural ? 0 : 1 }), label || '')}
 				>
 					<View style={styles.infoWrapper}>
@@ -53,7 +56,7 @@ const InfoControlWrapper = ({
 
 					<ButtonHighlight
 						style={styles.okButton}
-						onPress={() => setModalVisible(false)}
+						onPress={handleClose}
 						mode="contained"
 						buttonColor={get(theme.colors, 'successContainer')}
 						textColor={get(theme.colors, 'onSuccessContainer')}

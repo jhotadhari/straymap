@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Linking, StyleSheet, View } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -89,6 +89,34 @@ const HgtSourceRowControl = ({
 
 	const styleHintLarge = useMemo(() => [theme.fonts.bodyLarge, styles.hintLarge], [theme]);
 
+	const handleOptionPress = useCallback(
+		(opt: OptionBase) => {
+			if (opt.key === selectedOpt) {
+				setSelectedOpt(null);
+				setCustomUri(undefined);
+			} else {
+				if (opt.key === 'custom') {
+					openDocumentTree(true)
+						.then((dir) => {
+							setCustomUri(dir.uri as `content://${string}`);
+							setSelectedOpt('custom');
+							setModalVisible(false);
+						})
+						.catch((err: any) => console.log(err));
+				} else {
+					setCustomUri(undefined);
+					setSelectedOpt(opt.key as HgtDirPath);
+					setModalVisible(false);
+				}
+			}
+		},
+		[selectedOpt]
+	);
+
+	const handleCloseModal = useCallback(() => setModalVisible(false), []);
+
+	const handleOpenModal = useCallback(() => setModalVisible(true), []);
+
 	return (
 		<InfoRowControl
 			label={t('map.demDir')}
@@ -125,7 +153,7 @@ const HgtSourceRowControl = ({
 				<ModalWrapper
 					visible={modalVisible}
 					backgroundBlur={false}
-					onDismiss={() => setModalVisible(false)}
+					onDismiss={handleCloseModal}
 					header={t('map.selectDemDir')}
 				>
 					{[...opts].map((opt) => {
@@ -137,28 +165,7 @@ const HgtSourceRowControl = ({
 								<RadioListItem
 									key={opt.key}
 									opt={opt}
-									onPress={() => {
-										if (opt.key === selectedOpt) {
-											setSelectedOpt(null);
-											setCustomUri(undefined);
-										} else {
-											if (opt.key === 'custom') {
-												openDocumentTree(true)
-													.then((dir) => {
-														setCustomUri(
-															dir.uri as `content://${string}`
-														);
-														setSelectedOpt('custom');
-														setModalVisible(false);
-													})
-													.catch((err: any) => console.log(err));
-											} else {
-												setCustomUri(undefined);
-												setSelectedOpt(opt.key as HgtDirPath);
-												setModalVisible(false);
-											}
-										}
-									}}
+									onPress={() => handleOptionPress(opt)}
 									labelStyle={theme.fonts.bodyMedium}
 									labelExtractor={(a) => a.label}
 									descExtractor={
@@ -180,9 +187,7 @@ const HgtSourceRowControl = ({
 
 					<ButtonHighlight
 						style={styles.okButton}
-						onPress={() => {
-							setModalVisible(false);
-						}}
+						onPress={handleCloseModal}
 						mode="contained"
 						buttonColor={get(theme.colors, 'successContainer')}
 						textColor={get(theme.colors, 'onSuccessContainer')}
@@ -193,7 +198,7 @@ const HgtSourceRowControl = ({
 			)}
 
 			<View style={sharedStyles.flexRowCenter}>
-				<ButtonHighlight onPress={() => setModalVisible(true)}>
+				<ButtonHighlight onPress={handleOpenModal}>
 					<Text>
 						{t(
 							selectedOpt

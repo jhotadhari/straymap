@@ -2,27 +2,48 @@
  * External dependencies
  */
 import { useTheme, IconButton, IconButtonProps } from 'react-native-paper';
-import { useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { GestureResponderEvent } from 'react-native';
 
 const IconButtonHighlight = (props: IconButtonProps) => {
 	const [pressing, setPressing] = useState(false);
 	const theme = useTheme();
+	const { onPressIn, onPressOut, style, ...restProps } = props;
+
+	const handlePressIn = useCallback(
+		(e: GestureResponderEvent) => {
+			setPressing(true);
+			onPressIn ? onPressIn(e) : null;
+		},
+		[onPressIn]
+	);
+
+	const handlePressOut = useCallback(
+		(e: GestureResponderEvent) => {
+			setPressing(false);
+			onPressOut ? onPressOut(e) : null;
+		},
+		[onPressOut]
+	);
+
+	const styleMerged = useMemo(
+		() => ({
+			...(style && 'object' === typeof style && style),
+			...(pressing && { backgroundColor: theme.colors.elevation.level3 }),
+		}),
+		[
+			style,
+			pressing,
+			theme,
+		]
+	);
+
 	return (
 		<IconButton
-			{...props}
-			onPressIn={(e: GestureResponderEvent) => {
-				setPressing(true);
-				props.onPressIn ? props.onPressIn(e) : null;
-			}}
-			onPressOut={(e: GestureResponderEvent) => {
-				setPressing(false);
-				props.onPressOut ? props.onPressOut(e) : null;
-			}}
-			style={{
-				...(props.style && 'object' === typeof props.style && props.style),
-				...(pressing && { backgroundColor: theme.colors.elevation.level3 }),
-			}}
+			{...restProps}
+			onPressIn={handlePressIn}
+			onPressOut={handlePressOut}
+			style={styleMerged}
 		/>
 	);
 };

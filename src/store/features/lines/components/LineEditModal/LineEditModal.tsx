@@ -83,6 +83,23 @@ const LineEditModal: FC<{
 		lineTemp,
 	]);
 
+	const contextValue = useMemo(
+		() => ({
+			selectLine,
+			line,
+			route,
+			onDismiss,
+			onDeleteSuccess,
+		}),
+		[
+			selectLine,
+			line,
+			route,
+			onDismiss,
+			onDeleteSuccess,
+		]
+	);
+
 	return (
 		<ModalWrapper
 			visible={!!lineTemp}
@@ -90,15 +107,7 @@ const LineEditModal: FC<{
 			header={'line???'}
 			innerStyle={sharedStyles.modalInner}
 		>
-			<LineEditModalContext.Provider
-				value={{
-					selectLine,
-					line,
-					route,
-					onDismiss,
-					onDeleteSuccess,
-				}}
-			>
+			<LineEditModalContext.Provider value={contextValue}>
 				<RowName />
 
 				<RowRouting />

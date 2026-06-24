@@ -83,6 +83,24 @@ const ProfileRowControl = ({
 
 	const styleAction = useMemo(() => ({ padding: 10, borderRadius: theme.roundness }), [theme]);
 
+	const menuItemStyle = useCallback(
+		(idx: number) =>
+			'default' === selectedOpt && idx === 1
+				? {
+						borderLeftColor: theme.colors.primary,
+						borderLeftWidth: 5,
+					}
+				: {},
+		[selectedOpt, theme]
+	);
+
+	const handleEditProfilePress = useCallback(() => {
+		const newProfileTemp = profiles.find((prof) => prof.key === selectedOpt);
+		if (newProfileTemp) {
+			dispatch(setMapsforgeProfileTemp(newProfileTemp));
+		}
+	}, [profiles, selectedOpt, dispatch]);
+
 	return (
 		<InfoRowControl
 			label={t('baseMap.mapsforge.profile', { count: 1 })}
@@ -93,9 +111,7 @@ const ProfileRowControl = ({
 					listItemStyle={globalSharedStyles.listItem}
 					options={opts}
 					value={selectedOpt}
-					setValue={(newValue) => {
-						setSelectedOpt(newValue);
-					}}
+					setValue={setSelectedOpt}
 					anchorLabel={t(
 						get(
 							opts.find((opt) => opt.key === selectedOpt),
@@ -103,27 +119,13 @@ const ProfileRowControl = ({
 							''
 						)
 					)}
-					menuItemStyle={(idx) => {
-						return 'default' === selectedOpt && idx === 1
-							? {
-									borderLeftColor: theme.colors.primary,
-									borderLeftWidth: 5,
-								}
-							: {};
-					}}
+					menuItemStyle={menuItemStyle}
 				/>
 
 				{'default' !== selectedOpt && (
 					<TouchableHighlight
 						underlayColor={theme.colors.elevation.level3}
-						onPress={() => {
-							const newProfileTemp = profiles.find(
-								(prof) => prof.key === selectedOpt
-							);
-							if (newProfileTemp) {
-								dispatch(setMapsforgeProfileTemp(newProfileTemp));
-							}
-						}}
+						onPress={handleEditProfilePress}
 						style={styleAction}
 					>
 						<Icon
@@ -162,6 +164,8 @@ const MapFileControlInfo: FC<{}> = ({}) => {
 };
 
 const extensions = ['map'];
+const validateZoom = (val: number) => val >= 0;
+const enabledZoomOptLabels = ['min', 'max'];
 
 const LayerControlMapsforge: FC<{}> = ({}) => {
 	const dispatch = useAppDispatch();
@@ -206,7 +210,20 @@ const LayerControlMapsforge: FC<{}> = ({}) => {
 			);
 	}, []);
 
-	const validateZoom = useCallback((val: number) => val >= 0, []);
+	const enabledZoomValues = useMemo(
+		() => [layerTemp?.options?.enabledZoomMin ?? 0, layerTemp?.options?.enabledZoomMax ?? 0],
+		[layerTemp?.options?.enabledZoomMin, layerTemp?.options?.enabledZoomMax]
+	);
+
+	const handleEnabledZoomUpdate = useCallback(
+		(newValues: number[]) =>
+			setOptions({
+				...(layerTemp?.options ?? {}),
+				['enabledZoomMin']: newValues[0],
+				['enabledZoomMax']: newValues[1],
+			}),
+		[layerTemp?.options, setOptions]
+	);
 
 	if (!layerTemp?.options) {
 		return undefined;
@@ -235,19 +252,10 @@ const LayerControlMapsforge: FC<{}> = ({}) => {
 
 			<NumericRowControlMulti
 				label={t('enabled')}
-				optLabels={['min', 'max']}
+				optLabels={enabledZoomOptLabels}
 				saveOnType={false}
-				values={[
-					layerTemp?.options?.enabledZoomMin ?? 0,
-					layerTemp?.options?.enabledZoomMax ?? 0,
-				]}
-				onUpdate={(newValues) =>
-					setOptions({
-						...(layerTemp?.options ?? {}),
-						['enabledZoomMin']: newValues[0],
-						['enabledZoomMax']: newValues[1],
-					})
-				}
+				values={enabledZoomValues}
+				onUpdate={handleEnabledZoomUpdate}
 				validate={validateZoom}
 				Info={t('baseMap.hint.enabled') + '\n\n' + t('baseMap.hint.zoomGeneralInfo')}
 			/>

@@ -29,6 +29,13 @@ import { setLayerTemp } from '../../../slice';
 import { selectLayerTemp } from '../../../selectors';
 import { sharedStyles as globalSharedStyles } from '../../../../../../sharedStyles';
 
+const validateScale = (val: number) => val > 0;
+const validateHeightAngle = (val: number) => val >= 0 && val <= 90;
+const validateMaxSlope = (val: number) => val > 0 && val < 100;
+const validateMinSlope = (val: number) => val >= 0 && val < 100;
+const validateUnitInterval = (val: number) => val >= 0 && val <= 1;
+const validateThreadsCount = (val: number) => val > 0 || val === -1;
+
 const algorithmLinks = {
 	CLASY_ADAPTIVE:
 		'https://github.com/mapsforge/mapsforge/blob/master/mapsforge-map/src/main/java/org/mapsforge/map/layer/hills/AdaptiveClasyHillShading.java',
@@ -131,6 +138,59 @@ const HillshadingAlgorithmControl: FC<{}> = () => {
 		[theme]
 	);
 
+	const handleOpenModal = useCallback(() => setModalVisible(true), []);
+
+	const handleCloseModal = useCallback(() => setModalVisible(false), []);
+
+	const toggleShowAdvanced = useCallback(() => setShowAdvanced((showAdvanced) => !showAdvanced), []);
+
+	const handleLinearityUpdate = useCallback(
+		(newValue: number) => setAlgOpts((algOpts) => ({ ...algOpts, linearity: newValue })),
+		[]
+	);
+
+	const handleScaleUpdate = useCallback(
+		(newValue: number) => setAlgOpts((algOpts) => ({ ...algOpts, scale: newValue })),
+		[]
+	);
+
+	const handleHeightAngleUpdate = useCallback(
+		(newValue: number) => setAlgOpts((algOpts) => ({ ...algOpts, heightAngle: newValue })),
+		[]
+	);
+
+	const handleMaxSlopeUpdate = useCallback(
+		(newValue: number) => setAlgOpts((algOpts) => ({ ...algOpts, maxSlope: newValue })),
+		[]
+	);
+
+	const handleMinSlopeUpdate = useCallback(
+		(newValue: number) => setAlgOpts((algOpts) => ({ ...algOpts, minSlope: newValue })),
+		[]
+	);
+
+	const handleAsymmetryFactorUpdate = useCallback(
+		(newValue: number) => setAlgOpts((algOpts) => ({ ...algOpts, asymmetryFactor: newValue })),
+		[]
+	);
+
+	const handleQualityScaleUpdate = useCallback(
+		(newValue: number) => setAlgOpts((algOpts) => ({ ...algOpts, qualityScale: newValue })),
+		[]
+	);
+
+	const handleReadingThreadsCountUpdate = useCallback(
+		(newValue: number) =>
+			setAlgOpts((algOpts) => ({ ...algOpts, readingThreadsCount: newValue })),
+		[]
+	);
+
+	const handleComputingThreadsCountUpdate = useCallback(
+		(newValue: number) =>
+			setAlgOpts((algOpts) => ({ ...algOpts, computingThreadsCount: newValue })),
+		[]
+	);
+
 	return (
 		<InfoRowControl
 			label={t('baseMap.algorithm')}
@@ -140,7 +200,7 @@ const HillshadingAlgorithmControl: FC<{}> = () => {
 				<ModalWrapper
 					visible={modalVisible}
 					backgroundBlur={false}
-					onDismiss={() => setModalVisible(false)}
+					onDismiss={handleCloseModal}
 					header={t('baseMap.shadingAlgorithm')}
 				>
 					<View style={styles.content}>
@@ -179,9 +239,7 @@ const HillshadingAlgorithmControl: FC<{}> = () => {
 							<NumericRowControl
 								label={t('baseMap.shadingOptions.linearity.label')}
 								value={algOpts?.linearity ?? 0}
-								onUpdate={(newValue) => {
-									setAlgOpts((algOpts) => ({ ...algOpts, linearity: newValue }));
-								}}
+								onUpdate={handleLinearityUpdate}
 								numType="float"
 								Info={t('baseMap.shadingOptions.linearity.hint')}
 							/>
@@ -191,10 +249,8 @@ const HillshadingAlgorithmControl: FC<{}> = () => {
 							<NumericRowControl
 								label={t('baseMap.shadingOptions.scale.label')}
 								value={algOpts?.scale ?? 0}
-								onUpdate={(newValue) => {
-									setAlgOpts((algOpts) => ({ ...algOpts, scale: newValue }));
-								}}
-								validate={(val) => val > 0}
+								onUpdate={handleScaleUpdate}
+								validate={validateScale}
 								numType="float"
 								Info={t('baseMap.shadingOptions.scale.hint')}
 							/>
@@ -204,13 +260,8 @@ const HillshadingAlgorithmControl: FC<{}> = () => {
 							<NumericRowControl
 								label={t('baseMap.shadingOptions.heightAngle.label')}
 								value={algOpts?.heightAngle ?? 0}
-								onUpdate={(newValue) => {
-									setAlgOpts((algOpts) => ({
-										...algOpts,
-										heightAngle: newValue,
-									}));
-								}}
-								validate={(val) => val >= 0 && val <= 90}
+								onUpdate={handleHeightAngleUpdate}
+								validate={validateHeightAngle}
 								Info={t('baseMap.shadingOptions.heightAngle.hint')}
 							/>
 						)}
@@ -219,10 +270,8 @@ const HillshadingAlgorithmControl: FC<{}> = () => {
 							<NumericRowControl
 								label={t('baseMap.shadingOptions.maxSlope.label')}
 								value={algOpts?.maxSlope ?? 0}
-								onUpdate={(newValue) => {
-									setAlgOpts((algOpts) => ({ ...algOpts, maxSlope: newValue }));
-								}}
-								validate={(val) => val > 0 && val < 100}
+								onUpdate={handleMaxSlopeUpdate}
+								validate={validateMaxSlope}
 								numType="float"
 								Info={t('baseMap.shadingOptions.maxSlope.hint')}
 							/>
@@ -232,10 +281,8 @@ const HillshadingAlgorithmControl: FC<{}> = () => {
 							<NumericRowControl
 								label={t('baseMap.shadingOptions.minSlope.label')}
 								value={algOpts?.minSlope ?? 0}
-								onUpdate={(newValue) => {
-									setAlgOpts((algOpts) => ({ ...algOpts, minSlope: newValue }));
-								}}
-								validate={(val) => val >= 0 && val < 100}
+								onUpdate={handleMinSlopeUpdate}
+								validate={validateMinSlope}
 								numType="float"
 								Info={t('baseMap.shadingOptions.minSlope.hint')}
 							/>
@@ -245,13 +292,8 @@ const HillshadingAlgorithmControl: FC<{}> = () => {
 							<NumericRowControl
 								label={t('baseMap.shadingOptions.asymmetryFactor.label')}
 								value={algOpts?.asymmetryFactor ?? 0}
-								onUpdate={(newValue) => {
-									setAlgOpts((algOpts) => ({
-										...algOpts,
-										asymmetryFactor: newValue,
-									}));
-								}}
-								validate={(val) => val >= 0 && val <= 1}
+								onUpdate={handleAsymmetryFactorUpdate}
+								validate={validateUnitInterval}
 								numType="float"
 								Info={t('baseMap.shadingOptions.asymmetryFactor.hint')}
 							/>
@@ -267,7 +309,7 @@ const HillshadingAlgorithmControl: FC<{}> = () => {
 											? t('advancedSettingsHide')
 											: t('advancedSettingsShow')
 									}
-									onLabelPress={() => setShowAdvanced(!showAdvanced)}
+									onLabelPress={toggleShowAdvanced}
 								/>
 
 								{showAdvanced && (
@@ -278,13 +320,8 @@ const HillshadingAlgorithmControl: FC<{}> = () => {
 													'baseMap.shadingOptions.qualityScale.label'
 												)}
 												value={algOpts?.qualityScale ?? 0}
-												onUpdate={(newValue) => {
-													setAlgOpts((algOpts) => ({
-														...algOpts,
-														qualityScale: newValue,
-													}));
-												}}
-												validate={(val) => val >= 0 && val <= 1}
+												onUpdate={handleQualityScaleUpdate}
+												validate={validateUnitInterval}
 												numType="float"
 												Info={t('baseMap.shadingOptions.qualityScale.hint')}
 											/>
@@ -298,13 +335,8 @@ const HillshadingAlgorithmControl: FC<{}> = () => {
 													'baseMap.shadingOptions.readingThreadsCount.label'
 												)}
 												value={algOpts?.readingThreadsCount ?? 0}
-												onUpdate={(newValue) => {
-													setAlgOpts((algOpts) => ({
-														...algOpts,
-														readingThreadsCount: newValue,
-													}));
-												}}
-												validate={(val) => val > 0 || val === -1}
+												onUpdate={handleReadingThreadsCountUpdate}
+												validate={validateThreadsCount}
 												Info={t(
 													'baseMap.shadingOptions.readingThreadsCount.hint'
 												)}
@@ -319,13 +351,8 @@ const HillshadingAlgorithmControl: FC<{}> = () => {
 													'baseMap.shadingOptions.computingThreadsCount.label'
 												)}
 												value={algOpts?.computingThreadsCount ?? 0}
-												onUpdate={(newValue) => {
-													setAlgOpts((algOpts) => ({
-														...algOpts,
-														computingThreadsCount: newValue,
-													}));
-												}}
-												validate={(val) => val > 0 || val === -1}
+												onUpdate={handleComputingThreadsCountUpdate}
+												validate={validateThreadsCount}
 												Info={t(
 													'baseMap.shadingOptions.computingThreadsCount.hint'
 												)}
@@ -338,9 +365,7 @@ const HillshadingAlgorithmControl: FC<{}> = () => {
 
 						<ButtonHighlight
 							style={styles.controls}
-							onPress={() => {
-								setModalVisible(false);
-							}}
+							onPress={handleCloseModal}
 							mode="contained"
 							buttonColor={get(theme.colors, 'successContainer')}
 							textColor={get(theme.colors, 'onSuccessContainer')}
@@ -354,7 +379,7 @@ const HillshadingAlgorithmControl: FC<{}> = () => {
 			<View style={globalSharedStyles.flexRowCenter}>
 				<ButtonHighlight
 					style={styles.triggerButton}
-					onPress={() => setModalVisible(true)}
+					onPress={handleOpenModal}
 				>
 					<Text>
 						{t(

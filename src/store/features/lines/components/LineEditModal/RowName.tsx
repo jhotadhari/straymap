@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { FC, useCallback, useContext } from 'react';
+import { FC, useCallback, useContext, useMemo } from 'react';
 import { TextInput, useTheme } from 'react-native-paper';
 
 /**
@@ -37,6 +37,18 @@ const RowName: FC = () => {
 		[lineTemp]
 	);
 
+	const inputTheme = useMemo(
+		() => ({
+			fonts: {
+				bodyLarge: {
+					...theme.fonts.bodySmall,
+					fontFamily: 'sans-serif',
+				},
+			},
+		}),
+		[theme]
+	);
+
 	return (
 		<InfoRowControl
 			label={'name'} // ??? translation
@@ -46,14 +58,7 @@ const RowName: FC = () => {
 				// style={{ flexGrow: 1 }}
 				underlineColor="transparent"
 				dense={true}
-				theme={{
-					fonts: {
-						bodyLarge: {
-							...theme.fonts.bodySmall,
-							fontFamily: 'sans-serif',
-						},
-					},
-				}}
+				theme={inputTheme}
 				onChangeText={handleChangeText}
 				value={lineTemp?.title ?? line?.title ?? ''}
 			/>

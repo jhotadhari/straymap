@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { FC, useEffect, useRef, useState } from 'react';
+import React, { FC, useEffect, useMemo, useRef, useState } from 'react';
 import { BackHandler, Dimensions, View } from 'react-native';
 import { PaperProvider, Text, useTheme } from 'react-native-paper';
 import { MapEventResponse } from 'react-native-mapsforge-vtm';
@@ -69,11 +69,47 @@ const App: FC = () => {
 
 	const requireReload = useAppSelector(selectRequireReload);
 
-	const style = {
-		backgroundColor: theme.colors.background,
-		height,
-		width,
-	};
+	const style = useMemo(
+		() => ({
+			backgroundColor: theme.colors.background,
+			height,
+			width,
+		}),
+		[
+			theme,
+			height,
+			width,
+		]
+	);
+
+	const appContextValue = useMemo(
+		() => ({
+			mapViewNativeNodeHandle,
+			appInnerHeight,
+			topAppBarHeight,
+			bottomBarHeight,
+			setTopAppBarHeight,
+			setBottomBarHeight,
+			drawerControlsRef,
+			mapHeight:
+				(appInnerHeight || height) -
+				(Object.values(bottomBarHeight).reduce((acc, nb) => acc + nb, 0) || 0),
+		}),
+		[
+			mapViewNativeNodeHandle,
+			appInnerHeight,
+			topAppBarHeight,
+			bottomBarHeight,
+			height,
+		]
+	);
+
+	const mapContextValue = useMemo(
+		() => ({
+			currentMapEventRef,
+		}),
+		[]
+	);
 
 	if (isUpdating) {
 		return (
@@ -106,25 +142,8 @@ const App: FC = () => {
 	}
 
 	return (
-		<AppContext.Provider
-			value={{
-				mapViewNativeNodeHandle,
-				appInnerHeight,
-				topAppBarHeight,
-				bottomBarHeight,
-				setTopAppBarHeight,
-				setBottomBarHeight,
-				drawerControlsRef,
-				mapHeight:
-					(appInnerHeight || height) -
-					(Object.values(bottomBarHeight).reduce((acc, nb) => acc + nb, 0) || 0),
-			}}
-		>
-			<MapContext.Provider
-				value={{
-					currentMapEventRef,
-				}}
-			>
+		<AppContext.Provider value={appContextValue}>
+			<MapContext.Provider value={mapContextValue}>
 				<GestureHandlerRootView>
 					<AppView
 						initialPositionRef={initialPositionRef}

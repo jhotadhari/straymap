@@ -165,20 +165,24 @@ const ModalWrapper: FC<{
 
 	const styleContentInner = useMemo(() => [styles.contentInner, innerStyle], [innerStyle]);
 
+	const modalTheme = useMemo(
+		() =>
+			backgroundBlur
+				? theme
+				: {
+						colors: {
+							...theme.colors,
+							backdrop: 'transparent',
+						},
+					},
+		[backgroundBlur, theme]
+	);
+
 	return (
 		<Portal>
 			<AppContext.Provider value={context}>
 				<Modal
-					theme={
-						backgroundBlur
-							? theme
-							: {
-									colors: {
-										...theme.colors,
-										backdrop: 'transparent',
-									},
-								}
-					}
+					theme={modalTheme}
 					onDismiss={handleDismissAll}
 					visible={visible}
 					style={styleModal}

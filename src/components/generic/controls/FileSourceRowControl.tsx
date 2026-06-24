@@ -62,26 +62,34 @@ const Option: FC<{
 }> = ({ option, selectedOpt, setSelectedOpt, customUri, setCustomUri }) => {
 	const { t } = useTranslation();
 	const theme = useTheme();
+
+	const handlePress = useCallback(() => {
+		if (option.key === selectedOpt) {
+			setSelectedOpt(undefined);
+		} else {
+			if ('custom' === option.key) {
+				openDocument(false)
+					.then((file) => {
+						setCustomUri(file.uri as `content://${string}`);
+						setSelectedOpt('custom');
+					})
+					.catch((err: any) => console.log(err));
+			} else {
+				setCustomUri(undefined);
+				setSelectedOpt(option.key);
+			}
+		}
+	}, [
+		option,
+		selectedOpt,
+		setSelectedOpt,
+		setCustomUri,
+	]);
+
 	return (
 		<RadioListItem
 			opt={option}
-			onPress={() => {
-				if (option.key === selectedOpt) {
-					setSelectedOpt(undefined);
-				} else {
-					if ('custom' === option.key) {
-						openDocument(false)
-							.then((file) => {
-								setCustomUri(file.uri as `content://${string}`);
-								setSelectedOpt('custom');
-							})
-							.catch((err: any) => console.log(err));
-					} else {
-						setCustomUri(undefined);
-						setSelectedOpt(option.key);
-					}
-				}
-			}}
+			onPress={handlePress}
 			labelStyle={theme.fonts.bodyMedium}
 			labelExtractor={(a) => a.label}
 			descExtractor={(a) =>
@@ -175,20 +183,28 @@ const CreateNewOption: FC<{
 		[newOptionLabel]
 	);
 
+	const handlePress = useCallback(() => {
+		if (fileNameTemp && fileNameTemp.length) {
+			setCustomUri(undefined);
+			setSelectedOpt(newSelectedOpt);
+		}
+		if (!fileNameTemp) {
+			setFileNameTemp(newFileNameTemp);
+			setCustomUri(undefined);
+			setSelectedOpt(newSelectedOpt);
+		}
+	}, [
+		fileNameTemp,
+		newFileNameTemp,
+		newSelectedOpt,
+		setCustomUri,
+		setSelectedOpt,
+	]);
+
 	return (
 		<RadioListItem
 			opt={newOption}
-			onPress={() => {
-				if (fileNameTemp && fileNameTemp.length) {
-					setCustomUri(undefined);
-					setSelectedOpt(newSelectedOpt);
-				}
-				if (!fileNameTemp) {
-					setFileNameTemp(newFileNameTemp);
-					setCustomUri(undefined);
-					setSelectedOpt(newSelectedOpt);
-				}
-			}}
+			onPress={handlePress}
 			labelNode={labelNode}
 			labelStyle={theme.fonts.bodyMedium}
 			labelExtractor={(a) => a.label}
@@ -313,6 +329,8 @@ const FileSourceRowControl: FC<{
 	const theme = useTheme();
 
 	const [modalVisible, setModalVisible] = useState(false);
+
+	const handleOpenModal = useCallback(() => setModalVisible(true), []);
 
 	const dirsInfos = useDirsInfo({
 		navDirs: dirs || [],
@@ -500,7 +518,7 @@ const FileSourceRowControl: FC<{
 				{!AlternativeButton && dirsInfos && Object.keys(dirsInfos).length > 0 && (
 					<ButtonHighlight
 						style={styles.triggerButton}
-						onPress={() => setModalVisible(true)}
+						onPress={handleOpenModal}
 					>
 						<Text>{t(buttonLabel)}</Text>
 					</ButtonHighlight>

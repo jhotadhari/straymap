@@ -52,6 +52,14 @@ const CacheRow = ({
 
 	const styleDeleteAction = useMemo(() => ({ borderRadius: theme.roundness }), [theme]);
 
+	const handleDeletePress = useCallback(() => {
+		setDeleting(true);
+		FsModule.deleteDir(pathFull).finally(() => {
+			setDeleting(false);
+			updateCacheDirs();
+		});
+	}, [pathFull, updateCacheDirs]);
+
 	return (
 		<InfoRowControl
 			key={cache.basename}
@@ -77,13 +85,7 @@ const CacheRow = ({
 				{!deleting && (
 					<TouchableHighlight
 						underlayColor={theme.colors.elevation.level3}
-						onPress={() => {
-							setDeleting(true);
-							FsModule.deleteDir(pathFull).finally(() => {
-								setDeleting(false);
-								updateCacheDirs();
-							});
-						}}
+						onPress={handleDeletePress}
 						style={styleDeleteAction}
 					>
 						<Icon
@@ -100,6 +102,15 @@ const CacheRow = ({
 };
 
 const uiStateKey = 'cacheManagerExpanded';
+
+const renderAccordionIcon = (props: { color: string; style: object }) => (
+	<View style={sharedStyles.controlIcon}>
+		<List.Icon
+			{...props}
+			icon="content-save-outline"
+		/>
+	</View>
+);
 
 const CacheManager = () => {
 	const dispatch = useAppDispatch();
@@ -141,29 +152,24 @@ const CacheManager = () => {
 
 	const { updateCacheDirs, cacheDirs } = useCacheDirsInfo(expanded);
 
+	const handleAccordionPress = useCallback(() => {
+		if (!expanded) {
+			updateCacheDirs();
+		}
+		dispatch(
+			setElementExpanded({
+				key: uiStateKey,
+				expanded: !expanded,
+			})
+		);
+	}, [expanded, updateCacheDirs]);
+
 	return (
 		<List.Accordion
 			title={'Cache Manager'} // ??? translation
-			left={(props) => (
-				<View style={sharedStyles.controlIcon}>
-					<List.Icon
-						{...props}
-						icon="content-save-outline"
-					/>
-				</View>
-			)}
+			left={renderAccordionIcon}
 			expanded={expanded}
-			onPress={() => {
-				if (!expanded) {
-					updateCacheDirs();
-				}
-				dispatch(
-					setElementExpanded({
-						key: uiStateKey,
-						expanded: !expanded,
-					})
-				);
-			}}
+			onPress={handleAccordionPress}
 			titleStyle={theme.fonts.bodyMedium}
 		>
 			<View style={styles.controls}>

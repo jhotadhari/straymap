@@ -62,6 +62,13 @@ const BaseMap: FC<{}> = () => {
 		[]
 	);
 
+	const handleLayerCreateOrChangeFactory = useCallback(
+		(key: string) =>
+			(response: LayerMapsforgeResponse | LayerMBTilesBitmapResponse) =>
+				handleLayerChange(key, response),
+		[handleLayerChange]
+	);
+
 	const layers = useAppSelector((state) => selectLayers(state, { temp: false }));
 
 	const layersReverse = useMemo(() => [...layers].reverse(), [layers]);
@@ -131,8 +138,8 @@ const BaseMap: FC<{}> = () => {
 										(layer.options as LayerConfigOptionsRasterMBtiles)
 											.enabledZoomMax
 									}
-									onCreate={(response) => handleLayerChange(layer.key, response)}
-									onChange={(response) => handleLayerChange(layer.key, response)}
+									onCreate={handleLayerCreateOrChangeFactory(layer.key)}
+									onChange={handleLayerCreateOrChangeFactory(layer.key)}
 								/>
 							);
 						case 'mapsforge':
@@ -164,12 +171,8 @@ const BaseMap: FC<{}> = () => {
 										renderOverlays={profile.renderOverlays}
 										hasBuildings={profile.hasBuildings}
 										hasLabels={profile.hasLabels}
-										onCreate={(response) =>
-											handleLayerChange(layer.key, response)
-										}
-										onChange={(response) =>
-											handleLayerChange(layer.key, response)
-										}
+										onCreate={handleLayerCreateOrChangeFactory(layer.key)}
+										onChange={handleLayerCreateOrChangeFactory(layer.key)}
 									/>
 								);
 							}

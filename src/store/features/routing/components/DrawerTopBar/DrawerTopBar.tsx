@@ -76,12 +76,7 @@ const DrawerTopBar: FC = () => {
 
 	return (
 		<View>
-			<View
-				style={[
-					itemStyles.item,
-					styles.item,
-				]}
-			>
+			<View style={styleItem}>
 				<View style={styleButtonRow}>
 					{routeId && (
 						<ButtonHighlight
@@ -123,12 +118,7 @@ const DrawerTopBar: FC = () => {
 				</View>
 			</View>
 
-			<View
-				style={[
-					itemStyles.item,
-					styles.item,
-				]}
-			>
+			<View style={styleItem}>
 				<View style={styleButtonRow}>
 					{line && (
 						<Fragment>
@@ -165,5 +155,7 @@ const styles = StyleSheet.create({
 		flexDirection: 'row-reverse',
 	},
 });
+
+const styleItem = [itemStyles.item, styles.item];
 
 export default DrawerTopBar;

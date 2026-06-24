@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { Dispatch, FC, SetStateAction, useContext } from 'react';
+import React, { Dispatch, FC, SetStateAction, useCallback, useContext } from 'react';
 import { Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
@@ -30,12 +30,17 @@ const DisplayComponentScroll: FC<{
 
 	const dispatch = useAppDispatch();
 
+	const openMapsSettings = useCallback(
+		() => dispatch(setUiItemKeys(['settings', 'maps'])),
+		[dispatch]
+	);
+
 	return (
 		<View style={itemStyles.item}>
 			<ButtonHighlight
 				style={itemStyles.buttonRow}
 				mode="outlined"
-				onPress={() => dispatch(setUiItemKeys(['settings', 'maps']))}
+				onPress={openMapsSettings}
 			>
 				<Text>{t('drawers.openMapsSettings')}</Text>
 			</ButtonHighlight>

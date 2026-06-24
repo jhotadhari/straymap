@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { FC, useMemo } from 'react';
+import { FC, useCallback, useMemo } from 'react';
 import { Text, useTheme } from 'react-native-paper';
 import { BackHandler, StyleSheet, View } from 'react-native';
 import { get } from 'lodash-es';
@@ -18,11 +18,18 @@ import packageJson from '../../../../../package.json';
 import { selectInstalledVersion, selectIsUpdating } from '../selectors';
 import { setIsUpdating } from '../slice';
 
+const handleExitApp = () => BackHandler.exitApp();
+
 const FailControls: FC = () => {
 	const theme = useTheme();
 	const { t } = useTranslation();
 
 	const dispatch = useAppDispatch();
+
+	const handleProceed = useCallback(() => {
+		// dispatch(setInstalledVersion(packageJson.version));
+		dispatch(setIsUpdating(false));
+	}, [dispatch]);
 
 	return (
 		<View>
@@ -30,10 +37,7 @@ const FailControls: FC = () => {
 			<View style={styles.failControlsRow}>
 				<ButtonHighlight
 					style={styles.failControlsButton}
-					onPress={() => {
-						// dispatch(setInstalledVersion(packageJson.version));
-						dispatch(setIsUpdating(false));
-					}}
+					onPress={handleProceed}
 					mode="contained"
 					buttonColor={get(theme.colors, 'primaryContainer')}
 					textColor={get(theme.colors, 'onPrimaryContainer')}
@@ -42,7 +46,7 @@ const FailControls: FC = () => {
 				</ButtonHighlight>
 				<ButtonHighlight
 					style={styles.failControlsButton}
-					onPress={() => BackHandler.exitApp()}
+					onPress={handleExitApp}
 					mode="contained"
 					buttonColor={get(theme.colors, 'primaryContainer')}
 					textColor={get(theme.colors, 'onPrimaryContainer')}

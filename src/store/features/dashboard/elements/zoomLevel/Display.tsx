@@ -27,23 +27,15 @@ const Display: FC<DashboardElementProps<Options>> = ({ item, style = {}, onPress
 
 	const zoomLevel = useMapZoomLevel();
 
+	const viewStyle = useMemo(() => [{ minWidth }, style], [minWidth, style]);
+	const textStyle = useMemo(() => ({ fontSize, textAlign }), [fontSize, textAlign]);
+
 	return (
 		<TouchableHighlight
 			underlayColor={theme.colors.primaryContainer}
 			onPress={handlePress}
 		>
-			<View style={[{ minWidth }, style]}>
-				{zoomLevel && (
-					<Text
-						style={{
-							fontSize,
-							textAlign,
-						}}
-					>
-						{zoomLevel}
-					</Text>
-				)}
-			</View>
+			<View style={viewStyle}>{zoomLevel && <Text style={textStyle}>{zoomLevel}</Text>}</View>
 		</TouchableHighlight>
 	);
 };

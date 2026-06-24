@@ -119,6 +119,14 @@ const PADDING = 8; // see node_modules/react-native-paper/src/components/IconBut
 
 const buttonSize = 18;
 
+const renderInfoButtonIcon = ({ color }: { color: string }) => (
+	<Icon
+		source="information-variant"
+		color={color}
+		size={buttonSize * 1.5}
+	/>
+);
+
 const MapLayersAttribution: FC<{}> = () => {
 	const theme = useTheme();
 	const { t } = useTranslation();
@@ -130,26 +138,27 @@ const MapLayersAttribution: FC<{}> = () => {
 		[theme]
 	);
 
+	const buttonProps = useMemo(
+		() => ({
+			style: buttonStyle,
+			size: buttonSize,
+			icon: renderInfoButtonIcon,
+			mode: 'outlined' as const,
+			iconColor: theme.dark ? theme.colors.background : theme.colors.onBackground,
+		}),
+		[buttonStyle, theme]
+	);
+
+	const InnerElement = useMemo(() => <Inner layerInfos={layerInfos} />, [layerInfos]);
+
 	return (
 		<View style={styles.wrapper}>
 			<InfoButton
 				labelPattern={t('baseMap.layerAttributions')}
 				headerPlural={true}
 				backgroundBlur={true}
-				Info={<Inner layerInfos={layerInfos} />}
-				buttonProps={{
-					style: buttonStyle,
-					size: buttonSize,
-					icon: ({ color }) => (
-						<Icon
-							source="information-variant"
-							color={color}
-							size={buttonSize * 1.5}
-						/>
-					),
-					mode: 'outlined',
-					iconColor: theme.dark ? theme.colors.background : theme.colors.onBackground,
-				}}
+				Info={InnerElement}
+				buttonProps={buttonProps}
 			/>
 		</View>
 	);

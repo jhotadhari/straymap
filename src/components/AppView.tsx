@@ -165,26 +165,46 @@ const AppView = ({
 		}, 1);
 	}, [mapsforgeGeneral]);
 
+	const handleMapError = useCallback((err: unknown) => console.log('Error', err), []);
+
+	const handleMapResume = useCallback(
+		(response: MapLifeCycleResponse) => console.log('lifecycle event onResume', response),
+		[]
+	);
+
+	const handleMapEvent = useCallback(
+		(response: MapEventResponse) => {
+			currentMapEventRef.current = response;
+		},
+		[currentMapEventRef]
+	);
+
+	const styleOuter = useMemo(
+		() => ({
+			backgroundColor: theme.colors.background,
+			height,
+			width,
+		}),
+		[
+			theme,
+			height,
+			width,
+		]
+	);
+
+	const styleMapWrapper = useMemo(() => ({ height: mapHeight, width }), [mapHeight, width]);
+
+	const styleNoMap = useMemo(() => ({ height: mapHeight || 0, width }), [mapHeight, width]);
+
 	return (
-		<View
-			style={{
-				backgroundColor: theme.colors.background,
-				height,
-				width,
-			}}
-		>
+		<View style={styleOuter}>
 			{showSplash && <SplashScreen />}
 
 			<StatusBar barStyle={systemIsDarkMode ? 'light-content' : 'dark-content'} />
 
 			<TopAppBar />
 
-			<View
-				style={{
-					height: mapHeight,
-					width,
-				}}
-			>
+			<View style={styleMapWrapper}>
 				<UiItemComponent />
 
 				{showMap && (
@@ -208,11 +228,9 @@ const AppView = ({
 						rotationEnabled={false}
 						zoomEnabled={true}
 						onPause={saveCurrentPositionToInitial}
-						onError={(err) => console.log('Error', err)}
-						onResume={(response) => console.log('lifecycle event onResume', response)}
-						onMapEvent={(response: MapEventResponse) => {
-							currentMapEventRef.current = response;
-						}}
+						onError={handleMapError}
+						onResume={handleMapResume}
+						onMapEvent={handleMapEvent}
 						emitsHardwareKeyUp={emitsHardwareKeyUp}
 						onHardwareKeyUp={handleHardwareKeyUp}
 					>
@@ -228,14 +246,7 @@ const AppView = ({
 					</MapContainer>
 				)}
 
-				{!showMap && (
-					<View
-						style={{
-							height: mapHeight || 0,
-							width: width,
-						}}
-					/>
-				)}
+				{!showMap && <View style={styleNoMap} />}
 
 				<Center
 					height={mapHeight || 0}

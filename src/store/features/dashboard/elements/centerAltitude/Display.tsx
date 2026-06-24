@@ -72,20 +72,16 @@ const Display: FC<DashboardElementProps<Options>> = ({ item, style = {}, onPress
 		};
 	}, [mapEventRate]);
 
+	const viewStyle = useMemo(() => [{ minWidth }, style], [minWidth, style]);
+	const textStyle = useMemo(() => ({ fontSize, textAlign }), [fontSize, textAlign]);
+
 	return (
 		<TouchableHighlight
 			underlayColor={theme.colors.primaryContainer}
 			onPress={handlePress}
 		>
-			<View style={[{ minWidth }, style]}>
-				<Text
-					style={{
-						fontSize,
-						textAlign,
-					}}
-				>
-					{formatOutput(altitudeM, unitPref)}
-				</Text>
+			<View style={viewStyle}>
+				<Text style={textStyle}>{formatOutput(altitudeM, unitPref)}</Text>
 			</View>
 		</TouchableHighlight>
 	);

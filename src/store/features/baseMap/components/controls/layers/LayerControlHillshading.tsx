@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { FC, Fragment, useCallback } from 'react';
+import { FC, Fragment, useCallback, useMemo } from 'react';
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { get } from 'lodash-es';
@@ -23,6 +23,8 @@ import HillshadingAlgorithmControl from './HillshadingAlgorithmControl';
 import NumericRowControlMulti from '../../../../../../components/generic/controls/NumericRowControlMulti';
 
 const validateZoom = (val: number) => val >= 0;
+const validateMagnitude = (val: number) => val >= 0 && val <= 1000;
+const zoomOptLabels = ['min', 'max'];
 
 const LayerControlHillshading: FC<{}> = () => {
 	const dispatch = useAppDispatch();
@@ -48,6 +50,45 @@ const LayerControlHillshading: FC<{}> = () => {
 
 	const appDirs = useAppSelector(selectAppDirs);
 
+	const enabledZoomValues = useMemo(
+		() => [layerTemp?.options?.enabledZoomMin ?? 0, layerTemp?.options?.enabledZoomMax ?? 0],
+		[layerTemp?.options?.enabledZoomMin, layerTemp?.options?.enabledZoomMax]
+	);
+
+	const zoomValues = useMemo(
+		() => [layerTemp?.options?.zoomMin ?? 0, layerTemp?.options?.zoomMax ?? 0],
+		[layerTemp?.options?.zoomMin, layerTemp?.options?.zoomMax]
+	);
+
+	const handleEnabledZoomUpdate = useCallback(
+		(newValues: number[]) =>
+			setOptions({
+				...(layerTemp?.options ?? {}),
+				['enabledZoomMin']: newValues[0],
+				['enabledZoomMax']: newValues[1],
+			}),
+		[layerTemp?.options, setOptions]
+	);
+
+	const handleZoomUpdate = useCallback(
+		(newValues: number[]) =>
+			setOptions({
+				...(layerTemp?.options ?? {}),
+				['zoomMin']: newValues[0],
+				['zoomMax']: newValues[1],
+			}),
+		[layerTemp?.options, setOptions]
+	);
+
+	const handleMagnitudeUpdate = useCallback(
+		(newValue: number) =>
+			setOptions({
+				...(layerTemp?.options ?? {}),
+				magnitude: newValue,
+			}),
+		[layerTemp?.options, setOptions]
+	);
+
 	return (
 		<Fragment>
 			<HgtSourceRowControl
@@ -61,35 +102,20 @@ const LayerControlHillshading: FC<{}> = () => {
 
 			<NumericRowControlMulti
 				label={t('enabled')}
-				optLabels={['min', 'max']}
+				optLabels={zoomOptLabels}
 				saveOnType={false}
-				values={[
-					layerTemp?.options?.enabledZoomMin ?? 0,
-					layerTemp?.options?.enabledZoomMax ?? 0,
-				]}
-				onUpdate={(newValues) =>
-					setOptions({
-						...(layerTemp?.options ?? {}),
-						['enabledZoomMin']: newValues[0],
-						['enabledZoomMax']: newValues[1],
-					})
-				}
+				values={enabledZoomValues}
+				onUpdate={handleEnabledZoomUpdate}
 				validate={validateZoom}
 				Info={t('baseMap.hint.enabled') + '\n\n' + t('baseMap.hint.zoomGeneralInfo')}
 			/>
 
 			<NumericRowControlMulti
 				label={'Zoom'}
-				optLabels={['min', 'max']}
+				optLabels={zoomOptLabels}
 				saveOnType={false}
-				values={[layerTemp?.options?.zoomMin ?? 0, layerTemp?.options?.zoomMax ?? 0]}
-				onUpdate={(newValues) =>
-					setOptions({
-						...(layerTemp?.options ?? {}),
-						['zoomMin']: newValues[0],
-						['zoomMax']: newValues[1],
-					})
-				}
+				values={zoomValues}
+				onUpdate={handleZoomUpdate}
 				validate={validateZoom}
 				Info={t('baseMap.hint.zoom') + '\n\n' + t('baseMap.hint.zoomGeneralInfo')}
 			/>
@@ -97,13 +123,8 @@ const LayerControlHillshading: FC<{}> = () => {
 			<NumericRowControl
 				label={t('baseMap.shadingOptions.magnitude.label')}
 				value={layerTemp?.options?.magnitude ?? 0}
-				onUpdate={(newValue) =>
-					setOptions({
-						...(layerTemp?.options ?? {}),
-						magnitude: newValue,
-					})
-				}
-				validate={(val) => val >= 0 && val <= 1000}
+				onUpdate={handleMagnitudeUpdate}
+				validate={validateMagnitude}
 				Info={t('baseMap.shadingOptions.magnitude.hint')}
 			/>
 

@@ -68,6 +68,8 @@ import ThemeControl from './ThemeControl';
 
 const itemHeight = 50;
 
+const renderLoadingIndicator = () => <LoadingIndicator />;
+
 const EditModal: FC<{
 	isNewKey: false | string;
 	saveOnChange: boolean;
@@ -207,7 +209,7 @@ const EditModal: FC<{
 				/>
 
 				<RenderOverlaysControl
-					AlternativeButton={isBusy ? () => <LoadingIndicator /> : undefined}
+					AlternativeButton={isBusy ? renderLoadingIndicator : undefined}
 					Info={isBusy ? undefined : t('baseMap.hint.mapsforgeProfileOverlays')}
 					label={t('baseMap.overlay', { count: 1 })}
 				/>
@@ -250,6 +252,25 @@ const ControlIcon: (props: { color: string; style: Style }) => ReactNode = (prop
 	</View>
 );
 
+const themeDownloadLinks = [
+	{
+		label: 'OpenAndroMaps Elevate & Elements by Tobias Kuehn',
+		url: 'https://www.openandromaps.org/en/downloads',
+	},
+	{
+		label: 'Outdoor & Desert by Bernard Mai',
+		url: 'https://www.maiwolf.de/locus/',
+	},
+	{
+		label: 'Tiramisù by Maki',
+		url: 'https://github.com/IgorMagellan/Tiramisu',
+	},
+	{
+		label: 'Alti by jhotadhari. Just a copy of elevate and andromaps_hike with landscape names copy of Desert',
+		url: 'https://github.com/jhotadhari/Alti',
+	},
+];
+
 const ControlInfo: FC<{}> = () => {
 	const { t } = useTranslation();
 	const theme = useTheme();
@@ -258,24 +279,7 @@ const ControlInfo: FC<{}> = () => {
 		<View style={styles.controlInfo}>
 			<Text>{t('baseMap.hint.profiles')}</Text>
 			<Text style={theme.fonts.bodyLarge}>{'Render theme downloads:'}</Text>
-			{[
-				{
-					label: 'OpenAndroMaps Elevate & Elements by Tobias Kuehn',
-					url: 'https://www.openandromaps.org/en/downloads',
-				},
-				{
-					label: 'Outdoor & Desert by Bernard Mai',
-					url: 'https://www.maiwolf.de/locus/',
-				},
-				{
-					label: 'Tiramisù by Maki',
-					url: 'https://github.com/IgorMagellan/Tiramisu',
-				},
-				{
-					label: 'Alti by jhotadhari. Just a copy of elevate and andromaps_hike with landscape names copy of Desert',
-					url: 'https://github.com/jhotadhari/Alti',
-				},
-			].map(({ label, url }) => (
+			{themeDownloadLinks.map(({ label, url }) => (
 				<HintLink
 					key={url}
 					label={label}

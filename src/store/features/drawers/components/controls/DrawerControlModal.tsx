@@ -19,6 +19,10 @@ import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { selectControlHandleSide, selectItemKeys } from '../../selectors';
 import { addItemKey, removeItemKey, setControlHandleSide } from '../../slice';
 
+const settingsDrawerItem: DrawerItem = {
+	iconSource: 'cog',
+};
+
 const Item: FC<{
 	drawerItem: DrawerItem;
 }> = ({ drawerItem }) => {
@@ -163,10 +167,12 @@ const DrawerControlModal: FC<{
 	const { t } = useTranslation();
 	const theme = useTheme();
 
+	const closeModal = useCallback(() => setModalVisible(false), [setModalVisible]);
+
 	return (
 		<ModalWrapper
 			visible={modalVisible}
-			onDismiss={() => setModalVisible(false)}
+			onDismiss={closeModal}
 			header={t('drawers.drawer', { count: 0 })}
 		>
 			{Object.values(drawerItems).map((drawerItem: DrawerItem) => (
@@ -181,17 +187,11 @@ const DrawerControlModal: FC<{
 				style={styles.divider}
 			/>
 
-			<Item
-				drawerItem={{
-					iconSource: 'cog',
-				}}
-			/>
+			<Item drawerItem={settingsDrawerItem} />
 
 			<ButtonHighlight
 				style={styles.okButton}
-				onPress={() => {
-					setModalVisible(false);
-				}}
+				onPress={closeModal}
 				mode="contained"
 				buttonColor={get(theme.colors, 'successContainer')}
 				textColor={get(theme.colors, 'onSuccessContainer')}

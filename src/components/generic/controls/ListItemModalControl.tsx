@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { FC, ReactNode, useEffect, useState } from 'react';
+import React, { FC, ReactNode, useCallback, useEffect, useState } from 'react';
 import { Text, useTheme } from 'react-native-paper';
 import { Style as ListStyle } from 'react-native-paper/lib/typescript/components/List/utils';
 import { useTranslation } from 'react-i18next';
@@ -50,15 +50,16 @@ const ListItemModalControl: FC<{
 		}
 	}, [visible]);
 
+	const handleClose = useCallback(() => setVisible(false), []);
+
+	const handleAnchorPress = useCallback(() => setVisible((isVisible) => !isVisible), []);
+
 	return (
 		<View>
 			{visible && (
 				<ModalWrapper
 					visible={visible}
-					onDismiss={() => {
-						setVisible(false);
-						// setEditLayer && setEditLayer( null );
-					}}
+					onDismiss={handleClose}
 					header={header}
 					innerStyle={innerStyle}
 					backgroundBlur={backgroundBlur}
@@ -70,9 +71,7 @@ const ListItemModalControl: FC<{
 
 						<ButtonHighlight
 							style={styles.controls}
-							onPress={() => {
-								setVisible(false);
-							}}
+							onPress={handleClose}
 							mode="contained"
 							buttonColor={get(theme.colors, 'successContainer')}
 							textColor={get(theme.colors, 'onSuccessContainer')}
@@ -87,7 +86,7 @@ const ListItemModalControl: FC<{
 				style={listItemStyle}
 				title={anchorLabel}
 				icon={anchorIcon ? anchorIcon : undefined}
-				onPress={() => setVisible(!visible)}
+				onPress={handleAnchorPress}
 			/>
 		</View>
 	);

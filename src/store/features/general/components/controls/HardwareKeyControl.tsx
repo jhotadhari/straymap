@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { useCallback } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Icon } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -59,23 +59,28 @@ const RowItem = ({ keyCodeStringOption }: { keyCodeStringOption: OptionBase }) =
 		(actionKeyOption) => actionKeyOption.key === hardwareKeyActionConfig?.actionKey
 	);
 
+	const handleSetValue = useCallback(
+		(newValue: string) => {
+			const newHardwareKeyActionConfigs = [...hardwareKeyActionConfigs];
+			const index = newHardwareKeyActionConfigs.findIndex(
+				(conf) => conf.keyCodeString === keyCodeStringOption.key
+			);
+			newHardwareKeyActionConfigs.splice(index, 1, {
+				actionKey: newValue,
+				keyCodeString: keyCodeStringOption.key,
+			});
+			dispatch(setHardwareKeys(newHardwareKeyActionConfigs));
+		},
+		[hardwareKeyActionConfigs, keyCodeStringOption.key]
+	);
+
 	return (
 		<InfoRowControl label={t(keyCodeStringOption.label)}>
 			<ListItemMenuControl
 				listItemStyle={sharedStyles.listItem}
 				options={actionKeyOptions}
 				value={hardwareKeyActionConfig?.actionKey}
-				setValue={(newValue) => {
-					const newHardwareKeyActionConfigs = [...hardwareKeyActionConfigs];
-					const index = newHardwareKeyActionConfigs.findIndex(
-						(conf) => conf.keyCodeString === keyCodeStringOption.key
-					);
-					newHardwareKeyActionConfigs.splice(index, 1, {
-						actionKey: newValue,
-						keyCodeString: keyCodeStringOption.key,
-					});
-					dispatch(setHardwareKeys(newHardwareKeyActionConfigs));
-				}}
+				setValue={handleSetValue}
 				anchorLabel={t(get(selectedActionKeyOption, 'label', ''))}
 			/>
 		</InfoRowControl>

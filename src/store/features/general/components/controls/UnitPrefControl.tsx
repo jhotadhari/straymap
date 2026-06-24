@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { Fragment } from 'react';
+import React, { Fragment, useCallback } from 'react';
 import { StyleSheet } from 'react-native';
 import { Icon, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -96,6 +96,8 @@ const hints = {
 	heightDepth: 'general.hint.units.heightDepth',
 };
 
+const validateDecimalPlace = (val: number) => val >= 0 && val <= 20;
+
 const UnitControl = ({
 	unitKey,
 	unitPref,
@@ -111,6 +113,26 @@ const UnitControl = ({
 	const opts = get(options, unitKey, []);
 	const Info = get(hints, unitKey);
 
+	const handleUnitChange = useCallback(
+		(newValue: string) => {
+			onChange({
+				...unitPref,
+				unit: newValue,
+			});
+		},
+		[onChange, unitPref]
+	);
+
+	const handleRoundUpdate = useCallback(
+		(newValue: number) => {
+			onChange({
+				...unitPref,
+				round: newValue,
+			});
+		},
+		[onChange, unitPref]
+	);
+
 	return (
 		<Fragment>
 			<InfoRowControl
@@ -125,12 +147,7 @@ const UnitControl = ({
 					listItemStyle={sharedStyles.listItem}
 					options={opts}
 					value={unitPref.unit}
-					setValue={(newValue) => {
-						onChange({
-							...unitPref,
-							unit: newValue,
-						});
-					}}
+					setValue={handleUnitChange}
 					anchorLabel={t(
 						get(
 							opts.find((opt) => opt.key === unitPref.unit),
@@ -144,13 +161,8 @@ const UnitControl = ({
 			<NumericRowControl
 				label={upperFirst(t('decimalPlace', { count: 0 }))}
 				value={unitPref.round}
-				onUpdate={(newValue) =>
-					onChange({
-						...unitPref,
-						round: newValue,
-					})
-				}
-				validate={(val) => val >= 0 && val <= 20}
+				onUpdate={handleRoundUpdate}
+				validate={validateDecimalPlace}
 				style={styles.decimalPlace}
 			/>
 		</Fragment>

@@ -22,6 +22,21 @@ import { useMutation, UseMutationOptions } from '@tanstack/react-query';
 import useRoute from '../hooks/useRoute';
 import { dbConnection } from '../../dbLoader/DBConnection';
 
+const profileOptions = [
+	{
+		key: 'motorcar',
+		label: 'motorcar',
+	},
+	{
+		key: 'bicycle',
+		label: 'bicycle',
+	},
+	{
+		key: 'foot',
+		label: 'foot',
+	},
+];
+
 const ProfileRowControl = ({
 	editPoint,
 	setEditPoint,
@@ -31,38 +46,24 @@ const ProfileRowControl = ({
 }) => {
 	const { t } = useTranslation();
 
-	const options = useMemo(
-		() => [
-			{
-				key: 'motorcar',
-				label: 'motorcar',
-			},
-			{
-				key: 'bicycle',
-				label: 'bicycle',
-			},
-			{
-				key: 'foot',
-				label: 'foot',
-			},
-		],
-		[]
-	);
+	const selectedOpt = profileOptions.find((opt) => opt.key === editPoint.profile?.v);
 
-	const selectedOpt = options.find((opt) => opt.key === editPoint.profile?.v);
+	const handleSetValue = useCallback(
+		(newValue: string) =>
+			editPoint.profile &&
+			setEditPoint({
+				...editPoint,
+				profile: { ...editPoint.profile, v: newValue as GetTrackParams['v'] },
+			}),
+		[editPoint, setEditPoint]
+	);
 
 	return (
 		<InfoRowControl label={t('profile???')}>
 			<ListItemMenuControl
-				options={options}
+				options={profileOptions}
 				value={get(selectedOpt, 'key')}
-				setValue={(newValue) =>
-					editPoint.profile &&
-					setEditPoint({
-						...editPoint,
-						profile: { ...editPoint.profile, v: newValue as GetTrackParams['v'] },
-					})
-				}
+				setValue={handleSetValue}
 				anchorLabel={get(selectedOpt, 'label', '')}
 			/>
 		</InfoRowControl>
@@ -126,6 +127,27 @@ const EditPointModal: FC<{
 		routeId,
 	]);
 
+	const handleToggleFast = useCallback(
+		() =>
+			editPoint.profile &&
+			setEditPoint({
+				...editPoint,
+				profile: {
+					...editPoint.profile,
+					fast: !editPoint.profile.fast,
+				},
+			}),
+		[editPoint, setEditPoint]
+	);
+
+	const fastOpt = useMemo(
+		() => ({
+			label: t('fast'),
+			key: 'fast',
+		}),
+		[t]
+	);
+
 	return (
 		<ModalWrapper
 			visible={!!editPoint.profile}
@@ -138,20 +160,8 @@ const EditPointModal: FC<{
 			/>
 
 			<InfoRadioRow
-				opt={{
-					label: t('fast'),
-					key: 'fast',
-				}}
-				onPress={() =>
-					editPoint.profile &&
-					setEditPoint({
-						...editPoint,
-						profile: {
-							...editPoint.profile,
-							fast: !editPoint.profile.fast,
-						},
-					})
-				}
+				opt={fastOpt}
+				onPress={handleToggleFast}
 				labelStyle={theme.fonts.bodyMedium}
 				labelExtractor={(a) => a.label}
 				status={editPoint.profile?.fast ? 'checked' : 'unchecked'}

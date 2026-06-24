@@ -21,6 +21,8 @@ import { setDashboardStyle, setEditItemAccordingToPosition } from '../../slice';
 import { ControlContext } from '../../ControlContext';
 import NewItemControl from './NewItemControl';
 
+const validateFontSize = (val: number) => val > 0 && val <= 300;
+
 const DashboardControl: FC = () => {
 	const { t } = useTranslation();
 	const theme = useTheme();
@@ -64,8 +66,23 @@ const DashboardControl: FC = () => {
 		);
 	}, [expanded, uiStateKey]);
 
-	const ControlIcon: (props: { color: string; style: Style }) => ReactNode = useMemo(
-		() => (props) => (
+	const handleUpdateFontSize = useCallback(
+		(newValue: number) => {
+			dispatch(
+				setDashboardStyle({
+					position,
+					style: {
+						...dashboardStyle,
+						fontSize: newValue,
+					},
+				})
+			);
+		},
+		[dispatch, position, dashboardStyle]
+	);
+
+	const ControlIcon: (props: { color: string; style: Style }) => ReactNode = useCallback(
+		(props) => (
 			<View style={sharedStyles.controlIcon}>
 				<List.Icon
 					{...props}
@@ -78,6 +95,32 @@ const DashboardControl: FC = () => {
 			</View>
 		),
 		[position]
+	);
+
+	const segmentedButtonsTheme = useMemo(
+		() => ({
+			colors: {
+				secondaryContainer: theme.colors.primaryContainer,
+				textColor: theme.colors.onPrimaryContainer,
+			},
+		}),
+		[theme.colors.primaryContainer, theme.colors.onPrimaryContainer]
+	);
+
+	const positionButtons = useMemo(
+		() => [
+			{
+				value: 'bottom',
+				label: t('bottom'),
+				icon: 'arrow-down',
+			},
+			{
+				value: 'top',
+				label: t('top'),
+				icon: 'arrow-up',
+			},
+		],
+		[t]
 	);
 
 	return (
@@ -97,24 +140,8 @@ const DashboardControl: FC = () => {
 					<SegmentedButtons
 						value={position}
 						onValueChange={setPosition}
-						theme={{
-							colors: {
-								secondaryContainer: theme.colors.primaryContainer,
-								textColor: theme.colors.onPrimaryContainer,
-							},
-						}}
-						buttons={[
-							{
-								value: 'bottom',
-								label: t('bottom'),
-								icon: 'arrow-down',
-							},
-							{
-								value: 'top',
-								label: t('top'),
-								icon: 'arrow-up',
-							},
-						]}
+						theme={segmentedButtonsTheme}
+						buttons={positionButtons}
 					/>
 
 					<AlignmentControl position={position} />
@@ -122,18 +149,8 @@ const DashboardControl: FC = () => {
 					<NumericRowControl
 						label={t('dashboard.fontSize')}
 						value={dashboardStyle?.fontSize}
-						onUpdate={(newValue) => {
-							dispatch(
-								setDashboardStyle({
-									position,
-									style: {
-										...dashboardStyle,
-										fontSize: newValue,
-									},
-								})
-							);
-						}}
-						validate={(val) => val > 0 && val <= 300}
+						onUpdate={handleUpdateFontSize}
+						validate={validateFontSize}
 						Info={t('dashboard.hint.fontSize')}
 					/>
 

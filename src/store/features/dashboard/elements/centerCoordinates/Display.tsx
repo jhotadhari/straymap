@@ -53,19 +53,17 @@ const Display: FC<DashboardElementProps<Options>> = ({ item, style = {}, onPress
 	const unit = item?.options?.unitPref?.unit ?? get(unitPrefs, ['coordinates', 'unit']);
 	const round = item?.options?.unitPref?.round ?? get(unitPrefs, ['coordinates', 'round']);
 
+	const viewStyle = useMemo(() => [{ minWidth }, style], [minWidth, style]);
+	const textStyle = useMemo(() => ({ fontSize, textAlign }), [fontSize, textAlign]);
+
 	return (
 		<TouchableHighlight
 			underlayColor={theme.colors.primaryContainer}
 			onPress={handlePress}
 		>
-			<View style={[{ minWidth }, style]}>
+			<View style={viewStyle}>
 				{undefined !== centerLng && undefined !== centerLat && (
-					<Text
-						style={{
-							fontSize,
-							textAlign,
-						}}
-					>
+					<Text style={textStyle}>
 						{formatcoords({
 							lng: centerLng,
 							lat: centerLat,

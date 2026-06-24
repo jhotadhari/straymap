@@ -59,6 +59,11 @@ const Item: FC<{
 			Display,
 			item,
 			editItemKey,
+			style,
+			highlightEditItem,
+			theme.roundness,
+			theme.colors.primary,
+			theme.colors.inverseOnSurface,
 		]
 	);
 

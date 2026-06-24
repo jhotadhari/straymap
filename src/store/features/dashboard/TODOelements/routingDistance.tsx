@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { useContext } from 'react';
+import React, { useContext, useMemo } from 'react';
 import { Text } from 'react-native-paper';
 import { get } from 'lodash-es';
 import { View } from 'react-native';
@@ -25,16 +25,18 @@ const Display = ({ dashboardElement, style = {} }: DashboardElementProps) => {
 
 	const { isRouting, stats } = useContext(RoutingContext);
 
+	const viewStyle = useMemo(
+		() => ({
+			minWidth: get(dashboardElement, ['style', 'minWidth'], undefined),
+			...style,
+		}),
+		[dashboardElement, style]
+	);
+	const textStyle = useMemo(() => ({ fontSize }), [fontSize]);
+
 	return isRouting ? (
-		<View
-			style={{
-				minWidth: get(dashboardElement, ['style', 'minWidth'], undefined),
-				...style,
-			}}
-		>
-			<Text style={{ fontSize }}>
-				{formatDistance(stats?.distance || 0, unitPrefs.distance)}
-			</Text>
+		<View style={viewStyle}>
+			<Text style={textStyle}>{formatDistance(stats?.distance || 0, unitPrefs.distance)}</Text>
 		</View>
 	) : null;
 };

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { FC, ReactNode, useEffect, useMemo, useState } from 'react';
+import React, { FC, ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
 import {
 	Dimensions,
 	Image,
@@ -51,6 +51,9 @@ const getChangelogVersion = (idx?: number): string | undefined => {
 	return version ? version.replace(/[\]\[]/g, '') : undefined;
 };
 
+const openKofiUrl = () => Linking.openURL('https://ko-fi.com/H2H3162PAG');
+const openLiberapayUrl = () => Linking.openURL('https://liberapay.com/jhotadhari/donate');
+
 const AccordionItem = ({
 	label,
 	children,
@@ -71,10 +74,12 @@ const AccordionItem = ({
 		setTimeout(() => setExpanded(false), 0);
 	}, []);
 
+	const toggleExpanded = useCallback(() => setExpanded((prev) => !prev), []);
+
 	return (
 		<View style={pageStyles.accordionContainer}>
 			<ButtonHighlight
-				onPress={() => setExpanded(!expanded)}
+				onPress={toggleExpanded}
 				labelStyle={pageStyles.accordionLabel}
 			>
 				<View style={sharedStyles.flexRowCenter}>
@@ -161,13 +166,13 @@ const MdPartsRenderPartDonation = ({
 
 			<Text
 				style={linkStyle}
-				onPress={() => Linking.openURL('https://ko-fi.com/H2H3162PAG')}
+				onPress={openKofiUrl}
 			>
 				<Image source={require('../../../../assets/images/ko-fi_donate.png')} />
 			</Text>
 			<Text
 				style={linkStyle}
-				onPress={() => Linking.openURL('https://liberapay.com/jhotadhari/donate')}
+				onPress={openLiberapayUrl}
 			>
 				<Image source={require('../../../../assets/images/liberapay_donate.png')} />
 			</Text>

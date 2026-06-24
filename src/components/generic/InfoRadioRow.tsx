@@ -9,7 +9,7 @@ import { RadioButton } from 'react-native-paper';
  */
 import { OptionBase } from '../../types';
 import InfoRowControl from './controls/InfoRowControl';
-import { ReactNode } from 'react';
+import { ReactNode, useMemo } from 'react';
 
 const InfoRadioRow = ({
 	opt,
@@ -29,14 +29,20 @@ const InfoRadioRow = ({
 	radioAlign?: 'left' | 'right';
 }) => {
 	const label = labelExtractor ? labelExtractor(opt) : null;
+
+	const labelStyleMerged = useMemo(
+		() => ({
+			...labelStyle,
+			...('right' === radioAlign && { flexGrow: 1 }),
+		}),
+		[labelStyle, radioAlign]
+	);
+
 	return (
 		<InfoRowControl
 			label={label || undefined}
 			Info={Info}
-			labelStyle={{
-				...labelStyle,
-				...('right' === radioAlign && { flexGrow: 1 }),
-			}}
+			labelStyle={labelStyleMerged}
 		>
 			<RadioButton
 				value={opt.key}

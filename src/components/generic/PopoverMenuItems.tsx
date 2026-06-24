@@ -1,34 +1,47 @@
-import { FC } from 'react';
+import { FC, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from 'react-native-paper';
 
 import { MenuActionOption } from '../../types';
 import MenuItem from './MenuItem';
 
+const PopoverMenuItem: FC<{
+	opt: MenuActionOption;
+	onPress?: () => void;
+}> = ({ opt, onPress }) => {
+	const theme = useTheme();
+	const { t } = useTranslation();
+
+	const disabled = opt?.disabled ? opt?.disabled() : false;
+
+	const handlePress = useCallback(() => {
+		opt.cb();
+		onPress && onPress();
+	}, [opt, onPress]);
+
+	return (
+		<MenuItem
+			leadingIcon={opt?.leadingIcon}
+			onPress={handlePress}
+			title={t(opt.label)}
+			style={disabled ? { backgroundColor: theme.colors.surfaceDisabled } : undefined}
+			textStyle={disabled ? { color: theme.colors.onSurfaceDisabled } : undefined}
+			iconColor={disabled ? theme.colors.onSurfaceDisabled : undefined}
+		/>
+	);
+};
+
 const PopoverMenuItems: FC<{
 	options: MenuActionOption[];
 	onPress?: () => void;
 }> = ({ options, onPress }) => {
-	const theme = useTheme();
-	const { t } = useTranslation();
-
-	return options.map((opt) => {
-		const disabled = opt?.disabled ? opt?.disabled() : false;
-		return (
-			<MenuItem
-				key={opt.key}
-				leadingIcon={opt?.leadingIcon}
-				onPress={() => {
-					opt.cb();
-					onPress && onPress();
-				}}
-				title={t(opt.label)}
-				style={disabled ? { backgroundColor: theme.colors.surfaceDisabled } : undefined}
-				textStyle={disabled ? { color: theme.colors.onSurfaceDisabled } : undefined}
-				iconColor={disabled ? theme.colors.onSurfaceDisabled : undefined}
-			/>
-		);
-	});
+	return options.map((opt) => (
+		<PopoverMenuItem
+			key={opt.key}
+			opt={opt}
+			onPress={onPress}
+		/>
+	));
 };
 
 export default PopoverMenuItems;
