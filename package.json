@@ -10,6 +10,9 @@
       "javaPackageName": "com.jhotadhari.straymap"
     }
   },
+  "op-sqlite": {
+    "rtree": true
+  },
   "scripts": {
     "android": "react-native run-android",
     "lint": "eslint .",
