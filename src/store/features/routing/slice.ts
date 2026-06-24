@@ -9,7 +9,7 @@ import { difference, get } from 'lodash-es';
  * Internal dependencies
  */
 import { SliceSettingsBase } from '../../../types';
-import { RoutingSegment, RoutingTriggeredSegment } from './types';
+import { RoutingSegment } from './types';
 import { AppThunk } from '../../store';
 import { aggregateSegmentsToCoords, getCoordsFromRouting, getSegmentRecordId } from './utils';
 import { setLineSelected } from '../lines/slice';
@@ -30,11 +30,6 @@ export interface RoutingState extends SliceSettingsBase, RoutingSettings {
 		string, // fromId_toId
 		RoutingSegment
 	>;
-	markerLayerUuid: null | string;
-	pathLayerUuids: null | string[];
-	movingPointIdx?: number;
-	triggeredMarkerIdx?: number;
-	triggeredSegment?: RoutingTriggeredSegment;
 }
 
 export const initialSettings: RoutingSettings = {
@@ -43,8 +38,6 @@ export const initialSettings: RoutingSettings = {
 
 const initialState: RoutingState = {
 	initialized: false,
-	markerLayerUuid: null,
-	pathLayerUuids: null,
 	segments: {},
 	...initialSettings,
 };
@@ -60,7 +53,6 @@ export const routingSlice = createSlice({
 		},
 		setIsRouting: (state, action: PayloadAction<RoutingState['isRouting']>) => {
 			state.segments = {};
-			state.movingPointIdx = undefined;
 			state.isRouting = action.payload;
 		},
 		setSegment: (state, action: PayloadAction<RoutingSegment>) => {
@@ -76,25 +68,6 @@ export const routingSlice = createSlice({
 				}
 			});
 		},
-		setMarkerLayerUuid: (state, action: PayloadAction<RoutingState['markerLayerUuid']>) => {
-			state.markerLayerUuid = action.payload;
-		},
-		setPathLayerUuids: (state, action: PayloadAction<RoutingState['pathLayerUuids']>) => {
-			state.pathLayerUuids = action.payload;
-		},
-
-		setMovingPointIdx: (state, action: PayloadAction<RoutingState['movingPointIdx']>) => {
-			state.movingPointIdx = action.payload;
-		},
-		setTriggeredMarkerIdx: (
-			state,
-			action: PayloadAction<RoutingState['triggeredMarkerIdx']>
-		) => {
-			state.triggeredMarkerIdx = action.payload;
-		},
-		setTriggeredSegment: (state, action: PayloadAction<RoutingState['triggeredSegment']>) => {
-			state.triggeredSegment = action.payload;
-		},
 	},
 });
 
@@ -104,11 +77,6 @@ export const {
 	setIsRouting: setIsRoutingAction,
 	setSegment,
 	deleteSegments,
-	setMarkerLayerUuid,
-	setPathLayerUuids,
-	setMovingPointIdx,
-	setTriggeredMarkerIdx,
-	setTriggeredSegment,
 } = routingSlice.actions;
 
 // Export the slice reducer for use in the store configuration

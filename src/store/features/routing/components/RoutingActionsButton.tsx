@@ -5,7 +5,6 @@ import React, { FC, useCallback, useContext, useMemo, useState } from 'react';
 import { Icon, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { Dimensions, PixelRatio, ScrollView } from 'react-native';
-import { MapLayerMarkerModule, MapLayerPathSlopeGradientModule } from 'react-native-mapsforge-vtm';
 import Popover, { PopoverPlacement } from 'react-native-popover-view';
 import { pick } from 'lodash-es';
 
@@ -15,8 +14,6 @@ import { pick } from 'lodash-es';
 import { AppContext } from '../../../../Context';
 import { MapContext } from '../../../../Context';
 import { useAppDispatch, useAppSelector } from '../../../hooks';
-import { setTriggeredMarkerIdx, setTriggeredSegment } from '../slice';
-import { selectMarkerLayerUuid, selectMovingPointIdx, selectPathLayerUuids } from '../selectors';
 import useRoute from '../hooks/useRoute';
 import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
 import { MenuActionOption } from '../../../../types';
@@ -32,12 +29,12 @@ const RoutingActionsButton: FC<{
 
 	const { id: routeId, points } = useRoute(['id', 'points']) || {};
 
-	// const segments = useAppSelector(selectSegments);
-	const markerLayerUuid = useAppSelector(selectMarkerLayerUuid);
-	const pathLayerUuids = useAppSelector(selectPathLayerUuids);
-	const movingPointIdx = useAppSelector(selectMovingPointIdx);
-	// const triggeredMarkerIdx = useAppSelector(selectTriggeredMarkerIdx);
-	// const triggeredSegment = useAppSelector(selectTriggeredSegment);
+	// // const segments = useAppSelector(selectSegments);
+	// const markerLayerUuid = useAppSelector(selectMarkerLayerUuid);
+	// const pathLayerUuids = useAppSelector(selectPathLayerUuids);
+	// const movingPointIdx = useAppSelector(selectMovingPointIdx);
+	// // const triggeredMarkerIdx = useAppSelector(selectTriggeredMarkerIdx);
+	// // const triggeredSegment = useAppSelector(selectTriggeredSegment);
 
 	const { currentMapEventRef } = useContext(MapContext);
 
@@ -57,12 +54,12 @@ const RoutingActionsButton: FC<{
 	const dismissMenu = useCallback(
 		(cleanTriggeredMarkerIdx?: boolean, cleanTriggeredSegment?: boolean) => {
 			setMenuVisible(false);
-			if (undefined === cleanTriggeredMarkerIdx ? true : cleanTriggeredMarkerIdx) {
-				dispatch(setTriggeredMarkerIdx(undefined));
-			}
-			if (undefined === cleanTriggeredSegment ? true : cleanTriggeredSegment) {
-				dispatch(setTriggeredSegment(undefined));
-			}
+			// if (undefined === cleanTriggeredMarkerIdx ? true : cleanTriggeredMarkerIdx) {
+			// 	dispatch(setTriggeredMarkerIdx(undefined));
+			// }
+			// if (undefined === cleanTriggeredSegment ? true : cleanTriggeredSegment) {
+			// 	dispatch(setTriggeredSegment(undefined));
+			// }
 		},
 		[]
 	);
@@ -70,10 +67,10 @@ const RoutingActionsButton: FC<{
 	const options: MenuActionOption[] = useMemo(() => {
 		const keys: string[] = [];
 
-		if (undefined === movingPointIdx) {
+		// if (undefined === movingPointIdx) {
 			keys.push('appendPoint');
 			keys.push('deleteLastPoint');
-		}
+		// }
 
 		return Object.values(pick(actions, keys)).filter((a) => !!a);
 
@@ -219,7 +216,7 @@ const RoutingActionsButton: FC<{
 	}, [
 		// routeId,
 		// points,
-		movingPointIdx,
+		// movingPointIdx,
 		// segments,
 		// triggeredMarkerIdx,
 		// dismissMenu,
@@ -232,37 +229,25 @@ const RoutingActionsButton: FC<{
 			dismissMenu();
 		} else {
 			setMenuVisible(true);
-			// runAfterInteractions(() => {
 			if (mapViewNativeNodeHandle) {
 				const left = PixelRatio.getPixelSizeForLayoutSize(width) / 2;
 				const top = PixelRatio.getPixelSizeForLayoutSize(mapHeight || 0) / 2;
-				if (markerLayerUuid) {
-					MapLayerMarkerModule.triggerEvent(
-						mapViewNativeNodeHandle,
-						markerLayerUuid,
-						left,
-						top
-					).catch((err: any) => console.log('ERROR', err));
-				}
-				if (pathLayerUuids) {
-					[...pathLayerUuids].map((routingPathLayerUuid) => {
-						MapLayerPathSlopeGradientModule.triggerEvent(
-							mapViewNativeNodeHandle,
-							routingPathLayerUuid,
-							left,
-							top
-						).catch((err: any) => console.log('ERROR', err));
-					});
-				}
+				// if (markerLayerUuid) {
+				// 	MapLayerMarkerModule.triggerEvent(
+				// 		mapViewNativeNodeHandle,
+				// 		markerLayerUuid,
+				// 		left,
+				// 		top
+				// 	).catch((err: any) => console.log('ERROR', err));
+				// }
 			}
-			// }, 100);
 		}
 	}, [
 		dismissMenu,
 		menuVisible,
 		mapViewNativeNodeHandle,
-		markerLayerUuid,
-		pathLayerUuids,
+		// markerLayerUuid,
+		// pathLayerUuids,
 		width,
 		mapHeight,
 	]);

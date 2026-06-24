@@ -12,16 +12,6 @@ export const selectIsRouting = (state: RootState) => state.routing.isRouting;
 
 export const selectSegments = (state: RootState) => state.routing.segments;
 
-export const selectMarkerLayerUuid = (state: RootState) => state.routing.markerLayerUuid;
-
-export const selectPathLayerUuids = (state: RootState) => state.routing.pathLayerUuids;
-
-export const selectMovingPointIdx = (state: RootState) => state.routing.movingPointIdx;
-
-export const selectTriggeredMarkerIdx = (state: RootState) => state.routing.triggeredMarkerIdx;
-
-export const selectTriggeredSegment = (state: RootState) => state.routing.triggeredSegment;
-
 // export const selectPointIds = createAppSelector(
 // 	(state: RootState) => state.routing.points,
 // 	(points) => [...points].map((point) => point.id)

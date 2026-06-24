@@ -17,13 +17,7 @@ import { get } from 'lodash-es';
  * Internal dependencies
  */
 import { useAppDispatch, useAppSelector } from '../../../hooks';
-import {
-	setMarkerLayerUuid,
-	setPathLayerUuids,
-	setTriggeredMarkerIdx,
-	setTriggeredSegment,
-} from '../slice';
-import { selectMovingPointIdx, selectPathLayerUuids, selectSegments } from '../selectors';
+import { selectSegments } from '../selectors';
 import { getSegmentRecordId } from '../utils';
 import useRoute from '../hooks/useRoute';
 
@@ -36,10 +30,6 @@ const RoutingMapView = () => {
 		]) || {};
 
 	const segments = useAppSelector(selectSegments);
-
-	const pathLayerUuids = useAppSelector(selectPathLayerUuids);
-
-	const movingPointIdx = useAppSelector(selectMovingPointIdx);
 
 	if (!points || !points.length) {
 		return null;
@@ -113,48 +103,15 @@ const RoutingMapView = () => {
 					return (
 						<LayerPathSlopeGradient
 							key={segmentRecordId}
-							onCreate={(response) => {
-								if (response?.uuid && setPathLayerUuids) {
-									dispatch(
-										setPathLayerUuids([
-											...(pathLayerUuids || []),
-											response.uuid,
-										])
-									);
-								}
-							}}
-							onRemove={(response) => {
-								const idx = pathLayerUuids?.findIndex(
-									(routingPathLayerUuid) => routingPathLayerUuid === response.uuid
-								);
-								if (idx && idx > -1 && pathLayerUuids && setPathLayerUuids) {
-									const newRoutingPathLayerUuids = [...pathLayerUuids];
-									newRoutingPathLayerUuids.splice(idx, 1);
-									dispatch(setPathLayerUuids(newRoutingPathLayerUuids));
-								}
-							}}
 							positions={segment.positions}
 							style={stylePathSegment}
-							onTrigger={(response) => {
-								dispatch(
-									setTriggeredSegment({
-										index,
-										nearestPoint: response.nearestPoint,
-									})
-								);
-							}}
 						/>
 					);
 				}
 			})}
 
 			{points.length > 0 && (
-				<LayerMarker
-					onCreate={(response) =>
-						response.uuid ? dispatch(setMarkerLayerUuid(response.uuid)) : null
-					}
-					onRemove={() => dispatch(setMarkerLayerUuid(null))}
-				>
+				<LayerMarker>
 					{[...points].map((point, index) => (
 						<Marker
 							key={point.id}
@@ -165,13 +122,6 @@ const RoutingMapView = () => {
 							symbol={{
 								text: index + 1 + '',
 								textMargin: 15,
-								...(index === movingPointIdx && {
-									fillColor: '#dddddd',
-									strokeColor: '#111111',
-								}),
-							}}
-							onTrigger={() => {
-								dispatch(setTriggeredMarkerIdx(index));
 							}}
 						/>
 					))}

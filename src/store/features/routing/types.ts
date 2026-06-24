@@ -34,19 +34,3 @@ export interface Route {
 	stats?: LineStats;
 	points: RoutingPoint[];
 }
-
-/**
- * ??? TODO change vtm library and how to trigger segments and simplified bla bla
- *
- *
- */
-export type RoutingTriggeredSegment = {
-	index: number;
-	nearestPoint: Location;
-};
-
-export type NearestSimplifiedCoord = {
-	segmentIndex: number;
-	featureIndex: number;
-	distanceToPoint: number;
-};
