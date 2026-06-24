@@ -7,7 +7,6 @@ import {
 	GeometryStyle,
 	LayerMarker,
 	Marker,
-	LayerPathSlopeGradient,
 	MapContainer,
 	LayerPath,
 } from 'react-native-mapsforge-vtm';
@@ -16,13 +15,12 @@ import { get } from 'lodash-es';
 /**
  * Internal dependencies
  */
-import { useAppDispatch, useAppSelector } from '../../../hooks';
+import { useAppSelector } from '../../../hooks';
 import { selectSegments } from '../selectors';
 import { getSegmentRecordId } from '../utils';
 import useRoute from '../hooks/useRoute';
 
 const RoutingMapView = () => {
-	const dispatch = useAppDispatch();
 
 	const { points } =
 		useRoute([
@@ -101,7 +99,7 @@ const RoutingMapView = () => {
 					}
 				} else {
 					return (
-						<LayerPathSlopeGradient
+						<LayerPath
 							key={segmentRecordId}
 							positions={segment.positions}
 							style={stylePathSegment}
@@ -143,6 +141,7 @@ const stylePathError: GeometryStyle = {
 	strokeWidth: 3,
 };
 const stylePathSegment: GeometryStyle = {
+	strokeColor: '#00ff00',
 	strokeWidth: 5,
 };
 
