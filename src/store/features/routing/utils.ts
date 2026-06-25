@@ -9,7 +9,7 @@ import { FeatureCollection, LineString } from 'geojson';
  */
 import { parseSerialized } from '../../../lib/utilsLight';
 import { RoutingSegment } from './types';
-import { locationsToCoordsArr, runAfterInteractions } from '../../../lib/utils';
+import { runAfterInteractions } from '../../../lib/utils';
 
 export const getSegmentRecordId = (segment: Pick<RoutingSegment, 'fromId' | 'toId'>) =>
 	[
@@ -20,7 +20,7 @@ export const getSegmentRecordId = (segment: Pick<RoutingSegment, 'fromId' | 'toI
 export const aggregateSegmentsToCoords = (segments: RoutingSegment[]) =>
 	segments.reduce((acc, seg) => {
 		if (seg?.positions) {
-			acc.push(...locationsToCoordsArr(seg?.positions));
+			acc.push(...seg.positions);
 		}
 		return acc;
 	}, [] as number[][]);

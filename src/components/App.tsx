@@ -20,7 +20,6 @@ import SplashScreenUpdater from '../store/features/updater/components/SplashScre
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useAppSelector, useSettingsInitialized } from '../store/hooks';
 import { useSetupTheme } from '../store/features/appearance/hooks';
-import { useIsBusyPromiseQueueState } from '../store/features/ui/hooks';
 import { selectIsUpdating } from '../store/features/updater/selectors';
 import useInitialCenter from '../compose/useInitialCenter';
 import { DrawerControls } from '../store/features/drawers/types';
@@ -47,11 +46,11 @@ const App: FC = () => {
 		return () => backHandler.remove();
 	}, []);
 
-	useIsBusyPromiseQueueState();
-
 	const { width, height } = Dimensions.get('window');
 
 	const [mapViewNativeNodeHandle, setMapViewNativeNodeHandle] = useState<null | number>(null);
+
+	const [moveEnabled, setMoveEnabled] = useState(true);
 
 	const settingsInitialized = useSettingsInitialized();
 
@@ -91,6 +90,8 @@ const App: FC = () => {
 			setTopAppBarHeight,
 			setBottomBarHeight,
 			drawerControlsRef,
+			moveEnabled,
+			setMoveEnabled,
 			mapHeight:
 				(appInnerHeight || height) -
 				(Object.values(bottomBarHeight).reduce((acc, nb) => acc + nb, 0) || 0),
@@ -100,6 +101,7 @@ const App: FC = () => {
 			appInnerHeight,
 			topAppBarHeight,
 			bottomBarHeight,
+			moveEnabled,
 			height,
 		]
 	);

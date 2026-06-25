@@ -31,7 +31,7 @@ import { useAppDispatch, useAppSelector } from '../../../hooks';
 import { deleteSegments, processRouting } from '../slice';
 import { selectIsRouting, selectSegments } from '../selectors';
 import { updateRoute } from '../db/actionsRoute';
-import { lineStringToStats, locationsToCoordsArr } from '../../../../lib/utils';
+import { lineStringToStats } from '../../../../lib/utils';
 import { deleteRoutingPoint } from '../db/actionsRoutingPoint';
 import { LineStats as LineStatsType } from '../../lines/types';
 import LineStats from '../../lines/components/LineStats';
@@ -109,7 +109,7 @@ const Segment: FC<{
 	const [lineStats, setLineStats] = useState<LineStatsType>({});
 	useEffect(() => {
 		if (segment && segment?.positions && segment?.positions.length > 1) {
-			lineStringToStats(lineString(locationsToCoordsArr(segment.positions)).geometry).then(
+			lineStringToStats(lineString(segment.positions).geometry).then(
 				(newStats) => {
 					setLineStats(newStats ?? {});
 				}

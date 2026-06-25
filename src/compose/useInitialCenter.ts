@@ -3,7 +3,7 @@
  */
 import { MutableRefObject, useCallback, useEffect, useRef, useState } from 'react';
 import DefaultPreference from 'react-native-default-preference';
-import { MapEventResponse, MapLifeCycleResponse } from 'react-native-mapsforge-vtm';
+import { MapEventResponse } from 'react-native-mapsforge-vtm';
 
 /**
  * Internal dependencies
@@ -22,10 +22,10 @@ const useInitialCenter = (currentMapEventRef: MutableRefObject<MapEventResponse 
 					initialPositionRef.current = JSON.parse(newInitialPosition);
 				} else {
 					initialPositionRef.current = {
-						center: {
-							lng: -70.239,
-							lat: -10.65,
-						},
+						center: [
+							-70.239,
+							-10.65,
+						],
 						zoomLevel: 5,
 					};
 				}
@@ -34,7 +34,7 @@ const useInitialCenter = (currentMapEventRef: MutableRefObject<MapEventResponse 
 			.catch((err) => 'ERROR' + console.log(err));
 	}, []);
 
-	const getCurrentPosition = useCallback((response?: MapLifeCycleResponse | MapEventResponse) => {
+	const getCurrentPosition = useCallback((response?: MapEventResponse) => {
 		let newPosition: undefined | InitialPosition = undefined;
 		if (response && response?.center && response?.zoomLevel) {
 			newPosition = {
@@ -56,7 +56,7 @@ const useInitialCenter = (currentMapEventRef: MutableRefObject<MapEventResponse 
 	}, []);
 
 	const saveCurrentPositionToInitial = useCallback(
-		(response?: MapLifeCycleResponse | MapEventResponse) => {
+		(response?: MapEventResponse) => {
 			const newPosition = getCurrentPosition(response);
 			if (newPosition) {
 				DefaultPreference.set('initialPosition', JSON.stringify(newPosition)).catch(

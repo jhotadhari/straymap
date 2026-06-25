@@ -3,7 +3,7 @@
  */
 import { GetTrackParams } from 'react-native-brouter';
 import { Point } from 'geojson';
-import { Location } from 'react-native-mapsforge-vtm';
+import { Position } from 'react-native-mapsforge-vtm';
 import { LineStats } from '../lines/types';
 
 export type RoutingProfile = {
@@ -21,7 +21,7 @@ export type RoutingPoint = {
 export type RoutingSegment = {
 	fromId: number;
 	toId: number;
-	positions?: Location[];
+	positions?: Position[];
 	isFetching?: boolean;
 	errorMsg?: string;
 };

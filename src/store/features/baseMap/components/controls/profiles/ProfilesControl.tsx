@@ -29,7 +29,7 @@ import { sprintf } from 'sprintf-js';
 /**
  * react-native-mapsforge-vtm dependencies
  */
-import { MapLayerMapsforgeModule, RenderStyleOptionsCollection } from 'react-native-mapsforge-vtm';
+import { useRenderStyleOptions } from 'react-native-mapsforge-vtm';
 
 import ButtonHighlight from '../../../../../../components/generic/ButtonHighlight';
 import ModalWrapper from '../../../../../../components/generic/ModalWrapper';
@@ -38,7 +38,6 @@ import IconIcomoon from '../../../../../../components/generic/IconIcomoon';
 import NameRowControl from '../../../../../../components/generic/controls/NameRowControl';
 import LoadingIndicator from '../../../../../../components/generic/LoadingIndicator';
 import HintLink from '../../../../../../components/generic/HintLink';
-import { runAfterInteractions } from '../../../../../../lib/utils';
 import { MapsforgeProfile, LayerConfigOptionsMapsforge } from '../../../types';
 import { getNewProfile } from '../../../utils';
 import { selectElementExpanded, selectIsBusy } from '../../../../ui/selectors';
@@ -125,46 +124,45 @@ const EditModal: FC<{
 		return !!(profileTemp?.theme && get(renderStylesCache.optionsMap, profileTemp.theme));
 	}, [profileTemp?.theme, renderStylesCache.optionsMap]);
 
+	const { renderStyleDefaultId, renderStyleOptions } = useRenderStyleOptions({
+		renderTheme:
+			modalVisible && profileTemp?.theme && !hasEditProfileRenderStylesCacheEntry
+				? profileTemp.theme
+				: undefined,
+	});
+
 	useEffect(() => {
-		if (profileTemp && profileTemp?.theme && modalVisible) {
-			if (!hasEditProfileRenderStylesCacheEntry) {
-				const busyKey = 'ProfilesControl' + profileTemp.key;
+		if (
+			profileTemp &&
+			'string' === typeof profileTemp.theme &&
+			modalVisible &&
+			!hasEditProfileRenderStylesCacheEntry
+		) {
+			const busyKey = 'ProfilesControl' + profileTemp.key;
+			if (renderStyleOptions.length) {
+				dispatch(
+					setRenderStylesCache({
+						optionsMap: {
+							...renderStylesCache.optionsMap,
+							[profileTemp.theme]: renderStyleOptions,
+						},
+						defaultsMap: {
+							...renderStylesCache.defaultsMap,
+							[profileTemp.theme]: renderStyleDefaultId ?? undefined,
+						},
+					})
+				);
+				dispatch(removeBusyKey(busyKey));
+			} else {
 				dispatch(addBusyKey(busyKey));
-				runAfterInteractions(() => {
-					MapLayerMapsforgeModule.getRenderThemeOptions(profileTemp?.theme).then(
-						(collection: RenderStyleOptionsCollection) => {
-							dispatch(
-								setRenderStylesCache({
-									optionsMap: {
-										...renderStylesCache.optionsMap,
-										...('string' === typeof profileTemp.theme && {
-											[profileTemp.theme]: collection,
-										}),
-									},
-									defaultsMap: {
-										...renderStylesCache.defaultsMap,
-										...('string' === typeof profileTemp.theme && {
-											[profileTemp.theme]: get(
-												Object.values(collection).find(
-													(obj) => obj.default
-												),
-												'value',
-												undefined
-											),
-										}),
-									},
-								})
-							);
-							dispatch(removeBusyKey(busyKey));
-						}
-					);
-				});
 			}
 		}
 	}, [
 		hasEditProfileRenderStylesCacheEntry,
-		profileTemp?.theme,
+		profileTemp,
 		modalVisible,
+		renderStyleOptions,
+		renderStyleDefaultId,
 	]);
 
 	const handleNameUpdate = useCallback(

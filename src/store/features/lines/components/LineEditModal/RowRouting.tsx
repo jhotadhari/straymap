@@ -4,7 +4,7 @@
 import { FC, useCallback, useContext, useMemo } from 'react';
 import { Text, useTheme } from 'react-native-paper';
 import { TextStyle, View } from 'react-native';
-import { MapContainerModule } from 'react-native-mapsforge-vtm';
+import { useMap } from 'react-native-mapsforge-vtm';
 import { centerOfMass } from '@turf/turf';
 
 /**
@@ -39,6 +39,8 @@ const RowRouting: FC = () => {
 
 	const { mapViewNativeNodeHandle } = useContext(AppContext);
 
+	const { panTo } = useMap(mapViewNativeNodeHandle);
+
 	const { route, selectLine, line } = useContext(LineEditModalContext);
 
 	const handlePress = useCallback(() => {
@@ -46,17 +48,14 @@ const RowRouting: FC = () => {
 			// set bounds. ??? have to implement set bounds. use center for now,
 			if (line?.envelope) {
 				const centerPoint = centerOfMass(line?.envelope);
-				MapContainerModule.setCenter(mapViewNativeNodeHandle, {
-					lng: centerPoint.geometry.coordinates[0],
-					lat: centerPoint.geometry.coordinates[1],
-				});
+				panTo(centerPoint.geometry.coordinates);
 			}
 			dispatch(setIsRouting(route.id));
 			selectLine(lineTemp.id, true);
 			activateRoutingDrawerItem();
 		}
 	}, [
-		mapViewNativeNodeHandle,
+		panTo,
 		lineTemp?.id,
 		route?.id,
 		line?.envelope,

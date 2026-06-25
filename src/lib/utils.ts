@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import { Location } from 'react-native-mapsforge-vtm';
 import { InteractionManager } from 'react-native';
 import { LineString } from 'geojson';
 
@@ -45,14 +44,6 @@ export const runAfterInteractions = (
 	};
 	const timeout = setTimeout(taskWrapped, delayFallback);
 	InteractionManager.runAfterInteractions(taskWrapped);
-};
-
-export const locationsToCoordsArr = (positions: Location[]) => {
-	return positions.map((pos) => [
-		pos.lng,
-		pos.lat,
-		...(undefined === pos?.alt ? [] : [pos?.alt]),
-	]);
 };
 
 export const lineStringToStats = async (

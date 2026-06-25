@@ -21,14 +21,11 @@ import { get } from 'lodash-es';
 import {
 	MapContainer,
 	LayerScalebar,
-	type HardwareKeyEventResponse,
 	type MapContainerProps,
-	MapContainerModule,
 	MapEventResponse,
 	ResponseInclude,
-	MapLifeCycleResponse,
 	CanvasAdapterModule,
-} from 'react-native-mapsforge-vtm';
+} from 'react-native-mapsforge-vtm'; // also exports useMap, see emitsHardwareKeyUp note below.
 
 /**
  * Internal dependencies
@@ -42,7 +39,7 @@ import SplashScreen from './SplashScreen';
 // import AltitudeProfile from '../store/features/routing/components/AltitudeProfile';
 import RoutingMapView from '../store/features/routing/components/RoutingMapView';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { selectHardwareKeys, selectMapEventRate } from '../store/features/general/selectors';
+import { selectMapEventRate } from '../store/features/general/selectors'; // also exports selectHardwareKeys, see emitsHardwareKeyUp note below.
 import { selectElementsSettings, selectItems } from '../store/features/dashboard/selectors';
 import { DashboardItem } from '../store/features/dashboard/types';
 import {
@@ -69,7 +66,7 @@ const AppView = ({
 	setMapViewNativeNodeHandle,
 }: {
 	initialPositionRef: MutableRefObject<InitialPosition | undefined>;
-	saveCurrentPositionToInitial: (response?: MapLifeCycleResponse | MapEventResponse) => void;
+	saveCurrentPositionToInitial: (response?: MapEventResponse) => void;
 	setMapViewNativeNodeHandle: Dispatch<SetStateAction<null | number>>;
 }) => {
 	const theme = useTheme();
@@ -77,7 +74,7 @@ const AppView = ({
 
 	const showSplash = useShowInitialSplash();
 
-	const hardwareKeys = useAppSelector(selectHardwareKeys);
+	// const hardwareKeys = useAppSelector(selectHardwareKeys); // see emitsHardwareKeyUp note below.
 
 	const dashboardItems = useAppSelector((state) => selectItems(state, { position: 'bottom' }));
 	const mapEventRate = useAppSelector(selectMapEventRate);
@@ -90,9 +87,11 @@ const AppView = ({
 
 	const { width, height } = Dimensions.get('window');
 
-	const { mapViewNativeNodeHandle, mapHeight } = useContext(AppContext);
+	const { mapViewNativeNodeHandle, mapHeight, moveEnabled } = useContext(AppContext);
 
 	const { currentMapEventRef } = useContext(MapContext);
+
+	// const { zoomTo, zoomOut, getPosition } = useMap(mapViewNativeNodeHandle); // see emitsHardwareKeyUp note below.
 
 	const hgtDirPath = useMemo(
 		() =>
@@ -127,31 +126,35 @@ const AppView = ({
 		[dashboardItems, dashboardElements]
 	);
 
-	const emitsHardwareKeyUp = useMemo(
-		() =>
-			hardwareKeys
-				.filter((keyConf) => 'none' !== keyConf.actionKey)
-				.map((keyConf) => keyConf.keyCodeString) as MapContainerProps['emitsHardwareKeyUp'],
-		[hardwareKeys, mapViewNativeNodeHandle]
-	);
+	// ??? emitsHardwareKeyUp/onHardwareKeyUp aren't wired up to MapContainer in the New
+	// Architecture rewrite of react-native-mapsforge-vtm -- the native TurboModule still has the
+	// constant, but the Fabric view's codegen props and the MapContainer wrapper don't forward it
+	// anymore. Disabled until upstream re-adds it.
+	// const emitsHardwareKeyUp = useMemo(
+	// 	() =>
+	// 		hardwareKeys
+	// 			.filter((keyConf) => 'none' !== keyConf.actionKey)
+	// 			.map((keyConf) => keyConf.keyCodeString),
+	// 	[hardwareKeys]
+	// );
 
-	const handleHardwareKeyUp = useCallback(
-		(response: HardwareKeyEventResponse) => {
-			hardwareKeys.forEach((keyConf) => {
-				if (response.keyCodeString === keyConf.keyCodeString) {
-					switch (keyConf.actionKey) {
-						case 'zoomIn':
-							MapContainerModule.zoomIn(mapViewNativeNodeHandle);
-							break;
-						case 'zoomOut':
-							MapContainerModule.zoomOut(mapViewNativeNodeHandle);
-							break;
-					}
-				}
-			});
-		},
-		[hardwareKeys, mapViewNativeNodeHandle]
-	);
+	// const handleHardwareKeyUp = useCallback(
+	// 	(response: { keyCodeString: string }) => {
+	// 		hardwareKeys.forEach((keyConf) => {
+	// 			if (response.keyCodeString === keyConf.keyCodeString) {
+	// 				switch (keyConf.actionKey) {
+	// 					case 'zoomIn':
+	// 						getPosition().then((position) => zoomTo(position.zoomLevel + 1));
+	// 						break;
+	// 					case 'zoomOut':
+	// 						zoomOut();
+	// 						break;
+	// 				}
+	// 			}
+	// 		});
+	// 	},
+	// 	[hardwareKeys, getPosition, zoomTo, zoomOut]
+	// );
 
 	const [showMap, setShowMap] = useState(false);
 	const mapsforgeGeneral = useAppSelector(selectMapsforgeGeneral);
@@ -168,7 +171,7 @@ const AppView = ({
 	const handleMapError = useCallback((err: unknown) => console.log('Error', err), []);
 
 	const handleMapResume = useCallback(
-		(response: MapLifeCycleResponse) => console.log('lifecycle event onResume', response),
+		(response: MapEventResponse) => console.log('lifecycle event onResume', response),
 		[]
 	);
 
@@ -223,16 +226,19 @@ const AppView = ({
 						zoomLevel={initialPositionRef?.current?.zoomLevel}
 						zoomMin={2}
 						zoomMax={20}
-						moveEnabled={true}
+						moveEnabled={moveEnabled ?? true}
 						tiltEnabled={false}
 						rotationEnabled={false}
 						zoomEnabled={true}
-						onPause={saveCurrentPositionToInitial}
+						// react-native-mapsforge-vtm's MapContainerProps types onPause/onResume/onMapUpdate
+						// as DirectEventHandler<...> (the raw codegen native-component prop type), but
+						// MapContainer's own implementation forwards them straight through as plain
+						// (response: MapEventResponse) => void callbacks -- a library typing bug, not a
+						// real runtime mismatch.
+						onPause={saveCurrentPositionToInitial as MapContainerProps['onPause']}
 						onError={handleMapError}
-						onResume={handleMapResume}
-						onMapEvent={handleMapEvent}
-						emitsHardwareKeyUp={emitsHardwareKeyUp}
-						onHardwareKeyUp={handleHardwareKeyUp}
+						onResume={handleMapResume as MapContainerProps['onResume']}
+						onMapUpdate={handleMapEvent as MapContainerProps['onMapUpdate']}
 					>
 						<DebugBla />
 
@@ -240,7 +246,6 @@ const AppView = ({
 
 						<LayerScalebar />
 
-						{/* has to be last. bug until MapContainer.View is mixing up reactTreeIndex */}
 						<LinesMapView />
 						<RoutingMapView />
 					</MapContainer>

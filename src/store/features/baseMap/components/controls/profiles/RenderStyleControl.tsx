@@ -54,7 +54,7 @@ const RenderStyleControl: FC<{
 	const opts: OptionBase[] = useMemo(() => {
 		const renderStyleOptions = get(renderStylesCache.optionsMap, profileTemp?.theme ?? '');
 		if (renderStyleOptions) {
-			return Object.keys(renderStyleOptions).map((key) => ({ key, label: key }));
+			return renderStyleOptions.map((opt) => ({ key: opt.value, label: opt.label }));
 		}
 		return [];
 	}, [profileTemp?.theme, renderStylesCache]);

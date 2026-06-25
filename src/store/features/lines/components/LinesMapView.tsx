@@ -1,9 +1,9 @@
 /**
  * External dependencies
  */
-import React, { FC, useEffect, useMemo, useState } from 'react';
+import React, { FC, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { GeometryStyle, MapContainer, LayerPath } from 'react-native-mapsforge-vtm';
+import { GeometryStyle, LayerPath } from 'react-native-mapsforge-vtm';
 
 /**
  * Internal dependencies
@@ -34,35 +34,12 @@ const LineItem: FC<{
 		gcTime: 1000 * 10, // The time in milliseconds that unused/inactive cache data remains in memory. When a query's cache becomes unused or inactive, that cache data will be garbage collected after this duration.
 	});
 
-	const [positions, setPositions] = useState<
-		| {
-				alt?: number | undefined;
-				lng: number;
-				lat: number;
-		  }[]
-		| undefined
-	>(undefined);
-
-	useEffect(() => {
-		if (line?.geometry?.coordinates) {
-			setPositions(
-				line.geometry.coordinates.map((arr: number[]) => ({
-					lng: arr[0],
-					lat: arr[1],
-					...(arr.length > 2 && { alt: arr[2] }),
-				}))
-			);
-		}
-	}, [line?.geometry?.coordinates]);
-
 	return (
-		positions && (
-			<MapContainer.View>
-				<LayerPath
-					positions={positions}
-					style={pathStyle}
-				/>
-			</MapContainer.View>
+		line?.geometry?.coordinates && (
+			<LayerPath
+				coordinates={line.geometry.coordinates}
+				style={pathStyle}
+			/>
 		)
 	);
 };

@@ -73,8 +73,8 @@ const useActionAppendPoint = ({
 	const cb = useCallback(async () => {
 		if (currentMapEventRef?.current?.center) {
 			const feature = point([
-				currentMapEventRef?.current?.center.lng,
-				currentMapEventRef?.current?.center.lat,
+				currentMapEventRef.current.center[0],
+				currentMapEventRef.current.center[1],
 				0,
 			]);
 			mutation.mutate({

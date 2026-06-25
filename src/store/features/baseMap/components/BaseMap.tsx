@@ -13,7 +13,6 @@ import {
 	LayerHillshadingProps,
 	LayerMapsforgeResponse,
 	LayerMBTilesBitmapResponse,
-	MapContainer,
 } from 'react-native-mapsforge-vtm';
 
 /**
@@ -76,7 +75,7 @@ const BaseMap: FC<{}> = () => {
 	const profiles = useAppSelector((state) => selectMapsforgeProfiles(state, { temp: false }));
 
 	return (
-		<MapContainer.View>
+		<>
 			{layersReverse.map((layer: LayerConfig) => {
 				if (layer.type && layer.visible) {
 					let cacheDirBase;
@@ -231,7 +230,7 @@ const BaseMap: FC<{}> = () => {
 				}
 				return null;
 			})}
-		</MapContainer.View>
+		</>
 	);
 };
 

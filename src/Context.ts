@@ -20,6 +20,8 @@ export type AppContextType = {
 	setTopAppBarHeight?: Dispatch<SetStateAction<number>>;
 	mapHeight?: number;
 	drawerControlsRef: MutableRefObject<DrawerControls | null>;
+	moveEnabled?: boolean;
+	setMoveEnabled?: Dispatch<SetStateAction<boolean>>;
 };
 
 export const AppContext = createContext<AppContextType>({

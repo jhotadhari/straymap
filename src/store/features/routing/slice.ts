@@ -218,12 +218,7 @@ export const processRouting = (
 										hasDelay: !!pointIdx,
 									})
 										.then((coords) => {
-											const positions = coords.map((coord) => ({
-												lng: coord[0],
-												lat: coord[1],
-												alt: coord[2],
-											}));
-											newSegment.positions = positions;
+											newSegment.positions = coords;
 											newSegment.isFetching = false;
 											newSegments[segmentRecordId] = newSegment;
 											dispatch(routingSlice.actions.setSegment(newSegment));

@@ -195,12 +195,10 @@ const RenderOverlaysControl: FC<{
 
 	const opts = useMemo(() => {
 		if (profileTemp && profileTemp.theme && profileTemp.renderStyle && renderStyleOptions) {
-			const optsMap: { [value: string]: string } = get(
-				renderStyleOptions,
-				[profileTemp.renderStyle, 'options'],
-				{}
-			) as { [value: string]: string };
-			return Object.keys(optsMap).map((key) => ({ key, label: optsMap[key] }));
+			const overlays =
+				renderStyleOptions.find((opt) => opt.value === profileTemp.renderStyle)
+					?.overlays ?? [];
+			return overlays.map((overlay) => ({ key: overlay.value, label: overlay.label }));
 		}
 		return [];
 	}, [

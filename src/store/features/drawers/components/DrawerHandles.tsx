@@ -5,7 +5,6 @@ import React, { FC, useCallback, useContext, useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import DraggableGrid from 'react-native-draggable-grid';
 import { ScrollView } from 'react-native-gesture-handler';
-import { MapContainerModule } from 'react-native-mapsforge-vtm';
 
 /**
  * Internal dependencies
@@ -32,7 +31,7 @@ const DrawerHandles: FC<
 	const activeItemKey = useAppSelector((state) => selectActiveKey(state, { side }));
 	const controlHandleSide = useAppSelector(selectControlHandleSide);
 
-	const { mapViewNativeNodeHandle } = useContext(AppContext);
+	const { setMoveEnabled } = useContext(AppContext);
 	const { setActiveItemKey, height } = useContext(DrawerContext);
 
 	const [scrollEnabled, setScrollEnabled] = useState(true);
@@ -73,18 +72,14 @@ const DrawerHandles: FC<
 	const handleDragStart = useCallback(() => {
 		setPanEnabled(false);
 		setScrollEnabled(false);
-		MapContainerModule.setPropsInteractionsEnabled(mapViewNativeNodeHandle, 'moveEnabled', 0);
-	}, [mapViewNativeNodeHandle]);
+		setMoveEnabled?.(false);
+	}, [setMoveEnabled]);
 
 	const handleDragRelease = useCallback(
 		(newDraggableItems: { key: string }[]) => {
 			setPanEnabled(true);
 			setScrollEnabled(true);
-			MapContainerModule.setPropsInteractionsEnabled(
-				mapViewNativeNodeHandle,
-				'moveEnabled',
-				1
-			);
+			setMoveEnabled?.(true);
 			dispatch(
 				setItemKeys({
 					side,
@@ -92,7 +87,7 @@ const DrawerHandles: FC<
 				})
 			);
 		},
-		[mapViewNativeNodeHandle, side]
+		[setMoveEnabled, side]
 	);
 
 	const getContainerHeight = useCallback(

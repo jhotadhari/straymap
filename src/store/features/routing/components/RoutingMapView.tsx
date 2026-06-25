@@ -7,7 +7,6 @@ import {
 	GeometryStyle,
 	LayerMarker,
 	Marker,
-	MapContainer,
 	LayerPath,
 } from 'react-native-mapsforge-vtm';
 import { get } from 'lodash-es';
@@ -34,7 +33,7 @@ const RoutingMapView = () => {
 	}
 
 	return (
-		<MapContainer.View>
+		<>
 			{[...points].map((fromPoint, index) => {
 				const segment = Object.values(segments).find((seg) => seg.fromId === fromPoint.id);
 
@@ -58,34 +57,27 @@ const RoutingMapView = () => {
 					const placeholderPositions = [
 						fromPoint?.geometry.coordinates,
 						toPoint?.geometry.coordinates,
-					].map((arr) => ({
-						lng: arr[0],
-						lat: arr[1],
-						...(arr.length > 2 && { alt: arr[2] }),
-					}));
+					];
 
 					if (!segment || segment?.isFetching) {
 						return (
 							<LayerPath
 								key={segmentRecordId}
-								positions={placeholderPositions}
+								coordinates={placeholderPositions}
 								style={stylePathFetching}
 							/>
 						);
 					} else {
 						const center = midpoint(fromPoint.geometry, toPoint.geometry);
 						return (
-							<MapContainer.View key={segmentRecordId}>
+							<React.Fragment key={segmentRecordId}>
 								<LayerPath
-									positions={placeholderPositions}
+									coordinates={placeholderPositions}
 									style={stylePathError}
 								/>
 								<LayerMarker>
 									<Marker
-										position={{
-											lng: center.geometry.coordinates[0],
-											lat: center.geometry.coordinates[1],
-										}}
+										position={center.geometry.coordinates}
 										symbol={{
 											text: 'Error',
 											textMargin: 20,
@@ -94,14 +86,14 @@ const RoutingMapView = () => {
 										}}
 									/>
 								</LayerMarker>
-							</MapContainer.View>
+							</React.Fragment>
 						);
 					}
 				} else {
 					return (
 						<LayerPath
 							key={segmentRecordId}
-							positions={segment.positions}
+							coordinates={segment.positions}
 							style={stylePathSegment}
 						/>
 					);
@@ -113,10 +105,7 @@ const RoutingMapView = () => {
 					{[...points].map((point, index) => (
 						<Marker
 							key={point.id}
-							position={{
-								lng: point.geometry.coordinates[0],
-								lat: point.geometry.coordinates[1],
-							}}
+							position={point.geometry.coordinates}
 							symbol={{
 								text: index + 1 + '',
 								textMargin: 15,
@@ -127,7 +116,7 @@ const RoutingMapView = () => {
 			)}
 
 			{/* <NearestToLine/> */}
-		</MapContainer.View>
+		</>
 	);
 };
 

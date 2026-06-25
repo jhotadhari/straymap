@@ -7,7 +7,7 @@ import {
 	LayerMapsforgeProps,
 	LayerHillshadingProps,
 	MapContainerProps,
-	RenderStyleOptionsCollection,
+	RenderStyleOption,
 } from 'react-native-mapsforge-vtm';
 
 /**
@@ -31,7 +31,7 @@ export type LayerInfo = {
 export type LayerInfos = { [value: string]: LayerInfo };
 
 export type RenderStylesCache = {
-	optionsMap: { [value: string]: RenderStyleOptionsCollection };
+	optionsMap: { [value: string]: RenderStyleOption[] };
 	defaultsMap: { [value: string]: string | undefined };
 };
 
