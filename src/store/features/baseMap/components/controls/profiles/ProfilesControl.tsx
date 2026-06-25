@@ -9,6 +9,7 @@ import {
 	useCallback,
 	useEffect,
 	useMemo,
+	useRef,
 	useState,
 } from 'react';
 import {
@@ -124,43 +125,68 @@ const EditModal: FC<{
 		return !!(profileTemp?.theme && get(renderStylesCache.optionsMap, profileTemp.theme));
 	}, [profileTemp?.theme, renderStylesCache.optionsMap]);
 
+	const requestedRenderTheme =
+		modalVisible && profileTemp?.theme && !hasEditProfileRenderStylesCacheEntry
+			? profileTemp.theme
+			: undefined;
+
+	const handleRenderThemeError = useCallback(() => {
+		if (profileTemp) {
+			dispatch(removeBusyKey('ProfilesControl' + profileTemp.key));
+		}
+	}, [profileTemp]);
+
 	const { renderStyleDefaultId, renderStyleOptions } = useRenderStyleOptions({
-		renderTheme:
-			modalVisible && profileTemp?.theme && !hasEditProfileRenderStylesCacheEntry
-				? profileTemp.theme
-				: undefined,
+		renderTheme: requestedRenderTheme,
+		onError: handleRenderThemeError,
 	});
 
+	// useRenderStyleOptions exposes no loading flag -- when renderTheme changes it resets
+	// renderStyleOptions/renderStyleDefaultId to empty in its own effect (a separate render) before
+	// the real (possibly also empty, for a theme without a <stylemenu>) result lands in a later
+	// render. So an empty array alone can't tell "still loading" apart from "loaded and genuinely
+	// empty". Track which render this is for the current requestedRenderTheme instead: tick 1 is
+	// the request itself, tick 2 is the hook's internal reset, tick 3+ is the real result.
+	const fetchThemeRef = useRef<string | undefined>(undefined);
+	const fetchTickRef = useRef(0);
+
 	useEffect(() => {
-		if (
-			profileTemp &&
-			'string' === typeof profileTemp.theme &&
-			modalVisible &&
-			!hasEditProfileRenderStylesCacheEntry
-		) {
-			const busyKey = 'ProfilesControl' + profileTemp.key;
-			if (renderStyleOptions.length) {
-				dispatch(
-					setRenderStylesCache({
-						optionsMap: {
-							...renderStylesCache.optionsMap,
-							[profileTemp.theme]: renderStyleOptions,
-						},
-						defaultsMap: {
-							...renderStylesCache.defaultsMap,
-							[profileTemp.theme]: renderStyleDefaultId ?? undefined,
-						},
-					})
-				);
-				dispatch(removeBusyKey(busyKey));
-			} else {
-				dispatch(addBusyKey(busyKey));
-			}
+		if (!requestedRenderTheme || !profileTemp) {
+			fetchThemeRef.current = undefined;
+			fetchTickRef.current = 0;
+			return;
 		}
+
+		const busyKey = 'ProfilesControl' + profileTemp.key;
+
+		if (fetchThemeRef.current !== requestedRenderTheme) {
+			fetchThemeRef.current = requestedRenderTheme;
+			fetchTickRef.current = 1;
+			dispatch(addBusyKey(busyKey));
+			return;
+		}
+
+		fetchTickRef.current += 1;
+		if (fetchTickRef.current < 3) {
+			return;
+		}
+
+		dispatch(
+			setRenderStylesCache({
+				optionsMap: {
+					...renderStylesCache.optionsMap,
+					[requestedRenderTheme]: renderStyleOptions,
+				},
+				defaultsMap: {
+					...renderStylesCache.defaultsMap,
+					[requestedRenderTheme]: renderStyleDefaultId ?? undefined,
+				},
+			})
+		);
+		dispatch(removeBusyKey(busyKey));
 	}, [
-		hasEditProfileRenderStylesCacheEntry,
+		requestedRenderTheme,
 		profileTemp,
-		modalVisible,
 		renderStyleOptions,
 		renderStyleDefaultId,
 	]);

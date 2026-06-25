@@ -65,7 +65,7 @@ const Display: FC<DashboardElementProps<Options>> = ({ item, style = {}, onPress
 	const intervalRef = useRef<NodeJS.Timeout | null>(null);
 	useEffect(() => {
 		intervalRef.current = setInterval(() => {
-			setAltitudeM(currentMapEventRef?.current?.center?.[2] || null);
+			setAltitudeM(currentMapEventRef?.current?.center?.[2] ?? null);
 		}, mapEventRate);
 		return () => {
 			intervalRef.current && clearInterval(intervalRef.current);

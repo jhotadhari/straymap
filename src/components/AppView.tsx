@@ -12,7 +12,14 @@ import React, {
 	useMemo,
 	useState,
 } from 'react';
-import { Dimensions, StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
+import {
+	Dimensions,
+	NativeSyntheticEvent,
+	StatusBar,
+	StyleSheet,
+	useColorScheme,
+	View,
+} from 'react-native';
 import { useTheme } from 'react-native-paper';
 import { get } from 'lodash-es';
 /**
@@ -21,10 +28,10 @@ import { get } from 'lodash-es';
 import {
 	MapContainer,
 	LayerScalebar,
-	type MapContainerProps,
 	MapEventResponse,
 	ResponseInclude,
 	CanvasAdapterModule,
+	ErrorWithErrorMsg,
 } from 'react-native-mapsforge-vtm'; // also exports useMap, see emitsHardwareKeyUp note below.
 
 /**
@@ -66,7 +73,7 @@ const AppView = ({
 	setMapViewNativeNodeHandle,
 }: {
 	initialPositionRef: MutableRefObject<InitialPosition | undefined>;
-	saveCurrentPositionToInitial: (response?: MapEventResponse) => void;
+	saveCurrentPositionToInitial: (event?: NativeSyntheticEvent<MapEventResponse>) => void;
 	setMapViewNativeNodeHandle: Dispatch<SetStateAction<null | number>>;
 }) => {
 	const theme = useTheme();
@@ -168,16 +175,22 @@ const AppView = ({
 		}, 1);
 	}, [mapsforgeGeneral]);
 
-	const handleMapError = useCallback((err: unknown) => console.log('Error', err), []);
+	// onPause/onResume/onMapUpdate/onError are Fabric native-view event props, so React invokes them
+	// with a NativeSyntheticEvent wrapper (event.nativeEvent), not a bare response object.
+	const handleMapError = useCallback(
+		(event: NativeSyntheticEvent<ErrorWithErrorMsg>) => console.log('Error', event.nativeEvent),
+		[]
+	);
 
 	const handleMapResume = useCallback(
-		(response: MapEventResponse) => console.log('lifecycle event onResume', response),
+		(event: NativeSyntheticEvent<MapEventResponse>) =>
+			console.log('lifecycle event onResume', event.nativeEvent),
 		[]
 	);
 
 	const handleMapEvent = useCallback(
-		(response: MapEventResponse) => {
-			currentMapEventRef.current = response;
+		(event: NativeSyntheticEvent<MapEventResponse>) => {
+			currentMapEventRef.current = event.nativeEvent;
 		},
 		[currentMapEventRef]
 	);
@@ -230,15 +243,10 @@ const AppView = ({
 						tiltEnabled={false}
 						rotationEnabled={false}
 						zoomEnabled={true}
-						// react-native-mapsforge-vtm's MapContainerProps types onPause/onResume/onMapUpdate
-						// as DirectEventHandler<...> (the raw codegen native-component prop type), but
-						// MapContainer's own implementation forwards them straight through as plain
-						// (response: MapEventResponse) => void callbacks -- a library typing bug, not a
-						// real runtime mismatch.
-						onPause={saveCurrentPositionToInitial as MapContainerProps['onPause']}
+						onPause={saveCurrentPositionToInitial}
 						onError={handleMapError}
-						onResume={handleMapResume as MapContainerProps['onResume']}
-						onMapUpdate={handleMapEvent as MapContainerProps['onMapUpdate']}
+						onResume={handleMapResume}
+						onMapUpdate={handleMapEvent}
 					>
 						<DebugBla />
 
