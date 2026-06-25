@@ -44,9 +44,13 @@ export const createLines = async (
 
 		const tagIdsExisting: { [tagId: string]: boolean } = {};
 
-		insertedLines.forEach(({ id }, idx) => {
-			if (newLines[idx]?.tagIds) {
-				newLines[idx].tagIds.forEach(async (tagId) => {
+		await Promise.all(
+			insertedLines.map(async ({ id }, idx) => {
+				const tagIds = newLines[idx]?.tagIds;
+				if (!tagIds) {
+					return;
+				}
+				for (const tagId of tagIds) {
 					if (undefined === tagIdsExisting[tagId] && dbConnection?.drizzle) {
 						const tags = await dbConnection.drizzle
 							.select()
@@ -64,9 +68,9 @@ export const createLines = async (
 							},
 						]);
 					}
-				});
-			}
-		});
+				}
+			})
+		);
 		return insertedLines;
 	} catch (error) {
 		logError('lines/actionsLine.createLines', error);
@@ -86,73 +90,89 @@ export const updateLine = async (
 	if (!id || !dbConnection?.drizzle) {
 		return;
 	}
-	const lines = await dbConnection.drizzle
-		.select()
-		.from(linesTable)
-		.where(eq(linesTable.id, id))
-		.limit(1);
-	if (!lines.length) {
+	try {
+		const lines = await dbConnection.drizzle
+			.select()
+			.from(linesTable)
+			.where(eq(linesTable.id, id))
+			.limit(1);
+		if (!lines.length) {
+			return;
+		}
+		await dbConnection.drizzle
+			.update(linesTable)
+			.set({
+				// ...line,
+				...(undefined !== newLine?.title && { title: newLine.title }),
+				...(undefined !== newLine?.lineStringFeature && {
+					geometry: newLine.lineStringFeature.geometry,
+				}),
+			})
+			.where(eq(linesTable.id, id));
+
+		if (!Array.isArray(newLine?.tagIds)) {
+			return;
+		}
+
+		// get tags fo line.
+		const linesWithTags = (await fetchLines({
+			lineIds: [id],
+			allLines: false,
+			limit: 1,
+			fieldsInclude: ['tags'],
+		})) as WithRequired<LinePartial, 'tags'>[];
+		const currentTagIds = linesWithTags.length
+			? linesWithTags[0].tags.map((tag) => tag.id)
+			: [];
+
+		await Promise.all(
+			newLine.tagIds.map(async (tagId) => {
+				if (!currentTagIds.includes(tagId) && dbConnection?.drizzle) {
+					// create relation
+					await dbConnection.drizzle.insert(tagsToLinesTable).values([
+						{
+							tag_id: tagId,
+							line_id: id,
+						},
+					]);
+				}
+			})
+		);
+
+		await Promise.all(
+			currentTagIds.map(async (tagId) => {
+				if (!newLine.tagIds!.includes(tagId) && dbConnection?.drizzle) {
+					// delete relation that is no longer wanted
+					await dbConnection.drizzle
+						.delete(tagsToLinesTable)
+						.where(
+							and(eq(tagsToLinesTable.tag_id, tagId), eq(tagsToLinesTable.line_id, id))
+						);
+				}
+			})
+		);
+	} catch (error) {
+		logError('lines/actionsLine.updateLine', error);
+		showErrorToast(sprintf(i18n.t('errorGeneric'), (error as Error)?.message ?? String(error)));
+		throw error;
+	}
+};
+
+export const lineAddTag = async (lineId: number, tagId: number) => {
+	if (!dbConnection?.drizzle) {
 		return;
 	}
-	await dbConnection.drizzle
-		.update(linesTable)
-		.set({
-			// ...line,
-			...(undefined !== newLine?.title && { title: newLine.title }),
-			...(undefined !== newLine?.lineStringFeature && {
-				geometry: newLine.lineStringFeature.geometry,
-			}),
-		})
-		.where(eq(linesTable.id, id));
-
-	if (!Array.isArray(newLine?.tagIds)) {
-		return;
-	}
-
-	// get tags fo line.
+	// Check if line has this tag already
 	const linesWithTags = (await fetchLines({
-		lineIds: [id],
+		lineIds: [lineId],
 		allLines: false,
 		limit: 1,
 		fieldsInclude: ['tags'],
 	})) as WithRequired<LinePartial, 'tags'>[];
-	const currentTagIds = linesWithTags.length ? linesWithTags[0].tags.map((tag) => tag.id) : [];
-
-	newLine.tagIds.forEach(async (tagId) => {
-		if (!currentTagIds.includes(tagId) && dbConnection?.drizzle) {
-			// create relation
-			await dbConnection.drizzle.insert(tagsToLinesTable).values([
-				{
-					tag_id: tagId,
-					line_id: id,
-				},
-			]);
-		}
-	});
-
-	currentTagIds.forEach(async (tagId) => {
-		if (newLine.tagIds!.includes(tagId) && dbConnection?.drizzle) {
-			// delete existing relation
-			await dbConnection.drizzle
-				.delete(tagsToLinesTable)
-				.where(and(eq(tagsToLinesTable.tag_id, tagId), eq(tagsToLinesTable.line_id, id)));
-		}
-	});
-};
-
-export const lineAddTag = async (lineId: number, tagId: number) => {
-	// Check if line has tag already
-	if (
-		!dbConnection?.drizzle ||
-		(
-			(await fetchLines({
-				lineIds: [lineId],
-				allLines: false,
-				limit: 1,
-				fieldsInclude: ['tags'],
-			})) as WithRequired<LinePartial, 'tags'>[]
-		).length
-	) {
+	const alreadyHasTag = linesWithTags.length
+		? linesWithTags[0].tags.some((tag) => tag.id === tagId)
+		: false;
+	if (alreadyHasTag) {
 		return;
 	}
 	await dbConnection.drizzle.insert(tagsToLinesTable).values([
