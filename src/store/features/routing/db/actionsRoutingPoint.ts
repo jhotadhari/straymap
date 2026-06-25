@@ -1,11 +1,15 @@
 import { eq } from 'drizzle-orm';
 import { Feature, Point, GeoJsonProperties } from 'geojson';
+import { sprintf } from 'sprintf-js';
 
 import { dbConnection } from '../../dbLoader/DBConnection';
 import { routingPointsTable } from './schema/schema';
 import { fetchRoutes } from './fetch';
 import { updateRoute } from './actionsRoute';
 import { RoutingProfile } from '../types';
+import { logError } from '../../../../lib/utils';
+import { showErrorToast } from '../../../../components/ErrorToast/service';
+import i18n from '../../../../assets/i18n/i18n';
 
 export const createRoutingPoints = async (
 	newPoints: {
@@ -41,7 +45,9 @@ export const createRoutingPoints = async (
 		});
 		return inserted;
 	} catch (error) {
-		console.log('debug error', error); // debug
+		logError('routing/actionsRoutingPoint.createRoutingPoints', error);
+		showErrorToast(sprintf(i18n.t('errorGeneric'), (error as Error)?.message ?? String(error)));
+		throw error;
 	}
 };
 

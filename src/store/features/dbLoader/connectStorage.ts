@@ -20,6 +20,7 @@ import { startAppListening } from '../../listenerMiddleware';
 import { selectInitialized } from './selectors';
 import { AppStore } from '../../store';
 import { dbConnection } from './DBConnection';
+import { logError } from '../../../lib/utils';
 
 const settingsKey = 'dbLoaderSettings';
 
@@ -61,7 +62,7 @@ export const initializeFromStorage = (store: AppStore) => {
 						resolve(true);
 					});
 			})
-			.catch((err) => 'ERROR' + console.log(err));
+			.catch((err) => logError('dbLoader/connectStorage', err));
 	});
 };
 

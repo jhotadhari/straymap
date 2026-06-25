@@ -41,9 +41,9 @@ import LoadingIndicator from '../../../../../../components/generic/LoadingIndica
 import HintLink from '../../../../../../components/generic/HintLink';
 import { MapsforgeProfile, LayerConfigOptionsMapsforge } from '../../../types';
 import { getNewProfile } from '../../../utils';
-import { selectElementExpanded, selectIsBusy } from '../../../../ui/selectors';
+import { selectElementExpanded } from '../../../../ui/selectors';
 import { useAppDispatch, useAppSelector } from '../../../../../hooks';
-import { addBusyKey, removeBusyKey, setElementExpanded } from '../../../../ui/slice';
+import { setElementExpanded } from '../../../../ui/slice';
 import {
 	selectLayers,
 	selectMapsforgeProfiles,
@@ -117,7 +117,10 @@ const EditModal: FC<{
 		profileTemp?.key,
 	]);
 
-	const isBusy = useAppSelector(selectIsBusy);
+	// Local rather than the global busyKeys/isBusy flag: this only gates two sub-buttons in this
+	// modal, not the whole app, so it shouldn't compete with isBusy's "block the splash/whole app"
+	// meaning.
+	const [isFetchingTheme, setIsFetchingTheme] = useState(false);
 
 	const renderStylesCache = useAppSelector(selectRenderStylesCache);
 
@@ -131,10 +134,8 @@ const EditModal: FC<{
 			: undefined;
 
 	const handleRenderThemeError = useCallback(() => {
-		if (profileTemp) {
-			dispatch(removeBusyKey('ProfilesControl' + profileTemp.key));
-		}
-	}, [profileTemp]);
+		setIsFetchingTheme(false);
+	}, []);
 
 	const { renderStyleDefaultId, renderStyleOptions } = useRenderStyleOptions({
 		renderTheme: requestedRenderTheme,
@@ -157,12 +158,10 @@ const EditModal: FC<{
 			return;
 		}
 
-		const busyKey = 'ProfilesControl' + profileTemp.key;
-
 		if (fetchThemeRef.current !== requestedRenderTheme) {
 			fetchThemeRef.current = requestedRenderTheme;
 			fetchTickRef.current = 1;
-			dispatch(addBusyKey(busyKey));
+			setIsFetchingTheme(true);
 			return;
 		}
 
@@ -183,7 +182,7 @@ const EditModal: FC<{
 				},
 			})
 		);
-		dispatch(removeBusyKey(busyKey));
+		setIsFetchingTheme(false);
 	}, [
 		requestedRenderTheme,
 		profileTemp,
@@ -219,22 +218,25 @@ const EditModal: FC<{
 				<NameRowControl
 					item={profileTemp}
 					update={handleNameUpdate}
-					// Info={isBusy ? undefined : t('hint.nameId')}
+					// Info={isFetchingTheme ? undefined : t('hint.nameId')}
 					Info={t('baseMap.hint.nameId')}
 				/>
 
 				<LayerCount profile={profileTemp} />
 
-				<ThemeControl renderStylesCache={renderStylesCache} />
+				<ThemeControl
+					renderStylesCache={renderStylesCache}
+					isFetchingTheme={isFetchingTheme}
+				/>
 
 				<RenderStyleControl
-					AlternativeButton={isBusy ? <LoadingIndicator /> : undefined}
-					Info={isBusy ? undefined : t('baseMap.hint.mapsforgeProfileStyle')}
+					AlternativeButton={isFetchingTheme ? <LoadingIndicator /> : undefined}
+					Info={isFetchingTheme ? undefined : t('baseMap.hint.mapsforgeProfileStyle')}
 				/>
 
 				<RenderOverlaysControl
-					AlternativeButton={isBusy ? renderLoadingIndicator : undefined}
-					Info={isBusy ? undefined : t('baseMap.hint.mapsforgeProfileOverlays')}
+					AlternativeButton={isFetchingTheme ? renderLoadingIndicator : undefined}
+					Info={isFetchingTheme ? undefined : t('baseMap.hint.mapsforgeProfileOverlays')}
 					label={t('baseMap.overlay', { count: 1 })}
 				/>
 

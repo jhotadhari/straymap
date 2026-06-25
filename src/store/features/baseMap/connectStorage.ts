@@ -25,6 +25,7 @@ import {
 import { startAppListening } from '../../listenerMiddleware';
 import { selectInitialized } from './selectors';
 import { AppStore } from '../../store';
+import { logError } from '../../../lib/utils';
 
 const settingsKey = 'baseMapSettings';
 
@@ -78,7 +79,7 @@ export const initializeFromStorage = (store: AppStore) => {
 			}
 			store.dispatch(setInitialized(true));
 		})
-		.catch((err) => 'ERROR' + console.log(err));
+		.catch((err) => logError('baseMap/connectStorage', err));
 };
 
 /**

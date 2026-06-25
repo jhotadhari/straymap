@@ -20,6 +20,7 @@ import { startAppListening } from '../../listenerMiddleware';
 import { selectInitialized } from './selectors';
 import { AppStore } from '../../store';
 import { dbConnection } from '../dbLoader/DBConnection';
+import { logError } from '../../../lib/utils';
 
 const settingsKey = 'routingSettings';
 
@@ -40,7 +41,7 @@ export const initializeFromStorage = (store: AppStore) => {
 			}
 			store.dispatch(setInitialized(true));
 		})
-		.catch((err) => 'ERROR' + console.log(err));
+		.catch((err) => logError('routing/connectStorage', err));
 };
 
 /**

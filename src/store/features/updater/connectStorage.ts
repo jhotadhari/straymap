@@ -20,6 +20,7 @@ import { startAppListening } from '../../listenerMiddleware';
 import { selectInitialized } from './selectors';
 import Updater from './Updater';
 import { AppStore } from '../../store';
+import { logError } from '../../../lib/utils';
 
 const settingsKey = 'updaterSettings';
 
@@ -49,7 +50,7 @@ export const initializeFromStorage = (store: AppStore) => {
 					resolve(true);
 				});
 			})
-			.catch((err) => 'ERROR' + console.log(err));
+			.catch((err) => logError('updater/connectStorage', err));
 	});
 };
 

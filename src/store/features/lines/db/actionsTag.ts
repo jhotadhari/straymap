@@ -1,7 +1,11 @@
 import { eq } from 'drizzle-orm';
+import { sprintf } from 'sprintf-js';
 
 import { dbConnection } from '../../dbLoader/DBConnection';
 import { tagsTable, tagsToLinesTable } from './schema/schema';
+import { logError } from '../../../../lib/utils';
+import { showErrorToast } from '../../../../components/ErrorToast/service';
+import i18n from '../../../../assets/i18n/i18n';
 
 export const createTags = async (
 	newTags: {
@@ -26,7 +30,9 @@ export const createTags = async (
 			.returning({ id: tagsTable.id });
 		return inserted;
 	} catch (error) {
-		console.log('debug error', error); // debug
+		logError('lines/actionsTag.createTags', error);
+		showErrorToast(sprintf(i18n.t('errorGeneric'), (error as Error)?.message ?? String(error)));
+		throw error;
 	}
 };
 

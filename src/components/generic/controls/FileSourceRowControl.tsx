@@ -8,6 +8,7 @@ import {
 	ReactNode,
 	SetStateAction,
 	useCallback,
+	useContext,
 	useEffect,
 	useMemo,
 	useState,
@@ -17,6 +18,7 @@ import { Text, TextInput, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { get } from 'lodash-es';
 import { openDocument } from 'react-native-scoped-storage';
+import { sprintf } from 'sprintf-js';
 
 /**
  * Internal dependencies
@@ -30,6 +32,9 @@ import LoadingIndicator from '../LoadingIndicator';
 import { AbsPath } from '../../../store/features/dirs/types';
 import useDirsInfo from '../../../store/features/dirs/hooks/useDirsInfo';
 import dayjs from 'dayjs';
+import { logError } from '../../../lib/utils';
+import { ErrorToastContext } from '../../ErrorToast/Context';
+import useAsyncBusy from '../../../compose/useAsyncBusy';
 
 interface OptionWithDesc extends OptionBase {
 	desc?: string;
@@ -63,17 +68,24 @@ const Option: FC<{
 	const { t } = useTranslation();
 	const theme = useTheme();
 
+	const { showError } = useContext(ErrorToastContext);
+
+	const [isPicking, runOpenDocument] = useAsyncBusy(openDocument);
+
 	const handlePress = useCallback(() => {
 		if (option.key === selectedOpt) {
 			setSelectedOpt(undefined);
 		} else {
 			if ('custom' === option.key) {
-				openDocument(false)
+				runOpenDocument(false)
 					.then((file) => {
 						setCustomUri(file.uri as `content://${string}`);
 						setSelectedOpt('custom');
 					})
-					.catch((err: any) => console.log(err));
+					.catch((err) => {
+						logError('FileSourceRowControl.openDocument', err);
+						showError(sprintf(t('errorGeneric'), err?.message ?? String(err)));
+					});
 			} else {
 				setCustomUri(undefined);
 				setSelectedOpt(option.key);
@@ -84,12 +96,16 @@ const Option: FC<{
 		selectedOpt,
 		setSelectedOpt,
 		setCustomUri,
+		showError,
+		t,
+		runOpenDocument,
 	]);
 
 	return (
 		<RadioListItem
 			opt={option}
 			onPress={handlePress}
+			labelNode={isPicking ? <LoadingIndicator size="small" /> : undefined}
 			labelStyle={theme.fonts.bodyMedium}
 			labelExtractor={(a) => a.label}
 			descExtractor={(a) =>
@@ -332,7 +348,7 @@ const FileSourceRowControl: FC<{
 
 	const handleOpenModal = useCallback(() => setModalVisible(true), []);
 
-	const dirsInfos = useDirsInfo({
+	const { dirsInfo, isLoading: dirsInfoLoading } = useDirsInfo({
 		navDirs: dirs || [],
 		extensions,
 		recursive: true,
@@ -342,9 +358,9 @@ const FileSourceRowControl: FC<{
 
 	useEffect(() => {
 		let newOptionsByPath = { ...initialOptionsByPath };
-		if (dirsInfos) {
-			Object.keys(dirsInfos).map((key) => {
-				const dirInfo = dirsInfos[key];
+		if (dirsInfo) {
+			Object.keys(dirsInfo).map((key) => {
+				const dirInfo = dirsInfo[key];
 				newOptionsByPath = {
 					...newOptionsByPath,
 					[key]:
@@ -383,7 +399,7 @@ const FileSourceRowControl: FC<{
 
 		setOptionsByPath(newOptionsByPath);
 	}, [
-		dirsInfos,
+		dirsInfo,
 		filePattern,
 		hasCustom,
 		t,
@@ -515,7 +531,7 @@ const FileSourceRowControl: FC<{
 			{/* )} */}
 
 			<View style={[styles.actionsRow, styleContent]}>
-				{!AlternativeButton && dirsInfos && Object.keys(dirsInfos).length > 0 && (
+				{!AlternativeButton && !dirsInfoLoading && (
 					<ButtonHighlight
 						style={styles.triggerButton}
 						onPress={handleOpenModal}
@@ -524,13 +540,11 @@ const FileSourceRowControl: FC<{
 					</ButtonHighlight>
 				)}
 
-				{!AlternativeButton && dirsInfos && Object.keys(dirsInfos).length === 0 && (
-					<LoadingIndicator />
-				)}
+				{!AlternativeButton && dirsInfoLoading && <LoadingIndicator />}
 
 				{!!AlternativeButton && <AlternativeButton setModalVisible={setModalVisible} />}
 
-				{!!After && dirsInfos && Object.keys(dirsInfos).length !== 0 && After}
+				{!!After && !dirsInfoLoading && After}
 			</View>
 		</InfoRowControl>
 	);

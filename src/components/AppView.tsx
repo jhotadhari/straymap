@@ -22,6 +22,8 @@ import {
 } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import { get } from 'lodash-es';
+import { sprintf } from 'sprintf-js';
+import { useTranslation } from 'react-i18next';
 /**
  * react-native-mapsforge-vtm dependencies
  */
@@ -40,6 +42,7 @@ import {
 import TopAppBar from '../store/features/ui/components/TopAppBar';
 import type { InitialPosition } from '../types';
 import { AppContext, MapContext } from '../Context';
+import { ErrorToastContext } from './ErrorToast/Context';
 import Center from '../store/features/appearance/components/Center';
 import Drawers from '../store/features/drawers/components/Drawers';
 import SplashScreen from './SplashScreen';
@@ -77,7 +80,10 @@ const AppView = ({
 	setMapViewNativeNodeHandle: Dispatch<SetStateAction<null | number>>;
 }) => {
 	const theme = useTheme();
+	const { t } = useTranslation();
 	const systemIsDarkMode = useColorScheme() === 'dark';
+
+	const { showError } = useContext(ErrorToastContext);
 
 	const showSplash = useShowInitialSplash();
 
@@ -178,8 +184,11 @@ const AppView = ({
 	// onPause/onResume/onMapUpdate/onError are Fabric native-view event props, so React invokes them
 	// with a NativeSyntheticEvent wrapper (event.nativeEvent), not a bare response object.
 	const handleMapError = useCallback(
-		(event: NativeSyntheticEvent<ErrorWithErrorMsg>) => console.log('Error', event.nativeEvent),
-		[]
+		(event: NativeSyntheticEvent<ErrorWithErrorMsg>) => {
+			console.log('Error', event.nativeEvent);
+			showError(sprintf(t('errorGeneric'), event.nativeEvent.errorMsg));
+		},
+		[showError, t]
 	);
 
 	const handleMapResume = useCallback(

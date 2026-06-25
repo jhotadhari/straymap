@@ -14,6 +14,7 @@ import { changeLang } from '../../../assets/i18n/i18n';
 import { SUPPORTED_LANGUAGES } from '../../../assets/i18n/constants';
 import { selectInitialized } from './selectors';
 import { AppStore } from '../../store';
+import { logError } from '../../../lib/utils';
 
 const settingsKey = 'langSettings';
 
@@ -48,7 +49,7 @@ export const initializeFromStorage = (store: AppStore) => {
 			}
 			store.dispatch(setInitialized(true));
 		})
-		.catch((err) => 'ERROR' + console.log(err));
+		.catch((err) => logError('lang/connectStorage', err));
 };
 
 /**

@@ -12,6 +12,10 @@ import { fetchLines } from './fetch';
 import { linesTable, tagsTable, tagsToLinesTable } from './schema/schema';
 import { Line, LinePartial } from '../types';
 import { WithRequired } from '@tanstack/react-query';
+import { logError } from '../../../../lib/utils';
+import { showErrorToast } from '../../../../components/ErrorToast/service';
+import i18n from '../../../../assets/i18n/i18n';
+import { sprintf } from 'sprintf-js';
 
 export const createLines = async (
 	newLines: {
@@ -65,7 +69,9 @@ export const createLines = async (
 		});
 		return insertedLines;
 	} catch (error) {
-		console.log('debug error', error); // debug
+		logError('lines/actionsLine.createLines', error);
+		showErrorToast(sprintf(i18n.t('errorGeneric'), (error as Error)?.message ?? String(error)));
+		throw error;
 	}
 };
 

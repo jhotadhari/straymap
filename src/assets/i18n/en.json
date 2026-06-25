@@ -1,4 +1,5 @@
 {
+	"errorGeneric": "Error: %s",
 	"selectFile": "Select File",
 	"file": "File",
 	"sizePx": "Size [px]",

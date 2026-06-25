@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { eq } from 'drizzle-orm';
+import { sprintf } from 'sprintf-js';
 
 /**
  * Internal dependencies
@@ -9,6 +10,9 @@ import { eq } from 'drizzle-orm';
 import { dbConnection } from '../../dbLoader/DBConnection';
 import { routesTable, routingPointsTable } from './schema/schema';
 import { linesTable } from '../../lines/db/schema/schema';
+import { logError } from '../../../../lib/utils';
+import { showErrorToast } from '../../../../components/ErrorToast/service';
+import i18n from '../../../../assets/i18n/i18n';
 
 export const createRoutes = async (
 	newRoutes: {
@@ -30,7 +34,9 @@ export const createRoutes = async (
 			.returning({ id: routesTable.id });
 		return inserted;
 	} catch (error) {
-		console.log('debug error', error); // debug
+		logError('routing/actionsRoute.createRoutes', error);
+		showErrorToast(sprintf(i18n.t('errorGeneric'), (error as Error)?.message ?? String(error)));
+		throw error;
 	}
 };
 

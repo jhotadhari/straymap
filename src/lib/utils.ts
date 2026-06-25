@@ -11,6 +11,10 @@ import { LineStats as LineStatsType } from '../store/features/lines/types';
 import { dbOpExecute } from '../store/features/dbLoader/utils';
 import { NumType } from '../types';
 
+export const logError = (context: string, err: unknown) => {
+	console.error(`[${context}]`, err);
+};
+
 export const strValToNb = (val: string, numType: NumType = 'int'): number => {
 	switch (numType) {
 		case 'int':

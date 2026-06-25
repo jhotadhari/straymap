@@ -1,7 +1,9 @@
 /**
  * External dependencies
  */
-import { useEffect, useMemo } from 'react';
+import { useContext, useEffect, useMemo } from 'react';
+import { sprintf } from 'sprintf-js';
+import { useTranslation } from 'react-i18next';
 
 /**
  * Internal dependencies
@@ -12,6 +14,8 @@ import { AbsPath, DirInfo, DirInfoMap } from '../types';
 import { getDirInfoCacheId } from '../utils';
 import { addDirInfoCacheEntry } from '../slice';
 import { selectDirsInfoCacheEntry } from '../selectors';
+import { logError } from '../../../../lib/utils';
+import { ErrorToastContext } from '../../../../components/ErrorToast/Context';
 
 const useDirsInfo = ({
 	navDirs,
@@ -21,8 +25,12 @@ const useDirsInfo = ({
 	navDirs: AbsPath[];
 	extensions?: string[];
 	recursive?: boolean;
-}): DirInfoMap | undefined => {
+}): { dirsInfo: DirInfoMap | undefined; isLoading: boolean } => {
 	const dispatch = useAppDispatch();
+
+	const { t } = useTranslation();
+
+	const { showError } = useContext(ErrorToastContext);
 
 	const dirInfoCacheId = useMemo(
 		() =>
@@ -57,8 +65,9 @@ const useDirsInfo = ({
 									resolve(false);
 								}
 							})
-							.catch((err: any) => {
-								console.log(err);
+							.catch((err) => {
+								logError('useDirsInfo.getInfo', err);
+								showError(sprintf(t('errorGeneric'), err?.message ?? String(err)));
 								resolve(false);
 							});
 					});
@@ -81,7 +90,10 @@ const useDirsInfo = ({
 						})
 					);
 				})
-				.catch((err: any) => console.log(err));
+				.catch((err) => {
+					logError('useDirsInfo.addDirInfoCacheEntry', err);
+					showError(sprintf(t('errorGeneric'), err?.message ?? String(err)));
+				});
 		}
 	}, [
 		navDirs,
@@ -89,9 +101,14 @@ const useDirsInfo = ({
 		recursive,
 		infos,
 		dirInfoCacheId,
+		showError,
+		t,
 	]);
 
-	return infos;
+	return {
+		dirsInfo: infos,
+		isLoading: undefined === infos,
+	};
 };
 
 export default useDirsInfo;

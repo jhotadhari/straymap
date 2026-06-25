@@ -10,6 +10,7 @@ import { MapEventResponse } from 'react-native-mapsforge-vtm';
  * Internal dependencies
  */
 import type { InitialPosition } from '../types';
+import { logError } from '../lib/utils';
 
 const useInitialCenter = (currentMapEventRef: MutableRefObject<MapEventResponse | null>) => {
 	const [initialized, setInitialized] = useState(false);
@@ -32,44 +33,41 @@ const useInitialCenter = (currentMapEventRef: MutableRefObject<MapEventResponse 
 				}
 				setInitialized(true);
 			})
-			.catch((err) => 'ERROR' + console.log(err));
+			.catch((err) => logError('useInitialCenter', err));
 	}, []);
 
-	const getCurrentPosition = useCallback(
-		(event?: NativeSyntheticEvent<MapEventResponse>) => {
-			// MapContainer's onPause is a Fabric native-view event prop, so React invokes it with a
-			// NativeSyntheticEvent wrapper (event.nativeEvent), not a bare MapEventResponse -- unlike
-			// e.g. useMap()'s getPosition(), which resolves a plain object. When called directly from
-			// the setInterval below (no event), this is undefined and we fall through to the ref.
-			const response = event?.nativeEvent;
-			let newPosition: undefined | InitialPosition = undefined;
-			if (response && response?.center && response?.zoomLevel) {
-				newPosition = {
-					center: response.center,
-					zoomLevel: response.zoomLevel,
-				};
-			} else if (currentMapEventRef?.current?.center && currentMapEventRef?.current?.zoomLevel) {
-				newPosition = {
-					center: currentMapEventRef.current.center,
-					zoomLevel: currentMapEventRef.current.zoomLevel,
-				};
-			} else if (initialPositionRef?.current?.center && initialPositionRef?.current?.zoomLevel) {
-				newPosition = {
-					center: initialPositionRef.current.center,
-					zoomLevel: initialPositionRef.current.zoomLevel,
-				};
-			}
-			return newPosition;
-		},
-		[]
-	);
+	const getCurrentPosition = useCallback((event?: NativeSyntheticEvent<MapEventResponse>) => {
+		// MapContainer's onPause is a Fabric native-view event prop, so React invokes it with a
+		// NativeSyntheticEvent wrapper (event.nativeEvent), not a bare MapEventResponse -- unlike
+		// e.g. useMap()'s getPosition(), which resolves a plain object. When called directly from
+		// the setInterval below (no event), this is undefined and we fall through to the ref.
+		const response = event?.nativeEvent;
+		let newPosition: undefined | InitialPosition = undefined;
+		if (response && response?.center && response?.zoomLevel) {
+			newPosition = {
+				center: response.center,
+				zoomLevel: response.zoomLevel,
+			};
+		} else if (currentMapEventRef?.current?.center && currentMapEventRef?.current?.zoomLevel) {
+			newPosition = {
+				center: currentMapEventRef.current.center,
+				zoomLevel: currentMapEventRef.current.zoomLevel,
+			};
+		} else if (initialPositionRef?.current?.center && initialPositionRef?.current?.zoomLevel) {
+			newPosition = {
+				center: initialPositionRef.current.center,
+				zoomLevel: initialPositionRef.current.zoomLevel,
+			};
+		}
+		return newPosition;
+	}, []);
 
 	const saveCurrentPositionToInitial = useCallback(
 		(event?: NativeSyntheticEvent<MapEventResponse>) => {
 			const newPosition = getCurrentPosition(event);
 			if (newPosition) {
-				DefaultPreference.set('initialPosition', JSON.stringify(newPosition)).catch(
-					(err) => 'ERROR' + console.log(err)
+				DefaultPreference.set('initialPosition', JSON.stringify(newPosition)).catch((err) =>
+					logError('useInitialCenter', err)
 				);
 			}
 		},

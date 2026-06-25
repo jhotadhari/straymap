@@ -1,12 +1,13 @@
 /**
  * External dependencies
  */
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { Linking, StyleSheet, View } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { get } from 'lodash-es';
 import { openDocumentTree } from 'react-native-scoped-storage';
+import { sprintf } from 'sprintf-js';
 
 /**
  * react-native-mapsforge-vtm dependencies
@@ -25,6 +26,10 @@ import HintLink from '../HintLink';
 import { HgtDirPath } from '../../../store/features/baseMap/types';
 import { AbsPath } from '../../../store/features/dirs/types';
 import { sharedStyles } from '../../../sharedStyles';
+import { logError } from '../../../lib/utils';
+import { ErrorToastContext } from '../../ErrorToast/Context';
+import useAsyncBusy from '../../../compose/useAsyncBusy';
+import LoadingIndicator from '../LoadingIndicator';
 
 const HgtSourceRowControl = ({
 	dirs,
@@ -41,6 +46,8 @@ const HgtSourceRowControl = ({
 }) => {
 	const { t } = useTranslation();
 	const theme = useTheme();
+
+	const { showError } = useContext(ErrorToastContext);
 
 	const [modalVisible, setModalVisible] = useState(false);
 
@@ -89,6 +96,8 @@ const HgtSourceRowControl = ({
 
 	const styleHintLarge = useMemo(() => [theme.fonts.bodyLarge, styles.hintLarge], [theme]);
 
+	const [isPicking, runOpenDocumentTree] = useAsyncBusy(openDocumentTree);
+
 	const handleOptionPress = useCallback(
 		(opt: OptionBase) => {
 			if (opt.key === selectedOpt) {
@@ -96,13 +105,16 @@ const HgtSourceRowControl = ({
 				setCustomUri(undefined);
 			} else {
 				if (opt.key === 'custom') {
-					openDocumentTree(true)
+					runOpenDocumentTree(true)
 						.then((dir) => {
 							setCustomUri(dir.uri as `content://${string}`);
 							setSelectedOpt('custom');
 							setModalVisible(false);
 						})
-						.catch((err: any) => console.log(err));
+						.catch((err) => {
+							logError('HgtSourceRowControl.openDocumentTree', err);
+							showError(sprintf(t('errorGeneric'), err?.message ?? String(err)));
+						});
 				} else {
 					setCustomUri(undefined);
 					setSelectedOpt(opt.key as HgtDirPath);
@@ -110,7 +122,12 @@ const HgtSourceRowControl = ({
 				}
 			}
 		},
-		[selectedOpt]
+		[
+			selectedOpt,
+			showError,
+			t,
+			runOpenDocumentTree,
+		]
 	);
 
 	const handleCloseModal = useCallback(() => setModalVisible(false), []);
@@ -166,6 +183,11 @@ const HgtSourceRowControl = ({
 									key={opt.key}
 									opt={opt}
 									onPress={() => handleOptionPress(opt)}
+									labelNode={
+										isPicking && 'custom' === opt.key ? (
+											<LoadingIndicator size="small" />
+										) : undefined
+									}
 									labelStyle={theme.fonts.bodyMedium}
 									labelExtractor={(a) => a.label}
 									descExtractor={

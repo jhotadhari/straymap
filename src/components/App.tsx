@@ -29,6 +29,7 @@ import {
 	selectRequireReload,
 } from '../store/features/dbLoader/selectors';
 import { dbConnection } from '../store/features/dbLoader/DBConnection';
+import ErrorToastProvider from './ErrorToast/ErrorToastProvider';
 
 const App: FC = () => {
 	const theme = useTheme();
@@ -168,7 +169,9 @@ export default () => {
 		dbConnection?.queryClient && (
 			<QueryClientProvider client={dbConnection.queryClient}>
 				<PaperProvider theme={theme}>
-					<App />
+					<ErrorToastProvider>
+						<App />
+					</ErrorToastProvider>
 				</PaperProvider>
 			</QueryClientProvider>
 		)
