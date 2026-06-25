@@ -16,7 +16,10 @@ full architecture writeup.
 
 - [ ] #1 Consistent error handling on update/delete functions
 - [ ] #2 Orphaned `tags_to_lines` rows on delete
-- [ ] #3 No db transactions on multi-statement writes
+- [ ] #3 No db transactions on multi-statement writes (spike no longer
+      needed — confirmed broken upstream, see issue 3 below)
+- [ ] #4 Adopt RQB for `fetchRoutes` (opportunity, not a bug — lowest
+      priority)
 
 (Numbered in suggested work order — see "Suggested order of work" below for why.)
 
@@ -130,7 +133,23 @@ Where it bites today:
 - `deleteRoute`: deletes `routing_points` rows, then deletes the `routes`
   row — two independent statements.
 
-### Important finding: drizzle's op-sqlite transaction may not be safe to rely on
+### Research update: transaction bug confirmed, not fixed on any current/upcoming drizzle version
+
+Researched whether a drizzle-orm upgrade (1.0 is at `rc.3` as of this writing,
+`0.45.2` is still `latest`) fixes this. It does not — confirmed by diffing
+`op-sqlite/session.ts` between `0.45.2` and current `main`: `transaction()` is
+structurally unchanged, `begin`/the callback/`commit` are still never
+awaited. Tracked upstream as
+[drizzle-orm#2275](https://github.com/drizzle-team/drizzle-orm/issues/2275)
+("sqlite transactions can't be async for 4 of 5 implementations"), open since
+May 2024, explicitly naming op-sqlite, not part of either active v1 rewrite
+effort (drizzle-kit rewrite, RQB v2). **Decision: skip the "verify via spike"
+step below — go straight to the native `op.transaction()` helper described
+in step 2. Don't upgrade drizzle-orm for this reason; no stable 1.0 exists
+yet and it wouldn't help if it did.** Revisit only if drizzle-orm#2275 is
+closed in a future release.
+
+### Original finding: drizzle's op-sqlite transaction may not be safe to rely on
 
 Reading `node_modules/drizzle-orm/op-sqlite/session.js`'s `transaction()`
 method (drizzle-orm `0.45.2`, op-sqlite `16.1.0` — see `package.json`):
@@ -157,32 +176,86 @@ transaction(transaction, config = {}) {
 `await`s it. So `commit` can fire before the inserts inside an
 `async (tx) => {...}` callback actually complete, and an error thrown inside
 that callback becomes an unhandled rejection the `catch` block never sees.
-**This must be verified before being relied on** — it's exactly the kind of
-thing that looks fine in casual testing and silently isn't atomic.
+Confirmed unfixed upstream (see research update above) — no need to spike/
+verify, go straight to building around it.
 
 ### Steps
 
-1. **Spike/verify first**: write a throwaway test/script that opens a
-   transaction via `dbConnection.drizzle.transaction(async (tx) => {...})`,
-   inserts a row, then throws inside the callback, and checks afterward
-   whether the row persists. This tells us definitively whether `.transaction()`
-   is safe here.
-2. **If broken** (likely, per the read above): build a thin transaction
-   helper on top of the *native* op-sqlite transaction API instead —
+1. Build a thin transaction helper on top of the *native* op-sqlite
+   transaction API instead of `dbConnection.drizzle.transaction(...)` —
    `dbConnection.op.transaction(async (tx) => { await tx.execute(sql, params); ... })`,
    which is genuinely async and is already used safely in `dbOpExecute`
    (`dbLoader/utils.ts`). Get the parameterized SQL out of drizzle via
    `db.insert(...).values(...).toSQL()` (`{ sql, params }`) and run it through
    `tx.execute(sql, params)` instead of `await db.insert(...)`.
-3. **If it turns out to work**: wrap each multi-statement action body in
-   `dbConnection.drizzle.transaction(async (tx) => {...})`, swapping
-   `dbConnection.drizzle.insert/update/delete` for `tx.insert/update/delete`
-   inside.
-4. Apply to the four call sites above, in this order (simplest first):
+2. Apply to the four call sites above, in this order (simplest first):
    `deleteRoute` → `createRoutingPoints` → `createLines` → `updateLine`.
-5. Re-test each affected flow manually (create a line with tags, edit a
+3. Re-test each affected flow manually (create a line with tags, edit a
    route, delete a route) since this changes execution semantics even when
    the end result looks the same.
+
+---
+
+## Issue 4 (opportunity, not a bug): adopt drizzle relational queries (RQB) where it actually helps
+
+Researched whether drizzle's relational query API (`db.query.<table>.findMany(...)`,
+available because `drizzle(this.op, { schema })` is already initialized with
+`schema` — the `relations()` calls in `lines/db/schema/schema.ts` are declared
+but currently unused for querying) could replace the manual `.select()` +
+join + JS `.reduce()` aggregation in `lines/db/fetch.ts` and
+`routing/db/fetch.ts`.
+
+**Findings:**
+- RQB's `with: { tags: { with: { tag: true } } }` does dedupe/nest
+  one-to-many/many-to-many results internally — this is exactly the step
+  `fetchLinesWithTags`/`fetchRoutes` currently do by hand via `.reduce()`
+  into a `Map`/`Record`.
+- RQB supports mixing in raw SQL columns via `extras`, which is what we need
+  for the SpatiaLite function calls (`AsGeoJSON`, `GreatCircleLength`,
+  `ST_Envelope`, etc.):
+  ```ts
+  db.query.linesTable.findMany({
+      extras: (table, { sql }) => ({
+          geometryGeoJSON: sql<string>`AsGeoJSON(${table.geometry})`.as('geometryGeoJSON'),
+      }),
+      with: { tags: { with: { tag: true } } },
+  })
+  ```
+- **The blocker**: RQB's `with` only *attaches* relations, it never *filters*
+  which rows come back. `fetchLinesWithTags`'s `tagId` parameter and its
+  `allLines`/`allTags` toggle rely on real SQL `rightJoin`/`leftJoin`
+  inclusion semantics (e.g. "only lines that have this specific tag") that
+  RQB has no equivalent for. So `fetchLinesWithTags` can't fully move to RQB
+  without losing that filtering, or reimplementing it as a JS post-filter
+  (which defeats the point).
+- `fetchRoutes` (`routesTable` ⟕ `routingPointsTable` ⟕ `linesTable`, plain
+  `leftJoin`s, no toggle/filter) has no such blocker — a clean RQB candidate.
+- This doesn't change with a drizzle-orm 1.0 upgrade: 1.0's "RQB v2" renames
+  the access path (`db._query.*` instead of `db.query.*`, via
+  `drizzle-orm/_relations`) but doesn't add inclusion-filtering on `with`,
+  and we're not upgrading anyway (see issue 3's research update).
+
+### Steps
+
+1. Add `relations()` declarations for `routesTable`/`routingPointsTable` in
+   `routing/db/schema/schema.ts` (not yet declared — only the `lines`/`tags`
+   side has them today).
+2. Rewrite `fetchRoutes` using `db.query.routesTable.findMany({ with: { points: true }, extras: {...} })`,
+   dropping the manual joins and the `.reduce()` into `Record<routeId, Route>`.
+   Keep the existing post-fetch `sortArrayByOrderArray` call — `point_order`
+   sorting isn't something RQB does for you.
+3. Leave `fetchLinesWithTags` on manual `.select()` — don't force RQB onto a
+   function whose core job (toggleable join direction + tag filtering) RQB
+   can't express. Optionally split it later: an RQB path for the common
+   "give me lines with all their tags" case, manual SQL kept only for the
+   `tagId`-filtered / `allLines=false` / `allTags=false` cases — but only if
+   that split is shown to actually reduce code, not just add a second code
+   path for the same data.
+4. Re-test `fetchRoutes` call sites (`queryRoute`, `queryRouteForLine` in
+   `routing/db/queryFns.ts`) after the rewrite — same return shape, but
+   confirm the stats (`length`/`uphill`/`downhill`/`minZ`/`maxZ`) `extras`
+   come back as the same string-to-parse-as-float shape `parseRows`/
+   `mapValues(pick(...), parseFloat)` currently expects.
 
 ---
 
@@ -191,5 +264,20 @@ thing that looks fine in casual testing and silently isn't atomic.
 1. **Issue 1** first — low risk, mechanical, makes failures visible while we
    touch the riskier stuff below.
 2. **Issue 2** next — needs a schema/product decision, then a migration.
-3. **Issue 3** last — needs the transaction-safety spike, and benefits from
-   issue 2's cascade semantics already being settled.
+3. **Issue 3** next — no longer blocked on a spike (confirmed broken
+   upstream), and benefits from issue 2's cascade semantics already being
+   settled.
+4. **Issue 4** whenever — independent of the other three, lowest priority
+   since it's a simplification, not a bug fix. Good candidate for a quiet
+   afternoon once 1–3 are done.
+
+## Drizzle version note
+
+Stay on `drizzle-orm ^0.45.2` for now. Researched upgrading to the 1.0 line
+(at `1.0.0-rc.3` as of this writing, not yet stable) specifically to see if
+it fixes the op-sqlite transaction bug behind issue 3 — it doesn't (confirmed
+via source diff against `main`, tracked upstream as
+[drizzle-orm#2275](https://github.com/drizzle-team/drizzle-orm/issues/2275),
+unfixed, not part of the active v1 rewrite work). No other upgrade driver
+exists right now. Revisit if #2275 closes or 1.0 reaches a stable release
+with relevant op-sqlite fixes.
