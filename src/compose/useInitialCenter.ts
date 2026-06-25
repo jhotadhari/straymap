@@ -12,6 +12,11 @@ import { MapEventResponse } from 'react-native-mapsforge-vtm';
 import type { InitialPosition } from '../types';
 import { logError } from '../lib/utils';
 
+const defaultCenter = [
+	-70.239,
+	-10.65,
+];
+
 const useInitialCenter = (currentMapEventRef: MutableRefObject<MapEventResponse | null>) => {
 	const [initialized, setInitialized] = useState(false);
 
@@ -19,15 +24,17 @@ const useInitialCenter = (currentMapEventRef: MutableRefObject<MapEventResponse 
 
 	useEffect(() => {
 		DefaultPreference.get('initialPosition')
-			.then((newInitialPosition) => {
-				if (newInitialPosition) {
-					initialPositionRef.current = JSON.parse(newInitialPosition);
+			.then((newInitialPositionStr) => {
+				if (newInitialPositionStr) {
+					const newInitialPosition = JSON.parse(newInitialPositionStr);
+					// If center was saved in old type, drop it.
+					if ( newInitialPosition?.center && ! Array.isArray(newInitialPosition?.center ) ) {
+						newInitialPosition.center = defaultCenter;
+					}
+					initialPositionRef.current = newInitialPosition;
 				} else {
 					initialPositionRef.current = {
-						center: [
-							-70.239,
-							-10.65,
-						],
+						center: defaultCenter,
 						zoomLevel: 5,
 					};
 				}

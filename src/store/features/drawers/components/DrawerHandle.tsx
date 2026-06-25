@@ -127,7 +127,7 @@ const DrawerHandle = ({
 	return (
 		<View style={containerStyle}>
 			{!panEnabled && handlesNode}
-			{panEnabled && <GestureDetector gesture={gesture}>{handlesNode}</GestureDetector>}
+			{panEnabled && <GestureDetector gesture={gesture as any}>{handlesNode}</GestureDetector>}
 		</View>
 	);
 };
