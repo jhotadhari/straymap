@@ -3,12 +3,16 @@
  */
 import { Scalar, QueryResult } from '@op-engineering/op-sqlite';
 import { omit } from 'lodash-es';
+import { sprintf } from 'sprintf-js';
 
 /**
  * Internal dependencies
  */
 import { dbConnection } from './DBConnection';
 import { parseSerialized } from '../../../lib/utilsLight';
+import { logError } from '../../../lib/utils';
+import { showErrorToast } from '../../../components/ErrorToast/service';
+import i18n from '../../../assets/i18n/i18n';
 
 export const dbOpExecute = (query: string, params?: Scalar[]): Promise<QueryResult> => {
 	return new Promise(async (resolve, reject) => {
@@ -50,3 +54,24 @@ export const rowParseEnvelopeGeoJSON = <T, G>(row: T & { envelopeGeoJSON: string
 export const rowsParseEnvelopeGeoJSON = <T, G>(rows: (T & { envelopeGeoJSON: string })[]) => {
 	return rows.map((row) => rowParseEnvelopeGeoJSON<T, G>(row));
 };
+
+/**
+ * Wraps an async DB action with try/catch that logs the error and shows a
+ * user-facing toast, then rethrows. Use for all drizzle-backed CRUD functions
+ * so failures are consistently reported.
+ */
+export const withDbErrorHandling = <Args extends any[], T>(
+	context: string,
+	fn: (...args: Args) => Promise<T>
+) =>
+	async (...args: Args): Promise<T> => {
+		try {
+			return await fn(...args);
+		} catch (error) {
+			logError(context, error);
+			showErrorToast(
+				sprintf(i18n.t('errorGeneric'), (error as Error)?.message ?? String(error))
+			);
+			throw error;
+		}
+	};

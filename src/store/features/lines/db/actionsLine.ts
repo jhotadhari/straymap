@@ -10,24 +10,23 @@ import { eq, and, or } from 'drizzle-orm';
 import { dbConnection } from '../../dbLoader/DBConnection';
 import { fetchLines } from './fetch';
 import { linesTable, tagsTable, tagsToLinesTable } from './schema/schema';
-import { Line, LinePartial } from '../types';
+import { LinePartial } from '../types';
 import { WithRequired } from '@tanstack/react-query';
-import { logError } from '../../../../lib/utils';
-import { showErrorToast } from '../../../../components/ErrorToast/service';
-import i18n from '../../../../assets/i18n/i18n';
-import { sprintf } from 'sprintf-js';
+import { withDbErrorHandling } from '../../dbLoader/utils';
 
-export const createLines = async (
-	newLines: {
-		title?: string | null;
-		lineStringFeature: Feature<LineString, GeoJsonProperties>;
-		tagIds?: number[];
-	}[]
-) => {
-	if (!dbConnection?.drizzle) {
-		return;
-	}
-	try {
+export const createLines = withDbErrorHandling(
+	'lines/actionsLine.createLines',
+	async (
+		newLines: {
+			title?: string | null;
+			lineStringFeature: Feature<LineString, GeoJsonProperties>;
+			tagIds?: number[];
+		}[]
+	) => {
+		if (!dbConnection?.drizzle) {
+			return;
+		}
+
 		const insertedLines = await dbConnection.drizzle
 			.insert(linesTable)
 			.values(
@@ -72,25 +71,23 @@ export const createLines = async (
 			})
 		);
 		return insertedLines;
-	} catch (error) {
-		logError('lines/actionsLine.createLines', error);
-		showErrorToast(sprintf(i18n.t('errorGeneric'), (error as Error)?.message ?? String(error)));
-		throw error;
 	}
-};
+);
 
-export const updateLine = async (
-	id: number | undefined,
-	newLine: Partial<{
-		title: string | null;
-		lineStringFeature: Feature<LineString, GeoJsonProperties>;
-		tagIds?: number[];
-	}>
-) => {
-	if (!id || !dbConnection?.drizzle) {
-		return;
-	}
-	try {
+export const updateLine = withDbErrorHandling(
+	'lines/actionsLine.updateLine',
+	async (
+		id: number | undefined,
+		newLine: Partial<{
+			title: string | null;
+			lineStringFeature: Feature<LineString, GeoJsonProperties>;
+			tagIds?: number[];
+		}>
+	) => {
+		if (!id || !dbConnection?.drizzle) {
+			return;
+		}
+
 		const lines = await dbConnection.drizzle
 			.select()
 			.from(linesTable)
@@ -151,65 +148,75 @@ export const updateLine = async (
 				}
 			})
 		);
-	} catch (error) {
-		logError('lines/actionsLine.updateLine', error);
-		showErrorToast(sprintf(i18n.t('errorGeneric'), (error as Error)?.message ?? String(error)));
-		throw error;
 	}
-};
+);
 
-export const lineAddTag = async (lineId: number, tagId: number) => {
-	if (!dbConnection?.drizzle) {
-		return;
+export const lineAddTag = withDbErrorHandling(
+	'lines/actionsLine.lineAddTag',
+	async (lineId: number, tagId: number) => {
+		if (!dbConnection?.drizzle) {
+			return;
+		}
+		// Check if line has this tag already
+		const linesWithTags = (await fetchLines({
+			lineIds: [lineId],
+			allLines: false,
+			limit: 1,
+			fieldsInclude: ['tags'],
+		})) as WithRequired<LinePartial, 'tags'>[];
+		const alreadyHasTag = linesWithTags.length
+			? linesWithTags[0].tags.some((tag) => tag.id === tagId)
+			: false;
+		if (alreadyHasTag) {
+			return;
+		}
+		await dbConnection.drizzle.insert(tagsToLinesTable).values([
+			{
+				tag_id: tagId,
+				line_id: lineId,
+			},
+		]);
 	}
-	// Check if line has this tag already
-	const linesWithTags = (await fetchLines({
-		lineIds: [lineId],
-		allLines: false,
-		limit: 1,
-		fieldsInclude: ['tags'],
-	})) as WithRequired<LinePartial, 'tags'>[];
-	const alreadyHasTag = linesWithTags.length
-		? linesWithTags[0].tags.some((tag) => tag.id === tagId)
-		: false;
-	if (alreadyHasTag) {
-		return;
+);
+
+export const lineRemoveTag = withDbErrorHandling(
+	'lines/actionsLine.lineRemoveTag',
+	async (lineId: number, tagId: number) => {
+		dbConnection?.drizzle &&
+			(await dbConnection.drizzle
+				.delete(tagsToLinesTable)
+				.where(
+					and(eq(tagsToLinesTable.tag_id, tagId), eq(tagsToLinesTable.line_id, lineId))
+				));
 	}
-	await dbConnection.drizzle.insert(tagsToLinesTable).values([
-		{
-			tag_id: tagId,
-			line_id: lineId,
-		},
-	]);
-};
+);
 
-export const lineRemoveTag = async (lineId: number, tagId: number) => {
-	dbConnection?.drizzle &&
-		(await dbConnection.drizzle
-			.delete(tagsToLinesTable)
-			.where(and(eq(tagsToLinesTable.tag_id, tagId), eq(tagsToLinesTable.line_id, lineId))));
-};
+export const deleteLine = withDbErrorHandling(
+	'lines/actionsLine.deleteLine',
+	async (id?: number | false) => {
+		if (id && dbConnection?.drizzle) {
+			await dbConnection.drizzle.delete(linesTable).where(eq(linesTable.id, id));
 
-export const deleteLine = async (id?: number | false) => {
-	if (id && dbConnection?.drizzle) {
-		await dbConnection.drizzle.delete(linesTable).where(eq(linesTable.id, id));
+			// ??? do that with schema
+			// await clients.dbZ.delete(tagsToLinesTable).where(eq(tagsToLinesTable.line_id, id));
+		}
+	}
+);
+
+export const deleteLines = withDbErrorHandling(
+	'lines/actionsLine.deleteLines',
+	async (ids?: number[]) => {
+		if (!ids || !dbConnection?.drizzle) {
+			return;
+		}
+
+		await dbConnection.drizzle
+			.delete(linesTable)
+			.where(or(...ids.map((id) => eq(linesTable.id, id))));
 
 		// ??? do that with schema
-		// await clients.dbZ.delete(tagsToLinesTable).where(eq(tagsToLinesTable.line_id, id));
+		// await clients.dbZ.delete(tagsToLinesTable).where(or(
+		// 	...ids.map((id) => eq(tagsToLinesTable.line_id, id) )
+		// ));
 	}
-};
-
-export const deleteLines = async (ids?: number[]) => {
-	if (!ids || !dbConnection?.drizzle) {
-		return;
-	}
-
-	await dbConnection.drizzle
-		.delete(linesTable)
-		.where(or(...ids.map((id) => eq(linesTable.id, id))));
-
-	// ??? do that with schema
-	// await clients.dbZ.delete(tagsToLinesTable).where(or(
-	// 	...ids.map((id) => eq(tagsToLinesTable.line_id, id) )
-	// ));
-};
+);
