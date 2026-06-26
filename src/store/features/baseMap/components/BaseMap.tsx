@@ -62,9 +62,8 @@ const BaseMap: FC<{}> = () => {
 	);
 
 	const handleLayerCreateOrChangeFactory = useCallback(
-		(key: string) =>
-			(response: LayerMapsforgeResponse | LayerMBTilesBitmapResponse) =>
-				handleLayerChange(key, response),
+		(key: string) => (response: LayerMapsforgeResponse | LayerMBTilesBitmapResponse) =>
+			handleLayerChange(key, response),
 		[handleLayerChange]
 	);
 

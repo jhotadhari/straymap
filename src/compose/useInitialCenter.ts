@@ -28,7 +28,7 @@ const useInitialCenter = (currentMapEventRef: MutableRefObject<MapEventResponse 
 				if (newInitialPositionStr) {
 					const newInitialPosition = JSON.parse(newInitialPositionStr);
 					// If center was saved in old type, drop it.
-					if ( newInitialPosition?.center && ! Array.isArray(newInitialPosition?.center ) ) {
+					if (newInitialPosition?.center && !Array.isArray(newInitialPosition?.center)) {
 						newInitialPosition.center = defaultCenter;
 					}
 					initialPositionRef.current = newInitialPosition;

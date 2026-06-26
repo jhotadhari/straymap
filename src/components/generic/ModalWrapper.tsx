@@ -93,15 +93,16 @@ const ModalWrapper: FC<{
 	const heightShared = useSharedValue(modalHeight);
 
 	useEffect(() => {
-		heightShared.value = withTiming(
-			modalHeight + (keyboardShown ? modalTop / 4 : 0),
-			{
-				duration,
-				easing: Easing.inOut(Easing.quad),
-				reduceMotion: ReduceMotion.System,
-			}
-		);
-	}, [modalHeight, modalTop, keyboardShown]);
+		heightShared.value = withTiming(modalHeight + (keyboardShown ? modalTop / 4 : 0), {
+			duration,
+			easing: Easing.inOut(Easing.quad),
+			reduceMotion: ReduceMotion.System,
+		});
+	}, [
+		modalHeight,
+		modalTop,
+		keyboardShown,
+	]);
 
 	const modalAnimatedStyles = useAnimatedStyle(() => ({
 		height: heightShared.value,
@@ -116,7 +117,11 @@ const ModalWrapper: FC<{
 			borderWidth: 1,
 			borderRadius: theme.roundness,
 		}),
-		[theme, width, modalWidthFactor]
+		[
+			theme,
+			width,
+			modalWidthFactor,
+		]
 	);
 
 	const handleDismissAll = useCallback(() => {
@@ -137,10 +142,7 @@ const ModalWrapper: FC<{
 		[theme]
 	);
 
-	const styleContentInner = useMemo(
-		() => [styles.contentInner, innerStyle],
-		[innerStyle]
-	);
+	const styleContentInner = useMemo(() => [styles.contentInner, innerStyle], [innerStyle]);
 
 	return (
 		<RNModal
@@ -195,9 +197,7 @@ const ModalWrapper: FC<{
 								<View style={styles.headerRow}>
 									{hasBackButton && (
 										<TouchableHighlight
-											underlayColor={
-												theme.colors.elevation.level3
-											}
+											underlayColor={theme.colors.elevation.level3}
 											style={styleBackButton}
 											onPress={handleDismiss}
 										>
@@ -210,20 +210,12 @@ const ModalWrapper: FC<{
 
 									{header && (
 										<View>
-											<Text
-												style={
-													theme.fonts.headlineSmall
-												}
-											>
-												{header}
-											</Text>
+											<Text style={theme.fonts.headlineSmall}>{header}</Text>
 										</View>
 									)}
 								</View>
 
-								<View style={styleContentInner}>
-									{children}
-								</View>
+								<View style={styleContentInner}>{children}</View>
 							</ScrollView>
 						</Animated.View>
 					</View>
