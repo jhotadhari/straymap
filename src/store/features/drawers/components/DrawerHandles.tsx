@@ -194,11 +194,17 @@ const styles = StyleSheet.create({
 	},
 	wrapperLeft: {
 		right: 0,
-		transform: [{ translateX: '100%' }],
+		transform: [
+			{ translateX: '100%' },
+			{ translateX: -1 }, // because the borderWidth is `1`. See src/store/features/drawers/components/DrawerHandle.tsx styles.handle
+		],
 	},
 	wrapperRight: {
 		left: 0,
-		transform: [{ translateX: '-100%' }],
+		transform: [
+			{ translateX: '-100%' },
+			{ translateX: 1 }, // because the borderWidth is `1`. See src/store/features/drawers/components/DrawerHandle.tsx styles.handle
+		],
 	},
 	scrollView: {
 		overflow: 'visible',
