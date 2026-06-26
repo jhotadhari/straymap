@@ -14,7 +14,6 @@ import {
 	View,
 	ScrollView,
 } from 'react-native';
-import { useSafeAreaFrame } from 'react-native-safe-area-context';
 import { useTheme, Text, Portal, Modal, Icon } from 'react-native-paper';
 import { BlurView } from '@react-native-community/blur';
 import Animated, {
@@ -81,14 +80,13 @@ const ModalWrapper: FC<{
 	scrollEnabled = true,
 	onLayout,
 }) => {
-	const { height: heightSafe } = useSafeAreaFrame();
 	const { height, width } = Dimensions.get('window');
 
 	const theme = useTheme();
 	const context = useContext(AppContext);
 	const keyboardShown = useKeyboardShown();
 
-	const modalHeight = heightSafe * 0.75;
+	const modalHeight = height * 0.75;
 	const modalTop = (height - modalHeight) / 2;
 
 	const heightShared = useSharedValue(modalHeight);

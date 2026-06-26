@@ -116,9 +116,11 @@ const App: FC = () => {
 
 	if (isUpdating) {
 		return (
-			<View style={style}>
-				<SplashScreenUpdater />
-			</View>
+			<AppContext.Provider value={appContextValue}>
+				<View style={style}>
+					<SplashScreenUpdater />
+				</View>
+			</AppContext.Provider>
 		);
 	}
 
@@ -130,17 +132,19 @@ const App: FC = () => {
 	) {
 		const isDbError = dbMigrated && 'string' === typeof dbMigrated;
 		return (
-			<View style={style}>
-				<SplashScreen displayLogo={!isDbError && !requireReload}>
-					{isDbError && (
-						<Text>{sprintf(t('dbLoader.dbMigrationError'), dbMigrated)}</Text>
-					)}
-					{/* ??? missing translation */}
-					{requireReload && (
-						<Text>{sprintf(t('dbLoader.requireReload'), dbMigrated)}</Text>
-					)}
-				</SplashScreen>
-			</View>
+			<AppContext.Provider value={appContextValue}>
+				<View style={style}>
+					<SplashScreen displayLogo={!isDbError && !requireReload}>
+						{isDbError && (
+							<Text>{sprintf(t('dbLoader.dbMigrationError'), dbMigrated)}</Text>
+						)}
+						{/* ??? missing translation */}
+						{requireReload && (
+							<Text>{sprintf(t('dbLoader.requireReload'), dbMigrated)}</Text>
+						)}
+					</SplashScreen>
+				</View>
+			</AppContext.Provider>
 		);
 	}
 
