@@ -73,7 +73,13 @@ export const initializeFromStorage = (store: AppStore) => {
 				if (newSettings?.mapsforgeGeneral) {
 					store.dispatch(setMapsforgeGeneralAction(newSettings.mapsforgeGeneral));
 				}
-				if (newSettings?.renderStylesCache) {
+				if (
+					newSettings?.renderStylesCache &&
+					// If renderStylesCache was saved in old type, drop it.
+					!Object.values(newSettings?.renderStylesCache).some(
+						(renderStyle) => renderStyle?.options || renderStyle?.default
+					)
+				) {
 					store.dispatch(setRenderStylesCache(newSettings.renderStylesCache));
 				}
 			}
