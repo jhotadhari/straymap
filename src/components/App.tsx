@@ -151,13 +151,11 @@ const App: FC = () => {
 	return (
 		<AppContext.Provider value={appContextValue}>
 			<MapContext.Provider value={mapContextValue}>
-				<GestureHandlerRootView>
-					<AppView
-						initialPositionRef={initialPositionRef}
-						saveCurrentPositionToInitial={saveCurrentPositionToInitial}
-						setMapViewNativeNodeHandle={setMapViewNativeNodeHandle}
-					/>
-				</GestureHandlerRootView>
+				<AppView
+					initialPositionRef={initialPositionRef}
+					saveCurrentPositionToInitial={saveCurrentPositionToInitial}
+					setMapViewNativeNodeHandle={setMapViewNativeNodeHandle}
+				/>
 			</MapContext.Provider>
 		</AppContext.Provider>
 	);
@@ -172,11 +170,13 @@ export default () => {
 		dbLoaderInitialized &&
 		dbConnection?.queryClient && (
 			<QueryClientProvider client={dbConnection.queryClient}>
-				<PaperProvider theme={theme}>
-					<ErrorToastProvider>
-						<App />
-					</ErrorToastProvider>
-				</PaperProvider>
+				<GestureHandlerRootView>
+					<PaperProvider theme={theme}>
+						<ErrorToastProvider>
+							<App />
+						</ErrorToastProvider>
+					</PaperProvider>
+				</GestureHandlerRootView>
 			</QueryClientProvider>
 		)
 	);
