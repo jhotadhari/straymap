@@ -123,6 +123,7 @@ const ModalWrapper: FC<{
 			justifyContent: 'center',
 			flexDirection: 'row',
 			position: 'absolute',
+			top: 0,
 		}),
 		[width, height]
 	);
@@ -156,14 +157,26 @@ const ModalWrapper: FC<{
 		}
 	}, [onDismiss, keyboardShown]);
 
-	const styleModal = useMemo(() => [styles.modalBase, modalStyle], [modalStyle]);
+	const styleModal = useMemo(
+		() => [
+			styles.modalBase,
+			modalStyle,
+		],
+		[modalStyle]
+	);
 
 	const styleBackButton = useMemo(
 		() => [styles.backButton, { borderRadius: theme.roundness }],
 		[theme]
 	);
 
-	const styleContentInner = useMemo(() => [styles.contentInner, innerStyle], [innerStyle]);
+	const styleContentInner = useMemo(
+		() => [
+			styles.contentInner,
+			innerStyle,
+		],
+		[innerStyle]
+	);
 
 	const modalTheme = useMemo(
 		() =>
@@ -181,57 +194,56 @@ const ModalWrapper: FC<{
 	return (
 		<Portal>
 			<AppContext.Provider value={context}>
-				<Modal
-					theme={modalTheme}
-					onDismiss={handleDismissAll}
-					visible={visible}
-					style={styleModal}
-					contentContainerStyle={contentContainerStyle}
-				>
-					<Pressable
-						style={styles.absolute}
-						onPress={handleDismiss}
+				<View>
+					<Modal
+						theme={modalTheme}
+						onDismiss={handleDismissAll}
+						visible={visible}
+						style={styleModal}
+						contentContainerStyle={contentContainerStyle}
 					>
-						{backgroundBlur && (
-							<BlurView
-								style={styles.absolute}
-								blurAmount={1}
-								blurType={theme.dark ? 'dark' : 'light'}
-							/>
-						)}
-					</Pressable>
+						<Pressable
+							style={styles.absolute}
+							onPress={handleDismiss}
+						>
+							{backgroundBlur && (
+								<BlurView
+									style={styles.absolute}
+									blurAmount={1}
+									blurType={theme.dark ? 'dark' : 'light'}
+								/>
+							)}
+						</Pressable>
 
-					<View style={contentContainerStyle}>
-						<Animated.View style={modalAnimatedStyles}>
-							<GestureHandlerRootView>
-								<ScrollView
-									scrollEnabled={scrollEnabled}
-									onLayout={onLayout}
-									style={[
-										modalStyles,
-										innerContainerStyle,
-										// {
-										// 	height: modalHeight,
-										// },
-									]}
-								>
-									<View style={styles.headerRow}>
-										{hasBackButton && (
-											<TouchableHighlight
-												underlayColor={theme.colors.elevation.level3}
-												style={styleBackButton}
-												onPress={handleDismiss}
-											>
-												<Icon
-													source="arrow-left"
-													size={25}
-												/>
-											</TouchableHighlight>
-										)}
+						<View style={contentContainerStyle}>
+							<Animated.View style={modalAnimatedStyles}>
+								<GestureHandlerRootView>
+									{/* GestureHandlerRootView was added because children didn't receive touch events when ScrollView was scrolled. Maybe not needed anymore*/}
+									<ScrollView
+										scrollEnabled={scrollEnabled}
+										onLayout={onLayout}
+										style={[
+											modalStyles,
+											innerContainerStyle,
+										]}
+									>
+										<View style={styles.headerRow}>
+											{hasBackButton && (
+												<TouchableHighlight
+													underlayColor={theme.colors.elevation.level3}
+													style={styleBackButton}
+													onPress={handleDismiss}
+												>
+													<Icon
+														source="arrow-left"
+														size={25}
+													/>
+												</TouchableHighlight>
+											)}
 
-										{header && (
-											<View>
-												{/* {header.split('-').map((str, index) => (
+											{header && (
+												<View>
+													{/* {header.split('-').map((str, index) => (
 													<Text
 														key={index}
 														style={theme.fonts.headlineSmall}
@@ -242,19 +254,20 @@ const ModalWrapper: FC<{
 																: '')}
 													</Text>
 												))} */}
-												<Text style={theme.fonts.headlineSmall}>
-													{header}
-												</Text>
-											</View>
-										)}
-									</View>
+													<Text style={theme.fonts.headlineSmall}>
+														{header}
+													</Text>
+												</View>
+											)}
+										</View>
 
-									<View style={styleContentInner}>{children}</View>
-								</ScrollView>
-							</GestureHandlerRootView>
-						</Animated.View>
-					</View>
-				</Modal>
+										<View style={styleContentInner}>{children}</View>
+									</ScrollView>
+								</GestureHandlerRootView>
+							</Animated.View>
+						</View>
+					</Modal>
+				</View>
 			</AppContext.Provider>
 		</Portal>
 	);
