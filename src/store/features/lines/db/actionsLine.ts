@@ -196,9 +196,6 @@ export const deleteLine = withDbErrorHandling(
 	async (id?: number | false) => {
 		if (id && dbConnection?.drizzle) {
 			await dbConnection.drizzle.delete(linesTable).where(eq(linesTable.id, id));
-
-			// ??? do that with schema
-			// await clients.dbZ.delete(tagsToLinesTable).where(eq(tagsToLinesTable.line_id, id));
 		}
 	}
 );
@@ -213,10 +210,5 @@ export const deleteLines = withDbErrorHandling(
 		await dbConnection.drizzle
 			.delete(linesTable)
 			.where(or(...ids.map((id) => eq(linesTable.id, id))));
-
-		// ??? do that with schema
-		// await clients.dbZ.delete(tagsToLinesTable).where(or(
-		// 	...ids.map((id) => eq(tagsToLinesTable.line_id, id) )
-		// ));
 	}
 );

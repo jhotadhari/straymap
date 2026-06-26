@@ -13,7 +13,7 @@ export const routesTable = sqliteTable('routes', {
 		.notNull()
 		.$type<number[]>()
 		.default(sql`(json_array())`),
-	line_id: integer('line_id').references(() => linesTable.id),
+	line_id: integer('line_id').references(() => linesTable.id, { onDelete: 'set null' }),
 });
 
 export const routingPointsTable = sqliteTable('routing_points', {
