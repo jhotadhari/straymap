@@ -14,7 +14,6 @@ import { StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import rnUuid from 'react-native-uuid';
 import MaterialIcons from '@react-native-vector-icons/material-icons/static';
-import { useTheme } from 'react-native-paper';
 
 /**
  * Internal dependencies
@@ -53,8 +52,6 @@ const Modal: FC<{
 	setModalVisible: Dispatch<SetStateAction<boolean>>;
 }> = ({ modalVisible, setModalVisible }) => {
 	const { t } = useTranslation();
-
-	const theme = useTheme();
 
 	const elementSettings = useAppSelector(selectElementsSettings);
 

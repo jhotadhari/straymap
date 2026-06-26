@@ -105,7 +105,7 @@ const TableRow: FC<TableRowProps> = ({
 
 	const handleEditPress = useCallback(() => {
 		dispatch(setLineTemp({ id: line.id }));
-	}, [line.id]);
+	}, [dispatch, line.id]);
 
 	return (
 		<View style={style}>

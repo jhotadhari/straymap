@@ -24,7 +24,7 @@ const StatsModal: FC<{
 	lineIds: number[];
 	handleDismissModal: () => void;
 	backgroundBlur?: boolean;
-}> = ({ lineIds, handleDismissModal, backgroundBlur }) => {
+}> = ({ lineIds, handleDismissModal, backgroundBlur: _backgroundBlur }) => {
 	const { data: lines } = useQuery({
 		queryKey: ['lines', lineIds],
 		queryFn: queryLinesWithoutGeom,

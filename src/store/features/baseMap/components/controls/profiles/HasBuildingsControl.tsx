@@ -30,7 +30,9 @@ const HasBuildingsControl: FC<{}> = () => {
 					}) as MapsforgeProfile
 			)
 		);
-	}, []);
+	}, [
+		dispatch,
+	]);
 
 	const opt: OptionBase = useMemo(
 		() => ({

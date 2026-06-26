@@ -58,7 +58,11 @@ const useActionAppendPoint = ({
 				dbConnection?.queryClient && dispatch(processRouting(dbConnection.queryClient));
 			},
 		}),
-		[routeId, dbConnection?.queryClient]
+		[
+			dispatch,
+			routeId,
+			dbConnection?.queryClient,
+		]
 	);
 	const mutation = useMutation(mutationOptions);
 

@@ -81,7 +81,11 @@ const ItemUnitPrefControl: FC<{ unitPrefsKey: string; buttonLabel?: string }> = 
 				dispatch(setItem(newItem));
 			}
 		};
-	}, [value, item]);
+	}, [
+		dispatch,
+		value,
+		item,
+	]);
 
 	// Reset component state on item change.
 	useEffect(() => {
@@ -128,6 +132,8 @@ const ItemUnitPrefControl: FC<{ unitPrefsKey: string; buttonLabel?: string }> = 
 		}
 	}, []);
 
+	const unitPrefUnit = get(unitPrefs, [unitPrefsKey, 'unit']);
+
 	const getMenuItemStyle = useCallback(
 		(idx: number) =>
 			!value?.unit && get(unitPrefs, [unitPrefsKey, 'unit']) === opts[idx].key
@@ -137,7 +143,7 @@ const ItemUnitPrefControl: FC<{ unitPrefsKey: string; buttonLabel?: string }> = 
 					}
 				: {},
 		[
-			get(unitPrefs, [unitPrefsKey, 'unit']),
+			unitPrefUnit,
 			value?.unit,
 			opts,
 			theme,

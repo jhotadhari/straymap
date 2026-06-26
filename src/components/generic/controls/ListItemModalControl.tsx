@@ -17,7 +17,6 @@ import { get } from 'lodash-es';
 
 const ListItemModalControl: FC<{
 	listItemStyle?: ViewStyle;
-	hasHeaderBackPress?: boolean;
 	children: ReactNode;
 	anchorLabel: string;
 	header: string;
@@ -29,7 +28,6 @@ const ListItemModalControl: FC<{
 	afterDismiss?: () => void;
 }> = ({
 	listItemStyle,
-	hasHeaderBackPress = false,
 	children,
 	anchorLabel,
 	header,

@@ -29,7 +29,9 @@ const HasLabelsControl: FC<{}> = () => {
 					}) as MapsforgeProfile
 			)
 		);
-	}, []);
+	}, [
+		dispatch,
+	]);
 	const opt: OptionBase = useMemo(
 		() => ({
 			label: t('baseMap.hasLabels'),

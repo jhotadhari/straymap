@@ -59,18 +59,23 @@ const HillshadingAlgorithmControl: FC<{}> = () => {
 		| undefined
 		| LayerConfig<LayerConfigOptionsHillshading>;
 
-	const setOptions = useCallback((newOptions: LayerConfigOptionsHillshading) => {
-		dispatch(
-			setLayerTemp(
-				(layerTemp) =>
-					layerTemp &&
-					({
-						...layerTemp,
-						options: newOptions,
-					} as LayerConfig)
-			)
-		);
-	}, []);
+	const setOptions = useCallback(
+		(newOptions: LayerConfigOptionsHillshading) => {
+			dispatch(
+				setLayerTemp(
+					(layerTemp) =>
+						layerTemp &&
+						({
+							...layerTemp,
+							options: newOptions,
+						} as LayerConfig)
+				)
+			);
+		},
+		[
+			dispatch,
+		]
+	);
 
 	const options = layerTemp?.options ?? {};
 
@@ -90,21 +95,26 @@ const HillshadingAlgorithmControl: FC<{}> = () => {
 		[t]
 	);
 
-	const handleShadingAlgorithmChange = useCallback((newValue?: string) => {
-		dispatch(
-			setLayerTemp(
-				(layerTemp) =>
-					layerTemp &&
-					({
-						...layerTemp,
-						options: {
-							...layerTemp.options,
-							shadingAlgorithm: newValue,
-						},
-					} as LayerConfig)
-			)
-		);
-	}, []);
+	const handleShadingAlgorithmChange = useCallback(
+		(newValue?: string) => {
+			dispatch(
+				setLayerTemp(
+					(layerTemp) =>
+						layerTemp &&
+						({
+							...layerTemp,
+							options: {
+								...layerTemp.options,
+								shadingAlgorithm: newValue,
+							},
+						} as LayerConfig)
+				)
+			);
+		},
+		[
+			dispatch,
+		]
+	);
 
 	const [algOpts, setAlgOpts] = useState<ShadingAlgorithmOptions>(
 		options.shadingAlgorithmOptions || ({} as ShadingAlgorithmOptions)

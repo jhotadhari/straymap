@@ -87,7 +87,11 @@ const DrawerHandles: FC<
 				})
 			);
 		},
-		[setMoveEnabled, side]
+		[
+			dispatch,
+			setMoveEnabled,
+			side,
+		]
 	);
 
 	const getContainerHeight = useCallback(

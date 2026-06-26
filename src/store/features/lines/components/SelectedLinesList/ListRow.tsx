@@ -44,13 +44,16 @@ const ListRow: FC<ListRowProps> = ({ line, idx, visible }) => {
 		[idx, theme]
 	);
 
-	const toggleVisible = useCallback(() => dispatch(setLineVisible(line.id)), [line.id]);
+	const toggleVisible = useCallback(() => dispatch(setLineVisible(line.id)), [dispatch, line.id]);
 
-	const toggleSelected = useCallback(() => dispatch(setLineSelected(line.id)), [line.id]);
+	const toggleSelected = useCallback(
+		() => dispatch(setLineSelected(line.id)),
+		[dispatch, line.id]
+	);
 
 	const handleEditPress = useCallback(() => {
 		dispatch(setLineTemp({ id: line.id }));
-	}, [line.id]);
+	}, [dispatch, line.id]);
 
 	const { line_id: routingLineId, stats: routingStats } = useRoute(['line_id', 'stats']) || {};
 

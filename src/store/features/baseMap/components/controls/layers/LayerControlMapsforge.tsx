@@ -40,7 +40,7 @@ const ProfileRowControl = ({
 
 	const dispatch = useAppDispatch();
 
-	const [menuVisible, setMenuVisible] = useState(false);
+	const [_menuVisible, _setMenuVisible] = useState(false);
 
 	const opts: OptionBase[] = useMemo(
 		() => [
@@ -181,18 +181,23 @@ const LayerControlMapsforge: FC<{}> = ({}) => {
 
 	const appDirs = useAppSelector(selectAppDirs);
 
-	const setOptions = useCallback((newOptions: LayerConfigOptionsMapsforge) => {
-		dispatch(
-			setLayerTemp(
-				(layerTemp) =>
-					layerTemp &&
-					({
-						...layerTemp,
-						options: newOptions,
-					} as LayerConfig)
-			)
-		);
-	}, []);
+	const setOptions = useCallback(
+		(newOptions: LayerConfigOptionsMapsforge) => {
+			dispatch(
+				setLayerTemp(
+					(layerTemp) =>
+						layerTemp &&
+						({
+							...layerTemp,
+							options: newOptions,
+						} as LayerConfig)
+				)
+			);
+		},
+		[
+			dispatch,
+		]
+	);
 
 	const handleMapFileChange = useCallback((selectedOpt?: string) => {
 		layerTemp &&

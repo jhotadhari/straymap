@@ -34,7 +34,7 @@ const RowName: FC = () => {
 				);
 			}
 		},
-		[lineTemp]
+		[dispatch, lineTemp]
 	);
 
 	const inputTheme = useMemo(

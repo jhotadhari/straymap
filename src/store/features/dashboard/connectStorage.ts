@@ -3,8 +3,7 @@
  */
 import { isAnyOf } from '@reduxjs/toolkit';
 import DefaultPreference from 'react-native-default-preference';
-import { get, isEqual, omit, pick, set } from 'lodash-es';
-import rnUuid from 'react-native-uuid';
+import { get, isEqual, omit, set } from 'lodash-es';
 
 /**
  * Internal dependencies

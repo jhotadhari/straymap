@@ -200,7 +200,7 @@ const EditModal: FC<{
 					})
 				);
 		},
-		[profileTemp]
+		[dispatch, profileTemp]
 	);
 
 	return !profileTemp ? undefined : (
@@ -320,14 +320,10 @@ const DraggableItem = ({
 	item,
 	width,
 	reverse,
-	saveOnChange,
-	saveProfiles,
 }: {
 	item: MapsforgeProfile;
 	width: number;
 	reverse: boolean;
-	saveOnChange?: boolean;
-	saveProfiles?: () => void;
 }) => {
 	const { t } = useTranslation();
 	const theme = useTheme();
@@ -380,7 +376,6 @@ const DraggableItem = ({
 		[
 			reverse,
 			width,
-			itemHeight,
 		]
 	);
 
@@ -425,7 +420,10 @@ const DraggableItem = ({
 		[reverse]
 	);
 
-	const handlePress = useCallback(() => dispatch(setMapsforgeProfileTemp(item)), [item]);
+	const handlePress = useCallback(
+		() => dispatch(setMapsforgeProfileTemp(item)),
+		[dispatch, item]
+	);
 
 	const handleLayout = useCallback(
 		(event: LayoutChangeEvent) => {
@@ -518,7 +516,6 @@ const ProfilesControl: FC<{
 
 	const [isNewKey, setIsNewKey] = useState<false | string>(false);
 
-	const layers = useAppSelector((state) => selectLayers(state, { temp: true }));
 	const profiles = useAppSelector((state) => selectMapsforgeProfiles(state, { temp: true }));
 
 	const expanded = useAppSelector((state) => selectElementExpanded(state, uiStateKey));
@@ -530,7 +527,9 @@ const ProfilesControl: FC<{
 				temp: false,
 			})
 		);
-	}, []);
+	}, [
+		dispatch,
+	]);
 
 	useEffect(() => {
 		return saveOnUnmount ? saveProfiles : undefined;
@@ -574,7 +573,11 @@ const ProfilesControl: FC<{
 				})
 			);
 		},
-		[saveOnChange, profiles]
+		[
+			dispatch,
+			saveOnChange,
+			profiles,
+		]
 	);
 
 	const dropIndicatorStyle = useDropIndicatorStyle();
@@ -597,7 +600,9 @@ const ProfilesControl: FC<{
 		const newProfile = getNewProfile();
 		setIsNewKey(newProfile.key);
 		dispatch(setMapsforgeProfileTemp(newProfile));
-	}, []);
+	}, [
+		dispatch,
+	]);
 
 	return (
 		<View>

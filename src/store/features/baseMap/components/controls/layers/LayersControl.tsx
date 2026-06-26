@@ -100,7 +100,6 @@ const DraggableItem: FC<{
 		[
 			reverse,
 			width,
-			itemHeight,
 		]
 	);
 
@@ -137,7 +136,7 @@ const DraggableItem: FC<{
 		[theme]
 	);
 
-	const handlePress = useCallback(() => dispatch(setLayerTemp(item)), [item]);
+	const handlePress = useCallback(() => dispatch(setLayerTemp(item)), [dispatch, item]);
 
 	const handleLayout = useCallback(
 		(event: LayoutChangeEvent) => {
@@ -238,7 +237,7 @@ const OptionSelectType: FC<{
 					} as LayerConfig)
 			)
 		);
-	}, [option]);
+	}, [dispatch, option]);
 
 	return (
 		<RadioListItem
@@ -273,7 +272,11 @@ const EditModal: FC<{
 		if (saveOnChange) {
 			saveLayers();
 		}
-	}, [saveOnChange, saveLayers]);
+	}, [
+		dispatch,
+		saveOnChange,
+		saveLayers,
+	]);
 
 	const handleRemoveItem = useCallback(() => {
 		const idx = layers.findIndex((layer) => layer.key === layerTemp?.key);
@@ -294,22 +297,32 @@ const EditModal: FC<{
 		layerTemp?.key,
 	]);
 
-	const updateItemTemp = useCallback((newLayer: LayerConfig) => {
-		dispatch(setLayerTemp(newLayer));
-	}, []);
+	const updateItemTemp = useCallback(
+		(newLayer: LayerConfig) => {
+			dispatch(setLayerTemp(newLayer));
+		},
+		[
+			dispatch,
+		]
+	);
 
-	const handleNameUpdate = useCallback(({ name }: { name: string }) => {
-		dispatch(
-			setLayerTemp(
-				(layerTemp) =>
-					layerTemp &&
-					({
-						...layerTemp,
-						name,
-					} as LayerConfig)
-			)
-		);
-	}, []);
+	const handleNameUpdate = useCallback(
+		({ name }: { name: string }) => {
+			dispatch(
+				setLayerTemp(
+					(layerTemp) =>
+						layerTemp &&
+						({
+							...layerTemp,
+							name,
+						} as LayerConfig)
+				)
+			);
+		},
+		[
+			dispatch,
+		]
+	);
 
 	return !layerTemp ? undefined : (
 		<ModalWrapper
@@ -424,7 +437,9 @@ const LayersControl: FC<{
 				temp: false,
 			})
 		);
-	}, []);
+	}, [
+		dispatch,
+	]);
 
 	useEffect(() => {
 		return saveOnUnmount ? saveLayers : undefined;
@@ -469,7 +484,11 @@ const LayersControl: FC<{
 				})
 			);
 		},
-		[saveOnChange, layers]
+		[
+			dispatch,
+			saveOnChange,
+			layers,
+		]
 	);
 
 	const dropIndicatorStyle = useDropIndicatorStyle();
@@ -488,7 +507,12 @@ const LayersControl: FC<{
 		[theme]
 	);
 
-	const handleAddNewLayer = useCallback(() => dispatch(setLayerTemp(getNewLayer())), []);
+	const handleAddNewLayer = useCallback(
+		() => dispatch(setLayerTemp(getNewLayer())),
+		[
+			dispatch,
+		]
+	);
 
 	return (
 		<View>

@@ -37,7 +37,11 @@ const useActionDeleteLastPoint = ({
 				dbConnection?.queryClient && dispatch(processRouting(dbConnection.queryClient));
 			},
 		}),
-		[lastPointId, dbConnection?.queryClient]
+		[
+			dispatch,
+			lastPointId,
+			dbConnection?.queryClient,
+		]
 	);
 
 	const mutation = useMutation(mutationOptions);

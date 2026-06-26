@@ -78,7 +78,7 @@ const TopAppBar: FC = () => {
 			return true;
 		}
 		return false;
-	}, [uiItemsKeys]);
+	}, [dispatch, uiItemsKeys]);
 
 	useEffect(() => {
 		const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
@@ -98,7 +98,7 @@ const TopAppBar: FC = () => {
 		if (!uiItemsKeys.length) {
 			dispatch(setUiItemKeys(['settings']));
 		}
-	}, [uiItemsKeys]);
+	}, [dispatch, uiItemsKeys]);
 
 	const handleLayout = useCallback(
 		(e: LayoutChangeEvent) => {

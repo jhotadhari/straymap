@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { Dispatch, FC, SetStateAction, useCallback, useContext, useMemo } from 'react';
+import React, { Dispatch, FC, SetStateAction, useCallback, useMemo } from 'react';
 import { useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { get, isEqual } from 'lodash-es';

@@ -145,7 +145,7 @@ const NumericRowControl = ({
 
 	const handleBlur = useCallback(
 		() => handleBlurCbRef?.current && handleBlurCbRef?.current(),
-		[handleBlurCbRef?.current]
+		[]
 	);
 
 	const styleInput = useMemo(() => [styles.flexGrow, inputStyle], [inputStyle]);

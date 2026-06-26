@@ -54,7 +54,12 @@ const DrawerTopBar: FC = () => {
 
 	const { side } = useContext(DrawerContext);
 
-	const openLinesDirectory = useCallback(() => dispatch(addUiItemKey('linesDirectory')), []);
+	const openLinesDirectory = useCallback(
+		() => dispatch(addUiItemKey('linesDirectory')),
+		[
+			dispatch,
+		]
+	);
 
 	const selectedLines = useAppSelector(selectSelected);
 

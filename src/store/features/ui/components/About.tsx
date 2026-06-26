@@ -131,7 +131,6 @@ const MdPartsRenderPartDonation = ({
 	part: MdPart;
 	style: StyleProp<ViewStyle>;
 }) => {
-	const { t } = useTranslation();
 	const theme = useTheme();
 
 	const titleStyle = useJanglyTitleStyle(theme);

@@ -63,7 +63,7 @@ const LineEditModal: FC<{
 				dispatch(setLineTemp(undefined));
 			},
 		}),
-		[route?.id]
+		[dispatch, route?.id]
 	);
 	const mutation = useMutation(mutationOptions);
 

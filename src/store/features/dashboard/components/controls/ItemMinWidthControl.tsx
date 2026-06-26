@@ -54,7 +54,11 @@ const ItemMinWidthControl: FC<{ buttonLabel?: string }> = ({ buttonLabel }) => {
 					})
 				);
 		},
-		[item, numValueActive]
+		[
+			dispatch,
+			item,
+			numValueActive,
+		]
 	);
 
 	return (

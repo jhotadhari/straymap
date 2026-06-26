@@ -16,7 +16,7 @@ import { DrawerItem } from '../types';
 const handleSize = 50;
 
 const DrawerContent: FC<{}> = () => {
-	const { activeItemKey, width, height, side } = useContext(DrawerContext);
+	const { activeItemKey, width, height } = useContext(DrawerContext);
 
 	const theme = useTheme();
 	const { isScrollContent, DisplayComponent } = useMemo(() => {

@@ -45,11 +45,9 @@ const iconSize = 25;
 
 const Segment: FC<{
 	item: RoutingPoint;
-	width: number;
-	order: number;
 	draggingItemIndex?: number;
 	setEditPoint: Dispatch<SetStateAction<undefined | RoutingPoint>>;
-}> = ({ item, width, order, draggingItemIndex, setEditPoint }) => {
+}> = ({ item, draggingItemIndex, setEditPoint }) => {
 	const theme = useTheme();
 
 	const dispatch = useAppDispatch();
@@ -71,9 +69,11 @@ const Segment: FC<{
 						color={theme.colors.errorContainer}
 					/>
 				);
+				break;
 			case !!(segment && segment?.isFetching):
 				// fetching
 				node = <LoadingIndicator style={styles.loadingIndicatorIcon} />;
+				break;
 			case !segment || !segment?.positions:
 				// some placeholder until start fetching
 				node = (
@@ -100,7 +100,11 @@ const Segment: FC<{
 		}
 		dispatch(deleteSegments([segment]));
 		dbConnection?.queryClient && dispatch(processRouting(dbConnection?.queryClient));
-	}, [segment, dbConnection?.queryClient]);
+	}, [
+		dispatch,
+		segment,
+		dbConnection?.queryClient,
+	]);
 
 	const handleSetEdit = useCallback(() => {
 		setEditPoint(item);
@@ -248,7 +252,11 @@ const DraggableItem: FC<{
 				setIsDeleting(false);
 			},
 		}),
-		[routeId, dbConnection?.queryClient]
+		[
+			dispatch,
+			routeId,
+			dbConnection?.queryClient,
+		]
 	);
 	const mutation = useMutation(mutationOptions);
 
@@ -304,8 +312,6 @@ const DraggableItem: FC<{
 			{hasNext && (
 				<Segment
 					item={item}
-					width={width}
-					order={order}
 					draggingItemIndex={draggingItemIndex}
 					setEditPoint={setEditPoint}
 				/>
@@ -348,7 +354,11 @@ const PointsList: FC = () => {
 				setOptimisticPoints(undefined);
 			},
 		}),
-		[routeId, dbConnection?.queryClient]
+		[
+			dispatch,
+			routeId,
+			dbConnection?.queryClient,
+		]
 	);
 	const mutation = useMutation(mutationOptions);
 

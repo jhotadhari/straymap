@@ -76,7 +76,7 @@ const LinesTable: FC = () => {
 		() => () => {
 			onMapIdsTempRef?.current && dispatch(setLinesSelected(uniq(onMapIdsTempRef.current)));
 		},
-		[]
+		[dispatch]
 	);
 
 	const { data: lines } = useQuery({
@@ -145,7 +145,7 @@ const LinesTable: FC = () => {
 	const handleRoutingBtnPress = useCallback(() => {
 		activateRoutingDrawerItem();
 		dispatch(setUiItemKeys([]));
-	}, [activateRoutingDrawerItem]);
+	}, [dispatch, activateRoutingDrawerItem]);
 
 	const renderHeader = useCallback(() => {
 		return <TableHeader styleCell={styleCell} />;

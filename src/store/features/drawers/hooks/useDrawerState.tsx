@@ -4,7 +4,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import { SharedValue, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
 import { Gesture } from 'react-native-gesture-handler';
-import { clamp, isBoolean, isNumber } from 'lodash-es';
+import { clamp, isNumber } from 'lodash-es';
 
 /**
  * Internal dependencies
@@ -76,7 +76,7 @@ const useDrawerState = ({
 				| number // fraction between 0 and 1
 				| boolean
 		) => {
-			const newTranslationX = !!expanded
+			const newTranslationX = expanded
 				? 'left' === side
 					? isNumber(expanded)
 						? -drawerWidth * (1 - expanded)

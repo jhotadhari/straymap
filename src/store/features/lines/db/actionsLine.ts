@@ -10,7 +10,7 @@ import { eq, and, or } from 'drizzle-orm';
 import { dbConnection } from '../../dbLoader/DBConnection';
 import { fetchLines } from './fetch';
 import { linesTable, tagsTable, tagsToLinesTable } from './schema/schema';
-import { Line, LinePartial } from '../types';
+import { LinePartial } from '../types';
 import { WithRequired } from '@tanstack/react-query';
 import { logError } from '../../../../lib/utils';
 import { showErrorToast } from '../../../../components/ErrorToast/service';

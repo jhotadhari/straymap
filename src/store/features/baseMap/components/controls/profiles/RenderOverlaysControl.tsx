@@ -90,7 +90,7 @@ const ControlModal: FC<{
 				} as MapsforgeProfile;
 			})
 		);
-	}, [opts]);
+	}, [dispatch, opts]);
 
 	const handleSelectAllNone = useCallback(() => {
 		dispatch(
@@ -105,19 +105,24 @@ const ControlModal: FC<{
 				} as MapsforgeProfile;
 			})
 		);
-	}, [opts]);
+	}, [dispatch, opts]);
 
-	const setOverlays = useCallback((newRenderOverlays: string[]) => {
-		dispatch(
-			setMapsforgeProfileTemp(
-				(profileTemp) =>
-					({
-						...(profileTemp ?? {}),
-						renderOverlays: newRenderOverlays,
-					}) as MapsforgeProfile
-			)
-		);
-	}, []);
+	const setOverlays = useCallback(
+		(newRenderOverlays: string[]) => {
+			dispatch(
+				setMapsforgeProfileTemp(
+					(profileTemp) =>
+						({
+							...(profileTemp ?? {}),
+							renderOverlays: newRenderOverlays,
+						}) as MapsforgeProfile
+				)
+			);
+		},
+		[
+			dispatch,
+		]
+	);
 
 	const handleDismissModal = useCallback(() => setModalVisible(false), []);
 

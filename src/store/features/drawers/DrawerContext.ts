@@ -23,8 +23,8 @@ const DrawerContext = createContext<DrawerContextType>({
 	width: 0,
 	height: 0,
 	getIsFullyCollapsed: () => true,
-	setActiveItemKey: (newActiveKey?: string) => {},
-	expand: (expanded: number | boolean) => {},
+	setActiveItemKey: (_newActiveKey?: string) => {},
+	expand: (_expanded: number | boolean) => {},
 });
 
 export default DrawerContext;

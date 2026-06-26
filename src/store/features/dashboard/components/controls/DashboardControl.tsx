@@ -42,7 +42,7 @@ const DashboardControl: FC = () => {
 		(newPosition: string) => {
 			setPosition_(newPosition);
 
-			if (!item?.key || (item?.key && editItemPosition != newPosition)) {
+			if (!item?.key || (item?.key && editItemPosition !== newPosition)) {
 				dispatch(setEditItemAccordingToPosition(newPosition));
 			}
 		},
@@ -64,7 +64,11 @@ const DashboardControl: FC = () => {
 				expanded: !expanded,
 			})
 		);
-	}, [expanded, uiStateKey]);
+	}, [
+		dispatch,
+		expanded,
+		uiStateKey,
+	]);
 
 	const handleUpdateFontSize = useCallback(
 		(newValue: number) => {

@@ -24,7 +24,9 @@ const SettingsDashboard: FC<{ style?: ViewStyle }> = ({ style }) => {
 			dispatch(setIsEditingDashboard(false));
 			dispatch(setEditItemKey(undefined));
 		};
-	}, []);
+	}, [
+		dispatch,
+	]);
 
 	const styleScrollView = useMemo(
 		() => [

@@ -137,7 +137,6 @@ const CreateNewOption: FC<{
 	customUri,
 	setCustomUri,
 }) => {
-	const { t } = useTranslation();
 	const theme = useTheme();
 
 	const [fileNameTemp, setFileNameTemp] = useState<undefined | string>(undefined);
@@ -261,7 +260,6 @@ const OptionsByPath: FC<{
 	newOptionLabel,
 	extensions,
 }) => {
-	const { t } = useTranslation();
 	const theme = useTheme();
 
 	const stylePath = useMemo(

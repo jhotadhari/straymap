@@ -36,7 +36,12 @@ const ThemeControl: FC = () => {
 
 	const dispatch = useAppDispatch();
 
-	const handleChange = useCallback((newVal: string) => dispatch(setTheme(newVal)), []);
+	const handleChange = useCallback(
+		(newVal: string) => dispatch(setTheme(newVal)),
+		[
+			dispatch,
+		]
+	);
 
 	return (
 		<ListItemMenuControl

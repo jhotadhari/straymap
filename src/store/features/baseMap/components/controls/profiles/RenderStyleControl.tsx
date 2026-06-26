@@ -94,7 +94,7 @@ const RenderStyleControl: FC<{
 				)
 			);
 		}
-	}, [selectedOpt]);
+	}, [dispatch, selectedOpt]);
 
 	if (!opts.length && !AlternativeButton) {
 		return undefined;

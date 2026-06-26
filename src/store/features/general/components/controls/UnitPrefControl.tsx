@@ -187,7 +187,6 @@ const UnitPrefControl = () => {
 				/>
 			)}
 			header={t('unitPref', { count: 0 })}
-			hasHeaderBackPress={true}
 		>
 			{Object.keys(unitPrefs).map((key) => (
 				<UnitControl

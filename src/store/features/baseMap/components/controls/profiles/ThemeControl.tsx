@@ -117,17 +117,22 @@ const ThemeControl: FC<{
 
 	const appDirs = useAppSelector(selectAppDirs);
 
-	const handleSelect = useCallback((selectedOpt?: string) => {
-		dispatch(
-			setMapsforgeProfileTemp(
-				(profileTemp) =>
-					({
-						...(profileTemp ?? {}),
-						theme: selectedOpt,
-					}) as MapsforgeProfile
-			)
-		);
-	}, []);
+	const handleSelect = useCallback(
+		(selectedOpt?: string) => {
+			dispatch(
+				setMapsforgeProfileTemp(
+					(profileTemp) =>
+						({
+							...(profileTemp ?? {}),
+							theme: selectedOpt,
+						}) as MapsforgeProfile
+				)
+			);
+		},
+		[
+			dispatch,
+		]
+	);
 
 	const initialOptionsByPath = useMemo(
 		() => ({

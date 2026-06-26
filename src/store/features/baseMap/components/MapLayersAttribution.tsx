@@ -49,7 +49,6 @@ const LayerInfoComponent = ({ layerInfo }: { layerInfo: null | LayerInfo }) => {
 
 const Inner = ({ layerInfos }: { layerInfos: { [value: string]: LayerInfo } }) => {
 	const { t } = useTranslation();
-	const theme = useTheme();
 
 	const layers = useAppSelector(selectLayers);
 

@@ -44,7 +44,7 @@ const useToggleRouting = ({
 				setIsToggling(false);
 			},
 		}),
-		[expand]
+		[dispatch, expand]
 	);
 	const createRouteMutation = useMutation(createMutationOptions);
 
@@ -72,7 +72,11 @@ const useToggleRouting = ({
 				setIsToggling(false);
 			},
 		}),
-		[routeId, routingLineId]
+		[
+			dispatch,
+			routeId,
+			routingLineId,
+		]
 	);
 	const deleteMutation = useMutation(deleteMutationOptions);
 

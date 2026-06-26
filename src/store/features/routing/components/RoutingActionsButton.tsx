@@ -3,8 +3,7 @@
  */
 import React, { FC, useCallback, useContext, useMemo, useState } from 'react';
 import { Icon, useTheme } from 'react-native-paper';
-import { useTranslation } from 'react-i18next';
-import { Dimensions, PixelRatio, ScrollView } from 'react-native';
+import { Dimensions, ScrollView } from 'react-native';
 import Popover, { PopoverPlacement } from 'react-native-popover-view';
 import { pick } from 'lodash-es';
 
@@ -12,8 +11,6 @@ import { pick } from 'lodash-es';
  * Internal dependencies
  */
 import { AppContext } from '../../../../Context';
-import { MapContext } from '../../../../Context';
-import { useAppDispatch, useAppSelector } from '../../../hooks';
 import useRoute from '../hooks/useRoute';
 import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
 import { MenuActionOption } from '../../../../types';
@@ -25,8 +22,6 @@ const RoutingActionsButton: FC<{
 }> = ({ disabled: disabled_, actions }) => {
 	const { mapHeight, mapViewNativeNodeHandle } = useContext(AppContext);
 
-	const dispatch = useAppDispatch();
-
 	const { id: routeId, points } = useRoute(['id', 'points']) || {};
 
 	// // const segments = useAppSelector(selectSegments);
@@ -36,11 +31,8 @@ const RoutingActionsButton: FC<{
 	// // const triggeredMarkerIdx = useAppSelector(selectTriggeredMarkerIdx);
 	// // const triggeredSegment = useAppSelector(selectTriggeredSegment);
 
-	const { currentMapEventRef } = useContext(MapContext);
-
 	const { width } = Dimensions.get('window');
 	const theme = useTheme();
-	const { t } = useTranslation();
 	const [menuVisible, setMenuVisible] = useState(false);
 
 	// // open menu on start routing, hopefully after drawer has closed.
@@ -52,7 +44,7 @@ const RoutingActionsButton: FC<{
 	// }, [routeId, prevIsRouting]);
 
 	const dismissMenu = useCallback(
-		(cleanTriggeredMarkerIdx?: boolean, cleanTriggeredSegment?: boolean) => {
+		(_cleanTriggeredMarkerIdx?: boolean, _cleanTriggeredSegment?: boolean) => {
 			setMenuVisible(false);
 			// if (undefined === cleanTriggeredMarkerIdx ? true : cleanTriggeredMarkerIdx) {
 			// 	dispatch(setTriggeredMarkerIdx(undefined));
@@ -230,8 +222,6 @@ const RoutingActionsButton: FC<{
 		} else {
 			setMenuVisible(true);
 			if (mapViewNativeNodeHandle) {
-				const left = PixelRatio.getPixelSizeForLayoutSize(width) / 2;
-				const top = PixelRatio.getPixelSizeForLayoutSize(mapHeight || 0) / 2;
 				// if (markerLayerUuid) {
 				// 	MapLayerMarkerModule.triggerEvent(
 				// 		mapViewNativeNodeHandle,
@@ -268,7 +258,6 @@ const RoutingActionsButton: FC<{
 			</ButtonHighlight>
 		),
 		[
-			theme,
 			handleButtonPress,
 			disabled,
 		]

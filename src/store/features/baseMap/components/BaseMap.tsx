@@ -58,7 +58,7 @@ const BaseMap: FC<{}> = () => {
 				}))
 			);
 		},
-		[]
+		[dispatch]
 	);
 
 	const handleLayerCreateOrChangeFactory = useCallback(

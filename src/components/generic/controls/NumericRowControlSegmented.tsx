@@ -157,7 +157,7 @@ export const NumericRowControlSegmented = ({
 
 	const handleBlur = useCallback(
 		() => handleBlurCbRef?.current && handleBlurCbRef?.current(),
-		[handleBlurCbRef?.current]
+		[]
 	);
 
 	const handleButtonPress = useCallback(() => {

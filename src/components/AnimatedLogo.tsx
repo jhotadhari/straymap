@@ -92,6 +92,7 @@ const AnimatedLogo = ({
 	const landRotate = useAnimatedValue(0);
 	const waterRotate = useAnimatedValue(0);
 
+	// const textDimsKey = textDims.join('');
 	// animate text
 	useEffect(() => {
 		if (textIsInitialized) {
@@ -125,7 +126,7 @@ const AnimatedLogo = ({
 				}),
 			]).start();
 		}
-	}, [textDims.join('')]);
+	}, [textDims]);
 
 	const loopAnimate = useCallback(() => {
 		// water

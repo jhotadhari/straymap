@@ -34,7 +34,11 @@ const useCacheDirsInfo = (shouldUpdate?: any): any => {
 				logError('useCacheDirsInfo.getCacheInfo', err);
 				showError(sprintf(t('errorGeneric'), err?.message ?? String(err)));
 			});
-	}, [showError, t]);
+	}, [
+		dispatch,
+		showError,
+		t,
+	]);
 
 	useEffect(() => {
 		if (shouldUpdate) {

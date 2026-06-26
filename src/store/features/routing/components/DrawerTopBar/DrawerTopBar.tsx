@@ -63,7 +63,7 @@ const DrawerTopBar: FC = () => {
 
 	const handleEditPress = useCallback(() => {
 		routingLineId && dispatch(setLineTemp({ id: routingLineId }));
-	}, [routingLineId]);
+	}, [dispatch, routingLineId]);
 
 	const styleButtonRow = useMemo(
 		() => [

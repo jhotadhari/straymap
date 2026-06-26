@@ -41,6 +41,11 @@ const styles = StyleSheet.create({
 		bottom: 0,
 		right: 0,
 	},
+	flex1: { flex: 1 },
+	centerContent: {
+		justifyContent: 'center',
+		alignItems: 'center',
+	},
 	headerRow: {
 		width: '90%',
 		flexDirection: 'row',
@@ -120,7 +125,6 @@ const ModalWrapper: FC<{
 		[
 			theme,
 			width,
-			modalWidthFactor,
 		]
 	);
 
@@ -142,6 +146,15 @@ const ModalWrapper: FC<{
 		[theme]
 	);
 
+	const styleContent = useMemo(
+		() => [
+			styles.absolute,
+			styles.centerContent,
+			{ paddingTop: statusBarHeight },
+		],
+		[statusBarHeight]
+	);
+
 	const styleContentInner = useMemo(() => [styles.contentInner, innerStyle], [innerStyle]);
 
 	return (
@@ -152,7 +165,7 @@ const ModalWrapper: FC<{
 			onRequestClose={handleDismissAll}
 			statusBarTranslucent
 		>
-			<View style={{ flex: 1 }}>
+			<View style={styles.flex1}>
 				<AppContext.Provider value={context}>
 					{/* Backdrop — fills the modal window */}
 					<Pressable
@@ -169,16 +182,7 @@ const ModalWrapper: FC<{
 					</Pressable>
 
 					{/* Content — fills the modal window, centers its child */}
-					<View
-						style={[
-							styles.absolute,
-							{
-								justifyContent: 'center',
-								alignItems: 'center',
-								paddingTop: statusBarHeight,
-							},
-						]}
-					>
+					<View style={styleContent}>
 						<Animated.View
 							style={[
 								{ width: width * modalWidthFactor },

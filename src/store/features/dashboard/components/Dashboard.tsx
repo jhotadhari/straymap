@@ -168,13 +168,25 @@ export const DashboardWrapped: FC<{
 
 	const items = useAppSelector((state) => selectItems(state, { position }));
 
-	const handleDragStart = useCallback((event: DragStartParams) => {
-		dispatch(setEditItemKey(event.key.replace('.$', '')));
-	}, []);
+	const handleDragStart = useCallback(
+		(event: DragStartParams) => {
+			dispatch(setEditItemKey(event.key.replace('.$', '')));
+		},
+		[
+			dispatch,
+		]
+	);
 
-	const handleItemPress = useCallback((itemKey: string) => {
-		dispatch(setEditItemKey((editItemKey) => (itemKey === editItemKey ? undefined : itemKey)));
-	}, []);
+	const handleItemPress = useCallback(
+		(itemKey: string) => {
+			dispatch(
+				setEditItemKey((editItemKey) => (itemKey === editItemKey ? undefined : itemKey))
+			);
+		},
+		[
+			dispatch,
+		]
+	);
 
 	const handleDragEnd = useCallback(
 		({ indexToKey }: SortableFlexDragEndParams) => {
@@ -189,7 +201,11 @@ export const DashboardWrapped: FC<{
 				})
 			);
 		},
-		[items, position]
+		[
+			dispatch,
+			items,
+			position,
+		]
 	);
 
 	if (isEditingDashboard) {

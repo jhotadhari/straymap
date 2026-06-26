@@ -3,7 +3,6 @@
  */
 import { Icon, useTheme } from 'react-native-paper';
 import { FC, Fragment, useCallback, useContext, useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { ScrollView } from 'react-native';
 import Popover, { PopoverPlacement } from 'react-native-popover-view';
 
@@ -25,10 +24,8 @@ import PopoverMenuItems from '../../../../../components/generic/PopoverMenuItems
 
 const BulkActions: FC = () => {
 	const theme = useTheme();
-	const { t } = useTranslation();
 
-	const { checkedIds, linesCount, setOnMapIdsTemp, setCheckedIds, lineIds } =
-		useContext(FooterContext);
+	const { checkedIds } = useContext(FooterContext);
 
 	const [menuVisible, setMenuVisible] = useState(false);
 	const dismissMenu = useCallback(() => {

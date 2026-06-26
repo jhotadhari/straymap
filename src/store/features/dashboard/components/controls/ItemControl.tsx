@@ -45,7 +45,11 @@ const ItemControl: FC<{}> = ({}) => {
 				expanded: !notExpanded,
 			})
 		);
-	}, [notExpanded, uiStateKey]);
+	}, [
+		dispatch,
+		notExpanded,
+		uiStateKey,
+	]);
 
 	// Force remount of all children on item key change.
 	const [show, setShow] = useState(false);
@@ -96,7 +100,11 @@ const ItemControl: FC<{}> = ({}) => {
 					itemKey: item.key,
 				})
 			),
-		[position, item?.key]
+		[
+			dispatch,
+			position,
+			item?.key,
+		]
 	);
 	const handleMoveLeft = useCallback(
 		() =>
@@ -107,7 +115,11 @@ const ItemControl: FC<{}> = ({}) => {
 					direction: 'left',
 				})
 			),
-		[position, item?.key]
+		[
+			dispatch,
+			position,
+			item?.key,
+		]
 	);
 	const handleMoveRight = useCallback(
 		() =>
@@ -118,7 +130,11 @@ const ItemControl: FC<{}> = ({}) => {
 					direction: 'right',
 				})
 			),
-		[position, item?.key]
+		[
+			dispatch,
+			position,
+			item?.key,
+		]
 	);
 
 	const [accuHeight, setAccuHeight] = useState<number | undefined>(undefined);

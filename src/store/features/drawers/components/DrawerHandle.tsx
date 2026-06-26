@@ -70,12 +70,7 @@ const DrawerHandle = ({
 			alignItems: 'center',
 			...style,
 		}),
-		[
-			isActive,
-			theme,
-			side,
-			style,
-		]
+		[style]
 	);
 
 	const styleHandle = useMemo(
@@ -120,7 +115,6 @@ const DrawerHandle = ({
 		iconSource,
 		color,
 		styleHandle,
-		IconActions,
 		onPress,
 	]);
 

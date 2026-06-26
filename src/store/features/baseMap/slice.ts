@@ -1,8 +1,7 @@
 /**
  * External dependencies
  */
-import type { ActionCreatorWithPayload, PayloadAction } from '@reduxjs/toolkit';
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import rnUuid from 'react-native-uuid';
 import { LayerHillshadingProps } from 'react-native-mapsforge-vtm';
 

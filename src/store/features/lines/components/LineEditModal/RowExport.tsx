@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { FC, useCallback } from 'react';
-import { Icon, Text, useTheme } from 'react-native-paper';
+import { Text, useTheme } from 'react-native-paper';
 import { View } from 'react-native';
 
 /**
@@ -11,7 +11,6 @@ import { View } from 'react-native';
 import InfoRowControl from '../../../../../components/generic/controls/InfoRowControl';
 import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
 import { sharedStyles } from './sharedDeps';
-import { iconSize } from '../../../drawers/constants';
 
 const RowExport: FC = () => {
 	const theme = useTheme();

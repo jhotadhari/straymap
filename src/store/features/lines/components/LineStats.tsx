@@ -35,7 +35,7 @@ const Stat: FC<{
 				});
 		}
 	}, [
-		unitPrefs[unitPrefKey],
+		unitPrefs,
 		value,
 		unitPrefKey,
 		round,

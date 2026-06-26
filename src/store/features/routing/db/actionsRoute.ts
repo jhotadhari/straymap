@@ -9,7 +9,6 @@ import { sprintf } from 'sprintf-js';
  */
 import { dbConnection } from '../../dbLoader/DBConnection';
 import { routesTable, routingPointsTable } from './schema/schema';
-import { linesTable } from '../../lines/db/schema/schema';
 import { logError } from '../../../../lib/utils';
 import { showErrorToast } from '../../../../components/ErrorToast/service';
 import i18n from '../../../../assets/i18n/i18n';

@@ -3,7 +3,7 @@
  */
 import { FC, useCallback, useContext } from 'react';
 import { View } from 'react-native';
-import { Icon, Text, useTheme } from 'react-native-paper';
+import { Text, useTheme } from 'react-native-paper';
 
 /**
  * Internal dependencies

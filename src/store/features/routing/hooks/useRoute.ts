@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { useQuery } from '@tanstack/react-query';
-import { pick, without } from 'lodash-es';
+import { pick } from 'lodash-es';
 
 /**
  * Internal dependencies

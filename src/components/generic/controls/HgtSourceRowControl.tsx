@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { Linking, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { get } from 'lodash-es';
@@ -12,7 +12,6 @@ import { sprintf } from 'sprintf-js';
 /**
  * react-native-mapsforge-vtm dependencies
  */
-import { MapContainerProps } from 'react-native-mapsforge-vtm';
 
 /**
  * Internal dependencies

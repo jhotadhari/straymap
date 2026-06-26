@@ -87,7 +87,6 @@ const HgtControl = () => {
 				</View>
 			)}
 			header={t('dem')}
-			hasHeaderBackPress={true}
 		>
 			<HgtSourceRowControl
 				options={{ hgtDirPath }}

@@ -162,7 +162,11 @@ const CacheManager = () => {
 				expanded: !expanded,
 			})
 		);
-	}, [expanded, updateCacheDirs]);
+	}, [
+		dispatch,
+		expanded,
+		updateCacheDirs,
+	]);
 
 	return (
 		<List.Accordion
@@ -173,7 +177,7 @@ const CacheManager = () => {
 			titleStyle={theme.fonts.bodyMedium}
 		>
 			<View style={styles.controls}>
-				{cacheDirs.length == 0 && <LoadingIndicator />}
+				{cacheDirs.length === 0 && <LoadingIndicator />}
 
 				{[...cacheDirs].map((cacheDir: CacheDir) => {
 					return (

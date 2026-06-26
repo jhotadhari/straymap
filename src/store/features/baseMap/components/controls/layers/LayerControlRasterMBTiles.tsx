@@ -57,18 +57,23 @@ const LayerControlRasterMBTiles: FC<{}> = () => {
 
 	const appDirs = useAppSelector(selectAppDirs);
 
-	const setOptions = useCallback((newOptions: LayerConfigOptionsRasterMBtiles) => {
-		dispatch(
-			setLayerTemp(
-				(layerTemp) =>
-					layerTemp &&
-					({
-						...layerTemp,
-						options: newOptions,
-					} as LayerConfig)
-			)
-		);
-	}, []);
+	const setOptions = useCallback(
+		(newOptions: LayerConfigOptionsRasterMBtiles) => {
+			dispatch(
+				setLayerTemp(
+					(layerTemp) =>
+						layerTemp &&
+						({
+							...layerTemp,
+							options: newOptions,
+						} as LayerConfig)
+				)
+			);
+		},
+		[
+			dispatch,
+		]
+	);
 
 	const handleMapFileChange = useCallback((selectedOpt?: string) => {
 		layerTemp &&

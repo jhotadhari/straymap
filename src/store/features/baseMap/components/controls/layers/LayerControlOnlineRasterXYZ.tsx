@@ -229,8 +229,6 @@ const SourceRowControl: FC<{}> = () => {
 
 	const dispatch = useAppDispatch();
 
-	const [menuVisible, setMenuVisible] = useState(false);
-
 	const [selectedOpt, setSelectedOpt] = useState(
 		layerTemp?.options?.url
 			? get(
@@ -389,18 +387,23 @@ const LayerControlOnlineRasterXYZ: FC<{}> = () => {
 		[layerTemp?.options]
 	);
 
-	const setOptions = useCallback((newOptions: LayerConfigOptionsOnlineRasterXYZ) => {
-		dispatch(
-			setLayerTemp(
-				(layerTemp) =>
-					layerTemp &&
-					({
-						...layerTemp,
-						options: newOptions,
-					} as LayerConfig)
-			)
-		);
-	}, []);
+	const setOptions = useCallback(
+		(newOptions: LayerConfigOptionsOnlineRasterXYZ) => {
+			dispatch(
+				setLayerTemp(
+					(layerTemp) =>
+						layerTemp &&
+						({
+							...layerTemp,
+							options: newOptions,
+						} as LayerConfig)
+				)
+			);
+		},
+		[
+			dispatch,
+		]
+	);
 
 	const enabledZoomValues = useMemo(
 		() => [layerTemp?.options?.enabledZoomMin ?? 0, layerTemp?.options?.enabledZoomMax ?? 0],
