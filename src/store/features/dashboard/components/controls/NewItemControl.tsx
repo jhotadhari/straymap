@@ -14,7 +14,7 @@ import { StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import rnUuid from 'react-native-uuid';
 import MaterialIcons from '@react-native-vector-icons/material-icons/static';
-import { SegmentedButtons, useTheme } from 'react-native-paper';
+import { useTheme } from 'react-native-paper';
 
 /**
  * Internal dependencies
@@ -89,12 +89,15 @@ const Modal: FC<{
 				);
 			dispatch(setEditItemKey(newItem.key));
 		},
-		[position, dispatch, setModalVisible]
+		[
+			position,
+			dispatch,
+			setModalVisible,
+		]
 	);
 
 	const handleDismiss = useCallback(() => {
 		setModalVisible(false);
-		// setEditElemlent(null);
 	}, [setModalVisible]);
 
 	return (
