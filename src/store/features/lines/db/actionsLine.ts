@@ -12,7 +12,7 @@ import { fetchLines } from './fetch';
 import { linesTable, tagsTable, tagsToLinesTable } from './schema/schema';
 import { LinePartial } from '../types';
 import { WithRequired } from '@tanstack/react-query';
-import { withDbErrorHandling } from '../../dbLoader/utils';
+import { withDbErrorHandling, withDbTransaction, parseReturningIds } from '../../dbLoader/utils';
 
 export const createLines = withDbErrorHandling(
 	'lines/actionsLine.createLines',
@@ -27,50 +27,59 @@ export const createLines = withDbErrorHandling(
 			return;
 		}
 
-		const insertedLines = await dbConnection.drizzle
-			.insert(linesTable)
-			.values(
-				newLines.map(({ title, lineStringFeature }) => ({
-					title: title ?? null,
-					geometry: lineStringFeature.geometry,
-				}))
-			)
-			.returning({ id: linesTable.id });
-
-		if (insertedLines.length !== newLines.length) {
-			return insertedLines;
+		// Pre-flight: check which tag IDs exist (outside transaction, so these
+		// SELECTs can use drizzle's typed query builder).
+		const allTagIds = [...new Set(newLines.flatMap((l) => l.tagIds ?? []))];
+		const tagIdsExisting: Record<number, boolean> = {};
+		for (const tagId of allTagIds) {
+			const tags = await dbConnection.drizzle
+				.select()
+				.from(tagsTable)
+				.where(eq(tagsTable.id, tagId))
+				.limit(1);
+			tagIdsExisting[tagId] = !!tags.length;
 		}
 
-		const tagIdsExisting: { [tagId: string]: boolean } = {};
+		return withDbTransaction(async (exec) => {
+			const insertResult = await exec(
+				dbConnection
+					.drizzle!.insert(linesTable)
+					.values(
+						newLines.map(({ title, lineStringFeature }) => ({
+							title: title ?? null,
+							geometry: lineStringFeature.geometry,
+						}))
+					)
+					.returning({ id: linesTable.id })
+			);
+			const insertedLines = parseReturningIds(insertResult);
 
-		await Promise.all(
-			insertedLines.map(async ({ id }, idx) => {
+			if (insertedLines.length !== newLines.length) {
+				return insertedLines;
+			}
+
+			for (let idx = 0; idx < insertedLines.length; idx++) {
+				const { id } = insertedLines[idx];
 				const tagIds = newLines[idx]?.tagIds;
 				if (!tagIds) {
-					return;
+					continue;
 				}
 				for (const tagId of tagIds) {
-					if (undefined === tagIdsExisting[tagId] && dbConnection?.drizzle) {
-						const tags = await dbConnection.drizzle
-							.select()
-							.from(tagsTable)
-							.where(eq(tagsTable.id, tagId))
-							.limit(1);
-						tagIdsExisting[tagId] = !!tags.length;
-					}
-
-					if (true === tagIdsExisting[tagId] && dbConnection?.drizzle) {
-						await dbConnection.drizzle.insert(tagsToLinesTable).values([
-							{
-								tag_id: tagId,
-								line_id: id,
-							},
-						]);
+					if (tagIdsExisting[tagId]) {
+						await exec(
+							dbConnection.drizzle!.insert(tagsToLinesTable).values([
+								{
+									tag_id: tagId,
+									line_id: id,
+								},
+							])
+						);
 					}
 				}
-			})
-		);
-		return insertedLines;
+			}
+
+			return insertedLines;
+		});
 	}
 );
 
@@ -88,6 +97,8 @@ export const updateLine = withDbErrorHandling(
 			return;
 		}
 
+		// Pre-flight SELECTs outside transaction (use drizzle's typed query
+		// builder for these complex queries).
 		const lines = await dbConnection.drizzle
 			.select()
 			.from(linesTable)
@@ -96,58 +107,70 @@ export const updateLine = withDbErrorHandling(
 		if (!lines.length) {
 			return;
 		}
-		await dbConnection.drizzle
-			.update(linesTable)
-			.set({
-				// ...line,
-				...(undefined !== newLine?.title && { title: newLine.title }),
-				...(undefined !== newLine?.lineStringFeature && {
-					geometry: newLine.lineStringFeature.geometry,
-				}),
-			})
-			.where(eq(linesTable.id, id));
 
-		if (!Array.isArray(newLine?.tagIds)) {
-			return;
+		const hasTagUpdate = Array.isArray(newLine?.tagIds);
+		let currentTagIds: number[] = [];
+		if (hasTagUpdate) {
+			const linesWithTags = (await fetchLines({
+				lineIds: [id],
+				allLines: false,
+				limit: 1,
+				fieldsInclude: ['tags'],
+			})) as WithRequired<LinePartial, 'tags'>[];
+			currentTagIds = linesWithTags.length
+				? linesWithTags[0].tags.map((tag) => tag.id)
+				: [];
 		}
 
-		// get tags fo line.
-		const linesWithTags = (await fetchLines({
-			lineIds: [id],
-			allLines: false,
-			limit: 1,
-			fieldsInclude: ['tags'],
-		})) as WithRequired<LinePartial, 'tags'>[];
-		const currentTagIds = linesWithTags.length
-			? linesWithTags[0].tags.map((tag) => tag.id)
-			: [];
+		// Writes in transaction: UPDATE the line row, then add/remove tag
+		// relations atomically.
+		await withDbTransaction(async (exec) => {
+			await exec(
+				dbConnection
+					.drizzle!.update(linesTable)
+					.set({
+						...(undefined !== newLine?.title && { title: newLine.title }),
+						...(undefined !== newLine?.lineStringFeature && {
+							geometry: newLine.lineStringFeature.geometry,
+						}),
+					})
+					.where(eq(linesTable.id, id))
+			);
 
-		await Promise.all(
-			newLine.tagIds.map(async (tagId) => {
-				if (!currentTagIds.includes(tagId) && dbConnection?.drizzle) {
-					// create relation
-					await dbConnection.drizzle.insert(tagsToLinesTable).values([
-						{
-							tag_id: tagId,
-							line_id: id,
-						},
-					]);
-				}
-			})
-		);
+			if (!hasTagUpdate) {
+				return;
+			}
 
-		await Promise.all(
-			currentTagIds.map(async (tagId) => {
-				if (!newLine.tagIds!.includes(tagId) && dbConnection?.drizzle) {
-					// delete relation that is no longer wanted
-					await dbConnection.drizzle
-						.delete(tagsToLinesTable)
-						.where(
-							and(eq(tagsToLinesTable.tag_id, tagId), eq(tagsToLinesTable.line_id, id))
-						);
+			// INSERT relations for newly requested tags.
+			for (const tagId of newLine.tagIds!) {
+				if (!currentTagIds.includes(tagId)) {
+					await exec(
+						dbConnection.drizzle!.insert(tagsToLinesTable).values([
+							{
+								tag_id: tagId,
+								line_id: id,
+							},
+						])
+					);
 				}
-			})
-		);
+			}
+
+			// DELETE relations for tags no longer in the list.
+			for (const tagId of currentTagIds) {
+				if (!newLine.tagIds!.includes(tagId)) {
+					await exec(
+						dbConnection
+							.drizzle!.delete(tagsToLinesTable)
+							.where(
+								and(
+									eq(tagsToLinesTable.tag_id, tagId),
+									eq(tagsToLinesTable.line_id, id)
+								)
+							)
+					);
+				}
+			}
+		});
 	}
 );
 

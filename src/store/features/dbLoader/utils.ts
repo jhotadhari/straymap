@@ -60,6 +60,44 @@ export const rowsParseEnvelopeGeoJSON = <T, G>(rows: (T & { envelopeGeoJSON: str
  * user-facing toast, then rethrows. Use for all drizzle-backed CRUD functions
  * so failures are consistently reported.
  */
+/**
+ * Thin wrapper around op-sqlite's native transaction API (which is genuinely
+ * async), replacing drizzle-orm's broken `transaction()` method (see
+ * drizzle-orm#2275).  Pass drizzle queries (anything with `.toSQL()`) to the
+ * `exec` callback and they will run inside the same transaction.
+ */
+export const withDbTransaction = async <T>(
+	callback: (exec: (query: { toSQL: () => { sql: string; params: unknown[] } }) => Promise<QueryResult>) => Promise<T>
+): Promise<T> => {
+	return new Promise((resolve, reject) => {
+		if (!dbConnection?.op) {
+			reject(new Error('dbConnection.op is undefined'));
+			return;
+		}
+		dbConnection.op.transaction(async (tx) => {
+			try {
+				const result = await callback(async (query) => {
+					const { sql, params } = query.toSQL();
+					return tx.execute(sql, params as Scalar[]);
+				});
+				resolve(result);
+				await tx.commit();
+			} catch (error) {
+				reject(error);
+				tx.rollback();
+			}
+		});
+	});
+};
+
+/**
+ * Parse the rows returned by tx.execute() for an INSERT ... RETURNING id query
+ * into the { id: number }[] shape drizzle's .returning() normally produces.
+ */
+export const parseReturningIds = (result: QueryResult): { id: number }[] => {
+	return (result.rows ?? []).map((row) => ({ id: row[0] as number }));
+};
+
 export const withDbErrorHandling = <Args extends any[], T>(
 	context: string,
 	fn: (...args: Args) => Promise<T>

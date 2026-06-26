@@ -8,7 +8,7 @@ import { eq } from 'drizzle-orm';
  */
 import { dbConnection } from '../../dbLoader/DBConnection';
 import { routesTable, routingPointsTable } from './schema/schema';
-import { withDbErrorHandling } from '../../dbLoader/utils';
+import { withDbErrorHandling, withDbTransaction } from '../../dbLoader/utils';
 
 export const createRoutes = withDbErrorHandling(
 	'routing/actionsRoute.createRoutes',
@@ -75,10 +75,16 @@ export const deleteRoute = withDbErrorHandling(
 	'routing/actionsRoute.deleteRoute',
 	async (id?: number | false) => {
 		if (id && dbConnection?.drizzle) {
-			await dbConnection.drizzle
-				.delete(routingPointsTable)
-				.where(eq(routingPointsTable.route_id, id));
-			await dbConnection.drizzle.delete(routesTable).where(eq(routesTable.id, id));
+			await withDbTransaction(async (exec) => {
+				await exec(
+					dbConnection.drizzle!
+						.delete(routingPointsTable)
+						.where(eq(routingPointsTable.route_id, id))
+				);
+				await exec(
+					dbConnection.drizzle!.delete(routesTable).where(eq(routesTable.id, id))
+				);
+			});
 		}
 	}
 );

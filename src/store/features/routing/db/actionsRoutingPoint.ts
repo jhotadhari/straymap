@@ -2,11 +2,11 @@ import { eq } from 'drizzle-orm';
 import { Feature, Point, GeoJsonProperties } from 'geojson';
 
 import { dbConnection } from '../../dbLoader/DBConnection';
-import { routingPointsTable } from './schema/schema';
+import { routingPointsTable, routesTable } from './schema/schema';
 import { fetchRoutes } from './fetch';
 import { updateRoute } from './actionsRoute';
 import { RoutingProfile } from '../types';
-import { withDbErrorHandling } from '../../dbLoader/utils';
+import { withDbErrorHandling, withDbTransaction, parseReturningIds } from '../../dbLoader/utils';
 
 export const createRoutingPoints = withDbErrorHandling(
 	'routing/actionsRoutingPoint.createRoutingPoints',
@@ -20,28 +20,46 @@ export const createRoutingPoints = withDbErrorHandling(
 		if (!route_id || !dbConnection?.drizzle) {
 			return;
 		}
-		const inserted = await dbConnection.drizzle
-			.insert(routingPointsTable)
-			.values(
-				newPoints.map(({ feature, profile }) => ({
-					route_id: route_id,
-					geometry: feature.geometry,
-					profile: profile,
-				}))
-			)
-			.returning({ id: routingPointsTable.id });
 
-		if (inserted.length !== newPoints.length) {
-			return inserted;
-		}
+		// Fetch existing route data before the transaction so the complex
+		// SELECT runs through drizzle (not raw SQL).
 		const routes = await fetchRoutes({ routeId: route_id });
-		if (!routes.length) {
+
+		return withDbTransaction(async (exec) => {
+			const insertResult = await exec(
+				dbConnection
+					.drizzle!.insert(routingPointsTable)
+					.values(
+						newPoints.map(({ feature, profile }) => ({
+							route_id: route_id,
+							geometry: feature.geometry,
+							profile: profile,
+						}))
+					)
+					.returning({ id: routingPointsTable.id })
+			);
+			const inserted = parseReturningIds(insertResult);
+
+			if (inserted.length !== newPoints.length) {
+				return inserted;
+			}
+			if (!routes.length) {
+				return inserted;
+			}
+
+			// Append new point IDs to the existing point_order.
+			const existingIds = routes[0].points.map((p) => p.id);
+			const newOrder = [...existingIds, ...inserted.map((r) => r.id)];
+
+			await exec(
+				dbConnection
+					.drizzle!.update(routesTable)
+					.set({ point_order: newOrder })
+					.where(eq(routesTable.id, routes[0].id))
+			);
+
 			return inserted;
-		}
-		await updateRoute(routes[0].id, {
-			point_order: routes[0].points.map((p) => p.id),
 		});
-		return inserted;
 	}
 );
 
