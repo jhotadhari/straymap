@@ -14,11 +14,11 @@ full architecture writeup.
 
 ## Status
 
-- [ ] #1 Consistent error handling on update/delete functions
-- [ ] #2 Orphaned `tags_to_lines` rows on delete
-- [ ] #3 No db transactions on multi-statement writes (spike no longer
+- [x] #1 Consistent error handling on update/delete functions
+- [x] #2 Orphaned `tags_to_lines` rows on delete
+- [x] #3 No db transactions on multi-statement writes (spike no longer
       needed — confirmed broken upstream, see issue 3 below)
-- [ ] #4 Adopt RQB for `fetchRoutes` (opportunity, not a bug — lowest
+- [x] #4 Adopt RQB for `fetchRoutes` (opportunity, not a bug — lowest
       priority)
 
 (Numbered in suggested work order — see "Suggested order of work" below for why.)
