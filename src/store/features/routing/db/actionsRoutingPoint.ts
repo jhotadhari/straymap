@@ -1,94 +1,117 @@
 import { eq } from 'drizzle-orm';
 import { Feature, Point, GeoJsonProperties } from 'geojson';
-import { sprintf } from 'sprintf-js';
 
 import { dbConnection } from '../../dbLoader/DBConnection';
-import { routingPointsTable } from './schema/schema';
+import { routingPointsTable, routesTable } from './schema/schema';
 import { fetchRoutes } from './fetch';
-import { updateRoute } from './actionsRoute';
 import { RoutingProfile } from '../types';
-import { logError } from '../../../../lib/utils';
-import { showErrorToast } from '../../../../components/ErrorToast/service';
-import i18n from '../../../../assets/i18n/i18n';
+import { withDbErrorHandling, withDbTransaction, parseReturningIds } from '../../dbLoader/utils';
 
-export const createRoutingPoints = async (
-	newPoints: {
-		feature: Feature<Point, GeoJsonProperties>;
-		profile: RoutingProfile;
-	}[],
-	route_id?: number | false
-) => {
-	if (!route_id || !dbConnection?.drizzle) {
-		return;
-	}
-	try {
-		const inserted = await dbConnection.drizzle
-			.insert(routingPointsTable)
-			.values(
-				newPoints.map(({ feature, profile }) => ({
-					route_id: route_id,
-					geometry: feature.geometry,
-					profile: profile,
-				}))
-			)
-			.returning({ id: routingPointsTable.id });
-
-		if (inserted.length !== newPoints.length) {
-			return inserted;
+export const createRoutingPoints = withDbErrorHandling(
+	'routing/actionsRoutingPoint.createRoutingPoints',
+	async (
+		newPoints: {
+			feature: Feature<Point, GeoJsonProperties>;
+			profile: RoutingProfile;
+		}[],
+		route_id?: number | false
+	) => {
+		if (!route_id || !dbConnection?.drizzle) {
+			return;
 		}
+
+		// Fetch existing route data before the transaction so the complex
+		// SELECT runs through drizzle (not raw SQL).
 		const routes = await fetchRoutes({ routeId: route_id });
-		if (!routes.length) {
+
+		return withDbTransaction(async (exec) => {
+			const insertResult = await exec(
+				dbConnection
+					.drizzle!.insert(routingPointsTable)
+					.values(
+						newPoints.map(({ feature, profile }) => ({
+							route_id: route_id,
+							geometry: feature.geometry,
+							profile: profile,
+						}))
+					)
+					.returning({ id: routingPointsTable.id })
+			);
+			const inserted = parseReturningIds(insertResult);
+
+			if (inserted.length !== newPoints.length) {
+				return inserted;
+			}
+			// Append new point IDs to the existing point_order.
+			const existingIds = routes.length ? routes[0].points.map((p) => p.id) : [];
+			const newOrder = [...existingIds, ...inserted.map((r) => r.id)];
+
+			await exec(
+				dbConnection
+					.drizzle!.update(routesTable)
+					.set({ point_order: newOrder })
+					.where(eq(routesTable.id, route_id))
+			);
+
 			return inserted;
-		}
-		await updateRoute(routes[0].id, {
-			point_order: routes[0].points.map((p) => p.id),
 		});
-		return inserted;
-	} catch (error) {
-		logError('routing/actionsRoutingPoint.createRoutingPoints', error);
-		showErrorToast(sprintf(i18n.t('errorGeneric'), (error as Error)?.message ?? String(error)));
-		throw error;
 	}
-};
+);
 
-export const updateRoutingPoint = async (
-	id: number,
-	newPoint: Partial<{
-		feature: Feature<Point, GeoJsonProperties>;
-		profile?: RoutingProfile;
-	}>
-) => {
-	// const routingPoints = await dbZ
-	// 	.select()
-	// 	.from(routingPointsTable)
-	// 	.where(eq(routingPointsTable.id, id))
-	// 	.limit(1);
-	// if (!routingPoints.length) {
-	// 	return;
-	// }
-	if (!dbConnection?.drizzle) {
-		return;
+export const updateRoutingPoint = withDbErrorHandling(
+	'routing/actionsRoutingPoint.updateRoutingPoint',
+	async (
+		id: number,
+		newPoint: Partial<{
+			feature: Feature<Point, GeoJsonProperties>;
+			profile?: RoutingProfile;
+		}>
+	) => {
+		if (!dbConnection?.drizzle) {
+			return;
+		}
+		await dbConnection.drizzle
+			.update(routingPointsTable)
+			.set({
+				...(undefined !== newPoint?.profile && { profile: newPoint.profile }),
+				...(undefined !== newPoint?.feature && { geometry: newPoint.feature.geometry }),
+			})
+			.where(eq(routingPointsTable.id, id));
 	}
-	await dbConnection.drizzle
-		.update(routingPointsTable)
-		.set({
-			...(undefined !== newPoint?.profile && { profile: newPoint.profile }),
-			...(undefined !== newPoint?.feature && { geometry: newPoint.feature.geometry }),
-		})
-		.where(eq(routingPointsTable.id, id));
-};
+);
 
-export const deleteRoutingPoint = async (id?: number) => {
-	if (!id || !dbConnection?.drizzle) {
-		return;
+export const deleteRoutingPoint = withDbErrorHandling(
+	'routing/actionsRoutingPoint.deleteRoutingPoint',
+	async (id?: number) => {
+		if (!id || !dbConnection?.drizzle) {
+			return;
+		}
+		const routesToUpdate = await dbConnection
+			.drizzle!.select({
+				id: routesTable.id,
+				point_order: routesTable.point_order,
+			})
+			.from(routingPointsTable)
+			.innerJoin(routesTable, eq(routingPointsTable.route_id, routesTable.id))
+			.where(eq(routingPointsTable.id, id));
+
+		// Wrap route point_order updates + the point DELETE in a single
+		// transaction so a partial failure doesn't leave stale point_order.
+		await withDbTransaction(async (exec) => {
+			for (const route of routesToUpdate) {
+				const newOrder = route.point_order.filter((pId) => pId !== id);
+				await exec(
+					dbConnection
+						.drizzle!.update(routesTable)
+						.set({ point_order: newOrder })
+						.where(eq(routesTable.id, route.id))
+				);
+			}
+			await exec(
+				dbConnection
+					.drizzle!.delete(routingPointsTable)
+					.where(eq(routingPointsTable.id, id))
+			);
+		});
 	}
-	const routes = await fetchRoutes({ pointId: id });
-	await Promise.all(
-		routes.map(async (route) => {
-			await updateRoute(route.id, {
-				point_order: route.point_order.filter((pId) => pId !== id),
-			});
-		})
-	);
-	await dbConnection.drizzle.delete(routingPointsTable).where(eq(routingPointsTable.id, id));
-};
+);

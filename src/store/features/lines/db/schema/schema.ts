@@ -29,10 +29,10 @@ export const tagsToLinesTable = sqliteTable(
 		id: integer('id').primaryKey({ autoIncrement: true }),
 		tag_id: integer('tag_id')
 			.notNull()
-			.references((): AnySQLiteColumn => tagsTable.id), //, { onDelete: 'cascade' })
+			.references((): AnySQLiteColumn => tagsTable.id, { onDelete: 'cascade' }),
 		line_id: integer('line_id')
 			.notNull()
-			.references((): AnySQLiteColumn => linesTable.id), //, { onDelete: 'cascade' })
+			.references((): AnySQLiteColumn => linesTable.id, { onDelete: 'cascade' }),
 	}
 	// (table) => [
 	// 	primaryKey({ columns: [table.tag_id, table.line_id] }),

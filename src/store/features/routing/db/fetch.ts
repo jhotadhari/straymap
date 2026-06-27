@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { sql, eq, and } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import { Point } from 'geojson';
 
 /**
@@ -13,7 +13,7 @@ import { sortArrayByOrderArray } from '../../../../lib/utilsLight';
 import { Route } from '../types';
 import { rowParseGeometryGeoJSON } from '../../dbLoader/utils';
 import { linesTable } from '../../lines/db/schema/schema';
-import { mapValues, omit, pick } from 'lodash-es';
+import { mapValues, pick } from 'lodash-es';
 import { STATS_FIELDS } from '../../lines/types';
 
 /**
@@ -32,79 +32,80 @@ export interface FetchRoutesParams {
 
 const statsFields = [...STATS_FIELDS] as string[];
 
-export const fetchRoutes = (params?: FetchRoutesParams) => {
-	return new Promise<Route[]>((resolve, reject) => {
-		const { routeId, pointId, lineId } = params ?? {};
+export const fetchRoutes = (params?: FetchRoutesParams): Promise<Route[]> => {
+	const { routeId, pointId, lineId } = params ?? {};
 
-		if (false === routeId || !dbConnection?.drizzle) {
-			return [];
-		}
+	if (false === routeId || !dbConnection?.drizzle) {
+		return Promise.resolve([]);
+	}
 
-		const query = dbConnection.drizzle
-			.select({
+	// RQB (relational query builder) handles the one-to-many join →
+	// nest for routes→points, replacing the manual .reduce() into
+	// Record<routeId, Route>.  extras injects the SpatiaLite function
+	// calls that can't be expressed via the ORM alone.
+	return dbConnection.drizzle.query.routingPointsTable
+		.findMany({
+			extras: (_table, { sql: s }) => ({
+				geometryGeoJSON: s<string>`AsGeoJSON (${routingPointsTable.geometry})`.as(
+					'geometryGeoJSON'
+				),
+				length: s<string>`GreatCircleLength (${linesTable.geometry})`.as('length'),
+				uphill: s<string>`UphillHeight (${linesTable.geometry})`.as('uphill'),
+				downhill: s<string>`DownhillHeight (${linesTable.geometry})`.as('downhill'),
+				minZ: s<string>`ST_MinZ (${linesTable.geometry})`.as('minZ'),
+				maxZ: s<string>`ST_MaxZ (${linesTable.geometry})`.as('maxZ'),
+			}),
+			with: {
 				route: {
-					id: routesTable.id,
-					timestamp: routesTable.timestamp,
-					point_order: routesTable.point_order,
-					line_id: routesTable.line_id,
-					length: sql<string>`GreatCircleLength (${linesTable.geometry})`,
-					uphill: sql<string>`UphillHeight (${linesTable.geometry})`,
-					downhill: sql<string>`DownhillHeight (${linesTable.geometry})`,
-					minZ: sql<string>`ST_MinZ (${linesTable.geometry})`,
-					maxZ: sql<string>`ST_MaxZ (${linesTable.geometry})`,
+					with: {
+						line: true,
+					},
 				},
-				point: {
-					id: routingPointsTable.id,
-					timestamp: routingPointsTable.timestamp,
-					geometryGeoJSON: sql<string>`AsGeoJSON (${routingPointsTable.geometry})`,
-					profile: routingPointsTable.profile,
-				},
-			})
-			.from(routesTable);
-
-		query.leftJoin(routingPointsTable, eq(routingPointsTable.route_id, routesTable.id));
-
-		query.leftJoin(linesTable, eq(linesTable.id, routesTable.line_id));
-
-		query.where(
-			and(
+			},
+			where: and(
 				routeId ? eq(routesTable.id, routeId) : undefined,
 				pointId ? eq(routingPointsTable.id, pointId) : undefined,
 				lineId ? eq(routesTable.line_id, lineId) : undefined
-			)
-		);
+			),
+		})
+		.then((rows) => {
+			// Aggregate flat rows back into routes (RQB nested the line
+			// inside route but the base is still per-point).
+			const aggregated = Object.values(
+				rows.reduce<Record<number, Route>>((acc, row) => {
+					const routeData = row.route;
+					if (routeData?.id && !acc[routeData.id]) {
+						acc[routeData.id] = {
+							id: routeData.id,
+							timestamp: routeData.timestamp,
+							point_order: routeData.point_order,
+							line_id: routeData.line_id,
+							stats: mapValues(
+								pick(row, statsFields) as Record<string, string>,
+								(str: string) => parseFloat(str)
+							),
+							points: [],
+						} as Route;
+					}
+					if (routeData?.id) {
+						const pointFields = pick(row, [
+							'id',
+							'timestamp',
+							'geometryGeoJSON',
+							'profile',
+						]);
+						acc[routeData.id].points.push(
+							rowParseGeometryGeoJSON<typeof pointFields, Point>(pointFields)
+						);
+					}
+					return acc;
+				}, {})
+			);
 
-		query
-			.all()
-			.then((rows) => {
-				const aggregated = Object.values(
-					rows.reduce<Record<number, Route>>((acc, row) => {
-						if (row?.route?.id && !acc[row.route.id]) {
-							acc[row.route.id] = {
-								...omit(row.route, statsFields),
-								stats: mapValues(pick(row.route, statsFields), (str: string) =>
-									parseFloat(str)
-								),
-								points: [],
-							} as Route;
-						}
-						if (row?.point && row?.route?.id) {
-							acc[row.route.id].points.push(
-								rowParseGeometryGeoJSON<typeof row.point, Point>(row.point)
-							);
-						}
-						return acc;
-					}, {})
-				);
-
-				aggregated.forEach((row) => {
-					sortArrayByOrderArray(row.points, row.point_order, 'id', true);
-				});
-
-				resolve(aggregated);
-			})
-			.catch((err) => {
-				reject(err);
+			aggregated.forEach((route) => {
+				sortArrayByOrderArray(route.points, route.point_order, 'id', true);
 			});
-	});
+
+			return aggregated;
+		});
 };
