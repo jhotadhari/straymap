@@ -47,7 +47,12 @@ const Option: FC<{
 		} else {
 			setOverlays([...profileTemp.renderOverlays, opt.key]);
 		}
-	}, [profileTemp, isSelected, opt.key, setOverlays]);
+	}, [
+		profileTemp,
+		isSelected,
+		opt.key,
+		setOverlays,
+	]);
 
 	return (
 		<RadioListItem
@@ -196,8 +201,8 @@ const RenderOverlaysControl: FC<{
 	const opts = useMemo(() => {
 		if (profileTemp && profileTemp.theme && profileTemp.renderStyle && renderStyleOptions) {
 			const overlays =
-				renderStyleOptions.find((opt) => opt.value === profileTemp.renderStyle)
-					?.overlays ?? [];
+				renderStyleOptions.find((opt) => opt.value === profileTemp.renderStyle)?.overlays ??
+				[];
 			return overlays.map((overlay) => ({ key: overlay.value, label: overlay.label }));
 		}
 		return [];

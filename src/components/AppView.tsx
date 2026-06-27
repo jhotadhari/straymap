@@ -65,7 +65,7 @@ import { selectUiItemKeys } from '../store/features/ui/selectors';
 import MapLayersAttribution from '../store/features/baseMap/components/MapLayersAttribution';
 import { DashboardWrapped } from '../store/features/dashboard/components/Dashboard';
 import useShowInitialSplash from '../compose/useShowInitialSplash';
-import DebugBla from '../store/features/lines/components/DebugBla';
+
 import LinesMapView from '../store/features/lines/components/LinesMapView';
 import LineEditModal from '../store/features/lines/components/LineEditModal/LineEditModal';
 import { setLineSelected } from '../store/features/lines/slice';
@@ -257,8 +257,6 @@ const AppView = ({
 						onResume={handleMapResume}
 						onMapUpdate={handleMapEvent}
 					>
-						<DebugBla />
-
 						<BaseMap />
 
 						<LayerScalebar />

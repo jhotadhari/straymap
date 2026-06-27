@@ -22,17 +22,16 @@ Each layer has one job:
   opens it and loads `libspatialite` via `op.loadExtension(...)`.
 - **libspatialite** adds geometry columns/types (`AddGeometryColumn`, LINESTRINGZ/POINTZ,
   SRID 4326) and spatial SQL functions (`GeomFromGeoJSON`, `AsGeoJSON`, `GreatCircleLength`,
-  `UphillHeight`, `ST_Envelope`, the R*Tree-backed `CreateSpatialIndex`, etc). It's a SQL
+  `UphillHeight`, `ST_Envelope`, the R\*Tree-backed `CreateSpatialIndex`, etc). It's a SQL
   extension, not something the JS code talks to directly — drizzle just emits SQL that calls
   these functions.
 - **drizzle-orm** is the only thing that talks to op-sqlite. It owns: the table schema
   (`db/schema/schema.ts` per feature, aggregated in `dbLoader/schema.ts`), the migration
   runner (`drizzle-kit generate` → `/drizzle/*.sql`, applied by `migrate()` in
   `DBConnection.setDbZ()`), and — importantly — **parameterization**. Every value passed to
-  `.values()`/`.set()`/a `sql\`...\`` template becomes a bound `?` parameter
-  (`drizzle-orm/op-sqlite/session.js` → `client.executeAsync(sql, params)`); nothing here
-  builds SQL by string concatenation. The custom `lineString()`/`point()` column types in
-  `dbLoader/types.ts` follow the same rule: `GeomFromGeoJSON(${valueEpsgStr})` binds the
+  `.values()`/`.set()`/a `sql\`...\``template becomes a bound`?` parameter
+(`drizzle-orm/op-sqlite/session.js`→`client.executeAsync(sql, params)`); nothing here
+builds SQL by string concatenation. The custom `lineString()`/`point()`column types in`dbLoader/types.ts`follow the same rule:`GeomFromGeoJSON(${valueEpsgStr})` binds the
   GeoJSON string as a parameter, it does not splice it into the SQL text.
 - **`db/actions*.ts`** (`lines/db/actionsLine.ts`, `actionsTag.ts`, `routing/db/actionsRoute.ts`,
   `actionsRoutingPoint.ts`) are the only place that writes. Plain async functions, not

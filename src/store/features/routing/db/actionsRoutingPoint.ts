@@ -42,19 +42,15 @@ export const createRoutingPoints = withDbErrorHandling(
 			if (inserted.length !== newPoints.length) {
 				return inserted;
 			}
-			if (!routes.length) {
-				return inserted;
-			}
-
 			// Append new point IDs to the existing point_order.
-			const existingIds = routes[0].points.map((p) => p.id);
+			const existingIds = routes.length ? routes[0].points.map((p) => p.id) : [];
 			const newOrder = [...existingIds, ...inserted.map((r) => r.id)];
 
 			await exec(
 				dbConnection
 					.drizzle!.update(routesTable)
 					.set({ point_order: newOrder })
-					.where(eq(routesTable.id, routes[0].id))
+					.where(eq(routesTable.id, route_id))
 			);
 
 			return inserted;
@@ -90,12 +86,19 @@ export const deleteRoutingPoint = withDbErrorHandling(
 		if (!id || !dbConnection?.drizzle) {
 			return;
 		}
-		const routes = await fetchRoutes({ pointId: id });
+		const routesToUpdate = await dbConnection
+			.drizzle!.select({
+				id: routesTable.id,
+				point_order: routesTable.point_order,
+			})
+			.from(routingPointsTable)
+			.innerJoin(routesTable, eq(routingPointsTable.route_id, routesTable.id))
+			.where(eq(routingPointsTable.id, id));
 
 		// Wrap route point_order updates + the point DELETE in a single
 		// transaction so a partial failure doesn't leave stale point_order.
 		await withDbTransaction(async (exec) => {
-			for (const route of routes) {
+			for (const route of routesToUpdate) {
 				const newOrder = route.point_order.filter((pId) => pId !== id);
 				await exec(
 					dbConnection

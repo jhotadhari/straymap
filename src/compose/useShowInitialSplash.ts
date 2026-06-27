@@ -37,7 +37,11 @@ const useShowInitialSplash = () => {
 		return () => {
 			intervalIdRef.current && clearInterval(intervalIdRef.current);
 		};
-	}, [mapViewNativeNodeHandle, mapLayersCreatedDef, currentMapEventRef]);
+	}, [
+		mapViewNativeNodeHandle,
+		mapLayersCreatedDef,
+		currentMapEventRef,
+	]);
 
 	useEffect(() => {
 		if (showSplash && mapLayersCreatedDef && !isBusy) {

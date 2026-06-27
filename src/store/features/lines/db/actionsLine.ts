@@ -2,16 +2,13 @@
  * External dependencies
  */
 import { Feature, LineString, GeoJsonProperties } from 'geojson';
-import { eq, and, or, inArray } from 'drizzle-orm';
+import { eq, and, inArray } from 'drizzle-orm';
 
 /**
  * Internal dependencies
  */
 import { dbConnection } from '../../dbLoader/DBConnection';
-import { fetchLines } from './fetch';
 import { linesTable, tagsTable, tagsToLinesTable } from './schema/schema';
-import { LinePartial } from '../types';
-import { WithRequired } from '@tanstack/react-query';
 import { withDbErrorHandling, withDbTransaction, parseReturningIds } from '../../dbLoader/utils';
 
 export const createLines = withDbErrorHandling(
@@ -124,6 +121,22 @@ export const updateLine = withDbErrorHandling(
 			currentTagIds = tagRows.map((r) => r.tag_id);
 		}
 
+		// Pre-flight: verify which tag IDs to add actually exist
+		// (outside transaction, so these SELECTs can use drizzle's
+		// typed query builder — same pattern as createLines).
+		const rawTagIdsToAdd = hasTagUpdate
+			? newLine.tagIds!.filter((tagId) => !currentTagIds.includes(tagId))
+			: [];
+		let tagIdsToAdd: number[] = rawTagIdsToAdd;
+		if (rawTagIdsToAdd.length > 0) {
+			const existingTags = await dbConnection.drizzle
+				.select({ id: tagsTable.id })
+				.from(tagsTable)
+				.where(inArray(tagsTable.id, rawTagIdsToAdd));
+			const existingSet = new Set(existingTags.map((t) => t.id));
+			tagIdsToAdd = rawTagIdsToAdd.filter((tagId) => existingSet.has(tagId));
+		}
+
 		// Writes in transaction: UPDATE the line row, then add/remove tag
 		// relations atomically.
 		await withDbTransaction(async (exec) => {
@@ -143,8 +156,6 @@ export const updateLine = withDbErrorHandling(
 				return;
 			}
 
-			// Batch INSERT relations for newly requested tags.
-			const tagIdsToAdd = newLine.tagIds!.filter((tagId) => !currentTagIds.includes(tagId));
 			if (tagIdsToAdd.length > 0) {
 				await exec(
 					dbConnection.drizzle!.insert(tagsToLinesTable).values(
@@ -182,17 +193,13 @@ export const lineAddTag = withDbErrorHandling(
 		if (!dbConnection?.drizzle) {
 			return;
 		}
-		// Check if line has this tag already
-		const linesWithTags = (await fetchLines({
-			lineIds: [lineId],
-			allLines: false,
-			limit: 1,
-			fieldsInclude: ['tags'],
-		})) as WithRequired<LinePartial, 'tags'>[];
-		const alreadyHasTag = linesWithTags.length
-			? linesWithTags[0].tags.some((tag) => tag.id === tagId)
-			: false;
-		if (alreadyHasTag) {
+		// Check if line has this tag already using a lightweight query
+		const existing = await dbConnection.drizzle
+			.select({ id: tagsToLinesTable.id })
+			.from(tagsToLinesTable)
+			.where(and(eq(tagsToLinesTable.line_id, lineId), eq(tagsToLinesTable.tag_id, tagId)))
+			.limit(1);
+		if (existing.length > 0) {
 			return;
 		}
 		await dbConnection.drizzle.insert(tagsToLinesTable).values([
@@ -232,8 +239,6 @@ export const deleteLines = withDbErrorHandling(
 			return;
 		}
 
-		await dbConnection.drizzle
-			.delete(linesTable)
-			.where(or(...ids.map((id) => eq(linesTable.id, id))));
+		await dbConnection.drizzle.delete(linesTable).where(inArray(linesTable.id, ids));
 	}
 );

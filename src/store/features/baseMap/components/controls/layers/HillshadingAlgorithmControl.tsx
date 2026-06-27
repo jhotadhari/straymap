@@ -142,7 +142,10 @@ const HillshadingAlgorithmControl: FC<{}> = () => {
 
 	const handleCloseModal = useCallback(() => setModalVisible(false), []);
 
-	const toggleShowAdvanced = useCallback(() => setShowAdvanced((showAdvanced) => !showAdvanced), []);
+	const toggleShowAdvanced = useCallback(
+		() => setShowAdvanced((showAdvanced) => !showAdvanced),
+		[]
+	);
 
 	const handleLinearityUpdate = useCallback(
 		(newValue: number) => setAlgOpts((algOpts) => ({ ...algOpts, linearity: newValue })),

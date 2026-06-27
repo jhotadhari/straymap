@@ -67,5 +67,8 @@ export const deleteTag = withDbErrorHandling('lines/actionsTag.deleteTag', async
 		return;
 	}
 	await dbConnection.drizzle.delete(tagsTable).where(eq(tagsTable.id, id));
+	// Schema has ON DELETE CASCADE on tags_to_lines.tag_id FK, but
+	// PRAGMA foreign_keys may not be ON at runtime. Keep explicit
+	// delete as safety net against orphaned join rows.
 	await dbConnection.drizzle.delete(tagsToLinesTable).where(eq(tagsToLinesTable.tag_id, id));
 });

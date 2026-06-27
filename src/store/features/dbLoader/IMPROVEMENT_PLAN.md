@@ -44,23 +44,21 @@ rejection), it doesn't change what callers observe on failure.
 1. Extract a small wrapper instead of copy-pasting the same 4-line try/catch
    block 10 more times (15 total across the db layer). Put it in
    `dbLoader/utils.ts` next to `logError`:
-   ```ts
-   const withDbErrorHandling = <Args extends any[], T>(
-       context: string,
-       fn: (...args: Args) => Promise<T>
-   ) =>
-       async (...args: Args): Promise<T> => {
-           try {
-               return await fn(...args);
-           } catch (error) {
-               logError(context, error);
-               showErrorToast(
-                   sprintf(i18n.t('errorGeneric'), (error as Error)?.message ?? String(error))
-               );
-               throw error;
-           }
-       };
-   ```
+    ```ts
+    const withDbErrorHandling =
+    	<Args extends any[], T>(context: string, fn: (...args: Args) => Promise<T>) =>
+    	async (...args: Args): Promise<T> => {
+    		try {
+    			return await fn(...args);
+    		} catch (error) {
+    			logError(context, error);
+    			showErrorToast(
+    				sprintf(i18n.t('errorGeneric'), (error as Error)?.message ?? String(error))
+    			);
+    			throw error;
+    		}
+    	};
+    ```
 2. Wrap all 10 functions listed above with it, e.g.
    `export const updateTag = withDbErrorHandling('lines/actionsTag.updateTag', async (id, newTag) => {...})`.
 3. Optionally retrofit the existing 5 (`createLines`, `createTags`,
@@ -86,6 +84,7 @@ over that table.
 ### Open question (decide before/while implementing)
 
 Two ways to fix it:
+
 - **Schema-level cascade** (recommended): add `{ onDelete: 'cascade' }` to
   both FKs on `tagsToLinesTable` (already sketched/commented out in
   `lines/db/schema/schema.ts`).
@@ -123,6 +122,7 @@ plumbing, it's a product behavior call.
 ## Issue 3: No db transactions on multi-statement writes
 
 Where it bites today:
+
 - `createLines`: inserts a line, then separately inserts `tagsToLinesTable`
   rows. If the second step throws, the line is left committed with no tags.
 - `updateLine`: updates the line row, then runs separate add/remove
@@ -181,7 +181,7 @@ verify, go straight to building around it.
 
 ### Steps
 
-1. Build a thin transaction helper on top of the *native* op-sqlite
+1. Build a thin transaction helper on top of the _native_ op-sqlite
    transaction API instead of `dbConnection.drizzle.transaction(...)` —
    `dbConnection.op.transaction(async (tx) => { await tx.execute(sql, params); ... })`,
    which is genuinely async and is already used safely in `dbOpExecute`
@@ -206,6 +206,7 @@ join + JS `.reduce()` aggregation in `lines/db/fetch.ts` and
 `routing/db/fetch.ts`.
 
 **Findings:**
+
 - RQB's `with: { tags: { with: { tag: true } } }` does dedupe/nest
   one-to-many/many-to-many results internally — this is exactly the step
   `fetchLinesWithTags`/`fetchRoutes` currently do by hand via `.reduce()`
@@ -213,15 +214,15 @@ join + JS `.reduce()` aggregation in `lines/db/fetch.ts` and
 - RQB supports mixing in raw SQL columns via `extras`, which is what we need
   for the SpatiaLite function calls (`AsGeoJSON`, `GreatCircleLength`,
   `ST_Envelope`, etc.):
-  ```ts
-  db.query.linesTable.findMany({
-      extras: (table, { sql }) => ({
-          geometryGeoJSON: sql<string>`AsGeoJSON(${table.geometry})`.as('geometryGeoJSON'),
-      }),
-      with: { tags: { with: { tag: true } } },
-  })
-  ```
-- **The blocker**: RQB's `with` only *attaches* relations, it never *filters*
+    ```ts
+    db.query.linesTable.findMany({
+    	extras: (table, { sql }) => ({
+    		geometryGeoJSON: sql<string>`AsGeoJSON (${table.geometry})`.as('geometryGeoJSON'),
+    	}),
+    	with: { tags: { with: { tag: true } } },
+    });
+    ```
+- **The blocker**: RQB's `with` only _attaches_ relations, it never _filters_
   which rows come back. `fetchLinesWithTags`'s `tagId` parameter and its
   `allLines`/`allTags` toggle rely on real SQL `rightJoin`/`leftJoin`
   inclusion semantics (e.g. "only lines that have this specific tag") that

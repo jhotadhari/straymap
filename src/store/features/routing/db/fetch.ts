@@ -88,8 +88,14 @@ export const fetchRoutes = (params?: FetchRoutesParams): Promise<Route[]> => {
 						} as Route;
 					}
 					if (routeData?.id) {
+						const pointFields = pick(row, [
+							'id',
+							'timestamp',
+							'geometryGeoJSON',
+							'profile',
+						]);
 						acc[routeData.id].points.push(
-							rowParseGeometryGeoJSON<typeof row, Point>(row)
+							rowParseGeometryGeoJSON<typeof pointFields, Point>(pointFields)
 						);
 					}
 					return acc;

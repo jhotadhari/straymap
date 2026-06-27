@@ -3,12 +3,7 @@
  */
 import React from 'react';
 import { midpoint } from '@turf/turf';
-import {
-	GeometryStyle,
-	LayerMarker,
-	Marker,
-	LayerPath,
-} from 'react-native-mapsforge-vtm';
+import { GeometryStyle, LayerMarker, Marker, LayerPath } from 'react-native-mapsforge-vtm';
 import { get } from 'lodash-es';
 
 /**
@@ -20,7 +15,6 @@ import { getSegmentRecordId } from '../utils';
 import useRoute from '../hooks/useRoute';
 
 const RoutingMapView = () => {
-
 	const { points } =
 		useRoute([
 			'points',

@@ -89,7 +89,11 @@ const Modal: FC<{
 				);
 			dispatch(setEditItemKey(newItem.key));
 		},
-		[position, dispatch, setModalVisible]
+		[
+			position,
+			dispatch,
+			setModalVisible,
+		]
 	);
 
 	const handleDismiss = useCallback(() => {

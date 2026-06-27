@@ -19,7 +19,9 @@ import { useAppSelector } from '../../../../../hooks';
 import { selectAppDirs } from '../../../../dirs/selectors';
 import { sharedStyles } from '../../../../../../sharedStyles';
 
-const renderTextInput = (props: TextInputProps) => <TextInputNativeMultilineControlled {...props} />;
+const renderTextInput = (props: TextInputProps) => (
+	<TextInputNativeMultilineControlled {...props} />
+);
 
 const validateCacheSize = (val: number) => val >= 0;
 

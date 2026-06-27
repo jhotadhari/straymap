@@ -68,8 +68,8 @@ const RoutingActionsButton: FC<{
 		const keys: string[] = [];
 
 		// if (undefined === movingPointIdx) {
-			keys.push('appendPoint');
-			keys.push('deleteLastPoint');
+		keys.push('appendPoint');
+		keys.push('deleteLastPoint');
 		// }
 
 		return Object.values(pick(actions, keys)).filter((a) => !!a);

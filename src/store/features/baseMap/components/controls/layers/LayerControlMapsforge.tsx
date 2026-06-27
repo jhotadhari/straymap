@@ -99,7 +99,11 @@ const ProfileRowControl = ({
 		if (newProfileTemp) {
 			dispatch(setMapsforgeProfileTemp(newProfileTemp));
 		}
-	}, [profiles, selectedOpt, dispatch]);
+	}, [
+		profiles,
+		selectedOpt,
+		dispatch,
+	]);
 
 	return (
 		<InfoRowControl

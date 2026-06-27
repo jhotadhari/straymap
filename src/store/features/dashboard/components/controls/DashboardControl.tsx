@@ -78,7 +78,11 @@ const DashboardControl: FC = () => {
 				})
 			);
 		},
-		[dispatch, position, dashboardStyle]
+		[
+			dispatch,
+			position,
+			dashboardStyle,
+		]
 	);
 
 	const ControlIcon: (props: { color: string; style: Style }) => ReactNode = useCallback(
