@@ -61,7 +61,6 @@ const useActionAppendPoint = ({
 		[
 			dispatch,
 			routeId,
-			dbConnection?.queryClient,
 		]
 	);
 	const mutation = useMutation(mutationOptions);

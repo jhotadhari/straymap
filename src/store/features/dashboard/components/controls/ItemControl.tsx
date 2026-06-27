@@ -117,7 +117,7 @@ const ItemControl: FC<{}> = ({}) => {
 			),
 		[
 			dispatch,
-			position,
+
 			item?.key,
 		]
 	);
@@ -132,7 +132,7 @@ const ItemControl: FC<{}> = ({}) => {
 			),
 		[
 			dispatch,
-			position,
+
 			item?.key,
 		]
 	);

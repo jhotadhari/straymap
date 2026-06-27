@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { RefObject, useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { Text, useTheme } from 'react-native-paper';
 import { Style as ListStyle } from 'react-native-paper/lib/typescript/components/List/utils';
 import { useTranslation } from 'react-i18next';
@@ -88,10 +88,11 @@ const ListItemMenuControl = ({
 		[setValue]
 	);
 
-	const renderFrom = useCallback(
-		(sourceRef: unknown) => (
-			<View>
-				<View ref={sourceRef as RefObject<View>} />
+	const anchorRef = useRef<View>(null);
+
+	return (
+		<>
+			<View ref={anchorRef}>
 				<ListItem
 					style={listItemStyle}
 					title={title}
@@ -99,42 +100,33 @@ const ListItemMenuControl = ({
 					onPress={handleAnchorPress}
 				/>
 			</View>
-		),
-		[
-			listItemStyle,
-			title,
-			anchorIcon,
-			handleAnchorPress,
-		]
-	);
-
-	return (
-		<Popover
-			popoverStyle={popoverStyle}
-			arrowSize={arrowSize}
-			isVisible={visible}
-			placement={PopoverPlacement.BOTTOM}
-			onRequestClose={handleRequestClose}
-			from={renderFrom}
-		>
-			{options && (
-				<ScrollView>
-					{options.map((opt, idx) => (
-						<MenuItem
-							style={
-								menuItemStyle instanceof Function
-									? menuItemStyle(idx)
-									: menuItemStyle
-							}
-							key={opt.key}
-							onPress={() => handleOptionPress(opt.key)}
-							title={t(opt.label)}
-							active={opt.key === value}
-						/>
-					))}
-				</ScrollView>
-			)}
-		</Popover>
+			<Popover
+				popoverStyle={popoverStyle}
+				arrowSize={arrowSize}
+				isVisible={visible}
+				placement={PopoverPlacement.BOTTOM}
+				onRequestClose={handleRequestClose}
+				from={anchorRef}
+			>
+				{options && (
+					<ScrollView>
+						{options.map((opt, idx) => (
+							<MenuItem
+								style={
+									menuItemStyle instanceof Function
+										? menuItemStyle(idx)
+										: menuItemStyle
+								}
+								key={opt.key}
+								onPress={() => handleOptionPress(opt.key)}
+								title={t(opt.label)}
+								active={opt.key === value}
+							/>
+						))}
+					</ScrollView>
+				)}
+			</Popover>
+		</>
 	);
 };
 

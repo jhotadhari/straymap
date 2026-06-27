@@ -2,8 +2,8 @@
  * External dependencies
  */
 import { Icon, useTheme } from 'react-native-paper';
-import { FC, Fragment, useCallback, useContext, useMemo, useState } from 'react';
-import { ScrollView } from 'react-native';
+import { FC, Fragment, useCallback, useContext, useMemo, useRef, useState } from 'react';
+import { ScrollView, View } from 'react-native';
 import Popover, { PopoverPlacement } from 'react-native-popover-view';
 
 /**
@@ -44,27 +44,7 @@ const BulkActions: FC = () => {
 
 	const actions = useBulkActions();
 
-	const anchor = useMemo(
-		() => (
-			<ButtonHighlight
-				mode="text"
-				compact={true}
-				disabled={!checkedIds.length}
-				onPress={handleButtonPress}
-			>
-				<Icon
-					source={'square-edit-outline'}
-					size={iconSize}
-					color={checkedIds.length ? undefined : theme.colors.onSurfaceDisabled}
-				/>
-			</ButtonHighlight>
-		),
-		[
-			theme,
-			checkedIds,
-			handleButtonPress,
-		]
-	);
+	const anchorRef = useRef<View>(null);
 
 	const popoverStyle = useMemo(
 		() => ({
@@ -84,13 +64,27 @@ const BulkActions: FC = () => {
 				) : undefined
 			)}
 
+			<ButtonHighlight
+				ref={anchorRef}
+				mode="text"
+				compact={true}
+				disabled={!checkedIds.length}
+				onPress={handleButtonPress}
+			>
+				<Icon
+					source={'square-edit-outline'}
+					size={iconSize}
+					color={checkedIds.length ? undefined : theme.colors.onSurfaceDisabled}
+				/>
+			</ButtonHighlight>
+
 			<Popover
 				popoverStyle={popoverStyle}
 				arrowSize={arrowSize}
 				isVisible={menuVisible}
 				placement={PopoverPlacement.TOP}
 				onRequestClose={dismissMenu}
-				from={anchor}
+				from={anchorRef}
 				animationConfig={animationConfig}
 			>
 				<ScrollView>

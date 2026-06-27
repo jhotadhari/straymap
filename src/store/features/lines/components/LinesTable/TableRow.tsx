@@ -96,7 +96,6 @@ const TableRow: FC<TableRowProps> = ({
 		[
 			theme,
 			idx,
-			theme,
 			isChecked,
 		]
 	);

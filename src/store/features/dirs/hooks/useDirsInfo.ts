@@ -35,6 +35,7 @@ const useDirsInfo = ({
 	const dirInfoCacheId = useMemo(
 		() =>
 			getDirInfoCacheId({
+				dispatch,
 				navDirs,
 				extensions,
 				recursive,

@@ -1,9 +1,9 @@
 /**
  * External dependencies
  */
-import React, { FC, useCallback, useContext, useMemo, useState } from 'react';
+import React, { FC, useCallback, useContext, useMemo, useRef, useState } from 'react';
 import { Icon, useTheme } from 'react-native-paper';
-import { Dimensions, ScrollView } from 'react-native';
+import { Dimensions, ScrollView, View } from 'react-native';
 import Popover, { PopoverPlacement } from 'react-native-popover-view';
 import { pick } from 'lodash-es';
 
@@ -244,24 +244,7 @@ const RoutingActionsButton: FC<{
 
 	const disabled = disabled_ || undefined === points || !points?.length;
 
-	const anchor = useMemo(
-		() => (
-			<ButtonHighlight
-				onPress={handleButtonPress}
-				disabled={disabled}
-				mode="outlined"
-			>
-				<Icon
-					source={'menu'}
-					size={20}
-				/>
-			</ButtonHighlight>
-		),
-		[
-			handleButtonPress,
-			disabled,
-		]
-	);
+	const anchorRef = useRef<View>(null);
 
 	const popoverStyle = useMemo(
 		() => ({
@@ -278,17 +261,30 @@ const RoutingActionsButton: FC<{
 	}
 
 	return (
-		<Popover
-			popoverStyle={popoverStyle}
-			arrowSize={arrowSize}
-			isVisible={menuVisible}
-			placement={PopoverPlacement.BOTTOM}
-			onRequestClose={dismissMenu}
-			from={anchor}
-			animationConfig={animationConfig}
-		>
-			<ScrollView>{menuVisible && <PopoverMenuItems options={options} />}</ScrollView>
-		</Popover>
+		<>
+			<ButtonHighlight
+				ref={anchorRef}
+				onPress={handleButtonPress}
+				disabled={disabled}
+				mode="outlined"
+			>
+				<Icon
+					source={'menu'}
+					size={20}
+				/>
+			</ButtonHighlight>
+			<Popover
+				popoverStyle={popoverStyle}
+				arrowSize={arrowSize}
+				isVisible={menuVisible}
+				placement={PopoverPlacement.BOTTOM}
+				onRequestClose={dismissMenu}
+				from={anchorRef}
+				animationConfig={animationConfig}
+			>
+				<ScrollView>{menuVisible && <PopoverMenuItems options={options} />}</ScrollView>
+			</Popover>
+		</>
 	);
 };
 

@@ -103,7 +103,6 @@ const Segment: FC<{
 	}, [
 		dispatch,
 		segment,
-		dbConnection?.queryClient,
 	]);
 
 	const handleSetEdit = useCallback(() => {
@@ -255,7 +254,6 @@ const DraggableItem: FC<{
 		[
 			dispatch,
 			routeId,
-			dbConnection?.queryClient,
 		]
 	);
 	const mutation = useMutation(mutationOptions);
@@ -357,7 +355,6 @@ const PointsList: FC = () => {
 		[
 			dispatch,
 			routeId,
-			dbConnection?.queryClient,
 		]
 	);
 	const mutation = useMutation(mutationOptions);
