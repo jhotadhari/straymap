@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { Feature, LineString, GeoJsonProperties } from 'geojson';
-import { eq, and, or } from 'drizzle-orm';
+import { eq, and, or, inArray } from 'drizzle-orm';
 
 /**
  * Internal dependencies
@@ -27,17 +27,20 @@ export const createLines = withDbErrorHandling(
 			return;
 		}
 
-		// Pre-flight: check which tag IDs exist (outside transaction, so these
-		// SELECTs can use drizzle's typed query builder).
+		// Pre-flight: check which tag IDs exist (outside transaction, so
+		// these SELECTs can use drizzle's typed query builder).  Batch
+		// into a single WHERE id IN (...) query instead of N sequential
+		// round-trips.
 		const allTagIds = [...new Set(newLines.flatMap((l) => l.tagIds ?? []))];
 		const tagIdsExisting: Record<number, boolean> = {};
-		for (const tagId of allTagIds) {
-			const tags = await dbConnection.drizzle
-				.select()
+		if (allTagIds.length > 0) {
+			const existingTags = await dbConnection.drizzle
+				.select({ id: tagsTable.id })
 				.from(tagsTable)
-				.where(eq(tagsTable.id, tagId))
-				.limit(1);
-			tagIdsExisting[tagId] = !!tags.length;
+				.where(inArray(tagsTable.id, allTagIds));
+			for (const { id } of existingTags) {
+				tagIdsExisting[id] = true;
+			}
 		}
 
 		return withDbTransaction(async (exec) => {
@@ -58,6 +61,9 @@ export const createLines = withDbErrorHandling(
 				return insertedLines;
 			}
 
+			// Collect all tag relations across all new lines, then
+			// INSERT them in a single multi-row statement.
+			const tagRelationValues: { tag_id: number; line_id: number }[] = [];
 			for (let idx = 0; idx < insertedLines.length; idx++) {
 				const { id } = insertedLines[idx];
 				const tagIds = newLines[idx]?.tagIds;
@@ -66,16 +72,14 @@ export const createLines = withDbErrorHandling(
 				}
 				for (const tagId of tagIds) {
 					if (tagIdsExisting[tagId]) {
-						await exec(
-							dbConnection.drizzle!.insert(tagsToLinesTable).values([
-								{
-									tag_id: tagId,
-									line_id: id,
-								},
-							])
-						);
+						tagRelationValues.push({ tag_id: tagId, line_id: id });
 					}
 				}
+			}
+			if (tagRelationValues.length > 0) {
+				await exec(
+					dbConnection.drizzle!.insert(tagsToLinesTable).values(tagRelationValues)
+				);
 			}
 
 			return insertedLines;
@@ -111,15 +115,13 @@ export const updateLine = withDbErrorHandling(
 		const hasTagUpdate = Array.isArray(newLine?.tagIds);
 		let currentTagIds: number[] = [];
 		if (hasTagUpdate) {
-			const linesWithTags = (await fetchLines({
-				lineIds: [id],
-				allLines: false,
-				limit: 1,
-				fieldsInclude: ['tags'],
-			})) as WithRequired<LinePartial, 'tags'>[];
-			currentTagIds = linesWithTags.length
-				? linesWithTags[0].tags.map((tag) => tag.id)
-				: [];
+			// Lightweight query: only fetch tag IDs for this line
+			// instead of the full fetchLines (joins + GeoJSON parse).
+			const tagRows = await dbConnection.drizzle
+				.select({ tag_id: tagsToLinesTable.tag_id })
+				.from(tagsToLinesTable)
+				.where(eq(tagsToLinesTable.line_id, id));
+			currentTagIds = tagRows.map((r) => r.tag_id);
 		}
 
 		// Writes in transaction: UPDATE the line row, then add/remove tag
@@ -141,34 +143,34 @@ export const updateLine = withDbErrorHandling(
 				return;
 			}
 
-			// INSERT relations for newly requested tags.
-			for (const tagId of newLine.tagIds!) {
-				if (!currentTagIds.includes(tagId)) {
-					await exec(
-						dbConnection.drizzle!.insert(tagsToLinesTable).values([
-							{
-								tag_id: tagId,
-								line_id: id,
-							},
-						])
-					);
-				}
+			// Batch INSERT relations for newly requested tags.
+			const tagIdsToAdd = newLine.tagIds!.filter((tagId) => !currentTagIds.includes(tagId));
+			if (tagIdsToAdd.length > 0) {
+				await exec(
+					dbConnection.drizzle!.insert(tagsToLinesTable).values(
+						tagIdsToAdd.map((tagId) => ({
+							tag_id: tagId,
+							line_id: id,
+						}))
+					)
+				);
 			}
 
-			// DELETE relations for tags no longer in the list.
-			for (const tagId of currentTagIds) {
-				if (!newLine.tagIds!.includes(tagId)) {
-					await exec(
-						dbConnection
-							.drizzle!.delete(tagsToLinesTable)
-							.where(
-								and(
-									eq(tagsToLinesTable.tag_id, tagId),
-									eq(tagsToLinesTable.line_id, id)
-								)
+			// Batch DELETE relations for tags no longer in the list.
+			const tagIdsToRemove = currentTagIds.filter(
+				(tagId) => !newLine.tagIds!.includes(tagId)
+			);
+			if (tagIdsToRemove.length > 0) {
+				await exec(
+					dbConnection
+						.drizzle!.delete(tagsToLinesTable)
+						.where(
+							and(
+								inArray(tagsToLinesTable.tag_id, tagIdsToRemove),
+								eq(tagsToLinesTable.line_id, id)
 							)
-					);
-				}
+						)
+				);
 			}
 		});
 	}
@@ -205,12 +207,12 @@ export const lineAddTag = withDbErrorHandling(
 export const lineRemoveTag = withDbErrorHandling(
 	'lines/actionsLine.lineRemoveTag',
 	async (lineId: number, tagId: number) => {
-		dbConnection?.drizzle &&
-			(await dbConnection.drizzle
-				.delete(tagsToLinesTable)
-				.where(
-					and(eq(tagsToLinesTable.tag_id, tagId), eq(tagsToLinesTable.line_id, lineId))
-				));
+		if (!dbConnection?.drizzle) {
+			return;
+		}
+		await dbConnection.drizzle
+			.delete(tagsToLinesTable)
+			.where(and(eq(tagsToLinesTable.tag_id, tagId), eq(tagsToLinesTable.line_id, lineId)));
 	}
 );
 

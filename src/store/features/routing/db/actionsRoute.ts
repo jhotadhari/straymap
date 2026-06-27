@@ -77,13 +77,11 @@ export const deleteRoute = withDbErrorHandling(
 		if (id && dbConnection?.drizzle) {
 			await withDbTransaction(async (exec) => {
 				await exec(
-					dbConnection.drizzle!
-						.delete(routingPointsTable)
+					dbConnection
+						.drizzle!.delete(routingPointsTable)
 						.where(eq(routingPointsTable.route_id, id))
 				);
-				await exec(
-					dbConnection.drizzle!.delete(routesTable).where(eq(routesTable.id, id))
-				);
+				await exec(dbConnection.drizzle!.delete(routesTable).where(eq(routesTable.id, id)));
 			});
 		}
 	}

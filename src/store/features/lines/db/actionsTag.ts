@@ -62,14 +62,10 @@ export const updateTag = withDbErrorHandling(
 	}
 );
 
-export const deleteTag = withDbErrorHandling(
-	'lines/actionsTag.deleteTag',
-	async (id: number) => {
-		dbConnection?.drizzle &&
-			(await dbConnection.drizzle.delete(tagsTable).where(eq(tagsTable.id, id)));
-		dbConnection?.drizzle &&
-			(await dbConnection.drizzle
-				.delete(tagsToLinesTable)
-				.where(eq(tagsToLinesTable.tag_id, id)));
+export const deleteTag = withDbErrorHandling('lines/actionsTag.deleteTag', async (id: number) => {
+	if (!dbConnection?.drizzle) {
+		return;
 	}
-);
+	await dbConnection.drizzle.delete(tagsTable).where(eq(tagsTable.id, id));
+	await dbConnection.drizzle.delete(tagsToLinesTable).where(eq(tagsToLinesTable.tag_id, id));
+});

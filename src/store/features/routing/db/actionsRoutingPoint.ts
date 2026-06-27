@@ -4,7 +4,6 @@ import { Feature, Point, GeoJsonProperties } from 'geojson';
 import { dbConnection } from '../../dbLoader/DBConnection';
 import { routingPointsTable, routesTable } from './schema/schema';
 import { fetchRoutes } from './fetch';
-import { updateRoute } from './actionsRoute';
 import { RoutingProfile } from '../types';
 import { withDbErrorHandling, withDbTransaction, parseReturningIds } from '../../dbLoader/utils';
 
@@ -72,14 +71,6 @@ export const updateRoutingPoint = withDbErrorHandling(
 			profile?: RoutingProfile;
 		}>
 	) => {
-		// const routingPoints = await dbZ
-		// 	.select()
-		// 	.from(routingPointsTable)
-		// 	.where(eq(routingPointsTable.id, id))
-		// 	.limit(1);
-		// if (!routingPoints.length) {
-		// 	return;
-		// }
 		if (!dbConnection?.drizzle) {
 			return;
 		}
@@ -100,15 +91,24 @@ export const deleteRoutingPoint = withDbErrorHandling(
 			return;
 		}
 		const routes = await fetchRoutes({ pointId: id });
-		await Promise.all(
-			routes.map(async (route) => {
-				await updateRoute(route.id, {
-					point_order: route.point_order.filter((pId) => pId !== id),
-				});
-			})
-		);
-		await dbConnection.drizzle
-			.delete(routingPointsTable)
-			.where(eq(routingPointsTable.id, id));
+
+		// Wrap route point_order updates + the point DELETE in a single
+		// transaction so a partial failure doesn't leave stale point_order.
+		await withDbTransaction(async (exec) => {
+			for (const route of routes) {
+				const newOrder = route.point_order.filter((pId) => pId !== id);
+				await exec(
+					dbConnection
+						.drizzle!.update(routesTable)
+						.set({ point_order: newOrder })
+						.where(eq(routesTable.id, route.id))
+				);
+			}
+			await exec(
+				dbConnection
+					.drizzle!.delete(routingPointsTable)
+					.where(eq(routingPointsTable.id, id))
+			);
+		});
 	}
 );
