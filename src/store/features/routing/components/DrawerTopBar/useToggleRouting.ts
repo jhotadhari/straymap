@@ -76,6 +76,7 @@ const useToggleRouting = ({
 			dispatch,
 			routeId,
 			routingLineId,
+			expand,
 		]
 	);
 	const deleteMutation = useMutation(deleteMutationOptions);
@@ -94,8 +95,10 @@ const useToggleRouting = ({
 	}, [
 		routeId,
 		pointIds,
-		createRouteMutation.mutate,
-		deleteMutation.mutate,
+		createRouteMutation,
+		deleteMutation,
+		dispatch,
+		expand,
 	]);
 
 	return {

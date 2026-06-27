@@ -78,7 +78,8 @@ const LineEditModal: FC<{
 			dispatch(setLineTemp(undefined));
 		}
 	}, [
-		mutation.mutate,
+		dispatch,
+		mutation,
 		line,
 		lineTemp,
 	]);

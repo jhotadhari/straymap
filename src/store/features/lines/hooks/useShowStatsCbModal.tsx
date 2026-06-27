@@ -4,9 +4,8 @@
 import { FC, useCallback, useMemo, useState } from 'react';
 import { get, pick, set } from 'lodash-es';
 import { useQuery } from '@tanstack/react-query';
-import { Text, useTheme } from 'react-native-paper';
+import { Text } from 'react-native-paper';
 import { sprintf } from 'sprintf-js';
-import { useTranslation } from 'react-i18next';
 
 /**
  * Internal dependencies
@@ -84,10 +83,6 @@ const useShowStatsCbModal = ({
 	lineIds: number[];
 	backgroundBlur?: boolean;
 }) => {
-	const { t } = useTranslation();
-
-	const theme = useTheme();
-
 	const [modalVisible, setModalVisible] = useState(false);
 
 	const cb = useCallback(() => {
@@ -108,11 +103,10 @@ const useShowStatsCbModal = ({
 			/>
 		);
 	}, [
-		t,
 		lineIds,
 		modalVisible,
 		handleDismissModal,
-		theme,
+		backgroundBlur,
 	]);
 
 	return {

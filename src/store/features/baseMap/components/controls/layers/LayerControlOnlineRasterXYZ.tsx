@@ -283,6 +283,7 @@ const SourceRowControl: FC<{}> = () => {
 		urlIsValid,
 		selectedOpt,
 		customUrl,
+		dispatch,
 	]);
 
 	const Attribution: undefined | SourceOption['Attribution'] = useMemo(

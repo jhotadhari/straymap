@@ -38,7 +38,7 @@ export const CenterInner = ({ cursor }: { cursor?: CursorConfig }) => {
 		} else {
 			setXml('');
 		}
-	}, [cursorConfig?.iconSource]);
+	}, [cursorConfig]);
 
 	const styleSize = useMemo(
 		() => ({ width: cursorConfig?.size, height: cursorConfig?.size }),

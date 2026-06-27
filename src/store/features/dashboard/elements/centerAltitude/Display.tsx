@@ -70,7 +70,7 @@ const Display: FC<DashboardElementProps<Options>> = ({ item, style = {}, onPress
 		return () => {
 			intervalRef.current && clearInterval(intervalRef.current);
 		};
-	}, [mapEventRate]);
+	}, [mapEventRate, currentMapEventRef]);
 
 	const viewStyle = useMemo(() => [{ minWidth }, style], [minWidth, style]);
 	const textStyle = useMemo(() => ({ fontSize, textAlign }), [fontSize, textAlign]);

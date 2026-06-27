@@ -85,7 +85,11 @@ const useActionAppendPoint = ({
 				profile: getNextProfile(),
 			});
 		}
-	}, [getNextProfile, mutation.mutate]);
+	}, [
+		getNextProfile,
+		currentMapEventRef,
+		mutation,
+	]);
 
 	return {
 		key: 'appendPoint',

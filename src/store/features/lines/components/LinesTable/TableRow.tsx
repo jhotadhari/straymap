@@ -24,7 +24,7 @@ const OtherCell: FC<{
 	line: Omit<Line, 'geometry'>;
 	style: StyleProp<ViewStyle>;
 }> = ({ cellKey, line, style }) => {
-	const cellStyle = useMemo(() => [style, { gap: 16 }], []);
+	const cellStyle = useMemo(() => [style, { gap: 16 }], [style]);
 	switch (cellKey) {
 		case 'tags':
 			return (
@@ -69,7 +69,7 @@ const TableRow: FC<TableRowProps> = ({
 
 	const dispatch = useAppDispatch();
 
-	const toggleOnMap = useCallback(() => toggleOnMapId(line.id), [line.id]);
+	const toggleOnMap = useCallback(() => toggleOnMapId(line.id), [line.id, toggleOnMapId]);
 
 	const toggleChecked = useCallback(() => {
 		toggleCheckedId(line.id);

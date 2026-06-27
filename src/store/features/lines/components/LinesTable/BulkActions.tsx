@@ -40,6 +40,7 @@ const BulkActions: FC = () => {
 		}
 	}, [
 		menuVisible,
+		dismissMenu,
 	]);
 
 	const actions = useBulkActions();

@@ -80,6 +80,7 @@ const AnimatedLogo = ({
 			const maybeNewVal = [...stringIndexUsed, stringIndex];
 			setStringIndexUsed(maybeNewVal.length === strings.length ? [] : maybeNewVal);
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [stringIndex]);
 
 	const [textDims, setTextDims] = useState([0, 0]);
@@ -126,7 +127,14 @@ const AnimatedLogo = ({
 				}),
 			]).start();
 		}
-	}, [textDims]);
+	}, [
+		textDims,
+		size,
+		textIsInitialized,
+		textOpacity,
+		textX,
+		textY,
+	]);
 
 	const loopAnimate = useCallback(() => {
 		// water

@@ -118,6 +118,7 @@ const useDrawerState = ({
 			prevTranslationX,
 			translationX,
 			drawerWidth,
+			setTranslationX,
 		]
 	);
 

@@ -24,7 +24,7 @@ const VisibilityControl: FC<{
 			...layer,
 			visible: !layer.visible,
 		});
-	}, [layer]);
+	}, [layer, updateLayer]);
 
 	const styleTouchable = useMemo(
 		() => ({ borderRadius: theme.roundness, ...style }),

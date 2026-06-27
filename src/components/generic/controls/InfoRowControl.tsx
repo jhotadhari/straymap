@@ -49,7 +49,11 @@ const InfoRowControl = ({
 				labelStyle,
 			],
 		}),
-		[style, theme]
+		[
+			style,
+			theme,
+			labelStyle,
+		]
 	);
 
 	const handleLabelPress = useCallback(() => {

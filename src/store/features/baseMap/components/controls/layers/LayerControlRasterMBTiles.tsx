@@ -75,25 +75,29 @@ const LayerControlRasterMBTiles: FC<{}> = () => {
 		]
 	);
 
-	const handleMapFileChange = useCallback((selectedOpt?: string) => {
-		layerTemp &&
-			(undefined === selectedOpt ||
-				selectedOpt.startsWith('/') ||
-				selectedOpt.startsWith('content://')) &&
-			dispatch(
-				setLayerTemp(
-					(layerTemp) =>
-						({
-							...layerTemp,
+	const handleMapFileChange = useCallback(
+		(selectedOpt?: string) => {
+			layerTemp &&
+				(undefined === selectedOpt ||
+					selectedOpt.startsWith('/') ||
+					selectedOpt.startsWith('content://')) &&
+				dispatch(
+					setLayerTemp(
+						(layerTemp) =>
+							({
+								...layerTemp,
 
-							options: {
-								...layerTemp?.options,
-								mapFile: selectedOpt as LayerConfigOptionsRasterMBtiles['mapFile'],
-							},
-						}) as LayerConfig
-				)
-			);
-	}, []);
+								options: {
+									...layerTemp?.options,
+									mapFile:
+										selectedOpt as LayerConfigOptionsRasterMBtiles['mapFile'],
+								},
+							}) as LayerConfig
+					)
+				);
+		},
+		[dispatch, layerTemp]
+	);
 
 	const enabledZoomValues = useMemo(
 		() => [layerTemp?.options?.enabledZoomMin ?? 0, layerTemp?.options?.enabledZoomMax ?? 0],

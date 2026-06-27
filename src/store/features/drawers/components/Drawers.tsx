@@ -58,10 +58,8 @@ const Drawers = ({
 		}
 		return !bubble;
 	}, [
-		drawerStateLeft.getIsFullyCollapsed,
-		drawerStateLeft.expand,
-		drawerStateRight.getIsFullyCollapsed,
-		drawerStateRight.expand,
+		drawerStateLeft,
+		drawerStateRight,
 	]);
 
 	useEffect(() => {
@@ -76,10 +74,9 @@ const Drawers = ({
 			},
 		};
 	}, [
-		drawerStateLeft.getIsFullyCollapsed,
-		drawerStateLeft.expand,
-		drawerStateRight.getIsFullyCollapsed,
-		drawerStateRight.expand,
+		drawerStateLeft,
+		drawerStateRight,
+		drawerControlsRef,
 	]);
 
 	useEffect(() => {

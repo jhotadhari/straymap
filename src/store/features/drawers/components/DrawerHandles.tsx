@@ -66,7 +66,12 @@ const DrawerHandles: FC<
 				}
 			}
 		},
-		[activeItemKey]
+		[
+			activeItemKey,
+			expand,
+			getIsFullyCollapsed,
+			setActiveItemKey,
+		]
 	);
 
 	const handleDragStart = useCallback(() => {

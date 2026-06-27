@@ -41,8 +41,6 @@ const DrawerHandle = ({
 		[itemKey, overwriteDrawerItem]
 	);
 
-	const IconActions = useMemo(() => get(drawerItem, 'IconActions'), [drawerItem]);
-
 	const { IconComponent, iconSource } = useMemo(() => {
 		const IconComponent = get(drawerItem, 'IconComponent');
 		const iconSource = IconComponent ? undefined : get(drawerItem, 'iconSource');

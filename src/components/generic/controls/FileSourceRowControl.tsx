@@ -166,7 +166,7 @@ const CreateNewOption: FC<{
 			setFileNameTemp(newVal);
 			setSelectedOpt(getNewSelectedOptionString(newVal));
 		},
-		[getNewSelectedOptionString]
+		[getNewSelectedOptionString, setSelectedOpt]
 	);
 
 	const labelNode = useMemo(() => {
@@ -188,7 +188,11 @@ const CreateNewOption: FC<{
 				/>
 			)
 		);
-	}, [fileNameTemp, handleChangeText]);
+	}, [
+		fileNameTemp,
+		handleChangeText,
+		theme,
+	]);
 
 	const newOption: OptionWithDesc = useMemo(
 		() => ({
@@ -401,6 +405,7 @@ const FileSourceRowControl: FC<{
 		filePattern,
 		hasCustom,
 		t,
+		initialOptionsByPath,
 	]);
 
 	const getInitialSelectedOpt = useCallback(() => {
@@ -432,7 +437,11 @@ const FileSourceRowControl: FC<{
 		if (undefined === selectedOpt) {
 			setSelectedOpt(getInitialSelectedOpt());
 		}
-	}, [optionsByPath, getInitialSelectedOpt]);
+	}, [
+		optionsByPath,
+		getInitialSelectedOpt,
+		selectedOpt,
+	]);
 
 	const dismissModal = useCallback(() => {
 		if (selectedOpt && onModalDismiss) {
@@ -454,6 +463,7 @@ const FileSourceRowControl: FC<{
 		if (selectedOpt && dismissModalOnSelect) {
 			dismissModal();
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [
 		selectedOpt,
 		customUri,
@@ -485,7 +495,12 @@ const FileSourceRowControl: FC<{
 			'label',
 			fallback
 		);
-	}, [selectedOpt]);
+	}, [
+		selectedOpt,
+		canCreateNewOption,
+		customUri,
+		optionsByPath,
+	]);
 
 	return (
 		<InfoRowControl

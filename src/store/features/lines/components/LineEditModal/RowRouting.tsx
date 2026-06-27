@@ -60,6 +60,9 @@ const RowRouting: FC = () => {
 		lineTemp?.id,
 		route?.id,
 		line?.envelope,
+		activateRoutingDrawerItem,
+		dispatch,
+		selectLine,
 	]);
 
 	const buttonStyle = useMemo(

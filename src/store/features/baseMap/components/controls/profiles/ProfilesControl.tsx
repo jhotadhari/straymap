@@ -96,7 +96,12 @@ const EditModal: FC<{
 		if (saveOnChange) {
 			saveProfiles();
 		}
-	}, [saveOnChange, saveProfiles]);
+	}, [
+		saveOnChange,
+		saveProfiles,
+		dispatch,
+		setIsNewKey,
+	]);
 
 	const handleRemoveItem = useCallback(() => {
 		const idx = profiles.findIndex((layer) => layer.key === profileTemp?.key);
@@ -115,6 +120,7 @@ const EditModal: FC<{
 		handleDismissModal,
 		profiles,
 		profileTemp?.key,
+		dispatch,
 	]);
 
 	// Local rather than the global busyKeys/isBusy flag: this only gates two sub-buttons in this
@@ -188,6 +194,9 @@ const EditModal: FC<{
 		profileTemp,
 		renderStyleOptions,
 		renderStyleDefaultId,
+		dispatch,
+		renderStylesCache.defaultsMap,
+		renderStylesCache.optionsMap,
 	]);
 
 	const handleNameUpdate = useCallback(
@@ -434,7 +443,7 @@ const DraggableItem = ({
 				setIsToWide(true);
 			}
 		},
-		[reverse]
+		[reverse, width]
 	);
 
 	return (
@@ -533,7 +542,7 @@ const ProfilesControl: FC<{
 
 	useEffect(() => {
 		return saveOnUnmount ? saveProfiles : undefined;
-	}, [saveOnUnmount]);
+	}, [saveOnUnmount, saveProfiles]);
 
 	const handleAccordionPress = useCallback(() => {
 		if (expanded) {
@@ -549,6 +558,7 @@ const ProfilesControl: FC<{
 		expanded,
 		saveProfiles,
 		uiStateKey,
+		dispatch,
 	]);
 
 	const styleAccordion = useMemo(
@@ -558,7 +568,7 @@ const ProfilesControl: FC<{
 		[profiles]
 	);
 
-	const handleDragStart = useCallback(() => setScrollEnabled(false), []);
+	const handleDragStart = useCallback(() => setScrollEnabled(false), [setScrollEnabled]);
 
 	const handleDragEnd = useCallback(
 		({ indexToKey }: SortableFlexDragEndParams) => {
@@ -577,6 +587,7 @@ const ProfilesControl: FC<{
 			dispatch,
 			saveOnChange,
 			profiles,
+			setScrollEnabled,
 		]
 	);
 

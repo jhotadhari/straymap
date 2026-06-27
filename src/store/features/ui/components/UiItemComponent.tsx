@@ -36,7 +36,11 @@ const UiItemComponent: FC<{}> = () => {
 			position: 'absolute',
 			zIndex: 30,
 		}),
-		[theme]
+		[
+			theme,
+			appInnerHeight,
+			width,
+		]
 	);
 
 	return Component ? <Component style={style} /> : undefined;

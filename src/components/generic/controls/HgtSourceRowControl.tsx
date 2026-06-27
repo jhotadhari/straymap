@@ -91,6 +91,7 @@ const HgtSourceRowControl = ({
 			...options,
 			[optKey]: 'custom' === selectedOpt ? customUri : selectedOpt,
 		});
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [selectedOpt]);
 
 	const styleHintLarge = useMemo(() => [theme.fonts.bodyLarge, styles.hintLarge], [theme]);

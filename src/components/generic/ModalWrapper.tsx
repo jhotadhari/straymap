@@ -107,6 +107,7 @@ const ModalWrapper: FC<{
 		modalHeight,
 		modalTop,
 		keyboardShown,
+		heightShared,
 	]);
 
 	const modalAnimatedStyles = useAnimatedStyle(() => ({

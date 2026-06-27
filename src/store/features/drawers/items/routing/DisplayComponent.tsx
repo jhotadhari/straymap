@@ -24,8 +24,6 @@ const DisplayComponent: FC = () => {
 		],
 		[
 			height,
-			handleSize,
-			iconSize,
 		]
 	);
 

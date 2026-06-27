@@ -92,7 +92,7 @@ const Segment: FC<{
 		}
 
 		return node ? <View style={styles.stateIconWrapper}>{node}</View> : undefined;
-	}, [segment]);
+	}, [segment, theme.colors.errorContainer]);
 
 	const refreshSegment = useCallback(() => {
 		if (!segment) {
@@ -107,7 +107,7 @@ const Segment: FC<{
 
 	const handleSetEdit = useCallback(() => {
 		setEditPoint(item);
-	}, [item]);
+	}, [item, setEditPoint]);
 
 	const [lineStats, setLineStats] = useState<LineStatsType>({});
 	useEffect(() => {
@@ -117,7 +117,7 @@ const Segment: FC<{
 			});
 		}
 		setLineStats({});
-	}, [segment?.positions]);
+	}, [segment?.positions, segment]);
 
 	// Hide if dragging
 	const hidden = undefined !== draggingItemIndex;
@@ -260,7 +260,7 @@ const DraggableItem: FC<{
 
 	const handleDeletePoint = useCallback(() => {
 		mutation.mutate(item.id);
-	}, [item.id, mutation.mutate]);
+	}, [item.id, mutation]);
 
 	const styleDraggableItem = useMemo(
 		// ??? we need dome other nice placeholder than backgroundColor for isDeleting.
@@ -396,8 +396,7 @@ const PointsList: FC = () => {
 		},
 		[
 			points,
-			routeId,
-			mutation.mutate,
+			mutation,
 		]
 	);
 

@@ -97,6 +97,8 @@ const useDeleteLinesCbModal = ({
 			routeId,
 			includesRoute,
 			deleteIds,
+			handleDismissModal,
+			onSuccess,
 		]
 	);
 
@@ -113,7 +115,8 @@ const useDeleteLinesCbModal = ({
 		deleteIds,
 		includesRoute,
 		removeLinesFromMap,
-		mutation.mutate,
+		dispatch,
+		mutation,
 	]);
 
 	const modalNode = useMemo(() => {
@@ -164,6 +167,7 @@ const useDeleteLinesCbModal = ({
 		handleDismissModal,
 		theme,
 		handleDeleteLines,
+		backgroundBlur,
 	]);
 
 	return {

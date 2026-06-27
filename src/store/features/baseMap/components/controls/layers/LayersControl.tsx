@@ -147,7 +147,7 @@ const DraggableItem: FC<{
 				setIsToWide(true);
 			}
 		},
-		[reverse]
+		[reverse, width]
 	);
 
 	const updateItem = useCallback(
@@ -171,6 +171,7 @@ const DraggableItem: FC<{
 			layers,
 			saveOnChange,
 			saveLayers,
+			dispatch,
 		]
 	);
 
@@ -295,6 +296,7 @@ const EditModal: FC<{
 		handleDismissModal,
 		layers,
 		layerTemp?.key,
+		dispatch,
 	]);
 
 	const updateItemTemp = useCallback(
@@ -443,7 +445,7 @@ const LayersControl: FC<{
 
 	useEffect(() => {
 		return saveOnUnmount ? saveLayers : undefined;
-	}, [saveOnUnmount]);
+	}, [saveOnUnmount, saveLayers]);
 
 	const handleAccordionPress = useCallback(() => {
 		if (expanded) {
@@ -459,6 +461,7 @@ const LayersControl: FC<{
 		expanded,
 		saveLayers,
 		uiStateKey,
+		dispatch,
 	]);
 
 	const styleAccordion = useMemo(
@@ -469,7 +472,7 @@ const LayersControl: FC<{
 		[width, layers]
 	);
 
-	const handleDragStart = useCallback(() => setScrollEnabled(false), []);
+	const handleDragStart = useCallback(() => setScrollEnabled(false), [setScrollEnabled]);
 
 	const handleDragEnd = useCallback(
 		({ indexToKey }: SortableFlexDragEndParams) => {
@@ -487,6 +490,7 @@ const LayersControl: FC<{
 		[
 			dispatch,
 			saveOnChange,
+			setScrollEnabled,
 			layers,
 		]
 	);

@@ -124,7 +124,7 @@ const ControlModal: FC<{
 		]
 	);
 
-	const handleDismissModal = useCallback(() => setModalVisible(false), []);
+	const handleDismissModal = useCallback(() => setModalVisible(false), [setModalVisible]);
 
 	return !modalVisible ? undefined : (
 		<ModalWrapper
@@ -212,9 +212,8 @@ const RenderOverlaysControl: FC<{
 		}
 		return [];
 	}, [
-		profileTemp?.theme,
-		profileTemp?.renderStyle,
 		renderStyleOptions,
+		profileTemp,
 	]);
 
 	const handleOpenModal = useCallback(() => setModalVisible(true), []);

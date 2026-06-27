@@ -77,7 +77,7 @@ const HillshadingAlgorithmControl: FC<{}> = () => {
 		]
 	);
 
-	const options = layerTemp?.options ?? {};
+	const options = useMemo(() => layerTemp?.options ?? {}, [layerTemp?.options]);
 
 	const { t } = useTranslation();
 	const theme = useTheme();
@@ -127,7 +127,11 @@ const HillshadingAlgorithmControl: FC<{}> = () => {
 				shadingAlgorithmOptions: algOpts,
 			});
 		}
-	}, [algOpts]);
+	}, [
+		algOpts,
+		options,
+		setOptions,
+	]);
 
 	const shadingAlgoKey = get(
 		invert(LayerHillshading.shadingAlgorithms),

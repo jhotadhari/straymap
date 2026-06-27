@@ -25,7 +25,7 @@ const RowDelete: FC = () => {
 
 	const removeFromMap = useCallback(() => {
 		lineTemp?.id && selectLine(lineTemp.id, false);
-	}, [lineTemp?.id]);
+	}, [selectLine, lineTemp?.id]);
 
 	const handleDeleteSuccess = useCallback(() => {
 		onDeleteSuccess && onDeleteSuccess(lineTemp?.id);

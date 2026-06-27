@@ -34,6 +34,7 @@ const DashboardControl: FC = () => {
 		if (item?.key) {
 			setPosition(editItemPosition);
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- setPosition depends on position, adding would cause infinite loop
 	}, [editItemPosition, item?.key]);
 
 	const [position, setPosition_] = useState(editItemPosition);
@@ -49,7 +50,7 @@ const DashboardControl: FC = () => {
 		[
 			item?.key,
 			editItemPosition,
-			position,
+			dispatch,
 		]
 	);
 

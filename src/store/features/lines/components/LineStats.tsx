@@ -124,7 +124,11 @@ const LineStats: FC<{
 		}
 
 		return newNodes;
-	}, [stats, round]);
+	}, [
+		stats,
+		round,
+		plain,
+	]);
 
 	if (undefined === NodeWrapper) {
 		return Object.values(nodes);

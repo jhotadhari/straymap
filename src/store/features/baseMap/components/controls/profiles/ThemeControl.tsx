@@ -56,7 +56,13 @@ const ResetCacheButton: FC<{
 				})
 			)
 		);
-	}, [profileTemp?.theme, appDirs?.mapstyles]);
+	}, [
+		appDirs?.mapstyles,
+		dispatch,
+		profileTemp,
+		renderStylesCache.defaultsMap,
+		renderStylesCache.optionsMap,
+	]);
 
 	return isFetchingTheme ? undefined : (
 		<TouchableHighlight

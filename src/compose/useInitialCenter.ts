@@ -43,31 +43,40 @@ const useInitialCenter = (currentMapEventRef: MutableRefObject<MapEventResponse 
 			.catch((err) => logError('useInitialCenter', err));
 	}, []);
 
-	const getCurrentPosition = useCallback((event?: NativeSyntheticEvent<MapEventResponse>) => {
-		// MapContainer's onPause is a Fabric native-view event prop, so React invokes it with a
-		// NativeSyntheticEvent wrapper (event.nativeEvent), not a bare MapEventResponse -- unlike
-		// e.g. useMap()'s getPosition(), which resolves a plain object. When called directly from
-		// the setInterval below (no event), this is undefined and we fall through to the ref.
-		const response = event?.nativeEvent;
-		let newPosition: undefined | InitialPosition = undefined;
-		if (response && response?.center && response?.zoomLevel) {
-			newPosition = {
-				center: response.center,
-				zoomLevel: response.zoomLevel,
-			};
-		} else if (currentMapEventRef?.current?.center && currentMapEventRef?.current?.zoomLevel) {
-			newPosition = {
-				center: currentMapEventRef.current.center,
-				zoomLevel: currentMapEventRef.current.zoomLevel,
-			};
-		} else if (initialPositionRef?.current?.center && initialPositionRef?.current?.zoomLevel) {
-			newPosition = {
-				center: initialPositionRef.current.center,
-				zoomLevel: initialPositionRef.current.zoomLevel,
-			};
-		}
-		return newPosition;
-	}, []);
+	const getCurrentPosition = useCallback(
+		(event?: NativeSyntheticEvent<MapEventResponse>) => {
+			// MapContainer's onPause is a Fabric native-view event prop, so React invokes it with a
+			// NativeSyntheticEvent wrapper (event.nativeEvent), not a bare MapEventResponse -- unlike
+			// e.g. useMap()'s getPosition(), which resolves a plain object. When called directly from
+			// the setInterval below (no event), this is undefined and we fall through to the ref.
+			const response = event?.nativeEvent;
+			let newPosition: undefined | InitialPosition = undefined;
+			if (response && response?.center && response?.zoomLevel) {
+				newPosition = {
+					center: response.center,
+					zoomLevel: response.zoomLevel,
+				};
+			} else if (
+				currentMapEventRef?.current?.center &&
+				currentMapEventRef?.current?.zoomLevel
+			) {
+				newPosition = {
+					center: currentMapEventRef.current.center,
+					zoomLevel: currentMapEventRef.current.zoomLevel,
+				};
+			} else if (
+				initialPositionRef?.current?.center &&
+				initialPositionRef?.current?.zoomLevel
+			) {
+				newPosition = {
+					center: initialPositionRef.current.center,
+					zoomLevel: initialPositionRef.current.zoomLevel,
+				};
+			}
+			return newPosition;
+		},
+		[currentMapEventRef]
+	);
 
 	const saveCurrentPositionToInitial = useCallback(
 		(event?: NativeSyntheticEvent<MapEventResponse>) => {

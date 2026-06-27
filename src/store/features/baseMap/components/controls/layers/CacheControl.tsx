@@ -91,7 +91,13 @@ const CacheControl = ({
 				cacheDirBase: baseDefault,
 			});
 		}
-	}, [selectedOpt, appDirs]);
+	}, [
+		selectedOpt,
+		appDirs,
+		baseDefault,
+		options,
+		setOptions,
+	]);
 
 	const cachePath = useMemo(
 		() =>
@@ -100,7 +106,11 @@ const CacheControl = ({
 				: get(selectedOpt, 'key')) +
 			'/' +
 			cacheDirChild,
-		[selectedOpt, appDirs]
+		[
+			selectedOpt,
+			appDirs,
+			cacheDirChild,
+		]
 	);
 
 	const handleCacheSizeUpdate = useCallback(

@@ -3,7 +3,7 @@
  */
 import React, { FC, useCallback, useContext, useMemo, useRef, useState } from 'react';
 import { Icon, useTheme } from 'react-native-paper';
-import { Dimensions, ScrollView, View } from 'react-native';
+import { ScrollView, View } from 'react-native';
 import Popover, { PopoverPlacement } from 'react-native-popover-view';
 import { pick } from 'lodash-es';
 
@@ -20,7 +20,7 @@ const RoutingActionsButton: FC<{
 	disabled?: boolean;
 	actions?: Record<string, MenuActionOption>;
 }> = ({ disabled: disabled_, actions }) => {
-	const { mapHeight, mapViewNativeNodeHandle } = useContext(AppContext);
+	const { mapViewNativeNodeHandle } = useContext(AppContext);
 
 	const { id: routeId, points } = useRoute(['id', 'points']) || {};
 
@@ -31,7 +31,6 @@ const RoutingActionsButton: FC<{
 	// // const triggeredMarkerIdx = useAppSelector(selectTriggeredMarkerIdx);
 	// // const triggeredSegment = useAppSelector(selectTriggeredSegment);
 
-	const { width } = Dimensions.get('window');
 	const theme = useTheme();
 	const [menuVisible, setMenuVisible] = useState(false);
 
@@ -236,10 +235,6 @@ const RoutingActionsButton: FC<{
 		dismissMenu,
 		menuVisible,
 		mapViewNativeNodeHandle,
-		// markerLayerUuid,
-		// pathLayerUuids,
-		width,
-		mapHeight,
 	]);
 
 	const disabled = disabled_ || undefined === points || !points?.length;

@@ -39,8 +39,7 @@ const useActionDeleteLastPoint = ({
 		}),
 		[
 			dispatch,
-			lastPointId,
-			dbConnection?.queryClient,
+			routeId,
 		]
 	);
 
@@ -48,7 +47,7 @@ const useActionDeleteLastPoint = ({
 
 	const cb = useCallback(() => {
 		mutation.mutate(lastPointId);
-	}, [lastPointId, mutation.mutate]);
+	}, [lastPointId, mutation]);
 
 	return {
 		key: 'deleteLastPoint',

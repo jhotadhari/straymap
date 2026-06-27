@@ -109,7 +109,8 @@ const EditPointModal: FC<{
 		[
 			editPoint.id,
 			routeId,
-			dbConnection?.queryClient,
+			dispatch,
+			setEditPoint,
 		]
 	);
 	const mutation = useMutation(mutationOptions);
@@ -121,10 +122,10 @@ const EditPointModal: FC<{
 			setEditPoint(undefined);
 		}
 	}, [
-		mutation.mutate,
 		editPoint,
 		point,
-		routeId,
+		mutation,
+		setEditPoint,
 	]);
 
 	const handleToggleFast = useCallback(

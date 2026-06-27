@@ -48,7 +48,7 @@ const Display: FC<DashboardElementProps<Options>> = ({ item, style = {}, onPress
 		return () => {
 			intervalRef.current && clearInterval(intervalRef.current);
 		};
-	}, []);
+	}, [currentMapEventRef, mapEventRate]);
 
 	const unit = item?.options?.unitPref?.unit ?? get(unitPrefs, ['coordinates', 'unit']);
 	const round = item?.options?.unitPref?.round ?? get(unitPrefs, ['coordinates', 'round']);

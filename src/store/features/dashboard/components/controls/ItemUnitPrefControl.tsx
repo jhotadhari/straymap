@@ -106,7 +106,11 @@ const ItemUnitPrefControl: FC<{ unitPrefsKey: string; buttonLabel?: string }> = 
 		} else {
 			setValue(omit(value, 'round'));
 		}
-	}, [value, unitPrefs]);
+	}, [
+		value,
+		unitPrefs,
+		unitPrefsKey,
+	]);
 
 	const numValueActive = undefined !== value?.round;
 
@@ -118,7 +122,7 @@ const ItemUnitPrefControl: FC<{ unitPrefsKey: string; buttonLabel?: string }> = 
 					round: newValue,
 				});
 		},
-		[numValueActive]
+		[numValueActive, value]
 	);
 
 	const handleMenuPress = useCallback((newValue: string) => {
@@ -132,8 +136,6 @@ const ItemUnitPrefControl: FC<{ unitPrefsKey: string; buttonLabel?: string }> = 
 		}
 	}, []);
 
-	const unitPrefUnit = get(unitPrefs, [unitPrefsKey, 'unit']);
-
 	const getMenuItemStyle = useCallback(
 		(idx: number) =>
 			!value?.unit && get(unitPrefs, [unitPrefsKey, 'unit']) === opts[idx].key
@@ -143,10 +145,11 @@ const ItemUnitPrefControl: FC<{ unitPrefsKey: string; buttonLabel?: string }> = 
 					}
 				: {},
 		[
-			unitPrefUnit,
 			value?.unit,
 			opts,
 			theme,
+			unitPrefs,
+			unitPrefsKey,
 		]
 	);
 

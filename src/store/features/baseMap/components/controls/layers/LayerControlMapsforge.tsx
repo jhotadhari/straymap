@@ -59,18 +59,21 @@ const ProfileRowControl = ({
 		[profiles]
 	);
 
-	const getInitialSelectedOpt = () =>
-		get(
-			opts.find((opt) => opt.key === options.profile),
-			'key',
-			'default'
-		);
+	const getInitialSelectedOpt = useCallback(
+		() =>
+			get(
+				opts.find((opt) => opt.key === options.profile),
+				'key',
+				'default'
+			),
+		[opts, options]
+	);
 
 	const [selectedOpt, setSelectedOpt] = useState<string>(getInitialSelectedOpt());
 
 	useEffect(() => {
 		setSelectedOpt(getInitialSelectedOpt());
-	}, [profiles]);
+	}, [profiles, getInitialSelectedOpt]);
 
 	useEffect(() => {
 		if (selectedOpt) {
@@ -79,7 +82,11 @@ const ProfileRowControl = ({
 				profile: selectedOpt,
 			});
 		}
-	}, [selectedOpt]);
+	}, [
+		selectedOpt,
+		options,
+		setOptions,
+	]);
 
 	const styleAction = useMemo(() => ({ padding: 10, borderRadius: theme.roundness }), [theme]);
 
@@ -199,25 +206,28 @@ const LayerControlMapsforge: FC<{}> = ({}) => {
 		]
 	);
 
-	const handleMapFileChange = useCallback((selectedOpt?: string) => {
-		layerTemp &&
-			(undefined === selectedOpt ||
-				selectedOpt.startsWith('/') ||
-				selectedOpt.startsWith('content://')) &&
-			dispatch(
-				setLayerTemp(
-					(layerTemp) =>
-						({
-							...layerTemp,
+	const handleMapFileChange = useCallback(
+		(selectedOpt?: string) => {
+			layerTemp &&
+				(undefined === selectedOpt ||
+					selectedOpt.startsWith('/') ||
+					selectedOpt.startsWith('content://')) &&
+				dispatch(
+					setLayerTemp(
+						(layerTemp) =>
+							({
+								...layerTemp,
 
-							options: {
-								...layerTemp?.options,
-								mapFile: selectedOpt as LayerConfigOptionsMapsforge['mapFile'],
-							},
-						}) as LayerConfig
-				)
-			);
-	}, []);
+								options: {
+									...layerTemp?.options,
+									mapFile: selectedOpt as LayerConfigOptionsMapsforge['mapFile'],
+								},
+							}) as LayerConfig
+					)
+				);
+		},
+		[dispatch, layerTemp]
+	);
 
 	const enabledZoomValues = useMemo(
 		() => [layerTemp?.options?.enabledZoomMin ?? 0, layerTemp?.options?.enabledZoomMax ?? 0],

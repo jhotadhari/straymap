@@ -36,7 +36,7 @@ const Footer: FC = () => {
 			setCheckedIds((ids) => {
 				return without(lineIds, ...ids);
 			});
-	}, [lineIds]);
+	}, [lineIds, setCheckedIds]);
 
 	const labelStyle = useMemo(
 		() => ({

@@ -29,6 +29,7 @@ const useRemoveFromMap = () => {
 		checkedIds,
 		setOnMapIdsTemp,
 		routingLineId,
+		dispatch,
 	]);
 
 	return {

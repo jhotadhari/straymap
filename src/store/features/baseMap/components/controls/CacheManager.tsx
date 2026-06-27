@@ -41,7 +41,10 @@ const CacheRow = ({
 
 	const theme = useTheme();
 
-	const pathFull = useMemo(() => [cacheDir.path, cache.basename].join('/'), []);
+	const pathFull = useMemo(
+		() => [cacheDir.path, cache.basename].join('/'),
+		[cache.basename, cacheDir.path]
+	);
 
 	const cacheLayers = useMemo(() => findLayers(pathFull), [pathFull, findLayers]);
 

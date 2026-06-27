@@ -46,7 +46,7 @@ const ListItemModalControl: FC<{
 		if (!visible && afterDismiss) {
 			afterDismiss();
 		}
-	}, [visible]);
+	}, [visible, afterDismiss]);
 
 	const handleClose = useCallback(() => setVisible(false), []);
 
