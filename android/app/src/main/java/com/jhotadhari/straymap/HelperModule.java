@@ -20,14 +20,22 @@ public class HelperModule extends NativeHelperModuleSpec {
 		super(context);
 	}
 
+	protected WritableMap createMap() {
+		return new WritableNativeMap();
+	}
+
+	protected WritableArray createArray() {
+		return new WritableNativeArray();
+	}
+
 	@ReactMethod
 	public void getAppDirs(
 		Promise promise
 	) {
-		WritableMap responseParams = new WritableNativeMap();
+		WritableMap responseParams = createMap();
 
 		// appInternal
-		WritableArray dirs = new WritableNativeArray();
+		WritableArray dirs = createArray();
 		dirs.pushString( getReactApplicationContext().getApplicationInfo().dataDir );
 		responseParams.putArray( "appInternal", dirs );
 
@@ -40,27 +48,27 @@ public class HelperModule extends NativeHelperModuleSpec {
 		// externalMediaDirs
 		File[] externalMediaDirs = getReactApplicationContext().getExternalMediaDirs();
 		for ( int i = 0; i < externalMediaDirs.length; i++ ) {
-			WritableArray dirs = new WritableNativeArray();
+			WritableArray dirs = createArray();
 			dirs.pushString( externalMediaDirs[i].toString() );
 			responseParams.putArray( "externalMediaDirs", dirs );
 		}
 		// externalFileDirs
 		File[] filesDirs = getReactApplicationContext().getExternalFilesDirs( null );
 		for ( int i = 0; i < filesDirs.length; i++ ) {
-			WritableArray dirs = new WritableNativeArray();
+			WritableArray dirs = createArray();
 			dirs.pushString( filesDirs[i].toString() );
 			responseParams.putArray( "externalFileDirs", dirs );
 		}
 		// externalCacheDirs
 		File[] externalCacheDirs = getReactApplicationContext().getExternalCacheDirs();
 		for ( int i = 0; i < externalCacheDirs.length; i++ ) {
-			WritableArray dirs = new WritableNativeArray();
+			WritableArray dirs = createArray();
 			dirs.pushString( externalCacheDirs[i].toString() );
 			responseParams.putArray( "externalCacheDirs", dirs );
 		}
 
 		// internalCacheDirs ... it's just one. But as array with one element to not confuse types.
-		WritableArray internalCacheDirs = new WritableNativeArray();
+		WritableArray internalCacheDirs = createArray();
 		internalCacheDirs.pushString( getReactApplicationContext().getCacheDir().toString() );
 		responseParams.putArray( "internalCacheDirs", internalCacheDirs );
 
@@ -77,7 +85,7 @@ public class HelperModule extends NativeHelperModuleSpec {
 			"cursor",
 		};
 		for ( int si = 0; si < subDirs.length; si++ ) {
-			WritableArray dirs = new WritableNativeArray();
+			WritableArray dirs = createArray();
 			if ( "databases".equals( subDirs[ si ] ) ) {
 				String pathName = getReactApplicationContext().getApplicationInfo().dataDir + File.separator + subDirs[si];
 				File dir = new File( pathName );
