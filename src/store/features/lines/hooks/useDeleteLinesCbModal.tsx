@@ -71,14 +71,18 @@ const useDeleteLinesCbModal = ({
 				await dbConnection.queryClient!.cancelQueries({ queryKey: ['lines'] });
 				await Promise.all(
 					deleteIds.map(async (id) => {
-						await dbConnection.queryClient!.cancelQueries({ queryKey: ['lineGeom', id] });
+						await dbConnection.queryClient!.cancelQueries({
+							queryKey: ['lineGeom', id],
+						});
 					})
 				);
 				if (includesRoute) {
 					await dbConnection.queryClient!.cancelQueries({ queryKey: ['route', routeId] });
 					await Promise.all(
 						deleteIds.map(async (id) => {
-							await dbConnection.queryClient!.cancelQueries({ queryKey: ['routeForLine', id] });
+							await dbConnection.queryClient!.cancelQueries({
+								queryKey: ['routeForLine', id],
+							});
 						})
 					);
 				}

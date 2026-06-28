@@ -13,10 +13,8 @@ module.exports = {
 		'<rootDir>/.claude/worktrees/',
 	],
 	moduleNameMapper: {
-		'^react-native($|/.*)':
-			'<rootDir>/node_modules/react-native/$1',
-		'\\.(png|jpg|jpeg|gif|svg|ttf|woff|woff2|md)$':
-			'<rootDir>/__mocks__/fileMock.js',
+		'^react-native($|/.*)': '<rootDir>/node_modules/react-native/$1',
+		'\\.(png|jpg|jpeg|gif|svg|ttf|woff|woff2|md)$': '<rootDir>/__mocks__/fileMock.js',
 	},
 	haste: {
 		defaultPlatform: 'android',

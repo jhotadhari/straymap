@@ -72,9 +72,11 @@ jest.mock('@op-engineering/op-sqlite', () => ({
 	open: jest.fn(() => ({
 		execute: jest.fn().mockResolvedValue({ rows: [], insertId: 0 }),
 		executeAsync: jest.fn().mockResolvedValue({ rows: [], insertId: 0 }),
-		transaction: jest.fn((cb) => cb({
-			execute: jest.fn().mockResolvedValue({ rows: [], insertId: 0 }),
-		})),
+		transaction: jest.fn((cb) =>
+			cb({
+				execute: jest.fn().mockResolvedValue({ rows: [], insertId: 0 }),
+			})
+		),
 		close: jest.fn(),
 		loadExtension: jest.fn().mockResolvedValue(undefined),
 	})),
@@ -271,12 +273,9 @@ jest.mock('react-i18next', () => ({
 // Source modules that cause deep import chains in slice files.
 // Mocking them at the module boundary prevents the cascade.
 // ---------------------------------------------------------------------------
-jest.mock(
-	'./src/store/features/baseMap/components/controls/layers/LayersControl',
-	() => ({
-		mapTypeOptions: [],
-	})
-);
+jest.mock('./src/store/features/baseMap/components/controls/layers/LayersControl', () => ({
+	mapTypeOptions: [],
+}));
 
 // i18n module: import chain from dbLoader/utils → i18n → features/index → all slices
 jest.mock('./src/assets/i18n/i18n', () => {

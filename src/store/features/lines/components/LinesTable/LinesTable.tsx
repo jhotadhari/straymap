@@ -210,18 +210,18 @@ const LinesTable: FC = () => {
 			</HeaderContext.Provider>
 
 			<ScrollView horizontal={true}>
-					<View style={styles.flexOne}>
-						<FlatList
-							stickyHeaderIndices={[0]}
-							scrollEnabled={true}
-							initialNumToRender={15}
-							data={lines ?? []}
-							keyExtractor={keyExtractor}
-							ListHeaderComponent={renderHeader}
-							renderItem={renderItem}
-						/>
-					</View>
-				</ScrollView>
+				<View style={styles.flexOne}>
+					<FlatList
+						stickyHeaderIndices={[0]}
+						scrollEnabled={true}
+						initialNumToRender={15}
+						data={lines ?? []}
+						keyExtractor={keyExtractor}
+						ListHeaderComponent={renderHeader}
+						renderItem={renderItem}
+					/>
+				</View>
+			</ScrollView>
 
 			<FooterContext.Provider
 				value={{

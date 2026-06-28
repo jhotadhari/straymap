@@ -16,8 +16,12 @@ import {
 
 // Suppress expected console.log from parseSerialized error paths in __DEV__.
 let logSpy: jest.SpyInstance;
-beforeAll(() => { logSpy = jest.spyOn(console, 'log').mockImplementation(() => {}); });
-afterAll(() => { logSpy.mockRestore(); });
+beforeAll(() => {
+	logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+});
+afterAll(() => {
+	logSpy.mockRestore();
+});
 
 // ===========================================================================
 // rowParseGeometryGeoJSON
@@ -51,7 +55,11 @@ describe('rowParseGeometryGeoJSON', () => {
 		const result = rowParseGeometryGeoJSON(row);
 		expect(result.geometry).toEqual({
 			type: 'Point',
-			coordinates: [10, 20, 30],
+			coordinates: [
+				10,
+				20,
+				30,
+			],
 		});
 	});
 
@@ -127,8 +135,7 @@ describe('rowParseEnvelopeGeoJSON', () => {
 	it('parses envelopeGeoJSON string into envelope object', () => {
 		const row = {
 			id: 1,
-			envelopeGeoJSON:
-				'{"type":"Polygon","coordinates":[[[0,0],[1,0],[1,1],[0,1],[0,0]]]}',
+			envelopeGeoJSON: '{"type":"Polygon","coordinates":[[[0,0],[1,0],[1,1],[0,1],[0,0]]]}',
 		};
 		const result = rowParseEnvelopeGeoJSON(row);
 		expect(result).not.toHaveProperty('envelopeGeoJSON');
@@ -149,8 +156,7 @@ describe('rowParseEnvelopeGeoJSON', () => {
 	it('preserves other row properties', () => {
 		const row = {
 			id: 5,
-			envelopeGeoJSON:
-				'{"type":"Polygon","coordinates":[[[0,0],[1,1],[0,0]]]}',
+			envelopeGeoJSON: '{"type":"Polygon","coordinates":[[[0,0],[1,1],[0,0]]]}',
 			title: 'envelope test',
 		};
 		const result = rowParseEnvelopeGeoJSON(row);
@@ -175,13 +181,11 @@ describe('rowsParseEnvelopeGeoJSON', () => {
 		const rows = [
 			{
 				id: 1,
-				envelopeGeoJSON:
-					'{"type":"Polygon","coordinates":[[[0,0],[1,1],[0,0]]]}',
+				envelopeGeoJSON: '{"type":"Polygon","coordinates":[[[0,0],[1,1],[0,0]]]}',
 			},
 			{
 				id: 2,
-				envelopeGeoJSON:
-					'{"type":"Polygon","coordinates":[[[2,2],[3,3],[2,2]]]}',
+				envelopeGeoJSON: '{"type":"Polygon","coordinates":[[[2,2],[3,3],[2,2]]]}',
 			},
 		];
 		const results = rowsParseEnvelopeGeoJSON(rows);
@@ -204,12 +208,20 @@ describe('rowsParseEnvelopeGeoJSON', () => {
 describe('parseReturningIds', () => {
 	it('extracts id from rows', () => {
 		const result = {
-			rows: [{ id: 1 }, { id: 2 }, { id: 3 }],
+			rows: [
+				{ id: 1 },
+				{ id: 2 },
+				{ id: 3 },
+			],
 			insertId: 0,
 			rowsAffected: 3,
 		};
 		const ids = parseReturningIds(result);
-		expect(ids).toEqual([{ id: 1 }, { id: 2 }, { id: 3 }]);
+		expect(ids).toEqual([
+			{ id: 1 },
+			{ id: 2 },
+			{ id: 3 },
+		]);
 	});
 
 	it('handles empty rows', () => {

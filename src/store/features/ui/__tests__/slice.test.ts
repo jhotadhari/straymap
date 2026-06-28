@@ -55,10 +55,7 @@ describe('ui slice reducers', () => {
 				uiItemKeys: [],
 				expandedElements: [],
 			};
-			const state = uiReducer(
-				prev,
-				setElementExpanded({ key: 'panel1', expanded: true })
-			);
+			const state = uiReducer(prev, setElementExpanded({ key: 'panel1', expanded: true }));
 			expect(state.expandedElements).toEqual(['panel1']);
 		});
 
@@ -69,10 +66,7 @@ describe('ui slice reducers', () => {
 				uiItemKeys: [],
 				expandedElements: ['panel1', 'panel2'],
 			};
-			const state = uiReducer(
-				prev,
-				setElementExpanded({ key: 'panel1', expanded: false })
-			);
+			const state = uiReducer(prev, setElementExpanded({ key: 'panel1', expanded: false }));
 			expect(state.expandedElements).toEqual(['panel2']);
 		});
 
@@ -83,17 +77,25 @@ describe('ui slice reducers', () => {
 				uiItemKeys: [],
 				expandedElements: ['panel1'],
 			};
-			const state = uiReducer(
-				prev,
-				setElementExpanded({ key: 'panel1', expanded: true })
-			);
+			const state = uiReducer(prev, setElementExpanded({ key: 'panel1', expanded: true }));
 			expect(state.expandedElements).toEqual(['panel1']);
 		});
 	});
 
 	it('setUiItemKeys replaces ui item keys', () => {
-		const state = uiReducer(undefined, setUiItemKeys(['a', 'b', 'c']));
-		expect(state.uiItemKeys).toEqual(['a', 'b', 'c']);
+		const state = uiReducer(
+			undefined,
+			setUiItemKeys([
+				'a',
+				'b',
+				'c',
+			])
+		);
+		expect(state.uiItemKeys).toEqual([
+			'a',
+			'b',
+			'c',
+		]);
 	});
 
 	describe('busyKeys', () => {
@@ -150,9 +152,7 @@ describe('ui thunks', () => {
 	describe('addUiItemKey', () => {
 		it('adds key if not already present', () => {
 			const dispatch = jest.fn();
-			const getState = jest.fn(() =>
-				buildRoot({ uiItemKeys: ['existing'] })
-			);
+			const getState = jest.fn(() => buildRoot({ uiItemKeys: ['existing'] }));
 
 			addUiItemKey('new-key')(dispatch, getState, undefined as any);
 
@@ -166,9 +166,7 @@ describe('ui thunks', () => {
 
 		it('no-op when key already present', () => {
 			const dispatch = jest.fn();
-			const getState = jest.fn(() =>
-				buildRoot({ uiItemKeys: ['existing'] })
-			);
+			const getState = jest.fn(() => buildRoot({ uiItemKeys: ['existing'] }));
 
 			addUiItemKey('existing')(dispatch, getState, undefined as any);
 
@@ -187,24 +185,17 @@ describe('ui selectors', () => {
 	});
 
 	it('selectExpandedElements', () => {
-		expect(
-			selectExpandedElements(buildRoot({ expandedElements: ['a'] }))
-		).toEqual(['a']);
+		expect(selectExpandedElements(buildRoot({ expandedElements: ['a'] }))).toEqual(['a']);
 	});
 
 	it('selectElementExpanded returns true when key in array', () => {
-		expect(
-			selectElementExpanded(
-				buildRoot({ expandedElements: ['panel'] }),
-				'panel'
-			)
-		).toBe(true);
+		expect(selectElementExpanded(buildRoot({ expandedElements: ['panel'] }), 'panel')).toBe(
+			true
+		);
 	});
 
 	it('selectElementExpanded returns false when key not in array', () => {
-		expect(
-			selectElementExpanded(buildRoot({ expandedElements: [] }), 'panel')
-		).toBe(false);
+		expect(selectElementExpanded(buildRoot({ expandedElements: [] }), 'panel')).toBe(false);
 	});
 
 	it('selectIsBusy returns true when busyKeys non-empty', () => {
@@ -216,8 +207,6 @@ describe('ui selectors', () => {
 	});
 
 	it('selectUiItemKeys', () => {
-		expect(
-			selectUiItemKeys(buildRoot({ uiItemKeys: ['a', 'b'] }))
-		).toEqual(['a', 'b']);
+		expect(selectUiItemKeys(buildRoot({ uiItemKeys: ['a', 'b'] }))).toEqual(['a', 'b']);
 	});
 });

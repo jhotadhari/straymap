@@ -9,15 +9,9 @@ import updaterReducer, {
 	initialSettings,
 } from '../slice';
 import type { UpdaterState } from '../slice';
-import {
-	selectInitialized,
-	selectInstalledVersion,
-	selectIsUpdating,
-} from '../selectors';
+import { selectInitialized, selectInstalledVersion, selectIsUpdating } from '../selectors';
 
-const buildRoot = (
-	overrides: Partial<UpdaterState> = {}
-): { updater: UpdaterState } => ({
+const buildRoot = (overrides: Partial<UpdaterState> = {}): { updater: UpdaterState } => ({
 	updater: {
 		initialized: false,
 		...initialSettings,
@@ -32,10 +26,7 @@ describe('updater slice reducers', () => {
 	});
 
 	it('setInstalledVersion sets installed version', () => {
-		const state = updaterReducer(
-			undefined,
-			setInstalledVersion('1.0.0')
-		);
+		const state = updaterReducer(undefined, setInstalledVersion('1.0.0'));
 		expect(state.installedVersion).toBe('1.0.0');
 	});
 
@@ -78,9 +69,7 @@ describe('updater selectors', () => {
 	});
 
 	it('selectInstalledVersion returns version', () => {
-		expect(
-			selectInstalledVersion(buildRoot({ installedVersion: '2.0.0' }))
-		).toBe('2.0.0');
+		expect(selectInstalledVersion(buildRoot({ installedVersion: '2.0.0' }))).toBe('2.0.0');
 	});
 
 	it('selectIsUpdating returns undefined by default', () => {

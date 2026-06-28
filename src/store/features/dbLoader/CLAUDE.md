@@ -154,21 +154,21 @@ was an explicit decision, not an oversight.
 Every feature slice follows the same convention for persisting settings across app restarts:
 
 1. **`slice.ts`** defines an `initialSettings` object with the subset of state that should
-   survive app restarts (e.g. `isRouting`, `selected`, `mapEventRate`).  Only keys listed in
+   survive app restarts (e.g. `isRouting`, `selected`, `mapEventRate`). Only keys listed in
    `initialSettings` are persisted — everything else in the slice state is ephemeral.
 
 2. **`connectStorage.ts`** (one per feature, e.g. `lines/connectStorage.ts`,
    `routing/connectStorage.ts`) provides three pieces:
-   - **`initializeFromStorage(store)`** — called during app init (`store/utils.ts` →
-     `initializeAppState`).  Reads the persisted JSON blob from
-     `react-native-default-preference`, parses it, and dispatches the appropriate Redux
-     actions to restore the saved settings.  Only runs once (gated by `selectInitialized`).
-   - **`saveToStorage(state, actionType)`** — compares every key in `initialSettings`
-     against its initial value and writes the diff to `DefaultPreference`.  Called by the
-     listener middleware whenever a tracked action fires.
-   - **Listener middleware** (`startAppListening`) — watches for the actions that mutate
-     settings (using `isAnyOf(...)` or `actionCreator`) and calls `saveToStorage` after
-     the reducer has updated state.
+    - **`initializeFromStorage(store)`** — called during app init (`store/utils.ts` →
+      `initializeAppState`). Reads the persisted JSON blob from
+      `react-native-default-preference`, parses it, and dispatches the appropriate Redux
+      actions to restore the saved settings. Only runs once (gated by `selectInitialized`).
+    - **`saveToStorage(state, actionType)`** — compares every key in `initialSettings`
+      against its initial value and writes the diff to `DefaultPreference`. Called by the
+      listener middleware whenever a tracked action fires.
+    - **Listener middleware** (`startAppListening`) — watches for the actions that mutate
+      settings (using `isAnyOf(...)` or `actionCreator`) and calls `saveToStorage` after
+      the reducer has updated state.
 
 3. **`index.ts`** (the feature's `AppFeature` export) includes `initializeFromStorage` so
    the app-init sequence knows to call it.

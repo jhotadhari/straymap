@@ -49,7 +49,8 @@ export const drawersSlice = createSlice({
 		setInitialized: (state, action: PayloadAction<boolean>) => {
 			state.initialized = action.payload;
 		},
-		setControlHandleSide: (state, action: PayloadAction<DrawersState['controlHandleSide']>) => {			state.controlHandleSide = action.payload;
+		setControlHandleSide: (state, action: PayloadAction<DrawersState['controlHandleSide']>) => {
+			state.controlHandleSide = action.payload;
 		},
 		setItemKeys: (
 			state,

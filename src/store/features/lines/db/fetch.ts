@@ -232,14 +232,8 @@ const fetchLinesWithTags = (params?: FetchLinesWithTagsParams) => {
 				},
 			})
 			.from(linesTable)
-			.leftJoin(
-				tagsToLinesTable,
-				eq(tagsToLinesTable.line_id, linesTable.id)
-			)
-			.leftJoin(
-				tagsTable,
-				eq(tagsToLinesTable.tag_id, tagsTable.id)
-			);
+			.leftJoin(tagsToLinesTable, eq(tagsToLinesTable.line_id, linesTable.id))
+			.leftJoin(tagsTable, eq(tagsToLinesTable.tag_id, tagsTable.id));
 
 		query.where(
 			and(
@@ -259,10 +253,10 @@ const fetchLinesWithTags = (params?: FetchLinesWithTagsParams) => {
 		}
 
 		query
-			.then(
-				(rows) => {
-					const aggregated = Array.from(
-						(rows as {
+			.then((rows) => {
+				const aggregated = Array.from(
+					(
+						rows as {
 							line: {
 								id: number;
 								title?: string | null;
@@ -276,44 +270,44 @@ const fetchLinesWithTags = (params?: FetchLinesWithTagsParams) => {
 								maxZ?: string;
 							};
 							tag: Tag | null;
-						}[])
-							.reduce<
-								Map<
-									number, // line.id
-									Partial<
-										Omit<Line, 'geometry' | 'envelope'> & {
-											geometryGeoJSON: string;
-											envelopeGeoJSON: string;
-										}
-									> & {
-										id: number;
-										tags: Tag[];
+						}[]
+					)
+						.reduce<
+							Map<
+								number, // line.id
+								Partial<
+									Omit<Line, 'geometry' | 'envelope'> & {
+										geometryGeoJSON: string;
+										envelopeGeoJSON: string;
 									}
-								>
-							>((acc, row) => {
-								if (row?.line?.id && !acc.has(row.line.id)) {
-									acc.set(row.line.id, {
-										id: row.line.id,
-										...omit(row.line, statsFields),
-										...(fields.includes('stats') && {
-											stats: mapValues(
-												pick(row.line, statsFields),
-												(str: string) => parseFloat(str)
-											),
-										}),
-										tags: [],
-									});
+								> & {
+									id: number;
+									tags: Tag[];
 								}
-								if (row?.tag && row?.line?.id) {
-									acc.get(row.line.id)!.tags.push(row.tag);
-								}
-								return acc;
-							}, new Map())
-							.values()
-					);
-					resolve(parseRows(aggregated, fields));
-				}
-			)
+							>
+						>((acc, row) => {
+							if (row?.line?.id && !acc.has(row.line.id)) {
+								acc.set(row.line.id, {
+									id: row.line.id,
+									...omit(row.line, statsFields),
+									...(fields.includes('stats') && {
+										stats: mapValues(
+											pick(row.line, statsFields),
+											(str: string) => parseFloat(str)
+										),
+									}),
+									tags: [],
+								});
+							}
+							if (row?.tag && row?.line?.id) {
+								acc.get(row.line.id)!.tags.push(row.tag);
+							}
+							return acc;
+						}, new Map())
+						.values()
+				);
+				resolve(parseRows(aggregated, fields));
+			})
 			.catch((err) => {
 				reject(err);
 			});

@@ -20,9 +20,7 @@ import {
 	selectSideForKey,
 } from '../selectors';
 
-const buildRoot = (
-	overrides: Partial<DrawersState> = {}
-): { drawers: DrawersState } => ({
+const buildRoot = (overrides: Partial<DrawersState> = {}): { drawers: DrawersState } => ({
 	drawers: {
 		initialized: false,
 		...initialSettings,
@@ -67,10 +65,7 @@ describe('drawers slice reducers', () => {
 				itemKeysRight: ['x'],
 				controlHandleSide: 'right',
 			};
-			const state = drawersReducer(
-				prev,
-				addItemKey({ side: 'left', itemKey: 'b' })
-			);
+			const state = drawersReducer(prev, addItemKey({ side: 'left', itemKey: 'b' }));
 			expect(state.itemKeysLeft).toEqual(['a', 'b']);
 			expect(state.itemKeysRight).toEqual(['x']); // unchanged
 		});
@@ -85,10 +80,7 @@ describe('drawers slice reducers', () => {
 				activeKeyLeft: 'a',
 				controlHandleSide: 'right',
 			};
-			const state = drawersReducer(
-				prev,
-				removeItemKey({ side: 'left', itemKey: 'a' })
-			);
+			const state = drawersReducer(prev, removeItemKey({ side: 'left', itemKey: 'a' }));
 			expect(state.itemKeysLeft).toEqual(['b']);
 			expect(state.activeKeyLeft).toBeUndefined();
 		});
@@ -101,10 +93,7 @@ describe('drawers slice reducers', () => {
 				activeKeyLeft: 'a',
 				controlHandleSide: 'right',
 			};
-			const state = drawersReducer(
-				prev,
-				removeItemKey({ side: 'left', itemKey: 'b' })
-			);
+			const state = drawersReducer(prev, removeItemKey({ side: 'left', itemKey: 'b' }));
 			expect(state.itemKeysLeft).toEqual(['a']);
 			expect(state.activeKeyLeft).toBe('a'); // still active
 		});
@@ -152,27 +141,30 @@ describe('drawers slice reducers', () => {
 		});
 
 		it('auto-detects side when side not provided', () => {
-			const state = drawersReducer(
-				undefined,
-				setActiveKey({ activeKey: 'position' })
-			);
+			const state = drawersReducer(undefined, setActiveKey({ activeKey: 'position' }));
 			expect(state.activeKeyLeft).toBe('position');
 		});
 	});
 
 	it('initial state has expected defaults', () => {
 		const state = drawersReducer(undefined, { type: '@@INIT' });
-		expect(state.itemKeysLeft).toEqual(['position', 'lines', 'waypoints']);
-		expect(state.itemKeysRight).toEqual(['maps', 'searchPlace', 'brouter']);
+		expect(state.itemKeysLeft).toEqual([
+			'position',
+			'lines',
+			'waypoints',
+		]);
+		expect(state.itemKeysRight).toEqual([
+			'maps',
+			'searchPlace',
+			'brouter',
+		]);
 		expect(state.controlHandleSide).toBe('right');
 	});
 });
 
 describe('drawers selectors', () => {
 	it('selectControlHandleSide', () => {
-		expect(
-			selectControlHandleSide(buildRoot({ controlHandleSide: 'left' }))
-		).toBe('left');
+		expect(selectControlHandleSide(buildRoot({ controlHandleSide: 'left' }))).toBe('left');
 	});
 
 	it('selectActiveKey returns left activeKey', () => {
@@ -186,9 +178,7 @@ describe('drawers selectors', () => {
 	});
 
 	it('selectActiveKey returns undefined for unknown side', () => {
-		expect(
-			selectActiveKey(buildRoot({}), { side: 'unknown' } as any)
-		).toBeUndefined();
+		expect(selectActiveKey(buildRoot({}), { side: 'unknown' } as any)).toBeUndefined();
 	});
 
 	it('selectItemKeys returns filtered keys for valid items', () => {

@@ -51,13 +51,17 @@ const LineEditModal: FC<{
 			onMutate: async () => {
 				await dbConnection.queryClient!.cancelQueries({ queryKey: ['lines'] });
 				if (route?.id) {
-					await dbConnection.queryClient!.cancelQueries({ queryKey: ['route', route?.id] });
+					await dbConnection.queryClient!.cancelQueries({
+						queryKey: ['route', route?.id],
+					});
 				}
 			},
 			onSuccess: async () => {
 				await dbConnection.queryClient!.invalidateQueries({ queryKey: ['lines'] });
 				if (route?.id) {
-					await dbConnection.queryClient!.invalidateQueries({ queryKey: ['route', route?.id] });
+					await dbConnection.queryClient!.invalidateQueries({
+						queryKey: ['route', route?.id],
+					});
 				}
 			},
 			onSettled: () => {

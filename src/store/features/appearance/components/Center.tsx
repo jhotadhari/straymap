@@ -86,7 +86,10 @@ export const CenterInner = ({ cursor }: { cursor?: CursorConfig }) => {
 const Center = ({ width, height }: { width: number; height: number }) => {
 	const styleWrapper = useMemo(() => [styles.wrapper, { width, height }], [width, height]);
 	return (
-		<View style={styleWrapper} pointerEvents="box-none">
+		<View
+			style={styleWrapper}
+			pointerEvents="box-none"
+		>
 			<CenterInner />
 		</View>
 	);

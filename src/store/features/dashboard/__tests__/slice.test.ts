@@ -27,9 +27,7 @@ import {
 	getItemByKeyResultFn,
 } from '../selectors';
 
-const buildRoot = (
-	overrides: Partial<DashboardState> = {}
-): { dashboard: DashboardState } => ({
+const buildRoot = (overrides: Partial<DashboardState> = {}): { dashboard: DashboardState } => ({
 	dashboard: {
 		initialized: false,
 		isEditingDashboard: false,
@@ -92,19 +90,13 @@ describe('dashboard slice reducers', () => {
 	describe('setItems', () => {
 		it('sets top items', () => {
 			const items = [makeItem({ key: 'a' })];
-			const state = dashboardReducer(
-				undefined,
-				setItems({ position: 'top', items })
-			);
+			const state = dashboardReducer(undefined, setItems({ position: 'top', items }));
 			expect(state.itemsTop).toEqual(items);
 		});
 
 		it('sets bottom items', () => {
 			const items = [makeItem({ key: 'b' })];
-			const state = dashboardReducer(
-				undefined,
-				setItems({ position: 'bottom', items })
-			);
+			const state = dashboardReducer(undefined, setItems({ position: 'bottom', items }));
 			expect(state.itemsBottom).toEqual(items);
 		});
 	});
@@ -112,10 +104,7 @@ describe('dashboard slice reducers', () => {
 	describe('addItem', () => {
 		it('adds item to top', () => {
 			const item = makeItem({ key: 'new' });
-			const state = dashboardReducer(
-				undefined,
-				addItem({ position: 'top', item })
-			);
+			const state = dashboardReducer(undefined, addItem({ position: 'top', item }));
 			// Default itemsTop is empty, adding one makes length 1
 			expect(state.itemsTop).toHaveLength(1);
 			expect(state.itemsTop[0].key).toBe('new');
@@ -133,10 +122,7 @@ describe('dashboard slice reducers', () => {
 				dashboardStyleTop: { align: 'between', fontSize: 20 },
 				dashboardStyleBottom: { align: 'between', fontSize: 20 },
 			};
-			const state = dashboardReducer(
-				prev,
-				removeItemKey({ position: 'top', itemKey: 'a' })
-			);
+			const state = dashboardReducer(prev, removeItemKey({ position: 'top', itemKey: 'a' }));
 			expect(state.itemsTop).toHaveLength(1);
 			expect(state.itemsTop[0].key).toBe('b');
 		});
@@ -153,18 +139,12 @@ describe('dashboard slice reducers', () => {
 				dashboardStyleTop: { align: 'between', fontSize: 20 },
 				dashboardStyleBottom: { align: 'between', fontSize: 20 },
 			};
-			const state = dashboardReducer(
-				prev,
-				setEditItemAccordingToPosition('top')
-			);
+			const state = dashboardReducer(prev, setEditItemAccordingToPosition('top'));
 			expect(state.editItemKey).toBe('first');
 		});
 
 		it('sets editItemKey to undefined when top is empty', () => {
-			const state = dashboardReducer(
-				undefined,
-				setEditItemAccordingToPosition('top')
-			);
+			const state = dashboardReducer(undefined, setEditItemAccordingToPosition('top'));
 			expect(state.editItemKey).toBeUndefined();
 		});
 
@@ -178,19 +158,13 @@ describe('dashboard slice reducers', () => {
 				dashboardStyleTop: { align: 'between', fontSize: 20 },
 				dashboardStyleBottom: { align: 'between', fontSize: 20 },
 			};
-			const state = dashboardReducer(
-				prev,
-				setEditItemAccordingToPosition('bottom')
-			);
+			const state = dashboardReducer(prev, setEditItemAccordingToPosition('bottom'));
 			expect(state.editItemKey).toBe('bottom-first');
 		});
 	});
 
 	it('setEditItemKeyAction sets editItemKey directly', () => {
-		const state = dashboardReducer(
-			undefined,
-			setEditItemKeyAction('direct-key')
-		);
+		const state = dashboardReducer(undefined, setEditItemKeyAction('direct-key'));
 		expect(state.editItemKey).toBe('direct-key');
 	});
 });
@@ -206,9 +180,7 @@ describe('dashboard selectors', () => {
 
 	it('selectElementsSettings', () => {
 		const settings = { test: {} as any };
-		expect(
-			selectElementsSettings(buildRoot({ elementsSettings: settings }))
-		).toEqual(settings);
+		expect(selectElementsSettings(buildRoot({ elementsSettings: settings }))).toEqual(settings);
 	});
 
 	it('selectIsEditingDashboard', () => {

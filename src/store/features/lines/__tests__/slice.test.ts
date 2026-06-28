@@ -73,7 +73,11 @@ describe('lines slice reducers', () => {
 		const duplicateRef = { id: 1, visible: true };
 		const state = linesReducer(
 			undefined,
-			setSelected([duplicateRef, duplicateRef, { id: 2, visible: false }])
+			setSelected([
+				duplicateRef,
+				duplicateRef,
+				{ id: 2, visible: false },
+			])
 		);
 		expect(state.selected).toEqual([
 			{ id: 1, visible: true },
@@ -101,9 +105,7 @@ describe('lines thunks', () => {
 	describe('setLineVisible', () => {
 		it('toggles visibility when visible not specified', () => {
 			const dispatch = jest.fn();
-			const getState = jest.fn(() =>
-				buildRoot({ selected: [{ id: 1, visible: true }] })
-			);
+			const getState = jest.fn(() => buildRoot({ selected: [{ id: 1, visible: true }] }));
 
 			setLineVisible(1)(dispatch, getState, undefined as any);
 
@@ -117,9 +119,7 @@ describe('lines thunks', () => {
 
 		it('sets explicit visibility', () => {
 			const dispatch = jest.fn();
-			const getState = jest.fn(() =>
-				buildRoot({ selected: [{ id: 1, visible: true }] })
-			);
+			const getState = jest.fn(() => buildRoot({ selected: [{ id: 1, visible: true }] }));
 
 			setLineVisible(1, false)(dispatch, getState, undefined as any);
 
@@ -133,9 +133,7 @@ describe('lines thunks', () => {
 
 		it('does nothing if id not found', () => {
 			const dispatch = jest.fn();
-			const getState = jest.fn(() =>
-				buildRoot({ selected: [{ id: 2, visible: true }] })
-			);
+			const getState = jest.fn(() => buildRoot({ selected: [{ id: 2, visible: true }] }));
 
 			setLineVisible(1)(dispatch, getState, undefined as any);
 
@@ -160,9 +158,7 @@ describe('lines thunks', () => {
 
 		it('removes line from selected when present', () => {
 			const dispatch = jest.fn();
-			const getState = jest.fn(() =>
-				buildRoot({ selected: [{ id: 1, visible: true }] })
-			);
+			const getState = jest.fn(() => buildRoot({ selected: [{ id: 1, visible: true }] }));
 
 			setLineSelected(1)(dispatch, getState, undefined as any);
 
@@ -176,9 +172,7 @@ describe('lines thunks', () => {
 
 		it('no-op when isSelected matches current state (already selected)', () => {
 			const dispatch = jest.fn();
-			const getState = jest.fn(() =>
-				buildRoot({ selected: [{ id: 1, visible: true }] })
-			);
+			const getState = jest.fn(() => buildRoot({ selected: [{ id: 1, visible: true }] }));
 
 			setLineSelected(1, true)(dispatch, getState, undefined as any);
 
@@ -198,9 +192,7 @@ describe('lines thunks', () => {
 	describe('setLinesSelected', () => {
 		it('always sets visible=true for selected lines (overrides previous visibility)', () => {
 			const dispatch = jest.fn();
-			const getState = jest.fn(() =>
-				buildRoot({ selected: [{ id: 1, visible: false }] })
-			);
+			const getState = jest.fn(() => buildRoot({ selected: [{ id: 1, visible: false }] }));
 
 			setLinesSelected([1, 2])(dispatch, getState, undefined as any);
 
@@ -218,9 +210,7 @@ describe('lines thunks', () => {
 
 		it('no-op when selected matches exactly', () => {
 			const dispatch = jest.fn();
-			const getState = jest.fn(() =>
-				buildRoot({ selected: [{ id: 1, visible: true }] })
-			);
+			const getState = jest.fn(() => buildRoot({ selected: [{ id: 1, visible: true }] }));
 
 			setLinesSelected([1])(dispatch, getState, undefined as any);
 

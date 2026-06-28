@@ -17,8 +17,12 @@ import {
 describe('parseSerialized', () => {
 	// Suppress expected console.log from parseSerialized error paths in __DEV__.
 	let logSpy: jest.SpyInstance;
-	beforeAll(() => { logSpy = jest.spyOn(console, 'log').mockImplementation(() => {}); });
-	afterAll(() => { logSpy.mockRestore(); });
+	beforeAll(() => {
+		logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+	});
+	afterAll(() => {
+		logSpy.mockRestore();
+	});
 
 	it('parses valid JSON string', () => {
 		const result = parseSerialized<{ a: number }>('{"a":1}');
@@ -42,7 +46,11 @@ describe('parseSerialized', () => {
 
 	it('parses arrays', () => {
 		const result = parseSerialized<number[]>('[1,2,3]');
-		expect(result).toEqual([1, 2, 3]);
+		expect(result).toEqual([
+			1,
+			2,
+			3,
+		]);
 	});
 
 	it('parses primitives', () => {
@@ -131,14 +139,31 @@ describe('randomNumber', () => {
 
 describe('sortArrayByOrderArray', () => {
 	it('sorts strings by given order array', () => {
-		const input = ['c', 'a', 'b'];
-		const order = ['a', 'b', 'c'];
+		const input = [
+			'c',
+			'a',
+			'b',
+		];
+		const order = [
+			'a',
+			'b',
+			'c',
+		];
 		const result = sortArrayByOrderArray(input, order);
-		expect(result).toEqual(['a', 'b', 'c']);
+		expect(result).toEqual([
+			'a',
+			'b',
+			'c',
+		]);
 	});
 
 	it('places unknown items at the end', () => {
-		const input = ['x', 'a', 'y', 'b'];
+		const input = [
+			'x',
+			'a',
+			'y',
+			'b',
+		];
 		const order = ['a', 'b'];
 		const result = sortArrayByOrderArray(input, order) as string[];
 		// 'a' and 'b' first in order, then 'x' and 'y' at end
@@ -153,7 +178,11 @@ describe('sortArrayByOrderArray', () => {
 			{ id: 'a', val: 1 },
 			{ id: 'b', val: 2 },
 		];
-		const order = ['a', 'b', 'c'];
+		const order = [
+			'a',
+			'b',
+			'c',
+		];
 		const result = sortArrayByOrderArray(input, order, 'id');
 		expect(result).toEqual([
 			{ id: 'a', val: 1 },
@@ -163,17 +192,41 @@ describe('sortArrayByOrderArray', () => {
 	});
 
 	it('does not mutate input when mutate=false (default)', () => {
-		const input = ['c', 'a', 'b'];
-		const order = ['a', 'b', 'c'];
+		const input = [
+			'c',
+			'a',
+			'b',
+		];
+		const order = [
+			'a',
+			'b',
+			'c',
+		];
 		sortArrayByOrderArray(input, order);
-		expect(input).toEqual(['c', 'a', 'b']); // unchanged
+		expect(input).toEqual([
+			'c',
+			'a',
+			'b',
+		]); // unchanged
 	});
 
 	it('mutates input when mutate=true', () => {
-		const input = ['c', 'a', 'b'];
-		const order = ['a', 'b', 'c'];
+		const input = [
+			'c',
+			'a',
+			'b',
+		];
+		const order = [
+			'a',
+			'b',
+			'c',
+		];
 		const result = sortArrayByOrderArray(input, order, undefined, true);
-		expect(input).toEqual(['a', 'b', 'c']); // mutated
+		expect(input).toEqual([
+			'a',
+			'b',
+			'c',
+		]); // mutated
 		expect(result).toBe(input); // same reference
 	});
 
@@ -196,11 +249,19 @@ describe('sortArrayByOrderArray', () => {
 	});
 
 	it('handles empty order array', () => {
-		const input = ['c', 'a', 'b'];
+		const input = [
+			'c',
+			'a',
+			'b',
+		];
 		const result = sortArrayByOrderArray(input, []);
 		// All unknown, original order preserved by stable sort? Not guaranteed.
 		expect(result).toHaveLength(3);
-		expect(result.sort()).toEqual(['a', 'b', 'c']);
+		expect(result.sort()).toEqual([
+			'a',
+			'b',
+			'c',
+		]);
 	});
 
 	it('preserves stable ordering for items with equal order weight', () => {
@@ -220,7 +281,11 @@ describe('sortDeep', () => {
 		const input = { c: 3, a: 1, b: 2 };
 		const order = { a: '', b: '', c: '' };
 		const result = sortDeep(input, order);
-		expect(Object.keys(result)).toEqual(['a', 'b', 'c']);
+		expect(Object.keys(result)).toEqual([
+			'a',
+			'b',
+			'c',
+		]);
 	});
 
 	it('preserves values when reordering keys', () => {

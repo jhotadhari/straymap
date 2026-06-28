@@ -74,7 +74,10 @@ describe('aggregateSegmentsToCoords', () => {
 			{ fromId: 2, toId: 3, positions: [[2, 2]] },
 		];
 		const result = aggregateSegmentsToCoords(segments);
-		expect(result).toEqual([[0, 0], [2, 2]]);
+		expect(result).toEqual([
+			[0, 0],
+			[2, 2],
+		]);
 	});
 
 	it('returns empty array for empty segments', () => {
@@ -104,15 +107,31 @@ describe('aggregateSegmentsToCoords', () => {
 				fromId: 0,
 				toId: 1,
 				positions: [
-					[0, 0, 100],
-					[1, 1, 200],
+					[
+						0,
+						0,
+						100,
+					],
+					[
+						1,
+						1,
+						200,
+					],
 				],
 			},
 		];
 		const result = aggregateSegmentsToCoords(segments);
 		expect(result).toEqual([
-			[0, 0, 100],
-			[1, 1, 200],
+			[
+				0,
+				0,
+				100,
+			],
+			[
+				1,
+				1,
+				200,
+			],
 		]);
 	});
 });

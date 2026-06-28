@@ -117,15 +117,13 @@ describe('dirs selectors', () => {
 
 	it('selectDirsInfoCacheEntry returns a specific entry', () => {
 		const cache = { id1: { name: '/test1' }, id2: { name: '/test2' } } as any;
-		expect(
-			selectDirsInfoCacheEntry(buildRoot({ dirInfoCache: cache }), 'id1')
-		).toEqual({ name: '/test1' });
+		expect(selectDirsInfoCacheEntry(buildRoot({ dirInfoCache: cache }), 'id1')).toEqual({
+			name: '/test1',
+		});
 	});
 
 	it('selectDirsInfoCacheEntry returns undefined for missing id', () => {
-		expect(
-			selectDirsInfoCacheEntry(buildRoot({}), 'missing')
-		).toBeUndefined();
+		expect(selectDirsInfoCacheEntry(buildRoot({}), 'missing')).toBeUndefined();
 	});
 
 	it('selectCacheDirsCache', () => {

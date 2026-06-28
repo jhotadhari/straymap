@@ -13,11 +13,7 @@ import { useAppDispatch } from '../../../../hooks';
 import { setIsRouting } from '../../slice';
 import { dbConnection } from '../../../dbLoader/DBConnection';
 
-const useToggleRouting = ({
-	routeId,
-}: {
-	routeId?: number;
-}) => {
+const useToggleRouting = ({ routeId }: { routeId?: number }) => {
 	const { expand } = useContext(DrawerContext);
 
 	const dispatch = useAppDispatch();

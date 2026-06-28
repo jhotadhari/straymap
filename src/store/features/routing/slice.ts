@@ -243,16 +243,18 @@ export const processRouting = (
 						},
 						Promise.resolve({} as Record<string, RoutingSegment>)
 					)
-					.then((newSegments) => {						resolveOuter(newSegments);
+					.then((newSegments) => {
+						resolveOuter(newSegments);
 					});
 			}
-		);		if (routeId) {
+		);
+		if (routeId) {
 			if (false !== options?.updateLine) {
 				const { lineId, isNew } = await updateLineFromSegments(
 					routeId,
 					Object.values(updatedSegments),
 					queryClient
-				);				// Invalidate the route query BEFORE dispatching
+				); // Invalidate the route query BEFORE dispatching
 				// setLineSelected so LinesMapView sees the updated
 				// routingLineId and can skip the routing line.
 				await queryClient.invalidateQueries({ queryKey: ['route', routeId] });

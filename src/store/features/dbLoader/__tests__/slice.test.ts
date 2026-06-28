@@ -32,10 +32,7 @@ describe('dbLoader slice reducers', () => {
 	});
 
 	it('setDbPathAction updates dbPath', () => {
-		const state = dbLoaderReducer(
-			undefined,
-			setDbPathAction('/custom/path/db.straymapdb')
-		);
+		const state = dbLoaderReducer(undefined, setDbPathAction('/custom/path/db.straymapdb'));
 		expect(state.dbPath).toBe('/custom/path/db.straymapdb');
 	});
 

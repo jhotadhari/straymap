@@ -18,7 +18,11 @@ const PopoverMenuItem: FC<{
 		if (disabled) return;
 		opt.cb();
 		onPress && onPress();
-	}, [opt, onPress, disabled]);
+	}, [
+		opt,
+		onPress,
+		disabled,
+	]);
 
 	return (
 		<MenuItem
