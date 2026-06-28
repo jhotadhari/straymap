@@ -17,6 +17,7 @@ yarn test            # jest
 yarn test <pattern>  # run a single test file/suite
 yarn format          # prettier . --write
 yarn sortI18n        # sort all i18n JSON files (app + per-feature) to match the fallback language's key structure
+yarn publish         # release automation: bump versions, merge branches, create GitHub release
 ```
 
 The pull request base/development branch is `development` (not `main`).
@@ -64,7 +65,31 @@ Custom native modules live in `android/app/src/main/java/com/jhotadhari/straymap
 
 ### i18n
 
-`src/assets/i18n/i18n.ts` configures i18next with `en`/`de` resources, falling back to `en`; `'system'` as a language selection resolves to the device locale. Each feature contributes its own translations via its `AppFeature.translation` export, merged into the i18next resources at init. Run `yarn sortI18n` (`scripts/sortI18n.js`) after editing any translation JSON — it keeps every language file's key order in sync with the fallback language, across both `src/assets/i18n/` and each feature's `assets/i18n/`.
+`src/assets/i18n/i18n.ts` configures i18next with `en`/`de` resources, falling back to `en`; `'system'` as a language selection resolves to the device locale. Each feature contributes its own translations via its `AppFeature.translation` export, merged into the i18next resources at init. Run `yarn sortI18n` (`scripts/sortI18n/index.js`) after editing any translation JSON — it keeps every language file's key order in sync with the fallback language, across both `src/assets/i18n/` and each feature's `assets/i18n/`.
+
+### Script infrastructure
+
+Project scripts under `scripts/` use a hybrid module pattern:
+- A thin **CJS entry point** (`index.js`) with a shebang, using `tsx/cjs/api` to load the TypeScript module at runtime.
+- An **ESM TypeScript module** (`.ts`) with the actual logic, using `import.meta.url` + `fileURLToPath` for `__dirname`.
+
+`tsx` (v4.21.0, devDependency) handles transpilation on the fly — scripts are not compiled by `tsc`. Both `scripts/sortI18n/` and `scripts/publish/` follow this pattern.
+
+### Publish / release pipeline
+
+`yarn publish` (`scripts/publish/index.js`) automates the full release workflow:
+
+1. Validates: semver version (supports pre-releases: `1.0.0-alpha.1`), clean working tree, `[Unreleased]` in CHANGELOG.md, branch starts with `release`, typecheck passes
+2. Bumps `version` in `package.json` and `versionName` + `versionCode` in `android/app/build.gradle`
+3. Auto-generates `versionCode` from semver: `major*1M + minor*10K + patch*100 + offset` (alpha:0, beta:33, rc:66, release:99)
+4. Releases the `[Unreleased]` section in CHANGELOG.md via `keep-a-changelog` API
+5. Commits, checks out `main`, merges release branch (--no-ff), tags `v<version>`, pushes
+6. Creates/updates GitHub release via `@octokit/rest` (needs `GITHUB_TOKEN` env var)
+7. Checks out `development`, merges release branch, adds fresh `[Unreleased]` section, pushes
+
+**Dependencies**: `semver` (version parsing), `simple-git` (git ops), `@octokit/rest` (GitHub releases), `keep-a-changelog` (changelog parser/writer).
+
+**CI** (`.github/workflows/release.yml`): triggers on `v*` tags → builds APK + AAB → attaches both to the GitHub release. AAB is required for Google Play Store submission.
 
 ### Build/transform quirks
 
