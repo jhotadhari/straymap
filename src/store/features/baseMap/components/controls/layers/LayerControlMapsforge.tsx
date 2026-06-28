@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { FC, Fragment, ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
+import { FC, Fragment, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { TouchableHighlight, View } from 'react-native';
 import { Icon, Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -49,10 +49,14 @@ const ProfileRowControl = ({
 				label: 'baseMap.useFirstOne',
 			},
 			...[...profiles].map((prof) => {
-				const themeArr = prof.theme.split('/');
+				const themeLabel = prof.theme
+					? prof.theme.split('/').slice(-1)[0]
+					: '';
 				return {
 					key: prof.key,
-					label: [prof.name, '[' + themeArr[themeArr.length - 1] + ']'].join(' '),
+					label: [prof.name, themeLabel ? '[' + themeLabel + ']' : '']
+						.filter(Boolean)
+						.join(' '),
 				};
 			}),
 		],
@@ -75,17 +79,26 @@ const ProfileRowControl = ({
 		setSelectedOpt(getInitialSelectedOpt());
 	}, [profiles, getInitialSelectedOpt]);
 
+	// Keep setOptions stable via a ref so the effect below doesn't loop
+	// when the parent re-creates the callback.
+	const setOptionsRef = useRef(setOptions);
+	setOptionsRef.current = setOptions;
+
+	// Keep options in a ref so we can read the latest value without
+	// listing it as a dependency — avoids an infinite dispatch loop
+	// when selectLayerTemp returns a new options reference each render.
+	const optionsRef = useRef(options);
+	optionsRef.current = options;
+
 	useEffect(() => {
 		if (selectedOpt) {
-			setOptions({
-				...options,
+			setOptionsRef.current({
+				...optionsRef.current,
 				profile: selectedOpt,
 			});
 		}
 	}, [
 		selectedOpt,
-		options,
-		setOptions,
 	]);
 
 	const styleAction = useMemo(() => ({ padding: 10, borderRadius: theme.roundness }), [theme]);
@@ -245,7 +258,7 @@ const LayerControlMapsforge: FC<{}> = ({}) => {
 	);
 
 	if (!layerTemp?.options) {
-		return undefined;
+		return null;
 	}
 
 	return (

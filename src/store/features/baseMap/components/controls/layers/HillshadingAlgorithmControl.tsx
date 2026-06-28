@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { FC, Fragment, useCallback, useEffect, useMemo, useState } from 'react';
+import { FC, Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -120,17 +120,22 @@ const HillshadingAlgorithmControl: FC<{}> = () => {
 		options.shadingAlgorithmOptions || ({} as ShadingAlgorithmOptions)
 	);
 
+	// Keep options and setOptions in refs so the effect below doesn't loop
+	// when selectLayerTemp returns a new options reference each render.
+	const optionsRef = useRef(options);
+	optionsRef.current = options;
+	const setOptionsRef = useRef(setOptions);
+	setOptionsRef.current = setOptions;
+
 	useEffect(() => {
 		if (algOpts) {
-			setOptions({
-				...options,
+			setOptionsRef.current({
+				...optionsRef.current,
 				shadingAlgorithmOptions: algOpts,
 			});
 		}
 	}, [
 		algOpts,
-		options,
-		setOptions,
 	]);
 
 	const shadingAlgoKey = get(

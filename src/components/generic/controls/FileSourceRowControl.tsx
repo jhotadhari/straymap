@@ -11,6 +11,7 @@ import {
 	useContext,
 	useEffect,
 	useMemo,
+	useRef,
 	useState,
 } from 'react';
 import { StyleSheet, View, ViewStyle } from 'react-native';
@@ -358,8 +359,14 @@ const FileSourceRowControl: FC<{
 
 	const [optionsByPath, setOptionsByPath] = useState<OptionsByPathType>({});
 
+	// Keep initialOptionsByPath in a ref so the effect below doesn't loop
+	// when the caller relies on the default {} — a new object reference on
+	// every render.
+	const initialOptionsByPathRef = useRef(initialOptionsByPath);
+	initialOptionsByPathRef.current = initialOptionsByPath;
+
 	useEffect(() => {
-		let newOptionsByPath = { ...initialOptionsByPath };
+		let newOptionsByPath = { ...initialOptionsByPathRef.current };
 		if (dirsInfo) {
 			Object.keys(dirsInfo).map((key) => {
 				const dirInfo = dirsInfo[key];
@@ -405,7 +412,9 @@ const FileSourceRowControl: FC<{
 		filePattern,
 		hasCustom,
 		t,
-		initialOptionsByPath,
+		// initialOptionsByPath intentionally omitted — read via ref above
+		// to avoid infinite loop from default {} creating a new reference
+		// every render.
 	]);
 
 	const getInitialSelectedOpt = useCallback(() => {

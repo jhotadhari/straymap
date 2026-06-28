@@ -255,7 +255,7 @@ jest.mock('@klarna/react-native-vector-drawable', () => 'VectorDrawable');
 // ---------------------------------------------------------------------------
 jest.mock('react-i18next', () => ({
 	useTranslation: () => ({
-		t: (key: string) => key,
+		t: (key) => key,
 		i18n: {
 			changeLanguage: jest.fn(),
 			language: 'en',
@@ -281,7 +281,7 @@ jest.mock(
 // i18n module: import chain from dbLoader/utils → i18n → features/index → all slices
 jest.mock('./src/assets/i18n/i18n', () => {
 	const mockI18n = {
-		t: (key: string) => key,
+		t: (key) => key,
 		changeLanguage: jest.fn().mockResolvedValue(undefined),
 		language: 'en',
 		use: () => mockI18n,
