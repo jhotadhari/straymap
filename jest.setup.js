@@ -10,6 +10,15 @@
 // ---------------------------------------------------------------------------
 const { NativeModules } = require('react-native');
 
+// Prevent post-teardown dynamic imports from the real useColorScheme getter.
+// The getter in react-native/index.js triggers a lazy require that can land
+// after the Jest environment shuts down. Replace it with a simple stub.
+Object.defineProperty(require('react-native'), 'useColorScheme', {
+	value: jest.fn(() => 'light'),
+	writable: true,
+	configurable: true,
+});
+
 // HelperModule — exposes app directories to JS
 NativeModules.HelperModule = {
 	getAppDirs: jest.fn().mockResolvedValue({
@@ -285,11 +294,8 @@ jest.mock('./src/assets/i18n/i18n', () => {
 	};
 });
 
-// listenerMiddleware — avoid globalThis.shouldLog.dispatchAction at module scope
-jest.mock('./src/store/listenerMiddleware', () => ({
-	startAppListening: jest.fn(),
-	addAppListener: jest.fn(),
-}));
+// listenerMiddleware — no mock needed; the real module works because
+// its Dev-mode listener is gated by globalThis.shouldLog.dispatchAction (false).
 
 // routing utils — mock the native brouter import
 jest.mock('./src/store/features/routing/utils', () => {
@@ -325,6 +331,12 @@ jest.mock('react-native-fs', () => ({
 
 // __DEV__ is true in Jest
 global.__DEV__ = true;
+
+// @react-native/jest-preset sets IS_REACT_ACT_ENVIRONMENT = true, which makes
+// react-test-renderer warn when a render is not wrapped in act(). Override to
+// false — the only component test (App.test.tsx) is a smoke test that doesn't
+// need concurrent act() semantics, and all other tests are pure logic tests.
+global.IS_REACT_ACT_ENVIRONMENT = false;
 
 // structuredClone (not available in all Node versions)
 global.structuredClone = global.structuredClone || ((val) => JSON.parse(JSON.stringify(val)));

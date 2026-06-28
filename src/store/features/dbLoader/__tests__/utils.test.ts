@@ -14,6 +14,11 @@ import {
 	parseReturningIds,
 } from '../../../../store/features/dbLoader/utils';
 
+// Suppress expected console.log from parseSerialized error paths in __DEV__.
+let logSpy: jest.SpyInstance;
+beforeAll(() => { logSpy = jest.spyOn(console, 'log').mockImplementation(() => {}); });
+afterAll(() => { logSpy.mockRestore(); });
+
 // ===========================================================================
 // rowParseGeometryGeoJSON
 // ===========================================================================

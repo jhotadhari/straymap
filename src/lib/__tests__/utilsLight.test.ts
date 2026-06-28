@@ -15,6 +15,11 @@ import {
 // ===========================================================================
 
 describe('parseSerialized', () => {
+	// Suppress expected console.log from parseSerialized error paths in __DEV__.
+	let logSpy: jest.SpyInstance;
+	beforeAll(() => { logSpy = jest.spyOn(console, 'log').mockImplementation(() => {}); });
+	afterAll(() => { logSpy.mockRestore(); });
+
 	it('parses valid JSON string', () => {
 		const result = parseSerialized<{ a: number }>('{"a":1}');
 		expect(result).toEqual({ a: 1 });
