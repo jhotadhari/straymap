@@ -3,7 +3,7 @@ name: Android CI
 on:
   push:
     tags:
-      - 'v*.*.*'
+      - 'v*'
   workflow_dispatch:
 
 jobs:
@@ -55,6 +55,14 @@ jobs:
           APP_KEYSTORE_ALIAS: ${{ secrets.APP_KEYSTORE_ALIAS }}
         run: cd ./android && ./gradlew assembleRelease
 
+      - name: Build Release AAB
+        env:
+          APP_KEYSTORE_PATH: ${{ secrets.APP_KEYSTORE_PATH }}
+          APP_KEYSTORE_PASSWORD: ${{ secrets.APP_KEYSTORE_PASSWORD }}
+          APP_KEY_PASSWORD: ${{ secrets.APP_KEY_PASSWORD }}
+          APP_KEYSTORE_ALIAS: ${{ secrets.APP_KEYSTORE_ALIAS }}
+        run: cd ./android && ./gradlew bundleRelease
+
       - name: Get Current Release
         id: get_current_release
         uses: joutvhu/get-release@v1
@@ -63,8 +71,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Upload Release Asset
-        id: upload-release-asset
+      - name: Upload Release APK Asset
+        id: upload-release-apk-asset
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -72,4 +80,15 @@ jobs:
           upload_url: ${{ steps.get_current_release.outputs.upload_url }}
           asset_path: ./android/app/build/outputs/apk/release/app-release.apk
           asset_name: straymap_${{ steps.vars.outputs.tag }}.apk
-          asset_content_type: application/zip
+          asset_content_type: application/vnd.android.package-archive
+
+      - name: Upload Release AAB Asset
+        id: upload-release-aab-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.get_current_release.outputs.upload_url }}
+          asset_path: ./android/app/build/outputs/bundle/release/app-release.aab
+          asset_name: straymap_${{ steps.vars.outputs.tag }}.aab
+          asset_content_type: application/octet-stream
