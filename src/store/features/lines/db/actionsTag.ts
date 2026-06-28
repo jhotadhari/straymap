@@ -10,7 +10,7 @@ export const createTags = withDbErrorHandling(
 		newTags: {
 			label: string | null;
 			notes: string | null;
-			params: any; // ??? any
+			data: any; // ??? any
 		}[]
 	) => {
 		if (!dbConnection?.drizzle) {
@@ -19,10 +19,10 @@ export const createTags = withDbErrorHandling(
 		const inserted = await dbConnection.drizzle
 			.insert(tagsTable)
 			.values(
-				newTags.map(({ label, notes, params }) => ({
+				newTags.map(({ label, notes, data }) => ({
 					label: label ?? null,
 					notes: notes ?? null,
-					params: params ?? null,
+					data: data ?? null,
 				}))
 			)
 			.returning({ id: tagsTable.id });
@@ -37,7 +37,7 @@ export const updateTag = withDbErrorHandling(
 		newTag: Partial<{
 			label: string | null;
 			notes: string | null;
-			params: any; // ??? any
+			data: any; // ??? any
 		}>
 	) => {
 		if (!dbConnection?.drizzle) {
@@ -56,7 +56,7 @@ export const updateTag = withDbErrorHandling(
 			.set({
 				...(undefined !== newTag?.label && { label: newTag.label }),
 				...(undefined !== newTag?.notes && { notes: newTag.notes }),
-				...(undefined !== newTag?.params && { params: newTag.params }),
+				...(undefined !== newTag?.data && { data: newTag.data }),
 			})
 			.where(eq(tagsTable.id, id));
 	}

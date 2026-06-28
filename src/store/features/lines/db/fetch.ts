@@ -228,7 +228,7 @@ const fetchLinesWithTags = (params?: FetchLinesWithTagsParams) => {
 					id: tagsTable.id,
 					label: tagsTable.label,
 					notes: tagsTable.notes,
-					params: tagsTable.params,
+					data: tagsTable.data,
 				},
 			})
 			.from(linesTable)

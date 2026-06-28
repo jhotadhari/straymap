@@ -5,7 +5,7 @@ export interface Tag {
 	id: number;
 	label: string | null;
 	notes: string | null;
-	params: any; // ??? any
+	data: any; // ??? any
 }
 
 export const STATS_FIELDS = [
@@ -25,6 +25,7 @@ export interface Line {
 	envelope: Polygon;
 	timestamp: string;
 	tags: Tag[];
+	data: any; // ??? any
 	stats: LineStats;
 }
 
