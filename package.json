@@ -19,7 +19,7 @@
     "clean": "react-native-clean-project",
     "start": "react-native start",
     "typecheck": "tsc",
-    "sortI18n": "./scripts/sortI18n.js",
+    "sortI18n": "./scripts/sortI18n/index.js",
     "test": "jest",
     "format": "prettier . --write",
     "publish": "bash ./scripts/publish.sh",
