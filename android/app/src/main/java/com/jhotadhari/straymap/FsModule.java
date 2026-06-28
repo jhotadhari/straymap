@@ -45,22 +45,40 @@ public class FsModule extends NativeFsModuleSpec {
         return NAME;
     }
 
+	protected boolean isAtLeastO() {
+		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.O;
+	}
+
+	protected WritableMap createMap() {
+		return new WritableNativeMap();
+	}
+
+	protected WritableArray createArray() {
+		return new WritableNativeArray();
+	}
+
+	protected MatchExtensionsPredicate createPredicate(String[] extensions) {
+		return new MatchExtensionsPredicate(extensions);
+	}
+
     @ReactMethod
     public void getInfo( String navDir, @Nullable ReadableArray extensions, boolean recursive, Promise promise ) {
         try {
-            WritableMap response = new WritableNativeMap();
+            WritableMap response = createMap();
             File path = new File( navDir );
 
             // navParent
 			response.putString( "navParent", String.valueOf( path.getParent() ) );
 
-			String[] extensionsStrings = extensions.toArrayList().toArray( new String[ 0 ] );
+			String[] extensionsStrings = extensions != null
+				? extensions.toArrayList().toArray( new String[ 0 ] )
+				: new String[ 0 ];
 
             // navChildren
-            WritableArray navChildrenArray = new WritableNativeArray();
+            WritableArray navChildrenArray = createArray();
 			this.walk(
 				path,
-				new MatchExtensionsPredicate( extensionsStrings ),
+				createPredicate( extensionsStrings ),
 				recursive,
 				new FileHandler() {
 					@Override
@@ -69,7 +87,7 @@ public class FsModule extends NativeFsModuleSpec {
 							path.toString() + '/',
 							""
 						).split( "/" ).length - 1;
-						WritableMap fileInfoMap = new WritableNativeMap();
+						WritableMap fileInfoMap = createMap();
 						fileInfoMap.putString( "name", file.toString() );
 						fileInfoMap.putInt( "depth", depth );
 						fileInfoMap.putBoolean( "isDir", file.isDirectory() );
@@ -91,8 +109,13 @@ public class FsModule extends NativeFsModuleSpec {
 
 	protected void walk( File startPath, MatchExtensionsPredicate filter, Boolean recursive, FileHandler handler ) {
 		if ( startPath.isDirectory() ) {
+			// shouldWalk starts as `recursive` — if true, we will descend into
+			// subdirectories UNLESS a matching file is found at the current
+			// level.  This is intentional: a match here means "stop, don't go
+			// deeper."  Future: replace the implicit boolean with an explicit
+			// option flag (e.g. stopOnFirstMatch) passed from the JS side.
 			boolean shouldWalk = recursive;
-			if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ) {
+			if ( isAtLeastO() ) {
 				File[] files = startPath.listFiles();
 				assert files != null;
 				for (File file : files) {
@@ -126,24 +149,24 @@ public class FsModule extends NativeFsModuleSpec {
     @ReactMethod
     public void getCacheInfo( Promise promise ) {
         try {
-			WritableArray responseCacheDirs = new WritableNativeArray();
+			WritableArray responseCacheDirs = createArray();
 			List<File> cacheDirs = new ArrayList<>();
 			cacheDirs.add( getReactApplicationContext().getCacheDir() );
 			Collections.addAll( cacheDirs, getReactApplicationContext().getExternalCacheDirs() );
 			// Loop cache dirs.
 			for ( int i = 0; i < cacheDirs.size(); i++ ) {
 				File cacheDir = cacheDirs.get( i );
-				WritableMap fileMap = new WritableNativeMap();
+				WritableMap fileMap = createMap();
 				fileMap.putString( "path", cacheDir.toString() );
 				// Loop cacheSubDirs.
-				WritableArray caches = new WritableNativeArray();
+				WritableArray caches = createArray();
 				File[] cacheSubDirs = cacheDir.listFiles();
 				if ( null != cacheSubDirs ) {
 					for ( File cacheSubDir : cacheSubDirs ) {
 						if ( ! cacheSubDir.isDirectory() ) {
 							continue;
 						}
-						WritableMap fileInfoMap = new WritableNativeMap();
+						WritableMap fileInfoMap = createMap();
 						String readableSize = getReadableSize( FileUtils.sizeOfDirectory( cacheSubDir ) );
 						fileInfoMap.putString( "basename", cacheSubDir.toString().replace( cacheDir.toString() + "/", "" ) );
 						fileInfoMap.putString( "readableSize", readableSize );
@@ -166,7 +189,7 @@ public class FsModule extends NativeFsModuleSpec {
 		}
 		String[] units = new String[] { "B", "KB", "MB", "GB", "TB" };
 		int unitIndex = (int) (Math.log10(size) / 3);
-		double unitValue = 1 << (unitIndex * 10);
+		double unitValue = 1L << (unitIndex * 10);
 		return new DecimalFormat("#,##0.#")
 				.format(size / unitValue) + " "
 				+ units[unitIndex];

@@ -1832,6 +1832,13 @@
     slash "^3.0.0"
     strip-ansi "^6.0.0"
 
+"@jest/create-cache-key-function@^29.7.0":
+  version "29.7.0"
+  resolved "https://registry.yarnpkg.com/@jest/create-cache-key-function/-/create-cache-key-function-29.7.0.tgz#793be38148fab78e65f40ae30c36785f4ad859f0"
+  integrity sha512-4QqS3LY5PBmTRHj9sAg1HLoPzqAI0uOX6wI/TRqHIcOxlFidy6YEmCQJk6FSZjNLGCeubDMfmkWL+qaLKhSGQA==
+  dependencies:
+    "@jest/types" "^29.6.3"
+
 "@jest/environment@^29.7.0":
   version "29.7.0"
   resolved "https://registry.yarnpkg.com/@jest/environment/-/environment-29.7.0.tgz#24d61f54ff1f786f3cd4073b4b94416383baf2a7"
@@ -2473,6 +2480,17 @@
   version "0.86.0"
   resolved "https://registry.yarnpkg.com/@react-native/gradle-plugin/-/gradle-plugin-0.86.0.tgz#a712a39ac1514e72740764440ecd763a17ef500f"
   integrity sha512-a1RcfaEDqWExCGfCwadIxt4l8FvKYgFqeMf2uzeKyAOnb+vTGNIeCvifFL2MqvgaeYxlER437HbMIajGcuJ1pQ==
+
+"@react-native/jest-preset@^0.86.0":
+  version "0.86.0"
+  resolved "https://registry.yarnpkg.com/@react-native/jest-preset/-/jest-preset-0.86.0.tgz#928a3aeb78816be436cf9831c010258d503a31f3"
+  integrity sha512-KA+xpIP3DvJy7PQJ9c6ZdEKkOPChl+Rk/rV2MhQACEAzfhWU84407KZQv4ccyO3B4caD0gPrFjE96a4P993nsQ==
+  dependencies:
+    "@jest/create-cache-key-function" "^29.7.0"
+    "@react-native/js-polyfills" "0.86.0"
+    babel-jest "^29.7.0"
+    jest-environment-node "^29.7.0"
+    regenerator-runtime "^0.13.2"
 
 "@react-native/js-polyfills@0.86.0":
   version "0.86.0"
