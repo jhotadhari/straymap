@@ -112,7 +112,7 @@ export const saveToStorage = (baseMapState: BaseMapState, actionType: string) =>
 	if (__DEV__ && globalThis.shouldLog.saveToStorage) {
 		console.log('DEBUG saveToStorage', settingsKey, actionType, settingsToSave);
 	}
-	DefaultPreference.set(settingsKey, JSON.stringify(settingsToSave));
+	return DefaultPreference.set(settingsKey, JSON.stringify(settingsToSave));
 };
 
 /**
@@ -134,6 +134,10 @@ startAppListening({
 		if (action.payload?.temp) {
 			return;
 		}
-		saveToStorage(listenerApi.getState().baseMap, action.type);
+		try {
+			await saveToStorage(listenerApi.getState().baseMap, action.type);
+		} catch (err) {
+			logError('saveToStorage', err);
+		}
 	},
 });

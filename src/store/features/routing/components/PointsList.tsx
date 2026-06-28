@@ -239,12 +239,12 @@ const DraggableItem: FC<{
 	const mutationOptions: UseMutationOptions<void, Error, number, void> = useMemo(
 		() => ({
 			mutationFn: deleteRoutingPoint,
-			onMutate: async (_, context) => {
-				await context.client.cancelQueries({ queryKey: ['route', routeId] });
+			onMutate: async () => {
+				await dbConnection.queryClient!.cancelQueries({ queryKey: ['route', routeId] });
 				setIsDeleting(true);
 			},
-			onSuccess: async (_result, _variables, _onMutateResult, context) => {
-				await context.client.invalidateQueries({ queryKey: ['route', routeId] });
+			onSuccess: async () => {
+				await dbConnection.queryClient!.invalidateQueries({ queryKey: ['route', routeId] });
 				dbConnection?.queryClient && dispatch(processRouting(dbConnection.queryClient));
 			},
 			onSettled: () => {
@@ -338,12 +338,12 @@ const PointsList: FC = () => {
 				updateRoute(routeId, {
 					point_order: newPoints.map((p) => p.id),
 				}),
-			onMutate: async (newPoints, context) => {
-				await context.client.cancelQueries({ queryKey: ['route', routeId] });
+			onMutate: async (newPoints) => {
+				await dbConnection.queryClient!.cancelQueries({ queryKey: ['route', routeId] });
 				setOptimisticPoints(newPoints);
 			},
-			onSuccess: async (_result, _variables, _onMutateResult, context) => {
-				await context.client.invalidateQueries({ queryKey: ['route', routeId] });
+			onSuccess: async () => {
+				await dbConnection.queryClient!.invalidateQueries({ queryKey: ['route', routeId] });
 				dbConnection?.queryClient && dispatch(processRouting(dbConnection.queryClient));
 			},
 			onSettled: () => {

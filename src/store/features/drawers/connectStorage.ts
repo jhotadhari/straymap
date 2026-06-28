@@ -85,7 +85,7 @@ export const saveToStorage = (drawersState: DrawersState, actionType: string) =>
 	if (__DEV__ && globalThis.shouldLog.saveToStorage) {
 		console.log('DEBUG saveToStorage', settingsKey, actionType, settingsToSave);
 	}
-	DefaultPreference.set(settingsKey, JSON.stringify(settingsToSave));
+	return DefaultPreference.set(settingsKey, JSON.stringify(settingsToSave));
 };
 
 /**
@@ -95,6 +95,10 @@ export const saveToStorage = (drawersState: DrawersState, actionType: string) =>
 startAppListening({
 	matcher: isAnyOf(setControlHandleSide, setItemKeys, addItemKey, removeItemKey),
 	effect: async (action, listenerApi) => {
-		saveToStorage(listenerApi.getState().drawers, action.type);
+		try {
+			await saveToStorage(listenerApi.getState().drawers, action.type);
+		} catch (err) {
+			logError('saveToStorage', err);
+		}
 	},
 });

@@ -4,11 +4,21 @@
  * ErrorToastProvider registers its showError as the handler on mount.
  */
 let handler: ((message: string) => void) | null = null;
+const queue: string[] = [];
 
 export const registerErrorToastHandler = (fn: ((message: string) => void) | null) => {
 	handler = fn;
+	if (fn) {
+		while (queue.length) {
+			fn(queue.shift()!);
+		}
+	}
 };
 
 export const showErrorToast = (message: string) => {
-	handler?.(message);
+	if (handler) {
+		handler(message);
+	} else {
+		queue.push(message);
+	}
 };

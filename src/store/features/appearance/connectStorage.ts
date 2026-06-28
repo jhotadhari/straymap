@@ -68,7 +68,7 @@ export const saveToStorage = (appearanceState: AppearanceState, actionType: stri
 	if (__DEV__ && globalThis.shouldLog.saveToStorage) {
 		console.log('DEBUG saveToStorage', settingsKey, actionType, settingsToSave);
 	}
-	DefaultPreference.set(settingsKey, JSON.stringify(settingsToSave));
+	return DefaultPreference.set(settingsKey, JSON.stringify(settingsToSave));
 };
 
 /**
@@ -78,6 +78,10 @@ export const saveToStorage = (appearanceState: AppearanceState, actionType: stri
 startAppListening({
 	matcher: isAnyOf(setTheme, setCursorAction),
 	effect: async (action, listenerApi) => {
-		saveToStorage(listenerApi.getState().appearance, action.type);
+		try {
+			await saveToStorage(listenerApi.getState().appearance, action.type);
+		} catch (err) {
+			logError('saveToStorage', err);
+		}
 	},
 });

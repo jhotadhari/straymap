@@ -1,12 +1,7 @@
 /**
- * External dependencies
- */
-import { ActionCreatorWithPayload } from '@reduxjs/toolkit';
-
-/**
  * Internal dependencies
  */
-import { RootState, AppThunk, AppStore } from './store';
+import { AppStore } from './store';
 import { initializeFromStorage as initializeFromStorage_dbLoader } from './features/dbLoader/connectStorage';
 import { initializeFromStorage as initializeFromStorage_updater } from './features/updater/connectStorage';
 import { initializeFromStorage as initializeFromStorage_lang } from './features/lang/connectStorage';
@@ -29,18 +24,3 @@ export const initializeAppState = async (store: AppStore) => {
 	}
 };
 
-export const getSetterThunkWithGetter = <T>(
-	selector: (state: RootState) => T,
-	setter: ActionCreatorWithPayload<T, any>
-) => {
-	return (newValueOrGetter: T | ((currentValue: T) => T)): AppThunk => {
-		return (dispatch, getState) => {
-			const currentValue = selector(getState());
-			const newValue: T =
-				newValueOrGetter instanceof Function
-					? newValueOrGetter(currentValue)
-					: newValueOrGetter;
-			dispatch(setter(newValue));
-		};
-	};
-};

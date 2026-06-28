@@ -18,6 +18,7 @@ import { useAppDispatch } from '../../../hooks';
 import { sharedStyles } from '../../../../sharedStyles';
 import { setIsRouting } from '../../routing/slice';
 import { deleteLines } from '../db/actionsLine';
+import { dbConnection } from '../../dbLoader/DBConnection';
 
 const useDeleteLinesCbModal = ({
 	deleteIdsOrId,
@@ -66,24 +67,24 @@ const useDeleteLinesCbModal = ({
 	const mutationOptions: UseMutationOptions<void, Error, number[] | undefined, void> = useMemo(
 		() => ({
 			mutationFn: (ids?: number[]) => deleteLines(ids),
-			onMutate: async (_, context) => {
-				await context.client.cancelQueries({ queryKey: ['lines'] });
+			onMutate: async () => {
+				await dbConnection.queryClient!.cancelQueries({ queryKey: ['lines'] });
 				await Promise.all(
 					deleteIds.map(async (id) => {
-						await context.client.cancelQueries({ queryKey: ['lineGeom', id] });
+						await dbConnection.queryClient!.cancelQueries({ queryKey: ['lineGeom', id] });
 					})
 				);
 				if (includesRoute) {
-					await context.client.cancelQueries({ queryKey: ['route', routeId] });
+					await dbConnection.queryClient!.cancelQueries({ queryKey: ['route', routeId] });
 					await Promise.all(
 						deleteIds.map(async (id) => {
-							await context.client.cancelQueries({ queryKey: ['routeForLine', id] });
+							await dbConnection.queryClient!.cancelQueries({ queryKey: ['routeForLine', id] });
 						})
 					);
 				}
 			},
-			onSuccess: async (_result, _variables, _onMutateResult, context) => {
-				await context.client.invalidateQueries({ queryKey: ['lines'] });
+			onSuccess: async () => {
+				await dbConnection.queryClient!.invalidateQueries({ queryKey: ['lines'] });
 				// Close modal.
 				handleDismissModal();
 				// Call onSuccess (eg LinesTable uncheck lines).

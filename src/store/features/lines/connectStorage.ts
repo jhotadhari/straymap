@@ -60,7 +60,7 @@ export const saveToStorage = (linesState: LinesState, actionType: string) => {
 	if (__DEV__ && globalThis.shouldLog.saveToStorage) {
 		console.log('DEBUG saveToStorage', settingsKey, actionType, settingsToSave);
 	}
-	DefaultPreference.set(settingsKey, JSON.stringify(settingsToSave));
+	return DefaultPreference.set(settingsKey, JSON.stringify(settingsToSave));
 };
 
 /**
@@ -70,6 +70,10 @@ export const saveToStorage = (linesState: LinesState, actionType: string) => {
 startAppListening({
 	matcher: isAnyOf(setSelected),
 	effect: async (action, listenerApi) => {
-		saveToStorage(listenerApi.getState().lines, action.type);
+		try {
+			await saveToStorage(listenerApi.getState().lines, action.type);
+		} catch (err) {
+			logError('saveToStorage', err);
+		}
 	},
 });

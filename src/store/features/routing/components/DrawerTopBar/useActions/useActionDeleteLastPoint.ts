@@ -29,11 +29,11 @@ const useActionDeleteLastPoint = ({
 	const mutationOptions: UseMutationOptions<void, Error, number | undefined, void> = useMemo(
 		() => ({
 			mutationFn: (id?: number) => deleteRoutingPoint(id),
-			onMutate: async (_, context) => {
-				await context.client.cancelQueries({ queryKey: ['route', routeId] });
+			onMutate: async () => {
+				await dbConnection.queryClient!.cancelQueries({ queryKey: ['route', routeId] });
 			},
-			onSuccess: async (_result, _variables, _onMutateResult, context) => {
-				await context.client.invalidateQueries({ queryKey: ['route', routeId] });
+			onSuccess: async () => {
+				await dbConnection.queryClient!.invalidateQueries({ queryKey: ['route', routeId] });
 				dbConnection?.queryClient && dispatch(processRouting(dbConnection.queryClient));
 			},
 		}),

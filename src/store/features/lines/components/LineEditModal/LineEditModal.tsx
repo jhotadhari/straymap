@@ -18,6 +18,7 @@ import { selectLineTemp } from '../../selectors';
 import { setLineTemp } from '../../slice';
 import { LineEditModalContext } from './Context';
 import { sharedStyles } from './sharedDeps';
+import { dbConnection } from '../../../dbLoader/DBConnection';
 import RowDelete from './RowDelete';
 import RowName from './RowName';
 import RowRouting from './RowRouting';
@@ -47,16 +48,16 @@ const LineEditModal: FC<{
 		() => ({
 			mutationFn: (newLinePartial: LinePartial) =>
 				updateLine(newLinePartial?.id, newLinePartial),
-			onMutate: async (_, context) => {
-				await context.client.cancelQueries({ queryKey: ['lines'] });
+			onMutate: async () => {
+				await dbConnection.queryClient!.cancelQueries({ queryKey: ['lines'] });
 				if (route?.id) {
-					await context.client.cancelQueries({ queryKey: ['route', route?.id] });
+					await dbConnection.queryClient!.cancelQueries({ queryKey: ['route', route?.id] });
 				}
 			},
-			onSuccess: async (_, _variables, _onMutateResult, context) => {
-				await context.client.invalidateQueries({ queryKey: ['lines'] });
+			onSuccess: async () => {
+				await dbConnection.queryClient!.invalidateQueries({ queryKey: ['lines'] });
 				if (route?.id) {
-					await context.client.invalidateQueries({ queryKey: ['route', route?.id] });
+					await dbConnection.queryClient!.invalidateQueries({ queryKey: ['route', route?.id] });
 				}
 			},
 			onSettled: () => {

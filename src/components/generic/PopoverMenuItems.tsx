@@ -15,9 +15,10 @@ const PopoverMenuItem: FC<{
 	const disabled = opt?.disabled ? opt?.disabled() : false;
 
 	const handlePress = useCallback(() => {
+		if (disabled) return;
 		opt.cb();
 		onPress && onPress();
-	}, [opt, onPress]);
+	}, [opt, onPress, disabled]);
 
 	return (
 		<MenuItem

@@ -76,7 +76,7 @@ export const saveToStorage = (langState: LangState, actionType: string) => {
 	if (__DEV__ && globalThis.shouldLog.saveToStorage) {
 		console.log('DEBUG saveToStorage', settingsKey, actionType, settingsToSave);
 	}
-	DefaultPreference.set(settingsKey, JSON.stringify(settingsToSave));
+	return DefaultPreference.set(settingsKey, JSON.stringify(settingsToSave));
 };
 
 /**
@@ -86,6 +86,10 @@ export const saveToStorage = (langState: LangState, actionType: string) => {
 startAppListening({
 	matcher: isAnyOf(setLang),
 	effect: async (action, listenerApi) => {
-		saveToStorage(listenerApi.getState().lang, action.type);
+		try {
+			await saveToStorage(listenerApi.getState().lang, action.type);
+		} catch (err) {
+			logError('saveToStorage', err);
+		}
 	},
 });

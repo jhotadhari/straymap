@@ -11,6 +11,7 @@ import { createRoute, deleteRoute } from '../../db/actionsRoute';
 import DrawerContext from '../../../drawers/DrawerContext';
 import { useAppDispatch } from '../../../../hooks';
 import { setIsRouting } from '../../slice';
+import { dbConnection } from '../../../dbLoader/DBConnection';
 
 const useToggleRouting = ({
 	routeId,
@@ -46,14 +47,14 @@ const useToggleRouting = ({
 	const deleteMutationOptions: UseMutationOptions = useMemo(
 		() => ({
 			mutationFn: () => deleteRoute(routeId),
-			onMutate: async (_, context) => {
-				await context.client.cancelQueries({ queryKey: ['route', routeId] });
+			onMutate: async () => {
+				await dbConnection.queryClient!.cancelQueries({ queryKey: ['route', routeId] });
 				setIsToggling(true);
 			},
-			onSuccess: async (_, _variables, _onMutateResult, context) => {
+			onSuccess: async () => {
 				expand(false);
 				dispatch(setIsRouting(false));
-				await context.client.invalidateQueries({ queryKey: ['route', routeId] });
+				await dbConnection.queryClient!.invalidateQueries({ queryKey: ['route', routeId] });
 			},
 			onSettled: () => {
 				setIsToggling(false);

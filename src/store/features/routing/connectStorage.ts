@@ -72,7 +72,7 @@ export const saveToStorage = (routingState: RoutingState, actionType: string) =>
 	if (__DEV__ && globalThis.shouldLog.saveToStorage) {
 		console.log('DEBUG saveToStorage', settingsKey, actionType, settingsToSave);
 	}
-	DefaultPreference.set(settingsKey, JSON.stringify(settingsToSave));
+	return DefaultPreference.set(settingsKey, JSON.stringify(settingsToSave));
 };
 
 /**
@@ -82,7 +82,11 @@ export const saveToStorage = (routingState: RoutingState, actionType: string) =>
 startAppListening({
 	matcher: isAnyOf(setIsRoutingAction, setRoutingLineId),
 	effect: async (action, listenerApi) => {
-		saveToStorage(listenerApi.getState().routing, action.type);
+		try {
+			await saveToStorage(listenerApi.getState().routing, action.type);
+		} catch (err) {
+			logError('saveToStorage', err);
+		}
 	},
 });
 

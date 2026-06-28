@@ -63,10 +63,8 @@ export const withDbTransaction = async <T>(callback: (exec: ExecFn) => Promise<T
 					const { sql, params } = query.toSQL();
 					return tx.execute(sql, params as Scalar[]);
 				});
-				await tx.commit();
 				resolve(result);
 			} catch (error) {
-				await tx.rollback();
 				reject(error);
 			}
 		});

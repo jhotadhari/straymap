@@ -96,11 +96,11 @@ const EditPointModal: FC<{
 				updateRoutingPoint(editPoint.id, {
 					profile: profile,
 				}),
-			onMutate: async (_, context) => {
-				await context.client.cancelQueries({ queryKey: ['route', routeId] });
+			onMutate: async () => {
+				await dbConnection.queryClient!.cancelQueries({ queryKey: ['route', routeId] });
 			},
-			onSuccess: async (_result, _variables, _onMutateResult, context) => {
-				await context.client.invalidateQueries({ queryKey: ['route', routeId] });
+			onSuccess: async () => {
+				await dbConnection.queryClient!.invalidateQueries({ queryKey: ['route', routeId] });
 				dispatch(deleteSegmentByKeyVal('fromId', editPoint.id));
 				dbConnection?.queryClient && dispatch(processRouting(dbConnection?.queryClient));
 				setEditPoint(undefined);

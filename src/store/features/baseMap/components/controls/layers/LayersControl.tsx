@@ -532,7 +532,7 @@ const LayersControl: FC<{
 				onPress={handleAccordionPress}
 				titleStyle={theme.fonts.bodyMedium}
 			>
-				{layers.length && (
+				{layers.length > 0 && (
 					<View style={[styleAccordion, sharedStylesBaseMapControls.grid]}>
 						<Sortable.Flex
 							itemEntering={null}
