@@ -58,17 +58,50 @@ export const fetchRoutes = (params?: FetchRoutesParams): Promise<Route[]> => {
 			with: {
 				route: {
 					with: {
-						line: true,
+						line: {
+							// Only select non-BLOB columns — json_array()
+							// in the RQB subquery can't hold BLOB values
+							// (lines.geometry is a spatial BLOB).
+							columns: {
+								id: true,
+							},
+						},
 					},
 				},
 			},
 			where: and(
-				routeId ? eq(routesTable.id, routeId) : undefined,
+				routeId ? eq(routingPointsTable.route_id, routeId) : undefined,
 				pointId ? eq(routingPointsTable.id, pointId) : undefined,
 				lineId ? eq(routesTable.line_id, lineId) : undefined
 			),
 		})
 		.then((rows) => {
+			// The RQB query starts from routingPointsTable with a join to
+			// routesTable.  When a route has zero points the join produces
+			// zero rows — the route is invisible.  Fall back to a direct
+			// route lookup so callers know the route exists.
+			if (!rows.length && routeId) {
+				return dbConnection
+					.drizzle!.select({
+						id: routesTable.id,
+						timestamp: routesTable.timestamp,
+						point_order: routesTable.point_order,
+						line_id: routesTable.line_id,
+					})
+					.from(routesTable)
+					.where(eq(routesTable.id, routeId as number))
+					.limit(1)
+					.then((routes) =>
+						routes.map(
+							(r): Route => ({
+								...r,
+								stats: {},
+								points: [],
+							})
+						)
+					);
+			}
+
 			// Aggregate flat rows back into routes (RQB nested the line
 			// inside route but the base is still per-point).
 			const aggregated = Object.values(

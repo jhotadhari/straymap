@@ -184,7 +184,6 @@ const fetchLinesWithTags = (params?: FetchLinesWithTagsParams) => {
 		lineIds, //
 		allLines,
 		tagId,
-		allTags,
 		limit,
 		fieldsInclude,
 		fieldsExclude,
@@ -218,6 +217,10 @@ const fetchLinesWithTags = (params?: FetchLinesWithTagsParams) => {
 			reject('ERROR dbZ undefined');
 			return;
 		}
+
+		// Start from linesTable and LEFT JOIN outwards.  Avoids RIGHT
+		// JOIN, which is not supported by the SQLite version shipped
+		// on Android ≤ 13 (SQLite < 3.39.0).
 		const query = dbConnection.drizzle
 			.select({
 				line: getLineColumns(fields, { simplify }),
@@ -228,18 +231,15 @@ const fetchLinesWithTags = (params?: FetchLinesWithTagsParams) => {
 					params: tagsTable.params,
 				},
 			})
-			.from(tagsToLinesTable);
-
-		if (allLines) {
-			query.rightJoin(linesTable, eq(tagsToLinesTable.line_id, linesTable.id));
-		} else {
-			query.leftJoin(linesTable, eq(tagsToLinesTable.line_id, linesTable.id));
-		}
-		if (allTags) {
-			query.rightJoin(tagsTable, eq(tagsToLinesTable.tag_id, tagsTable.id));
-		} else {
-			query.leftJoin(tagsTable, eq(tagsToLinesTable.tag_id, tagsTable.id));
-		}
+			.from(linesTable)
+			.leftJoin(
+				tagsToLinesTable,
+				eq(tagsToLinesTable.line_id, linesTable.id)
+			)
+			.leftJoin(
+				tagsTable,
+				eq(tagsToLinesTable.tag_id, tagsTable.id)
+			);
 
 		query.where(
 			and(
@@ -260,25 +260,23 @@ const fetchLinesWithTags = (params?: FetchLinesWithTagsParams) => {
 
 		query
 			.then(
-				(
-					rows: {
-						line: {
-							id: number;
-							title?: string | null;
-							timestamp?: string;
-							geometryGeoJSON?: string;
-							envelopeGeoJSON?: string;
-							length?: string;
-							uphill?: string;
-							downhill?: string;
-							minZ?: string;
-							maxZ?: string;
-						};
-						tag: Tag;
-					}[]
-				) => {
+				(rows) => {
 					const aggregated = Array.from(
-						rows
+						(rows as {
+							line: {
+								id: number;
+								title?: string | null;
+								timestamp?: string;
+								geometryGeoJSON?: string;
+								envelopeGeoJSON?: string;
+								length?: string;
+								uphill?: string;
+								downhill?: string;
+								minZ?: string;
+								maxZ?: string;
+							};
+							tag: Tag | null;
+						}[])
 							.reduce<
 								Map<
 									number, // line.id

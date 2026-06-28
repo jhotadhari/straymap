@@ -36,12 +36,10 @@ const DrawerTopBar: FC = () => {
 		id: routeId,
 		line_id: routingLineId,
 		points,
-		point_order: pointIds,
 	} = useRoute([
 		'id',
 		'line_id',
 		'points',
-		'point_order',
 	]) || {};
 
 	const { data: line } = useQuery({
@@ -51,9 +49,7 @@ const DrawerTopBar: FC = () => {
 	});
 
 	const { isToggling, handleToggleRouting } = useToggleRouting({
-		pointIds,
 		routeId,
-		routingLineId,
 	});
 
 	const actions = useActions({

@@ -274,7 +274,7 @@ const RoutingActionsButton: FC<{
 				isVisible={menuVisible}
 				placement={PopoverPlacement.BOTTOM}
 				onRequestClose={dismissMenu}
-				from={anchorRef}
+				from={anchorRef as React.RefObject<React.Component<{}, {}, any>>}
 				animationConfig={animationConfig}
 			>
 				<ScrollView>{menuVisible && <PopoverMenuItems options={options} />}</ScrollView>

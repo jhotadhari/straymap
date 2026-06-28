@@ -85,7 +85,7 @@ const BulkActions: FC = () => {
 				isVisible={menuVisible}
 				placement={PopoverPlacement.TOP}
 				onRequestClose={dismissMenu}
-				from={anchorRef}
+				from={anchorRef as React.RefObject<React.Component<{}, {}, any>>}
 				animationConfig={animationConfig}
 			>
 				<ScrollView>

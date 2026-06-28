@@ -23,6 +23,7 @@ import { QueryClient } from '@tanstack/react-query';
 
 export interface RoutingSettings {
 	isRouting: false | number; // false or routeId.
+	routingLineId: null | number;
 }
 
 export interface RoutingState extends SliceSettingsBase, RoutingSettings {
@@ -34,6 +35,7 @@ export interface RoutingState extends SliceSettingsBase, RoutingSettings {
 
 export const initialSettings: RoutingSettings = {
 	isRouting: false,
+	routingLineId: null,
 };
 
 const initialState: RoutingState = {
@@ -54,6 +56,10 @@ export const routingSlice = createSlice({
 		setIsRouting: (state, action: PayloadAction<RoutingState['isRouting']>) => {
 			state.segments = {};
 			state.isRouting = action.payload;
+			state.routingLineId = null;
+		},
+		setRoutingLineId: (state, action: PayloadAction<RoutingState['routingLineId']>) => {
+			state.routingLineId = action.payload;
 		},
 		setSegment: (state, action: PayloadAction<RoutingSegment>) => {
 			const segmentRecordId = getSegmentRecordId(action.payload);
@@ -75,6 +81,7 @@ export const routingSlice = createSlice({
 export const {
 	setInitialized,
 	setIsRouting: setIsRoutingAction,
+	setRoutingLineId,
 	setSegment,
 	deleteSegments,
 } = routingSlice.actions;
@@ -236,20 +243,21 @@ export const processRouting = (
 						},
 						Promise.resolve({} as Record<string, RoutingSegment>)
 					)
-					.then((newSegments) => {
-						resolveOuter(newSegments);
+					.then((newSegments) => {						resolveOuter(newSegments);
 					});
 			}
-		);
-
-		if (routeId) {
+		);		if (routeId) {
 			if (false !== options?.updateLine) {
 				const { lineId, isNew } = await updateLineFromSegments(
 					routeId,
 					Object.values(updatedSegments),
 					queryClient
-				);
+				);				// Invalidate the route query BEFORE dispatching
+				// setLineSelected so LinesMapView sees the updated
+				// routingLineId and can skip the routing line.
+				await queryClient.invalidateQueries({ queryKey: ['route', routeId] });
 				if (lineId) {
+					dispatch(setRoutingLineId(lineId));
 					dispatch(setLineSelected(lineId, true));
 					await queryClient.invalidateQueries({ queryKey: ['lineGeom', lineId] });
 					await queryClient.invalidateQueries({ queryKey: ['lines', [lineId]] });
@@ -257,8 +265,17 @@ export const processRouting = (
 				if (isNew) {
 					await queryClient.invalidateQueries({ queryKey: ['lines'], exact: true });
 				}
+			} else {
+				// On restore from persistence (updateLine: false),
+				// re-select the routing line so it appears in the list.
+				const { routingLineId } = getState().routing;
+				if (routingLineId) {
+					dispatch(setLineSelected(routingLineId, true));
+					await queryClient.invalidateQueries({ queryKey: ['lineGeom', routingLineId] });
+					await queryClient.invalidateQueries({ queryKey: ['lines', [routingLineId]] });
+				}
+				await queryClient.invalidateQueries({ queryKey: ['route', routeId] });
 			}
-			await queryClient.invalidateQueries({ queryKey: ['route', routeId] });
 		}
 	};
 };

@@ -148,3 +148,50 @@ was an explicit decision, not an oversight.
   calls) to verify the tag exists before linking it — fine at current scale, but if bulk
   imports become a thing, consider a single `WHERE tag_id IN (...)` lookup instead of N
   selects.
+
+## Persistence pattern (Redux ↔ DefaultPreference)
+
+Every feature slice follows the same convention for persisting settings across app restarts:
+
+1. **`slice.ts`** defines an `initialSettings` object with the subset of state that should
+   survive app restarts (e.g. `isRouting`, `selected`, `mapEventRate`).  Only keys listed in
+   `initialSettings` are persisted — everything else in the slice state is ephemeral.
+
+2. **`connectStorage.ts`** (one per feature, e.g. `lines/connectStorage.ts`,
+   `routing/connectStorage.ts`) provides three pieces:
+   - **`initializeFromStorage(store)`** — called during app init (`store/utils.ts` →
+     `initializeAppState`).  Reads the persisted JSON blob from
+     `react-native-default-preference`, parses it, and dispatches the appropriate Redux
+     actions to restore the saved settings.  Only runs once (gated by `selectInitialized`).
+   - **`saveToStorage(state, actionType)`** — compares every key in `initialSettings`
+     against its initial value and writes the diff to `DefaultPreference`.  Called by the
+     listener middleware whenever a tracked action fires.
+   - **Listener middleware** (`startAppListening`) — watches for the actions that mutate
+     settings (using `isAnyOf(...)` or `actionCreator`) and calls `saveToStorage` after
+     the reducer has updated state.
+
+3. **`index.ts`** (the feature's `AppFeature` export) includes `initializeFromStorage` so
+   the app-init sequence knows to call it.
+
+### Adding a new persisted setting
+
+1. Add the field to the `*Settings` interface and to `initialSettings` in `slice.ts`.
+2. Add a reducer for it (if it doesn't already exist).
+3. Add the new action to the `isAnyOf(...)` matcher in `connectStorage.ts`'s
+   `startAppListening` call so changes trigger a save.
+4. If the setting needs to be restored on app start, add the corresponding dispatch to
+   `initializeFromStorage`.
+
+### Concrete example: `routingSettings`
+
+```
+initialSettings = { isRouting: false, routingLineId: null }
+                              ↓
+         saveToStorage compares state.routing.isRouting / state.routing.routingLineId
+         against initialSettings, persists any differences to 'routingSettings'
+                              ↓
+         Listener: isAnyOf(setIsRoutingAction, setRoutingLineId) → saveToStorage
+                              ↓
+         On app start: initializeFromStorage reads 'routingSettings',
+         dispatches setIsRoutingAction + setRoutingLineId to restore
+```

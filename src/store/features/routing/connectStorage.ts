@@ -15,6 +15,7 @@ import {
 	processRouting,
 	setInitialized,
 	setIsRoutingAction,
+	setRoutingLineId,
 } from './slice';
 import { startAppListening } from '../../listenerMiddleware';
 import { selectInitialized } from './selectors';
@@ -37,6 +38,9 @@ export const initializeFromStorage = (store: AppStore) => {
 				const newSettings = JSON.parse(newSettingsStr) as Partial<RoutingState>;
 				if (newSettings?.isRouting) {
 					store.dispatch(setIsRoutingAction(newSettings.isRouting));
+				}
+				if (newSettings?.routingLineId) {
+					store.dispatch(setRoutingLineId(newSettings.routingLineId));
 				}
 			}
 			store.dispatch(setInitialized(true));
@@ -72,11 +76,11 @@ export const saveToStorage = (routingState: RoutingState, actionType: string) =>
 };
 
 /**
- * Listens to action that change settings in this store slice,
+ * Listens to actions that change settings in this store slice,
  * and calls the function to save them to defaultPreferences.
  */
 startAppListening({
-	matcher: isAnyOf(setIsRoutingAction),
+	matcher: isAnyOf(setIsRoutingAction, setRoutingLineId),
 	effect: async (action, listenerApi) => {
 		saveToStorage(listenerApi.getState().routing, action.type);
 	},

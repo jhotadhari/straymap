@@ -1,3 +1,6 @@
+/**
+ * External dependencies
+ */
 import { UseMutationOptions, useMutation } from '@tanstack/react-query';
 import { Feature, Point, GeoJsonProperties } from 'geojson';
 import { useContext, useMemo, useCallback } from 'react';

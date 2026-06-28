@@ -106,7 +106,7 @@ const ListItemMenuControl = ({
 				isVisible={visible}
 				placement={PopoverPlacement.BOTTOM}
 				onRequestClose={handleRequestClose}
-				from={anchorRef}
+				from={anchorRef as React.RefObject<React.Component<{}, {}, any>>}
 			>
 				{options && (
 					<ScrollView>

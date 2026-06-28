@@ -133,7 +133,7 @@ const AppView = ({
 							}
 						: acc;
 				},
-				{ zoomLevel: 2 }
+				{ zoomLevel: 2, center: 2 }
 			) as ResponseInclude,
 		[dashboardItems, dashboardElements]
 	);
