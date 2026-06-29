@@ -114,6 +114,30 @@ export const fetchRoutes = (params?: FetchRoutesParams): Promise<Route[]> => {
 				);
 		}
 
+		// Same fallback for lineId queries — a route with zero points
+		// is invisible through the routingPointsTable left join.
+		if (!rows.length && lineId) {
+			return dbConnection
+				.drizzle!.select({
+					id: routesTable.id,
+					timestamp: routesTable.timestamp,
+					point_order: routesTable.point_order,
+					line_id: routesTable.line_id,
+				})
+				.from(routesTable)
+				.where(eq(routesTable.line_id, lineId))
+				.limit(1)
+				.then((routes) =>
+					routes.map(
+						(r): Route => ({
+							...r,
+							stats: {},
+							points: [],
+						})
+					)
+				);
+		}
+
 		// Aggregate flat rows back into routes.
 		const aggregated = Object.values(
 			rows.reduce<Record<number, Route>>((acc, row) => {
