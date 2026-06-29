@@ -112,7 +112,7 @@ export const deleteSegmentByKeyVal = (key: keyof RoutingSegment, val: any): AppT
 };
 
 const getPointsForRouteId = async (routeId: number | false, queryClient: QueryClient) => {
-	if (!routeId) {
+	if (routeId === false) {
 		return [];
 	}
 	await queryClient.refetchQueries({
@@ -150,11 +150,10 @@ export const processRouting = (
 					return;
 				}
 				const nextPoint = points[pointIdx + 1];
-				const segmentRecordId = [
-					point.id,
-					nextPoint.id,
-				].join('_');
-				return segmentRecordId;
+				return getSegmentRecordId({
+					fromId: point.id,
+					toId: nextPoint.id,
+				});
 			})
 			.filter((a) => undefined !== a);
 		dispatch(
@@ -177,10 +176,10 @@ export const processRouting = (
 
 									const nextPoint = points[pointIdx + 1];
 
-									const segmentRecordId = [
-										point.id,
-										nextPoint.id,
-									].join('_');
+									const segmentRecordId = getSegmentRecordId({
+										fromId: point.id,
+										toId: nextPoint.id,
+									});
 
 									const segment = get(segments, segmentRecordId);
 
@@ -291,7 +290,7 @@ const updateLineFromSegments = async (
 		return {};
 	}
 
-	if (!segments.some((seg) => seg?.positions?.length ?? 0 > 1)) {
+	if (!segments.some((seg) => (seg?.positions?.length ?? 0) > 1)) {
 		// Just get out. no line deletion here. stop-routing will handle that case.
 		return {};
 	}

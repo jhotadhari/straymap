@@ -42,6 +42,7 @@ export const sortI18n = () => {
 						objInputLabel: langPath + lang,
 						objOrderLabel: langPath + FALLBACK_LANGUAGE,
 					},
+					strict: true,
 				});
 				writeFileSync(file, JSON.stringify(dataLangSorted, null, '\t'), 'utf8');
 				writeFileSync(

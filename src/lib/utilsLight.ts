@@ -64,7 +64,7 @@ export const sortDeep = (
 					objInputLabel?: string;
 					objOrderLabel?: string;
 			  };
-		strict?: false; // if strict, will only copy if existing in objOrder
+		strict?: boolean; // if strict, will only copy if existing in objOrder
 	},
 	parentKeys?: string[]
 ): { [key: string]: any } => {

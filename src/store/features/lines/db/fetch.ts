@@ -122,6 +122,7 @@ const getLineColumns = (fields: (keyof Omit<Line, 'id'>)[], options?: LineColumn
 		...(fields.includes('stats') && {
 			maxZ: sql<string>`ST_MaxZ (${linesTable.geometry})`,
 		}),
+		...(fields.includes('data') && { data: linesTable.data }),
 	};
 };
 
@@ -150,7 +151,7 @@ const fetchLinesWithoutTags = (params?: FetchLinesWithoutTagsParams) => {
 
 	return new Promise<LinePartial[]>((resolve, reject) => {
 		if (!dbConnection?.drizzle) {
-			reject('ERROR dbZ undefined');
+			reject(new Error('ERROR dbZ undefined'));
 			return;
 		}
 		const query = dbConnection.drizzle
@@ -214,7 +215,7 @@ const fetchLinesWithTags = (params?: FetchLinesWithTagsParams) => {
 
 	return new Promise<LinePartial[]>((resolve, reject) => {
 		if (!dbConnection?.drizzle) {
-			reject('ERROR dbZ undefined');
+			reject(new Error('ERROR dbZ undefined'));
 			return;
 		}
 

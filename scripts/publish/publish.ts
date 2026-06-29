@@ -65,8 +65,14 @@ function getVersionCode(version: string): number {
 
 	// Pre-release: type offset + number, capped within the patch bucket
 	const preType = (parsed.prerelease[0] as string) ?? '';
-	const preNum = Math.min((parsed.prerelease[1] as number) ?? 0, 32);
-	const typeOffset = PRE_RELEASE_OFFSETS[preType] ?? 99;
+	const preNum = Math.min(Number(parsed.prerelease[1]) || 0, 32);
+	const typeOffset = PRE_RELEASE_OFFSETS[preType];
+	if (typeOffset === undefined) {
+		fatalError(
+			`Unsupported pre-release type "${preType}". ` +
+				'Use one of: alpha, beta, rc.'
+		);
+	}
 
 	return base + typeOffset + preNum;
 }
@@ -276,8 +282,10 @@ async function gitMergeToMain(releaseBranch: string): Promise<void> {
 async function gitTagAndPush(version: string): Promise<void> {
 	const tagName = `v${version}`;
 	await git.addTag(tagName);
-	await git.push();
+	// Push tag first so a network failure between pushes leaves a tag
+	// without the branch commit rather than the branch without the tag.
 	await git.push(['origin', tagName]);
+	await git.push();
 	console.log(pc.green(`Pushed tag ${tagName}`));
 }
 
@@ -320,10 +328,21 @@ function getRepoInfo(): RepoInfo {
 		cwd: ROOT,
 	}).trim();
 
-	// git@github.com:owner/repo.git
+	// git@github.com:owner/repo.git (scp-style SSH)
 	const sshMatch = remoteUrl.match(/git@github\.com:([^/]+)\/(.+?)\.git$/);
 	if (sshMatch) {
 		return { owner: sshMatch[1], repo: sshMatch[2] };
+	}
+
+	// ssh://git@github.com/owner/repo.git (standard SSH protocol)
+	const sshProtocolMatch = remoteUrl.match(
+		/ssh:\/\/git@github\.com\/([^/]+)\/(.+?)(?:\.git)?$/
+	);
+	if (sshProtocolMatch) {
+		return {
+			owner: sshProtocolMatch[1],
+			repo: sshProtocolMatch[2].replace(/\.git$/, ''),
+		};
 	}
 
 	// https://github.com/owner/repo.git
@@ -348,8 +367,13 @@ async function findReleaseByTag(
 			tag,
 		});
 		return { id: data.id };
-	} catch (err: any) {
-		if (err.status === 404) {
+	} catch (err: unknown) {
+		if (
+			err &&
+			typeof err === 'object' &&
+			'status' in err &&
+			(err as { status: number }).status === 404
+		) {
 			return null;
 		}
 		throw err;
