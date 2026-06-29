@@ -7,11 +7,10 @@ import { useMutation, UseMutationOptions } from '@tanstack/react-query';
 /**
  * Internal dependencies
  */
-import { createRoute, deleteRoute } from '../../db/actionsRoute';
+import { createRoute } from '../../db/actionsRoute';
 import DrawerContext from '../../../drawers/DrawerContext';
 import { useAppDispatch } from '../../../../hooks';
 import { setIsRouting } from '../../slice';
-import { dbConnection } from '../../../dbLoader/DBConnection';
 
 const useToggleRouting = ({ routeId }: { routeId?: number }) => {
 	const { expand } = useContext(DrawerContext);
@@ -40,40 +39,37 @@ const useToggleRouting = ({ routeId }: { routeId?: number }) => {
 	);
 	const createRouteMutation = useMutation(createMutationOptions);
 
-	const deleteMutationOptions: UseMutationOptions = useMemo(
+	// Routes and points are persistent — stopping routing only
+	// clears the active routing state, it does not delete data.
+	// The route lives on in the DB and can be re-loaded later
+	// via RowRouting (LineEditModal) or app restore.
+	const stopMutationOptions: UseMutationOptions<void> = useMemo(
 		() => ({
-			mutationFn: () => deleteRoute(routeId),
-			onMutate: async () => {
-				await dbConnection.queryClient!.cancelQueries({ queryKey: ['route', routeId] });
-				setIsToggling(true);
-			},
-			onSuccess: async () => {
+			mutationFn: async () => {
 				expand(false);
 				dispatch(setIsRouting(false));
-				await dbConnection.queryClient!.invalidateQueries({ queryKey: ['route', routeId] });
+			},
+			onMutate: async () => {
+				setIsToggling(true);
 			},
 			onSettled: () => {
 				setIsToggling(false);
 			},
 		}),
-		[
-			dispatch,
-			routeId,
-			expand,
-		]
+		[dispatch, expand]
 	);
-	const deleteMutation = useMutation(deleteMutationOptions);
+	const stopMutation = useMutation(stopMutationOptions);
 
 	const handleToggleRouting = useCallback(() => {
 		if (routeId) {
-			deleteMutation.mutate();
+			stopMutation.mutate();
 		} else {
 			createRouteMutation.mutate();
 		}
 	}, [
 		routeId,
 		createRouteMutation,
-		deleteMutation,
+		stopMutation,
 	]);
 
 	return useMemo(
