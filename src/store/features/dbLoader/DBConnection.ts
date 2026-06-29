@@ -75,7 +75,18 @@ class DBConnection {
 					networkMode: 'always', // We don't care for network, we fetch from a local db.
 					throwOnError: (error, query) => {
 						if (__DEV__) {
-							console.error('DEBUG error query ', { error, query }); // debug
+							const msg =
+								error instanceof Error
+									? error.message
+									: typeof error === 'string'
+										? error
+										: JSON.stringify(error);
+							console.error(
+								`DEBUG error query [${query.queryKey.join(', ')}]` +
+									`\n  message: ${msg}` +
+									`\n  stale: ${query.state.status}`,
+								error instanceof Error ? error : undefined
+							);
 						}
 						return false;
 					},

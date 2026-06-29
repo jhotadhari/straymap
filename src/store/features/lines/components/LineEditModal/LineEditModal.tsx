@@ -33,14 +33,19 @@ const LineEditModal: FC<{
 
 	const lineTemp = useAppSelector(selectLineTemp);
 
+	const lineId = lineTemp?.id;
+	const hasLineId = typeof lineId === 'number';
+
 	const { data: route } = useQuery({
-		queryKey: ['routeForLine', lineTemp?.id],
+		queryKey: ['routeForLine', lineId],
 		queryFn: queryRouteForLine,
+		enabled: hasLineId,
 	});
 
 	const { data: line } = useQuery({
-		queryKey: ['lines', lineTemp?.id ? [lineTemp?.id] : []],
+		queryKey: ['lines', hasLineId ? [lineId] : []],
 		queryFn: queryLinesWithoutGeom,
+		enabled: hasLineId,
 		select: (lines: LinePartial[]) => (lines.length ? lines[0] : null),
 	});
 
