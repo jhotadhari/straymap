@@ -14,13 +14,7 @@ import DrawerControlModal from './controls/DrawerControlModal';
 import { AppContext } from '../../../../Context';
 import { DRAWER_WIDTH } from '../constants';
 
-const Drawers = ({
-	height,
-	hidden,
-}: {
-	height: number;
-	hidden?: boolean;
-}) => {
+const Drawers = ({ height, hidden }: { height: number; hidden?: boolean }) => {
 	const { drawerControlsRef } = useContext(AppContext);
 
 	const translationXLeft = useSharedValue(-DRAWER_WIDTH);

@@ -68,10 +68,7 @@ function getVersionCode(version: string): number {
 	const preNum = Math.min(Number(parsed.prerelease[1]) || 0, 32);
 	const typeOffset = PRE_RELEASE_OFFSETS[preType];
 	if (typeOffset === undefined) {
-		fatalError(
-			`Unsupported pre-release type "${preType}". ` +
-				'Use one of: alpha, beta, rc.'
-		);
+		fatalError(`Unsupported pre-release type "${preType}". ` + 'Use one of: alpha, beta, rc.');
 	}
 
 	return base + typeOffset + preNum;
@@ -335,9 +332,7 @@ function getRepoInfo(): RepoInfo {
 	}
 
 	// ssh://git@github.com/owner/repo.git (standard SSH protocol)
-	const sshProtocolMatch = remoteUrl.match(
-		/ssh:\/\/git@github\.com\/([^/]+)\/(.+?)(?:\.git)?$/
-	);
+	const sshProtocolMatch = remoteUrl.match(/ssh:\/\/git@github\.com\/([^/]+)\/(.+?)(?:\.git)?$/);
 	if (sshProtocolMatch) {
 		return {
 			owner: sshProtocolMatch[1],

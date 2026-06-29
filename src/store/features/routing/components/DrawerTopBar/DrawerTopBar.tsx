@@ -11,7 +11,11 @@ import { get } from 'lodash-es';
 /**
  * Internal dependencies
  */
-import { DRAWER_HANDLE_SIZE, DRAWER_ICON_SIZE as handleIconSize, itemStyles } from '../../../drawers/constants';
+import {
+	DRAWER_HANDLE_SIZE,
+	DRAWER_ICON_SIZE as handleIconSize,
+	itemStyles,
+} from '../../../drawers/constants';
 import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
 import DrawerContext from '../../../drawers/DrawerContext';
 import { useAppDispatch } from '../../../../hooks';

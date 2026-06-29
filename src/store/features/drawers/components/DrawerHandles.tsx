@@ -100,7 +100,8 @@ const DrawerHandles: FC<
 	);
 
 	const getContainerHeight = useCallback(
-		(itemsCount: number) => itemsCount * DRAWER_HANDLE_SIZE + itemsCount * (DRAWER_HANDLE_SIZE / 2),
+		(itemsCount: number) =>
+			itemsCount * DRAWER_HANDLE_SIZE + itemsCount * (DRAWER_HANDLE_SIZE / 2),
 		[]
 	);
 

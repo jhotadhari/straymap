@@ -247,10 +247,7 @@ const AppView = ({
 				const leftHandleLeft =
 					(translationXLeft?.value ?? -drawerWidthResponsive) + drawerWidthResponsive;
 				const leftHandleRight = leftHandleLeft + DRAWER_HANDLE_SIZE;
-				if (
-					yLogical <= leftHandleH &&
-					xLogical <= leftHandleRight
-				) {
+				if (yLogical <= leftHandleH && xLogical <= leftHandleRight) {
 					return;
 				}
 			}
@@ -271,10 +268,7 @@ const AppView = ({
 					drawerWidthResponsive +
 					(translationXRight?.value ?? drawerWidthResponsive);
 				const rightHandleLeft = rightContentLeft - DRAWER_HANDLE_SIZE;
-				if (
-					yLogical <= rightHandleH &&
-					xLogical >= rightHandleLeft
-				) {
+				if (yLogical <= rightHandleH && xLogical >= rightHandleLeft) {
 					return;
 				}
 			}
