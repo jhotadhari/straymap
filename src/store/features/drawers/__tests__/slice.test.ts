@@ -12,6 +12,7 @@ import drawersReducer, {
 	initialSettings,
 } from '../slice';
 import type { DrawersState } from '../slice';
+import type { RootState } from "../../../store";
 import {
 	selectInitialized,
 	selectControlHandleSide,
@@ -20,13 +21,14 @@ import {
 	selectSideForKey,
 } from '../selectors';
 
-const buildRoot = (overrides: Partial<DrawersState> = {}): { drawers: DrawersState } => ({
-	drawers: {
-		initialized: false,
-		...initialSettings,
-		...overrides,
-	},
-});
+const buildRoot = (overrides: Partial<DrawersState> = {}) =>
+	({
+		drawers: {
+			initialized: false,
+			...initialSettings,
+			...overrides,
+		},
+	}) as RootState;
 
 describe('drawers slice reducers', () => {
 	it('setInitialized', () => {

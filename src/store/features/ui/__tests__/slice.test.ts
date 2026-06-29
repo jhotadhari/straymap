@@ -21,8 +21,10 @@ import {
 	selectIsBusy,
 	selectUiItemKeys,
 } from '../selectors';
+import type { RootState } from '../../../store';
 
-const buildRoot = (overrides: Partial<UiState> = {}): { ui: UiState } => ({
+const buildRoot = (overrides: Partial<UiState> = {}) =>
+	({
 	ui: {
 		initialized: false,
 		busyKeys: [],
@@ -30,7 +32,7 @@ const buildRoot = (overrides: Partial<UiState> = {}): { ui: UiState } => ({
 		...initialSettings,
 		...overrides,
 	},
-});
+}) as RootState;
 
 // ===========================================================================
 // Reducers

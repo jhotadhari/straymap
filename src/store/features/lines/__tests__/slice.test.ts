@@ -19,14 +19,16 @@ import {
 	selectSelected,
 	selectSelectedInfos,
 } from '../selectors';
+import type { RootState } from '../../../store';
 
-const buildRoot = (overrides: Partial<LinesState> = {}): { lines: LinesState } => ({
-	lines: {
-		initialized: false,
-		...initialSettings,
-		...overrides,
-	},
-});
+const buildRoot = (overrides: Partial<LinesState> = {}) =>
+	({
+		lines: {
+			initialized: false,
+			...initialSettings,
+			...overrides,
+		},
+	}) as RootState;
 
 // ===========================================================================
 // Reducers

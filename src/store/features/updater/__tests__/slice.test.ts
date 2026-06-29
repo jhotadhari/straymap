@@ -10,14 +10,16 @@ import updaterReducer, {
 } from '../slice';
 import type { UpdaterState } from '../slice';
 import { selectInitialized, selectInstalledVersion, selectIsUpdating } from '../selectors';
+import type { RootState } from '../../../store';
 
-const buildRoot = (overrides: Partial<UpdaterState> = {}): { updater: UpdaterState } => ({
+const buildRoot = (overrides: Partial<UpdaterState> = {}) =>
+	({
 	updater: {
 		initialized: false,
 		...initialSettings,
 		...overrides,
 	},
-});
+}) as RootState;
 
 describe('updater slice reducers', () => {
 	it('setInitialized', () => {

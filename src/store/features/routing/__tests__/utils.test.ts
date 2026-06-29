@@ -7,6 +7,7 @@ import {
 	aggregateSegmentsToCoords,
 } from '../../../../store/features/routing/utils';
 import type { RoutingSegment } from '../../../../store/features/routing/types';
+import type { RootState } from "../../../store";
 
 // ===========================================================================
 // getSegmentRecordId

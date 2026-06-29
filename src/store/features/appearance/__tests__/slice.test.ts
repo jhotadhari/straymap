@@ -10,14 +10,16 @@ import appearanceReducer, {
 } from '../slice';
 import type { AppearanceState } from '../slice';
 import { selectInitialized, selectTheme, selectCursor } from '../selectors';
+import type { RootState } from "../../../store";
 
-const buildState = (overrides: Partial<AppearanceState> = {}): { appearance: AppearanceState } => ({
-	appearance: {
-		initialized: false,
-		...initialSettings,
-		...overrides,
-	},
-});
+const buildState = (overrides: Partial<AppearanceState> = {}) =>
+	({
+		appearance: {
+			initialized: false,
+			...initialSettings,
+			...overrides,
+		},
+	}) as RootState;
 
 describe('appearance slice reducers', () => {
 	it('setInitialized updates initialized flag', () => {

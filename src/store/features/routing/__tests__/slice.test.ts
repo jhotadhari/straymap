@@ -21,15 +21,17 @@ import {
 	selectRoutingLineId,
 	selectSegments,
 } from '../selectors';
+import type { RootState } from '../../../store';
 
-const buildRoot = (overrides: Partial<RoutingState> = {}): { routing: RoutingState } => ({
+const buildRoot = (overrides: Partial<RoutingState> = {}) =>
+	({
 	routing: {
 		initialized: false,
 		segments: {},
 		...initialSettings,
 		...overrides,
 	},
-});
+}) as RootState;
 
 const makeSegment = (overrides: Partial<RoutingSegment> = {}): RoutingSegment => ({
 	fromId: 0,

@@ -16,6 +16,7 @@ import dashboardReducer, {
 } from '../slice';
 import type { DashboardState } from '../slice';
 import type { DashboardItem } from '../types';
+import type { RootState } from "../../../store";
 import {
 	selectInitialized,
 	selectElementsSettings,
@@ -27,15 +28,16 @@ import {
 	getItemByKeyResultFn,
 } from '../selectors';
 
-const buildRoot = (overrides: Partial<DashboardState> = {}): { dashboard: DashboardState } => ({
-	dashboard: {
-		initialized: false,
-		isEditingDashboard: false,
-		elementsSettings: {},
-		...initialSettings,
-		...overrides,
-	},
-});
+const buildRoot = (overrides: Partial<DashboardState> = {}) =>
+	({
+		dashboard: {
+			initialized: false,
+			isEditingDashboard: false,
+			elementsSettings: {},
+			...initialSettings,
+			...overrides,
+		},
+	}) as RootState;
 
 const makeItem = (overrides: Partial<DashboardItem> = {}): DashboardItem => ({
 	key: 'item-1',

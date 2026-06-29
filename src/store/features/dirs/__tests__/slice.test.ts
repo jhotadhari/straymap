@@ -11,6 +11,7 @@ import dirsReducer, {
 	setCacheDirsCache,
 } from '../slice';
 import type { DirsState } from '../slice';
+import type { RootState } from "../../../store";
 import {
 	selectInitialized,
 	selectAppDirs,
@@ -19,15 +20,16 @@ import {
 	selectCacheDirsCache,
 } from '../selectors';
 
-const buildRoot = (overrides: Partial<DirsState> = {}): { dirs: DirsState } => ({
-	dirs: {
-		initialized: false,
-		appDirs: {},
-		dirInfoCache: {},
-		cacheDirsCache: [],
-		...overrides,
-	},
-});
+const buildRoot = (overrides: Partial<DirsState> = {}) =>
+	({
+		dirs: {
+			initialized: false,
+			appDirs: {},
+			dirInfoCache: {},
+			cacheDirsCache: [],
+			...overrides,
+		},
+	}) as RootState;
 
 describe('dirs slice reducers', () => {
 	it('setInitialized', () => {

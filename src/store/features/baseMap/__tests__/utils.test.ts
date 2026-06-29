@@ -15,6 +15,7 @@ import {
 	getHillshadingCacheDirChild,
 } from '../../../../store/features/baseMap/utils';
 import type { LayerConfig } from '../../../../store/features/baseMap/types';
+import type { RootState } from "../../../store";
 
 // ===========================================================================
 // stringifyProp
@@ -118,12 +119,12 @@ describe('stringifyProp', () => {
 describe('getSetterThunkWithGetter', () => {
 	it('creates a thunk that dispatches with a direct value', () => {
 		const selector = jest.fn((state: any) => state.value);
-		const setter = jest.fn((val: number) => ({ type: 'SET', payload: val }));
+		const setter = jest.fn((val: number) => ({ type: 'SET', payload: val })) as any;
 
 		const thunk = getSetterThunkWithGetter(selector, setter)(42);
 
 		const dispatch = jest.fn();
-		const getState = jest.fn(() => ({ value: 10 }));
+		const getState = jest.fn(() => ({ value: 10 })) as any;
 
 		thunk(dispatch, getState, undefined as any);
 
@@ -132,7 +133,7 @@ describe('getSetterThunkWithGetter', () => {
 
 	it('creates a thunk that calls a getter function with current value', () => {
 		const selector = jest.fn((state: any) => state.value);
-		const setter = jest.fn((val: number) => ({ type: 'SET', payload: val }));
+		const setter = jest.fn((val: number) => ({ type: 'SET', payload: val })) as any;
 
 		// Use a plain function — the instanceof Function check inside
 		// getSetterThunkWithGetter needs a real function, and jest.fn()
@@ -141,7 +142,7 @@ describe('getSetterThunkWithGetter', () => {
 		const thunk = getSetterThunkWithGetter(selector, setter)(getter);
 
 		const dispatch = jest.fn();
-		const getState = jest.fn(() => ({ value: 21 }));
+		const getState = jest.fn(() => ({ value: 21 })) as any;
 
 		thunk(dispatch, getState, undefined as any);
 
@@ -151,12 +152,12 @@ describe('getSetterThunkWithGetter', () => {
 
 	it('respects selector extracting the right slice', () => {
 		const selector = jest.fn((state: any) => state.nested.deep.value);
-		const setter = jest.fn((val: string) => ({ type: 'SET', payload: val }));
+		const setter = jest.fn((val: string) => ({ type: 'SET', payload: val })) as any;
 
 		const thunk = getSetterThunkWithGetter(selector, setter)('new-val');
 
 		const dispatch = jest.fn();
-		const getState = jest.fn(() => ({ nested: { deep: { value: 'old-val' } } }));
+		const getState = jest.fn(() => ({ nested: { deep: { value: 'old-val' } } })) as any;
 
 		thunk(dispatch, getState, undefined as any);
 
@@ -270,13 +271,13 @@ describe('getNewProfile', () => {
 
 describe('fillLayerConfigOptionsWithDefaults', () => {
 	it('returns options unchanged when type is null', () => {
-		const options = { foo: 'bar' };
+		const options = { foo: 'bar' } as any;
 		const result = fillLayerConfigOptionsWithDefaults(null, options);
 		expect(result).toBe(options); // same reference
 	});
 
 	it('returns options unchanged when type is falsy empty string', () => {
-		const options = { foo: 'bar' };
+		const options = { foo: 'bar' } as any;
 		const result = fillLayerConfigOptionsWithDefaults('', options);
 		expect(result).toBe(options);
 	});

@@ -190,10 +190,10 @@ describe('rowsParseEnvelopeGeoJSON', () => {
 		];
 		const results = rowsParseEnvelopeGeoJSON(rows);
 		expect(results).toHaveLength(2);
-		expect(results[0].envelope.type).toBe('Polygon');
-		expect(results[1].envelope.type).toBe('Polygon');
-		expect(results[0].id).toBe(1);
-		expect(results[1].id).toBe(2);
+		expect((results[0] as any).envelope.type).toBe('Polygon');
+		expect((results[1] as any).envelope.type).toBe('Polygon');
+		expect((results[0] as any).id).toBe(1);
+		expect((results[1] as any).id).toBe(2);
 	});
 
 	it('returns empty array for empty input', () => {

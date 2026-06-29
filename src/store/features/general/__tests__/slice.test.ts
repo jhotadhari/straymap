@@ -10,6 +10,7 @@ import generalReducer, {
 	initialSettings,
 } from '../slice';
 import type { GeneralState } from '../slice';
+import type { RootState } from "../../../store";
 import {
 	selectInitialized,
 	selectHardwareKeys,
@@ -17,13 +18,14 @@ import {
 	selectMapEventRate,
 } from '../selectors';
 
-const buildState = (overrides: Partial<GeneralState> = {}): { general: GeneralState } => ({
-	general: {
-		initialized: false,
-		...initialSettings,
-		...overrides,
-	},
-});
+const buildState = (overrides: Partial<GeneralState> = {}) =>
+	({
+		general: {
+			initialized: false,
+			...initialSettings,
+			...overrides,
+		},
+	}) as RootState;
 
 // ===========================================================================
 // Reducers

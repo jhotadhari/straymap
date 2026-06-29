@@ -5,14 +5,16 @@
 import langReducer, { setInitialized, setLang, initialSettings } from '../slice';
 import type { LangState } from '../slice';
 import { selectInitialized, selectLang } from '../selectors';
+import type { RootState } from "../../../store";
 
-const buildState = (overrides: Partial<LangState> = {}): { lang: LangState } => ({
-	lang: {
-		initialized: false,
-		...initialSettings,
-		...overrides,
-	},
-});
+const buildState = (overrides: Partial<LangState> = {}) =>
+	({
+		lang: {
+			initialized: false,
+			...initialSettings,
+			...overrides,
+		},
+	}) as RootState;
 
 describe('lang slice reducers', () => {
 	it('setInitialized', () => {

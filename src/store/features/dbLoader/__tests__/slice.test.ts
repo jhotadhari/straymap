@@ -10,6 +10,7 @@ import dbLoaderReducer, {
 	initialSettings,
 } from '../slice';
 import type { DbLoaderState } from '../slice';
+import type { RootState } from "../../../store";
 import {
 	selectInitialized,
 	selectDbPath,
@@ -17,13 +18,14 @@ import {
 	selectRequireReload,
 } from '../selectors';
 
-const buildState = (overrides: Partial<DbLoaderState> = {}): { dbLoader: DbLoaderState } => ({
-	dbLoader: {
-		initialized: false,
-		...initialSettings,
-		...overrides,
-	},
-});
+const buildState = (overrides: Partial<DbLoaderState> = {}) =>
+	({
+		dbLoader: {
+			initialized: false,
+			...initialSettings,
+			...overrides,
+		},
+	}) as RootState;
 
 describe('dbLoader slice reducers', () => {
 	it('setInitialized', () => {
