@@ -262,6 +262,7 @@ export const processRouting = (
 					dispatch(setLineSelected(lineId, true));
 					await queryClient.invalidateQueries({ queryKey: ['lineGeom', lineId] });
 					await queryClient.invalidateQueries({ queryKey: ['lines', [lineId]] });
+					await queryClient.invalidateQueries({ queryKey: ['routeForLine', lineId] });
 				}
 				if (isNew) {
 					await queryClient.invalidateQueries({ queryKey: ['lines'], exact: true });

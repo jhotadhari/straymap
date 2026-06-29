@@ -45,6 +45,8 @@ const BulkActions: FC = () => {
 
 	const actions = useBulkActions();
 
+	const actionList = useMemo(() => Object.values(actions), [actions]);
+
 	const anchorRef = useRef<View>(null);
 
 	const popoverStyle = useMemo(
@@ -59,7 +61,7 @@ const BulkActions: FC = () => {
 
 	return (
 		<Fragment>
-			{Object.values(actions).map((action) =>
+			{actionList.map((action) =>
 				action?.modalNode ? (
 					<Fragment key={action.key}>{action.modalNode}</Fragment>
 				) : undefined
@@ -91,7 +93,7 @@ const BulkActions: FC = () => {
 				<ScrollView>
 					{menuVisible && (
 						<PopoverMenuItems
-							options={Object.values(actions)}
+							options={actionList}
 							onPress={dismissMenu}
 						/>
 					)}

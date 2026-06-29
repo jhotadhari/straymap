@@ -41,11 +41,14 @@ const useItemStyle = (item: DashboardElementProps['item']) => {
 		}
 	}, [dashboardStyle]);
 
-	return {
-		fontSize: fontSize ? fontSize : 1,
-		minWidth: minWidth ? minWidth : 1,
-		textAlign,
-	};
+	return useMemo(
+		() => ({
+			fontSize: fontSize ? fontSize : 1,
+			minWidth: minWidth ? minWidth : 1,
+			textAlign,
+		}),
+		[fontSize, minWidth, textAlign]
+	);
 };
 
 export default useItemStyle;

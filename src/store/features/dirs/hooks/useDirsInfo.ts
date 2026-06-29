@@ -106,10 +106,13 @@ const useDirsInfo = ({
 		dispatch,
 	]);
 
-	return {
-		dirsInfo: infos,
-		isLoading: undefined === infos,
-	};
+	return useMemo(
+		() => ({
+			dirsInfo: infos,
+			isLoading: undefined === infos,
+		}),
+		[infos]
+	);
 };
 
 export default useDirsInfo;

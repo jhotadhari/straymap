@@ -24,6 +24,8 @@ import RowName from './RowName';
 import RowRouting from './RowRouting';
 import RowExport from './RowExport';
 import RowStats from './RowStats';
+import RowFlyTo from './RowFlyTo';
+import RowToggleOnMap from './RowToggleOnMap';
 
 const LineEditModal: FC<{
 	selectLine: (id: number, isSelected: boolean) => void;
@@ -120,6 +122,10 @@ const LineEditModal: FC<{
 		>
 			<LineEditModalContext.Provider value={contextValue}>
 				<RowName />
+
+				<RowFlyTo />
+
+				<RowToggleOnMap />
 
 				<RowRouting />
 

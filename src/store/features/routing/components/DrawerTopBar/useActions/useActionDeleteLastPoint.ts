@@ -49,14 +49,17 @@ const useActionDeleteLastPoint = ({
 		mutation.mutate(lastPointId);
 	}, [lastPointId, mutation]);
 
-	return {
-		key: 'deleteLastPoint',
-		cb,
-		label: 'deleteLastPoint',
-		disabled: () => !points || !points.length,
-		// leadingIcon: 'delete',
-		leadingIcon: 'minus',
-	};
+	return useMemo(
+		() => ({
+			key: 'deleteLastPoint',
+			cb,
+			label: 'deleteLastPoint',
+			disabled: () => !points || !points.length,
+			// leadingIcon: 'delete',
+			leadingIcon: 'minus',
+		}),
+		[cb, points]
+	);
 };
 
 export default useActionDeleteLastPoint;

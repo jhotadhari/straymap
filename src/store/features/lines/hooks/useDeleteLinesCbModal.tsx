@@ -175,11 +175,14 @@ const useDeleteLinesCbModal = ({
 		backgroundBlur,
 	]);
 
-	return {
-		cb,
-		modalNode,
-		iconSource: 'delete',
-	};
+	return useMemo(
+		() => ({
+			cb,
+			modalNode,
+			iconSource: 'delete',
+		}),
+		[cb, modalNode]
+	);
 };
 
 export default useDeleteLinesCbModal;

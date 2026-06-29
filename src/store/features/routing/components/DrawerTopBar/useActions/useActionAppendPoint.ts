@@ -94,12 +94,15 @@ const useActionAppendPoint = ({
 		mutation,
 	]);
 
-	return {
-		key: 'appendPoint',
-		cb,
-		label: 'appendPoint',
-		leadingIcon: 'plus',
-	};
+	return useMemo(
+		() => ({
+			key: 'appendPoint',
+			cb,
+			label: 'appendPoint',
+			leadingIcon: 'plus',
+		}),
+		[cb]
+	);
 };
 
 export default useActionAppendPoint;

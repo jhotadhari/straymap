@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useContext } from 'react';
+import { useContext, useMemo } from 'react';
 
 /**
  * Internal dependencies
@@ -16,13 +16,16 @@ const useShowStats = () => {
 		lineIds: checkedIds,
 	});
 
-	return {
-		key: 'showStats',
-		cb,
-		label: 'showStats',
-		leadingIcon: iconSource,
-		modalNode,
-	};
+	return useMemo(
+		() => ({
+			key: 'showStats',
+			cb,
+			label: 'showStats',
+			leadingIcon: iconSource,
+			modalNode,
+		}),
+		[cb, iconSource, modalNode]
+	);
 };
 
 export default useShowStats;

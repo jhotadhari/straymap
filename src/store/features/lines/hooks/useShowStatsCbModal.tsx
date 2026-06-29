@@ -109,11 +109,14 @@ const useShowStatsCbModal = ({
 		backgroundBlur,
 	]);
 
-	return {
-		cb,
-		modalNode,
-		iconSource: 'chart-box-outline',
-	};
+	return useMemo(
+		() => ({
+			cb,
+			modalNode,
+			iconSource: 'chart-box-outline',
+		}),
+		[cb, modalNode]
+	);
 };
 
 export default useShowStatsCbModal;

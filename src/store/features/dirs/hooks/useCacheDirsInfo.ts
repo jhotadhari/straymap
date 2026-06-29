@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useContext, useEffect, useCallback } from 'react';
+import { useContext, useEffect, useCallback, useMemo } from 'react';
 import { sprintf } from 'sprintf-js';
 import { useTranslation } from 'react-i18next';
 
@@ -46,10 +46,13 @@ const useCacheDirsInfo = (shouldUpdate?: any): any => {
 		}
 	}, [updateCacheDirs, shouldUpdate]);
 
-	return {
-		updateCacheDirs,
-		cacheDirs,
-	};
+	return useMemo(
+		() => ({
+			updateCacheDirs,
+			cacheDirs,
+		}),
+		[updateCacheDirs, cacheDirs]
+	);
 };
 
 export default useCacheDirsInfo;

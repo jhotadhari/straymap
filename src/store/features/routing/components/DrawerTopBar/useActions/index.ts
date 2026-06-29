@@ -1,4 +1,9 @@
 /**
+ * External dependencies
+ */
+import { useMemo } from 'react';
+
+/**
  * Internal dependencies
  */
 import { MenuActionOption } from '../../../../../../types';
@@ -7,15 +12,17 @@ import useActionAppendPoint from './useActionAppendPoint';
 import useActionDeleteLastPoint from './useActionDeleteLastPoint';
 
 const useActions = ({ points, routeId }: { points?: RoutingPoint[]; routeId?: number }) => {
-	const actions: Record<string, MenuActionOption> = {};
-
 	const actionAppendPoint = useActionAppendPoint({ points, routeId });
-	actions[actionAppendPoint.key] = actionAppendPoint;
-
 	const actionDeleteLastPoint = useActionDeleteLastPoint({ points, routeId });
-	actions[actionDeleteLastPoint.key] = actionDeleteLastPoint;
 
-	return actions;
+	return useMemo(() => {
+		const actions: Record<string, MenuActionOption> = {};
+
+		actions[actionAppendPoint.key] = actionAppendPoint;
+		actions[actionDeleteLastPoint.key] = actionDeleteLastPoint;
+
+		return actions;
+	}, [actionAppendPoint, actionDeleteLastPoint]);
 };
 
 export default useActions;

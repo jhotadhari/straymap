@@ -76,10 +76,13 @@ const useToggleRouting = ({ routeId }: { routeId?: number }) => {
 		deleteMutation,
 	]);
 
-	return {
-		isToggling,
-		handleToggleRouting,
-	};
+	return useMemo(
+		() => ({
+			isToggling,
+			handleToggleRouting,
+		}),
+		[isToggling, handleToggleRouting]
+	);
 };
 
 export default useToggleRouting;

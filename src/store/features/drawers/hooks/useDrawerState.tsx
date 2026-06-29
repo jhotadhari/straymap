@@ -134,16 +134,28 @@ const useDrawerState = ({
 		]
 	);
 
-	return {
-		side,
-		drawerWidth: drawerWidthResponsive,
-		outerWidth: width,
-		showContent,
-		gesture,
-		animatedStyles,
-		expand,
-		getIsFullyCollapsed,
-	};
+	return useMemo(
+		() => ({
+			side,
+			drawerWidth: drawerWidthResponsive,
+			outerWidth: width,
+			showContent,
+			gesture,
+			animatedStyles,
+			expand,
+			getIsFullyCollapsed,
+		}),
+		[
+			side,
+			drawerWidthResponsive,
+			width,
+			showContent,
+			gesture,
+			animatedStyles,
+			expand,
+			getIsFullyCollapsed,
+		]
+	);
 };
 
 export default useDrawerState;

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useContext, useCallback } from 'react';
+import { useContext, useCallback, useMemo } from 'react';
 import { without } from 'lodash-es';
 
 /**
@@ -32,12 +32,15 @@ const useRemoveFromMap = () => {
 		dispatch,
 	]);
 
-	return {
-		key: 'removeFromMap',
-		cb,
-		label: 'removeFromMap',
-		leadingIcon: 'map-minus',
-	};
+	return useMemo(
+		() => ({
+			key: 'removeFromMap',
+			cb,
+			label: 'removeFromMap',
+			leadingIcon: 'map-minus',
+		}),
+		[cb]
+	);
 };
 
 export default useRemoveFromMap;

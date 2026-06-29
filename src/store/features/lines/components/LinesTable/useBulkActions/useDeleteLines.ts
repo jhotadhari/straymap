@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useContext, useCallback } from 'react';
+import { useContext, useCallback, useMemo } from 'react';
 import { uniq } from 'lodash-es';
 
 /**
@@ -34,13 +34,16 @@ const useDeleteLines = () => {
 		onSuccess,
 	});
 
-	return {
-		key: 'deleteLines',
-		cb,
-		label: 'deleteLines',
-		leadingIcon: iconSource,
-		modalNode,
-	};
+	return useMemo(
+		() => ({
+			key: 'deleteLines',
+			cb,
+			label: 'deleteLines',
+			leadingIcon: iconSource,
+			modalNode,
+		}),
+		[cb, iconSource, modalNode]
+	);
 };
 
 export default useDeleteLines;
