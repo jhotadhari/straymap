@@ -6,6 +6,9 @@
  * op-sqlite connection and are better covered by integration tests.
  */
 
+/**
+ * Internal dependencies
+ */
 import {
 	rowParseGeometryGeoJSON,
 	rowsParseGeometryGeoJSON,

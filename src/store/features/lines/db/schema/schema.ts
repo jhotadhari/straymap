@@ -1,7 +1,13 @@
+/**
+ * External dependencies
+ */
 import { sql } from 'drizzle-orm/sql';
 import { relations } from 'drizzle-orm';
 import { AnySQLiteColumn, integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 
+/**
+ * Internal dependencies
+ */
 import { lineString } from '../../../dbLoader/types';
 
 // claude:warning ⛔ DO NOT EDIT THIS TABLE'S COLUMNS — it has a SpatiaLite

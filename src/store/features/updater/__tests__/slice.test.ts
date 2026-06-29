@@ -2,6 +2,9 @@
  * Tests for updater slice reducers and selectors.
  */
 
+/**
+ * Internal dependencies
+ */
 import updaterReducer, {
 	setInitialized,
 	setIsUpdating,
@@ -14,12 +17,12 @@ import type { RootState } from '../../../store';
 
 const buildRoot = (overrides: Partial<UpdaterState> = {}) =>
 	({
-	updater: {
-		initialized: false,
-		...initialSettings,
-		...overrides,
-	},
-}) as RootState;
+		updater: {
+			initialized: false,
+			...initialSettings,
+			...overrides,
+		},
+	}) as RootState;
 
 describe('updater slice reducers', () => {
 	it('setInitialized', () => {

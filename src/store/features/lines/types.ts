@@ -1,3 +1,6 @@
+/**
+ * External dependencies
+ */
 import { WithRequired } from '@tanstack/react-query';
 import { LineString, Polygon } from 'geojson';
 

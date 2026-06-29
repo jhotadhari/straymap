@@ -2,6 +2,9 @@
  * Tests for dbLoader slice reducers and selectors.
  */
 
+/**
+ * Internal dependencies
+ */
 import dbLoaderReducer, {
 	setInitialized,
 	setDbPathAction,
@@ -10,7 +13,7 @@ import dbLoaderReducer, {
 	initialSettings,
 } from '../slice';
 import type { DbLoaderState } from '../slice';
-import type { RootState } from "../../../store";
+import type { RootState } from '../../../store';
 import {
 	selectInitialized,
 	selectDbPath,

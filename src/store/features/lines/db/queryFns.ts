@@ -1,4 +1,11 @@
+/**
+ * External dependencies
+ */
 import { WithRequired } from '@tanstack/react-query';
+
+/**
+ * Internal dependencies
+ */
 import { Line, LinePartial } from '../types';
 import { fetchLines } from './fetch';
 
@@ -7,9 +14,6 @@ import { fetchLines } from './fetch';
  *	- Wrappers for the db fetch functions.
  *	- get their args from queryKey,
  */
-/**
- */
-
 /**
  *
  * Used with:

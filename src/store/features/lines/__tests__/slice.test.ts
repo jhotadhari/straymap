@@ -2,6 +2,9 @@
  * Tests for lines slice reducers, thunks, and selectors.
  */
 
+/**
+ * Internal dependencies
+ */
 import linesReducer, {
 	setInitialized,
 	setSelected,

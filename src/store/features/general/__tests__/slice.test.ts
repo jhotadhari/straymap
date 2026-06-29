@@ -2,6 +2,9 @@
  * Tests for general slice reducers and selectors.
  */
 
+/**
+ * Internal dependencies
+ */
 import generalReducer, {
 	setInitialized,
 	setHardwareKeys,
@@ -10,7 +13,7 @@ import generalReducer, {
 	initialSettings,
 } from '../slice';
 import type { GeneralState } from '../slice';
-import type { RootState } from "../../../store";
+import type { RootState } from '../../../store';
 import {
 	selectInitialized,
 	selectHardwareKeys,

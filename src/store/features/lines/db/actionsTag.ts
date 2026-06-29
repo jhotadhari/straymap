@@ -1,5 +1,11 @@
+/**
+ * External dependencies
+ */
 import { eq } from 'drizzle-orm';
 
+/**
+ * Internal dependencies
+ */
 import { dbConnection } from '../../dbLoader/DBConnection';
 import { tagsTable, tagsToLinesTable } from './schema/schema';
 import { withDbErrorHandling } from '../../dbLoader/utils';

@@ -2,6 +2,9 @@
  * Tests for dirs slice reducers and selectors.
  */
 
+/**
+ * Internal dependencies
+ */
 import dirsReducer, {
 	setInitialized,
 	setAppDirs,
@@ -11,7 +14,7 @@ import dirsReducer, {
 	setCacheDirsCache,
 } from '../slice';
 import type { DirsState } from '../slice';
-import type { RootState } from "../../../store";
+import type { RootState } from '../../../store';
 import {
 	selectInitialized,
 	selectAppDirs,

@@ -1,3 +1,6 @@
+/**
+ * External dependencies
+ */
 import { StyleSheet } from 'react-native';
 
 export const DRAWER_WIDTH = 300;

@@ -2,6 +2,9 @@
  * Tests for routing slice reducers and selectors.
  */
 
+/**
+ * Internal dependencies
+ */
 import routingReducer, {
 	setInitialized,
 	setIsRoutingAction,
@@ -25,13 +28,13 @@ import type { RootState } from '../../../store';
 
 const buildRoot = (overrides: Partial<RoutingState> = {}) =>
 	({
-	routing: {
-		initialized: false,
-		segments: {},
-		...initialSettings,
-		...overrides,
-	},
-}) as RootState;
+		routing: {
+			initialized: false,
+			segments: {},
+			...initialSettings,
+			...overrides,
+		},
+	}) as RootState;
 
 const makeSegment = (overrides: Partial<RoutingSegment> = {}): RoutingSegment => ({
 	fromId: 0,

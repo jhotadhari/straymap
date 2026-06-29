@@ -1,3 +1,6 @@
+/**
+ * Internal dependencies
+ */
 import centerAltitude from './centerAltitude';
 import centerCoordinates from './centerCoordinates';
 import spacer from './spacer';

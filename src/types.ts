@@ -1,9 +1,13 @@
 /**
- * react-native-mapsforge-vtm dependencies
+ * External dependencies
  */
 import { EnhancedStore } from '@reduxjs/toolkit';
 import { ReactNode } from 'react';
 import { Position } from 'react-native-mapsforge-vtm';
+
+/**
+ * Internal dependencies
+ */
 import { AppThunk } from './store/store';
 
 // source: https://stackoverflow.com/questions/41253310/typescript-retrieve-element-type-information-from-array-type#answer-51399781

@@ -1,3 +1,6 @@
+/**
+ * External dependencies
+ */
 import { sql } from 'drizzle-orm/sql';
 import { sqliteTable, integer, text } from 'drizzle-orm/sqlite-core';
 import { relations } from 'drizzle-orm';

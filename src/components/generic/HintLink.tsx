@@ -1,3 +1,6 @@
+/**
+ * External dependencies
+ */
 import { get } from 'lodash-es';
 import { FC, useCallback, useMemo } from 'react';
 import { Linking, View, ViewStyle } from 'react-native';

@@ -2,6 +2,9 @@
  * Tests for drawers slice reducers and selectors.
  */
 
+/**
+ * Internal dependencies
+ */
 import drawersReducer, {
 	setInitialized,
 	setControlHandleSide,
@@ -12,9 +15,8 @@ import drawersReducer, {
 	initialSettings,
 } from '../slice';
 import type { DrawersState } from '../slice';
-import type { RootState } from "../../../store";
+import type { RootState } from '../../../store';
 import {
-	selectInitialized,
 	selectControlHandleSide,
 	selectActiveKey,
 	selectItemKeys,

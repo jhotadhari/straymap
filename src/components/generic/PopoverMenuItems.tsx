@@ -1,7 +1,13 @@
+/**
+ * External dependencies
+ */
 import { FC, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from 'react-native-paper';
 
+/**
+ * Internal dependencies
+ */
 import { MenuActionOption } from '../../types';
 import MenuItem from './MenuItem';
 

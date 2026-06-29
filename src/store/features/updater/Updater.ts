@@ -1,7 +1,13 @@
+/**
+ * External dependencies
+ */
 import { EnhancedStore } from '@reduxjs/toolkit';
 import semverCompare from 'semver-compare';
 import { get } from 'lodash-es';
 
+/**
+ * Internal dependencies
+ */
 import { UpdateResults } from './types';
 import { setInstalledVersion, setIsUpdating, UpdaterState } from './slice';
 import packageJson from '../../../../package.json';

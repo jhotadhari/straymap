@@ -2,6 +2,9 @@
  * Tests for ui slice reducers, thunks, and selectors.
  */
 
+/**
+ * Internal dependencies
+ */
 import uiReducer, {
 	setInitialized,
 	setExpandedElements,
@@ -25,14 +28,14 @@ import type { RootState } from '../../../store';
 
 const buildRoot = (overrides: Partial<UiState> = {}) =>
 	({
-	ui: {
-		initialized: false,
-		busyKeys: [],
-		uiItemKeys: [],
-		...initialSettings,
-		...overrides,
-	},
-}) as RootState;
+		ui: {
+			initialized: false,
+			busyKeys: [],
+			uiItemKeys: [],
+			...initialSettings,
+			...overrides,
+		},
+	}) as RootState;
 
 // ===========================================================================
 // Reducers

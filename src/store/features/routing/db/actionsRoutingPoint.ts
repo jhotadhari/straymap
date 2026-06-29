@@ -1,6 +1,12 @@
+/**
+ * External dependencies
+ */
 import { eq } from 'drizzle-orm';
 import { Feature, Point, GeoJsonProperties } from 'geojson';
 
+/**
+ * Internal dependencies
+ */
 import { dbConnection } from '../../dbLoader/DBConnection';
 import { routingPointsTable, routesTable } from './schema/schema';
 import { fetchRoutes } from './fetch';

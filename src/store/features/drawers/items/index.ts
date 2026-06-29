@@ -1,3 +1,6 @@
+/**
+ * Internal dependencies
+ */
 import maps from './maps';
 import routing from './routing';
 import position from './position';

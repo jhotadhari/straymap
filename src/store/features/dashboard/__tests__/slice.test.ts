@@ -14,9 +14,13 @@ import dashboardReducer, {
 	setEditItemKeyAction,
 	initialSettings,
 } from '../slice';
+
+/**
+ * Internal dependencies
+ */
 import type { DashboardState } from '../slice';
 import type { DashboardItem } from '../types';
-import type { RootState } from "../../../store";
+import type { RootState } from '../../../store';
 import {
 	selectInitialized,
 	selectElementsSettings,

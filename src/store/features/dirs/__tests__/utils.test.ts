@@ -3,11 +3,6 @@
  */
 
 import { getDirInfoCacheId } from '../../../../store/features/dirs/utils';
-import type { RootState } from "../../../store";
-
-// ===========================================================================
-// getDirInfoCacheId
-// ===========================================================================
 
 describe('getDirInfoCacheId', () => {
 	it('generates a JSON cache key from navDirs', () => {

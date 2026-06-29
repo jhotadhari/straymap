@@ -14,12 +14,11 @@ import {
 	fillLayerConfigOptionsWithDefaults,
 	getHillshadingCacheDirChild,
 } from '../../../../store/features/baseMap/utils';
-import type { LayerConfig } from '../../../../store/features/baseMap/types';
-import type { RootState } from "../../../store";
 
-// ===========================================================================
-// stringifyProp
-// ===========================================================================
+/**
+ * Internal dependencies
+ */
+import type { LayerConfig } from '../../../../store/features/baseMap/types';
 
 describe('stringifyProp', () => {
 	describe('string input', () => {

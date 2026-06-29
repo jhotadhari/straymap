@@ -1,3 +1,6 @@
+/**
+ * External dependencies
+ */
 import { StyleSheet, ViewStyle } from 'react-native';
 
 export const sharedStyles = StyleSheet.create({

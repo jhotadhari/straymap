@@ -1,3 +1,6 @@
+/**
+ * Internal dependencies
+ */
 import { MenuActionOption } from '../../../../../../types';
 import { RoutingPoint } from '../../../types';
 import useActionAppendPoint from './useActionAppendPoint';

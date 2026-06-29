@@ -2,6 +2,9 @@
  * Tests for appearance slice reducers and selectors.
  */
 
+/**
+ * Internal dependencies
+ */
 import appearanceReducer, {
 	setInitialized,
 	setTheme,
@@ -10,7 +13,7 @@ import appearanceReducer, {
 } from '../slice';
 import type { AppearanceState } from '../slice';
 import { selectInitialized, selectTheme, selectCursor } from '../selectors';
-import type { RootState } from "../../../store";
+import type { RootState } from '../../../store';
 
 const buildState = (overrides: Partial<AppearanceState> = {}) =>
 	({

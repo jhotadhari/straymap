@@ -1,3 +1,6 @@
+/**
+ * Internal dependencies
+ */
 import { initializeFromStorage } from './connectStorage';
 import { selectInitialized } from './selectors';
 import de from './assets/i18n/de.json';

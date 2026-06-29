@@ -6,12 +6,11 @@ import {
 	getSegmentRecordId,
 	aggregateSegmentsToCoords,
 } from '../../../../store/features/routing/utils';
-import type { RoutingSegment } from '../../../../store/features/routing/types';
-import type { RootState } from "../../../store";
 
-// ===========================================================================
-// getSegmentRecordId
-// ===========================================================================
+/**
+ * Internal dependencies
+ */
+import type { RoutingSegment } from '../../../../store/features/routing/types';
 
 describe('getSegmentRecordId', () => {
 	it('joins fromId and toId with underscore', () => {

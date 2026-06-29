@@ -2,6 +2,9 @@
  * Tests for src/lib/utilsLight.ts — pure utility functions with no native deps.
  */
 
+/**
+ * Internal dependencies
+ */
 import {
 	parseSerialized,
 	sortArrayByOrderArray,
@@ -9,10 +12,6 @@ import {
 	randomNumber,
 	sortDeep,
 } from '../utilsLight';
-
-// ===========================================================================
-// parseSerialized
-// ===========================================================================
 
 describe('parseSerialized', () => {
 	// Suppress expected console.log from parseSerialized error paths in __DEV__.
