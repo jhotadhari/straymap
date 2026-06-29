@@ -12,7 +12,7 @@ import { omit, pick } from 'lodash-es';
 import { useAppDispatch } from '../../../../hooks';
 import { Line, LineStats as LineStatsType } from '../../types';
 import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
-import { iconSize } from '../../../drawers/constants';
+import { DRAWER_ICON_SIZE } from '../../../drawers/constants';
 import { setLineSelected, setLineTemp, setLineVisible } from '../../slice';
 import LineStats from '../LineStats';
 import TagBadge from '../TagBadge';
@@ -75,7 +75,7 @@ const ListRow: FC<ListRowProps> = ({ line, idx, visible }) => {
 				>
 					<Icon
 						source={'undo'}
-						size={iconSize}
+						size={DRAWER_ICON_SIZE}
 					/>
 				</ButtonHighlight>
 			)}
@@ -132,7 +132,7 @@ const ListRow: FC<ListRowProps> = ({ line, idx, visible }) => {
 				>
 					<Icon
 						source={visible ? 'eye-outline' : 'eye-off-outline'}
-						size={iconSize}
+						size={DRAWER_ICON_SIZE}
 					/>
 				</ButtonHighlight>
 				<ButtonHighlight
@@ -142,7 +142,7 @@ const ListRow: FC<ListRowProps> = ({ line, idx, visible }) => {
 				>
 					<Icon
 						source={'cog'}
-						size={iconSize}
+						size={DRAWER_ICON_SIZE}
 					/>
 				</ButtonHighlight>
 			</View>

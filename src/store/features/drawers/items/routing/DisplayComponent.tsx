@@ -7,7 +7,7 @@ import { View } from 'react-native';
 /**
  * Internal dependencies
  */
-import { handleSize, iconSize, itemStyles } from '../../constants';
+import { DRAWER_HANDLE_SIZE, DRAWER_ICON_SIZE, itemStyles } from '../../constants';
 import PointsList from '../../../routing/components/PointsList';
 import DrawerTopBar from '../../../routing/components/DrawerTopBar/DrawerTopBar';
 import DrawerContext from '../../DrawerContext';
@@ -19,7 +19,7 @@ const DisplayComponent: FC = () => {
 		() => [
 			itemStyles.item,
 			{
-				height: height - (handleSize - iconSize),
+				height: height - (DRAWER_HANDLE_SIZE - DRAWER_ICON_SIZE),
 			},
 		],
 		[

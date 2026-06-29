@@ -15,7 +15,7 @@ import { useAppDispatch, useAppSelector } from '../../../hooks';
 import DrawerHandle from './DrawerHandle';
 import { setItemKeys } from '../slice';
 import DrawerContext from '../DrawerContext';
-import { handleSize } from '../constants';
+import { DRAWER_HANDLE_SIZE } from '../constants';
 import { AppContext } from '../../../../Context';
 
 const settingsOverwriteDrawerItem: DrawerItem = {
@@ -100,7 +100,7 @@ const DrawerHandles: FC<
 	);
 
 	const getContainerHeight = useCallback(
-		(itemsCount: number) => itemsCount * handleSize + itemsCount * (handleSize / 2),
+		(itemsCount: number) => itemsCount * DRAWER_HANDLE_SIZE + itemsCount * (DRAWER_HANDLE_SIZE / 2),
 		[]
 	);
 
@@ -161,7 +161,7 @@ const DrawerHandles: FC<
 					<View>
 						{draggableItems.length > 1 && (
 							<DraggableGrid
-								itemHeight={handleSize + handleSize / 2}
+								itemHeight={DRAWER_HANDLE_SIZE + DRAWER_HANDLE_SIZE / 2}
 								numColumns={1}
 								renderItem={RenderItem}
 								data={draggableItems}
@@ -198,7 +198,7 @@ const DrawerHandles: FC<
 const styles = StyleSheet.create({
 	wrapper: {
 		position: 'absolute',
-		width: handleSize,
+		width: DRAWER_HANDLE_SIZE,
 		backgroundColor: 'transparent',
 	},
 	wrapperLeft: {
@@ -217,7 +217,7 @@ const styles = StyleSheet.create({
 	},
 	scrollView: {
 		overflow: 'visible',
-		width: handleSize,
+		width: DRAWER_HANDLE_SIZE,
 	},
 });
 

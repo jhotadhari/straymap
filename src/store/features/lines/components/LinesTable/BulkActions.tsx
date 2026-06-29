@@ -10,7 +10,7 @@ import Popover, { PopoverPlacement } from 'react-native-popover-view';
  * Internal dependencies
  */
 import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
-import { iconSize } from '../../../drawers/constants';
+import { DRAWER_ICON_SIZE } from '../../../drawers/constants';
 import useBulkActions from './useBulkActions';
 import { FooterContext } from './Context';
 import PopoverMenuItems from '../../../../../components/generic/PopoverMenuItems';
@@ -74,7 +74,7 @@ const BulkActions: FC = () => {
 			>
 				<Icon
 					source={'square-edit-outline'}
-					size={iconSize}
+					size={DRAWER_ICON_SIZE}
 					color={checkedIds.length ? undefined : theme.colors.onSurfaceDisabled}
 				/>
 			</ButtonHighlight>

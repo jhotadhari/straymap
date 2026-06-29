@@ -11,7 +11,7 @@ import { get, pick } from 'lodash-es';
  */
 import { Line, LineStats as LineStatsType } from '../../types';
 import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
-import { iconSize } from '../../../drawers/constants';
+import { DRAWER_ICON_SIZE } from '../../../drawers/constants';
 import LineStats from '../LineStats';
 import { lineCells, statsCells, otherCells, sharedStyles } from './sharedDeps';
 import TagBadge from '../TagBadge';
@@ -117,7 +117,7 @@ const TableRow: FC<TableRowProps> = ({
 					>
 						<Icon
 							source={isOnMap ? 'map-check' : 'map'}
-							size={iconSize}
+							size={DRAWER_ICON_SIZE}
 							color={isOnMap ? undefined : theme.colors.onSurfaceDisabled}
 						/>
 					</ButtonHighlight>
@@ -140,7 +140,7 @@ const TableRow: FC<TableRowProps> = ({
 				>
 					<Icon
 						source="cog"
-						size={iconSize}
+						size={DRAWER_ICON_SIZE}
 					/>
 				</ButtonHighlight>
 			</View>

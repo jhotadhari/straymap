@@ -1,19 +1,20 @@
 import { StyleSheet } from 'react-native';
 
-export const handleSize = 50;
-export const iconSize = 25;
+export const DRAWER_WIDTH = 300;
+export const DRAWER_HANDLE_SIZE = 50;
+export const DRAWER_ICON_SIZE = 25;
 
 export const itemStyles = StyleSheet.create({
 	item: {
-		gap: (handleSize - iconSize) / 4,
-		top: -(handleSize - iconSize) / 3,
+		gap: (DRAWER_HANDLE_SIZE - DRAWER_ICON_SIZE) / 4,
+		top: -(DRAWER_HANDLE_SIZE - DRAWER_ICON_SIZE) / 3,
 	},
 	buttonRow: {
-		marginVertical: (handleSize - iconSize) / 2,
+		marginVertical: (DRAWER_HANDLE_SIZE - DRAWER_ICON_SIZE) / 2,
 		marginHorizontal: 16,
 		gap: 8,
 	},
 	itemRow: {
-		marginBottom: (handleSize - iconSize) / 4,
+		marginBottom: (DRAWER_HANDLE_SIZE - DRAWER_ICON_SIZE) / 4,
 	},
 });

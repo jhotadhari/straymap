@@ -10,7 +10,7 @@ import { without } from 'lodash-es';
  * Internal dependencies
  */
 import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
-import { iconSize } from '../../../drawers/constants';
+import { DRAWER_ICON_SIZE } from '../../../drawers/constants';
 import { sprintf } from 'sprintf-js';
 import { sharedStyles } from './sharedDeps';
 import BulkActions from './BulkActions';
@@ -64,7 +64,7 @@ const Footer: FC = () => {
 			>
 				<Icon
 					source={'swap-horizontal-variant'}
-					size={iconSize}
+					size={DRAWER_ICON_SIZE}
 				/>
 			</ButtonHighlight>
 		</View>
