@@ -51,7 +51,7 @@ const useDirsInfo = ({
 	useEffect(() => {
 		if (undefined === infos) {
 			Promise.all(
-				[...navDirs].map((navDir) => {
+				navDirs.map((navDir) => {
 					return new Promise((resolve: (value: DirInfoMap | false) => void) => {
 						FsModule.getInfo(
 							navDir,
@@ -75,7 +75,7 @@ const useDirsInfo = ({
 			)
 				.then((maps: (false | DirInfoMap)[]) => {
 					let newInfos: DirInfoMap = {};
-					[...maps].map((dirInfoMap: DirInfoMap | false) => {
+					maps.forEach((dirInfoMap: DirInfoMap | false) => {
 						if (dirInfoMap) {
 							newInfos = {
 								...newInfos,

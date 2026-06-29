@@ -56,7 +56,7 @@ const HgtSourceRowControl = ({
 			label: t('custom'),
 		},
 	];
-	[...dirs].reverse().map((dir: AbsPath) => {
+	[...dirs].reverse().forEach((dir: AbsPath) => {
 		opts = [
 			{
 				key: dir,
@@ -173,7 +173,7 @@ const HgtSourceRowControl = ({
 					onDismiss={handleCloseModal}
 					header={t('map.selectDemDir')}
 				>
-					{[...opts].map((opt) => {
+					{opts.map((opt) => {
 						return (
 							<View
 								key={opt.key}

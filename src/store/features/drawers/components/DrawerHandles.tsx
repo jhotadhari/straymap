@@ -38,7 +38,7 @@ const DrawerHandles: FC<
 
 	const [panEnabled, setPanEnabled] = useState<boolean>(true);
 
-	const draggableItems = useMemo(() => [...itemKeys].map((key) => ({ key })), [itemKeys]);
+	const draggableItems = useMemo(() => itemKeys.map((key) => ({ key })), [itemKeys]);
 
 	const RenderItem = useCallback(
 		({ key }: { key?: string }) => {

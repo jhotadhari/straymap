@@ -28,7 +28,7 @@ const RoutingMapView = () => {
 
 	return (
 		<>
-			{[...points].map((fromPoint, index) => {
+			{points.map((fromPoint, index) => {
 				const segment = Object.values(segments).find((seg) => seg.fromId === fromPoint.id);
 
 				const toPoint = get(points, index + 1);

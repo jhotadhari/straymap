@@ -335,7 +335,7 @@ const EditModal: FC<{
 			{!layerTemp.type && (
 				<View>
 					<Text style={styles.selectType}>{t('baseMap.selectType')}</Text>
-					{[...mapTypeOptions].map((opt: LayerOption) => (
+					{mapTypeOptions.map((opt: LayerOption) => (
 						<OptionSelectType
 							key={opt.key}
 							option={opt}

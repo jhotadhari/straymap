@@ -97,7 +97,7 @@ const ControlModal: FC<{
 			setMapsforgeProfileTemp((profileTemp) => {
 				let newOverlays: string[] = [];
 				if (profileTemp && profileTemp.renderOverlays.length < opts.length) {
-					newOverlays = [...opts].map((opt) => opt.key);
+					newOverlays = opts.map((opt) => opt.key);
 				}
 				return {
 					...(profileTemp ?? {}),
@@ -164,7 +164,7 @@ const ControlModal: FC<{
 				</ButtonHighlight>
 			</View>
 
-			{[...opts].map((opt) => (
+			{opts.map((opt) => (
 				<Option
 					key={opt.key}
 					opt={opt}

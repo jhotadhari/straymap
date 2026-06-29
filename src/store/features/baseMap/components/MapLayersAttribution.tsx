@@ -89,7 +89,7 @@ const Inner = ({ layerInfos }: { layerInfos: { [value: string]: LayerInfo } }) =
 
 	return (
 		<View>
-			{[...attributions].map((attribution, index) => {
+			{attributions.map((attribution, index) => {
 				const Component = attribution.Component;
 				return (
 					<View

@@ -48,7 +48,7 @@ const ProfileRowControl = ({
 				key: 'default',
 				label: 'baseMap.useFirstOne',
 			},
-			...[...profiles].map((prof) => {
+			...profiles.map((prof) => {
 				const themeLabel = prof.theme ? prof.theme.split('/').slice(-1)[0] : '';
 				return {
 					key: prof.key,

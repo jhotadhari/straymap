@@ -80,7 +80,7 @@ const CacheRow = ({
 							? t('baseMap.layer', { count: cacheLayers.length }) + ': '
 							: t('baseMap.noLayerUseCache')}
 						{cacheLayers.length
-							? [...cacheLayers].map((layer) => layer.name).join(', ')
+							? cacheLayers.map((layer) => layer.name).join(', ')
 							: ''}
 					</Text>
 				</View>
@@ -182,7 +182,7 @@ const CacheManager = () => {
 			<View style={styles.controls}>
 				{cacheDirs.length === 0 && <LoadingIndicator />}
 
-				{[...cacheDirs].map((cacheDir: CacheDir) => {
+				{cacheDirs.map((cacheDir: CacheDir) => {
 					return (
 						<View
 							key={cacheDir.path}

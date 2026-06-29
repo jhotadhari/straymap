@@ -38,7 +38,7 @@ const themes: { [value: string]: ThemePropExtended } = {
 };
 
 // Loop themes, apply custom colors
-Object.keys(themes).map((key: string) => {
+Object.keys(themes).forEach((key: string) => {
 	// Custom colors
 	const colorSuccess = themes[key].dark
 		? {

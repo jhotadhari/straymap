@@ -277,7 +277,7 @@ const OptionsByPath: FC<{
 			{options.length === 0 && <Text>{noFilesHeading || ''}:</Text>}
 			{options.length > 0 && path.startsWith('/') && <Text>{filesHeading || ''}:</Text>}
 			<Text style={stylePath}>{path}</Text>
-			{[...options].map((option) => (
+			{options.map((option) => (
 				<Option
 					key={option.key}
 					option={option}
