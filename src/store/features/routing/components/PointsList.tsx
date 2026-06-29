@@ -15,7 +15,6 @@ import React, {
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { Icon, Text, useTheme } from 'react-native-paper';
 import MaterialIcons from '@react-native-vector-icons/material-icons/static';
-import formatcoords from 'formatcoords';
 import { get, omit, pick } from 'lodash-es';
 import { lineString } from '@turf/turf';
 import { useMutation, UseMutationOptions } from '@tanstack/react-query';
@@ -30,7 +29,9 @@ import LoadingIndicator from '../../../../components/generic/LoadingIndicator';
 import { useAppDispatch, useAppSelector } from '../../../hooks';
 import { deleteSegments, processRouting } from '../slice';
 import { selectIsRouting, selectSegments } from '../selectors';
+import { selectUnitPrefs } from '../../general/selectors';
 import { updateRoute } from '../db/actionsRoute';
+import { formatCoords } from '../../../../lib/formatting';
 import { lineStringToStats } from '../../../../lib/utils';
 import { deleteRoutingPoint } from '../db/actionsRoutingPoint';
 import { LineStats as LineStatsType } from '../../lines/types';
@@ -232,6 +233,8 @@ const DraggableItem: FC<{
 }> = ({ item, width, order, draggingItemIndex, setEditPoint, hasNext }) => {
 	const routeId = useAppSelector(selectIsRouting);
 
+	const unitPrefs = useAppSelector(selectUnitPrefs);
+
 	const dispatch = useAppDispatch();
 
 	const [isDeleting, setIsDeleting] = useState(false);
@@ -286,12 +289,11 @@ const DraggableItem: FC<{
 					<Text>{item.id}</Text>
 					<Text>
 						{item?.geometry?.coordinates &&
-							formatcoords(
+							formatCoords(
 								item.geometry.coordinates[1],
-								item.geometry.coordinates[0]
-							).format('dd', {
-								decimalPlaces: Math.min(4, 99),
-							})}
+								item.geometry.coordinates[0],
+								unitPrefs.coordinates
+							)}
 					</Text>
 				</Sortable.Handle>
 

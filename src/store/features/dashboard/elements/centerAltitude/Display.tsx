@@ -5,12 +5,10 @@ import React, { FC, useContext, useEffect, useMemo, useRef, useState } from 'rea
 import { Text, useTheme } from 'react-native-paper';
 import { get } from 'lodash-es';
 import { GestureResponderEvent, TouchableHighlight, View } from 'react-native';
-import convertUnits from 'convert-units';
-
 /**
  * Internal dependencies
  */
-import { roundTo } from '../../../../../lib/utilsLight';
+import { formatHeightDepth } from '../../../../../lib/formatting';
 import { MapContext } from '../../../../../Context';
 import { selectMapEventRate, selectUnitPrefs } from '../../../general/selectors';
 import { useAppSelector } from '../../../../hooks';
@@ -21,20 +19,6 @@ import useItemStyle from '../../hooks/useItemStyle';
 export interface Options {
 	unitPref?: UnitPref;
 }
-
-const formatOutput = (altitudeM: number | null, unit: UnitPref): string => {
-	if (null === altitudeM) {
-		return '-';
-	}
-	switch (unit.unit) {
-		case 'ft':
-			return roundTo(convertUnits(altitudeM).from('m').to('ft'), unit.round) + ' ft';
-		case 'fath':
-			return roundTo(altitudeM * 0.5468066492, unit.round) + ' fathom';
-		default:
-			return roundTo(altitudeM, unit.round) + ' m';
-	}
-};
 
 const Display: FC<DashboardElementProps<Options>> = ({ item, style = {}, onPress }) => {
 	const handlePress = useMemo(() => {
@@ -81,7 +65,9 @@ const Display: FC<DashboardElementProps<Options>> = ({ item, style = {}, onPress
 			onPress={handlePress}
 		>
 			<View style={viewStyle}>
-				<Text style={textStyle}>{formatOutput(altitudeM, unitPref)}</Text>
+				<Text style={textStyle}>
+					{altitudeM === null ? '-' : formatHeightDepth(altitudeM, unitPref)}
+				</Text>
 			</View>
 		</TouchableHighlight>
 	);
