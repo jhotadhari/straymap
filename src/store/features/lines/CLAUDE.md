@@ -74,7 +74,7 @@ Two paths converge on Redux `state.lines.selected`:
 
 ### Path A: AppView (lines not in table)
 ```
-User taps line on map → dispatch(setLineSelected(id, bool)) → Redux updated directly
+User selects line → dispatch(setLineSelected(id, bool)) → Redux updated directly
 ```
 
 ### Path B: LinesTable (lines in table view)
