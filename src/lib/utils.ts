@@ -1,8 +1,13 @@
 /**
  * External dependencies
  */
-import { InteractionManager } from 'react-native';
 import { LineString } from 'geojson';
+
+declare function requestIdleCallback(
+	callback: (deadline: { didTimeout: boolean; timeRemaining: () => number }) => void,
+	options?: { timeout?: number }
+): number;
+declare function cancelIdleCallback(handle: number): void;
 
 /**
  * Internal dependencies
@@ -35,7 +40,7 @@ export const strValToNb = (val: string, numType: NumType = 'int'): number => {
 
 export const runAfterInteractions = (
 	task: () => any,
-	delayFallback?: number // runs the task after milliseconds, if InteractionManager didn't start it.
+	delayFallback?: number // runs the task after milliseconds, if requestIdleCallback didn't fire
 ) => {
 	delayFallback = delayFallback ? delayFallback : 1000;
 	let shouldRun = true;
@@ -43,11 +48,12 @@ export const runAfterInteractions = (
 		if (shouldRun) {
 			shouldRun = false;
 			clearTimeout(timeout);
+			cancelIdleCallback(handle);
 			task();
 		}
 	};
 	const timeout = setTimeout(taskWrapped, delayFallback);
-	InteractionManager.runAfterInteractions(taskWrapped);
+	const handle = requestIdleCallback(taskWrapped);
 };
 
 export const lineStringToStats = async (
