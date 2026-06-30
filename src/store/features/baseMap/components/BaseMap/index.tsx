@@ -3,7 +3,11 @@
  */
 import { get, pick } from 'lodash-es';
 import { FC, useCallback, useMemo } from 'react';
-import { LayerMapsforgeResponse, LayerMBTilesBitmapResponse } from 'react-native-mapsforge-vtm';
+import {
+	LayerMapsforgeResponse,
+	LayerMBTilesBitmapResponse,
+	useLayerReindex,
+} from 'react-native-mapsforge-vtm';
 
 /**
  * Internal dependencies
@@ -56,6 +60,12 @@ const BaseMap: FC<{}> = () => {
 	const layersReverse = useMemo(() => [...layers].reverse(), [layers]);
 
 	const profiles = useAppSelector((state) => selectMapsforgeProfiles(state, { temp: false }));
+
+	// Bump the VTM registry generation on every render so useLayerOrder
+	// repositions already-registered layers to match the current document
+	// order. Needed because BaseMap re-renders via Redux without MapContainer
+	// itself re-rendering (which would normally bump the generation).
+	useLayerReindex();
 
 	return (
 		<>
