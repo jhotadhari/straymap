@@ -25,10 +25,7 @@ const useDeleteLines = () => {
 	// line that is currently being routed would orphan the active
 	// route and break the map display.
 	const deleteIds = useMemo(
-		() =>
-			routingLineId
-				? without(checkedIds, routingLineId)
-				: checkedIds,
+		() => (routingLineId ? without(checkedIds, routingLineId) : checkedIds),
 		[checkedIds, routingLineId]
 	);
 
@@ -45,17 +42,19 @@ const useDeleteLines = () => {
 		// Remove deleted IDs from local onMapIdsTemp so the
 		// LinesTable unmount cleanup doesn't re-populate Redux
 		// with stale IDs.
-		setOnMapIdsTemp &&
-			setOnMapIdsTemp((ids) => without(ids, ...deleteIds));
+		setOnMapIdsTemp && setOnMapIdsTemp((ids) => without(ids, ...deleteIds));
 		// Remove deleted line IDs from Redux so the map and
 		// DrawerTopBar update immediately.
 		dispatch(setLinesSelected(without(selectedIds, ...deleteIds)));
-	}, [setCheckedIds, setOnMapIdsTemp, dispatch, selectedIds, deleteIds]);
+	}, [
+		setCheckedIds,
+		setOnMapIdsTemp,
+		dispatch,
+		selectedIds,
+		deleteIds,
+	]);
 
-	const disabled = useCallback(
-		() => deleteIds.length === 0,
-		[deleteIds]
-	);
+	const disabled = useCallback(() => deleteIds.length === 0, [deleteIds]);
 
 	const { cb, modalNode, iconSource } = useDeleteLinesCbModal({
 		deleteIdsOrId: deleteIds,
@@ -74,7 +73,12 @@ const useDeleteLines = () => {
 			modalNode,
 			disabled,
 		}),
-		[cb, iconSource, modalNode, disabled]
+		[
+			cb,
+			iconSource,
+			modalNode,
+			disabled,
+		]
 	);
 };
 

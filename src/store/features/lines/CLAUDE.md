@@ -37,29 +37,29 @@ LinesState {
 
 ### Key thunks
 
-| Thunk | What it does |
-|-------|-------------|
-| `setLineSelected(id, isSelected?)` | Toggle-adds/removes a single line from `selected[]` |
+| Thunk                                | What it does                                                    |
+| ------------------------------------ | --------------------------------------------------------------- |
+| `setLineSelected(id, isSelected?)`   | Toggle-adds/removes a single line from `selected[]`             |
 | `setLinesSelected(newIds: number[])` | Bulk-replaces `selected[]`, preserving existing `visible` flags |
-| `setLineVisible(id, visible?)` | Toggles the `visible` flag on an already-selected line |
-| `setLineTemp(linePartial?)` | Sets/clears the draft line being edited in the modal |
+| `setLineVisible(id, visible?)`       | Toggles the `visible` flag on an already-selected line          |
+| `setLineTemp(linePartial?)`          | Sets/clears the draft line being edited in the modal            |
 
 ### Key selectors
 
-| Selector | Returns |
-|----------|---------|
-| `selectSelected` | `{ id, visible }[]` (deduplicated) |
+| Selector              | Returns                                                          |
+| --------------------- | ---------------------------------------------------------------- |
+| `selectSelected`      | `{ id, visible }[]` (deduplicated)                               |
 | `selectSelectedInfos` | `{ selectedIds: number[], visibleMap: Record<string, boolean> }` |
-| `selectLineTemp` | `LinePartial \| undefined` |
+| `selectLineTemp`      | `LinePartial \| undefined`                                       |
 
 ## React Query layer
 
 Two query families defined in `db/queryFns.ts`:
 
-| Query key | fetcher | What it returns |
-|-----------|---------|-----------------|
-| `['lines']` / `['lines', ids]` | `queryLinesWithoutGeom` | `LinePartial[]` (no geometry, **includes envelope**) |
-| `['lineGeom', lineId]` | `queryLineGeom` | Single line with geometry only (no envelope, no tags) |
+| Query key                      | fetcher                 | What it returns                                       |
+| ------------------------------ | ----------------------- | ----------------------------------------------------- |
+| `['lines']` / `['lines', ids]` | `queryLinesWithoutGeom` | `LinePartial[]` (no geometry, **includes envelope**)  |
+| `['lineGeom', lineId]`         | `queryLineGeom`         | Single line with geometry only (no envelope, no tags) |
 
 `staleTime: Infinity` — never auto-refetches. Must manually `invalidateQueries`
 after writes. Places that create/update/delete lines MUST invalidate both
@@ -73,11 +73,13 @@ fresh fetch on next mount (e.g. when LineEditModal reopens).
 Two paths converge on Redux `state.lines.selected`:
 
 ### Path A: AppView (lines not in table)
+
 ```
 User selects line → dispatch(setLineSelected(id, bool)) → Redux updated directly
 ```
 
 ### Path B: LinesTable (lines in table view)
+
 ```
 User toggles row checkbox → setOnMapIdsTemp(local state) → row re-renders
   … user may toggle many lines …
@@ -100,6 +102,7 @@ Rendered by `LineEditModalWrapper` (in `LinesTable.tsx`). Opens when
 `lineTemp` is set (via `dispatch(setLineTemp({ id }))`).
 
 ### Context (`LineEditModalContext`)
+
 ```
 {
   line?: LinePartial | null;     // from ['lines', [lineId]] query
@@ -111,15 +114,16 @@ Rendered by `LineEditModalWrapper` (in `LinesTable.tsx`). Opens when
 ```
 
 ### Rows (in render order)
-| Row | Purpose |
-|-----|---------|
-| `RowName` | Edits line title (dispatches `setLineTemp`) |
-| `RowFlyTo` | Smooth fly to line's bounding box (disabled if not on map) |
-| `RowToggleOnMap` | Toggle line visibility with dynamic icon/label |
-| `RowRouting` | Load/activate routing for this line |
-| `RowStats` | Show aggregated statistics |
-| `RowExport` | Export GPX (stub) |
-| `RowDelete` | Delete single line with confirmation modal |
+
+| Row              | Purpose                                                    |
+| ---------------- | ---------------------------------------------------------- |
+| `RowName`        | Edits line title (dispatches `setLineTemp`)                |
+| `RowFlyTo`       | Smooth fly to line's bounding box (disabled if not on map) |
+| `RowToggleOnMap` | Toggle line visibility with dynamic icon/label             |
+| `RowRouting`     | Load/activate routing for this line                        |
+| `RowStats`       | Show aggregated statistics                                 |
+| `RowExport`      | Export GPX (stub)                                          |
+| `RowDelete`      | Delete single line with confirmation modal                 |
 
 ## Bulk actions (`LinesTable/useBulkActions/`)
 
@@ -127,15 +131,16 @@ Each action is a hook returning `MenuActionOption { key, cb, label, leadingIcon,
 All return values are memoized with `useMemo`. The aggregator (`index.ts`) composes them
 into a `Record<string, MenuActionOption>` — also memoized.
 
-| Action | Hook | Modal? |
-|--------|------|--------|
-| Show on map | `useAddToMap` | No |
-| Remove from map | `useRemoveFromMap` | No |
-| Fly to | `useFlyTo` | No |
-| Show stats | `useShowStats` | Yes |
-| Delete lines | `useDeleteLines` | Yes |
+| Action          | Hook               | Modal? |
+| --------------- | ------------------ | ------ |
+| Show on map     | `useAddToMap`      | No     |
+| Remove from map | `useRemoveFromMap` | No     |
+| Fly to          | `useFlyTo`         | No     |
+| Show stats      | `useShowStats`     | Yes    |
+| Delete lines    | `useDeleteLines`   | Yes    |
 
 ### Consumer memo chain
+
 ```
 useBulkActions() → useMemo'd Record
   → BulkActions.tsx: useMemo(Object.values(actions))

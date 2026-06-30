@@ -29,6 +29,7 @@ RoutingPoint {
 **Route ↔ Line relationship**: A route is created with `line_id = null`.
 When the user adds waypoints and `processRouting` runs, it calls
 `updateLineFromSegments` which:
+
 1. Fetches brouter coordinates for each consecutive pair of waypoints
 2. Creates a new line (or updates an existing one) with the combined geometry
 3. Sets `route.line_id = newLine.id` via `updateRoute`
@@ -50,10 +51,10 @@ RoutingState {
 
 ### Key thunks
 
-| Thunk | What it does |
-|-------|-------------|
-| `setIsRouting(routeId \| false)` | Sets `isRouting`. Listener auto-triggers `processRouting` when truthy. |
-| `setRoutingLineId(lineId)` | Sets `routingLineId`. Persisted to storage. |
+| Thunk                                   | What it does                                                                  |
+| --------------------------------------- | ----------------------------------------------------------------------------- |
+| `setIsRouting(routeId \| false)`        | Sets `isRouting`. Listener auto-triggers `processRouting` when truthy.        |
+| `setRoutingLineId(lineId)`              | Sets `routingLineId`. Persisted to storage.                                   |
 | `processRouting(queryClient, options?)` | Fetches points, computes segments via brouter, creates/updates line geometry. |
 
 ### `processRouting` flow
@@ -79,10 +80,10 @@ middleware when a persisted route is re-loaded via `setIsRouting(routeId)`.
 
 ## Listener middleware (`routing/connectStorage.ts`)
 
-| Listener | Trigger | Effect |
-|----------|---------|--------|
-| Persistence | `setIsRoutingAction`, `setRoutingLineId` | Saves settings to `DefaultPreference` |
-| Auto-load | `setIsRoutingAction` with truthy payload | Dispatches `processRouting(queryClient, { updateLine: false })` |
+| Listener    | Trigger                                  | Effect                                                          |
+| ----------- | ---------------------------------------- | --------------------------------------------------------------- |
+| Persistence | `setIsRoutingAction`, `setRoutingLineId` | Saves settings to `DefaultPreference`                           |
+| Auto-load   | `setIsRoutingAction` with truthy payload | Dispatches `processRouting(queryClient, { updateLine: false })` |
 
 The auto-load listener means: **calling `dispatch(setIsRouting(routeId))` is
 sufficient to re-load a persisted route.** The listener picks it up and
@@ -104,9 +105,9 @@ dispatching `setIsRouting(route.id)`.
 
 ## React Query layer
 
-| Query key | fetcher | What it returns |
-|-----------|---------|-----------------|
-| `['route', routeId]` | `queryRoute` | Full `Route` with points, or `null` |
+| Query key                  | fetcher             | What it returns                          |
+| -------------------------- | ------------------- | ---------------------------------------- |
+| `['route', routeId]`       | `queryRoute`        | Full `Route` with points, or `null`      |
 | `['routeForLine', lineId]` | `queryRouteForLine` | Route whose `line_id` matches, or `null` |
 
 ### `fetchRoutes` fallback for zero-point routes
@@ -174,15 +175,15 @@ commit `00e770d`.
 
 ## Key components and hooks
 
-| Component/Hook | File | Role |
-|---------------|------|------|
-| `useToggleRouting` | `DrawerTopBar/useToggleRouting.ts` | Start/stop routing toggle |
-| `useActions` | `DrawerTopBar/useActions/index.ts` | Composes routing action hooks |
-| `useActionAppendPoint` | `useActions/useActionAppendPoint.ts` | Add waypoint at current map center |
-| `useActionDeleteLastPoint` | `useActions/useActionDeleteLastPoint.ts` | Remove last waypoint |
-| `RoutingActionsButton` | `RoutingActionsButton.tsx` | Popover menu with routing actions |
-| `RowRouting` | `lines/…/LineEditModal/RowRouting.tsx` | Load/activate a line's route from LineEditModal |
-| `useRoute` | `hooks/useRoute.ts` | Fetch active route from Redux + React Query |
+| Component/Hook             | File                                     | Role                                            |
+| -------------------------- | ---------------------------------------- | ----------------------------------------------- |
+| `useToggleRouting`         | `DrawerTopBar/useToggleRouting.ts`       | Start/stop routing toggle                       |
+| `useActions`               | `DrawerTopBar/useActions/index.ts`       | Composes routing action hooks                   |
+| `useActionAppendPoint`     | `useActions/useActionAppendPoint.ts`     | Add waypoint at current map center              |
+| `useActionDeleteLastPoint` | `useActions/useActionDeleteLastPoint.ts` | Remove last waypoint                            |
+| `RoutingActionsButton`     | `RoutingActionsButton.tsx`               | Popover menu with routing actions               |
+| `RowRouting`               | `lines/…/LineEditModal/RowRouting.tsx`   | Load/activate a line's route from LineEditModal |
+| `useRoute`                 | `hooks/useRoute.ts`                      | Fetch active route from Redux + React Query     |
 
 ## Gotchas
 

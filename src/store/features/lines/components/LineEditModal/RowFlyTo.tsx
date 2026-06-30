@@ -27,10 +27,7 @@ const RowFlyTo: FC = () => {
 
 	const { selectedIds } = useAppSelector(selectSelectedInfos);
 
-	const isSelected = useMemo(
-		() => selectedIds.includes(line?.id ?? -1),
-		[selectedIds, line?.id]
-	);
+	const isSelected = useMemo(() => selectedIds.includes(line?.id ?? -1), [selectedIds, line?.id]);
 
 	const handlePress = useCallback(() => {
 		if (line?.envelope && mapViewNativeNodeHandle && isSelected) {
@@ -45,12 +42,14 @@ const RowFlyTo: FC = () => {
 			];
 			flyToBounds(bbox, { paddingPx: 64 });
 		}
-	}, [flyToBounds, mapViewNativeNodeHandle, line?.envelope, isSelected]);
+	}, [
+		flyToBounds,
+		mapViewNativeNodeHandle,
+		line?.envelope,
+		isSelected,
+	]);
 
-	const disabled = useMemo(
-		() => !line?.envelope || !isSelected,
-		[line?.envelope, isSelected]
-	);
+	const disabled = useMemo(() => !line?.envelope || !isSelected, [line?.envelope, isSelected]);
 
 	const buttonStyle = useMemo(
 		() => ({

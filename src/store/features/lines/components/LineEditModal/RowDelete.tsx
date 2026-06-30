@@ -30,7 +30,11 @@ const RowDelete: FC = () => {
 	// Deleting it would orphan the active route and break the map.
 	const isRoutingLine = useMemo(
 		() => !!(lineTemp?.id && route?.id && isRouting === route.id),
-		[lineTemp?.id, route?.id, isRouting]
+		[
+			lineTemp?.id,
+			route?.id,
+			isRouting,
+		]
 	);
 
 	const removeFromMap = useCallback(() => {
@@ -87,9 +91,7 @@ const RowDelete: FC = () => {
 				textColor={theme.colors.onBackground}
 			>
 				<View>
-					<Text>
-						{isRoutingLine ? 'is routing line' : 'delete???'}
-					</Text>
+					<Text>{isRoutingLine ? 'is routing line' : 'delete???'}</Text>
 				</View>
 			</ButtonHighlight>
 		</InfoRowControl>

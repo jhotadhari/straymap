@@ -47,8 +47,7 @@ export const fetchRoutes = (params?: FetchRoutesParams): Promise<Route[]> => {
 			// Point fields
 			pointId: routingPointsTable.id,
 			pointTimestamp: routingPointsTable.timestamp,
-			geometryGeoJSON:
-				sql<string>`AsGeoJSON (${routingPointsTable.geometry})`,
+			geometryGeoJSON: sql<string>`AsGeoJSON (${routingPointsTable.geometry})`,
 			pointProfile: routingPointsTable.profile,
 
 			// Route fields
@@ -59,32 +58,20 @@ export const fetchRoutes = (params?: FetchRoutesParams): Promise<Route[]> => {
 
 			// Spatial stats from linesTable.geometry (flat join —
 			// geometry BLOB never enters a json_array() subquery)
-			length:
-				sql<string>`GreatCircleLength (${linesTable.geometry})`,
-			uphill:
-				sql<string>`UphillHeight (${linesTable.geometry})`,
-			downhill:
-				sql<string>`DownhillHeight (${linesTable.geometry})`,
+			length: sql<string>`GreatCircleLength (${linesTable.geometry})`,
+			uphill: sql<string>`UphillHeight (${linesTable.geometry})`,
+			downhill: sql<string>`DownhillHeight (${linesTable.geometry})`,
 			minZ: sql<string>`ST_MinZ (${linesTable.geometry})`,
 			maxZ: sql<string>`ST_MaxZ (${linesTable.geometry})`,
 		})
 		.from(routingPointsTable)
-		.leftJoin(
-			routesTable,
-			eq(routingPointsTable.route_id, routesTable.id)
-		)
+		.leftJoin(routesTable, eq(routingPointsTable.route_id, routesTable.id))
 		.leftJoin(linesTable, eq(routesTable.line_id, linesTable.id))
 		.where(
 			and(
-				routeId
-					? eq(routingPointsTable.route_id, routeId)
-					: undefined,
-				pointId
-					? eq(routingPointsTable.id, pointId)
-					: undefined,
-				lineId
-					? eq(routesTable.line_id, lineId)
-					: undefined
+				routeId ? eq(routingPointsTable.route_id, routeId) : undefined,
+				pointId ? eq(routingPointsTable.id, pointId) : undefined,
+				lineId ? eq(routesTable.line_id, lineId) : undefined
 			)
 		);
 
@@ -149,10 +136,7 @@ export const fetchRoutes = (params?: FetchRoutesParams): Promise<Route[]> => {
 						point_order: row.routePointOrder,
 						line_id: row.routeLineId,
 						stats: mapValues(
-							pick(
-								row,
-								statsFields
-							) as Record<string, string>,
+							pick(row, statsFields) as Record<string, string>,
 							(str: string) => parseFloat(str)
 						),
 						points: [],
@@ -166,10 +150,7 @@ export const fetchRoutes = (params?: FetchRoutesParams): Promise<Route[]> => {
 						profile: row.pointProfile,
 					};
 					acc[rId].points.push(
-						rowParseGeometryGeoJSON<
-							typeof pointFields,
-							Point
-						>(pointFields)
+						rowParseGeometryGeoJSON<typeof pointFields, Point>(pointFields)
 					);
 				}
 				return acc;
@@ -177,12 +158,7 @@ export const fetchRoutes = (params?: FetchRoutesParams): Promise<Route[]> => {
 		);
 
 		aggregated.forEach((route) => {
-			sortArrayByOrderArray(
-				route.points,
-				route.point_order,
-				'id',
-				true
-			);
+			sortArrayByOrderArray(route.points, route.point_order, 'id', true);
 		});
 
 		return aggregated;

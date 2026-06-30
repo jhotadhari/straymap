@@ -24,7 +24,11 @@ const useShowStats = () => {
 			leadingIcon: iconSource,
 			modalNode,
 		}),
-		[cb, iconSource, modalNode]
+		[
+			cb,
+			iconSource,
+			modalNode,
+		]
 	);
 };
 

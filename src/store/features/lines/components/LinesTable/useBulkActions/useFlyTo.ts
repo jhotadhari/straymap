@@ -44,9 +44,18 @@ const useFlyTo = () => {
 
 		if (minLng === Infinity) return;
 
-		const bbox: Bbox = [minLng, minLat, maxLng, maxLat];
+		const bbox: Bbox = [
+			minLng,
+			minLat,
+			maxLng,
+			maxLat,
+		];
 		flyToBounds(bbox, { paddingPx: 64 });
-	}, [lines, mapViewNativeNodeHandle, flyToBounds]);
+	}, [
+		lines,
+		mapViewNativeNodeHandle,
+		flyToBounds,
+	]);
 
 	const disabled = useCallback(() => checkedIds.length === 0, [checkedIds]);
 

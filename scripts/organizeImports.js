@@ -113,10 +113,7 @@ function organizeImportsInFile(filePath) {
 		}
 	}
 	// Push the last statement if it contains import lines (regardless of inStmt)
-	if (
-		currentLines.length > 0 &&
-		currentLines.some((l) => l.trim().startsWith('import '))
-	) {
+	if (currentLines.length > 0 && currentLines.some((l) => l.trim().startsWith('import '))) {
 		statements.push(currentLines.join('\n'));
 	}
 

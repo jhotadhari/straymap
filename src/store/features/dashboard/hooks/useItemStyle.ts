@@ -47,7 +47,11 @@ const useItemStyle = (item: DashboardElementProps['item']) => {
 			minWidth: minWidth ? minWidth : 1,
 			textAlign,
 		}),
-		[fontSize, minWidth, textAlign]
+		[
+			fontSize,
+			minWidth,
+			textAlign,
+		]
 	);
 };
 

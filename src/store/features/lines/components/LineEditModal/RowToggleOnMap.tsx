@@ -21,10 +21,7 @@ const RowToggleOnMap: FC = () => {
 
 	const { selectedIds } = useAppSelector(selectSelectedInfos);
 
-	const isSelected = useMemo(
-		() => selectedIds.includes(line?.id ?? -1),
-		[selectedIds, line?.id]
-	);
+	const isSelected = useMemo(() => selectedIds.includes(line?.id ?? -1), [selectedIds, line?.id]);
 
 	const disabled = useMemo(() => !line?.id, [line?.id]);
 
@@ -32,7 +29,11 @@ const RowToggleOnMap: FC = () => {
 		if (line?.id) {
 			selectLine(line.id, !isSelected);
 		}
-	}, [line?.id, isSelected, selectLine]);
+	}, [
+		line?.id,
+		isSelected,
+		selectLine,
+	]);
 
 	const icon = useMemo(() => (isSelected ? 'map-minus' : 'map-plus'), [isSelected]);
 
