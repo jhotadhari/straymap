@@ -23,8 +23,7 @@ import { DashboardElement } from '../../types';
 import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
 import InfoRowControl from '../../../../../components/generic/controls/InfoRowControl';
 import { ControlContext } from '../../ControlContext';
-
-const ICON_SIZE = 24;
+import { DASHBOARD_ICON_SIZE } from '../../../../../constants';
 
 const ItemControl: FC<{}> = ({}) => {
 	const { t } = useTranslation();
@@ -82,7 +81,7 @@ const ItemControl: FC<{}> = ({}) => {
 					pointerEvents="box-none"
 				>
 					<Icon
-						size={ICON_SIZE}
+						size={DASHBOARD_ICON_SIZE}
 						color={color}
 					/>
 				</View>

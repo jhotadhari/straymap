@@ -6,6 +6,11 @@ import { Style as ListStyle } from 'react-native-paper/lib/typescript/components
 import { useTheme, Icon, Text } from 'react-native-paper';
 import { StyleSheet, View, TouchableHighlight, ViewStyle, TextStyle } from 'react-native';
 
+/**
+ * Internal dependencies
+ */
+import { DRAWER_ICON_SIZE } from '../../constants';
+
 const MenuItem = ({
 	onPress,
 	leadingIcon,
@@ -59,7 +64,7 @@ const MenuItem = ({
 					<View style={styles.iconWrapper}>
 						<Icon
 							source={leadingIcon}
-							size={iconSize || 25}
+							size={iconSize || DRAWER_ICON_SIZE}
 							color={
 								iconColor ? iconColor : active ? theme.colors.onPrimary : undefined
 							}

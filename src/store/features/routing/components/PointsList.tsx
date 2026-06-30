@@ -41,8 +41,7 @@ import EditPointModal from './EditPointModal';
 import Sortable, { DragStartParams, SortableFlexDragEndParams } from 'react-native-sortables';
 import useDropIndicatorStyle from '../../../../compose/useDropIndicatorStyle';
 import { dbConnection } from '../../dbLoader/DBConnection';
-
-const iconSize = 25;
+import { DRAWER_ICON_SIZE } from '../../../../constants';
 
 const Segment: FC<{
 	item: RoutingPoint;
@@ -66,7 +65,7 @@ const Segment: FC<{
 				node = (
 					<MaterialIcons
 						name="error"
-						size={iconSize}
+						size={DRAWER_ICON_SIZE}
 						color={theme.colors.errorContainer}
 					/>
 				);
@@ -80,7 +79,7 @@ const Segment: FC<{
 				node = (
 					<Icon
 						source="dots-horizontal"
-						size={iconSize}
+						size={DRAWER_ICON_SIZE}
 					/>
 				);
 			// case ( !! ( segment && ! segment?.isFetching && segment?.positions ) ):
@@ -172,7 +171,7 @@ const Segment: FC<{
 					>
 						<Icon
 							source="refresh"
-							size={iconSize}
+							size={DRAWER_ICON_SIZE}
 						/>
 					</ButtonHighlight>
 				</View>
@@ -214,7 +213,7 @@ const Segment: FC<{
 					>
 						<Icon
 							source="cog"
-							size={iconSize}
+							size={DRAWER_ICON_SIZE}
 						/>
 					</ButtonHighlight>
 				</View>
@@ -304,7 +303,7 @@ const DraggableItem: FC<{
 				>
 					<Icon
 						source="delete"
-						size={iconSize}
+						size={DRAWER_ICON_SIZE}
 					/>
 				</ButtonHighlight>
 			</View>
@@ -487,7 +486,7 @@ const styles = StyleSheet.create({
 		marginVertical: -4,
 	},
 	placeholderIcon: {
-		width: iconSize, // icon size as empty placeholder
+		width: DRAWER_ICON_SIZE, // icon size as empty placeholder
 		height: 1, // any number to prevent layout jumps on refresh process routing.
 	},
 	draggableItem: {
