@@ -21,24 +21,44 @@ const useDeleteLines = () => {
 
 	const { selectedIds } = useAppSelector(selectSelectedInfos);
 
+	// Exclude the routing line from bulk deletion — deleting the
+	// line that is currently being routed would orphan the active
+	// route and break the map display.
+	const deleteIds = useMemo(
+		() =>
+			routingLineId
+				? without(checkedIds, routingLineId)
+				: checkedIds,
+		[checkedIds, routingLineId]
+	);
+
 	const removeLinesFromMap = useCallback(() => {
 		setOnMapIdsTemp &&
 			setOnMapIdsTemp((ids) => {
-				return uniq([...ids, ...checkedIds]);
+				return uniq([...ids, ...deleteIds]);
 			});
-	}, [setOnMapIdsTemp, checkedIds]);
+	}, [setOnMapIdsTemp, deleteIds]);
 
 	const onSuccess = useCallback(() => {
 		// Uncheck lines in the table.
 		setCheckedIds && setCheckedIds([]);
+		// Remove deleted IDs from local onMapIdsTemp so the
+		// LinesTable unmount cleanup doesn't re-populate Redux
+		// with stale IDs.
+		setOnMapIdsTemp &&
+			setOnMapIdsTemp((ids) => without(ids, ...deleteIds));
 		// Remove deleted line IDs from Redux so the map and
-		// DrawerTopBar update immediately (instead of waiting
-		// for the LinesTable unmount cleanup effect).
-		dispatch(setLinesSelected(without(selectedIds, ...checkedIds)));
-	}, [setCheckedIds, dispatch, selectedIds, checkedIds]);
+		// DrawerTopBar update immediately.
+		dispatch(setLinesSelected(without(selectedIds, ...deleteIds)));
+	}, [setCheckedIds, setOnMapIdsTemp, dispatch, selectedIds, deleteIds]);
+
+	const disabled = useCallback(
+		() => deleteIds.length === 0,
+		[deleteIds]
+	);
 
 	const { cb, modalNode, iconSource } = useDeleteLinesCbModal({
-		deleteIdsOrId: checkedIds,
+		deleteIdsOrId: deleteIds,
 		routeId,
 		routingLineId,
 		removeLinesFromMap,
@@ -52,8 +72,9 @@ const useDeleteLines = () => {
 			label: 'deleteLines',
 			leadingIcon: iconSource,
 			modalNode,
+			disabled,
 		}),
-		[cb, iconSource, modalNode]
+		[cb, iconSource, modalNode, disabled]
 	);
 };
 

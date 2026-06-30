@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { FC, useCallback, useContext } from 'react';
+import { FC, useCallback, useContext, useMemo } from 'react';
 import { View } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 
@@ -14,6 +14,7 @@ import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
 import useDeleteLinesCbModal from '../../hooks/useDeleteLinesCbModal';
 import { sharedStyles } from './sharedDeps';
 import { selectLineTemp } from '../../selectors';
+import { selectIsRouting } from '../../../routing/selectors';
 import { useAppSelector } from '../../../../hooks';
 
 const RowDelete: FC = () => {
@@ -22,6 +23,15 @@ const RowDelete: FC = () => {
 	const lineTemp = useAppSelector(selectLineTemp);
 
 	const { selectLine, route, onDismiss, onDeleteSuccess } = useContext(LineEditModalContext);
+
+	const isRouting = useAppSelector(selectIsRouting);
+
+	// Prevent deletion of the line that is currently being routed.
+	// Deleting it would orphan the active route and break the map.
+	const isRoutingLine = useMemo(
+		() => !!(lineTemp?.id && route?.id && isRouting === route.id),
+		[lineTemp?.id, route?.id, isRouting]
+	);
 
 	const removeFromMap = useCallback(() => {
 		lineTemp?.id && selectLine(lineTemp.id, false);
@@ -49,14 +59,27 @@ const RowDelete: FC = () => {
 		backgroundBlur: false,
 	});
 
+	const buttonStyle = useMemo(
+		() => ({
+			borderColor: theme.colors.onBackground,
+			...(isRoutingLine && {
+				opacity: 0.5,
+				borderColor: theme.colors.onSurfaceDisabled,
+			}),
+		}),
+		[theme, isRoutingLine]
+	);
+
 	return (
 		<InfoRowControl
 			label={'delete???'} // ??? translation
 		>
 			{modalNodeDelete}
 			<ButtonHighlight
+				style={buttonStyle}
 				mode="outlined"
 				compact={true}
+				disabled={isRoutingLine}
 				onPress={handleDelete}
 				icon={iconSourceDelete}
 				contentStyle={sharedStyles.buttonContent}
@@ -64,7 +87,9 @@ const RowDelete: FC = () => {
 				textColor={theme.colors.onBackground}
 			>
 				<View>
-					<Text>{'delete???'}</Text>
+					<Text>
+						{isRoutingLine ? 'is routing line' : 'delete???'}
+					</Text>
 				</View>
 			</ButtonHighlight>
 		</InfoRowControl>
