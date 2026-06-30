@@ -61,7 +61,7 @@ import {
 	selectHgtReadFileRate,
 	selectMapsforgeGeneral,
 } from '../store/features/baseMap/selectors';
-import BaseMap from '../store/features/baseMap/components/BaseMap';
+import BaseMap from '../store/features/baseMap/components/BaseMap/index';
 import UiItemComponent from '../store/features/ui/components/UiItemComponent';
 import { selectUiItemKeys } from '../store/features/ui/selectors';
 import MapLayersAttribution from '../store/features/baseMap/components/MapLayersAttribution';

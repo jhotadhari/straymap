@@ -20,7 +20,7 @@ import { setElementExpanded } from '../../../ui/slice';
 import { selectAppDirs } from '../../../dirs/selectors';
 import useCacheDirsInfo from '../../../dirs/hooks/useCacheDirsInfo';
 import { CacheDir, CacheSubDir } from '../../../dirs/types';
-import { getHillshadingCacheDirChild, stringifyProp } from '../../utils';
+import { getHillshadingCacheDirChild, resolveCacheDirBase, stringifyProp } from '../../utils';
 import { selectLayers } from '../../selectors';
 import { sharedStyles } from '../../../../../sharedStyles';
 
@@ -136,7 +136,7 @@ const CacheManager = () => {
 				if (undefined === cacheDirBase) {
 					return false;
 				}
-				cacheDirBase = 'internal' === cacheDirBase ? internalCacheDir : cacheDirBase;
+				cacheDirBase = resolveCacheDirBase(cacheDirBase, internalCacheDir);
 				let cacheDirChild = '';
 				switch (layer?.type) {
 					case 'hillshading':
