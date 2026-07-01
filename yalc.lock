@@ -7,7 +7,7 @@
       "replaced": "*"
     },
     "react-native-mapsforge-vtm": {
-      "signature": "54782d3f83e91d81fd2d1f13e212fb86",
+      "signature": "9ea7581634b73608b3d5820a79121c20",
       "file": true,
       "replaced": "^0.7.0"
     }
