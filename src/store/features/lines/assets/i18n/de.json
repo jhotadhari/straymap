@@ -22,6 +22,7 @@
 	"filterExcludes": "enthält nicht",
 	"filterStartsWith": "beginnt mit",
 	"filterEndsWith": "endet mit",
+	"filterRegex": "Regex",
 	"filterValue": "Wert",
 	"saveFilter": "Speichern",
 	"removeFilter": "Entfernen",
@@ -49,5 +50,11 @@
 	"statsSummary": "Statistiken",
 	"statsForLines": "Statistiken für %s Linien",
 	"hideStats": "Ausblenden",
-	"showStats": "Anzeigen"
+	"showStats": "Anzeigen",
+	"regexInfoTitle": "Reguläre Ausdrücke",
+	"regexInfo": "Ein regulärer Ausdruck (Regex) ist ein Muster, das Zeichenketten beschreibt. Z.B. findet \"^Mount\" alle Titel, die mit \"Mount\" beginnen. Auf regexr.com kannst du Muster lernen und testen.",
+	"hintNumericFilter": "Linien nach Mindest- und/oder Höchstwerten für diese Spalte filtern. Lass ein Feld leer, um diese Seite des Bereichs zu überspringen.",
+	"hintDateFilter": "Linien nach einem Datumsbereich filtern. Wähle Start- und/oder Enddatum — ein leeres Feld lässt diese Seite offen.",
+	"hintStringFilter": "Wähle einen Operator für die Titelsuche und gib einen Wert ein. \"Regex\" verwendet reguläre Ausdrücke für erweiterte Mustersuche.",
+	"regexUnavailable": "REGEXP ist nicht verfügbar. Regex-Filter funktionieren nicht."
 }

@@ -107,7 +107,10 @@ const FilterNumericModal: FC<{
 			header={columnLabel}
 			innerStyle={sharedStyles.modalInner}
 		>
-			<InfoRowControl label={t('lines.filterMin')}>
+			<InfoRowControl
+				label={t('lines.filterMin')}
+				Info={t('lines.hintNumericFilter')}
+			>
 				<TextInput
 					style={inputStyle}
 					value={minVal}
@@ -118,7 +121,10 @@ const FilterNumericModal: FC<{
 				/>
 			</InfoRowControl>
 
-			<InfoRowControl label={t('lines.filterMax')}>
+			<InfoRowControl
+				label={t('lines.filterMax')}
+				Info={t('lines.hintNumericFilter')}
+			>
 				<TextInput
 					style={inputStyle}
 					value={maxVal}

@@ -2,10 +2,12 @@
  * External dependencies
  */
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { StyleSheet, TextInput, View } from 'react-native';
+import { Dimensions, View } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { get } from 'lodash-es';
+import { DatePickerInput } from 'react-native-paper-dates';
+import dayjs from 'dayjs';
 
 /**
  * Internal dependencies
@@ -17,6 +19,21 @@ import { sharedStyles as appSharedStyles } from '../../../../../../sharedStyles'
 import { sharedStyles } from '../sharedDeps';
 import { DateColumnFilter } from '../../../types';
 
+const dateToString = (d: Date | undefined): string | undefined => {
+	if (!d) {
+		return undefined;
+	}
+	return dayjs(d).format('YYYY-MM-DD');
+};
+
+const stringToDate = (s: string | undefined): Date | undefined => {
+	if (!s) {
+		return undefined;
+	}
+	const parsed = dayjs(s, 'YYYY-MM-DD');
+	return parsed.isValid() ? parsed.toDate() : undefined;
+};
+
 const FilterDateModal: FC<{
 	visible: boolean;
 	columnKey: string;
@@ -26,38 +43,39 @@ const FilterDateModal: FC<{
 	onDelete?: () => void;
 }> = ({ visible, columnKey, existingFilter, onDismiss, onSave, onDelete }) => {
 	const theme = useTheme();
-	const { t } = useTranslation();
+	const { t, i18n } = useTranslation();
 
-	const [minVal, setMinVal] = useState<string | undefined>(existingFilter?.min);
-	const [maxVal, setMaxVal] = useState<string | undefined>(existingFilter?.max);
+	const [minDate, setMinDate] = useState<Date | undefined>(
+		stringToDate(existingFilter?.min)
+	);
+	const [maxDate, setMaxDate] = useState<Date | undefined>(
+		stringToDate(existingFilter?.max)
+	);
 
 	const saveRef = useRef<undefined | (() => void)>(undefined);
 
 	useEffect(() => {
 		saveRef.current = () => {
-			if (minVal !== undefined || maxVal !== undefined) {
+			const minStr = dateToString(minDate);
+			const maxStr = dateToString(maxDate);
+			if (minStr !== undefined || maxStr !== undefined) {
 				onSave({
 					type: 'date',
 					columnKey,
-					min: minVal,
-					max: maxVal,
+					min: minStr,
+					max: maxStr,
 				});
 			}
 		};
-	}, [
-		columnKey,
-		minVal,
-		maxVal,
-		onSave,
-	]);
+	}, [columnKey, minDate, maxDate, onSave]);
 
 	const prevVisibleRef = useRef(false);
 	useEffect(() => {
 		const justOpened = visible && !prevVisibleRef.current;
 		prevVisibleRef.current = visible;
 		if (justOpened) {
-			setMinVal(existingFilter?.min);
-			setMaxVal(existingFilter?.max);
+			setMinDate(stringToDate(existingFilter?.min));
+			setMaxDate(stringToDate(existingFilter?.max));
 		}
 	}, [visible, existingFilter]);
 
@@ -73,16 +91,10 @@ const FilterDateModal: FC<{
 
 	const columnLabel = useMemo(() => t(`lines.columns.${columnKey}`), [t, columnKey]);
 
-	const inputStyle = useMemo(
-		() => [
-			styles.input,
-			{
-				color: theme.colors.onSurface,
-				borderColor: theme.colors.outline,
-			},
-		],
-		[theme]
-	);
+	const locale = useMemo(() => (i18n.language === 'de' ? 'de' : 'en'), [i18n.language]);
+
+	const { width } = Dimensions.get('window');
+	const inputWidth = useMemo(() => width * 0.55, [width]);
 
 	return (
 		<ModalWrapper
@@ -91,23 +103,35 @@ const FilterDateModal: FC<{
 			header={columnLabel}
 			innerStyle={sharedStyles.modalInner}
 		>
-			<InfoRowControl label={t('lines.filterMin')}>
-				<TextInput
-					style={inputStyle}
-					value={minVal ?? ''}
-					onChangeText={setMinVal}
-					placeholder="YYYY-MM-DD"
-					placeholderTextColor={theme.colors.outline}
+			<InfoRowControl
+				label={t('lines.filterMin')}
+				Info={t('lines.hintDateFilter')}
+			>
+				<DatePickerInput
+					locale={locale}
+					value={minDate}
+					onChange={setMinDate}
+					inputMode="start"
+					label={''}
+					mode="outlined"
+					withDateFormatInLabel={false}
+					style={{ width: inputWidth }}
 				/>
 			</InfoRowControl>
 
-			<InfoRowControl label={t('lines.filterMax')}>
-				<TextInput
-					style={inputStyle}
-					value={maxVal ?? ''}
-					onChangeText={setMaxVal}
-					placeholder="YYYY-MM-DD"
-					placeholderTextColor={theme.colors.outline}
+			<InfoRowControl
+				label={t('lines.filterMax')}
+				Info={t('lines.hintDateFilter')}
+			>
+				<DatePickerInput
+					locale={locale}
+					value={maxDate}
+					onChange={setMaxDate}
+					inputMode="end"
+					label={''}
+					mode="outlined"
+					withDateFormatInLabel={false}
+					style={{ width: inputWidth }}
 				/>
 			</InfoRowControl>
 
@@ -135,16 +159,5 @@ const FilterDateModal: FC<{
 		</ModalWrapper>
 	);
 };
-
-const styles = StyleSheet.create({
-	input: {
-		borderWidth: 1,
-		borderRadius: 4,
-		paddingHorizontal: 8,
-		paddingVertical: 4,
-		minWidth: 150,
-		textAlign: 'right',
-	},
-});
 
 export default FilterDateModal;

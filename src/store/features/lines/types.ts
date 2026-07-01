@@ -56,7 +56,8 @@ export type StringFilterOperator =
 	| 'includes'
 	| 'excludes'
 	| 'startsWith'
-	| 'endsWith';
+	| 'endsWith'
+	| 'regex';
 
 export interface NumericColumnFilter {
 	type: 'numeric';

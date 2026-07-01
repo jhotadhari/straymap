@@ -13,16 +13,19 @@ import { get } from 'lodash-es';
 import ModalWrapper from '../../../../../../components/generic/ModalWrapper';
 import ButtonHighlight from '../../../../../../components/generic/ButtonHighlight';
 import InfoRowControl from '../../../../../../components/generic/controls/InfoRowControl';
+import HintLink from '../../../../../../components/generic/HintLink';
 import RadioListItem from '../../../../../../components/generic/RadioListItem';
 import { sharedStyles as appSharedStyles } from '../../../../../../sharedStyles';
 import { sharedStyles } from '../sharedDeps';
 import { StringColumnFilter, StringFilterOperator } from '../../../types';
+import { dbConnection } from '../../../../dbLoader/DBConnection';
 
 const OPERATORS: StringFilterOperator[] = [
 	'includes',
 	'excludes',
 	'startsWith',
 	'endsWith',
+	'regex',
 ];
 
 const FilterStringModal: FC<{
@@ -54,12 +57,7 @@ const FilterStringModal: FC<{
 				});
 			}
 		};
-	}, [
-		columnKey,
-		operator,
-		value,
-		onSave,
-	]);
+	}, [columnKey, operator, value, onSave]);
 
 	const prevVisibleRef = useRef(false);
 	useEffect(() => {
@@ -92,16 +90,44 @@ const FilterStringModal: FC<{
 		[t]
 	);
 
+	const regexUnavailable = operator === 'regex' && !dbConnection.regexpAvailable;
+
 	const inputStyle = useMemo(
 		() => [
-			styles.input,
+			localStyles.input,
 			{
 				color: theme.colors.onSurface,
-				borderColor: theme.colors.outline,
+				borderColor: regexUnavailable
+					? theme.colors.error
+					: theme.colors.outline,
 			},
 		],
-		[theme]
+		[theme, regexUnavailable]
 	);
+
+	const stringFilterInfo = useMemo(
+		() => (
+			<View>
+				<Text>{t('lines.hintStringFilter')}</Text>
+			</View>
+		),
+		[t]
+	);
+
+	const regexInfo = useMemo(
+		() => (
+			<View>
+				<Text style={localStyles.regexInfoText}>{t('lines.regexInfo')}</Text>
+				<HintLink
+					label="regexr.com"
+					url="https://regexr.com/"
+				/>
+			</View>
+		),
+		[t]
+	);
+
+	const infoForOperator = operator === 'regex' ? regexInfo : stringFilterInfo;
 
 	return (
 		<ModalWrapper
@@ -120,15 +146,24 @@ const FilterStringModal: FC<{
 				/>
 			))}
 
-			<InfoRowControl label={t('lines.filterValue')}>
+			<InfoRowControl
+				label={t('lines.filterValue')}
+				Info={infoForOperator}
+			>
 				<TextInput
 					style={inputStyle}
 					value={value}
 					onChangeText={setValue}
-					placeholder={t('lines.filterValue')}
+					placeholder={operator === 'regex' ? '^Mount.*' : t('lines.filterValue')}
 					placeholderTextColor={theme.colors.outline}
 				/>
 			</InfoRowControl>
+
+			{regexUnavailable && (
+				<Text style={[localStyles.regexUnavailableText, { color: theme.colors.error }]}>
+					{t('lines.regexUnavailable')}
+				</Text>
+			)}
 
 			<View style={appSharedStyles.modalControls}>
 				<ButtonHighlight
@@ -155,7 +190,7 @@ const FilterStringModal: FC<{
 	);
 };
 
-const styles = StyleSheet.create({
+const localStyles = StyleSheet.create({
 	input: {
 		borderWidth: 1,
 		borderRadius: 4,
@@ -163,6 +198,12 @@ const styles = StyleSheet.create({
 		paddingVertical: 4,
 		minWidth: 150,
 		textAlign: 'right',
+	},
+	regexInfoText: {
+		marginBottom: 12,
+	},
+	regexUnavailableText: {
+		fontSize: 12,
 	},
 });
 

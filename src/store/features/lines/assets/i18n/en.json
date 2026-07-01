@@ -22,6 +22,7 @@
 	"filterExcludes": "excludes",
 	"filterStartsWith": "starts with",
 	"filterEndsWith": "ends with",
+	"filterRegex": "regex",
 	"filterValue": "Value",
 	"saveFilter": "Save",
 	"removeFilter": "Remove",
@@ -49,5 +50,11 @@
 	"statsSummary": "Statistics",
 	"statsForLines": "Statistics for %s lines",
 	"hideStats": "Hide",
-	"showStats": "Show"
+	"showStats": "Show",
+	"regexInfoTitle": "Regular expressions",
+	"regexInfo": "A regular expression (regex) is a pattern that describes sets of strings. For example, the pattern \"^Mount\" matches titles starting with \"Mount\". Use regexr.com to learn and test patterns.",
+	"hintNumericFilter": "Filter lines by minimum and/or maximum values for this column. Leave a field empty to skip that side of the range.",
+	"hintDateFilter": "Filter lines by a date range. Select start and/or end dates — leave either empty to leave that side unbounded.",
+	"hintStringFilter": "Choose an operator to match against the title and enter a value. \"regex\" uses regular expressions for advanced pattern matching.",
+	"regexUnavailable": "REGEXP is not available. Regex filters will not work."
 }

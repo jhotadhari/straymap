@@ -19,6 +19,9 @@ class DBConnection {
 
 	queryClient?: QueryClient;
 
+
+	/** Whether SpatiaLite registered regexp() — needed for REGEXP operator. */
+	regexpAvailable = false;
 	constructor() {}
 
 	initialize(dbPath: string) {
@@ -44,6 +47,19 @@ class DBConnection {
 		};
 		this.op = open(conf);
 		this.op.loadExtension('libspatialite', 'sqlite3_modspatialite_init');
+
+			// SpatiaLite 5+ bundles RegexpCache which registers regexp() for
+			// the REGEXP operator. Verify availability at init so callers can
+			// check dbConnection.regexpAvailable before issuing REGEXP queries.
+			try {
+				this.op.execute(
+					"SELECT CASE WHEN REGEXP('t.st', 'test') THEN 1 ELSE 0 END"
+				);
+				this.regexpAvailable = true;
+			} catch {
+				this.regexpAvailable = false;
+			}
+
 	}
 
 	setDbZ() {

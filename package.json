@@ -58,6 +58,7 @@
     "react-native-mapsforge-vtm": "file:.yalc/react-native-mapsforge-vtm",
     "react-native-markdown-display": "^7.0.2",
     "react-native-paper": "^5.12.5",
+    "react-native-paper-dates": "^0.23.9",
     "react-native-popover-view": "^6.1.0",
     "react-native-reanimated": "^4.5.0",
     "react-native-safe-area-context": "^5.4.0",

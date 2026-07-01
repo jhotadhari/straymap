@@ -29,7 +29,10 @@ export const STATS_SQL: Record<string, ReturnType<typeof sql>> = {
 	maxZ: sql`ST_MaxZ (${linesTable.geometry})`,
 };
 
-const STRING_OPERATOR_PATTERNS: Record<StringFilterOperator, (value: string) => string> = {
+const STRING_OPERATOR_PATTERNS: Record<
+	Exclude<StringFilterOperator, 'regex'>,
+	(value: string) => string
+> = {
 	includes: (v) => `%${v}%`,
 	excludes: (v) => `%${v}%`,
 	startsWith: (v) => `${v}%`,
@@ -105,6 +108,11 @@ const buildDateWhere = (filter: DateColumnFilter): SQL | undefined => {
 const buildStringWhere = (filter: StringColumnFilter): SQL | undefined => {
 	if (!filter.value) {
 		return undefined;
+	}
+	if (filter.operator === 'regex') {
+		// SQLite REGEXP operator: x REGEXP y calls regexp(y, x).
+		// SpatiaLite 5+ registers regexp(); if unavailable, the query will error.
+		return sql`${linesTable.title} REGEXP ${filter.value}`;
 	}
 	const pattern = STRING_OPERATOR_PATTERNS[filter.operator](filter.value);
 	if (filter.operator === 'excludes') {
