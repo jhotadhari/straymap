@@ -33,3 +33,8 @@ export interface Line {
 }
 
 export type LinePartial = WithRequired<Partial<Line>, 'id'>;
+
+export interface TableColumn {
+	key: string;
+	visible: boolean;
+}

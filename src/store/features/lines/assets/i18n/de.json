@@ -1,4 +1,15 @@
 {
 	"tracksRoutes": "Strecken und Routen",
-	"flyTo": "Anfliegen"
+	"flyTo": "Anfliegen",
+	"selectColumns": "Spalten auswählen und sortieren",
+	"columns": {
+		"timestamp": "Datum",
+		"title": "Titel",
+		"length": "Länge",
+		"uphill": "Anstieg",
+		"downhill": "Abstieg",
+		"minZ": "Min. Höhe",
+		"maxZ": "Max. Höhe",
+		"tags": "Tags"
+	}
 }

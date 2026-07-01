@@ -4,16 +4,29 @@
 import { FC, useMemo } from 'react';
 import { StyleProp, View, ViewStyle } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 
 /**
  * Internal dependencies
  */
-import { sharedStyles, lineCells, statsCells, otherCells } from './sharedDeps';
+import { sharedStyles, cellConfigs, getCellCategory } from './sharedDeps';
+import { TableColumn } from '../../types';
+import { useAppSelector } from '../../../../hooks';
+import { selectTableColumns } from '../../selectors';
 
 const TableHeader: FC<{
 	styleCell: StyleProp<ViewStyle>;
 }> = ({ styleCell }) => {
 	const theme = useTheme();
+
+	const { t } = useTranslation();
+
+	const tableColumns: TableColumn[] = useAppSelector(selectTableColumns);
+
+	const visibleColumns = useMemo(
+		() => tableColumns.filter((column) => column.visible),
+		[tableColumns]
+	);
 
 	const style: StyleProp<ViewStyle> = useMemo(
 		() => [
@@ -39,41 +52,18 @@ const TableHeader: FC<{
 
 	return (
 		<View style={styleContainer}>
+			{/* empty placeholder for the column containing action buttons */}
 			<View style={style} />
 
-			{Object.keys(lineCells).map((key) => {
+			{visibleColumns.map((column) => {
+				const baseStyle = 'line' === getCellCategory(column.key) ? style : styleCell;
+				const cellStyle = cellConfigs[column.key]?.style;
 				return (
 					<View
-						key={key}
-						style={lineCells[key]?.style ? [style, lineCells[key]?.style] : style}
+						key={column.key}
+						style={cellStyle ? [baseStyle, cellStyle] : baseStyle}
 					>
-						<Text>{key}</Text>
-					</View>
-				);
-			})}
-
-			{Object.keys(otherCells).map((key) => {
-				return (
-					<View
-						key={key}
-						style={
-							otherCells[key]?.style ? [styleCell, otherCells[key]?.style] : styleCell
-						}
-					>
-						<Text>{key}</Text>
-					</View>
-				);
-			})}
-
-			{Object.keys(statsCells).map((key) => {
-				return (
-					<View
-						key={key}
-						style={
-							statsCells[key]?.style ? [styleCell, statsCells[key]?.style] : styleCell
-						}
-					>
-						<Text>{key}</Text>
+						<Text>{t(`lines.columns.${column.key}`)}</Text>
 					</View>
 				);
 			})}

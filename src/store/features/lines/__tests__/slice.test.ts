@@ -51,7 +51,11 @@ describe('lines slice reducers', () => {
 
 	it('setLineTemp clears lineTemp', () => {
 		const state = linesReducer(
-			{ initialized: false, selected: [], lineTemp: { id: 1 } } as LinesState,
+			{
+				initialized: false,
+				...initialSettings,
+				lineTemp: { id: 1 },
+			} as LinesState,
 			setLineTemp(undefined)
 		);
 		expect(state.lineTemp).toBeUndefined();

@@ -10,6 +10,7 @@ import {
 } from './store/features/baseMap/types';
 
 export const modalWidthFactor = 0.8;
+export const modalPadding = 16;
 
 /**
  * Icon sizes used across the app.

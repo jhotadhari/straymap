@@ -9,15 +9,16 @@ import { get, pick } from 'lodash-es';
 /**
  * Internal dependencies
  */
-import { Line, LineStats as LineStatsType } from '../../types';
+import { Line, LineStats as LineStatsType, TableColumn } from '../../types';
 import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
 import { DRAWER_ICON_SIZE } from '../../../drawers/constants';
 import LineStats from '../LineStats';
-import { lineCells, statsCells, otherCells, sharedStyles } from './sharedDeps';
+import { cellConfigs, sharedStyles, getCellCategory } from './sharedDeps';
 import TagBadge from '../TagBadge';
 import IconRouting from '../../../drawers/items/routing/IconComponent';
-import { useAppDispatch } from '../../../../hooks';
+import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { setLineTemp } from '../../slice';
+import { selectTableColumns } from '../../selectors';
 
 const OtherCell: FC<{
 	cellKey: string;
@@ -68,6 +69,13 @@ const TableRow: FC<TableRowProps> = ({
 	const theme = useTheme();
 
 	const dispatch = useAppDispatch();
+
+	const tableColumns: TableColumn[] = useAppSelector(selectTableColumns);
+
+	const visibleColumns = useMemo(
+		() => tableColumns.filter((column) => column.visible),
+		[tableColumns]
+	);
 
 	const toggleOnMap = useCallback(() => toggleOnMapId(line.id), [line.id, toggleOnMapId]);
 
@@ -147,50 +155,46 @@ const TableRow: FC<TableRowProps> = ({
 
 			<TouchableWithoutFeedback onPress={toggleChecked}>
 				<View style={sharedStyles.flexRow}>
-					{Object.keys(lineCells).map((key) => (
-						<View
-							key={key}
-							style={
-								lineCells[key]?.style
-									? [styleCell, lineCells[key]?.style]
-									: styleCell
-							}
-						>
-							<Text>{get(line, key)}</Text>
-						</View>
-					))}
+					{visibleColumns.map((column) => {
+						const cellStyle = cellConfigs[column.key]?.style;
+						const columnStyle = cellStyle ? [styleCell, cellStyle] : styleCell;
 
-					{Object.keys(otherCells).map((key) => (
-						<OtherCell
-							key={key}
-							cellKey={key}
-							line={line}
-							style={
-								otherCells[key]?.style
-									? [styleCell, otherCells[key]?.style]
-									: styleCell
-							}
-						/>
-					))}
-
-					{Object.keys(statsCells).map((key) => (
-						<View
-							key={key}
-							style={
-								statsCells[key]?.style
-									? [styleCell, statsCells[key]?.style]
-									: styleCell
-							}
-						>
-							{undefined !== get(stats, key) && (
-								<LineStats
-									stats={pick(stats, key)}
-									round={0}
-									plain={true}
-								/>
-							)}
-						</View>
-					))}
+						switch (getCellCategory(column.key)) {
+							case 'other':
+								return (
+									<OtherCell
+										key={column.key}
+										cellKey={column.key}
+										line={line}
+										style={columnStyle}
+									/>
+								);
+							case 'stats':
+								return (
+									<View
+										key={column.key}
+										style={columnStyle}
+									>
+										{undefined !== get(stats, column.key) && (
+											<LineStats
+												stats={pick(stats, column.key)}
+												round={0}
+												plain={true}
+											/>
+										)}
+									</View>
+								);
+							default:
+								return (
+									<View
+										key={column.key}
+										style={columnStyle}
+									>
+										<Text>{get(line, column.key)}</Text>
+									</View>
+								);
+						}
+					})}
 				</View>
 			</TouchableWithoutFeedback>
 		</View>

@@ -18,6 +18,7 @@ import {
 } from 'react-native';
 import { useTheme, Text, Icon } from 'react-native-paper';
 import { BlurView } from '@react-native-community/blur';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import Animated, {
 	Easing,
 	ReduceMotion,
@@ -30,7 +31,7 @@ import Animated, {
  * Internal dependencies
  */
 import { AppContext } from '../../Context';
-import { modalWidthFactor } from '../../constants';
+import { modalWidthFactor, modalPadding } from '../../constants';
 import useKeyboardShown from '../../compose/useKeyboardShown';
 
 const styles = StyleSheet.create({
@@ -118,7 +119,7 @@ const ModalWrapper: FC<{
 		() => ({
 			backgroundColor: theme.colors.background,
 			width: width * modalWidthFactor,
-			padding: 20,
+			padding: modalPadding,
 			borderColor: theme.colors.outline,
 			borderWidth: 1,
 			borderRadius: theme.roundness,
@@ -166,7 +167,7 @@ const ModalWrapper: FC<{
 			onRequestClose={handleDismissAll}
 			statusBarTranslucent
 		>
-			<View style={styles.flex1}>
+			<GestureHandlerRootView style={styles.flex1}>
 				<AppContext.Provider value={context}>
 					{/* Backdrop — fills the modal window */}
 					<Pressable
@@ -225,7 +226,7 @@ const ModalWrapper: FC<{
 						</Animated.View>
 					</View>
 				</AppContext.Provider>
-			</View>
+			</GestureHandlerRootView>
 		</RNModal>
 	);
 };

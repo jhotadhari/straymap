@@ -3,6 +3,7 @@
  */
 import type { PayloadAction } from '@reduxjs/toolkit';
 import { createSlice } from '@reduxjs/toolkit';
+import { isEqual, uniq } from 'lodash-es';
 
 /**
  * Internal dependencies
@@ -10,14 +11,14 @@ import { createSlice } from '@reduxjs/toolkit';
 import { SliceSettingsBase } from '../../../types';
 import { selectSelected } from './selectors';
 import { AppThunk } from '../../store';
-import { LinePartial } from './types';
-import { isEqual, uniq } from 'lodash-es';
+import { LinePartial, TableColumn } from './types';
 
 export interface LinesSettings {
 	selected: {
 		id: number;
 		visible: boolean;
 	}[];
+	tableColumns: TableColumn[];
 }
 
 export interface LinesState extends SliceSettingsBase, LinesSettings {
@@ -26,6 +27,7 @@ export interface LinesState extends SliceSettingsBase, LinesSettings {
 
 export const initialSettings: LinesSettings = {
 	selected: [],
+	tableColumns: [],
 };
 
 const initialState: LinesState = {
@@ -45,6 +47,9 @@ export const linesSlice = createSlice({
 		setLineTemp: (state, action: PayloadAction<LinesState['lineTemp']>) => {
 			state.lineTemp = action.payload;
 		},
+		setTableColumns: (state, action: PayloadAction<LinesState['tableColumns']>) => {
+			state.tableColumns = action.payload;
+		},
 		setSelected: (state, action: PayloadAction<LinesState['selected']>) => {
 			state.selected = uniq(action.payload).sort((a, b) => {
 				return a.id - b.id;
@@ -54,7 +59,7 @@ export const linesSlice = createSlice({
 });
 
 // Export the generated action creators for use in components.
-export const { setInitialized, setSelected, setLineTemp } = linesSlice.actions;
+export const { setInitialized, setTableColumns, setSelected, setLineTemp } = linesSlice.actions;
 
 // Export the slice reducer for use in the store configuration
 export default linesSlice.reducer;

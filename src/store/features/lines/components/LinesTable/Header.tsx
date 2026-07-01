@@ -9,6 +9,7 @@ import { useTheme, Text } from 'react-native-paper';
  * Internal dependencies
  */
 import { sharedStyles } from './sharedDeps';
+import SelectColumns from './SelectColumns';
 
 const Header: FC = () => {
 	const theme = useTheme();
@@ -29,6 +30,8 @@ const Header: FC = () => {
 		<View style={style}>
 			{/* ??? translation */}
 			<Text>{'... Some filters ??? TODO'}</Text>
+
+			<SelectColumns/>
 		</View>
 	);
 };
