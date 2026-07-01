@@ -19,10 +19,61 @@ import {
 	Line,
 	LinePartial,
 	SortState,
+	StringColumnFilter,
 	STATS_FIELDS,
 	Tag,
 } from '../types';
 import { STATS_SQL, buildOrderByClause, buildWhereClause } from './filterSortHelpers';
+
+/**
+ * Separates regex string filters from other filters.  Regex filters are
+ * applied in JavaScript after the query because SQLite's REGEXP operator
+ * requires a user-defined regexp() function that may not be available.
+ */
+const extractRegexFilters = (
+	filters?: ColumnFilter[]
+): {
+	sqlFilters: ColumnFilter[];
+	regexFilters: StringColumnFilter[];
+} => {
+	if (!filters?.length) {
+		return { sqlFilters: filters ?? [], regexFilters: [] };
+	}
+	const regexFilters: StringColumnFilter[] = [];
+	const sqlFilters: ColumnFilter[] = [];
+	for (const f of filters) {
+		if (
+			f.type === 'string' &&
+			f.operator === 'regex' &&
+			!dbConnection.regexpAvailable
+		) {
+			regexFilters.push(f);
+		} else {
+			sqlFilters.push(f);
+		}
+	}
+	return { sqlFilters, regexFilters };
+};
+
+const applyRegexFilters = <T extends { title?: string | null }>(
+	rows: T[],
+	regexFilters: StringColumnFilter[]
+): T[] => {
+	if (!regexFilters.length) {
+		return rows;
+	}
+	return rows.filter((row) => {
+		const title = row.title ?? '';
+		return regexFilters.every((f) => {
+			try {
+				return new RegExp(f.value).test(title);
+			} catch {
+				// Invalid regex — exclude the row
+				return false;
+			}
+		});
+	});
+};
 
 /**
  * Functions to fetch/retrieve data from database.
@@ -153,6 +204,8 @@ const fetchLinesWithoutTags = (params?: FetchLinesWithoutTagsParams) => {
 		filterLogic,
 	} = params ?? {};
 
+
+		const { sqlFilters, regexFilters } = extractRegexFilters(filters);
 	let fields: (keyof Omit<Line, 'id'>)[] = [
 		'title',
 		'geometry',
@@ -176,7 +229,7 @@ const fetchLinesWithoutTags = (params?: FetchLinesWithoutTagsParams) => {
 			.select(getLineColumns(fields, { simplify }))
 			.from(linesTable);
 
-		const filterClause = buildWhereClause(filters, filterLogic);
+		const filterClause = buildWhereClause(sqlFilters, filterLogic);
 		query.where(and(lineIds ? inArray(linesTable.id, lineIds) : undefined, filterClause));
 
 		const orderByClause = buildOrderByClause(sort);
@@ -192,7 +245,7 @@ const fetchLinesWithoutTags = (params?: FetchLinesWithoutTagsParams) => {
 
 		query
 			.then((rows) => {
-				resolve(parseRows(rows, fields));
+				resolve(applyRegexFilters(parseRows(rows, fields), regexFilters));
 			})
 			.catch((err) => {
 				reject(err);
@@ -216,6 +269,8 @@ const fetchLinesWithTags = (params?: FetchLinesWithTagsParams) => {
 		allLines: true,
 		...(params ?? {}),
 	};
+
+		const { sqlFilters, regexFilters } = extractRegexFilters(filters);
 
 	let fields: (keyof Omit<Line, 'id'>)[] = [
 		'title',
@@ -259,7 +314,7 @@ const fetchLinesWithTags = (params?: FetchLinesWithTagsParams) => {
 			.leftJoin(tagsToLinesTable, eq(tagsToLinesTable.line_id, linesTable.id))
 			.leftJoin(tagsTable, eq(tagsToLinesTable.tag_id, tagsTable.id));
 
-		const filterClause = buildWhereClause(filters, filterLogic);
+		const filterClause = buildWhereClause(sqlFilters, filterLogic);
 		query.where(
 			and(
 				lineIds ? inArray(linesTable.id, lineIds) : undefined,
@@ -333,7 +388,7 @@ const fetchLinesWithTags = (params?: FetchLinesWithTagsParams) => {
 						}, new Map())
 						.values()
 				);
-				resolve(parseRows(aggregated, fields));
+				resolve(applyRegexFilters(parseRows(aggregated, fields), regexFilters));
 			})
 			.catch((err) => {
 				reject(err);

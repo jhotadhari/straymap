@@ -18,7 +18,6 @@ import RadioListItem from '../../../../../../components/generic/RadioListItem';
 import { sharedStyles as appSharedStyles } from '../../../../../../sharedStyles';
 import { sharedStyles } from '../sharedDeps';
 import { StringColumnFilter, StringFilterOperator } from '../../../types';
-import { dbConnection } from '../../../../dbLoader/DBConnection';
 
 const OPERATORS: StringFilterOperator[] = [
 	'includes',
@@ -90,19 +89,15 @@ const FilterStringModal: FC<{
 		[t]
 	);
 
-	const regexUnavailable = operator === 'regex' && !dbConnection.regexpAvailable;
-
 	const inputStyle = useMemo(
 		() => [
 			localStyles.input,
 			{
 				color: theme.colors.onSurface,
-				borderColor: regexUnavailable
-					? theme.colors.error
-					: theme.colors.outline,
+				borderColor: theme.colors.outline,
 			},
 		],
-		[theme, regexUnavailable]
+		[theme]
 	);
 
 	const stringFilterInfo = useMemo(
@@ -159,12 +154,6 @@ const FilterStringModal: FC<{
 				/>
 			</InfoRowControl>
 
-			{regexUnavailable && (
-				<Text style={[localStyles.regexUnavailableText, { color: theme.colors.error }]}>
-					{t('lines.regexUnavailable')}
-				</Text>
-			)}
-
 			<View style={appSharedStyles.modalControls}>
 				<ButtonHighlight
 					onPress={handleDismiss}
@@ -201,9 +190,6 @@ const localStyles = StyleSheet.create({
 	},
 	regexInfoText: {
 		marginBottom: 12,
-	},
-	regexUnavailableText: {
-		fontSize: 12,
 	},
 });
 
