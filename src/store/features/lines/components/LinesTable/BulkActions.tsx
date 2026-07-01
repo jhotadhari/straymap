@@ -2,16 +2,15 @@
  * External dependencies
  */
 import { Icon, useTheme } from 'react-native-paper';
-import { FC, Fragment, useCallback, useContext, useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { ScrollView } from 'react-native';
+import { FC, Fragment, useCallback, useContext, useMemo, useRef, useState } from 'react';
+import { ScrollView, View } from 'react-native';
 import Popover, { PopoverPlacement } from 'react-native-popover-view';
 
 /**
  * Internal dependencies
  */
 import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
-import { iconSize } from '../../../drawers/constants';
+import { DRAWER_ICON_SIZE } from '../../../drawers/constants';
 import useBulkActions from './useBulkActions';
 import { FooterContext } from './Context';
 import PopoverMenuItems from '../../../../../components/generic/PopoverMenuItems';
@@ -25,10 +24,8 @@ import PopoverMenuItems from '../../../../../components/generic/PopoverMenuItems
 
 const BulkActions: FC = () => {
 	const theme = useTheme();
-	const { t } = useTranslation();
 
-	const { checkedIds, linesCount, setOnMapIdsTemp, setCheckedIds, lineIds } =
-		useContext(FooterContext);
+	const { checkedIds } = useContext(FooterContext);
 
 	const [menuVisible, setMenuVisible] = useState(false);
 	const dismissMenu = useCallback(() => {
@@ -43,31 +40,14 @@ const BulkActions: FC = () => {
 		}
 	}, [
 		menuVisible,
+		dismissMenu,
 	]);
 
 	const actions = useBulkActions();
 
-	const anchor = useMemo(
-		() => (
-			<ButtonHighlight
-				mode="text"
-				compact={true}
-				disabled={!checkedIds.length}
-				onPress={handleButtonPress}
-			>
-				<Icon
-					source={'square-edit-outline'}
-					size={iconSize}
-					color={checkedIds.length ? undefined : theme.colors.onSurfaceDisabled}
-				/>
-			</ButtonHighlight>
-		),
-		[
-			theme,
-			checkedIds,
-			handleButtonPress,
-		]
-	);
+	const actionList = useMemo(() => Object.values(actions), [actions]);
+
+	const anchorRef = useRef<View>(null);
 
 	const popoverStyle = useMemo(
 		() => ({
@@ -81,11 +61,25 @@ const BulkActions: FC = () => {
 
 	return (
 		<Fragment>
-			{Object.values(actions).map((action) =>
+			{actionList.map((action) =>
 				action?.modalNode ? (
 					<Fragment key={action.key}>{action.modalNode}</Fragment>
 				) : undefined
 			)}
+
+			<ButtonHighlight
+				ref={anchorRef}
+				mode="text"
+				compact={true}
+				disabled={!checkedIds.length}
+				onPress={handleButtonPress}
+			>
+				<Icon
+					source={'square-edit-outline'}
+					size={DRAWER_ICON_SIZE}
+					color={checkedIds.length ? undefined : theme.colors.onSurfaceDisabled}
+				/>
+			</ButtonHighlight>
 
 			<Popover
 				popoverStyle={popoverStyle}
@@ -93,13 +87,13 @@ const BulkActions: FC = () => {
 				isVisible={menuVisible}
 				placement={PopoverPlacement.TOP}
 				onRequestClose={dismissMenu}
-				from={anchor}
+				from={anchorRef as React.RefObject<React.Component<{}, {}, any>>}
 				animationConfig={animationConfig}
 			>
 				<ScrollView>
 					{menuVisible && (
 						<PopoverMenuItems
-							options={Object.values(actions)}
+							options={actionList}
 							onPress={dismissMenu}
 						/>
 					)}

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { createContext, createRef, Dispatch, MutableRefObject, SetStateAction } from 'react';
+import { createContext, Dispatch, SetStateAction } from 'react';
 
 export type HeaderContextType = {
 	checkedIds: number[];

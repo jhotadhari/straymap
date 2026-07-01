@@ -9,6 +9,7 @@ import {
 	useCallback,
 	useEffect,
 	useMemo,
+	useRef,
 	useState,
 } from 'react';
 import {
@@ -40,9 +41,9 @@ import LoadingIndicator from '../../../../../../components/generic/LoadingIndica
 import HintLink from '../../../../../../components/generic/HintLink';
 import { MapsforgeProfile, LayerConfigOptionsMapsforge } from '../../../types';
 import { getNewProfile } from '../../../utils';
-import { selectElementExpanded, selectIsBusy } from '../../../../ui/selectors';
+import { selectElementExpanded } from '../../../../ui/selectors';
 import { useAppDispatch, useAppSelector } from '../../../../../hooks';
-import { addBusyKey, removeBusyKey, setElementExpanded } from '../../../../ui/slice';
+import { setElementExpanded } from '../../../../ui/slice';
 import {
 	selectLayers,
 	selectMapsforgeProfiles,
@@ -95,7 +96,12 @@ const EditModal: FC<{
 		if (saveOnChange) {
 			saveProfiles();
 		}
-	}, [saveOnChange, saveProfiles]);
+	}, [
+		saveOnChange,
+		saveProfiles,
+		dispatch,
+		setIsNewKey,
+	]);
 
 	const handleRemoveItem = useCallback(() => {
 		const idx = profiles.findIndex((layer) => layer.key === profileTemp?.key);
@@ -114,9 +120,13 @@ const EditModal: FC<{
 		handleDismissModal,
 		profiles,
 		profileTemp?.key,
+		dispatch,
 	]);
 
-	const isBusy = useAppSelector(selectIsBusy);
+	// Local rather than the global busyKeys/isBusy flag: this only gates two sub-buttons in this
+	// modal, not the whole app, so it shouldn't compete with isBusy's "block the splash/whole app"
+	// meaning.
+	const [isFetchingTheme, setIsFetchingTheme] = useState(false);
 
 	const renderStylesCache = useAppSelector(selectRenderStylesCache);
 
@@ -124,45 +134,69 @@ const EditModal: FC<{
 		return !!(profileTemp?.theme && get(renderStylesCache.optionsMap, profileTemp.theme));
 	}, [profileTemp?.theme, renderStylesCache.optionsMap]);
 
+	const requestedRenderTheme =
+		modalVisible && profileTemp?.theme && !hasEditProfileRenderStylesCacheEntry
+			? profileTemp.theme
+			: undefined;
+
+	const handleRenderThemeError = useCallback(() => {
+		setIsFetchingTheme(false);
+	}, []);
+
 	const { renderStyleDefaultId, renderStyleOptions } = useRenderStyleOptions({
-		renderTheme:
-			modalVisible && profileTemp?.theme && !hasEditProfileRenderStylesCacheEntry
-				? profileTemp.theme
-				: undefined,
+		renderTheme: requestedRenderTheme,
+		onError: handleRenderThemeError,
 	});
 
+	// useRenderStyleOptions exposes no loading flag -- when renderTheme changes it resets
+	// renderStyleOptions/renderStyleDefaultId to empty in its own effect (a separate render) before
+	// the real (possibly also empty, for a theme without a <stylemenu>) result lands in a later
+	// render. So an empty array alone can't tell "still loading" apart from "loaded and genuinely
+	// empty". Track which render this is for the current requestedRenderTheme instead: tick 1 is
+	// the request itself, tick 2 is the hook's internal reset, tick 3+ is the real result.
+	const fetchThemeRef = useRef<string | undefined>(undefined);
+	const fetchTickRef = useRef(0);
+
 	useEffect(() => {
-		if (
-			profileTemp &&
-			'string' === typeof profileTemp.theme &&
-			modalVisible &&
-			!hasEditProfileRenderStylesCacheEntry
-		) {
-			const busyKey = 'ProfilesControl' + profileTemp.key;
-			if (renderStyleOptions.length) {
-				dispatch(
-					setRenderStylesCache({
-						optionsMap: {
-							...renderStylesCache.optionsMap,
-							[profileTemp.theme]: renderStyleOptions,
-						},
-						defaultsMap: {
-							...renderStylesCache.defaultsMap,
-							[profileTemp.theme]: renderStyleDefaultId ?? undefined,
-						},
-					})
-				);
-				dispatch(removeBusyKey(busyKey));
-			} else {
-				dispatch(addBusyKey(busyKey));
-			}
+		if (!requestedRenderTheme || !profileTemp) {
+			fetchThemeRef.current = undefined;
+			fetchTickRef.current = 0;
+			return;
 		}
+
+		if (fetchThemeRef.current !== requestedRenderTheme) {
+			fetchThemeRef.current = requestedRenderTheme;
+			fetchTickRef.current = 1;
+			setIsFetchingTheme(true);
+			return;
+		}
+
+		fetchTickRef.current += 1;
+		if (fetchTickRef.current < 3) {
+			return;
+		}
+
+		dispatch(
+			setRenderStylesCache({
+				optionsMap: {
+					...renderStylesCache.optionsMap,
+					[requestedRenderTheme]: renderStyleOptions,
+				},
+				defaultsMap: {
+					...renderStylesCache.defaultsMap,
+					[requestedRenderTheme]: renderStyleDefaultId ?? undefined,
+				},
+			})
+		);
+		setIsFetchingTheme(false);
 	}, [
-		hasEditProfileRenderStylesCacheEntry,
+		requestedRenderTheme,
 		profileTemp,
-		modalVisible,
 		renderStyleOptions,
 		renderStyleDefaultId,
+		dispatch,
+		renderStylesCache.defaultsMap,
+		renderStylesCache.optionsMap,
 	]);
 
 	const handleNameUpdate = useCallback(
@@ -175,7 +209,7 @@ const EditModal: FC<{
 					})
 				);
 		},
-		[profileTemp]
+		[dispatch, profileTemp]
 	);
 
 	return !profileTemp ? undefined : (
@@ -193,22 +227,25 @@ const EditModal: FC<{
 				<NameRowControl
 					item={profileTemp}
 					update={handleNameUpdate}
-					// Info={isBusy ? undefined : t('hint.nameId')}
+					// Info={isFetchingTheme ? undefined : t('hint.nameId')}
 					Info={t('baseMap.hint.nameId')}
 				/>
 
 				<LayerCount profile={profileTemp} />
 
-				<ThemeControl renderStylesCache={renderStylesCache} />
+				<ThemeControl
+					renderStylesCache={renderStylesCache}
+					isFetchingTheme={isFetchingTheme}
+				/>
 
 				<RenderStyleControl
-					AlternativeButton={isBusy ? <LoadingIndicator /> : undefined}
-					Info={isBusy ? undefined : t('baseMap.hint.mapsforgeProfileStyle')}
+					AlternativeButton={isFetchingTheme ? <LoadingIndicator /> : undefined}
+					Info={isFetchingTheme ? undefined : t('baseMap.hint.mapsforgeProfileStyle')}
 				/>
 
 				<RenderOverlaysControl
-					AlternativeButton={isBusy ? renderLoadingIndicator : undefined}
-					Info={isBusy ? undefined : t('baseMap.hint.mapsforgeProfileOverlays')}
+					AlternativeButton={isFetchingTheme ? renderLoadingIndicator : undefined}
+					Info={isFetchingTheme ? undefined : t('baseMap.hint.mapsforgeProfileOverlays')}
 					label={t('baseMap.overlay', { count: 1 })}
 				/>
 
@@ -292,14 +329,10 @@ const DraggableItem = ({
 	item,
 	width,
 	reverse,
-	saveOnChange,
-	saveProfiles,
 }: {
 	item: MapsforgeProfile;
 	width: number;
 	reverse: boolean;
-	saveOnChange?: boolean;
-	saveProfiles?: () => void;
 }) => {
 	const { t } = useTranslation();
 	const theme = useTheme();
@@ -352,7 +385,6 @@ const DraggableItem = ({
 		[
 			reverse,
 			width,
-			itemHeight,
 		]
 	);
 
@@ -397,7 +429,10 @@ const DraggableItem = ({
 		[reverse]
 	);
 
-	const handlePress = useCallback(() => dispatch(setMapsforgeProfileTemp(item)), [item]);
+	const handlePress = useCallback(
+		() => dispatch(setMapsforgeProfileTemp(item)),
+		[dispatch, item]
+	);
 
 	const handleLayout = useCallback(
 		(event: LayoutChangeEvent) => {
@@ -408,7 +443,7 @@ const DraggableItem = ({
 				setIsToWide(true);
 			}
 		},
-		[reverse]
+		[reverse, width]
 	);
 
 	return (
@@ -490,7 +525,6 @@ const ProfilesControl: FC<{
 
 	const [isNewKey, setIsNewKey] = useState<false | string>(false);
 
-	const layers = useAppSelector((state) => selectLayers(state, { temp: true }));
 	const profiles = useAppSelector((state) => selectMapsforgeProfiles(state, { temp: true }));
 
 	const expanded = useAppSelector((state) => selectElementExpanded(state, uiStateKey));
@@ -502,11 +536,13 @@ const ProfilesControl: FC<{
 				temp: false,
 			})
 		);
-	}, []);
+	}, [
+		dispatch,
+	]);
 
 	useEffect(() => {
 		return saveOnUnmount ? saveProfiles : undefined;
-	}, [saveOnUnmount]);
+	}, [saveOnUnmount, saveProfiles]);
 
 	const handleAccordionPress = useCallback(() => {
 		if (expanded) {
@@ -522,6 +558,7 @@ const ProfilesControl: FC<{
 		expanded,
 		saveProfiles,
 		uiStateKey,
+		dispatch,
 	]);
 
 	const styleAccordion = useMemo(
@@ -531,7 +568,7 @@ const ProfilesControl: FC<{
 		[profiles]
 	);
 
-	const handleDragStart = useCallback(() => setScrollEnabled(false), []);
+	const handleDragStart = useCallback(() => setScrollEnabled(false), [setScrollEnabled]);
 
 	const handleDragEnd = useCallback(
 		({ indexToKey }: SortableFlexDragEndParams) => {
@@ -546,7 +583,12 @@ const ProfilesControl: FC<{
 				})
 			);
 		},
-		[saveOnChange, profiles]
+		[
+			dispatch,
+			saveOnChange,
+			profiles,
+			setScrollEnabled,
+		]
 	);
 
 	const dropIndicatorStyle = useDropIndicatorStyle();
@@ -569,7 +611,9 @@ const ProfilesControl: FC<{
 		const newProfile = getNewProfile();
 		setIsNewKey(newProfile.key);
 		dispatch(setMapsforgeProfileTemp(newProfile));
-	}, []);
+	}, [
+		dispatch,
+	]);
 
 	return (
 		<View>

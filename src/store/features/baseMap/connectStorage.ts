@@ -25,6 +25,7 @@ import {
 import { startAppListening } from '../../listenerMiddleware';
 import { selectInitialized } from './selectors';
 import { AppStore } from '../../store';
+import { logError } from '../../../lib/utils';
 
 const settingsKey = 'baseMapSettings';
 
@@ -72,13 +73,19 @@ export const initializeFromStorage = (store: AppStore) => {
 				if (newSettings?.mapsforgeGeneral) {
 					store.dispatch(setMapsforgeGeneralAction(newSettings.mapsforgeGeneral));
 				}
-				if (newSettings?.renderStylesCache) {
+				if (
+					newSettings?.renderStylesCache &&
+					// If renderStylesCache was saved in old type, drop it.
+					!Object.values(newSettings?.renderStylesCache).some(
+						(renderStyle) => renderStyle?.options || renderStyle?.default
+					)
+				) {
 					store.dispatch(setRenderStylesCache(newSettings.renderStylesCache));
 				}
 			}
 			store.dispatch(setInitialized(true));
 		})
-		.catch((err) => 'ERROR' + console.log(err));
+		.catch((err) => logError('baseMap/connectStorage', err));
 };
 
 /**
@@ -105,7 +112,7 @@ export const saveToStorage = (baseMapState: BaseMapState, actionType: string) =>
 	if (__DEV__ && globalThis.shouldLog.saveToStorage) {
 		console.log('DEBUG saveToStorage', settingsKey, actionType, settingsToSave);
 	}
-	DefaultPreference.set(settingsKey, JSON.stringify(settingsToSave));
+	return DefaultPreference.set(settingsKey, JSON.stringify(settingsToSave));
 };
 
 /**
@@ -127,6 +134,10 @@ startAppListening({
 		if (action.payload?.temp) {
 			return;
 		}
-		saveToStorage(listenerApi.getState().baseMap, action.type);
+		try {
+			await saveToStorage(listenerApi.getState().baseMap, action.type);
+		} catch (err) {
+			logError('saveToStorage', err);
+		}
 	},
 });

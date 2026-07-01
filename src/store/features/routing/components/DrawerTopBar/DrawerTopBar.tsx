@@ -11,7 +11,11 @@ import { get } from 'lodash-es';
 /**
  * Internal dependencies
  */
-import { handleSize, iconSize as handleIconSize, itemStyles } from '../../../drawers/constants';
+import {
+	DRAWER_HANDLE_SIZE,
+	DRAWER_ICON_SIZE as handleIconSize,
+	itemStyles,
+} from '../../../drawers/constants';
 import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
 import DrawerContext from '../../../drawers/DrawerContext';
 import { useAppDispatch } from '../../../../hooks';
@@ -36,12 +40,10 @@ const DrawerTopBar: FC = () => {
 		id: routeId,
 		line_id: routingLineId,
 		points,
-		point_order: pointIds,
 	} = useRoute([
 		'id',
 		'line_id',
 		'points',
-		'point_order',
 	]) || {};
 
 	const { data: line } = useQuery({
@@ -51,9 +53,7 @@ const DrawerTopBar: FC = () => {
 	});
 
 	const { isToggling, handleToggleRouting } = useToggleRouting({
-		pointIds,
 		routeId,
-		routingLineId,
 	});
 
 	const actions = useActions({
@@ -63,7 +63,7 @@ const DrawerTopBar: FC = () => {
 
 	const handleEditPress = useCallback(() => {
 		routingLineId && dispatch(setLineTemp({ id: routingLineId }));
-	}, [routingLineId]);
+	}, [dispatch, routingLineId]);
 
 	const styleButtonRow = useMemo(
 		() => [
@@ -143,13 +143,13 @@ const DrawerTopBar: FC = () => {
 };
 const styles = StyleSheet.create({
 	item: {
-		top: -(handleSize - handleIconSize) / 6,
+		top: -(DRAWER_HANDLE_SIZE - handleIconSize) / 6,
 	},
 	flexRow: {
 		flexDirection: 'row',
 		alignItems: 'center',
 		justifyContent: 'space-between',
-		height: handleSize,
+		height: DRAWER_HANDLE_SIZE,
 	},
 	buttonRowReverse: {
 		flexDirection: 'row-reverse',

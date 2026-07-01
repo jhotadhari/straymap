@@ -29,31 +29,37 @@ const useActionDeleteLastPoint = ({
 	const mutationOptions: UseMutationOptions<void, Error, number | undefined, void> = useMemo(
 		() => ({
 			mutationFn: (id?: number) => deleteRoutingPoint(id),
-			onMutate: async (_, context) => {
-				await context.client.cancelQueries({ queryKey: ['route', routeId] });
+			onMutate: async () => {
+				await dbConnection.queryClient!.cancelQueries({ queryKey: ['route', routeId] });
 			},
-			onSuccess: async (_result, _variables, _onMutateResult, context) => {
-				await context.client.invalidateQueries({ queryKey: ['route', routeId] });
+			onSuccess: async () => {
+				await dbConnection.queryClient!.invalidateQueries({ queryKey: ['route', routeId] });
 				dbConnection?.queryClient && dispatch(processRouting(dbConnection.queryClient));
 			},
 		}),
-		[lastPointId, dbConnection?.queryClient]
+		[
+			dispatch,
+			routeId,
+		]
 	);
 
 	const mutation = useMutation(mutationOptions);
 
 	const cb = useCallback(() => {
 		mutation.mutate(lastPointId);
-	}, [lastPointId, mutation.mutate]);
+	}, [lastPointId, mutation]);
 
-	return {
-		key: 'deleteLastPoint',
-		cb,
-		label: 'deleteLastPoint',
-		disabled: () => !points || !points.length,
-		// leadingIcon: 'delete',
-		leadingIcon: 'minus',
-	};
+	return useMemo(
+		() => ({
+			key: 'deleteLastPoint',
+			cb,
+			label: 'deleteLastPoint',
+			disabled: () => !points || !points.length,
+			// leadingIcon: 'delete',
+			leadingIcon: 'minus',
+		}),
+		[cb, points]
+	);
 };
 
 export default useActionDeleteLastPoint;

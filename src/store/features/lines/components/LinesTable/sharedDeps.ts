@@ -1,3 +1,6 @@
+/**
+ * External dependencies
+ */
 import { StyleSheet, ViewStyle } from 'react-native';
 
 export const sharedStyles = StyleSheet.create({
@@ -19,7 +22,7 @@ export const sharedStyles = StyleSheet.create({
 	},
 	header: {
 		flexDirection: 'row',
-		justifyContent: 'flex-start',
+		justifyContent: 'space-between',
 		alignItems: 'center',
 		minHeight: 8 * 8,
 		paddingHorizontal: 8,
@@ -39,6 +42,11 @@ export const sharedStyles = StyleSheet.create({
 		flex: 1,
 		justifyContent: 'space-between',
 	},
+	modalInner: {
+		gap: 16,
+
+		marginTop: 16,
+	},
 });
 
 export type CellConfig = {
@@ -54,10 +62,31 @@ export const statsCells: { [key: string]: CellConfig } = {
 	length: { style: { width: 90 } },
 	uphill: { style: { width: 90 } },
 	downhill: { style: { width: 90 } },
-	minZ: { style: { width: 90 } },
-	maxZ: { style: { width: 90 } },
+	minZ: { style: { width: 110 } },
+	maxZ: { style: { width: 110 } },
 };
 
 export const otherCells: { [key: string]: CellConfig } = {
 	tags: { style: { width: 200 } },
+};
+
+export type CellCategory = 'line' | 'stats' | 'other';
+
+export const getCellCategory = (key: string): CellCategory | undefined => {
+	if (key in lineCells) {
+		return 'line';
+	}
+	if (key in statsCells) {
+		return 'stats';
+	}
+	if (key in otherCells) {
+		return 'other';
+	}
+	return undefined;
+};
+
+export const cellConfigs: { [key: string]: CellConfig } = {
+	...lineCells,
+	...statsCells,
+	...otherCells,
 };

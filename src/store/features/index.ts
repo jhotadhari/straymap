@@ -1,3 +1,6 @@
+/**
+ * Internal dependencies
+ */
 import { AppFeature } from '../../types';
 import appearance from './appearance';
 import baseMap from './baseMap';

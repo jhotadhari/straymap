@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { FC, useCallback, useMemo } from 'react';
-import { TouchableHighlight, ViewStyle, TextStyle } from 'react-native';
+import { TouchableHighlight, ViewStyle } from 'react-native';
 import { useTheme, Icon } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 
@@ -24,7 +24,7 @@ const VisibilityControl: FC<{
 			...layer,
 			visible: !layer.visible,
 		});
-	}, [layer]);
+	}, [layer, updateLayer]);
 
 	const styleTouchable = useMemo(
 		() => ({ borderRadius: theme.roundness, ...style }),

@@ -13,7 +13,7 @@ import { get } from 'lodash-es';
 import * as drawerItems from '../items';
 import DrawerContext from '../DrawerContext';
 import { DrawerItem } from '../types';
-import { handleSize, iconSize } from '../constants';
+import { DRAWER_HANDLE_SIZE, DRAWER_ICON_SIZE } from '../constants';
 
 const DrawerHandle = ({
 	itemKey,
@@ -41,8 +41,6 @@ const DrawerHandle = ({
 		[itemKey, overwriteDrawerItem]
 	);
 
-	const IconActions = useMemo(() => get(drawerItem, 'IconActions'), [drawerItem]);
-
 	const { IconComponent, iconSource } = useMemo(() => {
 		const IconComponent = get(drawerItem, 'IconComponent');
 		const iconSource = IconComponent ? undefined : get(drawerItem, 'iconSource');
@@ -64,18 +62,13 @@ const DrawerHandle = ({
 
 	const containerStyle: ViewStyle = useMemo(
 		() => ({
-			width: handleSize,
-			height: handleSize + handleSize / 2,
+			width: DRAWER_HANDLE_SIZE,
+			height: DRAWER_HANDLE_SIZE + DRAWER_HANDLE_SIZE / 2,
 			justifyContent: 'center',
 			alignItems: 'center',
 			...style,
 		}),
-		[
-			isActive,
-			theme,
-			side,
-			style,
-		]
+		[style]
 	);
 
 	const styleHandle = useMemo(
@@ -108,7 +101,7 @@ const DrawerHandle = ({
 					{iconSource && (
 						<Icon
 							source={iconSource}
-							size={iconSize}
+							size={DRAWER_ICON_SIZE}
 							color={color}
 						/>
 					)}
@@ -120,22 +113,23 @@ const DrawerHandle = ({
 		iconSource,
 		color,
 		styleHandle,
-		IconActions,
 		onPress,
 	]);
 
 	return (
 		<View style={containerStyle}>
 			{!panEnabled && handlesNode}
-			{panEnabled && <GestureDetector gesture={gesture}>{handlesNode}</GestureDetector>}
+			{panEnabled && (
+				<GestureDetector gesture={gesture as any}>{handlesNode}</GestureDetector>
+			)}
 		</View>
 	);
 };
 
 const styles = StyleSheet.create({
 	handle: {
-		width: handleSize,
-		height: handleSize,
+		width: DRAWER_HANDLE_SIZE,
+		height: DRAWER_HANDLE_SIZE,
 		borderWidth: 1,
 		justifyContent: 'center',
 		alignItems: 'center',

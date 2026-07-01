@@ -96,7 +96,11 @@ const Item: FC<{
 			left: () => handlePress('left'),
 			right: () => handlePress('right'),
 		};
-	}, [isOnSide, drawerItem]);
+	}, [
+		dispatch,
+		isOnSide,
+		drawerItem,
+	]);
 
 	const getBtnProps = useCallback(
 		(side: string): Partial<ButtonProps> => {

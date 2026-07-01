@@ -20,7 +20,6 @@ import { CenterInner } from '../Center';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { initialSettings, setCursor } from '../../slice';
 import { selectCursor } from '../../selectors';
-import { CursorConfig } from '../../types';
 import { selectAppDirs } from '../../../dirs/selectors';
 
 const initialOptionsByPath = {
@@ -48,8 +47,6 @@ const CenterControl = () => {
 
 	const dispatch = useAppDispatch();
 
-	const updateCursor = useCallback((options: CursorConfig) => dispatch(setCursor(options)), []);
-
 	const handleSizeUpdate = useCallback(
 		(newValue: number) =>
 			dispatch(
@@ -58,26 +55,36 @@ const CenterControl = () => {
 					size: newValue,
 				}))
 			),
-		[]
+		[dispatch]
 	);
 
-	const handleFileSelect = useCallback((newFileSource?: string) => {
-		dispatch(
-			setCursor((cursor) => ({
-				...cursor,
-				iconSource: newFileSource ?? initialSettings.cursor.iconSource,
-			}))
-		);
-	}, []);
+	const handleFileSelect = useCallback(
+		(newFileSource?: string) => {
+			dispatch(
+				setCursor((cursor) => ({
+					...cursor,
+					iconSource: newFileSource ?? initialSettings.cursor.iconSource,
+				}))
+			);
+		},
+		[
+			dispatch,
+		]
+	);
 
-	const handleColorChange = useCallback((newColor: string) => {
-		dispatch(
-			setCursor((cursor) => ({
-				...cursor,
-				color: newColor,
-			}))
-		);
-	}, []);
+	const handleColorChange = useCallback(
+		(newColor: string) => {
+			dispatch(
+				setCursor((cursor) => ({
+					...cursor,
+					color: newColor,
+				}))
+			);
+		},
+		[
+			dispatch,
+		]
+	);
 
 	return (
 		<ListItemModalControl
@@ -104,7 +111,6 @@ const CenterControl = () => {
 				</View>
 			)}
 			header={t('appearance.cursor')}
-			hasHeaderBackPress={true}
 		>
 			<FileSourceRowControl
 				header={t('selectFile')}

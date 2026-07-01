@@ -1,3 +1,6 @@
+/**
+ * External dependencies
+ */
 import { get } from 'lodash-es';
 
 // see https://github.com/iamacup/react-native-markdown-display/blob/master/src/lib/styles.js

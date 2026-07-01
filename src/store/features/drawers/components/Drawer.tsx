@@ -46,7 +46,7 @@ const Drawer: FC<DrawerProps> = ({
 				})
 			);
 		},
-		[side]
+		[dispatch, side]
 	);
 
 	// On first open, set first item active, if nothing active.

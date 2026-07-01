@@ -15,11 +15,13 @@ import {
 	processRouting,
 	setInitialized,
 	setIsRoutingAction,
+	setRoutingLineId,
 } from './slice';
 import { startAppListening } from '../../listenerMiddleware';
 import { selectInitialized } from './selectors';
 import { AppStore } from '../../store';
 import { dbConnection } from '../dbLoader/DBConnection';
+import { logError } from '../../../lib/utils';
 
 const settingsKey = 'routingSettings';
 
@@ -37,10 +39,13 @@ export const initializeFromStorage = (store: AppStore) => {
 				if (newSettings?.isRouting) {
 					store.dispatch(setIsRoutingAction(newSettings.isRouting));
 				}
+				if (newSettings?.routingLineId) {
+					store.dispatch(setRoutingLineId(newSettings.routingLineId));
+				}
 			}
 			store.dispatch(setInitialized(true));
 		})
-		.catch((err) => 'ERROR' + console.log(err));
+		.catch((err) => logError('routing/connectStorage', err));
 };
 
 /**
@@ -67,17 +72,21 @@ export const saveToStorage = (routingState: RoutingState, actionType: string) =>
 	if (__DEV__ && globalThis.shouldLog.saveToStorage) {
 		console.log('DEBUG saveToStorage', settingsKey, actionType, settingsToSave);
 	}
-	DefaultPreference.set(settingsKey, JSON.stringify(settingsToSave));
+	return DefaultPreference.set(settingsKey, JSON.stringify(settingsToSave));
 };
 
 /**
- * Listens to action that change settings in this store slice,
+ * Listens to actions that change settings in this store slice,
  * and calls the function to save them to defaultPreferences.
  */
 startAppListening({
-	matcher: isAnyOf(setIsRoutingAction),
+	matcher: isAnyOf(setIsRoutingAction, setRoutingLineId),
 	effect: async (action, listenerApi) => {
-		saveToStorage(listenerApi.getState().routing, action.type);
+		try {
+			await saveToStorage(listenerApi.getState().routing, action.type);
+		} catch (err) {
+			logError('saveToStorage', err);
+		}
 	},
 });
 

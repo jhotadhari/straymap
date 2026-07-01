@@ -1,3 +1,6 @@
+/**
+ * External dependencies
+ */
 import { Linking } from 'react-native';
 
 // Copy of https://github.com/iamacup/react-native-markdown-display/blob/master/src/lib/util/openUrl.js

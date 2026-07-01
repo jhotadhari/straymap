@@ -59,15 +59,18 @@ const LinesTable: FC = () => {
 	const { selectedIds: onMapIds } = useAppSelector(selectSelectedInfos);
 
 	const [onMapIdsTemp, setOnMapIdsTemp] = useState(onMapIds);
-	const toggleOnMapId = useCallback((id: number) => {
-		setOnMapIdsTemp((ids) => {
-			if (ids.includes(id)) {
-				return without(ids, id);
-			} else {
-				return [...ids, id];
-			}
-		});
-	}, []);
+	const toggleOnMapId = useCallback(
+		(id: number) => {
+			setOnMapIdsTemp((ids) => {
+				if (ids.includes(id)) {
+					return without(ids, id);
+				} else {
+					return [...ids, id];
+				}
+			});
+		},
+		[setOnMapIdsTemp]
+	);
 	const onMapIdsTempRef = useRef<number[] | undefined>(undefined);
 	useEffect(() => {
 		onMapIdsTempRef.current = onMapIdsTemp;
@@ -76,7 +79,7 @@ const LinesTable: FC = () => {
 		() => () => {
 			onMapIdsTempRef?.current && dispatch(setLinesSelected(uniq(onMapIdsTempRef.current)));
 		},
-		[]
+		[dispatch]
 	);
 
 	const { data: lines } = useQuery({
@@ -98,6 +101,7 @@ const LinesTable: FC = () => {
 	}, [
 		lineIds,
 		onMapIdsTemp,
+		onMapIds,
 	]);
 
 	const [checkedIds, setCheckedIds] = useState<number[]>([]);
@@ -145,7 +149,7 @@ const LinesTable: FC = () => {
 	const handleRoutingBtnPress = useCallback(() => {
 		activateRoutingDrawerItem();
 		dispatch(setUiItemKeys([]));
-	}, [activateRoutingDrawerItem]);
+	}, [dispatch, activateRoutingDrawerItem]);
 
 	const renderHeader = useCallback(() => {
 		return <TableHeader styleCell={styleCell} />;
@@ -190,6 +194,8 @@ const LinesTable: FC = () => {
 			checkedIds,
 			routingLineId,
 			routingStats,
+			styleCell,
+			toggleOnMapId,
 		]
 	);
 
@@ -241,11 +247,14 @@ const LineEditModalWrapper: FC = () => {
 
 	const { setOnMapIdsTemp, setCheckedIds } = useContext(FooterContext);
 
-	const selectLine = useCallback((id: number, isSelected: boolean) => {
-		setOnMapIdsTemp && isSelected && setOnMapIdsTemp((ids) => uniq([...ids, id]));
-		setOnMapIdsTemp && !isSelected && setOnMapIdsTemp((ids) => uniq(without(ids, id)));
-		dispatch(setLineSelected(id, isSelected));
-	}, []);
+	const selectLine = useCallback(
+		(id: number, isSelected: boolean) => {
+			setOnMapIdsTemp && isSelected && setOnMapIdsTemp((ids) => uniq([...ids, id]));
+			setOnMapIdsTemp && !isSelected && setOnMapIdsTemp((ids) => uniq(without(ids, id)));
+			dispatch(setLineSelected(id, isSelected));
+		},
+		[dispatch, setOnMapIdsTemp]
+	);
 
 	const handleDeleteSuccess = useCallback(
 		(lineId?: number) => {

@@ -21,7 +21,12 @@ const LangControl: FC = () => {
 	const dispatch = useAppDispatch();
 
 	const lang = useAppSelector(selectLang);
-	const handleChange = useCallback((newLang: string) => dispatch(setLang(newLang)), []);
+	const handleChange = useCallback(
+		(newLang: string) => dispatch(setLang(newLang)),
+		[
+			dispatch,
+		]
+	);
 
 	const options = useMemo(
 		() => [

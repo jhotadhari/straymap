@@ -1,18 +1,36 @@
+/**
+ * External dependencies
+ */
 import { sql } from 'drizzle-orm/sql';
 import { relations } from 'drizzle-orm';
 import { AnySQLiteColumn, integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 
+/**
+ * Internal dependencies
+ */
 import { lineString } from '../../../dbLoader/types';
 
+// claude:warning ⛔ DO NOT EDIT THIS TABLE'S COLUMNS — it has a SpatiaLite
+// geometry column created via AddGeometryColumn in drizzle/0001_initSpatial.sql.
+// drizzle-kit cannot generate spatial DDL. Any column change here will cause
+// drizzle-kit to recreate the table (CREATE __new_* → INSERT SELECT → DROP →
+// RENAME), silently losing the AddGeometryColumn metadata and CreateSpatialIndex
+// R*Tree indexes.  To extend this table, add fields to the `data` JSON column.
 export const linesTable = sqliteTable('lines', {
 	id: integer('id').primaryKey({ autoIncrement: true }),
 	timestamp: text()
 		.default(sql`(current_timestamp)`)
 		.notNull(),
 	title: text('title'),
+	data: text('data', { mode: 'json' }).$type<any>(), // ??? type is any. is that ok?
 	geometry: lineString('geometry').notNull(),
 });
 
+// drizzle-kit migration safety for non-spatial tables:
+// INSERT INTO __new SELECT preserves data for columns shared between old and new.
+// Safe: adding nullable columns or columns with defaults, FK constraint changes,
+// column renames.  NOT safe: NOT NULL column without a default (migration fails
+// on existing rows), dropping a column (data silently lost).
 export const tagsTable = sqliteTable('tags', {
 	id: integer('id').primaryKey({ autoIncrement: true }),
 	timestamp: text()
@@ -20,7 +38,7 @@ export const tagsTable = sqliteTable('tags', {
 		.notNull(),
 	label: text('label'),
 	notes: text('notes'),
-	params: text('params', { mode: 'json' }).$type<any>(), // ??? any
+	data: text('data', { mode: 'json' }).$type<any>(), // ??? type is any. is that ok?
 });
 
 export const tagsToLinesTable = sqliteTable(
@@ -29,10 +47,10 @@ export const tagsToLinesTable = sqliteTable(
 		id: integer('id').primaryKey({ autoIncrement: true }),
 		tag_id: integer('tag_id')
 			.notNull()
-			.references((): AnySQLiteColumn => tagsTable.id), //, { onDelete: 'cascade' })
+			.references((): AnySQLiteColumn => tagsTable.id, { onDelete: 'cascade' }),
 		line_id: integer('line_id')
 			.notNull()
-			.references((): AnySQLiteColumn => linesTable.id), //, { onDelete: 'cascade' })
+			.references((): AnySQLiteColumn => linesTable.id, { onDelete: 'cascade' }),
 	}
 	// (table) => [
 	// 	primaryKey({ columns: [table.tag_id, table.line_id] }),

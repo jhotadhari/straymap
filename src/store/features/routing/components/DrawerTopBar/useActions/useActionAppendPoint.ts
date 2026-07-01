@@ -1,3 +1,6 @@
+/**
+ * External dependencies
+ */
 import { UseMutationOptions, useMutation } from '@tanstack/react-query';
 import { Feature, Point, GeoJsonProperties } from 'geojson';
 import { useContext, useMemo, useCallback } from 'react';
@@ -50,15 +53,18 @@ const useActionAppendPoint = ({
 					],
 					routeId
 				),
-			onMutate: async (_, context) => {
-				await context.client.cancelQueries({ queryKey: ['route', routeId] });
+			onMutate: async () => {
+				await dbConnection.queryClient!.cancelQueries({ queryKey: ['route', routeId] });
 			},
-			onSuccess: async (_result, _variables, _onMutateResult, context) => {
-				await context.client.invalidateQueries({ queryKey: ['route', routeId] });
+			onSuccess: async () => {
+				await dbConnection.queryClient!.invalidateQueries({ queryKey: ['route', routeId] });
 				dbConnection?.queryClient && dispatch(processRouting(dbConnection.queryClient));
 			},
 		}),
-		[routeId, dbConnection?.queryClient]
+		[
+			dispatch,
+			routeId,
+		]
 	);
 	const mutation = useMutation(mutationOptions);
 
@@ -82,14 +88,21 @@ const useActionAppendPoint = ({
 				profile: getNextProfile(),
 			});
 		}
-	}, [getNextProfile, mutation.mutate]);
+	}, [
+		getNextProfile,
+		currentMapEventRef,
+		mutation,
+	]);
 
-	return {
-		key: 'appendPoint',
-		cb,
-		label: 'appendPoint',
-		leadingIcon: 'plus',
-	};
+	return useMemo(
+		() => ({
+			key: 'appendPoint',
+			cb,
+			label: 'appendPoint',
+			leadingIcon: 'plus',
+		}),
+		[cb]
+	);
 };
 
 export default useActionAppendPoint;

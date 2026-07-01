@@ -10,6 +10,8 @@ export const selectInitialized = (state: RootState) => state.routing.initialized
 
 export const selectIsRouting = (state: RootState) => state.routing.isRouting;
 
+export const selectRoutingLineId = (state: RootState) => state.routing.routingLineId;
+
 export const selectSegments = (state: RootState) => state.routing.segments;
 
 // export const selectPointIds = createAppSelector(

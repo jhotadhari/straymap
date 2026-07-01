@@ -46,7 +46,11 @@ const GeneralControl: FC<{}> = () => {
 				expanded: !expanded,
 			})
 		);
-	}, [expanded, uiStateKey]);
+	}, [
+		dispatch,
+		expanded,
+		uiStateKey,
+	]);
 
 	const handleUpdateMapEventRate = useCallback(
 		(newValue: number) => {

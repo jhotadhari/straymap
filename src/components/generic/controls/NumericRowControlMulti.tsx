@@ -155,7 +155,7 @@ export const NumericRowControlMulti = ({
 
 	const handleBlur = useCallback(
 		() => handleBlurCbRef?.current && handleBlurCbRef?.current(),
-		[handleBlurCbRef?.current]
+		[]
 	);
 
 	return (

@@ -20,6 +20,7 @@ import { startAppListening } from '../../listenerMiddleware';
 import customThemes from '../../../themes';
 import { selectInitialized } from './selectors';
 import { AppStore } from '../../store';
+import { logError } from '../../../lib/utils';
 
 const settingsKey = 'appearanceSettings';
 
@@ -47,7 +48,7 @@ export const initializeFromStorage = (store: AppStore) => {
 			}
 			store.dispatch(setInitialized(true));
 		})
-		.catch((err) => 'ERROR' + console.log(err));
+		.catch((err) => logError('appearance/connectStorage', err));
 };
 
 /**
@@ -67,7 +68,7 @@ export const saveToStorage = (appearanceState: AppearanceState, actionType: stri
 	if (__DEV__ && globalThis.shouldLog.saveToStorage) {
 		console.log('DEBUG saveToStorage', settingsKey, actionType, settingsToSave);
 	}
-	DefaultPreference.set(settingsKey, JSON.stringify(settingsToSave));
+	return DefaultPreference.set(settingsKey, JSON.stringify(settingsToSave));
 };
 
 /**
@@ -77,6 +78,10 @@ export const saveToStorage = (appearanceState: AppearanceState, actionType: stri
 startAppListening({
 	matcher: isAnyOf(setTheme, setCursorAction),
 	effect: async (action, listenerApi) => {
-		saveToStorage(listenerApi.getState().appearance, action.type);
+		try {
+			await saveToStorage(listenerApi.getState().appearance, action.type);
+		} catch (err) {
+			logError('saveToStorage', err);
+		}
 	},
 });

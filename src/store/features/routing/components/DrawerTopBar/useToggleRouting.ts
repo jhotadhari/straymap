@@ -7,21 +7,12 @@ import { useMutation, UseMutationOptions } from '@tanstack/react-query';
 /**
  * Internal dependencies
  */
-import { createRoute, deleteRoute } from '../../db/actionsRoute';
-import { deleteLine } from '../../../lines/db/actionsLine';
+import { createRoute } from '../../db/actionsRoute';
 import DrawerContext from '../../../drawers/DrawerContext';
 import { useAppDispatch } from '../../../../hooks';
 import { setIsRouting } from '../../slice';
 
-const useToggleRouting = ({
-	pointIds,
-	routeId,
-	routingLineId,
-}: {
-	pointIds?: number[];
-	routeId?: number;
-	routingLineId?: number | null;
-}) => {
+const useToggleRouting = ({ routeId }: { routeId?: number }) => {
 	const { expand } = useContext(DrawerContext);
 
 	const dispatch = useAppDispatch();
@@ -44,60 +35,50 @@ const useToggleRouting = ({
 				setIsToggling(false);
 			},
 		}),
-		[expand]
+		[dispatch, expand]
 	);
 	const createRouteMutation = useMutation(createMutationOptions);
 
-	const deleteMutationOptions: UseMutationOptions = useMemo(
+	// Routes and points are persistent — stopping routing only
+	// clears the active routing state, it does not delete data.
+	// The route lives on in the DB and can be re-loaded later
+	// via RowRouting (LineEditModal) or app restore.
+	const stopMutationOptions: UseMutationOptions<void> = useMemo(
 		() => ({
-			mutationFn: () =>
-				Promise.all([
-					deleteRoute(routeId),
-					deleteLine(routingLineId || false),
-				]),
-			onMutate: async (_, context) => {
-				await context.client.cancelQueries({ queryKey: ['route', routeId] });
-				await context.client.cancelQueries({ queryKey: ['lines'] });
-				await context.client.cancelQueries({ queryKey: ['lineGeom', routingLineId] });
-				setIsToggling(true);
-			},
-			onSuccess: async (_, _variables, _onMutateResult, context) => {
+			mutationFn: async () => {
 				expand(false);
 				dispatch(setIsRouting(false));
-				await context.client.invalidateQueries({ queryKey: ['route', routeId] });
-				await context.client.invalidateQueries({ queryKey: ['lines'] });
-				await context.client.invalidateQueries({ queryKey: ['lineGeom', routingLineId] });
+			},
+			onMutate: async () => {
+				setIsToggling(true);
 			},
 			onSettled: () => {
 				setIsToggling(false);
 			},
 		}),
-		[routeId, routingLineId]
+		[dispatch, expand]
 	);
-	const deleteMutation = useMutation(deleteMutationOptions);
+	const stopMutation = useMutation(stopMutationOptions);
 
 	const handleToggleRouting = useCallback(() => {
 		if (routeId) {
-			if (!pointIds || pointIds.length < 2) {
-				deleteMutation.mutate();
-			} else {
-				expand(false);
-				dispatch(setIsRouting(false));
-			}
+			stopMutation.mutate();
 		} else {
 			createRouteMutation.mutate();
 		}
 	}, [
 		routeId,
-		pointIds,
-		createRouteMutation.mutate,
-		deleteMutation.mutate,
+		createRouteMutation,
+		stopMutation,
 	]);
 
-	return {
-		isToggling,
-		handleToggleRouting,
-	};
+	return useMemo(
+		() => ({
+			isToggling,
+			handleToggleRouting,
+		}),
+		[isToggling, handleToggleRouting]
+	);
 };
 
 export default useToggleRouting;

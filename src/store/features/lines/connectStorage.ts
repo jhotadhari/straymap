@@ -8,10 +8,18 @@ import { get, isEqual, set } from 'lodash-es';
 /**
  * Internal dependencies
  */
-import { LinesSettings, LinesState, initialSettings, setInitialized, setSelected } from './slice';
+import {
+	LinesSettings,
+	LinesState,
+	initialSettings,
+	setInitialized,
+	setSelected,
+	setTableColumns,
+} from './slice';
 import { startAppListening } from '../../listenerMiddleware';
 import { selectInitialized } from './selectors';
 import { AppStore } from '../../store';
+import { logError } from '../../../lib/utils';
 
 const settingsKey = 'linesSettings';
 
@@ -29,10 +37,13 @@ export const initializeFromStorage = (store: AppStore) => {
 				if (newSettings?.selected) {
 					store.dispatch(setSelected(newSettings.selected));
 				}
+				if (newSettings?.tableColumns) {
+					store.dispatch(setTableColumns(newSettings.tableColumns));
+				}
 			}
 			store.dispatch(setInitialized(true));
 		})
-		.catch((err) => 'ERROR' + console.log(err));
+		.catch((err) => logError('lines/connectStorage', err));
 };
 
 /**
@@ -59,7 +70,7 @@ export const saveToStorage = (linesState: LinesState, actionType: string) => {
 	if (__DEV__ && globalThis.shouldLog.saveToStorage) {
 		console.log('DEBUG saveToStorage', settingsKey, actionType, settingsToSave);
 	}
-	DefaultPreference.set(settingsKey, JSON.stringify(settingsToSave));
+	return DefaultPreference.set(settingsKey, JSON.stringify(settingsToSave));
 };
 
 /**
@@ -67,8 +78,12 @@ export const saveToStorage = (linesState: LinesState, actionType: string) => {
  * and calls the function to save them to defaultPreferences.
  */
 startAppListening({
-	matcher: isAnyOf(setSelected),
+	matcher: isAnyOf(setSelected, setTableColumns),
 	effect: async (action, listenerApi) => {
-		saveToStorage(listenerApi.getState().lines, action.type);
+		try {
+			await saveToStorage(listenerApi.getState().lines, action.type);
+		} catch (err) {
+			logError('saveToStorage', err);
+		}
 	},
 });

@@ -2,8 +2,7 @@
  * External dependencies
  */
 import React, { Dispatch, FC, SetStateAction } from 'react';
-import { Text, useTheme } from 'react-native-paper';
-import { useTranslation } from 'react-i18next';
+import { Text } from 'react-native-paper';
 import { View } from 'react-native';
 
 /**
@@ -11,14 +10,12 @@ import { View } from 'react-native';
  */
 import IconIcomoon from '../../../../components/generic/IconIcomoon';
 import { DrawerItem } from '../types';
-import { handleSize, iconSize, itemStyles } from '../constants';
+import { itemStyles } from '../constants';
 
 const DisplayComponentScroll: FC<{
 	scrollEnabled: boolean;
 	setScrollEnabled: Dispatch<SetStateAction<boolean>>;
-}> = ({ scrollEnabled, setScrollEnabled }) => {
-	const { t } = useTranslation();
-
+}> = ({ scrollEnabled: _scrollEnabled, setScrollEnabled: _setScrollEnabled }) => {
 	return (
 		<View style={itemStyles.item}>
 			<View style={itemStyles.buttonRow}>

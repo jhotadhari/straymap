@@ -75,4 +75,5 @@ yarn-error.log
 
 .debugInfo.json
 .yalc
-yalc.lock
+yalc.lock.claude/settings.local.json
+.claude/worktrees/

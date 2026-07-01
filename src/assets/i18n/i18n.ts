@@ -13,6 +13,7 @@ import en from './en.json';
 import de from './de.json';
 import { SUPPORTED_LANGUAGES, FALLBACK_LANGUAGE, LANGUAGE_NAMES } from './constants';
 import features from '../../store/features';
+import { logError } from '../../lib/utils';
 
 const resources = SUPPORTED_LANGUAGES.reduce(
 	(accL, lang) => {
@@ -80,7 +81,7 @@ export const changeLang = (newLang: string) => {
 		? newLang
 		: (([...SUPPORTED_LANGUAGES] as string[]).find((langKey) => langKey === systemLang) ??
 			FALLBACK_LANGUAGE);
-	i18n.changeLanguage(lang).catch((err) => 'ERROR' + console.log(err));
+	i18n.changeLanguage(lang).catch((err) => logError('i18n.changeLang', err));
 };
 
 export default i18n;

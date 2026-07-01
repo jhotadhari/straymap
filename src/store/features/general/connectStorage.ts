@@ -20,6 +20,7 @@ import {
 import { startAppListening } from '../../listenerMiddleware';
 import { selectInitialized } from './selectors';
 import { AppStore } from '../../store';
+import { logError } from '../../../lib/utils';
 
 const settingsKey = 'generalSettings';
 
@@ -46,7 +47,7 @@ export const initializeFromStorage = (store: AppStore) => {
 			}
 			store.dispatch(setInitialized(true));
 		})
-		.catch((err) => 'ERROR' + console.log(err));
+		.catch((err) => logError('general/connectStorage', err));
 };
 
 /**
@@ -73,7 +74,7 @@ export const saveToStorage = (generalState: GeneralState, actionType: string) =>
 	if (__DEV__ && globalThis.shouldLog.saveToStorage) {
 		console.log('DEBUG saveToStorage', settingsKey, actionType, settingsToSave);
 	}
-	DefaultPreference.set(settingsKey, JSON.stringify(settingsToSave));
+	return DefaultPreference.set(settingsKey, JSON.stringify(settingsToSave));
 };
 
 /**
@@ -83,6 +84,10 @@ export const saveToStorage = (generalState: GeneralState, actionType: string) =>
 startAppListening({
 	matcher: isAnyOf(setHardwareKeys, setUnitPrefs, setMapEventRate),
 	effect: async (action, listenerApi) => {
-		saveToStorage(listenerApi.getState().general, action.type);
+		try {
+			await saveToStorage(listenerApi.getState().general, action.type);
+		} catch (err) {
+			logError('saveToStorage', err);
+		}
 	},
 });

@@ -20,6 +20,7 @@ import { startAppListening } from '../../listenerMiddleware';
 import { selectInitialized } from './selectors';
 import Updater from './Updater';
 import { AppStore } from '../../store';
+import { logError } from '../../../lib/utils';
 
 const settingsKey = 'updaterSettings';
 
@@ -49,7 +50,7 @@ export const initializeFromStorage = (store: AppStore) => {
 					resolve(true);
 				});
 			})
-			.catch((err) => 'ERROR' + console.log(err));
+			.catch((err) => logError('updater/connectStorage', err));
 	});
 };
 
@@ -83,7 +84,7 @@ export const saveToStorage = (updaterState: UpdaterState, actionType: string) =>
 	if (__DEV__ && globalThis.shouldLog.saveToStorage) {
 		console.log('DEBUG saveToStorage', settingsKey, actionType, settingsToSave);
 	}
-	DefaultPreference.set(settingsKey, JSON.stringify(settingsToSave));
+	return DefaultPreference.set(settingsKey, JSON.stringify(settingsToSave));
 };
 
 /**
@@ -93,6 +94,10 @@ export const saveToStorage = (updaterState: UpdaterState, actionType: string) =>
 startAppListening({
 	matcher: isAnyOf(setInstalledVersion),
 	effect: async (action, listenerApi) => {
-		saveToStorage(listenerApi.getState().updater, action.type);
+		try {
+			await saveToStorage(listenerApi.getState().updater, action.type);
+		} catch (err) {
+			logError('saveToStorage', err);
+		}
 	},
 });

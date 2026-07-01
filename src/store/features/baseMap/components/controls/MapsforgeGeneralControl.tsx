@@ -25,32 +25,47 @@ const MapsforgeGeneralControl = () => {
 
 	const settings = useAppSelector(selectMapsforgeGeneral);
 
-	const handleLineScale = useCallback((newValue: number) => {
-		dispatch(
-			setMapsforgeGeneral((current) => ({
-				...current,
-				lineScale: newValue,
-			}))
-		);
-	}, []);
+	const handleLineScale = useCallback(
+		(newValue: number) => {
+			dispatch(
+				setMapsforgeGeneral((current) => ({
+					...current,
+					lineScale: newValue,
+				}))
+			);
+		},
+		[
+			dispatch,
+		]
+	);
 
-	const handleTextScale = useCallback((newValue: number) => {
-		dispatch(
-			setMapsforgeGeneral((current) => ({
-				...current,
-				textScale: newValue,
-			}))
-		);
-	}, []);
+	const handleTextScale = useCallback(
+		(newValue: number) => {
+			dispatch(
+				setMapsforgeGeneral((current) => ({
+					...current,
+					textScale: newValue,
+				}))
+			);
+		},
+		[
+			dispatch,
+		]
+	);
 
-	const handleSymbolScale = useCallback((newValue: number) => {
-		dispatch(
-			setMapsforgeGeneral((current) => ({
-				...current,
-				symbolScale: newValue,
-			}))
-		);
-	}, []);
+	const handleSymbolScale = useCallback(
+		(newValue: number) => {
+			dispatch(
+				setMapsforgeGeneral((current) => ({
+					...current,
+					symbolScale: newValue,
+				}))
+			);
+		},
+		[
+			dispatch,
+		]
+	);
 
 	return (
 		<ListItemModalControl
@@ -63,7 +78,6 @@ const MapsforgeGeneralControl = () => {
 				/>
 			)}
 			header={t('baseMap.mapsforgeGeneral')}
-			hasHeaderBackPress={true}
 		>
 			<View style={styles.gap}>
 				<Text style={styles.applyHint}>{t('baseMap.hint.applyToAllMapsforge')}</Text>

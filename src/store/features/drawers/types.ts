@@ -4,6 +4,7 @@
 import { Dispatch, ElementType, SetStateAction } from 'react';
 import { TextStyle } from 'react-native';
 import { ComposedGesture, GestureType } from 'react-native-gesture-handler';
+import { SharedValue } from 'react-native-reanimated';
 
 export type DrawerState = {
 	showContent: boolean;
@@ -36,6 +37,7 @@ export interface DrawerProps extends DrawerState {
 }
 
 export interface DrawerControl {
+	translationX: SharedValue<number>;
 	getIsFullyCollapsed: DrawerState['getIsFullyCollapsed'];
 	expand: DrawerState['expand'];
 }

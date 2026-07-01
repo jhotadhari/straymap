@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { FC, Fragment, useCallback, useMemo } from 'react';
-import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { get } from 'lodash-es';
 
@@ -33,18 +32,23 @@ const LayerControlHillshading: FC<{}> = () => {
 		| undefined
 		| LayerConfig<LayerConfigOptionsHillshading>;
 
-	const setOptions = useCallback((newOptions: LayerConfigOptionsHillshading) => {
-		dispatch(
-			setLayerTemp(
-				(layerTemp) =>
-					layerTemp &&
-					({
-						...layerTemp,
-						options: newOptions,
-					} as LayerConfig)
-			)
-		);
-	}, []);
+	const setOptions = useCallback(
+		(newOptions: LayerConfigOptionsHillshading) => {
+			dispatch(
+				setLayerTemp(
+					(layerTemp) =>
+						layerTemp &&
+						({
+							...layerTemp,
+							options: newOptions,
+						} as LayerConfig)
+				)
+			);
+		},
+		[
+			dispatch,
+		]
+	);
 
 	const { t } = useTranslation();
 

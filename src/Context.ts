@@ -3,7 +3,6 @@
  */
 import { createContext, createRef, Dispatch, MutableRefObject, SetStateAction } from 'react';
 import { MapEventResponse } from 'react-native-mapsforge-vtm';
-import { QueryClient } from '@tanstack/react-query';
 
 /**
  * Internal dependencies

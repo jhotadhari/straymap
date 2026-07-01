@@ -34,6 +34,7 @@ const DashboardControl: FC = () => {
 		if (item?.key) {
 			setPosition(editItemPosition);
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- setPosition depends on position, adding would cause infinite loop
 	}, [editItemPosition, item?.key]);
 
 	const [position, setPosition_] = useState(editItemPosition);
@@ -42,14 +43,14 @@ const DashboardControl: FC = () => {
 		(newPosition: string) => {
 			setPosition_(newPosition);
 
-			if (!item?.key || (item?.key && editItemPosition != newPosition)) {
+			if (!item?.key || (item?.key && editItemPosition !== newPosition)) {
 				dispatch(setEditItemAccordingToPosition(newPosition));
 			}
 		},
 		[
 			item?.key,
 			editItemPosition,
-			position,
+			dispatch,
 		]
 	);
 
@@ -64,7 +65,11 @@ const DashboardControl: FC = () => {
 				expanded: !expanded,
 			})
 		);
-	}, [expanded, uiStateKey]);
+	}, [
+		dispatch,
+		expanded,
+		uiStateKey,
+	]);
 
 	const handleUpdateFontSize = useCallback(
 		(newValue: number) => {
@@ -78,7 +83,11 @@ const DashboardControl: FC = () => {
 				})
 			);
 		},
-		[dispatch, position, dashboardStyle]
+		[
+			dispatch,
+			position,
+			dashboardStyle,
+		]
 	);
 
 	const ControlIcon: (props: { color: string; style: Style }) => ReactNode = useCallback(

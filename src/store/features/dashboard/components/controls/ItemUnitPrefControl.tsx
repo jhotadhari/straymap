@@ -81,7 +81,11 @@ const ItemUnitPrefControl: FC<{ unitPrefsKey: string; buttonLabel?: string }> = 
 				dispatch(setItem(newItem));
 			}
 		};
-	}, [value, item]);
+	}, [
+		dispatch,
+		value,
+		item,
+	]);
 
 	// Reset component state on item change.
 	useEffect(() => {
@@ -102,7 +106,11 @@ const ItemUnitPrefControl: FC<{ unitPrefsKey: string; buttonLabel?: string }> = 
 		} else {
 			setValue(omit(value, 'round'));
 		}
-	}, [value, unitPrefs]);
+	}, [
+		value,
+		unitPrefs,
+		unitPrefsKey,
+	]);
 
 	const numValueActive = undefined !== value?.round;
 
@@ -114,7 +122,7 @@ const ItemUnitPrefControl: FC<{ unitPrefsKey: string; buttonLabel?: string }> = 
 					round: newValue,
 				});
 		},
-		[numValueActive]
+		[numValueActive, value]
 	);
 
 	const handleMenuPress = useCallback((newValue: string) => {
@@ -137,10 +145,11 @@ const ItemUnitPrefControl: FC<{ unitPrefsKey: string; buttonLabel?: string }> = 
 					}
 				: {},
 		[
-			get(unitPrefs, [unitPrefsKey, 'unit']),
 			value?.unit,
 			opts,
 			theme,
+			unitPrefs,
+			unitPrefsKey,
 		]
 	);
 

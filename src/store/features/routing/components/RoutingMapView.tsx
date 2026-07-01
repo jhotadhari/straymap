@@ -3,12 +3,7 @@
  */
 import React from 'react';
 import { midpoint } from '@turf/turf';
-import {
-	GeometryStyle,
-	LayerMarker,
-	Marker,
-	LayerPath,
-} from 'react-native-mapsforge-vtm';
+import { GeometryStyle, Marker, LayerPath } from 'react-native-mapsforge-vtm';
 import { get } from 'lodash-es';
 
 /**
@@ -20,7 +15,6 @@ import { getSegmentRecordId } from '../utils';
 import useRoute from '../hooks/useRoute';
 
 const RoutingMapView = () => {
-
 	const { points } =
 		useRoute([
 			'points',
@@ -34,7 +28,7 @@ const RoutingMapView = () => {
 
 	return (
 		<>
-			{[...points].map((fromPoint, index) => {
+			{points.map((fromPoint, index) => {
 				const segment = Object.values(segments).find((seg) => seg.fromId === fromPoint.id);
 
 				const toPoint = get(points, index + 1);
@@ -75,17 +69,15 @@ const RoutingMapView = () => {
 									coordinates={placeholderPositions}
 									style={stylePathError}
 								/>
-								<LayerMarker>
-									<Marker
-										position={center.geometry.coordinates}
-										symbol={{
-											text: 'Error',
-											textMargin: 20,
-											fillColor: '#ff0000',
-											strokeColor: '#000000',
-										}}
-									/>
-								</LayerMarker>
+								<Marker
+									position={center.geometry.coordinates}
+									symbol={{
+										text: 'Error',
+										textMargin: 20,
+										fillColor: '#ff0000',
+										strokeColor: '#000000',
+									}}
+								/>
 							</React.Fragment>
 						);
 					}
@@ -100,20 +92,17 @@ const RoutingMapView = () => {
 				}
 			})}
 
-			{points.length > 0 && (
-				<LayerMarker>
-					{[...points].map((point, index) => (
-						<Marker
-							key={point.id}
-							position={point.geometry.coordinates}
-							symbol={{
-								text: index + 1 + '',
-								textMargin: 15,
-							}}
-						/>
-					))}
-				</LayerMarker>
-			)}
+			{points.length > 0 &&
+				points.map((point, index) => (
+					<Marker
+						key={point.id}
+						position={point.geometry.coordinates}
+						symbol={{
+							text: index + 1 + '',
+							textMargin: 15,
+						}}
+					/>
+				))}
 
 			{/* <NearestToLine/> */}
 		</>

@@ -2,7 +2,7 @@
  * External dependencies
  */
 import React, { Dispatch, FC, SetStateAction, useCallback, useContext } from 'react';
-import { Text, useTheme } from 'react-native-paper';
+import { Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
@@ -21,12 +21,10 @@ import { itemStyles } from '../constants';
 const DisplayComponentScroll: FC<{
 	scrollEnabled: boolean;
 	setScrollEnabled: Dispatch<SetStateAction<boolean>>;
-}> = ({ scrollEnabled, setScrollEnabled }) => {
+}> = ({ scrollEnabled: _scrollEnabled, setScrollEnabled }) => {
 	const { t } = useTranslation();
 
-	const { width, height, side } = useContext(DrawerContext);
-
-	const theme = useTheme();
+	const { width, side } = useContext(DrawerContext);
 
 	const dispatch = useAppDispatch();
 

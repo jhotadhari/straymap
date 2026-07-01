@@ -1,7 +1,13 @@
+/**
+ * External dependencies
+ */
 import React from 'react';
 import { TouchableWithoutFeedback, View, Platform, StyleSheet } from 'react-native';
 import { Text } from 'react-native-paper';
 
+/**
+ * Internal dependencies
+ */
 import textStyleProps from './textStyleProps';
 import openUrl from './openUrl';
 import hasParents from './hasParents';

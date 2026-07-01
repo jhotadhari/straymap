@@ -34,7 +34,8 @@ const useActivateDrawerItem = (key: string) => {
 		[
 			drawerSideWithRouting,
 			key,
-			drawerControlsRef?.current,
+			dispatch,
+			drawerControlsRef,
 		]
 	);
 

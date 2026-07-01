@@ -31,7 +31,7 @@ const Settings: FC<{ style?: ViewStyle }> = ({ style }) => {
 
 	return (
 		<ScrollView style={style}>
-			{[...settingsPages].map((item, index) => (
+			{settingsPages.map((item, index) => (
 				<ListItem
 					key={index}
 					title={t(item.label)}

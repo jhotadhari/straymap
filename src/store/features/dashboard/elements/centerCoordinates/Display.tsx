@@ -5,11 +5,7 @@ import React, { FC, useContext, useEffect, useMemo, useRef, useState } from 'rea
 import { Text, useTheme } from 'react-native-paper';
 import { get } from 'lodash-es';
 import { GestureResponderEvent, TouchableHighlight, View } from 'react-native';
-import formatcoords from 'formatcoords';
-
-/**
- * Internal dependencies
- */
+import { formatCoords } from '../../../../../lib/formatting';
 import { MapContext } from '../../../../../Context';
 import { useAppSelector } from '../../../../hooks';
 import { selectMapEventRate, selectUnitPrefs } from '../../../general/selectors';
@@ -48,7 +44,7 @@ const Display: FC<DashboardElementProps<Options>> = ({ item, style = {}, onPress
 		return () => {
 			intervalRef.current && clearInterval(intervalRef.current);
 		};
-	}, []);
+	}, [currentMapEventRef, mapEventRate]);
 
 	const unit = item?.options?.unitPref?.unit ?? get(unitPrefs, ['coordinates', 'unit']);
 	const round = item?.options?.unitPref?.round ?? get(unitPrefs, ['coordinates', 'round']);
@@ -64,24 +60,10 @@ const Display: FC<DashboardElementProps<Options>> = ({ item, style = {}, onPress
 			<View style={viewStyle}>
 				{undefined !== centerLng && undefined !== centerLat && (
 					<Text style={textStyle}>
-						{formatcoords({
-							lng: centerLng,
-							lat: centerLat,
-						}).format(
-							get(
-								{
-									// https://www.npmjs.com/package/formatcoords#user-content-formatting
-									dd: 'f',
-									dmm: 'Ff',
-									dms: 'FFf',
-								},
-								unit,
-								'f'
-							),
-							{
-								decimalPlaces: Math.min(round, 99),
-							}
-						)}
+						{formatCoords(centerLat, centerLng, {
+							unit,
+							round,
+						})}
 					</Text>
 				)}
 			</View>

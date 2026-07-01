@@ -9,7 +9,11 @@ import { useTranslation } from 'react-i18next';
 /**
  * Internal dependencies
  */
-import { handleSize, iconSize as handleIconSize, itemStyles } from '../../../drawers/constants';
+import {
+	DRAWER_HANDLE_SIZE,
+	DRAWER_ICON_SIZE as handleIconSize,
+	itemStyles,
+} from '../../../drawers/constants';
 import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
 import DrawerContext from '../../../drawers/DrawerContext';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
@@ -20,13 +24,13 @@ import { sprintf } from 'sprintf-js';
 
 const styles = StyleSheet.create({
 	item: {
-		top: -(handleSize - handleIconSize) / 6,
+		top: -(DRAWER_HANDLE_SIZE - handleIconSize) / 6,
 	},
 	flexRow: {
 		flexDirection: 'row',
 		alignItems: 'center',
 		justifyContent: 'space-between',
-		height: handleSize,
+		height: DRAWER_HANDLE_SIZE,
 	},
 	buttonRowReverse: {
 		flexDirection: 'row-reverse',
@@ -54,7 +58,12 @@ const DrawerTopBar: FC = () => {
 
 	const { side } = useContext(DrawerContext);
 
-	const openLinesDirectory = useCallback(() => dispatch(addUiItemKey('linesDirectory')), []);
+	const openLinesDirectory = useCallback(
+		() => dispatch(addUiItemKey('linesDirectory')),
+		[
+			dispatch,
+		]
+	);
 
 	const selectedLines = useAppSelector(selectSelected);
 

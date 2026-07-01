@@ -71,7 +71,11 @@ const RowItem = ({ keyCodeStringOption }: { keyCodeStringOption: OptionBase }) =
 			});
 			dispatch(setHardwareKeys(newHardwareKeyActionConfigs));
 		},
-		[hardwareKeyActionConfigs, keyCodeStringOption.key]
+		[
+			dispatch,
+			hardwareKeyActionConfigs,
+			keyCodeStringOption.key,
+		]
 	);
 
 	return (
@@ -103,7 +107,6 @@ const HardwareKeyControl = () => {
 				</View>
 			)}
 			header={t('general.hardwareKey', { count: 0 })}
-			hasHeaderBackPress={true}
 		>
 			<View style={styles.gap}>
 				{keyCodeStringOptions.map((keyCodeStringOption: OptionBase) => (

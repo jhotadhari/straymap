@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { get } from 'lodash-es';
 import { View, TextInputProps, StyleSheet } from 'react-native';
 import { useTranslation } from 'react-i18next';
@@ -19,7 +19,9 @@ import { useAppSelector } from '../../../../../hooks';
 import { selectAppDirs } from '../../../../dirs/selectors';
 import { sharedStyles } from '../../../../../../sharedStyles';
 
-const renderTextInput = (props: TextInputProps) => <TextInputNativeMultilineControlled {...props} />;
+const renderTextInput = (props: TextInputProps) => (
+	<TextInputNativeMultilineControlled {...props} />
+);
 
 const validateCacheSize = (val: number) => val >= 0;
 
@@ -81,15 +83,26 @@ const CacheControl = ({
 
 	const selectedOpt = opts.find((opt) => opt.key === get(options, 'cacheDirBase'));
 
+	// Keep options and setOptions in refs so the effect below doesn't loop
+	// when the parent selector returns a new options reference each render.
+	const optionsRef = useRef(options);
+	optionsRef.current = options;
+	const setOptionsRef = useRef(setOptions);
+	setOptionsRef.current = setOptions;
+
 	// Reset to default if option is gone.
 	useEffect(() => {
 		if (appDirs && !selectedOpt) {
-			setOptions({
-				...options,
+			setOptionsRef.current({
+				...optionsRef.current,
 				cacheDirBase: baseDefault,
 			});
 		}
-	}, [selectedOpt, appDirs]);
+	}, [
+		selectedOpt,
+		appDirs,
+		baseDefault,
+	]);
 
 	const cachePath = useMemo(
 		() =>
@@ -98,7 +111,11 @@ const CacheControl = ({
 				: get(selectedOpt, 'key')) +
 			'/' +
 			cacheDirChild,
-		[selectedOpt, appDirs]
+		[
+			selectedOpt,
+			appDirs,
+			cacheDirChild,
+		]
 	);
 
 	const handleCacheSizeUpdate = useCallback(

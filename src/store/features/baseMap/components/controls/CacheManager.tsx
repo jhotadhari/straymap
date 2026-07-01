@@ -20,7 +20,7 @@ import { setElementExpanded } from '../../../ui/slice';
 import { selectAppDirs } from '../../../dirs/selectors';
 import useCacheDirsInfo from '../../../dirs/hooks/useCacheDirsInfo';
 import { CacheDir, CacheSubDir } from '../../../dirs/types';
-import { getHillshadingCacheDirChild, stringifyProp } from '../../utils';
+import { getHillshadingCacheDirChild, resolveCacheDirBase, stringifyProp } from '../../utils';
 import { selectLayers } from '../../selectors';
 import { sharedStyles } from '../../../../../sharedStyles';
 
@@ -41,7 +41,10 @@ const CacheRow = ({
 
 	const theme = useTheme();
 
-	const pathFull = useMemo(() => [cacheDir.path, cache.basename].join('/'), []);
+	const pathFull = useMemo(
+		() => [cacheDir.path, cache.basename].join('/'),
+		[cache.basename, cacheDir.path]
+	);
 
 	const cacheLayers = useMemo(() => findLayers(pathFull), [pathFull, findLayers]);
 
@@ -77,7 +80,7 @@ const CacheRow = ({
 							? t('baseMap.layer', { count: cacheLayers.length }) + ': '
 							: t('baseMap.noLayerUseCache')}
 						{cacheLayers.length
-							? [...cacheLayers].map((layer) => layer.name).join(', ')
+							? cacheLayers.map((layer) => layer.name).join(', ')
 							: ''}
 					</Text>
 				</View>
@@ -133,7 +136,7 @@ const CacheManager = () => {
 				if (undefined === cacheDirBase) {
 					return false;
 				}
-				cacheDirBase = 'internal' === cacheDirBase ? internalCacheDir : cacheDirBase;
+				cacheDirBase = resolveCacheDirBase(cacheDirBase, internalCacheDir);
 				let cacheDirChild = '';
 				switch (layer?.type) {
 					case 'hillshading':
@@ -162,7 +165,11 @@ const CacheManager = () => {
 				expanded: !expanded,
 			})
 		);
-	}, [expanded, updateCacheDirs]);
+	}, [
+		dispatch,
+		expanded,
+		updateCacheDirs,
+	]);
 
 	return (
 		<List.Accordion
@@ -173,9 +180,9 @@ const CacheManager = () => {
 			titleStyle={theme.fonts.bodyMedium}
 		>
 			<View style={styles.controls}>
-				{cacheDirs.length == 0 && <LoadingIndicator />}
+				{cacheDirs.length === 0 && <LoadingIndicator />}
 
-				{[...cacheDirs].map((cacheDir: CacheDir) => {
+				{cacheDirs.map((cacheDir: CacheDir) => {
 					return (
 						<View
 							key={cacheDir.path}

@@ -98,6 +98,23 @@ export const fillLayerConfigOptionsWithDefaults = (
 		: options;
 };
 
+/**
+ * Resolves the cache directory base path for online-raster-xyz and hillshading layers.
+ *
+ * When `cacheDirBase` is `'internal'`, the app's internal cache directory is used.
+ * When it is `/`, the native side falls back to the Java
+ * `getReactApplicationContext().getCacheDir()`. Any other value is used as-is.
+ */
+export const resolveCacheDirBase = (
+	cacheDirBase: 'internal' | string | undefined,
+	internalCacheDir: string | undefined
+): string => {
+	if (cacheDirBase === 'internal') {
+		return internalCacheDir ?? '/';
+	}
+	return cacheDirBase ?? '/';
+};
+
 export const getHillshadingCacheDirChild = (options: LayerConfigOptionsHillshading): string => {
 	const shadingAlgoKey = get(
 		invert(LayerHillshading.shadingAlgorithms),

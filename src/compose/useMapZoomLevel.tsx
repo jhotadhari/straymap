@@ -24,7 +24,7 @@ const useMapZoomLevel = () => {
 		return () => {
 			intervalRef.current && clearInterval(intervalRef.current);
 		};
-	}, []);
+	}, [currentMapEventRef, mapEventRate]);
 
 	return zoomLevel;
 };

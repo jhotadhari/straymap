@@ -1,0 +1,13 @@
+diff --git a/node_modules/react-native-popover-view/dist/Utility.js b/node_modules/react-native-popover-view/dist/Utility.js
+index d326cb0..fb52330 100644
+--- a/node_modules/react-native-popover-view/dist/Utility.js
++++ b/node_modules/react-native-popover-view/dist/Utility.js
+@@ -45,7 +45,7 @@ export function getRectForRef(ref) {
+             });
+         }
+         else {
+-            reject(new Error('getRectForRef - current is not set'));
++            resolve(new Rect(undefined, undefined, undefined, undefined));
+         }
+     });
+ }

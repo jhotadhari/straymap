@@ -15,7 +15,7 @@ import { useAppDispatch, useAppSelector } from '../../../hooks';
 import DrawerHandle from './DrawerHandle';
 import { setItemKeys } from '../slice';
 import DrawerContext from '../DrawerContext';
-import { handleSize } from '../constants';
+import { DRAWER_HANDLE_SIZE } from '../constants';
 import { AppContext } from '../../../../Context';
 
 const settingsOverwriteDrawerItem: DrawerItem = {
@@ -38,7 +38,7 @@ const DrawerHandles: FC<
 
 	const [panEnabled, setPanEnabled] = useState<boolean>(true);
 
-	const draggableItems = useMemo(() => [...itemKeys].map((key) => ({ key })), [itemKeys]);
+	const draggableItems = useMemo(() => itemKeys.map((key) => ({ key })), [itemKeys]);
 
 	const RenderItem = useCallback(
 		({ key }: { key?: string }) => {
@@ -66,7 +66,12 @@ const DrawerHandles: FC<
 				}
 			}
 		},
-		[activeItemKey]
+		[
+			activeItemKey,
+			expand,
+			getIsFullyCollapsed,
+			setActiveItemKey,
+		]
 	);
 
 	const handleDragStart = useCallback(() => {
@@ -87,11 +92,16 @@ const DrawerHandles: FC<
 				})
 			);
 		},
-		[setMoveEnabled, side]
+		[
+			dispatch,
+			setMoveEnabled,
+			side,
+		]
 	);
 
 	const getContainerHeight = useCallback(
-		(itemsCount: number) => itemsCount * handleSize + itemsCount * (handleSize / 2),
+		(itemsCount: number) =>
+			itemsCount * DRAWER_HANDLE_SIZE + itemsCount * (DRAWER_HANDLE_SIZE / 2),
 		[]
 	);
 
@@ -152,7 +162,7 @@ const DrawerHandles: FC<
 					<View>
 						{draggableItems.length > 1 && (
 							<DraggableGrid
-								itemHeight={handleSize + handleSize / 2}
+								itemHeight={DRAWER_HANDLE_SIZE + DRAWER_HANDLE_SIZE / 2}
 								numColumns={1}
 								renderItem={RenderItem}
 								data={draggableItems}
@@ -189,20 +199,26 @@ const DrawerHandles: FC<
 const styles = StyleSheet.create({
 	wrapper: {
 		position: 'absolute',
-		width: handleSize,
+		width: DRAWER_HANDLE_SIZE,
 		backgroundColor: 'transparent',
 	},
 	wrapperLeft: {
 		right: 0,
-		transform: [{ translateX: '100%' }],
+		transform: [
+			{ translateX: '100%' },
+			{ translateX: -1 }, // because the borderWidth is `1`. See src/store/features/drawers/components/DrawerHandle.tsx styles.handle
+		],
 	},
 	wrapperRight: {
 		left: 0,
-		transform: [{ translateX: '-100%' }],
+		transform: [
+			{ translateX: '-100%' },
+			{ translateX: 1 }, // because the borderWidth is `1`. See src/store/features/drawers/components/DrawerHandle.tsx styles.handle
+		],
 	},
 	scrollView: {
 		overflow: 'visible',
-		width: handleSize,
+		width: DRAWER_HANDLE_SIZE,
 	},
 });
 

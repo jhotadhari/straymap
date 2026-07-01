@@ -30,9 +30,14 @@ const RowFile: FC = () => {
 
 	const dbPath = useAppSelector(selectDbPath);
 
-	const handleSelect = useCallback((selectedOpt?: string) => {
-		selectedOpt && selectedOpt.length && dispatch(setDbPath(selectedOpt));
-	}, []);
+	const handleSelect = useCallback(
+		(selectedOpt?: string) => {
+			selectedOpt && selectedOpt.length && dispatch(setDbPath(selectedOpt));
+		},
+		[
+			dispatch,
+		]
+	);
 
 	return (
 		<FileSourceRowControl
@@ -85,7 +90,6 @@ const DBControl: FC = () => {
 				/>
 			)}
 			header={t('Database')} // ??? translation
-			hasHeaderBackPress={true}
 		>
 			<RowFile />
 

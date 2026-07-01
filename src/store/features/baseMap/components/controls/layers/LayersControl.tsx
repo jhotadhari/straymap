@@ -100,7 +100,6 @@ const DraggableItem: FC<{
 		[
 			reverse,
 			width,
-			itemHeight,
 		]
 	);
 
@@ -137,7 +136,7 @@ const DraggableItem: FC<{
 		[theme]
 	);
 
-	const handlePress = useCallback(() => dispatch(setLayerTemp(item)), [item]);
+	const handlePress = useCallback(() => dispatch(setLayerTemp(item)), [dispatch, item]);
 
 	const handleLayout = useCallback(
 		(event: LayoutChangeEvent) => {
@@ -148,7 +147,7 @@ const DraggableItem: FC<{
 				setIsToWide(true);
 			}
 		},
-		[reverse]
+		[reverse, width]
 	);
 
 	const updateItem = useCallback(
@@ -172,6 +171,7 @@ const DraggableItem: FC<{
 			layers,
 			saveOnChange,
 			saveLayers,
+			dispatch,
 		]
 	);
 
@@ -238,7 +238,7 @@ const OptionSelectType: FC<{
 					} as LayerConfig)
 			)
 		);
-	}, [option]);
+	}, [dispatch, option]);
 
 	return (
 		<RadioListItem
@@ -273,7 +273,11 @@ const EditModal: FC<{
 		if (saveOnChange) {
 			saveLayers();
 		}
-	}, [saveOnChange, saveLayers]);
+	}, [
+		dispatch,
+		saveOnChange,
+		saveLayers,
+	]);
 
 	const handleRemoveItem = useCallback(() => {
 		const idx = layers.findIndex((layer) => layer.key === layerTemp?.key);
@@ -292,24 +296,35 @@ const EditModal: FC<{
 		handleDismissModal,
 		layers,
 		layerTemp?.key,
+		dispatch,
 	]);
 
-	const updateItemTemp = useCallback((newLayer: LayerConfig) => {
-		dispatch(setLayerTemp(newLayer));
-	}, []);
+	const updateItemTemp = useCallback(
+		(newLayer: LayerConfig) => {
+			dispatch(setLayerTemp(newLayer));
+		},
+		[
+			dispatch,
+		]
+	);
 
-	const handleNameUpdate = useCallback(({ name }: { name: string }) => {
-		dispatch(
-			setLayerTemp(
-				(layerTemp) =>
-					layerTemp &&
-					({
-						...layerTemp,
-						name,
-					} as LayerConfig)
-			)
-		);
-	}, []);
+	const handleNameUpdate = useCallback(
+		({ name }: { name: string }) => {
+			dispatch(
+				setLayerTemp(
+					(layerTemp) =>
+						layerTemp &&
+						({
+							...layerTemp,
+							name,
+						} as LayerConfig)
+				)
+			);
+		},
+		[
+			dispatch,
+		]
+	);
 
 	return !layerTemp ? undefined : (
 		<ModalWrapper
@@ -320,7 +335,7 @@ const EditModal: FC<{
 			{!layerTemp.type && (
 				<View>
 					<Text style={styles.selectType}>{t('baseMap.selectType')}</Text>
-					{[...mapTypeOptions].map((opt: LayerOption) => (
+					{mapTypeOptions.map((opt: LayerOption) => (
 						<OptionSelectType
 							key={opt.key}
 							option={opt}
@@ -424,11 +439,13 @@ const LayersControl: FC<{
 				temp: false,
 			})
 		);
-	}, []);
+	}, [
+		dispatch,
+	]);
 
 	useEffect(() => {
 		return saveOnUnmount ? saveLayers : undefined;
-	}, [saveOnUnmount]);
+	}, [saveOnUnmount, saveLayers]);
 
 	const handleAccordionPress = useCallback(() => {
 		if (expanded) {
@@ -444,6 +461,7 @@ const LayersControl: FC<{
 		expanded,
 		saveLayers,
 		uiStateKey,
+		dispatch,
 	]);
 
 	const styleAccordion = useMemo(
@@ -454,7 +472,7 @@ const LayersControl: FC<{
 		[width, layers]
 	);
 
-	const handleDragStart = useCallback(() => setScrollEnabled(false), []);
+	const handleDragStart = useCallback(() => setScrollEnabled(false), [setScrollEnabled]);
 
 	const handleDragEnd = useCallback(
 		({ indexToKey }: SortableFlexDragEndParams) => {
@@ -469,7 +487,12 @@ const LayersControl: FC<{
 				})
 			);
 		},
-		[saveOnChange, layers]
+		[
+			dispatch,
+			saveOnChange,
+			setScrollEnabled,
+			layers,
+		]
 	);
 
 	const dropIndicatorStyle = useDropIndicatorStyle();
@@ -488,7 +511,12 @@ const LayersControl: FC<{
 		[theme]
 	);
 
-	const handleAddNewLayer = useCallback(() => dispatch(setLayerTemp(getNewLayer())), []);
+	const handleAddNewLayer = useCallback(
+		() => dispatch(setLayerTemp(getNewLayer())),
+		[
+			dispatch,
+		]
+	);
 
 	return (
 		<View>
@@ -504,7 +532,7 @@ const LayersControl: FC<{
 				onPress={handleAccordionPress}
 				titleStyle={theme.fonts.bodyMedium}
 			>
-				{layers.length && (
+				{layers.length > 0 && (
 					<View style={[styleAccordion, sharedStylesBaseMapControls.grid]}>
 						<Sortable.Flex
 							itemEntering={null}

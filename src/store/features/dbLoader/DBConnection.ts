@@ -3,16 +3,14 @@
  */
 import { QueryClient } from '@tanstack/react-query';
 import { drizzle } from 'drizzle-orm/op-sqlite';
+import { migrate } from 'drizzle-orm/op-sqlite/migrator';
 import { DB, open } from '@op-engineering/op-sqlite';
 
 /**
  * Internal dependencies
  */
 import * as schema from './schema';
-import { AppStore } from '../../store';
-import { migrate } from 'drizzle-orm/op-sqlite/migrator';
 import migrations from '../../../../drizzle/migrations';
-import { setDbMigrated } from './slice';
 
 class DBConnection {
 	op?: DB;
@@ -26,7 +24,6 @@ class DBConnection {
 	initialize(dbPath: string) {
 		return new Promise<true>((resolve, reject) => {
 			this.setDbOp(dbPath);
-			console.log('debug dbPath', dbPath); // debug
 			this.setQueryClient();
 			this.setDbZ()
 				.then((result) => resolve(result))
@@ -78,7 +75,18 @@ class DBConnection {
 					networkMode: 'always', // We don't care for network, we fetch from a local db.
 					throwOnError: (error, query) => {
 						if (__DEV__) {
-							console.error('DEBUG error query ', { error, query }); // debug
+							const msg =
+								error instanceof Error
+									? error.message
+									: typeof error === 'string'
+										? error
+										: JSON.stringify(error);
+							console.error(
+								`DEBUG error query [${query.queryKey.join(', ')}]` +
+									`\n  message: ${msg}` +
+									`\n  stale: ${query.state.status}`,
+								error instanceof Error ? error : undefined
+							);
 						}
 						return false;
 					},

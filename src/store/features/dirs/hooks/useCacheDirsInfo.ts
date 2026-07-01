@@ -1,7 +1,9 @@
 /**
  * External dependencies
  */
-import { useEffect, useCallback } from 'react';
+import { useContext, useEffect, useCallback, useMemo } from 'react';
+import { sprintf } from 'sprintf-js';
+import { useTranslation } from 'react-i18next';
 
 /**
  * Internal dependencies
@@ -11,9 +13,15 @@ import { CacheDir } from '../types';
 import { useAppDispatch, useAppSelector } from '../../../hooks';
 import { selectCacheDirsCache } from '../selectors';
 import { setCacheDirsCache } from '../slice';
+import { logError } from '../../../../lib/utils';
+import { ErrorToastContext } from '../../../../components/ErrorToast/Context';
 
 const useCacheDirsInfo = (shouldUpdate?: any): any => {
 	const dispatch = useAppDispatch();
+
+	const { t } = useTranslation();
+
+	const { showError } = useContext(ErrorToastContext);
 
 	const cacheDirs = useAppSelector(selectCacheDirsCache);
 
@@ -22,8 +30,15 @@ const useCacheDirsInfo = (shouldUpdate?: any): any => {
 			.then((newCacheDirs) => {
 				dispatch(setCacheDirsCache(newCacheDirs as CacheDir[]));
 			})
-			.catch((err: any) => console.log(err));
-	}, []);
+			.catch((err) => {
+				logError('useCacheDirsInfo.getCacheInfo', err);
+				showError(sprintf(t('errorGeneric'), err?.message ?? String(err)));
+			});
+	}, [
+		dispatch,
+		showError,
+		t,
+	]);
 
 	useEffect(() => {
 		if (shouldUpdate) {
@@ -31,10 +46,13 @@ const useCacheDirsInfo = (shouldUpdate?: any): any => {
 		}
 	}, [updateCacheDirs, shouldUpdate]);
 
-	return {
-		updateCacheDirs,
-		cacheDirs,
-	};
+	return useMemo(
+		() => ({
+			updateCacheDirs,
+			cacheDirs,
+		}),
+		[updateCacheDirs, cacheDirs]
+	);
 };
 
 export default useCacheDirsInfo;

@@ -3,8 +3,7 @@
  */
 import { isAnyOf } from '@reduxjs/toolkit';
 import DefaultPreference from 'react-native-default-preference';
-import { get, isEqual, omit, pick, set } from 'lodash-es';
-import rnUuid from 'react-native-uuid';
+import { get, isEqual, omit, set } from 'lodash-es';
 
 /**
  * Internal dependencies
@@ -21,6 +20,7 @@ import {
 	setElementsSettings,
 } from './slice';
 import { startAppListening } from '../../listenerMiddleware';
+import { logError } from '../../../lib/utils';
 import * as elements from './elements';
 import { DashboardElement, DashboardElementSetting } from './types';
 import { selectInitialized } from './selectors';
@@ -126,7 +126,7 @@ export const saveToStorage = (dashboardState: DashboardState, actionType: string
 	if (__DEV__ && globalThis.shouldLog.saveToStorage) {
 		console.log('DEBUG saveToStorage', settingsKey, actionType, settingsToSave);
 	}
-	DefaultPreference.set(settingsKey, JSON.stringify(settingsToSave));
+	return DefaultPreference.set(settingsKey, JSON.stringify(settingsToSave));
 };
 
 /**
@@ -136,6 +136,10 @@ export const saveToStorage = (dashboardState: DashboardState, actionType: string
 startAppListening({
 	matcher: isAnyOf(setDashboardStyle, setItems, addItem, removeItemKey),
 	effect: async (action, listenerApi) => {
-		saveToStorage(listenerApi.getState().dashboard, action.type);
+		try {
+			await saveToStorage(listenerApi.getState().dashboard, action.type);
+		} catch (err) {
+			logError('saveToStorage', err);
+		}
 	},
 });

@@ -1,10 +1,9 @@
 /**
  * External dependencies
  */
-import React, { FC, useCallback, useContext, useMemo, useState } from 'react';
+import React, { FC, useCallback, useContext, useMemo, useRef, useState } from 'react';
 import { Icon, useTheme } from 'react-native-paper';
-import { useTranslation } from 'react-i18next';
-import { Dimensions, PixelRatio, ScrollView } from 'react-native';
+import { ScrollView, View } from 'react-native';
 import Popover, { PopoverPlacement } from 'react-native-popover-view';
 import { pick } from 'lodash-es';
 
@@ -12,8 +11,6 @@ import { pick } from 'lodash-es';
  * Internal dependencies
  */
 import { AppContext } from '../../../../Context';
-import { MapContext } from '../../../../Context';
-import { useAppDispatch, useAppSelector } from '../../../hooks';
 import useRoute from '../hooks/useRoute';
 import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
 import { MenuActionOption } from '../../../../types';
@@ -23,9 +20,7 @@ const RoutingActionsButton: FC<{
 	disabled?: boolean;
 	actions?: Record<string, MenuActionOption>;
 }> = ({ disabled: disabled_, actions }) => {
-	const { mapHeight, mapViewNativeNodeHandle } = useContext(AppContext);
-
-	const dispatch = useAppDispatch();
+	const { mapViewNativeNodeHandle } = useContext(AppContext);
 
 	const { id: routeId, points } = useRoute(['id', 'points']) || {};
 
@@ -36,11 +31,7 @@ const RoutingActionsButton: FC<{
 	// // const triggeredMarkerIdx = useAppSelector(selectTriggeredMarkerIdx);
 	// // const triggeredSegment = useAppSelector(selectTriggeredSegment);
 
-	const { currentMapEventRef } = useContext(MapContext);
-
-	const { width } = Dimensions.get('window');
 	const theme = useTheme();
-	const { t } = useTranslation();
 	const [menuVisible, setMenuVisible] = useState(false);
 
 	// // open menu on start routing, hopefully after drawer has closed.
@@ -52,7 +43,7 @@ const RoutingActionsButton: FC<{
 	// }, [routeId, prevIsRouting]);
 
 	const dismissMenu = useCallback(
-		(cleanTriggeredMarkerIdx?: boolean, cleanTriggeredSegment?: boolean) => {
+		(_cleanTriggeredMarkerIdx?: boolean, _cleanTriggeredSegment?: boolean) => {
 			setMenuVisible(false);
 			// if (undefined === cleanTriggeredMarkerIdx ? true : cleanTriggeredMarkerIdx) {
 			// 	dispatch(setTriggeredMarkerIdx(undefined));
@@ -68,8 +59,8 @@ const RoutingActionsButton: FC<{
 		const keys: string[] = [];
 
 		// if (undefined === movingPointIdx) {
-			keys.push('appendPoint');
-			keys.push('deleteLastPoint');
+		keys.push('appendPoint');
+		keys.push('deleteLastPoint');
 		// }
 
 		return Object.values(pick(actions, keys)).filter((a) => !!a);
@@ -230,8 +221,6 @@ const RoutingActionsButton: FC<{
 		} else {
 			setMenuVisible(true);
 			if (mapViewNativeNodeHandle) {
-				const left = PixelRatio.getPixelSizeForLayoutSize(width) / 2;
-				const top = PixelRatio.getPixelSizeForLayoutSize(mapHeight || 0) / 2;
 				// if (markerLayerUuid) {
 				// 	MapLayerMarkerModule.triggerEvent(
 				// 		mapViewNativeNodeHandle,
@@ -246,33 +235,11 @@ const RoutingActionsButton: FC<{
 		dismissMenu,
 		menuVisible,
 		mapViewNativeNodeHandle,
-		// markerLayerUuid,
-		// pathLayerUuids,
-		width,
-		mapHeight,
 	]);
 
 	const disabled = disabled_ || undefined === points || !points?.length;
 
-	const anchor = useMemo(
-		() => (
-			<ButtonHighlight
-				onPress={handleButtonPress}
-				disabled={disabled}
-				mode="outlined"
-			>
-				<Icon
-					source={'menu'}
-					size={20}
-				/>
-			</ButtonHighlight>
-		),
-		[
-			theme,
-			handleButtonPress,
-			disabled,
-		]
-	);
+	const anchorRef = useRef<View>(null);
 
 	const popoverStyle = useMemo(
 		() => ({
@@ -289,17 +256,30 @@ const RoutingActionsButton: FC<{
 	}
 
 	return (
-		<Popover
-			popoverStyle={popoverStyle}
-			arrowSize={arrowSize}
-			isVisible={menuVisible}
-			placement={PopoverPlacement.BOTTOM}
-			onRequestClose={dismissMenu}
-			from={anchor}
-			animationConfig={animationConfig}
-		>
-			<ScrollView>{menuVisible && <PopoverMenuItems options={options} />}</ScrollView>
-		</Popover>
+		<>
+			<ButtonHighlight
+				ref={anchorRef}
+				onPress={handleButtonPress}
+				disabled={disabled}
+				mode="outlined"
+			>
+				<Icon
+					source={'menu'}
+					size={20}
+				/>
+			</ButtonHighlight>
+			<Popover
+				popoverStyle={popoverStyle}
+				arrowSize={arrowSize}
+				isVisible={menuVisible}
+				placement={PopoverPlacement.BOTTOM}
+				onRequestClose={dismissMenu}
+				from={anchorRef as React.RefObject<React.Component<{}, {}, any>>}
+				animationConfig={animationConfig}
+			>
+				<ScrollView>{menuVisible && <PopoverMenuItems options={options} />}</ScrollView>
+			</Popover>
+		</>
 	);
 };
 

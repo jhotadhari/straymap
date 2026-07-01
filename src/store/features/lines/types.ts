@@ -1,3 +1,6 @@
+/**
+ * External dependencies
+ */
 import { WithRequired } from '@tanstack/react-query';
 import { LineString, Polygon } from 'geojson';
 
@@ -5,7 +8,7 @@ export interface Tag {
 	id: number;
 	label: string | null;
 	notes: string | null;
-	params: any; // ??? any
+	data: any; // ??? any
 }
 
 export const STATS_FIELDS = [
@@ -25,7 +28,13 @@ export interface Line {
 	envelope: Polygon;
 	timestamp: string;
 	tags: Tag[];
+	data: any; // ??? any
 	stats: LineStats;
 }
 
 export type LinePartial = WithRequired<Partial<Line>, 'id'>;
+
+export interface TableColumn {
+	key: string;
+	visible: boolean;
+}

@@ -4,13 +4,7 @@
 import { FC, Fragment, useCallback, useContext, useEffect, useMemo } from 'react';
 import { useTheme, Icon, Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import {
-	View,
-	BackHandler,
-	TouchableHighlight,
-	StyleSheet,
-	LayoutChangeEvent,
-} from 'react-native';
+import { View, BackHandler, TouchableHighlight, StyleSheet, LayoutChangeEvent } from 'react-native';
 
 /**
  * Internal dependencies
@@ -84,7 +78,7 @@ const TopAppBar: FC = () => {
 			return true;
 		}
 		return false;
-	}, [uiItemsKeys]);
+	}, [dispatch, uiItemsKeys]);
 
 	useEffect(() => {
 		const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
@@ -104,7 +98,7 @@ const TopAppBar: FC = () => {
 		if (!uiItemsKeys.length) {
 			dispatch(setUiItemKeys(['settings']));
 		}
-	}, [uiItemsKeys]);
+	}, [dispatch, uiItemsKeys]);
 
 	const handleLayout = useCallback(
 		(e: LayoutChangeEvent) => {

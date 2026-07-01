@@ -15,7 +15,6 @@ import React, {
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { Icon, Text, useTheme } from 'react-native-paper';
 import MaterialIcons from '@react-native-vector-icons/material-icons/static';
-import formatcoords from 'formatcoords';
 import { get, omit, pick } from 'lodash-es';
 import { lineString } from '@turf/turf';
 import { useMutation, UseMutationOptions } from '@tanstack/react-query';
@@ -30,7 +29,9 @@ import LoadingIndicator from '../../../../components/generic/LoadingIndicator';
 import { useAppDispatch, useAppSelector } from '../../../hooks';
 import { deleteSegments, processRouting } from '../slice';
 import { selectIsRouting, selectSegments } from '../selectors';
+import { selectUnitPrefs } from '../../general/selectors';
 import { updateRoute } from '../db/actionsRoute';
+import { formatCoords } from '../../../../lib/formatting';
 import { lineStringToStats } from '../../../../lib/utils';
 import { deleteRoutingPoint } from '../db/actionsRoutingPoint';
 import { LineStats as LineStatsType } from '../../lines/types';
@@ -40,16 +41,13 @@ import EditPointModal from './EditPointModal';
 import Sortable, { DragStartParams, SortableFlexDragEndParams } from 'react-native-sortables';
 import useDropIndicatorStyle from '../../../../compose/useDropIndicatorStyle';
 import { dbConnection } from '../../dbLoader/DBConnection';
-
-const iconSize = 25;
+import { DRAWER_ICON_SIZE } from '../../../../constants';
 
 const Segment: FC<{
 	item: RoutingPoint;
-	width: number;
-	order: number;
 	draggingItemIndex?: number;
 	setEditPoint: Dispatch<SetStateAction<undefined | RoutingPoint>>;
-}> = ({ item, width, order, draggingItemIndex, setEditPoint }) => {
+}> = ({ item, draggingItemIndex, setEditPoint }) => {
 	const theme = useTheme();
 
 	const dispatch = useAppDispatch();
@@ -67,19 +65,21 @@ const Segment: FC<{
 				node = (
 					<MaterialIcons
 						name="error"
-						size={iconSize}
+						size={DRAWER_ICON_SIZE}
 						color={theme.colors.errorContainer}
 					/>
 				);
+				break;
 			case !!(segment && segment?.isFetching):
 				// fetching
 				node = <LoadingIndicator style={styles.loadingIndicatorIcon} />;
+				break;
 			case !segment || !segment?.positions:
 				// some placeholder until start fetching
 				node = (
 					<Icon
 						source="dots-horizontal"
-						size={iconSize}
+						size={DRAWER_ICON_SIZE}
 					/>
 				);
 			// case ( !! ( segment && ! segment?.isFetching && segment?.positions ) ):
@@ -92,7 +92,7 @@ const Segment: FC<{
 		}
 
 		return node ? <View style={styles.stateIconWrapper}>{node}</View> : undefined;
-	}, [segment]);
+	}, [segment, theme.colors.errorContainer]);
 
 	const refreshSegment = useCallback(() => {
 		if (!segment) {
@@ -100,23 +100,24 @@ const Segment: FC<{
 		}
 		dispatch(deleteSegments([segment]));
 		dbConnection?.queryClient && dispatch(processRouting(dbConnection?.queryClient));
-	}, [segment, dbConnection?.queryClient]);
+	}, [
+		dispatch,
+		segment,
+	]);
 
 	const handleSetEdit = useCallback(() => {
 		setEditPoint(item);
-	}, [item]);
+	}, [item, setEditPoint]);
 
 	const [lineStats, setLineStats] = useState<LineStatsType>({});
 	useEffect(() => {
 		if (segment && segment?.positions && segment?.positions.length > 1) {
-			lineStringToStats(lineString(segment.positions).geometry).then(
-				(newStats) => {
-					setLineStats(newStats ?? {});
-				}
-			);
+			lineStringToStats(lineString(segment.positions).geometry).then((newStats) => {
+				setLineStats(newStats ?? {});
+			});
 		}
 		setLineStats({});
-	}, [segment?.positions]);
+	}, [segment?.positions, segment]);
 
 	// Hide if dragging
 	const hidden = undefined !== draggingItemIndex;
@@ -170,7 +171,7 @@ const Segment: FC<{
 					>
 						<Icon
 							source="refresh"
-							size={iconSize}
+							size={DRAWER_ICON_SIZE}
 						/>
 					</ButtonHighlight>
 				</View>
@@ -212,7 +213,7 @@ const Segment: FC<{
 					>
 						<Icon
 							source="cog"
-							size={iconSize}
+							size={DRAWER_ICON_SIZE}
 						/>
 					</ButtonHighlight>
 				</View>
@@ -231,6 +232,8 @@ const DraggableItem: FC<{
 }> = ({ item, width, order, draggingItemIndex, setEditPoint, hasNext }) => {
 	const routeId = useAppSelector(selectIsRouting);
 
+	const unitPrefs = useAppSelector(selectUnitPrefs);
+
 	const dispatch = useAppDispatch();
 
 	const [isDeleting, setIsDeleting] = useState(false);
@@ -238,25 +241,28 @@ const DraggableItem: FC<{
 	const mutationOptions: UseMutationOptions<void, Error, number, void> = useMemo(
 		() => ({
 			mutationFn: deleteRoutingPoint,
-			onMutate: async (_, context) => {
-				await context.client.cancelQueries({ queryKey: ['route', routeId] });
+			onMutate: async () => {
+				await dbConnection.queryClient!.cancelQueries({ queryKey: ['route', routeId] });
 				setIsDeleting(true);
 			},
-			onSuccess: async (_result, _variables, _onMutateResult, context) => {
-				await context.client.invalidateQueries({ queryKey: ['route', routeId] });
+			onSuccess: async () => {
+				await dbConnection.queryClient!.invalidateQueries({ queryKey: ['route', routeId] });
 				dbConnection?.queryClient && dispatch(processRouting(dbConnection.queryClient));
 			},
 			onSettled: () => {
 				setIsDeleting(false);
 			},
 		}),
-		[routeId, dbConnection?.queryClient]
+		[
+			dispatch,
+			routeId,
+		]
 	);
 	const mutation = useMutation(mutationOptions);
 
 	const handleDeletePoint = useCallback(() => {
 		mutation.mutate(item.id);
-	}, [item.id, mutation.mutate]);
+	}, [item.id, mutation]);
 
 	const styleDraggableItem = useMemo(
 		// ??? we need dome other nice placeholder than backgroundColor for isDeleting.
@@ -282,12 +288,11 @@ const DraggableItem: FC<{
 					<Text>{item.id}</Text>
 					<Text>
 						{item?.geometry?.coordinates &&
-							formatcoords(
+							formatCoords(
 								item.geometry.coordinates[1],
-								item.geometry.coordinates[0]
-							).format('dd', {
-								decimalPlaces: Math.min(4, 99),
-							})}
+								item.geometry.coordinates[0],
+								unitPrefs.coordinates
+							)}
 					</Text>
 				</Sortable.Handle>
 
@@ -298,7 +303,7 @@ const DraggableItem: FC<{
 				>
 					<Icon
 						source="delete"
-						size={iconSize}
+						size={DRAWER_ICON_SIZE}
 					/>
 				</ButtonHighlight>
 			</View>
@@ -306,8 +311,6 @@ const DraggableItem: FC<{
 			{hasNext && (
 				<Segment
 					item={item}
-					width={width}
-					order={order}
 					draggingItemIndex={draggingItemIndex}
 					setEditPoint={setEditPoint}
 				/>
@@ -336,12 +339,12 @@ const PointsList: FC = () => {
 				updateRoute(routeId, {
 					point_order: newPoints.map((p) => p.id),
 				}),
-			onMutate: async (newPoints, context) => {
-				await context.client.cancelQueries({ queryKey: ['route', routeId] });
+			onMutate: async (newPoints) => {
+				await dbConnection.queryClient!.cancelQueries({ queryKey: ['route', routeId] });
 				setOptimisticPoints(newPoints);
 			},
-			onSuccess: async (_result, _variables, _onMutateResult, context) => {
-				await context.client.invalidateQueries({ queryKey: ['route', routeId] });
+			onSuccess: async () => {
+				await dbConnection.queryClient!.invalidateQueries({ queryKey: ['route', routeId] });
 				dbConnection?.queryClient && dispatch(processRouting(dbConnection.queryClient));
 			},
 			onSettled: () => {
@@ -350,7 +353,10 @@ const PointsList: FC = () => {
 				setOptimisticPoints(undefined);
 			},
 		}),
-		[routeId, dbConnection?.queryClient]
+		[
+			dispatch,
+			routeId,
+		]
 	);
 	const mutation = useMutation(mutationOptions);
 
@@ -391,8 +397,7 @@ const PointsList: FC = () => {
 		},
 		[
 			points,
-			routeId,
-			mutation.mutate,
+			mutation,
 		]
 	);
 
@@ -481,7 +486,7 @@ const styles = StyleSheet.create({
 		marginVertical: -4,
 	},
 	placeholderIcon: {
-		width: iconSize, // icon size as empty placeholder
+		width: DRAWER_ICON_SIZE, // icon size as empty placeholder
 		height: 1, // any number to prevent layout jumps on refresh process routing.
 	},
 	draggableItem: {

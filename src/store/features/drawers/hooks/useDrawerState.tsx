@@ -4,29 +4,31 @@
 import { useCallback, useMemo, useState } from 'react';
 import { SharedValue, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
 import { Gesture } from 'react-native-gesture-handler';
-import { clamp, isBoolean, isNumber } from 'lodash-es';
+import { clamp, isNumber } from 'lodash-es';
+import { Dimensions } from 'react-native';
 
 /**
  * Internal dependencies
  */
 import { DrawerState } from '../types';
+import { getDrawerWidthResponsive } from '../utils';
 
 const useDrawerState = ({
 	side,
-	drawerWidth = 300,
-	outerWidth,
 	translationX,
 	translationXOther,
 }: {
 	side: string;
-	drawerWidth?: number;
-	outerWidth: number;
 	translationX: SharedValue<number>;
 	translationXOther: SharedValue<number>;
 }): DrawerState => {
-	drawerWidth = drawerWidth <= (outerWidth * 2) / 3 ? drawerWidth : (outerWidth * 2) / 3;
+	const { width } = Dimensions.get('window');
 
-	const prevTranslationX = useSharedValue('left' === side ? -drawerWidth : drawerWidth);
+	const drawerWidthResponsive = getDrawerWidthResponsive(width);
+
+	const prevTranslationX = useSharedValue(
+		'left' === side ? -drawerWidthResponsive : drawerWidthResponsive
+	);
 
 	const [showContent, setShowContent] = useState(false);
 
@@ -44,26 +46,24 @@ const useDrawerState = ({
 			// Maybe shrink other
 			const remaining =
 				'left' === side
-					? outerWidth - newVal - drawerWidth
-					: outerWidth + newVal - drawerWidth;
+					? width - newVal - drawerWidthResponsive
+					: width + newVal - drawerWidthResponsive;
 			const remainingOther =
 				'left' === side
-					? outerWidth + translationXOther.value - drawerWidth
-					: outerWidth - translationXOther.value - drawerWidth;
-			if (remaining - (outerWidth - remainingOther) < outerWidth / 3) {
+					? width + translationXOther.value - drawerWidthResponsive
+					: width - translationXOther.value - drawerWidthResponsive;
+			if (remaining - (width - remainingOther) < width / 3) {
 				translationXOther.value = clamp(
-					'right' === side
-						? newVal - (outerWidth * 2) / 3
-						: newVal + (outerWidth * 2) / 3,
-					'right' === side ? -drawerWidth : 0,
-					'right' === side ? 0 : drawerWidth
+					'right' === side ? newVal - (width * 2) / 3 : newVal + (width * 2) / 3,
+					'right' === side ? -drawerWidthResponsive : 0,
+					'right' === side ? 0 : drawerWidthResponsive
 				);
 			}
 		},
 		[
 			side,
-			drawerWidth,
-			outerWidth,
+			drawerWidthResponsive,
+			width,
 			translationX,
 			translationXOther,
 			showContent,
@@ -76,23 +76,23 @@ const useDrawerState = ({
 				| number // fraction between 0 and 1
 				| boolean
 		) => {
-			const newTranslationX = !!expanded
+			const newTranslationX = expanded
 				? 'left' === side
 					? isNumber(expanded)
-						? -drawerWidth * (1 - expanded)
+						? -drawerWidthResponsive * (1 - expanded)
 						: 0
 					: isNumber(expanded)
-						? drawerWidth * (1 - expanded)
+						? drawerWidthResponsive * (1 - expanded)
 						: 0
 				: 'left' === side
-					? -drawerWidth
-					: drawerWidth;
+					? -drawerWidthResponsive
+					: drawerWidthResponsive;
 			setTranslationX(newTranslationX);
 		},
 		[
 			setTranslationX,
 			side,
-			drawerWidth,
+			drawerWidthResponsive,
 		]
 	);
 
@@ -107,8 +107,8 @@ const useDrawerState = ({
 					setTranslationX(
 						clamp(
 							prevTranslationX.value + event.translationX,
-							'left' === side ? -drawerWidth : 0,
-							'left' === side ? 0 : drawerWidth
+							'left' === side ? -drawerWidthResponsive : 0,
+							'left' === side ? 0 : drawerWidthResponsive
 						)
 					);
 				})
@@ -117,32 +117,45 @@ const useDrawerState = ({
 			side,
 			prevTranslationX,
 			translationX,
-			drawerWidth,
+			drawerWidthResponsive,
+			setTranslationX,
 		]
 	);
 
 	const getIsFullyCollapsed = useCallback(
 		() =>
 			'left' === side
-				? translationX.value === -drawerWidth
-				: translationX.value === drawerWidth,
+				? translationX.value === -drawerWidthResponsive
+				: translationX.value === drawerWidthResponsive,
 		[
-			drawerWidth,
+			drawerWidthResponsive,
 			translationX,
 			side,
 		]
 	);
 
-	return {
-		side,
-		drawerWidth,
-		outerWidth,
-		showContent,
-		gesture,
-		animatedStyles,
-		expand,
-		getIsFullyCollapsed,
-	};
+	return useMemo(
+		() => ({
+			side,
+			drawerWidth: drawerWidthResponsive,
+			outerWidth: width,
+			showContent,
+			gesture,
+			animatedStyles,
+			expand,
+			getIsFullyCollapsed,
+		}),
+		[
+			side,
+			drawerWidthResponsive,
+			width,
+			showContent,
+			gesture,
+			animatedStyles,
+			expand,
+			getIsFullyCollapsed,
+		]
+	);
 };
 
 export default useDrawerState;

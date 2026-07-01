@@ -46,7 +46,7 @@ const RowRouting: FC = () => {
 	const handlePress = useCallback(() => {
 		if (lineTemp?.id && route?.id) {
 			// set bounds. ??? have to implement set bounds. use center for now,
-			if (line?.envelope) {
+			if (line?.envelope && mapViewNativeNodeHandle) {
 				const centerPoint = centerOfMass(line?.envelope);
 				panTo(centerPoint.geometry.coordinates);
 			}
@@ -56,9 +56,13 @@ const RowRouting: FC = () => {
 		}
 	}, [
 		panTo,
+		mapViewNativeNodeHandle,
 		lineTemp?.id,
 		route?.id,
 		line?.envelope,
+		activateRoutingDrawerItem,
+		dispatch,
+		selectLine,
 	]);
 
 	const buttonStyle = useMemo(

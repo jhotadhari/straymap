@@ -47,7 +47,12 @@ const Option: FC<{
 		} else {
 			setOverlays([...profileTemp.renderOverlays, opt.key]);
 		}
-	}, [profileTemp, isSelected, opt.key, setOverlays]);
+	}, [
+		profileTemp,
+		isSelected,
+		opt.key,
+		setOverlays,
+	]);
 
 	return (
 		<RadioListItem
@@ -85,14 +90,14 @@ const ControlModal: FC<{
 				} as MapsforgeProfile;
 			})
 		);
-	}, [opts]);
+	}, [dispatch, opts]);
 
 	const handleSelectAllNone = useCallback(() => {
 		dispatch(
 			setMapsforgeProfileTemp((profileTemp) => {
 				let newOverlays: string[] = [];
 				if (profileTemp && profileTemp.renderOverlays.length < opts.length) {
-					newOverlays = [...opts].map((opt) => opt.key);
+					newOverlays = opts.map((opt) => opt.key);
 				}
 				return {
 					...(profileTemp ?? {}),
@@ -100,21 +105,26 @@ const ControlModal: FC<{
 				} as MapsforgeProfile;
 			})
 		);
-	}, [opts]);
+	}, [dispatch, opts]);
 
-	const setOverlays = useCallback((newRenderOverlays: string[]) => {
-		dispatch(
-			setMapsforgeProfileTemp(
-				(profileTemp) =>
-					({
-						...(profileTemp ?? {}),
-						renderOverlays: newRenderOverlays,
-					}) as MapsforgeProfile
-			)
-		);
-	}, []);
+	const setOverlays = useCallback(
+		(newRenderOverlays: string[]) => {
+			dispatch(
+				setMapsforgeProfileTemp(
+					(profileTemp) =>
+						({
+							...(profileTemp ?? {}),
+							renderOverlays: newRenderOverlays,
+						}) as MapsforgeProfile
+				)
+			);
+		},
+		[
+			dispatch,
+		]
+	);
 
-	const handleDismissModal = useCallback(() => setModalVisible(false), []);
+	const handleDismissModal = useCallback(() => setModalVisible(false), [setModalVisible]);
 
 	return !modalVisible ? undefined : (
 		<ModalWrapper
@@ -154,7 +164,7 @@ const ControlModal: FC<{
 				</ButtonHighlight>
 			</View>
 
-			{[...opts].map((opt) => (
+			{opts.map((opt) => (
 				<Option
 					key={opt.key}
 					opt={opt}
@@ -196,15 +206,14 @@ const RenderOverlaysControl: FC<{
 	const opts = useMemo(() => {
 		if (profileTemp && profileTemp.theme && profileTemp.renderStyle && renderStyleOptions) {
 			const overlays =
-				renderStyleOptions.find((opt) => opt.value === profileTemp.renderStyle)
-					?.overlays ?? [];
+				renderStyleOptions.find((opt) => opt.value === profileTemp.renderStyle)?.overlays ??
+				[];
 			return overlays.map((overlay) => ({ key: overlay.value, label: overlay.label }));
 		}
 		return [];
 	}, [
-		profileTemp?.theme,
-		profileTemp?.renderStyle,
 		renderStyleOptions,
+		profileTemp,
 	]);
 
 	const handleOpenModal = useCallback(() => setModalVisible(true), []);

@@ -3,21 +3,18 @@
  */
 import React, { Dispatch, FC, SetStateAction } from 'react';
 import { Text } from 'react-native-paper';
-import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
 /**
  * Internal dependencies
  */
 import { DrawerItem } from '../types';
-import { itemStyles, handleSize, iconSize } from '../constants';
+import { itemStyles } from '../constants';
 
 const DisplayComponentScroll: FC<{
 	scrollEnabled: boolean;
 	setScrollEnabled: Dispatch<SetStateAction<boolean>>;
-}> = ({ scrollEnabled, setScrollEnabled }) => {
-	const { t } = useTranslation();
-
+}> = ({ scrollEnabled: _scrollEnabled, setScrollEnabled: _setScrollEnabled }) => {
 	return (
 		<View style={itemStyles.item}>
 			<View style={itemStyles.buttonRow}>

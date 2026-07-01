@@ -12,13 +12,13 @@ import { omit, pick } from 'lodash-es';
 import { useAppDispatch } from '../../../../hooks';
 import { Line, LineStats as LineStatsType } from '../../types';
 import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
-import { iconSize } from '../../../drawers/constants';
 import { setLineSelected, setLineTemp, setLineVisible } from '../../slice';
 import LineStats from '../LineStats';
 import TagBadge from '../TagBadge';
 import IconRouting from '../../../drawers/items/routing/IconComponent';
 import useRoute from '../../../routing/hooks/useRoute';
 import useActivateDrawerItem from '../../../drawers/hooks/useActivateDrawerItem';
+import { DRAWER_ICON_SIZE } from '../../../../../constants';
 import { sharedStyles } from './sharedDeps';
 
 export interface ListRowProps {
@@ -44,13 +44,16 @@ const ListRow: FC<ListRowProps> = ({ line, idx, visible }) => {
 		[idx, theme]
 	);
 
-	const toggleVisible = useCallback(() => dispatch(setLineVisible(line.id)), [line.id]);
+	const toggleVisible = useCallback(() => dispatch(setLineVisible(line.id)), [dispatch, line.id]);
 
-	const toggleSelected = useCallback(() => dispatch(setLineSelected(line.id)), [line.id]);
+	const toggleSelected = useCallback(
+		() => dispatch(setLineSelected(line.id)),
+		[dispatch, line.id]
+	);
 
 	const handleEditPress = useCallback(() => {
 		dispatch(setLineTemp({ id: line.id }));
-	}, [line.id]);
+	}, [dispatch, line.id]);
 
 	const { line_id: routingLineId, stats: routingStats } = useRoute(['line_id', 'stats']) || {};
 
@@ -71,8 +74,8 @@ const ListRow: FC<ListRowProps> = ({ line, idx, visible }) => {
 					onPress={toggleSelected}
 				>
 					<Icon
-						source={'undo'}
-						size={iconSize}
+						source={'map-minus'}
+						size={DRAWER_ICON_SIZE}
 					/>
 				</ButtonHighlight>
 			)}
@@ -129,7 +132,7 @@ const ListRow: FC<ListRowProps> = ({ line, idx, visible }) => {
 				>
 					<Icon
 						source={visible ? 'eye-outline' : 'eye-off-outline'}
-						size={iconSize}
+						size={DRAWER_ICON_SIZE}
 					/>
 				</ButtonHighlight>
 				<ButtonHighlight
@@ -139,7 +142,7 @@ const ListRow: FC<ListRowProps> = ({ line, idx, visible }) => {
 				>
 					<Icon
 						source={'cog'}
-						size={iconSize}
+						size={DRAWER_ICON_SIZE}
 					/>
 				</ButtonHighlight>
 			</View>

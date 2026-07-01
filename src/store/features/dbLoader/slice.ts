@@ -11,8 +11,6 @@ import { ANDROID_DATABASE_PATH } from '@op-engineering/op-sqlite';
 import { SliceSettingsBase } from '../../../types';
 import { AppThunk } from '../../store';
 import { selectDbPath } from './selectors';
-import { setSelected } from '../lines/slice';
-import { setIsRouting } from '../routing/slice';
 import { dbExtension } from './constants';
 import features from '..';
 

@@ -1,0 +1,15 @@
+{
+  "version": "v1",
+  "packages": {
+    "react-native-brouter": {
+      "signature": "efe2e0ad309304ec884d42a907c2a06d",
+      "file": true,
+      "replaced": "*"
+    },
+    "react-native-mapsforge-vtm": {
+      "signature": "54782d3f83e91d81fd2d1f13e212fb86",
+      "file": true,
+      "replaced": "^0.7.0"
+    }
+  }
+}

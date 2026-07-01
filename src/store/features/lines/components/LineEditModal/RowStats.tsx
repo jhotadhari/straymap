@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { FC, Fragment, useCallback, useContext } from 'react';
-import { Icon, Text, useTheme } from 'react-native-paper';
+import { Text, useTheme } from 'react-native-paper';
 import { StyleSheet, View } from 'react-native';
 import { pick, without } from 'lodash-es';
 
@@ -54,7 +54,7 @@ const RowStats: FC = () => {
 				expanded: !expanded,
 			})
 		);
-	}, [expanded]);
+	}, [dispatch, expanded]);
 
 	const { line, route } = useContext(LineEditModalContext);
 

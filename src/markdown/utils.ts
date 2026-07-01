@@ -1,3 +1,6 @@
+/**
+ * Internal dependencies
+ */
 import { MdPart } from './types';
 
 let firstNonEmptyLine: null | number = null;

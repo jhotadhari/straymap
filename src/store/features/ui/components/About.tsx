@@ -131,7 +131,6 @@ const MdPartsRenderPartDonation = ({
 	part: MdPart;
 	style: StyleProp<ViewStyle>;
 }) => {
-	const { t } = useTranslation();
 	const theme = useTheme();
 
 	const titleStyle = useJanglyTitleStyle(theme);
@@ -191,7 +190,7 @@ const MdPartsRender = ({ include, mbParts }: { include?: string[]; mbParts: MdPa
 	const { t } = useTranslation();
 	return (
 		<View>
-			{[...(include || [...mbParts].map((part) => part.key))].map((key) => {
+			{[...(include || mbParts.map((part) => part.key))].map((key) => {
 				const part: undefined | MdPart = mbParts.find((part) => part.key === key);
 
 				if (!part) {

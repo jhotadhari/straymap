@@ -8,6 +8,7 @@ import { uniq } from 'lodash-es';
  */
 import createAppSelector from '../../createAppSelector';
 import { RootState } from '../../store';
+import { lineCells, statsCells, otherCells } from './components/LinesTable/sharedDeps';
 
 export const selectInitialized = (state: RootState) => state.lines.initialized;
 
@@ -27,4 +28,27 @@ export const selectSelectedInfos = createAppSelector(
 			return acc;
 		}, {}),
 	})
+);
+
+const allColumnKeys = [
+	...Object.keys(lineCells),
+	...Object.keys(statsCells),
+	...Object.keys(otherCells),
+];
+export const selectTableColumns = createAppSelector(
+	(state: RootState) => state.lines.tableColumns,
+	(tableColumns) => {
+		// in case new columns got implemented, add them (visible) to tableColumns from store.
+		let result = [...tableColumns];
+		allColumnKeys.forEach((key) => {
+			if (!result.some((col) => col.key === key)) {
+				result.push({
+					key,
+					visible: true,
+				});
+			}
+		});
+		// in case implemented columns got removed, filter them out.
+		return result.filter((col) => allColumnKeys.includes(col.key));
+	}
 );

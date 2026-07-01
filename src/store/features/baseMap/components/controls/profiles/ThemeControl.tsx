@@ -16,7 +16,6 @@ import { LayerMapsforge } from 'react-native-mapsforge-vtm';
 import FileSourceRowControl from '../../../../../../components/generic/controls/FileSourceRowControl';
 import LoadingIndicator from '../../../../../../components/generic/LoadingIndicator';
 import { MapsforgeProfile, RenderStylesCache } from '../../../types';
-import { selectIsBusy } from '../../../../ui/selectors';
 import { useAppDispatch, useAppSelector } from '../../../../../hooks';
 import { selectMapsforgeProfileTemp } from '../../../selectors';
 import { setMapsforgeProfileTemp, setRenderStylesCache } from '../../../slice';
@@ -30,13 +29,13 @@ const renderLoadingIndicator = () => <LoadingIndicator />;
 
 const ResetCacheButton: FC<{
 	renderStylesCache: RenderStylesCache;
-}> = ({ renderStylesCache }) => {
+	isFetchingTheme: boolean;
+}> = ({ renderStylesCache, isFetchingTheme }) => {
 	const dispatch = useAppDispatch();
 	const theme = useTheme();
 
 	const profileTemp = useAppSelector(selectMapsforgeProfileTemp);
 
-	const isBusy = useAppSelector(selectIsBusy);
 	const appDirs = useAppSelector(selectAppDirs);
 
 	const handlePress = useCallback(() => {
@@ -57,9 +56,15 @@ const ResetCacheButton: FC<{
 				})
 			)
 		);
-	}, [profileTemp?.theme, appDirs?.mapstyles]);
+	}, [
+		appDirs?.mapstyles,
+		dispatch,
+		profileTemp,
+		renderStylesCache.defaultsMap,
+		renderStylesCache.optionsMap,
+	]);
 
-	return isBusy ? undefined : (
+	return isFetchingTheme ? undefined : (
 		<TouchableHighlight
 			underlayColor={theme.colors.elevation.level3}
 			onPress={handlePress}
@@ -108,28 +113,32 @@ const ThemeInfo: FC<{}> = () => {
 
 const ThemeControl: FC<{
 	renderStylesCache: RenderStylesCache;
-}> = ({ renderStylesCache }) => {
+	isFetchingTheme: boolean;
+}> = ({ renderStylesCache, isFetchingTheme }) => {
 	const { t } = useTranslation();
 
 	const dispatch = useAppDispatch();
 
 	const profileTemp = useAppSelector(selectMapsforgeProfileTemp);
 
-	const isBusy = useAppSelector(selectIsBusy);
-
 	const appDirs = useAppSelector(selectAppDirs);
 
-	const handleSelect = useCallback((selectedOpt?: string) => {
-		dispatch(
-			setMapsforgeProfileTemp(
-				(profileTemp) =>
-					({
-						...(profileTemp ?? {}),
-						theme: selectedOpt,
-					}) as MapsforgeProfile
-			)
-		);
-	}, []);
+	const handleSelect = useCallback(
+		(selectedOpt?: string) => {
+			dispatch(
+				setMapsforgeProfileTemp(
+					(profileTemp) =>
+						({
+							...(profileTemp ?? {}),
+							theme: selectedOpt,
+						}) as MapsforgeProfile
+				)
+			);
+		},
+		[
+			dispatch,
+		]
+	);
 
 	const initialOptionsByPath = useMemo(
 		() => ({
@@ -147,13 +156,18 @@ const ThemeControl: FC<{
 
 	return (
 		<FileSourceRowControl
-			AlternativeButton={isBusy ? renderLoadingIndicator : undefined}
+			AlternativeButton={isFetchingTheme ? renderLoadingIndicator : undefined}
 			label={t('baseMap.theme')}
 			header={t('baseMap.selectTheme')}
 			initialOptionsByPath={initialOptionsByPath}
 			value={profileTemp?.theme}
 			onSelect={handleSelect}
-			After={<ResetCacheButton renderStylesCache={renderStylesCache} />}
+			After={
+				<ResetCacheButton
+					renderStylesCache={renderStylesCache}
+					isFetchingTheme={isFetchingTheme}
+				/>
+			}
 			extensions={extensions}
 			dirs={appDirs.mapstyles}
 			Info={<ThemeInfo />}

@@ -23,8 +23,7 @@ import { DashboardElement } from '../../types';
 import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
 import InfoRowControl from '../../../../../components/generic/controls/InfoRowControl';
 import { ControlContext } from '../../ControlContext';
-
-const ICON_SIZE = 24;
+import { DASHBOARD_ICON_SIZE } from '../../../../../constants';
 
 const ItemControl: FC<{}> = ({}) => {
 	const { t } = useTranslation();
@@ -45,7 +44,11 @@ const ItemControl: FC<{}> = ({}) => {
 				expanded: !notExpanded,
 			})
 		);
-	}, [notExpanded, uiStateKey]);
+	}, [
+		dispatch,
+		notExpanded,
+		uiStateKey,
+	]);
 
 	// Force remount of all children on item key change.
 	const [show, setShow] = useState(false);
@@ -78,7 +81,7 @@ const ItemControl: FC<{}> = ({}) => {
 					pointerEvents="box-none"
 				>
 					<Icon
-						size={ICON_SIZE}
+						size={DASHBOARD_ICON_SIZE}
 						color={color}
 					/>
 				</View>
@@ -96,7 +99,11 @@ const ItemControl: FC<{}> = ({}) => {
 					itemKey: item.key,
 				})
 			),
-		[position, item?.key]
+		[
+			dispatch,
+			position,
+			item?.key,
+		]
 	);
 	const handleMoveLeft = useCallback(
 		() =>
@@ -107,7 +114,11 @@ const ItemControl: FC<{}> = ({}) => {
 					direction: 'left',
 				})
 			),
-		[position, item?.key]
+		[
+			dispatch,
+
+			item?.key,
+		]
 	);
 	const handleMoveRight = useCallback(
 		() =>
@@ -118,7 +129,11 @@ const ItemControl: FC<{}> = ({}) => {
 					direction: 'right',
 				})
 			),
-		[position, item?.key]
+		[
+			dispatch,
+
+			item?.key,
+		]
 	);
 
 	const [accuHeight, setAccuHeight] = useState<number | undefined>(undefined);

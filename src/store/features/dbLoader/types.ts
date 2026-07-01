@@ -1,3 +1,6 @@
+/**
+ * External dependencies
+ */
 import { sql } from 'drizzle-orm/sql';
 import { customType } from 'drizzle-orm/sqlite-core';
 import { LineString, Point } from 'geojson';

@@ -1,25 +1,42 @@
+/**
+ * External dependencies
+ */
+import { useMemo } from 'react';
+
+/**
+ * Internal dependencies
+ */
 import { MenuActionOption } from '../../../../../../types';
 import useAddToMap from './useAddToMap';
 import useDeleteLines from './useDeleteLines';
 import useRemoveFromMap from './useRemoveFromMap';
 import useShowStats from './useShowStats';
+import useFlyTo from './useFlyTo';
 
 const useBulkActions = () => {
-	const actions: Record<string, MenuActionOption> = {};
-
 	const actionShowOnMap = useAddToMap();
-	actions[actionShowOnMap.key] = actionShowOnMap;
-
 	const actionRemoveFromMap = useRemoveFromMap();
-	actions[actionRemoveFromMap.key] = actionRemoveFromMap;
-
+	const actionFlyTo = useFlyTo();
 	const actionShowStats = useShowStats();
-	actions[actionShowStats.key] = actionShowStats;
-
 	const actionDeleteLine = useDeleteLines();
-	actions[actionDeleteLine.key] = actionDeleteLine;
 
-	return actions;
+	return useMemo(() => {
+		const actions: Record<string, MenuActionOption> = {};
+
+		actions[actionShowOnMap.key] = actionShowOnMap;
+		actions[actionRemoveFromMap.key] = actionRemoveFromMap;
+		actions[actionFlyTo.key] = actionFlyTo;
+		actions[actionShowStats.key] = actionShowStats;
+		actions[actionDeleteLine.key] = actionDeleteLine;
+
+		return actions;
+	}, [
+		actionShowOnMap,
+		actionRemoveFromMap,
+		actionFlyTo,
+		actionShowStats,
+		actionDeleteLine,
+	]);
 };
 
 export default useBulkActions;

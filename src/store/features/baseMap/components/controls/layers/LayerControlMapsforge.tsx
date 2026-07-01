@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { FC, Fragment, ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
+import { FC, Fragment, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { TouchableHighlight, View } from 'react-native';
 import { Icon, Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -40,7 +40,7 @@ const ProfileRowControl = ({
 
 	const dispatch = useAppDispatch();
 
-	const [menuVisible, setMenuVisible] = useState(false);
+	const [_menuVisible, _setMenuVisible] = useState(false);
 
 	const opts: OptionBase[] = useMemo(
 		() => [
@@ -48,38 +48,56 @@ const ProfileRowControl = ({
 				key: 'default',
 				label: 'baseMap.useFirstOne',
 			},
-			...[...profiles].map((prof) => {
-				const themeArr = prof.theme.split('/');
+			...profiles.map((prof) => {
+				const themeLabel = prof.theme ? prof.theme.split('/').slice(-1)[0] : '';
 				return {
 					key: prof.key,
-					label: [prof.name, '[' + themeArr[themeArr.length - 1] + ']'].join(' '),
+					label: [prof.name, themeLabel ? '[' + themeLabel + ']' : '']
+						.filter(Boolean)
+						.join(' '),
 				};
 			}),
 		],
 		[profiles]
 	);
 
-	const getInitialSelectedOpt = () =>
-		get(
-			opts.find((opt) => opt.key === options.profile),
-			'key',
-			'default'
-		);
+	const getInitialSelectedOpt = useCallback(
+		() =>
+			get(
+				opts.find((opt) => opt.key === options.profile),
+				'key',
+				'default'
+			),
+		[opts, options]
+	);
 
 	const [selectedOpt, setSelectedOpt] = useState<string>(getInitialSelectedOpt());
 
 	useEffect(() => {
 		setSelectedOpt(getInitialSelectedOpt());
-	}, [profiles]);
+	}, [profiles, getInitialSelectedOpt]);
+
+	// Keep setOptions stable via a ref so the effect below doesn't loop
+	// when the parent re-creates the callback.
+	const setOptionsRef = useRef(setOptions);
+	setOptionsRef.current = setOptions;
+
+	// Keep options in a ref so we can read the latest value without
+	// listing it as a dependency — avoids an infinite dispatch loop
+	// when selectLayerTemp returns a new options reference each render.
+	const optionsRef = useRef(options);
+	optionsRef.current = options;
 
 	useEffect(() => {
 		if (selectedOpt) {
-			setOptions({
-				...options,
+			setOptionsRef.current({
+				...optionsRef.current,
 				profile: selectedOpt,
 			});
 		}
-	}, [selectedOpt]);
+	}, [
+		selectedOpt,
+	]);
 
 	const styleAction = useMemo(() => ({ padding: 10, borderRadius: theme.roundness }), [theme]);
 
@@ -99,7 +117,11 @@ const ProfileRowControl = ({
 		if (newProfileTemp) {
 			dispatch(setMapsforgeProfileTemp(newProfileTemp));
 		}
-	}, [profiles, selectedOpt, dispatch]);
+	}, [
+		profiles,
+		selectedOpt,
+		dispatch,
+	]);
 
 	return (
 		<InfoRowControl
@@ -177,38 +199,46 @@ const LayerControlMapsforge: FC<{}> = ({}) => {
 
 	const appDirs = useAppSelector(selectAppDirs);
 
-	const setOptions = useCallback((newOptions: LayerConfigOptionsMapsforge) => {
-		dispatch(
-			setLayerTemp(
-				(layerTemp) =>
-					layerTemp &&
-					({
-						...layerTemp,
-						options: newOptions,
-					} as LayerConfig)
-			)
-		);
-	}, []);
-
-	const handleMapFileChange = useCallback((selectedOpt?: string) => {
-		layerTemp &&
-			(undefined === selectedOpt ||
-				selectedOpt.startsWith('/') ||
-				selectedOpt.startsWith('content://')) &&
+	const setOptions = useCallback(
+		(newOptions: LayerConfigOptionsMapsforge) => {
 			dispatch(
 				setLayerTemp(
 					(layerTemp) =>
+						layerTemp &&
 						({
 							...layerTemp,
-
-							options: {
-								...layerTemp?.options,
-								mapFile: selectedOpt as LayerConfigOptionsMapsforge['mapFile'],
-							},
-						}) as LayerConfig
+							options: newOptions,
+						} as LayerConfig)
 				)
 			);
-	}, []);
+		},
+		[
+			dispatch,
+		]
+	);
+
+	const handleMapFileChange = useCallback(
+		(selectedOpt?: string) => {
+			layerTemp &&
+				(undefined === selectedOpt ||
+					selectedOpt.startsWith('/') ||
+					selectedOpt.startsWith('content://')) &&
+				dispatch(
+					setLayerTemp(
+						(layerTemp) =>
+							({
+								...layerTemp,
+
+								options: {
+									...layerTemp?.options,
+									mapFile: selectedOpt as LayerConfigOptionsMapsforge['mapFile'],
+								},
+							}) as LayerConfig
+					)
+				);
+		},
+		[dispatch, layerTemp]
+	);
 
 	const enabledZoomValues = useMemo(
 		() => [layerTemp?.options?.enabledZoomMin ?? 0, layerTemp?.options?.enabledZoomMax ?? 0],
@@ -226,7 +256,7 @@ const LayerControlMapsforge: FC<{}> = ({}) => {
 	);
 
 	if (!layerTemp?.options) {
-		return undefined;
+		return null;
 	}
 
 	return (

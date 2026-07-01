@@ -29,6 +29,7 @@ import {
 	selectRequireReload,
 } from '../store/features/dbLoader/selectors';
 import { dbConnection } from '../store/features/dbLoader/DBConnection';
+import ErrorToastProvider from './ErrorToast/ErrorToastProvider';
 
 const App: FC = () => {
 	const theme = useTheme();
@@ -115,9 +116,11 @@ const App: FC = () => {
 
 	if (isUpdating) {
 		return (
-			<View style={style}>
-				<SplashScreenUpdater />
-			</View>
+			<AppContext.Provider value={appContextValue}>
+				<View style={style}>
+					<SplashScreenUpdater />
+				</View>
+			</AppContext.Provider>
 		);
 	}
 
@@ -129,30 +132,30 @@ const App: FC = () => {
 	) {
 		const isDbError = dbMigrated && 'string' === typeof dbMigrated;
 		return (
-			<View style={style}>
-				<SplashScreen displayLogo={!isDbError && !requireReload}>
-					{isDbError && (
-						<Text>{sprintf(t('dbLoader.dbMigrationError'), dbMigrated)}</Text>
-					)}
-					{/* ??? missing translation */}
-					{requireReload && (
-						<Text>{sprintf(t('dbLoader.requireReload'), dbMigrated)}</Text>
-					)}
-				</SplashScreen>
-			</View>
+			<AppContext.Provider value={appContextValue}>
+				<View style={style}>
+					<SplashScreen displayLogo={!isDbError && !requireReload}>
+						{isDbError && (
+							<Text>{sprintf(t('dbLoader.dbMigrationError'), dbMigrated)}</Text>
+						)}
+						{/* ??? missing translation */}
+						{requireReload && (
+							<Text>{sprintf(t('dbLoader.requireReload'), dbMigrated)}</Text>
+						)}
+					</SplashScreen>
+				</View>
+			</AppContext.Provider>
 		);
 	}
 
 	return (
 		<AppContext.Provider value={appContextValue}>
 			<MapContext.Provider value={mapContextValue}>
-				<GestureHandlerRootView>
-					<AppView
-						initialPositionRef={initialPositionRef}
-						saveCurrentPositionToInitial={saveCurrentPositionToInitial}
-						setMapViewNativeNodeHandle={setMapViewNativeNodeHandle}
-					/>
-				</GestureHandlerRootView>
+				<AppView
+					initialPositionRef={initialPositionRef}
+					saveCurrentPositionToInitial={saveCurrentPositionToInitial}
+					setMapViewNativeNodeHandle={setMapViewNativeNodeHandle}
+				/>
 			</MapContext.Provider>
 		</AppContext.Provider>
 	);
@@ -167,9 +170,13 @@ export default () => {
 		dbLoaderInitialized &&
 		dbConnection?.queryClient && (
 			<QueryClientProvider client={dbConnection.queryClient}>
-				<PaperProvider theme={theme}>
-					<App />
-				</PaperProvider>
+				<GestureHandlerRootView>
+					<PaperProvider theme={theme}>
+						<ErrorToastProvider>
+							<App />
+						</ErrorToastProvider>
+					</PaperProvider>
+				</GestureHandlerRootView>
 			</QueryClientProvider>
 		)
 	);

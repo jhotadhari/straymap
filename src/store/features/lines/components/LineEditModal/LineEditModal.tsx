@@ -18,11 +18,14 @@ import { selectLineTemp } from '../../selectors';
 import { setLineTemp } from '../../slice';
 import { LineEditModalContext } from './Context';
 import { sharedStyles } from './sharedDeps';
+import { dbConnection } from '../../../dbLoader/DBConnection';
 import RowDelete from './RowDelete';
 import RowName from './RowName';
 import RowRouting from './RowRouting';
 import RowExport from './RowExport';
 import RowStats from './RowStats';
+import RowFlyTo from './RowFlyTo';
+import RowToggleOnMap from './RowToggleOnMap';
 
 const LineEditModal: FC<{
 	selectLine: (id: number, isSelected: boolean) => void;
@@ -32,14 +35,19 @@ const LineEditModal: FC<{
 
 	const lineTemp = useAppSelector(selectLineTemp);
 
+	const lineId = lineTemp?.id;
+	const hasLineId = typeof lineId === 'number';
+
 	const { data: route } = useQuery({
-		queryKey: ['routeForLine', lineTemp?.id],
+		queryKey: ['routeForLine', lineId],
 		queryFn: queryRouteForLine,
+		enabled: hasLineId,
 	});
 
 	const { data: line } = useQuery({
-		queryKey: ['lines', lineTemp?.id ? [lineTemp?.id] : []],
+		queryKey: ['lines', hasLineId ? [lineId] : []],
 		queryFn: queryLinesWithoutGeom,
+		enabled: hasLineId,
 		select: (lines: LinePartial[]) => (lines.length ? lines[0] : null),
 	});
 
@@ -47,23 +55,27 @@ const LineEditModal: FC<{
 		() => ({
 			mutationFn: (newLinePartial: LinePartial) =>
 				updateLine(newLinePartial?.id, newLinePartial),
-			onMutate: async (_, context) => {
-				await context.client.cancelQueries({ queryKey: ['lines'] });
+			onMutate: async () => {
+				await dbConnection.queryClient!.cancelQueries({ queryKey: ['lines'] });
 				if (route?.id) {
-					await context.client.cancelQueries({ queryKey: ['route', route?.id] });
+					await dbConnection.queryClient!.cancelQueries({
+						queryKey: ['route', route?.id],
+					});
 				}
 			},
-			onSuccess: async (_, _variables, _onMutateResult, context) => {
-				await context.client.invalidateQueries({ queryKey: ['lines'] });
+			onSuccess: async () => {
+				await dbConnection.queryClient!.invalidateQueries({ queryKey: ['lines'] });
 				if (route?.id) {
-					await context.client.invalidateQueries({ queryKey: ['route', route?.id] });
+					await dbConnection.queryClient!.invalidateQueries({
+						queryKey: ['route', route?.id],
+					});
 				}
 			},
 			onSettled: () => {
 				dispatch(setLineTemp(undefined));
 			},
 		}),
-		[route?.id]
+		[dispatch, route?.id]
 	);
 	const mutation = useMutation(mutationOptions);
 
@@ -78,7 +90,8 @@ const LineEditModal: FC<{
 			dispatch(setLineTemp(undefined));
 		}
 	}, [
-		mutation.mutate,
+		dispatch,
+		mutation,
 		line,
 		lineTemp,
 	]);
@@ -109,6 +122,10 @@ const LineEditModal: FC<{
 		>
 			<LineEditModalContext.Provider value={contextValue}>
 				<RowName />
+
+				<RowFlyTo />
+
+				<RowToggleOnMap />
 
 				<RowRouting />
 

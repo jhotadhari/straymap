@@ -10,8 +10,8 @@ import { GeometryStyle, LayerPath, ReindexScope } from 'react-native-mapsforge-v
  */
 import { useAppSelector } from '../../../hooks';
 import { selectSelected } from '../selectors';
+import { selectRoutingLineId } from '../../routing/selectors';
 import { queryLineGeom } from '../db/queryFns';
-import useRoute from '../../routing/hooks/useRoute';
 import useSimplificationTolerance from '../hooks/useSimplificationTolerance';
 
 // GeometryStyle is a custom map-layer style type, not an RN ViewStyle, so it stays a plain object.
@@ -58,7 +58,11 @@ const LinesMapView = () => {
 		[selected]
 	);
 
-	const { line_id: routingLineId } = useRoute(['line_id']) || {};
+	// Read routingLineId from Redux — always synchronous, no query
+	// staleness window.  The routing thunk dispatches setRoutingLineId
+	// at the same time as setLineSelected, so LinesMapView always
+	// knows which line is the active routing line.
+	const routingLineId = useAppSelector(selectRoutingLineId);
 
 	const simplify = useSimplificationTolerance();
 

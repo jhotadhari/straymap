@@ -13,10 +13,12 @@ import {
 	Dimensions,
 	View,
 	ScrollView,
+	Modal as RNModal,
+	StatusBar,
 } from 'react-native';
-import { useSafeAreaFrame } from 'react-native-safe-area-context';
-import { useTheme, Text, Portal, Modal, Icon } from 'react-native-paper';
+import { useTheme, Text, Icon } from 'react-native-paper';
 import { BlurView } from '@react-native-community/blur';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import Animated, {
 	Easing,
 	ReduceMotion,
@@ -24,13 +26,12 @@ import Animated, {
 	useSharedValue,
 	withTiming,
 } from 'react-native-reanimated';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 /**
  * Internal dependencies
  */
 import { AppContext } from '../../Context';
-import { modalWidthFactor } from '../../constants';
+import { modalWidthFactor, modalPadding } from '../../constants';
 import useKeyboardShown from '../../compose/useKeyboardShown';
 
 const styles = StyleSheet.create({
@@ -41,7 +42,11 @@ const styles = StyleSheet.create({
 		bottom: 0,
 		right: 0,
 	},
-	modalBase: { opacity: 1 },
+	flex1: { flex: 1 },
+	centerContent: {
+		justifyContent: 'center',
+		alignItems: 'center',
+	},
 	headerRow: {
 		width: '90%',
 		flexDirection: 'row',
@@ -81,26 +86,20 @@ const ModalWrapper: FC<{
 	scrollEnabled = true,
 	onLayout,
 }) => {
-	const { height: heightSafe } = useSafeAreaFrame();
 	const { height, width } = Dimensions.get('window');
+	const statusBarHeight = StatusBar.currentHeight ?? 0;
 
 	const theme = useTheme();
 	const context = useContext(AppContext);
 	const keyboardShown = useKeyboardShown();
 
-	const modalHeight = heightSafe * 0.75;
+	const modalHeight = height * 0.75;
 	const modalTop = (height - modalHeight) / 2;
 
 	const heightShared = useSharedValue(modalHeight);
-	const topShared = useSharedValue(modalTop);
 
 	useEffect(() => {
 		heightShared.value = withTiming(modalHeight + (keyboardShown ? modalTop / 4 : 0), {
-			duration,
-			easing: Easing.inOut(Easing.quad),
-			reduceMotion: ReduceMotion.System,
-		});
-		topShared.value = withTiming(modalTop, {
 			duration,
 			easing: Easing.inOut(Easing.quad),
 			reduceMotion: ReduceMotion.System,
@@ -109,29 +108,18 @@ const ModalWrapper: FC<{
 		modalHeight,
 		modalTop,
 		keyboardShown,
+		heightShared,
 	]);
 
 	const modalAnimatedStyles = useAnimatedStyle(() => ({
 		height: heightShared.value,
-		transform: [{ translateY: topShared.value }],
 	}));
-
-	const contentContainerStyle: ViewStyle = useMemo(
-		() => ({
-			width,
-			height,
-			justifyContent: 'center',
-			flexDirection: 'row',
-			position: 'absolute',
-		}),
-		[width, height]
-	);
 
 	const modalStyles: ViewStyle = useMemo(
 		() => ({
 			backgroundColor: theme.colors.background,
 			width: width * modalWidthFactor,
-			padding: 20,
+			padding: modalPadding,
 			borderColor: theme.colors.outline,
 			borderWidth: 1,
 			borderRadius: theme.roundness,
@@ -139,7 +127,6 @@ const ModalWrapper: FC<{
 		[
 			theme,
 			width,
-			modalWidthFactor,
 		]
 	);
 
@@ -156,38 +143,33 @@ const ModalWrapper: FC<{
 		}
 	}, [onDismiss, keyboardShown]);
 
-	const styleModal = useMemo(() => [styles.modalBase, modalStyle], [modalStyle]);
-
 	const styleBackButton = useMemo(
 		() => [styles.backButton, { borderRadius: theme.roundness }],
 		[theme]
 	);
 
-	const styleContentInner = useMemo(() => [styles.contentInner, innerStyle], [innerStyle]);
-
-	const modalTheme = useMemo(
-		() =>
-			backgroundBlur
-				? theme
-				: {
-						colors: {
-							...theme.colors,
-							backdrop: 'transparent',
-						},
-					},
-		[backgroundBlur, theme]
+	const styleContent = useMemo(
+		() => [
+			styles.absolute,
+			styles.centerContent,
+			{ paddingTop: statusBarHeight },
+		],
+		[statusBarHeight]
 	);
 
+	const styleContentInner = useMemo(() => [styles.contentInner, innerStyle], [innerStyle]);
+
 	return (
-		<Portal>
-			<AppContext.Provider value={context}>
-				<Modal
-					theme={modalTheme}
-					onDismiss={handleDismissAll}
-					visible={visible}
-					style={styleModal}
-					contentContainerStyle={contentContainerStyle}
-				>
+		<RNModal
+			visible={visible}
+			transparent
+			animationType="none"
+			onRequestClose={handleDismissAll}
+			statusBarTranslucent
+		>
+			<GestureHandlerRootView style={styles.flex1}>
+				<AppContext.Provider value={context}>
+					{/* Backdrop — fills the modal window */}
 					<Pressable
 						style={styles.absolute}
 						onPress={handleDismiss}
@@ -201,62 +183,51 @@ const ModalWrapper: FC<{
 						)}
 					</Pressable>
 
-					<View style={contentContainerStyle}>
-						<Animated.View style={modalAnimatedStyles}>
-							<GestureHandlerRootView>
-								<ScrollView
-									scrollEnabled={scrollEnabled}
-									onLayout={onLayout}
-									style={[
-										modalStyles,
-										innerContainerStyle,
-										// {
-										// 	height: modalHeight,
-										// },
-									]}
-								>
-									<View style={styles.headerRow}>
-										{hasBackButton && (
-											<TouchableHighlight
-												underlayColor={theme.colors.elevation.level3}
-												style={styleBackButton}
-												onPress={handleDismiss}
-											>
-												<Icon
-													source="arrow-left"
-													size={25}
-												/>
-											</TouchableHighlight>
-										)}
+					{/* Content — fills the modal window, centers its child */}
+					<View style={styleContent}>
+						<Animated.View
+							style={[
+								{ width: width * modalWidthFactor },
+								modalAnimatedStyles,
+							]}
+						>
+							<ScrollView
+								scrollEnabled={scrollEnabled}
+								onLayout={onLayout}
+								style={[
+									modalStyles,
+									innerContainerStyle,
+									modalStyle,
+								]}
+							>
+								<View style={styles.headerRow}>
+									{hasBackButton && (
+										<TouchableHighlight
+											underlayColor={theme.colors.elevation.level3}
+											style={styleBackButton}
+											onPress={handleDismiss}
+										>
+											<Icon
+												source="arrow-left"
+												size={25}
+											/>
+										</TouchableHighlight>
+									)}
 
-										{header && (
-											<View>
-												{/* {header.split('-').map((str, index) => (
-													<Text
-														key={index}
-														style={theme.fonts.headlineSmall}
-													>
-														{str +
-															(index < header.split('-').length - 1
-																? '-'
-																: '')}
-													</Text>
-												))} */}
-												<Text style={theme.fonts.headlineSmall}>
-													{header}
-												</Text>
-											</View>
-										)}
-									</View>
+									{header && (
+										<View>
+											<Text style={theme.fonts.headlineSmall}>{header}</Text>
+										</View>
+									)}
+								</View>
 
-									<View style={styleContentInner}>{children}</View>
-								</ScrollView>
-							</GestureHandlerRootView>
+								<View style={styleContentInner}>{children}</View>
+							</ScrollView>
 						</Animated.View>
 					</View>
-				</Modal>
-			</AppContext.Provider>
-		</Portal>
+				</AppContext.Provider>
+			</GestureHandlerRootView>
+		</RNModal>
 	);
 };
 

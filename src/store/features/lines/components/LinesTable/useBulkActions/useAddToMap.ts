@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useContext, useCallback } from 'react';
+import { useContext, useCallback, useMemo } from 'react';
 import { uniq } from 'lodash-es';
 
 /**
@@ -19,12 +19,15 @@ const useAddToMap = () => {
 			});
 	}, [checkedIds, setOnMapIdsTemp]);
 
-	return {
-		key: 'addToMap',
-		cb,
-		label: 'addToMap',
-		leadingIcon: 'map-plus',
-	};
+	return useMemo(
+		() => ({
+			key: 'addToMap',
+			cb,
+			label: 'addToMap',
+			leadingIcon: 'map-plus',
+		}),
+		[cb]
+	);
 };
 
 export default useAddToMap;

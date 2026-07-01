@@ -30,7 +30,6 @@ const BlackTheme: ThemePropExtended = {
 	},
 };
 
-// ??? refactor move this block into appearance.... or all file somehow?
 const themes: { [value: string]: ThemePropExtended } = {
 	light: { ...MD3LightTheme, label: 'appearance.themeOptions.light' },
 	dark: { ...MD3DarkTheme, label: 'appearance.themeOptions.dark' },
@@ -38,7 +37,7 @@ const themes: { [value: string]: ThemePropExtended } = {
 };
 
 // Loop themes, apply custom colors
-Object.keys(themes).map((key: string) => {
+Object.keys(themes).forEach((key: string) => {
 	// Custom colors
 	const colorSuccess = themes[key].dark
 		? {

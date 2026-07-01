@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { Dispatch, FC, SetStateAction, useCallback, useContext, useMemo } from 'react';
+import React, { Dispatch, FC, SetStateAction, useCallback, useMemo } from 'react';
 import { useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { get, isEqual } from 'lodash-es';
@@ -96,11 +96,11 @@ const EditPointModal: FC<{
 				updateRoutingPoint(editPoint.id, {
 					profile: profile,
 				}),
-			onMutate: async (_, context) => {
-				await context.client.cancelQueries({ queryKey: ['route', routeId] });
+			onMutate: async () => {
+				await dbConnection.queryClient!.cancelQueries({ queryKey: ['route', routeId] });
 			},
-			onSuccess: async (_result, _variables, _onMutateResult, context) => {
-				await context.client.invalidateQueries({ queryKey: ['route', routeId] });
+			onSuccess: async () => {
+				await dbConnection.queryClient!.invalidateQueries({ queryKey: ['route', routeId] });
 				dispatch(deleteSegmentByKeyVal('fromId', editPoint.id));
 				dbConnection?.queryClient && dispatch(processRouting(dbConnection?.queryClient));
 				setEditPoint(undefined);
@@ -109,7 +109,8 @@ const EditPointModal: FC<{
 		[
 			editPoint.id,
 			routeId,
-			dbConnection?.queryClient,
+			dispatch,
+			setEditPoint,
 		]
 	);
 	const mutation = useMutation(mutationOptions);
@@ -121,10 +122,10 @@ const EditPointModal: FC<{
 			setEditPoint(undefined);
 		}
 	}, [
-		mutation.mutate,
 		editPoint,
 		point,
-		routeId,
+		mutation,
+		setEditPoint,
 	]);
 
 	const handleToggleFast = useCallback(

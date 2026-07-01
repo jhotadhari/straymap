@@ -12,7 +12,7 @@ import { Tag } from '../types';
 
 const TagBadge: FC<{
 	tag: Tag;
-}> = ({ tag }) => {
+}> = ({ tag: _tag }) => {
 	return (
 		<View>
 			<Text>{'???tag'}</Text>

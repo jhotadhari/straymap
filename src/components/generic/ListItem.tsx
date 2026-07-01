@@ -6,6 +6,11 @@ import { useTheme, Icon, Text } from 'react-native-paper';
 import { StyleSheet, View, TouchableHighlight, ViewStyle } from 'react-native';
 import { Style as ListStyle } from 'react-native-paper/lib/typescript/components/List/utils';
 
+/**
+ * Internal dependencies
+ */
+import { DRAWER_ICON_SIZE } from '../../constants';
+
 const ListItem = ({
 	onPress,
 	icon,
@@ -57,7 +62,7 @@ const ListItem = ({
 					<View style={styles.iconWrapper}>
 						<Icon
 							source={icon}
-							size={iconSize || 25}
+							size={iconSize || DRAWER_ICON_SIZE}
 							color={active ? theme.colors.onPrimary : undefined}
 						/>
 					</View>

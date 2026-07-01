@@ -12,36 +12,23 @@ import Drawer from './Drawer';
 import useDrawerState from '../hooks/useDrawerState';
 import DrawerControlModal from './controls/DrawerControlModal';
 import { AppContext } from '../../../../Context';
+import { DRAWER_WIDTH } from '../constants';
 
-const Drawers = ({
-	drawerWidth = 300,
-	outerWidth,
-	height,
-	hidden,
-}: {
-	drawerWidth?: number;
-	outerWidth: number;
-	height: number;
-	hidden?: boolean;
-}) => {
+const Drawers = ({ height, hidden }: { height: number; hidden?: boolean }) => {
 	const { drawerControlsRef } = useContext(AppContext);
 
-	const translationXLeft = useSharedValue(-drawerWidth);
+	const translationXLeft = useSharedValue(-DRAWER_WIDTH);
 
-	const translationXRight = useSharedValue(drawerWidth);
+	const translationXRight = useSharedValue(DRAWER_WIDTH);
 
 	const drawerStateLeft = useDrawerState({
 		side: 'left',
-		drawerWidth,
-		outerWidth,
 		translationX: translationXLeft,
 		translationXOther: translationXRight,
 	});
 
 	const drawerStateRight = useDrawerState({
 		side: 'right',
-		drawerWidth,
-		outerWidth,
 		translationX: translationXRight,
 		translationXOther: translationXLeft,
 	});
@@ -58,28 +45,29 @@ const Drawers = ({
 		}
 		return !bubble;
 	}, [
-		drawerStateLeft.getIsFullyCollapsed,
-		drawerStateLeft.expand,
-		drawerStateRight.getIsFullyCollapsed,
-		drawerStateRight.expand,
+		drawerStateLeft,
+		drawerStateRight,
 	]);
 
 	useEffect(() => {
 		drawerControlsRef.current = {
 			left: {
+				translationX: translationXLeft,
 				getIsFullyCollapsed: drawerStateLeft.getIsFullyCollapsed,
 				expand: drawerStateLeft.expand,
 			},
 			right: {
+				translationX: translationXRight,
 				getIsFullyCollapsed: drawerStateRight.getIsFullyCollapsed,
 				expand: drawerStateRight.expand,
 			},
 		};
 	}, [
-		drawerStateLeft.getIsFullyCollapsed,
-		drawerStateLeft.expand,
-		drawerStateRight.getIsFullyCollapsed,
-		drawerStateRight.expand,
+		drawerStateLeft,
+		drawerStateRight,
+		drawerControlsRef,
+		translationXLeft,
+		translationXRight,
 	]);
 
 	useEffect(() => {

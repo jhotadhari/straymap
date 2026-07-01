@@ -1,3 +1,6 @@
+/**
+ * External dependencies
+ */
 import { useMemo } from 'react';
 import { useTheme } from 'react-native-paper';
 

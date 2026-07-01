@@ -49,7 +49,6 @@ const LayerInfoComponent = ({ layerInfo }: { layerInfo: null | LayerInfo }) => {
 
 const Inner = ({ layerInfos }: { layerInfos: { [value: string]: LayerInfo } }) => {
 	const { t } = useTranslation();
-	const theme = useTheme();
 
 	const layers = useAppSelector(selectLayers);
 
@@ -90,7 +89,7 @@ const Inner = ({ layerInfos }: { layerInfos: { [value: string]: LayerInfo } }) =
 
 	return (
 		<View>
-			{[...attributions].map((attribution, index) => {
+			{attributions.map((attribution, index) => {
 				const Component = attribution.Component;
 				return (
 					<View

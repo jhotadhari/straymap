@@ -122,6 +122,7 @@ const getLineColumns = (fields: (keyof Omit<Line, 'id'>)[], options?: LineColumn
 		...(fields.includes('stats') && {
 			maxZ: sql<string>`ST_MaxZ (${linesTable.geometry})`,
 		}),
+		...(fields.includes('data') && { data: linesTable.data }),
 	};
 };
 
@@ -150,7 +151,7 @@ const fetchLinesWithoutTags = (params?: FetchLinesWithoutTagsParams) => {
 
 	return new Promise<LinePartial[]>((resolve, reject) => {
 		if (!dbConnection?.drizzle) {
-			reject('ERROR dbZ undefined');
+			reject(new Error('ERROR dbZ undefined'));
 			return;
 		}
 		const query = dbConnection.drizzle
@@ -184,7 +185,6 @@ const fetchLinesWithTags = (params?: FetchLinesWithTagsParams) => {
 		lineIds, //
 		allLines,
 		tagId,
-		allTags,
 		limit,
 		fieldsInclude,
 		fieldsExclude,
@@ -215,9 +215,13 @@ const fetchLinesWithTags = (params?: FetchLinesWithTagsParams) => {
 
 	return new Promise<LinePartial[]>((resolve, reject) => {
 		if (!dbConnection?.drizzle) {
-			reject('ERROR dbZ undefined');
+			reject(new Error('ERROR dbZ undefined'));
 			return;
 		}
+
+		// Start from linesTable and LEFT JOIN outwards.  Avoids RIGHT
+		// JOIN, which is not supported by the SQLite version shipped
+		// on Android ≤ 13 (SQLite < 3.39.0).
 		const query = dbConnection.drizzle
 			.select({
 				line: getLineColumns(fields, { simplify }),
@@ -225,21 +229,12 @@ const fetchLinesWithTags = (params?: FetchLinesWithTagsParams) => {
 					id: tagsTable.id,
 					label: tagsTable.label,
 					notes: tagsTable.notes,
-					params: tagsTable.params,
+					data: tagsTable.data,
 				},
 			})
-			.from(tagsToLinesTable);
-
-		if (allLines) {
-			query.rightJoin(linesTable, eq(tagsToLinesTable.line_id, linesTable.id));
-		} else {
-			query.leftJoin(linesTable, eq(tagsToLinesTable.line_id, linesTable.id));
-		}
-		if (allTags) {
-			query.rightJoin(tagsTable, eq(tagsToLinesTable.tag_id, tagsTable.id));
-		} else {
-			query.leftJoin(tagsTable, eq(tagsToLinesTable.tag_id, tagsTable.id));
-		}
+			.from(linesTable)
+			.leftJoin(tagsToLinesTable, eq(tagsToLinesTable.line_id, linesTable.id))
+			.leftJoin(tagsTable, eq(tagsToLinesTable.tag_id, tagsTable.id));
 
 		query.where(
 			and(
@@ -259,63 +254,61 @@ const fetchLinesWithTags = (params?: FetchLinesWithTagsParams) => {
 		}
 
 		query
-			.then(
-				(
-					rows: {
-						line: {
-							id: number;
-							title?: string | null;
-							timestamp?: string;
-							geometryGeoJSON?: string;
-							envelopeGeoJSON?: string;
-							length?: string;
-							uphill?: string;
-							downhill?: string;
-							minZ?: string;
-							maxZ?: string;
-						};
-						tag: Tag;
-					}[]
-				) => {
-					const aggregated = Array.from(
-						rows
-							.reduce<
-								Map<
-									number, // line.id
-									Partial<
-										Omit<Line, 'geometry' | 'envelope'> & {
-											geometryGeoJSON: string;
-											envelopeGeoJSON: string;
-										}
-									> & {
-										id: number;
-										tags: Tag[];
+			.then((rows) => {
+				const aggregated = Array.from(
+					(
+						rows as {
+							line: {
+								id: number;
+								title?: string | null;
+								timestamp?: string;
+								geometryGeoJSON?: string;
+								envelopeGeoJSON?: string;
+								length?: string;
+								uphill?: string;
+								downhill?: string;
+								minZ?: string;
+								maxZ?: string;
+							};
+							tag: Tag | null;
+						}[]
+					)
+						.reduce<
+							Map<
+								number, // line.id
+								Partial<
+									Omit<Line, 'geometry' | 'envelope'> & {
+										geometryGeoJSON: string;
+										envelopeGeoJSON: string;
 									}
-								>
-							>((acc, row) => {
-								if (row?.line?.id && !acc.has(row.line.id)) {
-									acc.set(row.line.id, {
-										id: row.line.id,
-										...omit(row.line, statsFields),
-										...(fields.includes('stats') && {
-											stats: mapValues(
-												pick(row.line, statsFields),
-												(str: string) => parseFloat(str)
-											),
-										}),
-										tags: [],
-									});
+								> & {
+									id: number;
+									tags: Tag[];
 								}
-								if (row?.tag && row?.line?.id) {
-									acc.get(row.line.id)!.tags.push(row.tag);
-								}
-								return acc;
-							}, new Map())
-							.values()
-					);
-					resolve(parseRows(aggregated, fields));
-				}
-			)
+							>
+						>((acc, row) => {
+							if (row?.line?.id && !acc.has(row.line.id)) {
+								acc.set(row.line.id, {
+									id: row.line.id,
+									...omit(row.line, statsFields),
+									...(fields.includes('stats') && {
+										stats: mapValues(
+											pick(row.line, statsFields),
+											(str: string) => parseFloat(str)
+										),
+									}),
+									tags: [],
+								});
+							}
+							if (row?.tag && row?.line?.id) {
+								acc.get(row.line.id)!.tags.push(row.tag);
+							}
+							return acc;
+						}, new Map())
+						.values()
+				);
+				resolve(parseRows(aggregated, fields));
+			})
 			.catch((err) => {
 				reject(err);
 			});
