@@ -16,7 +16,6 @@ import {
 	Dimensions,
 	NativeSyntheticEvent,
 	PixelRatio,
-	StatusBar,
 	StyleSheet,
 	useColorScheme,
 	View,
@@ -306,8 +305,6 @@ const AppView = ({
 	return (
 		<View style={styleOuter}>
 			{showSplash && <SplashScreen />}
-
-			<StatusBar barStyle={systemIsDarkMode ? 'light-content' : 'dark-content'} />
 
 			<TopAppBar />
 

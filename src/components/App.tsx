@@ -2,7 +2,7 @@
  * External dependencies
  */
 import React, { FC, useEffect, useMemo, useRef, useState } from 'react';
-import { BackHandler, Dimensions, View } from 'react-native';
+import { BackHandler, Dimensions, StatusBar, useColorScheme, View } from 'react-native';
 import { PaperProvider, Text, useTheme } from 'react-native-paper';
 import { MapEventResponse } from 'react-native-mapsforge-vtm';
 import { sprintf } from 'sprintf-js';
@@ -166,6 +166,8 @@ export default () => {
 
 	const dbLoaderInitialized = useAppSelector(selectInitialized);
 
+	// const systemIsDarkMode = useColorScheme() === 'dark';
+
 	return (
 		dbLoaderInitialized &&
 		dbConnection?.queryClient && (
@@ -173,6 +175,7 @@ export default () => {
 				<GestureHandlerRootView>
 					<PaperProvider theme={theme}>
 						<ErrorToastProvider>
+							{/* <StatusBar barStyle={systemIsDarkMode ? 'light-content' : 'dark-content'} /> */}
 							<App />
 						</ErrorToastProvider>
 					</PaperProvider>

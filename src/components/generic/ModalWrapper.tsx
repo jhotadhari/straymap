@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { FC, ReactNode, useCallback, useContext, useEffect, useMemo } from 'react';
+import React, { FC, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import {
 	Pressable,
 	StyleSheet,
@@ -32,7 +32,6 @@ import Animated, {
  */
 import { AppContext } from '../../Context';
 import { modalWidthFactor, modalPadding } from '../../constants';
-import useKeyboardShown from '../../compose/useKeyboardShown';
 
 const styles = StyleSheet.create({
 	absolute: {
@@ -59,8 +58,6 @@ const styles = StyleSheet.create({
 	contentInner: { paddingBottom: 50 },
 });
 
-const duration = 100;
-
 const ModalWrapper: FC<{
 	children?: ReactNode;
 	visible: boolean;
@@ -86,33 +83,84 @@ const ModalWrapper: FC<{
 	scrollEnabled = true,
 	onLayout,
 }) => {
-	const { height, width } = Dimensions.get('window');
+	// `screen.height` is the full physical screen (consistent across devices).
+	// `window.height` varies by OEM — use screen for all math, subtract the
+	// status bar explicitly to get the usable area (`windowH`).
+	const { height: screenH, width } = Dimensions.get('screen');
 	const statusBarHeight = StatusBar.currentHeight ?? 0;
+	const windowH = screenH - statusBarHeight;
 
 	const theme = useTheme();
 	const context = useContext(AppContext);
-	const keyboardShown = useKeyboardShown();
 
-	const modalHeight = height * 0.75;
-	const modalTop = (height - modalHeight) / 2;
+	// Track the keyboard's top edge from `endCoordinates.screenY` — this is
+	// the Y coordinate of the keyboard's top in screen space.  It is more
+	// reliable than `height` because it directly tells us the available
+	// vertical space regardless of how the OEM reports keyboard dimensions.
+	const [keyboardScreenY, setKeyboardScreenY] = useState(0);
+	const [keyboardShown, setKeyboardShown] = useState(false);
+	useEffect(() => {
+		const s = Keyboard.addListener('keyboardDidShow', (e) => {
+			setKeyboardScreenY(e.endCoordinates.screenY);
+			setKeyboardShown(true);
+		});
+		const h = Keyboard.addListener('keyboardDidHide', () => {
+			setKeyboardScreenY(0);
+			setKeyboardShown(false);
+		});
+		return () => { s.remove(); h.remove(); };
+	}, [screenH, windowH, statusBarHeight]);
+
+	// Fixed height when keyboard is hidden — keeps stacked modals visually
+	// consistent so it feels like the content changed, not a new modal.
+	const modalHeight = windowH * 0.75;
+
+	// When there's no keyboard the modal is absolutely-positioned at
+	// `yogaTop` (centered in the window below the status bar).
+	const yogaTop = statusBarHeight + (windowH - modalHeight) / 2;
 
 	const heightShared = useSharedValue(modalHeight);
+	const topShared = useSharedValue(yogaTop);
 
 	useEffect(() => {
-		heightShared.value = withTiming(modalHeight + (keyboardShown ? modalTop / 4 : 0), {
-			duration,
-			easing: Easing.inOut(Easing.quad),
-			reduceMotion: ReduceMotion.System,
-		});
-	}, [
-		modalHeight,
-		modalTop,
-		keyboardShown,
-		heightShared,
-	]);
+		if (keyboardScreenY > 0) {
+			const visibleH = keyboardScreenY - statusBarHeight;
+			const bottomGap = 0;
+			const heightSlack = 4;
+			const targetHeight = Math.max(
+				windowH * 0.35,
+				visibleH - heightSlack,
+			);
+			// Position the top edge so the bottom edge sits exactly at
+			// keyboardScreenY - bottomGap.
+			const targetTop = keyboardScreenY - bottomGap - targetHeight;
+			heightShared.value = withTiming(targetHeight, {
+				duration: 200,
+				easing: Easing.inOut(Easing.quad),
+				reduceMotion: ReduceMotion.System,
+			});
+			topShared.value = withTiming(targetTop, {
+				duration: 200,
+				easing: Easing.inOut(Easing.quad),
+				reduceMotion: ReduceMotion.System,
+			});
+		} else {
+			heightShared.value = withTiming(modalHeight, {
+				duration: 200,
+				easing: Easing.inOut(Easing.quad),
+				reduceMotion: ReduceMotion.System,
+			});
+			topShared.value = withTiming(yogaTop, {
+				duration: 200,
+				easing: Easing.inOut(Easing.quad),
+				reduceMotion: ReduceMotion.System,
+			});
+		}
+	}, [keyboardScreenY, windowH, statusBarHeight, modalHeight, yogaTop, heightShared, topShared]);
 
 	const modalAnimatedStyles = useAnimatedStyle(() => ({
 		height: heightShared.value,
+		top: topShared.value,
 	}));
 
 	const modalStyles: ViewStyle = useMemo(
@@ -149,13 +197,12 @@ const ModalWrapper: FC<{
 	);
 
 	const styleContent = useMemo(
-		() => [
-			styles.absolute,
-			styles.centerContent,
-			{ paddingTop: statusBarHeight },
-		],
+		() => [styles.absolute, { paddingTop: statusBarHeight }],
 		[statusBarHeight]
 	);
+
+	// Horizontal center for the absolutely-positioned modal.
+	const modalLeft = (width - width * modalWidthFactor) / 2;
 
 	const styleContentInner = useMemo(() => [styles.contentInner, innerStyle], [innerStyle]);
 
@@ -187,7 +234,7 @@ const ModalWrapper: FC<{
 					<View style={styleContent}>
 						<Animated.View
 							style={[
-								{ width: width * modalWidthFactor },
+								{ position: 'absolute', left: modalLeft, width: width * modalWidthFactor },
 								modalAnimatedStyles,
 							]}
 						>
@@ -199,6 +246,7 @@ const ModalWrapper: FC<{
 									innerContainerStyle,
 									modalStyle,
 								]}
+								keyboardShouldPersistTaps="handled"
 							>
 								<View style={styles.headerRow}>
 									{hasBackButton && (
