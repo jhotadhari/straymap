@@ -11,5 +11,19 @@
 		"minZ": "Min. Höhe",
 		"maxZ": "Max. Höhe",
 		"tags": "Tags"
-	}
+	},
+	"filters": "Filter",
+	"addFilter": "Filter hinzufügen",
+	"filterLogicAnd": "UND",
+	"filterLogicOr": "ODER",
+	"filterMin": "Minimum",
+	"filterMax": "Maximum",
+	"filterIncludes": "enthält",
+	"filterExcludes": "enthält nicht",
+	"filterStartsWith": "beginnt mit",
+	"filterEndsWith": "endet mit",
+	"filterValue": "Wert",
+	"saveFilter": "Speichern",
+	"removeFilter": "Entfernen",
+	"editFilter": "Filter bearbeiten"
 }

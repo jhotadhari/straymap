@@ -11,7 +11,7 @@ import { isEqual, uniq } from 'lodash-es';
 import { SliceSettingsBase } from '../../../types';
 import { selectSelected } from './selectors';
 import { AppThunk } from '../../store';
-import { LinePartial, TableColumn } from './types';
+import { LinePartial, TableColumn, SortState, ColumnFilter, FilterLogic } from './types';
 
 export interface LinesSettings {
 	selected: {
@@ -19,6 +19,9 @@ export interface LinesSettings {
 		visible: boolean;
 	}[];
 	tableColumns: TableColumn[];
+	sort: SortState | null;
+	filters: ColumnFilter[];
+	filterLogic: FilterLogic;
 }
 
 export interface LinesState extends SliceSettingsBase, LinesSettings {
@@ -28,6 +31,9 @@ export interface LinesState extends SliceSettingsBase, LinesSettings {
 export const initialSettings: LinesSettings = {
 	selected: [],
 	tableColumns: [],
+	sort: null,
+	filters: [],
+	filterLogic: 'and',
 };
 
 const initialState: LinesState = {
@@ -55,11 +61,45 @@ export const linesSlice = createSlice({
 				return a.id - b.id;
 			});
 		},
+		setSort: (state, action: PayloadAction<LinesState['sort']>) => {
+			state.sort = action.payload;
+		},
+		setFilters: (state, action: PayloadAction<LinesState['filters']>) => {
+			state.filters = action.payload;
+		},
+		upsertFilter: (state, action: PayloadAction<ColumnFilter>) => {
+			const idx = state.filters.findIndex(
+				(f) => f.columnKey === action.payload.columnKey
+			);
+			if (idx !== -1) {
+				state.filters[idx] = action.payload;
+			} else {
+				state.filters.push(action.payload);
+			}
+		},
+		removeFilter: (state, action: PayloadAction<string>) => {
+			state.filters = state.filters.filter(
+				(f) => f.columnKey !== action.payload
+			);
+		},
+		setFilterLogic: (state, action: PayloadAction<LinesState['filterLogic']>) => {
+			state.filterLogic = action.payload;
+		},
 	},
 });
 
 // Export the generated action creators for use in components.
-export const { setInitialized, setTableColumns, setSelected, setLineTemp } = linesSlice.actions;
+export const {
+	setInitialized,
+	setTableColumns,
+	setSelected,
+	setLineTemp,
+	setSort,
+	setFilters,
+	upsertFilter,
+	removeFilter,
+	setFilterLogic,
+} = linesSlice.actions;
 
 // Export the slice reducer for use in the store configuration
 export default linesSlice.reducer;
@@ -115,6 +155,18 @@ export const setLinesSelected = (newSelectedIds: number[]): AppThunk => {
 		}));
 		if (!isEqual(selected, newSelected)) {
 			dispatch(linesSlice.actions.setSelected(newSelected));
+		}
+	};
+};
+
+export const toggleSort = (columnKey: string): AppThunk => {
+	return (dispatch, getState) => {
+		const currentSort = getState().lines.sort;
+		if (currentSort?.columnKey === columnKey) {
+			const newDirection = currentSort.direction === 'asc' ? 'desc' : 'asc';
+			dispatch(linesSlice.actions.setSort({ columnKey, direction: newDirection }));
+		} else {
+			dispatch(linesSlice.actions.setSort({ columnKey, direction: 'asc' }));
 		}
 	};
 };

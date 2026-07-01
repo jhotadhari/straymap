@@ -51,8 +51,11 @@ const FilterDateModal: FC<{
 		onSave,
 	]);
 
+	const prevVisibleRef = useRef(false);
 	useEffect(() => {
-		if (visible) {
+		const justOpened = visible && !prevVisibleRef.current;
+		prevVisibleRef.current = visible;
+		if (justOpened) {
 			setMinVal(existingFilter?.min);
 			setMaxVal(existingFilter?.max);
 		}
@@ -125,7 +128,7 @@ const FilterDateModal: FC<{
 						buttonColor={theme.colors.errorContainer}
 						textColor={theme.colors.onErrorContainer}
 					>
-						<Text>{t('lines.deleteFilter')}</Text>
+						<Text>{t('lines.removeFilter')}</Text>
 					</ButtonHighlight>
 				)}
 			</View>

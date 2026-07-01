@@ -44,6 +44,7 @@ const FilterColumnSelectModal: FC<{
 					opt={opt}
 					onPress={() => onSelectColumn(opt.key)}
 					status="unchecked"
+					labelExtractor={(a) => a.label}
 				/>
 			))}
 		</ModalWrapper>

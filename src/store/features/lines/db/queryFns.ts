@@ -6,8 +6,15 @@ import { WithRequired } from '@tanstack/react-query';
 /**
  * Internal dependencies
  */
-import { Line, LinePartial } from '../types';
+import { Line, LinePartial, SortState, ColumnFilter, FilterLogic } from '../types';
 import { fetchLines } from './fetch';
+
+interface LinesQueryOptions {
+	lineIds?: number[];
+	sort?: SortState | null;
+	filters?: ColumnFilter[];
+	filterLogic?: FilterLogic;
+}
 
 /**
  * Functions to be used by react query client as queryFn:
@@ -20,13 +27,33 @@ import { fetchLines } from './fetch';
  *  queryKey: ['lines'],
  *  queryKey: ['lines', selectedIds],
  * 	queryKey: ['lines', checkedIds],
+ *  queryKey: ['lines', { sort, filters, filterLogic }],
  */
-export const queryLinesWithoutGeom = ({ queryKey }: { queryKey: (string | number[])[] }) => {
-	if (queryKey.length > 1 && (!queryKey[1].length || 'number' !== typeof queryKey[1][0])) {
-		return Promise.resolve([] as Omit<Line, 'geometry'>[]);
+export const queryLinesWithoutGeom = ({
+	queryKey,
+}: {
+	queryKey: [string] | [string, number[]] | [string, LinesQueryOptions];
+}) => {
+	const opts: LinesQueryOptions | undefined =
+		queryKey.length > 1 ? (queryKey[1] as LinesQueryOptions) : undefined;
+
+	// Old-style: second element is a number array (lineIds)
+	if (Array.isArray(opts)) {
+		if (!opts.length) {
+			return Promise.resolve([] as Omit<Line, 'geometry'>[]);
+		}
+		return fetchLines({
+			lineIds: opts as number[],
+			fieldsExclude: ['geometry'],
+		}) as Promise<Omit<Line, 'geometry'>[]>;
 	}
+
+	// New-style: second element is LinesQueryOptions
 	return fetchLines({
-		...(queryKey.length > 1 && { lineIds: queryKey[1] as number[] }),
+		...(opts?.lineIds && { lineIds: opts.lineIds }),
+		...(opts?.sort && { sort: opts.sort }),
+		...(opts?.filters?.length && { filters: opts.filters }),
+		...(opts?.filterLogic && { filterLogic: opts.filterLogic }),
 		fieldsExclude: ['geometry'],
 	}) as Promise<Omit<Line, 'geometry'>[]>;
 };

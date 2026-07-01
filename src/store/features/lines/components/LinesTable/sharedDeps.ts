@@ -26,6 +26,7 @@ export const sharedStyles = StyleSheet.create({
 		alignItems: 'center',
 		minHeight: 8 * 8,
 		paddingHorizontal: 8,
+		paddingVertical: 8,
 		gap: 8,
 		borderBottomWidth: 1,
 	},
@@ -81,6 +82,23 @@ export const getCellCategory = (key: string): CellCategory | undefined => {
 	}
 	if (key in otherCells) {
 		return 'other';
+	}
+	return undefined;
+};
+
+export type FilterColumnType = 'numeric' | 'date' | 'string';
+
+export const getFilterColumnType = (key: string): FilterColumnType | undefined => {
+	if (key in lineCells) {
+		if (key === 'timestamp') {
+			return 'date';
+		}
+		if (key === 'title') {
+			return 'string';
+		}
+	}
+	if (key in statsCells) {
+		return 'numeric';
 	}
 	return undefined;
 };

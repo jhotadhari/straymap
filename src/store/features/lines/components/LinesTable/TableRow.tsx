@@ -87,9 +87,6 @@ const TableRow: FC<TableRowProps> = ({
 		() => [
 			sharedStyles.flexRow,
 			{
-				...(idx % 2 === 1 && {
-					backgroundColor: theme.colors.surfaceDisabled,
-				}),
 				...(isChecked && {
 					...(idx % 2 === 1
 						? {

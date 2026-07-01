@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { View } from 'react-native';
+import { StyleSheet, TextInput, View } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { get } from 'lodash-es';
@@ -12,10 +12,29 @@ import { get } from 'lodash-es';
  */
 import ModalWrapper from '../../../../../../components/generic/ModalWrapper';
 import ButtonHighlight from '../../../../../../components/generic/ButtonHighlight';
-import NumericRowControl from '../../../../../../components/generic/controls/NumericRowControl';
+import InfoRowControl from '../../../../../../components/generic/controls/InfoRowControl';
 import { sharedStyles as appSharedStyles } from '../../../../../../sharedStyles';
 import { sharedStyles } from '../sharedDeps';
 import { NumericColumnFilter } from '../../../types';
+
+const nbToStr = (val: number | undefined): string => {
+	if (val === undefined) {
+		return '';
+	}
+	return val.toString();
+};
+
+const strToNb = (val: string): number | undefined => {
+	const trimmed = val.trim();
+	if (trimmed === '' || trimmed === '-') {
+		return undefined;
+	}
+	const parsed = parseFloat(trimmed.replace(/,/g, '.'));
+	if (isNaN(parsed)) {
+		return undefined;
+	}
+	return parsed;
+};
 
 const FilterNumericModal: FC<{
 	visible: boolean;
@@ -28,34 +47,33 @@ const FilterNumericModal: FC<{
 	const theme = useTheme();
 	const { t } = useTranslation();
 
-	const [minVal, setMinVal] = useState<number | undefined>(existingFilter?.min);
-	const [maxVal, setMaxVal] = useState<number | undefined>(existingFilter?.max);
+	const [minVal, setMinVal] = useState<string>(nbToStr(existingFilter?.min));
+	const [maxVal, setMaxVal] = useState<string>(nbToStr(existingFilter?.max));
 
 	const saveRef = useRef<undefined | (() => void)>(undefined);
 
 	useEffect(() => {
 		saveRef.current = () => {
-			if (minVal !== undefined || maxVal !== undefined) {
+			const minNb = strToNb(minVal);
+			const maxNb = strToNb(maxVal);
+			if (minNb !== undefined || maxNb !== undefined) {
 				onSave({
 					type: 'numeric',
 					columnKey,
-					min: minVal,
-					max: maxVal,
+					min: minNb,
+					max: maxNb,
 				});
 			}
 		};
-	}, [
-		columnKey,
-		minVal,
-		maxVal,
-		onSave,
-	]);
+	}, [columnKey, minVal, maxVal, onSave]);
 
-	// Re-sync when opening for a different filter
+	const prevVisibleRef = useRef(false);
 	useEffect(() => {
-		if (visible) {
-			setMinVal(existingFilter?.min);
-			setMaxVal(existingFilter?.max);
+		const justOpened = visible && !prevVisibleRef.current;
+		prevVisibleRef.current = visible;
+		if (justOpened) {
+			setMinVal(nbToStr(existingFilter?.min));
+			setMaxVal(nbToStr(existingFilter?.max));
 		}
 	}, [visible, existingFilter]);
 
@@ -71,6 +89,17 @@ const FilterNumericModal: FC<{
 
 	const columnLabel = useMemo(() => t(`lines.columns.${columnKey}`), [t, columnKey]);
 
+	const inputStyle = useMemo(
+		() => [
+			styles.input,
+			{
+				color: theme.colors.onSurface,
+				borderColor: theme.colors.outline,
+			},
+		],
+		[theme]
+	);
+
 	return (
 		<ModalWrapper
 			visible={visible}
@@ -78,19 +107,27 @@ const FilterNumericModal: FC<{
 			header={columnLabel}
 			innerStyle={sharedStyles.modalInner}
 		>
-			<NumericRowControl
-				label={t('lines.filterMin')}
-				value={minVal ?? 0}
-				onUpdate={setMinVal}
-				numType="float"
-			/>
+			<InfoRowControl label={t('lines.filterMin')}>
+				<TextInput
+					style={inputStyle}
+					value={minVal}
+					onChangeText={setMinVal}
+					placeholder="-"
+					placeholderTextColor={theme.colors.outline}
+					keyboardType="numeric"
+				/>
+			</InfoRowControl>
 
-			<NumericRowControl
-				label={t('lines.filterMax')}
-				value={maxVal ?? 0}
-				onUpdate={setMaxVal}
-				numType="float"
-			/>
+			<InfoRowControl label={t('lines.filterMax')}>
+				<TextInput
+					style={inputStyle}
+					value={maxVal}
+					onChangeText={setMaxVal}
+					placeholder="-"
+					placeholderTextColor={theme.colors.outline}
+					keyboardType="numeric"
+				/>
+			</InfoRowControl>
 
 			<View style={appSharedStyles.modalControls}>
 				<ButtonHighlight
@@ -109,12 +146,23 @@ const FilterNumericModal: FC<{
 						buttonColor={theme.colors.errorContainer}
 						textColor={theme.colors.onErrorContainer}
 					>
-						<Text>{t('lines.deleteFilter')}</Text>
+						<Text>{t('lines.removeFilter')}</Text>
 					</ButtonHighlight>
 				)}
 			</View>
 		</ModalWrapper>
 	);
 };
+
+const styles = StyleSheet.create({
+	input: {
+		borderWidth: 1,
+		borderRadius: 4,
+		paddingHorizontal: 8,
+		paddingVertical: 4,
+		minWidth: 150,
+		textAlign: 'right',
+	},
+});
 
 export default FilterNumericModal;

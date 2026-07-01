@@ -15,6 +15,11 @@ import {
 	setInitialized,
 	setSelected,
 	setTableColumns,
+	setSort,
+	setFilters,
+	setFilterLogic,
+	upsertFilter,
+	removeFilter,
 } from './slice';
 import { startAppListening } from '../../listenerMiddleware';
 import { selectInitialized } from './selectors';
@@ -39,6 +44,15 @@ export const initializeFromStorage = (store: AppStore) => {
 				}
 				if (newSettings?.tableColumns) {
 					store.dispatch(setTableColumns(newSettings.tableColumns));
+				}
+				if (newSettings?.sort) {
+					store.dispatch(setSort(newSettings.sort));
+				}
+				if (newSettings?.filters) {
+					store.dispatch(setFilters(newSettings.filters));
+				}
+				if (newSettings?.filterLogic) {
+					store.dispatch(setFilterLogic(newSettings.filterLogic));
 				}
 			}
 			store.dispatch(setInitialized(true));
@@ -78,7 +92,15 @@ export const saveToStorage = (linesState: LinesState, actionType: string) => {
  * and calls the function to save them to defaultPreferences.
  */
 startAppListening({
-	matcher: isAnyOf(setSelected, setTableColumns),
+	matcher: isAnyOf(
+		setSelected,
+		setTableColumns,
+		setSort,
+		setFilters,
+		setFilterLogic,
+		upsertFilter,
+		removeFilter,
+	),
 	effect: async (action, listenerApi) => {
 		try {
 			await saveToStorage(listenerApi.getState().lines, action.type);

@@ -109,6 +109,12 @@ const LinesTable: FC = () => {
 	]);
 
 	const [checkedIds, setCheckedIds] = useState<number[]>([]);
+
+	// Reset checked rows when filters change, since the visible row set changed.
+	useEffect(() => {
+		setCheckedIds([]);
+	}, [filters]);
+
 	const toggleCheckedId = useCallback((id: number) => {
 		setCheckedIds((ids) => {
 			if (ids.includes(id)) {

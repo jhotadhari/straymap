@@ -52,3 +52,16 @@ export const selectTableColumns = createAppSelector(
 		return result.filter((col) => allColumnKeys.includes(col.key));
 	}
 );
+
+// ── Sort / Filter ───────────────────────────────────────────────────
+
+export const selectSort = (state: RootState) => state.lines.sort;
+
+export const selectFilters = (state: RootState) => state.lines.filters;
+
+export const selectFilterLogic = (state: RootState) => state.lines.filterLogic;
+
+export const selectFilterableColumns = createAppSelector(
+	(state: RootState) => selectTableColumns(state),
+	(tableColumns) => tableColumns.filter((col) => col.key !== 'tags')
+);

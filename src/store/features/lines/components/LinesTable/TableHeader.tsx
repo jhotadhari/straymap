@@ -1,9 +1,9 @@
 /**
  * External dependencies
  */
-import { FC, useMemo } from 'react';
-import { StyleProp, View, ViewStyle } from 'react-native';
-import { Text, useTheme } from 'react-native-paper';
+import { FC, useCallback, useMemo } from 'react';
+import { StyleProp, TouchableOpacity, View, ViewStyle } from 'react-native';
+import { Icon, Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 
 /**
@@ -11,8 +11,11 @@ import { useTranslation } from 'react-i18next';
  */
 import { sharedStyles, cellConfigs, getCellCategory } from './sharedDeps';
 import { TableColumn } from '../../types';
-import { useAppSelector } from '../../../../hooks';
-import { selectTableColumns } from '../../selectors';
+import { useAppDispatch, useAppSelector } from '../../../../hooks';
+import { selectTableColumns, selectSort } from '../../selectors';
+import { toggleSort } from '../../slice';
+
+const SORT_ICON_SIZE = 16;
 
 const TableHeader: FC<{
 	styleCell: StyleProp<ViewStyle>;
@@ -20,6 +23,10 @@ const TableHeader: FC<{
 	const theme = useTheme();
 
 	const { t } = useTranslation();
+
+	const dispatch = useAppDispatch();
+
+	const sort = useAppSelector(selectSort);
 
 	const tableColumns: TableColumn[] = useAppSelector(selectTableColumns);
 
@@ -50,6 +57,17 @@ const TableHeader: FC<{
 		[theme]
 	);
 
+	const isSortable = useCallback((columnKey: string) => {
+		return columnKey !== 'tags';
+	}, []);
+
+	const handleSortPress = useCallback(
+		(columnKey: string) => {
+			dispatch(toggleSort(columnKey));
+		},
+		[dispatch]
+	);
+
 	return (
 		<View style={styleContainer}>
 			{/* empty placeholder for the column containing action buttons */}
@@ -58,13 +76,30 @@ const TableHeader: FC<{
 			{visibleColumns.map((column) => {
 				const baseStyle = 'line' === getCellCategory(column.key) ? style : styleCell;
 				const cellStyle = cellConfigs[column.key]?.style;
+				const sortable = isSortable(column.key);
+				const isActiveSort = sort?.columnKey === column.key;
+				const sortIcon = isActiveSort
+					? sort?.direction === 'asc'
+						? 'arrow-up'
+						: 'arrow-down'
+					: undefined;
+
 				return (
-					<View
+					<TouchableOpacity
 						key={column.key}
 						style={cellStyle ? [baseStyle, cellStyle] : baseStyle}
+						onPress={sortable ? () => handleSortPress(column.key) : undefined}
+						activeOpacity={sortable ? 0.6 : 1}
+						disabled={!sortable}
 					>
 						<Text>{t(`lines.columns.${column.key}`)}</Text>
-					</View>
+						{sortIcon && (
+							<Icon
+								source={sortIcon}
+								size={SORT_ICON_SIZE}
+							/>
+						)}
+					</TouchableOpacity>
 				);
 			})}
 		</View>

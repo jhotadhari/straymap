@@ -61,8 +61,11 @@ const FilterStringModal: FC<{
 		onSave,
 	]);
 
+	const prevVisibleRef = useRef(false);
 	useEffect(() => {
-		if (visible) {
+		const justOpened = visible && !prevVisibleRef.current;
+		prevVisibleRef.current = visible;
+		if (justOpened) {
 			setOperator(existingFilter?.operator ?? 'includes');
 			setValue(existingFilter?.value ?? '');
 		}
@@ -113,6 +116,7 @@ const FilterStringModal: FC<{
 					opt={opt}
 					onPress={() => setOperator(opt.key as StringFilterOperator)}
 					status={operator === opt.key ? 'checked' : 'unchecked'}
+					labelExtractor={(a) => a.label}
 				/>
 			))}
 
@@ -143,7 +147,7 @@ const FilterStringModal: FC<{
 						buttonColor={theme.colors.errorContainer}
 						textColor={theme.colors.onErrorContainer}
 					>
-						<Text>{t('lines.deleteFilter')}</Text>
+						<Text>{t('lines.removeFilter')}</Text>
 					</ButtonHighlight>
 				)}
 			</View>

@@ -99,11 +99,12 @@ const FilterModals: FC<FilterModalsProps> = ({ visible, editFilter, onDismiss })
 
 			{selectedColumnKey && filterType === 'numeric' && (
 				<FilterNumericModal
+					key={selectedColumnKey}
 					visible={visible && step === 'editFilter'}
 					columnKey={selectedColumnKey}
 					existingFilter={
-						tempFilter?.type === 'numeric'
-							? (tempFilter as NumericColumnFilter)
+						(editFilter ?? tempFilter)?.type === 'numeric'
+							? ((editFilter ?? tempFilter) as NumericColumnFilter)
 							: undefined
 					}
 					onDismiss={handleDismiss}
@@ -114,10 +115,13 @@ const FilterModals: FC<FilterModalsProps> = ({ visible, editFilter, onDismiss })
 
 			{selectedColumnKey && filterType === 'date' && (
 				<FilterDateModal
+					key={selectedColumnKey}
 					visible={visible && step === 'editFilter'}
 					columnKey={selectedColumnKey}
 					existingFilter={
-						tempFilter?.type === 'date' ? (tempFilter as DateColumnFilter) : undefined
+						(editFilter ?? tempFilter)?.type === 'date'
+							? ((editFilter ?? tempFilter) as DateColumnFilter)
+							: undefined
 					}
 					onDismiss={handleDismiss}
 					onSave={handleSaveDate}
@@ -127,11 +131,12 @@ const FilterModals: FC<FilterModalsProps> = ({ visible, editFilter, onDismiss })
 
 			{selectedColumnKey && filterType === 'string' && (
 				<FilterStringModal
+					key={selectedColumnKey}
 					visible={visible && step === 'editFilter'}
 					columnKey={selectedColumnKey}
 					existingFilter={
-						tempFilter?.type === 'string'
-							? (tempFilter as StringColumnFilter)
+						(editFilter ?? tempFilter)?.type === 'string'
+							? ((editFilter ?? tempFilter) as StringColumnFilter)
 							: undefined
 					}
 					onDismiss={handleDismiss}

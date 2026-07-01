@@ -6,7 +6,7 @@ import { FC, useCallback, useMemo } from 'react';
 import {
 	LayerMapsforgeResponse,
 	LayerMBTilesBitmapResponse,
-	useLayerReindex,
+	ReindexScope,
 } from 'react-native-mapsforge-vtm';
 
 /**
@@ -61,14 +61,8 @@ const BaseMap: FC<{}> = () => {
 
 	const profiles = useAppSelector((state) => selectMapsforgeProfiles(state, { temp: false }));
 
-	// Bump the VTM registry generation on every render so useLayerOrder
-	// repositions already-registered layers to match the current document
-	// order. Needed because BaseMap re-renders via Redux without MapContainer
-	// itself re-rendering (which would normally bump the generation).
-	useLayerReindex();
-
 	return (
-		<>
+		<ReindexScope>
 			{layersReverse.map((layer: LayerConfig) => {
 				if (!layer.type || !layer.visible) {
 					return null;
@@ -125,7 +119,7 @@ const BaseMap: FC<{}> = () => {
 						return null;
 				}
 			})}
-		</>
+		</ReindexScope>
 	);
 };
 

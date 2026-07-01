@@ -11,5 +11,19 @@
 		"minZ": "Min elevation",
 		"maxZ": "Max elevation",
 		"tags": "Tags"
-	}
+	},
+	"filters": "Filters",
+	"addFilter": "Add filter",
+	"filterLogicAnd": "AND",
+	"filterLogicOr": "OR",
+	"filterMin": "Minimum",
+	"filterMax": "Maximum",
+	"filterIncludes": "includes",
+	"filterExcludes": "excludes",
+	"filterStartsWith": "starts with",
+	"filterEndsWith": "ends with",
+	"filterValue": "Value",
+	"saveFilter": "Save",
+	"removeFilter": "Remove",
+	"editFilter": "Edit filter"
 }

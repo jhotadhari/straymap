@@ -38,3 +38,48 @@ export interface TableColumn {
 	key: string;
 	visible: boolean;
 }
+
+// ── Sort ────────────────────────────────────────────────────────────
+
+export type SortDirection = 'asc' | 'desc';
+
+export interface SortState {
+	columnKey: string;
+	direction: SortDirection;
+}
+
+// ── Filters ─────────────────────────────────────────────────────────
+
+export type FilterLogic = 'and' | 'or';
+
+export type StringFilterOperator =
+	| 'includes'
+	| 'excludes'
+	| 'startsWith'
+	| 'endsWith';
+
+export interface NumericColumnFilter {
+	type: 'numeric';
+	columnKey: string;
+	min?: number;
+	max?: number;
+}
+
+export interface DateColumnFilter {
+	type: 'date';
+	columnKey: string;
+	min?: string;
+	max?: string;
+}
+
+export interface StringColumnFilter {
+	type: 'string';
+	columnKey: string;
+	operator: StringFilterOperator;
+	value: string;
+}
+
+export type ColumnFilter =
+	| NumericColumnFilter
+	| DateColumnFilter
+	| StringColumnFilter;
