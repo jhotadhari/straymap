@@ -14,7 +14,7 @@ import { sharedStyles } from './sharedDeps';
 import { strValToNb } from '../../../lib/utils';
 import { NumType } from '../../../types';
 
-export const NumericRowControlSegmented = ({
+const NumericRowControlSegmented = ({
 	label,
 	buttonLabel,
 	numValueActive,
@@ -42,7 +42,6 @@ export const NumericRowControlSegmented = ({
 	validate?: (val: number) => boolean;
 }) => {
 	const theme = useTheme();
-	// const keyboardShown = useKeyboardShown();
 
 	const [val, setVal] = useState(value + '');
 	useEffect(() => {
@@ -119,15 +118,6 @@ export const NumericRowControlSegmented = ({
 		saveOnTypeCbRef?.current && saveOnTypeCbRef.current();
 	}, [val]);
 
-	// // call handleBlur on keyboard hide.
-	// useEffect(() => {
-	// 	if (!keyboardShown && handleBlurCbRef?.current) {
-	// 		handleBlurCbRef.current();
-	// 	}
-	// }, [
-	// 	keyboardShown,
-	// ]);
-
 	const handleChangeText = useCallback(
 		(newVal: string) => {
 			if (validate) {
@@ -164,22 +154,13 @@ export const NumericRowControlSegmented = ({
 		numValueActive && toggleOption();
 	}, [numValueActive, toggleOption]);
 
-	// const textRef = useRef<RNTextInput | null>(null);
 	const handleFocus = useCallback(() => {
 		if (!numValueActive) {
 			toggleOption();
-			// // Fix set focus again.
-			// setTimeout(() => {
-			// 	textRef?.current?.blur();
-			// 	setTimeout(() => {
-			// 		textRef?.current?.focus();
-			// 	}, 0);
-			// }, 0);
 		}
 	}, [
 		numValueActive,
 		toggleOption,
-		// textRef?.current,
 	]);
 
 	const styleButton = useMemo(
@@ -218,7 +199,6 @@ export const NumericRowControlSegmented = ({
 				</ButtonHighlight>
 
 				<TextInput
-					// ref={textRef}
 					style={styleInput}
 					underlineColor="transparent"
 					error={!isValid}

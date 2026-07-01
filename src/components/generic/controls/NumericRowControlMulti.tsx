@@ -14,7 +14,7 @@ import { strValToNb } from '../../../lib/utils';
 import { NumType } from '../../../types';
 import { sharedStyles } from './sharedDeps';
 
-export const NumericRowControlMulti = ({
+const NumericRowControlMulti = ({
 	label,
 	values,
 	optLabels,

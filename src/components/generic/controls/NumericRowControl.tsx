@@ -34,7 +34,6 @@ const NumericRowControl = ({
 	validate?: (val: number) => boolean;
 }) => {
 	const theme = useTheme();
-	// const keyboardShown = useKeyboardShown();
 
 	const [val, setVal] = useState<string>(value + '');
 
@@ -106,15 +105,6 @@ const NumericRowControl = ({
 	useEffect(() => {
 		saveOnTypeCbRef?.current && saveOnTypeCbRef.current();
 	}, [val]);
-
-	// // call handleBlur on keyboard hide.
-	// useEffect(() => {
-	// 	if (!keyboardShown && handleBlurCbRef?.current) {
-	// 		handleBlurCbRef.current();
-	// 	}
-	// }, [
-	// 	keyboardShown,
-	// ]);
 
 	const handleChangeText = useCallback(
 		(newVal: string) => {
