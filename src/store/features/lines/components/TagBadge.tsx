@@ -6,16 +6,17 @@ import { View } from 'react-native';
 import { Text } from 'react-native-paper';
 
 /**
+import { useTranslation } from 'react-i18next';
  * Internal dependencies
  */
 import { Tag } from '../types';
 
 const TagBadge: FC<{
 	tag: Tag;
-}> = ({ tag: _tag }) => {
+}> = ({ tag }) => {
 	return (
 		<View>
-			<Text>{'???tag'}</Text>
+			<Text>{tag.label}</Text>
 		</View>
 	);
 };

@@ -3,6 +3,7 @@
  */
 import { FC, Fragment, useCallback, useContext } from 'react';
 import { Text, useTheme } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 import { StyleSheet, View } from 'react-native';
 import { pick, without } from 'lodash-es';
 
@@ -42,6 +43,7 @@ const uiStateKey = 'LineEditModalStats';
 
 const RowStats: FC = () => {
 	const theme = useTheme();
+	const { t } = useTranslation();
 
 	const dispatch = useAppDispatch();
 
@@ -63,7 +65,7 @@ const RowStats: FC = () => {
 	return (
 		<Fragment>
 			<InfoRowControl
-				label={'stats???'}
+				label={t('lines.stats')}
 				// Info={Info}
 			>
 				<ButtonHighlight
@@ -76,7 +78,7 @@ const RowStats: FC = () => {
 					textColor={theme.colors.onBackground}
 				>
 					<View>
-						<Text>{expanded ? '??? hide Stats' : '??? show Stats'}</Text>
+						<Text>{expanded ? t('lines.hideStats') : t('lines.showStats')}</Text>
 					</View>
 				</ButtonHighlight>
 			</InfoRowControl>

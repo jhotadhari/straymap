@@ -3,6 +3,7 @@
  */
 import { FC, useCallback } from 'react';
 import { Text, useTheme } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
 /**
@@ -14,6 +15,7 @@ import { sharedStyles } from './sharedDeps';
 
 const RowExport: FC = () => {
 	const theme = useTheme();
+	const { t } = useTranslation();
 
 	// const dispatch = useAppDispatch();
 
@@ -81,7 +83,7 @@ const RowExport: FC = () => {
 
 	return (
 		<InfoRowControl
-			label={'export???'}
+			label={t('lines.export')}
 			// Info={Info}
 		>
 			<ButtonHighlight
@@ -94,7 +96,7 @@ const RowExport: FC = () => {
 				textColor={theme.colors.onBackground}
 			>
 				<View>
-					<Text>{'??? TODO export '}</Text>
+					<Text>{t('lines.export')}</Text>
 				</View>
 			</ButtonHighlight>
 		</InfoRowControl>

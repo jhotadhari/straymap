@@ -4,6 +4,7 @@
 import { FC, useCallback, useMemo } from 'react';
 import { get } from 'lodash-es';
 import { useMutation, UseMutationOptions, useQuery } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 
 /**
  * Internal dependencies
@@ -32,6 +33,7 @@ const LineEditModal: FC<{
 	onDeleteSuccess?: (lineId?: number) => void;
 }> = ({ selectLine, onDeleteSuccess }) => {
 	const dispatch = useAppDispatch();
+	const { t } = useTranslation();
 
 	const lineTemp = useAppSelector(selectLineTemp);
 
@@ -117,7 +119,7 @@ const LineEditModal: FC<{
 		<ModalWrapper
 			visible={!!lineTemp}
 			onDismiss={onDismiss}
-			header={'line???'}
+			header={t('lines.line')}
 			innerStyle={sharedStyles.modalInner}
 		>
 			<LineEditModalContext.Provider value={contextValue}>

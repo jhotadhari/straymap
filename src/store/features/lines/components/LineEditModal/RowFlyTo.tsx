@@ -3,6 +3,7 @@
  */
 import { FC, useCallback, useContext, useMemo } from 'react';
 import { useTheme } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 import { Bbox, useMap } from 'react-native-mapsforge-vtm';
 
 /**
@@ -18,6 +19,7 @@ import { sharedStyles } from './sharedDeps';
 
 const RowFlyTo: FC = () => {
 	const theme = useTheme();
+	const { t } = useTranslation();
 
 	const { mapViewNativeNodeHandle } = useContext(AppContext);
 
@@ -63,7 +65,7 @@ const RowFlyTo: FC = () => {
 	);
 
 	return (
-		<InfoRowControl label={'fly to'}>
+		<InfoRowControl label={t('lines.flyTo')}>
 			<ButtonHighlight
 				style={buttonStyle}
 				mode="outlined"
@@ -75,7 +77,7 @@ const RowFlyTo: FC = () => {
 				labelStyle={sharedStyles.buttonLabel}
 				textColor={theme.colors.onBackground}
 			>
-				{'fly to'}
+				{t('lines.flyTo')}
 			</ButtonHighlight>
 		</InfoRowControl>
 	);

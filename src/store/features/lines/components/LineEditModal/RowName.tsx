@@ -3,6 +3,7 @@
  */
 import { FC, useCallback, useContext, useMemo } from 'react';
 import { TextInput, useTheme } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 
 /**
  * Internal dependencies
@@ -20,6 +21,7 @@ const RowName: FC = () => {
 	const lineTemp = useAppSelector(selectLineTemp);
 
 	const theme = useTheme();
+	const { t } = useTranslation();
 
 	const { line } = useContext(LineEditModalContext);
 
@@ -51,7 +53,7 @@ const RowName: FC = () => {
 
 	return (
 		<InfoRowControl
-			label={'name'} // ??? translation
+			label={t('lines.name')}
 			// Info={Info}
 		>
 			<TextInput

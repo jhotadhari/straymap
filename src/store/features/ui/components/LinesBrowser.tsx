@@ -9,7 +9,7 @@ import { View, ViewStyle } from 'react-native';
  */
 import LinesTable from '../../lines/components/LinesTable/LinesTable';
 
-const LinesDirectory: FC<{ style?: ViewStyle }> = ({ style }) => {
+const LinesBrowser: FC<{ style?: ViewStyle }> = ({ style }) => {
 	return (
 		<View style={style}>
 			<LinesTable />
@@ -17,4 +17,4 @@ const LinesDirectory: FC<{ style?: ViewStyle }> = ({ style }) => {
 	);
 };
 
-export default LinesDirectory;
+export default LinesBrowser;

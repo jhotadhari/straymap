@@ -47,7 +47,6 @@ import { ErrorToastContext } from './ErrorToast/Context';
 import Center from '../store/features/appearance/components/Center';
 import Drawers from '../store/features/drawers/components/Drawers';
 import SplashScreen from './SplashScreen';
-// import AltitudeProfile from '../store/features/routing/components/AltitudeProfile';
 import RoutingMapView from '../store/features/routing/components/RoutingMapView';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { selectMapEventRate } from '../store/features/general/selectors'; // also exports selectHardwareKeys, see emitsHardwareKeyUp note below.
@@ -84,7 +83,6 @@ const AppView = ({
 }) => {
 	const theme = useTheme();
 	const { t } = useTranslation();
-	const systemIsDarkMode = useColorScheme() === 'dark';
 
 	const { showError } = useContext(ErrorToastContext);
 
@@ -342,6 +340,7 @@ const AppView = ({
 						<LayerScalebar />
 
 						<LinesMapView />
+
 						<RoutingMapView />
 					</MapContainer>
 				)}
@@ -389,8 +388,8 @@ const LineEditModalWrapper: FC = () => {
 		]
 	);
 
-	// Hide if linesDirectory, because selectLine has to be different. See LinesTable.
-	return !uiItemsKeys.length || 'linesDirectory' !== uiItemsKeys[uiItemsKeys.length - 1] ? (
+	// Hide if linesBrowser, because selectLine has to be different. See LinesTable.
+	return !uiItemsKeys.length || 'linesBrowser' !== uiItemsKeys[uiItemsKeys.length - 1] ? (
 		<LineEditModal selectLine={selectLine} />
 	) : undefined;
 };

@@ -6,6 +6,7 @@ import { get, pick, set } from 'lodash-es';
 import { useQuery } from '@tanstack/react-query';
 import { Text } from 'react-native-paper';
 import { sprintf } from 'sprintf-js';
+import { useTranslation } from 'react-i18next';
 
 /**
  * Internal dependencies
@@ -24,6 +25,7 @@ const StatsModal: FC<{
 	handleDismissModal: () => void;
 	backgroundBlur?: boolean;
 }> = ({ lineIds, handleDismissModal, backgroundBlur: _backgroundBlur }) => {
+	const { t } = useTranslation();
 	const { data: lines } = useQuery({
 		queryKey: ['lines', lineIds],
 		queryFn: queryLinesWithoutGeom,
@@ -66,10 +68,10 @@ const StatsModal: FC<{
 		<ModalWrapper
 			visible={true}
 			onDismiss={handleDismissModal}
-			header={'some stats???'}
+			header={t('lines.statsSummary')}
 			innerStyle={sharedStyles.modal}
 		>
-			<Text>{sprintf('??? some stats for %s lines', lineIds.length)}</Text>
+			<Text>{sprintf(t('lines.statsForLines'), lineIds.length)}</Text>
 
 			<LineStats stats={stats} />
 		</ModalWrapper>

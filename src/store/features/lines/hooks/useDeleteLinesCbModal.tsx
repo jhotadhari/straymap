@@ -134,12 +134,12 @@ const useDeleteLinesCbModal = ({
 				visible={modalVisible}
 				backgroundBlur={backgroundBlur}
 				onDismiss={handleDismissModal}
-				header={'really delete???'}
+				header={t('lines.deleteConfirm')}
 				innerStyle={sharedStyles.modal}
 			>
 				<Text>
 					{sprintf(
-						'???are you really sure to delete %s lines and any corresponding data. This can not be undone',
+						t('lines.deleteConfirmationBody'),
 						deleteIds.length
 					)}
 				</Text>
@@ -151,7 +151,7 @@ const useDeleteLinesCbModal = ({
 						buttonColor={get(theme.colors, 'successContainer')}
 						textColor={get(theme.colors, 'onSuccessContainer')}
 					>
-						<Text>{t('???back')}</Text>
+						<Text>{t('cancel')}</Text>
 					</ButtonHighlight>
 
 					<ButtonHighlight
@@ -160,7 +160,7 @@ const useDeleteLinesCbModal = ({
 						buttonColor={theme.colors.errorContainer}
 						textColor={theme.colors.onErrorContainer}
 					>
-						<Text>{t('???delete')}</Text>
+						<Text>{t('lines.delete')}</Text>
 					</ButtonHighlight>
 				</View>
 			</ModalWrapper>

@@ -4,6 +4,7 @@
 import { FC, useCallback, useContext, useMemo } from 'react';
 import { View } from 'react-native';
 import { useTheme, Text, Icon } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 import { without } from 'lodash-es';
 
 /**
@@ -18,6 +19,7 @@ import { FooterContext } from './Context';
 
 const Footer: FC = () => {
 	const theme = useTheme();
+	const { t } = useTranslation();
 
 	const { checkedIds, linesCount, setCheckedIds, lineIds } = useContext(FooterContext);
 
@@ -49,11 +51,9 @@ const Footer: FC = () => {
 		<View style={style}>
 			<View style={sharedStyles.flexRowGap}>
 				<BulkActions />
-				{/* ??? translation */}
-				<Text style={labelStyle}>{'Bulk actions'}</Text>
+				<Text style={labelStyle}>{t('lines.bulkActions')}</Text>
 				<Text style={labelStyle}>
-					{/* ??? translation */}
-					{sprintf('%s/%s selected', checkedIds.length, linesCount)}
+					{sprintf(t('lines.selectedCount'), checkedIds.length, linesCount)}
 				</Text>
 			</View>
 

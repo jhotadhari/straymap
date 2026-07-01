@@ -44,10 +44,10 @@ export const sortI18n = () => {
 					},
 					strict: true,
 				});
-				writeFileSync(file, JSON.stringify(dataLangSorted, null, '\t'), 'utf8');
+				writeFileSync(file, JSON.stringify(dataLangSorted, null, '\t') + '\n', 'utf8');
 				writeFileSync(
 					fileLangFallback,
-					JSON.stringify(dataLangFallback, null, '\t'),
+					JSON.stringify(dataLangFallback, null, '\t') + '\n',
 					'utf8'
 				);
 			});

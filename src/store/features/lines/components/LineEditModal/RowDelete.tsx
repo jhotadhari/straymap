@@ -4,6 +4,7 @@
 import { FC, useCallback, useContext, useMemo } from 'react';
 import { View } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 
 /**
  * Internal dependencies
@@ -19,6 +20,7 @@ import { useAppSelector } from '../../../../hooks';
 
 const RowDelete: FC = () => {
 	const theme = useTheme();
+	const { t } = useTranslation();
 
 	const lineTemp = useAppSelector(selectLineTemp);
 
@@ -76,7 +78,7 @@ const RowDelete: FC = () => {
 
 	return (
 		<InfoRowControl
-			label={'delete???'} // ??? translation
+			label={t('lines.delete')}
 		>
 			{modalNodeDelete}
 			<ButtonHighlight
@@ -91,7 +93,7 @@ const RowDelete: FC = () => {
 				textColor={theme.colors.onBackground}
 			>
 				<View>
-					<Text>{isRoutingLine ? 'is routing line' : 'delete???'}</Text>
+					<Text>{isRoutingLine ? t('lines.isRoutingLine') : t('lines.delete')}</Text>
 				</View>
 			</ButtonHighlight>
 		</InfoRowControl>

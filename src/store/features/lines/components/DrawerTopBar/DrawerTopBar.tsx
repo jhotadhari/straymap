@@ -58,8 +58,8 @@ const DrawerTopBar: FC = () => {
 
 	const { side } = useContext(DrawerContext);
 
-	const openLinesDirectory = useCallback(
-		() => dispatch(addUiItemKey('linesDirectory')),
+	const openLinesBrowser = useCallback(
+		() => dispatch(addUiItemKey('linesBrowser')),
 		[
 			dispatch,
 		]
@@ -99,10 +99,9 @@ const DrawerTopBar: FC = () => {
 				<View style={styleButtonRowFirst}>
 					<ButtonHighlight
 						mode="outlined"
-						onPress={openLinesDirectory}
+						onPress={openLinesBrowser}
 					>
-						{/* ??? translation */}
-						<Text>{t('lines directory')}</Text>
+						<Text>{t('lines.linesBrowser')}</Text>
 					</ButtonHighlight>
 
 					<ButtonHighlight
@@ -122,18 +121,15 @@ const DrawerTopBar: FC = () => {
 					<View style={styles.linesInfoRow}>
 						{lineIds.length > 0 && (
 							<Fragment>
-								{/* ??? translation */}
-								<Text>{sprintf(t('%s lines'), lineIds.length)}</Text>
+								<Text>{sprintf(t('lines.linesCount'), lineIds.length)}</Text>
 
-								{/* ??? translation */}
 								{hiddenCount > 0 && (
-									<Text>{sprintf(t('%s hidden'), hiddenCount)}</Text>
+									<Text>{sprintf(t('lines.linesHidden'), hiddenCount)}</Text>
 								)}
 							</Fragment>
 						)}
 
-						{/* ??? translation */}
-						{lineIds.length === 0 && <Text>{t('no lines selected')}</Text>}
+						{lineIds.length === 0 && <Text>{t('lines.noLinesSelected')}</Text>}
 					</View>
 				</View>
 			</View>

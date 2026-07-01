@@ -3,6 +3,7 @@
  */
 import { FC, useCallback, useContext, useMemo } from 'react';
 import { Text, useTheme } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 import { TextStyle, View } from 'react-native';
 import { useMap } from 'react-native-mapsforge-vtm';
 import { centerOfMass } from '@turf/turf';
@@ -28,6 +29,7 @@ const renderIconRouting = ({ color }: { color: TextStyle['color'] }) => (
 
 const RowRouting: FC = () => {
 	const theme = useTheme();
+	const { t } = useTranslation();
 
 	const dispatch = useAppDispatch();
 
@@ -90,7 +92,7 @@ const RowRouting: FC = () => {
 
 	return (
 		<InfoRowControl
-			label={'routing???'}
+			label={t('lines.routing')}
 			// Info={Info}
 		>
 			<ButtonHighlight
@@ -105,9 +107,9 @@ const RowRouting: FC = () => {
 				textColor={theme.colors.onBackground}
 			>
 				<View>
-					{!route?.id && <Text>{'no routing data???'}</Text>}
-					{route?.id && isRouting !== route?.id && <Text>{'load routing???'}</Text>}
-					{route?.id && isRouting === route?.id && <Text>{'is already routing???'}</Text>}
+					{!route?.id && <Text>{t('lines.noRoutingData')}</Text>}
+					{route?.id && isRouting !== route?.id && <Text>{t('lines.loadRouting')}</Text>}
+					{route?.id && isRouting === route?.id && <Text>{t('lines.alreadyRouting')}</Text>}
 				</View>
 			</ButtonHighlight>
 		</InfoRowControl>

@@ -3,6 +3,7 @@
  */
 import { FC, useCallback, useContext, useMemo } from 'react';
 import { useTheme } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 
 /**
  * Internal dependencies
@@ -16,6 +17,7 @@ import { sharedStyles } from './sharedDeps';
 
 const RowToggleOnMap: FC = () => {
 	const theme = useTheme();
+	const { t } = useTranslation();
 
 	const { line, selectLine } = useContext(LineEditModalContext);
 
@@ -37,7 +39,7 @@ const RowToggleOnMap: FC = () => {
 
 	const icon = useMemo(() => (isSelected ? 'map-minus' : 'map-plus'), [isSelected]);
 
-	const label = useMemo(() => (isSelected ? 'Hide from map' : 'Show on map'), [isSelected]);
+	const label = useMemo(() => (isSelected ? t('lines.hideFromMap') : t('lines.showOnMap')), [isSelected, t]);
 
 	const buttonStyle = useMemo(
 		() => ({
