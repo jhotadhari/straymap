@@ -2740,6 +2740,11 @@
   dependencies:
     "@tanstack/query-core" "5.101.0"
 
+"@tmcw/togeojson@^7.1.2":
+  version "7.1.2"
+  resolved "https://registry.yarnpkg.com/@tmcw/togeojson/-/togeojson-7.1.2.tgz#2d53ac80986d18fc3bbadec708492319cb7b3cd3"
+  integrity sha512-QKnFs9DAuqqBVj4d6c69tV1Dj2TspSBTqffivoN0YoBCVdP/JY1+WaYCJbzU49RkoU5NOSOJ3jtFHCdEUVh21A==
+
 "@turf/along@7.3.5":
   version "7.3.5"
   resolved "https://registry.yarnpkg.com/@turf/along/-/along-7.3.5.tgz#64ed94b76faf79a273a518fec67d793d5c65e47c"

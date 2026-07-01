@@ -56,5 +56,17 @@
 	"hintNumericFilter": "Filter lines by minimum and/or maximum values for this column. Leave a field empty to skip that side of the range.",
 	"hintDateFilter": "Filter lines by a date range. Select start and/or end dates — leave either empty to leave that side unbounded.",
 	"hintStringFilter": "Choose an operator to match against the title and enter a value. \"regex\" uses regular expressions for advanced pattern matching.",
-	"regexUnavailable": "REGEXP is not available. Regex filters will not work."
+	"regexUnavailable": "REGEXP is not available. Regex filters will not work.",
+	"importTitle": "Import lines",
+	"importHint": "Select a GPX, KML, or GeoJSON file containing tracks or routes. Supported extensions: {{extensions}}",
+	"importPickFile": "Pick file",
+	"importParsing": "Parsing file…",
+	"importUnsupportedFormat": "Unsupported file format: .%s",
+	"importNoFeatures": "No tracks or routes found in the file.",
+	"importFeatureCount": "%s track(s) found",
+	"importTrackN": "Track %s",
+	"importSelected": "Import %s track(s)",
+	"importing": "Importing…",
+	"selectAll": "Select all",
+	"selectNone": "Select none"
 }

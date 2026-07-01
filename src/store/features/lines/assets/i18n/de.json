@@ -56,5 +56,17 @@
 	"hintNumericFilter": "Linien nach Mindest- und/oder Höchstwerten für diese Spalte filtern. Lass ein Feld leer, um diese Seite des Bereichs zu überspringen.",
 	"hintDateFilter": "Linien nach einem Datumsbereich filtern. Wähle Start- und/oder Enddatum — ein leeres Feld lässt diese Seite offen.",
 	"hintStringFilter": "Wähle einen Operator für die Titelsuche und gib einen Wert ein. \"Regex\" verwendet reguläre Ausdrücke für erweiterte Mustersuche.",
-	"regexUnavailable": "REGEXP ist nicht verfügbar. Regex-Filter funktionieren nicht."
+	"regexUnavailable": "REGEXP ist nicht verfügbar. Regex-Filter funktionieren nicht.",
+	"importTitle": "Linien importieren",
+	"importHint": "Wähle eine GPX-, KML- oder GeoJSON-Datei mit Strecken oder Routen. Unterstützte Formate: {{extensions}}",
+	"importPickFile": "Datei auswählen",
+	"importParsing": "Datei wird verarbeitet…",
+	"importUnsupportedFormat": "Nicht unterstütztes Format: .%s",
+	"importNoFeatures": "Keine Strecken oder Routen in der Datei gefunden.",
+	"importFeatureCount": "%s Strecke(n) gefunden",
+	"importTrackN": "Strecke %s",
+	"importSelected": "%s Strecke(n) importieren",
+	"importing": "Importiere…",
+	"selectAll": "Alle auswählen",
+	"selectNone": "Auswahl aufheben"
 }
