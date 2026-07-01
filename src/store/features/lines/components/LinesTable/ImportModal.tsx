@@ -6,6 +6,7 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { Text, useTheme, Checkbox } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { eq } from 'drizzle-orm';
 import { get } from 'lodash-es';
 import { openDocument } from 'react-native-scoped-storage';
 import { readFile } from 'react-native-fs';
@@ -27,6 +28,9 @@ import {
 	IMPORT_EXTENSIONS,
 } from '../../utils/importParser';
 import { createLines } from '../../db/actionsLine';
+import { createTags } from '../../db/actionsTag';
+import { dbConnection } from '../../../dbLoader/DBConnection';
+import { tagsTable } from '../../db/schema/schema';
 
 const ImportModal: FC<{
 	visible: boolean;
@@ -53,9 +57,36 @@ const ImportModal: FC<{
 			if (!toImport.length) {
 				return;
 			}
+
+			// Auto-tag: find or create an "imported" tag
+			let importTagId: number | undefined;
+			if (dbConnection?.drizzle) {
+				const existing = await dbConnection.drizzle
+					.select({ id: tagsTable.id })
+					.from(tagsTable)
+					.where(eq(tagsTable.label, 'imported'))
+					.limit(1);
+				if (existing.length) {
+					importTagId = existing[0].id;
+				} else {
+					const created = await createTags([
+						{
+							label: 'imported',
+							notes: null,
+							data: null,
+						},
+					]);
+					if (created?.length) {
+						importTagId = created[0].id;
+					}
+				}
+			}
+
 			const newLines = toImport.map((feature) => ({
-				title: feature.properties?.name ?? filename.replace(/\.[^.]+$/, ''),
+				title:
+					feature.properties?.name ?? filename.replace(/\.[^.]+$/, ''),
 				lineStringFeature: feature,
+				tagIds: importTagId ? [importTagId] : undefined,
 			}));
 			await createLines(newLines);
 		},
