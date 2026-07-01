@@ -96,9 +96,15 @@ const NumericRowControlMulti = ({
 			if (!saveOnType) {
 				return;
 			}
-			let newValNb0 = strValToNb(vals[0], numType);
-			let newValNb1 = strValToNb(vals[1], numType);
-			if (!validate || (validate(newValNb0) && validate(newValNb1))) {
+			const newValNb0 = strValToNb(vals[0], numType);
+			const newValNb1 = strValToNb(vals[1], numType);
+			if (
+				'number' === typeof newValNb0 &&
+				!isNaN(newValNb0) &&
+				'number' === typeof newValNb1 &&
+				!isNaN(newValNb1) &&
+				(!validate || (validate(newValNb0) && validate(newValNb1)))
+			) {
 				saveCbRef?.current && saveCbRef.current([newValNb0, newValNb1]);
 			}
 		};

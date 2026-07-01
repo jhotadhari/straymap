@@ -92,7 +92,14 @@ const ImportModal: FC<{
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ['lines'] });
-			handleDismiss();
+			// Bypass handleDismiss — its step==='importing' guard
+			// would block cleanup here since step hasn't changed yet.
+			setStep('idle');
+			setFeatures([]);
+			setFilename('');
+			_setMergeMode(false);
+			setSelectedIndices(new Set());
+			onDismiss();
 		},
 		onError: (err) => {
 			logError('ImportModal.import', err);
@@ -191,8 +198,6 @@ const ImportModal: FC<{
 		setStep('importing');
 		mutation.mutate();
 	}, [selectedIndices, mutation]);
-
-	const _isMulti = features.length > 1;
 
 	return (
 		<ModalWrapper

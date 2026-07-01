@@ -62,16 +62,25 @@ const applyRegexFilters = <T extends { title?: string | null }>(
 	if (!regexFilters.length) {
 		return rows;
 	}
+	// Pre-compile patterns once — avoids per-row RegExp construction
+	// (catastrophic backtracking on user-supplied patterns is still
+	// possible, but the UI validates before saving to Redux state).
+	// Also note: SpatiaLite's REGEXP uses POSIX ERE, which differs
+	// from ECMAScript regex (no \b, \d, \w, lookaheads). Filters
+	// saved when regexpAvailable==true may produce different results
+	// if applied on a device where regexpAvailable==false.
+	const compiled: { pattern: RegExp }[] = [];
+	for (const f of regexFilters) {
+		try {
+			compiled.push({ pattern: new RegExp(f.value) });
+		} catch {
+			// Invalid regex syntax — skip this filter (no rows match)
+			return [];
+		}
+	}
 	return rows.filter((row) => {
 		const title = row.title ?? '';
-		return regexFilters.every((f) => {
-			try {
-				return new RegExp(f.value).test(title);
-			} catch {
-				// Invalid regex — exclude the row
-				return false;
-			}
-		});
+		return compiled.every(({ pattern }) => pattern.test(title));
 	});
 };
 
@@ -175,17 +184,9 @@ const getLineColumns = (fields: (keyof Omit<Line, 'id'>)[], options?: LineColumn
 		}),
 		...(fields.includes('stats') && {
 			length: STATS_SQL.length,
-		}),
-		...(fields.includes('stats') && {
 			uphill: STATS_SQL.uphill,
-		}),
-		...(fields.includes('stats') && {
 			downhill: STATS_SQL.downhill,
-		}),
-		...(fields.includes('stats') && {
 			minZ: STATS_SQL.minZ,
-		}),
-		...(fields.includes('stats') && {
 			maxZ: STATS_SQL.maxZ,
 		}),
 		...(fields.includes('data') && { data: linesTable.data }),
@@ -235,12 +236,10 @@ const fetchLinesWithoutTags = (params?: FetchLinesWithoutTagsParams) => {
 		const orderByClause = buildOrderByClause(sort);
 		query.orderBy(orderByClause ?? desc(linesTable.timestamp));
 
-		if (limit) {
+		if (limit !== undefined) {
 			query.limit(limit);
 		} else if (lineIds) {
 			query.limit(lineIds.length);
-		} else {
-			query.all();
 		}
 
 		query
@@ -326,12 +325,10 @@ const fetchLinesWithTags = (params?: FetchLinesWithTagsParams) => {
 		const orderByClause = buildOrderByClause(sort);
 		query.orderBy(orderByClause ?? desc(linesTable.timestamp));
 
-		if (limit) {
+		if (limit !== undefined) {
 			query.limit(limit);
 		} else if (allLines && lineIds) {
 			query.limit(lineIds.length);
-		} else {
-			query.all();
 		}
 
 		query

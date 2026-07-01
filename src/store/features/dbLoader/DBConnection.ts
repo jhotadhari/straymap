@@ -26,8 +26,13 @@ class DBConnection {
 
 	initialize(dbPath: string) {
 		return new Promise<true>((resolve, reject) => {
-			this.setDbOp(dbPath);
-			this.setQueryClient();
+			try {
+				this.setDbOp(dbPath);
+				this.setQueryClient();
+			} catch (error) {
+				reject(error);
+				return;
+			}
 			this.setDbZ()
 				.then((result) => resolve(result))
 				.catch((error) => {

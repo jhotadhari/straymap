@@ -6,6 +6,7 @@ import { sql, asc, desc, like, notLike, gte, lte, and, or, SQL } from 'drizzle-o
 /**
  * Internal dependencies
  */
+import { dbConnection } from '../../dbLoader/DBConnection';
 import { linesTable } from './schema/schema';
 import {
 	ColumnFilter,
@@ -111,7 +112,16 @@ const buildStringWhere = (filter: StringColumnFilter): SQL | undefined => {
 	}
 	if (filter.operator === 'regex') {
 		// SQLite REGEXP operator: x REGEXP y calls regexp(y, x).
-		// SpatiaLite 5+ registers regexp(); if unavailable, the query will error.
+		// SpatiaLite 5+ may register regexp(); if unavailable, callers
+		// must pre-split regex filters via extractRegexFilters() and
+		// apply them in JS.  Throw a clear error rather than letting
+		// SQLite return a cryptic "no such function: REGEXP".
+		if (!dbConnection.regexpAvailable) {
+			throw new Error(
+				'REGEXP operator is not available — regex filters must be ' +
+					'applied in JavaScript via extractRegexFilters()/applyRegexFilters()'
+			);
+		}
 		return sql`${linesTable.title} REGEXP ${filter.value}`;
 	}
 	const pattern = STRING_OPERATOR_PATTERNS[filter.operator](filter.value);

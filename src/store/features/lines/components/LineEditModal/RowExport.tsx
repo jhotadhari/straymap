@@ -9,11 +9,12 @@ import { useQuery } from '@tanstack/react-query';
 import { get } from 'lodash-es';
 import { writeFile, ExternalStorageDirectoryPath } from 'react-native-fs';
 import dayjs from 'dayjs';
-import { sprintf } from 'sprintf-js';
 
 /**
  * Internal dependencies
  */
+import { ErrorToastContext } from '../../../../../components/ErrorToast/Context';
+import { logError } from '../../../../../lib/utils';
 import { LineEditModalContext } from './Context';
 import InfoRowControl from '../../../../../components/generic/controls/InfoRowControl';
 import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
@@ -33,8 +34,9 @@ const EXPORT_DIR =
 const RowExport: FC = () => {
 	const theme = useTheme();
 	const { t } = useTranslation();
+	const { showError } = useContext(ErrorToastContext);
 
-	const { line, onDismiss } = useContext(LineEditModalContext);
+	const { line } = useContext(LineEditModalContext);
 
 	const [modalVisible, setModalVisible] = useState(false);
 	const [selectedFormat, setSelectedFormat] = useState<ExportFormat>('gpx');
@@ -65,10 +67,15 @@ const RowExport: FC = () => {
 		setWriting(true);
 
 		try {
-			const title = line?.title ?? line?.id?.toString() ?? 'line';
-			const dateStr = dayjs(line?.timestamp).format('YYYY-MM-DD');
+			// Sanitize title for use in filename: strip path separators
+			// and leading dots to prevent traversal.
+			const rawTitle = line?.title ?? line?.id?.toString() ?? 'line';
+			const safeTitle = rawTitle.replace(/[/\\]/g, '_').replace(/^\.+/, '');
+			const dateStr = line?.timestamp
+				? dayjs(line.timestamp).format('YYYY-MM-DD')
+				: 'no-date';
 			const ext = selectedFormat === 'geojson' ? 'geojson' : selectedFormat;
-			const filename = `${title}_${dateStr}.${ext}`;
+			const filename = `${safeTitle}_${dateStr}.${ext}`;
 
 			const content = writeFormat(selectedFormat, [
 				{
@@ -79,23 +86,19 @@ const RowExport: FC = () => {
 
 			const path = `${EXPORT_DIR}/${filename}`;
 			await writeFile(path, content, 'utf8');
-		} catch (_e) {
-			// Error writing file — silently fail in UI, the file write
-			// error will have been logged by react-native-fs.
+		} catch (e) {
+			logError('RowExport.writeFile', e);
+			showError(t('errorGeneric'));
 		} finally {
 			setWriting(false);
 			setModalVisible(false);
 		}
-	}, [lineWithGeom, line, selectedFormat]);
+	}, [lineWithGeom, line, selectedFormat, showError, t]);
 
-	const formatOptions = useMemo(
-		() =>
-			EXPORT_FORMATS.map((f) => ({
-				key: f.key,
-				label: f.label,
-			})),
-		[]
-	);
+	const formatOptions = EXPORT_FORMATS.map((f) => ({
+		key: f.key,
+		label: f.label,
+	}));
 
 	return (
 		<>

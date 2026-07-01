@@ -3,7 +3,7 @@
  */
 import React from 'react';
 import { midpoint } from '@turf/turf';
-import { GeometryStyle, Marker, LayerPath } from 'react-native-mapsforge-vtm';
+import { GeometryStyle, Marker, LayerPath, ReindexScope } from 'react-native-mapsforge-vtm';
 import { get } from 'lodash-es';
 
 /**
@@ -27,7 +27,7 @@ const RoutingMapView = () => {
 	}
 
 	return (
-		<>
+		<ReindexScope>
 			{points.map((fromPoint, index) => {
 				const segment = Object.values(segments).find((seg) => seg.fromId === fromPoint.id);
 
@@ -105,7 +105,7 @@ const RoutingMapView = () => {
 				))}
 
 			{/* <NearestToLine/> */}
-		</>
+		</ReindexScope>
 	);
 };
 

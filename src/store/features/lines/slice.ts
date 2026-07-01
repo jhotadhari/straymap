@@ -153,11 +153,14 @@ export const setLineSelected = (id: number, isSelected?: boolean): AppThunk => {
 export const setLinesSelected = (newSelectedIds: number[]): AppThunk => {
 	return (dispatch, getState) => {
 		const selected = selectSelected(getState());
-		const newSelected = [...newSelectedIds].sort().map((newSelectedId) => ({
-			id: newSelectedId,
-			...(selected.find((item) => item.id === newSelectedId) ?? {}),
-			visible: true,
-		}));
+		const selectedMap = new Map(selected.map((item) => [item.id, item]));
+		const newSelected = [...newSelectedIds]
+			.sort((a, b) => a - b)
+			.map((newSelectedId) => ({
+				id: newSelectedId,
+				visible: true,
+				...(selectedMap.get(newSelectedId) ?? {}),
+			}));
 		if (!isEqual(selected, newSelected)) {
 			dispatch(linesSlice.actions.setSelected(newSelected));
 		}

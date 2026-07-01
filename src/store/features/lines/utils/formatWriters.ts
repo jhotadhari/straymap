@@ -4,7 +4,6 @@
  * GPX and KML are built as XML strings.  GeoJSON is JSON.stringify.
  */
 import { Feature, GeoJsonProperties, LineString, Position } from 'geojson';
-import dayjs from 'dayjs';
 
 // ---- helpers ----
 

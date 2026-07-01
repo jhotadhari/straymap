@@ -47,14 +47,15 @@ const FilterStringModal: FC<{
 
 	useEffect(() => {
 		saveRef.current = () => {
-			if (value) {
-				onSave({
-					type: 'string',
-					columnKey,
-					operator,
-					value,
-				});
-			}
+			// Allow empty value — the caller (upsertFilter) will
+			// replace any existing filter for this columnKey, so an
+			// empty save effectively clears the filter for this column.
+			onSave({
+				type: 'string',
+				columnKey,
+				operator,
+				value,
+			});
 		};
 	}, [columnKey, operator, value, onSave]);
 
