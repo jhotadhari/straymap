@@ -11,6 +11,9 @@
  *   {{title|kebabCase}}_{{timestamp}}  →  morning-ride_2026-07-02.gpx
  */
 
+/**
+ * External dependencies
+ */
 import {
 	camelCase,
 	capitalize,
@@ -46,7 +49,7 @@ const TRANSFORMS: Record<string, TransformFn> = {
 };
 
 /** Default template: title + date (caller formats timestamp before passing). */
-export const DEFAULT_TEMPLATE = '{{title}}_{{timestamp}}';
+export const DEFAULT_TEMPLATE = '{{title}}_{{id}}_{{timestamp}}';
 
 /** Matches {{field}} or {{field|transform}} */
 const TOKEN_RE = /\{\{(\w+)(?:\|(\w+))?\}\}/g;

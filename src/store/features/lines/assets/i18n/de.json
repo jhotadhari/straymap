@@ -37,6 +37,7 @@
 	"routing": "Routing",
 	"export": "Export",
 	"exporting": "Exportiere...",
+	"exportPartial": "%s von %s Linien exportiert. Fehlgeschlagen: %s",
 	"delete": "Löschen",
 	"hideFromMap": "Von Karte entfernen",
 	"showOnMap": "Auf Karte anzeigen",

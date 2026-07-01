@@ -287,7 +287,14 @@ const fetchLinesWithTags = (params?: FetchLinesWithTagsParams) => {
 	}
 
 	if (!(fields as string[]).includes('tags')) {
-		return fetchLinesWithoutTags(params as FetchLinesWithoutTagsParams);
+		// When filtering by tag, force-include 'tags' so the LEFT JOIN
+		// happens and the WHERE clause can filter by tagsTable.id.
+		// Otherwise the tag constraint would be silently dropped.
+		if (tagId) {
+			(fields as string[]).push('tags');
+		} else {
+			return fetchLinesWithoutTags(params as FetchLinesWithoutTagsParams);
+		}
 	}
 
 	return new Promise<LinePartial[]>((resolve, reject) => {

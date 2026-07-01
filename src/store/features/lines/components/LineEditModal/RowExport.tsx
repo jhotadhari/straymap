@@ -52,7 +52,7 @@ const RowExport: FC = () => {
 		() => ['lineGeom', lineId] as (string | number)[],
 		[lineId]
 	);
-	const { data: lineWithGeom } = useQuery({
+	const { data: lineWithGeom, isError: geomError } = useQuery({
 		queryKey,
 		queryFn: queryLineGeom,
 		enabled: typeof lineId === 'number' && modalVisible,
@@ -72,9 +72,7 @@ const RowExport: FC = () => {
 		setWriting(true);
 
 		try {
-			const safeTitle = (line?.title ?? line?.id?.toString() ?? 'line')
-				.replace(/[/\\]/g, '_')
-				.replace(/^\.+/, '');
+			const safeTitle = line?.title ?? line?.id?.toString() ?? 'line';
 			const dateStr = line?.timestamp
 				? dayjs(line.timestamp).format('YYYY-MM-DD')
 				: 'no-date';
@@ -161,6 +159,17 @@ const RowExport: FC = () => {
 							</Text>
 						</ButtonHighlight>
 					</View>
+
+					{geomError && (
+						<Text
+							style={{
+								color: theme.colors.error,
+								marginTop: 12,
+							}}
+						>
+							{t('errorGeneric')}
+						</Text>
+					)}
 				</ModalWrapper>
 			)}
 

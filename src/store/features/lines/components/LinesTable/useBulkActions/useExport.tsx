@@ -5,6 +5,7 @@ import { useCallback, useContext, useMemo, useState } from 'react';
 import { View } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
+import { sprintf } from 'sprintf-js';
 import { writeFile, ExternalStorageDirectoryPath } from 'react-native-fs';
 import { get } from 'lodash-es';
 import dayjs from 'dayjs';
@@ -64,23 +65,23 @@ const useExport = () => {
 		}
 		setWriting(true);
 
+		let written = 0;
+		const failed: string[] = [];
+
 		try {
 			// Fetch geometry for all checked lines in one query
 			const linesWithGeom = (await fetchLines({
 				lineIds: checkedIds,
 				fieldsInclude: ['geometry', 'title', 'timestamp'],
 			})) as (LinePartial & { geometry?: LineString })[];
+			const total = linesWithGeom.filter((l) => l.geometry).length;
 
 			for (const line of linesWithGeom) {
 				if (!line.geometry) {
 					continue;
 				}
 
-				const safeTitle = (
-					line.title ?? line.id?.toString() ?? 'line'
-				)
-					.replace(/[/\\]/g, '_')
-					.replace(/^\.+/, '');
+				const safeTitle = line.title ?? line.id?.toString() ?? 'line';
 				const dateStr = line.timestamp
 					? dayjs(line.timestamp).format('YYYY-MM-DD')
 					: 'no-date';
@@ -106,17 +107,50 @@ const useExport = () => {
 					},
 				]);
 
-				const path = `${EXPORT_DIR}/${filename}`;
-				await writeFile(path, content, 'utf8');
+				try {
+					const path = `${EXPORT_DIR}/${filename}`;
+					await writeFile(path, content, 'utf8');
+					written++;
+				} catch (e) {
+					logError('useExport.handleExport.perFile', e);
+					failed.push(filename);
+				}
+			}
+
+			// Report outcome
+			if (written === 0 && total === 0) {
+				showError(t('lines.importNoFeatures')); // reuse: no geometry = nothing to export
+			} else if (failed.length) {
+				showError(
+					sprintf(
+						t('lines.exportPartial'),
+						written,
+						total,
+						failed.join(', ')
+					)
+				);
 			}
 		} catch (e) {
 			logError('useExport.handleExport', e);
-			showError(t('errorGeneric'));
+			if (written > 0) {
+				showError(
+					sprintf(
+						t('lines.exportPartial'),
+						written,
+						written + failed.length,
+						failed.join(', ')
+					)
+				);
+			} else {
+				showError(t('errorGeneric'));
+			}
 		} finally {
 			setWriting(false);
 			setModalVisible(false);
 		}
 	}, [checkedIds, selectedFormat, showError, t]);
+
+	const disabled = writing || !checkedIds.length;
 
 	const modalNode = useMemo(
 		() =>
@@ -153,7 +187,7 @@ const useExport = () => {
 						<ButtonHighlight
 							onPress={handleExport}
 							mode="contained"
-							disabled={writing || !checkedIds.length}
+							disabled={disabled}
 							buttonColor={get(
 								theme.colors,
 								'successContainer'
@@ -178,7 +212,7 @@ const useExport = () => {
 			handleExport,
 			selectedFormat,
 			writing,
-			checkedIds.length,
+			disabled,
 			t,
 			theme,
 		]

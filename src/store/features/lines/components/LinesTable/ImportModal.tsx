@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { FC, useCallback, useContext, useState } from 'react';
+import { FC, useCallback, useContext, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { Text, useTheme, Checkbox } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -50,6 +50,10 @@ const ImportModal: FC<{
 	const [selectedIndices, setSelectedIndices] = useState<Set<number>>(new Set());
 
 	const [_isPicking, runOpenDocument] = useAsyncBusy(openDocument);
+
+	// Track whether the modal has been dismissed so in-flight
+	// async callbacks don't overwrite clean post-dismiss state.
+	const dismissedRef = useRef(false);
 
 	const mutation = useMutation({
 		mutationFn: async () => {
@@ -113,7 +117,7 @@ const ImportModal: FC<{
 	const handlePickFile = useCallback(async () => {
 		try {
 			const file = await runOpenDocument(false);
-			if (!file?.uri) {
+			if (!file?.uri || dismissedRef.current) {
 				return;
 			}
 
@@ -123,6 +127,7 @@ const ImportModal: FC<{
 
 			const format = detectImportFormat(name);
 			if (!format) {
+				if (dismissedRef.current) return;
 				showError(
 					sprintf(
 						t('lines.importUnsupportedFormat'),
@@ -134,14 +139,17 @@ const ImportModal: FC<{
 			}
 
 			const content = await readFile(file.uri, 'utf8');
+			if (dismissedRef.current) return;
 			const result = parseImportContent(content, format);
 
 			if (!result.features.length) {
+				if (dismissedRef.current) return;
 				showError(t('lines.importNoFeatures'));
 				setStep('idle');
 				return;
 			}
 
+			if (dismissedRef.current) return;
 			setFeatures(result.features);
 			// Select all by default
 			setSelectedIndices(new Set(result.features.map((_, i) => i)));
@@ -157,6 +165,7 @@ const ImportModal: FC<{
 	}, [runOpenDocument, showError, t]);
 
 	const handleDismiss = useCallback(() => {
+		dismissedRef.current = true;
 		if (step === 'importing') {
 			return;
 		}
@@ -167,6 +176,13 @@ const ImportModal: FC<{
 		setSelectedIndices(new Set());
 		onDismiss();
 	}, [onDismiss, step]);
+
+	// Reset the dismissed guard when the modal becomes visible again
+	const prevVisibleRef = useRef(false);
+	if (visible && !prevVisibleRef.current) {
+		dismissedRef.current = false;
+	}
+	prevVisibleRef.current = visible;
 
 	const handleToggleFeature = useCallback(
 		(idx: number) => {
