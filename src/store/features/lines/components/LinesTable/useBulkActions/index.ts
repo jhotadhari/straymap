@@ -9,6 +9,7 @@ import { useMemo } from 'react';
 import { MenuActionOption } from '../../../../../../types';
 import useAddToMap from './useAddToMap';
 import useDeleteLines from './useDeleteLines';
+import useExport from './useExport';
 import useRemoveFromMap from './useRemoveFromMap';
 import useShowStats from './useShowStats';
 import useFlyTo from './useFlyTo';
@@ -19,6 +20,7 @@ const useBulkActions = () => {
 	const actionFlyTo = useFlyTo();
 	const actionShowStats = useShowStats();
 	const actionDeleteLine = useDeleteLines();
+	const actionExport = useExport();
 
 	return useMemo(() => {
 		const actions: Record<string, MenuActionOption> = {};
@@ -28,6 +30,7 @@ const useBulkActions = () => {
 		actions[actionFlyTo.key] = actionFlyTo;
 		actions[actionShowStats.key] = actionShowStats;
 		actions[actionDeleteLine.key] = actionDeleteLine;
+		actions[actionExport.key] = actionExport;
 
 		return actions;
 	}, [
@@ -36,6 +39,7 @@ const useBulkActions = () => {
 		actionFlyTo,
 		actionShowStats,
 		actionDeleteLine,
+		actionExport,
 	]);
 };
 

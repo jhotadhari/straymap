@@ -27,6 +27,11 @@ import {
 	EXPORT_FORMATS,
 	ExportFormat,
 } from '../../utils/formatWriters';
+import {
+	resolveFilename,
+	sanitizeFilename,
+	DEFAULT_TEMPLATE,
+} from '../../utils/filenameTemplate';
 
 const EXPORT_DIR =
 	ExternalStorageDirectoryPath + '/Android/media/com.jhotadhari.straymap/export';
@@ -67,15 +72,20 @@ const RowExport: FC = () => {
 		setWriting(true);
 
 		try {
-			// Sanitize title for use in filename: strip path separators
-			// and leading dots to prevent traversal.
-			const rawTitle = line?.title ?? line?.id?.toString() ?? 'line';
-			const safeTitle = rawTitle.replace(/[/\\]/g, '_').replace(/^\.+/, '');
+			const safeTitle = (line?.title ?? line?.id?.toString() ?? 'line')
+				.replace(/[/\\]/g, '_')
+				.replace(/^\.+/, '');
 			const dateStr = line?.timestamp
 				? dayjs(line.timestamp).format('YYYY-MM-DD')
 				: 'no-date';
 			const ext = selectedFormat === 'geojson' ? 'geojson' : selectedFormat;
-			const filename = `${safeTitle}_${dateStr}.${ext}`;
+
+			const resolved = resolveFilename(DEFAULT_TEMPLATE, {
+				title: safeTitle,
+				id: line?.id,
+				timestamp: dateStr,
+			});
+			const filename = `${sanitizeFilename(resolved)}.${ext}`;
 
 			const content = writeFormat(selectedFormat, [
 				{
