@@ -3,7 +3,7 @@
  */
 import React, { FC, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { GeometryStyle, LayerPath } from 'react-native-mapsforge-vtm';
+import { GeometryStyle, LayerPath, ReindexScope } from 'react-native-mapsforge-vtm';
 
 /**
  * Internal dependencies
@@ -62,18 +62,22 @@ const LinesMapView = () => {
 
 	const simplify = useSimplificationTolerance();
 
-	return selectedIds?.map((lineId) => {
-		return (
-			routingLineId !== lineId &&
-			visibleMap[lineId] && (
-				<LineItem
-					key={lineId}
-					lineId={lineId}
-					simplify={simplify}
-				/>
-			)
-		);
-	});
+	return (
+		<ReindexScope>
+			{selectedIds?.map((lineId) => {
+				return (
+					routingLineId !== lineId &&
+					visibleMap[lineId] && (
+						<LineItem
+							key={lineId}
+							lineId={lineId}
+							simplify={simplify}
+						/>
+					)
+				);
+			})}
+		</ReindexScope>
+	);
 };
 
 export default LinesMapView;
