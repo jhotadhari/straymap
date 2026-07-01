@@ -81,6 +81,10 @@ export const linesSlice = createSlice({
 			state.filters = state.filters.filter(
 				(f) => f.columnKey !== action.payload
 			);
+			},
+
+		resetFilters: (state) => {
+			state.filters = [];
 		},
 		setFilterLogic: (state, action: PayloadAction<LinesState['filterLogic']>) => {
 			state.filterLogic = action.payload;
@@ -98,6 +102,7 @@ export const {
 	setFilters,
 	upsertFilter,
 	removeFilter,
+	resetFilters,
 	setFilterLogic,
 } = linesSlice.actions;
 

@@ -12,7 +12,7 @@ import { useTranslation } from 'react-i18next';
 import { sharedStyles } from './sharedDeps';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { selectFilters, selectFilterLogic } from '../../selectors';
-import { setFilterLogic } from '../../slice';
+import { setFilterLogic, resetFilters } from '../../slice';
 import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
 import IconButtonHighlight from '../../../../../components/generic/IconButtonHighlight';
 import SelectColumns from './SelectColumns';
@@ -34,11 +34,13 @@ const Header: FC = () => {
 	const hasFilters = filters.length > 0;
 	const hasMultipleFilters = filters.length >= 2;
 
-	const showAndOrToggle = hasMultipleFilters;
-
 	const handleToggleFilterLogic = useCallback(() => {
 		dispatch(setFilterLogic(filterLogic === 'and' ? 'or' : 'and'));
 	}, [dispatch, filterLogic]);
+
+	const handleResetFilters = useCallback(() => {
+		dispatch(resetFilters());
+	}, [dispatch]);
 
 	const handleOpenNewFilter = useCallback(() => {
 		setEditFilter(undefined);
@@ -60,34 +62,36 @@ const Header: FC = () => {
 			sharedStyles.header,
 			{
 				borderColor: theme.colors.onBackground,
+				flexDirection: 'column' as const,
 			},
 		],
 		[theme]
 	);
 
-	const filterRowStyle = useMemo(
+	const rowStyle = useMemo(
 		() => [
 			sharedStyles.flexRowGap,
-			{ flexShrink: 1, alignSelf: 'center' as const },
+			{ alignItems: 'center' as const },
 		],
 		[]
 	);
 
 	return (
 		<View style={style}>
-			<View style={filterRowStyle}>
-				{/* Add filter button */}
-				<IconButtonHighlight
-					icon="filter-plus-outline"
-					size={20}
-					onPress={handleOpenNewFilter}
-					mode='outlined'
-				/>
+			{/* Row 1: reset filters, AND/OR toggle, column selector */}
+			<View style={rowStyle}>
+				{hasFilters && (
+					<IconButtonHighlight
+						icon="filter-remove-outline"
+						size={20}
+						onPress={handleResetFilters}
+						mode="outlined"
+					/>
+				)}
 
-				{/* AND/OR toggle */}
-				{showAndOrToggle && (
+				{hasMultipleFilters && (
 					<ButtonHighlight
-						mode='outlined'
+						mode="outlined"
 						compact={true}
 						onPress={handleToggleFilterLogic}
 					>
@@ -99,7 +103,18 @@ const Header: FC = () => {
 					</ButtonHighlight>
 				)}
 
-				{/* Filter badges (scrollable if many) */}
+				<SelectColumns />
+			</View>
+
+			{/* Row 2: filter badges + add filter button */}
+			<View style={rowStyle}>
+				<IconButtonHighlight
+					icon="filter-plus-outline"
+					size={20}
+					onPress={handleOpenNewFilter}
+					mode="outlined"
+				/>
+
 				{hasFilters && (
 					<ScrollView
 						horizontal={true}
@@ -119,8 +134,6 @@ const Header: FC = () => {
 					</ScrollView>
 				)}
 			</View>
-
-			<SelectColumns/>
 
 			<FilterModals
 				visible={filterModalVisible}
