@@ -1,105 +1,175 @@
 /**
  * External dependencies
  */
-import { FC, useCallback } from 'react';
+import { FC, useCallback, useContext, useMemo, useState } from 'react';
+import { View } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { View } from 'react-native';
+import { useQuery } from '@tanstack/react-query';
+import { get } from 'lodash-es';
+import { writeFile, ExternalStorageDirectoryPath } from 'react-native-fs';
+import dayjs from 'dayjs';
+import { sprintf } from 'sprintf-js';
 
 /**
  * Internal dependencies
  */
+import { LineEditModalContext } from './Context';
 import InfoRowControl from '../../../../../components/generic/controls/InfoRowControl';
 import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
+import ModalWrapper from '../../../../../components/generic/ModalWrapper';
+import RadioListItem from '../../../../../components/generic/RadioListItem';
 import { sharedStyles } from './sharedDeps';
+import { queryLineGeom } from '../../db/queryFns';
+import {
+	writeFormat,
+	EXPORT_FORMATS,
+	ExportFormat,
+} from '../../utils/formatWriters';
+
+const EXPORT_DIR =
+	ExternalStorageDirectoryPath + '/Android/media/com.jhotadhari.straymap/export';
 
 const RowExport: FC = () => {
 	const theme = useTheme();
 	const { t } = useTranslation();
 
-	// const dispatch = useAppDispatch();
+	const { line, onDismiss } = useContext(LineEditModalContext);
 
-	// const lineTemp = useAppSelector(selectLineTemp);
+	const [modalVisible, setModalVisible] = useState(false);
+	const [selectedFormat, setSelectedFormat] = useState<ExportFormat>('gpx');
+	const [writing, setWriting] = useState(false);
 
-	// const isRouting = useAppSelector(selectIsRouting);
+	const lineId = line?.id;
+	const queryKey = useMemo(
+		() => ['lineGeom', lineId] as (string | number)[],
+		[lineId]
+	);
+	const { data: lineWithGeom } = useQuery({
+		queryKey,
+		queryFn: queryLineGeom,
+		enabled: typeof lineId === 'number' && modalVisible,
+	});
 
-	// const { route } = useContext(LineEditModalContext);
+	const handleOpenModal = useCallback(() => setModalVisible(true), []);
+	const handleCloseModal = useCallback(() => {
+		if (!writing) {
+			setModalVisible(false);
+		}
+	}, [writing]);
 
-	const handlePress = useCallback(() => {
-		// const allPositions =
-		// 	segments && segments?.length
-		// 		? [...segments]
-		// 				.map((segment) => {
-		// 					return segment?.positions;
-		// 				})
-		// 				.filter((segment) => !!segment)
-		// 				.flat()
-		// 		: [];
-		// const stats =
-		// 	allPositions.length > 1
-		// 		? await lineStringToStats(
-		// 				lineString(locationsToCoordsArr(allPositions))
-		// 					.geometry
-		// 			)
-		// 		: {};
-		// const gpxString = [
-		// 	'<?xml version="1.0" encoding="UTF-8"?>',
-		// 	'<gpx',
-		// 	'  xmlns="http://www.topografix.com/GPX/1/1"',
-		// 	'  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"',
-		// 	'  xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd"',
-		// 	'  version="1.1" >',
-		// 	'  <trk>',
-		// 	'    <trkseg>',
-		// 	...[...allPositions].map(
-		// 		(pos) =>
-		// 			'      <trkpt lat="' +
-		// 			pos.lat +
-		// 			'" lon="' +
-		// 			pos.lng +
-		// 			'">' +
-		// 			(undefined !== pos?.alt
-		// 				? '<ele>' + pos?.alt + '</ele>'
-		// 				: '') +
-		// 			'</trkpt>'
-		// 	),
-		// 	'    </trkseg>',
-		// 	'  </trk>',
-		// 	'</gpx>',
-		// ].join('\n');
-		// const fileName =
-		// 	[
-		// 		Math.round((stats?.length || 0) / 1000) + 'km',
-		// 		Math.round(stats?.uphill || 0) + 'm_up',
-		// 		Math.round(stats?.downhill || 0) + 'm_down',
-		// 	].join('_') + '.gpx';
-		// await createDocument(
-		// 	fileName,
-		// 	'application/gpx+xml',
-		// 	gpxString,
-		// 	'utf8'
-		// );
-	}, []);
+	const handleWrite = useCallback(async () => {
+		if (!lineWithGeom?.geometry) {
+			return;
+		}
+		setWriting(true);
+
+		try {
+			const title = line?.title ?? line?.id?.toString() ?? 'line';
+			const dateStr = dayjs(line?.timestamp).format('YYYY-MM-DD');
+			const ext = selectedFormat === 'geojson' ? 'geojson' : selectedFormat;
+			const filename = `${title}_${dateStr}.${ext}`;
+
+			const content = writeFormat(selectedFormat, [
+				{
+					geometry: lineWithGeom.geometry,
+					meta: { title: line?.title, timestamp: line?.timestamp },
+				},
+			]);
+
+			const path = `${EXPORT_DIR}/${filename}`;
+			await writeFile(path, content, 'utf8');
+		} catch (_e) {
+			// Error writing file — silently fail in UI, the file write
+			// error will have been logged by react-native-fs.
+		} finally {
+			setWriting(false);
+			setModalVisible(false);
+		}
+	}, [lineWithGeom, line, selectedFormat]);
+
+	const formatOptions = useMemo(
+		() =>
+			EXPORT_FORMATS.map((f) => ({
+				key: f.key,
+				label: f.label,
+			})),
+		[]
+	);
 
 	return (
-		<InfoRowControl
-			label={t('lines.export')}
-			// Info={Info}
-		>
-			<ButtonHighlight
-				mode="outlined"
-				compact={true}
-				onPress={handlePress}
-				icon="content-save-outline"
-				contentStyle={sharedStyles.buttonContent}
-				labelStyle={sharedStyles.buttonLabel}
-				textColor={theme.colors.onBackground}
+		<>
+			{modalVisible && (
+				<ModalWrapper
+					visible={modalVisible}
+					onDismiss={handleCloseModal}
+					header={t('lines.export')}
+				>
+					{formatOptions.map((opt) => (
+						<RadioListItem
+							key={opt.key}
+							opt={opt}
+							onPress={() =>
+								setSelectedFormat(opt.key as ExportFormat)
+							}
+							status={
+								selectedFormat === opt.key
+									? 'checked'
+									: 'unchecked'
+							}
+							labelExtractor={(a) => a.label}
+						/>
+					))}
+
+					<View
+						style={{
+							marginTop: 16,
+							flexDirection: 'row',
+							gap: 8,
+						}}
+					>
+						<ButtonHighlight
+							onPress={handleWrite}
+							mode="contained"
+							disabled={writing || !lineWithGeom?.geometry}
+							buttonColor={get(
+								theme.colors,
+								'successContainer'
+							)}
+							textColor={get(
+								theme.colors,
+								'onSuccessContainer'
+							)}
+						>
+							<Text>
+								{writing
+									? t('lines.exporting')
+									: t('lines.export')}
+							</Text>
+						</ButtonHighlight>
+					</View>
+				</ModalWrapper>
+			)}
+
+			<InfoRowControl
+				label={t('lines.export')}
+				// Info={Info}
 			>
-				<View>
-					<Text>{t('lines.export')}</Text>
-				</View>
-			</ButtonHighlight>
-		</InfoRowControl>
+				<ButtonHighlight
+					mode="outlined"
+					compact={true}
+					onPress={handleOpenModal}
+					icon="content-save-outline"
+					contentStyle={sharedStyles.buttonContent}
+					labelStyle={sharedStyles.buttonLabel}
+					textColor={theme.colors.onBackground}
+				>
+					<View>
+						<Text>{t('lines.export')}</Text>
+					</View>
+				</ButtonHighlight>
+			</InfoRowControl>
+		</>
 	);
 };
 

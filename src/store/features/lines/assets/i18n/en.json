@@ -36,6 +36,7 @@
 	"stats": "Statistics",
 	"routing": "Routing",
 	"export": "Export",
+	"exporting": "Exporting...",
 	"delete": "Delete",
 	"hideFromMap": "Hide from map",
 	"showOnMap": "Show on map",
