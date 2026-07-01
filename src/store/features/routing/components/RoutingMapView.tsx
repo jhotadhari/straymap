@@ -3,11 +3,7 @@
  */
 import React from 'react';
 import { midpoint } from '@turf/turf';
-<<<<<<< Updated upstream
 import { GeometryStyle, Marker, LayerPath } from 'react-native-mapsforge-vtm';
-=======
-import { GeometryStyle, LayerMarker, Marker, LayerPath } from 'react-native-mapsforge-vtm';
->>>>>>> Stashed changes
 import { get } from 'lodash-es';
 
 /**

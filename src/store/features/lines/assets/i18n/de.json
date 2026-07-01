@@ -1,11 +1,7 @@
 {
 	"tracksRoutes": "Strecken und Routen",
-<<<<<<< Updated upstream
 	"flyTo": "Anfliegen",
 	"selectColumns": "Spalten auswählen und sortieren",
-=======
-	"selectColumns": "Spalten auswählen",
->>>>>>> Stashed changes
 	"columns": {
 		"timestamp": "Datum",
 		"title": "Titel",
@@ -15,23 +11,5 @@
 		"minZ": "Min. Höhe",
 		"maxZ": "Max. Höhe",
 		"tags": "Tags"
-<<<<<<< Updated upstream
 	}
-=======
-	},
-	"filters": "Filter",
-	"addFilter": "Filter hinzufügen",
-	"filterLogicAnd": "UND",
-	"filterLogicOr": "ODER",
-	"filterMin": "Minimum",
-	"filterMax": "Maximum",
-	"filterIncludes": "enthält",
-	"filterExcludes": "enthält nicht",
-	"filterStartsWith": "beginnt mit",
-	"filterEndsWith": "endet mit",
-	"filterValue": "Wert",
-	"saveFilter": "Speichern",
-	"deleteFilter": "Löschen",
-	"editFilter": "Filter bearbeiten"
->>>>>>> Stashed changes
 }

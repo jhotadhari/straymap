@@ -11,19 +11,9 @@ import { get, isEqual, set } from 'lodash-es';
 import {
 	LinesSettings,
 	LinesState,
-<<<<<<< Updated upstream
 	initialSettings,
 	setInitialized,
 	setSelected,
-=======
-	cleanupFilters,
-	initialSettings,
-	setFilters,
-	setFilterLogic,
-	setInitialized,
-	setSelected,
-	setSort,
->>>>>>> Stashed changes
 	setTableColumns,
 } from './slice';
 import { startAppListening } from '../../listenerMiddleware';
@@ -50,18 +40,6 @@ export const initializeFromStorage = (store: AppStore) => {
 				if (newSettings?.tableColumns) {
 					store.dispatch(setTableColumns(newSettings.tableColumns));
 				}
-<<<<<<< Updated upstream
-=======
-				if (newSettings?.sort !== undefined) {
-					store.dispatch(setSort(newSettings.sort));
-				}
-				if (newSettings?.filters) {
-					store.dispatch(setFilters(newSettings.filters));
-				}
-				if (newSettings?.filterLogic) {
-					store.dispatch(setFilterLogic(newSettings.filterLogic));
-				}
->>>>>>> Stashed changes
 			}
 			store.dispatch(setInitialized(true));
 		})
@@ -100,29 +78,12 @@ export const saveToStorage = (linesState: LinesState, actionType: string) => {
  * and calls the function to save them to defaultPreferences.
  */
 startAppListening({
-<<<<<<< Updated upstream
 	matcher: isAnyOf(setSelected, setTableColumns),
-=======
-	matcher: isAnyOf(setSelected, setTableColumns, setSort, setFilters, setFilterLogic),
->>>>>>> Stashed changes
 	effect: async (action, listenerApi) => {
 		try {
 			await saveToStorage(listenerApi.getState().lines, action.type);
 		} catch (err) {
 			logError('saveToStorage', err);
 		}
-<<<<<<< Updated upstream
-=======
-	},
-});
-
-/**
- * When tableColumns change, clean up filters for columns that are no longer visible.
- */
-startAppListening({
-	matcher: isAnyOf(setTableColumns),
-	effect: async (_action, listenerApi) => {
-		listenerApi.dispatch(cleanupFilters());
->>>>>>> Stashed changes
 	},
 });
