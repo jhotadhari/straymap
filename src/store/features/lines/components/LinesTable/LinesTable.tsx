@@ -20,7 +20,7 @@ import { uniq, without } from 'lodash-es';
  * Internal dependencies
  */
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
-import { selectSelectedInfos } from '../../selectors';
+import { selectSelectedInfos, selectFilterLogic, selectFilters, selectSort } from '../../selectors';
 import { Line, LineStats } from '../../types';
 import { sharedStyles } from './sharedDeps';
 import TableHeader from './TableHeader';
@@ -82,8 +82,12 @@ const LinesTable: FC = () => {
 		[dispatch]
 	);
 
+	const sort = useAppSelector(selectSort);
+	const filters = useAppSelector(selectFilters);
+	const filterLogic = useAppSelector(selectFilterLogic);
+
 	const { data: lines } = useQuery({
-		queryKey: ['lines'],
+		queryKey: ['lines', { sort, filters, filterLogic }],
 		queryFn: queryLinesWithoutGeom,
 		gcTime: 1000 * 60 * 5, // The time in milliseconds that unused/inactive cache data remains in memory. When a query's cache becomes unused or inactive, that cache data will be garbage collected after this duration.
 	});

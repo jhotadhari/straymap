@@ -44,7 +44,10 @@ export const sharedStyles = StyleSheet.create({
 	},
 	modalInner: {
 		gap: 16,
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
 		marginTop: 16,
 	},
 });
@@ -90,3 +93,21 @@ export const cellConfigs: { [key: string]: CellConfig } = {
 	...statsCells,
 	...otherCells,
 };
+<<<<<<< Updated upstream
+=======
+
+export type FilterColumnType = 'numeric' | 'date' | 'string';
+
+export const getFilterColumnType = (key: string): FilterColumnType | undefined => {
+	if (key in statsCells) {
+		return 'numeric';
+	}
+	if (key === 'timestamp') {
+		return 'date';
+	}
+	if (key === 'title') {
+		return 'string';
+	}
+	return undefined;
+};
+>>>>>>> Stashed changes

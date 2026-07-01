@@ -11,7 +11,11 @@ import { isEqual, uniq } from 'lodash-es';
 import { SliceSettingsBase } from '../../../types';
 import { selectSelected } from './selectors';
 import { AppThunk } from '../../store';
+<<<<<<< Updated upstream
 import { LinePartial, TableColumn } from './types';
+=======
+import { ColumnFilter, FilterLogic, LinePartial, SortState, TableColumn } from './types';
+>>>>>>> Stashed changes
 
 export interface LinesSettings {
 	selected: {
@@ -19,6 +23,12 @@ export interface LinesSettings {
 		visible: boolean;
 	}[];
 	tableColumns: TableColumn[];
+<<<<<<< Updated upstream
+=======
+	sort: SortState | null;
+	filters: ColumnFilter[];
+	filterLogic: FilterLogic;
+>>>>>>> Stashed changes
 }
 
 export interface LinesState extends SliceSettingsBase, LinesSettings {
@@ -28,6 +38,12 @@ export interface LinesState extends SliceSettingsBase, LinesSettings {
 export const initialSettings: LinesSettings = {
 	selected: [],
 	tableColumns: [],
+<<<<<<< Updated upstream
+=======
+	sort: null,
+	filters: [],
+	filterLogic: 'and',
+>>>>>>> Stashed changes
 };
 
 const initialState: LinesState = {
@@ -55,11 +71,32 @@ export const linesSlice = createSlice({
 				return a.id - b.id;
 			});
 		},
+		setSort: (state, action: PayloadAction<LinesState['sort']>) => {
+			state.sort = action.payload;
+		},
+		setFilters: (state, action: PayloadAction<LinesState['filters']>) => {
+			state.filters = action.payload;
+		},
+		setFilterLogic: (state, action: PayloadAction<LinesState['filterLogic']>) => {
+			state.filterLogic = action.payload;
+		},
 	},
 });
 
 // Export the generated action creators for use in components.
+<<<<<<< Updated upstream
 export const { setInitialized, setTableColumns, setSelected, setLineTemp } = linesSlice.actions;
+=======
+export const {
+	setInitialized,
+	setTableColumns,
+	setSelected,
+	setLineTemp,
+	setSort,
+	setFilters,
+	setFilterLogic,
+} = linesSlice.actions;
+>>>>>>> Stashed changes
 
 // Export the slice reducer for use in the store configuration
 export default linesSlice.reducer;
@@ -122,5 +159,49 @@ export const setLinesSelected = (newSelectedIds: number[]): AppThunk => {
 export const onSetDbPath = (): AppThunk => {
 	return (dispatch) => {
 		dispatch(linesSlice.actions.setSelected([]));
+	};
+};
+
+export const toggleSort = (columnKey: string): AppThunk => {
+	return (dispatch, getState) => {
+		const current = getState().lines.sort;
+		if (!current || current.columnKey !== columnKey) {
+			dispatch(linesSlice.actions.setSort({ columnKey, direction: 'asc' }));
+		} else if (current.direction === 'asc') {
+			dispatch(linesSlice.actions.setSort({ columnKey, direction: 'desc' }));
+		} else {
+			dispatch(linesSlice.actions.setSort(null));
+		}
+	};
+};
+
+export const upsertFilter = (filter: ColumnFilter): AppThunk => {
+	return (dispatch, getState) => {
+		const filters = [...getState().lines.filters];
+		const idx = filters.findIndex((f) => f.columnKey === filter.columnKey);
+		if (idx !== -1) {
+			filters[idx] = filter;
+		} else {
+			filters.push(filter);
+		}
+		dispatch(linesSlice.actions.setFilters(filters));
+	};
+};
+
+export const removeFilter = (columnKey: string): AppThunk => {
+	return (dispatch, getState) => {
+		const filters = getState().lines.filters.filter((f) => f.columnKey !== columnKey);
+		dispatch(linesSlice.actions.setFilters(filters));
+	};
+};
+
+export const cleanupFilters = (): AppThunk => {
+	return (dispatch, getState) => {
+		const { tableColumns, filters } = getState().lines;
+		const visibleKeys = tableColumns.filter((c) => c.visible).map((c) => c.key);
+		const newFilters = filters.filter((f) => visibleKeys.includes(f.columnKey));
+		if (newFilters.length !== filters.length) {
+			dispatch(linesSlice.actions.setFilters(newFilters));
+		}
 	};
 };

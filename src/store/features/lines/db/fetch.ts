@@ -13,7 +13,16 @@ import { dbConnection } from '../../dbLoader/DBConnection';
 import { linesTable, tagsTable, tagsToLinesTable } from './schema/schema';
 import { rowsParseEnvelopeGeoJSON, rowsParseGeometryGeoJSON } from '../../dbLoader/utils';
 import { ArrayElement } from '../../../../types';
-import { Line, LinePartial, STATS_FIELDS, Tag } from '../types';
+import {
+	ColumnFilter,
+	FilterLogic,
+	Line,
+	LinePartial,
+	SortState,
+	STATS_FIELDS,
+	Tag,
+} from '../types';
+import { STATS_SQL, buildOrderByClause, buildWhereClause } from './filterSortHelpers';
 
 /**
  * Functions to fetch/retrieve data from database.
@@ -29,6 +38,9 @@ interface FetchLinesWithoutTagsParams {
 	fieldsInclude?: (keyof Omit<Line, 'id' | 'tags'>)[];
 	fieldsExclude?: (keyof Omit<Line, 'id'>)[];
 	simplify?: number;
+	sort?: SortState | null;
+	filters?: ColumnFilter[];
+	filterLogic?: FilterLogic;
 }
 
 interface FetchLinesWithTagsParams {
@@ -40,6 +52,9 @@ interface FetchLinesWithTagsParams {
 	fieldsInclude?: (keyof Omit<Line, 'id'>)[];
 	fieldsExclude?: (keyof Omit<Line, 'id'>)[];
 	simplify?: number;
+	sort?: SortState | null;
+	filters?: ColumnFilter[];
+	filterLogic?: FilterLogic;
 }
 
 export interface FetchLinesParams extends FetchLinesWithTagsParams {}
@@ -108,19 +123,19 @@ const getLineColumns = (fields: (keyof Omit<Line, 'id'>)[], options?: LineColumn
 			envelopeGeoJSON: sql<string>`AsGeoJSON (ST_Envelope (${linesTable.geometry}))`,
 		}),
 		...(fields.includes('stats') && {
-			length: sql<string>`GreatCircleLength (${linesTable.geometry})`,
+			length: STATS_SQL.length,
 		}),
 		...(fields.includes('stats') && {
-			uphill: sql<string>`UphillHeight (${linesTable.geometry})`,
+			uphill: STATS_SQL.uphill,
 		}),
 		...(fields.includes('stats') && {
-			downhill: sql<string>`DownhillHeight (${linesTable.geometry})`,
+			downhill: STATS_SQL.downhill,
 		}),
 		...(fields.includes('stats') && {
-			minZ: sql<string>`ST_MinZ (${linesTable.geometry})`,
+			minZ: STATS_SQL.minZ,
 		}),
 		...(fields.includes('stats') && {
-			maxZ: sql<string>`ST_MaxZ (${linesTable.geometry})`,
+			maxZ: STATS_SQL.maxZ,
 		}),
 		...(fields.includes('data') && { data: linesTable.data }),
 	};
@@ -133,6 +148,9 @@ const fetchLinesWithoutTags = (params?: FetchLinesWithoutTagsParams) => {
 		fieldsInclude,
 		fieldsExclude,
 		simplify,
+		sort,
+		filters,
+		filterLogic,
 	} = params ?? {};
 
 	let fields: (keyof Omit<Line, 'id'>)[] = [
@@ -158,9 +176,11 @@ const fetchLinesWithoutTags = (params?: FetchLinesWithoutTagsParams) => {
 			.select(getLineColumns(fields, { simplify }))
 			.from(linesTable);
 
-		query.where(and(lineIds ? inArray(linesTable.id, lineIds) : undefined));
+		const filterClause = buildWhereClause(filters, filterLogic);
+		query.where(and(lineIds ? inArray(linesTable.id, lineIds) : undefined, filterClause));
 
-		query.orderBy(desc(linesTable.timestamp));
+		const orderByClause = buildOrderByClause(sort);
+		query.orderBy(orderByClause ?? desc(linesTable.timestamp));
 
 		if (limit) {
 			query.limit(limit);
@@ -189,6 +209,9 @@ const fetchLinesWithTags = (params?: FetchLinesWithTagsParams) => {
 		fieldsInclude,
 		fieldsExclude,
 		simplify,
+		sort,
+		filters,
+		filterLogic,
 	} = {
 		allLines: true,
 		...(params ?? {}),
@@ -236,14 +259,17 @@ const fetchLinesWithTags = (params?: FetchLinesWithTagsParams) => {
 			.leftJoin(tagsToLinesTable, eq(tagsToLinesTable.line_id, linesTable.id))
 			.leftJoin(tagsTable, eq(tagsToLinesTable.tag_id, tagsTable.id));
 
+		const filterClause = buildWhereClause(filters, filterLogic);
 		query.where(
 			and(
 				lineIds ? inArray(linesTable.id, lineIds) : undefined,
-				tagId ? eq(tagsTable.id, tagId) : undefined
+				tagId ? eq(tagsTable.id, tagId) : undefined,
+				filterClause
 			)
 		);
 
-		query.orderBy(desc(linesTable.timestamp));
+		const orderByClause = buildOrderByClause(sort);
+		query.orderBy(orderByClause ?? desc(linesTable.timestamp));
 
 		if (limit) {
 			query.limit(limit);

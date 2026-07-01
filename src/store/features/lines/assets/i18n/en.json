@@ -1,7 +1,11 @@
 {
 	"tracksRoutes": "Tracks and Routes",
+<<<<<<< Updated upstream
 	"flyTo": "Fly to",
 	"selectColumns": "Select and sort columns",
+=======
+	"selectColumns": "Select columns",
+>>>>>>> Stashed changes
 	"columns": {
 		"timestamp": "Date",
 		"title": "Title",
@@ -11,5 +15,23 @@
 		"minZ": "Min elevation",
 		"maxZ": "Max elevation",
 		"tags": "Tags"
+<<<<<<< Updated upstream
 	}
+=======
+	},
+	"filters": "Filters",
+	"addFilter": "Add filter",
+	"filterLogicAnd": "AND",
+	"filterLogicOr": "OR",
+	"filterMin": "Minimum",
+	"filterMax": "Maximum",
+	"filterIncludes": "includes",
+	"filterExcludes": "excludes",
+	"filterStartsWith": "starts with",
+	"filterEndsWith": "ends with",
+	"filterValue": "Value",
+	"saveFilter": "Save",
+	"deleteFilter": "Delete",
+	"editFilter": "Edit filter"
+>>>>>>> Stashed changes
 }
