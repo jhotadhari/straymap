@@ -2115,6 +2115,17 @@
     "@types/yargs" "^17.0.8"
     chalk "^4.0.0"
 
+"@jhotadhari/release-kit@file:.yalc/@jhotadhari/release-kit":
+  version "0.0.6"
+  dependencies:
+    "@octokit/rest" "^22.0.1"
+    commander "^15.0.0"
+    keep-a-changelog "^3.0.5"
+    picocolors "^1.1.1"
+    semver "^7.8.5"
+    simple-git "^3.36.0"
+    tsx "^4.22.4"
+
 "@jridgewell/gen-mapping@^0.3.12", "@jridgewell/gen-mapping@^0.3.5":
   version "0.3.13"
   resolved "https://registry.yarnpkg.com/@jridgewell/gen-mapping/-/gen-mapping-0.3.13.tgz#6342a19f44347518c93e43b1ac69deb3c4656a1f"
@@ -9411,17 +9422,6 @@ regjsparser@^0.13.0:
   integrity sha512-dLsljMd9sqwRkby8zhO1gSg3PnJIBFid8f4CQj/sXx+7cKx+E7u0PKhZ+U4wmhx7EfmtvnA318oVaIkAB1lRJw==
   dependencies:
     jsesc "~3.1.0"
-
-"release-kit@file:.yalc/release-kit":
-  version "0.0.1"
-  dependencies:
-    "@octokit/rest" "^22.0.1"
-    commander "^15.0.0"
-    keep-a-changelog "^3.0.5"
-    picocolors "^1.1.1"
-    semver "^7.8.5"
-    simple-git "^3.36.0"
-    tsx "^4.22.4"
 
 require-directory@^2.1.1:
   version "2.1.1"

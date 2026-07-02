@@ -79,6 +79,7 @@
     "@babel/core": "^7.25.2",
     "@babel/preset-env": "^7.25.3",
     "@babel/runtime": "^7.25.0",
+    "@jhotadhari/release-kit": "file:.yalc/@jhotadhari/release-kit",
     "@react-native-community/cli": "20.1.0",
     "@react-native-community/cli-platform-android": "20.1.0",
     "@react-native/babel-preset": "0.86.0",
@@ -111,7 +112,6 @@
     "prettier-plugin-sql": "^0.20.0",
     "react-native-clean-project": "^4.0.3",
     "react-test-renderer": "19.2.3",
-    "release-kit": "file:.yalc/release-kit",
     "tsx": "^4.21.0",
     "typescript": "^6.0.3"
   },

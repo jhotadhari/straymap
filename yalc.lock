@@ -15,9 +15,10 @@
       "signature": "b43eac98088c6a64775c6509c3d79ca5",
       "file": true
     },
-    "release-kit": {
-      "signature": "80bcb5ad8ffad1a5cd9d3b3706631654",
-      "file": true
+    "@jhotadhari/release-kit": {
+      "signature": "3bd24971cd7bf7119845a2727afcf472",
+      "file": true,
+      "replaced": "file:.yalc/release-kit"
     }
   }
 }
