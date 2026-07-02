@@ -93,7 +93,7 @@ const RowRouting: FC = () => {
 	return (
 		<InfoRowControl
 			label={t('lines.routing')}
-			// Info={Info}
+			Info={t('lines.hintRouting')}
 		>
 			<ButtonHighlight
 				style={buttonStyle}

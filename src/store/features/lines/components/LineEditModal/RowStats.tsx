@@ -66,7 +66,7 @@ const RowStats: FC = () => {
 		<Fragment>
 			<InfoRowControl
 				label={t('lines.stats')}
-				// Info={Info}
+				Info={t('lines.hintStats')}
 			>
 				<ButtonHighlight
 					mode="outlined"

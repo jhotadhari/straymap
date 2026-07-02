@@ -176,7 +176,7 @@ const RowExport: FC = () => {
 
 			<InfoRowControl
 				label={t('lines.export')}
-				// Info={Info}
+				Info={t('lines.hintExport')}
 			>
 				<ButtonHighlight
 					mode="outlined"

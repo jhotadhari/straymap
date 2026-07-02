@@ -54,7 +54,7 @@ const RowName: FC = () => {
 	return (
 		<InfoRowControl
 			label={t('lines.name')}
-			// Info={Info}
+			Info={t('lines.hintName')}
 		>
 			<TextInput
 				// style={{ flexGrow: 1 }}
