@@ -13,9 +13,9 @@ import { Style } from 'react-native-paper/lib/typescript/components/List/utils';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { setElementExpanded } from '../../../ui/slice';
 import { selectElementExpanded } from '../../../ui/selectors';
-import { selectMapEventRate } from '../../../general/selectors';
+import { selectMapUpdateInterval } from '../../../general/selectors';
 import NumericRowControl from '../../../../../components/generic/controls/NumericRowControl';
-import { setMapEventRate } from '../../../general/slice';
+import { setMapUpdateInterval } from '../../../general/slice';
 import { sharedStyles } from '../../../../../sharedStyles';
 
 const ControlIcon: (props: { color: string; style: Style }) => ReactNode = (props) => (
@@ -35,7 +35,7 @@ const GeneralControl: FC<{}> = () => {
 
 	const dispatch = useAppDispatch();
 
-	const mapEventRate = useAppSelector(selectMapEventRate);
+	const mapUpdateInterval = useAppSelector(selectMapUpdateInterval);
 
 	const uiStateKey = 'dashboardControlGeneral';
 	const expanded = useAppSelector((state) => selectElementExpanded(state, uiStateKey));
@@ -54,7 +54,7 @@ const GeneralControl: FC<{}> = () => {
 
 	const handleUpdateMapEventRate = useCallback(
 		(newValue: number) => {
-			dispatch(setMapEventRate(newValue));
+			dispatch(setMapUpdateInterval(newValue));
 		},
 		[dispatch]
 	);
@@ -70,7 +70,7 @@ const GeneralControl: FC<{}> = () => {
 			<View style={styles.controls}>
 				<NumericRowControl
 					label={t('dashboard.updateRate')}
-					value={mapEventRate ?? 40}
+					value={mapUpdateInterval ?? 40}
 					onUpdate={handleUpdateMapEventRate}
 					validate={validateMapEventRate}
 					Info={t('dashboard.hint.updateRate')}

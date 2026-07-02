@@ -14,7 +14,7 @@ import {
 	initialSettings,
 	setHardwareKeys,
 	setInitialized,
-	setMapEventRate,
+	setMapUpdateInterval,
 	setUnitPrefs,
 } from './slice';
 import { startAppListening } from '../../listenerMiddleware';
@@ -41,8 +41,8 @@ export const initializeFromStorage = (store: AppStore) => {
 				if (newSettings?.unitPrefs) {
 					store.dispatch(setUnitPrefs(newSettings.unitPrefs));
 				}
-				if (newSettings?.mapEventRate) {
-					store.dispatch(setMapEventRate(newSettings.mapEventRate));
+				if (newSettings?.mapUpdateInterval) {
+					store.dispatch(setMapUpdateInterval(newSettings.mapUpdateInterval));
 				}
 			}
 			store.dispatch(setInitialized(true));
@@ -82,7 +82,7 @@ export const saveToStorage = (generalState: GeneralState, actionType: string) =>
  * and calls the function to save them to defaultPreferences.
  */
 startAppListening({
-	matcher: isAnyOf(setHardwareKeys, setUnitPrefs, setMapEventRate),
+	matcher: isAnyOf(setHardwareKeys, setUnitPrefs, setMapUpdateInterval),
 	effect: async (action, listenerApi) => {
 		try {
 			await saveToStorage(listenerApi.getState().general, action.type);

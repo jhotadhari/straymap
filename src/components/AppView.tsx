@@ -49,14 +49,11 @@ import Drawers from '../store/features/drawers/components/Drawers';
 import SplashScreen from './SplashScreen';
 import RoutingMapView from '../store/features/routing/components/RoutingMapView';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { selectMapEventRate } from '../store/features/general/selectors'; // also exports selectHardwareKeys, see emitsHardwareKeyUp note below.
+import { selectMapUpdateInterval } from '../store/features/general/selectors'; // also exports selectHardwareKeys, see emitsHardwareKeyUp note below.
 import { selectElementsSettings, selectItems } from '../store/features/dashboard/selectors';
 import { DashboardItem } from '../store/features/dashboard/types';
 import {
 	selectHgtDirPath,
-	selectHgtFileInfoPurgeThreshold,
-	selectHgtInterpolation,
-	selectHgtReadFileRate,
 	selectMapsforgeGeneral,
 } from '../store/features/baseMap/selectors';
 import BaseMap from '../store/features/baseMap/components/BaseMap/index';
@@ -91,11 +88,8 @@ const AppView = ({
 	// const hardwareKeys = useAppSelector(selectHardwareKeys); // see emitsHardwareKeyUp note below.
 
 	const dashboardItems = useAppSelector((state) => selectItems(state, { position: 'bottom' }));
-	const mapEventRate = useAppSelector(selectMapEventRate);
-	const hgtInterpolation = useAppSelector(selectHgtInterpolation);
-	const hgtFileInfoPurgeThreshold = useAppSelector(selectHgtFileInfoPurgeThreshold);
+	const mapUpdateInterval = useAppSelector(selectMapUpdateInterval);
 	const hgtDirPathStore = useAppSelector(selectHgtDirPath);
-	const hgtReadFileRate = useAppSelector(selectHgtReadFileRate);
 	const uiItems = useAppSelector(selectUiItemKeys);
 	const dashboardElements = useAppSelector(selectElementsSettings);
 
@@ -311,12 +305,9 @@ const AppView = ({
 
 				{showMap && (
 					<MapContainer
-						mapEventRate={mapEventRate}
+						mapUpdateInterval={mapUpdateInterval}
 						nativeNodeHandle={mapViewNativeNodeHandle}
 						setNativeNodeHandle={setMapViewNativeNodeHandle}
-						hgtInterpolation={hgtInterpolation}
-						hgtFileInfoPurgeThreshold={hgtFileInfoPurgeThreshold}
-						hgtReadFileRate={hgtReadFileRate}
 						hgtDirPath={hgtDirPath}
 						responseInclude={responseInclude}
 						height={mapHeight || 0}

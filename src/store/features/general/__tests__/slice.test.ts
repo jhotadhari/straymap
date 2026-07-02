@@ -8,7 +8,7 @@
 import generalReducer, {
 	setInitialized,
 	setHardwareKeys,
-	setMapEventRate,
+	setMapUpdateInterval,
 	setUnitPrefs,
 	initialSettings,
 } from '../slice';
@@ -18,7 +18,7 @@ import {
 	selectInitialized,
 	selectHardwareKeys,
 	selectUnitPrefs,
-	selectMapEventRate,
+	selectMapUpdateInterval,
 } from '../selectors';
 
 const buildState = (overrides: Partial<GeneralState> = {}) =>
@@ -50,9 +50,9 @@ describe('general slice reducers', () => {
 		expect(state.hardwareKeys).toHaveLength(1);
 	});
 
-	it('setMapEventRate updates map event rate', () => {
-		const state = generalReducer(undefined, setMapEventRate(100));
-		expect(state.mapEventRate).toBe(100);
+	it('setMapUpdateInterval updates map update interval', () => {
+		const state = generalReducer(undefined, setMapUpdateInterval(100));
+		expect(state.mapUpdateInterval).toBe(100);
 	});
 
 	it('setUnitPrefs replaces unit preferences', () => {
@@ -109,7 +109,7 @@ describe('general selectors', () => {
 		expect(selectUnitPrefs(buildState({ unitPrefs: prefs }))).toEqual(prefs);
 	});
 
-	it('selectMapEventRate returns map event rate', () => {
-		expect(selectMapEventRate(buildState({ mapEventRate: 60 }))).toBe(60);
+	it('selectMapUpdateInterval returns map update interval', () => {
+		expect(selectMapUpdateInterval(buildState({ mapUpdateInterval: 60 }))).toBe(60);
 	});
 });

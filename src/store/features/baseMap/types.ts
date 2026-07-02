@@ -6,7 +6,6 @@ import {
 	LayerBitmapTileProps,
 	LayerMapsforgeProps,
 	LayerHillshadingProps,
-	MapContainerProps,
 	RenderStyleOption,
 } from 'react-native-mapsforge-vtm';
 
@@ -96,9 +95,7 @@ export type MapsforgeProfile = {
 	hasLabels?: boolean;
 };
 
-export type HgtDirPath =
-	| LayerConfigOptionsHillshading['hgtDirPath']
-	| MapContainerProps['hgtDirPath'];
+export type HgtDirPath = string | null | undefined;
 
 export type MapsforgeGeneral = {
 	textScale: number;

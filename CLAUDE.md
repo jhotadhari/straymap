@@ -63,6 +63,33 @@ Custom native modules live in `android/app/src/main/java/com/jhotadhari/straymap
 - `react-native-brouter` is consumed via `.yalc` (`file:.yalc/react-native-brouter` in `package.json` — a locally-linked package, not a registry release). Routing logic lives in `src/store/features/routing/utils.ts` (`getTrackFromParams`), which calls into brouter and flattens the resulting GeoJSON into coordinate arrays.
 - The `routing` and `lines` slices are the two features backed by the SQLite/drizzle db (routes/points and lines/tags respectively).
 
+#### Map position and altitude APIs
+
+The library provides three tiers for consuming map position and one for altitude:
+
+| Tier | API | Bridge crossings | React re-renders | Best for |
+|---|---|---|---|---|
+| Callback | `MapContainer.onMapUpdate` with `mapUpdateInterval` (ms, default 40) | ~25/sec (native→JS) | ~25/sec | centerAltitude polling, debug overlays, one-shot reactions |
+| Shared values | `useMapPosition()` from `/reanimated` | 0 for reads (UI thread) | 0 | Smooth 60fps coordinate displays, worklet-driven overlays |
+| Imperative | `useMap().getPosition()` | 2 per call (round-trip) | 0–1 | Button-triggered snapshots |
+| Altitude | `useMap().getAltitudeAtPosition(lng, lat)` | 2 per call (round-trip) | 0–1 | Tap-to-query, one-shot elevation lookups |
+
+**`mapUpdateInterval`**: The prop on `MapContainer` (in `general` slice) controls the interval in milliseconds between `onMapUpdate` events. It was renamed from `mapEventRate` — the old name suggested Hz but the value is actually milliseconds.
+
+**Altitude in `onMapUpdate`**: The `center` array in `MapEventResponse` is `[lng, lat, alt?]` — the 3rd element is present iff `hgtDirPath` is set on `MapContainer`. The lookup is powered by an `LruCache`-backed `ElevationReader` (10-tile cap, ~29MB max).
+
+**Removed props** (no longer exist on `MapContainer`):
+- `hgtInterpolation` — bilinear interpolation is now always on
+- `hgtReadFileRate` — rate-limiting is unnecessary with on-demand reads
+- `hgtFileInfoPurgeThreshold` — replaced by Android's built-in `LruCache`
+
+**`useMapPosition()`** from `react-native-mapsforge-vtm/reanimated`:
+```typescript
+const { centerSv, zoomSv, bearingSv, tiltSv, handleMapUpdate } = useMapPosition();
+<MapContainer onMapUpdate={handleMapUpdate} ...>
+```
+`centerSv` is a `SharedValue<[number, number] | null>` readable from worklets at 60fps with zero bridge crossings.
+
 ### i18n
 
 `src/assets/i18n/i18n.ts` configures i18next with `en`/`de` resources, falling back to `en`; `'system'` as a language selection resolves to the device locale. Each feature contributes its own translations via its `AppFeature.translation` export, merged into the i18next resources at init. Run `yarn sortI18n` (`scripts/sortI18n/index.js`) after editing any translation JSON — it keeps every language file's key order in sync with the fallback language, across both `src/assets/i18n/` and each feature's `assets/i18n/`.

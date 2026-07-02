@@ -10,7 +10,7 @@ import { GestureResponderEvent, TouchableHighlight, View } from 'react-native';
  */
 import { formatHeightDepth } from '../../../../../lib/formatting';
 import { MapContext } from '../../../../../Context';
-import { selectMapEventRate, selectUnitPrefs } from '../../../general/selectors';
+import { selectMapUpdateInterval, selectUnitPrefs } from '../../../general/selectors';
 import { useAppSelector } from '../../../../hooks';
 import { DashboardElementProps } from '../../types';
 import { UnitPref } from '../../../general/types';
@@ -29,7 +29,7 @@ const Display: FC<DashboardElementProps<Options>> = ({ item, style = {}, onPress
 
 	const theme = useTheme();
 
-	const mapEventRate = useAppSelector(selectMapEventRate);
+	const mapUpdateInterval = useAppSelector(selectMapUpdateInterval);
 
 	const unitPrefs = useAppSelector(selectUnitPrefs);
 
@@ -50,11 +50,11 @@ const Display: FC<DashboardElementProps<Options>> = ({ item, style = {}, onPress
 	useEffect(() => {
 		intervalRef.current = setInterval(() => {
 			setAltitudeM(currentMapEventRef?.current?.center?.[2] ?? null);
-		}, mapEventRate);
+		}, mapUpdateInterval);
 		return () => {
 			intervalRef.current && clearInterval(intervalRef.current);
 		};
-	}, [mapEventRate, currentMapEventRef]);
+	}, [mapUpdateInterval, currentMapEventRef]);
 
 	const viewStyle = useMemo(() => [{ minWidth }, style], [minWidth, style]);
 	const textStyle = useMemo(() => ({ fontSize, textAlign }), [fontSize, textAlign]);

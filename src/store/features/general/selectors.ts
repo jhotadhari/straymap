@@ -9,4 +9,4 @@ export const selectHardwareKeys = (state: RootState) => state.general.hardwareKe
 
 export const selectUnitPrefs = (state: RootState) => state.general.unitPrefs;
 
-export const selectMapEventRate = (state: RootState) => state.general.mapEventRate;
+export const selectMapUpdateInterval = (state: RootState) => state.general.mapUpdateInterval;

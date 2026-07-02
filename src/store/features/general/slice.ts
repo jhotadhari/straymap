@@ -14,7 +14,7 @@ import { HardwareKeyActionConf, UnitPref } from './types';
 export interface GeneralSettings {
 	hardwareKeys: HardwareKeyActionConf[];
 	unitPrefs: { [value: string]: UnitPref };
-	mapEventRate: MapContainerProps['mapEventRate'];
+	mapUpdateInterval: MapContainerProps['mapUpdateInterval'];
 }
 
 export interface GeneralState extends SliceSettingsBase, GeneralSettings {}
@@ -48,7 +48,7 @@ export const initialSettings: GeneralSettings = {
 			round: 2,
 		},
 	},
-	mapEventRate: 40,
+	mapUpdateInterval: 40,
 };
 
 const initialState: GeneralState = {
@@ -68,8 +68,11 @@ export const generalSlice = createSlice({
 		setHardwareKeys: (state, action: PayloadAction<GeneralSettings['hardwareKeys']>) => {
 			state.hardwareKeys = action.payload;
 		},
-		setMapEventRate: (state, action: PayloadAction<GeneralSettings['mapEventRate']>) => {
-			state.mapEventRate = action.payload;
+		setMapUpdateInterval: (
+			state,
+			action: PayloadAction<GeneralSettings['mapUpdateInterval']>
+		) => {
+			state.mapUpdateInterval = action.payload;
 		},
 		setUnitPrefs: (state, action: PayloadAction<GeneralSettings['unitPrefs']>) => {
 			state.unitPrefs = action.payload;
@@ -78,7 +81,7 @@ export const generalSlice = createSlice({
 });
 
 // Export the generated action creators for use in components.
-export const { setInitialized, setHardwareKeys, setMapEventRate, setUnitPrefs } =
+export const { setInitialized, setHardwareKeys, setMapUpdateInterval, setUnitPrefs } =
 	generalSlice.actions;
 
 // Export the slice reducer for use in the store configuration

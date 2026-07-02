@@ -13,9 +13,6 @@ import {
 	BaseMapState,
 	initialSettings,
 	setHgtDirPath,
-	setHgtFileInfoPurgeThreshold,
-	setHgtInterpolation,
-	setHgtReadFileRate,
 	setInitialized,
 	setLayers,
 	setMapsforgeGeneralAction,
@@ -58,17 +55,6 @@ export const initializeFromStorage = (store: AppStore) => {
 				}
 				if (newSettings?.hgtDirPath) {
 					store.dispatch(setHgtDirPath(newSettings.hgtDirPath));
-				}
-				if (newSettings?.hgtReadFileRate) {
-					store.dispatch(setHgtReadFileRate(newSettings.hgtReadFileRate));
-				}
-				if (newSettings?.hgtInterpolation) {
-					store.dispatch(setHgtInterpolation(newSettings.hgtInterpolation));
-				}
-				if (newSettings?.hgtFileInfoPurgeThreshold) {
-					store.dispatch(
-						setHgtFileInfoPurgeThreshold(newSettings.hgtFileInfoPurgeThreshold)
-					);
 				}
 				if (newSettings?.mapsforgeGeneral) {
 					store.dispatch(setMapsforgeGeneralAction(newSettings.mapsforgeGeneral));
@@ -124,9 +110,6 @@ startAppListening({
 		setLayers,
 		setMapsforgeProfiles,
 		setHgtDirPath,
-		setHgtReadFileRate,
-		setHgtInterpolation,
-		setHgtFileInfoPurgeThreshold,
 		setMapsforgeGeneralAction,
 		setRenderStylesCache
 	),

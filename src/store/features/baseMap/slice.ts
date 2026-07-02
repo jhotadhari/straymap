@@ -28,9 +28,6 @@ export interface BaseMapSettings {
 	layers: LayerConfig[];
 	mapsforgeProfiles: MapsforgeProfile[];
 	hgtDirPath?: LayerHillshadingProps['hgtDirPath'];
-	hgtReadFileRate: number;
-	hgtInterpolation: boolean;
-	hgtFileInfoPurgeThreshold: number;
 	mapsforgeGeneral: MapsforgeGeneral;
 	renderStylesCache: RenderStylesCache;
 }
@@ -71,9 +68,6 @@ export const initialSettings: BaseMapSettings = {
 		},
 	],
 	hgtDirPath: undefined,
-	hgtReadFileRate: 100,
-	hgtInterpolation: true,
-	hgtFileInfoPurgeThreshold: 3,
 	mapsforgeGeneral: {
 		lineScale: 1.1,
 		symbolScale: 1,
@@ -211,21 +205,6 @@ export const baseMapSlice = createSlice({
 		setHgtDirPath: (state, action: PayloadAction<BaseMapSettings['hgtDirPath']>) => {
 			state.hgtDirPath = action.payload;
 		},
-		setHgtReadFileRate: (state, action: PayloadAction<BaseMapSettings['hgtReadFileRate']>) => {
-			state.hgtReadFileRate = action.payload;
-		},
-		setHgtInterpolation: (
-			state,
-			action: PayloadAction<BaseMapSettings['hgtInterpolation']>
-		) => {
-			state.hgtInterpolation = action.payload;
-		},
-		setHgtFileInfoPurgeThreshold: (
-			state,
-			action: PayloadAction<BaseMapSettings['hgtFileInfoPurgeThreshold']>
-		) => {
-			state.hgtFileInfoPurgeThreshold = action.payload;
-		},
 		setMapsforgeGeneral: (
 			state,
 			action: PayloadAction<BaseMapSettings['mapsforgeGeneral']>
@@ -252,9 +231,6 @@ export const {
 	setMapsforgeProfiles,
 	setMapsforgeProfileTemp: setMapsforgeProfileTempAction,
 	setHgtDirPath,
-	setHgtReadFileRate,
-	setHgtInterpolation,
-	setHgtFileInfoPurgeThreshold,
 	setMapsforgeGeneral: setMapsforgeGeneralAction,
 	setRenderStylesCache,
 	setLayerInfos: setLayerInfosAction,

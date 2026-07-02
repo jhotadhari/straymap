@@ -8,7 +8,7 @@ import { GestureResponderEvent, TouchableHighlight, View } from 'react-native';
 import { formatCoords } from '../../../../../lib/formatting';
 import { MapContext } from '../../../../../Context';
 import { useAppSelector } from '../../../../hooks';
-import { selectMapEventRate, selectUnitPrefs } from '../../../general/selectors';
+import { selectMapUpdateInterval, selectUnitPrefs } from '../../../general/selectors';
 import { DashboardElementProps } from '../../types';
 import { UnitPref } from '../../../general/types';
 import useItemStyle from '../../hooks/useItemStyle';
@@ -31,7 +31,7 @@ const Display: FC<DashboardElementProps<Options>> = ({ item, style = {}, onPress
 
 	const { fontSize, minWidth, textAlign } = useItemStyle(item);
 
-	const mapEventRate = useAppSelector(selectMapEventRate);
+	const mapUpdateInterval = useAppSelector(selectMapUpdateInterval);
 
 	const [centerLng, setCenterLng] = useState<number | undefined>(undefined);
 	const [centerLat, setCenterLat] = useState<number | undefined>(undefined);
@@ -40,11 +40,11 @@ const Display: FC<DashboardElementProps<Options>> = ({ item, style = {}, onPress
 		intervalRef.current = setInterval(() => {
 			setCenterLng(currentMapEventRef?.current?.center?.[0]);
 			setCenterLat(currentMapEventRef?.current?.center?.[1]);
-		}, mapEventRate);
+		}, mapUpdateInterval);
 		return () => {
 			intervalRef.current && clearInterval(intervalRef.current);
 		};
-	}, [currentMapEventRef, mapEventRate]);
+	}, [currentMapEventRef, mapUpdateInterval]);
 
 	const unit = item?.options?.unitPref?.unit ?? get(unitPrefs, ['coordinates', 'unit']);
 	const round = item?.options?.unitPref?.round ?? get(unitPrefs, ['coordinates', 'round']);

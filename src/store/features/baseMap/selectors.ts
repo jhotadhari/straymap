@@ -21,13 +21,6 @@ export const selectMapsforgeProfileTemp = (state: RootState) => state.baseMap.ma
 
 export const selectHgtDirPath = (state: RootState) => state.baseMap.hgtDirPath;
 
-export const selectHgtReadFileRate = (state: RootState) => state.baseMap.hgtReadFileRate;
-
-export const selectHgtInterpolation = (state: RootState) => state.baseMap.hgtInterpolation;
-
-export const selectHgtFileInfoPurgeThreshold = (state: RootState) =>
-	state.baseMap.hgtFileInfoPurgeThreshold;
-
 export const selectMapsforgeGeneral = (state: RootState) => state.baseMap.mapsforgeGeneral;
 
 export const selectRenderStylesCache = (state: RootState) => state.baseMap.renderStylesCache;
