@@ -15,7 +15,7 @@ import { OptionBase } from '../../../../../../types';
 import NumericRowControl from '../../../../../../components/generic/controls/NumericRowControl';
 import InfoRowControl from '../../../../../../components/generic/controls/InfoRowControl';
 import CacheControl from './CacheControl';
-import { defaults } from '../../../../../../constants';
+import { defaults } from '../../../defaults';
 import {
 	TextInputNativeMultiline,
 	TextInputNativeMultilineControlled,

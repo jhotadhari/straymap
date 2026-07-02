@@ -3,8 +3,7 @@
  */
 import rnUuid from 'react-native-uuid';
 import defaultsAssign from 'defaults';
-import { get, invert, omit, pick } from 'lodash-es';
-import { LayerHillshading } from 'react-native-mapsforge-vtm';
+import { get, omit } from 'lodash-es';
 import { ActionCreatorWithPayload } from '@reduxjs/toolkit';
 import slugify from 'slugify';
 
@@ -17,7 +16,7 @@ import {
 	LayerConfigOptionsHillshading,
 	MapsforgeProfile,
 } from './types';
-import { defaults } from '../../../constants';
+import { defaults } from './defaults';
 import { LayerKind } from './types';
 import { mapTypeOptions } from './components/controls/layers/LayersControl';
 import { AppThunk, RootState } from '../../store';
@@ -116,40 +115,46 @@ export const resolveCacheDirBase = (
 };
 
 export const getHillshadingCacheDirChild = (options: LayerConfigOptionsHillshading): string => {
-	const shadingAlgoKey = get(
-		invert(LayerHillshading.shadingAlgorithms),
-		options?.shadingAlgorithm || '',
-		''
-	);
-	const shadingAlgorithmsOptionKeys = get(
-		LayerHillshading.shadingAlgorithmsOptionKeys,
-		shadingAlgoKey,
-		[]
-	) as string[];
 	return (
 		'shading' +
 		stringifyProp(
-			omit(
-				{
-					...options,
-					shadingAlgorithmOptions: pick(
-						defaultsAssign(
-							options?.shadingAlgorithmOptions || {},
-							defaults.layerConfigOptions.hillshading.shadingAlgorithmOptions
-						),
-						shadingAlgorithmsOptionKeys
-					),
-				},
-				[
-					'enabledZoomMin',
-					'enabledZoomMax',
-					'zoomMin',
-					'zoomMax',
-					'cacheSize',
-					'cacheDirBase',
-					'hgtDirPath',
-				]
-			)
+			omit(options, [
+				'enabledZoomMin',
+				'enabledZoomMax',
+				'zoomMin',
+				'zoomMax',
+				'cacheSize',
+				'cacheDirBase',
+				'hgtDirPath',
+			])
 		)
 	);
+};
+
+/**
+ * Shading algorithm options that are not user-configurable — always use library defaults.
+ * Only includes options relevant to CLASY_ADAPTIVE (the locked algorithm).
+ * Values match react-native-mapsforge-vtm's shadingAlgorithmOptionsDefaults.
+ */
+const SHADING_ALGORITHM_FIXED_OPTIONS = {
+	readingThreadsCount: -1,
+	computingThreadsCount: -1,
+	isPreprocess: true,
+	isHqEnabled: true,
+	qualityScale: 1,
+};
+
+/**
+ * Builds the nested ShadingAlgorithmOptions object expected by LayerHillshading.
+ * User-configurable values come from the flat options; the rest are hardcoded defaults.
+ */
+export const getShadingAlgorithmOptions = (
+	options: LayerConfigOptionsHillshading
+): Record<string, unknown> => {
+	return {
+		...SHADING_ALGORITHM_FIXED_OPTIONS,
+		maxSlope: options.maxSlope,
+		minSlope: options.minSlope,
+		asymmetryFactor: options.asymmetryFactor,
+	};
 };

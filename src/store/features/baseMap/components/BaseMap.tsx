@@ -25,7 +25,11 @@ import {
 	LayerConfigOptionsMapsforge,
 	LayerConfigOptionsHillshading,
 } from '../types';
-import { getHillshadingCacheDirChild, stringifyProp } from '../utils';
+import {
+	getHillshadingCacheDirChild,
+	getShadingAlgorithmOptions,
+	stringifyProp,
+} from '../utils';
 import { useAppDispatch, useAppSelector } from '../../../hooks';
 import { selectLayers, selectMapsforgeProfiles } from '../selectors';
 import { selectAppDirs } from '../../dirs/selectors';
@@ -216,12 +220,12 @@ const BaseMap: FC<{}> = () => {
 											'/') as LayerHillshadingProps['cacheDirBase']
 									} // if ``, will fallback to cache dbname;
 									shadingAlgorithm={
-										(layer.options as LayerConfigOptionsHillshading)
-											.shadingAlgorithm
+										LayerHillshading.shadingAlgorithms.CLASY_ADAPTIVE
 									}
 									shadingAlgorithmOptions={
-										(layer.options as LayerConfigOptionsHillshading)
-											.shadingAlgorithmOptions
+										getShadingAlgorithmOptions(
+											layer.options as LayerConfigOptionsHillshading
+										) as LayerHillshadingProps['shadingAlgorithmOptions']
 									}
 								/>
 							);

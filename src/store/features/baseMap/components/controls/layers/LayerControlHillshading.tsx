@@ -12,17 +12,19 @@ import NumericRowControl from '../../../../../../components/generic/controls/Num
 import HgtSourceRowControl from '../../../../../../components/generic/controls/HgtSourceRowControl';
 import { getHillshadingCacheDirChild } from '../../../utils';
 import CacheControl from './CacheControl';
-import { defaults } from '../../../../../../constants';
+import { defaults } from '../../../defaults';
 import { LayerConfigOptionsHillshading, LayerConfig } from '../../../types';
 import { selectAppDirs } from '../../../../dirs/selectors';
 import { useAppDispatch, useAppSelector } from '../../../../../hooks';
 import { setLayerTemp } from '../../../slice';
 import { selectLayerTemp } from '../../../selectors';
-import HillshadingAlgorithmControl from './HillshadingAlgorithmControl';
 import NumericRowControlMulti from '../../../../../../components/generic/controls/NumericRowControlMulti';
 
 const validateZoom = (val: number) => val >= 0;
 const validateMagnitude = (val: number) => val >= 0 && val <= 1000;
+const validateMaxSlope = (val: number) => val > 0 && val < 100;
+const validateMinSlope = (val: number) => val >= 0 && val < 100;
+const validateUnitInterval = (val: number) => val >= 0 && val <= 1;
 const zoomOptLabels = ['min', 'max'];
 
 const LayerControlHillshading: FC<{}> = () => {
@@ -93,6 +95,33 @@ const LayerControlHillshading: FC<{}> = () => {
 		[layerTemp?.options, setOptions]
 	);
 
+	const handleMaxSlopeUpdate = useCallback(
+		(newValue: number) =>
+			setOptions({
+				...(layerTemp?.options ?? {}),
+				maxSlope: newValue,
+			}),
+		[layerTemp?.options, setOptions]
+	);
+
+	const handleMinSlopeUpdate = useCallback(
+		(newValue: number) =>
+			setOptions({
+				...(layerTemp?.options ?? {}),
+				minSlope: newValue,
+			}),
+		[layerTemp?.options, setOptions]
+	);
+
+	const handleAsymmetryFactorUpdate = useCallback(
+		(newValue: number) =>
+			setOptions({
+				...(layerTemp?.options ?? {}),
+				asymmetryFactor: newValue,
+			}),
+		[layerTemp?.options, setOptions]
+	);
+
 	return (
 		<Fragment>
 			<HgtSourceRowControl
@@ -101,8 +130,6 @@ const LayerControlHillshading: FC<{}> = () => {
 				optKey={'hgtDirPath'}
 				dirs={get(appDirs, 'dem', [])}
 			/>
-
-			<HillshadingAlgorithmControl />
 
 			<NumericRowControlMulti
 				label={t('enabled')}
@@ -130,6 +157,33 @@ const LayerControlHillshading: FC<{}> = () => {
 				onUpdate={handleMagnitudeUpdate}
 				validate={validateMagnitude}
 				Info={t('baseMap.shadingOptions.magnitude.hint')}
+			/>
+
+			<NumericRowControl
+				label={t('baseMap.shadingOptions.maxSlope.label')}
+				value={layerTemp?.options?.maxSlope ?? 0}
+				onUpdate={handleMaxSlopeUpdate}
+				validate={validateMaxSlope}
+				numType="float"
+				Info={t('baseMap.shadingOptions.maxSlope.hint')}
+			/>
+
+			<NumericRowControl
+				label={t('baseMap.shadingOptions.minSlope.label')}
+				value={layerTemp?.options?.minSlope ?? 0}
+				onUpdate={handleMinSlopeUpdate}
+				validate={validateMinSlope}
+				numType="float"
+				Info={t('baseMap.shadingOptions.minSlope.hint')}
+			/>
+
+			<NumericRowControl
+				label={t('baseMap.shadingOptions.asymmetryFactor.label')}
+				value={layerTemp?.options?.asymmetryFactor ?? 0}
+				onUpdate={handleAsymmetryFactorUpdate}
+				validate={validateUnitInterval}
+				numType="float"
+				Info={t('baseMap.shadingOptions.asymmetryFactor.hint')}
 			/>
 
 			<CacheControl

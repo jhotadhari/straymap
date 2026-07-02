@@ -8,7 +8,11 @@ import { LayerHillshading, LayerHillshadingProps } from 'react-native-mapsforge-
  * Internal dependencies
  */
 import { LayerConfig, LayerConfigOptionsHillshading } from '../../types';
-import { getHillshadingCacheDirChild, resolveCacheDirBase } from '../../utils';
+import {
+	getHillshadingCacheDirChild,
+	getShadingAlgorithmOptions,
+	resolveCacheDirBase,
+} from '../../utils';
 
 const LayerRendererHillshading: FC<{
 	layer: LayerConfig<LayerConfigOptionsHillshading>;
@@ -30,8 +34,10 @@ const LayerRendererHillshading: FC<{
 			cacheSize={opts.cacheSize}
 			cacheDirChild={getHillshadingCacheDirChild(opts)}
 			cacheDirBase={cacheDirBase as LayerHillshadingProps['cacheDirBase']}
-			shadingAlgorithm={opts.shadingAlgorithm}
-			shadingAlgorithmOptions={opts.shadingAlgorithmOptions}
+			shadingAlgorithm={LayerHillshading.shadingAlgorithms.CLASY_ADAPTIVE}
+			shadingAlgorithmOptions={
+				getShadingAlgorithmOptions(opts) as LayerHillshadingProps['shadingAlgorithmOptions']
+			}
 		/>
 	);
 };

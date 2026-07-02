@@ -64,11 +64,14 @@ export interface LayerConfigOptionsHillshading {
 	enabledZoomMax?: LayerHillshadingProps['enabledZoomMax'];
 	zoomMin?: LayerHillshadingProps['zoomMin'];
 	zoomMax?: LayerHillshadingProps['zoomMax'];
-	shadingAlgorithm?: LayerHillshadingProps['shadingAlgorithm'];
-	shadingAlgorithmOptions?: LayerHillshadingProps['shadingAlgorithmOptions'];
 	magnitude?: LayerHillshadingProps['magnitude'];
 	cacheSize?: LayerHillshadingProps['cacheSize'];
 	cacheDirBase?: 'internal' | LayerBitmapTileProps['cacheDirBase'];
+	// Algorithm is locked to CLASY_ADAPTIVE.
+	// Only user-adjustable shading options; the rest use library defaults.
+	maxSlope?: number;
+	minSlope?: number;
+	asymmetryFactor?: number;
 }
 
 export type LayerConfigOptionsAny =
