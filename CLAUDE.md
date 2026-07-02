@@ -69,14 +69,14 @@ The library provides three tiers for consuming map position and one for altitude
 
 | Tier | API | Bridge crossings | React re-renders | Best for |
 |---|---|---|---|---|
-| Callback | `MapContainer.onMapUpdate` with `mapUpdateInterval` (ms, default 40) | ~25/sec (native→JS) | ~25/sec | centerAltitude polling, debug overlays, one-shot reactions |
+| Callback | `MapContainer.onMapUpdate` with `mapUpdateInterval` (ms, default 40) | ~25/sec (native→JS) | ~25/sec | Coordinate tracking, debug overlays, one-shot reactions |
 | Shared values | `useMapPosition()` from `/reanimated` | 0 for reads (UI thread) | 0 | Smooth 60fps coordinate displays, worklet-driven overlays |
 | Imperative | `useMap().getPosition()` | 2 per call (round-trip) | 0–1 | Button-triggered snapshots |
-| Altitude | `useMap().getAltitudeAtPosition(lng, lat)` | 2 per call (round-trip) | 0–1 | Tap-to-query, one-shot elevation lookups |
+| Altitude | `useMap().getAltitudeAtPosition(lng, lat)` | 2 per call (round-trip) | 0–1 | Debounced center-altitude polling, tap-to-query, one-shot elevation lookups |
 
 **`mapUpdateInterval`**: The prop on `MapContainer` (in `general` slice) controls the interval in milliseconds between `onMapUpdate` events. It was renamed from `mapEventRate` — the old name suggested Hz but the value is actually milliseconds.
 
-**Altitude in `onMapUpdate`**: The `center` array in `MapEventResponse` is `[lng, lat, alt?]` — the 3rd element is present iff `hgtDirPath` is set on `MapContainer`. The lookup is powered by an `LruCache`-backed `ElevationReader` (10-tile cap, ~29MB max).
+**Altitude**: The `center` array in `MapEventResponse` is `[lng, lat]` — the 3rd element (altitude) is intentionally always omitted. Elevation lookups are handled by `useMap().getAltitudeAtPosition(lng, lat)`, which runs on the Native Modules thread (not the render thread) to avoid map-movement jank. The native `ElevationReader` (LruCache-backed, 10-tile cap, ~29MB max) loads tiles on demand.
 
 **Removed props** (no longer exist on `MapContainer`):
 - `hgtInterpolation` — bilinear interpolation is now always on
