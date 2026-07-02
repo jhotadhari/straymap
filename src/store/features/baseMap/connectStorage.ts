@@ -53,7 +53,7 @@ export const initializeFromStorage = (store: AppStore) => {
 						})
 					);
 				}
-				if (newSettings?.hgtDirPath) {
+				if (newSettings?.hgtDirPath != null) {
 					store.dispatch(setHgtDirPath(newSettings.hgtDirPath));
 				}
 				if (newSettings?.mapsforgeGeneral) {

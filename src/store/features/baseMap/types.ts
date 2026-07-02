@@ -95,7 +95,7 @@ export type MapsforgeProfile = {
 	hasLabels?: boolean;
 };
 
-export type HgtDirPath = string | null | undefined;
+export type HgtDirPath = LayerHillshadingProps['hgtDirPath'];
 
 export type MapsforgeGeneral = {
 	textScale: number;

@@ -41,8 +41,13 @@ export const initializeFromStorage = (store: AppStore) => {
 				if (newSettings?.unitPrefs) {
 					store.dispatch(setUnitPrefs(newSettings.unitPrefs));
 				}
-				if (newSettings?.mapUpdateInterval) {
-					store.dispatch(setMapUpdateInterval(newSettings.mapUpdateInterval));
+				// Migrate the old mapEventRate key (renamed to mapUpdateInterval)
+				// so that existing persisted values are preserved across upgrades.
+				const mapInterval =
+					newSettings?.mapUpdateInterval ??
+					(newSettings as Record<string, unknown>)?.mapEventRate;
+				if (mapInterval != null) {
+					store.dispatch(setMapUpdateInterval(mapInterval as number));
 				}
 			}
 			store.dispatch(setInitialized(true));

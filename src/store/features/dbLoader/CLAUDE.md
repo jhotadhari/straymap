@@ -154,7 +154,7 @@ was an explicit decision, not an oversight.
 Every feature slice follows the same convention for persisting settings across app restarts:
 
 1. **`slice.ts`** defines an `initialSettings` object with the subset of state that should
-   survive app restarts (e.g. `isRouting`, `selected`, `mapEventRate`). Only keys listed in
+   survive app restarts (e.g. `isRouting`, `selected`, `mapUpdateInterval`). Only keys listed in
    `initialSettings` are persisted — everything else in the slice state is ephemeral.
 
 2. **`connectStorage.ts`** (one per feature, e.g. `lines/connectStorage.ts`,

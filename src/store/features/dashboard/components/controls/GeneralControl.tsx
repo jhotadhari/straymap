@@ -27,7 +27,7 @@ const ControlIcon: (props: { color: string; style: Style }) => ReactNode = (prop
 	</View>
 );
 
-const validateMapEventRate = (val: number) => val > 0 && val <= 20000;
+const validateMapUpdateInterval = (val: number) => val >= 10 && val <= 20000;
 
 const GeneralControl: FC<{}> = () => {
 	const { t } = useTranslation();
@@ -52,7 +52,7 @@ const GeneralControl: FC<{}> = () => {
 		uiStateKey,
 	]);
 
-	const handleUpdateMapEventRate = useCallback(
+	const handleUpdateMapUpdateInterval = useCallback(
 		(newValue: number) => {
 			dispatch(setMapUpdateInterval(newValue));
 		},
@@ -71,8 +71,8 @@ const GeneralControl: FC<{}> = () => {
 				<NumericRowControl
 					label={t('dashboard.updateRate')}
 					value={mapUpdateInterval ?? 40}
-					onUpdate={handleUpdateMapEventRate}
-					validate={validateMapEventRate}
+					onUpdate={handleUpdateMapUpdateInterval}
+					validate={validateMapUpdateInterval}
 					Info={t('dashboard.hint.updateRate')}
 				/>
 			</View>
