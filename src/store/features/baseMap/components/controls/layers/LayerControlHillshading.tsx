@@ -56,6 +56,8 @@ const LayerControlHillshading: FC<{}> = () => {
 
 	const appDirs = useAppSelector(selectAppDirs);
 
+	const hsDefaults = defaults.layerConfigOptions.hillshading;
+
 	const enabledZoomValues = useMemo(
 		() => [layerTemp?.options?.enabledZoomMin ?? 0, layerTemp?.options?.enabledZoomMax ?? 0],
 		[layerTemp?.options?.enabledZoomMin, layerTemp?.options?.enabledZoomMax]
@@ -153,7 +155,7 @@ const LayerControlHillshading: FC<{}> = () => {
 
 			<NumericRowControl
 				label={t('baseMap.shadingOptions.magnitude.label')}
-				value={layerTemp?.options?.magnitude ?? 0}
+				value={layerTemp?.options?.magnitude ?? hsDefaults.magnitude!}
 				onUpdate={handleMagnitudeUpdate}
 				validate={validateMagnitude}
 				Info={t('baseMap.shadingOptions.magnitude.hint')}
@@ -161,7 +163,7 @@ const LayerControlHillshading: FC<{}> = () => {
 
 			<NumericRowControl
 				label={t('baseMap.shadingOptions.maxSlope.label')}
-				value={layerTemp?.options?.maxSlope ?? 0}
+				value={layerTemp?.options?.maxSlope ?? hsDefaults.maxSlope!}
 				onUpdate={handleMaxSlopeUpdate}
 				validate={validateMaxSlope}
 				numType="float"
@@ -170,7 +172,7 @@ const LayerControlHillshading: FC<{}> = () => {
 
 			<NumericRowControl
 				label={t('baseMap.shadingOptions.minSlope.label')}
-				value={layerTemp?.options?.minSlope ?? 0}
+				value={layerTemp?.options?.minSlope ?? hsDefaults.minSlope!}
 				onUpdate={handleMinSlopeUpdate}
 				validate={validateMinSlope}
 				numType="float"
@@ -179,7 +181,7 @@ const LayerControlHillshading: FC<{}> = () => {
 
 			<NumericRowControl
 				label={t('baseMap.shadingOptions.asymmetryFactor.label')}
-				value={layerTemp?.options?.asymmetryFactor ?? 0}
+				value={layerTemp?.options?.asymmetryFactor ?? hsDefaults.asymmetryFactor!}
 				onUpdate={handleAsymmetryFactorUpdate}
 				validate={validateUnitInterval}
 				numType="float"

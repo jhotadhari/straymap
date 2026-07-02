@@ -12,6 +12,7 @@ import {
 	getHillshadingCacheDirChild,
 	getShadingAlgorithmOptions,
 	resolveCacheDirBase,
+	SHADING_ALGORITHM,
 } from '../../utils';
 
 const LayerRendererHillshading: FC<{
@@ -34,10 +35,8 @@ const LayerRendererHillshading: FC<{
 			cacheSize={opts.cacheSize}
 			cacheDirChild={getHillshadingCacheDirChild(opts)}
 			cacheDirBase={cacheDirBase as LayerHillshadingProps['cacheDirBase']}
-			shadingAlgorithm={LayerHillshading.shadingAlgorithms.CLASY_ADAPTIVE}
-			shadingAlgorithmOptions={
-				getShadingAlgorithmOptions(opts) as LayerHillshadingProps['shadingAlgorithmOptions']
-			}
+			shadingAlgorithm={SHADING_ALGORITHM}
+			shadingAlgorithmOptions={getShadingAlgorithmOptions(opts)}
 		/>
 	);
 };

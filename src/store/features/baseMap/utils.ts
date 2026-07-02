@@ -4,6 +4,7 @@
 import rnUuid from 'react-native-uuid';
 import defaultsAssign from 'defaults';
 import { get, omit } from 'lodash-es';
+import { LayerHillshading, ShadingAlgorithmOptions } from 'react-native-mapsforge-vtm';
 import { ActionCreatorWithPayload } from '@reduxjs/toolkit';
 import slugify from 'slugify';
 
@@ -131,28 +132,17 @@ export const getHillshadingCacheDirChild = (options: LayerConfigOptionsHillshadi
 	);
 };
 
-/**
- * Shading algorithm options that are not user-configurable — always use library defaults.
- * Only includes options relevant to CLASY_ADAPTIVE (the locked algorithm).
- * Values match react-native-mapsforge-vtm's shadingAlgorithmOptionsDefaults.
- */
-const SHADING_ALGORITHM_FIXED_OPTIONS = {
-	readingThreadsCount: -1,
-	computingThreadsCount: -1,
-	isPreprocess: true,
-	isHqEnabled: true,
-	qualityScale: 1,
-};
+/** Algorithm locked for hillshading — the best quality/performance trade-off. */
+export const SHADING_ALGORITHM = LayerHillshading.shadingAlgorithms.CLASY_ADAPTIVE;
 
 /**
  * Builds the nested ShadingAlgorithmOptions object expected by LayerHillshading.
- * User-configurable values come from the flat options; the rest are hardcoded defaults.
+ * Only passes user-configurable values; the library fills its own defaults for the rest.
  */
 export const getShadingAlgorithmOptions = (
 	options: LayerConfigOptionsHillshading
-): Record<string, unknown> => {
+): ShadingAlgorithmOptions => {
 	return {
-		...SHADING_ALGORITHM_FIXED_OPTIONS,
 		maxSlope: options.maxSlope,
 		minSlope: options.minSlope,
 		asymmetryFactor: options.asymmetryFactor,
