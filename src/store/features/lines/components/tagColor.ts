@@ -56,8 +56,14 @@ export const getTagColor = (tag: {
 }): TagColors => {
 	// Explicit colour stored in tag data
 	if (typeof tag.data?.color === 'string' && tag.data.color.length > 0) {
-		const hex = tag.data.color as string;
-		// Simple luminance check — if the hex looks dark, use white text
+		let hex = tag.data.color as string;
+		// Normalize 3-digit shorthand (#RGB) and 8-digit (#RRGGBBAA) to 6-digit
+		if (hex.length === 4) {
+			hex = '#' + hex[1] + hex[1] + hex[2] + hex[2] + hex[3] + hex[3];
+		} else if (hex.length === 9) {
+			hex = hex.slice(0, 7);
+		}
+		// Parse RRGGBB components
 		const r = parseInt(hex.slice(1, 3), 16) || 0;
 		const g = parseInt(hex.slice(3, 5), 16) || 0;
 		const b = parseInt(hex.slice(5, 7), 16) || 0;

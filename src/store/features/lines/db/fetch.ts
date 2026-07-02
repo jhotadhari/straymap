@@ -406,23 +406,18 @@ export { fetchLinesWithTags as fetchLines };
  * Fetch all tags (used by TagEditModal / tag pickers).
  */
 export const fetchAllTags = (): Promise<Tag[]> => {
-	return new Promise((resolve, reject) => {
-		if (!dbConnection?.drizzle) {
-			return resolve([]);
-		}
-		dbConnection.drizzle
-			.select()
-			.from(tagsTable)
-			.then((rows) => {
-				resolve(
-					rows.map((r) => ({
-						id: r.id,
-						label: r.label,
-						notes: r.notes,
-						data: r.data as any,
-					}))
-				);
-			})
-			.catch(reject);
-	});
+	if (!dbConnection?.drizzle) {
+		return Promise.reject(new Error('Database not initialized'));
+	}
+	return dbConnection.drizzle
+		.select()
+		.from(tagsTable)
+		.then((rows) =>
+			rows.map((r) => ({
+				id: r.id,
+				label: r.label,
+				notes: r.notes,
+				data: r.data as any,
+			}))
+		);
 };

@@ -59,12 +59,14 @@ const useAddTag = () => {
 		try {
 			const result = await queryAllTags();
 			setTags(result);
+			setLoading(false);
+			setModalVisible(true);
 		} catch (err) {
 			logError('useAddTag.openModal', err);
+			showError(sprintf(t('errorGeneric'), err instanceof Error ? err.message : String(err)));
+			setLoading(false);
 		}
-		setLoading(false);
-		setModalVisible(true);
-	}, []);
+	}, [showError, t]);
 
 	const closeModal = useCallback(() => {
 		if (mutation.isPending) return;
@@ -92,7 +94,7 @@ const useAddTag = () => {
 			<ModalWrapper
 				visible={modalVisible}
 				onDismiss={closeModal}
-				header={t('lines.tagsAdd')}
+				header={t('lines.addTags')}
 				innerStyle={{ gap: 12, marginTop: 16 }}
 			>
 				{loading ? (

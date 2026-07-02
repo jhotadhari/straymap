@@ -59,12 +59,14 @@ const useRemoveTag = () => {
 		try {
 			const result = await queryAllTags();
 			setTags(result);
+			setLoading(false);
+			setModalVisible(true);
 		} catch (err) {
 			logError('useRemoveTag.openModal', err);
+			showError(sprintf(t('errorGeneric'), err instanceof Error ? err.message : String(err)));
+			setLoading(false);
 		}
-		setLoading(false);
-		setModalVisible(true);
-	}, []);
+	}, [showError, t]);
 
 	const closeModal = useCallback(() => {
 		if (mutation.isPending) return;
@@ -92,7 +94,7 @@ const useRemoveTag = () => {
 			<ModalWrapper
 				visible={modalVisible}
 				onDismiss={closeModal}
-				header={t('lines.tagsRemove')}
+				header={t('lines.removeTags')}
 				innerStyle={{ gap: 12, marginTop: 16 }}
 			>
 				{loading ? (

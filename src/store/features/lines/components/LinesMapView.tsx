@@ -15,7 +15,6 @@ import { queryLineGeom } from '../db/queryFns';
 import { queryLinesWithoutGeom } from '../db/queryFns';
 import useSimplificationTolerance from '../hooks/useSimplificationTolerance';
 import { getTagColor } from './tagColor';
-import { Line } from '../types';
 
 const BASE_STROKE_WIDTH = 5;
 
@@ -28,33 +27,26 @@ const defaultPathStyle: GeometryStyle = {
 const LineItem: FC<{
 	lineId: number;
 	simplify?: number;
-}> = ({ lineId, simplify }) => {
-	// Fetch geometry
+	strokeColor?: string;
+}> = ({ lineId, simplify, strokeColor }) => {
+	// Fetch geometry only — tag colour comes from the parent batch query
 	const { data: line } = useQuery({
 		queryKey: ['lineGeom', lineId, ...(simplify ? [simplify] : [])],
 		queryFn: queryLineGeom,
 		gcTime: 1000 * 10,
 	});
 
-	// Fetch line metadata (tags) for color
-	const { data: lines } = useQuery({
-		queryKey: ['lines', [lineId]],
-		queryFn: queryLinesWithoutGeom,
-		gcTime: 1000 * 10,
-	});
-
 	const pathStyle = useMemo((): GeometryStyle => {
-		const lineData = lines?.find((l: Omit<Line, 'geometry'>) => l.id === lineId);
-		const firstTag = lineData?.tags?.[0];
-		if (firstTag) {
-			const color = getTagColor(firstTag);
+		if (strokeColor) {
+			// getTagColor always returns valid #RRGGBB hex (palette or normalised custom),
+			// so the value is safe for GeometryStyle's `#${string}` constraint.
 			return {
-				strokeColor: color.bg as `#${string}`,
+				strokeColor: strokeColor as `#${string}`,
 				strokeWidth: BASE_STROKE_WIDTH,
 			};
 		}
 		return defaultPathStyle;
-	}, [lines, lineId]);
+	}, [strokeColor]);
 
 	if (!line?.geometry?.coordinates) return null;
 
@@ -84,6 +76,29 @@ const LinesMapView = () => {
 
 	const simplify = useSimplificationTolerance();
 
+	// Batch-fetch metadata for all selected lines once, rather than one
+	// query per line. Each LineItem still fetches its own geometry (large,
+	// per-line cache key), but the lightweight tag lookup is shared.
+	const { data: lines } = useQuery({
+		queryKey: ['lines', selectedIds],
+		queryFn: queryLinesWithoutGeom,
+		gcTime: 1000 * 10,
+		enabled: selectedIds.length > 0,
+	});
+
+	// lineId → stroke colour map from the first tag on each line
+	const tagColorMap = useMemo(() => {
+		const map: Record<number, string> = {};
+		if (!lines) return map;
+		for (const l of lines) {
+			const firstTag = l.tags?.[0];
+			if (firstTag) {
+				map[l.id] = getTagColor(firstTag).bg;
+			}
+		}
+		return map;
+	}, [lines]);
+
 	return (
 		<ReindexScope>
 			{selectedIds?.map((lineId) => {
@@ -94,6 +109,7 @@ const LinesMapView = () => {
 							key={lineId}
 							lineId={lineId}
 							simplify={simplify}
+							strokeColor={tagColorMap[lineId]}
 						/>
 					)
 				);

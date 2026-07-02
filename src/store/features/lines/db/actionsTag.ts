@@ -57,12 +57,15 @@ export const updateTag = withDbErrorHandling(
 		if (!tags.length) {
 			return;
 		}
+		const existingTag = tags[0];
 		await dbConnection.drizzle
 			.update(tagsTable)
 			.set({
 				...(undefined !== newTag?.label && { label: newTag.label }),
 				...(undefined !== newTag?.notes && { notes: newTag.notes }),
-				...(undefined !== newTag?.data && { data: newTag.data }),
+				...(undefined !== newTag?.data && {
+					data: { ...(existingTag.data as any ?? {}), ...newTag.data },
+				}),
 			})
 			.where(eq(tagsTable.id, id));
 	}

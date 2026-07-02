@@ -8,8 +8,8 @@ import { useTranslation } from 'react-i18next';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { eq } from 'drizzle-orm';
 import { get } from 'lodash-es';
-import { openDocument, openDocumentTree } from 'react-native-scoped-storage';
-import { readDir, readFile } from 'react-native-fs';
+import { openDocument, openDocumentTree, listFiles } from 'react-native-scoped-storage';
+import { readFile } from 'react-native-fs';
 import { sprintf } from 'sprintf-js';
 import { Feature, GeoJsonProperties, LineString } from 'geojson';
 
@@ -96,6 +96,7 @@ const ImportModal: FC<{
 			if (importMode === 'directory') {
 				// Parse each selected file and collect features
 				const allFeatures: Feature<LineString, GeoJsonProperties>[] = [];
+				const sourceNames: string[] = []; // track which file each feature came from
 				const uris = Array.from(selectedFileUris);
 				for (let i = 0; i < uris.length; i++) {
 					if (dismissedRef.current) return;
@@ -107,6 +108,9 @@ const ImportModal: FC<{
 						const format = detectImportFormat(name);
 						if (format) {
 							const result = parseImportContent(content, format);
+							for (let f = 0; f < result.features.length; f++) {
+								sourceNames.push(name.replace(/\.[^.]+$/, ''));
+							}
 							allFeatures.push(...result.features);
 						}
 					} catch (err) {
@@ -114,11 +118,12 @@ const ImportModal: FC<{
 						// Skip files that fail to parse; continue with remaining
 					}
 				}
-				if (!allFeatures.length) return;
+				if (!allFeatures.length) {
+					throw new Error(t('lines.importDirNoFiles'));
+				}
 				toImport = allFeatures;
 				titles = allFeatures.map((f, i) =>
-					f.properties?.name ??
-					dirFiles.find((df) => df.uri === uris[Math.min(i, uris.length - 1)])?.name?.replace(/\.[^.]+$/, '')
+					f.properties?.name ?? sourceNames[i]
 				);
 			} else {
 				toImport = features.filter((_, idx) => selectedIndices.has(idx));
@@ -147,7 +152,7 @@ const ImportModal: FC<{
 				};
 				const title = importMode === 'file'
 					? filename.replace(/\.[^.]+$/, '')
-					: dirFiles.find((f) => selectedFileUris.has(f.uri))?.name?.replace(/\.[^.]+$/, '') ?? t('lines.importTrackN', { ns: 'lines' });
+					: dirFiles.find((f) => f.uri === Array.from(selectedFileUris).sort()[0])?.name?.replace(/\.[^.]+$/, '') ?? t('lines.importTrackN', { ns: 'lines' });
 				await createLines([
 					{ title, lineStringFeature: merged, tagIds: importTagId ? [importTagId] : undefined },
 				]);
@@ -245,16 +250,16 @@ const ImportModal: FC<{
 			setSelectedIndices(new Set());
 			setStep('scanning');
 
-			const items = await readDir(dir.uri);
+			const items = await listFiles(dir.uri);
 			if (dismissedRef.current) return;
 
 			const supported = items
 				.filter((item) => {
-					if (!item.isFile()) return false;
+					if (item.type !== 'file') return false;
 					const ext = item.name.split('.').pop()?.toLowerCase();
 					return ext ? (IMPORT_EXTENSIONS as readonly string[]).includes(ext) : false;
 				})
-				.map((item) => ({ uri: item.path, name: item.name }));
+				.map((item) => ({ uri: item.uri, name: item.name }));
 
 			if (!supported.length) {
 				if (dismissedRef.current) return;
