@@ -167,7 +167,6 @@ const EditPointModal: FC<{
 				labelExtractor={(a) => a.label}
 				status={editPoint.profile?.fast ? 'checked' : 'unchecked'}
 				radioAlign={'left'}
-				Info={t('hint.maps.hgtInterpolation')}
 			/>
 		</ModalWrapper>
 	);
