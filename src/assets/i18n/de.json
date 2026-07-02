@@ -49,7 +49,18 @@
 	"mapElevationAtPoint": "Höhe: %sm bei (%s, %s)",
 	"mapElevationNoData": "Keine Höhendaten für diesen Ort verfügbar.",
 	"moreInformation": "Weitere Informationen",
+	"downloads": "Downloads",
+	"renderThemeDownloads": "Render-Theme-Downloads",
+	"demDownloads": "DEM-Downloads",
+	"map": {
+		"demDir": "DEM Verzeichnis",
+		"selectDemDir": "DEM Verzeichnis auswählen"
+	},
 	"hint": {
+		"maps": {
+			"demDir": "Verzeichnis mit digitalen Höhenmodell-Dateien (.hgt) für Schattierung und Höhenanzeige. Die Dateien müssen manuell heruntergeladen werden — danach ist keine Internetverbindung erforderlich.",
+			"demOnly3Sec": "Zurzeit werden nur Höhenmodelle mit einer Auflösung von 3 Bogensekunden unterstützt."
+		},
 		"link": {
 			"digitalEleData": "Digitale Höhendaten",
 			"digitalEleDataCoverage": "Einfachster Weg zum Download von Höhendaten im hgt-Format mit einer Auflösung von 3 Bogensekunden"

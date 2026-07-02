@@ -88,7 +88,7 @@ const MapsforgeGeneralControl = () => {
 					value={settings.lineScale}
 					onUpdate={handleLineScale}
 					validate={validate}
-					Info={t('baseMap.hint.maps.lineScale')}
+					Info={t('baseMap.hint.lineScale')}
 				/>
 
 				<NumericRowControl
@@ -97,7 +97,7 @@ const MapsforgeGeneralControl = () => {
 					value={settings.textScale}
 					onUpdate={handleTextScale}
 					validate={validate}
-					Info={t('baseMap.hint.maps.textScale')}
+					Info={t('baseMap.hint.textScale')}
 				/>
 
 				<NumericRowControl
@@ -106,7 +106,7 @@ const MapsforgeGeneralControl = () => {
 					value={settings.symbolScale}
 					onUpdate={handleSymbolScale}
 					validate={validate}
-					Info={t('baseMap.hint.maps.symbolScale')}
+					Info={t('baseMap.hint.symbolScale')}
 				/>
 			</View>
 		</ListItemModalControl>

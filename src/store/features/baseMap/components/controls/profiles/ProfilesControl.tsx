@@ -313,7 +313,7 @@ const ControlInfo: FC<{}> = () => {
 	return (
 		<View style={styles.controlInfo}>
 			<Text>{t('baseMap.hint.profiles')}</Text>
-			<Text style={theme.fonts.bodyLarge}>{'Render theme downloads:'}</Text>
+			<Text style={theme.fonts.bodyLarge}>{t('renderThemeDownloads') + ':'}</Text>
 			{themeDownloadLinks.map(({ label, url }) => (
 				<HintLink
 					key={url}

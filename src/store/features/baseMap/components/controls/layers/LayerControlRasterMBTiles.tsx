@@ -38,9 +38,9 @@ const MapFileInfo: FC<{}> = () => {
 	return (
 		<View>
 			<Text>{t('baseMap.hint.mbTilesFile')}</Text>
-			<Text style={style}>{'Downloads:'}</Text>
+			<Text style={style}>{t('downloads') + ':'}</Text>
 			<HintLink
-				label={t('.baseMap.link.openandromapsDownloadsRaster')}
+				label={t('baseMap.link.openandromapsDownloadsRaster')}
 				url={'https://www.openandromaps.org/en/downloads/general-maps'}
 			/>
 		</View>

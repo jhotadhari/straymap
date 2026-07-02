@@ -354,7 +354,7 @@ const EditModal: FC<{
 					<NameRowControl
 						item={layerTemp}
 						update={handleNameUpdate}
-						Info={t('basemap.hint.nameId')}
+						Info={t('baseMap.hint.nameId')}
 					/>
 
 					<VisibilityRowControl

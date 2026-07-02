@@ -143,13 +143,13 @@ const HgtSourceRowControl = ({
 					{onlyThreeSeconds && (
 						<Text style={styles.hint}>{t('hint.maps.demOnly3Sec')}</Text>
 					)}
-					<Text style={styleHintLarge}>{'DEM Downloads:'}</Text>
+					<Text style={styleHintLarge}>{t('demDownloads') + ':'}</Text>
 					<HintLink
-						label={t('link.digitalEleData')}
+						label={t('hint.link.digitalEleData')}
 						url={'https://viewfinderpanoramas.org/dem3.html'}
 					/>
 					<HintLink
-						label={t('link.digitalEleDataCoverage')}
+						label={t('hint.link.digitalEleDataCoverage')}
 						url={
 							'https://viewfinderpanoramas.org/Coverage%20map%20viewfinderpanoramas_org3.htm'
 						}

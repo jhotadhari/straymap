@@ -177,9 +177,9 @@ const MapFileControlInfo: FC<{}> = ({}) => {
 	return (
 		<View>
 			<Text>{t('baseMap.hint.mapsforgeFile')}</Text>
-			<Text style={style}>{'Downloads:'}</Text>
+			<Text style={style}>{t('downloads') + ':'}</Text>
 			<HintLink
-				label={t('link.openandromapsDownloads')}
+				label={t('baseMap.link.openandromapsDownloads')}
 				url={'https://www.openandromaps.org/en/downloads'}
 			/>
 		</View>
