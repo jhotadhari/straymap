@@ -53,7 +53,7 @@ const RowToggleOnMap: FC = () => {
 	);
 
 	return (
-		<InfoRowControl label={label}>
+		<InfoRowControl label={label} Info={t('lines.hintToggleOnMap')}>
 			<ButtonHighlight
 				style={buttonStyle}
 				mode="outlined"

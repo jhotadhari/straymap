@@ -9,7 +9,10 @@
 	"zoomOut": "Herauszoomen",
 	"hint": {
 		"units": {
-			"heightDepth": "Die Höhe/Tiefe bezieht sich nicht auf die Höhen-/Tiefenbeschriftungen innerhalb einer Kartenebene. Diese sind völlig unabhängig von dieser Einstellung. Die Höhen-/Tiefenbeschriftungen innerhalb einer Kartenebene sind ausschließlich von der Quelle der Kartenebene abhängig."
-		}
+			"heightDepth": "Die Höhe/Tiefe bezieht sich nicht auf die Höhen-/Tiefenbeschriftungen innerhalb einer Kartenebene. Diese sind völlig unabhängig von dieser Einstellung. Die Höhen-/Tiefenbeschriftungen innerhalb einer Kartenebene sind ausschließlich von der Quelle der Kartenebene abhängig.",
+			"unit": "Wähle das Einheitensystem, das für die Anzeige von Werten dieses Typs in der gesamten App verwendet wird.",
+			"decimalPlaces": "Anzahl der Dezimalstellen für Werte dieses Einheitentyps. Höhere Werte zeigen mehr Nachkommastellen für größere Genauigkeit an."
+		},
+		"hardwareKey": "Weise dieser Hardware-Taste eine Aktion zu. Die Lautstärketasten können zum Zoomen der Karte verwendet oder deaktiviert werden, um versehentliche Zoom-Änderungen zu vermeiden."
 	}
 }

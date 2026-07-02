@@ -131,12 +131,13 @@ const CenterControl = () => {
 				value={cursorConfig.size}
 				onUpdate={handleSizeUpdate}
 				validate={validate}
+				Info={t('appearance.hint.center.size')}
 			/>
 
 			{cursorConfig?.iconSource &&
 				!cursorConfig.iconSource.startsWith('/') &&
 				!cursorConfig.iconSource.startsWith('content://') && (
-					<InfoRowControl label={t('appearance.color')}>
+					<InfoRowControl label={t('appearance.color')} Info={t('appearance.hint.center.color')}>
 						<ColorPicker
 							color={cursorConfig?.color}
 							onColorChange={handleColorChange}
@@ -144,7 +145,7 @@ const CenterControl = () => {
 					</InfoRowControl>
 				)}
 
-			<InfoRowControl label={t('appearance.preview')}>
+			<InfoRowControl label={t('appearance.preview')} Info={t('appearance.hint.center.preview')}>
 				<CenterInner cursor={cursorConfig} />
 			</InfoRowControl>
 		</ListItemModalControl>

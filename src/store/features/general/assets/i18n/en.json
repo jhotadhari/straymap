@@ -9,7 +9,10 @@
 	"zoomOut": "Zoom out",
 	"hint": {
 		"units": {
-			"heightDepth": "The height/depth does not refer to the height/depth labels within a map layer. These are completely independent of this setting. The height/depth labels within a map layer are solely dependent on the source of the map layer."
-		}
+			"heightDepth": "The height/depth does not refer to the height/depth labels within a map layer. These are completely independent of this setting. The height/depth labels within a map layer are solely dependent on the source of the map layer.",
+			"unit": "Select the unit system used to display values of this type throughout the app.",
+			"decimalPlaces": "Number of decimal places shown for values of this unit type. Higher values show more digits after the decimal point for greater precision."
+		},
+		"hardwareKey": "Assign an action to this hardware button. Map the volume keys to zoom the map in and out, or set them to do nothing to prevent accidental zoom changes."
 	}
 }

@@ -59,7 +59,7 @@ const ProfileRowControl = ({
 	);
 
 	return (
-		<InfoRowControl label={t('profile???')}>
+		<InfoRowControl label={t('routing.profile')} Info={t('routing.hintProfile')}>
 			<ListItemMenuControl
 				options={profileOptions}
 				value={get(selectedOpt, 'key')}
@@ -143,7 +143,7 @@ const EditPointModal: FC<{
 
 	const fastOpt = useMemo(
 		() => ({
-			label: t('fast'),
+			label: t('routing.fast'),
 			key: 'fast',
 		}),
 		[t]
@@ -153,7 +153,7 @@ const EditPointModal: FC<{
 		<ModalWrapper
 			visible={!!editPoint.profile}
 			onDismiss={onDismiss}
-			header={'editPoint.profile???'}
+			header={t('routing.editProfile')}
 		>
 			<ProfileRowControl
 				editPoint={editPoint}
@@ -167,6 +167,7 @@ const EditPointModal: FC<{
 				labelExtractor={(a) => a.label}
 				status={editPoint.profile?.fast ? 'checked' : 'unchecked'}
 				radioAlign={'left'}
+				Info={t('routing.hintFast')}
 			/>
 		</ModalWrapper>
 	);

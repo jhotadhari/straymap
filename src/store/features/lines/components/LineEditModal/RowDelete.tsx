@@ -79,6 +79,7 @@ const RowDelete: FC = () => {
 	return (
 		<InfoRowControl
 			label={t('lines.delete')}
+			Info={t('lines.hintDelete')}
 		>
 			{modalNodeDelete}
 			<ButtonHighlight

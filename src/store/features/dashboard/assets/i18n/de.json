@@ -30,7 +30,8 @@
 		"item": {
 			"fontSize": "Überschreibt die Schriftgröße für dieses Dashboard-Element. Wenn nicht gesetzt, wird die Standard-Schriftgröße des Dashboards verwendet.",
 			"minWidth": "Die Mindestbreite des Dashboard-Elements in Pixeln.",
-			"unit": "Die Einheit, in der das Dashboard-Element angezeigt wird.\n\nDie Standardeinstellung der Einheit kann in den allgemeinen Einstellungen unter „Bevorzugte Einheiten“ angepasst werden."
+			"unit": "Die Einheit, in der das Dashboard-Element angezeigt wird.\n\nDie Standardeinstellung der Einheit kann in den allgemeinen Einstellungen unter „Bevorzugte Einheiten“ angepasst werden.",
+			"decimalPlaces": "Überschreibt die Anzahl der Dezimalstellen für dieses Dashboard-Element. Wenn nicht gesetzt, wird der Standardwert aus den Einheiteneinstellungen verwendet."
 		}
 	}
 }

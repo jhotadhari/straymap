@@ -79,7 +79,7 @@ const RowItem = ({ keyCodeStringOption }: { keyCodeStringOption: OptionBase }) =
 	);
 
 	return (
-		<InfoRowControl label={t(keyCodeStringOption.label)}>
+		<InfoRowControl label={t(keyCodeStringOption.label)} Info={t('general.hint.hardwareKey')}>
 			<ListItemMenuControl
 				listItemStyle={sharedStyles.listItem}
 				options={actionKeyOptions}

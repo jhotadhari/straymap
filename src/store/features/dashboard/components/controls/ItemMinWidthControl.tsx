@@ -75,6 +75,7 @@ const ItemMinWidthControl: FC<{ buttonLabel?: string }> = ({ buttonLabel }) => {
 			onUpdate={handleUpdate}
 			numType="int"
 			validate={validate}
+			Info={t('dashboard.hint.item.minWidth')}
 		/>
 	);
 };

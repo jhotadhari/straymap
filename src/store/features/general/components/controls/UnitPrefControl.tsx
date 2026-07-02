@@ -142,7 +142,7 @@ const UnitControl = ({
 				Info={Info && 'string' === typeof Info ? t(Info) : Info}
 			/>
 
-			<InfoRowControl label={t('unit')}>
+			<InfoRowControl label={t('unit')} Info={t('general.hint.units.unit')}>
 				<ListItemMenuControl
 					listItemStyle={sharedStyles.listItem}
 					options={opts}
@@ -164,6 +164,7 @@ const UnitControl = ({
 				onUpdate={handleRoundUpdate}
 				validate={validateDecimalPlace}
 				style={styles.decimalPlace}
+				Info={t('general.hint.units.decimalPlaces')}
 			/>
 		</Fragment>
 	);

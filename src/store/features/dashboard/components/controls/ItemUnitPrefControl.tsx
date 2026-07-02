@@ -178,6 +178,7 @@ const ItemUnitPrefControl: FC<{ unitPrefsKey: string; buttonLabel?: string }> = 
 				onUpdate={handleUpdate}
 				numType="int"
 				validate={validate}
+				Info={t('dashboard.hint.item.decimalPlaces')}
 			/>
 		</View>
 	);

@@ -12,7 +12,10 @@
 	},
 	"hint": {
 		"center": {
-			"file": "Determines which symbol should be used for the cursor.\n\nPreset symbols or svg and png files can be used. The files can be in one of the Straymap app directories, or in a publicly accessible directory."
+			"file": "Determines which symbol should be used for the cursor.\n\nPreset symbols or svg and png files can be used. The files can be in one of the Straymap app directories, or in a publicly accessible directory.",
+			"size": "The size of the cursor in pixels. The cursor marks the map center and is used as a reference point for placing waypoints and reading coordinates.",
+			"color": "The color of the cursor. Pick a color that contrasts well with your map background so the cursor is always easy to see.",
+			"preview": "Live preview of how the cursor will appear on the map at the current size and color settings."
 		}
 	}
 }

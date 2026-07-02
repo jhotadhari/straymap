@@ -30,7 +30,8 @@
 		"item": {
 			"fontSize": "Override the font size for this specific dashboard element. When not set, the default dashboard font size is used.",
 			"minWidth": "The minimum width of the dashboard element in pixels.",
-			"unit": "The unit in which the dashboard element is displayed.\n\nThe default setting of the unit can be adjusted in the general settings under \"Unit preferences\"."
+			"unit": "The unit in which the dashboard element is displayed.\n\nThe default setting of the unit can be adjusted in the general settings under \"Unit preferences\".",
+			"decimalPlaces": "Override the number of decimal places for this specific dashboard element. When not set, the default from the unit preferences is used."
 		}
 	}
 }
