@@ -1,0 +1,15 @@
+{
+	"license": "Licença",
+	"slogan": "Aplicativo de mapas offline para Android para ciclistas e viajantes",
+	"sourceHostedOnGithub": "O código-fonte está hospedado no GitHub",
+	"gitStatus": "Status do Git",
+	"latestCommit": "Último commit",
+	"items": {
+		"settings": "Configurações",
+		"about": "Sobre",
+		"general": "Geral",
+		"appearance": "Aparência",
+		"dashboard": "Painel",
+		"maps": "Mapas"
+	}
+}

@@ -11,6 +11,8 @@ import { I18nManager } from 'react-native';
  */
 import en from './en.json';
 import de from './de.json';
+import es from './es.json';
+import pt from './pt.json';
 import { SUPPORTED_LANGUAGES, FALLBACK_LANGUAGE, LANGUAGE_NAMES } from './constants';
 import features from '../../store/features';
 import { logError } from '../../lib/utils';
@@ -22,6 +24,8 @@ const resources = SUPPORTED_LANGUAGES.reduce(
 				...{
 					de,
 					en,
+					es,
+					pt,
 				}[lang],
 				...Object.keys(features).reduce(
 					(acc, featureKey) => {

@@ -1,0 +1,18 @@
+{
+	"hardwareKeyAssignment": "Atribuição de teclas de hardware",
+	"hardwareKey_one": "Tecla de hardware",
+	"hardwareKey_other": "Teclas de hardware",
+	"nothing": "Nada",
+	"volumeUp": "Aumentar volume",
+	"volumeDown": "Diminuir volume",
+	"zoomIn": "Aproximar",
+	"zoomOut": "Afastar",
+	"hint": {
+		"units": {
+			"heightDepth": "A altura/profundidade não se refere aos rótulos de altura/profundidade dentro de uma camada do mapa. Estes são completamente independentes desta configuração. Os rótulos de altura/profundidade dentro de uma camada do mapa dependem exclusivamente da fonte da camada.",
+			"unit": "Selecione o sistema de unidades usado para exibir valores deste tipo em todo o aplicativo.",
+			"decimalPlaces": "Número de casas decimais mostradas para valores deste tipo de unidade. Valores mais altos mostram mais dígitos após o ponto decimal para maior precisão."
+		},
+		"hardwareKey": "Atribua uma ação a este botão de hardware. Mapeie as teclas de volume para aproximar e afastar o mapa, ou configure-as para não fazer nada e evitar alterações acidentais de zoom."
+	}
+}

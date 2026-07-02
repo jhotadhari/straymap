@@ -1,0 +1,37 @@
+{
+	"alignment": "Alinhamento",
+	"dashboard": "Painel",
+	"dashboardItem": "Item do painel",
+	"dashboardItem_other": "Itens do painel",
+	"dashboardItemNew": "Novo item do painel",
+	"dashboardItemsNone": "Nenhum item no painel",
+	"updateRate": "Taxa de atualização",
+	"fontSize": "Tamanho da fonte",
+	"minWidth": "Largura mínima",
+	"useUnitPref": "Usar preferências de unidades",
+	"zoomLevel": "Nível de zoom do mapa",
+	"centerCoordinates": "Coordenadas do centro do mapa",
+	"centerAltitude": "Altitude do centro do mapa",
+	"spacer": "Espaçador",
+	"align": {
+		"center": "Centro",
+		"left": "Esquerda",
+		"right": "Direita",
+		"around": "Ao redor",
+		"between": "Entre",
+		"evenly": "Uniforme"
+	},
+	"hint": {
+		"missingHgtDirPath": "Um modelo digital de elevação deve ser definido nas configurações gerais para que a elevação do centro do mapa possa ser exibida.",
+		"items": "Os itens do painel exibem informações sobre o mapa, sua posição e rotas ou trilhas ativas.\n\nOs itens podem ser reordenados arrastando e soltando.",
+		"fontSize": "Tamanho de fonte padrão para todos os elementos do painel.\n\nAplica-se a todos os elementos do painel para os quais não há tamanho de fonte especificado.",
+		"alignment": "Controla como os itens do painel são posicionados horizontalmente. Escolha alinhá-los à esquerda, centro ou direita, ou distribuí-los uniformemente pelo espaço disponível.",
+		"updateRate": "Com que rapidez os elementos do painel são atualizados.\n\nUma taxa de atualização rápida pode causar perda de desempenho em dispositivos lentos.",
+		"item": {
+			"fontSize": "Substitui o tamanho da fonte para este elemento específico do painel. Quando não definido, o tamanho de fonte padrão do painel é usado.",
+			"minWidth": "A largura mínima do elemento do painel em pixels.",
+			"unit": "A unidade na qual o elemento do painel é exibido.\n\nA configuração padrão da unidade pode ser ajustada nas configurações gerais em \"Preferências de unidades\".",
+			"decimalPlaces": "Substitui o número de casas decimais para este elemento específico do painel. Quando não definido, o valor padrão das preferências de unidades é usado."
+		}
+	}
+}

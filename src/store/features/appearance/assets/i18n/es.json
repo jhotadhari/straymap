@@ -1,0 +1,21 @@
+{
+	"selectTheme": "Seleccionar tema",
+	"cursor": "Cursor",
+	"color": "Color",
+	"preview": "Vista previa",
+	"target": "Objetivo",
+	"target-variant": "Variante de objetivo",
+	"themeOptions": {
+		"light": "Claro",
+		"dark": "Oscuro",
+		"black": "Negro"
+	},
+	"hint": {
+		"center": {
+			"file": "Determina qué símbolo se debe usar para el cursor.\n\nSe pueden usar símbolos predefinidos o archivos svg y png. Los archivos pueden estar en uno de los directorios de la aplicación Straymap o en un directorio de acceso público.",
+			"size": "El tamaño del cursor en píxeles. El cursor marca el centro del mapa y se usa como punto de referencia para colocar waypoints y leer coordenadas.",
+			"color": "El color del cursor. Elige un color que contraste bien con el fondo del mapa para que el cursor sea siempre fácil de ver.",
+			"preview": "Vista previa en vivo de cómo aparecerá el cursor en el mapa con la configuración actual de tamaño y color."
+		}
+	}
+}

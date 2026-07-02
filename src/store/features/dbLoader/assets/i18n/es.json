@@ -1,0 +1,3 @@
+{
+	"dbMigrationError": "Error de migración de la base de datos: %s"
+}

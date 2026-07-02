@@ -1,0 +1,118 @@
+{
+	"createdBy": "Creado por",
+	"file": "Archivo de mapa",
+	"selectFile": "Seleccionar archivo de mapa",
+	"demDir": "Directorio DEM",
+	"selectDemDir": "Seleccionar directorio DEM",
+	"addNew": "Agregar nuevo mapa",
+	"layerAttributions": "Atribuciones y licencias de las capas del mapa",
+	"cacheSize": "Tamaño de caché",
+	"cacheDir": "Directorio de caché",
+	"useFirstOne": "Usar el primero",
+	"noLayerUseCache": "Ninguna capa del mapa usa esta caché",
+	"layerEdit": "Editar capa del mapa",
+	"layerRemove": "Eliminar capa",
+	"layersNone": "Actualmente no hay capas de mapa",
+	"mapsforgeGeneral": "Configuración general de Mapsforge",
+	"mapType": "Tipo de mapa",
+	"addNewLayer": "Agregar nueva capa de mapa",
+	"addNewLayerShort": "Agregar nueva capa",
+	"selectType": "Seleccionar tipo de mapa",
+	"askCancel": "¿Realmente quieres cancelar la edición de este mapa?",
+	"source": "Fuente del mapa",
+	"lineScale": "Escala de líneas",
+	"textScale": "Escala de texto",
+	"symbolScale": "Escala de símbolos",
+	"visibility": "Visibilidad",
+	"selectTheme": "Seleccionar tema",
+	"theme": "Tema",
+	"builtInThemes": "Temas integrados",
+	"overlay_one": "Superposición",
+	"overlay_other": "Superposiciones",
+	"hasLabels": "Etiquetas",
+	"hasBuildings": "Edificios 3D",
+	"layer_one": "Capa del mapa",
+	"layer_other": "Capas del mapa",
+	"layerShort_one": "Capa",
+	"layerShort_other": "Capas",
+	"layerSelectedCount_one": "%s capa seleccionó este perfil",
+	"layerSelectedCount_other": "%s capas seleccionaron este perfil",
+	"layerSelectedDefaultCount_one": "%s capa está usando este perfil porque es el perfil predeterminado",
+	"layerSelectedDefaultCount_other": "%s capas están usando este perfil porque es el perfil predeterminado",
+	"select": {
+		"none": "No seleccionar nada",
+		"all": "Seleccionar todo",
+		"toggle": "Alternar selección"
+	},
+	"selected": {
+		"none": "Nada seleccionado",
+		"all": "Todo seleccionado",
+		"count": "%s seleccionados"
+	},
+	"mapsforge": {
+		"profile_one": "Perfil de Mapsforge",
+		"profile_other": "Perfiles de Mapsforge",
+		"profileRemove": "Eliminar perfil",
+		"profileEdit": "Editar perfil de Mapsforge",
+		"profilesNone": "Actualmente no hay perfiles de Mapsforge",
+		"profileAddNew": "Agregar nuevo perfil de Mapsforge",
+		"profileAddNewShort": "Agregar nuevo perfil"
+	},
+	"typeDesc": {
+		"online-raster-xyz": "Se puede usar para varios servidores de mapas en línea con teselas xyz.",
+		"mapsforge": "Mapas vectoriales offline. La mejor opción para secciones detalladas del mapa.",
+		"raster-MBtiles": "Mapas ráster offline en formato MBtiles, ideales para mapas generales con baja resolución.",
+		"hillshading": "Sombreado offline con modelos digitales de elevación (DEM) en formato hgt."
+	},
+	"hint": {
+		"nameId": "Una etiqueta para ayudarte a identificar este elemento. Elige cualquier nombre que tenga sentido para ti — solo se muestra en la configuración de la aplicación.",
+		"applyToAllMapsforge": "Esta configuración se aplica a todas las capas de mapa de Mapsforge.",
+		"lineScale": "Factor de escala de líneas > 0.0\n\nPara escalar el grosor de las líneas en el mapa\n\nPredeterminado: 1. = sin escala de grosor de línea",
+		"textScale": "Factor de escala de texto > 0.0\n\nPara escalar el tamaño de las etiquetas en el mapa\n\nPredeterminado: 1. = sin escala de tamaño de texto",
+		"symbolScale": "Factor de escala de símbolos > 0.0\n\nPara escalar el tamaño de los símbolos en el mapa\n\nPredeterminado: 1. = sin escala de tamaño de símbolos",
+		"layers": "Las capas del mapa se muestran una encima de otra. Las capas que están más arriba en la configuración se muestran por encima de las otras capas en el mapa.\n\nLas capas se pueden ordenar arrastrando y soltando.\n\nLas capas individuales del mapa se pueden activar o desactivar en diferentes niveles de zoom.\n\nEsto permite usar mapas generales y detallados juntos.\n\nLas capas del mapa que no se necesitan temporalmente se pueden ocultar (botón con símbolo de ojo).",
+		"profiles": "Los \"perfiles\" determinan cómo se muestran los mapas vectoriales offline mediante Mapsforge.\n\nSe pueden usar temas integrados para los perfiles. O temas personalizados en formato xml.\n\nLos perfiles se pueden ordenar arrastrando y soltando. El perfil superior se usa como predeterminado para todos los mapas que no tienen un perfil específico asignado.",
+		"visibility": "Activa o desactiva la capa del mapa. Las capas que no se necesitan temporalmente se pueden ocultar para reducir el desorden visual.",
+		"xyzSource": "La URL al servidor de teselas de mapa xyz.\n\nLa URL debe comenzar preferiblemente con https://. Las conexiones inseguras con http:// son posibles, pero no se recomiendan.\n\nLa URL debe contener los marcadores {X}, {Y} y {Z} (entre llaves).\n\nEsta capa de mapa solicita imágenes ráster de una fuente en línea. Cualquier solicitud a cualquier servidor transfiere datos personales (tu dirección IP). Esto es técnicamente necesario.",
+		"enabled": "Establece el rango de nivel de zoom donde esta capa del mapa es visible. Por debajo del mínimo o por encima del nivel máximo de zoom, la capa se oculta automáticamente.",
+		"zoom": "Entre qué niveles de zoom se carga la capa del mapa. Si haces zoom más allá del nivel máximo de zoom de la capa del mapa, el mapa seguirá mostrándose pero no se actualizará. Esto evita que algunos servidores de teselas muestren marcadores de posición en niveles de zoom altos.",
+		"zoomGeneralInfo": "Acerca del zoom en general:\n\nEn niveles de zoom bajos, el zoom es amplio y se muestra un área grande en el mapa. En niveles de zoom altos, el mapa muestra una sección detallada.\n\nConsejo: El tablero puede mostrar el nivel de zoom actual del mapa.",
+		"mapsforgeFile": "Los archivos de mapa para Mapsforge son archivos individuales que contienen datos vectoriales. La extensión del archivo es \".map\".\n\nDeben descargarse manualmente. Una vez descargados, no se requiere conexión a internet para usarlos.\n\nSe recomienda mover los archivos descargados a uno de los directorios de la aplicación Straymap. Sin embargo, también es posible cargar el mapa desde cualquier directorio de acceso público.",
+		"mapsforgeProfile": "Los perfiles determinan cómo se muestran los mapas vectoriales offline mediante Mapsforge.\n\nSe puede seleccionar un perfil para la capa del mapa, que debe configurarse previamente. Los diversos perfiles de Mapsforge se pueden gestionar generalmente en la configuración del mapa.\n\nSi no se asigna ningún perfil a la capa del mapa, se usa automáticamente el primer perfil.",
+		"mapsforgeHasBuildings": "Esta configuración determina si los edificios se renderizan en 3D. La visualización de edificios 3D es independiente del tema de renderizado.\n\nSi esta configuración está desactivada, los edificios se renderizan en 2D si es necesario. Si se renderizan y cómo se renderizan depende únicamente del tema de renderizado. Con temas de renderizado xml, esto quizás se pueda configurar a través de la configuración de superposición, dependiendo del tema de renderizado.",
+		"mbTilesFile": "Los archivos de mapa MBtiles contienen imágenes ráster almacenadas en una base de datos SQLite. La extensión del archivo es \".mbtiles\".\n\nDeben descargarse manualmente. Después de descargarlos, no se requiere conexión a internet para usarlos.\n\nDespués de descargarlos, los archivos deben moverse a uno de los directorios de la aplicación Straymap. No es posible cargar el mapa desde un directorio de acceso público.",
+		"demDir": "El directorio DEM contiene los archivos para los modelos digitales de elevación (DEM). La extensión de los archivos es \".hgt\".\n\nDeben descargarse manualmente. Después de descargarlos, no se requiere conexión a internet para usarlos.\n\nSe recomienda mover los archivos descargados a uno de los directorios de la aplicación Straymap, pero es posible cargar los modelos de elevación desde cualquier directorio de acceso público.\n\nLos DEM generalmente se proporcionan con una resolución de 1 o 3 segundos de arco. (Un segundo de arco corresponde a aproximadamente 30 m en el ecuador)",
+		"demOnly3Sec": "Actualmente, solo se admiten modelos de elevación con una resolución de 3 segundos de arco.",
+		"mapsforgeProfileFile": "Los temas determinan cómo se muestran los mapas vectoriales offline mediante Mapsforge.\n\nSe pueden usar temas integrados. O temas personalizados en formato xml. La extensión de archivo para temas personalizados es \".xml\".\n\nLos temas personalizados deben descargarse manualmente y moverse a uno de los directorios de la aplicación Straymap. No es posible cargar los temas desde un directorio de acceso público.",
+		"mapsforgeProfileStyle": "Selecciona una variante de estilo visual dentro de este tema. Los estilos ofrecen variaciones sutiles en la apariencia, como diferentes esquemas de color o grosores de línea.",
+		"mapsforgeProfileOverlays": "Controla qué elementos del mapa se muestran: carreteras, senderos, edificios, cobertura del suelo y más.\n\nConsejo: Desactiva el fondo del mapa para colocar otra capa (por ejemplo, imágenes satelitales) detrás de esta.",
+		"opacity": "La opacidad de la capa del mapa.\n\nValor entre 0 y 1.\n\n- 0 significa que la capa es transparente.\n- 1 significa que la capa tiene opacidad total y las capas subyacentes no son visibles.",
+		"cache": "Una caché almacena imágenes del mapa. Así no tienen que descargarse o generarse nuevamente.",
+		"cacheDir": "El directorio donde se guardará la caché.\n\nUn directorio interno solo puede ser accedido por la propia aplicación. Un directorio externo también puede ser accedido por otras aplicaciones, como aplicaciones de explorador de archivos.",
+		"cacheSize": "El tamaño de la caché en MB."
+	},
+	"link": {
+		"xmlRenderThemes": "Temas de renderizado en formato xml",
+		"xmlRenderThemesModify": "Avanzado: modifica o crea tu propio tema",
+		"openandromapsDownloads": "Mapas vectoriales en formato Mapsforge V5 basados en datos de OpenStreetMap y temas de renderizado xml",
+		"openandromapsDownloadsRaster": "Mapas ráster generales en formato mbtiles"
+	},
+	"shadingOptions": {
+		"magnitude": {
+			"label": "Magnitud",
+			"hint": "La magnitud determina la intensidad del sombreado."
+		},
+		"maxSlope": {
+			"label": "Pendiente máxima",
+			"hint": "La pendiente más pequeña que tendrá el tono más oscuro.\n\nTodas las pendientes más grandes tendrán el mismo tono, el más oscuro.\n\nDebe ser mayor que cero.\n\nEl valor predeterminado es 80.\n\n[porcentaje, %]"
+		},
+		"minSlope": {
+			"label": "Pendiente mínima",
+			"hint": "La pendiente más grande que tendrá el tono más claro.\n\nTodas las pendientes más pequeñas tendrán el mismo tono, el más claro.\n\nDebe estar en el rango de cero y \"Pendiente máxima\".\n\nEl valor predeterminado es 0 (cero).\n\n[porcentaje, %]"
+		},
+		"asymmetryFactor": {
+			"label": "Factor de asimetría",
+			"hint": "Número entre 0 y 1.\n\nCuando es 1, las pendientes en la dirección de referencia (NO por defecto) tendrán un sombreado mínimo (efecto de asimetría máximo),\n\ncuando es 0, el sombreado será simétrico en todas las direcciones (sin efecto de asimetría).\n\nCualquier valor mayor que 0 hará que el sombreado sea suavemente asimétrico, con las pendientes más cercanas a la dirección de referencia menos sombreadas que las pendientes en la dirección opuesta a medida que el factor aumenta.\n\nEl valor predeterminado es 0.5"
+		}
+	}
+}
