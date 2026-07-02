@@ -16,10 +16,11 @@ import InfoRowControl from '../../../../../../components/generic/controls/InfoRo
 import { sprintf } from 'sprintf-js';
 import HintLink from '../../../../../../components/generic/HintLink';
 import { LayerConfigOptionsMapsforge, LayerConfig } from '../../../types';
+import { useLayerTemp } from '../../../hooks/useLayerTemp';
 import { selectAppDirs } from '../../../../dirs/selectors';
 import { useAppDispatch, useAppSelector } from '../../../../../hooks';
 import { setLayerTemp, setMapsforgeProfileTemp } from '../../../slice';
-import { selectLayerTemp, selectMapsforgeProfiles } from '../../../selectors';
+import { selectMapsforgeProfiles } from '../../../selectors';
 import NumericRowControlMulti from '../../../../../../components/generic/controls/NumericRowControlMulti';
 import ListItemMenuControl from '../../../../../../components/generic/controls/ListItemMenuControl';
 import { sharedStyles as globalSharedStyles } from '../../../../../../sharedStyles';
@@ -191,31 +192,11 @@ const enabledZoomOptLabels = ['min', 'max'];
 
 const LayerControlMapsforge: FC<{}> = ({}) => {
 	const dispatch = useAppDispatch();
-	const layerTemp = useAppSelector(selectLayerTemp) as
-		| undefined
-		| LayerConfig<LayerConfigOptionsMapsforge>;
+	const { layerTemp, setOptions } = useLayerTemp<LayerConfigOptionsMapsforge>();
 
 	const { t } = useTranslation();
 
 	const appDirs = useAppSelector(selectAppDirs);
-
-	const setOptions = useCallback(
-		(newOptions: LayerConfigOptionsMapsforge) => {
-			dispatch(
-				setLayerTemp(
-					(layerTemp) =>
-						layerTemp &&
-						({
-							...layerTemp,
-							options: newOptions,
-						} as LayerConfig)
-				)
-			);
-		},
-		[
-			dispatch,
-		]
-	);
 
 	const handleMapFileChange = useCallback(
 		(selectedOpt?: string) => {

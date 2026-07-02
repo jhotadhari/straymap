@@ -13,11 +13,10 @@ import HgtSourceRowControl from '../../../../../../components/generic/controls/H
 import { getHillshadingCacheDirChild } from '../../../utils';
 import CacheControl from './CacheControl';
 import { defaults } from '../../../defaults';
-import { LayerConfigOptionsHillshading, LayerConfig } from '../../../types';
+import { LayerConfigOptionsHillshading } from '../../../types';
+import { useLayerTemp } from '../../../hooks/useLayerTemp';
 import { selectAppDirs } from '../../../../dirs/selectors';
-import { useAppDispatch, useAppSelector } from '../../../../../hooks';
-import { setLayerTemp } from '../../../slice';
-import { selectLayerTemp } from '../../../selectors';
+import { useAppSelector } from '../../../../../hooks';
 import NumericRowControlMulti from '../../../../../../components/generic/controls/NumericRowControlMulti';
 
 const validateZoom = (val: number) => val >= 0;
@@ -28,29 +27,7 @@ const validateUnitInterval = (val: number) => val >= 0 && val <= 1;
 const zoomOptLabels = ['min', 'max'];
 
 const LayerControlHillshading: FC<{}> = () => {
-	const dispatch = useAppDispatch();
-
-	const layerTemp = useAppSelector(selectLayerTemp) as
-		| undefined
-		| LayerConfig<LayerConfigOptionsHillshading>;
-
-	const setOptions = useCallback(
-		(newOptions: LayerConfigOptionsHillshading) => {
-			dispatch(
-				setLayerTemp(
-					(layerTemp) =>
-						layerTemp &&
-						({
-							...layerTemp,
-							options: newOptions,
-						} as LayerConfig)
-				)
-			);
-		},
-		[
-			dispatch,
-		]
-	);
+	const { layerTemp, setOptions } = useLayerTemp<LayerConfigOptionsHillshading>();
 
 	const { t } = useTranslation();
 

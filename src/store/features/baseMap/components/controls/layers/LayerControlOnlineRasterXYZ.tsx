@@ -21,6 +21,7 @@ import {
 	TextInputNativeMultilineControlled,
 } from '../../../../../../components/generic/TextInputNativeMultiline';
 import { LayerConfig, LayerConfigOptionsOnlineRasterXYZ } from '../../../types';
+import { useLayerTemp } from '../../../hooks/useLayerTemp';
 import { useAppDispatch, useAppSelector } from '../../../../../hooks';
 import { selectLayerTemp } from '../../../selectors';
 import { setLayerTemp } from '../../../slice';
@@ -376,34 +377,13 @@ const validateAlpha = (val: number) => val >= 0 && val <= 1;
 const zoomOptLabels = ['min', 'max'];
 
 const LayerControlOnlineRasterXYZ: FC<{}> = () => {
-	const dispatch = useAppDispatch();
-	const layerTemp = useAppSelector(selectLayerTemp) as
-		| undefined
-		| LayerConfig<LayerConfigOptionsOnlineRasterXYZ>;
+	const { layerTemp, setOptions } = useLayerTemp<LayerConfigOptionsOnlineRasterXYZ>();
 
 	const { t } = useTranslation();
 
 	const cacheDirChild = useMemo(
 		() => stringifyProp(layerTemp?.options?.url || ''),
 		[layerTemp?.options]
-	);
-
-	const setOptions = useCallback(
-		(newOptions: LayerConfigOptionsOnlineRasterXYZ) => {
-			dispatch(
-				setLayerTemp(
-					(layerTemp) =>
-						layerTemp &&
-						({
-							...layerTemp,
-							options: newOptions,
-						} as LayerConfig)
-				)
-			);
-		},
-		[
-			dispatch,
-		]
 	);
 
 	const enabledZoomValues = useMemo(
