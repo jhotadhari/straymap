@@ -8,6 +8,7 @@ import { MapEventResponse } from 'react-native-mapsforge-vtm';
 import { sprintf } from 'sprintf-js';
 import { useTranslation } from 'react-i18next';
 import { QueryClientProvider } from '@tanstack/react-query';
+import type { SharedValue } from 'react-native-reanimated';
 
 /**
  * Internal dependencies
@@ -39,6 +40,7 @@ const App: FC = () => {
 	const [bottomBarHeight, setBottomBarHeight] = useState<BottomBarHeight>({});
 
 	const currentMapEventRef = useRef<MapEventResponse | null>(null);
+	const centerPositionSvRef = useRef<SharedValue<[number, number] | null> | null>(null);
 	const drawerControlsRef = useRef<DrawerControls | null>(null);
 
 	// Prevent app from closing on hardwareBackPress.
@@ -110,6 +112,7 @@ const App: FC = () => {
 	const mapContextValue = useMemo(
 		() => ({
 			currentMapEventRef,
+			centerPositionSvRef,
 		}),
 		[]
 	);

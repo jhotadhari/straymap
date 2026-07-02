@@ -38,6 +38,7 @@ import {
 	LongPressEventResponse,
 	useMap,
 } from 'react-native-mapsforge-vtm';
+import { useMapPosition } from 'react-native-mapsforge-vtm/reanimated';
 
 /**
  * react-native-hardwarekey-event dependencies
@@ -116,10 +117,15 @@ const AppView = ({
 	const { mapViewNativeNodeHandle, mapHeight, moveEnabled, drawerControlsRef } =
 		useContext(AppContext);
 
-	const { currentMapEventRef } = useContext(MapContext);
+	const { currentMapEventRef, centerPositionSvRef } = useContext(MapContext);
 
 	const { getAltitudeAtPosition, getPosition, zoomTo, zoomOut } =
 		useMap(mapViewNativeNodeHandle);
+
+	const { centerSv, handleMapUpdate } = useMapPosition();
+	// Expose the shared value through context so dashboard elements
+	// can read the map center without bridge crossings.
+	centerPositionSvRef.current = centerSv;
 
 	const hgtDirPath = useMemo(
 		() =>
@@ -220,8 +226,11 @@ const AppView = ({
 	const handleMapEvent = useCallback(
 		(event: NativeSyntheticEvent<MapEventResponse>) => {
 			currentMapEventRef.current = event.nativeEvent;
+			// Feed the same event to useMapPosition's shared values
+			// so centerSv stays in sync at zero bridge cost.
+			handleMapUpdate(event as { nativeEvent: Readonly<MapEventResponse> });
 		},
-		[currentMapEventRef]
+		[currentMapEventRef, handleMapUpdate]
 	);
 
 	// onTap fires when the user taps on an empty map area (unconsumed by marker/path layers).
