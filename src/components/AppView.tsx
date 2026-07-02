@@ -35,7 +35,9 @@ import {
 	CanvasAdapterModule,
 	ErrorWithErrorMsg,
 	TapEventResponse,
-} from 'react-native-mapsforge-vtm'; // also exports useMap, see emitsHardwareKeyUp note below.
+	LongPressEventResponse,
+	useMap,
+} from 'react-native-mapsforge-vtm';
 
 /**
  * Internal dependencies
@@ -110,7 +112,7 @@ const AppView = ({
 
 	const { currentMapEventRef } = useContext(MapContext);
 
-	// const { zoomTo, zoomOut, getPosition } = useMap(mapViewNativeNodeHandle); // see emitsHardwareKeyUp note below.
+	const { getAltitudeAtPosition } = useMap(mapViewNativeNodeHandle);
 
 	const hgtDirPath = useMemo(
 		() =>
@@ -277,6 +279,26 @@ const AppView = ({
 		]
 	);
 
+	const handleMapLongPress = useCallback(
+		(event: NativeSyntheticEvent<LongPressEventResponse>) => {
+			const { lng, lat } = event.nativeEvent;
+			getAltitudeAtPosition(lng, lat)
+				.then((alt: number | null) => {
+					if (alt !== null) {
+						showError(
+							sprintf(t('mapElevationAtPoint'), alt.toFixed(0), lng.toFixed(5), lat.toFixed(5))
+						);
+					} else {
+						showError(t('mapElevationNoData'));
+					}
+				})
+				.catch(() => {
+					// Silently ignore — elevation lookup failures are non-critical
+				});
+		},
+		[getAltitudeAtPosition, showError, t]
+	);
+
 	const styleOuter = useMemo(
 		() => ({
 			backgroundColor: theme.colors.background,
@@ -325,6 +347,7 @@ const AppView = ({
 						onResume={handleMapResume}
 						onMapUpdate={handleMapEvent}
 						onTap={handleMapTap}
+						onLongPress={handleMapLongPress}
 					>
 						<BaseMap />
 
