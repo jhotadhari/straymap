@@ -49,6 +49,8 @@
 	"edit\"X\"": "Edit \"%s\"",
 	"selectXType": "Select %s type",
 	"success": "Success",
+	"mapElevationAtPoint": "Elevation: %sm at (%s, %s)",
+	"mapElevationNoData": "No elevation data available for this location.",
 	"moreInformation": "More Information",
 	"hint": {
 		"link": {

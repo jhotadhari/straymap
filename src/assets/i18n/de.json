@@ -46,6 +46,8 @@
 	"edit\"X\"": "\"%s\" bearbeiten",
 	"selectXType": "%s-Typ auswählen",
 	"success": "Erfolgreich",
+	"mapElevationAtPoint": "Höhe: %sm bei (%s, %s)",
+	"mapElevationNoData": "Keine Höhendaten für diesen Ort verfügbar.",
 	"moreInformation": "Weitere Informationen",
 	"hint": {
 		"link": {
