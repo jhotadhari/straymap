@@ -77,3 +77,6 @@ yarn-error.log
 .yalc
 yalc.lock.claude/settings.local.json
 .claude/worktrees/
+
+# release-kit state file
+.release-kit-state.json
