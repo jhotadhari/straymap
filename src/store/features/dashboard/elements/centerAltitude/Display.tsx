@@ -30,9 +30,10 @@ const CENTER_CHANGE_THRESHOLD = 0.0005;
  * Center-altitude dashboard element.
  *
  * Reads the map center from useMapPosition()'s shared value (zero bridge
- * crossings). When the map settles, calls getAltitudeAtPosition() — a
- * TurboModule that runs on the Native Modules thread, never blocking
- * rendering.
+ * crossings). Calls getAltitudeAtPosition() — a TurboModule on the Native
+ * Modules thread — whenever the center changes. After the first call for a
+ * tile caches the HGT data, subsequent calls are sub-millisecond cache
+ * lookups, so the display tracks movement smoothly.
  */
 const Display: FC<DashboardElementProps<Options>> = ({ item, style = {}, onPress }) => {
 	const handlePress = useMemo(() => {
@@ -61,55 +62,35 @@ const Display: FC<DashboardElementProps<Options>> = ({ item, style = {}, onPress
 	);
 
 	const [altitudeM, setAltitudeM] = useState<number | null>(null);
-	const lastQueriedRef = useRef<[number, number] | null>(null);
-	const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
-	const queryAltitude = useCallback(
-		(lng: number, lat: number) => {
-			// Skip if we already queried this exact position.
-			const prev = lastQueriedRef.current;
-			if (
-				prev &&
-				Math.abs(lng - prev[0]) < CENTER_CHANGE_THRESHOLD &&
-				Math.abs(lat - prev[1]) < CENTER_CHANGE_THRESHOLD
-			) {
-				return;
-			}
-			lastQueriedRef.current = [lng, lat];
+	// Incremented on every query; responses check it to avoid updating
+	// the display with a stale value when a newer request is in flight.
+	const requestIdRef = useRef(0);
 
-			if (debounceRef.current) {
-				clearTimeout(debounceRef.current);
-			}
-			debounceRef.current = setTimeout(() => {
-				debounceRef.current = null;
-				getAltitudeAtPosition(lng, lat).then((alt) => {
-					if (alt != null) {
-						setAltitudeM(alt);
-					}
-				});
-			}, 300);
-		},
-		[getAltitudeAtPosition]
-	);
-
-	// Poll the shared value for the current center. SharedValue.value reads
-	// are fast (no bridge) — much cheaper than a bridge-event callback.
+	// Poll the shared value for the current center. SharedValue.value
+	// reads are zero bridge crossings — much cheaper than setInterval
+	// polling a bridge-event ref.
 	useEffect(() => {
 		const timer = setInterval(() => {
 			const center = centerPositionSvRef.current?.value;
 			if (!center || center[0] == null || center[1] == null) {
 				return;
 			}
-			queryAltitude(center[0], center[1]);
+			const lng = center[0];
+			const lat = center[1];
+
+			const id = ++requestIdRef.current;
+			getAltitudeAtPosition(lng, lat).then((alt) => {
+				// Only apply if no newer request was made.
+				if (requestIdRef.current === id) {
+					setAltitudeM(alt);
+				}
+			});
 		}, 200);
 		return () => {
 			clearInterval(timer);
-			if (debounceRef.current) {
-				clearTimeout(debounceRef.current);
-				debounceRef.current = null;
-			}
 		};
-	}, [centerPositionSvRef, queryAltitude]);
+	}, [centerPositionSvRef, getAltitudeAtPosition]);
 
 	const viewStyle = useMemo(() => [{ minWidth }, style], [minWidth, style]);
 	const textStyle = useMemo(() => ({ fontSize, textAlign }), [fontSize, textAlign]);
