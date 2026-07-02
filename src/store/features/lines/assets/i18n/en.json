@@ -70,5 +70,19 @@
 	"importSelected": "Import %s track(s)",
 	"importing": "Importing…",
 	"selectAll": "Select all",
-	"selectNone": "Select none"
+	"selectNone": "Select none",
+	"importPickDirectory": "Pick directory",
+	"importScanningDir": "Scanning directory…",
+	"importDirNoFiles": "No supported files found in this directory.",
+	"importDirFilesFound": "Found %s supported file(s)",
+	"importMergeMode": "Merge all tracks into a single line",
+	"importProgress": "Importing %s of %s…",
+	"importParsingFile": "Parsing %s…",
+	"addTags": "Add tags",
+	"removeTags": "Remove tags",
+	"tagsEditTitle": "Edit tags",
+	"tagsNewPlaceholder": "New tag name…",
+	"tagsCreate": "Create tag",
+	"tagsNoTags": "No tags yet",
+	"tagsApply": "Apply"
 }

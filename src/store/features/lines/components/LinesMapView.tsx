@@ -12,35 +12,57 @@ import { useAppSelector } from '../../../hooks';
 import { selectSelected } from '../selectors';
 import { selectRoutingLineId } from '../../routing/selectors';
 import { queryLineGeom } from '../db/queryFns';
+import { queryLinesWithoutGeom } from '../db/queryFns';
 import useSimplificationTolerance from '../hooks/useSimplificationTolerance';
+import { getTagColor } from './tagColor';
+import { Line } from '../types';
+
+const BASE_STROKE_WIDTH = 5;
 
 // GeometryStyle is a custom map-layer style type, not an RN ViewStyle, so it stays a plain object.
-const pathStyle: GeometryStyle = {
+const defaultPathStyle: GeometryStyle = {
 	strokeColor: '#ff0000',
-	strokeWidth: 5,
+	strokeWidth: BASE_STROKE_WIDTH,
 };
 
 const LineItem: FC<{
 	lineId: number;
 	simplify?: number;
 }> = ({ lineId, simplify }) => {
+	// Fetch geometry
 	const { data: line } = useQuery({
-		queryKey: [
-			'lineGeom',
-			lineId,
-			...(simplify ? [simplify] : []),
-		],
+		queryKey: ['lineGeom', lineId, ...(simplify ? [simplify] : [])],
 		queryFn: queryLineGeom,
-		gcTime: 1000 * 10, // The time in milliseconds that unused/inactive cache data remains in memory. When a query's cache becomes unused or inactive, that cache data will be garbage collected after this duration.
+		gcTime: 1000 * 10,
 	});
 
+	// Fetch line metadata (tags) for color
+	const { data: lines } = useQuery({
+		queryKey: ['lines', [lineId]],
+		queryFn: queryLinesWithoutGeom,
+		gcTime: 1000 * 10,
+	});
+
+	const pathStyle = useMemo((): GeometryStyle => {
+		const lineData = lines?.find((l: Omit<Line, 'geometry'>) => l.id === lineId);
+		const firstTag = lineData?.tags?.[0];
+		if (firstTag) {
+			const color = getTagColor(firstTag);
+			return {
+				strokeColor: color.bg as `#${string}`,
+				strokeWidth: BASE_STROKE_WIDTH,
+			};
+		}
+		return defaultPathStyle;
+	}, [lines, lineId]);
+
+	if (!line?.geometry?.coordinates) return null;
+
 	return (
-		line?.geometry?.coordinates && (
-			<LayerPath
-				coordinates={line.geometry.coordinates}
-				style={pathStyle}
-			/>
-		)
+		<LayerPath
+			coordinates={line.geometry.coordinates}
+			style={pathStyle}
+		/>
 	);
 };
 
@@ -58,10 +80,6 @@ const LinesMapView = () => {
 		[selected]
 	);
 
-	// Read routingLineId from Redux — always synchronous, no query
-	// staleness window.  The routing thunk dispatches setRoutingLineId
-	// at the same time as setLineSelected, so LinesMapView always
-	// knows which line is the active routing line.
 	const routingLineId = useAppSelector(selectRoutingLineId);
 
 	const simplify = useSimplificationTolerance();

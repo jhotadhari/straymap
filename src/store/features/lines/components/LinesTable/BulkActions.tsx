@@ -18,8 +18,8 @@ import PopoverMenuItems from '../../../../../components/generic/PopoverMenuItems
 //      show on map
 //      remove from map
 //      delete lines
-//  ??? add tags
-//  ??? remove tags
+//      add tags
+//      remove tags
 //      show stats
 
 const BulkActions: FC = () => {

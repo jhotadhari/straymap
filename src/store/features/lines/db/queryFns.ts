@@ -7,7 +7,7 @@ import { WithRequired } from '@tanstack/react-query';
  * Internal dependencies
  */
 import { Line, LinePartial, SortState, ColumnFilter, FilterLogic } from '../types';
-import { fetchLines } from './fetch';
+import { fetchLines, fetchAllTags } from './fetch';
 
 interface LinesQueryOptions {
 	lineIds?: number[];
@@ -81,4 +81,14 @@ export const queryLineGeom = ({ queryKey }: { queryKey: (string | number)[] }) =
 				reject(error);
 			});
 	});
+};
+
+/**
+ * Fetch all tags from the tags table.
+ *
+ * Used with:
+ *  queryKey: ['tags'],
+ */
+export const queryAllTags = () => {
+	return fetchAllTags();
 };

@@ -8,8 +8,8 @@ import { useTranslation } from 'react-i18next';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { eq } from 'drizzle-orm';
 import { get } from 'lodash-es';
-import { openDocument } from 'react-native-scoped-storage';
-import { readFile } from 'react-native-fs';
+import { openDocument, openDocumentTree } from 'react-native-scoped-storage';
+import { readDir, readFile } from 'react-native-fs';
 import { sprintf } from 'sprintf-js';
 import { Feature, GeoJsonProperties, LineString } from 'geojson';
 
@@ -32,6 +32,8 @@ import { createTags } from '../../db/actionsTag';
 import { dbConnection } from '../../../dbLoader/DBConnection';
 import { tagsTable } from '../../db/schema/schema';
 
+type ImportMode = 'file' | 'directory';
+
 const ImportModal: FC<{
 	visible: boolean;
 	onDismiss: () => void;
@@ -41,68 +43,134 @@ const ImportModal: FC<{
 	const { showError } = useContext(ErrorToastContext);
 	const queryClient = useQueryClient();
 
-	const [step, setStep] = useState<'idle' | 'parsing' | 'preview' | 'importing'>('idle');
+	const [step, setStep] = useState<
+		'idle' | 'scanning' | 'parsing' | 'preview' | 'importing'
+	>('idle');
+	const [importMode, setImportMode] = useState<ImportMode>('file');
+
+	// Single-file state
 	const [features, setFeatures] = useState<
 		Feature<LineString, GeoJsonProperties>[]
 	>([]);
 	const [filename, setFilename] = useState('');
-	const [_mergeMode, _setMergeMode] = useState(false);
 	const [selectedIndices, setSelectedIndices] = useState<Set<number>>(new Set());
 
-	const [_isPicking, runOpenDocument] = useAsyncBusy(openDocument);
+	// Directory state
+	const [dirFiles, setDirFiles] = useState<{ uri: string; name: string }[]>([]);
+	const [selectedFileUris, setSelectedFileUris] = useState<Set<string>>(new Set());
+
+	// Shared
+	const [mergeMode, setMergeMode] = useState(false);
+	const [bulkProgress, setBulkProgress] = useState({ current: 0, total: 0 });
+
+	const [isPickingFile, runOpenDocument] = useAsyncBusy(openDocument);
+	const [isPickingDir, runOpenDocumentTree] = useAsyncBusy(openDocumentTree);
 
 	// Track whether the modal has been dismissed so in-flight
 	// async callbacks don't overwrite clean post-dismiss state.
 	const dismissedRef = useRef(false);
 
+	// ---- find or create an "imported" tag (shared) ----
+	const getOrCreateImportTag = useCallback(async (): Promise<number | undefined> => {
+		if (!dbConnection?.drizzle) return undefined;
+		const existing = await dbConnection.drizzle
+			.select({ id: tagsTable.id })
+			.from(tagsTable)
+			.where(eq(tagsTable.label, 'imported'))
+			.limit(1);
+		if (existing.length) {
+			return existing[0].id;
+		}
+		const created = await createTags([
+			{ label: 'imported', notes: null, data: null },
+		]);
+		return created?.length ? created[0].id : undefined;
+	}, []);
+
+	// ---- mutation ----
 	const mutation = useMutation({
 		mutationFn: async () => {
-			const toImport = features.filter((_, idx) => selectedIndices.has(idx));
-			if (!toImport.length) {
-				return;
-			}
+			let toImport: Feature<LineString, GeoJsonProperties>[];
+			let titles: (string | undefined)[];
 
-			// Auto-tag: find or create an "imported" tag
-			let importTagId: number | undefined;
-			if (dbConnection?.drizzle) {
-				const existing = await dbConnection.drizzle
-					.select({ id: tagsTable.id })
-					.from(tagsTable)
-					.where(eq(tagsTable.label, 'imported'))
-					.limit(1);
-				if (existing.length) {
-					importTagId = existing[0].id;
-				} else {
-					const created = await createTags([
-						{
-							label: 'imported',
-							notes: null,
-							data: null,
-						},
-					]);
-					if (created?.length) {
-						importTagId = created[0].id;
+			if (importMode === 'directory') {
+				// Parse each selected file and collect features
+				const allFeatures: Feature<LineString, GeoJsonProperties>[] = [];
+				const uris = Array.from(selectedFileUris);
+				for (let i = 0; i < uris.length; i++) {
+					if (dismissedRef.current) return;
+					setBulkProgress({ current: i + 1, total: uris.length });
+					const uri = uris[i];
+					const name = dirFiles.find((f) => f.uri === uri)?.name ?? uri;
+					try {
+						const content = await readFile(uri, 'utf8');
+						const format = detectImportFormat(name);
+						if (format) {
+							const result = parseImportContent(content, format);
+							allFeatures.push(...result.features);
+						}
+					} catch (err) {
+						logError('ImportModal.bulkParse', err);
+						// Skip files that fail to parse; continue with remaining
 					}
 				}
+				if (!allFeatures.length) return;
+				toImport = allFeatures;
+				titles = allFeatures.map((f, i) =>
+					f.properties?.name ??
+					dirFiles.find((df) => df.uri === uris[Math.min(i, uris.length - 1)])?.name?.replace(/\.[^.]+$/, '')
+				);
+			} else {
+				toImport = features.filter((_, idx) => selectedIndices.has(idx));
+				titles = toImport.map((f) =>
+					f.properties?.name ?? filename.replace(/\.[^.]+$/, '')
+				);
 			}
 
-			const newLines = toImport.map((feature) => ({
-				title:
-					feature.properties?.name ?? filename.replace(/\.[^.]+$/, ''),
-				lineStringFeature: feature,
-				tagIds: importTagId ? [importTagId] : undefined,
-			}));
-			await createLines(newLines);
+			if (!toImport.length) {
+				throw new Error(
+					importMode === 'directory'
+						? t('lines.importDirNoFiles')
+						: t('lines.importNoFeatures')
+				);
+			}
+
+			const importTagId = await getOrCreateImportTag();
+
+			if (mergeMode) {
+				// Merge all features into a single LineString
+				const allCoords = toImport.flatMap((f) => f.geometry.coordinates);
+				const merged: Feature<LineString, GeoJsonProperties> = {
+					type: 'Feature',
+					properties: {},
+					geometry: { type: 'LineString', coordinates: allCoords },
+				};
+				const title = importMode === 'file'
+					? filename.replace(/\.[^.]+$/, '')
+					: dirFiles.find((f) => selectedFileUris.has(f.uri))?.name?.replace(/\.[^.]+$/, '') ?? t('lines.importTrackN', { ns: 'lines' });
+				await createLines([
+					{ title, lineStringFeature: merged, tagIds: importTagId ? [importTagId] : undefined },
+				]);
+			} else {
+				const newLines = toImport.map((feature, idx) => ({
+					title: titles[idx],
+					lineStringFeature: feature,
+					tagIds: importTagId ? [importTagId] : undefined,
+				}));
+				await createLines(newLines);
+			}
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ['lines'] });
-			// Bypass handleDismiss — its step==='importing' guard
-			// would block cleanup here since step hasn't changed yet.
 			setStep('idle');
+			setImportMode('file');
 			setFeatures([]);
 			setFilename('');
-			_setMergeMode(false);
 			setSelectedIndices(new Set());
+			setDirFiles([]);
+			setSelectedFileUris(new Set());
+			setMergeMode(false);
+			setBulkProgress({ current: 0, total: 0 });
 			onDismiss();
 		},
 		onError: (err) => {
@@ -114,13 +182,15 @@ const ImportModal: FC<{
 		},
 	});
 
+	// ---- single-file pick ----
 	const handlePickFile = useCallback(async () => {
 		try {
 			const file = await runOpenDocument(false);
-			if (!file?.uri || dismissedRef.current) {
-				return;
-			}
+			if (!file?.uri || dismissedRef.current) return;
 
+			setImportMode('file');
+			setDirFiles([]);
+			setSelectedFileUris(new Set());
 			setStep('parsing');
 			const name = file.name ?? file.uri.split('/').pop() ?? '';
 			setFilename(name);
@@ -151,9 +221,8 @@ const ImportModal: FC<{
 
 			if (dismissedRef.current) return;
 			setFeatures(result.features);
-			// Select all by default
 			setSelectedIndices(new Set(result.features.map((_, i) => i)));
-			_setMergeMode(false);
+			setMergeMode(false);
 			setStep('preview');
 		} catch (err) {
 			logError('ImportModal.handlePickFile', err);
@@ -164,16 +233,63 @@ const ImportModal: FC<{
 		}
 	}, [runOpenDocument, showError, t]);
 
+	// ---- directory pick ----
+	const handlePickDirectory = useCallback(async () => {
+		try {
+			const dir = await runOpenDocumentTree(true);
+			if (!dir?.uri || dismissedRef.current) return;
+
+			setImportMode('directory');
+			setFeatures([]);
+			setFilename('');
+			setSelectedIndices(new Set());
+			setStep('scanning');
+
+			const items = await readDir(dir.uri);
+			if (dismissedRef.current) return;
+
+			const supported = items
+				.filter((item) => {
+					if (!item.isFile()) return false;
+					const ext = item.name.split('.').pop()?.toLowerCase();
+					return ext ? (IMPORT_EXTENSIONS as readonly string[]).includes(ext) : false;
+				})
+				.map((item) => ({ uri: item.path, name: item.name }));
+
+			if (!supported.length) {
+				if (dismissedRef.current) return;
+				showError(t('lines.importDirNoFiles'));
+				setStep('idle');
+				return;
+			}
+
+			if (dismissedRef.current) return;
+			setDirFiles(supported);
+			setSelectedFileUris(new Set(supported.map((f) => f.uri)));
+			setMergeMode(false);
+			setStep('preview');
+		} catch (err) {
+			logError('ImportModal.handlePickDirectory', err);
+			showError(
+				sprintf(t('errorGeneric'), err instanceof Error ? err.message : String(err))
+			);
+			setStep('idle');
+		}
+	}, [runOpenDocumentTree, showError, t]);
+
+	// ---- dismiss handling ----
 	const handleDismiss = useCallback(() => {
 		dismissedRef.current = true;
-		if (step === 'importing') {
-			return;
-		}
+		if (step === 'importing') return;
 		setStep('idle');
+		setImportMode('file');
 		setFeatures([]);
 		setFilename('');
-		_setMergeMode(false);
 		setSelectedIndices(new Set());
+		setDirFiles([]);
+		setSelectedFileUris(new Set());
+		setMergeMode(false);
+		setBulkProgress({ current: 0, total: 0 });
 		onDismiss();
 	}, [onDismiss, step]);
 
@@ -184,36 +300,53 @@ const ImportModal: FC<{
 	}
 	prevVisibleRef.current = visible;
 
-	const handleToggleFeature = useCallback(
-		(idx: number) => {
-			setSelectedIndices((prev) => {
-				const next = new Set(prev);
-				if (next.has(idx)) {
-					next.delete(idx);
-				} else {
-					next.add(idx);
-				}
-				return next;
-			});
-		},
-		[]
-	);
+	// ---- feature checkbox toggles (single-file mode) ----
+	const handleToggleFeature = useCallback((idx: number) => {
+		setSelectedIndices((prev) => {
+			const next = new Set(prev);
+			if (next.has(idx)) next.delete(idx);
+			else next.add(idx);
+			return next;
+		});
+	}, []);
 
-	const handleSelectAll = useCallback(() => {
+	const handleSelectAllFeatures = useCallback(() => {
 		setSelectedIndices(new Set(features.map((_, i) => i)));
 	}, [features]);
 
-	const handleDeselectAll = useCallback(() => {
+	const handleDeselectAllFeatures = useCallback(() => {
 		setSelectedIndices(new Set());
 	}, []);
 
+	// ---- file checkbox toggles (directory mode) ----
+	const handleToggleFile = useCallback((uri: string) => {
+		setSelectedFileUris((prev) => {
+			const next = new Set(prev);
+			if (next.has(uri)) next.delete(uri);
+			else next.add(uri);
+			return next;
+		});
+	}, []);
+
+	const handleSelectAllFiles = useCallback(() => {
+		setSelectedFileUris(new Set(dirFiles.map((f) => f.uri)));
+	}, [dirFiles]);
+
+	const handleDeselectAllFiles = useCallback(() => {
+		setSelectedFileUris(new Set());
+	}, []);
+
+	// ---- import button ----
+	const selectionCount =
+		importMode === 'directory' ? selectedFileUris.size : selectedIndices.size;
+
 	const handleImport = useCallback(() => {
-		if (!selectedIndices.size) {
-			return;
-		}
+		if (!selectionCount) return;
 		setStep('importing');
 		mutation.mutate();
-	}, [selectedIndices, mutation]);
+	}, [selectionCount, mutation]);
+
+	// ====== RENDER ======
 
 	return (
 		<ModalWrapper
@@ -222,6 +355,7 @@ const ImportModal: FC<{
 			header={t('lines.importTitle')}
 			innerStyle={localStyles.modalInner}
 		>
+			{/* ---- idle ---- */}
 			{step === 'idle' && (
 				<View style={localStyles.idleContainer}>
 					<Text style={localStyles.hint}>
@@ -233,14 +367,34 @@ const ImportModal: FC<{
 					<ButtonHighlight
 						onPress={handlePickFile}
 						mode="contained"
+						disabled={isPickingFile || isPickingDir}
 						buttonColor={get(theme.colors, 'primaryContainer')}
 						textColor={get(theme.colors, 'onPrimaryContainer')}
 					>
 						<Text>{t('lines.importPickFile')}</Text>
 					</ButtonHighlight>
+
+					<ButtonHighlight
+						onPress={handlePickDirectory}
+						mode="contained"
+						disabled={isPickingFile || isPickingDir}
+						buttonColor={get(theme.colors, 'secondaryContainer')}
+						textColor={get(theme.colors, 'onSecondaryContainer')}
+					>
+						<Text>{t('lines.importPickDirectory')}</Text>
+					</ButtonHighlight>
 				</View>
 			)}
 
+			{/* ---- scanning directory ---- */}
+			{step === 'scanning' && (
+				<View style={localStyles.centered}>
+					<LoadingIndicator />
+					<Text>{t('lines.importScanningDir')}</Text>
+				</View>
+			)}
+
+			{/* ---- parsing single file ---- */}
 			{step === 'parsing' && (
 				<View style={localStyles.centered}>
 					<LoadingIndicator />
@@ -248,86 +402,132 @@ const ImportModal: FC<{
 				</View>
 			)}
 
+			{/* ---- preview ---- */}
 			{step === 'preview' && (
 				<View>
-					<Text style={localStyles.filename}>{filename}</Text>
-					<Text style={localStyles.featureCount}>
-						{sprintf(t('lines.importFeatureCount'), features.length)}
-					</Text>
+					{importMode === 'file' ? (
+						/* ---- single-file feature preview ---- */
+						<>
+							<Text style={localStyles.filename}>{filename}</Text>
+							<Text style={localStyles.featureCount}>
+								{sprintf(t('lines.importFeatureCount'), features.length)}
+							</Text>
 
-					{/* Select all / none */}
-					<View style={localStyles.selectRow}>
-						<ButtonHighlight
-							mode="text"
-							compact={true}
-							onPress={handleSelectAll}
-						>
-							<Text>{t('lines.selectAll')}</Text>
-						</ButtonHighlight>
-						<ButtonHighlight
-							mode="text"
-							compact={true}
-							onPress={handleDeselectAll}
-						>
-							<Text>{t('lines.selectNone')}</Text>
-						</ButtonHighlight>
+							<View style={localStyles.selectRow}>
+								<ButtonHighlight mode="text" compact onPress={handleSelectAllFeatures}>
+									<Text>{t('lines.selectAll')}</Text>
+								</ButtonHighlight>
+								<ButtonHighlight mode="text" compact onPress={handleDeselectAllFeatures}>
+									<Text>{t('lines.selectNone')}</Text>
+								</ButtonHighlight>
+							</View>
+
+							<ScrollView style={localStyles.featureList} horizontal={false}>
+								{features.map((feature, idx) => (
+									<View
+										key={idx}
+										style={[
+											localStyles.featureRow,
+											{ borderColor: theme.colors.outline },
+										]}
+									>
+										<Checkbox
+											status={selectedIndices.has(idx) ? 'checked' : 'unchecked'}
+											onPress={() => handleToggleFeature(idx)}
+										/>
+										<Text>
+											{feature.properties?.name ??
+												sprintf(t('lines.importTrackN'), idx + 1)}
+										</Text>
+									</View>
+								))}
+							</ScrollView>
+						</>
+					) : (
+						/* ---- directory file preview ---- */
+						<>
+							<Text style={localStyles.featureCount}>
+								{sprintf(t('lines.importDirFilesFound'), dirFiles.length)}
+							</Text>
+
+							<View style={localStyles.selectRow}>
+								<ButtonHighlight mode="text" compact onPress={handleSelectAllFiles}>
+									<Text>{t('lines.selectAll')}</Text>
+								</ButtonHighlight>
+								<ButtonHighlight mode="text" compact onPress={handleDeselectAllFiles}>
+									<Text>{t('lines.selectNone')}</Text>
+								</ButtonHighlight>
+							</View>
+
+							<ScrollView style={localStyles.featureList} horizontal={false}>
+								{dirFiles.map((file) => (
+									<View
+										key={file.uri}
+										style={[
+											localStyles.featureRow,
+											{ borderColor: theme.colors.outline },
+										]}
+									>
+										<Checkbox
+											status={
+												selectedFileUris.has(file.uri) ? 'checked' : 'unchecked'
+											}
+											onPress={() => handleToggleFile(file.uri)}
+										/>
+										<Text>{file.name}</Text>
+									</View>
+								))}
+							</ScrollView>
+						</>
+					)}
+
+					{/* ---- merge mode toggle (shown for both modes) ---- */}
+					<View
+						style={[
+							localStyles.featureRow,
+							localStyles.mergeToggle,
+							{ borderColor: theme.colors.outline },
+						]}
+					>
+						<Checkbox
+							status={mergeMode ? 'checked' : 'unchecked'}
+							onPress={() => setMergeMode((prev) => !prev)}
+						/>
+						<Text>{t('lines.importMergeMode')}</Text>
 					</View>
 
-					{/* Feature list */}
-					<ScrollView
-						style={localStyles.featureList}
-						horizontal={false}
-					>
-						{features.map((feature, idx) => (
-							<View
-								key={idx}
-								style={[
-									localStyles.featureRow,
-									{
-										borderColor: theme.colors.outline,
-									},
-								]}
-							>
-								<Checkbox
-									status={
-										selectedIndices.has(idx)
-											? 'checked'
-											: 'unchecked'
-									}
-									onPress={() => handleToggleFeature(idx)}
-								/>
-								<Text>
-									{feature.properties?.name ??
-										sprintf(t('lines.importTrackN'), idx + 1)}
-								</Text>
-							</View>
-						))}
-					</ScrollView>
-
-					{/* Import button */}
+					{/* ---- import button ---- */}
 					<View style={localStyles.importControls}>
 						<ButtonHighlight
 							onPress={handleImport}
 							mode="contained"
-							disabled={!selectedIndices.size}
+							disabled={selectionCount === 0}
 							buttonColor={get(theme.colors, 'successContainer')}
 							textColor={get(theme.colors, 'onSuccessContainer')}
 						>
 							<Text>
-								{sprintf(
-									t('lines.importSelected'),
-									selectedIndices.size
-								)}
+								{sprintf(t('lines.importSelected'), selectionCount)}
 							</Text>
 						</ButtonHighlight>
 					</View>
 				</View>
 			)}
 
+			{/* ---- importing ---- */}
 			{step === 'importing' && (
 				<View style={localStyles.centered}>
 					<LoadingIndicator />
-					<Text>{t('lines.importing')}</Text>
+					{importMode === 'directory' && bulkProgress.total > 0 ? (
+						<Text>
+							{sprintf(
+								t('lines.importProgress'),
+								bulkProgress.current,
+								bulkProgress.total
+							)}
+						</Text>
+					) : (
+						<Text>{t('lines.importing')}</Text>
+					)}
 				</View>
 			)}
 		</ModalWrapper>
@@ -375,6 +575,9 @@ const localStyles = StyleSheet.create({
 		alignItems: 'center',
 		borderBottomWidth: 1,
 		paddingVertical: 4,
+	},
+	mergeToggle: {
+		marginTop: 8,
 	},
 	importControls: {
 		marginTop: 12,

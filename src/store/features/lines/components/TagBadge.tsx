@@ -1,24 +1,42 @@
 /**
  * External dependencies
  */
-import { FC } from 'react';
-import { View } from 'react-native';
+import { FC, useMemo } from 'react';
+import { StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
 
 /**
-import { useTranslation } from 'react-i18next';
  * Internal dependencies
  */
-import { Tag } from '../types';
+import { getTagColor } from './tagColor';
 
 const TagBadge: FC<{
-	tag: Tag;
+	tag: { id: number; label: string | null; data?: any };
 }> = ({ tag }) => {
+	// eslint-disable-next-line react-hooks/exhaustive-deps -- tracking id+data+label is sufficient; getTagColor only reads those fields
+	const color = useMemo(() => getTagColor(tag), [tag.id, tag.data, tag.label]);
+
 	return (
-		<View>
-			<Text>{tag.label}</Text>
+		<View style={[styles.badge, { backgroundColor: color.bg, borderColor: color.border }]}>
+			<Text style={[styles.label, { color: color.fg }]}>{tag.label ?? ''}</Text>
 		</View>
 	);
 };
+
+const styles = StyleSheet.create({
+	badge: {
+		borderRadius: 12,
+		borderWidth: 1,
+		paddingHorizontal: 8,
+		paddingVertical: 2,
+		marginHorizontal: 2,
+		marginVertical: 2,
+		alignSelf: 'flex-start',
+	},
+	label: {
+		fontSize: 11,
+		fontWeight: '600',
+	},
+});
 
 export default TagBadge;

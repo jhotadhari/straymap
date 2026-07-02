@@ -13,6 +13,8 @@ import useExport from './useExport';
 import useRemoveFromMap from './useRemoveFromMap';
 import useShowStats from './useShowStats';
 import useFlyTo from './useFlyTo';
+import useAddTag from './useAddTag';
+import useRemoveTag from './useRemoveTag';
 
 const useBulkActions = () => {
 	const actionShowOnMap = useAddToMap();
@@ -21,6 +23,8 @@ const useBulkActions = () => {
 	const actionShowStats = useShowStats();
 	const actionDeleteLine = useDeleteLines();
 	const actionExport = useExport();
+	const actionAddTag = useAddTag();
+	const actionRemoveTag = useRemoveTag();
 
 	return useMemo(() => {
 		const actions: Record<string, MenuActionOption> = {};
@@ -31,6 +35,8 @@ const useBulkActions = () => {
 		actions[actionShowStats.key] = actionShowStats;
 		actions[actionDeleteLine.key] = actionDeleteLine;
 		actions[actionExport.key] = actionExport;
+		actions[actionAddTag.key] = actionAddTag;
+		actions[actionRemoveTag.key] = actionRemoveTag;
 
 		return actions;
 	}, [
@@ -40,6 +46,8 @@ const useBulkActions = () => {
 		actionShowStats,
 		actionDeleteLine,
 		actionExport,
+		actionAddTag,
+		actionRemoveTag,
 	]);
 };
 

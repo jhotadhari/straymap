@@ -70,5 +70,19 @@
 	"importSelected": "%s Strecke(n) importieren",
 	"importing": "Importiere…",
 	"selectAll": "Alle auswählen",
-	"selectNone": "Auswahl aufheben"
+	"selectNone": "Auswahl aufheben",
+	"importPickDirectory": "Ordner auswählen",
+	"importScanningDir": "Durchsuche Ordner…",
+	"importDirNoFiles": "Keine unterstützten Dateien im Ordner gefunden.",
+	"importDirFilesFound": "%s unterstützte Datei(en) gefunden",
+	"importMergeMode": "Alle Strecken zu einer Linie zusammenführen",
+	"importProgress": "Importiere %s von %s…",
+	"importParsingFile": "Verarbeite %s…",
+	"addTags": "Tags hinzufügen",
+	"removeTags": "Tags entfernen",
+	"tagsEditTitle": "Tags bearbeiten",
+	"tagsNewPlaceholder": "Neuer Tag-Name…",
+	"tagsCreate": "Tag erstellen",
+	"tagsNoTags": "Noch keine Tags",
+	"tagsApply": "Anwenden"
 }
