@@ -231,6 +231,7 @@ const ImportModal: FC<{
 			setStep('preview');
 		} catch (err) {
 			logError('ImportModal.handlePickFile', err);
+			if (dismissedRef.current) return;
 			showError(
 				sprintf(t('errorGeneric'), err instanceof Error ? err.message : String(err))
 			);

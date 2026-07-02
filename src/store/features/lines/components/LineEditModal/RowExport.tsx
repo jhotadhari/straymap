@@ -67,6 +67,7 @@ const RowExport: FC = () => {
 
 	const handleWrite = useCallback(async () => {
 		if (!lineWithGeom?.geometry) {
+			showError(t('lines.exportNoGeom'));
 			return;
 		}
 		setWriting(true);

@@ -58,7 +58,9 @@ const FilterDateModal: FC<{
 		saveRef.current = () => {
 			const minStr = dateToString(minDate);
 			const maxStr = dateToString(maxDate);
-			if (minStr !== undefined || maxStr !== undefined) {
+			// Save when values are non-empty, OR when editing an existing
+			// filter (allows clearing by dismissing with empty inputs).
+			if (minStr !== undefined || maxStr !== undefined || existingFilter) {
 				onSave({
 					type: 'date',
 					columnKey,
@@ -67,7 +69,7 @@ const FilterDateModal: FC<{
 				});
 			}
 		};
-	}, [columnKey, minDate, maxDate, onSave]);
+	}, [columnKey, minDate, maxDate, onSave, existingFilter]);
 
 	const prevVisibleRef = useRef(false);
 	useEffect(() => {

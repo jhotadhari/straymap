@@ -119,7 +119,9 @@ const useExport = () => {
 
 			// Report outcome
 			if (written === 0 && total === 0) {
-				showError(t('lines.importNoFeatures')); // reuse: no geometry = nothing to export
+				showError(t('lines.exportNoGeom'));
+			} else if (written === 0) {
+				showError(t('lines.exportNoFilesWritten'));
 			} else if (failed.length) {
 				showError(
 					sprintf(

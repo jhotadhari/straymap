@@ -36,6 +36,8 @@
 	"stats": "Statistiken",
 	"routing": "Routing",
 	"export": "Export",
+	"exportNoFilesWritten": "Keine Dateien geschrieben. Überprüfe, ob die ausgewählten Linien Geometriedaten haben.",
+	"exportNoGeom": "Keine Geometriedaten für den Export verfügbar.",
 	"exporting": "Exportiere...",
 	"exportPartial": "%s von %s Linien exportiert. Fehlgeschlagen: %s",
 	"delete": "Löschen",

@@ -290,7 +290,10 @@ const fetchLinesWithTags = (params?: FetchLinesWithTagsParams) => {
 		// When filtering by tag, force-include 'tags' so the LEFT JOIN
 		// happens and the WHERE clause can filter by tagsTable.id.
 		// Otherwise the tag constraint would be silently dropped.
-		if (tagId) {
+		// Also force 'tags' when allLines is false — the fetchLinesWithoutTags
+		// fallback always imposes a limit when lineIds is set, which
+		// contradicts the allLines:false intent.
+		if (tagId || !allLines) {
 			(fields as string[]).push('tags');
 		} else {
 			return fetchLinesWithoutTags(params as FetchLinesWithoutTagsParams);

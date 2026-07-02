@@ -56,7 +56,9 @@ const FilterNumericModal: FC<{
 		saveRef.current = () => {
 			const minNb = strToNb(minVal);
 			const maxNb = strToNb(maxVal);
-			if (minNb !== undefined || maxNb !== undefined) {
+			// Save when values are non-empty, OR when editing an existing
+			// filter (allows clearing by dismissing with empty inputs).
+			if (minNb !== undefined || maxNb !== undefined || existingFilter) {
 				onSave({
 					type: 'numeric',
 					columnKey,
@@ -65,7 +67,7 @@ const FilterNumericModal: FC<{
 				});
 			}
 		};
-	}, [columnKey, minVal, maxVal, onSave]);
+	}, [columnKey, minVal, maxVal, onSave, existingFilter]);
 
 	const prevVisibleRef = useRef(false);
 	useEffect(() => {
