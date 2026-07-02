@@ -14,6 +14,14 @@ jest.mock('../src/store/hooks', () => ({
 	useSettingsInitialized: jest.fn(() => [true]),
 }));
 
+// react-native-paper-dates bundles ESM deps (color, color-string, color-name)
+// in its own node_modules. Mock it here so jest doesn't try to transform them.
+jest.mock('react-native-paper-dates', () => ({
+	DatePickerInput: () => null,
+	DatePickerModal: () => null,
+	registerTranslation: () => {},
+}));
+
 import App from '../src/components/App';
 
 // Note: import explicitly to use the types shipped with jest.
