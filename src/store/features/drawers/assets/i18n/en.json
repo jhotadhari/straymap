@@ -1,5 +1,10 @@
 {
 	"drawer_one": "Drawer",
 	"drawer_other": "Drawers",
-	"openMapsSettings": "Open maps settings"
+	"openMapsSettings": "Open maps settings",
+	"showSettingsHandle": "Show settings handle",
+	"hideSettingsHandle": "Hide settings handle",
+	"hintShowSettingsHandle": "Toggle whether the settings cog is visible on the map. When hidden, you can still access drawer configuration from the Settings screen.",
+	"configureDrawers": "Configure drawers",
+	"hintConfigureDrawers": "Add, remove, or rearrange drawer items on the left and right sides of the map."
 }

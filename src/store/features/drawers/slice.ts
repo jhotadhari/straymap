@@ -14,6 +14,7 @@ export interface DrawersSettings {
 	itemKeysLeft: string[];
 	itemKeysRight: string[];
 	controlHandleSide: string;
+	showSettingsHandle: boolean;
 }
 
 export interface DrawersState extends SliceSettingsBase, DrawersSettings {
@@ -33,6 +34,7 @@ export const initialSettings: DrawersSettings = {
 		'brouter',
 	],
 	controlHandleSide: 'right',
+	showSettingsHandle: true,
 };
 
 const initialState: DrawersState = {
@@ -52,6 +54,9 @@ export const drawersSlice = createSlice({
 		setControlHandleSide: (state, action: PayloadAction<DrawersState['controlHandleSide']>) => {
 			state.controlHandleSide = action.payload;
 		},
+			setShowSettingsHandle: (state, action: PayloadAction<boolean>) => {
+				state.showSettingsHandle = action.payload;
+			},
 		setItemKeys: (
 			state,
 			action: PayloadAction<{
@@ -136,6 +141,7 @@ export const drawersSlice = createSlice({
 export const {
 	setInitialized,
 	setControlHandleSide,
+	setShowSettingsHandle,
 	setItemKeys,
 	addItemKey,
 	removeItemKey,

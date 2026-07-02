@@ -68,6 +68,7 @@ describe('drawers slice reducers', () => {
 				itemKeysLeft: ['a'],
 				itemKeysRight: ['x'],
 				controlHandleSide: 'right',
+				showSettingsHandle: true,
 			};
 			const state = drawersReducer(prev, addItemKey({ side: 'left', itemKey: 'b' }));
 			expect(state.itemKeysLeft).toEqual(['a', 'b']);
@@ -83,6 +84,7 @@ describe('drawers slice reducers', () => {
 				itemKeysRight: ['x'],
 				activeKeyLeft: 'a',
 				controlHandleSide: 'right',
+				showSettingsHandle: true,
 			};
 			const state = drawersReducer(prev, removeItemKey({ side: 'left', itemKey: 'a' }));
 			expect(state.itemKeysLeft).toEqual(['b']);
@@ -96,6 +98,7 @@ describe('drawers slice reducers', () => {
 				itemKeysRight: ['x'],
 				activeKeyLeft: 'a',
 				controlHandleSide: 'right',
+				showSettingsHandle: true,
 			};
 			const state = drawersReducer(prev, removeItemKey({ side: 'left', itemKey: 'b' }));
 			expect(state.itemKeysLeft).toEqual(['a']);
@@ -127,6 +130,7 @@ describe('drawers slice reducers', () => {
 				itemKeysRight: [],
 				activeKeyLeft: 'a',
 				controlHandleSide: 'right',
+				showSettingsHandle: true,
 			};
 			const state = drawersReducer(
 				prev,

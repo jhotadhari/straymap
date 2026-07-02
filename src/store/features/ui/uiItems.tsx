@@ -14,6 +14,7 @@ import Settings from './components/Settings';
 import About from './components/About';
 import SettingsDashboard from './components/SettingsDashboard';
 import LinesBrowser from './components/LinesBrowser';
+import SettingsDrawers from './components/SettingsDrawers';
 
 export const uiItems: UiItem[] = [
 	{
@@ -78,6 +79,12 @@ export const uiItems: UiItem[] = [
 		label: 'ui.items.linesBrowser',
 		icon: 'go-kart-track',
 		Component: LinesBrowser,
+	},
+	{
+		key: 'drawers',
+		label: 'ui.items.drawers',
+		icon: 'cog',
+		Component: SettingsDrawers,
 	},
 ];
 

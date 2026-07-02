@@ -16,8 +16,8 @@ import ModalWrapper from '../../../../../components/generic/ModalWrapper';
 import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
 import { DrawerItem } from '../../types';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
-import { selectControlHandleSide, selectItemKeys } from '../../selectors';
-import { addItemKey, removeItemKey, setControlHandleSide } from '../../slice';
+import { selectControlHandleSide, selectItemKeys, selectShowSettingsHandle } from '../../selectors';
+import { addItemKey, removeItemKey, setControlHandleSide, setShowSettingsHandle } from '../../slice';
 
 const settingsDrawerItem: DrawerItem = {
 	iconSource: 'cog',
@@ -37,6 +37,8 @@ const Item: FC<{
 
 	const controlHandleSide = useAppSelector(selectControlHandleSide);
 
+	const showSettingsHandle = useAppSelector(selectShowSettingsHandle);
+
 	const { IconComponent, iconSource } = useMemo(() => {
 		const IconComponent = get(drawerItem, 'IconComponent');
 		const iconSource = IconComponent ? undefined : get(drawerItem, 'iconSource');
@@ -48,12 +50,12 @@ const Item: FC<{
 
 	let isOnSide: false | string = false;
 	if (
-		(!drawerItem.key && 'left' === controlHandleSide) ||
+		(!drawerItem.key && showSettingsHandle && 'left' === controlHandleSide) ||
 		itemKeysLeft.includes(drawerItem.key ?? '')
 	) {
 		isOnSide = 'left';
 	} else if (
-		(!drawerItem.key && 'right' === controlHandleSide) ||
+		(!drawerItem.key && showSettingsHandle && 'right' === controlHandleSide) ||
 		itemKeysRight.includes(drawerItem.key ?? '')
 	) {
 		isOnSide = 'right';
@@ -63,13 +65,16 @@ const Item: FC<{
 		const handlePress = (side: string) => {
 			const sideOther = 'left' === side ? 'right' : 'left';
 			if (side === isOnSide) {
-				drawerItem.key &&
+				if (drawerItem.key) {
 					dispatch(
 						removeItemKey({
 							side,
 							itemKey: drawerItem.key,
 						})
 					);
+				} else {
+					dispatch(setShowSettingsHandle(false));
+				}
 			} else {
 				if (drawerItem.key) {
 					dispatch(
@@ -80,6 +85,7 @@ const Item: FC<{
 					);
 				} else {
 					dispatch(setControlHandleSide(side));
+					dispatch(setShowSettingsHandle(true));
 				}
 			}
 			if (sideOther === isOnSide) {
@@ -104,7 +110,6 @@ const Item: FC<{
 
 	const getBtnProps = useCallback(
 		(side: string): Partial<ButtonProps> => {
-			const disabled = !drawerItem.key && side === isOnSide;
 			return {
 				buttonColor:
 					side === isOnSide
@@ -114,16 +119,13 @@ const Item: FC<{
 					side === isOnSide
 						? theme.colors.onErrorContainer
 						: get(theme.colors, 'onSuccessContainer'),
-				disabled,
-				style: disabled ? styles.disabled : undefined,
-			};
-		},
-		[
+				};
+			},
+			[
 			isOnSide,
 			theme,
-			drawerItem,
-		]
-	);
+			]
+		);
 
 	return (
 		<View style={styles.itemRow}>

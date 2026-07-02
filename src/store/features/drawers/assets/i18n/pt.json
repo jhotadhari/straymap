@@ -1,5 +1,10 @@
 {
 	"drawer_one": "Painel",
 	"drawer_other": "Painéis",
-	"openMapsSettings": "Abrir configurações de mapas"
+	"openMapsSettings": "Abrir configurações de mapas",
+	"showSettingsHandle": "Mostrar alça de configurações",
+	"hideSettingsHandle": "Ocultar alça de configurações",
+	"hintShowSettingsHandle": "Controla se a engrenagem de configurações fica visível no mapa. Quando oculta, você ainda pode acessar a configuração dos painéis pela tela de Configurações.",
+	"configureDrawers": "Configurar painéis",
+	"hintConfigureDrawers": "Adicionar, remover ou reordenar itens dos painéis nos lados esquerdo e direito do mapa."
 }

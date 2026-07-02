@@ -10,6 +10,8 @@ export const selectInitialized = (state: RootState) => state.drawers.initialized
 
 export const selectControlHandleSide = (state: RootState) => state.drawers.controlHandleSide;
 
+export const selectShowSettingsHandle = (state: RootState) => state.drawers.showSettingsHandle;
+
 export const selectActiveKey = (state: RootState, { side }: { side: string }) => {
 	if ('left' === side) {
 		return state.drawers.activeKeyLeft;

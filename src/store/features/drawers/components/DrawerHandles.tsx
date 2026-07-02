@@ -10,7 +10,7 @@ import { ScrollView } from 'react-native-gesture-handler';
  * Internal dependencies
  */
 import { DrawerItem, DrawerProps } from '../types';
-import { selectActiveKey, selectControlHandleSide, selectItemKeys } from '../selectors';
+import { selectActiveKey, selectControlHandleSide, selectItemKeys, selectShowSettingsHandle } from '../selectors';
 import { useAppDispatch, useAppSelector } from '../../../hooks';
 import DrawerHandle from './DrawerHandle';
 import { setItemKeys } from '../slice';
@@ -30,6 +30,7 @@ const DrawerHandles: FC<
 	const itemKeys = useAppSelector((state) => selectItemKeys(state, { side }));
 	const activeItemKey = useAppSelector((state) => selectActiveKey(state, { side }));
 	const controlHandleSide = useAppSelector(selectControlHandleSide);
+	const showSettingsHandle = useAppSelector(selectShowSettingsHandle);
 
 	const { setMoveEnabled } = useContext(AppContext);
 	const { setActiveItemKey, height } = useContext(DrawerContext);
@@ -120,10 +121,13 @@ const DrawerHandles: FC<
 	const styleContainer = useMemo(
 		() => ({
 			height: getContainerHeight(
-				controlHandleSide === side ? draggableItems.length + 1 : draggableItems.length
+				showSettingsHandle && controlHandleSide === side
+					? draggableItems.length + 1
+					: draggableItems.length
 			),
 		}),
 		[
+			showSettingsHandle,
 			controlHandleSide,
 			side,
 			draggableItems.length,
@@ -148,7 +152,10 @@ const DrawerHandles: FC<
 		[setModalVisible]
 	);
 
-	if (controlHandleSide !== side && draggableItems.length === 0) {
+	if (
+		(!showSettingsHandle || controlHandleSide !== side) &&
+		draggableItems.length === 0
+	) {
 		return undefined;
 	}
 
@@ -181,7 +188,7 @@ const DrawerHandles: FC<
 						)}
 					</View>
 
-					{controlHandleSide === side && (
+					{showSettingsHandle && controlHandleSide === side && (
 						<DrawerHandle
 							style={styleControlHandle}
 							gesture={gesture}
