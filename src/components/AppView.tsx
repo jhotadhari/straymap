@@ -40,6 +40,12 @@ import {
 } from 'react-native-mapsforge-vtm';
 
 /**
+ * react-native-hardwarekey-event dependencies
+ */
+import { useHardwareKeyEvent } from 'react-native-hardwarekey-event';
+import type { KeyCode } from 'react-native-hardwarekey-event';
+
+/**
  * Internal dependencies
  */
 import TopAppBar from '../store/features/ui/components/TopAppBar';
@@ -51,7 +57,7 @@ import Drawers from '../store/features/drawers/components/Drawers';
 import SplashScreen from './SplashScreen';
 import RoutingMapView from '../store/features/routing/components/RoutingMapView';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { selectMapUpdateInterval } from '../store/features/general/selectors'; // also exports selectHardwareKeys, see emitsHardwareKeyUp note below.
+import { selectMapUpdateInterval, selectHardwareKeys } from '../store/features/general/selectors';
 import { selectElementsSettings, selectItems } from '../store/features/dashboard/selectors';
 import { DashboardItem } from '../store/features/dashboard/types';
 import {
@@ -87,7 +93,7 @@ const AppView = ({
 
 	const showSplash = useShowInitialSplash();
 
-	// const hardwareKeys = useAppSelector(selectHardwareKeys); // see emitsHardwareKeyUp note below.
+	const hardwareKeys = useAppSelector(selectHardwareKeys);
 
 	const dashboardItems = useAppSelector((state) => selectItems(state, { position: 'bottom' }));
 	const mapUpdateInterval = useAppSelector(selectMapUpdateInterval);
@@ -112,7 +118,8 @@ const AppView = ({
 
 	const { currentMapEventRef } = useContext(MapContext);
 
-	const { getAltitudeAtPosition } = useMap(mapViewNativeNodeHandle);
+	const { getAltitudeAtPosition, getPosition, zoomTo, zoomOut } =
+		useMap(mapViewNativeNodeHandle);
 
 	const hgtDirPath = useMemo(
 		() =>
@@ -147,35 +154,40 @@ const AppView = ({
 		[dashboardItems, dashboardElements]
 	);
 
-	// ??? emitsHardwareKeyUp/onHardwareKeyUp aren't wired up to MapContainer in the New
-	// Architecture rewrite of react-native-mapsforge-vtm -- the native TurboModule still has the
-	// constant, but the Fabric view's codegen props and the MapContainer wrapper don't forward it
-	// anymore. Disabled until upstream re-adds it.
-	// const emitsHardwareKeyUp = useMemo(
-	// 	() =>
-	// 		hardwareKeys
-	// 			.filter((keyConf) => 'none' !== keyConf.actionKey)
-	// 			.map((keyConf) => keyConf.keyCodeString),
-	// 	[hardwareKeys]
-	// );
+	// Observe hardware keys that have a non-'none' action assigned.
+	// Only the key-code strings themselves are passed to the native layer;
+	// the actionKey is resolved in onKeyDown via the Redux config.
+	const observedKeyCodes = useMemo(
+		() =>
+			hardwareKeys
+				.filter((keyConf) => keyConf.actionKey !== 'general.none')
+				.map((keyConf) => keyConf.keyCodeString as KeyCode),
+		[hardwareKeys]
+	);
 
-	// const handleHardwareKeyUp = useCallback(
-	// 	(response: { keyCodeString: string }) => {
-	// 		hardwareKeys.forEach((keyConf) => {
-	// 			if (response.keyCodeString === keyConf.keyCodeString) {
-	// 				switch (keyConf.actionKey) {
-	// 					case 'zoomIn':
-	// 						getPosition().then((position) => zoomTo(position.zoomLevel + 1));
-	// 						break;
-	// 					case 'zoomOut':
-	// 						zoomOut();
-	// 						break;
-	// 				}
-	// 			}
-	// 		});
-	// 	},
-	// 	[hardwareKeys, getPosition, zoomTo, zoomOut]
-	// );
+	useHardwareKeyEvent({
+		keys: observedKeyCodes,
+		onKeyDown: useCallback(
+			(event) => {
+				const keyConf = hardwareKeys.find(
+					(kc) => kc.keyCodeString === event.keyCodeString
+				);
+				if (!keyConf) return;
+
+				switch (keyConf.actionKey) {
+					case 'zoomIn':
+						getPosition().then((position) =>
+							zoomTo(position.zoomLevel + 1)
+						);
+						break;
+					case 'zoomOut':
+						zoomOut();
+						break;
+				}
+			},
+			[hardwareKeys, getPosition, zoomTo, zoomOut]
+		),
+	});
 
 	const [showMap, setShowMap] = useState(false);
 	const mapsforgeGeneral = useAppSelector(selectMapsforgeGeneral);

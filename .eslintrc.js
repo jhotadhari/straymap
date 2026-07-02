@@ -1,6 +1,7 @@
 module.exports = {
 	root: true,
 	extends: '@react-native',
+	ignorePatterns: ['.yalc/'],
 	rules: {
 		yoda: 'off',
 		'no-undef-init': 'off',
