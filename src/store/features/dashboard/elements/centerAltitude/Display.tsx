@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { FC, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { FC, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { Text, useTheme } from 'react-native-paper';
 import { get } from 'lodash-es';
 import { GestureResponderEvent, TouchableHighlight, View } from 'react-native';
@@ -14,6 +14,7 @@ import { useMap } from 'react-native-mapsforge-vtm';
  */
 import { formatHeightDepth } from '../../../../../lib/formatting';
 import { AppContext, MapContext } from '../../../../../Context';
+import { selectMapUpdateInterval, selectUnitPrefs } from '../../../general/selectors';
 import { useAppSelector } from '../../../../hooks';
 import { DashboardElementProps } from '../../types';
 import { UnitPref } from '../../../general/types';
@@ -23,18 +24,6 @@ export interface Options {
 	unitPref?: UnitPref;
 }
 
-/** Minimum lng/lat change (degrees) that triggers a re-query. */
-const CENTER_CHANGE_THRESHOLD = 0.0005;
-
-/**
- * Center-altitude dashboard element.
- *
- * Reads the map center from useMapPosition()'s shared value (zero bridge
- * crossings). Calls getAltitudeAtPosition() — a TurboModule on the Native
- * Modules thread — whenever the center changes. After the first call for a
- * tile caches the HGT data, subsequent calls are sub-millisecond cache
- * lookups, so the display tracks movement smoothly.
- */
 const Display: FC<DashboardElementProps<Options>> = ({ item, style = {}, onPress }) => {
 	const handlePress = useMemo(() => {
 		if (onPress) {
@@ -44,11 +33,12 @@ const Display: FC<DashboardElementProps<Options>> = ({ item, style = {}, onPress
 
 	const theme = useTheme();
 
-	const unitPrefs = useAppSelector((state) => get(state, ['general', 'unitPrefs']));
+	const mapUpdateInterval = useAppSelector(selectMapUpdateInterval);
+	const unitPrefs = useAppSelector(selectUnitPrefs);
 
 	const { fontSize, minWidth, textAlign } = useItemStyle(item);
 
-	const { centerPositionSvRef } = useContext(MapContext);
+	const { currentMapEventRef } = useContext(MapContext);
 	const { mapViewNativeNodeHandle } = useContext(AppContext);
 
 	const { getAltitudeAtPosition } = useMap(mapViewNativeNodeHandle ?? null);
@@ -63,34 +53,33 @@ const Display: FC<DashboardElementProps<Options>> = ({ item, style = {}, onPress
 
 	const [altitudeM, setAltitudeM] = useState<number | null>(null);
 
-	// Incremented on every query; responses check it to avoid updating
-	// the display with a stale value when a newer request is in flight.
-	const requestIdRef = useRef(0);
-
-	// Poll the shared value for the current center. SharedValue.value
-	// reads are zero bridge crossings — much cheaper than setInterval
-	// polling a bridge-event ref.
+	// Read altitude from map-update events at the native event rate.
+	// The native getResponseBase does a cached-only lookup (sub-ms on hit,
+	// preload on miss) — no render-thread I/O. When the native side has a
+	// cache miss, center[2] is null and we fall back to the TurboModule.
+	const intervalRef = useRef<NodeJS.Timeout | null>(null);
 	useEffect(() => {
-		const timer = setInterval(() => {
-			const center = centerPositionSvRef.current?.value;
+		intervalRef.current = setInterval(() => {
+			const center = currentMapEventRef?.current?.center;
 			if (!center || center[0] == null || center[1] == null) {
+				setAltitudeM(null);
 				return;
 			}
-			const lng = center[0];
-			const lat = center[1];
-
-			const id = ++requestIdRef.current;
-			getAltitudeAtPosition(lng, lat).then((alt) => {
-				// Only apply if no newer request was made.
-				if (requestIdRef.current === id) {
-					setAltitudeM(alt);
-				}
-			});
-		}, 200);
+			const alt = center[2];
+			if (alt != null) {
+				setAltitudeM(alt);
+			} else {
+				// Native cache miss — fall back to TurboModule.
+				// Runs on Native Modules thread, no render impact.
+				getAltitudeAtPosition(center[0], center[1]).then((a) => {
+					if (a != null) setAltitudeM(a);
+				});
+			}
+		}, mapUpdateInterval);
 		return () => {
-			clearInterval(timer);
+			intervalRef.current && clearInterval(intervalRef.current);
 		};
-	}, [centerPositionSvRef, getAltitudeAtPosition]);
+	}, [mapUpdateInterval, currentMapEventRef, getAltitudeAtPosition]);
 
 	const viewStyle = useMemo(() => [{ minWidth }, style], [minWidth, style]);
 	const textStyle = useMemo(() => ({ fontSize, textAlign }), [fontSize, textAlign]);
