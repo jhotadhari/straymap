@@ -35,7 +35,6 @@ import {
 	CanvasAdapterModule,
 	ErrorWithErrorMsg,
 	TapEventResponse,
-	LongPressEventResponse,
 	useMap,
 } from 'react-native-mapsforge-vtm';
 import { useMapPosition } from 'react-native-mapsforge-vtm/reanimated';
@@ -119,7 +118,7 @@ const AppView = ({
 
 	const { currentMapEventRef, centerPositionSvRef } = useContext(MapContext);
 
-	const { getAltitudeAtPosition, getPosition, zoomTo, zoomOut } =
+	const { getPosition, flyTo } =
 		useMap(mapViewNativeNodeHandle);
 
 	const { centerSv, handleMapUpdate } = useMapPosition();
@@ -183,15 +182,17 @@ const AppView = ({
 				switch (keyConf.actionKey) {
 					case 'zoomIn':
 						getPosition().then((position) =>
-							zoomTo(position.zoomLevel + 1)
+							flyTo({ zoomLevel: position.zoomLevel + 1 })
 						);
 						break;
 					case 'zoomOut':
-						zoomOut();
+						getPosition().then((position) =>
+							flyTo({ zoomLevel: position.zoomLevel - 1 })
+						);
 						break;
 				}
 			},
-			[hardwareKeys, getPosition, zoomTo, zoomOut]
+			[hardwareKeys, getPosition, flyTo]
 		),
 	});
 
@@ -300,25 +301,6 @@ const AppView = ({
 		]
 	);
 
-	const handleMapLongPress = useCallback(
-		(event: NativeSyntheticEvent<LongPressEventResponse>) => {
-			const { lng, lat } = event.nativeEvent;
-			getAltitudeAtPosition(lng, lat)
-				.then((alt: number | null) => {
-					if (alt !== null) {
-						showError(
-							sprintf(t('mapElevationAtPoint'), alt.toFixed(0), lng.toFixed(5), lat.toFixed(5))
-						);
-					} else {
-						showError(t('mapElevationNoData'));
-					}
-				})
-				.catch(() => {
-					// Silently ignore — elevation lookup failures are non-critical
-				});
-		},
-		[getAltitudeAtPosition, showError, t]
-	);
 
 	const styleOuter = useMemo(
 		() => ({
@@ -368,7 +350,6 @@ const AppView = ({
 						onResume={handleMapResume}
 						onMapUpdate={handleMapEvent}
 						onTap={handleMapTap}
-						onLongPress={handleMapLongPress}
 					>
 						<BaseMap />
 
