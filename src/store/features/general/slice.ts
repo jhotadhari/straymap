@@ -3,7 +3,6 @@
  */
 import type { PayloadAction } from '@reduxjs/toolkit';
 import { createSlice } from '@reduxjs/toolkit';
-import { MapContainerProps } from 'react-native-mapsforge-vtm';
 
 /**
  * Internal dependencies
@@ -14,7 +13,7 @@ import { HardwareKeyActionConf, UnitPref } from './types';
 export interface GeneralSettings {
 	hardwareKeys: HardwareKeyActionConf[];
 	unitPrefs: { [value: string]: UnitPref };
-	mapUpdateInterval: MapContainerProps['mapUpdateInterval'];
+	mapUpdateInterval: number;
 }
 
 export interface GeneralState extends SliceSettingsBase, GeneralSettings {}

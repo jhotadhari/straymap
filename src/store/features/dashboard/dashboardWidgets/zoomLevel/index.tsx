@@ -38,5 +38,4 @@ export default {
 	Control,
 	Icon,
 	defaultMinWidth: 75,
-	responseInclude: { zoomLevel: 2 },
 } as DashboardWidget<Options>;

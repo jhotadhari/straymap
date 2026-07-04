@@ -24,7 +24,6 @@ import {
 	MapContainer,
 	LayerScalebar,
 	MapEventResponse,
-	ResponseInclude,
 	CanvasAdapterModule,
 	ErrorWithErrorMsg,
 	TapEventResponse,
@@ -36,7 +35,7 @@ import { useMapPosition } from 'react-native-mapsforge-vtm/reanimated';
  * react-native-hardwarekey-event dependencies
  */
 import { useHardwareKeyEvent } from 'react-native-hardwarekey-event';
-import type { KeyCode } from 'react-native-hardwarekey-event';
+import type { KeyCode, KeyEvent } from 'react-native-hardwarekey-event';
 
 /**
  * Internal dependencies
@@ -47,7 +46,7 @@ import { AppContext, MapContext } from '../Context';
 import { ErrorToastContext } from './ErrorToast/Context';
 import SplashScreen from './SplashScreen';
 import { useAppSelector } from '../store/hooks';
-import { selectMapUpdateInterval, selectHardwareKeys } from '../store/features/general/selectors';
+import { selectHardwareKeys } from '../store/features/general/selectors';
 import { selectElementsSettings, selectItems } from '../store/features/dashboard/selectors';
 import { DashboardItem } from '../store/features/dashboard/types';
 import { selectHgtDirPath, selectMapsforgeGeneral } from '../store/features/baseMap/selectors';
@@ -85,7 +84,6 @@ const AppView = ({
 	const hardwareKeys = useAppSelector(selectHardwareKeys);
 
 	const dashboardItems = useAppSelector((state) => selectItems(state, { position: 'bottom' }));
-	const mapUpdateInterval = useAppSelector(selectMapUpdateInterval);
 	const hgtDirPathStore = useAppSelector(selectHgtDirPath);
 	const dashboardWidgets = useAppSelector(selectElementsSettings);
 
@@ -130,22 +128,6 @@ const AppView = ({
 		]
 	);
 
-	const responseInclude = useMemo(
-		() =>
-			dashboardItems.reduce(
-				(acc: object, ele: DashboardItem) => {
-					return ele.elementType
-						? {
-								...acc,
-								...get(dashboardWidgets, [ele.elementType, 'responseInclude'], {}),
-							}
-						: acc;
-				},
-				{ zoomLevel: 2, center: 2 }
-			) as ResponseInclude,
-		[dashboardItems, dashboardWidgets]
-	);
-
 	// Observe hardware keys that have a non-'none' action assigned.
 	// Only the key-code strings themselves are passed to the native layer;
 	// the actionKey is resolved in onKeyDown via the Redux config.
@@ -160,7 +142,7 @@ const AppView = ({
 	useHardwareKeyEvent({
 		keys: observedKeyCodes,
 		onKeyDown: useCallback(
-			(event) => {
+			(event: KeyEvent) => {
 				const keyConf = hardwareKeys.find((kc) => kc.keyCodeString === event.keyCodeString);
 				if (!keyConf) return;
 
@@ -334,11 +316,9 @@ const AppView = ({
 
 				{showMap && (
 					<MapContainer
-						mapUpdateInterval={mapUpdateInterval}
 						nativeNodeHandle={mapViewNativeNodeHandle}
 						setNativeNodeHandle={setMapViewNativeNodeHandle}
 						hgtDirPath={hgtDirPath}
-						responseInclude={responseInclude}
 						height={mapHeight || 0}
 						width={width}
 						center={initialPositionRef?.current?.center}

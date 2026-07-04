@@ -3,7 +3,6 @@
  */
 import { GestureResponderEvent, ViewStyle } from 'react-native';
 import { ElementType } from 'react';
-import { ResponseInclude } from 'react-native-mapsforge-vtm';
 
 export type DashboardStyle = {
 	align: string;
@@ -42,7 +41,6 @@ export type DashboardWidget<Options = {}> = {
 	}>;
 	shouldSetHgtDirPath?: boolean;
 	defaultMinWidth: number;
-	responseInclude?: ResponseInclude;
 };
 
 export interface DashboardWidgetSetting extends Omit<

@@ -39,5 +39,4 @@ export default {
 	Icon,
 	shouldSetHgtDirPath: true,
 	defaultMinWidth: 75,
-	responseInclude: { center: 2 },
 } as DashboardWidget<Options>;

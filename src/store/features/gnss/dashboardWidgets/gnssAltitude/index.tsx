@@ -31,5 +31,4 @@ export default {
 	Control,
 	Icon,
 	defaultMinWidth: 75,
-	responseInclude: { center: 3 },
 } as DashboardWidget<Options>;
