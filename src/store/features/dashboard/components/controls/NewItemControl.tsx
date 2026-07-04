@@ -73,6 +73,8 @@ const Modal: FC<{
 			const newItem = {
 				key: rnUuid.v4(),
 				elementType,
+				showLabel: true,
+				showIcon: true,
 			};
 			position &&
 				dispatch(

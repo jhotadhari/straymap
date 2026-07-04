@@ -16,6 +16,8 @@ import { selectHgtDirPath } from '../../../baseMap/selectors';
 import ItemFontSizeControl from '../../components/controls/ItemFontSizeControl';
 import ItemMinWidthControl from '../../components/controls/ItemMinWidthControl';
 import ItemUnitPrefControl from '../../components/controls/ItemUnitPrefControl';
+import ItemShowLabelControl from '../../components/controls/ItemShowLabelControl';
+import ItemShowIconControl from '../../components/controls/ItemShowIconControl';
 import { sharedStyles } from '../sharedDeps';
 
 const Control: FC = () => {
@@ -53,6 +55,10 @@ const Control: FC = () => {
 			<ItemFontSizeControl
 				buttonLabel={t('follow dashboard setting')} // ???
 			/>
+
+			<ItemShowLabelControl />
+
+			<ItemShowIconControl />
 		</View>
 	);
 };

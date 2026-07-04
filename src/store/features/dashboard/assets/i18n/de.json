@@ -8,6 +8,8 @@
 	"updateRate": "Aktualisierungsrate",
 	"fontSize": "Schriftgröße",
 	"minWidth": "Mindestbreite",
+	"showLabel": "Beschriftung zeigen",
+	"showIcon": "Symbol zeigen",
 	"useUnitPref": "Bevorzugte Einheit verwenden",
 	"zoomLevel": "Kartenzoomstufe",
 	"centerCoordinates": "Koordinaten der Kartenmitte",

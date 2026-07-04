@@ -18,6 +18,9 @@ export type DashboardItem<Options = {}> = {
 
 	fontSize?: number;
 	minWidth?: number;
+
+	showLabel?: boolean;
+	showIcon?: boolean;
 };
 
 export type DashboardElementProps<Options = {}> = {

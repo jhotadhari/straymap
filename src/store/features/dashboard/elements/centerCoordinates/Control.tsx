@@ -11,6 +11,8 @@ import { useTranslation } from 'react-i18next';
 import ItemUnitPrefControl from '../../components/controls/ItemUnitPrefControl';
 import ItemFontSizeControl from '../../components/controls/ItemFontSizeControl';
 import ItemMinWidthControl from '../../components/controls/ItemMinWidthControl';
+import ItemShowLabelControl from '../../components/controls/ItemShowLabelControl';
+import ItemShowIconControl from '../../components/controls/ItemShowIconControl';
 import { sharedStyles } from '../sharedDeps';
 
 const Control: FC = () => {
@@ -29,6 +31,10 @@ const Control: FC = () => {
 			<ItemFontSizeControl
 				buttonLabel={t('follow dashboard setting')} // ???
 			/>
+
+			<ItemShowLabelControl />
+
+			<ItemShowIconControl />
 		</View>
 	);
 };

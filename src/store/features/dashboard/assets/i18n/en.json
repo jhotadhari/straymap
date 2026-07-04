@@ -8,6 +8,8 @@
 	"updateRate": "Update rate",
 	"fontSize": "Font size",
 	"minWidth": "Min Width",
+	"showLabel": "Show label",
+	"showIcon": "Show icon",
 	"useUnitPref": "Use unit preferences",
 	"zoomLevel": "Map zoom level",
 	"centerCoordinates": "Map center coordinates",
