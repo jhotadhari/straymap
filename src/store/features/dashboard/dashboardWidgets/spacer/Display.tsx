@@ -14,7 +14,7 @@ import ElementFrame from '../../components/ElementFrame';
 export interface Options {}
 
 const Display: FC<DashboardWidgetProps<Options>> = ({ item, style = {}, onPress }) => {
-	const { fontSize, minWidth } = useItemStyle(item);
+	const { fontSize, minWidth, showLabel, showIcon } = useItemStyle(item);
 
 	const textStyle = useMemo(() => ({ fontSize }), [fontSize]);
 
@@ -24,6 +24,8 @@ const Display: FC<DashboardWidgetProps<Options>> = ({ item, style = {}, onPress 
 			style={style}
 			minWidth={minWidth}
 			fontSize={fontSize}
+			showLabel={showLabel}
+			showIcon={showIcon}
 			onPress={onPress}
 		>
 			<Text style={textStyle}>{''}</Text>

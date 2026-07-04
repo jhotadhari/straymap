@@ -29,6 +29,8 @@ const ControlIcon: (props: { color: string; style: Style }) => ReactNode = (prop
 
 const validateMapUpdateInterval = (val: number) => val >= 10 && val <= 20000;
 
+// ??? is that ever used anywhere?
+
 const GeneralControl: FC<{}> = () => {
 	const { t } = useTranslation();
 	const theme = useTheme();

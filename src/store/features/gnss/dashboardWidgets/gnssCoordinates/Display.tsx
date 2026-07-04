@@ -24,7 +24,7 @@ export interface Options {
 const Display: FC<DashboardWidgetProps<Options>> = ({ item, style = {}, onPress }) => {
 	const unitPrefs = useAppSelector(selectUnitPrefs);
 
-	const { fontSize, minWidth, textAlign } = useItemStyle(item);
+	const { fontSize, minWidth, textAlign, showLabel, showIcon } = useItemStyle(item);
 
 	const [centerLng, setCenterLng] = useState<number | undefined>(undefined);
 	const [centerLat, setCenterLat] = useState<number | undefined>(undefined);
@@ -44,6 +44,8 @@ const Display: FC<DashboardWidgetProps<Options>> = ({ item, style = {}, onPress 
 			style={style}
 			minWidth={minWidth}
 			fontSize={fontSize}
+			showLabel={showLabel}
+			showIcon={showIcon}
 			textAlign={textAlign}
 			onPress={onPress}
 		>

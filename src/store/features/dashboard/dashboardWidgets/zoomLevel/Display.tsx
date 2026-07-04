@@ -15,7 +15,7 @@ import ElementFrame from '../../components/ElementFrame';
 export interface Options {}
 
 const Display: FC<DashboardWidgetProps<Options>> = ({ item, style = {}, onPress }) => {
-	const { fontSize, minWidth, textAlign } = useItemStyle(item);
+	const { fontSize, minWidth, textAlign, showLabel, showIcon } = useItemStyle(item);
 
 	const zoomLevel = useMapZoomLevel();
 
@@ -27,6 +27,8 @@ const Display: FC<DashboardWidgetProps<Options>> = ({ item, style = {}, onPress 
 			style={style}
 			minWidth={minWidth}
 			fontSize={fontSize}
+			showLabel={showLabel}
+			showIcon={showIcon}
 			textAlign={textAlign}
 			onPress={onPress}
 		>

@@ -14,6 +14,7 @@ import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { setElementExpanded } from '../../../ui/slice';
 import { selectElementExpanded } from '../../../ui/selectors';
 import NumericRowControl from '../../../../../components/generic/controls/NumericRowControl';
+import ToggleRowControl from '../../../../../components/generic/controls/ToggleRowControl';
 import { sharedStyles } from '../../../../../sharedStyles';
 import AlignmentControl from './AlignmentControl';
 import { selectDashboardStyle, selectEditItem } from '../../selectors';
@@ -90,6 +91,38 @@ const DashboardControl: FC = () => {
 		]
 	);
 
+	const handleToggleShowLabel = useCallback(() => {
+		dispatch(
+			setDashboardStyle({
+				position,
+				style: {
+					...dashboardStyle,
+					showLabel: !dashboardStyle.showLabel,
+				},
+			})
+		);
+	}, [
+		dispatch,
+		position,
+		dashboardStyle,
+	]);
+
+	const handleToggleShowIcon = useCallback(() => {
+		dispatch(
+			setDashboardStyle({
+				position,
+				style: {
+					...dashboardStyle,
+					showIcon: !dashboardStyle.showIcon,
+				},
+			})
+		);
+	}, [
+		dispatch,
+		position,
+		dashboardStyle,
+	]);
+
 	const ControlIcon: (props: { color: string; style: Style }) => ReactNode = useCallback(
 		(props) => (
 			<View style={sharedStyles.controlIcon}>
@@ -161,6 +194,20 @@ const DashboardControl: FC = () => {
 						onUpdate={handleUpdateFontSize}
 						validate={validateFontSize}
 						Info={t('dashboard.hint.fontSize')}
+					/>
+
+					<ToggleRowControl
+						label={t('dashboard.showLabel')}
+						value={dashboardStyle?.showLabel ?? true}
+						onToggle={handleToggleShowLabel}
+						Info={t('dashboard.hint.showLabel')}
+					/>
+
+					<ToggleRowControl
+						label={t('dashboard.showIcon')}
+						value={dashboardStyle?.showIcon ?? true}
+						onToggle={handleToggleShowIcon}
+						Info={t('dashboard.hint.showIcon')}
 					/>
 
 					<View style={styles.newItemRow}>

@@ -75,7 +75,7 @@ describe('dashboard slice reducers', () => {
 
 	describe('setDashboardStyle', () => {
 		it('sets top style', () => {
-			const style = { align: 'center', fontSize: 24 };
+			const style = { align: 'center', fontSize: 24, showLabel: true, showIcon: true };
 			const state = dashboardReducer(
 				undefined,
 				setDashboardStyle({ position: 'top', style })
@@ -84,7 +84,7 @@ describe('dashboard slice reducers', () => {
 		});
 
 		it('sets bottom style', () => {
-			const style = { align: 'start', fontSize: 16 };
+			const style = { align: 'start', fontSize: 16, showLabel: false, showIcon: false };
 			const state = dashboardReducer(
 				undefined,
 				setDashboardStyle({ position: 'bottom', style })
@@ -125,8 +125,8 @@ describe('dashboard slice reducers', () => {
 				elementsSettings: {},
 				itemsTop: [makeItem({ key: 'a' }), makeItem({ key: 'b' })],
 				itemsBottom: [],
-				dashboardStyleTop: { align: 'between', fontSize: 20 },
-				dashboardStyleBottom: { align: 'between', fontSize: 20 },
+				dashboardStyleTop: initialSettings.dashboardStyleTop,
+				dashboardStyleBottom: initialSettings.dashboardStyleBottom,
 			};
 			const state = dashboardReducer(prev, removeItemKey({ position: 'top', itemKey: 'a' }));
 			expect(state.itemsTop).toHaveLength(1);
@@ -142,8 +142,8 @@ describe('dashboard slice reducers', () => {
 				elementsSettings: {},
 				itemsTop: [makeItem({ key: 'first' })],
 				itemsBottom: [],
-				dashboardStyleTop: { align: 'between', fontSize: 20 },
-				dashboardStyleBottom: { align: 'between', fontSize: 20 },
+				dashboardStyleTop: initialSettings.dashboardStyleTop,
+				dashboardStyleBottom: initialSettings.dashboardStyleBottom,
 			};
 			const state = dashboardReducer(prev, setEditItemAccordingToPosition('top'));
 			expect(state.editItemKey).toBe('first');
@@ -161,8 +161,8 @@ describe('dashboard slice reducers', () => {
 				elementsSettings: {},
 				itemsTop: [],
 				itemsBottom: [makeItem({ key: 'bottom-first' })],
-				dashboardStyleTop: { align: 'between', fontSize: 20 },
-				dashboardStyleBottom: { align: 'between', fontSize: 20 },
+				dashboardStyleTop: initialSettings.dashboardStyleTop,
+				dashboardStyleBottom: initialSettings.dashboardStyleBottom,
 			};
 			const state = dashboardReducer(prev, setEditItemAccordingToPosition('bottom'));
 			expect(state.editItemKey).toBe('bottom-first');
@@ -195,18 +195,32 @@ describe('dashboard selectors', () => {
 
 	it('selectDashboardStyle returns top style', () => {
 		const style = selectDashboardStyle(
-			buildRoot({ dashboardStyleTop: { align: 'start', fontSize: 30 } }),
+			buildRoot({
+				dashboardStyleTop: {
+					align: 'start',
+					fontSize: 30,
+					showLabel: true,
+					showIcon: true,
+				},
+			}),
 			'top'
 		);
-		expect(style).toEqual({ align: 'start', fontSize: 30 });
+		expect(style).toEqual({ align: 'start', fontSize: 30, showLabel: true, showIcon: true });
 	});
 
 	it('selectDashboardStyle returns bottom style for non-top position', () => {
 		const style = selectDashboardStyle(
-			buildRoot({ dashboardStyleBottom: { align: 'end', fontSize: 12 } }),
+			buildRoot({
+				dashboardStyleBottom: {
+					align: 'end',
+					fontSize: 12,
+					showLabel: false,
+					showIcon: false,
+				},
+			}),
 			'bottom'
 		);
-		expect(style).toEqual({ align: 'end', fontSize: 12 });
+		expect(style).toEqual({ align: 'end', fontSize: 12, showLabel: false, showIcon: false });
 	});
 
 	it('selectItemsCount returns top count', () => {

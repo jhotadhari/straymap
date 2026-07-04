@@ -10,6 +10,7 @@
 	"minWidth": "Min Width",
 	"showLabel": "Show label",
 	"showIcon": "Show icon",
+	"followDashboardSetting": "Follow dashboard setting",
 	"useUnitPref": "Use unit preferences",
 	"zoomLevel": "Map zoom level",
 	"centerCoordinates": "Map center coordinates",
@@ -29,11 +30,15 @@
 		"fontSize": "Default font size for all dashboard elements.\n\nApplies to all dashboard elements for which no font size is specified.",
 		"alignment": "Controls how dashboard items are positioned horizontally. Choose to align them left, center, or right, or distribute them evenly across the available space.",
 		"updateRate": "How quickly the dashboard elements are updated.\n\nA fast refresh rate can lead to a loss of performance on slow devices.",
+		"showLabel": "Whether to show a label above dashboard items by default.\n\nIndividual items can override this setting.",
+		"showIcon": "Whether to show an icon next to dashboard items by default.\n\nIndividual items can override this setting.",
 		"item": {
 			"fontSize": "Override the font size for this specific dashboard element. When not set, the default dashboard font size is used.",
 			"minWidth": "The minimum width of the dashboard element in pixels.",
 			"unit": "The unit in which the dashboard element is displayed.\n\nThe default setting of the unit can be adjusted in the general settings under \"Unit preferences\".",
-			"decimalPlaces": "Override the number of decimal places for this specific dashboard element. When not set, the default from the unit preferences is used."
+			"decimalPlaces": "Override the number of decimal places for this specific dashboard element. When not set, the default from the unit preferences is used.",
+			"showLabel": "Override whether this specific dashboard element shows a label. When not set, the default dashboard setting is used.",
+			"showIcon": "Override whether this specific dashboard element shows an icon. When not set, the default dashboard setting is used."
 		}
 	}
 }

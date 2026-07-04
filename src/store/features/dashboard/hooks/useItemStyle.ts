@@ -18,6 +18,9 @@ const useItemStyle = (item: DashboardWidgetProps['item']) => {
 	const { position } = useContext(ControlContext);
 	const dashboardStyle = useAppSelector((state) => selectDashboardStyle(state, position));
 
+	const showLabel = item?.showLabel ?? dashboardStyle.showLabel;
+	const showIcon = item?.showIcon ?? dashboardStyle.showIcon;
+
 	const fontSize = item?.fontSize ?? dashboardStyle.fontSize;
 
 	const minWidth = useMemo(
@@ -46,11 +49,15 @@ const useItemStyle = (item: DashboardWidgetProps['item']) => {
 			fontSize: fontSize ? fontSize : 1,
 			minWidth: minWidth ? minWidth : 1,
 			textAlign,
+			showLabel,
+			showIcon,
 		}),
 		[
 			fontSize,
 			minWidth,
 			textAlign,
+			showLabel,
+			showIcon,
 		]
 	);
 };

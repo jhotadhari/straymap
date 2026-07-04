@@ -24,6 +24,8 @@ import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
 import InfoRowControl from '../../../../../components/generic/controls/InfoRowControl';
 import { ControlContext } from '../../ControlContext';
 import { DASHBOARD_ICON_SIZE } from '../../../../../constants';
+import ItemShowLabelControl from './ItemShowLabelControl';
+import ItemShowIconControl from './ItemShowIconControl';
 
 const ItemControl: FC<{}> = ({}) => {
 	const { t } = useTranslation();
@@ -190,6 +192,13 @@ const ItemControl: FC<{}> = ({}) => {
 								)}
 
 								{Control && <Control item={item} />}
+
+								<ItemShowLabelControl
+									buttonLabel={t('dashboard.followDashboardSetting')}
+								/>
+								<ItemShowIconControl
+									buttonLabel={t('dashboard.followDashboardSetting')}
+								/>
 
 								<View style={styles.actionsRow}>
 									<ButtonHighlight

@@ -1,47 +1,72 @@
 /**
  * External dependencies
  */
-import React, { FC, useCallback } from 'react';
+import React, { FC, useCallback, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
+import { omit } from 'lodash-es';
 
 /**
  * Internal dependencies
  */
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
-import { selectEditItem } from '../../selectors';
+import { selectDashboardStyle, selectEditItem } from '../../selectors';
 import { setItem } from '../../slice';
-import ToggleRowControl from '../../../../../components/generic/controls/ToggleRowControl';
+import { ControlContext } from '../../ControlContext';
+import ToggleRowControlSegmented from '../../../../../components/generic/controls/ToggleRowControlSegmented';
 
-const ItemShowIconControl: FC<{}> = () => {
+const ItemShowIconControl: FC<{ buttonLabel?: string }> = ({ buttonLabel }) => {
 	const { t } = useTranslation();
 
 	const dispatch = useAppDispatch();
 
+	const { position } = useContext(ControlContext);
+
 	const { item } = useAppSelector(selectEditItem);
 
-	const value = item?.showIcon !== false; // default true
+	const dashboardStyle = useAppSelector((state) => selectDashboardStyle(state, position));
 
-	const handleToggle = useCallback(() => {
-		if (!item) return;
-		dispatch(
-			setItem({
-				...item,
-				showIcon: !value,
-			})
-		);
+	const handleToggleOption = useCallback(() => {
+		if (undefined === item?.showIcon) {
+			item &&
+				dispatch(
+					setItem({
+						...item,
+						showIcon: dashboardStyle.showIcon,
+					})
+				);
+		} else {
+			item && dispatch(setItem(omit(item, 'showIcon')));
+		}
 	}, [
 		dispatch,
 		item,
-		value,
+		dashboardStyle,
 	]);
 
-	if (!item) return null;
+	const boolValueActive = undefined !== item?.showIcon;
+
+	const handleUpdate = useCallback(
+		(newValue: boolean) => {
+			item &&
+				dispatch(
+					setItem({
+						...item,
+						showIcon: newValue,
+					})
+				);
+		},
+		[dispatch, item]
+	);
 
 	return (
-		<ToggleRowControl
+		<ToggleRowControlSegmented
 			label={t('dashboard.showIcon')}
-			value={value}
-			onToggle={handleToggle}
+			Info={t('dashboard.hint.item.showIcon')}
+			buttonLabel={buttonLabel}
+			boolValueActive={boolValueActive}
+			toggleOption={handleToggleOption}
+			value={item?.showIcon ?? dashboardStyle.showIcon}
+			onUpdate={handleUpdate}
 		/>
 	);
 };

@@ -24,6 +24,8 @@ interface ElementFrameProps {
 	minWidth?: number;
 	fontSize: number;
 	textAlign?: TextStyle['textAlign'];
+	showLabel: boolean;
+	showIcon: boolean;
 	onPress?: (itemKey: string, event: GestureResponderEvent) => void;
 	children: ReactNode;
 }
@@ -41,6 +43,8 @@ const ElementFrame: FC<ElementFrameProps> = ({
 	minWidth,
 	fontSize,
 	textAlign,
+	showLabel,
+	showIcon,
 	onPress,
 	children,
 }) => {
@@ -52,9 +56,6 @@ const ElementFrame: FC<ElementFrameProps> = ({
 
 	const theme = useTheme();
 	const { t } = useTranslation();
-
-	const showLabel = item.showLabel !== false;
-	const showIcon = item.showIcon !== false;
 
 	const elementDef = useMemo(
 		() =>
@@ -71,6 +72,17 @@ const ElementFrame: FC<ElementFrameProps> = ({
 
 	const iconSize = Math.max(fontSize + 2, 12);
 
+	const justifyContent = useMemo(() => {
+		switch (textAlign) {
+			case 'left':
+				return 'flex-start';
+			case 'right':
+				return 'flex-end';
+			default:
+				return 'center';
+		}
+	}, [textAlign]);
+
 	return (
 		<TouchableHighlight
 			underlayColor={theme.colors.primaryContainer}
@@ -80,7 +92,7 @@ const ElementFrame: FC<ElementFrameProps> = ({
 				{showLabel && elementDef?.label && (
 					<Text style={labelTextStyle}>{t(elementDef.label)}</Text>
 				)}
-				<View style={{ flexDirection: 'row', alignItems: 'center' }}>
+				<View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: justifyContent }}>
 					{showIcon && elementDef?.Icon && (
 						<View style={{ marginRight: 3 }}>
 							<elementDef.Icon

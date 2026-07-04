@@ -61,7 +61,10 @@ export const initializeFromStorage = (store: AppStore) => {
 							store.dispatch(
 								setDashboardStyle({
 									position: 'top',
-									style: newSettings.dashboardStyleTop,
+									style: {
+										...initialSettings.dashboardStyleTop,
+										...newSettings.dashboardStyleTop,
+									},
 								})
 							);
 						}
@@ -69,7 +72,10 @@ export const initializeFromStorage = (store: AppStore) => {
 							store.dispatch(
 								setDashboardStyle({
 									position: 'bottom',
-									style: newSettings.dashboardStyleBottom,
+									style: {
+										...initialSettings.dashboardStyleBottom,
+										...newSettings.dashboardStyleBottom,
+									},
 								})
 							);
 						}

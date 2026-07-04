@@ -167,9 +167,17 @@ const NumericRowControlSegmented = ({
 		() => [
 			localStyles.button,
 			{
-				borderColor: numValueActive ? 'transparent' : theme.colors.primary,
-				opacity: numValueActive ? 0.5 : 1,
 				borderRadius: theme.roundness,
+			},
+		],
+		[numValueActive, theme]
+	);
+
+	const styleButtonLabel = useMemo(
+		() => [
+			{
+				opacity: numValueActive ? 0.5 : 1,
+				paddingHorizontal: 0,
 			},
 		],
 		[numValueActive, theme]
@@ -192,7 +200,9 @@ const NumericRowControlSegmented = ({
 		>
 			<View style={sharedStyles.flexRow}>
 				<ButtonHighlight
+					mode={numValueActive ? 'text' : 'outlined' }
 					style={styleButton}
+					labelStyle={styleButtonLabel}
 					onPress={handleButtonPress}
 				>
 					<Text>{buttonLabel}</Text>

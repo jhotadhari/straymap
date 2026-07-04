@@ -8,6 +8,8 @@ import { ResponseInclude } from 'react-native-mapsforge-vtm';
 export type DashboardStyle = {
 	align: string;
 	fontSize: number;
+	showLabel: boolean;
+	showIcon: boolean;
 };
 
 export type DashboardItem<Options = {}> = {

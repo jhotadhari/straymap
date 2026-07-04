@@ -9,8 +9,6 @@ import { View } from 'react-native';
  */
 import ItemMinWidthControl from '../../components/controls/ItemMinWidthControl';
 import ItemFontSizeControl from '../../components/controls/ItemFontSizeControl';
-import ItemShowLabelControl from '../../components/controls/ItemShowLabelControl';
-import ItemShowIconControl from '../../components/controls/ItemShowIconControl';
 import { useTranslation } from 'react-i18next';
 import { sharedStyles } from '../sharedDeps';
 
@@ -25,10 +23,6 @@ const Control: FC = () => {
 			<ItemFontSizeControl
 				buttonLabel={t('follow dashboard setting')} // ???
 			/>
-
-			<ItemShowLabelControl />
-
-			<ItemShowIconControl />
 		</View>
 	);
 };

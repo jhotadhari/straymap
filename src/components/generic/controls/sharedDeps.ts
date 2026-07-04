@@ -9,5 +9,6 @@ export const sharedStyles = StyleSheet.create({
 		display: 'flex',
 		flexDirection: 'row',
 		justifyContent: 'space-between',
+		gap: 8,
 	},
 });

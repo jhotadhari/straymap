@@ -13,8 +13,6 @@ import { selectEditItem } from '../../../dashboard/selectors';
 import { setItem } from '../../../dashboard/slice';
 import ItemMinWidthControl from '../../../dashboard/components/controls/ItemMinWidthControl';
 import ItemFontSizeControl from '../../../dashboard/components/controls/ItemFontSizeControl';
-import ItemShowLabelControl from '../../../dashboard/components/controls/ItemShowLabelControl';
-import ItemShowIconControl from '../../../dashboard/components/controls/ItemShowIconControl';
 import ListItemMenuControl from '../../../../../components/generic/controls/ListItemMenuControl';
 import { sharedStyles } from '../../../dashboard/dashboardWidgets/sharedDeps';
 
@@ -68,10 +66,6 @@ const Control: FC = () => {
 			<ItemMinWidthControl buttonLabel={t('Use default')} />
 
 			<ItemFontSizeControl buttonLabel={t('follow dashboard setting')} />
-
-			<ItemShowLabelControl />
-
-			<ItemShowIconControl />
 		</View>
 	);
 };
