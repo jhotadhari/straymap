@@ -1,0 +1,9 @@
+{
+	"title": "GPS",
+	"gnssCoordinates": "GPS-Koordinaten",
+	"gnssAccuracy": "GPS-Genauigkeit",
+	"gnssAltitude": "GPS-Höhe",
+	"gnssSpeed": "GPS-Geschwindigkeit",
+	"deactivateGps": "GPS deaktivieren",
+	"confirmDeactivateRecording": "Spuraufzeichnung ist aktiv. GPS-Tracking beenden?"
+}

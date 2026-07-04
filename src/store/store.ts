@@ -19,6 +19,8 @@ import baseMapReducer from './features/baseMap/slice';
 import drawersReducer from './features/drawers/slice';
 import langReducer from './features/lang/slice';
 import linesReducer from './features/lines/slice';
+import gnssReducer from './features/gnss/slice';
+import trackRecordingReducer from './features/trackRecording/slice';
 import { listenerMiddleware } from './listenerMiddleware';
 import { initializeAppState } from './utils';
 
@@ -36,6 +38,8 @@ export const store = configureStore({
 		updater: updaterReducer,
 		lang: langReducer,
 		lines: linesReducer,
+		gnss: gnssReducer,
+		trackRecording: trackRecordingReducer,
 	},
 	devTools: false, // not working in react native currently. If ever working again, set to `__DEV__`.
 	// Add the listener middleware to the store.

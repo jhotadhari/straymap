@@ -60,7 +60,9 @@ import useShowInitialSplash from '../compose/useShowInitialSplash';
 import { DRAWER_HANDLE_SIZE } from '../store/features/drawers/constants';
 import { selectItemKeys, selectControlHandleSide } from '../store/features/drawers/selectors';
 import { getDrawerWidthResponsive } from '../store/features/drawers/utils';
+import { useAppDispatch } from '../store/hooks';
 import { featureRegistry } from '../store/features/FeatureRegistry';
+import { setMapEvent } from '../store/features/gnss/slice';
 
 const AppView = ({
 	initialPositionRef,
@@ -78,6 +80,7 @@ const AppView = ({
 
 	const showSplash = useShowInitialSplash();
 
+	const dispatch = useAppDispatch();
 	const hardwareKeys = useAppSelector(selectHardwareKeys);
 
 	const dashboardItems = useAppSelector((state) => selectItems(state, { position: 'bottom' }));
@@ -224,8 +227,15 @@ const AppView = ({
 			// Feed the same event to useMapPosition's shared values
 			// so centerSv stays in sync at zero bridge cost.
 			handleMapUpdate(event as { nativeEvent: Readonly<MapEventResponse> });
+			// Dispatch for listener middleware (track recording watches this)
+			dispatch(
+				setMapEvent({
+					center: event.nativeEvent.center,
+					accuracy: (event.nativeEvent as any).accuracy,
+				})
+			);
 		},
-		[currentMapEventRef, handleMapUpdate]
+		[currentMapEventRef, handleMapUpdate, dispatch]
 	);
 
 	// onTap fires when the user taps on an empty map area (unconsumed by marker/path layers).
