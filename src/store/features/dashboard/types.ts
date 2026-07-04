@@ -23,17 +23,17 @@ export type DashboardItem<Options = {}> = {
 	showIcon?: boolean;
 };
 
-export type DashboardElementProps<Options = {}> = {
+export type DashboardWidgetProps<Options = {}> = {
 	item: DashboardItem<Options>;
 	style?: ViewStyle;
 	onPress?: (itemKey: string, event: GestureResponderEvent) => void;
 };
 
-export type DashboardElement<Options = {}> = {
+export type DashboardWidget<Options = {}> = {
 	key: string;
 	label: string;
-	Display: ElementType<DashboardElementProps<Options>>;
-	Control?: ElementType<DashboardElementProps<Options>>;
+	Display: ElementType<DashboardWidgetProps<Options>>;
+	Control?: ElementType<DashboardWidgetProps<Options>>;
 	Icon?: ElementType<{
 		color: string;
 		size: number;
@@ -43,7 +43,7 @@ export type DashboardElement<Options = {}> = {
 	responseInclude?: ResponseInclude;
 };
 
-export interface DashboardElementSetting extends Omit<
-	DashboardElement,
+export interface DashboardWidgetSetting extends Omit<
+	DashboardWidget,
 	'Display' | 'Control' | 'Icon'
 > {}

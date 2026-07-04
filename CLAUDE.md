@@ -33,7 +33,36 @@ yarn drizzle-kit generate   # generate a new migration from schema changes (chec
 
 `src/store/store.ts` wires together one reducer per slice in `src/store/features/`: `appearance`, `general`, `dbLoader`, `dirs`, `ui`, `dashboard`, `baseMap`, `drawers`, `routing`, `updater`, `lang`, `lines`. `devTools` is disabled (doesn't work in RN). A custom `listenerMiddleware` (`src/store/listenerMiddleware.ts`) is prepended before the serializability check middleware, since listener effects can carry functions — this is the mechanism for side effects like persisting to storage or reacting to other slices' state changes.
 
-Each feature directory typically follows the same shape: `slice.ts`, `selectors.ts`, `types.ts`, `index.ts` (implements the `AppFeature` interface from `src/types.ts`), plus optional `hooks/`, `db/`, `connectStorage.ts`, and `assets/i18n/{en,de}.json`. The `AppFeature` interface (`src/types.ts`) is the contract each feature exposes to the app shell: `selectInitialized`, `translation` (merged into i18next resources), an optional `initializeFromStorage(store)`, and an optional `onSetDbPath` thunk hook fired when the database path changes.
+Each feature directory follows a consistent shape:
+
+```
+<feature>/
+  index.ts              — registers extension points (implements AppFeature from src/types.ts)
+  slice.ts              — Redux Toolkit slice
+  selectors.ts          — state selectors
+  types.ts              — feature-specific types
+  connectStorage.ts     — persistence via react-native-default-preference
+  assets/i18n/          — en/de/es/pt translation JSON
+  dashboardWidgets/     — dashboard widget definitions
+  drawerPanels/         — drawer panel definitions
+  settingsPages/        — settings page components
+  mapComponents/        — components rendered inside MapContainer
+  appOverlays/          — components rendered as sibling overlays above the map
+  components/           — shared/internal components (controls, modals, etc.)
+  hooks/                — custom hooks
+  db/                   — drizzle schema, actions, query functions
+```
+
+The `AppFeature` interface (`src/types.ts`) is the contract each feature exposes to the app shell: `selectInitialized`, `translation` (merged into i18next resources), an optional `initializeFromStorage(store)`, and an optional `onSetDbPath` thunk. Features also contribute to six extension points, all collected by the singleton `FeatureRegistry` and sorted by priority:
+
+| Extension point | Type | Directory | Rendered |
+|---|---|---|---|
+| `settingsPages` | `SettingsPage[]` | `settingsPages/` | Settings navigation list |
+| `settingsControls` | `SettingsControlFragment[]` | (any) | Settings → Controls page |
+| `dashboardWidgets` | `DashboardWidget[]` | `dashboardWidgets/` | Dashboard overlay on map |
+| `drawerPanels` | `DrawerPanel[]` | `drawerPanels/` | Side drawers |
+| `mapComponents` | `MapComponentDescriptor[]` | `mapComponents/` | Inside MapContainer |
+| `appOverlays` | `AppOverlayDescriptor[]` | `appOverlays/` | Sibling overlays above map |
 
 `AppThunk<T>` (defined in `src/store/store.ts`) is the standard thunk type across the codebase — use it instead of raw `ThunkAction`.
 

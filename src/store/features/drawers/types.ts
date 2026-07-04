@@ -17,7 +17,7 @@ export type DrawerState = {
 	getIsFullyCollapsed: () => boolean;
 };
 
-export interface DrawerItem {
+export interface DrawerPanel {
 	key?: string;
 	label?: string;
 	iconSource?: string;

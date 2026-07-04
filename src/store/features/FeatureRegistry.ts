@@ -4,11 +4,12 @@
 import {
 	AppFeature,
 	AppMode,
-	DashboardElement,
-	DrawerItem,
-	MapViewComponentDescriptor,
+	AppOverlayDescriptor,
+	DashboardWidget,
+	DrawerPanel,
+	MapComponentDescriptor,
 	SettingsControlFragment,
-	UiItem,
+	SettingsPage,
 } from '../../types';
 
 const DEFAULT_PRIORITY = 100;
@@ -36,17 +37,15 @@ export class FeatureRegistry {
 		return this._features;
 	}
 
-	/** Returns all settings items from all features, sorted by priority. */
-	getSettingsItems(): UiItem[] {
-		const items: UiItem[] = [];
+	/** Returns all settings pages from all features, sorted by priority. */
+	getSettingsPages(): SettingsPage[] {
+		const items: SettingsPage[] = [];
 		for (const feature of Object.values(this.features())) {
-			if (feature.settingsItems) {
-				items.push(...feature.settingsItems);
+			if (feature.settingsPages) {
+				items.push(...feature.settingsPages);
 			}
 		}
-		items.sort(
-			(a, b) => (a.priority ?? DEFAULT_PRIORITY) - (b.priority ?? DEFAULT_PRIORITY)
-		);
+		items.sort((a, b) => (a.priority ?? DEFAULT_PRIORITY) - (b.priority ?? DEFAULT_PRIORITY));
 		return items;
 	}
 
@@ -65,53 +64,59 @@ export class FeatureRegistry {
 	}
 
 	/**
-	 * Returns all dashboard elements as a keyed record (elementKey → definition).
+	 * Returns all dashboard widgets as a keyed record (widgetKey → definition).
 	 * Later features overwrite earlier ones when keys collide.
 	 */
-	getDashboardElements(): Record<string, DashboardElement> {
-		const elements: Record<string, DashboardElement> = {};
+	getDashboardWidgets(): Record<string, DashboardWidget> {
+		const widgets: Record<string, DashboardWidget> = {};
 		for (const [, feature] of Object.entries(this.features())) {
-			if (feature.dashboardElements) {
-				for (const element of feature.dashboardElements) {
-					elements[element.key] = element;
+			if (feature.dashboardWidgets) {
+				for (const widget of feature.dashboardWidgets) {
+					widgets[widget.key] = widget;
 				}
 			}
 		}
-		return elements;
+		return widgets;
 	}
 
-	/** Returns all drawer items as a keyed record (itemKey → definition). */
-	getDrawerItems(): Record<string, DrawerItem> {
-		const items: Record<string, DrawerItem> = {};
+	/** Returns all drawer panels as a keyed record (panelKey → definition). */
+	getDrawerPanels(): Record<string, DrawerPanel> {
+		const panels: Record<string, DrawerPanel> = {};
 		for (const [, feature] of Object.entries(this.features())) {
-			if (feature.drawerItems) {
-				for (const item of feature.drawerItems) {
-					const key = item.key ?? '';
+			if (feature.drawerPanels) {
+				for (const panel of feature.drawerPanels) {
+					const key = panel.key ?? '';
 					if (key) {
-						items[key] = item;
+						panels[key] = panel;
 					}
 				}
 			}
 		}
-		return items;
+		return panels;
 	}
 
-	/** Returns map view components for the given placement, sorted by priority. */
-	getMapViewComponents(
-		placement: MapViewComponentDescriptor['placement']
-	): MapViewComponentDescriptor[] {
-		const components: MapViewComponentDescriptor[] = [];
+	/** Returns map components (rendered inside MapContainer), sorted by priority. */
+	getMapComponents(): MapComponentDescriptor[] {
+		const components: MapComponentDescriptor[] = [];
 		for (const feature of Object.values(this.features())) {
-			if (feature.mapViewComponents) {
-				for (const desc of feature.mapViewComponents) {
-					if (desc.placement === placement) {
-						components.push(desc);
-					}
-				}
+			if (feature.mapComponents) {
+				components.push(...feature.mapComponents);
 			}
 		}
 		components.sort((a, b) => a.priority - b.priority);
 		return components;
+	}
+
+	/** Returns app overlays (rendered above the map), sorted by priority. */
+	getAppOverlays(): AppOverlayDescriptor[] {
+		const overlays: AppOverlayDescriptor[] = [];
+		for (const feature of Object.values(this.features())) {
+			if (feature.appOverlays) {
+				overlays.push(...feature.appOverlays);
+			}
+		}
+		overlays.sort((a, b) => a.priority - b.priority);
+		return overlays;
 	}
 
 	/** Returns all modes declared by all features, de-duplicated. */
