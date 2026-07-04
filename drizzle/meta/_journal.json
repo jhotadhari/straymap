@@ -15,6 +15,13 @@
       "when": 1782680519130,
       "tag": "0001_initSpatial",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1783131314082,
+      "tag": "0002_cheerful_shape",
+      "breakpoints": true
     }
   ]
 }
