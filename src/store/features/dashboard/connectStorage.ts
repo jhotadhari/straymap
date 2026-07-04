@@ -21,9 +21,9 @@ import {
 } from './slice';
 import { startAppListening } from '../../listenerMiddleware';
 import { logError } from '../../../lib/utils';
-import * as elements from './elements';
 import { DashboardElement, DashboardElementSetting } from './types';
 import { selectInitialized } from './selectors';
+import { featureRegistry } from '../FeatureRegistry';
 import { AppStore } from '../../store';
 
 const settingsKey = 'dashboardSettings';
@@ -83,8 +83,8 @@ export const initializeFromStorage = (store: AppStore) => {
 		}),
 		new Promise((resolve: (value: boolean) => void) => {
 			const elementsSettings: { [key: string]: DashboardElementSetting } = {};
-			Object.keys(elements as { [key: string]: DashboardElement }).forEach((key) => {
-				elementsSettings[key] = omit(get(elements, key) as DashboardElement, [
+			Object.keys(featureRegistry.getDashboardElements()).forEach((key) => {
+				elementsSettings[key] = omit(featureRegistry.getDashboardElements()[key] as DashboardElement, [
 					'Display',
 					'Control',
 					'Icon',

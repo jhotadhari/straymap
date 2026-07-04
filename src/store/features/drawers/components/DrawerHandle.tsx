@@ -10,7 +10,7 @@ import { get } from 'lodash-es';
 /**
  * Internal dependencies
  */
-import * as drawerItems from '../items';
+import { featureRegistry } from '../../FeatureRegistry';
 import DrawerContext from '../DrawerContext';
 import { DrawerItem } from '../types';
 import { DRAWER_HANDLE_SIZE, DRAWER_ICON_SIZE } from '../constants';
@@ -37,7 +37,7 @@ const DrawerHandle = ({
 	const drawerItem = useMemo(
 		() =>
 			overwriteDrawerItem ??
-			get(drawerItems as { [itemKey: string]: DrawerItem }, [itemKey ?? '']),
+			get(featureRegistry.getDrawerItems() as { [itemKey: string]: DrawerItem }, [itemKey ?? '']),
 		[itemKey, overwriteDrawerItem]
 	);
 

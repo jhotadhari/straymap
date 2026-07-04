@@ -9,7 +9,7 @@ import { View, BackHandler, TouchableHighlight, StyleSheet, LayoutChangeEvent } 
 /**
  * Internal dependencies
  */
-import { getUiItemsByKey } from '../uiItems';
+import { featureRegistry } from '../../FeatureRegistry';
 import { useAppDispatch, useAppSelector } from '../../../hooks';
 import { selectUiItemKeys, selectIsBusy } from '../selectors';
 import { setUiItemKeys } from '../slice';
@@ -57,7 +57,7 @@ const TopAppBar: FC = () => {
 
 	const appBarTitle = useMemo(
 		() =>
-			getUiItemsByKey(uiItemsKeys)
+			uiItemsKeys.map((key) => featureRegistry.getSettingsItems().find((item) => item.key === key)).filter((item) => item != null)
 				.map((item) => t(item.label))
 				.join(' / '),
 		[uiItemsKeys, t]

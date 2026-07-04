@@ -14,8 +14,9 @@ import lines from './lines';
 import routing from './routing';
 import ui from './ui';
 import updater from './updater';
+import { featureRegistry } from './FeatureRegistry';
 
-export default {
+const features = {
 	appearance,
 	baseMap,
 	dashboard,
@@ -29,3 +30,8 @@ export default {
 	ui,
 	updater,
 } as { [featureKey: string]: AppFeature };
+
+// Populate the registry so consumers can discover extension points.
+featureRegistry.registerAll(features);
+
+export default features;

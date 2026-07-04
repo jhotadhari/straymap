@@ -9,7 +9,7 @@ import { useTheme } from 'react-native-paper';
 /**
  * Internal dependencies
  */
-import * as drawerItems from '../items';
+import { featureRegistry } from '../../FeatureRegistry';
 import DrawerContext from '../DrawerContext';
 import { DrawerItem } from '../types';
 
@@ -27,7 +27,7 @@ const DrawerContent: FC<{}> = () => {
 		let DisplayComponent:
 			| DrawerItem['DisplayComponent']
 			| DrawerItem['DisplayComponentScroll'] = get(
-			drawerItems as { [itemKey: string]: DrawerItem },
+			(featureRegistry.getDrawerItems() as { [itemKey: string]: DrawerItem }),
 			[
 				activeItemKey,
 				'DisplayComponentScroll',
@@ -37,7 +37,7 @@ const DrawerContent: FC<{}> = () => {
 		if (DisplayComponent) {
 			isScrollContent = true;
 		} else {
-			DisplayComponent = get(drawerItems as { [itemKey: string]: DrawerItem }, [
+			DisplayComponent = get((featureRegistry.getDrawerItems() as { [itemKey: string]: DrawerItem }), [
 				activeItemKey,
 				'DisplayComponent',
 			]);

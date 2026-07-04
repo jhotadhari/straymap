@@ -3,7 +3,7 @@
  */
 import createAppSelector from '../../createAppSelector';
 import { RootState } from '../../store';
-import * as drawerItems from './items';
+import { featureRegistry } from '../FeatureRegistry';
 import { DrawerItem } from './types';
 
 export const selectInitialized = (state: RootState) => state.drawers.initialized;
@@ -34,7 +34,7 @@ export const selectItemKeys = createAppSelector(
 			itemKeys = itemKeysRight;
 		}
 		return itemKeys.filter((key) =>
-			Object.keys(drawerItems as { [itemKey: string]: DrawerItem }).includes(key)
+			Object.keys(featureRegistry.getDrawerItems() as { [itemKey: string]: DrawerItem }).includes(key)
 		);
 	}
 );

@@ -13,9 +13,14 @@ import useDrawerState from '../hooks/useDrawerState';
 import DrawerControlModal from './controls/DrawerControlModal';
 import { AppContext } from '../../../../Context';
 import { DRAWER_WIDTH } from '../constants';
+import { useAppSelector } from '../../../hooks';
+import { selectUiItemKeys } from '../../ui/selectors';
 
-const Drawers = ({ height, hidden }: { height: number; hidden?: boolean }) => {
-	const { drawerControlsRef } = useContext(AppContext);
+const Drawers = () => {
+	const { drawerControlsRef, mapHeight } = useContext(AppContext);
+
+	const uiItemsKeys = useAppSelector(selectUiItemKeys);
+	const hidden = !!uiItemsKeys?.length;
 
 	const translationXLeft = useSharedValue(-DRAWER_WIDTH);
 
@@ -82,13 +87,13 @@ const Drawers = ({ height, hidden }: { height: number; hidden?: boolean }) => {
 			{!hidden && (
 				<View style={styles.absolute}>
 					<Drawer
-						height={height}
+						height={mapHeight || 0}
 						setModalVisible={setModalVisible}
 						{...drawerStateLeft}
 					/>
 
 					<Drawer
-						height={height}
+						height={mapHeight || 0}
 						setModalVisible={setModalVisible}
 						{...drawerStateRight}
 					/>

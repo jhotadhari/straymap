@@ -6,6 +6,7 @@ import de from './assets/i18n/de.json';
 import en from './assets/i18n/en.json';
 import es from './assets/i18n/es.json';
 import pt from './assets/i18n/pt.json';
+import LangControl from './components/controls/LangControl';
 
 export default {
 	selectInitialized,
@@ -16,4 +17,12 @@ export default {
 		es,
 		pt,
 	},
+	settingsControls: [
+		{
+			key: 'lang',
+			label: 'lang.language',
+			Control: LangControl,
+			priority: 10,
+		},
+	],
 };

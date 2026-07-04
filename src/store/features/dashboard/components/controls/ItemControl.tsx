@@ -17,9 +17,9 @@ import { setElementExpanded } from '../../../ui/slice';
 import { selectElementExpanded } from '../../../ui/selectors';
 import { selectEditItem, selectItemsCount } from '../../selectors';
 import { moveItem, removeItemKey } from '../../slice';
-import * as elements from '../../elements';
 import { get } from 'lodash-es';
 import { DashboardElement } from '../../types';
+import { featureRegistry } from '../../../FeatureRegistry';
 import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
 import InfoRowControl from '../../../../../components/generic/controls/InfoRowControl';
 import { ControlContext } from '../../ControlContext';
@@ -64,7 +64,12 @@ const ItemControl: FC<{}> = ({}) => {
 	const { label, Control, Icon } = useMemo(
 		() =>
 			item?.elementType
-				? get(elements as { [itemKey: string]: DashboardElement }, item?.elementType)
+				? get(
+						featureRegistry.getDashboardElements() as {
+							[itemKey: string]: DashboardElement;
+						},
+						item?.elementType
+					)
 				: {
 						label: undefined,
 						Control: undefined,

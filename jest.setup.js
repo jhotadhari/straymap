@@ -306,6 +306,13 @@ jest.mock('./src/store/features/routing/utils', () => {
 });
 
 // ---------------------------------------------------------------------------
+// react-native-paper-dates — date picker (imported via LinesTable → FilterDateModal)
+// ---------------------------------------------------------------------------
+jest.mock('react-native-paper-dates', () => ({
+	DatePickerModal: 'DatePickerModal',
+}));
+
+// ---------------------------------------------------------------------------
 // react-native-fs — filesystem access
 // ---------------------------------------------------------------------------
 jest.mock('react-native-fs', () => ({
@@ -323,6 +330,32 @@ jest.mock('react-native-fs', () => ({
 	ExternalDirectoryPath: '/mock/external',
 	MainBundlePath: '/mock/bundle',
 }));
+
+// ---------------------------------------------------------------------------
+// FeatureRegistry — mock that returns legacy data for tests that depend on
+// selectors reading drawer items, dashboard elements, etc.
+// ---------------------------------------------------------------------------
+jest.mock('./src/store/features/FeatureRegistry', () => {
+	const mockDrawerItems = {
+		maps: { key: 'maps' },
+		routing: { key: 'routing' },
+		position: { key: 'position' },
+		searchPlace: { key: 'searchPlace' },
+		lines: { key: 'lines' },
+		waypoints: { key: 'waypoints' },
+	};
+	return {
+		featureRegistry: {
+			getSettingsItems: jest.fn(() => []),
+			getSettingsControls: jest.fn(() => []),
+			getDashboardElements: jest.fn(() => ({})),
+			getDrawerItems: jest.fn(() => mockDrawerItems),
+			getMapViewComponents: jest.fn(() => []),
+			registerAll: jest.fn(),
+		},
+		FeatureRegistry: jest.fn(),
+	};
+});
 
 // ---------------------------------------------------------------------------
 // Global mocks

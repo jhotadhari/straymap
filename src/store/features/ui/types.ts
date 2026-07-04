@@ -10,4 +10,5 @@ export interface UiItem {
 	icon?: string | ((props: { color: string; style: ListStyle }) => ReactNode);
 	label: string;
 	Component?: ElementType<{ style?: ViewStyle }>;
+	priority?: number;
 }

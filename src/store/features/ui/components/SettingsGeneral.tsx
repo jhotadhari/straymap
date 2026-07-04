@@ -1,30 +1,22 @@
 /**
  * External dependencies
  */
-import React, { FC } from 'react';
+import React, { FC, useMemo } from 'react';
 import { ScrollView, ViewStyle } from 'react-native';
 
 /**
  * Internal dependencies
  */
-import HardwareKeyControl from '../../general/components/controls/HardwareKeyControl';
-import UnitPrefControl from '../../general/components/controls/UnitPrefControl';
-import HgtControl from '../../general/components/controls/HgtControl';
-import LangControl from '../../lang/components/controls/LangControl';
-import DBControl from '../../dbLoader/components/DBControl';
+import { featureRegistry } from '../../FeatureRegistry';
 
 const SettingsGeneral: FC<{ style?: ViewStyle }> = ({ style }) => {
+	const controls = useMemo(() => featureRegistry.getSettingsControls(), []);
+
 	return (
 		<ScrollView style={style}>
-			<LangControl />
-
-			<HardwareKeyControl />
-
-			<UnitPrefControl />
-
-			<HgtControl />
-
-			<DBControl />
+			{controls.map(({ key, Control }) => (
+				<Control key={key} />
+			))}
 		</ScrollView>
 	);
 };

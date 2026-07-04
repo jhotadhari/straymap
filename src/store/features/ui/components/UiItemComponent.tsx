@@ -10,7 +10,7 @@ import { Dimensions, ViewStyle } from 'react-native';
  */
 import { selectUiItemKeys } from '../selectors';
 import { useAppSelector } from '../../../hooks';
-import { getUiItemsByKey } from '../uiItems';
+import { featureRegistry } from '../../FeatureRegistry';
 import { AppContext } from '../../../../Context';
 
 const UiItemComponent: FC<{}> = () => {
@@ -23,9 +23,11 @@ const UiItemComponent: FC<{}> = () => {
 	const { appInnerHeight } = useContext(AppContext);
 
 	const Component = useMemo(() => {
-		return uiItemsKeys.length
-			? getUiItemsByKey(uiItemsKeys)[uiItemsKeys.length - 1].Component
-			: undefined;
+		if (!uiItemsKeys.length) return undefined;
+		const activeKey = uiItemsKeys[uiItemsKeys.length - 1];
+		const allItems = featureRegistry.getSettingsItems();
+		const match = allItems.find((item) => item.key === activeKey);
+		return match?.Component;
 	}, [uiItemsKeys]);
 
 	const style: ViewStyle = useMemo(

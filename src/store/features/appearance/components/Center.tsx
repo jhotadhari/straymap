@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
-import React, { useEffect, useMemo, useState } from 'react';
-import { Image, StyleSheet, View } from 'react-native';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
+import { Dimensions, Image, StyleSheet, View } from 'react-native';
 import { Icon } from 'react-native-paper';
 import { SvgXml } from 'react-native-svg';
 import { readFile } from 'react-native-fs';
@@ -13,6 +13,7 @@ import { readFile } from 'react-native-fs';
 import { useAppSelector } from '../../../hooks';
 import { selectCursor } from '../selectors';
 import { CursorConfig } from '../types';
+import { AppContext } from '../../../../Context';
 
 export const CenterInner = ({ cursor }: { cursor?: CursorConfig }) => {
 	const cursorConfigFromStore = useAppSelector(selectCursor);
@@ -83,8 +84,14 @@ export const CenterInner = ({ cursor }: { cursor?: CursorConfig }) => {
 	);
 };
 
-const Center = ({ width, height }: { width: number; height: number }) => {
-	const styleWrapper = useMemo(() => [styles.wrapper, { width, height }], [width, height]);
+const Center = () => {
+	const { mapHeight } = useContext(AppContext);
+	const { width } = Dimensions.get('window');
+
+	const styleWrapper = useMemo(
+		() => [styles.wrapper, { width, height: mapHeight || 0 }],
+		[width, mapHeight]
+	);
 	return (
 		<View
 			style={styleWrapper}

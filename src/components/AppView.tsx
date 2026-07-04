@@ -3,7 +3,6 @@
  */
 import React, {
 	Dispatch,
-	FC,
 	MutableRefObject,
 	SetStateAction,
 	useCallback,
@@ -16,8 +15,6 @@ import {
 	Dimensions,
 	NativeSyntheticEvent,
 	PixelRatio,
-	StyleSheet,
-	useColorScheme,
 	View,
 } from 'react-native';
 import { useTheme } from 'react-native-paper';
@@ -52,30 +49,18 @@ import TopAppBar from '../store/features/ui/components/TopAppBar';
 import type { InitialPosition } from '../types';
 import { AppContext, MapContext } from '../Context';
 import { ErrorToastContext } from './ErrorToast/Context';
-import Center from '../store/features/appearance/components/Center';
-import Drawers from '../store/features/drawers/components/Drawers';
 import SplashScreen from './SplashScreen';
-import RoutingMapView from '../store/features/routing/components/RoutingMapView';
-import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { useAppSelector } from '../store/hooks';
 import { selectMapUpdateInterval, selectHardwareKeys } from '../store/features/general/selectors';
 import { selectElementsSettings, selectItems } from '../store/features/dashboard/selectors';
 import { DashboardItem } from '../store/features/dashboard/types';
-import {
-	selectHgtDirPath,
-	selectMapsforgeGeneral,
-} from '../store/features/baseMap/selectors';
-import BaseMap from '../store/features/baseMap/components/BaseMap/index';
+import { selectHgtDirPath, selectMapsforgeGeneral } from '../store/features/baseMap/selectors';
 import UiItemComponent from '../store/features/ui/components/UiItemComponent';
-import { selectUiItemKeys } from '../store/features/ui/selectors';
-import MapLayersAttribution from '../store/features/baseMap/components/MapLayersAttribution';
-import { DashboardWrapped } from '../store/features/dashboard/components/Dashboard';
 import useShowInitialSplash from '../compose/useShowInitialSplash';
-import LinesMapView from '../store/features/lines/components/LinesMapView';
-import LineEditModal from '../store/features/lines/components/LineEditModal/LineEditModal';
-import { setLineSelected } from '../store/features/lines/slice';
 import { DRAWER_HANDLE_SIZE } from '../store/features/drawers/constants';
 import { selectItemKeys, selectControlHandleSide } from '../store/features/drawers/selectors';
 import { getDrawerWidthResponsive } from '../store/features/drawers/utils';
+import { featureRegistry } from '../store/features/FeatureRegistry';
 
 const AppView = ({
 	initialPositionRef,
@@ -98,7 +83,6 @@ const AppView = ({
 	const dashboardItems = useAppSelector((state) => selectItems(state, { position: 'bottom' }));
 	const mapUpdateInterval = useAppSelector(selectMapUpdateInterval);
 	const hgtDirPathStore = useAppSelector(selectHgtDirPath);
-	const uiItems = useAppSelector(selectUiItemKeys);
 	const dashboardElements = useAppSelector(selectElementsSettings);
 
 	const controlHandleSide = useAppSelector(selectControlHandleSide);
@@ -118,8 +102,7 @@ const AppView = ({
 
 	const { currentMapEventRef, centerPositionSvRef } = useContext(MapContext);
 
-	const { getPosition, flyTo } =
-		useMap(mapViewNativeNodeHandle);
+	const { getPosition, flyTo } = useMap(mapViewNativeNodeHandle);
 
 	const { centerSv, handleMapUpdate } = useMapPosition();
 	// Expose the shared value through context so dashboard elements
@@ -174,9 +157,7 @@ const AppView = ({
 		keys: observedKeyCodes,
 		onKeyDown: useCallback(
 			(event) => {
-				const keyConf = hardwareKeys.find(
-					(kc) => kc.keyCodeString === event.keyCodeString
-				);
+				const keyConf = hardwareKeys.find((kc) => kc.keyCodeString === event.keyCodeString);
 				if (!keyConf) return;
 
 				switch (keyConf.actionKey) {
@@ -192,9 +173,22 @@ const AppView = ({
 						break;
 				}
 			},
-			[hardwareKeys, getPosition, flyTo]
+			[
+				hardwareKeys,
+				getPosition,
+				flyTo,
+			]
 		),
 	});
+
+	const insideMapComponents = useMemo(
+		() => featureRegistry.getMapViewComponents('inside-map'),
+		[]
+	);
+	const siblingOverlayComponents = useMemo(
+		() => featureRegistry.getMapViewComponents('sibling-overlay'),
+		[]
+	);
 
 	const [showMap, setShowMap] = useState(false);
 	const mapsforgeGeneral = useAppSelector(selectMapsforgeGeneral);
@@ -301,7 +295,6 @@ const AppView = ({
 		]
 	);
 
-
 	const styleOuter = useMemo(
 		() => ({
 			backgroundColor: theme.colors.background,
@@ -351,67 +344,28 @@ const AppView = ({
 						onMapUpdate={handleMapEvent}
 						onTap={handleMapTap}
 					>
-						<BaseMap />
+						{insideMapComponents.map(({ key, Component, props }) => (
+							<Component
+								key={key}
+								{...props}
+							/>
+						))}
 
 						<LayerScalebar />
-
-						<LinesMapView />
-
-						<RoutingMapView />
 					</MapContainer>
 				)}
 
 				{!showMap && <View style={styleNoMap} />}
 
-				<Center
-					height={mapHeight || 0}
-					width={width}
-				/>
-
-				<MapLayersAttribution />
-
-				<Drawers
-					height={mapHeight || 0}
-					hidden={!!uiItems?.length}
-				/>
+				{siblingOverlayComponents.map(({ key, Component, props }) => (
+					<Component
+						key={key}
+						{...props}
+					/>
+				))}
 			</View>
-
-			<View>
-				{/*
-				<AltitudeProfile outerWidth={width} />
-				*/}
-				<DashboardWrapped
-					style={styles.zObove}
-					position="bottom"
-				/>
-			</View>
-
-			<LineEditModalWrapper />
 		</View>
 	);
 };
-
-const LineEditModalWrapper: FC = () => {
-	const dispatch = useAppDispatch();
-	const uiItemsKeys = useAppSelector(selectUiItemKeys);
-
-	const selectLine = useCallback(
-		(id: number, isSelected: boolean) => {
-			dispatch(setLineSelected(id, isSelected));
-		},
-		[
-			dispatch,
-		]
-	);
-
-	// Hide if linesBrowser, because selectLine has to be different. See LinesTable.
-	return !uiItemsKeys.length || 'linesBrowser' !== uiItemsKeys[uiItemsKeys.length - 1] ? (
-		<LineEditModal selectLine={selectLine} />
-	) : undefined;
-};
-
-const styles = StyleSheet.create({
-	zObove: { zIndex: 20 },
-});
 
 export default AppView;

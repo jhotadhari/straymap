@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { FC, useMemo } from 'react';
+import React, { ElementType, FC, useMemo } from 'react';
 import { get } from 'lodash-es';
 import Sortable from 'react-native-sortables';
 import { GestureResponderEvent, StyleSheet, ViewStyle } from 'react-native';
@@ -10,10 +10,10 @@ import { useTheme } from 'react-native-paper';
 /**
  * Internal dependencies
  */
-import * as elements from '../elements';
 import { DashboardItem } from '../types';
 import { useAppSelector } from '../../../hooks';
 import { selectEditItemKey } from '../selectors';
+import { featureRegistry } from '../../FeatureRegistry';
 
 const Item: FC<{
 	isHandle: boolean;
@@ -28,7 +28,12 @@ const Item: FC<{
 
 	const editItemKey = useAppSelector(selectEditItemKey);
 
-	const Display = useMemo(() => get(elements, [item.elementType, 'Display']), [item.elementType]);
+	const Display = useMemo(() => {
+		const elementsMap = featureRegistry.getDashboardElements();
+		return get(elementsMap, [item.elementType, 'Display']) as
+			| ElementType<any>
+			| undefined;
+	}, [item.elementType]);
 
 	const node = useMemo(
 		() =>

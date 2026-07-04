@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next';
  * Internal dependencies
  */
 import ListItem from '../../../../components/generic/ListItem';
-import { getUiItemsByKey } from '../uiItems';
+import { featureRegistry } from '../../FeatureRegistry';
 import { useAppDispatch } from '../../../hooks';
 import { addUiItemKey } from '../slice';
 
@@ -17,18 +17,7 @@ const Settings: FC<{ style?: ViewStyle }> = ({ style }) => {
 
 	const dispatch = useAppDispatch();
 
-	const settingsPages = useMemo(
-		() =>
-			getUiItemsByKey([
-				'maps',
-				'general',
-				'appearance',
-				'dashboard',
-				'drawers',
-				'about',
-			]),
-		[]
-	);
+	const settingsPages = useMemo(() => featureRegistry.getSettingsItems(), []);
 
 	return (
 		<ScrollView style={style}>

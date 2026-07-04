@@ -19,12 +19,12 @@ import MaterialIcons from '@react-native-vector-icons/material-icons/static';
  * Internal dependencies
  */
 import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
-import { useAppDispatch, useAppSelector } from '../../../../hooks';
+import { useAppDispatch } from '../../../../hooks';
 import { addItem, setEditItemKey } from '../../slice';
 import ModalWrapper from '../../../../../components/generic/ModalWrapper';
 import RadioListItem from '../../../../../components/generic/RadioListItem';
 import { OptionBase } from '../../../../../types';
-import { selectElementsSettings } from '../../selectors';
+import { featureRegistry } from '../../../FeatureRegistry';
 import { ControlContext } from '../../ControlContext';
 
 const labelExtractor = (a: OptionBase) => a.label;
@@ -53,16 +53,13 @@ const Modal: FC<{
 }> = ({ modalVisible, setModalVisible }) => {
 	const { t } = useTranslation();
 
-	const elementSettings = useAppSelector(selectElementsSettings);
-
-	const options: OptionBase[] = useMemo(
-		() =>
-			Object.values(elementSettings).map((element: any) => ({
+	const options: OptionBase[] = useMemo(() => {
+			const elementsMap = featureRegistry.getDashboardElements();
+			return Object.values(elementsMap).map((element: any) => ({
 				key: element.key,
 				label: element.label,
-			})),
-		[elementSettings]
-	);
+			}));
+		}, []);
 
 	const { position } = useContext(ControlContext);
 

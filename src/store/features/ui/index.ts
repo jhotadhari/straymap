@@ -1,12 +1,18 @@
 /**
  * Internal dependencies
  */
+import React from 'react';
+import MaterialIcons from '@react-native-vector-icons/material-icons/static';
 import { initializeFromStorage } from './connectStorage';
 import { selectInitialized } from './selectors';
 import de from './assets/i18n/de.json';
 import en from './assets/i18n/en.json';
 import es from './assets/i18n/es.json';
 import pt from './assets/i18n/pt.json';
+import Settings from './components/Settings';
+import SettingsGeneral from './components/SettingsGeneral';
+import About from './components/About';
+import searchPlaceDrawerItem from '../drawers/items/searchPlace';
 
 export default {
 	selectInitialized,
@@ -17,4 +23,29 @@ export default {
 		es,
 		pt,
 	},
+	settingsItems: [
+		{
+			key: 'settings',
+			label: 'ui.items.settings',
+			icon: 'cog',
+			Component: Settings,
+			priority: 10,
+		},
+		{
+			key: 'general',
+			label: 'ui.items.general',
+			icon: 'application-cog-outline',
+			Component: SettingsGeneral,
+			priority: 20,
+		},
+		{
+			key: 'about',
+			label: 'ui.items.about',
+			icon: ({ color, style }: { color: string; style: any }) =>
+				React.createElement(MaterialIcons, { style, name: 'info-outline', size: 25, color }),
+			Component: About,
+			priority: 90,
+		},
+	],
+	drawerItems: [searchPlaceDrawerItem],
 };
