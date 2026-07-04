@@ -38,7 +38,7 @@ export const gnssSlice = createSlice({
 		setIsActive: (state, action: PayloadAction<boolean>) => {
 			state.isActive = action.payload;
 		},
-		setMapEvent: (state, action: PayloadAction<MapEventPayload>) => {
+		setMapEvent: (_state, _action: PayloadAction<MapEventPayload>) => {
 			// Passthrough — no state change. The track recording listener
 			// middleware watches this action to apply GPS filtering.
 		},

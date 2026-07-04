@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { FC, useCallback, useEffect, useRef, useState } from 'react';
+import { FC, useCallback, useEffect, useState } from 'react';
 
 /**
  * Internal dependencies

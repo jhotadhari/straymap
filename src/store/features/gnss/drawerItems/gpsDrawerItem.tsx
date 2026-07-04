@@ -17,14 +17,11 @@ import { selectIsActive } from '../selectors';
 import { setIsActive } from '../slice';
 import { formatCoords, formatSpeed, formatHeightDepth } from '../../../../lib/formatting';
 import { MapContext } from '../../../../Context';
-import DrawerContext from '../../drawers/DrawerContext';
 
 const GpsDrawerContent: FC = () => {
 	const { t } = useTranslation();
 	const theme = useTheme();
 	const dispatch = useAppDispatch();
-
-	const { height } = useContext(DrawerContext);
 
 	const isActive = useAppSelector(selectIsActive);
 	const mapUpdateInterval = useAppSelector(selectMapUpdateInterval);

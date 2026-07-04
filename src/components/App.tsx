@@ -2,7 +2,7 @@
  * External dependencies
  */
 import React, { FC, useEffect, useMemo, useRef, useState } from 'react';
-import { BackHandler, Dimensions, StatusBar, useColorScheme, View } from 'react-native';
+import { BackHandler, Dimensions, View } from 'react-native';
 import { PaperProvider, Text, useTheme } from 'react-native-paper';
 import { MapEventResponse } from 'react-native-mapsforge-vtm';
 import { sprintf } from 'sprintf-js';

@@ -33,7 +33,7 @@ export const initializeFromStorage = (store: AppStore) => {
 		.catch((err) => logError('gnss/connectStorage', err));
 };
 
-export const saveToStorage = (state: GnssState, actionType: string) => {
+export const saveToStorage = (state: GnssState, _actionType: string) => {
 	if (!state.initialized) {
 		return;
 	}

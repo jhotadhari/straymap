@@ -9,6 +9,7 @@ import React, {
 	useContext,
 	useEffect,
 	useMemo,
+		useRef,
 	useState,
 } from 'react';
 import {
@@ -63,6 +64,7 @@ import { getDrawerWidthResponsive } from '../store/features/drawers/utils';
 import { useAppDispatch } from '../store/hooks';
 import { featureRegistry } from '../store/features/FeatureRegistry';
 import { setMapEvent } from '../store/features/gnss/slice';
+import { selectIsRecording } from '../store/features/trackRecording/selectors';
 
 const AppView = ({
 	initialPositionRef,
@@ -81,6 +83,10 @@ const AppView = ({
 	const showSplash = useShowInitialSplash();
 
 	const dispatch = useAppDispatch();
+	// Read isRecording via ref so handleMapEvent's useCallback deps stay stable
+	// while still getting the latest value on every map event (~25/sec).
+	const isRecordingRef = useRef(false);
+	isRecordingRef.current = useAppSelector(selectIsRecording);
 	const hardwareKeys = useAppSelector(selectHardwareKeys);
 
 	const dashboardItems = useAppSelector((state) => selectItems(state, { position: 'bottom' }));
@@ -227,12 +233,15 @@ const AppView = ({
 			// Feed the same event to useMapPosition's shared values
 			// so centerSv stays in sync at zero bridge cost.
 			handleMapUpdate(event as { nativeEvent: Readonly<MapEventResponse> });
-			// Dispatch for listener middleware (track recording watches this)
-			dispatch(
-				setMapEvent({
-					center: event.nativeEvent.center,
-				})
-			);
+			// Dispatch for listener middleware (track recording watches this).
+			// Only dispatch when recording — avoids ~25/sec unnecessary actions.
+			if (isRecordingRef.current) {
+				dispatch(
+					setMapEvent({
+						center: event.nativeEvent.center,
+					})
+				);
+			}
 		},
 		[currentMapEventRef, handleMapUpdate, dispatch]
 	);
