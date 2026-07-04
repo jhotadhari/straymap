@@ -4,15 +4,7 @@
 import { FC, Fragment, useCallback, useContext, useEffect, useMemo } from 'react';
 import { useTheme, Icon, Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import {
-	View,
-	BackHandler,
-	TouchableHighlight,
-	StyleSheet,
-	LayoutChangeEvent,
-	StatusBar,
-	Platform,
-} from 'react-native';
+import { View, BackHandler, TouchableHighlight, StyleSheet, LayoutChangeEvent } from 'react-native';
 
 /**
  * Internal dependencies
@@ -160,7 +152,6 @@ const TopAppBar: FC = () => {
 
 const styles = StyleSheet.create({
 	bar: {
-		paddingTop: Platform.OS === 'android' ? (StatusBar.currentHeight ?? 0) : 0,
 		flexDirection: 'row',
 		alignItems: 'center',
 		position: 'relative',
