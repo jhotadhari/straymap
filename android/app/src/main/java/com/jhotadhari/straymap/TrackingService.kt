@@ -26,7 +26,10 @@ class TrackingService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val notification = buildNotification()
         startForeground(NOTIFICATION_ID, notification)
-        return START_STICKY
+        // Don't auto-restart: the JS runtime (Redux listeners, GPS pipeline)
+		// won't be running after a kill, so a restarted service would show a
+		// misleading "Recording…" notification with no actual recording.
+		return START_NOT_STICKY
     }
 
     private fun createNotificationChannel() {

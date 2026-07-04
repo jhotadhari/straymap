@@ -231,7 +231,6 @@ const AppView = ({
 			dispatch(
 				setMapEvent({
 					center: event.nativeEvent.center,
-					accuracy: (event.nativeEvent as any).accuracy,
 				})
 			);
 		},

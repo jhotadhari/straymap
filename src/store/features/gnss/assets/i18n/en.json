@@ -1,9 +1,9 @@
 {
 	"title": "GPS",
-	"gnssCoordinates": "GPS Coordinates",
-	"gnssAccuracy": "GPS Accuracy",
-	"gnssAltitude": "GPS Altitude",
-	"gnssSpeed": "GPS Speed",
+	"gpsCoordinates": "GPS Coordinates",
+	"gpsAccuracy": "GPS Accuracy",
+	"gpsAltitude": "GPS Altitude",
+	"gpsSpeed": "GPS Speed",
 	"activateGps": "Activate GPS",
 	"deactivateGps": "Deactivate GPS",
 	"confirmDeactivateRecording": "Track recording is active. Stop GPS tracking?"

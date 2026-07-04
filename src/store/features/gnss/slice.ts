@@ -11,7 +11,6 @@ import { SliceSettingsBase } from '../../../types';
 
 export interface MapEventPayload {
 	center?: number[];
-	accuracy?: number;
 }
 
 export interface GnssSettings {
