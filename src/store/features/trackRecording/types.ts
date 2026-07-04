@@ -12,6 +12,7 @@ export interface TrackRecordingState {
 	minDistance: number;
 	minTime: number;
 	minPrecision: number;
+	recordingStartTime: number | null;
 	lastWrittenPosition?: [number, number];
 	lastWrittenTime?: number;
 }

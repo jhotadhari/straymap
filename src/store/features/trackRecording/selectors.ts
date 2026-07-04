@@ -21,3 +21,5 @@ export const selectLastWrittenPosition = (state: RootState) =>
 	state.trackRecording.lastWrittenPosition;
 export const selectLastWrittenTime = (state: RootState) =>
 	state.trackRecording.lastWrittenTime;
+export const selectRecordingStartTime = (state: RootState) =>
+	state.trackRecording.recordingStartTime;

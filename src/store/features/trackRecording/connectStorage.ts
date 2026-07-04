@@ -21,13 +21,16 @@ import {
 	setInitialized,
 	setLastWrittenPosition,
 	setLastWrittenTime,
+	setRecordingStartTime,
 } from './slice';
 import { setMapEvent } from '../gnss/slice';
 import { startAppListening } from '../../listenerMiddleware';
 import { selectInitialized } from './selectors';
 import { AppStore } from '../../store';
 import { logError } from '../../../lib/utils';
+import { haversineDistance } from '../../../lib/formatting';
 import { appendPointToLine } from './db/actionsTrack';
+import { dbConnection } from '../dbLoader/DBConnection';
 
 const settingsKey = 'trackRecordingSettings';
 
@@ -45,7 +48,14 @@ export const initializeFromStorage = (store: AppStore) => {
 					newSettingsStr
 				) as Partial<TrackRecordingState>;
 				if (typeof newSettings.isRecording === 'boolean') {
-					store.dispatch(setIsRecordingAction(newSettings.isRecording));
+					// Only restore if the DB connection is ready and the
+					// referenced line still exists.  Otherwise a stale
+					// recording flag will trigger cascading write failures.
+					if (newSettings.isRecording && dbConnection?.drizzle && typeof newSettings.activeLineId === 'number') {
+						store.dispatch(setIsRecordingAction(newSettings.isRecording));
+					} else if (!newSettings.isRecording) {
+						store.dispatch(setIsRecordingAction(newSettings.isRecording));
+					}
 				}
 				if (typeof newSettings.activeTrackId === 'number') {
 					store.dispatch(setActiveTrackId(newSettings.activeTrackId));
@@ -62,6 +72,9 @@ export const initializeFromStorage = (store: AppStore) => {
 				if (typeof newSettings.minPrecision === 'number') {
 					store.dispatch(setMinPrecision(newSettings.minPrecision));
 				}
+				if (typeof newSettings.recordingStartTime === 'number') {
+					store.dispatch(setRecordingStartTime(newSettings.recordingStartTime));
+				}
 			}
 			store.dispatch(setInitialized(true));
 		})
@@ -73,7 +86,7 @@ export const initializeFromStorage = (store: AppStore) => {
  */
 export const saveToStorage = (
 	state: TrackRecordingState,
-	actionType: string
+	_actionType: string
 ) => {
 	if (!state.initialized) {
 		return;
@@ -99,7 +112,8 @@ startAppListening({
 		setActiveLineId,
 		setMinDistance,
 		setMinTime,
-		setMinPrecision
+		setMinPrecision,
+		setRecordingStartTime
 	),
 	effect: async (action, listenerApi) => {
 		try {
@@ -114,30 +128,10 @@ startAppListening({
 });
 
 /**
- * Haversine distance between two [lng, lat] points, returns meters.
- */
-const haversineDistance = (
-	a: [number, number],
-	b: [number, number]
-): number => {
-	const R = 6371000; // Earth radius in meters
-	const toRad = (deg: number) => (deg * Math.PI) / 180;
-	const dLat = toRad(b[1] - a[1]);
-	const dLng = toRad(b[0] - a[0]);
-	const sinDLat = Math.sin(dLat / 2);
-	const sinDLng = Math.sin(dLng / 2);
-	const aVal =
-		sinDLat * sinDLat +
-		Math.cos(toRad(a[1])) *
-			Math.cos(toRad(b[1])) *
-			sinDLng *
-			sinDLng;
-	return R * 2 * Math.atan2(Math.sqrt(aVal), Math.sqrt(1 - aVal));
-};
-
-/**
  * Listener 2: GPS filtering pipeline.
- * Watches setMapEvent from the gps slice and writes qualifying points to DB.
+ * Watches setMapEvent from the gnss slice and writes qualifying points to DB.
+ * Updates lastWrittenPosition/lastWrittenTime BEFORE the async DB write to
+ * prevent race conditions when concurrent events arrive.
  */
 startAppListening({
 	actionCreator: setMapEvent,
@@ -149,21 +143,20 @@ startAppListening({
 			return;
 		}
 
-		const { center, accuracy } = action.payload;
-		const { minPrecision, minDistance, minTime, lastWrittenPosition, lastWrittenTime, activeLineId } = trk;
+		const { center } = action.payload;
+		const { minDistance, minTime, lastWrittenPosition, lastWrittenTime, activeLineId } = trk;
 
 		if (!activeLineId || !center || center.length < 2) {
+			return;
+		}
+
+		if (!dbConnection?.drizzle) {
 			return;
 		}
 
 		const lng = center[0];
 		const lat = center[1];
 		const now = Date.now();
-
-		// Guard: accuracy
-		if (accuracy !== undefined && accuracy > minPrecision) {
-			return;
-		}
 
 		// Guard: time
 		if (lastWrittenTime && now - lastWrittenTime < minTime * 1000) {
@@ -178,11 +171,15 @@ startAppListening({
 			}
 		}
 
-		// Pass — write immediately
+		// Update state BEFORE the await so concurrent invocations see the
+		// updated position and time, preventing duplicate writes.
+		listenerApi.dispatch(setLastWrittenPosition([lng, lat]));
+		listenerApi.dispatch(setLastWrittenTime(now));
+
+		// Write to DB (altitude intentionally omitted — MapEventResponse.center
+		// only carries [lng, lat]; elevation lookups use getAltitudeAtPosition).
 		try {
-			await appendPointToLine(activeLineId, [lng, lat, center[2]]);
-			listenerApi.dispatch(setLastWrittenPosition([lng, lat]));
-			listenerApi.dispatch(setLastWrittenTime(now));
+			await appendPointToLine(activeLineId, [lng, lat]);
 		} catch (err) {
 			logError('trackRecording/appendPoint', err);
 		}

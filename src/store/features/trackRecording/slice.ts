@@ -12,6 +12,7 @@ import { AppThunk } from '../../store';
 import { createLines } from '../lines/db/actionsLine';
 import { createTrack } from './db/actionsTrack';
 import { setLineSelected } from '../lines/slice';
+import { selectIsRecording, selectMinDistance, selectMinTime, selectMinPrecision } from './selectors';
 // import NativeTrackingModule from '../../../specs/NativeTrackingModule';
 
 export interface TrackRecordingSettings {
@@ -21,6 +22,7 @@ export interface TrackRecordingSettings {
 	minDistance: number;
 	minTime: number;
 	minPrecision: number;
+	recordingStartTime: number | null;
 }
 
 export interface TrackRecordingState extends SliceSettingsBase, TrackRecordingSettings {
@@ -35,6 +37,7 @@ export const initialSettings: TrackRecordingSettings = {
 	minDistance: 5,
 	minTime: 2,
 	minPrecision: 20,
+	recordingStartTime: null,
 };
 
 const initialState: TrackRecordingState = {
@@ -77,6 +80,9 @@ export const trackRecordingSlice = createSlice({
 		setLastWrittenTime: (state, action: PayloadAction<number | undefined>) => {
 			state.lastWrittenTime = action.payload;
 		},
+		setRecordingStartTime: (state, action: PayloadAction<number | null>) => {
+			state.recordingStartTime = action.payload;
+		},
 	},
 });
 
@@ -90,20 +96,32 @@ export const {
 	setMinPrecision,
 	setLastWrittenPosition,
 	setLastWrittenTime,
+	setRecordingStartTime,
 } = trackRecordingSlice.actions;
 
 export default trackRecordingSlice.reducer;
 
-// Exported for connectStorage
-export const onSetDbPath = undefined;
-
 /**
  * Start recording a new track. Creates a line with a single point, creates a
  * track record, and starts the foreground service.
+ *
+ * Guards against re-entry: if already recording, returns immediately.
  */
 export const startRecording =
 	(currentPosition: { lng: number; lat: number; z?: number }): AppThunk =>
-	async (dispatch) => {
+	async (dispatch, getState) => {
+		// Guard: don't start a second recording
+		if (selectIsRecording(getState())) {
+			return;
+		}
+
+		// Capture current settings for the track snapshot
+		const settings = {
+			minDistance: selectMinDistance(getState()),
+			minTime: selectMinTime(getState()),
+			minPrecision: selectMinPrecision(getState()),
+		};
+
 		// Create a line with initial point
 		const coord: number[] = [currentPosition.lng, currentPosition.lat];
 		if (currentPosition.z !== undefined) {
@@ -133,20 +151,25 @@ export const startRecording =
 		// Create a track record linked to the line
 		const trackResult = await createTrack({
 			line_id: lineId,
-			settings: {
-				// Settings will be read from state at start time
-			},
+			settings,
 		});
 
 		if (!trackResult?.id) {
+			// Clean up the orphaned line — createTrack failed after createLines
+			// committed.  TODO: add deleteLine call once a non-throwing version
+			// is available (currently wrapped in withDbErrorHandling).
 			return;
 		}
 
 		const trackId = trackResult.id;
+		const now = Date.now();
 
 		dispatch(setIsRecordingAction(true));
 		dispatch(setActiveTrackId(trackId));
 		dispatch(setActiveLineId(lineId));
+		dispatch(setRecordingStartTime(now));
+		dispatch(setLastWrittenPosition([currentPosition.lng, currentPosition.lat]));
+		dispatch(setLastWrittenTime(now));
 
 		// Auto-select the line so it appears in the drawer list
 		dispatch(setLineSelected(lineId, true));
@@ -161,11 +184,13 @@ export const startRecording =
 
 /**
  * Stop recording. Finalizes the track and stops the foreground service.
- * The recording line stays selected on the map.
+ * Clears activeLineId so consumers stop rendering the recording line.
  */
 export const stopRecording = (): AppThunk => async (dispatch) => {
 	dispatch(setIsRecordingAction(false));
 	dispatch(setActiveTrackId(null));
+	dispatch(setActiveLineId(null));
+	dispatch(setRecordingStartTime(null));
 
 	// try {
 	// 	await NativeTrackingModule.stopService();

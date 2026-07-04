@@ -105,3 +105,50 @@ export const formatCoords = (lat: number, lng: number, unitPref: UnitPref): stri
 		decimalPlaces: Math.min(unitPref.round ?? 4, 99),
 	});
 };
+
+/**
+ * Haversine distance between two [lng, lat] points, returns meters.
+ */
+export const haversineDistance = (
+	a: [number, number],
+	b: [number, number]
+): number => {
+	const R = 6371000; // Earth radius in meters
+	const toRad = (deg: number) => (deg * Math.PI) / 180;
+	const dLat = toRad(b[1] - a[1]);
+	const dLng = toRad(b[0] - a[0]);
+	const sinDLat = Math.sin(dLat / 2);
+	const sinDLng = Math.sin(dLng / 2);
+	const aVal =
+		sinDLat * sinDLat +
+		Math.cos(toRad(a[1])) *
+			Math.cos(toRad(b[1])) *
+			sinDLng *
+			sinDLng;
+	return R * 2 * Math.atan2(Math.sqrt(Math.max(0, aVal)), Math.sqrt(Math.max(0, 1 - aVal)));
+};
+
+/**
+ * Total Haversine length of a line geometry, returns meters.
+ */
+export const haversineLineLength = (coords: number[][]): number => {
+	let total = 0;
+	for (let i = 1; i < coords.length; i++) {
+		total += haversineDistance(
+			[coords[i - 1][0], coords[i - 1][1]],
+			[coords[i][0], coords[i][1]]
+		);
+	}
+	return total;
+};
+
+/**
+ * Format a duration in seconds as H:MM:SS or M:SS.
+ */
+export const formatDurationCompact = (sec: number): string => {
+	const h = Math.floor(sec / 3600);
+	const m = Math.floor((sec % 3600) / 60);
+	const s = sec % 60;
+	if (h > 0) return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+	return `${m}:${s.toString().padStart(2, '0')}`;
+};

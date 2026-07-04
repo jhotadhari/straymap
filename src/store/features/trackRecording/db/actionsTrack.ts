@@ -40,29 +40,35 @@ export const createTrack = withDbErrorHandling(
 /**
  * Append a point to the recording line geometry using SpatiaLite's ST_AddPoint.
  * Runs inside a transaction for crash-safety — the point is committed immediately.
+ *
+ * NOTE: Not wrapped with withDbErrorHandling because the GPS filter hot-path
+ * caller handles errors itself.  Callers that don't catch should wrap.
  */
-export const appendPointToLine = withDbErrorHandling(
-	'trackRecording/actionsTrack.appendPointToLine',
-	async (lineId: number, coord: [number, number, number?]) => {
-		if (!dbConnection?.drizzle) {
-			return;
-		}
-
-		const [lng, lat, z] = coord;
-		const coordinates: [number, number, number] = [lng, lat, z ?? 0];
-
-		const geoJson = JSON.stringify({
-			type: 'Point',
-			coordinates,
-			crs: {
-				type: 'name',
-				properties: { name: 'EPSG:4326' },
-			},
-		});
-
-		await withDbTransaction(async (exec) => {
-			const query = sql`UPDATE lines SET geometry = ST_AddPoint(geometry, GeomFromGeoJSON(${geoJson}, 4326), -1) WHERE id = ${lineId}`;
-			await exec(query as unknown as { toSQL: () => { sql: string; params: unknown[] } });
-		});
+export const appendPointToLine = async (
+	lineId: number,
+	coord: [number, number, number?]
+): Promise<void> => {
+	if (!dbConnection?.drizzle) {
+		return;
 	}
-);
+
+	const [lng, lat, z] = coord;
+	// Only include z when actually present; MapEventResponse.center only
+	// carries [lng, lat] (altitude is intentionally omitted per CLAUDE.md).
+	const coordinates: number[] =
+		z !== undefined ? [lng, lat, z] : [lng, lat];
+
+	const geoJson = JSON.stringify({
+		type: 'Point',
+		coordinates,
+		crs: {
+			type: 'name',
+			properties: { name: 'EPSG:4326' },
+		},
+	});
+
+	await withDbTransaction(async (exec) => {
+		const query = sql`UPDATE lines SET geometry = ST_AddPoint(geometry, GeomFromGeoJSON(${geoJson}, 4326), -1) WHERE id = ${lineId}`;
+		await exec(query as unknown as { toSQL: () => { sql: string; params: unknown[] } });
+	});
+};
