@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { FC, useCallback, useMemo, useState } from 'react';
-import { ScrollView, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 
@@ -19,6 +19,7 @@ import SelectColumns from './SelectColumns';
 import FilterModals from './FilterModals';
 import FilterBadge from './FilterModals/FilterBadge';
 import { ColumnFilter } from '../../types';
+import { sprintf } from 'sprintf-js';
 
 const Header: FC = () => {
 	const theme = useTheme();
@@ -68,27 +69,27 @@ const Header: FC = () => {
 		[theme]
 	);
 
-	const rowStyle = useMemo(
-		() => [
-			sharedStyles.flexRowGap,
-			{ alignItems: 'center' as const },
-		],
+	const rowStyleFullWidth = useMemo(
+		() => [sharedStyles.flexRowGap, { alignItems: 'center' as const, width: '100%' }],
 		[]
 	);
+
+	const rowStyle = useMemo(
+		() => [sharedStyles.flexRowGap, { alignItems: 'center' as const }],
+		[]
+	);
+
+	const scrollStyle = useMemo(() => ({ flexShrink: 1, alignSelf: 'center' as const }), []);
+
+	const scrollContentStyle = useMemo(() => ({ alignItems: 'center' as const }), []);
+
+	const disabledLabelStyle = useMemo(() => ({ opacity: 0.5 }), []);
+	const disabledIconStyle = useMemo(() => ({ opacity: 0.5 }), []);
 
 	return (
 		<View style={style}>
 			{/* Row 1: reset filters, AND/OR toggle, column selector */}
-			<View
-				style={[
-					rowStyle,
-					{
-						// justifyContent: 'space-between',
-						// backgroundColor: 'green',
-						width: '100%',
-					},
-				]}
-			>
+			<View style={rowStyleFullWidth}>
 				<IconButtonHighlight
 					icon="filter-plus-outline"
 					size={20}
@@ -96,41 +97,37 @@ const Header: FC = () => {
 					mode="outlined"
 				/>
 
-				{hasMultipleFilters && (
-					<ButtonHighlight
-						mode="outlined"
-						compact={true}
-						onPress={handleToggleFilterLogic}
-						disabled={!hasMultipleFilters}
-					>
-						<Text>
-							{filterLogic === 'and'
+				<ButtonHighlight
+					mode="outlined"
+					compact={true}
+					onPress={handleToggleFilterLogic}
+					disabled={!hasMultipleFilters}
+					labelStyle={!hasMultipleFilters && disabledLabelStyle}
+				>
+					<Text>
+						{sprintf(
+							t('lines.filterLogic'),
+							filterLogic === 'and'
 								? t('lines.filterLogicAnd')
-								: t('lines.filterLogicOr')}
-						</Text>
-					</ButtonHighlight>
-				)}
+								: t('lines.filterLogicOr')
+						)}
+					</Text>
+				</ButtonHighlight>
+
+				<View style={styles.spacer} />
 
 				<SelectColumns />
 			</View>
 
-			{/* Row 2: filter badges + add filter button */}
+			{/* Row 2: filter badges + remove filter button */}
 			<View style={rowStyle}>
-				{hasFilters && (
-					<IconButtonHighlight
-						icon="filter-remove-outline"
-						size={20}
-						onPress={handleResetFilters}
-						mode="outlined"
-					/>
-				)}
-				{hasFilters && (
-					<ScrollView
-						horizontal={true}
-						showsHorizontalScrollIndicator={false}
-						style={{ flexShrink: 1, alignSelf: 'center' as const }}
-						contentContainerStyle={{ alignItems: 'center' as const }}
-					>
+				<ScrollView
+					horizontal={true}
+					showsHorizontalScrollIndicator={false}
+					style={scrollStyle}
+					contentContainerStyle={scrollContentStyle}
+				>
+					{hasFilters && (
 						<View style={sharedStyles.flexRowGap}>
 							{filters.map((filter) => (
 								<FilterBadge
@@ -140,8 +137,16 @@ const Header: FC = () => {
 								/>
 							))}
 						</View>
-					</ScrollView>
-				)}
+					)}
+				</ScrollView>
+				<IconButtonHighlight
+					icon="filter-remove-outline"
+					size={20}
+					onPress={handleResetFilters}
+					mode="outlined"
+					disabled={!hasFilters}
+					style={!hasFilters && disabledIconStyle}
+				/>
 			</View>
 
 			<FilterModals
@@ -152,5 +157,9 @@ const Header: FC = () => {
 		</View>
 	);
 };
+
+const styles = StyleSheet.create({
+	spacer: { flex: 1 },
+});
 
 export default Header;

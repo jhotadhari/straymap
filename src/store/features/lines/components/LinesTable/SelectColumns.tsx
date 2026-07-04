@@ -19,6 +19,7 @@ import { Icon, Text } from 'react-native-paper';
 import { DRAWER_ICON_SIZE, modalPadding, modalWidthFactor } from '../../../../../constants';
 import { sharedStyles } from './sharedDeps';
 import useDropIndicatorStyle from '../../../../../compose/useDropIndicatorStyle';
+import IconButtonHighlight from '../../../../../components/generic/IconButtonHighlight';
 
 const DraggableItem: FC<{
 	column: TableColumn;
@@ -125,16 +126,12 @@ const SelectColumns: FC<{}> = ({}) => {
 
 	return (
 		<Fragment>
-			<ButtonHighlight
-				mode="text"
-				compact={true}
+			<IconButtonHighlight
+				icon="view-column-outline"
+				size={20}
 				onPress={handleOpenModal}
-			>
-				<Icon
-					source={'view-column-outline'}
-					size={DRAWER_ICON_SIZE}
-				/>
-			</ButtonHighlight>
+				mode="outlined"
+			/>
 
 			<ModalWrapper
 				visible={isModalVisible}

@@ -14,6 +14,7 @@
 	},
 	"filters": "Filtros",
 	"addFilter": "Agregar filtro",
+	"filterLogic": "Lógica: %s",
 	"filterLogicAnd": "Y",
 	"filterLogicOr": "O",
 	"filterMin": "Mínimo",
