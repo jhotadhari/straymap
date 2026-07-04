@@ -89,7 +89,7 @@ const ToggleRowControlSegmented = ({
 		>
 			<View style={sharedStyles.flexRow}>
 				<ButtonHighlight
-					mode={boolValueActive ? 'text' : 'outlined' }
+					mode={boolValueActive ? 'text' : 'outlined'}
 					style={styleButton}
 					labelStyle={styleButtonLabel}
 					onPress={handleButtonPress}

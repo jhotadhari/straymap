@@ -92,7 +92,13 @@ const ElementFrame: FC<ElementFrameProps> = ({
 				{showLabel && elementDef?.label && (
 					<Text style={labelTextStyle}>{t(elementDef.label)}</Text>
 				)}
-				<View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: justifyContent }}>
+				<View
+					style={{
+						flexDirection: 'row',
+						alignItems: 'center',
+						justifyContent: justifyContent,
+					}}
+				>
 					{showIcon && elementDef?.Icon && (
 						<View style={{ marginRight: 3 }}>
 							<elementDef.Icon

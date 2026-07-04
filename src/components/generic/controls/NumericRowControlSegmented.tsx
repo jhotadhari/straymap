@@ -200,7 +200,7 @@ const NumericRowControlSegmented = ({
 		>
 			<View style={sharedStyles.flexRow}>
 				<ButtonHighlight
-					mode={numValueActive ? 'text' : 'outlined' }
+					mode={numValueActive ? 'text' : 'outlined'}
 					style={styleButton}
 					labelStyle={styleButtonLabel}
 					onPress={handleButtonPress}

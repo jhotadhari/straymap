@@ -79,21 +79,29 @@ const Header: FC = () => {
 	return (
 		<View style={style}>
 			{/* Row 1: reset filters, AND/OR toggle, column selector */}
-			<View style={rowStyle}>
-				{hasFilters && (
-					<IconButtonHighlight
-						icon="filter-remove-outline"
-						size={20}
-						onPress={handleResetFilters}
-						mode="outlined"
-					/>
-				)}
+			<View
+				style={[
+					rowStyle,
+					{
+						// justifyContent: 'space-between',
+						// backgroundColor: 'green',
+						width: '100%',
+					},
+				]}
+			>
+				<IconButtonHighlight
+					icon="filter-plus-outline"
+					size={20}
+					onPress={handleOpenNewFilter}
+					mode="outlined"
+				/>
 
 				{hasMultipleFilters && (
 					<ButtonHighlight
 						mode="outlined"
 						compact={true}
 						onPress={handleToggleFilterLogic}
+						disabled={!hasMultipleFilters}
 					>
 						<Text>
 							{filterLogic === 'and'
@@ -108,13 +116,14 @@ const Header: FC = () => {
 
 			{/* Row 2: filter badges + add filter button */}
 			<View style={rowStyle}>
-				<IconButtonHighlight
-					icon="filter-plus-outline"
-					size={20}
-					onPress={handleOpenNewFilter}
-					mode="outlined"
-				/>
-
+				{hasFilters && (
+					<IconButtonHighlight
+						icon="filter-remove-outline"
+						size={20}
+						onPress={handleResetFilters}
+						mode="outlined"
+					/>
+				)}
 				{hasFilters && (
 					<ScrollView
 						horizontal={true}
