@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { FC, useCallback, useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View, ViewStyle } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 
@@ -70,7 +70,10 @@ const Header: FC = () => {
 	);
 
 	const rowStyleFullWidth = useMemo(
-		() => [sharedStyles.flexRowGap, { alignItems: 'center' as const, width: '100%' }],
+		(): ViewStyle[] => [
+			sharedStyles.flexRowGap,
+			{ alignItems: 'center', width: '100%' },
+		],
 		[]
 	);
 
