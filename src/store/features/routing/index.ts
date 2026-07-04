@@ -8,6 +8,7 @@ import en from './assets/i18n/en.json';
 import es from './assets/i18n/es.json';
 import pt from './assets/i18n/pt.json';
 import { onSetDbPath } from './slice';
+import { selectIsRouting } from './selectors';
 import RoutingMapView from './components/RoutingMapView';
 import routingDrawerItem from '../drawers/items/routing';
 import waypointsDrawerItem from '../drawers/items/waypoints';
@@ -31,4 +32,6 @@ export default {
 			priority: 300,
 		},
 	],
+	modes: ['routing'],
+	selectActiveModes: (state: any) => (selectIsRouting(state) ? ['routing'] : []),
 };

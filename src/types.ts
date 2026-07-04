@@ -15,6 +15,8 @@ import { DrawerItem } from './store/features/drawers/types';
 
 export type { UiItem, DashboardElement, DrawerItem };
 
+export type AppMode = string;
+
 // source: https://stackoverflow.com/questions/41253310/typescript-retrieve-element-type-information-from-array-type#answer-51399781
 export type ArrayElement<ArrayType extends readonly unknown[]> =
 	ArrayType extends readonly (infer ElementType)[] ? ElementType : never;
@@ -75,4 +77,8 @@ export interface AppFeature {
 	dashboardElements?: DashboardElement<any>[];
 	drawerItems?: DrawerItem[];
 	mapViewComponents?: MapViewComponentDescriptor[];
+
+	// Modes this feature can activate
+	modes?: AppMode[];
+	selectActiveModes?: (state: any) => AppMode[];
 }

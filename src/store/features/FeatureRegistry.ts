@@ -3,6 +3,7 @@
  */
 import {
 	AppFeature,
+	AppMode,
 	DashboardElement,
 	DrawerItem,
 	MapViewComponentDescriptor,
@@ -111,6 +112,31 @@ export class FeatureRegistry {
 		}
 		components.sort((a, b) => a.priority - b.priority);
 		return components;
+	}
+
+	/** Returns all modes declared by all features, de-duplicated. */
+	getAllModes(): AppMode[] {
+		const modes: AppMode[] = [];
+		for (const feature of Object.values(this.features())) {
+			if (feature.modes) {
+				modes.push(...feature.modes);
+			}
+		}
+		return [...new Set(modes)];
+	}
+
+	/** Returns the set of currently active modes from all features. */
+	getActiveModes(state: any): AppMode[] {
+		const active: AppMode[] = [];
+		for (const feature of Object.values(this.features())) {
+			if (feature.selectActiveModes) {
+				const featureModes = feature.selectActiveModes(state);
+				if (featureModes?.length) {
+					active.push(...featureModes);
+				}
+			}
+		}
+		return [...new Set(active)];
 	}
 }
 
