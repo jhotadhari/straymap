@@ -1,0 +1,21 @@
+{
+	"title": "Spuraufzeichnung",
+	"trackRecording": "Spuraufzeichnung",
+	"notRecording": "Keine Aufzeichnung",
+	"trackingStats": "Aufzeichnungsstatistik",
+	"minDistance": "Mindestabstand (m)",
+	"minTime": "Mindestzeit (s)",
+	"minPrecision": "Mindestgenauigkeit (m)",
+	"distance": "Entfernung",
+	"duration": "Dauer",
+	"uphill": "Aufstieg",
+	"downhill": "Abstieg",
+	"speed": "Geschwindigkeit",
+	"avgSpeed": "Durchschn.-Geschw.",
+	"pointCount": "Anzahl Punkte",
+	"statField": "Statistik",
+	"stop": "Aufzeichnung beenden",
+	"hintMinDistance": "Mindestabstand in Metern zwischen aufgezeichneten Punkten.",
+	"hintMinTime": "Mindestzeit in Sekunden zwischen aufgezeichneten Punkten.",
+	"hintMinPrecision": "Die GPS-Genauigkeit muss besser als dieser Wert (in Metern) sein, damit ein Punkt aufgezeichnet wird."
+}

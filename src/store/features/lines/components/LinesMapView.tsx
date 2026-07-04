@@ -11,6 +11,7 @@ import { GeometryStyle, LayerPath, ReindexScope } from 'react-native-mapsforge-v
 import { useAppSelector } from '../../../hooks';
 import { selectSelected } from '../selectors';
 import { selectRoutingLineId } from '../../routing/selectors';
+import { selectActiveLineId } from '../../trackRecording/selectors';
 import { queryLineGeom } from '../db/queryFns';
 import { queryLinesWithoutGeom } from '../db/queryFns';
 import useSimplificationTolerance from '../hooks/useSimplificationTolerance';
@@ -73,6 +74,7 @@ const LinesMapView = () => {
 	);
 
 	const routingLineId = useAppSelector(selectRoutingLineId);
+	const recordingLineId = useAppSelector(selectActiveLineId);
 
 	const simplify = useSimplificationTolerance();
 
@@ -104,6 +106,7 @@ const LinesMapView = () => {
 			{selectedIds?.map((lineId) => {
 				return (
 					routingLineId !== lineId &&
+					recordingLineId !== lineId &&
 					visibleMap[lineId] && (
 						<LineItem
 							key={lineId}

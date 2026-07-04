@@ -1,0 +1,21 @@
+{
+	"title": "Track Recording",
+	"trackRecording": "Track Recording",
+	"notRecording": "Not recording",
+	"trackingStats": "Tracking Stats",
+	"minDistance": "Minimum Distance (m)",
+	"minTime": "Minimum Time (s)",
+	"minPrecision": "Minimum Precision (m)",
+	"distance": "Distance",
+	"duration": "Duration",
+	"uphill": "Uphill",
+	"downhill": "Downhill",
+	"speed": "Speed",
+	"avgSpeed": "Avg Speed",
+	"pointCount": "Point Count",
+	"statField": "Statistic",
+	"stop": "Stop Recording",
+	"hintMinDistance": "Minimum distance in meters between recorded points.",
+	"hintMinTime": "Minimum time in seconds between recorded points.",
+	"hintMinPrecision": "GPS accuracy must be better than this value (in meters) for a point to be recorded."
+}
