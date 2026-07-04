@@ -108,8 +108,15 @@ const ModalWrapper: FC<{
 			setKeyboardScreenY(0);
 			setKeyboardShown(false);
 		});
-		return () => { s.remove(); h.remove(); };
-	}, [screenH, windowH, statusBarHeight]);
+		return () => {
+			s.remove();
+			h.remove();
+		};
+	}, [
+		screenH,
+		windowH,
+		statusBarHeight,
+	]);
 
 	// Fixed height when keyboard is hidden — keeps stacked modals visually
 	// consistent so it feels like the content changed, not a new modal.
@@ -127,10 +134,7 @@ const ModalWrapper: FC<{
 			const visibleH = keyboardScreenY - statusBarHeight;
 			const bottomGap = 0;
 			const heightSlack = 4;
-			const targetHeight = Math.max(
-				windowH * 0.35,
-				visibleH - heightSlack,
-			);
+			const targetHeight = Math.max(windowH * 0.35, visibleH - heightSlack);
 			// Position the top edge so the bottom edge sits exactly at
 			// keyboardScreenY - bottomGap.
 			const targetTop = keyboardScreenY - bottomGap - targetHeight;
@@ -156,7 +160,15 @@ const ModalWrapper: FC<{
 				reduceMotion: ReduceMotion.System,
 			});
 		}
-	}, [keyboardScreenY, windowH, statusBarHeight, modalHeight, yogaTop, heightShared, topShared]);
+	}, [
+		keyboardScreenY,
+		windowH,
+		statusBarHeight,
+		modalHeight,
+		yogaTop,
+		heightShared,
+		topShared,
+	]);
 
 	const modalAnimatedStyles = useAnimatedStyle(() => ({
 		height: heightShared.value,
@@ -234,7 +246,11 @@ const ModalWrapper: FC<{
 					<View style={styleContent}>
 						<Animated.View
 							style={[
-								{ position: 'absolute', left: modalLeft, width: width * modalWidthFactor },
+								{
+									position: 'absolute',
+									left: modalLeft,
+									width: width * modalWidthFactor,
+								},
 								modalAnimatedStyles,
 							]}
 						>

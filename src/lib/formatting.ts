@@ -109,10 +109,7 @@ export const formatCoords = (lat: number, lng: number, unitPref: UnitPref): stri
 /**
  * Haversine distance between two [lng, lat] points, returns meters.
  */
-export const haversineDistance = (
-	a: [number, number],
-	b: [number, number]
-): number => {
+export const haversineDistance = (a: [number, number], b: [number, number]): number => {
 	const R = 6371000; // Earth radius in meters
 	const toRad = (deg: number) => (deg * Math.PI) / 180;
 	const dLat = toRad(b[1] - a[1]);
@@ -120,11 +117,7 @@ export const haversineDistance = (
 	const sinDLat = Math.sin(dLat / 2);
 	const sinDLng = Math.sin(dLng / 2);
 	const aVal =
-		sinDLat * sinDLat +
-		Math.cos(toRad(a[1])) *
-			Math.cos(toRad(b[1])) *
-			sinDLng *
-			sinDLng;
+		sinDLat * sinDLat + Math.cos(toRad(a[1])) * Math.cos(toRad(b[1])) * sinDLng * sinDLng;
 	return R * 2 * Math.atan2(Math.sqrt(Math.max(0, aVal)), Math.sqrt(Math.max(0, 1 - aVal)));
 };
 

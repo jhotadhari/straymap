@@ -21,3 +21,6 @@
 # include dir transformer.
 !/transformer
 !transformer/**/*
+
+# exclude CLAUDE.md files.
+**/CLAUDE.md

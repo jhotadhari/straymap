@@ -185,14 +185,8 @@ const AppView = ({
 		),
 	});
 
-	const insideMapComponents = useMemo(
-		() => featureRegistry.getMapComponents(),
-		[]
-	);
-	const siblingOverlayComponents = useMemo(
-		() => featureRegistry.getAppOverlays(),
-		[]
-	);
+	const insideMapComponents = useMemo(() => featureRegistry.getMapComponents(), []);
+	const siblingOverlayComponents = useMemo(() => featureRegistry.getAppOverlays(), []);
 
 	const [showMap, setShowMap] = useState(false);
 	const mapsforgeGeneral = useAppSelector(selectMapsforgeGeneral);

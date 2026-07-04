@@ -58,9 +58,7 @@ const ElementFrame: FC<ElementFrameProps> = ({
 
 	const elementDef = useMemo(
 		() =>
-			featureRegistry.getDashboardWidgets()[item.elementType] as
-				| DashboardWidget
-				| undefined,
+			featureRegistry.getDashboardWidgets()[item.elementType] as DashboardWidget | undefined,
 		[item.elementType]
 	);
 
