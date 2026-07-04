@@ -137,12 +137,7 @@ const useDeleteLinesCbModal = ({
 				header={t('lines.deleteConfirm')}
 				innerStyle={sharedStyles.modal}
 			>
-				<Text>
-					{sprintf(
-						t('lines.deleteConfirmationBody'),
-						deleteIds.length
-					)}
-				</Text>
+				<Text>{sprintf(t('lines.deleteConfirmationBody'), deleteIds.length)}</Text>
 
 				<View style={sharedStyles.modalControls}>
 					<ButtonHighlight

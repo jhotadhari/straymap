@@ -7,13 +7,13 @@ import { get } from 'lodash-es';
 /**
  * Internal dependencies
  */
-import { DashboardElementProps } from '../types';
+import { DashboardWidgetProps } from '../types';
 import { useAppSelector } from '../../../hooks';
 import { selectDashboardStyle, selectElementsSettings } from '../selectors';
 import { ControlContext } from '../ControlContext';
 
-const useItemStyle = (item: DashboardElementProps['item']) => {
-	const dashboardElements = useAppSelector(selectElementsSettings);
+const useItemStyle = (item: DashboardWidgetProps['item']) => {
+	const dashboardWidgets = useAppSelector(selectElementsSettings);
 
 	const { position } = useContext(ControlContext);
 	const dashboardStyle = useAppSelector((state) => selectDashboardStyle(state, position));
@@ -23,11 +23,11 @@ const useItemStyle = (item: DashboardElementProps['item']) => {
 	const minWidth = useMemo(
 		() =>
 			item?.minWidth ??
-			get(dashboardElements, [item?.elementType || '', 'defaultMinWidth'], 75),
+			get(dashboardWidgets, [item?.elementType || '', 'defaultMinWidth'], 75),
 		[
 			item?.minWidth,
 			item?.elementType,
-			dashboardElements,
+			dashboardWidgets,
 		]
 	);
 

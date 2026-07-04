@@ -68,9 +68,7 @@ export const linesSlice = createSlice({
 			state.filters = action.payload;
 		},
 		upsertFilter: (state, action: PayloadAction<ColumnFilter>) => {
-			const idx = state.filters.findIndex(
-				(f) => f.columnKey === action.payload.columnKey
-			);
+			const idx = state.filters.findIndex((f) => f.columnKey === action.payload.columnKey);
 			if (idx !== -1) {
 				state.filters[idx] = action.payload;
 			} else {
@@ -78,9 +76,7 @@ export const linesSlice = createSlice({
 			}
 		},
 		removeFilter: (state, action: PayloadAction<string>) => {
-			state.filters = state.filters.filter(
-				(f) => f.columnKey !== action.payload
-			);
+			state.filters = state.filters.filter((f) => f.columnKey !== action.payload);
 		},
 
 		resetFilters: (state) => {

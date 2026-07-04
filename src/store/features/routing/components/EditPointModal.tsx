@@ -59,7 +59,10 @@ const ProfileRowControl = ({
 	);
 
 	return (
-		<InfoRowControl label={t('routing.profile')} Info={t('routing.hintProfile')}>
+		<InfoRowControl
+			label={t('routing.profile')}
+			Info={t('routing.hintProfile')}
+		>
 			<ListItemMenuControl
 				options={profileOptions}
 				value={get(selectedOpt, 'key')}

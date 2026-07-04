@@ -9,8 +9,13 @@ import { ScrollView } from 'react-native-gesture-handler';
 /**
  * Internal dependencies
  */
-import { DrawerItem, DrawerProps } from '../types';
-import { selectActiveKey, selectControlHandleSide, selectItemKeys, selectShowSettingsHandle } from '../selectors';
+import { DrawerPanel, DrawerProps } from '../types';
+import {
+	selectActiveKey,
+	selectControlHandleSide,
+	selectItemKeys,
+	selectShowSettingsHandle,
+} from '../selectors';
 import { useAppDispatch, useAppSelector } from '../../../hooks';
 import DrawerHandle from './DrawerHandle';
 import { setItemKeys } from '../slice';
@@ -18,7 +23,7 @@ import DrawerContext from '../DrawerContext';
 import { DRAWER_HANDLE_SIZE } from '../constants';
 import { AppContext } from '../../../../Context';
 
-const settingsOverwriteDrawerItem: DrawerItem = {
+const settingsOverwriteDrawerItem: DrawerPanel = {
 	iconSource: 'cog',
 };
 
@@ -152,10 +157,7 @@ const DrawerHandles: FC<
 		[setModalVisible]
 	);
 
-	if (
-		(!showSettingsHandle || controlHandleSide !== side) &&
-		draggableItems.length === 0
-	) {
+	if ((!showSettingsHandle || controlHandleSide !== side) && draggableItems.length === 0) {
 		return undefined;
 	}
 

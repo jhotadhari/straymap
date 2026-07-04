@@ -15,7 +15,7 @@ import { DRAWER_ICON_SIZE } from '../../../drawers/constants';
 import LineStats from '../LineStats';
 import { cellConfigs, sharedStyles, getCellCategory } from './sharedDeps';
 import TagBadge from '../TagBadge';
-import IconRouting from '../../../drawers/items/routing/IconComponent';
+import IconRouting from '../../../routing/drawerPanels/routing/IconComponent';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { setLineTemp } from '../../slice';
 import { selectTableColumns } from '../../selectors';

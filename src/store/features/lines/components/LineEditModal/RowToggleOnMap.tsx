@@ -39,7 +39,10 @@ const RowToggleOnMap: FC = () => {
 
 	const icon = useMemo(() => (isSelected ? 'map-minus' : 'map-plus'), [isSelected]);
 
-	const label = useMemo(() => (isSelected ? t('lines.hideFromMap') : t('lines.showOnMap')), [isSelected, t]);
+	const label = useMemo(
+		() => (isSelected ? t('lines.hideFromMap') : t('lines.showOnMap')),
+		[isSelected, t]
+	);
 
 	const buttonStyle = useMemo(
 		() => ({
@@ -53,7 +56,10 @@ const RowToggleOnMap: FC = () => {
 	);
 
 	return (
-		<InfoRowControl label={label} Info={t('lines.hintToggleOnMap')}>
+		<InfoRowControl
+			label={label}
+			Info={t('lines.hintToggleOnMap')}
+		>
 			<ButtonHighlight
 				style={buttonStyle}
 				mode="outlined"

@@ -9,9 +9,8 @@ import de from './assets/i18n/de.json';
 import en from './assets/i18n/en.json';
 import es from './assets/i18n/es.json';
 import pt from './assets/i18n/pt.json';
-import SettingsAppearance from '../ui/components/SettingsAppearance';
-import Center from './components/Center';
-import positionDrawerItem from '../drawers/items/position';
+import SettingsAppearance from './settingsPages/SettingsAppearance';
+import Center from './appOverlays/Center';
 
 export default {
 	selectInitialized,
@@ -22,7 +21,7 @@ export default {
 		es,
 		pt,
 	},
-	settingsItems: [
+	settingsPages: [
 		{
 			key: 'appearance',
 			label: 'ui.items.appearance',
@@ -32,12 +31,10 @@ export default {
 			priority: 50,
 		},
 	],
-	drawerItems: [positionDrawerItem],
-	mapViewComponents: [
+	appOverlays: [
 		{
 			key: 'center',
 			Component: Center,
-			placement: 'sibling-overlay',
 			priority: 100,
 		},
 	],

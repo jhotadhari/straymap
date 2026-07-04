@@ -18,9 +18,7 @@ import { selectMapUpdateInterval } from '../../general/selectors';
  * Uses a callback-ref to avoid re-registering the interval when the callback
  * identity changes — only `mapUpdateInterval` changes restart the timer.
  */
-export function useMapEventInterval(
-	callback: (event: MapEventResponse | null) => void
-): void {
+export function useMapEventInterval(callback: (event: MapEventResponse | null) => void): void {
 	const mapUpdateInterval = useAppSelector(selectMapUpdateInterval);
 	const { currentMapEventRef } = useContext(MapContext);
 

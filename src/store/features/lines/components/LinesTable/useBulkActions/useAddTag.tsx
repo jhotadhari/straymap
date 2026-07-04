@@ -103,7 +103,10 @@ const useAddTag = () => {
 					<Text>{t('lines.tagsNoTags')}</Text>
 				) : (
 					tags.map((tag) => (
-						<View key={tag.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+						<View
+							key={tag.id}
+							style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}
+						>
 							<Checkbox
 								status={selectedTagIds.has(tag.id) ? 'checked' : 'unchecked'}
 								onPress={() => handleToggle(tag.id)}
@@ -143,7 +146,11 @@ const useAddTag = () => {
 			modalNode,
 			disabled,
 		}),
-		[openModal, modalNode, disabled]
+		[
+			openModal,
+			modalNode,
+			disabled,
+		]
 	);
 };
 

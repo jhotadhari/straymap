@@ -10,11 +10,7 @@ import { dbConnection } from '../../dbLoader/DBConnection';
 import { tracksTable } from './schema/schema';
 import { Track } from '../types';
 
-export const queryTrack = async ({
-	queryKey,
-}: {
-	queryKey: [string, number];
-}) => {
+export const queryTrack = async ({ queryKey }: { queryKey: [string, number] }) => {
 	const [, trackId] = queryKey;
 	if (!dbConnection?.drizzle) {
 		return null;

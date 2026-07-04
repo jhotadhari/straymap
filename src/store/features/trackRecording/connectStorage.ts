@@ -44,14 +44,16 @@ export const initializeFromStorage = (store: AppStore) => {
 	DefaultPreference.get(settingsKey)
 		.then((newSettingsStr) => {
 			if (newSettingsStr) {
-				const newSettings = JSON.parse(
-					newSettingsStr
-				) as Partial<TrackRecordingState>;
+				const newSettings = JSON.parse(newSettingsStr) as Partial<TrackRecordingState>;
 				if (typeof newSettings.isRecording === 'boolean') {
 					// Only restore if the DB connection is ready and the
 					// referenced line still exists.  Otherwise a stale
 					// recording flag will trigger cascading write failures.
-					if (newSettings.isRecording && dbConnection?.drizzle && typeof newSettings.activeLineId === 'number') {
+					if (
+						newSettings.isRecording &&
+						dbConnection?.drizzle &&
+						typeof newSettings.activeLineId === 'number'
+					) {
 						store.dispatch(setIsRecordingAction(newSettings.isRecording));
 					} else if (!newSettings.isRecording) {
 						store.dispatch(setIsRecordingAction(newSettings.isRecording));
@@ -84,10 +86,7 @@ export const initializeFromStorage = (store: AppStore) => {
 /**
  * Persist settings that differ from initialSettings to DefaultPreference.
  */
-export const saveToStorage = (
-	state: TrackRecordingState,
-	_actionType: string
-) => {
+export const saveToStorage = (state: TrackRecordingState, _actionType: string) => {
 	if (!state.initialized) {
 		return;
 	}
@@ -117,10 +116,7 @@ startAppListening({
 	),
 	effect: async (action, listenerApi) => {
 		try {
-			await saveToStorage(
-				listenerApi.getState().trackRecording,
-				action.type
-			);
+			await saveToStorage(listenerApi.getState().trackRecording, action.type);
 		} catch (err) {
 			logError('saveToStorage', err);
 		}
@@ -128,7 +124,7 @@ startAppListening({
 });
 
 /**
- * Listener 2: GPS filtering pipeline.
+ * Listener 2: GNSS filtering pipeline.
  * Watches setMapEvent from the gnss slice and writes qualifying points to DB.
  * Updates lastWrittenPosition/lastWrittenTime BEFORE the async DB write to
  * prevent race conditions when concurrent events arrive.

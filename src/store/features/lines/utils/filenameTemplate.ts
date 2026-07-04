@@ -65,25 +65,22 @@ export const resolveFilename = (
 	template: string,
 	data: Record<string, string | number | undefined | null>
 ): string => {
-	return template.replace(
-		TOKEN_RE,
-		(match: string, field: string, transform: string) => {
-			const raw = data[field];
-			if (raw === undefined || raw === null) {
-				return match;
-			}
-			let value = String(raw);
-			if (transform) {
-				const fn = TRANSFORMS[transform];
-				if (fn) {
-					value = fn(value);
-				}
-				// Unknown transforms are silently ignored — the raw
-				// value is used instead so the export still succeeds.
-			}
-			return value;
+	return template.replace(TOKEN_RE, (match: string, field: string, transform: string) => {
+		const raw = data[field];
+		if (raw === undefined || raw === null) {
+			return match;
 		}
-	);
+		let value = String(raw);
+		if (transform) {
+			const fn = TRANSFORMS[transform];
+			if (fn) {
+				value = fn(value);
+			}
+			// Unknown transforms are silently ignored — the raw
+			// value is used instead so the export still succeeds.
+		}
+		return value;
+	});
 };
 
 /**

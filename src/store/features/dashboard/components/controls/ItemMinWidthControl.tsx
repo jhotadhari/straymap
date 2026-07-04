@@ -21,11 +21,11 @@ const ItemMinWidthControl: FC<{ buttonLabel?: string }> = ({ buttonLabel }) => {
 	const dispatch = useAppDispatch();
 
 	const { item } = useAppSelector(selectEditItem);
-	const dashboardElements = useAppSelector(selectElementsSettings);
+	const dashboardWidgets = useAppSelector(selectElementsSettings);
 
 	const defaultMinWidth = useMemo(
-		() => get(dashboardElements, [item?.elementType || '', 'defaultMinWidth'], 75),
-		[item?.elementType, dashboardElements]
+		() => get(dashboardWidgets, [item?.elementType || '', 'defaultMinWidth'], 75),
+		[item?.elementType, dashboardWidgets]
 	);
 
 	const handleToggleOption = useCallback(() => {

@@ -84,7 +84,15 @@ const TagEditModal: FC<{
 	});
 
 	const updateMutation = useMutation({
-		mutationFn: async ({ id, label, color }: { id: number; label?: string; color?: string }) => {
+		mutationFn: async ({
+			id,
+			label,
+			color,
+		}: {
+			id: number;
+			label?: string;
+			color?: string;
+		}) => {
 			await updateTag(id, {
 				...(label !== undefined && { label }),
 				...(color !== undefined && { data: { color } }),
@@ -157,7 +165,10 @@ const TagEditModal: FC<{
 					{(tags ?? []).map((tag) => {
 						const color = getTagColor(tag);
 						return (
-							<View key={tag.id} style={[styles.tagRow, { borderColor: theme.colors.outline }]}>
+							<View
+								key={tag.id}
+								style={[styles.tagRow, { borderColor: theme.colors.outline }]}
+							>
 								<TagBadge tag={tag} />
 								<Text style={styles.tagLabel}>{tag.label}</Text>
 								{/* Inline palette for this tag */}

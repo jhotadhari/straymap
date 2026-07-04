@@ -64,10 +64,7 @@ class DBConnection {
 			// SpatiaLite 5+ may bundle RegexpCache which registers regexp().
 			// Check availability so callers can fall back to JS-side regex
 			// when the SQL REGEXP operator is unavailable.
-			this.op!
-				.execute(
-					"SELECT CASE WHEN REGEXP('t.st', 'test') THEN 1 ELSE 0 END"
-				)
+			this.op!.execute("SELECT CASE WHEN REGEXP('t.st', 'test') THEN 1 ELSE 0 END")
 				.then(() => {
 					this.regexpAvailable = true;
 				})

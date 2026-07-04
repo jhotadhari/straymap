@@ -1,7 +1,7 @@
 export interface TrackSettings {
 	minDistance: number; // meters
 	minTime: number; // seconds
-	minPrecision: number; // meters (GPS accuracy threshold)
+	minPrecision: number; // meters (GNSS accuracy threshold)
 }
 
 export interface TrackRecordingState {

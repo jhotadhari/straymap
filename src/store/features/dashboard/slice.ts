@@ -9,7 +9,7 @@ import rnUuid from 'react-native-uuid';
  * Internal dependencies
  */
 import { SliceSettingsBase } from '../../../types';
-import { DashboardElementSetting, DashboardItem, DashboardStyle } from './types';
+import { DashboardWidgetSetting, DashboardItem, DashboardStyle } from './types';
 import { selectEditItemKey } from './selectors';
 import { AppThunk } from '../../store';
 import { getSetterThunkWithGetter } from '../baseMap/utils';
@@ -24,7 +24,7 @@ export interface DashboardSettings {
 
 export interface DashboardState extends SliceSettingsBase, DashboardSettings {
 	isEditingDashboard: boolean;
-	elementsSettings: { [key: string]: DashboardElementSetting };
+	elementsSettings: { [key: string]: DashboardWidgetSetting };
 	editItemKey?: string;
 }
 

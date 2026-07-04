@@ -67,7 +67,13 @@ const FilterNumericModal: FC<{
 				});
 			}
 		};
-	}, [columnKey, minVal, maxVal, onSave, existingFilter]);
+	}, [
+		columnKey,
+		minVal,
+		maxVal,
+		onSave,
+		existingFilter,
+	]);
 
 	const prevVisibleRef = useRef(false);
 	useEffect(() => {

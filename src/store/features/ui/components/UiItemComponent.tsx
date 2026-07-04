@@ -25,7 +25,7 @@ const UiItemComponent: FC<{}> = () => {
 	const Component = useMemo(() => {
 		if (!uiItemsKeys.length) return undefined;
 		const activeKey = uiItemsKeys[uiItemsKeys.length - 1];
-		const allItems = featureRegistry.getSettingsItems();
+		const allItems = featureRegistry.getSettingsPages();
 		const match = allItems.find((item) => item.key === activeKey);
 		return match?.Component;
 	}, [uiItemsKeys]);

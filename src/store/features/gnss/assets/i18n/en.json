@@ -1,10 +1,10 @@
 {
-	"title": "GPS",
-	"gpsCoordinates": "GPS Coordinates",
-	"gpsAccuracy": "GPS Accuracy",
-	"gpsAltitude": "GPS Altitude",
-	"gpsSpeed": "GPS Speed",
-	"activateGps": "Activate GPS",
-	"deactivateGps": "Deactivate GPS",
-	"confirmDeactivateRecording": "Track recording is active. Stop GPS tracking?"
+	"title": "GNSS",
+	"gnssCoordinates": "GNSS Coordinates",
+	"gnssAccuracy": "GNSS Accuracy",
+	"gnssAltitude": "GNSS Altitude",
+	"gnssSpeed": "GNSS Speed",
+	"activateGnss": "Activate GNSS",
+	"deactivateGnss": "Deactivate GNSS",
+	"confirmDeactivateRecording": "Track recording is active. Stop GNSS tracking?"
 }

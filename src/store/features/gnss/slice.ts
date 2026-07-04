@@ -20,7 +20,7 @@ export interface GnssSettings {
 export interface GnssState extends SliceSettingsBase, GnssSettings {}
 
 export const initialSettings: GnssSettings = {
-	isActive: true, // GPS tracking is active by default
+	isActive: true, // GNSS tracking is active by default
 };
 
 const initialState: GnssState = {
@@ -40,7 +40,7 @@ export const gnssSlice = createSlice({
 		},
 		setMapEvent: (_state, _action: PayloadAction<MapEventPayload>) => {
 			// Passthrough — no state change. The track recording listener
-			// middleware watches this action to apply GPS filtering.
+			// middleware watches this action to apply GNSS filtering.
 		},
 	},
 });

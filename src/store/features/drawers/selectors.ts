@@ -4,7 +4,7 @@
 import createAppSelector from '../../createAppSelector';
 import { RootState } from '../../store';
 import { featureRegistry } from '../FeatureRegistry';
-import { DrawerItem } from './types';
+import { DrawerPanel } from './types';
 
 export const selectInitialized = (state: RootState) => state.drawers.initialized;
 
@@ -34,7 +34,9 @@ export const selectItemKeys = createAppSelector(
 			itemKeys = itemKeysRight;
 		}
 		return itemKeys.filter((key) =>
-			Object.keys(featureRegistry.getDrawerItems() as { [itemKey: string]: DrawerItem }).includes(key)
+			Object.keys(
+				featureRegistry.getDrawerPanels() as { [itemKey: string]: DrawerPanel }
+			).includes(key)
 		);
 	}
 );

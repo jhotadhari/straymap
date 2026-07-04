@@ -9,9 +9,8 @@ import es from './assets/i18n/es.json';
 import pt from './assets/i18n/pt.json';
 import { onSetDbPath } from './slice';
 import { selectIsRouting } from './selectors';
-import RoutingMapView from './components/RoutingMapView';
-import routingDrawerItem from '../drawers/items/routing';
-import waypointsDrawerItem from '../drawers/items/waypoints';
+import RoutingMapView from './mapComponents/RoutingMapView';
+import routingDrawerItem from './drawerPanels/routing';
 
 export default {
 	selectInitialized,
@@ -23,12 +22,11 @@ export default {
 		pt,
 	},
 	onSetDbPath,
-	drawerItems: [routingDrawerItem, waypointsDrawerItem],
-	mapViewComponents: [
+	drawerPanels: [routingDrawerItem],
+	mapComponents: [
 		{
 			key: 'routingMapView',
 			Component: RoutingMapView,
-			placement: 'inside-map',
 			priority: 300,
 		},
 	],

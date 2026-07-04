@@ -7,10 +7,9 @@ import de from './assets/i18n/de.json';
 import en from './assets/i18n/en.json';
 import es from './assets/i18n/es.json';
 import pt from './assets/i18n/pt.json';
-import TrackRecordingControl from './components/TrackRecordingControl';
-import trackingStats from './elements/trackingStats';
-import TrackRecordingMapView from './components/TrackRecordingMapView';
-import trackRecordingDrawerItem from './drawerItems/trackRecordingDrawerItem';
+import trackingStats from './dashboardWidgets/trackingStats';
+import TrackRecordingMapView from './mapComponents/TrackRecordingMapView';
+import trackRecordingDrawerItem from './drawerPanels/trackRecordingDrawerItem';
 
 export default {
 	selectInitialized,
@@ -22,24 +21,14 @@ export default {
 		pt,
 	},
 	modes: ['trackRecording'],
-	selectActiveModes: (state: any) =>
-		selectIsRecording(state) ? ['trackRecording'] : [],
-	settingsControls: [
-		{
-			key: 'trackRecording',
-			label: 'trackRecording.title',
-			Control: TrackRecordingControl,
-			priority: 200,
-		},
-	],
-	dashboardElements: [trackingStats],
-	mapViewComponents: [
+	selectActiveModes: (state: any) => (selectIsRecording(state) ? ['trackRecording'] : []),
+	dashboardWidgets: [trackingStats],
+	mapComponents: [
 		{
 			key: 'trackRecordingMapView',
 			Component: TrackRecordingMapView,
-			placement: 'inside-map',
 			priority: 310,
 		},
 	],
-	drawerItems: [trackRecordingDrawerItem],
+	drawerPanels: [trackRecordingDrawerItem],
 };

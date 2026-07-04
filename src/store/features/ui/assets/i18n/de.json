@@ -11,6 +11,7 @@
 		"appearance": "Aussehen",
 		"dashboard": "Dashboard",
 		"drawers": "Panels",
-		"maps": "Karten"
+		"maps": "Karten",
+		"location": "Standort"
 	}
 }

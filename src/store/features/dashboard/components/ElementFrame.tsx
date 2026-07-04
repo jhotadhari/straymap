@@ -2,14 +2,20 @@
  * External dependencies
  */
 import React, { FC, ReactNode, useMemo } from 'react';
-import { GestureResponderEvent, TextStyle, TouchableHighlight, View, ViewStyle } from 'react-native';
+import {
+	GestureResponderEvent,
+	TextStyle,
+	TouchableHighlight,
+	View,
+	ViewStyle,
+} from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 
 /**
  * Internal dependencies
  */
-import { DashboardElement, DashboardItem } from '../types';
+import { DashboardWidget, DashboardItem } from '../types';
 import { featureRegistry } from '../../FeatureRegistry';
 
 interface ElementFrameProps {
@@ -52,8 +58,8 @@ const ElementFrame: FC<ElementFrameProps> = ({
 
 	const elementDef = useMemo(
 		() =>
-			featureRegistry.getDashboardElements()[item.elementType] as
-				| DashboardElement
+			featureRegistry.getDashboardWidgets()[item.elementType] as
+				| DashboardWidget
 				| undefined,
 		[item.elementType]
 	);
@@ -61,7 +67,7 @@ const ElementFrame: FC<ElementFrameProps> = ({
 	const viewStyle = useMemo(() => [{ minWidth }, style], [minWidth, style]);
 
 	const labelTextStyle = useMemo(
-		() => ({ fontSize: Math.max(fontSize - 2, 8), textAlign } as const),
+		() => ({ fontSize: Math.max(fontSize - 2, 8), textAlign }) as const,
 		[fontSize, textAlign]
 	);
 

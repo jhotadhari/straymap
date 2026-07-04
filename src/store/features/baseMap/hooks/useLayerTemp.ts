@@ -16,9 +16,7 @@ import { setLayerTemp } from '../slice';
 export const useLayerTemp = <OptionsType extends object>() => {
 	const dispatch = useAppDispatch();
 
-	const layerTemp = useAppSelector(selectLayerTemp) as
-		| undefined
-		| LayerConfig<OptionsType>;
+	const layerTemp = useAppSelector(selectLayerTemp) as undefined | LayerConfig<OptionsType>;
 
 	const setOptions = useCallback(
 		(newOptions: OptionsType) => {

@@ -64,7 +64,7 @@ const useFlyTo = () => {
 			key: 'flyTo',
 			cb,
 			label: 'fly to',
-			leadingIcon: 'crosshairs-gps',
+			leadingIcon: 'crosshairs',
 			disabled,
 		}),
 		[cb, disabled]

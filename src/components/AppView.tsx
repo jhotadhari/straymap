@@ -9,15 +9,10 @@ import React, {
 	useContext,
 	useEffect,
 	useMemo,
-		useRef,
+	useRef,
 	useState,
 } from 'react';
-import {
-	Dimensions,
-	NativeSyntheticEvent,
-	PixelRatio,
-	View,
-} from 'react-native';
+import { Dimensions, NativeSyntheticEvent, PixelRatio, View } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import { get } from 'lodash-es';
 import { sprintf } from 'sprintf-js';
@@ -92,7 +87,7 @@ const AppView = ({
 	const dashboardItems = useAppSelector((state) => selectItems(state, { position: 'bottom' }));
 	const mapUpdateInterval = useAppSelector(selectMapUpdateInterval);
 	const hgtDirPathStore = useAppSelector(selectHgtDirPath);
-	const dashboardElements = useAppSelector(selectElementsSettings);
+	const dashboardWidgets = useAppSelector(selectElementsSettings);
 
 	const controlHandleSide = useAppSelector(selectControlHandleSide);
 	const leftItemKeys = useAppSelector((state) => selectItemKeys(state, { side: 'left' }));
@@ -124,14 +119,14 @@ const AppView = ({
 			(dashboardItems.reduce((acc: boolean, ele: DashboardItem) => {
 				return acc || !ele.elementType
 					? acc
-					: get(dashboardElements, [ele.elementType, 'shouldSetHgtDirPath'], false);
+					: get(dashboardWidgets, [ele.elementType, 'shouldSetHgtDirPath'], false);
 			}, false) as boolean)
 				? hgtDirPathStore
 				: undefined,
 		[
 			hgtDirPathStore,
 			dashboardItems,
-			dashboardElements,
+			dashboardWidgets,
 		]
 	);
 
@@ -142,13 +137,13 @@ const AppView = ({
 					return ele.elementType
 						? {
 								...acc,
-								...get(dashboardElements, [ele.elementType, 'responseInclude'], {}),
+								...get(dashboardWidgets, [ele.elementType, 'responseInclude'], {}),
 							}
 						: acc;
 				},
 				{ zoomLevel: 2, center: 2 }
 			) as ResponseInclude,
-		[dashboardItems, dashboardElements]
+		[dashboardItems, dashboardWidgets]
 	);
 
 	// Observe hardware keys that have a non-'none' action assigned.
@@ -191,11 +186,11 @@ const AppView = ({
 	});
 
 	const insideMapComponents = useMemo(
-		() => featureRegistry.getMapViewComponents('inside-map'),
+		() => featureRegistry.getMapComponents(),
 		[]
 	);
 	const siblingOverlayComponents = useMemo(
-		() => featureRegistry.getMapViewComponents('sibling-overlay'),
+		() => featureRegistry.getAppOverlays(),
 		[]
 	);
 
@@ -243,7 +238,11 @@ const AppView = ({
 				);
 			}
 		},
-		[currentMapEventRef, handleMapUpdate, dispatch]
+		[
+			currentMapEventRef,
+			handleMapUpdate,
+			dispatch,
+		]
 	);
 
 	// onTap fires when the user taps on an empty map area (unconsumed by marker/path layers).

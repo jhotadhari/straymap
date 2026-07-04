@@ -65,14 +65,17 @@ const RowFlyTo: FC = () => {
 	);
 
 	return (
-		<InfoRowControl label={t('lines.flyTo')} Info={t('lines.hintFlyTo')}>
+		<InfoRowControl
+			label={t('lines.flyTo')}
+			Info={t('lines.hintFlyTo')}
+		>
 			<ButtonHighlight
 				style={buttonStyle}
 				mode="outlined"
 				compact={true}
 				disabled={disabled}
 				onPress={handlePress}
-				icon={'crosshairs-gps'}
+				icon={'crosshairs'}
 				contentStyle={sharedStyles.buttonContent}
 				labelStyle={sharedStyles.buttonLabel}
 				textColor={theme.colors.onBackground}

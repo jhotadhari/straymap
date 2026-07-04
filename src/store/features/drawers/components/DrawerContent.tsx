@@ -11,7 +11,7 @@ import { useTheme } from 'react-native-paper';
  */
 import { featureRegistry } from '../../FeatureRegistry';
 import DrawerContext from '../DrawerContext';
-import { DrawerItem } from '../types';
+import { DrawerPanel } from '../types';
 
 const handleSize = 50;
 
@@ -25,9 +25,9 @@ const DrawerContent: FC<{}> = () => {
 		}
 		let isScrollContent = false;
 		let DisplayComponent:
-			| DrawerItem['DisplayComponent']
-			| DrawerItem['DisplayComponentScroll'] = get(
-			(featureRegistry.getDrawerItems() as { [itemKey: string]: DrawerItem }),
+			| DrawerPanel['DisplayComponent']
+			| DrawerPanel['DisplayComponentScroll'] = get(
+			featureRegistry.getDrawerPanels() as { [itemKey: string]: DrawerPanel },
 			[
 				activeItemKey,
 				'DisplayComponentScroll',
@@ -37,10 +37,13 @@ const DrawerContent: FC<{}> = () => {
 		if (DisplayComponent) {
 			isScrollContent = true;
 		} else {
-			DisplayComponent = get((featureRegistry.getDrawerItems() as { [itemKey: string]: DrawerItem }), [
-				activeItemKey,
-				'DisplayComponent',
-			]);
+			DisplayComponent = get(
+				featureRegistry.getDrawerPanels() as { [itemKey: string]: DrawerPanel },
+				[
+					activeItemKey,
+					'DisplayComponent',
+				]
+			);
 		}
 
 		return {

@@ -29,10 +29,8 @@ const Item: FC<{
 	const editItemKey = useAppSelector(selectEditItemKey);
 
 	const Display = useMemo(() => {
-		const elementsMap = featureRegistry.getDashboardElements();
-		return get(elementsMap, [item.elementType, 'Display']) as
-			| ElementType<any>
-			| undefined;
+		const elementsMap = featureRegistry.getDashboardWidgets();
+		return get(elementsMap, [item.elementType, 'Display']) as ElementType<any> | undefined;
 	}, [item.elementType]);
 
 	const node = useMemo(

@@ -12,7 +12,7 @@ import { get } from 'lodash-es';
  */
 import { featureRegistry } from '../../FeatureRegistry';
 import DrawerContext from '../DrawerContext';
-import { DrawerItem } from '../types';
+import { DrawerPanel } from '../types';
 import { DRAWER_HANDLE_SIZE, DRAWER_ICON_SIZE } from '../constants';
 
 const DrawerHandle = ({
@@ -26,7 +26,7 @@ const DrawerHandle = ({
 	panEnabled: boolean;
 	itemKey?: string;
 	gesture: ComposedGesture | GestureType;
-	overwriteDrawerItem?: DrawerItem;
+	overwriteDrawerItem?: DrawerPanel;
 	onPress?: () => void;
 	style?: ViewStyle;
 }) => {
@@ -37,7 +37,9 @@ const DrawerHandle = ({
 	const drawerItem = useMemo(
 		() =>
 			overwriteDrawerItem ??
-			get(featureRegistry.getDrawerItems() as { [itemKey: string]: DrawerItem }, [itemKey ?? '']),
+			get(featureRegistry.getDrawerPanels() as { [itemKey: string]: DrawerPanel }, [
+				itemKey ?? '',
+			]),
 		[itemKey, overwriteDrawerItem]
 	);
 

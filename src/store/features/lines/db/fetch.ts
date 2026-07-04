@@ -42,11 +42,7 @@ const extractRegexFilters = (
 	const regexFilters: StringColumnFilter[] = [];
 	const sqlFilters: ColumnFilter[] = [];
 	for (const f of filters) {
-		if (
-			f.type === 'string' &&
-			f.operator === 'regex' &&
-			!dbConnection.regexpAvailable
-		) {
+		if (f.type === 'string' && f.operator === 'regex' && !dbConnection.regexpAvailable) {
 			regexFilters.push(f);
 		} else {
 			sqlFilters.push(f);
@@ -205,8 +201,7 @@ const fetchLinesWithoutTags = (params?: FetchLinesWithoutTagsParams) => {
 		filterLogic,
 	} = params ?? {};
 
-
-		const { sqlFilters, regexFilters } = extractRegexFilters(filters);
+	const { sqlFilters, regexFilters } = extractRegexFilters(filters);
 	let fields: (keyof Omit<Line, 'id'>)[] = [
 		'title',
 		'geometry',
@@ -269,7 +264,7 @@ const fetchLinesWithTags = (params?: FetchLinesWithTagsParams) => {
 		...(params ?? {}),
 	};
 
-		const { sqlFilters, regexFilters } = extractRegexFilters(filters);
+	const { sqlFilters, regexFilters } = extractRegexFilters(filters);
 
 	let fields: (keyof Omit<Line, 'id'>)[] = [
 		'title',

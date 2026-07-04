@@ -11,20 +11,25 @@ import { get } from 'lodash-es';
 /**
  * Internal dependencies
  */
-import * as drawerItems from '../../items';
+import { featureRegistry } from '../../../FeatureRegistry';
 import ModalWrapper from '../../../../../components/generic/ModalWrapper';
 import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
-import { DrawerItem } from '../../types';
+import { DrawerPanel } from '../../types';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { selectControlHandleSide, selectItemKeys, selectShowSettingsHandle } from '../../selectors';
-import { addItemKey, removeItemKey, setControlHandleSide, setShowSettingsHandle } from '../../slice';
+import {
+	addItemKey,
+	removeItemKey,
+	setControlHandleSide,
+	setShowSettingsHandle,
+} from '../../slice';
 
-const settingsDrawerItem: DrawerItem = {
+const settingsDrawerItem: DrawerPanel = {
 	iconSource: 'cog',
 };
 
 const Item: FC<{
-	drawerItem: DrawerItem;
+	drawerItem: DrawerPanel;
 }> = ({ drawerItem }) => {
 	const { t } = useTranslation();
 	const theme = useTheme();
@@ -119,13 +124,13 @@ const Item: FC<{
 					side === isOnSide
 						? theme.colors.onErrorContainer
 						: get(theme.colors, 'onSuccessContainer'),
-				};
-			},
-			[
+			};
+		},
+		[
 			isOnSide,
 			theme,
-			]
-		);
+		]
+	);
 
 	return (
 		<View style={styles.itemRow}>
@@ -175,13 +180,15 @@ const DrawerControlModal: FC<{
 
 	const closeModal = useCallback(() => setModalVisible(false), [setModalVisible]);
 
+	const allDrawerItems = useMemo(() => featureRegistry.getDrawerPanels(), []);
+
 	return (
 		<ModalWrapper
 			visible={modalVisible}
 			onDismiss={closeModal}
 			header={t('drawers.drawer', { count: 0 })}
 		>
-			{Object.values(drawerItems).map((drawerItem: DrawerItem) => (
+			{(Object.values(allDrawerItems) as DrawerPanel[]).map((drawerItem) => (
 				<Item
 					key={drawerItem.key}
 					drawerItem={drawerItem}

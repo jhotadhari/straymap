@@ -12,7 +12,12 @@ import { AppThunk } from '../../store';
 import { createLines } from '../lines/db/actionsLine';
 import { createTrack } from './db/actionsTrack';
 import { setLineSelected } from '../lines/slice';
-import { selectIsRecording, selectMinDistance, selectMinTime, selectMinPrecision } from './selectors';
+import {
+	selectIsRecording,
+	selectMinDistance,
+	selectMinTime,
+	selectMinPrecision,
+} from './selectors';
 // import NativeTrackingModule from '../../../specs/NativeTrackingModule';
 
 export interface TrackRecordingSettings {

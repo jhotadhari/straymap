@@ -9,10 +9,9 @@ import de from './assets/i18n/de.json';
 import en from './assets/i18n/en.json';
 import es from './assets/i18n/es.json';
 import pt from './assets/i18n/pt.json';
-import Settings from './components/Settings';
-import SettingsGeneral from './components/SettingsGeneral';
-import About from './components/About';
-import searchPlaceDrawerItem from '../drawers/items/searchPlace';
+import Settings from './settingsPages/Settings';
+import SettingsControls from './settingsPages/SettingsControls';
+import About from './settingsPages/About';
 
 export default {
 	selectInitialized,
@@ -23,7 +22,7 @@ export default {
 		es,
 		pt,
 	},
-	settingsItems: [
+	settingsPages: [
 		{
 			key: 'settings',
 			label: 'ui.items.settings',
@@ -35,17 +34,21 @@ export default {
 			key: 'general',
 			label: 'ui.items.general',
 			icon: 'application-cog-outline',
-			Component: SettingsGeneral,
+			Component: SettingsControls,
 			priority: 20,
 		},
 		{
 			key: 'about',
 			label: 'ui.items.about',
 			icon: ({ color, style }: { color: string; style: any }) =>
-				React.createElement(MaterialIcons, { style, name: 'info-outline', size: 25, color }),
+				React.createElement(MaterialIcons, {
+					style,
+					name: 'info-outline',
+					size: 25,
+					color,
+				}),
 			Component: About,
 			priority: 90,
 		},
 	],
-	drawerItems: [searchPlaceDrawerItem],
 };

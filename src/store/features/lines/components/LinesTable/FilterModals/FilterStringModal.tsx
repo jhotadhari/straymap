@@ -60,7 +60,13 @@ const FilterStringModal: FC<{
 				});
 			}
 		};
-	}, [columnKey, operator, value, onSave, existingFilter]);
+	}, [
+		columnKey,
+		operator,
+		value,
+		onSave,
+		existingFilter,
+	]);
 
 	const prevVisibleRef = useRef(false);
 	useEffect(() => {

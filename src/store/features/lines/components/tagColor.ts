@@ -49,11 +49,7 @@ const hashLabel = (label: string): number => {
  * 1. Explicit `tag.data.color` (hex, e.g. "#ff6600")
  * 2. Deterministic palette colour from the tag's label
  */
-export const getTagColor = (tag: {
-	id?: number;
-	label?: string | null;
-	data?: any;
-}): TagColors => {
+export const getTagColor = (tag: { id?: number; label?: string | null; data?: any }): TagColors => {
 	// Explicit colour stored in tag data
 	if (typeof tag.data?.color === 'string' && tag.data.color.length > 0) {
 		let hex = tag.data.color as string;

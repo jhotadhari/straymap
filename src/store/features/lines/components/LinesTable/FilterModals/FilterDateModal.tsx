@@ -45,12 +45,8 @@ const FilterDateModal: FC<{
 	const theme = useTheme();
 	const { t, i18n } = useTranslation();
 
-	const [minDate, setMinDate] = useState<Date | undefined>(
-		stringToDate(existingFilter?.min)
-	);
-	const [maxDate, setMaxDate] = useState<Date | undefined>(
-		stringToDate(existingFilter?.max)
-	);
+	const [minDate, setMinDate] = useState<Date | undefined>(stringToDate(existingFilter?.min));
+	const [maxDate, setMaxDate] = useState<Date | undefined>(stringToDate(existingFilter?.max));
 
 	const saveRef = useRef<undefined | (() => void)>(undefined);
 
@@ -69,7 +65,13 @@ const FilterDateModal: FC<{
 				});
 			}
 		};
-	}, [columnKey, minDate, maxDate, onSave, existingFilter]);
+	}, [
+		columnKey,
+		minDate,
+		maxDate,
+		onSave,
+		existingFilter,
+	]);
 
 	const prevVisibleRef = useRef(false);
 	useEffect(() => {

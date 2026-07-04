@@ -91,9 +91,7 @@ export const parseImportContent = (
 /**
  * Detect import format from a filename extension.
  */
-export const detectImportFormat = (
-	filename: string
-): 'gpx' | 'kml' | 'geojson' | null => {
+export const detectImportFormat = (filename: string): 'gpx' | 'kml' | 'geojson' | null => {
 	const ext = filename.split('.').pop()?.toLowerCase();
 	switch (ext) {
 		case 'gpx':
@@ -111,4 +109,9 @@ export const detectImportFormat = (
 /**
  * Supported import file extensions.
  */
-export const IMPORT_EXTENSIONS = ['gpx', 'kml', 'geojson', 'json'];
+export const IMPORT_EXTENSIONS = [
+	'gpx',
+	'kml',
+	'geojson',
+	'json',
+];

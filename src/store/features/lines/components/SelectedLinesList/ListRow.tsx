@@ -15,7 +15,7 @@ import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
 import { setLineSelected, setLineTemp, setLineVisible } from '../../slice';
 import LineStats from '../LineStats';
 import TagBadge from '../TagBadge';
-import IconRouting from '../../../drawers/items/routing/IconComponent';
+import IconRouting from '../../../routing/drawerPanels/routing/IconComponent';
 import useRoute from '../../../routing/hooks/useRoute';
 import useActivateDrawerItem from '../../../drawers/hooks/useActivateDrawerItem';
 import { DRAWER_ICON_SIZE } from '../../../../../constants';

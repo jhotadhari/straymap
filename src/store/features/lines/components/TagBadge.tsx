@@ -14,7 +14,14 @@ const TagBadge: FC<{
 	tag: { id: number; label: string | null; data?: any };
 }> = ({ tag }) => {
 	// eslint-disable-next-line react-hooks/exhaustive-deps -- tracking id+data+label is sufficient; getTagColor only reads those fields
-	const color = useMemo(() => getTagColor(tag), [tag.id, tag.data, tag.label]);
+	const color = useMemo(
+		() => getTagColor(tag),
+		[
+			tag.id,
+			tag.data,
+			tag.label,
+		]
+	);
 
 	return (
 		<View style={[styles.badge, { backgroundColor: color.bg, borderColor: color.border }]}>

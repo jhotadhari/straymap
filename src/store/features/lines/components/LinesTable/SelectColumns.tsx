@@ -162,9 +162,7 @@ const SelectColumns: FC<{}> = ({}) => {
 						const toggleColumnVisible = () => {
 							setTableColumnsTemp((prev) =>
 								prev.map((col) =>
-									col.key === column.key
-										? { ...col, visible: !col.visible }
-										: col
+									col.key === column.key ? { ...col, visible: !col.visible } : col
 								)
 							);
 						};
@@ -198,11 +196,10 @@ const styles = StyleSheet.create({
 		flexGrow: 1,
 		gap: 16,
 		alignItems: 'center',
-
 	},
 	modal: {
 		overflow: 'visible',
-	}
+	},
 });
 
 export default SelectColumns;

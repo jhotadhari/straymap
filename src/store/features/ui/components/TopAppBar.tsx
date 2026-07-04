@@ -15,7 +15,7 @@ import { selectUiItemKeys, selectIsBusy } from '../selectors';
 import { setUiItemKeys } from '../slice';
 import LoadingIndicator from '../../../../components/generic/LoadingIndicator';
 import { AppContext } from '../../../../Context';
-import { DashboardWrapped } from '../../dashboard/components/Dashboard';
+import { DashboardWrapped } from '../../dashboard/appOverlays/Dashboard';
 import { selectItemsCount } from '../../dashboard/selectors';
 
 const TopAppBarMenu: FC<{ handleMenuPress?: () => void }> = ({ handleMenuPress }) => {
@@ -57,7 +57,9 @@ const TopAppBar: FC = () => {
 
 	const appBarTitle = useMemo(
 		() =>
-			uiItemsKeys.map((key) => featureRegistry.getSettingsItems().find((item) => item.key === key)).filter((item) => item != null)
+			uiItemsKeys
+				.map((key) => featureRegistry.getSettingsPages().find((item) => item.key === key))
+				.filter((item) => item != null)
 				.map((item) => t(item.label))
 				.join(' / '),
 		[uiItemsKeys, t]

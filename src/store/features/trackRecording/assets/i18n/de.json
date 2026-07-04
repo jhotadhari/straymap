@@ -17,5 +17,6 @@
 	"stop": "Aufzeichnung beenden",
 	"hintMinDistance": "Mindestabstand in Metern zwischen aufgezeichneten Punkten.",
 	"hintMinTime": "Mindestzeit in Sekunden zwischen aufgezeichneten Punkten.",
-	"hintMinPrecision": "Die GPS-Genauigkeit muss besser als dieser Wert (in Metern) sein, damit ein Punkt aufgezeichnet wird."
+	"hintMinPrecision": "Die GNSS-Genauigkeit muss besser als dieser Wert (in Metern) sein, damit ein Punkt aufgezeichnet wird.",
+	"start": "Aufzeichnung starten"
 }

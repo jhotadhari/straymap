@@ -21,11 +21,7 @@ import ModalWrapper from '../../../../../../components/generic/ModalWrapper';
 import RadioListItem from '../../../../../../components/generic/RadioListItem';
 import { FooterContext } from '../Context';
 import { fetchLines } from '../../../db/fetch';
-import {
-	writeFormat,
-	EXPORT_FORMATS,
-	ExportFormat,
-} from '../../../utils/formatWriters';
+import { writeFormat, EXPORT_FORMATS, ExportFormat } from '../../../utils/formatWriters';
 import {
 	resolveFilename,
 	sanitizeFilename,
@@ -33,8 +29,7 @@ import {
 } from '../../../utils/filenameTemplate';
 import { LinePartial } from '../../../types';
 
-const EXPORT_DIR =
-	ExternalStorageDirectoryPath + '/Android/media/com.jhotadhari.straymap/export';
+const EXPORT_DIR = ExternalStorageDirectoryPath + '/Android/media/com.jhotadhari.straymap/export';
 
 const formatOptions = EXPORT_FORMATS.map((f) => ({
 	key: f.key,
@@ -72,7 +67,11 @@ const useExport = () => {
 			// Fetch geometry for all checked lines in one query
 			const linesWithGeom = (await fetchLines({
 				lineIds: checkedIds,
-				fieldsInclude: ['geometry', 'title', 'timestamp'],
+				fieldsInclude: [
+					'geometry',
+					'title',
+					'timestamp',
+				],
 			})) as (LinePartial & { geometry?: LineString })[];
 			const total = linesWithGeom.filter((l) => l.geometry).length;
 
@@ -85,10 +84,7 @@ const useExport = () => {
 				const dateStr = line.timestamp
 					? dayjs(line.timestamp).format('YYYY-MM-DD')
 					: 'no-date';
-				const ext =
-					selectedFormat === 'geojson'
-						? 'geojson'
-						: selectedFormat;
+				const ext = selectedFormat === 'geojson' ? 'geojson' : selectedFormat;
 
 				const resolved = resolveFilename(DEFAULT_TEMPLATE, {
 					title: safeTitle,
@@ -123,14 +119,7 @@ const useExport = () => {
 			} else if (written === 0) {
 				showError(t('lines.exportNoFilesWritten'));
 			} else if (failed.length) {
-				showError(
-					sprintf(
-						t('lines.exportPartial'),
-						written,
-						total,
-						failed.join(', ')
-					)
-				);
+				showError(sprintf(t('lines.exportPartial'), written, total, failed.join(', ')));
 			}
 		} catch (e) {
 			logError('useExport.handleExport', e);
@@ -150,7 +139,12 @@ const useExport = () => {
 			setWriting(false);
 			setModalVisible(false);
 		}
-	}, [checkedIds, selectedFormat, showError, t]);
+	}, [
+		checkedIds,
+		selectedFormat,
+		showError,
+		t,
+	]);
 
 	const disabled = writing || !checkedIds.length;
 
@@ -167,14 +161,8 @@ const useExport = () => {
 						<RadioListItem
 							key={opt.key}
 							opt={opt}
-							onPress={() =>
-								setSelectedFormat(opt.key as ExportFormat)
-							}
-							status={
-								selectedFormat === opt.key
-									? 'checked'
-									: 'unchecked'
-							}
+							onPress={() => setSelectedFormat(opt.key as ExportFormat)}
+							status={selectedFormat === opt.key ? 'checked' : 'unchecked'}
 							labelExtractor={(a) => a.label}
 						/>
 					))}
@@ -190,20 +178,10 @@ const useExport = () => {
 							onPress={handleExport}
 							mode="contained"
 							disabled={disabled}
-							buttonColor={get(
-								theme.colors,
-								'successContainer'
-							)}
-							textColor={get(
-								theme.colors,
-								'onSuccessContainer'
-							)}
+							buttonColor={get(theme.colors, 'successContainer')}
+							textColor={get(theme.colors, 'onSuccessContainer')}
 						>
-							<Text>
-								{writing
-									? t('lines.exporting')
-									: t('lines.export')}
-							</Text>
+							<Text>{writing ? t('lines.exporting') : t('lines.export')}</Text>
 						</ButtonHighlight>
 					</View>
 				</ModalWrapper>
@@ -228,7 +206,11 @@ const useExport = () => {
 			leadingIcon: 'content-save-outline',
 			modalNode,
 		}),
-		[handleOpenModal, t, modalNode]
+		[
+			handleOpenModal,
+			t,
+			modalNode,
+		]
 	);
 };
 

@@ -7,8 +7,8 @@ import de from './assets/i18n/de.json';
 import en from './assets/i18n/en.json';
 import es from './assets/i18n/es.json';
 import pt from './assets/i18n/pt.json';
-import SettingsDrawers from '../ui/components/SettingsDrawers';
-import Drawers from './components/Drawers';
+import SettingsDrawers from './settingsPages/SettingsDrawers';
+import Drawers from './appOverlays/Drawers';
 
 export default {
 	selectInitialized,
@@ -19,7 +19,7 @@ export default {
 		es,
 		pt,
 	},
-	settingsItems: [
+	settingsPages: [
 		{
 			key: 'drawers',
 			label: 'ui.items.drawers',
@@ -28,11 +28,10 @@ export default {
 			priority: 60,
 		},
 	],
-	mapViewComponents: [
+	appOverlays: [
 		{
 			key: 'drawers',
 			Component: Drawers,
-			placement: 'sibling-overlay',
 			priority: 200,
 		},
 	],

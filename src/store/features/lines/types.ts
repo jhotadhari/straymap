@@ -52,12 +52,7 @@ export interface SortState {
 
 export type FilterLogic = 'and' | 'or';
 
-export type StringFilterOperator =
-	| 'includes'
-	| 'excludes'
-	| 'startsWith'
-	| 'endsWith'
-	| 'regex';
+export type StringFilterOperator = 'includes' | 'excludes' | 'startsWith' | 'endsWith' | 'regex';
 
 export interface NumericColumnFilter {
 	type: 'numeric';
@@ -80,7 +75,4 @@ export interface StringColumnFilter {
 	value: string;
 }
 
-export type ColumnFilter =
-	| NumericColumnFilter
-	| DateColumnFilter
-	| StringColumnFilter;
+export type ColumnFilter = NumericColumnFilter | DateColumnFilter | StringColumnFilter;

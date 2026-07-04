@@ -7,11 +7,12 @@ import de from './assets/i18n/de.json';
 import en from './assets/i18n/en.json';
 import es from './assets/i18n/es.json';
 import pt from './assets/i18n/pt.json';
-import gpsCoordinates from './elements/gpsCoordinates';
-import gpsAccuracy from './elements/gpsAccuracy';
-import gpsAltitude from './elements/gpsAltitude';
-import gpsSpeed from './elements/gpsSpeed';
-import gpsDrawerItem from './drawerItems/gpsDrawerItem';
+import gnssCoordinates from './dashboardWidgets/gnssCoordinates';
+import gnssAccuracy from './dashboardWidgets/gnssAccuracy';
+import gnssAltitude from './dashboardWidgets/gnssAltitude';
+import gnssSpeed from './dashboardWidgets/gnssSpeed';
+import SettingsLocation from './settingsPages/SettingsLocation';
+import gnssDrawerItem from './drawerPanels/gnssDrawerItem';
 
 export default {
 	selectInitialized,
@@ -24,13 +25,22 @@ export default {
 	},
 	modes: ['location'],
 	selectActiveModes: (state: any) => (selectIsActive(state) ? ['location'] : []),
-	dashboardElements: [
-		gpsCoordinates,
-		gpsAccuracy,
-		gpsAltitude,
-		gpsSpeed,
+	settingsPages: [
+		{
+			key: 'location',
+			label: 'ui.items.location',
+			icon: 'crosshairs',
+			Component: SettingsLocation,
+			priority: 25,
+		},
 	],
-	drawerItems: [
-		gpsDrawerItem,
+	dashboardWidgets: [
+		gnssCoordinates,
+		gnssAccuracy,
+		gnssAltitude,
+		gnssSpeed,
+	],
+	drawerPanels: [
+		gnssDrawerItem,
 	],
 };

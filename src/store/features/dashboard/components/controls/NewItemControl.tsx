@@ -54,12 +54,12 @@ const Modal: FC<{
 	const { t } = useTranslation();
 
 	const options: OptionBase[] = useMemo(() => {
-			const elementsMap = featureRegistry.getDashboardElements();
-			return Object.values(elementsMap).map((element: any) => ({
-				key: element.key,
-				label: element.label,
-			}));
-		}, []);
+		const elementsMap = featureRegistry.getDashboardWidgets();
+		return Object.values(elementsMap).map((element: any) => ({
+			key: element.key,
+			label: element.label,
+		}));
+	}, []);
 
 	const { position } = useContext(ControlContext);
 

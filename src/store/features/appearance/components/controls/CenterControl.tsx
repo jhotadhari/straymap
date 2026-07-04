@@ -16,7 +16,7 @@ import InfoRowControl from '../../../../../components/generic/controls/InfoRowCo
 import ListItemModalControl from '../../../../../components/generic/controls/ListItemModalControl';
 import NumericRowControl from '../../../../../components/generic/controls/NumericRowControl';
 import FileSourceRowControl from '../../../../../components/generic/controls/FileSourceRowControl';
-import { CenterInner } from '../Center';
+import { CenterInner } from '../../appOverlays/Center';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { initialSettings, setCursor } from '../../slice';
 import { selectCursor } from '../../selectors';
@@ -137,7 +137,10 @@ const CenterControl = () => {
 			{cursorConfig?.iconSource &&
 				!cursorConfig.iconSource.startsWith('/') &&
 				!cursorConfig.iconSource.startsWith('content://') && (
-					<InfoRowControl label={t('appearance.color')} Info={t('appearance.hint.center.color')}>
+					<InfoRowControl
+						label={t('appearance.color')}
+						Info={t('appearance.hint.center.color')}
+					>
 						<ColorPicker
 							color={cursorConfig?.color}
 							onColorChange={handleColorChange}
@@ -145,7 +148,10 @@ const CenterControl = () => {
 					</InfoRowControl>
 				)}
 
-			<InfoRowControl label={t('appearance.preview')} Info={t('appearance.hint.center.preview')}>
+			<InfoRowControl
+				label={t('appearance.preview')}
+				Info={t('appearance.hint.center.preview')}
+			>
 				<CenterInner cursor={cursorConfig} />
 			</InfoRowControl>
 		</ListItemModalControl>

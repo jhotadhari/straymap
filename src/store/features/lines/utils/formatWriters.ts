@@ -22,10 +22,7 @@ interface LineMeta {
 
 // ---- GPX ----
 
-const toGpxTrack = (
-	coords: Position[],
-	meta?: LineMeta
-): string => {
+const toGpxTrack = (coords: Position[], meta?: LineMeta): string => {
 	const name = meta?.title ? `\t\t<name>${escXml(meta.title)}</name>\n` : '';
 	const pts = coords
 		.map(
@@ -41,9 +38,7 @@ export const toGpx = (
 	lines: { geometry: LineString; meta?: LineMeta }[],
 	creator = 'Straymap'
 ): string => {
-	const tracks = lines
-		.map((l) => toGpxTrack(l.geometry.coordinates, l.meta))
-		.join('\n');
+	const tracks = lines.map((l) => toGpxTrack(l.geometry.coordinates, l.meta)).join('\n');
 
 	return [
 		'<?xml version="1.0" encoding="UTF-8"?>',
@@ -58,13 +53,8 @@ export const toGpx = (
 
 // ---- KML ----
 
-const toKmlPlacemark = (
-	coords: Position[],
-	meta?: LineMeta
-): string => {
-	const name = meta?.title
-		? `\t\t<name>${escXml(meta.title)}</name>\n`
-		: '';
+const toKmlPlacemark = (coords: Position[], meta?: LineMeta): string => {
+	const name = meta?.title ? `\t\t<name>${escXml(meta.title)}</name>\n` : '';
 	const coordStr = coords
 		.map((c) => `${c[0]},${c[1]}${c.length > 2 ? `,${c[2]}` : ''}`)
 		.join(' ');
@@ -76,12 +66,8 @@ const toKmlPlacemark = (
 	].join('\n');
 };
 
-export const toKml = (
-	lines: { geometry: LineString; meta?: LineMeta }[]
-): string => {
-	const placemarks = lines
-		.map((l) => toKmlPlacemark(l.geometry.coordinates, l.meta))
-		.join('\n');
+export const toKml = (lines: { geometry: LineString; meta?: LineMeta }[]): string => {
+	const placemarks = lines.map((l) => toKmlPlacemark(l.geometry.coordinates, l.meta)).join('\n');
 
 	return [
 		'<?xml version="1.0" encoding="UTF-8"?>',
@@ -95,21 +81,17 @@ export const toKml = (
 
 // ---- GeoJSON ----
 
-export const toGeoJson = (
-	lines: { geometry: LineString; meta?: LineMeta }[]
-): string => {
-	const features: Feature<LineString, GeoJsonProperties>[] = lines.map(
-		(l) => ({
-			type: 'Feature',
-			geometry: l.geometry,
-			properties: l.meta
-				? {
-						title: l.meta.title ?? undefined,
-						timestamp: l.meta.timestamp ?? undefined,
-					}
-				: {},
-		})
-	);
+export const toGeoJson = (lines: { geometry: LineString; meta?: LineMeta }[]): string => {
+	const features: Feature<LineString, GeoJsonProperties>[] = lines.map((l) => ({
+		type: 'Feature',
+		geometry: l.geometry,
+		properties: l.meta
+			? {
+					title: l.meta.title ?? undefined,
+					timestamp: l.meta.timestamp ?? undefined,
+				}
+			: {},
+	}));
 
 	return JSON.stringify(
 		{

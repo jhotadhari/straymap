@@ -99,7 +99,7 @@ startAppListening({
 		setFilters,
 		setFilterLogic,
 		upsertFilter,
-		removeFilter,
+		removeFilter
 	),
 	effect: async (action, listenerApi) => {
 		try {

@@ -22,19 +22,10 @@ import ModalWrapper from '../../../../../components/generic/ModalWrapper';
 import RadioListItem from '../../../../../components/generic/RadioListItem';
 import { sharedStyles } from './sharedDeps';
 import { queryLineGeom } from '../../db/queryFns';
-import {
-	writeFormat,
-	EXPORT_FORMATS,
-	ExportFormat,
-} from '../../utils/formatWriters';
-import {
-	resolveFilename,
-	sanitizeFilename,
-	DEFAULT_TEMPLATE,
-} from '../../utils/filenameTemplate';
+import { writeFormat, EXPORT_FORMATS, ExportFormat } from '../../utils/formatWriters';
+import { resolveFilename, sanitizeFilename, DEFAULT_TEMPLATE } from '../../utils/filenameTemplate';
 
-const EXPORT_DIR =
-	ExternalStorageDirectoryPath + '/Android/media/com.jhotadhari.straymap/export';
+const EXPORT_DIR = ExternalStorageDirectoryPath + '/Android/media/com.jhotadhari.straymap/export';
 
 const RowExport: FC = () => {
 	const theme = useTheme();
@@ -48,10 +39,7 @@ const RowExport: FC = () => {
 	const [writing, setWriting] = useState(false);
 
 	const lineId = line?.id;
-	const queryKey = useMemo(
-		() => ['lineGeom', lineId] as (string | number)[],
-		[lineId]
-	);
+	const queryKey = useMemo(() => ['lineGeom', lineId] as (string | number)[], [lineId]);
 	const { data: lineWithGeom, isError: geomError } = useQuery({
 		queryKey,
 		queryFn: queryLineGeom,
@@ -102,7 +90,13 @@ const RowExport: FC = () => {
 			setWriting(false);
 			setModalVisible(false);
 		}
-	}, [lineWithGeom, line, selectedFormat, showError, t]);
+	}, [
+		lineWithGeom,
+		line,
+		selectedFormat,
+		showError,
+		t,
+	]);
 
 	const formatOptions = EXPORT_FORMATS.map((f) => ({
 		key: f.key,
@@ -121,14 +115,8 @@ const RowExport: FC = () => {
 						<RadioListItem
 							key={opt.key}
 							opt={opt}
-							onPress={() =>
-								setSelectedFormat(opt.key as ExportFormat)
-							}
-							status={
-								selectedFormat === opt.key
-									? 'checked'
-									: 'unchecked'
-							}
+							onPress={() => setSelectedFormat(opt.key as ExportFormat)}
+							status={selectedFormat === opt.key ? 'checked' : 'unchecked'}
 							labelExtractor={(a) => a.label}
 						/>
 					))}
@@ -144,20 +132,10 @@ const RowExport: FC = () => {
 							onPress={handleWrite}
 							mode="contained"
 							disabled={writing || !lineWithGeom?.geometry}
-							buttonColor={get(
-								theme.colors,
-								'successContainer'
-							)}
-							textColor={get(
-								theme.colors,
-								'onSuccessContainer'
-							)}
+							buttonColor={get(theme.colors, 'successContainer')}
+							textColor={get(theme.colors, 'onSuccessContainer')}
 						>
-							<Text>
-								{writing
-									? t('lines.exporting')
-									: t('lines.export')}
-							</Text>
+							<Text>{writing ? t('lines.exporting') : t('lines.export')}</Text>
 						</ButtonHighlight>
 					</View>
 

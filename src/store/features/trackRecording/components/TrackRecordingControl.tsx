@@ -9,14 +9,10 @@ import { useTranslation } from 'react-i18next';
  * Internal dependencies
  */
 import { useAppDispatch, useAppSelector } from '../../../hooks';
-import {
-	selectMinDistance,
-	selectMinTime,
-	selectMinPrecision,
-} from '../selectors';
+import { selectMinDistance, selectMinTime, selectMinPrecision } from '../selectors';
 import { setMinDistance, setMinTime, setMinPrecision } from '../slice';
 import NumericRowControl from '../../../../components/generic/controls/NumericRowControl';
-import { sharedStyles } from '../../dashboard/elements/sharedDeps';
+import { sharedStyles } from '../../dashboard/dashboardWidgets/sharedDeps';
 
 const TrackRecordingControl: FC = () => {
 	const { t } = useTranslation();
@@ -30,10 +26,7 @@ const TrackRecordingControl: FC = () => {
 		(val: number) => dispatch(setMinDistance(val)),
 		[dispatch]
 	);
-	const handleMinTime = useCallback(
-		(val: number) => dispatch(setMinTime(val)),
-		[dispatch]
-	);
+	const handleMinTime = useCallback((val: number) => dispatch(setMinTime(val)), [dispatch]);
 	const handleMinPrecision = useCallback(
 		(val: number) => dispatch(setMinPrecision(val)),
 		[dispatch]

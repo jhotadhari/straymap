@@ -20,7 +20,7 @@ import { selectIsRouting } from '../../../routing/selectors';
 import { setIsRouting } from '../../../routing/slice';
 import useActivateDrawerItem from '../../../drawers/hooks/useActivateDrawerItem';
 import { sharedStyles } from './sharedDeps';
-import IconRouting from '../../../drawers/items/routing/IconComponent';
+import IconRouting from '../../../routing/drawerPanels/routing/IconComponent';
 import { AppContext } from '../../../../../Context';
 
 const renderIconRouting = ({ color }: { color: TextStyle['color'] }) => (
@@ -109,7 +109,9 @@ const RowRouting: FC = () => {
 				<View>
 					{!route?.id && <Text>{t('lines.noRoutingData')}</Text>}
 					{route?.id && isRouting !== route?.id && <Text>{t('lines.loadRouting')}</Text>}
-					{route?.id && isRouting === route?.id && <Text>{t('lines.alreadyRouting')}</Text>}
+					{route?.id && isRouting === route?.id && (
+						<Text>{t('lines.alreadyRouting')}</Text>
+					)}
 				</View>
 			</ButtonHighlight>
 		</InfoRowControl>

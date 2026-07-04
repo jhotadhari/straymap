@@ -43,15 +43,13 @@ const ImportModal: FC<{
 	const { showError } = useContext(ErrorToastContext);
 	const queryClient = useQueryClient();
 
-	const [step, setStep] = useState<
-		'idle' | 'scanning' | 'parsing' | 'preview' | 'importing'
-	>('idle');
+	const [step, setStep] = useState<'idle' | 'scanning' | 'parsing' | 'preview' | 'importing'>(
+		'idle'
+	);
 	const [importMode, setImportMode] = useState<ImportMode>('file');
 
 	// Single-file state
-	const [features, setFeatures] = useState<
-		Feature<LineString, GeoJsonProperties>[]
-	>([]);
+	const [features, setFeatures] = useState<Feature<LineString, GeoJsonProperties>[]>([]);
 	const [filename, setFilename] = useState('');
 	const [selectedIndices, setSelectedIndices] = useState<Set<number>>(new Set());
 
@@ -122,13 +120,11 @@ const ImportModal: FC<{
 					throw new Error(t('lines.importDirNoFiles'));
 				}
 				toImport = allFeatures;
-				titles = allFeatures.map((f, i) =>
-					f.properties?.name ?? sourceNames[i]
-				);
+				titles = allFeatures.map((f, i) => f.properties?.name ?? sourceNames[i]);
 			} else {
 				toImport = features.filter((_, idx) => selectedIndices.has(idx));
-				titles = toImport.map((f) =>
-					f.properties?.name ?? filename.replace(/\.[^.]+$/, '')
+				titles = toImport.map(
+					(f) => f.properties?.name ?? filename.replace(/\.[^.]+$/, '')
 				);
 			}
 
@@ -150,11 +146,19 @@ const ImportModal: FC<{
 					properties: {},
 					geometry: { type: 'LineString', coordinates: allCoords },
 				};
-				const title = importMode === 'file'
-					? filename.replace(/\.[^.]+$/, '')
-					: dirFiles.find((f) => f.uri === Array.from(selectedFileUris).sort()[0])?.name?.replace(/\.[^.]+$/, '') ?? t('lines.importTrackN', { ns: 'lines' });
+				const title =
+					importMode === 'file'
+						? filename.replace(/\.[^.]+$/, '')
+						: (dirFiles
+								.find((f) => f.uri === Array.from(selectedFileUris).sort()[0])
+								?.name?.replace(/\.[^.]+$/, '') ??
+							t('lines.importTrackN', { ns: 'lines' }));
 				await createLines([
-					{ title, lineStringFeature: merged, tagIds: importTagId ? [importTagId] : undefined },
+					{
+						title,
+						lineStringFeature: merged,
+						tagIds: importTagId ? [importTagId] : undefined,
+					},
 				]);
 			} else {
 				const newLines = toImport.map((feature, idx) => ({
@@ -180,9 +184,7 @@ const ImportModal: FC<{
 		},
 		onError: (err) => {
 			logError('ImportModal.import', err);
-			showError(
-				sprintf(t('errorGeneric'), err instanceof Error ? err.message : String(err))
-			);
+			showError(sprintf(t('errorGeneric'), err instanceof Error ? err.message : String(err)));
 			setStep('preview');
 		},
 	});
@@ -203,12 +205,7 @@ const ImportModal: FC<{
 			const format = detectImportFormat(name);
 			if (!format) {
 				if (dismissedRef.current) return;
-				showError(
-					sprintf(
-						t('lines.importUnsupportedFormat'),
-						name.split('.').pop() ?? ''
-					)
-				);
+				showError(sprintf(t('lines.importUnsupportedFormat'), name.split('.').pop() ?? ''));
 				setStep('idle');
 				return;
 			}
@@ -232,12 +229,14 @@ const ImportModal: FC<{
 		} catch (err) {
 			logError('ImportModal.handlePickFile', err);
 			if (dismissedRef.current) return;
-			showError(
-				sprintf(t('errorGeneric'), err instanceof Error ? err.message : String(err))
-			);
+			showError(sprintf(t('errorGeneric'), err instanceof Error ? err.message : String(err)));
 			setStep('idle');
 		}
-	}, [runOpenDocument, showError, t]);
+	}, [
+		runOpenDocument,
+		showError,
+		t,
+	]);
 
 	// ---- directory pick ----
 	const handlePickDirectory = useCallback(async () => {
@@ -276,12 +275,14 @@ const ImportModal: FC<{
 			setStep('preview');
 		} catch (err) {
 			logError('ImportModal.handlePickDirectory', err);
-			showError(
-				sprintf(t('errorGeneric'), err instanceof Error ? err.message : String(err))
-			);
+			showError(sprintf(t('errorGeneric'), err instanceof Error ? err.message : String(err)));
 			setStep('idle');
 		}
-	}, [runOpenDocumentTree, showError, t]);
+	}, [
+		runOpenDocumentTree,
+		showError,
+		t,
+	]);
 
 	// ---- dismiss handling ----
 	const handleDismiss = useCallback(() => {
@@ -420,15 +421,26 @@ const ImportModal: FC<{
 							</Text>
 
 							<View style={localStyles.selectRow}>
-								<ButtonHighlight mode="text" compact onPress={handleSelectAllFeatures}>
+								<ButtonHighlight
+									mode="text"
+									compact
+									onPress={handleSelectAllFeatures}
+								>
 									<Text>{t('lines.selectAll')}</Text>
 								</ButtonHighlight>
-								<ButtonHighlight mode="text" compact onPress={handleDeselectAllFeatures}>
+								<ButtonHighlight
+									mode="text"
+									compact
+									onPress={handleDeselectAllFeatures}
+								>
 									<Text>{t('lines.selectNone')}</Text>
 								</ButtonHighlight>
 							</View>
 
-							<ScrollView style={localStyles.featureList} horizontal={false}>
+							<ScrollView
+								style={localStyles.featureList}
+								horizontal={false}
+							>
 								{features.map((feature, idx) => (
 									<View
 										key={idx}
@@ -438,7 +450,9 @@ const ImportModal: FC<{
 										]}
 									>
 										<Checkbox
-											status={selectedIndices.has(idx) ? 'checked' : 'unchecked'}
+											status={
+												selectedIndices.has(idx) ? 'checked' : 'unchecked'
+											}
 											onPress={() => handleToggleFeature(idx)}
 										/>
 										<Text>
@@ -457,15 +471,26 @@ const ImportModal: FC<{
 							</Text>
 
 							<View style={localStyles.selectRow}>
-								<ButtonHighlight mode="text" compact onPress={handleSelectAllFiles}>
+								<ButtonHighlight
+									mode="text"
+									compact
+									onPress={handleSelectAllFiles}
+								>
 									<Text>{t('lines.selectAll')}</Text>
 								</ButtonHighlight>
-								<ButtonHighlight mode="text" compact onPress={handleDeselectAllFiles}>
+								<ButtonHighlight
+									mode="text"
+									compact
+									onPress={handleDeselectAllFiles}
+								>
 									<Text>{t('lines.selectNone')}</Text>
 								</ButtonHighlight>
 							</View>
 
-							<ScrollView style={localStyles.featureList} horizontal={false}>
+							<ScrollView
+								style={localStyles.featureList}
+								horizontal={false}
+							>
 								{dirFiles.map((file) => (
 									<View
 										key={file.uri}
@@ -476,7 +501,9 @@ const ImportModal: FC<{
 									>
 										<Checkbox
 											status={
-												selectedFileUris.has(file.uri) ? 'checked' : 'unchecked'
+												selectedFileUris.has(file.uri)
+													? 'checked'
+													: 'unchecked'
 											}
 											onPress={() => handleToggleFile(file.uri)}
 										/>
@@ -511,9 +538,7 @@ const ImportModal: FC<{
 							buttonColor={get(theme.colors, 'successContainer')}
 							textColor={get(theme.colors, 'onSuccessContainer')}
 						>
-							<Text>
-								{sprintf(t('lines.importSelected'), selectionCount)}
-							</Text>
+							<Text>{sprintf(t('lines.importSelected'), selectionCount)}</Text>
 						</ButtonHighlight>
 					</View>
 				</View>

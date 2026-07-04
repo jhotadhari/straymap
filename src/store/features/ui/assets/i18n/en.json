@@ -11,6 +11,7 @@
 		"appearance": "Appearance",
 		"dashboard": "Dashboard",
 		"drawers": "Drawers",
-		"maps": "Maps"
+		"maps": "Maps",
+		"location": "Location"
 	}
 }

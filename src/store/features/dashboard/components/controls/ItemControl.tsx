@@ -18,7 +18,7 @@ import { selectElementExpanded } from '../../../ui/selectors';
 import { selectEditItem, selectItemsCount } from '../../selectors';
 import { moveItem, removeItemKey } from '../../slice';
 import { get } from 'lodash-es';
-import { DashboardElement } from '../../types';
+import { DashboardWidget } from '../../types';
 import { featureRegistry } from '../../../FeatureRegistry';
 import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
 import InfoRowControl from '../../../../../components/generic/controls/InfoRowControl';
@@ -65,8 +65,8 @@ const ItemControl: FC<{}> = ({}) => {
 		() =>
 			item?.elementType
 				? get(
-						featureRegistry.getDashboardElements() as {
-							[itemKey: string]: DashboardElement;
+						featureRegistry.getDashboardWidgets() as {
+							[itemKey: string]: DashboardWidget;
 						},
 						item?.elementType
 					)

@@ -9,12 +9,12 @@ import de from './assets/i18n/de.json';
 import en from './assets/i18n/en.json';
 import es from './assets/i18n/es.json';
 import pt from './assets/i18n/pt.json';
-import SettingsDashboard from '../ui/components/SettingsDashboard';
-import centerAltitude from './elements/centerAltitude';
-import centerCoordinates from './elements/centerCoordinates';
-import spacer from './elements/spacer';
-import zoomLevel from './elements/zoomLevel';
-import { DashboardWrapped } from './components/Dashboard';
+import SettingsDashboard from './settingsPages/SettingsDashboard';
+import centerAltitude from './dashboardWidgets/centerAltitude';
+import centerCoordinates from './dashboardWidgets/centerCoordinates';
+import spacer from './dashboardWidgets/spacer';
+import zoomLevel from './dashboardWidgets/zoomLevel';
+import { DashboardWrapped } from './appOverlays/Dashboard';
 
 // Wrapper so DashboardWrapped doesn't need the 'position' prop from AppView
 const DashboardBottom: FC = () => React.createElement(DashboardWrapped, { position: 'bottom' });
@@ -28,7 +28,7 @@ export default {
 		es,
 		pt,
 	},
-	settingsItems: [
+	settingsPages: [
 		{
 			key: 'dashboard',
 			label: 'ui.items.dashboard',
@@ -38,12 +38,16 @@ export default {
 			priority: 40,
 		},
 	],
-	dashboardElements: [centerAltitude, centerCoordinates, spacer, zoomLevel],
-	mapViewComponents: [
+	dashboardWidgets: [
+		centerAltitude,
+		centerCoordinates,
+		spacer,
+		zoomLevel,
+	],
+	appOverlays: [
 		{
 			key: 'dashboard',
 			Component: DashboardBottom,
-			placement: 'sibling-overlay',
 			priority: 400,
 		},
 	],
