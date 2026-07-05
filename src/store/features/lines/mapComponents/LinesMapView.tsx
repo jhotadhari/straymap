@@ -106,7 +106,7 @@ const LinesMapView = () => {
 	}, [lines]);
 
 	return (
-		<ReindexScope>
+		<ReindexScope order={200}>
 			{selectedIds?.map((lineId) => {
 				return (
 					routingLineId !== lineId &&

@@ -62,7 +62,7 @@ const BaseMap: FC<{}> = () => {
 	const profiles = useAppSelector((state) => selectMapsforgeProfiles(state, { temp: false }));
 
 	return (
-		<ReindexScope>
+		<ReindexScope order={100}>
 			{layersReverse.map((layer: LayerConfig) => {
 				if (!layer.type || !layer.visible) {
 					return null;

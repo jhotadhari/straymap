@@ -22,13 +22,11 @@ const RoutingMapView = () => {
 
 	const segments = useAppSelector(selectSegments);
 
-	if (!points || !points.length) {
-		return null;
-	}
-
 	return (
-		<ReindexScope>
-			{points.map((fromPoint, index) => {
+		<ReindexScope order={300}>
+			{points && points.length > 0 && (
+				<>
+					{points.map((fromPoint, index) => {
 				const segment = Object.values(segments).find((seg) => seg.fromId === fromPoint.id);
 
 				const toPoint = get(points, index + 1);
@@ -105,6 +103,8 @@ const RoutingMapView = () => {
 				))}
 
 			{/* <NearestToLine/> */}
+				</>
+			)}
 		</ReindexScope>
 	);
 };

@@ -2,7 +2,7 @@
  * External dependencies
  */
 import React, { FC } from 'react';
-import { LayerPath } from 'react-native-mapsforge-vtm';
+import { LayerPath, ReindexScope } from 'react-native-mapsforge-vtm';
 import { useQuery } from '@tanstack/react-query';
 
 /**
@@ -28,18 +28,18 @@ const TrackRecordingMapView: FC = () => {
 		gcTime: 1000 * 10,
 	});
 
-	if (!activeLineId || !line?.geometry?.coordinates || !isRecording) {
-		return null;
-	}
-
 	return (
-		<LayerPath
-			coordinates={line.geometry.coordinates}
-			style={{
-				strokeColor: '#FF4444',
-				strokeWidth: 5,
-			}}
-		/>
+		<ReindexScope order={310}>
+			{activeLineId && line?.geometry?.coordinates && isRecording && (
+				<LayerPath
+					coordinates={line.geometry.coordinates}
+					style={{
+						strokeColor: '#FF4444',
+						strokeWidth: 5,
+					}}
+				/>
+			)}
+		</ReindexScope>
 	);
 };
 
