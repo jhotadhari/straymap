@@ -95,9 +95,10 @@ const App: FC = () => {
 			drawerControlsRef,
 			moveEnabled,
 			setMoveEnabled,
-			mapHeight:
+			mapHeight: Math.round(
 				(appInnerHeight || height) -
-				(Object.values(bottomBarHeight).reduce((acc, nb) => acc + nb, 0) || 0),
+					(Object.values(bottomBarHeight).reduce((acc, nb) => acc + nb, 0) || 0)
+			),
 		}),
 		[
 			mapViewNativeNodeHandle,

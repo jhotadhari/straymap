@@ -99,7 +99,7 @@ const AppView = ({
 
 	const { width, height } = Dimensions.get('window');
 
-	const { mapViewNativeNodeHandle, mapHeight, moveEnabled, drawerControlsRef } =
+	const { mapViewNativeNodeHandle, mapHeight, moveEnabled, drawerControlsRef, bottomBarHeight } =
 		useContext(AppContext);
 
 	const { currentMapEventRef, centerPositionSvRef } = useContext(MapContext);
@@ -301,6 +301,27 @@ const AppView = ({
 		]
 	);
 
+	// After mapHeight changes (dashboard bar appears / resizes), the native
+	// MapContainer child may still occupy the wrapper's previous bounds for one
+	// frame, leaving a visible gap between the map and the dashboard bar.
+	//
+	// We force a native layout pass by flickering the wrapper's opacity across
+	// two requestAnimationFrame ticks: 1 → 0.999 → 1. The delta is invisible
+	// to the eye but sufficient to invalidate the Android view-tree layout,
+	// pulling the updated height through to the native MapContainer without
+	// unmounting it (which would discard cached render tiles).
+	const wrapperRef = useRef<View>(null);
+	useEffect(() => {
+		if (wrapperRef.current && undefined !== mapHeight && mapHeight > 0) {
+			requestAnimationFrame(() => {
+				wrapperRef.current?.setNativeProps({ style: { opacity: 0.999 } });
+				requestAnimationFrame(() => {
+					wrapperRef.current?.setNativeProps({ style: { opacity: 1 } });
+				});
+			});
+		}
+	}, [mapHeight]);
+
 	const styleMapWrapper = useMemo(() => ({ height: mapHeight, width }), [mapHeight, width]);
 
 	const styleNoMap = useMemo(() => ({ height: mapHeight || 0, width }), [mapHeight, width]);
@@ -311,7 +332,10 @@ const AppView = ({
 
 			<TopAppBar />
 
-			<View style={styleMapWrapper}>
+			<View
+				style={styleMapWrapper}
+				ref={wrapperRef}
+			>
 				<UiItemComponent />
 
 				{showMap && (

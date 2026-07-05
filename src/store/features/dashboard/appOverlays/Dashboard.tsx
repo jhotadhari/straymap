@@ -84,7 +84,7 @@ const Dashboard: FC<{
 				}));
 			}
 			if ('top' === position && setTopAppBarHeight && shouldSetTopBarHeight) {
-				// setTopAppBarHeight( height );	// ??? todo
+				// setTopAppBarHeight( height );	// ??? todo // maybe handled already in @src/store/features/ui/components/TopAppBar.tsx
 			}
 			onLayout && onLayout(event);
 		},
