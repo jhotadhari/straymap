@@ -1,9 +1,9 @@
 /**
  * External dependencies
  */
-import React, { FC, ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { FC, ReactNode, useCallback, useMemo, useState } from 'react';
 import {
-	Dimensions,
+	useWindowDimensions,
 	Image,
 	Linking,
 	ScrollView,
@@ -39,15 +39,36 @@ import {
 import { MdPart } from '../../../../markdown/types';
 import { sharedStyles } from '../../../../sharedStyles';
 
-const useJanglyTitleStyle = (theme: MD3Theme) =>
-	useMemo(() => [theme.fonts.displaySmall, pageStyles.fontJangly], [theme]);
+const useTitleStyle = (theme: MD3Theme) =>
+	useMemo(
+		() => [
+			theme.fonts.displaySmall,
+		],
+		[theme]
+	);
 
-const readmeParts = getMdParts(readme);
-const changelogParts = getMdParts(changelog).slice(1);
+const useJanglyTitleStyle = (theme: MD3Theme) =>
+	useMemo(
+		() => [
+			theme.fonts.displayMedium,
+			pageStyles.fontJangly,
+			{
+				marginTop: 8,
+			},
+		],
+		[theme]
+	);
+
+const stripLinkedImages = (part: MdPart): MdPart => ({
+	...part,
+	str: removeLines(part.str, /\[!\[[^\]]+\]\([^\(]+\)\]\([^\(]+\)/),
+});
+const readmeParts = getMdParts(readme).map(stripLinkedImages);
+const changelogParts = getMdParts(changelog).slice(1).map(stripLinkedImages);
 
 const getChangelogVersion = (idx?: number): string | undefined => {
-	idx = undefined === idx ? 0 : idx;
-	const version = get(changelogParts, [idx, 'key']);
+	idx = idx ?? 0;
+	const version = changelogParts[idx]?.key;
 	return version ? version.replace(/[\]\[]/g, '') : undefined;
 };
 
@@ -66,13 +87,7 @@ const AccordionItem = ({
 	const theme = useTheme();
 	const [expanded, setExpanded] = useState(false);
 
-	const titleStyle = useJanglyTitleStyle(theme);
-
-	// Fix vertical align. toggle expand and back.
-	useEffect(() => {
-		setExpanded(true);
-		setTimeout(() => setExpanded(false), 0);
-	}, []);
+	const titleStyle = useTitleStyle(theme);
 
 	const toggleExpanded = useCallback(() => setExpanded((prev) => !prev), []);
 
@@ -80,15 +95,13 @@ const AccordionItem = ({
 		<View style={pageStyles.accordionContainer}>
 			<ButtonHighlight
 				onPress={toggleExpanded}
-				labelStyle={pageStyles.accordionLabel}
+				contentStyle={[sharedStyles.flexRowCenter, pageStyles.accordionLabel]}
 			>
-				<View style={sharedStyles.flexRowCenter}>
-					<Icon
-						source={expanded ? 'chevron-down' : 'chevron-right'}
-						size={25}
-					/>
-					<Text style={titleStyle}>{label}</Text>
-				</View>
+				<Text style={titleStyle}>{label}</Text>
+				<Icon
+					source={expanded ? 'chevron-down' : 'chevron-right'}
+					size={30}
+				/>
 			</ButtonHighlight>
 
 			{expanded && (
@@ -110,7 +123,7 @@ const AccordionItem = ({
 
 const MdPartsRenderPart = ({ part, style }: { part: MdPart; style: StyleProp<ViewStyle> }) => {
 	const theme = useTheme();
-	const titleStyle = useJanglyTitleStyle(theme);
+	const titleStyle = useTitleStyle(theme);
 	return (
 		<View style={style}>
 			{part.key.length > 0 && <Text style={titleStyle}>{part.key}</Text>}
@@ -133,7 +146,7 @@ const MdPartsRenderPartDonation = ({
 }) => {
 	const theme = useTheme();
 
-	const titleStyle = useJanglyTitleStyle(theme);
+	const titleStyle = useTitleStyle(theme);
 
 	const linkStyle = useMemo(
 		() => [pageStyles.donationLink, { color: get(theme.colors, 'link') }],
@@ -197,9 +210,6 @@ const MdPartsRender = ({ include, mbParts }: { include?: string[]; mbParts: MdPa
 					return null;
 				}
 
-				// Remove lines with linked images.
-				part.str = removeLines(part.str, /\[!\[[^\]]+\]\([^\(]+\)\]\([^\(]+\)/);
-
 				if ('License' === part.key) {
 					return (
 						<AccordionItem
@@ -244,7 +254,8 @@ const pageStyles = StyleSheet.create({
 		flexBasis: '100%',
 		textAlign: 'left',
 		alignItems: 'center',
-		justifyContent: 'center',
+		justifyContent: 'space-between',
+		marginHorizontal: -12,
 	},
 	accordionContent: {
 		paddingLeft: 10,
@@ -269,7 +280,7 @@ const pageStyles = StyleSheet.create({
 const About: FC<{ style?: ViewStyle }> = ({ style }) => {
 	const theme = useTheme();
 	const { t } = useTranslation();
-	const { width } = Dimensions.get('window');
+	const { width } = useWindowDimensions();
 
 	const versionChangelog = useMemo(() => getChangelogVersion(), []);
 

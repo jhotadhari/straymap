@@ -29,10 +29,6 @@ Straymap is gratis, non-commercial, not intended for profit. If you can afford t
 [![liberapay](https://liberapay.com/assets/widgets/donate.svg)](https://liberapay.com/jhotadhari/donate)
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/H2H3162PAG)
 
-### Donate to third parties
-
-Straymap is built on the [mapsforge library](https://github.com/mapsforge) and the free maps from [OpenAndroMaps](https://www.openandromaps.org/en/project-funding). If you have money to spare, it's in good hands there.
-
 ## Contributing
 
 - Report [issues and bugs](https://github.com/jhotadhari/straymap/issues)

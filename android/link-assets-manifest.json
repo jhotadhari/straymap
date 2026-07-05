@@ -2,10 +2,6 @@
   "migIndex": 1,
   "data": [
     {
-      "path": "src/assets/fonts/Coustard-Regular-custom.ttf",
-      "sha1": "fa5026669ee89e49f63209d5c0ded272b9483111"
-    },
-    {
       "path": "src/assets/fonts/jangly_walk.ttf",
       "sha1": "1a99812898e2c11a4a8bcaf0c51e203e09b8fdbe"
     },

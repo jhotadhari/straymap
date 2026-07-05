@@ -34,31 +34,4 @@ export const styles = (theme) => ({
 		marginLeft: 20,
 		paddingHorizontal: 5,
 	},
-	// Headings
-	heading1: {
-		...theme.fonts.displaySmall,
-		fontFamily: 'jangly_walk',
-		flexDirection: 'row',
-	},
-	heading2: {
-		...theme.fonts.displaySmall,
-		fontFamily: 'jangly_walk',
-		flexDirection: 'row',
-	},
-	// heading3: {
-	// 	flexDirection: 'row',
-	// 	fontSize: 18,
-	// },
-	// heading4: {
-	// 	flexDirection: 'row',
-	// 	fontSize: 16,
-	// },
-	// heading5: {
-	// 	flexDirection: 'row',
-	// 	fontSize: 13,
-	// },
-	// heading6: {
-	// 	flexDirection: 'row',
-	// 	fontSize: 11,
-	// },
 });
