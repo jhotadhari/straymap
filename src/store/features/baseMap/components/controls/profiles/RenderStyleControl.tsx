@@ -82,7 +82,7 @@ const RenderStyleControl: FC<{
 	]);
 
 	useEffect(() => {
-		if (selectedOpt) {
+		if (selectedOpt && profileTemp?.renderStyle !== selectedOpt) {
 			dispatch(
 				setMapsforgeProfileTemp(
 					(profileTemp) =>
@@ -94,7 +94,11 @@ const RenderStyleControl: FC<{
 				)
 			);
 		}
-	}, [dispatch, selectedOpt]);
+	}, [
+		dispatch,
+		selectedOpt,
+		profileTemp?.renderStyle,
+	]);
 
 	if (!opts.length && !AlternativeButton) {
 		return undefined;
