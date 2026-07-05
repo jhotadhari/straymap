@@ -58,6 +58,7 @@ import { getDrawerWidthResponsive } from '../store/features/drawers/utils';
 import { useAppDispatch } from '../store/hooks';
 import { featureRegistry } from '../store/features/FeatureRegistry';
 import { setMapEvent } from '../store/features/gnss/slice';
+import LayerDebugDumpButton from './LayerDebugDumpButton';
 import { selectIsRecording } from '../store/features/trackRecording/selectors';
 
 const AppView = ({
@@ -365,6 +366,8 @@ const AppView = ({
 								{...props}
 							/>
 						))}
+
+						<LayerDebugDumpButton />
 
 						<LayerScalebar />
 					</MapContainer>

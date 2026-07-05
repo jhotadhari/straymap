@@ -38,5 +38,8 @@ declare module globalThis {
 
 		/** i18n logger. Used in src/assets/i18n/i18n.ts */
 		i18n: boolean;
+
+		/** Show the layer debug dump button on the map. Only in __DEV__ */
+		showLayerDebug: boolean;
 	};
 }
