@@ -58,7 +58,7 @@ const TopAppBar: FC = () => {
 	const appBarTitle = useMemo(
 		() =>
 			uiItemsKeys
-				.map((key) => featureRegistry.getSettingsPages().find((item) => item.key === key))
+				.map((key) => featureRegistry.getUiItems().find((item) => item.key === key))
 				.filter((item) => item != null)
 				.map((item) => t(item.label))
 				.join(' / '),

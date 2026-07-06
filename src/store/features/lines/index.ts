@@ -9,7 +9,7 @@ import es from './assets/i18n/es.json';
 import pt from './assets/i18n/pt.json';
 import { onSetDbPath } from './slice';
 import LinesMapView from './mapComponents/LinesMapView';
-import LinesBrowser from './settingsPages/LinesBrowser';
+import LinesBrowser from './uiItems/LinesBrowser';
 import linesDrawerItem from './drawerPanels/lines';
 import LineEditModalWrapper from './components/LineEditModalWrapper';
 
@@ -23,7 +23,7 @@ export default {
 		pt,
 	},
 	onSetDbPath,
-	settingsPages: [
+	uiItems: [
 		{
 			key: 'linesBrowser',
 			label: 'ui.items.linesBrowser',
@@ -44,5 +44,8 @@ export default {
 			Component: LineEditModalWrapper,
 			priority: 500,
 		},
+	],
+	settingsPageKeys: [
+		'linesBrowser',
 	],
 };

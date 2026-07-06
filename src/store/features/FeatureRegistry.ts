@@ -9,7 +9,7 @@ import {
 	DrawerPanel,
 	MapComponentDescriptor,
 	SettingsControlFragment,
-	SettingsPage,
+	UiItem,
 } from '../../types';
 
 const DEFAULT_PRIORITY = 100;
@@ -38,11 +38,33 @@ export class FeatureRegistry {
 	}
 
 	/** Returns all settings pages from all features, sorted by priority. */
-	getSettingsPages(): SettingsPage[] {
-		const items: SettingsPage[] = [];
+	getUiItems(): UiItem[] {
+		const items: UiItem[] = [];
 		for (const feature of Object.values(this.features())) {
-			if (feature.settingsPages) {
-				items.push(...feature.settingsPages);
+			if (feature.uiItems) {
+				items.push(...feature.uiItems);
+			}
+		}
+		items.sort((a, b) => (a.priority ?? DEFAULT_PRIORITY) - (b.priority ?? DEFAULT_PRIORITY));
+		return items;
+	}
+
+	/**
+	 * Returns the subset of UiItems whose key is listed in the feature's
+	 * `settingsPageKeys`. These are rendered as rows in the main Settings
+	 * navigation list. Use {@link getUiItems} for the full set (e.g. when
+	 * resolving a navigation-stack key to its component).
+	 */
+	getSettingsPages(): UiItem[] {
+		const items: UiItem[] = [];
+		for (const feature of Object.values(this.features())) {
+			if (feature.uiItems && feature?.settingsPageKeys) {
+				feature?.settingsPageKeys?.forEach((key) => {
+					const uiItem = feature.uiItems?.find((i) => i.key === key);
+					if (uiItem) {
+						items.push(uiItem);
+					}
+				});
 			}
 		}
 		items.sort((a, b) => (a.priority ?? DEFAULT_PRIORITY) - (b.priority ?? DEFAULT_PRIORITY));

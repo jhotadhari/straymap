@@ -65,12 +65,6 @@ const Footer: FC = () => {
 			</View>
 
 			<View style={sharedStyles.flexRowGap}>
-				<IconButtonHighlight
-					icon="import"
-					size={DRAWER_ICON_SIZE}
-					onPress={handleOpenImport}
-				/>
-
 				<ButtonHighlight
 					mode="text"
 					compact={true}
@@ -81,6 +75,12 @@ const Footer: FC = () => {
 						size={DRAWER_ICON_SIZE}
 					/>
 				</ButtonHighlight>
+
+				<IconButtonHighlight
+					icon="database-import"
+					size={DRAWER_ICON_SIZE}
+					onPress={handleOpenImport}
+				/>
 			</View>
 
 			<ImportModal

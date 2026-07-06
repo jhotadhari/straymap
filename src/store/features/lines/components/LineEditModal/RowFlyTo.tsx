@@ -75,7 +75,7 @@ const RowFlyTo: FC = () => {
 				compact={true}
 				disabled={disabled}
 				onPress={handlePress}
-				icon={'crosshairs'}
+				icon={'image-filter-center-focus-strong-outline'}
 				contentStyle={sharedStyles.buttonContent}
 				labelStyle={sharedStyles.buttonLabel}
 				textColor={theme.colors.onBackground}

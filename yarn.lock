@@ -2577,6 +2577,13 @@
     picocolors "^1.1.1"
     plist "^3.1.0"
 
+"@react-native-vector-icons/feather@^13.1.2":
+  version "13.1.2"
+  resolved "https://registry.yarnpkg.com/@react-native-vector-icons/feather/-/feather-13.1.2.tgz#ab6d446e2c11963b9dd10029e378a9e0dff585cf"
+  integrity sha512-4wICYvJ+wF5ERKyVWpie+DFEZ6Jr2541T6E+EtVTEqdubxEjK2/RS9qtEU758BktlPlJUrAoZeW6Fl/iUKf0Vg==
+  dependencies:
+    "@react-native-vector-icons/common" "^13.0.1"
+
 "@react-native-vector-icons/material-design-icons@^13.1.2":
   version "13.1.2"
   resolved "https://registry.yarnpkg.com/@react-native-vector-icons/material-design-icons/-/material-design-icons-13.1.2.tgz#911738dd273e98446f2a070e702bd9c562c29f38"

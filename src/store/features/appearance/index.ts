@@ -9,7 +9,7 @@ import de from './assets/i18n/de.json';
 import en from './assets/i18n/en.json';
 import es from './assets/i18n/es.json';
 import pt from './assets/i18n/pt.json';
-import SettingsAppearance from './settingsPages/SettingsAppearance';
+import SettingsAppearance from './uiItems/SettingsAppearance';
 import Center from './appOverlays/Center';
 
 export default {
@@ -21,7 +21,7 @@ export default {
 		es,
 		pt,
 	},
-	settingsPages: [
+	uiItems: [
 		{
 			key: 'appearance',
 			label: 'ui.items.appearance',
@@ -30,6 +30,9 @@ export default {
 			Component: SettingsAppearance,
 			priority: 50,
 		},
+	],
+	settingsPageKeys: [
+		'appearance',
 	],
 	appOverlays: [
 		{

@@ -56,7 +56,7 @@ Each feature directory follows a consistent shape:
   assets/i18n/          — en/de/es/pt translation JSON
   dashboardWidgets/     — dashboard widget definitions
   drawerPanels/         — drawer panel definitions
-  settingsPages/        — settings page components
+  uiItems/              — UiItem components (settings pages, etc. Everything that can be fullscreen rendered by `UiItemComponent`)
   mapComponents/        — components rendered inside MapContainer
   appOverlays/          — components rendered as sibling overlays above the map
   components/           — shared/internal components (controls, modals, etc.)
@@ -64,11 +64,11 @@ Each feature directory follows a consistent shape:
   db/                   — drizzle schema, actions, query functions
 ```
 
-The `AppFeature` interface (`src/types.ts`) is the contract each feature exposes to the app shell: `selectInitialized`, `translation` (merged into i18next resources), an optional `initializeFromStorage(store)`, and an optional `onSetDbPath` thunk. Features also contribute to six extension points, all collected by the singleton `FeatureRegistry` and sorted by priority:
+The `AppFeature` interface (`src/types.ts`) is the contract each feature exposes to the app shell: `selectInitialized`, `translation` (merged into i18next resources), an optional `initializeFromStorage(store)`, and an optional `onSetDbPath` thunk. Features also contribute to these extension points, all collected by the singleton `FeatureRegistry` and sorted by priority:
 
-| Extension point | Type | Directory | Rendered |
+| Field(s) | Type | Directory | Rendered |
 |---|---|---|---|
-| `settingsPages` | `SettingsPage[]` | `settingsPages/` | Settings navigation list |
+| `uiItems` + `settingsPageKeys` | `UiItem[]` | `uiItems/` | Navigation stack pages; only those whose key is in `settingsPageKeys` appear as rows in the main Settings list |
 | `settingsControls` | `SettingsControlFragment[]` | (any) | Settings → Controls page |
 | `dashboardWidgets` | `DashboardWidget[]` | `dashboardWidgets/` | Dashboard overlay on map |
 | `drawerPanels` | `DrawerPanel[]` | `drawerPanels/` | Side drawers |

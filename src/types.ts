@@ -9,11 +9,11 @@ import { Position } from 'react-native-mapsforge-vtm';
  * Internal dependencies
  */
 import { AppThunk } from './store/store';
-import { SettingsPage } from './store/features/ui/types';
+import { UiItem } from './store/features/ui/types';
 import { DashboardWidget } from './store/features/dashboard/types';
 import { DrawerPanel } from './store/features/drawers/types';
 
-export type { SettingsPage, DashboardWidget, DrawerPanel };
+export type { UiItem, DashboardWidget, DrawerPanel };
 
 export type AppMode = string;
 
@@ -105,10 +105,27 @@ export interface AppFeature {
 	 */
 
 	/**
-	 * Settings pages rendered in the main Settings list. Each feature's
-	 * settings page components live under its `settingsPages/` directory.
+	 * All UiItems this feature contributes, used for the navigation stack
+	 * (settings drill-down, drawers, modals, etc.). Each feature's UiItem
+	 * components live under its `uiItems/` directory.
+	 *
+	 * Not every UiItem appears in the Settings list — only those whose key
+	 * is also listed in {@link settingsPageKeys} are rendered as a row in
+	 * the main Settings screen. Items without a matching key can still be
+	 * pushed onto the navigation stack from other entry points (e.g. the
+	 * drawer handle, the dashboard editor, or the top app bar).
 	 */
-	settingsPages?: SettingsPage[];
+	uiItems?: UiItem[];
+
+	/**
+	 * Subset of {@link uiItems} keys that should appear as rows in the
+	 * main Settings navigation list. Keys listed here must correspond to
+	 * an entry in `uiItems` — `FeatureRegistry.getSettingsPages()` looks
+	 * up the UiItem by key. Other UiItems (those not listed here) are
+	 * still reachable through the navigation stack but won't have a
+	 * dedicated row in the Settings screen.
+	 */
+	settingsPageKeys?: string[];
 
 	/**
 	 * Individual control rows rendered inside the settings controls page

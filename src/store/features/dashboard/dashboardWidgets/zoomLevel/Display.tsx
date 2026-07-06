@@ -11,6 +11,7 @@ import { DashboardWidgetProps } from '../../types';
 import useItemStyle from '../../hooks/useItemStyle';
 import useMapZoomLevel from '../../../../../compose/useMapZoomLevel';
 import ElementFrame from '../../components/ElementFrame';
+import { roundTo } from '../../../../../lib/utilsLight';
 
 export interface Options {}
 
@@ -32,7 +33,7 @@ const Display: FC<DashboardWidgetProps<Options>> = ({ item, style = {}, onPress 
 			textAlign={textAlign}
 			onPress={onPress}
 		>
-			{zoomLevel && <Text style={textStyle}>{zoomLevel}</Text>}
+			{zoomLevel && <Text style={textStyle}>{roundTo(zoomLevel, 2)}</Text>}
 		</ElementFrame>
 	);
 };

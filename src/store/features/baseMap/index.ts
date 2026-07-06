@@ -7,9 +7,9 @@ import de from './assets/i18n/de.json';
 import en from './assets/i18n/en.json';
 import es from './assets/i18n/es.json';
 import pt from './assets/i18n/pt.json';
-import SettingsMaps from './settingsPages/SettingsMaps';
+import SettingsMaps from './uiItems/SettingsMaps';
 import BaseMap from './mapComponents/BaseMap/index';
-import MapLayersAttribution from './appOverlays/MapLayersAttribution';
+import MapLayersAttribution from './mapComponents/MapLayersAttribution';
 import mapsDrawerItem from './drawerPanels/maps';
 
 export default {
@@ -21,7 +21,7 @@ export default {
 		es,
 		pt,
 	},
-	settingsPages: [
+	uiItems: [
 		{
 			key: 'maps',
 			label: 'ui.items.maps',
@@ -37,12 +37,13 @@ export default {
 			Component: BaseMap,
 			priority: 100,
 		},
-	],
-	appOverlays: [
 		{
 			key: 'mapLayersAttribution',
 			Component: MapLayersAttribution,
 			priority: 300,
 		},
+	],
+	settingsPageKeys: [
+		'maps',
 	],
 };

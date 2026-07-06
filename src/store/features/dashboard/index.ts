@@ -9,7 +9,7 @@ import de from './assets/i18n/de.json';
 import en from './assets/i18n/en.json';
 import es from './assets/i18n/es.json';
 import pt from './assets/i18n/pt.json';
-import SettingsDashboard from './settingsPages/SettingsDashboard';
+import SettingsDashboard from './uiItems/SettingsDashboard';
 import centerAltitude from './dashboardWidgets/centerAltitude';
 import centerCoordinates from './dashboardWidgets/centerCoordinates';
 import spacer from './dashboardWidgets/spacer';
@@ -17,7 +17,10 @@ import zoomLevel from './dashboardWidgets/zoomLevel';
 import { DashboardWrapped } from './appOverlays/Dashboard';
 
 // Wrapper so DashboardWrapped doesn't need the 'position' prop from AppView
-const DashboardBottom: FC = () => React.createElement(DashboardWrapped, { position: 'bottom' });
+const DashboardBottom: FC = () =>
+	React.createElement(DashboardWrapped, {
+		position: 'bottom',
+	});
 
 export default {
 	selectInitialized,
@@ -28,7 +31,7 @@ export default {
 		es,
 		pt,
 	},
-	settingsPages: [
+	uiItems: [
 		{
 			key: 'dashboard',
 			label: 'ui.items.dashboard',
@@ -43,6 +46,9 @@ export default {
 		centerCoordinates,
 		spacer,
 		zoomLevel,
+	],
+	settingsPageKeys: [
+		'dashboard',
 	],
 	appOverlays: [
 		{

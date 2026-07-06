@@ -11,7 +11,7 @@ import gnssCoordinates from './dashboardWidgets/gnssCoordinates';
 import gnssAccuracy from './dashboardWidgets/gnssAccuracy';
 import gnssAltitude from './dashboardWidgets/gnssAltitude';
 import gnssSpeed from './dashboardWidgets/gnssSpeed';
-import SettingsLocation from './settingsPages/SettingsLocation';
+import SettingsLocation from './uiItems/SettingsLocation';
 import gnssDrawerItem from './drawerPanels/gnssDrawerItem';
 
 export default {
@@ -25,11 +25,11 @@ export default {
 	},
 	modes: ['location'],
 	selectActiveModes: (state: any) => (selectIsActive(state) ? ['location'] : []),
-	settingsPages: [
+	uiItems: [
 		{
 			key: 'location',
 			label: 'ui.items.location',
-			icon: 'crosshairs',
+			icon: 'crosshairs-gps',
 			Component: SettingsLocation,
 			priority: 25,
 		},
@@ -42,5 +42,8 @@ export default {
 	],
 	drawerPanels: [
 		gnssDrawerItem,
+	],
+	settingsPageKeys: [
+		'location',
 	],
 };

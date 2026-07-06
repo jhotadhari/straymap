@@ -233,6 +233,7 @@ jest.mock('@react-native-vector-icons/common', () => ({
 }));
 jest.mock('@react-native-vector-icons/material-icons', () => 'MaterialIcon');
 jest.mock('@react-native-vector-icons/material-design-icons', () => 'MaterialDesignIcon');
+jest.mock('@react-native-vector-icons/feather', () => 'Feather');
 
 // ---------------------------------------------------------------------------
 // react-native-sortables — drag-and-drop sortable components

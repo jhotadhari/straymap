@@ -32,6 +32,7 @@
     "@op-engineering/op-sqlite": "^16.1.0",
     "@react-native-community/blur": "^4.4.1",
     "@react-native-vector-icons/common": "^13.0.1",
+    "@react-native-vector-icons/feather": "^13.1.2",
     "@react-native-vector-icons/material-design-icons": "^13.1.2",
     "@react-native-vector-icons/material-icons": "^13.1.2",
     "@reduxjs/toolkit": "^2.11.2",

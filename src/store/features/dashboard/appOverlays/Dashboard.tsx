@@ -2,7 +2,7 @@
  * External dependencies
  */
 import React, { FC, useCallback, useContext, useMemo } from 'react';
-import { GestureResponderEvent, LayoutChangeEvent, View, ViewStyle } from 'react-native';
+import { GestureResponderEvent, LayoutChangeEvent, View, ViewProps, ViewStyle } from 'react-native';
 import { get } from 'lodash-es';
 import {
 	DragStartCallback,
@@ -26,7 +26,7 @@ import { useTheme } from 'react-native-paper';
 import useDropIndicatorStyle from '../../../../compose/useDropIndicatorStyle';
 
 const Dashboard: FC<{
-	style?: ViewStyle;
+	style?: ViewProps['style'];
 	itemStyle?: ViewStyle;
 	position: string;
 	onDragStart?: DragStartCallback;
@@ -208,10 +208,15 @@ export const DashboardWrapped: FC<{
 		]
 	);
 
+	const styleResult: ViewProps['style'] = useMemo( () => [
+		style,
+		isEditingDashboard ? { zIndex: 999 } : undefined,
+	], [isEditingDashboard] )
+
 	if (isEditingDashboard) {
 		return (
 			<Dashboard
-				style={style}
+				style={styleResult}
 				position={position}
 				sortEnabled={true}
 				highlightEditItem={true}
@@ -225,7 +230,7 @@ export const DashboardWrapped: FC<{
 	} else {
 		return (
 			<Dashboard
-				style={style}
+				style={styleResult}
 				position={position}
 				sortEnabled={false}
 				shouldSetBottomBarHeight={true}

@@ -65,7 +65,7 @@ const SettingsLocation: FC<{ style?: ViewStyle }> = ({ style }) => {
 					mode={isGnssActive ? 'contained' : 'outlined'}
 					compact={true}
 					onPress={handleToggleGnss}
-					icon={isGnssActive ? 'crosshairs' : 'crosshairs-off'}
+					icon={isGnssActive ? 'crosshairs-gps' : 'crosshairs-off'}
 					textColor={theme.colors.onBackground}
 				>
 					{isGnssActive ? t('gnss.deactivateGnss') : t('gnss.activateGnss')}

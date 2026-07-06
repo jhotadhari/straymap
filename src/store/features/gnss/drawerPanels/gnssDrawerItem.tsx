@@ -128,5 +128,5 @@ export default {
 	key: 'gnss',
 	label: 'gnss.title',
 	DisplayComponent: GnssDrawerContent,
-	iconSource: 'crosshairs',
+	iconSource: 'crosshairs-gps',
 } as DrawerPanel;
