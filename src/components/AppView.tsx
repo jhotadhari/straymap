@@ -14,12 +14,9 @@ import React, {
 } from 'react';
 import { Dimensions, NativeSyntheticEvent, PixelRatio, View, ViewStyle } from 'react-native';
 import { useTheme } from 'react-native-paper';
-import { get } from 'lodash-es';
+import { clamp, get } from 'lodash-es';
 import { sprintf } from 'sprintf-js';
 import { useTranslation } from 'react-i18next';
-/**
- * react-native-mapsforge-vtm dependencies
- */
 import {
 	MapContainer,
 	LayerScalebar,
@@ -30,10 +27,6 @@ import {
 	useMap,
 } from 'react-native-mapsforge-vtm';
 import { useMapPosition } from 'react-native-mapsforge-vtm/reanimated';
-
-/**
- * react-native-hardwarekey-event dependencies
- */
 import { useHardwareKeyEvent } from 'react-native-hardwarekey-event';
 import type { KeyCode, KeyEvent } from 'react-native-hardwarekey-event';
 
@@ -60,6 +53,9 @@ import { featureRegistry } from '../store/features/FeatureRegistry';
 import { setMapEvent } from '../store/features/gnss/slice';
 import LayerDebugDumpButton from './LayerDebugDumpButton';
 import { selectIsRecording } from '../store/features/trackRecording/selectors';
+
+const zoomMin = 2;
+const zoomMax = 20;
 
 const AppView = ({
 	initialPositionRef,
@@ -105,7 +101,7 @@ const AppView = ({
 
 	const { currentMapEventRef, centerPositionSvRef } = useContext(MapContext);
 
-	const { getPosition, flyTo } = useMap(mapViewNativeNodeHandle);
+	const { flyTo } = useMap(mapViewNativeNodeHandle);
 
 	const { centerSv, handleMapUpdate } = useMapPosition();
 	// Expose the shared value through context so dashboard elements
@@ -145,24 +141,31 @@ const AppView = ({
 		onKeyDown: useCallback(
 			(event: KeyEvent) => {
 				const keyConf = hardwareKeys.find((kc) => kc.keyCodeString === event.keyCodeString);
-				if (!keyConf) return;
+				if (!keyConf || undefined === currentMapEventRef.current?.zoomLevel) return;
 
 				switch (keyConf.actionKey) {
 					case 'zoomIn':
-						getPosition().then((position) =>
-							flyTo({ zoomLevel: position.zoomLevel + 1 })
-						);
+						flyTo({
+							zoomLevel: clamp(
+								currentMapEventRef.current?.zoomLevel + 1,
+								zoomMin,
+								zoomMax
+							),
+						});
 						break;
 					case 'zoomOut':
-						getPosition().then((position) =>
-							flyTo({ zoomLevel: position.zoomLevel - 1 })
-						);
+						flyTo({
+							zoomLevel: clamp(
+								currentMapEventRef.current?.zoomLevel - 1,
+								zoomMin,
+								zoomMax
+							),
+						});
 						break;
 				}
 			},
 			[
 				hardwareKeys,
-				getPosition,
 				flyTo,
 			]
 		),
@@ -315,7 +318,6 @@ const AppView = ({
 	const styleMap: ViewStyle = useMemo(
 		() => ({
 			flexDirection: 'column',
-			backgroundColor: 'green',
 			flexGrow: 1,
 		}),
 		[mapHeight, width]
@@ -340,8 +342,8 @@ const AppView = ({
 							width={null}
 							center={initialPositionRef?.current?.center}
 							zoomLevel={initialPositionRef?.current?.zoomLevel}
-							zoomMin={2}
-							zoomMax={20}
+							zoomMin={zoomMin}
+							zoomMax={zoomMax}
 							moveEnabled={moveEnabled ?? true}
 							tiltEnabled={false}
 							rotationEnabled={false}
