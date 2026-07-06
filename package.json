@@ -26,7 +26,6 @@
     "postinstall": "patch-package"
   },
   "dependencies": {
-    "@dmytropaduchak/simple-linear-interpolation": "^1.0.8",
     "@klarna/react-native-vector-drawable": "^0.5.1",
     "@libsql/client": "^0.17.3",
     "@op-engineering/op-sqlite": "^16.1.0",

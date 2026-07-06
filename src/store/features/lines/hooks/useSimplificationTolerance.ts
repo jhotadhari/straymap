@@ -1,58 +1,61 @@
 /**
  * External dependencies
  */
-// import { useEffect, useMemo, useState } from 'react';
-// import { linearInterpolation } from '@dmytropaduchak/simple-linear-interpolation';
-// import { debounce } from 'lodash-es';
+import { useEffect, useMemo, useState } from 'react';
+import { debounce } from 'lodash-es';
 
 /**
  * Internal dependencies
  */
-// import { roundTo } from '../../../../lib/utilsLight';
-// import useMapZoomLevel from '../../../../compose/useMapZoomLevel';
+import useMapZoomLevel from '../../../../compose/useMapZoomLevel';
 
-// const steps = [
-// 	{ x: 0, y: 0.5 },
-// 	{ x: 5, y: 0.07 },
-// 	{ x: 6, y: 0.015 },
-// 	{ x: 9, y: 0.003 },
-// 	{ x: 10, y: 0.0015 },
-// 	{ x: 11, y: 0.001 },
-// 	{ x: 12, y: 0.0003 },
-// 	{ x: 15, y: 0.00005 },
-// 	{ x: 16, y: 0.00005 },
-// 	{ x: 17, y: 0.00001 },
-// 	{ x: 20, y: 0.00001 },
-// ];
-// const interpolation = linearInterpolation(steps);
+const getSimplification = (zoomLevel: number) => {
+	switch( true ) {
+		case (zoomLevel >= 17 ):
+			return 0.00001;
+		case (zoomLevel >= 15 ):
+			return 0.00005;
+		case (zoomLevel >= 12 ):
+			return 0.0003;
+		case (zoomLevel >= 11 ):
+			return 0.001;
+		case (zoomLevel >= 10 ):
+			return 0.0015;
+		case (zoomLevel >= 9 ):
+			return 0.003;
+		case (zoomLevel >= 8 ):
+			return 0.007;
+		case (zoomLevel >= 7 ):
+			return 0.01;
+		case (zoomLevel >= 6 ):
+			return 0.015;
+		case (zoomLevel >= 5 ):
+			return 0.04;
+		case (zoomLevel >= 4 ):
+			return 0.1;
+		case (zoomLevel >= 3 ):
+			return 0.2;
+		default:
+			return 0.35;
+	}
+};
 
-/**
- * ??? TODO once vtm is updated
- *
- */
 const useSimplificationTolerance = () => {
-	// const zoomLevel = useMapZoomLevel();
+	const zoomLevel = useMapZoomLevel();
 
-	// const [simplify, setSimplify] = useState<number | undefined>(undefined);
+	const [simplify, setSimplify] = useState<number | undefined>(undefined);
 
-	// const updateSimplify = useMemo(() => {
-	// 	return debounce((zoomLevel?: number) => {
-	// 		let newSimplify;
-	// 		if (undefined === zoomLevel || zoomLevel > steps[steps.length - 1].x) {
-	// 			newSimplify = undefined;
-	// 		} else {
-	// 			newSimplify = roundTo(interpolation({ x: zoomLevel }), 7);
-	// 		}
-	// 		setSimplify(newSimplify);
-	// 	}, 100);
-	// }, []);
+	const updateSimplify = useMemo(() => {
+		return debounce((zoomLevel?: number) => {
+			undefined !== zoomLevel && setSimplify(getSimplification(zoomLevel));
+		}, 100);
+	}, []);
 
-	// useEffect(() => {
-	// 	updateSimplify(zoomLevel);
-	// }, [zoomLevel]);
+	useEffect(() => {
+		updateSimplify(zoomLevel);
+	}, [zoomLevel]);
 
-	// return simplify;
-	return 0.00001;
+	return simplify;
 };
 
 export default useSimplificationTolerance;
