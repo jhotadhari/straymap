@@ -12,7 +12,7 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import { Dimensions, NativeSyntheticEvent, PixelRatio, View } from 'react-native';
+import { Dimensions, NativeSyntheticEvent, PixelRatio, View, ViewStyle } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import { get } from 'lodash-es';
 import { sprintf } from 'sprintf-js';
@@ -289,11 +289,13 @@ const AppView = ({
 		]
 	);
 
-	const styleOuter = useMemo(
+	const styleContainer: ViewStyle = useMemo(
 		() => ({
 			backgroundColor: theme.colors.background,
 			height,
 			width,
+			flexDirection: 'column',
+			justifyContent: 'space-between',
 		}),
 		[
 			theme,
@@ -302,78 +304,67 @@ const AppView = ({
 		]
 	);
 
-	// After mapHeight changes (dashboard bar appears / resizes), the native
-	// MapContainer child may still occupy the wrapper's previous bounds for one
-	// frame, leaving a visible gap between the map and the dashboard bar.
-	//
-	// We force a native layout pass by flickering the wrapper's opacity across
-	// two requestAnimationFrame ticks: 1 → 0.999 → 1. The delta is invisible
-	// to the eye but sufficient to invalidate the Android view-tree layout,
-	// pulling the updated height through to the native MapContainer without
-	// unmounting it (which would discard cached render tiles).
-	const wrapperRef = useRef<View>(null);
-	useEffect(() => {
-		if (wrapperRef.current && undefined !== mapHeight && mapHeight > 0) {
-			requestAnimationFrame(() => {
-				wrapperRef.current?.setNativeProps({ style: { opacity: 0.999 } });
-				requestAnimationFrame(() => {
-					wrapperRef.current?.setNativeProps({ style: { opacity: 1 } });
-				});
-			});
-		}
-	}, [mapHeight]);
+	const styleAppInner: ViewStyle = useMemo(
+		() => ({
+			flexDirection: 'column',
+			flexGrow: 1,
+		}),
+		[mapHeight, width]
+	);
 
-	const styleMapWrapper = useMemo(() => ({ height: mapHeight, width }), [mapHeight, width]);
-
-	const styleNoMap = useMemo(() => ({ height: mapHeight || 0, width }), [mapHeight, width]);
+	const styleMap: ViewStyle = useMemo(
+		() => ({
+			flexDirection: 'column',
+			backgroundColor: 'green',
+			flexGrow: 1,
+		}),
+		[mapHeight, width]
+	);
 
 	return (
-		<View style={styleOuter}>
+		<View style={styleContainer}>
 			{showSplash && <SplashScreen />}
 
 			<TopAppBar />
 
-			<View
-				style={styleMapWrapper}
-				ref={wrapperRef}
-			>
+			<View style={styleAppInner}>
 				<UiItemComponent />
 
-				{showMap && (
-					<MapContainer
-						nativeNodeHandle={mapViewNativeNodeHandle}
-						setNativeNodeHandle={setMapViewNativeNodeHandle}
-						hgtDirPath={hgtDirPath}
-						height={mapHeight || 0}
-						width={width}
-						center={initialPositionRef?.current?.center}
-						zoomLevel={initialPositionRef?.current?.zoomLevel}
-						zoomMin={2}
-						zoomMax={20}
-						moveEnabled={moveEnabled ?? true}
-						tiltEnabled={false}
-						rotationEnabled={false}
-						zoomEnabled={true}
-						onPause={saveCurrentPositionToInitial}
-						onError={handleMapError}
-						onResume={handleMapResume}
-						onMapUpdate={handleMapEvent}
-						onTap={handleMapTap}
-					>
-						{insideMapComponents.map(({ key, Component, props }) => (
-							<Component
-								key={key}
-								{...props}
-							/>
-						))}
+				<View style={styleMap}>
+					{showMap && (
+						<MapContainer
+							nativeNodeHandle={mapViewNativeNodeHandle}
+							setNativeNodeHandle={setMapViewNativeNodeHandle}
+							hgtDirPath={hgtDirPath}
+							height={null}
+							width={null}
+							center={initialPositionRef?.current?.center}
+							zoomLevel={initialPositionRef?.current?.zoomLevel}
+							zoomMin={2}
+							zoomMax={20}
+							moveEnabled={moveEnabled ?? true}
+							tiltEnabled={false}
+							rotationEnabled={false}
+							zoomEnabled={true}
+							onPause={saveCurrentPositionToInitial}
+							onError={handleMapError}
+							onResume={handleMapResume}
+							onMapUpdate={handleMapEvent}
+							onTap={handleMapTap}
+						>
+							{insideMapComponents.map(({ key, Component, props }) => (
+								<Component
+									key={key}
+									{...props}
+								/>
+							))}
 
-						<LayerDebugDumpButton />
+							<LayerDebugDumpButton />
 
-						<LayerScalebar />
-					</MapContainer>
-				)}
-
-				{!showMap && <View style={styleNoMap} />}
+							<LayerScalebar />
+						</MapContainer>
+					)}
+				</View>
 
 				{siblingOverlayComponents.map(({ key, Component, props }) => (
 					<Component
