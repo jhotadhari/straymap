@@ -1,9 +1,10 @@
 /**
  * External dependencies
  */
-import React, { FC, useMemo, useState } from 'react';
+import React, { FC, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { Text } from 'react-native-paper';
 import { get } from 'lodash-es';
+import { useMap } from 'react-native-mapsforge-vtm';
 
 /**
  * Internal dependencies
@@ -16,12 +17,15 @@ import { UnitPref } from '../../../general/types';
 import useItemStyle from '../../hooks/useItemStyle';
 import { useMapEventInterval } from '../../hooks/useMapEventInterval';
 import ElementFrame from '../../components/ElementFrame';
+import { AppContext } from '../../../../../Context';
 
 export interface Options {
 	unitPref?: UnitPref;
 }
 
 const Display: FC<DashboardWidgetProps<Options>> = ({ item, style = {}, onPress }) => {
+	const { mapViewNativeNodeHandle } = useContext(AppContext);
+
 	const unitPrefs = useAppSelector(selectUnitPrefs);
 
 	const { fontSize, minWidth, textAlign, showLabel, showIcon } = useItemStyle(item);
@@ -34,10 +38,28 @@ const Display: FC<DashboardWidgetProps<Options>> = ({ item, style = {}, onPress 
 		[item, unitPrefs]
 	);
 
-	const [altitudeM, setAltitudeM] = useState<number | null>(null);
+	const { getAltitudeAtPosition } = useMap(mapViewNativeNodeHandle);
+
+	const [altitudeC, setAltitudeC] = useState<number | undefined>(undefined);
+	const [altitudeP, setAltitudeP] = useState<number | undefined>(undefined);
+	const gettingAltitudeRef = useRef(false);
+
 	useMapEventInterval((event) => {
-		setAltitudeM(event?.center?.[2] ?? null);
+		const newAltC = event?.center?.[2] ?? undefined;
+		if ( altitudeC !== newAltC ) {
+			setAltitudeC(newAltC);
+		}
+		if (undefined === newAltC && event?.center && !gettingAltitudeRef.current) {
+			gettingAltitudeRef.current = true;
+			getAltitudeAtPosition(event?.center[0], event?.center[1]).then((result) => {
+				setAltitudeP(null !== result ? result : undefined);
+				gettingAltitudeRef.current = false;
+			});
+		}
 	});
+
+	const altitude =
+		undefined !== altitudeC ? altitudeC : gettingAltitudeRef.current ? undefined : altitudeP;
 
 	const textStyle = useMemo(() => ({ fontSize, textAlign }), [fontSize, textAlign]);
 
@@ -53,7 +75,7 @@ const Display: FC<DashboardWidgetProps<Options>> = ({ item, style = {}, onPress 
 			onPress={onPress}
 		>
 			<Text style={textStyle}>
-				{altitudeM === null ? '-' : formatHeightDepth(altitudeM, unitPref)}
+				{altitude === undefined ? '-' : formatHeightDepth(altitude, unitPref)}
 			</Text>
 		</ElementFrame>
 	);
