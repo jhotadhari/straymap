@@ -1,7 +1,16 @@
 /**
  * External dependencies
  */
-import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import {
+	Dispatch,
+	Fragment,
+	SetStateAction,
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useState,
+} from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -29,53 +38,81 @@ import { logError } from '../../../lib/utils';
 import { ErrorToastContext } from '../../ErrorToast/Context';
 import useAsyncBusy from '../../../compose/useAsyncBusy';
 import LoadingIndicator from '../LoadingIndicator';
+import { selectHgtDirPath } from '../../../store/features/baseMap/selectors';
+import { useAppDispatch, useAppSelector } from '../../../store/hooks';
+import { setHgtDirPath } from '../../../store/features/baseMap/slice';
 
 const HgtSourceRowControl = ({
 	dirs,
 	options,
 	optKey,
 	setOptions,
+	fallbackAppHgt = false,
 	onlyThreeSeconds = false,
+	canDeselect = false,
+	modalOnly = false,
+	modalVisible: modalVisibleProp,
+	setModalVisible: setModalVisibleProp,
+	modalHeader: modalHeaderProp,
 }: {
 	dirs: AbsPath[];
 	options: object;
 	optKey: string;
 	setOptions: (options: object) => void;
+	fallbackAppHgt?: boolean;
 	onlyThreeSeconds?: boolean;
+	canDeselect?: boolean;
+	modalOnly?: boolean;
+
+	modalVisible?: boolean;
+	setModalVisible?: Dispatch<SetStateAction<boolean>>;
+	modalHeader?: string;
 }) => {
 	const { t } = useTranslation();
 	const theme = useTheme();
 
 	const { showError } = useContext(ErrorToastContext);
 
-	const [modalVisible, setModalVisible] = useState(false);
+	const [modalVisibleState, setModalVisibleState] = useState(false);
+	const modalVisible = undefined === modalVisibleProp ? modalVisibleState : modalVisibleProp;
+	const setModalVisible =
+		undefined === setModalVisibleProp ? setModalVisibleState : setModalVisibleProp;
 
-	let opts: OptionBase[] = [
-		{
-			key: 'custom',
-			label: t('custom'),
-		},
-	];
-	[...dirs].reverse().forEach((dir: AbsPath) => {
-		opts = [
-			{
-				key: dir,
-				label: dir,
-			},
-			...opts,
-		];
+	const [modalVisibleApp, setModalVisibleApp] = useState(false);
+
+	const opts: OptionBase[] = fallbackAppHgt
+		? [
+				{
+					key: 'appHgt',
+					label: t('baseMap.useAppHgt'),
+				},
+			]
+		: [];
+	[...dirs].forEach((dir: AbsPath) => {
+		opts.push({
+			key: dir,
+			label: dir,
+		});
+	});
+	opts.push({
+		key: 'custom',
+		label: t('custom'),
 	});
 
-	const getInitialSelectedOpt = (): null | 'custom' | HgtDirPath => {
+	const appHgtDirPath = useAppSelector(selectHgtDirPath);
+
+	const getInitialSelectedOpt = (): null | 'custom' | 'appHgt' | HgtDirPath => {
 		if (get(options, optKey)) {
 			const opt = opts.find((opt) => opt.key === get(options, optKey));
 			return opt ? (get(opt, 'key', null) as null | HgtDirPath) : 'custom';
+		} else if (fallbackAppHgt) {
+			return 'appHgt';
 		} else {
 			return null;
 		}
 	};
 
-	const [selectedOpt, setSelectedOpt] = useState<null | 'custom' | HgtDirPath>(
+	const [selectedOpt, setSelectedOpt] = useState<null | 'custom' | 'appHgt' | HgtDirPath>(
 		getInitialSelectedOpt()
 	);
 
@@ -87,12 +124,23 @@ const HgtSourceRowControl = ({
 	);
 
 	useEffect(() => {
+		let newValue;
+		switch (selectedOpt) {
+			case 'custom':
+				newValue = customUri;
+				break;
+			case 'appHgt':
+				newValue = undefined;
+				break;
+			default:
+				newValue = selectedOpt;
+		}
 		setOptions({
 			...options,
-			[optKey]: 'custom' === selectedOpt ? customUri : selectedOpt,
+			[optKey]: newValue,
 		});
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [selectedOpt]);
+	}, [selectedOpt, customUri]);
 
 	const styleHintLarge = useMemo(() => [theme.fonts.bodyLarge, styles.hintLarge], [theme]);
 
@@ -101,8 +149,10 @@ const HgtSourceRowControl = ({
 	const handleOptionPress = useCallback(
 		(opt: OptionBase) => {
 			if (opt.key === selectedOpt) {
-				setSelectedOpt(null);
-				setCustomUri(undefined);
+				if (canDeselect) {
+					setSelectedOpt(null);
+					setCustomUri(undefined);
+				}
 			} else {
 				if (opt.key === 'custom') {
 					runOpenDocumentTree(true)
@@ -127,51 +177,87 @@ const HgtSourceRowControl = ({
 			showError,
 			t,
 			runOpenDocumentTree,
+			setModalVisible,
 		]
 	);
 
-	const handleCloseModal = useCallback(() => setModalVisible(false), []);
+	const handleCloseModal = useCallback(() => setModalVisible(false), [setModalVisible]);
 
-	const handleOpenModal = useCallback(() => setModalVisible(true), []);
+	const handleOpenModal = useCallback(() => setModalVisible(true), [setModalVisible]);
 
-	return (
-		<InfoRowControl
-			label={t('map.demDir')}
-			Info={
-				<View>
-					<Text>{t('hint.maps.demDir')}</Text>
-					{onlyThreeSeconds && (
-						<Text style={styles.hint}>{t('hint.maps.demOnly3Sec')}</Text>
-					)}
-					<Text style={styleHintLarge}>{t('demDownloads') + ':'}</Text>
-					<HintLink
-						label={t('hint.link.digitalEleData')}
-						url={'https://viewfinderpanoramas.org/dem3.html'}
-					/>
-					<HintLink
-						label={t('hint.link.digitalEleDataCoverage')}
-						url={
-							'https://viewfinderpanoramas.org/Coverage%20map%20viewfinderpanoramas_org3.htm'
-						}
-					/>
-					<Text style={styleHintLarge}>{t('moreInformation') + ':'}</Text>
-					<HintLink
-						label={'NASA Shuttle Radar Topography Mission (SRTM)'}
-						url={'https://wiki.openstreetmap.org/wiki/SRTM'}
-					/>
-					<HintLink
-						label={'OpenDEM Arc2Meters Converter'}
-						url={'https://www.opendem.info/arc2meters.html'}
-					/>
-				</View>
+	const dispatch = useAppDispatch();
+
+	const handleSetHgtDirPath = useCallback(
+		(options: object) => {
+			dispatch(setHgtDirPath(get(options, 'hgtDirPath') || undefined));
+		},
+		[dispatch]
+	);
+
+	const controlNode = useMemo(() => {
+		let label;
+		if (selectedOpt) {
+			if ('custom' === selectedOpt && customUri) {
+				label = customUri
+					.replace('content://', 'content:// ')
+					.slice(0, Math.min(customUri.length - 1, 30));
+			} else if ('appHgt' === selectedOpt) {
+				label = t('baseMap.useAppHgt');
+			} else {
+				label = get(
+					opts.find((opt) => opt.key === selectedOpt),
+					'label',
+					''
+				);
 			}
-		>
-			{modalVisible && (
+		} else {
+			if (fallbackAppHgt) {
+				label = t('baseMap.useAppHgt');
+			} else {
+				label = t('selected.none');
+			}
+		}
+		return (
+			<View style={styles.flexRow}>
+				<ButtonHighlight onPress={handleOpenModal}>
+					<Text>{label}</Text>
+				</ButtonHighlight>
+				{'appHgt' === selectedOpt && fallbackAppHgt && !appHgtDirPath && (
+					<Text>{'???missing'}</Text>
+				)}
+				{'appHgt' === selectedOpt && fallbackAppHgt && (
+					<ButtonHighlight
+						mode={appHgtDirPath ? 'text' : 'outlined'}
+						style={appHgtDirPath ? undefined : { borderColor: theme.colors.error }}
+						onPress={() => {
+							setModalVisibleApp(true);
+						}}
+					>
+						<Text>{t('baseMap.openAppHgt')}</Text>
+					</ButtonHighlight>
+				)}
+			</View>
+		);
+	}, [
+		t,
+		theme,
+		handleOpenModal,
+		selectedOpt,
+		customUri,
+		fallbackAppHgt,
+		appHgtDirPath,
+	]);
+
+	const modalHeader = modalHeaderProp ?? t('map.selectDemDir');
+
+	const modalNode = useMemo(
+		() =>
+			modalVisible && (
 				<ModalWrapper
 					visible={modalVisible}
 					backgroundBlur={false}
 					onDismiss={handleCloseModal}
-					header={t('map.selectDemDir')}
+					header={modalHeader}
 				>
 					{opts.map((opt) => {
 						return (
@@ -217,26 +303,72 @@ const HgtSourceRowControl = ({
 						<Text>{t('ok')}</Text>
 					</ButtonHighlight>
 				</ModalWrapper>
-			)}
+			),
+		[
+			handleOptionPress,
+			selectedOpt,
+			modalVisible,
+			handleCloseModal,
+			isPicking,
+			theme,
+			t,
+		]
+	);
+
+	if (modalOnly) {
+		return modalNode;
+	}
+
+	return (
+		<InfoRowControl
+			label={t('map.demDir')}
+			Info={
+				<View>
+					<Text>{t('hint.maps.demDir')}</Text>
+					{onlyThreeSeconds && (
+						<Text style={styles.hint}>{t('hint.maps.demOnly3Sec')}</Text>
+					)}
+					<Text style={styleHintLarge}>{t('demDownloads') + ':'}</Text>
+					<HintLink
+						label={t('hint.link.digitalEleData')}
+						url={'https://viewfinderpanoramas.org/dem3.html'}
+					/>
+					<HintLink
+						label={t('hint.link.digitalEleDataCoverage')}
+						url={
+							'https://viewfinderpanoramas.org/Coverage%20map%20viewfinderpanoramas_org3.htm'
+						}
+					/>
+					<Text style={styleHintLarge}>{t('moreInformation') + ':'}</Text>
+					<HintLink
+						label={'NASA Shuttle Radar Topography Mission (SRTM)'}
+						url={'https://wiki.openstreetmap.org/wiki/SRTM'}
+					/>
+					<HintLink
+						label={'OpenDEM Arc2Meters Converter'}
+						url={'https://www.opendem.info/arc2meters.html'}
+					/>
+				</View>
+			}
+		>
+			{modalNode}
 
 			<View style={sharedStyles.flexRowCenter}>
-				<ButtonHighlight onPress={handleOpenModal}>
-					<Text>
-						{t(
-							selectedOpt
-								? 'custom' === selectedOpt && customUri
-									? customUri
-											?.replace('content://', 'content:// ')
-											.slice(0, Math.min(customUri.length - 1, 30))
-									: get(
-											opts.find((opt) => opt.key === selectedOpt),
-											'label',
-											''
-										)
-								: 'selected.none'
-						)}
-					</Text>
-				</ButtonHighlight>
+				{controlNode}
+
+				{'appHgt' === selectedOpt && fallbackAppHgt && (
+					<HgtSourceRowControl
+						options={{ hgtDirPath: appHgtDirPath }}
+						setOptions={handleSetHgtDirPath}
+						optKey={'hgtDirPath'}
+						dirs={dirs}
+						onlyThreeSeconds={true}
+						canDeselect={true}
+						modalVisible={modalVisibleApp}
+						setModalVisible={setModalVisibleApp}
+						modalOnly={true}
+					/>
+				)}
 			</View>
 		</InfoRowControl>
 	);
@@ -247,6 +379,11 @@ const styles = StyleSheet.create({
 	hintLarge: { marginTop: 20 },
 	optRow: { marginBottom: 18 },
 	okButton: { marginTop: 10 },
+	flexRow: {
+		flexDirection: 'row',
+		justifyContent: 'space-between',
+		gap: 8,
+	},
 });
 
 export default HgtSourceRowControl;

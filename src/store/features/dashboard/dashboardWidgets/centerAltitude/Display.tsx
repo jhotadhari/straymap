@@ -18,6 +18,7 @@ import useItemStyle from '../../hooks/useItemStyle';
 import { useMapEventInterval } from '../../hooks/useMapEventInterval';
 import ElementFrame from '../../components/ElementFrame';
 import { AppContext } from '../../../../../Context';
+import { selectHgtDirPath } from '../../../baseMap/selectors';
 
 export interface Options {
 	unitPref?: UnitPref;
@@ -38,6 +39,8 @@ const Display: FC<DashboardWidgetProps<Options>> = ({ item, style = {}, onPress 
 		[item, unitPrefs]
 	);
 
+	const hgtDirPathStore = useAppSelector(selectHgtDirPath);
+
 	const { getAltitudeAtPosition } = useMap(mapViewNativeNodeHandle);
 
 	const [altitudeC, setAltitudeC] = useState<number | undefined>(undefined);
@@ -45,8 +48,11 @@ const Display: FC<DashboardWidgetProps<Options>> = ({ item, style = {}, onPress 
 	const gettingAltitudeRef = useRef(false);
 
 	useMapEventInterval((event) => {
+		if (!hgtDirPathStore) {
+			return;
+		}
 		const newAltC = event?.center?.[2] ?? undefined;
-		if ( altitudeC !== newAltC ) {
+		if (altitudeC !== newAltC) {
 			setAltitudeC(newAltC);
 		}
 		if (undefined === newAltC && event?.center && !gettingAltitudeRef.current) {

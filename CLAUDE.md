@@ -123,6 +123,13 @@ The library provides three tiers for consuming map position and one for altitude
 - `hgtReadFileRate` — rate-limiting is unnecessary with on-demand reads
 - `hgtFileInfoPurgeThreshold` — replaced by Android's built-in `LruCache`
 
+**DEM directory resolution**: `hgtDirPath` can be set at two levels: a global
+default in the `baseMap` slice (`hgtDirPath`), and a per-layer override in each
+hillshading layer's options. `LayerRendererHillshading` resolves via
+`opts.hgtDirPath ?? appHgtDirPath`, rendering nothing when neither is set.
+`HgtSourceRowControl` supports a `fallbackAppHgt` mode that offers a "Use
+global" option driven by the store.
+
 **`useMapPosition()`** from `react-native-mapsforge-vtm/reanimated`:
 ```typescript
 const { centerSv, zoomSv, bearingSv, tiltSv, handleMapUpdate } = useMapPosition();

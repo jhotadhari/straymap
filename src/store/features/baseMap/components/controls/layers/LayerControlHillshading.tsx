@@ -108,6 +108,8 @@ const LayerControlHillshading: FC<{}> = () => {
 				setOptions={setOptions}
 				optKey={'hgtDirPath'}
 				dirs={get(appDirs, 'dem', [])}
+				fallbackAppHgt={ true }
+				modalHeader={ t('baseMap.selectDemDir') }
 			/>
 
 			<NumericRowControlMulti

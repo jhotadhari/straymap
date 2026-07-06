@@ -14,6 +14,8 @@ import {
 	resolveCacheDirBase,
 	SHADING_ALGORITHM,
 } from '../../utils';
+import { useAppSelector } from '../../../../hooks';
+import { selectHgtDirPath } from '../../selectors';
 
 const LayerRendererHillshading: FC<{
 	layer: LayerConfig<LayerConfigOptionsHillshading>;
@@ -23,10 +25,12 @@ const LayerRendererHillshading: FC<{
 
 	const cacheDirBase = resolveCacheDirBase(opts.cacheDirBase, internalCacheDir);
 
-	return (
+	const appHgtDirPath = useAppSelector(selectHgtDirPath);
+
+	return (opts?.hgtDirPath ?? appHgtDirPath) ? (
 		<LayerHillshading
 			key={layer.key}
-			hgtDirPath={opts.hgtDirPath}
+			hgtDirPath={opts?.hgtDirPath ?? appHgtDirPath}
 			zoomMin={opts.zoomMin}
 			zoomMax={opts.zoomMax}
 			enabledZoomMin={opts.enabledZoomMin}
@@ -38,7 +42,7 @@ const LayerRendererHillshading: FC<{
 			shadingAlgorithm={SHADING_ALGORITHM}
 			shadingAlgorithmOptions={getShadingAlgorithmOptions(opts)}
 		/>
-	);
+	) : undefined;
 };
 
 export default LayerRendererHillshading;

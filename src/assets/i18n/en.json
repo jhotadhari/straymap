@@ -57,7 +57,7 @@
 	"demDownloads": "DEM downloads",
 	"map": {
 		"demDir": "DEM Directory",
-		"selectDemDir": "Select DEM Directory"
+		"selectDemDir": "Select App DEM Directory"
 	},
 	"hint": {
 		"maps": {

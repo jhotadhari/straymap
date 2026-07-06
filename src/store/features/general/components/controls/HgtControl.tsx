@@ -53,6 +53,7 @@ const HgtControl = () => {
 				optKey={'hgtDirPath'}
 				dirs={get(appDirs, 'dem', [])}
 				onlyThreeSeconds={true}
+				canDeselect={true}
 			/>
 		</ListItemModalControl>
 	);
