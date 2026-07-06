@@ -26,7 +26,7 @@ export default {
 	uiItems: [
 		{
 			key: 'linesBrowser',
-			label: 'ui.items.linesBrowser',
+			label: 'lines.linesBrowser',
 			icon: 'go-kart-track',
 			Component: LinesBrowser,
 			priority: 70,
