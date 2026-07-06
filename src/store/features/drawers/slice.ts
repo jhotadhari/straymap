@@ -15,11 +15,11 @@ export interface DrawersSettings {
 	itemKeysRight: string[];
 	controlHandleSide: string;
 	showSettingsHandle: boolean;
+	activeKeyLeft?: string;
+	activeKeyRight?: string;
 }
 
 export interface DrawersState extends SliceSettingsBase, DrawersSettings {
-	activeKeyLeft?: string;
-	activeKeyRight?: string;
 }
 
 export const initialSettings: DrawersSettings = {
@@ -35,6 +35,8 @@ export const initialSettings: DrawersSettings = {
 	],
 	controlHandleSide: 'right',
 	showSettingsHandle: true,
+	activeKeyLeft: undefined,
+	activeKeyRight: undefined,
 };
 
 const initialState: DrawersState = {

@@ -17,6 +17,7 @@ import {
 	removeItemKey,
 	addItemKey,
 	setControlHandleSide,
+	setActiveKey,
 } from './slice';
 import { startAppListening } from '../../listenerMiddleware';
 import { selectInitialized } from './selectors';
@@ -49,6 +50,22 @@ export const initializeFromStorage = (store: AppStore) => {
 						setItemKeys({
 							side: 'right',
 							itemKeys: newSettings.itemKeysRight,
+						})
+					);
+				}
+				if (newSettings?.activeKeyLeft) {
+					store.dispatch(
+						setActiveKey({
+							side: 'left',
+							activeKey: newSettings.activeKeyLeft,
+						})
+					);
+				}
+				if (newSettings?.activeKeyRight) {
+					store.dispatch(
+						setActiveKey({
+							side: 'right',
+							activeKey: newSettings.activeKeyRight,
 						})
 					);
 				}
@@ -93,7 +110,7 @@ export const saveToStorage = (drawersState: DrawersState, actionType: string) =>
  * and calls the function to save them to defaultPreferences.
  */
 startAppListening({
-	matcher: isAnyOf(setControlHandleSide, setItemKeys, addItemKey, removeItemKey),
+	matcher: isAnyOf(setControlHandleSide, setItemKeys, addItemKey, removeItemKey,setActiveKey),
 	effect: async (action, listenerApi) => {
 		try {
 			await saveToStorage(listenerApi.getState().drawers, action.type);
