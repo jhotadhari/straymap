@@ -1,6 +1,14 @@
+CREATE TABLE `tracks` (
+	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+	`line_id` integer,
+	`title` text,
+	`settings` text,
+	`data` text,
+	FOREIGN KEY (`line_id`) REFERENCES `lines`(`id`) ON UPDATE no action ON DELETE set null
+);
+--> statement-breakpoint
 CREATE TABLE `routes` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
-	`timestamp` text DEFAULT (current_timestamp) NOT NULL,
 	`point_order` text DEFAULT (json_array()) NOT NULL,
 	`line_id` integer,
 	FOREIGN KEY (`line_id`) REFERENCES `lines`(`id`) ON UPDATE no action ON DELETE set null
@@ -8,7 +16,6 @@ CREATE TABLE `routes` (
 --> statement-breakpoint
 CREATE TABLE `routing_points` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
-	`timestamp` text DEFAULT (current_timestamp) NOT NULL,
 	`geometry` blob NOT NULL,
 	`profile` text NOT NULL,
 	`route_id` integer NOT NULL,
@@ -17,7 +24,9 @@ CREATE TABLE `routing_points` (
 --> statement-breakpoint
 CREATE TABLE `lines` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
-	`timestamp` text DEFAULT (current_timestamp) NOT NULL,
+	`created_at` text DEFAULT (current_timestamp) NOT NULL,
+	`modified_at` text DEFAULT (current_timestamp) NOT NULL,
+	`custom_date` text DEFAULT (current_timestamp),
 	`title` text,
 	`data` text,
 	`geometry` blob NOT NULL

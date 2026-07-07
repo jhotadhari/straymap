@@ -18,9 +18,13 @@ import { lineString } from '../../../dbLoader/types';
 // R*Tree indexes.  To extend this table, add fields to the `data` JSON column.
 export const linesTable = sqliteTable('lines', {
 	id: integer('id').primaryKey({ autoIncrement: true }),
-	timestamp: text()
+	created_at: text()
 		.default(sql`(current_timestamp)`)
 		.notNull(),
+	modified_at: text()
+		.default(sql`(current_timestamp)`)
+		.notNull(),
+	custom_date: text().default(sql`(current_timestamp)`),
 	title: text('title'),
 	data: text('data', { mode: 'json' }).$type<any>(), // ??? type is any. is that ok?
 	geometry: lineString('geometry').notNull(),

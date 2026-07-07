@@ -94,7 +94,7 @@ const ListRow: FC<ListRowProps> = ({ line, idx, visible }) => {
 			<View style={sharedStyles.rowColCenter}>
 				<View style={sharedStyles.rowColCenterRow}>
 					{line.title && <Text>{line.title}</Text>}
-					<Text>{line.timestamp}</Text>
+					<Text>{line.created_at}</Text>
 				</View>
 
 				<View style={sharedStyles.rowColCenterRow}>

@@ -1,9 +1,68 @@
 {
-  "id": "115dec7b-e481-4f20-b992-b42ff181a07b",
-  "prevId": "80b77909-ffe7-4ec4-88c0-604621939e96",
+  "id": "1538c876-07c1-4181-89ea-bf9ce12a1543",
+  "prevId": "c8285db4-e5e7-40d6-9322-abd9d88dac43",
   "version": "6",
   "dialect": "sqlite",
   "tables": {
+    "tracks": {
+      "name": "tracks",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "line_id": {
+          "name": "line_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "title": {
+          "name": "title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "settings": {
+          "name": "settings",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "data": {
+          "name": "data",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "tracks_line_id_lines_id_fk": {
+          "name": "tracks_line_id_lines_id_fk",
+          "tableFrom": "tracks",
+          "columnsFrom": [
+            "line_id"
+          ],
+          "tableTo": "lines",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "set null"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
     "routes": {
       "name": "routes",
       "columns": {
@@ -13,14 +72,6 @@
           "primaryKey": true,
           "notNull": true,
           "autoincrement": true
-        },
-        "timestamp": {
-          "name": "timestamp",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "(current_timestamp)"
         },
         "point_order": {
           "name": "point_order",
@@ -67,14 +118,6 @@
           "primaryKey": true,
           "notNull": true,
           "autoincrement": true
-        },
-        "timestamp": {
-          "name": "timestamp",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "(current_timestamp)"
         },
         "geometry": {
           "name": "geometry",
@@ -128,11 +171,27 @@
           "notNull": true,
           "autoincrement": true
         },
-        "timestamp": {
-          "name": "timestamp",
+        "created_at": {
+          "name": "created_at",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false,
+          "default": "(current_timestamp)"
+        },
+        "modified_at": {
+          "name": "modified_at",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(current_timestamp)"
+        },
+        "custom_date": {
+          "name": "custom_date",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
           "autoincrement": false,
           "default": "(current_timestamp)"
         },

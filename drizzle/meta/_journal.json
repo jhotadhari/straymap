@@ -5,22 +5,15 @@
     {
       "idx": 0,
       "version": "6",
-      "when": 1782680518386,
-      "tag": "0000_cloudy_randall",
+      "when": 1783461097763,
+      "tag": "0000_married_silver_fox",
       "breakpoints": true
     },
     {
       "idx": 1,
       "version": "6",
-      "when": 1782680519130,
+      "when": 1783461099801,
       "tag": "0001_initSpatial",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "6",
-      "when": 1783131314082,
-      "tag": "0002_cheerful_shape",
       "breakpoints": true
     }
   ]

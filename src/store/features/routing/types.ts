@@ -13,7 +13,6 @@ export type RoutingProfile = {
 
 export type RoutingPoint = {
 	id: number;
-	timestamp: string;
 	geometry: Point;
 	profile: RoutingProfile;
 };
@@ -28,7 +27,6 @@ export type RoutingSegment = {
 
 export interface Route {
 	id: number;
-	timestamp: string;
 	point_order: number[];
 	line_id: number | null;
 	stats?: LineStats;

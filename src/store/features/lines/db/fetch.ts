@@ -159,7 +159,9 @@ const getLineColumns = (fields: (keyof Omit<Line, 'id'>)[], options?: LineColumn
 	return {
 		id: linesTable.id,
 		...(fields.includes('title') && { title: linesTable.title }),
-		...(fields.includes('timestamp') && { timestamp: linesTable.timestamp }),
+		...(fields.includes('created_at') && { created_at: linesTable.created_at }),
+		...(fields.includes('modified_at') && { modified_at: linesTable.modified_at }),
+		...(fields.includes('custom_date') && { custom_date: linesTable.custom_date }),
 		...(fields.includes('geometry') &&
 			!options?.simplify && {
 				geometryGeoJSON: sql<string>` AsGeoJSON (${linesTable.geometry}) `,
@@ -206,7 +208,8 @@ const fetchLinesWithoutTags = (params?: FetchLinesWithoutTagsParams) => {
 		'title',
 		'geometry',
 		'envelope',
-		'timestamp',
+		'created_at',
+		'modified_at',
 		'stats',
 	];
 	if (fieldsInclude) {
@@ -229,7 +232,7 @@ const fetchLinesWithoutTags = (params?: FetchLinesWithoutTagsParams) => {
 		query.where(and(lineIds ? inArray(linesTable.id, lineIds) : undefined, filterClause));
 
 		const orderByClause = buildOrderByClause(sort);
-		query.orderBy(orderByClause ?? desc(linesTable.timestamp));
+		query.orderBy(orderByClause ?? desc(linesTable.created_at));
 
 		if (limit !== undefined) {
 			query.limit(limit);
@@ -270,7 +273,8 @@ const fetchLinesWithTags = (params?: FetchLinesWithTagsParams) => {
 		'title',
 		'geometry',
 		'envelope',
-		'timestamp',
+		'created_at',
+		'modified_at',
 		'tags',
 		'stats',
 	];
@@ -328,7 +332,7 @@ const fetchLinesWithTags = (params?: FetchLinesWithTagsParams) => {
 		);
 
 		const orderByClause = buildOrderByClause(sort);
-		query.orderBy(orderByClause ?? desc(linesTable.timestamp));
+		query.orderBy(orderByClause ?? desc(linesTable.created_at));
 
 		if (limit !== undefined) {
 			query.limit(limit);
@@ -344,7 +348,8 @@ const fetchLinesWithTags = (params?: FetchLinesWithTagsParams) => {
 							line: {
 								id: number;
 								title?: string | null;
-								timestamp?: string;
+								created_at?: string;
+								modified_at?: string;
 								geometryGeoJSON?: string;
 								envelopeGeoJSON?: string;
 								length?: string;

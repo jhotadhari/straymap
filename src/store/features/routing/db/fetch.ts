@@ -46,13 +46,11 @@ export const fetchRoutes = (params?: FetchRoutesParams): Promise<Route[]> => {
 		.select({
 			// Point fields
 			pointId: routingPointsTable.id,
-			pointTimestamp: routingPointsTable.timestamp,
 			geometryGeoJSON: sql<string>`AsGeoJSON (${routingPointsTable.geometry})`,
 			pointProfile: routingPointsTable.profile,
 
 			// Route fields
 			routeId: routesTable.id,
-			routeTimestamp: routesTable.timestamp,
 			routePointOrder: routesTable.point_order,
 			routeLineId: routesTable.line_id,
 
@@ -83,7 +81,6 @@ export const fetchRoutes = (params?: FetchRoutesParams): Promise<Route[]> => {
 			return dbConnection
 				.drizzle!.select({
 					id: routesTable.id,
-					timestamp: routesTable.timestamp,
 					point_order: routesTable.point_order,
 					line_id: routesTable.line_id,
 				})
@@ -107,7 +104,6 @@ export const fetchRoutes = (params?: FetchRoutesParams): Promise<Route[]> => {
 			return dbConnection
 				.drizzle!.select({
 					id: routesTable.id,
-					timestamp: routesTable.timestamp,
 					point_order: routesTable.point_order,
 					line_id: routesTable.line_id,
 				})
@@ -132,7 +128,6 @@ export const fetchRoutes = (params?: FetchRoutesParams): Promise<Route[]> => {
 				if (rId && !acc[rId]) {
 					acc[rId] = {
 						id: rId,
-						timestamp: row.routeTimestamp,
 						point_order: row.routePointOrder,
 						line_id: row.routeLineId,
 						stats: mapValues(
@@ -145,7 +140,6 @@ export const fetchRoutes = (params?: FetchRoutesParams): Promise<Route[]> => {
 				if (rId && row.pointId) {
 					const pointFields = {
 						id: row.pointId,
-						timestamp: row.pointTimestamp,
 						geometryGeoJSON: row.geometryGeoJSON,
 						profile: row.pointProfile,
 					};

@@ -15,9 +15,6 @@ import { linesTable } from '../../../lines/db/schema/schema';
 // on existing rows), dropping a column (data silently lost).
 export const routesTable = sqliteTable('routes', {
 	id: integer('id').primaryKey({ autoIncrement: true }),
-	timestamp: text()
-		.default(sql`(current_timestamp)`)
-		.notNull(),
 	point_order: text('point_order', { mode: 'json' })
 		.notNull()
 		.$type<number[]>()
@@ -33,9 +30,6 @@ export const routesTable = sqliteTable('routes', {
 // R*Tree indexes.  To extend this table, add a JSON column like `profile`.
 export const routingPointsTable = sqliteTable('routing_points', {
 	id: integer('id').primaryKey({ autoIncrement: true }),
-	timestamp: text()
-		.default(sql`(current_timestamp)`)
-		.notNull(),
 	geometry: point('geometry').notNull(),
 	profile: text('profile', { mode: 'json' }).notNull().$type<any>(), // ??? type any. is that ok?
 	route_id: integer('route_id')

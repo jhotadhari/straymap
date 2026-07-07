@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { Feature, LineString, GeoJsonProperties } from 'geojson';
-import { eq, and, inArray } from 'drizzle-orm';
+import { eq, and, inArray, sql } from 'drizzle-orm';
 
 /**
  * Internal dependencies
@@ -92,6 +92,7 @@ export const updateLine = withDbErrorHandling(
 			title: string | null;
 			lineStringFeature: Feature<LineString, GeoJsonProperties>;
 			tagIds?: number[];
+			custom_date?: string | null;
 		}>
 	) => {
 		if (!id || !dbConnection?.drizzle) {
@@ -147,6 +148,10 @@ export const updateLine = withDbErrorHandling(
 						...(undefined !== newLine?.title && { title: newLine.title }),
 						...(undefined !== newLine?.lineStringFeature && {
 							geometry: newLine.lineStringFeature.geometry,
+							modified_at: sql`(current_timestamp)`,
+						}),
+						...(undefined !== newLine?.custom_date && {
+							custom_date: newLine.custom_date,
 						}),
 					})
 					.where(eq(linesTable.id, id))

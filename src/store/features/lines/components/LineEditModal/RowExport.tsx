@@ -62,22 +62,22 @@ const RowExport: FC = () => {
 
 		try {
 			const safeTitle = line?.title ?? line?.id?.toString() ?? 'line';
-			const dateStr = line?.timestamp
-				? dayjs(line.timestamp).format('YYYY-MM-DD')
+			const dateStr = line?.created_at
+				? dayjs(line.created_at).format('YYYY-MM-DD')
 				: 'no-date';
 			const ext = selectedFormat === 'geojson' ? 'geojson' : selectedFormat;
 
 			const resolved = resolveFilename(DEFAULT_TEMPLATE, {
 				title: safeTitle,
 				id: line?.id,
-				timestamp: dateStr,
+				created_at: dateStr,
 			});
 			const filename = `${sanitizeFilename(resolved)}.${ext}`;
 
 			const content = writeFormat(selectedFormat, [
 				{
 					geometry: lineWithGeom.geometry,
-					meta: { title: line?.title, timestamp: line?.timestamp },
+					meta: { title: line?.title, created_at: line?.created_at },
 				},
 			]);
 

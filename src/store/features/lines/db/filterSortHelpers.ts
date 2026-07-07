@@ -95,17 +95,40 @@ const buildNumericWhere = (filter: NumericColumnFilter): SQL | undefined => {
 };
 
 const buildDateWhere = (filter: DateColumnFilter): SQL | undefined => {
+	const col = getDateColumn(filter.columnKey);
+	if (!col) {
+		return undefined;
+	}
 	const conditions: (SQL | undefined)[] = [];
 	if (filter.min !== undefined) {
-		conditions.push(gte(linesTable.timestamp, filter.min));
+		conditions.push(gte(col, filter.min));
 	}
 	if (filter.max !== undefined) {
-		conditions.push(lte(linesTable.timestamp, filter.max));
+		conditions.push(lte(col, filter.max));
 	}
 	if (!conditions.length) {
 		return undefined;
 	}
 	return and(...conditions);
+};
+
+const getDateColumn = (
+	columnKey: string
+):
+	| typeof linesTable.created_at
+	| typeof linesTable.modified_at
+	| typeof linesTable.custom_date
+	| undefined => {
+	switch (columnKey) {
+		case 'created_at':
+			return linesTable.created_at;
+		case 'modified_at':
+			return linesTable.modified_at;
+		case 'custom_date':
+			return linesTable.custom_date;
+		default:
+			return undefined;
+	}
 };
 
 const buildStringWhere = (filter: StringColumnFilter): SQL | undefined => {
@@ -175,12 +198,21 @@ export const buildOrderByClause = (
 		return undefined;
 	}
 
-	let expr: ReturnType<typeof sql> | typeof linesTable.timestamp | typeof linesTable.title;
+	let expr:
+		| ReturnType<typeof sql>
+		| typeof linesTable.created_at
+		| typeof linesTable.modified_at
+		| typeof linesTable.custom_date
+		| typeof linesTable.title;
 
 	if (STATS_SQL[sort.columnKey]) {
 		expr = STATS_SQL[sort.columnKey];
-	} else if (sort.columnKey === 'timestamp') {
-		expr = linesTable.timestamp;
+	} else if (sort.columnKey === 'created_at') {
+		expr = linesTable.created_at;
+	} else if (sort.columnKey === 'modified_at') {
+		expr = linesTable.modified_at;
+	} else if (sort.columnKey === 'custom_date') {
+		expr = linesTable.custom_date;
 	} else if (sort.columnKey === 'title') {
 		expr = linesTable.title;
 	} else {

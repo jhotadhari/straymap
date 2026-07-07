@@ -55,7 +55,9 @@ export type CellConfig = {
 };
 
 export const lineCells: { [key: string]: CellConfig } = {
-	timestamp: { style: { width: 170 } },
+	created_at: { style: { width: 170 } },
+	modified_at: { style: { width: 170 } },
+	custom_date: { style: { width: 170 } },
 	title: { style: { width: 200 } },
 };
 
@@ -90,7 +92,7 @@ export type FilterColumnType = 'numeric' | 'date' | 'string' | 'tags';
 
 export const getFilterColumnType = (key: string): FilterColumnType | undefined => {
 	if (key in lineCells) {
-		if (key === 'timestamp') {
+		if (key === 'created_at' || key === 'modified_at' || key === 'custom_date') {
 			return 'date';
 		}
 		if (key === 'title') {

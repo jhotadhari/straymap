@@ -70,7 +70,7 @@ const useExport = () => {
 				fieldsInclude: [
 					'geometry',
 					'title',
-					'timestamp',
+					'created_at',
 				],
 			})) as (LinePartial & { geometry?: LineString })[];
 			const total = linesWithGeom.filter((l) => l.geometry).length;
@@ -81,15 +81,15 @@ const useExport = () => {
 				}
 
 				const safeTitle = line.title ?? line.id?.toString() ?? 'line';
-				const dateStr = line.timestamp
-					? dayjs(line.timestamp).format('YYYY-MM-DD')
+				const dateStr = line.created_at
+					? dayjs(line.created_at).format('YYYY-MM-DD')
 					: 'no-date';
 				const ext = selectedFormat === 'geojson' ? 'geojson' : selectedFormat;
 
 				const resolved = resolveFilename(DEFAULT_TEMPLATE, {
 					title: safeTitle,
 					id: line.id,
-					timestamp: dateStr,
+					created_at: dateStr,
 				});
 				const filename = `${sanitizeFilename(resolved)}.${ext}`;
 
@@ -98,7 +98,7 @@ const useExport = () => {
 						geometry: line.geometry,
 						meta: {
 							title: line.title,
-							timestamp: line.timestamp,
+							created_at: line.created_at,
 						},
 					},
 				]);

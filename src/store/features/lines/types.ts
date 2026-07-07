@@ -26,7 +26,9 @@ export interface Line {
 	title: string | null; // ??? rename to name
 	geometry: LineString;
 	envelope: Polygon;
-	timestamp: string;
+	created_at: string;
+	modified_at: string;
+	custom_date: string | null;
 	tags: Tag[];
 	data: any; // ??? any
 	stats: LineStats;

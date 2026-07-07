@@ -8,7 +8,7 @@
  *   snakeCase, startCase, toLower, toUpper, trim, upperCase, upperFirst
  *
  * Example:
- *   {{title|kebabCase}}_{{timestamp}}  →  morning-ride_2026-07-02.gpx
+ *   {{title|kebabCase}}_{{created_at}}  →  morning-ride_2026-07-02.gpx
  */
 
 /**
@@ -48,8 +48,8 @@ const TRANSFORMS: Record<string, TransformFn> = {
 	upperFirst,
 };
 
-/** Default template: title + date (caller formats timestamp before passing). */
-export const DEFAULT_TEMPLATE = '{{title}}_{{id}}_{{timestamp}}';
+/** Default template: title + date (caller formats created_at before passing). */
+export const DEFAULT_TEMPLATE = '{{title}}_{{id}}_{{created_at}}';
 
 /** Matches {{field}} or {{field|transform}} */
 const TOKEN_RE = /\{\{(\w+)(?:\|(\w+))?\}\}/g;
