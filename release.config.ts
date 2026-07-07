@@ -1,6 +1,9 @@
 export default {
 	repo: 'https://github.com/jhotadhari/straymap',
-	publish: { npm: false, github: true },
+	publish: {
+		npm: false,
+		github: { attachment: true },
+	},
 	bumpFiles: [
 		{ path: 'package.json', type: 'json', key: 'version' },
 		{ path: 'android/app/build.gradle', type: 'gradle' },
