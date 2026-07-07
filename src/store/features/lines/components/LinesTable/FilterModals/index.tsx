@@ -26,12 +26,18 @@ import FilterTagsModal from './FilterTagsModal';
 interface FilterModalsProps {
 	visible: boolean;
 	editFilter?: ColumnFilter; // existing filter to edit, undefined for new filter
+	initialColumnKey?: string; // skip column selection, go directly to edit step for this column
 	onDismiss: () => void;
 }
 
 type ModalStep = 'selectColumn' | 'editFilter';
 
-const FilterModals: FC<FilterModalsProps> = ({ visible, editFilter, onDismiss }) => {
+const FilterModals: FC<FilterModalsProps> = ({
+	visible,
+	editFilter,
+	initialColumnKey,
+	onDismiss,
+}) => {
 	const dispatch = useAppDispatch();
 	const filters = useAppSelector(selectFilters);
 
@@ -46,13 +52,28 @@ const FilterModals: FC<FilterModalsProps> = ({ visible, editFilter, onDismiss })
 				setSelectedColumnKey(editFilter.columnKey);
 				setStep('editFilter');
 				setTempFilter(editFilter);
+			} else if (initialColumnKey) {
+				setSelectedColumnKey(initialColumnKey);
+				setStep('editFilter');
+				const filterType = getFilterColumnType(initialColumnKey);
+				if (filterType === 'numeric' || filterType === 'date') {
+					const existing = filters.find((f) => f.columnKey === initialColumnKey);
+					setTempFilter(existing);
+				} else {
+					setTempFilter(undefined);
+				}
 			} else {
 				setSelectedColumnKey(null);
 				setStep('selectColumn');
 				setTempFilter(undefined);
 			}
 		}
-	}, [visible, editFilter]);
+	}, [
+		visible,
+		editFilter,
+		initialColumnKey,
+		filters,
+	]);
 
 	const handleSelectColumn = useCallback(
 		(columnKey: string) => {

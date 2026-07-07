@@ -12,6 +12,13 @@
 		"maxZ": "Elevación máx.",
 		"tags": "Etiquetas"
 	},
+	"columnMenu": {
+		"hideColumn": "Ocultar columna",
+		"sortAsc": "Ordenar ascendente",
+		"sortDesc": "Ordenar descendente",
+		"addFilter": "Agregar filtro",
+		"removeFilter": "Eliminar filtro"
+	},
 	"filters": "Filtros",
 	"addFilter": "Agregar filtro",
 	"filterLogic": "Lógica: %s",
@@ -69,7 +76,7 @@
 	"regexInfo": "Una expresión regular (regex) es un patrón que describe conjuntos de cadenas. Por ejemplo, el patrón \"^Mount\" coincide con títulos que comienzan con \"Mount\". Usa regexr.com para aprender y probar patrones.",
 	"hintNumericFilter": "Filtrar rutas por valores mínimos y/o máximos para esta columna. Deja un campo vacío para omitir ese lado del rango.",
 	"hintDateFilter": "Filtrar rutas por un rango de fechas. Selecciona fechas de inicio y/o fin: deja cualquiera vacío para dejar ese lado sin límite.",
-	"hintStringFilter": "Elige un operador para comparar con el título e ingresa un valor. \"regex\" usa expresiones regulares para coincidencia avanzada de patrones.",
+	"hintStringFilter": "contiene: títulos que contienen el valor\n\nno contiene: títulos que no contienen el valor\n\ncomienza con: títulos que comienzan con el valor\n\ntermina con: títulos que terminan con el valor\n\nregex: búsqueda de texto basada en patrones. Aprende a usarlos:",
 	"hintTagsFilter": "Filtra rutas por etiqueta. Elige \"tiene etiqueta\" para mostrar solo rutas con esa etiqueta, o \"no tiene etiqueta\" para excluir rutas que la tengan.",
 	"tagsFilterPlaceholder": "Nombre de etiqueta…",
 	"hintName": "Dale a la ruta un nombre descriptivo para ayudarte a identificarla más tarde. El nombre se muestra en la lista de rutas y en el mapa.",

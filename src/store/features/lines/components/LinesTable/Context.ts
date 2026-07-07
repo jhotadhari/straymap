@@ -26,3 +26,11 @@ export const FooterContext = createContext<FooterContextType>({
 	lineIds: [],
 	linesCount: 0,
 });
+
+export type ColumnHeaderMenuContextType = {
+	openFilterForColumn: (columnKey: string) => void;
+};
+
+export const ColumnHeaderMenuContext = createContext<ColumnHeaderMenuContextType>({
+	openFilterForColumn: () => {},
+});

@@ -12,6 +12,13 @@
 		"maxZ": "Max. Höhe",
 		"tags": "Tags"
 	},
+	"columnMenu": {
+		"hideColumn": "Spalte ausblenden",
+		"sortAsc": "Aufsteigend sortieren",
+		"sortDesc": "Absteigend sortieren",
+		"addFilter": "Filter hinzufügen",
+		"removeFilter": "Filter entfernen"
+	},
 	"filters": "Filter",
 	"addFilter": "Filter hinzufügen",
 	"filterLogic": "Logik: %s",
@@ -69,7 +76,7 @@
 	"regexInfo": "Ein regulärer Ausdruck (Regex) ist ein Muster, das Zeichenketten beschreibt. Z.B. findet \"^Mount\" alle Titel, die mit \"Mount\" beginnen. Auf regexr.com kannst du Muster lernen und testen.",
 	"hintNumericFilter": "Routen nach Mindest- und/oder Höchstwerten für diese Spalte filtern. Lass ein Feld leer, um diese Seite des Bereichs zu überspringen.",
 	"hintDateFilter": "Routen nach einem Datumsbereich filtern. Wähle Start- und/oder Enddatum — ein leeres Feld lässt diese Seite offen.",
-	"hintStringFilter": "Wähle einen Operator für die Titelsuche und gib einen Wert ein. \"Regex\" verwendet reguläre Ausdrücke für erweiterte Mustersuche.",
+	"hintStringFilter": "enthält: Titel, die den Wert enthalten\n\nenthält nicht: Titel, die den Wert nicht enthalten\n\nbeginnt mit: Titel, die mit dem Wert beginnen\n\nendet mit: Titel, die mit dem Wert enden\n\nregex: musterbasierte Textsuche. Lerne, wie du sie verwendest:",
 	"hintTagsFilter": "Filtere Routen nach Tag. Wähle \"hat Tag\" um nur Routen mit diesem Tag anzuzeigen, oder \"hat nicht Tag\" um Routen auszuschließen, die diesen Tag haben.",
 	"tagsFilterPlaceholder": "Tag-Name…",
 	"hintName": "Gib der Route einen aussagekräftigen Namen, um sie später leichter wiederzuerkennen. Der Name wird in der Routenliste und auf der Karte angezeigt.",

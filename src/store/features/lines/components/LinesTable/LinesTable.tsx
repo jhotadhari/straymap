@@ -32,8 +32,9 @@ import { setLineSelected, setLinesSelected } from '../../slice';
 import { setUiItemKeys } from '../../../ui/slice';
 import useRoute from '../../../routing/hooks/useRoute';
 import useActivateDrawerItem from '../../../drawers/hooks/useActivateDrawerItem';
-import { FooterContext, HeaderContext } from './Context';
+import { FooterContext, HeaderContext, ColumnHeaderMenuContext } from './Context';
 import LineEditModal from '../LineEditModal/LineEditModal';
+import FilterModals from './FilterModals';
 
 const keyExtractor = (line: { id: number }) => line.id.toString();
 
@@ -114,6 +115,23 @@ const LinesTable: FC = () => {
 	useEffect(() => {
 		setCheckedIds([]);
 	}, [filters]);
+
+	// ── Column-header filter modal ────────────────────────────────────────
+
+	const [columnFilterModalVisible, setColumnFilterModalVisible] = useState(false);
+	const [columnFilterInitialKey, setColumnFilterInitialKey] = useState<string | undefined>(
+		undefined
+	);
+
+	const openFilterForColumn = useCallback((columnKey: string) => {
+		setColumnFilterInitialKey(columnKey);
+		setColumnFilterModalVisible(true);
+	}, []);
+
+	const dismissColumnFilterModal = useCallback(() => {
+		setColumnFilterModalVisible(false);
+		setColumnFilterInitialKey(undefined);
+	}, []);
 
 	const toggleCheckedId = useCallback((id: number) => {
 		setCheckedIds((ids) => {
@@ -210,45 +228,53 @@ const LinesTable: FC = () => {
 	);
 
 	return (
-		<View style={sharedStyles.container}>
-			<HeaderContext.Provider
-				value={{
-					checkedIds,
-				}}
-			>
-				<Header />
-			</HeaderContext.Provider>
+		<ColumnHeaderMenuContext.Provider value={{ openFilterForColumn }}>
+			<View style={sharedStyles.container}>
+				<HeaderContext.Provider
+					value={{
+						checkedIds,
+					}}
+				>
+					<Header />
+				</HeaderContext.Provider>
 
-			<ScrollView horizontal={true}>
-				<View style={styles.flexOne}>
-					<FlatList
-						stickyHeaderIndices={[0]}
-						scrollEnabled={true}
-						initialNumToRender={15}
-						data={lines ?? []}
-						keyExtractor={keyExtractor}
-						ListHeaderComponent={renderHeader}
-						renderItem={renderItem}
-					/>
-				</View>
-			</ScrollView>
+				<ScrollView horizontal={true}>
+					<View style={styles.flexOne}>
+						<FlatList
+							stickyHeaderIndices={[0]}
+							scrollEnabled={true}
+							initialNumToRender={15}
+							data={lines ?? []}
+							keyExtractor={keyExtractor}
+							ListHeaderComponent={renderHeader}
+							renderItem={renderItem}
+						/>
+					</View>
+				</ScrollView>
 
-			<FooterContext.Provider
-				value={{
-					checkedIds,
-					lineIds,
-					linesCount: lines?.length || 0,
-					setCheckedIds,
-					setOnMapIdsTemp,
-					routingLineId,
-					routeId,
-				}}
-			>
-				<Footer />
+				<FooterContext.Provider
+					value={{
+						checkedIds,
+						lineIds,
+						linesCount: lines?.length || 0,
+						setCheckedIds,
+						setOnMapIdsTemp,
+						routingLineId,
+						routeId,
+					}}
+				>
+					<Footer />
 
-				<LineEditModalWrapper />
-			</FooterContext.Provider>
-		</View>
+					<LineEditModalWrapper />
+				</FooterContext.Provider>
+
+				<FilterModals
+					visible={columnFilterModalVisible}
+					initialColumnKey={columnFilterInitialKey}
+					onDismiss={dismissColumnFilterModal}
+				/>
+			</View>
+		</ColumnHeaderMenuContext.Provider>
 	);
 };
 

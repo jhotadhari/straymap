@@ -12,6 +12,13 @@
 		"maxZ": "Elevação máx.",
 		"tags": "Tags"
 	},
+	"columnMenu": {
+		"hideColumn": "Ocultar coluna",
+		"sortAsc": "Ordenar crescente",
+		"sortDesc": "Ordenar decrescente",
+		"addFilter": "Adicionar filtro",
+		"removeFilter": "Remover filtro"
+	},
 	"filters": "Filtros",
 	"addFilter": "Adicionar filtro",
 	"filterLogic": "Lógica: %s",
@@ -69,7 +76,7 @@
 	"regexInfo": "Uma expressão regular (regex) é um padrão que descreve conjuntos de strings. Por exemplo, o padrão \"^Mount\" corresponde a títulos que começam com \"Mount\". Use regexr.com para aprender e testar padrões.",
 	"hintNumericFilter": "Filtrar rotas por valores mínimos e/ou máximos para esta coluna. Deixe um campo vazio para ignorar esse lado do intervalo.",
 	"hintDateFilter": "Filtrar rotas por um intervalo de datas. Selecione datas de início e/ou fim — deixe qualquer um vazio para deixar esse lado sem limite.",
-	"hintStringFilter": "Escolha um operador para comparar com o título e insira um valor. \"regex\" usa expressões regulares para correspondência avançada de padrões.",
+	"hintStringFilter": "contém: títulos que contêm o valor\n\nnão contém: títulos que não contêm o valor\n\ncomeça com: títulos que começam com o valor\n\ntermina com: títulos que terminam com o valor\n\nregex: busca de texto baseada em padrões. Aprenda a usá-los:",
 	"hintTagsFilter": "Filtre rotas por tag. Escolha \"tem tag\" para mostrar apenas rotas com essa tag, ou \"não tem tag\" para excluir rotas que têm a tag.",
 	"tagsFilterPlaceholder": "Nome da tag…",
 	"hintName": "Dê à rota um nome descritivo para ajudar a identificá-la mais tarde. O nome é mostrado na lista de rotas e no mapa.",

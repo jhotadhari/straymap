@@ -12,6 +12,13 @@
 		"maxZ": "Max elevation",
 		"tags": "Tags"
 	},
+	"columnMenu": {
+		"hideColumn": "Hide column",
+		"sortAsc": "Sort ascending",
+		"sortDesc": "Sort descending",
+		"addFilter": "Add filter",
+		"removeFilter": "Remove filter"
+	},
 	"filters": "Filters",
 	"addFilter": "Add filter",
 	"filterLogic": "Logic: %s",
@@ -69,7 +76,7 @@
 	"regexInfo": "A regular expression (regex) is a pattern that describes sets of strings. For example, the pattern \"^Mount\" matches titles starting with \"Mount\". Use regexr.com to learn and test patterns.",
 	"hintNumericFilter": "Filter routes by minimum and/or maximum values for this column. Leave a field empty to skip that side of the range.",
 	"hintDateFilter": "Filter routes by a date range. Select start and/or end dates — leave either empty to leave that side unbounded.",
-	"hintStringFilter": "Choose an operator to match against the title and enter a value. \"regex\" uses regular expressions for advanced pattern matching.",
+	"hintStringFilter": "includes: titles containing the value\n\nexcludes: titles not containing the value\n\nstarts with: titles beginning with the value\n\nends with: titles ending with the value\n\nregex: pattern-based text matching. Learn how to use them:",
 	"hintTagsFilter": "Filter routes by tag. Choose \"has tag\" to show only routes with the given tag, or \"has not tag\" to exclude routes that have the tag.",
 	"tagsFilterPlaceholder": "Tag name…",
 	"hintName": "Give the route a descriptive name to help you identify it later. The name is shown in the route list and on the map.",

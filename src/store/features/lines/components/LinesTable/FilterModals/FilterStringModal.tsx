@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { FC, Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -110,29 +110,31 @@ const FilterStringModal: FC<{
 		[theme]
 	);
 
-	const stringFilterInfo = useMemo(
-		() => (
+	const hintStringFilterInfo = useMemo(() => {
+		const paragraphs = t('lines.hintStringFilter').split('\n\n');
+		const regexIdx = paragraphs.findIndex((p) => p.includes('regex'));
+		return (
 			<View>
-				<Text>{t('lines.hintStringFilter')}</Text>
-			</View>
-		),
-		[t]
-	);
+				{paragraphs.map((text, i) => (
+					<Fragment key={i}>
+						<Text
+							style={
+								i < paragraphs.length - 1 ? localStyles.hintParagraph : undefined
+							}
+						>
+							{text}
+						</Text>
 
-	const regexInfo = useMemo(
-		() => (
-			<View>
-				<Text style={localStyles.regexInfoText}>{t('lines.regexInfo')}</Text>
-				<HintLink
-					label="regexr.com"
-					url="https://regexr.com/"
-				/>
+						{i === regexIdx && (
+							<HintLink
+								url="https://regexr.com/"
+							/>
+						)}
+					</Fragment>
+				))}
 			</View>
-		),
-		[t]
-	);
-
-	const infoForOperator = operator === 'regex' ? regexInfo : stringFilterInfo;
+		);
+	}, [t]);
 
 	return (
 		<ModalWrapper
@@ -153,7 +155,7 @@ const FilterStringModal: FC<{
 
 			<InfoRowControl
 				label={t('lines.filterValue')}
-				Info={infoForOperator}
+				Info={hintStringFilterInfo}
 			>
 				<TextInput
 					style={inputStyle}
@@ -198,7 +200,7 @@ const localStyles = StyleSheet.create({
 		minWidth: 150,
 		textAlign: 'right',
 	},
-	regexInfoText: {
+	hintParagraph: {
 		marginBottom: 12,
 	},
 });
