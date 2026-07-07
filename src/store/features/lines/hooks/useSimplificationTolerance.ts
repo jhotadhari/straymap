@@ -22,7 +22,7 @@ const getSimplification = (zoomLevel: number) => {
 		case (zoomLevel >= 10 ):
 			return 0.0015;
 		case (zoomLevel >= 9 ):
-			return 0.003;
+			return 0.0025;
 		case (zoomLevel >= 8 ):
 			return 0.007;
 		case (zoomLevel >= 7 ):

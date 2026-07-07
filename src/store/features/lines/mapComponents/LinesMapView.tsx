@@ -83,7 +83,7 @@ const LinesMapView = () => {
 	return (
 		<ReindexScope order={200}>
 			<SharedLayer>
-				{selectedIds?.map((lineId) => {
+				{simplify === undefined ? undefined : selectedIds?.map((lineId) => {
 					return (
 						routingLineId !== lineId &&
 						recordingLineId !== lineId &&
