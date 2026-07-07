@@ -10,6 +10,31 @@ import { isObject, set } from 'lodash-es';
 /**
  */
 
+/**
+ * Converts a CSS rgb() or rgba() string to a 6-digit hex color (alpha is
+ * discarded — the output is always opaque).  Returns `#000000` for any input
+ * that doesn't match the expected format.
+ *
+ * @example
+ * rgbStrToHex('rgb(208, 188, 255)')       // '#d0bcff'
+ * rgbStrToHex('rgba(208, 188, 255, 0.5)') // '#d0bcff'
+ * rgbStrToHex('rgb(0, 0, 0)')             // '#000000'
+ * rgbStrToHex('garbage')                   // '#000000'
+ */
+export const rgbStrToHex = (rgbStr: string): string => {
+	const match = rgbStr.match(
+		/rgba?\s*\(\s*(-?\d{1,3})\s*,\s*(-?\d{1,3})\s*,\s*(-?\d{1,3})\s*(?:,\s*[\d.]+)?\s*\)/i
+	);
+	if (!match) {
+		return '#000000';
+	}
+	const toHex = (n: string) => {
+		const val = Math.min(255, Math.max(0, parseInt(n, 10)));
+		return val.toString(16).padStart(2, '0');
+	};
+	return `#${toHex(match[1])}${toHex(match[2])}${toHex(match[3])}`;
+};
+
 export const randomNumber = (min: number, max: number): number => Math.random() * (max - min) + min;
 
 export const roundTo = (num: number, precision: number): number => {

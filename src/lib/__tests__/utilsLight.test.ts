@@ -11,6 +11,7 @@ import {
 	roundTo,
 	randomNumber,
 	sortDeep,
+	rgbStrToHex,
 } from '../utilsLight';
 
 describe('parseSerialized', () => {
@@ -355,5 +356,52 @@ describe('sortDeep', () => {
 
 		const keys2 = Object.keys(result.level1.level2a);
 		expect(keys2).toEqual(['deep1', 'deep2']);
+	});
+});
+
+// ===========================================================================
+// rgbStrToHex
+// ===========================================================================
+
+describe('rgbStrToHex', () => {
+	it('converts rgb() to hex', () => {
+		expect(rgbStrToHex('rgb(208, 188, 255)')).toBe('#d0bcff');
+	});
+
+	it('converts rgba() to hex, ignoring alpha', () => {
+		expect(rgbStrToHex('rgba(208, 188, 255, 1)')).toBe('#d0bcff');
+		expect(rgbStrToHex('rgba(208, 188, 255, 0.5)')).toBe('#d0bcff');
+		expect(rgbStrToHex('rgba(208, 188, 255, 0)')).toBe('#d0bcff');
+	});
+
+	it('returns #000000 for black', () => {
+		expect(rgbStrToHex('rgb(0, 0, 0)')).toBe('#000000');
+	});
+
+	it('returns #ffffff for white', () => {
+		expect(rgbStrToHex('rgb(255, 255, 255)')).toBe('#ffffff');
+	});
+
+	it('handles irregular whitespace', () => {
+		expect(rgbStrToHex('rgb(  0 , 255,  128  )')).toBe('#00ff80');
+	});
+
+	it('clamps out-of-range values to 0–255', () => {
+		expect(rgbStrToHex('rgb(300, -10, 128)')).toBe('#ff0080');
+	});
+
+	it('returns #000000 for non-matching input', () => {
+		expect(rgbStrToHex('hsl(0, 0%, 0%)')).toBe('#000000');
+		expect(rgbStrToHex('')).toBe('#000000');
+		expect(rgbStrToHex('garbage')).toBe('#000000');
+	});
+
+	it('pads single-digit hex values', () => {
+		expect(rgbStrToHex('rgb(0, 15, 0)')).toBe('#000f00');
+	});
+
+	it('handles uppercase RGB/RGBA', () => {
+		expect(rgbStrToHex('RGB(255, 0, 0)')).toBe('#ff0000');
+		expect(rgbStrToHex('RGBA(0, 255, 0, 1)')).toBe('#00ff00');
 	});
 });
