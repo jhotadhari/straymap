@@ -1,15 +1,13 @@
 /**
  * External dependencies
  */
-import { getTrackFromParams, GetTrackParams } from 'react-native-brouter';
-import { FeatureCollection, LineString } from 'geojson';
+import { getRoute } from 'react-native-brouter/geojson';
+import type { VehicleMode } from 'react-native-brouter/geojson';
 
 /**
  * Internal dependencies
  */
-import { parseSerialized } from '../../../lib/utilsLight';
 import { RoutingSegment } from './types';
-import { runAfterInteractions } from '../../../lib/utils';
 
 export const getSegmentRecordId = (segment: Pick<RoutingSegment, 'fromId' | 'toId'>) =>
 	[
@@ -26,38 +24,28 @@ export const aggregateSegmentsToCoords = (segments: RoutingSegment[]) =>
 	}, [] as number[][]);
 
 export const getCoordsFromRouting = ({
-	params,
-	hasDelay,
+	waypoints,
+	vehicle,
+	fast,
 }: {
-	params: GetTrackParams;
-	hasDelay: boolean; // ??? do we really need that delay???
+	waypoints: number[][];
+	vehicle?: VehicleMode;
+	fast?: boolean;
 }) => {
 	return new Promise<number[][]>((resolve, reject) => {
-		runAfterInteractions(
-			() => {
-				setTimeout(
-					() =>
-						getTrackFromParams(params)
-							.then((result: string) => {
-								const parsed = parseSerialized(result) as
-									| false
-									| FeatureCollection<LineString, any>;
-								if (parsed) {
-									const coords = [...parsed.features]
-										.map((feature) => feature.geometry.coordinates)
-										.flat();
-									resolve(coords);
-								} else {
-									reject(result);
-								}
-							})
-							.catch((e: any) => {
-								reject(e?.userInfo?.errorMsg ?? 'Some error');
-							}),
-					hasDelay ? 0 : 400
-				);
-			},
-			hasDelay ? 0 : 100
-		);
+		getRoute({
+			waypoints,
+			vehicle,
+			fast,
+			format: 'json',
+		})
+			.then((result) => {
+				const coords =
+					result.parsed?.track.features.flatMap((f) => f.geometry.coordinates) ?? [];
+				resolve(coords);
+			})
+			.catch((e: any) => {
+				reject(e?.message ?? 'Some error');
+			});
 	});
 };

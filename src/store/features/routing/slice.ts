@@ -16,7 +16,6 @@ import { setLineSelected } from '../lines/slice';
 import { lineString } from '@turf/turf';
 import { createLines, updateLine } from '../lines/db/actionsLine';
 import { updateRoute } from './db/actionsRoute';
-import { GetTrackParams } from 'react-native-brouter';
 import { queryRoute } from './db/queryFns';
 import { selectIsRouting } from './selectors';
 import { QueryClient } from '@tanstack/react-query';
@@ -203,25 +202,21 @@ export const processRouting = (
 										})
 									);
 
-									const params: GetTrackParams = {
-										lonlats: [
-											[
-												point.geometry.coordinates[0],
-												point.geometry.coordinates[1],
-											].join(','),
-											[
-												nextPoint.geometry.coordinates[0],
-												nextPoint.geometry.coordinates[1],
-											].join(','),
-										].join('|'),
-										trackFormat: 'json',
-										fast: point?.profile?.fast,
-										v: point?.profile?.v,
-									};
+									const waypoints: number[][] = [
+										[
+											point.geometry.coordinates[0],
+											point.geometry.coordinates[1],
+										],
+										[
+											nextPoint.geometry.coordinates[0],
+											nextPoint.geometry.coordinates[1],
+										],
+									];
 
 									getCoordsFromRouting({
-										params,
-										hasDelay: !!pointIdx,
+										waypoints,
+										vehicle: point?.profile?.v,
+										fast: point?.profile?.fast,
 									})
 										.then((coords) => {
 											newSegment.positions = coords;

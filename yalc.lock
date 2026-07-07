@@ -1,13 +1,8 @@
 {
   "version": "v1",
   "packages": {
-    "react-native-brouter": {
-      "signature": "efe2e0ad309304ec884d42a907c2a06d",
-      "file": true,
-      "replaced": "*"
-    },
     "react-native-mapsforge-vtm": {
-      "signature": "dd044fbb2a849b1afff11ec421d16c69",
+      "signature": "4ebb1a4d88c28d257d35bd078a27ee10",
       "file": true,
       "replaced": "^0.7.0"
     },
@@ -19,6 +14,11 @@
       "signature": "3bd24971cd7bf7119845a2727afcf472",
       "file": true,
       "replaced": "file:.yalc/release-kit"
+    },
+    "react-native-brouter": {
+      "signature": "21aa1b3c70c6083e5b2469306fe2fa0d",
+      "file": true,
+      "replaced": "*"
     }
   }
 }

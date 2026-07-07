@@ -5,7 +5,7 @@ import React, { Dispatch, FC, SetStateAction, useCallback, useMemo } from 'react
 import { useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { get, isEqual } from 'lodash-es';
-import { GetTrackParams } from 'react-native-brouter';
+import type { VehicleMode } from 'react-native-brouter/geojson';
 
 /**
  * Internal dependencies
@@ -53,7 +53,7 @@ const ProfileRowControl = ({
 			editPoint.profile &&
 			setEditPoint({
 				...editPoint,
-				profile: { ...editPoint.profile, v: newValue as GetTrackParams['v'] },
+				profile: { ...editPoint.profile, v: newValue as VehicleMode },
 			}),
 		[editPoint, setEditPoint]
 	);

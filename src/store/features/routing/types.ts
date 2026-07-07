@@ -1,14 +1,14 @@
 /**
  * External dependencies
  */
-import { GetTrackParams } from 'react-native-brouter';
+import type { VehicleMode } from 'react-native-brouter/geojson';
 import { Point } from 'geojson';
 import { Position } from 'react-native-mapsforge-vtm';
 import { LineStats } from '../lines/types';
 
 export type RoutingProfile = {
-	fast: GetTrackParams['fast'];
-	v: GetTrackParams['v'];
+	fast: boolean;
+	v: VehicleMode;
 };
 
 export type RoutingPoint = {
