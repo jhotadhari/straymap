@@ -19,7 +19,6 @@ export interface TrackRecordingState {
 
 export interface Track {
 	id: number;
-	timestamp: string;
 	line_id: number | null;
 	title: string | null;
 	settings: Partial<TrackSettings>;

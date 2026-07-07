@@ -43,7 +43,8 @@ const RowCustomDate: FC = () => {
 
 	const { line } = useContext(LineEditModalContext);
 
-	const currentValue = lineTemp?.custom_date ?? line?.custom_date;
+	const currentValue =
+		lineTemp && 'custom_date' in lineTemp ? lineTemp.custom_date : line?.custom_date;
 
 	const handleChange = useCallback(
 		(d: Date | undefined) => {

@@ -210,6 +210,7 @@ const fetchLinesWithoutTags = (params?: FetchLinesWithoutTagsParams) => {
 		'envelope',
 		'created_at',
 		'modified_at',
+		'custom_date',
 		'stats',
 	];
 	if (fieldsInclude) {
@@ -275,6 +276,7 @@ const fetchLinesWithTags = (params?: FetchLinesWithTagsParams) => {
 		'envelope',
 		'created_at',
 		'modified_at',
+		'custom_date',
 		'tags',
 		'stats',
 	];
@@ -350,6 +352,8 @@ const fetchLinesWithTags = (params?: FetchLinesWithTagsParams) => {
 								title?: string | null;
 								created_at?: string;
 								modified_at?: string;
+								custom_date?: string | null;
+								data?: any;
 								geometryGeoJSON?: string;
 								envelopeGeoJSON?: string;
 								length?: string;
