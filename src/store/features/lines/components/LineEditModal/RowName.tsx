@@ -55,9 +55,15 @@ const RowName: FC = () => {
 		<InfoRowControl
 			label={t('lines.name')}
 			Info={t('lines.hintName')}
+			style={{ alignItems: 'flex-start' }}
 		>
 			<TextInput
-				// style={{ flexGrow: 1 }}
+				style={{
+					flexGrow: 1,
+					maxWidth: '83%',	// this is a hack. one day w should refactor InfoRowControl so that the children sit in a properly layouted container and can grow to full width without setting weird numerical calculated values.
+				}}
+				multiline={true}
+				numberOfLines={3}
 				underlineColor="transparent"
 				dense={true}
 				theme={inputTheme}
