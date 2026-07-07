@@ -113,5 +113,8 @@
 	"tagsNewPlaceholder": "New tag name…",
 	"tagsCreate": "Create tag",
 	"tagsNoTags": "No tags yet",
-	"tagsApply": "Apply"
+	"tagsApply": "Apply",
+	"clearLinesFromMap": "Remove from map",
+	"clearLinesConfirm": "Remove from map confirmation",
+	"clearLinesConfirmationBody": "Are you sure you want to remove all %s route(s) from the map? They will stay in your browser and are not deleted. You can easily add them again."
 }

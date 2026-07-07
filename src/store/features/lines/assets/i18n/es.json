@@ -113,5 +113,8 @@
 	"tagsNewPlaceholder": "Nuevo nombre de etiqueta...",
 	"tagsCreate": "Crear etiqueta",
 	"tagsNoTags": "Aún no hay etiquetas",
-	"tagsApply": "Aplicar"
+	"tagsApply": "Aplicar",
+	"clearLinesFromMap": "Quitar del mapa",
+	"clearLinesConfirm": "Confirmar eliminación del mapa",
+	"clearLinesConfirmationBody": "¿Estás seguro de que quieres quitar todas las %s ruta(s) del mapa? Permanecerán en tu navegador y no se eliminarán. Puedes volver a añadirlas fácilmente."
 }

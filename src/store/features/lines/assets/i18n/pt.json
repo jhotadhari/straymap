@@ -113,5 +113,8 @@
 	"tagsNewPlaceholder": "Novo nome de tag...",
 	"tagsCreate": "Criar tag",
 	"tagsNoTags": "Nenhuma tag ainda",
-	"tagsApply": "Aplicar"
+	"tagsApply": "Aplicar",
+	"clearLinesFromMap": "Remover do mapa",
+	"clearLinesConfirm": "Confirmar remoção do mapa",
+	"clearLinesConfirmationBody": "Tem certeza de que deseja remover todas as %s rota(s) do mapa? Elas permanecerão no seu navegador e não serão excluídas. Você pode adicioná-las novamente facilmente."
 }

@@ -5,6 +5,7 @@ import { FC, Fragment, useCallback, useContext, useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Icon, Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
+import { sprintf } from 'sprintf-js';
 
 /**
  * Internal dependencies
@@ -19,8 +20,8 @@ import DrawerContext from '../../../drawers/DrawerContext';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { addUiItemKey } from '../../../ui/slice';
 import useShowStatsCbModal from '../../hooks/useShowStatsCbModal';
+import useClearLinesCbModal from '../../hooks/useClearLinesCbModal';
 import { selectSelected } from '../../selectors';
-import { sprintf } from 'sprintf-js';
 
 const styles = StyleSheet.create({
 	item: {
@@ -35,20 +36,17 @@ const styles = StyleSheet.create({
 	buttonRowReverse: {
 		flexDirection: 'row-reverse',
 	},
-	linesInfoRow: {
-		marginHorizontal: 8,
-		flexDirection: 'row',
-		gap: 16,
-	},
 });
 
 const styleItem = [
 	itemStyles.item,
 	styles.item,
 ];
+
 const styleButtonRowSecond = [
 	itemStyles.buttonRow,
 	styles.flexRow,
+	{paddingLeft: 8}
 ];
 
 const DrawerTopBar: FC = () => {
@@ -82,6 +80,10 @@ const DrawerTopBar: FC = () => {
 		iconSource,
 	} = useShowStatsCbModal({ lineIds });
 
+	const { cb: handleClearLinesPressed, modalNode: clearLinesModalNode } = useClearLinesCbModal({
+		lineIds,
+	});
+
 	const styleButtonRowFirst = useMemo(
 		() => [
 			itemStyles.buttonRow,
@@ -94,6 +96,7 @@ const DrawerTopBar: FC = () => {
 	return (
 		<View>
 			{statsModalNode}
+			{clearLinesModalNode}
 
 			<View style={styleItem}>
 				<View style={styleButtonRowFirst}>
@@ -118,19 +121,27 @@ const DrawerTopBar: FC = () => {
 
 			<View style={styleItem}>
 				<View style={styleButtonRowSecond}>
-					<View style={styles.linesInfoRow}>
-						{lineIds.length > 0 && (
-							<Fragment>
-								<Text>{sprintf(t('lines.linesCount'), lineIds.length)}</Text>
+					{lineIds.length > 0 && (
+						<Fragment>
+							<Text>{sprintf(t('lines.linesCount'), lineIds.length)}</Text>
 
-								{hiddenCount > 0 && (
-									<Text>{sprintf(t('lines.linesHidden'), hiddenCount)}</Text>
-								)}
-							</Fragment>
-						)}
+							{hiddenCount > 0 && (
+								<Text>{sprintf(t('lines.linesHidden'), hiddenCount)}</Text>
+							)}
 
-						{lineIds.length === 0 && <Text>{t('lines.noLinesSelected')}</Text>}
-					</View>
+							<ButtonHighlight
+								mode="outlined"
+								onPress={handleClearLinesPressed}
+							>
+								<Icon
+									source="map-minus"
+									size={20}
+								/>
+							</ButtonHighlight>
+						</Fragment>
+					)}
+
+					{lineIds.length === 0 && <Text>{t('lines.noLinesSelected')}</Text>}
 				</View>
 			</View>
 		</View>
