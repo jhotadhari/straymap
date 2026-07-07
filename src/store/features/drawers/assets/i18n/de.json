@@ -1,8 +1,5 @@
 {
 	"openMapsSettings": "Karten Einstellungen öffnen",
 	"showSettingsHandle": "Einstellungsgriff anzeigen",
-	"hideSettingsHandle": "Einstellungsgriff ausblenden",
-	"hintShowSettingsHandle": "Steuert, ob das Einstellungs-Zahnrad auf der Karte sichtbar ist. Wenn ausgeblendet, ist die Panel-Konfiguration weiterhin über den Einstellungsbildschirm erreichbar.",
-	"configureDrawers": "Panels konfigurieren",
-	"hintConfigureDrawers": "Panel-Elemente auf der linken und rechten Seite der Karte hinzufügen, entfernen oder neu anordnen."
+	"hideSettingsHandle": "Einstellungsgriff ausblenden"
 }

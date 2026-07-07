@@ -15,6 +15,7 @@ import { setShowSettingsHandle } from '../slice';
 import DrawerControlModal from '../components/controls/DrawerControlModal';
 import InfoRowControl from '../../../../components/generic/controls/InfoRowControl';
 import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
+import ListItem from '../../../../components/generic/ListItem';
 
 const SettingsDrawers: FC<{ style?: ViewStyle }> = ({ style }) => {
 	const { t } = useTranslation();
@@ -34,11 +35,6 @@ const SettingsDrawers: FC<{ style?: ViewStyle }> = ({ style }) => {
 		setModalVisible(true);
 	}, []);
 
-	const toggleIcon = useMemo(
-		() => (showSettingsHandle ? 'toggle-switch-off-outline' : 'toggle-switch-outline'),
-		[showSettingsHandle]
-	);
-
 	const toggleLabel = useMemo(
 		() =>
 			showSettingsHandle ? t('drawers.showSettingsHandle') : t('drawers.hideSettingsHandle'),
@@ -47,35 +43,44 @@ const SettingsDrawers: FC<{ style?: ViewStyle }> = ({ style }) => {
 
 	return (
 		<ScrollView style={style}>
-			<InfoRowControl
-				label={toggleLabel}
-				Info={t('drawers.hintShowSettingsHandle')}
-			>
-				<ButtonHighlight
-					mode="outlined"
-					compact={true}
-					onPress={handleToggleShowSettingsHandle}
-					icon={toggleIcon}
-					textColor={theme.colors.onBackground}
-				>
-					{toggleLabel}
-				</ButtonHighlight>
-			</InfoRowControl>
+			<ListItem
+				title={
+					<InfoRowControl
+						label={t('drawers.selectDrawers')}
+						Info={t('drawers.hintSelectDrawers')}
+					>
+						<ButtonHighlight
+							mode="outlined"
+							compact={true}
+							onPress={handleOpenModal}
+							// icon="cog"
+							textColor={theme.colors.onBackground}
+							style={{ marginLeft: 8 }}
+						>
+							{t('drawers.selectDrawers')}
+						</ButtonHighlight>
+					</InfoRowControl>
+				}
+			/>
 
-			<InfoRowControl
-				label={t('drawers.configureDrawers')}
-				Info={t('drawers.hintConfigureDrawers')}
-			>
-				<ButtonHighlight
-					mode="outlined"
-					compact={true}
-					onPress={handleOpenModal}
-					icon="cog"
-					textColor={theme.colors.onBackground}
-				>
-					{t('drawers.configureDrawers')}
-				</ButtonHighlight>
-			</InfoRowControl>
+			<ListItem
+				title={
+					<InfoRowControl
+						label={t('drawers.settingsHandle')}
+						Info={t('drawers.hintShowSettingsHandle')}
+					>
+						<ButtonHighlight
+							mode="outlined"
+							compact={true}
+							onPress={handleToggleShowSettingsHandle}
+							textColor={theme.colors.onBackground}
+							style={{ marginLeft: 8 }}
+						>
+							{toggleLabel}
+						</ButtonHighlight>
+					</InfoRowControl>
+				}
+			/>
 
 			{modalVisible && (
 				<DrawerControlModal

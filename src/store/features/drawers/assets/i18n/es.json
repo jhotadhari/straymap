@@ -3,8 +3,5 @@
 	"drawer_other": "Paneles",
 	"openMapsSettings": "Abrir configuración de mapas",
 	"showSettingsHandle": "Mostrar tirador de ajustes",
-	"hideSettingsHandle": "Ocultar tirador de ajustes",
-	"hintShowSettingsHandle": "Controla si el engranaje de configuración es visible en el mapa. Cuando está oculto, igual puedes acceder a la configuración de paneles desde la pantalla de Configuración.",
-	"configureDrawers": "Configurar paneles",
-	"hintConfigureDrawers": "Añadir, quitar o reordenar elementos del panel en los lados izquierdo y derecho del mapa."
+	"hideSettingsHandle": "Ocultar tirador de ajustes"
 }
