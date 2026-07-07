@@ -98,7 +98,7 @@ const FilterDateModal: FC<{
 	const locale = useMemo(() => (i18n.language === 'de' ? 'de' : 'en'), [i18n.language]);
 
 	const { width } = Dimensions.get('window');
-	const inputWidth = useMemo(() => width * 0.55, [width]);
+	const inputWidth = useMemo(() => width * 0.45, [width]);
 
 	return (
 		<ModalWrapper
@@ -134,7 +134,7 @@ const FilterDateModal: FC<{
 					inputMode="end"
 					label={''}
 					mode="outlined"
-					withDateFormatInLabel={false}
+					withDateFormatInLabel={true}
 					style={{ width: inputWidth }}
 				/>
 			</InfoRowControl>

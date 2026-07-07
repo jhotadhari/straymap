@@ -54,6 +54,8 @@ export type FilterLogic = 'and' | 'or';
 
 export type StringFilterOperator = 'includes' | 'excludes' | 'startsWith' | 'endsWith' | 'regex';
 
+export type TagsFilterOperator = 'has' | 'notHas';
+
 export interface NumericColumnFilter {
 	type: 'numeric';
 	columnKey: string;
@@ -75,4 +77,15 @@ export interface StringColumnFilter {
 	value: string;
 }
 
-export type ColumnFilter = NumericColumnFilter | DateColumnFilter | StringColumnFilter;
+export interface TagsColumnFilter {
+	type: 'tags';
+	columnKey: string;
+	operator: TagsFilterOperator;
+	value: string;
+}
+
+export type ColumnFilter =
+	| NumericColumnFilter
+	| DateColumnFilter
+	| StringColumnFilter
+	| TagsColumnFilter;

@@ -14,27 +14,18 @@ import ModalWrapper from '../../../../../../components/generic/ModalWrapper';
 import ButtonHighlight from '../../../../../../components/generic/ButtonHighlight';
 import InfoRowControl from '../../../../../../components/generic/controls/InfoRowControl';
 import { sharedStyles as appSharedStyles } from '../../../../../../sharedStyles';
-import { sharedStyles } from '../sharedDeps';
+import { useAppSelector } from '../../../../../hooks';
+import { selectUnitPrefs } from '../../../../general/selectors';
+import {
+	toDisplayDistance,
+	toDisplayHeightDepth,
+	parseDistance,
+	parseHeightDepth,
+	getDistanceUnitSuffix,
+	getHeightDepthUnitSuffix,
+} from '../../../../../../lib/formatting';
+import { sharedStyles, getUnitPrefKey } from '../sharedDeps';
 import { NumericColumnFilter } from '../../../types';
-
-const nbToStr = (val: number | undefined): string => {
-	if (val === undefined) {
-		return '';
-	}
-	return val.toString();
-};
-
-const strToNb = (val: string): number | undefined => {
-	const trimmed = val.trim();
-	if (trimmed === '' || trimmed === '-') {
-		return undefined;
-	}
-	const parsed = parseFloat(trimmed.replace(/,/g, '.'));
-	if (isNaN(parsed)) {
-		return undefined;
-	}
-	return parsed;
-};
 
 const FilterNumericModal: FC<{
 	visible: boolean;
@@ -46,16 +37,55 @@ const FilterNumericModal: FC<{
 }> = ({ visible, columnKey, existingFilter, onDismiss, onSave, onDelete }) => {
 	const theme = useTheme();
 	const { t } = useTranslation();
+	const unitPrefs = useAppSelector(selectUnitPrefs);
 
-	const [minVal, setMinVal] = useState<string>(nbToStr(existingFilter?.min));
-	const [maxVal, setMaxVal] = useState<string>(nbToStr(existingFilter?.max));
+	const unitPrefKey = getUnitPrefKey(columnKey);
+	const unitPref = unitPrefKey ? unitPrefs[unitPrefKey] : undefined;
+
+	// Convert internal metric value → display value for the text input.
+	const metricToDisplay = useCallback(
+		(val: number | undefined): string => {
+			if (val === undefined) return '';
+			if (!unitPref) return val.toString();
+			if (unitPrefKey === 'distance') {
+				return toDisplayDistance(val, unitPref).toString();
+			}
+			if (unitPrefKey === 'heightDepth') {
+				return toDisplayHeightDepth(val, unitPref).toString();
+			}
+			return val.toString();
+		},
+		[unitPref, unitPrefKey]
+	);
+
+	// Convert user-entered display value → internal metric.
+	const displayToMetric = useCallback(
+		(val: string): number | undefined => {
+			const trimmed = val.trim();
+			if (trimmed === '' || trimmed === '-') return undefined;
+			const parsed = parseFloat(trimmed.replace(/,/g, '.'));
+			if (isNaN(parsed)) return undefined;
+			if (!unitPref) return parsed;
+			if (unitPrefKey === 'distance') {
+				return parseDistance(parsed, unitPref);
+			}
+			if (unitPrefKey === 'heightDepth') {
+				return parseHeightDepth(parsed, unitPref);
+			}
+			return parsed;
+		},
+		[unitPref, unitPrefKey]
+	);
+
+	const [minVal, setMinVal] = useState<string>(metricToDisplay(existingFilter?.min));
+	const [maxVal, setMaxVal] = useState<string>(metricToDisplay(existingFilter?.max));
 
 	const saveRef = useRef<undefined | (() => void)>(undefined);
 
 	useEffect(() => {
 		saveRef.current = () => {
-			const minNb = strToNb(minVal);
-			const maxNb = strToNb(maxVal);
+			const minNb = displayToMetric(minVal);
+			const maxNb = displayToMetric(maxVal);
 			// Save when values are non-empty, OR when editing an existing
 			// filter (allows clearing by dismissing with empty inputs).
 			if (minNb !== undefined || maxNb !== undefined || existingFilter) {
@@ -73,6 +103,7 @@ const FilterNumericModal: FC<{
 		maxVal,
 		onSave,
 		existingFilter,
+		displayToMetric,
 	]);
 
 	const prevVisibleRef = useRef(false);
@@ -80,10 +111,14 @@ const FilterNumericModal: FC<{
 		const justOpened = visible && !prevVisibleRef.current;
 		prevVisibleRef.current = visible;
 		if (justOpened) {
-			setMinVal(nbToStr(existingFilter?.min));
-			setMaxVal(nbToStr(existingFilter?.max));
+			setMinVal(metricToDisplay(existingFilter?.min));
+			setMaxVal(metricToDisplay(existingFilter?.max));
 		}
-	}, [visible, existingFilter]);
+	}, [
+		visible,
+		existingFilter,
+		metricToDisplay,
+	]);
 
 	const handleDismiss = useCallback(() => {
 		saveRef.current?.();
@@ -96,6 +131,30 @@ const FilterNumericModal: FC<{
 	}, [onDelete, onDismiss]);
 
 	const columnLabel = useMemo(() => t(`lines.columns.${columnKey}`), [t, columnKey]);
+
+	// Unit suffix to show next to / below each input.
+	const unitSuffix = useMemo(() => {
+		if (!unitPref) return '';
+		if (unitPrefKey === 'distance') return getDistanceUnitSuffix(unitPref);
+		if (unitPrefKey === 'heightDepth') return getHeightDepthUnitSuffix(unitPref);
+		return '';
+	}, [unitPref, unitPrefKey]);
+
+	const suffixTextStyle = useMemo(
+		() => ({
+			color: theme.colors.onSurfaceVariant,
+			fontSize: 12,
+			marginLeft: 4,
+		}),
+		[theme]
+	);
+
+	const labelWithUnit = useCallback(
+		(baseLabel: string): string => {
+			return unitSuffix ? `${baseLabel} (${unitSuffix})` : baseLabel;
+		},
+		[unitSuffix]
+	);
 
 	const inputStyle = useMemo(
 		() => [
@@ -116,31 +175,37 @@ const FilterNumericModal: FC<{
 			innerStyle={sharedStyles.modalInner}
 		>
 			<InfoRowControl
-				label={t('lines.filterMin')}
+				label={labelWithUnit(t('lines.filterMin'))}
 				Info={t('lines.hintNumericFilter')}
 			>
-				<TextInput
-					style={inputStyle}
-					value={minVal}
-					onChangeText={setMinVal}
-					placeholder="-"
-					placeholderTextColor={theme.colors.outline}
-					keyboardType="numeric"
-				/>
+				<View style={styles.inputRow}>
+					<TextInput
+						style={inputStyle}
+						value={minVal}
+						onChangeText={setMinVal}
+						placeholder="-"
+						placeholderTextColor={theme.colors.outline}
+						keyboardType="numeric"
+					/>
+					{unitSuffix !== '' && <Text style={suffixTextStyle}>{unitSuffix}</Text>}
+				</View>
 			</InfoRowControl>
 
 			<InfoRowControl
-				label={t('lines.filterMax')}
+				label={labelWithUnit(t('lines.filterMax'))}
 				Info={t('lines.hintNumericFilter')}
 			>
-				<TextInput
-					style={inputStyle}
-					value={maxVal}
-					onChangeText={setMaxVal}
-					placeholder="-"
-					placeholderTextColor={theme.colors.outline}
-					keyboardType="numeric"
-				/>
+				<View style={styles.inputRow}>
+					<TextInput
+						style={inputStyle}
+						value={maxVal}
+						onChangeText={setMaxVal}
+						placeholder="-"
+						placeholderTextColor={theme.colors.outline}
+						keyboardType="numeric"
+					/>
+					{unitSuffix !== '' && <Text style={suffixTextStyle}>{unitSuffix}</Text>}
+				</View>
 			</InfoRowControl>
 
 			<View style={appSharedStyles.modalControls}>
@@ -174,8 +239,12 @@ const styles = StyleSheet.create({
 		borderRadius: 4,
 		paddingHorizontal: 8,
 		paddingVertical: 4,
-		minWidth: 150,
+		minWidth: 100,
 		textAlign: 'right',
+	},
+	inputRow: {
+		flexDirection: 'row',
+		alignItems: 'center',
 	},
 });
 

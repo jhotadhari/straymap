@@ -12,6 +12,7 @@ import {
 	NumericColumnFilter,
 	DateColumnFilter,
 	StringColumnFilter,
+	TagsColumnFilter,
 } from '../../../types';
 import { upsertFilter, removeFilter } from '../../../slice';
 import { getFilterColumnType } from '../sharedDeps';
@@ -19,6 +20,7 @@ import FilterColumnSelectModal from './FilterColumnSelectModal';
 import FilterNumericModal from './FilterNumericModal';
 import FilterDateModal from './FilterDateModal';
 import FilterStringModal from './FilterStringModal';
+import FilterTagsModal from './FilterTagsModal';
 
 interface FilterModalsProps {
 	visible: boolean;
@@ -76,6 +78,13 @@ const FilterModals: FC<FilterModalsProps> = ({ visible, editFilter, onDismiss })
 
 	const handleSaveString = useCallback(
 		(filter: StringColumnFilter) => {
+			dispatch(upsertFilter(filter));
+		},
+		[dispatch]
+	);
+
+	const handleSaveTags = useCallback(
+		(filter: TagsColumnFilter) => {
 			dispatch(upsertFilter(filter));
 		},
 		[dispatch]
@@ -141,6 +150,22 @@ const FilterModals: FC<FilterModalsProps> = ({ visible, editFilter, onDismiss })
 					}
 					onDismiss={handleDismiss}
 					onSave={handleSaveString}
+					onDelete={editFilter ? handleDelete : undefined}
+				/>
+			)}
+
+			{selectedColumnKey && filterType === 'tags' && (
+				<FilterTagsModal
+					key={selectedColumnKey}
+					visible={visible && step === 'editFilter'}
+					columnKey={selectedColumnKey}
+					existingFilter={
+						(editFilter ?? tempFilter)?.type === 'tags'
+							? ((editFilter ?? tempFilter) as TagsColumnFilter)
+							: undefined
+					}
+					onDismiss={handleDismiss}
+					onSave={handleSaveTags}
 					onDelete={editFilter ? handleDelete : undefined}
 				/>
 			)}

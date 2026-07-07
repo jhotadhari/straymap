@@ -86,7 +86,7 @@ export const getCellCategory = (key: string): CellCategory | undefined => {
 	return undefined;
 };
 
-export type FilterColumnType = 'numeric' | 'date' | 'string';
+export type FilterColumnType = 'numeric' | 'date' | 'string' | 'tags';
 
 export const getFilterColumnType = (key: string): FilterColumnType | undefined => {
 	if (key in lineCells) {
@@ -99,6 +99,32 @@ export const getFilterColumnType = (key: string): FilterColumnType | undefined =
 	}
 	if (key in statsCells) {
 		return 'numeric';
+	}
+	if (key in otherCells) {
+		if (key === 'tags') {
+			return 'tags';
+		}
+	}
+	return undefined;
+};
+
+// ── Unit mapping for numeric filter columns ────────────────────────────
+//
+// Maps a column key to the corresponding key in the user's unitPrefs
+// (see general/slice.ts).  Returns undefined for columns that do not
+// represent a unit-aware numeric value.
+
+export const getUnitPrefKey = (columnKey: string): string | undefined => {
+	if (columnKey === 'length') {
+		return 'distance';
+	}
+	if (
+		columnKey === 'uphill' ||
+		columnKey === 'downhill' ||
+		columnKey === 'minZ' ||
+		columnKey === 'maxZ'
+	) {
+		return 'heightDepth';
 	}
 	return undefined;
 };

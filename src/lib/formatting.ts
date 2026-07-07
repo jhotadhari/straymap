@@ -135,6 +135,88 @@ export const haversineLineLength = (coords: number[][]): number => {
 	return total;
 };
 
+// ── Inverse converters: display unit → metric ─────────────────────────
+
+// Input: user-entered value in the preferred unit, output: meters
+export const parseDistance = (value: number, unitPref: UnitPref): number => {
+	switch (unitPref.unit) {
+		case 'imperial':
+			return value / M_TO_MI;
+		case 'nautical':
+			return value / M_TO_NM;
+		case 'metric':
+		default:
+			return value * 1000;
+	}
+};
+
+// Input: user-entered value in the preferred unit, output: meters
+export const parseHeightDepth = (value: number, unitPref: UnitPref): number => {
+	switch (unitPref.unit) {
+		case 'ft':
+			return value / M_TO_FT;
+		case 'fath':
+			return value / M_TO_FATHOM;
+		case 'm':
+		default:
+			return value;
+	}
+};
+
+// ── Display-only converters: meters → display unit (number, no suffix) ──
+
+// Input: meters, output: value in the preferred unit (no suffix)
+export const toDisplayDistance = (meters: number, unitPref: UnitPref): number => {
+	switch (unitPref.unit) {
+		case 'imperial':
+			return meters * M_TO_MI;
+		case 'nautical':
+			return meters * M_TO_NM;
+		case 'metric':
+		default:
+			return meters / 1000;
+	}
+};
+
+// Input: meters, output: value in the preferred unit (no suffix)
+export const toDisplayHeightDepth = (meters: number, unitPref: UnitPref): number => {
+	switch (unitPref.unit) {
+		case 'ft':
+			return meters * M_TO_FT;
+		case 'fath':
+			return meters * M_TO_FATHOM;
+		case 'm':
+		default:
+			return meters;
+	}
+};
+
+// ── Unit suffix helpers ────────────────────────────────────────────────
+
+export const getDistanceUnitSuffix = (unitPref: UnitPref): string => {
+	switch (unitPref.unit) {
+		case 'imperial':
+			return 'mi';
+		case 'nautical':
+			return 'nm';
+		case 'metric':
+		default:
+			return 'km';
+	}
+};
+
+export const getHeightDepthUnitSuffix = (unitPref: UnitPref): string => {
+	switch (unitPref.unit) {
+		case 'ft':
+			return 'ft';
+		case 'fath':
+			return 'fathom';
+		case 'm':
+		default:
+			return 'm';
+	}
+};
+
 /**
  * Format a duration in seconds as H:MM:SS or M:SS.
  */

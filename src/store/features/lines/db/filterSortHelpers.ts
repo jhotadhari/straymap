@@ -6,7 +6,7 @@ import { sql, asc, desc, like, notLike, gte, lte, and, or, SQL } from 'drizzle-o
 /**
  * Internal dependencies
  */
-import { linesTable } from './schema/schema';
+import { linesTable, tagsTable, tagsToLinesTable } from './schema/schema';
 import {
 	ColumnFilter,
 	DateColumnFilter,
@@ -15,6 +15,7 @@ import {
 	SortState,
 	StringColumnFilter,
 	StringFilterOperator,
+	TagsColumnFilter,
 } from '../types';
 
 /**
@@ -60,6 +61,8 @@ export const buildWhereClause = (
 					return buildDateWhere(filter);
 				case 'string':
 					return buildStringWhere(filter);
+				case 'tags':
+					return buildTagsWhere(filter);
 				default:
 					return undefined;
 			}
@@ -122,6 +125,39 @@ const buildStringWhere = (filter: StringColumnFilter): SQL | undefined => {
 		return notLike(linesTable.title, pattern);
 	}
 	return like(linesTable.title, pattern);
+};
+
+const buildTagsWhere = (filter: TagsColumnFilter): SQL | undefined => {
+	if (!filter.value) {
+		return undefined;
+	}
+	if (filter.operator === 'has') {
+		return sql`
+			EXISTS (
+				SELECT
+					1
+				FROM
+					${tagsToLinesTable}
+					INNER JOIN ${tagsTable} ON ${tagsToLinesTable.tag_id} = ${tagsTable.id}
+				WHERE
+					${tagsToLinesTable.line_id} = ${linesTable.id}
+					AND ${tagsTable.label} = ${filter.value}
+			)
+		`;
+	}
+	// notHas
+	return sql`
+		NOT EXISTS (
+			SELECT
+				1
+			FROM
+				${tagsToLinesTable}
+				INNER JOIN ${tagsTable} ON ${tagsToLinesTable.tag_id} = ${tagsTable.id}
+			WHERE
+				${tagsToLinesTable.line_id} = ${linesTable.id}
+				AND ${tagsTable.label} = ${filter.value}
+		)
+	`;
 };
 
 /**
