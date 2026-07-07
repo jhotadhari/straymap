@@ -13,11 +13,14 @@ import { sharedStyles } from './sharedDeps';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { selectFilters, selectFilterLogic } from '../../selectors';
 import { setFilterLogic, resetFilters } from '../../slice';
+import { getFilterKey } from '../../types';
+import { detectFilterConflicts } from '../../db/filterConflicts';
 import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
 import IconButtonHighlight from '../../../../../components/generic/IconButtonHighlight';
 import SelectColumns from './SelectColumns';
 import FilterModals from './FilterModals';
 import FilterBadge from './FilterModals/FilterBadge';
+import FilterConflictModal from './FilterModals/FilterConflictModal';
 import { ColumnFilter } from '../../types';
 import { sprintf } from 'sprintf-js';
 
@@ -31,9 +34,16 @@ const Header: FC = () => {
 
 	const [filterModalVisible, setFilterModalVisible] = useState(false);
 	const [editFilter, setEditFilter] = useState<ColumnFilter | undefined>(undefined);
+	const [conflictModalVisible, setConflictModalVisible] = useState(false);
 
 	const hasFilters = filters.length > 0;
 	const hasMultipleFilters = filters.length >= 2;
+
+	const conflicts = useMemo(
+		() => detectFilterConflicts(filters, filterLogic),
+		[filters, filterLogic]
+	);
+	const hasConflicts = conflicts.length > 0 && filterLogic === 'and';
 
 	const handleToggleFilterLogic = useCallback(() => {
 		dispatch(setFilterLogic(filterLogic === 'and' ? 'or' : 'and'));
@@ -56,6 +66,14 @@ const Header: FC = () => {
 	const handleDismissFilterModal = useCallback(() => {
 		setFilterModalVisible(false);
 		setEditFilter(undefined);
+	}, []);
+
+	const handleOpenConflictModal = useCallback(() => {
+		setConflictModalVisible(true);
+	}, []);
+
+	const handleDismissConflictModal = useCallback(() => {
+		setConflictModalVisible(false);
 	}, []);
 
 	const style = useMemo(
@@ -87,11 +105,12 @@ const Header: FC = () => {
 	const scrollContentStyle = useMemo(() => ({ alignItems: 'center' as const }), []);
 
 	const disabledLabelStyle = useMemo(() => ({ opacity: 0.5 }), []);
+	const contentStyle = useMemo(() => ({ marginVertical: -2 }), []);
 	const disabledIconStyle = useMemo(() => ({ opacity: 0.5 }), []);
 
 	return (
 		<View style={style}>
-			{/* Row 1: reset filters, AND/OR toggle, column selector */}
+			{/* Row 1: reset filters, AND/OR toggle, conflict warning, column selector */}
 			<View style={rowStyleFullWidth}>
 				<IconButtonHighlight
 					icon="filter-plus-outline"
@@ -105,6 +124,7 @@ const Header: FC = () => {
 					compact={true}
 					onPress={handleToggleFilterLogic}
 					disabled={!hasMultipleFilters}
+					contentStyle={contentStyle}
 					labelStyle={!hasMultipleFilters && disabledLabelStyle}
 				>
 					<Text>
@@ -116,6 +136,16 @@ const Header: FC = () => {
 						)}
 					</Text>
 				</ButtonHighlight>
+
+				{hasConflicts && (
+					<IconButtonHighlight
+						icon="alert-outline"
+						size={20}
+						onPress={handleOpenConflictModal}
+						mode="outlined"
+						iconColor={theme.colors.error}
+					/>
+				)}
 
 				<View style={styles.spacer} />
 
@@ -134,7 +164,7 @@ const Header: FC = () => {
 						<View style={sharedStyles.flexRowGap}>
 							{filters.map((filter) => (
 								<FilterBadge
-									key={filter.columnKey}
+									key={getFilterKey(filter)}
 									filter={filter}
 									onPress={() => handleOpenEditFilter(filter)}
 								/>
@@ -156,6 +186,12 @@ const Header: FC = () => {
 				visible={filterModalVisible}
 				editFilter={editFilter}
 				onDismiss={handleDismissFilterModal}
+			/>
+
+			<FilterConflictModal
+				visible={conflictModalVisible}
+				conflicts={conflicts}
+				onDismiss={handleDismissConflictModal}
 			/>
 		</View>
 	);

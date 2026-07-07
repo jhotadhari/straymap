@@ -11,7 +11,14 @@ import { isEqual, uniq } from 'lodash-es';
 import { SliceSettingsBase } from '../../../types';
 import { selectSelected } from './selectors';
 import { AppThunk } from '../../store';
-import { LinePartial, TableColumn, SortState, ColumnFilter, FilterLogic } from './types';
+import {
+	LinePartial,
+	TableColumn,
+	SortState,
+	ColumnFilter,
+	FilterLogic,
+	getFilterKey,
+} from './types';
 
 export interface LinesSettings {
 	selected: {
@@ -65,18 +72,34 @@ export const linesSlice = createSlice({
 			state.sort = action.payload;
 		},
 		setFilters: (state, action: PayloadAction<LinesState['filters']>) => {
-			state.filters = action.payload;
+			// Deduplicate by normalized key (handles mixed-case
+			// leftovers from persistence).
+			const seen = new Set<string>();
+			state.filters = action.payload.filter((f) => {
+				const k = getFilterKey(f);
+				if (seen.has(k)) return false;
+				seen.add(k);
+				return true;
+			});
 		},
 		upsertFilter: (state, action: PayloadAction<ColumnFilter>) => {
-			const idx = state.filters.findIndex((f) => f.columnKey === action.payload.columnKey);
+			// Normalize the value to lowercase for text-based filter
+			// types so stored data matches the composite key.
+			const payload =
+				action.payload.type === 'string' || action.payload.type === 'tags'
+					? { ...action.payload, value: action.payload.value.toLowerCase() }
+					: action.payload;
+			const targetKey = getFilterKey(payload);
+			const idx = state.filters.findIndex((f) => getFilterKey(f) === targetKey);
 			if (idx !== -1) {
-				state.filters[idx] = action.payload;
+				state.filters[idx] = payload;
 			} else {
-				state.filters.push(action.payload);
+				state.filters.push(payload);
 			}
 		},
-		removeFilter: (state, action: PayloadAction<string>) => {
-			state.filters = state.filters.filter((f) => f.columnKey !== action.payload);
+		removeFilter: (state, action: PayloadAction<ColumnFilter>) => {
+			const targetKey = getFilterKey(action.payload);
+			state.filters = state.filters.filter((f) => getFilterKey(f) !== targetKey);
 		},
 
 		resetFilters: (state) => {

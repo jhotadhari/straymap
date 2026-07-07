@@ -89,3 +89,22 @@ export type ColumnFilter =
 	| DateColumnFilter
 	| StringColumnFilter
 	| TagsColumnFilter;
+
+// ── Filter identity ──────────────────────────────────────────────────
+
+/**
+ * Returns a deterministic composite key that encodes filter uniqueness:
+ * - numeric/date: keyed by columnKey only → overwrites same column
+ * - string/tags:  keyed by columnKey + operator + value → allows
+ *   multiple filters per column with different operator/value combos
+ */
+export const getFilterKey = (filter: ColumnFilter): string => {
+	switch (filter.type) {
+		case 'numeric':
+		case 'date':
+			return `${filter.type}:${filter.columnKey}`;
+		case 'string':
+		case 'tags':
+			return `${filter.type}:${filter.columnKey}:${filter.operator}:${filter.value.toLowerCase()}`;
+	}
+};

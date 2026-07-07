@@ -117,14 +117,18 @@ const buildStringWhere = (filter: StringColumnFilter): SQL | undefined => {
 		// SpatiaLite 5+ registers regexp(); fetch.ts pre-splits regex
 		// filters via extractRegexFilters() when it is unavailable and
 		// applies them in JS.  This SQL path is only reached when
-		// regexpAvailable is true.
+		// regexpAvailable is true.  Regex patterns are left as-is
+		// (the user can embed case flags in the pattern).
 		return sql`${linesTable.title} REGEXP ${filter.value}`;
 	}
-	const pattern = STRING_OPERATOR_PATTERNS[filter.operator](filter.value);
+	// Lower-case both the column and the pattern for case-insensitive
+	// matching across the full Unicode range (SQLite LIKE is only
+	// case-insensitive for ASCII A-Z).
+	const pattern = STRING_OPERATOR_PATTERNS[filter.operator](filter.value.toLowerCase());
 	if (filter.operator === 'excludes') {
-		return notLike(linesTable.title, pattern);
+		return notLike(sql`LOWER(${linesTable.title})`, pattern);
 	}
-	return like(linesTable.title, pattern);
+	return like(sql`LOWER(${linesTable.title})`, pattern);
 };
 
 const buildTagsWhere = (filter: TagsColumnFilter): SQL | undefined => {
@@ -141,7 +145,7 @@ const buildTagsWhere = (filter: TagsColumnFilter): SQL | undefined => {
 					INNER JOIN ${tagsTable} ON ${tagsToLinesTable.tag_id} = ${tagsTable.id}
 				WHERE
 					${tagsToLinesTable.line_id} = ${linesTable.id}
-					AND ${tagsTable.label} = ${filter.value}
+					AND LOWER(${tagsTable.label}) = LOWER(${filter.value})
 			)
 		`;
 	}
@@ -155,7 +159,7 @@ const buildTagsWhere = (filter: TagsColumnFilter): SQL | undefined => {
 				INNER JOIN ${tagsTable} ON ${tagsToLinesTable.tag_id} = ${tagsTable.id}
 			WHERE
 				${tagsToLinesTable.line_id} = ${linesTable.id}
-				AND ${tagsTable.label} = ${filter.value}
+				AND LOWER(${tagsTable.label}) = LOWER(${filter.value})
 		)
 	`;
 };

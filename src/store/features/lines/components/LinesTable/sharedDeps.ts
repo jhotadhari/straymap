@@ -27,7 +27,7 @@ export const sharedStyles = StyleSheet.create({
 		minHeight: 8 * 8,
 		paddingHorizontal: 8,
 		paddingVertical: 8,
-		gap: 8,
+		columnGap: 8,
 		borderBottomWidth: 1,
 	},
 	footer: {

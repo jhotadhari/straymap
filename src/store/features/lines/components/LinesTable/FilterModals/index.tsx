@@ -6,7 +6,8 @@ import { FC, useCallback, useEffect, useState } from 'react';
 /**
  * Internal dependencies
  */
-import { useAppDispatch } from '../../../../../hooks';
+import { useAppDispatch, useAppSelector } from '../../../../../hooks';
+import { selectFilters } from '../../../selectors';
 import {
 	ColumnFilter,
 	NumericColumnFilter,
@@ -32,6 +33,7 @@ type ModalStep = 'selectColumn' | 'editFilter';
 
 const FilterModals: FC<FilterModalsProps> = ({ visible, editFilter, onDismiss }) => {
 	const dispatch = useAppDispatch();
+	const filters = useAppSelector(selectFilters);
 
 	const [step, setStep] = useState<ModalStep>('selectColumn');
 	const [selectedColumnKey, setSelectedColumnKey] = useState<string | null>(null);
@@ -52,11 +54,24 @@ const FilterModals: FC<FilterModalsProps> = ({ visible, editFilter, onDismiss })
 		}
 	}, [visible, editFilter]);
 
-	const handleSelectColumn = useCallback((columnKey: string) => {
-		setSelectedColumnKey(columnKey);
-		setStep('editFilter');
-		setTempFilter(undefined);
-	}, []);
+	const handleSelectColumn = useCallback(
+		(columnKey: string) => {
+			setSelectedColumnKey(columnKey);
+			setStep('editFilter');
+
+			const filterType = getFilterColumnType(columnKey);
+			// For single-filter column types, preload the existing filter
+			// so the modal opens in edit mode.  Multi-filter types always
+			// start fresh.
+			if (filterType === 'numeric' || filterType === 'date') {
+				const existing = filters.find((f) => f.columnKey === columnKey);
+				setTempFilter(existing);
+			} else {
+				setTempFilter(undefined);
+			}
+		},
+		[filters]
+	);
 
 	const handleDismiss = useCallback(() => {
 		onDismiss();
@@ -91,10 +106,17 @@ const FilterModals: FC<FilterModalsProps> = ({ visible, editFilter, onDismiss })
 	);
 
 	const handleDelete = useCallback(() => {
-		if (selectedColumnKey) {
-			dispatch(removeFilter(selectedColumnKey));
+		const filterToRemove = editFilter ?? tempFilter;
+		if (filterToRemove) {
+			dispatch(removeFilter(filterToRemove));
 		}
-	}, [dispatch, selectedColumnKey]);
+	}, [
+		dispatch,
+		editFilter,
+		tempFilter,
+	]);
+
+	const canDelete = !!(editFilter || tempFilter);
 
 	const filterType = selectedColumnKey ? getFilterColumnType(selectedColumnKey) : undefined;
 
@@ -118,7 +140,7 @@ const FilterModals: FC<FilterModalsProps> = ({ visible, editFilter, onDismiss })
 					}
 					onDismiss={handleDismiss}
 					onSave={handleSaveNumeric}
-					onDelete={editFilter ? handleDelete : undefined}
+					onDelete={canDelete ? handleDelete : undefined}
 				/>
 			)}
 
@@ -134,7 +156,7 @@ const FilterModals: FC<FilterModalsProps> = ({ visible, editFilter, onDismiss })
 					}
 					onDismiss={handleDismiss}
 					onSave={handleSaveDate}
-					onDelete={editFilter ? handleDelete : undefined}
+					onDelete={canDelete ? handleDelete : undefined}
 				/>
 			)}
 
@@ -150,7 +172,7 @@ const FilterModals: FC<FilterModalsProps> = ({ visible, editFilter, onDismiss })
 					}
 					onDismiss={handleDismiss}
 					onSave={handleSaveString}
-					onDelete={editFilter ? handleDelete : undefined}
+					onDelete={canDelete ? handleDelete : undefined}
 				/>
 			)}
 
@@ -166,7 +188,7 @@ const FilterModals: FC<FilterModalsProps> = ({ visible, editFilter, onDismiss })
 					}
 					onDismiss={handleDismiss}
 					onSave={handleSaveTags}
-					onDelete={editFilter ? handleDelete : undefined}
+					onDelete={canDelete ? handleDelete : undefined}
 				/>
 			)}
 		</>
