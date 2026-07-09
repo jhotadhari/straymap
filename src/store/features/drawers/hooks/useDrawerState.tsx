@@ -112,6 +112,19 @@ const useDrawerState = ({
 						)
 					);
 				})
+				.onEnd((event) => {
+					const velocityThreshold = 500;
+					const isFast = Math.abs(event.velocityX) > velocityThreshold;
+					if (!isFast) {
+						return;
+					}
+					// Snap open/close based on swipe direction.
+					const opening =
+						'left' === side
+							? event.velocityX > 0 // swipe right opens left drawer
+							: event.velocityX < 0; // swipe left opens right drawer
+					expand(opening);
+				})
 				.runOnJS(true),
 		[
 			side,
@@ -119,6 +132,7 @@ const useDrawerState = ({
 			translationX,
 			drawerWidthResponsive,
 			setTranslationX,
+			expand,
 		]
 	);
 
