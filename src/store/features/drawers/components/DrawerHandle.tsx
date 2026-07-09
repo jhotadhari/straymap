@@ -148,4 +148,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export default DrawerHandle;
+export default React.memo(DrawerHandle);

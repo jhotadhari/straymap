@@ -154,6 +154,16 @@ const DrawerHandles: FC<
 		[handleDraggableItemPress, draggableItems]
 	);
 
+	// Memoized per-item press handlers for the non-sortable multi-item case
+	// so DrawerHandle doesn't re-render from inline () => {} props.
+	const handleItemPressMap = useMemo(() => {
+		const map: Record<string, () => void> = {};
+		draggableItems.forEach((item) => {
+			map[item.key] = () => handleDraggableItemPress(item);
+		});
+		return map;
+	}, [draggableItems, handleDraggableItemPress]);
+
 	const toggleModalVisible = useCallback(
 		() => setModalVisible((visible) => !visible),
 		[setModalVisible]
@@ -193,7 +203,7 @@ const DrawerHandles: FC<
 									onPress={
 										draggableItems.length === 1
 											? handleSingleItemPress
-											: undefined
+											: handleItemPressMap[item.key]
 									}
 								/>
 							))}
