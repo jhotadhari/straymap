@@ -38,7 +38,6 @@ export default {
 			icon: ({ color, style }: { color: string; style: any }) =>
 				React.createElement(MaterialIcons, { style, name: 'dashboard', size: 25, color }),
 			Component: SettingsDashboard,
-			priority: 40,
 		},
 	],
 	dashboardWidgets: [
@@ -47,14 +46,18 @@ export default {
 		spacer,
 		zoomLevel,
 	],
-	settingsPageKeys: [
-		'dashboard',
+	settingsPages: [
+		{
+			key: 'dashboard',
+			uiItemKey: 'dashboard',
+			priority: 2200,
+		}
 	],
 	appOverlays: [
 		{
 			key: 'dashboard',
 			Component: DashboardBottom,
-			priority: 400,
+			priority: 100,
 		},
 	],
 };

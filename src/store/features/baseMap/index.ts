@@ -27,7 +27,6 @@ export default {
 			label: 'ui.items.maps',
 			icon: 'map',
 			Component: SettingsMaps,
-			priority: 30,
 		},
 	],
 	drawerPanels: [mapsDrawerItem],
@@ -43,7 +42,10 @@ export default {
 			priority: 300,
 		},
 	],
-	settingsPageKeys: [
-		'maps',
+	settingsPages: [
+		{
+			key: 'maps',
+			uiItemKey: 'maps',
+		}
 	],
 };

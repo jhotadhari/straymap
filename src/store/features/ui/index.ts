@@ -31,14 +31,12 @@ export default {
 			key: 'settings',
 			label: 'ui.items.settings',
 			Component: Settings,
-			priority: 10,
 		},
 		{
 			key: 'general',
 			label: 'ui.items.general',
 			icon: 'application-cog-outline',
 			Component: SettingsControls,
-			priority: 20,
 		},
 		{
 			key: 'about',
@@ -51,11 +49,18 @@ export default {
 					color,
 				}),
 			Component: About,
-			priority: 90,
 		},
 	],
-	settingsPageKeys: [
-		'general',
-		'about',
+	settingsPages: [
+		{
+			key: 'general',
+			uiItemKey: 'general',
+			priority: 2000,
+		},
+		{
+			key: 'about',
+			uiItemKey: 'about',
+			priority: 9999,
+		},
 	],
 };

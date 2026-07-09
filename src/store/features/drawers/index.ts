@@ -32,17 +32,20 @@ export default {
 			icon: ({ color, style }: { color: string; style: any }) =>
 				createElement(FeatherIcons, { style, name: 'sidebar', size: 25, color }),
 			Component: SettingsDrawers,
-			priority: 60,
 		},
 	],
 	appOverlays: [
 		{
 			key: 'drawers',
 			Component: Drawers,
-			priority: 200,
+			priority: 100,
 		},
 	],
-	settingsPageKeys: [
-		'drawers',
+	settingsPages: [
+		{
+			key: 'drawers',
+			uiItemKey: 'drawers',
+			priority: 2200,
+		}
 	],
 };

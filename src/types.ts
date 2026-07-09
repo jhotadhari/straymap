@@ -9,7 +9,7 @@ import { Position } from 'react-native-mapsforge-vtm';
  * Internal dependencies
  */
 import { AppThunk } from './store/store';
-import { UiItem } from './store/features/ui/types';
+import { SettingsPageDescriber, UiItem } from './store/features/ui/types';
 import { DashboardWidget } from './store/features/dashboard/types';
 import { DrawerPanel } from './store/features/drawers/types';
 
@@ -110,22 +110,21 @@ export interface AppFeature {
 	 * components live under its `uiItems/` directory.
 	 *
 	 * Not every UiItem appears in the Settings list — only those whose key
-	 * is also listed in {@link settingsPageKeys} are rendered as a row in
-	 * the main Settings screen. Items without a matching key can still be
+	 * matches a {@link settingsPages} entry are rendered as a row in the
+	 * the main Settings screen. Items without a matching entry can still be
 	 * pushed onto the navigation stack from other entry points (e.g. the
 	 * drawer handle, the dashboard editor, or the top app bar).
 	 */
 	uiItems?: UiItem[];
 
 	/**
-	 * Subset of {@link uiItems} keys that should appear as rows in the
-	 * main Settings navigation list. Keys listed here must correspond to
-	 * an entry in `uiItems` — `FeatureRegistry.getSettingsPages()` looks
-	 * up the UiItem by key. Other UiItems (those not listed here) are
-	 * still reachable through the navigation stack but won't have a
-	 * dedicated row in the Settings screen.
-	 */
-	settingsPageKeys?: string[];
+		 * Descriptors that promote a {@link uiItems} entry to a row in the
+		 * main Settings navigation list. Each entry references its UiItem
+		 * via {@link SettingsPageDescriber.uiItemKey} and carries its own
+		 * priority for ordering. The Settings screen inserts a divider
+		 * between entries whose priorities fall into different 1000-blocks.
+		 */
+		settingsPages?: SettingsPageDescriber[];
 
 	/**
 	 * Individual control rows rendered inside the settings controls page
@@ -175,4 +174,11 @@ export interface AppFeature {
 	 * and `[]` when off. Used to drive mode-dependent UI and behavior.
 	 */
 	selectActiveModes?: (state: any) => AppMode[];
+
+	/**
+	 * Labels of tags that are managed by this feature and should not be
+	 * deletable or detachable by the user. Aggregated across all features
+	 * by `FeatureRegistry.getSystemTagLabels()`.
+	 */
+	systemTagLabels?: readonly string[];
 }

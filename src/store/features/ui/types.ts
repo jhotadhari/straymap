@@ -10,5 +10,19 @@ export interface UiItem {
 	icon?: string | ((props: { color: string; style: ListStyle }) => ReactNode);
 	label: string;
 	Component?: ElementType<{ style?: ViewStyle }>;
+}
+
+export interface SettingsPageDescriber {
+	// Any uniq string.
+	key: string;
+
+	// Key to match a UiItem.
+	uiItemKey: string;
+
+	// Settings component renders SettingsPages in priority order with a Divider every 1000 priority.
 	priority?: number;
+}
+
+export interface SettingsPage extends SettingsPageDescriber{
+	uiItem: UiItem;
 }

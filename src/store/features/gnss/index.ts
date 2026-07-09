@@ -31,7 +31,6 @@ export default {
 			label: 'ui.items.location',
 			icon: 'crosshairs-gps',
 			Component: SettingsLocation,
-			priority: 25,
 		},
 	],
 	dashboardWidgets: [
@@ -43,7 +42,10 @@ export default {
 	drawerPanels: [
 		gnssDrawerItem,
 	],
-	settingsPageKeys: [
-		'location',
+	settingsPages: [
+		{
+			key: 'location',
+			uiItemKey: 'location',
+		}
 	],
 };

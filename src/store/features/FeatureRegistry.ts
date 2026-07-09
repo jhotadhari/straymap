@@ -11,6 +11,7 @@ import {
 	SettingsControlFragment,
 	UiItem,
 } from '../../types';
+import { SettingsPage } from './ui/types';
 
 const DEFAULT_PRIORITY = 100;
 
@@ -37,7 +38,7 @@ export class FeatureRegistry {
 		return this._features;
 	}
 
-	/** Returns all settings pages from all features, sorted by priority. */
+	/** Returns all uiItems from all features. */
 	getUiItems(): UiItem[] {
 		const items: UiItem[] = [];
 		for (const feature of Object.values(this.features())) {
@@ -45,24 +46,27 @@ export class FeatureRegistry {
 				items.push(...feature.uiItems);
 			}
 		}
-		items.sort((a, b) => (a.priority ?? DEFAULT_PRIORITY) - (b.priority ?? DEFAULT_PRIORITY));
 		return items;
 	}
 
 	/**
-	 * Returns the subset of UiItems whose key is listed in the feature's
-	 * `settingsPageKeys`. These are rendered as rows in the main Settings
-	 * navigation list. Use {@link getUiItems} for the full set (e.g. when
-	 * resolving a navigation-stack key to its component).
-	 */
-	getSettingsPages(): UiItem[] {
-		const items: UiItem[] = [];
+		 * Returns all settings pages from all features, sorted by priority.
+		 * Each entry is a {@link SettingsPage} combining the feature's
+		 * {@link SettingsPageDescriber} with its matching {@link UiItem}
+		 * (resolved via uiItemKey). Rendered by the main Settings screen
+		 * with dividers between 1000-priority blocks.
+		 */
+		getSettingsPages(): SettingsPage[] {
+		const items: SettingsPage[] = [];
 		for (const feature of Object.values(this.features())) {
-			if (feature.uiItems && feature?.settingsPageKeys) {
-				feature?.settingsPageKeys?.forEach((key) => {
-					const uiItem = feature.uiItems?.find((i) => i.key === key);
+			if (feature.uiItems && feature?.settingsPages) {
+				feature?.settingsPages?.forEach((settingsPage) => {
+					const uiItem = feature.uiItems?.find((i) => i.key === settingsPage.key);
 					if (uiItem) {
-						items.push(uiItem);
+						items.push({
+							...settingsPage,
+							uiItem,
+						} as SettingsPage);
 					}
 				});
 			}
@@ -150,6 +154,17 @@ export class FeatureRegistry {
 			}
 		}
 		return [...new Set(modes)];
+	}
+
+	/** Returns all system-protected tag labels from all features, de-duplicated. */
+	getSystemTagLabels(): string[] {
+		const labels: string[] = [];
+		for (const feature of Object.values(this.features())) {
+			if (feature.systemTagLabels) {
+				labels.push(...feature.systemTagLabels);
+			}
+		}
+		return [...new Set(labels)];
 	}
 
 	/** Returns the set of currently active modes from all features. */
