@@ -2,7 +2,8 @@
  * External dependencies
  */
 import React, { FC, useCallback } from 'react';
-import { Icon, Text } from 'react-native-paper';
+import { ScrollView, Text, ViewStyle } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { sprintf } from 'sprintf-js';
 
@@ -11,13 +12,11 @@ import { sprintf } from 'sprintf-js';
  */
 import { useAppDispatch, useAppSelector } from '../../../hooks';
 import { selectDbPath } from '../selectors';
-import ListItemModalControl from '../../../../components/generic/controls/ListItemModalControl';
 import { setDbPath } from '../slice';
 import FileSourceRowControl from '../../../../components/generic/controls/FileSourceRowControl';
 import { selectAppDirs } from '../../dirs/selectors';
 import InfoRowControl from '../../../../components/generic/controls/InfoRowControl';
 import { dbExtension } from '../constants';
-import { StyleSheet } from 'react-native';
 
 const extensions = [dbExtension];
 
@@ -75,32 +74,21 @@ const RowMoveFile: FC = () => {
 		</InfoRowControl>
 	);
 };
-
-const DBControl: FC = () => {
-	const { t } = useTranslation();
-
+const SettingsDatabase: FC<{ style?: ViewStyle }> = ({ style }) => {
+	// ??? Fix layout, styling. refactor. ... totally different.
 	return (
-		<ListItemModalControl
-			anchorLabel={t('Database')} // ??? translation
-			anchorIcon={({ color }) => (
-				<Icon
-					source="database-outline"
-					size={25}
-					color={color}
-				/>
-			)}
-			header={t('Database')} // ??? translation
-		>
+		<ScrollView style={style}>
 			<RowFile />
 
 			<RowSize />
 
 			<RowMoveFile />
-		</ListItemModalControl>
+		</ScrollView>
 	);
 };
 
 const styles = StyleSheet.create({
 	contentButton: { marginLeft: -12 },
 });
-export default DBControl;
+
+export default SettingsDatabase;
