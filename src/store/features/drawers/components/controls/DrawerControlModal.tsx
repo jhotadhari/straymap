@@ -26,6 +26,7 @@ import {
 
 const settingsDrawerItem: DrawerPanel = {
 	iconSource: 'cog',
+	label: 'drawers.settingsHandle'
 };
 
 const Item: FC<{

@@ -25,6 +25,7 @@ import {
 	ErrorWithErrorMsg,
 	TapEventResponse,
 	useMap,
+	ReindexScope,
 } from 'react-native-mapsforge-vtm';
 import { useMapPosition } from 'react-native-mapsforge-vtm/reanimated';
 import { useHardwareKeyEvent } from 'react-native-hardwarekey-event';
@@ -361,9 +362,11 @@ const AppView = ({
 								/>
 							))}
 
-							<LayerDebugDumpButton />
+							<ReindexScope order={9999}>
+								<LayerScalebar />
+							</ReindexScope>
 
-							<LayerScalebar />
+							<LayerDebugDumpButton />
 						</MapContainer>
 					)}
 				</View>

@@ -13,12 +13,18 @@ const getSimplification = (zoomLevel: number) => {
 	switch( true ) {
 		case (zoomLevel >= 17 ):
 			return 0.00001;
+		case (zoomLevel >= 16 ):
+			return 0.000025;
 		case (zoomLevel >= 15 ):
-			return 0.00005;
+			return 0.00004;
+		case (zoomLevel >= 14 ):
+			return 0.0001;
+		case (zoomLevel >= 13 ):
+			return 0.00015;
 		case (zoomLevel >= 12 ):
 			return 0.0003;
 		case (zoomLevel >= 11 ):
-			return 0.001;
+			return 0.0008;
 		case (zoomLevel >= 10 ):
 			return 0.0015;
 		case (zoomLevel >= 9 ):

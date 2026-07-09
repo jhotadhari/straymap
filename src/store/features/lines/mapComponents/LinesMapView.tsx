@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { FC, useMemo } from 'react';
+import React, { FC, useEffect, useMemo, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { GeometryStyle, LayerPath, ReindexScope, SharedLayer } from 'react-native-mapsforge-vtm';
 
@@ -51,11 +51,18 @@ const LineItem: FC<{
 		return defaultPathStyle;
 	}, [strokeColor]);
 
-	if (!line?.geometry?.coordinates) return null;
+	const coordsLastRef = useRef<undefined | number[][]>(undefined);
+	useEffect(() => {
+		if (line?.geometry?.coordinates) {
+			coordsLastRef.current = line?.geometry?.coordinates;
+		}
+	}, [line?.geometry?.coordinates]);
+
+	if (!line?.geometry?.coordinates || !coordsLastRef?.current) return undefined;
 
 	return (
 		<LayerPath
-			coordinates={line.geometry.coordinates}
+			coordinates={line?.geometry?.coordinates ?? coordsLastRef?.current}
 			style={pathStyle}
 		/>
 	);
@@ -78,25 +85,29 @@ const LinesMapView = () => {
 	const routingLineId = useAppSelector(selectRoutingLineId);
 	const recordingLineId = useAppSelector(selectActiveLineId);
 
+	console.log( 'debug routingLineId', routingLineId ); // debug
+
 	const simplify = useSimplificationTolerance();
 
 	return (
 		<ReindexScope order={200}>
 			<SharedLayer>
-				{simplify === undefined ? undefined : selectedIds?.map((lineId) => {
-					return (
-						routingLineId !== lineId &&
-						recordingLineId !== lineId &&
-						visibleMap[lineId] && (
-							<LineItem
-								key={lineId}
-								lineId={lineId}
-								simplify={simplify}
-								strokeColor={'#ff2222'}
-							/>
-						)
-					);
-				})}
+				{simplify === undefined
+					? undefined
+					: selectedIds?.map((lineId) => {
+							return (
+								routingLineId !== lineId &&
+								recordingLineId !== lineId &&
+								visibleMap[lineId] && (
+									<LineItem
+										key={lineId}
+										lineId={lineId}
+										simplify={simplify}
+										strokeColor={'#ff2222'}
+									/>
+								)
+							);
+						})}
 			</SharedLayer>
 		</ReindexScope>
 	);

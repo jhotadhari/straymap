@@ -22,22 +22,22 @@ export default {
 	},
 	settingsControls: [
 		{
-			key: 'hardwareKey',
-			label: 'general.hardwareKeys',
-			Control: HardwareKeyControl,
-			priority: 20,
-		},
-		{
 			key: 'unitPref',
 			label: 'general.unitPref',
 			Control: UnitPrefControl,
-			priority: 30,
+			priority: 100,
 		},
 		{
 			key: 'hgt',
 			label: 'general.hgtSettings',
 			Control: HgtControl,
-			priority: 40,
+			priority: 500,
+		},
+		{
+			key: 'hardwareKey',
+			label: 'general.hardwareKeys',
+			Control: HardwareKeyControl,
+			priority: 500,
 		},
 	],
 };

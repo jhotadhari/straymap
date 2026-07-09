@@ -43,7 +43,7 @@ export const getItemByKeyResultFn = (
 	idx: number;
 	item: undefined | DashboardItem;
 } => {
-	let position = 'top';
+	let position = 'bottom';
 	let idx = !key ? -1 : itemsTop.findIndex((item) => item.key === key);
 	let item: undefined | DashboardItem = undefined;
 	if (key && -1 === idx) {
