@@ -14,7 +14,8 @@ import { AppThunk } from '../../store';
 import { aggregateSegmentsToCoords, getCoordsFromRouting, getSegmentRecordId } from './utils';
 import { setLineSelected } from '../lines/slice';
 import { lineString } from '@turf/turf';
-import { createLines, updateLine } from '../lines/db/actionsLine';
+import { createLines, updateLine, lineAddTag } from '../lines/db/actionsLine';
+import { ensureTagByLabel } from '../lines/db/actionsTag';
 import { updateRoute } from './db/actionsRoute';
 import { queryRoute } from './db/queryFns';
 import { selectIsRouting } from './selectors';
@@ -93,6 +94,9 @@ export const setIsRouting = (newIsRouting: number | false): AppThunk => {
 		const isRouting = selectIsRouting(getState());
 
 		if (isRouting !== newIsRouting) {
+			// The listener in connectStorage.ts auto-dispatches
+			// processRouting({ updateLine: false }), which fetches
+			// the route from DB and restores routingLineId from there.
 			dispatch(routingSlice.actions.setIsRouting(newIsRouting));
 		}
 	};
@@ -265,11 +269,20 @@ export const processRouting = (
 			} else {
 				// On restore from persistence (updateLine: false),
 				// re-select the routing line so it appears in the list.
-				const { routingLineId } = getState().routing;
-				if (routingLineId) {
-					dispatch(setLineSelected(routingLineId, true));
-					await queryClient.invalidateQueries({ queryKey: ['lineGeom', routingLineId] });
-					await queryClient.invalidateQueries({ queryKey: ['lines', [routingLineId]] });
+				// Fetch line_id from DB directly — Redux routingLineId
+				// may still be null because setIsRoutingAction clears it.
+				await queryClient.refetchQueries({
+					queryKey: ['route', routeId],
+				});
+				const route = await queryClient.fetchQuery({
+					queryKey: ['route', routeId],
+					queryFn: queryRoute,
+				});
+				if (route?.line_id) {
+					dispatch(setRoutingLineId(route.line_id));
+					dispatch(setLineSelected(route.line_id, true));
+					await queryClient.invalidateQueries({ queryKey: ['lineGeom', route.line_id] });
+					await queryClient.invalidateQueries({ queryKey: ['lines', [route.line_id]] });
 				}
 				await queryClient.invalidateQueries({ queryKey: ['route', routeId] });
 			}
@@ -305,15 +318,19 @@ const updateLineFromSegments = async (
 
 	const coords = aggregateSegmentsToCoords(segments);
 	const lineStringFeature = lineString(coords);
+
+	// Ensure the system "routing" tag exists (find or create).
+	const routingTagId = await ensureTagByLabel('routing');
+
+	let finalLineId: number;
+	let isNew = false;
+
 	if (line_id) {
 		// Update line with new positions.
 		await updateLine(line_id, {
 			lineStringFeature,
 		}); // ... invalidation handled by outer function after return.
-		return {
-			lineId: line_id,
-			isNew: false,
-		};
+		finalLineId = line_id;
 	} else {
 		// Create line and update route with line_id.
 		const insertedLines = await createLines([
@@ -325,11 +342,19 @@ const updateLineFromSegments = async (
 			return {};
 		}
 		await updateRoute(routeId, { line_id: insertedLines[0].id });
-		return {
-			lineId: insertedLines[0].id,
-			isNew: true,
-		};
+		finalLineId = insertedLines[0].id;
+		isNew = true;
 	}
+
+	// Attach the routing tag (idempotent — lineAddTag checks for existing relation).
+	if (routingTagId) {
+		await lineAddTag(finalLineId, routingTagId);
+	}
+
+	return {
+		lineId: finalLineId,
+		isNew,
+	};
 };
 
 export const onSetDbPath = (): AppThunk => {
