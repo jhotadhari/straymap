@@ -15,12 +15,12 @@ export interface DrawersSettings {
 	itemKeysRight: string[];
 	controlHandleSide: string;
 	showSettingsHandle: boolean;
+	sortable: boolean;
 	activeKeyLeft?: string;
 	activeKeyRight?: string;
 }
 
-export interface DrawersState extends SliceSettingsBase, DrawersSettings {
-}
+export interface DrawersState extends SliceSettingsBase, DrawersSettings {}
 
 export const initialSettings: DrawersSettings = {
 	itemKeysLeft: [
@@ -35,6 +35,7 @@ export const initialSettings: DrawersSettings = {
 	],
 	controlHandleSide: 'right',
 	showSettingsHandle: true,
+	sortable: true,
 	activeKeyLeft: undefined,
 	activeKeyRight: undefined,
 };
@@ -58,6 +59,9 @@ export const drawersSlice = createSlice({
 		},
 		setShowSettingsHandle: (state, action: PayloadAction<boolean>) => {
 			state.showSettingsHandle = action.payload;
+		},
+		setSortable: (state, action: PayloadAction<boolean>) => {
+			state.sortable = action.payload;
 		},
 		setItemKeys: (
 			state,
@@ -144,6 +148,7 @@ export const {
 	setInitialized,
 	setControlHandleSide,
 	setShowSettingsHandle,
+	setSortable,
 	setItemKeys,
 	addItemKey,
 	removeItemKey,

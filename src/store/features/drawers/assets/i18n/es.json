@@ -3,5 +3,9 @@
 	"drawer_other": "Paneles",
 	"openMapsSettings": "Abrir configuración de mapas",
 	"showSettingsHandle": "Mostrar tirador de ajustes",
-	"hideSettingsHandle": "Ocultar tirador de ajustes"
+	"hideSettingsHandle": "Ocultar tirador de ajustes",
+	"sortableHandle": "Ordenable",
+	"hintSortableHandle": "Cuando está activado, los tiradores se pueden reordenar arrastrándolos. Cuando está desactivado, el orden está bloqueado pero se pueden tocar.",
+	"sortableEnabled": "Ordenable",
+	"sortableDisabled": "No ordenable"
 }

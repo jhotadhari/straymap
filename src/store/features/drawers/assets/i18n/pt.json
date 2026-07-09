@@ -1,5 +1,9 @@
 {
 	"drawer_one": "Painel",
 	"drawer_other": "Painéis",
-	"openMapsSettings": "Abrir configurações de mapas"
+	"openMapsSettings": "Abrir configurações de mapas",
+	"sortableHandle": "Ordenável",
+	"hintSortableHandle": "Quando ativado, os puxadores podem ser reordenados arrastando. Quando desativado, a ordem fica bloqueada mas ainda podem ser tocados.",
+	"sortableEnabled": "Ordenável",
+	"sortableDisabled": "Não ordenável"
 }

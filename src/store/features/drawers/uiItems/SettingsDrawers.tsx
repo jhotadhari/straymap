@@ -10,8 +10,8 @@ import { useTranslation } from 'react-i18next';
  * Internal dependencies
  */
 import { useAppDispatch, useAppSelector } from '../../../hooks';
-import { selectShowSettingsHandle } from '../selectors';
-import { setShowSettingsHandle } from '../slice';
+import { selectShowSettingsHandle, selectSortable } from '../selectors';
+import { setShowSettingsHandle, setSortable } from '../slice';
 import DrawerControlModal from '../components/controls/DrawerControlModal';
 import InfoRowControl from '../../../../components/generic/controls/InfoRowControl';
 import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
@@ -24,12 +24,17 @@ const SettingsDrawers: FC<{ style?: ViewStyle }> = ({ style }) => {
 	const dispatch = useAppDispatch();
 
 	const showSettingsHandle = useAppSelector(selectShowSettingsHandle);
+	const sortable = useAppSelector(selectSortable);
 
 	const [modalVisible, setModalVisible] = useState(false);
 
 	const handleToggleShowSettingsHandle = useCallback(() => {
 		dispatch(setShowSettingsHandle(!showSettingsHandle));
 	}, [dispatch, showSettingsHandle]);
+
+	const handleToggleSortable = useCallback(() => {
+		dispatch(setSortable(!sortable));
+	}, [dispatch, sortable]);
 
 	const handleOpenModal = useCallback(() => {
 		setModalVisible(true);
@@ -39,6 +44,11 @@ const SettingsDrawers: FC<{ style?: ViewStyle }> = ({ style }) => {
 		() =>
 			showSettingsHandle ? t('drawers.showSettingsHandle') : t('drawers.hideSettingsHandle'),
 		[showSettingsHandle, t]
+	);
+
+	const sortableLabel = useMemo(
+		() => (sortable ? t('drawers.sortableEnabled') : t('drawers.sortableDisabled')),
+		[sortable, t]
 	);
 
 	return (
@@ -77,6 +87,25 @@ const SettingsDrawers: FC<{ style?: ViewStyle }> = ({ style }) => {
 							style={{ marginLeft: 8 }}
 						>
 							{toggleLabel}
+						</ButtonHighlight>
+					</InfoRowControl>
+				}
+			/>
+
+			<ListItem
+				title={
+					<InfoRowControl
+						label={t('drawers.sortableHandle')}
+						Info={t('drawers.hintSortableHandle')}
+					>
+						<ButtonHighlight
+							mode="outlined"
+							compact={true}
+							onPress={handleToggleSortable}
+							textColor={theme.colors.onBackground}
+							style={{ marginLeft: 8 }}
+						>
+							{sortableLabel}
 						</ButtonHighlight>
 					</InfoRowControl>
 				}

@@ -18,6 +18,8 @@ import {
 	addItemKey,
 	setControlHandleSide,
 	setActiveKey,
+	setSortable,
+	setShowSettingsHandle,
 } from './slice';
 import { startAppListening } from '../../listenerMiddleware';
 import { selectInitialized } from './selectors';
@@ -72,6 +74,12 @@ export const initializeFromStorage = (store: AppStore) => {
 				if (newSettings?.controlHandleSide) {
 					store.dispatch(setControlHandleSide(newSettings.controlHandleSide));
 				}
+				if (undefined !== newSettings?.showSettingsHandle) {
+					store.dispatch(setShowSettingsHandle(newSettings.showSettingsHandle));
+				}
+				if (undefined !== newSettings?.sortable) {
+					store.dispatch(setSortable(newSettings.sortable));
+				}
 			}
 			store.dispatch(setInitialized(true));
 		})
@@ -110,7 +118,15 @@ export const saveToStorage = (drawersState: DrawersState, actionType: string) =>
  * and calls the function to save them to defaultPreferences.
  */
 startAppListening({
-	matcher: isAnyOf(setControlHandleSide, setItemKeys, addItemKey, removeItemKey,setActiveKey),
+	matcher: isAnyOf(
+		setControlHandleSide,
+		setItemKeys,
+		addItemKey,
+		removeItemKey,
+		setActiveKey,
+		setShowSettingsHandle,
+		setSortable
+	),
 	effect: async (action, listenerApi) => {
 		try {
 			await saveToStorage(listenerApi.getState().drawers, action.type);

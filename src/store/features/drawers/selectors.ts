@@ -12,6 +12,8 @@ export const selectControlHandleSide = (state: RootState) => state.drawers.contr
 
 export const selectShowSettingsHandle = (state: RootState) => state.drawers.showSettingsHandle;
 
+export const selectSortable = (state: RootState) => state.drawers.sortable;
+
 export const selectActiveKey = (state: RootState, { side }: { side: string }) => {
 	if ('left' === side) {
 		return state.drawers.activeKeyLeft;

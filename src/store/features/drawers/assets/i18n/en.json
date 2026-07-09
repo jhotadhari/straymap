@@ -7,5 +7,9 @@
 	"hintShowSettingsHandle": "Toggle whether an additional handle is visible on the map, to access the drawer selection directly.\n\nWhen hidden, you can still access drawer configuration from the Settings screen.",
 	"settingsHandle": "Settings handle",
 	"selectDrawers": "Select drawers",
-	"hintSelectDrawers": "Add, remove, or rearrange drawer items on the left and right sides of the map."
+	"hintSelectDrawers": "Add, remove, or rearrange drawer items on the left and right sides of the map.",
+	"sortableHandle": "Sortable",
+	"hintSortableHandle": "When enabled, drawer handles can be reordered by dragging. When disabled, the order is locked but handles can still be tapped.",
+	"sortableEnabled": "Sortable",
+	"sortableDisabled": "Not Sortable"
 }

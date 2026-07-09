@@ -15,6 +15,7 @@ import {
 	selectControlHandleSide,
 	selectItemKeys,
 	selectShowSettingsHandle,
+	selectSortable,
 } from '../selectors';
 import { useAppDispatch, useAppSelector } from '../../../hooks';
 import DrawerHandle from './DrawerHandle';
@@ -36,6 +37,7 @@ const DrawerHandles: FC<
 	const activeItemKey = useAppSelector((state) => selectActiveKey(state, { side }));
 	const controlHandleSide = useAppSelector(selectControlHandleSide);
 	const showSettingsHandle = useAppSelector(selectShowSettingsHandle);
+	const sortable = useAppSelector(selectSortable);
 
 	const { setMoveEnabled } = useContext(AppContext);
 	const { setActiveItemKey, height } = useContext(DrawerContext);
@@ -169,7 +171,7 @@ const DrawerHandles: FC<
 			>
 				<View style={styleContainer}>
 					<View>
-						{draggableItems.length > 1 && (
+						{draggableItems.length > 1 && sortable && (
 							<DraggableGrid
 								itemHeight={DRAWER_HANDLE_SIZE + DRAWER_HANDLE_SIZE / 2}
 								numColumns={1}
@@ -180,14 +182,21 @@ const DrawerHandles: FC<
 								onItemPress={handleDraggableItemPress}
 							/>
 						)}
-						{draggableItems.length === 1 && (
-							<DrawerHandle
-								itemKey={draggableItems[0].key}
-								gesture={gesture}
-								panEnabled={panEnabled}
-								onPress={handleSingleItemPress}
-							/>
-						)}
+						{(draggableItems.length === 1 ||
+							(draggableItems.length > 1 && !sortable)) &&
+							draggableItems.map((item) => (
+								<DrawerHandle
+									key={item.key}
+									itemKey={item.key}
+									gesture={gesture}
+									panEnabled={panEnabled}
+									onPress={
+										draggableItems.length === 1
+											? handleSingleItemPress
+											: undefined
+									}
+								/>
+							))}
 					</View>
 
 					{showSettingsHandle && controlHandleSide === side && (
