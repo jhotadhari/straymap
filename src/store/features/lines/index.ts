@@ -29,7 +29,6 @@ export default {
 			label: 'lines.linesBrowser',
 			icon: 'go-kart-track',
 			Component: LinesBrowser,
-			priority: 70,
 		},
 	],
 	drawerPanels: [linesDrawerItem],
@@ -45,7 +44,11 @@ export default {
 			priority: 500,
 		},
 	],
-	settingsPageKeys: [
-		'linesBrowser',
+	settingsPages: [
+		{
+			key: 'linesBrowser',
+			uiItemKey: 'linesBrowser',
+		}
 	],
+	systemTagLabels: ['imported'],
 };
