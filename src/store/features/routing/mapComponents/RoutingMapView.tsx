@@ -1,18 +1,136 @@
 /**
  * External dependencies
  */
-import React from 'react';
-import { midpoint } from '@turf/turf';
-import { GeometryStyle, Marker, LayerPath, ReindexScope } from 'react-native-mapsforge-vtm';
+import React, { FC, Fragment, useEffect, useMemo, useRef } from 'react';
+import {
+	GeometryStyle,
+	Marker,
+	LayerPath,
+	ReindexScope,
+	SharedLayer,
+} from 'react-native-mapsforge-vtm';
 import { get } from 'lodash-es';
+import { simplify as turfSimplify, lineString } from '@turf/turf';
 
 /**
  * Internal dependencies
  */
 import { useAppSelector } from '../../../hooks';
-import { selectSegments } from '../selectors';
+import { selectSegmentByRecordId } from '../selectors';
 import { getSegmentRecordId } from '../utils';
 import useRoute from '../hooks/useRoute';
+import useSimplificationTolerance from '../../lines/hooks/useSimplificationTolerance';
+import { RoutingPoint } from '../types';
+
+const SegmentLine: FC<{
+	simplify?: number;
+	segmentRecordId: string;
+	placeholderCoordinates: number[][];
+}> = ({ simplify, segmentRecordId, placeholderCoordinates }) => {
+	const segment = useAppSelector((state) => selectSegmentByRecordId(state, segmentRecordId));
+
+	const simplifiedCoords = useMemo(() => {
+		if (!segment?.positions || simplify === undefined) return undefined;
+		const line = lineString(segment.positions);
+		const result = turfSimplify(line, { tolerance: simplify, highQuality: false });
+		return result.geometry.coordinates;
+	}, [segment?.positions, simplify]);
+
+	let coords: number[][] | undefined = undefined;
+	let style: GeometryStyle | undefined = undefined;
+
+	if (
+		!segment ||
+		segment?.isFetching ||
+		(segment?.positions?.length ?? 0) < 2 ||
+		segment?.errorMsg ||
+		!simplifiedCoords
+	) {
+		coords = placeholderCoordinates;
+		if (!segment || segment?.isFetching || !simplifiedCoords) {
+			style = stylePathFetching;
+		} else {
+			style = stylePathError;
+		}
+	} else if (simplifiedCoords) {
+		coords = simplifiedCoords;
+		style = stylePathSegment;
+	}
+
+	if (!coords || !style) {
+		return undefined;
+	}
+
+	return (
+		<LayerPath
+			key={segmentRecordId}
+			coordinates={coords}
+			style={style}
+		/>
+	);
+};
+
+const Segments: FC<{
+	points?: RoutingPoint[];
+}> = ({ points }) => {
+	const simplify = useSimplificationTolerance();
+	return (
+		<ReindexScope order={300}>
+			<SharedLayer>
+				{points &&
+					points.length > 0 &&
+					points.map((fromPoint, index) => {
+						const toPoint = get(points, index + 1);
+
+						if (!toPoint) {
+							return undefined;
+						}
+
+						const segmentRecordId = getSegmentRecordId({
+							fromId: fromPoint.id,
+							toId: toPoint.id,
+						});
+
+						const placeholderCoordinates = [
+							fromPoint?.geometry.coordinates,
+							toPoint?.geometry.coordinates,
+						];
+
+						return (
+							<SegmentLine
+								key={segmentRecordId}
+								segmentRecordId={segmentRecordId}
+								placeholderCoordinates={placeholderCoordinates}
+								simplify={simplify}
+							/>
+						);
+					})}
+			</SharedLayer>
+		</ReindexScope>
+	);
+};
+
+const Markers: FC<{
+	points?: RoutingPoint[];
+}> = ({ points }) => {
+	return (
+		<ReindexScope order={400}>
+			<SharedLayer>
+				{points &&
+					points.map((point, index) => (
+						<Marker
+							key={point.id}
+							position={point.geometry.coordinates}
+							symbol={{
+								text: index + 1 + '',
+								textMargin: 15,
+							}}
+						/>
+					))}
+			</SharedLayer>
+		</ReindexScope>
+	);
+};
 
 const RoutingMapView = () => {
 	const { points } =
@@ -20,92 +138,11 @@ const RoutingMapView = () => {
 			'points',
 		]) || {};
 
-	const segments = useAppSelector(selectSegments);
-
 	return (
-		<ReindexScope order={300}>
-			{points && points.length > 0 && (
-				<>
-					{points.map((fromPoint, index) => {
-				const segment = Object.values(segments).find((seg) => seg.fromId === fromPoint.id);
-
-				const toPoint = get(points, index + 1);
-
-				if (!toPoint) {
-					return undefined;
-				}
-
-				const segmentRecordId = getSegmentRecordId({
-					fromId: fromPoint.id,
-					toId: toPoint.id,
-				});
-
-				if (
-					!segment ||
-					segment?.isFetching ||
-					(segment?.positions?.length ?? 0) < 2 ||
-					segment?.errorMsg
-				) {
-					const placeholderPositions = [
-						fromPoint?.geometry.coordinates,
-						toPoint?.geometry.coordinates,
-					];
-
-					if (!segment || segment?.isFetching) {
-						return (
-							<LayerPath
-								key={segmentRecordId}
-								coordinates={placeholderPositions}
-								style={stylePathFetching}
-							/>
-						);
-					} else {
-						const center = midpoint(fromPoint.geometry, toPoint.geometry);
-						return (
-							<React.Fragment key={segmentRecordId}>
-								<LayerPath
-									coordinates={placeholderPositions}
-									style={stylePathError}
-								/>
-								<Marker
-									position={center.geometry.coordinates}
-									symbol={{
-										text: 'Error',
-										textMargin: 20,
-										fillColor: '#ff0000',
-										strokeColor: '#000000',
-									}}
-								/>
-							</React.Fragment>
-						);
-					}
-				} else {
-					return (
-						<LayerPath
-							key={segmentRecordId}
-							coordinates={segment.positions}
-							style={stylePathSegment}
-						/>
-					);
-				}
-			})}
-
-			{points.length > 0 &&
-				points.map((point, index) => (
-					<Marker
-						key={point.id}
-						position={point.geometry.coordinates}
-						symbol={{
-							text: index + 1 + '',
-							textMargin: 15,
-						}}
-					/>
-				))}
-
-			{/* <NearestToLine/> */}
-				</>
-			)}
-		</ReindexScope>
+		<Fragment>
+			<Segments points={points} />
+			<Markers points={points} />
+		</Fragment>
 	);
 };
 
