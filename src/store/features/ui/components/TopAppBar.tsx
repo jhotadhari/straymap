@@ -130,7 +130,15 @@ const TopAppBar: FC = () => {
 						</TouchableHighlight>
 					)}
 
-					<Text style={theme.fonts.headlineSmall}>{appBarTitle}</Text>
+					<View style={styles.appBarTitle}>
+						<Text
+							style={theme.fonts.headlineSmall}
+							numberOfLines={1}
+							ellipsizeMode="head"
+						>
+							{appBarTitle}
+						</Text>
+					</View>
 				</Fragment>
 			)}
 
@@ -151,6 +159,10 @@ const TopAppBar: FC = () => {
 };
 
 const styles = StyleSheet.create({
+	appBarTitle: {
+		flex: 1,
+		overflow: 'hidden',
+	},
 	bar: {
 		flexDirection: 'row',
 		alignItems: 'center',
