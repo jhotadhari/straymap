@@ -57,10 +57,14 @@ const Display: FC<DashboardWidgetProps<Options>> = ({ item, style = {}, onPress 
 		}
 		if (undefined === newAltC && event?.center && !gettingAltitudeRef.current) {
 			gettingAltitudeRef.current = true;
-			getAltitudeAtPosition(event?.center[0], event?.center[1]).then((result) => {
-				setAltitudeP(null !== result ? result : undefined);
-				gettingAltitudeRef.current = false;
-			});
+			getAltitudeAtPosition(event?.center[0], event?.center[1])
+				.then((result) => {
+					setAltitudeP(null !== result ? result : undefined);
+					gettingAltitudeRef.current = false;
+				})
+				.catch(() => {
+					gettingAltitudeRef.current = false;
+				});
 		}
 	});
 
