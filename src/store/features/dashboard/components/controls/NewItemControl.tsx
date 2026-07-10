@@ -70,9 +70,18 @@ const Modal: FC<{
 	const onPress = useCallback(
 		(elementType: string) => {
 			setModalVisible(false);
-			const newItem = {
+			const newItem: {
+				key: string;
+				elementType: string;
+				showLabel?: boolean;
+				showIcon?: boolean;
+			} = {
 				key: rnUuid.v4(),
 				elementType,
+				...(elementType === 'spacer' && {
+					showLabel: false,
+					showIcon: false,
+				}),
 			};
 			position &&
 				dispatch(
