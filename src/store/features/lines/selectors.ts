@@ -36,7 +36,7 @@ const allColumnKeys = [
 	...Object.keys(otherCells),
 ];
 export const selectTableColumns = createAppSelector(
-	(state: RootState) => state.lines.tableColumns,
+	(state: RootState) => state.lines.linesTable.tableColumns,
 	(tableColumns) => {
 		// in case new columns got implemented, add them (visible) to tableColumns from store.
 		let result = [...tableColumns];
@@ -55,11 +55,11 @@ export const selectTableColumns = createAppSelector(
 
 // ── Sort / Filter ───────────────────────────────────────────────────
 
-export const selectSort = (state: RootState) => state.lines.sort;
+export const selectSort = (state: RootState) => state.lines.linesTable.sort;
 
-export const selectFilters = (state: RootState) => state.lines.filters;
+export const selectFilters = (state: RootState) => state.lines.linesTable.filters;
 
-export const selectFilterLogic = (state: RootState) => state.lines.filterLogic;
+export const selectFilterLogic = (state: RootState) => state.lines.linesTable.filterLogic;
 
 export const selectFilterableColumns = (state: RootState) => selectTableColumns(state);
 

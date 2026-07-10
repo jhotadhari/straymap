@@ -48,17 +48,17 @@ export const initializeFromStorage = (store: AppStore) => {
 				if (newSettings?.selected) {
 					store.dispatch(setSelected(newSettings.selected));
 				}
-				if (newSettings?.tableColumns) {
-					store.dispatch(setTableColumns(newSettings.tableColumns));
+				if (newSettings?.linesTable?.tableColumns) {
+					store.dispatch(setTableColumns(newSettings.linesTable!.tableColumns));
 				}
-				if (newSettings?.sort) {
-					store.dispatch(setSort(newSettings.sort));
+				if (newSettings?.linesTable?.sort) {
+					store.dispatch(setSort(newSettings.linesTable!.sort));
 				}
-				if (newSettings?.filters) {
-					store.dispatch(setFilters(newSettings.filters));
+				if (newSettings?.linesTable?.filters) {
+					store.dispatch(setFilters(newSettings.linesTable!.filters));
 				}
-				if (newSettings?.filterLogic) {
-					store.dispatch(setFilterLogic(newSettings.filterLogic));
+				if (newSettings?.linesTable?.filterLogic) {
+					store.dispatch(setFilterLogic(newSettings.linesTable!.filterLogic));
 				}
 				if (newSettings?.tagsTable?.tableColumns) {
 					store.dispatch(setTagsTableColumns(newSettings.tagsTable.tableColumns));

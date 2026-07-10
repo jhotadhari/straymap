@@ -27,16 +27,20 @@ export interface TagsTableSettings {
 	filterLogic: FilterLogic;
 }
 
+export interface LinesTableSettings {
+	tableColumns: TableColumn[];
+	sort: SortState | null;
+	filters: ColumnFilter[];
+	filterLogic: FilterLogic;
+}
+
 export interface LinesSettings {
 	selected: {
 		id: number;
 		visible: boolean;
 	}[];
-	tableColumns: TableColumn[];
-	sort: SortState | null;
-	filters: ColumnFilter[];
-	filterLogic: FilterLogic;
 	tagsTable: TagsTableSettings;
+	linesTable: LinesTableSettings;
 }
 
 export interface LinesState extends SliceSettingsBase, LinesSettings {
@@ -45,11 +49,13 @@ export interface LinesState extends SliceSettingsBase, LinesSettings {
 
 export const initialSettings: LinesSettings = {
 	selected: [],
-	tableColumns: [],
-	sort: null,
-	filters: [],
-	filterLogic: 'and',
 	tagsTable: {
+		tableColumns: [],
+		sort: null,
+		filters: [],
+		filterLogic: 'and',
+	},
+	linesTable: {
 		tableColumns: [],
 		sort: null,
 		filters: [],
@@ -74,22 +80,22 @@ export const linesSlice = createSlice({
 		setLineTemp: (state, action: PayloadAction<LinesState['lineTemp']>) => {
 			state.lineTemp = action.payload;
 		},
-		setTableColumns: (state, action: PayloadAction<LinesState['tableColumns']>) => {
-			state.tableColumns = action.payload;
+		setTableColumns: (state, action: PayloadAction<LinesState['linesTable']['tableColumns']>) => {
+			state.linesTable.tableColumns = action.payload;
 		},
 		setSelected: (state, action: PayloadAction<LinesState['selected']>) => {
 			state.selected = uniq(action.payload).sort((a, b) => {
 				return a.id - b.id;
 			});
 		},
-		setSort: (state, action: PayloadAction<LinesState['sort']>) => {
-			state.sort = action.payload;
+		setSort: (state, action: PayloadAction<LinesState['linesTable']['sort']>) => {
+			state.linesTable.sort = action.payload;
 		},
-		setFilters: (state, action: PayloadAction<LinesState['filters']>) => {
+		setFilters: (state, action: PayloadAction<LinesState['linesTable']['filters']>) => {
 			// Deduplicate by normalized key (handles mixed-case
 			// leftovers from persistence).
 			const seen = new Set<string>();
-			state.filters = action.payload.filter((f) => {
+			state.linesTable.filters = action.payload.filter((f) => {
 				const k = getFilterKey(f);
 				if (seen.has(k)) return false;
 				seen.add(k);
@@ -104,23 +110,23 @@ export const linesSlice = createSlice({
 					? { ...action.payload, value: action.payload.value.toLowerCase() }
 					: action.payload;
 			const targetKey = getFilterKey(payload);
-			const idx = state.filters.findIndex((f) => getFilterKey(f) === targetKey);
+			const idx = state.linesTable.filters.findIndex((f) => getFilterKey(f) === targetKey);
 			if (idx !== -1) {
-				state.filters[idx] = payload;
+				state.linesTable.filters[idx] = payload;
 			} else {
-				state.filters.push(payload);
+				state.linesTable.filters.push(payload);
 			}
 		},
 		removeFilter: (state, action: PayloadAction<ColumnFilter>) => {
 			const targetKey = getFilterKey(action.payload);
-			state.filters = state.filters.filter((f) => getFilterKey(f) !== targetKey);
+			state.linesTable.filters = state.linesTable.filters.filter((f) => getFilterKey(f) !== targetKey);
 		},
 
 		resetFilters: (state) => {
-			state.filters = [];
+			state.linesTable.filters = [];
 		},
-		setFilterLogic: (state, action: PayloadAction<LinesState['filterLogic']>) => {
-			state.filterLogic = action.payload;
+		setFilterLogic: (state, action: PayloadAction<LinesState['linesTable']['filterLogic']>) => {
+			state.linesTable.filterLogic = action.payload;
 		},
 		setTagsTableColumns: (
 			state,
@@ -255,7 +261,7 @@ export const setLinesSelected = (newSelectedIds: number[]): AppThunk => {
 
 export const toggleSort = (columnKey: string): AppThunk => {
 	return (dispatch, getState) => {
-		const currentSort = getState().lines.sort;
+		const currentSort = getState().lines.linesTable.sort;
 		if (currentSort?.columnKey === columnKey) {
 			const newDirection = currentSort.direction === 'asc' ? 'desc' : 'asc';
 			dispatch(linesSlice.actions.setSort({ columnKey, direction: newDirection }));
