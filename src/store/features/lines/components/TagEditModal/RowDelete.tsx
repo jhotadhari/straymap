@@ -17,6 +17,7 @@ import InfoRowControl from '../../../../../components/generic/controls/InfoRowCo
 import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
 import ModalWrapper from '../../../../../components/generic/ModalWrapper';
 import { deleteTag } from '../../db/actionsTag';
+import { invalidateTagsTable } from '../../db/queryFns';
 import { featureRegistry } from '../../../FeatureRegistry';
 import { ErrorToastContext } from '../../../../../components/ErrorToast/Context';
 import { logError } from '../../../../../lib/utils';
@@ -42,10 +43,9 @@ const RowDelete: FC = () => {
 			await deleteTag(id);
 		},
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ['tagsTable'] });
+			invalidateTagsTable(queryClient);
 			queryClient.invalidateQueries({ queryKey: ['tags'] });
 			queryClient.invalidateQueries({ queryKey: ['lines'] });
-			queryClient.refetchQueries({ queryKey: ['tagsTable'] });
 			setConfirmVisible(false);
 			onDismiss();
 		},

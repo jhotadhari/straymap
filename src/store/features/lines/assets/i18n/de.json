@@ -15,7 +15,8 @@
 		"tags": "Tags",
 		"label": "Bezeichnung",
 		"line_count": "Routen",
-		"color": "Farbe"
+		"color": "Farbe",
+		"notes": "Notizen"
 	},
 	"columnMenu": {
 		"hideColumn": "Spalte ausblenden",
@@ -134,5 +135,9 @@
 	"tagsChangeColor": "Farbe ändern",
 	"editTag": "Tag bearbeiten",
 	"tagsBrowser": "Tags-Browser",
-	"tagsDeleteConfirmationBody": "Bist du sicher, dass du %s Tag(s) löschen möchtest? Dies kann nicht rückgängig gemacht werden. Keine Routen werden gelöscht."
+	"tagsDeleteConfirmationBody": "Bist du sicher, dass du %s Tag(s) löschen möchtest? Dies kann nicht rückgängig gemacht werden. Keine Routen werden gelöscht.",
+	"showRoutesWithTags": "Routen mit diesen Tags anzeigen",
+	"showRoutes": "Routen",
+	"showRoutesWithTagHint": "Öffne den Routen-Browser, gefiltert nach Routen mit diesem Tag.",
+	"showRoutesWithTag": "Routen anzeigen"
 }

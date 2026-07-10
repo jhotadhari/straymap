@@ -15,6 +15,7 @@ import { aggregateSegmentsToCoords, getCoordsFromRouting, getSegmentRecordId } f
 import { setLineSelected } from '../lines/slice';
 import { lineString } from '@turf/turf';
 import { createLines, updateLine, lineAddTag } from '../lines/db/actionsLine';
+import { invalidateTagsTable } from '../lines/db/queryFns';
 import { ensureTagByLabel } from '../lines/db/actionsTag';
 import { updateRoute } from './db/actionsRoute';
 import { queryRoute } from './db/queryFns';
@@ -349,6 +350,7 @@ const updateLineFromSegments = async (
 	// Attach the routing tag (idempotent — lineAddTag checks for existing relation).
 	if (routingTagId) {
 		await lineAddTag(finalLineId, routingTagId);
+		invalidateTagsTable(queryClient);
 	}
 
 	return {

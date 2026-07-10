@@ -15,6 +15,7 @@ export type FooterContextType = {
 	checkedIds: number[];
 	tagIds: number[];
 	tagsCount: number;
+	tags?: { id: number; label: string | null }[];
 	setCheckedIds?: Dispatch<SetStateAction<number[]>>;
 };
 

@@ -15,7 +15,8 @@
 		"tags": "Tags",
 		"label": "Rótulo",
 		"line_count": "Rotas",
-		"color": "Cor"
+		"color": "Cor",
+		"notes": "Notas"
 	},
 	"columnMenu": {
 		"hideColumn": "Ocultar coluna",
@@ -134,5 +135,9 @@
 	"tagsChangeColor": "Mudar cor",
 	"editTag": "Editar tag",
 	"tagsBrowser": "Navegador de tags",
-	"tagsDeleteConfirmationBody": "Tem certeza de que deseja excluir %s tag(s)? Isso não pode ser desfeito. Nenhuma rota será excluída."
+	"tagsDeleteConfirmationBody": "Tem certeza de que deseja excluir %s tag(s)? Isso não pode ser desfeito. Nenhuma rota será excluída.",
+	"showRoutesWithTags": "Mostrar rotas com estas tags",
+	"showRoutes": "Rotas",
+	"showRoutesWithTagHint": "Abre o navegador de rotas filtrado por rotas com esta tag.",
+	"showRoutesWithTag": "Mostrar rotas"
 }

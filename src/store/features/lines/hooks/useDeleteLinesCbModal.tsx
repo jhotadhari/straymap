@@ -18,6 +18,7 @@ import { useAppDispatch } from '../../../hooks';
 import { sharedStyles } from '../../../../sharedStyles';
 import { setIsRouting } from '../../routing/slice';
 import { deleteLines } from '../db/actionsLine';
+import { invalidateTagsTable } from '../db/queryFns';
 import { dbConnection } from '../../dbLoader/DBConnection';
 
 const useDeleteLinesCbModal = ({
@@ -89,6 +90,7 @@ const useDeleteLinesCbModal = ({
 			},
 			onSuccess: async () => {
 				await dbConnection.queryClient!.invalidateQueries({ queryKey: ['lines'] });
+				invalidateTagsTable(dbConnection.queryClient!);
 				// Close modal.
 				handleDismissModal();
 				// Call onSuccess (eg LinesTable uncheck lines).

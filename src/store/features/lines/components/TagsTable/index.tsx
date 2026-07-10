@@ -4,7 +4,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { FC, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FlatList, ListRenderItem, ScrollView, StyleSheet, View } from 'react-native';
-import { useTheme } from 'react-native-paper';
+import { useTheme, Text } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 import { without } from 'lodash-es';
 
 /**
@@ -39,6 +40,7 @@ const TagTableRowMemo = memo(TagTableRow, (prevProps, nextProps) => {
 
 const TagsTable: FC = () => {
 	const theme = useTheme();
+	const { t } = useTranslation();
 
 	const sort = useAppSelector(selectTagsSort);
 	const filters = useAppSelector(selectTagsFilters);
@@ -140,6 +142,7 @@ const TagsTable: FC = () => {
 				checkedIds,
 				styleCell,
 				toggleCheckedId,
+				handleEditTag,
 			]
 		);
 
@@ -169,6 +172,7 @@ const TagsTable: FC = () => {
 						checkedIds,
 						tagIds,
 						tagsCount: tags?.length || 0,
+						tags: tags ?? [],
 						setCheckedIds,
 					}}
 				>
@@ -194,6 +198,12 @@ const TagsTable: FC = () => {
 
 const styles = StyleSheet.create({
 	flexOne: { flex: 1 },
+	empty: {
+		flex: 1,
+		alignItems: 'center',
+		justifyContent: 'center',
+		paddingVertical: 48,
+	},
 });
 
 export default TagsTable;

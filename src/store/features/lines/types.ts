@@ -6,6 +6,7 @@ import { LineString, Polygon } from 'geojson';
 
 export interface Tag {
 	id: number;
+	timestamp: string;
 	label: string | null;
 	notes: string | null;
 	data: any; // ??? any

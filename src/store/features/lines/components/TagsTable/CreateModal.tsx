@@ -16,6 +16,7 @@ import { logError } from '../../../../../lib/utils';
 import ModalWrapper from '../../../../../components/generic/ModalWrapper';
 import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
 import { createTags } from '../../db/actionsTag';
+import { invalidateTagsTable } from '../../db/queryFns';
 import { TAG_COLORS } from '../tagColor';
 import { sharedStyles } from './sharedDeps';
 import ColorPaletteInline from './ColorPaletteInline';
@@ -37,9 +38,8 @@ const TagCreateModal: FC<{
 			await createTags([{ label: vars.label, notes: null, data: { color: vars.color } }]);
 		},
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ['tagsTable'] });
+			invalidateTagsTable(queryClient);
 			queryClient.invalidateQueries({ queryKey: ['tags'] });
-			queryClient.refetchQueries({ queryKey: ['tagsTable'] });
 			setLabel('');
 			setColor(TAG_COLORS[0].bg);
 			onDismiss();

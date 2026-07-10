@@ -12,6 +12,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
  */
 import { FooterContext } from '../Context';
 import { updateTag } from '../../../db/actionsTag';
+import { invalidateTagsTable } from '../../../db/queryFns';
 import { logError } from '../../../../../../lib/utils';
 import { ErrorToastContext } from '../../../../../../components/ErrorToast/Context';
 import { sprintf } from 'sprintf-js';
@@ -37,9 +38,8 @@ const useChangeTagColor = () => {
 			}
 		},
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ['tagsTable'] });
+			invalidateTagsTable(queryClient);
 			queryClient.invalidateQueries({ queryKey: ['tags'] });
-			queryClient.refetchQueries({ queryKey: ['tagsTable'] });
 			setCheckedIds?.([]);
 			setModalVisible(false);
 		},

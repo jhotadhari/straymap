@@ -72,6 +72,7 @@ const allTagColumnKeys = Object.keys({
 	line_count: {},
 	created_at: {},
 	color: {},
+	notes: {},
 });
 
 export const selectTagsTableColumns = createAppSelector(

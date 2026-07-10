@@ -15,7 +15,8 @@
 		"tags": "Etiquetas",
 		"label": "Etiqueta",
 		"line_count": "Rutas",
-		"color": "Color"
+		"color": "Color",
+		"notes": "Notas"
 	},
 	"columnMenu": {
 		"hideColumn": "Ocultar columna",
@@ -134,5 +135,9 @@
 	"tagsChangeColor": "Cambiar color",
 	"editTag": "Editar etiqueta",
 	"tagsBrowser": "Navegador de etiquetas",
-	"tagsDeleteConfirmationBody": "¿Estás seguro de que quieres eliminar %s etiqueta(s)? Esto no se puede deshacer. No se eliminarán rutas."
+	"tagsDeleteConfirmationBody": "¿Estás seguro de que quieres eliminar %s etiqueta(s)? Esto no se puede deshacer. No se eliminarán rutas.",
+	"showRoutesWithTags": "Mostrar rutas con estas etiquetas",
+	"showRoutes": "Rutas",
+	"showRoutesWithTagHint": "Abre el navegador de rutas filtrado por rutas con esta etiqueta.",
+	"showRoutesWithTag": "Mostrar rutas"
 }

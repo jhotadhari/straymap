@@ -17,7 +17,7 @@ import ButtonHighlight from '../../../../../../components/generic/ButtonHighligh
 import LoadingIndicator from '../../../../../../components/generic/LoadingIndicator';
 import { Tag } from '../../../types';
 import TagBadge from '../../TagBadge';
-import { queryAllTags } from '../../../db/queryFns';
+import { queryAllTags, invalidateTagsTable } from '../../../db/queryFns';
 import { logError } from '../../../../../../lib/utils';
 import { ErrorToastContext } from '../../../../../../components/ErrorToast/Context';
 import { sprintf } from 'sprintf-js';
@@ -44,6 +44,7 @@ const useAddTag = () => {
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ['lines'] });
+			invalidateTagsTable(queryClient);
 			setModalVisible(false);
 			setSelectedTagIds(new Set());
 		},

@@ -94,6 +94,20 @@ export const queryAllTags = () => {
 };
 
 /**
+ * Invalidate all tagsTable queries (predicate-based for reliability).
+ * Use after create/update/delete tag operations.
+ */
+export const invalidateTagsTable = (queryClient: {
+	invalidateQueries: (opts: any) => void;
+	refetchQueries: (opts: any) => void;
+}) => {
+	const predicate = (query: any) =>
+		Array.isArray(query.queryKey) && query.queryKey[0] === 'tagsTable';
+	queryClient.invalidateQueries({ predicate });
+	queryClient.refetchQueries({ predicate });
+};
+
+/**
  * Fetch tags with line counts, optional sorting and filtering.
  *
  * Used with:

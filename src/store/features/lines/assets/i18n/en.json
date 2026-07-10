@@ -15,7 +15,8 @@
 		"tags": "Tags",
 		"label": "Label",
 		"line_count": "Routes",
-		"color": "Color"
+		"color": "Color",
+		"notes": "Notes"
 	},
 	"columnMenu": {
 		"hideColumn": "Hide column",
@@ -134,5 +135,9 @@
 	"tagsChangeColor": "Change color",
 	"editTag": "Edit tag",
 	"tagsBrowser": "Tags browser",
-	"tagsDeleteConfirmationBody": "Are you sure you want to delete %s tag(s)? This cannot be undone. No routes will be deleted."
+	"tagsDeleteConfirmationBody": "Are you sure you want to delete %s tag(s)? This cannot be undone. No routes will be deleted.",
+	"showRoutesWithTags": "Show routes with these tags",
+	"showRoutes": "Routes",
+	"showRoutesWithTagHint": "Open the routes browser filtered to routes that have this tag.",
+	"showRoutesWithTag": "Show routes"
 }

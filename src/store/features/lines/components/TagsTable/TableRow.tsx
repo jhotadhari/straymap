@@ -10,7 +10,6 @@ import { useTheme, Text, Icon } from 'react-native-paper';
  */
 import { TableColumn, Tag } from '../../types';
 import { cellConfigs, sharedStyles } from './sharedDeps';
-import TagBadge from '../TagBadge';
 import { getTagColor } from '../tagColor';
 import { featureRegistry } from '../../../FeatureRegistry';
 import { useAppSelector } from '../../../../hooks';

@@ -11,6 +11,7 @@ import { useTranslation } from 'react-i18next';
 import ModalWrapper from '../../../../../components/generic/ModalWrapper';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { queryLinesWithoutGeom } from '../../db/queryFns';
+import { invalidateTagsTable } from '../../db/queryFns';
 import { updateTag } from '../../db/actionsTag';
 import { queryAllTags } from '../../db/queryFns';
 import { selectTagTemp } from '../../selectors';
@@ -20,6 +21,7 @@ import { sharedStyles } from './sharedDeps';
 import { dbConnection } from '../../../dbLoader/DBConnection';
 import RowLabel from './RowLabel';
 import RowColor from './RowColor';
+import RowShowRoutes from './RowShowRoutes';
 import RowDelete from './RowDelete';
 
 const TagEditModal: FC = () => {
@@ -48,10 +50,9 @@ const TagEditModal: FC = () => {
 				await dbConnection.queryClient!.cancelQueries({ queryKey: ['tags'] });
 			},
 			onSuccess: async () => {
-				await dbConnection.queryClient!.invalidateQueries({ queryKey: ['tagsTable'] });
+				invalidateTagsTable(dbConnection.queryClient!);
 				await dbConnection.queryClient!.invalidateQueries({ queryKey: ['tags'] });
 				await dbConnection.queryClient!.invalidateQueries({ queryKey: ['lines'] });
-				await dbConnection.queryClient!.refetchQueries({ queryKey: ['tagsTable'] });
 			},
 			onSettled: () => {
 				dispatch(setTagTemp(null));
@@ -103,6 +104,8 @@ const TagEditModal: FC = () => {
 				<RowLabel />
 
 				<RowColor />
+
+				<RowShowRoutes />
 
 				<RowDelete />
 			</TagEditModalContext.Provider>

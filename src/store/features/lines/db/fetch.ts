@@ -428,6 +428,7 @@ export const fetchAllTags = (): Promise<Tag[]> => {
 		.then((rows) =>
 			rows.map((r) => ({
 				id: r.id,
+				timestamp: r.timestamp,
 				label: r.label,
 				notes: r.notes,
 				data: r.data as any,
@@ -443,7 +444,7 @@ export const fetchTagsWithLineCounts = (opts?: {
 	sort?: SortState | null;
 	filters?: ColumnFilter[];
 	filterLogic?: FilterLogic;
-}): Promise<(Tag & { line_count: number })[]> => {
+}): Promise<(Tag & { line_count: number; timestamp: string })[]> => {
 	if (!dbConnection?.drizzle) {
 		return Promise.reject(new Error('Database not initialized'));
 	}
@@ -485,6 +486,7 @@ export const fetchTagsWithLineCounts = (opts?: {
 	return query.then((rows) => {
 		let result = rows.map((r) => ({
 			id: r.id,
+			timestamp: r.timestamp,
 			label: r.label,
 			notes: r.notes,
 			data: r.data as any,

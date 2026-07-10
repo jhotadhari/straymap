@@ -9,15 +9,15 @@ import { useQueryClient } from '@tanstack/react-query';
  */
 import { FooterContext } from '../Context';
 import useDeleteTagsCbModal from '../../../hooks/useDeleteTagsCbModal';
+import { invalidateTagsTable } from '../../../db/queryFns';
 
 const useDeleteTags = () => {
 	const { checkedIds, setCheckedIds } = useContext(FooterContext);
 	const queryClient = useQueryClient();
 
 	const onSuccess = useCallback(() => {
-		queryClient.invalidateQueries({ queryKey: ['tagsTable'] });
+		invalidateTagsTable(queryClient);
 		queryClient.invalidateQueries({ queryKey: ['tags'] });
-		queryClient.refetchQueries({ queryKey: ['tagsTable'] });
 		setCheckedIds?.([]);
 	}, [queryClient, setCheckedIds]);
 

@@ -183,7 +183,7 @@ const TagTableHeader: FC<{
 			<View style={style}>
 				<IconButtonHighlight
 					icon="plus"
-					mode='outlined'
+					mode="outlined"
 					size={20}
 					onPress={onCreatePress}
 				/>
