@@ -14,6 +14,8 @@ export const selectInitialized = (state: RootState) => state.lines.initialized;
 
 export const selectLineTemp = (state: RootState) => state.lines.lineTemp;
 
+export const selectTagTemp = (state: RootState) => state.lines.tagTemp;
+
 export const selectSelected = createAppSelector(
 	(state: RootState) => state.lines.selected,
 	(selected) => uniq(selected)

@@ -9,7 +9,7 @@ import { View, ViewStyle } from 'react-native';
  */
 import TagsTable from '../components/TagsTable';
 
-const TagEditPage: FC<{ style?: ViewStyle }> = ({ style }) => {
+const TagsBrowser: FC<{ style?: ViewStyle }> = ({ style }) => {
 	return (
 		<View style={style}>
 			<TagsTable />
@@ -17,4 +17,4 @@ const TagEditPage: FC<{ style?: ViewStyle }> = ({ style }) => {
 	);
 };
 
-export default TagEditPage;
+export default TagsBrowser;

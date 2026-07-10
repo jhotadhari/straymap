@@ -45,6 +45,7 @@ export interface LinesSettings {
 
 export interface LinesState extends SliceSettingsBase, LinesSettings {
 	lineTemp?: LinePartial;
+	tagTemp?: { id: number; label?: string | null; data?: any } | null;
 }
 
 export const initialSettings: LinesSettings = {
@@ -80,7 +81,13 @@ export const linesSlice = createSlice({
 		setLineTemp: (state, action: PayloadAction<LinesState['lineTemp']>) => {
 			state.lineTemp = action.payload;
 		},
-		setTableColumns: (state, action: PayloadAction<LinesState['linesTable']['tableColumns']>) => {
+		setTagTemp: (state, action: PayloadAction<LinesState['tagTemp']>) => {
+			state.tagTemp = action.payload;
+		},
+		setTableColumns: (
+			state,
+			action: PayloadAction<LinesState['linesTable']['tableColumns']>
+		) => {
 			state.linesTable.tableColumns = action.payload;
 		},
 		setSelected: (state, action: PayloadAction<LinesState['selected']>) => {
@@ -119,7 +126,9 @@ export const linesSlice = createSlice({
 		},
 		removeFilter: (state, action: PayloadAction<ColumnFilter>) => {
 			const targetKey = getFilterKey(action.payload);
-			state.linesTable.filters = state.linesTable.filters.filter((f) => getFilterKey(f) !== targetKey);
+			state.linesTable.filters = state.linesTable.filters.filter(
+				(f) => getFilterKey(f) !== targetKey
+			);
 		},
 
 		resetFilters: (state) => {
@@ -183,6 +192,7 @@ export const {
 	setTableColumns,
 	setSelected,
 	setLineTemp,
+	setTagTemp,
 	setSort,
 	setFilters,
 	upsertFilter,

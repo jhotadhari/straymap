@@ -10,7 +10,7 @@ import { without } from 'lodash-es';
 /**
  * Internal dependencies
  */
-import { useAppSelector } from '../../../../hooks';
+import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { selectTagsSort, selectTagsFilters, selectTagsFilterLogic } from '../../selectors';
 import { Tag } from '../../types';
 import { sharedStyles } from './sharedDeps';
@@ -21,8 +21,9 @@ import TagFooter from './Footer';
 import { queryTagsWithLineCounts } from '../../db/queryFns';
 import { HeaderContext, FooterContext, ColumnHeaderMenuContext } from './Context';
 import TagFilterModals from './FilterModals';
-import TagEditModal from './EditModal';
+import TagEditModal from '../TagEditModal/TagEditModal';
 import CreateModal from './CreateModal';
+import { setTagTemp } from '../../slice';
 
 const keyExtractor = (tag: Tag & { line_count: number }) => tag.id.toString();
 
@@ -52,7 +53,6 @@ const TagsTable: FC = () => {
 	const tagIds = useMemo(() => tags?.map((tag) => tag.id) ?? [], [tags]);
 
 	const [checkedIds, setCheckedIds] = useState<number[]>([]);
-	const [editingTag, setEditingTag] = useState<(Tag & { line_count: number }) | null>(null);
 	const [createModalVisible, setCreateModalVisible] = useState(false);
 
 	// Reset checked rows when filters change
@@ -87,13 +87,14 @@ const TagsTable: FC = () => {
 		});
 	}, []);
 
-	const handleEditTag = useCallback((tag: Tag & { line_count: number }) => {
-		setEditingTag(tag);
-	}, []);
+	const dispatch = useAppDispatch();
 
-	const handleDismissEdit = useCallback(() => {
-		setEditingTag(null);
-	}, []);
+	const handleEditTag = useCallback(
+		(tag: Tag & { line_count: number }) => {
+			dispatch(setTagTemp({ id: tag.id, label: tag.label, data: tag.data }));
+		},
+		[dispatch]
+	);
 
 	const handleOpenCreate = useCallback(() => {
 		setCreateModalVisible(true);
@@ -181,11 +182,7 @@ const TagsTable: FC = () => {
 				/>
 			</View>
 
-			<TagEditModal
-				visible={editingTag !== null}
-				tag={editingTag}
-				onDismiss={handleDismissEdit}
-			/>
+			<TagEditModal />
 
 			<CreateModal
 				visible={createModalVisible}

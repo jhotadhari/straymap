@@ -10,7 +10,7 @@ import pt from './assets/i18n/pt.json';
 import { onSetDbPath } from './slice';
 import LinesMapView from './mapComponents/LinesMapView';
 import LinesBrowser from './uiItems/LinesBrowser';
-import TagEditPage from './uiItems/TagEditPage';
+import TagsBrowser from './uiItems/TagsBrowser';
 import linesDrawerItem from './drawerPanels/lines';
 import LineEditModalWrapper from './components/LineEditModalWrapper';
 
@@ -35,7 +35,7 @@ export default {
 			key: 'tagEdit',
 			label: 'lines.tagsBrowser',
 			icon: 'tag-outline',
-			Component: TagEditPage,
+			Component: TagsBrowser,
 		},
 	],
 	drawerPanels: [linesDrawerItem],
