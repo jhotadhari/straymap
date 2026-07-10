@@ -58,6 +58,7 @@
     "react-native-gesture-handler": "^3.0.2",
     "react-native-hardwarekey-event": "file:.yalc/react-native-hardwarekey-event",
     "react-native-mapsforge-vtm": "file:.yalc/react-native-mapsforge-vtm",
+    "react-native-mapsforge-vtm-ext-path-color-ramp": "file:.yalc/react-native-mapsforge-vtm-ext-path-color-ramp",
     "react-native-markdown-display": "^7.0.2",
     "react-native-paper": "^5.12.5",
     "react-native-paper-dates": "^0.23.9",
