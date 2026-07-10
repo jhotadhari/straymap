@@ -349,7 +349,7 @@ const updateLineFromSegments = async (
 
 	// Attach the routing tag (idempotent — lineAddTag checks for existing relation).
 	if (routingTagId) {
-		await lineAddTag(finalLineId, routingTagId);
+		await lineAddTag(finalLineId, routingTagId, { skipSystemGuard: true });
 		invalidateTagsTable(queryClient);
 	}
 

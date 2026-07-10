@@ -195,9 +195,21 @@ export const updateLine = withDbErrorHandling(
 
 export const lineAddTag = withDbErrorHandling(
 	'lines/actionsLine.lineAddTag',
-	async (lineId: number, tagId: number) => {
+	async (lineId: number, tagId: number, opts?: { skipSystemGuard?: boolean }) => {
 		if (!dbConnection?.drizzle) {
 			return;
+		}
+		// Guard: prevent adding system-protected tags to lines
+		// (unless explicitly skipped by internal system code paths).
+		if (!opts?.skipSystemGuard) {
+			const [tag] = await dbConnection.drizzle
+				.select({ label: tagsTable.label })
+				.from(tagsTable)
+				.where(eq(tagsTable.id, tagId))
+				.limit(1);
+			if (tag && featureRegistry.getSystemTagLabels().includes(tag.label ?? '')) {
+				return;
+			}
 		}
 		// Check if line has this tag already using a lightweight query
 		const existing = await dbConnection.drizzle

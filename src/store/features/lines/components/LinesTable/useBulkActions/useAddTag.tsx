@@ -19,6 +19,7 @@ import { Tag } from '../../../types';
 import TagBadge from '../../TagBadge';
 import { queryAllTags, invalidateTagsTable } from '../../../db/queryFns';
 import { logError } from '../../../../../../lib/utils';
+import { featureRegistry } from '../../../../FeatureRegistry';
 import { ErrorToastContext } from '../../../../../../components/ErrorToast/Context';
 import { sprintf } from 'sprintf-js';
 
@@ -59,7 +60,12 @@ const useAddTag = () => {
 		setSelectedTagIds(new Set());
 		try {
 			const result = await queryAllTags();
-			setTags(result);
+			// Exclude system-protected tags from bulk add options.
+			setTags(
+				result.filter(
+					(tag) => !featureRegistry.getSystemTagLabels().includes(tag.label ?? '')
+				)
+			);
 			setLoading(false);
 			setModalVisible(true);
 		} catch (err) {
