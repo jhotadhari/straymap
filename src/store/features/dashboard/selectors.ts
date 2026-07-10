@@ -46,9 +46,10 @@ export const getItemByKeyResultFn = (
 	let position = 'bottom';
 	let idx = !key ? -1 : itemsTop.findIndex((item) => item.key === key);
 	let item: undefined | DashboardItem = undefined;
-	if (key && -1 === idx) {
-		position = 'bottom';
-		idx = !key ? -1 : itemsBottom.findIndex((item) => item.key === key);
+	if (-1 !== idx) {
+		position = 'top';
+	} else if (key) {
+		idx = itemsBottom.findIndex((item) => item.key === key);
 	}
 	if (key && -1 !== idx) {
 		item = ('top' === position ? itemsTop : itemsBottom)[idx];
