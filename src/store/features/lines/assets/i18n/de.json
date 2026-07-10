@@ -12,7 +12,10 @@
 		"downhill": "Abstieg",
 		"minZ": "Min. Höhe",
 		"maxZ": "Max. Höhe",
-		"tags": "Tags"
+		"tags": "Tags",
+		"label": "Bezeichnung",
+		"line_count": "Routen",
+		"color": "Farbe"
 	},
 	"columnMenu": {
 		"hideColumn": "Spalte ausblenden",
@@ -120,12 +123,16 @@
 	"importSkippedGeometry": "{{count}} Strecke(n) wegen fehlender Geometriedaten übersprungen",
 	"addTags": "Tags hinzufügen",
 	"removeTags": "Tags entfernen",
-	"tagsEditTitle": "Tags bearbeiten",
 	"tagsNewPlaceholder": "Neuer Tag-Name…",
 	"tagsCreate": "Tag erstellen",
 	"tagsNoTags": "Noch keine Tags",
 	"tagsApply": "Anwenden",
 	"clearLinesFromMap": "Von Karte entfernen",
 	"clearLinesConfirm": "Entfernen bestätigen",
-	"clearLinesConfirmationBody": "Möchtest du wirklich alle %s Routen von der Karte entfernen? Sie bleiben in deinem Browser und werden nicht gelöscht. Du kannst sie jederzeit wieder hinzufügen."
+	"clearLinesConfirmationBody": "Möchtest du wirklich alle %s Routen von der Karte entfernen? Sie bleiben in deinem Browser und werden nicht gelöscht. Du kannst sie jederzeit wieder hinzufügen.",
+	"tagsCreateTitle": "Tag erstellen",
+	"tagsChangeColor": "Farbe ändern",
+	"editTag": "Tag bearbeiten",
+	"tagsBrowser": "Tags-Browser",
+	"tagsDeleteConfirmationBody": "Bist du sicher, dass du %s Tag(s) löschen möchtest? Dies kann nicht rückgängig gemacht werden. Keine Routen werden gelöscht."
 }

@@ -10,6 +10,7 @@ import { eq, and, inArray, sql } from 'drizzle-orm';
 import { dbConnection } from '../../dbLoader/DBConnection';
 import { linesTable, tagsTable, tagsToLinesTable } from './schema/schema';
 import { withDbErrorHandling, withDbTransaction, parseReturningIds } from '../../dbLoader/utils';
+import { featureRegistry } from '../../FeatureRegistry';
 
 export const createLines = withDbErrorHandling(
 	'lines/actionsLine.createLines',
@@ -220,6 +221,15 @@ export const lineRemoveTag = withDbErrorHandling(
 	'lines/actionsLine.lineRemoveTag',
 	async (lineId: number, tagId: number) => {
 		if (!dbConnection?.drizzle) {
+			return;
+		}
+		// Guard: prevent detachment of system-protected tags.
+		const [tag] = await dbConnection.drizzle
+			.select({ label: tagsTable.label })
+			.from(tagsTable)
+			.where(eq(tagsTable.id, tagId))
+			.limit(1);
+		if (tag && featureRegistry.getSystemTagLabels().includes(tag.label ?? '')) {
 			return;
 		}
 		await dbConnection.drizzle

@@ -62,3 +62,36 @@ export const selectFilters = (state: RootState) => state.lines.filters;
 export const selectFilterLogic = (state: RootState) => state.lines.filterLogic;
 
 export const selectFilterableColumns = (state: RootState) => selectTableColumns(state);
+
+// ── TagsTable selectors ──────────────────────────────────────────────
+
+const allTagColumnKeys = Object.keys({
+	label: {},
+	line_count: {},
+	created_at: {},
+	color: {},
+});
+
+export const selectTagsTableColumns = createAppSelector(
+	(state: RootState) => state.lines.tagsTable.tableColumns,
+	(tableColumns) => {
+		let result = [...tableColumns];
+		allTagColumnKeys.forEach((key) => {
+			if (!result.some((col) => col.key === key)) {
+				result.push({
+					key,
+					visible: true,
+				});
+			}
+		});
+		return result.filter((col) => allTagColumnKeys.includes(col.key));
+	}
+);
+
+export const selectTagsSort = (state: RootState) => state.lines.tagsTable.sort;
+
+export const selectTagsFilters = (state: RootState) => state.lines.tagsTable.filters;
+
+export const selectTagsFilterLogic = (state: RootState) => state.lines.tagsTable.filterLogic;
+
+export const selectTagsFilterableColumns = (state: RootState) => selectTagsTableColumns(state);

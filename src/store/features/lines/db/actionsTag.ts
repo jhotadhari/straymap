@@ -9,6 +9,7 @@ import { eq } from 'drizzle-orm';
 import { dbConnection } from '../../dbLoader/DBConnection';
 import { tagsTable, tagsToLinesTable } from './schema/schema';
 import { withDbErrorHandling } from '../../dbLoader/utils';
+import { featureRegistry } from '../../FeatureRegistry';
 
 export const createTags = withDbErrorHandling(
 	'lines/actionsTag.createTags',
@@ -36,6 +37,30 @@ export const createTags = withDbErrorHandling(
 	}
 );
 
+export const ensureTagByLabel = withDbErrorHandling(
+	'lines/actionsTag.ensureTagByLabel',
+	async (label: string) => {
+		if (!dbConnection?.drizzle) {
+			return;
+		}
+		// Check if a tag already exists with this label.
+		const existing = await dbConnection.drizzle
+			.select({ id: tagsTable.id })
+			.from(tagsTable)
+			.where(eq(tagsTable.label, label))
+			.limit(1);
+		if (existing.length) {
+			return existing[0].id;
+		}
+		// Create if not found.
+		const created = await dbConnection.drizzle
+			.insert(tagsTable)
+			.values({ label, notes: null, data: null })
+			.returning({ id: tagsTable.id });
+		return created.length ? created[0].id : undefined;
+	}
+);
+
 export const updateTag = withDbErrorHandling(
 	'lines/actionsTag.updateTag',
 	async (
@@ -58,10 +83,12 @@ export const updateTag = withDbErrorHandling(
 			return;
 		}
 		const existingTag = tags[0];
+		// Guard: prevent renaming system-protected tag labels.
+		const isSystemTag = featureRegistry.getSystemTagLabels().includes(existingTag.label ?? '');
 		await dbConnection.drizzle
 			.update(tagsTable)
 			.set({
-				...(undefined !== newTag?.label && { label: newTag.label }),
+				...(undefined !== newTag?.label && !isSystemTag && { label: newTag.label }),
 				...(undefined !== newTag?.notes && { notes: newTag.notes }),
 				...(undefined !== newTag?.data && {
 					data: { ...((existingTag.data as any) ?? {}), ...newTag.data },
@@ -73,6 +100,15 @@ export const updateTag = withDbErrorHandling(
 
 export const deleteTag = withDbErrorHandling('lines/actionsTag.deleteTag', async (id: number) => {
 	if (!dbConnection?.drizzle) {
+		return;
+	}
+	// Guard: prevent deletion of system-protected tags.
+	const [tag] = await dbConnection.drizzle
+		.select({ label: tagsTable.label })
+		.from(tagsTable)
+		.where(eq(tagsTable.id, id))
+		.limit(1);
+	if (tag && featureRegistry.getSystemTagLabels().includes(tag.label ?? '')) {
 		return;
 	}
 	await dbConnection.drizzle.delete(tagsTable).where(eq(tagsTable.id, id));

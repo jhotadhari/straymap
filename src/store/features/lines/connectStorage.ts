@@ -20,6 +20,12 @@ import {
 	setFilterLogic,
 	upsertFilter,
 	removeFilter,
+	setTagsTableColumns,
+	setTagsSort,
+	setTagsFilters,
+	setTagsFilterLogic,
+	upsertTagsFilter,
+	removeTagsFilter,
 } from './slice';
 import { startAppListening } from '../../listenerMiddleware';
 import { selectInitialized } from './selectors';
@@ -53,6 +59,18 @@ export const initializeFromStorage = (store: AppStore) => {
 				}
 				if (newSettings?.filterLogic) {
 					store.dispatch(setFilterLogic(newSettings.filterLogic));
+				}
+				if (newSettings?.tagsTable?.tableColumns) {
+					store.dispatch(setTagsTableColumns(newSettings.tagsTable.tableColumns));
+				}
+				if (newSettings?.tagsTable?.sort) {
+					store.dispatch(setTagsSort(newSettings.tagsTable.sort));
+				}
+				if (newSettings?.tagsTable?.filters) {
+					store.dispatch(setTagsFilters(newSettings.tagsTable.filters));
+				}
+				if (newSettings?.tagsTable?.filterLogic) {
+					store.dispatch(setTagsFilterLogic(newSettings.tagsTable.filterLogic));
 				}
 			}
 			store.dispatch(setInitialized(true));
@@ -99,7 +117,13 @@ startAppListening({
 		setFilters,
 		setFilterLogic,
 		upsertFilter,
-		removeFilter
+		removeFilter,
+		setTagsTableColumns,
+		setTagsSort,
+		setTagsFilters,
+		setTagsFilterLogic,
+		upsertTagsFilter,
+		removeTagsFilter
 	),
 	effect: async (action, listenerApi) => {
 		try {

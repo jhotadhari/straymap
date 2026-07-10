@@ -1,0 +1,190 @@
+/**
+ * External dependencies
+ */
+import { FC, Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Dimensions, StyleSheet, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
+import Sortable, { DragStartParams, SortableFlexDragEndParams } from 'react-native-sortables';
+
+/**
+ * Internal dependencies
+ */
+import ModalWrapper from '../../../../../components/generic/ModalWrapper';
+import { useAppDispatch, useAppSelector } from '../../../../hooks';
+import { TableColumn } from '../../types';
+import { selectTagsTableColumns } from '../../selectors';
+import { setTagsTableColumns } from '../../slice';
+import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
+import { Icon, Text } from 'react-native-paper';
+import { DRAWER_ICON_SIZE, modalPadding, modalWidthFactor } from '../../../../../constants';
+import { sharedStyles } from './sharedDeps';
+import useDropIndicatorStyle from '../../../../../compose/useDropIndicatorStyle';
+import IconButtonHighlight from '../../../../../components/generic/IconButtonHighlight';
+
+const DraggableItem: FC<{
+	column: TableColumn;
+	isColumnVisible: boolean;
+	toggleColumnVisible: () => void;
+}> = ({ column, isColumnVisible, toggleColumnVisible }) => {
+	const { t } = useTranslation();
+	const { width } = Dimensions.get('window');
+
+	const style = useMemo(
+		() => [
+			styles.item,
+			!isColumnVisible && { opacity: 0.75 },
+			{ width: width * modalWidthFactor - 2 * modalPadding },
+		],
+		[isColumnVisible, width]
+	);
+
+	return (
+		<View style={style}>
+			<Sortable.Handle
+				mode="draggable"
+				style={styles.handle}
+			>
+				<Text>{t(`lines.columns.${column.key}`)}</Text>
+			</Sortable.Handle>
+
+			<ButtonHighlight
+				mode="text"
+				compact
+				onPress={toggleColumnVisible}
+			>
+				<Icon
+					source={isColumnVisible ? 'eye-outline' : 'eye-off-outline'}
+					size={DRAWER_ICON_SIZE}
+				/>
+			</ButtonHighlight>
+		</View>
+	);
+};
+
+const TagSelectColumns: FC = () => {
+	const { t } = useTranslation();
+	const dispatch = useAppDispatch();
+
+	const [isModalVisible, setIsModalVisible] = useState(false);
+	const saveRef = useRef<undefined | (() => void)>(undefined);
+
+	const tableColumns: TableColumn[] = useAppSelector(selectTagsTableColumns);
+	const [tableColumnsTemp, setTableColumnsTemp] = useState(tableColumns);
+	const [scrollEnabled, setScrollEnabled] = useState(true);
+
+	useEffect(() => {
+		saveRef.current = () => {
+			dispatch(setTagsTableColumns(tableColumnsTemp));
+		};
+	}, [dispatch, tableColumnsTemp]);
+
+	useEffect(() => {
+		if (isModalVisible) {
+			setTableColumnsTemp(tableColumns);
+		}
+	}, [isModalVisible, tableColumns]);
+
+	const onDismiss = useCallback(() => {
+		saveRef.current?.();
+		setIsModalVisible(false);
+	}, []);
+
+	const dropIndicatorStyle = useDropIndicatorStyle();
+
+	const handleOpenModal = useCallback(() => {
+		setIsModalVisible(true);
+	}, []);
+
+	const handleDragStart = useCallback((_params: DragStartParams) => {
+		setScrollEnabled(false);
+	}, []);
+
+	const handleDragEnd = useCallback(
+		({ indexToKey }: SortableFlexDragEndParams) => {
+			const newTableColumnsTemp: TableColumn[] = indexToKey
+				.map((toKey) =>
+					tableColumnsTemp.find((column) => column.key === toKey.replace('.$', ''))
+				)
+				.filter((column): column is TableColumn => !!column);
+
+			setTableColumnsTemp(newTableColumnsTemp);
+			setScrollEnabled(true);
+		},
+		[tableColumnsTemp]
+	);
+
+	return (
+		<Fragment>
+			<IconButtonHighlight
+				icon="view-column-outline"
+				size={20}
+				onPress={handleOpenModal}
+				mode="outlined"
+			/>
+
+			<ModalWrapper
+				visible={isModalVisible}
+				onDismiss={onDismiss}
+				header={t('lines.selectColumns')}
+				innerStyle={sharedStyles.modalInner}
+				scrollEnabled={scrollEnabled}
+				modalStyle={styles.modal}
+			>
+				<Sortable.Flex
+					itemEntering={null}
+					gap={0}
+					padding={0}
+					sortEnabled
+					customHandle
+					showDropIndicator
+					dropIndicatorStyle={dropIndicatorStyle}
+					flexDirection="column"
+					reorderTriggerOrigin="center"
+					alignItems="center"
+					onDragStart={handleDragStart}
+					onDragEnd={handleDragEnd}
+				>
+					{tableColumnsTemp.map((column: TableColumn) => {
+						const toggleColumnVisible = () => {
+							setTableColumnsTemp((prev) =>
+								prev.map((col) =>
+									col.key === column.key ? { ...col, visible: !col.visible } : col
+								)
+							);
+						};
+						return (
+							<View key={column.key}>
+								<DraggableItem
+									column={column}
+									isColumnVisible={column.visible}
+									toggleColumnVisible={toggleColumnVisible}
+								/>
+							</View>
+						);
+					})}
+				</Sortable.Flex>
+			</ModalWrapper>
+		</Fragment>
+	);
+};
+
+const styles = StyleSheet.create({
+	item: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		justifyContent: 'space-between',
+		paddingHorizontal: 8,
+		paddingVertical: 8,
+	},
+	handle: {
+		flexDirection: 'row',
+		flexGrow: 1,
+		gap: 16,
+		alignItems: 'center',
+	},
+	modal: {
+		overflow: 'visible',
+	},
+});
+
+export default TagSelectColumns;

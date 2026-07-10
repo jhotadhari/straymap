@@ -32,4 +32,5 @@ export default {
 	],
 	modes: ['routing'],
 	selectActiveModes: (state: any) => (selectIsRouting(state) ? ['routing'] : []),
+	systemTagLabels: ['routing'],
 };

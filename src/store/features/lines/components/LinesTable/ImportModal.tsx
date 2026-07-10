@@ -3,7 +3,7 @@
  */
 import { FC, useCallback, useContext, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import { Text, useTheme, Checkbox } from 'react-native-paper';
+import { Text, useTheme, Checkbox, Icon } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { eq } from 'drizzle-orm';
@@ -28,11 +28,33 @@ import {
 	IMPORT_EXTENSIONS,
 } from '../../utils/importParser';
 import { createLines } from '../../db/actionsLine';
-import { createTags } from '../../db/actionsTag';
+import { createTags, ensureTagByLabel } from '../../db/actionsTag';
 import { dbConnection } from '../../../dbLoader/DBConnection';
 import { tagsTable } from '../../db/schema/schema';
 
 type ImportMode = 'file' | 'directory';
+
+type ImportFileResult = {
+	name: string;
+	success: boolean;
+	error?: string;
+	skippedGeom?: number;
+	importedCount?: number;
+};
+
+const isValidGeometry = (feature: Feature<LineString, GeoJsonProperties>): boolean => {
+	const geom = feature?.geometry;
+	if (!geom || geom.type !== 'LineString') return false;
+	const coords = geom.coordinates;
+	if (!Array.isArray(coords) || coords.length < 2) return false;
+	return coords.every(
+		(c) =>
+			Array.isArray(c) &&
+			c.length >= 2 &&
+			typeof c[0] === 'number' &&
+			typeof c[1] === 'number'
+	);
+};
 
 const ImportModal: FC<{
 	visible: boolean;
@@ -43,9 +65,9 @@ const ImportModal: FC<{
 	const { showError } = useContext(ErrorToastContext);
 	const queryClient = useQueryClient();
 
-	const [step, setStep] = useState<'idle' | 'scanning' | 'parsing' | 'preview' | 'importing'>(
-		'idle'
-	);
+	const [step, setStep] = useState<
+		'idle' | 'scanning' | 'parsing' | 'preview' | 'importing' | 'result'
+	>('idle');
 	const [importMode, setImportMode] = useState<ImportMode>('file');
 
 	// Single-file state
@@ -60,6 +82,8 @@ const ImportModal: FC<{
 	// Shared
 	const [mergeMode, setMergeMode] = useState(false);
 	const [bulkProgress, setBulkProgress] = useState({ current: 0, total: 0 });
+	const [importResults, setImportResults] = useState<ImportFileResult[]>([]);
+	const importResultsRef = useRef<ImportFileResult[]>([]);
 
 	const [isPickingFile, runOpenDocument] = useAsyncBusy(openDocument);
 	const [isPickingDir, runOpenDocumentTree] = useAsyncBusy(openDocumentTree);
@@ -70,92 +94,181 @@ const ImportModal: FC<{
 
 	// ---- find or create an "imported" tag (shared) ----
 	const getOrCreateImportTag = useCallback(async (): Promise<number | undefined> => {
-		if (!dbConnection?.drizzle) return undefined;
-		const existing = await dbConnection.drizzle
-			.select({ id: tagsTable.id })
-			.from(tagsTable)
-			.where(eq(tagsTable.label, 'imported'))
-			.limit(1);
-		if (existing.length) {
-			return existing[0].id;
-		}
-		const created = await createTags([
-			{ label: 'imported', notes: null, data: null },
-		]);
-		return created?.length ? created[0].id : undefined;
+		return ensureTagByLabel('imported');
 	}, []);
 
 	// ---- mutation ----
 	const mutation = useMutation({
 		mutationFn: async () => {
-			let toImport: Feature<LineString, GeoJsonProperties>[];
-			let titles: (string | undefined)[];
-
 			if (importMode === 'directory') {
-				// Parse each selected file and collect features
-				const allFeatures: Feature<LineString, GeoJsonProperties>[] = [];
-				const sourceNames: string[] = []; // track which file each feature came from
+				const importTagId = await getOrCreateImportTag();
 				const uris = Array.from(selectedFileUris);
-				for (let i = 0; i < uris.length; i++) {
-					if (dismissedRef.current) return;
-					setBulkProgress({ current: i + 1, total: uris.length });
-					const uri = uris[i];
-					const name = dirFiles.find((f) => f.uri === uri)?.name ?? uri;
-					try {
-						const content = await readFile(uri, 'utf8');
-						const format = detectImportFormat(name);
-						if (format) {
-							const result = parseImportContent(content, format);
-							for (let f = 0; f < result.features.length; f++) {
-								sourceNames.push(name.replace(/\.[^.]+$/, ''));
+				const results: ImportFileResult[] = [];
+
+				if (mergeMode) {
+					// Merge mode: collect all features from all files, validate
+					// geometry, then create a single merged line.  All-or-nothing
+					// since the output is one line.
+					const allFeatures: Feature<LineString, GeoJsonProperties>[] = [];
+					for (let i = 0; i < uris.length; i++) {
+						if (dismissedRef.current) return;
+						setBulkProgress({ current: i + 1, total: uris.length });
+						const uri = uris[i];
+						const name = dirFiles.find((f) => f.uri === uri)?.name ?? uri;
+						try {
+							const content = await readFile(uri, 'utf8');
+							const format = detectImportFormat(name);
+							if (format) {
+								const result = parseImportContent(content, format);
+								const valid = result.features.filter(isValidGeometry);
+								allFeatures.push(...valid);
 							}
-							allFeatures.push(...result.features);
+						} catch (err) {
+							logError('ImportModal.bulkParse', err);
+							results.push({
+								name,
+								success: false,
+								error: (err as Error)?.message ?? String(err),
+							});
 						}
-					} catch (err) {
-						logError('ImportModal.bulkParse', err);
-						// Skip files that fail to parse; continue with remaining
+					}
+					if (!allFeatures.length) {
+						setImportResults(results);
+						importResultsRef.current = results;
+						throw new Error(
+							results.length > 0
+								? t('lines.importResultAllFailed')
+								: t('lines.importDirNoFiles')
+						);
+					}
+					const allCoords = allFeatures.flatMap((f) => f.geometry.coordinates);
+					const merged: Feature<LineString, GeoJsonProperties> = {
+						type: 'Feature',
+						properties: {},
+						geometry: { type: 'LineString', coordinates: allCoords },
+					};
+					const title =
+						dirFiles
+							.find((f) => f.uri === Array.from(selectedFileUris).sort()[0])
+							?.name?.replace(/\.[^.]+$/, '') ??
+						t('lines.importTrackN', { ns: 'lines' });
+					await createLines([
+						{
+							title,
+							lineStringFeature: merged,
+							tagIds: importTagId ? [importTagId] : undefined,
+						},
+					]);
+					setImportResults(results);
+				} else {
+					// Non-merge mode: process each file independently so one
+					// failing file doesn't block the rest.
+					for (let i = 0; i < uris.length; i++) {
+						if (dismissedRef.current) return;
+						setBulkProgress({ current: i + 1, total: uris.length });
+						const uri = uris[i];
+						const name = dirFiles.find((f) => f.uri === uri)?.name ?? uri;
+						try {
+							const content = await readFile(uri, 'utf8');
+							const format = detectImportFormat(name);
+							if (!format) {
+								results.push({
+									name,
+									success: false,
+									error: sprintf(
+										t('lines.importUnsupportedFormat'),
+										name.split('.').pop() ?? ''
+									),
+								});
+								continue;
+							}
+							const result = parseImportContent(content, format);
+							const validFeatures = result.features.filter(isValidGeometry);
+							const skippedGeom = result.features.length - validFeatures.length;
+
+							if (!validFeatures.length) {
+								results.push({
+									name,
+									success: false,
+									error: t('lines.importNoFeatures'),
+									skippedGeom: skippedGeom > 0 ? skippedGeom : undefined,
+								});
+								continue;
+							}
+
+							try {
+								const created = await createLines(
+									validFeatures.map((f, idx) => ({
+										title:
+											f.properties?.name ??
+											name.replace(/\.[^.]+$/, '') +
+												(validFeatures.length > 1 ? ` ${idx + 1}` : ''),
+										lineStringFeature: f,
+										tagIds: importTagId ? [importTagId] : undefined,
+									}))
+								);
+								results.push({
+									name,
+									success: true,
+									importedCount: created?.length ?? validFeatures.length,
+									skippedGeom: skippedGeom > 0 ? skippedGeom : undefined,
+								});
+							} catch (dbErr) {
+								logError('ImportModal.bulkInsert', dbErr);
+								results.push({
+									name,
+									success: false,
+									error: (dbErr as Error)?.message ?? String(dbErr),
+									skippedGeom: skippedGeom > 0 ? skippedGeom : undefined,
+								});
+							}
+						} catch (err) {
+							logError('ImportModal.bulkParse', err);
+							results.push({
+								name,
+								success: false,
+								error: (err as Error)?.message ?? String(err),
+							});
+						}
+					}
+					setImportResults(results);
+					importResultsRef.current = results;
+					const anySuccess = results.some((r) => r.success);
+					if (!anySuccess) {
+						throw new Error(
+							results.length > 0
+								? t('lines.importResultAllFailed')
+								: t('lines.importDirNoFiles')
+						);
 					}
 				}
-				if (!allFeatures.length) {
-					throw new Error(t('lines.importDirNoFiles'));
-				}
-				toImport = allFeatures;
-				titles = allFeatures.map((f, i) => f.properties?.name ?? sourceNames[i]);
-			} else {
-				toImport = features.filter((_, idx) => selectedIndices.has(idx));
-				titles = toImport.map(
-					(f) => f.properties?.name ?? filename.replace(/\.[^.]+$/, '')
-				);
+				return;
 			}
 
+			// ---- single-file mode ----
+			let toImport = features.filter((_, idx) => selectedIndices.has(idx));
+			const skippedCount = toImport.length - toImport.filter(isValidGeometry).length;
+			toImport = toImport.filter(isValidGeometry);
+
 			if (!toImport.length) {
-				throw new Error(
-					importMode === 'directory'
-						? t('lines.importDirNoFiles')
-						: t('lines.importNoFeatures')
-				);
+				throw new Error(t('lines.importNoFeatures'));
 			}
 
 			const importTagId = await getOrCreateImportTag();
+			const titles = toImport.map(
+				(f) => f.properties?.name ?? filename.replace(/\.[^.]+$/, '')
+			);
 
 			if (mergeMode) {
-				// Merge all features into a single LineString
 				const allCoords = toImport.flatMap((f) => f.geometry.coordinates);
 				const merged: Feature<LineString, GeoJsonProperties> = {
 					type: 'Feature',
 					properties: {},
 					geometry: { type: 'LineString', coordinates: allCoords },
 				};
-				const title =
-					importMode === 'file'
-						? filename.replace(/\.[^.]+$/, '')
-						: (dirFiles
-								.find((f) => f.uri === Array.from(selectedFileUris).sort()[0])
-								?.name?.replace(/\.[^.]+$/, '') ??
-							t('lines.importTrackN', { ns: 'lines' }));
 				await createLines([
 					{
-						title,
+						title: filename.replace(/\.[^.]+$/, ''),
 						lineStringFeature: merged,
 						tagIds: importTagId ? [importTagId] : undefined,
 					},
@@ -168,9 +281,36 @@ const ImportModal: FC<{
 				}));
 				await createLines(newLines);
 			}
+
+			// Store skipped geometry count for the success handler to show a
+			// toast (single-file mode doesn't use the result screen).
+			if (skippedCount > 0) {
+				singleFileMeta.current.skippedGeom = skippedCount;
+			}
 		},
-		onSuccess: () => {
+		onSuccess: (_data, _vars) => {
 			queryClient.invalidateQueries({ queryKey: ['lines'] });
+
+			// For directory mode, show the result summary screen
+			if (importMode === 'directory') {
+				// Skip result screen if everything succeeded with no warnings
+				const hasFailures = importResultsRef.current.some((r) => !r.success);
+				const hasWarnings = importResultsRef.current.some(
+					(r) => r.skippedGeom && r.skippedGeom > 0
+				);
+				if (hasFailures || hasWarnings) {
+					setStep('result');
+					return;
+				}
+			}
+
+			// Single-file mode: warn about skipped geometry features
+			const skipped = singleFileMeta.current.skippedGeom;
+			if (skipped && skipped > 0) {
+				showError(sprintf(t('lines.importSkippedGeometry'), skipped));
+			}
+			delete singleFileMeta.current.skippedGeom;
+
 			setStep('idle');
 			setImportMode('file');
 			setFeatures([]);
@@ -180,14 +320,26 @@ const ImportModal: FC<{
 			setSelectedFileUris(new Set());
 			setMergeMode(false);
 			setBulkProgress({ current: 0, total: 0 });
+			setImportResults([]);
 			onDismiss();
 		},
 		onError: (err) => {
 			logError('ImportModal.import', err);
 			showError(sprintf(t('errorGeneric'), err instanceof Error ? err.message : String(err)));
-			setStep('preview');
+
+			// If we have per-file results (directory mode partial failure that
+			// threw because all files failed), still show them
+			if (importResultsRef.current.length > 0) {
+				setStep('result');
+			} else {
+				setStep('preview');
+			}
 		},
 	});
+
+	// Mutable scratch-pad for passing metadata from mutationFn to onSuccess
+	// without adding component state that triggers re-renders mid-mutation.
+	const singleFileMeta = useRef<{ skippedGeom?: number }>({});
 
 	// ---- single-file pick ----
 	const handlePickFile = useCallback(async () => {
@@ -198,6 +350,7 @@ const ImportModal: FC<{
 			setImportMode('file');
 			setDirFiles([]);
 			setSelectedFileUris(new Set());
+			setImportResults([]);
 			setStep('parsing');
 			const name = file.name ?? file.uri.split('/').pop() ?? '';
 			setFilename(name);
@@ -248,6 +401,7 @@ const ImportModal: FC<{
 			setFeatures([]);
 			setFilename('');
 			setSelectedIndices(new Set());
+			setImportResults([]);
 			setStep('scanning');
 
 			const items = await listFiles(dir.uri);
@@ -297,6 +451,7 @@ const ImportModal: FC<{
 		setSelectedFileUris(new Set());
 		setMergeMode(false);
 		setBulkProgress({ current: 0, total: 0 });
+		setImportResults([]);
 		onDismiss();
 	}, [onDismiss, step]);
 
@@ -350,8 +505,24 @@ const ImportModal: FC<{
 	const handleImport = useCallback(() => {
 		if (!selectionCount) return;
 		setStep('importing');
+		setImportResults([]);
 		mutation.mutate();
 	}, [selectionCount, mutation]);
+
+	// ---- result screen dismiss ----
+	const handleResultDone = useCallback(() => {
+		setStep('idle');
+		setImportMode('file');
+		setFeatures([]);
+		setFilename('');
+		setSelectedIndices(new Set());
+		setDirFiles([]);
+		setSelectedFileUris(new Set());
+		setMergeMode(false);
+		setBulkProgress({ current: 0, total: 0 });
+		setImportResults([]);
+		onDismiss();
+	}, [onDismiss]);
 
 	// ====== RENDER ======
 
@@ -359,7 +530,7 @@ const ImportModal: FC<{
 		<ModalWrapper
 			visible={visible}
 			onDismiss={handleDismiss}
-			header={t('lines.importTitle')}
+			header={step === 'result' ? t('lines.importResultTitle') : t('lines.importTitle')}
 			innerStyle={localStyles.modalInner}
 		>
 			{/* ---- idle ---- */}
@@ -561,6 +732,89 @@ const ImportModal: FC<{
 					)}
 				</View>
 			)}
+
+			{/* ---- result summary ---- */}
+			{step === 'result' && (
+				<View>
+					<Text style={localStyles.resultSummary}>
+						{sprintf(
+							t('lines.importResultPartialSummary'),
+							importResults.filter((r) => r.success).length,
+							importResults.length
+						)}
+					</Text>
+
+					<ScrollView
+						style={localStyles.featureList}
+						horizontal={false}
+					>
+						{importResults.map((result, idx) => (
+							<View
+								key={idx}
+								style={[
+									localStyles.resultRow,
+									{ borderColor: theme.colors.outline },
+								]}
+							>
+								<Icon
+									source={result.success ? 'check-circle' : 'alert-circle'}
+									size={20}
+									color={
+										result.success ? theme.colors.primary : theme.colors.error
+									}
+								/>
+								<View style={localStyles.resultTextCol}>
+									<Text style={localStyles.resultFileName}>{result.name}</Text>
+									{result.success ? (
+										<Text style={localStyles.resultDetail}>
+											{sprintf(
+												t('lines.importResultSuccess'),
+												result.importedCount ?? 0
+											)}
+										</Text>
+									) : (
+										<Text
+											style={[
+												localStyles.resultDetail,
+												{ color: theme.colors.error },
+											]}
+										>
+											{sprintf(
+												t('lines.importResultFailed'),
+												result.error ?? ''
+											)}
+										</Text>
+									)}
+									{result.skippedGeom && result.skippedGeom > 0 && (
+										<Text
+											style={[
+												localStyles.resultDetail,
+												{ color: theme.colors.tertiary },
+											]}
+										>
+											{sprintf(
+												t('lines.importResultSkippedGeom'),
+												result.skippedGeom
+											)}
+										</Text>
+									)}
+								</View>
+							</View>
+						))}
+					</ScrollView>
+
+					<View style={localStyles.importControls}>
+						<ButtonHighlight
+							onPress={handleResultDone}
+							mode="contained"
+							buttonColor={get(theme.colors, 'primaryContainer')}
+							textColor={get(theme.colors, 'onPrimaryContainer')}
+						>
+							<Text>{t('lines.importDone')}</Text>
+						</ButtonHighlight>
+					</View>
+				</View>
+			)}
 		</ModalWrapper>
 	);
 };
@@ -612,6 +866,29 @@ const localStyles = StyleSheet.create({
 	},
 	importControls: {
 		marginTop: 12,
+	},
+	resultSummary: {
+		fontWeight: 'bold',
+		marginBottom: 8,
+	},
+	resultRow: {
+		flexDirection: 'row',
+		alignItems: 'flex-start',
+		gap: 8,
+		borderBottomWidth: 1,
+		paddingVertical: 8,
+	},
+	resultTextCol: {
+		flex: 1,
+		flexDirection: 'column',
+		gap: 2,
+	},
+	resultFileName: {
+		fontWeight: 'bold',
+	},
+	resultDetail: {
+		opacity: 0.8,
+		fontSize: 12,
 	},
 });
 

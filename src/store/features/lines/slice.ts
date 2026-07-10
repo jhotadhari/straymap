@@ -20,6 +20,13 @@ import {
 	getFilterKey,
 } from './types';
 
+export interface TagsTableSettings {
+	tableColumns: TableColumn[];
+	sort: SortState | null;
+	filters: ColumnFilter[];
+	filterLogic: FilterLogic;
+}
+
 export interface LinesSettings {
 	selected: {
 		id: number;
@@ -29,6 +36,7 @@ export interface LinesSettings {
 	sort: SortState | null;
 	filters: ColumnFilter[];
 	filterLogic: FilterLogic;
+	tagsTable: TagsTableSettings;
 }
 
 export interface LinesState extends SliceSettingsBase, LinesSettings {
@@ -41,6 +49,12 @@ export const initialSettings: LinesSettings = {
 	sort: null,
 	filters: [],
 	filterLogic: 'and',
+	tagsTable: {
+		tableColumns: [],
+		sort: null,
+		filters: [],
+		filterLogic: 'and',
+	},
 };
 
 const initialState: LinesState = {
@@ -108,6 +122,52 @@ export const linesSlice = createSlice({
 		setFilterLogic: (state, action: PayloadAction<LinesState['filterLogic']>) => {
 			state.filterLogic = action.payload;
 		},
+		setTagsTableColumns: (
+			state,
+			action: PayloadAction<LinesState['tagsTable']['tableColumns']>
+		) => {
+			state.tagsTable.tableColumns = action.payload;
+		},
+		setTagsSort: (state, action: PayloadAction<LinesState['tagsTable']['sort']>) => {
+			state.tagsTable.sort = action.payload;
+		},
+		setTagsFilters: (state, action: PayloadAction<LinesState['tagsTable']['filters']>) => {
+			const seen = new Set<string>();
+			state.tagsTable.filters = action.payload.filter((f) => {
+				const k = getFilterKey(f);
+				if (seen.has(k)) return false;
+				seen.add(k);
+				return true;
+			});
+		},
+		upsertTagsFilter: (state, action: PayloadAction<ColumnFilter>) => {
+			const payload =
+				action.payload.type === 'string' || action.payload.type === 'tags'
+					? { ...action.payload, value: action.payload.value.toLowerCase() }
+					: action.payload;
+			const targetKey = getFilterKey(payload);
+			const idx = state.tagsTable.filters.findIndex((f) => getFilterKey(f) === targetKey);
+			if (idx !== -1) {
+				state.tagsTable.filters[idx] = payload;
+			} else {
+				state.tagsTable.filters.push(payload);
+			}
+		},
+		removeTagsFilter: (state, action: PayloadAction<ColumnFilter>) => {
+			const targetKey = getFilterKey(action.payload);
+			state.tagsTable.filters = state.tagsTable.filters.filter(
+				(f) => getFilterKey(f) !== targetKey
+			);
+		},
+		resetTagsFilters: (state) => {
+			state.tagsTable.filters = [];
+		},
+		setTagsFilterLogic: (
+			state,
+			action: PayloadAction<LinesState['tagsTable']['filterLogic']>
+		) => {
+			state.tagsTable.filterLogic = action.payload;
+		},
 	},
 });
 
@@ -123,6 +183,13 @@ export const {
 	removeFilter,
 	resetFilters,
 	setFilterLogic,
+	setTagsTableColumns,
+	setTagsSort,
+	setTagsFilters,
+	upsertTagsFilter,
+	removeTagsFilter,
+	resetTagsFilters,
+	setTagsFilterLogic,
 } = linesSlice.actions;
 
 // Export the slice reducer for use in the store configuration
@@ -194,6 +261,18 @@ export const toggleSort = (columnKey: string): AppThunk => {
 			dispatch(linesSlice.actions.setSort({ columnKey, direction: newDirection }));
 		} else {
 			dispatch(linesSlice.actions.setSort({ columnKey, direction: 'asc' }));
+		}
+	};
+};
+
+export const toggleTagsSort = (columnKey: string): AppThunk => {
+	return (dispatch, getState) => {
+		const currentSort = getState().lines.tagsTable.sort;
+		if (currentSort?.columnKey === columnKey) {
+			const newDirection = currentSort.direction === 'asc' ? 'desc' : 'asc';
+			dispatch(linesSlice.actions.setTagsSort({ columnKey, direction: newDirection }));
+		} else {
+			dispatch(linesSlice.actions.setTagsSort({ columnKey, direction: 'asc' }));
 		}
 	};
 };

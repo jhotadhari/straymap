@@ -12,7 +12,10 @@
 		"downhill": "Descenso",
 		"minZ": "Elevación mín.",
 		"maxZ": "Elevación máx.",
-		"tags": "Etiquetas"
+		"tags": "Etiquetas",
+		"label": "Etiqueta",
+		"line_count": "Rutas",
+		"color": "Color"
 	},
 	"columnMenu": {
 		"hideColumn": "Ocultar columna",
@@ -120,12 +123,16 @@
 	"importSkippedGeometry": "{{count}} track(s) omitido(s) por falta de datos de geometría",
 	"addTags": "Agregar etiquetas",
 	"removeTags": "Eliminar etiquetas",
-	"tagsEditTitle": "Editar etiquetas",
 	"tagsNewPlaceholder": "Nuevo nombre de etiqueta...",
 	"tagsCreate": "Crear etiqueta",
 	"tagsNoTags": "Aún no hay etiquetas",
 	"tagsApply": "Aplicar",
 	"clearLinesFromMap": "Quitar del mapa",
 	"clearLinesConfirm": "Confirmar eliminación del mapa",
-	"clearLinesConfirmationBody": "¿Estás seguro de que quieres quitar todas las %s ruta(s) del mapa? Permanecerán en tu navegador y no se eliminarán. Puedes volver a añadirlas fácilmente."
+	"clearLinesConfirmationBody": "¿Estás seguro de que quieres quitar todas las %s ruta(s) del mapa? Permanecerán en tu navegador y no se eliminarán. Puedes volver a añadirlas fácilmente.",
+	"tagsCreateTitle": "Crear etiqueta",
+	"tagsChangeColor": "Cambiar color",
+	"editTag": "Editar etiqueta",
+	"tagsBrowser": "Navegador de etiquetas",
+	"tagsDeleteConfirmationBody": "¿Estás seguro de que quieres eliminar %s etiqueta(s)? Esto no se puede deshacer. No se eliminarán rutas."
 }

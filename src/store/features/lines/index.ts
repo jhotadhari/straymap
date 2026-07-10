@@ -10,6 +10,7 @@ import pt from './assets/i18n/pt.json';
 import { onSetDbPath } from './slice';
 import LinesMapView from './mapComponents/LinesMapView';
 import LinesBrowser from './uiItems/LinesBrowser';
+import TagEditPage from './uiItems/TagEditPage';
 import linesDrawerItem from './drawerPanels/lines';
 import LineEditModalWrapper from './components/LineEditModalWrapper';
 
@@ -30,6 +31,12 @@ export default {
 			icon: 'go-kart-track',
 			Component: LinesBrowser,
 		},
+		{
+			key: 'tagEdit',
+			label: 'lines.tagsBrowser',
+			icon: 'tag-outline',
+			Component: TagEditPage,
+		},
 	],
 	drawerPanels: [linesDrawerItem],
 	mapComponents: [
@@ -48,7 +55,11 @@ export default {
 		{
 			key: 'linesBrowser',
 			uiItemKey: 'linesBrowser',
-		}
+		},
+		{
+			key: 'tagEdit',
+			uiItemKey: 'tagEdit',
+		},
 	],
 	systemTagLabels: ['imported'],
 };

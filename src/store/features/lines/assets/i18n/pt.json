@@ -12,7 +12,10 @@
 		"downhill": "Descida",
 		"minZ": "Elevação mín.",
 		"maxZ": "Elevação máx.",
-		"tags": "Tags"
+		"tags": "Tags",
+		"label": "Rótulo",
+		"line_count": "Rotas",
+		"color": "Cor"
 	},
 	"columnMenu": {
 		"hideColumn": "Ocultar coluna",
@@ -120,12 +123,16 @@
 	"importSkippedGeometry": "{{count}} trilha(s) ignorada(s) por falta de dados de geometria",
 	"addTags": "Adicionar tags",
 	"removeTags": "Remover tags",
-	"tagsEditTitle": "Editar tags",
 	"tagsNewPlaceholder": "Novo nome de tag...",
 	"tagsCreate": "Criar tag",
 	"tagsNoTags": "Nenhuma tag ainda",
 	"tagsApply": "Aplicar",
 	"clearLinesFromMap": "Remover do mapa",
 	"clearLinesConfirm": "Confirmar remoção do mapa",
-	"clearLinesConfirmationBody": "Tem certeza de que deseja remover todas as %s rota(s) do mapa? Elas permanecerão no seu navegador e não serão excluídas. Você pode adicioná-las novamente facilmente."
+	"clearLinesConfirmationBody": "Tem certeza de que deseja remover todas as %s rota(s) do mapa? Elas permanecerão no seu navegador e não serão excluídas. Você pode adicioná-las novamente facilmente.",
+	"tagsCreateTitle": "Criar tag",
+	"tagsChangeColor": "Mudar cor",
+	"editTag": "Editar tag",
+	"tagsBrowser": "Navegador de tags",
+	"tagsDeleteConfirmationBody": "Tem certeza de que deseja excluir %s tag(s)? Isso não pode ser desfeito. Nenhuma rota será excluída."
 }

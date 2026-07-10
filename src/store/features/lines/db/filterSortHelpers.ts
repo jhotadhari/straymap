@@ -221,3 +221,103 @@ export const buildOrderByClause = (
 
 	return sort.direction === 'asc' ? asc(expr) : desc(expr);
 };
+
+// ── TagsTable filter/sort helpers ─────────────────────────────────────
+
+export const TAGS_LINE_COUNT_SQL = sql`
+	(
+		SELECT
+			COUNT(*)
+		FROM
+			${tagsToLinesTable}
+		WHERE
+			${tagsToLinesTable.tag_id} = ${tagsTable.id}
+	)
+`;
+
+const buildTagsLabelWhere = (filter: StringColumnFilter): SQL | undefined => {
+	if (!filter.value) {
+		return undefined;
+	}
+	if (filter.operator === 'regex') {
+		return sql`${tagsTable.label} REGEXP ${filter.value}`;
+	}
+	const pattern = STRING_OPERATOR_PATTERNS[filter.operator](filter.value.toLowerCase());
+	if (filter.operator === 'excludes') {
+		return notLike(sql`LOWER(${tagsTable.label})`, pattern);
+	}
+	return like(sql`LOWER(${tagsTable.label})`, pattern);
+};
+
+// NOTE: line_count filters are now applied in JS after the query
+// (see fetchTagsWithLineCounts) because drizzle has limited HAVING support.
+// This helper is kept for reference but no longer wired into the query.
+const buildTagsLineCountWhere = (_filter: NumericColumnFilter): SQL | undefined => {
+	return undefined;
+};
+
+const buildTagsCreatedAtWhere = (filter: DateColumnFilter): SQL | undefined => {
+	const conditions: (SQL | undefined)[] = [];
+	if (filter.min !== undefined) {
+		conditions.push(gte(tagsTable.timestamp, filter.min));
+	}
+	if (filter.max !== undefined) {
+		conditions.push(lte(tagsTable.timestamp, filter.max));
+	}
+	if (!conditions.length) {
+		return undefined;
+	}
+	return and(...conditions);
+};
+
+export const buildTagsWhereClause = (
+	filters?: ColumnFilter[],
+	filterLogic?: FilterLogic
+): SQL | undefined => {
+	if (!filters?.length) {
+		return undefined;
+	}
+
+	const clauses = filters
+		.map((filter): SQL | undefined => {
+			switch (filter.type) {
+				case 'numeric':
+					return buildTagsLineCountWhere(filter);
+				case 'date':
+					return buildTagsCreatedAtWhere(filter);
+				case 'string':
+					return buildTagsLabelWhere(filter);
+				default:
+					return undefined;
+			}
+		})
+		.filter((c): c is SQL => !!c);
+
+	if (!clauses.length) {
+		return undefined;
+	}
+
+	return filterLogic === 'or' ? or(...clauses) : and(...clauses);
+};
+
+export const buildTagsOrderByClause = (
+	sort?: SortState | null
+): ReturnType<typeof asc> | ReturnType<typeof desc> | undefined => {
+	if (!sort) {
+		return undefined;
+	}
+
+	let expr: ReturnType<typeof sql>;
+
+	if (sort.columnKey === 'label') {
+		expr = sql`LOWER(${tagsTable.label})`;
+	} else if (sort.columnKey === 'line_count') {
+		expr = TAGS_LINE_COUNT_SQL;
+	} else if (sort.columnKey === 'created_at') {
+		expr = sql`${tagsTable.timestamp}`;
+	} else {
+		return undefined;
+	}
+
+	return sort.direction === 'asc' ? asc(expr) : desc(expr);
+};

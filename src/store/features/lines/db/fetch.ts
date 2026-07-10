@@ -23,7 +23,13 @@ import {
 	STATS_FIELDS,
 	Tag,
 } from '../types';
-import { STATS_SQL, buildOrderByClause, buildWhereClause } from './filterSortHelpers';
+import {
+	STATS_SQL,
+	buildOrderByClause,
+	buildWhereClause,
+	buildTagsWhereClause,
+	buildTagsOrderByClause,
+} from './filterSortHelpers';
 
 /**
  * Separates regex string filters from other filters.  Regex filters are
@@ -427,4 +433,76 @@ export const fetchAllTags = (): Promise<Tag[]> => {
 				data: r.data as any,
 			}))
 		);
+};
+
+/**
+ * Fetch tags with line counts, optional sorting and filtering.
+ * Used by the TagsTable component.
+ */
+export const fetchTagsWithLineCounts = (opts?: {
+	sort?: SortState | null;
+	filters?: ColumnFilter[];
+	filterLogic?: FilterLogic;
+}): Promise<(Tag & { line_count: number })[]> => {
+	if (!dbConnection?.drizzle) {
+		return Promise.reject(new Error('Database not initialized'));
+	}
+
+	// Separate line_count filters — they operate on an aggregate column
+	// so we apply them in JS instead of a HAVING clause.
+	const lineCountFilters = opts?.filters?.filter((f) => f.columnKey === 'line_count') ?? [];
+	const otherFilters = opts?.filters?.filter((f) => f.columnKey !== 'line_count') ?? [];
+
+	const whereClause = buildTagsWhereClause(
+		otherFilters.length ? otherFilters : undefined,
+		opts?.filterLogic
+	);
+	const orderByClause = buildTagsOrderByClause(opts?.sort);
+
+	const query = dbConnection.drizzle
+		.select({
+			id: tagsTable.id,
+			timestamp: tagsTable.timestamp,
+			label: tagsTable.label,
+			notes: tagsTable.notes,
+			data: tagsTable.data,
+			line_count: sql<number>`COUNT(${tagsToLinesTable.line_id})`,
+		})
+		.from(tagsTable)
+		.leftJoin(tagsToLinesTable, eq(tagsTable.id, tagsToLinesTable.tag_id))
+		.groupBy(tagsTable.id);
+
+	if (whereClause) {
+		query.where(whereClause);
+	}
+
+	if (orderByClause) {
+		query.orderBy(orderByClause);
+	} else {
+		query.orderBy(sql`LOWER(${tagsTable.label})`);
+	}
+
+	return query.then((rows) => {
+		let result = rows.map((r) => ({
+			id: r.id,
+			label: r.label,
+			notes: r.notes,
+			data: r.data as any,
+			line_count: r.line_count,
+		}));
+
+		// Apply line_count filters in JS (HAVING equivalent)
+		if (lineCountFilters.length) {
+			for (const f of lineCountFilters) {
+				if (f.type !== 'numeric') continue;
+				result = result.filter((tag) => {
+					if (f.min !== undefined && tag.line_count < f.min) return false;
+					if (f.max !== undefined && tag.line_count > f.max) return false;
+					return true;
+				});
+			}
+		}
+
+		return result;
+	});
 };

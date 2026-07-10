@@ -21,6 +21,7 @@ import { queryAllTags } from '../db/queryFns';
 import { createTags, updateTag, deleteTag } from '../db/actionsTag';
 import { Tag } from '../types';
 import { TAG_COLORS, getTagColor } from './tagColor';
+import { featureRegistry } from '../../FeatureRegistry';
 import TagBadge from './TagBadge';
 
 const ColorPalette: FC<{
@@ -150,7 +151,7 @@ const TagEditModal: FC<{
 		<ModalWrapper
 			visible={visible}
 			onDismiss={onDismiss}
-			header={t('lines.tagsEditTitle')}
+			header={t('lines.tagsBrowser')}
 			innerStyle={styles.modalInner}
 		>
 			{isLoading && (
@@ -164,6 +165,9 @@ const TagEditModal: FC<{
 					{/* Existing tags */}
 					{(tags ?? []).map((tag) => {
 						const color = getTagColor(tag);
+						const isSystemTag = featureRegistry
+							.getSystemTagLabels()
+							.includes(tag.label ?? '');
 						return (
 							<View
 								key={tag.id}
@@ -180,8 +184,15 @@ const TagEditModal: FC<{
 									mode="text"
 									compact
 									onPress={() => handleDelete(tag.id)}
+									disabled={isSystemTag}
 								>
-									<Text style={{ color: theme.colors.error }}>
+									<Text
+										style={{
+											color: isSystemTag
+												? theme.colors.onSurfaceDisabled
+												: theme.colors.error,
+										}}
+									>
 										{t('lines.delete')}
 									</Text>
 								</ButtonHighlight>
