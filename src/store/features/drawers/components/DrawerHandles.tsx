@@ -2,7 +2,7 @@
  * External dependencies
  */
 import React, { FC, useCallback, useContext, useMemo, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, ViewProps } from 'react-native';
 import DraggableGrid from 'react-native-draggable-grid';
 import { ScrollView } from 'react-native-gesture-handler';
 
@@ -142,8 +142,9 @@ const DrawerHandles: FC<
 		]
 	);
 
-	const styleControlHandle = useMemo(
+	const styleControlHandle: ViewProps['style'] = useMemo(
 		() => ({
+			position: 'absolute',
 			top: draggableItems.length > 1 ? getContainerHeight(draggableItems.length) : 0,
 		}),
 		[draggableItems.length, getContainerHeight]

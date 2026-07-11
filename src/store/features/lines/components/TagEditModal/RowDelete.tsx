@@ -42,10 +42,10 @@ const RowDelete: FC = () => {
 		mutationFn: async (id: number) => {
 			await deleteTag(id);
 		},
-		onSuccess: () => {
+		onSuccess: async () => {
 			invalidateTagsTable(queryClient);
 			queryClient.invalidateQueries({ queryKey: ['tags'] });
-			invalidateLinesQueries(queryClient);
+			await invalidateLinesQueries(queryClient);
 			setConfirmVisible(false);
 			onDismiss();
 		},

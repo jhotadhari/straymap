@@ -92,6 +92,11 @@ const AddTagsModal: FC<AddTagsModalProps> = ({
 		});
 	}, []);
 
+	const handleDismiss = useCallback(() => {
+		if (isApplying) return;
+		onDismiss();
+	}, [isApplying, onDismiss]);
+
 	const handleApply = useCallback(() => {
 		if (!selectedTagIds.size) return;
 		onApply(Array.from(selectedTagIds));
@@ -111,7 +116,7 @@ const AddTagsModal: FC<AddTagsModalProps> = ({
 		<>
 			<ModalWrapper
 				visible={visible}
-				onDismiss={onDismiss}
+				onDismiss={handleDismiss}
 				header={t('lines.addTags')}
 				innerStyle={{ gap: 12, marginTop: 16 }}
 			>

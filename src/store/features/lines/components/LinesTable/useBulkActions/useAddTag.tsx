@@ -25,9 +25,9 @@ const useAddTag = () => {
 	const [modalVisible, setModalVisible] = useState(false);
 
 	const mutation = useMutation({
-		mutationFn: async (tagIds: number[]) => {
-			for (const lineId of checkedIds) {
-				for (const tagId of tagIds) {
+		mutationFn: async (vars: { tagIds: number[]; lineIds: number[] }) => {
+			for (const lineId of vars.lineIds) {
+				for (const tagId of vars.tagIds) {
 					await lineAddTag(lineId, tagId);
 				}
 			}
@@ -46,9 +46,9 @@ const useAddTag = () => {
 	const handleApply = useCallback(
 		(tagIds: number[]) => {
 			if (!tagIds.length) return;
-			mutation.mutate(tagIds);
+			mutation.mutate({ tagIds, lineIds: checkedIds });
 		},
-		[mutation]
+		[mutation, checkedIds]
 	);
 
 	const disabled = useCallback(() => checkedIds.length === 0, [checkedIds]);

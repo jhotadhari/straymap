@@ -2,7 +2,7 @@
  * External dependencies
  */
 import React, { useContext, useMemo } from 'react';
-import { StyleSheet, View, ViewStyle } from 'react-native';
+import { StyleSheet, View, ViewProps } from 'react-native';
 import { Button, Icon, useTheme } from 'react-native-paper';
 import { ComposedGesture, GestureDetector, GestureType } from 'react-native-gesture-handler';
 import { get } from 'lodash-es';
@@ -28,7 +28,7 @@ const DrawerHandle = ({
 	gesture: ComposedGesture | GestureType;
 	overwriteDrawerItem?: DrawerPanel;
 	onPress?: () => void;
-	style?: ViewStyle;
+	style?: ViewProps['style'];
 }) => {
 	const theme = useTheme();
 
@@ -62,7 +62,7 @@ const DrawerHandle = ({
 				: theme.colors.onBackground;
 	}, [isActive, theme]);
 
-	const containerStyle: ViewStyle = useMemo(
+	const containerStyle: ViewProps['style'] = useMemo(
 		() => ({
 			width: DRAWER_HANDLE_SIZE,
 			height: DRAWER_HANDLE_SIZE + DRAWER_HANDLE_SIZE / 2,

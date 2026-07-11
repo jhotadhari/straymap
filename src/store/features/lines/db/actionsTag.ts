@@ -10,6 +10,7 @@ import { dbConnection } from '../../dbLoader/DBConnection';
 import { tagsTable, tagsToLinesTable } from './schema/schema';
 import { withDbErrorHandling } from '../../dbLoader/utils';
 import { featureRegistry } from '../../FeatureRegistry';
+import { logError } from '../../../../lib/utils';
 
 export const createTags = withDbErrorHandling(
 	'lines/actionsTag.createTags',
@@ -26,6 +27,15 @@ export const createTags = withDbErrorHandling(
 		// Guard: prevent creating tags with system-reserved labels.
 		const systemLabels = featureRegistry.getSystemTagLabels();
 		const filtered = newTags.filter(({ label }) => !systemLabels.includes(label ?? ''));
+		if (newTags.length !== filtered.length) {
+			const droppedLabels = newTags
+				.filter(({ label }) => systemLabels.includes(label ?? ''))
+				.map((t) => t.label);
+			logError(
+				'lines/actionsTag.createTags',
+				new Error(`System-reserved label(s) dropped: ${droppedLabels.join(', ')}`)
+			);
+		}
 		if (!filtered.length) {
 			return [];
 		}

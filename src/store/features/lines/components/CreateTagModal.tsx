@@ -2,8 +2,7 @@
  * External dependencies
  */
 import { FC, useCallback, useContext, useState } from 'react';
-import { TextInput, useTheme } from 'react-native-paper';
-import { Text } from 'react-native-paper';
+import { Text, TextInput, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { get } from 'lodash-es';
@@ -46,16 +45,16 @@ const CreateTagModal: FC<CreateTagModalProps> = ({ visible, onDismiss, onCreated
 			]);
 			return inserted;
 		},
-		onSuccess: (inserted) => {
+		onSuccess: async (inserted, vars) => {
 			invalidateTagsTable(queryClient);
 			queryClient.invalidateQueries({ queryKey: ['tags'] });
 			if (inserted?.length) {
-				onCreated?.({
+				await onCreated?.({
 					id: inserted[0].id,
 					timestamp: new Date().toISOString(),
-					label,
-					notes: notes.trim() || null,
-					data: { color },
+					label: vars.label,
+					notes: vars.notes,
+					data: { color: vars.color },
 				});
 			}
 			setLabel('');

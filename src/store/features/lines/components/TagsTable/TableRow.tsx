@@ -167,7 +167,7 @@ const TagTableRow: FC<TagTableRowProps> = ({
 									<Text numberOfLines={2}>
 										{isSystemTag
 											? t(`lines.hintSystemTagNote.${tag.label}`)
-											: ((tag as any).notes ?? '')}
+											: (tag.notes ?? '')}
 									</Text>
 								</View>
 							);

@@ -10,6 +10,7 @@ import { useMap } from 'react-native-mapsforge-vtm';
  * Internal dependencies
  */
 import { formatHeightDepth } from '../../../../../lib/formatting';
+import { logError } from '../../../../../lib/utils';
 import { selectUnitPrefs } from '../../../general/selectors';
 import { useAppSelector } from '../../../../hooks';
 import { DashboardWidgetProps } from '../../types';
@@ -62,8 +63,9 @@ const Display: FC<DashboardWidgetProps<Options>> = ({ item, style = {}, onPress 
 					setAltitudeP(null !== result ? result : undefined);
 					gettingAltitudeRef.current = false;
 				})
-				.catch(() => {
+				.catch((err) => {
 					gettingAltitudeRef.current = false;
+					logError('centerAltitude.getAltitudeAtPosition', err);
 				});
 		}
 	});

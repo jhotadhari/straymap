@@ -98,13 +98,14 @@ export const queryAllTags = () => {
  * Use after create/update/delete tag operations.
  */
 export const invalidateTagsTable = (queryClient: {
-	invalidateQueries: (opts: any) => void;
-	refetchQueries: (opts: any) => void;
+	invalidateQueries: (opts: any) => Promise<any>;
+	refetchQueries: (opts: any) => Promise<any>;
 }) => {
 	const predicate = (query: any) =>
 		Array.isArray(query.queryKey) && query.queryKey[0] === 'tagsTable';
-	queryClient.invalidateQueries({ predicate });
-	queryClient.refetchQueries({ predicate });
+	return queryClient
+		.invalidateQueries({ predicate })
+		.then(() => queryClient.refetchQueries({ predicate }));
 };
 
 /**

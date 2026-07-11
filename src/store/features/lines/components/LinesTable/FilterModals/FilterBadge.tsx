@@ -63,10 +63,11 @@ const formatFilterSummary = (
 			return `${columnLabel} ${opLabel} "${filter.value}"`;
 		}
 		case 'tags': {
-			const opLabel = t(
+			let opLabel = t(
 				`lines.filter${filter.operator.charAt(0).toUpperCase() + filter.operator.slice(1)}`
 			);
-			return `${columnLabel} ${opLabel} "${filter.value}"`;
+			opLabel = opLabel.charAt(0).toUpperCase() + opLabel.slice(1);
+			return `${opLabel} "${filter.value}"`;
 		}
 	}
 };

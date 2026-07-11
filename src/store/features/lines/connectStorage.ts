@@ -43,7 +43,9 @@ export const initializeFromStorage = (store: AppStore) => {
 		return;
 	}
 	// Ensure system-reserved tags exist in the database (idempotent).
-	ensureSystemTagsExist();
+	ensureSystemTagsExist().catch((err) => {
+		logError('initializeFromStorage.ensureSystemTagsExist', err);
+	});
 	DefaultPreference.get(settingsKey)
 		.then((newSettingsStr) => {
 			if (newSettingsStr) {
