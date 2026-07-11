@@ -17,7 +17,7 @@ import TagBadge from '../TagBadge';
 import IconButtonHighlight from '../../../../../components/generic/IconButtonHighlight';
 import AddTagsModal from '../AddTagsModal';
 import { lineAddTag, lineRemoveTag } from '../../db/actionsLine';
-import { invalidateTagsTable } from '../../db/queryFns';
+import { invalidateTagsTable, invalidateLinesQueries } from '../../db/queryFns';
 import { featureRegistry } from '../../../FeatureRegistry';
 import { logError } from '../../../../../lib/utils';
 import { ErrorToastContext } from '../../../../../components/ErrorToast/Context';

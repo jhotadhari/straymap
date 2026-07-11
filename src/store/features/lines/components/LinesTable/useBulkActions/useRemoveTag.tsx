@@ -17,7 +17,7 @@ import ButtonHighlight from '../../../../../../components/generic/ButtonHighligh
 import LoadingIndicator from '../../../../../../components/generic/LoadingIndicator';
 import { Tag } from '../../../types';
 import TagBadge from '../../TagBadge';
-import { queryAllTags, invalidateTagsTable } from '../../../db/queryFns';
+import { queryAllTags, invalidateTagsTable, invalidateLinesQueries } from '../../../db/queryFns';
 import { logError } from '../../../../../../lib/utils';
 import { featureRegistry } from '../../../../FeatureRegistry';
 import { ErrorToastContext } from '../../../../../../components/ErrorToast/Context';
@@ -43,8 +43,8 @@ const useRemoveTag = () => {
 				}
 			}
 		},
-		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ['lines'] });
+		onSuccess: async () => {
+			await invalidateLinesQueries(queryClient);
 			invalidateTagsTable(queryClient);
 			setModalVisible(false);
 			setSelectedTagIds(new Set());

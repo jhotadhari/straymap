@@ -108,6 +108,15 @@ export const invalidateTagsTable = (queryClient: {
 };
 
 /**
+ * Refetch all active lines queries, returning a promise that resolves
+ * when every matching query has completed.
+ * Use after tag-line association changes (add/remove tags on lines).
+ */
+export const invalidateLinesQueries = (queryClient: {
+	refetchQueries: (opts: any) => Promise<any>;
+}) => queryClient.refetchQueries({ queryKey: ['lines'] });
+
+/**
  * Fetch tags with line counts, optional sorting and filtering.
  *
  * Used with:

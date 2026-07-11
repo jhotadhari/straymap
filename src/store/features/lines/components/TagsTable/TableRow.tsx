@@ -156,6 +156,15 @@ const TagTableRow: FC<TagTableRowProps> = ({
 									/>
 								</View>
 							);
+						case 'notes':
+							return (
+								<View
+									key={column.key}
+									style={cellStyle}
+								>
+									<Text numberOfLines={2}>{(tag as any).notes ?? ''}</Text>
+								</View>
+							);
 						default:
 							return (
 								<View

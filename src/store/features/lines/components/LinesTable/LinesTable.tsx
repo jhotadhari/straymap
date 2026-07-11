@@ -47,7 +47,8 @@ const TableRowMemo = memo(
 			prevProps.isOnMap === nextProps.isOnMap &&
 			prevProps.isChecked === nextProps.isChecked &&
 			prevProps.isRoutingLine === nextProps.isRoutingLine &&
-			prevProps.line?.title === nextProps.line?.title
+			prevProps.line?.title === nextProps.line?.title &&
+			prevProps.line?.tags === nextProps.line?.tags
 		);
 	}
 );

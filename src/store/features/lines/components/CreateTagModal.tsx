@@ -5,7 +5,7 @@ import { FC, useCallback, useContext, useState } from 'react';
 import { TextInput, useTheme } from 'react-native-paper';
 import { Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { get } from 'lodash-es';
 import { sprintf } from 'sprintf-js';
 
@@ -17,6 +17,7 @@ import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
 import ColorPaletteInline from './TagsTable/ColorPaletteInline';
 import { TAG_COLORS } from './tagColor';
 import { createTags } from '../db/actionsTag';
+import { invalidateTagsTable } from '../db/queryFns';
 import { Tag } from '../types';
 import { sharedStyles } from './TagsTable/sharedDeps';
 import { logError } from '../../../../lib/utils';
@@ -32,6 +33,7 @@ const CreateTagModal: FC<CreateTagModalProps> = ({ visible, onDismiss, onCreated
 	const { t } = useTranslation();
 	const theme = useTheme();
 	const { showError } = useContext(ErrorToastContext);
+	const queryClient = useQueryClient();
 
 	const [label, setLabel] = useState('');
 	const [color, setColor] = useState(TAG_COLORS[0].bg);
@@ -45,6 +47,8 @@ const CreateTagModal: FC<CreateTagModalProps> = ({ visible, onDismiss, onCreated
 			return inserted;
 		},
 		onSuccess: (inserted) => {
+			invalidateTagsTable(queryClient);
+			queryClient.invalidateQueries({ queryKey: ['tags'] });
 			if (inserted?.length) {
 				onCreated?.({
 					id: inserted[0].id,

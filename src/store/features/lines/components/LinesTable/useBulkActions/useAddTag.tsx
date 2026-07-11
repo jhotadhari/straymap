@@ -12,7 +12,7 @@ import { sprintf } from 'sprintf-js';
 import { FooterContext } from '../Context';
 import { lineAddTag } from '../../../db/actionsLine';
 import AddTagsModal from '../../AddTagsModal';
-import { invalidateTagsTable } from '../../../db/queryFns';
+import { invalidateTagsTable, invalidateLinesQueries } from '../../../db/queryFns';
 import { logError } from '../../../../../../lib/utils';
 import { ErrorToastContext } from '../../../../../../components/ErrorToast/Context';
 
@@ -32,8 +32,8 @@ const useAddTag = () => {
 				}
 			}
 		},
-		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ['lines'] });
+		onSuccess: async () => {
+			await invalidateLinesQueries(queryClient);
 			invalidateTagsTable(queryClient);
 			setModalVisible(false);
 		},
