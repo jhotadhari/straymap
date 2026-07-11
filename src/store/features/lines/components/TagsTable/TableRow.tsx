@@ -4,6 +4,7 @@
 import { FC, useCallback, useMemo } from 'react';
 import { StyleProp, TouchableWithoutFeedback, View, ViewStyle } from 'react-native';
 import { useTheme, Text, Icon } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 
 /**
  * Internal dependencies
@@ -36,6 +37,7 @@ const TagTableRow: FC<TagTableRowProps> = ({
 	onEditTag,
 }) => {
 	const theme = useTheme();
+	const { t } = useTranslation();
 
 	const tableColumns: TableColumn[] = useAppSelector(selectTagsTableColumns);
 
@@ -162,7 +164,11 @@ const TagTableRow: FC<TagTableRowProps> = ({
 									key={column.key}
 									style={cellStyle}
 								>
-									<Text numberOfLines={2}>{(tag as any).notes ?? ''}</Text>
+									<Text numberOfLines={2}>
+										{isSystemTag
+											? t(`lines.hintSystemTagNote.${tag.label}`)
+											: ((tag as any).notes ?? '')}
+									</Text>
 								</View>
 							);
 						default:

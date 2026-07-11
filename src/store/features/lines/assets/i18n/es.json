@@ -140,5 +140,9 @@
 	"showRoutesWithTags": "Mostrar rutas con estas etiquetas",
 	"showRoutes": "Rutas",
 	"showRoutesWithTagHint": "Abre el navegador de rutas filtrado por rutas con esta etiqueta.",
-	"showRoutesWithTag": "Mostrar rutas"
+	"showRoutesWithTag": "Mostrar rutas",
+	"hintSystemTagNote": {
+		"imported": "Etiqueta del sistema: asignada automáticamente a rutas importadas.",
+		"routing": "Etiqueta del sistema: asignada automáticamente por el modo de planificación de rutas."
+	}
 }

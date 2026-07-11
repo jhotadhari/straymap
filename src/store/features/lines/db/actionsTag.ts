@@ -67,6 +67,23 @@ export const ensureTagByLabel = withDbErrorHandling(
 	}
 );
 
+/**
+ * Ensure all system-reserved tags exist in the database.
+ * Call once during app initialization. Idempotent — existing tags
+ * are left untouched.
+ */
+export const ensureSystemTagsExist = async () => {
+	const labels = featureRegistry.getSystemTagLabels();
+	for (const label of labels) {
+		try {
+			await ensureTagByLabel(label);
+		} catch {
+			// ensureTagByLabel already logs + toasts errors; continue with
+			// remaining labels so one failure doesn't skip the rest.
+		}
+	}
+};
+
 export const updateTag = withDbErrorHandling(
 	'lines/actionsTag.updateTag',
 	async (

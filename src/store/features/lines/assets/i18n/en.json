@@ -140,5 +140,7 @@
 	"showRoutesWithTags": "Show routes with these tags",
 	"showRoutes": "Routes",
 	"showRoutesWithTagHint": "Open the routes browser filtered to routes that have this tag.",
-	"showRoutesWithTag": "Show routes"
+	"showRoutesWithTag": "Show routes",
+	"hintSystemTagNote.imported": "System tag: auto-assigned to imported routes.",
+	"hintSystemTagNote.routing": "System tag: auto-assigned by route planning mode."
 }

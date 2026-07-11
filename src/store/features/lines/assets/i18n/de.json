@@ -140,5 +140,9 @@
 	"showRoutesWithTags": "Routen mit diesen Tags anzeigen",
 	"showRoutes": "Routen",
 	"showRoutesWithTagHint": "Öffne den Routen-Browser, gefiltert nach Routen mit diesem Tag.",
-	"showRoutesWithTag": "Routen anzeigen"
+	"showRoutesWithTag": "Routen anzeigen",
+	"hintSystemTagNote": {
+		"imported": "System-Tag: automatisch importierten Routen zugewiesen.",
+		"routing": "System-Tag: automatisch vom Routenplanungsmodus zugewiesen."
+	}
 }

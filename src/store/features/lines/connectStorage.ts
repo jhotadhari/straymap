@@ -31,6 +31,7 @@ import { startAppListening } from '../../listenerMiddleware';
 import { selectInitialized } from './selectors';
 import { AppStore } from '../../store';
 import { logError } from '../../../lib/utils';
+import { ensureSystemTagsExist } from './db/actionsTag';
 
 const settingsKey = 'linesSettings';
 
@@ -41,6 +42,8 @@ export const initializeFromStorage = (store: AppStore) => {
 	if (selectInitialized(store.getState())) {
 		return;
 	}
+	// Ensure system-reserved tags exist in the database (idempotent).
+	ensureSystemTagsExist();
 	DefaultPreference.get(settingsKey)
 		.then((newSettingsStr) => {
 			if (newSettingsStr) {
