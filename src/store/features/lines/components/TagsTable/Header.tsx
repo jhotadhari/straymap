@@ -157,7 +157,7 @@ const TagHeader: FC = () => {
 				>
 					{hasFilters && (
 						<View style={sharedStyles.flexRowGap}>
-							{filters.map((filter) => (
+							{filters.map((filter: ColumnFilter) => (
 								<FilterBadge
 									key={getFilterKey(filter)}
 									filter={filter}

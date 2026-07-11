@@ -58,6 +58,7 @@ export const tagCells: { [key: string]: CellConfig } = {
 	line_count: { style: { width: 80 } },
 	color: { style: { width: 100 } },
 	created_at: { style: { width: 170 } },
+	notes: { style: { width: 200 } },
 };
 
 export type CellCategory = 'tag' | 'other';

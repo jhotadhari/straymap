@@ -94,6 +94,7 @@
 	"hintToggleOnMap": "Muestra u oculta esta ruta en el mapa. Las rutas ocultas permanecen en tu biblioteca pero no se dibujan en el mapa, manteniéndolo limpio mientras trabajas con otras rutas.",
 	"hintFlyTo": "Mueve y ajusta el zoom del mapa para que toda la ruta quede dentro de la vista. Útil para localizar rápidamente una ruta en el mapa.",
 	"hintDelete": "Elimina permanentemente esta ruta de tu biblioteca y la quita del mapa. Esto no se puede deshacer.",
+	"hintTags": "Etiquetas asignadas a esta ruta. Toca una etiqueta para quitarla. Las etiquetas del sistema (con ícono de candado) no se pueden quitar manualmente.",
 	"regexUnavailable": "REGEXP no está disponible. Los filtros de regex no funcionarán.",
 	"importTitle": "Importar rutas",
 	"importHint": "Selecciona un archivo GPX, KML o GeoJSON que contenga tracks o rutas. Extensiones soportadas: {{extensions}}",

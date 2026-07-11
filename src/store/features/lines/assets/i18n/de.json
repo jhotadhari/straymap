@@ -94,6 +94,7 @@
 	"hintToggleOnMap": "Zeigt diese Route auf der Karte an oder blendet sie aus. Ausgeblendete Routen bleiben in deiner Bibliothek, werden aber nicht auf der Karte gezeichnet — so bleibt die Karte übersichtlich, während du mit anderen Routen arbeitest.",
 	"hintFlyTo": "Schwenkt und zoomt die Karte so, dass die gesamte Route sichtbar ist. Hilfreich, um eine Route schnell auf der Karte zu finden.",
 	"hintDelete": "Löscht diese Route dauerhaft aus deiner Bibliothek und entfernt sie von der Karte. Dies kann nicht rückgängig gemacht werden.",
+	"hintTags": "Tags, die dieser Route zugeordnet sind. Tippe auf ein Tag, um es zu entfernen. System-Tags (mit Schloss-Symbol) können nicht manuell entfernt werden.",
 	"regexUnavailable": "REGEXP ist nicht verfügbar. Regex-Filter funktionieren nicht.",
 	"importTitle": "Routen importieren",
 	"importHint": "Wähle eine GPX-, KML- oder GeoJSON-Datei mit Strecken oder Routen. Unterstützte Formate: {{extensions}}",

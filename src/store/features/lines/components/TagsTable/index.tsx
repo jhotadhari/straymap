@@ -23,7 +23,7 @@ import { queryTagsWithLineCounts } from '../../db/queryFns';
 import { HeaderContext, FooterContext, ColumnHeaderMenuContext } from './Context';
 import TagFilterModals from './FilterModals';
 import TagEditModal from '../TagEditModal/TagEditModal';
-import CreateModal from './CreateModal';
+import CreateTagModal from '../CreateTagModal';
 import { setTagTemp } from '../../slice';
 
 const keyExtractor = (tag: Tag & { line_count: number }) => tag.id.toString();
@@ -55,7 +55,7 @@ const TagsTable: FC = () => {
 	const tagIds = useMemo(() => tags?.map((tag) => tag.id) ?? [], [tags]);
 
 	const [checkedIds, setCheckedIds] = useState<number[]>([]);
-	const [createModalVisible, setCreateModalVisible] = useState(false);
+	const [addModalVisible, setAddModalVisible] = useState(false);
 
 	// Reset checked rows when filters change
 	useEffect(() => {
@@ -99,11 +99,11 @@ const TagsTable: FC = () => {
 	);
 
 	const handleOpenCreate = useCallback(() => {
-		setCreateModalVisible(true);
+		setAddModalVisible(true);
 	}, []);
 
-	const handleDismissCreate = useCallback(() => {
-		setCreateModalVisible(false);
+	const handleDismissAdd = useCallback(() => {
+		setAddModalVisible(false);
 	}, []);
 
 	const styleCell = useMemo(
@@ -188,9 +188,9 @@ const TagsTable: FC = () => {
 
 			<TagEditModal />
 
-			<CreateModal
-				visible={createModalVisible}
-				onDismiss={handleDismissCreate}
+			<CreateTagModal
+				visible={addModalVisible}
+				onDismiss={handleDismissAdd}
 			/>
 		</ColumnHeaderMenuContext.Provider>
 	);

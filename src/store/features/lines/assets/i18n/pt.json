@@ -94,6 +94,7 @@
 	"hintToggleOnMap": "Mostre ou oculte esta rota no mapa. Rotas ocultas permanecem na sua biblioteca, mas não são desenhadas no mapa, mantendo-o limpo enquanto você trabalha com outras rotas.",
 	"hintFlyTo": "Ajuste o mapa e o zoom para que toda a rota caiba na visualização. Útil para localizar rapidamente uma rota no mapa.",
 	"hintDelete": "Exclua permanentemente esta rota da sua biblioteca e remova-a do mapa. Isso não pode ser desfeito.",
+	"hintTags": "Etiquetas atribuídas a esta rota. Toque em uma etiqueta para removê-la. Etiquetas do sistema (com ícone de cadeado) não podem ser removidas manualmente.",
 	"regexUnavailable": "REGEXP não está disponível. Os filtros de regex não funcionarão.",
 	"importTitle": "Importar rotas",
 	"importHint": "Selecione um arquivo GPX, KML ou GeoJSON contendo trilhas ou rotas. Extensões suportadas: {{extensions}}",

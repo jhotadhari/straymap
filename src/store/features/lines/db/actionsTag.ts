@@ -23,10 +23,16 @@ export const createTags = withDbErrorHandling(
 		if (!dbConnection?.drizzle) {
 			return;
 		}
+		// Guard: prevent creating tags with system-reserved labels.
+		const systemLabels = featureRegistry.getSystemTagLabels();
+		const filtered = newTags.filter(({ label }) => !systemLabels.includes(label ?? ''));
+		if (!filtered.length) {
+			return [];
+		}
 		const inserted = await dbConnection.drizzle
 			.insert(tagsTable)
 			.values(
-				newTags.map(({ label, notes, data }) => ({
+				filtered.map(({ label, notes, data }) => ({
 					label: label ?? null,
 					notes: notes ?? null,
 					data: data ?? null,
@@ -83,12 +89,18 @@ export const updateTag = withDbErrorHandling(
 			return;
 		}
 		const existingTag = tags[0];
-		// Guard: prevent renaming system-protected tag labels.
-		const isSystemTag = featureRegistry.getSystemTagLabels().includes(existingTag.label ?? '');
+		// Guard: prevent renaming system-protected tag labels,
+		// and prevent renaming any tag to a system-reserved label.
+		const systemLabels = featureRegistry.getSystemTagLabels();
+		const isSystemTag = systemLabels.includes(existingTag.label ?? '');
+		const wouldBecomeSystemLabel =
+			undefined !== newTag?.label && systemLabels.includes(newTag.label ?? '');
 		await dbConnection.drizzle
 			.update(tagsTable)
 			.set({
-				...(undefined !== newTag?.label && !isSystemTag && { label: newTag.label }),
+				...(undefined !== newTag?.label &&
+					!isSystemTag &&
+					!wouldBecomeSystemLabel && { label: newTag.label }),
 				...(undefined !== newTag?.notes && { notes: newTag.notes }),
 				...(undefined !== newTag?.data && {
 					data: { ...((existingTag.data as any) ?? {}), ...newTag.data },

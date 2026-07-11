@@ -9,6 +9,7 @@ import { uniq } from 'lodash-es';
 import createAppSelector from '../../createAppSelector';
 import { RootState } from '../../store';
 import { lineCells, statsCells, otherCells } from './components/LinesTable/sharedDeps';
+import { tagCells } from './components/TagsTable/sharedDeps';
 
 export const selectInitialized = (state: RootState) => state.lines.initialized;
 
@@ -67,13 +68,7 @@ export const selectFilterableColumns = (state: RootState) => selectTableColumns(
 
 // ── TagsTable selectors ──────────────────────────────────────────────
 
-const allTagColumnKeys = Object.keys({
-	label: {},
-	line_count: {},
-	created_at: {},
-	color: {},
-	notes: {},
-});
+const allTagColumnKeys = Object.keys(tagCells);
 
 export const selectTagsTableColumns = createAppSelector(
 	(state: RootState) => state.lines.tagsTable.tableColumns,

@@ -28,6 +28,7 @@ import RowStats from './RowStats';
 import RowFlyTo from './RowFlyTo';
 import RowToggleOnMap from './RowToggleOnMap';
 import RowCustomDate from './RowCustomDate';
+import RowTags from './RowTags';
 
 const LineEditModal: FC<{
 	selectLine: (id: number, isSelected: boolean) => void;
@@ -125,6 +126,8 @@ const LineEditModal: FC<{
 		>
 			<LineEditModalContext.Provider value={contextValue}>
 				<RowName />
+
+				<RowTags />
 
 				<RowCustomDate />
 

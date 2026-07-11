@@ -45,7 +45,7 @@ export interface LinesSettings {
 
 export interface LinesState extends SliceSettingsBase, LinesSettings {
 	lineTemp?: LinePartial;
-	tagTemp?: { id: number; label?: string | null; data?: any } | null;
+	tagTemp?: { id: number; label?: string | null; notes?: string | null; data?: any } | null;
 }
 
 export const initialSettings: LinesSettings = {

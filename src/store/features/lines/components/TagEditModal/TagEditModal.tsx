@@ -22,6 +22,7 @@ import { dbConnection } from '../../../dbLoader/DBConnection';
 import RowLabel from './RowLabel';
 import RowColor from './RowColor';
 import RowShowRoutes from './RowShowRoutes';
+import RowNotes from './RowNotes';
 import RowDelete from './RowDelete';
 
 const TagEditModal: FC = () => {
@@ -41,11 +42,12 @@ const TagEditModal: FC = () => {
 	const mutationOptions: UseMutationOptions<
 		void,
 		Error,
-		{ id: number; label: string | null; data?: any },
+		{ id: number; label: string | null; notes?: string | null; data?: any },
 		unknown
 	> = useMemo(
 		() => ({
-			mutationFn: (vars) => updateTag(vars.id, { label: vars.label, data: vars.data }),
+			mutationFn: (vars) =>
+				updateTag(vars.id, { label: vars.label, notes: vars.notes, data: vars.data }),
 			onMutate: async () => {
 				await dbConnection.queryClient!.cancelQueries({ queryKey: ['tags'] });
 			},
@@ -66,12 +68,14 @@ const TagEditModal: FC = () => {
 		if (tagTemp?.id) {
 			// Only mutate if some fields changed
 			const changed = tagTemp.label !== undefined && tagTemp.label !== tag?.label;
+			const notesChanged = tagTemp.notes !== undefined && tagTemp.notes !== tag?.notes;
 			const colorChanged =
 				tagTemp.data?.color !== undefined && tagTemp.data?.color !== tag?.data?.color;
-			if (changed || colorChanged) {
+			if (changed || colorChanged || notesChanged) {
 				mutation.mutate({
 					id: tagTemp.id,
 					label: tagTemp.label ?? tag?.label ?? '',
+					notes: tagTemp.notes !== undefined ? tagTemp.notes : tag?.notes,
 					data: tagTemp.data ?? tag?.data,
 				});
 				return;
@@ -106,6 +110,8 @@ const TagEditModal: FC = () => {
 				<RowColor />
 
 				<RowShowRoutes />
+
+				<RowNotes />
 
 				<RowDelete />
 			</TagEditModalContext.Provider>
