@@ -29,7 +29,7 @@ import {
 } from '../../utils/importParser';
 import { createLines } from '../../db/actionsLine';
 import { createTags, ensureTagByLabel } from '../../db/actionsTag';
-import { invalidateTagsTable } from '../../db/queryFns';
+import { invalidateTagsTable, invalidateLinesQueries } from '../../db/queryFns';
 import { dbConnection } from '../../../dbLoader/DBConnection';
 import { tagsTable } from '../../db/schema/schema';
 
@@ -290,7 +290,7 @@ const ImportModal: FC<{
 			}
 		},
 		onSuccess: (_data, _vars) => {
-			queryClient.invalidateQueries({ queryKey: ['lines'] });
+			invalidateLinesQueries(queryClient);
 			invalidateTagsTable(queryClient);
 
 			// For directory mode, show the result summary screen

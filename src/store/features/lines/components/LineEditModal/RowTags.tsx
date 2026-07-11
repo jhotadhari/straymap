@@ -41,7 +41,7 @@ const RowTags: FC = () => {
 			await lineRemoveTag(line.id, tagId);
 		},
 		onSuccess: async () => {
-			await queryClient.invalidateQueries({ queryKey: ['lines'] });
+			await invalidateLinesQueries(queryClient);
 			invalidateTagsTable(queryClient);
 		},
 		onError: (err) => {
@@ -70,7 +70,7 @@ const RowTags: FC = () => {
 			}
 		},
 		onSuccess: async () => {
-			await queryClient.invalidateQueries({ queryKey: ['lines'] });
+			await invalidateLinesQueries(queryClient);
 			invalidateTagsTable(queryClient);
 			setAddModalVisible(false);
 		},

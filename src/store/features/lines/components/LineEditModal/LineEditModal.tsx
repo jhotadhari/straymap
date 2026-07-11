@@ -12,7 +12,11 @@ import { useTranslation } from 'react-i18next';
 import ModalWrapper from '../../../../../components/generic/ModalWrapper';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { LinePartial } from '../../types';
-import { queryLinesWithoutGeom } from '../../db/queryFns';
+import {
+	cancelLinesQueries,
+	invalidateLinesQueries,
+	queryLinesWithoutGeom,
+} from '../../db/queryFns';
 import { updateLine } from '../../db/actionsLine';
 import { queryRouteForLine } from '../../../routing/db/queryFns';
 import { selectLineTemp } from '../../selectors';
@@ -60,7 +64,7 @@ const LineEditModal: FC<{
 			mutationFn: (newLinePartial: LinePartial) =>
 				updateLine(newLinePartial?.id, newLinePartial),
 			onMutate: async () => {
-				await dbConnection.queryClient!.cancelQueries({ queryKey: ['lines'] });
+				await cancelLinesQueries(dbConnection.queryClient!);
 				if (route?.id) {
 					await dbConnection.queryClient!.cancelQueries({
 						queryKey: ['route', route?.id],
@@ -68,7 +72,7 @@ const LineEditModal: FC<{
 				}
 			},
 			onSuccess: async () => {
-				await dbConnection.queryClient!.invalidateQueries({ queryKey: ['lines'] });
+				await invalidateLinesQueries(dbConnection.queryClient!);
 				if (route?.id) {
 					await dbConnection.queryClient!.invalidateQueries({
 						queryKey: ['route', route?.id],

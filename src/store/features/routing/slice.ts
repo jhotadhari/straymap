@@ -15,7 +15,7 @@ import { aggregateSegmentsToCoords, getCoordsFromRouting, getSegmentRecordId } f
 import { setLineSelected } from '../lines/slice';
 import { lineString } from '@turf/turf';
 import { createLines, updateLine, lineAddTag } from '../lines/db/actionsLine';
-import { invalidateTagsTable } from '../lines/db/queryFns';
+import { invalidateTagsTable, invalidateLinesQueries } from '../lines/db/queryFns';
 import { ensureTagByLabel } from '../lines/db/actionsTag';
 import { updateRoute } from './db/actionsRoute';
 import { queryRoute } from './db/queryFns';
@@ -261,11 +261,11 @@ export const processRouting = (
 					dispatch(setRoutingLineId(lineId));
 					dispatch(setLineSelected(lineId, true));
 					await queryClient.invalidateQueries({ queryKey: ['lineGeom', lineId] });
-					await queryClient.invalidateQueries({ queryKey: ['lines', [lineId]] });
+					await invalidateLinesQueries(queryClient);
 					await queryClient.invalidateQueries({ queryKey: ['routeForLine', lineId] });
 				}
 				if (isNew) {
-					await queryClient.invalidateQueries({ queryKey: ['lines'], exact: true });
+					await invalidateLinesQueries(queryClient);
 				}
 			} else {
 				// On restore from persistence (updateLine: false),
@@ -283,7 +283,7 @@ export const processRouting = (
 					dispatch(setRoutingLineId(route.line_id));
 					dispatch(setLineSelected(route.line_id, true));
 					await queryClient.invalidateQueries({ queryKey: ['lineGeom', route.line_id] });
-					await queryClient.invalidateQueries({ queryKey: ['lines', [route.line_id]] });
+					await invalidateLinesQueries(queryClient);
 				}
 				await queryClient.invalidateQueries({ queryKey: ['route', routeId] });
 			}

@@ -108,13 +108,35 @@ export const invalidateTagsTable = (queryClient: {
 };
 
 /**
- * Refetch all active lines queries, returning a promise that resolves
- * when every matching query has completed.
+ * Cancel all in-flight lines queries. Uses a predicate because React Query v5
+ * defaults exact:true — a queryKey filter would miss most queries.
+ * Use in mutation onMutate to prevent stale fetches from overwriting writes.
+ */
+export const cancelLinesQueries = (queryClient: { cancelQueries: (opts: any) => Promise<any> }) =>
+	queryClient.cancelQueries({
+		predicate: (query: any) => Array.isArray(query.queryKey) && query.queryKey[0] === 'lines',
+	});
+
+/**
+ * Invalidate and refetch all active lines queries, returning a promise
+ * that resolves when every matching query has completed.
  * Use after tag-line association changes (add/remove tags on lines).
+ *
+ * Uses a predicate (not a queryKey) because React Query v5 defaults
+ * exact:true on queryKey filters — { queryKey: ['lines'] } would only
+ * match the literal key ['lines'], missing ['lines', [id]] and
+ * ['lines', { sort, ... }].
  */
 export const invalidateLinesQueries = (queryClient: {
+	invalidateQueries: (opts: any) => Promise<any>;
 	refetchQueries: (opts: any) => Promise<any>;
-}) => queryClient.refetchQueries({ queryKey: ['lines'] });
+}) => {
+	const predicate = (query: any) =>
+		Array.isArray(query.queryKey) && query.queryKey[0] === 'lines';
+	return queryClient
+		.invalidateQueries({ predicate })
+		.then(() => queryClient.refetchQueries({ predicate }));
+};
 
 /**
  * Fetch tags with line counts, optional sorting and filtering.

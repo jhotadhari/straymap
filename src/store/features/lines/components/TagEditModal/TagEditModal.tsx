@@ -11,7 +11,7 @@ import { useTranslation } from 'react-i18next';
 import ModalWrapper from '../../../../../components/generic/ModalWrapper';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { queryLinesWithoutGeom } from '../../db/queryFns';
-import { invalidateTagsTable } from '../../db/queryFns';
+import { invalidateTagsTable, invalidateLinesQueries } from '../../db/queryFns';
 import { updateTag } from '../../db/actionsTag';
 import { queryAllTags } from '../../db/queryFns';
 import { selectTagTemp } from '../../selectors';
@@ -54,7 +54,7 @@ const TagEditModal: FC = () => {
 			onSuccess: async () => {
 				invalidateTagsTable(dbConnection.queryClient!);
 				await dbConnection.queryClient!.invalidateQueries({ queryKey: ['tags'] });
-				await dbConnection.queryClient!.invalidateQueries({ queryKey: ['lines'] });
+				await invalidateLinesQueries(dbConnection.queryClient!);
 			},
 			onSettled: () => {
 				dispatch(setTagTemp(null));

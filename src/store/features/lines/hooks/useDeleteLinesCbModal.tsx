@@ -18,7 +18,7 @@ import { useAppDispatch } from '../../../hooks';
 import { sharedStyles } from '../../../../sharedStyles';
 import { setIsRouting } from '../../routing/slice';
 import { deleteLines } from '../db/actionsLine';
-import { invalidateTagsTable } from '../db/queryFns';
+import { cancelLinesQueries, invalidateLinesQueries, invalidateTagsTable } from '../db/queryFns';
 import { dbConnection } from '../../dbLoader/DBConnection';
 
 const useDeleteLinesCbModal = ({
@@ -69,7 +69,7 @@ const useDeleteLinesCbModal = ({
 		() => ({
 			mutationFn: (ids?: number[]) => deleteLines(ids),
 			onMutate: async () => {
-				await dbConnection.queryClient!.cancelQueries({ queryKey: ['lines'] });
+				await cancelLinesQueries(dbConnection.queryClient!);
 				await Promise.all(
 					deleteIds.map(async (id) => {
 						await dbConnection.queryClient!.cancelQueries({
@@ -89,7 +89,7 @@ const useDeleteLinesCbModal = ({
 				}
 			},
 			onSuccess: async () => {
-				await dbConnection.queryClient!.invalidateQueries({ queryKey: ['lines'] });
+				await invalidateLinesQueries(dbConnection.queryClient!);
 				invalidateTagsTable(dbConnection.queryClient!);
 				// Close modal.
 				handleDismissModal();

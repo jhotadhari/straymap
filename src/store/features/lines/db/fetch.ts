@@ -344,7 +344,10 @@ const fetchLinesWithTags = (params?: FetchLinesWithTagsParams) => {
 
 		if (limit !== undefined) {
 			query.limit(limit);
-		} else if (allLines && lineIds) {
+		} else if (allLines && lineIds && !(fields as string[]).includes('tags')) {
+			// Only apply lineIds.length as a limit when tags are NOT
+			// joined.  The LEFT JOIN multiplies rows (one per tag),
+			// so LIMIT 1 would truncate all but the first tag.
 			query.limit(lineIds.length);
 		}
 
