@@ -345,8 +345,6 @@ const FileSourceRowControl: FC<{
 	newOptionLabel,
 }) => {
 	const { t } = useTranslation();
-	const theme = useTheme();
-
 	const [modalVisible, setModalVisible] = useState(false);
 
 	const handleOpenModal = useCallback(() => setModalVisible(true), []);
@@ -539,16 +537,6 @@ const FileSourceRowControl: FC<{
 						extensions={extensions}
 					/>
 				))}
-
-				<ButtonHighlight
-					style={styles.okButton}
-					onPress={dismissModal}
-					mode="contained"
-					buttonColor={get(theme.colors, 'successContainer')}
-					textColor={get(theme.colors, 'onSuccessContainer')}
-				>
-					<Text>{t('ok')}</Text>
-				</ButtonHighlight>
 			</ModalWrapper>
 			{/* )} */}
 

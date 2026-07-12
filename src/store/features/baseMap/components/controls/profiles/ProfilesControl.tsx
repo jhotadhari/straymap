@@ -255,15 +255,6 @@ const EditModal: FC<{
 
 				<View style={sharedStyles.modalControls}>
 					<ButtonHighlight
-						onPress={handleDismissModal}
-						mode="contained"
-						buttonColor={get(theme.colors, 'successContainer')}
-						textColor={get(theme.colors, 'onSuccessContainer')}
-					>
-						<Text>{t('ok')}</Text>
-					</ButtonHighlight>
-
-					<ButtonHighlight
 						onPress={handleRemoveItem}
 						mode="contained"
 						buttonColor={theme.colors.errorContainer}

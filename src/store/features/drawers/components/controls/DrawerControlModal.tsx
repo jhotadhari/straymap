@@ -26,7 +26,7 @@ import {
 
 const settingsDrawerItem: DrawerPanel = {
 	iconSource: 'cog',
-	label: 'drawers.settingsHandle'
+	label: 'drawers.settingsHandle',
 };
 
 const Item: FC<{
@@ -177,8 +177,6 @@ const DrawerControlModal: FC<{
 	setModalVisible: Dispatch<SetStateAction<boolean>>;
 }> = ({ modalVisible, setModalVisible }) => {
 	const { t } = useTranslation();
-	const theme = useTheme();
-
 	const closeModal = useCallback(() => setModalVisible(false), [setModalVisible]);
 
 	const allDrawerItems = useMemo(() => featureRegistry.getDrawerPanels(), []);
@@ -202,16 +200,6 @@ const DrawerControlModal: FC<{
 			/>
 
 			<Item drawerItem={settingsDrawerItem} />
-
-			<ButtonHighlight
-				style={styles.okButton}
-				onPress={closeModal}
-				mode="contained"
-				buttonColor={get(theme.colors, 'successContainer')}
-				textColor={get(theme.colors, 'onSuccessContainer')}
-			>
-				<Text>{t('ok')}</Text>
-			</ButtonHighlight>
 		</ModalWrapper>
 	);
 };

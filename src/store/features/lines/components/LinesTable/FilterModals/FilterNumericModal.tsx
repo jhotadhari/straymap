@@ -5,7 +5,6 @@ import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { get } from 'lodash-es';
 
 /**
  * Internal dependencies
@@ -208,17 +207,8 @@ const FilterNumericModal: FC<{
 				</View>
 			</InfoRowControl>
 
-			<View style={appSharedStyles.modalControls}>
-				<ButtonHighlight
-					onPress={handleDismiss}
-					mode="contained"
-					buttonColor={get(theme.colors, 'successContainer')}
-					textColor={get(theme.colors, 'onSuccessContainer')}
-				>
-					<Text>{t('lines.saveFilter')}</Text>
-				</ButtonHighlight>
-
-				{onDelete && (
+			{onDelete && (
+				<View style={appSharedStyles.modalControls}>
 					<ButtonHighlight
 						onPress={handleDelete}
 						mode="contained"
@@ -227,8 +217,8 @@ const FilterNumericModal: FC<{
 					>
 						<Text>{t('lines.removeFilter')}</Text>
 					</ButtonHighlight>
-				)}
-			</View>
+				</View>
+			)}
 		</ModalWrapper>
 	);
 };

@@ -2,17 +2,13 @@
  * External dependencies
  */
 import { FC, useMemo } from 'react';
-import { View } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { get } from 'lodash-es';
 
 /**
  * Internal dependencies
  */
 import ModalWrapper from '../../../../../../components/generic/ModalWrapper';
-import ButtonHighlight from '../../../../../../components/generic/ButtonHighlight';
-import { sharedStyles as appSharedStyles } from '../../../../../../sharedStyles';
 import { sharedStyles } from '../sharedDeps';
 import { FilterConflict } from '../../../db/filterConflicts';
 
@@ -57,17 +53,6 @@ const FilterConflictModal: FC<{
 					• {desc}
 				</Text>
 			))}
-
-			<View style={appSharedStyles.modalControls}>
-				<ButtonHighlight
-					onPress={onDismiss}
-					mode="contained"
-					buttonColor={get(theme.colors, 'successContainer')}
-					textColor={get(theme.colors, 'onSuccessContainer')}
-				>
-					<Text>OK</Text>
-				</ButtonHighlight>
-			</View>
 		</ModalWrapper>
 	);
 };

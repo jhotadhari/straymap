@@ -5,7 +5,6 @@ import { FC, Fragment, useCallback, useEffect, useMemo, useRef, useState } from 
 import { StyleSheet, TextInput, View } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { get } from 'lodash-es';
 
 /**
  * Internal dependencies
@@ -125,11 +124,7 @@ const FilterStringModal: FC<{
 							{text}
 						</Text>
 
-						{i === regexIdx && (
-							<HintLink
-								url="https://regexr.com/"
-							/>
-						)}
+						{i === regexIdx && <HintLink url="https://regexr.com/" />}
 					</Fragment>
 				))}
 			</View>
@@ -166,17 +161,8 @@ const FilterStringModal: FC<{
 				/>
 			</InfoRowControl>
 
-			<View style={appSharedStyles.modalControls}>
-				<ButtonHighlight
-					onPress={handleDismiss}
-					mode="contained"
-					buttonColor={get(theme.colors, 'successContainer')}
-					textColor={get(theme.colors, 'onSuccessContainer')}
-				>
-					<Text>{t('lines.saveFilter')}</Text>
-				</ButtonHighlight>
-
-				{onDelete && (
+			{onDelete && (
+				<View style={appSharedStyles.modalControls}>
 					<ButtonHighlight
 						onPress={handleDelete}
 						mode="contained"
@@ -185,8 +171,8 @@ const FilterStringModal: FC<{
 					>
 						<Text>{t('lines.removeFilter')}</Text>
 					</ButtonHighlight>
-				)}
-			</View>
+				</View>
+			)}
 		</ModalWrapper>
 	);
 };

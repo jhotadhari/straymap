@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { useContext, useCallback, useMemo, useState } from 'react';
-import { View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -17,7 +16,6 @@ import { logError } from '../../../../../../lib/utils';
 import { ErrorToastContext } from '../../../../../../components/ErrorToast/Context';
 import { sprintf } from 'sprintf-js';
 import ModalWrapper from '../../../../../../components/generic/ModalWrapper';
-import ButtonHighlight from '../../../../../../components/generic/ButtonHighlight';
 import ColorPaletteInline from '../ColorPaletteInline';
 import { TAG_COLORS } from '../../tagColor';
 import { sharedStyles } from '../sharedDeps';
@@ -56,11 +54,8 @@ const useChangeTagColor = () => {
 
 	const closeModal = useCallback(() => {
 		if (mutation.isPending) return;
-		setModalVisible(false);
-	}, [mutation.isPending]);
-
-	const handleApply = useCallback(() => {
 		mutation.mutate(selectedColor);
+		setModalVisible(false);
 	}, [mutation, selectedColor]);
 
 	const disabled = useCallback(() => checkedIds.length === 0, [checkedIds]);
@@ -73,25 +68,17 @@ const useChangeTagColor = () => {
 				header={t('lines.tagsChangeColor')}
 				innerStyle={sharedStyles.modalInner}
 			>
+				<Text>{t('lines.tagsChangeColor')}</Text>
 				<ColorPaletteInline
 					selectedColor={selectedColor}
 					onSelect={setSelectedColor}
 				/>
-				<ButtonHighlight
-					onPress={handleApply}
-					mode="contained"
-					disabled={mutation.isPending}
-				>
-					<Text>{t('lines.tagsApply')}</Text>
-				</ButtonHighlight>
 			</ModalWrapper>
 		),
 		[
 			modalVisible,
 			closeModal,
 			selectedColor,
-			handleApply,
-			mutation.isPending,
 			t,
 		]
 	);

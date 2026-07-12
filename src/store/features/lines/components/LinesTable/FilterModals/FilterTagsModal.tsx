@@ -6,7 +6,6 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
-import { get } from 'lodash-es';
 import Popover, { PopoverPlacement } from 'react-native-popover-view';
 
 /**
@@ -218,17 +217,8 @@ const FilterTagsModal: FC<{
 				</View>
 			</InfoRowControl>
 
-			<View style={appSharedStyles.modalControls}>
-				<ButtonHighlight
-					onPress={handleDismiss}
-					mode="contained"
-					buttonColor={get(theme.colors, 'successContainer')}
-					textColor={get(theme.colors, 'onSuccessContainer')}
-				>
-					<Text>{t('lines.saveFilter')}</Text>
-				</ButtonHighlight>
-
-				{onDelete && (
+			{onDelete && (
+				<View style={appSharedStyles.modalControls}>
 					<ButtonHighlight
 						onPress={handleDelete}
 						mode="contained"
@@ -237,8 +227,8 @@ const FilterTagsModal: FC<{
 					>
 						<Text>{t('lines.removeFilter')}</Text>
 					</ButtonHighlight>
-				)}
-			</View>
+				</View>
+			)}
 		</ModalWrapper>
 	);
 };

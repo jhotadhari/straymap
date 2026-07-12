@@ -53,16 +53,6 @@ const InfoControlWrapper = ({
 						{Info && 'string' === typeof Info && <Text>{Info}</Text>}
 						{Info && 'string' !== typeof Info && Info}
 					</View>
-
-					<ButtonHighlight
-						style={styles.okButton}
-						onPress={handleClose}
-						mode="contained"
-						buttonColor={get(theme.colors, 'successContainer')}
-						textColor={get(theme.colors, 'onSuccessContainer')}
-					>
-						<Text>{t('gotIt')}</Text>
-					</ButtonHighlight>
 				</ModalWrapper>
 			)}
 

@@ -64,19 +64,7 @@ const ListItemModalControl: FC<{
 					scrollEnabled={scrollEnabled}
 					onLayout={onLayout}
 				>
-					<View style={styles.content}>
-						{children}
-
-						<ButtonHighlight
-							style={styles.controls}
-							onPress={handleClose}
-							mode="contained"
-							buttonColor={get(theme.colors, 'successContainer')}
-							textColor={get(theme.colors, 'onSuccessContainer')}
-						>
-							<Text>{t('ok')}</Text>
-						</ButtonHighlight>
-					</View>
+					<View style={styles.content}>{children}</View>
 				</ModalWrapper>
 			)}
 

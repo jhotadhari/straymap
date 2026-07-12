@@ -60,7 +60,6 @@ const CreateTagModal: FC<CreateTagModalProps> = ({ visible, onDismiss, onCreated
 			setLabel('');
 			setColor(TAG_COLORS[0].bg);
 			setNotes('');
-			onDismiss();
 		},
 		onError: (err) => {
 			logError('CreateTagModal', err);
@@ -68,20 +67,23 @@ const CreateTagModal: FC<CreateTagModalProps> = ({ visible, onDismiss, onCreated
 		},
 	});
 
-	const handleCreate = useCallback(() => {
-		if (!label.trim() || createMutation.isPending) return;
-		createMutation.mutate({ label: label.trim(), color, notes: notes.trim() || null });
+	const handleDismiss = useCallback(() => {
+		if (label.trim() && !createMutation.isPending) {
+			createMutation.mutate({ label: label.trim(), color, notes: notes.trim() || null });
+		}
+		onDismiss();
 	}, [
 		label,
 		color,
 		notes,
 		createMutation,
+		onDismiss,
 	]);
 
 	return (
 		<ModalWrapper
 			visible={visible}
-			onDismiss={onDismiss}
+			onDismiss={handleDismiss}
 			header={t('lines.tagsCreateTitle')}
 			innerStyle={sharedStyles.modalInner}
 		>
@@ -105,15 +107,6 @@ const CreateTagModal: FC<CreateTagModalProps> = ({ visible, onDismiss, onCreated
 				multiline
 				numberOfLines={3}
 			/>
-			<ButtonHighlight
-				onPress={handleCreate}
-				mode="contained"
-				disabled={!label.trim() || createMutation.isPending}
-				buttonColor={get(theme.colors, 'successContainer')}
-				textColor={get(theme.colors, 'onSuccessContainer')}
-			>
-				<Text>{t('lines.tagsCreate')}</Text>
-			</ButtonHighlight>
 		</ModalWrapper>
 	);
 };

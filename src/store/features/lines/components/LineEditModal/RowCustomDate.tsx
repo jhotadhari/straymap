@@ -87,7 +87,7 @@ const RowCustomDate: FC = () => {
 					inputMode="start"
 					label={''}
 					mode="outlined"
-					withDateFormatInLabel={false}
+					withDateFormatInLabel={true}
 					style={{ flex: 1 }}
 				/>
 				{currentValue && (

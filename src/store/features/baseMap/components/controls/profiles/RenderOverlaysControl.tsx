@@ -171,16 +171,6 @@ const ControlModal: FC<{
 					setOverlays={setOverlays}
 				/>
 			))}
-
-			<ButtonHighlight
-				style={styles.modalControls}
-				onPress={handleDismissModal}
-				mode="contained"
-				buttonColor={get(theme.colors, 'successContainer')}
-				textColor={get(theme.colors, 'onSuccessContainer')}
-			>
-				<Text>{t('ok')}</Text>
-			</ButtonHighlight>
 		</ModalWrapper>
 	);
 };

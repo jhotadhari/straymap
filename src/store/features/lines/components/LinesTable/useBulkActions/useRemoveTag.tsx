@@ -127,7 +127,7 @@ const useRemoveTag = () => {
 					mode="contained"
 					disabled={!selectedTagIds.size || mutation.isPending}
 				>
-					<Text>{t('lines.tagsApply')}</Text>
+					<Text>{t('lines.removeTags')}</Text>
 				</ButtonHighlight>
 			</ModalWrapper>
 		),

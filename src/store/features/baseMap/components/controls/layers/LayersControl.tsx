@@ -22,7 +22,6 @@ import {
 import { List, useTheme, Text, Icon, IconButtonProps } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import Sortable, { SortableFlexDragEndParams } from 'react-native-sortables';
-import { get } from 'lodash-es';
 
 /**
  * Internal dependencies
@@ -371,15 +370,6 @@ const EditModal: FC<{
 					{'raster-MBtiles' === layerTemp.type && <LayerControlRasterMBTiles />}
 
 					<View style={sharedStyles.modalControls}>
-						<ButtonHighlight
-							onPress={handleDismissModal}
-							mode="contained"
-							buttonColor={get(theme.colors, 'successContainer')}
-							textColor={get(theme.colors, 'onSuccessContainer')}
-						>
-							<Text>{t('ok')}</Text>
-						</ButtonHighlight>
-
 						<ButtonHighlight
 							onPress={handleRemoveItem}
 							mode="contained"

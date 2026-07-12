@@ -3,10 +3,11 @@
  */
 import { FC, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { View } from 'react-native';
-import { Text, Checkbox } from 'react-native-paper';
+import { Text, Checkbox, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
 import { sprintf } from 'sprintf-js';
+import { get } from 'lodash-es';
 
 /**
  * Internal dependencies
@@ -40,6 +41,7 @@ const AddTagsModal: FC<AddTagsModalProps> = ({
 	const { t } = useTranslation();
 	const { showError } = useContext(ErrorToastContext);
 	const queryClient = useQueryClient();
+	const theme = useTheme();
 
 	const [allTags, setAllTags] = useState<Tag[]>([]);
 	const [loadingTags, setLoadingTags] = useState(false);
@@ -94,13 +96,16 @@ const AddTagsModal: FC<AddTagsModalProps> = ({
 
 	const handleDismiss = useCallback(() => {
 		if (isApplying) return;
+		if (selectedTagIds.size > 0) {
+			onApply(Array.from(selectedTagIds));
+		}
 		onDismiss();
-	}, [isApplying, onDismiss]);
-
-	const handleApply = useCallback(() => {
-		if (!selectedTagIds.size) return;
-		onApply(Array.from(selectedTagIds));
-	}, [selectedTagIds, onApply]);
+	}, [
+		isApplying,
+		selectedTagIds,
+		onApply,
+		onDismiss,
+	]);
 
 	const handleTagCreated = useCallback(
 		async (tag: Tag) => {
@@ -147,13 +152,6 @@ const AddTagsModal: FC<AddTagsModalProps> = ({
 						</View>
 					))
 				)}
-				<ButtonHighlight
-					onPress={handleApply}
-					mode="contained"
-					disabled={!selectedTagIds.size || isApplying}
-				>
-					<Text>{t('lines.tagsApply')}</Text>
-				</ButtonHighlight>
 			</ModalWrapper>
 			<CreateTagModal
 				visible={createModalVisible}

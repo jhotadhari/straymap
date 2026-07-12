@@ -5,7 +5,6 @@ import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Dimensions, View } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { get } from 'lodash-es';
 import { DatePickerInput } from 'react-native-paper-dates';
 import dayjs from 'dayjs';
 
@@ -118,7 +117,7 @@ const FilterDateModal: FC<{
 					inputMode="start"
 					label={''}
 					mode="outlined"
-					withDateFormatInLabel={false}
+					withDateFormatInLabel={true}
 					style={{ width: inputWidth }}
 				/>
 			</InfoRowControl>
@@ -139,17 +138,8 @@ const FilterDateModal: FC<{
 				/>
 			</InfoRowControl>
 
-			<View style={appSharedStyles.modalControls}>
-				<ButtonHighlight
-					onPress={handleDismiss}
-					mode="contained"
-					buttonColor={get(theme.colors, 'successContainer')}
-					textColor={get(theme.colors, 'onSuccessContainer')}
-				>
-					<Text>{t('lines.saveFilter')}</Text>
-				</ButtonHighlight>
-
-				{onDelete && (
+			{onDelete && (
+				<View style={appSharedStyles.modalControls}>
 					<ButtonHighlight
 						onPress={handleDelete}
 						mode="contained"
@@ -158,8 +148,8 @@ const FilterDateModal: FC<{
 					>
 						<Text>{t('lines.removeFilter')}</Text>
 					</ButtonHighlight>
-				)}
-			</View>
+				</View>
+			)}
 		</ModalWrapper>
 	);
 };

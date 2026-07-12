@@ -292,16 +292,6 @@ const HgtSourceRowControl = ({
 							</View>
 						);
 					})}
-
-					<ButtonHighlight
-						style={styles.okButton}
-						onPress={handleCloseModal}
-						mode="contained"
-						buttonColor={get(theme.colors, 'successContainer')}
-						textColor={get(theme.colors, 'onSuccessContainer')}
-					>
-						<Text>{t('ok')}</Text>
-					</ButtonHighlight>
 				</ModalWrapper>
 			),
 		[
