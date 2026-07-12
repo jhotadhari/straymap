@@ -36,6 +36,7 @@ export interface LinesTableSettings {
 
 export interface LinesSettings {
 	selected: number[];
+	tagBadgeMode: 'outlined' | 'contained';
 	tagsTable: TagsTableSettings;
 	linesTable: LinesTableSettings;
 }
@@ -47,6 +48,7 @@ export interface LinesState extends SliceSettingsBase, LinesSettings {
 
 export const initialSettings: LinesSettings = {
 	selected: [],
+	tagBadgeMode: 'contained',
 	tagsTable: {
 		tableColumns: [],
 		sort: null,
@@ -77,6 +79,9 @@ export const linesSlice = createSlice({
 		},
 		setLineTemp: (state, action: PayloadAction<LinesState['lineTemp']>) => {
 			state.lineTemp = action.payload;
+		},
+		setTagBadgeMode: (state, action: PayloadAction<LinesState['tagBadgeMode']>) => {
+			state.tagBadgeMode = action.payload;
 		},
 		setTagTemp: (state, action: PayloadAction<LinesState['tagTemp']>) => {
 			state.tagTemp = action.payload;
@@ -189,6 +194,7 @@ export const linesSlice = createSlice({
 // Export the generated action creators for use in components.
 export const {
 	setInitialized,
+	setTagBadgeMode,
 	setLinesTableColumns,
 	setSelected,
 	setLineTemp,

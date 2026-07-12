@@ -143,5 +143,8 @@
 	"hintSystemTagNote": {
 		"imported": "Etiqueta do sistema: atribuída automaticamente a rotas importadas.",
 		"routing": "Etiqueta do sistema: atribuída automaticamente pelo modo de planejamento de rota."
-	}
+	},
+	"tagBadgeMode": "Estilo do crachá",
+	"tagBadgeModeContained": "Preenchido",
+	"tagBadgeModeOutlined": "Contornado"
 }

@@ -8,11 +8,15 @@ import { Text } from 'react-native-paper';
 /**
  * Internal dependencies
  */
+import { useAppSelector } from '../../../store/hooks';
+import { selectTagBadgeMode } from '../selectors';
 import { getTagColor } from './tagColor';
 
 const TagBadge: FC<{
 	tag: { id: number; label: string | null; data?: any };
 }> = ({ tag }) => {
+	const badgeMode = useAppSelector(selectTagBadgeMode);
+
 	// eslint-disable-next-line react-hooks/exhaustive-deps -- tracking id+data+label is sufficient; getTagColor only reads those fields
 	const color = useMemo(
 		() => getTagColor(tag),
@@ -23,9 +27,26 @@ const TagBadge: FC<{
 		]
 	);
 
+	const isOutlined = badgeMode === 'outlined';
+
 	return (
-		<View style={[styles.badge, { backgroundColor: color.bg, borderColor: color.border }]}>
-			<Text style={[styles.label, { color: color.fg }]}>{tag.label ?? ''}</Text>
+		<View
+			style={[
+				styles.badge,
+				{
+					backgroundColor: isOutlined ? 'transparent' : color.bg,
+					borderColor: isOutlined ? color.bg : color.border,
+				},
+			]}
+		>
+			<Text
+				style={[
+					styles.label,
+					isOutlined ? undefined : { color: color.fg },
+				]}
+			>
+				{tag.label ?? ''}
+			</Text>
 		</View>
 	);
 };

@@ -13,6 +13,8 @@ import { tagCells } from './components/TagsTable/sharedDeps';
 
 export const selectInitialized = (state: RootState) => state.lines.initialized;
 
+export const selectTagBadgeMode = (state: RootState) => state.lines.tagBadgeMode;
+
 export const selectLineTemp = (state: RootState) => state.lines.lineTemp;
 
 export const selectTagTemp = (state: RootState) => state.lines.tagTemp;

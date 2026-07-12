@@ -13,6 +13,7 @@ import LinesBrowser from './uiItems/LinesBrowser';
 import TagsBrowser from './uiItems/TagsBrowser';
 import linesDrawerItem from './drawerPanels/lines';
 import LineEditModalWrapper from './components/LineEditModalWrapper';
+import TagBadgeModeControl from './components/controls/TagBadgeModeControl';
 
 export default {
 	selectInitialized,
@@ -59,6 +60,13 @@ export default {
 		{
 			key: 'tagEdit',
 			uiItemKey: 'tagEdit',
+		},
+	],
+	settingsControls: [
+		{
+			key: 'tagBadgeMode',
+			label: 'lines.tagBadgeMode',
+			Control: TagBadgeModeControl,
 		},
 	],
 	systemTagLabels: ['imported'],

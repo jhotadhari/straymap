@@ -14,6 +14,7 @@ import {
 	initialSettings,
 	setInitialized,
 	setSelected,
+	setTagBadgeMode,
 	setLinesTableColumns,
 	setLinesSort,
 	setLinesFilters,
@@ -117,6 +118,7 @@ export const saveToStorage = (linesState: LinesState, actionType: string) => {
 startAppListening({
 	matcher: isAnyOf(
 		setSelected,
+		setTagBadgeMode,
 		setLinesTableColumns,
 		setLinesSort,
 		setLinesFilters,

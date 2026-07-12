@@ -143,5 +143,8 @@
 	"hintSystemTagNote": {
 		"imported": "System tag: auto-assigned to imported routes.",
 		"routing": "System tag: auto-assigned by route planning mode."
-	}
+	},
+	"tagBadgeMode": "Tag badge style",
+	"tagBadgeModeContained": "Filled",
+	"tagBadgeModeOutlined": "Outlined"
 }

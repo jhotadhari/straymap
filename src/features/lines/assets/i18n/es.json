@@ -143,5 +143,8 @@
 	"hintSystemTagNote": {
 		"imported": "Etiqueta del sistema: asignada automáticamente a rutas importadas.",
 		"routing": "Etiqueta del sistema: asignada automáticamente por el modo de planificación de rutas."
-	}
+	},
+	"tagBadgeMode": "Estilo de etiqueta",
+	"tagBadgeModeContained": "Relleno",
+	"tagBadgeModeOutlined": "Contorneado"
 }

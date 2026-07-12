@@ -143,5 +143,8 @@
 	"hintSystemTagNote": {
 		"imported": "System-Tag: automatisch importierten Routen zugewiesen.",
 		"routing": "System-Tag: automatisch vom Routenplanungsmodus zugewiesen."
-	}
+	},
+	"tagBadgeMode": "Tag-Abzeichen-Stil",
+	"tagBadgeModeContained": "Gefüllt",
+	"tagBadgeModeOutlined": "Umrandet"
 }
