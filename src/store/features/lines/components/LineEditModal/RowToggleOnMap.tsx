@@ -12,7 +12,7 @@ import { LineEditModalContext } from './Context';
 import InfoRowControl from '../../../../../components/generic/controls/InfoRowControl';
 import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
 import { useAppSelector } from '../../../../hooks';
-import { selectSelectedInfos } from '../../selectors';
+import { selectSelected } from '../../selectors';
 import { sharedStyles } from './sharedDeps';
 
 const RowToggleOnMap: FC = () => {
@@ -21,7 +21,7 @@ const RowToggleOnMap: FC = () => {
 
 	const { line, selectLine } = useContext(LineEditModalContext);
 
-	const { selectedIds } = useAppSelector(selectSelectedInfos);
+	const selectedIds = useAppSelector(selectSelected);
 
 	const isSelected = useMemo(() => selectedIds.includes(line?.id ?? -1), [selectedIds, line?.id]);
 

@@ -22,17 +22,6 @@ export const selectSelected = createAppSelector(
 	(selected) => uniq(selected)
 );
 
-export const selectSelectedInfos = createAppSelector(
-	(state: RootState) => selectSelected(state),
-	(selected) => ({
-		selectedIds: selected.map((a) => a.id),
-		visibleMap: selected.reduce<{ [id: string]: boolean }>((acc, a) => {
-			acc[a.id] = a.visible;
-			return acc;
-		}, {}),
-	})
-);
-
 const allLinesColumnKeys = [
 	...Object.keys(lineCells),
 	...Object.keys(statsCells),

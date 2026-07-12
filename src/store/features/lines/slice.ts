@@ -35,10 +35,7 @@ export interface LinesTableSettings {
 }
 
 export interface LinesSettings {
-	selected: {
-		id: number;
-		visible: boolean;
-	}[];
+	selected: number[];
 	tagsTable: TagsTableSettings;
 	linesTable: LinesTableSettings;
 }
@@ -92,7 +89,7 @@ export const linesSlice = createSlice({
 		},
 		setSelected: (state, action: PayloadAction<LinesState['selected']>) => {
 			state.selected = uniq(action.payload).sort((a, b) => {
-				return a.id - b.id;
+				return a - b;
 			});
 		},
 		setLinesSort: (state, action: PayloadAction<LinesState['linesTable']['sort']>) => {
@@ -214,26 +211,10 @@ export const {
 // Export the slice reducer for use in the store configuration
 export default linesSlice.reducer;
 
-export const setLineVisible = (id: number, visible?: boolean): AppThunk => {
-	return (dispatch, getState) => {
-		const selected = selectSelected(getState());
-		const idx = selected.findIndex((a) => a.id === id);
-		if (-1 === idx) {
-			return;
-		}
-		const newSelected = [...selected];
-		newSelected.splice(idx, 1, {
-			...selected[idx],
-			visible: undefined !== visible ? visible : !selected[idx].visible,
-		});
-		dispatch(linesSlice.actions.setSelected(newSelected));
-	};
-};
-
 export const setLineSelected = (id: number, isSelected?: boolean): AppThunk => {
 	return (dispatch, getState) => {
 		const selected = selectSelected(getState());
-		const idx = selected.findIndex((a) => a.id === id);
+		const idx = selected.indexOf(id);
 		// Nothing to do, get out.
 		if (
 			undefined !== isSelected &&
@@ -244,10 +225,7 @@ export const setLineSelected = (id: number, isSelected?: boolean): AppThunk => {
 		// Create new array, add/remove element and dispatch.
 		const newSelected = [...selected];
 		if (-1 === idx) {
-			newSelected.push({
-				id,
-				visible: true,
-			});
+			newSelected.push(id);
 		} else {
 			newSelected.splice(idx, 1);
 		}
@@ -258,14 +236,7 @@ export const setLineSelected = (id: number, isSelected?: boolean): AppThunk => {
 export const setLinesSelected = (newSelectedIds: number[]): AppThunk => {
 	return (dispatch, getState) => {
 		const selected = selectSelected(getState());
-		const selectedMap = new Map(selected.map((item) => [item.id, item]));
-		const newSelected = [...newSelectedIds]
-			.sort((a, b) => a - b)
-			.map((newSelectedId) => ({
-				id: newSelectedId,
-				...(selectedMap.get(newSelectedId) ?? {}),
-				visible: true,
-			}));
+		const newSelected = [...newSelectedIds].sort((a, b) => a - b);
 		if (!isEqual(selected, newSelected)) {
 			dispatch(linesSlice.actions.setSelected(newSelected));
 		}

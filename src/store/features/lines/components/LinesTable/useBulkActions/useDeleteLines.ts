@@ -9,7 +9,7 @@ import { uniq, without } from 'lodash-es';
  */
 import { FooterContext } from '../Context';
 import { useAppDispatch, useAppSelector } from '../../../../../hooks';
-import { selectSelectedInfos } from '../../../selectors';
+import { selectSelected } from '../../../selectors';
 import { setLinesSelected } from '../../../slice';
 import useDeleteLinesCbModal from '../../../hooks/useDeleteLinesCbModal';
 
@@ -19,7 +19,7 @@ const useDeleteLines = () => {
 
 	const dispatch = useAppDispatch();
 
-	const { selectedIds } = useAppSelector(selectSelectedInfos);
+	const selectedIds = useAppSelector(selectSelected);
 
 	// Exclude the routing line from bulk deletion — deleting the
 	// line that is currently being routed would orphan the active

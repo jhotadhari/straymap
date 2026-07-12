@@ -98,16 +98,7 @@ const LinesMapView = () => {
 		};
 	}, [currentMapEventRef, mapUpdateInterval]);
 
-	const { selectedIds, visibleMap } = useMemo(
-		() => ({
-			selectedIds: selected.map((a) => a.id),
-			visibleMap: selected.reduce<Record<string, boolean>>((acc, a) => {
-				acc[a.id] = a.visible;
-				return acc;
-			}, {}),
-		}),
-		[selected]
-	);
+	const selectedIds = selected;
 
 	// Batch query with coarse bbox in the key.  DB filters lines outside
 	// the snapped bbox before Simplify(); key only changes on large pans.
@@ -139,14 +130,11 @@ const LinesMapView = () => {
 
 	const linesToRender = useMemo(() => {
 		if (!lines) return [];
-		return lines.filter(
-			(l) => l.id !== routingLineId && l.id !== recordingLineId && visibleMap[l.id]
-		);
+		return lines.filter((l) => l.id !== routingLineId && l.id !== recordingLineId);
 	}, [
 		lines,
 		routingLineId,
 		recordingLineId,
-		visibleMap,
 	]);
 
 	const pathElements = useMemo(() => {

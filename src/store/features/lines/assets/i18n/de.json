@@ -52,7 +52,6 @@
 	"editFilter": "Filter bearbeiten",
 	"linesBrowser": "Routen-Browser",
 	"linesCount": "%s Routen",
-	"linesHidden": "%s versteckt",
 	"noLinesSelected": "Keine Routen ausgewählt",
 	"line": "Route",
 	"name": "Name",

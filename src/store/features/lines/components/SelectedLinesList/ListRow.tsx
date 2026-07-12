@@ -12,7 +12,7 @@ import { omit, pick } from 'lodash-es';
 import { useAppDispatch } from '../../../../hooks';
 import { Line, LineStats as LineStatsType } from '../../types';
 import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
-import { setLineSelected, setLineTemp, setLineVisible } from '../../slice';
+import { setLineSelected, setLineTemp } from '../../slice';
 import LineStats from '../LineStats';
 import TagBadge from '../TagBadge';
 import IconRouting from '../../../routing/drawerPanels/routing/IconComponent';
@@ -24,12 +24,11 @@ import { sharedStyles } from './sharedDeps';
 export interface ListRowProps {
 	line: Omit<Line, 'geometry'>;
 	idx: number;
-	visible: boolean;
 	isRoutingLine: boolean;
 	stats?: LineStatsType;
 }
 
-const ListRow: FC<ListRowProps> = ({ line, idx, visible }) => {
+const ListRow: FC<ListRowProps> = ({ line, idx }) => {
 	const dispatch = useAppDispatch();
 
 	const activateRoutingDrawerItem = useActivateDrawerItem('routing');
@@ -44,17 +43,13 @@ const ListRow: FC<ListRowProps> = ({ line, idx, visible }) => {
 		[idx, theme]
 	);
 
-	const toggleVisible = useCallback(() => dispatch(setLineVisible(line.id)), [dispatch, line.id]);
-
+	const handleEditPress = useCallback(() => {
+		dispatch(setLineTemp({ id: line.id }));
+	}, [dispatch, line.id]);
 	const toggleSelected = useCallback(
 		() => dispatch(setLineSelected(line.id)),
 		[dispatch, line.id]
 	);
-
-	const handleEditPress = useCallback(() => {
-		dispatch(setLineTemp({ id: line.id }));
-	}, [dispatch, line.id]);
-
 	const { line_id: routingLineId, stats: routingStats } = useRoute(['line_id', 'stats']) || {};
 
 	const stats = (line.id !== routingLineId ? line?.stats : routingStats) ?? {};
@@ -123,18 +118,6 @@ const ListRow: FC<ListRowProps> = ({ line, idx, visible }) => {
 			</View>
 
 			<View style={sharedStyles.noShrink}>
-				<ButtonHighlight
-					mode="text"
-					compact={true}
-					onPress={toggleVisible}
-					disabled={line.id === routingLineId}
-					style={line.id === routingLineId ? sharedStyles.disabled : undefined}
-				>
-					<Icon
-						source={visible ? 'eye-outline' : 'eye-off-outline'}
-						size={DRAWER_ICON_SIZE}
-					/>
-				</ButtonHighlight>
 				<ButtonHighlight
 					mode="text"
 					compact={true}

@@ -14,7 +14,7 @@ import InfoRowControl from '../../../../../components/generic/controls/InfoRowCo
 import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
 import { AppContext } from '../../../../../Context';
 import { useAppSelector } from '../../../../hooks';
-import { selectSelectedInfos } from '../../selectors';
+import { selectSelected } from '../../selectors';
 import { sharedStyles } from './sharedDeps';
 
 const RowFlyTo: FC = () => {
@@ -27,7 +27,7 @@ const RowFlyTo: FC = () => {
 
 	const { line } = useContext(LineEditModalContext);
 
-	const { selectedIds } = useAppSelector(selectSelectedInfos);
+	const selectedIds = useAppSelector(selectSelected);
 
 	const isSelected = useMemo(() => selectedIds.includes(line?.id ?? -1), [selectedIds, line?.id]);
 

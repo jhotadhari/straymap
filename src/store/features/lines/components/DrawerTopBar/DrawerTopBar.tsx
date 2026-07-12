@@ -65,14 +65,7 @@ const DrawerTopBar: FC = () => {
 
 	const selectedLines = useAppSelector(selectSelected);
 
-	const { lineIds, hiddenCount } = useMemo(() => {
-		const lineIds = selectedLines.map((a) => a.id);
-		const hiddenCount = selectedLines.filter((a) => !a.visible).length;
-		return {
-			lineIds,
-			hiddenCount,
-		};
-	}, [selectedLines]);
+	const lineIds = selectedLines;
 
 	const {
 		cb: handleStatsPressed,
@@ -124,10 +117,6 @@ const DrawerTopBar: FC = () => {
 					{lineIds.length > 0 && (
 						<Fragment>
 							<Text>{sprintf(t('lines.linesCount'), lineIds.length)}</Text>
-
-							{hiddenCount > 0 && (
-								<Text>{sprintf(t('lines.linesHidden'), hiddenCount)}</Text>
-							)}
 
 							<ButtonHighlight
 								mode="outlined"

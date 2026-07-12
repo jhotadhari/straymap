@@ -10,12 +10,11 @@ import { ListRenderItem, StyleSheet } from 'react-native';
  * Internal dependencies
  */
 import { useAppSelector } from '../../../../hooks';
-import { selectSelectedInfos } from '../../selectors';
+import { selectSelected } from '../../selectors';
 import { queryLinesWithoutGeom } from '../../db/queryFns';
 import ListRow, { ListRowProps } from './ListRow';
 import DrawerContext from '../../../drawers/DrawerContext';
 import { Line, LineStats } from '../../types';
-import { get } from 'lodash-es';
 import useRoute from '../../../routing/hooks/useRoute';
 
 const keyExtractor = (line: { id: number }) => line.id.toString();
@@ -24,7 +23,6 @@ const ListRowMemo = memo(
 	(props: ListRowProps) => <ListRow {...props} />,
 	(prevProps, nextProps) => {
 		return (
-			prevProps.visible === nextProps.visible &&
 			prevProps.isRoutingLine === nextProps.isRoutingLine &&
 			// prevProps.stats === nextProps.stats &&
 			prevProps.line?.title === nextProps.line?.title
@@ -34,7 +32,7 @@ const ListRowMemo = memo(
 
 const SelectedLinesList: FC = () => {
 	const { width } = useContext(DrawerContext);
-	const { selectedIds, visibleMap } = useAppSelector(selectSelectedInfos);
+	const selectedIds = useAppSelector(selectSelected);
 
 	const { data: lines } = useQuery({
 		queryKey: ['lines', selectedIds],
@@ -55,7 +53,6 @@ const SelectedLinesList: FC = () => {
 					key={line.id}
 					line={line}
 					idx={index}
-					visible={!!get(visibleMap, line?.id)}
 					isRoutingLine={line.id === routingLineId}
 					stats={
 						line.id !== routingLineId
@@ -66,7 +63,6 @@ const SelectedLinesList: FC = () => {
 			);
 		},
 		[
-			visibleMap,
 			routingLineId,
 			routingStats,
 		]

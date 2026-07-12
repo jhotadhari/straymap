@@ -21,7 +21,7 @@ import { uniq, without } from 'lodash-es';
  */
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import {
-	selectSelectedInfos,
+	selectSelected,
 	selectLinesFilterLogic,
 	selectLinesFilters,
 	selectLinesSort,
@@ -63,7 +63,7 @@ const LinesTable: FC = () => {
 
 	const dispatch = useAppDispatch();
 
-	const { selectedIds: onMapIds } = useAppSelector(selectSelectedInfos);
+	const onMapIds = useAppSelector(selectSelected);
 
 	const [onMapIdsTemp, setOnMapIdsTemp] = useState(onMapIds);
 	const toggleOnMapId = useCallback(
