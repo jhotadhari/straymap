@@ -5,7 +5,7 @@
 	"demDir": "DEM Verzeichnis",
 	"selectDemDir": "DEM Verzeichnis auswählen",
 	"addNew": "Neue Karte hinzufügen",
-	"layerAttributions": "Zuschreibungen und Lizenzen für Kartenebenen",
+	"layerAttributions": "Kartendatengrundlage",
 	"cacheSize": "Cache Größe",
 	"cacheDir": "Cache Verzeichnis",
 	"useFirstOne": "Das erste benutzen",

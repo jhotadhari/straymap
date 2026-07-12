@@ -5,7 +5,7 @@
 	"demDir": "Directorio DEM",
 	"selectDemDir": "Seleccionar directorio DEM",
 	"addNew": "Agregar nuevo mapa",
-	"layerAttributions": "Atribuciones y licencias de las capas del mapa",
+	"layerAttributions": "Atribución cartográfica",
 	"cacheSize": "Tamaño de caché",
 	"cacheDir": "Directorio de caché",
 	"useFirstOne": "Usar el primero",

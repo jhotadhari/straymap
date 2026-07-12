@@ -103,7 +103,7 @@ const Inner = ({ layerInfos }: { layerInfos: { [value: string]: LayerInfo } }) =
 						<Text>
 							{t('baseMap.layer', { count: 1 })}: {attribution.name}
 						</Text>
-						<Text>({attribution.type})</Text>
+						<Text>[{attribution.type}]</Text>
 						<View style={styles.componentWrapper}>
 							<Component />
 						</View>
