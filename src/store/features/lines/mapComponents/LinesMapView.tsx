@@ -171,6 +171,11 @@ const LinesMapView = () => {
 		});
 	}, [linesToRender, simplify]);
 
+	useEffect(() => {
+
+		console.log( 'debug linesToRender, simplify', linesToRender, simplify ); // debug
+	}, [linesToRender, simplify])
+
 	return (
 		<ReindexScope order={200}>
 			<SharedLayer>{pathElements}</SharedLayer>
