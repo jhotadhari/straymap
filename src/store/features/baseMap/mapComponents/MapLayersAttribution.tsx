@@ -179,6 +179,7 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		width: buttonSize,
 		height: buttonSize,
+		zIndex: 20,
 	},
 });
 

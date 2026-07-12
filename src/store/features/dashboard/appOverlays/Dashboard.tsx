@@ -210,7 +210,7 @@ export const DashboardWrapped: FC<{
 
 	const styleResult: ViewProps['style'] = useMemo( () => [
 		style,
-		isEditingDashboard ? { zIndex: 999 } : undefined,
+		{ zIndex: isEditingDashboard ? 999 : 20 },
 	], [isEditingDashboard] )
 
 	if (isEditingDashboard) {
