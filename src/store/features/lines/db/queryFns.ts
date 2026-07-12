@@ -64,23 +64,29 @@ export const queryLinesWithoutGeom = ({
  *  queryKey: ['lineGeom', lineId],
  */
 export const queryLineGeom = ({ queryKey }: { queryKey: (string | number)[] }) => {
-	return new Promise<null | WithRequired<LinePartial, 'geometry'>>((resolve, reject) => {
-		if (queryKey.length < 2 || 'number' !== typeof queryKey[1]) {
-			return resolve(null);
-		}
-		fetchLines({
-			lineIds: [queryKey[1]],
-			fieldsInclude: ['geometry'],
-			...(queryKey.length > 2 &&
-				'number' === typeof queryKey[2] && { simplify: queryKey[2] }),
-		})
-			.then((lines) => {
-				resolve(lines.length ? (lines[0] as WithRequired<LinePartial, 'geometry'>) : null);
+	return new Promise<null | WithRequired<LinePartial, 'geometry' | 'envelope'>>(
+		(resolve, reject) => {
+			if (queryKey.length < 2 || 'number' !== typeof queryKey[1]) {
+				return resolve(null);
+			}
+			fetchLines({
+				lineIds: [queryKey[1]],
+				fieldsInclude: ['geometry', 'envelope'],
+				...(queryKey.length > 2 &&
+					'number' === typeof queryKey[2] && { simplify: queryKey[2] }),
 			})
-			.catch((error) => {
-				reject(error);
-			});
-	});
+				.then((lines) => {
+					resolve(
+						lines.length
+							? (lines[0] as WithRequired<LinePartial, 'geometry' | 'envelope'>)
+							: null
+					);
+				})
+				.catch((error) => {
+					reject(error);
+				});
+		}
+	);
 };
 
 /**
@@ -162,14 +168,14 @@ export const queryTagsWithLineCounts = ({
 
 /**
  * Batch-fetch geometry for multiple line IDs at a given simplification
- * tolerance.
+ * tolerance, optionally filtered to a coarse geographic bounding box.
  *
  * Replaces N individual ['lineGeom', lineId, simplify] queries with a single
- * DB call.  Viewport culling is left to VTM's native drawable-visibility
- * logic — no spatial WHERE filter here.
+ * DB call.  When `bbox` is provided, SpatiaLite filters rows via
+ * `MbrIntersects` (using the R-tree spatial index) before `Simplify()` runs.
  *
  * Used with:
- *  queryKey: ['lineGeomsBatch', selectedIds, simplify],
+ *  queryKey: ['lineGeomsBatch', selectedIds, simplify, bbox],
  */
 export const queryLineGeomsBatch = ({
 	queryKey,
@@ -178,12 +184,22 @@ export const queryLineGeomsBatch = ({
 		string,
 		number[],
 		number,
+		(
+			| [
+					number,
+					number,
+					number,
+					number,
+			  ]
+			| null
+		),
 	];
 }) => {
 	const [
 		_prefix,
 		lineIds,
 		simplify,
+		bbox,
 	] = queryKey;
 
 	if (!lineIds.length) {
@@ -194,5 +210,6 @@ export const queryLineGeomsBatch = ({
 		lineIds,
 		fieldsInclude: ['geometry'],
 		simplify,
+		...(bbox && { bbox }),
 	}) as Promise<WithRequired<LinePartial, 'geometry'>[]>;
 };
