@@ -6,28 +6,14 @@
  * `tag.data.color` use that hex value directly.
  */
 
-export interface TagColors {
-	bg: string;
-	fg: string;
-	border: string;
-}
-
 /**
- * 10-colour palette with matching foreground/border tones.
- * Hues spaced ~40° apart, all at 100% HSL saturation for maximum vividness.
+ * Internal dependencies
  */
-export const TAG_COLORS: TagColors[] = [
-	{ bg: '#F50000', fg: '#FFFFFF', border: '#B80000' }, // red       (0°)
-	{ bg: '#FFAA00', fg: '#3D1F00', border: '#CC8800' }, // orange   (40°)
-	{ bg: '#8CD600', fg: '#1F3300', border: '#6BA600' }, // chartreuse (80°)
-	{ bg: '#00DB00', fg: '#003300', border: '#00A800' }, // green    (120°)
-	{ bg: '#00C280', fg: '#003325', border: '#009960' }, // teal     (160°)
-	{ bg: '#0099E6', fg: '#FFFFFF', border: '#0077B8' }, // azure    (200°)
-	{ bg: '#1A1AFF', fg: '#FFFFFF', border: '#0000CC' }, // blue     (240°)
-	{ bg: '#8000FF', fg: '#FFFFFF', border: '#6000CC' }, // violet   (280°)
-	{ bg: '#F500A3', fg: '#FFFFFF', border: '#B8007A' }, // magenta  (320°)
-	{ bg: '#F50057', fg: '#FFFFFF', border: '#B8003F' }, // rose     (340°)
-];
+import type { PaletteColor } from '../../../components/ColorPalette/palette';
+import { PALETTE_COLORS } from '../../../components/ColorPalette/palette';
+
+export type { PaletteColor };
+export { PALETTE_COLORS };
 
 /**
  * Simple string hash → palette index.  Deterministic for the same label.
@@ -47,7 +33,11 @@ const hashLabel = (label: string): number => {
  * 1. Explicit `tag.data.color` (hex, e.g. "#ff6600")
  * 2. Deterministic palette colour from the tag's label
  */
-export const getTagColor = (tag: { id?: number; label?: string | null; data?: any }): TagColors => {
+export const getTagColor = (tag: {
+	id?: number;
+	label?: string | null;
+	data?: any;
+}): PaletteColor => {
 	// Explicit colour stored in tag data
 	if (typeof tag.data?.color === 'string' && tag.data.color.length > 0) {
 		let hex = tag.data.color as string;
@@ -71,6 +61,6 @@ export const getTagColor = (tag: { id?: number; label?: string | null; data?: an
 
 	// Deterministic from label
 	const label = tag.label ?? '';
-	const idx = hashLabel(label) % TAG_COLORS.length;
-	return TAG_COLORS[idx];
+	const idx = hashLabel(label) % PALETTE_COLORS.length;
+	return PALETTE_COLORS[idx];
 };

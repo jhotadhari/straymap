@@ -16,8 +16,8 @@ import { logError } from '../../../../../lib/utils';
 import { ErrorToastContext } from '../../../../../components/ErrorToast/Context';
 import { sprintf } from 'sprintf-js';
 import ModalWrapper from '../../../../../components/generic/ModalWrapper';
-import ColorPaletteInline from '../ColorPaletteInline';
-import { TAG_COLORS } from '../../tagColor';
+import ColorPaletteInline from '../../../../../components/ColorPalette/ColorPaletteInline';
+import { PALETTE_COLORS } from '../../tagColor';
 import { sharedStyles } from '../sharedDeps';
 
 const useChangeTagColor = () => {
@@ -27,7 +27,7 @@ const useChangeTagColor = () => {
 	const queryClient = useQueryClient();
 
 	const [modalVisible, setModalVisible] = useState(false);
-	const [selectedColor, setSelectedColor] = useState(TAG_COLORS[0].bg);
+	const [selectedColor, setSelectedColor] = useState(PALETTE_COLORS[0].bg);
 
 	const mutation = useMutation({
 		mutationFn: async (color: string) => {
@@ -48,7 +48,7 @@ const useChangeTagColor = () => {
 	});
 
 	const openModal = useCallback(() => {
-		setSelectedColor(TAG_COLORS[0].bg);
+		setSelectedColor(PALETTE_COLORS[0].bg);
 		setModalVisible(true);
 	}, []);
 

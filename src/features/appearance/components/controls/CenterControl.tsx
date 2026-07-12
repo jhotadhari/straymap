@@ -5,7 +5,7 @@ import React, { useCallback } from 'react';
 import { View } from 'react-native';
 import { Icon, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import ColorPicker from 'react-native-wheel-color-picker';
+import ColorPaletteInline from '../../../../components/ColorPalette/ColorPaletteInline';
 import { sprintf } from 'sprintf-js';
 import { get } from 'lodash-es';
 
@@ -141,9 +141,9 @@ const CenterControl = () => {
 						label={t('appearance.color')}
 						Info={t('appearance.hint.center.color')}
 					>
-						<ColorPicker
-							color={cursorConfig?.color}
-							onColorChange={handleColorChange}
+						<ColorPaletteInline
+							selectedColor={cursorConfig?.color}
+							onSelect={handleColorChange}
 						/>
 					</InfoRowControl>
 				)}

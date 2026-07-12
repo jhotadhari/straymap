@@ -24,7 +24,7 @@ export const initialSettings: AppearanceSettings = {
 	cursor: {
 		iconSource: 'target',
 		size: 25,
-		color: '#ed1c23',
+		color: '#F50000',
 	},
 };
 

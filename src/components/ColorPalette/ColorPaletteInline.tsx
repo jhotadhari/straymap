@@ -7,7 +7,7 @@ import { Pressable, View, StyleSheet, ViewProps } from 'react-native';
 /**
  * Internal dependencies
  */
-import { TAG_COLORS } from '../tagColor';
+import { PALETTE_COLORS } from './palette';
 
 const ColorPaletteInline: FC<{
 	selectedColor: string;
@@ -15,7 +15,7 @@ const ColorPaletteInline: FC<{
 	onSelect: (color: string) => void;
 }> = ({ selectedColor, onSelect, style }) => (
 	<View style={[styles.colorRow, style]}>
-		{TAG_COLORS.map((tc) => {
+		{PALETTE_COLORS.map((tc) => {
 			const isSelected = selectedColor === tc.bg;
 			return (
 				<Pressable

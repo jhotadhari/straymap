@@ -13,8 +13,8 @@ import { sprintf } from 'sprintf-js';
  */
 import ModalWrapper from '../../../components/generic/ModalWrapper';
 import ButtonHighlight from '../../../components/generic/ButtonHighlight';
-import ColorPaletteInline from './TagsTable/ColorPaletteInline';
-import { TAG_COLORS } from './tagColor';
+import ColorPaletteInline from '../../../components/ColorPalette/ColorPaletteInline';
+import { PALETTE_COLORS } from './tagColor';
 import { createTags } from '../db/actionsTag';
 import { invalidateTagsTable } from '../db/queryFns';
 import { Tag } from '../types';
@@ -35,7 +35,7 @@ const CreateTagModal: FC<CreateTagModalProps> = ({ visible, onDismiss, onCreated
 	const queryClient = useQueryClient();
 
 	const [label, setLabel] = useState('');
-	const [color, setColor] = useState(TAG_COLORS[0].bg);
+	const [color, setColor] = useState(PALETTE_COLORS[0].bg);
 	const [notes, setNotes] = useState('');
 
 	const createMutation = useMutation({
@@ -58,7 +58,7 @@ const CreateTagModal: FC<CreateTagModalProps> = ({ visible, onDismiss, onCreated
 				});
 			}
 			setLabel('');
-			setColor(TAG_COLORS[0].bg);
+			setColor(PALETTE_COLORS[0].bg);
 			setNotes('');
 		},
 		onError: (err) => {

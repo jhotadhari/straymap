@@ -13,7 +13,7 @@ import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { selectTagTemp } from '../../selectors';
 import { setTagTemp } from '../../slice';
 import { getTagColor } from '../tagColor';
-import ColorPaletteInline from '../TagsTable/ColorPaletteInline';
+import ColorPaletteInline from '../../../../components/ColorPalette/ColorPaletteInline';
 
 const RowColor: FC = () => {
 	const dispatch = useAppDispatch();
