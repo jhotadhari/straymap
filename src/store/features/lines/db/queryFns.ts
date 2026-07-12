@@ -162,16 +162,14 @@ export const queryTagsWithLineCounts = ({
 
 /**
  * Batch-fetch geometry for multiple line IDs at a given simplification
- * tolerance, optionally filtered to a geographic bounding box.
+ * tolerance.
  *
  * Replaces N individual ['lineGeom', lineId, simplify] queries with a single
- * DB call.  When `bbox` is provided, SpatiaLite filters rows via
- * `MbrIntersects` (using the R-tree spatial index) before `Simplify()` and
- * `AsGeoJSON()` run, so only visible lines' simplified geometries cross the
- * bridge.
+ * DB call.  Viewport culling is left to VTM's native drawable-visibility
+ * logic — no spatial WHERE filter here.
  *
  * Used with:
- *  queryKey: ['lineGeomsBatch', selectedIds, simplify, bbox],
+ *  queryKey: ['lineGeomsBatch', selectedIds, simplify],
  */
 export const queryLineGeomsBatch = ({
 	queryKey,
@@ -180,22 +178,12 @@ export const queryLineGeomsBatch = ({
 		string,
 		number[],
 		number,
-		(
-			| [
-					number,
-					number,
-					number,
-					number,
-			  ]
-			| null
-		),
 	];
 }) => {
 	const [
 		_prefix,
 		lineIds,
 		simplify,
-		bbox,
 	] = queryKey;
 
 	if (!lineIds.length) {
@@ -206,6 +194,5 @@ export const queryLineGeomsBatch = ({
 		lineIds,
 		fieldsInclude: ['geometry'],
 		simplify,
-		...(bbox && { bbox }),
 	}) as Promise<WithRequired<LinePartial, 'geometry'>[]>;
 };
