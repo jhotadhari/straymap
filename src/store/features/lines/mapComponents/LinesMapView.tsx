@@ -1,80 +1,105 @@
 /**
  * External dependencies
  */
-import React, { FC, useEffect, useMemo, useRef } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { GeometryStyle, LayerPath, ReindexScope, SharedLayer } from 'react-native-mapsforge-vtm';
 
 /**
  * Internal dependencies
  */
+import { MapContext } from '../../../../Context';
 import { useAppSelector } from '../../../hooks';
 import { selectSelected } from '../selectors';
 import { selectRoutingLineId } from '../../routing/selectors';
 import { selectActiveLineId } from '../../trackRecording/selectors';
-import { queryLineGeom } from '../db/queryFns';
+import { selectMapUpdateInterval } from '../../general/selectors';
+import { queryLineGeomsBatch } from '../db/queryFns';
 import useSimplificationTolerance from '../hooks/useSimplificationTolerance';
+import {
+	computeViewportBbox,
+	ViewportBbox,
+	snapBboxToTiles,
+} from '../../../../compose/mercatorMath';
 
 const BASE_STROKE_WIDTH = 5;
 
-// GeometryStyle is a custom map-layer style type, not an RN ViewStyle, so it stays a plain object.
-const defaultPathStyle: GeometryStyle = {
-	strokeColor: '#ff0000',
-	strokeWidth: BASE_STROKE_WIDTH,
-};
-
-const LineItem: FC<{
-	lineId: number;
-	simplify?: number;
-	strokeColor?: string;
-}> = ({ lineId, simplify, strokeColor }) => {
-	// Fetch geometry only — tag colour comes from the parent batch query
-	const { data: line } = useQuery({
-		queryKey: [
-			'lineGeom',
-			lineId,
-			...(simplify ? [simplify] : []),
-		],
-		queryFn: queryLineGeom,
-		gcTime: 1000 * 10,
-	});
-
-	const pathStyle = useMemo((): GeometryStyle => {
-		if (strokeColor) {
-			// getTagColor always returns valid #RRGGBB hex (palette or normalised custom),
-			// so the value is safe for GeometryStyle's `#${string}` constraint.
-			return {
-				strokeColor: strokeColor as `#${string}`,
-				strokeWidth: BASE_STROKE_WIDTH,
-			};
-		}
-		return defaultPathStyle;
-	}, [strokeColor]);
-
-	const coordsLastRef = useRef<undefined | number[][]>(undefined);
-	useEffect(() => {
-		if (line?.geometry?.coordinates) {
-			coordsLastRef.current = line?.geometry?.coordinates;
-		}
-	}, [line?.geometry?.coordinates]);
-
-	if (!line?.geometry?.coordinates || !coordsLastRef?.current) return undefined;
-
-	return (
-		<LayerPath
-			coordinates={line?.geometry?.coordinates ?? coordsLastRef?.current}
-			style={pathStyle}
-		/>
-	);
-};
+const bboxKey = (bbox: ViewportBbox | null): string =>
+	bbox ? `${bbox[0]},${bbox[1]},${bbox[2]},${bbox[3]}` : 'null';
 
 const LinesMapView = () => {
 	const selected = useAppSelector(selectSelected);
+	const routingLineId = useAppSelector(selectRoutingLineId);
+	const recordingLineId = useAppSelector(selectActiveLineId);
+	const simplify = useSimplificationTolerance();
 
+	// Viewport geographic bounding box for DB-side culling.
+	const { currentMapEventRef } = useContext(MapContext);
+	const mapUpdateInterval = useAppSelector(selectMapUpdateInterval);
+	const [viewportBbox, setViewportBbox] = useState<ViewportBbox | null>(null);
+
+	// Throttled bbox computation.
+	const bboxTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+	const lastBboxKeyRef = useRef<string | null>(null);
+	useEffect(() => {
+		const scheduleBbox = () => {
+			if (bboxTimeoutRef.current) return;
+
+			const evt = currentMapEventRef?.current;
+			if (
+				!evt?.center ||
+				evt.center.length < 2 ||
+				evt.zoomLevel == null ||
+				!evt.viewportWidth ||
+				!evt.viewportHeight
+			) {
+				return;
+			}
+
+			bboxTimeoutRef.current = setTimeout(() => {
+				bboxTimeoutRef.current = null;
+				const fresh = currentMapEventRef?.current;
+				if (
+					!fresh?.center ||
+					fresh.center.length < 2 ||
+					fresh.zoomLevel == null ||
+					!fresh.viewportWidth ||
+					!fresh.viewportHeight
+				) {
+					return;
+				}
+				let bbox = computeViewportBbox(
+					fresh.center as [number, number],
+					fresh.zoomLevel!,
+					fresh.viewportWidth!,
+					fresh.viewportHeight!,
+					fresh.bearing ?? 0,
+					fresh.tilt ?? 0
+				);
+				if (bbox) {
+					const tileZoom = Math.max(0, Math.floor(fresh.zoomLevel!) - 3);
+					bbox = snapBboxToTiles(bbox, tileZoom);
+				}
+				const key = bboxKey(bbox);
+				if (key !== lastBboxKeyRef.current) {
+					lastBboxKeyRef.current = key;
+					setViewportBbox(bbox);
+				}
+			}, 100);
+		};
+
+		const interval = setInterval(scheduleBbox, mapUpdateInterval);
+		return () => {
+			clearInterval(interval);
+			if (bboxTimeoutRef.current) clearTimeout(bboxTimeoutRef.current);
+		};
+	}, [currentMapEventRef, mapUpdateInterval]);
+
+	// Stable derived values from Redux.
 	const { selectedIds, visibleMap } = useMemo(
 		() => ({
 			selectedIds: selected.map((a) => a.id),
-			visibleMap: selected.reduce<{ [id: string]: boolean }>((acc, a) => {
+			visibleMap: selected.reduce<Record<string, boolean>>((acc, a) => {
 				acc[a.id] = a.visible;
 				return acc;
 			}, {}),
@@ -82,33 +107,73 @@ const LinesMapView = () => {
 		[selected]
 	);
 
-	const routingLineId = useAppSelector(selectRoutingLineId);
-	const recordingLineId = useAppSelector(selectActiveLineId);
+	// Single batch query.
+	const { data: lines } = useQuery({
+		queryKey: [
+			'lineGeomsBatch',
+			selectedIds,
+			simplify ?? 0,
+			viewportBbox,
+		] as const,
+		queryFn: queryLineGeomsBatch,
+		enabled: simplify !== undefined && selectedIds.length > 0,
+		gcTime: 1000 * 10,
+		placeholderData: keepPreviousData,
+	});
 
-	console.log( 'debug routingLineId', routingLineId ); // debug
+	// Persistent coordinate cache.  Only updated when coordinates actually
+	// change (length + first-point heuristic), so LayerPath receives stable
+	// references and skips unnecessary native updates.
+	const coordsCacheRef = useRef<Map<number, number[][]>>(new Map());
+	if (lines) {
+		const cache = coordsCacheRef.current;
+		for (const line of lines) {
+			const next = line.geometry?.coordinates;
+			if (!next) continue;
+			const prev = cache.get(line.id);
+			if (!prev || prev.length !== next.length || prev[0]?.[0] !== next[0]?.[0]) {
+				cache.set(line.id, next);
+			}
+		}
+	}
 
-	const simplify = useSimplificationTolerance();
+	// Exclude routing / recording / hidden lines.  Viewport culling is done
+	// by the DB via MbrIntersects.
+	const linesToRender = useMemo(() => {
+		if (!lines) return [];
+		return lines.filter(
+			(l) => l.id !== routingLineId && l.id !== recordingLineId && visibleMap[l.id]
+		);
+	}, [
+		lines,
+		routingLineId,
+		recordingLineId,
+		visibleMap,
+	]);
+
+	// Memoize the entire path subtree so map-event-driven re-renders at
+	// ~25 Hz don't touch the native LayerPath elements at all.
+	const pathElements = useMemo(() => {
+		if (simplify === undefined) return undefined;
+		return linesToRender.map((line) => {
+			const coords = coordsCacheRef.current.get(line.id);
+			if (!coords) return undefined;
+			return (
+				<LayerPath
+					key={line.id}
+					coordinates={coords}
+					style={{
+						strokeColor: '#ff2222' as `#${string}`,
+						strokeWidth: BASE_STROKE_WIDTH,
+					}}
+				/>
+			);
+		});
+	}, [linesToRender, simplify]);
 
 	return (
 		<ReindexScope order={200}>
-			<SharedLayer>
-				{simplify === undefined
-					? undefined
-					: selectedIds?.map((lineId) => {
-							return (
-								routingLineId !== lineId &&
-								recordingLineId !== lineId &&
-								visibleMap[lineId] && (
-									<LineItem
-										key={lineId}
-										lineId={lineId}
-										simplify={simplify}
-										strokeColor={'#ff2222'}
-									/>
-								)
-							);
-						})}
-			</SharedLayer>
+			<SharedLayer>{pathElements}</SharedLayer>
 		</ReindexScope>
 	);
 };

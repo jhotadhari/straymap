@@ -100,6 +100,12 @@ interface FetchLinesWithoutTagsParams {
 	fieldsInclude?: (keyof Omit<Line, 'id' | 'tags'>)[];
 	fieldsExclude?: (keyof Omit<Line, 'id'>)[];
 	simplify?: number;
+	bbox?: [
+		number,
+		number,
+		number,
+		number,
+	]; // [west, south, east, north]
 	sort?: SortState | null;
 	filters?: ColumnFilter[];
 	filterLogic?: FilterLogic;
@@ -114,6 +120,12 @@ interface FetchLinesWithTagsParams {
 	fieldsInclude?: (keyof Omit<Line, 'id'>)[];
 	fieldsExclude?: (keyof Omit<Line, 'id'>)[];
 	simplify?: number;
+	bbox?: [
+		number,
+		number,
+		number,
+		number,
+	]; // [west, south, east, north]
 	sort?: SortState | null;
 	filters?: ColumnFilter[];
 	filterLogic?: FilterLogic;
@@ -207,6 +219,7 @@ const fetchLinesWithoutTags = (params?: FetchLinesWithoutTagsParams) => {
 		sort,
 		filters,
 		filterLogic,
+		bbox,
 	} = params ?? {};
 
 	const { sqlFilters, regexFilters } = extractRegexFilters(filters);
@@ -236,7 +249,26 @@ const fetchLinesWithoutTags = (params?: FetchLinesWithoutTagsParams) => {
 			.from(linesTable);
 
 		const filterClause = buildWhereClause(sqlFilters, filterLogic);
-		query.where(and(lineIds ? inArray(linesTable.id, lineIds) : undefined, filterClause));
+		query.where(
+			and(
+				lineIds ? inArray(linesTable.id, lineIds) : undefined,
+				bbox
+					? sql`
+							MbrIntersects (
+								${linesTable.geometry},
+								BuildMbr (
+									${bbox[0]},
+									${bbox[1]},
+									${bbox[2]},
+									${bbox[3]},
+									4326
+								)
+							)
+						`
+					: undefined,
+				filterClause
+			)
+		);
 
 		const orderByClause = buildOrderByClause(sort);
 		query.orderBy(orderByClause ?? desc(linesTable.created_at));
@@ -266,6 +298,7 @@ const fetchLinesWithTags = (params?: FetchLinesWithTagsParams) => {
 		fieldsInclude,
 		fieldsExclude,
 		simplify,
+		bbox,
 		sort,
 		filters,
 		filterLogic,
@@ -335,6 +368,20 @@ const fetchLinesWithTags = (params?: FetchLinesWithTagsParams) => {
 			and(
 				lineIds ? inArray(linesTable.id, lineIds) : undefined,
 				tagId ? eq(tagsTable.id, tagId) : undefined,
+				bbox
+					? sql`
+							MbrIntersects (
+								${linesTable.geometry},
+								BuildMbr (
+									${bbox[0]},
+									${bbox[1]},
+									${bbox[2]},
+									${bbox[3]},
+									4326
+								)
+							)
+						`
+					: undefined,
 				filterClause
 			)
 		);
