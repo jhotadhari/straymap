@@ -9,14 +9,14 @@ import { useTranslation } from 'react-i18next';
 /**
  * Internal dependencies
  */
-import ModalWrapper from '../../../../../../components/generic/ModalWrapper';
-import ButtonHighlight from '../../../../../../components/generic/ButtonHighlight';
-import InfoRowControl from '../../../../../../components/generic/controls/InfoRowControl';
-import HintLink from '../../../../../../components/generic/HintLink';
-import RadioListItem from '../../../../../../components/generic/RadioListItem';
-import { sharedStyles as appSharedStyles } from '../../../../../../sharedStyles';
-import { sharedStyles } from '../sharedDeps';
-import { StringColumnFilter, StringFilterOperator } from '../../../types';
+import ModalWrapper from '../../../../../components/generic/ModalWrapper';
+import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
+import InfoRowControl from '../../../../../components/generic/controls/InfoRowControl';
+import HintLink from '../../../../../components/generic/HintLink';
+import RadioListItem from '../../../../../components/generic/RadioListItem';
+import { sharedStyles as appSharedStyles } from '../../../../../sharedStyles';
+import { sharedStyles } from './sharedDeps';
+import { StringColumnFilter, StringFilterOperator } from '../../types';
 
 const OPERATORS: StringFilterOperator[] = [
 	'includes',

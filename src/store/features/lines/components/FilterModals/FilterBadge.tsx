@@ -9,11 +9,11 @@ import { useTranslation } from 'react-i18next';
 /**
  * Internal dependencies
  */
-import { useAppSelector } from '../../../../../hooks';
-import { selectUnitPrefs } from '../../../../general/selectors';
-import { formatDistance, formatHeightDepth } from '../../../../../../lib/formatting';
-import { getUnitPrefKey } from '../sharedDeps';
-import { ColumnFilter } from '../../../types';
+import { useAppSelector } from '../../../../hooks';
+import { selectUnitPrefs } from '../../../general/selectors';
+import { formatDistance, formatHeightDepth } from '../../../../../lib/formatting';
+import { getUnitPrefKey } from './sharedDeps';
+import { ColumnFilter } from '../../types';
 
 const formatFilterSummary = (
 	filter: ColumnFilter,

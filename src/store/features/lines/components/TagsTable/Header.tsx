@@ -20,8 +20,8 @@ import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
 import IconButtonHighlight from '../../../../../components/generic/IconButtonHighlight';
 import TagSelectColumns from './SelectColumns';
 import TagFilterModals from './FilterModals';
-import FilterBadge from '../LinesTable/FilterModals/FilterBadge';
-import FilterConflictModal from '../LinesTable/FilterModals/FilterConflictModal';
+import FilterBadge from '../FilterModals/FilterBadge';
+import FilterConflictModal from '../FilterModals/FilterConflictModal';
 
 const TagHeader: FC = () => {
 	const theme = useTheme();

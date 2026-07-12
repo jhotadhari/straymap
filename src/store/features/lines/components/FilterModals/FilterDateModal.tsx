@@ -11,12 +11,12 @@ import dayjs from 'dayjs';
 /**
  * Internal dependencies
  */
-import ModalWrapper from '../../../../../../components/generic/ModalWrapper';
-import ButtonHighlight from '../../../../../../components/generic/ButtonHighlight';
-import InfoRowControl from '../../../../../../components/generic/controls/InfoRowControl';
-import { sharedStyles as appSharedStyles } from '../../../../../../sharedStyles';
-import { sharedStyles } from '../sharedDeps';
-import { DateColumnFilter } from '../../../types';
+import ModalWrapper from '../../../../../components/generic/ModalWrapper';
+import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
+import InfoRowControl from '../../../../../components/generic/controls/InfoRowControl';
+import { sharedStyles as appSharedStyles } from '../../../../../sharedStyles';
+import { sharedStyles } from './sharedDeps';
+import { DateColumnFilter } from '../../types';
 
 const dateToString = (d: Date | undefined): string | undefined => {
 	if (!d) {

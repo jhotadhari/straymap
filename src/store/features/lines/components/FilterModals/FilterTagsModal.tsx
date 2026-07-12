@@ -11,16 +11,16 @@ import Popover, { PopoverPlacement } from 'react-native-popover-view';
 /**
  * Internal dependencies
  */
-import ModalWrapper from '../../../../../../components/generic/ModalWrapper';
-import ButtonHighlight from '../../../../../../components/generic/ButtonHighlight';
-import InfoRowControl from '../../../../../../components/generic/controls/InfoRowControl';
-import RadioListItem from '../../../../../../components/generic/RadioListItem';
-import MenuItem from '../../../../../../components/generic/MenuItem';
-import LoadingIndicator from '../../../../../../components/generic/LoadingIndicator';
-import { sharedStyles as appSharedStyles } from '../../../../../../sharedStyles';
-import { sharedStyles } from '../sharedDeps';
-import { queryAllTags } from '../../../db/queryFns';
-import { TagsColumnFilter, TagsFilterOperator } from '../../../types';
+import ModalWrapper from '../../../../../components/generic/ModalWrapper';
+import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
+import InfoRowControl from '../../../../../components/generic/controls/InfoRowControl';
+import RadioListItem from '../../../../../components/generic/RadioListItem';
+import MenuItem from '../../../../../components/generic/MenuItem';
+import LoadingIndicator from '../../../../../components/generic/LoadingIndicator';
+import { sharedStyles as appSharedStyles } from '../../../../../sharedStyles';
+import { sharedStyles } from './sharedDeps';
+import { queryAllTags } from '../../db/queryFns';
+import { TagsColumnFilter, TagsFilterOperator } from '../../types';
 
 const OPERATORS: TagsFilterOperator[] = ['has', 'notHas'];
 

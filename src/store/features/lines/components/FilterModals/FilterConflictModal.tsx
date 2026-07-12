@@ -8,9 +8,9 @@ import { useTranslation } from 'react-i18next';
 /**
  * Internal dependencies
  */
-import ModalWrapper from '../../../../../../components/generic/ModalWrapper';
-import { sharedStyles } from '../sharedDeps';
-import { FilterConflict } from '../../../db/filterConflicts';
+import ModalWrapper from '../../../../../components/generic/ModalWrapper';
+import { sharedStyles } from './sharedDeps';
+import { FilterConflict } from '../../db/filterConflicts';
 
 const FilterConflictModal: FC<{
 	visible: boolean;

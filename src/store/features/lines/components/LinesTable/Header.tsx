@@ -19,8 +19,8 @@ import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
 import IconButtonHighlight from '../../../../../components/generic/IconButtonHighlight';
 import SelectColumns from './SelectColumns';
 import FilterModals from './FilterModals';
-import FilterBadge from './FilterModals/FilterBadge';
-import FilterConflictModal from './FilterModals/FilterConflictModal';
+import FilterBadge from '../FilterModals/FilterBadge';
+import FilterConflictModal from '../FilterModals/FilterConflictModal';
 import { ColumnFilter } from '../../types';
 import { sprintf } from 'sprintf-js';
 

@@ -9,12 +9,12 @@ import { useTranslation } from 'react-i18next';
 /**
  * Internal dependencies
  */
-import ModalWrapper from '../../../../../../components/generic/ModalWrapper';
-import ButtonHighlight from '../../../../../../components/generic/ButtonHighlight';
-import InfoRowControl from '../../../../../../components/generic/controls/InfoRowControl';
-import { sharedStyles as appSharedStyles } from '../../../../../../sharedStyles';
-import { useAppSelector } from '../../../../../hooks';
-import { selectUnitPrefs } from '../../../../general/selectors';
+import ModalWrapper from '../../../../../components/generic/ModalWrapper';
+import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
+import InfoRowControl from '../../../../../components/generic/controls/InfoRowControl';
+import { sharedStyles as appSharedStyles } from '../../../../../sharedStyles';
+import { useAppSelector } from '../../../../hooks';
+import { selectUnitPrefs } from '../../../general/selectors';
 import {
 	toDisplayDistance,
 	toDisplayHeightDepth,
@@ -22,9 +22,9 @@ import {
 	parseHeightDepth,
 	getDistanceUnitSuffix,
 	getHeightDepthUnitSuffix,
-} from '../../../../../../lib/formatting';
-import { sharedStyles, getUnitPrefKey } from '../sharedDeps';
-import { NumericColumnFilter } from '../../../types';
+} from '../../../../../lib/formatting';
+import { sharedStyles, getUnitPrefKey } from './sharedDeps';
+import { NumericColumnFilter } from '../../types';
 
 const FilterNumericModal: FC<{
 	visible: boolean;
