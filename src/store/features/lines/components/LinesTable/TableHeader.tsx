@@ -13,8 +13,13 @@ import Popover, { PopoverPlacement } from 'react-native-popover-view';
 import { sharedStyles, cellConfigs, getCellCategory, getFilterColumnType } from './sharedDeps';
 import { TableColumn } from '../../types';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
-import { selectTableColumns, selectSort, selectFilters } from '../../selectors';
-import { toggleSort, setTableColumns, setSort, removeFilter } from '../../slice';
+import { selectLinesTableColumns, selectLinesSort, selectLinesFilters } from '../../selectors';
+import {
+	toggleLinesSort,
+	setLinesTableColumns,
+	setLinesSort,
+	removeLinesFilter,
+} from '../../slice';
 import MenuItem from '../../../../../components/generic/MenuItem';
 import { ColumnHeaderMenuContext } from './Context';
 
@@ -29,10 +34,10 @@ const TableHeader: FC<{
 
 	const dispatch = useAppDispatch();
 
-	const sort = useAppSelector(selectSort);
-	const filters = useAppSelector(selectFilters);
+	const sort = useAppSelector(selectLinesSort);
+	const filters = useAppSelector(selectLinesFilters);
 
-	const tableColumns: TableColumn[] = useAppSelector(selectTableColumns);
+	const tableColumns: TableColumn[] = useAppSelector(selectLinesTableColumns);
 
 	const { openFilterForColumn } = useContext(ColumnHeaderMenuContext);
 
@@ -96,7 +101,7 @@ const TableHeader: FC<{
 
 	const handleSortPress = useCallback(
 		(columnKey: string) => {
-			dispatch(toggleSort(columnKey));
+			dispatch(toggleLinesSort(columnKey));
 		},
 		[dispatch]
 	);
@@ -109,7 +114,7 @@ const TableHeader: FC<{
 	const handleHideColumn = useCallback(() => {
 		if (!activeColumnKey) return;
 		dispatch(
-			setTableColumns(
+			setLinesTableColumns(
 				tableColumns.map((col) =>
 					col.key === activeColumnKey ? { ...col, visible: false } : col
 				)
@@ -125,7 +130,7 @@ const TableHeader: FC<{
 
 	const handleSortAsc = useCallback(() => {
 		if (!activeColumnKey) return;
-		dispatch(setSort({ columnKey: activeColumnKey, direction: 'asc' }));
+		dispatch(setLinesSort({ columnKey: activeColumnKey, direction: 'asc' }));
 		dismissMenu();
 	}, [
 		activeColumnKey,
@@ -135,7 +140,7 @@ const TableHeader: FC<{
 
 	const handleSortDesc = useCallback(() => {
 		if (!activeColumnKey) return;
-		dispatch(setSort({ columnKey: activeColumnKey, direction: 'desc' }));
+		dispatch(setLinesSort({ columnKey: activeColumnKey, direction: 'desc' }));
 		dismissMenu();
 	}, [
 		activeColumnKey,
@@ -156,7 +161,7 @@ const TableHeader: FC<{
 	const handleRemoveFilter = useCallback(() => {
 		if (!activeColumnKey) return;
 		const columnFilters = filters.filter((f) => f.columnKey === activeColumnKey);
-		columnFilters.forEach((f) => dispatch(removeFilter(f)));
+		columnFilters.forEach((f) => dispatch(removeLinesFilter(f)));
 		dismissMenu();
 	}, [
 		activeColumnKey,

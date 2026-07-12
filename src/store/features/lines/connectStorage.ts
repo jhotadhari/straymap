@@ -14,12 +14,12 @@ import {
 	initialSettings,
 	setInitialized,
 	setSelected,
-	setTableColumns,
-	setSort,
-	setFilters,
-	setFilterLogic,
-	upsertFilter,
-	removeFilter,
+	setLinesTableColumns,
+	setLinesSort,
+	setLinesFilters,
+	setLinesFilterLogic,
+	upsertLinesFilter,
+	removeLinesFilter,
 	setTagsTableColumns,
 	setTagsSort,
 	setTagsFilters,
@@ -54,16 +54,16 @@ export const initializeFromStorage = (store: AppStore) => {
 					store.dispatch(setSelected(newSettings.selected));
 				}
 				if (newSettings?.linesTable?.tableColumns) {
-					store.dispatch(setTableColumns(newSettings.linesTable!.tableColumns));
+					store.dispatch(setLinesTableColumns(newSettings.linesTable!.tableColumns));
 				}
 				if (newSettings?.linesTable?.sort) {
-					store.dispatch(setSort(newSettings.linesTable!.sort));
+					store.dispatch(setLinesSort(newSettings.linesTable!.sort));
 				}
 				if (newSettings?.linesTable?.filters) {
-					store.dispatch(setFilters(newSettings.linesTable!.filters));
+					store.dispatch(setLinesFilters(newSettings.linesTable!.filters));
 				}
 				if (newSettings?.linesTable?.filterLogic) {
-					store.dispatch(setFilterLogic(newSettings.linesTable!.filterLogic));
+					store.dispatch(setLinesFilterLogic(newSettings.linesTable!.filterLogic));
 				}
 				if (newSettings?.tagsTable?.tableColumns) {
 					store.dispatch(setTagsTableColumns(newSettings.tagsTable.tableColumns));
@@ -117,12 +117,12 @@ export const saveToStorage = (linesState: LinesState, actionType: string) => {
 startAppListening({
 	matcher: isAnyOf(
 		setSelected,
-		setTableColumns,
-		setSort,
-		setFilters,
-		setFilterLogic,
-		upsertFilter,
-		removeFilter,
+		setLinesTableColumns,
+		setLinesSort,
+		setLinesFilters,
+		setLinesFilterLogic,
+		upsertLinesFilter,
+		removeLinesFilter,
 		setTagsTableColumns,
 		setTagsSort,
 		setTagsFilters,

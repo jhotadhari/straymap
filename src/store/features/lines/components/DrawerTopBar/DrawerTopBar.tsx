@@ -19,7 +19,7 @@ import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
 import DrawerContext from '../../../drawers/DrawerContext';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { addUiItemKey } from '../../../ui/slice';
-import useShowStatsCbModal from '../../hooks/useShowStatsCbModal';
+import useShowLinesStatsCbModal from '../../hooks/useShowStatsCbModal';
 import useClearLinesCbModal from '../../hooks/useClearLinesCbModal';
 import { selectSelected } from '../../selectors';
 
@@ -46,7 +46,7 @@ const styleItem = [
 const styleButtonRowSecond = [
 	itemStyles.buttonRow,
 	styles.flexRow,
-	{paddingLeft: 8}
+	{ paddingLeft: 8 },
 ];
 
 const DrawerTopBar: FC = () => {
@@ -78,7 +78,7 @@ const DrawerTopBar: FC = () => {
 		cb: handleStatsPressed,
 		modalNode: statsModalNode,
 		iconSource,
-	} = useShowStatsCbModal({ lineIds });
+	} = useShowLinesStatsCbModal({ lineIds });
 
 	const { cb: handleClearLinesPressed, modalNode: clearLinesModalNode } = useClearLinesCbModal({
 		lineIds,

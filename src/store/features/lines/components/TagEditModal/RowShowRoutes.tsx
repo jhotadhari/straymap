@@ -12,7 +12,7 @@ import { TagEditModalContext } from './Context';
 import InfoRowControl from '../../../../../components/generic/controls/InfoRowControl';
 import { useAppDispatch } from '../../../../hooks';
 import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
-import { setFilters, setFilterLogic, setTagTemp } from '../../slice';
+import { setLinesFilters, setLinesFilterLogic, setTagTemp } from '../../slice';
 import { addUiItemKey } from '../../../ui/slice';
 import { sharedStyles } from './sharedDeps';
 
@@ -27,7 +27,7 @@ const RowShowRoutes: FC = () => {
 		if (!tag?.label) return;
 
 		dispatch(
-			setFilters([
+			setLinesFilters([
 				{
 					type: 'tags' as const,
 					columnKey: 'tags',
@@ -36,7 +36,7 @@ const RowShowRoutes: FC = () => {
 				},
 			])
 		);
-		dispatch(setFilterLogic('and'));
+		dispatch(setLinesFilterLogic('and'));
 		dispatch(setTagTemp(null));
 		dispatch(addUiItemKey('linesBrowser'));
 	}, [dispatch, tag]);

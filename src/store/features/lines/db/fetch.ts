@@ -25,8 +25,8 @@ import {
 } from '../types';
 import {
 	STATS_SQL,
-	buildOrderByClause,
-	buildWhereClause,
+	buildLinesOrderByClause,
+	buildLinesWhereClause,
 	buildTagsWhereClause,
 	buildTagsOrderByClause,
 } from './filterSortHelpers';
@@ -248,7 +248,7 @@ const fetchLinesWithoutTags = (params?: FetchLinesWithoutTagsParams) => {
 			.select(getLineColumns(fields, { simplify }))
 			.from(linesTable);
 
-		const filterClause = buildWhereClause(sqlFilters, filterLogic);
+		const filterClause = buildLinesWhereClause(sqlFilters, filterLogic);
 		query.where(
 			and(
 				lineIds ? inArray(linesTable.id, lineIds) : undefined,
@@ -270,7 +270,7 @@ const fetchLinesWithoutTags = (params?: FetchLinesWithoutTagsParams) => {
 			)
 		);
 
-		const orderByClause = buildOrderByClause(sort);
+		const orderByClause = buildLinesOrderByClause(sort);
 		query.orderBy(orderByClause ?? desc(linesTable.created_at));
 
 		if (limit !== undefined) {
@@ -363,7 +363,7 @@ const fetchLinesWithTags = (params?: FetchLinesWithTagsParams) => {
 			.leftJoin(tagsToLinesTable, eq(tagsToLinesTable.line_id, linesTable.id))
 			.leftJoin(tagsTable, eq(tagsToLinesTable.tag_id, tagsTable.id));
 
-		const filterClause = buildWhereClause(sqlFilters, filterLogic);
+		const filterClause = buildLinesWhereClause(sqlFilters, filterLogic);
 		query.where(
 			and(
 				lineIds ? inArray(linesTable.id, lineIds) : undefined,
@@ -386,7 +386,7 @@ const fetchLinesWithTags = (params?: FetchLinesWithTagsParams) => {
 			)
 		);
 
-		const orderByClause = buildOrderByClause(sort);
+		const orderByClause = buildLinesOrderByClause(sort);
 		query.orderBy(orderByClause ?? desc(linesTable.created_at));
 
 		if (limit !== undefined) {

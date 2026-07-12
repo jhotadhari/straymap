@@ -7,12 +7,12 @@ import { useContext, useMemo } from 'react';
  * Internal dependencies
  */
 import { FooterContext } from '../Context';
-import useShowStatsCbModal from '../../../hooks/useShowStatsCbModal';
+import useShowLinesStatsCbModal from '../../../hooks/useShowStatsCbModal';
 
 const useShowStats = () => {
 	const { checkedIds } = useContext(FooterContext);
 
-	const { cb, modalNode, iconSource } = useShowStatsCbModal({
+	const { cb, modalNode, iconSource } = useShowLinesStatsCbModal({
 		lineIds: checkedIds,
 	});
 

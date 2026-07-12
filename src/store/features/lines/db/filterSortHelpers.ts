@@ -44,7 +44,7 @@ const STRING_OPERATOR_PATTERNS: Record<
  * Builds a drizzle WHERE clause from the filters array and logic.
  * Returns undefined when there are no filters.
  */
-export const buildWhereClause = (
+export const buildLinesWhereClause = (
 	filters?: ColumnFilter[],
 	filterLogic?: FilterLogic
 ): SQL | undefined => {
@@ -191,7 +191,7 @@ const buildTagsWhere = (filter: TagsColumnFilter): SQL | undefined => {
  * Builds a drizzle ORDER BY clause from the sort state.
  * Returns undefined when no sort is active (caller should fall back to default).
  */
-export const buildOrderByClause = (
+export const buildLinesOrderByClause = (
 	sort?: SortState | null
 ): ReturnType<typeof asc> | ReturnType<typeof desc> | undefined => {
 	if (!sort) {

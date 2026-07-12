@@ -78,7 +78,7 @@ const StatsModal: FC<{
 	);
 };
 
-const useShowStatsCbModal = ({
+const useShowLinesStatsCbModal = ({
 	lineIds,
 	backgroundBlur,
 }: {
@@ -121,4 +121,4 @@ const useShowStatsCbModal = ({
 	);
 };
 
-export default useShowStatsCbModal;
+export default useShowLinesStatsCbModal;

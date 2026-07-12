@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next';
  */
 import ModalWrapper from '../../../../../../components/generic/ModalWrapper';
 import { useAppSelector } from '../../../../../hooks';
-import { selectFilterableColumns } from '../../../selectors';
+import { selectLinesFilterableColumns } from '../../../selectors';
 import { sharedStyles } from '../sharedDeps';
 import RadioListItem from '../../../../../../components/generic/RadioListItem';
 
@@ -20,7 +20,7 @@ const FilterColumnSelectModal: FC<{
 }> = ({ visible, onDismiss, onSelectColumn }) => {
 	const { t } = useTranslation();
 
-	const filterableColumns = useAppSelector(selectFilterableColumns);
+	const filterableColumns = useAppSelector(selectLinesFilterableColumns);
 
 	const options = useMemo(
 		() =>

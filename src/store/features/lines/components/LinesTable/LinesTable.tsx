@@ -20,7 +20,12 @@ import { uniq, without } from 'lodash-es';
  * Internal dependencies
  */
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
-import { selectSelectedInfos, selectFilterLogic, selectFilters, selectSort } from '../../selectors';
+import {
+	selectSelectedInfos,
+	selectLinesFilterLogic,
+	selectLinesFilters,
+	selectLinesSort,
+} from '../../selectors';
 import { Line, LineStats } from '../../types';
 import { sharedStyles } from './sharedDeps';
 import TableHeader from './TableHeader';
@@ -34,7 +39,7 @@ import useRoute from '../../../routing/hooks/useRoute';
 import useActivateDrawerItem from '../../../drawers/hooks/useActivateDrawerItem';
 import { FooterContext, HeaderContext, ColumnHeaderMenuContext } from './Context';
 import LineEditModal from '../LineEditModal/LineEditModal';
-import FilterModals from './FilterModals';
+import LinesFilterModals from './FilterModals';
 
 const keyExtractor = (line: { id: number }) => line.id.toString();
 
@@ -84,9 +89,9 @@ const LinesTable: FC = () => {
 		[dispatch]
 	);
 
-	const sort = useAppSelector(selectSort);
-	const filters = useAppSelector(selectFilters);
-	const filterLogic = useAppSelector(selectFilterLogic);
+	const sort = useAppSelector(selectLinesSort);
+	const filters = useAppSelector(selectLinesFilters);
+	const filterLogic = useAppSelector(selectLinesFilterLogic);
 
 	const { data: lines } = useQuery({
 		queryKey: ['lines', { sort, filters, filterLogic }],
@@ -269,7 +274,7 @@ const LinesTable: FC = () => {
 					<LineEditModalWrapper />
 				</FooterContext.Provider>
 
-				<FilterModals
+				<LinesFilterModals
 					visible={columnFilterModalVisible}
 					initialColumnKey={columnFilterInitialKey}
 					onDismiss={dismissColumnFilterModal}

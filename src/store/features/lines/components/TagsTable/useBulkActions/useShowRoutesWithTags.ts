@@ -8,7 +8,7 @@ import { useContext, useCallback, useMemo } from 'react';
  */
 import { FooterContext } from '../Context';
 import { useAppDispatch } from '../../../../../hooks';
-import { setFilters, setFilterLogic } from '../../../slice';
+import { setLinesFilters, setLinesFilterLogic } from '../../../slice';
 import { addUiItemKey } from '../../../../ui/slice';
 
 const useShowRoutesWithTags = () => {
@@ -31,8 +31,8 @@ const useShowRoutesWithTags = () => {
 			value: label,
 		}));
 
-		dispatch(setFilterLogic('or'));
-		dispatch(setFilters(filters));
+		dispatch(setLinesFilterLogic('or'));
+		dispatch(setLinesFilters(filters));
 
 		// Navigate to the routes browser
 		dispatch(addUiItemKey('linesBrowser'));

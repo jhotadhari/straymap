@@ -33,17 +33,17 @@ export const selectSelectedInfos = createAppSelector(
 	})
 );
 
-const allColumnKeys = [
+const allLinesColumnKeys = [
 	...Object.keys(lineCells),
 	...Object.keys(statsCells),
 	...Object.keys(otherCells),
 ];
-export const selectTableColumns = createAppSelector(
+export const selectLinesTableColumns = createAppSelector(
 	(state: RootState) => state.lines.linesTable.tableColumns,
 	(tableColumns) => {
 		// in case new columns got implemented, add them (visible) to tableColumns from store.
 		let result = [...tableColumns];
-		allColumnKeys.forEach((key) => {
+		allLinesColumnKeys.forEach((key) => {
 			if (!result.some((col) => col.key === key)) {
 				result.push({
 					key,
@@ -52,19 +52,19 @@ export const selectTableColumns = createAppSelector(
 			}
 		});
 		// in case implemented columns got removed, filter them out.
-		return result.filter((col) => allColumnKeys.includes(col.key));
+		return result.filter((col) => allLinesColumnKeys.includes(col.key));
 	}
 );
 
 // ── Sort / Filter ───────────────────────────────────────────────────
 
-export const selectSort = (state: RootState) => state.lines.linesTable.sort;
+export const selectLinesSort = (state: RootState) => state.lines.linesTable.sort;
 
-export const selectFilters = (state: RootState) => state.lines.linesTable.filters;
+export const selectLinesFilters = (state: RootState) => state.lines.linesTable.filters;
 
-export const selectFilterLogic = (state: RootState) => state.lines.linesTable.filterLogic;
+export const selectLinesFilterLogic = (state: RootState) => state.lines.linesTable.filterLogic;
 
-export const selectFilterableColumns = (state: RootState) => selectTableColumns(state);
+export const selectLinesFilterableColumns = (state: RootState) => selectLinesTableColumns(state);
 
 // ── TagsTable selectors ──────────────────────────────────────────────
 

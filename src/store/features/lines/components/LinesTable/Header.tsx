@@ -11,14 +11,14 @@ import { useTranslation } from 'react-i18next';
  */
 import { sharedStyles } from './sharedDeps';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
-import { selectFilters, selectFilterLogic } from '../../selectors';
-import { setFilterLogic, resetFilters } from '../../slice';
+import { selectLinesFilters, selectLinesFilterLogic } from '../../selectors';
+import { setLinesFilterLogic, resetLinesFilters } from '../../slice';
 import { getFilterKey } from '../../types';
 import { detectFilterConflicts } from '../../db/filterConflicts';
 import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
 import IconButtonHighlight from '../../../../../components/generic/IconButtonHighlight';
 import SelectColumns from './SelectColumns';
-import FilterModals from './FilterModals';
+import LinesFilterModals from './FilterModals';
 import FilterBadge from '../FilterModals/FilterBadge';
 import FilterConflictModal from '../FilterModals/FilterConflictModal';
 import { ColumnFilter } from '../../types';
@@ -29,8 +29,8 @@ const Header: FC = () => {
 	const { t } = useTranslation();
 	const dispatch = useAppDispatch();
 
-	const filters = useAppSelector(selectFilters);
-	const filterLogic = useAppSelector(selectFilterLogic);
+	const filters = useAppSelector(selectLinesFilters);
+	const filterLogic = useAppSelector(selectLinesFilterLogic);
 
 	const [filterModalVisible, setFilterModalVisible] = useState(false);
 	const [editFilter, setEditFilter] = useState<ColumnFilter | undefined>(undefined);
@@ -46,11 +46,11 @@ const Header: FC = () => {
 	const hasConflicts = conflicts.length > 0 && filterLogic === 'and';
 
 	const handleToggleFilterLogic = useCallback(() => {
-		dispatch(setFilterLogic(filterLogic === 'and' ? 'or' : 'and'));
+		dispatch(setLinesFilterLogic(filterLogic === 'and' ? 'or' : 'and'));
 	}, [dispatch, filterLogic]);
 
 	const handleResetFilters = useCallback(() => {
-		dispatch(resetFilters());
+		dispatch(resetLinesFilters());
 	}, [dispatch]);
 
 	const handleOpenNewFilter = useCallback(() => {
@@ -182,7 +182,7 @@ const Header: FC = () => {
 				/>
 			</View>
 
-			<FilterModals
+			<LinesFilterModals
 				visible={filterModalVisible}
 				editFilter={editFilter}
 				onDismiss={handleDismissFilterModal}

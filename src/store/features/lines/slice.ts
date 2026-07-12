@@ -84,7 +84,7 @@ export const linesSlice = createSlice({
 		setTagTemp: (state, action: PayloadAction<LinesState['tagTemp']>) => {
 			state.tagTemp = action.payload;
 		},
-		setTableColumns: (
+		setLinesTableColumns: (
 			state,
 			action: PayloadAction<LinesState['linesTable']['tableColumns']>
 		) => {
@@ -95,10 +95,10 @@ export const linesSlice = createSlice({
 				return a.id - b.id;
 			});
 		},
-		setSort: (state, action: PayloadAction<LinesState['linesTable']['sort']>) => {
+		setLinesSort: (state, action: PayloadAction<LinesState['linesTable']['sort']>) => {
 			state.linesTable.sort = action.payload;
 		},
-		setFilters: (state, action: PayloadAction<LinesState['linesTable']['filters']>) => {
+		setLinesFilters: (state, action: PayloadAction<LinesState['linesTable']['filters']>) => {
 			// Deduplicate by normalized key (handles mixed-case
 			// leftovers from persistence).
 			const seen = new Set<string>();
@@ -109,7 +109,7 @@ export const linesSlice = createSlice({
 				return true;
 			});
 		},
-		upsertFilter: (state, action: PayloadAction<ColumnFilter>) => {
+		upsertLinesFilter: (state, action: PayloadAction<ColumnFilter>) => {
 			// Normalize the value to lowercase for text-based filter
 			// types so stored data matches the composite key.
 			const payload =
@@ -124,17 +124,20 @@ export const linesSlice = createSlice({
 				state.linesTable.filters.push(payload);
 			}
 		},
-		removeFilter: (state, action: PayloadAction<ColumnFilter>) => {
+		removeLinesFilter: (state, action: PayloadAction<ColumnFilter>) => {
 			const targetKey = getFilterKey(action.payload);
 			state.linesTable.filters = state.linesTable.filters.filter(
 				(f) => getFilterKey(f) !== targetKey
 			);
 		},
 
-		resetFilters: (state) => {
+		resetLinesFilters: (state) => {
 			state.linesTable.filters = [];
 		},
-		setFilterLogic: (state, action: PayloadAction<LinesState['linesTable']['filterLogic']>) => {
+		setLinesFilterLogic: (
+			state,
+			action: PayloadAction<LinesState['linesTable']['filterLogic']>
+		) => {
 			state.linesTable.filterLogic = action.payload;
 		},
 		setTagsTableColumns: (
@@ -189,16 +192,16 @@ export const linesSlice = createSlice({
 // Export the generated action creators for use in components.
 export const {
 	setInitialized,
-	setTableColumns,
+	setLinesTableColumns,
 	setSelected,
 	setLineTemp,
 	setTagTemp,
-	setSort,
-	setFilters,
-	upsertFilter,
-	removeFilter,
-	resetFilters,
-	setFilterLogic,
+	setLinesSort,
+	setLinesFilters,
+	upsertLinesFilter,
+	removeLinesFilter,
+	resetLinesFilters,
+	setLinesFilterLogic,
 	setTagsTableColumns,
 	setTagsSort,
 	setTagsFilters,
@@ -269,14 +272,14 @@ export const setLinesSelected = (newSelectedIds: number[]): AppThunk => {
 	};
 };
 
-export const toggleSort = (columnKey: string): AppThunk => {
+export const toggleLinesSort = (columnKey: string): AppThunk => {
 	return (dispatch, getState) => {
 		const currentSort = getState().lines.linesTable.sort;
 		if (currentSort?.columnKey === columnKey) {
 			const newDirection = currentSort.direction === 'asc' ? 'desc' : 'asc';
-			dispatch(linesSlice.actions.setSort({ columnKey, direction: newDirection }));
+			dispatch(linesSlice.actions.setLinesSort({ columnKey, direction: newDirection }));
 		} else {
-			dispatch(linesSlice.actions.setSort({ columnKey, direction: 'asc' }));
+			dispatch(linesSlice.actions.setLinesSort({ columnKey, direction: 'asc' }));
 		}
 	};
 };

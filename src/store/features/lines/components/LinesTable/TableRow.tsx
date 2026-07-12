@@ -18,7 +18,7 @@ import TagBadge from '../TagBadge';
 import IconRouting from '../../../routing/drawerPanels/routing/IconComponent';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { setLineTemp } from '../../slice';
-import { selectTableColumns } from '../../selectors';
+import { selectLinesTableColumns } from '../../selectors';
 
 const OtherCell: FC<{
 	cellKey: string;
@@ -70,7 +70,7 @@ const TableRow: FC<TableRowProps> = ({
 
 	const dispatch = useAppDispatch();
 
-	const tableColumns: TableColumn[] = useAppSelector(selectTableColumns);
+	const tableColumns: TableColumn[] = useAppSelector(selectLinesTableColumns);
 
 	const visibleColumns = useMemo(
 		() => tableColumns.filter((column) => column.visible),

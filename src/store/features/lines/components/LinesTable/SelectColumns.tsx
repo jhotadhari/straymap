@@ -12,8 +12,8 @@ import Sortable, { DragStartParams, SortableFlexDragEndParams } from 'react-nati
 import ModalWrapper from '../../../../../components/generic/ModalWrapper';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { TableColumn } from '../../types';
-import { selectTableColumns } from '../../selectors';
-import { setTableColumns } from '../../slice';
+import { selectLinesTableColumns } from '../../selectors';
+import { setLinesTableColumns } from '../../slice';
 import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
 import { Icon, Text } from 'react-native-paper';
 import { DRAWER_ICON_SIZE, modalPadding, modalWidthFactor } from '../../../../../constants';
@@ -76,7 +76,7 @@ const SelectColumns: FC<{}> = ({}) => {
 
 	const saveRef = useRef<undefined | (() => void)>(undefined);
 
-	const tableColumns: TableColumn[] = useAppSelector(selectTableColumns);
+	const tableColumns: TableColumn[] = useAppSelector(selectLinesTableColumns);
 
 	const [scrollEnabled, setScrollEnabled] = useState(true);
 
@@ -84,7 +84,7 @@ const SelectColumns: FC<{}> = ({}) => {
 
 	useEffect(() => {
 		saveRef.current = () => {
-			dispatch(setTableColumns(tableColumnsTemp));
+			dispatch(setLinesTableColumns(tableColumnsTemp));
 		};
 	}, [dispatch, tableColumnsTemp]);
 
