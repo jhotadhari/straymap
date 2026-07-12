@@ -9,9 +9,9 @@ import { Position } from 'react-native-mapsforge-vtm';
  * Internal dependencies
  */
 import { AppThunk } from './store/store';
-import { SettingsPageDescriber, UiItem } from './store/features/ui/types';
-import { DashboardWidget } from './store/features/dashboard/types';
-import { DrawerPanel } from './store/features/drawers/types';
+import { SettingsPageDescriber, UiItem } from './features/ui/types';
+import { DashboardWidget } from './features/dashboard/types';
+import { DrawerPanel } from './features/drawers/types';
 
 export type { UiItem, DashboardWidget, DrawerPanel };
 
@@ -118,13 +118,13 @@ export interface AppFeature {
 	uiItems?: UiItem[];
 
 	/**
-		 * Descriptors that promote a {@link uiItems} entry to a row in the
-		 * main Settings navigation list. Each entry references its UiItem
-		 * via {@link SettingsPageDescriber.uiItemKey} and carries its own
-		 * priority for ordering. The Settings screen inserts a divider
-		 * between entries whose priorities fall into different 1000-blocks.
-		 */
-		settingsPages?: SettingsPageDescriber[];
+	 * Descriptors that promote a {@link uiItems} entry to a row in the
+	 * main Settings navigation list. Each entry references its UiItem
+	 * via {@link SettingsPageDescriber.uiItemKey} and carries its own
+	 * priority for ordering. The Settings screen inserts a divider
+	 * between entries whose priorities fall into different 1000-blocks.
+	 */
+	settingsPages?: SettingsPageDescriber[];
 
 	/**
 	 * Individual control rows rendered inside the settings controls page

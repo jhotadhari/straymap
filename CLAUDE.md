@@ -42,7 +42,7 @@ yarn drizzle-kit generate   # generate a new migration from schema changes (chec
 
 ### Redux store and the "feature" convention
 
-`src/store/store.ts` wires together one reducer per slice in `src/store/features/`: `appearance`, `general`, `dbLoader`, `dirs`, `ui`, `dashboard`, `baseMap`, `drawers`, `routing`, `updater`, `lang`, `lines`. `devTools` is disabled (doesn't work in RN). A custom `listenerMiddleware` (`src/store/listenerMiddleware.ts`) is prepended before the serializability check middleware, since listener effects can carry functions — this is the mechanism for side effects like persisting to storage or reacting to other slices' state changes.
+`src/store/store.ts` wires together one reducer per slice in `src/features/`: `appearance`, `general`, `dbLoader`, `dirs`, `ui`, `dashboard`, `baseMap`, `drawers`, `routing`, `updater`, `lang`, `lines`. `devTools` is disabled (doesn't work in RN). A custom `listenerMiddleware` (`src/store/listenerMiddleware.ts`) is prepended before the serializability check middleware, since listener effects can carry functions — this is the mechanism for side effects like persisting to storage or reacting to other slices' state changes.
 
 Each feature directory follows a consistent shape:
 
@@ -83,11 +83,11 @@ App init sequence (`src/store/utils.ts: initializeAppState`, invoked once at the
 
 The DB stack is new/in-progress (see recent commits around making `dbPath` dynamic). Key pieces:
 
-- `drizzle.config.ts` discovers schema files via a glob across `src/store/features/*/db/schema/`, dialect `sqlite`, driver `expo`; migrations are emitted to `/drizzle/`.
-- `src/store/features/dbLoader/DBConnection.ts` is a singleton wrapping the `@op-engineering/op-sqlite` connection and the drizzle ORM instance. It loads the `libspatialite` extension and runs migrations on `initialize(dbPath)`.
-- Per-feature schemas live at `src/store/features/{lines,routing}/db/schema/schema.ts` and are aggregated in `src/store/features/dbLoader/schema.ts`. Spatial columns use custom `lineString()`/`point()` column types (geometry stored as LINESTRINGZ/POINTZ, SRID 4326) — see migration `0001_initSpatial.sql` for the libspatialite metadata bootstrap.
-- Per-feature DB actions (CRUD via drizzle) live under `src/store/features/{lines,routing}/db/actions*.ts`.
-- **Dynamic db path**: the path is stored in the `dbLoader` slice, persisted via `react-native-default-preference` (see `src/store/features/dbLoader/connectStorage.ts` and the analogous `src/store/features/dirs/connectStorage.ts`), and changing it currently requires telling the user to restart the app (per recent commit history) — features that care about the db path implement `onSetDbPath` on their `AppFeature`.
+- `drizzle.config.ts` discovers schema files via a glob across `src/features/*/db/schema/`, dialect `sqlite`, driver `expo`; migrations are emitted to `/drizzle/`.
+- `src/features/dbLoader/DBConnection.ts` is a singleton wrapping the `@op-engineering/op-sqlite` connection and the drizzle ORM instance. It loads the `libspatialite` extension and runs migrations on `initialize(dbPath)`.
+- Per-feature schemas live at `src/features/{lines,routing}/db/schema/schema.ts` and are aggregated in `src/features/dbLoader/schema.ts`. Spatial columns use custom `lineString()`/`point()` column types (geometry stored as LINESTRINGZ/POINTZ, SRID 4326) — see migration `0001_initSpatial.sql` for the libspatialite metadata bootstrap.
+- Per-feature DB actions (CRUD via drizzle) live under `src/features/{lines,routing}/db/actions*.ts`.
+- **Dynamic db path**: the path is stored in the `dbLoader` slice, persisted via `react-native-default-preference` (see `src/features/dbLoader/connectStorage.ts` and the analogous `src/features/dirs/connectStorage.ts`), and changing it currently requires telling the user to restart the app (per recent commit history) — features that care about the db path implement `onSetDbPath` on their `AppFeature`.
 
 ### Native Android bridge
 
@@ -100,7 +100,7 @@ Custom native modules live in `android/app/src/main/java/com/jhotadhari/straymap
 ### Map and routing
 
 - `react-native-mapsforge-vtm` (the map rendering library, this author's own package) provides `MapContainer` and related layer/event types; `src/components/AppView.tsx` composes it with drawers, dashboard, and cursor-center UI.
-- `react-native-brouter` is consumed via `.yalc` (`file:.yalc/react-native-brouter` in `package.json` — a locally-linked package, not a registry release). Routing logic lives in `src/store/features/routing/utils.ts` (`getTrackFromParams`), which calls into brouter and flattens the resulting GeoJSON into coordinate arrays.
+- `react-native-brouter` is consumed via `.yalc` (`file:.yalc/react-native-brouter` in `package.json` — a locally-linked package, not a registry release). Routing logic lives in `src/features/routing/utils.ts` (`getTrackFromParams`), which calls into brouter and flattens the resulting GeoJSON into coordinate arrays.
 - The `routing` and `lines` slices are the two features backed by the SQLite/drizzle db (routes/points and lines/tags respectively).
 
 #### Map position and altitude APIs

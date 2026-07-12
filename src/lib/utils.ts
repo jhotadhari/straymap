@@ -12,8 +12,8 @@ declare function cancelIdleCallback(handle: number): void;
 /**
  * Internal dependencies
  */
-import { LineStats as LineStatsType } from '../store/features/lines/types';
-import { dbOpExecute } from '../store/features/dbLoader/utils';
+import { LineStats as LineStatsType } from '../features/lines/types';
+import { dbOpExecute } from '../features/dbLoader/utils';
 import { NumType } from '../types';
 
 export const logError = (context: string, err: unknown) => {

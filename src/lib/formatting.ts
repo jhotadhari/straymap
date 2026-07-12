@@ -6,7 +6,7 @@ import formatcoords from 'formatcoords';
 /**
  * Internal dependencies
  */
-import { UnitPref } from '../store/features/general/types';
+import { UnitPref } from '../features/general/types';
 import { roundTo } from './utilsLight';
 
 export const formatSeconds = (secNum: number): string => {

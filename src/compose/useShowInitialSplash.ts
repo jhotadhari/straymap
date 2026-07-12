@@ -7,7 +7,7 @@ import { useContext, useState, useEffect, useRef } from 'react';
  * Internal dependencies
  */
 import { AppContext, MapContext } from '../Context';
-import { selectIsBusy } from '../store/features/ui/selectors';
+import { selectIsBusy } from '../features/ui/selectors';
 import { useAppSelector } from '../store/hooks';
 
 const useShowInitialSplash = () => {

@@ -7,7 +7,7 @@ import { set } from 'lodash-es';
 /**
  * Internal dependencies
  */
-import { ThemePropExtended } from './store/features/appearance/types';
+import { ThemePropExtended } from './features/appearance/types';
 
 const BlackTheme: ThemePropExtended = {
 	...MD3DarkTheme,

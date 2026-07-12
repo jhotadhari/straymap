@@ -7,22 +7,22 @@ import { configureStore } from '@reduxjs/toolkit';
 /**
  * Internal dependencies
  */
-import appearanceReducer from './features/appearance/slice';
-import generalReducer from './features/general/slice';
-import dbLoaderReducer from './features/dbLoader/slice';
-import dirsReducer from './features/dirs/slice';
-import routingReducer from './features/routing/slice';
-import uiReducer from './features/ui/slice';
-import updaterReducer from './features/updater/slice';
-import dashboardReducer from './features/dashboard/slice';
-import baseMapReducer from './features/baseMap/slice';
-import drawersReducer from './features/drawers/slice';
-import langReducer from './features/lang/slice';
-import linesReducer from './features/lines/slice';
-import gnssReducer from './features/gnss/slice';
-import trackRecordingReducer from './features/trackRecording/slice';
+import appearanceReducer from '../features/appearance/slice';
+import generalReducer from '../features/general/slice';
+import dbLoaderReducer from '../features/dbLoader/slice';
+import dirsReducer from '../features/dirs/slice';
+import routingReducer from '../features/routing/slice';
+import uiReducer from '../features/ui/slice';
+import updaterReducer from '../features/updater/slice';
+import dashboardReducer from '../features/dashboard/slice';
+import baseMapReducer from '../features/baseMap/slice';
+import drawersReducer from '../features/drawers/slice';
+import langReducer from '../features/lang/slice';
+import linesReducer from '../features/lines/slice';
+import gnssReducer from '../features/gnss/slice';
+import trackRecordingReducer from '../features/trackRecording/slice';
 import { listenerMiddleware } from './listenerMiddleware';
-import { initializeAppState } from './utils';
+import { initializeAppState } from '../features/utils';
 
 export const store = configureStore({
 	reducer: {

@@ -6,7 +6,11 @@ import { FC, useCallback, useMemo } from 'react';
 import { Linking, View, ViewStyle } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 
-const HintLink: FC<{ label?: string; url: string; style?: ViewStyle }> = ({ label, url, style }) => {
+const HintLink: FC<{ label?: string; url: string; style?: ViewStyle }> = ({
+	label,
+	url,
+	style,
+}) => {
 	const theme = useTheme();
 
 	const styleLink = useMemo(() => ({ color: get(theme.colors, 'link') }), [theme]);
@@ -15,7 +19,7 @@ const HintLink: FC<{ label?: string; url: string; style?: ViewStyle }> = ({ labe
 
 	return (
 		<View style={style}>
-			{ label && <Text>{label}</Text> }
+			{label && <Text>{label}</Text>}
 			<Text
 				style={styleLink}
 				onPress={handlePress}

@@ -296,7 +296,7 @@ jest.mock('react-i18next', () => ({
 // Source modules that cause deep import chains in slice files.
 // Mocking them at the module boundary prevents the cascade.
 // ---------------------------------------------------------------------------
-jest.mock('./src/store/features/baseMap/components/controls/layers/LayersControl', () => ({
+jest.mock('./src/features/baseMap/components/controls/layers/LayersControl', () => ({
 	mapTypeOptions: [],
 }));
 
@@ -320,8 +320,8 @@ jest.mock('./src/assets/i18n/i18n', () => {
 // its Dev-mode listener is gated by globalThis.shouldLog.dispatchAction (false).
 
 // routing utils — mock the native brouter import
-jest.mock('./src/store/features/routing/utils', () => {
-	const actual = jest.requireActual('./src/store/features/routing/utils');
+jest.mock('./src/features/routing/utils', () => {
+	const actual = jest.requireActual('./src/features/routing/utils');
 	return {
 		...actual,
 		getCoordsFromRouting: jest.fn().mockResolvedValue([]),
@@ -358,7 +358,7 @@ jest.mock('react-native-fs', () => ({
 // FeatureRegistry — mock that returns legacy data for tests that depend on
 // selectors reading drawer items, dashboard elements, etc.
 // ---------------------------------------------------------------------------
-jest.mock('./src/store/features/FeatureRegistry', () => {
+jest.mock('./src/features/FeatureRegistry', () => {
 	const mockDrawerItems = {
 		maps: { key: 'maps' },
 		routing: { key: 'routing' },
@@ -369,11 +369,16 @@ jest.mock('./src/store/features/FeatureRegistry', () => {
 	};
 	return {
 		featureRegistry: {
-			getSettingsItems: jest.fn(() => []),
+			getUiItems: jest.fn(() => []),
+			getSettingsPages: jest.fn(() => []),
 			getSettingsControls: jest.fn(() => []),
-			getDashboardElements: jest.fn(() => ({})),
-			getDrawerItems: jest.fn(() => mockDrawerItems),
-			getMapViewComponents: jest.fn(() => []),
+			getDashboardWidgets: jest.fn(() => ({})),
+			getDrawerPanels: jest.fn(() => mockDrawerItems),
+			getMapComponents: jest.fn(() => []),
+			getAppOverlays: jest.fn(() => []),
+			getAllModes: jest.fn(() => []),
+			getActiveModes: jest.fn(() => []),
+			getSystemTagLabels: jest.fn(() => []),
 			registerAll: jest.fn(),
 		},
 		FeatureRegistry: jest.fn(),

@@ -34,26 +34,26 @@ import type { KeyCode, KeyEvent } from 'react-native-hardwarekey-event';
 /**
  * Internal dependencies
  */
-import TopAppBar from '../store/features/ui/components/TopAppBar';
+import TopAppBar from '../features/ui/components/TopAppBar';
 import type { InitialPosition } from '../types';
 import { AppContext, MapContext } from '../Context';
 import { ErrorToastContext } from './ErrorToast/Context';
 import SplashScreen from './SplashScreen';
 import { useAppSelector } from '../store/hooks';
-import { selectHardwareKeys } from '../store/features/general/selectors';
-import { selectElementsSettings, selectItems } from '../store/features/dashboard/selectors';
-import { DashboardItem } from '../store/features/dashboard/types';
-import { selectHgtDirPath, selectMapsforgeGeneral } from '../store/features/baseMap/selectors';
-import UiItemComponent from '../store/features/ui/components/UiItemComponent';
+import { selectHardwareKeys } from '../features/general/selectors';
+import { selectElementsSettings, selectItems } from '../features/dashboard/selectors';
+import { DashboardItem } from '../features/dashboard/types';
+import { selectHgtDirPath, selectMapsforgeGeneral } from '../features/baseMap/selectors';
+import UiItemComponent from '../features/ui/components/UiItemComponent';
 import useShowInitialSplash from '../compose/useShowInitialSplash';
-import { DRAWER_HANDLE_SIZE } from '../store/features/drawers/constants';
-import { selectItemKeys, selectControlHandleSide } from '../store/features/drawers/selectors';
-import { getDrawerWidthResponsive } from '../store/features/drawers/utils';
+import { DRAWER_HANDLE_SIZE } from '../features/drawers/constants';
+import { selectItemKeys, selectControlHandleSide } from '../features/drawers/selectors';
+import { getDrawerWidthResponsive } from '../features/drawers/utils';
 import { useAppDispatch } from '../store/hooks';
-import { featureRegistry } from '../store/features/FeatureRegistry';
-import { setMapEvent } from '../store/features/gnss/slice';
+import { featureRegistry } from '../features/FeatureRegistry';
+import { setMapEvent } from '../features/gnss/slice';
 import LayerDebugDumpButton from './LayerDebugDumpButton';
-import { selectIsRecording } from '../store/features/trackRecording/selectors';
+import { selectIsRecording } from '../features/trackRecording/selectors';
 
 const zoomMin = 2;
 const zoomMax = 20;

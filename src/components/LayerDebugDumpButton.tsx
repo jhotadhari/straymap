@@ -24,17 +24,14 @@ const LayerDebugDumpButton: FC = () => {
 						enabled: l.enabled,
 					})),
 					null,
-					2,
-				),
+					2
+				)
 			);
 			console.log(
 				'JS registry (React render order):',
-				JSON.stringify(dump.registry, null, 2),
+				JSON.stringify(dump.registry, null, 2)
 			);
-			console.log(
-				'Pending native mutations:',
-				dump.pendingMutations,
-			);
+			console.log('Pending native mutations:', dump.pendingMutations);
 			console.log('Total layers:', dump.totalLayers, 'JS-managed:', dump.jsManagedCount);
 			console.log('=== /LayerDebugDump ===');
 		});
@@ -52,9 +49,7 @@ const LayerDebugDumpButton: FC = () => {
 			]}
 			onPress={handlePress}
 		>
-			<Text style={styles.label}>
-				{lastDump ? '🟢 Dump' : '🔴 Dump'}
-			</Text>
+			<Text style={styles.label}>{lastDump ? '🟢 Dump' : '🔴 Dump'}</Text>
 		</Pressable>
 	);
 };

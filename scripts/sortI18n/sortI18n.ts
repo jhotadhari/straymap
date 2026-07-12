@@ -10,7 +10,7 @@ import { SUPPORTED_LANGUAGES, FALLBACK_LANGUAGE } from '../../src/assets/i18n/co
 import { sortDeep } from '../../src/lib/utilsLight';
 import { set } from 'lodash-es';
 
-const SLICES_PATH = '../../src/store/features';
+const SLICES_PATH = '../../src/features';
 
 /**
  * Expand flat dot-notation keys ("a.b.c": value) into nested objects
@@ -51,7 +51,7 @@ export const sortI18n = () => {
 
 	[
 		'../../src/assets/i18n/',
-		...[...slices].map((slice) => '../../src/store/features/' + slice + '/assets/i18n/'),
+		...[...slices].map((slice) => '../../src/features/' + slice + '/assets/i18n/'),
 	].forEach((langPath) => {
 		// Load dataLang for fallback language.
 		const fileLangFallback = path.resolve(__dirname, langPath + FALLBACK_LANGUAGE + '.json');

@@ -17,19 +17,19 @@ import type { BottomBarHeight } from '../types';
 import { AppContext, MapContext } from '../Context';
 import SplashScreen from './SplashScreen';
 import AppView from './AppView';
-import SplashScreenUpdater from '../store/features/updater/components/SplashScreenUpdater';
+import SplashScreenUpdater from '../features/updater/components/SplashScreenUpdater';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useAppSelector, useSettingsInitialized } from '../store/hooks';
-import { useSetupTheme } from '../store/features/appearance/hooks';
-import { selectIsUpdating } from '../store/features/updater/selectors';
+import { useSetupTheme } from '../features/appearance/hooks';
+import { selectIsUpdating } from '../features/updater/selectors';
 import useInitialCenter from '../compose/useInitialCenter';
-import { DrawerControls } from '../store/features/drawers/types';
+import { DrawerControls } from '../features/drawers/types';
 import {
 	selectDbMigrated,
 	selectInitialized,
 	selectRequireReload,
-} from '../store/features/dbLoader/selectors';
-import { dbConnection } from '../store/features/dbLoader/DBConnection';
+} from '../features/dbLoader/selectors';
+import { dbConnection } from '../features/dbLoader/DBConnection';
 import ErrorToastProvider from './ErrorToast/ErrorToastProvider';
 
 const App: FC = () => {

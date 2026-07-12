@@ -31,16 +31,16 @@ import InfoRowControl from './InfoRowControl';
 import ModalWrapper from '../ModalWrapper';
 import RadioListItem from '../RadioListItem';
 import HintLink from '../HintLink';
-import { HgtDirPath } from '../../../store/features/baseMap/types';
-import { AbsPath } from '../../../store/features/dirs/types';
+import { HgtDirPath } from '../../../features/baseMap/types';
+import { AbsPath } from '../../../features/dirs/types';
 import { sharedStyles } from '../../../sharedStyles';
 import { logError } from '../../../lib/utils';
 import { ErrorToastContext } from '../../ErrorToast/Context';
 import useAsyncBusy from '../../../compose/useAsyncBusy';
 import LoadingIndicator from '../LoadingIndicator';
-import { selectHgtDirPath } from '../../../store/features/baseMap/selectors';
+import { selectHgtDirPath } from '../../../features/baseMap/selectors';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
-import { setHgtDirPath } from '../../../store/features/baseMap/slice';
+import { setHgtDirPath } from '../../../features/baseMap/slice';
 
 const HgtSourceRowControl = ({
 	dirs,

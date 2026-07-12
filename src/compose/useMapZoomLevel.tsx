@@ -8,7 +8,7 @@ import { MapEventResponse } from 'react-native-mapsforge-vtm';
  * Internal dependencies
  */
 import { MapContext } from '../Context';
-import { selectMapUpdateInterval } from '../store/features/general/selectors';
+import { selectMapUpdateInterval } from '../features/general/selectors';
 import { useAppSelector } from '../store/hooks';
 
 const useMapZoomLevel = () => {

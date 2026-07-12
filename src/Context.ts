@@ -9,7 +9,7 @@ import { MapEventResponse } from 'react-native-mapsforge-vtm';
  * Internal dependencies
  */
 import { BottomBarHeight } from './types';
-import { DrawerControls } from './store/features/drawers/types';
+import { DrawerControls } from './features/drawers/types';
 
 export type AppContextType = {
 	mapViewNativeNodeHandle?: number | null;
