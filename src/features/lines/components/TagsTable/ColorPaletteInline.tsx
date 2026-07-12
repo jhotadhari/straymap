@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { FC } from 'react';
-import { Pressable, View, StyleSheet } from 'react-native';
+import { Pressable, View, StyleSheet, ViewProps } from 'react-native';
 
 /**
  * Internal dependencies
@@ -11,43 +11,56 @@ import { TAG_COLORS } from '../tagColor';
 
 const ColorPaletteInline: FC<{
 	selectedColor: string;
+	style?: ViewProps['style'];
 	onSelect: (color: string) => void;
-}> = ({ selectedColor, onSelect }) => (
-	<View style={styles.colorRow}>
-		{TAG_COLORS.map((tc) => (
-			<Pressable
-				key={tc.bg}
-				onPress={() => onSelect(tc.bg)}
-				style={[
-					styles.colorSwatch,
-					{
-						backgroundColor: tc.bg,
-						borderColor: tc.border,
-					},
-					selectedColor === tc.bg && styles.colorSwatchSelected,
-				]}
-			/>
-		))}
+}> = ({ selectedColor, onSelect, style }) => (
+	<View style={[styles.colorRow, style]}>
+		{TAG_COLORS.map((tc) => {
+			const isSelected = selectedColor === tc.bg;
+			return (
+				<Pressable
+					key={tc.bg}
+					onPress={() => onSelect(tc.bg)}
+					style={[
+						styles.swatchRing,
+						isSelected && {
+							borderColor: tc.border,
+						},
+					]}
+				>
+					<View
+						style={[
+							styles.colorSwatch,
+							{ backgroundColor: tc.bg },
+						]}
+					/>
+				</Pressable>
+			);
+		})}
 	</View>
 );
+
+const SWATCH_SIZE = 24;
+const RING_PADDING = 3;
+const RING_BORDER = 2;
 
 const styles = StyleSheet.create({
 	colorRow: {
 		flexDirection: 'row',
 		flexWrap: 'wrap',
-		gap: 4,
+		gap: 8,
 		marginVertical: 4,
 	},
-	colorSwatch: {
-		borderWidth: 2,
-		borderRadius: 14,
-		height: 28,
-		width: 28,
+	swatchRing: {
+		padding: RING_PADDING,
+		borderRadius: SWATCH_SIZE / 2 + RING_PADDING + RING_BORDER,
+		borderWidth: RING_BORDER,
+		borderColor: 'transparent',
 	},
-	colorSwatchSelected: {
-		borderWidth: 3,
-		height: 30,
-		width: 30,
+	colorSwatch: {
+		borderRadius: SWATCH_SIZE / 2,
+		height: SWATCH_SIZE,
+		width: SWATCH_SIZE,
 	},
 });
 

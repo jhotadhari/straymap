@@ -25,7 +25,18 @@ const OtherCell: FC<{
 	line: Omit<Line, 'geometry'>;
 	style: StyleProp<ViewStyle>;
 }> = ({ cellKey, line, style }) => {
-	const cellStyle = useMemo(() => [style, { gap: 16 }], [style]);
+	const cellStyle: StyleProp<ViewStyle> = useMemo(
+		() => [
+			style,
+			{
+				gap: 8,
+				flexWrap: 'wrap',
+				justifyContent: 'center',
+				alignContent: 'center',
+			},
+		],
+		[style]
+	);
 	switch (cellKey) {
 		case 'tags':
 			return (
@@ -154,8 +165,11 @@ const TableRow: FC<TableRowProps> = ({
 				<View style={sharedStyles.flexRow}>
 					{visibleColumns.map((column) => {
 						const cellStyle = cellConfigs[column.key]?.style;
-						const columnStyle = cellStyle ? [styleCell, cellStyle] : styleCell;
-
+						const columnStyle = [
+							styleCell,
+							...(cellStyle ? [cellStyle] : []),
+							{ padding: 4 },
+						];
 						switch (getCellCategory(column.key)) {
 							case 'other':
 								return (

@@ -79,7 +79,7 @@ const RowCustomDate: FC = () => {
 			Info={t('lines.hintCustomDate')}
 			style={{ alignItems: 'flex-start' }}
 		>
-			<View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+			<View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, maxWidth: '84%' }}>
 				<DatePickerInput
 					locale={locale}
 					value={stringToDate(currentValue)}

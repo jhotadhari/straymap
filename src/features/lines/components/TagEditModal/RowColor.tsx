@@ -43,6 +43,7 @@ const RowColor: FC = () => {
 			<ColorPaletteInline
 				selectedColor={currentColor}
 				onSelect={handleSelect}
+				style={{ width: '84%' }}
 			/>
 		</InfoRowControl>
 	);

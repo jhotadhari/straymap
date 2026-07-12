@@ -97,10 +97,11 @@ const TagTableRow: FC<TagTableRowProps> = ({
 				</View>
 
 				{visibleColumns.map((column) => {
-					const cellStyle = cellConfigs[column.key]?.style
-						? [styleCell, cellConfigs[column.key]?.style]
-						: styleCell;
-
+					const cellStyle = [
+						styleCell,
+						...(cellConfigs[column.key]?.style ? [cellConfigs[column.key]?.style] : []),
+						{ padding: 4 },
+					];
 					switch (column.key) {
 						case 'label':
 							return (

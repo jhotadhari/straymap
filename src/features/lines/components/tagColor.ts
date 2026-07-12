@@ -13,22 +13,20 @@ export interface TagColors {
 }
 
 /**
- * 12-colour palette with matching foreground/border tones.
- * Each entry has enough contrast for dark-text-on-light-bg readability.
+ * 10-colour palette with matching foreground/border tones.
+ * Hues spaced ~40° apart, all at 100% HSL saturation for maximum vividness.
  */
 export const TAG_COLORS: TagColors[] = [
-	{ bg: '#FDE68A', fg: '#78350F', border: '#D97706' }, // amber
-	{ bg: '#BFDBFE', fg: '#1E3A5F', border: '#2563EB' }, // blue
-	{ bg: '#BBF7D0', fg: '#14532D', border: '#16A34A' }, // green
-	{ bg: '#FECACA', fg: '#7F1D1D', border: '#DC2626' }, // red
-	{ bg: '#E9D5FF', fg: '#4C1D95', border: '#9333EA' }, // purple
-	{ bg: '#FED7AA', fg: '#7C2D12', border: '#EA580C' }, // orange
-	{ bg: '#A5F3FC', fg: '#164E63', border: '#0891B2' }, // cyan
-	{ bg: '#FECDD3', fg: '#831843', border: '#DB2777' }, // pink
-	{ bg: '#D9F99D', fg: '#365314', border: '#65A30D' }, // lime
-	{ bg: '#E5E7EB', fg: '#1F2937', border: '#6B7280' }, // gray
-	{ bg: '#DDD6FE', fg: '#312E81', border: '#7C3AED' }, // indigo
-	{ bg: '#FED7E2', fg: '#701A3F', border: '#BE185D' }, // rose
+	{ bg: '#F50000', fg: '#FFFFFF', border: '#B80000' }, // red       (0°)
+	{ bg: '#FFAA00', fg: '#3D1F00', border: '#CC8800' }, // orange   (40°)
+	{ bg: '#8CD600', fg: '#1F3300', border: '#6BA600' }, // chartreuse (80°)
+	{ bg: '#00DB00', fg: '#003300', border: '#00A800' }, // green    (120°)
+	{ bg: '#00C280', fg: '#003325', border: '#009960' }, // teal     (160°)
+	{ bg: '#0099E6', fg: '#FFFFFF', border: '#0077B8' }, // azure    (200°)
+	{ bg: '#1A1AFF', fg: '#FFFFFF', border: '#0000CC' }, // blue     (240°)
+	{ bg: '#8000FF', fg: '#FFFFFF', border: '#6000CC' }, // violet   (280°)
+	{ bg: '#F500A3', fg: '#FFFFFF', border: '#B8007A' }, // magenta  (320°)
+	{ bg: '#F50057', fg: '#FFFFFF', border: '#B8003F' }, // rose     (340°)
 ];
 
 /**
