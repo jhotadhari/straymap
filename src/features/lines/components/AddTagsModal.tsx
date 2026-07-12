@@ -3,18 +3,17 @@
  */
 import { FC, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { View } from 'react-native';
-import { Text, Checkbox, useTheme } from 'react-native-paper';
+import { Text, Icon, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
 import { sprintf } from 'sprintf-js';
-import { get } from 'lodash-es';
 
 /**
  * Internal dependencies
  */
 import ModalWrapper from '../../../components/generic/ModalWrapper';
-import ButtonHighlight from '../../../components/generic/ButtonHighlight';
 import LoadingIndicator from '../../../components/generic/LoadingIndicator';
+import RadioListItem from '../../../components/generic/RadioListItem';
 import TagBadge from './TagBadge';
 import CreateTagModal from './CreateTagModal';
 import { queryAllTags, invalidateTagsTable } from '../db/queryFns';
@@ -26,7 +25,7 @@ import { Tag } from '../types';
 export interface AddTagsModalProps {
 	visible: boolean;
 	onDismiss: () => void;
-	onApply: (selectedTagIds: number[]) => void;
+	onApply: (selectedTagId: number) => void;
 	isApplying: boolean;
 	excludeTagIds?: Set<number>;
 }
@@ -45,7 +44,7 @@ const AddTagsModal: FC<AddTagsModalProps> = ({
 
 	const [allTags, setAllTags] = useState<Tag[]>([]);
 	const [loadingTags, setLoadingTags] = useState(false);
-	const [selectedTagIds, setSelectedTagIds] = useState<Set<number>>(new Set());
+	const [selectedTagId, setSelectedTagId] = useState<number | null>(null);
 	const [createModalVisible, setCreateModalVisible] = useState(false);
 
 	const systemTagLabels = useMemo(() => featureRegistry.getSystemTagLabels(), []);
@@ -61,7 +60,7 @@ const AddTagsModal: FC<AddTagsModalProps> = ({
 
 	const loadTags = useCallback(async () => {
 		setLoadingTags(true);
-		setSelectedTagIds(new Set());
+		setSelectedTagId(null);
 		try {
 			await refreshAvailableTags();
 		} catch (err) {
@@ -85,24 +84,19 @@ const AddTagsModal: FC<AddTagsModalProps> = ({
 		prevVisibleRef.current = visible;
 	}, [visible, loadTags]);
 
-	const handleToggleTag = useCallback((tagId: number) => {
-		setSelectedTagIds((prev) => {
-			const next = new Set(prev);
-			if (next.has(tagId)) next.delete(tagId);
-			else next.add(tagId);
-			return next;
-		});
+	const handleSelectTag = useCallback((tagId: number) => {
+		setSelectedTagId(tagId);
 	}, []);
 
 	const handleDismiss = useCallback(() => {
 		if (isApplying) return;
-		if (selectedTagIds.size > 0) {
-			onApply(Array.from(selectedTagIds));
+		if (selectedTagId !== null) {
+			onApply(selectedTagId);
 		}
 		onDismiss();
 	}, [
 		isApplying,
-		selectedTagIds,
+		selectedTagId,
 		onApply,
 		onDismiss,
 	]);
@@ -112,7 +106,7 @@ const AddTagsModal: FC<AddTagsModalProps> = ({
 			await queryClient.invalidateQueries({ queryKey: ['tags'] });
 			invalidateTagsTable(queryClient);
 			await refreshAvailableTags();
-			setSelectedTagIds((prev) => new Set(prev).add(tag.id));
+			setSelectedTagId(tag.id);
 		},
 		[queryClient, refreshAvailableTags]
 	);
@@ -125,14 +119,20 @@ const AddTagsModal: FC<AddTagsModalProps> = ({
 				header={t('lines.addTags')}
 				innerStyle={{ gap: 12, marginTop: 16 }}
 			>
-				<ButtonHighlight
-					mode="text"
-					compact
+				<RadioListItem
+					opt={{ key: '__create__', label: '' }}
 					onPress={() => setCreateModalVisible(true)}
-					icon="tag-plus-outline"
-				>
-					<Text>{t('lines.tagsCreate')}</Text>
-				</ButtonHighlight>
+					status="unchecked"
+					labelNode={
+						<View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+							<Icon
+								source="tag-plus-outline"
+								size={20}
+							/>
+							<Text>{t('lines.tagsCreate')}</Text>
+						</View>
+					}
+				/>
 
 				{loadingTags ? (
 					<LoadingIndicator />
@@ -140,16 +140,13 @@ const AddTagsModal: FC<AddTagsModalProps> = ({
 					<Text>{t('lines.tagsNoTags')}</Text>
 				) : (
 					allTags.map((tag) => (
-						<View
+						<RadioListItem
 							key={tag.id}
-							style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}
-						>
-							<Checkbox
-								status={selectedTagIds.has(tag.id) ? 'checked' : 'unchecked'}
-								onPress={() => handleToggleTag(tag.id)}
-							/>
-							<TagBadge tag={tag} />
-						</View>
+							opt={{ key: String(tag.id), label: tag.label ?? '' }}
+							onPress={() => handleSelectTag(tag.id)}
+							status={selectedTagId === tag.id ? 'checked' : 'unchecked'}
+							labelNode={<TagBadge tag={tag} />}
+						/>
 					))
 				)}
 			</ModalWrapper>

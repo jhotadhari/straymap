@@ -63,11 +63,9 @@ const RowTags: FC = () => {
 	const [addModalVisible, setAddModalVisible] = useState(false);
 
 	const addMutation = useMutation({
-		mutationFn: async (tagIds: number[]) => {
+		mutationFn: async (tagId: number) => {
 			if (!line?.id) return;
-			for (const tagId of tagIds) {
-				await lineAddTag(line.id, tagId);
-			}
+			await lineAddTag(line.id, tagId);
 		},
 		onSuccess: async () => {
 			await invalidateLinesQueries(queryClient);
@@ -81,8 +79,8 @@ const RowTags: FC = () => {
 	});
 
 	const handleAddApply = useCallback(
-		(tagIds: number[]) => {
-			addMutation.mutate(tagIds);
+		(tagId: number) => {
+			addMutation.mutate(tagId);
 		},
 		[addMutation]
 	);
@@ -109,6 +107,7 @@ const RowTags: FC = () => {
 					gap: 4,
 					flex: 1,
 					alignItems: 'center',
+					maxWidth: '85%',
 				}}
 			>
 				{tags.length === 0 ? (
