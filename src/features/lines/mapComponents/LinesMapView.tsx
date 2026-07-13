@@ -2,7 +2,7 @@
  * External dependencies
  */
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { keepPreviousData, useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { LayerPath, ReindexScope, SharedLayer } from 'react-native-mapsforge-vtm';
 
 /**
@@ -29,7 +29,7 @@ const bboxKey = (bbox: ViewportBbox | null): string =>
 const snapTileZoom = (mapZoom: number): number => Math.min(8, Math.max(0, Math.floor(mapZoom - 4)));
 
 const LinesMapView = () => {
-	const selected = useAppSelector(selectSelected);
+	const selectedIds = useAppSelector(selectSelected);
 	const systemLineIds = useSystemLineIds();
 	const simplify = useSimplificationTolerance();
 
@@ -73,8 +73,6 @@ const LinesMapView = () => {
 		return () => clearInterval(interval);
 	}, [currentMapEventRef, mapUpdateInterval]);
 
-	const selectedIds = selected;
-
 	// Batch query with coarse bbox in the key.  DB filters lines outside
 	// the snapped bbox before Simplify(); key only changes on large pans.
 	const { data: lines } = useQuery({
@@ -87,7 +85,7 @@ const LinesMapView = () => {
 		queryFn: queryLineGeomsBatch,
 		enabled: simplify !== undefined && selectedIds.length > 0,
 		gcTime: 1000 * 10,
-		placeholderData: keepPreviousData,
+		placeholderData: (prev) => (selectedIds.length > 0 ? prev : []),
 	});
 
 	const systemIdSet = useMemo(() => {
@@ -106,7 +104,7 @@ const LinesMapView = () => {
 	const pathElements = useMemo(() => {
 		if (simplify === undefined || !lines) return undefined;
 		// Build a temporary geometry lookup from the current query result.
-		// keepPreviousData ensures `lines` always holds the last successful
+		// placeholderData ensures `lines` always holds the last successful
 		// fetch during a refetch, so no cross-render cache is needed — the
 		// Map is created fresh here and garbage-collected when useMemo
 		// recalculates.
