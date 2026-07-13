@@ -8,7 +8,7 @@ import en from './assets/i18n/en.json';
 import es from './assets/i18n/es.json';
 import pt from './assets/i18n/pt.json';
 import { onSetDbPath } from './slice';
-import { selectIsRouting } from './selectors';
+import { selectIsRouting, selectRoutingLineId } from './selectors';
 import RoutingMapView from './mapComponents/RoutingMapView';
 import routingDrawerItem from './drawerPanels/routing';
 
@@ -33,4 +33,8 @@ export default {
 	modes: ['routing'],
 	selectActiveModes: (state: any) => (selectIsRouting(state) ? ['routing'] : []),
 	systemTagLabels: ['routing'],
+	selectSystemLineIds: (state: any) => {
+		const id = selectRoutingLineId(state);
+		return { routing: id ?? null };
+	},
 };

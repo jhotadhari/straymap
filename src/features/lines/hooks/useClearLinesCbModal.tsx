@@ -13,7 +13,7 @@ import { useTranslation } from 'react-i18next';
  */
 import ButtonHighlight from '../../../components/generic/ButtonHighlight';
 import ModalWrapper from '../../../components/generic/ModalWrapper';
-import { useAppDispatch } from '../../../store/hooks';
+import { useAppDispatch, useSystemLineIds } from '../../../store/hooks';
 import { sharedStyles } from '../../../sharedStyles';
 import { setSelected } from '../slice';
 
@@ -25,6 +25,8 @@ const useClearLinesCbModal = ({
 	backgroundBlur?: boolean;
 }) => {
 	const dispatch = useAppDispatch();
+
+	const systemLineIds = useSystemLineIds();
 
 	const { t } = useTranslation();
 
@@ -39,9 +41,16 @@ const useClearLinesCbModal = ({
 	const handleDismissModal = useCallback(() => setModalVisible(false), []);
 
 	const handleClearLines = useCallback(() => {
-		dispatch(setSelected([]));
+		const systemIds = new Set(Object.values(systemLineIds));
+		const filtered = lineIds.filter((id) => systemIds.has(id));
+		dispatch(setSelected(filtered));
 		handleDismissModal();
-	}, [dispatch, handleDismissModal]);
+	}, [
+		dispatch,
+		handleDismissModal,
+		lineIds,
+		systemLineIds,
+	]);
 
 	const modalNode = useMemo(() => {
 		if (!modalVisible) {

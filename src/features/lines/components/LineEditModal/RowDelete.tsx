@@ -15,8 +15,7 @@ import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
 import useDeleteLinesCbModal from '../../hooks/useDeleteLinesCbModal';
 import { sharedStyles } from './sharedDeps';
 import { selectLineTemp } from '../../selectors';
-import { selectIsRouting } from '../../../routing/selectors';
-import { useAppSelector } from '../../../../store/hooks';
+import { useAppSelector, useSystemLineIds } from '../../../../store/hooks';
 
 const RowDelete: FC = () => {
 	const theme = useTheme();
@@ -26,17 +25,10 @@ const RowDelete: FC = () => {
 
 	const { selectLine, route, onDismiss, onDeleteSuccess } = useContext(LineEditModalContext);
 
-	const isRouting = useAppSelector(selectIsRouting);
-
-	// Prevent deletion of the line that is currently being routed.
-	// Deleting it would orphan the active route and break the map.
-	const isRoutingLine = useMemo(
-		() => !!(lineTemp?.id && route?.id && isRouting === route.id),
-		[
-			lineTemp?.id,
-			route?.id,
-			isRouting,
-		]
+	const systemLineIds = useSystemLineIds();
+	const isSystemLine = useMemo(
+		() => Object.values(systemLineIds).includes(lineTemp?.id ?? -1),
+		[systemLineIds, lineTemp?.id]
 	);
 
 	const removeFromMap = useCallback(() => {
@@ -68,12 +60,12 @@ const RowDelete: FC = () => {
 	const buttonStyle = useMemo(
 		() => ({
 			borderColor: theme.colors.onBackground,
-			...(isRoutingLine && {
+			...(isSystemLine && {
 				opacity: 0.5,
 				borderColor: theme.colors.onSurfaceDisabled,
 			}),
 		}),
-		[theme, isRoutingLine]
+		[theme, isSystemLine]
 	);
 
 	return (
@@ -86,7 +78,7 @@ const RowDelete: FC = () => {
 				style={buttonStyle}
 				mode="outlined"
 				compact={true}
-				disabled={isRoutingLine}
+				disabled={isSystemLine}
 				onPress={handleDelete}
 				icon={iconSourceDelete}
 				contentStyle={sharedStyles.buttonContent}
@@ -94,7 +86,7 @@ const RowDelete: FC = () => {
 				textColor={theme.colors.onBackground}
 			>
 				<View>
-					<Text>{isRoutingLine ? t('lines.isRoutingLine') : t('lines.delete')}</Text>
+					<Text>{isSystemLine ? t('lines.isRoutingLine') : t('lines.delete')}</Text>
 				</View>
 			</ButtonHighlight>
 		</InfoRowControl>

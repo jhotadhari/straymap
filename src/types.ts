@@ -176,6 +176,18 @@ export interface AppFeature {
 	selectActiveModes?: (state: any) => AppMode[];
 
 	/**
+	 * Selector that returns a Record mapping feature-specific keys to
+	 * line IDs owned by this feature. Aggregated across all features
+	 * by `FeatureRegistry.getSystemLineIds()`. Lines declared here are:
+	 * - Protected from bulk-clear operations
+	 * - Filtered from default LayerPath rendering (rendered by their own mapComponents)
+	 * - Eligible for special UI treatment in line lists (feature-specific icons)
+	 *
+	 * Example: routing → { routing: 42 }, trackRecording → { trackRecording: 7 }
+	 */
+	selectSystemLineIds?: (state: any) => Record<string, number | null>;
+
+	/**
 	 * Labels of tags that are managed by this feature and should not be
 	 * deletable or detachable by the user. Aggregated across all features
 	 * by `FeatureRegistry.getSystemTagLabels()`.

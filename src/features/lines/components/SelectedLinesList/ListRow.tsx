@@ -10,13 +10,12 @@ import { omit, pick } from 'lodash-es';
  * Internal dependencies
  */
 import { useAppDispatch } from '../../../../store/hooks';
-import { Line, LineStats as LineStatsType } from '../../types';
+import { Line } from '../../types';
 import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
 import { setLineSelected, setLineTemp } from '../../slice';
 import LineStats from '../LineStats';
 import TagBadge from '../TagBadge';
 import IconRouting from '../../../routing/drawerPanels/routing/IconComponent';
-import useRoute from '../../../routing/hooks/useRoute';
 import useActivateDrawerItem from '../../../drawers/hooks/useActivateDrawerItem';
 import { DRAWER_ICON_SIZE } from '../../../../constants';
 import { sharedStyles } from './sharedDeps';
@@ -24,11 +23,10 @@ import { sharedStyles } from './sharedDeps';
 export interface ListRowProps {
 	line: Omit<Line, 'geometry'>;
 	idx: number;
-	isRoutingLine: boolean;
-	stats?: LineStatsType;
+	systemFeatureKey: string | null;
 }
 
-const ListRow: FC<ListRowProps> = ({ line, idx }) => {
+const ListRow: FC<ListRowProps> = ({ line, idx, systemFeatureKey }) => {
 	const dispatch = useAppDispatch();
 
 	const activateRoutingDrawerItem = useActivateDrawerItem('routing');
@@ -50,9 +48,7 @@ const ListRow: FC<ListRowProps> = ({ line, idx }) => {
 		() => dispatch(setLineSelected(line.id)),
 		[dispatch, line.id]
 	);
-	const { line_id: routingLineId, stats: routingStats } = useRoute(['line_id', 'stats']) || {};
-
-	const stats = (line.id !== routingLineId ? line?.stats : routingStats) ?? {};
+	const stats = line?.stats ?? {};
 
 	const handleActivateRouting = useCallback(
 		() => activateRoutingDrawerItem(),
@@ -73,7 +69,7 @@ const ListRow: FC<ListRowProps> = ({ line, idx }) => {
 					/>
 				</ButtonHighlight>
 
-				{line.id !== routingLineId && (
+				{systemFeatureKey === null && (
 					<ButtonHighlight
 						style={sharedStyles.noShrink}
 						mode="text"
@@ -87,7 +83,7 @@ const ListRow: FC<ListRowProps> = ({ line, idx }) => {
 					</ButtonHighlight>
 				)}
 
-				{line.id === routingLineId && (
+				{systemFeatureKey === 'routing' && (
 					<ButtonHighlight
 						style={sharedStyles.noShrink}
 						mode="text"
@@ -95,6 +91,20 @@ const ListRow: FC<ListRowProps> = ({ line, idx }) => {
 						onPress={handleActivateRouting}
 					>
 						<IconRouting color={theme.colors.primary} />
+					</ButtonHighlight>
+				)}
+
+				{systemFeatureKey !== null && systemFeatureKey !== 'routing' && (
+					<ButtonHighlight
+						style={sharedStyles.noShrink}
+						mode="text"
+						compact={true}
+						disabled={true}
+					>
+						<Icon
+							source={'lock'}
+							size={DRAWER_ICON_SIZE}
+						/>
 					</ButtonHighlight>
 				)}
 			</View>

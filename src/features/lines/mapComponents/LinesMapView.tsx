@@ -3,16 +3,14 @@
  */
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
-import { GeometryStyle, LayerPath, ReindexScope, SharedLayer } from 'react-native-mapsforge-vtm';
+import { LayerPath, ReindexScope, SharedLayer } from 'react-native-mapsforge-vtm';
 
 /**
  * Internal dependencies
  */
 import { MapContext } from '../../../Context';
-import { useAppSelector } from '../../../store/hooks';
+import { useAppSelector, useSystemLineIds } from '../../../store/hooks';
 import { selectSelected } from '../selectors';
-import { selectRoutingLineId } from '../../routing/selectors';
-import { selectActiveLineId } from '../../trackRecording/selectors';
 import { selectMapUpdateInterval } from '../../general/selectors';
 import { queryLineGeomsBatch } from '../db/queryFns';
 import useSimplificationTolerance from '../hooks/useSimplificationTolerance';
@@ -32,8 +30,7 @@ const snapTileZoom = (mapZoom: number): number => Math.min(8, Math.max(0, Math.f
 
 const LinesMapView = () => {
 	const selected = useAppSelector(selectSelected);
-	const routingLineId = useAppSelector(selectRoutingLineId);
-	const recordingLineId = useAppSelector(selectActiveLineId);
+	const systemLineIds = useSystemLineIds();
 	const simplify = useSimplificationTolerance();
 
 	// Coarse tile-snapped bbox in the query key — DB-side spatial filter
@@ -124,14 +121,18 @@ const LinesMapView = () => {
 		}
 	}
 
+	const systemIdSet = useMemo(() => {
+		const ids = new Set<number>();
+		for (const id of Object.values(systemLineIds)) {
+			if (id != null) ids.add(id);
+		}
+		return ids;
+	}, [systemLineIds]);
+
 	const linesToRender = useMemo(() => {
 		if (!lines) return [];
-		return lines.filter((l) => l.id !== routingLineId && l.id !== recordingLineId);
-	}, [
-		lines,
-		routingLineId,
-		recordingLineId,
-	]);
+		return lines.filter((l) => !systemIdSet.has(l.id));
+	}, [lines, systemIdSet]);
 
 	const pathElements = useMemo(() => {
 		if (simplify === undefined) return undefined;

@@ -180,6 +180,27 @@ export class FeatureRegistry {
 		}
 		return [...new Set(active)];
 	}
+
+	/**
+	 * Returns all feature-owned line IDs aggregated into a single record.
+	 * Keys are feature-specific names (e.g. 'routing', 'trackRecording'),
+	 * values are the line IDs. Aggregated across all features that implement
+	 * `selectSystemLineIds`.
+	 */
+	getSystemLineIds(state: any): Record<string, number> {
+		const ids: Record<string, number> = {};
+		for (const feature of Object.values(this.features())) {
+			if (feature.selectSystemLineIds) {
+				const featureIds = feature.selectSystemLineIds(state);
+				for (const [key, lineId] of Object.entries(featureIds)) {
+					if (lineId != null) {
+						ids[key] = lineId;
+					}
+				}
+			}
+		}
+		return ids;
+	}
 }
 
 export const featureRegistry = new FeatureRegistry();

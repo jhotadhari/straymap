@@ -2,7 +2,7 @@
  * Internal dependencies
  */
 import { initializeFromStorage } from './connectStorage';
-import { selectInitialized, selectIsRecording } from './selectors';
+import { selectActiveLineId, selectInitialized, selectIsRecording } from './selectors';
 import de from './assets/i18n/de.json';
 import en from './assets/i18n/en.json';
 import es from './assets/i18n/es.json';
@@ -22,6 +22,10 @@ export default {
 	},
 	modes: ['trackRecording'],
 	selectActiveModes: (state: any) => (selectIsRecording(state) ? ['trackRecording'] : []),
+	selectSystemLineIds: (state: any) => {
+		const id = selectActiveLineId(state);
+		return { trackRecording: id ?? null };
+	},
 	dashboardWidgets: [trackingStats],
 	mapComponents: [
 		{

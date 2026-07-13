@@ -1,13 +1,14 @@
 /**
  * External dependencies
  */
-import { useDispatch, useSelector } from 'react-redux';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 
 /**
  * Internal dependencies
  */
 import type { AppDispatch, RootState } from './store';
 import features from '../features';
+import { featureRegistry } from '../features/FeatureRegistry';
 
 // Use throughout your app instead of plain `useDispatch` and `useSelector`
 export const useAppDispatch = useDispatch.withTypes<AppDispatch>();
@@ -22,4 +23,16 @@ export const useSettingsInitialized = () => {
 		acc.push(settingsInitialized);
 		return acc;
 	}, [] as boolean[]);
+};
+
+/**
+ * Returns a stable Record mapping feature keys to their current
+ * system line IDs (e.g. `{ routing: 42 }` when a route is active).
+ * Uses shallowEqual to avoid re-renders when values haven't changed.
+ */
+export const useSystemLineIds = (): Record<string, number> => {
+	return useAppSelector(
+		(state: RootState) => featureRegistry.getSystemLineIds(state),
+		shallowEqual
+	);
 };

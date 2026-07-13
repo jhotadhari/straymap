@@ -48,7 +48,7 @@ export interface LinesState extends SliceSettingsBase, LinesSettings {
 
 export const initialSettings: LinesSettings = {
 	selected: [],
-	tagBadgeMode: 'contained',
+	tagBadgeMode: 'outlined',
 	tagsTable: {
 		tableColumns: [],
 		sort: null,

@@ -30,7 +30,7 @@ only excluded by explicit `fieldsExclude: ['geometry']` (not `['envelope']`).
 ```ts
 LinesState {
   initialized: boolean;
-  selected: { id: number; visible: boolean }[];  // lines currently on the map
+  selected: number[];  // line IDs currently on the map
   lineTemp?: LinePartial;                         // draft being edited in LineEditModal
 }
 ```
@@ -40,16 +40,14 @@ LinesState {
 | Thunk                                | What it does                                                    |
 | ------------------------------------ | --------------------------------------------------------------- |
 | `setLineSelected(id, isSelected?)`   | Toggle-adds/removes a single line from `selected[]`             |
-| `setLinesSelected(newIds: number[])` | Bulk-replaces `selected[]`, preserving existing `visible` flags |
-| `setLineVisible(id, visible?)`       | Toggles the `visible` flag on an already-selected line          |
+| `setLinesSelected(newIds: number[])` | Bulk-replaces `selected[]`                                     |
 | `setLineTemp(linePartial?)`          | Sets/clears the draft line being edited in the modal            |
 
 ### Key selectors
 
 | Selector              | Returns                                                          |
 | --------------------- | ---------------------------------------------------------------- |
-| `selectSelected`      | `{ id, visible }[]` (deduplicated)                               |
-| `selectSelectedInfos` | `{ selectedIds: number[], visibleMap: Record<string, boolean> }` |
+| `selectSelected`      | `number[]` (deduplicated)                                       |
 | `selectLineTemp`      | `LinePartial \| undefined`                                       |
 
 ## React Query layer
@@ -91,10 +89,10 @@ Redux dispatch per toggle. The flush happens once on unmount.
 
 ### Consumers of Redux `selected`
 
-- **LinesMapView** — renders `<LayerPath>` for each selected+visible line
-- **DrawerTopBar** — shows count of selected lines + hidden count
+- **LinesMapView** — renders `<LayerPath>` for each selected line
+- **DrawerTopBar** — shows count of selected lines
 - **SelectedLinesList** — list of selected lines with visibility toggles
-- **LineEditModal rows** — `RowToggleOnMap` reads `selectSelectedInfos` to show dynamic label
+- **LineEditModal rows** — `RowToggleOnMap` reads `selectSelected` to show dynamic label
 
 ## LineEditModal
 
