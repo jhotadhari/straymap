@@ -49,7 +49,7 @@ const useShowRoutesWithTags = () => {
 			key: 'showRoutesWithTags',
 			cb,
 			label: 'lines.showRoutesWithTags',
-			leadingIcon: 'filter-variant',
+			leadingIcon: 'go-kart-track',
 			disabled,
 		}),
 		[cb, disabled]

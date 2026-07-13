@@ -9,7 +9,7 @@ import { useQueryClient } from '@tanstack/react-query';
  */
 import { FooterContext } from '../Context';
 import useDeleteTagsCbModal from '../../../hooks/useDeleteTagsCbModal';
-import { invalidateTagsTable } from '../../../db/queryFns';
+import { invalidateTagsTable, invalidateLinesQueries } from '../../../db/queryFns';
 
 const useDeleteTags = () => {
 	const { checkedIds, setCheckedIds } = useContext(FooterContext);
@@ -18,6 +18,7 @@ const useDeleteTags = () => {
 	const onSuccess = useCallback(() => {
 		invalidateTagsTable(queryClient);
 		queryClient.invalidateQueries({ queryKey: ['tags'] });
+		invalidateLinesQueries(queryClient);
 		setCheckedIds?.([]);
 	}, [queryClient, setCheckedIds]);
 

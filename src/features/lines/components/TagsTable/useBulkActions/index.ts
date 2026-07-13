@@ -7,27 +7,27 @@ import { useMemo } from 'react';
  * Internal dependencies
  */
 import { MenuActionOption } from '../../../../../types';
-import useDeleteTags from './useDeleteTags';
 import useChangeTagColor from './useChangeTagColor';
 import useShowRoutesWithTags from './useShowRoutesWithTags';
+import useDeleteTags from './useDeleteTags';
 
 const useTagBulkActions = () => {
-	const actionDeleteTags = useDeleteTags();
 	const actionChangeTagColor = useChangeTagColor();
 	const actionShowRoutesWithTags = useShowRoutesWithTags();
+	const actionDeleteTags = useDeleteTags();
 
 	return useMemo(() => {
 		const actions: Record<string, MenuActionOption> = {};
 
-		actions[actionDeleteTags.key] = actionDeleteTags;
 		actions[actionChangeTagColor.key] = actionChangeTagColor;
 		actions[actionShowRoutesWithTags.key] = actionShowRoutesWithTags;
+		actions[actionDeleteTags.key] = actionDeleteTags;
 
 		return actions;
 	}, [
-		actionDeleteTags,
 		actionChangeTagColor,
 		actionShowRoutesWithTags,
+		actionDeleteTags,
 	]);
 };
 

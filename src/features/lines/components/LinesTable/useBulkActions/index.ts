@@ -8,23 +8,23 @@ import { useMemo } from 'react';
  */
 import { MenuActionOption } from '../../../../../types';
 import useAddToMap from './useAddToMap';
-import useDeleteLines from './useDeleteLines';
 import useExport from './useExport';
 import useRemoveFromMap from './useRemoveFromMap';
 import useShowStats from './useShowStats';
 import useFlyTo from './useFlyTo';
 import useAddTag from './useAddTag';
 import useRemoveTag from './useRemoveTag';
+import useDeleteLines from './useDeleteLines';
 
 const useBulkActions = () => {
 	const actionShowOnMap = useAddToMap();
 	const actionRemoveFromMap = useRemoveFromMap();
 	const actionFlyTo = useFlyTo();
 	const actionShowStats = useShowStats();
-	const actionDeleteLine = useDeleteLines();
 	const actionExport = useExport();
 	const actionAddTag = useAddTag();
 	const actionRemoveTag = useRemoveTag();
+	const actionDeleteLine = useDeleteLines();
 
 	return useMemo(() => {
 		const actions: Record<string, MenuActionOption> = {};
@@ -33,10 +33,10 @@ const useBulkActions = () => {
 		actions[actionRemoveFromMap.key] = actionRemoveFromMap;
 		actions[actionFlyTo.key] = actionFlyTo;
 		actions[actionShowStats.key] = actionShowStats;
-		actions[actionDeleteLine.key] = actionDeleteLine;
 		actions[actionExport.key] = actionExport;
 		actions[actionAddTag.key] = actionAddTag;
 		actions[actionRemoveTag.key] = actionRemoveTag;
+		actions[actionDeleteLine.key] = actionDeleteLine;
 
 		return actions;
 	}, [
@@ -44,10 +44,10 @@ const useBulkActions = () => {
 		actionRemoveFromMap,
 		actionFlyTo,
 		actionShowStats,
-		actionDeleteLine,
 		actionExport,
 		actionAddTag,
 		actionRemoveTag,
+		actionDeleteLine,
 	]);
 };
 
