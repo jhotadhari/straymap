@@ -39,49 +39,59 @@ const settingsKey = 'linesSettings';
 /**
  * Loads settings from defaultPreferences and dispatches them to the store.
  */
-export const initializeFromStorage = (store: AppStore) => {
+export const initializeFromStorage = async (store: AppStore): Promise<boolean> => {
 	if (selectInitialized(store.getState())) {
-		return;
+		return false;
 	}
 	// Ensure system-reserved tags exist in the database (idempotent).
-	ensureSystemTagsExist().catch((err) => {
+	// Await so that setInitialized(true) is only dispatched after
+	// system tags are committed — consumers that query tags on mount
+	// will see them.
+	try {
+		await ensureSystemTagsExist();
+	} catch (err) {
 		logError('initializeFromStorage.ensureSystemTagsExist', err);
-	});
-	DefaultPreference.get(settingsKey)
-		.then((newSettingsStr) => {
-			if (newSettingsStr) {
-				const newSettings = JSON.parse(newSettingsStr) as Partial<LinesState>;
-				if (newSettings?.selected) {
-					store.dispatch(setSelected(newSettings.selected));
-				}
-				if (newSettings?.linesTable?.tableColumns) {
-					store.dispatch(setLinesTableColumns(newSettings.linesTable!.tableColumns));
-				}
-				if (newSettings?.linesTable?.sort) {
-					store.dispatch(setLinesSort(newSettings.linesTable!.sort));
-				}
-				if (newSettings?.linesTable?.filters) {
-					store.dispatch(setLinesFilters(newSettings.linesTable!.filters));
-				}
-				if (newSettings?.linesTable?.filterLogic) {
-					store.dispatch(setLinesFilterLogic(newSettings.linesTable!.filterLogic));
-				}
-				if (newSettings?.tagsTable?.tableColumns) {
-					store.dispatch(setTagsTableColumns(newSettings.tagsTable.tableColumns));
-				}
-				if (newSettings?.tagsTable?.sort) {
-					store.dispatch(setTagsSort(newSettings.tagsTable.sort));
-				}
-				if (newSettings?.tagsTable?.filters) {
-					store.dispatch(setTagsFilters(newSettings.tagsTable.filters));
-				}
-				if (newSettings?.tagsTable?.filterLogic) {
-					store.dispatch(setTagsFilterLogic(newSettings.tagsTable.filterLogic));
-				}
+	}
+	try {
+		const newSettingsStr = await DefaultPreference.get(settingsKey);
+		if (newSettingsStr) {
+			const newSettings = JSON.parse(newSettingsStr) as Partial<LinesState>;
+			if (newSettings?.selected) {
+				store.dispatch(setSelected(newSettings.selected));
 			}
-			store.dispatch(setInitialized(true));
-		})
-		.catch((err) => logError('lines/connectStorage', err));
+			if (newSettings?.linesTable?.tableColumns) {
+				store.dispatch(setLinesTableColumns(newSettings.linesTable!.tableColumns));
+			}
+			if (newSettings?.linesTable?.sort) {
+				store.dispatch(setLinesSort(newSettings.linesTable!.sort));
+			}
+			if (newSettings?.linesTable?.filters) {
+				store.dispatch(setLinesFilters(newSettings.linesTable!.filters));
+			}
+			if (newSettings?.linesTable?.filterLogic) {
+				store.dispatch(setLinesFilterLogic(newSettings.linesTable!.filterLogic));
+			}
+			if (newSettings?.tagsTable?.tableColumns) {
+				store.dispatch(setTagsTableColumns(newSettings.tagsTable.tableColumns));
+			}
+			if (newSettings?.tagsTable?.sort) {
+				store.dispatch(setTagsSort(newSettings.tagsTable.sort));
+			}
+			if (newSettings?.tagsTable?.filters) {
+				store.dispatch(setTagsFilters(newSettings.tagsTable.filters));
+			}
+			if (newSettings?.tagsTable?.filterLogic) {
+				store.dispatch(setTagsFilterLogic(newSettings.tagsTable.filterLogic));
+			}
+			if (newSettings?.tagBadgeMode) {
+				store.dispatch(setTagBadgeMode(newSettings.tagBadgeMode));
+			}
+		}
+		store.dispatch(setInitialized(true));
+	} catch (err) {
+		logError('lines/connectStorage', err);
+	}
+	return true;
 };
 
 /**

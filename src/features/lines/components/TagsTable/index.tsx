@@ -14,7 +14,7 @@ import { without } from 'lodash-es';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { selectTagsSort, selectTagsFilters, selectTagsFilterLogic } from '../../selectors';
 import { Tag } from '../../types';
-import { sharedStyles } from './sharedDeps';
+import { tableStyles } from '../tableStyles';
 import TagTableHeader from './TableHeader';
 import TagTableRow from './TableRow';
 import TagHeader from './Header';
@@ -108,7 +108,7 @@ const TagsTable: FC = () => {
 
 	const styleCell = useMemo(
 		() => [
-			sharedStyles.cell,
+			tableStyles.cell,
 			{ borderColor: theme.colors.surfaceVariant },
 		],
 		[theme]
@@ -148,7 +148,7 @@ const TagsTable: FC = () => {
 
 	return (
 		<ColumnHeaderMenuContext.Provider value={{ openFilterForColumn }}>
-			<View style={sharedStyles.container}>
+			<View style={tableStyles.container}>
 				<HeaderContext.Provider value={{ checkedIds }}>
 					<TagHeader />
 				</HeaderContext.Provider>

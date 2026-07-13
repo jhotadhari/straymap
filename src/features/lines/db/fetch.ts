@@ -181,11 +181,11 @@ const getLineColumns = (fields: (keyof Omit<Line, 'id'>)[], options?: LineColumn
 		...(fields.includes('modified_at') && { modified_at: linesTable.modified_at }),
 		...(fields.includes('custom_date') && { custom_date: linesTable.custom_date }),
 		...(fields.includes('geometry') &&
-			!options?.simplify && {
+			options?.simplify == null && {
 				geometryGeoJSON: sql<string>` AsGeoJSON (${linesTable.geometry}) `,
 			}),
 		...(fields.includes('geometry') &&
-			options?.simplify && {
+			options?.simplify != null && {
 				geometryGeoJSON: sql<string>`
 					AsGeoJSON (
 						Simplify (
@@ -543,15 +543,26 @@ export const fetchTagsWithLineCounts = (opts?: {
 			line_count: r.line_count,
 		}));
 
-		// Apply line_count filters in JS (HAVING equivalent)
+		// Apply line_count filters in JS (HAVING equivalent).
+		// Respect filterLogic so that OR-combined numeric ranges work
+		// consistently with how SQL-side filters are combined.
 		if (lineCountFilters.length) {
-			for (const f of lineCountFilters) {
-				if (f.type !== 'numeric') continue;
-				result = result.filter((tag) => {
+			const numericFilters = lineCountFilters.filter((f) => f.type === 'numeric');
+			if (numericFilters.length) {
+				const logic = opts?.filterLogic ?? 'and';
+				const passes = (
+					tag: { line_count: number },
+					f: (typeof numericFilters)[number]
+				) => {
 					if (f.min !== undefined && tag.line_count < f.min) return false;
 					if (f.max !== undefined && tag.line_count > f.max) return false;
 					return true;
-				});
+				};
+				result = result.filter((tag) =>
+					logic === 'or'
+						? numericFilters.some((f) => passes(tag, f))
+						: numericFilters.every((f) => passes(tag, f))
+				);
 			}
 		}
 

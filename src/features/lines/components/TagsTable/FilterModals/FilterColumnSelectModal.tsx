@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next';
 import ModalWrapper from '../../../../../components/generic/ModalWrapper';
 import { useAppSelector } from '../../../../../store/hooks';
 import { selectTagsFilterableColumns } from '../../../selectors';
-import { sharedStyles } from '../sharedDeps';
+import { tableStyles } from '../../tableStyles';
 import RadioListItem from '../../../../../components/generic/RadioListItem';
 
 const TagFilterColumnSelectModal: FC<{
@@ -49,7 +49,7 @@ const TagFilterColumnSelectModal: FC<{
 			visible={visible}
 			onDismiss={onDismiss}
 			header={t('lines.addFilter')}
-			innerStyle={sharedStyles.modalInner}
+			innerStyle={tableStyles.modalInner}
 		>
 			{options.map((opt) => (
 				<RadioListItem

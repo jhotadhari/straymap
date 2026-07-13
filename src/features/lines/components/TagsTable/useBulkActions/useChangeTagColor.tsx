@@ -18,7 +18,7 @@ import { sprintf } from 'sprintf-js';
 import ModalWrapper from '../../../../../components/generic/ModalWrapper';
 import ColorPaletteInline from '../../../../../components/ColorPalette/ColorPaletteInline';
 import { PALETTE_COLORS } from '../../tagColor';
-import { sharedStyles } from '../sharedDeps';
+import { tableStyles } from '../../tableStyles';
 
 const useChangeTagColor = () => {
 	const { t } = useTranslation();
@@ -66,7 +66,7 @@ const useChangeTagColor = () => {
 				visible={modalVisible}
 				onDismiss={closeModal}
 				header={t('lines.tagsChangeColor')}
-				innerStyle={sharedStyles.modalInner}
+				innerStyle={tableStyles.modalInner}
 			>
 				<Text>{t('lines.tagsChangeColor')}</Text>
 				<ColorPaletteInline

@@ -13,7 +13,8 @@ import { Line, LineStats as LineStatsType, TableColumn } from '../../types';
 import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
 import { DRAWER_ICON_SIZE } from '../../../drawers/constants';
 import LineStats from '../LineStats';
-import { cellConfigs, sharedStyles, getCellCategory } from './sharedDeps';
+import { cellConfigs, getCellCategory } from './sharedDeps';
+import { tableStyles } from '../tableStyles';
 import TagBadge from '../TagBadge';
 import IconRouting from '../../../routing/drawerPanels/routing/IconComponent';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
@@ -96,7 +97,7 @@ const TableRow: FC<TableRowProps> = ({
 
 	const style = useMemo(
 		() => [
-			sharedStyles.flexRow,
+			tableStyles.flexRow,
 			{
 				...(isChecked && {
 					...(idx % 2 === 1
@@ -162,7 +163,7 @@ const TableRow: FC<TableRowProps> = ({
 			</View>
 
 			<TouchableWithoutFeedback onPress={toggleChecked}>
-				<View style={sharedStyles.flexRow}>
+				<View style={tableStyles.flexRow}>
 					{visibleColumns.map((column) => {
 						const cellStyle = cellConfigs[column.key]?.style;
 						const columnStyle = [

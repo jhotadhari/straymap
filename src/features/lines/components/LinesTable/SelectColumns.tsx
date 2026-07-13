@@ -17,7 +17,7 @@ import { setLinesTableColumns } from '../../slice';
 import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
 import { Icon, Text } from 'react-native-paper';
 import { DRAWER_ICON_SIZE, modalPadding, modalWidthFactor } from '../../../../constants';
-import { sharedStyles } from './sharedDeps';
+import { tableStyles } from '../tableStyles';
 import useDropIndicatorStyle from '../../../../compose/useDropIndicatorStyle';
 import IconButtonHighlight from '../../../../components/generic/IconButtonHighlight';
 
@@ -137,7 +137,7 @@ const SelectColumns: FC<{}> = ({}) => {
 				visible={isModalVisible}
 				onDismiss={onDismiss}
 				header={t('lines.selectColumns')}
-				innerStyle={sharedStyles.modalInner}
+				innerStyle={tableStyles.modalInner}
 				scrollEnabled={scrollEnabled}
 				modalStyle={styles.modal}
 			>

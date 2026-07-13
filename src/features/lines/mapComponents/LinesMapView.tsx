@@ -39,11 +39,9 @@ const LinesMapView = () => {
 	const mapUpdateInterval = useAppSelector(selectMapUpdateInterval);
 	const [queryBbox, setQueryBbox] = useState<ViewportBbox | null>(null);
 
-	const bboxTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 	const lastBboxKeyRef = useRef<string | null>(null);
 	useEffect(() => {
-		const scheduleBbox = () => {
-			if (bboxTimeoutRef.current) return;
+		const tick = () => {
 			const evt = currentMapEventRef?.current;
 			if (
 				!evt?.center ||
@@ -54,41 +52,25 @@ const LinesMapView = () => {
 			) {
 				return;
 			}
-			bboxTimeoutRef.current = setTimeout(() => {
-				bboxTimeoutRef.current = null;
-				const fresh = currentMapEventRef?.current;
-				if (
-					!fresh?.center ||
-					fresh.center.length < 2 ||
-					fresh.zoomLevel == null ||
-					!fresh.viewportWidth ||
-					!fresh.viewportHeight
-				) {
-					return;
-				}
-				let bbox = computeViewportBbox(
-					fresh.center as [number, number],
-					fresh.zoomLevel!,
-					fresh.viewportWidth!,
-					fresh.viewportHeight!,
-					fresh.bearing ?? 0,
-					fresh.tilt ?? 0
-				);
-				if (bbox) {
-					bbox = snapBboxToTiles(bbox, snapTileZoom(fresh.zoomLevel!));
-				}
-				const key = bboxKey(bbox);
-				if (key !== lastBboxKeyRef.current) {
-					lastBboxKeyRef.current = key;
-					setQueryBbox(bbox);
-				}
-			}, 100);
+			let bbox = computeViewportBbox(
+				evt.center as [number, number],
+				evt.zoomLevel!,
+				evt.viewportWidth!,
+				evt.viewportHeight!,
+				evt.bearing ?? 0,
+				evt.tilt ?? 0
+			);
+			if (bbox) {
+				bbox = snapBboxToTiles(bbox, snapTileZoom(evt.zoomLevel!));
+			}
+			const key = bboxKey(bbox);
+			if (key !== lastBboxKeyRef.current) {
+				lastBboxKeyRef.current = key;
+				setQueryBbox(bbox);
+			}
 		};
-		const interval = setInterval(scheduleBbox, mapUpdateInterval);
-		return () => {
-			clearInterval(interval);
-			if (bboxTimeoutRef.current) clearTimeout(bboxTimeoutRef.current);
-		};
+		const interval = setInterval(tick, mapUpdateInterval);
+		return () => clearInterval(interval);
 	}, [currentMapEventRef, mapUpdateInterval]);
 
 	const selectedIds = selected;
@@ -108,19 +90,6 @@ const LinesMapView = () => {
 		placeholderData: keepPreviousData,
 	});
 
-	const coordsCacheRef = useRef<Map<number, number[][]>>(new Map());
-	if (lines) {
-		const cache = coordsCacheRef.current;
-		for (const line of lines) {
-			const next = line.geometry?.coordinates;
-			if (!next) continue;
-			const prev = cache.get(line.id);
-			if (!prev || prev.length !== next.length || prev[0]?.[0] !== next[0]?.[0]) {
-				cache.set(line.id, next);
-			}
-		}
-	}
-
 	const systemIdSet = useMemo(() => {
 		const ids = new Set<number>();
 		for (const id of Object.values(systemLineIds)) {
@@ -135,9 +104,20 @@ const LinesMapView = () => {
 	}, [lines, systemIdSet]);
 
 	const pathElements = useMemo(() => {
-		if (simplify === undefined) return undefined;
+		if (simplify === undefined || !lines) return undefined;
+		// Build a temporary geometry lookup from the current query result.
+		// keepPreviousData ensures `lines` always holds the last successful
+		// fetch during a refetch, so no cross-render cache is needed — the
+		// Map is created fresh here and garbage-collected when useMemo
+		// recalculates.
+		const geomByLineId = new Map<number, number[][]>();
+		for (const line of lines) {
+			if (line.geometry?.coordinates) {
+				geomByLineId.set(line.id, line.geometry.coordinates);
+			}
+		}
 		return linesToRender.map((line) => {
-			const coords = coordsCacheRef.current.get(line.id);
+			const coords = geomByLineId.get(line.id);
 			if (!coords) return undefined;
 			return (
 				<LayerPath
@@ -150,7 +130,11 @@ const LinesMapView = () => {
 				/>
 			);
 		});
-	}, [linesToRender, simplify]);
+	}, [
+		linesToRender,
+		simplify,
+		lines,
+	]);
 
 	return (
 		<ReindexScope order={200}>

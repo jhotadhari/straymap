@@ -13,7 +13,7 @@ import { sprintf } from 'sprintf-js';
  */
 import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
 import { DRAWER_ICON_SIZE } from '../../../drawers/constants';
-import { sharedStyles } from './sharedDeps';
+import { tableStyles } from '../tableStyles';
 import TagBulkActions from './BulkActions';
 import { FooterContext } from './Context';
 
@@ -25,7 +25,7 @@ const TagFooter: FC = () => {
 
 	const style = useMemo(
 		() => [
-			sharedStyles.footer,
+			tableStyles.footer,
 			{ borderColor: theme.colors.onBackground },
 		],
 		[theme]
@@ -46,7 +46,7 @@ const TagFooter: FC = () => {
 
 	return (
 		<View style={style}>
-			<View style={sharedStyles.flexRowGap}>
+			<View style={tableStyles.flexRowGap}>
 				<TagBulkActions />
 				<Text style={labelStyle}>{t('lines.bulkActions')}</Text>
 				<Text style={labelStyle}>
@@ -54,7 +54,7 @@ const TagFooter: FC = () => {
 				</Text>
 			</View>
 
-			<View style={sharedStyles.flexRowGap}>
+			<View style={tableStyles.flexRowGap}>
 				<ButtonHighlight
 					mode="text"
 					compact

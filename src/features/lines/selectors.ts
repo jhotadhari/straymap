@@ -1,9 +1,4 @@
 /**
- * External dependencies
- */
-import { uniq } from 'lodash-es';
-
-/**
  * Internal dependencies
  */
 import createAppSelector from '../../store/createAppSelector';
@@ -19,10 +14,7 @@ export const selectLineTemp = (state: RootState) => state.lines.lineTemp;
 
 export const selectTagTemp = (state: RootState) => state.lines.tagTemp;
 
-export const selectSelected = createAppSelector(
-	(state: RootState) => state.lines.selected,
-	(selected) => uniq(selected)
-);
+export const selectSelected = (state: RootState) => state.lines.selected;
 
 const allLinesColumnKeys = [
 	...Object.keys(lineCells),

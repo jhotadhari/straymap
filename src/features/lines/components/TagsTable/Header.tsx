@@ -10,7 +10,7 @@ import { sprintf } from 'sprintf-js';
 /**
  * Internal dependencies
  */
-import { sharedStyles } from './sharedDeps';
+import { tableStyles } from '../tableStyles';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { selectTagsFilters, selectTagsFilterLogic } from '../../selectors';
 import { setTagsFilterLogic, resetTagsFilters } from '../../slice';
@@ -76,7 +76,7 @@ const TagHeader: FC = () => {
 
 	const style = useMemo(
 		() => [
-			sharedStyles.header,
+			tableStyles.header,
 			{
 				borderColor: theme.colors.onBackground,
 				flexDirection: 'column' as const,
@@ -87,16 +87,13 @@ const TagHeader: FC = () => {
 
 	const rowStyleFullWidth = useMemo(
 		(): ViewStyle[] => [
-			sharedStyles.flexRowGap,
+			tableStyles.flexRowGap,
 			{ alignItems: 'center', width: '100%' },
 		],
 		[]
 	);
 
-	const rowStyle = useMemo(
-		() => [sharedStyles.flexRowGap, { alignItems: 'center' as const }],
-		[]
-	);
+	const rowStyle = useMemo(() => [tableStyles.flexRowGap, { alignItems: 'center' as const }], []);
 
 	const scrollStyle = useMemo(() => ({ flexShrink: 1, alignSelf: 'center' as const }), []);
 	const scrollContentStyle = useMemo(() => ({ alignItems: 'center' as const }), []);
@@ -156,7 +153,7 @@ const TagHeader: FC = () => {
 					contentContainerStyle={scrollContentStyle}
 				>
 					{hasFilters && (
-						<View style={sharedStyles.flexRowGap}>
+						<View style={tableStyles.flexRowGap}>
 							{filters.map((filter: ColumnFilter) => (
 								<FilterBadge
 									key={getFilterKey(filter)}

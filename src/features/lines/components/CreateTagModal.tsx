@@ -18,7 +18,7 @@ import { PALETTE_COLORS } from './tagColor';
 import { createTags } from '../db/actionsTag';
 import { invalidateTagsTable } from '../db/queryFns';
 import { Tag } from '../types';
-import { sharedStyles } from './TagsTable/sharedDeps';
+import { tableStyles } from './tableStyles';
 import { logError } from '../../../lib/utils';
 import { ErrorToastContext } from '../../../components/ErrorToast/Context';
 
@@ -85,7 +85,7 @@ const CreateTagModal: FC<CreateTagModalProps> = ({ visible, onDismiss, onCreated
 			visible={visible}
 			onDismiss={handleDismiss}
 			header={t('lines.tagsCreateTitle')}
-			innerStyle={sharedStyles.modalInner}
+			innerStyle={tableStyles.modalInner}
 		>
 			<TextInput
 				value={label}

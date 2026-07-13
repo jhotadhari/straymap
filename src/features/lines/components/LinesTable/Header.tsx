@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next';
 /**
  * Internal dependencies
  */
-import { sharedStyles } from './sharedDeps';
+import { tableStyles } from '../tableStyles';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { selectLinesFilters, selectLinesFilterLogic } from '../../selectors';
 import { setLinesFilterLogic, resetLinesFilters } from '../../slice';
@@ -78,7 +78,7 @@ const Header: FC = () => {
 
 	const style = useMemo(
 		() => [
-			sharedStyles.header,
+			tableStyles.header,
 			{
 				borderColor: theme.colors.onBackground,
 				flexDirection: 'column' as const,
@@ -89,16 +89,13 @@ const Header: FC = () => {
 
 	const rowStyleFullWidth = useMemo(
 		(): ViewStyle[] => [
-			sharedStyles.flexRowGap,
+			tableStyles.flexRowGap,
 			{ alignItems: 'center', width: '100%' },
 		],
 		[]
 	);
 
-	const rowStyle = useMemo(
-		() => [sharedStyles.flexRowGap, { alignItems: 'center' as const }],
-		[]
-	);
+	const rowStyle = useMemo(() => [tableStyles.flexRowGap, { alignItems: 'center' as const }], []);
 
 	const scrollStyle = useMemo(() => ({ flexShrink: 1, alignSelf: 'center' as const }), []);
 
@@ -161,7 +158,7 @@ const Header: FC = () => {
 					contentContainerStyle={scrollContentStyle}
 				>
 					{hasFilters && (
-						<View style={sharedStyles.flexRowGap}>
+						<View style={tableStyles.flexRowGap}>
 							{filters.map((filter) => (
 								<FilterBadge
 									key={getFilterKey(filter)}

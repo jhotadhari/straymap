@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { useRef } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 
 /**
@@ -28,11 +29,25 @@ export const useSettingsInitialized = () => {
 /**
  * Returns a stable Record mapping feature keys to their current
  * system line IDs (e.g. `{ routing: 42 }` when a route is active).
- * Uses shallowEqual to avoid re-renders when values haven't changed.
+ *
+ * The inner ref preserves referential equality when the aggregated
+ * keys/values haven't changed, so that `shallowEqual` (used by
+ * `useAppSelector`) can skip re-renders without a per-dispatch
+ * object allocation forcing a re-render.
  */
 export const useSystemLineIds = (): Record<string, number> => {
-	return useAppSelector(
-		(state: RootState) => featureRegistry.getSystemLineIds(state),
-		shallowEqual
-	);
+	const prevRef = useRef<Record<string, number>>({});
+	return useAppSelector((state: RootState) => {
+		const next = featureRegistry.getSystemLineIds(state);
+		const prev = prevRef.current;
+		const nextKeys = Object.keys(next);
+		if (
+			nextKeys.length === Object.keys(prev).length &&
+			nextKeys.every((k) => prev[k] === next[k])
+		) {
+			return prev;
+		}
+		prevRef.current = next;
+		return next;
+	}, shallowEqual);
 };

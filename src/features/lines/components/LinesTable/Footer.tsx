@@ -14,7 +14,7 @@ import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
 import IconButtonHighlight from '../../../../components/generic/IconButtonHighlight';
 import { DRAWER_ICON_SIZE } from '../../../drawers/constants';
 import { sprintf } from 'sprintf-js';
-import { sharedStyles } from './sharedDeps';
+import { tableStyles } from '../tableStyles';
 import BulkActions from './BulkActions';
 import ImportModal from './ImportModal';
 import { FooterContext } from './Context';
@@ -32,7 +32,7 @@ const Footer: FC = () => {
 
 	const style = useMemo(
 		() => [
-			sharedStyles.footer,
+			tableStyles.footer,
 			{
 				borderColor: theme.colors.onBackground,
 			},
@@ -56,7 +56,7 @@ const Footer: FC = () => {
 
 	return (
 		<View style={style}>
-			<View style={sharedStyles.flexRowGap}>
+			<View style={tableStyles.flexRowGap}>
 				<BulkActions />
 				<Text style={labelStyle}>{t('lines.bulkActions')}</Text>
 				<Text style={labelStyle}>
@@ -64,7 +64,7 @@ const Footer: FC = () => {
 				</Text>
 			</View>
 
-			<View style={sharedStyles.flexRowGap}>
+			<View style={tableStyles.flexRowGap}>
 				<ButtonHighlight
 					mode="text"
 					compact={true}

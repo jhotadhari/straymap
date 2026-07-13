@@ -27,7 +27,7 @@ import {
 	selectLinesSort,
 } from '../../selectors';
 import { Line, LineStats } from '../../types';
-import { sharedStyles } from './sharedDeps';
+import { tableStyles } from '../tableStyles';
 import TableHeader from './TableHeader';
 import TableRow, { TableRowProps } from './TableRow';
 import Header from './Header';
@@ -166,7 +166,7 @@ const LinesTable: FC = () => {
 
 	const styleCell: StyleProp<ViewStyle> = useMemo(
 		() => [
-			sharedStyles.cell,
+			tableStyles.cell,
 			{
 				// height: ITEM_HEIGHT,
 				// overflow: 'hidden',
@@ -235,7 +235,7 @@ const LinesTable: FC = () => {
 
 	return (
 		<ColumnHeaderMenuContext.Provider value={{ openFilterForColumn }}>
-			<View style={sharedStyles.container}>
+			<View style={tableStyles.container}>
 				<HeaderContext.Provider
 					value={{
 						checkedIds,

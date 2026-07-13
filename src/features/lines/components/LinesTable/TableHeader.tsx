@@ -10,7 +10,8 @@ import Popover, { PopoverPlacement } from 'react-native-popover-view';
 /**
  * Internal dependencies
  */
-import { sharedStyles, cellConfigs, getCellCategory, getFilterColumnType } from './sharedDeps';
+import { cellConfigs, getCellCategory, getFilterColumnType } from './sharedDeps';
+import { tableStyles } from '../tableStyles';
 import { TableColumn } from '../../types';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { selectLinesTableColumns, selectLinesSort, selectLinesFilters } from '../../selectors';
@@ -58,7 +59,7 @@ const TableHeader: FC<{
 
 	const styleContainer: StyleProp<ViewStyle> = useMemo(
 		() => [
-			sharedStyles.flexRow,
+			tableStyles.flexRow,
 			{
 				backgroundColor: theme.colors.background,
 				borderBottomWidth: 1,

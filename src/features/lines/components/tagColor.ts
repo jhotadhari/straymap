@@ -41,6 +41,11 @@ export const getTagColor = (tag: {
 	// Explicit colour stored in tag data
 	if (typeof tag.data?.color === 'string' && tag.data.color.length > 0) {
 		let hex = tag.data.color as string;
+		// Ensure leading # so the length-based normalisation and
+		// hex.slice(1,3) parsing below always target the right bytes.
+		if (!hex.startsWith('#')) {
+			hex = '#' + hex;
+		}
 		// Normalize 3-digit shorthand (#RGB) and 8-digit (#RRGGBBAA) to 6-digit
 		if (hex.length === 4) {
 			hex = '#' + hex[1] + hex[1] + hex[2] + hex[2] + hex[3] + hex[3];

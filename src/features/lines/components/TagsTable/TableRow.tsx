@@ -10,7 +10,8 @@ import { useTranslation } from 'react-i18next';
  * Internal dependencies
  */
 import { TableColumn, Tag } from '../../types';
-import { cellConfigs, sharedStyles } from './sharedDeps';
+import { cellConfigs } from './sharedDeps';
+import { tableStyles } from '../tableStyles';
 import { getTagColor } from '../tagColor';
 import { featureRegistry } from '../../../FeatureRegistry';
 import { useAppSelector } from '../../../../store/hooks';
@@ -56,7 +57,7 @@ const TagTableRow: FC<TagTableRowProps> = ({
 
 	const style = useMemo(
 		() => [
-			sharedStyles.flexRow,
+			tableStyles.flexRow,
 			{
 				...(isChecked && {
 					backgroundColor:
