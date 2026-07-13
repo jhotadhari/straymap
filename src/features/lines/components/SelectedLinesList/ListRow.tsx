@@ -61,30 +61,43 @@ const ListRow: FC<ListRowProps> = ({ line, idx }) => {
 
 	return (
 		<View style={[sharedStyles.row, style]}>
-			{line.id !== routingLineId && (
+			<View style={sharedStyles.noShrink}>
 				<ButtonHighlight
-					style={sharedStyles.noShrink}
 					mode="text"
 					compact={true}
-					onPress={toggleSelected}
+					onPress={handleEditPress}
 				>
 					<Icon
-						source={'map-minus'}
+						source={'cog'}
 						size={DRAWER_ICON_SIZE}
 					/>
 				</ButtonHighlight>
-			)}
 
-			{line.id === routingLineId && (
-				<ButtonHighlight
-					style={sharedStyles.noShrink}
-					mode="text"
-					compact={true}
-					onPress={handleActivateRouting}
-				>
-					<IconRouting color={theme.colors.primary} />
-				</ButtonHighlight>
-			)}
+				{line.id !== routingLineId && (
+					<ButtonHighlight
+						style={sharedStyles.noShrink}
+						mode="text"
+						compact={true}
+						onPress={toggleSelected}
+					>
+						<Icon
+							source={'map-minus'}
+							size={DRAWER_ICON_SIZE}
+						/>
+					</ButtonHighlight>
+				)}
+
+				{line.id === routingLineId && (
+					<ButtonHighlight
+						style={sharedStyles.noShrink}
+						mode="text"
+						compact={true}
+						onPress={handleActivateRouting}
+					>
+						<IconRouting color={theme.colors.primary} />
+					</ButtonHighlight>
+				)}
+			</View>
 
 			<View style={sharedStyles.rowColCenter}>
 				<View style={sharedStyles.rowColCenterRow}>
@@ -115,19 +128,6 @@ const ListRow: FC<ListRowProps> = ({ line, idx }) => {
 						))}
 					</View>
 				)}
-			</View>
-
-			<View style={sharedStyles.noShrink}>
-				<ButtonHighlight
-					mode="text"
-					compact={true}
-					onPress={handleEditPress}
-				>
-					<Icon
-						source={'cog'}
-						size={DRAWER_ICON_SIZE}
-					/>
-				</ButtonHighlight>
 			</View>
 		</View>
 	);

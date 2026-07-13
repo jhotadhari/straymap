@@ -9,10 +9,7 @@ export const sharedStyles = StyleSheet.create({
 		justifyContent: 'space-between',
 		alignItems: 'center',
 		flexDirection: 'row',
-		paddingBottom: 4,
-		paddingLeft: 4,
-		paddingRight: 2,
-		paddingTop: 4,
+		padding: 4,
 	},
 	rowColCenter: {
 		flexShrink: 1,
