@@ -69,6 +69,14 @@ export interface AppOverlayDescriptor {
 	props?: Record<string, unknown>;
 }
 
+/** A component rendered inside the map corner overlay. */
+export interface MapCornerComponentDescriptor {
+	key: string;
+	Component: ElementType<any>;
+	priority: number;
+	props?: Record<string, unknown>;
+}
+
 export interface AppFeature {
 	/**
 	 * Selector that returns whether this feature's persisted settings have
@@ -160,6 +168,9 @@ export interface AppFeature {
 	 * dashboard, center indicator, attribution, etc.).
 	 */
 	appOverlays?: AppOverlayDescriptor[];
+
+	/** Components rendered inside the map corner overlay. */
+	mapCornerComponents?: MapCornerComponentDescriptor[];
 
 	/**
 	 * Modes this feature can activate (e.g. `'location'`, `'trackRecording'`,

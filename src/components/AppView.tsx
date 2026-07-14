@@ -53,6 +53,7 @@ import { useAppDispatch } from '../store/hooks';
 import { featureRegistry } from '../features/FeatureRegistry';
 import { setMapEvent } from '../features/gnss/slice';
 import LayerDebugDumpButton from './LayerDebugDumpButton';
+import MapCornerComponents from './MapCornerComponents';
 import { selectIsRecording } from '../features/trackRecording/selectors';
 
 const zoomMin = 2;
@@ -365,6 +366,8 @@ const AppView = ({
 							<ReindexScope order={9999}>
 								<LayerScalebar />
 							</ReindexScope>
+
+							<MapCornerComponents />
 
 							<LayerDebugDumpButton />
 						</MapContainer>

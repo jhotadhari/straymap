@@ -8,6 +8,7 @@ import {
 	DashboardWidget,
 	DrawerPanel,
 	MapComponentDescriptor,
+	MapCornerComponentDescriptor,
 	SettingsControlFragment,
 	UiItem,
 } from '../types';
@@ -143,6 +144,18 @@ export class FeatureRegistry {
 		}
 		overlays.sort((a, b) => a.priority - b.priority);
 		return overlays;
+	}
+
+	/** Returns map corner components, sorted by priority. */
+	getMapCornerComponents(): MapCornerComponentDescriptor[] {
+		const components: MapCornerComponentDescriptor[] = [];
+		for (const feature of Object.values(this.features())) {
+			if (feature.mapCornerComponents) {
+				components.push(...feature.mapCornerComponents);
+			}
+		}
+		components.sort((a, b) => a.priority - b.priority);
+		return components;
 	}
 
 	/** Returns all modes declared by all features, de-duplicated. */

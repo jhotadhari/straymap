@@ -114,8 +114,6 @@ const Inner = ({ layerInfos }: { layerInfos: { [value: string]: LayerInfo } }) =
 	);
 };
 
-const PADDING = 8; // see node_modules/react-native-paper/src/components/IconButton/IconButton.tsx
-
 const buttonSize = 18;
 
 const renderInfoButtonIcon = ({ color }: { color: string }) => (
@@ -151,15 +149,13 @@ const MapLayersAttribution: FC<{}> = () => {
 	const InnerElement = useMemo(() => <Inner layerInfos={layerInfos} />, [layerInfos]);
 
 	return (
-		<View style={styles.wrapper}>
-			<InfoButton
-				labelPattern={t('baseMap.layerAttributions')}
-				headerPlural={true}
-				backgroundBlur={true}
-				Info={InnerElement}
-				buttonProps={buttonProps}
-			/>
-		</View>
+		<InfoButton
+			labelPattern={t('baseMap.layerAttributions')}
+			headerPlural={true}
+			backgroundBlur={true}
+			Info={InnerElement}
+			buttonProps={buttonProps}
+		/>
 	);
 };
 
@@ -170,16 +166,6 @@ const styles = StyleSheet.create({
 	componentWrapper: {
 		marginLeft: 10,
 		marginTop: 10,
-	},
-	wrapper: {
-		position: 'absolute',
-		bottom: 0 + PADDING + 3,
-		right: 0 + PADDING + 6,
-		justifyContent: 'center',
-		alignItems: 'center',
-		width: buttonSize,
-		height: buttonSize,
-		zIndex: 20,
 	},
 });
 

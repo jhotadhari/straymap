@@ -36,10 +36,12 @@ export default {
 			Component: BaseMap,
 			priority: 100,
 		},
+	],
+	mapCornerComponents: [
 		{
 			key: 'mapLayersAttribution',
 			Component: MapLayersAttribution,
-			priority: 300,
+			priority: 100,
 		},
 	],
 	settingsPages: [
