@@ -16,6 +16,4 @@ const SettingsDatabase: FC<{ style?: ViewStyle }> = ({ style }) => {
 		</ScrollView>
 	);
 };
-;
-
 export default SettingsDatabase;

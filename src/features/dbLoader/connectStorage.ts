@@ -58,7 +58,6 @@ export const initializeFromStorage = (store: AppStore) => {
 						resolve(true);
 					})
 					.catch((error) => {
-
 						const fallbackDbName = [
 							getDbDefaultName(),
 							dbExtension,
@@ -73,13 +72,10 @@ export const initializeFromStorage = (store: AppStore) => {
 								i18n.t('dbLoader.dbMigrationFallbackCreated'),
 								dbPath,
 								fallbackDbName
-							)
-						].join( '\n\n' );
+							),
+						].join('\n\n');
 
-						store.dispatch(
-							setDbMigrated( message )
-						);
-
+						store.dispatch(setDbMigrated(message));
 					});
 			})
 			.catch((err) => logError('dbLoader/connectStorage', err));
