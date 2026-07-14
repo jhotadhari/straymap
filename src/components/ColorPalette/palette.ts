@@ -6,17 +6,20 @@ export interface PaletteColor {
 
 /**
  * 10-colour palette with matching foreground/border tones.
- * Hues spaced ~40° apart, all at 100% HSL saturation for maximum vividness.
+ * Hues mostly spaced 45° apart around the colour wheel, all at 100% HSL
+ * saturation. Background lightness is 48 % except yellow which uses 55 %
+ * for full brightness. Borders use the same hue/saturation at 34 %
+ * lightness (yellow border at 36 %).
  */
 export const PALETTE_COLORS: PaletteColor[] = [
-	{ bg: '#F50000', fg: '#FFFFFF', border: '#B80000' }, // red       (0°)
-	{ bg: '#FFAA00', fg: '#3D1F00', border: '#CC8800' }, // orange   (40°)
-	{ bg: '#8CD600', fg: '#1F3300', border: '#6BA600' }, // chartreuse (80°)
-	{ bg: '#00DB00', fg: '#003300', border: '#00A800' }, // green    (120°)
-	{ bg: '#00C280', fg: '#003325', border: '#009960' }, // teal     (160°)
-	{ bg: '#0099E6', fg: '#FFFFFF', border: '#0077B8' }, // azure    (200°)
-	{ bg: '#1A1AFF', fg: '#FFFFFF', border: '#0000CC' }, // blue     (240°)
-	{ bg: '#8000FF', fg: '#FFFFFF', border: '#6000CC' }, // violet   (280°)
-	{ bg: '#F500A3', fg: '#FFFFFF', border: '#B8007A' }, // magenta  (320°)
-	{ bg: '#F50057', fg: '#FFFFFF', border: '#B8003F' }, // rose     (340°)
+	{ bg: '#F50000', fg: '#FFFFFF', border: '#AD0000' }, // red        (0°)
+	{ bg: '#F5B800', fg: '#1A1A1A', border: '#AD8200' }, // orange     (45°)
+	{ bg: '#FFF71A', fg: '#1A1A1A', border: '#B6B000' }, // yellow     (58°) 55% light
+	{ bg: '#7AF500', fg: '#1A1A1A', border: '#57AD00' }, // chartreuse (90°)
+	{ bg: '#00F53D', fg: '#1A1A1A', border: '#00AD2B' }, // lime-green (135°)
+	{ bg: '#00F5B8', fg: '#1A1A1A', border: '#00AD82' }, // teal       (165°)
+	{ bg: '#00F5F5', fg: '#1A1A1A', border: '#00ADAD' }, // cyan       (180°)
+	{ bg: '#003DF5', fg: '#FFFFFF', border: '#002BAD' }, // blue       (225°)
+	{ bg: '#7A00F5', fg: '#FFFFFF', border: '#5700AD' }, // violet     (270°)
+	{ bg: '#F500B8', fg: '#FFFFFF', border: '#AD0082' }, // pink       (315°)
 ];
