@@ -3,7 +3,7 @@
  */
 import React, { FC, useCallback, useContext, useMemo, useState } from 'react';
 import { StyleSheet, View, ViewProps } from 'react-native';
-import DraggableGrid from 'react-native-draggable-grid';
+import Sortable, { SortableFlexDragEndParams } from 'react-native-sortables';
 import { ScrollView } from 'react-native-gesture-handler';
 
 /**
@@ -23,6 +23,7 @@ import { setItemKeys } from '../slice';
 import DrawerContext from '../DrawerContext';
 import { DRAWER_HANDLE_SIZE } from '../constants';
 import { AppContext } from '../../../Context';
+import useDropIndicatorStyle from '../../../compose/useDropIndicatorStyle';
 
 const settingsOverwriteDrawerItem: DrawerPanel = {
 	iconSource: 'cog',
@@ -46,22 +47,9 @@ const DrawerHandles: FC<
 
 	const [panEnabled, setPanEnabled] = useState<boolean>(true);
 
-	const draggableItems = useMemo(() => itemKeys.map((key) => ({ key })), [itemKeys]);
+	const dropIndicatorStyle = useDropIndicatorStyle();
 
-	const RenderItem = useCallback(
-		({ key }: { key?: string }) => {
-			return (
-				<View key={key}>
-					<DrawerHandle
-						itemKey={key}
-						gesture={gesture}
-						panEnabled={panEnabled}
-					/>
-				</View>
-			);
-		},
-		[gesture, panEnabled]
-	);
+	const draggableItems = useMemo(() => itemKeys.map((key) => ({ key })), [itemKeys]);
 
 	const handleDraggableItemPress = useCallback(
 		({ key }: { key: string }) => {
@@ -89,14 +77,14 @@ const DrawerHandles: FC<
 	}, [setMoveEnabled]);
 
 	const handleDragRelease = useCallback(
-		(newDraggableItems: { key: string }[]) => {
+		({ indexToKey }: SortableFlexDragEndParams) => {
 			setPanEnabled(true);
 			setScrollEnabled(true);
 			setMoveEnabled?.(true);
 			dispatch(
 				setItemKeys({
 					side,
-					itemKeys: newDraggableItems.map((o) => o.key),
+					itemKeys: indexToKey.map((toKey) => toKey.replace('.$', '')),
 				})
 			);
 		},
@@ -183,15 +171,31 @@ const DrawerHandles: FC<
 				<View style={styleContainer}>
 					<View>
 						{draggableItems.length > 1 && sortable && (
-							<DraggableGrid
-								itemHeight={DRAWER_HANDLE_SIZE + DRAWER_HANDLE_SIZE / 2}
-								numColumns={1}
-								renderItem={RenderItem}
-								data={draggableItems}
+							<Sortable.Flex
+								itemEntering={null}
+								gap={0}
+								padding={0}
+								sortEnabled
+								customHandle={false}
+								showDropIndicator
+								dropIndicatorStyle={dropIndicatorStyle}
+								flexDirection="column"
+								reorderTriggerOrigin="touch"
+								alignItems="center"
 								onDragStart={handleDragStart}
-								onDragRelease={handleDragRelease}
-								onItemPress={handleDraggableItemPress}
-							/>
+								onDragEnd={handleDragRelease}
+							>
+								{draggableItems.map((item) => (
+									<View key={item.key}>
+										<DrawerHandle
+											itemKey={item.key}
+											gesture={gesture}
+											panEnabled={panEnabled}
+											onPress={handleItemPressMap[item.key]}
+										/>
+									</View>
+								))}
+							</Sortable.Flex>
 						)}
 						{(draggableItems.length === 1 ||
 							(draggableItems.length > 1 && !sortable)) &&

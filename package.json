@@ -53,7 +53,6 @@
     "react-native": "0.86.0",
     "react-native-brouter": "file:.yalc/react-native-brouter",
     "react-native-default-preference": "^1.4.4",
-    "react-native-draggable-grid": "^2.2.1",
     "react-native-fs": "^2.20.0",
     "react-native-gesture-handler": "^3.0.2",
     "react-native-hardwarekey-event": "file:.yalc/react-native-hardwarekey-event",
@@ -69,7 +68,6 @@
     "react-native-sortables": "^1.9.4",
     "react-native-svg": "^15.11.2",
     "react-native-uuid": "^2.0.2",
-    
     "react-native-worklets": "^0.10.0",
     "react-redux": "^9.2.0",
     "semver-compare": "^1.0.0",
