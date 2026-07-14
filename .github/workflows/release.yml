@@ -63,32 +63,25 @@ jobs:
           APP_KEYSTORE_ALIAS: ${{ secrets.APP_KEYSTORE_ALIAS }}
         run: cd ./android && ./gradlew bundleRelease
 
-      - name: Get Current Release
-        id: get_current_release
-        uses: joutvhu/get-release@v1
+      - name: Stage release artifacts
+        env:
+          TAG: ${{ steps.vars.outputs.tag }}
+        run: |
+          mkdir -p ./artifacts
+          cp ./android/app/build/outputs/apk/release/app-release.apk "./artifacts/straymap_${TAG}.apk"
+          cp ./android/app/build/outputs/bundle/release/app-release.aab "./artifacts/straymap_${TAG}.aab"
+
+      # Attach the APK & AAB to the GitHub release that release-kit created.
+      # softprops/action-gh-release creates the release if it doesn't exist yet
+      # (and retries), so this is race-free against release-kit's tag-then-create
+      # ordering. `body` is intentionally omitted so we don't clobber the changelog
+      # body release-kit already wrote — we only attach the build artifacts.
+      - name: Attach APK & AAB to GitHub release
+        uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ steps.vars.outputs.tag }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Upload Release APK Asset
-        id: upload-release-apk-asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.get_current_release.outputs.upload_url }}
-          asset_path: ./android/app/build/outputs/apk/release/app-release.apk
-          asset_name: straymap_${{ steps.vars.outputs.tag }}.apk
-          asset_content_type: application/vnd.android.package-archive
-
-      - name: Upload Release AAB Asset
-        id: upload-release-aab-asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.get_current_release.outputs.upload_url }}
-          asset_path: ./android/app/build/outputs/bundle/release/app-release.aab
-          asset_name: straymap_${{ steps.vars.outputs.tag }}.aab
-          asset_content_type: application/octet-stream
+          files: |
+            ./artifacts/straymap_${{ steps.vars.outputs.tag }}.apk
+            ./artifacts/straymap_${{ steps.vars.outputs.tag }}.aab
