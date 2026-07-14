@@ -1,5 +1,6 @@
 {
 	"dbMigrationError": "Fehler bei der Datenbankmigration: %s",
+	"dbMigrationFallbackCreated": "Die vorherige Datenbank konnte nicht geöffnet werden. Eine neue Datenbank \"%s\" wurde erstellt und wird beim nächsten Neustart verwendet.",
 	"database": "Datenbank",
 	"selectDbFile": "Datenbankdatei auswählen",
 	"createNewDatabase": "Neue Datenbank erstellen",

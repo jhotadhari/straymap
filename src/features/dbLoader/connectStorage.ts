@@ -4,6 +4,9 @@
 import { isAnyOf } from '@reduxjs/toolkit';
 import DefaultPreference from 'react-native-default-preference';
 import { get, isEqual, set } from 'lodash-es';
+import dayjs from 'dayjs';
+import { sprintf } from 'sprintf-js';
+import { ANDROID_DATABASE_PATH } from '@op-engineering/op-sqlite';
 
 /**
  * Internal dependencies
@@ -21,6 +24,10 @@ import { selectInitialized } from './selectors';
 import { AppStore } from '../../store/store';
 import { dbConnection } from './DBConnection';
 import { logError } from '../../lib/utils';
+import { getDbDefaultName } from './utils';
+import { dbExtension } from './constants';
+import { showErrorToast } from '../../components/ErrorToast/service';
+import i18n from '../../assets/i18n/i18n';
 
 const settingsKey = 'dbLoaderSettings';
 
@@ -55,11 +62,31 @@ export const initializeFromStorage = (store: AppStore) => {
 							setDbMigrated('string' === error?.message ? error.message : 'Error')
 						);
 
-						// ??? somehow add button to src/store/features/updater/components/SplashScreenDbMigration.tsx
-						// to allow to backup existing db and start a new one.
+						const fallbackDbName = [
+							getDbDefaultName(),
+							dbExtension,
+						].join('.');
+						const fallbackPath = ANDROID_DATABASE_PATH + fallbackDbName;
 
-						store.dispatch(setInitialized(true));
-						resolve(true);
+						dbConnection
+							.initialize(fallbackPath)
+							.then(() => {
+								store.dispatch(setDbPathAction(fallbackPath));
+								store.dispatch(setDbMigrated(true));
+							})
+							.catch((fallbackErr) => {
+								logError('dbLoader/connectStorage/fallback', fallbackErr);
+							})
+							.finally(() => {
+								showErrorToast(
+									sprintf(
+										i18n.t('dbLoader.dbMigrationFallbackCreated'),
+										fallbackDbName
+									)
+								);
+								store.dispatch(setInitialized(true));
+								resolve(true);
+							});
 					});
 			})
 			.catch((err) => logError('dbLoader/connectStorage', err));
