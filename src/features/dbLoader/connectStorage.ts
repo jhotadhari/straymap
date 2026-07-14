@@ -58,9 +58,6 @@ export const initializeFromStorage = (store: AppStore) => {
 						resolve(true);
 					})
 					.catch((error) => {
-						store.dispatch(
-							setDbMigrated('string' === error?.message ? error.message : 'Error')
-						);
 
 						const fallbackDbName = [
 							getDbDefaultName(),
@@ -68,25 +65,21 @@ export const initializeFromStorage = (store: AppStore) => {
 						].join('.');
 						const fallbackPath = ANDROID_DATABASE_PATH + fallbackDbName;
 
-						dbConnection
-							.initialize(fallbackPath)
-							.then(() => {
-								store.dispatch(setDbPathAction(fallbackPath));
-								store.dispatch(setDbMigrated(true));
-							})
-							.catch((fallbackErr) => {
-								logError('dbLoader/connectStorage/fallback', fallbackErr);
-							})
-							.finally(() => {
-								showErrorToast(
-									sprintf(
-										i18n.t('dbLoader.dbMigrationFallbackCreated'),
-										fallbackDbName
-									)
-								);
-								store.dispatch(setInitialized(true));
-								resolve(true);
-							});
+						store.dispatch(setDbPathAction(fallbackPath));
+
+						const message = [
+							'string' === error?.message ? error.message : 'Error',
+							sprintf(
+								i18n.t('dbLoader.dbMigrationFallbackCreated'),
+								dbPath,
+								fallbackDbName
+							)
+						].join( '\n\n' );
+
+						store.dispatch(
+							setDbMigrated( message )
+						);
+
 					});
 			})
 			.catch((err) => logError('dbLoader/connectStorage', err));

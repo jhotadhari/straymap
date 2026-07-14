@@ -1,6 +1,6 @@
 {
 	"dbMigrationError": "Erro de migração do banco de dados: %s",
-	"dbMigrationFallbackCreated": "O banco de dados anterior não pôde ser aberto. Um novo banco de dados \"%s\" foi criado e será usado no próximo reinício.",
+	"dbMigrationFallbackCreated": "O banco de dados anterior \"%s\" não pôde ser aberto. Um novo banco de dados \"%s\" será usado no próximo reinício.",
 	"database": "Banco de dados",
 	"selectDbFile": "Selecionar arquivo de banco de dados",
 	"createNewDatabase": "Criar novo banco de dados",

@@ -1,6 +1,6 @@
 {
 	"dbMigrationError": "Database migration error: %s",
-	"dbMigrationFallbackCreated": "The previous database could not be opened. A new database \"%s\" has been created and will be used on next restart.",
+	"dbMigrationFallbackCreated": "The previous database \"%s\" could not be opened. A new database \"%s\" will be used on next restart.",
 	"database": "Database",
 	"selectDbFile": "Select database file",
 	"createNewDatabase": "Create new database",
