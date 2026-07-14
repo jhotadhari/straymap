@@ -4,6 +4,7 @@
 import { Scalar, QueryResult } from '@op-engineering/op-sqlite';
 import { omit } from 'lodash-es';
 import { sprintf } from 'sprintf-js';
+import dayjs from 'dayjs';
 
 /**
  * Internal dependencies
@@ -98,3 +99,5 @@ export const withDbErrorHandling =
 			throw error;
 		}
 	};
+
+export const getDbDefaultName = () => dayjs().format('YYYYMMDDHHmmss');

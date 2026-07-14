@@ -54,6 +54,8 @@
 	"downloads": "Downloads",
 	"renderThemeDownloads": "Render theme downloads",
 	"demDownloads": "DEM downloads",
+	"public": "Public",
+	"private": "Private",
 	"map": {
 		"demDir": "DEM Directory",
 		"selectDemDir": "Select App DEM Directory"

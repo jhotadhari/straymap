@@ -9,6 +9,7 @@ export type NavChild = {
 	canRead: boolean;
 	canExecute: boolean;
 	depth?: number;
+	size?: number;
 };
 
 export type DirInfo = {

@@ -12,6 +12,9 @@ interface Spec extends TurboModule {
 		recursive: boolean
 	): Promise<UnsafeObject>;
 	deleteDir(path: string): Promise<boolean>;
+	deleteFile(path: string): Promise<boolean>;
+	renameFile(oldPath: string, newPath: string): Promise<boolean>;
+	copyFile(sourcePath: string, destPath: string): Promise<boolean>;
 	getCacheInfo(): Promise<UnsafeObject>;
 }
 

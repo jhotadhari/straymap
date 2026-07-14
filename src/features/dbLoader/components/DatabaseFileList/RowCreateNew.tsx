@@ -1,0 +1,101 @@
+/**
+ * External dependencies
+ */
+import React, { FC, useCallback, useMemo, useState } from 'react';
+import { View } from 'react-native';
+import { Text, TextInput } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
+
+/**
+ * Internal dependencies
+ */
+import { useAppDispatch } from '../../../../store/hooks';
+import { setDbPath } from '../../slice';
+import { dbExtension } from '../../constants';
+import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
+import { styles } from './sharedDeps';
+import IconButtonHighlight from '../../../../components/generic/IconButtonHighlight';
+import { getDbDefaultName } from '../../utils';
+
+const RowCreateNew: FC<{
+	dir: string;
+	onCreated: () => void;
+}> = ({ dir, onCreated }) => {
+	const { t } = useTranslation();
+	const dispatch = useAppDispatch();
+
+	const [expanded, setExpanded] = useState(false);
+	const [nameInput, setNameInput] = useState('');
+
+	const defaultName = useMemo(() => getDbDefaultName(), []);
+
+	const handleExpand = useCallback(() => {
+		setNameInput(defaultName);
+		setExpanded(true);
+	}, [defaultName]);
+
+	const handleConfirm = useCallback(() => {
+		const trimmed = nameInput.trim().toLowerCase();
+		if (!trimmed) return;
+		const newPath = `${dir}/${trimmed}.${dbExtension}`;
+		dispatch(setDbPath(newPath));
+		setExpanded(false);
+		onCreated();
+	}, [
+		nameInput,
+		dir,
+		dispatch,
+		onCreated,
+	]);
+
+	return (
+		<View style={styles.createNewRow}>
+			{!expanded && (
+				<View
+					style={{
+						flexDirection: 'row',
+					}}
+				>
+					<ButtonHighlight
+						onPress={handleExpand}
+						mode="outlined"
+					>
+						<Text>{t('dbLoader.createNewDatabase')}</Text>
+					</ButtonHighlight>
+				</View>
+			)}
+
+			{expanded && (
+				<View style={styles.createNewExpanded}>
+					<TextInput
+						value={nameInput}
+						onChangeText={(v) => setNameInput(v.toLowerCase())}
+						mode="outlined"
+						dense
+						style={styles.createNewInput}
+						autoFocus
+					/>
+					<View style={styles.createNewActions}>
+						<ButtonHighlight
+							onPress={() => setExpanded(false)}
+							mode="text"
+							compact
+						>
+							<Text>{t('cancel')}</Text>
+						</ButtonHighlight>
+
+						<IconButtonHighlight
+							icon="check"
+							mode="outlined"
+							size={20}
+							onPress={handleConfirm}
+							disabled={!nameInput.trim()}
+						/>
+					</View>
+				</View>
+			)}
+		</View>
+	);
+};
+
+export default RowCreateNew;

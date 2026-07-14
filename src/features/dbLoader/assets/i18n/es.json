@@ -1,3 +1,21 @@
 {
-	"dbMigrationError": "Error de migración de la base de datos: %s"
+	"dbMigrationError": "Error de migración de la base de datos: %s",
+	"database": "Base de datos",
+	"selectDbFile": "Seleccionar archivo de base de datos",
+	"createNewDatabase": "Crear nueva base de datos",
+	"noDatabasesFound": "No se encontraron bases de datos",
+	"moveToX": "Mover a %s",
+	"copyToX": "Copiar a %s",
+	"select": "Seleccionar",
+	"rename": "Renombrar",
+	"renameDatabase": "Renombrar base de datos",
+	"delete": "Eliminar",
+	"deleteDatabase": "Eliminar base de datos",
+	"deleteDatabaseConfirmation": "¿Eliminar \"%s\"? Esto no se puede deshacer.",
+	"renameDatabasePrompt": "Ingresa un nuevo nombre:",
+	"newDatabasePrompt": "Ingresa un nombre para la nueva base de datos:",
+	"requireReload": "Reinicio requerido para aplicar los cambios.",
+	"willRequireReload": "Cambiar la base de datos activa requiere reiniciar la aplicación.",
+	"fileAlreadyExists": "Ya existe un archivo llamado \"%s\".",
+	"fileOperationError": "Error en la operación de archivo: %s"
 }

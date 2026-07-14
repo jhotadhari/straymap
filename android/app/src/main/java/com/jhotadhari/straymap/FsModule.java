@@ -94,6 +94,7 @@ public class FsModule extends NativeFsModuleSpec {
 						fileInfoMap.putBoolean( "isFile", file.isFile() );
 						fileInfoMap.putBoolean( "canRead", file.canRead() );
 						fileInfoMap.putBoolean( "canExecute", file.canExecute() );
+						fileInfoMap.putDouble( "size", (double) file.length() );
 						navChildrenArray.pushMap( fileInfoMap );
 					}
 				}
@@ -146,6 +147,81 @@ public class FsModule extends NativeFsModuleSpec {
 		}
 	}
 
+
+	    @ReactMethod
+	    public void deleteFile( String path, Promise promise ) {
+			try {
+				File file = new File( path );
+				if ( ! file.exists() ) {
+					promise.reject( "Error", "File does not exist: " + path );
+					return;
+				}
+				if ( file.isDirectory() ) {
+					promise.reject( "Error", "Path is a directory, use deleteDir instead: " + path );
+					return;
+				}
+				boolean result = file.delete();
+				promise.resolve( result );
+			} catch( Exception e ) {
+				promise.reject( "Error", e );
+			}
+		}
+
+	    @ReactMethod
+	    public void renameFile( String oldPath, String newPath, Promise promise ) {
+			try {
+				File oldFile = new File( oldPath );
+				if ( ! oldFile.exists() ) {
+					promise.reject( "Error", "File does not exist: " + oldPath );
+					return;
+				}
+				File newFile = new File( newPath );
+				if ( newFile.exists() ) {
+					promise.reject( "Error", "Target already exists: " + newPath );
+					return;
+				}
+				File parentDir = newFile.getParentFile();
+				if ( parentDir != null && ! parentDir.exists() ) {
+					parentDir.mkdirs();
+				}
+				boolean result = oldFile.renameTo( newFile );
+				if ( ! result ) {
+					FileUtils.copyFile( oldFile, newFile );
+					oldFile.delete();
+				}
+				promise.resolve( true );
+			} catch( Exception e ) {
+				promise.reject( "Error", e );
+			}
+		}
+
+	    @ReactMethod
+	    public void copyFile( String sourcePath, String destPath, Promise promise ) {
+			try {
+				File sourceFile = new File( sourcePath );
+				if ( ! sourceFile.exists() ) {
+					promise.reject( "Error", "Source file does not exist: " + sourcePath );
+					return;
+				}
+				if ( sourceFile.isDirectory() ) {
+					promise.reject( "Error", "Source is a directory: " + sourcePath );
+					return;
+				}
+				File destFile = new File( destPath );
+				if ( destFile.exists() ) {
+					promise.reject( "Error", "Target already exists: " + destPath );
+					return;
+				}
+				File parentDir = destFile.getParentFile();
+				if ( parentDir != null && ! parentDir.exists() ) {
+					parentDir.mkdirs();
+				}
+				FileUtils.copyFile( sourceFile, destFile );
+				promise.resolve( true );
+			} catch( Exception e ) {
+				promise.reject( "Error", e );
+			}
+		}
     @ReactMethod
     public void getCacheInfo( Promise promise ) {
         try {

@@ -1,94 +1,21 @@
 /**
  * External dependencies
  */
-import React, { FC, useCallback } from 'react';
-import { ScrollView, Text, ViewStyle } from 'react-native';
-import { StyleSheet } from 'react-native';
-import { useTranslation } from 'react-i18next';
-import { sprintf } from 'sprintf-js';
+import React, { FC } from 'react';
+import { ScrollView, ViewStyle } from 'react-native';
 
 /**
  * Internal dependencies
  */
-import { useAppDispatch, useAppSelector } from '../../../store/hooks';
-import { selectDbPath } from '../selectors';
-import { setDbPath } from '../slice';
-import FileSourceRowControl from '../../../components/generic/controls/FileSourceRowControl';
-import { selectAppDirs } from '../../dirs/selectors';
-import InfoRowControl from '../../../components/generic/controls/InfoRowControl';
-import { dbExtension } from '../constants';
+import DatabaseFileList from '../components/DatabaseFileList/DatabaseFileList';
 
-const extensions = [dbExtension];
-
-const RowFile: FC = () => {
-	const { t } = useTranslation();
-
-	const appDirs = useAppSelector(selectAppDirs);
-
-	const dispatch = useAppDispatch();
-
-	const dbPath = useAppSelector(selectDbPath);
-
-	const handleSelect = useCallback(
-		(selectedOpt?: string) => {
-			selectedOpt && selectedOpt.length && dispatch(setDbPath(selectedOpt));
-		},
-		[
-			dispatch,
-		]
-	);
-
-	return (
-		<FileSourceRowControl
-			label={t('file')} // ??? translation
-			header={t('selectDbFile')} // ??? translation
-			newOptionLabel={'Create new database'} // ??? translation
-			value={dbPath}
-			onModalDismiss={handleSelect}
-			extensions={extensions}
-			dirs={appDirs.databases}
-			filesHeading={sprintf(t('filesIn'), '(.' + dbExtension + ')')}
-			noFilesHeading={sprintf(t('noFilesIn'), '(.' + dbExtension + ')')}
-			canCreateNewOption={true}
-			styleContent={styles.contentButton}
-		/>
-	);
-};
-
-const RowSize: FC = () => {
-	return (
-		<InfoRowControl
-			label={'size'} // ??? translation
-		>
-			<Text>{'TODO size mb ???'}</Text>
-		</InfoRowControl>
-	);
-};
-
-const RowMoveFile: FC = () => {
-	return (
-		<InfoRowControl
-			label={'moveFile'} // ??? translation
-		>
-			<Text>{'TODO moveFile ???'}</Text>
-		</InfoRowControl>
-	);
-};
 const SettingsDatabase: FC<{ style?: ViewStyle }> = ({ style }) => {
-	// ??? Fix layout, styling. refactor. ... totally different.
 	return (
 		<ScrollView style={style}>
-			<RowFile />
-
-			<RowSize />
-
-			<RowMoveFile />
+			<DatabaseFileList />
 		</ScrollView>
 	);
 };
-
-const styles = StyleSheet.create({
-	contentButton: { marginLeft: -12 },
-});
+;
 
 export default SettingsDatabase;

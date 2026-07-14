@@ -1,3 +1,21 @@
 {
-	"dbMigrationError": "Erro de migração do banco de dados: %s"
+	"dbMigrationError": "Erro de migração do banco de dados: %s",
+	"database": "Banco de dados",
+	"selectDbFile": "Selecionar arquivo de banco de dados",
+	"createNewDatabase": "Criar novo banco de dados",
+	"noDatabasesFound": "Nenhum banco de dados encontrado",
+	"moveToX": "Mover para %s",
+	"copyToX": "Copiar para %s",
+	"select": "Selecionar",
+	"rename": "Renomear",
+	"renameDatabase": "Renomear banco de dados",
+	"delete": "Excluir",
+	"deleteDatabase": "Excluir banco de dados",
+	"deleteDatabaseConfirmation": "Excluir \"%s\"? Isso não pode ser desfeito.",
+	"renameDatabasePrompt": "Digite um novo nome:",
+	"newDatabasePrompt": "Digite um nome para o novo banco de dados:",
+	"requireReload": "Reinicialização necessária para aplicar as alterações.",
+	"willRequireReload": "Alterar o banco de dados ativo requer reiniciar o aplicativo.",
+	"fileAlreadyExists": "Já existe um arquivo chamado \"%s\".",
+	"fileOperationError": "Falha na operação de arquivo: %s"
 }

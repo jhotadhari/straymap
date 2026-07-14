@@ -9,7 +9,7 @@ import { createSlice } from '@reduxjs/toolkit';
  */
 import { SliceSettingsBase } from '../../types';
 import { AbsPathsMap, CacheDir, DirInfoMap } from './types';
-import { omit, set } from 'lodash-es';
+import { set } from 'lodash-es';
 
 export interface DirsSettings {}
 
@@ -54,9 +54,7 @@ export const dirsSlice = createSlice({
 			set(state.dirInfoCache, action.payload.id, action.payload.entry);
 		},
 		removeDirInfoCacheEntry: (state, action: PayloadAction<string>) => {
-			if (Object.keys(state.dirInfoCache).includes(action.payload)) {
-				state.dirInfoCache = omit(state.dirInfoCache, [action.payload]);
-			}
+			delete state.dirInfoCache[action.payload];
 		},
 		setCacheDirsCache: (state, action: PayloadAction<DirsState['cacheDirsCache']>) => {
 			state.cacheDirsCache = action.payload;
