@@ -7,5 +7,7 @@
 	"hintFast": "Quando ativado, o motor de roteamento prefere rotas mais rápidas em vez de mais curtas. Desative para encontrar o caminho mais direto.",
 	"pointsAreOverlapping": "Pontos sobrepostos",
 	"startRouting": "Iniciar rota",
-	"stopRouting": "Parar rota"
+	"stopRouting": "Parar rota",
+	"appendPoint": "Adicionar waypoint",
+	"deleteLastPoint": "Excluir último ponto"
 }

@@ -112,7 +112,7 @@ const useActionAppendPoint = ({
 		() => ({
 			key: 'appendPoint',
 			cb,
-			label: 'appendPoint',
+			label: 'routing.appendPoint',
 			leadingIcon: 'plus',
 		}),
 		[cb]

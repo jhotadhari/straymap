@@ -7,5 +7,7 @@
 	"hintFast": "Wenn aktiviert, bevorzugt die Routing-Engine schnellere Routen gegenüber kürzeren. Deaktiviere dies, um stattdessen den direktesten Weg zu finden.",
 	"pointsAreOverlapping": "Punkte überlappen sich",
 	"startRouting": "Routing starten",
-	"stopRouting": "Routing beenden"
+	"stopRouting": "Routing beenden",
+	"appendPoint": "Wegpunkt hinzufügen",
+	"deleteLastPoint": "Letzten Punkt löschen"
 }

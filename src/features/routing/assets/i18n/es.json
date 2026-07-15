@@ -7,5 +7,7 @@
 	"hintFast": "Cuando está activado, el motor de enrutamiento prefiere rutas más rápidas en lugar de más cortas. Desactívalo para encontrar la ruta más directa.",
 	"pointsAreOverlapping": "Puntos superpuestos",
 	"startRouting": "Iniciar ruta",
-	"stopRouting": "Detener ruta"
+	"stopRouting": "Detener ruta",
+	"appendPoint": "Añadir waypoint",
+	"deleteLastPoint": "Eliminar último punto"
 }

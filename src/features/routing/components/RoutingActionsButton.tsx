@@ -19,7 +19,7 @@ import PopoverMenuItems from '../../../components/generic/PopoverMenuItems';
 const RoutingActionsButton: FC<{
 	disabled?: boolean;
 	actions?: Record<string, MenuActionOption>;
-}> = ({ disabled: disabled_, actions }) => {
+}> = ({ disabled, actions }) => {
 	const { mapViewNativeNodeHandle } = useContext(AppContext);
 
 	const { id: routeId, points } = useRoute(['id', 'points']) || {};
@@ -56,14 +56,13 @@ const RoutingActionsButton: FC<{
 	);
 
 	const options: MenuActionOption[] = useMemo(() => {
-		const keys: string[] = [];
+		return Object.values(actions || []);
 
+		// const keys: string[] = [];
 		// if (undefined === movingPointIdx) {
-		keys.push('appendPoint');
-		keys.push('deleteLastPoint');
 		// }
 
-		return Object.values(pick(actions, keys)).filter((a) => !!a);
+		// return Object.values(pick(actions, keys)).filter((a) => !!a);
 
 		// return [
 		// 	...(undefined === movingPointIdx
@@ -237,8 +236,6 @@ const RoutingActionsButton: FC<{
 		mapViewNativeNodeHandle,
 	]);
 
-	const disabled = disabled_ || undefined === points || !points?.length;
-
 	const anchorRef = useRef<View>(null);
 
 	const popoverStyle = useMemo(
@@ -250,10 +247,6 @@ const RoutingActionsButton: FC<{
 		}),
 		[theme]
 	);
-
-	if (!routeId) {
-		return undefined;
-	}
 
 	return (
 		<>

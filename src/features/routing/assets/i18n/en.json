@@ -7,5 +7,7 @@
 	"hintFast": "When enabled, the routing engine prefers faster routes over shorter ones. Disable to find the most direct path instead.",
 	"pointsAreOverlapping": "Points are overlapping",
 	"startRouting": "Start routing",
-	"stopRouting": "Stop routing"
+	"stopRouting": "Stop routing",
+	"appendPoint": "Add waypoint",
+	"deleteLastPoint": "Delete last point"
 }

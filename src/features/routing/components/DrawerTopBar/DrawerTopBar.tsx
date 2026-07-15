@@ -93,12 +93,10 @@ const DrawerTopBar: FC = () => {
 						</ButtonHighlight>
 					)}
 
-					{routeId && (
-						<RoutingActionsButton
-							actions={actions}
-							disabled={isToggling}
-						/>
-					)}
+					<RoutingActionsButton
+						actions={actions}
+						disabled={isToggling}
+					/>
 
 					<ButtonHighlight
 						mode="outlined"

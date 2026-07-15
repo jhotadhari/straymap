@@ -53,7 +53,7 @@ const useActionDeleteLastPoint = ({
 		() => ({
 			key: 'deleteLastPoint',
 			cb,
-			label: 'deleteLastPoint',
+			label: 'routing.deleteLastPoint',
 			disabled: () => !points || !points.length,
 			// leadingIcon: 'delete',
 			leadingIcon: 'minus',
