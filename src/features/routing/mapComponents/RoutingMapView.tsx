@@ -9,7 +9,6 @@ import {
 	ReindexScope,
 	SharedLayer,
 } from 'react-native-mapsforge-vtm';
-
 import {
 	LayerPathColorRamp,
 	usePathColorRamp,
@@ -28,6 +27,7 @@ import { getSegmentRecordId } from '../utils';
 import useRoute from '../hooks/useRoute';
 // import useSimplificationTolerance from '../../lines/hooks/useSimplificationTolerance';
 import { RoutingPoint } from '../types';
+import { pointsCoordsAreOverlapping } from '../../../lib/utils';
 
 const SegmentLineLayer: FC<{
 	segmentRecordId: string;
@@ -83,7 +83,13 @@ const SegmentLine: FC<{
 	const segment = useAppSelector((state) => selectSegmentByRecordId(state, segmentRecordId));
 
 	const simplifiedCoords = useMemo(() => {
-		if (!segment?.positions || simplify === undefined) return undefined;
+		if (
+			!segment?.positions ||
+			segment.positions.length < 2 || // if segment is empty but brouter swallowed the error silently
+			simplify === undefined
+		) {
+			return undefined;
+		}
 		const line = lineString(segment.positions);
 		const result = turfSimplify(line, { tolerance: simplify, highQuality: false });
 		return result.geometry.coordinates;
@@ -100,7 +106,13 @@ const SegmentLine: FC<{
 		!simplifiedCoords
 	) {
 		coords = placeholderCoordinates;
-		if (!segment || segment?.isFetching || !simplifiedCoords) {
+		if (
+			segment &&
+			segment?.positions &&
+			segment?.positions.length < 2 // if segment is empty but brouter swallowed the error silently
+		) {
+			style = stylePathError;
+		} else if (!segment || segment?.isFetching || !simplifiedCoords) {
 			style = stylePathFetching;
 		} else {
 			style = stylePathError;
@@ -152,7 +164,14 @@ const Segments: FC<{
 				points.map((fromPoint, index) => {
 					const toPoint = get(points, index + 1);
 
-					if (!toPoint) {
+					// Ensure the segment has two points. And points are not overlapping.
+					if (
+						!toPoint ||
+						pointsCoordsAreOverlapping(
+							fromPoint.geometry.coordinates,
+							toPoint.geometry.coordinates
+						)
+					) {
 						return undefined;
 					}
 
@@ -162,8 +181,8 @@ const Segments: FC<{
 					});
 
 					const placeholderCoordinates = [
-						fromPoint?.geometry.coordinates,
-						toPoint?.geometry.coordinates,
+						fromPoint.geometry.coordinates,
+						toPoint.geometry.coordinates,
 					];
 
 					return (

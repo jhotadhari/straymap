@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { LineString } from 'geojson';
+import { LineString, Point, Position } from 'geojson';
 
 declare function requestIdleCallback(
 	callback: (deadline: { didTimeout: boolean; timeRemaining: () => number }) => void,
@@ -15,6 +15,9 @@ declare function cancelIdleCallback(handle: number): void;
 import { LineStats as LineStatsType } from '../features/lines/types';
 import { dbOpExecute } from '../features/dbLoader/utils';
 import { NumType } from '../types';
+import { isEqual } from 'lodash-es';
+import { roundTo } from './utilsLight';
+import { lineString } from '@turf/turf';
 
 export const logError = (context: string, err: unknown) => {
 	console.error(`[${context}]`, err);
@@ -84,4 +87,31 @@ export const lineStringToStats = async (
 		]
 	);
 	return res?.rows?.length ? (res.rows[0] as LineStatsType) : undefined;
+};
+
+// Check if 2 coordinates are equal. Precision rounded to 4 so it will recognize the result of `pointToFakeLineStringFeature`.
+export const pointsCoordsAreOverlapping = (coords1: Position, coords2: Position) => {
+	return isEqual(
+		[
+			roundTo(coords1[0], 4),
+			roundTo(coords1[1], 4),
+		],
+		[
+			roundTo(coords2[0], 4),
+			roundTo(coords2[1], 4),
+		]
+	);
+};
+
+// Create a fake lineString from one point. Just duplicate the point with a slightly different geometry.
+// The the points will be recognized by `pointsCoordsAreOverlapping` as overlapping.
+export const pointToFakeLineStringFeature = (point: Point) => {
+	return lineString([
+		point.coordinates,
+		[
+			point.coordinates[0] + 0.000001,
+			point.coordinates[1] + 0.000001,
+			point.coordinates[2],
+		]
+	]);
 };

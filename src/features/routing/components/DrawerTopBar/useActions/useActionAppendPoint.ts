@@ -12,6 +12,7 @@ import { processRouting } from '../../../slice';
 import { RoutingPoint, RoutingProfile } from '../../../types';
 import { MapContext } from '../../../../../Context';
 import { dbConnection } from '../../../../dbLoader/DBConnection';
+import { pointsCoordsAreOverlapping } from '../../../../../lib/utils';
 
 const useActionAppendPoint = ({
 	points,
@@ -78,6 +79,18 @@ const useActionAppendPoint = ({
 
 	const cb = useCallback(async () => {
 		if (currentMapEventRef?.current?.center) {
+			// Ensure points are not overlapping.
+			if (
+				points &&
+				points.length &&
+				pointsCoordsAreOverlapping(
+					points[points.length - 1].geometry.coordinates,
+					currentMapEventRef.current.center
+				)
+			) {
+				return;
+			}
+
 			const feature = point([
 				currentMapEventRef.current.center[0],
 				currentMapEventRef.current.center[1],
@@ -92,6 +105,7 @@ const useActionAppendPoint = ({
 		getNextProfile,
 		currentMapEventRef,
 		mutation,
+		points,
 	]);
 
 	return useMemo(

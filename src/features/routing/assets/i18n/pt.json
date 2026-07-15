@@ -4,5 +4,6 @@
 	"fast": "Rápido",
 	"editProfile": "Editar perfil",
 	"hintProfile": "Selecione o perfil de roteamento para este ponto de referência. O perfil determina quais caminhos e estradas o motor de roteamento prefere — escolha entre carro, bicicleta ou a pé.",
-	"hintFast": "Quando ativado, o motor de roteamento prefere rotas mais rápidas em vez de mais curtas. Desative para encontrar o caminho mais direto."
+	"hintFast": "Quando ativado, o motor de roteamento prefere rotas mais rápidas em vez de mais curtas. Desative para encontrar o caminho mais direto.",
+	"pointsAreOverlapping": "Pontos sobrepostos"
 }

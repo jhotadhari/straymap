@@ -18,6 +18,7 @@ import MaterialIcons from '@react-native-vector-icons/material-icons/static';
 import { get, omit, pick } from 'lodash-es';
 import { lineString } from '@turf/turf';
 import { useMutation, UseMutationOptions } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 
 /**
  * Internal dependencies
@@ -32,7 +33,7 @@ import { selectIsRouting, selectSegments } from '../selectors';
 import { selectUnitPrefs } from '../../general/selectors';
 import { updateRoute } from '../db/actionsRoute';
 import { formatCoords } from '../../../lib/formatting';
-import { lineStringToStats } from '../../../lib/utils';
+import { lineStringToStats, pointsCoordsAreOverlapping } from '../../../lib/utils';
 import { deleteRoutingPoint } from '../db/actionsRoutingPoint';
 import { LineStats as LineStatsType } from '../../lines/types';
 import LineStats from '../../lines/components/LineStats';
@@ -42,6 +43,7 @@ import Sortable, { DragStartParams, SortableFlexDragEndParams } from 'react-nati
 import useDropIndicatorStyle from '../../../compose/useDropIndicatorStyle';
 import { dbConnection } from '../../dbLoader/DBConnection';
 import { DRAWER_ICON_SIZE } from '../../../constants';
+import { ErrorToastContext } from '../../../components/ErrorToast/Context';
 
 const Segment: FC<{
 	item: RoutingPoint;
@@ -49,6 +51,7 @@ const Segment: FC<{
 	setEditPoint: Dispatch<SetStateAction<undefined | RoutingPoint>>;
 }> = ({ item, draggingItemIndex, setEditPoint }) => {
 	const theme = useTheme();
+	const { t } = useTranslation();
 
 	const dispatch = useAppDispatch();
 
@@ -152,7 +155,7 @@ const Segment: FC<{
 					<StateIcon />
 
 					{segment?.errorMsg && (
-						<Text style={styles.errorText}>{'Error' + ': ' + segment?.errorMsg}</Text>
+						<Text style={styles.errorText}>{t(segment.errorMsg)}</Text>
 					)}
 
 					{!segment?.isFetching && (
@@ -322,6 +325,8 @@ const DraggableItem: FC<{
 const itemPaddingH = 16;
 const PointsList: FC = () => {
 	const { width } = useContext(DrawerContext);
+	const { t } = useTranslation();
+	const { showError } = useContext(ErrorToastContext);
 
 	const [editPoint, setEditPoint] = useState<undefined | RoutingPoint>(undefined);
 
@@ -393,7 +398,26 @@ const PointsList: FC = () => {
 				})
 				.filter((a) => !!a)
 				.map((point) => omit(point, 'key'));
-			mutation.mutate(newPoints);
+
+			// Ensure the new point order has no overlapping points.
+			if (
+				!newPoints.some((fromPoint, index) => {
+					const toPoint = get(newPoints, index + 1);
+					if (
+						toPoint &&
+						pointsCoordsAreOverlapping(
+							fromPoint.geometry.coordinates,
+							toPoint.geometry.coordinates
+						)
+					) {
+						return true;
+					}
+				})
+			) {
+				mutation.mutate(newPoints);
+			} else {
+				showError(t('routing.pointsAreOverlapping'));
+			}
 		},
 		[
 			points,

@@ -14,13 +14,15 @@ import { AppThunk } from '../../store/store';
 import { aggregateSegmentsToCoords, getCoordsFromRouting, getSegmentRecordId } from './utils';
 import { setLineSelected } from '../lines/slice';
 import { lineString } from '@turf/turf';
-import { createLines, updateLine, lineAddTag } from '../lines/db/actionsLine';
+import { createLines, updateLine, lineAddTag, deleteLine } from '../lines/db/actionsLine';
 import { invalidateTagsTable, invalidateLinesQueries } from '../lines/db/queryFns';
 import { ensureTagByLabel } from '../lines/db/actionsTag';
 import { updateRoute } from './db/actionsRoute';
 import { queryRoute } from './db/queryFns';
 import { selectIsRouting } from './selectors';
 import { QueryClient } from '@tanstack/react-query';
+import { dbConnection } from '../dbLoader/DBConnection';
+import { pointsCoordsAreOverlapping } from '../../lib/utils';
 
 export interface RoutingSettings {
 	isRouting: false | number; // false or routeId.
@@ -99,6 +101,36 @@ export const setIsRouting = (newIsRouting: number | false): AppThunk => {
 			// processRouting({ updateLine: false }), which fetches
 			// the route from DB and restores routingLineId from there.
 			dispatch(routingSlice.actions.setIsRouting(newIsRouting));
+
+			if (!newIsRouting) {
+				dbConnection?.queryClient &&
+					dbConnection.queryClient
+						.refetchQueries({
+							queryKey: ['route', isRouting],
+						})
+						.then(async () => {
+							const { line_id, points } =
+								(await dbConnection.queryClient!.fetchQuery({
+									queryKey: ['route', isRouting],
+									queryFn: queryRoute,
+								})) || {};
+							if (
+								line_id &&
+								(!points ||
+									!points.length ||
+									points.length < 2 ||
+									pointsCoordsAreOverlapping(
+										points[0].geometry.coordinates,
+										points[1].geometry.coordinates
+									))
+							) {
+								dispatch(setLineSelected(line_id, false));
+								await deleteLine(line_id);
+								await invalidateLinesQueries(dbConnection.queryClient!);
+								await invalidateTagsTable(dbConnection.queryClient!);
+							}
+						});
+			}
 		}
 	};
 };
@@ -201,42 +233,60 @@ export const processRouting = (
 									};
 
 									newSegments[segmentRecordId] = newSegment;
-									dispatch(
-										routingSlice.actions.setSegment({
-											...newSegment, // spread, because it has to be a new reference. Otherwise newSegment would be read only after dispatching it.
-										})
-									);
 
-									const waypoints: number[][] = [
-										[
-											point.geometry.coordinates[0],
-											point.geometry.coordinates[1],
-										],
-										[
-											nextPoint.geometry.coordinates[0],
-											nextPoint.geometry.coordinates[1],
-										],
-									];
+									if (
+										pointsCoordsAreOverlapping(
+											point.geometry.coordinates,
+											nextPoint.geometry.coordinates
+										)
+									) {
+										newSegment.errorMsg = 'routing.pointsAreOverlapping';
+										newSegment.isFetching = false;
+										newSegments[segmentRecordId] = newSegment;
+										dispatch(routingSlice.actions.setSegment(newSegment));
+										resolve(newSegments);
+									} else {
+										dispatch(
+											routingSlice.actions.setSegment({
+												...newSegment, // spread, because it has to be a new reference. Otherwise newSegment would be read only after dispatching it.
+											})
+										);
 
-									getCoordsFromRouting({
-										waypoints,
-										vehicle: point?.profile?.v,
-										fast: point?.profile?.fast,
-									})
-										.then((coords) => {
-											newSegment.positions = coords;
-											newSegment.isFetching = false;
-											newSegments[segmentRecordId] = newSegment;
-											dispatch(routingSlice.actions.setSegment(newSegment));
-											resolve(newSegments);
+										const waypoints: number[][] = [
+											[
+												point.geometry.coordinates[0],
+												point.geometry.coordinates[1],
+											],
+											[
+												nextPoint.geometry.coordinates[0],
+												nextPoint.geometry.coordinates[1],
+											],
+										];
+
+										getCoordsFromRouting({
+											waypoints,
+											vehicle: point?.profile?.v,
+											fast: point?.profile?.fast,
 										})
-										.catch((errorMsg) => {
-											newSegment.errorMsg = errorMsg;
-											newSegment.isFetching = false;
-											newSegments[segmentRecordId] = newSegment;
-											dispatch(routingSlice.actions.setSegment(newSegment));
-											resolve(newSegments);
-										});
+											.then((coords) => {
+												newSegment.positions = coords;
+												newSegment.isFetching = false;
+												newSegments[segmentRecordId] = newSegment;
+												dispatch(
+													routingSlice.actions.setSegment(newSegment)
+												);
+												resolve(newSegments);
+											})
+											.catch((errorMsg) => {
+												newSegment.errorMsg = errorMsg;
+												newSegment.isFetching = false;
+												newSegments[segmentRecordId] = newSegment;
+												dispatch(
+													routingSlice.actions.setSegment(newSegment)
+												);
+												resolve(newSegments);
+											});
+									}
 								});
 							});
 						},
@@ -247,6 +297,7 @@ export const processRouting = (
 					});
 			}
 		);
+
 		if (routeId) {
 			if (false !== options?.updateLine) {
 				const { lineId, isNew } = await updateLineFromSegments(
@@ -300,10 +351,7 @@ const updateLineFromSegments = async (
 		return {};
 	}
 
-	if (!segments.some((seg) => (seg?.positions?.length ?? 0) > 1)) {
-		// Just get out. no line deletion here. stop-routing will handle that case.
-		return {};
-	}
+	const segmentsEmpty = !segments.some((seg) => (seg?.positions?.length ?? 0) > 1);
 
 	queryClient &&
 		(await queryClient.refetchQueries({
@@ -317,38 +365,59 @@ const updateLineFromSegments = async (
 			}))) ||
 		{};
 
-	const coords = aggregateSegmentsToCoords(segments);
-	const lineStringFeature = lineString(coords);
-
 	// Ensure the system "routing" tag exists (find or create).
 	const routingTagId = await ensureTagByLabel('routing');
 
-	let finalLineId: number;
+	let finalLineId: number | undefined;
 	let isNew = false;
 
-	if (line_id) {
-		// Update line with new positions.
-		await updateLine(line_id, {
-			lineStringFeature,
-		}); // ... invalidation handled by outer function after return.
-		finalLineId = line_id;
-	} else {
-		// Create line and update route with line_id.
-		const insertedLines = await createLines([
+	if (segmentsEmpty && line_id) {
+		// Truncate geometry: duplicate the first point with a slightly
+		// different offset. A line with two nearly-identical points is
+		// recognized by pointsCoordsAreOverlapping and auto-deleted when
+		// the user exits routing mode (see setIsRouting cleanup).
+		//
+		// Edge case: if the line has zero points (empty geometry),
+		// PointN(geometry, 1) returns NULL → parseSerialized returns
+		// undefined → no UPDATE is issued. The line survives with its
+		// old geometry. The cleanup in setIsRouting(false) catches this
+		// via the points.length < 2 check, so it's not a leak.
+		await updateLine(
+			line_id,
+			{},
 			{
+				truncateGeometry: true,
+			}
+		); // ... invalidation handled by outer function after return.
+		finalLineId = line_id;
+	} else if (!segmentsEmpty) {
+		const coords = aggregateSegmentsToCoords(segments);
+		const lineStringFeature = lineString(coords);
+
+		if (line_id) {
+			// Update line with new positions.
+			await updateLine(line_id, {
 				lineStringFeature,
-			},
-		]); // ... invalidation handled by outer function after return.
-		if (!insertedLines?.length) {
-			return {};
+			}); // ... invalidation handled by outer function after return.
+			finalLineId = line_id;
+		} else {
+			// Create line and update route with line_id.
+			const insertedLines = await createLines([
+				{
+					lineStringFeature,
+				},
+			]); // ... invalidation handled by outer function after return.
+			if (!insertedLines?.length) {
+				return {};
+			}
+			await updateRoute(routeId, { line_id: insertedLines[0].id });
+			finalLineId = insertedLines[0].id;
+			isNew = true;
 		}
-		await updateRoute(routeId, { line_id: insertedLines[0].id });
-		finalLineId = insertedLines[0].id;
-		isNew = true;
 	}
 
 	// Attach the routing tag (idempotent — lineAddTag checks for existing relation).
-	if (routingTagId) {
+	if (routingTagId && finalLineId) {
 		await lineAddTag(finalLineId, routingTagId, { skipSystemGuard: true });
 		invalidateTagsTable(queryClient);
 	}

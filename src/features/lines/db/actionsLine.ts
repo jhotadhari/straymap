@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { Feature, LineString, GeoJsonProperties } from 'geojson';
+import { Feature, LineString, GeoJsonProperties, Point } from 'geojson';
 import { eq, and, inArray, sql } from 'drizzle-orm';
 
 /**
@@ -11,6 +11,9 @@ import { dbConnection } from '../../dbLoader/DBConnection';
 import { linesTable, tagsTable, tagsToLinesTable } from './schema/schema';
 import { withDbErrorHandling, withDbTransaction, parseReturningIds } from '../../dbLoader/utils';
 import { featureRegistry } from '../../FeatureRegistry';
+import { lineString } from '@turf/turf';
+import { parseSerialized } from '../../../lib/utilsLight';
+import { pointToFakeLineStringFeature } from '../../../lib/utils';
 
 export const createLines = withDbErrorHandling(
 	'lines/actionsLine.createLines',
@@ -94,7 +97,10 @@ export const updateLine = withDbErrorHandling(
 			lineStringFeature: Feature<LineString, GeoJsonProperties>;
 			tagIds?: number[];
 			custom_date?: string | null;
-		}>
+		}>,
+		options?: {
+			truncateGeometry?: boolean;
+		}
 	) => {
 		if (!id || !dbConnection?.drizzle) {
 			return;
@@ -103,7 +109,10 @@ export const updateLine = withDbErrorHandling(
 		// Pre-flight SELECTs outside transaction (use drizzle's typed query
 		// builder for these complex queries).
 		const lines = await dbConnection.drizzle
-			.select()
+			.select({
+				id: linesTable.id,
+				firstPointGeomStr: sql<string>` AsGeoJSON (PointN (${linesTable.geometry}, 1))`,
+			})
 			.from(linesTable)
 			.where(eq(linesTable.id, id))
 			.limit(1);
@@ -142,21 +151,36 @@ export const updateLine = withDbErrorHandling(
 		// Writes in transaction: UPDATE the line row, then add/remove tag
 		// relations atomically.
 		await withDbTransaction(async (exec) => {
-			await exec(
-				dbConnection
-					.drizzle!.update(linesTable)
-					.set({
-						...(undefined !== newLine?.title && { title: newLine.title }),
-						...(undefined !== newLine?.lineStringFeature && {
-							geometry: newLine.lineStringFeature.geometry,
-							modified_at: sql`(current_timestamp)`,
-						}),
-						...(undefined !== newLine?.custom_date && {
-							custom_date: newLine.custom_date,
-						}),
-					})
-					.where(eq(linesTable.id, id))
-			);
+			let newGeometry: undefined | LineString = undefined;
+
+			if (options?.truncateGeometry) {
+				const firstPoint = parseSerialized<Point>(lines[0].firstPointGeomStr);
+				if (firstPoint) {
+					newGeometry = pointToFakeLineStringFeature( firstPoint ).geometry;
+				}
+			} else if (undefined !== newLine?.lineStringFeature) {
+				newGeometry = newLine.lineStringFeature.geometry;
+			}
+
+			const newData = {
+				...(undefined !== newLine?.title && { title: newLine.title }),
+				...(undefined !== newGeometry && {
+					geometry: newGeometry,
+					modified_at: sql`(current_timestamp)`,
+				}),
+				...(undefined !== newLine?.custom_date && {
+					custom_date: newLine.custom_date,
+				}),
+			};
+
+			if (Object.keys(newData).length) {
+				await exec(
+					dbConnection
+						.drizzle!.update(linesTable)
+						.set(newData)
+						.where(eq(linesTable.id, id))
+				);
+			}
 
 			if (!hasTagUpdate) {
 				return;
