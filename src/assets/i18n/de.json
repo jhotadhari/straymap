@@ -5,9 +5,12 @@
 	"sizePx": "Größe [px]",
 	"filesIn": "Dateien %s in",
 	"noFilesIn": "Keine Dateien %s in",
+	"internal": "Intern",
+	"external": "Extern",
 	"advancedSettingsShow": "Erweiterte Einstellungen anzeigen",
 	"advancedSettingsHide": "Erweiterte Einstellungen ausblenden",
 	"enabled": "Aktiviert",
+	"opacity": "Deckkraft",
 	"ok": "OK",
 	"style": "Stil",
 	"remove": "Entfernen",
@@ -51,6 +54,8 @@
 	"downloads": "Downloads",
 	"renderThemeDownloads": "Render-Theme-Downloads",
 	"demDownloads": "DEM-Downloads",
+	"public": "Öffentlich",
+	"private": "Privat",
 	"map": {
 		"demDir": "DEM Verzeichnis",
 		"selectDemDir": "DEM Verzeichnis auswählen"

@@ -54,6 +54,8 @@
 	"downloads": "Descargas",
 	"renderThemeDownloads": "Descargas de temas de renderizado",
 	"demDownloads": "Descargas de DEM",
+	"public": "Público",
+	"private": "Privado",
 	"map": {
 		"demDir": "Directorio DEM",
 		"selectDemDir": "Seleccionar directorio DEM"

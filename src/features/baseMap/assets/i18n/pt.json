@@ -4,6 +4,8 @@
 	"selectFile": "Selecionar arquivo de mapa",
 	"demDir": "Diretório DEM",
 	"selectDemDir": "Selecionar diretório DEM",
+	"useAppHgt": "Usar global",
+	"openAppHgt": "Global",
 	"addNew": "Adicionar novo mapa",
 	"layerAttributions": "Atribuição cartográfica",
 	"cacheSize": "Tamanho do cache",

@@ -4,6 +4,8 @@
 	"selectFile": "Karten Datei auswählen",
 	"demDir": "DEM Verzeichnis",
 	"selectDemDir": "DEM Verzeichnis auswählen",
+	"useAppHgt": "Global verwenden",
+	"openAppHgt": "Global",
 	"addNew": "Neue Karte hinzufügen",
 	"layerAttributions": "Kartendatengrundlage",
 	"cacheSize": "Cache Größe",
