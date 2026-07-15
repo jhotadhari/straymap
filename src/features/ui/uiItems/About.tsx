@@ -22,7 +22,6 @@ import { get } from 'lodash-es';
  * Internal dependencies
  */
 import AnimatedLogo from '../../../components/AnimatedLogo';
-import readme from '../../../../README.md';
 import license from '../../../../LICENSE.md';
 import changelog from '../../../../CHANGELOG.md';
 import debugInfo from '../../../../.debugInfo.json';
@@ -38,7 +37,7 @@ import { sharedStyles } from '../../../sharedStyles';
 const useTitleStyle = (theme: MD3Theme) =>
 	useMemo(
 		() => [
-			theme.fonts.displaySmall,
+			theme.fonts.headlineMedium,
 		],
 		[theme]
 	);
@@ -59,7 +58,15 @@ const stripLinkedImages = (part: MdPart): MdPart => ({
 	...part,
 	str: removeLines(part.str, /\[!\[[^\]]+\]\([^\(]+\)\]\([^\(]+\)/),
 });
-const readmeParts = getMdParts(readme).map(stripLinkedImages);
+const README_SECTION_ORDER = [
+	'freeSoftware',
+	'license',
+	'donation',
+	'contribution',
+	'privacy',
+	'whereToGetMaps',
+	'credits',
+] as const;
 const changelogParts = getMdParts(changelog).slice(1).map(stripLinkedImages);
 
 const getChangelogVersion = (idx?: number): string | undefined => {
@@ -195,22 +202,16 @@ const MdPartsRenderPartDonation = ({
 	);
 };
 
-const MdPartsRender = ({ include, mbParts }: { include?: string[]; mbParts: MdPart[] }) => {
+const MdPartsRender = ({ mbParts }: { mbParts: MdPart[] }) => {
 	const { t } = useTranslation();
 	return (
 		<View>
-			{[...(include || mbParts.map((part) => part.key))].map((key) => {
-				const part: undefined | MdPart = mbParts.find((part) => part.key === key);
-
-				if (!part) {
-					return null;
-				}
-
-				if ('License' === part.key) {
+			{mbParts.map((part) => {
+				if ('license' === part.id) {
 					return (
 						<AccordionItem
 							label={t('ui.license')}
-							key={part.key}
+							key={part.id}
 							notExpandedContent={license.split('\n')[0]}
 						>
 							{license}
@@ -218,10 +219,10 @@ const MdPartsRender = ({ include, mbParts }: { include?: string[]; mbParts: MdPa
 					);
 				}
 
-				if ('Donation' === part.key) {
+				if ('donation' === part.id) {
 					return (
 						<MdPartsRenderPartDonation
-							key={part.key}
+							key={part.id}
 							style={pageStyles.mdPart}
 							part={part}
 						/>
@@ -264,6 +265,7 @@ const pageStyles = StyleSheet.create({
 	},
 	container: {
 		paddingLeft,
+		paddingRight: 12,
 		gap: 16,
 	},
 	logoWrapper: {
@@ -281,6 +283,19 @@ const About: FC<{ style?: ViewStyle }> = ({ style }) => {
 	const versionChangelog = useMemo(() => getChangelogVersion(), []);
 
 	const titleStyle = useJanglyTitleStyle(theme);
+
+	const readmeParts: MdPart[] = useMemo(
+		() =>
+			README_SECTION_ORDER.map((id) => ({
+				id,
+				key: t(`ui.readmeSections.${id}.title`),
+				str: stripLinkedImages({
+					key: t(`ui.readmeSections.${id}.title`),
+					str: t(`ui.readmeSections.${id}.body`),
+				}).str,
+			})),
+		[t]
+	);
 
 	return (
 		<ScrollView style={style}>
@@ -322,20 +337,9 @@ const About: FC<{ style?: ViewStyle }> = ({ style }) => {
 					/>
 				</View>
 
-				<MdPartsRender
-					mbParts={readmeParts}
-					include={[
-						'Free Software',
-						'License',
-						'Donation',
-						'Contribution',
-						'Privacy',
-						'Where to get maps?',
-						'Credits',
-					]}
-				/>
+				<MdPartsRender mbParts={readmeParts} />
 
-				<AccordionItem label={'Changelog'}>
+				<AccordionItem label={t('ui.changelog')}>
 					<MdPartsRender
 						mbParts={[
 							{
