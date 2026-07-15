@@ -22,7 +22,10 @@ const ListRowMemo = memo(
 	(prevProps, nextProps) => {
 		return (
 			prevProps.systemFeatureKey === nextProps.systemFeatureKey &&
-			prevProps.line?.title === nextProps.line?.title
+			prevProps.line?.title === nextProps.line?.title &&
+			prevProps.line?.custom_date === nextProps.line?.custom_date &&
+			prevProps.line?.tags === nextProps.line?.tags &&
+			prevProps.line?.stats === nextProps.line?.stats
 		);
 	}
 );

@@ -112,7 +112,7 @@ const ListRow: FC<ListRowProps> = ({ line, idx, systemFeatureKey }) => {
 			<View style={sharedStyles.rowColCenter}>
 				<View style={sharedStyles.rowColCenterRow}>
 					{line.title && <Text>{line.title}</Text>}
-					<Text>{line.created_at}</Text>
+					<Text>{line.custom_date}</Text>
 				</View>
 
 				<View style={sharedStyles.rowColCenterRow}>
