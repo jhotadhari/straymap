@@ -36,7 +36,7 @@ const UiItemComponent: FC<{}> = () => {
 			height: appInnerHeight,
 			width,
 			position: 'absolute',
-			zIndex: 30,
+			zIndex: 100,
 		}),
 		[
 			theme,

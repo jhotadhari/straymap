@@ -96,6 +96,7 @@ const Drawer: FC<DrawerProps> = ({
 				width: drawerWidth,
 				height,
 				backgroundColor: theme.colors.background,
+				zIndex: 30,
 			},
 		],
 		[
