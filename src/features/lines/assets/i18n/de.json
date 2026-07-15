@@ -69,7 +69,7 @@
 	"noRoutingData": "Keine Routing-Daten",
 	"loadRouting": "Route laden",
 	"alreadyRouting": "Bereits aktiv",
-	"bulkActions": "Massenaktionen",
+	"bulkActions": "Aktionen",
 	"selectedCount": "%s/%s ausgewählt",
 	"deleteConfirm": "Löschen bestätigen",
 	"deleteConfirmationBody": "Möchtest du wirklich %s Route(n) löschen? Dies kann nicht rückgängig gemacht werden.",

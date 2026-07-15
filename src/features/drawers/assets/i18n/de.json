@@ -1,9 +1,9 @@
 {
 	"openMapsSettings": "Karten Einstellungen öffnen",
-	"showSettingsHandle": "Einstellungsgriff anzeigen",
-	"hideSettingsHandle": "Einstellungsgriff ausblenden",
+	"showSettingsHandle": "Einstellungen anzeigen",
+	"hideSettingsHandle": "Einstellungen ausblenden",
 	"sortableHandle": "Sortierbar",
-	"hintSortableHandle": "Wenn aktiviert, können die Griffe per Drag-and-Drop neu angeordnet werden. Wenn deaktiviert, ist die Reihenfolge gesperrt, die Griffe bleiben aber antippbar.",
+	"hintSortableHandle": "Wenn aktiviert, können die Panele per Drag-and-Drop neu angeordnet werden. Wenn deaktiviert, ist die Reihenfolge gesperrt.",
 	"sortableEnabled": "Sortierbar",
 	"sortableDisabled": "Nicht sortierbar"
 }

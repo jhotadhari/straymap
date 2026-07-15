@@ -33,7 +33,7 @@ const keyCodeStringOptions: OptionBase[] = [
 const actionKeyOptions: OptionBase[] = [
 	{
 		key: 'general.none',
-		label: 'nothing',
+		label: 'general.nothing',
 	},
 	{
 		key: 'zoomIn',

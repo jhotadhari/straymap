@@ -69,7 +69,7 @@
 	"noRoutingData": "Sem dados de roteamento",
 	"loadRouting": "Carregar roteamento",
 	"alreadyRouting": "Já roteando",
-	"bulkActions": "Ações em lote",
+	"bulkActions": "Ações",
 	"selectedCount": "%s/%s selecionados",
 	"deleteConfirm": "Confirmar exclusão",
 	"deleteConfirmationBody": "Tem certeza de que deseja excluir %s rota(s)? Isso não pode ser desfeito.",

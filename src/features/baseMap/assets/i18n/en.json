@@ -88,7 +88,7 @@
 		"mapsforgeProfileFile": "Themes determine how the offline vector maps are displayed by mapsforge.\n\nBuilt-in themes can be used. Or custom themes in xml format. The file extension for custom themes is “.xml”.\n\nCustom themes must be downloaded manually and moved to one of the Straymap app directories. It is not possible to load the themes from a publicly accessible directory.",
 		"mapsforgeProfileStyle": "Select a visual style variant within this theme. Styles offer subtle variations in appearance, such as different color schemes or line weights.",
 		"mapsforgeProfileOverlays": "Control which map elements are shown — roads, paths, buildings, land cover, and more.\n\nTip: Disable the map background to place another layer (e.g. satellite imagery) behind this one.",
-		"opacity": "The opacity of the map layer.\n\nValue between 0 and 1.\n\n- 0 means the layer is transparent.\n- 1 means the layer has full opacity and underlying layers are not visible.",
+		"opacity": "The opacity of the map layer.\n\nValue between 0 and 1.\n\n- 0 means the layer is fully transparent.\n- 1 means the layer is fully opaque and covers layers beneath it.",
 		"cache": "A cache stores map images. So they don't have to get downloaded or generated again.",
 		"cacheDir": "The directory where the cache is to be saved.\n\nAn internal directory can only be accessed by the app itself. An external directory can also be accessed by other apps, such as File Explorer apps.",
 		"cacheSize": "The size of the cache in MB."

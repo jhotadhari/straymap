@@ -69,7 +69,7 @@
 	"noRoutingData": "Sin datos de enrutamiento",
 	"loadRouting": "Cargar enrutamiento",
 	"alreadyRouting": "Ya enrutando",
-	"bulkActions": "Acciones en lote",
+	"bulkActions": "Acciones",
 	"selectedCount": "%s/%s seleccionados",
 	"deleteConfirm": "Confirmar eliminación",
 	"deleteConfirmationBody": "¿Estás seguro de que quieres eliminar %s ruta(s)? Esto no se puede deshacer.",
