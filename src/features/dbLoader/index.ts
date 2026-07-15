@@ -21,7 +21,7 @@ export default {
 	uiItems: [
 		{
 			key: 'database',
-			label: 'dbLoader.database', // ??? missing translation
+			label: 'dbLoader.database',
 			icon: 'database-outline',
 			Component: SettingsDatabase,
 		},

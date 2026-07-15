@@ -114,5 +114,6 @@
 			"label": "Asymmetrie-Faktor",
 			"hint": "Zahl zwischen 0 und 1.\n\nBei 1 erhält die Referenzrichtung (standardmäßig NW) eine minimale Schattierung (maximaler Asymmetrieeffekt),\n\nBei 0 ist die Schattierung in allen Richtungen symmetrisch (kein Asymmetrieeffekt).\n\nBei einem Wert größer als 0 wird die Schattierung gleichmäßig asymmetrisch, wobei mit zunehmendem Faktor die Schattierung von Hängen, die näher an der Referenzrichtung liegen, geringer ist als die von Hängen in der entgegengesetzten Richtung.\n\nDer Standardwert ist 0.5"
 		}
-	}
+	},
+	"cacheManager": "Cache-Verwaltung"
 }

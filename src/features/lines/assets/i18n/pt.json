@@ -146,5 +146,8 @@
 	},
 	"tagBadgeMode": "Estilo do crachá",
 	"tagBadgeModeContained": "Preenchido",
-	"tagBadgeModeOutlined": "Contornado"
+	"tagBadgeModeOutlined": "Contornado",
+	"addToMap": "Adicionar ao mapa",
+	"removeFromMap": "Remover do mapa",
+	"deleteLines": "Excluir rotas"
 }

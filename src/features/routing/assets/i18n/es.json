@@ -5,5 +5,7 @@
 	"editProfile": "Editar perfil",
 	"hintProfile": "Selecciona el perfil de enrutamiento para este punto de referencia. El perfil determina qué caminos y carreteras prefiere el motor de enrutamiento: elige entre auto, bicicleta o a pie.",
 	"hintFast": "Cuando está activado, el motor de enrutamiento prefiere rutas más rápidas en lugar de más cortas. Desactívalo para encontrar la ruta más directa.",
-	"pointsAreOverlapping": "Puntos superpuestos"
+	"pointsAreOverlapping": "Puntos superpuestos",
+	"startRouting": "Iniciar ruta",
+	"stopRouting": "Detener ruta"
 }

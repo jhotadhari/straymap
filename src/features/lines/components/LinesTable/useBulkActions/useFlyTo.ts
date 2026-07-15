@@ -63,7 +63,7 @@ const useFlyTo = () => {
 		() => ({
 			key: 'flyTo',
 			cb,
-			label: 'fly to',
+			label: 'lines.flyTo',
 			leadingIcon: 'image-filter-center-focus-strong-outline',
 			disabled,
 		}),

@@ -146,5 +146,8 @@
 	},
 	"tagBadgeMode": "Tag badge style",
 	"tagBadgeModeContained": "Filled",
-	"tagBadgeModeOutlined": "Outlined"
+	"tagBadgeModeOutlined": "Outlined",
+	"addToMap": "Add to map",
+	"removeFromMap": "Remove from map",
+	"deleteLines": "Delete routes"
 }

@@ -148,7 +148,7 @@ const useRemoveTag = () => {
 		() => ({
 			key: 'removeTags',
 			cb: openModal,
-			label: 'removeTags',
+			label: 'lines.removeTags',
 			leadingIcon: 'tag-minus-outline',
 			modalNode,
 			disabled,

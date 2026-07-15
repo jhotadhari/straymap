@@ -118,6 +118,8 @@ const renderAccordionIcon = (props: { color: string; style: object }) => (
 const CacheManager = () => {
 	const dispatch = useAppDispatch();
 
+	const { t } = useTranslation();
+
 	const theme = useTheme();
 
 	const layers = useAppSelector((state) => selectLayers(state, { temp: true }));
@@ -173,7 +175,7 @@ const CacheManager = () => {
 
 	return (
 		<List.Accordion
-			title={'Cache Manager'} // ??? translation
+			title={t('baseMap.cacheManager')}
 			left={renderAccordionIcon}
 			expanded={expanded}
 			onPress={handleAccordionPress}

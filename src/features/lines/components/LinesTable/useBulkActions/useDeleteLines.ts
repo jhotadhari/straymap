@@ -68,7 +68,7 @@ const useDeleteLines = () => {
 		() => ({
 			key: 'deleteLines',
 			cb,
-			label: 'deleteLines',
+			label: 'lines.deleteLines',
 			leadingIcon: iconSource,
 			modalNode,
 			disabled,

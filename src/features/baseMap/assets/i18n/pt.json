@@ -114,5 +114,6 @@
 			"label": "Fator de assimetria",
 			"hint": "Número entre 0 e 1.\n\nQuando é 1, as inclinações na direção de referência (NO por padrão) terão sombreamento mínimo (efeito máximo de assimetria),\n\nquando é 0, o sombreamento será simétrico em todas as direções (sem efeito de assimetria).\n\nQualquer valor maior que 0 tornará o sombreamento suavemente assimétrico, com as inclinações mais próximas da direção de referência menos sombreadas do que as inclinações na direção oposta à medida que o fator aumenta.\n\nO padrão é 0.5"
 		}
-	}
+	},
+	"cacheManager": "Gerenciador de cache"
 }

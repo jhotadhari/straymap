@@ -142,7 +142,7 @@ const App: FC = () => {
 						{isDbError && (
 							<Text>{sprintf(t('dbLoader.dbMigrationError'), dbMigrated)}</Text>
 						)}
-						{/* ??? missing translation */}
+
 						{requireReload && (
 							<Text>{sprintf(t('dbLoader.requireReload'), dbMigrated)}</Text>
 						)}

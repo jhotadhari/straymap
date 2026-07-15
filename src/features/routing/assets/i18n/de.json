@@ -5,5 +5,7 @@
 	"editProfile": "Profil bearbeiten",
 	"hintProfile": "Wähle das Routing-Profil für diesen Wegpunkt. Das Profil bestimmt, welche Wege und Straßen die Routing-Engine bevorzugt — wähle zwischen Auto, Fahrrad oder zu Fuß.",
 	"hintFast": "Wenn aktiviert, bevorzugt die Routing-Engine schnellere Routen gegenüber kürzeren. Deaktiviere dies, um stattdessen den direktesten Weg zu finden.",
-	"pointsAreOverlapping": "Punkte überlappen sich"
+	"pointsAreOverlapping": "Punkte überlappen sich",
+	"startRouting": "Routing starten",
+	"stopRouting": "Routing beenden"
 }

@@ -36,7 +36,7 @@ const useRemoveFromMap = () => {
 		() => ({
 			key: 'removeFromMap',
 			cb,
-			label: 'removeFromMap',
+			label: 'lines.removeFromMap',
 			leadingIcon: 'map-minus',
 		}),
 		[cb]

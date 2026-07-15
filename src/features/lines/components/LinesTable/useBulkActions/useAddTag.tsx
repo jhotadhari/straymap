@@ -70,7 +70,7 @@ const useAddTag = () => {
 		() => ({
 			key: 'addTags',
 			cb: () => setModalVisible(true),
-			label: 'addTags',
+			label: 'lines.addTags',
 			leadingIcon: 'tag-plus-outline',
 			modalNode,
 			disabled,

@@ -146,5 +146,8 @@
 	},
 	"tagBadgeMode": "Tag-Abzeichen-Stil",
 	"tagBadgeModeContained": "Gefüllt",
-	"tagBadgeModeOutlined": "Umrandet"
+	"tagBadgeModeOutlined": "Umrandet",
+	"addToMap": "Zu Karte hinzufügen",
+	"removeFromMap": "Von Karte entfernen",
+	"deleteLines": "Routen löschen"
 }

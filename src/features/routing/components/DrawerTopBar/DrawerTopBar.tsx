@@ -105,9 +105,7 @@ const DrawerTopBar: FC = () => {
 						onPress={handleToggleRouting}
 						disabled={isToggling}
 					>
-						{!routeId && (
-							<Text>{t(routeId ? 'stop routing???' : 'start routing???')}</Text>
-						)}
+						{!routeId && <Text>{t('routing.startRouting')}</Text>}
 						{routeId && (
 							<Icon
 								source={'close'}

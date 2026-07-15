@@ -202,15 +202,11 @@ const useExport = () => {
 		() => ({
 			key: 'export',
 			cb: handleOpenModal,
-			label: t('lines.export'),
+			label: 'lines.export',
 			leadingIcon: 'content-save-outline',
 			modalNode,
 		}),
-		[
-			handleOpenModal,
-			t,
-			modalNode,
-		]
+		[handleOpenModal, modalNode]
 	);
 };
 

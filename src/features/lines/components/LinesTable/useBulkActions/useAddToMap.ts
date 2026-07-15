@@ -23,7 +23,7 @@ const useAddToMap = () => {
 		() => ({
 			key: 'addToMap',
 			cb,
-			label: 'addToMap',
+			label: 'lines.addToMap',
 			leadingIcon: 'map-plus',
 		}),
 		[cb]

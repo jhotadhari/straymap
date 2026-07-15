@@ -5,5 +5,7 @@
 	"editProfile": "Edit profile",
 	"hintProfile": "Select the routing profile for this waypoint. The profile determines which paths and roads the routing engine prefers — choose between car, bicycle, or foot.",
 	"hintFast": "When enabled, the routing engine prefers faster routes over shorter ones. Disable to find the most direct path instead.",
-	"pointsAreOverlapping": "Points are overlapping"
+	"pointsAreOverlapping": "Points are overlapping",
+	"startRouting": "Start routing",
+	"stopRouting": "Stop routing"
 }

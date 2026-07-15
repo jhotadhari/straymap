@@ -223,7 +223,7 @@ const HgtSourceRowControl = ({
 					<Text>{label}</Text>
 				</ButtonHighlight>
 				{'appHgt' === selectedOpt && fallbackAppHgt && !appHgtDirPath && (
-					<Text>{'???missing'}</Text>
+					<Text>{t('notConfigured')}</Text>
 				)}
 				{'appHgt' === selectedOpt && fallbackAppHgt && (
 					<ButtonHighlight

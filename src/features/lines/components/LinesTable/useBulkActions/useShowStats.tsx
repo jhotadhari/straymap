@@ -20,7 +20,7 @@ const useShowStats = () => {
 		() => ({
 			key: 'showStats',
 			cb,
-			label: 'showStats',
+			label: 'lines.showStats',
 			leadingIcon: iconSource,
 			modalNode,
 		}),
