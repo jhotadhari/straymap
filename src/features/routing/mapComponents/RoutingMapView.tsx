@@ -70,7 +70,7 @@ const SegmentLineLayer: FC<{
 			coordinates={coordinates}
 			segmentValues={normalizedValues}
 			colorRampStops={colorRampStops}
-			style={{ strokeWidth: 6 }}
+			style={stylePathRamp}
 		/>
 	);
 };
@@ -224,5 +224,7 @@ const stylePathError: GeometryStyle = {
 	strokeColor: '#ff0000',
 	strokeWidth: 3,
 };
+
+const stylePathRamp: GeometryStyle = { strokeWidth: 6 };
 
 export default RoutingMapView;
