@@ -11,7 +11,7 @@ import {
 	useMemo,
 	useState,
 } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, TextProps, View } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { get } from 'lodash-es';
@@ -250,6 +250,11 @@ const HgtSourceRowControl = ({
 
 	const modalHeader = modalHeaderProp ?? t('map.selectDemDir');
 
+	const labelStyle: TextProps['style'] = useMemo(
+		() => [theme.fonts.bodyMedium],
+		[theme]
+	)
+
 	const modalNode = useMemo(
 		() =>
 			modalVisible && (
@@ -274,7 +279,7 @@ const HgtSourceRowControl = ({
 											<LoadingIndicator size="small" />
 										) : undefined
 									}
-									labelStyle={theme.fonts.bodyMedium}
+									labelStyle={labelStyle}
 									labelExtractor={(a) => a.label}
 									descExtractor={
 										opt.key === 'custom'
@@ -296,6 +301,7 @@ const HgtSourceRowControl = ({
 			),
 		[
 			handleOptionPress,
+			labelStyle,
 			selectedOpt,
 			modalVisible,
 			handleCloseModal,

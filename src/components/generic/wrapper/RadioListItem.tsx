@@ -5,7 +5,7 @@ import { ReactNode, useMemo } from 'react';
 import {
 	Dimensions,
 	StyleSheet,
-	TextStyle,
+	TextProps,
 	TouchableHighlight,
 	View,
 	ViewStyle,
@@ -37,8 +37,8 @@ const RadioListItem = ({
 	labelExtractor?: (opt: OptionBase) => string | null;
 	descExtractor?: (opt: OptionBase) => string | null;
 	labelNode?: ReactNode;
-	labelStyle?: TextStyle;
-	descStyle?: TextStyle;
+	labelStyle?: TextProps['style'];
+	descStyle?: TextProps['style'];
 	status?: 'unchecked' | 'checked';
 	radioAlign?: 'left' | 'right';
 }) => {
@@ -74,7 +74,10 @@ const RadioListItem = ({
 		[radioAlign]
 	);
 
-	const styleLabel = useMemo(() => [theme.fonts.bodyLarge, labelStyle], [theme, labelStyle]);
+	const styleLabel = useMemo(
+		() => [theme.fonts.bodyLarge, styles.labelShrink, labelStyle],
+		[theme, labelStyle]
+	);
 
 	const styleDesc = useMemo(() => [theme.fonts.bodySmall, descStyle], [theme, descStyle]);
 
@@ -112,7 +115,10 @@ const styles = StyleSheet.create({
 		flexDirection: 'row',
 	},
 	labelWrapGrow: {
-		flexGrow: 1,
+		flex: 1,
+	},
+	labelShrink: {
+		flexShrink: 1,
 	},
 });
 
