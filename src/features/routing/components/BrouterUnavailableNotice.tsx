@@ -45,7 +45,6 @@ const styles = StyleSheet.create({
 	},
 	icon: {
 		marginBottom: 16,
-		opacity: 0.6,
 	},
 	title: {
 		textAlign: 'center',
@@ -53,7 +52,6 @@ const styles = StyleSheet.create({
 	},
 	message: {
 		textAlign: 'center',
-		opacity: 0.7,
 		lineHeight: 20,
 	},
 });

@@ -14,6 +14,7 @@ import InfoLabelRow from '../../../../components/generic/infoWrapper/InfoLabelRo
 import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
 import useDeleteLinesCbModal from '../../hooks/useDeleteLinesCbModal';
 import { sharedStyles } from './sharedDeps';
+import { sharedStyles as appSharedStyles } from '../../../../sharedStyles';
 import { selectLineTemp } from '../../selectors';
 import { useAppSelector, useSystemLineIds } from '../../../../store/hooks';
 
@@ -61,7 +62,7 @@ const RowDelete: FC = () => {
 		() => ({
 			borderColor: theme.colors.onBackground,
 			...(isSystemLine && {
-				opacity: 0.5,
+				...appSharedStyles.disabled,
 				borderColor: theme.colors.onSurfaceDisabled,
 			}),
 		}),

@@ -3,6 +3,11 @@
  */
 import { StyleSheet } from 'react-native';
 
+/**
+ * Internal dependencies
+ */
+import { OPACITY_DISABLED } from './constants';
+
 export const sharedStyles = StyleSheet.create({
 	flexRow: {
 		flexDirection: 'row',
@@ -30,4 +35,7 @@ export const sharedStyles = StyleSheet.create({
 		marginLeft: 0,
 		paddingLeft: 10,
 	},
+	disabled: {
+		opacity: OPACITY_DISABLED,
+	}
 });

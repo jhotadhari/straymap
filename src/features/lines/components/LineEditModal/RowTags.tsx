@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { FC, useCallback, useContext, useMemo, useState } from 'react';
-import { View, TouchableOpacity } from 'react-native';
+import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { Icon, Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -21,6 +21,7 @@ import { invalidateTagsTable, invalidateLinesQueries } from '../../db/queryFns';
 import { featureRegistry } from '../../../FeatureRegistry';
 import { logError } from '../../../../lib/utils';
 import { ErrorToastContext } from '../../../../components/ErrorToast/Context';
+import { sharedStyles } from '../../../../sharedStyles';
 
 const RowTags: FC = () => {
 	const { t } = useTranslation();
@@ -109,7 +110,7 @@ const RowTags: FC = () => {
 				}}
 			>
 				{tags.length === 0 ? (
-					<Text style={{ opacity: 0.5 }}>{t('lines.tagsNoTags')}</Text>
+					<Text style={styles.disabled}>{t('lines.tagsNoTags')}</Text>
 				) : (
 					tags.map((tag) => {
 						const isSystemTag = systemTagLabels.includes(tag.label ?? '');
@@ -148,5 +149,9 @@ const RowTags: FC = () => {
 		</InfoLabelRow>
 	);
 };
+
+const styles = StyleSheet.create({
+	disabled: sharedStyles.disabled,
+});
 
 export default RowTags;

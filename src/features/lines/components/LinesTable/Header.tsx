@@ -23,6 +23,7 @@ import FilterBadge from '../FilterModals/FilterBadge';
 import FilterConflictModal from '../FilterModals/FilterConflictModal';
 import { ColumnFilter } from '../../types';
 import { sprintf } from 'sprintf-js';
+import { sharedStyles } from '../../../../sharedStyles';
 
 const Header: FC = () => {
 	const theme = useTheme();
@@ -101,9 +102,9 @@ const Header: FC = () => {
 
 	const scrollContentStyle = useMemo(() => ({ alignItems: 'center' as const }), []);
 
-	const disabledLabelStyle = useMemo(() => ({ opacity: 0.5 }), []);
+	const disabledLabelStyle = useMemo(() => sharedStyles.disabled, []);
 	const contentStyle = useMemo(() => ({ marginVertical: -2 }), []);
-	const disabledIconStyle = useMemo(() => ({ opacity: 0.5 }), []);
+	const disabledIconStyle = useMemo(() => sharedStyles.disabled, []);
 
 	return (
 		<View style={style}>

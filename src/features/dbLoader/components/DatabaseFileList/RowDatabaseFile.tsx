@@ -355,7 +355,7 @@ const RowDatabaseFile: FC<{
 					<ButtonHighlight
 						onPress={handleRenameConfirm}
 						mode="outlined"
-						style={!newName.trim() || isBusy ? { opacity: 0.5 } : undefined}
+						style={!newName.trim() || isBusy ? appSharedStyles.disabled : undefined}
 						disabled={!newName.trim() || isBusy || newNameExists}
 					>
 						<Text>{t('ok')}</Text>

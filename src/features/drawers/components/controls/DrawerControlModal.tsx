@@ -23,6 +23,7 @@ import {
 	setControlHandleSide,
 	setShowSettingsHandle,
 } from '../../slice';
+import { sharedStyles } from '../../../../sharedStyles';
 
 const settingsDrawerItem: DrawerPanel = {
 	iconSource: 'cog',
@@ -218,7 +219,7 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 	},
 	label: { marginTop: 4 },
-	disabled: { opacity: 0.5 },
+	disabled: sharedStyles.disabled,
 	divider: { marginTop: 10, marginBottom: 10 },
 	okButton: { marginTop: 30 },
 });

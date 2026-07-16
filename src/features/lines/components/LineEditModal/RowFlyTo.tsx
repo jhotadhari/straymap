@@ -16,6 +16,7 @@ import { AppContext } from '../../../../Context';
 import { useAppSelector } from '../../../../store/hooks';
 import { selectSelected } from '../../selectors';
 import { sharedStyles } from './sharedDeps';
+import { sharedStyles as appSharedStyles } from '../../../../sharedStyles';
 
 const RowFlyTo: FC = () => {
 	const theme = useTheme();
@@ -57,7 +58,7 @@ const RowFlyTo: FC = () => {
 		() => ({
 			borderColor: theme.colors.onBackground,
 			...(disabled && {
-				opacity: 0.5,
+				...appSharedStyles.disabled,
 				borderColor: theme.colors.onSurfaceDisabled,
 			}),
 		}),

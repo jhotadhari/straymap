@@ -11,6 +11,7 @@ import { Text, useTheme, TextInput } from 'react-native-paper';
 import InfoLabelRow from '../infoWrapper/InfoLabelRow';
 import ButtonHighlight from '../primitives/ButtonHighlight';
 import { sharedStyles } from './sharedDeps';
+import { sharedStyles as appSharedStyles } from '../../../sharedStyles';
 import { strValToNb } from '../../../lib/utils';
 import { NumType } from '../../../types';
 
@@ -176,7 +177,7 @@ const NumericRowControlSegmented = ({
 	const styleButtonLabel = useMemo(
 		() => [
 			{
-				opacity: numValueActive ? 0.5 : 1,
+				...(numValueActive && appSharedStyles.disabled),
 				paddingHorizontal: 0,
 			},
 		],
@@ -186,7 +187,7 @@ const NumericRowControlSegmented = ({
 	const styleInput = useMemo(
 		() => [
 			localStyles.input,
-			{ opacity: numValueActive ? 1 : 0.5 },
+			!numValueActive && appSharedStyles.disabled,
 			inputStyle,
 		],
 		[numValueActive, inputStyle]

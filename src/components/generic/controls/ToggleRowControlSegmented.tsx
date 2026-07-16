@@ -11,6 +11,7 @@ import { Switch, Text, useTheme } from 'react-native-paper';
 import InfoLabelRow from '../infoWrapper/InfoLabelRow';
 import ButtonHighlight from '../primitives/ButtonHighlight';
 import { sharedStyles } from './sharedDeps';
+import { sharedStyles as appSharedStyles } from '../../../sharedStyles';
 
 const ToggleRowControlSegmented = ({
 	label,
@@ -37,7 +38,6 @@ const ToggleRowControlSegmented = ({
 		() => [
 			localStyles.button,
 			{
-				// opacity: boolValueActive ? 0.5 : 1,
 				borderRadius: theme.roundness,
 			},
 		],
@@ -48,8 +48,7 @@ const ToggleRowControlSegmented = ({
 		() => [
 			// localStyles.button,
 			{
-				opacity: boolValueActive ? 0.5 : 1,
-				// borderRadius: theme.roundness,
+				...(boolValueActive && appSharedStyles.disabled),
 				paddingHorizontal: 0,
 			},
 		],
@@ -76,7 +75,7 @@ const ToggleRowControlSegmented = ({
 
 	const styleSwitch = useMemo(
 		() => [
-			{ opacity: boolValueActive ? 1 : 0.5 },
+			!boolValueActive && appSharedStyles.disabled,
 		],
 		[boolValueActive]
 	);

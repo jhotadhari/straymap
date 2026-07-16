@@ -9,6 +9,8 @@ export const MODAL_WIDTH_FACTOR = 0.8;
 
 export const MODAL_PADDING = 16;
 
+export const OPACITY_DISABLED = 0.5;
+
 /**
  * Icon sizes used across the app.
  * DRAWER_ICON_SIZE (25) is the standard for list rows, table rows,

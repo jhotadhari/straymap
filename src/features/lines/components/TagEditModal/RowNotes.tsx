@@ -14,6 +14,7 @@ import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { selectTagTemp } from '../../selectors';
 import { featureRegistry } from '../../../FeatureRegistry';
 import { setTagTemp } from '../../slice';
+import { sharedStyles } from '../../../../sharedStyles';
 
 const RowNotes: FC = () => {
 	const dispatch = useAppDispatch();
@@ -43,13 +44,7 @@ const RowNotes: FC = () => {
 			style={{ alignItems: 'flex-start' }}
 		>
 			{isSystemTag ? (
-				<Text
-					style={{
-						opacity: 0.7,
-					}}
-				>
-					{hintKey ? t(hintKey) : (tag?.notes ?? '')}
-				</Text>
+				<Text style={sharedStyles.disabled}>{hintKey ? t(hintKey) : (tag?.notes ?? '')}</Text>
 			) : (
 				<TextInput
 					underlineColor="transparent"

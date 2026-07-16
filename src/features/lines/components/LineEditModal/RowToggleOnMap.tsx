@@ -14,6 +14,7 @@ import ButtonHighlight from '../../../../components/generic/primitives/ButtonHig
 import { useAppSelector } from '../../../../store/hooks';
 import { selectSelected } from '../../selectors';
 import { sharedStyles } from './sharedDeps';
+import { sharedStyles as appSharedStyles } from '../../../../sharedStyles';
 
 const RowToggleOnMap: FC = () => {
 	const theme = useTheme();
@@ -48,7 +49,7 @@ const RowToggleOnMap: FC = () => {
 		() => ({
 			borderColor: theme.colors.onBackground,
 			...(disabled && {
-				opacity: 0.5,
+				...appSharedStyles.disabled,
 				borderColor: theme.colors.onSurfaceDisabled,
 			}),
 		}),

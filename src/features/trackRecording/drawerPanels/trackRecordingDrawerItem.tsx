@@ -22,6 +22,7 @@ import {
 	formatDurationCompact,
 } from '../../../lib/formatting';
 import { selectUnitPrefs } from '../../general/selectors';
+import { sharedStyles } from '../../../sharedStyles';
 
 const TrackRecordingDrawerContent: FC = () => {
 	const { t } = useTranslation();
@@ -131,7 +132,7 @@ const styles = StyleSheet.create({
 	},
 	inactive: {
 		marginTop: 8,
-		opacity: 0.6,
+		...sharedStyles.disabled,
 	},
 });
 

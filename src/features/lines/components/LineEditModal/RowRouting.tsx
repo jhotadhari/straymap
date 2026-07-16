@@ -20,6 +20,7 @@ import { selectIsRouting } from '../../../routing/selectors';
 import { setIsRouting } from '../../../routing/slice';
 import useActivateDrawerItem from '../../../drawers/hooks/useActivateDrawerItem';
 import { sharedStyles } from './sharedDeps';
+import { sharedStyles as appSharedStyles } from '../../../../sharedStyles';
 import IconRouting from '../../../routing/drawerPanels/routing/IconComponent';
 import { AppContext } from '../../../../Context';
 
@@ -71,7 +72,7 @@ const RowRouting: FC = () => {
 		() => ({
 			borderColor: theme.colors.onBackground,
 			...((!route?.id || isRouting === route?.id) && {
-				opacity: 0.5,
+				...appSharedStyles.disabled,
 				borderColor: theme.colors.onSurfaceDisabled,
 			}),
 		}),
