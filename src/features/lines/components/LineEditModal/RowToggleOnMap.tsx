@@ -11,7 +11,7 @@ import { useTranslation } from 'react-i18next';
 import { LineEditModalContext } from './Context';
 import InfoLabelRow from '../../../../components/generic/infoWrapper/InfoLabelRow';
 import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
-import { useAppSelector } from '../../../../store/hooks';
+import { useAppSelector, useSystemLineIds } from '../../../../store/hooks';
 import { selectSelected } from '../../selectors';
 import { sharedStyles } from './sharedDeps';
 import { sharedStyles as appSharedStyles } from '../../../../sharedStyles';
@@ -24,18 +24,25 @@ const RowToggleOnMap: FC = () => {
 
 	const selectedIds = useAppSelector(selectSelected);
 
+	const systemLineIds = useSystemLineIds();
+	const isSystemLine = useMemo(
+		() => Object.values(systemLineIds).includes(line?.id ?? -1),
+		[systemLineIds, line?.id]
+	);
+
 	const isSelected = useMemo(() => selectedIds.includes(line?.id ?? -1), [selectedIds, line?.id]);
 
-	const disabled = useMemo(() => !line?.id, [line?.id]);
+	const disabled = useMemo(() => !line?.id || (isSelected && isSystemLine), [line?.id]);
 
 	const handlePress = useCallback(() => {
-		if (line?.id) {
+		if (!disabled && line?.id) {
 			selectLine(line.id, !isSelected);
 		}
 	}, [
 		line?.id,
 		isSelected,
 		selectLine,
+		disabled,
 	]);
 
 	const icon = useMemo(() => (isSelected ? 'map-minus' : 'map-plus'), [isSelected]);
