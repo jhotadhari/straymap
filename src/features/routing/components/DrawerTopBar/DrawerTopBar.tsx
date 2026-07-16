@@ -79,24 +79,26 @@ const DrawerTopBar: FC = () => {
 			<View style={styleItem}>
 				<View style={styleButtonRow}>
 					{routeId && (
-						<ButtonHighlight
-							onPress={actions.appendPoint.cb}
-							disabled={isToggling}
-							mode="contained"
-							buttonColor={get(theme.colors, 'successContainer')}
-							textColor={get(theme.colors, 'onSuccessContainer')}
-						>
-							<Icon
-								source={'plus'}
-								size={20}
-							/>
-						</ButtonHighlight>
-					)}
+						<>
+							<ButtonHighlight
+								onPress={actions.appendPoint.cb}
+								disabled={isToggling}
+								mode="contained"
+								buttonColor={get(theme.colors, 'successContainer')}
+								textColor={get(theme.colors, 'onSuccessContainer')}
+							>
+								<Icon
+									source={'plus'}
+									size={20}
+								/>
+							</ButtonHighlight>
 
-					<RoutingActionsButton
-						actions={actions}
-						disabled={isToggling}
-					/>
+							<RoutingActionsButton
+								actions={actions}
+								disabled={isToggling}
+							/>
+						</>
+					)}
 
 					<ButtonHighlight
 						mode="outlined"

@@ -16,7 +16,7 @@
       "replaced": "file:.yalc/release-kit"
     },
     "react-native-brouter": {
-      "signature": "21aa1b3c70c6083e5b2469306fe2fa0d",
+      "signature": "d1c9c1766af6659f4ae45be84321424f",
       "file": true,
       "replaced": "*"
     },

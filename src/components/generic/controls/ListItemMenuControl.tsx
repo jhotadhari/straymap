@@ -104,7 +104,6 @@ const ListItemMenuControl = ({
 				popoverStyle={popoverStyle}
 				arrowSize={arrowSize}
 				isVisible={visible}
-				placement={PopoverPlacement.BOTTOM}
 				onRequestClose={handleRequestClose}
 				from={anchorRef as React.RefObject<React.Component<{}, {}, any>>}
 			>

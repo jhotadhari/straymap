@@ -183,7 +183,6 @@ const FilterTagsModal: FC<{
 						popoverStyle={popoverStyle}
 						arrowSize={arrowSize}
 						isVisible={popoverVisible}
-						placement={PopoverPlacement.BOTTOM}
 						onRequestClose={handleDismissPopover}
 						from={anchorRef as React.RefObject<React.Component<{}, {}, any>>}
 						animationConfig={animationConfig}

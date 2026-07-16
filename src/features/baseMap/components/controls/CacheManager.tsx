@@ -193,7 +193,7 @@ const CacheManager = () => {
 							<InfoRowControl
 								label={internalCacheDir === cacheDir.path ? 'Internal' : 'External'}
 							>
-								<Text>{cacheDir.path}</Text>
+								<Text style={styles.cacheHeader}>{cacheDir.path}</Text>
 							</InfoRowControl>
 
 							{[...cacheDir.caches].map((cache: CacheSubDir) => (
@@ -223,6 +223,9 @@ const styles = StyleSheet.create({
 		marginLeft: 16,
 		marginRight: -16,
 	},
+	cacheHeader: {
+		paddingRight: 12,
+	},
 	cacheRow: {
 		flexDirection: 'row',
 		gap: 8,
@@ -230,8 +233,7 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 	},
 	cacheInfo: {
-		flexShrink: 1,
-		flexGrow: 1,
+		flex: 1,
 	},
 	basename: {
 		width: 1,
