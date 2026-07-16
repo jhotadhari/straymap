@@ -1,3 +1,7 @@
 module.exports = {
-	assets: ['./src/assets/fonts/', './src/assets/icons/icomoon/fonts/'],
+	assets: [
+		'./src/assets/fonts/',
+		'./src/assets/icons/icomoon/fonts/',
+		'./node_modules/font-gis/fonts/',
+	],
 };
