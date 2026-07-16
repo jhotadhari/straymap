@@ -26,10 +26,10 @@ import Sortable, { SortableFlexDragEndParams } from 'react-native-sortables';
 /**
  * Internal dependencies
  */
-import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
-import ModalWrapper from '../../../../../components/generic/ModalWrapper';
-import RadioListItem from '../../../../../components/generic/RadioListItem';
-import InfoButton from '../../../../../components/generic/InfoButton';
+import ButtonHighlight from '../../../../../components/generic/primitives/ButtonHighlight';
+import ModalWrapper from '../../../../../components/generic/wrapper/ModalWrapper';
+import RadioListItem from '../../../../../components/generic/wrapper/RadioListItem';
+import InfoButton from '../../../../../components/generic/infoWrapper/InfoButton';
 import NameRowControl from '../../../../../components/generic/controls/NameRowControl';
 import LayerControlMapsforge from './LayerControlMapsforge';
 import { LayerOption, LayerConfig } from '../../../types';
@@ -45,7 +45,7 @@ import VisibilityControl, { VisibilityRowControl } from './VisibilityControl';
 import LayerControlOnlineRasterXYZ from './LayerControlOnlineRasterXYZ';
 import LayerControlRasterMBTiles from './LayerControlRasterMBTiles';
 import LayerControlHillshading from './LayerControlHillshading';
-import { labelMinWidth } from '../../../../../components/generic/controls/InfoRowControl';
+import { labelMinWidth } from '../../../../../components/generic/infoWrapper/InfoLabelRow';
 import { sharedStyles } from '../../../../../sharedStyles';
 import { sharedStyles as sharedStylesBaseMapControls } from '../sharedDeps';
 import useDropIndicatorStyle from '../../../../../compose/useDropIndicatorStyle';

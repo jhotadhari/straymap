@@ -12,9 +12,9 @@ import { sprintf } from 'sprintf-js';
  * Internal dependencies
  */
 import { LineEditModalContext } from './Context';
-import InfoRowControl from '../../../../components/generic/controls/InfoRowControl';
+import InfoLabelRow from '../../../../components/generic/infoWrapper/InfoLabelRow';
 import TagBadge from '../TagBadge';
-import IconButtonHighlight from '../../../../components/generic/IconButtonHighlight';
+import IconButtonHighlight from '../../../../components/generic/primitives/IconButtonHighlight';
 import AddTagsModal from '../AddTagsModal';
 import { lineAddTag, lineRemoveTag } from '../../db/actionsLine';
 import { invalidateTagsTable, invalidateLinesQueries } from '../../db/queryFns';
@@ -88,7 +88,7 @@ const RowTags: FC = () => {
 	// ── render ─────────────────────────────────────────────────────
 
 	return (
-		<InfoRowControl
+		<InfoLabelRow
 			label={t('lines.columns.tags')}
 			Info={t('lines.hintTags')}
 			style={{ alignItems: 'flex-start' }}
@@ -147,7 +147,7 @@ const RowTags: FC = () => {
 					onPress={() => setAddModalVisible(true)}
 				/>
 			</View>
-		</InfoRowControl>
+		</InfoLabelRow>
 	);
 };
 

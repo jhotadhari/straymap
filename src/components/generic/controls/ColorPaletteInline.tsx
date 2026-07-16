@@ -7,7 +7,7 @@ import { Pressable, View, StyleSheet, ViewProps } from 'react-native';
 /**
  * Internal dependencies
  */
-import { PALETTE_COLORS } from './palette';
+import { PALETTE_COLORS } from '../../../constants';
 
 const ColorPaletteInline: FC<{
 	selectedColor: string;

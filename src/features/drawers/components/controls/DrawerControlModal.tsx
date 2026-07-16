@@ -12,8 +12,8 @@ import { get } from 'lodash-es';
  * Internal dependencies
  */
 import { featureRegistry } from '../../../FeatureRegistry';
-import ModalWrapper from '../../../../components/generic/ModalWrapper';
-import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
+import ModalWrapper from '../../../../components/generic/wrapper/ModalWrapper';
+import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
 import { DrawerPanel } from '../../types';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { selectControlHandleSide, selectItemKeys, selectShowSettingsHandle } from '../../selectors';

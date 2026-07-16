@@ -15,10 +15,10 @@ import { invalidateTagsTable } from '../../../db/queryFns';
 import { logError } from '../../../../../lib/utils';
 import { ErrorToastContext } from '../../../../../components/ErrorToast/Context';
 import { sprintf } from 'sprintf-js';
-import ModalWrapper from '../../../../../components/generic/ModalWrapper';
-import ColorPaletteInline from '../../../../../components/ColorPalette/ColorPaletteInline';
-import { PALETTE_COLORS } from '../../tagColor';
+import ModalWrapper from '../../../../../components/generic/wrapper/ModalWrapper';
+import ColorPaletteInline from '../../../../../components/generic/controls/ColorPaletteInline';
 import { tableStyles } from '../../tableStyles';
+import { PALETTE_COLORS } from '../../../../../constants';
 
 const useChangeTagColor = () => {
 	const { t } = useTranslation();

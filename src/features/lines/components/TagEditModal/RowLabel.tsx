@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next';
  * Internal dependencies
  */
 import { TagEditModalContext } from './Context';
-import InfoRowControl from '../../../../components/generic/controls/InfoRowControl';
+import InfoLabelRow from '../../../../components/generic/infoWrapper/InfoLabelRow';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { selectTagTemp } from '../../selectors';
 import { setTagTemp } from '../../slice';
@@ -36,7 +36,7 @@ const RowLabel: FC = () => {
 	);
 
 	return (
-		<InfoRowControl
+		<InfoLabelRow
 			label={t('lines.name')}
 			style={{ alignItems: 'flex-start' }}
 		>
@@ -51,7 +51,7 @@ const RowLabel: FC = () => {
 				onChangeText={handleChangeText}
 				value={tagTemp?.label ?? tag?.label ?? ''}
 			/>
-		</InfoRowControl>
+		</InfoLabelRow>
 	);
 };
 

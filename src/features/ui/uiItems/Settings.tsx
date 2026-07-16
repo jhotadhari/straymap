@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 /**
  * Internal dependencies
  */
-import ListItem from '../../../components/generic/ListItem';
+import ListItem from '../../../components/generic/wrapper/ListItem';
 import { featureRegistry } from '../../FeatureRegistry';
 import { useAppDispatch } from '../../../store/hooks';
 import { addUiItemKey } from '../slice';

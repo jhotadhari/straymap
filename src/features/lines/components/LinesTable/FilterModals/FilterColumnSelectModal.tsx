@@ -7,11 +7,11 @@ import { useTranslation } from 'react-i18next';
 /**
  * Internal dependencies
  */
-import ModalWrapper from '../../../../../components/generic/ModalWrapper';
+import ModalWrapper from '../../../../../components/generic/wrapper/ModalWrapper';
 import { useAppSelector } from '../../../../../store/hooks';
 import { selectLinesFilterableColumns } from '../../../selectors';
 import { tableStyles } from '../../tableStyles';
-import RadioListItem from '../../../../../components/generic/RadioListItem';
+import RadioListItem from '../../../../../components/generic/wrapper/RadioListItem';
 
 const FilterColumnSelectModal: FC<{
 	visible: boolean;

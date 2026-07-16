@@ -8,8 +8,8 @@ import { Text, useTheme, TextInput } from 'react-native-paper';
 /**
  * Internal dependencies
  */
-import InfoRowControl from './InfoRowControl';
-import ButtonHighlight from '../ButtonHighlight';
+import InfoLabelRow from '../infoWrapper/InfoLabelRow';
+import ButtonHighlight from '../primitives/ButtonHighlight';
 import { sharedStyles } from './sharedDeps';
 import { strValToNb } from '../../../lib/utils';
 import { NumType } from '../../../types';
@@ -193,7 +193,7 @@ const NumericRowControlSegmented = ({
 	);
 
 	return (
-		<InfoRowControl
+		<InfoLabelRow
 			label={label}
 			Info={Info}
 			style={style}
@@ -221,7 +221,7 @@ const NumericRowControlSegmented = ({
 					keyboardType="numeric"
 				/>
 			</View>
-		</InfoRowControl>
+		</InfoLabelRow>
 	);
 };
 

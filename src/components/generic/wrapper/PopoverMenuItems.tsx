@@ -8,7 +8,7 @@ import { useTheme } from 'react-native-paper';
 /**
  * Internal dependencies
  */
-import { MenuActionOption } from '../../types';
+import { MenuActionOption } from '../../../types';
 import MenuItem from './MenuItem';
 
 const PopoverMenuItem: FC<{

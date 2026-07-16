@@ -18,9 +18,9 @@ import { Feature, GeoJsonProperties, LineString } from 'geojson';
  */
 import { ErrorToastContext } from '../../../../components/ErrorToast/Context';
 import { logError } from '../../../../lib/utils';
-import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
-import ModalWrapper from '../../../../components/generic/ModalWrapper';
-import LoadingIndicator from '../../../../components/generic/LoadingIndicator';
+import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
+import ModalWrapper from '../../../../components/generic/wrapper/ModalWrapper';
+import LoadingIndicator from '../../../../components/generic/primitives/LoadingIndicator';
 import useAsyncBusy from '../../../../compose/useAsyncBusy';
 import {
 	detectImportFormat,

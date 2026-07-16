@@ -9,9 +9,9 @@ import { useTranslation } from 'react-i18next';
 /**
  * Internal dependencies
  */
-import ModalWrapper from '../../../../components/generic/ModalWrapper';
-import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
-import InfoRowControl from '../../../../components/generic/controls/InfoRowControl';
+import ModalWrapper from '../../../../components/generic/wrapper/ModalWrapper';
+import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
+import InfoLabelRow from '../../../../components/generic/infoWrapper/InfoLabelRow';
 import { sharedStyles as appSharedStyles } from '../../../../sharedStyles';
 import { useAppSelector } from '../../../../store/hooks';
 import { selectUnitPrefs } from '../../../general/selectors';
@@ -173,7 +173,7 @@ const FilterNumericModal: FC<{
 			header={columnLabel}
 			innerStyle={sharedStyles.modalInner}
 		>
-			<InfoRowControl
+			<InfoLabelRow
 				label={labelWithUnit(t('lines.filterMin'))}
 				Info={t('lines.hintNumericFilter')}
 			>
@@ -188,9 +188,9 @@ const FilterNumericModal: FC<{
 					/>
 					{unitSuffix !== '' && <Text style={suffixTextStyle}>{unitSuffix}</Text>}
 				</View>
-			</InfoRowControl>
+			</InfoLabelRow>
 
-			<InfoRowControl
+			<InfoLabelRow
 				label={labelWithUnit(t('lines.filterMax'))}
 				Info={t('lines.hintNumericFilter')}
 			>
@@ -205,7 +205,7 @@ const FilterNumericModal: FC<{
 					/>
 					{unitSuffix !== '' && <Text style={suffixTextStyle}>{unitSuffix}</Text>}
 				</View>
-			</InfoRowControl>
+			</InfoLabelRow>
 
 			{onDelete && (
 				<View style={appSharedStyles.modalControls}>

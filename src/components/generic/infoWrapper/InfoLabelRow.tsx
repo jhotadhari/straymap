@@ -8,11 +8,11 @@ import { useTheme, Text } from 'react-native-paper';
 /**
  * Internal dependencies
  */
-import InfoControlWrapper from '../InfoControlWrapper';
+import InfoWrapper from './InfoWrapper';
 
 export const labelMinWidth = 90;
 
-const InfoRowControl = ({
+const InfoLabelRow = ({
 	label,
 	children,
 	Info,
@@ -62,7 +62,7 @@ const InfoRowControl = ({
 	}, [onLabelPress, Info]);
 
 	return (
-		<InfoControlWrapper
+		<InfoWrapper
 			label={label}
 			Info={Info}
 			Below={Below}
@@ -84,7 +84,7 @@ const InfoRowControl = ({
 				{!Info && !onLabelPress && <Text style={dynamicStyles.label}>{label}</Text>}
 				<View style={styles.controlView}>{children}</View>
 			</View>
-		</InfoControlWrapper>
+		</InfoWrapper>
 	);
 };
 
@@ -111,4 +111,4 @@ export const styles = StyleSheet.create({
 	},
 });
 
-export default InfoRowControl;
+export default InfoLabelRow;

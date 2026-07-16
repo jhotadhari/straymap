@@ -11,7 +11,7 @@ import { sprintf } from 'sprintf-js';
 /**
  * Internal dependencies
  */
-import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
+import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
 import { DRAWER_ICON_SIZE } from '../../../drawers/constants';
 import { tableStyles } from '../tableStyles';
 import TagBulkActions from './BulkActions';

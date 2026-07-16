@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next';
  * Internal dependencies
  */
 import { TagEditModalContext } from './Context';
-import InfoRowControl from '../../../../components/generic/controls/InfoRowControl';
+import InfoLabelRow from '../../../../components/generic/infoWrapper/InfoLabelRow';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { selectTagTemp } from '../../selectors';
 import { featureRegistry } from '../../../FeatureRegistry';
@@ -38,7 +38,7 @@ const RowNotes: FC = () => {
 	const hintKey = isSystemTag ? `lines.hintSystemTagNote.${tag!.label}` : null;
 
 	return (
-		<InfoRowControl
+		<InfoLabelRow
 			label={t('lines.columns.notes')}
 			style={{ alignItems: 'flex-start' }}
 		>
@@ -66,7 +66,7 @@ const RowNotes: FC = () => {
 					value={tagTemp?.notes ?? tag?.notes ?? ''}
 				/>
 			)}
-		</InfoRowControl>
+		</InfoLabelRow>
 	);
 };
 

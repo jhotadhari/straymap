@@ -8,7 +8,7 @@ import { Icon } from 'react-native-paper';
 /**
  * Internal dependencies
  */
-import ListItemMenuControl from '../../../../components/generic/controls/ListItemMenuControl';
+import ListItemMenuControl from '../../../../components/generic/wrapper/ListItemMenuControl';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { selectTagBadgeMode } from '../../selectors';
 import { setTagBadgeMode } from '../../slice';

@@ -10,8 +10,8 @@ import { without } from 'lodash-es';
 /**
  * Internal dependencies
  */
-import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
-import IconButtonHighlight from '../../../../components/generic/IconButtonHighlight';
+import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
+import IconButtonHighlight from '../../../../components/generic/primitives/IconButtonHighlight';
 import { DRAWER_ICON_SIZE } from '../../../drawers/constants';
 import { sprintf } from 'sprintf-js';
 import { tableStyles } from '../tableStyles';

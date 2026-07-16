@@ -12,9 +12,9 @@ import { pick } from 'lodash-es';
  */
 import { AppContext } from '../../../Context';
 import useRoute from '../hooks/useRoute';
-import ButtonHighlight from '../../../components/generic/ButtonHighlight';
+import ButtonHighlight from '../../../components/generic/primitives/ButtonHighlight';
 import { MenuActionOption } from '../../../types';
-import PopoverMenuItems from '../../../components/generic/PopoverMenuItems';
+import PopoverMenuItems from '../../../components/generic/wrapper/PopoverMenuItems';
 
 const RoutingActionsButton: FC<{
 	disabled?: boolean;

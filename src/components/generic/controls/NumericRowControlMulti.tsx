@@ -9,7 +9,7 @@ import { get } from 'lodash-es';
 /**
  * Internal dependencies
  */
-import InfoRowControl from './InfoRowControl';
+import InfoLabelRow from '../infoWrapper/InfoLabelRow';
 import { strValToNb } from '../../../lib/utils';
 import { NumType } from '../../../types';
 import { sharedStyles } from './sharedDeps';
@@ -165,7 +165,7 @@ const NumericRowControlMulti = ({
 	);
 
 	return (
-		<InfoRowControl
+		<InfoLabelRow
 			label={label}
 			Info={Info}
 		>
@@ -190,7 +190,7 @@ const NumericRowControlMulti = ({
 					</View>
 				))}
 			</View>
-		</InfoRowControl>
+		</InfoLabelRow>
 	);
 };
 

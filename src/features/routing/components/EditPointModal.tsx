@@ -10,10 +10,10 @@ import type { VehicleMode } from 'react-native-brouter/geojson';
 /**
  * Internal dependencies
  */
-import InfoRadioRow from '../../../components/generic/InfoRadioRow';
-import InfoRowControl from '../../../components/generic/controls/InfoRowControl';
-import ListItemMenuControl from '../../../components/generic/controls/ListItemMenuControl';
-import ModalWrapper from '../../../components/generic/ModalWrapper';
+import InfoRadioRow from '../../../components/generic/infoWrapper/InfoRadioRow';
+import InfoLabelRow from '../../../components/generic/infoWrapper/InfoLabelRow';
+import ListItemMenuControl from '../../../components/generic/wrapper/ListItemMenuControl';
+import ModalWrapper from '../../../components/generic/wrapper/ModalWrapper';
 import { useAppDispatch } from '../../../store/hooks';
 import { RoutingPoint, RoutingProfile } from '../types';
 import { updateRoutingPoint } from '../db/actionsRoutingPoint';
@@ -59,7 +59,7 @@ const ProfileRowControl = ({
 	);
 
 	return (
-		<InfoRowControl
+		<InfoLabelRow
 			label={t('routing.profile')}
 			Info={t('routing.hintProfile')}
 		>
@@ -69,7 +69,7 @@ const ProfileRowControl = ({
 				setValue={handleSetValue}
 				anchorLabel={get(selectedOpt, 'label', '')}
 			/>
-		</InfoRowControl>
+		</InfoLabelRow>
 	);
 };
 

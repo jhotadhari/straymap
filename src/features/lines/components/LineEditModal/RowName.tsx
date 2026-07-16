@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next';
  * Internal dependencies
  */
 import { LineEditModalContext } from './Context';
-import InfoRowControl from '../../../../components/generic/controls/InfoRowControl';
+import InfoLabelRow from '../../../../components/generic/infoWrapper/InfoLabelRow';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { selectLineTemp } from '../../selectors';
 import { setLineTemp } from '../../slice';
@@ -52,7 +52,7 @@ const RowName: FC = () => {
 	);
 
 	return (
-		<InfoRowControl
+		<InfoLabelRow
 			label={t('lines.name')}
 			Info={t('lines.hintName')}
 			style={{ alignItems: 'flex-start' }}
@@ -60,7 +60,7 @@ const RowName: FC = () => {
 			<TextInput
 				style={{
 					flexGrow: 1,
-					maxWidth: '83%', // this is a hack. one day w should refactor InfoRowControl so that the children sit in a properly layouted container and can grow to full width without setting weird numerical calculated values.
+					maxWidth: '83%', // this is a hack. one day w should refactor InfoLabelRow so that the children sit in a properly layouted container and can grow to full width without setting weird numerical calculated values.
 				}}
 				multiline={true}
 				numberOfLines={3}
@@ -70,7 +70,7 @@ const RowName: FC = () => {
 				onChangeText={handleChangeText}
 				value={lineTemp?.title ?? line?.title ?? ''}
 			/>
-		</InfoRowControl>
+		</InfoLabelRow>
 	);
 };
 

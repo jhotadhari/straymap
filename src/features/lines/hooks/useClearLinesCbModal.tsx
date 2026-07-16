@@ -11,8 +11,8 @@ import { useTranslation } from 'react-i18next';
 /**
  * Internal dependencies
  */
-import ButtonHighlight from '../../../components/generic/ButtonHighlight';
-import ModalWrapper from '../../../components/generic/ModalWrapper';
+import ButtonHighlight from '../../../components/generic/primitives/ButtonHighlight';
+import ModalWrapper from '../../../components/generic/wrapper/ModalWrapper';
 import { useAppDispatch, useSystemLineIds } from '../../../store/hooks';
 import { sharedStyles } from '../../../sharedStyles';
 import { setSelected } from '../slice';

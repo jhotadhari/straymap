@@ -10,8 +10,8 @@ import { useTranslation } from 'react-i18next';
  * Internal dependencies
  */
 import { LineEditModalContext } from './Context';
-import InfoRowControl from '../../../../components/generic/controls/InfoRowControl';
-import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
+import InfoLabelRow from '../../../../components/generic/infoWrapper/InfoLabelRow';
+import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
 import useDeleteLinesCbModal from '../../hooks/useDeleteLinesCbModal';
 import { sharedStyles } from './sharedDeps';
 import { selectLineTemp } from '../../selectors';
@@ -69,7 +69,7 @@ const RowDelete: FC = () => {
 	);
 
 	return (
-		<InfoRowControl
+		<InfoLabelRow
 			label={t('lines.delete')}
 			Info={t('lines.hintDelete')}
 		>
@@ -89,7 +89,7 @@ const RowDelete: FC = () => {
 					<Text>{isSystemLine ? t('lines.isRoutingLine') : t('lines.delete')}</Text>
 				</View>
 			</ButtonHighlight>
-		</InfoRowControl>
+		</InfoLabelRow>
 	);
 };
 

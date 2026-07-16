@@ -16,7 +16,7 @@ import { getTagColor } from '../tagColor';
 import { featureRegistry } from '../../../FeatureRegistry';
 import { useAppSelector } from '../../../../store/hooks';
 import { selectTagsTableColumns } from '../../selectors';
-import IconButtonHighlight from '../../../../components/generic/IconButtonHighlight';
+import IconButtonHighlight from '../../../../components/generic/primitives/IconButtonHighlight';
 
 const DRAWER_ICON_SIZE = 20;
 

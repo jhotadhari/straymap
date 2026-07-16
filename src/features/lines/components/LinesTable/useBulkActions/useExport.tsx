@@ -16,9 +16,9 @@ import { LineString } from 'geojson';
  */
 import { ErrorToastContext } from '../../../../../components/ErrorToast/Context';
 import { logError } from '../../../../../lib/utils';
-import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
-import ModalWrapper from '../../../../../components/generic/ModalWrapper';
-import RadioListItem from '../../../../../components/generic/RadioListItem';
+import ButtonHighlight from '../../../../../components/generic/primitives/ButtonHighlight';
+import ModalWrapper from '../../../../../components/generic/wrapper/ModalWrapper';
+import RadioListItem from '../../../../../components/generic/wrapper/RadioListItem';
 import { FooterContext } from '../Context';
 import { fetchLines } from '../../../db/fetch';
 import { writeFormat, EXPORT_FORMATS, ExportFormat } from '../../../utils/formatWriters';

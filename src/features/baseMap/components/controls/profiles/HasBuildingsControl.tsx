@@ -5,7 +5,7 @@ import { FC, useCallback, useMemo } from 'react';
 import { useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 
-import InfoRadioRow from '../../../../../components/generic/InfoRadioRow';
+import InfoRadioRow from '../../../../../components/generic/infoWrapper/InfoRadioRow';
 import { MapsforgeProfile } from '../../../types';
 import { OptionBase } from '../../../../../types';
 import { useAppDispatch, useAppSelector } from '../../../../../store/hooks';

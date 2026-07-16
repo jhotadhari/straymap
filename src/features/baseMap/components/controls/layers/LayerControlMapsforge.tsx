@@ -12,9 +12,9 @@ import { get } from 'lodash-es';
  */
 import { OptionBase } from '../../../../../types';
 import FileSourceRowControl from '../../../../../components/generic/controls/FileSourceRowControl';
-import InfoRowControl from '../../../../../components/generic/controls/InfoRowControl';
+import InfoLabelRow from '../../../../../components/generic/infoWrapper/InfoLabelRow';
 import { sprintf } from 'sprintf-js';
-import HintLink from '../../../../../components/generic/HintLink';
+import HintLink from '../../../../../components/generic/primitives/HintLink';
 import { LayerConfigOptionsMapsforge, LayerConfig } from '../../../types';
 import { useLayerTemp } from '../../../hooks/useLayerTemp';
 import { selectAppDirs } from '../../../../dirs/selectors';
@@ -22,7 +22,7 @@ import { useAppDispatch, useAppSelector } from '../../../../../store/hooks';
 import { setLayerTemp, setMapsforgeProfileTemp } from '../../../slice';
 import { selectMapsforgeProfiles } from '../../../selectors';
 import NumericRowControlMulti from '../../../../../components/generic/controls/NumericRowControlMulti';
-import ListItemMenuControl from '../../../../../components/generic/controls/ListItemMenuControl';
+import ListItemMenuControl from '../../../../../components/generic/wrapper/ListItemMenuControl';
 import { sharedStyles as globalSharedStyles } from '../../../../../sharedStyles';
 
 const ProfileRowControl = ({
@@ -125,7 +125,7 @@ const ProfileRowControl = ({
 	]);
 
 	return (
-		<InfoRowControl
+		<InfoLabelRow
 			label={t('baseMap.mapsforge.profile', { count: 1 })}
 			Info={Info}
 		>
@@ -158,7 +158,7 @@ const ProfileRowControl = ({
 					</TouchableHighlight>
 				)}
 			</View>
-		</InfoRowControl>
+		</InfoLabelRow>
 	);
 };
 

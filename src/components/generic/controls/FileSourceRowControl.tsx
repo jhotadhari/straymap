@@ -24,12 +24,12 @@ import { sprintf } from 'sprintf-js';
 /**
  * Internal dependencies
  */
-import ButtonHighlight from '../ButtonHighlight';
+import ButtonHighlight from '../primitives/ButtonHighlight';
 import { OptionBase } from '../../../types';
-import InfoRowControl from './InfoRowControl';
-import ModalWrapper from '../ModalWrapper';
-import RadioListItem from '../RadioListItem';
-import LoadingIndicator from '../LoadingIndicator';
+import InfoLabelRow from '../infoWrapper/InfoLabelRow';
+import ModalWrapper from '../wrapper/ModalWrapper';
+import RadioListItem from '../wrapper/RadioListItem';
+import LoadingIndicator from '../primitives/LoadingIndicator';
 import { AbsPath } from '../../../features/dirs/types';
 import useDirsInfo from '../../../features/dirs/hooks/useDirsInfo';
 import dayjs from 'dayjs';
@@ -510,7 +510,7 @@ const FileSourceRowControl: FC<{
 	]);
 
 	return (
-		<InfoRowControl
+		<InfoLabelRow
 			label={label}
 			Info={Info}
 		>
@@ -556,7 +556,7 @@ const FileSourceRowControl: FC<{
 
 				{!!After && !dirsInfoLoading && After}
 			</View>
-		</InfoRowControl>
+		</InfoLabelRow>
 	);
 };
 

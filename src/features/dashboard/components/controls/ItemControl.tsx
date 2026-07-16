@@ -20,8 +20,8 @@ import { moveItem, removeItemKey } from '../../slice';
 import { get } from 'lodash-es';
 import { DashboardWidget } from '../../types';
 import { featureRegistry } from '../../../FeatureRegistry';
-import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
-import InfoRowControl from '../../../../components/generic/controls/InfoRowControl';
+import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
+import InfoLabelRow from '../../../../components/generic/infoWrapper/InfoLabelRow';
 import { ControlContext } from '../../ControlContext';
 import { DASHBOARD_ICON_SIZE } from '../../../../constants';
 import ItemShowLabelControl from './ItemShowLabelControl';
@@ -186,9 +186,9 @@ const ItemControl: FC<{}> = ({}) => {
 								onLayout={handleLayout}
 							>
 								{__DEV__ && (
-									<InfoRowControl label={'Key'}>
+									<InfoLabelRow label={'Key'}>
 										<Text>{item.key}</Text>
-									</InfoRowControl>
+									</InfoLabelRow>
 								)}
 
 								{Control && <Control item={item} />}

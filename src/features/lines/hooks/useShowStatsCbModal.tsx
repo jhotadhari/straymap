@@ -11,7 +11,7 @@ import { useTranslation } from 'react-i18next';
 /**
  * Internal dependencies
  */
-import ModalWrapper from '../../../components/generic/ModalWrapper';
+import ModalWrapper from '../../../components/generic/wrapper/ModalWrapper';
 import { sharedStyles } from '../../../sharedStyles';
 import LineStats from '../components/LineStats';
 import { LinePartial, LineStats as LineStatsType } from '../types';

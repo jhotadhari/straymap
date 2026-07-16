@@ -16,10 +16,10 @@ import dayjs from 'dayjs';
 import { ErrorToastContext } from '../../../../components/ErrorToast/Context';
 import { logError } from '../../../../lib/utils';
 import { LineEditModalContext } from './Context';
-import InfoRowControl from '../../../../components/generic/controls/InfoRowControl';
-import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
-import ModalWrapper from '../../../../components/generic/ModalWrapper';
-import RadioListItem from '../../../../components/generic/RadioListItem';
+import InfoLabelRow from '../../../../components/generic/infoWrapper/InfoLabelRow';
+import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
+import ModalWrapper from '../../../../components/generic/wrapper/ModalWrapper';
+import RadioListItem from '../../../../components/generic/wrapper/RadioListItem';
 import { sharedStyles } from './sharedDeps';
 import { queryLineGeom } from '../../db/queryFns';
 import { writeFormat, EXPORT_FORMATS, ExportFormat } from '../../utils/formatWriters';
@@ -152,7 +152,7 @@ const RowExport: FC = () => {
 				</ModalWrapper>
 			)}
 
-			<InfoRowControl
+			<InfoLabelRow
 				label={t('lines.export')}
 				Info={t('lines.hintExport')}
 			>
@@ -169,7 +169,7 @@ const RowExport: FC = () => {
 						<Text>{t('lines.export')}</Text>
 					</View>
 				</ButtonHighlight>
-			</InfoRowControl>
+			</InfoLabelRow>
 		</>
 	);
 };

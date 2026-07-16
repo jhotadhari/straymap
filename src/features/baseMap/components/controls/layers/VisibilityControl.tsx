@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next';
 /**
  * Internal dependencies
  */
-import InfoRowControl from '../../../../../components/generic/controls/InfoRowControl';
+import InfoLabelRow from '../../../../../components/generic/infoWrapper/InfoLabelRow';
 import { LayerConfig } from '../../../types';
 
 const VisibilityControl: FC<{
@@ -51,7 +51,7 @@ export const VisibilityRowControl: FC<{
 }> = ({ layer, updateLayer }) => {
 	const { t } = useTranslation();
 	return (
-		<InfoRowControl
+		<InfoLabelRow
 			label={t('baseMap.visibility')}
 			Info={t('baseMap.hint.visibility')}
 		>
@@ -59,7 +59,7 @@ export const VisibilityRowControl: FC<{
 				layer={layer}
 				updateLayer={updateLayer}
 			/>
-		</InfoRowControl>
+		</InfoLabelRow>
 	);
 };
 

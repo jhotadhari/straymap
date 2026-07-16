@@ -10,8 +10,8 @@ import { Bbox, useMap } from 'react-native-mapsforge-vtm';
  * Internal dependencies
  */
 import { LineEditModalContext } from './Context';
-import InfoRowControl from '../../../../components/generic/controls/InfoRowControl';
-import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
+import InfoLabelRow from '../../../../components/generic/infoWrapper/InfoLabelRow';
+import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
 import { AppContext } from '../../../../Context';
 import { useAppSelector } from '../../../../store/hooks';
 import { selectSelected } from '../../selectors';
@@ -65,7 +65,7 @@ const RowFlyTo: FC = () => {
 	);
 
 	return (
-		<InfoRowControl
+		<InfoLabelRow
 			label={t('lines.flyTo')}
 			Info={t('lines.hintFlyTo')}
 		>
@@ -82,7 +82,7 @@ const RowFlyTo: FC = () => {
 			>
 				{t('lines.flyTo')}
 			</ButtonHighlight>
-		</InfoRowControl>
+		</InfoLabelRow>
 	);
 };
 

@@ -8,12 +8,12 @@ import { useTranslation } from 'react-i18next';
  * Internal dependencies
  */
 import { TagEditModalContext } from './Context';
-import InfoRowControl from '../../../../components/generic/controls/InfoRowControl';
+import InfoLabelRow from '../../../../components/generic/infoWrapper/InfoLabelRow';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { selectTagTemp } from '../../selectors';
 import { setTagTemp } from '../../slice';
 import { getTagColor } from '../tagColor';
-import ColorPaletteInline from '../../../../components/ColorPalette/ColorPaletteInline';
+import ColorPaletteInline from '../../../../components/generic/controls/ColorPaletteInline';
 
 const RowColor: FC = () => {
 	const dispatch = useAppDispatch();
@@ -39,13 +39,13 @@ const RowColor: FC = () => {
 	);
 
 	return (
-		<InfoRowControl label={t('lines.columns.color')}>
+		<InfoLabelRow label={t('lines.columns.color')}>
 			<ColorPaletteInline
 				selectedColor={currentColor}
 				onSelect={handleSelect}
 				style={{ width: '84%' }}
 			/>
-		</InfoRowControl>
+		</InfoLabelRow>
 	);
 };
 

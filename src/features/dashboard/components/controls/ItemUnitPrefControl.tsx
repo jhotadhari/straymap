@@ -13,13 +13,13 @@ import { View } from 'react-native';
 import { options as unitPrefControlOptions } from '../../../general/components/controls/UnitPrefControl';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { selectUnitPrefs } from '../../../general/selectors';
-import InfoRowControl from '../../../../components/generic/controls/InfoRowControl';
+import InfoLabelRow from '../../../../components/generic/infoWrapper/InfoLabelRow';
 import { UnitPref } from '../../../general/types';
 import { setItem } from '../../slice';
 import { selectEditItem } from '../../selectors';
 import { DashboardItem } from '../../types';
 import NumericRowControlSegmented from '../../../../components/generic/controls/NumericRowControlSegmented';
-import ListItemMenuControl from '../../../../components/generic/controls/ListItemMenuControl';
+import ListItemMenuControl from '../../../../components/generic/wrapper/ListItemMenuControl';
 import { sharedStyles } from '../../../../sharedStyles';
 
 type OptionsWithUnitPref = {
@@ -155,7 +155,7 @@ const ItemUnitPrefControl: FC<{ unitPrefsKey: string; buttonLabel?: string }> = 
 
 	return (
 		<View>
-			<InfoRowControl
+			<InfoLabelRow
 				label={t('unit')}
 				Info={t('dashboard.hint.item.unit')}
 			>
@@ -167,7 +167,7 @@ const ItemUnitPrefControl: FC<{ unitPrefsKey: string; buttonLabel?: string }> = 
 					anchorLabel={t(selectedOpt?.label ?? '')}
 					menuItemStyle={getMenuItemStyle}
 				/>
-			</InfoRowControl>
+			</InfoLabelRow>
 
 			<NumericRowControlSegmented
 				label={upperFirst(t('decimalPlace', { count: 0 }))}

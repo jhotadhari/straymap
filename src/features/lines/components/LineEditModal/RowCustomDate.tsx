@@ -12,8 +12,8 @@ import dayjs from 'dayjs';
  * Internal dependencies
  */
 import { LineEditModalContext } from './Context';
-import InfoRowControl from '../../../../components/generic/controls/InfoRowControl';
-import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
+import InfoLabelRow from '../../../../components/generic/infoWrapper/InfoLabelRow';
+import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { selectLineTemp } from '../../selectors';
 import { setLineTemp } from '../../slice';
@@ -74,7 +74,7 @@ const RowCustomDate: FC = () => {
 	const locale = useMemo(() => (i18n.language === 'de' ? 'de' : 'en'), [i18n.language]);
 
 	return (
-		<InfoRowControl
+		<InfoLabelRow
 			label={t('lines.columns.custom_date')}
 			Info={t('lines.hintCustomDate')}
 			style={{ alignItems: 'flex-start' }}
@@ -100,7 +100,7 @@ const RowCustomDate: FC = () => {
 					</ButtonHighlight>
 				)}
 			</View>
-		</InfoRowControl>
+		</InfoLabelRow>
 	);
 };
 

@@ -13,7 +13,7 @@ import LayersControl from '../components/controls/layers/LayersControl';
 import ProfilesControl from '../components/controls/profiles/ProfilesControl';
 import { useAppDispatch } from '../../../store/hooks';
 import { setUiItemKeys } from '../../ui/slice';
-import ButtonHighlight from '../../../components/generic/ButtonHighlight';
+import ButtonHighlight from '../../../components/generic/primitives/ButtonHighlight';
 import DrawerContext from '../../drawers/DrawerContext';
 import { DrawerPanel } from '../../drawers/types';
 import { itemStyles } from '../../drawers/constants';

@@ -3,18 +3,16 @@
  */
 import { ReactNode, useCallback } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { useTheme, Text } from 'react-native-paper';
+import { Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { get } from 'lodash-es';
 import { sprintf } from 'sprintf-js';
 
 /**
  * Internal dependencies
  */
-import ButtonHighlight from './ButtonHighlight';
-import ModalWrapper from './ModalWrapper';
+import ModalWrapper from '../wrapper/ModalWrapper';
 
-const InfoControlWrapper = ({
+const InfoWrapper = ({
 	label,
 	labelPattern = 'whatIs',
 	children,
@@ -36,7 +34,6 @@ const InfoControlWrapper = ({
 	setModalVisible: (visible: boolean) => void;
 }) => {
 	const { t } = useTranslation();
-	const theme = useTheme();
 
 	const handleClose = useCallback(() => setModalVisible(false), [setModalVisible]);
 
@@ -68,4 +65,4 @@ const styles = StyleSheet.create({
 	okButton: { marginTop: 20, marginBottom: 40 },
 });
 
-export default InfoControlWrapper;
+export default InfoWrapper;

@@ -8,7 +8,7 @@ import { ReactNode, useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import ModalWrapper from './generic/ModalWrapper';
+import ModalWrapper from './generic/wrapper/ModalWrapper';
 import AnimatedLogo from './AnimatedLogo';
 import { modalWidthFactor } from '../constants';
 

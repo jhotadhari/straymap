@@ -10,8 +10,8 @@ import { get } from 'lodash-es';
 /**
  * Internal dependencies
  */
-import ListItemModalControl from '../../../../components/generic/controls/ListItemModalControl';
-import HgtSourceRowControl from '../../../../components/generic/controls/HgtSourceRowControl';
+import ListItemModalControl from '../../../../components/generic/wrapper/ListItemModalControl';
+import HgtSourceRowControl from './HgtSourceRowControl';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { selectHgtDirPath } from '../../../baseMap/selectors';
 import { setHgtDirPath } from '../../../baseMap/slice';

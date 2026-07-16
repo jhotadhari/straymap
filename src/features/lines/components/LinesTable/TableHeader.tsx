@@ -21,7 +21,7 @@ import {
 	setLinesSort,
 	removeLinesFilter,
 } from '../../slice';
-import MenuItem from '../../../../components/generic/MenuItem';
+import MenuItem from '../../../../components/generic/wrapper/MenuItem';
 import { ColumnHeaderMenuContext } from './Context';
 
 const SORT_ICON_SIZE = 16;

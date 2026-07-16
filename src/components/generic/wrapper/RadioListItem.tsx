@@ -16,8 +16,8 @@ import { useTranslation } from 'react-i18next';
 /**
  * Internal dependencies
  */
-import { OptionBase } from '../../types';
-import { modalWidthFactor } from '../../constants';
+import { OptionBase } from '../../../types';
+import { modalWidthFactor } from '../../../constants';
 
 const space = 6;
 

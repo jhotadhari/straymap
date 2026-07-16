@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next';
 /**
  * react-native-mapsforge-vtm dependencies
  */
-import InfoButton from '../../../components/generic/InfoButton';
+import InfoButton from '../../../components/generic/infoWrapper/InfoButton';
 import { sourceOptions } from '../components/controls/layers/LayerControlOnlineRasterXYZ';
 import { useAppSelector } from '../../../store/hooks';
 import { selectLayerInfos, selectLayers } from '../selectors';

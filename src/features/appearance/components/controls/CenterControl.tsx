@@ -5,15 +5,15 @@ import React, { useCallback } from 'react';
 import { View } from 'react-native';
 import { Icon, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import ColorPaletteInline from '../../../../components/ColorPalette/ColorPaletteInline';
+import ColorPaletteInline from '../../../../components/generic/controls/ColorPaletteInline';
 import { sprintf } from 'sprintf-js';
 import { get } from 'lodash-es';
 
 /**
  * Internal dependencies
  */
-import InfoRowControl from '../../../../components/generic/controls/InfoRowControl';
-import ListItemModalControl from '../../../../components/generic/controls/ListItemModalControl';
+import InfoLabelRow from '../../../../components/generic/infoWrapper/InfoLabelRow';
+import ListItemModalControl from '../../../../components/generic/wrapper/ListItemModalControl';
 import NumericRowControl from '../../../../components/generic/controls/NumericRowControl';
 import FileSourceRowControl from '../../../../components/generic/controls/FileSourceRowControl';
 import { CenterInner } from '../../appOverlays/Center';
@@ -137,7 +137,7 @@ const CenterControl = () => {
 			{cursorConfig?.iconSource &&
 				!cursorConfig.iconSource.startsWith('/') &&
 				!cursorConfig.iconSource.startsWith('content://') && (
-					<InfoRowControl
+					<InfoLabelRow
 						label={t('appearance.color')}
 						Info={t('appearance.hint.center.color')}
 					>
@@ -145,15 +145,15 @@ const CenterControl = () => {
 							selectedColor={cursorConfig?.color}
 							onSelect={handleColorChange}
 						/>
-					</InfoRowControl>
+					</InfoLabelRow>
 				)}
 
-			<InfoRowControl
+			<InfoLabelRow
 				label={t('appearance.preview')}
 				Info={t('appearance.hint.center.preview')}
 			>
 				<CenterInner cursor={cursorConfig} />
-			</InfoRowControl>
+			</InfoLabelRow>
 		</ListItemModalControl>
 	);
 };

@@ -11,7 +11,7 @@ import { sprintf } from 'sprintf-js';
  * Internal dependencies
  */
 import FileSourceRowControl from '../../../../../components/generic/controls/FileSourceRowControl';
-import HintLink from '../../../../../components/generic/HintLink';
+import HintLink from '../../../../../components/generic/primitives/HintLink';
 import { LayerConfig, LayerConfigOptionsRasterMBtiles } from '../../../types';
 import { selectAppDirs } from '../../../../dirs/selectors';
 import { useAppDispatch, useAppSelector } from '../../../../../store/hooks';

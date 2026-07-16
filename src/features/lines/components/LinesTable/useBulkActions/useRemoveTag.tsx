@@ -12,9 +12,9 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
  */
 import { FooterContext } from '../Context';
 import { lineRemoveTag } from '../../../db/actionsLine';
-import ModalWrapper from '../../../../../components/generic/ModalWrapper';
-import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
-import LoadingIndicator from '../../../../../components/generic/LoadingIndicator';
+import ModalWrapper from '../../../../../components/generic/wrapper/ModalWrapper';
+import ButtonHighlight from '../../../../../components/generic/primitives/ButtonHighlight';
+import LoadingIndicator from '../../../../../components/generic/primitives/LoadingIndicator';
 import { Tag } from '../../../types';
 import TagBadge from '../../TagBadge';
 import { queryAllTags, invalidateTagsTable, invalidateLinesQueries } from '../../../db/queryFns';

@@ -25,8 +25,8 @@ import { useTranslation } from 'react-i18next';
  */
 import { RoutingPoint } from '../types';
 import DrawerContext from '../../drawers/DrawerContext';
-import ButtonHighlight from '../../../components/generic/ButtonHighlight';
-import LoadingIndicator from '../../../components/generic/LoadingIndicator';
+import ButtonHighlight from '../../../components/generic/primitives/ButtonHighlight';
+import LoadingIndicator from '../../../components/generic/primitives/LoadingIndicator';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { deleteSegments, processRouting } from '../slice';
 import { selectIsRouting, selectSegments } from '../selectors';

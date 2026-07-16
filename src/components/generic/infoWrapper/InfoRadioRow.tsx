@@ -7,8 +7,8 @@ import { RadioButton } from 'react-native-paper';
 /**
  * Internal dependencies
  */
-import { OptionBase } from '../../types';
-import InfoRowControl from './controls/InfoRowControl';
+import { OptionBase } from '../../../types';
+import InfoLabelRow from './InfoLabelRow';
 import { ReactNode, useMemo } from 'react';
 
 const InfoRadioRow = ({
@@ -39,7 +39,7 @@ const InfoRadioRow = ({
 	);
 
 	return (
-		<InfoRowControl
+		<InfoLabelRow
 			label={label || undefined}
 			Info={Info}
 			labelStyle={labelStyleMerged}
@@ -49,7 +49,7 @@ const InfoRadioRow = ({
 				onPress={onPress}
 				status={status}
 			/>
-		</InfoRowControl>
+		</InfoLabelRow>
 	);
 };
 

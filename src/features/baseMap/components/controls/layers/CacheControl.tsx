@@ -11,10 +11,10 @@ import { TextInput, useTheme } from 'react-native-paper';
  * Internal dependencies
  */
 import NumericRowControl from '../../../../../components/generic/controls/NumericRowControl';
-import InfoRowControl from '../../../../../components/generic/controls/InfoRowControl';
-import ListItemMenuControl from '../../../../../components/generic/controls/ListItemMenuControl';
+import InfoLabelRow from '../../../../../components/generic/infoWrapper/InfoLabelRow';
+import ListItemMenuControl from '../../../../../components/generic/wrapper/ListItemMenuControl';
 import { OptionBase } from '../../../../../types';
-import { TextInputNativeMultilineControlled } from '../../../../../components/generic/TextInputNativeMultiline';
+import { TextInputNativeMultilineControlled } from '../../../../../components/generic/primitives/TextInputNativeMultiline';
 import { useAppSelector } from '../../../../../store/hooks';
 import { selectAppDirs } from '../../../../dirs/selectors';
 import { sharedStyles } from '../../../../../sharedStyles';
@@ -165,7 +165,7 @@ const CacheControl = ({
 			/>
 
 			<View>
-				<InfoRowControl
+				<InfoLabelRow
 					label={t('baseMap.cacheDir')}
 					Info={t('baseMap.hint.cache') + '\n\n' + t('baseMap.hint.cacheDir')}
 				>
@@ -176,7 +176,7 @@ const CacheControl = ({
 						setValue={handleCacheDirBaseChange}
 						anchorLabel={get(selectedOpt, 'label', '')}
 					/>
-				</InfoRowControl>
+				</InfoLabelRow>
 
 				<TextInput
 					disabled={true}

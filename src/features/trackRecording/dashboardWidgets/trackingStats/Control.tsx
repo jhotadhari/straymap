@@ -13,7 +13,7 @@ import { selectEditItem } from '../../../dashboard/selectors';
 import { setItem } from '../../../dashboard/slice';
 import ItemMinWidthControl from '../../../dashboard/components/controls/ItemMinWidthControl';
 import ItemFontSizeControl from '../../../dashboard/components/controls/ItemFontSizeControl';
-import ListItemMenuControl from '../../../../components/generic/controls/ListItemMenuControl';
+import ListItemMenuControl from '../../../../components/generic/wrapper/ListItemMenuControl';
 import { sharedStyles } from '../../../dashboard/dashboardWidgets/sharedDeps';
 
 const STAT_OPTIONS = [

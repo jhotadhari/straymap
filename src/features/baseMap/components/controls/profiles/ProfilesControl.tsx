@@ -32,13 +32,13 @@ import { sprintf } from 'sprintf-js';
  */
 import { useRenderStyleOptions } from 'react-native-mapsforge-vtm';
 
-import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
-import ModalWrapper from '../../../../../components/generic/ModalWrapper';
-import InfoButton from '../../../../../components/generic/InfoButton';
-import IconIcomoon from '../../../../../components/generic/IconIcomoon';
+import ButtonHighlight from '../../../../../components/generic/primitives/ButtonHighlight';
+import ModalWrapper from '../../../../../components/generic/wrapper/ModalWrapper';
+import InfoButton from '../../../../../components/generic/infoWrapper/InfoButton';
+import IconIcomoon from '../../../../../components/generic/primitives/IconIcomoon';
 import NameRowControl from '../../../../../components/generic/controls/NameRowControl';
-import LoadingIndicator from '../../../../../components/generic/LoadingIndicator';
-import HintLink from '../../../../../components/generic/HintLink';
+import LoadingIndicator from '../../../../../components/generic/primitives/LoadingIndicator';
+import HintLink from '../../../../../components/generic/primitives/HintLink';
 import { MapsforgeProfile, LayerConfigOptionsMapsforge } from '../../../types';
 import { getNewProfile } from '../../../utils';
 import { selectElementExpanded } from '../../../../ui/selectors';

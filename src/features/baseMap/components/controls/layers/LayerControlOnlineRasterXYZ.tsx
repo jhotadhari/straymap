@@ -13,20 +13,20 @@ import dayjs from 'dayjs';
  */
 import { OptionBase } from '../../../../../types';
 import NumericRowControl from '../../../../../components/generic/controls/NumericRowControl';
-import InfoRowControl from '../../../../../components/generic/controls/InfoRowControl';
+import InfoLabelRow from '../../../../../components/generic/infoWrapper/InfoLabelRow';
 import CacheControl from './CacheControl';
 import { defaults } from '../../../defaults';
 import {
 	TextInputNativeMultiline,
 	TextInputNativeMultilineControlled,
-} from '../../../../../components/generic/TextInputNativeMultiline';
+} from '../../../../../components/generic/primitives/TextInputNativeMultiline';
 import { LayerConfig, LayerConfigOptionsOnlineRasterXYZ } from '../../../types';
 import { useLayerTemp } from '../../../hooks/useLayerTemp';
 import { useAppDispatch, useAppSelector } from '../../../../../store/hooks';
 import { selectLayerTemp } from '../../../selectors';
 import { setLayerTemp } from '../../../slice';
 import NumericRowControlMulti from '../../../../../components/generic/controls/NumericRowControlMulti';
-import ListItemMenuControl from '../../../../../components/generic/controls/ListItemMenuControl';
+import ListItemMenuControl from '../../../../../components/generic/wrapper/ListItemMenuControl';
 import { stringifyProp } from '../../../utils';
 import { sharedStyles } from '../../../../../sharedStyles';
 
@@ -321,7 +321,7 @@ const SourceRowControl: FC<{}> = () => {
 	);
 
 	return (
-		<InfoRowControl
+		<InfoLabelRow
 			label={t('baseMap.source')}
 			Info={t('baseMap.hint.xyzSource')}
 			Below={
@@ -368,7 +368,7 @@ const SourceRowControl: FC<{}> = () => {
 					)
 				)}
 			/>
-		</InfoRowControl>
+		</InfoLabelRow>
 	);
 };
 

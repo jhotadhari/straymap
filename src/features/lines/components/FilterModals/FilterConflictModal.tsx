@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 /**
  * Internal dependencies
  */
-import ModalWrapper from '../../../../components/generic/ModalWrapper';
+import ModalWrapper from '../../../../components/generic/wrapper/ModalWrapper';
 import { sharedStyles } from './sharedDeps';
 import { FilterConflict } from '../../db/filterConflicts';
 

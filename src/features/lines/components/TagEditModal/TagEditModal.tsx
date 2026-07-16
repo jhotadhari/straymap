@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 /**
  * Internal dependencies
  */
-import ModalWrapper from '../../../../components/generic/ModalWrapper';
+import ModalWrapper from '../../../../components/generic/wrapper/ModalWrapper';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { queryLinesWithoutGeom } from '../../db/queryFns';
 import { invalidateTagsTable, invalidateLinesQueries } from '../../db/queryFns';

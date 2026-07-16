@@ -9,7 +9,7 @@ import { debounce } from 'lodash-es';
 /**
  * Internal dependencies
  */
-import InfoRowControl from './InfoRowControl';
+import InfoLabelRow from '../infoWrapper/InfoLabelRow';
 
 const NameRowControl = ({
 	item,
@@ -56,7 +56,7 @@ const NameRowControl = ({
 	);
 
 	return (
-		<InfoRowControl
+		<InfoLabelRow
 			label={'Name/ID'}
 			Info={Info}
 		>
@@ -68,7 +68,7 @@ const NameRowControl = ({
 				onChangeText={setValue}
 				value={value}
 			/>
-		</InfoRowControl>
+		</InfoLabelRow>
 	);
 };
 

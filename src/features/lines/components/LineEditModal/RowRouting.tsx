@@ -12,10 +12,10 @@ import { centerOfMass } from '@turf/turf';
  * Internal dependencies
  */
 import { LineEditModalContext } from './Context';
-import InfoRowControl from '../../../../components/generic/controls/InfoRowControl';
+import InfoLabelRow from '../../../../components/generic/infoWrapper/InfoLabelRow';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { selectLineTemp } from '../../selectors';
-import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
+import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
 import { selectIsRouting } from '../../../routing/selectors';
 import { setIsRouting } from '../../../routing/slice';
 import useActivateDrawerItem from '../../../drawers/hooks/useActivateDrawerItem';
@@ -91,7 +91,7 @@ const RowRouting: FC = () => {
 	);
 
 	return (
-		<InfoRowControl
+		<InfoLabelRow
 			label={t('lines.routing')}
 			Info={t('lines.hintRouting')}
 		>
@@ -114,7 +114,7 @@ const RowRouting: FC = () => {
 					)}
 				</View>
 			</ButtonHighlight>
-		</InfoRowControl>
+		</InfoLabelRow>
 	);
 };
 

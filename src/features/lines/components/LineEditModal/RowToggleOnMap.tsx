@@ -9,8 +9,8 @@ import { useTranslation } from 'react-i18next';
  * Internal dependencies
  */
 import { LineEditModalContext } from './Context';
-import InfoRowControl from '../../../../components/generic/controls/InfoRowControl';
-import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
+import InfoLabelRow from '../../../../components/generic/infoWrapper/InfoLabelRow';
+import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
 import { useAppSelector } from '../../../../store/hooks';
 import { selectSelected } from '../../selectors';
 import { sharedStyles } from './sharedDeps';
@@ -56,7 +56,7 @@ const RowToggleOnMap: FC = () => {
 	);
 
 	return (
-		<InfoRowControl
+		<InfoLabelRow
 			label={label}
 			Info={t('lines.hintToggleOnMap')}
 		>
@@ -73,7 +73,7 @@ const RowToggleOnMap: FC = () => {
 			>
 				{label}
 			</ButtonHighlight>
-		</InfoRowControl>
+		</InfoLabelRow>
 	);
 };
 

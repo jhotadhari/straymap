@@ -18,13 +18,13 @@ import { getDirInfoCacheId } from '../../../dirs/utils';
 import { addDirInfoCacheEntry } from '../../../dirs/slice';
 import { NavChild, DirInfoMap } from '../../../dirs/types';
 import { FsModule } from '../../../../nativeModules';
-import LoadingIndicator from '../../../../components/generic/LoadingIndicator';
+import LoadingIndicator from '../../../../components/generic/primitives/LoadingIndicator';
 import { logError } from '../../../../lib/utils';
 import { styles } from './sharedDeps';
 import RowDatabaseFile from './RowDatabaseFile';
 import RowCreateNew from './RowCreateNew';
-import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
-import Badge from '../../../../components/Badge';
+import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
+import Badge from '../../../../components/generic/primitives/Badge';
 import MaterialIcons from '@react-native-vector-icons/material-icons/static';
 
 const extensions = [dbExtension];

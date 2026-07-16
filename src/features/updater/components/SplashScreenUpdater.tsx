@@ -12,7 +12,7 @@ import { useTranslation } from 'react-i18next';
  * Internal dependencies
  */
 import SplashScreen from '../../../components/SplashScreen';
-import ButtonHighlight from '../../../components/generic/ButtonHighlight';
+import ButtonHighlight from '../../../components/generic/primitives/ButtonHighlight';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import packageJson from '../../../../package.json';
 import { selectInstalledVersion, selectIsUpdating } from '../selectors';

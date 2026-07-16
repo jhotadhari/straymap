@@ -8,7 +8,7 @@ import { Text } from 'react-native-paper';
 /**
  * Internal dependencies
  */
-import { PaletteColor } from './ColorPalette/palette';
+import { PaletteColor } from '../../../types';
 
 export const Badge: FC<{
 	badgeMode: 'outlined' | 'contained';

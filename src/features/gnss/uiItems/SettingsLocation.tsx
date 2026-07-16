@@ -15,8 +15,8 @@ import { setIsActive } from '../slice';
 import { selectIsRecording } from '../../trackRecording/selectors';
 import { startRecording, stopRecording } from '../../trackRecording/slice';
 import TrackRecordingControl from '../../trackRecording/components/TrackRecordingControl';
-import InfoRowControl from '../../../components/generic/controls/InfoRowControl';
-import ButtonHighlight from '../../../components/generic/ButtonHighlight';
+import InfoLabelRow from '../../../components/generic/infoWrapper/InfoLabelRow';
+import ButtonHighlight from '../../../components/generic/primitives/ButtonHighlight';
 import { MapContext } from '../../../Context';
 
 const SettingsLocation: FC<{ style?: ViewStyle }> = ({ style }) => {
@@ -57,7 +57,7 @@ const SettingsLocation: FC<{ style?: ViewStyle }> = ({ style }) => {
 
 	return (
 		<ScrollView style={style}>
-			<InfoRowControl
+			<InfoLabelRow
 				label={t('gnss.title')}
 				Info={t(isGnssActive ? 'gnss.deactivateGnss' : 'gnss.activateGnss')}
 			>
@@ -70,9 +70,9 @@ const SettingsLocation: FC<{ style?: ViewStyle }> = ({ style }) => {
 				>
 					{isGnssActive ? t('gnss.deactivateGnss') : t('gnss.activateGnss')}
 				</ButtonHighlight>
-			</InfoRowControl>
+			</InfoLabelRow>
 
-			<InfoRowControl
+			<InfoLabelRow
 				label={t('trackRecording.title')}
 				Info={t(isRecording ? 'trackRecording.stop' : 'trackRecording.start')}
 			>
@@ -85,7 +85,7 @@ const SettingsLocation: FC<{ style?: ViewStyle }> = ({ style }) => {
 				>
 					{isRecording ? t('trackRecording.stop') : t('trackRecording.start')}
 				</ButtonHighlight>
-			</InfoRowControl>
+			</InfoLabelRow>
 
 			<TrackRecordingControl />
 		</ScrollView>

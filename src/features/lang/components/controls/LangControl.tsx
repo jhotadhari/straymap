@@ -9,7 +9,7 @@ import { get } from 'lodash-es';
 /**
  * Internal dependencies
  */
-import ListItemMenuControl from '../../../../components/generic/controls/ListItemMenuControl';
+import ListItemMenuControl from '../../../../components/generic/wrapper/ListItemMenuControl';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { selectLang } from '../../selectors';
 import { LANGUAGE_NAMES, SUPPORTED_LANGUAGES } from '../../../../assets/i18n/constants';

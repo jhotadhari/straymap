@@ -25,22 +25,22 @@ import { sprintf } from 'sprintf-js';
 /**
  * Internal dependencies
  */
-import ButtonHighlight from '../ButtonHighlight';
-import { OptionBase } from '../../../types';
-import InfoRowControl from './InfoRowControl';
-import ModalWrapper from '../ModalWrapper';
-import RadioListItem from '../RadioListItem';
-import HintLink from '../HintLink';
-import { HgtDirPath } from '../../../features/baseMap/types';
-import { AbsPath } from '../../../features/dirs/types';
-import { sharedStyles } from '../../../sharedStyles';
-import { logError } from '../../../lib/utils';
-import { ErrorToastContext } from '../../ErrorToast/Context';
-import useAsyncBusy from '../../../compose/useAsyncBusy';
-import LoadingIndicator from '../LoadingIndicator';
-import { selectHgtDirPath } from '../../../features/baseMap/selectors';
-import { useAppDispatch, useAppSelector } from '../../../store/hooks';
-import { setHgtDirPath } from '../../../features/baseMap/slice';
+import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
+import { OptionBase } from '../../../../types';
+import InfoLabelRow from '../../../../components/generic/infoWrapper/InfoLabelRow';
+import ModalWrapper from '../../../../components/generic/wrapper/ModalWrapper';
+import RadioListItem from '../../../../components/generic/wrapper/RadioListItem';
+import HintLink from '../../../../components/generic/primitives/HintLink';
+import { HgtDirPath } from '../../../baseMap/types';
+import { AbsPath } from '../../../dirs/types';
+import { sharedStyles } from '../../../../sharedStyles';
+import { logError } from '../../../../lib/utils';
+import { ErrorToastContext } from '../../../../components/ErrorToast/Context';
+import useAsyncBusy from '../../../../compose/useAsyncBusy';
+import LoadingIndicator from '../../../../components/generic/primitives/LoadingIndicator';
+import { selectHgtDirPath } from '../../../baseMap/selectors';
+import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
+import { setHgtDirPath } from '../../../baseMap/slice';
 
 const HgtSourceRowControl = ({
 	dirs,
@@ -310,7 +310,7 @@ const HgtSourceRowControl = ({
 	}
 
 	return (
-		<InfoRowControl
+		<InfoLabelRow
 			label={t('map.demDir')}
 			Info={
 				<View>
@@ -360,7 +360,7 @@ const HgtSourceRowControl = ({
 					/>
 				)}
 			</View>
-		</InfoRowControl>
+		</InfoLabelRow>
 	);
 };
 

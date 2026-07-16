@@ -7,8 +7,8 @@ import { IconButtonProps } from 'react-native-paper';
 /**
  * Internal dependencies
  */
-import IconButtonHighlight from './IconButtonHighlight';
-import InfoControlWrapper from './InfoControlWrapper';
+import IconButtonHighlight from '../primitives/IconButtonHighlight';
+import InfoWrapper from './InfoWrapper';
 
 const InfoButton = ({
 	label,
@@ -32,7 +32,7 @@ const InfoButton = ({
 	const handlePress = useCallback(() => setModalVisible(true), []);
 
 	return buttonProps.icon ? (
-		<InfoControlWrapper
+		<InfoWrapper
 			label={label}
 			labelPattern={labelPattern}
 			Info={Info}
@@ -46,7 +46,7 @@ const InfoButton = ({
 				{...buttonProps}
 				onPress={handlePress}
 			/>
-		</InfoControlWrapper>
+		</InfoWrapper>
 	) : null;
 };
 

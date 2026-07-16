@@ -18,11 +18,11 @@ import MaterialIcons from '@react-native-vector-icons/material-icons/static';
 /**
  * Internal dependencies
  */
-import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
+import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
 import { useAppDispatch } from '../../../../store/hooks';
 import { addItem, setEditItemKey } from '../../slice';
-import ModalWrapper from '../../../../components/generic/ModalWrapper';
-import RadioListItem from '../../../../components/generic/RadioListItem';
+import ModalWrapper from '../../../../components/generic/wrapper/ModalWrapper';
+import RadioListItem from '../../../../components/generic/wrapper/RadioListItem';
 import { OptionBase } from '../../../../types';
 import { featureRegistry } from '../../../FeatureRegistry';
 import { ControlContext } from '../../ControlContext';

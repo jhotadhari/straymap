@@ -13,8 +13,8 @@ import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { selectDashboardStyle } from '../../selectors';
 import { setDashboardStyle } from '../../slice';
 import { OptionBase } from '../../../../types';
-import InfoRowControl from '../../../../components/generic/controls/InfoRowControl';
-import ListItemMenuControl from '../../../../components/generic/controls/ListItemMenuControl';
+import InfoLabelRow from '../../../../components/generic/infoWrapper/InfoLabelRow';
+import ListItemMenuControl from '../../../../components/generic/wrapper/ListItemMenuControl';
 import { sharedStyles } from '../../../../sharedStyles';
 
 const styleAlignOptions: OptionBase[] = [
@@ -54,7 +54,7 @@ const AlignmentControl: FC<{
 	const dashboardStyle = useAppSelector((state) => selectDashboardStyle(state, position));
 
 	return (
-		<InfoRowControl
+		<InfoLabelRow
 			label={t('dashboard.alignment')}
 			Info={t('dashboard.hint.alignment')}
 			style={styles.label}
@@ -82,7 +82,7 @@ const AlignmentControl: FC<{
 					)
 				)}
 			/>
-		</InfoRowControl>
+		</InfoLabelRow>
 	);
 };
 

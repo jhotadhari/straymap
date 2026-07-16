@@ -11,9 +11,9 @@ import dayjs from 'dayjs';
 /**
  * Internal dependencies
  */
-import ModalWrapper from '../../../../components/generic/ModalWrapper';
-import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
-import InfoRowControl from '../../../../components/generic/controls/InfoRowControl';
+import ModalWrapper from '../../../../components/generic/wrapper/ModalWrapper';
+import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
+import InfoLabelRow from '../../../../components/generic/infoWrapper/InfoLabelRow';
 import { sharedStyles as appSharedStyles } from '../../../../sharedStyles';
 import { sharedStyles } from './sharedDeps';
 import { DateColumnFilter } from '../../types';
@@ -106,7 +106,7 @@ const FilterDateModal: FC<{
 			header={columnLabel}
 			innerStyle={sharedStyles.modalInner}
 		>
-			<InfoRowControl
+			<InfoLabelRow
 				label={t('lines.filterMin')}
 				Info={t('lines.hintDateFilter')}
 			>
@@ -120,9 +120,9 @@ const FilterDateModal: FC<{
 					withDateFormatInLabel={true}
 					style={{ width: inputWidth }}
 				/>
-			</InfoRowControl>
+			</InfoLabelRow>
 
-			<InfoRowControl
+			<InfoLabelRow
 				label={t('lines.filterMax')}
 				Info={t('lines.hintDateFilter')}
 			>
@@ -136,7 +136,7 @@ const FilterDateModal: FC<{
 					withDateFormatInLabel={true}
 					style={{ width: inputWidth }}
 				/>
-			</InfoRowControl>
+			</InfoLabelRow>
 
 			{onDelete && (
 				<View style={appSharedStyles.modalControls}>

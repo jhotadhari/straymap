@@ -10,7 +10,7 @@ import { sprintf } from 'sprintf-js';
 /**
  * Internal dependencies
  */
-import InfoRowControl from '../../../../../components/generic/controls/InfoRowControl';
+import InfoLabelRow from '../../../../../components/generic/infoWrapper/InfoLabelRow';
 import { MapsforgeProfile, LayerConfigOptionsMapsforge } from '../../../types';
 import { useAppSelector } from '../../../../../store/hooks';
 import { selectLayers, selectMapsforgeProfiles } from '../../../selectors';
@@ -49,7 +49,7 @@ const LayerCount = ({ profile }: { profile: MapsforgeProfile }) => {
 	);
 
 	return (
-		<InfoRowControl label={t('baseMap.layerShort', { count: 0 })}>
+		<InfoLabelRow label={t('baseMap.layerShort', { count: 0 })}>
 			<View style={styles.content}>
 				<Text style={styles.listItem}>
 					{sprintf(t('baseMap.layerSelectedCount', { count: layersCount }), layersCount)}
@@ -63,7 +63,7 @@ const LayerCount = ({ profile }: { profile: MapsforgeProfile }) => {
 					</Text>
 				)}
 			</View>
-		</InfoRowControl>
+		</InfoLabelRow>
 	);
 };
 

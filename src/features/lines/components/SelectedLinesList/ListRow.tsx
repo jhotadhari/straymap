@@ -11,7 +11,7 @@ import { omit, pick } from 'lodash-es';
  */
 import { useAppDispatch } from '../../../../store/hooks';
 import { Line } from '../../types';
-import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
+import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
 import { setLineSelected, setLineTemp } from '../../slice';
 import LineStats from '../LineStats';
 import TagBadge from '../TagBadge';

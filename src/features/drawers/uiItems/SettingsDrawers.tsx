@@ -13,9 +13,9 @@ import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { selectShowSettingsHandle, selectSortable } from '../selectors';
 import { setShowSettingsHandle, setSortable } from '../slice';
 import DrawerControlModal from '../components/controls/DrawerControlModal';
-import InfoRowControl from '../../../components/generic/controls/InfoRowControl';
-import ButtonHighlight from '../../../components/generic/ButtonHighlight';
-import ListItem from '../../../components/generic/ListItem';
+import InfoLabelRow from '../../../components/generic/infoWrapper/InfoLabelRow';
+import ButtonHighlight from '../../../components/generic/primitives/ButtonHighlight';
+import ListItem from '../../../components/generic/wrapper/ListItem';
 
 const SettingsDrawers: FC<{ style?: ViewStyle }> = ({ style }) => {
 	const { t } = useTranslation();
@@ -55,7 +55,7 @@ const SettingsDrawers: FC<{ style?: ViewStyle }> = ({ style }) => {
 		<ScrollView style={style}>
 			<ListItem
 				title={
-					<InfoRowControl
+					<InfoLabelRow
 						label={t('drawers.selectDrawers')}
 						Info={t('drawers.hintSelectDrawers')}
 					>
@@ -69,13 +69,13 @@ const SettingsDrawers: FC<{ style?: ViewStyle }> = ({ style }) => {
 						>
 							{t('drawers.selectDrawers')}
 						</ButtonHighlight>
-					</InfoRowControl>
+					</InfoLabelRow>
 				}
 			/>
 
 			<ListItem
 				title={
-					<InfoRowControl
+					<InfoLabelRow
 						label={t('drawers.settingsHandle')}
 						Info={t('drawers.hintShowSettingsHandle')}
 					>
@@ -88,13 +88,13 @@ const SettingsDrawers: FC<{ style?: ViewStyle }> = ({ style }) => {
 						>
 							{toggleLabel}
 						</ButtonHighlight>
-					</InfoRowControl>
+					</InfoLabelRow>
 				}
 			/>
 
 			<ListItem
 				title={
-					<InfoRowControl
+					<InfoLabelRow
 						label={t('drawers.sortableHandle')}
 						Info={t('drawers.hintSortableHandle')}
 					>
@@ -107,7 +107,7 @@ const SettingsDrawers: FC<{ style?: ViewStyle }> = ({ style }) => {
 						>
 							{sortableLabel}
 						</ButtonHighlight>
-					</InfoRowControl>
+					</InfoLabelRow>
 				}
 			/>
 

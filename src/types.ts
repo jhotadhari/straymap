@@ -32,6 +32,12 @@ export type InitialPosition = {
 
 export type BottomBarHeight = { [value: string]: number };
 
+export interface PaletteColor {
+	bg: string;
+	fg: string;
+	border: string;
+}
+
 export interface OptionBase {
 	key: string;
 	label: string;

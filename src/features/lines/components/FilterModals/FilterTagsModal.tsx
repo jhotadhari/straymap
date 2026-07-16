@@ -11,12 +11,12 @@ import Popover, { PopoverPlacement } from 'react-native-popover-view';
 /**
  * Internal dependencies
  */
-import ModalWrapper from '../../../../components/generic/ModalWrapper';
-import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
-import InfoRowControl from '../../../../components/generic/controls/InfoRowControl';
-import RadioListItem from '../../../../components/generic/RadioListItem';
-import MenuItem from '../../../../components/generic/MenuItem';
-import LoadingIndicator from '../../../../components/generic/LoadingIndicator';
+import ModalWrapper from '../../../../components/generic/wrapper/ModalWrapper';
+import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
+import InfoLabelRow from '../../../../components/generic/infoWrapper/InfoLabelRow';
+import RadioListItem from '../../../../components/generic/wrapper/RadioListItem';
+import MenuItem from '../../../../components/generic/wrapper/MenuItem';
+import LoadingIndicator from '../../../../components/generic/primitives/LoadingIndicator';
 import { sharedStyles as appSharedStyles } from '../../../../sharedStyles';
 import { sharedStyles } from './sharedDeps';
 import { queryAllTags } from '../../db/queryFns';
@@ -163,7 +163,7 @@ const FilterTagsModal: FC<{
 				/>
 			))}
 
-			<InfoRowControl
+			<InfoLabelRow
 				label={t('lines.filterValue')}
 				Info={t('lines.hintTagsFilter')}
 			>
@@ -214,7 +214,7 @@ const FilterTagsModal: FC<{
 						)}
 					</Popover>
 				</View>
-			</InfoRowControl>
+			</InfoLabelRow>
 
 			{onDelete && (
 				<View style={appSharedStyles.modalControls}>

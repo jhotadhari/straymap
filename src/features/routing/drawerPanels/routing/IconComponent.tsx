@@ -3,7 +3,7 @@
  */
 
 import { TextStyle } from 'react-native';
-import IconIcomoon from '../../../../components/generic/IconIcomoon';
+import IconIcomoon from '../../../../components/generic/primitives/IconIcomoon';
 
 const IconComponent = ({ color }: { color: TextStyle['color'] }) => {
 	return (

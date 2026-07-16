@@ -12,8 +12,8 @@ import { ScrollView, View, ViewStyle } from 'react-native';
  * Internal dependencies
  */
 import { OptionBase } from '../../../types';
-import MenuItem from '../MenuItem';
-import ListItem from '../ListItem';
+import MenuItem from './MenuItem';
+import ListItem from './ListItem';
 import Popover, { PopoverPlacement } from 'react-native-popover-view';
 
 const ListItemMenuControl = ({

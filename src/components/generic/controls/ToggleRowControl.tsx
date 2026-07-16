@@ -8,7 +8,7 @@ import { ViewStyle } from 'react-native';
 /**
  * Internal dependencies
  */
-import InfoRowControl from './InfoRowControl';
+import InfoLabelRow from '../infoWrapper/InfoLabelRow';
 
 const ToggleRowControl = ({
 	label,
@@ -24,7 +24,7 @@ const ToggleRowControl = ({
 	style?: ViewStyle;
 }) => {
 	return (
-		<InfoRowControl
+		<InfoLabelRow
 			label={label}
 			Info={Info}
 			style={style}
@@ -33,7 +33,7 @@ const ToggleRowControl = ({
 				value={value}
 				onValueChange={onToggle}
 			/>
-		</InfoRowControl>
+		</InfoLabelRow>
 	);
 };
 

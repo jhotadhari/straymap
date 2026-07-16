@@ -11,12 +11,12 @@ import { get } from 'lodash-es';
  * Internal dependencies
  */
 import { OptionBase } from '../../../../types';
-import ListItemModalControl from '../../../../components/generic/controls/ListItemModalControl';
+import ListItemModalControl from '../../../../components/generic/wrapper/ListItemModalControl';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { selectHardwareKeys } from '../../selectors';
 import { setHardwareKeys } from '../../slice';
-import ListItemMenuControl from '../../../../components/generic/controls/ListItemMenuControl';
-import InfoRowControl from '../../../../components/generic/controls/InfoRowControl';
+import ListItemMenuControl from '../../../../components/generic/wrapper/ListItemMenuControl';
+import InfoLabelRow from '../../../../components/generic/infoWrapper/InfoLabelRow';
 import { sharedStyles } from '../../../../sharedStyles';
 
 const keyCodeStringOptions: OptionBase[] = [
@@ -79,7 +79,7 @@ const RowItem = ({ keyCodeStringOption }: { keyCodeStringOption: OptionBase }) =
 	);
 
 	return (
-		<InfoRowControl
+		<InfoLabelRow
 			label={t(keyCodeStringOption.label)}
 			Info={t('general.hint.hardwareKey')}
 		>
@@ -90,7 +90,7 @@ const RowItem = ({ keyCodeStringOption }: { keyCodeStringOption: OptionBase }) =
 				setValue={handleSetValue}
 				anchorLabel={t(get(selectedActionKeyOption, 'label', ''))}
 			/>
-		</InfoRowControl>
+		</InfoLabelRow>
 	);
 };
 

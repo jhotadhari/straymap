@@ -30,8 +30,8 @@ import Animated, {
 /**
  * Internal dependencies
  */
-import { AppContext } from '../../Context';
-import { modalWidthFactor, modalPadding } from '../../constants';
+import { AppContext } from '../../../Context';
+import { modalWidthFactor, modalPadding } from '../../../constants';
 
 const styles = StyleSheet.create({
 	absolute: {

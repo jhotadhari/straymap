@@ -8,7 +8,7 @@ import { useTheme, TextInput } from 'react-native-paper';
 /**
  * Internal dependencies
  */
-import InfoRowControl from './InfoRowControl';
+import InfoLabelRow from '../infoWrapper/InfoLabelRow';
 import { strValToNb } from '../../../lib/utils';
 import { NumType } from '../../../types';
 
@@ -141,7 +141,7 @@ const NumericRowControl = ({
 	const styleInput = useMemo(() => [styles.flexGrow, inputStyle], [inputStyle]);
 
 	return (
-		<InfoRowControl
+		<InfoLabelRow
 			label={label}
 			Info={Info}
 			style={style}
@@ -157,7 +157,7 @@ const NumericRowControl = ({
 				value={val}
 				keyboardType="numeric"
 			/>
-		</InfoRowControl>
+		</InfoLabelRow>
 	);
 };
 export default NumericRowControl;

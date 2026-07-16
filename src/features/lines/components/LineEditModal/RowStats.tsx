@@ -10,10 +10,10 @@ import { pick, without } from 'lodash-es';
 /**
  * Internal dependencies
  */
-import InfoRowControl, {
-	styles as stylesInfoRowControl,
-} from '../../../../components/generic/controls/InfoRowControl';
-import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
+import InfoLabelRow, {
+	styles as stylesInfoLabelRow,
+} from '../../../../components/generic/infoWrapper/InfoLabelRow';
+import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
 import { sharedStyles } from './sharedDeps';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { selectElementExpanded } from '../../../ui/selectors';
@@ -64,7 +64,7 @@ const RowStats: FC = () => {
 
 	return (
 		<Fragment>
-			<InfoRowControl
+			<InfoLabelRow
 				label={t('lines.stats')}
 				Info={t('lines.hintStats')}
 			>
@@ -81,12 +81,12 @@ const RowStats: FC = () => {
 						<Text>{expanded ? t('lines.hideStats') : t('lines.showStats')}</Text>
 					</View>
 				</ButtonHighlight>
-			</InfoRowControl>
+			</InfoLabelRow>
 
 			{expanded && line && (
-				<View style={stylesInfoRowControl.container}>
-					<View style={stylesInfoRowControl.label} />
-					<View style={[stylesInfoRowControl.controlView, styles.dropdown]}>
+				<View style={stylesInfoLabelRow.container}>
+					<View style={stylesInfoLabelRow.label} />
+					<View style={[stylesInfoLabelRow.controlView, styles.dropdown]}>
 						{statsRows.map((keys, idx) => (
 							<View
 								key={idx}

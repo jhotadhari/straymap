@@ -11,10 +11,10 @@ import { sprintf } from 'sprintf-js';
 /**
  * Internal dependencies
  */
-import InfoRowControl from '../../../../../components/generic/controls/InfoRowControl';
-import ButtonHighlight from '../../../../../components/generic/ButtonHighlight';
-import ModalWrapper from '../../../../../components/generic/ModalWrapper';
-import RadioListItem from '../../../../../components/generic/RadioListItem';
+import InfoLabelRow from '../../../../../components/generic/infoWrapper/InfoLabelRow';
+import ButtonHighlight from '../../../../../components/generic/primitives/ButtonHighlight';
+import ModalWrapper from '../../../../../components/generic/wrapper/ModalWrapper';
+import RadioListItem from '../../../../../components/generic/wrapper/RadioListItem';
 import { AlternativeButtonType } from '../../../../../components/generic/controls/FileSourceRowControl';
 import { MapsforgeProfile } from '../../../types';
 import { OptionBase } from '../../../../../types';
@@ -213,7 +213,7 @@ const RenderOverlaysControl: FC<{
 	}
 
 	return (
-		<InfoRowControl
+		<InfoLabelRow
 			label={label}
 			Info={Info}
 		>
@@ -257,7 +257,7 @@ const RenderOverlaysControl: FC<{
 
 				{AlternativeButton && <AlternativeButton setModalVisible={setModalVisible} />}
 			</View>
-		</InfoRowControl>
+		</InfoLabelRow>
 	);
 };
 

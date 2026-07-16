@@ -8,13 +8,13 @@ import { get } from 'lodash-es';
 /**
  * Internal dependencies
  */
-import InfoRowControl from '../../../../../components/generic/controls/InfoRowControl';
+import InfoLabelRow from '../../../../../components/generic/infoWrapper/InfoLabelRow';
 import { MapsforgeProfile } from '../../../types';
 import { OptionBase } from '../../../../../types';
 import { useAppDispatch, useAppSelector } from '../../../../../store/hooks';
 import { setMapsforgeProfileTemp } from '../../../slice';
 import { selectMapsforgeProfileTemp, selectRenderStylesCache } from '../../../selectors';
-import ListItemMenuControl from '../../../../../components/generic/controls/ListItemMenuControl';
+import ListItemMenuControl from '../../../../../components/generic/wrapper/ListItemMenuControl';
 import { sharedStyles } from '../../../../../sharedStyles';
 
 const getDefaultSelectedOpt = (
@@ -105,7 +105,7 @@ const RenderStyleControl: FC<{
 	}
 
 	return (
-		<InfoRowControl
+		<InfoLabelRow
 			label={t('style')}
 			Info={Info}
 		>
@@ -127,7 +127,7 @@ const RenderStyleControl: FC<{
 				/>
 			)}
 			{AlternativeButton && AlternativeButton}
-		</InfoRowControl>
+		</InfoLabelRow>
 	);
 };
 

@@ -12,9 +12,9 @@ import { useTranslation } from 'react-i18next';
 import { useAppDispatch } from '../../../../store/hooks';
 import { setDbPath } from '../../slice';
 import { dbExtension } from '../../constants';
-import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
+import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
 import { styles } from './sharedDeps';
-import IconButtonHighlight from '../../../../components/generic/IconButtonHighlight';
+import IconButtonHighlight from '../../../../components/generic/primitives/IconButtonHighlight';
 import { getDbDefaultName } from '../../utils';
 
 const RowCreateNew: FC<{

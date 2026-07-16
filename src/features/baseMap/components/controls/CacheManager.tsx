@@ -10,8 +10,8 @@ import { get } from 'lodash-es';
 /**
  * Internal dependencies
  */
-import InfoRowControl from '../../../../components/generic/controls/InfoRowControl';
-import LoadingIndicator from '../../../../components/generic/LoadingIndicator';
+import InfoLabelRow from '../../../../components/generic/infoWrapper/InfoLabelRow';
+import LoadingIndicator from '../../../../components/generic/primitives/LoadingIndicator';
 import { FsModule } from '../../../../nativeModules';
 import { LayerConfig } from '../../types';
 import { selectElementExpanded } from '../../../ui/selectors';
@@ -64,7 +64,7 @@ const CacheRow = ({
 	}, [pathFull, updateCacheDirs]);
 
 	return (
-		<InfoRowControl
+		<InfoLabelRow
 			key={cache.basename}
 			label={cache.readableSize}
 			labelStyle={styles.cacheLabel}
@@ -100,7 +100,7 @@ const CacheRow = ({
 
 				{deleting && <LoadingIndicator />}
 			</View>
-		</InfoRowControl>
+		</InfoLabelRow>
 	);
 };
 
@@ -190,11 +190,11 @@ const CacheManager = () => {
 							key={cacheDir.path}
 							style={styles.cacheDirRow}
 						>
-							<InfoRowControl
+							<InfoLabelRow
 								label={internalCacheDir === cacheDir.path ? 'Internal' : 'External'}
 							>
 								<Text style={styles.cacheHeader}>{cacheDir.path}</Text>
-							</InfoRowControl>
+							</InfoLabelRow>
 
 							{[...cacheDir.caches].map((cache: CacheSubDir) => (
 								<CacheRow

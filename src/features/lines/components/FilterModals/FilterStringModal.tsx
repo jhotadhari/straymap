@@ -9,11 +9,11 @@ import { useTranslation } from 'react-i18next';
 /**
  * Internal dependencies
  */
-import ModalWrapper from '../../../../components/generic/ModalWrapper';
-import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
-import InfoRowControl from '../../../../components/generic/controls/InfoRowControl';
-import HintLink from '../../../../components/generic/HintLink';
-import RadioListItem from '../../../../components/generic/RadioListItem';
+import ModalWrapper from '../../../../components/generic/wrapper/ModalWrapper';
+import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
+import InfoLabelRow from '../../../../components/generic/infoWrapper/InfoLabelRow';
+import HintLink from '../../../../components/generic/primitives/HintLink';
+import RadioListItem from '../../../../components/generic/wrapper/RadioListItem';
 import { sharedStyles as appSharedStyles } from '../../../../sharedStyles';
 import { sharedStyles } from './sharedDeps';
 import { StringColumnFilter, StringFilterOperator } from '../../types';
@@ -148,7 +148,7 @@ const FilterStringModal: FC<{
 				/>
 			))}
 
-			<InfoRowControl
+			<InfoLabelRow
 				label={t('lines.filterValue')}
 				Info={hintStringFilterInfo}
 			>
@@ -159,7 +159,7 @@ const FilterStringModal: FC<{
 					placeholder={operator === 'regex' ? '^Mount.*' : t('lines.filterValue')}
 					placeholderTextColor={theme.colors.outline}
 				/>
-			</InfoRowControl>
+			</InfoLabelRow>
 
 			{onDelete && (
 				<View style={appSharedStyles.modalControls}>

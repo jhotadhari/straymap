@@ -11,9 +11,9 @@ import { sprintf } from 'sprintf-js';
 /**
  * Internal dependencies
  */
-import ModalWrapper from '../../../components/generic/ModalWrapper';
-import LoadingIndicator from '../../../components/generic/LoadingIndicator';
-import RadioListItem from '../../../components/generic/RadioListItem';
+import ModalWrapper from '../../../components/generic/wrapper/ModalWrapper';
+import LoadingIndicator from '../../../components/generic/primitives/LoadingIndicator';
+import RadioListItem from '../../../components/generic/wrapper/RadioListItem';
 import TagBadge from './TagBadge';
 import CreateTagModal from './CreateTagModal';
 import { queryAllTags, invalidateTagsTable } from '../db/queryFns';

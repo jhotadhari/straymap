@@ -2,35 +2,36 @@
  * External dependencies
  */
 import { ReactNode, useMemo } from 'react';
-import { Style as ListStyle } from 'react-native-paper/lib/typescript/components/List/utils';
 import { useTheme, Icon, Text } from 'react-native-paper';
-import { StyleSheet, View, TouchableHighlight, ViewStyle, TextStyle } from 'react-native';
+import { StyleSheet, View, TouchableHighlight, ViewStyle } from 'react-native';
+import { Style as ListStyle } from 'react-native-paper/lib/typescript/components/List/utils';
 
 /**
  * Internal dependencies
  */
-import { DRAWER_ICON_SIZE } from '../../constants';
+import { DRAWER_ICON_SIZE } from '../../../constants';
 
-const MenuItem = ({
+const ListItem = ({
 	onPress,
-	leadingIcon,
+	icon,
 	iconSize,
 	title,
 	style,
-	iconColor,
-	textStyle,
 	active,
 }: {
 	onPress?: () => void;
-	leadingIcon?: string | ((props: { color: string; style: ListStyle }) => ReactNode);
+	icon?: string | ((props: { color: string; style: ListStyle }) => ReactNode);
 	iconSize?: number;
 	style?: null | ViewStyle;
-	iconColor?: string;
-	textStyle?: null | TextStyle;
 	title?: ReactNode;
 	active?: boolean;
 }) => {
 	const theme = useTheme();
+
+	const styleTouchable = useMemo(
+		() => [styles.touchable, { borderRadius: theme.roundness }],
+		[theme]
+	);
 
 	const styleInner = useMemo(
 		() => [
@@ -46,28 +47,23 @@ const MenuItem = ({
 	);
 
 	const styleTitle = useMemo(
-		() => [active && { color: theme.colors.onPrimary }, textStyle],
-		[
-			active,
-			theme,
-			textStyle,
-		]
+		() => (active ? { color: theme.colors.onPrimary } : undefined),
+		[active, theme]
 	);
 
 	return (
 		<TouchableHighlight
 			underlayColor={theme.colors.elevation.level3}
 			onPress={onPress}
+			style={styleTouchable}
 		>
 			<View style={styleInner}>
-				{leadingIcon && (
+				{icon && (
 					<View style={styles.iconWrapper}>
 						<Icon
-							source={leadingIcon}
+							source={icon}
 							size={iconSize || DRAWER_ICON_SIZE}
-							color={
-								iconColor ? iconColor : active ? theme.colors.onPrimary : undefined
-							}
+							color={active ? theme.colors.onPrimary : undefined}
 						/>
 					</View>
 				)}
@@ -79,12 +75,15 @@ const MenuItem = ({
 };
 
 const styles = StyleSheet.create({
+	touchable: { overflow: 'visible' },
 	inner: {
-		padding: 10,
+		padding: 15,
+		marginLeft: 8,
 		flexDirection: 'row',
 		alignItems: 'center',
+		overflow: 'visible',
 	},
 	iconWrapper: { marginRight: 10 },
 });
 
-export default MenuItem;
+export default ListItem;

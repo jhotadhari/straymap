@@ -13,7 +13,7 @@ import { featureRegistry } from '../../FeatureRegistry';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { selectUiItemKeys, selectIsBusy } from '../selectors';
 import { setUiItemKeys } from '../slice';
-import LoadingIndicator from '../../../components/generic/LoadingIndicator';
+import LoadingIndicator from '../../../components/generic/primitives/LoadingIndicator';
 import { AppContext } from '../../../Context';
 import { DashboardWrapped } from '../../dashboard/appOverlays/Dashboard';
 import { selectItemsCount } from '../../dashboard/selectors';

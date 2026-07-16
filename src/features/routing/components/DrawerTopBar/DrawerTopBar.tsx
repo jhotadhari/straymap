@@ -16,7 +16,7 @@ import {
 	DRAWER_ICON_SIZE as handleIconSize,
 	itemStyles,
 } from '../../../drawers/constants';
-import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
+import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
 import DrawerContext from '../../../drawers/DrawerContext';
 import { useAppDispatch } from '../../../../store/hooks';
 import useRoute from '../../hooks/useRoute';

@@ -10,7 +10,7 @@ import { get, pick } from 'lodash-es';
  * Internal dependencies
  */
 import { Line, LineStats as LineStatsType, TableColumn } from '../../types';
-import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
+import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
 import { DRAWER_ICON_SIZE } from '../../../drawers/constants';
 import LineStats from '../LineStats';
 import { cellConfigs, getCellCategory } from './sharedDeps';

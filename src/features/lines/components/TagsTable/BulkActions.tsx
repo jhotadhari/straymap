@@ -9,11 +9,11 @@ import Popover, { PopoverPlacement } from 'react-native-popover-view';
 /**
  * Internal dependencies
  */
-import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
+import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
 import { DRAWER_ICON_SIZE } from '../../../drawers/constants';
 import useTagBulkActions from './useBulkActions';
 import { FooterContext } from './Context';
-import PopoverMenuItems from '../../../../components/generic/PopoverMenuItems';
+import PopoverMenuItems from '../../../../components/generic/wrapper/PopoverMenuItems';
 
 const TagBulkActions: FC = () => {
 	const theme = useTheme();

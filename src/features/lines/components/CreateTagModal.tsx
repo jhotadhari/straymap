@@ -2,25 +2,23 @@
  * External dependencies
  */
 import { FC, useCallback, useContext, useState } from 'react';
-import { Text, TextInput, useTheme } from 'react-native-paper';
+import { TextInput } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { get } from 'lodash-es';
 import { sprintf } from 'sprintf-js';
 
 /**
  * Internal dependencies
  */
-import ModalWrapper from '../../../components/generic/ModalWrapper';
-import ButtonHighlight from '../../../components/generic/ButtonHighlight';
-import ColorPaletteInline from '../../../components/ColorPalette/ColorPaletteInline';
-import { PALETTE_COLORS } from './tagColor';
+import ModalWrapper from '../../../components/generic/wrapper/ModalWrapper';
+import ColorPaletteInline from '../../../components/generic/controls/ColorPaletteInline';
 import { createTags } from '../db/actionsTag';
 import { invalidateTagsTable } from '../db/queryFns';
 import { Tag } from '../types';
 import { tableStyles } from './tableStyles';
 import { logError } from '../../../lib/utils';
 import { ErrorToastContext } from '../../../components/ErrorToast/Context';
+import { PALETTE_COLORS } from '../../../constants';
 
 export interface CreateTagModalProps {
 	visible: boolean;
@@ -30,7 +28,6 @@ export interface CreateTagModalProps {
 
 const CreateTagModal: FC<CreateTagModalProps> = ({ visible, onDismiss, onCreated }) => {
 	const { t } = useTranslation();
-	const theme = useTheme();
 	const { showError } = useContext(ErrorToastContext);
 	const queryClient = useQueryClient();
 

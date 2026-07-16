@@ -11,14 +11,14 @@ import { upperFirst, get } from 'lodash-es';
  * Internal dependencies
  */
 import { OptionBase } from '../../../../types';
-import ListItemModalControl from '../../../../components/generic/controls/ListItemModalControl';
-import InfoRowControl from '../../../../components/generic/controls/InfoRowControl';
+import ListItemModalControl from '../../../../components/generic/wrapper/ListItemModalControl';
+import InfoLabelRow from '../../../../components/generic/infoWrapper/InfoLabelRow';
 import NumericRowControl from '../../../../components/generic/controls/NumericRowControl';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { selectUnitPrefs } from '../../selectors';
 import { setUnitPrefs } from '../../slice';
 import { UnitPref } from '../../types';
-import ListItemMenuControl from '../../../../components/generic/controls/ListItemMenuControl';
+import ListItemMenuControl from '../../../../components/generic/wrapper/ListItemMenuControl';
 import { sharedStyles } from '../../../../sharedStyles';
 
 export const options: { [value: string]: OptionBase[] } = {
@@ -135,14 +135,14 @@ const UnitControl = ({
 
 	return (
 		<Fragment>
-			<InfoRowControl
+			<InfoLabelRow
 				label={upperFirst(t(unitKey))}
 				style={styles.unitLabel}
 				labelStyle={theme.fonts.titleLarge}
 				Info={Info && 'string' === typeof Info ? t(Info) : Info}
 			/>
 
-			<InfoRowControl
+			<InfoLabelRow
 				label={t('unit')}
 				Info={t('general.hint.units.unit')}
 			>
@@ -159,7 +159,7 @@ const UnitControl = ({
 						)
 					)}
 				/>
-			</InfoRowControl>
+			</InfoLabelRow>
 
 			<NumericRowControl
 				label={upperFirst(t('decimalPlace', { count: 0 }))}

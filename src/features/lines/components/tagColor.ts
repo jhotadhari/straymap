@@ -9,11 +9,8 @@
 /**
  * Internal dependencies
  */
-import type { PaletteColor } from '../../../components/ColorPalette/palette';
-import { PALETTE_COLORS } from '../../../components/ColorPalette/palette';
-
-export type { PaletteColor };
-export { PALETTE_COLORS };
+import { PALETTE_COLORS } from "../../../constants";
+import { PaletteColor } from "../../../types";
 
 /**
  * Simple string hash → palette index.  Deterministic for the same label.

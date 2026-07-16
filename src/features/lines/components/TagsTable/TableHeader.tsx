@@ -16,8 +16,8 @@ import { TableColumn } from '../../types';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { selectTagsTableColumns, selectTagsSort, selectTagsFilters } from '../../selectors';
 import { toggleTagsSort, setTagsTableColumns, setTagsSort, removeTagsFilter } from '../../slice';
-import MenuItem from '../../../../components/generic/MenuItem';
-import IconButtonHighlight from '../../../../components/generic/IconButtonHighlight';
+import MenuItem from '../../../../components/generic/wrapper/MenuItem';
+import IconButtonHighlight from '../../../../components/generic/primitives/IconButtonHighlight';
 import { ColumnHeaderMenuContext } from './Context';
 
 const SORT_ICON_SIZE = 16;

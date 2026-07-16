@@ -14,7 +14,7 @@ import { sprintf } from 'sprintf-js';
 import { LayerMapsforge } from 'react-native-mapsforge-vtm';
 
 import FileSourceRowControl from '../../../../../components/generic/controls/FileSourceRowControl';
-import LoadingIndicator from '../../../../../components/generic/LoadingIndicator';
+import LoadingIndicator from '../../../../../components/generic/primitives/LoadingIndicator';
 import { MapsforgeProfile, RenderStylesCache } from '../../../types';
 import { useAppDispatch, useAppSelector } from '../../../../../store/hooks';
 import { selectMapsforgeProfileTemp } from '../../../selectors';

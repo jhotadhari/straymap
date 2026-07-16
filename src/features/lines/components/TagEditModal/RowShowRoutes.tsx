@@ -9,9 +9,9 @@ import { useTranslation } from 'react-i18next';
  * Internal dependencies
  */
 import { TagEditModalContext } from './Context';
-import InfoRowControl from '../../../../components/generic/controls/InfoRowControl';
+import InfoLabelRow from '../../../../components/generic/infoWrapper/InfoLabelRow';
 import { useAppDispatch } from '../../../../store/hooks';
-import ButtonHighlight from '../../../../components/generic/ButtonHighlight';
+import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
 import { setLinesFilters, setLinesFilterLogic, setTagTemp } from '../../slice';
 import { addUiItemKey } from '../../../ui/slice';
 import { sharedStyles } from './sharedDeps';
@@ -44,7 +44,7 @@ const RowShowRoutes: FC = () => {
 	const disabled = !tag?.label;
 
 	return (
-		<InfoRowControl
+		<InfoLabelRow
 			label={t('lines.showRoutes')}
 			Info={t('lines.showRoutesWithTagHint')}
 		>
@@ -59,7 +59,7 @@ const RowShowRoutes: FC = () => {
 			>
 				<Text>{t('lines.showRoutesWithTag')}</Text>
 			</ButtonHighlight>
-		</InfoRowControl>
+		</InfoLabelRow>
 	);
 };
 

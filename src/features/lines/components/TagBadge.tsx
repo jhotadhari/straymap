@@ -9,7 +9,7 @@ import { FC, useMemo } from 'react';
 import { useAppSelector } from '../../../store/hooks';
 import { selectTagBadgeMode } from '../selectors';
 import { getTagColor } from './tagColor';
-import Badge from '../../../components/Badge';
+import Badge from '../../../components/generic/primitives/Badge';
 
 const TagBadge: FC<{
 	tag: { id: number; label: string | null; data?: any };

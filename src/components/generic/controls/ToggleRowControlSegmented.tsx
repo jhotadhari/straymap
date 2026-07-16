@@ -8,8 +8,8 @@ import { Switch, Text, useTheme } from 'react-native-paper';
 /**
  * Internal dependencies
  */
-import InfoRowControl from './InfoRowControl';
-import ButtonHighlight from '../ButtonHighlight';
+import InfoLabelRow from '../infoWrapper/InfoLabelRow';
+import ButtonHighlight from '../primitives/ButtonHighlight';
 import { sharedStyles } from './sharedDeps';
 
 const ToggleRowControlSegmented = ({
@@ -82,7 +82,7 @@ const ToggleRowControlSegmented = ({
 	);
 
 	return (
-		<InfoRowControl
+		<InfoLabelRow
 			label={label}
 			Info={Info}
 			style={style}
@@ -103,7 +103,7 @@ const ToggleRowControlSegmented = ({
 					onValueChange={handleSwitchChange}
 				/>
 			</View>
-		</InfoRowControl>
+		</InfoLabelRow>
 	);
 };
 
