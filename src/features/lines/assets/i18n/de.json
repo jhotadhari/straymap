@@ -63,7 +63,7 @@
 	"exporting": "Exportiere...",
 	"exportPartial": "%s von %s Routen exportiert. Fehlgeschlagen: %s",
 	"delete": "Löschen",
-	"hideFromMap": "Von Karte entfernen",
+	"removeFromMap": "Von Karte entfernen",
 	"showOnMap": "Auf Karte anzeigen",
 	"isRoutingLine": "Aktive Route",
 	"noRoutingData": "Keine Routing-Daten",
@@ -148,6 +148,5 @@
 	"tagBadgeModeContained": "Gefüllt",
 	"tagBadgeModeOutlined": "Umrandet",
 	"addToMap": "Zu Karte hinzufügen",
-	"removeFromMap": "Von Karte entfernen",
 	"deleteLines": "Routen löschen"
 }

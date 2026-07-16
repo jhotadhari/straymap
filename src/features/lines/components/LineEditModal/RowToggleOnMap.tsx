@@ -40,7 +40,7 @@ const RowToggleOnMap: FC = () => {
 	const icon = useMemo(() => (isSelected ? 'map-minus' : 'map-plus'), [isSelected]);
 
 	const label = useMemo(
-		() => (isSelected ? t('lines.hideFromMap') : t('lines.showOnMap')),
+		() => (isSelected ? t('lines.removeFromMap') : t('lines.showOnMap')),
 		[isSelected, t]
 	);
 

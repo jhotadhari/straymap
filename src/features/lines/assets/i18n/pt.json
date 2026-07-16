@@ -63,7 +63,7 @@
 	"exporting": "Exportando...",
 	"exportPartial": "Exportadas %s de %s rotas. Falhas: %s",
 	"delete": "Excluir",
-	"hideFromMap": "Ocultar do mapa",
+	"removeFromMap": "Remover do mapa",
 	"showOnMap": "Mostrar no mapa",
 	"isRoutingLine": "Rota ativa",
 	"noRoutingData": "Sem dados de roteamento",
@@ -148,6 +148,5 @@
 	"tagBadgeModeContained": "Preenchido",
 	"tagBadgeModeOutlined": "Contornado",
 	"addToMap": "Adicionar ao mapa",
-	"removeFromMap": "Remover do mapa",
 	"deleteLines": "Excluir rotas"
 }
