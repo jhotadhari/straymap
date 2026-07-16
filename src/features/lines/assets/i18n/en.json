@@ -76,7 +76,7 @@
 	"statsSummary": "Statistics",
 	"statsForLines": "Statistics for %s routes",
 	"hideStats": "Hide",
-	"showStats": "Show",
+	"showStats": "Show statistics",
 	"regexInfoTitle": "Regular expressions",
 	"regexInfo": "A regular expression (regex) is a pattern that describes sets of strings. For example, the pattern \"^Mount\" matches titles starting with \"Mount\". Use regexr.com to learn and test patterns.",
 	"hintNumericFilter": "Filter routes by minimum and/or maximum values for this column. Leave a field empty to skip that side of the range.",

@@ -12,7 +12,6 @@ import { get, pick } from 'lodash-es';
 import { Line, LineStats as LineStatsType, TableColumn } from '../../types';
 import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
 import { DRAWER_ICON_SIZE } from '../../../drawers/constants';
-import LineStats from '../LineStats';
 import { cellConfigs, getCellCategory } from './sharedDeps';
 import { tableStyles } from '../tableStyles';
 import TagBadge from '../TagBadge';
@@ -20,6 +19,8 @@ import IconRouting from '../../../routing/drawerPanels/routing/IconComponent';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { setLineTemp } from '../../slice';
 import { selectLinesTableColumns } from '../../selectors';
+import LineStat from '../Stats/LineStat';
+import { RenderPart } from '../Stats/sharedDeps';
 
 const OtherCell: FC<{
 	cellKey: string;
@@ -65,6 +66,8 @@ export interface TableRowProps {
 	isRoutingLine: boolean;
 	stats?: LineStatsType;
 }
+
+const statsRenderParts = ['value'] as RenderPart[];
 
 const TableRow: FC<TableRowProps> = ({
 	line,
@@ -188,10 +191,11 @@ const TableRow: FC<TableRowProps> = ({
 										style={columnStyle}
 									>
 										{undefined !== get(stats, column.key) && (
-											<LineStats
-												stats={pick(stats, column.key)}
+											<LineStat
+												columnKey={column.key}
+												value={get(stats, column.key)}
 												round={0}
-												plain={true}
+												renderParts={statsRenderParts}
 											/>
 										)}
 									</View>

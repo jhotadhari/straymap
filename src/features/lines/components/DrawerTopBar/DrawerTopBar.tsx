@@ -71,7 +71,7 @@ const DrawerTopBar: FC = () => {
 		cb: handleStatsPressed,
 		modalNode: statsModalNode,
 		iconSource,
-	} = useShowLinesStatsCbModal({ lineIds });
+	} = useShowLinesStatsCbModal({ lineIds, showHeader: true });
 
 	const { cb: handleClearLinesPressed, modalNode: clearLinesModalNode } = useClearLinesCbModal({
 		lineIds,

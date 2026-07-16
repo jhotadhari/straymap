@@ -14,6 +14,7 @@ const useShowStats = () => {
 
 	const { cb, modalNode, iconSource } = useShowLinesStatsCbModal({
 		lineIds: checkedIds,
+		showHeader: true,
 	});
 
 	return useMemo(

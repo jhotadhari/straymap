@@ -13,18 +13,16 @@ import { useTranslation } from 'react-i18next';
  */
 import ModalWrapper from '../../../components/generic/wrapper/ModalWrapper';
 import { sharedStyles } from '../../../sharedStyles';
-import LineStats from '../components/LineStats';
 import { LinePartial, LineStats as LineStatsType } from '../types';
 import { queryLinesWithoutGeom } from '../db/queryFns';
-
-// ??? the stats aggregation could be done by db https://orm.drizzle.team/docs/select#aggregations
-// ??? well, for now js aggregation is fast enough. and maybe there is more stuff to display one day.
+import LineStatsRows from '../components/Stats/LineStatsRows';
 
 const StatsModal: FC<{
 	lineIds: number[];
 	handleDismissModal: () => void;
 	backgroundBlur?: boolean;
-}> = ({ lineIds, handleDismissModal, backgroundBlur: _backgroundBlur }) => {
+	showHeader?: boolean;
+}> = ({ lineIds, handleDismissModal, showHeader, backgroundBlur: _backgroundBlur }) => {
 	const { t } = useTranslation();
 	const { data: lines } = useQuery({
 		queryKey: ['lines', lineIds],
@@ -71,9 +69,9 @@ const StatsModal: FC<{
 			header={t('lines.statsSummary')}
 			innerStyle={sharedStyles.modal}
 		>
-			<Text>{sprintf(t('lines.statsForLines'), lineIds.length)}</Text>
+			{showHeader && <Text>{sprintf(t('lines.statsForLines'), lineIds.length)}</Text>}
 
-			<LineStats stats={stats} />
+			<LineStatsRows stats={stats} />
 		</ModalWrapper>
 	);
 };
@@ -81,9 +79,11 @@ const StatsModal: FC<{
 const useShowLinesStatsCbModal = ({
 	lineIds,
 	backgroundBlur,
+	showHeader,
 }: {
 	lineIds: number[];
 	backgroundBlur?: boolean;
+	showHeader?: boolean;
 }) => {
 	const [modalVisible, setModalVisible] = useState(false);
 
@@ -102,9 +102,11 @@ const useShowLinesStatsCbModal = ({
 				handleDismissModal={handleDismissModal}
 				backgroundBlur={backgroundBlur}
 				lineIds={lineIds}
+				showHeader={showHeader}
 			/>
 		);
 	}, [
+		showHeader,
 		lineIds,
 		modalVisible,
 		handleDismissModal,

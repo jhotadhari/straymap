@@ -176,7 +176,7 @@ const useDeleteLinesCbModal = ({
 		() => ({
 			cb,
 			modalNode,
-			iconSource: 'delete',
+			iconSource: 'delete-outline',
 		}),
 		[cb, modalNode]
 	);

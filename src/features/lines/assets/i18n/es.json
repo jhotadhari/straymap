@@ -76,7 +76,7 @@
 	"statsSummary": "Estadísticas",
 	"statsForLines": "Estadísticas para %s rutas",
 	"hideStats": "Ocultar",
-	"showStats": "Mostrar",
+	"showStats": "Mostrar estadísticas",
 	"regexInfoTitle": "Expresiones regulares",
 	"regexInfo": "Una expresión regular (regex) es un patrón que describe conjuntos de cadenas. Por ejemplo, el patrón \"^Mount\" coincide con títulos que comienzan con \"Mount\". Usa regexr.com para aprender y probar patrones.",
 	"hintNumericFilter": "Filtrar rutas por valores mínimos y/o máximos para esta columna. Deja un campo vacío para omitir ese lado del rango.",

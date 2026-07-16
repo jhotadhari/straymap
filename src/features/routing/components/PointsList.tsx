@@ -15,7 +15,7 @@ import React, {
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { Icon, Text, useTheme } from 'react-native-paper';
 import MaterialIcons from '@react-native-vector-icons/material-icons/static';
-import { get, omit, pick } from 'lodash-es';
+import { get, omit } from 'lodash-es';
 import { lineString } from '@turf/turf';
 import { useMutation, UseMutationOptions } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
@@ -36,7 +36,6 @@ import { formatCoords } from '../../../lib/formatting';
 import { lineStringToStats, pointsCoordsAreOverlapping } from '../../../lib/utils';
 import { deleteRoutingPoint } from '../db/actionsRoutingPoint';
 import { LineStats as LineStatsType } from '../../lines/types';
-import LineStats from '../../lines/components/LineStats';
 import useRoute from '../hooks/useRoute';
 import EditPointModal from './EditPointModal';
 import Sortable, { DragStartParams, SortableFlexDragEndParams } from 'react-native-sortables';
@@ -44,6 +43,7 @@ import useDropIndicatorStyle from '../../../compose/useDropIndicatorStyle';
 import { dbConnection } from '../../dbLoader/DBConnection';
 import { DRAWER_ICON_SIZE } from '../../../constants';
 import { ErrorToastContext } from '../../../components/ErrorToast/Context';
+import LineStatsCompactRows from '../../lines/components/Stats/LineStatsCompactRows';
 
 const Segment: FC<{
 	item: RoutingPoint;
@@ -158,11 +158,10 @@ const Segment: FC<{
 						<Text style={styles.errorText}>{t(segment.errorMsg)}</Text>
 					)}
 
-					{!segment?.isFetching && (
-						<LineStats
-							stats={omit(lineStats, ['minZ', 'maxZ'])}
-							round={0}
-						/>
+					{!segment?.errorMsg && (
+						<View style={styles.stat}>
+							<LineStatsCompactRows stats={lineStats} />
+						</View>
 					)}
 				</View>
 
@@ -179,20 +178,6 @@ const Segment: FC<{
 					</ButtonHighlight>
 				</View>
 			</View>
-
-			{/* {!segment?.isFetching && ( */}
-			<View style={styleSegmentRow}>
-				<LineStats
-					stats={pick(lineStats, ['minZ', 'maxZ'])}
-					round={0}
-				/>
-				<View style={styles.segmentRowAction}>
-					<ButtonHighlight compact={true}>
-						<View style={styles.placeholderIcon} />
-					</ButtonHighlight>
-				</View>
-			</View>
-			{/* )} */}
 
 			<View style={styleSegmentRow}>
 				<View style={styles.segmentRowContent}>
@@ -532,6 +517,9 @@ const styles = StyleSheet.create({
 	},
 	scrollView: {
 		paddingHorizontal: itemPaddingH,
+	},
+	stat: {
+		paddingTop: 8,
 	},
 });
 

@@ -76,7 +76,7 @@
 	"statsSummary": "Statistiken",
 	"statsForLines": "Statistiken für %s Routen",
 	"hideStats": "Ausblenden",
-	"showStats": "Anzeigen",
+	"showStats": "Statistiken anzeigen",
 	"regexInfoTitle": "Reguläre Ausdrücke",
 	"regexInfo": "Ein regulärer Ausdruck (Regex) ist ein Muster, das Zeichenketten beschreibt. Z.B. findet \"^Mount\" alle Titel, die mit \"Mount\" beginnen. Auf regexr.com kannst du Muster lernen und testen.",
 	"hintNumericFilter": "Routen nach Mindest- und/oder Höchstwerten für diese Spalte filtern. Lass ein Feld leer, um diese Seite des Bereichs zu überspringen.",
