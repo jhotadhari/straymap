@@ -38,7 +38,7 @@ const InfoWrapper = ({
 	const handleClose = useCallback(() => setModalVisible(false), [setModalVisible]);
 
 	return (
-		<View>
+		<View style={{ flex: 1 }}>
 			{modalVisible && (
 				<ModalWrapper
 					visible={modalVisible}

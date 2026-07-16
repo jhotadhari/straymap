@@ -63,7 +63,6 @@ const SettingsDrawers: FC<{ style?: ViewStyle }> = ({ style }) => {
 							mode="outlined"
 							compact={true}
 							onPress={handleOpenModal}
-							// icon="cog"
 							textColor={theme.colors.onBackground}
 							style={{ marginLeft: 8 }}
 						>
