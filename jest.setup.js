@@ -97,6 +97,7 @@ jest.mock('react-native-mapsforge-vtm', () => ({
 // react-native-brouter — routing engine
 // ---------------------------------------------------------------------------
 jest.mock('react-native-brouter', () => ({
+	isAvailable: jest.fn().mockResolvedValue(true),
 	getRoute: jest.fn().mockResolvedValue({
 		raw: JSON.stringify({
 			type: 'FeatureCollection',
@@ -107,6 +108,7 @@ jest.mock('react-native-brouter', () => ({
 }));
 
 jest.mock('react-native-brouter/geojson', () => ({
+	isAvailable: jest.fn().mockResolvedValue(true),
 	getRoute: jest.fn().mockResolvedValue({
 		raw: JSON.stringify({
 			type: 'FeatureCollection',

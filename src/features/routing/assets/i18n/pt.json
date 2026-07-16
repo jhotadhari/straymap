@@ -9,5 +9,7 @@
 	"startRouting": "Iniciar rota",
 	"stopRouting": "Parar rota",
 	"appendPoint": "Adicionar waypoint",
-	"deleteLastPoint": "Excluir último ponto"
+	"deleteLastPoint": "Excluir último ponto",
+	"brouterUnavailableTitle": "BRouter não disponível",
+	"brouterUnavailableMessage": "O app BRouter Offline Navigation não está instalado neste dispositivo. O BRouter é o motor de roteamento offline para planejamento de rotas. Instale-o pelo F-Droid, Google Play ou GitHub para ativar o cálculo de rotas."
 }

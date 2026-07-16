@@ -23,6 +23,7 @@ import { selectIsRouting } from './selectors';
 import { QueryClient } from '@tanstack/react-query';
 import { dbConnection } from '../dbLoader/DBConnection';
 import { pointsCoordsAreOverlapping } from '../../lib/utils';
+import { isAvailable } from 'react-native-brouter/geojson';
 
 export interface RoutingSettings {
 	isRouting: false | number; // false or routeId.
@@ -30,6 +31,7 @@ export interface RoutingSettings {
 }
 
 export interface RoutingState extends SliceSettingsBase, RoutingSettings {
+	brouterAvailable: null | boolean; // null = unchecked, boolean = result of checkBrouterAvailability
 	segments: Record<
 		string, // fromId_toId
 		RoutingSegment
@@ -43,6 +45,7 @@ export const initialSettings: RoutingSettings = {
 
 const initialState: RoutingState = {
 	initialized: false,
+	brouterAvailable: null,
 	segments: {},
 	...initialSettings,
 };
@@ -55,6 +58,9 @@ export const routingSlice = createSlice({
 	reducers: {
 		setInitialized: (state, action: PayloadAction<boolean>) => {
 			state.initialized = action.payload;
+		},
+		setBrouterAvailable: (state, action: PayloadAction<boolean>) => {
+			state.brouterAvailable = action.payload;
 		},
 		setIsRouting: (state, action: PayloadAction<RoutingState['isRouting']>) => {
 			state.segments = {};
@@ -83,6 +89,7 @@ export const routingSlice = createSlice({
 // Export the generated action creators for use in components.
 export const {
 	setInitialized,
+	setBrouterAvailable,
 	setIsRouting: setIsRoutingAction,
 	setRoutingLineId,
 	setSegment,
@@ -91,6 +98,17 @@ export const {
 
 // Export the slice reducer for use in the store configuration
 export default routingSlice.reducer;
+
+export const checkBrouterAvailability = (): AppThunk => {
+	return async (dispatch) => {
+		try {
+			const available = await isAvailable();
+			dispatch(routingSlice.actions.setBrouterAvailable(available));
+		} catch {
+			dispatch(routingSlice.actions.setBrouterAvailable(false));
+		}
+	};
+};
 
 export const setIsRouting = (newIsRouting: number | false): AppThunk => {
 	return (dispatch, getState) => {

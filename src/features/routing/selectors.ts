@@ -9,6 +9,8 @@ import { RootState } from '../../store/store';
 
 export const selectInitialized = (state: RootState) => state.routing.initialized;
 
+export const selectBrouterAvailable = (state: RootState) => state.routing.brouterAvailable;
+
 export const selectIsRouting = (state: RootState) => state.routing.isRouting;
 
 export const selectRoutingLineId = (state: RootState) => state.routing.routingLineId;

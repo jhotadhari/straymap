@@ -30,6 +30,7 @@ const buildRoot = (overrides: Partial<RoutingState> = {}) =>
 	({
 		routing: {
 			initialized: false,
+			brouterAvailable: null,
 			segments: {},
 			...initialSettings,
 			...overrides,
@@ -55,6 +56,7 @@ describe('routing slice reducers', () => {
 	it('setIsRoutingAction clears segments and sets isRouting', () => {
 		const prev: RoutingState = {
 			initialized: true,
+			brouterAvailable: null,
 			segments: { '1_2': makeSegment({ fromId: 1, toId: 2 }) },
 			routingLineId: 5,
 			isRouting: false,
@@ -68,6 +70,7 @@ describe('routing slice reducers', () => {
 	it('setIsRoutingAction sets isRouting to false', () => {
 		const prev: RoutingState = {
 			initialized: true,
+			brouterAvailable: null,
 			segments: { '1_2': makeSegment() },
 			routingLineId: 5,
 			isRouting: 42,
@@ -109,6 +112,7 @@ describe('routing slice reducers', () => {
 	it('deleteSegments removes segments by id string', () => {
 		const prev: RoutingState = {
 			initialized: true,
+			brouterAvailable: null,
 			segments: {
 				'1_2': makeSegment({ fromId: 1, toId: 2 }),
 				'2_3': makeSegment({ fromId: 2, toId: 3 }),
@@ -125,6 +129,7 @@ describe('routing slice reducers', () => {
 		const seg = makeSegment({ fromId: 1, toId: 2 });
 		const prev: RoutingState = {
 			initialized: true,
+			brouterAvailable: null,
 			segments: { '1_2': seg },
 			routingLineId: null,
 			isRouting: false,
@@ -136,6 +141,7 @@ describe('routing slice reducers', () => {
 	it('deleteSegments handles non-existent keys silently', () => {
 		const prev: RoutingState = {
 			initialized: true,
+			brouterAvailable: null,
 			segments: { '1_2': makeSegment() },
 			routingLineId: null,
 			isRouting: false,

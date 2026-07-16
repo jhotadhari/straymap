@@ -11,6 +11,7 @@ import { get, isEqual, set } from 'lodash-es';
 import {
 	RoutingSettings,
 	RoutingState,
+	checkBrouterAvailability,
 	initialSettings,
 	processRouting,
 	setInitialized,
@@ -32,6 +33,9 @@ export const initializeFromStorage = (store: AppStore) => {
 	if (selectInitialized(store.getState())) {
 		return;
 	}
+	// Check BRouter availability on init (fire-and-forget —
+	// doesn't block the rest of initialization).
+	store.dispatch(checkBrouterAvailability());
 	DefaultPreference.get(settingsKey)
 		.then(async (newSettingsStr) => {
 			if (newSettingsStr) {
