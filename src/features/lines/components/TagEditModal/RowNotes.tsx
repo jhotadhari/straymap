@@ -45,8 +45,6 @@ const RowNotes: FC = () => {
 			{isSystemTag ? (
 				<Text
 					style={{
-						flexGrow: 1,
-						maxWidth: '83%',
 						opacity: 0.7,
 					}}
 				>
@@ -54,10 +52,6 @@ const RowNotes: FC = () => {
 				</Text>
 			) : (
 				<TextInput
-					style={{
-						flexGrow: 1,
-						maxWidth: '83%',
-					}}
 					underlineColor="transparent"
 					dense
 					multiline

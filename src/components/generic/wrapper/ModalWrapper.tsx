@@ -31,7 +31,7 @@ import Animated, {
  * Internal dependencies
  */
 import { AppContext } from '../../../Context';
-import { modalWidthFactor, modalPadding } from '../../../constants';
+import { MODAL_WIDTH_FACTOR, MODAL_PADDING } from '../../../constants';
 
 const styles = StyleSheet.create({
 	absolute: {
@@ -47,15 +47,14 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 	},
 	headerRow: {
-		width: '90%',
 		flexDirection: 'row',
 		alignItems: 'center',
 		marginBottom: 8,
 		gap: 8,
 		justifyContent: 'flex-start',
 	},
-	backButton: { padding: 5 },
-	contentInner: { paddingBottom: 50 },
+	backButton: { padding: 4 },
+	contentInner: { paddingBottom: 6*8 },
 });
 
 const ModalWrapper: FC<{
@@ -178,8 +177,8 @@ const ModalWrapper: FC<{
 	const modalStyles: ViewStyle = useMemo(
 		() => ({
 			backgroundColor: theme.colors.background,
-			width: width * modalWidthFactor,
-			padding: modalPadding,
+			width: width * MODAL_WIDTH_FACTOR,
+			padding: MODAL_PADDING,
 			borderColor: theme.colors.outline,
 			borderWidth: 1,
 			borderRadius: theme.roundness,
@@ -214,7 +213,7 @@ const ModalWrapper: FC<{
 	);
 
 	// Horizontal center for the absolutely-positioned modal.
-	const modalLeft = (width - width * modalWidthFactor) / 2;
+	const modalLeft = (width - width * MODAL_WIDTH_FACTOR) / 2;
 
 	const styleContentInner = useMemo(() => [styles.contentInner, innerStyle], [innerStyle]);
 
@@ -249,7 +248,7 @@ const ModalWrapper: FC<{
 								{
 									position: 'absolute',
 									left: modalLeft,
-									width: width * modalWidthFactor,
+									width: width * MODAL_WIDTH_FACTOR,
 								},
 								modalAnimatedStyles,
 							]}

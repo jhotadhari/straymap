@@ -41,10 +41,6 @@ const RowLabel: FC = () => {
 			style={{ alignItems: 'flex-start' }}
 		>
 			<TextInput
-				style={{
-					flexGrow: 1,
-					maxWidth: '83%',
-				}}
 				underlineColor="transparent"
 				dense
 				disabled={isSystemTag}

@@ -17,7 +17,7 @@ import { useTranslation } from 'react-i18next';
  * Internal dependencies
  */
 import { OptionBase } from '../../../types';
-import { modalWidthFactor } from '../../../constants';
+import { MODAL_WIDTH_FACTOR } from '../../../constants';
 
 const space = 6;
 
@@ -53,7 +53,7 @@ const RadioListItem = ({
 			styles.touchable,
 			{
 				borderRadius: theme.roundness,
-				width: width * modalWidthFactor - 4 * space,
+				width: width * MODAL_WIDTH_FACTOR - 4 * space,
 			},
 		],
 		[theme, width]
@@ -68,7 +68,9 @@ const RadioListItem = ({
 	);
 
 	const styleLabelWrap = useMemo(
-		() => [styles.labelWrap, 'right' === radioAlign && styles.labelWrapGrow],
+		() => [
+			'right' === radioAlign && styles.labelWrapGrow
+		],
 		[radioAlign]
 	);
 
@@ -108,9 +110,6 @@ const styles = StyleSheet.create({
 	row: {
 		alignItems: 'center',
 		flexDirection: 'row',
-	},
-	labelWrap: {
-		maxWidth: '85%',
 	},
 	labelWrapGrow: {
 		flexGrow: 1,

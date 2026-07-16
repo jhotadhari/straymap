@@ -45,10 +45,10 @@ import VisibilityControl, { VisibilityRowControl } from './VisibilityControl';
 import LayerControlOnlineRasterXYZ from './LayerControlOnlineRasterXYZ';
 import LayerControlRasterMBTiles from './LayerControlRasterMBTiles';
 import LayerControlHillshading from './LayerControlHillshading';
-import { labelMinWidth } from '../../../../../components/generic/infoWrapper/InfoLabelRow';
 import { sharedStyles } from '../../../../../sharedStyles';
 import { sharedStyles as sharedStylesBaseMapControls } from '../sharedDeps';
 import useDropIndicatorStyle from '../../../../../compose/useDropIndicatorStyle';
+import { LABEL_WIDTH } from '../../../../../constants';
 
 export const mapTypeOptions: LayerOption[] = [
 	{
@@ -586,7 +586,7 @@ export const styles = StyleSheet.create({
 	selectType: { marginBottom: 18 },
 	itemTitle: { flexGrow: 1, flexShrink: 1, minWidth: 0 },
 	itemType: { flexShrink: 0 },
-	modalRowTypeLabel: { minWidth: labelMinWidth + 12 },
+	modalRowTypeLabel: { minWidth: LABEL_WIDTH },
 	modalRowType: { flexDirection: 'row' },
 });
 

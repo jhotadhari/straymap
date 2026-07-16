@@ -10,7 +10,7 @@ import { ReactNode, useMemo } from 'react';
  */
 import ModalWrapper from './generic/wrapper/ModalWrapper';
 import AnimatedLogo from './AnimatedLogo';
-import { modalWidthFactor } from '../constants';
+import { MODAL_WIDTH_FACTOR } from '../constants';
 
 const SplashScreen = ({
 	displayLogo = true,
@@ -51,7 +51,7 @@ const SplashScreen = ({
 				<View style={styles.logoWrapper}>
 					<AnimatedLogo
 						animateLoop={true}
-						size={width * modalWidthFactor}
+						size={width * MODAL_WIDTH_FACTOR}
 					/>
 				</View>
 			)}

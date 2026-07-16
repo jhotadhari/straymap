@@ -58,10 +58,6 @@ const RowName: FC = () => {
 			style={{ alignItems: 'flex-start' }}
 		>
 			<TextInput
-				style={{
-					flexGrow: 1,
-					maxWidth: '83%', // this is a hack. one day w should refactor InfoLabelRow so that the children sit in a properly layouted container and can grow to full width without setting weird numerical calculated values.
-				}}
 				multiline={true}
 				numberOfLines={3}
 				underlineColor="transparent"

@@ -3,8 +3,11 @@
  */
 import { PaletteColor } from "./types";
 
-export const modalWidthFactor = 0.8;
-export const modalPadding = 16;
+export const LABEL_WIDTH = 8 * 13;
+
+export const MODAL_WIDTH_FACTOR = 0.8;
+
+export const MODAL_PADDING = 16;
 
 /**
  * Icon sizes used across the app.
@@ -15,7 +18,6 @@ export const modalPadding = 16;
  */
 export const DRAWER_ICON_SIZE = 25;
 export const DASHBOARD_ICON_SIZE = 24;
-
 
 /**
  * 10-colour palette with matching foreground/border tones.

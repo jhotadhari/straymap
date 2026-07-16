@@ -105,9 +105,7 @@ const RowTags: FC = () => {
 					flexDirection: 'row',
 					flexWrap: 'wrap',
 					gap: 4,
-					flex: 1,
 					alignItems: 'center',
-					maxWidth: '85%',
 				}}
 			>
 				{tags.length === 0 ? (

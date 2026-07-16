@@ -9,8 +9,7 @@ import { useTheme, Text } from 'react-native-paper';
  * Internal dependencies
  */
 import InfoWrapper from './InfoWrapper';
-
-export const labelMinWidth = 90;
+import { LABEL_WIDTH } from '../../../constants';
 
 const InfoLabelRow = ({
 	label,
@@ -98,13 +97,15 @@ export const styles = StyleSheet.create({
 	},
 	controlView: {
 		position: 'relative',
-		flexGrow: 1,
+		flex: 1,
 	},
 	label: {
 		paddingTop: 4,
 		paddingBottom: 4,
 		paddingRight: 4,
-		minWidth: labelMinWidth + 12,
+		width: LABEL_WIDTH,
+		flexWrap: 'wrap',
+		alignItems: 'center',
 	},
 	underline: {
 		textDecorationLine: 'underline',

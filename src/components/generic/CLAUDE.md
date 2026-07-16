@@ -46,7 +46,6 @@ Components that wrap a primitive or control with a tappable label that opens an 
 | `InfoRadioRow` | RadioButton wrapped in InfoLabelRow |
 
 `InfoLabelRow` is the workhorse — most form rows in settings panels are built on it.
-It exports `labelMinWidth` (named, `90`) for aligning labels across multiple rows.
 
 ## primitives/
 

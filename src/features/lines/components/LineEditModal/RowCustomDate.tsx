@@ -60,46 +60,23 @@ const RowCustomDate: FC = () => {
 		[dispatch, lineTemp]
 	);
 
-	const handleClear = useCallback(() => {
-		if (lineTemp) {
-			dispatch(
-				setLineTemp({
-					...(lineTemp as LinePartial),
-					custom_date: null,
-				})
-			);
-		}
-	}, [dispatch, lineTemp]);
-
 	const locale = useMemo(() => (i18n.language === 'de' ? 'de' : 'en'), [i18n.language]);
 
 	return (
 		<InfoLabelRow
 			label={t('lines.columns.custom_date')}
 			Info={t('lines.hintCustomDate')}
-			style={{ alignItems: 'flex-start' }}
 		>
-			<View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, maxWidth: '84%' }}>
-				<DatePickerInput
-					locale={locale}
-					value={stringToDate(currentValue)}
-					onChange={handleChange}
-					inputMode="start"
-					label={''}
-					mode="outlined"
-					withDateFormatInLabel={true}
-					style={{ flex: 1 }}
-				/>
-				{currentValue && (
-					<ButtonHighlight
-						mode="text"
-						compact
-						onPress={handleClear}
-					>
-						<Text>{t('lines.clearCustomDate')}</Text>
-					</ButtonHighlight>
-				)}
-			</View>
+			<DatePickerInput
+				locale={locale}
+				value={stringToDate(currentValue)}
+				onChange={handleChange}
+				inputMode="start"
+				label={''}
+				mode="outlined"
+				withDateFormatInLabel={true}
+				style={{ flex: 1 }}
+			/>
 		</InfoLabelRow>
 	);
 };
