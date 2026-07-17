@@ -170,7 +170,7 @@ const FilterNumericModal: FC<{
 		<ModalWrapper
 			visible={visible}
 			onDismiss={handleDismiss}
-			header={columnLabel}
+			headerLabel={columnLabel}
 			innerStyle={sharedStyles.modalInner}
 		>
 			<InfoLabelRow

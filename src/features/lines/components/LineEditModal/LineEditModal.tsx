@@ -125,7 +125,7 @@ const LineEditModal: FC<{
 		<ModalWrapper
 			visible={!!lineTemp}
 			onDismiss={onDismiss}
-			header={t('lines.line')}
+			headerLabel={t('lines.line')}
 			innerStyle={sharedStyles.modalInner}
 		>
 			<LineEditModalContext.Provider value={contextValue}>

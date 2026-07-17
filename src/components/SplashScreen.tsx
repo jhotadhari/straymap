@@ -39,7 +39,7 @@ const SplashScreen = ({
 		<ModalWrapper
 			visible={true}
 			onDismiss={() => null}
-			header={''}
+			headerLabel={''}
 			innerContainerStyle={styles.innerContainerStyle}
 			innerStyle={styleInner}
 			scrollEnabled={displayLogo && !children}

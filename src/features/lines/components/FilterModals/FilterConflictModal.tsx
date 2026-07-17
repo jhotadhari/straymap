@@ -40,7 +40,7 @@ const FilterConflictModal: FC<{
 		<ModalWrapper
 			visible={visible}
 			onDismiss={onDismiss}
-			header={t('lines.filterConflictTitle')}
+			headerLabel={t('lines.filterConflictTitle')}
 			innerStyle={sharedStyles.modalInner}
 		>
 			<Text style={{ color: theme.colors.onSurface }}>{t('lines.filterConflictHint')}</Text>

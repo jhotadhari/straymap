@@ -53,6 +53,9 @@ const styles = StyleSheet.create({
 		gap: 8,
 		justifyContent: 'flex-start',
 	},
+	headerLabel: {
+		flexShrink: 1,
+	},
 	backButton: { padding: 4 },
 	contentInner: { paddingBottom: 6*8 },
 });
@@ -62,7 +65,7 @@ const ModalWrapper: FC<{
 	visible: boolean;
 	hasBackButton?: boolean;
 	onDismiss: () => void;
-	header: string;
+	headerLabel: string;
 	innerStyle?: StyleProp<ViewStyle>;
 	innerContainerStyle?: StyleProp<ViewStyle>;
 	modalStyle?: StyleProp<ViewStyle>;
@@ -74,7 +77,7 @@ const ModalWrapper: FC<{
 	visible,
 	hasBackButton = true,
 	onDismiss,
-	header,
+	headerLabel,
 	innerStyle,
 	innerContainerStyle,
 	modalStyle,
@@ -277,9 +280,9 @@ const ModalWrapper: FC<{
 										</TouchableHighlight>
 									)}
 
-									{header && (
-										<View>
-											<Text style={theme.fonts.headlineSmall}>{header}</Text>
+									{headerLabel && (
+										<View style={ styles.headerLabel }>
+											<Text style={theme.fonts.headlineSmall}>{headerLabel}</Text>
 										</View>
 									)}
 								</View>

@@ -519,7 +519,7 @@ const FileSourceRowControl: FC<{
 				visible={modalVisible}
 				backgroundBlur={false}
 				onDismiss={dismissModal}
-				header={header || label}
+				headerLabel={header || label}
 			>
 				{Object.keys(optionsByPath).map((path) => (
 					<OptionsByPath

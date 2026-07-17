@@ -58,7 +58,7 @@ const ListItemModalControl: FC<{
 				<ModalWrapper
 					visible={visible}
 					onDismiss={handleClose}
-					header={header}
+					headerLabel={header}
 					innerStyle={innerStyle}
 					backgroundBlur={backgroundBlur}
 					scrollEnabled={scrollEnabled}

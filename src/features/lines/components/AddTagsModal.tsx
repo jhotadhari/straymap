@@ -116,7 +116,7 @@ const AddTagsModal: FC<AddTagsModalProps> = ({
 			<ModalWrapper
 				visible={visible}
 				onDismiss={handleDismiss}
-				header={t('lines.addTags')}
+				headerLabel={t('lines.addTags')}
 				innerStyle={{ gap: 12, marginTop: 16 }}
 			>
 				<RadioListItem

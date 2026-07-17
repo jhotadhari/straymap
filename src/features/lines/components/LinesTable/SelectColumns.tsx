@@ -137,7 +137,7 @@ const SelectColumns: FC<{}> = ({}) => {
 			<ModalWrapper
 				visible={isModalVisible}
 				onDismiss={onDismiss}
-				header={t('lines.selectColumns')}
+				headerLabel={t('lines.selectColumns')}
 				innerStyle={tableStyles.modalInner}
 				scrollEnabled={scrollEnabled}
 				modalStyle={styles.modal}

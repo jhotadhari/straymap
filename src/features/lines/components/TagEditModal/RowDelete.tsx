@@ -98,7 +98,7 @@ const RowDelete: FC = () => {
 			<ModalWrapper
 				visible={confirmVisible}
 				onDismiss={handleDismissConfirm}
-				header={t('lines.deleteConfirm')}
+				headerLabel={t('lines.deleteConfirm')}
 				innerStyle={appSharedStyles.modal}
 			>
 				<Text>{sprintf(t('lines.tagsDeleteConfirmationBody'), 1)}</Text>

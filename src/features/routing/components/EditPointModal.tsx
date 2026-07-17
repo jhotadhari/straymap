@@ -156,7 +156,7 @@ const EditPointModal: FC<{
 		<ModalWrapper
 			visible={!!editPoint.profile}
 			onDismiss={onDismiss}
-			header={t('routing.editProfile')}
+			headerLabel={t('routing.editProfile')}
 		>
 			<ProfileRowControl
 				editPoint={editPoint}

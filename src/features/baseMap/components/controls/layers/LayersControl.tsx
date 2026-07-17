@@ -329,7 +329,7 @@ const EditModal: FC<{
 		<ModalWrapper
 			visible={modalVisible}
 			onDismiss={handleDismissModal}
-			header={layerTemp.type ? t('baseMap.layerEdit') : t('baseMap.addNewLayerShort')}
+			headerLabel={layerTemp.type ? t('baseMap.layerEdit') : t('baseMap.addNewLayerShort')}
 		>
 			{!layerTemp.type && (
 				<View>

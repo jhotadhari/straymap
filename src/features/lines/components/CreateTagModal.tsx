@@ -81,7 +81,7 @@ const CreateTagModal: FC<CreateTagModalProps> = ({ visible, onDismiss, onCreated
 		<ModalWrapper
 			visible={visible}
 			onDismiss={handleDismiss}
-			header={t('lines.tagsCreateTitle')}
+			headerLabel={t('lines.tagsCreateTitle')}
 			innerStyle={tableStyles.modalInner}
 		>
 			<TextInput

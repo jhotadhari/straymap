@@ -131,7 +131,7 @@ const ControlModal: FC<{
 			visible={modalVisible}
 			backgroundBlur={false}
 			onDismiss={handleDismissModal}
-			header={header || label}
+			headerLabel={header || label}
 		>
 			<View style={styles.modalControlsTop}>
 				{profileTemp &&

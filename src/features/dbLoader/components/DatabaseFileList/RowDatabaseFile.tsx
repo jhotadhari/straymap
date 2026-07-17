@@ -335,7 +335,7 @@ const RowDatabaseFile: FC<{
 			<ModalWrapper
 				visible={renameVisible}
 				onDismiss={() => setRenameVisible(false)}
-				header={t('dbLoader.renameDatabase')}
+				headerLabel={t('dbLoader.renameDatabase')}
 				innerStyle={styles.modalContent}
 			>
 				<Text>{t('dbLoader.renameDatabasePrompt')}</Text>
@@ -366,7 +366,7 @@ const RowDatabaseFile: FC<{
 			<ModalWrapper
 				visible={deleteConfirmVisible}
 				onDismiss={() => setDeleteConfirmVisible(false)}
-				header={t('dbLoader.deleteDatabase')}
+				headerLabel={t('dbLoader.deleteDatabase')}
 				innerStyle={styles.modalContent}
 			>
 				<Text>{sprintf(t('dbLoader.deleteDatabaseConfirmation'), fileName)}</Text>

@@ -217,7 +217,7 @@ const EditModal: FC<{
 			visible={modalVisible}
 			onLayout={() => setModalVisible(true)} // ???
 			onDismiss={handleDismissModal}
-			header={
+			headerLabel={
 				isNewKey === profileTemp.key
 					? t('baseMap.mapsforge.profileAddNewShort')
 					: t('baseMap.mapsforge.profileEdit')

@@ -107,7 +107,7 @@ const Modal: FC<{
 		<ModalWrapper
 			visible={modalVisible}
 			onDismiss={handleDismiss}
-			header={t('dashboard.dashboardItemNew')}
+			headerLabel={t('dashboard.dashboardItemNew')}
 		>
 			{options.map((option) => (
 				<SelectType

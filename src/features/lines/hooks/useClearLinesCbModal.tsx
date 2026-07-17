@@ -62,7 +62,7 @@ const useClearLinesCbModal = ({
 				visible={modalVisible}
 				backgroundBlur={backgroundBlur}
 				onDismiss={handleDismissModal}
-				header={t('lines.clearLinesConfirm')}
+				headerLabel={t('lines.clearLinesConfirm')}
 				innerStyle={sharedStyles.modal}
 			>
 				<Text>{sprintf(t('lines.clearLinesConfirmationBody'), lineIds.length)}</Text>

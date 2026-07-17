@@ -60,7 +60,7 @@ const useDeleteTagsCbModal = ({
 			<ModalWrapper
 				visible={modalVisible}
 				onDismiss={handleDismissModal}
-				header={t('lines.deleteConfirm')}
+				headerLabel={t('lines.deleteConfirm')}
 				innerStyle={sharedStyles.modal}
 			>
 				<Text>{sprintf(t('lines.tagsDeleteConfirmationBody'), deleteIds.length)}</Text>

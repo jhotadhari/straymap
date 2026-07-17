@@ -155,7 +155,7 @@ const useExport = () => {
 					key="export"
 					visible={modalVisible}
 					onDismiss={handleCloseModal}
-					header={t('lines.export')}
+					headerLabel={t('lines.export')}
 				>
 					{formatOptions.map((opt) => (
 						<RadioListItem

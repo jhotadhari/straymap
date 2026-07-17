@@ -101,7 +101,7 @@ const TagEditModal: FC = () => {
 		<ModalWrapper
 			visible={!!tagTemp}
 			onDismiss={onDismiss}
-			header={t('lines.editTag')}
+			headerLabel={t('lines.editTag')}
 			innerStyle={sharedStyles.modalInner}
 		>
 			<TagEditModalContext.Provider value={contextValue}>

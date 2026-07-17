@@ -532,7 +532,7 @@ const ImportModal: FC<{
 		<ModalWrapper
 			visible={visible}
 			onDismiss={handleDismiss}
-			header={step === 'result' ? t('lines.importResultTitle') : t('lines.importTitle')}
+			headerLabel={step === 'result' ? t('lines.importResultTitle') : t('lines.importTitle')}
 			innerStyle={localStyles.modalInner}
 		>
 			{/* ---- idle ---- */}

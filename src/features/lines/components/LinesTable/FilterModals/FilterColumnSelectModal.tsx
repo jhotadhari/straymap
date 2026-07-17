@@ -35,7 +35,7 @@ const FilterColumnSelectModal: FC<{
 		<ModalWrapper
 			visible={visible}
 			onDismiss={onDismiss}
-			header={t('lines.addFilter')}
+			headerLabel={t('lines.addFilter')}
 			innerStyle={tableStyles.modalInner}
 		>
 			{options.map((opt) => (

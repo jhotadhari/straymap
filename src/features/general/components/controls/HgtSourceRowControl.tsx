@@ -262,7 +262,7 @@ const HgtSourceRowControl = ({
 					visible={modalVisible}
 					backgroundBlur={false}
 					onDismiss={handleCloseModal}
-					header={modalHeader}
+					headerLabel={modalHeader}
 				>
 					{opts.map((opt) => {
 						return (

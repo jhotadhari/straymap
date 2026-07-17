@@ -186,7 +186,7 @@ const DrawerControlModal: FC<{
 		<ModalWrapper
 			visible={modalVisible}
 			onDismiss={closeModal}
-			header={t('drawers.drawer', { count: 0 })}
+			headerLabel={t('drawers.drawer', { count: 0 })}
 		>
 			{(Object.values(allDrawerItems) as DrawerPanel[]).map((drawerItem) => (
 				<Item

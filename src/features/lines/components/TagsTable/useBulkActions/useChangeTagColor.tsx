@@ -65,7 +65,7 @@ const useChangeTagColor = () => {
 			<ModalWrapper
 				visible={modalVisible}
 				onDismiss={closeModal}
-				header={t('lines.tagsChangeColor')}
+				headerLabel={t('lines.tagsChangeColor')}
 				innerStyle={tableStyles.modalInner}
 			>
 				<Text>{t('lines.tagsChangeColor')}</Text>

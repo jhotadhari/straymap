@@ -101,7 +101,7 @@ const useRemoveTag = () => {
 			<ModalWrapper
 				visible={modalVisible}
 				onDismiss={closeModal}
-				header={t('lines.removeTags')}
+				headerLabel={t('lines.removeTags')}
 				innerStyle={{ gap: 12, marginTop: 16 }}
 			>
 				{loading ? (

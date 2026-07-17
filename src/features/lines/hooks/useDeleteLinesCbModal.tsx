@@ -136,7 +136,7 @@ const useDeleteLinesCbModal = ({
 				visible={modalVisible}
 				backgroundBlur={backgroundBlur}
 				onDismiss={handleDismissModal}
-				header={t('lines.deleteConfirm')}
+				headerLabel={t('lines.deleteConfirm')}
 				innerStyle={sharedStyles.modal}
 			>
 				<Text>{sprintf(t('lines.deleteConfirmationBody'), deleteIds.length)}</Text>

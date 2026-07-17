@@ -66,7 +66,7 @@ const StatsModal: FC<{
 		<ModalWrapper
 			visible={true}
 			onDismiss={handleDismissModal}
-			header={t('lines.statsSummary')}
+			headerLabel={t('lines.statsSummary')}
 			innerStyle={sharedStyles.modal}
 		>
 			{showHeader && <Text>{sprintf(t('lines.statsForLines'), lineIds.length)}</Text>}
