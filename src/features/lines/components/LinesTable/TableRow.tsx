@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { FC, useCallback, useMemo } from 'react';
-import { StyleProp, TouchableWithoutFeedback, View, ViewStyle } from 'react-native';
+import { StyleProp, StyleSheet, TouchableWithoutFeedback, View, ViewStyle } from 'react-native';
 import { useTheme, Text, Icon } from 'react-native-paper';
 import { get, pick } from 'lodash-es';
 
@@ -21,6 +21,7 @@ import { setLineTemp } from '../../slice';
 import { selectLinesTableColumns } from '../../selectors';
 import LineStat from '../Stats/LineStat';
 import { RenderPart } from '../Stats/sharedDeps';
+import IconFontGis from '../../../../components/generic/primitives/IconFontGis';
 
 const OtherCell: FC<{
 	cellKey: string;
@@ -135,11 +136,17 @@ const TableRow: FC<TableRowProps> = ({
 						compact={true}
 						onPress={toggleOnMap}
 					>
-						<Icon
-							source={isOnMap ? 'map-check' : 'map'}
-							size={DRAWER_ICON_SIZE}
-							color={isOnMap ? undefined : theme.colors.onSurfaceDisabled}
-						/>
+						<View style={styles.iconComponentWrapper}>
+							<IconFontGis
+								name={isOnMap ? 'map-rm' : 'map-add'}
+								size={DRAWER_ICON_SIZE}
+								color={
+									isOnMap
+										? theme.colors.onBackground
+										: theme.colors.onSurfaceDisabled
+								}
+							/>
+						</View>
 					</ButtonHighlight>
 				)}
 
@@ -216,5 +223,15 @@ const TableRow: FC<TableRowProps> = ({
 		</View>
 	);
 };
+
+const styles = StyleSheet.create({
+	iconComponentWrapper: {
+		width: DRAWER_ICON_SIZE,
+		height: DRAWER_ICON_SIZE,
+		overflow: 'hidden',
+		alignItems: 'center',
+		justifyContent: 'center',
+	},
+});
 
 export default TableRow;

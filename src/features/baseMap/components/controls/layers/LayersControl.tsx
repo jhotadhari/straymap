@@ -22,6 +22,7 @@ import {
 import { List, useTheme, Text, Icon, IconButtonProps } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import Sortable, { SortableFlexDragEndParams } from 'react-native-sortables';
+import { Style } from 'react-native-paper/lib/typescript/components/List/utils';
 
 /**
  * Internal dependencies
@@ -37,9 +38,7 @@ import { getNewLayer } from '../../../utils';
 import { useAppDispatch, useAppSelector } from '../../../../../store/hooks';
 import { selectElementExpanded } from '../../../../ui/selectors';
 import { setElementExpanded } from '../../../../ui/slice';
-import { Style } from 'react-native-paper/lib/typescript/components/List/utils';
 import { selectLayers, selectLayerTemp } from '../../../selectors';
-
 import { setLayers as setLayersStore, setLayerTemp } from '../../../slice';
 import VisibilityControl, { VisibilityRowControl } from './VisibilityControl';
 import LayerControlOnlineRasterXYZ from './LayerControlOnlineRasterXYZ';
@@ -48,7 +47,8 @@ import LayerControlHillshading from './LayerControlHillshading';
 import { sharedStyles } from '../../../../../sharedStyles';
 import { sharedStyles as sharedStylesBaseMapControls } from '../sharedDeps';
 import useDropIndicatorStyle from '../../../../../compose/useDropIndicatorStyle';
-import { LABEL_WIDTH } from '../../../../../constants';
+import { BUTTON_ICON_SIZE, DASHBOARD_ICON_SIZE, LABEL_WIDTH } from '../../../../../constants';
+import IconFontGis from '../../../../../components/generic/primitives/IconFontGis';
 
 export const mapTypeOptions: LayerOption[] = [
 	{
@@ -387,9 +387,10 @@ const EditModal: FC<{
 
 const ControlIcon: (props: { color: string; style: Style }) => ReactNode = (props) => (
 	<View style={sharedStyles.controlIcon}>
-		<List.Icon
+		<IconFontGis
+			name="layers-o"
+			size={DASHBOARD_ICON_SIZE}
 			{...props}
-			icon="layers-triple"
 		/>
 	</View>
 );
@@ -501,6 +502,13 @@ const LayersControl: FC<{
 		[theme]
 	);
 
+	const styleColorPrimary = useMemo(
+		() => ({
+			color: theme.colors.primary,
+		}),
+		[theme]
+	);
+
 	const handleAddNewLayer = useCallback(
 		() => dispatch(setLayerTemp(getNewLayer())),
 		[
@@ -570,11 +578,20 @@ const LayersControl: FC<{
 
 					<ButtonHighlight
 						style={sharedStylesBaseMapControls.addItem}
-						icon="map-plus"
 						mode="outlined"
 						onPress={handleAddNewLayer}
 					>
-						{newLabel ?? t('baseMap.addNewLayer')}
+						<View style={sharedStylesBaseMapControls.addButtonContent}>
+							<IconFontGis
+								name="layer-add-o"
+								size={BUTTON_ICON_SIZE}
+								color={theme.colors.primary}
+							/>
+
+							<Text style={styleColorPrimary}>
+								{newLabel ?? t('baseMap.addNewLayer')}
+							</Text>
+						</View>
 					</ButtonHighlight>
 				</View>
 			</List.Accordion>

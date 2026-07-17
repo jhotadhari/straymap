@@ -2,28 +2,48 @@
   "migIndex": 1,
   "data": [
     {
+      "path": "node_modules/font-gis/fonts/font-gis.eot",
+      "sha1": "a128713401c2831f280a98c13eaa8beea19a148c"
+    },
+    {
+      "path": "node_modules/font-gis/fonts/font-gis.svg",
+      "sha1": "202156ab8bcc2306ae0938d8abafcca2f035a43a"
+    },
+    {
+      "path": "node_modules/font-gis/fonts/font-gis.ttf",
+      "sha1": "4bb551d1005f1f4635edfa4cd42a0bc2decf733f"
+    },
+    {
+      "path": "node_modules/font-gis/fonts/font-gis.woff",
+      "sha1": "ae574400e505f790abdb40f8832a7b103bfa5041"
+    },
+    {
+      "path": "node_modules/font-gis/fonts/font-gis.woff2",
+      "sha1": "dccab7c4e3fc1cd4fe3e74709557c282177d9ac8"
+    },
+    {
+      "path": "node_modules/font-gis/fonts/readme.md",
+      "sha1": "4c46ae55b8d42cec342ffaf522efc3dd7de873b4"
+    },
+    {
       "path": "src/assets/fonts/jangly_walk.ttf",
       "sha1": "1a99812898e2c11a4a8bcaf0c51e203e09b8fdbe"
     },
     {
-      "path": "src/assets/icons/font-gis/fonts/font-gis.ttf",
-      "sha1": "4bb551d1005f1f4635edfa4cd42a0bc2decf733f"
-    },
-    {
       "path": "src/assets/icons/icomoon/fonts/icomoon.eot",
-      "sha1": "07bd8d02068471a59168f5eaa187a09ed5bea10d"
+      "sha1": "c16ec9483129354714c701a540550e782a4da481"
     },
     {
       "path": "src/assets/icons/icomoon/fonts/icomoon.svg",
-      "sha1": "37d2f5a82fe636539b0b666d4018c41264996c84"
+      "sha1": "a0060398fd52aacb13678109a18017d7a5e7e29d"
     },
     {
       "path": "src/assets/icons/icomoon/fonts/icomoon.ttf",
-      "sha1": "500a237fe16195ddb3ab200308392744a10c44f0"
+      "sha1": "666d40c4ded1c2b2372691663976409ed7cfbcbe"
     },
     {
       "path": "src/assets/icons/icomoon/fonts/icomoon.woff",
-      "sha1": "4e1bb0ec9cae6790f00e6b259349cee15a11c577"
+      "sha1": "dc781c3c4ebb26812005429b8e31131d0b73ff15"
     }
   ]
 }

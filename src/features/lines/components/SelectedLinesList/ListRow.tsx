@@ -109,8 +109,12 @@ const ListRow: FC<ListRowProps> = ({ line, idx, systemFeatureKey }) => {
 			</View>
 
 			<View style={sharedStyles.rowColCenter}>
+				{line.title && (
+					<View style={sharedStyles.rowColCenterRow}>
+						<Text>{line.title}</Text>
+					</View>
+				)}
 				<View style={sharedStyles.rowColCenterRow}>
-					{line.title && <Text>{line.title}</Text>}
 					<Text>{line.custom_date}</Text>
 				</View>
 

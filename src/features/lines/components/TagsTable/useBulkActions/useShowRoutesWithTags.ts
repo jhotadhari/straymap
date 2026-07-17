@@ -10,6 +10,7 @@ import { FooterContext } from '../Context';
 import { useAppDispatch } from '../../../../../store/hooks';
 import { setLinesFilters, setLinesFilterLogic } from '../../../slice';
 import { addUiItemKey } from '../../../../ui/slice';
+import LinesIcon from '../../../components/LinesIcon';
 
 const useShowRoutesWithTags = () => {
 	const dispatch = useAppDispatch();
@@ -49,7 +50,7 @@ const useShowRoutesWithTags = () => {
 			key: 'showRoutesWithTags',
 			cb,
 			label: 'lines.showRoutesWithTags',
-			leadingIcon: 'go-kart-track',
+			IconComponent: LinesIcon,
 			disabled,
 		}),
 		[cb, disabled]

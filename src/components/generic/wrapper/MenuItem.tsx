@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { ReactNode, useMemo } from 'react';
+import { ElementType, ReactNode, useMemo } from 'react';
 import { Style as ListStyle } from 'react-native-paper/lib/typescript/components/List/utils';
 import { useTheme, Icon, Text } from 'react-native-paper';
 import { StyleSheet, View, TouchableHighlight, ViewStyle, TextStyle } from 'react-native';
@@ -14,6 +14,7 @@ import { DRAWER_ICON_SIZE } from '../../../constants';
 const MenuItem = ({
 	onPress,
 	leadingIcon,
+	IconComponent,
 	iconSize,
 	title,
 	style,
@@ -23,6 +24,7 @@ const MenuItem = ({
 }: {
 	onPress?: () => void;
 	leadingIcon?: string | ((props: { color: string; style: ListStyle }) => ReactNode);
+	IconComponent?: ElementType<{ color?: TextStyle['color']; size?: number }>;
 	iconSize?: number;
 	style?: null | ViewStyle;
 	iconColor?: string;
@@ -60,7 +62,23 @@ const MenuItem = ({
 			onPress={onPress}
 		>
 			<View style={styleInner}>
-				{leadingIcon && (
+				{IconComponent && (
+					<View style={styles.iconWrapper}>
+						<View style={styles.iconComponentWrapper}>
+							<IconComponent
+								color={
+									iconColor
+										? iconColor
+										: active
+											? theme.colors.onPrimary
+											: theme.colors.onBackground
+								}
+								size={iconSize || DRAWER_ICON_SIZE}
+							/>
+						</View>
+					</View>
+				)}
+				{!IconComponent && leadingIcon && (
 					<View style={styles.iconWrapper}>
 						<Icon
 							source={leadingIcon}
@@ -85,6 +103,13 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 	},
 	iconWrapper: { marginRight: 10 },
+	iconComponentWrapper: {
+		width: DRAWER_ICON_SIZE,
+		height: DRAWER_ICON_SIZE,
+		overflow: 'hidden',
+		alignItems: 'center',
+		justifyContent: 'center',
+	},
 });
 
 export default MenuItem;

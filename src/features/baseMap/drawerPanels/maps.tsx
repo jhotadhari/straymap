@@ -17,6 +17,7 @@ import ButtonHighlight from '../../../components/generic/primitives/ButtonHighli
 import DrawerContext from '../../drawers/DrawerContext';
 import { DrawerPanel } from '../../drawers/types';
 import { itemStyles } from '../../drawers/constants';
+import BaseMapIcon from '../components/BaseMapIcon';
 
 const DisplayComponentScroll: FC<{
 	scrollEnabled: boolean;
@@ -73,5 +74,5 @@ export default {
 	key: 'maps',
 	label: 'maps',
 	DisplayComponentScroll,
-	iconSource: 'map',
+	IconComponent: BaseMapIcon,
 } as DrawerPanel;

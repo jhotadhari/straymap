@@ -3,6 +3,7 @@
  */
 import { EnhancedStore } from '@reduxjs/toolkit';
 import { ElementType, ReactNode } from 'react';
+import { TextStyle } from 'react-native';
 import { Position } from 'react-native-mapsforge-vtm';
 
 /**
@@ -44,7 +45,11 @@ export interface OptionBase {
 }
 
 export interface MenuActionOption extends OptionBase {
-	leadingIcon: string;
+	leadingIcon?: string;
+	IconComponent?: ElementType<{
+		color?: TextStyle['color'];
+		size?: number;
+	}>;
 	cb: () => Promise<void> | void;
 	disabled?: () => boolean;
 	modalNode?: ReactNode;

@@ -10,9 +10,9 @@ import dirs from './dirs';
 import drawers from './drawers';
 import general from './general';
 import lang from './lang';
-import gnss from './gnss';
 import lines from './lines';
 import routing from './routing';
+import gnss from './gnss';
 import trackRecording from './trackRecording';
 import ui from './ui';
 import updater from './updater';
@@ -26,13 +26,15 @@ const features = {
 	dirs,
 	drawers,
 	general,
-	gnss,
 	lang,
 	lines,
 	routing,
-	trackRecording,
 	ui,
 	updater,
+	...( __DEV__ && {
+		gnss,
+		trackRecording,
+	} ),
 } as { [featureKey: string]: AppFeature };
 
 // Populate the registry so consumers can discover extension points.

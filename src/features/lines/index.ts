@@ -14,6 +14,7 @@ import TagsBrowser from './uiItems/TagsBrowser';
 import linesDrawerItem from './drawerPanels/lines';
 import LineEditModalWrapper from './components/LineEditModalWrapper';
 import TagBadgeModeControl from './components/controls/TagBadgeModeControl';
+import LinesIcon from './components/LinesIcon';
 
 export default {
 	selectInitialized,
@@ -29,7 +30,7 @@ export default {
 		{
 			key: 'linesBrowser',
 			label: 'lines.linesBrowser',
-			icon: 'go-kart-track',
+			icon: LinesIcon,
 			Component: LinesBrowser,
 		},
 		{

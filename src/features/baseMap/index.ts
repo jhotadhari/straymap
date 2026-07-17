@@ -11,6 +11,7 @@ import SettingsMaps from './uiItems/SettingsMaps';
 import BaseMap from './mapComponents/BaseMap/index';
 import MapLayersAttribution from './mapComponents/MapLayersAttribution';
 import mapsDrawerItem from './drawerPanels/maps';
+import BaseMapIcon from './components/BaseMapIcon';
 
 export default {
 	selectInitialized,
@@ -25,7 +26,7 @@ export default {
 		{
 			key: 'maps',
 			label: 'ui.items.maps',
-			icon: 'map',
+			icon: BaseMapIcon,
 			Component: SettingsMaps,
 		},
 	],

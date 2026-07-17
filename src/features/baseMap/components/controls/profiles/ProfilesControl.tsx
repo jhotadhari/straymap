@@ -26,12 +26,12 @@ import { useTranslation } from 'react-i18next';
 import Sortable, { SortableFlexDragEndParams } from 'react-native-sortables';
 import { get } from 'lodash-es';
 import { sprintf } from 'sprintf-js';
-
-/**
- * react-native-mapsforge-vtm dependencies
- */
+import { Style } from 'react-native-paper/lib/typescript/components/List/utils';
 import { useRenderStyleOptions } from 'react-native-mapsforge-vtm';
 
+/**
+ * Internal dependencies
+ */
 import ButtonHighlight from '../../../../../components/generic/primitives/ButtonHighlight';
 import ModalWrapper from '../../../../../components/generic/wrapper/ModalWrapper';
 import InfoButton from '../../../../../components/generic/infoWrapper/InfoButton';
@@ -55,7 +55,6 @@ import {
 	setMapsforgeProfileTemp,
 	setRenderStylesCache,
 } from '../../../slice';
-import { Style } from 'react-native-paper/lib/typescript/components/List/utils';
 import { sharedStyles } from '../../../../../sharedStyles';
 import { sharedStyles as sharedStylesBaseMapControls } from '../sharedDeps';
 import useDropIndicatorStyle from '../../../../../compose/useDropIndicatorStyle';
@@ -65,6 +64,7 @@ import LayerCount from './LayerCount';
 import HasBuildingsControl from './HasBuildingsControl';
 import HasLabelsControl from './HasLabelsControl';
 import ThemeControl from './ThemeControl';
+import { BUTTON_ICON_SIZE } from '../../../../../constants';
 
 const itemHeight = 50;
 
@@ -598,6 +598,13 @@ const ProfilesControl: FC<{
 		[theme]
 	);
 
+	const styleColorPrimary = useMemo(
+		() => ({
+			color: theme.colors.primary,
+		}),
+		[theme]
+	);
+
 	const handleAddNewProfile = useCallback(() => {
 		const newProfile = getNewProfile();
 		setIsNewKey(newProfile.key);
@@ -668,11 +675,20 @@ const ProfilesControl: FC<{
 
 					<ButtonHighlight
 						style={sharedStylesBaseMapControls.addItem}
-						icon="map-plus"
 						mode="outlined"
 						onPress={handleAddNewProfile}
 					>
-						{newLabel ?? t('baseMap.mapsforge.profileAddNew')}
+						<View style={sharedStylesBaseMapControls.addButtonContent}>
+							<IconIcomoon
+								name="mapsforge_puzzle_plus"
+								size={BUTTON_ICON_SIZE}
+								color={theme.colors.primary}
+							/>
+
+							<Text style={styleColorPrimary}>
+								{newLabel ?? t('baseMap.mapsforge.profileAddNew')}
+							</Text>
+						</View>
 					</ButtonHighlight>
 				</View>
 			</List.Accordion>

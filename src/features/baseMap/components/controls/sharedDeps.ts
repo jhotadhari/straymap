@@ -30,4 +30,10 @@ export const sharedStyles = StyleSheet.create({
 		paddingLeft: 12,
 		paddingRight: 24,
 	},
+	addButtonContent: {
+		alignItems: 'center',
+		justifyContent: 'center',
+		flexDirection: 'row',
+		gap: 8,
+	},
 });

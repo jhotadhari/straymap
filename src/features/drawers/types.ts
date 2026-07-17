@@ -27,7 +27,8 @@ export interface DrawerPanel {
 	}>;
 	DisplayComponent?: ElementType;
 	IconComponent?: ElementType<{
-		color: TextStyle['color'];
+		color?: TextStyle['color'];
+		size?: number;
 	}>;
 }
 

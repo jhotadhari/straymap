@@ -33,6 +33,7 @@ const PopoverMenuItem: FC<{
 	return (
 		<MenuItem
 			leadingIcon={opt?.leadingIcon}
+			IconComponent={opt?.IconComponent}
 			onPress={handlePress}
 			title={t(opt.label)}
 			style={disabled ? { backgroundColor: theme.colors.surfaceDisabled } : undefined}

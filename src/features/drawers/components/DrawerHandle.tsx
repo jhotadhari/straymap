@@ -99,7 +99,14 @@ const DrawerHandle = ({
 						...(onPress && { onPress }),
 					}}
 				>
-					{IconComponent && <IconComponent color={color} />}
+					{IconComponent && (
+						<View style={styles.iconComponentWrapper}>
+							<IconComponent
+								color={color}
+								size={DRAWER_ICON_SIZE}
+							/>
+						</View>
+					)}
 					{iconSource && (
 						<Icon
 							source={iconSource}
@@ -129,6 +136,13 @@ const DrawerHandle = ({
 };
 
 const styles = StyleSheet.create({
+	iconComponentWrapper: {
+		width: DRAWER_ICON_SIZE,
+		height: DRAWER_ICON_SIZE,
+		overflow: 'hidden',
+		alignItems: 'center',
+		justifyContent: 'center',
+	},
 	handle: {
 		width: DRAWER_HANDLE_SIZE,
 		height: DRAWER_HANDLE_SIZE,
