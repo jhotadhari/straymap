@@ -3,7 +3,7 @@ globalThis.shouldLog = {
 	dispatchAction: false,
 	serializableCheck: false,
 	immutableStateInvariant: false,
-	drizzle: false,
+	drizzle: __DEV__,
 	i18n: false,
 	showLayerDebug: false,
 };

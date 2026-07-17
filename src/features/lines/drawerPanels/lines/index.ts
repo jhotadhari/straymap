@@ -9,5 +9,5 @@ export default {
 	key: 'lines',
 	label: 'lines.tracksRoutes',
 	DisplayComponent,
-	IconComponent: LinesIcon
+	IconComponent: LinesIcon,
 } as DrawerPanel;

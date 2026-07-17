@@ -112,6 +112,6 @@ export const pointToFakeLineStringFeature = (point: Point) => {
 			point.coordinates[0] + 0.000001,
 			point.coordinates[1] + 0.000001,
 			point.coordinates[2],
-		]
+		],
 	]);
 };

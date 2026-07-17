@@ -69,13 +69,17 @@ const RadioListItem = ({
 
 	const styleLabelWrap = useMemo(
 		() => [
-			'right' === radioAlign && styles.labelWrapGrow
+			'right' === radioAlign && styles.labelWrapGrow,
 		],
 		[radioAlign]
 	);
 
 	const styleLabel = useMemo(
-		() => [theme.fonts.bodyLarge, styles.labelShrink, labelStyle],
+		() => [
+			theme.fonts.bodyLarge,
+			styles.labelShrink,
+			labelStyle,
+		],
 		[theme, labelStyle]
 	);
 

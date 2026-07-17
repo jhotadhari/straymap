@@ -44,7 +44,10 @@ const InfoWrapper = ({
 					visible={modalVisible}
 					backgroundBlur={!!backgroundBlur}
 					onDismiss={handleClose}
-					headerLabel={sprintf(t(labelPattern, { count: headerPlural ? 0 : 1 }), label || '')}
+					headerLabel={sprintf(
+						t(labelPattern, { count: headerPlural ? 0 : 1 }),
+						label || ''
+					)}
 				>
 					<View style={styles.infoWrapper}>
 						{Info && 'string' === typeof Info && <Text>{Info}</Text>}

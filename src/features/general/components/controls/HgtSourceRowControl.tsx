@@ -250,10 +250,7 @@ const HgtSourceRowControl = ({
 
 	const modalHeader = modalHeaderProp ?? t('map.selectDemDir');
 
-	const labelStyle: TextProps['style'] = useMemo(
-		() => [theme.fonts.bodyMedium],
-		[theme]
-	)
+	const labelStyle: TextProps['style'] = useMemo(() => [theme.fonts.bodyMedium], [theme]);
 
 	const modalNode = useMemo(
 		() =>

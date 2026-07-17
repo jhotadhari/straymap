@@ -49,10 +49,8 @@ const RowStats: FC = () => {
 			</InfoLabelRow>
 
 			{modalNode}
-
 		</Fragment>
 	);
 };
-
 
 export default RowStats;

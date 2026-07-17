@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { PaletteColor } from "./types";
+import { PaletteColor } from './types';
 
 export const LABEL_WIDTH = 8 * 13;
 
@@ -19,8 +19,8 @@ export const OPACITY_DISABLED = 0.5;
  * control panel where space is tighter.
  */
 export const DRAWER_ICON_SIZE = 25;
-export const DASHBOARD_ICON_SIZE = 24;	// Same like List.Icon size
-export const BUTTON_ICON_SIZE = 18;	// See iconSize in node_modules/react-native-paper/src/components/Button/Button.tsx
+export const DASHBOARD_ICON_SIZE = 24; // Same like List.Icon size
+export const BUTTON_ICON_SIZE = 18; // See iconSize in node_modules/react-native-paper/src/components/Button/Button.tsx
 
 /**
  * 10-colour palette with matching foreground/border tones.

@@ -9,8 +9,8 @@
 /**
  * Internal dependencies
  */
-import { PALETTE_COLORS } from "../../../constants";
-import { PaletteColor } from "../../../types";
+import { PALETTE_COLORS } from '../../../constants';
+import { PaletteColor } from '../../../types';
 
 /**
  * Simple string hash → palette index.  Deterministic for the same label.

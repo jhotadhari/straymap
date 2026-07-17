@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { ReactNode, useCallback, useMemo, useState } from 'react';
-import { View, TouchableHighlight, ViewStyle, TextStyle, StyleSheet } from 'react-native';
+import { View, TouchableHighlight, StyleSheet, ViewProps, TextProps } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
 
 /**
@@ -19,7 +19,8 @@ const InfoLabelRow = ({
 	backgroundBlur = false,
 	headerPlural = false,
 	style,
-	labelStyle = {},
+	labelStyle,
+	innerStyle,
 	onLabelPress,
 }: {
 	label?: string;
@@ -28,8 +29,9 @@ const InfoLabelRow = ({
 	Below?: ReactNode;
 	backgroundBlur?: boolean;
 	headerPlural?: boolean;
-	style?: ViewStyle;
-	labelStyle?: TextStyle;
+	style?: ViewProps['style'];
+	labelStyle?: TextProps['style'];
+	innerStyle?: ViewProps['style'];
 	onLabelPress?: () => void;
 }) => {
 	const theme = useTheme();
@@ -47,11 +49,16 @@ const InfoLabelRow = ({
 				styles.label,
 				labelStyle,
 			],
+			inner: [
+				styles.controlView,
+				innerStyle
+			]
 		}),
 		[
 			style,
 			theme,
 			labelStyle,
+			innerStyle,
 		]
 	);
 
@@ -81,7 +88,7 @@ const InfoLabelRow = ({
 					</TouchableHighlight>
 				)}
 				{!Info && !onLabelPress && <Text style={dynamicStyles.label}>{label}</Text>}
-				<View style={styles.controlView}>{children}</View>
+				<View style={dynamicStyles.inner}>{children}</View>
 			</View>
 		</InfoWrapper>
 	);

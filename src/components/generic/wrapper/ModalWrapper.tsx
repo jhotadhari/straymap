@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
 		flexShrink: 1,
 	},
 	backButton: { padding: 4 },
-	contentInner: { paddingBottom: 6*8 },
+	contentInner: { paddingBottom: 6 * 8 },
 });
 
 const ModalWrapper: FC<{
@@ -281,8 +281,10 @@ const ModalWrapper: FC<{
 									)}
 
 									{headerLabel && (
-										<View style={ styles.headerLabel }>
-											<Text style={theme.fonts.headlineSmall}>{headerLabel}</Text>
+										<View style={styles.headerLabel}>
+											<Text style={theme.fonts.headlineSmall}>
+												{headerLabel}
+											</Text>
 										</View>
 									)}
 								</View>

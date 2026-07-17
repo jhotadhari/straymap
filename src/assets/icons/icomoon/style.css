@@ -1,49 +1,51 @@
 @font-face {
-  font-family: 'icomoon';
-  src:  url('fonts/icomoon.eot?ze1eup');
-  src:  url('fonts/icomoon.eot?ze1eup#iefix') format('embedded-opentype'),
-    url('fonts/icomoon.ttf?ze1eup') format('truetype'),
-    url('fonts/icomoon.woff?ze1eup') format('woff'),
-    url('fonts/icomoon.svg?ze1eup#icomoon') format('svg');
-  font-weight: normal;
-  font-style: normal;
-  font-display: block;
+	font-family: 'icomoon';
+	src: url('fonts/icomoon.eot?ze1eup');
+	src:
+		url('fonts/icomoon.eot?ze1eup#iefix') format('embedded-opentype'),
+		url('fonts/icomoon.ttf?ze1eup') format('truetype'),
+		url('fonts/icomoon.woff?ze1eup') format('woff'),
+		url('fonts/icomoon.svg?ze1eup#icomoon') format('svg');
+	font-weight: normal;
+	font-style: normal;
+	font-display: block;
 }
 
-[class^="icon-"], [class*=" icon-"] {
-  /* use !important to prevent issues with browser extensions that change fonts */
-  font-family: 'icomoon' !important;
-  speak: never;
-  font-style: normal;
-  font-weight: normal;
-  font-variant: normal;
-  text-transform: none;
-  line-height: 1;
+[class^='icon-'],
+[class*=' icon-'] {
+	/* use !important to prevent issues with browser extensions that change fonts */
+	font-family: 'icomoon' !important;
+	speak: never;
+	font-style: normal;
+	font-weight: normal;
+	font-variant: normal;
+	text-transform: none;
+	line-height: 1;
 
-  /* Better Font Rendering =========== */
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+	/* Better Font Rendering =========== */
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
 }
 
 .icon-map-marker-search:before {
-  content: "\e904";
+	content: '\e904';
 }
 .icon-routes_search:before {
-  content: "\e903";
+	content: '\e903';
 }
 .icon-mapsforge_puzzle_plus:before {
-  content: "\e905";
-  color: #97bf0d;
+	content: '\e905';
+	color: #97bf0d;
 }
 .icon-mapsforge_puzzle_cog:before {
-  content: "\e902";
-  color: #97bf0d;
+	content: '\e902';
+	color: #97bf0d;
 }
 .icon-mapsforge_puzzle_only:before {
-  content: "\e901";
-  color: #97bf0d;
+	content: '\e901';
+	color: #97bf0d;
 }
 .icon-mapsforge_puzzle:before {
-  content: "\e900";
-  color: #97bf0d;
+	content: '\e900';
+	color: #97bf0d;
 }

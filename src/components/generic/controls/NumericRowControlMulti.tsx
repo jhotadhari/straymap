@@ -23,22 +23,25 @@ const NumericRowControlMulti = ({
 	numType = 'int',
 	saveOnType = true,
 	validate,
+	onClear,
 }: {
 	label?: string;
-	values: number[];
+	values: (number | undefined)[];
 	optLabels: string[];
 	onUpdate: (newValues: number[]) => void;
 	Info?: ReactNode;
 	numType?: NumType;
 	saveOnType?: boolean;
 	validate?: (val: number) => boolean;
+	/** Called when the user clears an input and blurs, per index. When omitted, clearing resets to the previous value. */
+	onClear?: (index: number) => void;
 }) => {
 	const theme = useTheme();
 
-	const [vals, setVals] = useState(values.map((v) => v + ''));
+	const [vals, setVals] = useState(values.map((v) => (v !== undefined ? v + '' : '')));
 
 	useEffect(() => {
-		setVals(values.map((v) => v + ''));
+		setVals(values.map((v) => (v !== undefined ? v + '' : '')));
 	}, [values]);
 
 	const [isValids, setIsValids] = useState([true, true]);
@@ -46,10 +49,10 @@ const NumericRowControlMulti = ({
 	const saveCbRef = useRef<undefined | ((newValues: number[]) => void)>(undefined);
 	useEffect(() => {
 		saveCbRef.current = (newValues: number[]) => {
-			if (
-				newValues[0] !== strValToNb(values[0] + '', numType) ||
-				newValues[1] !== strValToNb(values[1] + '', numType)
-			) {
+			const changed = newValues.some((nv, idx) => {
+				return values[idx] === undefined || nv !== strValToNb(values[idx] + '', numType);
+			});
+			if (changed) {
 				onUpdate(newValues);
 			}
 		};
@@ -62,38 +65,73 @@ const NumericRowControlMulti = ({
 	const handleBlurCbRef = useRef<undefined | (() => void)>(undefined);
 	useEffect(() => {
 		handleBlurCbRef.current = () => {
-			const getNewValNb = (idx: number) => {
+			const getNewValNb = (idx: number): number | undefined => {
+				if (vals[idx].trim() === '') {
+					if (onClear) {
+						onClear(idx);
+					} else if (values[idx] !== undefined) {
+						// No onClear — reset to previous value.
+						const prevNb = strValToNb(values[idx] + '', numType);
+						if ('number' === typeof prevNb && !isNaN(prevNb)) {
+							setVals((v) => {
+								const nv = [...v];
+								nv[idx] = prevNb + '';
+								return nv;
+							});
+						}
+					}
+					return undefined;
+				}
 				let newValNb = strValToNb(vals[idx], numType);
 				if (
 					'number' !== typeof newValNb ||
 					isNaN(newValNb) ||
 					(validate && !validate(newValNb))
 				) {
-					// reset val
-					newValNb = strValToNb(values[idx] + '', numType);
-					setVals((vals) => {
-						const newVals = [...vals];
-						newVals[idx] = newValNb + '';
-						return newVals;
-					});
+					const prevVal = values[idx];
+					newValNb = prevVal !== undefined ? strValToNb(prevVal + '', numType) : NaN;
+					if ('number' === typeof newValNb && !isNaN(newValNb)) {
+						setVals((v) => {
+							const nv = [...v];
+							nv[idx] = newValNb + '';
+							return nv;
+						});
+					} else {
+						setVals((v) => {
+							const nv = [...v];
+							nv[idx] = '';
+							return nv;
+						});
+					}
 				}
-				return newValNb;
+				if ('number' === typeof newValNb && !isNaN(newValNb)) {
+					return newValNb;
+				}
+				return undefined;
 			};
-			const newValues = [getNewValNb(0), getNewValNb(1)];
+			const newVal0 = getNewValNb(0);
+			const newVal1 = getNewValNb(1);
 			setIsValids([true, true]);
-			saveCbRef?.current && saveCbRef.current(newValues);
+			if (newVal0 !== undefined && newVal1 !== undefined) {
+				saveCbRef?.current && saveCbRef.current([newVal0, newVal1]);
+			}
 		};
 	}, [
 		vals,
 		numType,
 		validate,
 		values,
+		onClear,
 	]);
 
 	const saveOnTypeCbRef = useRef<undefined | (() => void)>(undefined);
 	useEffect(() => {
 		saveOnTypeCbRef.current = () => {
 			if (!saveOnType) {
+				return;
+			}
+			// Only save-on-type when both inputs are non-empty and valid.
+			if (vals[0].trim() === '' || vals[1].trim() === '') {
 				return;
 			}
 			const newValNb0 = strValToNb(vals[0], numType);
@@ -122,6 +160,19 @@ const NumericRowControlMulti = ({
 
 	const handleChangeText = useCallback(
 		(newVal: string, idx: number) => {
+			if (newVal.trim() === '') {
+				setIsValids((valids) => {
+					const newValids = [...valids];
+					newValids[idx] = true;
+					return newValids;
+				});
+				setVals((v) => {
+					const nv = [...v];
+					nv[idx] = '';
+					return nv;
+				});
+				return;
+			}
 			if (validate) {
 				let newValNb = strValToNb(newVal, numType);
 				if ('number' !== typeof newValNb || isNaN(newValNb) || !validate(newValNb)) {
@@ -138,10 +189,10 @@ const NumericRowControlMulti = ({
 					});
 				}
 			}
-			setVals((vals) => {
-				const newVals = [...vals];
-				newVals[idx] = newVal;
-				return newVals;
+			setVals((v) => {
+				const nv = [...v];
+				nv[idx] = newVal;
+				return nv;
 			});
 		},
 		[validate, numType]

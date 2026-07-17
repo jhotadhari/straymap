@@ -10,7 +10,9 @@ import { Style as ListStyle } from 'react-native-paper/lib/typescript/components
  */
 import IconFontGis from '../../../components/generic/primitives/IconFontGis';
 
-const BaseMapIcon: FC<{ color?: TextStyle['color']; style?: ListStyle; size?: number }> = (props) => (
+const BaseMapIcon: FC<{ color?: TextStyle['color']; style?: ListStyle; size?: number }> = (
+	props
+) => (
 	<IconFontGis
 		name="map-o"
 		{...props}

@@ -3,7 +3,7 @@
  */
 import { ReactNode } from 'react';
 import { Switch } from 'react-native-paper';
-import { ViewStyle } from 'react-native';
+import { TextProps, ViewProps, ViewStyle } from 'react-native';
 
 /**
  * Internal dependencies
@@ -16,18 +16,24 @@ const ToggleRowControl = ({
 	onToggle,
 	Info,
 	style,
+	labelStyle,
+	innerStyle,
 }: {
 	label: string;
 	value: boolean;
 	onToggle: () => void;
 	Info?: ReactNode;
-	style?: ViewStyle;
+	style?: ViewProps['style'];
+	labelStyle?: TextProps['style'];
+	innerStyle?: ViewProps['style'];
 }) => {
 	return (
 		<InfoLabelRow
 			label={label}
 			Info={Info}
 			style={style}
+			labelStyle={labelStyle}
+			innerStyle={innerStyle}
 		>
 			<Switch
 				value={value}

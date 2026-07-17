@@ -59,7 +59,7 @@ export const formatDistance = (
 	unitPref: UnitPref,
 	useFraction?: boolean
 ): string => {
-	const unitStr = formatDistanceUnit( unitPref, useFraction );
+	const unitStr = formatDistanceUnit(unitPref, useFraction);
 	if (useFraction) {
 		switch (unitPref.unit) {
 			case 'imperial':

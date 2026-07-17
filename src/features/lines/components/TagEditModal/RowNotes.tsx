@@ -44,7 +44,9 @@ const RowNotes: FC = () => {
 			style={{ alignItems: 'flex-start' }}
 		>
 			{isSystemTag ? (
-				<Text style={sharedStyles.disabled}>{hintKey ? t(hintKey) : (tag?.notes ?? '')}</Text>
+				<Text style={sharedStyles.disabled}>
+					{hintKey ? t(hintKey) : (tag?.notes ?? '')}
+				</Text>
 			) : (
 				<TextInput
 					underlineColor="transparent"

@@ -1,16 +1,17 @@
 /**
  * External dependencies
  */
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { get } from 'lodash-es';
 import { View, TextInputProps, StyleSheet } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { TextInput, useTheme } from 'react-native-paper';
+import { Text, TextInput, useTheme } from 'react-native-paper';
 
 /**
  * Internal dependencies
  */
 import NumericRowControl from '../../../../../components/generic/controls/NumericRowControl';
+import ToggleRowControl from '../../../../../components/generic/controls/ToggleRowControl';
 import InfoLabelRow from '../../../../../components/generic/infoWrapper/InfoLabelRow';
 import ListItemMenuControl from '../../../../../components/generic/wrapper/ListItemMenuControl';
 import { OptionBase } from '../../../../../types';
@@ -18,6 +19,11 @@ import { TextInputNativeMultilineControlled } from '../../../../../components/ge
 import { useAppSelector } from '../../../../../store/hooks';
 import { selectAppDirs } from '../../../../dirs/selectors';
 import { sharedStyles } from '../../../../../sharedStyles';
+import ButtonHighlight from '../../../../../components/generic/primitives/ButtonHighlight';
+import { FsModule } from '../../../../../nativeModules';
+import { resolveCacheDirBase } from '../../../utils';
+import { CacheDir } from '../../../../dirs/types';
+import { logError } from '../../../../../lib/utils';
 
 const renderTextInput = (props: TextInputProps) => (
 	<TextInputNativeMultilineControlled {...props} />
@@ -30,6 +36,7 @@ const CacheControl = ({
 	setOptions,
 	baseDefault,
 	cacheDirChild,
+	treatAsBoolean = false,
 }: {
 	options: {
 		cacheSize?: number;
@@ -37,6 +44,7 @@ const CacheControl = ({
 	setOptions: (options: any) => void;
 	baseDefault: string;
 	cacheDirChild: string;
+	treatAsBoolean?: false | number;
 }) => {
 	const { t } = useTranslation();
 	const theme = useTheme();
@@ -128,6 +136,69 @@ const CacheControl = ({
 		[options, setOptions]
 	);
 
+	const handleUseCacheToggle = useCallback(() => {
+		const currentSize = options?.cacheSize ?? 0;
+		setOptions({
+			...options,
+			cacheSize: currentSize > 0 ? 0 : (treatAsBoolean as number),
+		});
+	}, [
+		options,
+		setOptions,
+		treatAsBoolean,
+	]);
+
+	const [cacheCurrent, setCacheCurrent] = useState<{
+		size: number;
+		formatted: string;
+	}>({ size: 0, formatted: '' });
+
+	const resolvedBaseDir = useMemo(
+		() =>
+			resolveCacheDirBase(
+				get(options, 'cacheDirBase'),
+				get(appDirs, ['internalCacheDirs', 0], undefined)
+			),
+		[options, appDirs]
+	);
+
+	const updateCacheInfo = useCallback(() => {
+		FsModule.getCacheInfo()
+			.then((cacheDirs) => {
+				const dirs = cacheDirs as CacheDir[];
+				const dir = dirs.find((d) => d.path === resolvedBaseDir);
+				const cache = dir?.caches?.find((c) => c.basename === cacheDirChild);
+				if (cache) {
+					setCacheCurrent({
+						size: 1,
+						formatted: cache.readableSize,
+					});
+				} else {
+					setCacheCurrent({ size: 0, formatted: '' });
+				}
+			})
+			.catch((err) => {
+				logError('CacheControl.updateCacheInfo', err);
+				setCacheCurrent({ size: 0, formatted: '' });
+			});
+	}, [resolvedBaseDir, cacheDirChild]);
+
+	useEffect(() => {
+		if ((options?.cacheSize ?? 0) > 0 && appDirs) {
+			updateCacheInfo();
+		}
+	}, [
+		updateCacheInfo,
+		options?.cacheSize,
+		appDirs,
+	]);
+
+	const handleClearCache = useCallback(() => {
+		FsModule.deleteDir(cachePath).finally(() => {
+			updateCacheInfo();
+		});
+	}, [cachePath, updateCacheInfo]);
+
 	const handleCacheDirBaseChange = useCallback(
 		(newValue: string) => {
 			setOptions({
@@ -156,40 +227,66 @@ const CacheControl = ({
 
 	return (
 		<View style={styles.gap}>
-			<NumericRowControl
-				label={t('baseMap.cacheSize')}
-				onUpdate={handleCacheSizeUpdate}
-				value={options?.cacheSize ?? 0}
-				validate={validateCacheSize}
-				Info={t('baseMap.hint.cache') + '\n\n' + t('baseMap.hint.cacheSize')}
-			/>
-
-			<View>
-				<InfoLabelRow
-					label={t('baseMap.cacheDir')}
-					Info={t('baseMap.hint.cache') + '\n\n' + t('baseMap.hint.cacheDir')}
-				>
-					<ListItemMenuControl
-						options={opts}
-						listItemStyle={sharedStyles.listItem}
-						value={get(selectedOpt, 'key')}
-						setValue={handleCacheDirBaseChange}
-						anchorLabel={get(selectedOpt, 'label', '')}
-					/>
-				</InfoLabelRow>
-
-				<TextInput
-					disabled={true}
-					multiline={true}
-					render={renderTextInput}
-					dense={true}
-					theme={textInputTheme}
-					style={styles.textInput}
-					value={cachePath}
+			{treatAsBoolean ? (
+				<ToggleRowControl
+					label={t('baseMap.useCache')}
+					value={(options?.cacheSize ?? 0) > 0}
+					onToggle={handleUseCacheToggle}
+					innerStyle={{ alignItems: 'flex-start' }}
+					Info={t('baseMap.hint.cache') + '\n\n' + t('baseMap.hint.cacheSize')}
 				/>
-			</View>
+			) : (
+				<NumericRowControl
+					label={t('baseMap.cacheSize')}
+					onUpdate={handleCacheSizeUpdate}
+					value={options?.cacheSize ?? 0}
+					validate={validateCacheSize}
+					Info={t('baseMap.hint.cache') + '\n\n' + t('baseMap.hint.cacheSize')}
+				/>
+			)}
 
-			{/* ??? cache size info and clear btn */}
+			{(options?.cacheSize ?? 0) > 0 && (
+				<View>
+					<InfoLabelRow
+						label={t('baseMap.cacheDir')}
+						Info={t('baseMap.hint.cache') + '\n\n' + t('baseMap.hint.cacheDir')}
+					>
+						<ListItemMenuControl
+							options={opts}
+							listItemStyle={sharedStyles.listItem}
+							value={get(selectedOpt, 'key')}
+							setValue={handleCacheDirBaseChange}
+							anchorLabel={get(selectedOpt, 'label', '')}
+						/>
+					</InfoLabelRow>
+
+					<TextInput
+						disabled={true}
+						multiline={true}
+						render={renderTextInput}
+						dense={true}
+						theme={textInputTheme}
+						style={styles.textInput}
+						value={cachePath}
+					/>
+				</View>
+			)}
+
+			<InfoLabelRow
+				label={t('baseMap.cacheSizeCurrent')}
+				innerStyle={styles.clearRowInner}
+			>
+				<Text>{cacheCurrent.formatted || '0 KB'}</Text>
+
+				<ButtonHighlight
+					mode="outlined"
+					compact={true}
+					disabled={! cacheCurrent.size}
+					onPress={handleClearCache}
+				>
+					{t('baseMap.cacheClear')}
+				</ButtonHighlight>
+			</InfoLabelRow>
 		</View>
 	);
 };
@@ -201,6 +298,12 @@ const styles = StyleSheet.create({
 	textInput: {
 		width: '100%',
 		marginTop: -18,
+	},
+	clearRowInner: {
+		flexDirection: 'row',
+		justifyContent: 'space-between',
+		alignItems: 'center',
+		paddingLeft: 8,
 	},
 });
 

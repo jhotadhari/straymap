@@ -156,7 +156,7 @@ export const updateLine = withDbErrorHandling(
 			if (options?.truncateGeometry) {
 				const firstPoint = parseSerialized<Point>(lines[0].firstPointGeomStr);
 				if (firstPoint) {
-					newGeometry = pointToFakeLineStringFeature( firstPoint ).geometry;
+					newGeometry = pointToFakeLineStringFeature(firstPoint).geometry;
 				}
 			} else if (undefined !== newLine?.lineStringFeature) {
 				newGeometry = newLine.lineStringFeature.geometry;

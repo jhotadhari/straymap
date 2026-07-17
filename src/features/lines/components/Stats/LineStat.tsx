@@ -51,52 +51,55 @@ const LineStat: FC<{
 		round,
 	]);
 
-	const RenderIcon = useMemo(() => () => {
-		if (renderParts.includes('icon')) {
-			switch (columnKey) {
-				case 'length':
-					return (
-						<IconFontGis
-							name="route-end"
-							size={ICON_SIZE}
-							color={theme.colors.onBackground}
-						/>
-					);
-				case 'uphill':
-					return (
-						<Icon
-							source="elevation-rise"
-							size={ICON_SIZE}
-						/>
-					);
-				case 'downhill':
-					return (
-						<Icon
-							source="elevation-decline"
-							size={ICON_SIZE}
-						/>
-					);
-				case 'minZ':
-					return (
-						<Icon
-							source="arrow-collapse-down"
-							size={ICON_SIZE}
-						/>
-					);
-				case 'maxZ':
-					return (
-						<Icon
-							source="arrow-collapse-up"
-							size={ICON_SIZE}
-						/>
-					);
+	const RenderIcon = useMemo(
+		() => () => {
+			if (renderParts.includes('icon')) {
+				switch (columnKey) {
+					case 'length':
+						return (
+							<IconFontGis
+								name="route-end"
+								size={ICON_SIZE}
+								color={theme.colors.onBackground}
+							/>
+						);
+					case 'uphill':
+						return (
+							<Icon
+								source="elevation-rise"
+								size={ICON_SIZE}
+							/>
+						);
+					case 'downhill':
+						return (
+							<Icon
+								source="elevation-decline"
+								size={ICON_SIZE}
+							/>
+						);
+					case 'minZ':
+						return (
+							<Icon
+								source="arrow-collapse-down"
+								size={ICON_SIZE}
+							/>
+						);
+					case 'maxZ':
+						return (
+							<Icon
+								source="arrow-collapse-up"
+								size={ICON_SIZE}
+							/>
+						);
+				}
 			}
-		}
-	}, [
-		theme,
-		renderParts,
-		columnKey,
-	]);
+		},
+		[
+			theme,
+			renderParts,
+			columnKey,
+		]
+	);
 
 	const dynamicStyle = useMemo(
 		() => [
@@ -137,15 +140,15 @@ const LineStat: FC<{
 };
 
 const styles = StyleSheet.create({
-    stat: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        flexWrap: 'nowrap',
-    },
-    icon: {
-        minWidth: ICON_SIZE + 4,
-        textAlign: 'center',
-    },
+	stat: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		flexWrap: 'nowrap',
+	},
+	icon: {
+		minWidth: ICON_SIZE + 4,
+		textAlign: 'center',
+	},
 });
 
 export default LineStat;

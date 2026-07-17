@@ -22,9 +22,10 @@ const NumericRowControl = ({
 	numType = 'int',
 	saveOnType = true,
 	validate,
+	onClear,
 }: {
 	label?: string;
-	value: number;
+	value: number | undefined;
 	onUpdate: (newValue: number) => void;
 	inputStyle?: TextStyle;
 	style?: ViewStyle;
@@ -32,13 +33,15 @@ const NumericRowControl = ({
 	numType?: NumType;
 	saveOnType?: boolean;
 	validate?: (val: number) => boolean;
+	/** Called when the user clears the input and blurs (value becomes undefined). When omitted, clearing resets to the previous value. */
+	onClear?: () => void;
 }) => {
 	const theme = useTheme();
 
-	const [val, setVal] = useState<string>(value + '');
+	const [val, setVal] = useState<string>(value !== undefined ? value + '' : '');
 
 	useEffect(() => {
-		setVal(value + '');
+		setVal(value !== undefined ? value + '' : '');
 	}, [value]);
 
 	const [isValid, setIsValid] = useState(true);
@@ -46,7 +49,7 @@ const NumericRowControl = ({
 	const saveCbRef = useRef<undefined | ((newValue: number) => void)>(undefined);
 	useEffect(() => {
 		saveCbRef.current = (newValue: number) => {
-			if (newValue !== strValToNb(value + '', numType)) {
+			if (value === undefined || newValue !== strValToNb(value + '', numType)) {
 				onUpdate(newValue);
 			}
 		};
@@ -59,6 +62,19 @@ const NumericRowControl = ({
 	const handleBlurCbRef = useRef<undefined | (() => void)>(undefined);
 	useEffect(() => {
 		handleBlurCbRef.current = () => {
+			if (val.trim() === '') {
+				setIsValid(true);
+				if (onClear) {
+					onClear();
+				} else if (value !== undefined) {
+					// No onClear — reset to previous value.
+					const prevNb = strValToNb(value + '', numType);
+					if ('number' === typeof prevNb && !isNaN(prevNb)) {
+						setVal(prevNb + '');
+					}
+				}
+				return;
+			}
 			let newValNb = strValToNb(val, numType);
 			if (
 				'number' !== typeof newValNb ||
@@ -66,23 +82,30 @@ const NumericRowControl = ({
 				(validate && !validate(newValNb))
 			) {
 				// reset val
-				newValNb = strValToNb(value + '', numType);
-				setVal(newValNb + '');
+				newValNb = value !== undefined ? strValToNb(value + '', numType) : NaN;
+				if ('number' === typeof newValNb && !isNaN(newValNb)) {
+					setVal(newValNb + '');
+				} else {
+					setVal('');
+				}
 			}
 			setIsValid(true);
-			saveCbRef?.current && saveCbRef.current(newValNb);
+			if ('number' === typeof newValNb && !isNaN(newValNb)) {
+				saveCbRef?.current && saveCbRef.current(newValNb);
+			}
 		};
 	}, [
 		val,
 		numType,
 		validate,
 		value,
+		onClear,
 	]);
 
 	const saveOnTypeCbRef = useRef<undefined | (() => void)>(undefined);
 	useEffect(() => {
 		saveOnTypeCbRef.current = () => {
-			if (!saveOnType) {
+			if (!saveOnType || val.trim() === '') {
 				return;
 			}
 			let newValNb = strValToNb(val, numType);
@@ -108,6 +131,11 @@ const NumericRowControl = ({
 
 	const handleChangeText = useCallback(
 		(newVal: string) => {
+			if (newVal.trim() === '') {
+				setIsValid(true);
+				setVal('');
+				return;
+			}
 			if (validate) {
 				let newValNb = strValToNb(newVal, numType);
 				if ('number' !== typeof newValNb || isNaN(newValNb) || !validate(newValNb)) {

@@ -37,5 +37,5 @@ export const sharedStyles = StyleSheet.create({
 	},
 	disabled: {
 		opacity: OPACITY_DISABLED,
-	}
+	},
 });
