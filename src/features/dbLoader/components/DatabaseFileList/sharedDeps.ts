@@ -26,6 +26,7 @@ export const styles = StyleSheet.create({
 		gap: 8,
 		paddingRight: 8,
 	},
+	flexShrink1: { flexShrink: 1 },
 	dirContent: {
 		paddingLeft: 8 * 3,
 		gap: 8,

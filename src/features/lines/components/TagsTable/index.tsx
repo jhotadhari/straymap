@@ -2,10 +2,9 @@
  * External dependencies
  */
 import { useQuery } from '@tanstack/react-query';
-import { FC, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { FC, memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { FlatList, ListRenderItem, ScrollView, StyleSheet, View } from 'react-native';
-import { useTheme, Text } from 'react-native-paper';
-import { useTranslation } from 'react-i18next';
+import { useTheme } from 'react-native-paper';
 import { without } from 'lodash-es';
 
 /**
@@ -40,7 +39,6 @@ const TagTableRowMemo = memo(TagTableRow, (prevProps, nextProps) => {
 
 const TagsTable: FC = () => {
 	const theme = useTheme();
-	const { t } = useTranslation();
 
 	const sort = useAppSelector(selectTagsSort);
 	const filters = useAppSelector(selectTagsFilters);

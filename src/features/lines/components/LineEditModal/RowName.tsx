@@ -14,6 +14,7 @@ import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { selectLineTemp } from '../../selectors';
 import { setLineTemp } from '../../slice';
 import { LinePartial } from '../../types';
+import { sharedStyles } from '../../../../sharedStyles';
 
 const RowName: FC = () => {
 	const dispatch = useAppDispatch();
@@ -55,7 +56,7 @@ const RowName: FC = () => {
 		<InfoLabelRow
 			label={t('lines.name')}
 			Info={t('lines.hintName')}
-			style={{ alignItems: 'flex-start' }}
+			style={sharedStyles.alignStart}
 		>
 			<TextInput
 				multiline={true}

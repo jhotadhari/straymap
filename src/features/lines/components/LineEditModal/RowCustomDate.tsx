@@ -2,8 +2,6 @@
  * External dependencies
  */
 import { FC, useCallback, useContext, useMemo } from 'react';
-import { View } from 'react-native';
-import { Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { DatePickerInput } from 'react-native-paper-dates';
 import dayjs from 'dayjs';
@@ -13,11 +11,11 @@ import dayjs from 'dayjs';
  */
 import { LineEditModalContext } from './Context';
 import InfoLabelRow from '../../../../components/generic/infoWrapper/InfoLabelRow';
-import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { selectLineTemp } from '../../selectors';
 import { setLineTemp } from '../../slice';
 import { LinePartial } from '../../types';
+import { sharedStyles } from '../../../../sharedStyles';
 
 const dateToString = (d: Date | undefined): string | undefined => {
 	if (!d) {
@@ -75,7 +73,7 @@ const RowCustomDate: FC = () => {
 				label={''}
 				mode="outlined"
 				withDateFormatInLabel={true}
-				style={{ flex: 1 }}
+				style={sharedStyles.flex1}
 			/>
 		</InfoLabelRow>
 	);

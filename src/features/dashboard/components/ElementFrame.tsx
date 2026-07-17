@@ -17,6 +17,7 @@ import { useTranslation } from 'react-i18next';
  */
 import { DashboardWidget, DashboardItem } from '../types';
 import { featureRegistry } from '../../FeatureRegistry';
+import { sharedStyles } from '../../../sharedStyles';
 
 interface ElementFrameProps {
 	item: DashboardItem;
@@ -72,7 +73,7 @@ const ElementFrame: FC<ElementFrameProps> = ({
 
 	const iconSize = Math.max(fontSize + 2, 12);
 
-	const justifyContent = useMemo(() => {
+	const justifyContent = useMemo((): 'flex-start' | 'flex-end' | 'center' => {
 		switch (textAlign) {
 			case 'left':
 				return 'flex-start';
@@ -83,6 +84,11 @@ const ElementFrame: FC<ElementFrameProps> = ({
 		}
 	}, [textAlign]);
 
+	const contentRowStyle = useMemo(
+		() => [sharedStyles.flexRowCenter, { justifyContent }],
+		[justifyContent]
+	);
+
 	return (
 		<TouchableHighlight
 			underlayColor={theme.colors.primaryContainer}
@@ -92,15 +98,9 @@ const ElementFrame: FC<ElementFrameProps> = ({
 				{showLabel && elementDef?.label && (
 					<Text style={labelTextStyle}>{t(elementDef.label)}</Text>
 				)}
-				<View
-					style={{
-						flexDirection: 'row',
-						alignItems: 'center',
-						justifyContent: justifyContent,
-					}}
-				>
+				<View style={contentRowStyle}>
 					{showIcon && elementDef?.Icon && (
-						<View style={{ marginRight: 3 }}>
+						<View style={localStyles.iconWrapper}>
 							<elementDef.Icon
 								color={theme.colors.onSurface}
 								size={iconSize}
@@ -112,6 +112,10 @@ const ElementFrame: FC<ElementFrameProps> = ({
 			</View>
 		</TouchableHighlight>
 	);
+};
+
+const localStyles = {
+	iconWrapper: { marginRight: 3 },
 };
 
 export default ElementFrame;

@@ -3,7 +3,7 @@
  */
 import { ReactNode } from 'react';
 import { Switch } from 'react-native-paper';
-import { TextProps, ViewProps, ViewStyle } from 'react-native';
+import { TextProps, ViewProps } from 'react-native';
 
 /**
  * Internal dependencies

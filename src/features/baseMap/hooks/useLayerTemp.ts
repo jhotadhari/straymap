@@ -12,7 +12,6 @@ import { setLayerTemp } from '../slice';
  * (typed for the specific options shape) and a setOptions callback that
  * dispatches a partial or full options update to Redux.
  */
-// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-constraint
 export const useLayerTemp = <OptionsType extends object>() => {
 	const dispatch = useAppDispatch();
 

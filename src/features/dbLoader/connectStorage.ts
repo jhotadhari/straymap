@@ -4,7 +4,6 @@
 import { isAnyOf } from '@reduxjs/toolkit';
 import DefaultPreference from 'react-native-default-preference';
 import { get, isEqual, set } from 'lodash-es';
-import dayjs from 'dayjs';
 import { sprintf } from 'sprintf-js';
 import { ANDROID_DATABASE_PATH } from '@op-engineering/op-sqlite';
 
@@ -26,7 +25,6 @@ import { dbConnection } from './DBConnection';
 import { logError } from '../../lib/utils';
 import { getDbDefaultName } from './utils';
 import { dbExtension } from './constants';
-import { showErrorToast } from '../../components/ErrorToast/service';
 import i18n from '../../assets/i18n/i18n';
 
 const settingsKey = 'dbLoaderSettings';

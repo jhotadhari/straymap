@@ -16,15 +16,7 @@ const TagBadge: FC<{
 }> = ({ tag }) => {
 	const badgeMode = useAppSelector(selectTagBadgeMode);
 
-	// eslint-disable-next-line react-hooks/exhaustive-deps -- tracking id+data+label is sufficient; getTagColor only reads those fields
-	const color = useMemo(
-		() => getTagColor(tag),
-		[
-			tag.id,
-			tag.data,
-			tag.label,
-		]
-	);
+	const color = useMemo(() => getTagColor(tag), [tag]);
 
 	return (
 		<Badge

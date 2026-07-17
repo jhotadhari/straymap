@@ -32,7 +32,14 @@ const RowToggleOnMap: FC = () => {
 
 	const isSelected = useMemo(() => selectedIds.includes(line?.id ?? -1), [selectedIds, line?.id]);
 
-	const disabled = useMemo(() => !line?.id || (isSelected && isSystemLine), [line?.id]);
+	const disabled = useMemo(
+		() => !line?.id || (isSelected && isSystemLine),
+		[
+			line?.id,
+			isSelected,
+			isSystemLine,
+		]
+	);
 
 	const handlePress = useCallback(() => {
 		if (!disabled && line?.id) {

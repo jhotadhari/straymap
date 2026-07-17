@@ -15,6 +15,54 @@ import { formatDistance, formatHeightDepth } from '../../../../lib/formatting';
 import IconFontGis from '../../../../components/generic/primitives/IconFontGis';
 import { RenderPart, defaultRenderParts, ICON_SIZE } from './sharedDeps';
 
+const StatIcon: FC<{
+	columnKey: string;
+	renderParts: RenderPart[];
+	iconColor: string;
+}> = ({ columnKey, renderParts, iconColor }) => {
+	if (!renderParts.includes('icon')) return null;
+	switch (columnKey) {
+		case 'length':
+			return (
+				<IconFontGis
+					name="route-end"
+					size={ICON_SIZE}
+					color={iconColor}
+				/>
+			);
+		case 'uphill':
+			return (
+				<Icon
+					source="elevation-rise"
+					size={ICON_SIZE}
+				/>
+			);
+		case 'downhill':
+			return (
+				<Icon
+					source="elevation-decline"
+					size={ICON_SIZE}
+				/>
+			);
+		case 'minZ':
+			return (
+				<Icon
+					source="arrow-collapse-down"
+					size={ICON_SIZE}
+				/>
+			);
+		case 'maxZ':
+			return (
+				<Icon
+					source="arrow-collapse-up"
+					size={ICON_SIZE}
+				/>
+			);
+		default:
+			return null;
+	}
+};
+
 const LineStat: FC<{
 	columnKey: string;
 	value: number;
@@ -51,56 +99,6 @@ const LineStat: FC<{
 		round,
 	]);
 
-	const RenderIcon = useMemo(
-		() => () => {
-			if (renderParts.includes('icon')) {
-				switch (columnKey) {
-					case 'length':
-						return (
-							<IconFontGis
-								name="route-end"
-								size={ICON_SIZE}
-								color={theme.colors.onBackground}
-							/>
-						);
-					case 'uphill':
-						return (
-							<Icon
-								source="elevation-rise"
-								size={ICON_SIZE}
-							/>
-						);
-					case 'downhill':
-						return (
-							<Icon
-								source="elevation-decline"
-								size={ICON_SIZE}
-							/>
-						);
-					case 'minZ':
-						return (
-							<Icon
-								source="arrow-collapse-down"
-								size={ICON_SIZE}
-							/>
-						);
-					case 'maxZ':
-						return (
-							<Icon
-								source="arrow-collapse-up"
-								size={ICON_SIZE}
-							/>
-						);
-				}
-			}
-		},
-		[
-			theme,
-			renderParts,
-			columnKey,
-		]
-	);
-
 	const dynamicStyle = useMemo(
 		() => [
 			styles.stat,
@@ -119,14 +117,16 @@ const LineStat: FC<{
 							return <Text key={renderPart}>{t(`lines.columns.${columnKey}`)}</Text>;
 						case 'icon':
 							return (
-								RenderIcon && (
-									<View
-										key={renderPart}
-										style={styles.icon}
-									>
-										<RenderIcon />
-									</View>
-								)
+								<View
+									key={renderPart}
+									style={styles.icon}
+								>
+									<StatIcon
+										columnKey={columnKey}
+										renderParts={renderParts}
+										iconColor={theme.colors.onBackground}
+									/>
+								</View>
 							);
 						case 'value':
 							return <Text key={renderPart}>{formatted}</Text>;

@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { useContext, useCallback, useMemo, useState } from 'react';
-import { View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { Text, Checkbox } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -22,6 +22,11 @@ import { logError } from '../../../../../lib/utils';
 import { featureRegistry } from '../../../../FeatureRegistry';
 import { ErrorToastContext } from '../../../../../components/ErrorToast/Context';
 import { sprintf } from 'sprintf-js';
+
+const removeStyles = StyleSheet.create({
+	modalInner: { gap: 12, marginTop: 16 },
+	tagRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+});
 
 const useRemoveTag = () => {
 	const { t } = useTranslation();
@@ -102,7 +107,7 @@ const useRemoveTag = () => {
 				visible={modalVisible}
 				onDismiss={closeModal}
 				headerLabel={t('lines.removeTags')}
-				innerStyle={{ gap: 12, marginTop: 16 }}
+				innerStyle={removeStyles.modalInner}
 			>
 				{loading ? (
 					<LoadingIndicator />
@@ -112,7 +117,7 @@ const useRemoveTag = () => {
 					tags.map((tag) => (
 						<View
 							key={tag.id}
-							style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}
+							style={removeStyles.tagRow}
 						>
 							<Checkbox
 								status={selectedTagIds.has(tag.id) ? 'checked' : 'unchecked'}

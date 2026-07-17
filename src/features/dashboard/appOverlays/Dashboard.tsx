@@ -213,7 +213,7 @@ export const DashboardWrapped: FC<{
 			style,
 			{ zIndex: isEditingDashboard ? 999 : 50 },
 		],
-		[isEditingDashboard]
+		[style, isEditingDashboard]
 	);
 
 	if (isEditingDashboard) {

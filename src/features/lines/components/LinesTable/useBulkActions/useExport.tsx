@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { useCallback, useContext, useMemo, useState } from 'react';
-import { View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { sprintf } from 'sprintf-js';
@@ -30,6 +30,10 @@ import {
 import { LinePartial } from '../../../types';
 
 const EXPORT_DIR = ExternalStorageDirectoryPath + '/Android/media/com.jhotadhari.straymap/export';
+
+const exportStyles = StyleSheet.create({
+	exportControls: { marginTop: 16, flexDirection: 'row', gap: 8 },
+});
 
 const formatOptions = EXPORT_FORMATS.map((f) => ({
 	key: f.key,
@@ -167,13 +171,7 @@ const useExport = () => {
 						/>
 					))}
 
-					<View
-						style={{
-							marginTop: 16,
-							flexDirection: 'row',
-							gap: 8,
-						}}
-					>
+					<View style={exportStyles.exportControls}>
 						<ButtonHighlight
 							onPress={handleExport}
 							mode="contained"

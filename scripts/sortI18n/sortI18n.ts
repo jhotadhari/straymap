@@ -8,7 +8,6 @@ const __dirname = path.dirname(__filename); // get the name of the directory
 
 import { SUPPORTED_LANGUAGES, FALLBACK_LANGUAGE } from '../../src/assets/i18n/constants';
 import { sortDeep } from '../../src/lib/utilsLight';
-import { set } from 'lodash-es';
 
 const SLICES_PATH = '../../src/features';
 

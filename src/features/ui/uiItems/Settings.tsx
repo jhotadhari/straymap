@@ -2,7 +2,7 @@
  * External dependencies
  */
 import React, { FC, Fragment, useMemo } from 'react';
-import { ScrollView, StyleSheet, View, ViewStyle } from 'react-native';
+import { ScrollView, StyleSheet, ViewStyle } from 'react-native';
 import { useTranslation } from 'react-i18next';
 /**
  * Internal dependencies

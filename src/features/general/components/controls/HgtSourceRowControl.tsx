@@ -3,7 +3,6 @@
  */
 import {
 	Dispatch,
-	Fragment,
 	SetStateAction,
 	useCallback,
 	useContext,
@@ -80,24 +79,31 @@ const HgtSourceRowControl = ({
 
 	const [modalVisibleApp, setModalVisibleApp] = useState(false);
 
-	const opts: OptionBase[] = fallbackAppHgt
-		? [
-				{
-					key: 'appHgt',
-					label: t('baseMap.useAppHgt'),
-				},
-			]
-		: [];
-	[...dirs].forEach((dir: AbsPath) => {
-		opts.push({
-			key: dir,
-			label: dir,
+	const opts: OptionBase[] = useMemo(() => {
+		const result: OptionBase[] = fallbackAppHgt
+			? [
+					{
+						key: 'appHgt',
+						label: t('baseMap.useAppHgt'),
+					},
+				]
+			: [];
+		[...dirs].forEach((dir: AbsPath) => {
+			result.push({
+				key: dir,
+				label: dir,
+			});
 		});
-	});
-	opts.push({
-		key: 'custom',
-		label: t('custom'),
-	});
+		result.push({
+			key: 'custom',
+			label: t('custom'),
+		});
+		return result;
+	}, [
+		fallbackAppHgt,
+		dirs,
+		t,
+	]);
 
 	const appHgtDirPath = useAppSelector(selectHgtDirPath);
 
@@ -178,6 +184,7 @@ const HgtSourceRowControl = ({
 			t,
 			runOpenDocumentTree,
 			setModalVisible,
+			canDeselect,
 		]
 	);
 
@@ -245,6 +252,7 @@ const HgtSourceRowControl = ({
 		selectedOpt,
 		customUri,
 		fallbackAppHgt,
+		opts,
 		appHgtDirPath,
 	]);
 
@@ -303,8 +311,9 @@ const HgtSourceRowControl = ({
 			modalVisible,
 			handleCloseModal,
 			isPicking,
-			theme,
-			t,
+			customUri,
+			modalHeader,
+			opts,
 		]
 	);
 

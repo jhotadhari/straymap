@@ -83,7 +83,15 @@ const FilterNumericModal: FC<{
 			max: maxMetric,
 		});
 		onDismiss();
-	}, [columnKey, minMetric, maxMetric, onSave, onDismiss, onDelete, existingFilter]);
+	}, [
+		columnKey,
+		minMetric,
+		maxMetric,
+		onSave,
+		onDismiss,
+		onDelete,
+		existingFilter,
+	]);
 
 	const prevVisibleRef = useRef(false);
 	useEffect(() => {

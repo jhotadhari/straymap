@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { FC, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { FC, useContext, useMemo, useRef, useState } from 'react';
 import { Text } from 'react-native-paper';
 import { get } from 'lodash-es';
 import { useMap } from 'react-native-mapsforge-vtm';

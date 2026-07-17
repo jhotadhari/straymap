@@ -33,6 +33,7 @@ const TrackRecordingMapView: FC = () => {
 			{activeLineId && line?.geometry?.coordinates && isRecording && (
 				<LayerPath
 					coordinates={line.geometry.coordinates}
+					// eslint-disable-next-line react-native/no-inline-styles
 					style={{
 						strokeColor: '#FF4444',
 						strokeWidth: 5,

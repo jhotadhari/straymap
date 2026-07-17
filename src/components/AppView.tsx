@@ -98,8 +98,7 @@ const AppView = ({
 
 	const { width, height } = Dimensions.get('window');
 
-	const { mapViewNativeNodeHandle, mapHeight, moveEnabled, drawerControlsRef, bottomBarHeight } =
-		useContext(AppContext);
+	const { mapViewNativeNodeHandle, moveEnabled, drawerControlsRef } = useContext(AppContext);
 
 	const { currentMapEventRef, centerPositionSvRef } = useContext(MapContext);
 
@@ -169,6 +168,7 @@ const AppView = ({
 			[
 				hardwareKeys,
 				flyTo,
+				currentMapEventRef,
 			]
 		),
 	});
@@ -314,7 +314,7 @@ const AppView = ({
 			flexDirection: 'column',
 			flexGrow: 1,
 		}),
-		[mapHeight, width]
+		[]
 	);
 
 	const styleMap: ViewStyle = useMemo(
@@ -322,7 +322,7 @@ const AppView = ({
 			flexDirection: 'column',
 			flexGrow: 1,
 		}),
-		[mapHeight, width]
+		[]
 	);
 
 	return (

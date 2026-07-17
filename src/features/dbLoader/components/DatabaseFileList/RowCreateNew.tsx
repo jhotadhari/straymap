@@ -14,6 +14,7 @@ import { setDbPath } from '../../slice';
 import { dbExtension } from '../../constants';
 import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
 import { styles } from './sharedDeps';
+import { sharedStyles } from '../../../../sharedStyles';
 import IconButtonHighlight from '../../../../components/generic/primitives/IconButtonHighlight';
 import { getDbDefaultName } from '../../utils';
 
@@ -51,11 +52,7 @@ const RowCreateNew: FC<{
 	return (
 		<View style={styles.createNewRow}>
 			{!expanded && (
-				<View
-					style={{
-						flexDirection: 'row',
-					}}
-				>
+				<View style={sharedStyles.flexRow}>
 					<ButtonHighlight
 						onPress={handleExpand}
 						mode="outlined"

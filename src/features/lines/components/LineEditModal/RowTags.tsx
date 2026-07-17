@@ -31,7 +31,7 @@ const RowTags: FC = () => {
 
 	const { line } = useContext(LineEditModalContext);
 
-	const tags = line?.tags ?? [];
+	const tags = useMemo(() => line?.tags ?? [], [line?.tags]);
 	const lineTagIds = useMemo(() => new Set(tags.map((t) => t.id)), [tags]);
 
 	const systemTagLabels = useMemo(() => featureRegistry.getSystemTagLabels(), []);
@@ -92,7 +92,7 @@ const RowTags: FC = () => {
 		<InfoLabelRow
 			label={t('lines.columns.tags')}
 			Info={t('lines.hintTags')}
-			style={{ alignItems: 'flex-start' }}
+			style={sharedStyles.alignStart}
 		>
 			<AddTagsModal
 				visible={addModalVisible}
@@ -101,14 +101,7 @@ const RowTags: FC = () => {
 				isApplying={addMutation.isPending}
 				excludeTagIds={lineTagIds}
 			/>
-			<View
-				style={{
-					flexDirection: 'row',
-					flexWrap: 'wrap',
-					gap: 4,
-					alignItems: 'center',
-				}}
-			>
+			<View style={styles.tagsWrapper}>
 				{tags.length === 0 ? (
 					<Text style={styles.disabled}>{t('lines.tagsNoTags')}</Text>
 				) : (
@@ -120,13 +113,7 @@ const RowTags: FC = () => {
 								onPress={() => !isSystemTag && handleRemoveTag(tag.id)}
 								disabled={isSystemTag || removeMutation.isPending}
 							>
-								<View
-									style={{
-										flexDirection: 'row',
-										alignItems: 'center',
-										gap: 2,
-									}}
-								>
+								<View style={styles.tagRow}>
 									<TagBadge tag={tag} />
 									{isSystemTag && (
 										<Icon
@@ -152,6 +139,8 @@ const RowTags: FC = () => {
 
 const styles = StyleSheet.create({
 	disabled: sharedStyles.disabled,
+	tagsWrapper: { flexDirection: 'row', flexWrap: 'wrap', gap: 4, alignItems: 'center' },
+	tagRow: { flexDirection: 'row', alignItems: 'center', gap: 2 },
 });
 
 export default RowTags;

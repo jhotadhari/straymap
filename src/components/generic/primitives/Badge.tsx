@@ -1,3 +1,4 @@
+/* eslint-disable react-native/no-inline-styles */
 /**
  * External dependencies
  */
@@ -10,7 +11,7 @@ import { Text } from 'react-native-paper';
  */
 import { PaletteColor } from '../../../types';
 
-export const Badge: FC<{
+const Badge: FC<{
 	badgeMode: 'outlined' | 'contained';
 	color: PaletteColor;
 	label?: string | null;

@@ -14,6 +14,7 @@ import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { selectTagTemp } from '../../selectors';
 import { setTagTemp } from '../../slice';
 import { featureRegistry } from '../../../FeatureRegistry';
+import { sharedStyles } from '../../../../sharedStyles';
 
 const RowLabel: FC = () => {
 	const dispatch = useAppDispatch();
@@ -38,7 +39,7 @@ const RowLabel: FC = () => {
 	return (
 		<InfoLabelRow
 			label={t('lines.name')}
-			style={{ alignItems: 'flex-start' }}
+			style={sharedStyles.alignStart}
 		>
 			<TextInput
 				underlineColor="transparent"

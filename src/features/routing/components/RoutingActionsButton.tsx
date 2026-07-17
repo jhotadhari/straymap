@@ -5,13 +5,11 @@ import React, { FC, useCallback, useContext, useMemo, useRef, useState } from 'r
 import { Icon, useTheme } from 'react-native-paper';
 import { ScrollView, View } from 'react-native';
 import Popover, { PopoverPlacement } from 'react-native-popover-view';
-import { pick } from 'lodash-es';
 
 /**
  * Internal dependencies
  */
 import { AppContext } from '../../../Context';
-import useRoute from '../hooks/useRoute';
 import ButtonHighlight from '../../../components/generic/primitives/ButtonHighlight';
 import { MenuActionOption } from '../../../types';
 import PopoverMenuItems from '../../../components/generic/wrapper/PopoverMenuItems';
@@ -21,8 +19,6 @@ const RoutingActionsButton: FC<{
 	actions?: Record<string, MenuActionOption>;
 }> = ({ disabled, actions }) => {
 	const { mapViewNativeNodeHandle } = useContext(AppContext);
-
-	const { id: routeId, points } = useRoute(['id', 'points']) || {};
 
 	// // const segments = useAppSelector(selectSegments);
 	// const markerLayerUuid = useAppSelector(selectMarkerLayerUuid);

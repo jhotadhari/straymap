@@ -171,7 +171,7 @@ const NumericRowControlSegmented = ({
 				borderRadius: theme.roundness,
 			},
 		],
-		[numValueActive, theme]
+		[theme]
 	);
 
 	const styleButtonLabel = useMemo(
@@ -181,7 +181,7 @@ const NumericRowControlSegmented = ({
 				paddingHorizontal: 0,
 			},
 		],
-		[numValueActive, theme]
+		[numValueActive]
 	);
 
 	const styleInput = useMemo(

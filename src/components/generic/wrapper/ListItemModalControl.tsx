@@ -2,9 +2,7 @@
  * External dependencies
  */
 import React, { FC, ReactNode, useCallback, useEffect, useState } from 'react';
-import { Text, useTheme } from 'react-native-paper';
 import { Style as ListStyle } from 'react-native-paper/lib/typescript/components/List/utils';
-import { useTranslation } from 'react-i18next';
 
 /**
  * Internal dependencies
@@ -12,8 +10,6 @@ import { useTranslation } from 'react-i18next';
 import ListItem from './ListItem';
 import { LayoutChangeEvent, StyleSheet, View, ViewStyle } from 'react-native';
 import ModalWrapper from './ModalWrapper';
-import ButtonHighlight from '../primitives/ButtonHighlight';
-import { get } from 'lodash-es';
 
 const ListItemModalControl: FC<{
 	listItemStyle?: ViewStyle;
@@ -38,8 +34,6 @@ const ListItemModalControl: FC<{
 	anchorIcon,
 	afterDismiss,
 }) => {
-	const theme = useTheme();
-	const { t } = useTranslation();
 	const [visible, setVisible] = useState(false);
 
 	useEffect(() => {

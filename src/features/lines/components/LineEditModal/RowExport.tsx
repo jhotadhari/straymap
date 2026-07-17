@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { FC, useCallback, useContext, useMemo, useState } from 'react';
-import { View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
@@ -121,13 +121,7 @@ const RowExport: FC = () => {
 						/>
 					))}
 
-					<View
-						style={{
-							marginTop: 16,
-							flexDirection: 'row',
-							gap: 8,
-						}}
-					>
+					<View style={styles.exportControls}>
 						<ButtonHighlight
 							onPress={handleWrite}
 							mode="contained"
@@ -140,12 +134,7 @@ const RowExport: FC = () => {
 					</View>
 
 					{geomError && (
-						<Text
-							style={{
-								color: theme.colors.error,
-								marginTop: 12,
-							}}
-						>
+						<Text style={[styles.errorText, { color: theme.colors.error }]}>
 							{t('errorGeneric')}
 						</Text>
 					)}
@@ -173,5 +162,10 @@ const RowExport: FC = () => {
 		</>
 	);
 };
+
+const styles = StyleSheet.create({
+	exportControls: { marginTop: 16, flexDirection: 'row', gap: 8 },
+	errorText: { marginTop: 12 },
+});
 
 export default RowExport;

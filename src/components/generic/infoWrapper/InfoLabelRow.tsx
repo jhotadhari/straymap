@@ -51,8 +51,8 @@ const InfoLabelRow = ({
 			],
 			inner: [
 				styles.controlView,
-				innerStyle
-			]
+				innerStyle,
+			],
 		}),
 		[
 			style,

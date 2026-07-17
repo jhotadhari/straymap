@@ -4,7 +4,7 @@
 import { FC, useCallback, useMemo } from 'react';
 import { StyleProp, StyleSheet, TouchableWithoutFeedback, View, ViewStyle } from 'react-native';
 import { useTheme, Text, Icon } from 'react-native-paper';
-import { get, pick } from 'lodash-es';
+import { get } from 'lodash-es';
 
 /**
  * Internal dependencies

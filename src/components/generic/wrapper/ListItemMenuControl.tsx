@@ -14,7 +14,7 @@ import { ScrollView, View, ViewStyle } from 'react-native';
 import { OptionBase } from '../../../types';
 import MenuItem from './MenuItem';
 import ListItem from './ListItem';
-import Popover, { PopoverPlacement } from 'react-native-popover-view';
+import Popover from 'react-native-popover-view';
 
 const ListItemMenuControl = ({
 	listItemStyle,

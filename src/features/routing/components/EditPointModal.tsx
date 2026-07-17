@@ -179,7 +179,7 @@ const IntervalRowControl = ({
 
 	const label = useMemo(
 		() => t('routing.interval') + ' [' + formatDistanceUnit(distUnit, true) + ']',
-		[distUnit]
+		[t, distUnit]
 	);
 
 	if (editPoint.profile.provider !== 'straightLine') {

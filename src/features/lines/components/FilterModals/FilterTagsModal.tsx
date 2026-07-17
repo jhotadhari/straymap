@@ -6,7 +6,7 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
-import Popover, { PopoverPlacement } from 'react-native-popover-view';
+import Popover from 'react-native-popover-view';
 
 /**
  * Internal dependencies

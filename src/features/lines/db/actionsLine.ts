@@ -11,7 +11,6 @@ import { dbConnection } from '../../dbLoader/DBConnection';
 import { linesTable, tagsTable, tagsToLinesTable } from './schema/schema';
 import { withDbErrorHandling, withDbTransaction, parseReturningIds } from '../../dbLoader/utils';
 import { featureRegistry } from '../../FeatureRegistry';
-import { lineString } from '@turf/turf';
 import { parseSerialized } from '../../../lib/utilsLight';
 import { pointToFakeLineStringFeature } from '../../../lib/utils';
 

@@ -41,7 +41,7 @@ const RowNotes: FC = () => {
 	return (
 		<InfoLabelRow
 			label={t('lines.columns.notes')}
-			style={{ alignItems: 'flex-start' }}
+			style={sharedStyles.alignStart}
 		>
 			{isSystemTag ? (
 				<Text style={sharedStyles.disabled}>

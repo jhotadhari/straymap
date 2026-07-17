@@ -10,7 +10,6 @@ import { useTranslation } from 'react-i18next';
  */
 import ModalWrapper from '../../../../components/generic/wrapper/ModalWrapper';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
-import { queryLinesWithoutGeom } from '../../db/queryFns';
 import { invalidateTagsTable, invalidateLinesQueries } from '../../db/queryFns';
 import { updateTag } from '../../db/actionsTag';
 import { queryAllTags } from '../../db/queryFns';

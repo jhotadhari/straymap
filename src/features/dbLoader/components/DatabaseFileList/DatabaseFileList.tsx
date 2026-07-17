@@ -3,7 +3,7 @@
  */
 import React, { FC, useCallback, useMemo } from 'react';
 import { View, ViewStyle, Platform } from 'react-native';
-import { Icon, Text, useTheme } from 'react-native-paper';
+import { Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 
 /**
@@ -23,7 +23,6 @@ import { logError } from '../../../../lib/utils';
 import { styles } from './sharedDeps';
 import RowDatabaseFile from './RowDatabaseFile';
 import RowCreateNew from './RowCreateNew';
-import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
 import Badge from '../../../../components/generic/primitives/Badge';
 import MaterialIcons from '@react-native-vector-icons/material-icons/static';
 
@@ -155,7 +154,7 @@ const DatabaseFileList: FC<{ style?: ViewStyle }> = ({ style }) => {
 					<View key={dir}>
 						<View style={styles.dirHeading}>
 							<Text>{idx + 1}:</Text>
-							<Text style={{ flexShrink: 1 }}>{dir}</Text>
+							<Text style={styles.flexShrink1}>{dir}</Text>
 
 							<Badge
 								badgeMode="outlined"

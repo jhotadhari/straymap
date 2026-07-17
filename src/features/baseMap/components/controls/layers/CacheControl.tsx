@@ -232,7 +232,7 @@ const CacheControl = ({
 					label={t('baseMap.useCache')}
 					value={(options?.cacheSize ?? 0) > 0}
 					onToggle={handleUseCacheToggle}
-					innerStyle={{ alignItems: 'flex-start' }}
+					innerStyle={sharedStyles.alignStart}
 					Info={t('baseMap.hint.cache') + '\n\n' + t('baseMap.hint.cacheSize')}
 				/>
 			) : (
@@ -281,7 +281,7 @@ const CacheControl = ({
 				<ButtonHighlight
 					mode="outlined"
 					compact={true}
-					disabled={! cacheCurrent.size}
+					disabled={!cacheCurrent.size}
 					onPress={handleClearCache}
 				>
 					{t('baseMap.cacheClear')}

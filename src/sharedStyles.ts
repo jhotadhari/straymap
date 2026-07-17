@@ -16,6 +16,12 @@ export const sharedStyles = StyleSheet.create({
 		flexDirection: 'row',
 		alignItems: 'center',
 	},
+	flex1: {
+		flex: 1,
+	},
+	alignStart: {
+		alignItems: 'flex-start',
+	},
 	controlIcon: {
 		marginLeft: 7,
 		marginRight: -7,

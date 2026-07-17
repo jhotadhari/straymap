@@ -2,7 +2,7 @@
  * External dependencies
  */
 import React, { FC, useCallback, useMemo, useState } from 'react';
-import { ScrollView, ViewStyle } from 'react-native';
+import { ScrollView, StyleSheet, ViewStyle } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 
@@ -64,7 +64,7 @@ const SettingsDrawers: FC<{ style?: ViewStyle }> = ({ style }) => {
 							compact={true}
 							onPress={handleOpenModal}
 							textColor={theme.colors.onBackground}
-							style={{ marginLeft: 8 }}
+							style={styles.ml8}
 						>
 							{t('drawers.selectDrawers')}
 						</ButtonHighlight>
@@ -83,7 +83,7 @@ const SettingsDrawers: FC<{ style?: ViewStyle }> = ({ style }) => {
 							compact={true}
 							onPress={handleToggleShowSettingsHandle}
 							textColor={theme.colors.onBackground}
-							style={{ marginLeft: 8 }}
+							style={styles.ml8}
 						>
 							{toggleLabel}
 						</ButtonHighlight>
@@ -102,7 +102,7 @@ const SettingsDrawers: FC<{ style?: ViewStyle }> = ({ style }) => {
 							compact={true}
 							onPress={handleToggleSortable}
 							textColor={theme.colors.onBackground}
-							style={{ marginLeft: 8 }}
+							style={styles.ml8}
 						>
 							{sortableLabel}
 						</ButtonHighlight>
@@ -119,5 +119,9 @@ const SettingsDrawers: FC<{ style?: ViewStyle }> = ({ style }) => {
 		</ScrollView>
 	);
 };
+
+const styles = StyleSheet.create({
+	ml8: { marginLeft: 8 },
+});
 
 export default SettingsDrawers;

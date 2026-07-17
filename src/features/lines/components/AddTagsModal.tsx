@@ -2,8 +2,8 @@
  * External dependencies
  */
 import { FC, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { View } from 'react-native';
-import { Text, Icon, useTheme } from 'react-native-paper';
+import { StyleSheet, View } from 'react-native';
+import { Text, Icon } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
 import { sprintf } from 'sprintf-js';
@@ -40,7 +40,6 @@ const AddTagsModal: FC<AddTagsModalProps> = ({
 	const { t } = useTranslation();
 	const { showError } = useContext(ErrorToastContext);
 	const queryClient = useQueryClient();
-	const theme = useTheme();
 
 	const [allTags, setAllTags] = useState<Tag[]>([]);
 	const [loadingTags, setLoadingTags] = useState(false);
@@ -117,14 +116,14 @@ const AddTagsModal: FC<AddTagsModalProps> = ({
 				visible={visible}
 				onDismiss={handleDismiss}
 				headerLabel={t('lines.addTags')}
-				innerStyle={{ gap: 12, marginTop: 16 }}
+				innerStyle={styles.modalInner}
 			>
 				<RadioListItem
 					opt={{ key: '__create__', label: '' }}
 					onPress={() => setCreateModalVisible(true)}
 					status="unchecked"
 					labelNode={
-						<View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+						<View style={styles.createTagRow}>
 							<Icon
 								source="tag-plus-outline"
 								size={20}
@@ -158,5 +157,10 @@ const AddTagsModal: FC<AddTagsModalProps> = ({
 		</>
 	);
 };
+
+const styles = StyleSheet.create({
+	modalInner: { gap: 12, marginTop: 16 },
+	createTagRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+});
 
 export default AddTagsModal;

@@ -414,6 +414,8 @@ const PointsList: FC = () => {
 		[
 			points,
 			mutation,
+			showError,
+			t,
 		]
 	);
 

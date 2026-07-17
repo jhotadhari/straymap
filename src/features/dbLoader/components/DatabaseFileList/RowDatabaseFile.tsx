@@ -6,7 +6,7 @@ import { View } from 'react-native';
 import { Text, TextInput, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { sprintf } from 'sprintf-js';
-import Popover, { PopoverPlacement } from 'react-native-popover-view';
+import Popover from 'react-native-popover-view';
 
 /**
  * Internal dependencies
@@ -89,7 +89,7 @@ const RowDatabaseFile: FC<{
 				await FsModule.copyFile(file.name, newPath);
 				try {
 					await FsModule.deleteFile(file.name);
-				} catch (_) {
+				} catch {
 					// best-effort: source may be locked (e.g. open db connection)
 				}
 				if (dbPath === file.name) {
@@ -153,7 +153,7 @@ const RowDatabaseFile: FC<{
 			await FsModule.copyFile(file.name, newPath);
 			try {
 				await FsModule.deleteFile(file.name);
-			} catch (_) {
+			} catch {
 				// best-effort: source may be locked (e.g. open db connection)
 			}
 			if (dbPath === file.name) {

@@ -248,6 +248,7 @@ const ModalWrapper: FC<{
 					<View style={styleContent}>
 						<Animated.View
 							style={[
+								// eslint-disable-next-line react-native/no-inline-styles
 								{
 									position: 'absolute',
 									left: modalLeft,

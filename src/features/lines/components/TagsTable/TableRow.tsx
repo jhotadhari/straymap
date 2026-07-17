@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { FC, useCallback, useMemo } from 'react';
-import { StyleProp, TouchableWithoutFeedback, View, ViewStyle } from 'react-native';
+import { StyleProp, StyleSheet, TouchableWithoutFeedback, View, ViewStyle } from 'react-native';
 import { useTheme, Text, Icon } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 
@@ -108,7 +108,7 @@ const TagTableRow: FC<TagTableRowProps> = ({
 							return (
 								<View
 									key={column.key}
-									style={[cellStyle, { gap: 4 }]}
+									style={[cellStyle, styles.gap4]}
 								>
 									<Text numberOfLines={1}>{tag.label}</Text>
 									{isSystemTag && (
@@ -149,14 +149,13 @@ const TagTableRow: FC<TagTableRowProps> = ({
 									style={cellStyle}
 								>
 									<View
-										style={{
-											width: 20,
-											height: 20,
-											borderRadius: 10,
-											backgroundColor: tagColor.bg,
-											borderWidth: 1,
-											borderColor: tagColor.border,
-										}}
+										style={[
+											styles.colorDot,
+											{
+												backgroundColor: tagColor.bg,
+												borderColor: tagColor.border,
+											},
+										]}
 									/>
 								</View>
 							);
@@ -188,5 +187,10 @@ const TagTableRow: FC<TagTableRowProps> = ({
 		</TouchableWithoutFeedback>
 	);
 };
+
+const styles = StyleSheet.create({
+	gap4: { gap: 4 },
+	colorDot: { width: 20, height: 20, borderRadius: 10, borderWidth: 1 },
+});
 
 export default TagTableRow;

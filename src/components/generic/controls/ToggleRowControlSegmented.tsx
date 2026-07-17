@@ -41,7 +41,7 @@ const ToggleRowControlSegmented = ({
 				borderRadius: theme.roundness,
 			},
 		],
-		[boolValueActive, theme]
+		[theme]
 	);
 
 	const styleButtonLabel = useMemo(
@@ -52,7 +52,7 @@ const ToggleRowControlSegmented = ({
 				paddingHorizontal: 0,
 			},
 		],
-		[boolValueActive, theme]
+		[boolValueActive]
 	);
 
 	const handleButtonPress = useCallback(() => {

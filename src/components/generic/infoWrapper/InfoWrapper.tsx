@@ -11,6 +11,7 @@ import { sprintf } from 'sprintf-js';
  * Internal dependencies
  */
 import ModalWrapper from '../wrapper/ModalWrapper';
+import { sharedStyles } from '../../../sharedStyles';
 
 const InfoWrapper = ({
 	label,
@@ -38,7 +39,7 @@ const InfoWrapper = ({
 	const handleClose = useCallback(() => setModalVisible(false), [setModalVisible]);
 
 	return (
-		<View style={{ flex: 1 }}>
+		<View style={sharedStyles.flex1}>
 			{modalVisible && (
 				<ModalWrapper
 					visible={modalVisible}

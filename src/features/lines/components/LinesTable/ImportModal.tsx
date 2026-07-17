@@ -6,7 +6,6 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { Text, useTheme, Checkbox, Icon } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { eq } from 'drizzle-orm';
 import { get } from 'lodash-es';
 import { openDocument, openDocumentTree, listFiles } from 'react-native-scoped-storage';
 import { readFile } from 'react-native-fs';
@@ -28,13 +27,9 @@ import {
 	IMPORT_EXTENSIONS,
 } from '../../utils/importParser';
 import { createLines } from '../../db/actionsLine';
-import { createTags, ensureTagByLabel } from '../../db/actionsTag';
+import { ensureTagByLabel } from '../../db/actionsTag';
 import { invalidateTagsTable, invalidateLinesQueries } from '../../db/queryFns';
-import { dbConnection } from '../../../dbLoader/DBConnection';
-import { tagsTable } from '../../db/schema/schema';
-
 type ImportMode = 'file' | 'directory';
-
 type ImportFileResult = {
 	name: string;
 	success: boolean;
