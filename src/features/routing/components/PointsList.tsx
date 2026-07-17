@@ -32,7 +32,7 @@ import { deleteSegments, processRouting } from '../slice';
 import { selectIsRouting, selectSegments } from '../selectors';
 import { selectUnitPrefs } from '../../general/selectors';
 import { updateRoute } from '../db/actionsRoute';
-import { formatCoords } from '../../../lib/formatting';
+import { formatCoords, formatDistance } from '../../../lib/formatting';
 import { lineStringToStats, pointsCoordsAreOverlapping } from '../../../lib/utils';
 import { deleteRoutingPoint } from '../db/actionsRoutingPoint';
 import { LineStats as LineStatsType } from '../../lines/types';
@@ -56,6 +56,8 @@ const Segment: FC<{
 	const dispatch = useAppDispatch();
 
 	const segments = useAppSelector(selectSegments);
+	const unitPrefs = useAppSelector(selectUnitPrefs);
+	const distUnit = unitPrefs.distance;
 
 	const segment = Object.values(segments).find((seg) => seg.fromId === item.id);
 
@@ -181,16 +183,21 @@ const Segment: FC<{
 
 			<View style={styleSegmentRow}>
 				<View style={styles.segmentRowContent}>
-					{Object.keys(item?.profile).map((profileKey) => {
-						let inner: string | boolean = get(item.profile, profileKey, '');
-						if ('fast' === profileKey) {
-							inner = inner ? 'fast' : 'slow';
-						}
-						if ('string' !== typeof inner) {
-							inner = profileKey;
-						}
-						return <Text key={profileKey}>{inner}</Text>;
-					})}
+					{item?.profile?.provider === 'brouter' && (
+						<>
+							<Text>{item.profile.options.v}</Text>
+							<Text>{item.profile.options.fast ? t('routing.fast') : 'slow'}</Text>
+						</>
+					)}
+					{item?.profile?.provider === 'straightLine' && (
+						<Text>
+							{t('routing.providerStraightLine')}
+							{', '}
+							{t('routing.interval')}
+							{': '}
+							{formatDistance(item.profile.options.interval, distUnit, true)}
+						</Text>
+					)}
 				</View>
 
 				<View style={styles.segmentRowAction}>

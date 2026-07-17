@@ -1,13 +1,14 @@
 /**
  * External dependencies
  */
-import React, { FC, Fragment, useMemo } from 'react';
+import React, { FC, Fragment, useEffect, useMemo } from 'react';
 import {
 	GeometryStyle,
 	Marker,
 	LayerPath,
 	ReindexScope,
 	SharedLayer,
+	useMap,
 } from 'react-native-mapsforge-vtm';
 import {
 	LayerPathColorRamp,
@@ -27,6 +28,7 @@ import { getSegmentRecordId } from '../utils';
 import useRoute from '../hooks/useRoute';
 // import useSimplificationTolerance from '../../lines/hooks/useSimplificationTolerance';
 import { RoutingPoint } from '../types';
+import { setAltitudeLookup } from '../altitude';
 import { pointsCoordsAreOverlapping } from '../../../lib/utils';
 
 const SegmentLineLayer: FC<{
@@ -225,6 +227,15 @@ const RoutingMapView = () => {
 		useRoute([
 			'points',
 		]) || {};
+
+	const { getAltitudeAtPosition } = useMap();
+
+	useEffect(() => {
+		setAltitudeLookup(getAltitudeAtPosition);
+		return () => {
+			setAltitudeLookup(null);
+		};
+	}, [getAltitudeAtPosition]);
 
 	return (
 		<Fragment>

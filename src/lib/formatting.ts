@@ -30,16 +30,56 @@ const MS_TO_KNOTS = 1.94384;
 const M_TO_MI = 0.000621371;
 const M_TO_NM = 0.000539957;
 
-// Input: meters
-export const formatDistance = (value: number, unitPref: UnitPref): string => {
+export const formatDistanceUnit = (unitPref: UnitPref, useFraction?: boolean): string => {
+	if (useFraction) {
+		switch (unitPref.unit) {
+			case 'imperial':
+				return 'ft';
+			case 'nautical':
+				return 'nm';
+			case 'metric':
+			default:
+				return 'm';
+		}
+	}
 	switch (unitPref.unit) {
 		case 'imperial':
-			return roundTo(value * M_TO_MI, unitPref.round) + ' mi';
+			return 'mi';
 		case 'nautical':
-			return roundTo(value * M_TO_NM, unitPref.round) + ' nm';
+			return 'nm';
 		case 'metric':
 		default:
-			return roundTo(value / 1000, unitPref.round) + ' km';
+			return 'km';
+	}
+};
+
+// Input: meters
+export const formatDistance = (
+	value: number,
+	unitPref: UnitPref,
+	useFraction?: boolean
+): string => {
+	const unitStr = formatDistanceUnit( unitPref, useFraction );
+	if (useFraction) {
+		switch (unitPref.unit) {
+			case 'imperial':
+				return roundTo(value * M_TO_FT, unitPref.round) + ' ' + unitStr;
+			// nautical stays at nm (not fractioned)
+			case 'nautical':
+				return roundTo(value * M_TO_NM, unitPref.round) + ' ' + unitStr;
+			case 'metric':
+			default:
+				return roundTo(value, unitPref.round) + ' ' + unitStr;
+		}
+	}
+	switch (unitPref.unit) {
+		case 'imperial':
+			return roundTo(value * M_TO_MI, unitPref.round) + ' ' + unitStr;
+		case 'nautical':
+			return roundTo(value * M_TO_NM, unitPref.round) + ' ' + unitStr;
+		case 'metric':
+		default:
+			return roundTo(value / 1000, unitPref.round) + ' ' + unitStr;
 	}
 };
 

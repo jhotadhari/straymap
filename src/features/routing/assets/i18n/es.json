@@ -10,6 +10,12 @@
 	"stopRouting": "Detener ruta",
 	"appendPoint": "Añadir waypoint",
 	"deleteLastPoint": "Eliminar último punto",
+	"provider": "Proveedor",
+	"providerBrouter": "BRouter",
+	"providerStraightLine": "Línea recta",
+	"hintProvider": "Selecciona el motor de enrutamiento para calcular rutas entre waypoints. BRouter usa redes reales de carreteras y caminos. Línea recta dibuja una línea directa subdividida en el intervalo indicado — útil para navegación fuera de pista.",
+	"interval": "Intervalo",
+	"hintInterval": "Distancia entre puntos de subdivisión a lo largo de la línea recta. Valores más pequeños producen líneas más suaves, pero más puntos de datos.",
 	"brouterUnavailableTitle": "BRouter no disponible",
 	"brouterUnavailableMessage": "La aplicación BRouter Offline Navigation no está instalada en este dispositivo. BRouter es el motor de enrutamiento sin conexión para la planificación de rutas. Instálala desde F-Droid, Google Play o GitHub para habilitar el cálculo de rutas."
 }

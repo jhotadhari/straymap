@@ -283,8 +283,7 @@ export const processRouting = (
 
 										getCoordsFromRouting({
 											waypoints,
-											vehicle: point?.profile?.v,
-											fast: point?.profile?.fast,
+											profile: point.profile,
 										})
 											.then((coords) => {
 												newSegment.positions = coords;

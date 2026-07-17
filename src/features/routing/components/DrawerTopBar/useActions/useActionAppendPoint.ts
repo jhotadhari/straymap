@@ -10,6 +10,7 @@ import { useAppDispatch } from '../../../../../store/hooks';
 import { createRoutingPoints } from '../../../db/actionsRoutingPoint';
 import { processRouting } from '../../../slice';
 import { RoutingPoint, RoutingProfile } from '../../../types';
+import { DEFAULT_PROFILE } from '../../../constants';
 import { MapContext } from '../../../../../Context';
 import { dbConnection } from '../../../../dbLoader/DBConnection';
 import { pointsCoordsAreOverlapping } from '../../../../../lib/utils';
@@ -71,10 +72,7 @@ const useActionAppendPoint = ({
 
 	const getNextProfile = useCallback(() => {
 		const lastPoint = points && points.length ? points[points.length - 1] : undefined;
-		return {
-			fast: lastPoint?.profile?.fast ?? true, // ??? from defaults, or from previous or from cut segment
-			v: lastPoint?.profile?.v ?? 'motorcar', // ??? from defaults, or from previous or from cut segment
-		};
+		return lastPoint?.profile ?? DEFAULT_PROFILE;
 	}, [points]);
 
 	const cb = useCallback(async () => {

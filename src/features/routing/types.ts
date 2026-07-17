@@ -6,10 +6,18 @@ import { Point } from 'geojson';
 import { Position } from 'react-native-mapsforge-vtm';
 import { LineStats } from '../lines/types';
 
-export type RoutingProfile = {
+export type BrouterOptions = {
 	fast: boolean;
 	v: VehicleMode;
 };
+
+export type StraightLineOptions = {
+	interval: number;
+};
+
+export type RoutingProfile =
+	| { provider: 'brouter'; options: BrouterOptions }
+	| { provider: 'straightLine'; options: StraightLineOptions };
 
 export type RoutingPoint = {
 	id: number;

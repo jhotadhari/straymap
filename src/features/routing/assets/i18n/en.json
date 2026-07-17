@@ -10,6 +10,12 @@
 	"stopRouting": "Stop routing",
 	"appendPoint": "Add waypoint",
 	"deleteLastPoint": "Delete last point",
+	"provider": "Provider",
+	"providerBrouter": "BRouter",
+	"providerStraightLine": "Straight Line",
+	"hintProvider": "Select the routing engine used to calculate paths between waypoints. BRouter uses real road and path networks for turn-by-turn routing. Straight Line draws a direct line subdivided at the given interval — useful for off-trail navigation.",
+	"interval": "Interval",
+	"hintInterval": "Distance between subdivision points along the straight line. Smaller values produce smoother lines but more data points.",
 	"brouterUnavailableTitle": "BRouter not available",
 	"brouterUnavailableMessage": "The BRouter Offline Navigation app is not installed on this device. BRouter is the offline routing engine that powers route planning. Install it from F-Droid, Google Play, or GitHub to enable route calculation."
 }

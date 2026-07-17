@@ -10,6 +10,12 @@
 	"stopRouting": "Routing beenden",
 	"appendPoint": "Wegpunkt hinzufügen",
 	"deleteLastPoint": "Letzten Punkt löschen",
+	"provider": "Provider",
+	"providerBrouter": "BRouter",
+	"providerStraightLine": "Luftlinie",
+	"hintProvider": "Wähle die Routing-Engine für die Wegberechnung zwischen Wegpunkten. BRouter nutzt echte Straßen- und Wegenetze. Luftlinie zeichnet eine direkte Linie, die im angegebenen Intervall unterteilt wird — nützlich für Navigation abseits von Wegen.",
+	"interval": "Intervall",
+	"hintInterval": "Abstand zwischen Unterteilungspunkten entlang der Luftlinie. Kleinere Werte erzeugen glattere Linien, aber mehr Datenpunkte.",
 	"brouterUnavailableTitle": "BRouter nicht verfügbar",
 	"brouterUnavailableMessage": "Die App BRouter Offline Navigation ist auf diesem Gerät nicht installiert. BRouter ist die Offline-Routing-Engine für die Routenplanung. Installiere sie über F-Droid, Google Play oder GitHub, um die Routenberechnung zu aktivieren."
 }
