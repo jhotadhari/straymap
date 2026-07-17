@@ -47,25 +47,25 @@ public class HelperModule extends NativeHelperModuleSpec {
 	public void addAppSubDirsToResponse( WritableMap responseParams ) {
 		// externalMediaDirs
 		File[] externalMediaDirs = getReactApplicationContext().getExternalMediaDirs();
+		WritableArray externalMediaDirsArray = createArray();
 		for ( int i = 0; i < externalMediaDirs.length; i++ ) {
-			WritableArray dirs = createArray();
-			dirs.pushString( externalMediaDirs[i].toString() );
-			responseParams.putArray( "externalMediaDirs", dirs );
+			externalMediaDirsArray.pushString( externalMediaDirs[i].toString() );
 		}
+		responseParams.putArray( "externalMediaDirs", externalMediaDirsArray );
 		// externalFileDirs
 		File[] filesDirs = getReactApplicationContext().getExternalFilesDirs( null );
+		WritableArray externalFileDirsArray = createArray();
 		for ( int i = 0; i < filesDirs.length; i++ ) {
-			WritableArray dirs = createArray();
-			dirs.pushString( filesDirs[i].toString() );
-			responseParams.putArray( "externalFileDirs", dirs );
+			externalFileDirsArray.pushString( filesDirs[i].toString() );
 		}
+		responseParams.putArray( "externalFileDirs", externalFileDirsArray );
 		// externalCacheDirs
 		File[] externalCacheDirs = getReactApplicationContext().getExternalCacheDirs();
+		WritableArray externalCacheDirsArray = createArray();
 		for ( int i = 0; i < externalCacheDirs.length; i++ ) {
-			WritableArray dirs = createArray();
-			dirs.pushString( externalCacheDirs[i].toString() );
-			responseParams.putArray( "externalCacheDirs", dirs );
+			externalCacheDirsArray.pushString( externalCacheDirs[i].toString() );
 		}
+		responseParams.putArray( "externalCacheDirs", externalCacheDirsArray );
 
 		// internalCacheDirs ... it's just one. But as array with one element to not confuse types.
 		WritableArray internalCacheDirs = createArray();
