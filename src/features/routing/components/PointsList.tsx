@@ -160,7 +160,7 @@ const Segment: FC<{
 						<Text style={styles.errorText}>{t(segment.errorMsg)}</Text>
 					)}
 
-					{!segment?.errorMsg && (
+					{!segment?.isFetching && !segment?.errorMsg && (
 						<View style={styles.stat}>
 							<LineStatsCompactRows stats={lineStats} />
 						</View>

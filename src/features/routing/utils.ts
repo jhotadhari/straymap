@@ -2,13 +2,14 @@
  * External dependencies
  */
 import { getRoute } from 'react-native-brouter/geojson';
-import { distance, point } from '@turf/turf';
 
 /**
  * Internal dependencies
  */
 import { RoutingSegment, BrouterOptions, StraightLineOptions, RoutingProfile } from './types';
 import { getAltitudeAtPosition } from './altitude';
+import { haversineDistance } from '../../lib/formatting';
+import { logError } from '../../lib/utils';
 
 export const getSegmentRecordId = (segment: Pick<RoutingSegment, 'fromId' | 'toId'>) =>
 	[
@@ -42,35 +43,70 @@ const getBrouterCoords = (waypoints: number[][], opts: BrouterOptions): Promise<
 			});
 	});
 
+const MAX_STRAIGHT_LINE_SEGMENTS = 5000;
+
 const getStraightLineCoords = async (
 	waypoints: number[][],
 	opts: StraightLineOptions
 ): Promise<number[][]> => {
-	const interval = opts.interval || 1000;
+	const interval = opts.interval ?? 1000;
 	const [from, to] = waypoints;
-	const dist = distance(point(from), point(to), { units: 'meters' });
-	const numSegments = Math.max(1, Math.ceil(dist / interval));
+	const dist = haversineDistance(
+		[from[0], from[1]] as [number, number],
+		[to[0], to[1]] as [number, number]
+	);
+	const numSegments = Math.min(
+		MAX_STRAIGHT_LINE_SEGMENTS,
+		Math.max(1, Math.ceil(dist / interval))
+	);
 
-	const coords: Array<{ lng: number; lat: number }> = [];
-	for (let i = 0; i <= numSegments; i++) {
+	// Always produce 3D coords — the DB stores LINESTRINGZ and requires
+	// three numbers per coordinate.  Altitude defaults to 0 (sea level)
+	// and is enriched below when DEM data is available.
+	const coords: number[][] = [];
+	coords.push([
+		from[0],
+		from[1],
+		from[2] ?? 0,
+	]);
+
+	for (let i = 1; i < numSegments; i++) {
 		const f = i / numSegments;
-		coords.push({
-			lng: from[0] + (to[0] - from[0]) * f,
-			lat: from[1] + (to[1] - from[1]) * f,
-		});
+		coords.push([
+			from[0] + (to[0] - from[0]) * f,
+			from[1] + (to[1] - from[1]) * f,
+			0,
+		]);
+	}
+	coords.push([
+		to[0],
+		to[1],
+		to[2] ?? 0,
+	]);
+
+	// Enrich with altitude in batches to avoid saturating the native bridge.
+	const BATCH_SIZE = 20;
+	for (let i = 0; i < coords.length; i += BATCH_SIZE) {
+		const batch = coords.slice(i, i + BATCH_SIZE);
+		const results = await Promise.allSettled(
+			batch.map(async (coord) => {
+				const alt = await getAltitudeAtPosition(coord[0], coord[1]);
+				if (alt !== null) {
+					coord[2] = alt;
+				}
+			})
+		);
+		for (let j = 0; j < results.length; j++) {
+			if (results[j].status === 'rejected') {
+				logError(
+					'getStraightLineCoords.altitude',
+					(results[j] as PromiseRejectedResult).reason
+				);
+			}
+		}
 	}
 
-	const enriched = await Promise.all(
-		coords.map(async ({ lng, lat }) => {
-			const alt = await getAltitudeAtPosition(lng, lat);
-			return [
-				lng,
-				lat,
-				alt ?? 0,
-			] as number[];
-		})
-	);
-	return enriched;
+	return coords;
 };
 
 export const getCoordsFromRouting = async ({
@@ -85,5 +121,7 @@ export const getCoordsFromRouting = async ({
 			return getBrouterCoords(waypoints, profile.options);
 		case 'straightLine':
 			return getStraightLineCoords(waypoints, profile.options);
+		default:
+			throw new Error(`Unknown routing provider: ${(profile as any)?.provider}`);
 	}
 };

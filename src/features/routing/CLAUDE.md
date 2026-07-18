@@ -22,7 +22,7 @@ RoutingPoint {
   timestamp: string;
   geometry: Point;       // GeoJSON Point (SRID 4326, POINTZ)
   route_id: number;      // FK → routes.id
-  profile: RoutingProfile; // { fast: boolean, v: string } (brouter vehicle type)
+  profile: RoutingProfile; // { provider: 'brouter' | 'straightLine', options: BrouterOptions | StraightLineOptions }
 }
 ```
 

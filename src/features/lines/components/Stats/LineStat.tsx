@@ -35,6 +35,7 @@ const StatIcon: FC<{
 				<Icon
 					source="elevation-rise"
 					size={ICON_SIZE}
+					color={iconColor}
 				/>
 			);
 		case 'downhill':
@@ -42,6 +43,7 @@ const StatIcon: FC<{
 				<Icon
 					source="elevation-decline"
 					size={ICON_SIZE}
+					color={iconColor}
 				/>
 			);
 		case 'minZ':
@@ -49,6 +51,7 @@ const StatIcon: FC<{
 				<Icon
 					source="arrow-collapse-down"
 					size={ICON_SIZE}
+					color={iconColor}
 				/>
 			);
 		case 'maxZ':
@@ -56,6 +59,7 @@ const StatIcon: FC<{
 				<Icon
 					source="arrow-collapse-up"
 					size={ICON_SIZE}
+					color={iconColor}
 				/>
 			);
 		default:

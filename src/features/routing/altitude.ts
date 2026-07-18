@@ -13,9 +13,28 @@ type AltitudeFn = (lng: number, lat: number) => Promise<number | null>;
 
 let _fn: AltitudeFn | null = null;
 
+const RETRY_DELAY_MS = 200;
+const MAX_RETRIES = 5;
+
 export const setAltitudeLookup = (fn: AltitudeFn | null) => {
 	_fn = fn;
 };
 
-export const getAltitudeAtPosition = (lng: number, lat: number): Promise<number | null> =>
-	_fn ? _fn(lng, lat) : Promise.resolve(null);
+const delay = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
+
+export const getAltitudeAtPosition = async (lng: number, lat: number): Promise<number | null> => {
+	for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+		if (_fn) {
+			return _fn(lng, lat);
+		}
+		if (attempt < MAX_RETRIES) {
+			await delay(RETRY_DELAY_MS);
+		}
+	}
+	console.warn(
+		'altitude.getAltitudeAtPosition: altitude lookup not wired after ' +
+			`${MAX_RETRIES} retries (${RETRY_DELAY_MS}ms each). ` +
+			'RoutingMapView may not have mounted yet.'
+	);
+	return null;
+};

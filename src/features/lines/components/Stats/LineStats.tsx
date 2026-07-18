@@ -21,7 +21,7 @@ const LineStats: FC<{
 	const nodes = useMemo(() => {
 		const newNodes: { [key: string]: ReactNode } = {};
 
-		if (stats?.length) {
+		if (undefined !== stats?.length) {
 			newNodes['distance'] = (
 				<LineStat
 					key="distance"
@@ -33,7 +33,7 @@ const LineStats: FC<{
 				/>
 			);
 		}
-		if (stats?.uphill) {
+		if (undefined !== stats?.uphill) {
 			newNodes['uphill'] = (
 				<LineStat
 					key="uphill"
@@ -45,7 +45,7 @@ const LineStats: FC<{
 				/>
 			);
 		}
-		if (stats?.downhill) {
+		if (undefined !== stats?.downhill) {
 			newNodes['downhill'] = (
 				<LineStat
 					key="downhill"
@@ -57,7 +57,7 @@ const LineStats: FC<{
 				/>
 			);
 		}
-		if (stats?.minZ) {
+		if (undefined !== stats?.minZ) {
 			newNodes['minZ'] = (
 				<LineStat
 					key="minZ"
@@ -69,7 +69,7 @@ const LineStats: FC<{
 				/>
 			);
 		}
-		if (stats?.maxZ) {
+		if (undefined !== stats?.maxZ) {
 			newNodes['maxZ'] = (
 				<LineStat
 					key="maxZ"

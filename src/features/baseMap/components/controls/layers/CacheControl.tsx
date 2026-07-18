@@ -148,10 +148,7 @@ const CacheControl = ({
 		treatAsBoolean,
 	]);
 
-	const [cacheCurrent, setCacheCurrent] = useState<{
-		size: number;
-		formatted: string;
-	}>({ size: 0, formatted: '' });
+	const [cacheCurrentFormatted, setCacheCurrentFormatted] = useState<string>('');
 
 	const resolvedBaseDir = useMemo(
 		() =>
@@ -162,24 +159,26 @@ const CacheControl = ({
 		[options, appDirs]
 	);
 
+	const mountedRef = useRef(true);
+	useEffect(() => {
+		return () => {
+			mountedRef.current = false;
+		};
+	}, []);
+
 	const updateCacheInfo = useCallback(() => {
 		FsModule.getCacheInfo()
 			.then((cacheDirs) => {
+				if (!mountedRef.current) return;
 				const dirs = cacheDirs as CacheDir[];
 				const dir = dirs.find((d) => d.path === resolvedBaseDir);
 				const cache = dir?.caches?.find((c) => c.basename === cacheDirChild);
-				if (cache) {
-					setCacheCurrent({
-						size: 1,
-						formatted: cache.readableSize,
-					});
-				} else {
-					setCacheCurrent({ size: 0, formatted: '' });
-				}
+				setCacheCurrentFormatted(cache?.readableSize ?? '');
 			})
 			.catch((err) => {
+				if (!mountedRef.current) return;
 				logError('CacheControl.updateCacheInfo', err);
-				setCacheCurrent({ size: 0, formatted: '' });
+				setCacheCurrentFormatted('');
 			});
 	}, [resolvedBaseDir, cacheDirChild]);
 
@@ -194,9 +193,14 @@ const CacheControl = ({
 	]);
 
 	const handleClearCache = useCallback(() => {
-		FsModule.deleteDir(cachePath).finally(() => {
-			updateCacheInfo();
-		});
+		FsModule.deleteDir(cachePath)
+			.then(() => {
+				updateCacheInfo();
+			})
+			.catch((err) => {
+				logError('CacheControl.handleClearCache', err);
+				updateCacheInfo();
+			});
 	}, [cachePath, updateCacheInfo]);
 
 	const handleCacheDirBaseChange = useCallback(
@@ -227,7 +231,7 @@ const CacheControl = ({
 
 	return (
 		<View style={styles.gap}>
-			{treatAsBoolean ? (
+			{treatAsBoolean !== false ? (
 				<ToggleRowControl
 					label={t('baseMap.useCache')}
 					value={(options?.cacheSize ?? 0) > 0}
@@ -276,12 +280,12 @@ const CacheControl = ({
 				label={t('baseMap.cacheSizeCurrent')}
 				innerStyle={styles.clearRowInner}
 			>
-				<Text>{cacheCurrent.formatted || '0 KB'}</Text>
+				<Text>{cacheCurrentFormatted || '0 KB'}</Text>
 
 				<ButtonHighlight
 					mode="outlined"
 					compact={true}
-					disabled={!cacheCurrent.size}
+					disabled={!cacheCurrentFormatted}
 					onPress={handleClearCache}
 				>
 					{t('baseMap.cacheClear')}
