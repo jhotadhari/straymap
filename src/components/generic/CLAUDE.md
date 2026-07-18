@@ -43,7 +43,6 @@ Components that wrap a primitive or control with a tappable label that opens an 
 | `InfoLabelRow` | Foundational row: label (tappable → Info modal) + children on the right |
 | `InfoWrapper` | Generic wrapper: takes children + Info, renders ModalWrapper when tapped |
 | `InfoButton` | IconButtonHighlight + Info modal (convenience composition) |
-| `InfoRadioRow` | RadioButton wrapped in InfoLabelRow |
 
 `InfoLabelRow` is the workhorse — most form rows in settings panels are built on it.
 

@@ -9,7 +9,7 @@ import { get, isEqual } from 'lodash-es';
 /**
  * Internal dependencies
  */
-import InfoRadioRow from '../../../components/generic/infoWrapper/InfoRadioRow';
+import ToggleRowControl from '../../../components/generic/controls/ToggleRowControl';
 import InfoLabelRow from '../../../components/generic/infoWrapper/InfoLabelRow';
 import ListItemMenuControl from '../../../components/generic/wrapper/ListItemMenuControl';
 import ModalWrapper from '../../../components/generic/wrapper/ModalWrapper';
@@ -24,6 +24,7 @@ import { dbConnection } from '../../dbLoader/DBConnection';
 import { DEFAULT_OPTIONS_BROUTER, DEFAULT_OPTIONS_STRAIGHT_LINE } from '../constants';
 import { formatDistanceUnit } from '../../../lib/formatting';
 import { selectUnitPrefs } from '../../general/selectors';
+import { sharedStyles } from '../../../sharedStyles';
 
 const providerOptions = [
 	{
@@ -269,14 +270,6 @@ const EditPointModal: FC<{
 		});
 	}, [editPoint, setEditPoint]);
 
-	const fastOpt = useMemo(
-		() => ({
-			label: t('routing.fast'),
-			key: 'fast',
-		}),
-		[t]
-	);
-
 	const isBrouter = editPoint.profile.provider === 'brouter';
 
 	return (
@@ -296,15 +289,12 @@ const EditPointModal: FC<{
 			/>
 
 			{isBrouter && (
-				<InfoRadioRow
-					opt={fastOpt}
-					onPress={handleToggleFast}
+				<ToggleRowControl
+					label={t('routing.fast')}
+					value={(editPoint.profile.options as BrouterOptions).fast ?? false}
+					onToggle={handleToggleFast}
 					labelStyle={theme.fonts.bodyMedium}
-					labelExtractor={(a) => a.label}
-					status={
-						(editPoint.profile.options as BrouterOptions).fast ? 'checked' : 'unchecked'
-					}
-					radioAlign={'left'}
+					innerStyle={sharedStyles.alignStart}
 					Info={t('routing.hintFast')}
 				/>
 			)}
