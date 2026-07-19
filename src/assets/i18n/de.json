@@ -60,6 +60,7 @@
 		"demDir": "DEM Verzeichnis",
 		"selectDemDir": "DEM Verzeichnis auswählen"
 	},
+	"selectedNone": "Nichts ausgewählt",
 	"hint": {
 		"maps": {
 			"demDir": "Verzeichnis mit digitalen Höhenmodell-Dateien (.hgt) für Schattierung und Höhenanzeige. Die Dateien müssen manuell heruntergeladen werden — danach ist keine Internetverbindung erforderlich.",

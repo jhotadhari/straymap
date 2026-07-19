@@ -221,7 +221,7 @@ const HgtSourceRowControl = ({
 			if (fallbackAppHgt) {
 				label = t('baseMap.useAppHgt');
 			} else {
-				label = t('selected.none');
+				label = t('selectedNone');
 			}
 		}
 		return (

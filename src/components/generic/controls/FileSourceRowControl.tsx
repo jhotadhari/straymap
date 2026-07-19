@@ -484,7 +484,7 @@ const FileSourceRowControl: FC<{
 			return getLabelFromUri(customUri);
 		}
 		if (!selectedOpt) {
-			return 'selected.none';
+			return 'selectedNone';
 		}
 
 		let fallback = '';

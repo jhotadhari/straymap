@@ -60,6 +60,7 @@
 		"demDir": "DEM Directory",
 		"selectDemDir": "Select App DEM Directory"
 	},
+	"selectedNone": "Nothing selected",
 	"hint": {
 		"maps": {
 			"demDir": "Directory containing digital elevation model (.hgt) files for hillshading and altitude display. Files must be downloaded manually — no internet connection is needed afterwards.",

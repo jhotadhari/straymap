@@ -60,6 +60,7 @@
 		"demDir": "Diretório DEM",
 		"selectDemDir": "Selecionar diretório DEM"
 	},
+	"selectedNone": "Nada selecionado",
 	"hint": {
 		"maps": {
 			"demDir": "Diretório contendo arquivos de modelo digital de elevação (.hgt) para sombreamento e exibição de altitude. Os arquivos devem ser baixados manualmente — não é necessária conexão com a internet depois.",
