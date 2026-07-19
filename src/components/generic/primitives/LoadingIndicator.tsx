@@ -32,7 +32,7 @@ const LoadingIndicator: FC<{
 		transform: [{ rotate: `${rotation.value}deg` }],
 	}));
 
-	const dimension = typeof size === 'number' ? size : size === 'small' ? 24 : 48;
+	const dimension = typeof size === 'number' ? size : size === 'large' ? 48 : 24;
 	const borderWidth = dimension / 10;
 
 	const ringStyle = {
