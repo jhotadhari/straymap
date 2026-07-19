@@ -2,27 +2,22 @@
  * External dependencies
  */
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import {
-	Animated,
-	useAnimatedValue,
-	View,
-	Pressable,
-	Easing,
-	StyleSheet,
-	LayoutChangeEvent,
-} from 'react-native';
+import { View, Pressable, StyleSheet, LayoutChangeEvent } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import VectorDrawable from '@klarna/react-native-vector-drawable';
+import Animated, {
+	useSharedValue,
+	useAnimatedStyle,
+	withTiming,
+	withSequence,
+	withRepeat,
+	Easing,
+} from 'react-native-reanimated';
 
 /**
  * Internal dependencies
  */
 import { randomNumber } from '../lib/utilsLight';
-
-const rotationInterpolateConfig = {
-	inputRange: [-360, 360],
-	outputRange: ['-360deg', '360deg'],
-};
 
 const strings = [
 	'Love Bicycles',
@@ -75,6 +70,7 @@ const AnimatedLogo = ({
 		textIsInitialized,
 		stringIndex,
 	]);
+
 	useEffect(() => {
 		if (textIsInitialized) {
 			const maybeNewVal = [...stringIndexUsed, stringIndex];
@@ -84,48 +80,26 @@ const AnimatedLogo = ({
 	}, [stringIndex]);
 
 	const [textDims, setTextDims] = useState([0, 0]);
-	const textOpacity = useAnimatedValue(0);
-	const textX = useAnimatedValue(10);
-	const textY = useAnimatedValue(10);
 
-	const catScale = useAnimatedValue(1.1);
-	const catTranslateY = useAnimatedValue(-5);
-	const landRotate = useAnimatedValue(0);
-	const waterRotate = useAnimatedValue(0);
+	const textOpacity = useSharedValue(0);
+	const textX = useSharedValue(10);
+	const textY = useSharedValue(10);
 
-	// const textDimsKey = textDims.join('');
-	// animate text
+	const catScale = useSharedValue(1.1);
+	const catTranslateY = useSharedValue(-5);
+	const landRotate = useSharedValue(0);
+	const waterRotate = useSharedValue(0);
+
+	// Animate text
 	useEffect(() => {
 		if (textIsInitialized) {
-			// text position
-			Animated.timing(textX, {
-				toValue: randomNumber(0, size - textDims[0]),
-				duration: 150,
-				useNativeDriver: true,
-			}).start();
-			Animated.timing(textY, {
-				toValue: randomNumber(0, size - textDims[1]),
-				duration: 150,
-				useNativeDriver: true,
-			}).start();
-			// textOpacity
-			Animated.sequence([
-				Animated.timing(textOpacity, {
-					toValue: 1,
-					duration: 300,
-					useNativeDriver: true,
-				}),
-				Animated.timing(textOpacity, {
-					toValue: 1,
-					duration: 400,
-					useNativeDriver: true,
-				}),
-				Animated.timing(textOpacity, {
-					toValue: 0,
-					duration: 300,
-					useNativeDriver: true,
-				}),
-			]).start();
+			textX.value = withTiming(randomNumber(0, size - textDims[0]), { duration: 150 });
+			textY.value = withTiming(randomNumber(0, size - textDims[1]), { duration: 150 });
+			textOpacity.value = withSequence(
+				withTiming(1, { duration: 300 }),
+				withTiming(1, { duration: 400 }),
+				withTiming(0, { duration: 300 })
+			);
 		}
 	}, [
 		textDims,
@@ -137,22 +111,13 @@ const AnimatedLogo = ({
 	]);
 
 	const loopAnimate = useCallback(() => {
-		// water
-		Animated.loop(
-			Animated.sequence([
-				Animated.timing(waterRotate, {
-					toValue: 360,
-					duration: 2500,
-					useNativeDriver: true,
-					easing: Easing.linear,
-				}),
-				Animated.timing(waterRotate, {
-					toValue: 0,
-					duration: 0,
-					useNativeDriver: true,
-				}),
-			])
-		).start();
+		waterRotate.value = withRepeat(
+			withSequence(
+				withTiming(360, { duration: 2500, easing: Easing.linear }),
+				withTiming(0, { duration: 0 })
+			),
+			-1
+		);
 	}, [waterRotate]);
 
 	useEffect(() => {
@@ -160,68 +125,24 @@ const AnimatedLogo = ({
 	}, [animateLoop, loopAnimate]);
 
 	const onPressAnimate = useCallback(() => {
-		// water
-		Animated.sequence([
-			Animated.timing(waterRotate, {
-				toValue: 40,
-				duration: 150,
-				useNativeDriver: true,
-			}),
-			Animated.timing(waterRotate, {
-				toValue: -40,
-				duration: 150,
-				useNativeDriver: true,
-			}),
-			Animated.timing(waterRotate, {
-				toValue: 0,
-				duration: 150,
-				useNativeDriver: true,
-			}),
-		]).start();
-		// land
-		Animated.sequence([
-			Animated.timing(landRotate, {
-				toValue: -20,
-				duration: 150,
-				useNativeDriver: true,
-			}),
-			Animated.timing(landRotate, {
-				toValue: 15,
-				duration: 150,
-				useNativeDriver: true,
-			}),
-			Animated.timing(landRotate, {
-				toValue: 0,
-				duration: 150,
-				useNativeDriver: true,
-			}),
-		]).start();
-		// catScale
-		Animated.sequence([
-			Animated.timing(catScale, {
-				toValue: 1.25,
-				duration: 175,
-				useNativeDriver: true,
-			}),
-			Animated.timing(catScale, {
-				toValue: 1.1,
-				duration: 175,
-				useNativeDriver: true,
-			}),
-		]).start();
-		// catTranslateY
-		Animated.sequence([
-			Animated.timing(catTranslateY, {
-				toValue: -15,
-				duration: 175,
-				useNativeDriver: true,
-			}),
-			Animated.timing(catTranslateY, {
-				toValue: -5,
-				duration: 175,
-				useNativeDriver: true,
-			}),
-		]).start();
+		waterRotate.value = withSequence(
+			withTiming(40, { duration: 150 }),
+			withTiming(-40, { duration: 150 }),
+			withTiming(0, { duration: 150 })
+		);
+		landRotate.value = withSequence(
+			withTiming(-20, { duration: 150 }),
+			withTiming(15, { duration: 150 }),
+			withTiming(0, { duration: 150 })
+		);
+		catScale.value = withSequence(
+			withTiming(1.25, { duration: 175 }),
+			withTiming(1.1, { duration: 175 })
+		);
+		catTranslateY.value = withSequence(
+			withTiming(-15, { duration: 175 }),
+			withTiming(-5, { duration: 175 })
+		);
 	}, [
 		waterRotate,
 		landRotate,
@@ -229,61 +150,28 @@ const AnimatedLogo = ({
 		catTranslateY,
 	]);
 
+	const styleWaterWrapper = useAnimatedStyle(() => ({
+		transform: [{ rotate: `${waterRotate.value}deg` }],
+	}));
+
+	const styleLandWrapper = useAnimatedStyle(() => ({
+		transform: [{ rotate: `${landRotate.value}deg` }],
+	}));
+
+	const styleCatWrapper = useAnimatedStyle(() => ({
+		transform: [{ scale: catScale.value }, { translateY: catTranslateY.value }],
+	}));
+
+	const styleTextWrapper = useAnimatedStyle(() => ({
+		opacity: textOpacity.value,
+		transform: [{ translateX: textX.value }, { translateY: textY.value }],
+	}));
+
 	const stylePressable = useMemo(() => [styles.pressable, { width: size, height: size }], [size]);
-
-	const styleWaterWrapper = useMemo(
-		() => [
-			styles.waterLandWrapper,
-			{ transform: [{ rotate: waterRotate.interpolate(rotationInterpolateConfig) }] },
-		],
-		[waterRotate]
-	);
-
-	const styleLandWrapper = useMemo(
-		() => [
-			styles.waterLandWrapper,
-			{ transform: [{ rotate: landRotate.interpolate(rotationInterpolateConfig) }] },
-		],
-		[landRotate]
-	);
 
 	const styleDrawableHalf = useMemo(() => ({ width: size * 0.8, height: size * 0.8 }), [size]);
 
-	const styleCatWrapper = useMemo(
-		() => [
-			styles.catWrapper,
-			{
-				width: size,
-				height: size,
-				transform: [{ scale: catScale }, { translateY: catTranslateY }],
-			},
-		],
-		[
-			size,
-			catScale,
-			catTranslateY,
-		]
-	);
-
 	const styleDrawableFull = useMemo(() => ({ width: size, height: size }), [size]);
-
-	const styleTextWrapper = useMemo(
-		() => [
-			styles.textWrapper,
-			{
-				width: size,
-				height: size,
-				opacity: textOpacity,
-				transform: [{ translateX: textX }, { translateY: textY }],
-			},
-		],
-		[
-			size,
-			textOpacity,
-			textX,
-			textY,
-		]
-	);
 
 	const styleText = useMemo(() => [theme.fonts.displayMedium, styles.text], [theme]);
 
@@ -311,21 +199,27 @@ const AnimatedLogo = ({
 			style={stylePressable}
 			onPress={handlePress}
 		>
-			<Animated.View style={styleWaterWrapper}>
+			<Animated.View style={[styles.waterLandWrapper, styleWaterWrapper]}>
 				<VectorDrawable
 					resourceName="world_map_water"
 					style={styleDrawableHalf}
 				/>
 			</Animated.View>
 
-			<Animated.View style={styleLandWrapper}>
+			<Animated.View style={[styles.waterLandWrapper, styleLandWrapper]}>
 				<VectorDrawable
 					resourceName="world_map_land"
 					style={styleDrawableHalf}
 				/>
 			</Animated.View>
 
-			<Animated.View style={styleCatWrapper}>
+			<Animated.View
+				style={[
+					styles.catWrapper,
+					{ width: size, height: size },
+					styleCatWrapper,
+				]}
+			>
 				<VectorDrawable
 					resourceName="ic_launcher_foreground"
 					style={styleDrawableFull}
@@ -333,7 +227,13 @@ const AnimatedLogo = ({
 			</Animated.View>
 
 			{textIsInitialized && (
-				<Animated.View style={styleTextWrapper}>
+				<Animated.View
+					style={[
+						styles.textWrapper,
+						{ width: size, height: size },
+						styleTextWrapper,
+					]}
+				>
 					<View
 						onLayout={handleLayout}
 						style={styles.textInner}
