@@ -11,18 +11,15 @@ import { View, BackHandler, TouchableHighlight, StyleSheet, LayoutChangeEvent } 
  */
 import { featureRegistry } from '../../FeatureRegistry';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
-import { selectUiItemKeys, selectIsBusy } from '../selectors';
+import { selectUiItemKeys } from '../selectors';
 import { setUiItemKeys } from '../slice';
-import LoadingIndicator from '../../../components/generic/primitives/LoadingIndicator';
+import LoadingBar from './LoadingBar';
 import { AppContext } from '../../../Context';
 import { DashboardWrapped } from '../../dashboard/appOverlays/Dashboard';
 import { selectItemsCount } from '../../dashboard/selectors';
 
 const TopAppBarMenu: FC<{ handleMenuPress?: () => void }> = ({ handleMenuPress }) => {
 	const theme = useTheme();
-
-	const isBusy = useAppSelector(selectIsBusy);
-
 	return (
 		<TouchableHighlight
 			style={styles.button}
@@ -30,19 +27,14 @@ const TopAppBarMenu: FC<{ handleMenuPress?: () => void }> = ({ handleMenuPress }
 			onPress={handleMenuPress}
 		>
 			<View>
-				{isBusy && <LoadingIndicator size={30} />}
-				{!isBusy && (
-					<Icon
-						size={30}
-						source="menu"
-					/>
-				)}
+				<Icon
+					size={30}
+					source="menu"
+				/>
 			</View>
 		</TouchableHighlight>
 	);
 };
-
-// const arrowSize = { height: 0, width: 0 };
 
 const TopAppBar: FC = () => {
 	const { t } = useTranslation();
@@ -64,15 +56,6 @@ const TopAppBar: FC = () => {
 				.join(' / '),
 		[uiItemsKeys, t]
 	);
-
-	// const menuItems = useMemo(
-	// 	() =>
-	// 		getUiItemsByKey([
-	// 			'settings',
-	// 			'about',
-	// 		]),
-	// 	[t]
-	// );
 
 	const backAction = useCallback(() => {
 		if (uiItemsKeys.length) {
@@ -111,49 +94,50 @@ const TopAppBar: FC = () => {
 	);
 
 	return (
-		<View
-			onLayout={handleLayout}
-			style={styleBar}
-		>
-			{!showTopDashboard && (
-				<Fragment>
-					{uiItemsKeys.length && (
-						<TouchableHighlight
-							style={styles.button}
-							underlayColor={theme.colors.elevation.level3}
-							onPress={backAction}
-						>
-							<Icon
-								source="arrow-left"
-								size={30}
-							/>
-						</TouchableHighlight>
-					)}
+		<View onLayout={handleLayout}>
+			<View style={styleBar}>
+				{!showTopDashboard && (
+					<Fragment>
+						{uiItemsKeys.length && (
+							<TouchableHighlight
+								style={styles.button}
+								underlayColor={theme.colors.elevation.level3}
+								onPress={backAction}
+							>
+								<Icon
+									source="arrow-left"
+									size={30}
+								/>
+							</TouchableHighlight>
+						)}
 
-					<View style={styles.appBarTitle}>
-						<Text
-							style={theme.fonts.headlineSmall}
-							numberOfLines={1}
-							ellipsizeMode="head"
-						>
-							{appBarTitle}
-						</Text>
+						<View style={styles.appBarTitle}>
+							<Text
+								style={theme.fonts.headlineSmall}
+								numberOfLines={1}
+								ellipsizeMode="head"
+							>
+								{appBarTitle}
+							</Text>
+						</View>
+					</Fragment>
+				)}
+
+				{showTopDashboard && <DashboardWrapped position="top" />}
+
+				{/* Fix app bar height. because the visible button is absolute and dosen't provide a height */}
+				<View style={styles.menuFix}>
+					<TopAppBarMenu />
+				</View>
+
+				{showMenuBtn && (
+					<View style={styles.menuAbsolute}>
+						<TopAppBarMenu handleMenuPress={handleMenuPress} />
 					</View>
-				</Fragment>
-			)}
-
-			{showTopDashboard && <DashboardWrapped position="top" />}
-
-			{/* Fix app bar height. because the visible button is absolute and dosen't provide a height */}
-			<View style={styles.menuFix}>
-				<TopAppBarMenu />
+				)}
 			</View>
 
-			{showMenuBtn && (
-				<View style={styles.menuAbsolute}>
-					<TopAppBarMenu handleMenuPress={handleMenuPress} />
-				</View>
-			)}
+			<LoadingBar />
 		</View>
 	);
 };
@@ -179,7 +163,7 @@ const styles = StyleSheet.create({
 	menuAbsolute: {
 		position: 'absolute',
 		right: 4,
-		zIndex: 9,
+		zIndex: 999,
 	},
 });
 
