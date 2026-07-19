@@ -125,6 +125,20 @@ export const cancelLinesQueries = (queryClient: { cancelQueries: (opts: any) => 
 	});
 
 /**
+ * Cancel all in-flight line geometry queries (both singular `lineGeom`
+ * and batch `lineGeomsBatch`).  Use in mutation onMutate to prevent
+ * stale geometry fetches from overwriting writes.
+ */
+export const cancelLineGeomQueries = (queryClient: {
+	cancelQueries: (opts: any) => Promise<any>;
+}) =>
+	queryClient.cancelQueries({
+		predicate: (query: any) =>
+			Array.isArray(query.queryKey) &&
+			(query.queryKey[0] === 'lineGeom' || query.queryKey[0] === 'lineGeomsBatch'),
+	});
+
+/**
  * Invalidate and refetch all active lines queries, returning a promise
  * that resolves when every matching query has completed.
  * Use after tag-line association changes (add/remove tags on lines).
@@ -143,6 +157,24 @@ export const invalidateLinesQueries = (queryClient: {
 	return queryClient
 		.invalidateQueries({ predicate })
 		.then(() => queryClient.refetchQueries({ predicate }));
+};
+
+/**
+ * Invalidate all line geometry queries (both singular `lineGeom` and
+ * batch `lineGeomsBatch`).  Use after any mutation that changes a line's
+ * geometry so that map rendering and export consumers pick up the new data.
+ *
+ * Uses a predicate because React Query v5 defaults exact:true on queryKey
+ * filters — a literal key wouldn't match the dynamic keys that carry
+ * line IDs, simplify tolerance, bbox, or consumer-specific suffixes.
+ */
+export const invalidateLineGeomQueries = (queryClient: {
+	invalidateQueries: (opts: any) => Promise<any>;
+}) => {
+	const predicate = (query: any) =>
+		Array.isArray(query.queryKey) &&
+		(query.queryKey[0] === 'lineGeom' || query.queryKey[0] === 'lineGeomsBatch');
+	return queryClient.invalidateQueries({ predicate });
 };
 
 /**

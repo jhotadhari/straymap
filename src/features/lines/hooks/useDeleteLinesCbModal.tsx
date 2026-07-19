@@ -18,7 +18,13 @@ import { useAppDispatch } from '../../../store/hooks';
 import { sharedStyles } from '../../../sharedStyles';
 import { setIsRouting } from '../../routing/slice';
 import { deleteLines } from '../db/actionsLine';
-import { cancelLinesQueries, invalidateLinesQueries, invalidateTagsTable } from '../db/queryFns';
+import {
+	cancelLinesQueries,
+	cancelLineGeomQueries,
+	invalidateLinesQueries,
+	invalidateLineGeomQueries,
+	invalidateTagsTable,
+} from '../db/queryFns';
 import { dbConnection } from '../../dbLoader/DBConnection';
 
 const useDeleteLinesCbModal = ({
@@ -70,13 +76,7 @@ const useDeleteLinesCbModal = ({
 			mutationFn: (ids?: number[]) => deleteLines(ids),
 			onMutate: async () => {
 				await cancelLinesQueries(dbConnection.queryClient!);
-				await Promise.all(
-					deleteIds.map(async (id) => {
-						await dbConnection.queryClient!.cancelQueries({
-							queryKey: ['lineGeom', id],
-						});
-					})
-				);
+				await cancelLineGeomQueries(dbConnection.queryClient!);
 				if (includesRoute) {
 					await dbConnection.queryClient!.cancelQueries({ queryKey: ['route', routeId] });
 					await Promise.all(
@@ -90,6 +90,7 @@ const useDeleteLinesCbModal = ({
 			},
 			onSuccess: async () => {
 				await invalidateLinesQueries(dbConnection.queryClient!);
+				await invalidateLineGeomQueries(dbConnection.queryClient!);
 				invalidateTagsTable(dbConnection.queryClient!);
 				// Close modal.
 				handleDismissModal();

@@ -34,6 +34,10 @@ const getBrouterCoords = (waypoints: number[][], opts: BrouterOptions): Promise<
 			format: 'json',
 		})
 			.then((result) => {
+				if (!result.parsed) {
+					reject('Failed to parse BRouter JSON track');
+					return;
+				}
 				const coords =
 					result.parsed?.track.features.flatMap((f) => f.geometry.coordinates) ?? [];
 				resolve(coords);

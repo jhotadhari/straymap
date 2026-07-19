@@ -99,11 +99,15 @@ startAppListening({
 startAppListening({
 	actionCreator: setIsRoutingAction,
 	effect: async (action, listenerApi) => {
-		if (
-			action.payload &&
-			listenerApi.getState().dbLoader.initialized &&
-			dbConnection?.queryClient
-		) {
+		if (!action.payload) {
+			// Routing stopped: clear the busy key in case segments were
+			// cleared by the reducer without individual setSegment actions.
+			listenerApi.dispatch(removeBusyKey('routing:calc'));
+			routingCalcBusy = false;
+			return;
+		}
+
+		if (listenerApi.getState().dbLoader.initialized && dbConnection?.queryClient) {
 			listenerApi.dispatch(
 				processRouting(dbConnection.queryClient, {
 					updateLine: false,

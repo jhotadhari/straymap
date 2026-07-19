@@ -15,7 +15,11 @@ import { aggregateSegmentsToCoords, getCoordsFromRouting, getSegmentRecordId } f
 import { setLineSelected } from '../lines/slice';
 import { lineString } from '@turf/turf';
 import { createLines, updateLine, lineAddTag, deleteLine } from '../lines/db/actionsLine';
-import { invalidateTagsTable, invalidateLinesQueries } from '../lines/db/queryFns';
+import {
+	invalidateTagsTable,
+	invalidateLinesQueries,
+	invalidateLineGeomQueries,
+} from '../lines/db/queryFns';
 import { ensureTagByLabel } from '../lines/db/actionsTag';
 import { updateRoute } from './db/actionsRoute';
 import { queryRoute } from './db/queryFns';
@@ -147,6 +151,10 @@ export const setIsRouting = (newIsRouting: number | false): AppThunk => {
 								await invalidateLinesQueries(dbConnection.queryClient!);
 								await invalidateTagsTable(dbConnection.queryClient!);
 							}
+							// Invalidate geometry queries so LinesMapView
+							// picks up the final line geometry now that the
+							// routing line is no longer a system line.
+							await invalidateLineGeomQueries(dbConnection.queryClient!);
 						});
 			}
 		}
@@ -325,9 +333,16 @@ export const processRouting = (
 				// setLineSelected so LinesMapView sees the updated
 				// routingLineId and can skip the routing line.
 				await queryClient.invalidateQueries({ queryKey: ['route', routeId] });
+				// Re-check routing state after async segment work —
+				// the user may have stopped routing while BRouter was
+				// computing, and the reducer already cleared
+				// routingLineId.  Don't resurrect it.
+				const routingStillActive = selectIsRouting(getState()) === routeId;
 				if (lineId) {
-					dispatch(setRoutingLineId(lineId));
-					dispatch(setLineSelected(lineId, true));
+					if (routingStillActive) {
+						dispatch(setRoutingLineId(lineId));
+						dispatch(setLineSelected(lineId, true));
+					}
 					await queryClient.invalidateQueries({ queryKey: ['lineGeom', lineId] });
 					await invalidateLinesQueries(queryClient);
 					await queryClient.invalidateQueries({ queryKey: ['routeForLine', lineId] });
@@ -347,9 +362,14 @@ export const processRouting = (
 					queryKey: ['route', routeId],
 					queryFn: queryRoute,
 				});
+				// Same guard as above: routing may have been stopped
+				// during the async DB fetch.
+				const routingStillActive = selectIsRouting(getState()) === routeId;
 				if (route?.line_id) {
-					dispatch(setRoutingLineId(route.line_id));
-					dispatch(setLineSelected(route.line_id, true));
+					if (routingStillActive) {
+						dispatch(setRoutingLineId(route.line_id));
+						dispatch(setLineSelected(route.line_id, true));
+					}
 					await queryClient.invalidateQueries({ queryKey: ['lineGeom', route.line_id] });
 					await invalidateLinesQueries(queryClient);
 				}
