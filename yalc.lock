@@ -2,7 +2,7 @@
   "version": "v1",
   "packages": {
     "react-native-mapsforge-vtm": {
-      "signature": "76eef95782b17bab137c906438b6d1f8",
+      "signature": "e2f4672dd60650d7a8d09261747545c1",
       "file": true,
       "replaced": "^0.7.0"
     },
@@ -21,7 +21,7 @@
       "replaced": "*"
     },
     "react-native-mapsforge-vtm-ext-path-color-ramp": {
-      "signature": "6dc56868ad4ebcb8ed0a651ecdf5421a",
+      "signature": "2a5014d35d378172794c5aa6cc457aaa",
       "file": true
     }
   }

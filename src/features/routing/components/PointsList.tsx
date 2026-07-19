@@ -260,11 +260,9 @@ const DraggableItem: FC<{
 	}, [item.id, mutation]);
 
 	const styleDraggableItem = useMemo(
-		// ??? we need dome other nice placeholder than backgroundColor for isDeleting.
 		() => [
 			styles.draggableItem,
 			{ width },
-			isDeleting && styles.draggableItemDeleting,
 		],
 		[width, isDeleting]
 	);
@@ -510,9 +508,6 @@ const styles = StyleSheet.create({
 	draggableItem: {
 		paddingHorizontal: 8,
 		justifyContent: 'flex-start',
-	},
-	draggableItemDeleting: {
-		backgroundColor: '#ff0000',
 	},
 	itemRow: {
 		justifyContent: 'space-between',

@@ -52,4 +52,9 @@ export const tableStyles = StyleSheet.create({
 		gap: 16,
 		marginTop: 16,
 	},
+	loadingContainer: {
+		flex: 1,
+		alignItems: 'center',
+		justifyContent: 'center',
+	},
 });

@@ -4,7 +4,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { FC, memo, useCallback, useContext, useMemo } from 'react';
 import { FlatList } from 'react-native-gesture-handler';
-import { ListRenderItem, StyleSheet } from 'react-native';
+import { ListRenderItem, StyleSheet, View } from 'react-native';
 
 /**
  * Internal dependencies
@@ -15,6 +15,8 @@ import { queryLinesWithoutGeom } from '../../db/queryFns';
 import ListRow, { ListRowProps } from './ListRow';
 import DrawerContext from '../../../drawers/DrawerContext';
 import { Line } from '../../types';
+import LoadingIndicator from '../../../../components/generic/primitives/LoadingIndicator';
+
 const keyExtractor = (line: { id: number }) => line.id.toString();
 
 const ListRowMemo = memo(
@@ -34,7 +36,7 @@ const SelectedLinesList: FC = () => {
 	const { width } = useContext(DrawerContext);
 	const selectedIds = useAppSelector(selectSelected);
 
-	const { data: lines } = useQuery({
+	const { data: lines, isLoading } = useQuery({
 		queryKey: ['lines', selectedIds],
 		queryFn: queryLinesWithoutGeom,
 		gcTime: 1000 * 60 * 5, // The time in milliseconds that unused/inactive cache data remains in memory. When a query's cache becomes unused or inactive, that cache data will be garbage collected after this duration.
@@ -61,19 +63,32 @@ const SelectedLinesList: FC = () => {
 	const styleList = useMemo(() => [styles.list, { width }], [width]);
 
 	return (
-		<FlatList
-			style={styleList}
-			scrollEnabled={true}
-			initialNumToRender={15}
-			data={lines ?? []}
-			keyExtractor={keyExtractor}
-			renderItem={renderItem}
-		/>
+		<>
+			{isLoading ? (
+				<View style={styles.loadingContainer}>
+					<LoadingIndicator size="large" />
+				</View>
+			) : (
+				<FlatList
+					style={styleList}
+					scrollEnabled={true}
+					initialNumToRender={15}
+					data={lines ?? []}
+					keyExtractor={keyExtractor}
+					renderItem={renderItem}
+				/>
+			)}
+		</>
 	);
 };
 
 const styles = StyleSheet.create({
 	list: { flex: 1 },
+	loadingContainer: {
+		flex: 1,
+		alignItems: 'center',
+		justifyContent: 'center',
+	},
 });
 
 export default SelectedLinesList;

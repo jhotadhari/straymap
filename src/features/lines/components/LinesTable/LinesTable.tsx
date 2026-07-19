@@ -40,6 +40,7 @@ import useActivateDrawerItem from '../../../drawers/hooks/useActivateDrawerItem'
 import { FooterContext, HeaderContext, ColumnHeaderMenuContext } from './Context';
 import LineEditModal from '../LineEditModal/LineEditModal';
 import LinesFilterModals from './FilterModals';
+import LoadingIndicator from '../../../../components/generic/primitives/LoadingIndicator';
 
 const keyExtractor = (line: { id: number }) => line.id.toString();
 
@@ -93,7 +94,7 @@ const LinesTable: FC = () => {
 	const filters = useAppSelector(selectLinesFilters);
 	const filterLogic = useAppSelector(selectLinesFilterLogic);
 
-	const { data: lines } = useQuery({
+	const { data: lines, isLoading } = useQuery({
 		queryKey: ['lines', { sort, filters, filterLogic }],
 		queryFn: queryLinesWithoutGeom,
 		gcTime: 1000 * 60 * 5, // The time in milliseconds that unused/inactive cache data remains in memory. When a query's cache becomes unused or inactive, that cache data will be garbage collected after this duration.
@@ -244,19 +245,25 @@ const LinesTable: FC = () => {
 					<Header />
 				</HeaderContext.Provider>
 
-				<ScrollView horizontal={true}>
-					<View style={styles.flexOne}>
-						<FlatList
-							stickyHeaderIndices={[0]}
-							scrollEnabled={true}
-							initialNumToRender={15}
-							data={lines ?? []}
-							keyExtractor={keyExtractor}
-							ListHeaderComponent={renderHeader}
-							renderItem={renderItem}
-						/>
+				{isLoading ? (
+					<View style={tableStyles.loadingContainer}>
+						<LoadingIndicator size="large" />
 					</View>
-				</ScrollView>
+				) : (
+					<ScrollView horizontal={true}>
+						<View style={styles.flexOne}>
+							<FlatList
+								stickyHeaderIndices={[0]}
+								scrollEnabled={true}
+								initialNumToRender={15}
+								data={lines ?? []}
+								keyExtractor={keyExtractor}
+								ListHeaderComponent={renderHeader}
+								renderItem={renderItem}
+							/>
+						</View>
+					</ScrollView>
+				)}
 
 				<FooterContext.Provider
 					value={{

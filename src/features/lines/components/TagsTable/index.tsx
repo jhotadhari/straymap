@@ -24,6 +24,7 @@ import TagFilterModals from './FilterModals';
 import TagEditModal from '../TagEditModal/TagEditModal';
 import CreateTagModal from '../CreateTagModal';
 import { setTagTemp } from '../../slice';
+import LoadingIndicator from '../../../../components/generic/primitives/LoadingIndicator';
 
 const keyExtractor = (tag: Tag & { line_count: number }) => tag.id.toString();
 
@@ -44,7 +45,7 @@ const TagsTable: FC = () => {
 	const filters = useAppSelector(selectTagsFilters);
 	const filterLogic = useAppSelector(selectTagsFilterLogic);
 
-	const { data: tags } = useQuery({
+	const { data: tags, isLoading } = useQuery({
 		queryKey: ['tagsTable', { sort, filters, filterLogic }],
 		queryFn: queryTagsWithLineCounts,
 		gcTime: 1000 * 60 * 5,
@@ -151,19 +152,25 @@ const TagsTable: FC = () => {
 					<TagHeader />
 				</HeaderContext.Provider>
 
-				<ScrollView horizontal>
-					<View style={styles.flexOne}>
-						<FlatList
-							stickyHeaderIndices={[0]}
-							scrollEnabled
-							initialNumToRender={15}
-							data={tags ?? []}
-							keyExtractor={keyExtractor}
-							ListHeaderComponent={renderHeader}
-							renderItem={renderItem}
-						/>
+				{isLoading ? (
+					<View style={tableStyles.loadingContainer}>
+						<LoadingIndicator size="large" />
 					</View>
-				</ScrollView>
+				) : (
+					<ScrollView horizontal>
+						<View style={styles.flexOne}>
+							<FlatList
+								stickyHeaderIndices={[0]}
+								scrollEnabled
+								initialNumToRender={15}
+								data={tags ?? []}
+								keyExtractor={keyExtractor}
+								ListHeaderComponent={renderHeader}
+								renderItem={renderItem}
+							/>
+						</View>
+					</ScrollView>
+				)}
 
 				<FooterContext.Provider
 					value={{
