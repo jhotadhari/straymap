@@ -476,6 +476,7 @@ const styles = StyleSheet.create({
 	segmentRowContent: {
 		alignItems: 'center',
 		flexDirection: 'row',
+		flexShrink: 1,
 		gap: 8,
 	},
 	segmentRowAction: {},
@@ -496,6 +497,7 @@ const styles = StyleSheet.create({
 	errorText: {
 		marginRight: 10,
 		flexGrow: 1,
+		flexShrink: 1,
 	},
 	compactButtonAction: {
 		marginLeft: -8,
@@ -524,6 +526,8 @@ const styles = StyleSheet.create({
 	},
 	stat: {
 		paddingTop: 8,
+		flexGrow: 1,
+		flexShrink: 1,
 	},
 });
 

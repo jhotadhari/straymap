@@ -108,11 +108,11 @@ const SegmentLine: FC<{
 		!simplifiedCoords
 	) {
 		coords = placeholderCoordinates;
-		if (
+		if ( (
 			segment &&
 			segment?.positions &&
 			segment?.positions.length < 2 // if segment is empty but brouter swallowed the error silently
-		) {
+		) || segment?.errorMsg ) {
 			style = stylePathError;
 		} else if (!segment || segment?.isFetching || !simplifiedCoords) {
 			style = stylePathFetching;
