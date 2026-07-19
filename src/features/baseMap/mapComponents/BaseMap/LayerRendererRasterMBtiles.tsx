@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { FC } from 'react';
+import { FC, useCallback, useEffect } from 'react';
 import {
 	LayerMBTilesBitmap,
 	LayerMapsforgeResponse,
@@ -20,10 +20,31 @@ const LayerRendererRasterMBtiles: FC<{
 		key: string,
 		response: LayerMapsforgeResponse | LayerMBTilesBitmapResponse
 	) => void;
-}> = ({ layer, onLayerChange }) => {
+	onLayerCreated?: (layerKey: string, layerType: string) => void;
+}> = ({ layer, onLayerChange, onLayerCreated }) => {
 	const opts = layer.options;
 
 	const handleCreateOrChange = useLayerChangeCallback(layer.key, onLayerChange);
+
+	// Wrap onCreate to also signal the busy key. onChange does not need this —
+	// only the initial creation indicates the layer is ready.
+	const handleCreate = useCallback(
+		(response: LayerMBTilesBitmapResponse) => {
+			handleCreateOrChange(response);
+			onLayerCreated?.(layer.key, 'raster-MBtiles');
+		},
+		[
+			handleCreateOrChange,
+			onLayerCreated,
+			layer.key,
+		]
+	);
+
+	// Safety net: remove busy key on unmount in case the layer was removed
+	// before onCreate fired (e.g. user toggled visibility during init).
+	useEffect(() => {
+		return () => onLayerCreated?.(layer.key, 'raster-MBtiles');
+	}, [onLayerCreated, layer.key]);
 
 	return (
 		<LayerMBTilesBitmap
@@ -31,7 +52,7 @@ const LayerRendererRasterMBtiles: FC<{
 			mapFile={opts.mapFile}
 			enabledZoomMin={opts.enabledZoomMin}
 			enabledZoomMax={opts.enabledZoomMax}
-			onCreate={handleCreateOrChange}
+			onCreate={handleCreate}
 			onChange={handleCreateOrChange}
 		/>
 	);

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { FC } from 'react';
+import { FC, useCallback, useEffect } from 'react';
 import {
 	LayerMapsforge,
 	LayerMapsforgeProps,
@@ -22,10 +22,31 @@ const LayerRendererMapsforge: FC<{
 		key: string,
 		response: LayerMapsforgeResponse | LayerMBTilesBitmapResponse
 	) => void;
-}> = ({ layer, profile, onLayerChange }) => {
+	onLayerCreated?: (layerKey: string, layerType: string) => void;
+}> = ({ layer, profile, onLayerChange, onLayerCreated }) => {
 	const opts = layer.options;
 
 	const handleCreateOrChange = useLayerChangeCallback(layer.key, onLayerChange);
+
+	// Wrap onCreate to also signal the busy key. onChange does not need this —
+	// only the initial creation indicates the layer is ready.
+	const handleCreate = useCallback(
+		(response: LayerMapsforgeResponse) => {
+			handleCreateOrChange(response);
+			onLayerCreated?.(layer.key, 'mapsforge');
+		},
+		[
+			handleCreateOrChange,
+			onLayerCreated,
+			layer.key,
+		]
+	);
+
+	// Safety net: remove busy key on unmount in case the layer was removed
+	// before onCreate fired (e.g. user toggled visibility during init).
+	useEffect(() => {
+		return () => onLayerCreated?.(layer.key, 'mapsforge');
+	}, [onLayerCreated, layer.key]);
 
 	return (
 		<LayerMapsforge
@@ -38,7 +59,7 @@ const LayerRendererMapsforge: FC<{
 			renderOverlays={profile.renderOverlays}
 			hasBuildings={profile.hasBuildings}
 			hasLabels={profile.hasLabels}
-			onCreate={handleCreateOrChange}
+			onCreate={handleCreate}
 			onChange={handleCreateOrChange}
 		/>
 	);

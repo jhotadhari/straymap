@@ -55,6 +55,7 @@ import { setMapEvent } from '../features/gnss/slice';
 import LayerDebugDumpButton from './LayerDebugDumpButton';
 import MapCornerComponents from './MapCornerComponents';
 import { selectIsRecording } from '../features/trackRecording/selectors';
+import { addBusyKey, removeBusyKey } from '../features/ui/slice';
 
 const zoomMin = 2;
 const zoomMax = 20;
@@ -188,6 +189,15 @@ const AppView = ({
 		}, 1);
 	}, [mapsforgeGeneral]);
 
+	// Busy key 'map:init': added when MapContainer mounts, removed on first rendered frame.
+	const firstMapUpdateRef = useRef(false);
+	useEffect(() => {
+		if (showMap) {
+			firstMapUpdateRef.current = false;
+			dispatch(addBusyKey('map:init'));
+		}
+	}, [showMap, dispatch]);
+
 	// onPause/onResume/onMapUpdate/onError are Fabric native-view event props, so React invokes them
 	// with a NativeSyntheticEvent wrapper (event.nativeEvent), not a bare response object.
 	const handleMapError = useCallback(
@@ -210,6 +220,12 @@ const AppView = ({
 			// Feed the same event to useMapPosition's shared values
 			// so centerSv stays in sync at zero bridge cost.
 			handleMapUpdate(event as { nativeEvent: Readonly<MapEventResponse> });
+			// First onMapUpdate signals the native map has rendered its initial
+			// frame with layers mounted — clear the 'map:init' busy key.
+			if (!firstMapUpdateRef.current) {
+				firstMapUpdateRef.current = true;
+				dispatch(removeBusyKey('map:init'));
+			}
 			// Dispatch for listener middleware (track recording watches this).
 			// Only dispatch when recording — avoids ~25/sec unnecessary actions.
 			if (isRecordingRef.current) {

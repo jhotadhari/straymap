@@ -7,14 +7,10 @@ import { useContext, useState, useEffect, useRef } from 'react';
  * Internal dependencies
  */
 import { AppContext, MapContext } from '../Context';
-import { selectIsBusy } from '../features/ui/selectors';
-import { useAppSelector } from '../store/hooks';
 
 const useShowInitialSplash = () => {
 	const { mapViewNativeNodeHandle } = useContext(AppContext);
 	const { currentMapEventRef } = useContext(MapContext);
-
-	const isBusy = useAppSelector(selectIsBusy);
 
 	const [mapLayersCreatedDef, setMapLayersCreatedDef] = useState(false);
 	const [showSplash, setShowSplash] = useState(true);
@@ -43,13 +39,16 @@ const useShowInitialSplash = () => {
 		currentMapEventRef,
 	]);
 
+	// Hide splash once the map has rendered its first frame with layers mounted.
+	// Previously also waited on !isBusy, but that was decoupled: the splash
+	// should disappear quickly so the app feels fast; the TopAppBar's
+	// LoadingIndicator signals ongoing work that doesn't block interaction.
 	useEffect(() => {
-		if (showSplash && mapLayersCreatedDef && !isBusy) {
+		if (showSplash && mapLayersCreatedDef) {
 			setShowSplash(false);
 		}
 	}, [
 		mapLayersCreatedDef,
-		isBusy,
 		showSplash,
 	]);
 	return showSplash;

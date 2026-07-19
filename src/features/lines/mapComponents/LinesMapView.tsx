@@ -9,7 +9,8 @@ import { LayerPath, ReindexScope, SharedLayer } from 'react-native-mapsforge-vtm
  * Internal dependencies
  */
 import { MapContext } from '../../../Context';
-import { useAppSelector, useSystemLineIds } from '../../../store/hooks';
+import { useAppDispatch, useAppSelector, useSystemLineIds } from '../../../store/hooks';
+import { addBusyKey, removeBusyKey } from '../../ui/slice';
 import { selectSelected } from '../selectors';
 import { selectMapUpdateInterval } from '../../general/selectors';
 import { queryLineGeomsBatch } from '../db/queryFns';
@@ -75,7 +76,9 @@ const LinesMapView = () => {
 
 	// Batch query with coarse bbox in the key.  DB filters lines outside
 	// the snapped bbox before Simplify(); key only changes on large pans.
-	const { data: lines } = useQuery({
+	const dispatch = useAppDispatch();
+
+	const { data: lines, isFetching } = useQuery({
 		queryKey: [
 			'lineGeomsBatch',
 			selectedIds,
@@ -87,6 +90,19 @@ const LinesMapView = () => {
 		gcTime: 1000 * 10,
 		placeholderData: (prev) => (selectedIds.length > 0 ? prev : []),
 	});
+
+	// Busy key 'lines:load': tracks batch geometry queries from the DB.
+	useEffect(() => {
+		if (isFetching && selectedIds.length > 0) {
+			dispatch(addBusyKey('lines:load'));
+		} else {
+			dispatch(removeBusyKey('lines:load'));
+		}
+	}, [
+		isFetching,
+		selectedIds.length,
+		dispatch,
+	]);
 
 	const systemIdSet = useMemo(() => {
 		const ids = new Set<number>();

@@ -41,5 +41,8 @@ declare module globalThis {
 
 		/** Show the layer debug dump button on the map. Only in __DEV__ */
 		showLayerDebug: boolean;
+
+		/** Log busyKeys changes to console. Only in __DEV__ */
+		busyKeys: boolean;
 	};
 }

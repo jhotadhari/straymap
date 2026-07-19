@@ -12,6 +12,9 @@ import {
 	UiSettings,
 	UiState,
 	initialSettings,
+	addBusyKey,
+	removeBusyKey,
+	setBusyKeys,
 	setElementExpanded,
 	setExpandedElements,
 	setInitialized,
@@ -77,3 +80,14 @@ startAppListening({
 		}
 	},
 });
+
+if (__DEV__ && globalThis.shouldLog.busyKeys) {
+	// Log busy key changes for debugging.
+	startAppListening({
+		matcher: isAnyOf(addBusyKey, removeBusyKey, setBusyKeys),
+		effect: (_action, listenerApi) => {
+			const { busyKeys } = listenerApi.getState().ui;
+			console.log('[busy]', busyKeys.length > 0 ? busyKeys : '(idle)');
+		},
+	});
+}

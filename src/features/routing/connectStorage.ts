@@ -17,7 +17,9 @@ import {
 	setInitialized,
 	setIsRoutingAction,
 	setRoutingLineId,
+	setSegment,
 } from './slice';
+import { addBusyKey, removeBusyKey } from '../ui/slice';
 import { startAppListening } from '../../store/listenerMiddleware';
 import { selectInitialized } from './selectors';
 import { AppStore } from '../../store/store';
@@ -107,6 +109,23 @@ startAppListening({
 					updateLine: false,
 				})
 			);
+		}
+	},
+});
+
+// Busy key 'routing:calc': set when any segment is being fetched from brouter.
+let routingCalcBusy = false;
+startAppListening({
+	actionCreator: setSegment,
+	effect: (_action, listenerApi) => {
+		const segments = listenerApi.getState().routing.segments;
+		const hasFetching = Object.values(segments).some((seg) => seg?.isFetching === true);
+		if (hasFetching && !routingCalcBusy) {
+			routingCalcBusy = true;
+			listenerApi.dispatch(addBusyKey('routing:calc'));
+		} else if (!hasFetching && routingCalcBusy) {
+			routingCalcBusy = false;
+			listenerApi.dispatch(removeBusyKey('routing:calc'));
 		}
 	},
 });
