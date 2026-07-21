@@ -342,6 +342,8 @@ export const processRouting = (
 					if (routingStillActive) {
 						dispatch(setRoutingLineId(lineId));
 						dispatch(setLineSelected(lineId, true));
+					} else {
+						await invalidateLineGeomQueries(queryClient);
 					}
 					await queryClient.invalidateQueries({ queryKey: ['lineGeom', lineId] });
 					await invalidateLinesQueries(queryClient);

@@ -6,5 +6,5 @@ globalThis.shouldLog = {
 	drizzle: false,
 	i18n: false,
 	showLayerDebug: false,
-	busyKeys: true,
+	busyKeys: false,
 };

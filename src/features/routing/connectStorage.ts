@@ -100,10 +100,10 @@ startAppListening({
 	actionCreator: setIsRoutingAction,
 	effect: async (action, listenerApi) => {
 		if (!action.payload) {
-			// Routing stopped: clear the busy key in case segments were
-			// cleared by the reducer without individual setSegment actions.
-			listenerApi.dispatch(removeBusyKey('routing:calc'));
-			routingCalcBusy = false;
+			// Routing stopped.  Don't clear the busy key here — an
+			// in-flight processRouting may still be computing segments
+			// and updating the DB.  The setSegment listener below will
+			// clear the key when the last segment finishes.
 			return;
 		}
 
