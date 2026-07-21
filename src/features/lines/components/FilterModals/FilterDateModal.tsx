@@ -16,7 +16,7 @@ import ButtonHighlight from '../../../../components/generic/primitives/ButtonHig
 import InfoLabelRow from '../../../../components/generic/infoWrapper/InfoLabelRow';
 import { sharedStyles as appSharedStyles } from '../../../../sharedStyles';
 import { sharedStyles } from './sharedDeps';
-import { DateColumnFilter } from '../../types';
+import { DateColumnFilter, getFilterKey } from '../../types';
 
 const dateToString = (d: Date | undefined): string | undefined => {
 	if (!d) {
@@ -47,31 +47,6 @@ const FilterDateModal: FC<{
 	const [minDate, setMinDate] = useState<Date | undefined>(stringToDate(existingFilter?.min));
 	const [maxDate, setMaxDate] = useState<Date | undefined>(stringToDate(existingFilter?.max));
 
-	const saveRef = useRef<undefined | (() => void)>(undefined);
-
-	useEffect(() => {
-		saveRef.current = () => {
-			const minStr = dateToString(minDate);
-			const maxStr = dateToString(maxDate);
-			// Save when values are non-empty, OR when editing an existing
-			// filter (allows clearing by dismissing with empty inputs).
-			if (minStr !== undefined || maxStr !== undefined || existingFilter) {
-				onSave({
-					type: 'date',
-					columnKey,
-					min: minStr,
-					max: maxStr,
-				});
-			}
-		};
-	}, [
-		columnKey,
-		minDate,
-		maxDate,
-		onSave,
-		existingFilter,
-	]);
-
 	const prevVisibleRef = useRef(false);
 	useEffect(() => {
 		const justOpened = visible && !prevVisibleRef.current;
@@ -83,9 +58,41 @@ const FilterDateModal: FC<{
 	}, [visible, existingFilter]);
 
 	const handleDismiss = useCallback(() => {
-		saveRef.current?.();
+		const minStr = dateToString(minDate);
+		const maxStr = dateToString(maxDate);
+		const bothEmpty = minStr === undefined && maxStr === undefined;
+		if (bothEmpty) {
+			if (existingFilter) {
+				// Clearing both bounds on an existing filter → remove it.
+				onDelete?.();
+			}
+			// New filter with no bounds → no-op, just close.
+			onDismiss();
+			return;
+		}
+		const newFilter: DateColumnFilter = {
+			type: 'date',
+			columnKey,
+			min: minStr,
+			max: maxStr,
+		};
+		// If editing a filter whose key changes (e.g., adding max to
+		// a min-only filter), remove the old entry so no stale entry
+		// with the old key remains.
+		if (existingFilter && getFilterKey(existingFilter) !== getFilterKey(newFilter)) {
+			onDelete?.();
+		}
+		onSave(newFilter);
 		onDismiss();
-	}, [onDismiss]);
+	}, [
+		columnKey,
+		minDate,
+		maxDate,
+		onSave,
+		onDismiss,
+		onDelete,
+		existingFilter,
+	]);
 
 	const handleDelete = useCallback(() => {
 		onDelete?.();
@@ -98,6 +105,8 @@ const FilterDateModal: FC<{
 
 	const { width } = Dimensions.get('window');
 	const inputWidth = useMemo(() => width * 0.45, [width]);
+
+	const datePickerStyle = useMemo(() => ({ width: inputWidth }), [inputWidth]);
 
 	return (
 		<ModalWrapper
@@ -118,7 +127,7 @@ const FilterDateModal: FC<{
 					label={''}
 					mode="outlined"
 					withDateFormatInLabel={true}
-					style={{ width: inputWidth }}
+					style={datePickerStyle}
 				/>
 			</InfoLabelRow>
 
@@ -134,7 +143,7 @@ const FilterDateModal: FC<{
 					label={''}
 					mode="outlined"
 					withDateFormatInLabel={true}
-					style={{ width: inputWidth }}
+					style={datePickerStyle}
 				/>
 			</InfoLabelRow>
 

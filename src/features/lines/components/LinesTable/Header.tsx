@@ -102,7 +102,6 @@ const Header: FC = () => {
 
 	const scrollContentStyle = useMemo(() => ({ alignItems: 'center' as const }), []);
 
-	const disabledLabelStyle = useMemo(() => sharedStyles.disabled, []);
 	const contentStyle = useMemo(() => ({ marginVertical: -2 }), []);
 	const disabledIconStyle = useMemo(() => sharedStyles.disabled, []);
 
@@ -117,23 +116,23 @@ const Header: FC = () => {
 					mode="outlined"
 				/>
 
-				<ButtonHighlight
-					mode="outlined"
-					compact={true}
-					onPress={handleToggleFilterLogic}
-					disabled={!hasMultipleFilters}
-					contentStyle={contentStyle}
-					labelStyle={!hasMultipleFilters && disabledLabelStyle}
-				>
-					<Text>
-						{sprintf(
-							t('lines.filterLogic'),
-							filterLogic === 'and'
-								? t('lines.filterLogicAnd')
-								: t('lines.filterLogicOr')
-						)}
-					</Text>
-				</ButtonHighlight>
+				{hasMultipleFilters && (
+					<ButtonHighlight
+						mode="outlined"
+						compact={true}
+						onPress={handleToggleFilterLogic}
+						contentStyle={contentStyle}
+					>
+						<Text>
+							{sprintf(
+								t('lines.filterLogic'),
+								filterLogic === 'and'
+									? t('lines.filterLogicAnd')
+									: t('lines.filterLogicOr')
+							)}
+						</Text>
+					</ButtonHighlight>
+				)}
 
 				{hasConflicts && (
 					<IconButtonHighlight

@@ -24,7 +24,7 @@ import {
 	getHeightDepthUnitSuffix,
 } from '../../../../lib/formatting';
 import { sharedStyles, getUnitPrefKey } from './sharedDeps';
-import { NumericColumnFilter } from '../../types';
+import { NumericColumnFilter, getFilterKey } from '../../types';
 
 const FilterNumericModal: FC<{
 	visible: boolean;
@@ -76,12 +76,19 @@ const FilterNumericModal: FC<{
 			onDismiss();
 			return;
 		}
-		onSave({
+		const newFilter: NumericColumnFilter = {
 			type: 'numeric',
 			columnKey,
 			min: minMetric,
 			max: maxMetric,
-		});
+		};
+		// If editing a filter whose key changes (e.g., adding max to
+		// a min-only filter), remove the old entry so no stale entry
+		// with the old key remains.
+		if (existingFilter && getFilterKey(existingFilter) !== getFilterKey(newFilter)) {
+			onDelete?.();
+		}
+		onSave(newFilter);
 		onDismiss();
 	}, [
 		columnKey,

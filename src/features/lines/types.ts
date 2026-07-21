@@ -97,15 +97,21 @@ export type ColumnFilter =
 
 /**
  * Returns a deterministic composite key that encodes filter uniqueness:
- * - numeric/date: keyed by columnKey only → overwrites same column
+ * - numeric/date: keyed by columnKey + which bounds are set (min / max /
+ *   min+max) → allows separate min-only and max-only filters per column
+ *   while a single range filter (both bounds) gets its own key
  * - string/tags:  keyed by columnKey + operator + value → allows
  *   multiple filters per column with different operator/value combos
  */
 export const getFilterKey = (filter: ColumnFilter): string => {
 	switch (filter.type) {
 		case 'numeric':
-		case 'date':
-			return `${filter.type}:${filter.columnKey}`;
+		case 'date': {
+			const bounds: string[] = [];
+			if (filter.min !== undefined) bounds.push('min');
+			if (filter.max !== undefined) bounds.push('max');
+			return `${filter.type}:${filter.columnKey}:${bounds.join('+') || 'none'}`;
+		}
 		case 'string':
 		case 'tags':
 			return `${filter.type}:${filter.columnKey}:${filter.operator}:${filter.value.toLowerCase()}`;

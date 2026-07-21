@@ -16,7 +16,7 @@ import HintLink from '../../../../components/generic/primitives/HintLink';
 import RadioListItem from '../../../../components/generic/wrapper/RadioListItem';
 import { sharedStyles as appSharedStyles } from '../../../../sharedStyles';
 import { sharedStyles } from './sharedDeps';
-import { StringColumnFilter, StringFilterOperator } from '../../types';
+import { StringColumnFilter, StringFilterOperator, getFilterKey } from '../../types';
 
 const OPERATORS: StringFilterOperator[] = [
 	'includes',
@@ -51,12 +51,19 @@ const FilterStringModal: FC<{
 			// column).  If there's no existing filter and the value is
 			// empty, skip — don't create a meaningless empty entry.
 			if (value || existingFilter) {
-				onSave({
+				const newFilter: StringColumnFilter = {
 					type: 'string',
 					columnKey,
 					operator,
 					value,
-				});
+				};
+				// If editing a filter whose key changed (e.g.,
+				// different value or operator), remove the old
+				// entry so no stale entry with the old key remains.
+				if (existingFilter && getFilterKey(existingFilter) !== getFilterKey(newFilter)) {
+					onDelete?.();
+				}
+				onSave(newFilter);
 			}
 		};
 	}, [
@@ -64,6 +71,7 @@ const FilterStringModal: FC<{
 		operator,
 		value,
 		onSave,
+		onDelete,
 		existingFilter,
 	]);
 
@@ -86,6 +94,13 @@ const FilterStringModal: FC<{
 		onDelete?.();
 		onDismiss();
 	}, [onDelete, onDismiss]);
+
+	const handleChangeText = useCallback(
+		(text: string) => setValue(operator === 'regex' ? text : text.toLowerCase()),
+		[operator]
+	);
+
+	const extractLabel = useCallback((a: { label: string }) => a.label, []);
 
 	const columnLabel = useMemo(() => t(`lines.columns.${columnKey}`), [t, columnKey]);
 
@@ -144,7 +159,7 @@ const FilterStringModal: FC<{
 					opt={opt}
 					onPress={() => setOperator(opt.key as StringFilterOperator)}
 					status={operator === opt.key ? 'checked' : 'unchecked'}
-					labelExtractor={(a) => a.label}
+					labelExtractor={extractLabel}
 				/>
 			))}
 
@@ -155,7 +170,7 @@ const FilterStringModal: FC<{
 				<TextInput
 					style={inputStyle}
 					value={value}
-					onChangeText={setValue}
+					onChangeText={handleChangeText}
 					placeholder={operator === 'regex' ? '^Mount.*' : t('lines.filterValue')}
 					placeholderTextColor={theme.colors.outline}
 				/>

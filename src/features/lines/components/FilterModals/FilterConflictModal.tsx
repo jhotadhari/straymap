@@ -9,7 +9,10 @@ import { useTranslation } from 'react-i18next';
  * Internal dependencies
  */
 import ModalWrapper from '../../../../components/generic/wrapper/ModalWrapper';
-import { sharedStyles } from './sharedDeps';
+import { useAppSelector } from '../../../../store/hooks';
+import { selectUnitPrefs } from '../../../general/selectors';
+import { formatDistance, formatHeightDepth } from '../../../../lib/formatting';
+import { sharedStyles, getUnitPrefKey } from './sharedDeps';
 import { FilterConflict } from '../../db/filterConflicts';
 
 const FilterConflictModal: FC<{
@@ -19,22 +22,41 @@ const FilterConflictModal: FC<{
 }> = ({ visible, conflicts, onDismiss }) => {
 	const theme = useTheme();
 	const { t } = useTranslation();
+	const unitPrefs = useAppSelector(selectUnitPrefs);
 
 	const descriptions = useMemo(() => {
 		return conflicts.map((c) => {
-			// Resolve column keys to human-readable labels for the
-			// translation interpolation params.
+			// Resolve column keys to human-readable labels and
+			// format numeric values with the correct unit.
 			const params: Record<string, unknown> = {};
 			for (const [k, v] of Object.entries(c.descriptionParams)) {
 				if (k === 'column' && typeof v === 'string') {
 					params[k] = t(`lines.columns.${v}`);
+				} else if (
+					(k === 'min' || k === 'max') &&
+					typeof v === 'number' &&
+					typeof c.descriptionParams.column === 'string'
+				) {
+					const unitKey = getUnitPrefKey(c.descriptionParams.column);
+					const unitPref = unitKey ? unitPrefs[unitKey] : undefined;
+					if (unitKey === 'distance' && unitPref) {
+						params[k] = formatDistance(v, unitPref);
+					} else if (unitKey === 'heightDepth' && unitPref) {
+						params[k] = formatHeightDepth(v, unitPref);
+					} else {
+						params[k] = v;
+					}
 				} else {
 					params[k] = v;
 				}
 			}
 			return t(c.descriptionKey, params);
 		});
-	}, [conflicts, t]);
+	}, [
+		conflicts,
+		t,
+		unitPrefs,
+	]);
 
 	return (
 		<ModalWrapper

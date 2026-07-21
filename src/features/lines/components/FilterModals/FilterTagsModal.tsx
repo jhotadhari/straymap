@@ -20,7 +20,7 @@ import LoadingIndicator from '../../../../components/generic/primitives/LoadingI
 import { sharedStyles as appSharedStyles } from '../../../../sharedStyles';
 import { sharedStyles } from './sharedDeps';
 import { queryAllTags } from '../../db/queryFns';
-import { TagsColumnFilter, TagsFilterOperator } from '../../types';
+import { TagsColumnFilter, TagsFilterOperator, getFilterKey } from '../../types';
 
 const OPERATORS: TagsFilterOperator[] = ['has', 'notHas'];
 
@@ -51,12 +51,19 @@ const FilterTagsModal: FC<{
 	useEffect(() => {
 		saveRef.current = () => {
 			if (selectedTagLabel || existingFilter) {
-				onSave({
+				const newFilter: TagsColumnFilter = {
 					type: 'tags',
 					columnKey,
 					operator,
 					value: selectedTagLabel,
-				});
+				};
+				// If editing a filter whose key changed (e.g.,
+				// different operator or tag), remove the old entry
+				// so no stale entry with the old key remains.
+				if (existingFilter && getFilterKey(existingFilter) !== getFilterKey(newFilter)) {
+					onDelete?.();
+				}
+				onSave(newFilter);
 			}
 		};
 	}, [
@@ -64,6 +71,7 @@ const FilterTagsModal: FC<{
 		operator,
 		selectedTagLabel,
 		onSave,
+		onDelete,
 		existingFilter,
 	]);
 
@@ -115,6 +123,10 @@ const FilterTagsModal: FC<{
 		setPopoverVisible(false);
 	}, []);
 
+	const extractLabelTags = useCallback((a: { label: string }) => a.label, []);
+
+	const handleOpenPopover = useCallback(() => setPopoverVisible(true), []);
+
 	const anchorRef = useRef<View>(null);
 
 	const popoverStyle = useMemo(
@@ -146,6 +158,8 @@ const FilterTagsModal: FC<{
 		[theme, selectedTagLabel]
 	);
 
+	const emptyTextStyle = useMemo(() => ({ color: theme.colors.onSurfaceVariant }), [theme]);
+
 	return (
 		<ModalWrapper
 			visible={visible}
@@ -159,7 +173,7 @@ const FilterTagsModal: FC<{
 					opt={opt}
 					onPress={() => setOperator(opt.key as TagsFilterOperator)}
 					status={operator === opt.key ? 'checked' : 'unchecked'}
-					labelExtractor={(a) => a.label}
+					labelExtractor={extractLabelTags}
 				/>
 			))}
 
@@ -170,7 +184,7 @@ const FilterTagsModal: FC<{
 				<View>
 					<ButtonHighlight
 						ref={anchorRef}
-						onPress={() => setPopoverVisible(true)}
+						onPress={handleOpenPopover}
 						mode="outlined"
 						style={tagButtonStyle}
 					>
@@ -196,9 +210,7 @@ const FilterTagsModal: FC<{
 								)}
 								{!tagsLoading && tagOptions.length === 0 && (
 									<View style={localStyles.emptyContainer}>
-										<Text style={{ color: theme.colors.onSurfaceVariant }}>
-											{t('lines.tagsNoTags')}
-										</Text>
+										<Text style={emptyTextStyle}>{t('lines.tagsNoTags')}</Text>
 									</View>
 								)}
 								{!tagsLoading &&

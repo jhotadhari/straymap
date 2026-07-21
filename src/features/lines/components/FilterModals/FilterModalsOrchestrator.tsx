@@ -44,7 +44,8 @@ const FilterModalsOrchestrator: FC<FilterModalsOrchestratorProps> = ({
 	editFilter,
 	initialColumnKey,
 	onDismiss,
-	filters,
+	// filters no longer needed — numeric/date preload removed
+	filters: _filters,
 	upsertFilter,
 	removeFilter,
 	resolveFilterType,
@@ -64,13 +65,7 @@ const FilterModalsOrchestrator: FC<FilterModalsOrchestratorProps> = ({
 			} else if (initialColumnKey) {
 				setSelectedColumnKey(initialColumnKey);
 				setStep('editFilter');
-				const filterType = resolveFilterType(initialColumnKey);
-				if (filterType === 'numeric' || filterType === 'date') {
-					const existing = filters.find((f) => f.columnKey === initialColumnKey);
-					setTempFilter(existing);
-				} else {
-					setTempFilter(undefined);
-				}
+				setTempFilter(undefined);
 			} else {
 				setSelectedColumnKey(null);
 				setStep('selectColumn');
@@ -81,28 +76,16 @@ const FilterModalsOrchestrator: FC<FilterModalsOrchestratorProps> = ({
 		visible,
 		editFilter,
 		initialColumnKey,
-		filters,
-		resolveFilterType,
 	]);
 
-	const handleSelectColumn = useCallback(
-		(columnKey: string) => {
-			setSelectedColumnKey(columnKey);
-			setStep('editFilter');
-
-			const filterType = resolveFilterType(columnKey);
-			// For single-filter column types, preload the existing filter
-			// so the modal opens in edit mode.  Multi-filter types always
-			// start fresh.
-			if (filterType === 'numeric' || filterType === 'date') {
-				const existing = filters.find((f) => f.columnKey === columnKey);
-				setTempFilter(existing);
-			} else {
-				setTempFilter(undefined);
-			}
-		},
-		[filters, resolveFilterType]
-	);
+	const handleSelectColumn = useCallback((columnKey: string) => {
+		setSelectedColumnKey(columnKey);
+		setStep('editFilter');
+		// Always start fresh — numeric/date filters now support
+		// multiple entries per column (min and max as separate
+		// filters with distinct keys).
+		setTempFilter(undefined);
+	}, []);
 
 	const handleDismiss = useCallback(() => {
 		onDismiss();

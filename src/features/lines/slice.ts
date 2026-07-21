@@ -101,15 +101,21 @@ export const linesSlice = createSlice({
 			state.linesTable.sort = action.payload;
 		},
 		setLinesFilters: (state, action: PayloadAction<LinesState['linesTable']['filters']>) => {
-			// Deduplicate by normalized key (handles mixed-case
-			// leftovers from persistence).
+			// Normalize string/tags values to lowercase so persistence
+			// never stores mixed-case, then deduplicate by key.
 			const seen = new Set<string>();
-			state.linesTable.filters = action.payload.filter((f) => {
-				const k = getFilterKey(f);
-				if (seen.has(k)) return false;
-				seen.add(k);
-				return true;
-			});
+			state.linesTable.filters = action.payload
+				.map((f) =>
+					f.type === 'string' || f.type === 'tags'
+						? { ...f, value: f.value.toLowerCase() }
+						: f
+				)
+				.filter((f) => {
+					const k = getFilterKey(f);
+					if (seen.has(k)) return false;
+					seen.add(k);
+					return true;
+				});
 		},
 		upsertLinesFilter: (state, action: PayloadAction<ColumnFilter>) => {
 			// Normalize the value to lowercase for text-based filter
@@ -118,6 +124,37 @@ export const linesSlice = createSlice({
 				action.payload.type === 'string' || action.payload.type === 'tags'
 					? { ...action.payload, value: action.payload.value.toLowerCase() }
 					: action.payload;
+
+			// Numeric/date: merge into any existing same-column filter
+			// so there is always at most one filter per column
+			// (displayed as a single range badge).  The modal's
+			// key-migration logic handles the clear-bound case by
+			// deleting the old entry before save, so ?? fallback is
+			// safe here.
+			if (payload.type === 'numeric' || payload.type === 'date') {
+				const colIdx = state.linesTable.filters.findIndex(
+					(f) =>
+						(f.type === 'numeric' || f.type === 'date') &&
+						f.type === payload.type &&
+						f.columnKey === payload.columnKey
+				);
+				if (colIdx !== -1) {
+					const existing = state.linesTable.filters[colIdx];
+					state.linesTable.filters[colIdx] = {
+						...existing,
+						...payload,
+						min: payload.min ?? (existing as any).min,
+						max: payload.max ?? (existing as any).max,
+					} as ColumnFilter;
+					return;
+				}
+				state.linesTable.filters.push(payload);
+				return;
+			}
+
+			// String/tags: keyed by composite key
+			// (columnKey + operator + value) → multiple filters
+			// per column with different operator/value combos.
 			const targetKey = getFilterKey(payload);
 			const idx = state.linesTable.filters.findIndex((f) => getFilterKey(f) === targetKey);
 			if (idx !== -1) {
@@ -152,19 +189,54 @@ export const linesSlice = createSlice({
 			state.tagsTable.sort = action.payload;
 		},
 		setTagsFilters: (state, action: PayloadAction<LinesState['tagsTable']['filters']>) => {
+			// Normalize string/tags values to lowercase so persistence
+			// never stores mixed-case, then deduplicate by key.
 			const seen = new Set<string>();
-			state.tagsTable.filters = action.payload.filter((f) => {
-				const k = getFilterKey(f);
-				if (seen.has(k)) return false;
-				seen.add(k);
-				return true;
-			});
+			state.tagsTable.filters = action.payload
+				.map((f) =>
+					f.type === 'string' || f.type === 'tags'
+						? { ...f, value: f.value.toLowerCase() }
+						: f
+				)
+				.filter((f) => {
+					const k = getFilterKey(f);
+					if (seen.has(k)) return false;
+					seen.add(k);
+					return true;
+				});
 		},
 		upsertTagsFilter: (state, action: PayloadAction<ColumnFilter>) => {
+			// Normalize the value to lowercase for text-based filter
+			// types so stored data matches the composite key.
 			const payload =
 				action.payload.type === 'string' || action.payload.type === 'tags'
 					? { ...action.payload, value: action.payload.value.toLowerCase() }
 					: action.payload;
+
+			// Numeric/date: merge into any existing same-column filter
+			// so there is always at most one filter per column.
+			if (payload.type === 'numeric' || payload.type === 'date') {
+				const colIdx = state.tagsTable.filters.findIndex(
+					(f) =>
+						(f.type === 'numeric' || f.type === 'date') &&
+						f.type === payload.type &&
+						f.columnKey === payload.columnKey
+				);
+				if (colIdx !== -1) {
+					const existing = state.tagsTable.filters[colIdx];
+					state.tagsTable.filters[colIdx] = {
+						...existing,
+						...payload,
+						min: payload.min ?? (existing as any).min,
+						max: payload.max ?? (existing as any).max,
+					} as ColumnFilter;
+					return;
+				}
+				state.tagsTable.filters.push(payload);
+				return;
+			}
+
+			// String/tags: keyed by composite key.
 			const targetKey = getFilterKey(payload);
 			const idx = state.tagsTable.filters.findIndex((f) => getFilterKey(f) === targetKey);
 			if (idx !== -1) {

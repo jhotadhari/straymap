@@ -149,6 +149,21 @@ useBulkActions() → useMemo'd Record
 actually bail out of re-renders when the underlying action objects haven't
 changed.
 
+## Filters
+
+Column filters for LinesTable and TagsTable. Full architecture
+documented at [`components/FilterModals/CLAUDE.md`](components/FilterModals/CLAUDE.md).
+
+Key points:
+- **Numeric/date filters merge per column** — at most one filter per
+  column, displayed as a single range badge.
+- **String/tags filters coexist** — multiple filters per column with
+  different operator/value combos.
+- **All string/tags values normalized to lowercase** at input, Redux
+  upsert, and SQL levels.
+- **Conflict detection** surfaces impossible filter combinations as a
+  warning icon in the table header.
+
 ## Gotchas
 
 - **Bulk delete must update Redux**: `useDeleteLines.onSuccess` dispatches

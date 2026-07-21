@@ -132,7 +132,6 @@ const styles = StyleSheet.create({
 		paddingVertical: 2,
 		borderRadius: 12,
 		borderWidth: 1,
-		maxWidth: 200,
 	},
 	badgeText: {
 		fontSize: 12,

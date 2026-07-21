@@ -18,11 +18,11 @@ export const detectFilterConflicts = (
 	filters: ColumnFilter[],
 	filterLogic: FilterLogic
 ): FilterConflict[] => {
-	if (filterLogic !== 'and' || filters.length < 2) return [];
-
 	const conflicts: FilterConflict[] = [];
 
-	// (a) Numeric / date: min > max within a single range filter
+	// (a) Numeric / date: min > max within a single range filter.
+	// This is impossible regardless of AND/OR logic because bounds
+	// are always ANDed in SQL, and it only needs a single filter.
 	for (const f of filters) {
 		if (
 			(f.type === 'numeric' || f.type === 'date') &&
@@ -41,6 +41,9 @@ export const detectFilterConflicts = (
 			});
 		}
 	}
+
+	// Cross-filter conflicts (b–e) only make sense with AND logic.
+	if (filterLogic !== 'and' || filters.length < 2) return conflicts;
 
 	// (b) String: includes "X" AND excludes "X" on same column
 	// (c) String: multiple startsWith where neither is a prefix of the other

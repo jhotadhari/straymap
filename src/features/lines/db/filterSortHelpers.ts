@@ -52,6 +52,26 @@ export const buildLinesWhereClause = (
 		return undefined;
 	}
 
+	// Columns whose only string filter is an "excludes" should
+	// also match rows with an empty / NULL title — "does not
+	// contain X" is satisfied by an absent title.
+	const soleExcludesCols = new Set<string>();
+	const stringCountByCol = new Map<string, number>();
+	for (const f of filters) {
+		if (f.type === 'string') {
+			stringCountByCol.set(f.columnKey, (stringCountByCol.get(f.columnKey) ?? 0) + 1);
+		}
+	}
+	for (const f of filters) {
+		if (
+			f.type === 'string' &&
+			f.operator === 'excludes' &&
+			stringCountByCol.get(f.columnKey) === 1
+		) {
+			soleExcludesCols.add(f.columnKey);
+		}
+	}
+
 	const clauses = filters
 		.map((filter): SQL | undefined => {
 			switch (filter.type) {
@@ -60,7 +80,7 @@ export const buildLinesWhereClause = (
 				case 'date':
 					return buildDateWhere(filter);
 				case 'string':
-					return buildStringWhere(filter);
+					return buildStringWhere(filter, soleExcludesCols.has(filter.columnKey));
 				case 'tags':
 					return buildTagsWhere(filter);
 				default:
@@ -131,7 +151,10 @@ const getDateColumn = (
 	}
 };
 
-const buildStringWhere = (filter: StringColumnFilter): SQL | undefined => {
+const buildStringWhere = (
+	filter: StringColumnFilter,
+	isSoleExcludes?: boolean
+): SQL | undefined => {
 	if (!filter.value) {
 		return undefined;
 	}
@@ -149,7 +172,20 @@ const buildStringWhere = (filter: StringColumnFilter): SQL | undefined => {
 	// case-insensitive for ASCII A-Z).
 	const pattern = STRING_OPERATOR_PATTERNS[filter.operator](filter.value.toLowerCase());
 	if (filter.operator === 'excludes') {
-		return notLike(sql`LOWER(${linesTable.title})`, pattern);
+		const excludeClause = notLike(sql`LOWER(${linesTable.title})`, pattern);
+		// When this is the only string filter on the column, also
+		// match rows with an empty or NULL title — "does not
+		// contain X" is satisfied by an absent title.
+		if (isSoleExcludes) {
+			return sql`
+				(
+					${excludeClause}
+					OR ${linesTable.title} IS NULL
+					OR ${linesTable.title} = ''
+				)
+			`;
+		}
+		return excludeClause;
 	}
 	return like(sql`LOWER(${linesTable.title})`, pattern);
 };

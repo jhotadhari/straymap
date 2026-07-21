@@ -97,7 +97,6 @@ const TagHeader: FC = () => {
 
 	const scrollStyle = useMemo(() => ({ flexShrink: 1, alignSelf: 'center' as const }), []);
 	const scrollContentStyle = useMemo(() => ({ alignItems: 'center' as const }), []);
-	const disabledLabelStyle = useMemo(() => ({ opacity: 0.5 }), []);
 	const contentStyle = useMemo(() => ({ marginVertical: -2 }), []);
 	const disabledIconStyle = useMemo(() => ({ opacity: 0.5 }), []);
 
@@ -111,23 +110,23 @@ const TagHeader: FC = () => {
 					mode="outlined"
 				/>
 
-				<ButtonHighlight
-					mode="outlined"
-					compact
-					onPress={handleToggleFilterLogic}
-					disabled={!hasMultipleFilters}
-					contentStyle={contentStyle}
-					labelStyle={!hasMultipleFilters && disabledLabelStyle}
-				>
-					<Text>
-						{sprintf(
-							t('lines.filterLogic'),
-							filterLogic === 'and'
-								? t('lines.filterLogicAnd')
-								: t('lines.filterLogicOr')
-						)}
-					</Text>
-				</ButtonHighlight>
+				{hasMultipleFilters && (
+					<ButtonHighlight
+						mode="outlined"
+						compact
+						onPress={handleToggleFilterLogic}
+						contentStyle={contentStyle}
+					>
+						<Text>
+							{sprintf(
+								t('lines.filterLogic'),
+								filterLogic === 'and'
+									? t('lines.filterLogicAnd')
+									: t('lines.filterLogicOr')
+							)}
+						</Text>
+					</ButtonHighlight>
+				)}
 
 				{hasConflicts && (
 					<IconButtonHighlight
