@@ -101,7 +101,7 @@ const FilterDateModal: FC<{
 
 	const columnLabel = useMemo(() => t(`lines.columns.${columnKey}`), [t, columnKey]);
 
-	const locale = useMemo(() => (i18n.language === 'de' ? 'de' : 'en'), [i18n.language]);
+	const locale = useMemo(() => i18n.language, [i18n.language]);
 
 	const { width } = Dimensions.get('window');
 	const inputWidth = useMemo(() => width * 0.45, [width]);

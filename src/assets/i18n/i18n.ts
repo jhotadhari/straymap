@@ -15,7 +15,19 @@ import es from './es.json';
 import pt from './pt.json';
 import { SUPPORTED_LANGUAGES, FALLBACK_LANGUAGE, LANGUAGE_NAMES } from './constants';
 import features from '../../features';
+import {
+	en as paperDatesEn,
+	de as paperDatesDe,
+	es as paperDatesEs,
+	pt as paperDatesPt,
+	registerTranslation,
+} from 'react-native-paper-dates';
 import { logError } from '../../lib/utils';
+
+registerTranslation('en', paperDatesEn);
+registerTranslation('de', paperDatesDe);
+registerTranslation('es', paperDatesEs);
+registerTranslation('pt', paperDatesPt);
 
 const resources = SUPPORTED_LANGUAGES.reduce(
 	(accL, lang) => {

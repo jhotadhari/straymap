@@ -58,7 +58,7 @@ const RowCustomDate: FC = () => {
 		[dispatch, lineTemp]
 	);
 
-	const locale = useMemo(() => (i18n.language === 'de' ? 'de' : 'en'), [i18n.language]);
+	const locale = useMemo(() => i18n.language, [i18n.language]);
 
 	return (
 		<InfoLabelRow
