@@ -22,6 +22,8 @@ export type AppContextType = {
 	drawerControlsRef: MutableRefObject<DrawerControls | null>;
 	moveEnabled?: boolean;
 	setMoveEnabled?: Dispatch<SetStateAction<boolean>>;
+	mapCornerComponentsHeight?: number;
+	setMapCornerComponentsHeight?: Dispatch<SetStateAction<number>>;
 };
 
 export const AppContext = createContext<AppContextType>({

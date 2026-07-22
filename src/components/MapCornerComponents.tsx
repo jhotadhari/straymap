@@ -1,13 +1,14 @@
 /**
  * External dependencies
  */
-import React, { FC, useMemo } from 'react';
-import { StyleSheet, View } from 'react-native';
+import React, { FC, useCallback, useContext, useMemo } from 'react';
+import { LayoutChangeEvent, StyleSheet, View } from 'react-native';
 
 /**
  * Internal dependencies
  */
 import { featureRegistry } from '../features/FeatureRegistry';
+import { AppContext } from '../Context';
 
 const PADDING = 8; // see node_modules/react-native-paper/src/components/IconButton/IconButton.tsx
 
@@ -16,12 +17,24 @@ const buttonSize = 18;
 const MapCornerComponents: FC = () => {
 	const mapCornerComponents = useMemo(() => featureRegistry.getMapCornerComponents(), []);
 
+	const { setMapCornerComponentsHeight } = useContext(AppContext);
+
+	const handleLayout = useCallback(
+		({ nativeEvent }: LayoutChangeEvent) => {
+			setMapCornerComponentsHeight?.(nativeEvent.layout.height);
+		},
+		[setMapCornerComponentsHeight]
+	);
+
 	if (mapCornerComponents.length === 0) {
 		return null;
 	}
 
 	return (
-		<View style={styles.wrapper}>
+		<View
+			style={styles.wrapper}
+			onLayout={handleLayout}
+		>
 			{mapCornerComponents.map(({ key, Component, props }) => (
 				<Component
 					key={key}

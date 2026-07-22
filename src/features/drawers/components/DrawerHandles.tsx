@@ -40,8 +40,8 @@ const DrawerHandles: FC<
 	const showSettingsHandle = useAppSelector(selectShowSettingsHandle);
 	const sortable = useAppSelector(selectSortable);
 
-	const { setMoveEnabled } = useContext(AppContext);
-	const { setActiveItemKey, height } = useContext(DrawerContext);
+	const { setMoveEnabled, mapCornerComponentsHeight } = useContext(AppContext);
+	const { setActiveItemKey, height: drawerHeight } = useContext(DrawerContext);
 
 	const [scrollEnabled, setScrollEnabled] = useState(true);
 
@@ -101,26 +101,13 @@ const DrawerHandles: FC<
 		[]
 	);
 
-	const styleWrapper = useMemo(
-		() => [
-			styles.wrapper,
-			{ height },
-			'left' === side && styles.wrapperLeft,
-			'right' === side && styles.wrapperRight,
-		],
-		[height, side]
-	);
-
-	const styleScrollView = useMemo(() => [styles.scrollView, { height }], [height]);
-
-	const styleContainer = useMemo(
-		() => ({
-			height: getContainerHeight(
+	const height = useMemo(
+		() =>
+			getContainerHeight(
 				showSettingsHandle && controlHandleSide === side
 					? draggableItems.length + 1
 					: draggableItems.length
 			),
-		}),
 		[
 			showSettingsHandle,
 			controlHandleSide,
@@ -128,6 +115,36 @@ const DrawerHandles: FC<
 			draggableItems.length,
 			getContainerHeight,
 		]
+	);
+
+	const styleWrapper = useMemo(
+		() => [
+			styles.wrapper,
+			{
+				height: drawerHeight,
+				maxHeight: 'right' === side ? height - (mapCornerComponentsHeight ?? 0) : height,
+			},
+			'left' === side && styles.wrapperLeft,
+			'right' === side && styles.wrapperRight,
+		],
+		[
+			drawerHeight,
+			side,
+			height,
+			mapCornerComponentsHeight,
+		]
+	);
+
+	const styleScrollView = useMemo(
+		() => [styles.scrollView, { height: drawerHeight }],
+		[drawerHeight]
+	);
+
+	const styleContainer = useMemo(
+		() => ({
+			height,
+		}),
+		[height]
 	);
 
 	const styleControlHandle: ViewProps['style'] = useMemo(

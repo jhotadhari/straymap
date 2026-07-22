@@ -54,6 +54,7 @@ const App: FC = () => {
 	const [mapViewNativeNodeHandle, setMapViewNativeNodeHandle] = useState<null | number>(null);
 
 	const [moveEnabled, setMoveEnabled] = useState(true);
+	const [mapCornerComponentsHeight, setMapCornerComponentsHeight] = useState<number>(0);
 
 	const settingsInitialized = useSettingsInitialized();
 
@@ -95,6 +96,8 @@ const App: FC = () => {
 			drawerControlsRef,
 			moveEnabled,
 			setMoveEnabled,
+			mapCornerComponentsHeight,
+			setMapCornerComponentsHeight,
 			mapHeight: Math.round(
 				(appInnerHeight || height) -
 					(Object.values(bottomBarHeight).reduce((acc, nb) => acc + nb, 0) || 0)
@@ -106,6 +109,7 @@ const App: FC = () => {
 			topAppBarHeight,
 			bottomBarHeight,
 			moveEnabled,
+			mapCornerComponentsHeight,
 			height,
 		]
 	);
