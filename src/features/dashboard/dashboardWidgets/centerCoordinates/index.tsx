@@ -1,8 +1,7 @@
 /**
  * External dependencies
  */
-import React, { FC } from 'react';
-import MaterialIcons from '@react-native-vector-icons/material-icons/static';
+import React, { FC, useMemo } from 'react';
 
 /**
  * Internal dependencies
@@ -10,25 +9,24 @@ import MaterialIcons from '@react-native-vector-icons/material-icons/static';
 import { DashboardWidget } from '../../types';
 import Control from './Control';
 import Display, { Options } from './Display';
+import { CenterInner } from '../../../appearance/appOverlays/Center';
+import { useAppSelector } from '../../../../store/hooks';
+import { selectCursor } from '../../../appearance/selectors';
 
 const Icon: FC<{
 	color: string;
 	size: number;
 }> = ({ color, size }) => {
-	return (
-		<MaterialIcons
-			color={color}
-			size={size}
-			name="compass-calibration"
-		/>
+	const cursorConfigStore = useAppSelector(selectCursor);
+	const cursorConfig = useMemo(
+		() => ({
+			...cursorConfigStore,
+			size,
+			color,
+		}),
+		[cursorConfigStore, size, color]
 	);
-	// return (
-	// 	<Icon
-	// 		source={'cog'}
-	// 		size={size}
-	// 		color={color}
-	// 	/>
-	// );
+	return <CenterInner cursor={cursorConfig} />;
 };
 
 export default {

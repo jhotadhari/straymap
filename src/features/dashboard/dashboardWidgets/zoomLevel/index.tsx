@@ -22,13 +22,6 @@ const Icon: FC<{
 			name="search"
 		/>
 	);
-	// return (
-	// 	<Icon
-	// 		source={'cog'}
-	// 		size={size}
-	// 		color={color}
-	// 	/>
-	// );
 };
 
 export default {

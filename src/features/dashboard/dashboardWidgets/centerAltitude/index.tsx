@@ -2,7 +2,7 @@
  * External dependencies
  */
 import React, { FC } from 'react';
-import MaterialIcons from '@react-native-vector-icons/material-icons/static';
+import LucideIcons from '@react-native-vector-icons/lucide/static';
 
 /**
  * Internal dependencies
@@ -16,19 +16,12 @@ const Icon: FC<{
 	size: number;
 }> = ({ color, size }) => {
 	return (
-		<MaterialIcons
+		<LucideIcons
 			color={color}
-			size={size}
-			name="photo"
+			size={size-2.5}
+			name="mountain"
 		/>
 	);
-	// return (
-	// 	<Icon
-	// 		source={'cog'}
-	// 		size={size}
-	// 		color={color}
-	// 	/>
-	// );
 };
 
 export default {

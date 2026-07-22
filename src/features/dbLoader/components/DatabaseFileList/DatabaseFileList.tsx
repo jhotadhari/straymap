@@ -5,6 +5,7 @@ import React, { FC, useCallback, useMemo } from 'react';
 import { View, ViewStyle, Platform } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
+import LucideIcons from '@react-native-vector-icons/lucide/static';
 
 /**
  * Internal dependencies
@@ -24,7 +25,6 @@ import { styles } from './sharedDeps';
 import RowDatabaseFile from './RowDatabaseFile';
 import RowCreateNew from './RowCreateNew';
 import Badge from '../../../../components/generic/primitives/Badge';
-import MaterialIcons from '@react-native-vector-icons/material-icons/static';
 
 const extensions = [dbExtension];
 
@@ -135,10 +135,10 @@ const DatabaseFileList: FC<{ style?: ViewStyle }> = ({ style }) => {
 	return (
 		<View style={[styles.container, style]}>
 			<View style={styleNotice}>
-				<MaterialIcons
-					name="warning-amber"
+				<LucideIcons
 					size={20}
 					color={theme.colors.onBackground}
+					name="triangle-alert"
 				/>
 				<Text>{t('dbLoader.willRequireReload')}</Text>
 			</View>

@@ -3,7 +3,7 @@
  */
 import React, { FC, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import MaterialIcons from '@react-native-vector-icons/material-icons/static';
+import LucideIcons from '@react-native-vector-icons/lucide/static';
 import { get } from 'lodash-es';
 
 /**
@@ -42,24 +42,27 @@ const LangControl: FC = () => {
 		[]
 	);
 
-	return (
-		<ListItemMenuControl
-			anchorLabel={(
-				sortArrayByOrderArray([...SUPPORTED_LANGUAGES], [i18n.language]) as string[]
-			)
+	const anchorLabel = useMemo(
+		() =>
+			(sortArrayByOrderArray([...SUPPORTED_LANGUAGES], [i18n.language]) as string[])
 				.map((l) => t('lang.selectLang', { lng: l }))
 				.reverse()
-				.join(' / ')}
+				.join(' / '),
+		[t, i18n.language]
+	);
+
+	return (
+		<ListItemMenuControl
+			anchorLabel={anchorLabel}
 			anchorLabelAppendSelected={true}
 			options={options}
 			setValue={handleChange}
 			value={lang}
-			anchorIcon={({ style, color }) => (
-				<MaterialIcons
-					style={style}
-					name="language"
-					size={25}
+			anchorIcon={({ color }) => (
+				<LucideIcons
 					color={color}
+					size={25}
+					name="languages"
 				/>
 			)}
 		/>
