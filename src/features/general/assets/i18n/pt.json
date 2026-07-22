@@ -11,7 +11,11 @@
 		"units": {
 			"heightDepth": "A altura/profundidade não se refere aos rótulos de altura/profundidade dentro de uma camada do mapa. Estes são completamente independentes desta configuração. Os rótulos de altura/profundidade dentro de uma camada do mapa dependem exclusivamente da fonte da camada.",
 			"unit": "Selecione o sistema de unidades usado para exibir valores deste tipo em todo o aplicativo.",
-			"decimalPlaces": "Número de casas decimais mostradas para valores deste tipo de unidade. Valores mais altos mostram mais dígitos após o ponto decimal para maior precisão."
+			"decimalPlaces": "Número de casas decimais mostradas para valores deste tipo de unidade. Valores mais altos mostram mais dígitos após o ponto decimal para maior precisão.",
+			"coordsPadLng": "Se ativado, a longitude será preenchida com três dígitos. Ex.: '012°' em vez de '12°'.",
+			"coordsPadLat": "Se ativado, a latitude será preenchida com dois dígitos. Ex.: '02°' em vez de '2°'.",
+			"coordsForceNE": "Se ativado, norte e leste sempre serão usados em vez de sul e oeste. Valores negativos indicam sul ou oeste. Ex.: '-12°E' em vez de '12°O'.",
+			"coordsOrder": "Determina quais componentes das coordenadas são exibidos e em qual ordem."
 		},
 		"hardwareKey": "Atribua uma ação a este botão de hardware. Mapeie as teclas de volume para aproximar e afastar o mapa, ou configure-as para não fazer nada e evitar alterações acidentais de zoom."
 	}

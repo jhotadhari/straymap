@@ -1,11 +1,10 @@
 /**
  * External dependencies
  */
-import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { FC, Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { upperFirst, get, omit, isEqual } from 'lodash-es';
-import { View } from 'react-native';
 
 /**
  * Internal dependencies
@@ -19,6 +18,7 @@ import { setItem } from '../../slice';
 import { selectEditItem } from '../../selectors';
 import { DashboardItem } from '../../types';
 import NumericRowControlSegmented from '../../../../components/generic/controls/NumericRowControlSegmented';
+import ToggleRowControlSegmented from '../../../../components/generic/controls/ToggleRowControlSegmented';
 import ListItemMenuControl from '../../../../components/generic/wrapper/ListItemMenuControl';
 import { sharedStyles } from '../../../../sharedStyles';
 
@@ -136,6 +136,129 @@ const ItemUnitPrefControl: FC<{ unitPrefsKey: string; buttonLabel?: string }> = 
 		}
 	}, []);
 
+	const handleCoordsPadLngToggleOption = useCallback(() => {
+		if (undefined === value?.coordsPadLng) {
+			setValue({
+				...value,
+				coordsPadLng: get(unitPrefs, [unitPrefsKey, 'coordsPadLng']),
+			});
+		} else {
+			setValue(omit(value, 'coordsPadLng'));
+		}
+	}, [
+		value,
+		unitPrefs,
+		unitPrefsKey,
+	]);
+
+	const handleCoordsPadLngUpdate = useCallback(
+		(newValue: boolean) => {
+			setValue({
+				...value,
+				coordsPadLng: newValue,
+			});
+		},
+		[value]
+	);
+
+	const handleCoordsPadLatToggleOption = useCallback(() => {
+		if (undefined === value?.coordsPadLat) {
+			setValue({
+				...value,
+				coordsPadLat: get(unitPrefs, [unitPrefsKey, 'coordsPadLat']),
+			});
+		} else {
+			setValue(omit(value, 'coordsPadLat'));
+		}
+	}, [
+		value,
+		unitPrefs,
+		unitPrefsKey,
+	]);
+
+	const handleCoordsPadLatUpdate = useCallback(
+		(newValue: boolean) => {
+			setValue({
+				...value,
+				coordsPadLat: newValue,
+			});
+		},
+		[value]
+	);
+
+	const handleCoordsForceNEToggleOption = useCallback(() => {
+		if (undefined === value?.coordsForceNE) {
+			setValue({
+				...value,
+				coordsForceNE: get(unitPrefs, [unitPrefsKey, 'coordsForceNE']),
+			});
+		} else {
+			setValue(omit(value, 'coordsForceNE'));
+		}
+	}, [
+		value,
+		unitPrefs,
+		unitPrefsKey,
+	]);
+
+	const handleCoordsForceNEUpdate = useCallback(
+		(newValue: boolean) => {
+			setValue({
+				...value,
+				coordsForceNE: newValue,
+			});
+		},
+		[value]
+	);
+
+	const handleCoordsOrderUpdate = useCallback((newValue: string) => {
+		if ('default' === newValue) {
+			setValue((value) => omit(value, 'coordsOrder'));
+		} else {
+			setValue((value) => ({
+				...value,
+				coordsOrder: newValue as UnitPref['coordsOrder'],
+			}));
+		}
+	}, []);
+
+	const coordsPadLngActive = undefined !== value?.coordsPadLng;
+	const coordsPadLatActive = undefined !== value?.coordsPadLat;
+	const coordsForceNEActive = undefined !== value?.coordsForceNE;
+
+	const coordsOrderOpts = useMemo(
+		() => [
+			{
+				key: 'default',
+				label: 'dashboard.useUnitPref',
+			},
+			...get(unitPrefControlOptions, 'coordsOrder', []),
+		],
+		[]
+	);
+
+	const selectedCoordsOrderOpt = coordsOrderOpts.find(
+		(opt) => opt.key === (value?.coordsOrder ?? 'default')
+	);
+
+	const getCoordsOrderMenuItemStyle = useCallback(
+		(idx: number) =>
+			!value?.coordsOrder &&
+			get(unitPrefs, [unitPrefsKey, 'coordsOrder']) === coordsOrderOpts[idx].key
+				? {
+						borderLeftColor: theme.colors.primary,
+						borderLeftWidth: 5,
+					}
+				: {},
+		[
+			value?.coordsOrder,
+			coordsOrderOpts,
+			theme,
+			unitPrefs,
+			unitPrefsKey,
+		]
+	);
+
 	const getMenuItemStyle = useCallback(
 		(idx: number) =>
 			!value?.unit && get(unitPrefs, [unitPrefsKey, 'unit']) === opts[idx].key
@@ -154,7 +277,7 @@ const ItemUnitPrefControl: FC<{ unitPrefsKey: string; buttonLabel?: string }> = 
 	);
 
 	return (
-		<View>
+		<Fragment>
 			<InfoLabelRow
 				label={t('unit')}
 				Info={t('dashboard.hint.item.unit')}
@@ -180,7 +303,73 @@ const ItemUnitPrefControl: FC<{ unitPrefsKey: string; buttonLabel?: string }> = 
 				validate={validate}
 				Info={t('dashboard.hint.item.decimalPlaces')}
 			/>
-		</View>
+
+			{'coordinates' === unitPrefsKey && (
+				<>
+					<ToggleRowControlSegmented
+						label={t('coordsPadLng')}
+						buttonLabel={buttonLabel}
+						boolValueActive={coordsPadLngActive}
+						toggleOption={handleCoordsPadLngToggleOption}
+						value={
+							value?.coordsPadLng ??
+							get(unitPrefs, [
+								unitPrefsKey,
+								'coordsPadLng',
+							]) ??
+							false
+						}
+						onUpdate={handleCoordsPadLngUpdate}
+						Info={t('general.hint.units.coordsPadLng')}
+					/>
+					<ToggleRowControlSegmented
+						label={t('coordsPadLat')}
+						buttonLabel={buttonLabel}
+						boolValueActive={coordsPadLatActive}
+						toggleOption={handleCoordsPadLatToggleOption}
+						value={
+							value?.coordsPadLat ??
+							get(unitPrefs, [
+								unitPrefsKey,
+								'coordsPadLat',
+							]) ??
+							false
+						}
+						onUpdate={handleCoordsPadLatUpdate}
+						Info={t('general.hint.units.coordsPadLat')}
+					/>
+					<ToggleRowControlSegmented
+						label={t('coordsForceNE')}
+						buttonLabel={buttonLabel}
+						boolValueActive={coordsForceNEActive}
+						toggleOption={handleCoordsForceNEToggleOption}
+						value={
+							value?.coordsForceNE ??
+							get(unitPrefs, [
+								unitPrefsKey,
+								'coordsForceNE',
+							]) ??
+							false
+						}
+						onUpdate={handleCoordsForceNEUpdate}
+						Info={t('general.hint.units.coordsForceNE')}
+					/>
+					<InfoLabelRow
+						label={t('coordsOrder')}
+						Info={t('general.hint.units.coordsOrder')}
+					>
+						<ListItemMenuControl
+							listItemStyle={sharedStyles.listItem}
+							options={coordsOrderOpts}
+							value={get(selectedCoordsOrderOpt, 'key')}
+							setValue={handleCoordsOrderUpdate}
+							anchorLabel={t(selectedCoordsOrderOpt?.label ?? '')}
+							menuItemStyle={getCoordsOrderMenuItemStyle}
+						/>
+					</InfoLabelRow>
+				</>
+			)}
+		</Fragment>
 	);
 };
 

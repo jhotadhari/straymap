@@ -3,6 +3,7 @@
  */
 import React, { FC, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { get, omit } from 'lodash-es';
 
 /**
  * Internal dependencies
@@ -10,7 +11,6 @@ import { useTranslation } from 'react-i18next';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { selectEditItem, selectElementsSettings } from '../../selectors';
 import { setItem } from '../../slice';
-import { get, omit } from 'lodash-es';
 import NumericRowControlSegmented from '../../../../components/generic/controls/NumericRowControlSegmented';
 
 const validate = (val: number) => val > 0 && val <= 999;

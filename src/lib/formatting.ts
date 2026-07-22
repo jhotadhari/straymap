@@ -2,6 +2,7 @@
  * External dependencies
  */
 import formatcoords from 'formatcoords';
+import { TFunction } from 'i18next';
 
 /**
  * Internal dependencies
@@ -140,10 +141,79 @@ const COORDS_FORMAT_MAP: Record<string, string> = {
 	dms: 'FFf',
 };
 
-export const formatCoords = (lat: number, lng: number, unitPref: UnitPref): string => {
-	return formatcoords(lat, lng).format(COORDS_FORMAT_MAP[unitPref.unit] ?? 'f', {
+const padCoordStr = (str: string, deli: string, number: number) => {
+	const strParts = str.split(deli);
+	const negative = strParts[0][0] === '-';
+	strParts[0] = (negative ? '-' : '') + strParts[0].slice(negative ? 1 : 0).padStart(number, '0');
+	return strParts.join(deli);
+};
+
+export const formatCoords = (
+	lat: number,
+	lng: number,
+	unitPref: UnitPref,
+	t?: TFunction<'translation', undefined>
+): string => {
+	const { coordsPadLng, coordsPadLat, coordsOrder, coordsForceNE } = unitPref;
+
+	const coordsStr = formatcoords(lat, lng).format(COORDS_FORMAT_MAP[unitPref.unit] ?? 'f', {
 		decimalPlaces: Math.min(unitPref.round ?? 4, 99),
 	});
+
+	const coordsStrParts = coordsStr.split(/([NSEW])/).map((str) => str.trim());
+
+	if (coordsForceNE) {
+		if ('S' === coordsStrParts[1]) {
+			coordsStrParts[0] = parseFloat(coordsStrParts[0]) * -1 + '';
+			coordsStrParts[1] = 'N';
+		}
+		if ('W' === coordsStrParts[3]) {
+			coordsStrParts[2] = parseFloat(coordsStrParts[2]) * -1 + '';
+			coordsStrParts[3] = 'E';
+		}
+	}
+
+	let deli;
+	if (coordsPadLng) {
+		deli = (deli ?? unitPref.unit.startsWith('dm')) ? '°' : '.';
+		coordsStrParts[2] = padCoordStr(coordsStrParts[2], deli, 3);
+	}
+	if (coordsPadLat) {
+		deli = (deli ?? unitPref.unit.startsWith('dm')) ? '°' : '.';
+		coordsStrParts[0] = padCoordStr(coordsStrParts[0], deli, 2);
+	}
+
+	if (t) {
+		coordsStrParts[1] = ('N' === coordsStrParts[1] ? t('north') : t('south'))
+			.substring(0, 1)
+			.toUpperCase();
+		coordsStrParts[3] = ('E' === coordsStrParts[3] ? t('east') : t('west'))
+			.substring(0, 1)
+			.toUpperCase();
+	}
+
+	switch (coordsOrder) {
+		case 'lng_lat':
+			return [
+				coordsStrParts[2],
+				coordsStrParts[3],
+				coordsStrParts[0],
+				coordsStrParts[1],
+			].join(' ');
+		case 'lat':
+			return [
+				coordsStrParts[0],
+				coordsStrParts[1],
+			].join(' ');
+		case 'lng':
+			return [
+				coordsStrParts[2],
+				coordsStrParts[3],
+			].join(' ');
+		case 'lat_lng':
+		default:
+			return coordsStrParts.join(' ');
+	}
 };
 
 /**

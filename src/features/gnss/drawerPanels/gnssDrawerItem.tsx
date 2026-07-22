@@ -56,6 +56,10 @@ const GnssDrawerContent: FC = () => {
 
 	const coordUnit = get(unitPrefs, ['coordinates', 'unit'], 'dd');
 	const coordRound = get(unitPrefs, ['coordinates', 'round'], 4);
+	const coordsPadLng = get(unitPrefs, ['coordinates', 'coordsPadLng']);
+	const coordsPadLat = get(unitPrefs, ['coordinates', 'coordsPadLat']);
+	const coordsOrder = get(unitPrefs, ['coordinates', 'coordsOrder']);
+	const coordsForceNE = get(unitPrefs, ['coordinates', 'coordsForceNE']);
 	const heightUnit = get(unitPrefs, ['heightDepth']);
 	const speedUnit = get(unitPrefs, ['speed']);
 
@@ -67,10 +71,19 @@ const GnssDrawerContent: FC = () => {
 				<Text>{t('gnss.gnssCoordinates')}:</Text>
 				<Text style={styles.value}>
 					{centerLat !== undefined && centerLng !== undefined
-						? formatCoords(centerLat, centerLng, {
-								unit: coordUnit,
-								round: coordRound,
-							})
+						? formatCoords(
+								centerLat,
+								centerLng,
+								{
+									unit: coordUnit,
+									round: coordRound,
+									coordsPadLng,
+									coordsPadLat,
+									coordsOrder,
+									coordsForceNE,
+								},
+								t
+							)
 						: '-'}
 				</Text>
 			</View>

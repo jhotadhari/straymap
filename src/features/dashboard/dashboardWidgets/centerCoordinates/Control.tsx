@@ -18,16 +18,16 @@ const Control: FC = () => {
 	return (
 		<View style={sharedStyles.container}>
 			<ItemUnitPrefControl
-				buttonLabel={t('follow global setting')} // ???
+				buttonLabel={t('follow global setting')}
 				unitPrefsKey="coordinates"
 			/>
 
 			<ItemMinWidthControl
-				buttonLabel={t('Use default')} // ???
+				buttonLabel={t('Use default')}
 			/>
 
 			<ItemFontSizeControl
-				buttonLabel={t('follow dashboard setting')} // ???
+				buttonLabel={t('follow dashboard setting')}
 			/>
 		</View>
 	);

@@ -225,6 +225,8 @@ const DraggableItem: FC<{
 	setEditPoint: Dispatch<SetStateAction<undefined | RoutingPoint>>;
 	hasNext: boolean;
 }> = ({ item, width, order, draggingItemIndex, setEditPoint, hasNext }) => {
+	const { t } = useTranslation();
+
 	const routeId = useAppSelector(selectIsRouting);
 
 	const unitPrefs = useAppSelector(selectUnitPrefs);
@@ -284,7 +286,8 @@ const DraggableItem: FC<{
 							formatCoords(
 								item.geometry.coordinates[1],
 								item.geometry.coordinates[0],
-								unitPrefs.coordinates
+								unitPrefs.coordinates,
+								t
 							)}
 					</Text>
 				</Sortable.Handle>
