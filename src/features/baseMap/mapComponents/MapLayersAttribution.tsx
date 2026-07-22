@@ -138,6 +138,7 @@ const MapLayersAttribution: FC<{}> = () => {
 	const buttonProps = useMemo(
 		() => ({
 			style: buttonStyle,
+			stylePressing: { backgroundColor: theme.colors.backdrop },
 			size: buttonSize,
 			icon: renderInfoButtonIcon,
 			mode: 'outlined' as const,

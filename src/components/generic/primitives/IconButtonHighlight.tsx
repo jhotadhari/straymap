@@ -5,10 +5,14 @@ import { useTheme, IconButton, IconButtonProps } from 'react-native-paper';
 import { useCallback, useMemo, useState } from 'react';
 import { GestureResponderEvent } from 'react-native';
 
-const IconButtonHighlight = (props: IconButtonProps) => {
+const IconButtonHighlight = (
+	props: IconButtonProps & {
+		stylePressing?: IconButtonProps['style'];
+	}
+) => {
 	const [pressing, setPressing] = useState(false);
 	const theme = useTheme();
-	const { onPressIn, onPressOut, style, ...restProps } = props;
+	const { onPressIn, onPressOut, style, stylePressing, ...restProps } = props;
 
 	const handlePressIn = useCallback(
 		(e: GestureResponderEvent) => {
@@ -27,12 +31,18 @@ const IconButtonHighlight = (props: IconButtonProps) => {
 	);
 
 	const styleMerged = useMemo(
-		() => ({
-			...(style && 'object' === typeof style && style),
-			...(pressing && { backgroundColor: theme.colors.elevation.level3 }),
-		}),
+		() => [
+			style,
+			...(pressing
+				? [
+						{ backgroundColor: theme.colors.elevation.level3 },
+						stylePressing,
+					]
+				: []),
+		],
 		[
 			style,
+			stylePressing,
 			pressing,
 			theme,
 		]
