@@ -91,7 +91,6 @@ export const dashboardSlice = createSlice({
 			}
 		},
 		setItems: (
-			// ??? should be thunk
 			state,
 			action: PayloadAction<{
 				position: string;

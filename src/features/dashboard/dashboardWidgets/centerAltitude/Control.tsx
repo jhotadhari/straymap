@@ -43,15 +43,15 @@ const Control: FC = () => {
 			)}
 
 			<ItemUnitPrefControl
-				buttonLabel={t('follow global setting')} // ???
+				buttonLabel={t('dashboard.followGlobalSetting')}
 				unitPrefsKey="heightDepth"
 			/>
 
 			<ItemMinWidthControl
-				buttonLabel={t('Use default')} // ???
+				buttonLabel={t('dashboard.useDefault')}
 			/>
 			<ItemFontSizeControl
-				buttonLabel={t('follow dashboard setting')} // ???
+				buttonLabel={t('dashboard.followDashboardSetting')}
 			/>
 		</View>
 	);

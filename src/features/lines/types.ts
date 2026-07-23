@@ -24,7 +24,7 @@ export type LineStats = Partial<Record<(typeof STATS_FIELDS)[number], number>>;
 
 export interface Line {
 	id: number;
-	title: string | null; // ??? rename to name
+	title: string | null;
 	geometry: LineString;
 	envelope: Polygon;
 	created_at: string;

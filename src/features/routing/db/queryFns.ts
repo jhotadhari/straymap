@@ -41,8 +41,6 @@ export const queryRoute = ({ queryKey }: { queryKey: (string | number | false)[]
 
 /**
  *
- * ??? Better to unify this with queryRoute
- *
  * Used with:
  *
  * 	queryKey: ['routeForLine', lineId],

@@ -26,7 +26,7 @@ export const linesTable = sqliteTable('lines', {
 		.notNull(),
 	custom_date: text().default(sql`(current_timestamp)`),
 	title: text('title'),
-	data: text('data', { mode: 'json' }).$type<any>(), // ??? type is any. is that ok?
+	data: text('data', { mode: 'json' }).$type<any>(),
 	geometry: lineString('geometry').notNull(),
 });
 
@@ -42,7 +42,7 @@ export const tagsTable = sqliteTable('tags', {
 		.notNull(),
 	label: text('label'),
 	notes: text('notes'),
-	data: text('data', { mode: 'json' }).$type<any>(), // ??? type is any. is that ok?
+	data: text('data', { mode: 'json' }).$type<any>(),
 });
 
 export const tagsToLinesTable = sqliteTable(

@@ -96,9 +96,6 @@ const useDeleteLinesCbModal = ({
 				handleDismissModal();
 				// Call onSuccess (eg LinesTable uncheck lines).
 				onSuccess && onSuccess();
-
-				// ??? maybe unexpand drawer with routing if was active
-				// ??? maybe unexpand drawer with lines if was active and no lines anymore
 			},
 		}),
 		[

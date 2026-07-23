@@ -212,10 +212,12 @@ const EditModal: FC<{
 		[dispatch, profileTemp]
 	);
 
+	const handleLayout = useCallback(() => setModalVisible(true), []);
+
 	return !profileTemp ? undefined : (
 		<ModalWrapper
 			visible={modalVisible}
-			onLayout={() => setModalVisible(true)} // ???
+			onLayout={handleLayout}
 			onDismiss={handleDismissModal}
 			headerLabel={
 				isNewKey === profileTemp.key

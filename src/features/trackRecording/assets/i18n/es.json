@@ -1,1 +1,22 @@
-{}
+{
+	"title": "Grabación de Tracks",
+	"trackRecording": "Grabación de Tracks",
+	"notRecording": "Sin grabar",
+	"trackingStats": "Estadísticas de grabación",
+	"minDistance": "Distancia mínima (m)",
+	"minTime": "Tiempo mínimo (s)",
+	"minPrecision": "Precisión mínima (m)",
+	"distance": "Distancia",
+	"duration": "Duración",
+	"uphill": "Ascenso",
+	"downhill": "Descenso",
+	"speed": "Velocidad",
+	"avgSpeed": "Velocidad media",
+	"pointCount": "Cantidad de puntos",
+	"statField": "Estadística",
+	"stop": "Detener grabación",
+	"hintMinDistance": "Distancia mínima en metros entre puntos grabados.",
+	"hintMinTime": "Tiempo mínimo en segundos entre puntos grabados.",
+	"hintMinPrecision": "La precisión GNSS debe ser mejor que este valor (en metros) para que se grabe un punto.",
+	"start": "Iniciar grabación"
+}

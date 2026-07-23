@@ -15,13 +15,6 @@ const Icon: FC<{
 	color: string;
 	size: number;
 }> = ({ color, size }) => {
-	// return (
-	// 	<MaterialIcons
-	// 		color={color}
-	// 		size={size}
-	// 		name="photo"
-	// 	/>
-	// );
 	return (
 		<IconPaper
 			source={'keyboard-space'}

@@ -31,7 +31,7 @@ export const routesTable = sqliteTable('routes', {
 export const routingPointsTable = sqliteTable('routing_points', {
 	id: integer('id').primaryKey({ autoIncrement: true }),
 	geometry: point('geometry').notNull(),
-	profile: text('profile', { mode: 'json' }).notNull().$type<any>(), // ??? type any. is that ok?
+	profile: text('profile', { mode: 'json' }).notNull().$type<any>(),
 	route_id: integer('route_id')
 		.references(() => routesTable.id)
 		.notNull(),

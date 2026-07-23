@@ -83,9 +83,6 @@ const Dashboard: FC<{
 					dashboard: items.length ? layout.height : 0,
 				}));
 			}
-			if ('top' === position && setTopAppBarHeight && shouldSetTopBarHeight) {
-				// setTopAppBarHeight( height );	// ??? todo // maybe handled already in @src/store/features/ui/components/TopAppBar.tsx
-			}
 			onLayout && onLayout(event);
 		},
 		[
@@ -241,67 +238,5 @@ export const DashboardWrapped: FC<{
 		);
 	}
 };
-
-// const WeirdFix: FC<{
-// 	data: {
-// 		key: string;
-// 	}[];
-// 	setData: Dispatch<
-// 		SetStateAction<
-// 			{
-// 				key: string;
-// 			}[]
-// 		>
-// 	>;
-// }> = ({ data, setData }) => {
-// 	const xsRef = useRef<{ [key: number]: number }>({});
-// 	const handleLayout = useCallback(
-// 		(event: LayoutChangeEvent, idx: number, isFixed: boolean) => {
-// 			const layout = event.nativeEvent.layout;
-// 			set(xsRef.current, idx, layout.x);
-// 			isFixed &&
-// 				setTimeout(() => {
-// 					if (layout.y > 1) {
-// 						// Is second row.
-// 						setData(arrayMoveImmutable(data, idx, idx - 1));
-// 					} else if (get(xsRef.current, idx + 1, 0) > layout.x) {
-// 						// Is not last item in row.
-// 						setData(arrayMoveImmutable(data, idx, idx + 1));
-// 					}
-// 				}, 10);
-// 		},
-// 		[data]
-// 	);
-
-// 	return (
-// 		<View
-// 			style={{
-// 				marginTop: 100,
-// 				flexDirection: 'row',
-// 				justifyContent,
-// 				flexWrap: 'wrap',
-// 				position: 'absolute',
-// 				top: 999999999999,
-// 			}}
-// 		>
-// 			{data.map((item, idx) => {
-// 				const isFixed = 'Portugal' === item.key;
-
-// 				return (
-// 					<View
-// 						onLayout={(e) => handleLayout(e, idx, isFixed)}
-// 						key={item.key}
-// 					>
-// 						<RenderItem
-// 							isHandle={false}
-// 							key={item.key}
-// 							item={item}
-// 						/>
-// 					</View>
-// 				);
-// 			})}
-// 		</View>
-// 	);
-// };
 
 export default Dashboard;

@@ -17,11 +17,11 @@ const Control: FC = () => {
 	return (
 		<View style={sharedStyles.container}>
 			<ItemMinWidthControl
-				buttonLabel={t('Use default')} // ???
+				buttonLabel={t('dashboard.useDefault')}
 			/>
 
 			<ItemFontSizeControl
-				buttonLabel={t('follow dashboard setting')} // ???
+				buttonLabel={t('dashboard.followDashboardSetting')}
 			/>
 		</View>
 	);

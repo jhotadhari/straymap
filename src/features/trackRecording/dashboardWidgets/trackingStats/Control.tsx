@@ -63,9 +63,9 @@ const Control: FC = () => {
 				setValue={handleStatChange}
 			/>
 
-			<ItemMinWidthControl buttonLabel={t('Use default')} />
+			<ItemMinWidthControl buttonLabel={t('dashboard.useDefault')} />
 
-			<ItemFontSizeControl buttonLabel={t('follow dashboard setting')} />
+			<ItemFontSizeControl buttonLabel={t('dashboard.followDashboardSetting')} />
 		</View>
 	);
 };
