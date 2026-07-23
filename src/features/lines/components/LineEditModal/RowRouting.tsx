@@ -5,8 +5,7 @@ import { FC, useCallback, useContext, useMemo } from 'react';
 import { Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { TextStyle, View } from 'react-native';
-import { useMap } from 'react-native-mapsforge-vtm';
-import { centerOfMass } from '@turf/turf';
+import { Bbox, useMap } from 'react-native-mapsforge-vtm';
 
 /**
  * Internal dependencies
@@ -23,6 +22,7 @@ import { sharedStyles } from './sharedDeps';
 import { sharedStyles as appSharedStyles } from '../../../../sharedStyles';
 import IconRouting from '../../../routing/drawerPanels/routing/IconComponent';
 import { AppContext } from '../../../../Context';
+import { MAP_ANIMATION_PADDING_PX } from '../../../../constants';
 
 const renderIconRouting = ({ color }: { color: TextStyle['color'] }) => (
 	<IconRouting color={color} />
@@ -42,23 +42,31 @@ const RowRouting: FC = () => {
 
 	const { mapViewNativeNodeHandle } = useContext(AppContext);
 
-	const { panTo } = useMap(mapViewNativeNodeHandle);
+	const { flyToBounds } = useMap(mapViewNativeNodeHandle);
 
-	const { route, selectLine, line } = useContext(LineEditModalContext);
+	const { route, selectLine, line, onDismiss } = useContext(LineEditModalContext);
 
 	const handlePress = useCallback(() => {
 		if (lineTemp?.id && route?.id) {
-			// set bounds. ??? have to implement set bounds. use center for now,
+			onDismiss();
 			if (line?.envelope && mapViewNativeNodeHandle) {
-				const centerPoint = centerOfMass(line?.envelope);
-				panTo(centerPoint.geometry.coordinates);
+				const ring = line.envelope.coordinates[0];
+				const lngs = ring.map((c) => c[0]);
+				const lats = ring.map((c) => c[1]);
+				const bbox: Bbox = [
+					Math.min(...lngs),
+					Math.min(...lats),
+					Math.max(...lngs),
+					Math.max(...lats),
+				];
+				flyToBounds(bbox, { paddingPx: MAP_ANIMATION_PADDING_PX });
 			}
 			dispatch(setIsRouting(route.id));
 			selectLine(lineTemp.id, true);
 			activateRoutingDrawerItem();
 		}
 	}, [
-		panTo,
+		flyToBounds,
 		mapViewNativeNodeHandle,
 		lineTemp?.id,
 		route?.id,
@@ -66,6 +74,7 @@ const RowRouting: FC = () => {
 		activateRoutingDrawerItem,
 		dispatch,
 		selectLine,
+		onDismiss,
 	]);
 
 	const buttonStyle = useMemo(

@@ -17,16 +17,18 @@ import { useAppSelector } from '../../../../store/hooks';
 import { selectSelected } from '../../selectors';
 import { sharedStyles } from './sharedDeps';
 import { sharedStyles as appSharedStyles } from '../../../../sharedStyles';
+import { envelopeToBBox } from '../../../../lib/utils';
+import { MAP_ANIMATION_PADDING_PX } from '../../../../constants';
 
 const RowFlyTo: FC = () => {
 	const theme = useTheme();
 	const { t } = useTranslation();
 
-	const { mapViewNativeNodeHandle } = useContext(AppContext);
+	const { mapViewNativeNodeHandle, drawerControlsRef } = useContext(AppContext);
 
 	const { flyToBounds } = useMap(mapViewNativeNodeHandle);
 
-	const { line } = useContext(LineEditModalContext);
+	const { line, onDismiss } = useContext(LineEditModalContext);
 
 	const selectedIds = useAppSelector(selectSelected);
 
@@ -34,18 +36,17 @@ const RowFlyTo: FC = () => {
 
 	const handlePress = useCallback(() => {
 		if (line?.envelope && mapViewNativeNodeHandle && isSelected) {
-			const ring = line.envelope.coordinates[0];
-			const lngs = ring.map((c) => c[0]);
-			const lats = ring.map((c) => c[1]);
-			const bbox: Bbox = [
-				Math.min(...lngs),
-				Math.min(...lats),
-				Math.max(...lngs),
-				Math.max(...lats),
-			];
-			flyToBounds(bbox, { paddingPx: 64 });
+			const bbox = envelopeToBBox(line.envelope);
+			flyToBounds(bbox, { paddingPx: MAP_ANIMATION_PADDING_PX });
+			// Close modal.
+			onDismiss();
+			// Close drawers.
+			drawerControlsRef.current?.left.expand(false);
+			drawerControlsRef.current?.right.expand(false);
 		}
 	}, [
+		drawerControlsRef,
+		onDismiss,
 		flyToBounds,
 		mapViewNativeNodeHandle,
 		line?.envelope,

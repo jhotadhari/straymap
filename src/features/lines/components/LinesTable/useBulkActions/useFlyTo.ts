@@ -11,10 +11,16 @@ import { Bbox, useMap } from 'react-native-mapsforge-vtm';
 import { FooterContext } from '../Context';
 import { queryLinesWithoutGeom } from '../../../db/queryFns';
 import { AppContext } from '../../../../../Context';
+import { useAppDispatch } from '../../../../../store/hooks';
+import { setUiItemKeys } from '../../../../ui/slice';
+import { MAP_ANIMATION_PADDING_PX } from '../../../../../constants';
 
 const useFlyTo = () => {
+
+	const dispatch = useAppDispatch();
+
 	const { checkedIds } = useContext(FooterContext);
-	const { mapViewNativeNodeHandle } = useContext(AppContext);
+	const { mapViewNativeNodeHandle, drawerControlsRef } = useContext(AppContext);
 	const { flyToBounds } = useMap(mapViewNativeNodeHandle);
 
 	const { data: lines } = useQuery({
@@ -50,8 +56,15 @@ const useFlyTo = () => {
 			maxLng,
 			maxLat,
 		];
-		flyToBounds(bbox, { paddingPx: 64 });
+
+		flyToBounds(bbox, { paddingPx: MAP_ANIMATION_PADDING_PX });
+		// Close LinesTable.
+		dispatch(setUiItemKeys([]));
+		// Close drawers.
+		drawerControlsRef.current?.left.expand(false);
+		drawerControlsRef.current?.right.expand(false);
 	}, [
+		drawerControlsRef,
 		lines,
 		mapViewNativeNodeHandle,
 		flyToBounds,

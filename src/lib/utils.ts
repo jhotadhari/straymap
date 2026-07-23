@@ -1,7 +1,8 @@
 /**
  * External dependencies
  */
-import { LineString, Point, Position } from 'geojson';
+import { LineString, Point, Polygon, Position } from 'geojson';
+import { Bbox } from 'react-native-mapsforge-vtm';
 
 declare function requestIdleCallback(
 	callback: (deadline: { didTimeout: boolean; timeRemaining: () => number }) => void,
@@ -114,4 +115,16 @@ export const pointToFakeLineStringFeature = (point: Point) => {
 			point.coordinates[2],
 		],
 	]);
+};
+
+export const envelopeToBBox = ( envelope: Polygon ) : Bbox => {
+	const ring = envelope.coordinates[0];
+	const lngs = ring.map((c) => c[0]);
+	const lats = ring.map((c) => c[1]);
+	return [
+		Math.min(...lngs),
+		Math.min(...lats),
+		Math.max(...lngs),
+		Math.max(...lats),
+	];
 };

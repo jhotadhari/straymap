@@ -60,7 +60,7 @@ export interface TableRowProps {
 	styleCell: StyleProp<ViewStyle>;
 	idx: number;
 	isOnMap: boolean;
-	handleRoutingBtnPress: () => void;
+	handleRoutingBtnPress: (line: Omit<Line, 'geometry'>) => void;
 	isChecked: boolean;
 	toggleCheckedId: (id: number) => void;
 	toggleOnMapId: (id: number) => void;
@@ -74,7 +74,7 @@ const TableRow: FC<TableRowProps> = ({
 	line,
 	styleCell,
 	idx,
-	handleRoutingBtnPress,
+	handleRoutingBtnPress: handleRoutingBtnPress_,
 	isChecked,
 	isOnMap,
 	toggleCheckedId,
@@ -126,6 +126,10 @@ const TableRow: FC<TableRowProps> = ({
 	const handleEditPress = useCallback(() => {
 		dispatch(setLineTemp({ id: line.id }));
 	}, [dispatch, line.id]);
+
+	const handleRoutingBtnPress = useCallback(() => {
+		handleRoutingBtnPress_( line )
+	}, [handleRoutingBtnPress_, line]);
 
 	return (
 		<View style={style}>

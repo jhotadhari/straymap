@@ -16,6 +16,7 @@ import {
 import { useTheme } from 'react-native-paper';
 import { uniq, without } from 'lodash-es';
 import { BlurView } from '@react-native-community/blur';
+import { useMap } from 'react-native-mapsforge-vtm';
 
 /**
  * Internal dependencies
@@ -42,7 +43,9 @@ import { FooterContext, HeaderContext, ColumnHeaderMenuContext } from './Context
 import LineEditModal from '../LineEditModal/LineEditModal';
 import LinesFilterModals from './FilterModals';
 import LoadingIndicator from '../../../../components/generic/primitives/LoadingIndicator';
-import { sharedStyles } from '../../../../sharedStyles';
+import { envelopeToBBox } from '../../../../lib/utils';
+import { AppContext } from '../../../../Context';
+import { MAP_ANIMATION_PADDING_PX } from '../../../../constants';
 
 const keyExtractor = (line: { id: number }) => line.id.toString();
 
@@ -65,6 +68,10 @@ const LinesTable: FC = () => {
 	const theme = useTheme();
 
 	const dispatch = useAppDispatch();
+
+	const { mapViewNativeNodeHandle } = useContext(AppContext);
+
+	const { flyToBounds } = useMap(mapViewNativeNodeHandle);
 
 	const onMapIds = useAppSelector(selectSelected);
 
@@ -183,10 +190,16 @@ const LinesTable: FC = () => {
 
 	const activateRoutingDrawerItem = useActivateDrawerItem('routing');
 
-	const handleRoutingBtnPress = useCallback(() => {
+	const handleRoutingBtnPress = useCallback(( line: Omit<Line, "geometry"> ) => {
 		activateRoutingDrawerItem();
+		// Close LinesTable.
 		dispatch(setUiItemKeys([]));
-	}, [dispatch, activateRoutingDrawerItem]);
+		// flyToBounds
+		if (line?.envelope) {
+			const bbox = envelopeToBBox(line.envelope);
+			flyToBounds(bbox, { paddingPx: MAP_ANIMATION_PADDING_PX });
+		}
+	}, [dispatch, activateRoutingDrawerItem, flyToBounds]);
 
 	const renderHeader = useCallback(() => {
 		return <TableHeader styleCell={styleCell} />;
