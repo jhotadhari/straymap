@@ -11,9 +11,13 @@
 
 type AltitudeFn = (lng: number, lat: number) => Promise<number | null>;
 type HasDataFn = (lng: number, lat: number) => Promise<boolean>;
+type SetCacheCapacityFn = (capacity: number) => Promise<void>;
+type IsTileCachedFn = (lng: number, lat: number) => Promise<boolean>;
 
 let _altitudeFn: AltitudeFn | null = null;
 let _hasDataFn: HasDataFn | null = null;
+let _setCacheCapacityFn: SetCacheCapacityFn | null = null;
+let _isTileCachedFn: IsTileCachedFn | null = null;
 
 const RETRY_DELAY_MS = 200;
 const MAX_RETRIES = 5;
@@ -31,6 +35,34 @@ export const setAltitudeLookup = (fn: AltitudeFn | null) => {
 export const setHasDataLookup = (fn: HasDataFn | null) => {
 	_hasDataFn = fn;
 };
+
+export const setCacheCapacityLookup = (fn: SetCacheCapacityFn | null) => {
+	_setCacheCapacityFn = fn;
+};
+
+/**
+ * Returns the raw native altitude function without the retry wrapper.
+ * The caller is responsible for retry / fencing logic — this is the
+ * integration point for the library's enrichCoordinatesWithElevation.
+ */
+export const getRawAltitudeFn = (): AltitudeFn | null => _altitudeFn;
+
+/**
+ * Returns the raw native hasData function — same contract as the
+ * wired function, exposed for library consumers.
+ */
+export const getRawHasDataFn = (): HasDataFn | null => _hasDataFn;
+
+/**
+ * Returns the wired setCacheCapacity function, or null if not wired.
+ */
+export const getSetCacheCapacityFn = (): SetCacheCapacityFn | null => _setCacheCapacityFn;
+
+export const setIsTileCachedLookup = (fn: IsTileCachedFn | null) => {
+	_isTileCachedFn = fn;
+};
+
+export const getIsTileCachedFn = (): IsTileCachedFn | null => _isTileCachedFn;
 
 const delay = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 

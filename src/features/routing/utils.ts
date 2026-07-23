@@ -6,10 +6,16 @@ import { getRoute } from 'react-native-brouter/geojson';
 /**
  * Internal dependencies
  */
+import { enrichCoordinatesWithElevation } from 'react-native-mapsforge-vtm';
+import type { ElevationAPI } from 'react-native-mapsforge-vtm';
 import { RoutingSegment, BrouterOptions, StraightLineOptions, RoutingProfile } from './types';
-import { getAltitudeAtPosition, hasDataAtPosition } from './altitude';
+import {
+	getIsTileCachedFn,
+	getRawAltitudeFn,
+	getRawHasDataFn,
+	getSetCacheCapacityFn,
+} from './altitude';
 import { haversineDistance } from '../../lib/formatting';
-import { logError } from '../../lib/utils';
 
 export const getSegmentRecordId = (segment: Pick<RoutingSegment, 'fromId' | 'toId'>) =>
 	[
@@ -88,50 +94,35 @@ const getStraightLineCoords = async (
 		to[2] ?? 0,
 	]);
 
-	// Enrich with altitude — group by SRTM3 tile (1°×1° grid) so each
-	// unique tile is queried only once.  Tiles without an HGT file are
-	// skipped entirely (no retry loop wasted on ocean / missing data).
-	const tileKey = (lng: number, lat: number) => `${Math.floor(lat)},${Math.floor(lng)}`;
+	// Enrich with altitude — delegates to the library’s windowed
+	// three-phase flow.  Coordinates are grouped by 1°×1° SRTM tile;
+	// tiles without HGT files are automatically skipped.  The LRU
+	// cache capacity is temporarily raised to the window size so the
+	// collect phase is always a guaranteed cache hit.
+	const elevationAPI: ElevationAPI = {
+		getAltitudeAtPosition: async (lng, lat) => {
+			const fn = getRawAltitudeFn();
+			if (!fn) throw new Error('Altitude lookup not wired');
+			return fn(lng, lat);
+		},
+		hasDataAtPosition: async (lng, lat) => {
+			const fn = getRawHasDataFn();
+			if (!fn) return false;
+			return fn(lng, lat);
+		},
+		setCacheCapacity: async (capacity) => {
+			const fn = getSetCacheCapacityFn();
+			if (!fn) throw new Error('setCacheCapacity not wired');
+			await fn(capacity);
+		},
+		isTileCached: async (lng, lat) => {
+			const fn = getIsTileCachedFn();
+			if (!fn) return false;
+			return fn(lng, lat);
+		},
+	};
 
-	const tileMap = new Map<string, { lng: number; lat: number; coords: number[][] }>();
-	for (const coord of coords) {
-		const key = tileKey(coord[0], coord[1]);
-		let entry = tileMap.get(key);
-		if (!entry) {
-			entry = { lng: coord[0], lat: coord[1], coords: [] };
-			tileMap.set(key, entry);
-		}
-		entry.coords.push(coord);
-	}
-
-	const BATCH_SIZE = 20;
-	const tiles = Array.from(tileMap.values());
-	for (let i = 0; i < tiles.length; i += BATCH_SIZE) {
-		const batch = tiles.slice(i, i + BATCH_SIZE);
-		const results = await Promise.allSettled(
-			batch.map(async ({ lng, lat, coords: tileCoords }) => {
-				if (!(await hasDataAtPosition(lng, lat))) {
-					return; // No HGT file — skip this tile entirely.
-				}
-				const alt = await getAltitudeAtPosition(lng, lat);
-				if (alt !== null) {
-					for (const c of tileCoords) {
-						c[2] = alt;
-					}
-				}
-			})
-		);
-		for (let j = 0; j < results.length; j++) {
-			if (results[j].status === 'rejected') {
-				logError(
-					'getStraightLineCoords.altitude',
-					(results[j] as PromiseRejectedResult).reason
-				);
-			}
-		}
-	}
-
-	console.log('debug coords', coords); // debug
+	await enrichCoordinatesWithElevation(coords, elevationAPI);
 
 	return coords;
 };
