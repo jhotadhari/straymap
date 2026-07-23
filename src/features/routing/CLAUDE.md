@@ -10,7 +10,6 @@ geometry is stored in the `lines` table and linked to the route via `line_id`.
 ```
 Route {
   id: number;            // autoincrement PK
-  timestamp: string;     // ISO-8601
   point_order: number[]; // ordered list of routing point IDs
   line_id: number | null; // FK → lines.id (ON DELETE SET NULL)
   stats?: LineStats;     // copied from the linked line's geometry stats
@@ -19,9 +18,8 @@ Route {
 
 RoutingPoint {
   id: number;
-  timestamp: string;
   geometry: Point;       // GeoJSON Point (SRID 4326, POINTZ)
-  route_id: number;      // FK → routes.id
+  route_id: number;      // FK → routes.id (DB column only, not on the TS type)
   profile: RoutingProfile; // { provider: 'brouter' | 'straightLine', options: BrouterOptions | StraightLineOptions }
 }
 ```
@@ -43,6 +41,7 @@ delete them. They remain in the DB and can be re-loaded later.
 ```ts
 RoutingState {
   initialized: boolean;
+  brouterAvailable: null | boolean; // null = unchecked, boolean = availability check result
   isRouting: false | number;  // false = inactive; number = active route ID
   routingLineId: null | number; // line ID linked to the active route
   segments: Record<string, RoutingSegment>; // brouter-computed path segments
@@ -54,7 +53,7 @@ RoutingState {
 | Thunk                                   | What it does                                                                  |
 | --------------------------------------- | ----------------------------------------------------------------------------- |
 | `setIsRouting(routeId \| false)`        | Sets `isRouting`. Listener auto-triggers `processRouting` when truthy.        |
-| `setRoutingLineId(lineId)`              | Sets `routingLineId`. Persisted to storage.                                   |
+| `setRoutingLineId(lineId)`              | Action creator. Sets `routingLineId`. Persisted to storage.                   |
 | `processRouting(queryClient, options?)` | Fetches points, computes segments via brouter, creates/updates line geometry. |
 
 ### `processRouting` flow
@@ -70,7 +69,7 @@ RoutingState {
        d. If line_id is null → createLines([newGeometry]) → updateRoute(routeId, { line_id: newId })
        e. Invalidate: ['route', routeId], ['lineGeom', lineId], ['lines', [lineId]], ['routeForLine', lineId]
    If updateLine === false (restore / re-load):
-     Read routingLineId from Redux, re-select the line, invalidate route + line caches
+     Fetch route from DB, read line_id, re-select the line, invalidate route + line caches
 4. Dispatch segments to store
 ```
 
@@ -89,19 +88,22 @@ The auto-load listener means: **calling `dispatch(setIsRouting(routeId))` is
 sufficient to re-load a persisted route.** The listener picks it up and
 dispatches `processRouting` which fetches points and computes segments.
 
-### Gotcha: `routingLineId` race on restore
+### Gotcha: `routingLineId` cleared on route switch
 
 When `setIsRoutingAction` is dispatched, the reducer clears `routingLineId`
 to `null`. The listener fires `processRouting` immediately after, but the
-`updateLine: false` branch reads `routingLineId` from state and finds `null`.
-The `initializeFromStorage` function dispatches `setIsRoutingAction` first,
-then `setRoutingLineId` second — but the listener fires on the first dispatch,
+`initializeFromStorage` function dispatches `setIsRoutingAction` first,
+then `setRoutingLineId` second — the listener fires on the first dispatch,
 before the second has happened.
 
-This means the `updateLine: false` branch's attempt to re-select the routing
-line via `routingLineId` is broken for app restore. The `RowRouting` button
-works around this by explicitly calling `selectLine(lineTemp.id, true)` after
-dispatching `setIsRouting(route.id)`.
+The `updateLine: false` branch works around this by fetching `line_id`
+from the DB directly (via `queryRoute`), rather than reading the
+potentially-stale `routingLineId` from Redux state.
+
+The `RowRouting` button also calls `selectLine(lineTemp.id, true)` after
+dispatching `setIsRouting(route.id)` for immediate UI feedback — the
+asynchronous `processRouting` will also re-select the line when it completes,
+but the synchronous call gives instant response.
 
 ## React Query layer
 
@@ -177,12 +179,12 @@ commit `00e770d`.
 
 | Component/Hook             | File                                     | Role                                            |
 | -------------------------- | ---------------------------------------- | ----------------------------------------------- |
-| `useToggleRouting`         | `DrawerTopBar/useToggleRouting.ts`       | Start/stop routing toggle                       |
-| `useActions`               | `DrawerTopBar/useActions/index.ts`       | Composes routing action hooks                   |
-| `useActionAppendPoint`     | `useActions/useActionAppendPoint.ts`     | Add waypoint at current map center              |
-| `useActionDeleteLastPoint` | `useActions/useActionDeleteLastPoint.ts` | Remove last waypoint                            |
-| `RoutingActionsButton`     | `RoutingActionsButton.tsx`               | Popover menu with routing actions               |
-| `RowRouting`               | `lines/…/LineEditModal/RowRouting.tsx`   | Load/activate a line's route from LineEditModal |
+| `useToggleRouting`         | `components/DrawerTopBar/useToggleRouting.ts`       | Start/stop routing toggle                       |
+| `useActions`               | `components/DrawerTopBar/useActions/index.ts`       | Composes routing action hooks                   |
+| `useActionAppendPoint`     | `components/DrawerTopBar/useActions/useActionAppendPoint.ts`     | Add waypoint at current map center              |
+| `useActionDeleteLastPoint` | `components/DrawerTopBar/useActions/useActionDeleteLastPoint.ts` | Remove last waypoint                            |
+| `RoutingActionsButton`     | `components/RoutingActionsButton.tsx`               | Popover menu with routing actions               |
+| `RowRouting`               | `../lines/components/LineEditModal/RowRouting.tsx`   | Load/activate a line's route from LineEditModal |
 | `useRoute`                 | `hooks/useRoute.ts`                      | Fetch active route from Redux + React Query     |
 
 ## Gotchas

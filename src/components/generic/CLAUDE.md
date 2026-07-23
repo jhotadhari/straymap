@@ -56,10 +56,11 @@ components.
 | `ButtonHighlight` | Paper `Button` with press-in/press-out background highlight |
 | `IconButtonHighlight` | Same as above, for `IconButton` |
 | `IconIcomoon` | IcoMoon icon set (built from `selection.json` at import time) |
+| `IconFontGis` | GIS-specific icon set (built from `font-gis.json` at import time) |
 | `HintLink` | Tappable URL text that opens via `Linking.openURL` |
-| `LoadingIndicator` | Paper `ActivityIndicator`, always animated, uses `theme.colors.primary` |
+| `LoadingIndicator` | Custom rotating ring (reanimated), always animated, uses `theme.colors.primary` |
 | `Badge` | Small colored badge/chip, outlined or contained, from `PaletteColor` |
-| `TextInputNativeMultiline` | Auto-resizing multiline TextInput (class component, ref-forwarding workaround) |
+| `TextInputNativeMultiline` | Auto-resizing multiline TextInput (class component, ref-forwarding workaround). Also exports `TextInputNativeMultilineControlled` for controlled-value scenarios. |
 
 ## wrapper/
 

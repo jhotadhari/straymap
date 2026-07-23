@@ -97,42 +97,36 @@ was an explicit decision, not an oversight.
   blob built by `lineString()`/`point()` in `dbLoader/types.ts`. There is no string
   concatenation into SQL anywhere in this codebase — confirmed by reading
   `drizzle-orm/op-sqlite/session.js`. The one place raw SQL strings are run directly
-  (`dbOpExecute` in `dbLoader/utils.ts`) is only ever called with hardcoded `PRAGMA` strings
-  from debug code (`lines/components/DebugBla.tsx`), never with user input.
+  (`dbOpExecute` in `dbLoader/utils.ts`) is only called with hardcoded spatial-function
+  queries (`lib/utils.ts` for stats computation) — never with user input.
 - **No app-level input sanitization on text fields** (`title`, `label`, `notes`) — and none is
   needed for SQL safety. The only residual risk is unbounded length (no `maxLength` on the
   `TextInput` in `RowName.tsx`) and the `params`/`profile` JSON columns being typed `any` with
   no runtime shape validation before being persisted. Low severity for a single-user,
   on-device app, but worth tightening if either field starts being fed by anything other than
   direct user typing (e.g. an import feature).
-- **Foreign keys are declared `ON DELETE no action`** (see `drizzle/0000_elite_nitro.sql`),
-  and SQLite/op-sqlite doesn't enforce `PRAGMA foreign_keys` here, so nothing at the db level
-  stops orphaned rows. The app is expected to clean up manually — and currently doesn't
-  consistently (see below).
+- **Foreign keys on `tags_to_lines` have `ON DELETE cascade`** at the schema level — deleting a
+  line or tag automatically cleans up join rows. Other foreign keys (e.g. `routing_points`
+  → `routes`, `lines` → `routes` on the `line_id` FK in `routing_points`) use `ON DELETE no
+  action` / `ON DELETE set null`, so orphaned rows are still possible there and the app is
+  expected to clean up manually.
 
 ## CRUD conventions and known gaps
 
-- **Error handling is inconsistent by design-so-far**: only the four `create*` functions
-  (`createLines`, `createTags`, `createRoutes`, `createRoutingPoints`) wrap their body in
-  try/catch + `logError` + `showErrorToast` + rethrow (added when the app-wide error-toast
-  system was introduced). `updateLine` now follows the same pattern. `updateTag`, `updateRoute`,
-  `updateRoutingPoint`, `lineAddTag`, `lineRemoveTag`, `deleteLine`, `deleteLines`, `deleteTag`,
-  `deleteRoute`, `deleteRoutingPoint` still have none — a failure there is an unhandled
-  rejection, invisible to the user, and can leave the React Query cache out of sync with what's
-  actually in the db. Worth sweeping the same pattern over the remaining functions.
-- **No db transactions**: multi-statement writes (e.g. `createLines` inserting a line, then
-  separately inserting `tagsToLinesTable` rows; `createRoutingPoints` inserting a point, then
-  separately updating the route's `point_order`) run as independent statements, not inside
-  `dbConnection.drizzle.transaction(...)`. If the second statement throws, the first is left
-  committed — partial writes. Wrapping each multi-step action in a drizzle transaction would
-  close this without much code churn.
-- **Orphaned join rows on delete**: `deleteLine`/`deleteTag` only delete from `linesTable`/
-  `tagsTable` (there's a `// ??? do that with schema` comment acknowledging the gap) and leave
-  `tagsToLinesTable` rows pointing at a deleted id. `deleteRoute` does clean up
-  `routingPointsTable` manually, so that pattern could be mirrored for tags. Adding
-  `onDelete: 'cascade'` to the `tagsToLinesTable` foreign keys (already sketched out
-  commented-out in `lines/db/schema/schema.ts`) and re-generating the migration would fix this
-  at the schema level instead of needing every call site to remember it.
+- **Error handling is now consistent**: all exported write functions (`create*`, `update*`,
+  `delete*`, `lineAddTag`, `lineRemoveTag`) are wrapped with `withDbErrorHandling()` from
+  `dbLoader/utils.ts`, which provides try/catch + `logError` + `showErrorToast` + rethrow.
+  The one exception is `ensureSystemTagsExist` (in `lines/db/actionsTag.ts`), which
+  intentionally catches errors per-label so one failure doesn't skip the rest — its callee
+  (`ensureTagByLabel`) is itself wrapped.
+- **Transactions**: multi-statement writes (`createLines`, `createRoutes`, `createRoutingPoints`,
+  `updateRoutingPoint`, `deleteRoute`, `createTrack` in `trackRecording/db/actionsTrack.ts`)
+  use `withDbTransaction()` from `dbLoader/utils.ts`. If a later statement throws, earlier
+  statements in the same transaction are rolled back — no partial writes.
+- **Orphaned join rows on delete**: `tagsToLinesTable` foreign keys now have
+  `onDelete: 'cascade'` at the schema level, so deleting a line/tag automatically cleans up
+  join rows — no manual cleanup needed in `deleteLine`/`deleteTag`. `deleteRoute` manually
+  cleans up `routingPointsTable` as well.
 - **`forEach(async ...)` is unsafe and was previously used for tag-linking** in `createLines`
   and `updateLine`: `Array.prototype.forEach` doesn't await its callback, so the enclosing
   function returned before the tag relations finished writing, and any error thrown inside

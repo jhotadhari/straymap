@@ -13,25 +13,37 @@ Line {
   title: string | null;
   geometry: LineString;  // GeoJSON LineString (SRID 4326, LINESTRINGZ)
   envelope: Polygon;     // GeoJSON Polygon from ST_Envelope()
-  timestamp: string;     // ISO-8601
+  created_at: string;    // ISO-8601, default current_timestamp
+  modified_at: string;   // ISO-8601, default current_timestamp
+  custom_date: string | null;  // ISO-8601, default current_timestamp
   tags: Tag[];           // many-to-many via tagsToLinesTable
   data: any;             // arbitrary JSON (import metadata etc.)
-  stats: LineStats;      // { length, uphill, downhill, minZ, maxZ }
+  stats: LineStats;      // Partial<{ length, uphill, downhill, minZ, maxZ }>
 }
 ```
 
-`LinePartial` is `Omit<Line, 'geometry'>` — used by most queries because
-geometry is fetched separately via `['lineGeom', lineId]` for map rendering.
-**Envelope is included in both** — it's fetched by the default field set and
-only excluded by explicit `fieldsExclude: ['geometry']` (not `['envelope']`).
+`LinePartial` is `WithRequired<Partial<Line>, 'id'>` — all fields optional
+except `id`. Used by most queries because geometry is fetched separately via
+`['lineGeom', lineId]` for map rendering.
+**Envelope is included in both** — `envelope` is computed at query time via
+`ST_Envelope()` (no physical column), and it's part of the default field set.
+Queries that use `fieldsExclude: ['geometry']` still return `envelope` because
+only `geometry` is excluded, not `'envelope'`.
 
 ## Redux state (`lines/slice.ts`)
 
 ```ts
-LinesState {
+LinesState extends SliceSettingsBase, LinesSettings {
+  // From SliceSettingsBase:
   initialized: boolean;
-  selected: number[];  // line IDs currently on the map
+  // LinesSettings:
+  selected: number[];                              // line IDs currently on the map
+  tagBadgeMode: 'outlined' | 'contained';         // badge visual style
+  linesTable: LinesTableSettings;                 // columns, sort, filters, filterLogic
+  tagsTable: TagsTableSettings;                   // columns, sort, filters, filterLogic
+  // LinesState only:
   lineTemp?: LinePartial;                         // draft being edited in LineEditModal
+  tagTemp?: { id: number; ... } | null;           // draft tag being edited
 }
 ```
 
@@ -40,31 +52,77 @@ LinesState {
 | Thunk                                | What it does                                                    |
 | ------------------------------------ | --------------------------------------------------------------- |
 | `setLineSelected(id, isSelected?)`   | Toggle-adds/removes a single line from `selected[]`             |
-| `setLinesSelected(newIds: number[])` | Bulk-replaces `selected[]`                                     |
-| `setLineTemp(linePartial?)`          | Sets/clears the draft line being edited in the modal            |
+| `setLinesSelected(newIds: number[])` | Bulk-replaces `selected[]` (no-op if unchanged)                |
+| `toggleLinesSort(columnKey)`         | Toggle sort direction or switch to a new column                 |
+| `toggleTagsSort(columnKey)`          | Same for the tags table                                         |
+| `onSetDbPath()`                      | Clears `selected[]` when the db path changes (user must restart) |
+
+### Key reducers (also exported as actions)
+
+| Reducer              | What it does                                                   |
+| -------------------- | --------------------------------------------------------------- |
+| `setLineTemp(line?)` | Sets/clears the draft line being edited in the modal            |
+| `setTagTemp(tag?)`   | Sets/clears the draft tag being edited                          |
+| `upsertLinesFilter`  | Add or merge a filter on the lines table                        |
+| `removeLinesFilter`  | Remove a single filter from the lines table                     |
+| `resetLinesFilters`  | Clear all line filters                                          |
+| `upsertTagsFilter`   | Add or merge a filter on the tags table                         |
+| `removeTagsFilter`   | Remove a single filter from the tags table                      |
+| `resetTagsFilters`   | Clear all tag filters                                           |
 
 ### Key selectors
 
-| Selector              | Returns                                                          |
-| --------------------- | ---------------------------------------------------------------- |
-| `selectSelected`      | `number[]` (deduplicated)                                       |
-| `selectLineTemp`      | `LinePartial \| undefined`                                       |
+| Selector                       | Returns                                                             |
+| ------------------------------ | ------------------------------------------------------------------- |
+| `selectSelected`               | `number[]` (deduplicated in reducer)                               |
+| `selectLineTemp`               | `LinePartial \| undefined`                                          |
+| `selectTagTemp`                | `{ id, label?, notes?, data? } \| null \| undefined`               |
+| `selectTagBadgeMode`           | `'outlined' \| 'contained'`                                        |
+| `selectLinesTableColumns`      | `TableColumn[]` (auto-adds new columns, removes removed ones)      |
+| `selectLinesSort`              | `SortState \| null`                                                |
+| `selectLinesFilters`           | `ColumnFilter[]`                                                   |
+| `selectLinesFilterLogic`       | `'and' \| 'or'`                                                    |
+| `selectTagsTableColumns`       | `TableColumn[]` (same auto-sync behavior)                          |
+| `selectTagsSort`               | `SortState \| null`                                                |
+| `selectTagsFilters`            | `ColumnFilter[]`                                                   |
+| `selectTagsFilterLogic`        | `'and' \| 'or'`                                                    |
 
 ## React Query layer
 
-Two query families defined in `db/queryFns.ts`:
+Query families and helpers defined in `db/queryFns.ts`:
 
-| Query key                      | fetcher                 | What it returns                                       |
-| ------------------------------ | ----------------------- | ----------------------------------------------------- |
-| `['lines']` / `['lines', ids]` | `queryLinesWithoutGeom` | `LinePartial[]` (no geometry, **includes envelope**)  |
-| `['lineGeom', lineId]`         | `queryLineGeom`         | Single line with geometry only (no envelope, no tags) |
+| Query key                                    | fetcher                     | What it returns                                                 |
+| -------------------------------------------- | --------------------------- | --------------------------------------------------------------- |
+| `['lines']` / `['lines', ids]` / `['lines', { … }]` | `queryLinesWithoutGeom` | `LinePartial[]` (no geometry, **includes envelope**, no tags)   |
+| `['lineGeom', lineId]`                       | `queryLineGeom`             | Single line with geometry + envelope, no tags                   |
+| `['lineGeomsBatch', ids, simplify, bbox]`    | `queryLineGeomsBatch`       | Batch geometry fetch with spatial MbrIntersects pre-filter      |
+| `['tags']`                                   | `queryAllTags`              | `Tag[]`                                                         |
+| `['tagsTable']` / `['tagsTable', { … }]`     | `queryTagsWithLineCounts`   | `(Tag & { line_count })[]`                                      |
+
+### Global defaults (set in `dbLoader/DBConnection.ts`)
 
 `staleTime: Infinity` — never auto-refetches. Must manually `invalidateQueries`
-after writes. Places that create/update/delete lines MUST invalidate both
-`['lines', …]` and `['lineGeom', …]` keys.
+after writes. Individual queries can override this (e.g. `FilterTagsModal` uses
+`staleTime: 0`).
 
-`gcTime: 0` — cache is cleared when the last observer unmounts, forcing a
-fresh fetch on next mount (e.g. when LineEditModal reopens).
+`gcTime: 0` — cache is cleared when the last observer unmounts. Most queries
+override this to longer values (`1000 * 60 * 5` for tables, `1000 * 10` for
+map views) to keep data alive across component mounts.
+
+### Invalidation / cancellation helpers
+
+Also in `queryFns.ts`:
+
+| Helper                       | Purpose                                                         |
+| ---------------------------- | --------------------------------------------------------------- |
+| `invalidateLinesQueries(qc)` | Invalidate + refetch all `['lines', …]` queries                 |
+| `invalidateLineGeomQueries(qc)` | Invalidate all `['lineGeom', …]` and `['lineGeomsBatch', …]` |
+| `invalidateTagsTable(qc)`    | Invalidate + refetch all `['tagsTable']` queries                |
+| `cancelLinesQueries(qc)`     | Cancel in-flight `['lines', …]` queries (use in `onMutate`)    |
+| `cancelLineGeomQueries(qc)`  | Cancel in-flight `['lineGeom', …]` / `['lineGeomsBatch', …]`   |
+
+Places that create/update/delete lines MUST call `invalidateLinesQueries` AND
+`invalidateLineGeomQueries`. Tag changes also need `invalidateTagsTable`.
 
 ## Selection / "on map" flow
 
@@ -96,8 +154,14 @@ Redux dispatch per toggle. The flush happens once on unmount.
 
 ## LineEditModal
 
-Rendered by `LineEditModalWrapper` (in `LinesTable.tsx`). Opens when
-`lineTemp` is set (via `dispatch(setLineTemp({ id }))`).
+Rendered by two `LineEditModalWrapper` components:
+- `/components/LineEditModalWrapper.tsx` — standalone wrapper for non-table
+  contexts (DrawerTopBar, SelectedLinesList). Calls `dispatch(setLineSelected)` directly.
+- `LinesTable.tsx` (local `LineEditModalWrapper`) — table-context wrapper that
+  updates both `onMapIdsTemp` (local state) and Redux, plus cleans up
+  `checkedIds` on delete via `onDeleteSuccess`.
+
+Opens when `lineTemp` is set (via `dispatch(setLineTemp({ id }))`).
 
 ### Context (`LineEditModalContext`)
 
@@ -116,11 +180,13 @@ Rendered by `LineEditModalWrapper` (in `LinesTable.tsx`). Opens when
 | Row              | Purpose                                                    |
 | ---------------- | ---------------------------------------------------------- |
 | `RowName`        | Edits line title (dispatches `setLineTemp`)                |
+| `RowTags`        | Manage tags attached to this line (add/remove)             |
+| `RowCustomDate`  | Edit the `custom_date` field                               |
 | `RowFlyTo`       | Smooth fly to line's bounding box (disabled if not on map) |
 | `RowToggleOnMap` | Toggle line visibility with dynamic icon/label             |
 | `RowRouting`     | Load/activate routing for this line                        |
 | `RowStats`       | Show aggregated statistics                                 |
-| `RowExport`      | Export GPX (stub)                                          |
+| `RowExport`      | Export GPX                                                  |
 | `RowDelete`      | Delete single line with confirmation modal                 |
 
 ## Bulk actions (`LinesTable/useBulkActions/`)
@@ -134,6 +200,9 @@ into a `Record<string, MenuActionOption>` — also memoized.
 | Show on map     | `useAddToMap`      | No     |
 | Remove from map | `useRemoveFromMap` | No     |
 | Fly to          | `useFlyTo`         | No     |
+| Add tag         | `useAddTag`        | No     |
+| Remove tag      | `useRemoveTag`     | No     |
+| Export          | `useExport`        | No     |
 | Show stats      | `useShowStats`     | Yes    |
 | Delete lines    | `useDeleteLines`   | Yes    |
 

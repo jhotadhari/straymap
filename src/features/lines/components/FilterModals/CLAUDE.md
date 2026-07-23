@@ -48,7 +48,7 @@ levels:
 ## Entry points
 
 Filters are created/edited through two paths, both rendered from
-`LinesTable.tsx` (and `TagsTable.tsx` analogously):
+`LinesTable.tsx` (and `TagsTable/index.tsx` analogously):
 
 ### Path A: Header "+" button or badge tap
 
@@ -201,12 +201,12 @@ formatted with the user's unit preferences (km/mi, m/ft).
 | `FilterTagsModal.tsx` | Operator radio + tag popover picker |
 | `FilterBadge.tsx` | Visual badge for active filters |
 | `FilterConflictModal.tsx` | Conflict explanation modal |
-| `FilterColumnSelectModal.tsx` | Column picker (per-table variant) |
-| `sharedDeps.ts` | `getFilterColumnType`, `getUnitPrefKey`, shared styles |
+| `FilterColumnSelectModal.tsx` | Column picker (in `LinesTable/FilterModals/` and `TagsTable/FilterModals/`; per-table variant) |
+| `sharedDeps.ts` | `FilterColumnType` type, `getUnitPrefKey`, `sharedStyles` |
 
 ## Entry-point wiring
 
 | Table | FilterModals wrapper | Passes |
 |---|---|---|
 | LinesTable | `LinesTable/FilterModals/index.tsx` | `selectLinesFilters`, `upsertLinesFilter`, `removeLinesFilter`, `getFilterColumnType`, `FilterColumnSelectModal` |
-| TagsTable | `TagsTable/FilterModals/index.tsx` | `selectTagsFilters`, `upsertTagsFilter`, `removeTagsFilter`, `getFilterColumnType`, `FilterColumnSelectModal` |
+| TagsTable | `TagsTable/FilterModals/index.tsx` | `selectTagsFilters`, `upsertTagsFilter`, `removeTagsFilter`, `getFilterColumnType`, `TagFilterColumnSelectModal` |
