@@ -7,6 +7,7 @@
 	"useAppHgt": "Global verwenden",
 	"useCache": "Cache verwenden",
 	"openAppHgt": "Global",
+	"notConfiguredAppHgt": "Global nicht konfiguriert",
 	"addNew": "Neue Karte hinzufügen",
 	"layerAttributions": "Kartendatengrundlage",
 	"cacheSize": "Cache Größe",

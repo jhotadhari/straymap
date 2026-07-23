@@ -117,7 +117,13 @@ export const pointToFakeLineStringFeature = (point: Point) => {
 	]);
 };
 
-export const envelopeToBBox = ( envelope: Polygon ) : Bbox => {
+// Exponential-backoff delay for retry loops. Starts at 100 ms (attempt 0),
+// grows to 500 ms and stays there so cache-miss tile loads get polled quickly
+// without flooding the ElevationReader's preload executor on prolonged misses.
+export const getRetryDelay = (attempt: number) =>
+	Math.min(500, Math.max(100, 10 * Math.pow(2, attempt)));
+
+export const envelopeToBBox = (envelope: Polygon): Bbox => {
 	const ring = envelope.coordinates[0];
 	const lngs = ring.map((c) => c[0]);
 	const lats = ring.map((c) => c[1]);

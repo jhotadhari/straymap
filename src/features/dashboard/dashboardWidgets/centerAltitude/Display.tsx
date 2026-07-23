@@ -3,14 +3,14 @@
  */
 import React, { FC, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { Text } from 'react-native-paper';
-import { clamp, get } from 'lodash-es';
+import { get } from 'lodash-es';
 import { useMap } from 'react-native-mapsforge-vtm';
 
 /**
  * Internal dependencies
  */
 import { formatHeightDepth } from '../../../../lib/formatting';
-import { logError } from '../../../../lib/utils';
+import { getRetryDelay, logError } from '../../../../lib/utils';
 import { selectUnitPrefs } from '../../../general/selectors';
 import { useAppSelector } from '../../../../store/hooks';
 import { DashboardWidgetProps } from '../../types';
@@ -20,8 +20,6 @@ import { useMapEventInterval } from '../../hooks/useMapEventInterval';
 import ElementFrame from '../../components/ElementFrame';
 import { AppContext } from '../../../../Context';
 import { selectHgtDirPath } from '../../../baseMap/selectors';
-
-const getDelay = (attempt: number) => clamp(10 * Math.pow(2, attempt), 100, 500);
 
 export interface Options {
 	unitPref?: UnitPref;
@@ -134,7 +132,10 @@ const Display: FC<DashboardWidgetProps<Options>> = ({ item, style = {}, onPress 
 							// background tile load) or genuine void area.
 							// Retry with backoff — most tiles load within
 							// a few hundred ms.
-							retryTimer = setTimeout(() => tryQuery(attempt + 1), getDelay(attempt));
+							retryTimer = setTimeout(
+								() => tryQuery(attempt + 1),
+								getRetryDelay(attempt)
+							);
 						}
 					})
 					.catch((err) => {
@@ -142,7 +143,10 @@ const Display: FC<DashboardWidgetProps<Options>> = ({ item, style = {}, onPress 
 						logError('centerAltitude.getAltitudeAtPosition', err);
 						// Transient error (e.g. ElevationReader not yet
 						// configured on the native side) — retry.
-						retryTimer = setTimeout(() => tryQuery(attempt + 1), getDelay(attempt));
+						retryTimer = setTimeout(
+							() => tryQuery(attempt + 1),
+							getRetryDelay(attempt)
+						);
 					});
 			};
 

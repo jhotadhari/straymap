@@ -19,12 +19,10 @@ let _hasDataFn: HasDataFn | null = null;
 let _setCacheCapacityFn: SetCacheCapacityFn | null = null;
 let _isTileCachedFn: IsTileCachedFn | null = null;
 
+import { getRetryDelay } from '../../lib/utils';
+
 const RETRY_DELAY_MS = 200;
 const MAX_RETRIES = 5;
-
-// Same backoff as centerAltitude/Display.tsx — starts fast (10 ms) and
-// levels off at 500 ms so cache-miss tiles get loaded quickly.
-const getDelay = (attempt: number) => Math.min(500, Math.max(100, 10 * Math.pow(2, attempt)));
 
 const MAX_ALTITUDE_RETRIES = 10;
 
@@ -93,7 +91,7 @@ export const getAltitudeAtPosition = async (lng: number, lat: number): Promise<n
 	for (let attempt = 0; attempt <= MAX_ALTITUDE_RETRIES; attempt++) {
 		const result = await _altitudeFn(lng, lat);
 		if (result !== null) return result;
-		if (attempt < MAX_ALTITUDE_RETRIES) await delay(getDelay(attempt));
+		if (attempt < MAX_ALTITUDE_RETRIES) await delay(getRetryDelay(attempt));
 	}
 	return null;
 };

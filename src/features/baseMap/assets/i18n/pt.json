@@ -7,6 +7,7 @@
 	"useAppHgt": "Usar global",
 	"useCache": "Usar cache",
 	"openAppHgt": "Global",
+	"notConfiguredAppHgt": "Global não configurado",
 	"addNew": "Adicionar novo mapa",
 	"layerAttributions": "Atribuição cartográfica",
 	"cacheSize": "Tamanho do cache",

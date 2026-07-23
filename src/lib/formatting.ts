@@ -175,11 +175,11 @@ export const formatCoords = (
 
 	let deli;
 	if (coordsPadLng) {
-		deli = (deli ?? unitPref.unit.startsWith('dm')) ? '°' : '.';
+		deli = deli ?? (unitPref.unit.startsWith('dm') ? '°' : '.');
 		coordsStrParts[2] = padCoordStr(coordsStrParts[2], deli, 3);
 	}
 	if (coordsPadLat) {
-		deli = (deli ?? unitPref.unit.startsWith('dm')) ? '°' : '.';
+		deli = deli ?? (unitPref.unit.startsWith('dm') ? '°' : '.');
 		coordsStrParts[0] = padCoordStr(coordsStrParts[0], deli, 2);
 	}
 

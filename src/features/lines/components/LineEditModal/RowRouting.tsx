@@ -5,7 +5,7 @@ import { FC, useCallback, useContext, useMemo } from 'react';
 import { Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { TextStyle, View } from 'react-native';
-import { Bbox, useMap } from 'react-native-mapsforge-vtm';
+import { useMap } from 'react-native-mapsforge-vtm';
 
 /**
  * Internal dependencies
@@ -23,6 +23,7 @@ import { sharedStyles as appSharedStyles } from '../../../../sharedStyles';
 import IconRouting from '../../../routing/drawerPanels/routing/IconComponent';
 import { AppContext } from '../../../../Context';
 import { MAP_ANIMATION_PADDING_PX } from '../../../../constants';
+import { envelopeToBBox } from '../../../../lib/utils';
 
 const renderIconRouting = ({ color }: { color: TextStyle['color'] }) => (
 	<IconRouting color={color} />
@@ -50,15 +51,7 @@ const RowRouting: FC = () => {
 		if (lineTemp?.id && route?.id) {
 			onDismiss();
 			if (line?.envelope && mapViewNativeNodeHandle) {
-				const ring = line.envelope.coordinates[0];
-				const lngs = ring.map((c) => c[0]);
-				const lats = ring.map((c) => c[1]);
-				const bbox: Bbox = [
-					Math.min(...lngs),
-					Math.min(...lats),
-					Math.max(...lngs),
-					Math.max(...lats),
-				];
+				const bbox = envelopeToBBox(line.envelope);
 				flyToBounds(bbox, { paddingPx: MAP_ANIMATION_PADDING_PX });
 			}
 			dispatch(setIsRouting(route.id));
