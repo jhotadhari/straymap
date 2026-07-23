@@ -12,7 +12,7 @@ import { SliceSettingsBase } from '../../types';
 import { DashboardWidgetSetting, DashboardItem, DashboardStyle } from './types';
 import { selectEditItemKey } from './selectors';
 import { AppThunk } from '../../store/store';
-import { getSetterThunkWithGetter } from '../baseMap/utils';
+import { getSetterThunkWithGetter } from '../../store/utils';
 import { arrayMoveMutable } from 'array-move';
 
 export interface DashboardSettings {

@@ -9,7 +9,7 @@ import { createSlice } from '@reduxjs/toolkit';
  */
 import { SliceSettingsBase } from '../../types';
 import { CursorConfig } from './types';
-import { getSetterThunkWithGetter } from '../baseMap/utils';
+import { getSetterThunkWithGetter } from '../../store/utils';
 import { selectCursor } from './selectors';
 
 export interface AppearanceSettings {

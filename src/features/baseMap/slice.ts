@@ -16,13 +16,14 @@ import {
 	MapsforgeProfile,
 	RenderStylesCache,
 } from './types';
-import { getLayerKind, getNewProfile, getSetterThunkWithGetter } from './utils';
+import { getLayerKind, getNewProfile } from './utils';
 import {
 	selectLayerInfos,
 	selectLayerTemp,
 	selectMapsforgeGeneral,
 	selectMapsforgeProfileTemp,
 } from './selectors';
+import { getSetterThunkWithGetter } from '../../store/utils';
 
 export interface BaseMapSettings {
 	layers: LayerConfig[];

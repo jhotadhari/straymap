@@ -5,7 +5,6 @@ import rnUuid from 'react-native-uuid';
 import defaultsAssign from 'defaults';
 import { get, omit } from 'lodash-es';
 import { LayerHillshading, ShadingAlgorithmOptions } from 'react-native-mapsforge-vtm';
-import { ActionCreatorWithPayload } from '@reduxjs/toolkit';
 import slugify from 'slugify';
 
 /**
@@ -20,7 +19,6 @@ import {
 import { defaults } from './defaults';
 import { LayerKind } from './types';
 import { mapTypeOptions } from './components/controls/layers/LayersControl';
-import { AppThunk, RootState } from '../../store/store';
 
 export const stringifyProp = (prop: any, deli?: string): string => {
 	deli = deli || '_';
@@ -43,22 +41,6 @@ export const stringifyProp = (prop: any, deli?: string): string => {
 		default:
 			return '';
 	}
-};
-
-export const getSetterThunkWithGetter = <T>(
-	selector: (state: RootState) => T,
-	setter: ActionCreatorWithPayload<T, any>
-) => {
-	return (newValueOrGetter: T | ((currentValue: T) => T)): AppThunk => {
-		return (dispatch, getState) => {
-			const currentValue = selector(getState());
-			const newValue: T =
-				newValueOrGetter instanceof Function
-					? newValueOrGetter(currentValue)
-					: newValueOrGetter;
-			dispatch(setter(newValue));
-		};
-	};
 };
 
 export const getNewLayer = (): LayerConfig => ({
