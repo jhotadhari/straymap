@@ -13,11 +13,9 @@ import { getSetterThunkWithGetter } from '../utils';
 describe('getSetterThunkWithGetter', () => {
 	it('creates a thunk that dispatches with a direct value', () => {
 		const selector = jest.fn((state: any) => state.value);
-		const setter = jest.fn(
-			(val: number) => ({ type: 'SET', payload: val }) as any,
-		);
+		const setter = jest.fn((val: number) => ({ type: 'SET', payload: val }) as any);
 
-		const thunk = getSetterThunkWithGetter(selector, setter)(42);
+		const thunk = getSetterThunkWithGetter(selector, setter as any)(42);
 
 		const dispatch = jest.fn();
 		const getState = jest.fn(() => ({ value: 10 })) as any;
@@ -29,15 +27,13 @@ describe('getSetterThunkWithGetter', () => {
 
 	it('creates a thunk that calls a getter function with current value', () => {
 		const selector = jest.fn((state: any) => state.value);
-		const setter = jest.fn(
-			(val: number) => ({ type: 'SET', payload: val }) as any,
-		);
+		const setter = jest.fn((val: number) => ({ type: 'SET', payload: val }) as any);
 
 		// Use a plain function — the instanceof Function check inside
 		// getSetterThunkWithGetter needs a real function, and jest.fn()
 		// instances may not pass instanceof in all transform contexts.
 		const getter = (current: number) => current * 2;
-		const thunk = getSetterThunkWithGetter(selector, setter)(getter);
+		const thunk = getSetterThunkWithGetter(selector, setter as any)(getter);
 
 		const dispatch = jest.fn();
 		const getState = jest.fn(() => ({ value: 21 })) as any;
@@ -50,11 +46,9 @@ describe('getSetterThunkWithGetter', () => {
 
 	it('respects selector extracting the right slice', () => {
 		const selector = jest.fn((state: any) => state.nested.deep.value);
-		const setter = jest.fn(
-			(val: string) => ({ type: 'SET', payload: val }) as any,
-		);
+		const setter = jest.fn((val: string) => ({ type: 'SET', payload: val }) as any);
 
-		const thunk = getSetterThunkWithGetter(selector, setter)('new-val');
+		const thunk = getSetterThunkWithGetter(selector, setter as any)('new-val');
 
 		const dispatch = jest.fn();
 		const getState = jest.fn(() => ({
