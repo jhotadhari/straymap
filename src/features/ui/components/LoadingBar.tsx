@@ -1,10 +1,11 @@
 /**
  * External dependencies
  */
-import { FC, useCallback, useEffect } from 'react';
+import { FC, useCallback, useEffect, useMemo, useRef } from 'react';
 import { StyleSheet, LayoutChangeEvent } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import Animated, {
+	cancelAnimation,
 	Easing,
 	useAnimatedStyle,
 	useSharedValue,
@@ -40,6 +41,9 @@ const LoadingBar: FC = () => {
 				false
 			);
 		}
+		return () => {
+			cancelAnimation(slideAnim);
+		};
 	}, [isBusy, slideAnim]);
 
 	const handleLayout = useCallback(
@@ -65,7 +69,9 @@ const LoadingBar: FC = () => {
 		};
 	});
 
-	const surfaceColor = theme.colors.surface;
+	const surfaceColor = useMemo(() => theme.colors.surface, [theme.colors.surface]);
+
+	const gradientId = useRef(`fadeEdges-${Math.random().toString(36).slice(2, 8)}`).current;
 
 	return (
 		<Animated.View
@@ -82,7 +88,7 @@ const LoadingBar: FC = () => {
 				<Svg style={styles.svgOverlay}>
 					<Defs>
 						<LinearGradient
-							id="fadeEdges"
+							id={gradientId}
 							x1="0"
 							y1="0"
 							x2="1"
@@ -115,7 +121,7 @@ const LoadingBar: FC = () => {
 						y="0"
 						width="100%"
 						height="100%"
-						fill="url(#fadeEdges)"
+						fill={`url(#${gradientId})`}
 					/>
 				</Svg>
 			</Animated.View>

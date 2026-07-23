@@ -175,10 +175,19 @@ const UnitControl = ({
 
 	const handleCoordsOrderChange = useCallback(
 		(newValue: string) => {
-			onChange({
-				...unitPref,
-				coordsOrder: newValue as UnitPref['coordsOrder'],
-			});
+			if (
+				[
+					'lat_lng',
+					'lng_lat',
+					'lat',
+					'lng',
+				].includes(newValue as string)
+			) {
+				onChange({
+					...unitPref,
+					coordsOrder: newValue as UnitPref['coordsOrder'],
+				});
+			}
 		},
 		[onChange, unitPref]
 	);

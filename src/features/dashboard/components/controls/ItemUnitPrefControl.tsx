@@ -214,7 +214,14 @@ const ItemUnitPrefControl: FC<{ unitPrefsKey: string; buttonLabel?: string }> = 
 	const handleCoordsOrderUpdate = useCallback((newValue: string) => {
 		if ('default' === newValue) {
 			setValue((value) => omit(value, 'coordsOrder'));
-		} else {
+		} else if (
+			[
+				'lat_lng',
+				'lng_lat',
+				'lat',
+				'lng',
+			].includes(newValue as string)
+		) {
 			setValue((value) => ({
 				...value,
 				coordsOrder: newValue as UnitPref['coordsOrder'],

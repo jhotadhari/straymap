@@ -16,6 +16,8 @@ import {
 	TableColumn,
 	SortState,
 	ColumnFilter,
+	NumericColumnFilter,
+	DateColumnFilter,
 	FilterLogic,
 	getFilterKey,
 } from './types';
@@ -139,12 +141,14 @@ export const linesSlice = createSlice({
 						f.columnKey === payload.columnKey
 				);
 				if (colIdx !== -1) {
-					const existing = state.linesTable.filters[colIdx];
+					const existing = state.linesTable.filters[colIdx] as
+						| NumericColumnFilter
+						| DateColumnFilter;
 					state.linesTable.filters[colIdx] = {
-						...existing,
-						...payload,
-						min: payload.min ?? (existing as any).min,
-						max: payload.max ?? (existing as any).max,
+						type: existing.type,
+						columnKey: existing.columnKey,
+						min: payload.min ?? existing.min,
+						max: payload.max ?? existing.max,
 					} as ColumnFilter;
 					return;
 				}
@@ -223,12 +227,14 @@ export const linesSlice = createSlice({
 						f.columnKey === payload.columnKey
 				);
 				if (colIdx !== -1) {
-					const existing = state.tagsTable.filters[colIdx];
+					const existing = state.tagsTable.filters[colIdx] as
+						| NumericColumnFilter
+						| DateColumnFilter;
 					state.tagsTable.filters[colIdx] = {
-						...existing,
-						...payload,
-						min: payload.min ?? (existing as any).min,
-						max: payload.max ?? (existing as any).max,
+						type: existing.type,
+						columnKey: existing.columnKey,
+						min: payload.min ?? existing.min,
+						max: payload.max ?? existing.max,
 					} as ColumnFilter;
 					return;
 				}

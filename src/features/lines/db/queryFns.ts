@@ -1,7 +1,8 @@
 /**
  * External dependencies
  */
-import { WithRequired } from '@tanstack/react-query';
+import { QueryClient, WithRequired } from '@tanstack/react-query';
+import type { Query } from '@tanstack/react-query';
 
 /**
  * Internal dependencies
@@ -103,11 +104,8 @@ export const queryAllTags = () => {
  * Invalidate all tagsTable queries (predicate-based for reliability).
  * Use after create/update/delete tag operations.
  */
-export const invalidateTagsTable = (queryClient: {
-	invalidateQueries: (opts: any) => Promise<any>;
-	refetchQueries: (opts: any) => Promise<any>;
-}) => {
-	const predicate = (query: any) =>
+export const invalidateTagsTable = (queryClient: QueryClient) => {
+	const predicate = (query: Query) =>
 		Array.isArray(query.queryKey) && query.queryKey[0] === 'tagsTable';
 	return queryClient
 		.invalidateQueries({ predicate })
@@ -119,9 +117,9 @@ export const invalidateTagsTable = (queryClient: {
  * defaults exact:true — a queryKey filter would miss most queries.
  * Use in mutation onMutate to prevent stale fetches from overwriting writes.
  */
-export const cancelLinesQueries = (queryClient: { cancelQueries: (opts: any) => Promise<any> }) =>
+export const cancelLinesQueries = (queryClient: QueryClient) =>
 	queryClient.cancelQueries({
-		predicate: (query: any) => Array.isArray(query.queryKey) && query.queryKey[0] === 'lines',
+		predicate: (query: Query) => Array.isArray(query.queryKey) && query.queryKey[0] === 'lines',
 	});
 
 /**
@@ -129,11 +127,9 @@ export const cancelLinesQueries = (queryClient: { cancelQueries: (opts: any) => 
  * and batch `lineGeomsBatch`).  Use in mutation onMutate to prevent
  * stale geometry fetches from overwriting writes.
  */
-export const cancelLineGeomQueries = (queryClient: {
-	cancelQueries: (opts: any) => Promise<any>;
-}) =>
+export const cancelLineGeomQueries = (queryClient: QueryClient) =>
 	queryClient.cancelQueries({
-		predicate: (query: any) =>
+		predicate: (query: Query) =>
 			Array.isArray(query.queryKey) &&
 			(query.queryKey[0] === 'lineGeom' || query.queryKey[0] === 'lineGeomsBatch'),
 	});
@@ -148,11 +144,8 @@ export const cancelLineGeomQueries = (queryClient: {
  * match the literal key ['lines'], missing ['lines', [id]] and
  * ['lines', { sort, ... }].
  */
-export const invalidateLinesQueries = (queryClient: {
-	invalidateQueries: (opts: any) => Promise<any>;
-	refetchQueries: (opts: any) => Promise<any>;
-}) => {
-	const predicate = (query: any) =>
+export const invalidateLinesQueries = (queryClient: QueryClient) => {
+	const predicate = (query: Query) =>
 		Array.isArray(query.queryKey) && query.queryKey[0] === 'lines';
 	return queryClient
 		.invalidateQueries({ predicate })
@@ -168,10 +161,8 @@ export const invalidateLinesQueries = (queryClient: {
  * filters — a literal key wouldn't match the dynamic keys that carry
  * line IDs, simplify tolerance, bbox, or consumer-specific suffixes.
  */
-export const invalidateLineGeomQueries = (queryClient: {
-	invalidateQueries: (opts: any) => Promise<any>;
-}) => {
-	const predicate = (query: any) =>
+export const invalidateLineGeomQueries = (queryClient: QueryClient) => {
+	const predicate = (query: Query) =>
 		Array.isArray(query.queryKey) &&
 		(query.queryKey[0] === 'lineGeom' || query.queryKey[0] === 'lineGeomsBatch');
 	return queryClient.invalidateQueries({ predicate });
