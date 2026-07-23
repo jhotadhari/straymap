@@ -1,40 +1,76 @@
 /**
  * Module-level singleton for altitude lookups from thunks.
  *
- * useMap().getAltitudeAtPosition is only available inside React components
- * (it's a hook).  This module bridges the gap: RoutingMapView wires the
- * function on mount, and provider implementations (e.g. straight-line) read
- * it without needing the React tree.
+ * useMap().getAltitudeAtPosition / hasDataAtPosition are only available inside
+ * React components (they're hooks).  This module bridges the gap: RoutingMapView
+ * wires the functions on mount, and provider implementations (e.g. straight-line)
+ * read them without needing the React tree.
  *
- * When no function is set, altitude lookups resolve to null (best-effort).
+ * When no function is set, lookups resolve to null / false (best-effort).
  */
 
 type AltitudeFn = (lng: number, lat: number) => Promise<number | null>;
+type HasDataFn = (lng: number, lat: number) => Promise<boolean>;
 
-let _fn: AltitudeFn | null = null;
+let _altitudeFn: AltitudeFn | null = null;
+let _hasDataFn: HasDataFn | null = null;
 
 const RETRY_DELAY_MS = 200;
 const MAX_RETRIES = 5;
 
+// Same backoff as centerAltitude/Display.tsx — starts fast (10 ms) and
+// levels off at 500 ms so cache-miss tiles get loaded quickly.
+const getDelay = (attempt: number) => Math.min(500, Math.max(100, 10 * Math.pow(2, attempt)));
+
+const MAX_ALTITUDE_RETRIES = 10;
+
 export const setAltitudeLookup = (fn: AltitudeFn | null) => {
-	_fn = fn;
+	_altitudeFn = fn;
+};
+
+export const setHasDataLookup = (fn: HasDataFn | null) => {
+	_hasDataFn = fn;
 };
 
 const delay = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
+/**
+ * Returns the elevation at the given coordinate, or null.
+ *
+ * When the lookup function hasn't been wired yet, retries for up to
+ * {@link MAX_RETRIES} × {@link RETRY_DELAY_MS} (1 s total).  When the
+ * wired function returns null (cache miss), retries with backoff up to
+ * {@link MAX_ALTITUDE_RETRIES} times (~3 s total).
+ */
 export const getAltitudeAtPosition = async (lng: number, lat: number): Promise<number | null> => {
+	// Wait for the lookup function to be wired.
 	for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
-		if (_fn) {
-			return _fn(lng, lat);
-		}
-		if (attempt < MAX_RETRIES) {
-			await delay(RETRY_DELAY_MS);
-		}
+		if (_altitudeFn) break;
+		if (attempt < MAX_RETRIES) await delay(RETRY_DELAY_MS);
 	}
-	console.warn(
-		'altitude.getAltitudeAtPosition: altitude lookup not wired after ' +
-			`${MAX_RETRIES} retries (${RETRY_DELAY_MS}ms each). ` +
-			'RoutingMapView may not have mounted yet.'
-	);
+	if (!_altitudeFn) {
+		console.warn(
+			'altitude.getAltitudeAtPosition: altitude lookup not wired after ' +
+				`${MAX_RETRIES} retries (${RETRY_DELAY_MS}ms each). ` +
+				'RoutingMapView may not have mounted yet.'
+		);
+		return null;
+	}
+
+	// Retry on cache miss with backoff.
+	for (let attempt = 0; attempt <= MAX_ALTITUDE_RETRIES; attempt++) {
+		const result = await _altitudeFn(lng, lat);
+		if (result !== null) return result;
+		if (attempt < MAX_ALTITUDE_RETRIES) await delay(getDelay(attempt));
+	}
 	return null;
+};
+
+/**
+ * Returns true if an HGT file exists that covers the given coordinate.
+ * Does not trigger a preload — only checks the filename index.
+ */
+export const hasDataAtPosition = async (lng: number, lat: number): Promise<boolean> => {
+	if (!_hasDataFn) return false;
+	return _hasDataFn(lng, lat);
 };

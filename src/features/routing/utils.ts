@@ -7,7 +7,7 @@ import { getRoute } from 'react-native-brouter/geojson';
  * Internal dependencies
  */
 import { RoutingSegment, BrouterOptions, StraightLineOptions, RoutingProfile } from './types';
-import { getAltitudeAtPosition } from './altitude';
+import { getAltitudeAtPosition, hasDataAtPosition } from './altitude';
 import { haversineDistance } from '../../lib/formatting';
 import { logError } from '../../lib/utils';
 
@@ -88,15 +88,36 @@ const getStraightLineCoords = async (
 		to[2] ?? 0,
 	]);
 
-	// Enrich with altitude in batches to avoid saturating the native bridge.
+	// Enrich with altitude — group by SRTM3 tile (1°×1° grid) so each
+	// unique tile is queried only once.  Tiles without an HGT file are
+	// skipped entirely (no retry loop wasted on ocean / missing data).
+	const tileKey = (lng: number, lat: number) => `${Math.floor(lat)},${Math.floor(lng)}`;
+
+	const tileMap = new Map<string, { lng: number; lat: number; coords: number[][] }>();
+	for (const coord of coords) {
+		const key = tileKey(coord[0], coord[1]);
+		let entry = tileMap.get(key);
+		if (!entry) {
+			entry = { lng: coord[0], lat: coord[1], coords: [] };
+			tileMap.set(key, entry);
+		}
+		entry.coords.push(coord);
+	}
+
 	const BATCH_SIZE = 20;
-	for (let i = 0; i < coords.length; i += BATCH_SIZE) {
-		const batch = coords.slice(i, i + BATCH_SIZE);
+	const tiles = Array.from(tileMap.values());
+	for (let i = 0; i < tiles.length; i += BATCH_SIZE) {
+		const batch = tiles.slice(i, i + BATCH_SIZE);
 		const results = await Promise.allSettled(
-			batch.map(async (coord) => {
-				const alt = await getAltitudeAtPosition(coord[0], coord[1]);
+			batch.map(async ({ lng, lat, coords: tileCoords }) => {
+				if (!(await hasDataAtPosition(lng, lat))) {
+					return; // No HGT file — skip this tile entirely.
+				}
+				const alt = await getAltitudeAtPosition(lng, lat);
 				if (alt !== null) {
-					coord[2] = alt;
+					for (const c of tileCoords) {
+						c[2] = alt;
+					}
 				}
 			})
 		);
@@ -109,6 +130,8 @@ const getStraightLineCoords = async (
 			}
 		}
 	}
+
+	console.log('debug coords', coords); // debug
 
 	return coords;
 };

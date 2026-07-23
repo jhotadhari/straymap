@@ -28,7 +28,7 @@ import { getSegmentRecordId } from '../utils';
 import useRoute from '../hooks/useRoute';
 // import useSimplificationTolerance from '../../lines/hooks/useSimplificationTolerance';
 import { RoutingPoint } from '../types';
-import { setAltitudeLookup } from '../altitude';
+import { setAltitudeLookup, setHasDataLookup } from '../altitude';
 import { pointsCoordsAreOverlapping } from '../../../lib/utils';
 
 const SegmentLineLayer: FC<{
@@ -108,11 +108,10 @@ const SegmentLine: FC<{
 		!simplifiedCoords
 	) {
 		coords = placeholderCoordinates;
-		if ( (
-			segment &&
-			segment?.positions &&
-			segment?.positions.length < 2 // if segment is empty but brouter swallowed the error silently
-		) || segment?.errorMsg ) {
+		if (
+			(segment && segment?.positions && segment?.positions.length < 2) || // if segment is empty but brouter swallowed the error silently
+			segment?.errorMsg
+		) {
 			style = stylePathError;
 		} else if (!segment || segment?.isFetching || !simplifiedCoords) {
 			style = stylePathFetching;
@@ -228,14 +227,16 @@ const RoutingMapView = () => {
 			'points',
 		]) || {};
 
-	const { getAltitudeAtPosition } = useMap();
+	const { getAltitudeAtPosition, hasDataAtPosition } = useMap();
 
 	useEffect(() => {
 		setAltitudeLookup(getAltitudeAtPosition);
+		setHasDataLookup(hasDataAtPosition);
 		return () => {
 			setAltitudeLookup(null);
+			setHasDataLookup(null);
 		};
-	}, [getAltitudeAtPosition]);
+	}, [getAltitudeAtPosition, hasDataAtPosition]);
 
 	return (
 		<Fragment>

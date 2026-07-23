@@ -116,7 +116,7 @@ The library provides three tiers for consuming map position and one for altitude
 
 **`mapUpdateInterval`**: The prop on `MapContainer` (in `general` slice) controls the interval in milliseconds between `onMapUpdate` events. It was renamed from `mapEventRate` — the old name suggested Hz but the value is actually milliseconds.
 
-**Altitude**: The `center` array in `MapEventResponse` is `[lng, lat]` — the 3rd element (altitude) is intentionally always omitted. Elevation lookups are handled by `useMap().getAltitudeAtPosition(lng, lat)`, which runs on the Native Modules thread (not the render thread) to avoid map-movement jank. The native `ElevationReader` (LruCache-backed, 10-tile cap, ~29MB max) loads tiles on demand.
+**Altitude**: The `center` array in `MapEventResponse` is `[lng, lat]` when the HGT tile isn't cached, or `[lng, lat, altitude]` when the `ElevationReader` has the tile in its LRU cache — `MapFragment.getResponseBase()` queries elevation on every map update. `useMap().getAltitudeAtPosition(lng, lat)` is the explicit JS API; it runs on the Native Modules thread (not the render thread) to avoid map-movement jank. The native `ElevationReader` (LruCache-backed, 10-tile cap, ~29MB max) loads tiles on demand via a single-thread `PRELOAD_EXECUTOR` — cache-miss preloads triggered from the render-hot-path (`getResponseBase`) during rapid panning can overwhelm this executor.
 
 **Removed props** (no longer exist on `MapContainer`):
 - `hgtInterpolation` — bilinear interpolation is now always on
