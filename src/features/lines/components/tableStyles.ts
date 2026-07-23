@@ -56,5 +56,9 @@ export const tableStyles = StyleSheet.create({
 		flex: 1,
 		alignItems: 'center',
 		justifyContent: 'center',
+		position: 'absolute',
+		zIndex: 9,
+		width: '100%',
+		height: '100%',
 	},
 });

@@ -6,6 +6,7 @@ import { FC, memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { FlatList, ListRenderItem, ScrollView, StyleSheet, View } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import { without } from 'lodash-es';
+import { BlurView } from '@react-native-community/blur';
 
 /**
  * Internal dependencies
@@ -152,12 +153,22 @@ const TagsTable: FC = () => {
 					<TagHeader />
 				</HeaderContext.Provider>
 
-				{isLoading ? (
-					<View style={tableStyles.loadingContainer}>
-						<LoadingIndicator size="large" />
-					</View>
-				) : (
-					<ScrollView horizontal>
+				<View style={tableStyles.container}>
+					{isLoading && (
+						<BlurView
+							style={tableStyles.loadingContainer}
+							blurAmount={1}
+							blurType={theme.dark ? 'dark' : 'light'}
+						>
+							<View style={tableStyles.loadingContainer}>
+								<LoadingIndicator size="large" />
+							</View>
+						</BlurView>
+					)}
+					<ScrollView
+						horizontal={true}
+						scrollEnabled={!isLoading}
+					>
 						<View style={styles.flexOne}>
 							<FlatList
 								stickyHeaderIndices={[0]}
@@ -170,7 +181,7 @@ const TagsTable: FC = () => {
 							/>
 						</View>
 					</ScrollView>
-				)}
+				</View>
 
 				<FooterContext.Provider
 					value={{

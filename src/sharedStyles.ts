@@ -47,4 +47,11 @@ export const sharedStyles = StyleSheet.create({
 	gap: {
 		gap: 8,
 	},
+	absolute: {
+		position: 'absolute',
+		top: 0,
+		left: 0,
+		bottom: 0,
+		right: 0,
+	},
 });

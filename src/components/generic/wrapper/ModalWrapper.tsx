@@ -32,15 +32,9 @@ import Animated, {
  */
 import { AppContext } from '../../../Context';
 import { MODAL_WIDTH_FACTOR, MODAL_PADDING } from '../../../constants';
+import { sharedStyles } from '../../../sharedStyles';
 
 const styles = StyleSheet.create({
-	absolute: {
-		position: 'absolute',
-		top: 0,
-		left: 0,
-		bottom: 0,
-		right: 0,
-	},
 	flex1: { flex: 1 },
 	centerContent: {
 		justifyContent: 'center',
@@ -211,7 +205,7 @@ const ModalWrapper: FC<{
 	);
 
 	const styleContent = useMemo(
-		() => [styles.absolute, { paddingTop: statusBarHeight }],
+		() => [sharedStyles.absolute, { paddingTop: statusBarHeight }],
 		[statusBarHeight]
 	);
 
@@ -232,12 +226,12 @@ const ModalWrapper: FC<{
 				<AppContext.Provider value={context}>
 					{/* Backdrop — fills the modal window */}
 					<Pressable
-						style={styles.absolute}
+						style={sharedStyles.absolute}
 						onPress={handleDismiss}
 					>
 						{backgroundBlur && (
 							<BlurView
-								style={styles.absolute}
+								style={sharedStyles.absolute}
 								blurAmount={1}
 								blurType={theme.dark ? 'dark' : 'light'}
 							/>

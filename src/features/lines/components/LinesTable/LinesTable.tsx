@@ -15,6 +15,7 @@ import {
 } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import { uniq, without } from 'lodash-es';
+import { BlurView } from '@react-native-community/blur';
 
 /**
  * Internal dependencies
@@ -41,6 +42,7 @@ import { FooterContext, HeaderContext, ColumnHeaderMenuContext } from './Context
 import LineEditModal from '../LineEditModal/LineEditModal';
 import LinesFilterModals from './FilterModals';
 import LoadingIndicator from '../../../../components/generic/primitives/LoadingIndicator';
+import { sharedStyles } from '../../../../sharedStyles';
 
 const keyExtractor = (line: { id: number }) => line.id.toString();
 
@@ -245,12 +247,22 @@ const LinesTable: FC = () => {
 					<Header />
 				</HeaderContext.Provider>
 
-				{isLoading ? (
-					<View style={tableStyles.loadingContainer}>
-						<LoadingIndicator size="large" />
-					</View>
-				) : (
-					<ScrollView horizontal={true}>
+				<View style={tableStyles.container}>
+					{isLoading && (
+						<BlurView
+							style={tableStyles.loadingContainer}
+							blurAmount={1}
+							blurType={theme.dark ? 'dark' : 'light'}
+						>
+							<View style={tableStyles.loadingContainer}>
+								<LoadingIndicator size="large" />
+							</View>
+						</BlurView>
+					)}
+					<ScrollView
+						horizontal={true}
+						scrollEnabled={!isLoading}
+					>
 						<View style={styles.flexOne}>
 							<FlatList
 								stickyHeaderIndices={[0]}
@@ -263,7 +275,7 @@ const LinesTable: FC = () => {
 							/>
 						</View>
 					</ScrollView>
-				)}
+				</View>
 
 				<FooterContext.Provider
 					value={{
