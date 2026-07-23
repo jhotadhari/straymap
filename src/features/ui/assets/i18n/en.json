@@ -24,7 +24,7 @@
 		},
 		"whereToGetMaps": {
 			"title": "Where to get maps?",
-			"body": "- **Vector maps** (mapsforge V5) and **XML render styles**: [OpenAndroMaps](https://www.openandromaps.org/en/downloads)\n- **Raster overview maps** (MBtiles): [OpenAndroMaps general maps](https://www.openandromaps.org/en/downloads/general-maps)\n- **Digital elevation models** (hgt, 3 arc-second): [viewfinderpanoramas.org](https://viewfinderpanoramas.org/Coverage%20map%20viewfinderpanoramas_org3.htm)\n"
+			"body": "- **Vector maps** (mapsforge) and **XML render styles**: [OpenAndroMaps](https://www.openandromaps.org/en/downloads)\n- **Raster overview maps** (MBtiles): [OpenAndroMaps general maps](https://www.openandromaps.org/en/downloads/general-maps)\n- **Digital elevation models** (hgt, 3 arc-second): [viewfinderpanoramas.org](https://viewfinderpanoramas.org/Coverage%20map%20viewfinderpanoramas_org3.htm)\n"
 		}
 	},
 	"slogan": "Android offline map app for stray cyclists and roaming vagabonds",

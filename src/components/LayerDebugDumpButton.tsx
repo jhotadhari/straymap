@@ -37,7 +37,7 @@ const LayerDebugDumpButton: FC = () => {
 		});
 	}, [getDebugLayerDump]);
 
-	if (!globalThis.shouldLog?.showLayerDebug) {
+	if (!__DEV__ || !globalThis.shouldLog?.showLayerDebug) {
 		return null;
 	}
 

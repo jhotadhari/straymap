@@ -16,6 +16,7 @@ import { useTranslation } from 'react-i18next';
 import { get } from 'lodash-es';
 import { openDocumentTree } from 'react-native-scoped-storage';
 import { sprintf } from 'sprintf-js';
+import LucideIcons from '@react-native-vector-icons/lucide/static';
 
 /**
  * react-native-mapsforge-vtm dependencies
@@ -229,18 +230,29 @@ const HgtSourceRowControl = ({
 				<ButtonHighlight onPress={handleOpenModal}>
 					<Text>{label}</Text>
 				</ButtonHighlight>
-				{'appHgt' === selectedOpt && fallbackAppHgt && !appHgtDirPath && (
-					<Text>{t('notConfigured')}</Text>
-				)}
 				{'appHgt' === selectedOpt && fallbackAppHgt && (
 					<ButtonHighlight
-						mode={appHgtDirPath ? 'text' : 'outlined'}
+						mode="text"
 						style={appHgtDirPath ? undefined : { borderColor: theme.colors.error }}
 						onPress={() => {
 							setModalVisibleApp(true);
 						}}
 					>
-						<Text>{t('baseMap.openAppHgt')}</Text>
+						{appHgtDirPath && (
+							<Text>
+								{t('baseMap.openAppHgt')}: {appHgtDirPath}
+							</Text>
+						)}
+						{!appHgtDirPath && (
+							<View style={[sharedStyles.flexRowCenter, sharedStyles.gap]}>
+								<LucideIcons
+									size={20}
+									color={theme.colors.onBackground}
+									name="triangle-alert"
+								/>
+								<Text>{t('baseMap.notConfiguredAppHgt')}</Text>
+							</View>
+						)}
 					</ButtonHighlight>
 				)}
 			</View>
@@ -384,6 +396,7 @@ const styles = StyleSheet.create({
 	flexRow: {
 		flexDirection: 'row',
 		justifyContent: 'space-between',
+		flexWrap: 'wrap',
 		gap: 8,
 	},
 });

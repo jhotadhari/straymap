@@ -18,6 +18,10 @@ export const styles = StyleSheet.create({
 		gap: 8,
 		borderWidth: 1,
 	},
+	noticeText: {
+		flexShrink: 1,
+		flexGrow: 1,
+	},
 	dirHeading: {
 		marginBottom: 8,
 		flexDirection: 'row',

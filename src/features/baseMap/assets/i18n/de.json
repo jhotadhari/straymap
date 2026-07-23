@@ -99,7 +99,7 @@
 	"link": {
 		"xmlRenderThemes": "Render-Themes im Xml-Format",
 		"xmlRenderThemesModify": "Fortgeschritten: Modifiziere oder erstelle dein eigenes Theme",
-		"openandromapsDownloads": "Vektorkarten und xml Render-Themes im mapsforge V5 Format basierend auf open-street-map Daten",
+		"openandromapsDownloads": "Vektorkarten und xml Render-Themes im mapsforge Format basierend auf open-street-map Daten",
 		"openandromapsDownloadsRaster": "Raster-Übersichtskarten im mbtiles-Format"
 	},
 	"shadingOptions": {

@@ -7,6 +7,7 @@
 	"useAppHgt": "Use global",
 	"useCache": "Use cache",
 	"openAppHgt": "Global",
+	"notConfiguredAppHgt": "Global not configured",
 	"addNew": "Add new map",
 	"layerAttributions": "Map data attribution",
 	"cacheSize": "Cache size",
@@ -99,7 +100,7 @@
 	"link": {
 		"xmlRenderThemes": "Render themes in xml format",
 		"xmlRenderThemesModify": "Advanced: modify or create your own theme",
-		"openandromapsDownloads": "Vector maps in mapsforge V5 format based on open-street-map data and xml render themes",
+		"openandromapsDownloads": "Vector maps in mapsforge format based on open-street-map data and xml render themes",
 		"openandromapsDownloadsRaster": "Raster overview maps in mbtiles format"
 	},
 	"shadingOptions": {

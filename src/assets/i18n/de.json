@@ -82,6 +82,5 @@
 			"digitalEleData": "Digitale Höhendaten",
 			"digitalEleDataCoverage": "Einfachster Weg zum Download von Höhendaten im hgt-Format mit einer Auflösung von 3 Bogensekunden"
 		}
-	},
-	"notConfigured": "Nicht konfiguriert"
+	}
 }

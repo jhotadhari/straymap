@@ -24,7 +24,7 @@
 		},
 		"whereToGetMaps": {
 			"title": "Wo gibt es Karten?",
-			"body": "- **Vektorkarten** (mapsforge V5) und **XML-Renderstile**: [OpenAndroMaps](https://www.openandromaps.org/en/downloads)\n- **Raster-Übersichtskarten** (MBtiles): [OpenAndroMaps general maps](https://www.openandromaps.org/en/downloads/general-maps)\n- **Digitale Höhenmodelle** (hgt, 3 Bogensekunden): [viewfinderpanoramas.org](https://viewfinderpanoramas.org/Coverage%20map%20viewfinderpanoramas_org3.htm)\n"
+			"body": "- **Vektorkarten** (mapsforge) und **XML-Renderstile**: [OpenAndroMaps](https://www.openandromaps.org/en/downloads)\n- **Raster-Übersichtskarten** (MBtiles): [OpenAndroMaps general maps](https://www.openandromaps.org/en/downloads/general-maps)\n- **Digitale Höhenmodelle** (hgt, 3 Bogensekunden): [viewfinderpanoramas.org](https://viewfinderpanoramas.org/Coverage%20map%20viewfinderpanoramas_org3.htm)\n"
 		}
 	},
 	"slogan": "Android-Offline-Karten-App für umherstreunende Radreisende und Vagabund*innen",

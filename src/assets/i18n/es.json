@@ -82,6 +82,5 @@
 			"digitalEleData": "Datos digitales de elevación",
 			"digitalEleDataCoverage": "La forma más fácil de descargar datos de elevación en formato hgt con resolución de 3 segundos de arco"
 		}
-	},
-	"notConfigured": "No configurado"
+	}
 }

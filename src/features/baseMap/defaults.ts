@@ -20,7 +20,7 @@ export const defaults = {
 			enabledZoomMax: 20,
 		} as LayerConfigOptionsOnlineRasterXYZ,
 		['mapsforge']: {
-			enabledZoomMin: 1,
+			enabledZoomMin: 9,
 			enabledZoomMax: 20,
 			profile: 'default', // will use the first one.
 		} as LayerConfigOptionsMapsforge,

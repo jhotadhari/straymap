@@ -8,7 +8,7 @@ Not on F-Droid or Play Store yet. Download the [latest APK](https://github.com/j
 
 ## Where to get maps?
 
-- **Vector maps** (mapsforge V5) and **XML render styles**: [OpenAndroMaps](https://www.openandromaps.org/en/downloads)
+- **Vector maps** (mapsforge) and **XML render styles**: [OpenAndroMaps](https://www.openandromaps.org/en/downloads)
 - **Raster overview maps** (MBtiles): [OpenAndroMaps general maps](https://www.openandromaps.org/en/downloads/general-maps)
 - **Digital elevation models** (hgt, 3 arc-second): [viewfinderpanoramas.org](https://viewfinderpanoramas.org/Coverage%20map%20viewfinderpanoramas_org3.htm)
 

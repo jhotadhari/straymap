@@ -298,7 +298,7 @@ const DraggableItem: FC<{
 					style={styles.compactButtonAction}
 				>
 					<Icon
-						source="delete"
+						source="delete-outline"
 						size={DRAWER_ICON_SIZE}
 					/>
 				</ButtonHighlight>

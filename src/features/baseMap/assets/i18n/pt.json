@@ -99,7 +99,7 @@
 	"link": {
 		"xmlRenderThemes": "Temas de renderização em formato xml",
 		"xmlRenderThemesModify": "Avançado: modifique ou crie seu próprio tema",
-		"openandromapsDownloads": "Mapas vetoriais no formato Mapsforge V5 baseados em dados do OpenStreetMap e temas de renderização xml",
+		"openandromapsDownloads": "Mapas vetoriais no formato Mapsforge baseados em dados do OpenStreetMap e temas de renderização xml",
 		"openandromapsDownloadsRaster": "Mapas raster gerais no formato mbtiles"
 	},
 	"shadingOptions": {

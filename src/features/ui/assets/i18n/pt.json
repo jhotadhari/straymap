@@ -24,7 +24,7 @@
 		},
 		"whereToGetMaps": {
 			"title": "Onde obter mapas?",
-			"body": "- **Mapas vetoriais** (mapsforge V5) e **estilos de renderização XML**: [OpenAndroMaps](https://www.openandromaps.org/en/downloads)\n- **Mapas raster de visão geral** (MBtiles): [OpenAndroMaps general maps](https://www.openandromaps.org/en/downloads/general-maps)\n- **Modelos digitais de elevação** (hgt, 3 segundos de arco): [viewfinderpanoramas.org](https://viewfinderpanoramas.org/Coverage%20map%20viewfinderpanoramas_org3.htm)\n"
+			"body": "- **Mapas vetoriais** (mapsforge) e **estilos de renderização XML**: [OpenAndroMaps](https://www.openandromaps.org/en/downloads)\n- **Mapas raster de visão geral** (MBtiles): [OpenAndroMaps general maps](https://www.openandromaps.org/en/downloads/general-maps)\n- **Modelos digitais de elevação** (hgt, 3 segundos de arco): [viewfinderpanoramas.org](https://viewfinderpanoramas.org/Coverage%20map%20viewfinderpanoramas_org3.htm)\n"
 		}
 	},
 	"slogan": "Aplicativo de mapas offline para Android para ciclistas e viajantes",

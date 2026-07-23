@@ -119,6 +119,7 @@ const DatabaseFileList: FC<{ style?: ViewStyle }> = ({ style }) => {
 			styles.notice,
 			{
 				borderColor: theme.colors.primary,
+				borderRadius: theme.roundness,
 			},
 		],
 		[theme]
@@ -140,7 +141,7 @@ const DatabaseFileList: FC<{ style?: ViewStyle }> = ({ style }) => {
 					color={theme.colors.onBackground}
 					name="triangle-alert"
 				/>
-				<Text>{t('dbLoader.willRequireReload')}</Text>
+				<Text style={styles.noticeText}>{t('dbLoader.willRequireReload')}</Text>
 			</View>
 
 			{navDirs.map((dir, idx) => {
