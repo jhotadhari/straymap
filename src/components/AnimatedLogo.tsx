@@ -174,6 +174,31 @@ const AnimatedLogo = ({
 	const styleDrawableFull = useMemo(() => ({ width: size, height: size }), [size]);
 
 	const styleText = useMemo(() => [theme.fonts.displayMedium, styles.text], [theme]);
+	const styleSize = useMemo(() => ({ width: size, height: size }), [size]);
+	const styleWater = useMemo(
+		() => [styles.waterLandWrapper, styleWaterWrapper],
+		[styleWaterWrapper]
+	);
+	const styleLand = useMemo(
+		() => [styles.waterLandWrapper, styleLandWrapper],
+		[styleLandWrapper]
+	);
+	const styleCat = useMemo(
+		() => [
+			styles.catWrapper,
+			styleSize,
+			styleCatWrapper,
+		],
+		[styleSize, styleCatWrapper]
+	);
+	const styleTextWrap = useMemo(
+		() => [
+			styles.textWrapper,
+			styleSize,
+			styleTextWrapper,
+		],
+		[styleSize, styleTextWrapper]
+	);
 
 	const handlePress = useCallback(() => {
 		if (shouldShit) {
@@ -199,27 +224,21 @@ const AnimatedLogo = ({
 			style={stylePressable}
 			onPress={handlePress}
 		>
-			<Animated.View style={[styles.waterLandWrapper, styleWaterWrapper]}>
+			<Animated.View style={styleWater}>
 				<VectorDrawable
 					resourceName="world_map_water"
 					style={styleDrawableHalf}
 				/>
 			</Animated.View>
 
-			<Animated.View style={[styles.waterLandWrapper, styleLandWrapper]}>
+			<Animated.View style={styleLand}>
 				<VectorDrawable
 					resourceName="world_map_land"
 					style={styleDrawableHalf}
 				/>
 			</Animated.View>
 
-			<Animated.View
-				style={[
-					styles.catWrapper,
-					{ width: size, height: size },
-					styleCatWrapper,
-				]}
-			>
+			<Animated.View style={styleCat}>
 				<VectorDrawable
 					resourceName="ic_launcher_foreground"
 					style={styleDrawableFull}
@@ -227,13 +246,7 @@ const AnimatedLogo = ({
 			</Animated.View>
 
 			{textIsInitialized && (
-				<Animated.View
-					style={[
-						styles.textWrapper,
-						{ width: size, height: size },
-						styleTextWrapper,
-					]}
-				>
+				<Animated.View style={styleTextWrap}>
 					<View
 						onLayout={handleLayout}
 						style={styles.textInner}
