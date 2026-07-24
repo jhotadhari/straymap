@@ -9,12 +9,7 @@ import { getRoute } from 'react-native-brouter/geojson';
 import { enrichCoordinatesWithElevation } from 'react-native-mapsforge-vtm';
 import type { ElevationAPI } from 'react-native-mapsforge-vtm';
 import { RoutingSegment, BrouterOptions, StraightLineOptions, RoutingProfile } from './types';
-import {
-	getIsTileCachedFn,
-	getRawAltitudeFn,
-	getRawHasDataFn,
-	getSetCacheCapacityFn,
-} from './altitude';
+import { altitudeService } from '../../lib/AltitudeService';
 import { haversineDistance } from '../../lib/formatting';
 
 export const getSegmentRecordId = (segment: Pick<RoutingSegment, 'fromId' | 'toId'>) =>
@@ -101,22 +96,22 @@ const getStraightLineCoords = async (
 	// collect phase is always a guaranteed cache hit.
 	const elevationAPI: ElevationAPI = {
 		getAltitudeAtPosition: async (lng, lat) => {
-			const fn = getRawAltitudeFn();
+			const fn = altitudeService.getRawAltitudeFn();
 			if (!fn) throw new Error('Altitude lookup not wired');
 			return fn(lng, lat);
 		},
 		hasDataAtPosition: async (lng, lat) => {
-			const fn = getRawHasDataFn();
+			const fn = altitudeService.getRawHasDataFn();
 			if (!fn) return false;
 			return fn(lng, lat);
 		},
 		setCacheCapacity: async (capacity) => {
-			const fn = getSetCacheCapacityFn();
+			const fn = altitudeService.getSetCacheCapacityFn();
 			if (!fn) throw new Error('setCacheCapacity not wired');
 			await fn(capacity);
 		},
 		isTileCached: async (lng, lat) => {
-			const fn = getIsTileCachedFn();
+			const fn = altitudeService.getIsTileCachedFn();
 			if (!fn) return false;
 			return fn(lng, lat);
 		},

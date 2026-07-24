@@ -28,12 +28,7 @@ import { getSegmentRecordId } from '../utils';
 import useRoute from '../hooks/useRoute';
 // import useSimplificationTolerance from '../../lines/hooks/useSimplificationTolerance';
 import { RoutingPoint } from '../types';
-import {
-	setAltitudeLookup,
-	setCacheCapacityLookup,
-	setHasDataLookup,
-	setIsTileCachedLookup,
-} from '../altitude';
+import { altitudeService } from '../../../lib/AltitudeService';
 import { pointsCoordsAreOverlapping } from '../../../lib/utils';
 
 const SegmentLineLayer: FC<{
@@ -235,15 +230,14 @@ const RoutingMapView = () => {
 	const { getAltitudeAtPosition, hasDataAtPosition, isTileCached, setCacheCapacity } = useMap();
 
 	useEffect(() => {
-		setAltitudeLookup(getAltitudeAtPosition);
-		setHasDataLookup(hasDataAtPosition);
-		setIsTileCachedLookup(isTileCached);
-		setCacheCapacityLookup(setCacheCapacity);
+		altitudeService.wire({
+			getAltitudeAtPosition,
+			hasDataAtPosition,
+			setCacheCapacity,
+			isTileCached,
+		});
 		return () => {
-			setAltitudeLookup(null);
-			setHasDataLookup(null);
-			setIsTileCachedLookup(null);
-			setCacheCapacityLookup(null);
+			altitudeService.unwire();
 		};
 	}, [
 		getAltitudeAtPosition,
