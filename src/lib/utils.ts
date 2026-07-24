@@ -1,8 +1,7 @@
 /**
  * External dependencies
  */
-import { LineString, Point, Polygon, Position } from 'geojson';
-import { Bbox } from 'react-native-mapsforge-vtm';
+import { LineString, Point, Position } from 'geojson';
 
 declare function requestIdleCallback(
 	callback: (deadline: { didTimeout: boolean; timeRemaining: () => number }) => void,
@@ -122,15 +121,3 @@ export const pointToFakeLineStringFeature = (point: Point) => {
 // without flooding the ElevationReader's preload executor on prolonged misses.
 export const getRetryDelay = (attempt: number) =>
 	Math.min(500, Math.max(100, 10 * Math.pow(2, attempt)));
-
-export const envelopeToBBox = (envelope: Polygon): Bbox => {
-	const ring = envelope.coordinates[0];
-	const lngs = ring.map((c) => c[0]);
-	const lats = ring.map((c) => c[1]);
-	return [
-		Math.min(...lngs),
-		Math.min(...lats),
-		Math.max(...lngs),
-		Math.max(...lats),
-	];
-};

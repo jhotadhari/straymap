@@ -19,7 +19,7 @@ import useActivateDrawerItem from '../../../drawers/hooks/useActivateDrawerItem'
 import { DRAWER_ICON_SIZE, MAP_ANIMATION_PADDING_PX } from '../../../../constants';
 import { sharedStyles } from './sharedDeps';
 import LineStatsCompactRows from '../Stats/LineStatsCompactRows';
-import { envelopeToBBox } from '../../../../lib/utils';
+import { bbox as turfBbox } from '@turf/turf';
 import { AppContext } from '../../../../Context';
 
 export interface ListRowProps {
@@ -60,7 +60,7 @@ const ListRow: FC<ListRowProps> = ({ line, idx, systemFeatureKey }) => {
 		activateRoutingDrawerItem();
 		// flyToBounds
 		if (line?.envelope) {
-			const bbox = envelopeToBBox(line.envelope);
+			const bbox = turfBbox(line.envelope);
 			flyToBounds(bbox, { paddingPx: MAP_ANIMATION_PADDING_PX });
 		}
 	}, [

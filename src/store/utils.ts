@@ -1,12 +1,12 @@
 /**
  * External dependencies
  */
-import { ActionCreatorWithPayload } from "@reduxjs/toolkit";
+import { ActionCreatorWithPayload } from '@reduxjs/toolkit';
 
 /**
  * Internal dependencies
  */
-import { RootState, AppThunk } from "./store";
+import { RootState, AppThunk } from './store';
 
 export const getSetterThunkWithGetter = <T>(
 	selector: (state: RootState) => T,

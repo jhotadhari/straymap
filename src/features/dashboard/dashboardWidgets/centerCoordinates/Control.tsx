@@ -22,13 +22,9 @@ const Control: FC = () => {
 				unitPrefsKey="coordinates"
 			/>
 
-			<ItemMinWidthControl
-				buttonLabel={t('dashboard.useDefault')}
-			/>
+			<ItemMinWidthControl buttonLabel={t('dashboard.useDefault')} />
 
-			<ItemFontSizeControl
-				buttonLabel={t('dashboard.followDashboardSetting')}
-			/>
+			<ItemFontSizeControl buttonLabel={t('dashboard.followDashboardSetting')} />
 		</View>
 	);
 };

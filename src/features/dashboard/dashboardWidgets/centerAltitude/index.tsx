@@ -18,7 +18,7 @@ const Icon: FC<{
 	return (
 		<LucideIcons
 			color={color}
-			size={size-2.5}
+			size={size - 2.5}
 			name="mountain"
 		/>
 	);

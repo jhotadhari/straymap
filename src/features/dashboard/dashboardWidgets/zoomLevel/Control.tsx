@@ -16,13 +16,9 @@ const Control: FC = () => {
 	const { t } = useTranslation();
 	return (
 		<View style={sharedStyles.container}>
-			<ItemMinWidthControl
-				buttonLabel={t('dashboard.useDefault')}
-			/>
+			<ItemMinWidthControl buttonLabel={t('dashboard.useDefault')} />
 
-			<ItemFontSizeControl
-				buttonLabel={t('dashboard.followDashboardSetting')}
-			/>
+			<ItemFontSizeControl buttonLabel={t('dashboard.followDashboardSetting')} />
 		</View>
 	);
 };

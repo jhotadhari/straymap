@@ -23,7 +23,6 @@ export interface Options {
 }
 
 const Display: FC<DashboardWidgetProps<Options>> = ({ item, style = {}, onPress }) => {
-
 	const { t } = useTranslation();
 
 	const unitPrefs = useAppSelector(selectUnitPrefs);
@@ -39,10 +38,14 @@ const Display: FC<DashboardWidgetProps<Options>> = ({ item, style = {}, onPress 
 
 	const unit = item?.options?.unitPref?.unit ?? get(unitPrefs, ['coordinates', 'unit']);
 	const round = item?.options?.unitPref?.round ?? get(unitPrefs, ['coordinates', 'round']);
-	const coordsPadLng = item?.options?.unitPref?.coordsPadLng ?? get(unitPrefs, ['coordinates', 'coordsPadLng']);
-	const coordsPadLat = item?.options?.unitPref?.coordsPadLat ?? get(unitPrefs, ['coordinates', 'coordsPadLat']);
-	const coordsOrder = item?.options?.unitPref?.coordsOrder ?? get(unitPrefs, ['coordinates', 'coordsOrder']);
-	const coordsForceNE = item?.options?.unitPref?.coordsForceNE ?? get(unitPrefs, ['coordinates', 'coordsForceNE']);
+	const coordsPadLng =
+		item?.options?.unitPref?.coordsPadLng ?? get(unitPrefs, ['coordinates', 'coordsPadLng']);
+	const coordsPadLat =
+		item?.options?.unitPref?.coordsPadLat ?? get(unitPrefs, ['coordinates', 'coordsPadLat']);
+	const coordsOrder =
+		item?.options?.unitPref?.coordsOrder ?? get(unitPrefs, ['coordinates', 'coordsOrder']);
+	const coordsForceNE =
+		item?.options?.unitPref?.coordsForceNE ?? get(unitPrefs, ['coordinates', 'coordsForceNE']);
 
 	const textStyle = useMemo(() => ({ fontSize, textAlign }), [fontSize, textAlign]);
 
@@ -59,14 +62,19 @@ const Display: FC<DashboardWidgetProps<Options>> = ({ item, style = {}, onPress 
 		>
 			{undefined !== centerLng && undefined !== centerLat && (
 				<Text style={textStyle}>
-					{formatCoords(centerLat, centerLng, {
-						unit,
-						round,
-						coordsPadLng,
-						coordsPadLat,
-						coordsOrder,
-						coordsForceNE,
-					}, t )}
+					{formatCoords(
+						centerLat,
+						centerLng,
+						{
+							unit,
+							round,
+							coordsPadLng,
+							coordsPadLat,
+							coordsOrder,
+							coordsForceNE,
+						},
+						t
+					)}
 				</Text>
 			)}
 		</ElementFrame>

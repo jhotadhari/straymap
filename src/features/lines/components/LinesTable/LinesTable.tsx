@@ -43,7 +43,7 @@ import { FooterContext, HeaderContext, ColumnHeaderMenuContext } from './Context
 import LineEditModal from '../LineEditModal/LineEditModal';
 import LinesFilterModals from './FilterModals';
 import LoadingIndicator from '../../../../components/generic/primitives/LoadingIndicator';
-import { envelopeToBBox } from '../../../../lib/utils';
+import { bbox as turfBbox } from '@turf/turf';
 import { AppContext } from '../../../../Context';
 import { MAP_ANIMATION_PADDING_PX } from '../../../../constants';
 
@@ -190,16 +190,23 @@ const LinesTable: FC = () => {
 
 	const activateRoutingDrawerItem = useActivateDrawerItem('routing');
 
-	const handleRoutingBtnPress = useCallback(( line: Omit<Line, "geometry"> ) => {
-		activateRoutingDrawerItem();
-		// Close LinesTable.
-		dispatch(setUiItemKeys([]));
-		// flyToBounds
-		if (line?.envelope) {
-			const bbox = envelopeToBBox(line.envelope);
-			flyToBounds(bbox, { paddingPx: MAP_ANIMATION_PADDING_PX });
-		}
-	}, [dispatch, activateRoutingDrawerItem, flyToBounds]);
+	const handleRoutingBtnPress = useCallback(
+		(line: Omit<Line, 'geometry'>) => {
+			activateRoutingDrawerItem();
+			// Close LinesTable.
+			dispatch(setUiItemKeys([]));
+			// flyToBounds
+			if (line?.envelope) {
+				const bbox = turfBbox(line.envelope);
+				flyToBounds(bbox, { paddingPx: MAP_ANIMATION_PADDING_PX });
+			}
+		},
+		[
+			dispatch,
+			activateRoutingDrawerItem,
+			flyToBounds,
+		]
+	);
 
 	const renderHeader = useCallback(() => {
 		return <TableHeader styleCell={styleCell} />;

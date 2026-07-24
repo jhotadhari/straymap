@@ -23,7 +23,7 @@ import { sharedStyles as appSharedStyles } from '../../../../sharedStyles';
 import IconRouting from '../../../routing/drawerPanels/routing/IconComponent';
 import { AppContext } from '../../../../Context';
 import { MAP_ANIMATION_PADDING_PX } from '../../../../constants';
-import { envelopeToBBox } from '../../../../lib/utils';
+import { bbox as turfBbox } from '@turf/turf';
 
 const renderIconRouting = ({ color }: { color: TextStyle['color'] }) => (
 	<IconRouting color={color} />
@@ -51,7 +51,7 @@ const RowRouting: FC = () => {
 		if (lineTemp?.id && route?.id) {
 			onDismiss();
 			if (line?.envelope && mapViewNativeNodeHandle) {
-				const bbox = envelopeToBBox(line.envelope);
+				const bbox = turfBbox(line.envelope);
 				flyToBounds(bbox, { paddingPx: MAP_ANIMATION_PADDING_PX });
 			}
 			dispatch(setIsRouting(route.id));

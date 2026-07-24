@@ -16,9 +16,7 @@ const Control: FC = () => {
 
 	return (
 		<View style={sharedStyles.container}>
-			<ItemMinWidthControl
-				buttonLabel={t('dashboard.useDefault')}
-			/>
+			<ItemMinWidthControl buttonLabel={t('dashboard.useDefault')} />
 		</View>
 	);
 };

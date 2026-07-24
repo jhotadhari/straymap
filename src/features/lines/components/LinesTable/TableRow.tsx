@@ -128,7 +128,7 @@ const TableRow: FC<TableRowProps> = ({
 	}, [dispatch, line.id]);
 
 	const handleRoutingBtnPress = useCallback(() => {
-		handleRoutingBtnPress_( line )
+		handleRoutingBtnPress_(line);
 	}, [handleRoutingBtnPress_, line]);
 
 	return (

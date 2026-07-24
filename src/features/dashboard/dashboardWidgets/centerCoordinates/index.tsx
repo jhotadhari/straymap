@@ -24,7 +24,11 @@ const Icon: FC<{
 			size,
 			color,
 		}),
-		[cursorConfigStore, size, color]
+		[
+			cursorConfigStore,
+			size,
+			color,
+		]
 	);
 	return <CenterInner cursor={cursorConfig} />;
 };

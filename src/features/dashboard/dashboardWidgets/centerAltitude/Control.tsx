@@ -47,12 +47,8 @@ const Control: FC = () => {
 				unitPrefsKey="heightDepth"
 			/>
 
-			<ItemMinWidthControl
-				buttonLabel={t('dashboard.useDefault')}
-			/>
-			<ItemFontSizeControl
-				buttonLabel={t('dashboard.followDashboardSetting')}
-			/>
+			<ItemMinWidthControl buttonLabel={t('dashboard.useDefault')} />
+			<ItemFontSizeControl buttonLabel={t('dashboard.followDashboardSetting')} />
 		</View>
 	);
 };

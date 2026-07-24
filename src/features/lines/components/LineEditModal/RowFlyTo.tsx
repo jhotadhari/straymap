@@ -17,7 +17,7 @@ import { useAppSelector } from '../../../../store/hooks';
 import { selectSelected } from '../../selectors';
 import { sharedStyles } from './sharedDeps';
 import { sharedStyles as appSharedStyles } from '../../../../sharedStyles';
-import { envelopeToBBox } from '../../../../lib/utils';
+import { bbox as turfBbox } from '@turf/turf';
 import { MAP_ANIMATION_PADDING_PX } from '../../../../constants';
 
 const RowFlyTo: FC = () => {
@@ -36,7 +36,7 @@ const RowFlyTo: FC = () => {
 
 	const handlePress = useCallback(() => {
 		if (line?.envelope && mapViewNativeNodeHandle && isSelected) {
-			const bbox = envelopeToBBox(line.envelope);
+			const bbox = turfBbox(line.envelope);
 			flyToBounds(bbox, { paddingPx: MAP_ANIMATION_PADDING_PX });
 			// Close modal.
 			onDismiss();

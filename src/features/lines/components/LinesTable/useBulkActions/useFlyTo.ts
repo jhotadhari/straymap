@@ -16,7 +16,6 @@ import { setUiItemKeys } from '../../../../ui/slice';
 import { MAP_ANIMATION_PADDING_PX } from '../../../../../constants';
 
 const useFlyTo = () => {
-
 	const dispatch = useAppDispatch();
 
 	const { checkedIds } = useContext(FooterContext);
