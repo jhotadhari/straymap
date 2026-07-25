@@ -9,7 +9,7 @@ export const DEFAULT_OPTIONS_BROUTER: BrouterOptions = {
 	compressionMode: 'off',
 };
 export const DEFAULT_OPTIONS_STRAIGHT_LINE: StraightLineOptions = {
-	interval: 1000,
+	interval: 100,
 };
 
 export const DEFAULT_PROFILE: RoutingProfile = {
