@@ -30,7 +30,6 @@ import { startAppListening } from '../../store/listenerMiddleware';
 import { selectInitialized } from './selectors';
 import { AppStore } from '../../store/store';
 import { logError } from '../../lib/utils';
-import { haversineDistance } from '../../lib/formatting';
 import { appendPointToLine } from './db/actionsTrack';
 import { dbConnection } from '../dbLoader/DBConnection';
 

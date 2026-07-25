@@ -82,17 +82,18 @@ const AppView = ({
 	const showSplash = useShowInitialSplash();
 
 	const dispatch = useAppDispatch();
-	// Read isRecording via ref so handleMapEvent's useCallback deps stay stable
+	const isRecording = useAppSelector(selectIsRecording);
+	// Keep a ref synced so handleMapEvent's useCallback deps stay stable
 	// while still getting the latest value on every map event (~25/sec).
-	const isRecordingRef = useRef(false);
-	isRecordingRef.current = useAppSelector(selectIsRecording);
+	const isRecordingRef = useRef(isRecording);
+	isRecordingRef.current = isRecording;
 
 	// Derive the native gnssFilter prop from Redux track-recording settings.
 	const minDistance = useAppSelector(selectMinDistance);
 	const minTime = useAppSelector(selectMinTime);
 	const minPrecision = useAppSelector(selectMinPrecision);
 	const gnssFilter = useMemo(() => {
-		if (!isRecordingRef.current) return undefined;
+		if (!isRecording) return undefined;
 		return {
 			minDistanceMeters: minDistance,
 			minTimeSec: minTime,
@@ -102,7 +103,7 @@ const AppView = ({
 			demRetryMs: 500,
 		};
 	}, [
-		isRecordingRef.current,
+		isRecording,
 		minDistance,
 		minTime,
 		minPrecision,
@@ -400,6 +401,8 @@ const AppView = ({
 							onResume={handleMapResume}
 							onMapUpdate={handleMapEvent}
 							onTap={handleMapTap}
+							gnssFilter={gnssFilter}
+							onGnssPosition={handleGnssPosition}
 						>
 							{insideMapComponents.map(({ key, Component, props }) => (
 								<Component
