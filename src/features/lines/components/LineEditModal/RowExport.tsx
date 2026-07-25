@@ -15,6 +15,7 @@ import dayjs from 'dayjs';
  */
 import { ErrorToastContext } from '../../../../components/ErrorToast/Context';
 import { logError } from '../../../../lib/utils';
+import ensureStoragePermission from '../../../../lib/storagePermission';
 import { LineEditModalContext } from './Context';
 import InfoLabelRow from '../../../../components/generic/infoWrapper/InfoLabelRow';
 import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
@@ -59,6 +60,14 @@ const RowExport: FC = () => {
 			return;
 		}
 		setWriting(true);
+
+		const hasPermission = await ensureStoragePermission();
+		if (!hasPermission) {
+			showError(t('lines.exportPermissionDenied'));
+			setWriting(false);
+			setModalVisible(false);
+			return;
+		}
 
 		try {
 			const safeTitle = line?.title ?? line?.id?.toString() ?? 'line';

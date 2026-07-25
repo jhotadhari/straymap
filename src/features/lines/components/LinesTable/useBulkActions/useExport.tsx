@@ -16,6 +16,7 @@ import { LineString } from 'geojson';
  */
 import { ErrorToastContext } from '../../../../../components/ErrorToast/Context';
 import { logError } from '../../../../../lib/utils';
+import ensureStoragePermission from '../../../../../lib/storagePermission';
 import ButtonHighlight from '../../../../../components/generic/primitives/ButtonHighlight';
 import ModalWrapper from '../../../../../components/generic/wrapper/ModalWrapper';
 import RadioListItem from '../../../../../components/generic/wrapper/RadioListItem';
@@ -63,6 +64,14 @@ const useExport = () => {
 			return;
 		}
 		setWriting(true);
+
+		const hasPermission = await ensureStoragePermission();
+		if (!hasPermission) {
+			showError(t('lines.exportPermissionDenied'));
+			setWriting(false);
+			setModalVisible(false);
+			return;
+		}
 
 		let written = 0;
 		const failed: string[] = [];

@@ -62,6 +62,7 @@
 	"exportNoGeom": "Keine Geometriedaten für den Export verfügbar.",
 	"exporting": "Exportiere...",
 	"exportPartial": "%s von %s Routen exportiert. Fehlgeschlagen: %s",
+	"exportPermissionDenied": "Zum Exportieren wird die Speicherberechtigung benötigt. Bitte erteile sie in den Geräteeinstellungen.",
 	"delete": "Löschen",
 	"removeFromMap": "Von Karte entfernen",
 	"showOnMap": "Auf Karte anzeigen",
