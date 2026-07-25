@@ -38,7 +38,7 @@ export function useGnssSetup() {
 			minDistanceMeters: minDistance,
 			minTimeSec: minTime,
 			minAccuracyMeters: minPrecision,
-			provider: 'gps' as const,
+			provider: 'satellite' as const,
 			altitudeSource: 'dem-preferred' as const,
 		};
 	}, [
