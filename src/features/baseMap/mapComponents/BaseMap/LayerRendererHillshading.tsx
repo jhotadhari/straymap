@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { FC, useEffect, useRef } from 'react';
+import { FC } from 'react';
 import { LayerHillshading, LayerHillshadingProps } from 'react-native-mapsforge-vtm';
 
 /**
@@ -16,6 +16,7 @@ import {
 } from '../../utils';
 import { useAppSelector } from '../../../../store/hooks';
 import { selectHgtDirPath } from '../../selectors';
+import { useDeferredLayerCreated } from './useDeferredLayerCreated';
 
 const LayerRendererHillshading: FC<{
 	layer: LayerConfig<LayerConfigOptionsHillshading>;
@@ -28,22 +29,7 @@ const LayerRendererHillshading: FC<{
 
 	const appHgtDirPath = useAppSelector(selectHgtDirPath);
 
-	// Busy key: hillshading layers create synchronously on mount.
-	// Defer via setTimeout(0) so the parent BaseMap's useEffect (which adds
-	// the busy key) fires first — React runs child effects before parent effects.
-	const didCreateRef = useRef(false);
-	useEffect(() => {
-		if (!didCreateRef.current) {
-			didCreateRef.current = true;
-			const timeoutId = setTimeout(() => onLayerCreated?.(layer.key, 'hillshading'), 0);
-			return () => clearTimeout(timeoutId);
-		}
-	}, [onLayerCreated, layer.key]);
-
-	// Separate cleanup effect: remove key on unmount as safety net.
-	useEffect(() => {
-		return () => onLayerCreated?.(layer.key, 'hillshading');
-	}, [onLayerCreated, layer.key]);
+	useDeferredLayerCreated(layer.key, 'hillshading', onLayerCreated);
 
 	return (opts?.hgtDirPath ?? appHgtDirPath) ? (
 		<LayerHillshading

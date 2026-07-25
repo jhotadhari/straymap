@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { FC, useEffect, useRef } from 'react';
+import { FC } from 'react';
 import { LayerBitmapTile, LayerBitmapTileProps } from 'react-native-mapsforge-vtm';
 
 /**
@@ -9,6 +9,7 @@ import { LayerBitmapTile, LayerBitmapTileProps } from 'react-native-mapsforge-vt
  */
 import { LayerConfig, LayerConfigOptionsOnlineRasterXYZ } from '../../types';
 import { stringifyProp, resolveCacheDirBase } from '../../utils';
+import { useDeferredLayerCreated } from './useDeferredLayerCreated';
 
 const LayerRendererOnlineRasterXYZ: FC<{
 	layer: LayerConfig<LayerConfigOptionsOnlineRasterXYZ>;
@@ -19,22 +20,7 @@ const LayerRendererOnlineRasterXYZ: FC<{
 
 	const cacheDirBase = resolveCacheDirBase(opts.cacheDirBase, internalCacheDir);
 
-	// Busy key: online-raster-xyz layers create synchronously on mount.
-	// Defer via setTimeout(0) so the parent BaseMap's useEffect (which adds
-	// the busy key) fires first — React runs child effects before parent effects.
-	const didCreateRef = useRef(false);
-	useEffect(() => {
-		if (!didCreateRef.current) {
-			didCreateRef.current = true;
-			const timeoutId = setTimeout(() => onLayerCreated?.(layer.key, 'online-raster-xyz'), 0);
-			return () => clearTimeout(timeoutId);
-		}
-	}, [onLayerCreated, layer.key]);
-
-	// Separate cleanup: remove key on unmount as safety net.
-	useEffect(() => {
-		return () => onLayerCreated?.(layer.key, 'online-raster-xyz');
-	}, [onLayerCreated, layer.key]);
+	useDeferredLayerCreated(layer.key, 'online-raster-xyz', onLayerCreated);
 
 	return (
 		<LayerBitmapTile
