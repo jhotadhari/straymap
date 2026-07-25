@@ -22,6 +22,7 @@ import TagSelectColumns from './SelectColumns';
 import TagFilterModals from './FilterModals';
 import FilterBadge from '../FilterModals/FilterBadge';
 import FilterConflictModal from '../FilterModals/FilterConflictModal';
+import { OPACITY_DISABLED } from '../../../../constants';
 
 const TagHeader: FC = () => {
 	const theme = useTheme();
@@ -98,7 +99,7 @@ const TagHeader: FC = () => {
 	const scrollStyle = useMemo(() => ({ flexShrink: 1, alignSelf: 'center' as const }), []);
 	const scrollContentStyle = useMemo(() => ({ alignItems: 'center' as const }), []);
 	const contentStyle = useMemo(() => ({ marginVertical: -2 }), []);
-	const disabledIconStyle = useMemo(() => ({ opacity: 0.5 }), []);
+	const disabledIconStyle = useMemo(() => ({ opacity: OPACITY_DISABLED }), []);
 
 	return (
 		<View style={style}>

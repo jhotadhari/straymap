@@ -15,7 +15,7 @@ import React, {
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { Icon, Text, useTheme } from 'react-native-paper';
 import MaterialIcons from '@react-native-vector-icons/material-icons/static';
-import { get, omit } from 'lodash-es';
+import { findIndex, get, omit } from 'lodash-es';
 import { lineString } from '@turf/turf';
 import { useMutation, UseMutationOptions } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
@@ -28,7 +28,7 @@ import DrawerContext from '../../drawers/DrawerContext';
 import ButtonHighlight from '../../../components/generic/primitives/ButtonHighlight';
 import LoadingIndicator from '../../../components/generic/primitives/LoadingIndicator';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
-import { deleteSegments, processRouting } from '../slice';
+import { deleteSegments, processRouting, setLastProfile } from '../slice';
 import { selectIsRouting, selectSegments } from '../selectors';
 import { selectUnitPrefs } from '../../general/selectors';
 import { updateRoute } from '../db/actionsRoute';
@@ -63,9 +63,11 @@ const Segment: FC<{
 
 	const StateIcon = useCallback(() => {
 		let node: undefined | ReactNode = undefined;
-
+		if (!segment) {
+			return node;
+		}
 		switch (true) {
-			case !!(segment && segment?.errorMsg):
+			case !!segment?.errorMsg:
 				// error
 				node = (
 					<MaterialIcons
@@ -75,25 +77,10 @@ const Segment: FC<{
 					/>
 				);
 				break;
-			case !!(segment && segment?.isFetching):
+			case segment?.isFetching:
 				// fetching
 				node = <LoadingIndicator style={styles.loadingIndicatorIcon} />;
 				break;
-			case !segment || !segment?.positions:
-				// some placeholder until start fetching
-				node = (
-					<Icon
-						source="dots-horizontal"
-						size={DRAWER_ICON_SIZE}
-					/>
-				);
-			// case ( !! ( segment && ! segment?.isFetching && segment?.positions ) ):
-			//     // ok
-			//     node = <Icon
-			//         source="check"
-			//         size={ 25 }
-			//         color={ get( theme, ['colors','success'], undefined ) }
-			//     />;
 		}
 
 		return node ? <View style={styles.stateIconWrapper}>{node}</View> : undefined;
@@ -152,34 +139,36 @@ const Segment: FC<{
 
 	return (
 		<View style={styleWrapper}>
-			<View style={styleSegmentRow}>
-				<View style={styles.segmentRowContent}>
-					<StateIcon />
+			{!!segment && (
+				<View style={styleSegmentRow}>
+					<View style={styles.segmentRowContent}>
+						<StateIcon />
 
-					{segment?.errorMsg && (
-						<Text style={styles.errorText}>{t(segment.errorMsg)}</Text>
-					)}
+						{segment?.errorMsg && (
+							<Text style={styles.errorText}>{t(segment.errorMsg)}</Text>
+						)}
 
-					{!segment?.isFetching && !segment?.errorMsg && (
-						<View style={styles.stat}>
-							<LineStatsCompactRows stats={lineStats} />
-						</View>
-					)}
+						{!segment?.isFetching && !segment?.errorMsg && (
+							<View style={styles.stat}>
+								<LineStatsCompactRows stats={lineStats} />
+							</View>
+						)}
+					</View>
+
+					<View style={styles.segmentRowAction}>
+						<ButtonHighlight
+							compact={true}
+							onPress={refreshSegment}
+							style={styles.compactButtonAction}
+						>
+							<Icon
+								source="refresh"
+								size={DRAWER_ICON_SIZE}
+							/>
+						</ButtonHighlight>
+					</View>
 				</View>
-
-				<View style={styles.segmentRowAction}>
-					<ButtonHighlight
-						compact={true}
-						onPress={refreshSegment}
-						style={styles.compactButtonAction}
-					>
-						<Icon
-							source="refresh"
-							size={DRAWER_ICON_SIZE}
-						/>
-					</ButtonHighlight>
-				</View>
-			</View>
+			)}
 
 			<View style={styleSegmentRow}>
 				<View style={styles.segmentRowContent}>
@@ -223,8 +212,7 @@ const DraggableItem: FC<{
 	order: number;
 	draggingItemIndex?: number;
 	setEditPoint: Dispatch<SetStateAction<undefined | RoutingPoint>>;
-	hasNext: boolean;
-}> = ({ item, width, order, draggingItemIndex, setEditPoint, hasNext }) => {
+}> = ({ item, width, order, draggingItemIndex, setEditPoint }) => {
 	const { t } = useTranslation();
 
 	const routeId = useAppSelector(selectIsRouting);
@@ -304,13 +292,11 @@ const DraggableItem: FC<{
 				</ButtonHighlight>
 			</View>
 
-			{hasNext && (
-				<Segment
-					item={item}
-					draggingItemIndex={draggingItemIndex}
-					setEditPoint={setEditPoint}
-				/>
-			)}
+			<Segment
+				item={item}
+				draggingItemIndex={draggingItemIndex}
+				setEditPoint={setEditPoint}
+			/>
 		</View>
 	);
 };
@@ -420,6 +406,18 @@ const PointsList: FC = () => {
 		]
 	);
 
+	useEffect(() => {
+		editPoint?.profile && dispatch(setLastProfile(editPoint.profile));
+	}, [editPoint?.profile]);
+
+	const lastProfile = useMemo(() => {
+		const editPointIdx = editPoint ? points.findIndex((p) => editPoint.id === p.id) : -1;
+		return editPointIdx > 0 ? points[editPointIdx - 1]?.profile : undefined;
+	}, [
+		points,
+		editPoint,
+	]);
+
 	const dropIndicatorStyle = useDropIndicatorStyle();
 
 	const styleScrollView = useMemo(() => [styles.scrollView, { width }], [width]);
@@ -432,6 +430,7 @@ const PointsList: FC = () => {
 			{editPoint && (
 				<EditPointModal
 					editPoint={editPoint}
+					lastProfile={lastProfile}
 					setEditPoint={setEditPoint}
 				/>
 			)}
@@ -459,7 +458,6 @@ const PointsList: FC = () => {
 								order={order}
 								draggingItemIndex={draggingItemIndex}
 								setEditPoint={setEditPoint}
-								hasNext={points.length > order + 1}
 							/>
 						</View>
 					);

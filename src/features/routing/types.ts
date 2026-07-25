@@ -22,6 +22,11 @@ export type RoutingProfile =
 	| { provider: 'brouter'; options: BrouterOptions }
 	| { provider: 'straightLine'; options: StraightLineOptions };
 
+export type LastProfiles = {
+	provider: RoutingProfile['provider'];
+	profiles: { [provider: string]: RoutingProfile };
+};
+
 export type RoutingPoint = {
 	id: number;
 	geometry: Point;

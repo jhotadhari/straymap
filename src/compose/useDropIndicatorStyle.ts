@@ -4,6 +4,11 @@
 import { useMemo } from 'react';
 import { useTheme } from 'react-native-paper';
 
+/**
+ * Internal dependencies
+ */
+import { OPACITY_DISABLED } from '../constants';
+
 const useDropIndicatorStyle = () => {
 	const theme = useTheme();
 	const dropIndicatorStyle = useMemo(
@@ -11,7 +16,7 @@ const useDropIndicatorStyle = () => {
 			backgroundColor: theme.colors.primaryContainer,
 			borderColor: theme.colors.primary,
 			borderWidth: 1,
-			opacity: 0.5,
+			opacity: OPACITY_DISABLED,
 			borderRadius: theme.roundness,
 		}),
 		[theme]

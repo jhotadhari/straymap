@@ -2,7 +2,7 @@
  * External dependencies
  */
 import React, { Dispatch, FC, SetStateAction, useCallback, useMemo } from 'react';
-import { useTheme } from 'react-native-paper';
+import { Divider, Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { get, isEqual } from 'lodash-es';
 
@@ -15,7 +15,13 @@ import ListItemMenuControl from '../../../components/generic/wrapper/ListItemMen
 import ModalWrapper from '../../../components/generic/wrapper/ModalWrapper';
 import NumericRowControl from '../../../components/generic/controls/NumericRowControl';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
-import { RoutingPoint, RoutingProfile, BrouterOptions, BrouterCompressionMode } from '../types';
+import {
+	RoutingPoint,
+	RoutingProfile,
+	BrouterOptions,
+	BrouterCompressionMode,
+	StraightLineOptions,
+} from '../types';
 import { updateRoutingPoint } from '../db/actionsRoutingPoint';
 import { deleteSegmentByKeyVal, processRouting } from '../slice';
 import { useMutation, UseMutationOptions } from '@tanstack/react-query';
@@ -25,6 +31,10 @@ import { DEFAULT_OPTIONS_BROUTER, DEFAULT_OPTIONS_STRAIGHT_LINE } from '../const
 import { formatDistanceUnit } from '../../../lib/formatting';
 import { selectUnitPrefs } from '../../general/selectors';
 import { sharedStyles } from '../../../sharedStyles';
+import { selectLastProfiles } from '../selectors';
+import ButtonHighlight from '../../../components/generic/primitives/ButtonHighlight';
+import { StyleSheet } from 'react-native';
+import { OPACITY_DISABLED } from '../../../constants';
 
 const providerOptions = [
 	{
@@ -78,6 +88,8 @@ const ProviderRowControl = ({
 
 	const selectedOpt = providerOptions.find((opt) => opt.key === editPoint.profile.provider);
 
+	const lastProfiles = useAppSelector(selectLastProfiles);
+
 	const handleSetProvider = useCallback(
 		(newProvider: string) => {
 			if (newProvider === 'brouter') {
@@ -85,7 +97,8 @@ const ProviderRowControl = ({
 					...editPoint,
 					profile: {
 						provider: 'brouter',
-						options: DEFAULT_OPTIONS_BROUTER,
+						options: (lastProfiles.profiles?.['brouter']?.options ??
+							DEFAULT_OPTIONS_BROUTER) as BrouterOptions,
 					},
 				});
 			} else if (newProvider === 'straightLine') {
@@ -93,12 +106,17 @@ const ProviderRowControl = ({
 					...editPoint,
 					profile: {
 						provider: 'straightLine',
-						options: DEFAULT_OPTIONS_STRAIGHT_LINE,
+						options: (lastProfiles.profiles?.['straightLine']?.options ??
+							DEFAULT_OPTIONS_STRAIGHT_LINE) as StraightLineOptions,
 					},
 				});
 			}
 		},
-		[editPoint, setEditPoint]
+		[
+			editPoint,
+			setEditPoint,
+			lastProfiles,
+		]
 	);
 
 	return (
@@ -267,10 +285,13 @@ const IntervalRowControl = ({
 };
 
 const EditPointModal: FC<{
+	lastProfile?: RoutingProfile;
 	editPoint: RoutingPoint;
 	setEditPoint: Dispatch<SetStateAction<RoutingPoint | undefined>>;
-}> = ({ editPoint, setEditPoint }) => {
+}> = ({ lastProfile, editPoint, setEditPoint }) => {
 	const dispatch = useAppDispatch();
+
+	const lastProfiles = useAppSelector(selectLastProfiles);
 
 	const theme = useTheme();
 	const { t } = useTranslation();
@@ -339,6 +360,23 @@ const EditPointModal: FC<{
 
 	const isBrouter = editPoint.profile.provider === 'brouter';
 
+	const prevProfile = useMemo(
+		() => lastProfile ?? lastProfiles.profiles[lastProfiles.provider],
+		[lastProfile]
+	);
+
+	const prevProfileDisabled = useMemo(
+		() => isEqual(prevProfile, editPoint.profile),
+		[prevProfile, editPoint.profile]
+	);
+
+	const handleApplyPrev = useCallback(() => {
+		setEditPoint({
+			...editPoint,
+			profile: prevProfile,
+		});
+	}, [setEditPoint, prevProfile]);
+
 	return (
 		<ModalWrapper
 			visible={!!editPoint.profile}
@@ -375,8 +413,32 @@ const EditPointModal: FC<{
 				editPoint={editPoint}
 				setEditPoint={setEditPoint}
 			/>
+
+			<Divider style={styles.divider} />
+
+			<InfoLabelRow
+				label={t('routing.applyPrevPointProfile')}
+				Info={t('routing.hintApplyPrevPointProfile')}
+			>
+				<ButtonHighlight
+					mode="outlined"
+					compact={true}
+					disabled={prevProfileDisabled}
+					onPress={handleApplyPrev}
+					labelStyle={prevProfileDisabled ? styles.disabled : undefined}
+				>
+					<Text>{t('routing.applyPrevPointProfileBtn')}</Text>
+				</ButtonHighlight>
+			</InfoLabelRow>
 		</ModalWrapper>
 	);
 };
+
+const styles = StyleSheet.create({
+	divider: {
+		marginVertical: 32,
+	},
+	disabled: { opacity: OPACITY_DISABLED },
+});
 
 export default EditPointModal;

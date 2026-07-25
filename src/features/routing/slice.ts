@@ -4,16 +4,18 @@
 import type { PayloadAction } from '@reduxjs/toolkit';
 import { createSlice } from '@reduxjs/toolkit';
 import { difference, get } from 'lodash-es';
+import { QueryClient } from '@tanstack/react-query';
+import { isAvailable } from 'react-native-brouter/geojson';
+import { lineString } from '@turf/turf';
 
 /**
  * Internal dependencies
  */
 import { SliceSettingsBase } from '../../types';
-import { RoutingSegment } from './types';
+import { LastProfiles, RoutingProfile, RoutingSegment } from './types';
 import { AppThunk } from '../../store/store';
 import { aggregateSegmentsToCoords, getCoordsFromRouting, getSegmentRecordId } from './utils';
 import { setLineSelected } from '../lines/slice';
-import { lineString } from '@turf/turf';
 import { createLines, updateLine, lineAddTag, deleteLine } from '../lines/db/actionsLine';
 import {
 	invalidateTagsTable,
@@ -24,14 +26,14 @@ import { ensureTagByLabel } from '../lines/db/actionsTag';
 import { updateRoute } from './db/actionsRoute';
 import { queryRoute } from './db/queryFns';
 import { selectIsRouting } from './selectors';
-import { QueryClient } from '@tanstack/react-query';
 import { dbConnection } from '../dbLoader/DBConnection';
 import { pointsCoordsAreOverlapping } from '../../lib/utils';
-import { isAvailable } from 'react-native-brouter/geojson';
+import { DEFAULT_LAST_PROFILES } from './constants';
 
 export interface RoutingSettings {
 	isRouting: false | number; // false or routeId.
 	routingLineId: null | number;
+	lastProfiles: LastProfiles;
 }
 
 export interface RoutingState extends SliceSettingsBase, RoutingSettings {
@@ -45,6 +47,7 @@ export interface RoutingState extends SliceSettingsBase, RoutingSettings {
 export const initialSettings: RoutingSettings = {
 	isRouting: false,
 	routingLineId: null,
+	lastProfiles: DEFAULT_LAST_PROFILES,
 };
 
 const initialState: RoutingState = {
@@ -74,6 +77,13 @@ export const routingSlice = createSlice({
 		setRoutingLineId: (state, action: PayloadAction<RoutingState['routingLineId']>) => {
 			state.routingLineId = action.payload;
 		},
+		setLastProfiles: (state, action: PayloadAction<RoutingState['lastProfiles']>) => {
+			state.lastProfiles = action.payload;
+		},
+		setLastProfile: (state, action: PayloadAction<RoutingProfile>) => {
+			state.lastProfiles.provider = action.payload.provider;
+			state.lastProfiles.profiles[action.payload.provider] = action.payload;
+		},
 		setSegment: (state, action: PayloadAction<RoutingSegment>) => {
 			const segmentRecordId = getSegmentRecordId(action.payload);
 			state.segments[segmentRecordId] = action.payload;
@@ -96,6 +106,8 @@ export const {
 	setBrouterAvailable,
 	setIsRouting: setIsRoutingAction,
 	setRoutingLineId,
+	setLastProfiles,
+	setLastProfile,
 	setSegment,
 	deleteSegments,
 } = routingSlice.actions;

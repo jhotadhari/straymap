@@ -4,6 +4,7 @@
 import React, { FC, Fragment, useMemo } from 'react';
 import { ScrollView, StyleSheet, ViewStyle } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { Divider } from 'react-native-paper';
 /**
  * Internal dependencies
  */
@@ -11,7 +12,6 @@ import ListItem from '../../../components/generic/wrapper/ListItem';
 import { featureRegistry } from '../../FeatureRegistry';
 import { useAppDispatch } from '../../../store/hooks';
 import { addUiItemKey } from '../slice';
-import { Divider } from 'react-native-paper';
 
 const Settings: FC<{ style?: ViewStyle }> = ({ style }) => {
 	const { t } = useTranslation();

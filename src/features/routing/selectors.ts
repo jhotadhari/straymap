@@ -17,6 +17,8 @@ export const selectRoutingLineId = (state: RootState) => state.routing.routingLi
 
 export const selectSegments = (state: RootState) => state.routing.segments;
 
+export const selectLastProfiles = (state: RootState) => state.routing.lastProfiles;
+
 export const selectSegmentByRecordId = (state: RootState, segmentRecordId: string) => {
 	return get(state.routing.segments, segmentRecordId);
 };

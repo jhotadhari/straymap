@@ -6,14 +6,18 @@ import { Feature, Point, GeoJsonProperties } from 'geojson';
 import { useContext, useMemo, useCallback } from 'react';
 import { point } from '@turf/turf';
 
-import { useAppDispatch } from '../../../../../store/hooks';
+/**
+ * Internal dependencies
+ */
+import { useAppDispatch, useAppSelector } from '../../../../../store/hooks';
 import { createRoutingPoints } from '../../../db/actionsRoutingPoint';
 import { processRouting } from '../../../slice';
 import { RoutingPoint, RoutingProfile } from '../../../types';
-import { DEFAULT_PROFILE } from '../../../constants';
+
 import { MapContext } from '../../../../../Context';
 import { dbConnection } from '../../../../dbLoader/DBConnection';
 import { pointsCoordsAreOverlapping } from '../../../../../lib/utils';
+import { selectLastProfiles } from '../../../selectors';
 
 const useActionAppendPoint = ({
 	points,
@@ -23,6 +27,8 @@ const useActionAppendPoint = ({
 	routeId?: number;
 }) => {
 	const dispatch = useAppDispatch();
+
+	const lastProfiles = useAppSelector(selectLastProfiles);
 
 	const { currentMapEventRef } = useContext(MapContext);
 
@@ -72,8 +78,8 @@ const useActionAppendPoint = ({
 
 	const getNextProfile = useCallback(() => {
 		const lastPoint = points && points.length ? points[points.length - 1] : undefined;
-		return lastPoint?.profile ?? DEFAULT_PROFILE;
-	}, [points]);
+		return lastPoint?.profile ?? lastProfiles.profiles[lastProfiles.provider];
+	}, [points, lastProfiles]);
 
 	const cb = useCallback(async () => {
 		if (currentMapEventRef?.current?.center) {

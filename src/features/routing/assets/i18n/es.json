@@ -22,5 +22,8 @@
 	"hintCompressionMode": "Estándar — enrutamiento más rápido con elevación de BRouter, pero puede fallar en rutas muy largas.\n\nExtendido — maneja rutas largas usando los datos de elevación propios de la app.\n\nAuto — intenta primero el estándar, cambia a extendido si falla.",
 	"compressionModeOff": "Estándar",
 	"compressionModeOn": "Extendido",
-	"compressionModeAuto": "Auto"
+	"compressionModeAuto": "Auto",
+	"applyPrevPointProfile": "Perfil anterior",
+	"hintApplyPrevPointProfile": "Copia el perfil de enrutamiento (motor y ajustes) del waypoint anterior a este. Útil cuando segmentos consecutivos deben usar el mismo perfil.",
+	"applyPrevPointProfileBtn": "Aplicar"
 }

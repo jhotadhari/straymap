@@ -55,6 +55,7 @@ describe('routing slice reducers', () => {
 
 	it('setIsRoutingAction clears segments and sets isRouting', () => {
 		const prev: RoutingState = {
+			...initialSettings,
 			initialized: true,
 			brouterAvailable: null,
 			segments: { '1_2': makeSegment({ fromId: 1, toId: 2 }) },
@@ -69,6 +70,7 @@ describe('routing slice reducers', () => {
 
 	it('setIsRoutingAction sets isRouting to false', () => {
 		const prev: RoutingState = {
+			...initialSettings,
 			initialized: true,
 			brouterAvailable: null,
 			segments: { '1_2': makeSegment() },
@@ -111,6 +113,7 @@ describe('routing slice reducers', () => {
 
 	it('deleteSegments removes segments by id string', () => {
 		const prev: RoutingState = {
+			...initialSettings,
 			initialized: true,
 			brouterAvailable: null,
 			segments: {
@@ -128,6 +131,7 @@ describe('routing slice reducers', () => {
 	it('deleteSegments removes segments by segment object', () => {
 		const seg = makeSegment({ fromId: 1, toId: 2 });
 		const prev: RoutingState = {
+			...initialSettings,
 			initialized: true,
 			brouterAvailable: null,
 			segments: { '1_2': seg },
@@ -140,6 +144,7 @@ describe('routing slice reducers', () => {
 
 	it('deleteSegments handles non-existent keys silently', () => {
 		const prev: RoutingState = {
+			...initialSettings,
 			initialized: true,
 			brouterAvailable: null,
 			segments: { '1_2': makeSegment() },

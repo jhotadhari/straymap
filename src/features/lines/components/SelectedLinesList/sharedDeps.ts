@@ -3,6 +3,11 @@
  */
 import { StyleSheet } from 'react-native';
 
+/**
+ * Internal dependencies
+ */
+import { OPACITY_DISABLED } from '../../../../constants';
+
 export const sharedStyles = StyleSheet.create({
 	noShrink: { flexShrink: 0 },
 	row: {
@@ -21,5 +26,5 @@ export const sharedStyles = StyleSheet.create({
 		flexWrap: 'wrap',
 		gap: 8,
 	},
-	disabled: { opacity: 0.5 },
+	disabled: { opacity: OPACITY_DISABLED },
 });

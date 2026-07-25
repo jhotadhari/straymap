@@ -22,5 +22,8 @@
 	"hintCompressionMode": "Standard — schnellstes Routing mit Höhendaten von BRouter, kann aber bei sehr langen Routen fehlschlagen.\n\nErweitert — bewältigt lange Routen durch Nutzung der eigenen Höhendaten der App.\n\nAuto — versucht zuerst Standard, wechselt bei Fehler automatisch zu Erweitert.",
 	"compressionModeOff": "Standard",
 	"compressionModeOn": "Erweitert",
-	"compressionModeAuto": "Auto"
+	"compressionModeAuto": "Auto",
+	"applyPrevPointProfile": "Vorheriges Profil",
+	"hintApplyPrevPointProfile": "Übernehme das Routing-Profil (Engine und Einstellungen) vom vorherigen Wegpunkt. Nützlich, wenn aufeinanderfolgende Segmente dasselbe Profil verwenden sollen.",
+	"applyPrevPointProfileBtn": "Übernehmen"
 }

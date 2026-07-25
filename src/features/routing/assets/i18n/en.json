@@ -22,5 +22,8 @@
 	"hintCompressionMode": "Standard — fastest routing with elevation from BRouter, but may fail on very long routes.\n\nExtended — handles long routes by using the app’s own elevation data.\n\nAuto — tries standard first, falls back to extended if it fails.",
 	"compressionModeOff": "Standard",
 	"compressionModeOn": "Extended",
-	"compressionModeAuto": "Auto"
+	"compressionModeAuto": "Auto",
+	"applyPrevPointProfile": "Previous profile",
+	"hintApplyPrevPointProfile": "Copy the routing profile (engine and settings) from the previous waypoint to this one. Useful when consecutive segments should use the same profile.",
+	"applyPrevPointProfileBtn": "Apply"
 }

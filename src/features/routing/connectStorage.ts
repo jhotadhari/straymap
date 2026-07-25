@@ -16,6 +16,8 @@ import {
 	processRouting,
 	setInitialized,
 	setIsRoutingAction,
+	setLastProfile,
+	setLastProfiles,
 	setRoutingLineId,
 	setSegment,
 } from './slice';
@@ -47,6 +49,9 @@ export const initializeFromStorage = (store: AppStore) => {
 				}
 				if (newSettings?.routingLineId) {
 					store.dispatch(setRoutingLineId(newSettings.routingLineId));
+				}
+				if (newSettings?.lastProfiles) {
+					store.dispatch(setLastProfiles(newSettings.lastProfiles));
 				}
 			}
 			store.dispatch(setInitialized(true));
@@ -86,7 +91,7 @@ export const saveToStorage = (routingState: RoutingState, actionType: string) =>
  * and calls the function to save them to defaultPreferences.
  */
 startAppListening({
-	matcher: isAnyOf(setIsRoutingAction, setRoutingLineId),
+	matcher: isAnyOf(setIsRoutingAction, setRoutingLineId, setLastProfile, setLastProfiles),
 	effect: async (action, listenerApi) => {
 		try {
 			await saveToStorage(listenerApi.getState().routing, action.type);

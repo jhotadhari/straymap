@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { BrouterOptions, RoutingProfile, StraightLineOptions } from './types';
+import { BrouterOptions, LastProfiles, RoutingProfile, StraightLineOptions } from './types';
 
 export const DEFAULT_OPTIONS_BROUTER: BrouterOptions = {
 	fast: true,
@@ -15,4 +15,15 @@ export const DEFAULT_OPTIONS_STRAIGHT_LINE: StraightLineOptions = {
 export const DEFAULT_PROFILE: RoutingProfile = {
 	provider: 'brouter',
 	options: DEFAULT_OPTIONS_BROUTER,
+};
+
+export const DEFAULT_LAST_PROFILES: LastProfiles = {
+	provider: 'brouter',
+	profiles: {
+		brouter: { provider: 'brouter', options: DEFAULT_OPTIONS_BROUTER },
+		straightLine: {
+			provider: 'straightLine',
+			options: DEFAULT_OPTIONS_STRAIGHT_LINE,
+		},
+	},
 };
