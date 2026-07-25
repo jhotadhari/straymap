@@ -1,9 +1,9 @@
 /**
  * External dependencies
  */
-import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useContext, useEffect, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { LayerPath, ReindexScope, SharedLayer } from 'react-native-mapsforge-vtm';
+import { LayerPath, ReindexScope, SharedLayer, useViewportBbox } from 'react-native-mapsforge-vtm';
 
 /**
  * Internal dependencies
@@ -15,19 +15,8 @@ import { selectSelected } from '../selectors';
 import { selectMapUpdateInterval } from '../../general/selectors';
 import { queryLineGeomsBatch } from '../db/queryFns';
 import useSimplificationTolerance from '../hooks/useSimplificationTolerance';
-import { computeViewportBbox, ViewportBbox, snapBboxToTiles } from '../../../compose/mercatorMath';
 
 const BASE_STROKE_WIDTH = 5;
-
-const bboxKey = (bbox: ViewportBbox | null): string =>
-	bbox ? `${bbox[0]},${bbox[1]},${bbox[2]},${bbox[3]}` : 'null';
-
-/**
- * Tile zoom for bbox snapping — capped at 8 (~150 km tiles) so pans
- * smaller than that don't change the query key, but the DB still
- * filters out lines on other continents.
- */
-const snapTileZoom = (mapZoom: number): number => Math.min(8, Math.max(0, Math.floor(mapZoom - 4)));
 
 const LinesMapView = () => {
 	const selectedIds = useAppSelector(selectSelected);
@@ -38,41 +27,7 @@ const LinesMapView = () => {
 	// with very infrequent key changes (only on ~150 km+ pans).
 	const { currentMapEventRef } = useContext(MapContext);
 	const mapUpdateInterval = useAppSelector(selectMapUpdateInterval);
-	const [queryBbox, setQueryBbox] = useState<ViewportBbox | null>(null);
-
-	const lastBboxKeyRef = useRef<string | null>(null);
-	useEffect(() => {
-		const tick = () => {
-			const evt = currentMapEventRef?.current;
-			if (
-				!evt?.center ||
-				evt.center.length < 2 ||
-				evt.zoomLevel == null ||
-				!evt.viewportWidth ||
-				!evt.viewportHeight
-			) {
-				return;
-			}
-			let bbox = computeViewportBbox(
-				evt.center as [number, number],
-				evt.zoomLevel!,
-				evt.viewportWidth!,
-				evt.viewportHeight!,
-				evt.bearing ?? 0,
-				evt.tilt ?? 0
-			);
-			if (bbox) {
-				bbox = snapBboxToTiles(bbox, snapTileZoom(evt.zoomLevel!));
-			}
-			const key = bboxKey(bbox);
-			if (key !== lastBboxKeyRef.current) {
-				lastBboxKeyRef.current = key;
-				setQueryBbox(bbox);
-			}
-		};
-		const interval = setInterval(tick, mapUpdateInterval);
-		return () => clearInterval(interval);
-	}, [currentMapEventRef, mapUpdateInterval]);
+	const queryBbox = useViewportBbox(currentMapEventRef, mapUpdateInterval);
 
 	// Batch query with coarse bbox in the key.  DB filters lines outside
 	// the snapped bbox before Simplify(); key only changes on large pans.

@@ -10,7 +10,6 @@ import { useMap } from 'react-native-mapsforge-vtm';
  * Internal dependencies
  */
 import { formatHeightDepth } from '../../../../lib/formatting';
-import { getRetryDelay, logError } from '../../../../lib/utils';
 import { selectUnitPrefs } from '../../../general/selectors';
 import { useAppSelector } from '../../../../store/hooks';
 import { DashboardWidgetProps } from '../../types';
@@ -42,7 +41,7 @@ const Display: FC<DashboardWidgetProps<Options>> = ({ item, style = {}, onPress 
 
 	const hgtDirPathStore = useAppSelector(selectHgtDirPath);
 
-	const { getAltitudeAtPosition, hasDataAtPosition } = useMap(mapViewNativeNodeHandle);
+	const { getAltitudeAtPositionRetry } = useMap(mapViewNativeNodeHandle);
 
 	const [altitudeC, setAltitudeC] = useState<number | undefined>(undefined);
 	const [altitudeP, setAltitudeP] = useState<number | undefined>(undefined);
@@ -101,67 +100,28 @@ const Display: FC<DashboardWidgetProps<Options>> = ({ item, style = {}, onPress 
 	});
 
 	// Query elevation once the map has been stationary for 100 ms.
-	// Retries on cache-miss / transient errors with exponential backoff
-	// (capped at 2 s).  The cleanup function cancels the retry chain
-	// automatically when movement resumes (settledCenter → null) or the
-	// component unmounts.
+	// The library's getAltitudeAtPositionRetry handles cache-miss with
+	// exponential backoff internally (hasData check + up to 10 retries).
+	// Cleanup cancels via the `cancelled` flag when movement resumes.
 	useEffect(() => {
 		if (!settledCenter || !hgtDirPathStore) return;
 
 		const [lng, lat] = settledCenter;
 		let cancelled = false;
-		let retryTimer: ReturnType<typeof setTimeout> | null = null;
 
-		// Check whether an HGT file exists at all before entering the
-		// retry loop — no point waiting for a tile that isn't there.
-		hasDataAtPosition(lng, lat).then((hasData) => {
-			if (cancelled || !hasData) {
-				return;
+		getAltitudeAtPositionRetry(lng, lat).then((result) => {
+			if (!cancelled && result !== null) {
+				setAltitudeP(result);
 			}
-
-			const tryQuery = (attempt: number) => {
-				if (cancelled) return;
-
-				getAltitudeAtPosition(lng, lat)
-					.then((result) => {
-						if (cancelled) return;
-						if (null !== result) {
-							setAltitudeP(result);
-						} else {
-							// Cache miss (ElevationReader started a
-							// background tile load) or genuine void area.
-							// Retry with backoff — most tiles load within
-							// a few hundred ms.
-							retryTimer = setTimeout(
-								() => tryQuery(attempt + 1),
-								getRetryDelay(attempt)
-							);
-						}
-					})
-					.catch((err) => {
-						if (cancelled) return;
-						logError('centerAltitude.getAltitudeAtPosition', err);
-						// Transient error (e.g. ElevationReader not yet
-						// configured on the native side) — retry.
-						retryTimer = setTimeout(
-							() => tryQuery(attempt + 1),
-							getRetryDelay(attempt)
-						);
-					});
-			};
-
-			tryQuery(0);
 		});
 
 		return () => {
 			cancelled = true;
-			if (retryTimer !== null) clearTimeout(retryTimer);
 		};
 	}, [
 		settledCenter,
 		hgtDirPathStore,
-		getAltitudeAtPosition,
-		hasDataAtPosition,
+		getAltitudeAtPositionRetry,
 	]);
 
 	const altitude = undefined !== altitudeC ? altitudeC : altitudeP;

@@ -1,14 +1,14 @@
 /**
  * External dependencies
  */
-import React, { FC, Fragment, useEffect, useMemo } from 'react';
+import React, { FC, Fragment, useContext, useEffect, useMemo } from 'react';
 import {
 	GeometryStyle,
 	Marker,
 	LayerPath,
+	MapHandleContext,
 	ReindexScope,
 	SharedLayer,
-	useMap,
 } from 'react-native-mapsforge-vtm';
 import {
 	LayerPathColorRamp,
@@ -238,24 +238,17 @@ const RoutingMapView = () => {
 			'points',
 		]) || {};
 
-	const { getAltitudeAtPosition, hasDataAtPosition, isTileCached, setCacheCapacity } = useMap();
-
+	// Wire the nativeNodeHandle to altitudeService so thunks and
+	// other non-React code can query elevation via createMapHandle.
+	const { nativeNodeHandle } = useContext(MapHandleContext);
 	useEffect(() => {
-		altitudeService.wire({
-			getAltitudeAtPosition,
-			hasDataAtPosition,
-			setCacheCapacity,
-			isTileCached,
-		});
+		if (nativeNodeHandle) {
+			altitudeService.wire(nativeNodeHandle);
+		}
 		return () => {
 			altitudeService.unwire();
 		};
-	}, [
-		getAltitudeAtPosition,
-		hasDataAtPosition,
-		isTileCached,
-		setCacheCapacity,
-	]);
+	}, [nativeNodeHandle]);
 
 	return (
 		<Fragment>

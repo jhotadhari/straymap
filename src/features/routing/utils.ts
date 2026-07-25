@@ -35,31 +35,28 @@ export const aggregateSegmentsToCoords = (segments: RoutingSegment[]) =>
 /**
  * Build an {@link ElevationAPI} from the {@link altitudeService} singleton.
  *
- * Extracted from {@link getStraightLineCoords} so both the straight-line
- * and the brouter-compressed code paths can reuse it.
+ * Delegates to the library's {@link createMapHandle} via the singleton
+ * getters.  The adapter exists because {@link enrichCoordinatesWithElevation}
+ * expects all four bridge functions at once — the singleton getters
+ * return individual nullable references.
  */
-const createElevationAPI = (): ElevationAPI => ({
-	getAltitudeAtPosition: async (lng, lat) => {
-		const fn = altitudeService.getRawAltitudeFn();
-		if (!fn) throw new Error('Altitude lookup not wired');
-		return fn(lng, lat);
-	},
-	hasDataAtPosition: async (lng, lat) => {
-		const fn = altitudeService.getRawHasDataFn();
-		if (!fn) return false;
-		return fn(lng, lat);
-	},
-	setCacheCapacity: async (capacity) => {
-		const fn = altitudeService.getSetCacheCapacityFn();
-		if (!fn) throw new Error('setCacheCapacity not wired');
-		await fn(capacity);
-	},
-	isTileCached: async (lng, lat) => {
-		const fn = altitudeService.getIsTileCachedFn();
-		if (!fn) return false;
-		return fn(lng, lat);
-	},
-});
+const createElevationAPI = (): ElevationAPI => {
+	const getAlt = altitudeService.getRawAltitudeFn();
+	const hasData = altitudeService.getRawHasDataFn();
+	const setCap = altitudeService.getSetCacheCapacityFn();
+	const isCached = altitudeService.getIsTileCachedFn();
+
+	if (!getAlt || !hasData) {
+		throw new Error('Altitude lookup not wired — RoutingMapView may not have mounted yet.');
+	}
+
+	return {
+		getAltitudeAtPosition: getAlt,
+		hasDataAtPosition: hasData,
+		setCacheCapacity: setCap ?? undefined,
+		isTileCached: isCached ?? undefined,
+	};
+};
 
 /**
  * Fetch coordinates from BRouter, with optional compression fallback.
