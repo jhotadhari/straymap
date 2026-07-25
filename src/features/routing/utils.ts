@@ -7,7 +7,6 @@ import { getRoute } from 'react-native-brouter/geojson';
  * Internal dependencies
  */
 import { enrichCoordinatesWithElevation } from 'react-native-mapsforge-vtm';
-import type { ElevationAPI } from 'react-native-mapsforge-vtm';
 import {
 	RoutingSegment,
 	BrouterOptions,
@@ -31,32 +30,6 @@ export const aggregateSegmentsToCoords = (segments: RoutingSegment[]) =>
 		}
 		return acc;
 	}, [] as number[][]);
-
-/**
- * Build an {@link ElevationAPI} from the {@link altitudeService} singleton.
- *
- * Delegates to the library's {@link createMapHandle} via the singleton
- * getters.  The adapter exists because {@link enrichCoordinatesWithElevation}
- * expects all four bridge functions at once — the singleton getters
- * return individual nullable references.
- */
-const createElevationAPI = (): ElevationAPI => {
-	const getAlt = altitudeService.getRawAltitudeFn();
-	const hasData = altitudeService.getRawHasDataFn();
-	const setCap = altitudeService.getSetCacheCapacityFn();
-	const isCached = altitudeService.getIsTileCachedFn();
-
-	if (!getAlt || !hasData) {
-		throw new Error('Altitude lookup not wired — RoutingMapView may not have mounted yet.');
-	}
-
-	return {
-		getAltitudeAtPosition: getAlt,
-		hasDataAtPosition: hasData,
-		setCacheCapacity: setCap ?? undefined,
-		isTileCached: isCached ?? undefined,
-	};
-};
 
 /**
  * Fetch coordinates from BRouter, with optional compression fallback.
@@ -133,7 +106,7 @@ const getBrouterCoords = async (
 			) ?? [];
 
 		// Enrich with elevation from the app's DEM data.
-		await enrichCoordinatesWithElevation(coords, createElevationAPI());
+		await enrichCoordinatesWithElevation(coords, altitudeService.requireHandle());
 
 		return coords;
 	};
@@ -201,7 +174,7 @@ const getStraightLineCoords = async (
 	// tiles without HGT files are automatically skipped.  The LRU
 	// cache capacity is temporarily raised to the window size so the
 	// collect phase is always a guaranteed cache hit.
-	await enrichCoordinatesWithElevation(coords, createElevationAPI());
+	await enrichCoordinatesWithElevation(coords, altitudeService.requireHandle());
 
 	return coords;
 };

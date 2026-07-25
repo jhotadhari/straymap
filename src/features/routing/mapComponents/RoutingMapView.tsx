@@ -1,12 +1,11 @@
 /**
  * External dependencies
  */
-import React, { FC, Fragment, useContext, useEffect, useMemo } from 'react';
+import React, { FC, Fragment, useEffect, useMemo } from 'react';
 import {
 	GeometryStyle,
 	Marker,
 	LayerPath,
-	MapHandleContext,
 	ReindexScope,
 	SharedLayer,
 } from 'react-native-mapsforge-vtm';
@@ -28,7 +27,6 @@ import { getSegmentRecordId } from '../utils';
 import useRoute from '../hooks/useRoute';
 // import useSimplificationTolerance from '../../lines/hooks/useSimplificationTolerance';
 import { RoutingPoint } from '../types';
-import { altitudeService } from '../../../lib/AltitudeService';
 import { pointsCoordsAreOverlapping } from '../../../lib/utils';
 
 const SegmentLineLayer: FC<{
@@ -237,18 +235,6 @@ const RoutingMapView = () => {
 		useRoute([
 			'points',
 		]) || {};
-
-	// Wire the nativeNodeHandle to altitudeService so thunks and
-	// other non-React code can query elevation via createMapHandle.
-	const { nativeNodeHandle } = useContext(MapHandleContext);
-	useEffect(() => {
-		if (nativeNodeHandle) {
-			altitudeService.wire(nativeNodeHandle);
-		}
-		return () => {
-			altitudeService.unwire();
-		};
-	}, [nativeNodeHandle]);
 
 	return (
 		<Fragment>

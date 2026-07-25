@@ -54,6 +54,7 @@ import { featureRegistry } from '../features/FeatureRegistry';
 import LayerDebugDumpButton from './LayerDebugDumpButton';
 import MapCornerComponents from './MapCornerComponents';
 import { useGnssSetup } from '../features/trackRecording/hooks/useGnssSetup';
+import { altitudeService } from '../lib/AltitudeService';
 import { addBusyKey, removeBusyKey } from '../features/ui/slice';
 
 const zoomMin = 2;
@@ -97,6 +98,18 @@ const AppView = ({
 	const { width, height } = Dimensions.get('window');
 
 	const { mapViewNativeNodeHandle, moveEnabled, drawerControlsRef } = useContext(AppContext);
+
+	// Wire the map's nativeNodeHandle to altitudeService so thunks
+	// (routing, elevation enrichment) can query altitude without
+	// needing the React tree.
+	useEffect(() => {
+		if (mapViewNativeNodeHandle) {
+			altitudeService.wire(mapViewNativeNodeHandle);
+		}
+		return () => {
+			altitudeService.unwire();
+		};
+	}, [mapViewNativeNodeHandle]);
 
 	const { currentMapEventRef, centerPositionSvRef } = useContext(MapContext);
 
