@@ -51,15 +51,9 @@ import { selectItemKeys, selectControlHandleSide } from '../features/drawers/sel
 import { getDrawerWidthResponsive } from '../features/drawers/utils';
 import { useAppDispatch } from '../store/hooks';
 import { featureRegistry } from '../features/FeatureRegistry';
-import { writeGnssPosition } from '../features/trackRecording/slice';
 import LayerDebugDumpButton from './LayerDebugDumpButton';
 import MapCornerComponents from './MapCornerComponents';
-import {
-	selectIsRecording,
-	selectMinDistance,
-	selectMinTime,
-	selectMinPrecision,
-} from '../features/trackRecording/selectors';
+import { useGnssSetup } from '../features/trackRecording/hooks/useGnssSetup';
 import { addBusyKey, removeBusyKey } from '../features/ui/slice';
 
 const zoomMin = 2;
@@ -82,41 +76,7 @@ const AppView = ({
 	const showSplash = useShowInitialSplash();
 
 	const dispatch = useAppDispatch();
-	const isRecording = useAppSelector(selectIsRecording);
-	// Keep a ref synced so handleMapEvent's useCallback deps stay stable
-	// while still getting the latest value on every map event (~25/sec).
-	const isRecordingRef = useRef(isRecording);
-	isRecordingRef.current = isRecording;
-
-	// Derive the native gnssFilter prop from Redux track-recording settings.
-	const minDistance = useAppSelector(selectMinDistance);
-	const minTime = useAppSelector(selectMinTime);
-	const minPrecision = useAppSelector(selectMinPrecision);
-	const gnssFilter = useMemo(() => {
-		if (!isRecording) return undefined;
-		return {
-			minDistanceMeters: minDistance,
-			minTimeSec: minTime,
-			minAccuracyMeters: minPrecision,
-			provider: 'gps' as const,
-			altitudeSource: 'dem-preferred' as const,
-			demRetryMs: 500,
-		};
-	}, [
-		isRecording,
-		minDistance,
-		minTime,
-		minPrecision,
-	]);
-
-	// Callback from native onGnssPosition — dispatches the pre-filtered,
-	// altitude-resolved position for the track-recording listener to write.
-	const handleGnssPosition = useCallback(
-		(event: { nativeEvent: { lng: number; lat: number; altitude: number | null } }) => {
-			dispatch(writeGnssPosition(event.nativeEvent));
-		},
-		[dispatch]
-	);
+	const { gnssFilter, handleGnssPosition } = useGnssSetup();
 
 	const hardwareKeys = useAppSelector(selectHardwareKeys);
 
