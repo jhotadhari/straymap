@@ -85,6 +85,21 @@ export const trackRecordingSlice = createSlice({
 		setLastWrittenTime: (state, action: PayloadAction<number | undefined>) => {
 			state.lastWrittenTime = action.payload;
 		},
+		/**
+		 * Passthrough — no state change.  The connectStorage listener
+		 * watches this action to write the native-filtered GNSS position
+		 * (with altitude resolved) to the DB.
+		 */
+		writeGnssPosition: (
+			_state,
+			_action: PayloadAction<{
+				lng: number;
+				lat: number;
+				altitude: number | null;
+			}>
+		) => {
+			// Passthrough for listener middleware.
+		},
 		setRecordingStartTime: (state, action: PayloadAction<number | null>) => {
 			state.recordingStartTime = action.payload;
 		},
@@ -102,6 +117,7 @@ export const {
 	setLastWrittenPosition,
 	setLastWrittenTime,
 	setRecordingStartTime,
+	writeGnssPosition,
 } = trackRecordingSlice.actions;
 
 export default trackRecordingSlice.reducer;

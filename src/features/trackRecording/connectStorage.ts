@@ -22,8 +22,10 @@ import {
 	setLastWrittenPosition,
 	setLastWrittenTime,
 	setRecordingStartTime,
+	writeGnssPosition,
 } from './slice';
-import { setMapEvent } from '../gnss/slice';
+// GNSS positions now come from the native gnssFilter on MapContainer.
+// The listener below watches writeGnssPosition instead of setMapEvent.
 import { startAppListening } from '../../store/listenerMiddleware';
 import { selectInitialized } from './selectors';
 import { AppStore } from '../../store/store';
@@ -124,13 +126,14 @@ startAppListening({
 });
 
 /**
- * Listener 2: GNSS filtering pipeline.
- * Watches setMapEvent from the gnss slice and writes qualifying points to DB.
- * Updates lastWrittenPosition/lastWrittenTime BEFORE the async DB write to
- * prevent race conditions when concurrent events arrive.
+ * Listener 2: GNSS filter write-back.
+ * Watches writeGnssPosition (dispatched from the native onGnssPosition
+ * callback on MapContainer).  Filtering (distance, time, accuracy) and
+ * altitude resolution are handled natively — this listener only writes
+ * to the DB.
  */
 startAppListening({
-	actionCreator: setMapEvent,
+	actionCreator: writeGnssPosition,
 	effect: async (action, listenerApi) => {
 		const state = listenerApi.getState();
 		const trk = state.trackRecording;
@@ -139,10 +142,8 @@ startAppListening({
 			return;
 		}
 
-		const { center } = action.payload;
-		const { minDistance, minTime, lastWrittenPosition, lastWrittenTime, activeLineId } = trk;
-
-		if (!activeLineId || !center || center.length < 2) {
+		const { activeLineId } = trk;
+		if (!activeLineId) {
 			return;
 		}
 
@@ -150,32 +151,23 @@ startAppListening({
 			return;
 		}
 
-		const lng = center[0];
-		const lat = center[1];
-		const now = Date.now();
+		const { lng, lat, altitude } = action.payload;
 
-		// Guard: time
-		if (lastWrittenTime && now - lastWrittenTime < minTime * 1000) {
-			return;
-		}
-
-		// Guard: distance
-		if (lastWrittenPosition && minDistance > 0) {
-			const dist = haversineDistance(lastWrittenPosition, [lng, lat]);
-			if (dist < minDistance) {
-				return;
-			}
-		}
-
-		// Update state BEFORE the await so concurrent invocations see the
-		// updated position and time, preventing duplicate writes.
+		// Update state so other UI can track the last-written position.
 		listenerApi.dispatch(setLastWrittenPosition([lng, lat]));
-		listenerApi.dispatch(setLastWrittenTime(now));
+		listenerApi.dispatch(setLastWrittenTime(Date.now()));
 
-		// Write to DB (altitude intentionally omitted — MapEventResponse.center
-		// only carries [lng, lat]; elevation lookups use getAltitudeAtPosition).
 		try {
-			await appendPointToLine(activeLineId, [lng, lat]);
+			await appendPointToLine(
+				activeLineId,
+				altitude != null
+					? [
+							lng,
+							lat,
+							altitude,
+						]
+					: [lng, lat]
+			);
 		} catch (err) {
 			logError('trackRecording/appendPoint', err);
 		}

@@ -51,10 +51,15 @@ import { selectItemKeys, selectControlHandleSide } from '../features/drawers/sel
 import { getDrawerWidthResponsive } from '../features/drawers/utils';
 import { useAppDispatch } from '../store/hooks';
 import { featureRegistry } from '../features/FeatureRegistry';
-import { setMapEvent } from '../features/gnss/slice';
+import { writeGnssPosition } from '../features/trackRecording/slice';
 import LayerDebugDumpButton from './LayerDebugDumpButton';
 import MapCornerComponents from './MapCornerComponents';
-import { selectIsRecording } from '../features/trackRecording/selectors';
+import {
+	selectIsRecording,
+	selectMinDistance,
+	selectMinTime,
+	selectMinPrecision,
+} from '../features/trackRecording/selectors';
 import { addBusyKey, removeBusyKey } from '../features/ui/slice';
 
 const zoomMin = 2;
@@ -81,6 +86,37 @@ const AppView = ({
 	// while still getting the latest value on every map event (~25/sec).
 	const isRecordingRef = useRef(false);
 	isRecordingRef.current = useAppSelector(selectIsRecording);
+
+	// Derive the native gnssFilter prop from Redux track-recording settings.
+	const minDistance = useAppSelector(selectMinDistance);
+	const minTime = useAppSelector(selectMinTime);
+	const minPrecision = useAppSelector(selectMinPrecision);
+	const gnssFilter = useMemo(() => {
+		if (!isRecordingRef.current) return undefined;
+		return {
+			minDistanceMeters: minDistance,
+			minTimeSec: minTime,
+			minAccuracyMeters: minPrecision,
+			provider: 'gps' as const,
+			altitudeSource: 'dem-preferred' as const,
+			demRetryMs: 500,
+		};
+	}, [
+		isRecordingRef.current,
+		minDistance,
+		minTime,
+		minPrecision,
+	]);
+
+	// Callback from native onGnssPosition — dispatches the pre-filtered,
+	// altitude-resolved position for the track-recording listener to write.
+	const handleGnssPosition = useCallback(
+		(event: { nativeEvent: { lng: number; lat: number; altitude: number | null } }) => {
+			dispatch(writeGnssPosition(event.nativeEvent));
+		},
+		[dispatch]
+	);
+
 	const hardwareKeys = useAppSelector(selectHardwareKeys);
 
 	const dashboardItems = useAppSelector((state) => selectItems(state, { position: 'bottom' }));
@@ -226,15 +262,8 @@ const AppView = ({
 				firstMapUpdateRef.current = true;
 				dispatch(removeBusyKey('map:init'));
 			}
-			// Dispatch for listener middleware (track recording watches this).
-			// Only dispatch when recording — avoids ~25/sec unnecessary actions.
-			if (isRecordingRef.current) {
-				dispatch(
-					setMapEvent({
-						center: event.nativeEvent.center,
-					})
-				);
-			}
+			// Track recording positions now flow through the native gnssFilter
+			// on MapContainer — onGnssPosition dispatches writeGnssPosition.
 		},
 		[
 			currentMapEventRef,
