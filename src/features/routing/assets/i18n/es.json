@@ -17,5 +17,10 @@
 	"interval": "Intervalo",
 	"hintInterval": "Distancia entre puntos de subdivisión a lo largo de la línea recta. Valores más pequeños producen líneas más suaves, pero más puntos de datos.",
 	"brouterUnavailableTitle": "BRouter no disponible",
-	"brouterUnavailableMessage": "La aplicación BRouter Offline Navigation no está instalada en este dispositivo. BRouter es el motor de enrutamiento sin conexión para la planificación de rutas. Instálala desde F-Droid, Google Play o GitHub para habilitar el cálculo de rutas."
+	"brouterUnavailableMessage": "La aplicación BRouter Offline Navigation no está instalada en este dispositivo. BRouter es el motor de enrutamiento sin conexión para la planificación de rutas. Instálala desde F-Droid, Google Play o GitHub para habilitar el cálculo de rutas.",
+	"compressionMode": "Procesamiento",
+	"hintCompressionMode": "Estándar — enrutamiento más rápido con elevación de BRouter, pero puede fallar en rutas muy largas.\n\nExtendido — maneja rutas largas usando los datos de elevación propios de la app.\n\nAuto — intenta primero el estándar, cambia a extendido si falla.",
+	"compressionModeOff": "Estándar",
+	"compressionModeOn": "Extendido",
+	"compressionModeAuto": "Auto"
 }

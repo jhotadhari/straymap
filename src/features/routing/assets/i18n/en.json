@@ -17,5 +17,10 @@
 	"interval": "Interval",
 	"hintInterval": "Distance between subdivision points along the straight line. Smaller values produce smoother lines but more data points.",
 	"brouterUnavailableTitle": "BRouter not available",
-	"brouterUnavailableMessage": "The BRouter Offline Navigation app is not installed on this device. BRouter is the offline routing engine that powers route planning. Install it from F-Droid, Google Play, or GitHub to enable route calculation."
+	"brouterUnavailableMessage": "The BRouter Offline Navigation app is not installed on this device. BRouter is the offline routing engine that powers route planning. Install it from F-Droid, Google Play, or GitHub to enable route calculation.",
+	"compressionMode": "Route handling",
+	"hintCompressionMode": "Standard — fastest routing with elevation from BRouter, but may fail on very long routes.\n\nExtended — handles long routes by using the app’s own elevation data.\n\nAuto — tries standard first, falls back to extended if it fails.",
+	"compressionModeOff": "Standard",
+	"compressionModeOn": "Extended",
+	"compressionModeAuto": "Auto"
 }

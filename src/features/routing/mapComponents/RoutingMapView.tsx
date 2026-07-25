@@ -81,7 +81,8 @@ const SegmentLine: FC<{
 	simplify?: number;
 	segmentRecordId: string;
 	placeholderCoordinates: number[][];
-}> = ({ simplify, segmentRecordId, placeholderCoordinates }) => {
+	provider?: string;
+}> = ({ simplify, segmentRecordId, placeholderCoordinates, provider }) => {
 	const segment = useAppSelector((state) => selectSegmentByRecordId(state, segmentRecordId));
 
 	const simplifiedCoords = useMemo(() => {
@@ -92,10 +93,19 @@ const SegmentLine: FC<{
 		) {
 			return undefined;
 		}
+		// Straight-line segments are already at the user-requested interval —
+		// skip simplification so the full per-coordinate elevation is preserved.
+		if (provider === 'straightLine') {
+			return segment.positions;
+		}
 		const line = lineString(segment.positions);
 		const result = turfSimplify(line, { tolerance: simplify, highQuality: false });
 		return result.geometry.coordinates;
-	}, [segment?.positions, simplify]);
+	}, [
+		segment?.positions,
+		simplify,
+		provider,
+	]);
 
 	let coords: number[][] | undefined = undefined;
 	let style: GeometryStyle | undefined = undefined;
@@ -192,6 +202,7 @@ const Segments: FC<{
 							segmentRecordId={segmentRecordId}
 							placeholderCoordinates={placeholderCoordinates}
 							simplify={simplify}
+							provider={fromPoint.profile.provider}
 						/>
 					);
 				})}

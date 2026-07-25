@@ -8,7 +8,13 @@ import { getRoute } from 'react-native-brouter/geojson';
  */
 import { enrichCoordinatesWithElevation } from 'react-native-mapsforge-vtm';
 import type { ElevationAPI } from 'react-native-mapsforge-vtm';
-import { RoutingSegment, BrouterOptions, StraightLineOptions, RoutingProfile } from './types';
+import {
+	RoutingSegment,
+	BrouterOptions,
+	StraightLineOptions,
+	RoutingProfile,
+	BrouterCompressionMode,
+} from './types';
 import { altitudeService } from '../../lib/AltitudeService';
 import { haversineDistance } from '../../lib/formatting';
 
@@ -26,27 +32,131 @@ export const aggregateSegmentsToCoords = (segments: RoutingSegment[]) =>
 		return acc;
 	}, [] as number[][]);
 
-const getBrouterCoords = (waypoints: number[][], opts: BrouterOptions): Promise<number[][]> =>
-	new Promise<number[][]>((resolve, reject) => {
-		getRoute({
+/**
+ * Build an {@link ElevationAPI} from the {@link altitudeService} singleton.
+ *
+ * Extracted from {@link getStraightLineCoords} so both the straight-line
+ * and the brouter-compressed code paths can reuse it.
+ */
+const createElevationAPI = (): ElevationAPI => ({
+	getAltitudeAtPosition: async (lng, lat) => {
+		const fn = altitudeService.getRawAltitudeFn();
+		if (!fn) throw new Error('Altitude lookup not wired');
+		return fn(lng, lat);
+	},
+	hasDataAtPosition: async (lng, lat) => {
+		const fn = altitudeService.getRawHasDataFn();
+		if (!fn) return false;
+		return fn(lng, lat);
+	},
+	setCacheCapacity: async (capacity) => {
+		const fn = altitudeService.getSetCacheCapacityFn();
+		if (!fn) throw new Error('setCacheCapacity not wired');
+		await fn(capacity);
+	},
+	isTileCached: async (lng, lat) => {
+		const fn = altitudeService.getIsTileCachedFn();
+		if (!fn) return false;
+		return fn(lng, lat);
+	},
+});
+
+/**
+ * Fetch coordinates from BRouter, with optional compression fallback.
+ *
+ * Three modes, controlled by {@link BrouterOptions.compressionMode}:
+ *
+ * - **`off`** (default): JSON format, no compression, elevation from BRouter.
+ *   Current behaviour — unchanged.
+ * - **`on`**: GPX+compression through AIDL (avoids Binder buffer overflow on
+ *   long routes), then elevation enriched from the app's own DEM data via
+ *   {@link enrichCoordinatesWithElevation}.
+ * - **`auto`**: Try `off` first.  On any routing error, silently retry with
+ *   `on`.  Gives BRouter-native elevation for short/medium routes with
+ *   transparent fallback to compressed+app‑DEM for long routes.
+ */
+const getBrouterCoords = async (
+	waypoints: number[][],
+	opts: BrouterOptions
+): Promise<number[][]> => {
+	const mode: BrouterCompressionMode = opts.compressionMode ?? 'off';
+
+	/**
+	 * Fetch via the uncompressed JSON path (mode `off`).
+	 */
+	const fetchUncompressed = (): Promise<number[][]> =>
+		new Promise<number[][]>((resolve, reject) => {
+			getRoute({
+				waypoints,
+				vehicle: opts.v,
+				fast: opts.fast,
+				format: 'json',
+			})
+				.then((result) => {
+					if (!result.parsed) {
+						reject(new Error('Failed to parse BRouter JSON track'));
+						return;
+					}
+					const coords =
+						result.parsed?.track.features.flatMap((f) => f.geometry.coordinates) ?? [];
+					resolve(coords);
+				})
+				.catch((e: any) => {
+					reject(new Error(e?.message ?? 'Some error'));
+				});
+		});
+
+	/**
+	 * Fetch via the compressed GPX→JSON path (mode `on`).
+	 *
+	 * The native module forces GPX+compression through AIDL, decompresses,
+	 * converts GPX to JSON, and returns it.  Elevation is not present in
+	 * the converted output — we enrich it from the app's own DEM data.
+	 */
+	const fetchCompressed = async (): Promise<number[][]> => {
+		const result = await getRoute({
 			waypoints,
 			vehicle: opts.v,
 			fast: opts.fast,
 			format: 'json',
-		})
-			.then((result) => {
-				if (!result.parsed) {
-					reject('Failed to parse BRouter JSON track');
-					return;
-				}
-				const coords =
-					result.parsed?.track.features.flatMap((f) => f.geometry.coordinates) ?? [];
-				resolve(coords);
-			})
-			.catch((e: any) => {
-				reject(e?.message ?? 'Some error');
-			});
-	});
+			compressGpxToJson: true,
+		});
+
+		if (!result.parsed) {
+			throw new Error('Failed to parse BRouter JSON track (compressed)');
+		}
+
+		const coords: number[][] =
+			result.parsed?.track.features.flatMap((f) =>
+				f.geometry.coordinates.map((c) => [
+					c[0] as number,
+					c[1] as number,
+					0,
+				])
+			) ?? [];
+
+		// Enrich with elevation from the app's DEM data.
+		await enrichCoordinatesWithElevation(coords, createElevationAPI());
+
+		return coords;
+	};
+
+	switch (mode) {
+		case 'on':
+			return fetchCompressed();
+
+		case 'auto':
+			try {
+				return await fetchUncompressed();
+			} catch {
+				return fetchCompressed();
+			}
+
+		case 'off':
+		default:
+			return fetchUncompressed();
+	}
+};
 
 const MAX_STRAIGHT_LINE_SEGMENTS = 5000;
 
@@ -94,30 +204,7 @@ const getStraightLineCoords = async (
 	// tiles without HGT files are automatically skipped.  The LRU
 	// cache capacity is temporarily raised to the window size so the
 	// collect phase is always a guaranteed cache hit.
-	const elevationAPI: ElevationAPI = {
-		getAltitudeAtPosition: async (lng, lat) => {
-			const fn = altitudeService.getRawAltitudeFn();
-			if (!fn) throw new Error('Altitude lookup not wired');
-			return fn(lng, lat);
-		},
-		hasDataAtPosition: async (lng, lat) => {
-			const fn = altitudeService.getRawHasDataFn();
-			if (!fn) return false;
-			return fn(lng, lat);
-		},
-		setCacheCapacity: async (capacity) => {
-			const fn = altitudeService.getSetCacheCapacityFn();
-			if (!fn) throw new Error('setCacheCapacity not wired');
-			await fn(capacity);
-		},
-		isTileCached: async (lng, lat) => {
-			const fn = altitudeService.getIsTileCachedFn();
-			if (!fn) return false;
-			return fn(lng, lat);
-		},
-	};
-
-	await enrichCoordinatesWithElevation(coords, elevationAPI);
+	await enrichCoordinatesWithElevation(coords, createElevationAPI());
 
 	return coords;
 };

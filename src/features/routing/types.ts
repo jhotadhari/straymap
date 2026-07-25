@@ -6,9 +6,12 @@ import { Point } from 'geojson';
 import { Position } from 'react-native-mapsforge-vtm';
 import { LineStats } from '../lines/types';
 
+export type BrouterCompressionMode = 'off' | 'on' | 'auto';
+
 export type BrouterOptions = {
 	fast: boolean;
 	v: VehicleMode;
+	compressionMode?: BrouterCompressionMode;
 };
 
 export type StraightLineOptions = {

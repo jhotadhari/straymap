@@ -15,7 +15,7 @@ import ListItemMenuControl from '../../../components/generic/wrapper/ListItemMen
 import ModalWrapper from '../../../components/generic/wrapper/ModalWrapper';
 import NumericRowControl from '../../../components/generic/controls/NumericRowControl';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
-import { RoutingPoint, RoutingProfile, BrouterOptions } from '../types';
+import { RoutingPoint, RoutingProfile, BrouterOptions, BrouterCompressionMode } from '../types';
 import { updateRoutingPoint } from '../db/actionsRoutingPoint';
 import { deleteSegmentByKeyVal, processRouting } from '../slice';
 import { useMutation, UseMutationOptions } from '@tanstack/react-query';
@@ -49,6 +49,21 @@ const vehicleOptions = [
 	{
 		key: 'foot',
 		label: 'foot',
+	},
+];
+
+const compressionModeOptions = [
+	{
+		key: 'off',
+		label: 'routing.compressionModeOff',
+	},
+	{
+		key: 'on',
+		label: 'routing.compressionModeOn',
+	},
+	{
+		key: 'auto',
+		label: 'routing.compressionModeAuto',
 	},
 ];
 
@@ -146,6 +161,58 @@ const VehicleRowControl = ({
 				value={get(selectedOpt, 'key')}
 				setValue={handleSetVehicle}
 				anchorLabel={get(selectedOpt, 'label', '')}
+			/>
+		</InfoLabelRow>
+	);
+};
+
+const CompressionModeRowControl = ({
+	editPoint,
+	setEditPoint,
+}: {
+	editPoint: RoutingPoint;
+	setEditPoint: Dispatch<SetStateAction<RoutingPoint | undefined>>;
+}) => {
+	const { t } = useTranslation();
+
+	const selectedOpt =
+		editPoint.profile.provider === 'brouter'
+			? compressionModeOptions.find(
+					(opt) =>
+						opt.key ===
+						((editPoint.profile.options as BrouterOptions).compressionMode ?? 'off')
+				)
+			: undefined;
+
+	const handleSetCompressionMode = useCallback(
+		(newValue: string) =>
+			setEditPoint({
+				...editPoint,
+				profile: {
+					provider: 'brouter' as const,
+					options: {
+						...(editPoint.profile.options as BrouterOptions),
+						compressionMode: newValue as BrouterCompressionMode,
+					},
+				} as RoutingProfile,
+			}),
+		[editPoint, setEditPoint]
+	);
+
+	if (editPoint.profile.provider !== 'brouter') {
+		return undefined;
+	}
+
+	return (
+		<InfoLabelRow
+			label={t('routing.compressionMode')}
+			Info={t('routing.hintCompressionMode')}
+		>
+			<ListItemMenuControl
+				options={compressionModeOptions}
+				value={get(selectedOpt, 'key')}
+				setValue={handleSetCompressionMode}
+				anchorLabel={t(get(selectedOpt, 'label', ''))}
 			/>
 		</InfoLabelRow>
 	);
@@ -298,6 +365,11 @@ const EditPointModal: FC<{
 					Info={t('routing.hintFast')}
 				/>
 			)}
+
+			<CompressionModeRowControl
+				editPoint={editPoint}
+				setEditPoint={setEditPoint}
+			/>
 
 			<IntervalRowControl
 				editPoint={editPoint}

@@ -6,6 +6,7 @@ import { BrouterOptions, RoutingProfile, StraightLineOptions } from './types';
 export const DEFAULT_OPTIONS_BROUTER: BrouterOptions = {
 	fast: true,
 	v: 'motorcar',
+	compressionMode: 'off',
 };
 export const DEFAULT_OPTIONS_STRAIGHT_LINE: StraightLineOptions = {
 	interval: 1000,
