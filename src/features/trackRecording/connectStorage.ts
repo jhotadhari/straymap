@@ -24,8 +24,8 @@ import {
 	setRecordingStartTime,
 	writeGnssPosition,
 } from './slice';
-// GNSS positions now come from the native gnssFilter on MapContainer.
-// The listener below watches writeGnssPosition instead of setMapEvent.
+// GNSS positions come from the native gnssFilter on MapContainer.
+// The listener below watches writeGnssPosition to append points to the active line.
 import { startAppListening } from '../../store/listenerMiddleware';
 import { selectInitialized } from './selectors';
 import { AppStore } from '../../store/store';

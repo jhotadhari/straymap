@@ -9,10 +9,6 @@ import { createSlice } from '@reduxjs/toolkit';
  */
 import { SliceSettingsBase } from '../../types';
 
-export interface MapEventPayload {
-	center?: number[];
-}
-
 export interface GnssSettings {
 	isActive: boolean;
 }
@@ -38,13 +34,9 @@ export const gnssSlice = createSlice({
 		setIsActive: (state, action: PayloadAction<boolean>) => {
 			state.isActive = action.payload;
 		},
-		setMapEvent: (_state, _action: PayloadAction<MapEventPayload>) => {
-			// Passthrough — no state change. The track recording listener
-			// middleware watches this action to apply GNSS filtering.
-		},
 	},
 });
 
-export const { setInitialized, setIsActive, setMapEvent } = gnssSlice.actions;
+export const { setInitialized, setIsActive } = gnssSlice.actions;
 
 export default gnssSlice.reducer;
