@@ -11,7 +11,7 @@ import { sprintf } from 'sprintf-js';
  */
 import { FooterContext } from '../Context';
 import { lineAddTag } from '../../../db/actionsLine';
-import AddTagsModal from '../../AddTagsModal';
+import AddTagModal from '../../AddTagModal';
 import { invalidateTagsTable, invalidateLinesQueries } from '../../../db/queryFns';
 import { logError } from '../../../../../lib/utils';
 import { ErrorToastContext } from '../../../../../components/ErrorToast/Context';
@@ -52,7 +52,7 @@ const useAddTag = () => {
 
 	const modalNode = useMemo(
 		() => (
-			<AddTagsModal
+			<AddTagModal
 				visible={modalVisible}
 				onDismiss={() => setModalVisible(false)}
 				onApply={handleApply}
@@ -68,9 +68,9 @@ const useAddTag = () => {
 
 	return useMemo(
 		() => ({
-			key: 'addTags',
+			key: 'addTag',
 			cb: () => setModalVisible(true),
-			label: 'lines.addTags',
+			label: 'lines.addTag',
 			leadingIcon: 'tag-plus-outline',
 			modalNode,
 			disabled,

@@ -12,16 +12,20 @@ import InfoLabelRow from '../infoWrapper/InfoLabelRow';
 
 const ToggleRowControl = ({
 	label,
+	labelNode,
 	value,
 	onToggle,
+	disabled = false,
 	Info,
 	style,
 	labelStyle,
 	innerStyle,
 }: {
 	label: string;
+	labelNode?: ReactNode;
 	value: boolean;
 	onToggle: () => void;
+	disabled?: boolean;
 	Info?: ReactNode;
 	style?: ViewProps['style'];
 	labelStyle?: TextProps['style'];
@@ -30,6 +34,7 @@ const ToggleRowControl = ({
 	return (
 		<InfoLabelRow
 			label={label}
+			labelNode={labelNode}
 			Info={Info}
 			style={style}
 			labelStyle={labelStyle}
@@ -38,6 +43,7 @@ const ToggleRowControl = ({
 			<Switch
 				value={value}
 				onValueChange={onToggle}
+				disabled={disabled}
 			/>
 		</InfoLabelRow>
 	);

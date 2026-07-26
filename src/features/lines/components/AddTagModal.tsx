@@ -22,7 +22,7 @@ import { logError } from '../../../lib/utils';
 import { ErrorToastContext } from '../../../components/ErrorToast/Context';
 import { Tag } from '../types';
 
-export interface AddTagsModalProps {
+export interface AddTagModalProps {
 	visible: boolean;
 	onDismiss: () => void;
 	onApply: (selectedTagId: number) => void;
@@ -30,7 +30,7 @@ export interface AddTagsModalProps {
 	excludeTagIds?: Set<number>;
 }
 
-const AddTagsModal: FC<AddTagsModalProps> = ({
+const AddTagModal: FC<AddTagModalProps> = ({
 	visible,
 	onDismiss,
 	onApply,
@@ -50,12 +50,8 @@ const AddTagsModal: FC<AddTagsModalProps> = ({
 
 	const refreshAvailableTags = useCallback(async () => {
 		const result = await queryAllTags();
-		setAllTags(
-			result.filter(
-				(tag) => !systemTagLabels.includes(tag.label ?? '') && !excludeTagIds?.has(tag.id)
-			)
-		);
-	}, [systemTagLabels, excludeTagIds]);
+		setAllTags(result.filter((tag) => !excludeTagIds?.has(tag.id)));
+	}, [excludeTagIds]);
 
 	const loadTags = useCallback(async () => {
 		setLoadingTags(true);
@@ -63,7 +59,7 @@ const AddTagsModal: FC<AddTagsModalProps> = ({
 		try {
 			await refreshAvailableTags();
 		} catch (err) {
-			logError('AddTagsModal.loadTags', err);
+			logError('AddTagModal.loadTags', err);
 			showError(sprintf(t('errorGeneric'), err instanceof Error ? err.message : String(err)));
 		} finally {
 			setLoadingTags(false);
@@ -115,7 +111,7 @@ const AddTagsModal: FC<AddTagsModalProps> = ({
 			<ModalWrapper
 				visible={visible}
 				onDismiss={handleDismiss}
-				headerLabel={t('lines.addTags')}
+				headerLabel={t('lines.addTag')}
 				innerStyle={styles.modalInner}
 			>
 				<RadioListItem
@@ -138,15 +134,19 @@ const AddTagsModal: FC<AddTagsModalProps> = ({
 				) : allTags.length === 0 ? (
 					<Text>{t('lines.tagsNoTags')}</Text>
 				) : (
-					allTags.map((tag) => (
-						<RadioListItem
-							key={tag.id}
-							opt={{ key: String(tag.id), label: tag.label ?? '' }}
-							onPress={() => handleSelectTag(tag.id)}
-							status={selectedTagId === tag.id ? 'checked' : 'unchecked'}
-							labelNode={<TagBadge tag={tag} />}
-						/>
-					))
+					allTags.map((tag) => {
+						const isSystemTag = systemTagLabels.includes(tag.label ?? '');
+						return (
+							<RadioListItem
+								key={tag.id}
+								opt={{ key: String(tag.id), label: tag.label ?? '' }}
+								onPress={() => handleSelectTag(tag.id)}
+								status={selectedTagId === tag.id ? 'checked' : 'unchecked'}
+								labelNode={<TagBadge tag={tag} />}
+								disabled={isSystemTag}
+							/>
+						);
+					})
 				)}
 			</ModalWrapper>
 			<CreateTagModal
@@ -163,4 +163,4 @@ const styles = StyleSheet.create({
 	createTagRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
 });
 
-export default AddTagsModal;
+export default AddTagModal;

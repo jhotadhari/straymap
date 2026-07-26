@@ -13,6 +13,7 @@ import { LABEL_WIDTH } from '../../../constants';
 
 const InfoLabelRow = ({
 	label,
+	labelNode,
 	children,
 	Info,
 	Below,
@@ -24,6 +25,7 @@ const InfoLabelRow = ({
 	onLabelPress,
 }: {
 	label?: string;
+	labelNode?: ReactNode;
 	children?: ReactNode;
 	Info?: ReactNode | string;
 	Below?: ReactNode;
@@ -67,6 +69,8 @@ const InfoLabelRow = ({
 		Info && setModalVisible(true);
 	}, [onLabelPress, Info]);
 
+	const labelContent = labelNode ?? <Text style={dynamicStyles.label}>{label}</Text>;
+
 	return (
 		<InfoWrapper
 			label={label}
@@ -84,10 +88,14 @@ const InfoLabelRow = ({
 						onPress={handleLabelPress}
 						style={dynamicStyles.button}
 					>
-						<Text style={[dynamicStyles.label, styles.underline]}>{label}</Text>
+						{labelNode ? (
+							labelNode
+						) : (
+							<Text style={[dynamicStyles.label, styles.underline]}>{label}</Text>
+						)}
 					</TouchableHighlight>
 				)}
-				{!Info && !onLabelPress && <Text style={dynamicStyles.label}>{label}</Text>}
+				{!Info && !onLabelPress && labelContent}
 				<View style={dynamicStyles.inner}>{children}</View>
 			</View>
 		</InfoWrapper>

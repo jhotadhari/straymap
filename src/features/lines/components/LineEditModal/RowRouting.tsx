@@ -24,6 +24,7 @@ import IconRouting from '../../../routing/drawerPanels/routing/IconComponent';
 import { AppContext } from '../../../../Context';
 import { MAP_ANIMATION_PADDING_PX } from '../../../../constants';
 import { bbox as turfBbox } from '@turf/turf';
+import { setUiItemKeys } from '../../../ui/slice';
 
 const renderIconRouting = ({ color }: { color: TextStyle['color'] }) => (
 	<IconRouting color={color} />
@@ -50,13 +51,16 @@ const RowRouting: FC = () => {
 	const handlePress = useCallback(() => {
 		if (lineTemp?.id && route?.id) {
 			onDismiss();
+			dispatch(setIsRouting(route.id));
+			selectLine(lineTemp.id, true);
+			activateRoutingDrawerItem();
+			// Close LinesTable.
+			dispatch(setUiItemKeys([]));
+			// flyToBounds
 			if (line?.envelope && mapViewNativeNodeHandle) {
 				const bbox = turfBbox(line.envelope);
 				flyToBounds(bbox, { paddingPx: MAP_ANIMATION_PADDING_PX });
 			}
-			dispatch(setIsRouting(route.id));
-			selectLine(lineTemp.id, true);
-			activateRoutingDrawerItem();
 		}
 	}, [
 		flyToBounds,

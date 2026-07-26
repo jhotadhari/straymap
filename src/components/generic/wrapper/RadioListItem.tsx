@@ -31,6 +31,7 @@ const RadioListItem = ({
 	descStyle,
 	status = 'unchecked',
 	radioAlign = 'right',
+	disabled = false,
 }: {
 	opt: OptionBase;
 	onPress: () => void;
@@ -41,6 +42,7 @@ const RadioListItem = ({
 	descStyle?: TextProps['style'];
 	status?: 'unchecked' | 'checked';
 	radioAlign?: 'left' | 'right';
+	disabled?: boolean;
 }) => {
 	const { width } = Dimensions.get('window');
 	const { t } = useTranslation();
@@ -88,8 +90,8 @@ const RadioListItem = ({
 	return (
 		<TouchableHighlight
 			key={opt.key}
-			onPress={onPress}
-			underlayColor={theme.colors.elevation.level3}
+			onPress={disabled ? undefined : onPress}
+			underlayColor={disabled ? 'transparent' : theme.colors.elevation.level3}
 			style={styleTouchable}
 		>
 			<View style={styleRow}>
@@ -100,8 +102,9 @@ const RadioListItem = ({
 				</View>
 				<RadioButton
 					value={opt.key}
-					onPress={onPress}
+					onPress={disabled ? undefined : onPress}
 					status={status}
+					disabled={disabled}
 				/>
 			</View>
 		</TouchableHighlight>
