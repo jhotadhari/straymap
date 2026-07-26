@@ -12,6 +12,11 @@ import { useAppSelector } from '../../../store/hooks';
 import { selectActiveLineId, selectIsRecording } from '../selectors';
 import { queryLineGeom } from '../../lines/db/queryFns';
 
+const paintRecordingLine = {
+	strokeColor: '#FF4444' as `#${string}`,
+	strokeWidth: 5,
+};
+
 const TrackRecordingMapView: FC = () => {
 	const activeLineId = useAppSelector(selectActiveLineId);
 	const isRecording = useAppSelector(selectIsRecording);
@@ -33,11 +38,7 @@ const TrackRecordingMapView: FC = () => {
 			{activeLineId && line?.geometry?.coordinates && isRecording && (
 				<LayerPath
 					coordinates={line.geometry.coordinates}
-					// eslint-disable-next-line react-native/no-inline-styles
-					style={{
-						strokeColor: '#FF4444',
-						strokeWidth: 5,
-					}}
+					paint={paintRecordingLine}
 				/>
 			)}
 		</ReindexScope>

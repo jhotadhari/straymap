@@ -18,6 +18,11 @@ import useSimplificationTolerance from '../hooks/useSimplificationTolerance';
 
 const BASE_STROKE_WIDTH = 5;
 
+const paintSelectedLine = {
+	strokeColor: '#ff2222' as `#${string}`,
+	strokeWidth: BASE_STROKE_WIDTH,
+};
+
 const LinesMapView = () => {
 	const selectedIds = useAppSelector(selectSelected);
 	const systemLineIds = useSystemLineIds();
@@ -92,10 +97,7 @@ const LinesMapView = () => {
 				<LayerPath
 					key={line.id}
 					coordinates={coords}
-					style={{
-						strokeColor: '#ff2222' as `#${string}`,
-						strokeWidth: BASE_STROKE_WIDTH,
-					}}
+					paint={paintSelectedLine}
 				/>
 			);
 		});

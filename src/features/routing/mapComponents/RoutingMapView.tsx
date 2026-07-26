@@ -3,7 +3,7 @@
  */
 import React, { FC, Fragment, useEffect, useMemo } from 'react';
 import {
-	GeometryStyle,
+	PathPaint,
 	Marker,
 	LayerPath,
 	ReindexScope,
@@ -70,7 +70,7 @@ const SegmentLineLayer: FC<{
 			coordinates={coordinates}
 			segmentValues={normalizedValues}
 			colorRampStops={colorRampStops}
-			style={stylePathRamp}
+			paint={paintPathRamp}
 		/>
 	);
 };
@@ -106,7 +106,7 @@ const SegmentLine: FC<{
 	]);
 
 	let coords: number[][] | undefined = undefined;
-	let style: GeometryStyle | undefined = undefined;
+	let paint: PathPaint | undefined = undefined;
 
 	if (
 		!segment ||
@@ -120,11 +120,11 @@ const SegmentLine: FC<{
 			(segment && segment?.positions && segment?.positions.length < 2) || // if segment is empty but brouter swallowed the error silently
 			segment?.errorMsg
 		) {
-			style = stylePathError;
+			paint = paintPathError;
 		} else if (!segment || segment?.isFetching || !simplifiedCoords) {
-			style = stylePathFetching;
+			paint = paintPathFetching;
 		} else {
-			style = stylePathError;
+			paint = paintPathError;
 		}
 	} else if (simplifiedCoords) {
 		coords = simplifiedCoords;
@@ -139,7 +139,7 @@ const SegmentLine: FC<{
 			<LayerPath
 				key={segmentRecordId + 'fallback'}
 				coordinates={coords}
-				style={style}
+				paint={paint}
 			/>
 		);
 	}
@@ -211,21 +211,23 @@ const Segments: FC<{
 const Markers: FC<{
 	points?: RoutingPoint[];
 }> = ({ points }) => {
+	const markerElements = useMemo(() => {
+		if (!points) return null;
+		return points.map((point, index) => (
+			<Marker
+				key={point.id}
+				position={point.geometry.coordinates}
+				paint={{
+					text: index + 1 + '',
+					textMargin: 15,
+				}}
+			/>
+		));
+	}, [points]);
+
 	return (
 		<ReindexScope order={400}>
-			<SharedLayer>
-				{points &&
-					points.map((point, index) => (
-						<Marker
-							key={point.id}
-							position={point.geometry.coordinates}
-							symbol={{
-								text: index + 1 + '',
-								textMargin: 15,
-							}}
-						/>
-					))}
-			</SharedLayer>
+			<SharedLayer>{markerElements}</SharedLayer>
 		</ReindexScope>
 	);
 };
@@ -244,16 +246,16 @@ const RoutingMapView = () => {
 	);
 };
 
-// GeometryStyle is a custom map-layer style type, not an RN ViewStyle, so these stay plain objects (not StyleSheet.create).
-const stylePathFetching: GeometryStyle = {
+// PathPaint is a custom map-layer paint type, not an RN ViewStyle, so these stay plain objects (not StyleSheet.create).
+const paintPathFetching: PathPaint = {
 	strokeColor: '#0000ff',
 	strokeWidth: 3,
 };
-const stylePathError: GeometryStyle = {
+const paintPathError: PathPaint = {
 	strokeColor: '#ff0000',
 	strokeWidth: 3,
 };
 
-const stylePathRamp: GeometryStyle = { strokeWidth: 6 };
+const paintPathRamp: PathPaint = { strokeWidth: 6 };
 
 export default RoutingMapView;
