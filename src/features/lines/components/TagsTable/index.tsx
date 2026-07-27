@@ -3,7 +3,9 @@
  */
 import { useQuery } from '@tanstack/react-query';
 import { FC, memo, useCallback, useEffect, useMemo, useState } from 'react';
-import { FlatList, ListRenderItem, StyleSheet, View } from 'react-native';
+import { FlashList } from '@shopify/flash-list';
+import type { ListRenderItem } from '@shopify/flash-list';
+import { StyleSheet, View } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import { without } from 'lodash-es';
 import { BlurView } from '@react-native-community/blur';
@@ -35,6 +37,8 @@ import LoadingIndicator from '../../../../components/generic/primitives/LoadingI
 import BidirectionalScrollHost from '../../../../components/generic/wrapper/BidirectionalScrollHost';
 import { useFixedRowHeight } from '../../hooks/useFixedRowHeight';
 
+const HEADER_ID = -1;
+
 const keyExtractor = (tag: Tag & { line_count: number }) => tag.id.toString();
 
 const TagTableRowMemo = memo(TagTableRow, (prevProps, nextProps) => {
@@ -60,9 +64,14 @@ const TagsTable: FC = () => {
 		gcTime: 1000 * 60 * 5,
 	});
 
+	const dataWithHeader = useMemo(() => {
+		if (!tags) return [];
+		return [{ id: HEADER_ID } as Tag & { line_count: number }, ...tags];
+	}, [tags]);
+
 	const tagIds = useMemo(() => tags?.map((tag) => tag.id) ?? [], [tags]);
 
-	const { isFixedHeight, rowHeight, getItemLayout } = useFixedRowHeight(tags?.length ?? 0);
+	const { isFixedHeight, rowHeight } = useFixedRowHeight(tags?.length ?? 0);
 
 	const tableColumns = useAppSelector(selectTagsTableColumns);
 
@@ -133,18 +142,17 @@ const TagsTable: FC = () => {
 		[theme]
 	);
 
-	const renderHeader = useCallback(() => {
-		return (
-			<TagTableHeader
-				styleCell={styleCell}
-				onCreatePress={handleOpenCreate}
-			/>
-		);
-	}, [styleCell, handleOpenCreate]);
-
 	const renderItem: ListRenderItem<Tag & { line_count: number; timestamp?: string }> =
 		useCallback(
 			({ item: tag, index }) => {
+				if (tag.id === HEADER_ID) {
+					return (
+						<TagTableHeader
+							styleCell={styleCell}
+							onCreatePress={handleOpenCreate}
+						/>
+					);
+				}
 				return (
 					<TagTableRowMemo
 						styleCell={styleCell}
@@ -189,16 +197,21 @@ const TagsTable: FC = () => {
 						</BlurView>
 					)}
 					<BidirectionalScrollHost style={styles.flexOne}>
-						<FlatList
+						<FlashList
 							stickyHeaderIndices={[0]}
 							scrollEnabled={false}
-							initialNumToRender={15}
-							data={tags ?? []}
+							data={dataWithHeader}
 							keyExtractor={keyExtractor}
-							ListHeaderComponent={renderHeader}
 							renderItem={renderItem}
-							getItemLayout={getItemLayout}
-							style={{ alignSelf: 'flex-start', minWidth: contentMinWidth }}
+							{...(isFixedHeight && {
+								overrideItemLayout: (layout: { span?: number; size?: number }) => {
+									layout.size = rowHeight;
+								},
+							})}
+							style={{
+								alignSelf: 'flex-start',
+								minWidth: contentMinWidth,
+							}}
 						/>
 					</BidirectionalScrollHost>
 				</View>

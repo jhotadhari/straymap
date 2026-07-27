@@ -3,8 +3,9 @@
  */
 import { useQuery } from '@tanstack/react-query';
 import { FC, memo, useCallback, useContext, useMemo } from 'react';
-import { FlatList } from 'react-native-gesture-handler';
-import { ListRenderItem, StyleSheet, View } from 'react-native';
+import { FlashList } from '@shopify/flash-list';
+import type { ListRenderItem } from '@shopify/flash-list';
+import { StyleSheet, View } from 'react-native';
 
 /**
  * Internal dependencies
@@ -69,10 +70,9 @@ const SelectedLinesList: FC = () => {
 					<LoadingIndicator size="large" />
 				</View>
 			) : (
-				<FlatList
+				<FlashList
 					style={styleList}
 					scrollEnabled={true}
-					initialNumToRender={15}
 					data={lines ?? []}
 					keyExtractor={keyExtractor}
 					renderItem={renderItem}

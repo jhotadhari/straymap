@@ -2,16 +2,10 @@
  * External dependencies
  */
 import { useQuery } from '@tanstack/react-query';
+import { FlashList } from '@shopify/flash-list';
+import type { ListRenderItem } from '@shopify/flash-list';
 import { FC, memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import {
-	BackHandler,
-	FlatList,
-	ListRenderItem,
-	StyleProp,
-	StyleSheet,
-	View,
-	ViewStyle,
-} from 'react-native';
+import { BackHandler, StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import { uniq, without } from 'lodash-es';
 import { BlurView } from '@react-native-community/blur';
@@ -49,6 +43,8 @@ import { AppContext } from '../../../../Context';
 import { MAP_ANIMATION_PADDING_PX } from '../../../../constants';
 import BidirectionalScrollHost from '../../../../components/generic/wrapper/BidirectionalScrollHost';
 import { useFixedRowHeight } from '../../hooks/useFixedRowHeight';
+
+const HEADER_ID = -1;
 
 const keyExtractor = (line: { id: number }) => line.id.toString();
 
@@ -114,9 +110,14 @@ const LinesTable: FC = () => {
 		gcTime: 1000 * 60 * 5, // The time in milliseconds that unused/inactive cache data remains in memory. When a query's cache becomes unused or inactive, that cache data will be garbage collected after this duration.
 	});
 
+	const dataWithHeader = useMemo(() => {
+		if (!lines) return [];
+		return [{ id: HEADER_ID } as Omit<Line, 'geometry'>, ...lines];
+	}, [lines]);
+
 	const lineIds = useMemo(() => lines?.map((line) => line.id) ?? [], [lines]);
 
-	const { isFixedHeight, rowHeight, getItemLayout } = useFixedRowHeight(lines?.length ?? 0);
+	const { isFixedHeight, rowHeight } = useFixedRowHeight(lines?.length ?? 0);
 
 	const tableColumns = useAppSelector(selectLinesTableColumns);
 
@@ -227,10 +228,6 @@ const LinesTable: FC = () => {
 		]
 	);
 
-	const renderHeader = useCallback(() => {
-		return <TableHeader styleCell={styleCell} />;
-	}, [styleCell]);
-
 	const {
 		id: routeId,
 		line_id: routingLineId,
@@ -243,6 +240,9 @@ const LinesTable: FC = () => {
 
 	const renderItem: ListRenderItem<Omit<Line, 'geometry'>> = useCallback(
 		({ item: line, index }) => {
+			if (line.id === HEADER_ID) {
+				return <TableHeader styleCell={styleCell} />;
+			}
 			return (
 				<TableRowMemo
 					styleCell={styleCell}
@@ -303,16 +303,21 @@ const LinesTable: FC = () => {
 						</BlurView>
 					)}
 					<BidirectionalScrollHost style={styles.flexOne}>
-						<FlatList
+						<FlashList
 							stickyHeaderIndices={[0]}
 							scrollEnabled={false}
-							initialNumToRender={15}
-							data={lines ?? []}
+							data={dataWithHeader}
 							keyExtractor={keyExtractor}
-							ListHeaderComponent={renderHeader}
 							renderItem={renderItem}
-							getItemLayout={getItemLayout}
-							style={{ alignSelf: 'flex-start', minWidth: contentMinWidth }}
+							{...(isFixedHeight && {
+								overrideItemLayout: (layout: { span?: number; size?: number }) => {
+									layout.size = rowHeight;
+								},
+							})}
+							style={{
+								alignSelf: 'flex-start',
+								minWidth: contentMinWidth,
+							}}
 						/>
 					</BidirectionalScrollHost>
 				</View>

@@ -15,11 +15,14 @@ import com.facebook.react.views.scroll.ReactHorizontalScrollView;
  * to enable simultaneous two-dimensional scrolling.
  *
  * It intercepts every touch, scrolls itself horizontally, and forwards the
- * vertical component to an inner {@link ScrollView} — typically the
- * {@code ReactScrollView} backing a React Native {@code FlatList}.
+ * vertical component to an inner scrollable — typically the
+ * {@code ReactScrollView} backing a React Native {@code FlatList}, or the
+ * {@code RecyclerView} backing a {@code FlashList}.
  *
- * The inner scrollable is discovered automatically by walking the view tree.
- * Set {@code scrollEnabled={false}} on the inner FlatList so it does not
+ * The inner scrollable is discovered automatically by walking the view tree
+ * (preferring {@link ScrollView}, falling back to any vertically-scrollable
+ * {@link ViewGroup}).
+ * Set {@code scrollEnabled={false}} on the inner list so it does not
  * compete for the gesture stream.
  */
 public class BidirectionalScrollHost extends ReactHorizontalScrollView {
@@ -33,7 +36,7 @@ public class BidirectionalScrollHost extends ReactHorizontalScrollView {
     private OverScroller scroller;
 
     // ── Child vertical scrollable ────────────────────────────────────────────
-    private ScrollView childScrollView;
+    private ViewGroup childScrollView;
 
     // ── Constructors ─────────────────────────────────────────────────────────
 
@@ -50,22 +53,32 @@ public class BidirectionalScrollHost extends ReactHorizontalScrollView {
     // ── Child discovery ──────────────────────────────────────────────────────
 
     /**
-     * Walk the view tree looking for a {@link ScrollView}.
+     * Walk the view tree looking for a vertically scrollable child.
      * {@link android.widget.HorizontalScrollView} does NOT extend
      * {@link ScrollView} (both extend {@link android.widget.FrameLayout}),
      * so {@code instanceof ScrollView} correctly excludes this host.
+     *
+     * Falls back to {@link View#canScrollVertically} when no
+     * {@code ScrollView} is found — this covers {@code RecyclerView}
+     * (used by FlashList) and other non-ScrollView scrollable containers.
      */
-    private ScrollView findScrollChild(View parent) {
+    private ViewGroup findScrollChild(View parent) {
         if (parent instanceof ScrollView) {
-            return (ScrollView) parent;
+            return (ViewGroup) parent;
         }
         if (parent instanceof ViewGroup) {
             ViewGroup group = (ViewGroup) parent;
             for (int i = 0; i < group.getChildCount(); i++) {
-                ScrollView found = findScrollChild(group.getChildAt(i));
+                ViewGroup found = findScrollChild(group.getChildAt(i));
                 if (found != null) {
                     return found;
                 }
+            }
+            // Fallback for non-ScrollView scrollables (e.g. RecyclerView
+            // from FlashList, or any ViewGroup with overflow content).
+            if (parent.canScrollVertically(1)
+                || parent.canScrollVertically(-1)) {
+                return group;
             }
         }
         return null;
