@@ -39,6 +39,8 @@ import { useFixedRowHeight } from '../../hooks/useFixedRowHeight';
 
 const HEADER_ID = -1;
 
+const HEADER_SENTINEL = { id: HEADER_ID } as Tag & { line_count: number };
+
 const keyExtractor = (tag: Tag & { line_count: number }) => tag.id.toString();
 
 const TagTableRowMemo = memo(TagTableRow, (prevProps, nextProps) => {
@@ -64,9 +66,17 @@ const TagsTable: FC = () => {
 		gcTime: 1000 * 60 * 5,
 	});
 
+	// The sentinel at index 0 is made sticky via stickyHeaderIndices={[0]}
+	// on FlashList below. We embed the header as a data item rather than
+	// rendering it as a sibling View because BidirectionalScrollHost
+	// extends HorizontalScrollView which only supports a single child.
+	// Wrapping TableHeader + FlashList in an intermediate <View> does NOT
+	// work — BidirectionalScrollHost relies on the single-child guarantee
+	// for its child-scrollable discovery (findScrollChild) and touch
+	// dispatch. A wrapper View breaks both.
 	const dataWithHeader = useMemo(() => {
-		if (!tags) return [];
-		return [{ id: HEADER_ID } as Tag & { line_count: number }, ...tags];
+		if (!tags) return [HEADER_SENTINEL];
+		return [HEADER_SENTINEL, ...tags];
 	}, [tags]);
 
 	const tagIds = useMemo(() => tags?.map((tag) => tag.id) ?? [], [tags]);

@@ -46,9 +46,9 @@ import { useFixedRowHeight } from '../../hooks/useFixedRowHeight';
 
 const HEADER_ID = -1;
 
-const keyExtractor = (line: { id: number }) => line.id.toString();
+const HEADER_SENTINEL = { id: HEADER_ID } as Omit<Line, 'geometry'>;
 
-// const ITEM_HEIGHT = 50;
+const keyExtractor = (line: { id: number }) => line.id.toString();
 
 const TableRowMemo = memo(
 	(props: TableRowProps) => <TableRow {...props} />,
@@ -110,9 +110,17 @@ const LinesTable: FC = () => {
 		gcTime: 1000 * 60 * 5, // The time in milliseconds that unused/inactive cache data remains in memory. When a query's cache becomes unused or inactive, that cache data will be garbage collected after this duration.
 	});
 
+	// The sentinel at index 0 is made sticky via stickyHeaderIndices={[0]}
+	// on FlashList below. We embed the header as a data item rather than
+	// rendering it as a sibling View because BidirectionalScrollHost
+	// extends HorizontalScrollView which only supports a single child.
+	// Wrapping TableHeader + FlashList in an intermediate <View> does NOT
+	// work — BidirectionalScrollHost relies on the single-child guarantee
+	// for its child-scrollable discovery (findScrollChild) and touch
+	// dispatch. A wrapper View breaks both.
 	const dataWithHeader = useMemo(() => {
-		if (!lines) return [];
-		return [{ id: HEADER_ID } as Omit<Line, 'geometry'>, ...lines];
+		if (!lines) return [HEADER_SENTINEL];
+		return [HEADER_SENTINEL, ...lines];
 	}, [lines]);
 
 	const lineIds = useMemo(() => lines?.map((line) => line.id) ?? [], [lines]);
@@ -198,8 +206,6 @@ const LinesTable: FC = () => {
 		() => [
 			tableStyles.cell,
 			{
-				// height: ITEM_HEIGHT,
-				// overflow: 'hidden',
 				borderColor: theme.colors.surfaceVariant,
 			},
 		],

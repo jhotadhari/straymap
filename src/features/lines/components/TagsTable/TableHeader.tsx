@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { FC, RefObject, useCallback, useContext, useMemo, useRef, useState } from 'react';
-import { ScrollView, StyleProp, TouchableOpacity, View, ViewStyle } from 'react-native';
+import { ScrollView, StyleProp, View, ViewStyle } from 'react-native';
 import { Icon, Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import Popover, { PopoverPlacement } from 'react-native-popover-view';
@@ -11,6 +11,7 @@ import Popover, { PopoverPlacement } from 'react-native-popover-view';
  * Internal dependencies
  */
 import { cellConfigs, getFilterColumnType } from './sharedDeps';
+import { useScrollSafePress } from '../tableResources';
 import { tableStyles } from '../tableResources';
 import { TableColumn } from '../../types';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
@@ -21,6 +22,52 @@ import IconButtonHighlight from '../../../../components/generic/primitives/IconB
 import { ColumnHeaderMenuContext } from './Context';
 
 const SORT_ICON_SIZE = 16;
+
+const SortableHeaderCell: FC<{
+	columnKey: string;
+	sortable: boolean;
+	isActiveSort: boolean;
+	sortIcon: string | undefined;
+	cellStyle: StyleProp<ViewStyle>;
+	onSortPress: (columnKey: string) => void;
+	onLongPress: (columnKey: string) => void;
+	onRef: (view: View | null) => void;
+	t: (key: string) => string;
+}> = ({
+	columnKey,
+	sortable,
+	isActiveSort,
+	sortIcon,
+	cellStyle,
+	onSortPress,
+	onLongPress,
+	onRef,
+	t,
+}) => {
+	const handlePress = useCallback(() => onSortPress(columnKey), [onSortPress, columnKey]);
+	const scrollSafeResponderProps = useScrollSafePress(handlePress);
+
+	const handleLongPress = useCallback(() => onLongPress(columnKey), [onLongPress, columnKey]);
+
+	return (
+		<View
+			ref={onRef}
+			style={cellStyle}
+			{...(sortable ? scrollSafeResponderProps : {})}
+			// @ts-expect-error — onLongPress exists on View but the TS types
+			// shipped with this RN version don't include it.
+			onLongPress={handleLongPress}
+		>
+			<Text>{t(`lines.columns.${columnKey}`)}</Text>
+			{sortIcon && (
+				<Icon
+					source={sortIcon}
+					size={SORT_ICON_SIZE}
+				/>
+			)}
+		</View>
+	);
+};
 
 const TagTableHeader: FC<{
 	styleCell: StyleProp<ViewStyle>;
@@ -41,6 +88,16 @@ const TagTableHeader: FC<{
 		[tableColumns]
 	);
 
+	const containerMinWidth = useMemo(() => {
+		const actionCol = 100;
+		const visible = tableColumns.filter((c) => c.visible);
+		const colsWidth = visible.reduce(
+			(sum, c) => sum + ((cellConfigs as any)[c.key]?.style?.width ?? 100),
+			0
+		);
+		return actionCol + colsWidth;
+	}, [tableColumns]);
+
 	const style: StyleProp<ViewStyle> = useMemo(
 		() => [
 			styleCell,
@@ -56,9 +113,10 @@ const TagTableHeader: FC<{
 				backgroundColor: theme.colors.background,
 				borderBottomWidth: 1,
 				borderColor: theme.colors.onBackground,
+				minWidth: containerMinWidth,
 			},
 		],
-		[theme]
+		[theme, containerMinWidth]
 	);
 
 	// ── Column header popover ─────────────────────────────────────────────
@@ -203,24 +261,20 @@ const TagTableHeader: FC<{
 					: undefined;
 
 				return (
-					<TouchableOpacity
+					<SortableHeaderCell
 						key={column.key}
-						ref={(view: View | null) => {
+						columnKey={column.key}
+						sortable={sortable}
+						isActiveSort={isActiveSort}
+						sortIcon={sortIcon}
+						cellStyle={cellStyle}
+						onSortPress={handleSortPress}
+						onLongPress={handleLongPress}
+						onRef={(view: View | null) => {
 							columnViewsRef.current.set(column.key, view);
 						}}
-						style={cellStyle}
-						onPress={sortable ? () => handleSortPress(column.key) : undefined}
-						onLongPress={() => handleLongPress(column.key)}
-						activeOpacity={sortable ? 0.6 : 1}
-					>
-						<Text>{t(`lines.columns.${column.key}`)}</Text>
-						{sortIcon && (
-							<Icon
-								source={sortIcon}
-								size={SORT_ICON_SIZE}
-							/>
-						)}
-					</TouchableOpacity>
+						t={t}
+					/>
 				);
 			})}
 
