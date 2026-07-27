@@ -15,6 +15,7 @@ import useFlyTo from './useFlyTo';
 import useAddTag from './useAddTag';
 import useRemoveTag from './useRemoveTag';
 import useDeleteLines from './useDeleteLines';
+import useApplyDem from './useApplyDem';
 
 const useBulkActions = () => {
 	const actionShowOnMap = useAddToMap();
@@ -25,6 +26,7 @@ const useBulkActions = () => {
 	const actionAddTag = useAddTag();
 	const actionRemoveTag = useRemoveTag();
 	const actionDeleteLine = useDeleteLines();
+	const actionApplyDem = useApplyDem();
 
 	return useMemo(() => {
 		const actions: Record<string, MenuActionOption> = {};
@@ -37,6 +39,7 @@ const useBulkActions = () => {
 		actions[actionAddTag.key] = actionAddTag;
 		actions[actionRemoveTag.key] = actionRemoveTag;
 		actions[actionDeleteLine.key] = actionDeleteLine;
+		actions[actionApplyDem.key] = actionApplyDem;
 
 		return actions;
 	}, [
@@ -48,6 +51,7 @@ const useBulkActions = () => {
 		actionAddTag,
 		actionRemoveTag,
 		actionDeleteLine,
+		actionApplyDem,
 	]);
 };
 

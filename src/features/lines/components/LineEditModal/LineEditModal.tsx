@@ -33,6 +33,7 @@ import RowFlyTo from './RowFlyTo';
 import RowToggleOnMap from './RowToggleOnMap';
 import RowCustomDate from './RowCustomDate';
 import RowTags from './RowTags';
+import RowApplyDem from './RowApplyDem';
 
 const LineEditModal: FC<{
 	selectLine: (id: number, isSelected: boolean) => void;
@@ -142,6 +143,8 @@ const LineEditModal: FC<{
 				<RowRouting />
 
 				<RowStats />
+
+				<RowApplyDem />
 
 				<RowExport />
 

@@ -23,6 +23,7 @@ export const MAP_ANIMATION_PADDING_PX = 64;
 export const DRAWER_ICON_SIZE = 25;
 export const DASHBOARD_ICON_SIZE = 24; // Same like List.Icon size
 export const BUTTON_ICON_SIZE = 18; // See iconSize in node_modules/react-native-paper/src/components/Button/Button.tsx
+export const POPOVER_MENU_ITEM_ICON_SIZE = 24;
 
 /**
  * 10-colour palette with matching foreground/border tones.

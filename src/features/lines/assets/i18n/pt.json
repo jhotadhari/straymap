@@ -152,5 +152,19 @@
 	"tagBadgeModeContained": "Preenchido",
 	"tagBadgeModeOutlined": "Contornado",
 	"addToMap": "Adicionar ao mapa",
-	"deleteLines": "Excluir rotas"
+	"deleteLines": "Excluir rotas",
+	"applyDem": "Apply DEM elevation",
+	"applyDemDescription": "Enrich line coordinates with elevation data from Digital Elevation Model (.hgt) files.",
+	"applyDemOptionMissing": "Only fill missing elevations (0m)",
+	"applyDemOptionOverwrite": "Overwrite all elevations, skip where no DEM data",
+	"applyDemOptionOverwriteAll": "Overwrite all elevations (set to 0m where no data)",
+	"applyDemApply": "Apply",
+	"applyDemApplying": "Applying…",
+	"hintApplyDem": "Replace missing or all elevation values with DEM (SRTM) data. Coordinates with elevation=0 get real terrain elevation. Lines are processed one at a time.",
+	"applyDemStats": "{{coordsCount}} coords, {{enrichedCount}} enriquecidas, {{alreadyHadZCount}} com altitude, {{missingHgtCount}} sem DEM",
+	"lineBusy": {
+		"any": "Esta rota não pode ser modificada porque está em uso.",
+		"routing": "Esta rota não pode ser modificada porque está sendo usada para navegação.",
+		"trackRecording": "Esta rota não pode ser modificada porque está sendo usada para gravação de percurso."
+	}
 }

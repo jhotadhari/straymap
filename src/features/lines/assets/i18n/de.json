@@ -152,5 +152,19 @@
 	"tagBadgeModeContained": "Gefüllt",
 	"tagBadgeModeOutlined": "Umrandet",
 	"addToMap": "Zu Karte hinzufügen",
-	"deleteLines": "Routen löschen"
+	"deleteLines": "Routen löschen",
+	"applyDem": "DEM-Höhendaten anwenden",
+	"applyDemDescription": "Routen-Koordinaten mit Höhendaten aus Digital-Elevation-Model-Dateien (.hgt) anreichern.",
+	"applyDemOptionMissing": "Nur fehlende Höhen (0m) auffüllen",
+	"applyDemOptionOverwrite": "Alle Höhen überschreiben, fehlende DEM-Daten auslassen",
+	"applyDemOptionOverwriteAll": "Alle Höhen überschreiben (0m setzen wo keine Daten)",
+	"applyDemApply": "Anwenden",
+	"applyDemApplying": "Wird angewendet…",
+	"hintApplyDem": "Fehlende oder alle Höhenwerte mit DEM-Daten (SRTM) ersetzen. Koordinaten mit Höhe=0 erhalten die reale Geländehöhe. Routen werden einzeln nacheinander verarbeitet.",
+	"applyDemStats": "{{coordsCount}} Koordinaten, {{enrichedCount}} angereichert, {{alreadyHadZCount}} mit Höhe, {{missingHgtCount}} ohne DEM",
+	"lineBusy": {
+		"any": "Diese Route kann nicht geändert werden, weil sie gerade verwendet wird.",
+		"routing": "Diese Route kann nicht geändert werden, weil sie aktuell für die Navigation verwendet wird.",
+		"trackRecording": "Diese Route kann nicht geändert werden, weil sie aktuell für die Streckenaufzeichnung verwendet wird."
+	}
 }

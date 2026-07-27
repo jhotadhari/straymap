@@ -31,7 +31,7 @@ import Animated, {
  * Internal dependencies
  */
 import { AppContext } from '../../../Context';
-import { MODAL_WIDTH_FACTOR, MODAL_PADDING } from '../../../constants';
+import { MODAL_WIDTH_FACTOR, MODAL_PADDING, OPACITY_DISABLED } from '../../../constants';
 import { sharedStyles } from '../../../sharedStyles';
 
 const styles = StyleSheet.create({
@@ -58,6 +58,7 @@ const ModalWrapper: FC<{
 	children?: ReactNode;
 	visible: boolean;
 	hasBackButton?: boolean;
+	dismissDisabled?: boolean;
 	onDismiss: () => void;
 	headerLabel: string;
 	innerStyle?: StyleProp<ViewStyle>;
@@ -70,6 +71,7 @@ const ModalWrapper: FC<{
 	children,
 	visible,
 	hasBackButton = true,
+	dismissDisabled = false,
 	onDismiss,
 	headerLabel,
 	innerStyle,
@@ -187,21 +189,35 @@ const ModalWrapper: FC<{
 	);
 
 	const handleDismissAll = useCallback(() => {
+		if (dismissDisabled) {
+			return;
+		}
 		onDismiss();
 		Keyboard.dismiss();
-	}, [onDismiss]);
+	}, [onDismiss, dismissDisabled]);
 
 	const handleDismiss = useCallback(() => {
+		if (dismissDisabled) {
+			return;
+		}
 		if (keyboardShown) {
 			Keyboard.dismiss();
 		} else {
 			onDismiss();
 		}
-	}, [onDismiss, keyboardShown]);
+	}, [
+		onDismiss,
+		keyboardShown,
+		dismissDisabled,
+	]);
 
 	const styleBackButton = useMemo(
-		() => [styles.backButton, { borderRadius: theme.roundness }],
-		[theme]
+		() => [
+			styles.backButton,
+			{ borderRadius: theme.roundness },
+			dismissDisabled ? { opacity: OPACITY_DISABLED } : undefined,
+		],
+		[theme, dismissDisabled]
 	);
 
 	const styleContent = useMemo(
@@ -267,6 +283,7 @@ const ModalWrapper: FC<{
 											underlayColor={theme.colors.elevation.level3}
 											style={styleBackButton}
 											onPress={handleDismiss}
+											disabled={dismissDisabled}
 										>
 											<Icon
 												source="arrow-left"

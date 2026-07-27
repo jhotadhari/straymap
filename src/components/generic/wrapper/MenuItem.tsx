@@ -15,7 +15,7 @@ const MenuItem = ({
 	onPress,
 	leadingIcon,
 	IconComponent,
-	iconSize,
+	iconSize: iconSize_,
 	title,
 	style,
 	iconColor,
@@ -56,6 +56,22 @@ const MenuItem = ({
 		]
 	);
 
+	const { iconSize, iconComponentWrapperStyle } = useMemo(() => {
+		const size = iconSize_ || DRAWER_ICON_SIZE;
+		return {
+			iconSize: size,
+			iconComponentWrapperStyle: [
+				styles.iconComponentWrapper,
+				{
+					width: size,
+					height: size,
+				},
+			],
+		};
+	}, [
+		iconSize_,
+	]);
+
 	return (
 		<TouchableHighlight
 			underlayColor={theme.colors.elevation.level3}
@@ -64,7 +80,7 @@ const MenuItem = ({
 			<View style={styleInner}>
 				{IconComponent && (
 					<View style={styles.iconWrapper}>
-						<View style={styles.iconComponentWrapper}>
+						<View style={iconComponentWrapperStyle}>
 							<IconComponent
 								color={
 									iconColor
@@ -73,7 +89,7 @@ const MenuItem = ({
 											? theme.colors.onPrimary
 											: theme.colors.onBackground
 								}
-								size={iconSize || DRAWER_ICON_SIZE}
+								size={iconSize}
 							/>
 						</View>
 					</View>
@@ -82,7 +98,7 @@ const MenuItem = ({
 					<View style={styles.iconWrapper}>
 						<Icon
 							source={leadingIcon}
-							size={iconSize || DRAWER_ICON_SIZE}
+							size={iconSize}
 							color={
 								iconColor ? iconColor : active ? theme.colors.onPrimary : undefined
 							}
@@ -102,10 +118,10 @@ const styles = StyleSheet.create({
 		flexDirection: 'row',
 		alignItems: 'center',
 	},
-	iconWrapper: { marginRight: 10 },
+	iconWrapper: {
+		marginRight: 10,
+	},
 	iconComponentWrapper: {
-		width: DRAWER_ICON_SIZE,
-		height: DRAWER_ICON_SIZE,
 		overflow: 'hidden',
 		alignItems: 'center',
 		justifyContent: 'center',

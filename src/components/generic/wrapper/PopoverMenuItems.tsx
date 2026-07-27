@@ -10,6 +10,7 @@ import { useTheme } from 'react-native-paper';
  */
 import { MenuActionOption } from '../../../types';
 import MenuItem from './MenuItem';
+import { POPOVER_MENU_ITEM_ICON_SIZE } from '../../../constants';
 
 const PopoverMenuItem: FC<{
 	opt: MenuActionOption;
@@ -39,6 +40,7 @@ const PopoverMenuItem: FC<{
 			style={disabled ? { backgroundColor: theme.colors.surfaceDisabled } : undefined}
 			textStyle={disabled ? { color: theme.colors.onSurfaceDisabled } : undefined}
 			iconColor={disabled ? theme.colors.onSurfaceDisabled : undefined}
+			iconSize={POPOVER_MENU_ITEM_ICON_SIZE}
 		/>
 	);
 });

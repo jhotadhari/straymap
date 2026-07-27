@@ -2,11 +2,11 @@
  * External dependencies
  */
 import { getRoute } from 'react-native-brouter/geojson';
+import { enrichCoordinatesWithElevation } from 'react-native-mapsforge-vtm';
 
 /**
  * Internal dependencies
  */
-import { enrichCoordinatesWithElevation } from 'react-native-mapsforge-vtm';
 import {
 	RoutingSegment,
 	BrouterOptions,

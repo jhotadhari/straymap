@@ -152,5 +152,19 @@
 	"tagBadgeModeContained": "Filled",
 	"tagBadgeModeOutlined": "Outlined",
 	"addToMap": "Add to map",
-	"deleteLines": "Delete routes"
+	"deleteLines": "Delete routes",
+	"applyDem": "Apply DEM elevation",
+	"applyDemDescription": "Enrich line coordinates with elevation data from Digital Elevation Model (.hgt) files.",
+	"applyDemOptionMissing": "Only fill missing elevations (0m)",
+	"applyDemOptionOverwrite": "Overwrite all elevations, skip where no DEM data",
+	"applyDemOptionOverwriteAll": "Overwrite all elevations (set to 0m where no data)",
+	"applyDemApply": "Apply",
+	"applyDemApplying": "Applying…",
+	"hintApplyDem": "Replace missing or all elevation values with DEM (SRTM) data. Coordinates with elevation=0 get real terrain elevation. Lines are processed one at a time.",
+	"applyDemStats": "{{coordsCount}} coords, {{enrichedCount}} enriched, {{alreadyHadZCount}} with Z, {{missingHgtCount}} no DEM",
+	"lineBusy": {
+		"any": "This line can't be modified because it is currently in use.",
+		"routing": "This line can't be modified because it is currently used for routing.",
+		"trackRecording": "This line can't be modified because it is currently used for track recording."
+	}
 }

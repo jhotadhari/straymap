@@ -10,10 +10,7 @@
 /**
  * External dependencies
  */
-import {
-	createMapHandleRegistry,
-	type MapHandleRegistry,
-} from 'react-native-mapsforge-vtm';
+import { createMapHandleRegistry, type MapHandleRegistry } from 'react-native-mapsforge-vtm';
 
 export const altitudeService: MapHandleRegistry = createMapHandleRegistry();
 export type { MapHandleRegistry };

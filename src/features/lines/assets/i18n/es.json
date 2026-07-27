@@ -152,5 +152,19 @@
 	"tagBadgeModeContained": "Relleno",
 	"tagBadgeModeOutlined": "Contorneado",
 	"addToMap": "Agregar al mapa",
-	"deleteLines": "Eliminar rutas"
+	"deleteLines": "Eliminar rutas",
+	"applyDem": "Apply DEM elevation",
+	"applyDemDescription": "Enrich line coordinates with elevation data from Digital Elevation Model (.hgt) files.",
+	"applyDemOptionMissing": "Only fill missing elevations (0m)",
+	"applyDemOptionOverwrite": "Overwrite all elevations, skip where no DEM data",
+	"applyDemOptionOverwriteAll": "Overwrite all elevations (set to 0m where no data)",
+	"applyDemApply": "Apply",
+	"applyDemApplying": "Applying…",
+	"hintApplyDem": "Replace missing or all elevation values with DEM (SRTM) data. Coordinates with elevation=0 get real terrain elevation. Lines are processed one at a time.",
+	"applyDemStats": "{{coordsCount}} coords, {{enrichedCount}} enriquecidas, {{alreadyHadZCount}} con altura, {{missingHgtCount}} sin DEM",
+	"lineBusy": {
+		"any": "Esta ruta no se puede modificar porque está en uso.",
+		"routing": "Esta ruta no se puede modificar porque se está usando para navegación.",
+		"trackRecording": "Esta ruta no se puede modificar porque se está usando para grabar un recorrido."
+	}
 }
