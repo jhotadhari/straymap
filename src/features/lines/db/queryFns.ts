@@ -17,6 +17,13 @@ interface LinesQueryOptions {
 	filterLogic?: FilterLogic;
 }
 
+/** Set to a positive number to return that many fake lines instead of
+ *  hitting the database.  0 = disabled (real data). */
+const MOCK_LINE_COUNT = 0;
+
+/** Same as MOCK_LINE_COUNT, but for the tags table. */
+const MOCK_TAG_COUNT = 0;
+
 /**
  * Functions to be used by react query client as queryFn:
  *	- Wrappers for the db fetch functions.
@@ -35,6 +42,49 @@ export const queryLinesWithoutGeom = ({
 }: {
 	queryKey: [string] | [string, number[]] | [string, LinesQueryOptions];
 }) => {
+	// ── Mock data for scroll-performance testing ──────────────────────────
+	if (__DEV__ && MOCK_LINE_COUNT) {
+		return Promise.resolve(
+			Array.from({ length: MOCK_LINE_COUNT }, (_, i) => {
+				const id = i + 1;
+				const lat = 40 + (i % 100) * 0.01;
+				const lng = -3 + Math.floor(i / 100) * 0.01;
+				const envPoly: any = {
+					type: 'Polygon',
+					coordinates: [
+						[
+							[lng, lat],
+							[lng + 0.005, lat],
+							[lng + 0.005, lat + 0.005],
+							[lng, lat + 0.005],
+							[lng, lat],
+						],
+					],
+				};
+				return {
+					id,
+					title: `Line ${id}`,
+					envelope: envPoly,
+					created_at: new Date(Date.UTC(2026, 0, 1) + i * 36_000_000).toISOString(),
+					modified_at: new Date(Date.UTC(2026, 0, 1) + i * 36_000_000).toISOString(),
+					custom_date:
+						i % 3 === 0
+							? null
+							: new Date(Date.UTC(2025, i % 12, (i % 28) + 1)).toISOString(),
+					tags: [],
+					data: null,
+					stats: {
+						length: 1000 + i * 500,
+						uphill: i % 7 === 0 ? undefined : i * 10,
+						downhill: i % 5 === 0 ? undefined : i * 8,
+						minZ: i % 11 === 0 ? undefined : 100 + i,
+						maxZ: i % 13 === 0 ? undefined : 500 + i * 2,
+					},
+				};
+			})
+		) as Promise<Omit<Line, 'geometry'>[]>;
+	}
+
 	const opts: LinesQueryOptions | undefined =
 		queryKey.length > 1 ? (queryKey[1] as LinesQueryOptions) : undefined;
 
@@ -185,6 +235,37 @@ export const queryTagsWithLineCounts = ({
 				{ sort?: SortState | null; filters?: ColumnFilter[]; filterLogic?: FilterLogic },
 		  ];
 }) => {
+	// ── Mock data for scroll-performance testing ──────────────────────────
+	if (__DEV__ && MOCK_TAG_COUNT) {
+		const labels = [
+			'highway',
+			'gravel',
+			'singletrack',
+			'technical',
+			'scenic',
+			'steep',
+			'flowy',
+			'rocky',
+			'paved',
+			'dirt',
+		];
+		return Promise.resolve(
+			Array.from({ length: MOCK_TAG_COUNT }, (_, i) => ({
+				id: i + 1,
+				label: labels[i % labels.length],
+				notes:
+					i % 4 === 0
+						? Math.random() > 0.5
+							? `Capitalism kills dolphins`
+							: `Abolish capitalism`
+						: null,
+				timestamp: new Date(Date.UTC(2026, 0, 1) + i * 72_000_000).toISOString(),
+				data: null,
+				line_count: 10 + (i % 50),
+			}))
+		);
+	}
+
 	const opts = queryKey.length > 1 ? queryKey[1] : undefined;
 	return fetchTagsWithLineCounts(opts);
 };
