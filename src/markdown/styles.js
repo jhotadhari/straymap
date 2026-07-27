@@ -34,4 +34,35 @@ export const styles = (theme) => ({
 		marginLeft: 20,
 		paddingHorizontal: 5,
 	},
+	// Headings
+	heading1: {
+		flexDirection: 'row',
+		fontSize: 32,
+		marginTop: 24,
+	},
+	heading2: {
+		flexDirection: 'row',
+		fontSize: 24,
+		marginTop: 24,
+	},
+	heading3: {
+		flexDirection: 'row',
+		fontSize: 18,
+		marginTop: 8,
+	},
+	//   heading4: {
+	//     flexDirection: 'row',
+	//     fontSize: 16,
+	// 	marginTop: 24,
+	//   },
+	//   heading5: {
+	//     flexDirection: 'row',
+	//     fontSize: 13,
+	// 	marginTop: 24,
+	//   },
+	//   heading6: {
+	//     flexDirection: 'row',
+	//     fontSize: 11,
+	// 	marginTop: 24,
+	//   },
 });

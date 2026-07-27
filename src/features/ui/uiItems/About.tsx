@@ -82,10 +82,12 @@ const AccordionItem = ({
 	label,
 	children,
 	notExpandedContent,
+	accordionContentStyle,
 }: {
 	label: string;
 	children?: string | ReactNode;
 	notExpandedContent?: string | ReactNode;
+	accordionContentStyle?: StyleProp<ViewStyle>;
 }) => {
 	const theme = useTheme();
 	const [expanded, setExpanded] = useState(false);
@@ -94,11 +96,19 @@ const AccordionItem = ({
 
 	const toggleExpanded = useCallback(() => setExpanded((prev) => !prev), []);
 
+	const dynamicStyles = useMemo(
+		() => ({
+			accordionContentStyle: [pageStyles.accordionContent, accordionContentStyle],
+			buttonContentStyle: [sharedStyles.flexRowCenter, pageStyles.accordionLabel],
+		}),
+		[accordionContentStyle]
+	);
+
 	return (
 		<View style={pageStyles.accordionContainer}>
 			<ButtonHighlight
 				onPress={toggleExpanded}
-				contentStyle={[sharedStyles.flexRowCenter, pageStyles.accordionLabel]}
+				contentStyle={dynamicStyles.buttonContentStyle}
 			>
 				<Text style={titleStyle}>{label}</Text>
 				<Icon
@@ -108,7 +118,7 @@ const AccordionItem = ({
 			</ButtonHighlight>
 
 			{expanded && (
-				<View style={pageStyles.accordionContent}>
+				<View style={dynamicStyles.accordionContentStyle}>
 					{'string' === typeof children && <Text>{children}</Text>}
 					{'string' !== typeof children && children}
 				</View>
@@ -246,6 +256,7 @@ const paddingLeft = 24;
 const pageStyles = StyleSheet.create({
 	fontJangly: { fontFamily: 'jangly_walk' },
 	accordionContainer: { marginBottom: 20 },
+	changelogAccordionContentStyle: { marginTop: -24 },
 	accordionLabel: {
 		flexDirection: 'row',
 		flexBasis: '100%',
@@ -339,7 +350,10 @@ const About: FC<{ style?: ViewStyle }> = ({ style }) => {
 
 				<MdPartsRender mbParts={readmeParts} />
 
-				<AccordionItem label={t('ui.changelog')}>
+				<AccordionItem
+					label={t('ui.changelog')}
+					accordionContentStyle={pageStyles.changelogAccordionContentStyle}
+				>
 					<MdPartsRender
 						mbParts={[
 							{
