@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { FC, useCallback, useMemo } from 'react';
-import { StyleProp, StyleSheet, TouchableWithoutFeedback, View, ViewStyle } from 'react-native';
+import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 import { useTheme, Text, Icon } from 'react-native-paper';
 import { get } from 'lodash-es';
 
@@ -13,7 +13,7 @@ import { Line, LineStats as LineStatsType, TableColumn } from '../../types';
 import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
 import { DRAWER_ICON_SIZE } from '../../../drawers/constants';
 import { cellConfigs, getCellCategory } from './sharedDeps';
-import { tableStyles } from '../tableStyles';
+import { tableStyles, useScrollSafePress } from '../tableResources';
 import TagBadge from '../TagBadge';
 import IconRouting from '../../../routing/drawerPanels/routing/IconComponent';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
@@ -103,6 +103,8 @@ const TableRow: FC<TableRowProps> = ({
 		toggleCheckedId(line.id);
 	}, [line.id, toggleCheckedId]);
 
+	const responderProps = useScrollSafePress(toggleChecked);
+
 	const style = useMemo(
 		() => [
 			tableStyles.flexRow,
@@ -186,56 +188,57 @@ const TableRow: FC<TableRowProps> = ({
 				</ButtonHighlight>
 			</View>
 
-			<TouchableWithoutFeedback onPress={toggleChecked}>
-				<View style={tableStyles.flexRow}>
-					{visibleColumns.map((column) => {
-						const cellStyle = cellConfigs[column.key]?.style;
-						const columnStyle = [
-							styleCell,
-							...(cellStyle ? [cellStyle] : []),
-							{ padding: 4 },
-						];
-						switch (getCellCategory(column.key)) {
-							case 'other':
-								return (
-									<OtherCell
-										key={column.key}
-										cellKey={column.key}
-										line={line}
-										style={columnStyle}
-									/>
-								);
-							case 'stats':
-								return (
-									<View
-										key={column.key}
-										style={columnStyle}
-									>
-										{undefined !== get(stats, column.key) && (
-											<LineStat
-												columnKey={column.key}
-												value={get(stats, column.key)}
-												round={0}
-												renderParts={statsRenderParts}
-											/>
-										)}
-									</View>
-								);
-							default:
-								return (
-									<View
-										key={column.key}
-										style={columnStyle}
-									>
-										<Text numberOfLines={isFixedHeight ? 1 : undefined}>
-											{get(line, column.key)}
-										</Text>
-									</View>
-								);
-						}
-					})}
-				</View>
-			</TouchableWithoutFeedback>
+			<View
+				{...responderProps}
+				style={tableStyles.flexRow}
+			>
+				{visibleColumns.map((column) => {
+					const cellStyle = cellConfigs[column.key]?.style;
+					const columnStyle = [
+						styleCell,
+						...(cellStyle ? [cellStyle] : []),
+						{ padding: 4 },
+					];
+					switch (getCellCategory(column.key)) {
+						case 'other':
+							return (
+								<OtherCell
+									key={column.key}
+									cellKey={column.key}
+									line={line}
+									style={columnStyle}
+								/>
+							);
+						case 'stats':
+							return (
+								<View
+									key={column.key}
+									style={columnStyle}
+								>
+									{undefined !== get(stats, column.key) && (
+										<LineStat
+											columnKey={column.key}
+											value={get(stats, column.key)}
+											round={0}
+											renderParts={statsRenderParts}
+										/>
+									)}
+								</View>
+							);
+						default:
+							return (
+								<View
+									key={column.key}
+									style={columnStyle}
+								>
+									<Text numberOfLines={isFixedHeight ? 1 : undefined}>
+										{get(line, column.key)}
+									</Text>
+								</View>
+							);
+					}
+				})}
+			</View>
 		</View>
 	);
 };

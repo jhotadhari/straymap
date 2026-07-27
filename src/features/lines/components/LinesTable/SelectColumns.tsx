@@ -18,7 +18,7 @@ import ButtonHighlight from '../../../../components/generic/primitives/ButtonHig
 import { Icon, Text } from 'react-native-paper';
 import { DRAWER_ICON_SIZE, MODAL_PADDING, MODAL_WIDTH_FACTOR } from '../../../../constants';
 import { sharedStyles } from '../../../../sharedStyles';
-import { tableStyles } from '../tableStyles';
+import { tableStyles } from '../tableResources';
 import useDropIndicatorStyle from '../../../../compose/useDropIndicatorStyle';
 import IconButtonHighlight from '../../../../components/generic/primitives/IconButtonHighlight';
 

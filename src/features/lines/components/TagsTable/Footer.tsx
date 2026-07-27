@@ -13,7 +13,7 @@ import { sprintf } from 'sprintf-js';
  */
 import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
 import { DRAWER_ICON_SIZE } from '../../../drawers/constants';
-import { tableStyles } from '../tableStyles';
+import { tableStyles } from '../tableResources';
 import TagBulkActions from './BulkActions';
 import { FooterContext } from './Context';
 

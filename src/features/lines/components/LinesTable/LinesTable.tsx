@@ -29,7 +29,7 @@ import {
 	selectLinesTableColumns,
 } from '../../selectors';
 import { Line, LineStats } from '../../types';
-import { tableStyles } from '../tableStyles';
+import { tableStyles } from '../tableResources';
 import { cellConfigs } from './sharedDeps';
 import TableHeader from './TableHeader';
 import TableRow, { TableRowProps } from './TableRow';

@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { FC, useCallback, useMemo } from 'react';
-import { StyleProp, StyleSheet, TouchableWithoutFeedback, View, ViewStyle } from 'react-native';
+import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 import { useTheme, Text, Icon } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 
@@ -11,7 +11,7 @@ import { useTranslation } from 'react-i18next';
  */
 import { TableColumn, Tag } from '../../types';
 import { cellConfigs } from './sharedDeps';
-import { tableStyles } from '../tableStyles';
+import { tableStyles, useScrollSafePress } from '../tableResources';
 import { getTagColor } from '../tagColor';
 import { featureRegistry } from '../../../FeatureRegistry';
 import { useAppSelector } from '../../../../store/hooks';
@@ -55,6 +55,8 @@ const TagTableRow: FC<TagTableRowProps> = ({
 		toggleCheckedId(tag.id);
 	}, [tag.id, toggleCheckedId]);
 
+	const responderProps = useScrollSafePress(toggleChecked);
+
 	const handleEdit = useCallback(() => {
 		onEditTag(tag);
 	}, [tag, onEditTag]);
@@ -96,107 +98,108 @@ const TagTableRow: FC<TagTableRowProps> = ({
 	}, []);
 
 	return (
-		<TouchableWithoutFeedback onPress={toggleChecked}>
-			<View style={style}>
-				{/* Edit button column */}
-				<View style={styleCell}>
-					<IconButtonHighlight
-						icon="cog"
-						size={DRAWER_ICON_SIZE}
-						onPress={handleEdit}
-					/>
-				</View>
-
-				{visibleColumns.map((column) => {
-					const cellStyle = [
-						styleCell,
-						...(cellConfigs[column.key]?.style ? [cellConfigs[column.key]?.style] : []),
-						{ padding: 4 },
-					];
-					switch (column.key) {
-						case 'label':
-							return (
-								<View
-									key={column.key}
-									style={[cellStyle, styles.gap4]}
-								>
-									<Text numberOfLines={isFixedHeight ? 1 : undefined}>
-										{tag.label}
-									</Text>
-									{isSystemTag && (
-										<Icon
-											source="lock-outline"
-											size={14}
-											color={theme.colors.onSurfaceDisabled}
-										/>
-									)}
-								</View>
-							);
-						case 'line_count':
-							return (
-								<View
-									key={column.key}
-									style={cellStyle}
-								>
-									<Text>{(tag as any).line_count ?? 0}</Text>
-								</View>
-							);
-						case 'created_at':
-							return (
-								<View
-									key={column.key}
-									style={cellStyle}
-								>
-									<Text>
-										{(tag as any).timestamp
-											? formatDate((tag as any).timestamp)
-											: ''}
-									</Text>
-								</View>
-							);
-						case 'color':
-							return (
-								<View
-									key={column.key}
-									style={cellStyle}
-								>
-									<View
-										style={[
-											styles.colorDot,
-											{
-												backgroundColor: tagColor.bg,
-												borderColor: tagColor.border,
-											},
-										]}
-									/>
-								</View>
-							);
-						case 'notes':
-							return (
-								<View
-									key={column.key}
-									style={cellStyle}
-								>
-									<Text numberOfLines={isFixedHeight ? 1 : 2}>
-										{isSystemTag
-											? t(`lines.hintSystemTagNote.${tag.label}`)
-											: (tag.notes ?? '')}
-									</Text>
-								</View>
-							);
-						default:
-							return (
-								<View
-									key={column.key}
-									style={cellStyle}
-								>
-									<Text> </Text>
-								</View>
-							);
-					}
-				})}
+		<View
+			{...responderProps}
+			style={style}
+		>
+			{/* Edit button column */}
+			<View style={styleCell}>
+				<IconButtonHighlight
+					icon="cog"
+					size={DRAWER_ICON_SIZE}
+					onPress={handleEdit}
+				/>
 			</View>
-		</TouchableWithoutFeedback>
+
+			{visibleColumns.map((column) => {
+				const cellStyle = [
+					styleCell,
+					...(cellConfigs[column.key]?.style ? [cellConfigs[column.key]?.style] : []),
+					{ padding: 4 },
+				];
+				switch (column.key) {
+					case 'label':
+						return (
+							<View
+								key={column.key}
+								style={[cellStyle, styles.gap4]}
+							>
+								<Text numberOfLines={isFixedHeight ? 1 : undefined}>
+									{tag.label}
+								</Text>
+								{isSystemTag && (
+									<Icon
+										source="lock-outline"
+										size={14}
+										color={theme.colors.onSurfaceDisabled}
+									/>
+								)}
+							</View>
+						);
+					case 'line_count':
+						return (
+							<View
+								key={column.key}
+								style={cellStyle}
+							>
+								<Text>{(tag as any).line_count ?? 0}</Text>
+							</View>
+						);
+					case 'created_at':
+						return (
+							<View
+								key={column.key}
+								style={cellStyle}
+							>
+								<Text>
+									{(tag as any).timestamp
+										? formatDate((tag as any).timestamp)
+										: ''}
+								</Text>
+							</View>
+						);
+					case 'color':
+						return (
+							<View
+								key={column.key}
+								style={cellStyle}
+							>
+								<View
+									style={[
+										styles.colorDot,
+										{
+											backgroundColor: tagColor.bg,
+											borderColor: tagColor.border,
+										},
+									]}
+								/>
+							</View>
+						);
+					case 'notes':
+						return (
+							<View
+								key={column.key}
+								style={cellStyle}
+							>
+								<Text numberOfLines={isFixedHeight ? 1 : 2}>
+									{isSystemTag
+										? t(`lines.hintSystemTagNote.${tag.label}`)
+										: (tag.notes ?? '')}
+								</Text>
+							</View>
+						);
+					default:
+						return (
+							<View
+								key={column.key}
+								style={cellStyle}
+							>
+								<Text> </Text>
+							</View>
+						);
+				}
+			})}
+		</View>
 	);
 };
 

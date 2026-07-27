@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next';
 import ModalWrapper from '../../../../../components/generic/wrapper/ModalWrapper';
 import { useAppSelector } from '../../../../../store/hooks';
 import { selectTagsFilterableColumns } from '../../../selectors';
-import { tableStyles } from '../../tableStyles';
+import { tableStyles } from '../../tableResources';
 import RadioListItem from '../../../../../components/generic/wrapper/RadioListItem';
 
 const TagFilterColumnSelectModal: FC<{

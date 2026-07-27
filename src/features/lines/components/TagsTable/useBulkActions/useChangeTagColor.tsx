@@ -17,7 +17,7 @@ import { ErrorToastContext } from '../../../../../components/ErrorToast/Context'
 import { sprintf } from 'sprintf-js';
 import ModalWrapper from '../../../../../components/generic/wrapper/ModalWrapper';
 import ColorPaletteInline from '../../../../../components/generic/controls/ColorPaletteInline';
-import { tableStyles } from '../../tableStyles';
+import { tableStyles } from '../../tableResources';
 import { PALETTE_COLORS } from '../../../../../constants';
 
 const useChangeTagColor = () => {

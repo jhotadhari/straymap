@@ -10,7 +10,7 @@ import { sprintf } from 'sprintf-js';
 /**
  * Internal dependencies
  */
-import { tableStyles } from '../tableStyles';
+import { tableStyles } from '../tableResources';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { selectTagsFilters, selectTagsFilterLogic } from '../../selectors';
 import { setTagsFilterLogic, resetTagsFilters } from '../../slice';

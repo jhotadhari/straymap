@@ -19,7 +19,7 @@ import {
 	selectTagsTableColumns,
 } from '../../selectors';
 import { Tag } from '../../types';
-import { tableStyles } from '../tableStyles';
+import { tableStyles } from '../tableResources';
 import { cellConfigs } from './sharedDeps';
 import TagTableHeader from './TableHeader';
 import TagTableRow from './TableRow';

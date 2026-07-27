@@ -15,7 +15,7 @@ import ColorPaletteInline from '../../../components/generic/controls/ColorPalett
 import { createTags } from '../db/actionsTag';
 import { invalidateTagsTable } from '../db/queryFns';
 import { Tag } from '../types';
-import { tableStyles } from './tableStyles';
+import { tableStyles } from './tableResources';
 import { logError } from '../../../lib/utils';
 import { ErrorToastContext } from '../../../components/ErrorToast/Context';
 import { PALETTE_COLORS } from '../../../constants';

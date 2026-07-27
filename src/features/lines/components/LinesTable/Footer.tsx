@@ -14,7 +14,7 @@ import ButtonHighlight from '../../../../components/generic/primitives/ButtonHig
 import IconButtonHighlight from '../../../../components/generic/primitives/IconButtonHighlight';
 import { DRAWER_ICON_SIZE } from '../../../drawers/constants';
 import { sprintf } from 'sprintf-js';
-import { tableStyles } from '../tableStyles';
+import { tableStyles } from '../tableResources';
 import BulkActions from './BulkActions';
 import ImportModal from './ImportModal';
 import { FooterContext } from './Context';

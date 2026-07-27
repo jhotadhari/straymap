@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next';
 /**
  * Internal dependencies
  */
-import { tableStyles } from '../tableStyles';
+import { tableStyles } from '../tableResources';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { selectLinesFilters, selectLinesFilterLogic } from '../../selectors';
 import { setLinesFilterLogic, resetLinesFilters } from '../../slice';
