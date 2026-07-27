@@ -3,7 +3,7 @@
  */
 import { FC, RefObject, useCallback, useContext, useMemo, useRef, useState } from 'react';
 import { ScrollView, StyleProp, View, ViewStyle } from 'react-native';
-import { Icon, Text, useTheme } from 'react-native-paper';
+import { useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import Popover, { PopoverPlacement } from 'react-native-popover-view';
 
@@ -11,7 +11,12 @@ import Popover, { PopoverPlacement } from 'react-native-popover-view';
  * Internal dependencies
  */
 import { cellConfigs, getCellCategory, getFilterColumnType } from './sharedDeps';
-import { tableStyles, useScrollSafePress } from '../tableResources';
+import {
+	SortableHeaderCell,
+	useContainerMinWidth,
+	tableStyles,
+	useScrollSafePress,
+} from '../tableResources';
 import { TableColumn } from '../../types';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { selectLinesTableColumns, selectLinesSort, selectLinesFilters } from '../../selectors';
@@ -23,66 +28,6 @@ import {
 } from '../../slice';
 import MenuItem from '../../../../components/generic/wrapper/MenuItem';
 import { ColumnHeaderMenuContext } from './Context';
-
-const SORT_ICON_SIZE = 16;
-
-/**
- * A single header cell that uses the JS gesture-responder system
- * ({@link useScrollSafePress}) instead of TouchableOpacity.onPress.
- *
- * TouchableOpacity depends on the native touch pipeline flowing
- * through ReactHorizontalScrollView correctly. Inside the
- * BidirectionalScrollHost (which overrides onInterceptTouchEvent),
- * that pipeline can break. The JS responder system works at a higher
- * level — once JS becomes the responder, it calls
- * requestDisallowInterceptTouchEvent(true) on the parent, preventing
- * the scroll host from stealing the gesture for a stationary tap.
- */
-const SortableHeaderCell: FC<{
-	columnKey: string;
-	sortable: boolean;
-	isActiveSort: boolean;
-	sortIcon: string | undefined;
-	cellStyle: StyleProp<ViewStyle>;
-	onSortPress: (columnKey: string) => void;
-	onLongPress: (columnKey: string) => void;
-	onRef: (view: View | null) => void;
-	t: (key: string) => string;
-}> = ({
-	columnKey,
-	sortable,
-	isActiveSort,
-	sortIcon,
-	cellStyle,
-	onSortPress,
-	onLongPress,
-	onRef,
-	t,
-}) => {
-	const handlePress = useCallback(() => onSortPress(columnKey), [onSortPress, columnKey]);
-	const scrollSafeResponderProps = useScrollSafePress(handlePress);
-
-	const handleLongPress = useCallback(() => onLongPress(columnKey), [onLongPress, columnKey]);
-
-	return (
-		<View
-			ref={onRef}
-			style={cellStyle}
-			{...(sortable ? scrollSafeResponderProps : {})}
-			// @ts-expect-error — onLongPress exists on View but the TS types
-			// shipped with this RN version don't include it.
-			onLongPress={handleLongPress}
-		>
-			<Text>{t(`lines.columns.${columnKey}`)}</Text>
-			{sortIcon && (
-				<Icon
-					source={sortIcon}
-					size={SORT_ICON_SIZE}
-				/>
-			)}
-		</View>
-	);
-};
 
 const TableHeader: FC<{
 	styleCell: StyleProp<ViewStyle>;
@@ -105,16 +50,6 @@ const TableHeader: FC<{
 		[tableColumns]
 	);
 
-	const containerMinWidth = useMemo(() => {
-		const actionCol = 100;
-		const visible = tableColumns.filter((c) => c.visible);
-		const colsWidth = visible.reduce(
-			(sum, c) => sum + ((cellConfigs as any)[c.key]?.style?.width ?? 100),
-			0
-		);
-		return actionCol + colsWidth;
-	}, [tableColumns]);
-
 	const style: StyleProp<ViewStyle> = useMemo(
 		() => [
 			styleCell,
@@ -124,6 +59,8 @@ const TableHeader: FC<{
 		],
 		[styleCell]
 	);
+
+	const containerMinWidth = useContainerMinWidth(tableColumns, cellConfigs);
 
 	const styleContainer: StyleProp<ViewStyle> = useMemo(
 		() => [
@@ -268,19 +205,18 @@ const TableHeader: FC<{
 				const cellStyle = cellConfigs[column.key]?.style;
 				const sortable = isSortable(column.key);
 
-				const isActiveSort = sort?.columnKey === column.key;
-				const sortIcon = isActiveSort
-					? sort?.direction === 'asc'
-						? 'arrow-up'
-						: 'arrow-down'
-					: undefined;
+				const sortIcon =
+					sort?.columnKey === column.key
+						? sort?.direction === 'asc'
+							? 'arrow-up'
+							: 'arrow-down'
+						: undefined;
 
 				return (
 					<SortableHeaderCell
 						key={column.key}
 						columnKey={column.key}
 						sortable={sortable}
-						isActiveSort={isActiveSort}
 						sortIcon={sortIcon}
 						cellStyle={cellStyle ? [baseStyle, cellStyle] : baseStyle}
 						onSortPress={handleSortPress}

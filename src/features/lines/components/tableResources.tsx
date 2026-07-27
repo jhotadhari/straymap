@@ -1,8 +1,11 @@
 /**
  * External dependencies
  */
-import { useCallback, useRef } from 'react';
-import { GestureResponderEvent, StyleSheet } from 'react-native';
+import { FC, useCallback, useMemo, useRef } from 'react';
+import { GestureResponderEvent, StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
+import { Icon, Text } from 'react-native-paper';
+
+import { TableColumn } from '../types';
 
 /**
  * Shared table styles used by both LinesTable and TagsTable.
@@ -112,4 +115,73 @@ export const useScrollSafePress = (onPress: () => void) => {
 		onResponderRelease: handleResponderRelease,
 		onResponderTerminate: handleResponderTerminate,
 	};
+};
+
+export const SORT_ICON_SIZE = 16;
+
+/**
+ * A single sortable table header cell that uses the JS gesture-responder
+ * system ({@link useScrollSafePress}) instead of TouchableOpacity.onPress.
+ *
+ * TouchableOpacity depends on the native touch pipeline flowing through
+ * ReactHorizontalScrollView correctly. Inside the BidirectionalScrollHost
+ * (which overrides onInterceptTouchEvent), that pipeline can break. The JS
+ * responder system works at a higher level — once JS becomes the responder,
+ * it calls requestDisallowInterceptTouchEvent(true) on the parent,
+ * preventing the scroll host from stealing the gesture for a stationary tap.
+ */
+export const SortableHeaderCell: FC<{
+	columnKey: string;
+	sortable: boolean;
+	sortIcon: string | undefined;
+	cellStyle: StyleProp<ViewStyle>;
+	onSortPress: (columnKey: string) => void;
+	onLongPress: (columnKey: string) => void;
+	onRef: (view: View | null) => void;
+	t: (key: string) => string;
+}> = ({ columnKey, sortable, sortIcon, cellStyle, onSortPress, onLongPress, onRef, t }) => {
+	const handlePress = useCallback(() => onSortPress(columnKey), [onSortPress, columnKey]);
+	const scrollSafeResponderProps = useScrollSafePress(handlePress);
+
+	const handleLongPress = useCallback(() => onLongPress(columnKey), [onLongPress, columnKey]);
+
+	return (
+		<View
+			ref={onRef}
+			style={cellStyle}
+			{...(sortable ? scrollSafeResponderProps : {})}
+			// @ts-expect-error — onLongPress exists on View but the TS types
+			// shipped with this RN version don't include it.
+			onLongPress={handleLongPress}
+		>
+			<Text>{t(`lines.columns.${columnKey}`)}</Text>
+			{sortIcon && (
+				<Icon
+					source={sortIcon}
+					size={SORT_ICON_SIZE}
+				/>
+			)}
+		</View>
+	);
+};
+
+type CellConfigMap = Record<string, { style?: ViewStyle } | undefined>;
+
+/**
+ * Returns the minimum width (in px) needed to display all visible table
+ * columns without clipping, including the 100 px action-button column.
+ */
+export const useContainerMinWidth = (
+	tableColumns: TableColumn[],
+	cellConfigs: CellConfigMap
+): number => {
+	return useMemo(() => {
+		const actionCol = 100;
+		const visible = tableColumns.filter((c) => c.visible);
+		const colsWidth = visible.reduce(
+			(sum, c) => sum + ((cellConfigs[c.key]?.style?.width as number) ?? 100),
+			0
+		);
+		return actionCol + colsWidth;
+	}, [tableColumns, cellConfigs]);
 };
