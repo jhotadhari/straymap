@@ -3,7 +3,7 @@
  */
 import { useQuery } from '@tanstack/react-query';
 import { FC, memo, useCallback, useEffect, useMemo, useState } from 'react';
-import { FlatList, ListRenderItem, ScrollView, StyleSheet, View } from 'react-native';
+import { FlatList, ListRenderItem, StyleSheet, View } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import { without } from 'lodash-es';
 import { BlurView } from '@react-native-community/blur';
@@ -12,9 +12,15 @@ import { BlurView } from '@react-native-community/blur';
  * Internal dependencies
  */
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
-import { selectTagsSort, selectTagsFilters, selectTagsFilterLogic } from '../../selectors';
+import {
+	selectTagsSort,
+	selectTagsFilters,
+	selectTagsFilterLogic,
+	selectTagsTableColumns,
+} from '../../selectors';
 import { Tag } from '../../types';
 import { tableStyles } from '../tableStyles';
+import { cellConfigs } from './sharedDeps';
 import TagTableHeader from './TableHeader';
 import TagTableRow from './TableRow';
 import TagHeader from './Header';
@@ -26,6 +32,8 @@ import TagEditModal from '../TagEditModal/TagEditModal';
 import CreateTagModal from '../CreateTagModal';
 import { setTagTemp } from '../../slice';
 import LoadingIndicator from '../../../../components/generic/primitives/LoadingIndicator';
+import BidirectionalScrollHost from '../../../../components/generic/wrapper/BidirectionalScrollHost';
+import { useFixedRowHeight } from '../../hooks/useFixedRowHeight';
 
 const keyExtractor = (tag: Tag & { line_count: number }) => tag.id.toString();
 
@@ -53,6 +61,20 @@ const TagsTable: FC = () => {
 	});
 
 	const tagIds = useMemo(() => tags?.map((tag) => tag.id) ?? [], [tags]);
+
+	const { isFixedHeight, rowHeight, getItemLayout } = useFixedRowHeight(tags?.length ?? 0);
+
+	const tableColumns = useAppSelector(selectTagsTableColumns);
+
+	const contentMinWidth = useMemo(() => {
+		const actionCol = 100;
+		const visible = tableColumns.filter((c: any) => c.visible);
+		const cols = visible.reduce(
+			(sum: number, c: any) => sum + ((cellConfigs as any)[c.key]?.style?.width ?? 100),
+			0
+		);
+		return actionCol + cols;
+	}, [tableColumns]);
 
 	const [checkedIds, setCheckedIds] = useState<number[]>([]);
 	const [addModalVisible, setAddModalVisible] = useState(false);
@@ -107,10 +129,7 @@ const TagsTable: FC = () => {
 	}, []);
 
 	const styleCell = useMemo(
-		() => [
-			tableStyles.cell,
-			{ borderColor: theme.colors.surfaceVariant },
-		],
+		() => [tableStyles.cell, { borderColor: theme.colors.surfaceVariant }],
 		[theme]
 	);
 
@@ -135,6 +154,8 @@ const TagsTable: FC = () => {
 						isChecked={checkedIds.includes(tag.id)}
 						toggleCheckedId={toggleCheckedId}
 						onEditTag={handleEditTag}
+						isFixedHeight={isFixedHeight}
+						rowHeight={rowHeight}
 					/>
 				);
 			},
@@ -143,6 +164,8 @@ const TagsTable: FC = () => {
 				styleCell,
 				toggleCheckedId,
 				handleEditTag,
+				isFixedHeight,
+				rowHeight,
 			]
 		);
 
@@ -165,22 +188,19 @@ const TagsTable: FC = () => {
 							</View>
 						</BlurView>
 					)}
-					<ScrollView
-						horizontal={true}
-						scrollEnabled={!isLoading}
-					>
-						<View style={styles.flexOne}>
-							<FlatList
-								stickyHeaderIndices={[0]}
-								scrollEnabled
-								initialNumToRender={15}
-								data={tags ?? []}
-								keyExtractor={keyExtractor}
-								ListHeaderComponent={renderHeader}
-								renderItem={renderItem}
-							/>
-						</View>
-					</ScrollView>
+					<BidirectionalScrollHost style={styles.flexOne}>
+						<FlatList
+							stickyHeaderIndices={[0]}
+							scrollEnabled={false}
+							initialNumToRender={15}
+							data={tags ?? []}
+							keyExtractor={keyExtractor}
+							ListHeaderComponent={renderHeader}
+							renderItem={renderItem}
+							getItemLayout={getItemLayout}
+							style={{ alignSelf: 'flex-start', minWidth: contentMinWidth }}
+						/>
+					</BidirectionalScrollHost>
 				</View>
 
 				<FooterContext.Provider

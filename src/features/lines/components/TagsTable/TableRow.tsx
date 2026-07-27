@@ -27,6 +27,8 @@ export interface TagTableRowProps {
 	isChecked: boolean;
 	toggleCheckedId: (id: number) => void;
 	onEditTag: (tag: Tag & { line_count: number }) => void;
+	isFixedHeight?: boolean;
+	rowHeight?: number;
 }
 
 const TagTableRow: FC<TagTableRowProps> = ({
@@ -36,6 +38,8 @@ const TagTableRow: FC<TagTableRowProps> = ({
 	isChecked,
 	toggleCheckedId,
 	onEditTag,
+	isFixedHeight,
+	rowHeight,
 }) => {
 	const theme = useTheme();
 	const { t } = useTranslation();
@@ -63,12 +67,18 @@ const TagTableRow: FC<TagTableRowProps> = ({
 					backgroundColor:
 						idx % 2 === 1 ? theme.colors.inversePrimary : theme.colors.primaryContainer,
 				}),
+				...(isFixedHeight && {
+					height: rowHeight,
+					overflow: 'hidden' as const,
+				}),
 			},
 		],
 		[
 			theme,
 			idx,
 			isChecked,
+			isFixedHeight,
+			rowHeight,
 		]
 	);
 
@@ -110,7 +120,9 @@ const TagTableRow: FC<TagTableRowProps> = ({
 									key={column.key}
 									style={[cellStyle, styles.gap4]}
 								>
-									<Text numberOfLines={1}>{tag.label}</Text>
+									<Text numberOfLines={isFixedHeight ? 1 : undefined}>
+										{tag.label}
+									</Text>
 									{isSystemTag && (
 										<Icon
 											source="lock-outline"
@@ -165,7 +177,7 @@ const TagTableRow: FC<TagTableRowProps> = ({
 									key={column.key}
 									style={cellStyle}
 								>
-									<Text numberOfLines={2}>
+									<Text numberOfLines={isFixedHeight ? 1 : 2}>
 										{isSystemTag
 											? t(`lines.hintSystemTagNote.${tag.label}`)
 											: (tag.notes ?? '')}

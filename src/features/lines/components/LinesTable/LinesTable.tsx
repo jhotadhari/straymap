@@ -7,7 +7,6 @@ import {
 	BackHandler,
 	FlatList,
 	ListRenderItem,
-	ScrollView,
 	StyleProp,
 	StyleSheet,
 	View,
@@ -27,9 +26,11 @@ import {
 	selectLinesFilterLogic,
 	selectLinesFilters,
 	selectLinesSort,
+	selectLinesTableColumns,
 } from '../../selectors';
 import { Line, LineStats } from '../../types';
 import { tableStyles } from '../tableStyles';
+import { cellConfigs } from './sharedDeps';
 import TableHeader from './TableHeader';
 import TableRow, { TableRowProps } from './TableRow';
 import Header from './Header';
@@ -46,6 +47,8 @@ import LoadingIndicator from '../../../../components/generic/primitives/LoadingI
 import { bbox as turfBbox } from '@turf/turf';
 import { AppContext } from '../../../../Context';
 import { MAP_ANIMATION_PADDING_PX } from '../../../../constants';
+import BidirectionalScrollHost from '../../../../components/generic/wrapper/BidirectionalScrollHost';
+import { useFixedRowHeight } from '../../hooks/useFixedRowHeight';
 
 const keyExtractor = (line: { id: number }) => line.id.toString();
 
@@ -59,7 +62,9 @@ const TableRowMemo = memo(
 			prevProps.isChecked === nextProps.isChecked &&
 			prevProps.isRoutingLine === nextProps.isRoutingLine &&
 			prevProps.line?.title === nextProps.line?.title &&
-			prevProps.line?.tags === nextProps.line?.tags
+			prevProps.line?.tags === nextProps.line?.tags &&
+			prevProps.isFixedHeight === nextProps.isFixedHeight &&
+			prevProps.rowHeight === nextProps.rowHeight
 		);
 	}
 );
@@ -110,6 +115,20 @@ const LinesTable: FC = () => {
 	});
 
 	const lineIds = useMemo(() => lines?.map((line) => line.id) ?? [], [lines]);
+
+	const { isFixedHeight, rowHeight, getItemLayout } = useFixedRowHeight(lines?.length ?? 0);
+
+	const tableColumns = useAppSelector(selectLinesTableColumns);
+
+	const contentMinWidth = useMemo(() => {
+		const actionCol = 100;
+		const visible = tableColumns.filter((c: any) => c.visible);
+		const cols = visible.reduce(
+			(sum: number, c: any) => sum + ((cellConfigs as any)[c.key]?.style?.width ?? 100),
+			0
+		);
+		return actionCol + cols;
+	}, [tableColumns]);
 
 	// Remove not existing ids from selection.
 	useEffect(() => {
@@ -236,6 +255,8 @@ const LinesTable: FC = () => {
 					toggleOnMapId={toggleOnMapId}
 					isChecked={checkedIds.includes(line.id)}
 					isRoutingLine={line.id === routingLineId}
+					isFixedHeight={isFixedHeight}
+					rowHeight={rowHeight}
 					stats={
 						line.id !== routingLineId
 							? undefined
@@ -251,6 +272,8 @@ const LinesTable: FC = () => {
 			checkedIds,
 			routingLineId,
 			routingStats,
+			isFixedHeight,
+			rowHeight,
 			styleCell,
 			toggleOnMapId,
 		]
@@ -279,22 +302,19 @@ const LinesTable: FC = () => {
 							</View>
 						</BlurView>
 					)}
-					<ScrollView
-						horizontal={true}
-						scrollEnabled={!isLoading}
-					>
-						<View style={styles.flexOne}>
-							<FlatList
-								stickyHeaderIndices={[0]}
-								scrollEnabled={true}
-								initialNumToRender={15}
-								data={lines ?? []}
-								keyExtractor={keyExtractor}
-								ListHeaderComponent={renderHeader}
-								renderItem={renderItem}
-							/>
-						</View>
-					</ScrollView>
+					<BidirectionalScrollHost style={styles.flexOne}>
+						<FlatList
+							stickyHeaderIndices={[0]}
+							scrollEnabled={false}
+							initialNumToRender={15}
+							data={lines ?? []}
+							keyExtractor={keyExtractor}
+							ListHeaderComponent={renderHeader}
+							renderItem={renderItem}
+							getItemLayout={getItemLayout}
+							style={{ alignSelf: 'flex-start', minWidth: contentMinWidth }}
+						/>
+					</BidirectionalScrollHost>
 				</View>
 
 				<FooterContext.Provider

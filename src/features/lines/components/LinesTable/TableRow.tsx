@@ -66,6 +66,8 @@ export interface TableRowProps {
 	toggleOnMapId: (id: number) => void;
 	isRoutingLine: boolean;
 	stats?: LineStatsType;
+	isFixedHeight?: boolean;
+	rowHeight?: number;
 }
 
 const statsRenderParts = ['value'] as RenderPart[];
@@ -81,6 +83,8 @@ const TableRow: FC<TableRowProps> = ({
 	toggleOnMapId,
 	isRoutingLine,
 	stats: stats_,
+	isFixedHeight,
+	rowHeight,
 }) => {
 	const theme = useTheme();
 
@@ -112,12 +116,18 @@ const TableRow: FC<TableRowProps> = ({
 								backgroundColor: theme.colors.primaryContainer,
 							}),
 				}),
+				...(isFixedHeight && {
+					height: rowHeight,
+					overflow: 'hidden' as const,
+				}),
 			},
 		],
 		[
 			theme,
 			idx,
 			isChecked,
+			isFixedHeight,
+			rowHeight,
 		]
 	);
 
@@ -217,7 +227,9 @@ const TableRow: FC<TableRowProps> = ({
 										key={column.key}
 										style={columnStyle}
 									>
-										<Text>{get(line, column.key)}</Text>
+										<Text numberOfLines={isFixedHeight ? 1 : undefined}>
+											{get(line, column.key)}
+										</Text>
 									</View>
 								);
 						}
