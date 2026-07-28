@@ -4,7 +4,7 @@
 import { FC, Fragment, useCallback, useContext, useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
-import { Icon, Text, useTheme } from 'react-native-paper';
+import { Icon, Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 
 /**
@@ -29,8 +29,6 @@ import { useButtonProps } from '../../../../compose/useButtonProps';
 
 const DrawerTopBar: FC = () => {
 	const { t } = useTranslation();
-
-	const theme = useTheme();
 
 	const dispatch = useAppDispatch();
 

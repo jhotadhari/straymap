@@ -3,6 +3,7 @@
  */
 import React, { FC, useMemo } from 'react';
 import { Icon } from 'react-native-paper';
+import type { IconSource } from 'react-native-paper/lib/typescript/components/Icon';
 
 /**
  * Internal dependencies
@@ -13,7 +14,7 @@ import MenuControl, { MenuControlProps } from '../primitives/MenuControl';
 
 interface Props extends Omit<MenuControlProps, 'AnchorComponent'> {
 	anchorLabel?: string;
-	anchorIcon?: string;
+	anchorIcon?: IconSource;
 	compact?: boolean;
 	buttonPropsProps?: ButtonPropsProps;
 }
@@ -37,13 +38,13 @@ const ButtonHighlightMenuControl: FC<Props> = ({
 				compact={compact}
 				onPress={onPress}
 			>
-				{anchorIcon ? (
+				{anchorIcon && (
 					<Icon
 						source={anchorIcon}
 						size={25}
 						color={nestedIconColor}
 					/>
-				) : null}
+				)}
 				{anchorLabel}
 			</ButtonHighlight>
 		);

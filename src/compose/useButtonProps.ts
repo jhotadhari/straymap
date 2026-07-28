@@ -99,13 +99,9 @@ export const useButtonProps = ({
 		if (textColor_) {
 			return textColor_;
 		} else if (isDestructive) {
-			return theme.dark
-				? theme.colors.onBackground
-				: theme.colors.background;
+			return theme.dark ? theme.colors.onBackground : theme.colors.background;
 		} else if (isSuccess) {
-			return theme.dark
-				? theme.colors.onBackground
-				: theme.colors.background;
+			return theme.dark ? theme.colors.onBackground : theme.colors.background;
 		} else {
 			return theme.colors.onBackground;
 		}
@@ -120,9 +116,7 @@ export const useButtonProps = ({
 		if (buttonColor_) {
 			return buttonColor_;
 		} else if (isDestructive) {
-			return theme.dark
-				? theme.colors.errorContainer
-				: theme.colors.error;
+			return theme.dark ? theme.colors.errorContainer : theme.colors.error;
 		} else if (isSuccess) {
 			return theme.dark
 				? get(theme.colors, 'successContainer')

@@ -15,9 +15,7 @@ import ListItemModalControl from '../../../../components/generic/wrapper/ListIte
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { selectHardwareKeys } from '../../selectors';
 import { setHardwareKeys } from '../../slice';
-import ListItemMenuControl from '../../../../components/generic/wrapper/ListItemMenuControl';
 import InfoLabelRow from '../../../../components/generic/infoWrapper/InfoLabelRow';
-import { sharedStyles } from '../../../../sharedStyles';
 import ButtonHighlightMenuControl from '../../../../components/generic/wrapper/ButtonHighlightMenuControl';
 
 const keyCodeStringOptions: OptionBase[] = [
