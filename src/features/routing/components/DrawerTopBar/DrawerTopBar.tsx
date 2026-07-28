@@ -6,7 +6,6 @@ import { StyleSheet, View } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
 import { Icon, Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { get } from 'lodash-es';
 
 /**
  * Internal dependencies
@@ -26,6 +25,7 @@ import { setLineTemp } from '../../../lines/slice';
 import useActions from './useActions';
 import RoutingActionsButton from '../RoutingActionsButton';
 import useToggleRouting from './useToggleRouting';
+import { useButtonProps } from '../../../../compose/useButtonProps';
 
 const DrawerTopBar: FC = () => {
 	const { t } = useTranslation();
@@ -74,6 +74,21 @@ const DrawerTopBar: FC = () => {
 		[side]
 	);
 
+	const { nestedIconColor: nestedIconColorAdd, ...buttonPropsAdd } = useButtonProps({
+		disabled: isToggling,
+		isSuccess: true,
+	});
+
+	const { nestedIconColor: nestedIconColorToggle, ...buttonPropsToggle } = useButtonProps({
+		mode: 'outlined',
+		disabled: isToggling,
+	});
+
+	const { nestedIconColor: nestedIconColorLine, ...buttonPropsLine } = useButtonProps({
+		mode: 'outlined',
+		disabled: isToggling,
+	});
+
 	return (
 		<View>
 			<View style={styleItem}>
@@ -81,15 +96,13 @@ const DrawerTopBar: FC = () => {
 					{routeId && (
 						<>
 							<ButtonHighlight
+								{...buttonPropsAdd}
 								onPress={actions.appendPoint.cb}
-								disabled={isToggling}
-								mode="contained"
-								buttonColor={get(theme.colors, 'successContainer')}
-								textColor={get(theme.colors, 'onSuccessContainer')}
 							>
 								<Icon
 									source={'plus'}
 									size={20}
+									color={nestedIconColorAdd}
 								/>
 							</ButtonHighlight>
 
@@ -101,15 +114,15 @@ const DrawerTopBar: FC = () => {
 					)}
 
 					<ButtonHighlight
-						mode="outlined"
+						{...buttonPropsToggle}
 						onPress={handleToggleRouting}
-						disabled={isToggling}
 					>
-						{!routeId && <Text>{t('routing.startRouting')}</Text>}
+						{!routeId && t('routing.startRouting')}
 						{routeId && (
 							<Icon
 								source={'close'}
 								size={20}
+								color={nestedIconColorToggle}
 							/>
 						)}
 					</ButtonHighlight>
@@ -123,13 +136,13 @@ const DrawerTopBar: FC = () => {
 							<Text>{line?.title}</Text>
 
 							<ButtonHighlight
-								mode="outlined"
+								{...buttonPropsLine}
 								onPress={handleEditPress}
-								disabled={isToggling}
 							>
 								<Icon
 									size={20}
 									source="cog"
+									color={nestedIconColorLine}
 								/>
 							</ButtonHighlight>
 						</Fragment>

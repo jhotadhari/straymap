@@ -17,6 +17,7 @@ import { get } from 'lodash-es';
 import { openDocumentTree } from 'react-native-scoped-storage';
 import { sprintf } from 'sprintf-js';
 import LucideIcons from '@react-native-vector-icons/lucide/static';
+import { IconSource } from 'react-native-paper/lib/typescript/components/Icon';
 
 /**
  * react-native-mapsforge-vtm dependencies
@@ -41,6 +42,7 @@ import LoadingIndicator from '../../../../components/generic/primitives/LoadingI
 import { selectHgtDirPath } from '../../../baseMap/selectors';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { setHgtDirPath } from '../../../baseMap/slice';
+import { useButtonProps } from '../../../../compose/useButtonProps';
 
 const HgtSourceRowControl = ({
 	dirs,
@@ -202,6 +204,20 @@ const HgtSourceRowControl = ({
 		[dispatch]
 	);
 
+	const buttonPropsAny = useButtonProps({});
+
+	const buttonIconGlobal: undefined | IconSource = useMemo(() => {
+		return appHgtDirPath
+			? undefined
+			: ({ size }) => (
+					<LucideIcons
+						size={size}
+						color={theme.colors.error}
+						name="triangle-alert"
+					/>
+				);
+	}, [theme, appHgtDirPath]);
+
 	const controlNode = useMemo(() => {
 		let label;
 		if (selectedOpt) {
@@ -227,32 +243,23 @@ const HgtSourceRowControl = ({
 		}
 		return (
 			<View style={styles.flexRow}>
-				<ButtonHighlight onPress={handleOpenModal}>
-					<Text>{label}</Text>
+				<ButtonHighlight
+					{...buttonPropsAny}
+					onPress={handleOpenModal}
+				>
+					{label}
 				</ButtonHighlight>
 				{'appHgt' === selectedOpt && fallbackAppHgt && (
 					<ButtonHighlight
-						mode="text"
-						style={appHgtDirPath ? undefined : { borderColor: theme.colors.error }}
+						{...buttonPropsAny}
 						onPress={() => {
 							setModalVisibleApp(true);
 						}}
+						icon={buttonIconGlobal}
 					>
-						{appHgtDirPath && (
-							<Text>
-								{t('baseMap.openAppHgt')}: {appHgtDirPath}
-							</Text>
-						)}
-						{!appHgtDirPath && (
-							<View style={[sharedStyles.flexRowCenter, sharedStyles.gap]}>
-								<LucideIcons
-									size={20}
-									color={theme.colors.onBackground}
-									name="triangle-alert"
-								/>
-								<Text>{t('baseMap.notConfiguredAppHgt')}</Text>
-							</View>
-						)}
+						{appHgtDirPath
+							? t('baseMap.openAppHgt') + ': ' + appHgtDirPath
+							: t('baseMap.notConfiguredAppHgt')}
 					</ButtonHighlight>
 				)}
 			</View>
@@ -266,6 +273,8 @@ const HgtSourceRowControl = ({
 		fallbackAppHgt,
 		opts,
 		appHgtDirPath,
+		buttonPropsAny,
+		buttonIconGlobal,
 	]);
 
 	const modalHeader = modalHeaderProp ?? t('map.selectDemDir');

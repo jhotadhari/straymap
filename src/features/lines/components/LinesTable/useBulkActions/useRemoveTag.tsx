@@ -3,7 +3,7 @@
  */
 import { useContext, useCallback, useMemo, useState } from 'react';
 import { StyleSheet } from 'react-native';
-import { Text, useTheme } from 'react-native-paper';
+import { Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { sprintf } from 'sprintf-js';
@@ -15,6 +15,7 @@ import { FooterContext } from '../Context';
 import { lineRemoveTag } from '../../../db/actionsLine';
 import ModalWrapper from '../../../../../components/generic/wrapper/ModalWrapper';
 import ButtonHighlight from '../../../../../components/generic/primitives/ButtonHighlight';
+import { useButtonProps } from '../../../../../compose/useButtonProps';
 import LoadingIndicator from '../../../../../components/generic/primitives/LoadingIndicator';
 import RadioListItem from '../../../../../components/generic/wrapper/RadioListItem';
 import { Tag } from '../../../types';
@@ -30,7 +31,6 @@ const removeStyles = StyleSheet.create({
 
 const useRemoveTag = () => {
 	const { t } = useTranslation();
-	const theme = useTheme();
 
 	const { showError } = useContext(ErrorToastContext);
 	const { checkedIds } = useContext(FooterContext);
@@ -56,6 +56,11 @@ const useRemoveTag = () => {
 			logError('useRemoveTag', err);
 			showError(sprintf(t('errorGeneric'), err instanceof Error ? err.message : String(err)));
 		},
+	});
+
+	const buttonPropsDelete = useButtonProps({
+		isDestructive: true,
+		disabled: selectedTagId === null || mutation.isPending,
 	});
 
 	const openModal = useCallback(async () => {
@@ -116,12 +121,9 @@ const useRemoveTag = () => {
 				)}
 				<ButtonHighlight
 					onPress={handleApply}
-					mode="contained"
-					disabled={selectedTagId === null || mutation.isPending}
-					buttonColor={theme.colors.errorContainer}
-					textColor={theme.colors.onErrorContainer}
+					{...buttonPropsDelete}
 				>
-					<Text>{t('lines.removeTagFromRoutes')}</Text>
+					{t('lines.removeTagFromRoutes')}
 				</ButtonHighlight>
 			</ModalWrapper>
 		),

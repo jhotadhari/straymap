@@ -16,7 +16,8 @@ import { getTagColor } from '../tagColor';
 import { featureRegistry } from '../../../FeatureRegistry';
 import { useAppSelector } from '../../../../store/hooks';
 import { selectTagsTableColumns } from '../../selectors';
-import IconButtonHighlight from '../../../../components/generic/primitives/IconButtonHighlight';
+import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
+import { useButtonProps } from '../../../../compose/useButtonProps';
 
 const DRAWER_ICON_SIZE = 20;
 
@@ -43,6 +44,8 @@ const TagTableRow: FC<TagTableRowProps> = ({
 }) => {
 	const theme = useTheme();
 	const { t } = useTranslation();
+
+	const buttonPropsText = useButtonProps({ mode: 'text' });
 
 	const tableColumns: TableColumn[] = useAppSelector(selectTagsTableColumns);
 
@@ -104,11 +107,15 @@ const TagTableRow: FC<TagTableRowProps> = ({
 		>
 			{/* Edit button column */}
 			<View style={styleCell}>
-				<IconButtonHighlight
-					icon="cog"
-					size={DRAWER_ICON_SIZE}
+				<ButtonHighlight
+					{...buttonPropsText}
 					onPress={handleEdit}
-				/>
+				>
+					<Icon
+						source="cog"
+						size={DRAWER_ICON_SIZE}
+					/>
+				</ButtonHighlight>
 			</View>
 
 			{visibleColumns.map((column) => {

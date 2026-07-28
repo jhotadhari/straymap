@@ -2,8 +2,7 @@
  * External dependencies
  */
 import { useCallback, useMemo, useState } from 'react';
-import { get } from 'lodash-es';
-import { Text, useTheme } from 'react-native-paper';
+import { Text } from 'react-native-paper';
 import { sprintf } from 'sprintf-js';
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
@@ -13,6 +12,7 @@ import { useTranslation } from 'react-i18next';
  */
 import ButtonHighlight from '../../../components/generic/primitives/ButtonHighlight';
 import ModalWrapper from '../../../components/generic/wrapper/ModalWrapper';
+import { useButtonProps } from '../../../compose/useButtonProps';
 import { useAppDispatch, useSystemLineIds } from '../../../store/hooks';
 import { sharedStyles } from '../../../sharedStyles';
 import { setSelected } from '../slice';
@@ -30,7 +30,8 @@ const useClearLinesCbModal = ({
 
 	const { t } = useTranslation();
 
-	const theme = useTheme();
+	const buttonPropsSuccess = useButtonProps({ isSuccess: true });
+	const buttonPropsDelete = useButtonProps({ isDestructive: true });
 
 	const [modalVisible, setModalVisible] = useState(false);
 
@@ -70,20 +71,16 @@ const useClearLinesCbModal = ({
 				<View style={sharedStyles.modalControls}>
 					<ButtonHighlight
 						onPress={handleDismissModal}
-						mode="contained"
-						buttonColor={get(theme.colors, 'successContainer')}
-						textColor={get(theme.colors, 'onSuccessContainer')}
+						{...buttonPropsSuccess}
 					>
-						<Text>{t('cancel')}</Text>
+						{t('cancel')}
 					</ButtonHighlight>
 
 					<ButtonHighlight
 						onPress={handleClearLines}
-						mode="contained"
-						buttonColor={theme.colors.errorContainer}
-						textColor={theme.colors.onErrorContainer}
+						{...buttonPropsDelete}
 					>
-						<Text>{t('lines.clearLinesFromMap')}</Text>
+						{t('lines.clearLinesFromMap')}
 					</ButtonHighlight>
 				</View>
 			</ModalWrapper>
@@ -93,7 +90,8 @@ const useClearLinesCbModal = ({
 		lineIds.length,
 		modalVisible,
 		handleDismissModal,
-		theme,
+		buttonPropsSuccess,
+		buttonPropsDelete,
 		handleClearLines,
 		backgroundBlur,
 	]);

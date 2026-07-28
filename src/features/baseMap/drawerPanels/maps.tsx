@@ -18,6 +18,7 @@ import DrawerContext from '../../drawers/DrawerContext';
 import { DrawerPanel } from '../../drawers/types';
 import { itemStyles } from '../../drawers/constants';
 import BaseMapIcon from '../components/BaseMapIcon';
+import { useButtonProps } from '../../../compose/useButtonProps';
 
 const DisplayComponentScroll: FC<{
 	scrollEnabled: boolean;
@@ -34,14 +35,17 @@ const DisplayComponentScroll: FC<{
 		[dispatch]
 	);
 
+	const buttonProps = useButtonProps({
+		style: itemStyles.buttonRow,
+	});
+
 	return (
 		<View style={itemStyles.item}>
 			<ButtonHighlight
-				style={itemStyles.buttonRow}
-				mode="outlined"
+				{...buttonProps}
 				onPress={openMapsSettings}
 			>
-				<Text>{t('drawers.openMapsSettings')}</Text>
+				{t('drawers.openMapsSettings')}
 			</ButtonHighlight>
 
 			<View style={itemStyles.itemRow}>

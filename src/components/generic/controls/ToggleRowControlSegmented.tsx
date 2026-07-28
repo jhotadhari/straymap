@@ -2,8 +2,8 @@
  * External dependencies
  */
 import { ReactNode, useCallback, useMemo } from 'react';
-import { StyleSheet, View, ViewStyle } from 'react-native';
-import { Switch, Text, useTheme } from 'react-native-paper';
+import { View, ViewStyle } from 'react-native';
+import { Switch } from 'react-native-paper';
 
 /**
  * Internal dependencies
@@ -12,6 +12,8 @@ import InfoLabelRow from '../infoWrapper/InfoLabelRow';
 import ButtonHighlight from '../primitives/ButtonHighlight';
 import { sharedStyles } from './sharedDeps';
 import { sharedStyles as appSharedStyles } from '../../../sharedStyles';
+import { useButtonProps } from '../../../compose/useButtonProps';
+import { OPACITY_DISABLED } from '../../../constants';
 
 const ToggleRowControlSegmented = ({
 	label,
@@ -32,29 +34,6 @@ const ToggleRowControlSegmented = ({
 	style?: ViewStyle;
 	Info?: ReactNode;
 }) => {
-	const theme = useTheme();
-
-	const styleButton = useMemo(
-		() => [
-			localStyles.button,
-			{
-				borderRadius: theme.roundness,
-			},
-		],
-		[theme]
-	);
-
-	const styleButtonLabel = useMemo(
-		() => [
-			// localStyles.button,
-			{
-				...(boolValueActive && appSharedStyles.disabled),
-				paddingHorizontal: 0,
-			},
-		],
-		[boolValueActive]
-	);
-
 	const handleButtonPress = useCallback(() => {
 		toggleOption();
 	}, [toggleOption]);
@@ -80,6 +59,16 @@ const ToggleRowControlSegmented = ({
 		[boolValueActive]
 	);
 
+	const buttonProps = useButtonProps({
+		mode: 'outlined',
+		style: boolValueActive
+			? {
+					borderColor: 'transparent',
+					opacity: OPACITY_DISABLED,
+				}
+			: undefined,
+	});
+
 	return (
 		<InfoLabelRow
 			label={label}
@@ -88,12 +77,10 @@ const ToggleRowControlSegmented = ({
 		>
 			<View style={sharedStyles.flexRow}>
 				<ButtonHighlight
-					mode={boolValueActive ? 'text' : 'outlined'}
-					style={styleButton}
-					labelStyle={styleButtonLabel}
+					{...buttonProps}
 					onPress={handleButtonPress}
 				>
-					<Text>{buttonLabel}</Text>
+					{buttonLabel}
 				</ButtonHighlight>
 
 				<Switch
@@ -105,12 +92,5 @@ const ToggleRowControlSegmented = ({
 		</InfoLabelRow>
 	);
 };
-
-const localStyles = StyleSheet.create({
-	button: {
-		borderWidth: 1,
-		marginRight: 10,
-	},
-});
 
 export default ToggleRowControlSegmented;

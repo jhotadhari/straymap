@@ -11,6 +11,7 @@ import { without } from 'lodash-es';
  * Internal dependencies
  */
 import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
+import { useButtonProps } from '../../../../compose/useButtonProps';
 import IconButtonHighlight from '../../../../components/generic/primitives/IconButtonHighlight';
 import { DRAWER_ICON_SIZE } from '../../../drawers/constants';
 import { sprintf } from 'sprintf-js';
@@ -22,6 +23,8 @@ import { FooterContext } from './Context';
 const Footer: FC = () => {
 	const theme = useTheme();
 	const { t } = useTranslation();
+
+	const buttonPropsText = useButtonProps({ mode: 'text' });
 
 	const { checkedIds, linesCount, setCheckedIds, lineIds } = useContext(FooterContext);
 
@@ -66,7 +69,7 @@ const Footer: FC = () => {
 
 			<View style={tableStyles.flexRowGap}>
 				<ButtonHighlight
-					mode="text"
+					{...buttonPropsText}
 					compact={true}
 					onPress={toggleCheckedIds}
 				>

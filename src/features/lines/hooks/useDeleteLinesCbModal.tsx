@@ -2,9 +2,9 @@
  * External dependencies
  */
 import { useCallback, useMemo, useState } from 'react';
-import { get, isNumber } from 'lodash-es';
+import { isNumber } from 'lodash-es';
 import { useMutation, UseMutationOptions } from '@tanstack/react-query';
-import { Text, useTheme } from 'react-native-paper';
+import { Text } from 'react-native-paper';
 import { sprintf } from 'sprintf-js';
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
@@ -14,6 +14,7 @@ import { useTranslation } from 'react-i18next';
  */
 import ButtonHighlight from '../../../components/generic/primitives/ButtonHighlight';
 import ModalWrapper from '../../../components/generic/wrapper/ModalWrapper';
+import { useButtonProps } from '../../../compose/useButtonProps';
 import { useAppDispatch } from '../../../store/hooks';
 import { sharedStyles } from '../../../sharedStyles';
 import { setIsRouting } from '../../routing/slice';
@@ -46,7 +47,8 @@ const useDeleteLinesCbModal = ({
 
 	const { t } = useTranslation();
 
-	const theme = useTheme();
+	const buttonPropsSuccess = useButtonProps({ isSuccess: true });
+	const buttonPropsDelete = useButtonProps({ isDestructive: true });
 
 	const deleteIds = useMemo(
 		() =>
@@ -142,20 +144,16 @@ const useDeleteLinesCbModal = ({
 				<View style={sharedStyles.modalControls}>
 					<ButtonHighlight
 						onPress={handleDismissModal}
-						mode="contained"
-						buttonColor={get(theme.colors, 'successContainer')}
-						textColor={get(theme.colors, 'onSuccessContainer')}
+						{...buttonPropsSuccess}
 					>
-						<Text>{t('cancel')}</Text>
+						{t('cancel')}
 					</ButtonHighlight>
 
 					<ButtonHighlight
 						onPress={handleDeleteLines}
-						mode="contained"
-						buttonColor={theme.colors.errorContainer}
-						textColor={theme.colors.onErrorContainer}
+						{...buttonPropsDelete}
 					>
-						<Text>{t('lines.delete')}</Text>
+						{t('lines.delete')}
 					</ButtonHighlight>
 				</View>
 			</ModalWrapper>
@@ -165,7 +163,8 @@ const useDeleteLinesCbModal = ({
 		deleteIds.length,
 		modalVisible,
 		handleDismissModal,
-		theme,
+		buttonPropsSuccess,
+		buttonPropsDelete,
 		handleDeleteLines,
 		backgroundBlur,
 	]);

@@ -29,11 +29,12 @@ import {
 	DEFAULT_TEMPLATE,
 } from '../../../utils/filenameTemplate';
 import { LinePartial } from '../../../types';
+import { useButtonProps } from '../../../../../compose/useButtonProps';
 
 const EXPORT_DIR = ExternalStorageDirectoryPath + '/Android/media/com.jhotadhari.straymap/export';
 
 const exportStyles = StyleSheet.create({
-	exportControls: { marginTop: 16, flexDirection: 'row', gap: 8 },
+	exportControls: { marginTop: 16, flexDirection: 'row', gap: 8, justifyContent: 'flex-end' },
 });
 
 const formatOptions = EXPORT_FORMATS.map((f) => ({
@@ -159,7 +160,9 @@ const useExport = () => {
 		t,
 	]);
 
-	const disabled = writing || !checkedIds.length;
+	const buttonProps = useButtonProps({
+		disabled: writing || !checkedIds.length,
+	});
 
 	const modalNode = useMemo(
 		() =>
@@ -182,13 +185,10 @@ const useExport = () => {
 
 					<View style={exportStyles.exportControls}>
 						<ButtonHighlight
+							{...buttonProps}
 							onPress={handleExport}
-							mode="contained"
-							disabled={disabled}
-							buttonColor={get(theme.colors, 'successContainer')}
-							textColor={get(theme.colors, 'onSuccessContainer')}
 						>
-							<Text>{writing ? t('lines.exporting') : t('lines.export')}</Text>
+							{writing ? t('lines.exporting') : t('lines.export')}
 						</ButtonHighlight>
 					</View>
 				</ModalWrapper>
@@ -199,7 +199,7 @@ const useExport = () => {
 			handleExport,
 			selectedFormat,
 			writing,
-			disabled,
+			buttonProps,
 			t,
 			theme,
 		]

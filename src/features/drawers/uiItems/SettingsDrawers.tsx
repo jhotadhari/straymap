@@ -2,8 +2,7 @@
  * External dependencies
  */
 import React, { FC, useCallback, useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, ViewStyle } from 'react-native';
-import { useTheme } from 'react-native-paper';
+import { ScrollView, ViewStyle } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
 /**
@@ -15,13 +14,15 @@ import { setShowSettingsHandle, setSortable } from '../slice';
 import DrawerControlModal from '../components/controls/DrawerControlModal';
 import InfoLabelRow from '../../../components/generic/infoWrapper/InfoLabelRow';
 import ButtonHighlight from '../../../components/generic/primitives/ButtonHighlight';
+import { useButtonProps } from '../../../compose/useButtonProps';
 import ListItem from '../../../components/generic/wrapper/ListItem';
 
 const SettingsDrawers: FC<{ style?: ViewStyle }> = ({ style }) => {
 	const { t } = useTranslation();
-	const theme = useTheme();
 
 	const dispatch = useAppDispatch();
+
+	const buttonProps = useButtonProps({ mode: 'outlined' });
 
 	const showSettingsHandle = useAppSelector(selectShowSettingsHandle);
 	const sortable = useAppSelector(selectSortable);
@@ -60,11 +61,9 @@ const SettingsDrawers: FC<{ style?: ViewStyle }> = ({ style }) => {
 						Info={t('drawers.hintSelectDrawers')}
 					>
 						<ButtonHighlight
-							mode="outlined"
+							{...buttonProps}
 							compact={true}
 							onPress={handleOpenModal}
-							textColor={theme.colors.onBackground}
-							style={styles.ml8}
 						>
 							{t('drawers.selectDrawers')}
 						</ButtonHighlight>
@@ -79,11 +78,9 @@ const SettingsDrawers: FC<{ style?: ViewStyle }> = ({ style }) => {
 						Info={t('drawers.hintShowSettingsHandle')}
 					>
 						<ButtonHighlight
-							mode="outlined"
+							{...buttonProps}
 							compact={true}
 							onPress={handleToggleShowSettingsHandle}
-							textColor={theme.colors.onBackground}
-							style={styles.ml8}
 						>
 							{toggleLabel}
 						</ButtonHighlight>
@@ -98,11 +95,9 @@ const SettingsDrawers: FC<{ style?: ViewStyle }> = ({ style }) => {
 						Info={t('drawers.hintSortableHandle')}
 					>
 						<ButtonHighlight
-							mode="outlined"
+							{...buttonProps}
 							compact={true}
 							onPress={handleToggleSortable}
-							textColor={theme.colors.onBackground}
-							style={styles.ml8}
 						>
 							{sortableLabel}
 						</ButtonHighlight>
@@ -119,9 +114,5 @@ const SettingsDrawers: FC<{ style?: ViewStyle }> = ({ style }) => {
 		</ScrollView>
 	);
 };
-
-const styles = StyleSheet.create({
-	ml8: { marginLeft: 8 },
-});
 
 export default SettingsDrawers;

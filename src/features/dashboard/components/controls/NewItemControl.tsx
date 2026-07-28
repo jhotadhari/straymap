@@ -19,6 +19,7 @@ import MaterialIcons from '@react-native-vector-icons/material-icons/static';
  * Internal dependencies
  */
 import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
+import { useButtonProps } from '../../../../compose/useButtonProps';
 import { useAppDispatch } from '../../../../store/hooks';
 import { addItem, setEditItemKey } from '../../slice';
 import ModalWrapper from '../../../../components/generic/wrapper/ModalWrapper';
@@ -131,6 +132,8 @@ const renderNewItemIcon = ({ color }: { color: string }) => (
 const NewItemControl: FC<{}> = () => {
 	const { t } = useTranslation();
 
+	const buttonProps = useButtonProps({});
+
 	const [modalVisible, setModalVisible] = useState(false);
 
 	const handleOpenModal = useCallback(() => setModalVisible(true), [setModalVisible]);
@@ -145,8 +148,8 @@ const NewItemControl: FC<{}> = () => {
 			)}
 
 			<ButtonHighlight
+				{...buttonProps}
 				icon={renderNewItemIcon}
-				mode="outlined"
 				onPress={handleOpenModal}
 			>
 				{t('dashboard.dashboardItemNew')}

@@ -16,6 +16,7 @@ import { setMapsforgeProfileTemp } from '../../../slice';
 import { selectMapsforgeProfileTemp, selectRenderStylesCache } from '../../../selectors';
 import ListItemMenuControl from '../../../../../components/generic/wrapper/ListItemMenuControl';
 import { sharedStyles } from '../../../../../sharedStyles';
+import ButtonHighlightMenuControl from '../../../../../components/generic/wrapper/ButtonHighlightMenuControl';
 
 const getDefaultSelectedOpt = (
 	profile: MapsforgeProfile,
@@ -110,8 +111,7 @@ const RenderStyleControl: FC<{
 			Info={Info}
 		>
 			{!AlternativeButton && (
-				<ListItemMenuControl
-					listItemStyle={sharedStyles.listItem}
+				<ButtonHighlightMenuControl
 					options={opts}
 					value={selectedOpt}
 					setValue={(newValue) => {

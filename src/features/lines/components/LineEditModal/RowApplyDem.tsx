@@ -1,23 +1,21 @@
 /**
  * External dependencies
  */
-import { FC, Fragment, useContext, useMemo } from 'react';
-import { Text, useTheme } from 'react-native-paper';
+import { FC, useContext, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { View } from 'react-native';
+import { IconSource } from 'react-native-paper/lib/typescript/components/Icon';
 
 /**
  * Internal dependencies
  */
 import InfoLabelRow from '../../../../components/generic/infoWrapper/InfoLabelRow';
 import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
-import { sharedStyles } from './sharedDeps';
 import { LineEditModalContext } from './Context';
 import useApplyDemCbModal from '../../hooks/useApplyDemCbModal';
 import { useSystemLineIds } from '../../../../store/hooks';
+import { useButtonProps } from '../../../../compose/useButtonProps';
 
 const RowApplyDem: FC = () => {
-	const theme = useTheme();
 	const { t } = useTranslation();
 
 	const { line } = useContext(LineEditModalContext);
@@ -28,39 +26,48 @@ const RowApplyDem: FC = () => {
 		[systemLineIds, line?.id]
 	);
 
+	const disabled = useMemo(
+		() => !line?.id || isSystemLine,
+		[
+			line?.id,
+			isSystemLine,
+		]
+	);
+
 	const { cb, modalNode, IconComponent } = useApplyDemCbModal({
 		lineIdsOrId: line?.id,
 	});
 
-	return (
-		<Fragment>
-			<InfoLabelRow
-				label={t('lines.applyDem')}
-				Info={t('lines.hintApplyDem')}
-			>
-				<ButtonHighlight
-					mode="outlined"
-					compact={true}
-					disabled={!line?.id || isSystemLine}
-					onPress={cb}
-					icon={({ color, size }) => (
-						<IconComponent
-							color={color}
-							size={size}
-						/>
-					)}
-					contentStyle={sharedStyles.buttonContent}
-					labelStyle={sharedStyles.buttonLabel}
-					textColor={theme.colors.onBackground}
-				>
-					<View>
-						<Text>{t('lines.applyDem')}</Text>
-					</View>
-				</ButtonHighlight>
-			</InfoLabelRow>
+	const icon: IconSource = useMemo(() => {
+		return ({ color, size }) => (
+			<IconComponent
+				color={color}
+				size={size}
+			/>
+		);
+	}, [IconComponent]);
 
+	const buttonProps = useButtonProps({
+		mode: 'outlined',
+		disabled,
+		paddingHorizontal: true,
+	});
+
+	return (
+		<InfoLabelRow
+			label={t('lines.applyDem')}
+			Info={t('lines.hintApplyDem')}
+		>
 			{modalNode}
-		</Fragment>
+			<ButtonHighlight
+				{...buttonProps}
+				compact={true}
+				onPress={cb}
+				icon={icon}
+			>
+				{t('lines.applyDem')}
+			</ButtonHighlight>
+		</InfoLabelRow>
 	);
 };
 

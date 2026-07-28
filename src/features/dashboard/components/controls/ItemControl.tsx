@@ -26,6 +26,7 @@ import { ControlContext } from '../../ControlContext';
 import { DASHBOARD_ICON_SIZE } from '../../../../constants';
 import ItemShowLabelControl from './ItemShowLabelControl';
 import ItemShowIconControl from './ItemShowIconControl';
+import { useButtonProps } from '../../../../compose/useButtonProps';
 
 const ItemControl: FC<{}> = ({}) => {
 	const { t } = useTranslation();
@@ -164,6 +165,20 @@ const ItemControl: FC<{}> = ({}) => {
 		[accuHeight]
 	);
 
+	const { nestedIconColor: nestedIconColorLeft, ...buttonPropsLeft } = useButtonProps({
+		mode: 'outlined',
+		disabled: 0 === idx,
+	});
+
+	const { nestedIconColor: nestedIconColorRight, ...buttonPropsRight } = useButtonProps({
+		mode: 'outlined',
+		disabled: itemsCount - 1 === idx,
+	});
+
+	const buttonPropsRemove = useButtonProps({
+		mode: 'outlined',
+	});
+
 	return (
 		item && (
 			<ControlContext.Provider
@@ -172,7 +187,6 @@ const ItemControl: FC<{}> = ({}) => {
 				}}
 			>
 				<List.Accordion
-					// title={t('dashboard.dashboardItem')}
 					title={sprintf(t('dashboard.dashboardItem') + ': %s', t(label ?? ''))}
 					left={ControlIcon}
 					expanded={!notExpanded}
@@ -202,32 +216,32 @@ const ItemControl: FC<{}> = ({}) => {
 
 								<View style={styles.actionsRow}>
 									<ButtonHighlight
-										mode="outlined"
+										{...buttonPropsLeft}
 										onPress={0 === idx ? undefined : handleMoveLeft}
-										disabled={0 === idx}
 									>
 										<IconPaper
 											source={'chevron-left'}
 											size={20}
+											color={nestedIconColorLeft}
 										/>
 									</ButtonHighlight>
 
 									<ButtonHighlight
-										mode="outlined"
+										{...buttonPropsRight}
 										onPress={
 											itemsCount - 1 === idx ? undefined : handleMoveRight
 										}
-										disabled={itemsCount - 1 === idx}
 									>
 										<IconPaper
 											source={'chevron-right'}
 											size={20}
+											color={nestedIconColorRight}
 										/>
 									</ButtonHighlight>
 
 									<ButtonHighlight
+										{...buttonPropsRemove}
 										icon="delete-outline"
-										mode="outlined"
 										onPress={handleRemove}
 									>
 										{t('remove')}

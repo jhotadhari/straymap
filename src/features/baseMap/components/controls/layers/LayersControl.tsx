@@ -23,6 +23,7 @@ import { List, useTheme, Text, Icon, IconButtonProps } from 'react-native-paper'
 import { useTranslation } from 'react-i18next';
 import Sortable, { SortableFlexDragEndParams } from 'react-native-sortables';
 import { Style } from 'react-native-paper/lib/typescript/components/List/utils';
+import { IconSource } from 'react-native-paper/lib/typescript/components/Icon';
 
 /**
  * Internal dependencies
@@ -49,6 +50,7 @@ import { sharedStyles as sharedStylesBaseMapControls } from '../sharedDeps';
 import useDropIndicatorStyle from '../../../../../compose/useDropIndicatorStyle';
 import { BUTTON_ICON_SIZE, DASHBOARD_ICON_SIZE, LABEL_WIDTH } from '../../../../../constants';
 import IconFontGis from '../../../../../components/generic/primitives/IconFontGis';
+import { useButtonProps } from '../../../../../compose/useButtonProps';
 
 export const mapTypeOptions: LayerOption[] = [
 	{
@@ -325,6 +327,10 @@ const EditModal: FC<{
 		]
 	);
 
+	const buttonProps = useButtonProps({
+		isDestructive: true,
+	});
+
 	return !layerTemp ? undefined : (
 		<ModalWrapper
 			visible={modalVisible}
@@ -369,14 +375,12 @@ const EditModal: FC<{
 
 					{'raster-MBtiles' === layerTemp.type && <LayerControlRasterMBTiles />}
 
-					<View style={sharedStyles.modalControls}>
+					<View style={sharedStyles.modalControlsEnd}>
 						<ButtonHighlight
+							{...buttonProps}
 							onPress={handleRemoveItem}
-							mode="contained"
-							buttonColor={theme.colors.errorContainer}
-							textColor={theme.colors.onErrorContainer}
 						>
-							<Text>{t('baseMap.layerRemove')}</Text>
+							{t('baseMap.layerRemove')}
 						</ButtonHighlight>
 					</View>
 				</View>
@@ -502,19 +506,17 @@ const LayersControl: FC<{
 		[theme]
 	);
 
-	const styleColorPrimary = useMemo(
-		() => ({
-			color: theme.colors.primary,
-		}),
-		[theme]
-	);
-
 	const handleAddNewLayer = useCallback(
 		() => dispatch(setLayerTemp(getNewLayer())),
 		[
 			dispatch,
 		]
 	);
+
+	const buttonProps = useButtonProps({
+		mode: 'outlined',
+		textColor: theme.colors.primary,
+	});
 
 	return (
 		<View>
@@ -577,25 +579,26 @@ const LayersControl: FC<{
 					/>
 
 					<ButtonHighlight
-						style={sharedStylesBaseMapControls.addItem}
-						mode="outlined"
+						{...buttonProps}
 						onPress={handleAddNewLayer}
+						icon={AddIcon}
 					>
-						<View style={sharedStylesBaseMapControls.addButtonContent}>
-							<IconFontGis
-								name="layer-add-o"
-								size={BUTTON_ICON_SIZE}
-								color={theme.colors.primary}
-							/>
-
-							<Text style={styleColorPrimary}>
-								{newLabel ?? t('baseMap.addNewLayer')}
-							</Text>
-						</View>
+						{newLabel ?? t('baseMap.addNewLayer')}
 					</ButtonHighlight>
 				</View>
 			</List.Accordion>
 		</View>
+	);
+};
+
+const AddIcon: IconSource = () => {
+	const theme = useTheme();
+	return (
+		<IconFontGis
+			name="layer-add-o"
+			size={BUTTON_ICON_SIZE}
+			color={theme.colors.primary}
+		/>
 	);
 };
 

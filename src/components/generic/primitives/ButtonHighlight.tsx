@@ -1,4 +1,16 @@
 /**
+ * Paper Button wrapper that adds a press-in/press-out background highlight.
+ *
+ * Usually used together with `useButtonProps` to have a consistent button
+ * appearance (mode, colors, nestedIconColor) throughout the app:
+ *
+ *   const { nestedIconColor, ...buttonProps } = useButtonProps({ mode: 'text' });
+ *   <ButtonHighlight {...buttonProps} compact onPress={...}>
+ *     ...
+ *   </ButtonHighlight>
+ */
+
+/**
  * External dependencies
  */
 import { Props as ButtonProps } from 'react-native-paper/lib/typescript/components/Button/Button';
@@ -28,10 +40,10 @@ const ButtonHighlight = forwardRef((props: ButtonProps, ref: React.ForwardedRef<
 	);
 
 	const styleMerged = useMemo(
-		() => ({
-			...(style && 'object' === typeof style && style),
-			...(pressing && { backgroundColor: theme.colors.elevation.level3 }),
-		}),
+		() => [
+			style,
+			pressing ? { backgroundColor: theme.colors.elevation.level3 } : undefined,
+		],
 		[
 			style,
 			pressing,

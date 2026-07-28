@@ -21,6 +21,7 @@ import { OptionBase } from '../../../../../types';
 import { useAppDispatch, useAppSelector } from '../../../../../store/hooks';
 import { setMapsforgeProfileTemp } from '../../../slice';
 import { selectMapsforgeProfileTemp, selectRenderStylesCache } from '../../../selectors';
+import { useButtonProps } from '../../../../../compose/useButtonProps';
 
 const labelExtractor = (a: OptionBase) => a.label;
 
@@ -126,6 +127,8 @@ const ControlModal: FC<{
 
 	const handleDismissModal = useCallback(() => setModalVisible(false), [setModalVisible]);
 
+	const buttonProps = useButtonProps({});
+
 	return !modalVisible ? undefined : (
 		<ModalWrapper
 			visible={modalVisible}
@@ -135,32 +138,27 @@ const ControlModal: FC<{
 		>
 			<View style={styles.modalControlsTop}>
 				{profileTemp &&
-					profileTemp.renderOverlays.length > 0 &&
-					profileTemp.renderOverlays.length < opts.length && (
-						<ButtonHighlight
-							onPress={handleToggleSelection}
-							mode="contained"
-							buttonColor={get(theme.colors, 'primaryContainer')}
-							textColor={get(theme.colors, 'onPrimaryContainer')}
-						>
-							<Text>{t('baseMap.select.toggle')}</Text>
-						</ButtonHighlight>
-					)}
+				profileTemp.renderOverlays.length > 0 &&
+				profileTemp.renderOverlays.length < opts.length ? (
+					<ButtonHighlight
+						{...buttonProps}
+						onPress={handleToggleSelection}
+					>
+						{t('baseMap.select.toggle')}
+					</ButtonHighlight>
+				) : (
+					<View />
+				)}
 
 				<ButtonHighlight
-					style={styles.leftAuto}
+					{...buttonProps}
 					onPress={handleSelectAllNone}
-					mode="contained"
-					buttonColor={get(theme.colors, 'primaryContainer')}
-					textColor={get(theme.colors, 'onPrimaryContainer')}
 				>
-					<Text>
-						{t(
-							profileTemp && profileTemp.renderOverlays.length < opts.length
-								? 'baseMap.select.all'
-								: 'baseMap.select.none'
-						)}
-					</Text>
+					{t(
+						profileTemp && profileTemp.renderOverlays.length < opts.length
+							? 'baseMap.select.all'
+							: 'baseMap.select.none'
+					)}
 				</ButtonHighlight>
 			</View>
 
@@ -208,6 +206,10 @@ const RenderOverlaysControl: FC<{
 
 	const handleOpenModal = useCallback(() => setModalVisible(true), []);
 
+	const buttonProps = useButtonProps({
+		disabled: !opts.length,
+	});
+
 	if (!opts.length && !AlternativeButton) {
 		return undefined;
 	}
@@ -230,28 +232,24 @@ const RenderOverlaysControl: FC<{
 			<View style={styles.content}>
 				{!AlternativeButton && (
 					<ButtonHighlight
-						disabled={!opts.length}
-						style={styles.contentBtn}
+						{...buttonProps}
 						onPress={handleOpenModal}
 					>
-						{profileTemp && (
-							<Text>
-								{opts.length === profileTemp.renderOverlays.length
-									? t('baseMap.selected.all')
-									: 0 === profileTemp.renderOverlays.length
-										? t('baseMap.selected.none')
-										: t(
-												profileTemp.renderOverlays
-													? sprintf(
-															t('baseMap.selected.count'),
-															profileTemp.renderOverlays.length +
-																'/' +
-																opts.length
-														)
-													: 'baseMap.selected.none'
-											)}
-							</Text>
-						)}
+						{profileTemp &&
+							(opts.length === profileTemp.renderOverlays.length
+								? t('baseMap.selected.all')
+								: 0 === profileTemp.renderOverlays.length
+									? t('baseMap.selected.none')
+									: t(
+											profileTemp.renderOverlays
+												? sprintf(
+														t('baseMap.selected.count'),
+														profileTemp.renderOverlays.length +
+															'/' +
+															opts.length
+													)
+												: 'baseMap.selected.none'
+										))}
 					</ButtonHighlight>
 				)}
 

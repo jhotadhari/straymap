@@ -2,9 +2,8 @@
  * External dependencies
  */
 import { useCallback, useMemo, useState } from 'react';
-import { get } from 'lodash-es';
 import { useMutation } from '@tanstack/react-query';
-import { Text, useTheme } from 'react-native-paper';
+import { Text } from 'react-native-paper';
 import { sprintf } from 'sprintf-js';
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
@@ -14,6 +13,7 @@ import { useTranslation } from 'react-i18next';
  */
 import ButtonHighlight from '../../../components/generic/primitives/ButtonHighlight';
 import ModalWrapper from '../../../components/generic/wrapper/ModalWrapper';
+import { useButtonProps } from '../../../compose/useButtonProps';
 import { sharedStyles } from '../../../sharedStyles';
 import { deleteTag } from '../db/actionsTag';
 
@@ -25,7 +25,9 @@ const useDeleteTagsCbModal = ({
 	onSuccess?: () => void;
 }) => {
 	const { t } = useTranslation();
-	const theme = useTheme();
+
+	const buttonPropsSuccess = useButtonProps({ isSuccess: true });
+	const buttonPropsDelete = useButtonProps({ isDestructive: true });
 
 	const [modalVisible, setModalVisible] = useState(false);
 
@@ -68,20 +70,16 @@ const useDeleteTagsCbModal = ({
 				<View style={sharedStyles.modalControls}>
 					<ButtonHighlight
 						onPress={handleDismissModal}
-						mode="contained"
-						buttonColor={get(theme.colors, 'successContainer')}
-						textColor={get(theme.colors, 'onSuccessContainer')}
+						{...buttonPropsSuccess}
 					>
-						<Text>{t('cancel')}</Text>
+						{t('cancel')}
 					</ButtonHighlight>
 
 					<ButtonHighlight
 						onPress={handleDelete}
-						mode="contained"
-						buttonColor={theme.colors.errorContainer}
-						textColor={theme.colors.onErrorContainer}
+						{...buttonPropsDelete}
 					>
-						<Text>{t('lines.delete')}</Text>
+						{t('lines.delete')}
 					</ButtonHighlight>
 				</View>
 			</ModalWrapper>
@@ -91,7 +89,8 @@ const useDeleteTagsCbModal = ({
 		deleteIds.length,
 		modalVisible,
 		handleDismissModal,
-		theme,
+		buttonPropsSuccess,
+		buttonPropsDelete,
 		handleDelete,
 	]);
 

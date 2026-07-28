@@ -35,6 +35,7 @@ import { dbConnection } from '../../dbLoader/DBConnection';
 import { useSystemLineIds } from '../../../store/hooks';
 import { OptionBase } from '../../../types';
 import { LinePartial } from '../types';
+import { useButtonProps } from '../../../compose/useButtonProps';
 
 const DEM_OPTION_MISSING = 'missing';
 const DEM_OPTION_OVERWRITE = 'overwrite';
@@ -419,10 +420,9 @@ const useApplyDemCbModal = ({
 		[selectedOption, processingStarted]
 	);
 
-	const btnStyle = useMemo(
-		() => (disabled ? { opacity: OPACITY_DISABLED } : undefined),
-		[disabled]
-	);
+	const buttonProps = useButtonProps({
+		disabled,
+	});
 
 	const modalNode = useMemo(() => {
 		if (!modalVisible) {
@@ -459,15 +459,14 @@ const useApplyDemCbModal = ({
 				{!processingStarted && (
 					<View style={styles.controlsContainer}>
 						<ButtonHighlight
+							{...buttonProps}
 							onPress={handleApplyDem}
-							mode="outlined"
-							disabled={disabled}
+							// mode="outlined"
+							// disabled={disabled}
 						>
-							<Text style={btnStyle}>
-								{mutation.isPending
-									? t('lines.applyDemApplying')
-									: t('lines.applyDemApply')}
-							</Text>
+							{mutation.isPending
+								? t('lines.applyDemApplying')
+								: t('lines.applyDemApply')}
 						</ButtonHighlight>
 					</View>
 				)}
@@ -579,7 +578,7 @@ const useApplyDemCbModal = ({
 		selectedOption,
 		mutation.isPending,
 		disabled,
-		btnStyle,
+		buttonProps,
 		lineIds,
 		processingStarted,
 		currentLineId,

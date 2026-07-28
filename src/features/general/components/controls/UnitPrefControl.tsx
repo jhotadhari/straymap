@@ -21,6 +21,7 @@ import { setUnitPrefs } from '../../slice';
 import { UnitPref } from '../../types';
 import ListItemMenuControl from '../../../../components/generic/wrapper/ListItemMenuControl';
 import { sharedStyles } from '../../../../sharedStyles';
+import ButtonHighlightMenuControl from '../../../../components/generic/wrapper/ButtonHighlightMenuControl';
 
 export const options: { [value: string]: OptionBase[] } = {
 	coordinates: [
@@ -215,8 +216,7 @@ const UnitControl = ({
 				label={t('unit')}
 				Info={t('general.hint.units.unit')}
 			>
-				<ListItemMenuControl
-					listItemStyle={sharedStyles.listItem}
+				<ButtonHighlightMenuControl
 					options={opts}
 					value={unitPref.unit}
 					setValue={handleUnitChange}
@@ -266,8 +266,7 @@ const UnitControl = ({
 						label={t('coordsOrder')}
 						Info={t('general.hint.units.coordsOrder')}
 					>
-						<ListItemMenuControl
-							listItemStyle={sharedStyles.listItem}
+						<ButtonHighlightMenuControl
 							options={get(options, 'coordsOrder', [])}
 							value={unitPref.coordsOrder ?? 'lat_lng'}
 							setValue={handleCoordsOrderChange}

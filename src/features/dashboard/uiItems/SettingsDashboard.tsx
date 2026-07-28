@@ -12,9 +12,12 @@ import ItemControl from '../components/controls/ItemControl';
 import { AppContext } from '../../../Context';
 import { useAppDispatch } from '../../../store/hooks';
 import { setIsEditingDashboard, setEditItemKey } from '../slice';
+import useKeyboardShown from '../../../compose/useKeyboardShown';
 
 const SettingsDashboard: FC<{ style?: ViewStyle }> = ({ style }) => {
 	const { mapHeight } = useContext(AppContext);
+
+	const { keyboardHeight } = useKeyboardShown();
 
 	const dispatch = useAppDispatch();
 
@@ -37,10 +40,17 @@ const SettingsDashboard: FC<{ style?: ViewStyle }> = ({ style }) => {
 		[style, mapHeight]
 	);
 
+	const containerPadding = useMemo(
+		() => (keyboardHeight ? { paddingBottom: keyboardHeight } : undefined),
+		[keyboardHeight]
+	);
+
 	return (
 		<ScrollView
 			scrollEnabled={true}
 			style={styleScrollView}
+			contentContainerStyle={containerPadding}
+			keyboardShouldPersistTaps="handled"
 		>
 			<DashboardControl />
 

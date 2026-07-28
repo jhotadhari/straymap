@@ -25,6 +25,7 @@ import { sharedStyles } from './sharedDeps';
 import { queryLineGeom } from '../../db/queryFns';
 import { writeFormat, EXPORT_FORMATS, ExportFormat } from '../../utils/formatWriters';
 import { resolveFilename, sanitizeFilename, DEFAULT_TEMPLATE } from '../../utils/filenameTemplate';
+import { useButtonProps } from '../../../../compose/useButtonProps';
 
 const EXPORT_DIR = ExternalStorageDirectoryPath + '/Android/media/com.jhotadhari.straymap/export';
 
@@ -112,6 +113,17 @@ const RowExport: FC = () => {
 		label: f.label,
 	}));
 
+	const buttonPropsExport = useButtonProps({
+		mode: 'outlined',
+		paddingHorizontal: true,
+		disabled: writing || !lineWithGeom?.geometry,
+	});
+
+	const buttonPropsAnchor = useButtonProps({
+		mode: 'outlined',
+		paddingHorizontal: true,
+	});
+
 	return (
 		<>
 			{modalVisible && (
@@ -132,13 +144,10 @@ const RowExport: FC = () => {
 
 					<View style={styles.exportControls}>
 						<ButtonHighlight
+							{...buttonPropsExport}
 							onPress={handleWrite}
-							mode="contained"
-							disabled={writing || !lineWithGeom?.geometry}
-							buttonColor={get(theme.colors, 'successContainer')}
-							textColor={get(theme.colors, 'onSuccessContainer')}
 						>
-							<Text>{writing ? t('lines.exporting') : t('lines.export')}</Text>
+							{writing ? t('lines.exporting') : t('lines.export')}
 						</ButtonHighlight>
 					</View>
 
@@ -155,17 +164,12 @@ const RowExport: FC = () => {
 				Info={t('lines.hintExport')}
 			>
 				<ButtonHighlight
-					mode="outlined"
+					{...buttonPropsAnchor}
 					compact={true}
 					onPress={handleOpenModal}
 					icon="content-save-outline"
-					contentStyle={sharedStyles.buttonContent}
-					labelStyle={sharedStyles.buttonLabel}
-					textColor={theme.colors.onBackground}
 				>
-					<View>
-						<Text>{t('lines.export')}</Text>
-					</View>
+					{t('lines.export')}
 				</ButtonHighlight>
 			</InfoLabelRow>
 		</>
@@ -173,7 +177,7 @@ const RowExport: FC = () => {
 };
 
 const styles = StyleSheet.create({
-	exportControls: { marginTop: 16, flexDirection: 'row', gap: 8 },
+	exportControls: { marginTop: 16, flexDirection: 'row', gap: 8, justifyContent: 'flex-end' },
 	errorText: { marginTop: 12 },
 });
 

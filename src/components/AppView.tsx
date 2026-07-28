@@ -12,7 +12,15 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import { Dimensions, NativeSyntheticEvent, PixelRatio, View, ViewStyle } from 'react-native';
+import {
+	Dimensions,
+	NativeSyntheticEvent,
+	PixelRatio,
+	StyleProp,
+	StyleSheet,
+	View,
+	ViewStyle,
+} from 'react-native';
 import { useTheme } from 'react-native-paper';
 import { clamp, get } from 'lodash-es';
 import { sprintf } from 'sprintf-js';
@@ -56,6 +64,7 @@ import MapCornerComponents from './MapCornerComponents';
 import { useGnssSetup } from '../features/trackRecording/hooks/useGnssSetup';
 import { altitudeService } from '../lib/AltitudeService';
 import { addBusyKey, removeBusyKey } from '../features/ui/slice';
+import useIsShowingUiComponent from '../features/ui/hooks/useIsShowingUiComponent';
 
 const zoomMin = 2;
 const zoomMax = 20;
@@ -336,12 +345,14 @@ const AppView = ({
 		[]
 	);
 
-	const styleMap: ViewStyle = useMemo(
-		() => ({
-			flexDirection: 'column',
-			flexGrow: 1,
-		}),
-		[]
+	const isShowingUiComponent = useIsShowingUiComponent();
+
+	const styleMap: StyleProp<ViewStyle> = useMemo(
+		() => [
+			styles.map,
+			...(isShowingUiComponent ? [styles.hidden] : []),
+		],
+		[isShowingUiComponent]
 	);
 
 	return (
@@ -405,5 +416,15 @@ const AppView = ({
 		</View>
 	);
 };
+
+const styles = StyleSheet.create({
+	map: {
+		flexDirection: 'column',
+		flexGrow: 1,
+	},
+	hidden: {
+		opacity: 0,
+	},
+});
 
 export default AppView;

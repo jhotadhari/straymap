@@ -2,8 +2,6 @@
  * External dependencies
  */
 import { FC, useCallback, useContext, useMemo } from 'react';
-import { View } from 'react-native';
-import { Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 
 /**
@@ -13,13 +11,11 @@ import { LineEditModalContext } from './Context';
 import InfoLabelRow from '../../../../components/generic/infoWrapper/InfoLabelRow';
 import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
 import useDeleteLinesCbModal from '../../hooks/useDeleteLinesCbModal';
-import { sharedStyles } from './sharedDeps';
-import { sharedStyles as appSharedStyles } from '../../../../sharedStyles';
 import { selectLineTemp } from '../../selectors';
 import { useAppSelector, useSystemLineIds } from '../../../../store/hooks';
+import { useButtonProps } from '../../../../compose/useButtonProps';
 
 const RowDelete: FC = () => {
-	const theme = useTheme();
 	const { t } = useTranslation();
 
 	const lineTemp = useAppSelector(selectLineTemp);
@@ -58,16 +54,11 @@ const RowDelete: FC = () => {
 		backgroundBlur: false,
 	});
 
-	const buttonStyle = useMemo(
-		() => ({
-			borderColor: theme.colors.onBackground,
-			...(isSystemLine && {
-				...appSharedStyles.disabled,
-				borderColor: theme.colors.onSurfaceDisabled,
-			}),
-		}),
-		[theme, isSystemLine]
-	);
+	const buttonProps = useButtonProps({
+		mode: 'outlined',
+		disabled: !!isSystemLine,
+		paddingHorizontal: true,
+	});
 
 	return (
 		<InfoLabelRow
@@ -76,19 +67,12 @@ const RowDelete: FC = () => {
 		>
 			{modalNodeDelete}
 			<ButtonHighlight
-				style={buttonStyle}
-				mode="outlined"
+				{...buttonProps}
 				compact={true}
-				disabled={isSystemLine}
 				onPress={handleDelete}
 				icon={iconSourceDelete}
-				contentStyle={sharedStyles.buttonContent}
-				labelStyle={sharedStyles.buttonLabel}
-				textColor={theme.colors.onBackground}
 			>
-				<View>
-					<Text>{isSystemLine ? t('lines.isRoutingLine') : t('lines.delete')}</Text>
-				</View>
+				{isSystemLine ? t('lines.isRoutingLine') : t('lines.delete')}
 			</ButtonHighlight>
 		</InfoLabelRow>
 	);

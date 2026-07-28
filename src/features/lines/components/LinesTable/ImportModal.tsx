@@ -29,6 +29,7 @@ import {
 import { createLines } from '../../db/actionsLine';
 import { ensureTagByLabel } from '../../db/actionsTag';
 import { invalidateTagsTable, invalidateLinesQueries } from '../../db/queryFns';
+import { useButtonProps } from '../../../../compose/useButtonProps';
 type ImportMode = 'file' | 'directory';
 type ImportFileResult = {
 	name: string;
@@ -521,6 +522,18 @@ const ImportModal: FC<{
 		onDismiss();
 	}, [onDismiss]);
 
+	// ---- button props ----
+
+	const buttonPropsIdle = useButtonProps({
+		disabled: isPickingFile || isPickingDir,
+	});
+
+	const buttonPropsImport = useButtonProps({
+		disabled: selectionCount === 0,
+	});
+
+	const buttonPropsAny = useButtonProps({});
+
 	// ====== RENDER ======
 
 	return (
@@ -540,23 +553,17 @@ const ImportModal: FC<{
 					</Text>
 
 					<ButtonHighlight
+						{...buttonPropsIdle}
 						onPress={handlePickFile}
-						mode="contained"
-						disabled={isPickingFile || isPickingDir}
-						buttonColor={get(theme.colors, 'primaryContainer')}
-						textColor={get(theme.colors, 'onPrimaryContainer')}
 					>
-						<Text>{t('lines.importPickFile')}</Text>
+						{t('lines.importPickFile')}
 					</ButtonHighlight>
 
 					<ButtonHighlight
+						{...buttonPropsIdle}
 						onPress={handlePickDirectory}
-						mode="contained"
-						disabled={isPickingFile || isPickingDir}
-						buttonColor={get(theme.colors, 'secondaryContainer')}
-						textColor={get(theme.colors, 'onSecondaryContainer')}
 					>
-						<Text>{t('lines.importPickDirectory')}</Text>
+						{t('lines.importPickDirectory')}
 					</ButtonHighlight>
 				</View>
 			)}
@@ -590,18 +597,18 @@ const ImportModal: FC<{
 
 							<View style={localStyles.selectRow}>
 								<ButtonHighlight
-									mode="text"
+									{...buttonPropsAny}
 									compact
 									onPress={handleSelectAllFeatures}
 								>
-									<Text>{t('lines.selectAll')}</Text>
+									{t('lines.selectAll')}
 								</ButtonHighlight>
 								<ButtonHighlight
-									mode="text"
+									{...buttonPropsAny}
 									compact
 									onPress={handleDeselectAllFeatures}
 								>
-									<Text>{t('lines.selectNone')}</Text>
+									{t('lines.selectNone')}
 								</ButtonHighlight>
 							</View>
 
@@ -640,18 +647,18 @@ const ImportModal: FC<{
 
 							<View style={localStyles.selectRow}>
 								<ButtonHighlight
-									mode="text"
+									{...buttonPropsAny}
 									compact
 									onPress={handleSelectAllFiles}
 								>
-									<Text>{t('lines.selectAll')}</Text>
+									{t('lines.selectAll')}
 								</ButtonHighlight>
 								<ButtonHighlight
-									mode="text"
+									{...buttonPropsAny}
 									compact
 									onPress={handleDeselectAllFiles}
 								>
-									<Text>{t('lines.selectNone')}</Text>
+									{t('lines.selectNone')}
 								</ButtonHighlight>
 							</View>
 
@@ -700,13 +707,10 @@ const ImportModal: FC<{
 					{/* ---- import button ---- */}
 					<View style={localStyles.importControls}>
 						<ButtonHighlight
+							{...buttonPropsImport}
 							onPress={handleImport}
-							mode="contained"
-							disabled={selectionCount === 0}
-							buttonColor={get(theme.colors, 'successContainer')}
-							textColor={get(theme.colors, 'onSuccessContainer')}
 						>
-							<Text>{sprintf(t('lines.importSelected'), selectionCount)}</Text>
+							{sprintf(t('lines.importSelected'), selectionCount)}
 						</ButtonHighlight>
 					</View>
 				</View>
@@ -802,12 +806,10 @@ const ImportModal: FC<{
 
 					<View style={localStyles.importControls}>
 						<ButtonHighlight
+							{...buttonPropsAny}
 							onPress={handleResultDone}
-							mode="contained"
-							buttonColor={get(theme.colors, 'primaryContainer')}
-							textColor={get(theme.colors, 'onPrimaryContainer')}
 						>
-							<Text>{t('lines.importDone')}</Text>
+							{t('lines.importDone')}
 						</ButtonHighlight>
 					</View>
 				</View>

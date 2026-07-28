@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { FC, Fragment, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { TouchableHighlight, View } from 'react-native';
+import { View } from 'react-native';
 import { Icon, Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { get } from 'lodash-es';
@@ -13,6 +13,8 @@ import { get } from 'lodash-es';
 import { OptionBase } from '../../../../../types';
 import FileSourceRowControl from '../../../../../components/generic/controls/FileSourceRowControl';
 import InfoLabelRow from '../../../../../components/generic/infoWrapper/InfoLabelRow';
+import ButtonHighlight from '../../../../../components/generic/primitives/ButtonHighlight';
+import { useButtonProps } from '../../../../../compose/useButtonProps';
 import { sprintf } from 'sprintf-js';
 import HintLink from '../../../../../components/generic/primitives/HintLink';
 import { LayerConfigOptionsMapsforge, LayerConfig } from '../../../types';
@@ -24,6 +26,7 @@ import { selectMapsforgeProfiles } from '../../../selectors';
 import NumericRowControlMulti from '../../../../../components/generic/controls/NumericRowControlMulti';
 import ListItemMenuControl from '../../../../../components/generic/wrapper/ListItemMenuControl';
 import { sharedStyles as globalSharedStyles } from '../../../../../sharedStyles';
+import ButtonHighlightMenuControl from '../../../../../components/generic/wrapper/ButtonHighlightMenuControl';
 
 const ProfileRowControl = ({
 	options,
@@ -100,8 +103,6 @@ const ProfileRowControl = ({
 		selectedOpt,
 	]);
 
-	const styleAction = useMemo(() => ({ padding: 10, borderRadius: theme.roundness }), [theme]);
-
 	const menuItemStyle = useCallback(
 		(idx: number) =>
 			'default' === selectedOpt && idx === 1
@@ -124,14 +125,15 @@ const ProfileRowControl = ({
 		dispatch,
 	]);
 
+	const { nestedIconColor, ...buttonProps } = useButtonProps({ mode: 'text' });
+
 	return (
 		<InfoLabelRow
 			label={t('baseMap.mapsforge.profile', { count: 1 })}
 			Info={Info}
 		>
-			<View style={globalSharedStyles.flexRow}>
-				<ListItemMenuControl
-					listItemStyle={globalSharedStyles.listItem}
+			<View style={profileButtonsContainer}>
+				<ButtonHighlightMenuControl
 					options={opts}
 					value={selectedOpt}
 					setValue={setSelectedOpt}
@@ -146,21 +148,24 @@ const ProfileRowControl = ({
 				/>
 
 				{'default' !== selectedOpt && (
-					<TouchableHighlight
-						underlayColor={theme.colors.elevation.level3}
+					<ButtonHighlight
+						{...buttonProps}
+						compact
 						onPress={handleEditProfilePress}
-						style={styleAction}
 					>
 						<Icon
 							source="cog"
 							size={25}
+							color={nestedIconColor}
 						/>
-					</TouchableHighlight>
+					</ButtonHighlight>
 				)}
 			</View>
 		</InfoLabelRow>
 	);
 };
+
+const profileButtonsContainer = [globalSharedStyles.flexRowCenter, globalSharedStyles.gap];
 
 const MapFileControlInfo: FC<{}> = ({}) => {
 	const { t } = useTranslation();

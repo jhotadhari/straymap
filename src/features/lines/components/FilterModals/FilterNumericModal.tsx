@@ -11,6 +11,7 @@ import { useTranslation } from 'react-i18next';
  */
 import ModalWrapper from '../../../../components/generic/wrapper/ModalWrapper';
 import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
+import { useButtonProps } from '../../../../compose/useButtonProps';
 import NumericRowControl from '../../../../components/generic/controls/NumericRowControl';
 import { sharedStyles as appSharedStyles } from '../../../../sharedStyles';
 import { useAppSelector } from '../../../../store/hooks';
@@ -37,6 +38,8 @@ const FilterNumericModal: FC<{
 	const theme = useTheme();
 	const { t } = useTranslation();
 	const unitPrefs = useAppSelector(selectUnitPrefs);
+
+	const buttonPropsDelete = useButtonProps({ isDestructive: true });
 
 	const unitPrefKey = getUnitPrefKey(columnKey);
 	const unitPref = unitPrefKey ? unitPrefs[unitPrefKey] : undefined;
@@ -190,11 +193,9 @@ const FilterNumericModal: FC<{
 				<View style={appSharedStyles.modalControls}>
 					<ButtonHighlight
 						onPress={handleDelete}
-						mode="contained"
-						buttonColor={theme.colors.errorContainer}
-						textColor={theme.colors.onErrorContainer}
+						{...buttonPropsDelete}
 					>
-						<Text>{t('lines.removeFilter')}</Text>
+						{t('lines.removeFilter')}
 					</ButtonHighlight>
 				</View>
 			)}

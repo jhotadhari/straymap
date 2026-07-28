@@ -107,6 +107,7 @@ const AccordionItem = ({
 	return (
 		<View style={pageStyles.accordionContainer}>
 			<ButtonHighlight
+				// ! exception: don't use useButtonProps here!
 				onPress={toggleExpanded}
 				contentStyle={dynamicStyles.buttonContentStyle}
 			>

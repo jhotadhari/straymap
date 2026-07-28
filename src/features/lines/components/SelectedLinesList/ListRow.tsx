@@ -21,6 +21,7 @@ import { sharedStyles } from './sharedDeps';
 import LineStatsCompactRows from '../Stats/LineStatsCompactRows';
 import { bbox as turfBbox } from '@turf/turf';
 import { AppContext } from '../../../../Context';
+import { useButtonProps } from '../../../../compose/useButtonProps';
 
 export interface ListRowProps {
 	line: Omit<Line, 'geometry'>;
@@ -36,6 +37,7 @@ const ListRow: FC<ListRowProps> = ({ line, idx, systemFeatureKey }) => {
 	const { flyToBounds } = useMap(mapViewNativeNodeHandle);
 
 	const activateRoutingDrawerItem = useActivateDrawerItem('routing');
+	const activateTrackingDrawerItem = useActivateDrawerItem('trackRecording');
 
 	const theme = useTheme();
 
@@ -50,74 +52,93 @@ const ListRow: FC<ListRowProps> = ({ line, idx, systemFeatureKey }) => {
 	const handleEditPress = useCallback(() => {
 		dispatch(setLineTemp({ id: line.id }));
 	}, [dispatch, line.id]);
+
 	const toggleSelected = useCallback(
 		() => dispatch(setLineSelected(line.id)),
 		[dispatch, line.id]
 	);
 	const stats = line?.stats ?? {};
 
-	const handleActivateRouting = useCallback(() => {
-		activateRoutingDrawerItem();
-		// flyToBounds
+	const handleActivate = useCallback(() => {
 		if (line?.envelope) {
 			const bbox = turfBbox(line.envelope);
 			flyToBounds(bbox, { paddingPx: MAP_ANIMATION_PADDING_PX });
 		}
 	}, [
-		activateRoutingDrawerItem,
 		line,
 		flyToBounds,
 	]);
 
+	const handleActivateRouting = useCallback(() => {
+		activateRoutingDrawerItem();
+		handleActivate();
+	}, [
+		activateRoutingDrawerItem,
+		handleActivate,
+	]);
+
+	const handleActivateTracking = useCallback(() => {
+		activateTrackingDrawerItem();
+		handleActivate();
+	}, [
+		activateTrackingDrawerItem,
+		handleActivate,
+	]);
+
+	const { nestedIconColor, ...buttonPropsAny } = useButtonProps({
+		mode: 'text',
+	});
 	return (
 		<View style={[sharedStyles.row, style]}>
 			<View style={sharedStyles.noShrink}>
 				<ButtonHighlight
-					mode="text"
+					{...buttonPropsAny}
 					compact={true}
 					onPress={handleEditPress}
 				>
 					<Icon
 						source={'cog'}
 						size={DRAWER_ICON_SIZE}
+						color={nestedIconColor}
 					/>
 				</ButtonHighlight>
 
 				{systemFeatureKey === null && (
 					<ButtonHighlight
-						style={sharedStyles.noShrink}
-						mode="text"
+						{...buttonPropsAny}
 						compact={true}
 						onPress={toggleSelected}
 					>
 						<Icon
 							source={'map-minus'}
 							size={DRAWER_ICON_SIZE}
+							color={nestedIconColor}
 						/>
 					</ButtonHighlight>
 				)}
 
 				{systemFeatureKey === 'routing' && (
 					<ButtonHighlight
-						style={sharedStyles.noShrink}
-						mode="text"
+						{...buttonPropsAny}
 						compact={true}
 						onPress={handleActivateRouting}
 					>
-						<IconRouting color={theme.colors.primary} />
+						<IconRouting
+							color={theme.colors.primary} // system lines primary.
+						/>
 					</ButtonHighlight>
 				)}
 
 				{systemFeatureKey !== null && systemFeatureKey !== 'routing' && (
 					<ButtonHighlight
-						style={sharedStyles.noShrink}
-						mode="text"
+						{...buttonPropsAny}
 						compact={true}
-						disabled={true}
+						onPress={handleActivateTracking}
 					>
 						<Icon
-							source={'lock'}
+							source={'record-rec'} // same src/features/trackRecording/drawerPanels/trackRecordingDrawerItem.tsx
 							size={DRAWER_ICON_SIZE}
+							color={theme.colors.primary} // system lines primary.
 						/>
 					</ButtonHighlight>
 				)}

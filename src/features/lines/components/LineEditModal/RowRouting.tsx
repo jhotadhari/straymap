@@ -19,12 +19,12 @@ import { selectIsRouting } from '../../../routing/selectors';
 import { setIsRouting } from '../../../routing/slice';
 import useActivateDrawerItem from '../../../drawers/hooks/useActivateDrawerItem';
 import { sharedStyles } from './sharedDeps';
-import { sharedStyles as appSharedStyles } from '../../../../sharedStyles';
 import IconRouting from '../../../routing/drawerPanels/routing/IconComponent';
 import { AppContext } from '../../../../Context';
 import { MAP_ANIMATION_PADDING_PX } from '../../../../constants';
 import { bbox as turfBbox } from '@turf/turf';
 import { setUiItemKeys } from '../../../ui/slice';
+import { useButtonProps } from '../../../../compose/useButtonProps';
 
 const renderIconRouting = ({ color }: { color: TextStyle['color'] }) => (
 	<IconRouting color={color} />
@@ -74,28 +74,27 @@ const RowRouting: FC = () => {
 		onDismiss,
 	]);
 
-	const buttonStyle = useMemo(
-		() => ({
-			borderColor: theme.colors.onBackground,
-			...((!route?.id || isRouting === route?.id) && {
-				...appSharedStyles.disabled,
-				borderColor: theme.colors.onSurfaceDisabled,
-			}),
-		}),
-		[
-			theme,
-			route?.id,
-			isRouting,
-		]
-	);
+	const disabled = !route?.id || isRouting === route?.id;
 
-	const disabled = useMemo(
-		() => !route?.id || isRouting === route?.id,
-		[
-			route?.id,
-			isRouting,
-		]
-	);
+	const label = useMemo(() => {
+		if (!route?.id) {
+			return t('lines.noRoutingData');
+		} else if (route?.id && isRouting === route?.id) {
+			return t('lines.alreadyRouting');
+		} else {
+			return t('lines.loadRouting');
+		}
+	}, [
+		t,
+		isRouting,
+		route?.id,
+	]);
+
+	const buttonProps = useButtonProps({
+		mode: 'outlined',
+		disabled,
+		paddingHorizontal: true,
+	});
 
 	return (
 		<InfoLabelRow
@@ -103,23 +102,12 @@ const RowRouting: FC = () => {
 			Info={t('lines.hintRouting')}
 		>
 			<ButtonHighlight
-				style={buttonStyle}
-				mode="outlined"
+				{...buttonProps}
 				compact={true}
-				disabled={disabled}
 				onPress={handlePress}
 				icon={renderIconRouting}
-				contentStyle={sharedStyles.buttonContent}
-				labelStyle={sharedStyles.buttonLabel}
-				textColor={theme.colors.onBackground}
 			>
-				<View>
-					{!route?.id && <Text>{t('lines.noRoutingData')}</Text>}
-					{route?.id && isRouting !== route?.id && <Text>{t('lines.loadRouting')}</Text>}
-					{route?.id && isRouting === route?.id && (
-						<Text>{t('lines.alreadyRouting')}</Text>
-					)}
-				</View>
+				{label}
 			</ButtonHighlight>
 		</InfoLabelRow>
 	);

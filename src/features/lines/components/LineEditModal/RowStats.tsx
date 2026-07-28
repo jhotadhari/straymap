@@ -2,18 +2,17 @@
  * External dependencies
  */
 import { FC, Fragment, useContext } from 'react';
-import { Text, useTheme } from 'react-native-paper';
+import { useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { View } from 'react-native';
 
 /**
  * Internal dependencies
  */
 import InfoLabelRow from '../../../../components/generic/infoWrapper/InfoLabelRow';
 import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
-import { sharedStyles } from './sharedDeps';
 import { LineEditModalContext } from './Context';
 import useShowLinesStatsCbModal from '../../hooks/useShowStatsCbModal';
+import { useButtonProps } from '../../../../compose/useButtonProps';
 
 const RowStats: FC = () => {
 	const theme = useTheme();
@@ -27,6 +26,11 @@ const RowStats: FC = () => {
 		lineIds: id ? [id] : [],
 	});
 
+	const buttonProps = useButtonProps({
+		mode: 'outlined',
+		paddingHorizontal: true,
+	});
+
 	return (
 		<Fragment>
 			<InfoLabelRow
@@ -34,17 +38,12 @@ const RowStats: FC = () => {
 				Info={t('lines.hintStats')}
 			>
 				<ButtonHighlight
-					mode="outlined"
+					{...buttonProps}
 					compact={true}
 					onPress={cb}
 					icon="chart-box-outline"
-					contentStyle={sharedStyles.buttonContent}
-					labelStyle={sharedStyles.buttonLabel}
-					textColor={theme.colors.onBackground}
 				>
-					<View>
-						<Text>{t('lines.showStats')}</Text>
-					</View>
+					{t('lines.showStats')}
 				</ButtonHighlight>
 			</InfoLabelRow>
 

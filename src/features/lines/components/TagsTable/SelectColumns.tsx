@@ -15,6 +15,7 @@ import { TableColumn } from '../../types';
 import { selectTagsTableColumns } from '../../selectors';
 import { setTagsTableColumns } from '../../slice';
 import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
+import { useButtonProps } from '../../../../compose/useButtonProps';
 import { Icon, Text } from 'react-native-paper';
 import { DRAWER_ICON_SIZE, MODAL_PADDING, MODAL_WIDTH_FACTOR } from '../../../../constants';
 import { sharedStyles } from '../../../../sharedStyles';
@@ -28,6 +29,9 @@ const DraggableItem: FC<{
 	toggleColumnVisible: () => void;
 }> = ({ column, isColumnVisible, toggleColumnVisible }) => {
 	const { t } = useTranslation();
+
+	const buttonPropsText = useButtonProps({ mode: 'text' });
+
 	const { width } = Dimensions.get('window');
 
 	const style = useMemo(
@@ -49,7 +53,7 @@ const DraggableItem: FC<{
 			</Sortable.Handle>
 
 			<ButtonHighlight
-				mode="text"
+				{...buttonPropsText}
 				compact
 				onPress={toggleColumnVisible}
 			>

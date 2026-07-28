@@ -18,6 +18,7 @@ import { setHardwareKeys } from '../../slice';
 import ListItemMenuControl from '../../../../components/generic/wrapper/ListItemMenuControl';
 import InfoLabelRow from '../../../../components/generic/infoWrapper/InfoLabelRow';
 import { sharedStyles } from '../../../../sharedStyles';
+import ButtonHighlightMenuControl from '../../../../components/generic/wrapper/ButtonHighlightMenuControl';
 
 const keyCodeStringOptions: OptionBase[] = [
 	{
@@ -83,8 +84,7 @@ const RowItem = ({ keyCodeStringOption }: { keyCodeStringOption: OptionBase }) =
 			label={t(keyCodeStringOption.label)}
 			Info={t('general.hint.hardwareKey')}
 		>
-			<ListItemMenuControl
-				listItemStyle={sharedStyles.listItem}
+			<ButtonHighlightMenuControl
 				options={actionKeyOptions}
 				value={hardwareKeyActionConfig?.actionKey}
 				setValue={handleSetValue}

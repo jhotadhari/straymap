@@ -26,6 +26,7 @@ import { ErrorToastContext } from '../../../../components/ErrorToast/Context';
 import { logError } from '../../../../lib/utils';
 import { sharedStyles as appSharedStyles } from '../../../../sharedStyles';
 import { styles } from './sharedDeps';
+import { useButtonProps } from '../../../../compose/useButtonProps';
 
 const formatFileSize = (bytes: number): string => {
 	if (bytes === 0) return '0 B';
@@ -273,7 +274,7 @@ const RowDatabaseFile: FC<{
 
 	const newNameExists = useMemo(() => {
 		const nameWithExt = newName.trim().toLowerCase() + '.' + dbExtension;
-		if (nameWithExt === fileName) return false;
+		if (nameWithExt === fileName) return true;
 		return fileNamesByDir[currentDir]?.has(nameWithExt) ?? false;
 	}, [
 		newName,
@@ -298,6 +299,20 @@ const RowDatabaseFile: FC<{
 		],
 		[isSelected, theme]
 	);
+
+	const buttonPropsCancel = useButtonProps({
+		mode: 'outlined',
+	});
+
+	const buttonPropsRename = useButtonProps({
+		mode: 'outlined',
+		disabled: !newName.trim() || isBusy || newNameExists,
+	});
+
+	const buttonPropsDelete = useButtonProps({
+		isDestructive: true,
+		disabled: isBusy,
+	});
 
 	return (
 		<>
@@ -347,18 +362,16 @@ const RowDatabaseFile: FC<{
 				/>
 				<View style={appSharedStyles.modalControls}>
 					<ButtonHighlight
+						{...buttonPropsCancel}
 						onPress={() => setRenameVisible(false)}
-						mode="outlined"
 					>
-						<Text>{t('cancel')}</Text>
+						{t('cancel')}
 					</ButtonHighlight>
 					<ButtonHighlight
+						{...buttonPropsRename}
 						onPress={handleRenameConfirm}
-						mode="outlined"
-						style={!newName.trim() || isBusy ? appSharedStyles.disabled : undefined}
-						disabled={!newName.trim() || isBusy || newNameExists}
 					>
-						<Text>{t('ok')}</Text>
+						{t('apply')}
 					</ButtonHighlight>
 				</View>
 			</ModalWrapper>
@@ -372,19 +385,16 @@ const RowDatabaseFile: FC<{
 				<Text>{sprintf(t('dbLoader.deleteDatabaseConfirmation'), fileName)}</Text>
 				<View style={appSharedStyles.modalControls}>
 					<ButtonHighlight
+						{...buttonPropsCancel}
 						onPress={() => setDeleteConfirmVisible(false)}
-						mode="outlined"
 					>
-						<Text>{t('cancel')}</Text>
+						{t('cancel')}
 					</ButtonHighlight>
 					<ButtonHighlight
+						{...buttonPropsDelete}
 						onPress={handleDeleteConfirm}
-						mode="contained"
-						buttonColor={theme.colors.errorContainer}
-						textColor={theme.colors.onErrorContainer}
-						disabled={isBusy}
 					>
-						<Text>{t('dbLoader.delete')}</Text>
+						{t('dbLoader.delete')}
 					</ButtonHighlight>
 				</View>
 			</ModalWrapper>

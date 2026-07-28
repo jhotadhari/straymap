@@ -3,7 +3,7 @@
  */
 import { FC, useCallback, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, View, ViewStyle } from 'react-native';
-import { Text, useTheme } from 'react-native-paper';
+import { useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 
 /**
@@ -24,6 +24,7 @@ import FilterConflictModal from '../FilterModals/FilterConflictModal';
 import { ColumnFilter } from '../../types';
 import { sprintf } from 'sprintf-js';
 import { sharedStyles } from '../../../../sharedStyles';
+import { useButtonProps } from '../../../../compose/useButtonProps';
 
 const Header: FC = () => {
 	const theme = useTheme();
@@ -102,8 +103,11 @@ const Header: FC = () => {
 
 	const scrollContentStyle = useMemo(() => ({ alignItems: 'center' as const }), []);
 
-	const contentStyle = useMemo(() => ({ marginVertical: -2 }), []);
 	const disabledIconStyle = useMemo(() => sharedStyles.disabled, []);
+
+	const buttonPropsLogic = useButtonProps({
+		alignWithIconButton: true,
+	});
 
 	return (
 		<View style={style}>
@@ -118,19 +122,15 @@ const Header: FC = () => {
 
 				{hasMultipleFilters && (
 					<ButtonHighlight
-						mode="outlined"
-						compact={true}
+						{...buttonPropsLogic}
 						onPress={handleToggleFilterLogic}
-						contentStyle={contentStyle}
 					>
-						<Text>
-							{sprintf(
-								t('lines.filterLogic'),
-								filterLogic === 'and'
-									? t('lines.filterLogicAnd')
-									: t('lines.filterLogicOr')
-							)}
-						</Text>
+						{sprintf(
+							t('lines.filterLogic'),
+							filterLogic === 'and'
+								? t('lines.filterLogicAnd')
+								: t('lines.filterLogicOr')
+						)}
 					</ButtonHighlight>
 				)}
 

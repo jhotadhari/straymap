@@ -35,6 +35,9 @@ import { selectLastProfiles } from '../selectors';
 import ButtonHighlight from '../../../components/generic/primitives/ButtonHighlight';
 import { StyleSheet } from 'react-native';
 import { OPACITY_DISABLED } from '../../../constants';
+import { useButtonProps } from '../../../compose/useButtonProps';
+import ButtonHighlightMenuControl from '../../../components/generic/wrapper/ButtonHighlightMenuControl';
+import { sharedStyles as appSharedStyles } from '../../../sharedStyles';
 
 const providerOptions = [
 	{
@@ -124,7 +127,7 @@ const ProviderRowControl = ({
 			label={t('routing.provider')}
 			Info={t('routing.hintProvider')}
 		>
-			<ListItemMenuControl
+			<ButtonHighlightMenuControl
 				options={providerOptions}
 				value={get(selectedOpt, 'key')}
 				setValue={handleSetProvider}
@@ -174,7 +177,7 @@ const VehicleRowControl = ({
 			label={t('routing.profile')}
 			Info={t('routing.hintProfile')}
 		>
-			<ListItemMenuControl
+			<ButtonHighlightMenuControl
 				options={vehicleOptions}
 				value={get(selectedOpt, 'key')}
 				setValue={handleSetVehicle}
@@ -226,7 +229,7 @@ const CompressionModeRowControl = ({
 			label={t('routing.compressionMode')}
 			Info={t('routing.hintCompressionMode')}
 		>
-			<ListItemMenuControl
+			<ButtonHighlightMenuControl
 				options={compressionModeOptions}
 				value={get(selectedOpt, 'key')}
 				setValue={handleSetCompressionMode}
@@ -377,11 +380,17 @@ const EditPointModal: FC<{
 		});
 	}, [setEditPoint, prevProfile]);
 
+	const buttonProps = useButtonProps({
+		mode: 'outlined',
+		disabled: prevProfileDisabled,
+	});
+
 	return (
 		<ModalWrapper
 			visible={!!editPoint.profile}
 			onDismiss={onDismiss}
 			headerLabel={t('routing.editProfile')}
+			innerStyle={appSharedStyles.gap}
 		>
 			<ProviderRowControl
 				editPoint={editPoint}
@@ -421,13 +430,11 @@ const EditPointModal: FC<{
 				Info={t('routing.hintApplyPrevPointProfile')}
 			>
 				<ButtonHighlight
-					mode="outlined"
+					{...buttonProps}
 					compact={true}
-					disabled={prevProfileDisabled}
 					onPress={handleApplyPrev}
-					labelStyle={prevProfileDisabled ? styles.disabled : undefined}
 				>
-					<Text>{t('routing.applyPrevPointProfileBtn')}</Text>
+					{t('routing.applyPrevPointProfileBtn')}
 				</ButtonHighlight>
 			</InfoLabelRow>
 		</ModalWrapper>

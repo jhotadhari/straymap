@@ -29,6 +29,7 @@ import NumericRowControlMulti from '../../../../../components/generic/controls/N
 import ListItemMenuControl from '../../../../../components/generic/wrapper/ListItemMenuControl';
 import { stringifyProp } from '../../../utils';
 import { sharedStyles } from '../../../../../sharedStyles';
+import ButtonHighlightMenuControl from '../../../../../components/generic/wrapper/ButtonHighlightMenuControl';
 
 interface SourceOption extends OptionBase {
 	url?: `http://${string}` | `https://${string}`;
@@ -355,8 +356,7 @@ const SourceRowControl: FC<{}> = () => {
 				</View>
 			}
 		>
-			<ListItemMenuControl
-				listItemStyle={sharedStyles.listItem}
+			<ButtonHighlightMenuControl
 				options={sourceOptions}
 				value={selectedOpt}
 				setValue={setSelectedOpt}
@@ -472,7 +472,6 @@ const LayerControlOnlineRasterXYZ: FC<{}> = () => {
 
 const styles = StyleSheet.create({
 	belowWrapper: {
-		marginTop: -18,
 		marginBottom: 10,
 	},
 	textInput: { width: '100%' },

@@ -19,8 +19,7 @@ import { selectEditItem } from '../../selectors';
 import { DashboardItem } from '../../types';
 import NumericRowControlSegmented from '../../../../components/generic/controls/NumericRowControlSegmented';
 import ToggleRowControlSegmented from '../../../../components/generic/controls/ToggleRowControlSegmented';
-import ListItemMenuControl from '../../../../components/generic/wrapper/ListItemMenuControl';
-import { sharedStyles } from '../../../../sharedStyles';
+import ButtonHighlightMenuControl from '../../../../components/generic/wrapper/ButtonHighlightMenuControl';
 
 type OptionsWithUnitPref = {
 	unitPref?: Partial<UnitPref>;
@@ -289,8 +288,7 @@ const ItemUnitPrefControl: FC<{ unitPrefsKey: string; buttonLabel?: string }> = 
 				label={t('unit')}
 				Info={t('dashboard.hint.item.unit')}
 			>
-				<ListItemMenuControl
-					listItemStyle={sharedStyles.listItem}
+				<ButtonHighlightMenuControl
 					options={opts}
 					value={get(selectedOpt, 'key')}
 					setValue={handleMenuPress}
@@ -365,8 +363,7 @@ const ItemUnitPrefControl: FC<{ unitPrefsKey: string; buttonLabel?: string }> = 
 						label={t('coordsOrder')}
 						Info={t('general.hint.units.coordsOrder')}
 					>
-						<ListItemMenuControl
-							listItemStyle={sharedStyles.listItem}
+						<ButtonHighlightMenuControl
 							options={coordsOrderOpts}
 							value={get(selectedCoordsOrderOpt, 'key')}
 							setValue={handleCoordsOrderUpdate}

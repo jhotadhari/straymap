@@ -14,6 +14,8 @@ import { sharedStyles } from './sharedDeps';
 import { sharedStyles as appSharedStyles } from '../../../sharedStyles';
 import { strValToNb } from '../../../lib/utils';
 import { NumType } from '../../../types';
+import { useButtonProps } from '../../../compose/useButtonProps';
+import { OPACITY_DISABLED } from '../../../constants';
 
 const NumericRowControlSegmented = ({
 	label,
@@ -193,6 +195,16 @@ const NumericRowControlSegmented = ({
 		[numValueActive, inputStyle]
 	);
 
+	const buttonProps = useButtonProps({
+		mode: 'outlined',
+		style: numValueActive
+			? {
+					borderColor: 'transparent',
+					opacity: OPACITY_DISABLED,
+				}
+			: undefined,
+	});
+
 	return (
 		<InfoLabelRow
 			label={label}
@@ -201,12 +213,10 @@ const NumericRowControlSegmented = ({
 		>
 			<View style={sharedStyles.flexRow}>
 				<ButtonHighlight
-					mode={numValueActive ? 'text' : 'outlined'}
-					style={styleButton}
-					labelStyle={styleButtonLabel}
+					{...buttonProps}
 					onPress={handleButtonPress}
 				>
-					<Text>{buttonLabel}</Text>
+					{buttonLabel}
 				</ButtonHighlight>
 
 				<TextInput

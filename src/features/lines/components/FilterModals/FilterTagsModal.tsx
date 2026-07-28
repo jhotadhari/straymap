@@ -13,6 +13,7 @@ import Popover from 'react-native-popover-view';
  */
 import ModalWrapper from '../../../../components/generic/wrapper/ModalWrapper';
 import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
+import { useButtonProps } from '../../../../compose/useButtonProps';
 import InfoLabelRow from '../../../../components/generic/infoWrapper/InfoLabelRow';
 import RadioListItem from '../../../../components/generic/wrapper/RadioListItem';
 import MenuItem from '../../../../components/generic/wrapper/MenuItem';
@@ -34,6 +35,10 @@ const FilterTagsModal: FC<{
 }> = ({ visible, columnKey, existingFilter, onDismiss, onSave, onDelete }) => {
 	const theme = useTheme();
 	const { t } = useTranslation();
+
+	const buttonPropsDelete = useButtonProps({ isDestructive: true });
+
+	const buttonPropsPopover = useButtonProps({ mode: 'outlined' });
 
 	const [operator, setOperator] = useState<TagsFilterOperator>(existingFilter?.operator ?? 'has');
 	const [selectedTagLabel, setSelectedTagLabel] = useState<string>(existingFilter?.value ?? '');
@@ -151,13 +156,6 @@ const FilterTagsModal: FC<{
 		[theme]
 	);
 
-	const tagButtonTextStyle = useMemo(
-		() => ({
-			color: selectedTagLabel ? theme.colors.onSurface : theme.colors.onSurfaceVariant,
-		}),
-		[theme, selectedTagLabel]
-	);
-
 	const emptyTextStyle = useMemo(() => ({ color: theme.colors.onSurfaceVariant }), [theme]);
 
 	return (
@@ -183,14 +181,11 @@ const FilterTagsModal: FC<{
 			>
 				<View>
 					<ButtonHighlight
+						{...buttonPropsPopover}
 						ref={anchorRef}
 						onPress={handleOpenPopover}
-						mode="outlined"
-						style={tagButtonStyle}
 					>
-						<Text style={tagButtonTextStyle}>
-							{selectedTagLabel || t('lines.tagsFilterPlaceholder')}
-						</Text>
+						{selectedTagLabel || t('lines.tagsFilterPlaceholder')}
 					</ButtonHighlight>
 
 					<Popover
@@ -232,11 +227,9 @@ const FilterTagsModal: FC<{
 				<View style={appSharedStyles.modalControls}>
 					<ButtonHighlight
 						onPress={handleDelete}
-						mode="contained"
-						buttonColor={theme.colors.errorContainer}
-						textColor={theme.colors.onErrorContainer}
+						{...buttonPropsDelete}
 					>
-						<Text>{t('lines.removeFilter')}</Text>
+						{t('lines.removeFilter')}
 					</ButtonHighlight>
 				</View>
 			)}

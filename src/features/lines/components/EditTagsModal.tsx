@@ -15,6 +15,7 @@ import ModalWrapper from '../../../components/generic/wrapper/ModalWrapper';
 import LoadingIndicator from '../../../components/generic/primitives/LoadingIndicator';
 import ToggleRowControl from '../../../components/generic/controls/ToggleRowControl';
 import ButtonHighlight from '../../../components/generic/primitives/ButtonHighlight';
+import { useButtonProps } from '../../../compose/useButtonProps';
 import TagBadge from './TagBadge';
 import CreateTagModal from './CreateTagModal';
 import { queryAllTags, invalidateTagsTable } from '../db/queryFns';
@@ -48,6 +49,8 @@ const EditTagsModal: FC<EditTagsModalProps> = ({
 	const [createModalVisible, setCreateModalVisible] = useState(false);
 
 	const systemTagLabels = useMemo(() => featureRegistry.getSystemTagLabels(), []);
+
+	const buttonProps = useButtonProps({});
 
 	const refreshAvailableTags = useCallback(async () => {
 		const result = await queryAllTags();
@@ -123,6 +126,7 @@ const EditTagsModal: FC<EditTagsModalProps> = ({
 				innerStyle={styles.modalInner}
 			>
 				<ButtonHighlight
+					{...buttonProps}
 					icon="tag-plus-outline"
 					onPress={() => setCreateModalVisible(true)}
 				>

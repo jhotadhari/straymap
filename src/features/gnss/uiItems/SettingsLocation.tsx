@@ -4,7 +4,6 @@
 import React, { FC, useCallback, useContext } from 'react';
 import { ScrollView, ViewStyle } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { useTheme } from 'react-native-paper';
 
 /**
  * Internal dependencies
@@ -17,16 +16,19 @@ import { startRecording, stopRecording } from '../../trackRecording/slice';
 import TrackRecordingControl from '../../trackRecording/components/TrackRecordingControl';
 import InfoLabelRow from '../../../components/generic/infoWrapper/InfoLabelRow';
 import ButtonHighlight from '../../../components/generic/primitives/ButtonHighlight';
+import { useButtonProps } from '../../../compose/useButtonProps';
 import { MapContext } from '../../../Context';
 
 const SettingsLocation: FC<{ style?: ViewStyle }> = ({ style }) => {
 	const { t } = useTranslation();
-	const theme = useTheme();
 	const dispatch = useAppDispatch();
 	const { currentMapEventRef } = useContext(MapContext);
 
 	const isGnssActive = useAppSelector(selectIsActive);
 	const isRecording = useAppSelector(selectIsRecording);
+
+	const buttonPropsGnss = useButtonProps({ mode: isGnssActive ? 'contained' : 'outlined' });
+	const buttonPropsRecording = useButtonProps({ mode: isRecording ? 'contained' : 'outlined' });
 
 	const handleToggleGnss = useCallback(() => {
 		dispatch(setIsActive(!isGnssActive));
@@ -62,11 +64,10 @@ const SettingsLocation: FC<{ style?: ViewStyle }> = ({ style }) => {
 				Info={t(isGnssActive ? 'gnss.deactivateGnss' : 'gnss.activateGnss')}
 			>
 				<ButtonHighlight
-					mode={isGnssActive ? 'contained' : 'outlined'}
+					{...buttonPropsGnss}
 					compact={true}
 					onPress={handleToggleGnss}
 					icon={isGnssActive ? 'crosshairs-gps' : 'crosshairs-off'}
-					textColor={theme.colors.onBackground}
 				>
 					{isGnssActive ? t('gnss.deactivateGnss') : t('gnss.activateGnss')}
 				</ButtonHighlight>
@@ -77,11 +78,10 @@ const SettingsLocation: FC<{ style?: ViewStyle }> = ({ style }) => {
 				Info={t(isRecording ? 'trackRecording.stop' : 'trackRecording.start')}
 			>
 				<ButtonHighlight
-					mode={isRecording ? 'contained' : 'outlined'}
+					{...buttonPropsRecording}
 					compact={true}
 					onPress={handleToggleRecording}
 					icon={isRecording ? 'stop' : 'record-rec'}
-					textColor={theme.colors.onBackground}
 				>
 					{isRecording ? t('trackRecording.stop') : t('trackRecording.start')}
 				</ButtonHighlight>

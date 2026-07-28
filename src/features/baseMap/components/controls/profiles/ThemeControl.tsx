@@ -2,11 +2,14 @@
  * External dependencies
  */
 import { FC, useCallback, useMemo } from 'react';
-import { View, TouchableHighlight, Linking } from 'react-native';
+import { View, Linking } from 'react-native';
 import { useTheme, Text, Icon } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { get, omit } from 'lodash-es';
 import { sprintf } from 'sprintf-js';
+
+import ButtonHighlight from '../../../../../components/generic/primitives/ButtonHighlight';
+import { useButtonProps } from '../../../../../compose/useButtonProps';
 
 /**
  * react-native-mapsforge-vtm dependencies
@@ -32,7 +35,6 @@ const ResetCacheButton: FC<{
 	isFetchingTheme: boolean;
 }> = ({ renderStylesCache, isFetchingTheme }) => {
 	const dispatch = useAppDispatch();
-	const theme = useTheme();
 
 	const profileTemp = useAppSelector(selectMapsforgeProfileTemp);
 
@@ -64,17 +66,19 @@ const ResetCacheButton: FC<{
 		renderStylesCache.optionsMap,
 	]);
 
+	const { nestedIconColor, ...buttonProps } = useButtonProps({ mode: 'text' });
 	return isFetchingTheme ? undefined : (
-		<TouchableHighlight
-			underlayColor={theme.colors.elevation.level3}
+		<ButtonHighlight
+			{...buttonProps}
+			compact
 			onPress={handlePress}
-			// style={{ borderRadius: theme.roundness }}
 		>
 			<Icon
 				source="refresh"
 				size={25}
+				color={nestedIconColor}
 			/>
-		</TouchableHighlight>
+		</ButtonHighlight>
 	);
 };
 

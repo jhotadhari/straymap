@@ -3,10 +3,9 @@
  */
 import { FC, useCallback, useContext, useState } from 'react';
 import { View } from 'react-native';
-import { Text, useTheme } from 'react-native-paper';
+import { Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { get } from 'lodash-es';
 import { sprintf } from 'sprintf-js';
 
 /**
@@ -22,11 +21,10 @@ import { featureRegistry } from '../../../FeatureRegistry';
 import { ErrorToastContext } from '../../../../components/ErrorToast/Context';
 import { logError } from '../../../../lib/utils';
 import { sharedStyles as appSharedStyles } from '../../../../sharedStyles';
-import { sharedStyles } from './sharedDeps';
+import { useButtonProps } from '../../../../compose/useButtonProps';
 
 const RowDelete: FC = () => {
 	const { t } = useTranslation();
-	const theme = useTheme();
 	const { showError } = useContext(ErrorToastContext);
 	const queryClient = useQueryClient();
 
@@ -68,6 +66,22 @@ const RowDelete: FC = () => {
 		setConfirmVisible(false);
 	}, []);
 
+	const buttonPropsAnchor = useButtonProps({
+		isDestructive: true,
+		disabled: isSystemTag || deleteMutation.isPending,
+		paddingHorizontal: true,
+	});
+
+	const buttonPropsCancel = useButtonProps({
+		isSuccess: true,
+		paddingHorizontal: true,
+	});
+
+	const buttonPropsDelete = useButtonProps({
+		isDestructive: true,
+		paddingHorizontal: true,
+	});
+
 	return (
 		<>
 			<InfoLabelRow
@@ -75,23 +89,10 @@ const RowDelete: FC = () => {
 				Info={t('lines.hintDelete')}
 			>
 				<ButtonHighlight
+					{...buttonPropsAnchor}
 					onPress={handlePress}
-					mode="contained"
-					disabled={isSystemTag || deleteMutation.isPending}
-					buttonColor={isSystemTag ? undefined : theme.colors.errorContainer}
-					textColor={isSystemTag ? undefined : theme.colors.onErrorContainer}
-					contentStyle={sharedStyles.buttonContent}
-					labelStyle={sharedStyles.buttonLabel}
 				>
-					<Text
-						style={{
-							color: isSystemTag
-								? theme.colors.onSurfaceDisabled
-								: theme.colors.onErrorContainer,
-						}}
-					>
-						{t('lines.delete')}
-					</Text>
+					{t('lines.delete')}
 				</ButtonHighlight>
 			</InfoLabelRow>
 
@@ -105,21 +106,17 @@ const RowDelete: FC = () => {
 
 				<View style={appSharedStyles.modalControls}>
 					<ButtonHighlight
+						{...buttonPropsCancel}
 						onPress={handleDismissConfirm}
-						mode="contained"
-						buttonColor={get(theme.colors, 'successContainer')}
-						textColor={get(theme.colors, 'onSuccessContainer')}
 					>
-						<Text>{t('cancel')}</Text>
+						{t('cancel')}
 					</ButtonHighlight>
 
 					<ButtonHighlight
 						onPress={handleConfirm}
-						mode="contained"
-						buttonColor={theme.colors.errorContainer}
-						textColor={theme.colors.onErrorContainer}
+						{...buttonPropsDelete}
 					>
-						<Text>{t('lines.delete')}</Text>
+						{t('lines.delete')}
 					</ButtonHighlight>
 				</View>
 			</ModalWrapper>

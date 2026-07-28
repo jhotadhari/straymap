@@ -37,6 +37,12 @@ export const sharedStyles = StyleSheet.create({
 		justifyContent: 'space-between',
 		alignItems: 'center',
 	},
+	modalControlsEnd: {
+		marginBottom: 40,
+		flexDirection: 'row',
+		justifyContent: 'flex-end',
+		alignItems: 'center',
+	},
 	listItem: {
 		marginLeft: 0,
 		paddingLeft: 10,

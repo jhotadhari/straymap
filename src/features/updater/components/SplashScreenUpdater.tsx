@@ -13,6 +13,7 @@ import { useTranslation } from 'react-i18next';
  */
 import SplashScreen from '../../../components/SplashScreen';
 import ButtonHighlight from '../../../components/generic/primitives/ButtonHighlight';
+import { useButtonProps } from '../../../compose/useButtonProps';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import packageJson from '../../../../package.json';
 import { selectInstalledVersion, selectIsUpdating } from '../selectors';
@@ -21,8 +22,9 @@ import { setIsUpdating } from '../slice';
 const handleExitApp = () => BackHandler.exitApp();
 
 const FailControls: FC = () => {
-	const theme = useTheme();
 	const { t } = useTranslation();
+
+	const buttonProps = useButtonProps({});
 
 	const dispatch = useAppDispatch();
 
@@ -36,22 +38,16 @@ const FailControls: FC = () => {
 			<Text style={styles.marginTop}>{t('updater.updaterFail')}</Text>
 			<View style={styles.failControlsRow}>
 				<ButtonHighlight
-					style={styles.failControlsButton}
+					{...buttonProps}
 					onPress={handleProceed}
-					mode="contained"
-					buttonColor={get(theme.colors, 'primaryContainer')}
-					textColor={get(theme.colors, 'onPrimaryContainer')}
 				>
-					<Text>{t('updater.updaterProceed')}</Text>
+					{t('updater.updaterProceed')}
 				</ButtonHighlight>
 				<ButtonHighlight
-					style={styles.failControlsButton}
+					{...buttonProps}
 					onPress={handleExitApp}
-					mode="contained"
-					buttonColor={get(theme.colors, 'primaryContainer')}
-					textColor={get(theme.colors, 'onPrimaryContainer')}
 				>
-					<Text>{t('updater.updaterCloseApp')}</Text>
+					{t('updater.updaterCloseApp')}
 				</ButtonHighlight>
 			</View>
 		</View>
@@ -153,8 +149,6 @@ const styles = StyleSheet.create({
 	failControlsRow: {
 		flexDirection: 'row',
 		justifyContent: 'space-between',
-	},
-	failControlsButton: {
 		marginTop: 20,
 		marginBottom: 40,
 	},

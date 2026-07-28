@@ -17,6 +17,7 @@ import { styles } from './sharedDeps';
 import { sharedStyles } from '../../../../sharedStyles';
 import IconButtonHighlight from '../../../../components/generic/primitives/IconButtonHighlight';
 import { getDbDefaultName } from '../../utils';
+import { useButtonProps } from '../../../../compose/useButtonProps';
 
 const RowCreateNew: FC<{
 	dir: string;
@@ -49,15 +50,21 @@ const RowCreateNew: FC<{
 		onCreated,
 	]);
 
+	const buttonPropsAnchor = useButtonProps({});
+
+	const buttonPropsCancel = useButtonProps({
+		mode: 'text',
+	});
+
 	return (
 		<View style={styles.createNewRow}>
 			{!expanded && (
 				<View style={sharedStyles.flexRow}>
 					<ButtonHighlight
+						{...buttonPropsAnchor}
 						onPress={handleExpand}
-						mode="outlined"
 					>
-						<Text>{t('dbLoader.createNewDatabase')}</Text>
+						{t('dbLoader.createNewDatabase')}
 					</ButtonHighlight>
 				</View>
 			)}
@@ -74,11 +81,11 @@ const RowCreateNew: FC<{
 					/>
 					<View style={styles.createNewActions}>
 						<ButtonHighlight
+							{...buttonPropsCancel}
 							onPress={() => setExpanded(false)}
-							mode="text"
 							compact
 						>
-							<Text>{t('cancel')}</Text>
+							{t('cancel')}
 						</ButtonHighlight>
 
 						<IconButtonHighlight

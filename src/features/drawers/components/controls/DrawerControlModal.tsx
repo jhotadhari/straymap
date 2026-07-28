@@ -137,10 +137,12 @@ const Item: FC<{
 	return (
 		<View style={styles.itemRow}>
 			<ButtonHighlight
+				// ! exception, don't use useButtonProps!
 				onPress={handlePress.left}
 				{...getBtnProps('left')}
 			>
 				<Icon
+					// ! exception, don't use nestedIconColor from useButtonProps!
 					source={'left' === isOnSide ? 'minus' : 'plus'}
 					size={20}
 				/>
@@ -161,10 +163,12 @@ const Item: FC<{
 			</View>
 
 			<ButtonHighlight
+				// ! exception, don't use useButtonProps!
 				onPress={handlePress.right}
 				{...getBtnProps('right')}
 			>
 				<Icon
+					// ! exception, don't use nestedIconColor from useButtonProps!
 					source={'right' === isOnSide ? 'minus' : 'plus'}
 					size={20}
 				/>

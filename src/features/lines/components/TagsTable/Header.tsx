@@ -3,7 +3,7 @@
  */
 import { FC, useCallback, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, View, ViewStyle } from 'react-native';
-import { Text, useTheme } from 'react-native-paper';
+import { useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { sprintf } from 'sprintf-js';
 
@@ -18,11 +18,12 @@ import { getFilterKey, ColumnFilter } from '../../types';
 import { detectFilterConflicts } from '../../db/filterConflicts';
 import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
 import IconButtonHighlight from '../../../../components/generic/primitives/IconButtonHighlight';
+import { useButtonProps } from '../../../../compose/useButtonProps';
 import TagSelectColumns from './SelectColumns';
 import TagFilterModals from './FilterModals';
 import FilterBadge from '../FilterModals/FilterBadge';
 import FilterConflictModal from '../FilterModals/FilterConflictModal';
-import { OPACITY_DISABLED } from '../../../../constants';
+import { sharedStyles } from '../../../../sharedStyles';
 
 const TagHeader: FC = () => {
 	const theme = useTheme();
@@ -98,8 +99,11 @@ const TagHeader: FC = () => {
 
 	const scrollStyle = useMemo(() => ({ flexShrink: 1, alignSelf: 'center' as const }), []);
 	const scrollContentStyle = useMemo(() => ({ alignItems: 'center' as const }), []);
-	const contentStyle = useMemo(() => ({ marginVertical: -2 }), []);
-	const disabledIconStyle = useMemo(() => ({ opacity: OPACITY_DISABLED }), []);
+	const disabledIconStyle = useMemo(() => sharedStyles.disabled, []);
+
+	const buttonPropsLogic = useButtonProps({
+		alignWithIconButton: true,
+	});
 
 	return (
 		<View style={style}>
@@ -113,19 +117,16 @@ const TagHeader: FC = () => {
 
 				{hasMultipleFilters && (
 					<ButtonHighlight
-						mode="outlined"
+						{...buttonPropsLogic}
 						compact
 						onPress={handleToggleFilterLogic}
-						contentStyle={contentStyle}
 					>
-						<Text>
-							{sprintf(
-								t('lines.filterLogic'),
-								filterLogic === 'and'
-									? t('lines.filterLogicAnd')
-									: t('lines.filterLogicOr')
-							)}
-						</Text>
+						{sprintf(
+							t('lines.filterLogic'),
+							filterLogic === 'and'
+								? t('lines.filterLogicAnd')
+								: t('lines.filterLogicOr')
+						)}
 					</ButtonHighlight>
 				)}
 

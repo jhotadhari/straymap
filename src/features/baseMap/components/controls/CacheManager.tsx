@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { useCallback, useMemo, useState } from 'react';
-import { View, TouchableHighlight, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { List, useTheme, Text, Icon } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { get } from 'lodash-es';
@@ -12,6 +12,8 @@ import { get } from 'lodash-es';
  */
 import InfoLabelRow from '../../../../components/generic/infoWrapper/InfoLabelRow';
 import LoadingIndicator from '../../../../components/generic/primitives/LoadingIndicator';
+import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
+import { useButtonProps } from '../../../../compose/useButtonProps';
 import { FsModule } from '../../../../nativeModules';
 import { LayerConfig } from '../../types';
 import { selectElementExpanded } from '../../../ui/selectors';
@@ -53,8 +55,6 @@ const CacheRow = ({
 		[theme]
 	);
 
-	const styleDeleteAction = useMemo(() => ({ borderRadius: theme.roundness }), [theme]);
-
 	const handleDeletePress = useCallback(() => {
 		setDeleting(true);
 		FsModule.deleteDir(pathFull).finally(() => {
@@ -62,6 +62,11 @@ const CacheRow = ({
 			updateCacheDirs();
 		});
 	}, [pathFull, updateCacheDirs]);
+
+	const { nestedIconColor, ...buttonProps } = useButtonProps({
+		mode: 'text',
+		style: styles.deleteAction,
+	});
 
 	return (
 		<InfoLabelRow
@@ -86,16 +91,17 @@ const CacheRow = ({
 				</View>
 
 				{!deleting && (
-					<TouchableHighlight
-						underlayColor={theme.colors.elevation.level3}
+					<ButtonHighlight
+						{...buttonProps}
+						compact
 						onPress={handleDeletePress}
-						style={styleDeleteAction}
 					>
 						<Icon
 							source="delete-outline"
 							size={25}
+							color={nestedIconColor}
 						/>
-					</TouchableHighlight>
+					</ButtonHighlight>
 				)}
 
 				{deleting && <LoadingIndicator />}
@@ -246,6 +252,9 @@ const styles = StyleSheet.create({
 	cacheDirRow: {
 		marginLeft: -12,
 		gap: 16,
+	},
+	deleteAction: {
+		marginRight: -8,
 	},
 });
 

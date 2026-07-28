@@ -4,12 +4,12 @@
 import { StyleSheet } from 'react-native';
 
 export const sharedStyles = StyleSheet.create({
-	addItem: { marginRight: 20 },
 	itemsNone: { marginLeft: 18, marginBottom: 35 },
 	controls: {
 		justifyContent: 'space-between',
 		flexDirection: 'row',
 		marginBottom: 25,
+		marginRight: 20,
 	},
 	grid: {
 		marginLeft: -40, // revert paper paddingLeft 40
@@ -29,11 +29,5 @@ export const sharedStyles = StyleSheet.create({
 		overflow: 'hidden',
 		paddingLeft: 12,
 		paddingRight: 24,
-	},
-	addButtonContent: {
-		alignItems: 'center',
-		justifyContent: 'center',
-		flexDirection: 'row',
-		gap: 8,
 	},
 });

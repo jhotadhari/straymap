@@ -17,14 +17,12 @@ const ListItem = ({
 	iconSize,
 	title,
 	style,
-	active,
 }: {
 	onPress?: () => void;
 	icon?: string | ((props: { color: string; style: ListStyle }) => ReactNode);
 	iconSize?: number;
 	style?: null | ViewStyle;
 	title?: ReactNode;
-	active?: boolean;
 }) => {
 	const theme = useTheme();
 
@@ -36,19 +34,12 @@ const ListItem = ({
 	const styleInner = useMemo(
 		() => [
 			styles.inner,
-			active && { backgroundColor: theme.colors.primary },
 			style,
 		],
 		[
-			active,
 			theme,
 			style,
 		]
-	);
-
-	const styleTitle = useMemo(
-		() => (active ? { color: theme.colors.onPrimary } : undefined),
-		[active, theme]
 	);
 
 	return (
@@ -63,12 +54,10 @@ const ListItem = ({
 						<Icon
 							source={icon}
 							size={iconSize || DRAWER_ICON_SIZE}
-							color={active ? theme.colors.onPrimary : undefined}
 						/>
 					</View>
 				)}
-				{title && 'string' === typeof title && <Text style={styleTitle}>{title}</Text>}
-				{title && 'string' !== typeof title && title}
+				<Text>{title}</Text>
 			</View>
 		</TouchableHighlight>
 	);

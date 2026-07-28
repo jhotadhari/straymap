@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { FC, useCallback, useContext } from 'react';
-import { Text, useTheme } from 'react-native-paper';
+import { useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 
 /**
@@ -14,7 +14,7 @@ import { useAppDispatch } from '../../../../store/hooks';
 import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
 import { setLinesFilters, setLinesFilterLogic, setTagTemp } from '../../slice';
 import { addUiItemKey } from '../../../ui/slice';
-import { sharedStyles } from './sharedDeps';
+import { useButtonProps } from '../../../../compose/useButtonProps';
 
 const RowShowRoutes: FC = () => {
 	const { t } = useTranslation();
@@ -41,7 +41,13 @@ const RowShowRoutes: FC = () => {
 		dispatch(addUiItemKey('linesBrowser'));
 	}, [dispatch, tag]);
 
-	const disabled = !tag?.label;
+	const disabled = !tag?.line_count;
+
+	const buttonProps = useButtonProps({
+		mode: 'outlined',
+		disabled,
+		paddingHorizontal: true,
+	});
 
 	return (
 		<InfoLabelRow
@@ -49,15 +55,11 @@ const RowShowRoutes: FC = () => {
 			Info={t('lines.showRoutesWithTagHint')}
 		>
 			<ButtonHighlight
-				mode="outlined"
-				compact
-				disabled={disabled}
+				{...buttonProps}
+				compact={true}
 				onPress={handlePress}
-				contentStyle={sharedStyles.buttonContent}
-				labelStyle={sharedStyles.buttonLabel}
-				textColor={theme.colors.onBackground}
 			>
-				<Text>{t('lines.showRoutesWithTag')}</Text>
+				{t('lines.showRoutesWithTag')}
 			</ButtonHighlight>
 		</InfoLabelRow>
 	);

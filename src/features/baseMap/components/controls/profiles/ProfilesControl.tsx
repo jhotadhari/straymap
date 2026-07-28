@@ -28,6 +28,7 @@ import { get } from 'lodash-es';
 import { sprintf } from 'sprintf-js';
 import { Style } from 'react-native-paper/lib/typescript/components/List/utils';
 import { useRenderStyleOptions } from 'react-native-mapsforge-vtm';
+import { IconSource } from 'react-native-paper/lib/typescript/components/Icon';
 
 /**
  * Internal dependencies
@@ -65,6 +66,7 @@ import HasBuildingsControl from './HasBuildingsControl';
 import HasLabelsControl from './HasLabelsControl';
 import ThemeControl from './ThemeControl';
 import { BUTTON_ICON_SIZE } from '../../../../../constants';
+import { useButtonProps } from '../../../../../compose/useButtonProps';
 
 const itemHeight = 50;
 
@@ -214,6 +216,10 @@ const EditModal: FC<{
 
 	const handleLayout = useCallback(() => setModalVisible(true), []);
 
+	const buttonProps = useButtonProps({
+		isDestructive: true,
+	});
+
 	return !profileTemp ? undefined : (
 		<ModalWrapper
 			visible={modalVisible}
@@ -255,14 +261,12 @@ const EditModal: FC<{
 
 				<HasBuildingsControl />
 
-				<View style={sharedStyles.modalControls}>
+				<View style={sharedStyles.modalControlsEnd}>
 					<ButtonHighlight
+						{...buttonProps}
 						onPress={handleRemoveItem}
-						mode="contained"
-						buttonColor={theme.colors.errorContainer}
-						textColor={theme.colors.onErrorContainer}
 					>
-						<Text>{t('baseMap.mapsforge.profileRemove')}</Text>
+						{t('baseMap.mapsforge.profileRemove')}
 					</ButtonHighlight>
 				</View>
 			</View>
@@ -600,13 +604,6 @@ const ProfilesControl: FC<{
 		[theme]
 	);
 
-	const styleColorPrimary = useMemo(
-		() => ({
-			color: theme.colors.primary,
-		}),
-		[theme]
-	);
-
 	const handleAddNewProfile = useCallback(() => {
 		const newProfile = getNewProfile();
 		setIsNewKey(newProfile.key);
@@ -614,6 +611,11 @@ const ProfilesControl: FC<{
 	}, [
 		dispatch,
 	]);
+
+	const buttonProps = useButtonProps({
+		mode: 'outlined',
+		textColor: theme.colors.primary,
+	});
 
 	return (
 		<View>
@@ -676,25 +678,26 @@ const ProfilesControl: FC<{
 					/>
 
 					<ButtonHighlight
-						style={sharedStylesBaseMapControls.addItem}
-						mode="outlined"
+						{...buttonProps}
 						onPress={handleAddNewProfile}
+						icon={AddIcon}
 					>
-						<View style={sharedStylesBaseMapControls.addButtonContent}>
-							<IconIcomoon
-								name="mapsforge_puzzle_plus"
-								size={BUTTON_ICON_SIZE}
-								color={theme.colors.primary}
-							/>
-
-							<Text style={styleColorPrimary}>
-								{newLabel ?? t('baseMap.mapsforge.profileAddNew')}
-							</Text>
-						</View>
+						{newLabel ?? t('baseMap.mapsforge.profileAddNew')}
 					</ButtonHighlight>
 				</View>
 			</List.Accordion>
 		</View>
+	);
+};
+
+const AddIcon: IconSource = () => {
+	const theme = useTheme();
+	return (
+		<IconIcomoon
+			name="mapsforge_puzzle_plus"
+			size={BUTTON_ICON_SIZE}
+			color={theme.colors.primary}
+		/>
 	);
 };
 

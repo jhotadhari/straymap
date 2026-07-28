@@ -36,6 +36,7 @@ import dayjs from 'dayjs';
 import { logError } from '../../../lib/utils';
 import { ErrorToastContext } from '../../ErrorToast/Context';
 import useAsyncBusy from '../../../compose/useAsyncBusy';
+import { useButtonProps } from '../../../compose/useButtonProps';
 
 interface OptionWithDesc extends OptionBase {
 	desc?: string;
@@ -509,12 +510,13 @@ const FileSourceRowControl: FC<{
 		optionsByPath,
 	]);
 
+	const buttonProps = useButtonProps({});
+
 	return (
 		<InfoLabelRow
 			label={label}
 			Info={Info}
 		>
-			{/* {modalVisible && ( */}
 			<ModalWrapper
 				visible={modalVisible}
 				backgroundBlur={false}
@@ -538,15 +540,14 @@ const FileSourceRowControl: FC<{
 					/>
 				))}
 			</ModalWrapper>
-			{/* )} */}
 
 			<View style={[styles.actionsRow, styleContent]}>
 				{!AlternativeButton && !dirsInfoLoading && (
 					<ButtonHighlight
-						style={styles.triggerButton}
+						{...buttonProps}
 						onPress={handleOpenModal}
 					>
-						<Text>{t(buttonLabel)}</Text>
+						{t(buttonLabel)}
 					</ButtonHighlight>
 				)}
 
@@ -566,8 +567,8 @@ const styles = StyleSheet.create({
 	actionsRow: {
 		flexDirection: 'row',
 		alignItems: 'center',
-		justifyContent: 'space-between',
-		width: '65%',
+		gap: 8,
+		flexWrap: 'wrap',
 	},
 	triggerButton: { marginTop: 3 },
 });

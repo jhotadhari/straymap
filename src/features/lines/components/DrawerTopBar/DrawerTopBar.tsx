@@ -16,6 +16,7 @@ import {
 	itemStyles,
 } from '../../../drawers/constants';
 import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
+import { useButtonProps } from '../../../../compose/useButtonProps';
 import DrawerContext from '../../../drawers/DrawerContext';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { addUiItemKey } from '../../../ui/slice';
@@ -51,6 +52,8 @@ const styleButtonRowSecond = [
 
 const DrawerTopBar: FC = () => {
 	const { t } = useTranslation();
+
+	const buttonProps = useButtonProps({ mode: 'outlined' });
 
 	const dispatch = useAppDispatch();
 
@@ -94,14 +97,14 @@ const DrawerTopBar: FC = () => {
 			<View style={styleItem}>
 				<View style={styleButtonRowFirst}>
 					<ButtonHighlight
-						mode="outlined"
+						{...buttonProps}
 						onPress={openLinesBrowser}
 					>
-						<Text>{t('lines.linesBrowser')}</Text>
+						{t('lines.linesBrowser')}
 					</ButtonHighlight>
 
 					<ButtonHighlight
-						mode="outlined"
+						{...buttonProps}
 						onPress={handleStatsPressed}
 					>
 						<Icon
@@ -119,7 +122,7 @@ const DrawerTopBar: FC = () => {
 							<Text>{sprintf(t('lines.linesCount'), lineIds.length)}</Text>
 
 							<ButtonHighlight
-								mode="outlined"
+								{...buttonProps}
 								onPress={handleClearLinesPressed}
 							>
 								<Icon

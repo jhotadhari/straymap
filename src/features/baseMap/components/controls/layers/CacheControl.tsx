@@ -13,7 +13,6 @@ import { Text, TextInput, useTheme } from 'react-native-paper';
 import NumericRowControl from '../../../../../components/generic/controls/NumericRowControl';
 import ToggleRowControl from '../../../../../components/generic/controls/ToggleRowControl';
 import InfoLabelRow from '../../../../../components/generic/infoWrapper/InfoLabelRow';
-import ListItemMenuControl from '../../../../../components/generic/wrapper/ListItemMenuControl';
 import { OptionBase } from '../../../../../types';
 import { TextInputNativeMultilineControlled } from '../../../../../components/generic/primitives/TextInputNativeMultiline';
 import { useAppSelector } from '../../../../../store/hooks';
@@ -24,6 +23,8 @@ import { FsModule } from '../../../../../nativeModules';
 import { resolveCacheDirBase } from '../../../utils';
 import { CacheDir } from '../../../../dirs/types';
 import { logError } from '../../../../../lib/utils';
+import { useButtonProps } from '../../../../../compose/useButtonProps';
+import ButtonHighlightMenuControl from '../../../../../components/generic/wrapper/ButtonHighlightMenuControl';
 
 const renderTextInput = (props: TextInputProps) => (
 	<TextInputNativeMultilineControlled {...props} />
@@ -225,6 +226,11 @@ const CacheControl = ({
 		[theme]
 	);
 
+	const buttonProps = useButtonProps({
+		mode: 'outlined',
+		disabled: !cacheCurrentFormatted,
+	});
+
 	if (!appDirs) {
 		return null;
 	}
@@ -255,9 +261,8 @@ const CacheControl = ({
 						label={t('baseMap.cacheDir')}
 						Info={t('baseMap.hint.cache') + '\n\n' + t('baseMap.hint.cacheDir')}
 					>
-						<ListItemMenuControl
+						<ButtonHighlightMenuControl
 							options={opts}
-							listItemStyle={sharedStyles.listItem}
 							value={get(selectedOpt, 'key')}
 							setValue={handleCacheDirBaseChange}
 							anchorLabel={get(selectedOpt, 'label', '')}
@@ -283,9 +288,8 @@ const CacheControl = ({
 				<Text>{cacheCurrentFormatted || '0 KB'}</Text>
 
 				<ButtonHighlight
-					mode="outlined"
+					{...buttonProps}
 					compact={true}
-					disabled={!cacheCurrentFormatted}
 					onPress={handleClearCache}
 				>
 					{t('baseMap.cacheClear')}
@@ -301,7 +305,6 @@ const styles = StyleSheet.create({
 	},
 	textInput: {
 		width: '100%',
-		marginTop: -18,
 	},
 	clearRowInner: {
 		flexDirection: 'row',

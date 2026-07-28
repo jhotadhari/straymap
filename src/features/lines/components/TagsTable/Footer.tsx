@@ -12,6 +12,7 @@ import { sprintf } from 'sprintf-js';
  * Internal dependencies
  */
 import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
+import { useButtonProps } from '../../../../compose/useButtonProps';
 import { DRAWER_ICON_SIZE } from '../../../drawers/constants';
 import { tableStyles } from '../tableResources';
 import TagBulkActions from './BulkActions';
@@ -20,6 +21,8 @@ import { FooterContext } from './Context';
 const TagFooter: FC = () => {
 	const theme = useTheme();
 	const { t } = useTranslation();
+
+	const buttonPropsText = useButtonProps({ mode: 'text' });
 
 	const { checkedIds, tagsCount, setCheckedIds, tagIds } = useContext(FooterContext);
 
@@ -56,7 +59,7 @@ const TagFooter: FC = () => {
 
 			<View style={tableStyles.flexRowGap}>
 				<ButtonHighlight
-					mode="text"
+					{...buttonPropsText}
 					compact
 					onPress={toggleCheckedIds}
 				>

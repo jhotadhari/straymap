@@ -15,7 +15,7 @@ import React, {
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { Icon, Text, useTheme } from 'react-native-paper';
 import MaterialIcons from '@react-native-vector-icons/material-icons/static';
-import { findIndex, get, omit } from 'lodash-es';
+import { get, omit } from 'lodash-es';
 import { lineString } from '@turf/turf';
 import { useMutation, UseMutationOptions } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
@@ -26,6 +26,7 @@ import { useTranslation } from 'react-i18next';
 import { RoutingPoint } from '../types';
 import DrawerContext from '../../drawers/DrawerContext';
 import ButtonHighlight from '../../../components/generic/primitives/ButtonHighlight';
+import { useButtonProps } from '../../../compose/useButtonProps';
 import LoadingIndicator from '../../../components/generic/primitives/LoadingIndicator';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { deleteSegments, processRouting, setLastProfile } from '../slice';
@@ -52,6 +53,8 @@ const Segment: FC<{
 }> = ({ item, draggingItemIndex, setEditPoint }) => {
 	const theme = useTheme();
 	const { t } = useTranslation();
+
+	const buttonPropsText = useButtonProps({ mode: 'text', style: styles.compactButtonAction });
 
 	const dispatch = useAppDispatch();
 
@@ -157,9 +160,9 @@ const Segment: FC<{
 
 					<View style={styles.segmentRowAction}>
 						<ButtonHighlight
+							{...buttonPropsText}
 							compact={true}
 							onPress={refreshSegment}
-							style={styles.compactButtonAction}
 						>
 							<Icon
 								source="refresh"
@@ -191,9 +194,9 @@ const Segment: FC<{
 
 				<View style={styles.segmentRowAction}>
 					<ButtonHighlight
+						{...buttonPropsText}
 						compact={true}
 						onPress={handleSetEdit}
-						style={styles.compactButtonAction}
 					>
 						<Icon
 							source="cog"
@@ -218,6 +221,8 @@ const DraggableItem: FC<{
 	const routeId = useAppSelector(selectIsRouting);
 
 	const unitPrefs = useAppSelector(selectUnitPrefs);
+
+	const buttonPropsText = useButtonProps({ mode: 'text', style: styles.compactButtonAction });
 
 	const dispatch = useAppDispatch();
 
@@ -281,9 +286,9 @@ const DraggableItem: FC<{
 				</Sortable.Handle>
 
 				<ButtonHighlight
+					{...buttonPropsText}
 					compact={true}
 					onPress={handleDeletePoint}
-					style={styles.compactButtonAction}
 				>
 					<Icon
 						source="delete-outline"

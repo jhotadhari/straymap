@@ -33,6 +33,7 @@ import Animated, {
 import { AppContext } from '../../../Context';
 import { MODAL_WIDTH_FACTOR, MODAL_PADDING, OPACITY_DISABLED } from '../../../constants';
 import { sharedStyles } from '../../../sharedStyles';
+import useKeyboardShown from '../../../compose/useKeyboardShown';
 
 const styles = StyleSheet.create({
 	flex1: { flex: 1 },
@@ -95,26 +96,7 @@ const ModalWrapper: FC<{
 	// the Y coordinate of the keyboard's top in screen space.  It is more
 	// reliable than `height` because it directly tells us the available
 	// vertical space regardless of how the OEM reports keyboard dimensions.
-	const [keyboardScreenY, setKeyboardScreenY] = useState(0);
-	const [keyboardShown, setKeyboardShown] = useState(false);
-	useEffect(() => {
-		const s = Keyboard.addListener('keyboardDidShow', (e) => {
-			setKeyboardScreenY(e.endCoordinates.screenY);
-			setKeyboardShown(true);
-		});
-		const h = Keyboard.addListener('keyboardDidHide', () => {
-			setKeyboardScreenY(0);
-			setKeyboardShown(false);
-		});
-		return () => {
-			s.remove();
-			h.remove();
-		};
-	}, [
-		screenH,
-		windowH,
-		statusBarHeight,
-	]);
+	const { keyboardShown, keyboardScreenY } = useKeyboardShown();
 
 	// Fixed height when keyboard is hidden — keeps stacked modals visually
 	// consistent so it feels like the content changed, not a new modal.

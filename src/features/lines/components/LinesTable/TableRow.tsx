@@ -11,6 +11,7 @@ import { get } from 'lodash-es';
  */
 import { Line, LineStats as LineStatsType, TableColumn } from '../../types';
 import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
+import { useButtonProps } from '../../../../compose/useButtonProps';
 import { DRAWER_ICON_SIZE } from '../../../drawers/constants';
 import { cellConfigs, getCellCategory } from './sharedDeps';
 import { tableStyles, useScrollSafePress } from '../tableResources';
@@ -88,6 +89,8 @@ const TableRow: FC<TableRowProps> = ({
 }) => {
 	const theme = useTheme();
 
+	const buttonPropsText = useButtonProps({ mode: 'text' });
+
 	const dispatch = useAppDispatch();
 
 	const tableColumns: TableColumn[] = useAppSelector(selectLinesTableColumns);
@@ -143,32 +146,36 @@ const TableRow: FC<TableRowProps> = ({
 		handleRoutingBtnPress_(line);
 	}, [handleRoutingBtnPress_, line]);
 
+	console.log('debug styleCell', styleCell); // debug
+
+	const styleActionCell = useMemo(
+		() => [
+			styleCell,
+			styles.actionsCell,
+		],
+		[styleCell]
+	);
+
 	return (
 		<View style={style}>
-			<View style={styleCell}>
-				{!isRoutingLine && (
+			<View style={styleActionCell}>
+				{!isRoutingLine ? (
 					<ButtonHighlight
-						mode="text"
-						compact={true}
+						{...buttonPropsText}
 						onPress={toggleOnMap}
+						compact={true}
 					>
-						<View style={styles.iconComponentWrapper}>
-							<IconFontGis
-								name={isOnMap ? 'map-rm' : 'map-add'}
-								size={DRAWER_ICON_SIZE}
-								color={
-									isOnMap
-										? theme.colors.onBackground
-										: theme.colors.onSurfaceDisabled
-								}
-							/>
-						</View>
+						<IconFontGis
+							name={isOnMap ? 'map-rm' : 'map-add'}
+							size={DRAWER_ICON_SIZE}
+							color={
+								isOnMap ? theme.colors.onBackground : theme.colors.onSurfaceDisabled
+							}
+						/>
 					</ButtonHighlight>
-				)}
-
-				{isRoutingLine && (
+				) : (
 					<ButtonHighlight
-						mode="text"
+						{...buttonPropsText}
 						compact={true}
 						onPress={handleRoutingBtnPress}
 					>
@@ -177,9 +184,9 @@ const TableRow: FC<TableRowProps> = ({
 				)}
 
 				<ButtonHighlight
-					mode="text"
-					compact={true}
+					{...buttonPropsText}
 					onPress={handleEditPress}
+					compact={true}
 				>
 					<Icon
 						source="cog"
@@ -244,12 +251,9 @@ const TableRow: FC<TableRowProps> = ({
 };
 
 const styles = StyleSheet.create({
-	iconComponentWrapper: {
-		width: DRAWER_ICON_SIZE,
-		height: DRAWER_ICON_SIZE,
-		overflow: 'hidden',
-		alignItems: 'center',
-		justifyContent: 'center',
+	actionsCell: {
+		justifyContent: 'space-evenly',
+		flexWrap: 'nowrap',
 	},
 });
 

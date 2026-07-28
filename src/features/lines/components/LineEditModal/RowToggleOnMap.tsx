@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { FC, useCallback, useContext, useMemo } from 'react';
-import { useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 
 /**
@@ -13,11 +12,9 @@ import InfoLabelRow from '../../../../components/generic/infoWrapper/InfoLabelRo
 import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
 import { useAppSelector, useSystemLineIds } from '../../../../store/hooks';
 import { selectSelected } from '../../selectors';
-import { sharedStyles } from './sharedDeps';
-import { sharedStyles as appSharedStyles } from '../../../../sharedStyles';
+import { useButtonProps } from '../../../../compose/useButtonProps';
 
 const RowToggleOnMap: FC = () => {
-	const theme = useTheme();
 	const { t } = useTranslation();
 
 	const { line, selectLine } = useContext(LineEditModalContext);
@@ -59,16 +56,11 @@ const RowToggleOnMap: FC = () => {
 		[isSelected, t]
 	);
 
-	const buttonStyle = useMemo(
-		() => ({
-			borderColor: theme.colors.onBackground,
-			...(disabled && {
-				...appSharedStyles.disabled,
-				borderColor: theme.colors.onSurfaceDisabled,
-			}),
-		}),
-		[theme, disabled]
-	);
+	const buttonProps = useButtonProps({
+		mode: 'outlined',
+		disabled,
+		paddingHorizontal: true,
+	});
 
 	return (
 		<InfoLabelRow
@@ -76,15 +68,10 @@ const RowToggleOnMap: FC = () => {
 			Info={t('lines.hintToggleOnMap')}
 		>
 			<ButtonHighlight
-				style={buttonStyle}
-				mode="outlined"
+				{...buttonProps}
 				compact={true}
-				disabled={disabled}
 				onPress={handlePress}
 				icon={icon}
-				contentStyle={sharedStyles.buttonContent}
-				labelStyle={sharedStyles.buttonLabel}
-				textColor={theme.colors.onBackground}
 			>
 				{label}
 			</ButtonHighlight>

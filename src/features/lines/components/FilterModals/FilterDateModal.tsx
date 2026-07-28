@@ -13,6 +13,7 @@ import dayjs from 'dayjs';
  */
 import ModalWrapper from '../../../../components/generic/wrapper/ModalWrapper';
 import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
+import { useButtonProps } from '../../../../compose/useButtonProps';
 import InfoLabelRow from '../../../../components/generic/infoWrapper/InfoLabelRow';
 import { sharedStyles as appSharedStyles } from '../../../../sharedStyles';
 import { sharedStyles } from './sharedDeps';
@@ -43,6 +44,8 @@ const FilterDateModal: FC<{
 }> = ({ visible, columnKey, existingFilter, onDismiss, onSave, onDelete }) => {
 	const theme = useTheme();
 	const { t, i18n } = useTranslation();
+
+	const buttonPropsDelete = useButtonProps({ isDestructive: true });
 
 	const [minDate, setMinDate] = useState<Date | undefined>(stringToDate(existingFilter?.min));
 	const [maxDate, setMaxDate] = useState<Date | undefined>(stringToDate(existingFilter?.max));
@@ -151,11 +154,9 @@ const FilterDateModal: FC<{
 				<View style={appSharedStyles.modalControls}>
 					<ButtonHighlight
 						onPress={handleDelete}
-						mode="contained"
-						buttonColor={theme.colors.errorContainer}
-						textColor={theme.colors.onErrorContainer}
+						{...buttonPropsDelete}
 					>
-						<Text>{t('lines.removeFilter')}</Text>
+						{t('lines.removeFilter')}
 					</ButtonHighlight>
 				</View>
 			)}
