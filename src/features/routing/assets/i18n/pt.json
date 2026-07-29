@@ -3,8 +3,12 @@
 	"profile": "Perfil",
 	"fast": "Rápido",
 	"editProfile": "Editar perfil",
+	"editRouteProfile": "Editar perfil da rota",
 	"hintProfile": "Selecione o perfil de roteamento para este ponto de referência. O perfil determina quais caminhos e estradas o motor de roteamento prefere — escolha entre carro, bicicleta ou a pé.",
 	"hintFast": "Quando ativado, o motor de roteamento prefere rotas mais rápidas em vez de mais curtas. Desative para encontrar o caminho mais direto.",
+	"inheritModeRoute": "Rota",
+	"inheritModePrev": "Anterior",
+	"inheritModeOwn": "Próprio",
 	"pointsAreOverlapping": "Pontos sobrepostos",
 	"startRouting": "Iniciar rota",
 	"stopRouting": "Parar rota",
@@ -25,5 +29,6 @@
 	"compressionModeAuto": "Auto",
 	"applyPrevPointProfile": "Perfil anterior",
 	"hintApplyPrevPointProfile": "Copia o perfil de roteamento (motor e configurações) do waypoint anterior para este. Útil quando segmentos consecutivos devem usar o mesmo perfil.",
-	"applyPrevPointProfileBtn": "Aplicar"
+	"applyPrevPointProfileBtn": "Aplicar",
+	"routeProfileUsage": "{{routeCount}} pontos usam este perfil, {{prevCount}} herdam do ponto anterior, {{ownCount}} têm perfis próprios"
 }

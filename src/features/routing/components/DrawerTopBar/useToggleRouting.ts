@@ -9,19 +9,22 @@ import { useMutation, UseMutationOptions } from '@tanstack/react-query';
  */
 import { createRoute } from '../../db/actionsRoute';
 import DrawerContext from '../../../drawers/DrawerContext';
-import { useAppDispatch } from '../../../../store/hooks';
+import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { setIsRouting } from '../../slice';
+import { selectLastProfiles } from '../../selectors';
 
 const useToggleRouting = ({ routeId }: { routeId?: number }) => {
 	const { expand } = useContext(DrawerContext);
 
 	const dispatch = useAppDispatch();
 
+	const lastProfiles = useAppSelector(selectLastProfiles);
+
 	const [isToggling, setIsToggling] = useState(false);
 
 	const createMutationOptions: UseMutationOptions<number | undefined> = useMemo(
 		() => ({
-			mutationFn: createRoute,
+			mutationFn: () => createRoute(lastProfiles.profiles[lastProfiles.provider]),
 			onMutate: async () => {
 				setIsToggling(true);
 			},
@@ -35,7 +38,11 @@ const useToggleRouting = ({ routeId }: { routeId?: number }) => {
 				setIsToggling(false);
 			},
 		}),
-		[dispatch, expand]
+		[
+			dispatch,
+			expand,
+			lastProfiles,
+		]
 	);
 	const createRouteMutation = useMutation(createMutationOptions);
 

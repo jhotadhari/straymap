@@ -10,7 +10,8 @@ import { Feature, Point, GeoJsonProperties } from 'geojson';
 import { dbConnection } from '../../dbLoader/DBConnection';
 import { routingPointsTable, routesTable } from './schema/schema';
 import { fetchRoutes } from './fetch';
-import { RoutingProfile } from '../types';
+import { RoutingPointInheritMode, RoutingProfile } from '../types';
+import { DEFAULT_INHERIT_MODE } from '../constants';
 import { withDbErrorHandling, withDbTransaction, parseReturningIds } from '../../dbLoader/utils';
 
 export const createRoutingPoints = withDbErrorHandling(
@@ -18,7 +19,8 @@ export const createRoutingPoints = withDbErrorHandling(
 	async (
 		newPoints: {
 			feature: Feature<Point, GeoJsonProperties>;
-			profile: RoutingProfile;
+			profile?: RoutingProfile;
+			inheritMode?: RoutingPointInheritMode;
 		}[],
 		route_id?: number | false
 	) => {
@@ -35,10 +37,11 @@ export const createRoutingPoints = withDbErrorHandling(
 				dbConnection
 					.drizzle!.insert(routingPointsTable)
 					.values(
-						newPoints.map(({ feature, profile }) => ({
+						newPoints.map(({ feature, profile, inheritMode }) => ({
 							route_id: route_id,
 							geometry: feature.geometry,
-							profile: profile,
+							...(profile && { profile }),
+							inherit_mode: inheritMode ?? DEFAULT_INHERIT_MODE,
 						}))
 					)
 					.returning({ id: routingPointsTable.id })
@@ -70,7 +73,8 @@ export const updateRoutingPoint = withDbErrorHandling(
 		id: number,
 		newPoint: Partial<{
 			feature: Feature<Point, GeoJsonProperties>;
-			profile?: RoutingProfile;
+			profile?: RoutingProfile | null;
+			inheritMode?: RoutingPointInheritMode;
 		}>
 	) => {
 		if (!dbConnection?.drizzle) {
@@ -81,6 +85,9 @@ export const updateRoutingPoint = withDbErrorHandling(
 			.set({
 				...(undefined !== newPoint?.profile && { profile: newPoint.profile }),
 				...(undefined !== newPoint?.feature && { geometry: newPoint.feature.geometry }),
+				...(undefined !== newPoint?.inheritMode && {
+					inherit_mode: newPoint.inheritMode,
+				}),
 			})
 			.where(eq(routingPointsTable.id, id));
 	}

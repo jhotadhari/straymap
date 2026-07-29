@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { FC, Fragment, useEffect, useMemo } from 'react';
+import React, { FC, Fragment, useMemo } from 'react';
 import {
 	PathPaint,
 	Marker,
@@ -200,7 +200,7 @@ const Segments: FC<{
 							segmentRecordId={segmentRecordId}
 							placeholderCoordinates={placeholderCoordinates}
 							simplify={simplify}
-							provider={fromPoint.profile.provider}
+							provider={fromPoint.profile?.provider}
 						/>
 					);
 				})}

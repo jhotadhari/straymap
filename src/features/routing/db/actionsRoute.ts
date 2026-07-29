@@ -9,12 +9,14 @@ import { eq } from 'drizzle-orm';
 import { dbConnection } from '../../dbLoader/DBConnection';
 import { routesTable, routingPointsTable } from './schema/schema';
 import { withDbErrorHandling, withDbTransaction } from '../../dbLoader/utils';
+import { RoutingProfile } from '../types';
 
 export const createRoutes = withDbErrorHandling(
 	'routing/actionsRoute.createRoutes',
 	async (
 		newRoutes: {
 			line_id?: number;
+			profile: RoutingProfile;
 		}[]
 	) => {
 		if (!dbConnection?.drizzle) {
@@ -23,9 +25,10 @@ export const createRoutes = withDbErrorHandling(
 		const inserted = await dbConnection.drizzle
 			.insert(routesTable)
 			.values(
-				newRoutes.map(({ line_id }) => ({
+				newRoutes.map(({ line_id, profile }) => ({
 					line_id: line_id ?? null,
 					point_order: [],
+					profile,
 				}))
 			)
 			.returning({ id: routesTable.id });
@@ -33,8 +36,8 @@ export const createRoutes = withDbErrorHandling(
 	}
 );
 
-export const createRoute = async () => {
-	const inserted = await createRoutes([{}]);
+export const createRoute = async (profile: RoutingProfile) => {
+	const inserted = await createRoutes([{ profile }]);
 	if (!inserted?.length) {
 		return undefined;
 	}
@@ -48,6 +51,7 @@ export const updateRoute = withDbErrorHandling(
 		newRoute: Partial<{
 			line_id: number | null;
 			point_order: number[];
+			profile?: RoutingProfile | null;
 		}>
 	) => {
 		if (!id || !dbConnection?.drizzle || !Object.keys(newRoute).length) {
@@ -56,7 +60,7 @@ export const updateRoute = withDbErrorHandling(
 		const routes = await dbConnection.drizzle
 			.select()
 			.from(routesTable)
-			.where(eq(routesTable.id, id))
+			.where(eq(routesTable.id, id as number))
 			.limit(1);
 		if (!routes.length) {
 			return;
@@ -66,8 +70,9 @@ export const updateRoute = withDbErrorHandling(
 			.set({
 				...(undefined !== newRoute?.line_id && { line_id: newRoute.line_id }),
 				...(undefined !== newRoute?.point_order && { point_order: newRoute.point_order }),
+				...(undefined !== newRoute?.profile && { profile: newRoute.profile }),
 			})
-			.where(eq(routesTable.id, id));
+			.where(eq(routesTable.id, id as number));
 	}
 );
 

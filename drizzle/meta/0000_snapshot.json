@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "c8285db4-e5e7-40d6-9322-abd9d88dac43",
+  "id": "29356793-3d41-4a85-b62c-88aba8221926",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "tracks": {
@@ -87,6 +87,13 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
+        },
+        "profile": {
+          "name": "profile",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
         }
       },
       "indexes": {},
@@ -130,7 +137,14 @@
           "name": "profile",
           "type": "text",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "inherit_mode": {
+          "name": "inherit_mode",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
           "autoincrement": false
         },
         "route_id": {

@@ -1,7 +1,15 @@
 /**
  * Internal dependencies
  */
-import { BrouterOptions, LastProfiles, RoutingProfile, StraightLineOptions } from './types';
+import {
+	BrouterOptions,
+	LastProfiles,
+	RoutingPointInheritMode,
+	RoutingProfile,
+	StraightLineOptions,
+} from './types';
+
+export const DEFAULT_INHERIT_MODE: RoutingPointInheritMode = 'route';
 
 export const DEFAULT_OPTIONS_BROUTER: BrouterOptions = {
 	fast: true,

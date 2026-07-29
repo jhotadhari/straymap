@@ -9,15 +9,14 @@ import { point } from '@turf/turf';
 /**
  * Internal dependencies
  */
-import { useAppDispatch, useAppSelector } from '../../../../../store/hooks';
+import { useAppDispatch } from '../../../../../store/hooks';
 import { createRoutingPoints } from '../../../db/actionsRoutingPoint';
 import { processRouting } from '../../../slice';
-import { RoutingPoint, RoutingProfile } from '../../../types';
+import { RoutingPoint } from '../../../types';
 
 import { MapContext } from '../../../../../Context';
 import { dbConnection } from '../../../../dbLoader/DBConnection';
 import { pointsCoordsAreOverlapping } from '../../../../../lib/utils';
-import { selectLastProfiles } from '../../../selectors';
 
 const useActionAppendPoint = ({
 	points,
@@ -27,8 +26,6 @@ const useActionAppendPoint = ({
 	routeId?: number;
 }) => {
 	const dispatch = useAppDispatch();
-
-	const lastProfiles = useAppSelector(selectLastProfiles);
 
 	const { currentMapEventRef } = useContext(MapContext);
 
@@ -40,23 +37,15 @@ const useActionAppendPoint = ({
 		Error,
 		{
 			feature: Feature<Point, GeoJsonProperties>;
-			profile: RoutingProfile;
 		},
 		void
 	> = useMemo(
 		() => ({
-			mutationFn: ({
-				feature,
-				profile,
-			}: {
-				feature: Feature<Point, GeoJsonProperties>;
-				profile: RoutingProfile;
-			}) =>
+			mutationFn: ({ feature }: { feature: Feature<Point, GeoJsonProperties> }) =>
 				createRoutingPoints(
 					[
 						{
 							feature,
-							profile,
 						},
 					],
 					routeId
@@ -75,11 +64,6 @@ const useActionAppendPoint = ({
 		]
 	);
 	const mutation = useMutation(mutationOptions);
-
-	const getNextProfile = useCallback(() => {
-		const lastPoint = points && points.length ? points[points.length - 1] : undefined;
-		return lastPoint?.profile ?? lastProfiles.profiles[lastProfiles.provider];
-	}, [points, lastProfiles]);
 
 	const cb = useCallback(async () => {
 		if (currentMapEventRef?.current?.center) {
@@ -102,11 +86,9 @@ const useActionAppendPoint = ({
 			]);
 			mutation.mutate({
 				feature,
-				profile: getNextProfile(),
 			});
 		}
 	}, [
-		getNextProfile,
 		currentMapEventRef,
 		mutation,
 		points,

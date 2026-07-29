@@ -12,9 +12,14 @@ import { lineString } from '@turf/turf';
  * Internal dependencies
  */
 import { SliceSettingsBase } from '../../types';
-import { LastProfiles, RoutingProfile, RoutingSegment } from './types';
+import { LastProfiles, Route, RoutingPoint, RoutingProfile, RoutingSegment } from './types';
 import { AppThunk } from '../../store/store';
-import { aggregateSegmentsToCoords, getCoordsFromRouting, getSegmentRecordId } from './utils';
+import {
+	aggregateSegmentsToCoords,
+	getCoordsFromRouting,
+	getSegmentRecordId,
+	resolveProfileForPoint,
+} from './utils';
 import { setLineSelected } from '../lines/slice';
 import { createLines, updateLine, lineAddTag, deleteLine } from '../lines/db/actionsLine';
 import {
@@ -187,19 +192,34 @@ export const deleteSegmentByKeyVal = (key: keyof RoutingSegment, val: any): AppT
 
 const getPointsForRouteId = async (routeId: number | false, queryClient: QueryClient) => {
 	if (routeId === false) {
-		return [];
+		return { points: [] as RoutingPoint[], profile: undefined as RoutingProfile | undefined };
 	}
 	await queryClient.refetchQueries({
 		queryKey: ['route', routeId],
 	});
-	const { points } =
-		(await queryClient.fetchQuery({
-			queryKey: ['route', routeId],
-			queryFn: queryRoute,
-		})) || {};
-	return points ?? [];
+	const route = (await queryClient.fetchQuery({
+		queryKey: ['route', routeId],
+		queryFn: queryRoute,
+	})) as Route | null;
+	return {
+		points: route?.points ?? [],
+		profile: route?.profile,
+	};
 };
 
+/*
+ * Main routing pipeline. Fetches the route's points from DB, resolves
+ * each point's effective profile via resolveProfileForPoint, calls BRouter
+ * for each consecutive pair, aggregates coordinates into a line geometry,
+ * and stores the result in the lines table linked to the route.
+ *
+ * When updateLine === false (used by initializeFromStorage / route restore),
+ * only the segment state is recomputed — the line geometry is assumed correct.
+ *
+ * Always deletes stale segments that no longer map to existing point pairs.
+ * New/changed segments are only fetched if no cached segment exists or if
+ * the existing one is still in fetch state without positions.
+ */
 export const processRouting = (
 	queryClient: QueryClient,
 	options?: {
@@ -215,7 +235,10 @@ export const processRouting = (
 			routing: { segments, isRouting: routeId },
 		} = getState();
 
-		const points = await getPointsForRouteId(routeId, queryClient);
+		const { points, profile: routeProfile } = await getPointsForRouteId(routeId, queryClient);
+
+		const { lastProfiles } = getState().routing;
+		const effectiveRouteProfile = routeProfile ?? lastProfiles.profiles[lastProfiles.provider];
 
 		// Delete segments not used anymore.
 		const newSegmentRecordIds = points
@@ -303,7 +326,12 @@ export const processRouting = (
 
 										getCoordsFromRouting({
 											waypoints,
-											profile: point.profile,
+											profile: resolveProfileForPoint(
+												point,
+												pointIdx,
+												points,
+												effectiveRouteProfile
+											),
 										})
 											.then((coords) => {
 												newSegment.positions = coords;

@@ -1,5 +1,5 @@
 import journal from './meta/_journal.json';
-import m0000 from './0000_married_silver_fox.sql';
+import m0000 from './0000_elite_katie_power.sql';
 import m0001 from './0001_initSpatial.sql';
 
   export default {

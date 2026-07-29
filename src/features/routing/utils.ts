@@ -13,9 +13,12 @@ import {
 	StraightLineOptions,
 	RoutingProfile,
 	BrouterCompressionMode,
+	RoutingPoint,
 } from './types';
 import { altitudeService } from '../../lib/AltitudeService';
 import { haversineDistance } from '../../lib/formatting';
+import { DEFAULT_INHERIT_MODE } from './constants';
+import { isEqual } from 'lodash-es';
 
 export const getSegmentRecordId = (segment: Pick<RoutingSegment, 'fromId' | 'toId'>) =>
 	[
@@ -177,6 +180,92 @@ const getStraightLineCoords = async (
 	await enrichCoordinatesWithElevation(coords, altitudeService.requireHandle());
 
 	return coords;
+};
+
+/*
+ * Resolve which RoutingProfile a point uses for its outgoing segment.
+ * Pure function — does not access Redux state. Callers must provide
+ * a valid routeProfile and handle the lastProfiles → DEFAULT_PROFILE
+ * fallback chain themselves.
+ *
+ * @param point       The routing point to resolve
+ * @param index       The point's index in the points array
+ * @param points      All points of the route (ordered)
+ * @param routeProfile The route-level profile (always present)
+ * @returns The effective RoutingProfile for this point's segment
+ *
+ * - 'own'  → returns point.profile
+ * - 'route' → returns routeProfile
+ * - 'prev'  → resolves the previous point recursively;
+ *              first point falls back to routeProfile
+ */
+export const resolveProfileForPoint = (
+	point: RoutingPoint,
+	index: number,
+	points: RoutingPoint[],
+	routeProfile: RoutingProfile
+): RoutingProfile => {
+	const mode = point.inheritMode ?? DEFAULT_INHERIT_MODE;
+
+	if (mode === 'own') {
+		return point.profile!;
+	}
+
+	if (mode === 'route') {
+		return routeProfile;
+	}
+
+	if (index === 0) {
+		return routeProfile;
+	}
+
+	return resolveProfileForPoint(points[index - 1], index - 1, points, routeProfile);
+};
+
+/*
+ * Walk points from startIdx forward, comparing resolveProfileForPoint
+ * for old vs new state. Collects segment IDs where the resolved profile
+ * actually changed (deep-equal via lodash isEqual). Stops on the first
+ * unchanged profile — subsequent 'prev' points inherit from that
+ * unchanged ancestor, so their segments also haven't changed.
+ *
+ * Used to avoid expensive BRouter recomputation when a profile edit
+ * doesn't actually change the effective routing profile for some segments.
+ *
+ * @param points        The route's points (ordered). IDs are read from here.
+ * @param routeProfile  The old route-level profile
+ * @param options.startIdx       Start index (default 0)
+ * @param options.newPoints      Points with modifications applied (default: points)
+ * @param options.newRouteProfile New route-level profile (default: routeProfile)
+ * @returns Array of segment record IDs that need re-processing
+ */
+export const getChangedSegmentIds = (
+	points: RoutingPoint[],
+	routeProfile: RoutingProfile,
+	options: {
+		startIdx?: number;
+		newPoints?: RoutingPoint[];
+		newRouteProfile?: RoutingProfile;
+	}
+): string[] => {
+	const { startIdx = 0, newPoints = points, newRouteProfile = routeProfile } = options;
+
+	const segmentIds: string[] = [];
+	for (let i = startIdx; i < points.length - 1; i++) {
+		const oldProfile = resolveProfileForPoint(points[i], i, points, routeProfile);
+		const newProfile = resolveProfileForPoint(newPoints[i], i, newPoints, newRouteProfile);
+		if (!isEqual(oldProfile, newProfile)) {
+			segmentIds.push(
+				getSegmentRecordId({
+					fromId: points[i].id,
+					toId: points[i + 1].id,
+				})
+			);
+		} else {
+			break;
+		}
+	}
+	return segmentIds;
 };
 
 export const getCoordsFromRouting = async ({

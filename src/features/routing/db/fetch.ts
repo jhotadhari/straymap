@@ -48,11 +48,13 @@ export const fetchRoutes = (params?: FetchRoutesParams): Promise<Route[]> => {
 			pointId: routingPointsTable.id,
 			geometryGeoJSON: sql<string>`AsGeoJSON (${routingPointsTable.geometry})`,
 			pointProfile: routingPointsTable.profile,
+			pointInheritMode: routingPointsTable.inherit_mode,
 
 			// Route fields
 			routeId: routesTable.id,
 			routePointOrder: routesTable.point_order,
 			routeLineId: routesTable.line_id,
+			routeProfile: routesTable.profile,
 
 			// Spatial stats from linesTable.geometry (flat join —
 			// geometry BLOB never enters a json_array() subquery)
@@ -83,6 +85,7 @@ export const fetchRoutes = (params?: FetchRoutesParams): Promise<Route[]> => {
 					id: routesTable.id,
 					point_order: routesTable.point_order,
 					line_id: routesTable.line_id,
+					profile: routesTable.profile,
 				})
 				.from(routesTable)
 				.where(eq(routesTable.id, routeId as number))
@@ -106,6 +109,7 @@ export const fetchRoutes = (params?: FetchRoutesParams): Promise<Route[]> => {
 					id: routesTable.id,
 					point_order: routesTable.point_order,
 					line_id: routesTable.line_id,
+					profile: routesTable.profile,
 				})
 				.from(routesTable)
 				.where(eq(routesTable.line_id, lineId))
@@ -130,6 +134,7 @@ export const fetchRoutes = (params?: FetchRoutesParams): Promise<Route[]> => {
 						id: rId,
 						point_order: row.routePointOrder,
 						line_id: row.routeLineId,
+						profile: row.routeProfile,
 						stats: mapValues(
 							pick(row, statsFields) as Record<string, string>,
 							(str: string) => parseFloat(str)
@@ -142,6 +147,7 @@ export const fetchRoutes = (params?: FetchRoutesParams): Promise<Route[]> => {
 						id: row.pointId,
 						geometryGeoJSON: row.geometryGeoJSON,
 						profile: row.pointProfile,
+						inheritMode: row.pointInheritMode,
 					};
 					acc[rId].points.push(
 						rowParseGeometryGeoJSON<typeof pointFields, Point>(pointFields)

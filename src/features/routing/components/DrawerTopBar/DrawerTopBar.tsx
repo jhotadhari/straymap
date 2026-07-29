@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { FC, Fragment, useCallback, useContext, useMemo } from 'react';
+import { FC, Fragment, useCallback, useContext, useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
 import { Icon, Text } from 'react-native-paper';
@@ -17,7 +17,7 @@ import {
 } from '../../../drawers/constants';
 import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
 import DrawerContext from '../../../drawers/DrawerContext';
-import { useAppDispatch } from '../../../../store/hooks';
+import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import useRoute from '../../hooks/useRoute';
 import { queryLinesWithoutGeom } from '../../../lines/db/queryFns';
 import { LinePartial } from '../../../lines/types';
@@ -26,6 +26,10 @@ import useActions from './useActions';
 import RoutingActionsButton from '../RoutingActionsButton';
 import useToggleRouting from './useToggleRouting';
 import { useButtonProps } from '../../../../compose/useButtonProps';
+import { selectUnitPrefs } from '../../../general/selectors';
+import { Route } from '../../types';
+import RoutingProfileInfo from '../RoutingProfileInfo';
+import RouteProfileModal from '../RouteProfileModal';
 
 const DrawerTopBar: FC = () => {
 	const { t } = useTranslation();
@@ -34,15 +38,19 @@ const DrawerTopBar: FC = () => {
 
 	const { side } = useContext(DrawerContext);
 
-	const {
-		id: routeId,
-		line_id: routingLineId,
-		points,
-	} = useRoute([
+	const unitPrefs = useAppSelector(selectUnitPrefs);
+	const distUnit = unitPrefs.distance;
+
+	const [routeProfileModalVisible, setRouteProfileModalVisible] = useState(false);
+
+	const route = useRoute([
 		'id',
 		'line_id',
 		'points',
-	]) || {};
+		'profile',
+	]) as Route | undefined;
+
+	const { id: routeId, line_id: routingLineId, points } = route || {};
 
 	const { data: line } = useQuery({
 		queryKey: ['lines', routingLineId ? [routingLineId] : []],
@@ -147,6 +155,35 @@ const DrawerTopBar: FC = () => {
 					)}
 				</View>
 			</View>
+
+			{route && route.profile && (
+				<View style={styleItem}>
+					<View style={styleButtonRow}>
+						<RoutingProfileInfo
+							profile={route.profile}
+							distUnit={distUnit}
+						/>
+						<ButtonHighlight
+							{...buttonPropsLine}
+							onPress={() => setRouteProfileModalVisible(true)}
+						>
+							<Icon
+								size={20}
+								source="cog"
+								color={nestedIconColorLine}
+							/>
+						</ButtonHighlight>
+					</View>
+				</View>
+			)}
+
+			{route && (
+				<RouteProfileModal
+					route={route}
+					visible={routeProfileModalVisible}
+					onDismiss={() => setRouteProfileModalVisible(false)}
+				/>
+			)}
 		</View>
 	);
 };

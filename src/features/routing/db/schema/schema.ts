@@ -20,6 +20,7 @@ export const routesTable = sqliteTable('routes', {
 		.$type<number[]>()
 		.default(sql`(json_array())`),
 	line_id: integer('line_id').references(() => linesTable.id, { onDelete: 'set null' }),
+	profile: text('profile', { mode: 'json' }).notNull().$type<any>(),
 });
 
 // claude:warning ⛔ DO NOT EDIT THIS TABLE'S COLUMNS — it has a SpatiaLite
@@ -31,7 +32,8 @@ export const routesTable = sqliteTable('routes', {
 export const routingPointsTable = sqliteTable('routing_points', {
 	id: integer('id').primaryKey({ autoIncrement: true }),
 	geometry: point('geometry').notNull(),
-	profile: text('profile', { mode: 'json' }).notNull().$type<any>(),
+	profile: text('profile', { mode: 'json' }).$type<any>(),
+	inherit_mode: text('inherit_mode').$type<any>(),
 	route_id: integer('route_id')
 		.references(() => routesTable.id)
 		.notNull(),

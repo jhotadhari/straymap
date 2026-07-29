@@ -23,17 +23,17 @@ import { useTranslation } from 'react-i18next';
 /**
  * Internal dependencies
  */
-import { RoutingPoint } from '../types';
+import { RoutingPoint, Route, RoutingProfile } from '../types';
 import DrawerContext from '../../drawers/DrawerContext';
 import ButtonHighlight from '../../../components/generic/primitives/ButtonHighlight';
 import { useButtonProps } from '../../../compose/useButtonProps';
 import LoadingIndicator from '../../../components/generic/primitives/LoadingIndicator';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
-import { deleteSegments, processRouting, setLastProfile } from '../slice';
-import { selectIsRouting, selectSegments } from '../selectors';
+import { deleteSegments, processRouting } from '../slice';
+import { selectIsRouting, selectLastProfiles, selectSegments } from '../selectors';
 import { selectUnitPrefs } from '../../general/selectors';
 import { updateRoute } from '../db/actionsRoute';
-import { formatCoords, formatDistance } from '../../../lib/formatting';
+import { formatCoords } from '../../../lib/formatting';
 import { lineStringToStats, pointsCoordsAreOverlapping } from '../../../lib/utils';
 import { deleteRoutingPoint } from '../db/actionsRoutingPoint';
 import { LineStats as LineStatsType } from '../../lines/types';
@@ -45,12 +45,15 @@ import { dbConnection } from '../../dbLoader/DBConnection';
 import { DRAWER_ICON_SIZE } from '../../../constants';
 import { ErrorToastContext } from '../../../components/ErrorToast/Context';
 import LineStatsCompactRows from '../../lines/components/Stats/LineStatsCompactRows';
+import RoutingProfileInfo from './RoutingProfileInfo';
+import { resolveProfileForPoint } from '../utils';
 
 const Segment: FC<{
 	item: RoutingPoint;
+	resolvedProfile: RoutingProfile;
 	draggingItemIndex?: number;
 	setEditPoint: Dispatch<SetStateAction<undefined | RoutingPoint>>;
-}> = ({ item, draggingItemIndex, setEditPoint }) => {
+}> = ({ item, resolvedProfile, draggingItemIndex, setEditPoint }) => {
 	const theme = useTheme();
 	const { t } = useTranslation();
 
@@ -175,21 +178,11 @@ const Segment: FC<{
 
 			<View style={styleSegmentRow}>
 				<View style={styles.segmentRowContent}>
-					{item?.profile?.provider === 'brouter' && (
-						<>
-							<Text>{item.profile.options.v}</Text>
-							<Text>{item.profile.options.fast ? t('routing.fast') : 'slow'}</Text>
-						</>
-					)}
-					{item?.profile?.provider === 'straightLine' && (
-						<Text>
-							{t('routing.providerStraightLine')}
-							{', '}
-							{t('routing.interval')}
-							{': '}
-							{formatDistance(item.profile.options.interval, distUnit, true)}
-						</Text>
-					)}
+					<RoutingProfileInfo
+						profile={resolvedProfile}
+						inheritMode={item.inheritMode}
+						distUnit={distUnit}
+					/>
 				</View>
 
 				<View style={styles.segmentRowAction}>
@@ -211,11 +204,12 @@ const Segment: FC<{
 
 const DraggableItem: FC<{
 	item: RoutingPoint;
+	resolvedProfile: RoutingProfile;
 	width: number;
 	order: number;
 	draggingItemIndex?: number;
 	setEditPoint: Dispatch<SetStateAction<undefined | RoutingPoint>>;
-}> = ({ item, width, order, draggingItemIndex, setEditPoint }) => {
+}> = ({ item, resolvedProfile, width, order, draggingItemIndex, setEditPoint }) => {
 	const { t } = useTranslation();
 
 	const routeId = useAppSelector(selectIsRouting);
@@ -226,7 +220,7 @@ const DraggableItem: FC<{
 
 	const dispatch = useAppDispatch();
 
-	const [isDeleting, setIsDeleting] = useState(false);
+	const [_isDeleting, setIsDeleting] = useState(false);
 
 	const mutationOptions: UseMutationOptions<void, Error, number, void> = useMemo(
 		() => ({
@@ -259,7 +253,7 @@ const DraggableItem: FC<{
 			styles.draggableItem,
 			{ width },
 		],
-		[width, isDeleting]
+		[width]
 	);
 
 	return (
@@ -299,6 +293,7 @@ const DraggableItem: FC<{
 
 			<Segment
 				item={item}
+				resolvedProfile={resolvedProfile}
 				draggingItemIndex={draggingItemIndex}
 				setEditPoint={setEditPoint}
 			/>
@@ -318,22 +313,30 @@ const PointsList: FC = () => {
 
 	const dispatch = useAppDispatch();
 
-	const { id: routeId, points: points_ } = useRoute(['id', 'points']) || {};
+	const route = useRoute([
+		'id',
+		'points',
+		'profile',
+	]) as Route | undefined;
+
+	const lastProfiles = useAppSelector(selectLastProfiles);
 
 	const [optimisticPoints, setOptimisticPoints] = useState<undefined | RoutingPoint[]>(undefined);
 
 	const mutationOptions: UseMutationOptions<void, Error, RoutingPoint[], void> = useMemo(
 		() => ({
 			mutationFn: (newPoints: RoutingPoint[]) =>
-				updateRoute(routeId, {
+				updateRoute(route?.id, {
 					point_order: newPoints.map((p) => p.id),
 				}),
 			onMutate: async (newPoints) => {
-				await dbConnection.queryClient!.cancelQueries({ queryKey: ['route', routeId] });
+				await dbConnection.queryClient!.cancelQueries({ queryKey: ['route', route?.id] });
 				setOptimisticPoints(newPoints);
 			},
 			onSuccess: async () => {
-				await dbConnection.queryClient!.invalidateQueries({ queryKey: ['route', routeId] });
+				await dbConnection.queryClient!.invalidateQueries({
+					queryKey: ['route', route?.id],
+				});
 				dbConnection?.queryClient && dispatch(processRouting(dbConnection.queryClient));
 			},
 			onSettled: () => {
@@ -344,19 +347,19 @@ const PointsList: FC = () => {
 		}),
 		[
 			dispatch,
-			routeId,
+			route?.id,
 		]
 	);
 	const mutation = useMutation(mutationOptions);
 
 	const points = useMemo(
 		() =>
-			(optimisticPoints ?? (points_ || [])).map((point) => ({
+			(optimisticPoints ?? (route?.points || [])).map((point) => ({
 				...point,
 				key: point.id + '',
 			})),
 		[
-			points_,
+			route?.points,
 			optimisticPoints,
 		]
 	);
@@ -411,17 +414,19 @@ const PointsList: FC = () => {
 		]
 	);
 
-	useEffect(() => {
-		editPoint?.profile && dispatch(setLastProfile(editPoint.profile));
-	}, [editPoint?.profile]);
-
-	const lastProfile = useMemo(() => {
-		const editPointIdx = editPoint ? points.findIndex((p) => editPoint.id === p.id) : -1;
-		return editPointIdx > 0 ? points[editPointIdx - 1]?.profile : undefined;
-	}, [
-		points,
-		editPoint,
-	]);
+	const resolvedProfiles = useMemo(() => {
+		if (!route?.points?.length) {
+			return {} as Record<number, RoutingProfile>;
+		}
+		const { points: routePoints, profile: routeProfile } = route;
+		const effectiveProfile = routeProfile ?? lastProfiles.profiles[lastProfiles.provider];
+		return Object.fromEntries(
+			routePoints.map((point, index) => [
+				point.id,
+				resolveProfileForPoint(point, index, routePoints, effectiveProfile),
+			])
+		);
+	}, [route, lastProfiles]);
 
 	const dropIndicatorStyle = useDropIndicatorStyle();
 
@@ -432,10 +437,10 @@ const PointsList: FC = () => {
 			scrollEnabled={scrollEnabled}
 			style={styleScrollView}
 		>
-			{editPoint && (
+			{editPoint && route && (
 				<EditPointModal
+					route={route}
 					editPoint={editPoint}
-					lastProfile={lastProfile}
 					setEditPoint={setEditPoint}
 				/>
 			)}
@@ -459,6 +464,7 @@ const PointsList: FC = () => {
 						<View key={item.id}>
 							<DraggableItem
 								item={item}
+								resolvedProfile={resolvedProfiles[item.id]}
 								width={width - itemPaddingH * 2}
 								order={order}
 								draggingItemIndex={draggingItemIndex}

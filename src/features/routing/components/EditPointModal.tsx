@@ -2,329 +2,122 @@
  * External dependencies
  */
 import React, { Dispatch, FC, SetStateAction, useCallback, useMemo } from 'react';
-import { Divider, Text, useTheme } from 'react-native-paper';
+import { SegmentedButtons } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { get, isEqual } from 'lodash-es';
+import { isEqual } from 'lodash-es';
+import { useMutation, UseMutationOptions } from '@tanstack/react-query';
 
 /**
  * Internal dependencies
  */
-import ToggleRowControl from '../../../components/generic/controls/ToggleRowControl';
-import InfoLabelRow from '../../../components/generic/infoWrapper/InfoLabelRow';
-import ListItemMenuControl from '../../../components/generic/wrapper/ListItemMenuControl';
 import ModalWrapper from '../../../components/generic/wrapper/ModalWrapper';
-import NumericRowControl from '../../../components/generic/controls/NumericRowControl';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
-import {
-	RoutingPoint,
-	RoutingProfile,
-	BrouterOptions,
-	BrouterCompressionMode,
-	StraightLineOptions,
-} from '../types';
+import { RoutingPoint, RoutingProfile, Route, RoutingPointInheritMode } from '../types';
 import { updateRoutingPoint } from '../db/actionsRoutingPoint';
-import { deleteSegmentByKeyVal, processRouting } from '../slice';
-import { useMutation, UseMutationOptions } from '@tanstack/react-query';
-import useRoute from '../hooks/useRoute';
+import { deleteSegments, processRouting, setLastProfile } from '../slice';
 import { dbConnection } from '../../dbLoader/DBConnection';
-import { DEFAULT_OPTIONS_BROUTER, DEFAULT_OPTIONS_STRAIGHT_LINE } from '../constants';
-import { formatDistanceUnit } from '../../../lib/formatting';
 import { selectUnitPrefs } from '../../general/selectors';
+import { getChangedSegmentIds, resolveProfileForPoint } from '../utils';
+import { DEFAULT_INHERIT_MODE } from '../constants';
+import ProfileEditControls from './ProfileEditControls';
+import RoutingProfileInfo from './RoutingProfileInfo';
 import { sharedStyles } from '../../../sharedStyles';
-import { selectLastProfiles } from '../selectors';
-import ButtonHighlight from '../../../components/generic/primitives/ButtonHighlight';
-import { StyleSheet } from 'react-native';
-import { OPACITY_DISABLED } from '../../../constants';
-import { useButtonProps } from '../../../compose/useButtonProps';
-import ButtonHighlightMenuControl from '../../../components/generic/wrapper/ButtonHighlightMenuControl';
-import { sharedStyles as appSharedStyles } from '../../../sharedStyles';
 
-const providerOptions = [
-	{
-		key: 'brouter',
-		label: 'routing.providerBrouter',
-	},
-	{
-		key: 'straightLine',
-		label: 'routing.providerStraightLine',
-	},
-];
-
-const vehicleOptions = [
-	{
-		key: 'motorcar',
-		label: 'motorcar',
-	},
-	{
-		key: 'bicycle',
-		label: 'bicycle',
-	},
-	{
-		key: 'foot',
-		label: 'foot',
-	},
-];
-
-const compressionModeOptions = [
-	{
-		key: 'off',
-		label: 'routing.compressionModeOff',
-	},
-	{
-		key: 'on',
-		label: 'routing.compressionModeOn',
-	},
-	{
-		key: 'auto',
-		label: 'routing.compressionModeAuto',
-	},
-];
-
-const ProviderRowControl = ({
-	editPoint,
-	setEditPoint,
-}: {
+/*
+ * Modal for editing a single routing point's profile inheritMode and/or
+ * explicit profile (when inheritMode === 'own').
+ *
+ * Shows SegmentedButtons [Route | Previous | Own] at the top:
+ *   - Route / Previous: read-only display of the resolved profile
+ *   - Own: full ProfileEditControls for the explicit profile
+ *
+ * Snapshotting: the first time the user switches to 'own', the currently
+ * resolved profile is snap-shotted as the initial value. Subsequent
+ * switches away from 'own' preserve local edits in state — switching back
+ * restores them without re-snapshotting.
+ *
+ * On save: uses getChangedSegmentIds to only delete segments whose
+ * resolved profile actually changed, then dispatches processRouting.
+ * If inheritMode === 'own', also sets setLastProfile.
+ */
+const EditPointModal: FC<{
+	route: Route;
 	editPoint: RoutingPoint;
 	setEditPoint: Dispatch<SetStateAction<RoutingPoint | undefined>>;
-}) => {
-	const { t } = useTranslation();
+}> = ({ route, editPoint, setEditPoint }) => {
+	const dispatch = useAppDispatch();
 
-	const selectedOpt = providerOptions.find((opt) => opt.key === editPoint.profile.provider);
-
-	const lastProfiles = useAppSelector(selectLastProfiles);
-
-	const handleSetProvider = useCallback(
-		(newProvider: string) => {
-			if (newProvider === 'brouter') {
-				setEditPoint({
-					...editPoint,
-					profile: {
-						provider: 'brouter',
-						options: (lastProfiles.profiles?.['brouter']?.options ??
-							DEFAULT_OPTIONS_BROUTER) as BrouterOptions,
-					},
-				});
-			} else if (newProvider === 'straightLine') {
-				setEditPoint({
-					...editPoint,
-					profile: {
-						provider: 'straightLine',
-						options: (lastProfiles.profiles?.['straightLine']?.options ??
-							DEFAULT_OPTIONS_STRAIGHT_LINE) as StraightLineOptions,
-					},
-				});
-			}
-		},
-		[
-			editPoint,
-			setEditPoint,
-			lastProfiles,
-		]
-	);
-
-	return (
-		<InfoLabelRow
-			label={t('routing.provider')}
-			Info={t('routing.hintProvider')}
-		>
-			<ButtonHighlightMenuControl
-				options={providerOptions}
-				value={get(selectedOpt, 'key')}
-				setValue={handleSetProvider}
-				anchorLabel={t(get(selectedOpt, 'label', ''))}
-			/>
-		</InfoLabelRow>
-	);
-};
-
-const VehicleRowControl = ({
-	editPoint,
-	setEditPoint,
-}: {
-	editPoint: RoutingPoint;
-	setEditPoint: Dispatch<SetStateAction<RoutingPoint | undefined>>;
-}) => {
-	const { t } = useTranslation();
-
-	const selectedOpt =
-		editPoint.profile.provider === 'brouter'
-			? vehicleOptions.find(
-					(opt) => opt.key === (editPoint.profile.options as BrouterOptions).v
-				)
-			: undefined;
-
-	const handleSetVehicle = useCallback(
-		(newValue: string) =>
-			setEditPoint({
-				...editPoint,
-				profile: {
-					provider: 'brouter' as const,
-					options: {
-						...editPoint.profile.options,
-						v: newValue,
-					},
-				} as RoutingProfile,
-			}),
-		[editPoint, setEditPoint]
-	);
-
-	if (editPoint.profile.provider !== 'brouter') {
-		return undefined;
-	}
-
-	return (
-		<InfoLabelRow
-			label={t('routing.profile')}
-			Info={t('routing.hintProfile')}
-		>
-			<ButtonHighlightMenuControl
-				options={vehicleOptions}
-				value={get(selectedOpt, 'key')}
-				setValue={handleSetVehicle}
-				anchorLabel={get(selectedOpt, 'label', '')}
-			/>
-		</InfoLabelRow>
-	);
-};
-
-const CompressionModeRowControl = ({
-	editPoint,
-	setEditPoint,
-}: {
-	editPoint: RoutingPoint;
-	setEditPoint: Dispatch<SetStateAction<RoutingPoint | undefined>>;
-}) => {
-	const { t } = useTranslation();
-
-	const selectedOpt =
-		editPoint.profile.provider === 'brouter'
-			? compressionModeOptions.find(
-					(opt) =>
-						opt.key ===
-						((editPoint.profile.options as BrouterOptions).compressionMode ?? 'off')
-				)
-			: undefined;
-
-	const handleSetCompressionMode = useCallback(
-		(newValue: string) =>
-			setEditPoint({
-				...editPoint,
-				profile: {
-					provider: 'brouter' as const,
-					options: {
-						...(editPoint.profile.options as BrouterOptions),
-						compressionMode: newValue as BrouterCompressionMode,
-					},
-				} as RoutingProfile,
-			}),
-		[editPoint, setEditPoint]
-	);
-
-	if (editPoint.profile.provider !== 'brouter') {
-		return undefined;
-	}
-
-	return (
-		<InfoLabelRow
-			label={t('routing.compressionMode')}
-			Info={t('routing.hintCompressionMode')}
-		>
-			<ButtonHighlightMenuControl
-				options={compressionModeOptions}
-				value={get(selectedOpt, 'key')}
-				setValue={handleSetCompressionMode}
-				anchorLabel={t(get(selectedOpt, 'label', ''))}
-			/>
-		</InfoLabelRow>
-	);
-};
-
-const IntervalRowControl = ({
-	editPoint,
-	setEditPoint,
-}: {
-	editPoint: RoutingPoint;
-	setEditPoint: Dispatch<SetStateAction<RoutingPoint | undefined>>;
-}) => {
 	const { t } = useTranslation();
 
 	const unitPrefs = useAppSelector(selectUnitPrefs);
 	const distUnit = unitPrefs.distance;
 
-	const handleSetInterval = useCallback(
-		(newValue: number) => {
-			setEditPoint({
-				...editPoint,
-				profile: {
-					provider: 'straightLine' as const,
-					options: { interval: newValue },
-				} as RoutingProfile,
-			});
-		},
-		[editPoint, setEditPoint]
-	);
-
-	const validatePositive = useCallback((val: number) => val > 0, []);
-
-	const label = useMemo(
-		() => t('routing.interval') + ' [' + formatDistanceUnit(distUnit, true) + ']',
-		[t, distUnit]
-	);
-
-	if (editPoint.profile.provider !== 'straightLine') {
-		return undefined;
-	}
-
-	return (
-		<NumericRowControl
-			label={label}
-			Info={t('routing.hintInterval')}
-			value={editPoint.profile.options.interval}
-			onUpdate={handleSetInterval}
-			numType="int"
-			validate={validatePositive}
-		/>
-	);
-};
-
-const EditPointModal: FC<{
-	lastProfile?: RoutingProfile;
-	editPoint: RoutingPoint;
-	setEditPoint: Dispatch<SetStateAction<RoutingPoint | undefined>>;
-}> = ({ lastProfile, editPoint, setEditPoint }) => {
-	const dispatch = useAppDispatch();
-
-	const lastProfiles = useAppSelector(selectLastProfiles);
-
-	const theme = useTheme();
-	const { t } = useTranslation();
-
-	const { id: routeId, points } = useRoute(['id', 'points']) || {};
+	const { points, profile: routeProfile } = route;
 
 	const point = useMemo(
 		() => (points ? points.find((p) => p.id === editPoint.id) : undefined),
 		[points, editPoint.id]
 	);
 
-	const mutationOptions: UseMutationOptions<void, Error, RoutingProfile, void> = useMemo(
+	const editPointIdx = useMemo(
+		() => (point ? points.findIndex((p) => p.id === point.id) : -1),
+		[point, points]
+	);
+
+	const resolvedProfile = useMemo(
+		() =>
+			point
+				? resolveProfileForPoint(point, editPointIdx, points, routeProfile)
+				: editPoint.profile!,
+		[
+			point,
+			editPointIdx,
+			points,
+			routeProfile,
+			editPoint.profile,
+		]
+	);
+
+	const inheritMode = editPoint.inheritMode ?? DEFAULT_INHERIT_MODE;
+
+	const mutationOptions: UseMutationOptions<
+		void,
+		Error,
+		{
+			profile?: RoutingProfile | null;
+			inheritMode: RoutingPointInheritMode;
+			segmentIds: string[];
+		},
+		void
+	> = useMemo(
 		() => ({
-			mutationFn: (profile: RoutingProfile) =>
-				updateRoutingPoint(editPoint.id, {
-					profile: profile,
-				}),
+			mutationFn: ({ profile, inheritMode }) =>
+				updateRoutingPoint(editPoint.id, { profile, inheritMode }),
 			onMutate: async () => {
-				await dbConnection.queryClient!.cancelQueries({ queryKey: ['route', routeId] });
+				await dbConnection.queryClient!.cancelQueries({
+					queryKey: ['route', route.id],
+				});
 			},
-			onSuccess: async () => {
-				await dbConnection.queryClient!.invalidateQueries({ queryKey: ['route', routeId] });
-				dispatch(deleteSegmentByKeyVal('fromId', editPoint.id));
+			onSuccess: async (_data, { profile, inheritMode, segmentIds }) => {
+				await dbConnection.queryClient!.invalidateQueries({
+					queryKey: ['route', route.id],
+				});
+
+				if (segmentIds.length) {
+					dispatch(deleteSegments(segmentIds));
+				}
+
+				if (inheritMode === 'own' && profile) {
+					dispatch(setLastProfile(profile));
+				}
+
 				dbConnection?.queryClient && dispatch(processRouting(dbConnection?.queryClient));
 				setEditPoint(undefined);
 			},
 		}),
 		[
 			editPoint.id,
-			routeId,
+			route.id,
 			dispatch,
 			setEditPoint,
 		]
@@ -332,120 +125,129 @@ const EditPointModal: FC<{
 	const mutation = useMutation(mutationOptions);
 
 	const onDismiss = useCallback(() => {
-		if (!isEqual(editPoint?.profile, point?.profile)) {
-			mutation.mutate(editPoint.profile);
+		if (!point) {
+			setEditPoint(undefined);
+			return;
+		}
+		const modeChanged = inheritMode !== (point.inheritMode ?? DEFAULT_INHERIT_MODE);
+		const profileChanged = !isEqual(editPoint.profile, point.profile);
+
+		if (modeChanged || profileChanged) {
+			const newProfile = inheritMode === 'own' ? editPoint.profile : undefined;
+
+			const newPoints = points.map((p, i) => {
+				if (i === editPointIdx) {
+					return { ...p, inheritMode, profile: newProfile };
+				}
+				return p;
+			});
+
+			const segmentIds = getChangedSegmentIds(points, routeProfile, {
+				startIdx: editPointIdx,
+				newPoints,
+			});
+
+			mutation.mutate({
+				profile: newProfile ?? null,
+				inheritMode,
+				segmentIds,
+			});
 		} else {
 			setEditPoint(undefined);
 		}
 	}, [
 		editPoint,
 		point,
+		points,
+		editPointIdx,
+		inheritMode,
+		routeProfile,
 		mutation,
 		setEditPoint,
 	]);
 
-	const handleToggleFast = useCallback(() => {
-		if (editPoint.profile.provider !== 'brouter') {
-			return;
-		}
-		const opts = editPoint.profile.options;
-		setEditPoint({
-			...editPoint,
-			profile: {
-				provider: 'brouter' as const,
-				options: {
-					...opts,
-					fast: !opts.fast,
-				},
-			} as RoutingProfile,
-		});
-	}, [editPoint, setEditPoint]);
+	const handleSetInheritMode = useCallback(
+		(newMode: string) => {
+			const mode = newMode as RoutingPointInheritMode;
 
-	const isBrouter = editPoint.profile.provider === 'brouter';
-
-	const prevProfile = useMemo(
-		() => lastProfile ?? lastProfiles.profiles[lastProfiles.provider],
-		[lastProfile]
+			if (mode === 'own' && !editPoint.profile) {
+				setEditPoint({
+					...editPoint,
+					inheritMode: mode,
+					profile: resolvedProfile,
+				});
+			} else {
+				setEditPoint({
+					...editPoint,
+					inheritMode: mode,
+				});
+			}
+		},
+		[
+			editPoint,
+			setEditPoint,
+			resolvedProfile,
+		]
 	);
 
-	const prevProfileDisabled = useMemo(
-		() => isEqual(prevProfile, editPoint.profile),
-		[prevProfile, editPoint.profile]
+	const handleProfileChange = useCallback(
+		(newProfile: RoutingProfile) => {
+			setEditPoint({
+				...editPoint,
+				inheritMode: 'own',
+				profile: newProfile,
+			});
+		},
+		[editPoint, setEditPoint]
 	);
 
-	const handleApplyPrev = useCallback(() => {
-		setEditPoint({
-			...editPoint,
-			profile: prevProfile,
-		});
-	}, [setEditPoint, prevProfile]);
-
-	const buttonProps = useButtonProps({
-		mode: 'outlined',
-		disabled: prevProfileDisabled,
-	});
+	const segmentButtons = useMemo(
+		() => [
+			{
+				value: 'route',
+				label: t('routing.inheritModeRoute'),
+			},
+			{
+				value: 'prev',
+				label: t('routing.inheritModePrev'),
+			},
+			{
+				value: 'own',
+				label: t('routing.inheritModeOwn'),
+			},
+		],
+		[t]
+	);
 
 	return (
 		<ModalWrapper
-			visible={!!editPoint.profile}
+			visible={true}
 			onDismiss={onDismiss}
 			headerLabel={t('routing.editProfile')}
-			innerStyle={appSharedStyles.gap}
+			innerStyle={sharedStyles.modal}
 		>
-			<ProviderRowControl
-				editPoint={editPoint}
-				setEditPoint={setEditPoint}
+			<SegmentedButtons
+				value={inheritMode}
+				onValueChange={handleSetInheritMode}
+				buttons={segmentButtons}
 			/>
 
-			<VehicleRowControl
-				editPoint={editPoint}
-				setEditPoint={setEditPoint}
-			/>
-
-			{isBrouter && (
-				<ToggleRowControl
-					label={t('routing.fast')}
-					value={(editPoint.profile.options as BrouterOptions).fast ?? false}
-					onToggle={handleToggleFast}
-					labelStyle={theme.fonts.bodyMedium}
-					innerStyle={sharedStyles.alignStart}
-					Info={t('routing.hintFast')}
+			{inheritMode !== 'own' && (
+				<RoutingProfileInfo
+					profile={resolvedProfile}
+					inheritMode={inheritMode}
+					distUnit={distUnit}
 				/>
 			)}
 
-			<CompressionModeRowControl
-				editPoint={editPoint}
-				setEditPoint={setEditPoint}
-			/>
-
-			<IntervalRowControl
-				editPoint={editPoint}
-				setEditPoint={setEditPoint}
-			/>
-
-			<Divider style={styles.divider} />
-
-			<InfoLabelRow
-				label={t('routing.applyPrevPointProfile')}
-				Info={t('routing.hintApplyPrevPointProfile')}
-			>
-				<ButtonHighlight
-					{...buttonProps}
-					compact={true}
-					onPress={handleApplyPrev}
-				>
-					{t('routing.applyPrevPointProfileBtn')}
-				</ButtonHighlight>
-			</InfoLabelRow>
+			{inheritMode === 'own' && (
+				<ProfileEditControls
+					profile={editPoint.profile ?? resolvedProfile}
+					onProfileChange={handleProfileChange}
+				/>
+			)}
 		</ModalWrapper>
 	);
 };
-
-const styles = StyleSheet.create({
-	divider: {
-		marginVertical: 32,
-	},
-	disabled: { opacity: OPACITY_DISABLED },
-});
 
 export default EditPointModal;

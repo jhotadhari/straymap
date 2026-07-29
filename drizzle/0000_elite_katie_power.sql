@@ -11,13 +11,15 @@ CREATE TABLE `routes` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`point_order` text DEFAULT (json_array()) NOT NULL,
 	`line_id` integer,
+	`profile` text NOT NULL,
 	FOREIGN KEY (`line_id`) REFERENCES `lines`(`id`) ON UPDATE no action ON DELETE set null
 );
 --> statement-breakpoint
 CREATE TABLE `routing_points` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`geometry` blob NOT NULL,
-	`profile` text NOT NULL,
+	`profile` text,
+	`inherit_mode` text,
 	`route_id` integer NOT NULL,
 	FOREIGN KEY (`route_id`) REFERENCES `routes`(`id`) ON UPDATE no action ON DELETE no action
 );

@@ -3,8 +3,12 @@
 	"profile": "Profil",
 	"fast": "Schnell",
 	"editProfile": "Profil bearbeiten",
+	"editRouteProfile": "Routenprofil bearbeiten",
 	"hintProfile": "Wähle das Routing-Profil für diesen Wegpunkt. Das Profil bestimmt, welche Wege und Straßen die Routing-Engine bevorzugt — wähle zwischen Auto, Fahrrad oder zu Fuß.",
 	"hintFast": "Wenn aktiviert, bevorzugt die Routing-Engine schnellere Routen gegenüber kürzeren. Deaktiviere dies, um stattdessen den direktesten Weg zu finden.",
+	"inheritModeRoute": "Route",
+	"inheritModePrev": "Vorheriger",
+	"inheritModeOwn": "Eigenes",
 	"pointsAreOverlapping": "Punkte überlappen sich",
 	"startRouting": "Routing starten",
 	"stopRouting": "Routing beenden",
@@ -25,5 +29,6 @@
 	"compressionModeAuto": "Auto",
 	"applyPrevPointProfile": "Vorheriges Profil",
 	"hintApplyPrevPointProfile": "Übernehme das Routing-Profil (Engine und Einstellungen) vom vorherigen Wegpunkt. Nützlich, wenn aufeinanderfolgende Segmente dasselbe Profil verwenden sollen.",
-	"applyPrevPointProfileBtn": "Übernehmen"
+	"applyPrevPointProfileBtn": "Übernehmen",
+	"routeProfileUsage": "{{routeCount}} Punkte verwenden dieses Profil, {{prevCount}} erben vom vorherigen Punkt, {{ownCount}} haben eigene Profile"
 }

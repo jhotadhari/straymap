@@ -22,6 +22,8 @@ export type RoutingProfile =
 	| { provider: 'brouter'; options: BrouterOptions }
 	| { provider: 'straightLine'; options: StraightLineOptions };
 
+export type RoutingPointInheritMode = 'route' | 'prev' | 'own';
+
 export type LastProfiles = {
 	provider: RoutingProfile['provider'];
 	profiles: { [provider: string]: RoutingProfile };
@@ -30,7 +32,8 @@ export type LastProfiles = {
 export type RoutingPoint = {
 	id: number;
 	geometry: Point;
-	profile: RoutingProfile;
+	profile?: RoutingProfile;
+	inheritMode?: RoutingPointInheritMode;
 };
 
 export type RoutingSegment = {
@@ -47,4 +50,5 @@ export interface Route {
 	line_id: number | null;
 	stats?: LineStats;
 	points: RoutingPoint[];
+	profile: RoutingProfile;
 }
