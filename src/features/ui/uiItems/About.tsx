@@ -323,7 +323,7 @@ const About: FC<{ style?: ViewStyle }> = ({ style }) => {
 						{Object.keys(debugInfo).map((key: string) => {
 							let string = get(debugInfo, key, '');
 							if ('gitStatus' === key) {
-								string = string.replace(/#/g, '\n');
+								string = string.replace(/;/g, '\n');
 							}
 							return (
 								<Text key={key}>
