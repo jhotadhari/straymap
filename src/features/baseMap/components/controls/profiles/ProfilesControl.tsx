@@ -37,7 +37,7 @@ import ButtonHighlight from '../../../../../components/generic/primitives/Button
 import ModalWrapper from '../../../../../components/generic/wrapper/ModalWrapper';
 import InfoButton from '../../../../../components/generic/infoWrapper/InfoButton';
 import IconCustom from '../../../../../components/generic/primitives/IconCustom';
-import NameRowControl from '../../../../../components/generic/controls/NameRowControl';
+import LabelRowControl from '../LabelRowControl';
 import LoadingIndicator from '../../../../../components/generic/primitives/LoadingIndicator';
 import HintLink from '../../../../../components/generic/primitives/HintLink';
 import { MapsforgeProfile, LayerConfigOptionsMapsforge } from '../../../types';
@@ -232,11 +232,11 @@ const EditModal: FC<{
 			}
 		>
 			<View style={sharedStyles.modal}>
-				<NameRowControl
+				<LabelRowControl
 					item={profileTemp}
 					update={handleNameUpdate}
-					// Info={isFetchingTheme ? undefined : t('hint.nameId')}
-					Info={t('baseMap.hint.nameId')}
+					Info={t('baseMap.hint.label')}
+					placeholder={t(getProfileLabelPlaceholder(profileTemp))}
 				/>
 
 				<LayerCount profile={profileTemp} />
@@ -322,6 +322,18 @@ const ControlInfo: FC<{}> = () => {
 	);
 };
 
+// Derive a fallback label from the profile's theme file (basename without path/extension).
+export const getPlaceholderLabel = (profile?: MapsforgeProfile) => {
+	if (!profile?.theme) return undefined;
+	return profile.theme.split('/').pop()?.replace(/\.[^.]*$/, '') || undefined;
+};
+
+// Wraps getPlaceholderLabel with 'baseMap.label' as final fallback.
+const getProfileLabelPlaceholder = (profile?: MapsforgeProfile) => {
+	const label = getPlaceholderLabel(profile);
+	return label && label.length > 0 ? label : 'baseMap.label';
+};
+
 const DraggableItem = ({
 	item,
 	width,
@@ -337,8 +349,6 @@ const DraggableItem = ({
 
 	const layers = useAppSelector((state) => selectLayers(state, { temp: true }));
 	const profiles = useAppSelector((state) => selectMapsforgeProfiles(state, { temp: true }));
-
-	const [isToWide, setIsToWide] = useState(false);
 
 	const themeLabel = useMemo(() => {
 		let result = '';
@@ -370,6 +380,11 @@ const DraggableItem = ({
 		item.key,
 		profiles,
 	]);
+
+	const displayName = useMemo(
+		() => item.name || t(getProfileLabelPlaceholder(item)),
+		[t, item]
+	);
 
 	const style: ViewStyle = useMemo(
 		() => ({
@@ -420,7 +435,8 @@ const DraggableItem = ({
 		() => ({
 			flexDirection: reverse ? 'row-reverse' : 'row',
 			alignItems: 'center',
-			flexShrink: 0,
+			flexShrink: 1,
+			minWidth: 0,
 			gap: 8,
 		}),
 		[reverse]
@@ -429,18 +445,6 @@ const DraggableItem = ({
 	const handlePress = useCallback(
 		() => dispatch(setMapsforgeProfileTemp(item)),
 		[dispatch, item]
-	);
-
-	const handleLayout = useCallback(
-		(event: LayoutChangeEvent) => {
-			if (
-				(reverse && event.nativeEvent.layout.x < 0) ||
-				(!reverse && event.nativeEvent.layout.x + event.nativeEvent.layout.width > width)
-			) {
-				setIsToWide(true);
-			}
-		},
-		[reverse, width]
 	);
 
 	return (
@@ -452,25 +456,35 @@ const DraggableItem = ({
 				mode="draggable"
 				style={styleHandle}
 			>
+				{/* Show user-given name, or a derived placeholder when empty */}
 				<Text
 					style={styleName}
 					numberOfLines={1}
 					ellipsizeMode="tail"
 				>
-					{item.name}
+					{displayName}
 				</Text>
 
 				<View style={styleMeta}>
-					<Text numberOfLines={1}>
+					<Text
+						style={styles.metaText}
+						numberOfLines={1}
+						ellipsizeMode="tail"
+					>
 						{sprintf(
 							'%s ' + t('baseMap.layerShort', { count: layersCount }),
 							layersCount
 						)}
 					</Text>
 
-					{!isToWide && (
+					{/* Only show the theme badge when the user gave a custom name —
+					    when name is empty the fallback already is the theme label. */}
+					{!!item.name && !!themeLabel && (
 						<Text
-							style={reverse ? styles.themeLabelReverse : undefined}
+							style={[
+								styles.metaText,
+								reverse && styles.themeLabelReverse,
+							]}
 							numberOfLines={1}
 							ellipsizeMode="tail"
 						>
@@ -484,7 +498,6 @@ const DraggableItem = ({
 				underlayColor={theme.colors.elevation.level3}
 				onPress={handlePress}
 				style={styleAction}
-				onLayout={handleLayout}
 			>
 				<IconCustom
 					name="mapsforge_puzzle_cog"
@@ -705,6 +718,10 @@ const AddIcon: IconSource = () => {
 const styles = StyleSheet.create({
 	controlInfo: { gap: 16 },
 	themeLabelReverse: { marginRight: 10 },
+	metaText: {
+		flexShrink: 1,
+		minWidth: 0,
+	},
 });
 
 export default ProfilesControl;
