@@ -1,10 +1,20 @@
 /**
  * External dependencies
  */
-import { FC, Fragment, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+	FC,
+	Fragment,
+	ReactNode,
+	useCallback,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
 import { View } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
+import LucideIcons from '@react-native-vector-icons/lucide/static';
 import { get } from 'lodash-es';
 
 /**
@@ -24,7 +34,6 @@ import { useAppDispatch, useAppSelector } from '../../../../../store/hooks';
 import { setLayerTemp, setMapsforgeProfileTemp } from '../../../slice';
 import { selectMapsforgeProfiles } from '../../../selectors';
 import NumericRowControlMulti from '../../../../../components/generic/controls/NumericRowControlMulti';
-import ListItemMenuControl from '../../../../../components/generic/wrapper/ListItemMenuControl';
 import { sharedStyles as globalSharedStyles } from '../../../../../sharedStyles';
 import ButtonHighlightMenuControl from '../../../../../components/generic/wrapper/ButtonHighlightMenuControl';
 import IconCustom from '../../../../../components/generic/primitives/IconCustom';
@@ -198,6 +207,7 @@ const enabledZoomOptLabels = ['min', 'max'];
 
 const LayerControlMapsforge: FC<{}> = ({}) => {
 	const dispatch = useAppDispatch();
+	const theme = useTheme();
 	const { layerTemp, setOptions } = useLayerTemp<LayerConfigOptionsMapsforge>();
 
 	const { t } = useTranslation();
@@ -259,6 +269,7 @@ const LayerControlMapsforge: FC<{}> = ({}) => {
 				filesHeading={sprintf(t('filesIn'), '(.map)')}
 				noFilesHeading={sprintf(t('noFilesIn'), '(.map)')}
 				hasCustom={true}
+				warningIfUnset={true}
 			/>
 
 			<ProfileRowControl
@@ -278,6 +289,17 @@ const LayerControlMapsforge: FC<{}> = ({}) => {
 			/>
 		</Fragment>
 	);
+};
+
+// Derive a fallback label from the layer's map file (filename without path and extension).
+export const getPlaceholderLabel = (layer: LayerConfig) => {
+	const mapFile = (layer.options as LayerConfigOptionsMapsforge)?.mapFile;
+	return mapFile
+		? mapFile
+				.split('/')
+				.pop()
+				?.replace(/\.[^.]*$/, '') || mapFile
+		: undefined;
 };
 
 export default LayerControlMapsforge;

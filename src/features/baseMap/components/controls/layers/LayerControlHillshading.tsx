@@ -13,7 +13,7 @@ import HgtSourceRowControl from '../../../../general/components/controls/HgtSour
 import { getHillshadingCacheDirChild } from '../../../utils';
 import CacheControl from './CacheControl';
 import { defaults } from '../../../defaults';
-import { LayerConfigOptionsHillshading } from '../../../types';
+import { LayerConfig, LayerConfigOptionsHillshading } from '../../../types';
 import { useLayerTemp } from '../../../hooks/useLayerTemp';
 import { selectAppDirs } from '../../../../dirs/selectors';
 import { useAppSelector } from '../../../../../store/hooks';
@@ -176,6 +176,13 @@ const LayerControlHillshading: FC<{}> = () => {
 			/>
 		</Fragment>
 	);
+};
+
+// Derive a fallback label from the hillshading layer's DEM source path.
+// When the path is empty/undefined the layer uses the global DEM setting.
+export const getPlaceholderLabel = (layer: LayerConfig) => {
+	const hgtDirPath = (layer.options as LayerConfigOptionsHillshading)?.hgtDirPath;
+	return hgtDirPath || 'baseMap.globalDEM';
 };
 
 export default LayerControlHillshading;

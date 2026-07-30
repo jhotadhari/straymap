@@ -19,6 +19,10 @@ import {
 import { defaults } from './defaults';
 import { LayerKind } from './types';
 import { mapTypeOptions } from './components/controls/layers/LayersControl';
+import { getPlaceholderLabel as getPlaceholderLabel_hillshading } from './components/controls/layers/LayerControlHillshading';
+import { getPlaceholderLabel as getPlaceholderLabel_mapsforge } from './components/controls/layers/LayerControlMapsforge';
+import { getPlaceholderLabel as getPlaceholderLabel_onlineRasterXyz } from './components/controls/layers/LayerControlOnlineRasterXYZ';
+import { getPlaceholderLabel as getPlaceholderLabel_rasterMbtiles } from './components/controls/layers/LayerControlRasterMBTiles';
 
 export const stringifyProp = (prop: any, deli?: string): string => {
 	deli = deli || '_';
@@ -130,3 +134,26 @@ export const getShadingAlgorithmOptions = (
 		asymmetryFactor: options.asymmetryFactor,
 	};
 };
+
+// Resolve a placeholder label for a layer based on its type and options.
+export const getLayerLabelPlaceholder = (layer?: LayerConfig, fallback?: string) => {
+	let label: undefined | string;
+	switch (layer?.type) {
+		case 'mapsforge':
+			label = getPlaceholderLabel_mapsforge(layer);
+			break;
+		case 'online-raster-xyz':
+			label = getPlaceholderLabel_onlineRasterXyz(layer);
+			break;
+		case 'hillshading':
+			label = getPlaceholderLabel_hillshading(layer);
+			break;
+		case 'raster-MBtiles':
+			label = getPlaceholderLabel_rasterMbtiles(layer);
+			break;
+	}
+	return label && label.length > 0 ? label : (fallback ?? '');
+};
+
+export const makeLayerBusyKey = (layerType: string, layerKey: string): string =>
+	`map:base-layer:${layerType}:${layerKey}`;

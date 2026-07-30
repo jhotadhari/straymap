@@ -49,6 +49,6 @@ export const selectLayerTemp = createAppSelector(
 		return {
 			...layer,
 			options: fillLayerConfigOptionsWithDefaults(type ?? null, layer.options),
-		};
+		} as LayerConfig;
 	}
 );

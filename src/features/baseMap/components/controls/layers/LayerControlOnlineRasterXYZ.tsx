@@ -7,6 +7,7 @@ import { Text, useTheme, TextInput } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { get } from 'lodash-es';
 import dayjs from 'dayjs';
+import LucideIcons from '@react-native-vector-icons/lucide/static';
 
 /**
  * Internal dependencies
@@ -256,6 +257,21 @@ const SourceRowControl: FC<{}> = () => {
 		[selectedOpt, customUrl]
 	);
 
+	const warningIcon = useMemo(() => {
+		if (selectedOpt !== 'custom' || urlIsValid) return undefined;
+		return ({ size }: { size: number }) => (
+			<LucideIcons
+				size={size}
+				color={theme.colors.error}
+				name="triangle-alert"
+			/>
+		);
+	}, [
+		selectedOpt,
+		urlIsValid,
+		theme,
+	]);
+
 	useEffect(() => {
 		if (urlIsValid) {
 			dispatch(
@@ -360,6 +376,7 @@ const SourceRowControl: FC<{}> = () => {
 				options={sourceOptions}
 				value={selectedOpt}
 				setValue={setSelectedOpt}
+				anchorIconSource={warningIcon}
 				anchorLabel={t(
 					get(
 						sourceOptions.find((opt) => opt.key === selectedOpt),
@@ -472,10 +489,19 @@ const LayerControlOnlineRasterXYZ: FC<{}> = () => {
 
 const styles = StyleSheet.create({
 	belowWrapper: {
-		marginBottom: 10,
+		marginVertical: 8,
 	},
 	textInput: { width: '100%' },
 	attributionWrapper: { marginTop: 10 },
 });
+
+// Derive a fallback label: known source name if matched, otherwise the raw URL.
+export const getPlaceholderLabel = (layer: LayerConfig) => {
+	const options = layer.options as LayerConfigOptionsOnlineRasterXYZ;
+	const url = options?.url;
+	if (!url) return undefined;
+	const source = sourceOptions.find((opt) => opt.url === url);
+	return source && source.key !== 'custom' ? source.label : url;
+};
 
 export default LayerControlOnlineRasterXYZ;

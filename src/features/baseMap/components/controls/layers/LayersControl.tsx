@@ -15,7 +15,6 @@ import {
 	View,
 	TouchableHighlight,
 	ViewStyle,
-	LayoutChangeEvent,
 	StyleSheet,
 	Dimensions,
 } from 'react-native';
@@ -24,6 +23,7 @@ import { useTranslation } from 'react-i18next';
 import Sortable, { SortableFlexDragEndParams } from 'react-native-sortables';
 import { Style } from 'react-native-paper/lib/typescript/components/List/utils';
 import { IconSource } from 'react-native-paper/lib/typescript/components/Icon';
+import LucideIcons from '@react-native-vector-icons/lucide/static';
 
 /**
  * Internal dependencies
@@ -32,14 +32,14 @@ import ButtonHighlight from '../../../../../components/generic/primitives/Button
 import ModalWrapper from '../../../../../components/generic/wrapper/ModalWrapper';
 import RadioListItem from '../../../../../components/generic/wrapper/RadioListItem';
 import InfoButton from '../../../../../components/generic/infoWrapper/InfoButton';
-import NameRowControl from '../../../../../components/generic/controls/NameRowControl';
+import LabelRowControl from '../LabelRowControl';
 import LayerControlMapsforge from './LayerControlMapsforge';
-import { LayerOption, LayerConfig } from '../../../types';
-import { getNewLayer } from '../../../utils';
+import { LayerOption, LayerConfig, LayerConfigOptionsHillshading } from '../../../types';
+import { getLayerLabelPlaceholder, getNewLayer } from '../../../utils';
 import { useAppDispatch, useAppSelector } from '../../../../../store/hooks';
 import { selectElementExpanded } from '../../../../ui/selectors';
 import { setElementExpanded } from '../../../../ui/slice';
-import { selectLayers, selectLayerTemp } from '../../../selectors';
+import { selectLayers, selectLayerTemp, selectHgtDirPath } from '../../../selectors';
 import { setLayers as setLayersStore, setLayerTemp } from '../../../slice';
 import VisibilityControl, { VisibilityRowControl } from './VisibilityControl';
 import LayerControlOnlineRasterXYZ from './LayerControlOnlineRasterXYZ';
@@ -84,11 +84,19 @@ const DraggableItem: FC<{
 	saveLayers: () => void;
 }> = ({ item, width, reverse, saveOnChange, saveLayers }) => {
 	const theme = useTheme();
+	const { t } = useTranslation();
 	const dispatch = useAppDispatch();
 
 	const layers = useAppSelector((state) => selectLayers(state, { temp: true }));
+	const appHgtDirPath = useAppSelector(selectHgtDirPath);
 
-	const [isToWide, setIsToWide] = useState(false);
+	const hasNoSource = useMemo(() => {
+		if (item.type === 'hillshading') {
+			const opts = item.options as LayerConfigOptionsHillshading;
+			return !opts?.hgtDirPath && !appHgtDirPath;
+		}
+		return !getLayerLabelPlaceholder(item);
+	}, [item, appHgtDirPath]);
 
 	const style: ViewStyle = useMemo(
 		() => ({
@@ -139,18 +147,6 @@ const DraggableItem: FC<{
 
 	const handlePress = useCallback(() => dispatch(setLayerTemp(item)), [dispatch, item]);
 
-	const handleLayout = useCallback(
-		(event: LayoutChangeEvent) => {
-			if (
-				(reverse && event.nativeEvent.layout.x < 0) ||
-				(!reverse && event.nativeEvent.layout.x + event.nativeEvent.layout.width > width)
-			) {
-				setIsToWide(true);
-			}
-		},
-		[reverse, width]
-	);
-
 	const updateItem = useCallback(
 		(newLayer: LayerConfig) => {
 			const layerIndex = layers.findIndex((layer) => layer.key === newLayer?.key);
@@ -191,28 +187,37 @@ const DraggableItem: FC<{
 				mode="draggable"
 				style={styleName}
 			>
+				{/* Show user-given name, or a derived placeholder when empty */}
+				{/* When no source is configured, warn with an alert icon */}
+				{hasNoSource && (
+					<View style={{ flexShrink: 0 }}>
+						<LucideIcons
+							size={20}
+							color={theme.colors.error}
+							name="triangle-alert"
+						/>
+					</View>
+				)}
 				<Text
 					style={styles.itemTitle}
 					numberOfLines={1}
 					ellipsizeMode="tail"
 				>
-					{item.name}
+					{item.name || t(getLayerLabelPlaceholder(item))}
 				</Text>
-				{!isToWide && (
-					<Text
-						style={styles.itemType}
-						numberOfLines={1}
-					>
-						[{item.type}]
-					</Text>
-				)}
+				<Text
+					style={styles.itemType}
+					numberOfLines={1}
+					ellipsizeMode="tail"
+				>
+					[{item.type}]
+				</Text>
 			</Sortable.Handle>
 
 			<TouchableHighlight
 				underlayColor={theme.colors.elevation.level3}
 				onPress={handlePress}
 				style={styleAction}
-				onLayout={handleLayout}
 			>
 				<IconFontGis
 					name="layer-edit"
@@ -332,6 +337,11 @@ const EditModal: FC<{
 		isDestructive: true,
 	});
 
+	const labelPlaceholder = useMemo(
+		() => t(getLayerLabelPlaceholder(layerTemp, 'baseMap.label')),
+		[t, layerTemp]
+	);
+
 	return !layerTemp ? undefined : (
 		<ModalWrapper
 			visible={modalVisible}
@@ -357,10 +367,11 @@ const EditModal: FC<{
 						<Text>{layerTemp.type}</Text>
 					</View>
 
-					<NameRowControl
+					<LabelRowControl
 						item={layerTemp}
 						update={handleNameUpdate}
-						Info={t('baseMap.hint.nameId')}
+						Info={t('baseMap.hint.label')}
+						placeholder={labelPlaceholder}
 					/>
 
 					<VisibilityRowControl
@@ -606,7 +617,7 @@ const AddIcon: IconSource = () => {
 export const styles = StyleSheet.create({
 	selectType: { marginBottom: 18 },
 	itemTitle: { flexGrow: 1, flexShrink: 1, minWidth: 0 },
-	itemType: { flexShrink: 0 },
+	itemType: { flexShrink: 1, minWidth: 0 },
 	modalRowTypeLabel: { minWidth: LABEL_WIDTH },
 	modalRowType: { flexDirection: 'row' },
 });
