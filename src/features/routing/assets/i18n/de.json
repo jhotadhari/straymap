@@ -23,7 +23,7 @@
 	"brouterUnavailableTitle": "BRouter nicht verfügbar",
 	"brouterUnavailableMessage": "Die App BRouter Offline Navigation ist auf diesem Gerät nicht installiert. BRouter ist die Offline-Routing-Engine für die Routenplanung. Installiere sie über F-Droid, Google Play oder GitHub, um die Routenberechnung zu aktivieren.",
 	"compressionMode": "Routenverarbeitung",
-	"hintCompressionMode": "Standard — schnellstes Routing mit Höhendaten von BRouter, kann aber bei sehr langen Routen fehlschlagen.\n\nErweitert — bewältigt lange Routen durch Nutzung der eigenen Höhendaten der App.\n\nAuto — versucht zuerst Standard, wechselt bei Fehler automatisch zu Erweitert.",
+	"hintCompressionMode": "Steuert, wie Routendaten zwischen BRouter und Straymap übergeben werden, und die Strategie, um lange Routen durch den schmalen Datenkanal zwischen den beiden Apps zu schleusen.\n\nStandard — schnellstes Routing mit Höhendaten von BRouter, kann aber bei sehr langen Routen fehlschlagen.\n\nErweitert — bewältigt lange Routen durch Nutzung der eigenen Höhendaten der App.\n\nAuto — versucht zuerst Standard, wechselt bei Fehler automatisch zu Erweitert.",
 	"compressionModeOff": "Standard",
 	"compressionModeOn": "Erweitert",
 	"compressionModeAuto": "Auto",
