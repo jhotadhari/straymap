@@ -13,7 +13,7 @@ import React, {
 	useMemo,
 	useState,
 } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 import { Icon, Text, useTheme } from 'react-native-paper';
 import MaterialIcons from '@react-native-vector-icons/material-icons/static';
 import { get, omit } from 'lodash-es';
@@ -58,6 +58,8 @@ const Segment: FC<{
 }> = ({ item, resolvedProfile, draggingItemIndex, setEditPoint }) => {
 	const theme = useTheme();
 	const { t } = useTranslation();
+
+	const { side } = useContext(DrawerContext);
 
 	const buttonPropsText = useButtonProps({ mode: 'text', style: styles.compactButtonAction });
 
@@ -124,62 +126,78 @@ const Segment: FC<{
 
 	// Hide if dragging
 	const hidden = undefined !== draggingItemIndex;
-	// const hidden = undefined !== draggingItemIndex &&
-	// 	(draggingItemIndex === order || draggingItemIndex - 1 === order);
 
-	const styleSegmentRow = useMemo(
+	const styleSegmentRow: StyleProp<ViewStyle> = useMemo(
 		() => [
 			styles.segmentRow,
+			side === 'left' && {
+				flexDirection: 'row-reverse',
+			},
 			hidden && {
 				opacity: 0,
 			},
 		],
-		[hidden]
+		[hidden, side]
 	);
 
-	const styleWrapper = useMemo(
+	const styleWrapper: StyleProp<ViewStyle> = useMemo(
 		() => [
 			styles.segmentWrapper,
 			{
 				backgroundColor: theme.colors.surfaceDisabled,
 				borderColor: theme.colors.onSurfaceDisabled,
 			},
+			side === 'left' && {
+				borderRightWidth: 1,
+				marginLeft: -6,
+				paddingHorizontal: 8,
+			},
+			side === 'right' && {
+				borderLeftWidth: 1,
+				marginLeft: 4,
+				paddingLeft: 8,
+			},
 		],
-		[theme]
+		[theme, side]
 	);
 
 	return (
 		<View style={styleWrapper}>
-			{!!segment && (
-				<View style={styleSegmentRow}>
-					<View style={styles.segmentRowContent}>
-						<StateIcon />
+			<View style={styleSegmentRow}>
+				{!!segment && (
+					<>
+						<View style={styles.segmentRowContent}>
+							<StateIcon />
 
-						{segment?.errorMsg && (
-							<Text style={styles.errorText}>{t(segment.errorMsg)}</Text>
-						)}
+							{segment?.errorMsg && (
+								<Text style={styles.errorText}>{t(segment.errorMsg)}</Text>
+							)}
 
-						{!segment?.isFetching && !segment?.errorMsg && (
-							<View style={styles.stat}>
-								<LineStatsCompactRows stats={lineStats} />
-							</View>
-						)}
-					</View>
+							{!segment?.isFetching && !segment?.errorMsg && (
+								<View style={styles.stat}>
+									<LineStatsCompactRows
+										stats={lineStats}
+										reverse={side === 'left'}
+									/>
+								</View>
+							)}
+						</View>
 
-					<View style={styles.segmentRowAction}>
-						<ButtonHighlight
-							{...buttonPropsText}
-							compact={true}
-							onPress={refreshSegment}
-						>
-							<Icon
-								source="refresh"
-								size={DRAWER_ICON_SIZE}
-							/>
-						</ButtonHighlight>
-					</View>
-				</View>
-			)}
+						<View>
+							<ButtonHighlight
+								{...buttonPropsText}
+								compact={true}
+								onPress={refreshSegment}
+							>
+								<Icon
+									source="refresh"
+									size={DRAWER_ICON_SIZE}
+								/>
+							</ButtonHighlight>
+						</View>
+					</>
+				)}
+			</View>
 
 			<View style={styleSegmentRow}>
 				<View style={styles.segmentRowContent}>
@@ -190,7 +208,7 @@ const Segment: FC<{
 					/>
 				</View>
 
-				<View style={styles.segmentRowAction}>
+				<View>
 					<ButtonHighlight
 						{...buttonPropsText}
 						compact={true}
@@ -219,6 +237,8 @@ const DraggableItem: FC<{
 	setEditPoint: Dispatch<SetStateAction<undefined | RoutingPoint>>;
 }> = ({ item, resolvedProfile, width, order, draggingItemIndex, setEditPoint }) => {
 	const { t } = useTranslation();
+
+	const { side } = useContext(DrawerContext);
 
 	const routeId = useAppSelector(selectIsRouting);
 
@@ -264,15 +284,36 @@ const DraggableItem: FC<{
 		[width]
 	);
 
+	const styleItemRow = useMemo(
+		() => [
+			styles.itemRow,
+			'left' === side && {
+				flexDirection: 'row-reverse' as const,
+				marginRight: -8,
+			},
+			'right' === side && {
+				marginLeft: -4,
+			},
+		],
+		[side]
+	);
+	const styleHandle = useMemo(
+		() => [
+			styles.handle,
+			'left' === side && { flexDirection: 'row-reverse' as const },
+		],
+		[side]
+	);
+
 	return (
 		<View
 			style={styleDraggableItem}
 			key={item.id}
 		>
-			<View style={styles.itemRow}>
+			<View style={styleItemRow}>
 				<Sortable.Handle
 					mode="draggable"
-					style={styles.handle}
+					style={styleHandle}
 				>
 					<Text>{order + 1}</Text>
 					<Text>{item.id}</Text>
@@ -492,7 +533,7 @@ const styles = StyleSheet.create({
 	segmentRow: {
 		justifyContent: 'space-between',
 		width: '100%',
-		flexDirection: 'row',
+		flexDirection: 'row', // adjusted dynamically depending on side.
 		alignItems: 'center',
 	},
 	segmentRowContent: {
@@ -501,13 +542,8 @@ const styles = StyleSheet.create({
 		flexShrink: 1,
 		gap: 8,
 	},
-	segmentRowAction: {},
 	segmentWrapper: {
 		alignItems: 'center',
-		justifyContent: 'flex-start',
-		borderLeftWidth: 1,
-		marginLeft: 8,
-		paddingLeft: 8,
 		paddingBottom: 8,
 		gap: 8,
 	},

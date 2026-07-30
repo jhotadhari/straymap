@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
-import React, { FC } from 'react';
-import { StyleSheet, View } from 'react-native';
+import React, { FC, useMemo } from 'react';
+import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 import { Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 
@@ -17,11 +17,14 @@ const RoutingProfileInfo: FC<{
 	profile: RoutingProfile;
 	inheritMode?: RoutingPointInheritMode;
 	distUnit: UnitPref;
-}> = ({ profile, inheritMode, distUnit }) => {
+	style?: StyleProp<ViewStyle>;
+}> = ({ profile, inheritMode, distUnit, style }) => {
 	const { t } = useTranslation();
 
+	const styleContainer = useMemo( () => [styles.container,style], [style])
+
 	return (
-		<View style={styles.container}>
+		<View style={styleContainer}>
 			{inheritMode && inheritMode !== 'own' && (
 				<Text style={styles.modeLabel}>
 					{t(
@@ -53,6 +56,9 @@ const styles = StyleSheet.create({
 		flexDirection: 'row',
 		alignItems: 'center',
 		gap: 8,
+
+
+		// marginLeft:
 	},
 	modeLabel: {
 		fontWeight: 'bold',

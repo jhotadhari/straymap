@@ -82,19 +82,34 @@ const DrawerTopBar: FC = () => {
 		[side]
 	);
 
+	const styleProfileInfo = useMemo(
+		() => [
+			'right' === side && { marginLeft: 4 },
+		],
+		[side]
+	);
+
 	const { nestedIconColor: nestedIconColorAdd, ...buttonPropsAdd } = useButtonProps({
 		disabled: isToggling,
 		isSuccess: true,
+		paddingHorizontal: true,
 	});
 
 	const { nestedIconColor: nestedIconColorToggle, ...buttonPropsToggle } = useButtonProps({
 		mode: 'outlined',
 		disabled: isToggling,
+		paddingHorizontal: true,
 	});
 
 	const { nestedIconColor: nestedIconColorLine, ...buttonPropsLine } = useButtonProps({
 		mode: 'outlined',
 		disabled: isToggling,
+		paddingHorizontal: true,
+	});
+	const { nestedIconColor: nestedIconColorProfile, ...buttonPropsProfile } = useButtonProps({
+		mode: 'outlined',
+		disabled: isToggling,
+		paddingHorizontal: true,
 	});
 
 	return (
@@ -106,6 +121,7 @@ const DrawerTopBar: FC = () => {
 							<ButtonHighlight
 								{...buttonPropsAdd}
 								onPress={actions.appendPoint.cb}
+								compact={true}
 							>
 								<Icon
 									source={'plus'}
@@ -117,13 +133,30 @@ const DrawerTopBar: FC = () => {
 							<RoutingActionsButton
 								actions={actions}
 								disabled={isToggling}
+								buttonPropsProps={{ paddingHorizontal: true }}
+								compact={true}
 							/>
+
+							{line && (
+								<ButtonHighlight
+									{...buttonPropsLine}
+									onPress={handleEditPress}
+									compact={true}
+								>
+									<IconCustom
+										name="route_cog"
+										size={20}
+										color={nestedIconColorLine}
+									/>
+								</ButtonHighlight>
+							)}
 						</>
 					)}
 
 					<ButtonHighlight
 						{...buttonPropsToggle}
 						onPress={handleToggleRouting}
+						compact={!!routeId}
 					>
 						{!routeId && t('routing.startRouting')}
 						{routeId && (
@@ -137,41 +170,22 @@ const DrawerTopBar: FC = () => {
 				</View>
 			</View>
 
-			<View style={styleItem}>
-				<View style={styleButtonRow}>
-					{line && (
-						<Fragment>
-							<Text>{line?.title}</Text>
-
-							<ButtonHighlight
-								{...buttonPropsLine}
-								onPress={handleEditPress}
-							>
-								<IconCustom
-									name="route_cog"
-									size={20}
-									color={nestedIconColorLine}
-								/>
-							</ButtonHighlight>
-						</Fragment>
-					)}
-				</View>
-			</View>
-
 			{route && route.profile && (
 				<View style={styleItem}>
 					<View style={styleButtonRow}>
 						<RoutingProfileInfo
 							profile={route.profile}
 							distUnit={distUnit}
+							style={styleProfileInfo}
 						/>
 						<ButtonHighlight
-							{...buttonPropsLine}
+							{...buttonPropsProfile}
+							compact={true}
 							onPress={() => setRouteProfileModalVisible(true)}
 						>
 							<LucideIcons
 								size={20}
-								color={nestedIconColorLine}
+								color={nestedIconColorProfile}
 								name="settings-2"
 							/>
 						</ButtonHighlight>

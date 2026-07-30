@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { FC, useMemo } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 import { pick } from 'lodash-es';
 
 /**
@@ -14,7 +14,8 @@ import { RenderPart } from './sharedDeps';
 
 const LineStatsCompactRows: FC<{
 	stats: LineStatsType;
-}> = ({ stats }) => {
+	reverse?: boolean;
+}> = ({ stats, reverse }) => {
 	const statsPerRow = useMemo(
 		() => [
 			pick(stats, ['length']),
@@ -24,16 +25,36 @@ const LineStatsCompactRows: FC<{
 		[stats]
 	);
 
+	const style: StyleProp<ViewStyle> = useMemo(
+		() => [
+			styles.row,
+			reverse && {
+				flexDirection: 'row-reverse',
+			},
+		],
+		[reverse]
+	);
+
+	const styleStat: StyleProp<ViewStyle> = useMemo(
+		() => [
+			styles.stat,
+			reverse && {
+				justifyContent: 'flex-end',
+			},
+		],
+		[reverse]
+	);
+
 	return statsPerRow.map((st, idx) => (
 		<View
 			key={idx}
-			style={styles.row}
+			style={style}
 		>
 			<LineStats
 				stats={st}
 				round={0}
 				renderParts={statsRenderParts}
-				styleStat={styles.stat}
+				styleStat={styleStat}
 			/>
 		</View>
 	));

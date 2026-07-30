@@ -11,18 +11,17 @@ import { OPACITY_DISABLED } from '../../../../constants';
 export const sharedStyles = StyleSheet.create({
 	noShrink: { flexShrink: 0 },
 	row: {
-		justifyContent: 'space-between',
 		alignItems: 'center',
-		flexDirection: 'row',
-		padding: 4,
+		padding: 8,
+		flexDirection: 'row', // adjusted dynamically depending on side.
 	},
-	rowColCenter: {
+	rowColInfo: {
 		flexShrink: 1,
 		gap: 8,
 		width: '100%',
 	},
-	rowColCenterRow: {
-		flexDirection: 'row',
+	rowColInfoRow: {
+		flexDirection: 'row', // adjusted dynamically depending on side.
 		flexWrap: 'wrap',
 		gap: 8,
 	},
