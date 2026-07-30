@@ -33,6 +33,7 @@ import ModalWrapper from '../../../../components/generic/wrapper/ModalWrapper';
 import RadioListItem from '../../../../components/generic/wrapper/RadioListItem';
 import HintLink from '../../../../components/generic/primitives/HintLink';
 import { HgtDirPath } from '../../../baseMap/types';
+import { labelFromDemPath } from '../../../baseMap/utils';
 import { AbsPath } from '../../../dirs/types';
 import { sharedStyles } from '../../../../sharedStyles';
 import { logError } from '../../../../lib/utils';
@@ -56,6 +57,7 @@ const HgtSourceRowControl = ({
 	modalVisible: modalVisibleProp,
 	setModalVisible: setModalVisibleProp,
 	modalHeader: modalHeaderProp,
+	hasCustom = false,
 }: {
 	dirs: AbsPath[];
 	options: object;
@@ -65,6 +67,7 @@ const HgtSourceRowControl = ({
 	onlyThreeSeconds?: boolean;
 	canDeselect?: boolean;
 	modalOnly?: boolean;
+	hasCustom?: boolean;
 
 	modalVisible?: boolean;
 	setModalVisible?: Dispatch<SetStateAction<boolean>>;
@@ -97,15 +100,18 @@ const HgtSourceRowControl = ({
 				label: dir,
 			});
 		});
-		result.push({
-			key: 'custom',
-			label: t('custom'),
-		});
+		if (hasCustom) {
+			result.push({
+				key: 'custom',
+				label: t('custom'),
+			});
+		}
 		return result;
 	}, [
 		fallbackAppHgt,
 		dirs,
 		t,
+		hasCustom,
 	]);
 
 	const appHgtDirPath = useAppSelector(selectHgtDirPath);
@@ -228,11 +234,7 @@ const HgtSourceRowControl = ({
 			} else if ('appHgt' === selectedOpt) {
 				label = t('baseMap.useAppHgt');
 			} else {
-				label = get(
-					opts.find((opt) => opt.key === selectedOpt),
-					'label',
-					''
-				);
+				label = labelFromDemPath(selectedOpt);
 			}
 		} else {
 			if (fallbackAppHgt) {
@@ -258,7 +260,7 @@ const HgtSourceRowControl = ({
 						icon={buttonIconGlobal}
 					>
 						{appHgtDirPath
-							? t('baseMap.openAppHgt') + ': ' + appHgtDirPath
+							? t('baseMap.openAppHgt') + ': ' + labelFromDemPath(appHgtDirPath)
 							: t('baseMap.notConfiguredAppHgt')}
 					</ButtonHighlight>
 				)}
@@ -271,7 +273,6 @@ const HgtSourceRowControl = ({
 		selectedOpt,
 		customUri,
 		fallbackAppHgt,
-		opts,
 		appHgtDirPath,
 		buttonPropsAny,
 		buttonIconGlobal,

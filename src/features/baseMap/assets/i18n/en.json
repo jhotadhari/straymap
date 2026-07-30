@@ -5,6 +5,10 @@
 	"file": "Map file",
 	"selectFile": "Select map file",
 	"demDir": "DEM Directory",
+	"demLabel": {
+		"shading": "Shading, {{label}}",
+		"shadingGlobal": "Shading, global, {{label}}"
+	},
 	"selectDemDir": "Select layer DEM Directory",
 	"useAppHgt": "Use global",
 	"useCache": "Use cache",

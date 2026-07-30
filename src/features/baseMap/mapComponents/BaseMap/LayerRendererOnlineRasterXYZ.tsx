@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { memo, FC } from 'react';
+import { FC, memo, useCallback } from 'react';
 import { LayerBitmapTile, LayerBitmapTileProps } from 'react-native-mapsforge-vtm';
 
 /**
@@ -9,14 +9,15 @@ import { LayerBitmapTile, LayerBitmapTileProps } from 'react-native-mapsforge-vt
  */
 import { LayerConfig, LayerConfigOptionsOnlineRasterXYZ } from '../../types';
 import { stringifyProp, resolveCacheDirBase } from '../../utils';
-import { useDeferredLayerCreated } from './useDeferredLayerCreated';
+import useLayerChangeCallback from './useLayerChangeCallback';
 import { useMakeLayerBusy } from './useMakeLayerBusy';
 
 const LayerRendererOnlineRasterXYZ: FC<{
 	layer: LayerConfig<LayerConfigOptionsOnlineRasterXYZ>;
 	internalCacheDir?: string;
+	onLayerChange: (key: string, response: { uuid: string; nativeNodeHandle: number }) => void;
 	onLayerCreated?: (layerKey: string, layerType: string) => void;
-}> = ({ layer, internalCacheDir, onLayerCreated }) => {
+}> = ({ layer, internalCacheDir, onLayerChange, onLayerCreated }) => {
 	const opts = layer.options;
 
 	const hasSource = !!opts.url;
@@ -24,7 +25,15 @@ const LayerRendererOnlineRasterXYZ: FC<{
 
 	const cacheDirBase = resolveCacheDirBase(opts.cacheDirBase, internalCacheDir);
 
-	useDeferredLayerCreated(layer.key, 'online-raster-xyz', onLayerCreated);
+	const handleCreateOrChange = useLayerChangeCallback(layer.key, onLayerChange);
+
+	const handleCreate = useCallback(
+		(response: { uuid: string; nativeNodeHandle: number }) => {
+			handleCreateOrChange(response);
+			onLayerCreated?.(layer.key, 'online-raster-xyz');
+		},
+		[handleCreateOrChange, onLayerCreated, layer.key]
+	);
 
 	if (!layer.visible || !hasSource) return null;
 
@@ -40,6 +49,8 @@ const LayerRendererOnlineRasterXYZ: FC<{
 			cacheSize={opts.cacheSize}
 			cacheDirChild={stringifyProp(opts.url || '')}
 			cacheDirBase={cacheDirBase as LayerBitmapTileProps['cacheDirBase']}
+			onCreate={handleCreate}
+			onChange={handleCreateOrChange}
 		/>
 	);
 };

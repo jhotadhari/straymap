@@ -19,7 +19,6 @@ import {
 import { defaults } from './defaults';
 import { LayerKind } from './types';
 import { mapTypeOptions } from './components/controls/layers/LayersControl';
-import { getPlaceholderLabel as getPlaceholderLabel_hillshading } from './components/controls/layers/LayerControlHillshading';
 import { getPlaceholderLabel as getPlaceholderLabel_mapsforge } from './components/controls/layers/LayerControlMapsforge';
 import { getPlaceholderLabel as getPlaceholderLabel_onlineRasterXyz } from './components/controls/layers/LayerControlOnlineRasterXYZ';
 import { getPlaceholderLabel as getPlaceholderLabel_rasterMbtiles } from './components/controls/layers/LayerControlRasterMBTiles';
@@ -135,24 +134,65 @@ export const getShadingAlgorithmOptions = (
 	};
 };
 
-// Resolve a placeholder label for a layer based on its type and options.
-export const getLayerLabelPlaceholder = (layer?: LayerConfig, fallback?: string) => {
-	let label: undefined | string;
+// Derive a human-readable label from a DEM directory path.
+// "/storage/emulated/0/Android/media/.../dem" → "media"
+// "/storage/emulated/0/Android/data/.../files/dem" → "data"
+// "/storage/9016-4EF8/Android/media/.../dem" → "sdcard media"
+// "/storage/9016-4EF8/Android/data/.../files/dem" → "sdcard data"
+export const labelFromDemPath = (path: string): string => {
+	if (path.startsWith('content://')) return 'custom';
+	const isSdCard = !path.includes('emulated');
+	const isMedia = path.includes('/Android/media/');
+	const parts: string[] = [];
+	if (isSdCard) parts.push('sdcard');
+	parts.push(isMedia ? 'media' : 'data');
+	return parts.join(' ');
+};
+
+// Check whether a layer has a configured source.
+// Used to show/hide warning icons and guard renderer visibility.
+export const hasLayerSource = (layer?: LayerConfig, appHgtDirPath?: string): boolean => {
+	return !!getLayerLabel(layer, { appHgtDirPath })?.key;
+};
+
+// Return an i18next-compatible `{ key, params }` object for a layer's fallback label.
+// The key may be a translation key (for hillshading) or a raw string (for other types —
+// a raw string passed to `t()` renders as-is).
+// Returns `undefined` when no source is configured.
+export const getLayerLabel = (
+	layer?: LayerConfig,
+	props?: { fallback?: string; appHgtDirPath?: string }
+): undefined | { key: string; params?: Record<string, string> } => {
 	switch (layer?.type) {
-		case 'mapsforge':
-			label = getPlaceholderLabel_mapsforge(layer);
-			break;
-		case 'online-raster-xyz':
-			label = getPlaceholderLabel_onlineRasterXyz(layer);
-			break;
-		case 'hillshading':
-			label = getPlaceholderLabel_hillshading(layer);
-			break;
-		case 'raster-MBtiles':
-			label = getPlaceholderLabel_rasterMbtiles(layer);
-			break;
+		case 'hillshading': {
+			const perLayerPath = (layer.options as LayerConfigOptionsHillshading)?.hgtDirPath;
+			const path = perLayerPath ?? props?.appHgtDirPath;
+			if (!path) return undefined;
+			const label = labelFromDemPath(path);
+			return {
+				key: perLayerPath
+					? 'baseMap.demLabel.shading'
+					: 'baseMap.demLabel.shadingGlobal',
+				params: { label },
+			};
+		}
+		case 'mapsforge': {
+			const raw = getPlaceholderLabel_mapsforge(layer);
+			return raw && raw.length > 0 ? { key: raw } : undefined;
+		}
+		case 'online-raster-xyz': {
+			const raw = getPlaceholderLabel_onlineRasterXyz(layer);
+			return raw && raw.length > 0 ? { key: raw } : undefined;
+		}
+		case 'raster-MBtiles': {
+			const raw = getPlaceholderLabel_rasterMbtiles(layer);
+			return raw && raw.length > 0 ? { key: raw } : undefined;
+		}
 	}
-	return label && label.length > 0 ? label : (fallback ?? '');
+	if (props?.fallback) {
+		return { key: props.fallback };
+	}
+	return undefined;
 };
 
 export const makeLayerBusyKey = (layerType: string, layerKey: string): string =>

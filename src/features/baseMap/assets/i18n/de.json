@@ -5,6 +5,10 @@
 	"file": "Karten Datei",
 	"selectFile": "Karten Datei auswählen",
 	"demDir": "DEM Verzeichnis",
+	"demLabel": {
+		"shading": "Schattierung, {{label}}",
+		"shadingGlobal": "Schattierung, global, {{label}}"
+	},
 	"selectDemDir": "DEM Verzeichnis auswählen",
 	"useAppHgt": "Global verwenden",
 	"useCache": "Cache verwenden",

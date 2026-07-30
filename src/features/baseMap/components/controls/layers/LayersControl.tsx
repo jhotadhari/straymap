@@ -34,8 +34,8 @@ import RadioListItem from '../../../../../components/generic/wrapper/RadioListIt
 import InfoButton from '../../../../../components/generic/infoWrapper/InfoButton';
 import LabelRowControl from '../LabelRowControl';
 import LayerControlMapsforge from './LayerControlMapsforge';
-import { LayerOption, LayerConfig, LayerConfigOptionsHillshading } from '../../../types';
-import { getLayerLabelPlaceholder, getNewLayer } from '../../../utils';
+import { LayerOption, LayerConfig } from '../../../types';
+import { getLayerLabel, getNewLayer, hasLayerSource } from '../../../utils';
 import { useAppDispatch, useAppSelector } from '../../../../../store/hooks';
 import { selectElementExpanded } from '../../../../ui/selectors';
 import { setElementExpanded } from '../../../../ui/slice';
@@ -90,13 +90,15 @@ const DraggableItem: FC<{
 	const layers = useAppSelector((state) => selectLayers(state, { temp: true }));
 	const appHgtDirPath = useAppSelector(selectHgtDirPath);
 
-	const hasNoSource = useMemo(() => {
-		if (item.type === 'hillshading') {
-			const opts = item.options as LayerConfigOptionsHillshading;
-			return !opts?.hgtDirPath && !appHgtDirPath;
-		}
-		return !getLayerLabelPlaceholder(item);
-	}, [item, appHgtDirPath]);
+	const hasNoSource = useMemo(
+		() => !hasLayerSource(item, appHgtDirPath),
+		[item, appHgtDirPath]
+	);
+
+	const displayLabel = useMemo(() => {
+		const result = getLayerLabel(item, { appHgtDirPath });
+		return result ? t(result.key, result.params ?? {}) : '';
+	}, [item, appHgtDirPath, t]);
 
 	const style: ViewStyle = useMemo(
 		() => ({
@@ -203,7 +205,7 @@ const DraggableItem: FC<{
 					numberOfLines={1}
 					ellipsizeMode="tail"
 				>
-					{item.name || t(getLayerLabelPlaceholder(item))}
+					{item.name || displayLabel}
 				</Text>
 				<Text
 					style={styles.itemType}
@@ -267,6 +269,7 @@ const EditModal: FC<{
 	const dispatch = useAppDispatch();
 	const layerTemp = useAppSelector(selectLayerTemp);
 	const layers = useAppSelector((state) => selectLayers(state, { temp: true }));
+	const appHgtDirPath = useAppSelector(selectHgtDirPath);
 
 	const [modalVisible, setModalVisible] = useState(false);
 
@@ -337,10 +340,13 @@ const EditModal: FC<{
 		isDestructive: true,
 	});
 
-	const labelPlaceholder = useMemo(
-		() => t(getLayerLabelPlaceholder(layerTemp, 'baseMap.label')),
-		[t, layerTemp]
-	);
+	const labelPlaceholder = useMemo(() => {
+		const result = getLayerLabel(layerTemp, {
+			fallback: 'baseMap.label',
+			appHgtDirPath,
+		});
+		return result ? t(result.key, result.params ?? {}) : '';
+	}, [t, layerTemp, appHgtDirPath]);
 
 	return !layerTemp ? undefined : (
 		<ModalWrapper

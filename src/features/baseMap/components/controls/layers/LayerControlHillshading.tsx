@@ -10,7 +10,7 @@ import { get } from 'lodash-es';
  */
 import NumericRowControl from '../../../../../components/generic/controls/NumericRowControl';
 import HgtSourceRowControl from '../../../../general/components/controls/HgtSourceRowControl';
-import { getHillshadingCacheDirChild } from '../../../utils';
+import { getHillshadingCacheDirChild, labelFromDemPath } from '../../../utils';
 import CacheControl from './CacheControl';
 import { defaults } from '../../../defaults';
 import { LayerConfig, LayerConfigOptionsHillshading } from '../../../types';
@@ -178,11 +178,11 @@ const LayerControlHillshading: FC<{}> = () => {
 	);
 };
 
-// Derive a fallback label from the hillshading layer's DEM source path.
-// When the path is empty/undefined the layer uses the global DEM setting.
-export const getPlaceholderLabel = (layer: LayerConfig) => {
-	const hgtDirPath = (layer.options as LayerConfigOptionsHillshading)?.hgtDirPath;
-	return hgtDirPath || 'baseMap.globalDEM';
+// Derive a raw label from the hillshading layer's DEM source.
+// Returns a path-derived label (e.g. "media", "sdcard data") or undefined.
+export const getPlaceholderLabel = (layer: LayerConfig, appHgtDirPath?: string) => {
+	const path = (layer.options as LayerConfigOptionsHillshading)?.hgtDirPath ?? appHgtDirPath;
+	return path ? labelFromDemPath(path) : undefined;
 };
 
 export default LayerControlHillshading;

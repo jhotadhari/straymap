@@ -376,7 +376,7 @@ const SourceRowControl: FC<{}> = () => {
 				options={sourceOptions}
 				value={selectedOpt}
 				setValue={setSelectedOpt}
-				anchorIconSource={warningIcon}
+				anchorIcon={warningIcon}
 				anchorLabel={t(
 					get(
 						sourceOptions.find((opt) => opt.key === selectedOpt),

@@ -18,6 +18,7 @@ import {
 	LayerConfigOptionsMapsforge,
 	LayerConfigOptionsOnlineRasterXYZ,
 	LayerConfigOptionsRasterMBtiles,
+	LayerInfo,
 } from '../../types';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { selectLayers, selectMapsforgeProfiles } from '../../selectors';
@@ -50,7 +51,13 @@ const BaseMap: FC<{}> = () => {
 	const layers = useAppSelector((state) => selectLayers(state, { temp: false }));
 
 	const handleLayerChange = useCallback(
-		(key: string, response: LayerMapsforgeResponse | LayerMBTilesBitmapResponse) => {
+		(
+			key: string,
+			response:
+				| LayerMapsforgeResponse
+				| LayerMBTilesBitmapResponse
+				| { uuid: string; nativeNodeHandle: number }
+		) => {
 			dispatch(
 				setLayerInfos((layerInfos) => ({
 					...layerInfos,
@@ -59,7 +66,7 @@ const BaseMap: FC<{}> = () => {
 						'description',
 						'comment',
 						'createdBy',
-					]),
+					]) as LayerInfo,
 				}))
 			);
 		},
@@ -84,6 +91,7 @@ const BaseMap: FC<{}> = () => {
 								key={layer.key}
 								layer={layer as LayerConfig<LayerConfigOptionsOnlineRasterXYZ>}
 								internalCacheDir={internalCacheDir}
+								onLayerChange={handleLayerChange}
 								onLayerCreated={onLayerCreated}
 							/>
 						);
@@ -124,6 +132,7 @@ const BaseMap: FC<{}> = () => {
 								key={layer.key}
 								layer={layer as LayerConfig<LayerConfigOptionsHillshading>}
 								internalCacheDir={internalCacheDir}
+								onLayerChange={handleLayerChange}
 								onLayerCreated={onLayerCreated}
 							/>
 						);

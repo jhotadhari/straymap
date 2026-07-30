@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { addBusyKey, removeBusyKey } from '../../../ui/slice';
 import { useAppDispatch } from '../../../../store/hooks';
 import { makeLayerBusyKey } from '../../utils';
@@ -21,10 +21,7 @@ export const useMakeLayerBusy = (
 ) => {
 	const dispatch = useAppDispatch();
 	const didAddRef = useRef(false);
-	const busyKey = useMemo(
-		() => makeLayerBusyKey(layerType, layerKey),
-		[layerType, layerKey]
-	);
+	const busyKey = makeLayerBusyKey(layerType, layerKey);
 
 	useEffect(() => {
 		if (shouldRender && !didAddRef.current) {

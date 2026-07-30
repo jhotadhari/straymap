@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, {
+import {
 	FC,
 	Fragment,
 	ReactNode,
@@ -14,7 +14,6 @@ import React, {
 import { View } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import LucideIcons from '@react-native-vector-icons/lucide/static';
 import { get } from 'lodash-es';
 
 /**
@@ -207,7 +206,6 @@ const enabledZoomOptLabels = ['min', 'max'];
 
 const LayerControlMapsforge: FC<{}> = ({}) => {
 	const dispatch = useAppDispatch();
-	const theme = useTheme();
 	const { layerTemp, setOptions } = useLayerTemp<LayerConfigOptionsMapsforge>();
 
 	const { t } = useTranslation();
@@ -268,7 +266,6 @@ const LayerControlMapsforge: FC<{}> = ({}) => {
 				Info={<MapFileControlInfo />}
 				filesHeading={sprintf(t('filesIn'), '(.map)')}
 				noFilesHeading={sprintf(t('noFilesIn'), '(.map)')}
-				hasCustom={true}
 				warningIfUnset={true}
 			/>
 
