@@ -9,9 +9,7 @@ module.exports = {
 	transformIgnorePatterns: [
 		'node_modules/(?!((jest-)?react-native|@react-native(-community)?|@react-native-.*|react-native-.*|@reduxjs/toolkit|immer|redux|reselect|react-redux|lodash-es|defaults|slugify|sprintf-js|@tanstack|geojson|@turf|@klarna|react-i18next|i18next|array-move|drizzle-orm|esqlate-core|color|color-string|simple-swizzle)/)',
 	],
-	modulePathIgnorePatterns: [
-		'<rootDir>/.claude/worktrees/',
-	],
+	modulePathIgnorePatterns: [],
 	moduleNameMapper: {
 		'^react-native($|/.*)': '<rootDir>/node_modules/react-native/$1',
 		'\\.(png|jpg|jpeg|gif|svg|ttf|woff|woff2|md)$': '<rootDir>/__mocks__/fileMock.js',

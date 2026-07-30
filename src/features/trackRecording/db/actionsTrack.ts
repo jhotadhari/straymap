@@ -56,8 +56,9 @@ export const appendPointToLine = async (
 		lat,
 		z,
 	] = coord;
-	// Only include z when actually present; MapEventResponse.center only
-	// carries [lng, lat] (altitude is intentionally omitted per CLAUDE.md).
+	// All app coordinates carry [lng, lat, altitude] and the DB schema
+	// enforces POINTZ / LINESTRINGZ (3D). Only omit z when it is
+	// genuinely absent (defensive fallback for external data sources).
 	const coordinates: number[] =
 		z !== undefined
 			? [

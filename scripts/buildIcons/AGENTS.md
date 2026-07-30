@@ -1,7 +1,7 @@
 # Custom icon font (`buildIcons`)
 
 `yarn buildIcons` (`scripts/buildIcons/index.js`) generates an icon font from SVG files
-in `src/assets/icons/`. See `scripts/buildIcons/CLAUDE.md` for full details.
+in `src/assets/icons/`.
 
 Usage in code:
 ```tsx

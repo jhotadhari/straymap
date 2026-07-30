@@ -221,7 +221,7 @@ changed.
 ## Filters
 
 Column filters for LinesTable and TagsTable. Full architecture
-documented at [`components/FilterModals/CLAUDE.md`](components/FilterModals/CLAUDE.md).
+documented at [`components/FilterModals/AGENTS.md`](components/FilterModals/AGENTS.md).
 
 Key points:
 - **Numeric/date filters merge per column** — at most one filter per
@@ -254,5 +254,5 @@ Key points:
   dispatch `setLineSelected` directly unless you also update any local
   `onMapIdsTemp` state.
 
-- **Import convention**: Feature-level `CLAUDE.md` documents architecture.
-  The root `CLAUDE.md` covers project-wide commands and conventions.
+- **Import convention**: Feature-level `AGENTS.md` documents architecture.
+  The root `AGENTS.md` covers project-wide commands and conventions.
