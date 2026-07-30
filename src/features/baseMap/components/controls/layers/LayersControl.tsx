@@ -19,7 +19,7 @@ import {
 	StyleSheet,
 	Dimensions,
 } from 'react-native';
-import { List, useTheme, Text, Icon, IconButtonProps } from 'react-native-paper';
+import { List, useTheme, Text, IconButtonProps } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import Sortable, { SortableFlexDragEndParams } from 'react-native-sortables';
 import { Style } from 'react-native-paper/lib/typescript/components/List/utils';
@@ -214,9 +214,10 @@ const DraggableItem: FC<{
 				style={styleAction}
 				onLayout={handleLayout}
 			>
-				<Icon
-					source="cog"
-					size={25}
+				<IconFontGis
+					name="layer-edit"
+					size={23}
+					color={theme.colors.onBackground}
 				/>
 			</TouchableHighlight>
 		</View>

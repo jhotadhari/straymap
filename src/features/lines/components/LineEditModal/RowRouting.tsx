@@ -2,9 +2,8 @@
  * External dependencies
  */
 import { FC, useCallback, useContext, useMemo } from 'react';
-import { Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { TextStyle, View } from 'react-native';
+import { TextStyle } from 'react-native';
 import { useMap } from 'react-native-mapsforge-vtm';
 
 /**
@@ -18,7 +17,6 @@ import ButtonHighlight from '../../../../components/generic/primitives/ButtonHig
 import { selectIsRouting } from '../../../routing/selectors';
 import { setIsRouting } from '../../../routing/slice';
 import useActivateDrawerItem from '../../../drawers/hooks/useActivateDrawerItem';
-import { sharedStyles } from './sharedDeps';
 import IconRouting from '../../../routing/drawerPanels/routing/IconComponent';
 import { AppContext } from '../../../../Context';
 import { MAP_ANIMATION_PADDING_PX } from '../../../../constants';
@@ -31,7 +29,6 @@ const renderIconRouting = ({ color }: { color: TextStyle['color'] }) => (
 );
 
 const RowRouting: FC = () => {
-	const theme = useTheme();
 	const { t } = useTranslation();
 
 	const dispatch = useAppDispatch();
@@ -54,7 +51,7 @@ const RowRouting: FC = () => {
 			dispatch(setIsRouting(route.id));
 			selectLine(lineTemp.id, true);
 			activateRoutingDrawerItem();
-			// Close LinesTable.
+			// Close ui items LinesTable.
 			dispatch(setUiItemKeys([]));
 			// flyToBounds
 			if (line?.envelope && mapViewNativeNodeHandle) {

@@ -112,7 +112,7 @@ const TagTableRow: FC<TagTableRowProps> = ({
 					onPress={handleEdit}
 				>
 					<Icon
-						source="cog"
+						source="tag-edit-outline"
 						size={DRAWER_ICON_SIZE}
 					/>
 				</ButtonHighlight>

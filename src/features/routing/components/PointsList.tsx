@@ -20,6 +20,7 @@ import { get, omit } from 'lodash-es';
 import { lineString } from '@turf/turf';
 import { useMutation, UseMutationOptions } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
+import LucideIcons from '@react-native-vector-icons/lucide/static';
 
 /**
  * Internal dependencies
@@ -195,9 +196,10 @@ const Segment: FC<{
 						compact={true}
 						onPress={handleSetEdit}
 					>
-						<Icon
-							source="cog"
-							size={DRAWER_ICON_SIZE}
+						<LucideIcons
+							size={DRAWER_ICON_SIZE - 2}
+							name="settings-2"
+							color={theme.colors.onBackground}
 						/>
 					</ButtonHighlight>
 				</View>
@@ -506,6 +508,8 @@ const styles = StyleSheet.create({
 		borderLeftWidth: 1,
 		marginLeft: 8,
 		paddingLeft: 8,
+		paddingBottom: 8,
+		gap: 8,
 	},
 	loadingIndicatorIcon: {
 		marginRight: 1,

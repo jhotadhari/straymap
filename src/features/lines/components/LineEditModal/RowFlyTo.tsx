@@ -12,14 +12,17 @@ import { LineEditModalContext } from './Context';
 import InfoLabelRow from '../../../../components/generic/infoWrapper/InfoLabelRow';
 import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
 import { AppContext } from '../../../../Context';
-import { useAppSelector } from '../../../../store/hooks';
+import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { selectSelected } from '../../selectors';
 import { bbox as turfBbox } from '@turf/turf';
 import { MAP_ANIMATION_PADDING_PX } from '../../../../constants';
 import { useButtonProps } from '../../../../compose/useButtonProps';
+import { setUiItemKeys } from '../../../ui/slice';
 
 const RowFlyTo: FC = () => {
 	const { t } = useTranslation();
+
+	const dispatch = useAppDispatch();
 
 	const { mapViewNativeNodeHandle, drawerControlsRef } = useContext(AppContext);
 
@@ -35,6 +38,8 @@ const RowFlyTo: FC = () => {
 		if (line?.envelope && mapViewNativeNodeHandle && isSelected) {
 			const bbox = turfBbox(line.envelope);
 			flyToBounds(bbox, { paddingPx: MAP_ANIMATION_PADDING_PX });
+			// close ui items.
+			dispatch(setUiItemKeys([]));
 			// Close modal.
 			onDismiss();
 			// Close drawers.

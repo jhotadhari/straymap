@@ -22,6 +22,7 @@ import LineStatsCompactRows from '../Stats/LineStatsCompactRows';
 import { bbox as turfBbox } from '@turf/turf';
 import { AppContext } from '../../../../Context';
 import { useButtonProps } from '../../../../compose/useButtonProps';
+import IconCustom from '../../../../components/generic/primitives/IconCustom';
 
 export interface ListRowProps {
 	line: Omit<Line, 'geometry'>;
@@ -62,6 +63,9 @@ const ListRow: FC<ListRowProps> = ({ line, idx, systemFeatureKey }) => {
 	const handleActivate = useCallback(() => {
 		if (line?.envelope) {
 			const bbox = turfBbox(line.envelope);
+			// no need to close ui items,
+			// because never ui items are visible simultanes with this component.
+			// other occurrences of flyToBounds have to call `dispatch(setUiItemKeys([]));`.
 			flyToBounds(bbox, { paddingPx: MAP_ANIMATION_PADDING_PX });
 		}
 	}, [
@@ -96,8 +100,8 @@ const ListRow: FC<ListRowProps> = ({ line, idx, systemFeatureKey }) => {
 					compact={true}
 					onPress={handleEditPress}
 				>
-					<Icon
-						source={'cog'}
+					<IconCustom
+						name="route_cog"
 						size={DRAWER_ICON_SIZE}
 						color={nestedIconColor}
 					/>

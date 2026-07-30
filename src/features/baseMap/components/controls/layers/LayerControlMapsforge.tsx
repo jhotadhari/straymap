@@ -3,7 +3,7 @@
  */
 import { FC, Fragment, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { View } from 'react-native';
-import { Icon, Text, useTheme } from 'react-native-paper';
+import { Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { get } from 'lodash-es';
 
@@ -27,6 +27,7 @@ import NumericRowControlMulti from '../../../../../components/generic/controls/N
 import ListItemMenuControl from '../../../../../components/generic/wrapper/ListItemMenuControl';
 import { sharedStyles as globalSharedStyles } from '../../../../../sharedStyles';
 import ButtonHighlightMenuControl from '../../../../../components/generic/wrapper/ButtonHighlightMenuControl';
+import IconCustom from '../../../../../components/generic/primitives/IconCustom';
 
 const ProfileRowControl = ({
 	options,
@@ -153,8 +154,8 @@ const ProfileRowControl = ({
 						compact
 						onPress={handleEditProfilePress}
 					>
-						<Icon
-							source="cog"
+						<IconCustom
+							name="mapsforge_puzzle_cog"
 							size={25}
 							color={nestedIconColor}
 						/>

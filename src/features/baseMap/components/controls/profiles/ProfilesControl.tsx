@@ -486,9 +486,10 @@ const DraggableItem = ({
 				style={styleAction}
 				onLayout={handleLayout}
 			>
-				<Icon
-					source="cog"
+				<IconCustom
+					name="mapsforge_puzzle_cog"
 					size={25}
+					color={theme.colors.onBackground}
 				/>
 			</TouchableHighlight>
 		</View>

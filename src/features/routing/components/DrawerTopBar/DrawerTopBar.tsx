@@ -6,6 +6,7 @@ import { StyleSheet, View } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
 import { Icon, Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
+import LucideIcons from '@react-native-vector-icons/lucide/static';
 
 /**
  * Internal dependencies
@@ -30,6 +31,7 @@ import { selectUnitPrefs } from '../../../general/selectors';
 import { Route } from '../../types';
 import RoutingProfileInfo from '../RoutingProfileInfo';
 import RouteProfileModal from '../RouteProfileModal';
+import IconCustom from '../../../../components/generic/primitives/IconCustom';
 
 const DrawerTopBar: FC = () => {
 	const { t } = useTranslation();
@@ -145,9 +147,9 @@ const DrawerTopBar: FC = () => {
 								{...buttonPropsLine}
 								onPress={handleEditPress}
 							>
-								<Icon
+								<IconCustom
+									name="route_cog"
 									size={20}
-									source="cog"
 									color={nestedIconColorLine}
 								/>
 							</ButtonHighlight>
@@ -167,10 +169,10 @@ const DrawerTopBar: FC = () => {
 							{...buttonPropsLine}
 							onPress={() => setRouteProfileModalVisible(true)}
 						>
-							<Icon
+							<LucideIcons
 								size={20}
-								source="cog"
 								color={nestedIconColorLine}
+								name="settings-2"
 							/>
 						</ButtonHighlight>
 					</View>

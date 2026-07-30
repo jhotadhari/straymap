@@ -3,7 +3,7 @@
  */
 import { FC, useCallback, useMemo } from 'react';
 import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
-import { useTheme, Text, Icon } from 'react-native-paper';
+import { useTheme, Text } from 'react-native-paper';
 import { get } from 'lodash-es';
 
 /**
@@ -23,6 +23,7 @@ import { selectLinesTableColumns } from '../../selectors';
 import LineStat from '../Stats/LineStat';
 import { RenderPart } from '../Stats/sharedDeps';
 import IconFontGis from '../../../../components/generic/primitives/IconFontGis';
+import IconCustom from '../../../../components/generic/primitives/IconCustom';
 
 const OtherCell: FC<{
 	cellKey: string;
@@ -188,9 +189,10 @@ const TableRow: FC<TableRowProps> = ({
 					onPress={handleEditPress}
 					compact={true}
 				>
-					<Icon
-						source="cog"
+					<IconCustom
+						name="route_cog"
 						size={DRAWER_ICON_SIZE}
+						color={theme.colors.onBackground}
 					/>
 				</ButtonHighlight>
 			</View>
