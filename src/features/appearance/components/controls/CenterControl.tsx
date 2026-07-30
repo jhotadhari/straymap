@@ -123,7 +123,6 @@ const CenterControl = () => {
 				Info={t('appearance.hint.center.file')}
 				filesHeading={sprintf(t('filesIn'), '(svg|png)')}
 				noFilesHeading={sprintf(t('noFilesIn'), '(svg|png)')}
-				hasCustom={true}
 			/>
 
 			<NumericRowControl

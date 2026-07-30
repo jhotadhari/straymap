@@ -14,8 +14,8 @@ import MenuControl, { MenuControlProps } from '../primitives/MenuControl';
 
 interface Props extends Omit<MenuControlProps, 'AnchorComponent'> {
 	anchorLabel?: string;
+	anchorIconNested?: IconSource;
 	anchorIcon?: IconSource;
-	anchorIconSource?: IconSource;
 	compact?: boolean;
 	buttonPropsProps?: ButtonPropsProps;
 }
@@ -26,8 +26,8 @@ const ButtonHighlightMenuControl: FC<Props> = ({
 	value,
 	setValue,
 	anchorLabel,
+	anchorIconNested,
 	anchorIcon,
-	anchorIconSource,
 	compact,
 	buttonPropsProps,
 }) => {
@@ -39,11 +39,11 @@ const ButtonHighlightMenuControl: FC<Props> = ({
 				{...buttonProps}
 				compact={compact}
 				onPress={onPress}
-				icon={anchorIconSource}
+				icon={anchorIcon}
 			>
-				{anchorIcon && (
+				{anchorIconNested && (
 					<Icon
-						source={anchorIcon}
+						source={anchorIconNested}
 						size={25}
 						color={nestedIconColor}
 					/>
@@ -54,7 +54,7 @@ const ButtonHighlightMenuControl: FC<Props> = ({
 	}, [
 		buttonProps,
 		compact,
-		anchorIcon,
+		anchorIconNested,
 		anchorLabel,
 		nestedIconColor,
 	]);

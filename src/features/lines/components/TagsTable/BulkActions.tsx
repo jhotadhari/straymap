@@ -27,7 +27,7 @@ const TagBulkActions: FC = () => {
 
 			<ButtonHighlightMenuControl
 				options={actionList}
-				anchorIcon="square-edit-outline"
+				anchorIconNested="square-edit-outline"
 				compact
 				buttonPropsProps={{
 					mode: 'text',

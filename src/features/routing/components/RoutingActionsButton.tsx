@@ -28,7 +28,7 @@ const RoutingActionsButton: FC<{
 	return (
 		<ButtonHighlightMenuControl
 			options={options}
-			anchorIcon={AnchorIcon}
+			anchorIconNested={AnchorIcon}
 			buttonPropsProps={{ mode: 'outlined', disabled }}
 		/>
 	);
