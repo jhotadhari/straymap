@@ -24,6 +24,7 @@ import {
 	setShowSettingsHandle,
 } from '../../slice';
 import { sharedStyles } from '../../../../sharedStyles';
+import { DRAWER_ICON_SIZE } from '../../constants';
 
 const settingsDrawerItem: DrawerPanel = {
 	iconSource: 'cog',
@@ -149,7 +150,12 @@ const Item: FC<{
 			</ButtonHighlight>
 
 			<View style={styles.iconWrapper}>
-				{IconComponent && <IconComponent color={theme.colors.onBackground} />}
+				{IconComponent && (
+					<IconComponent
+						color={theme.colors.onBackground}
+						size={DRAWER_ICON_SIZE}
+					/>
+				)}
 				{iconSource && (
 					<Icon
 						source={iconSource}
@@ -185,7 +191,10 @@ const DrawerControlModal: FC<{
 	const closeModal = useCallback(() => setModalVisible(false), [setModalVisible]);
 
 	const allDrawerItems = useMemo(() => featureRegistry.getDrawerPanels(), []);
-	const drawerPanels = useMemo(() => Object.values(allDrawerItems) as DrawerPanel[], [allDrawerItems]);
+	const drawerPanels = useMemo(
+		() => Object.values(allDrawerItems) as DrawerPanel[],
+		[allDrawerItems]
+	);
 
 	return (
 		<ModalWrapper
@@ -225,7 +234,7 @@ const styles = StyleSheet.create({
 	},
 	label: { marginTop: 4 },
 	disabled: sharedStyles.disabled,
-	divider: { marginTop: 10, marginBottom: 10 },
+	divider: { marginVertical: 10 },
 	okButton: { marginTop: 30 },
 });
 

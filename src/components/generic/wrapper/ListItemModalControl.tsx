@@ -10,6 +10,7 @@ import { Style as ListStyle } from 'react-native-paper/lib/typescript/components
 import ListItem from './ListItem';
 import { LayoutChangeEvent, StyleSheet, View, ViewStyle } from 'react-native';
 import ModalWrapper from './ModalWrapper';
+import { sharedStyles } from '../../../sharedStyles';
 
 const ListItemModalControl: FC<{
 	listItemStyle?: ViewStyle;
@@ -58,7 +59,7 @@ const ListItemModalControl: FC<{
 					scrollEnabled={scrollEnabled}
 					onLayout={onLayout}
 				>
-					<View style={styles.content}>{children}</View>
+					<View style={sharedStyles.modal}>{children}</View>
 				</ModalWrapper>
 			)}
 

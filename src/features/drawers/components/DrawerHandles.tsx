@@ -121,18 +121,17 @@ const DrawerHandles: FC<
 		() => [
 			styles.wrapper,
 			{
-				height: drawerHeight,
-				maxHeight: 'right' === side ? height - (mapCornerComponentsHeight ?? 0) : height,
+				height: drawerHeight || height,
+				maxHeight:
+					'right' === side
+						? (drawerHeight || height) -
+							(mapCornerComponentsHeight ?? 0)
+						: drawerHeight || height,
 			},
 			'left' === side && styles.wrapperLeft,
 			'right' === side && styles.wrapperRight,
 		],
-		[
-			drawerHeight,
-			side,
-			height,
-			mapCornerComponentsHeight,
-		]
+		[drawerHeight, side, height, mapCornerComponentsHeight]
 	);
 
 	const styleScrollView = useMemo(
@@ -203,7 +202,10 @@ const DrawerHandles: FC<
 								onDragEnd={handleDragRelease}
 							>
 								{draggableItems.map((item) => (
-									<View key={item.key}>
+									<View
+										key={item.key}
+										style={styles.sortableItem}
+									>
 										<DrawerHandle
 											itemKey={item.key}
 											gesture={gesture}
@@ -269,6 +271,9 @@ const styles = StyleSheet.create({
 	scrollView: {
 		overflow: 'visible',
 		width: DRAWER_HANDLE_SIZE,
+	},
+	sortableItem: {
+		height: DRAWER_HANDLE_SIZE + DRAWER_HANDLE_SIZE / 2,
 	},
 });
 

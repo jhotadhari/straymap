@@ -3,7 +3,7 @@
  */
 import React, { Fragment, useCallback, useMemo } from 'react';
 import { StyleSheet, TextProps } from 'react-native';
-import { Icon, useTheme } from 'react-native-paper';
+import { Divider, Icon, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { upperFirst, get } from 'lodash-es';
 
@@ -19,7 +19,6 @@ import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { selectUnitPrefs } from '../../selectors';
 import { setUnitPrefs } from '../../slice';
 import { UnitPref } from '../../types';
-import ListItemMenuControl from '../../../../components/generic/wrapper/ListItemMenuControl';
 import { sharedStyles } from '../../../../sharedStyles';
 import ButtonHighlightMenuControl from '../../../../components/generic/wrapper/ButtonHighlightMenuControl';
 
@@ -207,7 +206,6 @@ const UnitControl = ({
 		<Fragment>
 			<InfoLabelRow
 				label={upperFirst(t(unitKey))}
-				style={styles.unitLabel}
 				labelStyle={labelStyle}
 				Info={Info && 'string' === typeof Info ? t(Info) : Info}
 			/>
@@ -235,7 +233,6 @@ const UnitControl = ({
 				value={unitPref.round}
 				onUpdate={handleRoundUpdate}
 				validate={validateDecimalPlace}
-				style={styles.decimalPlace}
 				Info={t('general.hint.units.decimalPlaces')}
 			/>
 
@@ -306,28 +303,34 @@ const UnitPrefControl = () => {
 			)}
 			header={t('unitPref', { count: 0 })}
 		>
-			{Object.keys(unitPrefs).map((key) => (
-				<UnitControl
-					key={key}
-					unitKey={key}
-					unitPref={unitPrefs[key]}
-					onChange={(newPref) => {
-						dispatch(
-							setUnitPrefs({
-								...unitPrefs,
-								[key]: newPref,
-							})
-						);
-					}}
-				/>
+			{Object.keys(unitPrefs).map((key, idx) => (
+				<Fragment key={key}>
+					{idx !== 0 && (
+						<Divider
+							bold={true}
+							style={styles.divider}
+						/>
+					)}
+					<UnitControl
+						unitKey={key}
+						unitPref={unitPrefs[key]}
+						onChange={(newPref) => {
+							dispatch(
+								setUnitPrefs({
+									...unitPrefs,
+									[key]: newPref,
+								})
+							);
+						}}
+					/>
+				</Fragment>
 			))}
 		</ListItemModalControl>
 	);
 };
 
 const styles = StyleSheet.create({
-	unitLabel: { marginTop: 0, marginBottom: -32 },
-	decimalPlace: { marginTop: -24, marginBottom: 0 },
+	divider: { marginVertical: 8 },
 });
 
 export default UnitPrefControl;

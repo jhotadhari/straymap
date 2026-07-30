@@ -198,6 +198,20 @@ const AppView = ({
 	const [showMap, setShowMap] = useState(false);
 	const mapsforgeGeneral = useAppSelector(selectMapsforgeGeneral);
 	useEffect(() => {
+		// Snapshot the current position into initialPositionRef so the
+		// recreated map resumes where the user was, rather than jumping
+		// to a stale saved position.  (saveCurrentPositionToInitial only
+		// writes to DefaultPreference, not the ref, so onPause during
+		// unmount arrives too late for the re-mount render pass.)
+		if (
+			currentMapEventRef.current?.center &&
+			currentMapEventRef.current?.zoomLevel
+		) {
+			initialPositionRef.current = {
+				center: currentMapEventRef.current.center,
+				zoomLevel: currentMapEventRef.current.zoomLevel,
+			};
+		}
 		setShowMap(false);
 		setTimeout(() => {
 			CanvasAdapterModule.setLineScale(mapsforgeGeneral.lineScale);
@@ -205,7 +219,7 @@ const AppView = ({
 			CanvasAdapterModule.setSymbolScale(mapsforgeGeneral.symbolScale);
 			setShowMap(true);
 		}, 1);
-	}, [mapsforgeGeneral]);
+	}, [mapsforgeGeneral, currentMapEventRef, initialPositionRef]);
 
 	// Busy key 'map:init': added when MapContainer mounts, removed on first rendered frame.
 	const firstMapUpdateRef = useRef(false);
