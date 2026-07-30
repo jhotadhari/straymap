@@ -15,6 +15,7 @@ import MenuControl, { MenuControlProps } from '../primitives/MenuControl';
 interface Props extends Omit<MenuControlProps, 'AnchorComponent'> {
 	anchorLabel?: string;
 	anchorIcon?: IconSource;
+	anchorIconSource?: IconSource;
 	compact?: boolean;
 	buttonPropsProps?: ButtonPropsProps;
 }
@@ -26,6 +27,7 @@ const ButtonHighlightMenuControl: FC<Props> = ({
 	setValue,
 	anchorLabel,
 	anchorIcon,
+	anchorIconSource,
 	compact,
 	buttonPropsProps,
 }) => {
@@ -37,6 +39,7 @@ const ButtonHighlightMenuControl: FC<Props> = ({
 				{...buttonProps}
 				compact={compact}
 				onPress={onPress}
+				icon={anchorIconSource}
 			>
 				{anchorIcon && (
 					<Icon

@@ -20,6 +20,8 @@ import { useTranslation } from 'react-i18next';
 import { get } from 'lodash-es';
 import { openDocument } from 'react-native-scoped-storage';
 import { sprintf } from 'sprintf-js';
+import { IconSource } from 'react-native-paper/lib/typescript/components/Icon';
+import LucideIcons from '@react-native-vector-icons/lucide/static';
 
 /**
  * Internal dependencies
@@ -322,6 +324,8 @@ const FileSourceRowControl: FC<{
 	hasCustom?: boolean;
 	initialOptionsByPath?: OptionsByPathType;
 	AlternativeButton?: AlternativeButtonType;
+	anchorButtonIcon?: IconSource;
+	warningIfUnset?: boolean;
 	styleContent?: ViewStyle;
 	newOptionLabel?: string;
 }> = ({
@@ -342,10 +346,13 @@ const FileSourceRowControl: FC<{
 	hasCustom,
 	initialOptionsByPath = {},
 	AlternativeButton = null,
+	anchorButtonIcon: anchorButtonIcon_,
+	warningIfUnset,
 	styleContent,
 	newOptionLabel,
 }) => {
 	const { t } = useTranslation();
+	const theme = useTheme();
 	const [modalVisible, setModalVisible] = useState(false);
 
 	const handleOpenModal = useCallback(() => setModalVisible(true), []);
@@ -510,6 +517,26 @@ const FileSourceRowControl: FC<{
 		optionsByPath,
 	]);
 
+	const anchorButtonIcon = useMemo(() => {
+		if (anchorButtonIcon_) {
+			return anchorButtonIcon_;
+		}
+		if (warningIfUnset && !selectedOpt) {
+			return () => (
+				<LucideIcons
+					size={20}
+					color={theme.colors.error}
+					name="triangle-alert"
+				/>
+			);
+		}
+	}, [
+		anchorButtonIcon_,
+		warningIfUnset,
+		theme,
+		selectedOpt,
+	]);
+
 	const buttonProps = useButtonProps({});
 
 	return (
@@ -545,6 +572,7 @@ const FileSourceRowControl: FC<{
 				{!AlternativeButton && !dirsInfoLoading && (
 					<ButtonHighlight
 						{...buttonProps}
+						icon={anchorButtonIcon}
 						onPress={handleOpenModal}
 					>
 						{t(buttonLabel)}
