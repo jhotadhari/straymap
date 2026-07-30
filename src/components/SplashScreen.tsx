@@ -3,7 +3,7 @@
  */
 import { Text, useTheme } from 'react-native-paper';
 import { Dimensions, StyleSheet, StyleProp, View, ViewStyle } from 'react-native';
-import { ReactNode, useMemo } from 'react';
+import { memo, ReactNode, useMemo } from 'react';
 
 /**
  * Internal dependencies
@@ -80,4 +80,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export default SplashScreen;
+export default memo(SplashScreen);

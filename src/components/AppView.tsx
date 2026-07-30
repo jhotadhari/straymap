@@ -3,6 +3,7 @@
  */
 import React, {
 	Dispatch,
+	memo,
 	MutableRefObject,
 	SetStateAction,
 	useCallback,
@@ -427,4 +428,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export default AppView;
+export default memo(AppView);

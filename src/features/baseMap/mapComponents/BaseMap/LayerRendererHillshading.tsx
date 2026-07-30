@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { FC } from 'react';
+import { memo, FC } from 'react';
 import { LayerHillshading, LayerHillshadingProps } from 'react-native-mapsforge-vtm';
 
 /**
@@ -49,4 +49,4 @@ const LayerRendererHillshading: FC<{
 	) : undefined;
 };
 
-export default LayerRendererHillshading;
+export default memo(LayerRendererHillshading);

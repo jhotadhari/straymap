@@ -185,6 +185,7 @@ const DrawerControlModal: FC<{
 	const closeModal = useCallback(() => setModalVisible(false), [setModalVisible]);
 
 	const allDrawerItems = useMemo(() => featureRegistry.getDrawerPanels(), []);
+	const drawerPanels = useMemo(() => Object.values(allDrawerItems) as DrawerPanel[], [allDrawerItems]);
 
 	return (
 		<ModalWrapper
@@ -192,7 +193,7 @@ const DrawerControlModal: FC<{
 			onDismiss={closeModal}
 			headerLabel={t('drawers.drawer', { count: 0 })}
 		>
-			{(Object.values(allDrawerItems) as DrawerPanel[]).map((drawerItem) => (
+			{drawerPanels.map((drawerItem) => (
 				<Item
 					key={drawerItem.key}
 					drawerItem={drawerItem}

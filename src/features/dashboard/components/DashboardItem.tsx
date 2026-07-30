@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { ElementType, FC, useMemo } from 'react';
+import React, { ElementType, FC, memo, useMemo } from 'react';
 import { get } from 'lodash-es';
 import Sortable from 'react-native-sortables';
 import { GestureResponderEvent, StyleSheet, ViewStyle } from 'react-native';
@@ -89,4 +89,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export default Item;
+export default memo(Item);

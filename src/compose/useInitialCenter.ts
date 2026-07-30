@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { MutableRefObject, useCallback, useEffect, useRef, useState } from 'react';
+import { MutableRefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { NativeSyntheticEvent } from 'react-native';
 import DefaultPreference from 'react-native-default-preference';
 import { MapEventResponse } from 'react-native-mapsforge-vtm';
@@ -103,11 +103,11 @@ const useInitialCenter = (currentMapEventRef: MutableRefObject<MapEventResponse 
 		};
 	}, [initialized, saveCurrentPositionToInitial]);
 
-	return {
+	return useMemo(() => ({
 		initialized,
 		initialPositionRef,
 		saveCurrentPositionToInitial,
-	};
+	}), [initialized, initialPositionRef, saveCurrentPositionToInitial]);
 };
 
 export default useInitialCenter;

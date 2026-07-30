@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { FC, useCallback, useMemo } from 'react';
+import { FC, memo, useCallback, useMemo } from 'react';
 import { Text, useTheme } from 'react-native-paper';
 import { BackHandler, StyleSheet, View } from 'react-native';
 import { get } from 'lodash-es';
@@ -100,20 +100,27 @@ const SplashScreenUpdater: FC = () => {
 		[isUpdating]
 	);
 
+	const updateResultNodes = useMemo(
+		() =>
+			'object' === typeof isUpdating
+				? Object.keys(isUpdating).map((updatingKey: string) => (
+						<UpdateResultRow
+							key={updatingKey}
+							updatingKey={updatingKey}
+							updateResult={get(isUpdating, updatingKey)}
+						/>
+					))
+				: null,
+		[isUpdating]
+	);
+
 	return (
 		<SplashScreen displayLogo={false}>
 			{!failedResult && 'isDowngrade' !== isUpdating && (
 				<Text>{t('updater.updatingMsg')}</Text>
 			)}
 
-			{'object' === typeof isUpdating &&
-				Object.keys(isUpdating).map((updatingKey: string) => (
-					<UpdateResultRow
-						key={updatingKey}
-						updatingKey={updatingKey}
-						updateResult={get(isUpdating, updatingKey)}
-					/>
-				))}
+			{updateResultNodes}
 
 			{failedResult && isUpdating && (
 				<View style={styles.marginTop}>
@@ -158,4 +165,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export default SplashScreenUpdater;
+export default memo(SplashScreenUpdater);

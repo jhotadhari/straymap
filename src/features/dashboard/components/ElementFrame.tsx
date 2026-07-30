@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { FC, ReactNode, useMemo } from 'react';
+import React, { FC, memo, ReactNode, useMemo } from 'react';
 import {
 	GestureResponderEvent,
 	TextStyle,
@@ -118,4 +118,4 @@ const localStyles = {
 	iconWrapper: { marginRight: 3 },
 };
 
-export default ElementFrame;
+export default memo(ElementFrame);

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { FC } from 'react';
+import { FC, useMemo } from 'react';
 import { get } from 'lodash-es';
 import { StyleSheet } from 'react-native';
 import { useTranslation } from 'react-i18next';
@@ -18,7 +18,9 @@ const LineStatsRows: FC<{
 	stats: LineStatsType;
 }> = ({ stats }) => {
 	const { t } = useTranslation();
-	return Object.keys(stats).map((statKey) => {
+	return useMemo(
+		() =>
+			Object.keys(stats).map((statKey) => {
 		const columnKey = 'distance' === statKey ? 'length' : statKey;
 		return (
 			<InfoLabelRow
@@ -33,7 +35,9 @@ const LineStatsRows: FC<{
 				/>
 			</InfoLabelRow>
 		);
-	});
+	}),
+		[stats, t]
+	);
 };
 
 const statsRenderParts = ['icon', 'value'] as RenderPart[];

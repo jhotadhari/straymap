@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { useTheme, IconButton, IconButtonProps } from 'react-native-paper';
-import { useCallback, useMemo, useState } from 'react';
+import { memo, useCallback, useMemo, useState } from 'react';
 import { GestureResponderEvent } from 'react-native';
 
 const IconButtonHighlight = (
@@ -58,4 +58,4 @@ const IconButtonHighlight = (
 	);
 };
 
-export default IconButtonHighlight;
+export default memo(IconButtonHighlight);

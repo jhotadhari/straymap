@@ -138,7 +138,7 @@ export const useButtonProps = ({
 		disabled,
 	]);
 
-	return {
+	return useMemo(() => ({
 		style,
 		contentStyle,
 		labelStyle,
@@ -147,7 +147,7 @@ export const useButtonProps = ({
 		mode,
 		disabled,
 		nestedIconColor,
-	};
+	}), [style, contentStyle, labelStyle, textColor, buttonColor, mode, disabled, nestedIconColor]);
 };
 
 const styles = StyleSheet.create({

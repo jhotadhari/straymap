@@ -15,10 +15,10 @@
  */
 import { Props as ButtonProps } from 'react-native-paper/lib/typescript/components/Button/Button';
 import { useTheme, Button } from 'react-native-paper';
-import { forwardRef, useCallback, useMemo, useState } from 'react';
+import { forwardRef, memo, useCallback, useMemo, useState } from 'react';
 import { GestureResponderEvent } from 'react-native';
 
-const ButtonHighlight = forwardRef((props: ButtonProps, ref: React.ForwardedRef<any>) => {
+const ButtonHighlight = memo(forwardRef((props: ButtonProps, ref: React.ForwardedRef<any>) => {
 	const [pressing, setPressing] = useState(false);
 	const theme = useTheme();
 	const { onPress, onPressIn, onPressOut, style, disabled, children, ...restProps } = props;
@@ -64,6 +64,6 @@ const ButtonHighlight = forwardRef((props: ButtonProps, ref: React.ForwardedRef<
 			{children}
 		</Button>
 	);
-});
+}));
 
 export default ButtonHighlight;

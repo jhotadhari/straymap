@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Keyboard } from 'react-native';
 
 const useKeyboardShown = () => {
@@ -26,11 +26,11 @@ const useKeyboardShown = () => {
 		};
 	}, []);
 
-	return {
+	return useMemo(() => ({
 		keyboardShown,
 		keyboardHeight,
 		keyboardScreenY,
-	};
+	}), [keyboardShown, keyboardHeight, keyboardScreenY]);
 };
 
 export default useKeyboardShown;

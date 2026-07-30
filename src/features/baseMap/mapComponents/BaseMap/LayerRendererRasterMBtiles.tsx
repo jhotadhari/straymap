@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { FC, useCallback, useEffect } from 'react';
+import { FC, memo, useCallback, useEffect } from 'react';
 import {
 	LayerMBTilesBitmap,
 	LayerMapsforgeResponse,
@@ -58,4 +58,4 @@ const LayerRendererRasterMBtiles: FC<{
 	);
 };
 
-export default LayerRendererRasterMBtiles;
+export default memo(LayerRendererRasterMBtiles);

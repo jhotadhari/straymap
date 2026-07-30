@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { FC, useCallback, useEffect } from 'react';
+import { FC, memo, useCallback, useEffect } from 'react';
 import {
 	LayerMapsforge,
 	LayerMapsforgeProps,
@@ -65,4 +65,4 @@ const LayerRendererMapsforge: FC<{
 	);
 };
 
-export default LayerRendererMapsforge;
+export default memo(LayerRendererMapsforge);

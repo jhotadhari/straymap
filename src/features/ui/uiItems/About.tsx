@@ -309,6 +309,24 @@ const About: FC<{ style?: ViewStyle }> = ({ style }) => {
 		[t]
 	);
 
+	const debugInfoNodes = useMemo(
+		() =>
+			Object.keys(debugInfo).map((key: string) => {
+				let string = get(debugInfo, key, '');
+				if ('gitStatus' === key) {
+					string = string.replace(/;/g, '\n');
+				}
+				return (
+					<Text key={key}>
+						{t('ui.' + key) +
+							': ' +
+							removeLeadingTrailingEmptyLines(string)}
+					</Text>
+				);
+			}),
+		[t]
+	);
+
 	return (
 		<ScrollView style={style}>
 			<View style={pageStyles.container}>
@@ -320,19 +338,7 @@ const About: FC<{ style?: ViewStyle }> = ({ style }) => {
 					<View>
 						<Text>Version {versionChangelog}</Text>
 						<Text>Latest release {getChangelogVersion(1) || packageJson.version}</Text>
-						{Object.keys(debugInfo).map((key: string) => {
-							let string = get(debugInfo, key, '');
-							if ('gitStatus' === key) {
-								string = string.replace(/;/g, '\n');
-							}
-							return (
-								<Text key={key}>
-									{t('ui.' + key) +
-										': ' +
-										removeLeadingTrailingEmptyLines(string)}
-								</Text>
-							);
-						})}
+						{debugInfoNodes}
 					</View>
 				)}
 

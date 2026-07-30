@@ -29,5 +29,5 @@ export function useFixedRowHeight(lineCount: number) {
 		[isFixedHeight]
 	);
 
-	return { isFixedHeight, rowHeight, getItemLayout };
+	return useMemo(() => ({ isFixedHeight, rowHeight, getItemLayout }), [isFixedHeight, rowHeight, getItemLayout]);
 }

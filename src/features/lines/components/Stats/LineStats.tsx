@@ -90,11 +90,16 @@ const LineStats: FC<{
 		styleStat,
 	]);
 
+	const nodeValues = useMemo(() => Object.values(nodes), [nodes]);
+
 	if (undefined === NodeWrapper) {
-		return Object.values(nodes);
+		return nodeValues;
 	} else {
-		return Object.keys(nodes).map((key) => <NodeWrapper key={key}>{nodes[key]}</NodeWrapper>);
+		return Object.keys(nodes).map((key) => (
+			<NodeWrapper key={key}>{nodes[key]}</NodeWrapper>
+		));
 	}
+
 };
 
 export default LineStats;

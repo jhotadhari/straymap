@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { FC } from 'react';
+import { memo, FC } from 'react';
 import { LayerBitmapTile, LayerBitmapTileProps } from 'react-native-mapsforge-vtm';
 
 /**
@@ -38,4 +38,4 @@ const LayerRendererOnlineRasterXYZ: FC<{
 	);
 };
 
-export default LayerRendererOnlineRasterXYZ;
+export default memo(LayerRendererOnlineRasterXYZ);

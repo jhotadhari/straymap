@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { LayerConfig } from '../types';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { selectLayerTemp } from '../selectors';
@@ -33,5 +33,5 @@ export const useLayerTemp = <OptionsType extends object>() => {
 		[dispatch]
 	);
 
-	return { layerTemp, setOptions } as const;
+	return useMemo(() => ({ layerTemp, setOptions } as const), [layerTemp, setOptions]);
 };

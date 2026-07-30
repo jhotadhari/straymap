@@ -4,6 +4,7 @@
 import React, {
 	Dispatch,
 	FC,
+	memo,
 	ReactNode,
 	SetStateAction,
 	useCallback,
@@ -65,7 +66,10 @@ const Segment: FC<{
 	const unitPrefs = useAppSelector(selectUnitPrefs);
 	const distUnit = unitPrefs.distance;
 
-	const segment = Object.values(segments).find((seg) => seg.fromId === item.id);
+	const segment = useMemo(
+		() => Object.values(segments).find((seg) => seg.fromId === item.id),
+		[segments, item.id]
+	);
 
 	const StateIcon = useCallback(() => {
 		let node: undefined | ReactNode = undefined;
@@ -202,6 +206,8 @@ const Segment: FC<{
 	);
 };
 
+const MemoSegment = memo(Segment);
+
 const DraggableItem: FC<{
 	item: RoutingPoint;
 	resolvedProfile: RoutingProfile;
@@ -291,7 +297,7 @@ const DraggableItem: FC<{
 				</ButtonHighlight>
 			</View>
 
-			<Segment
+			<MemoSegment
 				item={item}
 				resolvedProfile={resolvedProfile}
 				draggingItemIndex={draggingItemIndex}
@@ -300,6 +306,8 @@ const DraggableItem: FC<{
 		</View>
 	);
 };
+
+const MemoDraggableItem = memo(DraggableItem);
 
 const itemPaddingH = 16;
 const PointsList: FC = () => {
@@ -462,7 +470,7 @@ const PointsList: FC = () => {
 				{points.map((item: RoutingPoint, order: number) => {
 					return (
 						<View key={item.id}>
-							<DraggableItem
+							<MemoDraggableItem
 								item={item}
 								resolvedProfile={resolvedProfiles[item.id]}
 								width={width - itemPaddingH * 2}
@@ -543,4 +551,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export default PointsList;
+export default memo(PointsList);

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { FC, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { FC, memo, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import {
 	Pressable,
 	StyleSheet,
@@ -293,4 +293,4 @@ const ModalWrapper: FC<{
 	);
 };
 
-export default ModalWrapper;
+export default memo(ModalWrapper);

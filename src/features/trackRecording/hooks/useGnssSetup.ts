@@ -57,5 +57,5 @@ export function useGnssSetup() {
 		[dispatch]
 	);
 
-	return { gnssFilter, handleGnssPosition };
+	return useMemo(() => ({ gnssFilter, handleGnssPosition }), [gnssFilter, handleGnssPosition]);
 }
