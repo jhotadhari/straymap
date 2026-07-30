@@ -1,5 +1,7 @@
 {
 	"createdBy": "Erstellt von",
+	"label": "Name",
+	"globalDEM": "Globales DEM",
 	"file": "Karten Datei",
 	"selectFile": "Karten Datei auswählen",
 	"demDir": "DEM Verzeichnis",
@@ -71,7 +73,7 @@
 		"hillshading": "Offline-Höhenschattierung mit digitalen Höhenmodellen (DEM) im hgt-Format."
 	},
 	"hint": {
-		"nameId": "Ein Name zur Wiedererkennung dieses Elements. Du kannst jeden beliebigen Namen wählen — er wird nur in den App-Einstellungen angezeigt.",
+		"label": "Ein Name zur Wiedererkennung dieses Elements. Du kannst jeden beliebigen Namen wählen — er wird nur in den App-Einstellungen angezeigt.\n\nFalls nicht angegeben, wird die Quellangabe der Kartenebene als Name verwendet.",
 		"applyToAllMapsforge": "Diese Einstellungen gelten für alle mapsforge Kartenebenen.",
 		"lineScale": "Linien-Skalierungsfaktor > 0.0\n\nZur Skalierung der Liniendicke auf der Karte\n\nStandard: 1. = keine Skalierung der Liniendicke",
 		"textScale": "Text-Skalierungsfaktor > 0.0\n\nZur Skalierung der Größe von Beschriftungen auf der Karte\n\nStandard: 1. = keine Skalierung der Textgröße",

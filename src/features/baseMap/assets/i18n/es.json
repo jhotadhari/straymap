@@ -1,5 +1,7 @@
 {
 	"createdBy": "Creado por",
+	"label": "nombre",
+	"globalDEM": "DEM global",
 	"file": "Archivo de mapa",
 	"selectFile": "Seleccionar archivo de mapa",
 	"demDir": "Directorio DEM",
@@ -71,7 +73,7 @@
 		"hillshading": "Sombreado offline con modelos digitales de elevación (DEM) en formato hgt."
 	},
 	"hint": {
-		"nameId": "Una etiqueta para ayudarte a identificar este elemento. Elige cualquier nombre que tenga sentido para ti — solo se muestra en la configuración de la aplicación.",
+		"label": "Un nombre para ayudarte a identificar este elemento. Elige cualquier nombre que tenga sentido para ti — solo se muestra en la configuración de la aplicación.\n\nSi no se especifica, se usará la fuente de la capa como nombre.",
 		"applyToAllMapsforge": "Esta configuración se aplica a todas las capas de mapa de Mapsforge.",
 		"lineScale": "Factor de escala de líneas > 0.0\n\nPara escalar el grosor de las líneas en el mapa\n\nPredeterminado: 1. = sin escala de grosor de línea",
 		"textScale": "Factor de escala de texto > 0.0\n\nPara escalar el tamaño de las etiquetas en el mapa\n\nPredeterminado: 1. = sin escala de tamaño de texto",

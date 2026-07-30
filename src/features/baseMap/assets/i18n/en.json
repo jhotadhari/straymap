@@ -1,5 +1,7 @@
 {
 	"createdBy": "Created by",
+	"label": "label",
+	"globalDEM": "Global DEM",
 	"file": "Map file",
 	"selectFile": "Select map file",
 	"demDir": "DEM Directory",
@@ -71,7 +73,7 @@
 		"hillshading": "Offline hillshading with digital elevation models (DEM) in hgt format."
 	},
 	"hint": {
-		"nameId": "A label to help you identify this item. Choose any name that makes sense to you — it's only shown in the app's settings.",
+		"label": "A label to help you identify this item. Choose any name that makes sense to you — it's only shown in the app's settings.\n\nIf not specified, the layer source will be used as label.",
 		"applyToAllMapsforge": "These settings apply to all mapsforge map layers.",
 		"lineScale": "Line scale factor > 0.0\n\nTo scale thickness of lines on map\n\nDefault: 1. = no line thickness scaling",
 		"textScale": "Text scale factor > 0.0\n\nTo scale size of labels on map\n\nDefault: 1. = no text size scaling",

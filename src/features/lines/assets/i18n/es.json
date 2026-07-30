@@ -13,7 +13,7 @@
 		"minZ": "Elevación mín.",
 		"maxZ": "Elevación máx.",
 		"tags": "Etiquetas",
-		"label": "Etiqueta",
+		"label": "Nombre",
 		"line_count": "Rutas",
 		"color": "Color",
 		"notes": "Notas"
