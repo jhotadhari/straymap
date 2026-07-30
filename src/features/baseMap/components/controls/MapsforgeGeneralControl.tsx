@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, View } from 'react-native';
@@ -15,57 +15,66 @@ import IconCustom from '../../../../components/generic/primitives/IconCustom';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { selectMapsforgeGeneral } from '../../selectors';
 import { setMapsforgeGeneral } from '../../slice';
+import type { MapsforgeGeneral } from '../../types';
 
 const validate = (val: number) => val >= 0 && val <= 20;
+
+const isEqual = (a: MapsforgeGeneral, b: MapsforgeGeneral) =>
+	a.lineScale === b.lineScale &&
+	a.textScale === b.textScale &&
+	a.symbolScale === b.symbolScale;
 
 const MapsforgeGeneralControl = () => {
 	const { t } = useTranslation();
 
 	const dispatch = useAppDispatch();
 
-	const settings = useAppSelector(selectMapsforgeGeneral);
+	const storeSettings = useAppSelector(selectMapsforgeGeneral);
+
+	// Snapshot store values into local editing state so keystrokes (including
+	// partial floats like "1.") don't dispatch to the store and trigger a full
+	// map destroy/recreate cycle on every character.
+	const [localSettings, setLocalSettings] = useState(storeSettings);
+	const localSettingsRef = useRef(localSettings);
+	localSettingsRef.current = localSettings;
+
+	// Re-sync local state from the store when an external change occurs
+	// (e.g. storage restore, another control).  The setMapsforgeGeneral
+	// reducer creates a new object reference, so this effect is a reliable
+	// "store changed" signal.
+	useEffect(() => {
+		setLocalSettings(storeSettings);
+	}, [storeSettings]);
 
 	const handleLineScale = useCallback(
-		(newValue: number) => {
-			dispatch(
-				setMapsforgeGeneral((current) => ({
-					...current,
-					lineScale: newValue,
-				}))
-			);
-		},
-		[
-			dispatch,
-		]
+		(newValue: number) =>
+			setLocalSettings((prev) => ({ ...prev, lineScale: newValue })),
+		[]
 	);
 
 	const handleTextScale = useCallback(
-		(newValue: number) => {
-			dispatch(
-				setMapsforgeGeneral((current) => ({
-					...current,
-					textScale: newValue,
-				}))
-			);
-		},
-		[
-			dispatch,
-		]
+		(newValue: number) =>
+			setLocalSettings((prev) => ({ ...prev, textScale: newValue })),
+		[]
 	);
 
 	const handleSymbolScale = useCallback(
-		(newValue: number) => {
-			dispatch(
-				setMapsforgeGeneral((current) => ({
-					...current,
-					symbolScale: newValue,
-				}))
-			);
-		},
-		[
-			dispatch,
-		]
+		(newValue: number) =>
+			setLocalSettings((prev) => ({ ...prev, symbolScale: newValue })),
+		[]
 	);
+
+	// Commit local state to the store only when the modal is dismissed,
+	// and only if anything actually changed.  Ref-based reads keep the
+	// callback stable so ListItemModalControl's effect doesn't re-fire.
+	const storeSettingsRef = useRef(storeSettings);
+	storeSettingsRef.current = storeSettings;
+	const handleAfterDismiss = useCallback(() => {
+		const current = localSettingsRef.current;
+		if (!isEqual(current, storeSettingsRef.current)) {
+			dispatch(setMapsforgeGeneral(current));
+		}
+	}, [dispatch]);
 
 	return (
 		<ListItemModalControl
@@ -78,6 +87,7 @@ const MapsforgeGeneralControl = () => {
 				/>
 			)}
 			header={t('baseMap.mapsforgeGeneral')}
+			afterDismiss={handleAfterDismiss}
 		>
 			<View style={styles.gap}>
 				<Text style={styles.applyHint}>{t('baseMap.hint.applyToAllMapsforge')}</Text>
@@ -85,7 +95,7 @@ const MapsforgeGeneralControl = () => {
 				<NumericRowControl
 					label={t('baseMap.lineScale')}
 					numType={'float'}
-					value={settings.lineScale}
+					value={localSettings.lineScale}
 					onUpdate={handleLineScale}
 					validate={validate}
 					Info={t('baseMap.hint.lineScale')}
@@ -94,7 +104,7 @@ const MapsforgeGeneralControl = () => {
 				<NumericRowControl
 					label={t('baseMap.textScale')}
 					numType={'float'}
-					value={settings.textScale}
+					value={localSettings.textScale}
 					onUpdate={handleTextScale}
 					validate={validate}
 					Info={t('baseMap.hint.textScale')}
@@ -103,7 +113,7 @@ const MapsforgeGeneralControl = () => {
 				<NumericRowControl
 					label={t('baseMap.symbolScale')}
 					numType={'float'}
-					value={settings.symbolScale}
+					value={localSettings.symbolScale}
 					onUpdate={handleSymbolScale}
 					validate={validate}
 					Info={t('baseMap.hint.symbolScale')}
