@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { FC, memo, useCallback, useEffect } from 'react';
+import { FC, memo, useCallback } from 'react';
 import {
 	LayerMBTilesBitmap,
 	LayerMapsforgeResponse,
@@ -13,6 +13,7 @@ import {
  */
 import { LayerConfig, LayerConfigOptionsRasterMBtiles } from '../../types';
 import useLayerChangeCallback from './useLayerChangeCallback';
+import { useMakeLayerBusy } from './useMakeLayerBusy';
 
 const LayerRendererRasterMBtiles: FC<{
 	layer: LayerConfig<LayerConfigOptionsRasterMBtiles>;
@@ -24,27 +25,20 @@ const LayerRendererRasterMBtiles: FC<{
 }> = ({ layer, onLayerChange, onLayerCreated }) => {
 	const opts = layer.options;
 
+	const hasSource = !!opts.mapFile;
+	useMakeLayerBusy(layer.key, 'raster-MBtiles', layer.visible && hasSource);
+
 	const handleCreateOrChange = useLayerChangeCallback(layer.key, onLayerChange);
 
-	// Wrap onCreate to also signal the busy key. onChange does not need this —
-	// only the initial creation indicates the layer is ready.
 	const handleCreate = useCallback(
 		(response: LayerMBTilesBitmapResponse) => {
 			handleCreateOrChange(response);
 			onLayerCreated?.(layer.key, 'raster-MBtiles');
 		},
-		[
-			handleCreateOrChange,
-			onLayerCreated,
-			layer.key,
-		]
+		[handleCreateOrChange, onLayerCreated, layer.key]
 	);
 
-	// Safety net: remove busy key on unmount in case the layer was removed
-	// before onCreate fired (e.g. user toggled visibility during init).
-	useEffect(() => {
-		return () => onLayerCreated?.(layer.key, 'raster-MBtiles');
-	}, [onLayerCreated, layer.key]);
+	if (!layer.visible || !hasSource) return null;
 
 	return (
 		<LayerMBTilesBitmap

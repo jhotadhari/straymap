@@ -10,6 +10,7 @@ import { LayerBitmapTile, LayerBitmapTileProps } from 'react-native-mapsforge-vt
 import { LayerConfig, LayerConfigOptionsOnlineRasterXYZ } from '../../types';
 import { stringifyProp, resolveCacheDirBase } from '../../utils';
 import { useDeferredLayerCreated } from './useDeferredLayerCreated';
+import { useMakeLayerBusy } from './useMakeLayerBusy';
 
 const LayerRendererOnlineRasterXYZ: FC<{
 	layer: LayerConfig<LayerConfigOptionsOnlineRasterXYZ>;
@@ -18,9 +19,14 @@ const LayerRendererOnlineRasterXYZ: FC<{
 }> = ({ layer, internalCacheDir, onLayerCreated }) => {
 	const opts = layer.options;
 
+	const hasSource = !!opts.url;
+	useMakeLayerBusy(layer.key, 'online-raster-xyz', layer.visible && hasSource);
+
 	const cacheDirBase = resolveCacheDirBase(opts.cacheDirBase, internalCacheDir);
 
 	useDeferredLayerCreated(layer.key, 'online-raster-xyz', onLayerCreated);
+
+	if (!layer.visible || !hasSource) return null;
 
 	return (
 		<LayerBitmapTile

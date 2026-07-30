@@ -17,6 +17,7 @@ import {
 import { useAppSelector } from '../../../../store/hooks';
 import { selectHgtDirPath } from '../../selectors';
 import { useDeferredLayerCreated } from './useDeferredLayerCreated';
+import { useMakeLayerBusy } from './useMakeLayerBusy';
 
 const LayerRendererHillshading: FC<{
 	layer: LayerConfig<LayerConfigOptionsHillshading>;
@@ -29,9 +30,12 @@ const LayerRendererHillshading: FC<{
 
 	const appHgtDirPath = useAppSelector(selectHgtDirPath);
 
+	const hasSource = !!(opts?.hgtDirPath ?? appHgtDirPath);
+	useMakeLayerBusy(layer.key, 'hillshading', layer.visible && hasSource);
+
 	useDeferredLayerCreated(layer.key, 'hillshading', onLayerCreated);
 
-	return (opts?.hgtDirPath ?? appHgtDirPath) ? (
+	return layer.visible && hasSource ? (
 		<LayerHillshading
 			key={layer.key}
 			hgtDirPath={opts?.hgtDirPath ?? appHgtDirPath}

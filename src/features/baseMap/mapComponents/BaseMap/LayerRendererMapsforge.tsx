@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { FC, memo, useCallback, useEffect } from 'react';
+import { FC, memo, useCallback } from 'react';
 import {
 	LayerMapsforge,
 	LayerMapsforgeProps,
@@ -14,6 +14,7 @@ import {
  */
 import { LayerConfig, LayerConfigOptionsMapsforge, MapsforgeProfile } from '../../types';
 import useLayerChangeCallback from './useLayerChangeCallback';
+import { useMakeLayerBusy } from './useMakeLayerBusy';
 
 const LayerRendererMapsforge: FC<{
 	layer: LayerConfig<LayerConfigOptionsMapsforge>;
@@ -26,27 +27,20 @@ const LayerRendererMapsforge: FC<{
 }> = ({ layer, profile, onLayerChange, onLayerCreated }) => {
 	const opts = layer.options;
 
+	const hasSource = !!opts.mapFile;
+	useMakeLayerBusy(layer.key, 'mapsforge', layer.visible && hasSource);
+
 	const handleCreateOrChange = useLayerChangeCallback(layer.key, onLayerChange);
 
-	// Wrap onCreate to also signal the busy key. onChange does not need this —
-	// only the initial creation indicates the layer is ready.
 	const handleCreate = useCallback(
 		(response: LayerMapsforgeResponse) => {
 			handleCreateOrChange(response);
 			onLayerCreated?.(layer.key, 'mapsforge');
 		},
-		[
-			handleCreateOrChange,
-			onLayerCreated,
-			layer.key,
-		]
+		[handleCreateOrChange, onLayerCreated, layer.key]
 	);
 
-	// Safety net: remove busy key on unmount in case the layer was removed
-	// before onCreate fired (e.g. user toggled visibility during init).
-	useEffect(() => {
-		return () => onLayerCreated?.(layer.key, 'mapsforge');
-	}, [onLayerCreated, layer.key]);
+	if (!layer.visible || !hasSource) return null;
 
 	return (
 		<LayerMapsforge

@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { get, pick } from 'lodash-es';
-import { FC, useCallback, useEffect, useMemo, useRef } from 'react';
+import { FC, useCallback, useMemo } from 'react';
 import {
 	LayerMapsforgeResponse,
 	LayerMBTilesBitmapResponse,
@@ -23,14 +23,12 @@ import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { selectLayers, selectMapsforgeProfiles } from '../../selectors';
 import { selectAppDirs } from '../../../dirs/selectors';
 import { setLayerInfos } from '../../slice';
-import { addBusyKey, removeBusyKey } from '../../../ui/slice';
+import { removeBusyKey } from '../../../ui/slice';
 import LayerRendererOnlineRasterXYZ from './LayerRendererOnlineRasterXYZ';
 import LayerRendererRasterMBtiles from './LayerRendererRasterMBtiles';
 import LayerRendererMapsforge from './LayerRendererMapsforge';
 import LayerRendererHillshading from './LayerRendererHillshading';
-
-const makeLayerBusyKey = (layerType: string, layerKey: string): string =>
-	`map:base-layer:${layerType}:${layerKey}`;
+import { makeLayerBusyKey } from '../../utils';
 
 const BaseMap: FC<{}> = () => {
 	const appDirs = useAppSelector(selectAppDirs);
@@ -49,30 +47,7 @@ const BaseMap: FC<{}> = () => {
 		[dispatch]
 	);
 
-	// Track which layer busy keys have been added so we only dispatch addBusyKey
-	// once per layer, and clean up keys for layers that are no longer visible.
-	const trackedLayerKeysRef = useRef<Set<string>>(new Set());
 	const layers = useAppSelector((state) => selectLayers(state, { temp: false }));
-	useEffect(() => {
-		const currentKeys = new Set<string>();
-		for (const layer of layers) {
-			if (layer.type && layer.visible) {
-				const busyKey = makeLayerBusyKey(layer.type, layer.key);
-				currentKeys.add(busyKey);
-				if (!trackedLayerKeysRef.current.has(busyKey)) {
-					trackedLayerKeysRef.current.add(busyKey);
-					dispatch(addBusyKey(busyKey));
-				}
-			}
-		}
-		// Remove stale keys for layers that are no longer visible.
-		for (const key of trackedLayerKeysRef.current) {
-			if (!currentKeys.has(key)) {
-				trackedLayerKeysRef.current.delete(key);
-				dispatch(removeBusyKey(key));
-			}
-		}
-	}, [layers, dispatch]);
 
 	const handleLayerChange = useCallback(
 		(key: string, response: LayerMapsforgeResponse | LayerMBTilesBitmapResponse) => {
@@ -98,7 +73,7 @@ const BaseMap: FC<{}> = () => {
 	return (
 		<ReindexScope order={100}>
 			{layersReverse.map((layer: LayerConfig) => {
-				if (!layer.type || !layer.visible) {
+				if (!layer.type) {
 					return null;
 				}
 
