@@ -36,7 +36,7 @@ import { IconSource } from 'react-native-paper/lib/typescript/components/Icon';
 import ButtonHighlight from '../../../../../components/generic/primitives/ButtonHighlight';
 import ModalWrapper from '../../../../../components/generic/wrapper/ModalWrapper';
 import InfoButton from '../../../../../components/generic/infoWrapper/InfoButton';
-import IconIcomoon from '../../../../../components/generic/primitives/IconIcomoon';
+import IconCustom from '../../../../../components/generic/primitives/IconCustom';
 import NameRowControl from '../../../../../components/generic/controls/NameRowControl';
 import LoadingIndicator from '../../../../../components/generic/primitives/LoadingIndicator';
 import HintLink from '../../../../../components/generic/primitives/HintLink';
@@ -276,7 +276,7 @@ const EditModal: FC<{
 
 const ControlIcon: (props: { color: string; style: Style }) => ReactNode = (props) => (
 	<View style={sharedStyles.controlIcon}>
-		<IconIcomoon
+		<IconCustom
 			size={25}
 			name="mapsforge_puzzle_only"
 			{...props}
@@ -693,7 +693,7 @@ const ProfilesControl: FC<{
 const AddIcon: IconSource = () => {
 	const theme = useTheme();
 	return (
-		<IconIcomoon
+		<IconCustom
 			name="mapsforge_puzzle_plus"
 			size={BUTTON_ICON_SIZE}
 			color={theme.colors.primary}

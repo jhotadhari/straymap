@@ -11,7 +11,7 @@ import { StyleSheet, View } from 'react-native';
  */
 import ListItemModalControl from '../../../../components/generic/wrapper/ListItemModalControl';
 import NumericRowControl from '../../../../components/generic/controls/NumericRowControl';
-import IconIcomoon from '../../../../components/generic/primitives/IconIcomoon';
+import IconCustom from '../../../../components/generic/primitives/IconCustom';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { selectMapsforgeGeneral } from '../../selectors';
 import { setMapsforgeGeneral } from '../../slice';
@@ -71,7 +71,7 @@ const MapsforgeGeneralControl = () => {
 		<ListItemModalControl
 			anchorLabel={t('baseMap.mapsforgeGeneral')}
 			anchorIcon={(props) => (
-				<IconIcomoon
+				<IconCustom
 					size={25}
 					name="mapsforge_puzzle_cog"
 					{...props}

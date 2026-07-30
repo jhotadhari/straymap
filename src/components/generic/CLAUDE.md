@@ -56,7 +56,7 @@ components.
 | `ButtonHighlight` | Paper `Button` with press-in/press-out background highlight. Usually used together with `useButtonProps` (see below) for consistent styling |
 | `IconButtonHighlight` | Same as above, for `IconButton` |
 | `MenuControl` | Slot-based popover engine using `react-native-popover-view`. Takes an `AnchorComponent` slot and renders `MenuItem`s from `OptionBase[]` or `MenuActionOption[]` (with `cb`, `leadingIcon`, `IconComponent`, `disabled` support). Used by `ListItemMenuControl` and `ButtonHighlightMenuControl` |
-| `IconIcomoon` | IcoMoon icon set (built from `selection.json` at import time) |
+| `IconCustom` | Custom icon font set (generated from SVGs via `yarn buildIcons`) |
 | `IconFontGis` | GIS-specific icon set (built from `font-gis.json` at import time) |
 | `HintLink` | Tappable URL text that opens via `Linking.openURL` |
 | `LoadingIndicator` | Custom rotating ring (reanimated), always animated, uses `theme.colors.primary` |

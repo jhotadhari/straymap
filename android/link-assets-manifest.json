@@ -30,20 +30,12 @@
       "sha1": "1a99812898e2c11a4a8bcaf0c51e203e09b8fdbe"
     },
     {
-      "path": "src/assets/icons/icomoon/fonts/icomoon.eot",
-      "sha1": "c16ec9483129354714c701a540550e782a4da481"
+      "path": "src/assets/icons/build/build-icons.svg",
+      "sha1": "ad463218202839add125406bdb7c28914dad53e5"
     },
     {
-      "path": "src/assets/icons/icomoon/fonts/icomoon.svg",
-      "sha1": "a0060398fd52aacb13678109a18017d7a5e7e29d"
-    },
-    {
-      "path": "src/assets/icons/icomoon/fonts/icomoon.ttf",
-      "sha1": "666d40c4ded1c2b2372691663976409ed7cfbcbe"
-    },
-    {
-      "path": "src/assets/icons/icomoon/fonts/icomoon.woff",
-      "sha1": "dc781c3c4ebb26812005429b8e31131d0b73ff15"
+      "path": "src/assets/icons/build/build-icons.ttf",
+      "sha1": "e5c1578e48e6055ced0be076054af63e82019c33"
     }
   ]
 }

@@ -41,6 +41,7 @@ yarn test            # jest
 yarn test <pattern>  # run a single test file/suite
 yarn format          # prettier . --write
 yarn sortI18n        # sort all i18n JSON files (app + per-feature) to match the fallback language's key structure
+yarn buildIcons       # regenerate the custom icon font from SVGs in src/assets/icons/
 yarn publish         # release automation: bump versions, merge branches, create GitHub release
 ```
 
@@ -156,11 +157,11 @@ const { centerSv, zoomSv, bearingSv, tiltSv, handleMapUpdate } = useMapPosition(
 
 ### Script infrastructure
 
-Project scripts under `scripts/` use a hybrid module pattern:
-- A thin **CJS entry point** (`index.js`) with a shebang, using `tsx/cjs/api` to load the TypeScript module at runtime.
-- An **ESM TypeScript module** (`.ts`) with the actual logic, using `import.meta.url` + `fileURLToPath` for `__dirname`.
+See `scripts/CLAUDE.md` for an overview. Key scripts:
 
-`tsx` (v4.21.0, devDependency) handles transpilation on the fly — scripts are not compiled by `tsc`. Both `scripts/sortI18n/` and `scripts/publish/` follow this pattern.
+- `yarn sortI18n` — sort i18n JSON keys to match fallback language
+- `yarn buildIcons` — rebuild custom icon font from SVGs in `src/assets/icons/`
+- `yarn organizeImports` — organize imports into external/internal blocks
 
 ### Publish / release pipeline
 
@@ -182,5 +183,5 @@ Project scripts under `scripts/` use a hybrid module pattern:
 
 - `metro.config.js` adds a custom transformer for `.md` assets and adds `.sql` to `sourceExts` (paired with `babel-plugin-inline-import` in `babel.config.js` to inline SQL at build time); the reanimated metro wrapper is applied last.
 - `babel.config.js`: `react-native-reanimated/plugin` must remain the last plugin in the list.
-- `react-native.config.js` links custom font assets from `src/assets/fonts/` and `src/assets/icons/icomoon/fonts/`.
+- `react-native.config.js` links custom font assets from `src/assets/fonts/`, `src/assets/icons/build/`, and the `font-gis` third-party font.
 - Prettier is configured with tabs (`tabWidth: 4`), single quotes, and SQL-aware plugins (`prettier-plugin-sql` targets `sqlite` dialect) — run `yarn format` rather than hand-formatting SQL/embedded query strings.

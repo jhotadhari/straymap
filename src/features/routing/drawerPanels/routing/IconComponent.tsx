@@ -3,11 +3,11 @@
  */
 
 import { TextStyle } from 'react-native';
-import IconIcomoon from '../../../../components/generic/primitives/IconIcomoon';
+import IconCustom from '../../../../components/generic/primitives/IconCustom';
 
 const IconComponent = ({ color }: { color: TextStyle['color'] }) => {
 	return (
-		<IconIcomoon
+		<IconCustom
 			style={{ color }}
 			name="routes_search"
 			size={25}

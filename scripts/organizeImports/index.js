@@ -3,14 +3,14 @@
  * Organize imports in .ts/.tsx/.js/.jsx files into
  * External dependencies and Internal dependencies blocks.
  *
- * Run with: node scripts/organizeImports.js [--check]
+ * Run with: yarn organizeImports [--check]
  */
 
 const fs = require('fs');
 const path = require('path');
 const { globSync } = require('glob');
 
-const ROOT = path.resolve(__dirname, '..');
+const ROOT = path.resolve(__dirname, '../..');
 
 function organizeImportsInFile(filePath) {
 	const content = fs.readFileSync(filePath, 'utf-8');
