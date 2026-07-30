@@ -5,21 +5,27 @@ import { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { useTheme, TextInput } from 'react-native-paper';
 import { debounce } from 'lodash-es';
+import { useTranslation } from 'react-i18next';
 
 /**
  * Internal dependencies
  */
-import InfoLabelRow from '../infoWrapper/InfoLabelRow';
+import InfoLabelRow from '../../../../components/generic/infoWrapper/InfoLabelRow';
 
-const NameRowControl = ({
+const LabelRowControl = ({
 	item,
 	update,
 	Info,
+	placeholder,
 }: {
 	item: { name: string };
 	update: (newItem: { name: string }) => void;
 	Info?: ReactNode | string;
+	placeholder?: string;
 }) => {
+
+	const {t} = useTranslation();
+
 	const theme = useTheme();
 	const [value, setValue] = useState(item.name);
 
@@ -57,7 +63,7 @@ const NameRowControl = ({
 
 	return (
 		<InfoLabelRow
-			label={'Name/ID'}
+			label={t('baseMap.label')}
 			Info={Info}
 		>
 			<TextInput
@@ -67,6 +73,7 @@ const NameRowControl = ({
 				theme={overwriteTheme}
 				onChangeText={setValue}
 				value={value}
+				placeholder={placeholder}
 			/>
 		</InfoLabelRow>
 	);
@@ -76,4 +83,4 @@ const styles = StyleSheet.create({
 	input: { flexGrow: 1 },
 });
 
-export default NameRowControl;
+export default LabelRowControl;
