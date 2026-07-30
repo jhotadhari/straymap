@@ -12,6 +12,7 @@
 	"enabled": "Ativado",
 	"opacity": "Opacidade",
 	"ok": "OK",
+	"apply": "Aplicar",
 	"style": "Estilo",
 	"remove": "Remover",
 	"removeX": "Remover %s",

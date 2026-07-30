@@ -12,12 +12,12 @@
 	"pointsAreOverlapping": "Puntos superpuestos",
 	"startRouting": "Iniciar ruta",
 	"stopRouting": "Detener ruta",
-	"appendPoint": "Añadir waypoint",
+	"appendPoint": "Añadir punto",
 	"deleteLastPoint": "Eliminar último punto",
 	"provider": "Proveedor",
 	"providerBrouter": "BRouter",
 	"providerStraightLine": "Línea recta",
-	"hintProvider": "Selecciona el motor de enrutamiento para calcular rutas entre waypoints. BRouter usa redes reales de carreteras y caminos. Línea recta dibuja una línea directa subdividida en el intervalo indicado — útil para navegación fuera de pista.",
+	"hintProvider": "Selecciona el motor de enrutamiento para calcular rutas entre puntos. BRouter usa redes reales de carreteras y caminos. Línea recta dibuja una línea directa subdividida en el intervalo indicado — útil para navegación fuera de pista.",
 	"interval": "Intervalo",
 	"hintInterval": "Distancia entre puntos de subdivisión a lo largo de la línea recta. Valores más pequeños producen líneas más suaves, pero más puntos de datos.",
 	"brouterUnavailableTitle": "BRouter no disponible",
@@ -28,7 +28,7 @@
 	"compressionModeOn": "Extendido",
 	"compressionModeAuto": "Auto",
 	"applyPrevPointProfile": "Perfil anterior",
-	"hintApplyPrevPointProfile": "Copia el perfil de enrutamiento (motor y ajustes) del waypoint anterior a este. Útil cuando segmentos consecutivos deben usar el mismo perfil.",
+	"hintApplyPrevPointProfile": "Copia el perfil de enrutamiento (motor y ajustes) del punto anterior a este. Útil cuando segmentos consecutivos deben usar el mismo perfil.",
 	"applyPrevPointProfileBtn": "Aplicar",
 	"routeProfileUsage": "{{routeCount}} puntos usan este perfil, {{prevCount}} heredan del punto anterior, {{ownCount}} tienen perfiles propios"
 }
