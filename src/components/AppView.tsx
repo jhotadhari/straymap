@@ -17,7 +17,6 @@ import {
 	Dimensions,
 	NativeSyntheticEvent,
 	PixelRatio,
-	StyleProp,
 	StyleSheet,
 	View,
 	ViewStyle,
@@ -65,7 +64,6 @@ import MapCornerComponents from './MapCornerComponents';
 import { useGnssSetup } from '../features/trackRecording/hooks/useGnssSetup';
 import { altitudeService } from '../lib/AltitudeService';
 import { addBusyKey, removeBusyKey } from '../features/ui/slice';
-import useIsShowingUiComponent from '../features/ui/hooks/useIsShowingUiComponent';
 
 const zoomMin = 2;
 const zoomMax = 20;
@@ -346,16 +344,6 @@ const AppView = ({
 		[]
 	);
 
-	const isShowingUiComponent = useIsShowingUiComponent();
-
-	const styleMap: StyleProp<ViewStyle> = useMemo(
-		() => [
-			styles.map,
-			...(isShowingUiComponent ? [styles.hidden] : []),
-		],
-		[isShowingUiComponent]
-	);
-
 	return (
 		<View style={styleContainer}>
 			{showSplash && <SplashScreen />}
@@ -365,7 +353,7 @@ const AppView = ({
 			<View style={styleAppInner}>
 				<UiItemComponent />
 
-				<View style={styleMap}>
+				<View style={styles.map}>
 					{showMap && (
 						<MapContainer
 							nativeNodeHandle={mapViewNativeNodeHandle}
@@ -422,9 +410,6 @@ const styles = StyleSheet.create({
 	map: {
 		flexDirection: 'column',
 		flexGrow: 1,
-	},
-	hidden: {
-		opacity: 0,
 	},
 });
 

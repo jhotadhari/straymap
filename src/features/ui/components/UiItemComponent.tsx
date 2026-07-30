@@ -3,7 +3,7 @@
  */
 import React, { FC, useContext, useMemo } from 'react';
 import { useTheme } from 'react-native-paper';
-import { Dimensions, ViewStyle } from 'react-native';
+import { Dimensions, StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 
 /**
  * Internal dependencies
@@ -45,7 +45,28 @@ const UiItemComponent: FC<{}> = () => {
 		]
 	);
 
-	return Component ? <Component style={style} /> : undefined;
+	const styleMapCover: StyleProp<ViewStyle> = useMemo(
+		() => [styles.mapCover, { backgroundColor: theme.colors.background }],
+		[theme]
+	);
+
+	return Component ? (
+		<>
+			<View style={styleMapCover} />
+			<Component style={style} />
+		</>
+	) : undefined;
 };
+
+const styles = StyleSheet.create({
+	mapCover: {
+		position: 'absolute',
+		top: 0,
+		left: 0,
+		right: 0,
+		bottom: 0,
+		zIndex: 90,
+	},
+});
 
 export default UiItemComponent;

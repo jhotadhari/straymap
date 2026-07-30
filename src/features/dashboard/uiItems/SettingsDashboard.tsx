@@ -34,7 +34,6 @@ const SettingsDashboard: FC<{ style?: ViewStyle }> = ({ style }) => {
 	const styleScrollView = useMemo(
 		() => [
 			style,
-			styles.scrollView,
 			{ height: mapHeight },
 		],
 		[style, mapHeight]
@@ -58,9 +57,5 @@ const SettingsDashboard: FC<{ style?: ViewStyle }> = ({ style }) => {
 		</ScrollView>
 	);
 };
-
-const styles = StyleSheet.create({
-	scrollView: { zIndex: 10 },
-});
 
 export default SettingsDashboard;
