@@ -24,6 +24,7 @@ import DrawerContext from '../DrawerContext';
 import { DRAWER_HANDLE_SIZE } from '../constants';
 import { AppContext } from '../../../Context';
 import useDropIndicatorStyle from '../../../compose/useDropIndicatorStyle';
+import { PADDING } from '../../../components/MapCornerComponents';
 
 const settingsOverwriteDrawerItem: DrawerPanel = {
 	iconSource: 'cog',
@@ -125,13 +126,18 @@ const DrawerHandles: FC<
 				maxHeight:
 					'right' === side
 						? (drawerHeight || height) -
-							(mapCornerComponentsHeight ?? 0)
+							((mapCornerComponentsHeight ?? 0) + PADDING * 2)
 						: drawerHeight || height,
 			},
 			'left' === side && styles.wrapperLeft,
 			'right' === side && styles.wrapperRight,
 		],
-		[drawerHeight, side, height, mapCornerComponentsHeight]
+		[
+			drawerHeight,
+			side,
+			height,
+			mapCornerComponentsHeight,
+		]
 	);
 
 	const styleScrollView = useMemo(
@@ -149,7 +155,7 @@ const DrawerHandles: FC<
 	const styleControlHandle: ViewProps['style'] = useMemo(
 		() => ({
 			position: 'absolute',
-			top: draggableItems.length > 1 ? getContainerHeight(draggableItems.length) : 0,
+			top: getContainerHeight(draggableItems.length),
 		}),
 		[draggableItems.length, getContainerHeight]
 	);
@@ -196,6 +202,7 @@ const DrawerHandles: FC<
 								showDropIndicator
 								dropIndicatorStyle={dropIndicatorStyle}
 								flexDirection="column"
+								flexWrap="nowrap"
 								reorderTriggerOrigin="touch"
 								alignItems="center"
 								onDragStart={handleDragStart}
@@ -219,17 +226,21 @@ const DrawerHandles: FC<
 						{(draggableItems.length === 1 ||
 							(draggableItems.length > 1 && !sortable)) &&
 							draggableItems.map((item) => (
-								<DrawerHandle
+								<View
 									key={item.key}
-									itemKey={item.key}
-									gesture={gesture}
-									panEnabled={panEnabled}
-									onPress={
-										draggableItems.length === 1
-											? handleSingleItemPress
-											: handleItemPressMap[item.key]
-									}
-								/>
+									style={styles.sortableItem}
+								>
+									<DrawerHandle
+										itemKey={item.key}
+										gesture={gesture}
+										panEnabled={panEnabled}
+										onPress={
+											draggableItems.length === 1
+												? handleSingleItemPress
+												: handleItemPressMap[item.key]
+										}
+									/>
+								</View>
 							))}
 					</View>
 
@@ -274,6 +285,7 @@ const styles = StyleSheet.create({
 	},
 	sortableItem: {
 		height: DRAWER_HANDLE_SIZE + DRAWER_HANDLE_SIZE / 2,
+		width: DRAWER_HANDLE_SIZE,
 	},
 });
 

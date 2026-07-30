@@ -10,7 +10,7 @@ import { LayoutChangeEvent, StyleSheet, View } from 'react-native';
 import { featureRegistry } from '../features/FeatureRegistry';
 import { AppContext } from '../Context';
 
-const PADDING = 8; // see node_modules/react-native-paper/src/components/IconButton/IconButton.tsx
+export const PADDING = 8; // see node_modules/react-native-paper/src/components/IconButton/IconButton.tsx
 
 const buttonSize = 18;
 
