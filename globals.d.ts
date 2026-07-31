@@ -44,5 +44,8 @@ declare module globalThis {
 
 		/** Log busyKeys changes to console. Only in __DEV__ */
 		busyKeys: boolean;
+
+		/** Log LinesMapView transitions (systemLineIds, linesToRender, simplify). Only in __DEV__ */
+		linesMapView: boolean;
 	};
 }

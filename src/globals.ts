@@ -7,4 +7,5 @@ globalThis.shouldLog = {
 	i18n: false,
 	showLayerDebug: false,
 	busyKeys: false,
+	linesMapView: false,
 };

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { useContext, useEffect, useMemo } from 'react';
+import React, { useContext, useEffect, useMemo, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { LayerPath, ReindexScope, SharedLayer, useViewportBbox } from 'react-native-mapsforge-vtm';
 
@@ -27,6 +27,66 @@ const LinesMapView = () => {
 	const selectedIds = useAppSelector(selectSelected);
 	const systemLineIds = useSystemLineIds();
 	const simplify = useSimplificationTolerance();
+
+	// ── Diagnostics: trace systemLineIds changes ────────────────────
+	const prevSystemLineIdsRef = useRef<Record<string, number>>({});
+	useEffect(() => {
+		if (!__DEV__ || !globalThis.shouldLog.linesMapView) return;
+		const prev = prevSystemLineIdsRef.current;
+		const keys = Object.keys(systemLineIds);
+		const changed =
+			keys.length !== Object.keys(prev).length ||
+			keys.some((k) => prev[k] !== systemLineIds[k]);
+		if (changed) {
+			console.log('[LinesMapView] systemLineIds changed:', {
+				prev: JSON.stringify(prev),
+				next: JSON.stringify(systemLineIds),
+			});
+		}
+		prevSystemLineIdsRef.current = { ...systemLineIds };
+	});
+
+	// ── Diagnostics: trace linesToRender changes ────────────────────
+	const prevRenderIdsRef = useRef<number[]>([]);
+	useEffect(() => {
+		if (!__DEV__ || !globalThis.shouldLog.linesMapView) return;
+		const prev = prevRenderIdsRef.current;
+		const changed =
+			prev.length !== linesToRender.length ||
+			prev.some((id, i) => id !== linesToRender[i].id);
+		if (changed) {
+			const prevIds = prev.map((id) => id);
+			const nextIds = linesToRender.map((l) => l.id);
+			const added = nextIds.filter((id) => !prevIds.includes(id));
+			const removed = prevIds.filter((id) => !nextIds.includes(id));
+			console.log('[LinesMapView] linesToRender changed:', {
+				prevCount: prev.length,
+				nextCount: nextIds.length,
+				added,
+				removed,
+				systemIdSet: [...systemIdSet],
+				lineCountFromCache: lines?.length ?? 0,
+			});
+		}
+		prevRenderIdsRef.current = [...linesToRender.map((l) => l.id)];
+	});
+
+	// ── Diagnostics: trace query key / simplify changes ─────────────
+	const prevSimplifyRef = useRef<number | undefined>(undefined);
+	useEffect(() => {
+		if (!__DEV__ || !globalThis.shouldLog.linesMapView) return;
+		if (prevSimplifyRef.current !== simplify) {
+			console.log('[LinesMapView] simplify changed:', {
+				prev: prevSimplifyRef.current,
+				next: simplify,
+				selectedCount: selectedIds.length,
+				bbox: queryBbox
+					? `${queryBbox[0].toFixed(4)},${queryBbox[1].toFixed(4)}`
+					: null,
+			});
+		}
+		prevSimplifyRef.current = simplify;
+	});
 
 	// Coarse tile-snapped bbox in the query key — DB-side spatial filter
 	// with very infrequent key changes (only on ~150 km+ pans).

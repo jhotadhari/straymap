@@ -142,6 +142,15 @@ export const setIsRouting = (newIsRouting: number | false): AppThunk => {
 			dispatch(routingSlice.actions.setIsRouting(newIsRouting));
 
 			if (!newIsRouting) {
+				if (__DEV__ && globalThis.shouldLog.linesMapView) {
+					console.log(
+						'[setIsRouting] exiting routing mode:',
+						'isRouting=',
+						isRouting,
+						'newIsRouting=',
+						newIsRouting
+					);
+				}
 				dbConnection?.queryClient &&
 					dbConnection.queryClient
 						.refetchQueries({
@@ -167,11 +176,22 @@ export const setIsRouting = (newIsRouting: number | false): AppThunk => {
 								await deleteLine(line_id);
 								await invalidateLinesQueries(dbConnection.queryClient!);
 								await invalidateTagsTable(dbConnection.queryClient!);
+								if (__DEV__ && globalThis.shouldLog.linesMapView) {
+									console.log(
+										'[setIsRouting] deleted orphaned routing line:',
+										line_id
+									);
+								}
 							}
 							// Invalidate geometry queries so LinesMapView
 							// picks up the final line geometry now that the
 							// routing line is no longer a system line.
 							await invalidateLineGeomQueries(dbConnection.queryClient!);
+							if (__DEV__ && globalThis.shouldLog.linesMapView) {
+								console.log(
+									'[setIsRouting] invalidated lineGeom queries (routing exit)'
+								);
+							}
 						});
 			}
 		}
