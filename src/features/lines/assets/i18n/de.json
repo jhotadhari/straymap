@@ -148,7 +148,7 @@
 		"imported": "System-Tag: automatisch importierten Routen zugewiesen.",
 		"routing": "System-Tag: automatisch vom Routenplanungsmodus zugewiesen."
 	},
-	"tagBadgeMode": "Tag-Abzeichen-Stil",
+	"tagBadgeMode": "Tag-Stil",
 	"tagBadgeModeContained": "Gefüllt",
 	"tagBadgeModeOutlined": "Umrandet",
 	"addToMap": "Zu Karte hinzufügen",

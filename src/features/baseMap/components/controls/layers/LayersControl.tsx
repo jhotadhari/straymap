@@ -71,7 +71,7 @@ export const mapTypeOptions: LayerOption[] = [
 	},
 ].map((opt) => ({
 	...opt,
-	label: 'map.typeDesc.' + opt.key,
+	label: 'baseMap.typeDesc.' + opt.key,
 }));
 
 export const itemHeight = 56;
@@ -253,7 +253,7 @@ const OptionSelectType: FC<{
 		<RadioListItem
 			opt={option}
 			onPress={onPress}
-			labelExtractor={(a) => a.key}
+			labelExtractor={(a) => '[' + a.key + ']'}
 			descExtractor={(a) => a.label}
 		/>
 	);

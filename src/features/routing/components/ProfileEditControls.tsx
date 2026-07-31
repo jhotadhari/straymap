@@ -40,15 +40,15 @@ const providerOptions = [
 const vehicleOptions = [
 	{
 		key: 'motorcar',
-		label: 'motorcar',
+		label: 'routing.vehicleMotorcar',
 	},
 	{
 		key: 'bicycle',
-		label: 'bicycle',
+		label: 'routing.vehicleBicycle',
 	},
 	{
 		key: 'foot',
-		label: 'foot',
+		label: 'routing.vehicleFoot',
 	},
 ];
 
@@ -152,7 +152,7 @@ const VehicleRowControl: React.FC<{
 				options={vehicleOptions}
 				value={get(selectedOpt, 'key')}
 				setValue={handleSetVehicle}
-				anchorLabel={get(selectedOpt, 'label', '')}
+				anchorLabel={t(get(selectedOpt, 'label', ''))}
 			/>
 		</InfoLabelRow>
 	);

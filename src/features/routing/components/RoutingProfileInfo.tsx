@@ -34,8 +34,8 @@ const RoutingProfileInfo: FC<{
 			)}
 			{profile.provider === 'brouter' && (
 				<>
-					<Text>{profile.options.v}</Text>
-					<Text>{profile.options.fast ? t('routing.fast') : 'slow'}</Text>
+					<Text>{t(`routing.vehicle${profile.options.v.charAt(0).toUpperCase() + profile.options.v.slice(1)}`)}</Text>
+					<Text>{profile.options.fast ? t('routing.fast') : t('routing.slow')}</Text>
 				</>
 			)}
 			{profile.provider === 'straightLine' && (

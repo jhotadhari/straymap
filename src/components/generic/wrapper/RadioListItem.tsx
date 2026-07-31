@@ -85,7 +85,14 @@ const RadioListItem = ({
 		[theme, labelStyle]
 	);
 
-	const styleDesc = useMemo(() => [theme.fonts.bodySmall, descStyle], [theme, descStyle]);
+	const styleDesc = useMemo(
+		() => 		[
+			theme.fonts.bodySmall,
+			{ color: theme.colors.onSurfaceVariant, opacity: 0.7 },
+			descStyle,
+		],
+		[theme, descStyle]
+	);
 
 	return (
 		<TouchableHighlight
