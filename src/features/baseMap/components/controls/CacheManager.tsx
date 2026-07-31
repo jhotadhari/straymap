@@ -22,8 +22,13 @@ import { setElementExpanded } from '../../../ui/slice';
 import { selectAppDirs } from '../../../dirs/selectors';
 import useCacheDirsInfo from '../../../dirs/hooks/useCacheDirsInfo';
 import { CacheDir, CacheSubDir } from '../../../dirs/types';
-import { getHillshadingCacheDirChild, resolveCacheDirBase, stringifyProp } from '../../utils';
-import { selectLayers } from '../../selectors';
+import {
+	getHillshadingCacheDirChild,
+	getLayerLabel,
+	resolveCacheDirBase,
+	stringifyProp,
+} from '../../utils';
+import { selectHgtDirPath, selectLayers } from '../../selectors';
 import { sharedStyles } from '../../../../sharedStyles';
 
 const CacheRow = ({
@@ -38,6 +43,8 @@ const CacheRow = ({
 	updateCacheDirs: () => void;
 }) => {
 	const [deleting, setDeleting] = useState(false);
+
+	const appHgtDirPath = useAppSelector(selectHgtDirPath);
 
 	const { t } = useTranslation();
 
@@ -85,7 +92,15 @@ const CacheRow = ({
 							? t('baseMap.layer', { count: cacheLayers.length }) + ': '
 							: t('baseMap.noLayerUseCache')}
 						{cacheLayers.length
-							? cacheLayers.map((layer) => layer.name).join(', ')
+							? cacheLayers
+									.map((layer) => {
+										const result = getLayerLabel(layer, {
+											fallback: 'baseMap.label',
+											appHgtDirPath,
+										});
+										return result ? t(result.key, result.params ?? {}) : '';
+									})
+									.join(', ')
 							: ''}
 					</Text>
 				</View>
@@ -179,6 +194,29 @@ const CacheManager = () => {
 		updateCacheDirs,
 	]);
 
+	const [isSweeping, setIsSweeping] = useState(false);
+	const handleSweep = useCallback(() => {
+		setIsSweeping(true);
+		const unusedPaths: string[] = [];
+		cacheDirs.forEach((cacheDir: CacheDir) => {
+			cacheDir.caches.forEach((cache: CacheSubDir) => {
+				const pathFull = [cacheDir.path, cache.basename].join('/');
+				if (findLayers(pathFull).length === 0) {
+					unusedPaths.push(pathFull);
+				}
+			});
+		});
+		Promise.all(unusedPaths.map((path) => FsModule.deleteDir(path)))
+			.finally(() => {
+				setIsSweeping(false);
+				updateCacheDirs();
+			});
+	}, [cacheDirs, findLayers, updateCacheDirs]);
+
+	const buttonProps = useButtonProps({
+		disabled: isSweeping,
+	});
+
 	return (
 		<List.Accordion
 			title={t('baseMap.cacheManager')}
@@ -214,6 +252,18 @@ const CacheManager = () => {
 						</View>
 					);
 				})}
+
+				<View style={sharedStyles.modalControls}>
+					{isSweeping ? <LoadingIndicator /> : <View />}
+
+					<ButtonHighlight
+						{...buttonProps}
+						icon={'delete-sweep-outline'}
+						onPress={handleSweep}
+					>
+						{t('baseMap.sweepCaches')}
+					</ButtonHighlight>
+				</View>
 			</View>
 		</List.Accordion>
 	);
@@ -252,6 +302,7 @@ const styles = StyleSheet.create({
 	cacheDirRow: {
 		marginLeft: -12,
 		gap: 16,
+		marginBottom: 16,
 	},
 	deleteAction: {
 		marginRight: -8,

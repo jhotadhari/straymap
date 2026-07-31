@@ -13,8 +13,9 @@ import { useTranslation } from 'react-i18next';
 import InfoButton from '../../../components/generic/infoWrapper/InfoButton';
 import { sourceOptions } from '../components/controls/layers/LayerControlOnlineRasterXYZ';
 import { useAppSelector } from '../../../store/hooks';
-import { selectLayerInfos, selectLayers } from '../selectors';
+import { selectHgtDirPath, selectLayerInfos, selectLayers } from '../selectors';
 import { LayerConfig, LayerInfo } from '../types';
+import { getLayerLabel } from '../utils';
 
 type AttributionConf = {
 	key: string;
@@ -51,17 +52,23 @@ const Inner = ({ layerInfos }: { layerInfos: { [value: string]: LayerInfo } }) =
 	const { t } = useTranslation();
 
 	const layers = useAppSelector(selectLayers);
+	const appHgtDirPath = useAppSelector(selectHgtDirPath);
 
 	const attributions: AttributionConf[] = layers
 		.filter((layer) => {
 			return layer.type && layer.visible;
 		})
 		.map((layer: LayerConfig) => {
+			const labelResult = getLayerLabel(layer, {
+				fallback: 'baseMap.label',
+				appHgtDirPath,
+			});
+			const name = labelResult ? t(labelResult.key, labelResult.params ?? {}) : '';
 			switch (layer.type) {
 				case 'online-raster-xyz':
 					return {
 						key: layer.key,
-						name: layer.name,
+						name,
 						type: layer.type,
 						Component: get(
 							sourceOptions.find((opt) => opt.url === get(layer.options, 'url', '')),
@@ -73,7 +80,7 @@ const Inner = ({ layerInfos }: { layerInfos: { [value: string]: LayerInfo } }) =
 				case 'mapsforge':
 					return {
 						key: layer.key,
-						name: layer.name,
+						name,
 						type: layer.type,
 						Component: () => (
 							<LayerInfoComponent layerInfo={get(layerInfos, layer.key)} />

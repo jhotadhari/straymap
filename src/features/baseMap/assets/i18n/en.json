@@ -127,5 +127,6 @@
 			"hint": "Number between 0 and 1.\n\nWhen 1 the reference direction (NW by default) slopes will get minimal shading (max asymmetry effect),\n\nwhen 0 the shading will be symmetrical in all directions (no asymmetry effect).\n\nAny value larger than 0 will make the shading smoothly asymmetrical, with slopes closer to the reference direction less shaded than slopes in the opposite direction as the factor increases.\n\nThe default is 0.5"
 		}
 	},
-	"cacheManager": "Cache manager"
+	"cacheManager": "Cache manager",
+	"sweepCaches": "Sweep all unused caches"
 }

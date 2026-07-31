@@ -127,5 +127,6 @@
 			"hint": "Número entre 0 y 1.\n\nCuando es 1, las pendientes en la dirección de referencia (NO por defecto) tendrán un sombreado mínimo (efecto de asimetría máximo),\n\ncuando es 0, el sombreado será simétrico en todas las direcciones (sin efecto de asimetría).\n\nCualquier valor mayor que 0 hará que el sombreado sea suavemente asimétrico, con las pendientes más cercanas a la dirección de referencia menos sombreadas que las pendientes en la dirección opuesta a medida que el factor aumenta.\n\nEl valor predeterminado es 0.5"
 		}
 	},
-	"cacheManager": "Gestor de caché"
+	"cacheManager": "Gestor de caché",
+	"sweepCaches": "Eliminar todos los cachés no utilizados"
 }
