@@ -179,13 +179,14 @@ const ItemControl: FC<{}> = ({}) => {
 		mode: 'outlined',
 	});
 
+	const controlContextValue = useMemo(
+		() => ({ position }),
+		[position]
+	);
+
 	return (
 		item && (
-			<ControlContext.Provider
-				value={{
-					position,
-				}}
-			>
+			<ControlContext.Provider value={controlContextValue}>
 				<List.Accordion
 					title={sprintf(t('dashboard.dashboardItem') + ': %s', t(label ?? ''))}
 					left={ControlIcon}

@@ -108,13 +108,22 @@ export const useScrollSafePress = (onPress: () => void) => {
 		touchStartRef.current = null;
 	}, []);
 
-	return {
-		onStartShouldSetResponder: handleStartShouldSetResponder,
-		onResponderGrant: handleResponderGrant,
-		onResponderMove: handleResponderMove,
-		onResponderRelease: handleResponderRelease,
-		onResponderTerminate: handleResponderTerminate,
-	};
+	return useMemo(
+		() => ({
+			onStartShouldSetResponder: handleStartShouldSetResponder,
+			onResponderGrant: handleResponderGrant,
+			onResponderMove: handleResponderMove,
+			onResponderRelease: handleResponderRelease,
+			onResponderTerminate: handleResponderTerminate,
+		}),
+		[
+			handleStartShouldSetResponder,
+			handleResponderGrant,
+			handleResponderMove,
+			handleResponderRelease,
+			handleResponderTerminate,
+		]
+	);
 };
 
 export const SORT_ICON_SIZE = 16;

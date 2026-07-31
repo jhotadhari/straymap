@@ -220,7 +220,6 @@ export const DashboardWrapped: FC<{
 				onDragEnd={handleDragEnd}
 				onPressItem={handleItemPress}
 				shouldSetBottomBarHeight={'bottom' === position}
-				shouldSetTopBarHeight={'top' === position}
 			/>
 		);
 	} else {

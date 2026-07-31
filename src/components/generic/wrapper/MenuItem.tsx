@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { ElementType, ReactNode, useMemo } from 'react';
+import { ElementType, memo, ReactNode, useMemo } from 'react';
 import { Style as ListStyle } from 'react-native-paper/lib/typescript/components/List/utils';
 import { useTheme, Icon, Text } from 'react-native-paper';
 import { StyleSheet, View, TouchableHighlight, ViewStyle, TextStyle } from 'react-native';
@@ -128,4 +128,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export default MenuItem;
+export default memo(MenuItem);

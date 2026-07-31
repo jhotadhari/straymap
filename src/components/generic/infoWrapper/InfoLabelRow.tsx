@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { ReactNode, useCallback, useMemo, useState } from 'react';
+import { memo, ReactNode, useCallback, useMemo, useState } from 'react';
 import { View, TouchableHighlight, StyleSheet, ViewProps, TextProps } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
 
@@ -127,4 +127,4 @@ export const styles = StyleSheet.create({
 	},
 });
 
-export default InfoLabelRow;
+export default memo(InfoLabelRow);

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { View } from 'react-native';
 import { Icon } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -33,6 +33,8 @@ const HgtControl = () => {
 		[dispatch]
 	);
 
+	const hgtOptions = useMemo(() => ({ hgtDirPath }), [hgtDirPath]);
+
 	return (
 		<ListItemModalControl
 			anchorLabel={t('dem')}
@@ -48,7 +50,7 @@ const HgtControl = () => {
 			header={t('dem')}
 		>
 			<HgtSourceRowControl
-				options={{ hgtDirPath }}
+				options={hgtOptions}
 				setOptions={handleSetHgtDirPath}
 				optKey={'hgtDirPath'}
 				dirs={get(appDirs, 'dem', [])}

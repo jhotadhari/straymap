@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { FC, useEffect } from 'react';
+import { FC, useEffect, useMemo } from 'react';
 
 import { useTheme } from 'react-native-paper';
 import Animated, {
@@ -35,14 +35,17 @@ const LoadingIndicator: FC<{
 	const dimension = typeof size === 'number' ? size : size === 'large' ? 48 : 24;
 	const borderWidth = dimension / 10;
 
-	const ringStyle = {
-		width: dimension,
-		height: dimension,
-		borderRadius: dimension / 2,
-		borderWidth,
-		borderColor: 'transparent',
-		borderTopColor: theme.colors.primary,
-	};
+	const ringStyle = useMemo(
+		() => ({
+			width: dimension,
+			height: dimension,
+			borderRadius: dimension / 2,
+			borderWidth,
+			borderColor: 'transparent' as const,
+			borderTopColor: theme.colors.primary,
+		}),
+		[dimension, borderWidth, theme.colors.primary]
+	);
 
 	return (
 		<Animated.View

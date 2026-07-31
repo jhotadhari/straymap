@@ -41,6 +41,8 @@ const HEADER_ID = -1;
 
 const HEADER_SENTINEL = { id: HEADER_ID } as Tag & { line_count: number };
 
+const STICKY_HEADER_INDICES = [0];
+
 const keyExtractor = (tag: Tag & { line_count: number }) => tag.id.toString();
 
 const TagTableRowMemo = memo(TagTableRow, (prevProps, nextProps) => {
@@ -196,10 +198,31 @@ const TagsTable: FC = () => {
 			]
 		);
 
+	const columnHeaderMenuContextValue = useMemo(
+		() => ({ openFilterForColumn }),
+		[openFilterForColumn]
+	);
+
+	const headerContextValue = useMemo(
+		() => ({ checkedIds }),
+		[checkedIds]
+	);
+
+	const footerContextValue = useMemo(
+		() => ({
+			checkedIds,
+			tagIds,
+			tagsCount: tags?.length || 0,
+			tags: tags ?? [],
+			setCheckedIds,
+		}),
+		[checkedIds, tagIds, tags, setCheckedIds]
+	);
+
 	return (
-		<ColumnHeaderMenuContext.Provider value={{ openFilterForColumn }}>
+		<ColumnHeaderMenuContext.Provider value={columnHeaderMenuContextValue}>
 			<View style={tableStyles.container}>
-				<HeaderContext.Provider value={{ checkedIds }}>
+				<HeaderContext.Provider value={headerContextValue}>
 					<TagHeader />
 				</HeaderContext.Provider>
 
@@ -217,7 +240,7 @@ const TagsTable: FC = () => {
 					)}
 					<BidirectionalScrollHost style={styles.flexOne}>
 						<FlashList
-							stickyHeaderIndices={[0]}
+							stickyHeaderIndices={STICKY_HEADER_INDICES}
 							scrollEnabled={false}
 							data={dataWithHeader}
 							keyExtractor={keyExtractor}
@@ -232,15 +255,7 @@ const TagsTable: FC = () => {
 					</BidirectionalScrollHost>
 				</View>
 
-				<FooterContext.Provider
-					value={{
-						checkedIds,
-						tagIds,
-						tagsCount: tags?.length || 0,
-						tags: tags ?? [],
-						setCheckedIds,
-					}}
-				>
+				<FooterContext.Provider value={footerContextValue}>
 					<TagFooter />
 				</FooterContext.Provider>
 

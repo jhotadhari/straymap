@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { ReactNode, useMemo } from 'react';
+import { memo, ReactNode, useMemo } from 'react';
 import {
 	Dimensions,
 	StyleSheet,
@@ -136,4 +136,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export default RadioListItem;
+export default memo(RadioListItem);

@@ -17,6 +17,14 @@ const TagBulkActions: FC = () => {
 
 	const actionList = useMemo(() => Object.values(actions), [actions]);
 
+	const buttonPropsProps = useMemo(
+		() => ({
+			mode: 'text' as const,
+			disabled: !checkedIds.length,
+		}),
+		[checkedIds.length]
+	);
+
 	return (
 		<Fragment>
 			{actionList.map((action) =>
@@ -29,10 +37,7 @@ const TagBulkActions: FC = () => {
 				options={actionList}
 				anchorIconNested="square-edit-outline"
 				compact
-				buttonPropsProps={{
-					mode: 'text',
-					disabled: !checkedIds.length,
-				}}
+				buttonPropsProps={buttonPropsProps}
 			/>
 		</Fragment>
 	);

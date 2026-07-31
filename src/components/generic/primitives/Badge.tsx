@@ -1,8 +1,7 @@
-/* eslint-disable react-native/no-inline-styles */
 /**
  * External dependencies
  */
-import { FC } from 'react';
+import { FC, useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
 
@@ -17,24 +16,23 @@ const Badge: FC<{
 	label?: string | null;
 }> = ({ badgeMode, color, label }) => {
 	const isOutlined = badgeMode === 'outlined';
+
+	const badgeStyle = useMemo(
+		() => ({
+			backgroundColor: isOutlined ? 'transparent' : color.bg,
+			borderColor: isOutlined ? color.bg : color.border,
+		}),
+		[isOutlined, color.bg, color.border]
+	);
+
+	const labelStyle = useMemo(
+		() => (isOutlined ? undefined : { color: color.fg }),
+		[isOutlined, color.fg]
+	);
+
 	return (
-		<View
-			style={[
-				styles.badge,
-				{
-					backgroundColor: isOutlined ? 'transparent' : color.bg,
-					borderColor: isOutlined ? color.bg : color.border,
-				},
-			]}
-		>
-			<Text
-				style={[
-					styles.label,
-					isOutlined ? undefined : { color: color.fg },
-				]}
-			>
-				{label ?? ''}
-			</Text>
+		<View style={[styles.badge, badgeStyle]}>
+			<Text style={[styles.label, labelStyle]}>{label ?? ''}</Text>
 		</View>
 	);
 };

@@ -48,6 +48,8 @@ const HEADER_ID = -1;
 
 const HEADER_SENTINEL = { id: HEADER_ID } as Omit<Line, 'geometry'>;
 
+const STICKY_HEADER_INDICES = [0];
+
 const keyExtractor = (line: { id: number }) => line.id.toString();
 
 const TableRowMemo = memo(
@@ -293,14 +295,33 @@ const LinesTable: FC = () => {
 		]
 	);
 
+	const columnHeaderMenuContextValue = useMemo(
+		() => ({ openFilterForColumn }),
+		[openFilterForColumn]
+	);
+
+	const headerContextValue = useMemo(
+		() => ({ checkedIds }),
+		[checkedIds]
+	);
+
+	const footerContextValue = useMemo(
+		() => ({
+			checkedIds,
+			lineIds,
+			linesCount: lines?.length || 0,
+			setCheckedIds,
+			setOnMapIdsTemp,
+			routingLineId,
+			routeId,
+		}),
+		[checkedIds, lineIds, lines, setCheckedIds, setOnMapIdsTemp, routingLineId, routeId]
+	);
+
 	return (
-		<ColumnHeaderMenuContext.Provider value={{ openFilterForColumn }}>
+		<ColumnHeaderMenuContext.Provider value={columnHeaderMenuContextValue}>
 			<View style={tableStyles.container}>
-				<HeaderContext.Provider
-					value={{
-						checkedIds,
-					}}
-				>
+				<HeaderContext.Provider value={headerContextValue}>
 					<Header />
 				</HeaderContext.Provider>
 
@@ -318,7 +339,7 @@ const LinesTable: FC = () => {
 					)}
 					<BidirectionalScrollHost style={styles.flexOne}>
 						<FlashList
-							stickyHeaderIndices={[0]}
+							stickyHeaderIndices={STICKY_HEADER_INDICES}
 							scrollEnabled={false}
 							data={dataWithHeader}
 							keyExtractor={keyExtractor}
@@ -333,17 +354,7 @@ const LinesTable: FC = () => {
 					</BidirectionalScrollHost>
 				</View>
 
-				<FooterContext.Provider
-					value={{
-						checkedIds,
-						lineIds,
-						linesCount: lines?.length || 0,
-						setCheckedIds,
-						setOnMapIdsTemp,
-						routingLineId,
-						routeId,
-					}}
-				>
+				<FooterContext.Provider value={footerContextValue}>
 					<Footer />
 
 					<LineEditModalWrapper />

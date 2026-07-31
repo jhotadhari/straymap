@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { View } from 'react-native';
 import { Icon, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -86,6 +86,15 @@ const CenterControl = () => {
 		]
 	);
 
+	const cursorPreview = useMemo(
+		() => ({
+			...cursorConfig,
+			size: 25,
+			color: theme.colors.onBackground,
+		}),
+		[cursorConfig, theme.colors.onBackground]
+	);
+
 	return (
 		<ListItemModalControl
 			anchorLabel={'Cursor'}
@@ -99,15 +108,11 @@ const CenterControl = () => {
 						/>
 					)}
 
-					{cursorConfig?.iconSource && (
-						<CenterInner
-							cursor={{
-								...cursorConfig,
-								size: 25,
-								color: theme.colors.onBackground,
-							}}
-						/>
-					)}
+				{cursorConfig?.iconSource && (
+					<CenterInner
+						cursor={cursorPreview}
+					/>
+				)}
 				</View>
 			)}
 			header={t('appearance.cursor')}

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { ReactNode, useMemo } from 'react';
+import { memo, ReactNode, useMemo } from 'react';
 import { useTheme, Icon, Text } from 'react-native-paper';
 import { StyleSheet, View, TouchableHighlight, ViewStyle } from 'react-native';
 import { Style as ListStyle } from 'react-native-paper/lib/typescript/components/List/utils';
@@ -72,4 +72,4 @@ const styles = StyleSheet.create({
 	iconWrapper: { marginRight: 10 },
 });
 
-export default ListItem;
+export default memo(ListItem);
