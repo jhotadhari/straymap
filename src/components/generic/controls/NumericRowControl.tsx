@@ -70,7 +70,7 @@ const NumericRowControl = ({
 				} else if (value !== undefined) {
 					// No onClear — reset to previous value.
 					const prevNb = strValToNb(value + '', numType);
-					if ('number' === typeof prevNb && !isNaN(prevNb)) {
+					if ('number' === typeof prevNb && !Number.isNaN(prevNb)) {
 						setVal(prevNb + '');
 					}
 				}
@@ -79,12 +79,12 @@ const NumericRowControl = ({
 			let newValNb = strValToNb(val, numType);
 			if (
 				'number' !== typeof newValNb ||
-				isNaN(newValNb) ||
+				Number.isNaN(newValNb) ||
 				(validate && !validate(newValNb))
 			) {
 				// reset val
 				newValNb = value !== undefined ? strValToNb(value + '', numType) : NaN;
-				if ('number' === typeof newValNb && !isNaN(newValNb)) {
+				if ('number' === typeof newValNb && !Number.isNaN(newValNb)) {
 					setVal(newValNb + '');
 				} else {
 					setVal('');
@@ -175,6 +175,7 @@ const NumericRowControl = ({
 	}, [keyboardShown]);
 
 	const handleBlur = useCallback(() => {
+		if (!isFocusedRef.current) return;
 		isFocusedRef.current = false;
 		handleBlurCbRef?.current && handleBlurCbRef?.current();
 	}, []);

@@ -489,6 +489,7 @@ const LayersControl: FC<{
 		({ indexToKey }: SortableFlexDragEndParams) => {
 			setScrollEnabled(true);
 			const newLayers = indexToKey
+				// SortableFlex appends '.$' to keys during drag; strip it back to the original key
 				.map((toKey) => layers.find((layer) => layer.key === toKey.replace('.$', '')))
 				.filter((a): a is LayerConfig => !!a);
 			dispatch(

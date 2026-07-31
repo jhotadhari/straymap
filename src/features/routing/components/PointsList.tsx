@@ -420,6 +420,7 @@ const PointsList: FC = () => {
 	const handleDragStart = useCallback(
 		(params: DragStartParams) => {
 			setScrollEnabled(false);
+			// SortableFlex appends '.$' to keys during drag; strip it back to the original key
 			const newDraggingItemIndex = points.findIndex(
 				(point) => point.id === parseInt(params.key.replace('.$', ''), 10)
 			);
@@ -432,6 +433,7 @@ const PointsList: FC = () => {
 		({ indexToKey }: SortableFlexDragEndParams) => {
 			const newPoints: RoutingPoint[] = indexToKey
 				.map((toKey) => {
+					// SortableFlex appends '.$' to keys during drag; strip it back to the original key
 					return points.find((point) => point.key === toKey.replace('.$', ''));
 				})
 				.filter((a) => !!a)

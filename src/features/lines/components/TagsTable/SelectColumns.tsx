@@ -108,6 +108,7 @@ const TagSelectColumns: FC = () => {
 		({ indexToKey }: SortableFlexDragEndParams) => {
 			const newTableColumnsTemp: TableColumn[] = indexToKey
 				.map((toKey) =>
+					// SortableFlex appends '.$' to keys during drag; strip it back to the original key
 					tableColumnsTemp.find((column) => column.key === toKey.replace('.$', ''))
 				)
 				.filter((column): column is TableColumn => !!column);

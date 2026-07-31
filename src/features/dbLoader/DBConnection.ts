@@ -27,7 +27,7 @@ class DBConnection {
 	async open(dbPath: string) {
 		this.setDbOp(dbPath);
 		this.drizzle = drizzle(this.op!, {
-			logger: shouldLog.drizzle,
+			logger: globalThis.shouldLog.drizzle,
 			schema,
 		});
 
@@ -43,9 +43,10 @@ class DBConnection {
 	}
 
 	async countPendingMigrations(): Promise<number> {
+		if (!this.op) throw new Error('DB not opened. Call open() first.');
 		const totalMigrations = migrations.journal.entries.length;
 		try {
-			const result = await this.op!.execute(
+			const result = await this.op.execute(
 				'SELECT COUNT(*) as count FROM "__drizzle_migrations"'
 			);
 			if (result?.rows?.length) {
@@ -59,10 +60,11 @@ class DBConnection {
 	}
 
 	async runMigrations() {
-		await migrate(this.drizzle!, migrations);
+		if (!this.drizzle) throw new Error('DB not opened. Call open() first.');
+		await migrate(this.drizzle, migrations);
 	}
 
-	setDbOp(dbPath: string) {
+	private setDbOp(dbPath: string) {
 		const dbPathParts = dbPath.split('/');
 		const conf = {
 			location:
@@ -72,11 +74,17 @@ class DBConnection {
 			name: dbPathParts.length > 1 ? dbPathParts[dbPathParts.length - 1] : dbPathParts[0],
 		};
 		this.op = open(conf);
-		this.op.loadExtension('libspatialite', 'sqlite3_modspatialite_init');
+		try {
+			this.op.loadExtension('libspatialite', 'sqlite3_modspatialite_init');
+		} catch (e) {
+			throw new Error(
+				`Failed to load libspatialite: ${e instanceof Error ? e.message : String(e)}`
+			);
+		}
 	}
 
 	setQueryClient() {
-		if (this?.queryClient) {
+		if (this.queryClient) {
 			this.queryClient.cancelQueries();
 		}
 		this.queryClient = new QueryClient({

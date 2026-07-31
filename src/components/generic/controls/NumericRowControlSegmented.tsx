@@ -76,7 +76,7 @@ const NumericRowControlSegmented = ({
 			let newValNb = strValToNb(val, numType);
 			if (
 				'number' !== typeof newValNb ||
-				isNaN(newValNb) ||
+				Number.isNaN(newValNb) ||
 				(validate && !validate(newValNb))
 			) {
 				// reset val
@@ -138,7 +138,7 @@ const NumericRowControlSegmented = ({
 		(newVal: string) => {
 			if (validate) {
 				let newValNb = strValToNb(newVal, numType);
-				if ('number' !== typeof newValNb || isNaN(newValNb) || !validate(newValNb)) {
+				if ('number' !== typeof newValNb || Number.isNaN(newValNb) || !validate(newValNb)) {
 					setIsValid(false);
 				} else {
 					setIsValid(true);
@@ -162,6 +162,7 @@ const NumericRowControlSegmented = ({
 	);
 
 	const handleBlur = useCallback(() => {
+		if (!isFocusedRef.current) return;
 		isFocusedRef.current = false;
 		handleBlurCbRef?.current && handleBlurCbRef?.current();
 	}, []);

@@ -585,6 +585,7 @@ const ProfilesControl: FC<{
 		({ indexToKey }: SortableFlexDragEndParams) => {
 			setScrollEnabled(true);
 			const newProfiles = indexToKey
+				// SortableFlex appends '.$' to keys during drag; strip it back to the original key
 				.map((toKey) => profiles.find((profile) => profile.key === toKey.replace('.$', '')))
 				.filter((a): a is MapsforgeProfile => !!a);
 			dispatch(

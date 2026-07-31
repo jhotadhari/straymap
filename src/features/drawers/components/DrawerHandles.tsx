@@ -81,6 +81,7 @@ const DrawerHandles: FC<
 			dispatch(
 				setItemKeys({
 					side,
+					// SortableFlex appends '.$' to keys during drag; strip it back to the original key
 					itemKeys: indexToKey.map((toKey) => toKey.replace('.$', '')),
 				})
 			);
@@ -189,6 +190,7 @@ const DrawerHandles: FC<
 				<View style={styleContainer}>
 					<View>
 						{draggableItems.length > 1 && sortable && (
+							// Intentional: long-press with no visual feedback, drag starts only after 500ms hold
 							<Sortable.Flex
 								itemEntering={null}
 								gap={0}

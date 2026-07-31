@@ -125,6 +125,7 @@ const DrawerHandle = ({
 
 	return (
 		<View style={containerStyle}>
+			{/* RNGH 3.x mixed v2/v3 types: ComposedGesture (v3) | GestureType (v2) doesn't resolve against GestureDetector's union; as any is required */}
 			<GestureDetector gesture={gesture as any}>{handlesNode}</GestureDetector>
 		</View>
 	);

@@ -66,4 +66,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export default RoutingProfileInfo;
+export default React.memo(RoutingProfileInfo);

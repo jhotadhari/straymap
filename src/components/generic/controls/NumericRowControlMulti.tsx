@@ -86,12 +86,12 @@ const NumericRowControlMulti = ({
 				let newValNb = strValToNb(vals[idx], numType);
 				if (
 					'number' !== typeof newValNb ||
-					isNaN(newValNb) ||
+					Number.isNaN(newValNb) ||
 					(validate && !validate(newValNb))
 				) {
 					const prevVal = values[idx];
 					newValNb = prevVal !== undefined ? strValToNb(prevVal + '', numType) : NaN;
-					if ('number' === typeof newValNb && !isNaN(newValNb)) {
+					if ('number' === typeof newValNb && !Number.isNaN(newValNb)) {
 						setVals((v) => {
 							const nv = [...v];
 							nv[idx] = newValNb + '';
@@ -159,6 +159,8 @@ const NumericRowControlMulti = ({
 		saveOnTypeCbRef?.current && saveOnTypeCbRef.current();
 	}, [vals]);
 
+	// Both TextInputs share a single set of focus-tracking refs — the component
+	// treats both inputs as a single "focused" unit for blur-on-keyboard-dismiss.
 	const isFocusedRef = useRef(false);
 	const wasKeyboardShownRef = useRef(false);
 	const { keyboardShown } = useKeyboardShown();
@@ -224,6 +226,7 @@ const NumericRowControlMulti = ({
 	);
 
 	const handleBlur = useCallback(() => {
+		if (!isFocusedRef.current) return;
 		isFocusedRef.current = false;
 		handleBlurCbRef?.current && handleBlurCbRef?.current();
 	}, []);

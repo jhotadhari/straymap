@@ -131,7 +131,7 @@ const useDrawerState = ({
 	const gesture = useMemo(
 		() =>
 			Gesture.Pan()
-				.activeOffsetX([-2, 2])
+				.activeOffsetX([-10, 10])
 				.failOffsetY([-10, 10])
 				.minDistance(1)
 				.onStart(() => {

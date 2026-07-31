@@ -163,6 +163,7 @@ export const DashboardWrapped: FC<{
 
 	const handleDragStart = useCallback(
 		(event: DragStartParams) => {
+			// SortableFlex appends '.$' to keys during drag; strip it back to the original key
 			dispatch(setEditItemKey(event.key.replace('.$', '')));
 		},
 		[
@@ -188,6 +189,7 @@ export const DashboardWrapped: FC<{
 					position,
 					items: indexToKey
 						.map((toKey) => {
+							// SortableFlex appends '.$' to keys during drag; strip it back to the original key
 							return items.find((item) => item.key === toKey.replace('.$', ''));
 						})
 						.filter((a) => !!a),
