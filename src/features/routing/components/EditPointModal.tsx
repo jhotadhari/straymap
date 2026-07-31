@@ -2,7 +2,7 @@
  * External dependencies
  */
 import React, { Dispatch, FC, SetStateAction, useCallback, useMemo } from 'react';
-import { SegmentedButtons } from 'react-native-paper';
+import { SegmentedButtons, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { isEqual } from 'lodash-es';
 import { useMutation, UseMutationOptions } from '@tanstack/react-query';
@@ -48,6 +48,7 @@ const EditPointModal: FC<{
 	const dispatch = useAppDispatch();
 
 	const { t } = useTranslation();
+	const theme = useTheme();
 
 	const unitPrefs = useAppSelector(selectUnitPrefs);
 	const distUnit = unitPrefs.distance;
@@ -219,6 +220,16 @@ const EditPointModal: FC<{
 		[t]
 	);
 
+	const segmentedButtonsTheme = useMemo(
+		() => ({
+			colors: {
+				secondaryContainer: theme.colors.primaryContainer,
+				textColor: theme.colors.onPrimaryContainer,
+			},
+		}),
+		[theme.colors.primaryContainer, theme.colors.onPrimaryContainer]
+	);
+
 	return (
 		<ModalWrapper
 			visible={true}
@@ -229,6 +240,7 @@ const EditPointModal: FC<{
 			<SegmentedButtons
 				value={inheritMode}
 				onValueChange={handleSetInheritMode}
+				theme={segmentedButtonsTheme}
 				buttons={segmentButtons}
 			/>
 

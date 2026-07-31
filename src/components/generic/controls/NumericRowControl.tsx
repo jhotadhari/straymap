@@ -9,6 +9,7 @@ import { useTheme, TextInput } from 'react-native-paper';
  * Internal dependencies
  */
 import InfoLabelRow from '../infoWrapper/InfoLabelRow';
+import useKeyboardShown from '../../../compose/useKeyboardShown';
 import { strValToNb } from '../../../lib/utils';
 import { NumType } from '../../../types';
 
@@ -161,10 +162,25 @@ const NumericRowControl = ({
 		[theme]
 	);
 
-	const handleBlur = useCallback(
-		() => handleBlurCbRef?.current && handleBlurCbRef?.current(),
-		[]
-	);
+	const isFocusedRef = useRef(false);
+	const wasKeyboardShownRef = useRef(false);
+	const { keyboardShown } = useKeyboardShown();
+
+	useEffect(() => {
+		if (wasKeyboardShownRef.current && !keyboardShown && isFocusedRef.current) {
+			handleBlurCbRef?.current && handleBlurCbRef.current();
+		}
+		wasKeyboardShownRef.current = keyboardShown;
+	}, [keyboardShown]);
+
+	const handleBlur = useCallback(() => {
+		isFocusedRef.current = false;
+		handleBlurCbRef?.current && handleBlurCbRef?.current();
+	}, []);
+
+	const handleFocus = useCallback(() => {
+		isFocusedRef.current = true;
+	}, []);
 
 	const styleInput = useMemo(() => [styles.flexGrow, inputStyle], [inputStyle]);
 
@@ -182,6 +198,7 @@ const NumericRowControl = ({
 				theme={overwriteTheme}
 				onChangeText={handleChangeText}
 				onBlur={handleBlur}
+				onFocus={handleFocus}
 				value={val}
 				keyboardType="numeric"
 			/>

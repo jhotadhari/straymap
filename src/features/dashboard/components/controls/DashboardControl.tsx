@@ -211,19 +211,6 @@ const DashboardControl: FC = () => {
 					/>
 
 					<View style={styles.newItemRow}>
-						{/* <InfoButton
-							label={t('dashboard.dashboardItem', { count: 0 })}
-							headerPlural={true}
-							backgroundBlur={false}
-							Info={t('dashboard.hint.items')}
-							buttonProps={{
-								style: { marginTop: 0, marginBottom: 0 },
-								icon: 'information-variant',
-								mode: 'outlined',
-								iconColor: theme.colors.primary,
-							}}
-						/> */}
-
 						<NewItemControl />
 					</View>
 				</View>

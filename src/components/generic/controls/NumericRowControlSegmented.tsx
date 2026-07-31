@@ -12,6 +12,7 @@ import InfoLabelRow from '../infoWrapper/InfoLabelRow';
 import ButtonHighlight from '../primitives/ButtonHighlight';
 import { sharedStyles } from './sharedDeps';
 import { sharedStyles as appSharedStyles } from '../../../sharedStyles';
+import useKeyboardShown from '../../../compose/useKeyboardShown';
 import { strValToNb } from '../../../lib/utils';
 import { NumType } from '../../../types';
 import { useButtonProps } from '../../../compose/useButtonProps';
@@ -121,6 +122,17 @@ const NumericRowControlSegmented = ({
 		saveOnTypeCbRef?.current && saveOnTypeCbRef.current();
 	}, [val]);
 
+	const isFocusedRef = useRef(false);
+	const wasKeyboardShownRef = useRef(false);
+	const { keyboardShown } = useKeyboardShown();
+
+	useEffect(() => {
+		if (wasKeyboardShownRef.current && !keyboardShown && isFocusedRef.current) {
+			handleBlurCbRef?.current && handleBlurCbRef.current();
+		}
+		wasKeyboardShownRef.current = keyboardShown;
+	}, [keyboardShown]);
+
 	const handleChangeText = useCallback(
 		(newVal: string) => {
 			if (validate) {
@@ -148,16 +160,17 @@ const NumericRowControlSegmented = ({
 		[theme]
 	);
 
-	const handleBlur = useCallback(
-		() => handleBlurCbRef?.current && handleBlurCbRef?.current(),
-		[]
-	);
+	const handleBlur = useCallback(() => {
+		isFocusedRef.current = false;
+		handleBlurCbRef?.current && handleBlurCbRef?.current();
+	}, []);
 
 	const handleButtonPress = useCallback(() => {
 		numValueActive && toggleOption();
 	}, [numValueActive, toggleOption]);
 
 	const handleFocus = useCallback(() => {
+		isFocusedRef.current = true;
 		if (!numValueActive) {
 			toggleOption();
 		}

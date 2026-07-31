@@ -10,6 +10,7 @@ import { get } from 'lodash-es';
  * Internal dependencies
  */
 import InfoLabelRow from '../infoWrapper/InfoLabelRow';
+import useKeyboardShown from '../../../compose/useKeyboardShown';
 import { strValToNb } from '../../../lib/utils';
 import { NumType } from '../../../types';
 import { sharedStyles } from './sharedDeps';
@@ -158,6 +159,17 @@ const NumericRowControlMulti = ({
 		saveOnTypeCbRef?.current && saveOnTypeCbRef.current();
 	}, [vals]);
 
+	const isFocusedRef = useRef(false);
+	const wasKeyboardShownRef = useRef(false);
+	const { keyboardShown } = useKeyboardShown();
+
+	useEffect(() => {
+		if (wasKeyboardShownRef.current && !keyboardShown && isFocusedRef.current) {
+			handleBlurCbRef?.current && handleBlurCbRef.current();
+		}
+		wasKeyboardShownRef.current = keyboardShown;
+	}, [keyboardShown]);
+
 	const handleChangeText = useCallback(
 		(newVal: string, idx: number) => {
 			if (newVal.trim() === '') {
@@ -210,10 +222,14 @@ const NumericRowControlMulti = ({
 		[theme]
 	);
 
-	const handleBlur = useCallback(
-		() => handleBlurCbRef?.current && handleBlurCbRef?.current(),
-		[]
-	);
+	const handleBlur = useCallback(() => {
+		isFocusedRef.current = false;
+		handleBlurCbRef?.current && handleBlurCbRef?.current();
+	}, []);
+
+	const handleFocus = useCallback(() => {
+		isFocusedRef.current = true;
+	}, []);
 
 	return (
 		<InfoLabelRow
@@ -235,6 +251,7 @@ const NumericRowControlMulti = ({
 							theme={overwriteTheme}
 							onChangeText={(newVal) => handleChangeText(newVal, idx)}
 							onBlur={handleBlur}
+							onFocus={handleFocus}
 							value={vals[idx]}
 							keyboardType="numeric"
 						/>
