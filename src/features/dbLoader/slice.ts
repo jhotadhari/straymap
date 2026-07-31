@@ -21,6 +21,7 @@ export interface DbLoaderSettings {
 export interface DbLoaderState extends SliceSettingsBase, DbLoaderSettings {
 	dbMigrated?: string | true;
 	requireReload?: boolean;
+	dbPendingMigrations?: number;
 }
 
 export const initialSettings: DbLoaderSettings = {
@@ -50,6 +51,9 @@ export const dbLoaderSlice = createSlice({
 		setRequireReload: (state, action: PayloadAction<DbLoaderState['requireReload']>) => {
 			state.requireReload = action.payload;
 		},
+		setDbPendingMigrations: (state, action: PayloadAction<number>) => {
+			state.dbPendingMigrations = action.payload;
+		},
 	},
 });
 
@@ -59,6 +63,7 @@ export const {
 	setDbPath: setDbPathAction,
 	setDbMigrated,
 	setRequireReload,
+	setDbPendingMigrations,
 } = dbLoaderSlice.actions;
 
 // Export the slice reducer for use in the store configuration

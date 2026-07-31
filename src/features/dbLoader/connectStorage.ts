@@ -16,6 +16,7 @@ import {
 	initialSettings,
 	setDbMigrated,
 	setDbPathAction,
+	setDbPendingMigrations,
 	setInitialized,
 } from './slice';
 import { startAppListening } from '../../store/listenerMiddleware';
@@ -48,13 +49,21 @@ export const initializeFromStorage = (store: AppStore) => {
 						store.dispatch(setDbPathAction(newSettings.dbPath));
 					}
 				}
-				dbConnection
-					.initialize(dbPath)
-					.then(() => {
-						store.dispatch(setDbMigrated(true));
-						store.dispatch(setInitialized(true));
-						resolve(true);
-					})
+			dbConnection
+				.open(dbPath)
+				.then(() => {
+					dbConnection.setQueryClient();
+					return dbConnection.countPendingMigrations();
+				})
+				.then((pendingCount) => {
+					store.dispatch(setDbPendingMigrations(pendingCount));
+					return dbConnection.runMigrations();
+				})
+				.then(() => {
+					store.dispatch(setDbMigrated(true));
+					store.dispatch(setInitialized(true));
+					resolve(true);
+				})
 					.catch((error) => {
 						const fallbackDbName = [
 							getDbDefaultName(),

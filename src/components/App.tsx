@@ -26,6 +26,7 @@ import useInitialCenter from '../compose/useInitialCenter';
 import { DrawerControls } from '../features/drawers/types';
 import {
 	selectDbMigrated,
+	selectDbPendingMigrations,
 	selectInitialized,
 	selectRequireReload,
 } from '../features/dbLoader/selectors';
@@ -69,6 +70,8 @@ const App: FC = () => {
 	const isUpdating = useAppSelector(selectIsUpdating);
 
 	const dbMigrated = useAppSelector(selectDbMigrated);
+
+	const dbPendingMigrations = useAppSelector(selectDbPendingMigrations);
 
 	const requireReload = useAppSelector(selectRequireReload);
 
@@ -139,7 +142,7 @@ const App: FC = () => {
 			<AppContext.Provider value={appContextValue}>
 				<View style={splashStyle}>
 					<SplashScreen displayLogo={!isDbError && !requireReload}>
-						{!isDbError && !requireReload && true !== dbMigrated && (
+						{!isDbError && !requireReload && true !== dbMigrated && dbPendingMigrations !== undefined && dbPendingMigrations > 0 && (
 							<Text style={styles.splashText}>{t('dbLoader.dbInitializing')}</Text>
 						)}
 						{isDbError && (

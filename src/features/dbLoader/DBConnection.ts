@@ -24,21 +24,51 @@ class DBConnection {
 
 	constructor() {}
 
-	initialize(dbPath: string) {
-		return new Promise<true>((resolve, reject) => {
-			try {
-				this.setDbOp(dbPath);
-				this.setQueryClient();
-			} catch (error) {
-				reject(error);
-				return;
-			}
-			this.setDbZ()
-				.then((result) => resolve(result))
-				.catch((error) => {
-					reject(error);
-				});
+	async initialize(dbPath: string): Promise<true> {
+		await this.open(dbPath);
+		this.setQueryClient();
+		await this.runMigrations();
+		return true;
+	}
+
+	async open(dbPath: string) {
+		this.setDbOp(dbPath);
+		this.drizzle = drizzle(this.op!, {
+			logger: shouldLog.drizzle,
+			schema,
 		});
+
+		// SpatiaLite 5+ may bundle RegexpCache which registers regexp().
+		// Check availability so callers can fall back to JS-side regex
+		// when the SQL REGEXP operator is unavailable.
+		try {
+			await this.op!.execute(
+				"SELECT CASE WHEN REGEXP('t.st', 'test') THEN 1 ELSE 0 END"
+			);
+			this.regexpAvailable = true;
+		} catch {
+			this.regexpAvailable = false;
+		}
+	}
+
+	async countPendingMigrations(): Promise<number> {
+		const totalMigrations = migrations.journal.entries.length;
+		try {
+			const result = await this.op!.execute(
+				'SELECT COUNT(*) as count FROM "__drizzle_migrations"'
+			);
+			if (result?.rows?.length) {
+				const appliedCount = result.rows[0].count as number;
+				return totalMigrations - appliedCount;
+			}
+			return totalMigrations;
+		} catch {
+			return totalMigrations;
+		}
+	}
+
+	async runMigrations() {
+		await migrate(this.drizzle!, migrations);
 	}
 
 	setDbOp(dbPath: string) {
@@ -52,36 +82,6 @@ class DBConnection {
 		};
 		this.op = open(conf);
 		this.op.loadExtension('libspatialite', 'sqlite3_modspatialite_init');
-	}
-
-	setDbZ() {
-		return new Promise<true>((resolve, reject) => {
-			this.drizzle = drizzle(this.op, {
-				logger: shouldLog.drizzle,
-				schema,
-			});
-
-			// SpatiaLite 5+ may bundle RegexpCache which registers regexp().
-			// Check availability so callers can fall back to JS-side regex
-			// when the SQL REGEXP operator is unavailable.
-			this.op!.execute("SELECT CASE WHEN REGEXP('t.st', 'test') THEN 1 ELSE 0 END")
-				.then(() => {
-					this.regexpAvailable = true;
-				})
-				.catch(() => {
-					this.regexpAvailable = false;
-				})
-				.finally(() => {
-					// Migrate database.
-					migrate(this.drizzle!, migrations)
-						.then(() => {
-							resolve(true);
-						})
-						.catch((error) => {
-							reject(error);
-						});
-				});
-		});
 	}
 
 	setQueryClient() {
