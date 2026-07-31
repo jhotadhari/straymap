@@ -165,6 +165,7 @@ const NumericRowControlMulti = ({
 
 	useEffect(() => {
 		if (wasKeyboardShownRef.current && !keyboardShown && isFocusedRef.current) {
+			isFocusedRef.current = false;
 			handleBlurCbRef?.current && handleBlurCbRef.current();
 		}
 		wasKeyboardShownRef.current = keyboardShown;

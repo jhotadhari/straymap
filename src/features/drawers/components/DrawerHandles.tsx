@@ -155,7 +155,7 @@ const DrawerHandles: FC<
 	const styleControlHandle: ViewProps['style'] = useMemo(
 		() => ({
 			position: 'absolute',
-			top: getContainerHeight(draggableItems.length),
+			top: getContainerHeight(draggableItems.length), // Intentional: even single handles get offset from top edge
 		}),
 		[draggableItems.length, getContainerHeight]
 	);

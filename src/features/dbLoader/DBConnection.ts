@@ -24,13 +24,6 @@ class DBConnection {
 
 	constructor() {}
 
-	async initialize(dbPath: string): Promise<true> {
-		await this.open(dbPath);
-		this.setQueryClient();
-		await this.runMigrations();
-		return true;
-	}
-
 	async open(dbPath: string) {
 		this.setDbOp(dbPath);
 		this.drizzle = drizzle(this.op!, {
