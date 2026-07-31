@@ -44,7 +44,11 @@ const LoadingIndicator: FC<{
 			borderColor: 'transparent' as const,
 			borderTopColor: theme.colors.primary,
 		}),
-		[dimension, borderWidth, theme.colors.primary]
+		[
+			dimension,
+			borderWidth,
+			theme.colors.primary,
+		]
 	);
 
 	return (

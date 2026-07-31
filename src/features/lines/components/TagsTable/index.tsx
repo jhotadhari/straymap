@@ -203,10 +203,7 @@ const TagsTable: FC = () => {
 		[openFilterForColumn]
 	);
 
-	const headerContextValue = useMemo(
-		() => ({ checkedIds }),
-		[checkedIds]
-	);
+	const headerContextValue = useMemo(() => ({ checkedIds }), [checkedIds]);
 
 	const footerContextValue = useMemo(
 		() => ({
@@ -216,7 +213,12 @@ const TagsTable: FC = () => {
 			tags: tags ?? [],
 			setCheckedIds,
 		}),
-		[checkedIds, tagIds, tags, setCheckedIds]
+		[
+			checkedIds,
+			tagIds,
+			tags,
+			setCheckedIds,
+		]
 	);
 
 	return (

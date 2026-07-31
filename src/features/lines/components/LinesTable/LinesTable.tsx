@@ -300,10 +300,7 @@ const LinesTable: FC = () => {
 		[openFilterForColumn]
 	);
 
-	const headerContextValue = useMemo(
-		() => ({ checkedIds }),
-		[checkedIds]
-	);
+	const headerContextValue = useMemo(() => ({ checkedIds }), [checkedIds]);
 
 	const footerContextValue = useMemo(
 		() => ({
@@ -315,7 +312,15 @@ const LinesTable: FC = () => {
 			routingLineId,
 			routeId,
 		}),
-		[checkedIds, lineIds, lines, setCheckedIds, setOnMapIdsTemp, routingLineId, routeId]
+		[
+			checkedIds,
+			lineIds,
+			lines,
+			setCheckedIds,
+			setOnMapIdsTemp,
+			routingLineId,
+			routeId,
+		]
 	);
 
 	return (

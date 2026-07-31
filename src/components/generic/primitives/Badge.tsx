@@ -22,7 +22,11 @@ const Badge: FC<{
 			backgroundColor: isOutlined ? 'transparent' : color.bg,
 			borderColor: isOutlined ? color.bg : color.border,
 		}),
-		[isOutlined, color.bg, color.border]
+		[
+			isOutlined,
+			color.bg,
+			color.border,
+		]
 	);
 
 	const labelStyle = useMemo(

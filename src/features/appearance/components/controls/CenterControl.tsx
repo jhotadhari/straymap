@@ -108,11 +108,7 @@ const CenterControl = () => {
 						/>
 					)}
 
-				{cursorConfig?.iconSource && (
-					<CenterInner
-						cursor={cursorPreview}
-					/>
-				)}
+					{cursorConfig?.iconSource && <CenterInner cursor={cursorPreview} />}
 				</View>
 			)}
 			header={t('appearance.cursor')}

@@ -179,10 +179,7 @@ const ItemControl: FC<{}> = ({}) => {
 		mode: 'outlined',
 	});
 
-	const controlContextValue = useMemo(
-		() => ({ position }),
-		[position]
-	);
+	const controlContextValue = useMemo(() => ({ position }), [position]);
 
 	return (
 		item && (

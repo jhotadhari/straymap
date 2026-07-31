@@ -165,10 +165,7 @@ const DashboardControl: FC = () => {
 		[t]
 	);
 
-	const controlContextValue = useMemo(
-		() => ({ position }),
-		[position]
-	);
+	const controlContextValue = useMemo(() => ({ position }), [position]);
 
 	return (
 		<ControlContext.Provider value={controlContextValue}>
