@@ -34,8 +34,8 @@ export const initialSettings: DrawersSettings = {
 		'brouter',
 	],
 	controlHandleSide: 'right',
-	showSettingsHandle: true,
-	sortable: true,
+	showSettingsHandle: false,
+	sortable: false,
 	activeKeyLeft: undefined,
 	activeKeyRight: undefined,
 };

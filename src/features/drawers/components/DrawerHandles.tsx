@@ -46,8 +46,6 @@ const DrawerHandles: FC<
 
 	const [scrollEnabled, setScrollEnabled] = useState(true);
 
-	const [panEnabled, setPanEnabled] = useState<boolean>(true);
-
 	const dropIndicatorStyle = useDropIndicatorStyle();
 
 	const draggableItems = useMemo(() => itemKeys.map((key) => ({ key })), [itemKeys]);
@@ -72,14 +70,12 @@ const DrawerHandles: FC<
 	);
 
 	const handleDragStart = useCallback(() => {
-		setPanEnabled(false);
 		setScrollEnabled(false);
 		setMoveEnabled?.(false);
 	}, [setMoveEnabled]);
 
 	const handleDragRelease = useCallback(
 		({ indexToKey }: SortableFlexDragEndParams) => {
-			setPanEnabled(true);
 			setScrollEnabled(true);
 			setMoveEnabled?.(true);
 			dispatch(
@@ -199,6 +195,7 @@ const DrawerHandles: FC<
 								padding={0}
 								sortEnabled
 								customHandle={false}
+								dragActivationDelay={500}
 								showDropIndicator
 								dropIndicatorStyle={dropIndicatorStyle}
 								flexDirection="column"
@@ -216,7 +213,6 @@ const DrawerHandles: FC<
 										<DrawerHandle
 											itemKey={item.key}
 											gesture={gesture}
-											panEnabled={panEnabled}
 											onPress={handleItemPressMap[item.key]}
 										/>
 									</View>
@@ -233,7 +229,6 @@ const DrawerHandles: FC<
 									<DrawerHandle
 										itemKey={item.key}
 										gesture={gesture}
-										panEnabled={panEnabled}
 										onPress={
 											draggableItems.length === 1
 												? handleSingleItemPress
@@ -248,7 +243,6 @@ const DrawerHandles: FC<
 						<DrawerHandle
 							style={styleControlHandle}
 							gesture={gesture}
-							panEnabled={panEnabled}
 							onPress={toggleModalVisible}
 							overwriteDrawerItem={settingsOverwriteDrawerItem}
 						/>

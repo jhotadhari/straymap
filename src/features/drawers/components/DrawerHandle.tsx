@@ -17,13 +17,11 @@ import { DRAWER_HANDLE_SIZE, DRAWER_ICON_SIZE } from '../constants';
 
 const DrawerHandle = ({
 	itemKey,
-	panEnabled,
 	gesture,
 	overwriteDrawerItem,
 	onPress,
 	style,
 }: {
-	panEnabled: boolean;
 	itemKey?: string;
 	gesture: ComposedGesture | GestureType;
 	overwriteDrawerItem?: DrawerPanel;
@@ -127,10 +125,7 @@ const DrawerHandle = ({
 
 	return (
 		<View style={containerStyle}>
-			{!panEnabled && handlesNode}
-			{panEnabled && (
-				<GestureDetector gesture={gesture as any}>{handlesNode}</GestureDetector>
-			)}
+			<GestureDetector gesture={gesture as any}>{handlesNode}</GestureDetector>
 		</View>
 	);
 };
