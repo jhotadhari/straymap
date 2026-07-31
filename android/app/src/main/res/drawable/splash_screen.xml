@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android"
+    android:opacity="opaque">
+
+    <!-- Full-screen background matching light theme -->
+    <item android:drawable="@android:color/white" />
+
+    <!-- Title "Straymap" in jangly_walk font — positioned to match TS splash -->
+    <item
+        android:top="200dp"
+        android:width="@dimen/splash_title_width"
+        android:gravity="top|center_horizontal">
+        <bitmap
+            android:src="@drawable/straymap_title"
+            android:gravity="center" />
+    </item>
+
+    <!-- Centered icon background -->
+    <item
+        android:width="@dimen/splash_icon_bg_size"
+        android:height="@dimen/splash_icon_bg_size"
+        android:drawable="@drawable/ic_launcher_background"
+        android:gravity="center" />
+
+    <!-- Centered icon foreground (cat) -->
+    <item
+        android:width="@dimen/splash_icon_size"
+        android:height="@dimen/splash_icon_size"
+        android:drawable="@drawable/ic_launcher_foreground"
+        android:gravity="center" />
+</layer-list>
