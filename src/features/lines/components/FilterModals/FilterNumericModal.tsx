@@ -3,7 +3,6 @@
  */
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { View } from 'react-native';
-import { Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 
 /**
@@ -35,7 +34,6 @@ const FilterNumericModal: FC<{
 	onSave: (filter: NumericColumnFilter) => void;
 	onDelete?: () => void;
 }> = ({ visible, columnKey, existingFilter, onDismiss, onSave, onDelete }) => {
-	const theme = useTheme();
 	const { t } = useTranslation();
 	const unitPrefs = useAppSelector(selectUnitPrefs);
 

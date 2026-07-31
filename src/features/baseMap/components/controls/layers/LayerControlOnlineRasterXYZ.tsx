@@ -27,9 +27,7 @@ import { useAppDispatch, useAppSelector } from '../../../../../store/hooks';
 import { selectLayerTemp } from '../../../selectors';
 import { setLayerTemp } from '../../../slice';
 import NumericRowControlMulti from '../../../../../components/generic/controls/NumericRowControlMulti';
-import ListItemMenuControl from '../../../../../components/generic/wrapper/ListItemMenuControl';
 import { stringifyProp } from '../../../utils';
-import { sharedStyles } from '../../../../../sharedStyles';
 import ButtonHighlightMenuControl from '../../../../../components/generic/wrapper/ButtonHighlightMenuControl';
 
 interface SourceOption extends OptionBase {

@@ -16,10 +16,10 @@ const IconCustomGlyph = createIconSet(glyphMap, {
 	fontSource: require('../../../assets/icons/build/build-icons.ttf'),
 });
 
-const IconCustom: React.FC<React.ComponentProps<typeof IconCustomGlyph>> = (
-	props
-) => <View>
-	<IconCustomGlyph {...props}/>
-</View>
+const IconCustom: React.FC<React.ComponentProps<typeof IconCustomGlyph>> = (props) => (
+	<View>
+		<IconCustomGlyph {...props} />
+	</View>
+);
 
 export default IconCustom;

@@ -87,6 +87,7 @@ const App: FC = () => {
 		if (isReady) {
 			const rawColor = processColor(theme.colors.background);
 			if (rawColor != null) {
+				// eslint-disable-next-line no-bitwise
 				const hex = '#' + ((rawColor as number) >>> 0).toString(16).padStart(8, '0');
 				HelperModule.setWindowBackgroundColor(hex);
 			}
@@ -99,7 +100,11 @@ const App: FC = () => {
 			height,
 			width,
 		}),
-		[theme, height, width]
+		[
+			theme,
+			height,
+			width,
+		]
 	);
 
 	const appContextValue = useMemo(
@@ -160,14 +165,24 @@ const App: FC = () => {
 			<AppContext.Provider value={appContextValue}>
 				<View style={splashStyle}>
 					<SplashScreen displayLogo={!isDbError && !requireReload}>
-						{!isDbError && !requireReload && true !== dbMigrated && dbPendingMigrations !== undefined && dbPendingMigrations > 0 && (
-							<Text style={styles.splashText}>{t('dbLoader.dbInitializing')}</Text>
-						)}
+						{!isDbError &&
+							!requireReload &&
+							true !== dbMigrated &&
+							dbPendingMigrations !== undefined &&
+							dbPendingMigrations > 0 && (
+								<Text style={styles.splashText}>
+									{t('dbLoader.dbInitializing')}
+								</Text>
+							)}
 						{isDbError && (
-							<Text style={styles.splashText}>{sprintf(t('dbLoader.dbMigrationError'), dbMigrated)}</Text>
+							<Text style={styles.splashText}>
+								{sprintf(t('dbLoader.dbMigrationError'), dbMigrated)}
+							</Text>
 						)}
 						{requireReload && (
-							<Text style={styles.splashText}>{sprintf(t('dbLoader.requireReload'), dbMigrated)}</Text>
+							<Text style={styles.splashText}>
+								{sprintf(t('dbLoader.requireReload'), dbMigrated)}
+							</Text>
 						)}
 					</SplashScreen>
 				</View>
@@ -197,11 +212,16 @@ const styles = StyleSheet.create({
 export default () => {
 	const theme = useSetupTheme();
 
+	const gestureHandlerStyle = useMemo(
+		() => ({ flex: 1, backgroundColor: theme.colors.background }),
+		[theme.colors.background]
+	);
+
 	const dbLoaderInitialized = useAppSelector(selectInitialized);
 
 	return (
 		<PaperProvider theme={theme}>
-			<GestureHandlerRootView style={{ flex: 1, backgroundColor: theme.colors.background }}>
+			<GestureHandlerRootView style={gestureHandlerStyle}>
 				<ErrorToastProvider>
 					{dbLoaderInitialized && dbConnection?.queryClient ? (
 						<QueryClientProvider client={dbConnection.queryClient}>

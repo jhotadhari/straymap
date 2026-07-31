@@ -170,9 +170,7 @@ export const getLayerLabel = (
 			if (!path) return undefined;
 			const label = labelFromDemPath(path);
 			return {
-				key: perLayerPath
-					? 'baseMap.demLabel.shading'
-					: 'baseMap.demLabel.shadingGlobal',
+				key: perLayerPath ? 'baseMap.demLabel.shading' : 'baseMap.demLabel.shadingGlobal',
 				params: { label },
 			};
 		}

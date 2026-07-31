@@ -16,10 +16,6 @@ type LayerResponse =
 const useLayerChangeCallback = (
 	key: string,
 	onLayerChange: (key: string, response: LayerResponse) => void
-) =>
-	useCallback(
-		(response: LayerResponse) => onLayerChange(key, response),
-		[onLayerChange, key]
-	);
+) => useCallback((response: LayerResponse) => onLayerChange(key, response), [onLayerChange, key]);
 
 export default useLayerChangeCallback;

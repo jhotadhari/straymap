@@ -54,6 +54,7 @@ const ButtonHighlightMenuControl: FC<Props> = ({
 	}, [
 		buttonProps,
 		compact,
+		anchorIcon,
 		anchorIconNested,
 		anchorLabel,
 		nestedIconColor,

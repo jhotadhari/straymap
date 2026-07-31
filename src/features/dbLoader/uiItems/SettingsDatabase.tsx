@@ -19,7 +19,10 @@ const SettingsDatabase: FC<{ style?: ViewStyle }> = ({ style }) => {
 	);
 
 	return (
-		<ScrollView style={style} contentContainerStyle={containerPadding}>
+		<ScrollView
+			style={style}
+			contentContainerStyle={containerPadding}
+		>
 			<DatabaseFileList />
 		</ScrollView>
 	);

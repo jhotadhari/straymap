@@ -42,9 +42,7 @@ class DBConnection {
 		// Check availability so callers can fall back to JS-side regex
 		// when the SQL REGEXP operator is unavailable.
 		try {
-			await this.op!.execute(
-				"SELECT CASE WHEN REGEXP('t.st', 'test') THEN 1 ELSE 0 END"
-			);
+			await this.op!.execute("SELECT CASE WHEN REGEXP('t.st', 'test') THEN 1 ELSE 0 END");
 			this.regexpAvailable = true;
 		} catch {
 			this.regexpAvailable = false;

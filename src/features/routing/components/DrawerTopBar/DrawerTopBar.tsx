@@ -4,7 +4,7 @@
 import { FC, Fragment, useCallback, useContext, useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
-import { Icon, Text } from 'react-native-paper';
+import { Icon } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import LucideIcons from '@react-native-vector-icons/lucide/static';
 

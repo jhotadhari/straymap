@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { FC, useCallback, useContext } from 'react';
-import { useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 
 /**
@@ -18,7 +17,6 @@ import { useButtonProps } from '../../../../compose/useButtonProps';
 
 const RowShowRoutes: FC = () => {
 	const { t } = useTranslation();
-	const theme = useTheme();
 	const dispatch = useAppDispatch();
 
 	const { tag } = useContext(TagEditModalContext);

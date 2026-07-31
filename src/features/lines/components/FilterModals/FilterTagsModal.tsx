@@ -145,17 +145,6 @@ const FilterTagsModal: FC<{
 		[theme]
 	);
 
-	const tagButtonStyle = useMemo(
-		() => [
-			localStyles.tagButton,
-			{
-				borderColor: theme.colors.outline,
-				backgroundColor: theme.colors.surfaceVariant,
-			},
-		],
-		[theme]
-	);
-
 	const emptyTextStyle = useMemo(() => ({ color: theme.colors.onSurfaceVariant }), [theme]);
 
 	return (

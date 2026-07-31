@@ -95,6 +95,14 @@ const TagsTable: FC = () => {
 		return actionCol + cols;
 	}, [tableColumns]);
 
+	const flashListStyle = useMemo(
+		() => ({
+			alignSelf: 'flex-start' as const,
+			minWidth: contentMinWidth,
+		}),
+		[contentMinWidth]
+	);
+
 	const [checkedIds, setCheckedIds] = useState<number[]>([]);
 	const [addModalVisible, setAddModalVisible] = useState(false);
 
@@ -182,6 +190,7 @@ const TagsTable: FC = () => {
 				styleCell,
 				toggleCheckedId,
 				handleEditTag,
+				handleOpenCreate,
 				isFixedHeight,
 				rowHeight,
 			]
@@ -218,10 +227,7 @@ const TagsTable: FC = () => {
 									layout.size = rowHeight;
 								},
 							})}
-							style={{
-								alignSelf: 'flex-start',
-								minWidth: contentMinWidth,
-							}}
+							style={flashListStyle}
 						/>
 					</BidirectionalScrollHost>
 				</View>

@@ -108,7 +108,7 @@ was an explicit decision, not an oversight.
 - **Foreign keys on `tags_to_lines` have `ON DELETE cascade`** at the schema level — deleting a
   line or tag automatically cleans up join rows. Other foreign keys (e.g. `routing_points`
   → `routes`, `lines` → `routes` on the `line_id` FK in `routing_points`) use `ON DELETE no
-  action` / `ON DELETE set null`, so orphaned rows are still possible there and the app is
+action` / `ON DELETE set null`, so orphaned rows are still possible there and the app is
   expected to clean up manually.
 
 ## CRUD conventions and known gaps

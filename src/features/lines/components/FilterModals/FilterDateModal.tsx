@@ -3,7 +3,6 @@
  */
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Dimensions, View } from 'react-native';
-import { Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { DatePickerInput } from 'react-native-paper-dates';
 import dayjs from 'dayjs';
@@ -42,7 +41,6 @@ const FilterDateModal: FC<{
 	onSave: (filter: DateColumnFilter) => void;
 	onDelete?: () => void;
 }> = ({ visible, columnKey, existingFilter, onDismiss, onSave, onDelete }) => {
-	const theme = useTheme();
 	const { t, i18n } = useTranslation();
 
 	const buttonPropsDelete = useButtonProps({ isDestructive: true });

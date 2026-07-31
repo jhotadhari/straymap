@@ -103,11 +103,18 @@ const useInitialCenter = (currentMapEventRef: MutableRefObject<MapEventResponse 
 		};
 	}, [initialized, saveCurrentPositionToInitial]);
 
-	return useMemo(() => ({
-		initialized,
-		initialPositionRef,
-		saveCurrentPositionToInitial,
-	}), [initialized, initialPositionRef, saveCurrentPositionToInitial]);
+	return useMemo(
+		() => ({
+			initialized,
+			initialPositionRef,
+			saveCurrentPositionToInitial,
+		}),
+		[
+			initialized,
+			initialPositionRef,
+			saveCurrentPositionToInitial,
+		]
+	);
 };
 
 export default useInitialCenter;

@@ -67,6 +67,7 @@ const useFlyTo = () => {
 		lines,
 		mapViewNativeNodeHandle,
 		flyToBounds,
+		dispatch,
 	]);
 
 	const disabled = useCallback(() => checkedIds.length === 0, [checkedIds]);

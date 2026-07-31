@@ -3,9 +3,8 @@
  */
 import { Dispatch, FC, ReactNode, SetStateAction, useCallback, useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { useTheme, Text } from 'react-native-paper';
+import { useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { get } from 'lodash-es';
 import { sprintf } from 'sprintf-js';
 
 /**
@@ -75,7 +74,6 @@ const ControlModal: FC<{
 	opts: OptionBase[];
 }> = ({ modalVisible, setModalVisible, label, header, opts }) => {
 	const { t } = useTranslation();
-	const theme = useTheme();
 
 	const dispatch = useAppDispatch();
 	const profileTemp = useAppSelector(selectMapsforgeProfileTemp);

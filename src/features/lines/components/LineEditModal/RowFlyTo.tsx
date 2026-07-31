@@ -53,6 +53,7 @@ const RowFlyTo: FC = () => {
 		mapViewNativeNodeHandle,
 		line?.envelope,
 		isSelected,
+		dispatch,
 	]);
 
 	const disabled = useMemo(() => !line?.envelope || !isSelected, [line?.envelope, isSelected]);

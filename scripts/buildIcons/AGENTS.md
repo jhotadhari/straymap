@@ -4,7 +4,12 @@
 in `src/assets/icons/`.
 
 Usage in code:
+
 ```tsx
 import IconCustom from '../components/generic/primitives/IconCustom';
-<IconCustom name="route_cog" size={25} color={theme.colors.primary} />
+<IconCustom
+	name="route_cog"
+	size={25}
+	color={theme.colors.primary}
+/>;
 ```

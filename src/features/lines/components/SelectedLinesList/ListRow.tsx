@@ -120,7 +120,6 @@ const ListRow: FC<ListRowProps> = ({ line, idx, systemFeatureKey }) => {
 	});
 	return (
 		<View style={dynamicStyles.container}>
-
 			<View style={sharedStyles.rowColInfo}>
 				{line.title && (
 					<View style={dynamicStyles.rowColInfoRow}>
@@ -201,7 +200,6 @@ const ListRow: FC<ListRowProps> = ({ line, idx, systemFeatureKey }) => {
 					</ButtonHighlight>
 				)}
 			</View>
-
 		</View>
 	);
 };

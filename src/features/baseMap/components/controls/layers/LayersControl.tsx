@@ -11,13 +11,7 @@ import {
 	useMemo,
 	useState,
 } from 'react';
-import {
-	View,
-	TouchableHighlight,
-	ViewStyle,
-	StyleSheet,
-	Dimensions,
-} from 'react-native';
+import { View, TouchableHighlight, ViewStyle, StyleSheet, Dimensions } from 'react-native';
 import { List, useTheme, Text, IconButtonProps } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import Sortable, { SortableFlexDragEndParams } from 'react-native-sortables';
@@ -90,15 +84,16 @@ const DraggableItem: FC<{
 	const layers = useAppSelector((state) => selectLayers(state, { temp: true }));
 	const appHgtDirPath = useAppSelector(selectHgtDirPath);
 
-	const hasNoSource = useMemo(
-		() => !hasLayerSource(item, appHgtDirPath),
-		[item, appHgtDirPath]
-	);
+	const hasNoSource = useMemo(() => !hasLayerSource(item, appHgtDirPath), [item, appHgtDirPath]);
 
 	const displayLabel = useMemo(() => {
 		const result = getLayerLabel(item, { appHgtDirPath });
 		return result ? t(result.key, result.params ?? {}) : '';
-	}, [item, appHgtDirPath, t]);
+	}, [
+		item,
+		appHgtDirPath,
+		t,
+	]);
 
 	const style: ViewStyle = useMemo(
 		() => ({
@@ -192,7 +187,7 @@ const DraggableItem: FC<{
 				{/* Show user-given name, or a derived placeholder when empty */}
 				{/* When no source is configured, warn with an alert icon */}
 				{hasNoSource && (
-					<View style={{ flexShrink: 0 }}>
+					<View style={styles.alertIcon}>
 						<LucideIcons
 							size={20}
 							color={theme.colors.error}
@@ -264,7 +259,6 @@ const EditModal: FC<{
 	saveLayers: () => void;
 }> = ({ saveOnChange, saveLayers }) => {
 	const { t } = useTranslation();
-	const theme = useTheme();
 
 	const dispatch = useAppDispatch();
 	const layerTemp = useAppSelector(selectLayerTemp);
@@ -346,7 +340,11 @@ const EditModal: FC<{
 			appHgtDirPath,
 		});
 		return result ? t(result.key, result.params ?? {}) : '';
-	}, [t, layerTemp, appHgtDirPath]);
+	}, [
+		t,
+		layerTemp,
+		appHgtDirPath,
+	]);
 
 	return !layerTemp ? undefined : (
 		<ModalWrapper
@@ -622,6 +620,7 @@ const AddIcon: IconSource = () => {
 
 export const styles = StyleSheet.create({
 	selectType: { marginBottom: 18 },
+	alertIcon: { flexShrink: 0 },
 	itemTitle: { flexGrow: 1, flexShrink: 1, minWidth: 0 },
 	itemType: { flexShrink: 1, minWidth: 0 },
 	modalRowTypeLabel: { minWidth: LABEL_WIDTH },

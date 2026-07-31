@@ -6,7 +6,6 @@ import { StyleSheet, View } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
-import { get } from 'lodash-es';
 import { writeFile, ExternalStorageDirectoryPath } from 'react-native-fs';
 import dayjs from 'dayjs';
 
@@ -21,7 +20,6 @@ import InfoLabelRow from '../../../../components/generic/infoWrapper/InfoLabelRo
 import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
 import ModalWrapper from '../../../../components/generic/wrapper/ModalWrapper';
 import RadioListItem from '../../../../components/generic/wrapper/RadioListItem';
-import { sharedStyles } from './sharedDeps';
 import { queryLineGeom } from '../../db/queryFns';
 import { writeFormat, EXPORT_FORMATS, ExportFormat } from '../../utils/formatWriters';
 import { resolveFilename, sanitizeFilename, DEFAULT_TEMPLATE } from '../../utils/filenameTemplate';

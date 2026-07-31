@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { FC, useContext, useEffect, useMemo } from 'react';
-import { ScrollView, StyleSheet, ViewStyle } from 'react-native';
+import { ScrollView, ViewStyle } from 'react-native';
 
 /**
  * Internal dependencies

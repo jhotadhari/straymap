@@ -36,10 +36,7 @@ const ListItem = ({
 			styles.inner,
 			style,
 		],
-		[
-			theme,
-			style,
-		]
+		[style]
 	);
 
 	return (

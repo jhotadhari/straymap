@@ -318,9 +318,7 @@ const About: FC<{ style?: ViewStyle }> = ({ style }) => {
 				}
 				return (
 					<Text key={key}>
-						{t('ui.' + key) +
-							': ' +
-							removeLeadingTrailingEmptyLines(string)}
+						{t('ui.' + key) + ': ' + removeLeadingTrailingEmptyLines(string)}
 					</Text>
 				);
 			}),

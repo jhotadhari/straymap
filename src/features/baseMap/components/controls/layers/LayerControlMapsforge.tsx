@@ -1,16 +1,7 @@
 /**
  * External dependencies
  */
-import {
-	FC,
-	Fragment,
-	ReactNode,
-	useCallback,
-	useEffect,
-	useMemo,
-	useRef,
-	useState,
-} from 'react';
+import { FC, Fragment, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { View } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';

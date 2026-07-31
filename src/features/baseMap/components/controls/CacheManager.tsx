@@ -206,12 +206,15 @@ const CacheManager = () => {
 				}
 			});
 		});
-		Promise.all(unusedPaths.map((path) => FsModule.deleteDir(path)))
-			.finally(() => {
-				setIsSweeping(false);
-				updateCacheDirs();
-			});
-	}, [cacheDirs, findLayers, updateCacheDirs]);
+		Promise.all(unusedPaths.map((path) => FsModule.deleteDir(path))).finally(() => {
+			setIsSweeping(false);
+			updateCacheDirs();
+		});
+	}, [
+		cacheDirs,
+		findLayers,
+		updateCacheDirs,
+	]);
 
 	const buttonProps = useButtonProps({
 		disabled: isSweeping,

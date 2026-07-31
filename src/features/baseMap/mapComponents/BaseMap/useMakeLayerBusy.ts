@@ -14,11 +14,7 @@ import { makeLayerBusyKey } from '../../utils';
  * becomes false or the component unmounts. It is NOT removed when the
  * native layer finishes loading — the `onLayerCreated` callback handles that.
  */
-export const useMakeLayerBusy = (
-	layerKey: string,
-	layerType: string,
-	shouldRender: boolean
-) => {
+export const useMakeLayerBusy = (layerKey: string, layerType: string, shouldRender: boolean) => {
 	const dispatch = useAppDispatch();
 	const didAddRef = useRef(false);
 	const busyKey = makeLayerBusyKey(layerType, layerKey);
@@ -32,7 +28,11 @@ export const useMakeLayerBusy = (
 			didAddRef.current = false;
 			dispatch(removeBusyKey(busyKey));
 		}
-	}, [shouldRender, busyKey, dispatch]);
+	}, [
+		shouldRender,
+		busyKey,
+		dispatch,
+	]);
 
 	useEffect(() => {
 		return () => {

@@ -14,8 +14,6 @@ import { selectDashboardStyle } from '../../selectors';
 import { setDashboardStyle } from '../../slice';
 import { OptionBase } from '../../../../types';
 import InfoLabelRow from '../../../../components/generic/infoWrapper/InfoLabelRow';
-import ListItemMenuControl from '../../../../components/generic/wrapper/ListItemMenuControl';
-import { sharedStyles } from '../../../../sharedStyles';
 import ButtonHighlightMenuControl from '../../../../components/generic/wrapper/ButtonHighlightMenuControl';
 
 const styleAlignOptions: OptionBase[] = [

@@ -268,7 +268,6 @@ const HgtSourceRowControl = ({
 		);
 	}, [
 		t,
-		theme,
 		handleOpenModal,
 		selectedOpt,
 		customUri,

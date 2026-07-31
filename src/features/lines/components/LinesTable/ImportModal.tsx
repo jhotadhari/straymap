@@ -6,7 +6,6 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { Text, useTheme, Checkbox, Icon } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { get } from 'lodash-es';
 import { openDocument, openDocumentTree, listFiles } from 'react-native-scoped-storage';
 import { readFile } from 'react-native-fs';
 import { sprintf } from 'sprintf-js';

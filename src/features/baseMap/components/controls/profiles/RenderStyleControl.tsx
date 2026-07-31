@@ -14,8 +14,6 @@ import { OptionBase } from '../../../../../types';
 import { useAppDispatch, useAppSelector } from '../../../../../store/hooks';
 import { setMapsforgeProfileTemp } from '../../../slice';
 import { selectMapsforgeProfileTemp, selectRenderStylesCache } from '../../../selectors';
-import ListItemMenuControl from '../../../../../components/generic/wrapper/ListItemMenuControl';
-import { sharedStyles } from '../../../../../sharedStyles';
 import ButtonHighlightMenuControl from '../../../../../components/generic/wrapper/ButtonHighlightMenuControl';
 
 const getDefaultSelectedOpt = (

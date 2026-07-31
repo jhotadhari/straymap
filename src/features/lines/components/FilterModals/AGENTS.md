@@ -6,12 +6,12 @@ edit-modal → save flow.
 
 ## Filter types (`../../types.ts`)
 
-| Type | Shape | Columns |
-|---|---|---|
-| `NumericColumnFilter` | `{ type, columnKey, min?, max? }` | stats (length, uphill, downhill, minZ, maxZ) |
-| `DateColumnFilter` | `{ type, columnKey, min?, max? }` | created_at, modified_at, custom_date |
-| `StringColumnFilter` | `{ type, columnKey, operator, value }` | title (operators: includes, excludes, startsWith, endsWith, regex) |
-| `TagsColumnFilter` | `{ type, columnKey, operator, value }` | tags (operators: has, notHas) |
+| Type                  | Shape                                  | Columns                                                            |
+| --------------------- | -------------------------------------- | ------------------------------------------------------------------ |
+| `NumericColumnFilter` | `{ type, columnKey, min?, max? }`      | stats (length, uphill, downhill, minZ, maxZ)                       |
+| `DateColumnFilter`    | `{ type, columnKey, min?, max? }`      | created_at, modified_at, custom_date                               |
+| `StringColumnFilter`  | `{ type, columnKey, operator, value }` | title (operators: includes, excludes, startsWith, endsWith, regex) |
+| `TagsColumnFilter`    | `{ type, columnKey, operator, value }` | tags (operators: has, notHas)                                      |
 
 `NumericColumnFilter` and `DateColumnFilter` bundle both `min` and `max`
 into a single object. A filter can have only `min`, only `max`, or both.
@@ -39,6 +39,7 @@ two `includes` filters for "foo" and "bar").
 
 All string/tags values are **normalized to lowercase** at three
 levels:
+
 1. `FilterStringModal` lowercases input on every keystroke (except for
    `regex` operator — case sensitivity is part of the pattern).
 2. `upsertFilter` / `setFilters` in the Redux slice normalize on write.
@@ -105,12 +106,12 @@ passes the full existing filter, while creating a new filter passes
 
 ## Redux slice (`../../slice.ts`)
 
-| Action | Behavior |
-|---|---|
+| Action              | Behavior                                                                                                                                                                                                                                                                                                                             |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `upsertLinesFilter` | **Numeric/date**: finds any existing same-column+same-type filter and merges `min`/`max` (new values take precedence, `undefined` falls back to existing). Always at most one filter per numeric/date column. **String/tags**: finds existing by `getFilterKey` composite key → replaces if match, pushes if new. Values lowercased. |
-| `removeLinesFilter` | Removes by `getFilterKey` match. |
-| `setLinesFilters` | Bulk-load (e.g., from persistence). Normalizes string/tags to lowercase, deduplicates by key. |
-| `resetLinesFilters` | Clears all filters. |
+| `removeLinesFilter` | Removes by `getFilterKey` match.                                                                                                                                                                                                                                                                                                     |
+| `setLinesFilters`   | Bulk-load (e.g., from persistence). Normalizes string/tags to lowercase, deduplicates by key.                                                                                                                                                                                                                                        |
+| `resetLinesFilters` | Clears all filters.                                                                                                                                                                                                                                                                                                                  |
 
 `upsertTagsFilter` / `removeTagsFilter` / `setTagsFilters` mirror the
 above for the tags table.
@@ -134,6 +135,7 @@ from accumulating when a filter's identity changes.
 
 The reducer merge (numeric/date) and key migration (all types) work
 together:
+
 - **Adding new bounds** (via "+" button): no `existingFilter`, so the
   reducer merge handles it — `{min:20}` + `{max:1000}` → merged into
   `{min:20, max:1000}`.
@@ -178,13 +180,13 @@ zero results with any logic, since bounds are always ANDed in SQL).
 Rules (b)–(e) are **cross-filter** checks and require
 `filterLogic === 'and'` plus at least 2 filters.
 
-| Rule | Condition |
-|---|---|
-| Numeric/date range | `min > max` within a single filter (runs regardless of logic or filter count) |
-| String includes+excludes | Same column, same value for both operators |
-| String startsWith | Multiple patterns where neither is a prefix of the other |
-| String endsWith | Multiple patterns where neither is a suffix of the other |
-| Tags has+notHas | Same tag label for both operators |
+| Rule                     | Condition                                                                     |
+| ------------------------ | ----------------------------------------------------------------------------- |
+| Numeric/date range       | `min > max` within a single filter (runs regardless of logic or filter count) |
+| String includes+excludes | Same column, same value for both operators                                    |
+| String startsWith        | Multiple patterns where neither is a prefix of the other                      |
+| String endsWith          | Multiple patterns where neither is a suffix of the other                      |
+| Tags has+notHas          | Same tag label for both operators                                             |
 
 Conflicts are surfaced as a red warning icon in the header, opening
 `FilterConflictModal`. Numeric values in the conflict message are
@@ -192,21 +194,21 @@ formatted with the user's unit preferences (km/mi, m/ft).
 
 ## Files
 
-| File | Role |
-|---|---|
-| `FilterModalsOrchestrator.tsx` | State machine: column select ↔ edit modal |
-| `FilterNumericModal.tsx` | Min/max numeric input with unit conversion |
-| `FilterDateModal.tsx` | Min/max date pickers |
-| `FilterStringModal.tsx` | Operator radio + text input |
-| `FilterTagsModal.tsx` | Operator radio + tag popover picker |
-| `FilterBadge.tsx` | Visual badge for active filters |
-| `FilterConflictModal.tsx` | Conflict explanation modal |
-| `FilterColumnSelectModal.tsx` | Column picker (in `LinesTable/FilterModals/` and `TagsTable/FilterModals/`; per-table variant) |
-| `sharedDeps.ts` | `FilterColumnType` type, `getUnitPrefKey`, `sharedStyles` |
+| File                           | Role                                                                                           |
+| ------------------------------ | ---------------------------------------------------------------------------------------------- |
+| `FilterModalsOrchestrator.tsx` | State machine: column select ↔ edit modal                                                      |
+| `FilterNumericModal.tsx`       | Min/max numeric input with unit conversion                                                     |
+| `FilterDateModal.tsx`          | Min/max date pickers                                                                           |
+| `FilterStringModal.tsx`        | Operator radio + text input                                                                    |
+| `FilterTagsModal.tsx`          | Operator radio + tag popover picker                                                            |
+| `FilterBadge.tsx`              | Visual badge for active filters                                                                |
+| `FilterConflictModal.tsx`      | Conflict explanation modal                                                                     |
+| `FilterColumnSelectModal.tsx`  | Column picker (in `LinesTable/FilterModals/` and `TagsTable/FilterModals/`; per-table variant) |
+| `sharedDeps.ts`                | `FilterColumnType` type, `getUnitPrefKey`, `sharedStyles`                                      |
 
 ## Entry-point wiring
 
-| Table | FilterModals wrapper | Passes |
-|---|---|---|
+| Table      | FilterModals wrapper                | Passes                                                                                                           |
+| ---------- | ----------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
 | LinesTable | `LinesTable/FilterModals/index.tsx` | `selectLinesFilters`, `upsertLinesFilter`, `removeLinesFilter`, `getFilterColumnType`, `FilterColumnSelectModal` |
-| TagsTable | `TagsTable/FilterModals/index.tsx` | `selectTagsFilters`, `upsertTagsFilter`, `removeTagsFilter`, `getFilterColumnType`, `TagFilterColumnSelectModal` |
+| TagsTable  | `TagsTable/FilterModals/index.tsx`  | `selectTagsFilters`, `upsertTagsFilter`, `removeTagsFilter`, `getFilterColumnType`, `TagFilterColumnSelectModal` |

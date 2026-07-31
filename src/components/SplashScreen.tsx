@@ -56,9 +56,7 @@ const SplashScreen = ({
 				</View>
 			)}
 
-			{children && !displayLogo && (
-				<View style={styles.childrenWrapper}>{children}</View>
-			)}
+			{children && !displayLogo && <View style={styles.childrenWrapper}>{children}</View>}
 			{children && displayLogo && children}
 		</ModalWrapper>
 	);

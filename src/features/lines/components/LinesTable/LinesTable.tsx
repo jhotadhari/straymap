@@ -139,6 +139,14 @@ const LinesTable: FC = () => {
 		return actionCol + cols;
 	}, [tableColumns]);
 
+	const flashListStyle: ViewStyle = useMemo(
+		() => ({
+			alignSelf: 'flex-start',
+			minWidth: contentMinWidth,
+		}),
+		[contentMinWidth]
+	);
+
 	// Remove not existing ids from selection.
 	useEffect(() => {
 		if (lineIds.length) {
@@ -320,10 +328,7 @@ const LinesTable: FC = () => {
 									layout.size = rowHeight;
 								},
 							})}
-							style={{
-								alignSelf: 'flex-start',
-								minWidth: contentMinWidth,
-							}}
+							style={flashListStyle}
 						/>
 					</BidirectionalScrollHost>
 				</View>

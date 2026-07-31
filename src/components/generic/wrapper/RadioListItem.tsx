@@ -86,7 +86,7 @@ const RadioListItem = ({
 	);
 
 	const styleDesc = useMemo(
-		() => 		[
+		() => [
 			theme.fonts.bodySmall,
 			{ color: theme.colors.onSurfaceVariant, opacity: 0.7 },
 			descStyle,

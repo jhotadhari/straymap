@@ -41,7 +41,11 @@ const LayerRendererHillshading: FC<{
 			handleCreateOrChange(response);
 			onLayerCreated?.(layer.key, 'hillshading');
 		},
-		[handleCreateOrChange, onLayerCreated, layer.key]
+		[
+			handleCreateOrChange,
+			onLayerCreated,
+			layer.key,
+		]
 	);
 
 	if (!layer.visible || !hasSource) return null;

@@ -26,11 +26,18 @@ const useKeyboardShown = () => {
 		};
 	}, []);
 
-	return useMemo(() => ({
-		keyboardShown,
-		keyboardHeight,
-		keyboardScreenY,
-	}), [keyboardShown, keyboardHeight, keyboardScreenY]);
+	return useMemo(
+		() => ({
+			keyboardShown,
+			keyboardHeight,
+			keyboardScreenY,
+		}),
+		[
+			keyboardShown,
+			keyboardHeight,
+			keyboardScreenY,
+		]
+	);
 };
 
 export default useKeyboardShown;

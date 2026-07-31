@@ -138,16 +138,28 @@ export const useButtonProps = ({
 		disabled,
 	]);
 
-	return useMemo(() => ({
-		style,
-		contentStyle,
-		labelStyle,
-		textColor,
-		buttonColor,
-		mode,
-		disabled,
-		nestedIconColor,
-	}), [style, contentStyle, labelStyle, textColor, buttonColor, mode, disabled, nestedIconColor]);
+	return useMemo(
+		() => ({
+			style,
+			contentStyle,
+			labelStyle,
+			textColor,
+			buttonColor,
+			mode,
+			disabled,
+			nestedIconColor,
+		}),
+		[
+			style,
+			contentStyle,
+			labelStyle,
+			textColor,
+			buttonColor,
+			mode,
+			disabled,
+			nestedIconColor,
+		]
+	);
 };
 
 const styles = StyleSheet.create({

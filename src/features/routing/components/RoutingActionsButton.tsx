@@ -4,7 +4,6 @@
 import React, { FC, useMemo } from 'react';
 import { Icon } from 'react-native-paper';
 import type { IconSource } from 'react-native-paper/lib/typescript/components/Icon';
-import { Props as ButtonPropsPaper } from 'react-native-paper/lib/typescript/components/Button/Button';
 
 /**
  * Internal dependencies
@@ -34,7 +33,7 @@ const RoutingActionsButton: FC<{
 			mode: 'outlined',
 			disabled,
 		}),
-		[buttonPropsProps_]
+		[buttonPropsProps_, disabled]
 	);
 	return (
 		<ButtonHighlightMenuControl

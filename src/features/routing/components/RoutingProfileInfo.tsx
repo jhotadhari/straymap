@@ -21,7 +21,7 @@ const RoutingProfileInfo: FC<{
 }> = ({ profile, inheritMode, distUnit, style }) => {
 	const { t } = useTranslation();
 
-	const styleContainer = useMemo( () => [styles.container,style], [style])
+	const styleContainer = useMemo(() => [styles.container, style], [style]);
 
 	return (
 		<View style={styleContainer}>
@@ -34,7 +34,11 @@ const RoutingProfileInfo: FC<{
 			)}
 			{profile.provider === 'brouter' && (
 				<>
-					<Text>{t(`routing.vehicle${profile.options.v.charAt(0).toUpperCase() + profile.options.v.slice(1)}`)}</Text>
+					<Text>
+						{t(
+							`routing.vehicle${profile.options.v.charAt(0).toUpperCase() + profile.options.v.slice(1)}`
+						)}
+					</Text>
 					<Text>{profile.options.fast ? t('routing.fast') : t('routing.slow')}</Text>
 				</>
 			)}
@@ -56,7 +60,6 @@ const styles = StyleSheet.create({
 		flexDirection: 'row',
 		alignItems: 'center',
 		gap: 8,
-
 
 		// marginLeft:
 	},

@@ -95,11 +95,8 @@ const LineStats: FC<{
 	if (undefined === NodeWrapper) {
 		return nodeValues;
 	} else {
-		return Object.keys(nodes).map((key) => (
-			<NodeWrapper key={key}>{nodes[key]}</NodeWrapper>
-		));
+		return Object.keys(nodes).map((key) => <NodeWrapper key={key}>{nodes[key]}</NodeWrapper>);
 	}
-
 };
 
 export default LineStats;

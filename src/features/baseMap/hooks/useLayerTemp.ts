@@ -33,5 +33,5 @@ export const useLayerTemp = <OptionsType extends object>() => {
 		[dispatch]
 	);
 
-	return useMemo(() => ({ layerTemp, setOptions } as const), [layerTemp, setOptions]);
+	return useMemo(() => ({ layerTemp, setOptions }) as const, [layerTemp, setOptions]);
 };

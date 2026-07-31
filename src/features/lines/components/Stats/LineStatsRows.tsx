@@ -21,21 +21,21 @@ const LineStatsRows: FC<{
 	return useMemo(
 		() =>
 			Object.keys(stats).map((statKey) => {
-		const columnKey = 'distance' === statKey ? 'length' : statKey;
-		return (
-			<InfoLabelRow
-				key={statKey}
-				label={t(`lines.columns.${columnKey}`)}
-			>
-				<LineStat
-					value={get(stats, statKey)}
-					columnKey={columnKey}
-					renderParts={statsRenderParts}
-					style={styles.gap}
-				/>
-			</InfoLabelRow>
-		);
-	}),
+				const columnKey = 'distance' === statKey ? 'length' : statKey;
+				return (
+					<InfoLabelRow
+						key={statKey}
+						label={t(`lines.columns.${columnKey}`)}
+					>
+						<LineStat
+							value={get(stats, statKey)}
+							columnKey={columnKey}
+							renderParts={statsRenderParts}
+							style={styles.gap}
+						/>
+					</InfoLabelRow>
+				);
+			}),
 		[stats, t]
 	);
 };

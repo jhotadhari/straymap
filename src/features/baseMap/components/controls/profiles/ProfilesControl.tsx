@@ -16,12 +16,11 @@ import {
 	View,
 	TouchableHighlight,
 	ViewStyle,
-	LayoutChangeEvent,
 	TextStyle,
 	Dimensions,
 	StyleSheet,
 } from 'react-native';
-import { List, useTheme, Text, Icon, IconButtonProps } from 'react-native-paper';
+import { List, useTheme, Text, IconButtonProps } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import Sortable, { SortableFlexDragEndParams } from 'react-native-sortables';
 import { get } from 'lodash-es';
@@ -79,7 +78,6 @@ const EditModal: FC<{
 	setIsNewKey: Dispatch<SetStateAction<false | string>>;
 }> = ({ isNewKey, saveOnChange, saveProfiles, setIsNewKey }) => {
 	const { t } = useTranslation();
-	const theme = useTheme();
 
 	const dispatch = useAppDispatch();
 	const profileTemp = useAppSelector(selectMapsforgeProfileTemp);
@@ -325,7 +323,12 @@ const ControlInfo: FC<{}> = () => {
 // Derive a fallback label from the profile's theme file (basename without path/extension).
 export const getPlaceholderLabel = (profile?: MapsforgeProfile) => {
 	if (!profile?.theme) return undefined;
-	return profile.theme.split('/').pop()?.replace(/\.[^.]*$/, '') || undefined;
+	return (
+		profile.theme
+			.split('/')
+			.pop()
+			?.replace(/\.[^.]*$/, '') || undefined
+	);
 };
 
 // Wraps getPlaceholderLabel with 'baseMap.label' as final fallback.
@@ -381,10 +384,7 @@ const DraggableItem = ({
 		profiles,
 	]);
 
-	const displayName = useMemo(
-		() => item.name || t(getProfileLabelPlaceholder(item)),
-		[t, item]
-	);
+	const displayName = useMemo(() => item.name || t(getProfileLabelPlaceholder(item)), [t, item]);
 
 	const style: ViewStyle = useMemo(
 		() => ({

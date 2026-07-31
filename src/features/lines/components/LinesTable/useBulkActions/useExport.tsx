@@ -3,11 +3,9 @@
  */
 import { useCallback, useContext, useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { sprintf } from 'sprintf-js';
 import { writeFile, ExternalStorageDirectoryPath } from 'react-native-fs';
-import { get } from 'lodash-es';
 import dayjs from 'dayjs';
 import { LineString } from 'geojson';
 
@@ -43,7 +41,6 @@ const formatOptions = EXPORT_FORMATS.map((f) => ({
 }));
 
 const useExport = () => {
-	const theme = useTheme();
 	const { t } = useTranslation();
 	const { showError } = useContext(ErrorToastContext);
 
@@ -201,7 +198,6 @@ const useExport = () => {
 			writing,
 			buttonProps,
 			t,
-			theme,
 		]
 	);
 

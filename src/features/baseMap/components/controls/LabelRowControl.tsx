@@ -23,8 +23,7 @@ const LabelRowControl = ({
 	Info?: ReactNode | string;
 	placeholder?: string;
 }) => {
-
-	const {t} = useTranslation();
+	const { t } = useTranslation();
 
 	const theme = useTheme();
 	const [value, setValue] = useState(item.name);

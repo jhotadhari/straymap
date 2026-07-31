@@ -80,9 +80,7 @@ const LinesMapView = () => {
 				prev: prevSimplifyRef.current,
 				next: simplify,
 				selectedCount: selectedIds.length,
-				bbox: queryBbox
-					? `${queryBbox[0].toFixed(4)},${queryBbox[1].toFixed(4)}`
-					: null,
+				bbox: queryBbox ? `${queryBbox[0].toFixed(4)},${queryBbox[1].toFixed(4)}` : null,
 			});
 		}
 		prevSimplifyRef.current = simplify;

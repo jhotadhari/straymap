@@ -8,7 +8,7 @@ import { Style as ListStyle } from 'react-native-paper/lib/typescript/components
  * Internal dependencies
  */
 import ListItem from './ListItem';
-import { LayoutChangeEvent, StyleSheet, View, ViewStyle } from 'react-native';
+import { LayoutChangeEvent, View, ViewStyle } from 'react-native';
 import ModalWrapper from './ModalWrapper';
 import { sharedStyles } from '../../../sharedStyles';
 
@@ -72,14 +72,5 @@ const ListItemModalControl: FC<{
 		</View>
 	);
 };
-
-const styles = StyleSheet.create({
-	content: {
-		gap: 32,
-	},
-	controls: {
-		marginBottom: 40,
-	},
-});
 
 export default ListItemModalControl;

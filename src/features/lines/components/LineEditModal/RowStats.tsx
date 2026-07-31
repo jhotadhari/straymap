@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { FC, Fragment, useContext } from 'react';
-import { useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 
 /**
@@ -15,7 +14,6 @@ import useShowLinesStatsCbModal from '../../hooks/useShowStatsCbModal';
 import { useButtonProps } from '../../../../compose/useButtonProps';
 
 const RowStats: FC = () => {
-	const theme = useTheme();
 	const { t } = useTranslation();
 
 	const { line, route } = useContext(LineEditModalContext);

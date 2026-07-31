@@ -2,7 +2,6 @@
  * External dependencies
  */
 import React, { Dispatch, FC, SetStateAction, useCallback, useContext } from 'react';
-import { Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 

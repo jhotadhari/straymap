@@ -34,7 +34,6 @@ const Dashboard: FC<{
 	sortEnabled?: boolean;
 	highlightEditItem?: boolean;
 	shouldSetBottomBarHeight?: boolean;
-	shouldSetTopBarHeight?: boolean;
 	onPressItem?: (itemKey: string, event: GestureResponderEvent) => void;
 	onLayout?: (event: LayoutChangeEvent) => void;
 }> = ({
@@ -46,11 +45,10 @@ const Dashboard: FC<{
 	sortEnabled,
 	highlightEditItem,
 	shouldSetBottomBarHeight,
-	shouldSetTopBarHeight,
 	onPressItem,
 	onLayout,
 }) => {
-	const { setBottomBarHeight, setTopAppBarHeight } = useContext(AppContext);
+	const { setBottomBarHeight } = useContext(AppContext);
 
 	const items = useAppSelector((state) => selectItems(state, { position }));
 	const dashboardStyle = useAppSelector((state) => selectDashboardStyle(state, position));
@@ -89,9 +87,7 @@ const Dashboard: FC<{
 			position,
 			items.length,
 			setBottomBarHeight,
-			setTopAppBarHeight,
 			shouldSetBottomBarHeight,
-			shouldSetTopBarHeight,
 			onLayout,
 		]
 	);

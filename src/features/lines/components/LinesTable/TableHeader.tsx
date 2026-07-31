@@ -11,12 +11,7 @@ import Popover, { PopoverPlacement } from 'react-native-popover-view';
  * Internal dependencies
  */
 import { cellConfigs, getCellCategory, getFilterColumnType } from './sharedDeps';
-import {
-	SortableHeaderCell,
-	useContainerMinWidth,
-	tableStyles,
-	useScrollSafePress,
-} from '../tableResources';
+import { SortableHeaderCell, useContainerMinWidth, tableStyles } from '../tableResources';
 import { TableColumn } from '../../types';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { selectLinesTableColumns, selectLinesSort, selectLinesFilters } from '../../selectors';

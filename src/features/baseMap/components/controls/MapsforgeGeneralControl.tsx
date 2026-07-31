@@ -20,9 +20,7 @@ import type { MapsforgeGeneral } from '../../types';
 const validate = (val: number) => val >= 0 && val <= 20;
 
 const isEqual = (a: MapsforgeGeneral, b: MapsforgeGeneral) =>
-	a.lineScale === b.lineScale &&
-	a.textScale === b.textScale &&
-	a.symbolScale === b.symbolScale;
+	a.lineScale === b.lineScale && a.textScale === b.textScale && a.symbolScale === b.symbolScale;
 
 const MapsforgeGeneralControl = () => {
 	const { t } = useTranslation();
@@ -47,20 +45,17 @@ const MapsforgeGeneralControl = () => {
 	}, [storeSettings]);
 
 	const handleLineScale = useCallback(
-		(newValue: number) =>
-			setLocalSettings((prev) => ({ ...prev, lineScale: newValue })),
+		(newValue: number) => setLocalSettings((prev) => ({ ...prev, lineScale: newValue })),
 		[]
 	);
 
 	const handleTextScale = useCallback(
-		(newValue: number) =>
-			setLocalSettings((prev) => ({ ...prev, textScale: newValue })),
+		(newValue: number) => setLocalSettings((prev) => ({ ...prev, textScale: newValue })),
 		[]
 	);
 
 	const handleSymbolScale = useCallback(
-		(newValue: number) =>
-			setLocalSettings((prev) => ({ ...prev, symbolScale: newValue })),
+		(newValue: number) => setLocalSettings((prev) => ({ ...prev, symbolScale: newValue })),
 		[]
 	);
 

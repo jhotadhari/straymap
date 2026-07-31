@@ -3,7 +3,7 @@
  */
 import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { StyleSheet, TextStyle, View, ViewStyle } from 'react-native';
-import { Text, useTheme, TextInput } from 'react-native-paper';
+import { useTheme, TextInput } from 'react-native-paper';
 
 /**
  * Internal dependencies
@@ -178,26 +178,6 @@ const NumericRowControlSegmented = ({
 		numValueActive,
 		toggleOption,
 	]);
-
-	const styleButton = useMemo(
-		() => [
-			localStyles.button,
-			{
-				borderRadius: theme.roundness,
-			},
-		],
-		[theme]
-	);
-
-	const styleButtonLabel = useMemo(
-		() => [
-			{
-				...(numValueActive && appSharedStyles.disabled),
-				paddingHorizontal: 0,
-			},
-		],
-		[numValueActive]
-	);
 
 	const styleInput = useMemo(
 		() => [

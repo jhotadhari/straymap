@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { FC, memo, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { FC, memo, ReactNode, useCallback, useContext, useEffect, useMemo } from 'react';
 import {
 	Pressable,
 	StyleSheet,
@@ -53,6 +53,7 @@ const styles = StyleSheet.create({
 	},
 	backButton: { padding: 4 },
 	contentInner: { paddingBottom: 6 * 8 },
+	contentContainerScroll: { flexGrow: 1 },
 });
 
 const ModalWrapper: FC<{
@@ -257,7 +258,7 @@ const ModalWrapper: FC<{
 									innerContainerStyle,
 									modalStyle,
 								]}
-								contentContainerStyle={{ flexGrow: 1 }}
+								contentContainerStyle={styles.contentContainerScroll}
 								keyboardShouldPersistTaps="handled"
 							>
 								<View style={styles.headerRow}>

@@ -134,8 +134,8 @@ const useRemoveTag = () => {
 			tags,
 			selectedTagId,
 			handleApply,
-			mutation.isPending,
 			t,
+			buttonPropsDelete,
 		]
 	);
 

@@ -149,7 +149,12 @@ const LayerControlRasterMBTiles: FC<{}> = () => {
 // Derive a fallback label from the layer's MBTiles file (filename without path and extension).
 export const getPlaceholderLabel = (layer: LayerConfig) => {
 	const mapFile = (layer.options as LayerConfigOptionsRasterMBtiles)?.mapFile;
-	return mapFile ? mapFile.split('/').pop()?.replace(/\.[^.]*$/, '') || mapFile : undefined;
+	return mapFile
+		? mapFile
+				.split('/')
+				.pop()
+				?.replace(/\.[^.]*$/, '') || mapFile
+		: undefined;
 };
 
 export default LayerControlRasterMBTiles;

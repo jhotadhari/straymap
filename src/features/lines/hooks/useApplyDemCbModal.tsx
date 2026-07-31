@@ -20,7 +20,7 @@ import LoadingIndicator from '../../../components/generic/primitives/LoadingIndi
 import ModalWrapper from '../../../components/generic/wrapper/ModalWrapper';
 import RadioListItem from '../../../components/generic/wrapper/RadioListItem';
 import { sharedStyles } from '../../../sharedStyles';
-import { OPACITY_DISABLED, POPOVER_MENU_ITEM_ICON_SIZE } from '../../../constants';
+import { POPOVER_MENU_ITEM_ICON_SIZE } from '../../../constants';
 import { altitudeService } from '../../../lib/AltitudeService';
 import { logError } from '../../../lib/utils';
 import { updateLine } from '../db/actionsLine';
@@ -577,7 +577,6 @@ const useApplyDemCbModal = ({
 		backgroundBlur,
 		selectedOption,
 		mutation.isPending,
-		disabled,
 		buttonProps,
 		lineIds,
 		processingStarted,
@@ -589,6 +588,7 @@ const useApplyDemCbModal = ({
 		failedLineIds,
 		lineStats,
 		theme,
+		systemLineIds,
 	]);
 
 	return useMemo(
