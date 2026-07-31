@@ -2,7 +2,7 @@
  * External dependencies
  */
 import React, { FC, useEffect, useMemo, useRef, useState } from 'react';
-import { BackHandler, Dimensions, View } from 'react-native';
+import { BackHandler, Dimensions, StyleSheet, View } from 'react-native';
 import { PaperProvider, Text, useTheme } from 'react-native-paper';
 import { MapEventResponse } from 'react-native-mapsforge-vtm';
 import { sprintf } from 'sprintf-js';
@@ -72,17 +72,13 @@ const App: FC = () => {
 
 	const requireReload = useAppSelector(selectRequireReload);
 
-	const style = useMemo(
+	const splashStyle = useMemo(
 		() => ({
 			backgroundColor: theme.colors.background,
 			height,
 			width,
 		}),
-		[
-			theme,
-			height,
-			width,
-		]
+		[theme, height, width]
 	);
 
 	const appContextValue = useMemo(
@@ -125,7 +121,7 @@ const App: FC = () => {
 	if (isUpdating) {
 		return (
 			<AppContext.Provider value={appContextValue}>
-				<View style={style}>
+				<View style={splashStyle}>
 					<SplashScreenUpdater />
 				</View>
 			</AppContext.Provider>
@@ -141,14 +137,16 @@ const App: FC = () => {
 		const isDbError = dbMigrated && 'string' === typeof dbMigrated;
 		return (
 			<AppContext.Provider value={appContextValue}>
-				<View style={style}>
+				<View style={splashStyle}>
 					<SplashScreen displayLogo={!isDbError && !requireReload}>
-						{isDbError && (
-							<Text>{sprintf(t('dbLoader.dbMigrationError'), dbMigrated)}</Text>
+						{!isDbError && !requireReload && true !== dbMigrated && (
+							<Text style={styles.splashText}>{t('dbLoader.dbInitializing')}</Text>
 						)}
-
+						{isDbError && (
+							<Text style={styles.splashText}>{sprintf(t('dbLoader.dbMigrationError'), dbMigrated)}</Text>
+						)}
 						{requireReload && (
-							<Text>{sprintf(t('dbLoader.requireReload'), dbMigrated)}</Text>
+							<Text style={styles.splashText}>{sprintf(t('dbLoader.requireReload'), dbMigrated)}</Text>
 						)}
 					</SplashScreen>
 				</View>
@@ -169,26 +167,30 @@ const App: FC = () => {
 	);
 };
 
+const styles = StyleSheet.create({
+	splashText: {
+		textAlign: 'center',
+	},
+});
+
 export default () => {
 	const theme = useSetupTheme();
 
 	const dbLoaderInitialized = useAppSelector(selectInitialized);
 
-	// const systemIsDarkMode = useColorScheme() === 'dark';
-
 	return (
-		dbLoaderInitialized &&
-		dbConnection?.queryClient && (
-			<QueryClientProvider client={dbConnection.queryClient}>
-				<GestureHandlerRootView>
-					<PaperProvider theme={theme}>
-						<ErrorToastProvider>
-							{/* <StatusBar barStyle={systemIsDarkMode ? 'light-content' : 'dark-content'} /> */}
+		<PaperProvider theme={theme}>
+			<GestureHandlerRootView>
+				<ErrorToastProvider>
+					{dbLoaderInitialized && dbConnection?.queryClient ? (
+						<QueryClientProvider client={dbConnection.queryClient}>
 							<App />
-						</ErrorToastProvider>
-					</PaperProvider>
-				</GestureHandlerRootView>
-			</QueryClientProvider>
-		)
+						</QueryClientProvider>
+					) : (
+						<App />
+					)}
+				</ErrorToastProvider>
+			</GestureHandlerRootView>
+		</PaperProvider>
 	);
 };

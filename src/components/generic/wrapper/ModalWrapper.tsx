@@ -257,6 +257,7 @@ const ModalWrapper: FC<{
 									innerContainerStyle,
 									modalStyle,
 								]}
+								contentContainerStyle={{ flexGrow: 1 }}
 								keyboardShouldPersistTaps="handled"
 							>
 								<View style={styles.headerRow}>

@@ -2,6 +2,7 @@
 	"dbMigrationError": "Fehler bei der Datenbankmigration: %s",
 	"dbMigrationFallbackCreated": "Die vorherige Datenbank \"%s\" konnte nicht geöffnet werden. Eine neue Datenbank \"%s\" wird beim nächsten Neustart verwendet.",
 	"database": "Datenbank",
+	"dbInitializing": "Datenbank-Einrichtung, geht ganz schnell, wie mit dem Fahrrad auf Raketen-Asphalt — nur dieses eine Mal!",
 	"selectDbFile": "Datenbankdatei auswählen",
 	"createNewDatabase": "Neue Datenbank erstellen",
 	"noDatabasesFound": "Keine Datenbanken gefunden",
@@ -15,7 +16,7 @@
 	"deleteDatabaseConfirmation": "\"%s\" löschen? Das kann nicht rückgängig gemacht werden.",
 	"renameDatabasePrompt": "Gib einen neuen Namen ein:",
 	"newDatabasePrompt": "Gib einen Namen für die neue Datenbank ein:",
-	"requireReload": "Neustart erforderlich, um Änderungen zu übernehmen.",
+	"requireReload": "Neustart erforderlich, um Änderungen zu übernehmen.\n\nWische die App aus der Liste der letzten Apps, um sie vollständig zu schließen, und tippe dann auf das App-Symbol, um sie zu starten.",
 	"willRequireReload": "Das Ändern der aktiven Datenbank erfordert einen Neustart der App.",
 	"fileAlreadyExists": "Eine Datei namens \"%s\" existiert bereits.",
 	"fileOperationError": "Dateioperation fehlgeschlagen: %s"

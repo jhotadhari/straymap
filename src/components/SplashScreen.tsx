@@ -22,15 +22,15 @@ const SplashScreen = ({
 	innerStyle?: StyleProp<ViewStyle>;
 }) => {
 	const theme = useTheme();
-	const { width, height } = Dimensions.get('window');
+	const { width } = Dimensions.get('window');
 
 	const styleInner = useMemo(
 		() => [
 			styles.innerStyle,
-			{ height: height * 0.75 - 2 * 20 },
+			{ flex: 1 },
 			innerStyle,
 		],
-		[height, innerStyle]
+		[innerStyle]
 	);
 
 	const styleTitle = useMemo(() => [theme.fonts.displayMedium, styles.title], [theme]);
@@ -56,7 +56,10 @@ const SplashScreen = ({
 				</View>
 			)}
 
-			{children && children}
+			{children && !displayLogo && (
+				<View style={styles.childrenWrapper}>{children}</View>
+			)}
+			{children && displayLogo && children}
 		</ModalWrapper>
 	);
 };
@@ -69,6 +72,10 @@ const styles = StyleSheet.create({
 	logoWrapper: {
 		justifyContent: 'center',
 		flexGrow: 1,
+	},
+	childrenWrapper: {
+		flex: 1,
+		justifyContent: 'center',
 	},
 	innerContainerStyle: {
 		borderWidth: 0,
