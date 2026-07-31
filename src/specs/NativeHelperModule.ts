@@ -7,6 +7,7 @@ import type { UnsafeObject } from 'react-native/Libraries/Types/CodegenTypes';
 
 interface Spec extends TurboModule {
 	getAppDirs(): Promise<UnsafeObject>;
+	setWindowBackgroundColor(color: string): void;
 }
 
 export default TurboModuleRegistry.getEnforcing<Spec>('HelperModule');

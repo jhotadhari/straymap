@@ -103,7 +103,7 @@ const AppView = ({
 		[]
 	);
 
-	const { width, height } = Dimensions.get('window');
+	const { width } = Dimensions.get('window');
 
 	const { mapViewNativeNodeHandle, moveEnabled, drawerControlsRef } = useContext(AppContext);
 
@@ -338,14 +338,13 @@ const AppView = ({
 	const styleContainer: ViewStyle = useMemo(
 		() => ({
 			backgroundColor: theme.colors.background,
-			height,
+			flex: 1,
 			width,
 			flexDirection: 'column',
 			justifyContent: 'space-between',
 		}),
 		[
 			theme,
-			height,
 			width,
 		]
 	);

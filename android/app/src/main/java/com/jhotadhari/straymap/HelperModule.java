@@ -1,4 +1,6 @@
 package com.jhotadhari.straymap;
+import android.app.Activity;
+import android.graphics.drawable.ColorDrawable;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactMethod;
@@ -43,6 +45,24 @@ public class HelperModule extends NativeHelperModuleSpec {
 
 		promise.resolve( responseParams );
 	};
+
+	@ReactMethod
+	public void setWindowBackgroundColor(String color) {
+		getReactApplicationContext().runOnUiQueueThread(new Runnable() {
+			@Override
+			public void run() {
+				Activity activity = getCurrentActivity();
+				if (activity != null) {
+					try {
+						int parsedColor = android.graphics.Color.parseColor(color);
+						activity.getWindow().setBackgroundDrawable(new ColorDrawable(parsedColor));
+					} catch (IllegalArgumentException e) {
+						// Invalid color string — ignore silently
+					}
+				}
+			}
+		});
+	}
 
 	public void addAppSubDirsToResponse( WritableMap responseParams ) {
 		// externalMediaDirs

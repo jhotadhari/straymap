@@ -2,7 +2,7 @@
  * External dependencies
  */
 import React, { FC, useEffect, useMemo, useRef, useState } from 'react';
-import { BackHandler, Dimensions, StyleSheet, View } from 'react-native';
+import { BackHandler, Dimensions, processColor, StyleSheet, View } from 'react-native';
 import { PaperProvider, Text, useTheme } from 'react-native-paper';
 import { MapEventResponse } from 'react-native-mapsforge-vtm';
 import { sprintf } from 'sprintf-js';
@@ -31,6 +31,7 @@ import {
 	selectRequireReload,
 } from '../features/dbLoader/selectors';
 import { dbConnection } from '../features/dbLoader/DBConnection';
+import { HelperModule } from '../nativeModules';
 import ErrorToastProvider from './ErrorToast/ErrorToastProvider';
 
 const App: FC = () => {
@@ -74,6 +75,23 @@ const App: FC = () => {
 	const dbPendingMigrations = useAppSelector(selectDbPendingMigrations);
 
 	const requireReload = useAppSelector(selectRequireReload);
+
+	const isReady =
+		initialPositionInitialized &&
+		settingsInitialized &&
+		true === dbMigrated &&
+		!requireReload &&
+		!isUpdating;
+
+	useEffect(() => {
+		if (isReady) {
+			const rawColor = processColor(theme.colors.background);
+			if (rawColor != null) {
+				const hex = '#' + ((rawColor as number) >>> 0).toString(16).padStart(8, '0');
+				HelperModule.setWindowBackgroundColor(hex);
+			}
+		}
+	}, [isReady, theme]);
 
 	const splashStyle = useMemo(
 		() => ({
@@ -183,7 +201,7 @@ export default () => {
 
 	return (
 		<PaperProvider theme={theme}>
-			<GestureHandlerRootView>
+			<GestureHandlerRootView style={{ flex: 1, backgroundColor: theme.colors.background }}>
 				<ErrorToastProvider>
 					{dbLoaderInitialized && dbConnection?.queryClient ? (
 						<QueryClientProvider client={dbConnection.queryClient}>
