@@ -117,31 +117,33 @@ public class FsModule extends NativeFsModuleSpec {
 			}
 		});
 
-	protected void walk( File startPath, MatchExtensionsPredicate filter, Boolean recursive, boolean stopOnFirstMatch, int maxDepth, int currentDepth, FileHandler handler ) {
-		if ( startPath.isDirectory() && currentDepth <= maxDepth ) {
-			boolean shouldWalk = recursive && ! stopOnFirstMatch;
-			if ( isAtLeastO() ) {
-				File[] files = startPath.listFiles();
-				assert files != null;
-				boolean foundMatch = false;
-				for (File file : files) {
-					if (! file.isDirectory() && ! file.getName().startsWith( "." ) && filter.test(file.toPath())) {
-						foundMatch = true;
-						handler.handle( file );
-					}
+	protected boolean walk( File startPath, MatchExtensionsPredicate filter, Boolean recursive, boolean stopOnFirstMatch, int maxDepth, int currentDepth, FileHandler handler ) {
+		if ( !startPath.isDirectory() || currentDepth > maxDepth ) return false;
+		boolean shouldWalk = recursive && ! stopOnFirstMatch;
+		if ( isAtLeastO() ) {
+			File[] files = startPath.listFiles();
+			if ( files == null ) return false;
+			boolean foundMatch = false;
+			for (File file : files) {
+				if (! file.isDirectory() && ! file.getName().startsWith( "." ) && filter.test(file.toPath())) {
+					foundMatch = true;
+					handler.handle( file );
 				}
-				if ( foundMatch && stopOnFirstMatch ) {
-					return;
-				}
-				if ( shouldWalk || ( recursive && ! foundMatch ) ) {
-					for (File file : files ) {
-						if ( file.isDirectory() && ! file.getName().startsWith( "." ) ) {
-							this.walk( file, filter, recursive, stopOnFirstMatch, maxDepth, currentDepth + 1, handler );
+			}
+			if ( foundMatch && stopOnFirstMatch ) {
+				return true;
+			}
+			if ( shouldWalk || ( recursive && ! foundMatch ) ) {
+				for (File file : files ) {
+					if ( file.isDirectory() && ! file.getName().startsWith( "." ) ) {
+						if ( this.walk( file, filter, recursive, stopOnFirstMatch, maxDepth, currentDepth + 1, handler ) ) {
+							return true;
 						}
 					}
 				}
 			}
 		}
+		return false;
 	}
 
     @ReactMethod

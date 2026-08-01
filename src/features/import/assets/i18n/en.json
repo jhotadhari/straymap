@@ -8,7 +8,7 @@
 	"featureCount": "%s track(s) found",
 	"trackN": "Track %s",
 	"selected": "Import %s track(s)",
-	"ing": "Importing…",
+	"importing": "Importing…",
 	"pickDirectory": "Pick directory (SAF)",
 	"scanStorageHint": "Or scan a storage directory:",
 	"scanStorage": "Scan storage",

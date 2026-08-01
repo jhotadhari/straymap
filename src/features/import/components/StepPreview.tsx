@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { FC } from 'react';
+import { FC, Dispatch, SetStateAction } from 'react';
 import { ScrollView, TextInput, View } from 'react-native';
 import { Text, Checkbox, useTheme, SegmentedButtons } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -44,7 +44,7 @@ const StepPreview: FC<{
 	tagRegex: string;
 	setTagRegex: (s: string) => void;
 	selectedTagIds: number[];
-	setSelectedTagIds: (ids: number[]) => void;
+	setSelectedTagIds: Dispatch<SetStateAction<number[]>>;
 	dryRun: boolean;
 	setDryRun: (b: boolean) => void;
 }> = ({
@@ -319,10 +319,10 @@ const StepPreview: FC<{
 										selectedTagIds.includes(tag.id) ? 'checked' : 'unchecked'
 									}
 									onPress={() =>
-										setSelectedTagIds(
-											selectedTagIds.includes(tag.id)
-												? selectedTagIds.filter((id) => id !== tag.id)
-												: [...selectedTagIds, tag.id]
+										setSelectedTagIds((prev) =>
+											prev.includes(tag.id)
+												? prev.filter((id) => id !== tag.id)
+												: [...prev, tag.id]
 										)
 									}
 								/>

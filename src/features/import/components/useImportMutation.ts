@@ -1,13 +1,12 @@
 /**
  * External dependencies
  */
-import { useCallback, useRef } from 'react';
+import { useCallback, useContext, useRef } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { readFile } from 'react-native-fs';
 import { sprintf } from 'sprintf-js';
 import { Feature, GeoJsonProperties, LineString } from 'geojson';
-import { useContext } from 'react';
 
 /**
  * Internal dependencies
@@ -319,14 +318,14 @@ const useImportMutation = ({
 					setStep('result');
 					return;
 				}
+			} else {
+				// Single-file mode: warn about skipped geometry features
+				const skipped = singleFileMeta.current.skippedGeom;
+				if (skipped && skipped > 0) {
+					showError(sprintf(t('import.skippedGeometry'), skipped));
+				}
+				delete singleFileMeta.current.skippedGeom;
 			}
-
-			// Single-file mode: warn about skipped geometry features
-			const skipped = singleFileMeta.current.skippedGeom;
-			if (skipped && skipped > 0) {
-				showError(sprintf(t('import.skippedGeometry'), skipped));
-			}
-			delete singleFileMeta.current.skippedGeom;
 
 			setStep('idle');
 			setImportMode('file');
@@ -341,6 +340,7 @@ const useImportMutation = ({
 			handleClose();
 		},
 		onError: (err) => {
+			delete singleFileMeta.current.skippedGeom;
 			logError('ImportModal.import', err);
 			showError(sprintf(t('errorGeneric'), err instanceof Error ? err.message : String(err)));
 

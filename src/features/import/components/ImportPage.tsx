@@ -110,6 +110,11 @@ const ImportPage = () => {
 	// Track whether the page has been dismissed so in-flight
 	// async callbacks don't overwrite clean post-dismiss state.
 	const dismissedRef = useRef(false);
+	useEffect(() => {
+		return () => {
+			dismissedRef.current = true;
+		};
+	}, []);
 
 	// ---- import mutation ----
 	const mutation = useImportMutation({

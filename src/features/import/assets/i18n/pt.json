@@ -8,7 +8,7 @@
 	"featureCount": "%s trilha(s) encontrada(s)",
 	"trackN": "Trilha %s",
 	"selected": "Importar %s trilha(s)",
-	"ing": "Importando...",
+	"importing": "Importando...",
 	"pickDirectory": "Selecionar diretório",
 	"scanningDir": "Examinando diretório...",
 	"dirNoFiles": "Nenhum arquivo compatível encontrado neste diretório.",

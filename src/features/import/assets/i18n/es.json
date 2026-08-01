@@ -8,7 +8,7 @@
 	"featureCount": "%s ruta(s) encontradas",
 	"trackN": "Ruta %s",
 	"selected": "Importar %s ruta(s)",
-	"ing": "Importando...",
+	"importing": "Importando...",
 	"pickDirectory": "Seleccionar directorio",
 	"scanningDir": "Escaneando directorio...",
 	"dirNoFiles": "No se encontraron archivos compatibles en este directorio.",

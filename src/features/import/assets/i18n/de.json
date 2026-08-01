@@ -8,7 +8,7 @@
 	"featureCount": "%s Strecke(n) gefunden",
 	"trackN": "Strecke %s",
 	"selected": "%s Strecke(n) importieren",
-	"ing": "Importiere…",
+	"importing": "Importiere…",
 	"pickDirectory": "Ordner auswählen",
 	"scanningDir": "Durchsuche Ordner…",
 	"dirNoFiles": "Keine unterstützten Dateien im Ordner gefunden.",
