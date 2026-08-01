@@ -21,7 +21,7 @@ import useAsyncBusy from '../../../../compose/useAsyncBusy';
 import { detectImportFormat, parseImportContent, IMPORT_EXTENSIONS } from '../../utils/importParser';
 import { useButtonProps } from '../../../../compose/useButtonProps';
 import { localStyles } from './styles';
-import { ImportMode, ImportFileResult, ImportStep } from './types';
+import { ImportMode, ImportFileResult, ImportStep, TagMode } from './types';
 import useImportMutation from './useImportMutation';
 import StepIdle from './StepIdle';
 import StepPreview from './StepPreview';
@@ -52,6 +52,14 @@ const ImportModal: FC<{
 	const [bulkProgress, setBulkProgress] = useState({ current: 0, total: 0 });
 	const [importResults, setImportResults] = useState<ImportFileResult[]>([]);
 
+	// Import config
+	const [fileLimit, setFileLimit] = useState<number>(0);
+	const [titleRegex, setTitleRegex] = useState('');
+	const [tagMode, setTagMode] = useState<TagMode>('none');
+	const [selectedTagIds, _setSelectedTagIds] = useState<number[]>([]);
+	const [tagRegex, setTagRegex] = useState('');
+	const [dryRun, setDryRun] = useState(false);
+
 	const [isPickingFile, runOpenDocument] = useAsyncBusy(openDocument);
 	const [isPickingDir, runOpenDocumentTree] = useAsyncBusy(openDocumentTree);
 
@@ -81,6 +89,12 @@ const ImportModal: FC<{
 		setBulkProgress,
 		setImportResults,
 		handleDismissModal,
+		fileLimit,
+		titleRegex,
+		tagMode,
+		selectedTagIds,
+		tagRegex,
+		dryRun,
 	});
 
 	// ---- single-file pick ----
@@ -321,6 +335,16 @@ const ImportModal: FC<{
 					handleDeselectAllFiles={handleDeselectAllFiles}
 					handleImport={handleImport}
 					buttonPropsImport={buttonPropsImport}
+					fileLimit={fileLimit}
+					setFileLimit={setFileLimit}
+					titleRegex={titleRegex}
+					setTitleRegex={setTitleRegex}
+					tagMode={tagMode}
+					setTagMode={setTagMode}
+					tagRegex={tagRegex}
+					setTagRegex={setTagRegex}
+					dryRun={dryRun}
+					setDryRun={setDryRun}
 				/>
 			)}
 

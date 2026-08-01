@@ -4,6 +4,8 @@ export type ImportMode = 'file' | 'directory';
 
 export type ImportStep = 'idle' | 'scanning' | 'parsing' | 'preview' | 'importing' | 'result';
 
+export type TagMode = 'none' | 'existing' | 'regex';
+
 export type ImportFileResult = {
 	name: string;
 	success: boolean;

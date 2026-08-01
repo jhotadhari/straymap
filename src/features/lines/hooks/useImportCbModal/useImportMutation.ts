@@ -18,7 +18,7 @@ import { detectImportFormat, parseImportContent } from '../../utils/importParser
 import { createLines } from '../../db/actionsLine';
 import { ensureTagByLabel } from '../../db/actionsTag';
 import { invalidateTagsTable, invalidateLinesQueries } from '../../db/queryFns';
-import { isValidGeometry, ImportMode, ImportFileResult, ImportStep } from './types';
+import { isValidGeometry, ImportMode, ImportFileResult, ImportStep, TagMode } from './types';
 
 interface UseImportMutationParams {
 	importMode: ImportMode;
@@ -41,6 +41,12 @@ interface UseImportMutationParams {
 	setBulkProgress: React.Dispatch<React.SetStateAction<{ current: number; total: number }>>;
 	setImportResults: React.Dispatch<React.SetStateAction<ImportFileResult[]>>;
 	handleDismissModal: () => void;
+	fileLimit: number;
+	titleRegex: string;
+	tagMode: TagMode;
+	selectedTagIds: number[];
+	tagRegex: string;
+	dryRun: boolean;
 }
 
 const useImportMutation = ({
@@ -64,6 +70,12 @@ const useImportMutation = ({
 	setBulkProgress,
 	setImportResults,
 	handleDismissModal,
+	fileLimit,
+	titleRegex,
+	tagMode,
+	selectedTagIds,
+	tagRegex,
+	dryRun,
 }: UseImportMutationParams) => {
 	const { t } = useTranslation();
 	const { showError } = useContext(ErrorToastContext);
@@ -89,19 +101,65 @@ const useImportMutation = ({
 		[]
 	);
 
+	const applyTitleRegex = useCallback(
+		(name: string): string | null => {
+			if (!titleRegex) return null;
+			try {
+				const re = new RegExp(titleRegex);
+				const match = name.match(re);
+				return match?.[1] ?? null;
+			} catch {
+				return null;
+			}
+		},
+		[titleRegex]
+	);
+
+	const deriveTitle = useCallback(
+		(name: string, fallback: string): string => {
+			return applyTitleRegex(name) ?? fallback;
+		},
+		[applyTitleRegex]
+	);
+
+	const buildDeriveTagIds = useCallback(
+		async (name: string): Promise<number[]> => {
+			const tagIds: number[] = [];
+			const importedId = await getOrCreateImportTag();
+			if (importedId) tagIds.push(importedId);
+			if (tagMode === 'existing') {
+				for (const tid of selectedTagIds) tagIds.push(tid);
+			} else if (tagMode === 'regex' && tagRegex) {
+				try {
+					const re = new RegExp(tagRegex, 'g');
+					let match;
+					while ((match = re.exec(name)) !== null) {
+						const label = match[1] ?? match[0];
+						const id = await ensureTagByLabel(label);
+						if (id) tagIds.push(id);
+					}
+				} catch {
+					// Invalid regex — skip tag extraction
+				}
+			}
+			return [...new Set(tagIds)];
+		},
+		[tagMode, selectedTagIds, tagRegex, getOrCreateImportTag]
+	);
+
 	const mutation = useMutation({
 		mutationFn: async () => {
 			if (importMode === 'directory') {
-				const importTagId = await getOrCreateImportTag();
 				const uris = Array.from(selectedFileUris);
+				const limitedUris = fileLimit > 0 ? uris.slice(0, fileLimit) : uris;
 				const results: ImportFileResult[] = [];
 
 				// Process each file independently — one failing file
 				// doesn't block the rest.
-				for (let i = 0; i < uris.length; i++) {
+				for (let i = 0; i < limitedUris.length; i++) {
 					if (dismissedRef.current) return;
-					setBulkProgress({ current: i + 1, total: uris.length });
-					const uri = uris[i];
+					setBulkProgress({ current: i + 1, total: limitedUris.length });
+					const uri = limitedUris[i];
 					const name = dirFiles.find((f) => f.uri === uri)?.name ?? uri;
 					try {
 						const content = await readFile(uri, 'utf8');
@@ -131,15 +189,30 @@ const useImportMutation = ({
 							continue;
 						}
 
+						if (dryRun) {
+							results.push({
+								name,
+								success: true,
+								importedCount: validFeatures.length,
+								skippedGeom: skippedGeom > 0 ? skippedGeom : undefined,
+							});
+							continue;
+						}
+
+						const tagIds = await buildDeriveTagIds(name);
+						const baseTitle = name.replace(/\.[^.]+$/, '');
+
 						try {
 							const created = await createLines(
 								validFeatures.map((f, idx) => ({
-									title:
+									title: deriveTitle(
+										name,
 										f.properties?.name ??
-										name.replace(/\.[^.]+$/, '') +
-											(validFeatures.length > 1 ? ` ${idx + 1}` : ''),
+											baseTitle +
+												(validFeatures.length > 1 ? ` ${idx + 1}` : '')
+									),
 									lineStringFeature: f,
-									tagIds: importTagId ? [importTagId] : undefined,
+									tagIds: tagIds.length ? tagIds : undefined,
 									data: buildImportData(uri, name, idx),
 								}))
 							);
@@ -189,10 +262,13 @@ const useImportMutation = ({
 				throw new Error(t('lines.importNoFeatures'));
 			}
 
-			const importTagId = await getOrCreateImportTag();
-			const titles = toImport.map(
-				(f) => f.properties?.name ?? filename.replace(/\.[^.]+$/, '')
-			);
+			if (dryRun) {
+				singleFileMeta.current.skippedGeom = skippedCount;
+				return;
+			}
+
+			const tagIds = await buildDeriveTagIds(filename);
+			const defaultTitle = filename.replace(/\.[^.]+$/, '');
 
 			if (mergeMode) {
 				const allCoords = toImport.flatMap((f) => f.geometry.coordinates);
@@ -203,17 +279,20 @@ const useImportMutation = ({
 				};
 				await createLines([
 					{
-						title: filename.replace(/\.[^.]+$/, ''),
+						title: deriveTitle(filename, defaultTitle),
 						lineStringFeature: merged,
-						tagIds: importTagId ? [importTagId] : undefined,
+						tagIds: tagIds.length ? tagIds : undefined,
 						data: buildImportData(sourceFilePath, filename, null),
 					},
 				]);
 			} else {
 				const newLines = toImport.map((feature, idx) => ({
-					title: titles[idx],
+					title: deriveTitle(
+						filename,
+						feature.properties?.name ?? defaultTitle
+					),
 					lineStringFeature: feature,
-					tagIds: importTagId ? [importTagId] : undefined,
+					tagIds: tagIds.length ? tagIds : undefined,
 					data: buildImportData(sourceFilePath, filename, idx),
 				}));
 				await createLines(newLines);

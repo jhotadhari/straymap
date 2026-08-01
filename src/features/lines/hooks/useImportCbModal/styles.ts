@@ -45,6 +45,9 @@ export const localStyles = StyleSheet.create({
 	mergeToggle: {
 		marginTop: 8,
 	},
+	dryRunToggle: {
+		paddingVertical: 4,
+	},
 	importControls: {
 		marginTop: 12,
 	},
@@ -70,5 +73,17 @@ export const localStyles = StyleSheet.create({
 	resultDetail: {
 		opacity: 0.8,
 		fontSize: 12,
+	},
+	configSection: {
+		gap: 12,
+		marginTop: 12,
+	},
+	configInput: {
+		borderWidth: 1,
+		paddingHorizontal: 8,
+		paddingVertical: 4,
+	},
+	configPreview: {
+		marginTop: 4,
 	},
 });

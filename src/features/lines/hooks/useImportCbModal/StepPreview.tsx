@@ -2,8 +2,8 @@
  * External dependencies
  */
 import { FC } from 'react';
-import { ScrollView, View } from 'react-native';
-import { Text, Checkbox, useTheme } from 'react-native-paper';
+import { ScrollView, TextInput, View } from 'react-native';
+import { Text, Checkbox, useTheme, SegmentedButtons } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { sprintf } from 'sprintf-js';
 import { Feature, GeoJsonProperties, LineString } from 'geojson';
@@ -13,7 +13,7 @@ import { Feature, GeoJsonProperties, LineString } from 'geojson';
  */
 import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
 import { localStyles } from './styles';
-import { ImportMode } from './types';
+import { ImportMode, TagMode } from './types';
 
 const StepPreview: FC<{
 	importMode: ImportMode;
@@ -33,6 +33,16 @@ const StepPreview: FC<{
 	handleDeselectAllFiles: () => void;
 	handleImport: () => void;
 	buttonPropsImport: Record<string, unknown>;
+	fileLimit: number;
+	setFileLimit: (n: number) => void;
+	titleRegex: string;
+	setTitleRegex: (s: string) => void;
+	tagMode: TagMode;
+	setTagMode: (m: TagMode) => void;
+	tagRegex: string;
+	setTagRegex: (s: string) => void;
+	dryRun: boolean;
+	setDryRun: (b: boolean) => void;
 }> = ({
 	importMode,
 	features,
@@ -51,9 +61,50 @@ const StepPreview: FC<{
 	handleDeselectAllFiles,
 	handleImport,
 	buttonPropsImport,
+	fileLimit,
+	setFileLimit,
+	titleRegex,
+	setTitleRegex,
+	tagMode,
+	setTagMode,
+	tagRegex,
+	setTagRegex,
+	dryRun,
+	setDryRun,
 }) => {
 	const theme = useTheme();
 	const { t } = useTranslation();
+
+	const titleRegexPreview = (() => {
+		const sample = importMode === 'file' ? filename : dirFiles[0]?.name ?? '';
+		if (!titleRegex || !sample) return null;
+		try {
+			const re = new RegExp(titleRegex);
+			const match = sample.match(re);
+			const extracted = match?.[1];
+			if (extracted) return extracted;
+		} catch {
+			return t('lines.importRegexInvalid');
+		}
+		return null;
+	})();
+
+	const tagRemedPreview = (() => {
+		const sample = importMode === 'file' ? filename : dirFiles[0]?.name ?? '';
+		if (tagMode !== 'regex' || !tagRegex || !sample) return null;
+		try {
+			const re = new RegExp(tagRegex, 'g');
+			const labels: string[] = [];
+			let match;
+			while ((match = re.exec(sample)) !== null) {
+				labels.push(match[1] ?? match[0]);
+			}
+			if (labels.length) return labels.join(', ');
+		} catch {
+			return t('lines.importRegexInvalid');
+		}
+		return null;
+	})();
 
 	return (
 		<View>
@@ -105,7 +156,7 @@ const StepPreview: FC<{
 						))}
 					</ScrollView>
 
-					{/* ---- merge mode toggle (single-file only) ---- */}
+					{/* Merge toggle (single-file only) */}
 					<View
 						style={[
 							localStyles.featureRow,
@@ -168,13 +219,92 @@ const StepPreview: FC<{
 				</>
 			)}
 
+			{/* ---- Import config ---- */}
+			<View style={localStyles.configSection}>
+
+				{importMode === 'directory' && (
+					<View>
+						<Text>{t('lines.importFileLimit')}</Text>
+						<TextInput
+							keyboardType="numeric"
+							value={fileLimit > 0 ? String(fileLimit) : ''}
+							placeholder="0 = all"
+							onChangeText={(v) => setFileLimit(parseInt(v, 10) || 0)}
+							style={[
+								localStyles.configInput,
+								{ borderColor: theme.colors.outline },
+							]}
+						/>
+					</View>
+				)}
+
+				<View>
+					<Text>{t('lines.importTitleRegex')}</Text>
+					<TextInput
+						value={titleRegex}
+						placeholder="/pattern/"
+						onChangeText={setTitleRegex}
+						style={[
+							localStyles.configInput,
+							{ borderColor: theme.colors.outline },
+						]}
+					/>
+					{titleRegexPreview && (
+						<Text style={[localStyles.configPreview, { color: theme.colors.primary }]}>
+							{t('lines.importTitlePreview')}: {titleRegexPreview}
+						</Text>
+					)}
+				</View>
+
+				<View>
+					<Text>{t('lines.importTagMode')}</Text>
+					<SegmentedButtons
+						value={tagMode}
+						onValueChange={(v) => setTagMode(v as TagMode)}
+						buttons={[
+							{ value: 'none', label: t('lines.importTagNone') },
+							{ value: 'regex', label: t('lines.importTagRegex') },
+						]}
+					/>
+				</View>
+
+				{tagMode === 'regex' && (
+					<View>
+						<TextInput
+							value={tagRegex}
+							placeholder="/pattern/g"
+							onChangeText={setTagRegex}
+							style={[
+								localStyles.configInput,
+								{ borderColor: theme.colors.outline },
+							]}
+						/>
+						{tagRemedPreview && (
+							<Text style={[localStyles.configPreview, { color: theme.colors.primary }]}>
+								{t('lines.importTagPreview')}: {tagRemedPreview}
+							</Text>
+						)}
+					</View>
+				)}
+
+				<View style={[localStyles.featureRow, localStyles.dryRunToggle, { borderColor: theme.colors.outline }]}>
+					<Checkbox
+						status={dryRun ? 'checked' : 'unchecked'}
+						onPress={() => setDryRun(!dryRun)}
+					/>
+					<Text>{t('lines.importDryRun')}</Text>
+				</View>
+			</View>
+
 			{/* ---- import button ---- */}
 			<View style={localStyles.importControls}>
 				<ButtonHighlight
 					{...buttonPropsImport}
 					onPress={handleImport}
 				>
-					{sprintf(t('lines.importSelected'), selectionCount)}
+					{dryRun
+						? t('lines.importDryRunAction')
+						: sprintf(t('lines.importSelected'), selectionCount)}
 				</ButtonHighlight>
 			</View>
 		</View>
