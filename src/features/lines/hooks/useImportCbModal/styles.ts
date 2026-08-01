@@ -36,6 +36,10 @@ export const localStyles = StyleSheet.create({
 		maxHeight: 300,
 		marginBottom: 8,
 	},
+	tagSelectList: {
+		maxHeight: 150,
+		marginBottom: 8,
+	},
 	featureRow: {
 		flexDirection: 'row',
 		alignItems: 'center',
@@ -85,5 +89,16 @@ export const localStyles = StyleSheet.create({
 	},
 	configPreview: {
 		marginTop: 4,
+	},
+	storageSection: {
+		width: '100%',
+		gap: 8,
+		alignItems: 'center',
+	},
+	storageHint: {
+		marginBottom: 0,
+	},
+	storageInput: {
+		width: '100%',
 	},
 });

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { FC, useCallback, useRef, useState } from 'react';
+import { FC, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -20,13 +20,14 @@ import LoadingIndicator from '../../../../components/generic/primitives/LoadingI
 import useAsyncBusy from '../../../../compose/useAsyncBusy';
 import { detectImportFormat, parseImportContent, IMPORT_EXTENSIONS } from '../../utils/importParser';
 import { useButtonProps } from '../../../../compose/useButtonProps';
+import useDirsInfo from '../../../dirs/hooks/useDirsInfo';
 import { localStyles } from './styles';
 import { ImportMode, ImportFileResult, ImportStep, TagMode } from './types';
 import useImportMutation from './useImportMutation';
 import StepIdle from './StepIdle';
 import StepPreview from './StepPreview';
 import StepResult from './StepResult';
-import { useContext } from 'react';
+import { AbsPath } from '../../../dirs/types';
 
 const ImportModal: FC<{
 	handleDismissModal: () => void;
@@ -56,9 +57,45 @@ const ImportModal: FC<{
 	const [fileLimit, setFileLimit] = useState<number>(0);
 	const [titleRegex, setTitleRegex] = useState('');
 	const [tagMode, setTagMode] = useState<TagMode>('none');
-	const [selectedTagIds, _setSelectedTagIds] = useState<number[]>([]);
+	const [selectedTagIds, setSelectedTagIds] = useState<number[]>([]);
 	const [tagRegex, setTagRegex] = useState('');
 	const [dryRun, setDryRun] = useState(false);
+
+	// Storage directory scanning (fast native FsModule)
+	const [storagePath, setStoragePath] = useState<AbsPath | ''>('');
+	const { dirsInfo, isLoading: isScanningStorage } = useDirsInfo({
+		navDirs: storagePath ? [storagePath as AbsPath] : [],
+		extensions: [...IMPORT_EXTENSIONS] as string[],
+		recursive: true,
+	});
+
+	const handleScanStorage = useCallback(
+		(path: string) => {
+			if (!path.startsWith('/')) {
+				showError(sprintf(t('errorGeneric'), 'Path must start with /'));
+				return;
+			}
+			setImportMode('directory');
+			setStoragePath(path as AbsPath);
+			setStep('scanning');
+		},
+		[showError, t]
+	);
+
+	useEffect(() => {
+		if (!storagePath || !dirsInfo || isScanningStorage) return;
+		const dirKey = Object.keys(dirsInfo)[0];
+		if (!dirKey || !dirsInfo[dirKey]?.navChildren) return;
+
+		const children = dirsInfo[dirKey].navChildren!.filter(
+			(c) => c.isFile && c.canRead
+		);
+		setDirFiles(children.map((c) => ({ uri: c.name, name: c.name.split('/').pop() ?? c.name })));
+		setSelectedFileUris(new Set(children.map((c) => c.name)));
+		setMergeMode(false);
+		setStoragePath('');
+		setStep('preview');
+	}, [storagePath, dirsInfo, isScanningStorage]);
 
 	const [isPickingFile, runOpenDocument] = useAsyncBusy(openDocument);
 	const [isPickingDir, runOpenDocumentTree] = useAsyncBusy(openDocumentTree);
@@ -298,6 +335,8 @@ const ImportModal: FC<{
 				<StepIdle
 					handlePickFile={handlePickFile}
 					handlePickDirectory={handlePickDirectory}
+					handleScanStorage={handleScanStorage}
+					proposedPath={null}
 					buttonPropsIdle={buttonPropsIdle as Record<string, unknown>}
 				/>
 			)}
@@ -343,6 +382,8 @@ const ImportModal: FC<{
 					setTagMode={setTagMode}
 					tagRegex={tagRegex}
 					setTagRegex={setTagRegex}
+					selectedTagIds={selectedTagIds}
+					setSelectedTagIds={setSelectedTagIds}
 					dryRun={dryRun}
 					setDryRun={setDryRun}
 				/>

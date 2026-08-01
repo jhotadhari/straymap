@@ -7,6 +7,7 @@ import { Text, Checkbox, useTheme, SegmentedButtons } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { sprintf } from 'sprintf-js';
 import { Feature, GeoJsonProperties, LineString } from 'geojson';
+import { useQuery } from '@tanstack/react-query';
 
 /**
  * Internal dependencies
@@ -14,6 +15,7 @@ import { Feature, GeoJsonProperties, LineString } from 'geojson';
 import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
 import { localStyles } from './styles';
 import { ImportMode, TagMode } from './types';
+import { queryAllTags } from '../../db/queryFns';
 
 const StepPreview: FC<{
 	importMode: ImportMode;
@@ -41,6 +43,8 @@ const StepPreview: FC<{
 	setTagMode: (m: TagMode) => void;
 	tagRegex: string;
 	setTagRegex: (s: string) => void;
+	selectedTagIds: number[];
+	setSelectedTagIds: (ids: number[]) => void;
 	dryRun: boolean;
 	setDryRun: (b: boolean) => void;
 }> = ({
@@ -69,11 +73,20 @@ const StepPreview: FC<{
 	setTagMode,
 	tagRegex,
 	setTagRegex,
+	selectedTagIds,
+	setSelectedTagIds,
 	dryRun,
 	setDryRun,
 }) => {
 	const theme = useTheme();
 	const { t } = useTranslation();
+
+	const { data: allTags } = useQuery({
+		queryKey: ['tags'],
+		queryFn: queryAllTags,
+		enabled: tagMode === 'existing',
+		staleTime: 0,
+	});
 
 	const titleRegexPreview = (() => {
 		const sample = importMode === 'file' ? filename : dirFiles[0]?.name ?? '';
@@ -263,6 +276,7 @@ const StepPreview: FC<{
 						onValueChange={(v) => setTagMode(v as TagMode)}
 						buttons={[
 							{ value: 'none', label: t('lines.importTagNone') },
+							{ value: 'existing', label: t('lines.importTagExisting') },
 							{ value: 'regex', label: t('lines.importTagRegex') },
 						]}
 					/>
@@ -285,6 +299,37 @@ const StepPreview: FC<{
 							</Text>
 						)}
 					</View>
+				)}
+
+				{tagMode === 'existing' && allTags && (
+					<ScrollView
+						style={localStyles.tagSelectList}
+						horizontal={false}
+					>
+						{allTags.map((tag) => (
+							<View
+								key={tag.id}
+								style={[
+									localStyles.featureRow,
+									{ borderColor: theme.colors.outline },
+								]}
+							>
+								<Checkbox
+									status={
+										selectedTagIds.includes(tag.id) ? 'checked' : 'unchecked'
+									}
+									onPress={() =>
+										setSelectedTagIds(
+											selectedTagIds.includes(tag.id)
+												? selectedTagIds.filter((id) => id !== tag.id)
+												: [...selectedTagIds, tag.id]
+										)
+									}
+								/>
+								<Text>{tag.label ?? `#${tag.id}`}</Text>
+							</View>
+						))}
+					</ScrollView>
 				)}
 
 				<View style={[localStyles.featureRow, localStyles.dryRunToggle, { borderColor: theme.colors.outline }]}>

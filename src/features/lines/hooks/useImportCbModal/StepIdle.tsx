@@ -1,9 +1,9 @@
 /**
  * External dependencies
  */
-import { FC } from 'react';
-import { View } from 'react-native';
-import { Text } from 'react-native-paper';
+import { FC, useState } from 'react';
+import { TextInput, View } from 'react-native';
+import { Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 
 /**
@@ -16,10 +16,13 @@ import { localStyles } from './styles';
 const StepIdle: FC<{
 	handlePickFile: () => void;
 	handlePickDirectory: () => void;
-	/** Pre-computed button props from useButtonProps({ disabled: isPickingFile || isPickingDir }) */
+	handleScanStorage: (path: string) => void;
+	proposedPath: string | null;
 	buttonPropsIdle: Record<string, unknown>;
-}> = ({ handlePickFile, handlePickDirectory, buttonPropsIdle }) => {
+}> = ({ handlePickFile, handlePickDirectory, handleScanStorage, proposedPath, buttonPropsIdle }) => {
+	const theme = useTheme();
 	const { t } = useTranslation();
+	const [storageInput, setStorageInput] = useState(proposedPath ?? '');
 
 	return (
 		<View style={localStyles.idleContainer}>
@@ -42,6 +45,28 @@ const StepIdle: FC<{
 			>
 				{t('lines.importPickDirectory')}
 			</ButtonHighlight>
+
+			<View style={localStyles.storageSection}>
+				<Text style={[localStyles.hint, localStyles.storageHint]}>
+					{t('lines.importScanStorageHint')}
+				</Text>
+				<TextInput
+					value={storageInput}
+					placeholder="/storage/emulated/0/Download"
+					onChangeText={setStorageInput}
+					style={[
+						localStyles.configInput,
+						localStyles.storageInput,
+						{ borderColor: theme.colors.outline },
+					]}
+				/>
+				<ButtonHighlight
+					{...buttonPropsIdle}
+					onPress={() => handleScanStorage(storageInput)}
+				>
+					{t('lines.importScanStorage')}
+				</ButtonHighlight>
+			</View>
 		</View>
 	);
 };
