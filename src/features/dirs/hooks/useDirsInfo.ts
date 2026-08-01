@@ -56,7 +56,9 @@ const useDirsInfo = ({
 						FsModule.getInfo(
 							navDir,
 							extensions && extensions.length ? extensions : null,
-							!!recursive
+							!!recursive,
+							null,
+							null
 						)
 							.then(async (info: DirInfo) => {
 								if (info) {

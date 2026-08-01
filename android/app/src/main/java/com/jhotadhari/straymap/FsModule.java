@@ -24,6 +24,8 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.logging.FileHandler;
 
 
@@ -33,6 +35,7 @@ public class FsModule extends NativeFsModuleSpec {
 	public static final String NAME = "FsModule";
 
 	ReactContext reactContext;
+	private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
 	public FsModule(@Nullable ReactApplicationContext reactContext_) {
 		super(reactContext_);
@@ -62,73 +65,78 @@ public class FsModule extends NativeFsModuleSpec {
 	}
 
     @ReactMethod
-    public void getInfo( String navDir, @Nullable ReadableArray extensions, boolean recursive, Promise promise ) {
-        try {
-            WritableMap response = createMap();
-            File path = new File( navDir );
+    public void getInfo( String navDir, @Nullable ReadableArray extensions, boolean recursive, @Nullable Boolean stopOnFirstMatch, @Nullable Double maxDepth, Promise promise ) {
+		executor.execute(() -> {
+			try {
+				WritableMap response = createMap();
+				File path = new File( navDir );
 
-            // navParent
-			response.putString( "navParent", String.valueOf( path.getParent() ) );
+				// navParent
+				response.putString( "navParent", String.valueOf( path.getParent() ) );
 
-			String[] extensionsStrings = extensions != null
-				? extensions.toArrayList().toArray( new String[ 0 ] )
-				: new String[ 0 ];
+				String[] extensionsStrings = extensions != null
+					? extensions.toArrayList().toArray( new String[ 0 ] )
+					: new String[ 0 ];
 
-            // navChildren
-            WritableArray navChildrenArray = createArray();
-			this.walk(
-				path,
-				createPredicate( extensionsStrings ),
-				recursive,
-				new FileHandler() {
-					@Override
-					void handle( File file ) {
-						int depth = file.toString().replace(
-							path.toString() + '/',
-							""
-						).split( "/" ).length - 1;
-						WritableMap fileInfoMap = createMap();
-						fileInfoMap.putString( "name", file.toString() );
-						fileInfoMap.putInt( "depth", depth );
-						fileInfoMap.putBoolean( "isDir", file.isDirectory() );
-						fileInfoMap.putBoolean( "isFile", file.isFile() );
-						fileInfoMap.putBoolean( "canRead", file.canRead() );
-						fileInfoMap.putBoolean( "canExecute", file.canExecute() );
-						fileInfoMap.putDouble( "size", (double) file.length() );
-						navChildrenArray.pushMap( fileInfoMap );
+				// navChildren
+				WritableArray navChildrenArray = createArray();
+				final boolean stopOnMatch = stopOnFirstMatch != null ? stopOnFirstMatch : false;
+				final int depthLimit = maxDepth != null ? maxDepth.intValue() : Integer.MAX_VALUE;
+				this.walk(
+					path,
+					createPredicate( extensionsStrings ),
+					recursive,
+					stopOnMatch,
+					depthLimit,
+					0,
+					new FileHandler() {
+						@Override
+						void handle( File file ) {
+							int depth = file.toString().replace(
+								path.toString() + '/',
+								""
+							).split( "/" ).length - 1;
+							WritableMap fileInfoMap = createMap();
+							fileInfoMap.putString( "name", file.toString() );
+							fileInfoMap.putInt( "depth", depth );
+							fileInfoMap.putBoolean( "isDir", file.isDirectory() );
+							fileInfoMap.putBoolean( "isFile", file.isFile() );
+							fileInfoMap.putBoolean( "canRead", file.canRead() );
+							fileInfoMap.putBoolean( "canExecute", file.canExecute() );
+							fileInfoMap.putDouble( "size", (double) file.length() );
+							navChildrenArray.pushMap( fileInfoMap );
+						}
 					}
-				}
-			);
-			response.putArray( "navChildren", navChildrenArray );
+				);
+				response.putArray( "navChildren", navChildrenArray );
 
-            // Return response
-            promise.resolve( response );
-        } catch(Exception e) {
-            promise.reject("Error", e);
-        }
-    }
+				// Return response
+				promise.resolve( response );
+			} catch(Exception e) {
+				promise.reject("Error", e);
+			}
+		});
 
-	protected void walk( File startPath, MatchExtensionsPredicate filter, Boolean recursive, FileHandler handler ) {
-		if ( startPath.isDirectory() ) {
-			// shouldWalk starts as `recursive` — if true, we will descend into
-			// subdirectories UNLESS a matching file is found at the current
-			// level.  This is intentional: a match here means "stop, don't go
-			// deeper."  Future: replace the implicit boolean with an explicit
-			// option flag (e.g. stopOnFirstMatch) passed from the JS side.
-			boolean shouldWalk = recursive;
+	protected void walk( File startPath, MatchExtensionsPredicate filter, Boolean recursive, boolean stopOnFirstMatch, int maxDepth, int currentDepth, FileHandler handler ) {
+		if ( startPath.isDirectory() && currentDepth <= maxDepth ) {
+			boolean shouldWalk = recursive && ! stopOnFirstMatch;
 			if ( isAtLeastO() ) {
 				File[] files = startPath.listFiles();
 				assert files != null;
+				boolean foundMatch = false;
 				for (File file : files) {
 					if (! file.isDirectory() && ! file.getName().startsWith( "." ) && filter.test(file.toPath())) {
-						shouldWalk = false;
+						foundMatch = true;
 						handler.handle( file );
 					}
 				}
-				if ( shouldWalk ) {
+				if ( foundMatch && stopOnFirstMatch ) {
+					return;
+				}
+				if ( shouldWalk || ( recursive && ! foundMatch ) ) {
 					for (File file : files ) {
 						if ( file.isDirectory() && ! file.getName().startsWith( "." ) ) {
-							this.walk( file, filter, recursive, handler );
+							this.walk( file, filter, recursive, stopOnFirstMatch, maxDepth, currentDepth + 1, handler );
 						}
 					}
 				}

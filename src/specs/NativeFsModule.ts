@@ -9,7 +9,9 @@ interface Spec extends TurboModule {
 	getInfo(
 		navDir: string,
 		extensions: Array<string> | null,
-		recursive: boolean
+		recursive: boolean,
+		stopOnFirstMatch?: boolean | null,
+		maxDepth?: number | null
 	): Promise<UnsafeObject>;
 	deleteDir(path: string): Promise<boolean>;
 	deleteFile(path: string): Promise<boolean>;
