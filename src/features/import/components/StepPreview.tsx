@@ -3,7 +3,7 @@
  */
 import { FC, Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
 import { ScrollView, TextInput, View } from 'react-native';
-import { Text, Checkbox, useTheme, SegmentedButtons } from 'react-native-paper';
+import { Text, Checkbox, useTheme, SegmentedButtons, Icon } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { sprintf } from 'sprintf-js';
 import { Feature, GeoJsonProperties, LineString } from 'geojson';
@@ -16,6 +16,7 @@ import ButtonHighlight from '../../../components/generic/primitives/ButtonHighli
 import { localStyles } from './styles';
 import { ImportMode, TagMode } from './types';
 import { queryAllTags } from '../../lines/db/queryFns';
+import { classifyRegex } from '../../../lib/regexUtils';
 
 const StepPreview: FC<{
 	importMode: ImportMode;
@@ -131,6 +132,16 @@ const StepPreview: FC<{
 		}
 		return null;
 	}, [debouncedTagRegex, tagMode, importMode, filename, dirFiles, t]);
+
+	const titleRegexWarning = useMemo(() => {
+		if (!titleRegex) return false;
+		return classifyRegex(titleRegex).dangerous;
+	}, [titleRegex]);
+
+	const tagRegexWarning = useMemo(() => {
+		if (!tagRegex) return false;
+		return classifyRegex(tagRegex).dangerous;
+	}, [tagRegex]);
 
 	return (
 		<View>
@@ -276,6 +287,11 @@ const StepPreview: FC<{
 							{ borderColor: theme.colors.outline },
 						]}
 					/>
+					{titleRegexWarning && (
+						<Text style={[localStyles.configPreview, { color: theme.colors.tertiary }]}>
+							<Icon source="alert" size={12} color={theme.colors.tertiary} /> {t('import.regexExpensive')}
+						</Text>
+					)}
 					{titleRegexPreview && (
 						<Text style={[localStyles.configPreview, { color: theme.colors.primary }]}>
 							{t('import.titlePreview')}: {titleRegexPreview}
@@ -308,6 +324,11 @@ const StepPreview: FC<{
 								{ borderColor: theme.colors.outline },
 							]}
 						/>
+						{tagRegexWarning && (
+							<Text style={[localStyles.configPreview, { color: theme.colors.tertiary }]}>
+								<Icon source="alert" size={12} color={theme.colors.tertiary} /> {t('import.regexExpensive')}
+							</Text>
+						)}
 						{tagRemedPreview && (
 							<Text style={[localStyles.configPreview, { color: theme.colors.primary }]}>
 								{t('import.tagPreview')}: {tagRemedPreview}

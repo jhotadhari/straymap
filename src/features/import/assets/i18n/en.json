@@ -37,6 +37,7 @@
 	"dryRun": "Dry run",
 	"dryRunAction": "Dry run",
 	"regexInvalid": "Invalid regex",
+	"regexExpensive": "This pattern may cause slow performance",
 	"selectAll": "Select all",
 	"selectNone": "Select none"
 }

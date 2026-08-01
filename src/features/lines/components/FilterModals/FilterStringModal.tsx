@@ -18,6 +18,7 @@ import RadioListItem from '../../../../components/generic/wrapper/RadioListItem'
 import { sharedStyles as appSharedStyles } from '../../../../sharedStyles';
 import { sharedStyles } from './sharedDeps';
 import { StringColumnFilter, StringFilterOperator, getFilterKey } from '../../types';
+import { classifyRegex } from '../../../../lib/regexUtils';
 
 const OPERATORS: StringFilterOperator[] = [
 	'includes',
@@ -52,16 +53,14 @@ const FilterStringModal: FC<{
 
 	const validateRegex = useCallback(
 		(text: string) => {
-			try {
-				RegExp(text);
-				setRegexError(null);
-			} catch {
+			const result = classifyRegex(text);
+			if (!result.valid) {
 				setRegexError(t('lines.regexInvalid'));
 				setRegexWarning(null);
 				return;
 			}
-			const dangerous = /\([^)]*[+*?]\)[+*{]/;
-			if (dangerous.test(text)) {
+			setRegexError(null);
+			if (result.dangerous) {
 				setRegexWarning(t('lines.regexExpensive'));
 			} else {
 				setRegexWarning(null);
@@ -81,11 +80,7 @@ const FilterStringModal: FC<{
 		saveRef.current = () => {
 			// Don't save an invalid regex — let the user fix it first.
 			if (operator === 'regex' && value) {
-				try {
-					RegExp(value);
-				} catch {
-					return;
-				}
+				if (!classifyRegex(value).valid) return;
 			}
 			// Save when value is non-empty, OR when an existing filter
 			// exists (clearing the value removes the filter for this

@@ -13,6 +13,7 @@ import { Feature, GeoJsonProperties, LineString } from 'geojson';
  */
 import { ErrorToastContext } from '../../../components/ErrorToast/Context';
 import { logError } from '../../../lib/utils';
+import { classifyRegex } from '../../../lib/regexUtils';
 import { detectImportFormat, parseImportContent } from '../../lines/utils/importParser';
 import { createLines } from '../../lines/db/actionsLine';
 import { ensureTagByLabel } from '../../lines/db/actionsTag';
@@ -103,13 +104,9 @@ const useImportMutation = ({
 	const applyTitleRegex = useCallback(
 		(name: string): string | null => {
 			if (!titleRegex) return null;
-			try {
-				const re = new RegExp(titleRegex);
-				const match = name.match(re);
-				return match?.[1] ?? null;
-			} catch {
-				return null;
-			}
+			if (!classifyRegex(titleRegex).valid) return null;
+			const match = name.match(new RegExp(titleRegex));
+			return match?.[1] ?? null;
 		},
 		[titleRegex]
 	);
@@ -129,16 +126,13 @@ const useImportMutation = ({
 			if (tagMode === 'existing') {
 				for (const tid of selectedTagIds) tagIds.push(tid);
 			} else if (tagMode === 'regex' && tagRegex) {
-				try {
-					const re = new RegExp(tagRegex, 'g');
-					let match;
-					while ((match = re.exec(name)) !== null) {
-						const label = match[1] ?? match[0];
-						const id = await ensureTagByLabel(label);
-						if (id) tagIds.push(id);
-					}
-				} catch {
-					// Invalid regex — skip tag extraction
+				if (!classifyRegex(tagRegex).valid) return [];
+				const re = new RegExp(tagRegex, 'g');
+				let match;
+				while ((match = re.exec(name)) !== null) {
+					const label = match[1] ?? match[0];
+					const id = await ensureTagByLabel(label);
+					if (id) tagIds.push(id);
 				}
 			}
 			return [...new Set(tagIds)];
