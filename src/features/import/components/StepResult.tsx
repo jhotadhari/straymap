@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { FC } from 'react';
+import { FC, memo, useMemo } from 'react';
 import { ScrollView, View } from 'react-native';
 import { Text, useTheme, Icon } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -23,6 +23,19 @@ const StepResult: FC<{
 	const { t } = useTranslation();
 	const buttonPropsAny = useButtonProps({});
 
+	const resultRowBorderStyle = useMemo(
+		() => ({ borderColor: theme.colors.outline }),
+		[theme]
+	);
+	const resultErrorStyle = useMemo(
+		() => ({ color: theme.colors.error }),
+		[theme]
+	);
+	const resultTertiaryStyle = useMemo(
+		() => ({ color: theme.colors.tertiary }),
+		[theme]
+	);
+
 	return (
 		<View>
 			<Text style={localStyles.resultSummary}>
@@ -42,7 +55,7 @@ const StepResult: FC<{
 						key={idx}
 						style={[
 							localStyles.resultRow,
-							{ borderColor: theme.colors.outline },
+							resultRowBorderStyle,
 						]}
 					>
 						<Icon
@@ -65,7 +78,7 @@ const StepResult: FC<{
 								<Text
 									style={[
 										localStyles.resultDetail,
-										{ color: theme.colors.error },
+										resultErrorStyle,
 									]}
 								>
 									{sprintf(
@@ -78,7 +91,7 @@ const StepResult: FC<{
 								<Text
 									style={[
 										localStyles.resultDetail,
-										{ color: theme.colors.tertiary },
+										resultTertiaryStyle,
 									]}
 								>
 									{sprintf(
@@ -104,4 +117,4 @@ const StepResult: FC<{
 	);
 };
 
-export default StepResult;
+export default memo(StepResult);

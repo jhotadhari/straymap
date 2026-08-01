@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import React, { FC } from 'react';
+import React, { FC, memo } from 'react';
 import { View, ViewStyle } from 'react-native';
 import ImportPage from '../components/ImportPage';
 
@@ -13,4 +13,4 @@ const LinesImport: FC<{ style?: ViewStyle }> = ({ style }) => {
 	);
 };
 
-export default LinesImport;
+export default memo(LinesImport);

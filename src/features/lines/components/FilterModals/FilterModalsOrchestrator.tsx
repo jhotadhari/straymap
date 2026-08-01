@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { FC, useCallback, useEffect, useState } from 'react';
+import { FC, memo, useCallback, useEffect, useState } from 'react';
 
 /**
  * Internal dependencies
@@ -209,4 +209,4 @@ const FilterModalsOrchestrator: FC<FilterModalsOrchestratorProps> = ({
 	);
 };
 
-export default FilterModalsOrchestrator;
+export default memo(FilterModalsOrchestrator);

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { FC, Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { FC, Fragment, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
 import { Icon, Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -284,4 +284,4 @@ const localStyles = StyleSheet.create({
 	},
 });
 
-export default FilterStringModal;
+export default memo(FilterStringModal);

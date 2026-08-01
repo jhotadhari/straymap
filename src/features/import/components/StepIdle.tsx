@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { FC, useState } from 'react';
+import { FC, memo, useMemo, useState } from 'react';
 import { TextInput, View } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -23,6 +23,11 @@ const StepIdle: FC<{
 	const theme = useTheme();
 	const { t } = useTranslation();
 	const [storageInput, setStorageInput] = useState(proposedPath ?? '');
+
+	const storageInputStyle = useMemo(
+		() => ({ borderColor: theme.colors.outline }),
+		[theme]
+	);
 
 	return (
 		<View style={localStyles.idleContainer}>
@@ -57,7 +62,7 @@ const StepIdle: FC<{
 					style={[
 						localStyles.configInput,
 						localStyles.storageInput,
-						{ borderColor: theme.colors.outline },
+						storageInputStyle,
 					]}
 				/>
 				<ButtonHighlight
@@ -71,4 +76,4 @@ const StepIdle: FC<{
 	);
 };
 
-export default StepIdle;
+export default memo(StepIdle);

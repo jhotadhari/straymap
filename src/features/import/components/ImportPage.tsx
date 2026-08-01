@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -406,4 +406,4 @@ const ImportPage = () => {
 	);
 };
 
-export default ImportPage;
+export default memo(ImportPage);

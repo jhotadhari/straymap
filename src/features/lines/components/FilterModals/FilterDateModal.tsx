@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { FC, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Dimensions, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { DatePickerInput } from 'react-native-paper-dates';
@@ -162,4 +162,4 @@ const FilterDateModal: FC<{
 	);
 };
 
-export default FilterDateModal;
+export default memo(FilterDateModal);

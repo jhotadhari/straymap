@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { FC, Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
+import { FC, Dispatch, memo, SetStateAction, useEffect, useMemo, useState } from 'react';
 import { ScrollView, TextInput, View } from 'react-native';
 import { Text, Checkbox, useTheme, SegmentedButtons, Icon } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -143,6 +143,28 @@ const StepPreview: FC<{
 		return classifyRegex(tagRegex).dangerous;
 	}, [tagRegex]);
 
+	const outlineBorderStyle = useMemo(
+		() => ({ borderColor: theme.colors.outline }),
+		[theme]
+	);
+	const tertiaryColorStyle = useMemo(
+		() => ({ color: theme.colors.tertiary }),
+		[theme]
+	);
+	const primaryColorStyle = useMemo(
+		() => ({ color: theme.colors.primary }),
+		[theme]
+	);
+
+	const tagModeButtons = useMemo(
+		() => [
+			{ value: 'none', label: t('import.tagNone') },
+			{ value: 'existing', label: t('import.tagExisting') },
+			{ value: 'regex', label: t('import.tagRegex') },
+		],
+		[t]
+	);
+
 	return (
 		<View>
 			{importMode === 'file' ? (
@@ -176,7 +198,7 @@ const StepPreview: FC<{
 								key={idx}
 								style={[
 									localStyles.featureRow,
-									{ borderColor: theme.colors.outline },
+									outlineBorderStyle,
 								]}
 							>
 								<Checkbox
@@ -198,7 +220,7 @@ const StepPreview: FC<{
 						style={[
 							localStyles.featureRow,
 							localStyles.mergeToggle,
-							{ borderColor: theme.colors.outline },
+							outlineBorderStyle,
 						]}
 					>
 						<Checkbox
@@ -238,7 +260,7 @@ const StepPreview: FC<{
 								key={file.uri}
 								style={[
 									localStyles.featureRow,
-									{ borderColor: theme.colors.outline },
+									outlineBorderStyle,
 								]}
 							>
 								<Checkbox
@@ -269,7 +291,7 @@ const StepPreview: FC<{
 							onChangeText={(v) => setFileLimit(parseInt(v, 10) || 0)}
 							style={[
 								localStyles.configInput,
-								{ borderColor: theme.colors.outline },
+								outlineBorderStyle,
 							]}
 						/>
 					</View>
@@ -284,16 +306,16 @@ const StepPreview: FC<{
 						onChangeText={setTitleRegex}
 						style={[
 							localStyles.configInput,
-							{ borderColor: theme.colors.outline },
+							outlineBorderStyle,
 						]}
 					/>
 					{titleRegexWarning && (
-						<Text style={[localStyles.configPreview, { color: theme.colors.tertiary }]}>
+						<Text style={[localStyles.configPreview, tertiaryColorStyle]}>
 							<Icon source="alert" size={12} color={theme.colors.tertiary} /> {t('import.regexExpensive')}
 						</Text>
 					)}
 					{titleRegexPreview && (
-						<Text style={[localStyles.configPreview, { color: theme.colors.primary }]}>
+						<Text style={[localStyles.configPreview, primaryColorStyle]}>
 							{t('import.titlePreview')}: {titleRegexPreview}
 						</Text>
 					)}
@@ -304,11 +326,7 @@ const StepPreview: FC<{
 					<SegmentedButtons
 						value={tagMode}
 						onValueChange={(v) => setTagMode(v as TagMode)}
-						buttons={[
-							{ value: 'none', label: t('import.tagNone') },
-							{ value: 'existing', label: t('import.tagExisting') },
-							{ value: 'regex', label: t('import.tagRegex') },
-						]}
+						buttons={tagModeButtons}
 					/>
 				</View>
 
@@ -321,16 +339,16 @@ const StepPreview: FC<{
 							onChangeText={setTagRegex}
 							style={[
 								localStyles.configInput,
-								{ borderColor: theme.colors.outline },
+								outlineBorderStyle,
 							]}
 						/>
 						{tagRegexWarning && (
-							<Text style={[localStyles.configPreview, { color: theme.colors.tertiary }]}>
+							<Text style={[localStyles.configPreview, tertiaryColorStyle]}>
 								<Icon source="alert" size={12} color={theme.colors.tertiary} /> {t('import.regexExpensive')}
 							</Text>
 						)}
 						{tagRemedPreview && (
-							<Text style={[localStyles.configPreview, { color: theme.colors.primary }]}>
+							<Text style={[localStyles.configPreview, primaryColorStyle]}>
 								{t('import.tagPreview')}: {tagRemedPreview}
 							</Text>
 						)}
@@ -347,7 +365,7 @@ const StepPreview: FC<{
 								key={tag.id}
 								style={[
 									localStyles.featureRow,
-									{ borderColor: theme.colors.outline },
+									outlineBorderStyle,
 								]}
 							>
 								<Checkbox
@@ -368,7 +386,7 @@ const StepPreview: FC<{
 					</ScrollView>
 				)}
 
-				<View style={[localStyles.featureRow, localStyles.dryRunToggle, { borderColor: theme.colors.outline }]}>
+				<View style={[localStyles.featureRow, localStyles.dryRunToggle, outlineBorderStyle]}>
 					<Checkbox
 						status={dryRun ? 'checked' : 'unchecked'}
 						onPress={() => setDryRun(!dryRun)}
@@ -392,4 +410,4 @@ const StepPreview: FC<{
 	);
 };
 
-export default StepPreview;
+export default memo(StepPreview);

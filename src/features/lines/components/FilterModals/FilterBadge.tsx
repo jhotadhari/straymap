@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { FC, useMemo } from 'react';
+import { FC, memo, useMemo } from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -138,4 +138,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export default FilterBadge;
+export default memo(FilterBadge);

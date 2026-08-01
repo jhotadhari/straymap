@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { FC, useMemo } from 'react';
+import { FC, memo, useMemo } from 'react';
 import { Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 
@@ -23,6 +23,12 @@ const FilterConflictModal: FC<{
 	const theme = useTheme();
 	const { t } = useTranslation();
 	const unitPrefs = useAppSelector(selectUnitPrefs);
+
+	const onSurfaceStyle = useMemo(() => ({ color: theme.colors.onSurface }), [theme]);
+	const onSurfaceVariantStyle = useMemo(
+		() => ({ color: theme.colors.onSurfaceVariant }),
+		[theme]
+	);
 
 	const descriptions = useMemo(() => {
 		return conflicts.map((c) => {
@@ -65,12 +71,12 @@ const FilterConflictModal: FC<{
 			headerLabel={t('lines.filterConflictTitle')}
 			innerStyle={sharedStyles.modalInner}
 		>
-			<Text style={{ color: theme.colors.onSurface }}>{t('lines.filterConflictHint')}</Text>
+			<Text style={onSurfaceStyle}>{t('lines.filterConflictHint')}</Text>
 
 			{descriptions.map((desc, i) => (
 				<Text
 					key={i}
-					style={{ color: theme.colors.onSurfaceVariant }}
+					style={onSurfaceVariantStyle}
 				>
 					• {desc}
 				</Text>
@@ -79,4 +85,4 @@ const FilterConflictModal: FC<{
 	);
 };
 
-export default FilterConflictModal;
+export default memo(FilterConflictModal);
