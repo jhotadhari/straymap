@@ -40,7 +40,7 @@ interface UseImportMutationParams {
 	setMergeMode: React.Dispatch<React.SetStateAction<boolean>>;
 	setBulkProgress: React.Dispatch<React.SetStateAction<{ current: number; total: number }>>;
 	setImportResults: React.Dispatch<React.SetStateAction<ImportFileResult[]>>;
-	handleDismissModal: () => void;
+	handleClose: () => void;
 	fileLimit: number;
 	titleRegex: string;
 	tagMode: TagMode;
@@ -69,7 +69,7 @@ const useImportMutation = ({
 	setMergeMode,
 	setBulkProgress,
 	setImportResults,
-	handleDismissModal,
+	handleClose,
 	fileLimit,
 	titleRegex,
 	tagMode,
@@ -338,7 +338,7 @@ const useImportMutation = ({
 			setMergeMode(false);
 			setBulkProgress({ current: 0, total: 0 });
 			setImportResults([]);
-			handleDismissModal();
+			handleClose();
 		},
 		onError: (err) => {
 			logError('ImportModal.import', err);

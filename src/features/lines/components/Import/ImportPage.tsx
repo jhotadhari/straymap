@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { FC, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -15,12 +15,14 @@ import { Feature, GeoJsonProperties, LineString } from 'geojson';
  */
 import { ErrorToastContext } from '../../../../components/ErrorToast/Context';
 import { logError } from '../../../../lib/utils';
-import ModalWrapper from '../../../../components/generic/wrapper/ModalWrapper';
 import LoadingIndicator from '../../../../components/generic/primitives/LoadingIndicator';
 import useAsyncBusy from '../../../../compose/useAsyncBusy';
 import { detectImportFormat, parseImportContent, IMPORT_EXTENSIONS } from '../../utils/importParser';
 import { useButtonProps } from '../../../../compose/useButtonProps';
 import useDirsInfo from '../../../dirs/hooks/useDirsInfo';
+import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
+import { selectUiItemKeys } from '../../../ui/selectors';
+import { setUiItemKeys } from '../../../ui/slice';
 import { localStyles } from './styles';
 import { ImportMode, ImportFileResult, ImportStep, TagMode } from './types';
 import useImportMutation from './useImportMutation';
@@ -29,11 +31,16 @@ import StepPreview from './StepPreview';
 import StepResult from './StepResult';
 import { AbsPath } from '../../../dirs/types';
 
-const ImportModal: FC<{
-	handleDismissModal: () => void;
-}> = ({ handleDismissModal }) => {
+const ImportPage = () => {
+	const dispatch = useAppDispatch();
+	const uiItemsKeys = useAppSelector(selectUiItemKeys);
+
 	const { t } = useTranslation();
 	const { showError } = useContext(ErrorToastContext);
+
+	const handleClose = useCallback(() => {
+		dispatch(setUiItemKeys(uiItemsKeys.slice(0, Math.max(0, uiItemsKeys.length - 1))));
+	}, [dispatch, uiItemsKeys]);
 
 	const [step, setStep] = useState<ImportStep>('idle');
 	const [importMode, setImportMode] = useState<ImportMode>('file');
@@ -100,7 +107,7 @@ const ImportModal: FC<{
 	const [isPickingFile, runOpenDocument] = useAsyncBusy(openDocument);
 	const [isPickingDir, runOpenDocumentTree] = useAsyncBusy(openDocumentTree);
 
-	// Track whether the modal has been dismissed so in-flight
+	// Track whether the page has been dismissed so in-flight
 	// async callbacks don't overwrite clean post-dismiss state.
 	const dismissedRef = useRef(false);
 
@@ -125,7 +132,7 @@ const ImportModal: FC<{
 		setMergeMode,
 		setBulkProgress,
 		setImportResults,
-		handleDismissModal,
+		handleClose,
 		fileLimit,
 		titleRegex,
 		tagMode,
@@ -174,7 +181,7 @@ const ImportModal: FC<{
 			setMergeMode(false);
 			setStep('preview');
 		} catch (err) {
-			logError('ImportModal.handlePickFile', err);
+			logError('ImportPage.handlePickFile', err);
 			if (dismissedRef.current) return;
 			showError(sprintf(t('errorGeneric'), err instanceof Error ? err.message : String(err)));
 			setStep('idle');
@@ -223,7 +230,7 @@ const ImportModal: FC<{
 			setMergeMode(false);
 			setStep('preview');
 		} catch (err) {
-			logError('ImportModal.handlePickDirectory', err);
+			logError('ImportPage.handlePickDirectory', err);
 			showError(sprintf(t('errorGeneric'), err instanceof Error ? err.message : String(err)));
 			setStep('idle');
 		}
@@ -233,23 +240,6 @@ const ImportModal: FC<{
 		t,
 	]);
 
-	// ---- dismiss handling ----
-	const handleDismiss = useCallback(() => {
-		dismissedRef.current = true;
-		if (step === 'importing') return;
-		setStep('idle');
-		setImportMode('file');
-		setFeatures([]);
-		setFilename('');
-		setSourceFilePath('');
-		setSelectedIndices(new Set());
-		setDirFiles([]);
-		setSelectedFileUris(new Set());
-		setMergeMode(false);
-		setBulkProgress({ current: 0, total: 0 });
-		setImportResults([]);
-		handleDismissModal();
-	}, [handleDismissModal, step]);
 
 	// ---- feature checkbox toggles (single-file mode) ----
 	const handleToggleFeature = useCallback((idx: number) => {
@@ -311,8 +301,8 @@ const ImportModal: FC<{
 		setMergeMode(false);
 		setBulkProgress({ current: 0, total: 0 });
 		setImportResults([]);
-		handleDismissModal();
-	}, [handleDismissModal]);
+		handleClose();
+	}, [handleClose]);
 
 	// ---- button props ----
 	const buttonPropsIdle = useButtonProps({
@@ -325,12 +315,7 @@ const ImportModal: FC<{
 
 	// ====== RENDER ======
 	return (
-		<ModalWrapper
-			visible={true}
-			onDismiss={handleDismiss}
-			headerLabel={step === 'result' ? t('lines.importResultTitle') : t('lines.importTitle')}
-			innerStyle={localStyles.modalInner}
-		>
+		<View style={[localStyles.modalInner]}>
 			{step === 'idle' && (
 				<StepIdle
 					handlePickFile={handlePickFile}
@@ -412,8 +397,8 @@ const ImportModal: FC<{
 					handleResultDone={handleResultDone}
 				/>
 			)}
-		</ModalWrapper>
+		</View>
 	);
 };
 
-export default ImportModal;
+export default ImportPage;

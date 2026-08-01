@@ -11,6 +11,7 @@ import { onSetDbPath } from './slice';
 import LinesMapView from './mapComponents/LinesMapView';
 import LinesBrowser from './uiItems/LinesBrowser';
 import TagsBrowser from './uiItems/TagsBrowser';
+import LinesImport from './uiItems/Import';
 import linesDrawerItem from './drawerPanels/lines';
 import LineEditModalWrapper from './components/LineEditModalWrapper';
 import TagBadgeModeControl from './components/controls/TagBadgeModeControl';
@@ -39,6 +40,12 @@ export default {
 			icon: 'tag-outline',
 			Component: TagsBrowser,
 		},
+		{
+			key: 'linesImport',
+			label: 'lines.importTitle',
+			icon: 'database-import',
+			Component: LinesImport,
+		},
 	],
 	drawerPanels: [linesDrawerItem],
 	mapComponents: [
@@ -61,6 +68,11 @@ export default {
 		{
 			key: 'tagEdit',
 			uiItemKey: 'tagEdit',
+		},
+		{
+			key: 'linesImport',
+			uiItemKey: 'linesImport',
+			priority: 1500,
 		},
 	],
 	settingsControls: [

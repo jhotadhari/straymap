@@ -18,7 +18,8 @@ import { DRAWER_ICON_SIZE } from '../../../drawers/constants';
 import { tableStyles } from '../tableResources';
 import BulkActions from './BulkActions';
 import { FooterContext } from './Context';
-import useImportCbModal from '../../hooks/useImportCbModal';
+import { useAppDispatch } from '../../../../store/hooks';
+import { addUiItemKey } from '../../../ui/slice';
 
 const Footer: FC = () => {
 	const theme = useTheme();
@@ -28,8 +29,7 @@ const Footer: FC = () => {
 
 	const { checkedIds, linesCount, setCheckedIds, lineIds } = useContext(FooterContext);
 
-	const { cb: handleOpenImport, modalNode: importModalNode, iconSource } =
-		useImportCbModal();
+	const dispatch = useAppDispatch();
 
 	const style = useMemo(
 		() => [
@@ -78,13 +78,11 @@ const Footer: FC = () => {
 				</ButtonHighlight>
 
 				<IconButtonHighlight
-					icon={iconSource}
+					icon="database-import"
 					size={DRAWER_ICON_SIZE}
-					onPress={handleOpenImport}
+					onPress={() => dispatch(addUiItemKey('linesImport'))}
 				/>
 			</View>
-
-			{importModalNode}
 		</View>
 	);
 };
