@@ -3,7 +3,7 @@
  */
 import React, { FC } from 'react';
 import { View, ViewStyle } from 'react-native';
-import ImportPage from '../components/Import/ImportPage';
+import ImportPage from '../components/ImportPage';
 
 const LinesImport: FC<{ style?: ViewStyle }> = ({ style }) => {
 	return (

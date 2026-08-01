@@ -9,6 +9,7 @@ import dbLoader from './dbLoader';
 import dirs from './dirs';
 import drawers from './drawers';
 import general from './general';
+import importFeature from './import';
 import lang from './lang';
 import lines from './lines';
 import routing from './routing';
@@ -26,6 +27,7 @@ const features = {
 	dirs,
 	drawers,
 	general,
+	import: importFeature,
 	lang,
 	lines,
 	routing,

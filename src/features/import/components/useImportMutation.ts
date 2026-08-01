@@ -12,12 +12,12 @@ import { useContext } from 'react';
 /**
  * Internal dependencies
  */
-import { ErrorToastContext } from '../../../../components/ErrorToast/Context';
-import { logError } from '../../../../lib/utils';
-import { detectImportFormat, parseImportContent } from '../../utils/importParser';
-import { createLines } from '../../db/actionsLine';
-import { ensureTagByLabel } from '../../db/actionsTag';
-import { invalidateTagsTable, invalidateLinesQueries } from '../../db/queryFns';
+import { ErrorToastContext } from '../../../components/ErrorToast/Context';
+import { logError } from '../../../lib/utils';
+import { detectImportFormat, parseImportContent } from '../../lines/utils/importParser';
+import { createLines } from '../../lines/db/actionsLine';
+import { ensureTagByLabel } from '../../lines/db/actionsTag';
+import { invalidateTagsTable, invalidateLinesQueries } from '../../lines/db/queryFns';
 import { isValidGeometry, ImportMode, ImportFileResult, ImportStep, TagMode } from './types';
 
 interface UseImportMutationParams {
@@ -169,7 +169,7 @@ const useImportMutation = ({
 								name,
 								success: false,
 								error: sprintf(
-									t('lines.importUnsupportedFormat'),
+									t('import.unsupportedFormat'),
 									name.split('.').pop() ?? ''
 								),
 							});
@@ -183,7 +183,7 @@ const useImportMutation = ({
 							results.push({
 								name,
 								success: false,
-								error: t('lines.importNoFeatures'),
+								error: t('import.noFeatures'),
 								skippedGeom: skippedGeom > 0 ? skippedGeom : undefined,
 							});
 							continue;
@@ -246,8 +246,8 @@ const useImportMutation = ({
 				if (!anySuccess) {
 					throw new Error(
 						results.length > 0
-							? t('lines.importResultAllFailed')
-							: t('lines.importDirNoFiles')
+							? t('import.resultAllFailed')
+							: t('import.dirNoFiles')
 					);
 				}
 				return;
@@ -259,7 +259,7 @@ const useImportMutation = ({
 			toImport = toImport.filter(isValidGeometry);
 
 			if (!toImport.length) {
-				throw new Error(t('lines.importNoFeatures'));
+				throw new Error(t('import.noFeatures'));
 			}
 
 			if (dryRun) {
@@ -324,7 +324,7 @@ const useImportMutation = ({
 			// Single-file mode: warn about skipped geometry features
 			const skipped = singleFileMeta.current.skippedGeom;
 			if (skipped && skipped > 0) {
-				showError(sprintf(t('lines.importSkippedGeometry'), skipped));
+				showError(sprintf(t('import.skippedGeometry'), skipped));
 			}
 			delete singleFileMeta.current.skippedGeom;
 

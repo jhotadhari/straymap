@@ -13,23 +13,23 @@ import { Feature, GeoJsonProperties, LineString } from 'geojson';
 /**
  * Internal dependencies
  */
-import { ErrorToastContext } from '../../../../components/ErrorToast/Context';
-import { logError } from '../../../../lib/utils';
-import LoadingIndicator from '../../../../components/generic/primitives/LoadingIndicator';
-import useAsyncBusy from '../../../../compose/useAsyncBusy';
-import { detectImportFormat, parseImportContent, IMPORT_EXTENSIONS } from '../../utils/importParser';
-import { useButtonProps } from '../../../../compose/useButtonProps';
-import useDirsInfo from '../../../dirs/hooks/useDirsInfo';
-import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
-import { selectUiItemKeys } from '../../../ui/selectors';
-import { setUiItemKeys } from '../../../ui/slice';
+import { ErrorToastContext } from '../../../components/ErrorToast/Context';
+import { logError } from '../../../lib/utils';
+import LoadingIndicator from '../../../components/generic/primitives/LoadingIndicator';
+import useAsyncBusy from '../../../compose/useAsyncBusy';
+import { detectImportFormat, parseImportContent, IMPORT_EXTENSIONS } from '../../lines/utils/importParser';
+import { useButtonProps } from '../../../compose/useButtonProps';
+import useDirsInfo from '../../dirs/hooks/useDirsInfo';
+import { useAppDispatch, useAppSelector } from '../../../store/hooks';
+import { selectUiItemKeys } from '../../ui/selectors';
+import { setUiItemKeys } from '../../ui/slice';
 import { localStyles } from './styles';
 import { ImportMode, ImportFileResult, ImportStep, TagMode } from './types';
 import useImportMutation from './useImportMutation';
 import StepIdle from './StepIdle';
 import StepPreview from './StepPreview';
 import StepResult from './StepResult';
-import { AbsPath } from '../../../dirs/types';
+import { AbsPath } from '../../dirs/types';
 
 const ImportPage = () => {
 	const dispatch = useAppDispatch();
@@ -159,7 +159,7 @@ const ImportPage = () => {
 			const format = detectImportFormat(name);
 			if (!format) {
 				if (dismissedRef.current) return;
-				showError(sprintf(t('lines.importUnsupportedFormat'), name.split('.').pop() ?? ''));
+				showError(sprintf(t('import.unsupportedFormat'), name.split('.').pop() ?? ''));
 				setStep('idle');
 				return;
 			}
@@ -170,7 +170,7 @@ const ImportPage = () => {
 
 			if (!result.features.length) {
 				if (dismissedRef.current) return;
-				showError(t('lines.importNoFeatures'));
+				showError(t('import.noFeatures'));
 				setStep('idle');
 				return;
 			}
@@ -219,7 +219,7 @@ const ImportPage = () => {
 
 			if (!supported.length) {
 				if (dismissedRef.current) return;
-				showError(t('lines.importDirNoFiles'));
+				showError(t('import.dirNoFiles'));
 				setStep('idle');
 				return;
 			}
@@ -329,14 +329,14 @@ const ImportPage = () => {
 			{step === 'scanning' && (
 				<View style={localStyles.centered}>
 					<LoadingIndicator />
-					<Text>{t('lines.importScanningDir')}</Text>
+					<Text>{t('import.scanningDir')}</Text>
 				</View>
 			)}
 
 			{step === 'parsing' && (
 				<View style={localStyles.centered}>
 					<LoadingIndicator />
-					<Text>{t('lines.importParsing')}</Text>
+					<Text>{t('import.parsing')}</Text>
 				</View>
 			)}
 
@@ -380,13 +380,13 @@ const ImportPage = () => {
 					{importMode === 'directory' && bulkProgress.total > 0 ? (
 						<Text>
 							{sprintf(
-								t('lines.importProgress'),
+								t('import.progress'),
 								bulkProgress.current,
 								bulkProgress.total
 							)}
 						</Text>
 					) : (
-						<Text>{t('lines.importing')}</Text>
+						<Text>{t('import.importing')}</Text>
 					)}
 				</View>
 			)}

@@ -80,7 +80,7 @@ const Footer: FC = () => {
 				<IconButtonHighlight
 					icon="database-import"
 					size={DRAWER_ICON_SIZE}
-					onPress={() => dispatch(addUiItemKey('linesImport'))}
+					onPress={() => dispatch(addUiItemKey('import'))}
 				/>
 			</View>
 		</View>

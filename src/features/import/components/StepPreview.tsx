@@ -12,10 +12,10 @@ import { useQuery } from '@tanstack/react-query';
 /**
  * Internal dependencies
  */
-import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
+import ButtonHighlight from '../../../components/generic/primitives/ButtonHighlight';
 import { localStyles } from './styles';
 import { ImportMode, TagMode } from './types';
-import { queryAllTags } from '../../db/queryFns';
+import { queryAllTags } from '../../lines/db/queryFns';
 
 const StepPreview: FC<{
 	importMode: ImportMode;
@@ -97,7 +97,7 @@ const StepPreview: FC<{
 			const extracted = match?.[1];
 			if (extracted) return extracted;
 		} catch {
-			return t('lines.importRegexInvalid');
+			return t('import.regexInvalid');
 		}
 		return null;
 	})();
@@ -114,7 +114,7 @@ const StepPreview: FC<{
 			}
 			if (labels.length) return labels.join(', ');
 		} catch {
-			return t('lines.importRegexInvalid');
+			return t('import.regexInvalid');
 		}
 		return null;
 	})();
@@ -125,7 +125,7 @@ const StepPreview: FC<{
 				<>
 					<Text style={localStyles.filename}>{filename}</Text>
 					<Text style={localStyles.featureCount}>
-						{sprintf(t('lines.importFeatureCount'), features.length)}
+						{sprintf(t('import.featureCount'), features.length)}
 					</Text>
 
 					<View style={localStyles.selectRow}>
@@ -163,7 +163,7 @@ const StepPreview: FC<{
 								/>
 								<Text>
 									{feature.properties?.name ??
-										sprintf(t('lines.importTrackN'), idx + 1)}
+										sprintf(t('import.trackN'), idx + 1)}
 								</Text>
 							</View>
 						))}
@@ -181,13 +181,13 @@ const StepPreview: FC<{
 							status={mergeMode ? 'checked' : 'unchecked'}
 							onPress={onToggleMergeMode}
 						/>
-						<Text>{t('lines.importMergeMode')}</Text>
+						<Text>{t('import.mergeMode')}</Text>
 					</View>
 				</>
 			) : (
 				<>
 					<Text style={localStyles.featureCount}>
-						{sprintf(t('lines.importDirFilesFound'), dirFiles.length)}
+						{sprintf(t('import.dirFilesFound'), dirFiles.length)}
 					</Text>
 
 					<View style={localStyles.selectRow}>
@@ -237,7 +237,7 @@ const StepPreview: FC<{
 
 				{importMode === 'directory' && (
 					<View>
-						<Text>{t('lines.importFileLimit')}</Text>
+						<Text>{t('import.fileLimit')}</Text>
 						<TextInput
 							keyboardType="numeric"
 							value={fileLimit > 0 ? String(fileLimit) : ''}
@@ -252,7 +252,7 @@ const StepPreview: FC<{
 				)}
 
 				<View>
-					<Text>{t('lines.importTitleRegex')}</Text>
+					<Text>{t('import.titleRegex')}</Text>
 					<TextInput
 						value={titleRegex}
 						placeholder="/pattern/"
@@ -264,20 +264,20 @@ const StepPreview: FC<{
 					/>
 					{titleRegexPreview && (
 						<Text style={[localStyles.configPreview, { color: theme.colors.primary }]}>
-							{t('lines.importTitlePreview')}: {titleRegexPreview}
+							{t('import.titlePreview')}: {titleRegexPreview}
 						</Text>
 					)}
 				</View>
 
 				<View>
-					<Text>{t('lines.importTagMode')}</Text>
+					<Text>{t('import.tagMode')}</Text>
 					<SegmentedButtons
 						value={tagMode}
 						onValueChange={(v) => setTagMode(v as TagMode)}
 						buttons={[
-							{ value: 'none', label: t('lines.importTagNone') },
-							{ value: 'existing', label: t('lines.importTagExisting') },
-							{ value: 'regex', label: t('lines.importTagRegex') },
+							{ value: 'none', label: t('import.tagNone') },
+							{ value: 'existing', label: t('import.tagExisting') },
+							{ value: 'regex', label: t('import.tagRegex') },
 						]}
 					/>
 				</View>
@@ -295,7 +295,7 @@ const StepPreview: FC<{
 						/>
 						{tagRemedPreview && (
 							<Text style={[localStyles.configPreview, { color: theme.colors.primary }]}>
-								{t('lines.importTagPreview')}: {tagRemedPreview}
+								{t('import.tagPreview')}: {tagRemedPreview}
 							</Text>
 						)}
 					</View>
@@ -337,7 +337,7 @@ const StepPreview: FC<{
 						status={dryRun ? 'checked' : 'unchecked'}
 						onPress={() => setDryRun(!dryRun)}
 					/>
-					<Text>{t('lines.importDryRun')}</Text>
+					<Text>{t('import.dryRun')}</Text>
 				</View>
 			</View>
 
@@ -348,8 +348,8 @@ const StepPreview: FC<{
 					onPress={handleImport}
 				>
 					{dryRun
-						? t('lines.importDryRunAction')
-						: sprintf(t('lines.importSelected'), selectionCount)}
+						? t('import.dryRunAction')
+						: sprintf(t('import.selected'), selectionCount)}
 				</ButtonHighlight>
 			</View>
 		</View>

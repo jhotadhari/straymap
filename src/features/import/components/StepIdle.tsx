@@ -9,8 +9,8 @@ import { useTranslation } from 'react-i18next';
 /**
  * Internal dependencies
  */
-import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
-import { IMPORT_EXTENSIONS } from '../../utils/importParser';
+import ButtonHighlight from '../../../components/generic/primitives/ButtonHighlight';
+import { IMPORT_EXTENSIONS } from '../../lines/utils/importParser';
 import { localStyles } from './styles';
 
 const StepIdle: FC<{
@@ -27,7 +27,7 @@ const StepIdle: FC<{
 	return (
 		<View style={localStyles.idleContainer}>
 			<Text style={localStyles.hint}>
-				{t('lines.importHint', {
+				{t('import.hint', {
 					extensions: IMPORT_EXTENSIONS.join(', '),
 				})}
 			</Text>
@@ -36,19 +36,19 @@ const StepIdle: FC<{
 				{...buttonPropsIdle}
 				onPress={handlePickFile}
 			>
-				{t('lines.importPickFile')}
+				{t('import.pickFile')}
 			</ButtonHighlight>
 
 			<ButtonHighlight
 				{...buttonPropsIdle}
 				onPress={handlePickDirectory}
 			>
-				{t('lines.importPickDirectory')}
+				{t('import.pickDirectory')}
 			</ButtonHighlight>
 
 			<View style={localStyles.storageSection}>
 				<Text style={[localStyles.hint, localStyles.storageHint]}>
-					{t('lines.importScanStorageHint')}
+					{t('import.scanStorageHint')}
 				</Text>
 				<TextInput
 					value={storageInput}
@@ -64,7 +64,7 @@ const StepIdle: FC<{
 					{...buttonPropsIdle}
 					onPress={() => handleScanStorage(storageInput)}
 				>
-					{t('lines.importScanStorage')}
+					{t('import.scanStorage')}
 				</ButtonHighlight>
 			</View>
 		</View>

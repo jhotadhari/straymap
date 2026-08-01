@@ -10,8 +10,8 @@ import { sprintf } from 'sprintf-js';
 /**
  * Internal dependencies
  */
-import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
-import { useButtonProps } from '../../../../compose/useButtonProps';
+import ButtonHighlight from '../../../components/generic/primitives/ButtonHighlight';
+import { useButtonProps } from '../../../compose/useButtonProps';
 import { localStyles } from './styles';
 import { ImportFileResult } from './types';
 
@@ -27,7 +27,7 @@ const StepResult: FC<{
 		<View>
 			<Text style={localStyles.resultSummary}>
 				{sprintf(
-					t('lines.importResultPartialSummary'),
+					t('import.resultPartialSummary'),
 					importResults.filter((r) => r.success).length,
 					importResults.length
 				)}
@@ -57,7 +57,7 @@ const StepResult: FC<{
 							{result.success ? (
 								<Text style={localStyles.resultDetail}>
 									{sprintf(
-										t('lines.importResultSuccess'),
+										t('import.resultSuccess'),
 										result.importedCount ?? 0
 									)}
 								</Text>
@@ -69,7 +69,7 @@ const StepResult: FC<{
 									]}
 								>
 									{sprintf(
-										t('lines.importResultFailed'),
+										t('import.resultFailed'),
 										result.error ?? ''
 									)}
 								</Text>
@@ -82,7 +82,7 @@ const StepResult: FC<{
 									]}
 								>
 									{sprintf(
-										t('lines.importResultSkippedGeom'),
+										t('import.resultSkippedGeom'),
 										result.skippedGeom
 									)}
 								</Text>
@@ -97,7 +97,7 @@ const StepResult: FC<{
 					{...buttonPropsAny}
 					onPress={handleResultDone}
 				>
-					{t('lines.importDone')}
+					{t('import.done')}
 				</ButtonHighlight>
 			</View>
 		</View>
