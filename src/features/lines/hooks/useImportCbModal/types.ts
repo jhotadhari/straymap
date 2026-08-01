@@ -1,0 +1,27 @@
+import { Feature, GeoJsonProperties, LineString } from 'geojson';
+
+export type ImportMode = 'file' | 'directory';
+
+export type ImportStep = 'idle' | 'scanning' | 'parsing' | 'preview' | 'importing' | 'result';
+
+export type ImportFileResult = {
+	name: string;
+	success: boolean;
+	error?: string;
+	skippedGeom?: number;
+	importedCount?: number;
+};
+
+export const isValidGeometry = (feature: Feature<LineString, GeoJsonProperties>): boolean => {
+	const geom = feature?.geometry;
+	if (!geom || geom.type !== 'LineString') return false;
+	const coords = geom.coordinates;
+	if (!Array.isArray(coords) || coords.length < 2) return false;
+	return coords.every(
+		(c) =>
+			Array.isArray(c) &&
+			c.length >= 2 &&
+			typeof c[0] === 'number' &&
+			typeof c[1] === 'number'
+	);
+};

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { FC, useCallback, useContext, useMemo, useState } from 'react';
+import { FC, useCallback, useContext, useMemo } from 'react';
 import { View } from 'react-native';
 import { useTheme, Text, Icon } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -17,8 +17,8 @@ import IconButtonHighlight from '../../../../components/generic/primitives/IconB
 import { DRAWER_ICON_SIZE } from '../../../drawers/constants';
 import { tableStyles } from '../tableResources';
 import BulkActions from './BulkActions';
-import ImportModal from './ImportModal';
 import { FooterContext } from './Context';
+import useImportCbModal from '../../hooks/useImportCbModal';
 
 const Footer: FC = () => {
 	const theme = useTheme();
@@ -28,10 +28,8 @@ const Footer: FC = () => {
 
 	const { checkedIds, linesCount, setCheckedIds, lineIds } = useContext(FooterContext);
 
-	const [importModalVisible, setImportModalVisible] = useState(false);
-
-	const handleOpenImport = useCallback(() => setImportModalVisible(true), []);
-	const handleDismissImport = useCallback(() => setImportModalVisible(false), []);
+	const { cb: handleOpenImport, modalNode: importModalNode, iconSource } =
+		useImportCbModal();
 
 	const style = useMemo(
 		() => [
@@ -80,16 +78,13 @@ const Footer: FC = () => {
 				</ButtonHighlight>
 
 				<IconButtonHighlight
-					icon="database-import"
+					icon={iconSource}
 					size={DRAWER_ICON_SIZE}
 					onPress={handleOpenImport}
 				/>
 			</View>
 
-			<ImportModal
-				visible={importModalVisible}
-				onDismiss={handleDismissImport}
-			/>
+			{importModalNode}
 		</View>
 	);
 };
