@@ -1,8 +1,11 @@
 /**
+ * Internal dependencies
+*/
+import { getDirInfoCacheId } from '../../../features/dirs/utils';
+
+/**
  * Tests for src/store/features/dirs/utils.ts
  */
-
-import { getDirInfoCacheId } from '../../../features/dirs/utils';
 
 describe('getDirInfoCacheId', () => {
 	it('generates a JSON cache key from navDirs', () => {

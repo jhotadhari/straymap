@@ -1,9 +1,13 @@
 /**
+ * External dependencies
+ */
+import { Feature, GeoJsonProperties, LineString, Position } from 'geojson';
+
+/**
  * Format writers for exporting LineString geometries to GPX, KML, and GeoJSON.
  *
  * GPX and KML are built as XML strings.  GeoJSON is JSON.stringify.
  */
-import { Feature, GeoJsonProperties, LineString, Position } from 'geojson';
 
 // ---- helpers ----
 

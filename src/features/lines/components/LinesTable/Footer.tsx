@@ -6,6 +6,7 @@ import { View } from 'react-native';
 import { useTheme, Text, Icon } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { without } from 'lodash-es';
+import { sprintf } from 'sprintf-js';
 
 /**
  * Internal dependencies
@@ -14,7 +15,6 @@ import ButtonHighlight from '../../../../components/generic/primitives/ButtonHig
 import { useButtonProps } from '../../../../compose/useButtonProps';
 import IconButtonHighlight from '../../../../components/generic/primitives/IconButtonHighlight';
 import { DRAWER_ICON_SIZE } from '../../../drawers/constants';
-import { sprintf } from 'sprintf-js';
 import { tableStyles } from '../tableResources';
 import BulkActions from './BulkActions';
 import ImportModal from './ImportModal';
