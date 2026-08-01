@@ -36,6 +36,7 @@ public class FsModule extends NativeFsModuleSpec {
 
 	ReactContext reactContext;
 	private final ExecutorService executor = Executors.newSingleThreadExecutor();
+	private volatile boolean mShuttingDown = false;
 
 	public FsModule(@Nullable ReactApplicationContext reactContext_) {
 		super(reactContext_);
@@ -50,6 +51,7 @@ public class FsModule extends NativeFsModuleSpec {
 
 	@Override
 	public void invalidate() {
+		mShuttingDown = true;
 		executor.shutdown();
 		super.invalidate();
 	}
@@ -117,11 +119,16 @@ public class FsModule extends NativeFsModuleSpec {
 				response.putArray( "navChildren", navChildrenArray );
 
 				// Return response
-				promise.resolve( response );
+				if ( !mShuttingDown ) {
+					promise.resolve( response );
+				}
 			} catch(Exception e) {
-				promise.reject("Error", e);
+				if ( !mShuttingDown ) {
+					promise.reject("Error", e);
+				}
 			}
 		});
+	}
 
 	protected boolean walk( File startPath, MatchExtensionsPredicate filter, Boolean recursive, boolean stopOnFirstMatch, int maxDepth, int currentDepth, FileHandler handler ) {
 		if ( !startPath.isDirectory() || currentDepth > maxDepth ) return false;

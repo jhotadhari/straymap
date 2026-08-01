@@ -50,6 +50,33 @@ const FilterStringModal: FC<{
 
 	const saveRef = useRef<undefined | (() => void)>(undefined);
 
+	const validateRegex = useCallback(
+		(text: string) => {
+			try {
+				RegExp(text);
+				setRegexError(null);
+			} catch {
+				setRegexError(t('lines.regexInvalid'));
+				setRegexWarning(null);
+				return;
+			}
+			const dangerous = /\([^)]*[+*?]\)[+*{]/;
+			if (dangerous.test(text)) {
+				setRegexWarning(t('lines.regexExpensive'));
+			} else {
+				setRegexWarning(null);
+			}
+		},
+		[t]
+	);
+
+	useEffect(() => {
+		if (operator !== 'regex') {
+			setRegexError(null);
+			setRegexWarning(null);
+		}
+	}, [operator]);
+
 	useEffect(() => {
 		saveRef.current = () => {
 			// Don't save an invalid regex — let the user fix it first.
@@ -96,10 +123,14 @@ const FilterStringModal: FC<{
 		if (justOpened) {
 			setOperator(existingFilter?.operator ?? 'includes');
 			setValue(existingFilter?.value ?? '');
-			setRegexError(null);
-			setRegexWarning(null);
+			if (existingFilter?.operator === 'regex' && existingFilter?.value) {
+				validateRegex(existingFilter.value);
+			} else {
+				setRegexError(null);
+				setRegexWarning(null);
+			}
 		}
-	}, [visible, existingFilter]);
+	}, [visible, existingFilter, validateRegex]);
 
 	const handleDismiss = useCallback(() => {
 		saveRef.current?.();
@@ -115,26 +146,13 @@ const FilterStringModal: FC<{
 		(text: string) => {
 			setValue(operator === 'regex' ? text : text.toLowerCase());
 			if (operator === 'regex' && text) {
-				try {
-					RegExp(text);
-					setRegexError(null);
-				} catch {
-					setRegexError(t('lines.regexInvalid'));
-					setRegexWarning(null);
-					return;
-				}
-				const dangerous = /\([^)]*[+*?]\)[+*{]/;
-				if (dangerous.test(text)) {
-					setRegexWarning(t('lines.regexExpensive'));
-				} else {
-					setRegexWarning(null);
-				}
+				validateRegex(text);
 			} else {
 				setRegexError(null);
 				setRegexWarning(null);
 			}
 		},
-		[operator, t]
+		[operator, validateRegex]
 	);
 
 	const extractLabel = useCallback((a: { label: string }) => a.label, []);
