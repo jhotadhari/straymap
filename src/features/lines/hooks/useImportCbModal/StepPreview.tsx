@@ -104,6 +104,21 @@ const StepPreview: FC<{
 							</View>
 						))}
 					</ScrollView>
+
+					{/* ---- merge mode toggle (single-file only) ---- */}
+					<View
+						style={[
+							localStyles.featureRow,
+							localStyles.mergeToggle,
+							{ borderColor: theme.colors.outline },
+						]}
+					>
+						<Checkbox
+							status={mergeMode ? 'checked' : 'unchecked'}
+							onPress={onToggleMergeMode}
+						/>
+						<Text>{t('lines.importMergeMode')}</Text>
+					</View>
 				</>
 			) : (
 				<>
@@ -152,21 +167,6 @@ const StepPreview: FC<{
 					</ScrollView>
 				</>
 			)}
-
-			{/* ---- merge mode toggle (shown for both modes) ---- */}
-			<View
-				style={[
-					localStyles.featureRow,
-					localStyles.mergeToggle,
-					{ borderColor: theme.colors.outline },
-				]}
-			>
-				<Checkbox
-					status={mergeMode ? 'checked' : 'unchecked'}
-					onPress={onToggleMergeMode}
-				/>
-				<Text>{t('lines.importMergeMode')}</Text>
-			</View>
 
 			{/* ---- import button ---- */}
 			<View style={localStyles.importControls}>

@@ -81,142 +81,85 @@ const useImportMutation = ({
 				const uris = Array.from(selectedFileUris);
 				const results: ImportFileResult[] = [];
 
-				if (mergeMode) {
-					// Merge mode: collect all features from all files, validate
-					// geometry, then create a single merged line.  All-or-nothing
-					// since the output is one line.
-					const allFeatures: Feature<LineString, GeoJsonProperties>[] = [];
-					for (let i = 0; i < uris.length; i++) {
-						if (dismissedRef.current) return;
-						setBulkProgress({ current: i + 1, total: uris.length });
-						const uri = uris[i];
-						const name = dirFiles.find((f) => f.uri === uri)?.name ?? uri;
-						try {
-							const content = await readFile(uri, 'utf8');
-							const format = detectImportFormat(name);
-							if (format) {
-								const result = parseImportContent(content, format);
-								const valid = result.features.filter(isValidGeometry);
-								allFeatures.push(...valid);
-							}
-						} catch (err) {
-							logError('ImportModal.bulkParse', err);
+				// Process each file independently — one failing file
+				// doesn't block the rest.
+				for (let i = 0; i < uris.length; i++) {
+					if (dismissedRef.current) return;
+					setBulkProgress({ current: i + 1, total: uris.length });
+					const uri = uris[i];
+					const name = dirFiles.find((f) => f.uri === uri)?.name ?? uri;
+					try {
+						const content = await readFile(uri, 'utf8');
+						const format = detectImportFormat(name);
+						if (!format) {
 							results.push({
 								name,
 								success: false,
-								error: (err as Error)?.message ?? String(err),
+								error: sprintf(
+									t('lines.importUnsupportedFormat'),
+									name.split('.').pop() ?? ''
+								),
 							});
+							continue;
 						}
-					}
-					if (!allFeatures.length) {
-						setImportResults(results);
-						importResultsRef.current = results;
-						throw new Error(
-							results.length > 0
-								? t('lines.importResultAllFailed')
-								: t('lines.importDirNoFiles')
-						);
-					}
-					const allCoords = allFeatures.flatMap((f) => f.geometry.coordinates);
-					const merged: Feature<LineString, GeoJsonProperties> = {
-						type: 'Feature',
-						properties: {},
-						geometry: { type: 'LineString', coordinates: allCoords },
-					};
-					const title =
-						dirFiles
-							.find((f) => f.uri === Array.from(selectedFileUris).sort()[0])
-							?.name?.replace(/\.[^.]+$/, '') ??
-						t('lines.importTrackN', { ns: 'lines' });
-					await createLines([
-						{
-							title,
-							lineStringFeature: merged,
-							tagIds: importTagId ? [importTagId] : undefined,
-						},
-					]);
-					setImportResults(results);
-				} else {
-					// Non-merge mode: process each file independently so one
-					// failing file doesn't block the rest.
-					for (let i = 0; i < uris.length; i++) {
-						if (dismissedRef.current) return;
-						setBulkProgress({ current: i + 1, total: uris.length });
-						const uri = uris[i];
-						const name = dirFiles.find((f) => f.uri === uri)?.name ?? uri;
-						try {
-							const content = await readFile(uri, 'utf8');
-							const format = detectImportFormat(name);
-							if (!format) {
-								results.push({
-									name,
-									success: false,
-									error: sprintf(
-										t('lines.importUnsupportedFormat'),
-										name.split('.').pop() ?? ''
-									),
-								});
-								continue;
-							}
-							const result = parseImportContent(content, format);
-							const validFeatures = result.features.filter(isValidGeometry);
-							const skippedGeom = result.features.length - validFeatures.length;
+						const result = parseImportContent(content, format);
+						const validFeatures = result.features.filter(isValidGeometry);
+						const skippedGeom = result.features.length - validFeatures.length;
 
-							if (!validFeatures.length) {
-								results.push({
-									name,
-									success: false,
-									error: t('lines.importNoFeatures'),
-									skippedGeom: skippedGeom > 0 ? skippedGeom : undefined,
-								});
-								continue;
-							}
-
-							try {
-								const created = await createLines(
-									validFeatures.map((f, idx) => ({
-										title:
-											f.properties?.name ??
-											name.replace(/\.[^.]+$/, '') +
-												(validFeatures.length > 1 ? ` ${idx + 1}` : ''),
-										lineStringFeature: f,
-										tagIds: importTagId ? [importTagId] : undefined,
-									}))
-								);
-								results.push({
-									name,
-									success: true,
-									importedCount: created?.length ?? validFeatures.length,
-									skippedGeom: skippedGeom > 0 ? skippedGeom : undefined,
-								});
-							} catch (dbErr) {
-								logError('ImportModal.bulkInsert', dbErr);
-								results.push({
-									name,
-									success: false,
-									error: (dbErr as Error)?.message ?? String(dbErr),
-									skippedGeom: skippedGeom > 0 ? skippedGeom : undefined,
-								});
-							}
-						} catch (err) {
-							logError('ImportModal.bulkParse', err);
+						if (!validFeatures.length) {
 							results.push({
 								name,
 								success: false,
-								error: (err as Error)?.message ?? String(err),
+								error: t('lines.importNoFeatures'),
+								skippedGeom: skippedGeom > 0 ? skippedGeom : undefined,
+							});
+							continue;
+						}
+
+						try {
+							const created = await createLines(
+								validFeatures.map((f, idx) => ({
+									title:
+										f.properties?.name ??
+										name.replace(/\.[^.]+$/, '') +
+											(validFeatures.length > 1 ? ` ${idx + 1}` : ''),
+									lineStringFeature: f,
+									tagIds: importTagId ? [importTagId] : undefined,
+								}))
+							);
+							results.push({
+								name,
+								success: true,
+								importedCount: created?.length ?? validFeatures.length,
+								skippedGeom: skippedGeom > 0 ? skippedGeom : undefined,
+							});
+						} catch (dbErr) {
+							logError('ImportModal.bulkInsert', dbErr);
+							results.push({
+								name,
+								success: false,
+								error: (dbErr as Error)?.message ?? String(dbErr),
+								skippedGeom: skippedGeom > 0 ? skippedGeom : undefined,
 							});
 						}
+					} catch (err) {
+						logError('ImportModal.bulkParse', err);
+						results.push({
+							name,
+							success: false,
+							error: (err as Error)?.message ?? String(err),
+						});
 					}
-					setImportResults(results);
-					importResultsRef.current = results;
-					const anySuccess = results.some((r) => r.success);
-					if (!anySuccess) {
-						throw new Error(
-							results.length > 0
-								? t('lines.importResultAllFailed')
-								: t('lines.importDirNoFiles')
-						);
-					}
+				}
+				setImportResults(results);
+				importResultsRef.current = results;
+				const anySuccess = results.some((r) => r.success);
+				if (!anySuccess) {
+					throw new Error(
+						results.length > 0
+							? t('lines.importResultAllFailed')
+							: t('lines.importDirNoFiles')
+					);
 				}
 				return;
 			}
