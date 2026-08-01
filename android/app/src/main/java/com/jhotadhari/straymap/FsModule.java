@@ -48,6 +48,12 @@ public class FsModule extends NativeFsModuleSpec {
         return NAME;
     }
 
+	@Override
+	public void invalidate() {
+		executor.shutdown();
+		super.invalidate();
+	}
+
 	protected boolean isAtLeastO() {
 		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.O;
 	}

@@ -3,7 +3,7 @@
  */
 import { FC, Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
-import { Text, useTheme } from 'react-native-paper';
+import { Icon, Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 
 /**
@@ -45,10 +45,21 @@ const FilterStringModal: FC<{
 	);
 	const [value, setValue] = useState<string>(existingFilter?.value ?? '');
 
+	const [regexError, setRegexError] = useState<string | null>(null);
+	const [regexWarning, setRegexWarning] = useState<string | null>(null);
+
 	const saveRef = useRef<undefined | (() => void)>(undefined);
 
 	useEffect(() => {
 		saveRef.current = () => {
+			// Don't save an invalid regex — let the user fix it first.
+			if (operator === 'regex' && value) {
+				try {
+					RegExp(value);
+				} catch {
+					return;
+				}
+			}
 			// Save when value is non-empty, OR when an existing filter
 			// exists (clearing the value removes the filter for this
 			// column).  If there's no existing filter and the value is
@@ -85,6 +96,8 @@ const FilterStringModal: FC<{
 		if (justOpened) {
 			setOperator(existingFilter?.operator ?? 'includes');
 			setValue(existingFilter?.value ?? '');
+			setRegexError(null);
+			setRegexWarning(null);
 		}
 	}, [visible, existingFilter]);
 
@@ -99,8 +112,29 @@ const FilterStringModal: FC<{
 	}, [onDelete, onDismiss]);
 
 	const handleChangeText = useCallback(
-		(text: string) => setValue(operator === 'regex' ? text : text.toLowerCase()),
-		[operator]
+		(text: string) => {
+			setValue(operator === 'regex' ? text : text.toLowerCase());
+			if (operator === 'regex' && text) {
+				try {
+					RegExp(text);
+					setRegexError(null);
+				} catch {
+					setRegexError(t('lines.regexInvalid'));
+					setRegexWarning(null);
+					return;
+				}
+				const dangerous = /\([^)]*[+*?]\)[+*{]/;
+				if (dangerous.test(text)) {
+					setRegexWarning(t('lines.regexExpensive'));
+				} else {
+					setRegexWarning(null);
+				}
+			} else {
+				setRegexError(null);
+				setRegexWarning(null);
+			}
+		},
+		[operator, t]
 	);
 
 	const extractLabel = useCallback((a: { label: string }) => a.label, []);
@@ -121,10 +155,14 @@ const FilterStringModal: FC<{
 			localStyles.input,
 			{
 				color: theme.colors.onSurface,
-				borderColor: theme.colors.outline,
+				borderColor: regexError
+					? theme.colors.error
+					: regexWarning
+						? theme.colors.tertiary
+						: theme.colors.outline,
 			},
 		],
-		[theme]
+		[theme, regexError, regexWarning]
 	);
 
 	const hintStringFilterInfo = useMemo(() => {
@@ -174,9 +212,26 @@ const FilterStringModal: FC<{
 					style={inputStyle}
 					value={value}
 					onChangeText={handleChangeText}
+					maxLength={300}
 					placeholder={operator === 'regex' ? '^Mount.*' : t('lines.filterValue')}
 					placeholderTextColor={theme.colors.outline}
 				/>
+				{regexError && (
+					<View style={localStyles.regexFeedback}>
+						<Icon source="alert-circle" size={14} color={theme.colors.error} />
+						<Text style={[localStyles.regexFeedbackText, { color: theme.colors.error }]}>
+							{regexError}
+						</Text>
+					</View>
+				)}
+				{!regexError && regexWarning && (
+					<View style={localStyles.regexFeedback}>
+						<Icon source="alert" size={14} color={theme.colors.tertiary} />
+						<Text style={[localStyles.regexFeedbackText, { color: theme.colors.tertiary }]}>
+							{regexWarning}
+						</Text>
+					</View>
+				)}
 			</InfoLabelRow>
 
 			{onDelete && (
@@ -204,6 +259,15 @@ const localStyles = StyleSheet.create({
 	},
 	hintParagraph: {
 		marginBottom: 12,
+	},
+	regexFeedback: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		gap: 4,
+		marginTop: 4,
+	},
+	regexFeedbackText: {
+		fontSize: 12,
 	},
 });
 

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { FC, Dispatch, SetStateAction } from 'react';
+import { FC, Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
 import { ScrollView, TextInput, View } from 'react-native';
 import { Text, Checkbox, useTheme, SegmentedButtons } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -88,11 +88,24 @@ const StepPreview: FC<{
 		staleTime: 0,
 	});
 
-	const titleRegexPreview = (() => {
+	const [debouncedTitleRegex, setDebouncedTitleRegex] = useState(titleRegex);
+	const [debouncedTagRegex, setDebouncedTagRegex] = useState(tagRegex);
+
+	useEffect(() => {
+		const timer = setTimeout(() => setDebouncedTitleRegex(titleRegex), 300);
+		return () => clearTimeout(timer);
+	}, [titleRegex]);
+
+	useEffect(() => {
+		const timer = setTimeout(() => setDebouncedTagRegex(tagRegex), 300);
+		return () => clearTimeout(timer);
+	}, [tagRegex]);
+
+	const titleRegexPreview = useMemo(() => {
 		const sample = importMode === 'file' ? filename : dirFiles[0]?.name ?? '';
-		if (!titleRegex || !sample) return null;
+		if (!debouncedTitleRegex || !sample) return null;
 		try {
-			const re = new RegExp(titleRegex);
+			const re = new RegExp(debouncedTitleRegex);
 			const match = sample.match(re);
 			const extracted = match?.[1];
 			if (extracted) return extracted;
@@ -100,13 +113,13 @@ const StepPreview: FC<{
 			return t('import.regexInvalid');
 		}
 		return null;
-	})();
+	}, [debouncedTitleRegex, importMode, filename, dirFiles, t]);
 
-	const tagRemedPreview = (() => {
+	const tagRemedPreview = useMemo(() => {
 		const sample = importMode === 'file' ? filename : dirFiles[0]?.name ?? '';
-		if (tagMode !== 'regex' || !tagRegex || !sample) return null;
+		if (tagMode !== 'regex' || !debouncedTagRegex || !sample) return null;
 		try {
-			const re = new RegExp(tagRegex, 'g');
+			const re = new RegExp(debouncedTagRegex, 'g');
 			const labels: string[] = [];
 			let match;
 			while ((match = re.exec(sample)) !== null) {
@@ -117,7 +130,7 @@ const StepPreview: FC<{
 			return t('import.regexInvalid');
 		}
 		return null;
-	})();
+	}, [debouncedTagRegex, tagMode, importMode, filename, dirFiles, t]);
 
 	return (
 		<View>
@@ -256,6 +269,7 @@ const StepPreview: FC<{
 					<TextInput
 						value={titleRegex}
 						placeholder="/pattern/"
+						maxLength={300}
 						onChangeText={setTitleRegex}
 						style={[
 							localStyles.configInput,
@@ -287,6 +301,7 @@ const StepPreview: FC<{
 						<TextInput
 							value={tagRegex}
 							placeholder="/pattern/g"
+							maxLength={300}
 							onChangeText={setTagRegex}
 							style={[
 								localStyles.configInput,
