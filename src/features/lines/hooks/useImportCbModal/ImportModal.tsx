@@ -40,6 +40,7 @@ const ImportModal: FC<{
 	// Single-file state
 	const [features, setFeatures] = useState<Feature<LineString, GeoJsonProperties>[]>([]);
 	const [filename, setFilename] = useState('');
+	const [sourceFilePath, setSourceFilePath] = useState('');
 	const [selectedIndices, setSelectedIndices] = useState<Set<number>>(new Set());
 
 	// Directory state
@@ -64,6 +65,7 @@ const ImportModal: FC<{
 		mergeMode,
 		features,
 		filename,
+		sourceFilePath,
 		selectedIndices,
 		selectedFileUris,
 		dirFiles,
@@ -94,6 +96,7 @@ const ImportModal: FC<{
 			setStep('parsing');
 			const name = file.name ?? file.uri.split('/').pop() ?? '';
 			setFilename(name);
+			setSourceFilePath(file.uri);
 
 			const format = detectImportFormat(name);
 			if (!format) {
@@ -140,6 +143,7 @@ const ImportModal: FC<{
 			setImportMode('directory');
 			setFeatures([]);
 			setFilename('');
+			setSourceFilePath('');
 			setSelectedIndices(new Set());
 			setImportResults([]);
 			setStep('scanning');
@@ -186,6 +190,7 @@ const ImportModal: FC<{
 		setImportMode('file');
 		setFeatures([]);
 		setFilename('');
+		setSourceFilePath('');
 		setSelectedIndices(new Set());
 		setDirFiles([]);
 		setSelectedFileUris(new Set());
@@ -248,6 +253,7 @@ const ImportModal: FC<{
 		setImportMode('file');
 		setFeatures([]);
 		setFilename('');
+		setSourceFilePath('');
 		setSelectedIndices(new Set());
 		setDirFiles([]);
 		setSelectedFileUris(new Set());

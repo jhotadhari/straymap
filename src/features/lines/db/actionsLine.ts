@@ -21,6 +21,7 @@ export const createLines = withDbErrorHandling(
 			title?: string | null;
 			lineStringFeature: Feature<LineString, GeoJsonProperties>;
 			tagIds?: number[];
+			data?: any;
 		}[]
 	) => {
 		if (!dbConnection?.drizzle) {
@@ -48,8 +49,9 @@ export const createLines = withDbErrorHandling(
 				dbConnection
 					.drizzle!.insert(linesTable)
 					.values(
-						newLines.map(({ title, lineStringFeature }) => ({
+						newLines.map(({ title, lineStringFeature, data }) => ({
 							title: title ?? null,
+							data: data ?? null,
 							geometry: lineStringFeature.geometry,
 						}))
 					)

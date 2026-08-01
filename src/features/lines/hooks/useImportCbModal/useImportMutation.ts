@@ -25,6 +25,7 @@ interface UseImportMutationParams {
 	mergeMode: boolean;
 	features: Feature<LineString, GeoJsonProperties>[];
 	filename: string;
+	sourceFilePath: string;
 	selectedIndices: Set<number>;
 	selectedFileUris: Set<string>;
 	dirFiles: { uri: string; name: string }[];
@@ -47,6 +48,7 @@ const useImportMutation = ({
 	mergeMode,
 	features,
 	filename,
+	sourceFilePath,
 	selectedIndices,
 	selectedFileUris,
 	dirFiles,
@@ -69,10 +71,23 @@ const useImportMutation = ({
 
 	const importResultsRef = useRef<ImportFileResult[]>([]);
 	const singleFileMeta = useRef<{ skippedGeom?: number }>({});
+	const importBatchId = useRef(Date.now().toString(36));
 
 	const getOrCreateImportTag = useCallback(async (): Promise<number | undefined> => {
 		return ensureTagByLabel('imported');
 	}, []);
+
+	const buildImportData = useCallback(
+		(uri: string, originalFilename: string, trackIndexInFile: number | null) => ({
+			import: {
+				sourceFilePath: uri,
+				originalFilename,
+				importBatchId: importBatchId.current,
+				trackIndexInFile,
+			},
+		}),
+		[]
+	);
 
 	const mutation = useMutation({
 		mutationFn: async () => {
@@ -125,6 +140,7 @@ const useImportMutation = ({
 											(validFeatures.length > 1 ? ` ${idx + 1}` : ''),
 									lineStringFeature: f,
 									tagIds: importTagId ? [importTagId] : undefined,
+									data: buildImportData(uri, name, idx),
 								}))
 							);
 							results.push({
@@ -190,6 +206,7 @@ const useImportMutation = ({
 						title: filename.replace(/\.[^.]+$/, ''),
 						lineStringFeature: merged,
 						tagIds: importTagId ? [importTagId] : undefined,
+						data: buildImportData(sourceFilePath, filename, null),
 					},
 				]);
 			} else {
@@ -197,6 +214,7 @@ const useImportMutation = ({
 					title: titles[idx],
 					lineStringFeature: feature,
 					tagIds: importTagId ? [importTagId] : undefined,
+					data: buildImportData(sourceFilePath, filename, idx),
 				}));
 				await createLines(newLines);
 			}
