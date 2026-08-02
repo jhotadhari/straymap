@@ -14,6 +14,9 @@ import java.util.concurrent.atomic.AtomicInteger
 class BackgroundTaskService : Service() {
 
     companion object {
+        // A single foreground service notification is shared by all features
+        // (import, track recording, etc.) via the task registry. No ID range
+        // needed — one service, one notification ID.
         const val CHANNEL_ID = "background_task_channel"
         const val NOTIFICATION_ID = 420
 
@@ -35,17 +38,16 @@ class BackgroundTaskService : Service() {
         createNotificationChannel()
     }
 
+    override fun onDestroy() {
+        tasks.clear()
+        super.onDestroy()
+    }
+
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        val action = intent?.getStringExtra("action") ?: return START_NOT_STICKY
-
-        when (action) {
-            "update" -> rebuildNotification()
-            "clear" -> {
-                stopForeground(STOP_FOREGROUND_REMOVE)
-                stopSelf()
-            }
-        }
-
+        // Always call rebuildNotification — it handles tasks.isEmpty() by
+        // stopping the service, and on the happy path always calls
+        // startForeground() to satisfy the foreground service contract.
+        rebuildNotification()
         return START_NOT_STICKY
     }
 
@@ -70,9 +72,15 @@ class BackgroundTaskService : Service() {
             return
         }
 
-        val lines = tasks.values.joinToString(", ") { task ->
-            if (task.maxProgress > 0) "${task.label} (${task.progress}/${task.maxProgress})"
-            else task.label
+        // Cap displayed tasks to prevent notification text overflow.
+        // More than 2 active tasks shows a summary count instead.
+        val lines: String = if (tasks.size <= 2) {
+            tasks.values.joinToString(", ") { task ->
+                if (task.maxProgress > 0) "${task.label} (${task.progress}/${task.maxProgress})"
+                else task.label
+            }
+        } else {
+            "${tasks.size} background tasks"
         }
 
         val detail = tasks.values.find { it.detail.isNotEmpty() }?.detail ?: ""
@@ -84,6 +92,10 @@ class BackgroundTaskService : Service() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
+        // android.R.drawable.ic_menu_upload is a system drawable — not part
+        // of the stable public API. It may differ or be missing across OEM
+        // skins (Samsung, Xiaomi, etc.). Replace with an app-bundled resource
+        // if crash reports surface on specific devices.
         val builder = NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("Straymap")
             .setContentText(lines)
@@ -92,6 +104,9 @@ class BackgroundTaskService : Service() {
             .setContentIntent(pendingIntent)
             .setSubText(detail)
 
+        // The notification progress bar only reflects the first task with
+        // maxProgress > 0. Multiple simultaneous progress-tracked tasks are
+        // not supported — callers should serialise imports.
         val progressTask = tasks.values.find { it.maxProgress > 0 }
         if (progressTask != null) {
             builder.setProgress(progressTask.maxProgress, progressTask.progress, false)

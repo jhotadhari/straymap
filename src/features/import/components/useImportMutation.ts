@@ -165,7 +165,7 @@ const useImportMutation = ({
 					}
 					setBulkProgress({ current: i + 1, total: limitedUris.length });
 					const uri = limitedUris[i];
-					const name = dirFiles.find((f) => f.uri === uri)?.name ?? uri;
+					const name = dirFiles.find((f) => f.uri === uri)?.name ?? uri.split('/').pop() ?? uri;
 					bgTask.update(i + 1, name);
 					try {
 						const content = await readFile(uri, 'utf8');

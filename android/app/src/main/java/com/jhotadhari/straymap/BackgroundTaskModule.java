@@ -57,9 +57,9 @@ public class BackgroundTaskModule extends NativeBackgroundTaskModuleSpec {
         try {
             BackgroundTaskService.tasks.remove((int) taskId);
             if (BackgroundTaskService.tasks.isEmpty()) {
-                Intent intent = new Intent(getReactApplicationContext(), BackgroundTaskService.class);
-                intent.putExtra("action", "clear");
-                getReactApplicationContext().stopService(intent);
+                getReactApplicationContext().stopService(
+                    new Intent(getReactApplicationContext(), BackgroundTaskService.class)
+                );
             } else {
                 sendUpdateIntent();
             }
