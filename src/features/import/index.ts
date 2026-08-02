@@ -6,15 +6,18 @@ import en from './assets/i18n/en.json';
 import es from './assets/i18n/es.json';
 import pt from './assets/i18n/pt.json';
 import LinesImport from './uiItems/Import';
+import { selectInitialized } from './selectors';
+import { initializeFromStorage } from './connectStorage';
 
 export default {
-	selectInitialized: () => true,
+	selectInitialized,
 	translation: {
 		de,
 		en,
 		es,
 		pt,
 	},
+	initializeFromStorage,
 	uiItems: [
 		{
 			key: 'import',

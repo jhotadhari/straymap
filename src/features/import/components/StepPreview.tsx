@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
-import { FC, memo, useEffect, useMemo, useState } from 'react';
-import { ScrollView, TextInput, View } from 'react-native';
+import { FC, memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { ScrollView, TextInput, View, PermissionsAndroid, Platform } from 'react-native';
 import { Text, Checkbox, useTheme, Icon } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { sprintf } from 'sprintf-js';
@@ -22,6 +22,25 @@ import { TagMode, OverwriteMode } from './types';
 import { queryAllTags } from '../../lines/db/queryFns';
 import { classifyRegex } from '../../../lib/regexUtils';
 import { useImportContext } from './ImportContext';
+import { useAppDispatch, useAppSelector } from '../../../store/hooks';
+import {
+	selectFileLimit,
+	selectTitleRegex,
+	selectTagMode,
+	selectTagRegex,
+	selectDryRun,
+	selectOverwriteMode,
+	selectKeepAppActive,
+} from '../selectors';
+import {
+	setFileLimit,
+	setTitleRegex,
+	setTagMode,
+	setTagRegex,
+	setDryRun,
+	setOverwriteMode,
+	setKeepAppActive,
+} from '../slice';
 
 const StepPreview: FC = () => {
 	const theme = useTheme();
@@ -43,22 +62,36 @@ const StepPreview: FC = () => {
 		handleSelectAllFiles,
 		handleDeselectAllFiles,
 		handleImport,
-		fileLimit,
-		setFileLimit,
-		titleRegex,
-		setTitleRegex,
-		tagMode,
-		setTagMode,
-		tagRegex,
-		setTagRegex,
 		selectedTagIds,
 		setSelectedTagIds,
-		dryRun,
-		setDryRun,
-		overwriteMode,
-		setOverwriteMode,
 		setMergeMode,
 	} = useImportContext();
+
+	const dispatch = useAppDispatch();
+	const fileLimit = useAppSelector(selectFileLimit);
+	const titleRegex = useAppSelector(selectTitleRegex);
+	const tagMode = useAppSelector(selectTagMode);
+	const tagRegex = useAppSelector(selectTagRegex);
+	const dryRun = useAppSelector(selectDryRun);
+	const overwriteMode = useAppSelector(selectOverwriteMode);
+	const keepAppActive = useAppSelector(selectKeepAppActive);
+
+	const handleToggleKeepAppActive = useCallback(async () => {
+		const next = !keepAppActive;
+		if (next && Platform.OS === 'android' && Platform.Version >= 33) {
+			try {
+				const result = await PermissionsAndroid.request(
+					'android.permission.POST_NOTIFICATIONS'
+				);
+				if (result !== PermissionsAndroid.RESULTS.GRANTED) {
+					return;
+				}
+			} catch {
+				return;
+			}
+		}
+		dispatch(setKeepAppActive(next));
+	}, [keepAppActive, dispatch]);
 
 	const { data: allTags } = useQuery({
 		queryKey: ['tags'],
@@ -279,7 +312,7 @@ const StepPreview: FC = () => {
 					<NumericRowControl
 						label={t('import.fileLimit')}
 						value={fileLimit}
-						onUpdate={setFileLimit}
+						onUpdate={(v) => dispatch(setFileLimit(v))}
 						numType="int"
 					/>
 				)}
@@ -289,7 +322,7 @@ const StepPreview: FC = () => {
 						value={titleRegex}
 						placeholder="/pattern/"
 						maxLength={300}
-						onChangeText={setTitleRegex}
+						onChangeText={(v) => dispatch(setTitleRegex(v))}
 						style={[
 							localStyles.configInput,
 							outlineBorderStyle,
@@ -311,7 +344,7 @@ const StepPreview: FC = () => {
 					<ButtonHighlightMenuControl
 						options={tagModeOptions}
 						value={tagMode}
-						setValue={(v) => setTagMode(v as TagMode)}
+						setValue={(v) => dispatch(setTagMode(v as TagMode))}
 						compact
 					/>
 				</InfoLabelRow>
@@ -323,7 +356,7 @@ const StepPreview: FC = () => {
 								value={tagRegex}
 								placeholder="/pattern/g"
 								maxLength={300}
-								onChangeText={setTagRegex}
+								onChangeText={(v) => dispatch(setTagRegex(v))}
 								style={[
 									localStyles.configInput,
 									outlineBorderStyle,
@@ -377,7 +410,13 @@ const StepPreview: FC = () => {
 				<ToggleRowControl
 					label={t('import.dryRun')}
 					value={dryRun}
-					onToggle={() => setDryRun(!dryRun)}
+					onToggle={() => dispatch(setDryRun(!dryRun))}
+				/>
+
+				<ToggleRowControl
+					label={t('import.keepAppActive')}
+					value={keepAppActive}
+					onToggle={handleToggleKeepAppActive}
 				/>
 
 				<InfoLabelRow
@@ -387,7 +426,7 @@ const StepPreview: FC = () => {
 					<ButtonHighlightMenuControl
 						options={overwriteOptions}
 						value={overwriteMode}
-						setValue={(v) => setOverwriteMode(v as OverwriteMode)}
+						setValue={(v) => dispatch(setOverwriteMode(v as OverwriteMode))}
 						compact
 					/>
 				</InfoLabelRow>

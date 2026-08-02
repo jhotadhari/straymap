@@ -24,7 +24,7 @@ import useDirsInfo from '../../dirs/hooks/useDirsInfo';
 import { useAppSelector } from '../../../store/hooks';
 import { selectAppDirs } from '../../dirs/selectors';
 import { localStyles } from './styles';
-import { ImportMode, ImportFileResult, ImportStep, OverwriteMode, TagMode } from './types';
+import { ImportMode, ImportFileResult, ImportStep } from './types';
 import { AbsPath } from '../../dirs/types';
 import { ImportContextProvider } from './ImportContext';
 import useImportMutation from './useImportMutation';
@@ -67,14 +67,8 @@ const ImportPage = () => {
 	const [bulkProgress, setBulkProgress] = useState({ current: 0, total: 0 });
 	const [importResults, setImportResults] = useState<ImportFileResult[]>([]);
 
-	// Import config
-	const [fileLimit, setFileLimit] = useState<number>(0);
-	const [titleRegex, setTitleRegex] = useState('');
-	const [tagMode, setTagMode] = useState<TagMode>('none');
+	// Import config (persisted in Redux slice)
 	const [selectedTagIds, setSelectedTagIds] = useState<number[]>([]);
-	const [tagRegex, setTagRegex] = useState('');
-	const [dryRun, setDryRun] = useState(false);
-	const [overwriteMode, setOverwriteMode] = useState<OverwriteMode>('create');
 
 	// Storage directory scanning
 	const [storagePath, setStoragePath] = useState<AbsPath | ''>('');
@@ -301,20 +295,8 @@ const ImportPage = () => {
 			setBulkProgress,
 			importResults,
 			setImportResults,
-			fileLimit,
-			setFileLimit,
-			titleRegex,
-			setTitleRegex,
-			tagMode,
-			setTagMode,
-			tagRegex,
-			setTagRegex,
 			selectedTagIds,
 			setSelectedTagIds,
-			dryRun,
-			setDryRun,
-			overwriteMode,
-			setOverwriteMode,
 			selectionCount,
 			importDirs,
 			handlePickFile,
@@ -343,13 +325,7 @@ const ImportPage = () => {
 			mergeMode,
 			bulkProgress,
 			importResults,
-			fileLimit,
-			titleRegex,
-			tagMode,
-			tagRegex,
 			selectedTagIds,
-			dryRun,
-			overwriteMode,
 			selectionCount,
 			importDirs,
 			handlePickFile,

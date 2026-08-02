@@ -24,6 +24,19 @@ import { ensureTagByLabel } from '../../lines/db/actionsTag';
 import { invalidateTagsTable, invalidateLinesQueries } from '../../lines/db/queryFns';
 import { isValidGeometry, ImportFileResult } from './types';
 import { useImportContext } from './ImportContext';
+import { useAppSelector } from '../../../store/hooks';
+import {
+	selectFileLimit,
+	selectTitleRegex,
+	selectTagMode,
+	selectTagRegex,
+	selectDryRun,
+	selectOverwriteMode,
+	selectAutoCustomDate,
+	selectDatePatterns,
+	selectKeepAppActive,
+} from '../selectors';
+import { extractDateFromFilename } from '../utils';
 
 const useImportMutation = () => {
 	const {
@@ -39,14 +52,18 @@ const useImportMutation = () => {
 		setStep,
 		setBulkProgress,
 		setImportResults,
-		fileLimit,
-		titleRegex,
-		tagMode,
 		selectedTagIds,
-		tagRegex,
-		dryRun,
-		overwriteMode,
 	} = useImportContext();
+
+	const fileLimit = useAppSelector(selectFileLimit);
+	const titleRegex = useAppSelector(selectTitleRegex);
+	const tagMode = useAppSelector(selectTagMode);
+	const tagRegex = useAppSelector(selectTagRegex);
+	const dryRun = useAppSelector(selectDryRun);
+	const overwriteMode = useAppSelector(selectOverwriteMode);
+	const autoCustomDate = useAppSelector(selectAutoCustomDate);
+	const datePatterns = useAppSelector(selectDatePatterns);
+	const keepAppActive = useAppSelector(selectKeepAppActive);
 
 	const { t } = useTranslation();
 	const { showError } = useContext(ErrorToastContext);
@@ -133,7 +150,7 @@ const useImportMutation = () => {
 				const limitedUris = fileLimit > 0 ? uris.slice(0, fileLimit) : uris;
 				const results: ImportFileResult[] = [];
 
-				await bgTask.start(limitedUris.length);
+				if (keepAppActive) await bgTask.start(limitedUris.length);
 
 				for (let i = 0; i < limitedUris.length; i++) {
 					if (dismissedRef.current) {
@@ -142,7 +159,7 @@ const useImportMutation = () => {
 					setBulkProgress({ current: i + 1, total: limitedUris.length });
 					const uri = limitedUris[i];
 					const name = dirFiles.find((f) => f.uri === uri)?.name ?? uri.split('/').pop() ?? uri;
-					bgTask.update(i + 1, name);
+					if (keepAppActive) bgTask.update(i + 1, name);
 					try {
 						const content = await readFile(uri, 'utf8');
 						const format = detectImportFormat(name);
@@ -202,6 +219,9 @@ const useImportMutation = () => {
 
 						const tagIds = await buildDeriveTagIds(name);
 						const baseTitle = name.replace(/\.[^.]+$/, '');
+						const customDateDir = autoCustomDate
+							? extractDateFromFilename(name, datePatterns.filter((p) => p.enabled))
+							: undefined;
 
 						try {
 							const created = await createLines(
@@ -215,6 +235,7 @@ const useImportMutation = () => {
 									lineStringFeature: f,
 									tagIds: tagIds.length ? tagIds : undefined,
 									data: buildImportData(uri, name, idx),
+									custom_date: customDateDir,
 								}))
 							);
 							results.push({
@@ -296,6 +317,9 @@ const useImportMutation = () => {
 
 			const tagIds = await buildDeriveTagIds(filename);
 			const defaultTitle = filename.replace(/\.[^.]+$/, '');
+			const customDateSingle = autoCustomDate
+				? extractDateFromFilename(filename, datePatterns.filter((p) => p.enabled))
+				: undefined;
 
 			if (mergeMode) {
 				const allCoords = toImport.flatMap((f) => f.geometry.coordinates);
@@ -310,6 +334,7 @@ const useImportMutation = () => {
 						lineStringFeature: merged,
 						tagIds: tagIds.length ? tagIds : undefined,
 						data: buildImportData(sourceFilePath, filename, null),
+						custom_date: customDateSingle,
 					},
 				]);
 			} else {
@@ -318,6 +343,7 @@ const useImportMutation = () => {
 					lineStringFeature: feature,
 					tagIds: tagIds.length ? tagIds : undefined,
 					data: buildImportData(sourceFilePath, filename, idx),
+					custom_date: customDateSingle,
 				}));
 				await createLines(newLines);
 			}
@@ -333,14 +359,14 @@ const useImportMutation = () => {
 			]);
 		},
 		onSuccess: (_data, _vars) => {
-			bgTask.stop();
+			if (keepAppActive) bgTask.stop();
 			invalidateLinesQueries(queryClient);
 			invalidateTagsTable(queryClient);
 
 			setStep('result');
 		},
 		onError: (err) => {
-			bgTask.stop();
+			if (keepAppActive) bgTask.stop();
 			logError('ImportModal.import', err);
 			showError(sprintf(t('errorGeneric'), err instanceof Error ? err.message : String(err)));
 

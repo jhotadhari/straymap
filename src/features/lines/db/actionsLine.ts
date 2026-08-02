@@ -22,6 +22,7 @@ export const createLines = withDbErrorHandling(
 			lineStringFeature: Feature<LineString, GeoJsonProperties>;
 			tagIds?: number[];
 			data?: any;
+			custom_date?: string | null;
 		}[]
 	) => {
 		if (!dbConnection?.drizzle) {
@@ -49,10 +50,11 @@ export const createLines = withDbErrorHandling(
 				dbConnection
 					.drizzle!.insert(linesTable)
 					.values(
-						newLines.map(({ title, lineStringFeature, data }) => ({
+						newLines.map(({ title, lineStringFeature, data, custom_date }) => ({
 							title: title ?? null,
 							data: data ?? null,
 							geometry: lineStringFeature.geometry,
+							custom_date: custom_date ?? undefined,
 						}))
 					)
 					.returning({ id: linesTable.id })
