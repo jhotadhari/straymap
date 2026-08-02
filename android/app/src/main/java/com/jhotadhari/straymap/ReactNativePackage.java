@@ -22,6 +22,8 @@ public class ReactNativePackage extends BaseReactPackage {
             return new FsModule(reactContext);
 		} else if (name.equals(TrackingModule.NAME)) {
 			return new TrackingModule(reactContext);
+        } else if (name.equals(BackgroundTaskModule.NAME)) {
+            return new BackgroundTaskModule(reactContext);
         } else {
             return null;
         }
@@ -63,6 +65,17 @@ public class ReactNativePackage extends BaseReactPackage {
                 new ReactModuleInfo(
                     TrackingModule.NAME,
                     TrackingModule.NAME,
+                    false, // canOverrideExistingModule
+                    false, // needsEagerInit
+                    false, // isCxxModule
+                    true   // isTurboModule
+                )
+            );
+            moduleInfos.put(
+                BackgroundTaskModule.NAME,
+                new ReactModuleInfo(
+                    BackgroundTaskModule.NAME,
+                    BackgroundTaskModule.NAME,
                     false, // canOverrideExistingModule
                     false, // needsEagerInit
                     false, // isCxxModule

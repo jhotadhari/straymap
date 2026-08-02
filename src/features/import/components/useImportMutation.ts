@@ -14,6 +14,7 @@ import { Feature, GeoJsonProperties, LineString } from 'geojson';
 import { ErrorToastContext } from '../../../components/ErrorToast/Context';
 import { logError } from '../../../lib/utils';
 import { classifyRegex } from '../../../lib/regexUtils';
+import useBackgroundTask from '../../../hooks/useBackgroundTask';
 import { detectImportFormat, parseImportContent } from '../../lines/utils/importParser';
 import { createLines } from '../../lines/db/actionsLine';
 import { ensureTagByLabel } from '../../lines/db/actionsTag';
@@ -80,6 +81,7 @@ const useImportMutation = ({
 	const { t } = useTranslation();
 	const { showError } = useContext(ErrorToastContext);
 	const queryClient = useQueryClient();
+	const bgTask = useBackgroundTask('Importing routes');
 
 	const importResultsRef = useRef<ImportFileResult[]>([]);
 	const singleFileMeta = useRef<{ skippedGeom?: number }>({});
@@ -137,7 +139,12 @@ const useImportMutation = ({
 			}
 			return [...new Set(tagIds)];
 		},
-		[tagMode, selectedTagIds, tagRegex, getOrCreateImportTag]
+		[
+			tagMode,
+			selectedTagIds,
+			tagRegex,
+			getOrCreateImportTag,
+		]
 	);
 
 	const mutation = useMutation({
@@ -147,13 +154,19 @@ const useImportMutation = ({
 				const limitedUris = fileLimit > 0 ? uris.slice(0, fileLimit) : uris;
 				const results: ImportFileResult[] = [];
 
+				await bgTask.start(limitedUris.length);
+
 				// Process each file independently — one failing file
 				// doesn't block the rest.
 				for (let i = 0; i < limitedUris.length; i++) {
-					if (dismissedRef.current) return;
+					if (dismissedRef.current) {
+						bgTask.stop();
+						return;
+					}
 					setBulkProgress({ current: i + 1, total: limitedUris.length });
 					const uri = limitedUris[i];
 					const name = dirFiles.find((f) => f.uri === uri)?.name ?? uri;
+					bgTask.update(i + 1, name);
 					try {
 						const content = await readFile(uri, 'utf8');
 						const format = detectImportFormat(name);
@@ -238,9 +251,7 @@ const useImportMutation = ({
 				const anySuccess = results.some((r) => r.success);
 				if (!anySuccess) {
 					throw new Error(
-						results.length > 0
-							? t('import.resultAllFailed')
-							: t('import.dirNoFiles')
+						results.length > 0 ? t('import.resultAllFailed') : t('import.dirNoFiles')
 					);
 				}
 				return;
@@ -280,10 +291,7 @@ const useImportMutation = ({
 				]);
 			} else {
 				const newLines = toImport.map((feature, idx) => ({
-					title: deriveTitle(
-						filename,
-						feature.properties?.name ?? defaultTitle
-					),
+					title: deriveTitle(filename, feature.properties?.name ?? defaultTitle),
 					lineStringFeature: feature,
 					tagIds: tagIds.length ? tagIds : undefined,
 					data: buildImportData(sourceFilePath, filename, idx),
@@ -298,6 +306,7 @@ const useImportMutation = ({
 			}
 		},
 		onSuccess: (_data, _vars) => {
+			bgTask.stop();
 			invalidateLinesQueries(queryClient);
 			invalidateTagsTable(queryClient);
 
@@ -334,6 +343,7 @@ const useImportMutation = ({
 			handleClose();
 		},
 		onError: (err) => {
+			bgTask.stop();
 			delete singleFileMeta.current.skippedGeom;
 			logError('ImportModal.import', err);
 			showError(sprintf(t('errorGeneric'), err instanceof Error ? err.message : String(err)));
