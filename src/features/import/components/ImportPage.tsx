@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -21,8 +21,10 @@ import { detectImportFormat, parseImportContent, IMPORT_EXTENSIONS } from '../..
 import { useButtonProps } from '../../../compose/useButtonProps';
 import useDirsInfo from '../../dirs/hooks/useDirsInfo';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
+import { selectAppDirs } from '../../dirs/selectors';
 import { selectUiItemKeys } from '../../ui/selectors';
 import { setUiItemKeys } from '../../ui/slice';
+import get from 'lodash/get';
 import { localStyles } from './styles';
 import { ImportMode, ImportFileResult, ImportStep, TagMode } from './types';
 import useImportMutation from './useImportMutation';
@@ -34,6 +36,8 @@ import { AbsPath } from '../../dirs/types';
 const ImportPage = () => {
 	const dispatch = useAppDispatch();
 	const uiItemsKeys = useAppSelector(selectUiItemKeys);
+	const appDirs = useAppSelector(selectAppDirs);
+	const importDirs = useMemo(() => get(appDirs, 'import', []) as AbsPath[], [appDirs]);
 
 	const { t } = useTranslation();
 	const { showError } = useContext(ErrorToastContext);
@@ -76,17 +80,13 @@ const ImportPage = () => {
 		recursive: true,
 	});
 
-	const handleScanStorage = useCallback(
-		(path: string) => {
-			if (!path.startsWith('/')) {
-				showError(sprintf(t('errorGeneric'), 'Path must start with /'));
-				return;
-			}
+	const handleSelectAppDir = useCallback(
+		(path: AbsPath) => {
 			setImportMode('directory');
-			setStoragePath(path as AbsPath);
+			setStoragePath(path);
 			setStep('scanning');
 		},
-		[showError, t]
+		[]
 	);
 
 	useEffect(() => {
@@ -105,7 +105,7 @@ const ImportPage = () => {
 	}, [storagePath, dirsInfo, isScanningStorage]);
 
 	const [isPickingFile, runOpenDocument] = useAsyncBusy(openDocument);
-	const [isPickingDir, runOpenDocumentTree] = useAsyncBusy(openDocumentTree);
+	const [_isPickingDir, runOpenDocumentTree] = useAsyncBusy(openDocumentTree);
 
 	// Track whether the page has been dismissed so in-flight
 	// async callbacks don't overwrite clean post-dismiss state.
@@ -311,7 +311,7 @@ const ImportPage = () => {
 
 	// ---- button props ----
 	const buttonPropsIdle = useButtonProps({
-		disabled: isPickingFile || isPickingDir,
+		disabled: isPickingFile,
 	});
 
 	const buttonPropsImport = useButtonProps({
@@ -324,9 +324,9 @@ const ImportPage = () => {
 			{step === 'idle' && (
 				<StepIdle
 					handlePickFile={handlePickFile}
-					handlePickDirectory={handlePickDirectory}
-					handleScanStorage={handleScanStorage}
-					proposedPath={null}
+					handleSelectAppDir={handleSelectAppDir}
+					handleSelectCustom={handlePickDirectory}
+					appDirs={importDirs}
 					buttonPropsIdle={buttonPropsIdle as Record<string, unknown>}
 				/>
 			)}

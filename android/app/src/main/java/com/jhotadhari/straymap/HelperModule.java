@@ -103,6 +103,7 @@ public class HelperModule extends NativeHelperModuleSpec {
 			"export",
 			"marker",
 			"cursor",
+			"import",
 		};
 		for ( int si = 0; si < subDirs.length; si++ ) {
 			WritableArray dirs = createArray();

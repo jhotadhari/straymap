@@ -1,9 +1,9 @@
 /**
  * External dependencies
  */
-import { FC, memo, useMemo, useState } from 'react';
-import { TextInput, View } from 'react-native';
-import { Text, useTheme } from 'react-native-paper';
+import { FC, memo } from 'react';
+import { View } from 'react-native';
+import { Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 
 /**
@@ -11,23 +11,24 @@ import { useTranslation } from 'react-i18next';
  */
 import ButtonHighlight from '../../../components/generic/primitives/ButtonHighlight';
 import { IMPORT_EXTENSIONS } from '../../lines/utils/importParser';
+import { AbsPath } from '../../dirs/types';
 import { localStyles } from './styles';
+import ImportDirPicker from './ImportDirPicker';
 
 const StepIdle: FC<{
 	handlePickFile: () => void;
-	handlePickDirectory: () => void;
-	handleScanStorage: (path: string) => void;
-	proposedPath: string | null;
+	handleSelectAppDir: (path: AbsPath) => void;
+	handleSelectCustom: () => void;
+	appDirs: AbsPath[];
 	buttonPropsIdle: Record<string, unknown>;
-}> = ({ handlePickFile, handlePickDirectory, handleScanStorage, proposedPath, buttonPropsIdle }) => {
-	const theme = useTheme();
+}> = ({
+	handlePickFile,
+	handleSelectAppDir,
+	handleSelectCustom,
+	appDirs,
+	buttonPropsIdle,
+}) => {
 	const { t } = useTranslation();
-	const [storageInput, setStorageInput] = useState(proposedPath ?? '');
-
-	const storageInputStyle = useMemo(
-		() => ({ borderColor: theme.colors.outline }),
-		[theme]
-	);
 
 	return (
 		<View style={localStyles.idleContainer}>
@@ -37,41 +38,16 @@ const StepIdle: FC<{
 				})}
 			</Text>
 
-			<ButtonHighlight
-				{...buttonPropsIdle}
-				onPress={handlePickFile}
-			>
+			<ButtonHighlight {...buttonPropsIdle} onPress={handlePickFile}>
 				{t('import.pickFile')}
 			</ButtonHighlight>
 
-			<ButtonHighlight
-				{...buttonPropsIdle}
-				onPress={handlePickDirectory}
-			>
-				{t('import.pickDirectory')}
-			</ButtonHighlight>
-
-			<View style={localStyles.storageSection}>
-				<Text style={[localStyles.hint, localStyles.storageHint]}>
-					{t('import.scanStorageHint')}
-				</Text>
-				<TextInput
-					value={storageInput}
-					placeholder="/storage/emulated/0/Download"
-					onChangeText={setStorageInput}
-					style={[
-						localStyles.configInput,
-						localStyles.storageInput,
-						storageInputStyle,
-					]}
-				/>
-				<ButtonHighlight
-					{...buttonPropsIdle}
-					onPress={() => handleScanStorage(storageInput)}
-				>
-					{t('import.scanStorage')}
-				</ButtonHighlight>
-			</View>
+			<ImportDirPicker
+				appDirs={appDirs}
+				onSelectAppDir={handleSelectAppDir}
+				onSelectCustom={handleSelectCustom}
+				buttonProps={buttonPropsIdle}
+			/>
 		</View>
 	);
 };
