@@ -78,8 +78,6 @@
 	"statsForLines": "Statistics for %s routes",
 	"hideStats": "Hide",
 	"showStats": "Show statistics",
-	"regexInfoTitle": "Regular expressions",
-	"regexInfo": "A regular expression (regex) is a pattern that describes sets of strings. For example, the pattern \"^Mount\" matches titles starting with \"Mount\". Use regexr.com to learn and test patterns.",
 	"hintNumericFilter": "Filter routes by minimum and/or maximum values for this column. Leave a field empty to skip that side of the range.",
 	"hintDateFilter": "Filter routes by a date range. Select start and/or end dates — leave either empty to leave that side unbounded.",
 	"hintStringFilter": "includes: titles containing the value\n\nexcludes: titles not containing the value\n\nstarts with: titles beginning with the value\n\nends with: titles ending with the value\n\nregex: pattern-based text matching. Learn how to use them:",

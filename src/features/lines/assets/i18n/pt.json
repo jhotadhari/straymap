@@ -78,8 +78,6 @@
 	"statsForLines": "Estatísticas para %s rotas",
 	"hideStats": "Ocultar",
 	"showStats": "Mostrar estatísticas",
-	"regexInfoTitle": "Expressões regulares",
-	"regexInfo": "Uma expressão regular (regex) é um padrão que descreve conjuntos de strings. Por exemplo, o padrão \"^Mount\" corresponde a títulos que começam com \"Mount\". Use regexr.com para aprender e testar padrões.",
 	"hintNumericFilter": "Filtrar rotas por valores mínimos e/ou máximos para esta coluna. Deixe um campo vazio para ignorar esse lado do intervalo.",
 	"hintDateFilter": "Filtrar rotas por um intervalo de datas. Selecione datas de início e/ou fim — deixe qualquer um vazio para deixar esse lado sem limite.",
 	"hintStringFilter": "contém: títulos que contêm o valor\n\nnão contém: títulos que não contêm o valor\n\ncomeça com: títulos que começam com o valor\n\ntermina com: títulos que terminam com o valor\n\nregex: busca de texto baseada em padrões. Aprenda a usá-los:",

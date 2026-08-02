@@ -13,6 +13,7 @@ import Sortable, { DragStartParams, SortableFlexDragEndParams } from 'react-nati
  */
 import ModalWrapper from '../../../components/generic/wrapper/ModalWrapper';
 import ButtonHighlight from '../../../components/generic/primitives/ButtonHighlight';
+import { useButtonProps } from '../../../compose/useButtonProps';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import useDropIndicatorStyle from '../../../compose/useDropIndicatorStyle';
 import { selectDatePatterns } from '../selectors';
@@ -75,6 +76,7 @@ const DraggableItem: FC<{
 	onDelete: () => void;
 }> = memo(({ pattern, enabled, onToggle, onDelete }) => {
 	const theme = useTheme();
+	const buttonProps = useButtonProps({});
 
 	const itemOpacityStyle = useMemo(
 		() => ({ opacity: enabled ? 1 : 0.4 }),
@@ -114,12 +116,7 @@ const DraggableItem: FC<{
 
 			<Switch value={pattern.enabled} onValueChange={onToggle} />
 			{pattern.removable && (
-				<ButtonHighlight
-					compact
-					mode="text"
-					onPress={onDelete}
-					textColor={theme.colors.error}
-				>
+				<ButtonHighlight {...buttonProps} onPress={onDelete}>
 					×
 				</ButtonHighlight>
 			)}
@@ -227,6 +224,8 @@ const DatePatternEditorModal: FC<{
 		[localPatterns]
 	);
 
+	const buttonProps = useButtonProps({});
+
 	return (
 		<ModalWrapper
 			visible={visible}
@@ -264,7 +263,6 @@ const DatePatternEditorModal: FC<{
 				{showAdd && (
 					<View style={styles.addSection}>
 						<TextInput
-							mode="outlined"
 							dense
 							style={styles.addInput}
 							placeholder={t('import.datePatternLabel')}
@@ -272,7 +270,6 @@ const DatePatternEditorModal: FC<{
 							onChangeText={setAddLabel}
 						/>
 						<TextInput
-							mode="outlined"
 							dense
 							style={styles.addInput}
 							placeholder={t('import.datePatternRegex')}
@@ -280,7 +277,6 @@ const DatePatternEditorModal: FC<{
 							onChangeText={setAddRegex}
 						/>
 						<TextInput
-							mode="outlined"
 							dense
 							style={styles.addInput}
 							placeholder={t('import.datePatternFormat')}
@@ -288,10 +284,10 @@ const DatePatternEditorModal: FC<{
 							onChangeText={setAddFormat}
 						/>
 						<View style={styles.footer}>
-							<ButtonHighlight compact mode="text" onPress={handleCloseAdd}>
+							<ButtonHighlight {...buttonProps} onPress={handleCloseAdd}>
 								{t('import.cancel')}
 							</ButtonHighlight>
-							<ButtonHighlight compact mode="contained" onPress={handleAdd}>
+							<ButtonHighlight {...buttonProps} onPress={handleAdd}>
 								{t('import.add')}
 							</ButtonHighlight>
 						</View>
@@ -299,10 +295,10 @@ const DatePatternEditorModal: FC<{
 				)}
 
 				<View style={styles.footer}>
-					<ButtonHighlight compact mode="text" onPress={handleReset}>
+					<ButtonHighlight {...buttonProps} onPress={handleReset}>
 						{t('import.resetPatterns')}
 					</ButtonHighlight>
-					<ButtonHighlight compact onPress={handleOpenAdd}>
+					<ButtonHighlight {...buttonProps} onPress={handleOpenAdd}>
 						{t('import.addPattern')}
 					</ButtonHighlight>
 				</View>

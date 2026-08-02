@@ -78,8 +78,6 @@
 	"statsForLines": "Estadísticas para %s rutas",
 	"hideStats": "Ocultar",
 	"showStats": "Mostrar estadísticas",
-	"regexInfoTitle": "Expresiones regulares",
-	"regexInfo": "Una expresión regular (regex) es un patrón que describe conjuntos de cadenas. Por ejemplo, el patrón \"^Mount\" coincide con títulos que comienzan con \"Mount\". Usa regexr.com para aprender y probar patrones.",
 	"hintNumericFilter": "Filtrar rutas por valores mínimos y/o máximos para esta columna. Deja un campo vacío para omitir ese lado del rango.",
 	"hintDateFilter": "Filtrar rutas por un rango de fechas. Selecciona fechas de inicio y/o fin: deja cualquiera vacío para dejar ese lado sin límite.",
 	"hintStringFilter": "contiene: títulos que contienen el valor\n\nno contiene: títulos que no contienen el valor\n\ncomienza con: títulos que comienzan con el valor\n\ntermina con: títulos que terminan con el valor\n\nregex: búsqueda de texto basada en patrones. Aprende a usarlos:",

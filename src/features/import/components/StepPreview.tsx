@@ -1,9 +1,9 @@
 /**
  * External dependencies
  */
-import { FC, memo, useCallback, useEffect, useMemo, useState } from 'react';
-import { ScrollView, TextInput, View, PermissionsAndroid, Platform } from 'react-native';
-import { Text, Checkbox, useTheme, Icon } from 'react-native-paper';
+import { FC, Fragment, memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { ScrollView, View, PermissionsAndroid, Platform } from 'react-native';
+import { List, Text, Checkbox, useTheme, Icon, TextInput } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { sprintf } from 'sprintf-js';
 import { useQuery } from '@tanstack/react-query';
@@ -42,6 +42,10 @@ import {
 	setOverwriteMode,
 	setKeepAppActive,
 } from '../slice';
+import HintLink from '../../../components/generic/primitives/HintLink';
+import { sharedStyles } from '../../../sharedStyles';
+
+const validateFileLimit = (val: number) => val >= 0;
 
 const StepPreview: FC = () => {
 	const theme = useTheme();
@@ -158,7 +162,7 @@ const StepPreview: FC = () => {
 	}, [tagRegex]);
 
 	const titleRegexPreview = useMemo(() => {
-		const sample = importMode === 'file' ? filename : dirFiles[0]?.name ?? '';
+		const sample = importMode === 'file' ? filename : (dirFiles[0]?.name ?? '');
 		if (!debouncedTitleRegex || !sample) return null;
 		try {
 			const re = new RegExp(debouncedTitleRegex);
@@ -169,10 +173,16 @@ const StepPreview: FC = () => {
 			return t('import.regexInvalid');
 		}
 		return null;
-	}, [debouncedTitleRegex, importMode, filename, dirFiles, t]);
+	}, [
+		debouncedTitleRegex,
+		importMode,
+		filename,
+		dirFiles,
+		t,
+	]);
 
 	const tagRegexPreview = useMemo(() => {
-		const sample = importMode === 'file' ? filename : dirFiles[0]?.name ?? '';
+		const sample = importMode === 'file' ? filename : (dirFiles[0]?.name ?? '');
 		if (tagMode !== 'regex' || !debouncedTagRegex || !sample) return null;
 		try {
 			const re = new RegExp(debouncedTagRegex, 'g');
@@ -186,7 +196,14 @@ const StepPreview: FC = () => {
 			return t('import.regexInvalid');
 		}
 		return null;
-	}, [debouncedTagRegex, tagMode, importMode, filename, dirFiles, t]);
+	}, [
+		debouncedTagRegex,
+		tagMode,
+		importMode,
+		filename,
+		dirFiles,
+		t,
+	]);
 
 	const titleRegexWarning = useMemo(() => {
 		if (!titleRegex) return false;
@@ -198,18 +215,10 @@ const StepPreview: FC = () => {
 		return classifyRegex(tagRegex).dangerous;
 	}, [tagRegex]);
 
-	const outlineBorderStyle = useMemo(
-		() => ({ borderColor: theme.colors.outline }),
-		[theme]
-	);
-	const tertiaryColorStyle = useMemo(
-		() => ({ color: theme.colors.tertiary }),
-		[theme]
-	);
-	const primaryColorStyle = useMemo(
-		() => ({ color: theme.colors.primary }),
-		[theme]
-	);
+	const tertiaryColorStyle = useMemo(() => ({ color: theme.colors.tertiary }), [theme]);
+	const primaryColorStyle = useMemo(() => ({ color: theme.colors.primary }), [theme]);
+
+	const buttonPropsSelect = useButtonProps({});
 
 	const tagModeOptions = useMemo(
 		() => [
@@ -229,8 +238,36 @@ const StepPreview: FC = () => {
 		[t]
 	);
 
-	const overwriteInfoNode = useMemo(
-		() => <Text>{t('import.overwriteInfo')}</Text>,
+	const overwriteInfoNode = useMemo(() => <Text>{t('import.hint.overwriteMode')}</Text>, [t]);
+
+	const tagModeAnchorLabel = useMemo(
+		() => tagModeOptions.find((o) => o.key === tagMode)?.label ?? '',
+		[tagModeOptions, tagMode]
+	);
+
+	const overwriteAnchorLabel = useMemo(
+		() => overwriteOptions.find((o) => o.key === overwriteMode)?.label ?? '',
+		[overwriteOptions, overwriteMode]
+	);
+
+	const hintTitleRegex = useMemo(
+		() => (
+			<View style={sharedStyles.gap}>
+				<Text>{t('import.hint.titleRegex')}</Text>
+				<Text>{t('hint.regex.body')}</Text>
+				<HintLink url="https://regexr.com/" />
+			</View>
+		),
+		[t]
+	);
+	const hintTagRegex = useMemo(
+		() => (
+			<View style={sharedStyles.gap}>
+				<Text>{t('import.hint.tagRegex')}</Text>
+				<Text>{t('hint.regex.body')}</Text>
+				<HintLink url="https://regexr.com/" />
+			</View>
+		),
 		[t]
 	);
 
@@ -238,202 +275,112 @@ const StepPreview: FC = () => {
 		disabled: selectionCount === 0,
 	});
 
+	const fileCount = importMode === 'directory' ? dirFiles.length : features.length;
+
 	return (
-		<View>
-			{importMode === 'file' ? (
+		<ScrollView>
+			{/* ---------- Config ---------- */}
+			<List.Subheader>{t('import.importOptions')}</List.Subheader>
+
+			{importMode === 'directory' && (
+				<NumericRowControl
+					label={t('import.fileLimit')}
+					value={fileLimit}
+					onUpdate={handleSetFileLimit}
+					numType="int"
+					validate={validateFileLimit}
+					Info={t('import.hint.fileLimit')}
+				/>
+			)}
+
+			<InfoLabelRow
+				backgroundBlur={true}
+				label={t('import.titleRegex')}
+				Info={hintTitleRegex}
+			>
+				<TextInput
+					dense
+					value={titleRegex}
+					placeholder="/pattern/"
+					maxLength={300}
+					onChangeText={handleSetTitleRegex}
+					style={localStyles.configInput}
+				/>
+			</InfoLabelRow>
+			{titleRegexWarning && (
+				<Text style={[localStyles.configPreview, tertiaryColorStyle]}>
+					<Icon
+						source="alert"
+						size={12}
+						color={theme.colors.tertiary}
+					/>{' '}
+					{t('import.regexExpensive')}
+				</Text>
+			)}
+			{titleRegexPreview && (
+				<Text style={[localStyles.configPreview, primaryColorStyle]}>
+					{t('import.titlePreview')}: {titleRegexPreview}
+				</Text>
+			)}
+
+			<InfoLabelRow
+				backgroundBlur={true}
+				label={t('import.tagMode')}
+				Info={t('import.hint.tagMode')}
+			>
+				<ButtonHighlightMenuControl
+					options={tagModeOptions}
+					value={tagMode}
+					setValue={handleSetTagMode}
+					compact
+					anchorLabel={tagModeAnchorLabel}
+				/>
+			</InfoLabelRow>
+
+			{tagMode === 'regex' && (
 				<>
-					<Text style={localStyles.filename}>{filename}</Text>
-					<Text style={localStyles.featureCount}>
-						{sprintf(t('import.featureCount'), features.length)}
-					</Text>
-
-					<View style={localStyles.selectRow}>
-						<ButtonHighlight
-							compact
-							onPress={handleSelectAllFeatures}
-						>
-							{t('lines.selectAll')}
-						</ButtonHighlight>
-						<ButtonHighlight
-							compact
-							onPress={handleDeselectAllFeatures}
-						>
-							{t('lines.selectNone')}
-						</ButtonHighlight>
-					</View>
-
-					<ScrollView
-						style={localStyles.featureList}
-						horizontal={false}
+					<InfoLabelRow
+						backgroundBlur={true}
+						label={t('import.tagRegex')}
+						Info={hintTagRegex}
 					>
-						{features.map((feature, idx) => (
-							<View
-								key={idx}
-								style={[
-									localStyles.featureRow,
-									outlineBorderStyle,
-								]}
-							>
-								<Checkbox
-									status={
-										selectedIndices.has(idx) ? 'checked' : 'unchecked'
-									}
-									onPress={() => handleToggleFeature(idx)}
-								/>
-								<Text>
-									{feature.properties?.name ??
-										sprintf(t('import.trackN'), idx + 1)}
-								</Text>
-							</View>
-						))}
-					</ScrollView>
-
-					<View
-						style={[
-							localStyles.featureRow,
-							localStyles.mergeToggle,
-							outlineBorderStyle,
-						]}
-					>
-						<Checkbox
-							status={mergeMode ? 'checked' : 'unchecked'}
-							onPress={handleToggleMergeMode}
+						<TextInput
+							mode="outlined"
+							dense
+							value={tagRegex}
+							placeholder="/pattern/g"
+							maxLength={300}
+							onChangeText={handleSetTagRegex}
+							style={localStyles.configInput}
 						/>
-						<Text>{t('import.mergeMode')}</Text>
-					</View>
-				</>
-			) : (
-				<>
-					<Text style={localStyles.featureCount}>
-						{sprintf(t('import.dirFilesFound'), dirFiles.length)}
-					</Text>
-
-					<View style={localStyles.selectRow}>
-						<ButtonHighlight
-							compact
-							onPress={handleSelectAllFiles}
-						>
-							{t('lines.selectAll')}
-						</ButtonHighlight>
-						<ButtonHighlight
-							compact
-							onPress={handleDeselectAllFiles}
-						>
-							{t('lines.selectNone')}
-						</ButtonHighlight>
-					</View>
-
-					<ScrollView
-						style={localStyles.featureList}
-						horizontal={false}
-					>
-						{dirFiles.map((file) => (
-							<View
-								key={file.uri}
-								style={[
-									localStyles.featureRow,
-									outlineBorderStyle,
-								]}
-							>
-								<Checkbox
-									status={
-										selectedFileUris.has(file.uri)
-											? 'checked'
-											: 'unchecked'
-									}
-									onPress={() => handleToggleFile(file.uri)}
-								/>
-								<Text>{file.name}</Text>
-							</View>
-						))}
-					</ScrollView>
+					</InfoLabelRow>
+					{tagRegexWarning && (
+						<Text style={[localStyles.configPreview, tertiaryColorStyle]}>
+							<Icon
+								source="alert"
+								size={12}
+								color={theme.colors.tertiary}
+							/>{' '}
+							{t('import.regexExpensive')}
+						</Text>
+					)}
+					{tagRegexPreview && (
+						<Text style={[localStyles.configPreview, primaryColorStyle]}>
+							{t('import.tagPreview')}: {tagRegexPreview}
+						</Text>
+					)}
 				</>
 			)}
 
-			<View style={localStyles.configSection}>
-
-				{importMode === 'directory' && (
-					<NumericRowControl
-						label={t('import.fileLimit')}
-						value={fileLimit}
-						onUpdate={handleSetFileLimit}
-						numType="int"
-					/>
-				)}
-
-				<InfoLabelRow label={t('import.titleRegex')}>
-					<TextInput
-						value={titleRegex}
-						placeholder="/pattern/"
-						maxLength={300}
-						onChangeText={handleSetTitleRegex}
-						style={[
-							localStyles.configInput,
-							outlineBorderStyle,
-						]}
-					/>
-				</InfoLabelRow>
-				{titleRegexWarning && (
-					<Text style={[localStyles.configPreview, tertiaryColorStyle]}>
-						<Icon source="alert" size={12} color={theme.colors.tertiary} /> {t('import.regexExpensive')}
-					</Text>
-				)}
-				{titleRegexPreview && (
-					<Text style={[localStyles.configPreview, primaryColorStyle]}>
-						{t('import.titlePreview')}: {titleRegexPreview}
-					</Text>
-				)}
-
-				<InfoLabelRow label={t('import.tagMode')}>
-					<ButtonHighlightMenuControl
-						options={tagModeOptions}
-						value={tagMode}
-						setValue={handleSetTagMode}
-						compact
-					/>
-				</InfoLabelRow>
-
-				{tagMode === 'regex' && (
-					<>
-						<InfoLabelRow label={t('import.tagRegex')}>
-							<TextInput
-								value={tagRegex}
-								placeholder="/pattern/g"
-								maxLength={300}
-								onChangeText={handleSetTagRegex}
-								style={[
-									localStyles.configInput,
-									outlineBorderStyle,
-								]}
-							/>
-						</InfoLabelRow>
-						{tagRegexWarning && (
-							<Text style={[localStyles.configPreview, tertiaryColorStyle]}>
-								<Icon source="alert" size={12} color={theme.colors.tertiary} /> {t('import.regexExpensive')}
-							</Text>
-						)}
-						{tagRegexPreview && (
-							<Text style={[localStyles.configPreview, primaryColorStyle]}>
-								{t('import.tagPreview')}: {tagRegexPreview}
-							</Text>
-						)}
-					</>
-				)}
-
-				{tagMode === 'existing' && allTags && (
-					<ScrollView
-						style={localStyles.tagSelectList}
-						horizontal={false}
-					>
-						{allTags.map((tag) => (
-							<View
-								key={tag.id}
-								style={[
-									localStyles.featureRow,
-									outlineBorderStyle,
-								]}
-							>
+			{tagMode === 'existing' && allTags && (
+				<View style={localStyles.tagSelectList}>
+					{allTags.map((tag) => (
+						<List.Item
+							key={tag.id}
+							title={tag.label ?? `#${tag.id}`}
+							left={(props) => (
 								<Checkbox
+									{...props}
 									status={
 										selectedTagIds.includes(tag.id) ? 'checked' : 'unchecked'
 									}
@@ -445,39 +392,52 @@ const StepPreview: FC = () => {
 										)
 									}
 								/>
-								<Text>{tag.label ?? `#${tag.id}`}</Text>
-							</View>
-						))}
-					</ScrollView>
-				)}
+							)}
+							onPress={() =>
+								setSelectedTagIds((prev) =>
+									prev.includes(tag.id)
+										? prev.filter((id) => id !== tag.id)
+										: [...prev, tag.id]
+								)
+							}
+						/>
+					))}
+				</View>
+			)}
 
-				<ToggleRowControl
-					label={t('import.dryRun')}
-					value={dryRun}
-					onToggle={handleToggleDryRun}
+			<ToggleRowControl
+				label={t('import.dryRun')}
+				value={dryRun}
+				onToggle={handleToggleDryRun}
+				Info={t('import.hint.dryRun')}
+				innerStyle={sharedStyles.alignStart}
+			/>
+
+			<ToggleRowControl
+				label={t('import.keepAppActive')}
+				value={keepAppActive}
+				onToggle={handleToggleKeepAppActive}
+				Info={t('import.hint.keepAppActive')}
+				innerStyle={sharedStyles.alignStart}
+			/>
+
+			<DateExtractRowControl />
+
+			<InfoLabelRow
+				backgroundBlur={true}
+				label={t('import.overwriteMode')}
+				Info={overwriteInfoNode}
+			>
+				<ButtonHighlightMenuControl
+					options={overwriteOptions}
+					value={overwriteMode}
+					setValue={handleSetOverwriteMode}
+					compact
+					anchorLabel={overwriteAnchorLabel}
 				/>
+			</InfoLabelRow>
 
-				<ToggleRowControl
-					label={t('import.keepAppActive')}
-					value={keepAppActive}
-					onToggle={handleToggleKeepAppActive}
-				/>
-
-				<DateExtractRowControl />
-
-				<InfoLabelRow
-					label={t('import.overwriteMode')}
-					Info={overwriteInfoNode}
-				>
-					<ButtonHighlightMenuControl
-						options={overwriteOptions}
-						value={overwriteMode}
-						setValue={handleSetOverwriteMode}
-						compact
-					/>
-				</InfoLabelRow>
-			</View>
-
+			{/* ---------- Import button ---------- */}
 			<View style={localStyles.importControls}>
 				<ButtonHighlight
 					{...buttonPropsImport}
@@ -488,7 +448,79 @@ const StepPreview: FC = () => {
 						: sprintf(t('import.selected'), selectionCount)}
 				</ButtonHighlight>
 			</View>
-		</View>
+
+			{/* ---------- File / feature list ---------- */}
+			<List.Subheader>
+				{importMode === 'file'
+					? `${filename}  —  ${sprintf(t('import.featureCount'), features.length)}`
+					: sprintf(t('import.dirFilesFound'), fileCount)}
+			</List.Subheader>
+
+			<View style={localStyles.selectRow}>
+				<ButtonHighlight
+					{...buttonPropsSelect}
+					onPress={importMode === 'file' ? handleSelectAllFeatures : handleSelectAllFiles}
+				>
+					{t('lines.selectAll')}
+				</ButtonHighlight>
+				<ButtonHighlight
+					{...buttonPropsSelect}
+					onPress={
+						importMode === 'file' ? handleDeselectAllFeatures : handleDeselectAllFiles
+					}
+				>
+					{t('lines.selectNone')}
+				</ButtonHighlight>
+			</View>
+
+			{importMode === 'file'
+				? features.map((feature, idx) => (
+						<List.Item
+							key={idx}
+							title={feature.properties?.name ?? sprintf(t('import.trackN'), idx + 1)}
+							left={(props) => (
+								<Checkbox
+									{...props}
+									status={selectedIndices.has(idx) ? 'checked' : 'unchecked'}
+									onPress={() => handleToggleFeature(idx)}
+								/>
+							)}
+							onPress={() => handleToggleFeature(idx)}
+						/>
+					))
+				: dirFiles.map((file) => (
+						<List.Item
+							key={file.uri}
+							title={file.name}
+							left={(props) => (
+								<Checkbox
+									{...props}
+									status={
+										selectedFileUris.has(file.uri) ? 'checked' : 'unchecked'
+									}
+									onPress={() => handleToggleFile(file.uri)}
+								/>
+							)}
+							onPress={() => handleToggleFile(file.uri)}
+						/>
+					))}
+
+			{importMode === 'file' && (
+				<List.Item
+					title={t('import.mergeMode')}
+					left={(props) => (
+						<Checkbox
+							{...props}
+							status={mergeMode ? 'checked' : 'unchecked'}
+							onPress={handleToggleMergeMode}
+						/>
+					)}
+					onPress={handleToggleMergeMode}
+				/>
+			)}
+
+			<View style={localStyles.bottomSpacer} />
+		</ScrollView>
 	);
 };
 

@@ -2,8 +2,8 @@
  * External dependencies
  */
 import { FC, Fragment, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { StyleSheet, TextInput, View } from 'react-native';
-import { Icon, Text, useTheme } from 'react-native-paper';
+import { StyleSheet, View } from 'react-native';
+import { Icon, Text, TextInput, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 
 /**
@@ -125,7 +125,11 @@ const FilterStringModal: FC<{
 				setRegexWarning(null);
 			}
 		}
-	}, [visible, existingFilter, validateRegex]);
+	}, [
+		visible,
+		existingFilter,
+		validateRegex,
+	]);
 
 	const handleDismiss = useCallback(() => {
 		saveRef.current?.();
@@ -163,37 +167,15 @@ const FilterStringModal: FC<{
 		[t]
 	);
 
-	const inputStyle = useMemo(
-		() => [
-			localStyles.input,
-			{
-				color: theme.colors.onSurface,
-				borderColor: regexError
-					? theme.colors.error
-					: regexWarning
-						? theme.colors.tertiary
-						: theme.colors.outline,
-			},
-		],
-		[theme, regexError, regexWarning]
-	);
-
 	const hintStringFilterInfo = useMemo(() => {
 		const paragraphs = t('lines.hintStringFilter').split('\n\n');
 		const regexIdx = paragraphs.findIndex((p) => p.includes('regex'));
 		return (
-			<View>
+			<View style={appSharedStyles.gap}>
 				{paragraphs.map((text, i) => (
 					<Fragment key={i}>
-						<Text
-							style={
-								i < paragraphs.length - 1 ? localStyles.hintParagraph : undefined
-							}
-						>
-							{text}
-						</Text>
-
-						{i === regexIdx && <HintLink url="https://regexr.com/" />}
+						<Text>{text}</Text>
+						{ regexIdx === i && <HintLink url="https://regexr.com/" /> }
 					</Fragment>
 				))}
 			</View>
@@ -222,25 +204,40 @@ const FilterStringModal: FC<{
 				Info={hintStringFilterInfo}
 			>
 				<TextInput
-					style={inputStyle}
+					underlineColor={regexError || regexWarning ? theme.colors.error : undefined}
 					value={value}
 					onChangeText={handleChangeText}
+					dense={true}
 					maxLength={300}
 					placeholder={operator === 'regex' ? '^Mount.*' : t('lines.filterValue')}
-					placeholderTextColor={theme.colors.outline}
 				/>
 				{regexError && (
 					<View style={localStyles.regexFeedback}>
-						<Icon source="alert-circle" size={14} color={theme.colors.error} />
-						<Text style={[localStyles.regexFeedbackText, { color: theme.colors.error }]}>
+						<Icon
+							source="alert-circle"
+							size={14}
+							color={theme.colors.error}
+						/>
+						<Text
+							style={[localStyles.regexFeedbackText, { color: theme.colors.error }]}
+						>
 							{regexError}
 						</Text>
 					</View>
 				)}
 				{!regexError && regexWarning && (
 					<View style={localStyles.regexFeedback}>
-						<Icon source="alert" size={14} color={theme.colors.tertiary} />
-						<Text style={[localStyles.regexFeedbackText, { color: theme.colors.tertiary }]}>
+						<Icon
+							source="alert"
+							size={14}
+							color={theme.colors.tertiary}
+						/>
+						<Text
+							style={[
+								localStyles.regexFeedbackText,
+								{ color: theme.colors.tertiary },
+							]}
+						>
 							{regexWarning}
 						</Text>
 					</View>
@@ -262,17 +259,6 @@ const FilterStringModal: FC<{
 };
 
 const localStyles = StyleSheet.create({
-	input: {
-		borderWidth: 1,
-		borderRadius: 4,
-		paddingHorizontal: 8,
-		paddingVertical: 4,
-		minWidth: 150,
-		textAlign: 'right',
-	},
-	hintParagraph: {
-		marginBottom: 12,
-	},
 	regexFeedback: {
 		flexDirection: 'row',
 		alignItems: 'center',

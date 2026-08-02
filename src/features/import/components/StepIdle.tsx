@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { FC, memo } from 'react';
-import { View } from 'react-native';
+import { ScrollView } from 'react-native';
 import { Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 
@@ -24,7 +24,7 @@ const StepIdle: FC = () => {
 	const buttonProps = useButtonProps({});
 
 	return (
-		<View style={localStyles.idleContainer}>
+		<ScrollView contentContainerStyle={localStyles.idleContainer}>
 			<Text style={localStyles.hint}>
 				{t('import.hint', {
 					extensions: IMPORT_EXTENSIONS.join(', '),
@@ -41,7 +41,7 @@ const StepIdle: FC = () => {
 				onSelectCustom={handleSelectCustom}
 				buttonProps={buttonProps}
 			/>
-		</View>
+		</ScrollView>
 	);
 };
 

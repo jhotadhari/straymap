@@ -47,7 +47,7 @@ const DateExtractRowControl: FC = () => {
 
 	return (
 		<>
-			<InfoLabelRow label={t('import.autoCustomDate')}>
+			<InfoLabelRow label={t('import.autoCustomDate')} Info={t('import.hint.autoCustomDate')}>
 				<View style={styles.row}>
 					<Switch
 						value={autoCustomDate}

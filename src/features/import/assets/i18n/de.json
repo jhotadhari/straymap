@@ -28,7 +28,7 @@
 	"resultAllFailed": "Alle Dateien sind fehlgeschlagen",
 	"done": "Fertig",
 	"skippedGeometry": "{{count}} Strecke(n) wegen fehlender Geometriedaten übersprungen",
-	"fileLimit": "File limit (0 = all)",
+	"fileLimit": "File limit",
 	"titleRegex": "Title regex",
 	"titlePreview": "Preview",
 	"tagMode": "Tag mode",
@@ -46,11 +46,9 @@
 	"overwriteCreate": "Create new",
 	"overwriteSkip": "Skip existing",
 	"overwriteOverwrite": "Overwrite existing",
-	"overwriteInfo": "Compared by source file path. \"Overwrite\" updates geometry and title in place. \"Skip\" keeps existing tracks untouched.",
 	"resultOverwritten": "{{count}} overwritten",
 	"resultSkippedExisting": "{{count}} skipped (already imported)",
 	"autoCustomDate": "Set date from filename",
-	"autoCustomDateInfo": "Tries ISO, EU, compact, and textual date formats found in the filename",
 	"datePatternEditor": "Date patterns",
 	"datePatternLabel": "Label (e.g. \"EU date\")",
 	"datePatternRegex": "Regex (e.g. (\\d{2}\\.\\d{2}\\.\\d{4}))",
@@ -60,5 +58,5 @@
 	"cancel": "Cancel",
 	"resetPatterns": "Reset to defaults",
 	"keepAppActive": "Keep app active in background",
-	"keepAppActiveInfo": "Shows a notification and prevents the system from stopping the import when switching between apps"
+	"importOptions": "Import options"
 }

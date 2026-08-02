@@ -30,75 +30,35 @@ export const localStyles = StyleSheet.create({
 	selectRow: {
 		flexDirection: 'row',
 		gap: 8,
-		marginBottom: 8,
-	},
-	featureList: {
-		maxHeight: 300,
-		marginBottom: 8,
+		marginHorizontal: 16,
+		marginBottom: 4,
 	},
 	tagSelectList: {
-		maxHeight: 150,
-		marginBottom: 8,
-	},
-	featureRow: {
-		flexDirection: 'row',
-		alignItems: 'center',
-		borderBottomWidth: 1,
-		paddingVertical: 4,
-	},
-	mergeToggle: {
-		marginTop: 8,
-	},
-	dryRunToggle: {
-		paddingVertical: 4,
+		marginHorizontal: 16,
 	},
 	importControls: {
-		marginTop: 12,
+		marginTop: 16,
+		marginBottom: 16,
+		marginHorizontal: 16,
 	},
 	resultSummary: {
 		fontWeight: 'bold',
 		marginBottom: 8,
-	},
-	resultRow: {
-		flexDirection: 'row',
-		alignItems: 'flex-start',
-		gap: 8,
-		borderBottomWidth: 1,
-		paddingVertical: 8,
-	},
-	resultTextCol: {
-		flex: 1,
-		flexDirection: 'column',
-		gap: 2,
-	},
-	resultFileName: {
-		fontWeight: 'bold',
+		marginHorizontal: 16,
 	},
 	resultDetail: {
 		opacity: 0.8,
 		fontSize: 12,
 	},
-	configSection: {
-		gap: 12,
-		marginTop: 12,
-	},
 	configInput: {
-		borderWidth: 1,
-		paddingHorizontal: 8,
-		paddingVertical: 4,
+		maxWidth: 220,
 	},
 	configPreview: {
-		marginTop: 4,
+		marginTop: 0,
+		marginBottom: 4,
+		marginHorizontal: 16,
 	},
-	storageSection: {
-		width: '100%',
-		gap: 8,
-		alignItems: 'center',
-	},
-	storageHint: {
-		marginBottom: 0,
-	},
-	storageInput: {
-		width: '100%',
+	bottomSpacer: {
+		height: 32,
 	},
 });

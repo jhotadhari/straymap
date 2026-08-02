@@ -3,7 +3,7 @@
  */
 import { FC, memo, useMemo } from 'react';
 import { ScrollView, View } from 'react-native';
-import { Text, useTheme, Icon } from 'react-native-paper';
+import { Text, useTheme, Icon, List } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { sprintf } from 'sprintf-js';
 
@@ -21,10 +21,6 @@ const StepResult: FC = () => {
 	const { importResults, handleResultDone } = useImportContext();
 	const buttonPropsAny = useButtonProps({});
 
-	const resultRowBorderStyle = useMemo(
-		() => ({ borderColor: theme.colors.outline }),
-		[theme]
-	);
 	const resultErrorStyle = useMemo(
 		() => ({ color: theme.colors.error }),
 		[theme]
@@ -35,7 +31,7 @@ const StepResult: FC = () => {
 	);
 
 	return (
-		<View>
+		<ScrollView>
 			<Text style={localStyles.resultSummary}>
 				{sprintf(
 					t('import.resultPartialSummary'),
@@ -44,27 +40,22 @@ const StepResult: FC = () => {
 				)}
 			</Text>
 
-			<ScrollView
-				style={localStyles.featureList}
-				horizontal={false}
-			>
-				{importResults.map((result, idx) => (
-					<View
-						key={idx}
-						style={[
-							localStyles.resultRow,
-							resultRowBorderStyle,
-						]}
-					>
+			{importResults.map((result, idx) => (
+				<List.Item
+					key={idx}
+					title={result.name}
+					left={(props) => (
 						<Icon
-							source={result.success ? 'check-circle' : 'alert-circle'}
+							{...props}
 							size={20}
+							source={result.success ? 'check-circle' : 'alert-circle'}
 							color={
 								result.success ? theme.colors.primary : theme.colors.error
 							}
 						/>
-						<View style={localStyles.resultTextCol}>
-							<Text style={localStyles.resultFileName}>{result.name}</Text>
+					)}
+					description={() => (
+						<>
 							{result.success ? (
 								<Text style={localStyles.resultDetail}>
 									{sprintf(
@@ -73,12 +64,7 @@ const StepResult: FC = () => {
 									)}
 								</Text>
 							) : (
-								<Text
-									style={[
-										localStyles.resultDetail,
-										resultErrorStyle,
-									]}
-								>
+								<Text style={[localStyles.resultDetail, resultErrorStyle]}>
 									{sprintf(
 										t('import.resultFailed'),
 										result.error ?? ''
@@ -87,10 +73,7 @@ const StepResult: FC = () => {
 							)}
 							{result.skippedGeom && result.skippedGeom > 0 && (
 								<Text
-									style={[
-										localStyles.resultDetail,
-										resultTertiaryStyle,
-									]}
+									style={[localStyles.resultDetail, resultTertiaryStyle]}
 								>
 									{sprintf(
 										t('import.resultSkippedGeom'),
@@ -100,10 +83,7 @@ const StepResult: FC = () => {
 							)}
 							{result.overwritten && result.overwritten > 0 && (
 								<Text
-									style={[
-										localStyles.resultDetail,
-										resultTertiaryStyle,
-									]}
+									style={[localStyles.resultDetail, resultTertiaryStyle]}
 								>
 									{sprintf(
 										t('import.resultOverwritten'),
@@ -113,10 +93,7 @@ const StepResult: FC = () => {
 							)}
 							{result.skipped && result.skipped > 0 && (
 								<Text
-									style={[
-										localStyles.resultDetail,
-										resultTertiaryStyle,
-									]}
+									style={[localStyles.resultDetail, resultTertiaryStyle]}
 								>
 									{sprintf(
 										t('import.resultSkippedExisting'),
@@ -124,20 +101,17 @@ const StepResult: FC = () => {
 									)}
 								</Text>
 							)}
-						</View>
-					</View>
-				))}
-			</ScrollView>
+						</>
+					)}
+				/>
+			))}
 
 			<View style={localStyles.importControls}>
-				<ButtonHighlight
-					{...buttonPropsAny}
-					onPress={handleResultDone}
-				>
+				<ButtonHighlight {...buttonPropsAny} onPress={handleResultDone}>
 					{t('import.done')}
 				</ButtonHighlight>
 			</View>
-		</View>
+		</ScrollView>
 	);
 };
 
