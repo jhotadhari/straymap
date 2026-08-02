@@ -42,8 +42,8 @@ public class BackgroundTaskModule extends NativeBackgroundTaskModuleSpec {
         try {
             BackgroundTaskService.TaskInfo task = BackgroundTaskService.tasks.get((int) taskId);
             if (task != null) {
-                task.progress = (int) progress;
-                task.detail = detail != null ? detail : "";
+                task.setProgress((int) progress);
+                task.setDetail(detail != null ? detail : "");
                 sendUpdateIntent();
             }
             promise.resolve(true);

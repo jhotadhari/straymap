@@ -20,16 +20,18 @@ class BackgroundTaskService : Service() {
         const val CHANNEL_ID = "background_task_channel"
         const val NOTIFICATION_ID = 420
 
+        @JvmField
         val tasks = ConcurrentHashMap<Int, TaskInfo>()
+        @JvmField
         val nextTaskId = AtomicInteger(0)
-
-        data class TaskInfo(
-            val label: String,
-            val maxProgress: Int,
-            var progress: Int,
-            var detail: String
-        )
     }
+
+    data class TaskInfo(
+        val label: String,
+        val maxProgress: Int,
+        var progress: Int,
+        var detail: String
+    )
 
     override fun onBind(intent: Intent?): IBinder? = null
 
