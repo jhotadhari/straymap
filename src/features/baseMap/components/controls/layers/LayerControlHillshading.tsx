@@ -10,7 +10,8 @@ import { get } from 'lodash-es';
  */
 import NumericRowControl from '../../../../../components/generic/controls/NumericRowControl';
 import HgtSourceRowControl from '../../../../general/components/controls/HgtSourceRowControl';
-import { getHillshadingCacheDirChild, labelFromDemPath } from '../../../utils';
+import { getHillshadingCacheDirChild } from '../../../utils';
+import { labelFromAppPath } from '../../../../../lib/utils';
 import CacheControl from './CacheControl';
 import { defaults } from '../../../defaults';
 import { LayerConfig, LayerConfigOptionsHillshading } from '../../../types';
@@ -182,7 +183,7 @@ const LayerControlHillshading: FC<{}> = () => {
 // Returns a path-derived label (e.g. "media", "sdcard data") or undefined.
 export const getPlaceholderLabel = (layer: LayerConfig, appHgtDirPath?: string) => {
 	const path = (layer.options as LayerConfigOptionsHillshading)?.hgtDirPath ?? appHgtDirPath;
-	return path ? labelFromDemPath(path) : undefined;
+	return path ? labelFromAppPath(path) : undefined;
 };
 
 export default LayerControlHillshading;

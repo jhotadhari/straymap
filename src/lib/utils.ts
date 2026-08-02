@@ -104,7 +104,7 @@ export const pointsCoordsAreOverlapping = (coords1: Position, coords2: Position)
 };
 
 // Create a fake lineString from one point. Just duplicate the point with a slightly different geometry.
-// The the points will be recognized by `pointsCoordsAreOverlapping` as overlapping.
+// The points will be recognized by `pointsCoordsAreOverlapping` as overlapping.
 export const pointToFakeLineStringFeature = (point: Point) => {
 	return lineString([
 		point.coordinates,
@@ -114,4 +114,21 @@ export const pointToFakeLineStringFeature = (point: Point) => {
 			point.coordinates[2],
 		],
 	]);
+};
+
+// Create a fake lineString from one point. Just duplicate the point with a slightly different geometry.
+// The the points will be recognized by `pointsCoordsAreOverlapping` as overlapping.
+// Converts an app directory path to a short descriptive label.
+// "/storage/emulated/0/Android/media/.../import" → "media"
+// "/storage/emulated/0/Android/data/.../files/dem" → "data"
+// "/storage/9016-4EF8/Android/media/.../mapfiles" → "sdcard media"
+// "content://..." → "custom"
+export const labelFromAppPath = (path: string): string => {
+	if (path.startsWith('content://')) return 'custom';
+	const isSdCard = !path.includes('emulated');
+	const isMedia = path.includes('/Android/media/');
+	const parts: string[] = [];
+	if (isSdCard) parts.push('sdcard');
+	parts.push(isMedia ? 'media' : 'data');
+	return parts.join(' ');
 };

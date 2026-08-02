@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next';
  * Internal dependencies
  */
 import { AbsPath } from '../../dirs/types';
+import { labelFromAppPath } from '../../../lib/utils';
 import ButtonHighlight from '../../../components/generic/primitives/ButtonHighlight';
 import ModalWrapper from '../../../components/generic/wrapper/ModalWrapper';
 import RadioListItem from '../../../components/generic/wrapper/RadioListItem';
@@ -45,7 +46,7 @@ const ImportDirPicker: FC<{
 		() =>
 			appDirs.map((p) => ({
 				key: p,
-				label: p.split('/').pop() ?? p,
+				label: labelFromAppPath(p),
 			})),
 		[appDirs]
 	);
@@ -77,7 +78,6 @@ const ImportDirPicker: FC<{
 			{modalVisible && (
 				<ModalWrapper
 					visible={modalVisible}
-					backgroundBlur={false}
 					onDismiss={handleCloseModal}
 					headerLabel={t('import.pickDirectory')}
 				>
@@ -95,9 +95,9 @@ const ImportDirPicker: FC<{
 							<RadioListItem
 								key={opt.key}
 								opt={opt}
-								onPress={() => handleSelectDir(opt.key as AbsPath)}
 								labelExtractor={(a) => a.label}
 								descExtractor={(a) => a.key}
+								onPress={() => handleSelectDir(opt.key as AbsPath)}
 								labelStyle={labelStyle}
 							/>
 						))}
@@ -105,8 +105,8 @@ const ImportDirPicker: FC<{
 						<RadioListItem
 							key="__custom__"
 							opt={{ key: '__custom__', label: t('import.customDir') }}
-							onPress={handleSelectCustom}
 							labelExtractor={(a) => a.label}
+							onPress={handleSelectCustom}
 							labelStyle={labelStyle}
 						/>
 					</ScrollView>

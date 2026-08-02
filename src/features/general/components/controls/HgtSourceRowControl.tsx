@@ -33,7 +33,7 @@ import ModalWrapper from '../../../../components/generic/wrapper/ModalWrapper';
 import RadioListItem from '../../../../components/generic/wrapper/RadioListItem';
 import HintLink from '../../../../components/generic/primitives/HintLink';
 import { HgtDirPath } from '../../../baseMap/types';
-import { labelFromDemPath } from '../../../baseMap/utils';
+import { labelFromAppPath } from '../../../../lib/utils';
 import { AbsPath } from '../../../dirs/types';
 import { sharedStyles } from '../../../../sharedStyles';
 import { logError } from '../../../../lib/utils';
@@ -97,7 +97,7 @@ const HgtSourceRowControl = ({
 		[...dirs].forEach((dir: AbsPath) => {
 			result.push({
 				key: dir,
-				label: dir,
+				label: labelFromAppPath(dir),
 			});
 		});
 		if (hasCustom) {
@@ -234,7 +234,7 @@ const HgtSourceRowControl = ({
 			} else if ('appHgt' === selectedOpt) {
 				label = t('baseMap.useAppHgt');
 			} else {
-				label = labelFromDemPath(selectedOpt);
+				label = labelFromAppPath(selectedOpt);
 			}
 		} else {
 			if (fallbackAppHgt) {
@@ -260,7 +260,7 @@ const HgtSourceRowControl = ({
 						icon={buttonIconGlobal}
 					>
 						{appHgtDirPath
-							? t('baseMap.openAppHgt') + ': ' + labelFromDemPath(appHgtDirPath)
+							? t('baseMap.openAppHgt') + ': ' + labelFromAppPath(appHgtDirPath)
 							: t('baseMap.notConfiguredAppHgt')}
 					</ButtonHighlight>
 				)}
@@ -316,7 +316,9 @@ const HgtSourceRowControl = ({
 																'content:// '
 															)
 														: null
-											: undefined
+											: opt.key.startsWith('/')
+												? () => opt.key
+												: undefined
 									}
 									status={opt.key === selectedOpt ? 'checked' : 'unchecked'}
 								/>

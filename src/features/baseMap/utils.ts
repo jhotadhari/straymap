@@ -22,6 +22,7 @@ import { mapTypeOptions } from './components/controls/layers/LayersControl';
 import { getPlaceholderLabel as getPlaceholderLabel_mapsforge } from './components/controls/layers/LayerControlMapsforge';
 import { getPlaceholderLabel as getPlaceholderLabel_onlineRasterXyz } from './components/controls/layers/LayerControlOnlineRasterXYZ';
 import { getPlaceholderLabel as getPlaceholderLabel_rasterMbtiles } from './components/controls/layers/LayerControlRasterMBTiles';
+import { labelFromAppPath } from '../../lib/utils';
 
 export const stringifyProp = (prop: any, deli?: string): string => {
 	deli = deli || '_';
@@ -135,20 +136,6 @@ export const getShadingAlgorithmOptions = (
 };
 
 // Derive a human-readable label from a DEM directory path.
-// "/storage/emulated/0/Android/media/.../dem" → "media"
-// "/storage/emulated/0/Android/data/.../files/dem" → "data"
-// "/storage/9016-4EF8/Android/media/.../dem" → "sdcard media"
-// "/storage/9016-4EF8/Android/data/.../files/dem" → "sdcard data"
-export const labelFromDemPath = (path: string): string => {
-	if (path.startsWith('content://')) return 'custom';
-	const isSdCard = !path.includes('emulated');
-	const isMedia = path.includes('/Android/media/');
-	const parts: string[] = [];
-	if (isSdCard) parts.push('sdcard');
-	parts.push(isMedia ? 'media' : 'data');
-	return parts.join(' ');
-};
-
 // Check whether a layer has a configured source.
 // Used to show/hide warning icons and guard renderer visibility.
 export const hasLayerSource = (layer?: LayerConfig, appHgtDirPath?: string): boolean => {
@@ -168,7 +155,7 @@ export const getLayerLabel = (
 			const perLayerPath = (layer.options as LayerConfigOptionsHillshading)?.hgtDirPath;
 			const path = perLayerPath ?? props?.appHgtDirPath;
 			if (!path) return undefined;
-			const label = labelFromDemPath(path);
+			const label = labelFromAppPath(path);
 			return {
 				key: perLayerPath ? 'baseMap.demLabel.shading' : 'baseMap.demLabel.shadingGlobal',
 				params: { label },
