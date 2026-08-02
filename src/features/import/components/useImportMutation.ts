@@ -19,65 +19,31 @@ import { detectImportFormat, parseImportContent } from '../../lines/utils/import
 import { createLines } from '../../lines/db/actionsLine';
 import { ensureTagByLabel } from '../../lines/db/actionsTag';
 import { invalidateTagsTable, invalidateLinesQueries } from '../../lines/db/queryFns';
-import { isValidGeometry, ImportMode, ImportFileResult, ImportStep, TagMode } from './types';
+import { isValidGeometry, ImportFileResult } from './types';
+import { useImportContext } from './ImportContext';
 
-interface UseImportMutationParams {
-	importMode: ImportMode;
-	mergeMode: boolean;
-	features: Feature<LineString, GeoJsonProperties>[];
-	filename: string;
-	sourceFilePath: string;
-	selectedIndices: Set<number>;
-	selectedFileUris: Set<string>;
-	dirFiles: { uri: string; name: string }[];
-	dismissedRef: React.MutableRefObject<boolean>;
-	setStep: React.Dispatch<React.SetStateAction<ImportStep>>;
-	setImportMode: React.Dispatch<React.SetStateAction<ImportMode>>;
-	setFeatures: React.Dispatch<React.SetStateAction<Feature<LineString, GeoJsonProperties>[]>>;
-	setFilename: React.Dispatch<React.SetStateAction<string>>;
-	setSelectedIndices: React.Dispatch<React.SetStateAction<Set<number>>>;
-	setDirFiles: React.Dispatch<React.SetStateAction<{ uri: string; name: string }[]>>;
-	setSelectedFileUris: React.Dispatch<React.SetStateAction<Set<string>>>;
-	setMergeMode: React.Dispatch<React.SetStateAction<boolean>>;
-	setBulkProgress: React.Dispatch<React.SetStateAction<{ current: number; total: number }>>;
-	setImportResults: React.Dispatch<React.SetStateAction<ImportFileResult[]>>;
-	handleClose: () => void;
-	fileLimit: number;
-	titleRegex: string;
-	tagMode: TagMode;
-	selectedTagIds: number[];
-	tagRegex: string;
-	dryRun: boolean;
-}
+const useImportMutation = () => {
+	const {
+		importMode,
+		mergeMode,
+		features,
+		filename,
+		sourceFilePath,
+		selectedIndices,
+		selectedFileUris,
+		dirFiles,
+		dismissedRef,
+		setStep,
+		setBulkProgress,
+		setImportResults,
+		fileLimit,
+		titleRegex,
+		tagMode,
+		selectedTagIds,
+		tagRegex,
+		dryRun,
+	} = useImportContext();
 
-const useImportMutation = ({
-	importMode,
-	mergeMode,
-	features,
-	filename,
-	sourceFilePath,
-	selectedIndices,
-	selectedFileUris,
-	dirFiles,
-	dismissedRef,
-	setStep,
-	setImportMode,
-	setFeatures,
-	setFilename,
-	setSelectedIndices,
-	setDirFiles,
-	setSelectedFileUris,
-	setMergeMode,
-	setBulkProgress,
-	setImportResults,
-	handleClose,
-	fileLimit,
-	titleRegex,
-	tagMode,
-	selectedTagIds,
-	tagRegex,
-	dryRun,
-}: UseImportMutationParams) => {
 	const { t } = useTranslation();
 	const { showError } = useContext(ErrorToastContext);
 	const queryClient = useQueryClient();
@@ -139,12 +105,7 @@ const useImportMutation = ({
 			}
 			return [...new Set(tagIds)];
 		},
-		[
-			tagMode,
-			selectedTagIds,
-			tagRegex,
-			getOrCreateImportTag,
-		]
+		[tagMode, selectedTagIds, tagRegex, getOrCreateImportTag]
 	);
 
 	const mutation = useMutation({
@@ -156,8 +117,6 @@ const useImportMutation = ({
 
 				await bgTask.start(limitedUris.length);
 
-				// Process each file independently — one failing file
-				// doesn't block the rest.
 				for (let i = 0; i < limitedUris.length; i++) {
 					if (dismissedRef.current) {
 						return;
@@ -256,7 +215,6 @@ const useImportMutation = ({
 				return;
 			}
 
-			// ---- single-file mode ----
 			let toImport = features.filter((_, idx) => selectedIndices.has(idx));
 			const skippedCount = toImport.length - toImport.filter(isValidGeometry).length;
 			toImport = toImport.filter(isValidGeometry);
@@ -266,7 +224,14 @@ const useImportMutation = ({
 			}
 
 			if (dryRun) {
-				singleFileMeta.current.skippedGeom = skippedCount;
+				setImportResults([
+					{
+						name: filename,
+						success: true,
+						importedCount: toImport.length,
+						skippedGeom: skippedCount > 0 ? skippedCount : undefined,
+					},
+				]);
 				return;
 			}
 
@@ -298,48 +263,21 @@ const useImportMutation = ({
 				await createLines(newLines);
 			}
 
-			// Store skipped geometry count for the success handler to show a
-			// toast (single-file mode doesn't use the result screen).
-			if (skippedCount > 0) {
-				singleFileMeta.current.skippedGeom = skippedCount;
-			}
+			setImportResults([
+				{
+					name: filename,
+					success: true,
+					importedCount: mergeMode ? 1 : toImport.length,
+					skippedGeom: skippedCount > 0 ? skippedCount : undefined,
+				},
+			]);
 		},
 		onSuccess: (_data, _vars) => {
 			bgTask.stop();
 			invalidateLinesQueries(queryClient);
 			invalidateTagsTable(queryClient);
 
-			// For directory mode, show the result summary screen
-			if (importMode === 'directory') {
-				// Skip result screen if everything succeeded with no warnings
-				const hasFailures = importResultsRef.current.some((r) => !r.success);
-				const hasWarnings = importResultsRef.current.some(
-					(r) => r.skippedGeom && r.skippedGeom > 0
-				);
-				if (hasFailures || hasWarnings) {
-					setStep('result');
-					return;
-				}
-			} else {
-				// Single-file mode: warn about skipped geometry features
-				const skipped = singleFileMeta.current.skippedGeom;
-				if (skipped && skipped > 0) {
-					showError(sprintf(t('import.skippedGeometry'), skipped));
-				}
-				delete singleFileMeta.current.skippedGeom;
-			}
-
-			setStep('idle');
-			setImportMode('file');
-			setFeatures([]);
-			setFilename('');
-			setSelectedIndices(new Set());
-			setDirFiles([]);
-			setSelectedFileUris(new Set());
-			setMergeMode(false);
-			setBulkProgress({ current: 0, total: 0 });
-			setImportResults([]);
-			handleClose();
+			setStep('result');
 		},
 		onError: (err) => {
 			bgTask.stop();
@@ -347,8 +285,6 @@ const useImportMutation = ({
 			logError('ImportModal.import', err);
 			showError(sprintf(t('errorGeneric'), err instanceof Error ? err.message : String(err)));
 
-			// If we have per-file results (directory mode partial failure that
-			// threw because all files failed), still show them
 			if (importResultsRef.current.length > 0) {
 				setStep('result');
 			} else {

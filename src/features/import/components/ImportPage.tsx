@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, MutableRefObject, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -9,6 +9,8 @@ import { openDocument, openDocumentTree, listFiles } from 'react-native-scoped-s
 import { readFile } from 'react-native-fs';
 import { sprintf } from 'sprintf-js';
 import { Feature, GeoJsonProperties, LineString } from 'geojson';
+import { UseMutationResult } from '@tanstack/react-query';
+import get from 'lodash/get';
 
 /**
  * Internal dependencies
@@ -18,33 +20,34 @@ import { logError } from '../../../lib/utils';
 import LoadingIndicator from '../../../components/generic/primitives/LoadingIndicator';
 import useAsyncBusy from '../../../compose/useAsyncBusy';
 import { detectImportFormat, parseImportContent, IMPORT_EXTENSIONS } from '../../lines/utils/importParser';
-import { useButtonProps } from '../../../compose/useButtonProps';
 import useDirsInfo from '../../dirs/hooks/useDirsInfo';
-import { useAppDispatch, useAppSelector } from '../../../store/hooks';
+import { useAppSelector } from '../../../store/hooks';
 import { selectAppDirs } from '../../dirs/selectors';
-import { selectUiItemKeys } from '../../ui/selectors';
-import { setUiItemKeys } from '../../ui/slice';
-import get from 'lodash/get';
 import { localStyles } from './styles';
 import { ImportMode, ImportFileResult, ImportStep, TagMode } from './types';
+import { AbsPath } from '../../dirs/types';
+import { ImportContextProvider } from './ImportContext';
 import useImportMutation from './useImportMutation';
 import StepIdle from './StepIdle';
 import StepPreview from './StepPreview';
 import StepResult from './StepResult';
-import { AbsPath } from '../../dirs/types';
+
+const MutationBootstrap = ({
+	mutationRef,
+}: {
+	mutationRef: MutableRefObject<UseMutationResult<void, Error, void, unknown> | null>;
+}) => {
+	const mutation = useImportMutation();
+	mutationRef.current = mutation;
+	return null;
+};
 
 const ImportPage = () => {
-	const dispatch = useAppDispatch();
-	const uiItemsKeys = useAppSelector(selectUiItemKeys);
 	const appDirs = useAppSelector(selectAppDirs);
 	const importDirs = useMemo(() => get(appDirs, 'import', []) as AbsPath[], [appDirs]);
 
 	const { t } = useTranslation();
 	const { showError } = useContext(ErrorToastContext);
-
-	const handleClose = useCallback(() => {
-		dispatch(setUiItemKeys(uiItemsKeys.slice(0, Math.max(0, uiItemsKeys.length - 1))));
-	}, [dispatch, uiItemsKeys]);
 
 	const [step, setStep] = useState<ImportStep>('idle');
 	const [importMode, setImportMode] = useState<ImportMode>('file');
@@ -72,7 +75,7 @@ const ImportPage = () => {
 	const [tagRegex, setTagRegex] = useState('');
 	const [dryRun, setDryRun] = useState(false);
 
-	// Storage directory scanning (fast native FsModule)
+	// Storage directory scanning
 	const [storagePath, setStoragePath] = useState<AbsPath | ''>('');
 	const { dirsInfo, isLoading: isScanningStorage } = useDirsInfo({
 		navDirs: storagePath ? [storagePath as AbsPath] : [],
@@ -104,11 +107,9 @@ const ImportPage = () => {
 		setStep('preview');
 	}, [storagePath, dirsInfo, isScanningStorage]);
 
-	const [isPickingFile, runOpenDocument] = useAsyncBusy(openDocument);
+	const [_isPickingFile, runOpenDocument] = useAsyncBusy(openDocument);
 	const [_isPickingDir, runOpenDocumentTree] = useAsyncBusy(openDocumentTree);
 
-	// Track whether the page has been dismissed so in-flight
-	// async callbacks don't overwrite clean post-dismiss state.
 	const dismissedRef = useRef(false);
 	useEffect(() => {
 		return () => {
@@ -116,37 +117,17 @@ const ImportPage = () => {
 		};
 	}, []);
 
-	// ---- import mutation ----
-	const mutation = useImportMutation({
-		importMode,
-		mergeMode,
-		features,
-		filename,
-		sourceFilePath,
-		selectedIndices,
-		selectedFileUris,
-		dirFiles,
-		dismissedRef,
-		setStep,
-		setImportMode,
-		setFeatures,
-		setFilename,
-		setSelectedIndices,
-		setDirFiles,
-		setSelectedFileUris,
-		setMergeMode,
-		setBulkProgress,
-		setImportResults,
-		handleClose,
-		fileLimit,
-		titleRegex,
-		tagMode,
-		selectedTagIds,
-		tagRegex,
-		dryRun,
-	});
+	const mutationRef = useRef<UseMutationResult<void, Error, void, unknown> | null>(null);
 
-	// ---- single-file pick ----
+	const handleImport = useCallback(() => {
+		const selectionCount =
+			importMode === 'directory' ? selectedFileUris.size : selectedIndices.size;
+		if (!selectionCount) return;
+		setStep('importing');
+		setImportResults([]);
+		mutationRef.current?.mutate();
+	}, [importMode, selectedFileUris.size, selectedIndices.size]);
+
 	const handlePickFile = useCallback(async () => {
 		try {
 			const file = await runOpenDocument(false);
@@ -197,8 +178,7 @@ const ImportPage = () => {
 		t,
 	]);
 
-	// ---- directory pick ----
-	const handlePickDirectory = useCallback(async () => {
+	const handleSelectCustom = useCallback(async () => {
 		try {
 			const dir = await runOpenDocumentTree(true);
 			if (!dir?.uri || dismissedRef.current) return;
@@ -245,8 +225,6 @@ const ImportPage = () => {
 		t,
 	]);
 
-
-	// ---- feature checkbox toggles (single-file mode) ----
 	const handleToggleFeature = useCallback((idx: number) => {
 		setSelectedIndices((prev) => {
 			const next = new Set(prev);
@@ -264,7 +242,6 @@ const ImportPage = () => {
 		setSelectedIndices(new Set());
 	}, []);
 
-	// ---- file checkbox toggles (directory mode) ----
 	const handleToggleFile = useCallback((uri: string) => {
 		setSelectedFileUris((prev) => {
 			const next = new Set(prev);
@@ -282,18 +259,6 @@ const ImportPage = () => {
 		setSelectedFileUris(new Set());
 	}, []);
 
-	// ---- import button ----
-	const selectionCount =
-		importMode === 'directory' ? selectedFileUris.size : selectedIndices.size;
-
-	const handleImport = useCallback(() => {
-		if (!selectionCount) return;
-		setStep('importing');
-		setImportResults([]);
-		mutation.mutate();
-	}, [selectionCount, mutation]);
-
-	// ---- result screen dismiss ----
 	const handleResultDone = useCallback(() => {
 		setStep('idle');
 		setImportMode('file');
@@ -306,103 +271,139 @@ const ImportPage = () => {
 		setMergeMode(false);
 		setBulkProgress({ current: 0, total: 0 });
 		setImportResults([]);
-		handleClose();
-	}, [handleClose]);
+	}, []);
 
-	// ---- button props ----
-	const buttonPropsIdle = useButtonProps({
-		disabled: isPickingFile,
-	});
+	const selectionCount =
+		importMode === 'directory' ? selectedFileUris.size : selectedIndices.size;
 
-	const buttonPropsImport = useButtonProps({
-		disabled: selectionCount === 0,
-	});
+	const ctxValue = useMemo(
+		() => ({
+			step,
+			setStep,
+			importMode,
+			setImportMode,
+			features,
+			setFeatures,
+			filename,
+			setFilename,
+			sourceFilePath,
+			setSourceFilePath,
+			selectedIndices,
+			setSelectedIndices,
+			dirFiles,
+			setDirFiles,
+			selectedFileUris,
+			setSelectedFileUris,
+			mergeMode,
+			setMergeMode,
+			bulkProgress,
+			setBulkProgress,
+			importResults,
+			setImportResults,
+			fileLimit,
+			setFileLimit,
+			titleRegex,
+			setTitleRegex,
+			tagMode,
+			setTagMode,
+			tagRegex,
+			setTagRegex,
+			selectedTagIds,
+			setSelectedTagIds,
+			dryRun,
+			setDryRun,
+			selectionCount,
+			importDirs,
+			handlePickFile,
+			handleSelectAppDir,
+			handleSelectCustom,
+			handleToggleFeature,
+			handleSelectAllFeatures,
+			handleDeselectAllFeatures,
+			handleToggleFile,
+			handleSelectAllFiles,
+			handleDeselectAllFiles,
+			handleImport,
+			handleResultDone,
+			dismissedRef,
+			mutationRef,
+		}),
+		[
+			step,
+			importMode,
+			features,
+			filename,
+			sourceFilePath,
+			selectedIndices,
+			dirFiles,
+			selectedFileUris,
+			mergeMode,
+			bulkProgress,
+			importResults,
+			fileLimit,
+			titleRegex,
+			tagMode,
+			tagRegex,
+			selectedTagIds,
+			dryRun,
+			selectionCount,
+			importDirs,
+			handlePickFile,
+			handleSelectAppDir,
+			handleSelectCustom,
+			handleToggleFeature,
+			handleSelectAllFeatures,
+			handleDeselectAllFeatures,
+			handleToggleFile,
+			handleSelectAllFiles,
+			handleDeselectAllFiles,
+			handleImport,
+			handleResultDone,
+		]
+	);
 
-	// ====== RENDER ======
 	return (
-		<View style={[localStyles.modalInner]}>
-			{step === 'idle' && (
-				<StepIdle
-					handlePickFile={handlePickFile}
-					handleSelectAppDir={handleSelectAppDir}
-					handleSelectCustom={handlePickDirectory}
-					appDirs={importDirs}
-					buttonPropsIdle={buttonPropsIdle as Record<string, unknown>}
-				/>
-			)}
+		<ImportContextProvider value={ctxValue}>
+			<MutationBootstrap mutationRef={mutationRef} />
+			<View style={[localStyles.modalInner]}>
+				{step === 'idle' && <StepIdle />}
 
-			{step === 'scanning' && (
-				<View style={localStyles.centered}>
-					<LoadingIndicator />
-					<Text>{t('import.scanningDir')}</Text>
-				</View>
-			)}
+				{step === 'scanning' && (
+					<View style={localStyles.centered}>
+						<LoadingIndicator />
+						<Text>{t('import.scanningDir')}</Text>
+					</View>
+				)}
 
-			{step === 'parsing' && (
-				<View style={localStyles.centered}>
-					<LoadingIndicator />
-					<Text>{t('import.parsing')}</Text>
-				</View>
-			)}
+				{step === 'parsing' && (
+					<View style={localStyles.centered}>
+						<LoadingIndicator />
+						<Text>{t('import.parsing')}</Text>
+					</View>
+				)}
 
-			{step === 'preview' && (
-				<StepPreview
-					importMode={importMode}
-					features={features}
-					filename={filename}
-					selectedIndices={selectedIndices}
-					dirFiles={dirFiles}
-					selectedFileUris={selectedFileUris}
-					mergeMode={mergeMode}
-					onToggleMergeMode={() => setMergeMode((prev) => !prev)}
-					selectionCount={selectionCount}
-					handleToggleFeature={handleToggleFeature}
-					handleSelectAllFeatures={handleSelectAllFeatures}
-					handleDeselectAllFeatures={handleDeselectAllFeatures}
-					handleToggleFile={handleToggleFile}
-					handleSelectAllFiles={handleSelectAllFiles}
-					handleDeselectAllFiles={handleDeselectAllFiles}
-					handleImport={handleImport}
-					buttonPropsImport={buttonPropsImport}
-					fileLimit={fileLimit}
-					setFileLimit={setFileLimit}
-					titleRegex={titleRegex}
-					setTitleRegex={setTitleRegex}
-					tagMode={tagMode}
-					setTagMode={setTagMode}
-					tagRegex={tagRegex}
-					setTagRegex={setTagRegex}
-					selectedTagIds={selectedTagIds}
-					setSelectedTagIds={setSelectedTagIds}
-					dryRun={dryRun}
-					setDryRun={setDryRun}
-				/>
-			)}
+				{step === 'preview' && <StepPreview />}
 
-			{step === 'importing' && (
-				<View style={localStyles.centered}>
-					<LoadingIndicator />
-					{importMode === 'directory' && bulkProgress.total > 0 ? (
-						<Text>
-							{sprintf(
-								t('import.progress'),
-								bulkProgress.current,
-								bulkProgress.total
-							)}
-						</Text>
-					) : (
-						<Text>{t('import.importing')}</Text>
-					)}
-				</View>
-			)}
+				{step === 'importing' && (
+					<View style={localStyles.centered}>
+						<LoadingIndicator />
+						{importMode === 'directory' && bulkProgress.total > 0 ? (
+							<Text>
+								{sprintf(
+									t('import.progress'),
+									bulkProgress.current,
+									bulkProgress.total
+								)}
+							</Text>
+						) : (
+							<Text>{t('import.importing')}</Text>
+						)}
+					</View>
+				)}
 
-			{step === 'result' && (
-				<StepResult
-					importResults={importResults}
-					handleResultDone={handleResultDone}
-				/>
-			)}
-		</View>
+				{step === 'result' && <StepResult />}
+			</View>
+		</ImportContextProvider>
 	);
 };
 

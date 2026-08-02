@@ -10,25 +10,18 @@ import { useTranslation } from 'react-i18next';
  * Internal dependencies
  */
 import ButtonHighlight from '../../../components/generic/primitives/ButtonHighlight';
+import { useButtonProps } from '../../../compose/useButtonProps';
 import { IMPORT_EXTENSIONS } from '../../lines/utils/importParser';
-import { AbsPath } from '../../dirs/types';
 import { localStyles } from './styles';
+import { useImportContext } from './ImportContext';
 import ImportDirPicker from './ImportDirPicker';
 
-const StepIdle: FC<{
-	handlePickFile: () => void;
-	handleSelectAppDir: (path: AbsPath) => void;
-	handleSelectCustom: () => void;
-	appDirs: AbsPath[];
-	buttonPropsIdle: Record<string, unknown>;
-}> = ({
-	handlePickFile,
-	handleSelectAppDir,
-	handleSelectCustom,
-	appDirs,
-	buttonPropsIdle,
-}) => {
+const StepIdle: FC = () => {
 	const { t } = useTranslation();
+	const { handlePickFile, handleSelectAppDir, handleSelectCustom, importDirs } =
+		useImportContext();
+
+	const buttonProps = useButtonProps({});
 
 	return (
 		<View style={localStyles.idleContainer}>
@@ -38,15 +31,15 @@ const StepIdle: FC<{
 				})}
 			</Text>
 
-			<ButtonHighlight {...buttonPropsIdle} onPress={handlePickFile}>
+			<ButtonHighlight {...buttonProps} onPress={handlePickFile}>
 				{t('import.pickFile')}
 			</ButtonHighlight>
 
 			<ImportDirPicker
-				appDirs={appDirs}
+				appDirs={importDirs}
 				onSelectAppDir={handleSelectAppDir}
 				onSelectCustom={handleSelectCustom}
-				buttonProps={buttonPropsIdle}
+				buttonProps={buttonProps}
 			/>
 		</View>
 	);

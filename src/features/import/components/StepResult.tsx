@@ -13,14 +13,12 @@ import { sprintf } from 'sprintf-js';
 import ButtonHighlight from '../../../components/generic/primitives/ButtonHighlight';
 import { useButtonProps } from '../../../compose/useButtonProps';
 import { localStyles } from './styles';
-import { ImportFileResult } from './types';
+import { useImportContext } from './ImportContext';
 
-const StepResult: FC<{
-	importResults: ImportFileResult[];
-	handleResultDone: () => void;
-}> = ({ importResults, handleResultDone }) => {
+const StepResult: FC = () => {
 	const theme = useTheme();
 	const { t } = useTranslation();
+	const { importResults, handleResultDone } = useImportContext();
 	const buttonPropsAny = useButtonProps({});
 
 	const resultRowBorderStyle = useMemo(

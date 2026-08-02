@@ -1,86 +1,58 @@
 /**
  * External dependencies
  */
-import { FC, Dispatch, memo, SetStateAction, useEffect, useMemo, useState } from 'react';
+import { FC, memo, useEffect, useMemo, useState } from 'react';
 import { ScrollView, TextInput, View } from 'react-native';
 import { Text, Checkbox, useTheme, SegmentedButtons, Icon } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { sprintf } from 'sprintf-js';
-import { Feature, GeoJsonProperties, LineString } from 'geojson';
 import { useQuery } from '@tanstack/react-query';
 
 /**
  * Internal dependencies
  */
 import ButtonHighlight from '../../../components/generic/primitives/ButtonHighlight';
+import { useButtonProps } from '../../../compose/useButtonProps';
 import { localStyles } from './styles';
-import { ImportMode, TagMode } from './types';
+import { TagMode } from './types';
 import { queryAllTags } from '../../lines/db/queryFns';
 import { classifyRegex } from '../../../lib/regexUtils';
+import { useImportContext } from './ImportContext';
 
-const StepPreview: FC<{
-	importMode: ImportMode;
-	features: Feature<LineString, GeoJsonProperties>[];
-	filename: string;
-	selectedIndices: Set<number>;
-	dirFiles: { uri: string; name: string }[];
-	selectedFileUris: Set<string>;
-	mergeMode: boolean;
-	onToggleMergeMode: () => void;
-	selectionCount: number;
-	handleToggleFeature: (idx: number) => void;
-	handleSelectAllFeatures: () => void;
-	handleDeselectAllFeatures: () => void;
-	handleToggleFile: (uri: string) => void;
-	handleSelectAllFiles: () => void;
-	handleDeselectAllFiles: () => void;
-	handleImport: () => void;
-	buttonPropsImport: Record<string, unknown>;
-	fileLimit: number;
-	setFileLimit: (n: number) => void;
-	titleRegex: string;
-	setTitleRegex: (s: string) => void;
-	tagMode: TagMode;
-	setTagMode: (m: TagMode) => void;
-	tagRegex: string;
-	setTagRegex: (s: string) => void;
-	selectedTagIds: number[];
-	setSelectedTagIds: Dispatch<SetStateAction<number[]>>;
-	dryRun: boolean;
-	setDryRun: (b: boolean) => void;
-}> = ({
-	importMode,
-	features,
-	filename,
-	selectedIndices,
-	dirFiles,
-	selectedFileUris,
-	mergeMode,
-	onToggleMergeMode,
-	selectionCount,
-	handleToggleFeature,
-	handleSelectAllFeatures,
-	handleDeselectAllFeatures,
-	handleToggleFile,
-	handleSelectAllFiles,
-	handleDeselectAllFiles,
-	handleImport,
-	buttonPropsImport,
-	fileLimit,
-	setFileLimit,
-	titleRegex,
-	setTitleRegex,
-	tagMode,
-	setTagMode,
-	tagRegex,
-	setTagRegex,
-	selectedTagIds,
-	setSelectedTagIds,
-	dryRun,
-	setDryRun,
-}) => {
+const StepPreview: FC = () => {
 	const theme = useTheme();
 	const { t } = useTranslation();
+
+	const {
+		importMode,
+		features,
+		filename,
+		selectedIndices,
+		dirFiles,
+		selectedFileUris,
+		mergeMode,
+		selectionCount,
+		handleToggleFeature,
+		handleSelectAllFeatures,
+		handleDeselectAllFeatures,
+		handleToggleFile,
+		handleSelectAllFiles,
+		handleDeselectAllFiles,
+		handleImport,
+		fileLimit,
+		setFileLimit,
+		titleRegex,
+		setTitleRegex,
+		tagMode,
+		setTagMode,
+		tagRegex,
+		setTagRegex,
+		selectedTagIds,
+		setSelectedTagIds,
+		dryRun,
+		setDryRun,
+		setMergeMode,
+	} = useImportContext();
 
 	const { data: allTags } = useQuery({
 		queryKey: ['tags'],
@@ -165,6 +137,10 @@ const StepPreview: FC<{
 		[t]
 	);
 
+	const buttonPropsImport = useButtonProps({
+		disabled: selectionCount === 0,
+	});
+
 	return (
 		<View>
 			{importMode === 'file' ? (
@@ -215,7 +191,6 @@ const StepPreview: FC<{
 						))}
 					</ScrollView>
 
-					{/* Merge toggle (single-file only) */}
 					<View
 						style={[
 							localStyles.featureRow,
@@ -225,7 +200,7 @@ const StepPreview: FC<{
 					>
 						<Checkbox
 							status={mergeMode ? 'checked' : 'unchecked'}
-							onPress={onToggleMergeMode}
+							onPress={() => setMergeMode((prev) => !prev)}
 						/>
 						<Text>{t('import.mergeMode')}</Text>
 					</View>
@@ -278,7 +253,6 @@ const StepPreview: FC<{
 				</>
 			)}
 
-			{/* ---- Import config ---- */}
 			<View style={localStyles.configSection}>
 
 				{importMode === 'directory' && (
@@ -395,7 +369,6 @@ const StepPreview: FC<{
 				</View>
 			</View>
 
-			{/* ---- import button ---- */}
 			<View style={localStyles.importControls}>
 				<ButtonHighlight
 					{...buttonPropsImport}
