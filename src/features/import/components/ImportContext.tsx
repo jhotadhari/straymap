@@ -5,6 +5,7 @@ import {
 	createContext,
 	Dispatch,
 	FC,
+	memo,
 	MutableRefObject,
 	ReactNode,
 	SetStateAction,
@@ -66,9 +67,9 @@ const ImportContext = createContext<ImportContextValue | null>(null);
 export const ImportContextProvider: FC<{
 	value: ImportContextValue;
 	children: ReactNode;
-}> = ({ value, children }) => (
+}> = memo(({ value, children }) => (
 	<ImportContext.Provider value={value}>{children}</ImportContext.Provider>
-);
+));
 
 export const useImportContext = (): ImportContextValue => {
 	const ctx = useContext(ImportContext);

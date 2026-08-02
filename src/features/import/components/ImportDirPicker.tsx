@@ -23,6 +23,9 @@ const styles = StyleSheet.create({
 	},
 });
 
+const getOptLabel = <T extends { label: string }>(a: T) => a.label;
+const getOptKey = <T extends { key: string }>(a: T) => a.key;
+
 const ImportDirPicker: FC<{
 	appDirs: AbsPath[];
 	onSelectAppDir: (path: AbsPath) => void;
@@ -69,6 +72,16 @@ const ImportDirPicker: FC<{
 		[theme]
 	);
 
+	const hintColorStyle = useMemo(
+		() => ({ color: theme.colors.onSurfaceVariant }),
+		[theme]
+	);
+
+	const customDirOpt = useMemo(
+		() => ({ key: '__custom__', label: t('import.customDir') }),
+		[t]
+	);
+
 	return (
 		<>
 			<ButtonHighlight {...buttonProps} onPress={handleShowModal} disabled={disabled}>
@@ -85,7 +98,7 @@ const ImportDirPicker: FC<{
 						<Text
 							style={[
 								styles.hint,
-								{ color: theme.colors.onSurfaceVariant },
+								hintColorStyle,
 							]}
 						>
 							{t('import.dirHint')}
@@ -95,8 +108,8 @@ const ImportDirPicker: FC<{
 							<RadioListItem
 								key={opt.key}
 								opt={opt}
-								labelExtractor={(a) => a.label}
-								descExtractor={(a) => a.key}
+								labelExtractor={getOptLabel}
+								descExtractor={getOptKey}
 								onPress={() => handleSelectDir(opt.key as AbsPath)}
 								labelStyle={labelStyle}
 							/>
@@ -104,8 +117,8 @@ const ImportDirPicker: FC<{
 
 						<RadioListItem
 							key="__custom__"
-							opt={{ key: '__custom__', label: t('import.customDir') }}
-							labelExtractor={(a) => a.label}
+							opt={customDirOpt}
+							labelExtractor={getOptLabel}
 							onPress={handleSelectCustom}
 							labelStyle={labelStyle}
 						/>

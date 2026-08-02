@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { FC, memo, useState } from 'react';
+import { FC, memo, useCallback, useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Switch } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -30,18 +30,33 @@ const DateExtractRowControl: FC = () => {
 	const autoCustomDate = useAppSelector(selectAutoCustomDate);
 	const [editorVisible, setEditorVisible] = useState(false);
 
+	const handleAutoCustomDateChange = useCallback(
+		(v: boolean) => {
+			dispatch(setAutoCustomDate(v));
+		},
+		[dispatch]
+	);
+
+	const handleOpenEditor = useCallback(() => {
+		setEditorVisible(true);
+	}, []);
+
+	const handleCloseEditor = useCallback(() => {
+		setEditorVisible(false);
+	}, []);
+
 	return (
 		<>
 			<InfoLabelRow label={t('import.autoCustomDate')}>
 				<View style={styles.row}>
 					<Switch
 						value={autoCustomDate}
-						onValueChange={(v) => { dispatch(setAutoCustomDate(v)); }}
+						onValueChange={handleAutoCustomDateChange}
 					/>
 					<IconButtonHighlight
 						icon="cog"
 						size={20}
-						onPress={() => setEditorVisible(true)}
+						onPress={handleOpenEditor}
 					/>
 				</View>
 			</InfoLabelRow>
@@ -49,7 +64,7 @@ const DateExtractRowControl: FC = () => {
 			{editorVisible && (
 				<DatePatternEditorModal
 					visible={editorVisible}
-					onDismiss={() => setEditorVisible(false)}
+					onDismiss={handleCloseEditor}
 				/>
 			)}
 		</>

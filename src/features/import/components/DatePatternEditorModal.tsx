@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { FC, memo, useCallback, useEffect, useRef, useState } from 'react';
+import { FC, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Text, useTheme, Switch, TextInput } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -73,25 +73,38 @@ const DraggableItem: FC<{
 	enabled: boolean;
 	onToggle: () => void;
 	onDelete: () => void;
-}> = ({ pattern, enabled, onToggle, onDelete }) => {
+}> = memo(({ pattern, enabled, onToggle, onDelete }) => {
 	const theme = useTheme();
+
+	const itemOpacityStyle = useMemo(
+		() => ({ opacity: enabled ? 1 : 0.4 }),
+		[enabled]
+	);
+	const handleTextColorStyle = useMemo(
+		() => ({ color: theme.colors.onSurface }),
+		[theme]
+	);
+	const regexPreviewColorStyle = useMemo(
+		() => ({ color: theme.colors.onSurfaceVariant }),
+		[theme]
+	);
 
 	return (
 		<View
 			style={[
 				styles.item,
-				{ opacity: enabled ? 1 : 0.4 },
+				itemOpacityStyle,
 			]}
 		>
 			<Sortable.Handle mode="draggable" style={styles.handle}>
 				<View style={styles.handleText}>
-					<Text style={[styles.label, { color: theme.colors.onSurface }]}>
+					<Text style={[styles.label, handleTextColorStyle]}>
 						{pattern.label}
 					</Text>
 					<Text
 						style={[
 							styles.regexPreview,
-							{ color: theme.colors.onSurfaceVariant },
+							regexPreviewColorStyle,
 						]}
 					>
 						/{pattern.regex}/
@@ -112,7 +125,7 @@ const DraggableItem: FC<{
 			)}
 		</View>
 	);
-};
+});
 
 const DatePatternEditorModal: FC<{
 	visible: boolean;
@@ -178,6 +191,14 @@ const DatePatternEditorModal: FC<{
 		setAddFormat('');
 		setShowAdd(false);
 	}, [addRegex, addFormat, addLabel]);
+
+	const handleCloseAdd = useCallback(() => {
+		setShowAdd(false);
+	}, []);
+
+	const handleOpenAdd = useCallback(() => {
+		setShowAdd(true);
+	}, []);
 
 	const handleReset = useCallback(() => {
 		setLocalPatterns(DATE_PATTERN_PRESETS);
@@ -261,7 +282,7 @@ const DatePatternEditorModal: FC<{
 							onChangeText={setAddFormat}
 						/>
 						<View style={styles.footer}>
-							<ButtonHighlight compact mode="text" onPress={() => setShowAdd(false)}>
+							<ButtonHighlight compact mode="text" onPress={handleCloseAdd}>
 								{t('import.cancel')}
 							</ButtonHighlight>
 							<ButtonHighlight compact mode="contained" onPress={handleAdd}>
@@ -275,7 +296,7 @@ const DatePatternEditorModal: FC<{
 					<ButtonHighlight compact mode="text" onPress={handleReset}>
 						{t('import.resetPatterns')}
 					</ButtonHighlight>
-					<ButtonHighlight compact onPress={() => setShowAdd(true)}>
+					<ButtonHighlight compact onPress={handleOpenAdd}>
 						{t('import.addPattern')}
 					</ButtonHighlight>
 				</View>

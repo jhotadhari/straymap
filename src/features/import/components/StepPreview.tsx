@@ -93,6 +93,49 @@ const StepPreview: FC = () => {
 		dispatch(setKeepAppActive(next));
 	}, [keepAppActive, dispatch]);
 
+	const handleSetFileLimit = useCallback(
+		(v: number) => {
+			dispatch(setFileLimit(v));
+		},
+		[dispatch]
+	);
+
+	const handleSetTitleRegex = useCallback(
+		(v: string) => {
+			dispatch(setTitleRegex(v));
+		},
+		[dispatch]
+	);
+
+	const handleSetTagMode = useCallback(
+		(v: string) => {
+			dispatch(setTagMode(v as TagMode));
+		},
+		[dispatch]
+	);
+
+	const handleSetTagRegex = useCallback(
+		(v: string) => {
+			dispatch(setTagRegex(v));
+		},
+		[dispatch]
+	);
+
+	const handleToggleDryRun = useCallback(() => {
+		dispatch(setDryRun(!dryRun));
+	}, [dispatch, dryRun]);
+
+	const handleSetOverwriteMode = useCallback(
+		(v: string) => {
+			dispatch(setOverwriteMode(v as OverwriteMode));
+		},
+		[dispatch]
+	);
+
+	const handleToggleMergeMode = useCallback(() => {
+		setMergeMode((prev) => !prev);
+	}, [setMergeMode]);
+
 	const { data: allTags } = useQuery({
 		queryKey: ['tags'],
 		queryFn: queryAllTags,
@@ -253,7 +296,7 @@ const StepPreview: FC = () => {
 					>
 						<Checkbox
 							status={mergeMode ? 'checked' : 'unchecked'}
-							onPress={() => setMergeMode((prev) => !prev)}
+							onPress={handleToggleMergeMode}
 						/>
 						<Text>{t('import.mergeMode')}</Text>
 					</View>
@@ -312,7 +355,7 @@ const StepPreview: FC = () => {
 					<NumericRowControl
 						label={t('import.fileLimit')}
 						value={fileLimit}
-						onUpdate={(v) => dispatch(setFileLimit(v))}
+						onUpdate={handleSetFileLimit}
 						numType="int"
 					/>
 				)}
@@ -322,7 +365,7 @@ const StepPreview: FC = () => {
 						value={titleRegex}
 						placeholder="/pattern/"
 						maxLength={300}
-						onChangeText={(v) => dispatch(setTitleRegex(v))}
+						onChangeText={handleSetTitleRegex}
 						style={[
 							localStyles.configInput,
 							outlineBorderStyle,
@@ -344,7 +387,7 @@ const StepPreview: FC = () => {
 					<ButtonHighlightMenuControl
 						options={tagModeOptions}
 						value={tagMode}
-						setValue={(v) => dispatch(setTagMode(v as TagMode))}
+						setValue={handleSetTagMode}
 						compact
 					/>
 				</InfoLabelRow>
@@ -356,7 +399,7 @@ const StepPreview: FC = () => {
 								value={tagRegex}
 								placeholder="/pattern/g"
 								maxLength={300}
-								onChangeText={(v) => dispatch(setTagRegex(v))}
+								onChangeText={handleSetTagRegex}
 								style={[
 									localStyles.configInput,
 									outlineBorderStyle,
@@ -410,7 +453,7 @@ const StepPreview: FC = () => {
 				<ToggleRowControl
 					label={t('import.dryRun')}
 					value={dryRun}
-					onToggle={() => dispatch(setDryRun(!dryRun))}
+					onToggle={handleToggleDryRun}
 				/>
 
 				<ToggleRowControl
@@ -426,7 +469,7 @@ const StepPreview: FC = () => {
 					<ButtonHighlightMenuControl
 						options={overwriteOptions}
 						value={overwriteMode}
-						setValue={(v) => dispatch(setOverwriteMode(v as OverwriteMode))}
+						setValue={handleSetOverwriteMode}
 						compact
 					/>
 				</InfoLabelRow>
