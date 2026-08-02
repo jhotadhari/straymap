@@ -90,6 +90,7 @@ const ImportPage = () => {
 	);
 
 	useEffect(() => {
+		if (dismissedRef.current) return;
 		if (!storagePath || !dirsInfo || isScanningStorage) return;
 		const dirKey = Object.keys(dirsInfo)[0];
 		if (!dirKey || !dirsInfo[dirKey]?.navChildren) return;

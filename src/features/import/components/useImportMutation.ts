@@ -145,6 +145,7 @@ const useImportMutation = () => {
 
 	const mutation = useMutation({
 		mutationFn: async () => {
+			importResultsRef.current = [];
 			if (importMode === 'directory') {
 				const uris = Array.from(selectedFileUris);
 				const limitedUris = fileLimit > 0 ? uris.slice(0, fileLimit) : uris;

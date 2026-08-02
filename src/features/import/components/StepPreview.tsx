@@ -22,6 +22,7 @@ import { TagMode, OverwriteMode } from './types';
 import { queryAllTags } from '../../lines/db/queryFns';
 import { classifyRegex } from '../../../lib/regexUtils';
 import { useImportContext } from './ImportContext';
+import DateExtractRowControl from './DateExtractRowControl';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import {
 	selectFileLimit,
@@ -170,7 +171,7 @@ const StepPreview: FC = () => {
 		return null;
 	}, [debouncedTitleRegex, importMode, filename, dirFiles, t]);
 
-	const tagRemedPreview = useMemo(() => {
+	const tagRegexPreview = useMemo(() => {
 		const sample = importMode === 'file' ? filename : dirFiles[0]?.name ?? '';
 		if (tagMode !== 'regex' || !debouncedTagRegex || !sample) return null;
 		try {
@@ -411,9 +412,9 @@ const StepPreview: FC = () => {
 								<Icon source="alert" size={12} color={theme.colors.tertiary} /> {t('import.regexExpensive')}
 							</Text>
 						)}
-						{tagRemedPreview && (
+						{tagRegexPreview && (
 							<Text style={[localStyles.configPreview, primaryColorStyle]}>
-								{t('import.tagPreview')}: {tagRemedPreview}
+								{t('import.tagPreview')}: {tagRegexPreview}
 							</Text>
 						)}
 					</>
@@ -461,6 +462,8 @@ const StepPreview: FC = () => {
 					value={keepAppActive}
 					onToggle={handleToggleKeepAppActive}
 				/>
+
+				<DateExtractRowControl />
 
 				<InfoLabelRow
 					label={t('import.overwriteMode')}

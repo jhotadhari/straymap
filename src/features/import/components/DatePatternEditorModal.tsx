@@ -154,6 +154,12 @@ const DatePatternEditorModal: FC<{
 		saveRef.current = () => dispatch(setDatePatterns(localPatterns));
 	}, [dispatch, localPatterns]);
 
+	useEffect(() => {
+		return () => {
+			saveRef.current();
+		};
+	}, []);
+
 	const handleDismiss = useCallback(() => {
 		saveRef.current();
 		onDismiss();

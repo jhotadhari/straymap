@@ -30,7 +30,7 @@ const DisplayComponentScroll: FC<{
 	const dispatch = useAppDispatch();
 
 	const openMapsSettings = useCallback(
-		() => dispatch(setUiItemKeys(['settings', 'maps'])),
+		() => dispatch(setUiItemKeys(['maps'])),
 		[dispatch]
 	);
 
