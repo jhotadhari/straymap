@@ -98,6 +98,32 @@ const StepResult: FC = () => {
 									)}
 								</Text>
 							)}
+							{result.overwritten && result.overwritten > 0 && (
+								<Text
+									style={[
+										localStyles.resultDetail,
+										resultTertiaryStyle,
+									]}
+								>
+									{sprintf(
+										t('import.resultOverwritten'),
+										result.overwritten
+									)}
+								</Text>
+							)}
+							{result.skipped && result.skipped > 0 && (
+								<Text
+									style={[
+										localStyles.resultDetail,
+										resultTertiaryStyle,
+									]}
+								>
+									{sprintf(
+										t('import.resultSkippedExisting'),
+										result.skipped
+									)}
+								</Text>
+							)}
 						</View>
 					</View>
 				))}

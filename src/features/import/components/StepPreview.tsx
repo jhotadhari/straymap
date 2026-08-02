@@ -3,7 +3,7 @@
  */
 import { FC, memo, useEffect, useMemo, useState } from 'react';
 import { ScrollView, TextInput, View } from 'react-native';
-import { Text, Checkbox, useTheme, SegmentedButtons, Icon } from 'react-native-paper';
+import { Text, Checkbox, useTheme, Icon } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { sprintf } from 'sprintf-js';
 import { useQuery } from '@tanstack/react-query';
@@ -13,8 +13,12 @@ import { useQuery } from '@tanstack/react-query';
  */
 import ButtonHighlight from '../../../components/generic/primitives/ButtonHighlight';
 import { useButtonProps } from '../../../compose/useButtonProps';
+import NumericRowControl from '../../../components/generic/controls/NumericRowControl';
+import ToggleRowControl from '../../../components/generic/controls/ToggleRowControl';
+import InfoLabelRow from '../../../components/generic/infoWrapper/InfoLabelRow';
+import ButtonHighlightMenuControl from '../../../components/generic/wrapper/ButtonHighlightMenuControl';
 import { localStyles } from './styles';
-import { TagMode } from './types';
+import { TagMode, OverwriteMode } from './types';
 import { queryAllTags } from '../../lines/db/queryFns';
 import { classifyRegex } from '../../../lib/regexUtils';
 import { useImportContext } from './ImportContext';
@@ -51,6 +55,8 @@ const StepPreview: FC = () => {
 		setSelectedTagIds,
 		dryRun,
 		setDryRun,
+		overwriteMode,
+		setOverwriteMode,
 		setMergeMode,
 	} = useImportContext();
 
@@ -128,12 +134,26 @@ const StepPreview: FC = () => {
 		[theme]
 	);
 
-	const tagModeButtons = useMemo(
+	const tagModeOptions = useMemo(
 		() => [
-			{ value: 'none', label: t('import.tagNone') },
-			{ value: 'existing', label: t('import.tagExisting') },
-			{ value: 'regex', label: t('import.tagRegex') },
+			{ key: 'none', label: t('import.tagNone') },
+			{ key: 'existing', label: t('import.tagExisting') },
+			{ key: 'regex', label: t('import.tagRegex') },
 		],
+		[t]
+	);
+
+	const overwriteOptions = useMemo(
+		() => [
+			{ key: 'create', label: t('import.overwriteCreate') },
+			{ key: 'skip', label: t('import.overwriteSkip') },
+			{ key: 'overwrite', label: t('import.overwriteOverwrite') },
+		],
+		[t]
+	);
+
+	const overwriteInfoNode = useMemo(
+		() => <Text>{t('import.overwriteInfo')}</Text>,
 		[t]
 	);
 
@@ -256,23 +276,15 @@ const StepPreview: FC = () => {
 			<View style={localStyles.configSection}>
 
 				{importMode === 'directory' && (
-					<View>
-						<Text>{t('import.fileLimit')}</Text>
-						<TextInput
-							keyboardType="numeric"
-							value={fileLimit > 0 ? String(fileLimit) : ''}
-							placeholder="0 = all"
-							onChangeText={(v) => setFileLimit(parseInt(v, 10) || 0)}
-							style={[
-								localStyles.configInput,
-								outlineBorderStyle,
-							]}
-						/>
-					</View>
+					<NumericRowControl
+						label={t('import.fileLimit')}
+						value={fileLimit}
+						onUpdate={setFileLimit}
+						numType="int"
+					/>
 				)}
 
-				<View>
-					<Text>{t('import.titleRegex')}</Text>
+				<InfoLabelRow label={t('import.titleRegex')}>
 					<TextInput
 						value={titleRegex}
 						placeholder="/pattern/"
@@ -283,39 +295,41 @@ const StepPreview: FC = () => {
 							outlineBorderStyle,
 						]}
 					/>
-					{titleRegexWarning && (
-						<Text style={[localStyles.configPreview, tertiaryColorStyle]}>
-							<Icon source="alert" size={12} color={theme.colors.tertiary} /> {t('import.regexExpensive')}
-						</Text>
-					)}
-					{titleRegexPreview && (
-						<Text style={[localStyles.configPreview, primaryColorStyle]}>
-							{t('import.titlePreview')}: {titleRegexPreview}
-						</Text>
-					)}
-				</View>
+				</InfoLabelRow>
+				{titleRegexWarning && (
+					<Text style={[localStyles.configPreview, tertiaryColorStyle]}>
+						<Icon source="alert" size={12} color={theme.colors.tertiary} /> {t('import.regexExpensive')}
+					</Text>
+				)}
+				{titleRegexPreview && (
+					<Text style={[localStyles.configPreview, primaryColorStyle]}>
+						{t('import.titlePreview')}: {titleRegexPreview}
+					</Text>
+				)}
 
-				<View>
-					<Text>{t('import.tagMode')}</Text>
-					<SegmentedButtons
+				<InfoLabelRow label={t('import.tagMode')}>
+					<ButtonHighlightMenuControl
+						options={tagModeOptions}
 						value={tagMode}
-						onValueChange={(v) => setTagMode(v as TagMode)}
-						buttons={tagModeButtons}
+						setValue={(v) => setTagMode(v as TagMode)}
+						compact
 					/>
-				</View>
+				</InfoLabelRow>
 
 				{tagMode === 'regex' && (
-					<View>
-						<TextInput
-							value={tagRegex}
-							placeholder="/pattern/g"
-							maxLength={300}
-							onChangeText={setTagRegex}
-							style={[
-								localStyles.configInput,
-								outlineBorderStyle,
-							]}
-						/>
+					<>
+						<InfoLabelRow label={t('import.tagRegex')}>
+							<TextInput
+								value={tagRegex}
+								placeholder="/pattern/g"
+								maxLength={300}
+								onChangeText={setTagRegex}
+								style={[
+									localStyles.configInput,
+									outlineBorderStyle,
+								]}
+							/>
+						</InfoLabelRow>
 						{tagRegexWarning && (
 							<Text style={[localStyles.configPreview, tertiaryColorStyle]}>
 								<Icon source="alert" size={12} color={theme.colors.tertiary} /> {t('import.regexExpensive')}
@@ -326,7 +340,7 @@ const StepPreview: FC = () => {
 								{t('import.tagPreview')}: {tagRemedPreview}
 							</Text>
 						)}
-					</View>
+					</>
 				)}
 
 				{tagMode === 'existing' && allTags && (
@@ -360,13 +374,23 @@ const StepPreview: FC = () => {
 					</ScrollView>
 				)}
 
-				<View style={[localStyles.featureRow, localStyles.dryRunToggle, outlineBorderStyle]}>
-					<Checkbox
-						status={dryRun ? 'checked' : 'unchecked'}
-						onPress={() => setDryRun(!dryRun)}
+				<ToggleRowControl
+					label={t('import.dryRun')}
+					value={dryRun}
+					onToggle={() => setDryRun(!dryRun)}
+				/>
+
+				<InfoLabelRow
+					label={t('import.overwriteMode')}
+					Info={overwriteInfoNode}
+				>
+					<ButtonHighlightMenuControl
+						options={overwriteOptions}
+						value={overwriteMode}
+						setValue={(v) => setOverwriteMode(v as OverwriteMode)}
+						compact
 					/>
-					<Text>{t('import.dryRun')}</Text>
-				</View>
+				</InfoLabelRow>
 			</View>
 
 			<View style={localStyles.importControls}>

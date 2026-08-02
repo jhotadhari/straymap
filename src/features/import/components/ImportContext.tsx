@@ -17,7 +17,7 @@ import { Feature, GeoJsonProperties, LineString } from 'geojson';
  * Internal dependencies
  */
 import { AbsPath } from '../../dirs/types';
-import { ImportMode, ImportStep, TagMode, ImportFileResult } from './types';
+import { ImportMode, ImportStep, TagMode, OverwriteMode, ImportFileResult } from './types';
 
 export interface ImportContextValue {
 	step: ImportStep;
@@ -54,6 +54,8 @@ export interface ImportContextValue {
 	setSelectedTagIds: Dispatch<SetStateAction<number[]>>;
 	dryRun: boolean;
 	setDryRun: Dispatch<SetStateAction<boolean>>;
+	overwriteMode: OverwriteMode;
+	setOverwriteMode: Dispatch<SetStateAction<OverwriteMode>>;
 	selectionCount: number;
 	importDirs: AbsPath[];
 	handlePickFile: () => Promise<void>;

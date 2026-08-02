@@ -6,12 +6,16 @@ export type ImportStep = 'idle' | 'scanning' | 'parsing' | 'preview' | 'importin
 
 export type TagMode = 'none' | 'existing' | 'regex';
 
+export type OverwriteMode = 'create' | 'skip' | 'overwrite';
+
 export type ImportFileResult = {
 	name: string;
 	success: boolean;
 	error?: string;
 	skippedGeom?: number;
 	importedCount?: number;
+	overwritten?: number;
+	skipped?: number;
 };
 
 export const isValidGeometry = (feature: Feature<LineString, GeoJsonProperties>): boolean => {

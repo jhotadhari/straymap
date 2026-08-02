@@ -16,7 +16,10 @@ import { logError } from '../../../lib/utils';
 import { classifyRegex } from '../../../lib/regexUtils';
 import useBackgroundTask from '../../../hooks/useBackgroundTask';
 import { detectImportFormat, parseImportContent } from '../../lines/utils/importParser';
-import { createLines } from '../../lines/db/actionsLine';
+import { createLines, deleteLines } from '../../lines/db/actionsLine';
+import { dbConnection } from '../../dbLoader/DBConnection';
+import { linesTable } from '../../lines/db/schema/schema';
+import { sql } from 'drizzle-orm';
 import { ensureTagByLabel } from '../../lines/db/actionsTag';
 import { invalidateTagsTable, invalidateLinesQueries } from '../../lines/db/queryFns';
 import { isValidGeometry, ImportFileResult } from './types';
@@ -42,6 +45,7 @@ const useImportMutation = () => {
 		selectedTagIds,
 		tagRegex,
 		dryRun,
+		overwriteMode,
 	} = useImportContext();
 
 	const { t } = useTranslation();
@@ -50,7 +54,6 @@ const useImportMutation = () => {
 	const bgTask = useBackgroundTask('Importing routes');
 
 	const importResultsRef = useRef<ImportFileResult[]>([]);
-	const singleFileMeta = useRef<{ skippedGeom?: number }>({});
 	const importBatchId = useRef(Date.now().toString(36));
 
 	const getOrCreateImportTag = useCallback(async (): Promise<number | undefined> => {
@@ -108,6 +111,21 @@ const useImportMutation = () => {
 		[tagMode, selectedTagIds, tagRegex, getOrCreateImportTag]
 	);
 
+	const queryExistingIdsBySourcePath = async (sourcePath: string): Promise<number[]> => {
+		if (!dbConnection?.drizzle) return [];
+		try {
+			const rows = await dbConnection.drizzle
+				.select({ id: linesTable.id })
+				.from(linesTable)
+				.where(
+					sql`json_extract(${linesTable.data}, '$.import.sourceFilePath') = ${sourcePath}`
+				);
+			return rows.map((r) => r.id);
+		} catch {
+			return [];
+		}
+	};
+
 	const mutation = useMutation({
 		mutationFn: async () => {
 			if (importMode === 'directory') {
@@ -153,6 +171,25 @@ const useImportMutation = () => {
 							continue;
 						}
 
+						let overwritten = 0;
+
+						if (!dryRun && overwriteMode !== 'create') {
+							const existingIds = await queryExistingIdsBySourcePath(uri);
+							if (existingIds.length > 0) {
+								if (overwriteMode === 'skip') {
+									results.push({
+										name,
+										success: true,
+										skipped: existingIds.length,
+										skippedGeom: skippedGeom > 0 ? skippedGeom : undefined,
+									});
+									continue;
+								}
+								overwritten = existingIds.length;
+								await deleteLines(existingIds);
+							}
+						}
+
 						if (dryRun) {
 							results.push({
 								name,
@@ -184,6 +221,7 @@ const useImportMutation = () => {
 								name,
 								success: true,
 								importedCount: created?.length ?? validFeatures.length,
+								overwritten: overwritten > 0 ? overwritten : undefined,
 								skippedGeom: skippedGeom > 0 ? skippedGeom : undefined,
 							});
 						} catch (dbErr) {
@@ -221,6 +259,27 @@ const useImportMutation = () => {
 
 			if (!toImport.length) {
 				throw new Error(t('import.noFeatures'));
+			}
+
+			let overwrittenSingle = 0;
+
+			if (!dryRun && overwriteMode !== 'create') {
+				const existingIds = await queryExistingIdsBySourcePath(sourceFilePath);
+				if (existingIds.length > 0) {
+					if (overwriteMode === 'skip') {
+						setImportResults([
+							{
+								name: filename,
+								success: true,
+								skipped: existingIds.length,
+								skippedGeom: skippedCount > 0 ? skippedCount : undefined,
+							},
+						]);
+						return;
+					}
+					overwrittenSingle = existingIds.length;
+					await deleteLines(existingIds);
+				}
 			}
 
 			if (dryRun) {
@@ -268,6 +327,7 @@ const useImportMutation = () => {
 					name: filename,
 					success: true,
 					importedCount: mergeMode ? 1 : toImport.length,
+					overwritten: overwrittenSingle > 0 ? overwrittenSingle : undefined,
 					skippedGeom: skippedCount > 0 ? skippedCount : undefined,
 				},
 			]);
@@ -281,7 +341,6 @@ const useImportMutation = () => {
 		},
 		onError: (err) => {
 			bgTask.stop();
-			delete singleFileMeta.current.skippedGeom;
 			logError('ImportModal.import', err);
 			showError(sprintf(t('errorGeneric'), err instanceof Error ? err.message : String(err)));
 

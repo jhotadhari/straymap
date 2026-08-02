@@ -41,5 +41,12 @@
 	"regexInvalid": "Invalid regex",
 	"regexExpensive": "This pattern may cause slow performance",
 	"selectAll": "Seleccionar todo",
-	"selectNone": "No seleccionar nada"
+	"selectNone": "No seleccionar nada",
+	"overwriteMode": "Existing tracks",
+	"overwriteCreate": "Create new",
+	"overwriteSkip": "Skip existing",
+	"overwriteOverwrite": "Overwrite existing",
+	"overwriteInfo": "Compared by source file path. \"Overwrite\" updates geometry and title in place. \"Skip\" keeps existing tracks untouched.",
+	"resultOverwritten": "{{count}} overwritten",
+	"resultSkippedExisting": "{{count}} skipped (already imported)"
 }

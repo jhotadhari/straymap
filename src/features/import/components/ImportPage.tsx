@@ -24,7 +24,7 @@ import useDirsInfo from '../../dirs/hooks/useDirsInfo';
 import { useAppSelector } from '../../../store/hooks';
 import { selectAppDirs } from '../../dirs/selectors';
 import { localStyles } from './styles';
-import { ImportMode, ImportFileResult, ImportStep, TagMode } from './types';
+import { ImportMode, ImportFileResult, ImportStep, OverwriteMode, TagMode } from './types';
 import { AbsPath } from '../../dirs/types';
 import { ImportContextProvider } from './ImportContext';
 import useImportMutation from './useImportMutation';
@@ -74,6 +74,7 @@ const ImportPage = () => {
 	const [selectedTagIds, setSelectedTagIds] = useState<number[]>([]);
 	const [tagRegex, setTagRegex] = useState('');
 	const [dryRun, setDryRun] = useState(false);
+	const [overwriteMode, setOverwriteMode] = useState<OverwriteMode>('create');
 
 	// Storage directory scanning
 	const [storagePath, setStoragePath] = useState<AbsPath | ''>('');
@@ -312,6 +313,8 @@ const ImportPage = () => {
 			setSelectedTagIds,
 			dryRun,
 			setDryRun,
+			overwriteMode,
+			setOverwriteMode,
 			selectionCount,
 			importDirs,
 			handlePickFile,
@@ -346,6 +349,7 @@ const ImportPage = () => {
 			tagRegex,
 			selectedTagIds,
 			dryRun,
+			overwriteMode,
 			selectionCount,
 			importDirs,
 			handlePickFile,

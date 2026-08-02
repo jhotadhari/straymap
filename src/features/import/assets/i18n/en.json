@@ -38,8 +38,15 @@
 	"tagPreview": "Tags",
 	"dryRun": "Dry run",
 	"dryRunAction": "Dry run",
+	"overwriteMode": "Existing tracks",
+	"overwriteCreate": "Create new",
+	"overwriteSkip": "Skip existing",
+	"overwriteOverwrite": "Overwrite existing",
+	"overwriteInfo": "Compared by source file path. \"Overwrite\" updates geometry and title in place. \"Skip\" keeps existing tracks untouched.",
 	"regexInvalid": "Invalid regex",
 	"regexExpensive": "This pattern may cause slow performance",
 	"selectAll": "Select all",
-	"selectNone": "Select none"
+	"selectNone": "Select none",
+	"resultOverwritten": "{{count}} overwritten",
+	"resultSkippedExisting": "{{count}} skipped (already imported)"
 }
