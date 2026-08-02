@@ -55,15 +55,15 @@ public class BackgroundTaskModule extends NativeBackgroundTaskModuleSpec {
     @ReactMethod
     public void unregisterTask(double taskId, Promise promise) {
         try {
-            BackgroundTaskService.tasks.remove((int) taskId);
+            boolean existed = BackgroundTaskService.tasks.remove((int) taskId) != null;
             if (BackgroundTaskService.tasks.isEmpty()) {
                 getReactApplicationContext().stopService(
                     new Intent(getReactApplicationContext(), BackgroundTaskService.class)
                 );
-            } else {
+            } else if (existed) {
                 sendUpdateIntent();
             }
-            promise.resolve(true);
+            promise.resolve(existed);
         } catch (Exception e) {
             promise.reject("Error", e);
         }

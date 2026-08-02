@@ -160,7 +160,6 @@ const useImportMutation = ({
 				// doesn't block the rest.
 				for (let i = 0; i < limitedUris.length; i++) {
 					if (dismissedRef.current) {
-						bgTask.stop();
 						return;
 					}
 					setBulkProgress({ current: i + 1, total: limitedUris.length });
