@@ -1,6 +1,7 @@
 {
 	"title": "Import routes",
 	"hint": {
+		"selectInput": "Select a GPX, KML, or GeoJSON file containing tracks or routes. Supported extensions: {{extensions}}",
 		"fileLimit": "Limits the number of imported files. 0 = no limit.",
 		"titleRegex": "Extracts the track title from the filename using a capture group. The first captured group becomes the title.",
 		"tagMode": "How tags are assigned: none, pick from existing tags, or extract via regex from the filename.",

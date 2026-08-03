@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { FC, memo } from 'react';
-import { ScrollView } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 
@@ -26,23 +26,37 @@ const StepIdle: FC = () => {
 	return (
 		<ScrollView contentContainerStyle={localStyles.idleContainer}>
 			<Text style={localStyles.hint}>
-				{t('import.hint', {
+				{t('import.hint.selectInput', {
 					extensions: IMPORT_EXTENSIONS.join(', '),
 				})}
 			</Text>
 
-			<ButtonHighlight {...buttonProps} onPress={handlePickFile}>
-				{t('import.pickFile')}
-			</ButtonHighlight>
+			<View style={styles.controls}>
+				<ButtonHighlight
+					{...buttonProps}
+					onPress={handlePickFile}
+				>
+					{t('import.pickFile')}
+				</ButtonHighlight>
 
-			<ImportDirPicker
-				appDirs={importDirs}
-				onSelectAppDir={handleSelectAppDir}
-				onSelectCustom={handleSelectCustom}
-				buttonProps={buttonProps}
-			/>
+				<ImportDirPicker
+					appDirs={importDirs}
+					onSelectAppDir={handleSelectAppDir}
+					onSelectCustom={handleSelectCustom}
+					buttonProps={buttonProps}
+				/>
+			</View>
 		</ScrollView>
 	);
 };
+
+const styles = StyleSheet.create({
+	controls: {
+		width: '100%',
+		flexDirection: 'row',
+		justifyContent: 'space-evenly',
+		alignItems: 'center',
+	},
+});
 
 export default memo(StepIdle);

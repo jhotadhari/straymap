@@ -75,6 +75,10 @@
 	},
 	"selectedNone": "Nothing selected",
 	"hint": {
+		"regex": {
+			"title": "Regular expressions",
+			"body": "A regular expression (regex) is a pattern that describes sets of strings. Use regexr.com to learn and test patterns."
+		},
 		"maps": {
 			"demDir": "Directory containing digital elevation model (.hgt) files for hillshading and altitude display. Files must be downloaded manually — no internet connection is needed afterwards.",
 			"demOnly3Sec": "Currently, only elevation models with a resolution of 3 arc seconds are supported."
@@ -82,10 +86,6 @@
 		"link": {
 			"digitalEleData": "Digital Elevation Data",
 			"digitalEleDataCoverage": "Easiest way to download elevation data in hgt format at 3 arc second resolution"
-		},
-		"regex": {
-			"title": "Regular expressions",
-			"body": "A regular expression (regex) is a pattern that describes sets of strings. Use regexr.com to learn and test patterns."
 		}
 	}
 }

@@ -6,7 +6,7 @@ export const localStyles = StyleSheet.create({
 		marginTop: 16,
 	},
 	idleContainer: {
-		gap: 24,
+		gap: 32,
 		alignItems: 'center',
 		paddingVertical: 16,
 	},

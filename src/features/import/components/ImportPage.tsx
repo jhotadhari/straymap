@@ -348,7 +348,7 @@ const ImportPage = () => {
 	return (
 		<ImportContextProvider value={ctxValue}>
 			<MutationBootstrap mutationRef={mutationRef} />
-			<View style={[localStyles.modalInner]}>
+			<View style={localStyles.modalInner}>
 				{step === 'idle' && <StepIdle />}
 
 				{step === 'scanning' && (

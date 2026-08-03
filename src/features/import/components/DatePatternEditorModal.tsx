@@ -98,18 +98,6 @@ const DraggableItem: FC<{
 		[theme]
 	);
 
-	const labelParts = useMemo(() => {
-		const idx = pattern.label.indexOf('(');
-		if (idx === -1) return { description: pattern.label, dateFormat: undefined };
-		return {
-			description: pattern.label.slice(0, idx).trim(),
-			dateFormat: pattern.label
-				.slice(idx + 1)
-				.replace(')', '')
-				.trim(),
-		};
-	}, [pattern.label]);
-
 	return (
 		<View
 			style={[
@@ -123,18 +111,16 @@ const DraggableItem: FC<{
 			>
 				<View style={styles.handleText}>
 					<Text style={[styles.label, handleTextColorStyle]}>
-						{labelParts.description}
+						{pattern.label}
 					</Text>
-					{labelParts.dateFormat && (
-						<Text
-							style={[
-								styles.formatText,
-								formatTextColorStyle,
-							]}
-						>
-							{labelParts.dateFormat}
-						</Text>
-					)}
+					<Text
+						style={[
+							styles.formatText,
+							formatTextColorStyle,
+						]}
+					>
+						{pattern.format}
+					</Text>
 					<Text
 						style={[
 							styles.regexPreview,
