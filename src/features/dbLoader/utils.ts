@@ -25,7 +25,7 @@ export const rowParseGeometryGeoJSON = <T, G>(row: T & { geometryGeoJSON: string
 	const geometry = parseSerialized<G>(row.geometryGeoJSON);
 	if (!geometry) {
 		throw new Error(
-			`Failed to parse geometry GeoJSON: ${row.geometryGeoJSON?.substring(0, 100)}`
+			`Failed to parse geometry GeoJSON: ${String(row.geometryGeoJSON ?? '').substring(0, 100)}`
 		);
 	}
 	return {
@@ -42,7 +42,7 @@ export const rowParseEnvelopeGeoJSON = <T, G>(row: T & { envelopeGeoJSON: string
 	const envelope = parseSerialized<G>(row.envelopeGeoJSON);
 	if (!envelope) {
 		throw new Error(
-			`Failed to parse envelope GeoJSON: ${row.envelopeGeoJSON?.substring(0, 100)}`
+			`Failed to parse envelope GeoJSON: ${String(row.envelopeGeoJSON ?? '').substring(0, 100)}`
 		);
 	}
 	return {

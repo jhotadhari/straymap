@@ -23,9 +23,7 @@
 		"dateTimeHintCustom": "Insira um formato day.js personalizado para controlar como datas e horas são exibidas no aplicativo."
 	},
 	"dateTime": "Data / hora",
-	"dateTimeFormat": "Formato",
 	"customFormat": "Formato personalizado",
-	"timeZone": "Fuso horário",
 	"timeZoneNotice": "O fuso horário está fixado em UTC. A hora é sempre exibida no formato de 24 horas.",
 	"useDefaultFormat": "Formato padrão",
 	"formatDocs": "Documentação de formato day.js",

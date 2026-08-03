@@ -21,9 +21,8 @@ import LoadingIndicator from '../../../components/generic/primitives/LoadingIndi
 import useAsyncBusy from '../../../compose/useAsyncBusy';
 import { detectImportFormat, parseImportContent, IMPORT_EXTENSIONS } from '../../lines/utils/importParser';
 import useDirsInfo from '../../dirs/hooks/useDirsInfo';
-import { useAppDispatch, useAppSelector } from '../../../store/hooks';
+import { useAppSelector } from '../../../store/hooks';
 import { selectAppDirs } from '../../dirs/selectors';
-import { setMergeMode } from '../slice';
 import { localStyles } from './styles';
 import { ImportMode, ImportFileResult, ImportStep } from './types';
 import { AbsPath } from '../../dirs/types';
@@ -33,7 +32,7 @@ import StepIdle from './StepIdle';
 import StepPreview from './StepPreview';
 import StepResult from './StepResult';
 
-const MutationBootstrap = ({
+const MutationBootstrap = memo(({
 	mutationRef,
 }: {
 	mutationRef: MutableRefObject<UseMutationResult<void, Error, void, unknown> | null>;
@@ -41,11 +40,10 @@ const MutationBootstrap = ({
 	const mutation = useImportMutation();
 	mutationRef.current = mutation;
 	return null;
-};
+});
 
 const ImportPage = () => {
 	const appDirs = useAppSelector(selectAppDirs);
-	const dispatch = useAppDispatch();
 	const importDirs = useMemo(() => get(appDirs, 'import', []) as AbsPath[], [appDirs]);
 
 	const { t } = useTranslation();
@@ -99,10 +97,9 @@ const ImportPage = () => {
 		);
 		setDirFiles(children.map((c) => ({ uri: c.name, name: c.name.split('/').pop() ?? c.name })));
 		setSelectedFileUris(new Set(children.map((c) => c.name)));
-		dispatch(setMergeMode(true));
 		setStoragePath('');
 		setStep('preview');
-	}, [storagePath, dirsInfo, isScanningStorage, dispatch]);
+	}, [storagePath, dirsInfo, isScanningStorage]);
 
 	const [_isPickingFile, runOpenDocument] = useAsyncBusy(openDocument);
 	const [_isPickingDir, runOpenDocumentTree] = useAsyncBusy(openDocumentTree);
@@ -161,7 +158,6 @@ const ImportPage = () => {
 			if (dismissedRef.current) return;
 			setFeatures(result.features);
 			setSelectedIndices(new Set(result.features.map((_, i) => i)));
-			dispatch(setMergeMode(true));
 			setStep('preview');
 		} catch (err) {
 			logError('ImportPage.handlePickFile', err);
@@ -173,7 +169,6 @@ const ImportPage = () => {
 		runOpenDocument,
 		showError,
 		t,
-		dispatch,
 	]);
 
 	const handleSelectCustom = useCallback(async () => {
@@ -210,7 +205,6 @@ const ImportPage = () => {
 			if (dismissedRef.current) return;
 			setDirFiles(supported);
 			setSelectedFileUris(new Set(supported.map((f) => f.uri)));
-			dispatch(setMergeMode(true));
 			setStep('preview');
 		} catch (err) {
 			logError('ImportPage.handlePickDirectory', err);
@@ -221,7 +215,6 @@ const ImportPage = () => {
 		runOpenDocumentTree,
 		showError,
 		t,
-		dispatch,
 	]);
 
 	const handleToggleFeature = useCallback((idx: number) => {
@@ -267,10 +260,9 @@ const ImportPage = () => {
 		setSelectedIndices(new Set());
 		setDirFiles([]);
 		setSelectedFileUris(new Set());
-		dispatch(setMergeMode(true));
 		setBulkProgress({ current: 0, total: 0 });
 		setImportResults([]);
-	}, [dispatch]);
+	}, []);
 
 	const selectionCount =
 		importMode === 'directory' ? selectedFileUris.size : selectedIndices.size;

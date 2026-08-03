@@ -13,7 +13,6 @@ import DateTimePickerControl from '../../../../components/generic/controls/DateT
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { selectLineTemp } from '../../selectors';
 import { setLineTemp } from '../../slice';
-import { LinePartial } from '../../types';
 import { selectDateTimeFormat } from '../../../general/selectors';
 
 const stringToDate = (s: string | undefined | null): Date | undefined => {
@@ -47,7 +46,7 @@ const RowCustomDate: FC = () => {
 			if (lineTemp) {
 				dispatch(
 					setLineTemp({
-						...(lineTemp as LinePartial),
+						...lineTemp,
 						custom_date: dayjs(d).toISOString(),
 					})
 				);

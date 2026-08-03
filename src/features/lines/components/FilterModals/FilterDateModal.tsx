@@ -31,11 +31,12 @@ const EditIconAnchor = memo<{ onPress: () => void }>(({ onPress }) => (
 	/>
 ));
 
-const dateToString = (d: Date | undefined): string | undefined => {
+const dateToString = (d: Date | undefined, opts?: { endOfDay?: boolean }): string | undefined => {
 	if (!d) {
 		return undefined;
 	}
-	return dayjs(d).toISOString();
+	const dj = dayjs(d);
+	return (opts?.endOfDay ? dj.endOf('day') : dj).format('YYYY-MM-DD HH:mm:ss');
 };
 
 const stringToDate = (s: string | undefined): Date | undefined => {
@@ -75,7 +76,7 @@ const FilterDateModal: FC<{
 
 	const handleDismiss = useCallback(() => {
 		const minStr = dateToString(minDate);
-		const maxStr = dateToString(maxDate);
+		const maxStr = dateToString(maxDate, { endOfDay: true });
 		const bothEmpty = minStr === undefined && maxStr === undefined;
 		if (bothEmpty) {
 			if (existingFilter) {
@@ -221,10 +222,6 @@ const localStyles = StyleSheet.create({
 	},
 	iconDelete: {
 		marginHorizontal: 0,
-	},
-	flexShrinkGrow0: {
-		flexShrink: 0,
-		flexGrow: 0,
 	},
 });
 

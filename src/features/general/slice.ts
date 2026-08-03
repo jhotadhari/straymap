@@ -16,7 +16,7 @@ export interface GeneralSettings {
 	hardwareKeys: HardwareKeyActionConf[];
 	unitPrefs: { [value: string]: UnitPref };
 	mapUpdateInterval: number;
-	timeZone: string;
+	timeZone: string; // Reserved for future timezone picker — do not remove
 	dateTimeFormat: string;
 }
 
@@ -52,7 +52,7 @@ export const initialSettings: GeneralSettings = {
 		},
 	},
 	mapUpdateInterval: 40,
-	timeZone: 'UTC',
+	timeZone: 'UTC', // Reserved for future timezone picker — do not remove
 	dateTimeFormat: DEFAULT_DATE_TIME_FORMAT,
 };
 
@@ -83,6 +83,7 @@ export const generalSlice = createSlice({
 			state.unitPrefs = action.payload;
 		},
 		setTimeZone: (state, action: PayloadAction<GeneralSettings['timeZone']>) => {
+			// Reserved for future timezone picker — do not remove
 			state.timeZone = action.payload;
 		},
 		setDateTimeFormat: (state, action: PayloadAction<GeneralSettings['dateTimeFormat']>) => {

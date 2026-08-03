@@ -63,7 +63,7 @@ const getLabelFromUri = (uri?: `content://${string}`) => {
 	return parts.length > 0 ? parts[parts.length - 1] : '';
 };
 
-const extractLabel = (a: { label: string }) => a.label;
+const extractLabel = (a: Pick<OptionWithDesc, 'label'>) => a.label;
 
 const Option: FC<{
 	option: OptionWithDesc;
@@ -112,7 +112,7 @@ const Option: FC<{
 		(a: OptionWithDesc) =>
 			'custom' === a.key
 				? customUri
-					? customUri?.replace('content://', 'content:// ')
+					? customUri.replace('content://', 'content:// ')
 					: null
 				: '',
 		[customUri]
@@ -231,13 +231,15 @@ const CreateNewOption: FC<{
 		setSelectedOpt,
 	]);
 
+	// Show the picked custom URI path as a description on the create-new row,
+	// so the user can verify the file they selected before confirming.
 	const descExtractor = useCallback(
 		(a: OptionWithDesc) =>
-			'custom' === a.key
+			'newOption' === a.key
 				? customUri
-					? customUri?.replace('content://', 'content:// ')
+					? customUri.replace('content://', 'content:// ')
 					: null
-				: '',
+				: null,
 		[customUri]
 	);
 
@@ -247,8 +249,8 @@ const CreateNewOption: FC<{
 			onPress={handlePress}
 			labelNode={labelNode}
 			labelStyle={theme.fonts.bodyMedium}
-			labelExtractor={extractLabel}
 			descExtractor={descExtractor}
+			labelExtractor={extractLabel}
 			status={selectedOpt === newSelectedOpt ? 'checked' : 'unchecked'}
 		/>
 	);
@@ -482,20 +484,21 @@ const FileSourceRowControl: FC<{
 		onModalDismiss,
 	]);
 
+	const onSelectRef = useRef(onSelect);
+	onSelectRef.current = onSelect;
+
 	useEffect(() => {
-		if (selectedOpt && onSelect) {
-			onSelect(selectedOpt === 'custom' && undefined !== customUri ? customUri : selectedOpt);
+		if (selectedOpt && onSelectRef.current) {
+			onSelectRef.current(selectedOpt === 'custom' && undefined !== customUri ? customUri : selectedOpt);
 		}
 		if (selectedOpt && dismissModalOnSelect) {
 			dismissModal();
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [
 		selectedOpt,
 		customUri,
 		dismissModal,
 		dismissModalOnSelect,
-		// onSelect,	// ??? should be dependency, but maybe it gets triggered on mount with this dep so it should be a ref
 	]);
 
 	const buttonLabel = useMemo(() => {

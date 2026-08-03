@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { FC, memo, useCallback, useMemo } from 'react';
+import { FC, memo, useCallback, useMemo } from 'react';
 import { View, ViewStyle, Platform } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -56,6 +56,7 @@ const DatabaseFileList: FC<{ style?: ViewStyle }> = ({ style }) => {
 		[navDirs]
 	);
 
+	// FIXME: extract shared refetch logic with useDirsInfo
 	const invalidateCache = useCallback(async () => {
 		try {
 			const results = await Promise.all(

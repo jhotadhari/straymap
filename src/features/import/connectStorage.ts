@@ -40,27 +40,27 @@ export const initializeFromStorage = (store: AppStore) => {
 		.then((newSettingsStr) => {
 			if (newSettingsStr) {
 				const newSettings = JSON.parse(newSettingsStr) as Partial<ImportState>;
-				if (newSettings?.datePatterns) {
-					store.dispatch(setDatePatterns(newSettings.datePatterns));
-				}
+			if (newSettings?.datePatterns) {
+				store.dispatch(setDatePatterns(newSettings.datePatterns));
+			}
 			if (newSettings?.autoCustomDate != null) {
 				store.dispatch(setAutoCustomDate(newSettings.autoCustomDate));
 			}
 			if (newSettings?.mergeMode != null) {
 				store.dispatch(setMergeMode(newSettings.mergeMode));
 			}
-			if (newSettings?.overwriteMode) {
-					store.dispatch(setOverwriteMode(newSettings.overwriteMode));
-				}
-				if (newSettings?.dryRun != null) {
-					store.dispatch(setDryRun(newSettings.dryRun));
-				}
-				if (newSettings?.keepAppActive != null) {
-					store.dispatch(setKeepAppActive(newSettings.keepAppActive));
-				}
-				if (newSettings?.fileLimit != null) {
-					store.dispatch(setFileLimit(newSettings.fileLimit));
-				}
+			if (newSettings?.overwriteMode != null) {
+				store.dispatch(setOverwriteMode(newSettings.overwriteMode));
+			}
+			if (newSettings?.dryRun != null) {
+				store.dispatch(setDryRun(newSettings.dryRun));
+			}
+			if (newSettings?.keepAppActive != null) {
+				store.dispatch(setKeepAppActive(newSettings.keepAppActive));
+			}
+			if (newSettings?.fileLimit != null) {
+				store.dispatch(setFileLimit(newSettings.fileLimit));
+			}
 			if (newSettings?.titleRegex != null) {
 				store.dispatch(setTitleRegex(newSettings.titleRegex));
 			}
@@ -69,12 +69,12 @@ export const initializeFromStorage = (store: AppStore) => {
 			} else if (newSettings?.titleRegex) {
 				store.dispatch(setTitleMode('regex'));
 			}
-				if (newSettings?.tagMode) {
-					store.dispatch(setTagMode(newSettings.tagMode));
-				}
-				if (newSettings?.tagRegex != null) {
-					store.dispatch(setTagRegex(newSettings.tagRegex));
-				}
+			if (newSettings?.tagMode) {
+				store.dispatch(setTagMode(newSettings.tagMode));
+			}
+			if (newSettings?.tagRegex != null) {
+				store.dispatch(setTagRegex(newSettings.tagRegex));
+			}
 			}
 			store.dispatch(setInitialized(true));
 		})

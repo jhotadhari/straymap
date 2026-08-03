@@ -51,6 +51,7 @@ const TitleExtractControl: FC = () => {
 	}, [titleRegex]);
 
 	const titleRegexPreview = useMemo(() => {
+		if (titleMode !== 'regex') return null;
 		const sample = importMode === 'file' ? filename : (dirFiles[0]?.name ?? '');
 		if (!debouncedTitleRegex || !sample) return null;
 		try {
@@ -62,7 +63,7 @@ const TitleExtractControl: FC = () => {
 			return t('import.regexInvalid');
 		}
 		return null;
-	}, [debouncedTitleRegex, importMode, filename, dirFiles, t]);
+	}, [debouncedTitleRegex, importMode, filename, dirFiles, t, titleMode]);
 
 	const titleRegexWarning = useMemo(() => {
 		if (!titleRegex || titleMode !== 'regex') return false;

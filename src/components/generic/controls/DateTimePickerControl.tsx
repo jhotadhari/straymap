@@ -6,6 +6,7 @@ import { View, ViewStyle } from 'react-native';
 import { Icon, PaperProvider, useTheme } from 'react-native-paper';
 import { DatePickerModal, TimePickerModal } from 'react-native-paper-dates';
 import dayjs from '../../../lib/dayjs';
+import { resolveLocale } from '../../../assets/i18n/i18n';
 
 /**
  * Internal dependencies
@@ -40,6 +41,11 @@ const DateTimePickerControl: FC<{
 }) => {
 	const theme = useTheme();
 
+	const [datePickerVisible, setDatePickerVisible] = useState(false);
+	const [timePickerVisible, setTimePickerVisible] = useState(false);
+
+	const hasVisiblePicker = datePickerVisible || timePickerVisible;
+
 	const customTheme = useMemo(
 		() => ({
 			...theme,
@@ -51,10 +57,7 @@ const DateTimePickerControl: FC<{
 		[theme]
 	);
 
-	const [datePickerVisible, setDatePickerVisible] = useState(false);
-	const [timePickerVisible, setTimePickerVisible] = useState(false);
-
-	const hasVisiblePicker = datePickerVisible || timePickerVisible;
+	const resolvedLocale = useMemo(() => resolveLocale(locale), [locale]);
 
 	const pendingDateRef = useRef<Date | undefined>(undefined);
 
@@ -134,14 +137,14 @@ const DateTimePickerControl: FC<{
 			onPress={handlePress}
 			icon={icon}
 		>
-			{formattedValue ? formattedValue : '  '}
+			{formattedValue || ''}
 		</ButtonHighlight>
 	);
 
 	const pickers = hasVisiblePicker ? (
 		<PaperProvider theme={customTheme}>
 			<DatePickerModal
-				locale={locale}
+				locale={resolvedLocale}
 				mode="single"
 				visible={datePickerVisible}
 				onDismiss={handleDateDismiss}
@@ -156,7 +159,7 @@ const DateTimePickerControl: FC<{
 				hours={hours}
 				minutes={minutes}
 				use24HourClock
-				locale={locale}
+				locale={resolvedLocale}
 			/>
 		</PaperProvider>
 	) : null;

@@ -20,6 +20,8 @@ import { sharedStyles } from './sharedDeps';
 import { StringColumnFilter, StringFilterOperator, getFilterKey } from '../../types';
 import { classifyRegex } from '../../../../lib/regexUtils';
 
+const extractLabel = (a: { label: string }) => a.label;
+
 const OPERATORS: StringFilterOperator[] = [
 	'includes',
 	'excludes',
@@ -153,8 +155,6 @@ const FilterStringModal: FC<{
 		},
 		[operator, validateRegex]
 	);
-
-	const extractLabel = useCallback((a: { label: string }) => a.label, []);
 
 	const columnLabel = useMemo(() => t(`lines.columns.${columnKey}`), [t, columnKey]);
 

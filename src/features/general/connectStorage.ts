@@ -51,11 +51,12 @@ export const initializeFromStorage = (store: AppStore) => {
 				if (mapInterval != null) {
 					store.dispatch(setMapUpdateInterval(mapInterval as number));
 				}
-				if (newSettings?.timeZone) {
-					store.dispatch(setTimeZone(newSettings.timeZone));
-				}
-				if (newSettings?.dateTimeFormat) {
+				if (newSettings?.dateTimeFormat != null) {
 					store.dispatch(setDateTimeFormat(newSettings.dateTimeFormat));
+				}
+				// Reserved for future timezone picker — do not remove
+				if (newSettings?.timeZone != null) {
+					store.dispatch(setTimeZone(newSettings.timeZone));
 				}
 			}
 			store.dispatch(setInitialized(true));

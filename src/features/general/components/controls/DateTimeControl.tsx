@@ -48,7 +48,7 @@ const DateTimeControl = () => {
 		if (!isCustomActive) {
 			setVal(DEFAULT_DATE_TIME_FORMAT);
 		}
-	}, [dateTimeFormat, isCustomActive]);
+	}, [isCustomActive]);
 
 	const valRef = useRef(val);
 	valRef.current = val;
@@ -93,13 +93,10 @@ const DateTimeControl = () => {
 		}
 	}, [isCustomActive]);
 
-	const dayJsUrl = useMemo(
-		() =>
-			i18n.language === 'es'
-				? 'https://day.js.org/docs/es-ES/display/format'
-				: 'https://day.js.org/docs/en/display/format',
-		[i18n.language]
-	);
+	const dayJsUrl = useMemo(() => {
+		const docLang = ({ es: 'es-ES' } as Record<string, string>)[i18n.language] ?? 'en';
+		return `https://day.js.org/docs/${docLang}/display/format`;
+	}, [i18n.language]);
 
 	const hintFormatDefault = useMemo(
 		() => (
@@ -155,11 +152,11 @@ const DateTimeControl = () => {
 
 	const formatPreview = useMemo(() => {
 		const fmt = isCustomActive ? val : DEFAULT_DATE_TIME_FORMAT;
-		const now = dayjs();
-		if (now.isValid()) {
-			return now.format(fmt);
+		try {
+			return dayjs().format(fmt);
+		} catch {
+			return fmt;
 		}
-		return '';
 	}, [isCustomActive, val]);
 
 	return (
@@ -185,6 +182,7 @@ const DateTimeControl = () => {
 					label={t('general.customFormat')}
 					Info={hintFormatCustom}
 				>
+					{/* Intentionally no editable={false} — tap-to-enable UX: onFocus auto-toggles custom mode */}
 					<TextInput
 						style={styleInput}
 						underlineColor="transparent"

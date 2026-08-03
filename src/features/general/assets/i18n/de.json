@@ -23,9 +23,7 @@
 		"dateTimeHintCustom": "Gib einen benutzerdefinierten day.js-Format-String ein, um zu steuern, wie Daten und Uhrzeiten in der App angezeigt werden."
 	},
 	"dateTime": "Datum / Uhrzeit",
-	"dateTimeFormat": "Format",
 	"customFormat": "Benutzerdefiniertes Format",
-	"timeZone": "Zeitzone",
 	"timeZoneNotice": "Die Zeitzone ist auf UTC festgelegt. Die Uhrzeit wird immer im 24-Stunden-Format angezeigt.",
 	"useDefaultFormat": "Standardformat",
 	"formatDocs": "day.js Format-Dokumentation",

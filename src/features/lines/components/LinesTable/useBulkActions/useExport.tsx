@@ -35,6 +35,8 @@ const exportStyles = StyleSheet.create({
 	exportControls: { marginTop: 16, flexDirection: 'row', gap: 8, justifyContent: 'flex-end' },
 });
 
+const extractLabel = (a: { label: string }) => a.label;
+
 const formatOptions = EXPORT_FORMATS.map((f) => ({
 	key: f.key,
 	label: f.label,
@@ -176,7 +178,7 @@ const useExport = () => {
 							opt={opt}
 							onPress={() => setSelectedFormat(opt.key as ExportFormat)}
 							status={selectedFormat === opt.key ? 'checked' : 'unchecked'}
-							labelExtractor={(a) => a.label}
+							labelExtractor={extractLabel}
 						/>
 					))}
 

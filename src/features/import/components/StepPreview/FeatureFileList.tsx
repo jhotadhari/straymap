@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { FC, memo, useCallback, useMemo, useState } from 'react';
-import { View } from 'react-native';
+import { View, LayoutChangeEvent } from 'react-native';
 import { Checkbox } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { sprintf } from 'sprintf-js';
@@ -36,6 +36,8 @@ const FeatureFileList: FC = () => {
 	} = useImportContext();
 
 	const [modalVisible, setModalVisible] = useState(false);
+	const [listHeight, setListHeight] = useState(0);
+	const [headerHeight, setHeaderHeight] = useState(0);
 
 	const handleOpenModal = useCallback(() => {
 		setModalVisible(true);
@@ -43,7 +45,19 @@ const FeatureFileList: FC = () => {
 
 	const handleDismissModal = useCallback(() => {
 		setModalVisible(false);
+		setListHeight(0);
+		setHeaderHeight(0);
 	}, []);
+
+	const handleModalLayout = useCallback(
+		({ nativeEvent: { layout } }: LayoutChangeEvent) => setListHeight(layout.height),
+		[]
+	);
+
+	const handleHeaderLayout = useCallback(
+		({ nativeEvent: { layout } }: LayoutChangeEvent) => setHeaderHeight(layout.height),
+		[]
+	);
 
 	const anchorButtonProps = useButtonProps({});
 
@@ -135,35 +149,41 @@ const FeatureFileList: FC = () => {
 					onDismiss={handleDismissModal}
 					headerLabel={t('import.title')}
 					scrollEnabled={false}
+					onLayout={handleModalLayout}
 				>
-					<View style={localStyles.selectRow}>
-						<ButtonHighlight
-							{...buttonPropsSelect}
-							onPress={
-								importMode === 'file'
-									? handleSelectAllFeatures
-									: handleSelectAllFiles
-							}
-						>
-							{t('lines.selectAll')}
-						</ButtonHighlight>
-						<ButtonHighlight
-							{...buttonPropsSelect}
-							onPress={
-								importMode === 'file'
-									? handleDeselectAllFeatures
-									: handleDeselectAllFiles
-							}
-						>
-							{t('lines.selectNone')}
-						</ButtonHighlight>
+					<View onLayout={handleHeaderLayout}>
+						<View style={localStyles.selectRow}>
+							<ButtonHighlight
+								{...buttonPropsSelect}
+								onPress={
+									importMode === 'file'
+										? handleSelectAllFeatures
+										: handleSelectAllFiles
+								}
+							>
+								{t('lines.selectAll')}
+							</ButtonHighlight>
+							<ButtonHighlight
+								{...buttonPropsSelect}
+								onPress={
+									importMode === 'file'
+										? handleDeselectAllFeatures
+										: handleDeselectAllFiles
+								}
+							>
+								{t('lines.selectNone')}
+							</ButtonHighlight>
+						</View>
 					</View>
 
-					<FlashList
-						data={listData}
-						keyExtractor={keyExtractor}
-						renderItem={renderItem}
-					/>
+					{listHeight > 0 && (
+						<FlashList
+							style={{ height: listHeight - headerHeight }}
+							data={listData}
+							keyExtractor={keyExtractor}
+							renderItem={renderItem}
+						/>
+					)}
 				</ModalWrapper>
 			)}
 		</>

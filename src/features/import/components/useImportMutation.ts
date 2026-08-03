@@ -74,6 +74,7 @@ const useImportMutation = () => {
 	const bgTask = useBackgroundTask('Importing routes');
 
 	const importResultsRef = useRef<ImportFileResult[]>([]);
+	const isImporting = useRef(false);
 	const importBatchId = useRef(Date.now().toString(36));
 
 	const getOrCreateImportTag = useCallback(async (): Promise<number | undefined> => {
@@ -159,6 +160,8 @@ const useImportMutation = () => {
 
 	const mutation = useMutation({
 		mutationFn: async () => {
+			if (isImporting.current) return;
+			isImporting.current = true;
 			importResultsRef.current = [];
 			if (importMode === 'directory') {
 				const uris = Array.from(selectedFileUris);
@@ -169,7 +172,7 @@ const useImportMutation = () => {
 
 				for (let i = 0; i < limitedUris.length; i++) {
 					if (dismissedRef.current) {
-						return;
+						throw { __aborted: true };
 					}
 					setBulkProgress({ current: i + 1, total: limitedUris.length });
 					const uri = limitedUris[i];
@@ -394,6 +397,10 @@ const useImportMutation = () => {
 		},
 		onError: (err) => {
 			if (keepAppActive) bgTask.stop();
+			if ((err as any)?.__aborted) {
+				setStep('preview');
+				return;
+			}
 			logError('ImportModal.import', err);
 			showError(sprintf(t('errorGeneric'), err instanceof Error ? err.message : String(err)));
 
@@ -402,6 +409,9 @@ const useImportMutation = () => {
 			} else {
 				setStep('preview');
 			}
+		},
+		onSettled: () => {
+			isImporting.current = false;
 		},
 	});
 

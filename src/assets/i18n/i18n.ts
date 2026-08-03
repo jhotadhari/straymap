@@ -85,12 +85,12 @@ i18n.use(initReactI18next).init(intiOptions);
  * 'system' resolves to the device locale, falling back to FALLBACK_LANGUAGE.
  */
 export const resolveLocale = (lang: string): string => {
-	if (([...SUPPORTED_LANGUAGES] as string[]).includes(lang)) return lang;
+	if ((SUPPORTED_LANGUAGES as readonly string[]).includes(lang)) return lang;
 	const deviceLang =
-		(I18nManager.getConstants().localeIdentifier || '').split('_')[0] || FALLBACK_LANGUAGE;
-	return (([...SUPPORTED_LANGUAGES] as string[]).includes(deviceLang)
+		(I18nManager.getConstants().localeIdentifier || '').split(/[_-]/)[0] || FALLBACK_LANGUAGE;
+	return (SUPPORTED_LANGUAGES as readonly string[]).includes(deviceLang)
 		? deviceLang
-		: FALLBACK_LANGUAGE) as string;
+		: FALLBACK_LANGUAGE;
 };
 
 /**

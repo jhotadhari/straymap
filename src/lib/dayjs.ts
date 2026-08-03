@@ -22,9 +22,7 @@ import pt from 'dayjs/locale/pt';
 dayjs.extend(customParseFormat);
 
 const localeMap = { de, en, es, pt };
-Object.entries(localeMap).forEach(([, locale]) =>
-	dayjs.locale(locale, undefined, true)
-);
+Object.entries(localeMap).forEach(([name, localeModule]) => dayjs.locale(name, localeModule));
 
 if (__DEV__) {
 	const onlyInLocales = difference(Object.keys(localeMap), [...SUPPORTED_LANGUAGES]);
