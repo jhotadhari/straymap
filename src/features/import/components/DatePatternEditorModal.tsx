@@ -2,8 +2,8 @@
  * External dependencies
  */
 import { FC, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
-import { Text, useTheme, Switch, TextInput } from 'react-native-paper';
+import { Dimensions, StyleSheet, View } from 'react-native';
+import { Text, useTheme, Switch } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import uuid from 'react-native-uuid';
 import Sortable, { DragStartParams, SortableFlexDragEndParams } from 'react-native-sortables';
@@ -13,59 +13,63 @@ import Sortable, { DragStartParams, SortableFlexDragEndParams } from 'react-nati
  */
 import ModalWrapper from '../../../components/generic/wrapper/ModalWrapper';
 import ButtonHighlight from '../../../components/generic/primitives/ButtonHighlight';
+import IconButtonHighlight from '../../../components/generic/primitives/IconButtonHighlight';
 import { useButtonProps } from '../../../compose/useButtonProps';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import useDropIndicatorStyle from '../../../compose/useDropIndicatorStyle';
 import { selectDatePatterns } from '../selectors';
-import {
-	setDatePatterns,
-	DatePattern,
-	DATE_PATTERN_PRESETS,
-} from '../slice';
+import { setDatePatterns, DatePattern, DATE_PATTERN_PRESETS } from '../slice';
+import AddEditPatternModal from './AddEditPatternModal';
+import { sharedStyles } from '../../../sharedStyles';
+import { MODAL_PADDING, MODAL_WIDTH_FACTOR } from '../../../constants';
 
 const styles = StyleSheet.create({
 	item: {
 		flexDirection: 'row',
 		alignItems: 'center',
+		justifyContent: 'space-between',
 		gap: 8,
-		paddingVertical: 8,
-		paddingHorizontal: 8,
 	},
 	handle: {
 		flexDirection: 'row',
-		flexGrow: 1,
-		alignItems: 'center',
+		flex: 1,
+		minWidth: 0,
 	},
 	handleText: {
-		flexGrow: 1,
+		flex: 1,
+		minWidth: 0,
 		gap: 2,
+		flexDirection: 'column',
 	},
 	label: {
 		fontSize: 14,
+	},
+	formatText: {
+		fontSize: 12,
+		opacity: 0.7,
+		fontFamily: 'monospace',
 	},
 	regexPreview: {
 		fontSize: 11,
 		opacity: 0.6,
 		fontFamily: 'monospace',
 	},
-	addSection: {
-		paddingHorizontal: 8,
-		paddingVertical: 12,
-		gap: 8,
-	},
-	addInput: {
+	modalControls: {
+		flexDirection: 'row',
+		justifyContent: 'space-between',
+		alignItems: 'center',
 		marginBottom: 8,
 	},
-	addRow: {
+	controls: {
 		flexDirection: 'row',
-		gap: 8,
+		alignItems: 'center',
+		gap: 4,
 	},
-	footer: {
+	editActions: {
+		width: 76,
 		flexDirection: 'row',
-		gap: 8,
-		paddingHorizontal: 8,
-		paddingVertical: 12,
-		justifyContent: 'flex-end',
+		alignItems: 'center',
+		gap: 4,
 	},
 });
 
@@ -74,35 +78,63 @@ const DraggableItem: FC<{
 	enabled: boolean;
 	onToggle: () => void;
 	onDelete: () => void;
-}> = memo(({ pattern, enabled, onToggle, onDelete }) => {
+	onEdit: () => void;
+}> = memo(({ pattern, enabled, onToggle, onDelete, onEdit }) => {
 	const theme = useTheme();
-	const buttonProps = useButtonProps({});
 
-	const itemOpacityStyle = useMemo(
-		() => ({ opacity: enabled ? 1 : 0.4 }),
-		[enabled]
+	const { width: screenW } = Dimensions.get('window');
+
+	const itemOpacityStyle = useMemo(() => ({ opacity: enabled ? 1 : 0.4 }), [enabled]);
+	const itemWidthStyle = useMemo(
+		() => ({
+			width: screenW * MODAL_WIDTH_FACTOR - 2 * MODAL_PADDING,
+		}),
+		[screenW]
 	);
-	const handleTextColorStyle = useMemo(
-		() => ({ color: theme.colors.onSurface }),
-		[theme]
-	);
+	const handleTextColorStyle = useMemo(() => ({ color: theme.colors.onSurface }), [theme]);
+	const formatTextColorStyle = useMemo(() => ({ color: theme.colors.onSurfaceVariant }), [theme]);
 	const regexPreviewColorStyle = useMemo(
 		() => ({ color: theme.colors.onSurfaceVariant }),
 		[theme]
 	);
+
+	const labelParts = useMemo(() => {
+		const idx = pattern.label.indexOf('(');
+		if (idx === -1) return { description: pattern.label, dateFormat: undefined };
+		return {
+			description: pattern.label.slice(0, idx).trim(),
+			dateFormat: pattern.label
+				.slice(idx + 1)
+				.replace(')', '')
+				.trim(),
+		};
+	}, [pattern.label]);
 
 	return (
 		<View
 			style={[
 				styles.item,
 				itemOpacityStyle,
-			]}
-		>
-			<Sortable.Handle mode="draggable" style={styles.handle}>
+				itemWidthStyle,
+			]}>
+			<Sortable.Handle
+				mode="draggable"
+				style={styles.handle}
+			>
 				<View style={styles.handleText}>
 					<Text style={[styles.label, handleTextColorStyle]}>
-						{pattern.label}
+						{labelParts.description}
 					</Text>
+					{labelParts.dateFormat && (
+						<Text
+							style={[
+								styles.formatText,
+								formatTextColorStyle,
+							]}
+						>
+							{labelParts.dateFormat}
+						</Text>
+					)}
 					<Text
 						style={[
 							styles.regexPreview,
@@ -114,12 +146,28 @@ const DraggableItem: FC<{
 				</View>
 			</Sortable.Handle>
 
-			<Switch value={pattern.enabled} onValueChange={onToggle} />
-			{pattern.removable && (
-				<ButtonHighlight {...buttonProps} onPress={onDelete}>
-					×
-				</ButtonHighlight>
-			)}
+			<View style={styles.controls}>
+				<View style={styles.editActions}>
+					{pattern.removable && (
+						<>
+							<IconButtonHighlight
+								icon="cog"
+								size={20}
+								onPress={onEdit}
+							/>
+							<IconButtonHighlight
+								icon="delete-outline"
+								size={20}
+								onPress={onDelete}
+							/>
+						</>
+					)}
+				</View>
+				<Switch
+					value={pattern.enabled}
+					onValueChange={onToggle}
+				/>
+			</View>
 		</View>
 	);
 });
@@ -136,9 +184,7 @@ const DatePatternEditorModal: FC<{
 	const [scrollEnabled, setScrollEnabled] = useState(true);
 
 	const [showAdd, setShowAdd] = useState(false);
-	const [addLabel, setAddLabel] = useState('');
-	const [addRegex, setAddRegex] = useState('');
-	const [addFormat, setAddFormat] = useState('');
+	const [editingPattern, setEditingPattern] = useState<DatePattern | null>(null);
 
 	const dropIndicatorStyle = useDropIndicatorStyle();
 
@@ -162,44 +208,42 @@ const DatePatternEditorModal: FC<{
 		onDismiss();
 	}, [onDismiss]);
 
-	const handleToggle = useCallback(
-		(key: string) => {
+	const handleToggle = useCallback((key: string) => {
+		setLocalPatterns((prev) =>
+			prev.map((p) => (p.key === key ? { ...p, enabled: !p.enabled } : p))
+		);
+	}, []);
+
+	const handleDelete = useCallback((key: string) => {
+		setLocalPatterns((prev) => prev.filter((p) => p.key !== key));
+	}, []);
+
+	const handleSave = useCallback((saved: DatePattern) => {
+		if (saved.key) {
 			setLocalPatterns((prev) =>
-				prev.map((p) => (p.key === key ? { ...p, enabled: !p.enabled } : p))
+				prev.map((p) => (p.key === saved.key ? saved : p))
 			);
-		},
-		[]
-	);
-
-	const handleDelete = useCallback(
-		(key: string) => {
-			setLocalPatterns((prev) => prev.filter((p) => p.key !== key));
-		},
-		[]
-	);
-
-	const handleAdd = useCallback(() => {
-		if (!addRegex || !addFormat) return;
-		const pattern: DatePattern = {
-			key: uuid.v4() as string,
-			regex: addRegex,
-			format: addFormat,
-			label: addLabel || addFormat,
-			enabled: true,
-			removable: true,
-		};
-		setLocalPatterns((prev) => [pattern, ...prev]);
-		setAddLabel('');
-		setAddRegex('');
-		setAddFormat('');
-		setShowAdd(false);
-	}, [addRegex, addFormat, addLabel]);
-
-	const handleCloseAdd = useCallback(() => {
-		setShowAdd(false);
+		} else {
+			setLocalPatterns((prev) => [
+				{ ...saved, key: uuid.v4() as string, removable: true },
+				...prev,
+			]);
+		}
+		setEditingPattern(null);
 	}, []);
 
 	const handleOpenAdd = useCallback(() => {
+		setEditingPattern(null);
+		setShowAdd(true);
+	}, []);
+
+	const handleCloseAdd = useCallback(() => {
+		setShowAdd(false);
+		setEditingPattern(null);
+	}, []);
+
+	const handleOpenEdit = useCallback((pattern: DatePattern) => {
+		setEditingPattern(pattern);
 		setShowAdd(true);
 	}, []);
 
@@ -214,9 +258,7 @@ const DatePatternEditorModal: FC<{
 	const handleDragEnd = useCallback(
 		({ indexToKey }: SortableFlexDragEndParams) => {
 			const ordered = indexToKey
-				.map((toKey) =>
-					localPatterns.find((p) => p.key === toKey.replace('.$', ''))
-				)
+				.map((toKey) => localPatterns.find((p) => p.key === toKey.replace('.$', '')))
 				.filter((p): p is DatePattern => !!p);
 			setLocalPatterns(ordered);
 			setScrollEnabled(true);
@@ -227,83 +269,64 @@ const DatePatternEditorModal: FC<{
 	const buttonProps = useButtonProps({});
 
 	return (
-		<ModalWrapper
-			visible={visible}
-			onDismiss={handleDismiss}
-			headerLabel={t('import.datePatternEditor')}
-			scrollEnabled={scrollEnabled}
-		>
-			<View>
-				<Sortable.Flex
-					itemEntering={null}
-					gap={0}
-					padding={0}
-					sortEnabled
-					customHandle
-					showDropIndicator
-					dropIndicatorStyle={dropIndicatorStyle}
-					flexDirection="column"
-					reorderTriggerOrigin="center"
-					alignItems="center"
-					onDragStart={handleDragStart}
-					onDragEnd={handleDragEnd}
-				>
-					{localPatterns.map((pattern) => (
-						<View key={pattern.key}>
-							<DraggableItem
-								pattern={pattern}
-								enabled={pattern.enabled}
-								onToggle={() => handleToggle(pattern.key)}
-								onDelete={() => handleDelete(pattern.key)}
-							/>
-						</View>
-					))}
-				</Sortable.Flex>
-
-				{showAdd && (
-					<View style={styles.addSection}>
-						<TextInput
-							dense
-							style={styles.addInput}
-							placeholder={t('import.datePatternLabel')}
-							value={addLabel}
-							onChangeText={setAddLabel}
-						/>
-						<TextInput
-							dense
-							style={styles.addInput}
-							placeholder={t('import.datePatternRegex')}
-							value={addRegex}
-							onChangeText={setAddRegex}
-						/>
-						<TextInput
-							dense
-							style={styles.addInput}
-							placeholder={t('import.datePatternFormat')}
-							value={addFormat}
-							onChangeText={setAddFormat}
-						/>
-						<View style={styles.footer}>
-							<ButtonHighlight {...buttonProps} onPress={handleCloseAdd}>
-								{t('import.cancel')}
-							</ButtonHighlight>
-							<ButtonHighlight {...buttonProps} onPress={handleAdd}>
-								{t('import.add')}
-							</ButtonHighlight>
-						</View>
+		<>
+			<ModalWrapper
+				visible={visible}
+				onDismiss={handleDismiss}
+				headerLabel={t('import.datePatternEditor')}
+				scrollEnabled={scrollEnabled}
+			>
+				<View style={sharedStyles.modal}>
+					<View style={styles.modalControls}>
+						<ButtonHighlight
+							{...buttonProps}
+							onPress={handleReset}
+						>
+							{t('import.resetPatterns')}
+						</ButtonHighlight>
+						<ButtonHighlight
+							{...buttonProps}
+							onPress={handleOpenAdd}
+						>
+							{t('import.addPattern')}
+						</ButtonHighlight>
 					</View>
-				)}
 
-				<View style={styles.footer}>
-					<ButtonHighlight {...buttonProps} onPress={handleReset}>
-						{t('import.resetPatterns')}
-					</ButtonHighlight>
-					<ButtonHighlight {...buttonProps} onPress={handleOpenAdd}>
-						{t('import.addPattern')}
-					</ButtonHighlight>
+					<Sortable.Flex
+						itemEntering={null}
+						gap={16}
+						padding={0}
+						sortEnabled
+						customHandle
+						showDropIndicator
+						dropIndicatorStyle={dropIndicatorStyle}
+						flexDirection="column"
+						reorderTriggerOrigin="center"
+						onDragStart={handleDragStart}
+						onDragEnd={handleDragEnd}
+					>
+						{localPatterns.map((pattern) => (
+							<View key={pattern.key}>
+								<DraggableItem
+									pattern={pattern}
+									enabled={pattern.enabled}
+									onToggle={() => handleToggle(pattern.key)}
+									onDelete={() => handleDelete(pattern.key)}
+									onEdit={() => handleOpenEdit(pattern)}
+								/>
+							</View>
+						))}
+					</Sortable.Flex>
 				</View>
-			</View>
-		</ModalWrapper>
+			</ModalWrapper>
+
+			<AddEditPatternModal
+				visible={showAdd}
+				onDismiss={handleCloseAdd}
+				pattern={editingPattern}
+				onSave={handleSave}
+			/>
+		</>
 	);
 };
 

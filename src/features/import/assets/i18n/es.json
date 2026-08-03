@@ -50,13 +50,17 @@
 	"resultSkippedExisting": "{{count}} skipped (already imported)",
 	"autoCustomDate": "Set date from filename",
 	"datePatternEditor": "Date patterns",
-	"datePatternLabel": "Label (e.g. \"EU date\")",
-	"datePatternRegex": "Regex (e.g. (\\d{2}\\.\\d{2}\\.\\d{4}))",
-	"datePatternFormat": "Day.js format (e.g. DD.MM.YYYY)",
+	"datePatternLabel": "Label",
+	"datePatternRegex": "Regex",
+	"datePatternFormat": "Format",
 	"addPattern": "Add pattern",
 	"add": "Add",
 	"cancel": "Cancel",
 	"resetPatterns": "Reset to defaults",
 	"keepAppActive": "Keep app active in background",
-	"importOptions": "Import options"
+	"importOptions": "Import options",
+	"formatDocs": "Format documentation",
+	"regexNoCaptureGroup": "This pattern has no capture group and will not extract a date.",
+	"editPattern": "Edit pattern",
+	"save": "Save"
 }
