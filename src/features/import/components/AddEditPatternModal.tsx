@@ -46,7 +46,6 @@ const AddEditPatternModal: FC<{
 }> = memo(({ visible, onDismiss, pattern, onSave }) => {
 	const theme = useTheme();
 	const { t, i18n } = useTranslation();
-	const buttonProps = useButtonProps({});
 
 	const [label, setLabel] = useState('');
 	const [regex, setRegex] = useState('');
@@ -55,6 +54,9 @@ const AddEditPatternModal: FC<{
 	const [dangerousWarning, setDangerousWarning] = useState(false);
 
 	const isEditing = !!pattern;
+
+	const buttonPropsCancel = useButtonProps({});
+	const buttonPropsAdd = useButtonProps({ disabled: !regex || !format });
 
 	useEffect(() => {
 		if (visible) {
@@ -97,7 +99,14 @@ const AddEditPatternModal: FC<{
 			removable: pattern?.removable ?? true,
 		});
 		onDismiss();
-	}, [onDismiss, onSave, pattern, label, regex, format]);
+	}, [
+		onDismiss,
+		onSave,
+		pattern,
+		label,
+		regex,
+		format,
+	]);
 
 	const handleDismiss = useCallback(() => {
 		setCaptureWarning(false);
@@ -138,9 +147,7 @@ const AddEditPatternModal: FC<{
 		<ModalWrapper
 			visible={visible}
 			onDismiss={handleDismiss}
-			headerLabel={
-				isEditing ? t('import.editPattern') : t('import.addPattern')
-			}
+			headerLabel={isEditing ? t('import.editPattern') : t('import.addPattern')}
 			backgroundBlur={false}
 		>
 			<View style={sharedStyles.modal}>
@@ -174,7 +181,11 @@ const AddEditPatternModal: FC<{
 
 				{captureWarning && (
 					<View style={styles.regexFeedback}>
-						<Icon source="alert" size={14} color={theme.colors.tertiary} />
+						<Icon
+							source="alert"
+							size={14}
+							color={theme.colors.tertiary}
+						/>
 						<Text
 							style={[
 								styles.regexFeedbackText,
@@ -188,7 +199,11 @@ const AddEditPatternModal: FC<{
 
 				{dangerousWarning && (
 					<View style={styles.regexFeedback}>
-						<Icon source="alert" size={14} color={theme.colors.tertiary} />
+						<Icon
+							source="alert"
+							size={14}
+							color={theme.colors.tertiary}
+						/>
 						<Text
 							style={[
 								styles.regexFeedbackText,
@@ -214,13 +229,13 @@ const AddEditPatternModal: FC<{
 				</InfoLabelRow>
 				<View style={sharedStyles.modalControls}>
 					<ButtonHighlight
-						{...buttonProps}
+						{...buttonPropsCancel}
 						onPress={handleDismiss}
 					>
 						{t('import.cancel')}
 					</ButtonHighlight>
 					<ButtonHighlight
-						{...buttonProps}
+						{...buttonPropsAdd}
 						onPress={handleSave}
 					>
 						{isEditing ? t('import.save') : t('import.add')}

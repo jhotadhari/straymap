@@ -6,6 +6,8 @@ export type ImportStep = 'idle' | 'scanning' | 'parsing' | 'preview' | 'importin
 
 export type TagMode = 'none' | 'existing' | 'regex';
 
+export type TitleMode = 'none' | 'filenameWithoutExt' | 'filenameWithExt' | 'nameProperty' | 'regex';
+
 export type OverwriteMode = 'create' | 'skip' | 'overwrite';
 
 export type ImportFileResult = {

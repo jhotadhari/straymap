@@ -27,10 +27,12 @@ import { useImportContext } from './ImportContext';
 import { useAppSelector } from '../../../store/hooks';
 import {
 	selectFileLimit,
+	selectTitleMode,
 	selectTitleRegex,
 	selectTagMode,
 	selectTagRegex,
 	selectDryRun,
+	selectMergeMode,
 	selectOverwriteMode,
 	selectAutoCustomDate,
 	selectDatePatterns,
@@ -41,7 +43,6 @@ import { extractDateFromFilename } from '../utils';
 const useImportMutation = () => {
 	const {
 		importMode,
-		mergeMode,
 		features,
 		filename,
 		sourceFilePath,
@@ -56,10 +57,12 @@ const useImportMutation = () => {
 	} = useImportContext();
 
 	const fileLimit = useAppSelector(selectFileLimit);
+	const titleMode = useAppSelector(selectTitleMode);
 	const titleRegex = useAppSelector(selectTitleRegex);
 	const tagMode = useAppSelector(selectTagMode);
 	const tagRegex = useAppSelector(selectTagRegex);
 	const dryRun = useAppSelector(selectDryRun);
+	const mergeMode = useAppSelector(selectMergeMode);
 	const overwriteMode = useAppSelector(selectOverwriteMode);
 	const autoCustomDate = useAppSelector(selectAutoCustomDate);
 	const datePatterns = useAppSelector(selectDatePatterns);
@@ -100,10 +103,21 @@ const useImportMutation = () => {
 	);
 
 	const deriveTitle = useCallback(
-		(name: string, fallback: string): string => {
-			return applyTitleRegex(name) ?? fallback;
+		(name: string, featurePropertiesName: string | undefined): string => {
+			switch (titleMode) {
+				case 'none':
+					return '';
+				case 'filenameWithoutExt':
+					return name.replace(/\.[^.]+$/, '');
+				case 'filenameWithExt':
+					return name;
+				case 'nameProperty':
+					return featurePropertiesName ?? '';
+				case 'regex':
+					return applyTitleRegex(name) ?? '';
+			}
 		},
-		[applyTitleRegex]
+		[applyTitleRegex, titleMode]
 	);
 
 	const buildDeriveTagIds = useCallback(
@@ -212,33 +226,46 @@ const useImportMutation = () => {
 							results.push({
 								name,
 								success: true,
-								importedCount: validFeatures.length,
+								importedCount: mergeMode ? Math.min(validFeatures.length, 1) : validFeatures.length,
 								skippedGeom: skippedGeom > 0 ? skippedGeom : undefined,
 							});
 							continue;
 						}
 
 						const tagIds = await buildDeriveTagIds(name);
-						const baseTitle = name.replace(/\.[^.]+$/, '');
 						const customDateDir = autoCustomDate
 							? extractDateFromFilename(name, datePatterns.filter((p) => p.enabled))
 							: undefined;
 
 						try {
-							const created = await createLines(
-								validFeatures.map((f, idx) => ({
-									title: deriveTitle(
-										name,
-										f.properties?.name ??
-											baseTitle +
-												(validFeatures.length > 1 ? ` ${idx + 1}` : '')
-									),
-									lineStringFeature: f,
-									tagIds: tagIds.length ? tagIds : undefined,
-									data: buildImportData(uri, name, idx),
-									custom_date: customDateDir,
-								}))
-							);
+							let created: Awaited<ReturnType<typeof createLines>>;
+							if (mergeMode) {
+								const allCoords = validFeatures.flatMap((f) => f.geometry.coordinates);
+								const merged: Feature<LineString, GeoJsonProperties> = {
+									type: 'Feature',
+									properties: {},
+									geometry: { type: 'LineString', coordinates: allCoords },
+								};
+								created = await createLines([
+									{
+										title: deriveTitle(name, undefined),
+										lineStringFeature: merged,
+										tagIds: tagIds.length ? tagIds : undefined,
+										data: buildImportData(uri, name, null),
+										custom_date: customDateDir,
+									},
+								]);
+							} else {
+								created = await createLines(
+									validFeatures.map((f, idx) => ({
+										title: deriveTitle(name, f.properties?.name),
+										lineStringFeature: f,
+										tagIds: tagIds.length ? tagIds : undefined,
+										data: buildImportData(uri, name, idx),
+										custom_date: customDateDir,
+									}))
+								);
+							}
 							results.push({
 								name,
 								success: true,
@@ -317,7 +344,6 @@ const useImportMutation = () => {
 			}
 
 			const tagIds = await buildDeriveTagIds(filename);
-			const defaultTitle = filename.replace(/\.[^.]+$/, '');
 			const customDateSingle = autoCustomDate
 				? extractDateFromFilename(filename, datePatterns.filter((p) => p.enabled))
 				: undefined;
@@ -331,7 +357,7 @@ const useImportMutation = () => {
 				};
 				await createLines([
 					{
-						title: deriveTitle(filename, defaultTitle),
+						title: deriveTitle(filename, undefined),
 						lineStringFeature: merged,
 						tagIds: tagIds.length ? tagIds : undefined,
 						data: buildImportData(sourceFilePath, filename, null),
@@ -340,7 +366,7 @@ const useImportMutation = () => {
 				]);
 			} else {
 				const newLines = toImport.map((feature, idx) => ({
-					title: deriveTitle(filename, feature.properties?.name ?? defaultTitle),
+					title: deriveTitle(filename, feature.properties?.name),
 					lineStringFeature: feature,
 					tagIds: tagIds.length ? tagIds : undefined,
 					data: buildImportData(sourceFilePath, filename, idx),

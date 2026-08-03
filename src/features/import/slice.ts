@@ -8,7 +8,7 @@ import { createSlice } from '@reduxjs/toolkit';
  * Internal dependencies
  */
 import { SliceSettingsBase } from '../../types';
-import { OverwriteMode, TagMode } from './components/types';
+import { OverwriteMode, TagMode, TitleMode } from './components/types';
 
 export interface DatePattern {
 	key: string;
@@ -169,10 +169,12 @@ export const DATE_PATTERN_PRESETS: DatePattern[] = [
 export interface ImportSettings {
 	datePatterns: DatePattern[];
 	autoCustomDate: boolean;
+	mergeMode: boolean;
 	overwriteMode: OverwriteMode;
 	dryRun: boolean;
 	keepAppActive: boolean;
 	fileLimit: number;
+	titleMode: TitleMode;
 	titleRegex: string;
 	tagMode: TagMode;
 	tagRegex: string;
@@ -183,10 +185,12 @@ export interface ImportState extends SliceSettingsBase, ImportSettings {}
 export const initialSettings: ImportSettings = {
 	datePatterns: DATE_PATTERN_PRESETS,
 	autoCustomDate: false,
+	mergeMode: true,
 	overwriteMode: 'create',
 	dryRun: false,
 	keepAppActive: false,
 	fileLimit: 0,
+	titleMode: 'none',
 	titleRegex: '',
 	tagMode: 'none',
 	tagRegex: '',
@@ -230,6 +234,9 @@ export const importSlice = createSlice({
 		setAutoCustomDate: (state, action: PayloadAction<boolean>) => {
 			state.autoCustomDate = action.payload;
 		},
+		setMergeMode: (state, action: PayloadAction<boolean>) => {
+			state.mergeMode = action.payload;
+		},
 		setOverwriteMode: (state, action: PayloadAction<OverwriteMode>) => {
 			state.overwriteMode = action.payload;
 		},
@@ -241,6 +248,9 @@ export const importSlice = createSlice({
 		},
 		setFileLimit: (state, action: PayloadAction<number>) => {
 			state.fileLimit = action.payload;
+		},
+		setTitleMode: (state, action: PayloadAction<TitleMode>) => {
+			state.titleMode = action.payload;
 		},
 		setTitleRegex: (state, action: PayloadAction<string>) => {
 			state.titleRegex = action.payload;
@@ -262,10 +272,12 @@ export const {
 	toggleDatePattern,
 	reorderDatePatterns,
 	setAutoCustomDate,
+	setMergeMode,
 	setOverwriteMode,
 	setDryRun,
 	setKeepAppActive,
 	setFileLimit,
+	setTitleMode,
 	setTitleRegex,
 	setTagMode,
 	setTagRegex,

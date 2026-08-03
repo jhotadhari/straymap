@@ -37,8 +37,6 @@ export interface ImportContextValue {
 	setDirFiles: Dispatch<SetStateAction<{ uri: string; name: string }[]>>;
 	selectedFileUris: Set<string>;
 	setSelectedFileUris: Dispatch<SetStateAction<Set<string>>>;
-	mergeMode: boolean;
-	setMergeMode: Dispatch<SetStateAction<boolean>>;
 	bulkProgress: { current: number; total: number };
 	setBulkProgress: Dispatch<SetStateAction<{ current: number; total: number }>>;
 	importResults: ImportFileResult[];

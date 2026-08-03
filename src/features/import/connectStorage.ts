@@ -18,9 +18,11 @@ import {
 	setKeepAppActive,
 	setFileLimit,
 	setInitialized,
+	setMergeMode,
 	setOverwriteMode,
 	setTagMode,
 	setTagRegex,
+	setTitleMode,
 	setTitleRegex,
 } from './slice';
 import { startAppListening } from '../../store/listenerMiddleware';
@@ -41,10 +43,13 @@ export const initializeFromStorage = (store: AppStore) => {
 				if (newSettings?.datePatterns) {
 					store.dispatch(setDatePatterns(newSettings.datePatterns));
 				}
-				if (newSettings?.autoCustomDate != null) {
-					store.dispatch(setAutoCustomDate(newSettings.autoCustomDate));
-				}
-				if (newSettings?.overwriteMode) {
+			if (newSettings?.autoCustomDate != null) {
+				store.dispatch(setAutoCustomDate(newSettings.autoCustomDate));
+			}
+			if (newSettings?.mergeMode != null) {
+				store.dispatch(setMergeMode(newSettings.mergeMode));
+			}
+			if (newSettings?.overwriteMode) {
 					store.dispatch(setOverwriteMode(newSettings.overwriteMode));
 				}
 				if (newSettings?.dryRun != null) {
@@ -56,9 +61,14 @@ export const initializeFromStorage = (store: AppStore) => {
 				if (newSettings?.fileLimit != null) {
 					store.dispatch(setFileLimit(newSettings.fileLimit));
 				}
-				if (newSettings?.titleRegex != null) {
-					store.dispatch(setTitleRegex(newSettings.titleRegex));
-				}
+			if (newSettings?.titleRegex != null) {
+				store.dispatch(setTitleRegex(newSettings.titleRegex));
+			}
+			if (newSettings?.titleMode) {
+				store.dispatch(setTitleMode(newSettings.titleMode));
+			} else if (newSettings?.titleRegex) {
+				store.dispatch(setTitleMode('regex'));
+			}
 				if (newSettings?.tagMode) {
 					store.dispatch(setTagMode(newSettings.tagMode));
 				}
@@ -94,10 +104,12 @@ startAppListening({
 	matcher: isAnyOf(
 		setDatePatterns,
 		setAutoCustomDate,
+		setMergeMode,
 		setOverwriteMode,
 		setDryRun,
 		setKeepAppActive,
 		setFileLimit,
+		setTitleMode,
 		setTitleRegex,
 		setTagMode,
 		setTagRegex

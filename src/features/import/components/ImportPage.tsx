@@ -21,8 +21,9 @@ import LoadingIndicator from '../../../components/generic/primitives/LoadingIndi
 import useAsyncBusy from '../../../compose/useAsyncBusy';
 import { detectImportFormat, parseImportContent, IMPORT_EXTENSIONS } from '../../lines/utils/importParser';
 import useDirsInfo from '../../dirs/hooks/useDirsInfo';
-import { useAppSelector } from '../../../store/hooks';
+import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { selectAppDirs } from '../../dirs/selectors';
+import { setMergeMode } from '../slice';
 import { localStyles } from './styles';
 import { ImportMode, ImportFileResult, ImportStep } from './types';
 import { AbsPath } from '../../dirs/types';
@@ -44,6 +45,7 @@ const MutationBootstrap = ({
 
 const ImportPage = () => {
 	const appDirs = useAppSelector(selectAppDirs);
+	const dispatch = useAppDispatch();
 	const importDirs = useMemo(() => get(appDirs, 'import', []) as AbsPath[], [appDirs]);
 
 	const { t } = useTranslation();
@@ -63,7 +65,6 @@ const ImportPage = () => {
 	const [selectedFileUris, setSelectedFileUris] = useState<Set<string>>(new Set());
 
 	// Shared
-	const [mergeMode, setMergeMode] = useState(false);
 	const [bulkProgress, setBulkProgress] = useState({ current: 0, total: 0 });
 	const [importResults, setImportResults] = useState<ImportFileResult[]>([]);
 
@@ -98,10 +99,10 @@ const ImportPage = () => {
 		);
 		setDirFiles(children.map((c) => ({ uri: c.name, name: c.name.split('/').pop() ?? c.name })));
 		setSelectedFileUris(new Set(children.map((c) => c.name)));
-		setMergeMode(false);
+		dispatch(setMergeMode(true));
 		setStoragePath('');
 		setStep('preview');
-	}, [storagePath, dirsInfo, isScanningStorage]);
+	}, [storagePath, dirsInfo, isScanningStorage, dispatch]);
 
 	const [_isPickingFile, runOpenDocument] = useAsyncBusy(openDocument);
 	const [_isPickingDir, runOpenDocumentTree] = useAsyncBusy(openDocumentTree);
@@ -160,7 +161,7 @@ const ImportPage = () => {
 			if (dismissedRef.current) return;
 			setFeatures(result.features);
 			setSelectedIndices(new Set(result.features.map((_, i) => i)));
-			setMergeMode(false);
+			dispatch(setMergeMode(true));
 			setStep('preview');
 		} catch (err) {
 			logError('ImportPage.handlePickFile', err);
@@ -172,6 +173,7 @@ const ImportPage = () => {
 		runOpenDocument,
 		showError,
 		t,
+		dispatch,
 	]);
 
 	const handleSelectCustom = useCallback(async () => {
@@ -208,7 +210,7 @@ const ImportPage = () => {
 			if (dismissedRef.current) return;
 			setDirFiles(supported);
 			setSelectedFileUris(new Set(supported.map((f) => f.uri)));
-			setMergeMode(false);
+			dispatch(setMergeMode(true));
 			setStep('preview');
 		} catch (err) {
 			logError('ImportPage.handlePickDirectory', err);
@@ -219,6 +221,7 @@ const ImportPage = () => {
 		runOpenDocumentTree,
 		showError,
 		t,
+		dispatch,
 	]);
 
 	const handleToggleFeature = useCallback((idx: number) => {
@@ -264,10 +267,10 @@ const ImportPage = () => {
 		setSelectedIndices(new Set());
 		setDirFiles([]);
 		setSelectedFileUris(new Set());
-		setMergeMode(false);
+		dispatch(setMergeMode(true));
 		setBulkProgress({ current: 0, total: 0 });
 		setImportResults([]);
-	}, []);
+	}, [dispatch]);
 
 	const selectionCount =
 		importMode === 'directory' ? selectedFileUris.size : selectedIndices.size;
@@ -290,8 +293,6 @@ const ImportPage = () => {
 			setDirFiles,
 			selectedFileUris,
 			setSelectedFileUris,
-			mergeMode,
-			setMergeMode,
 			bulkProgress,
 			setBulkProgress,
 			importResults,
@@ -323,7 +324,6 @@ const ImportPage = () => {
 			selectedIndices,
 			dirFiles,
 			selectedFileUris,
-			mergeMode,
 			bulkProgress,
 			importResults,
 			selectedTagIds,
