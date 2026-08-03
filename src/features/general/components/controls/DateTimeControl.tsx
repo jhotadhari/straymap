@@ -71,7 +71,13 @@ const DateTimeControl = () => {
 
 	const handleBlur = useCallback(() => {
 		if (!isCustomActive) return;
-		if (valRef.current && valRef.current !== dateTimeFormat) {
+		if (!valRef.current) {
+			dispatch(setDateTimeFormat(DEFAULT_DATE_TIME_FORMAT));
+			setIsCustomActive(false);
+			setVal(DEFAULT_DATE_TIME_FORMAT);
+			return;
+		}
+		if (valRef.current !== dateTimeFormat) {
 			dispatch(setDateTimeFormat(valRef.current));
 		}
 	}, [

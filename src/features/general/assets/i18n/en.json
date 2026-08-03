@@ -26,7 +26,7 @@
 	"dateTimeFormat": "Format",
 	"customFormat": "Custom format",
 	"timeZone": "Timezone",
-	"timeZoneNotice": "Timezone is fixed to UTC.",
+	"timeZoneNotice": "Timezone is fixed to UTC. Time is always shown in 24-hour format.",
 	"useDefaultFormat": "Use default format",
 	"formatDocs": "day.js format documentation",
 	"example": "Example"

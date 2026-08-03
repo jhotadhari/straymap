@@ -9,6 +9,7 @@ import { difference } from 'lodash-es';
  * Internal dependencies
  */
 import { SUPPORTED_LANGUAGES } from '../assets/i18n/constants';
+import { resolveLocale } from '../assets/i18n/i18n';
 
 /**
  * Locale bundles
@@ -43,8 +44,7 @@ if (__DEV__) {
 }
 
 export const setDayjsLocale = (lang: string) => {
-	const key = ([...SUPPORTED_LANGUAGES] as string[]).includes(lang) ? lang : 'en';
-	dayjs.locale(key);
+	dayjs.locale(resolveLocale(lang));
 };
 
 export default dayjs;

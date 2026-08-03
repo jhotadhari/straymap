@@ -3,7 +3,7 @@
  */
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
-import { difference, get } from 'lodash-es';
+import { difference } from 'lodash-es';
 import { I18nManager } from 'react-native';
 
 /**
@@ -81,6 +81,19 @@ if (__DEV__) {
 i18n.use(initReactI18next).init(intiOptions);
 
 /**
+ * Resolve a language key (e.g. 'system', 'de') to a supported locale.
+ * 'system' resolves to the device locale, falling back to FALLBACK_LANGUAGE.
+ */
+export const resolveLocale = (lang: string): string => {
+	if (([...SUPPORTED_LANGUAGES] as string[]).includes(lang)) return lang;
+	const deviceLang =
+		(I18nManager.getConstants().localeIdentifier || '').split('_')[0] || FALLBACK_LANGUAGE;
+	return (([...SUPPORTED_LANGUAGES] as string[]).includes(deviceLang)
+		? deviceLang
+		: FALLBACK_LANGUAGE) as string;
+};
+
+/**
  * Function to change the i18n language
  *
  * @param   {string}  newLang  	Key of new lang.
@@ -88,15 +101,7 @@ i18n.use(initReactI18next).init(intiOptions);
  * 								it will fallback to system,m lang or FALLBACK_LANGUAGE.
  */
 export const changeLang = (newLang: string) => {
-	const systemLang = get(
-		(I18nManager.getConstants().localeIdentifier || FALLBACK_LANGUAGE).split('_'),
-		0,
-		FALLBACK_LANGUAGE
-	);
-	const lang = ([...SUPPORTED_LANGUAGES] as string[]).includes(newLang)
-		? newLang
-		: (([...SUPPORTED_LANGUAGES] as string[]).find((langKey) => langKey === systemLang) ??
-			FALLBACK_LANGUAGE);
+	const lang = resolveLocale(newLang);
 	i18n.changeLanguage(lang).catch((err) => logError('i18n.changeLang', err));
 };
 

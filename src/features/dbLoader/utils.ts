@@ -22,9 +22,15 @@ export const dbOpExecute = (query: string, params?: Scalar[]): Promise<QueryResu
 };
 
 export const rowParseGeometryGeoJSON = <T, G>(row: T & { geometryGeoJSON: string }) => {
+	const geometry = parseSerialized<G>(row.geometryGeoJSON);
+	if (!geometry) {
+		throw new Error(
+			`Failed to parse geometry GeoJSON: ${row.geometryGeoJSON?.substring(0, 100)}`
+		);
+	}
 	return {
 		...omit(row, 'geometryGeoJSON'),
-		geometry: parseSerialized<G>(row.geometryGeoJSON)!,
+		geometry,
 	} as Omit<T, 'geometryGeoJSON'> & { geometry: G };
 };
 
@@ -33,9 +39,15 @@ export const rowsParseGeometryGeoJSON = <T, G>(rows: (T & { geometryGeoJSON: str
 };
 
 export const rowParseEnvelopeGeoJSON = <T, G>(row: T & { envelopeGeoJSON: string }) => {
+	const envelope = parseSerialized<G>(row.envelopeGeoJSON);
+	if (!envelope) {
+		throw new Error(
+			`Failed to parse envelope GeoJSON: ${row.envelopeGeoJSON?.substring(0, 100)}`
+		);
+	}
 	return {
 		...omit(row, 'envelopeGeoJSON'),
-		envelope: parseSerialized<G>(row.envelopeGeoJSON)!,
+		envelope,
 	} as Omit<T, 'envelopeGeoJSON'> & { envelope: G };
 };
 

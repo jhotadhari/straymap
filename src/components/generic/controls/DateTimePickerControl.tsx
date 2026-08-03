@@ -138,33 +138,35 @@ const DateTimePickerControl: FC<{
 		</ButtonHighlight>
 	);
 
+	const pickers = hasVisiblePicker ? (
+		<PaperProvider theme={customTheme}>
+			<DatePickerModal
+				locale={locale}
+				mode="single"
+				visible={datePickerVisible}
+				onDismiss={handleDateDismiss}
+				date={value}
+				onConfirm={handleDateConfirm}
+			/>
+
+			<TimePickerModal
+				visible={timePickerVisible}
+				onDismiss={handleTimeDismiss}
+				onConfirm={handleTimeConfirm}
+				hours={hours}
+				minutes={minutes}
+				use24HourClock
+				locale={locale}
+			/>
+		</PaperProvider>
+	) : null;
+
 	if (Anchor) {
 		return (
 			<>
 				<Anchor onPress={handlePress} />
 
-				{hasVisiblePicker && (
-					<PaperProvider theme={customTheme}>
-						<DatePickerModal
-							locale={locale}
-							mode="single"
-							visible={datePickerVisible}
-							onDismiss={handleDateDismiss}
-							date={value}
-							onConfirm={handleDateConfirm}
-						/>
-
-						<TimePickerModal
-							visible={timePickerVisible}
-							onDismiss={handleTimeDismiss}
-							onConfirm={handleTimeConfirm}
-							hours={hours}
-							minutes={minutes}
-							use24HourClock
-							locale={locale}
-						/>
-					</PaperProvider>
-				)}
+				{pickers}
 			</>
 		);
 	}
@@ -184,28 +186,7 @@ const DateTimePickerControl: FC<{
 				builtInTrigger
 			)}
 
-			{hasVisiblePicker && (
-				<PaperProvider theme={customTheme}>
-					<DatePickerModal
-						locale={locale}
-						mode="single"
-						visible={datePickerVisible}
-						onDismiss={handleDateDismiss}
-						date={value}
-						onConfirm={handleDateConfirm}
-					/>
-
-					<TimePickerModal
-						visible={timePickerVisible}
-						onDismiss={handleTimeDismiss}
-						onConfirm={handleTimeConfirm}
-						hours={hours}
-						minutes={minutes}
-						use24HourClock
-						locale={locale}
-					/>
-				</PaperProvider>
-			)}
+			{pickers}
 		</>
 	);
 };

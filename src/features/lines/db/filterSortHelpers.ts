@@ -121,10 +121,10 @@ const buildDateWhere = (filter: DateColumnFilter): SQL | undefined => {
 	}
 	const conditions: (SQL | undefined)[] = [];
 	if (filter.min !== undefined) {
-		conditions.push(gte(col, filter.min));
+		conditions.push(gte(sql`datetime(${col})`, filter.min));
 	}
 	if (filter.max !== undefined) {
-		conditions.push(lte(col, filter.max));
+		conditions.push(lte(sql`datetime(${col})`, filter.max));
 	}
 	if (!conditions.length) {
 		return undefined;
@@ -295,10 +295,10 @@ const buildTagsLineCountWhere = (_filter: NumericColumnFilter): SQL | undefined 
 const buildTagsCreatedAtWhere = (filter: DateColumnFilter): SQL | undefined => {
 	const conditions: (SQL | undefined)[] = [];
 	if (filter.min !== undefined) {
-		conditions.push(gte(tagsTable.timestamp, filter.min));
+		conditions.push(gte(sql`datetime(${tagsTable.timestamp})`, filter.min));
 	}
 	if (filter.max !== undefined) {
-		conditions.push(lte(tagsTable.timestamp, filter.max));
+		conditions.push(lte(sql`datetime(${tagsTable.timestamp})`, filter.max));
 	}
 	if (!conditions.length) {
 		return undefined;

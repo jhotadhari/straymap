@@ -32,17 +32,15 @@ import StepIdle from './StepIdle';
 import StepPreview from './StepPreview';
 import StepResult from './StepResult';
 
-const MutationBootstrap = memo(
-	({
-		mutationRef,
-	}: {
-		mutationRef: MutableRefObject<UseMutationResult<void, Error, void, unknown> | null>;
-	}) => {
-		const mutation = useImportMutation();
-		mutationRef.current = mutation;
-		return null;
-	}
-);
+const MutationBootstrap = ({
+	mutationRef,
+}: {
+	mutationRef: MutableRefObject<UseMutationResult<void, Error, void, unknown> | null>;
+}) => {
+	const mutation = useImportMutation();
+	mutationRef.current = mutation;
+	return null;
+};
 
 const ImportPage = () => {
 	const appDirs = useAppSelector(selectAppDirs);

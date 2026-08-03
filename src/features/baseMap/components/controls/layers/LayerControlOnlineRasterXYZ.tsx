@@ -244,7 +244,7 @@ const SourceRowControl = memo<{}>(() => {
 		'custom' === selectedOpt ? get(layerTemp?.options, 'url', undefined) : undefined
 	);
 
-	let urlIsValid = useMemo(
+	const urlIsValid = useMemo(
 		() =>
 			selectedOpt !== 'custom' ||
 			('string' === typeof customUrl &&

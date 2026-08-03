@@ -26,7 +26,7 @@
 	"dateTimeFormat": "Formato",
 	"customFormat": "Formato personalizado",
 	"timeZone": "Zona horaria",
-	"timeZoneNotice": "La zona horaria está fijada en UTC.",
+	"timeZoneNotice": "La zona horaria está fijada en UTC. La hora siempre se muestra en formato de 24 horas.",
 	"useDefaultFormat": "Formato predeterminado",
 	"formatDocs": "Documentación de formato day.js",
 	"example": "Ejemplo"

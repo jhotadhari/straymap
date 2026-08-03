@@ -238,6 +238,14 @@ const StepPreview: FC = () => {
 		[t]
 	);
 
+	const handleToggleTag = useCallback(
+		(tagId: number) =>
+			setSelectedTagIds((prev) =>
+				prev.includes(tagId) ? prev.filter((id) => id !== tagId) : [...prev, tagId]
+			),
+		[setSelectedTagIds]
+	);
+
 	const overwriteInfoNode = useMemo(() => <Text>{t('import.hint.overwriteMode')}</Text>, [t]);
 
 	const tagModeAnchorLabel = useMemo(
@@ -379,27 +387,15 @@ const StepPreview: FC = () => {
 							key={tag.id}
 							title={tag.label ?? `#${tag.id}`}
 							left={(props) => (
-								<Checkbox
-									{...props}
-									status={
-										selectedTagIds.includes(tag.id) ? 'checked' : 'unchecked'
-									}
-									onPress={() =>
-										setSelectedTagIds((prev) =>
-											prev.includes(tag.id)
-												? prev.filter((id) => id !== tag.id)
-												: [...prev, tag.id]
-										)
-									}
+							<Checkbox
+								{...props}
+								status={
+									selectedTagIds.includes(tag.id) ? 'checked' : 'unchecked'
+								}
+								onPress={() => handleToggleTag(tag.id)}
 								/>
 							)}
-							onPress={() =>
-								setSelectedTagIds((prev) =>
-									prev.includes(tag.id)
-										? prev.filter((id) => id !== tag.id)
-										: [...prev, tag.id]
-								)
-							}
+							onPress={() => handleToggleTag(tag.id)}
 						/>
 					))}
 				</View>
