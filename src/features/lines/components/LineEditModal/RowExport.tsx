@@ -7,7 +7,7 @@ import { Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { writeFile, ExternalStorageDirectoryPath } from 'react-native-fs';
-import dayjs from 'dayjs';
+import dayjs from '../../../../lib/dayjs';
 
 /**
  * Internal dependencies

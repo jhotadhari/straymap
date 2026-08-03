@@ -155,6 +155,12 @@ See `scripts/AGENTS.md` for an overview. Key scripts:
 
 **CI** (`.github/workflows/release.yml`): triggers on `v*` tags → builds APK + AAB → attaches both to the GitHub release. AAB is required for Google Play Store submission.
 
+### Date/time formatting
+
+- **`src/lib/dayjs.ts`** is the pre-configured dayjs singleton used throughout the app — always import from here instead of `import dayjs from 'dayjs'`. It extends `customParseFormat` and registers locale bundles for all `SUPPORTED_LANGUAGES` (`de`, `en`, `es`, `pt`) from `src/assets/i18n/constants.ts`. The `setDayjsLocale(lang)` export is called by `src/features/lang/connectStorage.ts` on every language change so that format tokens like `MMMM` / `dddd` render in the user's language. A dev-mode mismatching check warns when `SUPPORTED_LANGUAGES` and the loaded locale map drift apart.
+- Date/time display format is user-configurable via `selectDateTimeFormat` (Redux `general` slice, default `YYYY-MM-DD HH:mm:ss`). Use `dayjs(value).format(dateTimeFormat)` wherever dates are rendered.
+- `DateTimePickerControl` (`src/components/generic/controls/`) is the reusable date+time picker: `ButtonHighlight` opens `DatePickerModal`, confirm chains to `TimePickerModal`, combined result returned via `onUpdate`.
+
 ### Build/transform quirks
 
 - `metro.config.js` adds a custom transformer for `.md` assets and adds `.sql` to `sourceExts` (paired with `babel-plugin-inline-import` in `babel.config.js` to inline SQL at build time); the reanimated metro wrapper is applied last.

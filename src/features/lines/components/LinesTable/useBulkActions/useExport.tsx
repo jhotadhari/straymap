@@ -6,7 +6,7 @@ import { StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { sprintf } from 'sprintf-js';
 import { writeFile, ExternalStorageDirectoryPath } from 'react-native-fs';
-import dayjs from 'dayjs';
+import dayjs from '../../../../../lib/dayjs';
 import { LineString } from 'geojson';
 
 /**

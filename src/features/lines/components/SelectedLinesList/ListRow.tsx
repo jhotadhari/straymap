@@ -5,11 +5,12 @@ import { FC, useCallback, useContext, useMemo } from 'react';
 import { StyleProp, View, ViewStyle } from 'react-native';
 import { useTheme, Text, Icon } from 'react-native-paper';
 import { useMap } from 'react-native-mapsforge-vtm';
+import dayjs from '../../../../lib/dayjs';
 
 /**
  * Internal dependencies
  */
-import { useAppDispatch } from '../../../../store/hooks';
+import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { Line } from '../../types';
 import DrawerContext from '../../../drawers/DrawerContext';
 import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
@@ -23,6 +24,7 @@ import LineStatsCompactRows from '../Stats/LineStatsCompactRows';
 import { bbox as turfBbox } from '@turf/turf';
 import { AppContext } from '../../../../Context';
 import { useButtonProps } from '../../../../compose/useButtonProps';
+import { selectDateTimeFormat } from '../../../general/selectors';
 import IconCustom from '../../../../components/generic/primitives/IconCustom';
 
 export interface ListRowProps {
@@ -44,6 +46,8 @@ const ListRow: FC<ListRowProps> = ({ line, idx, systemFeatureKey }) => {
 	const { side } = useContext(DrawerContext);
 
 	const theme = useTheme();
+
+	const dateTimeFormat = useAppSelector(selectDateTimeFormat);
 
 	const dynamicStyles = useMemo(
 		() => ({
@@ -127,7 +131,11 @@ const ListRow: FC<ListRowProps> = ({ line, idx, systemFeatureKey }) => {
 					</View>
 				)}
 				<View style={dynamicStyles.rowColInfoRow}>
-					<Text>{line.custom_date}</Text>
+					<Text>
+						{line.custom_date
+							? dayjs(line.custom_date).format(dateTimeFormat)
+							: ''}
+					</Text>
 				</View>
 
 				<LineStatsCompactRows

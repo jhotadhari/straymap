@@ -2,34 +2,47 @@
  * External dependencies
  */
 import { FC, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Dimensions, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { DatePickerInput } from 'react-native-paper-dates';
-import dayjs from 'dayjs';
+import dayjs from '../../../../lib/dayjs';
 
 /**
  * Internal dependencies
  */
 import ModalWrapper from '../../../../components/generic/wrapper/ModalWrapper';
 import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
+import IconButtonHighlight from '../../../../components/generic/primitives/IconButtonHighlight';
+import DateTimePickerControl from '../../../../components/generic/controls/DateTimePickerControl';
 import { useButtonProps } from '../../../../compose/useButtonProps';
 import InfoLabelRow from '../../../../components/generic/infoWrapper/InfoLabelRow';
+import { useAppSelector } from '../../../../store/hooks';
+import { selectDateTimeFormat } from '../../../general/selectors';
 import { sharedStyles as appSharedStyles } from '../../../../sharedStyles';
 import { sharedStyles } from './sharedDeps';
 import { DateColumnFilter, getFilterKey } from '../../types';
+
+const EditIconAnchor = memo<{ onPress: () => void }>(({ onPress }) => (
+	<IconButtonHighlight
+		style={localStyles.editIcon}
+		icon="calendar-edit"
+		onPress={onPress}
+		size={20}
+	/>
+));
 
 const dateToString = (d: Date | undefined): string | undefined => {
 	if (!d) {
 		return undefined;
 	}
-	return dayjs(d).format('YYYY-MM-DD');
+	return dayjs(d).toISOString();
 };
 
 const stringToDate = (s: string | undefined): Date | undefined => {
 	if (!s) {
 		return undefined;
 	}
-	const parsed = dayjs(s, 'YYYY-MM-DD');
+	const parsed = dayjs(s);
 	return parsed.isValid() ? parsed.toDate() : undefined;
 };
 
@@ -42,6 +55,8 @@ const FilterDateModal: FC<{
 	onDelete?: () => void;
 }> = ({ visible, columnKey, existingFilter, onDismiss, onSave, onDelete }) => {
 	const { t, i18n } = useTranslation();
+
+	const dateTimeFormat = useAppSelector(selectDateTimeFormat);
 
 	const buttonPropsDelete = useButtonProps({ isDestructive: true });
 
@@ -64,10 +79,8 @@ const FilterDateModal: FC<{
 		const bothEmpty = minStr === undefined && maxStr === undefined;
 		if (bothEmpty) {
 			if (existingFilter) {
-				// Clearing both bounds on an existing filter → remove it.
 				onDelete?.();
 			}
-			// New filter with no bounds → no-op, just close.
 			onDismiss();
 			return;
 		}
@@ -77,9 +90,6 @@ const FilterDateModal: FC<{
 			min: minStr,
 			max: maxStr,
 		};
-		// If editing a filter whose key changes (e.g., adding max to
-		// a min-only filter), remove the old entry so no stale entry
-		// with the old key remains.
 		if (existingFilter && getFilterKey(existingFilter) !== getFilterKey(newFilter)) {
 			onDelete?.();
 		}
@@ -100,14 +110,22 @@ const FilterDateModal: FC<{
 		onDismiss();
 	}, [onDelete, onDismiss]);
 
+	const handleClearMin = useCallback(() => setMinDate(undefined), []);
+
+	const handleClearMax = useCallback(() => setMaxDate(undefined), []);
+
+	const handleMinNow = useCallback(() => setMinDate(new Date()), []);
+
+	const handleMaxNow = useCallback(() => setMaxDate(new Date()), []);
+
 	const columnLabel = useMemo(() => t(`lines.columns.${columnKey}`), [t, columnKey]);
 
 	const locale = useMemo(() => i18n.language, [i18n.language]);
 
-	const { width } = Dimensions.get('window');
-	const inputWidth = useMemo(() => width * 0.45, [width]);
-
-	const datePickerStyle = useMemo(() => ({ width: inputWidth }), [inputWidth]);
+	const formatDisplay = useCallback(
+		(d: Date | undefined) => (d ? dayjs(d).format(dateTimeFormat) : ''),
+		[dateTimeFormat]
+	);
 
 	return (
 		<ModalWrapper
@@ -120,32 +138,64 @@ const FilterDateModal: FC<{
 				label={t('lines.filterMin')}
 				Info={t('lines.hintDateFilter')}
 			>
-				<DatePickerInput
-					locale={locale}
-					value={minDate}
-					onChange={setMinDate}
-					inputMode="start"
-					label={''}
-					mode="outlined"
-					withDateFormatInLabel={true}
-					style={datePickerStyle}
-				/>
+				<View
+					style={[
+						appSharedStyles.flexRowCenter,
+						localStyles.flexSpaceBetween,
+					]}
+				>
+					<Text style={appSharedStyles.flex1}>{formatDisplay(minDate)}</Text>
+					<View style={appSharedStyles.flexRowCenter}>
+						{minDate !== undefined && (
+							<IconButtonHighlight
+								style={localStyles.iconDelete}
+								icon="delete-outline"
+								onPress={handleClearMin}
+								size={20}
+							/>
+						)}
+						<DateTimePickerControl
+							value={minDate}
+							onUpdate={setMinDate}
+							format={dateTimeFormat}
+							locale={locale}
+							anchor={EditIconAnchor}
+							onBeforeOpen={minDate ? undefined : handleMinNow}
+						/>
+					</View>
+				</View>
 			</InfoLabelRow>
 
 			<InfoLabelRow
 				label={t('lines.filterMax')}
 				Info={t('lines.hintDateFilter')}
 			>
-				<DatePickerInput
-					locale={locale}
-					value={maxDate}
-					onChange={setMaxDate}
-					inputMode="end"
-					label={''}
-					mode="outlined"
-					withDateFormatInLabel={true}
-					style={datePickerStyle}
-				/>
+				<View
+					style={[
+						appSharedStyles.flexRowCenter,
+						localStyles.flexSpaceBetween,
+					]}
+				>
+					<Text style={appSharedStyles.flex1}>{formatDisplay(maxDate)}</Text>
+					<View style={appSharedStyles.flexRowCenter}>
+						{maxDate !== undefined && (
+							<IconButtonHighlight
+								style={localStyles.iconDelete}
+								icon="delete-outline"
+								onPress={handleClearMax}
+								size={20}
+							/>
+						)}
+						<DateTimePickerControl
+							value={maxDate}
+							onUpdate={setMaxDate}
+							format={dateTimeFormat}
+							locale={locale}
+							anchor={EditIconAnchor}
+							onBeforeOpen={maxDate ? undefined : handleMaxNow}
+						/>
+					</View>
+				</View>
 			</InfoLabelRow>
 
 			{onDelete && (
@@ -161,5 +211,21 @@ const FilterDateModal: FC<{
 		</ModalWrapper>
 	);
 };
+
+const localStyles = StyleSheet.create({
+	editIcon: {
+		marginLeft: 0,
+	},
+	flexSpaceBetween: {
+		justifyContent: 'space-between',
+	},
+	iconDelete: {
+		marginHorizontal: 0,
+	},
+	flexShrinkGrow0: {
+		flexShrink: 0,
+		flexGrow: 0,
+	},
+});
 
 export default memo(FilterDateModal);

@@ -10,6 +10,7 @@ import pt from './assets/i18n/pt.json';
 import HardwareKeyControl from './components/controls/HardwareKeyControl';
 import UnitPrefControl from './components/controls/UnitPrefControl';
 import HgtControl from './components/controls/HgtControl';
+import DateTimeControl from './components/controls/DateTimeControl';
 
 export default {
 	selectInitialized,
@@ -37,6 +38,12 @@ export default {
 			key: 'hardwareKey',
 			label: 'general.hardwareKeys',
 			Control: HardwareKeyControl,
+			priority: 500,
+		},
+		{
+			key: 'dateTime',
+			label: 'general.dateTime',
+			Control: DateTimeControl,
 			priority: 500,
 		},
 	],

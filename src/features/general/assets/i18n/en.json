@@ -17,6 +17,17 @@
 			"coordsForceNE": "If enabled, north and east will always be used instead of south and west. Negative values indicate south or west. E.g. '-12°E' instead of '12°W'.",
 			"coordsOrder": "Determines which coordinate components are displayed and in which order."
 		},
-		"hardwareKey": "Assign an action to this hardware button. Map the volume keys to zoom the map in and out, or set them to do nothing to prevent accidental zoom changes."
-	}
+		"hardwareKey": "Assign an action to this hardware button. Map the volume keys to zoom the map in and out, or set them to do nothing to prevent accidental zoom changes.",
+		"dateTimeFormat": "Dates and times are formatted using day.js. See the documentation for available format options.",
+		"dateTimeHintDefault": "Customize how dates and times are displayed throughout the app.\n\nWhen enabled, dates and times are displayed using the default format %s. Turn off to enter a custom day.js format string.",
+		"dateTimeHintCustom": "Enter a custom day.js format string to control how dates and times appear throughout the app."
+	},
+	"dateTime": "Date / time",
+	"dateTimeFormat": "Format",
+	"customFormat": "Custom format",
+	"timeZone": "Timezone",
+	"timeZoneNotice": "Timezone is fixed to UTC.",
+	"useDefaultFormat": "Use default format",
+	"formatDocs": "day.js format documentation",
+	"example": "Example"
 }

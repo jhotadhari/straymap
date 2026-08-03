@@ -6,7 +6,7 @@ import { Image, Linking, StyleSheet, View, TextInputProps } from 'react-native';
 import { Text, useTheme, TextInput } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { get } from 'lodash-es';
-import dayjs from 'dayjs';
+import dayjs from '../../../../../lib/dayjs';
 import LucideIcons from '@react-native-vector-icons/lucide/static';
 
 /**

@@ -5,6 +5,7 @@ import { FC, useCallback, useMemo } from 'react';
 import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
 import { get } from 'lodash-es';
+import dayjs from '../../../../lib/dayjs';
 
 /**
  * Internal dependencies
@@ -20,6 +21,7 @@ import IconRouting from '../../../routing/drawerPanels/routing/IconComponent';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { setLineTemp } from '../../slice';
 import { selectLinesTableColumns } from '../../selectors';
+import { selectDateTimeFormat } from '../../../general/selectors';
 import LineStat from '../Stats/LineStat';
 import { RenderPart } from '../Stats/sharedDeps';
 import IconFontGis from '../../../../components/generic/primitives/IconFontGis';
@@ -95,6 +97,8 @@ const TableRow: FC<TableRowProps> = ({
 	const dispatch = useAppDispatch();
 
 	const tableColumns: TableColumn[] = useAppSelector(selectLinesTableColumns);
+
+	const dateTimeFormat = useAppSelector(selectDateTimeFormat);
 
 	const visibleColumns = useMemo(
 		() => tableColumns.filter((column) => column.visible),
@@ -234,17 +238,24 @@ const TableRow: FC<TableRowProps> = ({
 									)}
 								</View>
 							);
-						default:
+						default: {
+							const dateKeys = ['created_at', 'modified_at', 'custom_date'];
+							const raw = get(line, column.key);
+							const display =
+								dateKeys.includes(column.key) && raw
+									? dayjs(raw as string).format(dateTimeFormat)
+									: raw;
 							return (
 								<View
 									key={column.key}
 									style={columnStyle}
 								>
 									<Text numberOfLines={isFixedHeight ? 1 : undefined}>
-										{get(line, column.key)}
+										{display}
 									</Text>
 								</View>
 							);
+						}
 					}
 				})}
 			</View>

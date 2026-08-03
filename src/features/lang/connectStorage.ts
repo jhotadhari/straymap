@@ -11,6 +11,7 @@ import { get, isEqual, set } from 'lodash-es';
 import { LangSettings, LangState, initialSettings, setInitialized, setLang } from './slice';
 import { startAppListening } from '../../store/listenerMiddleware';
 import { changeLang } from '../../assets/i18n/i18n';
+import { setDayjsLocale } from '../../lib/dayjs';
 import { SUPPORTED_LANGUAGES } from '../../assets/i18n/constants';
 import { selectInitialized } from './selectors';
 import { AppStore } from '../../store/store';
@@ -25,6 +26,7 @@ startAppListening({
 	actionCreator: setLang,
 	effect: async (action) => {
 		changeLang(action.payload);
+		setDayjsLocale(action.payload);
 	},
 });
 
@@ -45,6 +47,7 @@ export const initializeFromStorage = (store: AppStore) => {
 						([...SUPPORTED_LANGUAGES] as string[]).includes(newSettings.lang))
 				) {
 					store.dispatch(setLang(newSettings.lang));
+					setDayjsLocale(newSettings.lang);
 				}
 			}
 			store.dispatch(setInitialized(true));

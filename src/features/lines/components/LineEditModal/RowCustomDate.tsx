@@ -3,32 +3,24 @@
  */
 import { FC, useCallback, useContext, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DatePickerInput } from 'react-native-paper-dates';
-import dayjs from 'dayjs';
+import dayjs from '../../../../lib/dayjs';
 
 /**
  * Internal dependencies
  */
 import { LineEditModalContext } from './Context';
-import InfoLabelRow from '../../../../components/generic/infoWrapper/InfoLabelRow';
+import DateTimePickerControl from '../../../../components/generic/controls/DateTimePickerControl';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { selectLineTemp } from '../../selectors';
 import { setLineTemp } from '../../slice';
 import { LinePartial } from '../../types';
-import { sharedStyles } from '../../../../sharedStyles';
-
-const dateToString = (d: Date | undefined): string | undefined => {
-	if (!d) {
-		return undefined;
-	}
-	return dayjs(d).format('YYYY-MM-DD');
-};
+import { selectDateTimeFormat } from '../../../general/selectors';
 
 const stringToDate = (s: string | undefined | null): Date | undefined => {
 	if (!s) {
 		return undefined;
 	}
-	const parsed = dayjs(s, 'YYYY-MM-DD');
+	const parsed = dayjs(s);
 	return parsed.isValid() ? parsed.toDate() : undefined;
 };
 
@@ -36,6 +28,7 @@ const RowCustomDate: FC = () => {
 	const dispatch = useAppDispatch();
 
 	const lineTemp = useAppSelector(selectLineTemp);
+	const dateTimeFormat = useAppSelector(selectDateTimeFormat);
 
 	const { t, i18n } = useTranslation();
 
@@ -44,13 +37,18 @@ const RowCustomDate: FC = () => {
 	const currentValue =
 		lineTemp && 'custom_date' in lineTemp ? lineTemp.custom_date : line?.custom_date;
 
+	const currentDate = useMemo(
+		() => stringToDate(currentValue),
+		[currentValue]
+	);
+
 	const handleChange = useCallback(
-		(d: Date | undefined) => {
+		(d: Date) => {
 			if (lineTemp) {
 				dispatch(
 					setLineTemp({
 						...(lineTemp as LinePartial),
-						custom_date: dateToString(d) ?? null,
+						custom_date: dayjs(d).toISOString(),
 					})
 				);
 			}
@@ -61,21 +59,14 @@ const RowCustomDate: FC = () => {
 	const locale = useMemo(() => i18n.language, [i18n.language]);
 
 	return (
-		<InfoLabelRow
+		<DateTimePickerControl
+			value={currentDate}
+			onUpdate={handleChange}
+			format={dateTimeFormat}
+			locale={locale}
 			label={t('lines.columns.custom_date')}
 			Info={t('lines.hintCustomDate')}
-		>
-			<DatePickerInput
-				locale={locale}
-				value={stringToDate(currentValue)}
-				onChange={handleChange}
-				inputMode="start"
-				label={''}
-				mode="outlined"
-				withDateFormatInLabel={true}
-				style={sharedStyles.flex1}
-			/>
-		</InfoLabelRow>
+		/>
 	);
 };
 

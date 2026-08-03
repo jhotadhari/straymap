@@ -10,10 +10,14 @@ import { createSlice } from '@reduxjs/toolkit';
 import { SliceSettingsBase } from '../../types';
 import { HardwareKeyActionConf, UnitPref } from './types';
 
+export const DEFAULT_DATE_TIME_FORMAT = 'YYYY-MM-DD HH:mm:ss';
+
 export interface GeneralSettings {
 	hardwareKeys: HardwareKeyActionConf[];
 	unitPrefs: { [value: string]: UnitPref };
 	mapUpdateInterval: number;
+	timeZone: string;
+	dateTimeFormat: string;
 }
 
 export interface GeneralState extends SliceSettingsBase, GeneralSettings {}
@@ -48,6 +52,8 @@ export const initialSettings: GeneralSettings = {
 		},
 	},
 	mapUpdateInterval: 40,
+	timeZone: 'UTC',
+	dateTimeFormat: DEFAULT_DATE_TIME_FORMAT,
 };
 
 const initialState: GeneralState = {
@@ -76,12 +82,24 @@ export const generalSlice = createSlice({
 		setUnitPrefs: (state, action: PayloadAction<GeneralSettings['unitPrefs']>) => {
 			state.unitPrefs = action.payload;
 		},
+		setTimeZone: (state, action: PayloadAction<GeneralSettings['timeZone']>) => {
+			state.timeZone = action.payload;
+		},
+		setDateTimeFormat: (state, action: PayloadAction<GeneralSettings['dateTimeFormat']>) => {
+			state.dateTimeFormat = action.payload;
+		},
 	},
 });
 
 // Export the generated action creators for use in components.
-export const { setInitialized, setHardwareKeys, setMapUpdateInterval, setUnitPrefs } =
-	generalSlice.actions;
+export const {
+	setInitialized,
+	setHardwareKeys,
+	setMapUpdateInterval,
+	setUnitPrefs,
+	setTimeZone,
+	setDateTimeFormat,
+} = generalSlice.actions;
 
 // Export the slice reducer for use in the store configuration
 export default generalSlice.reducer;

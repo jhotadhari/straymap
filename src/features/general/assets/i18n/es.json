@@ -17,6 +17,17 @@
 			"coordsForceNE": "Si se activa, siempre se usará norte y este en lugar de sur y oeste. Valores negativos indican sur u oeste. Ej.: '-12°E' en lugar de '12°O'.",
 			"coordsOrder": "Determina qué componentes de coordenadas se muestran y en qué orden."
 		},
-		"hardwareKey": "Asigna una acción a este botón de hardware. Mapea las teclas de volumen para acercar y alejar el mapa, o configúralas para que no hagan nada y evitar cambios accidentales de zoom."
-	}
+		"hardwareKey": "Asigna una acción a este botón de hardware. Mapea las teclas de volumen para acercar y alejar el mapa, o configúralas para que no hagan nada y evitar cambios accidentales de zoom.",
+		"dateTimeFormat": "Las fechas y horas se formatean con day.js. Consulta la documentación para ver las opciones de formato disponibles.",
+		"dateTimeHintDefault": "Personaliza cómo se muestran las fechas y horas en la aplicación.\n\nCuando está activado, las fechas y horas se muestran con el formato predeterminado %s. Desactívalo para introducir un formato day.js personalizado.",
+		"dateTimeHintCustom": "Introduce un formato day.js personalizado para controlar cómo se muestran las fechas y horas en la aplicación."
+	},
+	"dateTime": "Fecha / hora",
+	"dateTimeFormat": "Formato",
+	"customFormat": "Formato personalizado",
+	"timeZone": "Zona horaria",
+	"timeZoneNotice": "La zona horaria está fijada en UTC.",
+	"useDefaultFormat": "Formato predeterminado",
+	"formatDocs": "Documentación de formato day.js",
+	"example": "Ejemplo"
 }

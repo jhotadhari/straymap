@@ -1,10 +1,7 @@
 /**
  * External dependencies
  */
-import dayjs from 'dayjs';
-import customParseFormat from 'dayjs/plugin/customParseFormat';
-
-dayjs.extend(customParseFormat);
+import dayjs from '../../lib/dayjs';
 
 /**
  * Internal dependencies

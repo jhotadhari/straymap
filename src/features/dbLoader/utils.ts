@@ -4,7 +4,7 @@
 import { Scalar, QueryResult } from '@op-engineering/op-sqlite';
 import { omit } from 'lodash-es';
 import { sprintf } from 'sprintf-js';
-import dayjs from 'dayjs';
+import dayjs from '../../lib/dayjs';
 
 /**
  * Internal dependencies

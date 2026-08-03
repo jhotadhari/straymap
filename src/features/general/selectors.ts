@@ -10,3 +10,7 @@ export const selectHardwareKeys = (state: RootState) => state.general.hardwareKe
 export const selectUnitPrefs = (state: RootState) => state.general.unitPrefs;
 
 export const selectMapUpdateInterval = (state: RootState) => state.general.mapUpdateInterval;
+
+export const selectTimeZone = (state: RootState) => state.general.timeZone;
+
+export const selectDateTimeFormat = (state: RootState) => state.general.dateTimeFormat;

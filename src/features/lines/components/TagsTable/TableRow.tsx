@@ -5,6 +5,7 @@ import { FC, useCallback, useMemo } from 'react';
 import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 import { useTheme, Text, Icon } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
+import dayjs from '../../../../lib/dayjs';
 
 /**
  * Internal dependencies
@@ -16,6 +17,7 @@ import { getTagColor } from '../tagColor';
 import { featureRegistry } from '../../../FeatureRegistry';
 import { useAppSelector } from '../../../../store/hooks';
 import { selectTagsTableColumns } from '../../selectors';
+import { selectDateTimeFormat } from '../../../general/selectors';
 import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
 import { useButtonProps } from '../../../../compose/useButtonProps';
 
@@ -48,6 +50,8 @@ const TagTableRow: FC<TagTableRowProps> = ({
 	const buttonPropsText = useButtonProps({ mode: 'text' });
 
 	const tableColumns: TableColumn[] = useAppSelector(selectTagsTableColumns);
+
+	const dateTimeFormat = useAppSelector(selectDateTimeFormat);
 
 	const visibleColumns = useMemo(
 		() => tableColumns.filter((column) => column.visible),
@@ -94,11 +98,13 @@ const TagTableRow: FC<TagTableRowProps> = ({
 
 	const tagColor = useMemo(() => getTagColor(tag), [tag]);
 
-	const formatDate = useCallback((ts?: string) => {
-		if (!ts) return '';
-		const d = new Date(ts);
-		return d.toLocaleDateString();
-	}, []);
+	const formatDate = useCallback(
+		(ts?: string) => {
+			if (!ts) return '';
+			return dayjs(ts).format(dateTimeFormat);
+		},
+		[dateTimeFormat]
+	);
 
 	return (
 		<View

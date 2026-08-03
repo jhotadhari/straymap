@@ -34,7 +34,7 @@ import RadioListItem from '../wrapper/RadioListItem';
 import LoadingIndicator from '../primitives/LoadingIndicator';
 import { AbsPath } from '../../../features/dirs/types';
 import useDirsInfo from '../../../features/dirs/hooks/useDirsInfo';
-import dayjs from 'dayjs';
+import dayjs from '../../../lib/dayjs';
 import { logError } from '../../../lib/utils';
 import { ErrorToastContext } from '../../ErrorToast/Context';
 import useAsyncBusy from '../../../compose/useAsyncBusy';

@@ -12,9 +12,11 @@ import {
 	GeneralSettings,
 	GeneralState,
 	initialSettings,
+	setDateTimeFormat,
 	setHardwareKeys,
 	setInitialized,
 	setMapUpdateInterval,
+	setTimeZone,
 	setUnitPrefs,
 } from './slice';
 import { startAppListening } from '../../store/listenerMiddleware';
@@ -48,6 +50,12 @@ export const initializeFromStorage = (store: AppStore) => {
 					(newSettings as Record<string, unknown>)?.mapEventRate;
 				if (mapInterval != null) {
 					store.dispatch(setMapUpdateInterval(mapInterval as number));
+				}
+				if (newSettings?.timeZone) {
+					store.dispatch(setTimeZone(newSettings.timeZone));
+				}
+				if (newSettings?.dateTimeFormat) {
+					store.dispatch(setDateTimeFormat(newSettings.dateTimeFormat));
 				}
 			}
 			store.dispatch(setInitialized(true));
@@ -87,7 +95,7 @@ export const saveToStorage = (generalState: GeneralState, actionType: string) =>
  * and calls the function to save them to defaultPreferences.
  */
 startAppListening({
-	matcher: isAnyOf(setHardwareKeys, setUnitPrefs, setMapUpdateInterval),
+	matcher: isAnyOf(setHardwareKeys, setUnitPrefs, setMapUpdateInterval, setTimeZone, setDateTimeFormat),
 	effect: async (action, listenerApi) => {
 		try {
 			await saveToStorage(listenerApi.getState().general, action.type);
