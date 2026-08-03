@@ -62,7 +62,7 @@ const DatabaseFileList: FC<{ style?: ViewStyle }> = ({ style }) => {
 	const invalidateCache = useCallback(async () => {
 		try {
 			const results = await Promise.all(
-				navDirs.map((navDir) => FsModule.getInfo(navDir, extensions, true))
+				navDirs.map((navDir) => FsModule.getInfo(navDir, extensions, true, null, null))
 			);
 			let newInfos: DirInfoMap = {};
 			navDirs.forEach((navDir, i) => {
