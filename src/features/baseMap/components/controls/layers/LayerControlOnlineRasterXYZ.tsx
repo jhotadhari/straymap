@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { FC, Fragment, ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
+import { Fragment, memo, ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
 import { Image, Linking, StyleSheet, View, TextInputProps } from 'react-native';
 import { Text, useTheme, TextInput } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -220,7 +220,7 @@ export const sourceOptions: SourceOption[] = [
 	},
 ];
 
-const SourceRowControl: FC<{}> = () => {
+const SourceRowControl = memo<{}>(() => {
 	const { t } = useTranslation();
 	const theme = useTheme();
 
@@ -385,13 +385,13 @@ const SourceRowControl: FC<{}> = () => {
 			/>
 		</InfoLabelRow>
 	);
-};
+});
 
 const validateZoom = (val: number) => val >= 0;
 const validateAlpha = (val: number) => val >= 0 && val <= 1;
 const zoomOptLabels = ['min', 'max'];
 
-const LayerControlOnlineRasterXYZ: FC<{}> = () => {
+const LayerControlOnlineRasterXYZ = memo<{}>(() => {
 	const { layerTemp, setOptions } = useLayerTemp<LayerConfigOptionsOnlineRasterXYZ>();
 
 	const { t } = useTranslation();
@@ -483,7 +483,7 @@ const LayerControlOnlineRasterXYZ: FC<{}> = () => {
 			/>
 		</Fragment>
 	);
-};
+});
 
 const styles = StyleSheet.create({
 	belowWrapper: {

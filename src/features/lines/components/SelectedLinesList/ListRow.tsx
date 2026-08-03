@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { FC, useCallback, useContext, useMemo } from 'react';
+import { FC, memo, useCallback, useContext, useMemo } from 'react';
 import { StyleProp, View, ViewStyle } from 'react-native';
 import { useTheme, Text, Icon } from 'react-native-paper';
 import { useMap } from 'react-native-mapsforge-vtm';
@@ -212,4 +212,4 @@ const ListRow: FC<ListRowProps> = ({ line, idx, systemFeatureKey }) => {
 	);
 };
 
-export default ListRow;
+export default memo(ListRow);

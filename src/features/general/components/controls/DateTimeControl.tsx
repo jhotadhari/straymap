@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Icon, Text, TextInput, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -19,6 +19,16 @@ import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { selectDateTimeFormat } from '../../selectors';
 import { setDateTimeFormat, DEFAULT_DATE_TIME_FORMAT } from '../../slice';
 import { sharedStyles } from '../../../../sharedStyles';
+
+const AnchorClockIcon = ({ color, style }: { color: string; style: any }) => (
+	<View style={style}>
+		<Icon
+			source="clock-outline"
+			color={color}
+			size={25}
+		/>
+	</View>
+);
 
 const DateTimeControl = () => {
 	const { t, i18n } = useTranslation();
@@ -149,15 +159,7 @@ const DateTimeControl = () => {
 	return (
 		<ListItemModalControl
 			anchorLabel={t('general.dateTime')}
-			anchorIcon={({ color, style }) => (
-				<View style={style}>
-					<Icon
-						source="clock-outline"
-						color={color}
-						size={25}
-					/>
-				</View>
-			)}
+			anchorIcon={AnchorClockIcon}
 			header={t('general.dateTime')}
 		>
 			<View style={[localStyles.gap, localStyles.itemsStart]}>
@@ -212,4 +214,4 @@ const localStyles = StyleSheet.create({
 	},
 });
 
-export default DateTimeControl;
+export default memo(DateTimeControl);

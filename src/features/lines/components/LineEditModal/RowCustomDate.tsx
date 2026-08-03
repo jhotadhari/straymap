@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { FC, useCallback, useContext, useMemo } from 'react';
+import { FC, memo, useCallback, useContext, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import dayjs from '../../../../lib/dayjs';
 
@@ -70,4 +70,4 @@ const RowCustomDate: FC = () => {
 	);
 };
 
-export default RowCustomDate;
+export default memo(RowCustomDate);

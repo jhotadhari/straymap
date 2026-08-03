@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { FC, useCallback, useMemo } from 'react';
+import React, { FC, memo, useCallback, useMemo } from 'react';
 import { View, ViewStyle, Platform } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -39,9 +39,6 @@ const DatabaseFileList: FC<{ style?: ViewStyle }> = ({ style }) => {
 	const dbPath = useAppSelector(selectDbPath);
 
 	const navDirs = useMemo(() => appDirs.databases ?? [], [appDirs.databases]);
-
-	console.log('debug navDirs', navDirs); // debug
-	console.log('debug appDirs', appDirs); // debug
 
 	const { dirsInfo, isLoading } = useDirsInfo({
 		navDirs,
@@ -195,4 +192,4 @@ const DatabaseFileList: FC<{ style?: ViewStyle }> = ({ style }) => {
 	);
 };
 
-export default DatabaseFileList;
+export default memo(DatabaseFileList);

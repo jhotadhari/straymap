@@ -4,6 +4,7 @@
 import {
 	Dispatch,
 	FC,
+	memo,
 	ReactElement,
 	ReactNode,
 	SetStateAction,
@@ -62,13 +63,15 @@ const getLabelFromUri = (uri?: `content://${string}`) => {
 	return parts.length > 0 ? parts[parts.length - 1] : '';
 };
 
+const extractLabel = (a: { label: string }) => a.label;
+
 const Option: FC<{
 	option: OptionWithDesc;
 	selectedOpt: string | undefined;
 	setSelectedOpt: Dispatch<SetStateAction<string | undefined>>;
 	customUri: `content://${string}` | undefined;
 	setCustomUri: Dispatch<SetStateAction<`content://${string}` | undefined>>;
-}> = ({ option, selectedOpt, setSelectedOpt, customUri, setCustomUri }) => {
+}> = memo(({ option, selectedOpt, setSelectedOpt, customUri, setCustomUri }) => {
 	const { t } = useTranslation();
 	const theme = useTheme();
 
@@ -105,24 +108,28 @@ const Option: FC<{
 		runOpenDocument,
 	]);
 
+	const descExtractor = useCallback(
+		(a: OptionWithDesc) =>
+			'custom' === a.key
+				? customUri
+					? customUri?.replace('content://', 'content:// ')
+					: null
+				: '',
+		[customUri]
+	);
+
 	return (
 		<RadioListItem
 			opt={option}
 			onPress={handlePress}
 			labelNode={isPicking ? <LoadingIndicator size="small" /> : undefined}
 			labelStyle={theme.fonts.bodyMedium}
-			labelExtractor={(a) => a.label}
-			descExtractor={(a) =>
-				'custom' === a.key
-					? customUri
-						? customUri?.replace('content://', 'content:// ')
-						: null
-					: ''
-			}
+			labelExtractor={extractLabel}
+			descExtractor={descExtractor}
 			status={option.key === selectedOpt ? 'checked' : 'unchecked'}
 		/>
 	);
-};
+});
 
 const CreateNewOption: FC<{
 	path: string;
@@ -132,7 +139,7 @@ const CreateNewOption: FC<{
 	setSelectedOpt: Dispatch<SetStateAction<string | undefined>>;
 	customUri: `content://${string}` | undefined;
 	setCustomUri: Dispatch<SetStateAction<`content://${string}` | undefined>>;
-}> = ({
+}> = memo(({
 	path,
 	newOptionLabel,
 	extensions,
@@ -224,24 +231,28 @@ const CreateNewOption: FC<{
 		setSelectedOpt,
 	]);
 
+	const descExtractor = useCallback(
+		(a: OptionWithDesc) =>
+			'custom' === a.key
+				? customUri
+					? customUri?.replace('content://', 'content:// ')
+					: null
+				: '',
+		[customUri]
+	);
+
 	return (
 		<RadioListItem
 			opt={newOption}
 			onPress={handlePress}
 			labelNode={labelNode}
 			labelStyle={theme.fonts.bodyMedium}
-			labelExtractor={(a) => a.label}
-			descExtractor={(a) =>
-				'custom' === a.key
-					? customUri
-						? customUri?.replace('content://', 'content:// ')
-						: null
-					: ''
-			}
+			labelExtractor={extractLabel}
+			descExtractor={descExtractor}
 			status={selectedOpt === newSelectedOpt ? 'checked' : 'unchecked'}
 		/>
 	);
-};
+});
 
 const OptionsByPath: FC<{
 	options: OptionWithDesc[];
@@ -255,7 +266,7 @@ const OptionsByPath: FC<{
 	canCreateNewOption?: boolean;
 	newOptionLabel?: string;
 	extensions?: string[];
-}> = ({
+}> = memo(({
 	options,
 	path,
 	filesHeading,
@@ -304,7 +315,7 @@ const OptionsByPath: FC<{
 			)}
 		</View>
 	);
-};
+});
 
 const FileSourceRowControl: FC<{
 	filePattern?: RegExp;
@@ -328,7 +339,7 @@ const FileSourceRowControl: FC<{
 	warningIfUnset?: boolean;
 	styleContent?: ViewStyle;
 	newOptionLabel?: string;
-}> = ({
+}> = memo(({
 	filePattern,
 	extensions,
 	dirs,
@@ -587,7 +598,7 @@ const FileSourceRowControl: FC<{
 			</View>
 		</InfoLabelRow>
 	);
-};
+});
 
 const styles = StyleSheet.create({
 	optionsByPathWrapper: { marginBottom: 18 },

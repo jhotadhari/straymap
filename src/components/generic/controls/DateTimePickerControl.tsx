@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { FC, ReactNode, useCallback, useMemo, useRef, useState } from 'react';
+import { FC, memo, ReactNode, useCallback, useMemo, useRef, useState } from 'react';
 import { View, ViewStyle } from 'react-native';
 import { Icon, PaperProvider, useTheme } from 'react-native-paper';
 import { DatePickerModal, TimePickerModal } from 'react-native-paper-dates';
@@ -117,17 +117,22 @@ const DateTimePickerControl: FC<{
 		pendingDateRef.current = undefined;
 	}, []);
 
+	const icon = useCallback(
+		(props: { size: number; color: string }) => (
+			<Icon
+				source={value ? 'calendar-clock' : 'calendar-clock-outline'}
+				size={props.size}
+				color={props.color}
+			/>
+		),
+		[value]
+	);
+
 	const builtInTrigger = (
 		<ButtonHighlight
 			{...buttonProps}
 			onPress={handlePress}
-			icon={(props) => (
-				<Icon
-					source={value ? 'calendar-clock' : 'calendar-clock-outline'}
-					size={props.size}
-					color={props.color}
-				/>
-			)}
+			icon={icon}
 		>
 			{formattedValue ? formattedValue : '  '}
 		</ButtonHighlight>
@@ -205,4 +210,4 @@ const DateTimePickerControl: FC<{
 	);
 };
 
-export default DateTimePickerControl;
+export default memo(DateTimePickerControl);

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { FC, useCallback, useContext, useMemo, useState } from 'react';
+import { FC, memo, useCallback, useContext, useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -26,6 +26,8 @@ import { resolveFilename, sanitizeFilename, DEFAULT_TEMPLATE } from '../../utils
 import { useButtonProps } from '../../../../compose/useButtonProps';
 
 const EXPORT_DIR = ExternalStorageDirectoryPath + '/Android/media/com.jhotadhari.straymap/export';
+
+const extractLabel = (a: { label: string }) => a.label;
 
 const RowExport: FC = () => {
 	const theme = useTheme();
@@ -106,10 +108,10 @@ const RowExport: FC = () => {
 		t,
 	]);
 
-	const formatOptions = EXPORT_FORMATS.map((f) => ({
-		key: f.key,
-		label: f.label,
-	}));
+	const formatOptions = useMemo(
+		() => EXPORT_FORMATS.map((f) => ({ key: f.key, label: f.label })),
+		[]
+	);
 
 	const buttonPropsExport = useButtonProps({
 		mode: 'outlined',
@@ -136,7 +138,7 @@ const RowExport: FC = () => {
 							opt={opt}
 							onPress={() => setSelectedFormat(opt.key as ExportFormat)}
 							status={selectedFormat === opt.key ? 'checked' : 'unchecked'}
-							labelExtractor={(a) => a.label}
+							labelExtractor={extractLabel}
 						/>
 					))}
 
@@ -179,4 +181,4 @@ const styles = StyleSheet.create({
 	errorText: { marginTop: 12 },
 });
 
-export default RowExport;
+export default memo(RowExport);

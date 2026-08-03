@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { FC, useCallback, useMemo } from 'react';
+import { FC, memo, useCallback, useMemo } from 'react';
 import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 import { useTheme, Text, Icon } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -221,4 +221,4 @@ const styles = StyleSheet.create({
 	colorDot: { width: 20, height: 20, borderRadius: 10, borderWidth: 1 },
 });
 
-export default TagTableRow;
+export default memo(TagTableRow);

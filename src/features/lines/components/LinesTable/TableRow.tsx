@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { FC, useCallback, useMemo } from 'react';
+import { FC, memo, useCallback, useMemo } from 'react';
 import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 import { useTheme, Text } from 'react-native-paper';
 import { get } from 'lodash-es';
@@ -31,7 +31,7 @@ const OtherCell: FC<{
 	cellKey: string;
 	line: Omit<Line, 'geometry'>;
 	style: StyleProp<ViewStyle>;
-}> = ({ cellKey, line, style }) => {
+}> = memo(({ cellKey, line, style }) => {
 	const cellStyle: StyleProp<ViewStyle> = useMemo(
 		() => [
 			style,
@@ -58,7 +58,7 @@ const OtherCell: FC<{
 			);
 	}
 	return undefined;
-};
+});
 export interface TableRowProps {
 	line: Omit<Line, 'geometry'>;
 	styleCell: StyleProp<ViewStyle>;
@@ -76,7 +76,7 @@ export interface TableRowProps {
 
 const statsRenderParts = ['value'] as RenderPart[];
 
-const TableRow: FC<TableRowProps> = ({
+const TableRow: FC<TableRowProps> = memo(({
 	line,
 	styleCell,
 	idx,
@@ -150,8 +150,6 @@ const TableRow: FC<TableRowProps> = ({
 	const handleRoutingBtnPress = useCallback(() => {
 		handleRoutingBtnPress_(line);
 	}, [handleRoutingBtnPress_, line]);
-
-	console.log('debug styleCell', styleCell); // debug
 
 	const styleActionCell = useMemo(
 		() => [
@@ -261,7 +259,7 @@ const TableRow: FC<TableRowProps> = ({
 			</View>
 		</View>
 	);
-};
+});
 
 const styles = StyleSheet.create({
 	actionsCell: {
