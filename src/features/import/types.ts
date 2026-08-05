@@ -1,3 +1,6 @@
+/**
+ * External dependencies
+ */
 import { Feature, GeoJsonProperties, LineString } from 'geojson';
 
 export type ImportMode = 'file' | 'directory';
@@ -33,3 +36,12 @@ export const isValidGeometry = (feature: Feature<LineString, GeoJsonProperties>)
 			typeof c[1] === 'number'
 	);
 };
+
+export interface DatePattern {
+	key: string;
+	regex: string;
+	format: string;
+	label: string;
+	enabled: boolean;
+	removable: boolean;
+}

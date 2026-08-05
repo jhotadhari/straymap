@@ -6,7 +6,7 @@ import dayjs from '../../lib/dayjs';
 /**
  * Internal dependencies
  */
-import { DatePattern } from './slice';
+import { DatePattern } from './types';
 
 const MONTH_NAME_MAP: Record<string, string> = {
 	jan: 'Jan',

@@ -13,7 +13,7 @@ import ButtonHighlight from '../../../components/generic/primitives/ButtonHighli
 import { useButtonProps } from '../../../compose/useButtonProps';
 import { IMPORT_EXTENSIONS } from '../../lines/utils/importParser';
 import { localStyles } from './styles';
-import { useImportContext } from './ImportContext';
+import { useImportContext } from '../ImportContext';
 import ImportDirPicker from './ImportDirPicker';
 
 const StepIdle: FC = () => {

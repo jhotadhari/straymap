@@ -14,7 +14,7 @@ import ButtonHighlightMenuControl from '../../../../components/generic/wrapper/B
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { selectOverwriteMode } from '../../selectors';
 import { setOverwriteMode } from '../../slice';
-import { OverwriteMode } from '../types';
+import { OverwriteMode } from '../../types';
 
 const OverwriteModeControl: FC = () => {
 	const { t } = useTranslation();

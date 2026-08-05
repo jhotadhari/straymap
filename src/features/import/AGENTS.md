@@ -156,10 +156,12 @@ Each imported line stores:
 
 `sourceFilePath` is the deduplication key for overwrite/skip modes. `trackIndexInFile` maps features to existing lines for in-place updates.
 
-## Types (`components/types.ts`)
+## Types (`types.ts`)
+
+Domain types (`ImportMode`, `ImportStep`, `TagMode`, `TitleMode`, `OverwriteMode`, `ImportFileResult`, `isValidGeometry`) and `DatePattern`. Redux-specific `ImportSettings` and `ImportState` live in `slice.ts`.
 
 ```ts
-Type Mode = 'file' | 'directory';
+Type ImportMode = 'file' | 'directory';
 Type TitleMode = 'none' | 'filenameWithoutExt' | 'filenameWithExt' | 'nameProperty' | 'regex';
 Type TagMode = 'none' | 'existing' | 'regex';
 Type OverwriteMode = 'create' | 'skip' | 'overwrite';
@@ -175,6 +177,10 @@ interface ImportFileResult {
     skippedGeom?: number;
 }
 ```
+
+## Constants (`constants.ts`)
+
+`DATE_PATTERN_PRESETS` — 18 preset `DatePattern[]` for auto date extraction from filenames. Imported by `DatePatternEditorModal.tsx`.
 
 ## Context (`ImportContext.tsx`)
 

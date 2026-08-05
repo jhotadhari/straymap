@@ -11,7 +11,7 @@ import NumericRowControl from '../../../../components/generic/controls/NumericRo
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { selectFileLimit } from '../../selectors';
 import { setFileLimit } from '../../slice';
-import { useImportContext } from '../ImportContext';
+import { useImportContext } from '../../ImportContext';
 
 const validateFileLimit = (val: number) => val >= 0;
 

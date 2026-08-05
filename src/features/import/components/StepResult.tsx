@@ -13,8 +13,8 @@ import { sprintf } from 'sprintf-js';
 import ButtonHighlight from '../../../components/generic/primitives/ButtonHighlight';
 import { useButtonProps } from '../../../compose/useButtonProps';
 import { localStyles } from './styles';
-import { ImportFileResult } from './types';
-import { useImportContext } from './ImportContext';
+import { ImportFileResult } from '../types';
+import { useImportContext } from '../ImportContext';
 
 const ResultItem: FC<{ result: ImportFileResult }> = memo(({ result }) => {
 	const theme = useTheme();

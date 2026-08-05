@@ -22,11 +22,11 @@ import { linesTable } from '../../lines/db/schema/schema';
 import { sql } from 'drizzle-orm';
 import { ensureTagByLabel } from '../../lines/db/actionsTag';
 import { invalidateTagsTable, invalidateLinesQueries, invalidateLineGeomQueries } from '../../lines/db/queryFns';
-import { isValidGeometry, ImportFileResult } from './types';
+import { isValidGeometry, ImportFileResult } from '../types';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { selectSelected } from '../../lines/selectors';
 import { setLinesSelected } from '../../lines/slice';
-import { useImportContext } from './ImportContext';
+import { useImportContext } from '../ImportContext';
 import {
 	selectFileLimit,
 	selectTitleMode,

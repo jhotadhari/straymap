@@ -16,7 +16,7 @@ import InfoLabelRow from '../../../../components/generic/infoWrapper/InfoLabelRo
 import { useButtonProps } from '../../../../compose/useButtonProps';
 import { getRegexWarnings } from '../../../../lib/regexUtils';
 import { sharedStyles } from '../../../../sharedStyles';
-import { DatePattern } from '../../slice';
+import { DatePattern } from '../../types';
 import { localStyles } from '../styles';
 
 const styles = StyleSheet.create({

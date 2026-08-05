@@ -17,7 +17,7 @@ import { Feature, GeoJsonProperties, LineString } from 'geojson';
 /**
  * Internal dependencies
  */
-import { AbsPath } from '../../dirs/types';
+import { AbsPath } from '../dirs/types';
 import { ImportMode, ImportStep, ImportFileResult } from './types';
 
 export interface ImportContextValue {

@@ -10,7 +10,7 @@ import { sprintf } from 'sprintf-js';
  */
 import { useAppSelector } from '../../../../store/hooks';
 import { selectTagMode, selectTagRegexes } from '../../selectors';
-import { useImportContext } from '../ImportContext';
+import { useImportContext } from '../../ImportContext';
 import InfoLabelRow from '../../../../components/generic/infoWrapper/InfoLabelRow';
 import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
 import { useButtonProps } from '../../../../compose/useButtonProps';

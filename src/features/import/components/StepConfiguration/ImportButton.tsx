@@ -12,7 +12,7 @@ import ButtonHighlight from '../../../../components/generic/primitives/ButtonHig
 import { useButtonProps } from '../../../../compose/useButtonProps';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { selectDryRun, selectTitleMode, selectTitleRegex, selectTagMode, selectTagRegexes } from '../../selectors';
-import { useImportContext } from '../ImportContext';
+import { useImportContext } from '../../ImportContext';
 import InfoLabelRow from '../../../../components/generic/infoWrapper/InfoLabelRow';
 import { setDryRun } from '../../slice';
 import { getRegexWarnings } from '../../../../lib/regexUtils';

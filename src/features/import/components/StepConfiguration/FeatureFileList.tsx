@@ -13,7 +13,7 @@ import { FlashList, ListRenderItem } from '@shopify/flash-list';
  */
 import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
 import { useButtonProps } from '../../../../compose/useButtonProps';
-import { useImportContext } from '../ImportContext';
+import { useImportContext } from '../../ImportContext';
 import ListItem from '../../../../components/generic/wrapper/ListItem';
 import ModalWrapper from '../../../../components/generic/wrapper/ModalWrapper';
 import { localStyles } from '../styles';
