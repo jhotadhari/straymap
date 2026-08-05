@@ -14,7 +14,7 @@ The feature follows the standard `AppFeature` contract:
 ## Step flow
 
 ```
-idle → scanning/parsing → preview → importing → result
+idle → scanning/parsing → configuration → importing → result
 ```
 
 | Step | Renders | Purpose |
@@ -22,13 +22,13 @@ idle → scanning/parsing → preview → importing → result
 | `idle` | `StepIdle` | Pick file or directory |
 | `scanning` | `LoadingIndicator` | Scanning storage directory for supported files |
 | `parsing` | `LoadingIndicator` | Reading and parsing a single file |
-| `preview` | `StepPreview/index.tsx` + all controls | Configure import settings, select tracks/files |
+| `configuration` | `StepConfiguration/index.tsx` + all controls | Configure import settings, select tracks/files |
 | `importing` | `LoadingIndicator` | Running the mutation |
 | `result` | `StepResult` | Success/failure summary |
 
 ## Component tree
 
-### StepPreview (`StepPreview/index.tsx`)
+### StepConfiguration (`StepConfiguration/index.tsx`)
 
 Renders all configuration controls in order:
 
@@ -163,7 +163,7 @@ Type Mode = 'file' | 'directory';
 Type TitleMode = 'none' | 'filenameWithoutExt' | 'filenameWithExt' | 'nameProperty' | 'regex';
 Type TagMode = 'none' | 'existing' | 'regex';
 Type OverwriteMode = 'create' | 'skip' | 'overwrite';
-Type ImportStep = 'idle' | 'scanning' | 'parsing' | 'preview' | 'importing' | 'result';
+Type ImportStep = 'idle' | 'scanning' | 'parsing' | 'configuration' | 'importing' | 'result';
 
 interface ImportFileResult {
     name: string;
@@ -178,7 +178,7 @@ interface ImportFileResult {
 
 ## Context (`ImportContext.tsx`)
 
-`ImportContextValue` provides shared state for all StepPreview components and the mutation. Key fields:
+`ImportContextValue` provides shared state for all StepConfiguration components and the mutation. Key fields:
 
 | Field | Type | Purpose |
 |---|---|---|

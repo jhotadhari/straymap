@@ -16,7 +16,7 @@ import TagExtractControl from './TagExtractControl';
 import FeatureFileList from './FeatureFileList';
 import DateExtractRowControl from './DateExtractRowControl';
 
-const StepPreview: FC = () => {
+const StepConfiguration: FC = () => {
 	return (
 		<>
 			<FeatureFileList />
@@ -32,4 +32,4 @@ const StepPreview: FC = () => {
 	);
 };
 
-export default memo(StepPreview);
+export default memo(StepConfiguration);

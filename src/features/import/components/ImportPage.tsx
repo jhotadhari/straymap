@@ -29,7 +29,7 @@ import { AbsPath } from '../../dirs/types';
 import { ImportContextProvider } from './ImportContext';
 import useImportMutation from './useImportMutation';
 import StepIdle from './StepIdle';
-import StepPreview from './StepPreview';
+import StepConfiguration from './StepConfiguration';
 import StepResult from './StepResult';
 
 const MutationBootstrap = ({
@@ -98,7 +98,7 @@ const ImportPage = () => {
 		setDirFiles(children.map((c) => ({ uri: c.name, name: c.name.split('/').pop() ?? c.name })));
 		setSelectedFileUris(new Set(children.map((c) => c.name)));
 		setStoragePath('');
-		setStep('preview');
+		setStep('configuration');
 	}, [storagePath, dirsInfo, isScanningStorage]);
 
 	const [_isPickingFile, runOpenDocument] = useAsyncBusy(openDocument);
@@ -158,7 +158,7 @@ const ImportPage = () => {
 			if (dismissedRef.current) return;
 			setFeatures(result.features);
 			setSelectedIndices(new Set(result.features.map((_, i) => i)));
-			setStep('preview');
+			setStep('configuration');
 		} catch (err) {
 			logError('ImportPage.handlePickFile', err);
 			if (dismissedRef.current) return;
@@ -205,7 +205,7 @@ const ImportPage = () => {
 			if (dismissedRef.current) return;
 			setDirFiles(supported);
 			setSelectedFileUris(new Set(supported.map((f) => f.uri)));
-			setStep('preview');
+			setStep('configuration');
 		} catch (err) {
 			logError('ImportPage.handlePickDirectory', err);
 			showError(sprintf(t('errorGeneric'), err instanceof Error ? err.message : String(err)));
@@ -354,7 +354,7 @@ const ImportPage = () => {
 					</View>
 				)}
 
-				{step === 'preview' && <StepPreview />}
+				{step === 'configuration' && <StepConfiguration />}
 
 				{step === 'importing' && (
 					<View style={localStyles.centered}>

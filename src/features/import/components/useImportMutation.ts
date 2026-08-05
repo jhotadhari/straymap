@@ -535,7 +535,7 @@ const useImportMutation = () => {
 		onError: (err) => {
 			if (keepAppActive) bgTask.stop();
 			if ((err as any)?.__aborted) {
-				setStep('preview');
+				setStep('configuration');
 				return;
 			}
 			logError('ImportModal.import', err);
@@ -544,7 +544,7 @@ const useImportMutation = () => {
 			if (importResultsRef.current.length > 0) {
 				setStep('result');
 			} else {
-				setStep('preview');
+				setStep('configuration');
 			}
 		},
 		onSettled: () => {
