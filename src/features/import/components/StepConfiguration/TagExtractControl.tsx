@@ -9,8 +9,7 @@ import { sprintf } from 'sprintf-js';
  * Internal dependencies
  */
 import { useAppSelector } from '../../../../store/hooks';
-import { selectTagMode, selectTagRegexes } from '../../selectors';
-import { useImportContext } from '../../ImportContext';
+import { selectTagMode, selectTagRegexes, selectSelectedTagIds } from '../../selectors';
 import InfoLabelRow from '../../../../components/generic/infoWrapper/InfoLabelRow';
 import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
 import { useButtonProps } from '../../../../compose/useButtonProps';
@@ -19,10 +18,10 @@ import { classifyRegex } from '../../../../lib/regexUtils';
 
 const TagExtractControl: FC = () => {
 	const { t } = useTranslation();
-	const { selectedTagIds } = useImportContext();
 
 	const tagMode = useAppSelector(selectTagMode);
 	const tagRegexes = useAppSelector(selectTagRegexes);
+	const selectedTagIds = useAppSelector(selectSelectedTagIds);
 
 	const buttonProps = useButtonProps({});
 

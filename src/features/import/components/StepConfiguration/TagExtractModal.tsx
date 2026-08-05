@@ -20,8 +20,8 @@ import LoadingIndicator from '../../../../components/generic/primitives/LoadingI
 import TagBadge from '../../../lines/components/TagBadge';
 import CreateTagModal from '../../../lines/components/CreateTagModal';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
-import { selectTagMode, selectTagRegexes } from '../../selectors';
-import { setTagMode, addTagRegex, removeTagRegex, setTagRegexes } from '../../slice';
+import { selectTagMode, selectTagRegexes, selectSelectedTagIds } from '../../selectors';
+import { setTagMode, addTagRegex, removeTagRegex, setTagRegexes, setSelectedTagIds } from '../../slice';
 import { TagMode } from '../../types';
 import { useImportContext } from '../../ImportContext';
 import { classifyRegex, getRegexWarnings } from '../../../../lib/regexUtils';
@@ -40,11 +40,11 @@ const TagExtractModal: FC<{ visible: boolean; onDismiss: () => void }> = ({
 	const dispatch = useAppDispatch();
 	const theme = useTheme();
 	const queryClient = useQueryClient();
-	const { importMode, filename, dirFiles, selectedTagIds, setSelectedTagIds } =
-		useImportContext();
+	const { importMode, filename, dirFiles } = useImportContext();
 
 	const tagMode = useAppSelector(selectTagMode);
 	const tagRegexes = useAppSelector(selectTagRegexes);
+	const selectedTagIds = useAppSelector(selectSelectedTagIds);
 
 	const buttonProps = useButtonProps({ style: styles.createTagBtn });
 
@@ -95,10 +95,14 @@ const TagExtractModal: FC<{ visible: boolean; onDismiss: () => void }> = ({
 
 	const handleToggleTag = useCallback(
 		(tagId: number) =>
-			setSelectedTagIds((prev) =>
-				prev.includes(tagId) ? prev.filter((id) => id !== tagId) : [...prev, tagId]
+			dispatch(
+				setSelectedTagIds(
+					selectedTagIds.includes(tagId)
+						? selectedTagIds.filter((id) => id !== tagId)
+						: [...selectedTagIds, tagId]
+				)
 			),
-		[setSelectedTagIds]
+		[dispatch, selectedTagIds]
 	);
 
 	const handleTagCreated = useCallback(
@@ -106,13 +110,9 @@ const TagExtractModal: FC<{ visible: boolean; onDismiss: () => void }> = ({
 			await queryClient.invalidateQueries({ queryKey: ['tags'] });
 			invalidateTagsTable(queryClient);
 			await refreshAvailableTags();
-			setSelectedTagIds((prev) => [...prev, tag.id]);
+			dispatch(setSelectedTagIds([...selectedTagIds, tag.id]));
 		},
-		[
-			queryClient,
-			refreshAvailableTags,
-			setSelectedTagIds,
-		]
+		[dispatch, queryClient, refreshAvailableTags, selectedTagIds]
 	);
 
 	// -- regex state --

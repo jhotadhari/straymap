@@ -66,9 +66,6 @@ const ImportPage = () => {
 	const [bulkProgress, setBulkProgress] = useState({ current: 0, total: 0 });
 	const [importResults, setImportResults] = useState<ImportFileResult[]>([]);
 
-	// Import config (persisted in Redux slice)
-	const [selectedTagIds, setSelectedTagIds] = useState<number[]>([]);
-
 	// Storage directory scanning
 	const [storagePath, setStoragePath] = useState<AbsPath | ''>('');
 	const dirsExtensions = useMemo(() => [...IMPORT_EXTENSIONS] as string[], []);
@@ -294,8 +291,6 @@ const ImportPage = () => {
 			setBulkProgress,
 			importResults,
 			setImportResults,
-			selectedTagIds,
-			setSelectedTagIds,
 			selectionCount,
 			importDirs,
 			handlePickFile,
@@ -322,7 +317,6 @@ const ImportPage = () => {
 			selectedFileUris,
 			bulkProgress,
 			importResults,
-			selectedTagIds,
 			selectionCount,
 			importDirs,
 			handlePickFile,

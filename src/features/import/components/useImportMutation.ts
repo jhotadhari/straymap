@@ -39,6 +39,7 @@ import {
 	selectAutoCustomDate,
 	selectDatePatterns,
 	selectKeepAppActive,
+	selectSelectedTagIds,
 } from '../selectors';
 import { extractDateFromFilename } from '../utils';
 
@@ -55,7 +56,6 @@ const useImportMutation = () => {
 		setStep,
 		setBulkProgress,
 		setImportResults,
-		selectedTagIds,
 	} = useImportContext();
 
 	const fileLimit = useAppSelector(selectFileLimit);
@@ -63,6 +63,7 @@ const useImportMutation = () => {
 	const titleRegex = useAppSelector(selectTitleRegex);
 	const tagMode = useAppSelector(selectTagMode);
 	const tagRegexes = useAppSelector(selectTagRegexes);
+	const selectedTagIds = useAppSelector(selectSelectedTagIds);
 	const dryRun = useAppSelector(selectDryRun);
 	const mergeMode = useAppSelector(selectMergeMode);
 	const overwriteMode = useAppSelector(selectOverwriteMode);

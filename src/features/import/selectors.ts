@@ -15,3 +15,4 @@ export const selectTitleMode = (state: RootState) => state.import.titleMode;
 export const selectTitleRegex = (state: RootState) => state.import.titleRegex;
 export const selectTagMode = (state: RootState) => state.import.tagMode;
 export const selectTagRegexes = (state: RootState) => state.import.tagRegexes;
+export const selectSelectedTagIds = (state: RootState) => state.import.selectedTagIds;

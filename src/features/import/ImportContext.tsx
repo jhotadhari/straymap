@@ -41,8 +41,6 @@ export interface ImportContextValue {
 	setBulkProgress: Dispatch<SetStateAction<{ current: number; total: number }>>;
 	importResults: ImportFileResult[];
 	setImportResults: Dispatch<SetStateAction<ImportFileResult[]>>;
-	selectedTagIds: number[];
-	setSelectedTagIds: Dispatch<SetStateAction<number[]>>;
 	selectionCount: number;
 	importDirs: AbsPath[];
 	handlePickFile: () => Promise<void>;
