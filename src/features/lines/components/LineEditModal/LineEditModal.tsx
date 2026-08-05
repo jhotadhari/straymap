@@ -28,6 +28,7 @@ import RowDelete from './RowDelete';
 import RowName from './RowName';
 import RowRouting from './RowRouting';
 import RowExport from './RowExport';
+import RowImportInfo from './RowImportInfo';
 import RowStats from './RowStats';
 import RowFlyTo from './RowFlyTo';
 import RowToggleOnMap from './RowToggleOnMap';
@@ -147,6 +148,8 @@ const LineEditModal: FC<{
 				<RowApplyDem />
 
 				<RowExport />
+
+				<RowImportInfo />
 
 				<RowDelete />
 			</LineEditModalContext.Provider>

@@ -16,7 +16,8 @@
 		"label": "Label",
 		"line_count": "Routes",
 		"color": "Color",
-		"notes": "Notes"
+		"notes": "Notes",
+		"import_source_path": "Import path"
 	},
 	"columnMenu": {
 		"hideColumn": "Hide column",
@@ -139,5 +140,7 @@
 		"any": "This line can't be modified because it is currently in use.",
 		"routing": "This line can't be modified because it is currently used for routing.",
 		"trackRecording": "This line can't be modified because it is currently used for track recording."
-	}
+	},
+	"rowImportSource": "Import source",
+	"rowImportSourceHint": "The file this route was imported from, along with its track position within the file."
 }

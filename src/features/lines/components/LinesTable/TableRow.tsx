@@ -237,6 +237,24 @@ const TableRow: FC<TableRowProps> = memo(({
 								</View>
 							);
 						default: {
+							if (column.key === 'import_source_path') {
+								const importData = (line.data as any)?.import as
+									| { sourceFilePath?: string; trackIndexInFile?: number | null }
+									| undefined;
+								const label = importData?.sourceFilePath
+									? `${importData.sourceFilePath}${importData.trackIndexInFile != null ? ` [${importData.trackIndexInFile + 1}]` : ''}`
+									: undefined;
+								return (
+									<View
+										key={column.key}
+										style={columnStyle}
+									>
+										<Text numberOfLines={1} ellipsizeMode="head">
+											{label}
+										</Text>
+									</View>
+								);
+							}
 							const dateKeys = ['created_at', 'modified_at', 'custom_date'];
 							const raw = get(line, column.key);
 							const display =

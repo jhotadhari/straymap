@@ -12,6 +12,7 @@ export const lineCells: { [key: string]: CellConfig } = {
 	modified_at: { style: { width: 170 } },
 	custom_date: { style: { width: 170 } },
 	title: { style: { width: 200 } },
+	import_source_path: { style: { width: 210 } },
 };
 
 export const statsCells: { [key: string]: CellConfig } = {
@@ -51,13 +52,8 @@ export const getFilterColumnType = (key: string): FilterColumnType | undefined =
 		if (key === 'title') {
 			return 'string';
 		}
-	}
-	if (key in statsCells) {
-		return 'numeric';
-	}
-	if (key in otherCells) {
-		if (key === 'tags') {
-			return 'tags';
+		if (key === 'import_source_path') {
+			return 'string';
 		}
 	}
 	return undefined;

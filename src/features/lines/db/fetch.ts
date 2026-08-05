@@ -231,6 +231,7 @@ const fetchLinesWithoutTags = (params?: FetchLinesWithoutTagsParams) => {
 		'modified_at',
 		'custom_date',
 		'stats',
+		'data',
 	];
 	if (fieldsInclude) {
 		fields = intersection(fields, fieldsInclude);
@@ -318,6 +319,7 @@ const fetchLinesWithTags = (params?: FetchLinesWithTagsParams) => {
 		'custom_date',
 		'tags',
 		'stats',
+		'data',
 	];
 	if (fieldsInclude) {
 		fields = intersection(fields, fieldsInclude);

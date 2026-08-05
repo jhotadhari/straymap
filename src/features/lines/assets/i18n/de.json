@@ -16,7 +16,8 @@
 		"label": "Bezeichnung",
 		"line_count": "Routen",
 		"color": "Farbe",
-		"notes": "Notizen"
+		"notes": "Notizen",
+		"import_source_path": "Importpfad"
 	},
 	"columnMenu": {
 		"hideColumn": "Spalte ausblenden",
@@ -139,5 +140,7 @@
 		"any": "Diese Route kann nicht geändert werden, weil sie gerade verwendet wird.",
 		"routing": "Diese Route kann nicht geändert werden, weil sie aktuell für die Navigation verwendet wird.",
 		"trackRecording": "Diese Route kann nicht geändert werden, weil sie aktuell für die Streckenaufzeichnung verwendet wird."
-	}
+	},
+	"rowImportSource": "Importquelle",
+	"rowImportSourceHint": "Die Datei, aus der diese Route importiert wurde, zusammen mit ihrer Position innerhalb der Datei."
 }

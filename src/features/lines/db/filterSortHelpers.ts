@@ -80,6 +80,17 @@ export const buildLinesWhereClause = (
 				case 'date':
 					return buildDateWhere(filter);
 				case 'string':
+					if (filter.columnKey === 'import_source_path') {
+						if (!filter.value) return undefined;
+						if (filter.operator === 'regex') {
+							return sql`json_extract(${linesTable.data}, '$.import.sourceFilePath') REGEXP ${filter.value}`;
+						}
+						const pattern = STRING_OPERATOR_PATTERNS[filter.operator](filter.value.toLowerCase());
+						return like(
+							sql`LOWER(json_extract(${linesTable.data}, '$.import.sourceFilePath'))`,
+							pattern
+						);
+					}
 					return buildStringWhere(filter, soleExcludesCols.has(filter.columnKey));
 				case 'tags':
 					return buildTagsWhere(filter);
@@ -251,6 +262,8 @@ export const buildLinesOrderByClause = (
 		expr = linesTable.custom_date;
 	} else if (sort.columnKey === 'title') {
 		expr = linesTable.title;
+	} else if (sort.columnKey === 'import_source_path') {
+		expr = sql<string>`json_extract(${linesTable.data}, '$.import.sourceFilePath')`;
 	} else {
 		return undefined;
 	}
