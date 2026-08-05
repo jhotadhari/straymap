@@ -100,6 +100,7 @@ export const updateLine = withDbErrorHandling(
 			lineStringFeature: Feature<LineString, GeoJsonProperties>;
 			tagIds?: number[];
 			custom_date?: string | null;
+			data?: any;
 		}>,
 		options?: {
 			truncateGeometry?: boolean;
@@ -174,6 +175,7 @@ export const updateLine = withDbErrorHandling(
 				...(undefined !== newLine?.custom_date && {
 					custom_date: newLine.custom_date,
 				}),
+				...(undefined !== newLine?.data && { data: newLine.data }),
 			};
 
 			if (Object.keys(newData).length) {

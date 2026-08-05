@@ -4,6 +4,7 @@
 import { FC, memo, useCallback, useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { Switch } from 'react-native-paper';
 /**
  * Internal dependencies
  */
@@ -14,7 +15,6 @@ import { selectDryRun, selectTitleMode, selectTitleRegex } from '../../selectors
 import { useImportContext } from '../ImportContext';
 import InfoLabelRow from '../../../../components/generic/infoWrapper/InfoLabelRow';
 import { setDryRun } from '../../slice';
-import { Switch } from 'react-native-paper';
 import { getRegexWarnings } from '../../../../lib/regexUtils';
 
 const ImportButton: FC = () => {

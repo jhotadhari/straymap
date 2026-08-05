@@ -112,7 +112,6 @@ const FeatureFileList: FC = () => {
 				const feature = item as (typeof features)[number];
 				return (
 					<ListItem
-						key={index}
 						title={feature.properties?.name ?? sprintf(t('import.trackN'), index + 1)}
 						icon={(props) => (
 							<Checkbox
@@ -129,7 +128,6 @@ const FeatureFileList: FC = () => {
 			return (
 				<ListItem
 					style={localStyles.featureListItem}
-					key={file.uri}
 					title={file.name}
 					icon={(props) => (
 						<Checkbox
@@ -194,7 +192,7 @@ const FeatureFileList: FC = () => {
 						</View>
 					</View>
 
-					{listHeight > 0 && (
+					{listHeight > 0 && headerHeight > 0 && (
 						<FlashList
 							style={flashListStyle}
 							data={listData}

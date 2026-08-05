@@ -21,7 +21,7 @@ import { dbConnection } from '../../dbLoader/DBConnection';
 import { linesTable } from '../../lines/db/schema/schema';
 import { sql } from 'drizzle-orm';
 import { ensureTagByLabel } from '../../lines/db/actionsTag';
-import { invalidateTagsTable, invalidateLinesQueries } from '../../lines/db/queryFns';
+import { invalidateTagsTable, invalidateLinesQueries, invalidateLineGeomQueries } from '../../lines/db/queryFns';
 import { isValidGeometry, ImportFileResult } from './types';
 import { useImportContext } from './ImportContext';
 import { useAppSelector } from '../../../store/hooks';
@@ -130,10 +130,11 @@ const useImportMutation = () => {
 				for (const tid of selectedTagIds) tagIds.push(tid);
 			} else if (tagMode === 'regex' && tagRegexes.length > 0) {
 				for (const r of tagRegexes) {
-					if (!r || !classifyRegex(r).valid) continue;
+					if (!r || !classifyRegex(r, { checkCaptureGroup: true }).valid) continue;
 					const re = new RegExp(r, 'g');
 					let match;
 					while ((match = re.exec(name)) !== null) {
+						if (match[0] === '') { re.lastIndex++; continue; }
 						const label = match[1] ?? match[0];
 						const id = await ensureTagByLabel(label);
 						if (id) tagIds.push(id);
@@ -160,7 +161,8 @@ const useImportMutation = () => {
 				const index = r.data?.import?.trackIndexInFile;
 				return { id: r.id, trackIndex: typeof index === 'number' ? index : null };
 			});
-		} catch {
+		} catch (err) {
+			logError('import.queryExistingBySourcePath', err);
 			return [];
 		}
 	};
@@ -238,12 +240,24 @@ const useImportMutation = () => {
 											existingIdxMap.set(row.trackIndex, row.id);
 										}
 									}
-									staleIdsToDelete = [...existingIdxMap.values()];
+									staleIdsToDelete = existing.map((r) => r.id);
 								}
 							}
 						}
 
 						if (dryRun) {
+							if (overwriteMode === 'skip') {
+								const existing = await queryExistingBySourcePath(uri);
+								if (existing.length > 0) {
+									results.push({
+										name,
+										success: true,
+										skipped: existing.length,
+										skippedGeom: skippedGeom > 0 ? skippedGeom : undefined,
+									});
+									continue;
+								}
+							}
 							results.push({
 								name,
 								success: true,
@@ -269,7 +283,7 @@ const useImportMutation = () => {
 								};
 								created = await createLines([
 									{
-										title: deriveTitle(name, undefined),
+										title: deriveTitle(name, validFeatures[0]?.properties?.name),
 										lineStringFeature: merged,
 										tagIds: tagIds.length ? tagIds : undefined,
 										data: buildImportData(uri, name, null),
@@ -290,7 +304,8 @@ const useImportMutation = () => {
 											title: deriveTitle(name, f.properties?.name),
 											lineStringFeature: f,
 											tagIds: tagIds.length ? tagIds : undefined,
-											custom_date: customDateDir,
+											custom_date: customDateDir ?? undefined,
+											data: buildImportData(uri, name, idx),
 										});
 										overwritten++;
 									} else {
@@ -397,14 +412,32 @@ const useImportMutation = () => {
 			}
 
 			if (dryRun) {
-				setImportResults([
+				if (overwriteMode === 'skip') {
+					const existing = await queryExistingBySourcePath(sourceFilePath);
+					if (existing.length > 0) {
+						const result = [
+							{
+								name: filename,
+								success: true,
+								skipped: existing.length,
+								skippedGeom: skippedCount > 0 ? skippedCount : undefined,
+							},
+						];
+						importResultsRef.current = result;
+						setImportResults(result);
+						return;
+					}
+				}
+				const result = [
 					{
 						name: filename,
 						success: true,
-						importedCount: toImport.length,
+						importedCount: mergeMode ? Math.min(toImport.length, 1) : toImport.length,
 						skippedGeom: skippedCount > 0 ? skippedCount : undefined,
 					},
-				]);
+				];
+				importResultsRef.current = result;
+				setImportResults(result);
 				return;
 			}
 
@@ -422,7 +455,7 @@ const useImportMutation = () => {
 				};
 				await createLines([
 					{
-						title: deriveTitle(filename, undefined),
+						title: deriveTitle(filename, toImport[0]?.properties?.name),
 						lineStringFeature: merged,
 						tagIds: tagIds.length ? tagIds : undefined,
 						data: buildImportData(sourceFilePath, filename, null),
@@ -443,7 +476,8 @@ const useImportMutation = () => {
 							title: deriveTitle(filename, feature.properties?.name),
 							lineStringFeature: feature,
 							tagIds: tagIds.length ? tagIds : undefined,
-							custom_date: customDateSingle,
+							custom_date: customDateSingle ?? undefined,
+							data: buildImportData(sourceFilePath, filename, idx),
 						});
 						overwrittenSingle++;
 					} else {
@@ -475,7 +509,7 @@ const useImportMutation = () => {
 				await createLines(newLines);
 			}
 
-			setImportResults([
+			const result = [
 				{
 					name: filename,
 					success: true,
@@ -483,11 +517,14 @@ const useImportMutation = () => {
 					overwritten: overwrittenSingle > 0 ? overwrittenSingle : undefined,
 					skippedGeom: skippedCount > 0 ? skippedCount : undefined,
 				},
-			]);
+			];
+			importResultsRef.current = result;
+			setImportResults(result);
 		},
 		onSuccess: (_data, _vars) => {
 			if (keepAppActive) bgTask.stop();
 			invalidateLinesQueries(queryClient);
+			invalidateLineGeomQueries(queryClient);
 			invalidateTagsTable(queryClient);
 
 			setStep('result');

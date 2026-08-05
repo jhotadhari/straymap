@@ -118,6 +118,8 @@ const TagExtractModal: FC<{ visible: boolean; onDismiss: () => void }> = ({
 	// -- regex state --
 	const [localRegexes, setLocalRegexes] = useState<string[]>(tagRegexes);
 	const debounceRef = useRef<Record<number, ReturnType<typeof setTimeout>>>({});
+	const tagRegexesRef = useRef(tagRegexes);
+	tagRegexesRef.current = tagRegexes;
 
 	useEffect(() => {
 		setLocalRegexes(tagRegexes);
@@ -132,12 +134,12 @@ const TagExtractModal: FC<{ visible: boolean; onDismiss: () => void }> = ({
 			});
 			if (debounceRef.current[idx]) clearTimeout(debounceRef.current[idx]);
 			debounceRef.current[idx] = setTimeout(() => {
-				const updated = [...tagRegexes];
+				const updated = [...tagRegexesRef.current];
 				updated[idx] = value;
 				dispatch(setTagRegexes(updated));
 			}, 300);
 		},
-		[tagRegexes, dispatch]
+		[dispatch]
 	);
 
 	const handleAddRegex = useCallback(() => {
@@ -292,7 +294,7 @@ const TagExtractModal: FC<{ visible: boolean; onDismiss: () => void }> = ({
 							const preview = getRegexPreview(pattern);
 							const warning = getRegexWarning(pattern);
 							return (
-								<View key={idx}>
+								<View key={`${idx}-${pattern}`}>
 									<View style={sharedStyles.flexRowCenter}>
 										<TextInput
 											underlineColor="transparent"

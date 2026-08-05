@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { FC, memo, useMemo } from 'react';
+import { FC, memo, useCallback, useMemo } from 'react';
 import { ScrollView, View } from 'react-native';
 import { Text, useTheme, Icon, List } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -13,22 +13,86 @@ import { sprintf } from 'sprintf-js';
 import ButtonHighlight from '../../../components/generic/primitives/ButtonHighlight';
 import { useButtonProps } from '../../../compose/useButtonProps';
 import { localStyles } from './styles';
+import { ImportFileResult } from './types';
 import { useImportContext } from './ImportContext';
 
-const StepResult: FC = () => {
+const ResultItem: FC<{ result: ImportFileResult }> = memo(({ result }) => {
 	const theme = useTheme();
 	const { t } = useTranslation();
-	const { importResults, handleResultDone } = useImportContext();
-	const buttonPropsAny = useButtonProps({});
 
-	const resultErrorStyle = useMemo(
+	const errorStyle = useMemo(
 		() => ({ color: theme.colors.error }),
 		[theme]
 	);
-	const resultTertiaryStyle = useMemo(
+	const tertiaryStyle = useMemo(
 		() => ({ color: theme.colors.tertiary }),
 		[theme]
 	);
+
+	const left = useCallback(
+		(props: any) => (
+			<Icon
+				{...props}
+				size={20}
+				source={result.success ? 'check-circle' : 'alert-circle'}
+				color={result.success ? theme.colors.primary : theme.colors.error}
+			/>
+		),
+		[result.success, theme.colors.primary, theme.colors.error]
+	);
+
+	const description = useCallback(() => (
+		<>
+			{result.success ? (
+				<Text style={localStyles.resultDetail}>
+					{sprintf(t('import.resultSuccess'), result.importedCount ?? 0)}
+				</Text>
+			) : (
+				<Text style={[localStyles.resultDetail, errorStyle]}>
+					{sprintf(t('import.resultFailed'), result.error ?? '')}
+				</Text>
+			)}
+			{result.skippedGeom && result.skippedGeom > 0 && (
+				<Text style={[localStyles.resultDetail, tertiaryStyle]}>
+					{sprintf(t('import.resultSkippedGeom'), result.skippedGeom)}
+				</Text>
+			)}
+			{result.overwritten && result.overwritten > 0 && (
+				<Text style={[localStyles.resultDetail, tertiaryStyle]}>
+					{sprintf(t('import.resultOverwritten'), result.overwritten)}
+				</Text>
+			)}
+			{result.skipped && result.skipped > 0 && (
+				<Text style={[localStyles.resultDetail, tertiaryStyle]}>
+					{sprintf(t('import.resultSkippedExisting'), result.skipped)}
+				</Text>
+			)}
+		</>
+	), [
+		result.success,
+		result.importedCount,
+		result.error,
+		result.skippedGeom,
+		result.overwritten,
+		result.skipped,
+		errorStyle,
+		tertiaryStyle,
+		t,
+	]);
+
+	return (
+		<List.Item
+			title={result.name}
+			left={left}
+			description={description}
+		/>
+	);
+});
+
+const StepResult: FC = () => {
+	const { t } = useTranslation();
+	const { importResults, handleResultDone } = useImportContext();
+	const buttonPropsAny = useButtonProps({});
 
 	return (
 		<ScrollView>
@@ -41,69 +105,7 @@ const StepResult: FC = () => {
 			</Text>
 
 			{importResults.map((result, idx) => (
-				<List.Item
-					key={idx}
-					title={result.name}
-					left={(props) => (
-						<Icon
-							{...props}
-							size={20}
-							source={result.success ? 'check-circle' : 'alert-circle'}
-							color={
-								result.success ? theme.colors.primary : theme.colors.error
-							}
-						/>
-					)}
-					description={() => (
-						<>
-							{result.success ? (
-								<Text style={localStyles.resultDetail}>
-									{sprintf(
-										t('import.resultSuccess'),
-										result.importedCount ?? 0
-									)}
-								</Text>
-							) : (
-								<Text style={[localStyles.resultDetail, resultErrorStyle]}>
-									{sprintf(
-										t('import.resultFailed'),
-										result.error ?? ''
-									)}
-								</Text>
-							)}
-							{result.skippedGeom && result.skippedGeom > 0 && (
-								<Text
-									style={[localStyles.resultDetail, resultTertiaryStyle]}
-								>
-									{sprintf(
-										t('import.resultSkippedGeom'),
-										result.skippedGeom
-									)}
-								</Text>
-							)}
-							{result.overwritten && result.overwritten > 0 && (
-								<Text
-									style={[localStyles.resultDetail, resultTertiaryStyle]}
-								>
-									{sprintf(
-										t('import.resultOverwritten'),
-										result.overwritten
-									)}
-								</Text>
-							)}
-							{result.skipped && result.skipped > 0 && (
-								<Text
-									style={[localStyles.resultDetail, resultTertiaryStyle]}
-								>
-									{sprintf(
-										t('import.resultSkippedExisting'),
-										result.skipped
-									)}
-								</Text>
-							)}
-						</>
-					)}
-				/>
+				<ResultItem key={idx} result={result} />
 			))}
 
 			<View style={localStyles.importControls}>
