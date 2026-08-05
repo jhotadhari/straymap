@@ -216,7 +216,6 @@ Regex validation strings live in the global `regex` namespace (`src/assets/i18n/
 
 1. **Tag regex without capture group**: the regex is silently skipped (`classifyRegex` with `checkCaptureGroup: true`). The user sees a warning in the UI but if they bypass it, no tags are extracted from that pattern.
 2. **`ensureTagByLabel` edge case**: if drizzle's `INSERT` succeeds but `returning()` returns 0 rows, the tag exists but isn't linked to the imported line. Extremely rare.
-3. **`nameProperty` in merge mode**: uses the first track's name property. If that track has no name, the merged route gets an empty title.
+3. **`nameProperty` in merge mode**: if the first track has no name, falls through to subsequent tracks until one with a `properties.name` is found. If no track has a name, the merged route gets an empty title.
 4. **`custom_date`**: when `autoCustomDate` is enabled but extraction returns `null`, `createLines` falls through to SQL default (`current_timestamp`) while `updateLine` uses `?? undefined` to achieve the same default behavior. Symmetrical by design.
-5. **Imported line IDs change on overwrite**: in-place updates preserve `created_at` but line IDs can shift if the feature set changes (more/fewer tracks). React Query cache is invalidated on success.
-6. **Redux `lines.selected` not cleaned up after overwrite**: when the import deletes stale existing lines, their IDs remain in Redux's `selected` array. The `onSuccess` handler calls `invalidateLineGeomQueries` so map rendering is safe, but the DrawerTopBar count may be stale until the next query refresh.
+5. **Stale lines deleted on overwrite**: when a re-imported file has fewer tracks than before, the excess existing lines are hard-deleted. Their IDs are removed from the database. Lines that match by `trackIndexInFile` are updated in-place via `updateLine` and keep their IDs. New tracks get fresh autoincrement IDs.

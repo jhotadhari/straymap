@@ -121,8 +121,13 @@ const TagExtractModal: FC<{ visible: boolean; onDismiss: () => void }> = ({
 	const tagRegexesRef = useRef(tagRegexes);
 	tagRegexesRef.current = tagRegexes;
 
+	const tagRegexesLenRef = useRef(tagRegexes.length);
+
 	useEffect(() => {
-		setLocalRegexes(tagRegexes);
+		if (tagRegexes.length !== tagRegexesLenRef.current) {
+			tagRegexesLenRef.current = tagRegexes.length;
+			setLocalRegexes(tagRegexes);
+		}
 	}, [tagRegexes]);
 
 	useEffect(() => {
@@ -209,10 +214,10 @@ const TagExtractModal: FC<{ visible: boolean; onDismiss: () => void }> = ({
 				}
 				return labels.length ? labels.join(', ') : null;
 			} catch {
-				return t('regex.invalid');
+				return null;
 			}
 		},
-		[sampleName, t]
+		[sampleName]
 	);
 
 	const handleDismiss = useCallback(() => {
@@ -303,7 +308,7 @@ const TagExtractModal: FC<{ visible: boolean; onDismiss: () => void }> = ({
 							const preview = getRegexPreview(pattern);
 							const warning = getRegexWarning(pattern);
 							return (
-								<View key={`${idx}-${pattern}`}>
+								<View key={idx}>
 									<View style={sharedStyles.flexRowCenter}>
 										<TextInput
 											underlineColor="transparent"

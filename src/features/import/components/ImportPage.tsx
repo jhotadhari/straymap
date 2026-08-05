@@ -32,7 +32,7 @@ import StepIdle from './StepIdle';
 import StepConfiguration from './StepConfiguration';
 import StepResult from './StepResult';
 
-const MutationBootstrap = ({
+const MutationBootstrap = memo(({
 	mutationRef,
 }: {
 	mutationRef: MutableRefObject<UseMutationResult<void, Error, void, unknown> | null>;
@@ -40,7 +40,7 @@ const MutationBootstrap = ({
 	const mutation = useImportMutation();
 	mutationRef.current = mutation;
 	return null;
-};
+});
 
 const ImportPage = () => {
 	const appDirs = useAppSelector(selectAppDirs);
@@ -71,9 +71,14 @@ const ImportPage = () => {
 
 	// Storage directory scanning
 	const [storagePath, setStoragePath] = useState<AbsPath | ''>('');
+	const dirsExtensions = useMemo(() => [...IMPORT_EXTENSIONS] as string[], []);
+	const dirsNavDirs = useMemo(
+		() => storagePath ? [storagePath as AbsPath] : [],
+		[storagePath]
+	);
 	const { dirsInfo, isLoading: isScanningStorage } = useDirsInfo({
-		navDirs: storagePath ? [storagePath as AbsPath] : [],
-		extensions: [...IMPORT_EXTENSIONS] as string[],
+		navDirs: dirsNavDirs,
+		extensions: dirsExtensions,
 		recursive: true,
 	});
 

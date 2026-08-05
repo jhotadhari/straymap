@@ -167,3 +167,41 @@ See `scripts/AGENTS.md` for an overview. Key scripts:
 - `babel.config.js`: `react-native-reanimated/plugin` must remain the last plugin in the list.
 - `react-native.config.js` links custom font assets from `src/assets/fonts/`, `src/assets/icons/build/`, and the `font-gis` third-party font.
 - Prettier is configured with tabs (`tabWidth: 4`), single quotes, and SQL-aware plugins (`prettier-plugin-sql` targets `sqlite` dialect) — run `yarn format` rather than hand-formatting SQL/embedded query strings.
+
+### Import feature
+
+`src/features/import/` imports GPX, KML, and GeoJSON files into the local
+SQLite database. Full architecture in `src/features/import/AGENTS.md`.
+
+Step flow: `idle → scanning/parsing → configuration → importing → result`.
+
+### React Query `useMutation` pattern
+
+When mutation callbacks need fresh context/Redux values on every render
+but `useMutation` should see stable option references, use a ref updated
+each render with stable `useCallback` wrappers:
+
+```typescript
+const mutationFnRef = useRef<() => Promise<void>>(async () => {});
+mutationFnRef.current = async () => { /* fresh scope each render */ };
+const onSuccessRef = useRef<(...args: any) => void>(() => {});
+onSuccessRef.current = () => { /* fresh scope */ };
+
+const mutation = useMutation({
+    mutationFn: useCallback(async () => mutationFnRef.current(), []),
+    onSuccess:   useCallback((d) => onSuccessRef.current(d),     []),
+});
+```
+
+Inline callbacks in `useMutation` options can cause re-render loops if
+the host component re-renders frequently and React Query detects new
+function references on each render.
+
+### Performance conventions
+
+- **`useDirsInfo` array deps**: Pass `navDirs` and `extensions` via
+  `useMemo` to prevent the effect from re-firing with new array
+  references every render.
+- **`Dimensions.get('window')`**: Always wrap in
+  `useMemo(() => Dimensions.get('window'), [])` inside component bodies.
+  A bare call recomputes on every render.

@@ -23,6 +23,9 @@ import { sql } from 'drizzle-orm';
 import { ensureTagByLabel } from '../../lines/db/actionsTag';
 import { invalidateTagsTable, invalidateLinesQueries, invalidateLineGeomQueries } from '../../lines/db/queryFns';
 import { isValidGeometry, ImportFileResult } from './types';
+import { useAppDispatch } from '../../../store/hooks';
+import { selectSelected } from '../../lines/selectors';
+import { setLinesSelected } from '../../lines/slice';
 import { useImportContext } from './ImportContext';
 import { useAppSelector } from '../../../store/hooks';
 import {
@@ -76,6 +79,9 @@ const useImportMutation = () => {
 	const importResultsRef = useRef<ImportFileResult[]>([]);
 	const isImporting = useRef(false);
 	const importBatchId = useRef(Date.now().toString(36));
+	const dispatch = useAppDispatch();
+	const selectedLineIds = useAppSelector(selectSelected);
+	const deletedStaleIdsRef = useRef<number[]>([]);
 
 	const getOrCreateImportTag = useCallback(async (): Promise<number | undefined> => {
 		return ensureTagByLabel('imported');
@@ -129,6 +135,8 @@ const useImportMutation = () => {
 			if (tagMode === 'existing') {
 				for (const tid of selectedTagIds) tagIds.push(tid);
 			} else if (tagMode === 'regex' && tagRegexes.length > 0) {
+				// Skip logic mirrors TagExtractControl anchorLabel:
+				// empty and invalid regexes are excluded.
 				for (const r of tagRegexes) {
 					if (!r || !classifyRegex(r, { checkCaptureGroup: true }).valid) continue;
 					const re = new RegExp(r, 'g');
@@ -170,8 +178,13 @@ const useImportMutation = () => {
 		[]
 	);
 
-	const mutation = useMutation({
-		mutationFn: async () => {
+	const mutationFnRef = useRef<() => Promise<void>>(async () => {});
+	const onSuccessRef = useRef<(...args: any[]) => void>(() => {});
+	const onErrorRef = useRef<(err: Error) => void>(() => {});
+	const onSettledRef = useRef<() => void>(() => {});
+
+	mutationFnRef.current = async () => {
+			deletedStaleIdsRef.current = [];
 			if (isImporting.current) return;
 			isImporting.current = true;
 			importResultsRef.current = [];
@@ -235,6 +248,7 @@ const useImportMutation = () => {
 									continue;
 								}
 								if (mergeMode) {
+									deletedStaleIdsRef.current.push(...existing.map((r) => r.id));
 									await deleteLines(existing.map((r) => r.id));
 									overwritten = existing.length;
 								} else {
@@ -286,7 +300,7 @@ const useImportMutation = () => {
 								};
 								created = await createLines([
 									{
-										title: deriveTitle(name, validFeatures[0]?.properties?.name),
+										title: deriveTitle(name, validFeatures.find(f => f.properties?.name)?.properties?.name),
 										lineStringFeature: merged,
 										tagIds: tagIds.length ? tagIds : undefined,
 										data: buildImportData(uri, name, null),
@@ -323,6 +337,7 @@ const useImportMutation = () => {
 								}
 
 								if (staleIdsToDelete.length > 0) {
+									deletedStaleIdsRef.current.push(...staleIdsToDelete);
 									await deleteLines(staleIdsToDelete);
 								}
 
@@ -401,6 +416,7 @@ const useImportMutation = () => {
 						return;
 					}
 					if (mergeMode) {
+						deletedStaleIdsRef.current.push(...existing.map((r) => r.id));
 						await deleteLines(existing.map((r) => r.id));
 						overwrittenSingle = existing.length;
 					} else {
@@ -458,7 +474,7 @@ const useImportMutation = () => {
 				};
 				await createLines([
 					{
-						title: deriveTitle(filename, toImport[0]?.properties?.name),
+						title: deriveTitle(filename, toImport.find(f => f.properties?.name)?.properties?.name),
 						lineStringFeature: merged,
 						tagIds: tagIds.length ? tagIds : undefined,
 						data: buildImportData(sourceFilePath, filename, null),
@@ -495,6 +511,7 @@ const useImportMutation = () => {
 				}
 
 				if (staleIdsToDeleteSingle.length > 0) {
+					deletedStaleIdsRef.current.push(...staleIdsToDeleteSingle);
 					await deleteLines(staleIdsToDeleteSingle);
 				}
 
@@ -523,16 +540,25 @@ const useImportMutation = () => {
 			];
 			importResultsRef.current = result;
 			setImportResults(result);
-		},
-		onSuccess: (_data, _vars) => {
+	};
+	onSuccessRef.current = (_data, _vars) => {
 			if (keepAppActive) bgTask.stop();
 			invalidateLinesQueries(queryClient);
 			invalidateLineGeomQueries(queryClient);
 			invalidateTagsTable(queryClient);
 
+			const staleIds = deletedStaleIdsRef.current;
+			if (staleIds.length > 0 && selectedLineIds.length > 0) {
+				const staleSet = new Set(staleIds);
+				const cleaned = selectedLineIds.filter((id) => !staleSet.has(id));
+				if (cleaned.length !== selectedLineIds.length) {
+					dispatch(setLinesSelected(cleaned));
+				}
+			}
+
 			setStep('result');
-		},
-		onError: (err) => {
+	};
+	onErrorRef.current = (err) => {
 			if (keepAppActive) bgTask.stop();
 			if ((err as any)?.__aborted) {
 				setStep('configuration');
@@ -546,10 +572,24 @@ const useImportMutation = () => {
 			} else {
 				setStep('configuration');
 			}
-		},
-		onSettled: () => {
+	};
+	onSettledRef.current = () => {
 			isImporting.current = false;
-		},
+	};
+
+	const mutation = useMutation({
+		mutationFn: useCallback(async () => {
+			return mutationFnRef.current();
+		}, []),
+		onSuccess: useCallback((_data: void, _vars: void) => {
+			onSuccessRef.current(_data, _vars);
+		}, []),
+		onError: useCallback((err: Error) => {
+			onErrorRef.current(err);
+		}, []),
+		onSettled: useCallback(() => {
+			onSettledRef.current();
+		}, []),
 	});
 
 	return mutation;

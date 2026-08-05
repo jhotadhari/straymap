@@ -15,6 +15,7 @@ import InfoLabelRow from '../../../../components/generic/infoWrapper/InfoLabelRo
 import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
 import { useButtonProps } from '../../../../compose/useButtonProps';
 import TagExtractModal from './TagExtractModal';
+import { classifyRegex } from '../../../../lib/regexUtils';
 
 const TagExtractControl: FC = () => {
 	const { t } = useTranslation();
@@ -34,10 +35,28 @@ const TagExtractControl: FC = () => {
 			return sprintf(t('import.tagModeExistingLabel'), selectedTagIds.length);
 		}
 		if (tagMode === 'regex') {
-			return sprintf(t('import.tagModeRegexLabel'), tagRegexes.length);
+			return sprintf(
+				t('import.tagModeRegexLabel'),
+				// Skip logic mirrors useImportMutation buildDeriveTagIds:
+				// empty, invalid, missing capture group, and
+				// empty capture group regexes are excluded.
+				tagRegexes.filter((a) => {
+					if (!a.length) return false;
+					const cls = classifyRegex(a, {
+						checkCaptureGroup: true,
+						checkEmptyCaptureGroup: true,
+					});
+					return cls.valid && cls.hasCaptureGroup && !cls.hasEmptyGroup;
+				}).length
+			);
 		}
 		return t('import.tagModeNoneLabel');
-	}, [tagMode, selectedTagIds.length, tagRegexes.length, t]);
+	}, [
+		tagMode,
+		selectedTagIds.length,
+		tagRegexes,
+		t,
+	]);
 
 	const handleDismiss = useCallback(() => {
 		setModalVisible(false);
@@ -59,7 +78,10 @@ const TagExtractControl: FC = () => {
 				</ButtonHighlight>
 			</InfoLabelRow>
 
-			<TagExtractModal visible={modalVisible} onDismiss={handleDismiss} />
+			<TagExtractModal
+				visible={modalVisible}
+				onDismiss={handleDismiss}
+			/>
 		</>
 	);
 };
