@@ -94,8 +94,6 @@
 	"hintDelete": "Elimina permanentemente esta ruta de tu biblioteca y la quita del mapa. Esto no se puede deshacer.",
 	"hintTags": "Etiquetas asignadas a esta ruta. Agrega o quita etiquetas desde el editor de etiquetas. Las etiquetas del sistema (con ícono de candado) no se pueden quitar.",
 	"regexUnavailable": "REGEXP no está disponible. Los filtros de regex no funcionarán.",
-	"regexInvalid": "Patrón regex inválido",
-	"regexExpensive": "Este patrón puede causar bajo rendimiento",
 	"selectAll": "Seleccionar todo",
 	"selectNone": "No seleccionar nada",
 	"addTag": "Agregar etiqueta",

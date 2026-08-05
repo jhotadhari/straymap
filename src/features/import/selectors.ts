@@ -14,4 +14,4 @@ export const selectFileLimit = (state: RootState) => state.import.fileLimit;
 export const selectTitleMode = (state: RootState) => state.import.titleMode;
 export const selectTitleRegex = (state: RootState) => state.import.titleRegex;
 export const selectTagMode = (state: RootState) => state.import.tagMode;
-export const selectTagRegex = (state: RootState) => state.import.tagRegex;
+export const selectTagRegexes = (state: RootState) => state.import.tagRegexes;

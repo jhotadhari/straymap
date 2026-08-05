@@ -11,67 +11,17 @@ import Sortable, { DragStartParams, SortableFlexDragEndParams } from 'react-nati
 /**
  * Internal dependencies
  */
-import ModalWrapper from '../../../components/generic/wrapper/ModalWrapper';
-import ButtonHighlight from '../../../components/generic/primitives/ButtonHighlight';
-import IconButtonHighlight from '../../../components/generic/primitives/IconButtonHighlight';
-import { useButtonProps } from '../../../compose/useButtonProps';
-import { useAppDispatch, useAppSelector } from '../../../store/hooks';
-import useDropIndicatorStyle from '../../../compose/useDropIndicatorStyle';
-import { selectDatePatterns } from '../selectors';
-import { setDatePatterns, DatePattern, DATE_PATTERN_PRESETS } from '../slice';
-import AddEditPatternModal from './AddEditPatternModal';
-import { sharedStyles } from '../../../sharedStyles';
-import { MODAL_PADDING, MODAL_WIDTH_FACTOR } from '../../../constants';
-
-const styles = StyleSheet.create({
-	item: {
-		flexDirection: 'row',
-		alignItems: 'center',
-		justifyContent: 'space-between',
-		gap: 8,
-	},
-	handle: {
-		flexDirection: 'row',
-		flex: 1,
-		minWidth: 0,
-	},
-	handleText: {
-		flex: 1,
-		minWidth: 0,
-		gap: 2,
-		flexDirection: 'column',
-	},
-	label: {
-		fontSize: 14,
-	},
-	formatText: {
-		fontSize: 12,
-		opacity: 0.7,
-		fontFamily: 'monospace',
-	},
-	regexPreview: {
-		fontSize: 11,
-		opacity: 0.6,
-		fontFamily: 'monospace',
-	},
-	modalControls: {
-		flexDirection: 'row',
-		justifyContent: 'space-between',
-		alignItems: 'center',
-		marginBottom: 8,
-	},
-	controls: {
-		flexDirection: 'row',
-		alignItems: 'center',
-		gap: 4,
-	},
-	editActions: {
-		width: 76,
-		flexDirection: 'row',
-		alignItems: 'center',
-		gap: 4,
-	},
-});
+import ModalWrapper from '../../../../components/generic/wrapper/ModalWrapper';
+import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
+import IconButtonHighlight from '../../../../components/generic/primitives/IconButtonHighlight';
+import { useButtonProps } from '../../../../compose/useButtonProps';
+import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
+import useDropIndicatorStyle from '../../../../compose/useDropIndicatorStyle';
+import { selectDatePatterns } from '../../selectors';
+import { setDatePatterns, DatePattern, DATE_PATTERN_PRESETS } from '../../slice';
+import DatePatternAddPatternModal from './DatePatternAddPatternModal';
+import { sharedStyles } from '../../../../sharedStyles';
+import { MODAL_PADDING, MODAL_WIDTH_FACTOR } from '../../../../constants';
 
 const DraggableItem: FC<{
 	pattern: DatePattern;
@@ -306,7 +256,7 @@ const DatePatternEditorModal: FC<{
 				</View>
 			</ModalWrapper>
 
-			<AddEditPatternModal
+			<DatePatternAddPatternModal
 				visible={showAdd}
 				onDismiss={handleCloseAdd}
 				pattern={editingPattern}
@@ -315,5 +265,55 @@ const DatePatternEditorModal: FC<{
 		</>
 	);
 };
+
+const styles = StyleSheet.create({
+	item: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		justifyContent: 'space-between',
+		gap: 8,
+	},
+	handle: {
+		flexDirection: 'row',
+		flex: 1,
+		minWidth: 0,
+	},
+	handleText: {
+		flex: 1,
+		minWidth: 0,
+		gap: 2,
+		flexDirection: 'column',
+	},
+	label: {
+		fontSize: 14,
+	},
+	formatText: {
+		fontSize: 12,
+		opacity: 0.7,
+		fontFamily: 'monospace',
+	},
+	regexPreview: {
+		fontSize: 11,
+		opacity: 0.6,
+		fontFamily: 'monospace',
+	},
+	modalControls: {
+		flexDirection: 'row',
+		justifyContent: 'space-between',
+		alignItems: 'center',
+		marginBottom: 8,
+	},
+	controls: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		gap: 4,
+	},
+	editActions: {
+		width: 76,
+		flexDirection: 'row',
+		alignItems: 'center',
+		gap: 4,
+	},
+});
 
 export default memo(DatePatternEditorModal);

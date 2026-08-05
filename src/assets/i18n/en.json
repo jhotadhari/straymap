@@ -87,5 +87,12 @@
 			"digitalEleData": "Digital Elevation Data",
 			"digitalEleDataCoverage": "Easiest way to download elevation data in hgt format at 3 arc second resolution"
 		}
+	},
+	"regex": {
+		"invalid": "Invalid regex",
+		"noCaptureGroup": "This pattern has no capture group and will not extract any values.",
+		"emptyGroup": "Empty capture group",
+		"expensive": "This pattern may cause slow performance",
+		"empty": "Pattern cannot be empty"
 	}
 }

@@ -32,6 +32,8 @@ const RadioListItem = ({
 	status = 'unchecked',
 	radioAlign = 'right',
 	disabled = false,
+	translateLabel,
+	translateDesc,
 }: {
 	opt: OptionBase;
 	onPress: () => void;
@@ -43,6 +45,8 @@ const RadioListItem = ({
 	status?: 'unchecked' | 'checked';
 	radioAlign?: 'left' | 'right';
 	disabled?: boolean;
+	translateLabel?: boolean;
+	translateDesc?: boolean;
 }) => {
 	const { width } = Dimensions.get('window');
 	const { t } = useTranslation();
@@ -104,8 +108,8 @@ const RadioListItem = ({
 			<View style={styleRow}>
 				<View style={styleLabelWrap}>
 					{labelNode}
-					{label && <Text style={styleLabel}>{t(label)}</Text>}
-					{desc && <Text style={styleDesc}>{t(desc)}</Text>}
+					{label && <Text style={styleLabel}>{translateLabel ? t(label) : label}</Text>}
+					{desc && <Text style={styleDesc}>{translateDesc ? t(desc) : desc}</Text>}
 				</View>
 				<RadioButton
 					value={opt.key}

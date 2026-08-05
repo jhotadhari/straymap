@@ -250,6 +250,7 @@ const OptionSelectType: FC<{
 			onPress={onPress}
 			labelExtractor={(a) => '[' + a.key + ']'}
 			descExtractor={(a) => a.label}
+			translateDesc={true}
 		/>
 	);
 };

@@ -1,9 +1,10 @@
 import { StyleSheet } from 'react-native';
 
 export const localStyles = StyleSheet.create({
-	modalInner: {
+	container: {
 		gap: 16,
 		marginTop: 16,
+		marginHorizontal: 16,
 	},
 	idleContainer: {
 		gap: 32,
@@ -19,19 +20,15 @@ export const localStyles = StyleSheet.create({
 		gap: 12,
 		paddingVertical: 24,
 	},
-	filename: {
-		fontWeight: 'bold',
-		marginBottom: 4,
-	},
-	featureCount: {
-		opacity: 0.7,
-		marginBottom: 8,
-	},
 	selectRow: {
 		flexDirection: 'row',
-		gap: 8,
-		marginHorizontal: 16,
-		marginBottom: 4,
+		justifyContent: 'space-between',
+		marginVertical: 16,
+	},
+	featureListItem: {
+		padding: 0,	// overwrite ListItem innerStyle
+		marginLeft: 0, // // overwrite ListItem innerStyle
+		paddingVertical: 4,
 	},
 	tagSelectList: {
 		marginHorizontal: 16,
@@ -54,11 +51,9 @@ export const localStyles = StyleSheet.create({
 		maxWidth: 220,
 	},
 	configPreview: {
-		marginTop: 0,
-		marginBottom: 4,
-		marginHorizontal: 16,
+		marginTop: 2,
 	},
-	bottomSpacer: {
-		height: 32,
+	autoWidth: {
+		width: 'auto',
 	},
 });

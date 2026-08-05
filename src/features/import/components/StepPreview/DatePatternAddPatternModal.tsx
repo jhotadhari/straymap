@@ -3,20 +3,21 @@
  */
 import { FC, memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Text, useTheme, TextInput, Icon } from 'react-native-paper';
+import { Text, useTheme, TextInput } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 
 /**
  * Internal dependencies
  */
-import ModalWrapper from '../../../components/generic/wrapper/ModalWrapper';
-import ButtonHighlight from '../../../components/generic/primitives/ButtonHighlight';
-import HintLink from '../../../components/generic/primitives/HintLink';
-import InfoLabelRow from '../../../components/generic/infoWrapper/InfoLabelRow';
-import { useButtonProps } from '../../../compose/useButtonProps';
-import { classifyRegex } from '../../../lib/regexUtils';
-import { sharedStyles } from '../../../sharedStyles';
-import { DatePattern } from '../slice';
+import ModalWrapper from '../../../../components/generic/wrapper/ModalWrapper';
+import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
+import HintLink from '../../../../components/generic/primitives/HintLink';
+import InfoLabelRow from '../../../../components/generic/infoWrapper/InfoLabelRow';
+import { useButtonProps } from '../../../../compose/useButtonProps';
+import { getRegexWarnings } from '../../../../lib/regexUtils';
+import { sharedStyles } from '../../../../sharedStyles';
+import { DatePattern } from '../../slice';
+import { localStyles } from '../styles';
 
 const styles = StyleSheet.create({
 	addInfo: {
@@ -27,18 +28,9 @@ const styles = StyleSheet.create({
 	addInput: {
 		marginBottom: 8,
 	},
-	regexFeedback: {
-		flexDirection: 'row',
-		alignItems: 'center',
-		gap: 4,
-		marginBottom: 8,
-	},
-	regexFeedbackText: {
-		fontSize: 12,
-	},
 });
 
-const AddEditPatternModal: FC<{
+const DatePatternAddPatternModal: FC<{
 	visible: boolean;
 	onDismiss: () => void;
 	pattern?: DatePattern | null;
@@ -50,13 +42,21 @@ const AddEditPatternModal: FC<{
 	const [label, setLabel] = useState('');
 	const [regex, setRegex] = useState('');
 	const [format, setFormat] = useState('');
-	const [captureWarning, setCaptureWarning] = useState(false);
-	const [dangerousWarning, setDangerousWarning] = useState(false);
 
 	const isEditing = !!pattern;
 
+	const regexWarning = useMemo(() => {
+		if (!regex) return null;
+		return getRegexWarnings(regex, {
+			checkCaptureGroup: true,
+			checkEmptyCaptureGroup: true,
+		});
+	}, [regex]);
+
 	const buttonPropsCancel = useButtonProps({});
-	const buttonPropsAdd = useButtonProps({ disabled: !regex || !format });
+	const buttonPropsAdd = useButtonProps({
+		disabled: !regex || !format || !!regexWarning?.isError,
+	});
 
 	useEffect(() => {
 		if (visible) {
@@ -71,22 +71,6 @@ const AddEditPatternModal: FC<{
 			}
 		}
 	}, [visible, pattern]);
-
-	useEffect(() => {
-		if (regex) {
-			const result = classifyRegex(regex);
-			if (!result.valid) {
-				setCaptureWarning(false);
-				setDangerousWarning(false);
-			} else {
-				setCaptureWarning(!regex.includes('('));
-				setDangerousWarning(result.dangerous);
-			}
-		} else {
-			setCaptureWarning(false);
-			setDangerousWarning(false);
-		}
-	}, [regex]);
 
 	const handleSave = useCallback(() => {
 		if (!regex || !format) return;
@@ -109,7 +93,6 @@ const AddEditPatternModal: FC<{
 	]);
 
 	const handleDismiss = useCallback(() => {
-		setCaptureWarning(false);
 		onDismiss();
 	}, [onDismiss]);
 
@@ -158,6 +141,7 @@ const AddEditPatternModal: FC<{
 					Info={t('import.hint.datePatternLabel')}
 				>
 					<TextInput
+						underlineColor="transparent"
 						dense
 						style={styles.addInput}
 						placeholder="e.g. EU date"
@@ -171,55 +155,34 @@ const AddEditPatternModal: FC<{
 					Info={hintRegex}
 				>
 					<TextInput
+						underlineColor="transparent"
 						dense
+						error={!!regexWarning}
 						style={styles.addInput}
 						placeholder={'(\\d{2}\\.\\d{2}\\.\\d{4})'}
 						value={regex}
 						onChangeText={setRegex}
 					/>
+					{regexWarning && (
+						<Text
+							style={[
+								localStyles.configPreview,
+								{
+									color: theme.colors.error,
+								},
+							]}
+						>
+							{t(regexWarning.key)}
+						</Text>
+					)}
 				</InfoLabelRow>
-
-				{captureWarning && (
-					<View style={styles.regexFeedback}>
-						<Icon
-							source="alert"
-							size={14}
-							color={theme.colors.tertiary}
-						/>
-						<Text
-							style={[
-								styles.regexFeedbackText,
-								{ color: theme.colors.tertiary },
-							]}
-						>
-							{t('import.regexNoCaptureGroup')}
-						</Text>
-					</View>
-				)}
-
-				{dangerousWarning && (
-					<View style={styles.regexFeedback}>
-						<Icon
-							source="alert"
-							size={14}
-							color={theme.colors.tertiary}
-						/>
-						<Text
-							style={[
-								styles.regexFeedbackText,
-								{ color: theme.colors.tertiary },
-							]}
-						>
-							{t('import.regexExpensive')}
-						</Text>
-					</View>
-				)}
 
 				<InfoLabelRow
 					label={t('import.datePatternFormat')}
 					Info={hintFormat}
 				>
 					<TextInput
+						underlineColor="transparent"
 						dense
 						style={styles.addInput}
 						placeholder="DD.MM.YYYY"
@@ -246,4 +209,4 @@ const AddEditPatternModal: FC<{
 	);
 });
 
-export default AddEditPatternModal;
+export default DatePatternAddPatternModal;

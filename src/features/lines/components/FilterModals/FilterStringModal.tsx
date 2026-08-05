@@ -3,7 +3,7 @@
  */
 import { FC, Fragment, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Icon, Text, TextInput, useTheme } from 'react-native-paper';
+import { Text, TextInput, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 
 /**
@@ -18,7 +18,7 @@ import RadioListItem from '../../../../components/generic/wrapper/RadioListItem'
 import { sharedStyles as appSharedStyles } from '../../../../sharedStyles';
 import { sharedStyles } from './sharedDeps';
 import { StringColumnFilter, StringFilterOperator, getFilterKey } from '../../types';
-import { classifyRegex } from '../../../../lib/regexUtils';
+import { getRegexWarnings, RegexValidationMessage } from '../../../../lib/regexUtils';
 
 const extractLabel = (a: { label: string }) => a.label;
 
@@ -48,33 +48,17 @@ const FilterStringModal: FC<{
 	);
 	const [value, setValue] = useState<string>(existingFilter?.value ?? '');
 
-	const [regexError, setRegexError] = useState<string | null>(null);
-	const [regexWarning, setRegexWarning] = useState<string | null>(null);
+	const [regexValidation, setRegexValidation] = useState<RegexValidationMessage | null>(null);
 
 	const saveRef = useRef<undefined | (() => void)>(undefined);
 
-	const validateRegex = useCallback(
-		(text: string) => {
-			const result = classifyRegex(text);
-			if (!result.valid) {
-				setRegexError(t('lines.regexInvalid'));
-				setRegexWarning(null);
-				return;
-			}
-			setRegexError(null);
-			if (result.dangerous) {
-				setRegexWarning(t('lines.regexExpensive'));
-			} else {
-				setRegexWarning(null);
-			}
-		},
-		[t]
-	);
+	const validateRegex = useCallback((text: string) => {
+		setRegexValidation(getRegexWarnings(text));
+	}, []);
 
 	useEffect(() => {
 		if (operator !== 'regex') {
-			setRegexError(null);
-			setRegexWarning(null);
+			setRegexValidation(null);
 		}
 	}, [operator]);
 
@@ -82,7 +66,7 @@ const FilterStringModal: FC<{
 		saveRef.current = () => {
 			// Don't save an invalid regex — let the user fix it first.
 			if (operator === 'regex' && value) {
-				if (!classifyRegex(value).valid) return;
+				if (getRegexWarnings(value)) return;
 			}
 			// Save when value is non-empty, OR when an existing filter
 			// exists (clearing the value removes the filter for this
@@ -123,8 +107,7 @@ const FilterStringModal: FC<{
 			if (existingFilter?.operator === 'regex' && existingFilter?.value) {
 				validateRegex(existingFilter.value);
 			} else {
-				setRegexError(null);
-				setRegexWarning(null);
+				setRegexValidation(null);
 			}
 		}
 	}, [
@@ -149,8 +132,7 @@ const FilterStringModal: FC<{
 			if (operator === 'regex' && text) {
 				validateRegex(text);
 			} else {
-				setRegexError(null);
-				setRegexWarning(null);
+				setRegexValidation(null);
 			}
 		},
 		[operator, validateRegex]
@@ -175,7 +157,7 @@ const FilterStringModal: FC<{
 				{paragraphs.map((text, i) => (
 					<Fragment key={i}>
 						<Text>{text}</Text>
-						{ regexIdx === i && <HintLink url="https://regexr.com/" /> }
+						{regexIdx === i && <HintLink url="https://regexr.com/" />}
 					</Fragment>
 				))}
 			</View>
@@ -204,43 +186,25 @@ const FilterStringModal: FC<{
 				Info={hintStringFilterInfo}
 			>
 				<TextInput
-					underlineColor={regexError || regexWarning ? theme.colors.error : undefined}
+					underlineColor="transparent"
+					error={!!regexValidation}
 					value={value}
 					onChangeText={handleChangeText}
 					dense={true}
 					maxLength={300}
 					placeholder={operator === 'regex' ? '^Mount.*' : t('lines.filterValue')}
 				/>
-				{regexError && (
-					<View style={localStyles.regexFeedback}>
-						<Icon
-							source="alert-circle"
-							size={14}
-							color={theme.colors.error}
-						/>
-						<Text
-							style={[localStyles.regexFeedbackText, { color: theme.colors.error }]}
-						>
-							{regexError}
-						</Text>
-					</View>
-				)}
-				{!regexError && regexWarning && (
-					<View style={localStyles.regexFeedback}>
-						<Icon
-							source="alert"
-							size={14}
-							color={theme.colors.tertiary}
-						/>
-						<Text
-							style={[
-								localStyles.regexFeedbackText,
-								{ color: theme.colors.tertiary },
-							]}
-						>
-							{regexWarning}
-						</Text>
-					</View>
+				{regexValidation && (
+					<Text
+						style={[
+							localStyles.regexFeedbackText,
+							{
+								color: theme.colors.error,
+							},
+						]}
+					>
+						{t(regexValidation.key)}
+					</Text>
 				)}
 			</InfoLabelRow>
 
@@ -259,14 +223,8 @@ const FilterStringModal: FC<{
 };
 
 const localStyles = StyleSheet.create({
-	regexFeedback: {
-		flexDirection: 'row',
-		alignItems: 'center',
-		gap: 4,
-		marginTop: 4,
-	},
 	regexFeedbackText: {
-		fontSize: 12,
+		marginTop: 2,
 	},
 });
 

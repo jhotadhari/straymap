@@ -177,7 +177,7 @@ export interface ImportSettings {
 	titleMode: TitleMode;
 	titleRegex: string;
 	tagMode: TagMode;
-	tagRegex: string;
+	tagRegexes: string[];
 }
 
 export interface ImportState extends SliceSettingsBase, ImportSettings {}
@@ -193,7 +193,7 @@ export const initialSettings: ImportSettings = {
 	titleMode: 'none',
 	titleRegex: '',
 	tagMode: 'none',
-	tagRegex: '',
+	tagRegexes: [],
 };
 
 const initialState: ImportState = {
@@ -258,8 +258,14 @@ export const importSlice = createSlice({
 		setTagMode: (state, action: PayloadAction<TagMode>) => {
 			state.tagMode = action.payload;
 		},
-		setTagRegex: (state, action: PayloadAction<string>) => {
-			state.tagRegex = action.payload;
+		setTagRegexes: (state, action: PayloadAction<string[]>) => {
+			state.tagRegexes = action.payload;
+		},
+		addTagRegex: (state, action: PayloadAction<string>) => {
+			state.tagRegexes.push(action.payload);
+		},
+		removeTagRegex: (state, action: PayloadAction<number>) => {
+			state.tagRegexes.splice(action.payload, 1);
 		},
 	},
 });
@@ -280,7 +286,9 @@ export const {
 	setTitleMode,
 	setTitleRegex,
 	setTagMode,
-	setTagRegex,
+	setTagRegexes,
+	addTagRegex,
+	removeTagRegex,
 } = importSlice.actions;
 
 export default importSlice.reducer;

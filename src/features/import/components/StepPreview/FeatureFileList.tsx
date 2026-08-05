@@ -23,7 +23,6 @@ const FeatureFileList: FC = () => {
 	const {
 		importMode,
 		features,
-		filename,
 		selectedIndices,
 		dirFiles,
 		selectedFileUris,
@@ -33,6 +32,7 @@ const FeatureFileList: FC = () => {
 		handleToggleFile,
 		handleSelectAllFiles,
 		handleDeselectAllFiles,
+		selectionCount,
 	} = useImportContext();
 
 	const [modalVisible, setModalVisible] = useState(false);
@@ -65,20 +65,34 @@ const FeatureFileList: FC = () => {
 
 	const fileCount = useMemo(
 		() => (importMode === 'directory' ? dirFiles.length : features.length),
-		[importMode, dirFiles.length, features.length]
+		[
+			importMode,
+			dirFiles.length,
+			features.length,
+		]
 	);
 
 	const anchorLabel = useMemo(
 		() =>
 			importMode === 'file'
-				? `${filename}  —  ${sprintf(t('import.featureCount'), features.length)}`
-				: sprintf(t('import.dirFilesFound'), fileCount),
-		[importMode, filename, features.length, fileCount, t]
+				? sprintf(t('import.featureCount'), features.length, selectionCount)
+				: sprintf(t('import.dirFilesFound'), fileCount, selectionCount),
+		[
+			importMode,
+			features.length,
+			fileCount,
+			selectionCount,
+			t,
+		]
 	);
 
 	const listData = useMemo(
 		() => (importMode === 'file' ? features : dirFiles),
-		[importMode, features, dirFiles]
+		[
+			importMode,
+			features,
+			dirFiles,
+		]
 	);
 
 	const keyExtractor = useCallback(
@@ -94,10 +108,7 @@ const FeatureFileList: FC = () => {
 				return (
 					<ListItem
 						key={index}
-						title={
-							feature.properties?.name ??
-							sprintf(t('import.trackN'), index + 1)
-						}
+						title={feature.properties?.name ?? sprintf(t('import.trackN'), index + 1)}
 						icon={(props) => (
 							<Checkbox
 								{...props}
@@ -112,14 +123,13 @@ const FeatureFileList: FC = () => {
 			const file = item as (typeof dirFiles)[number];
 			return (
 				<ListItem
+					style={localStyles.featureListItem}
 					key={file.uri}
 					title={file.name}
 					icon={(props) => (
 						<Checkbox
 							{...props}
-							status={
-								selectedFileUris.has(file.uri) ? 'checked' : 'unchecked'
-							}
+							status={selectedFileUris.has(file.uri) ? 'checked' : 'unchecked'}
 							onPress={() => handleToggleFile(file.uri)}
 						/>
 					)}
@@ -139,7 +149,10 @@ const FeatureFileList: FC = () => {
 
 	return (
 		<>
-			<ButtonHighlight {...anchorButtonProps} onPress={handleOpenModal}>
+			<ButtonHighlight
+				{...anchorButtonProps}
+				onPress={handleOpenModal}
+			>
 				{anchorLabel}
 			</ButtonHighlight>
 

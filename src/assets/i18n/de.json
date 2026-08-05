@@ -87,5 +87,12 @@
 			"digitalEleData": "Digitale Höhendaten",
 			"digitalEleDataCoverage": "Einfachster Weg zum Download von Höhendaten im hgt-Format mit einer Auflösung von 3 Bogensekunden"
 		}
+	},
+	"regex": {
+		"invalid": "Ungültiger Regex",
+		"noCaptureGroup": "Dieses Muster hat keine Capture-Group und wird keine Werte extrahieren.",
+		"emptyGroup": "Leere Capture-Group",
+		"expensive": "Dieses Muster kann die Leistung beeinträchtigen",
+		"empty": "Muster darf nicht leer sein"
 	}
 }

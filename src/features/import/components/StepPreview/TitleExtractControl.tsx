@@ -3,7 +3,7 @@
  */
 import { FC, memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { View } from 'react-native';
-import { Text, TextInput, Icon } from 'react-native-paper';
+import { Text, TextInput, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 
 /**
@@ -14,7 +14,7 @@ import { selectTitleMode, selectTitleRegex } from '../../selectors';
 import { setTitleMode, setTitleRegex } from '../../slice';
 import { TitleMode } from '../types';
 import { useImportContext } from '../ImportContext';
-import { classifyRegex } from '../../../../lib/regexUtils';
+import { getRegexWarnings } from '../../../../lib/regexUtils';
 import InfoLabelRow from '../../../../components/generic/infoWrapper/InfoLabelRow';
 import ButtonHighlightMenuControl from '../../../../components/generic/wrapper/ButtonHighlightMenuControl';
 import HintLink from '../../../../components/generic/primitives/HintLink';
@@ -23,6 +23,7 @@ import { sharedStyles } from '../../../../sharedStyles';
 
 const TitleExtractControl: FC = () => {
 	const { t } = useTranslation();
+	const theme = useTheme();
 	const dispatch = useAppDispatch();
 	const { importMode, filename, dirFiles, features } = useImportContext();
 
@@ -60,15 +61,31 @@ const TitleExtractControl: FC = () => {
 			const extracted = match?.[1];
 			if (extracted) return extracted;
 		} catch {
-			return t('import.regexInvalid');
+			return null;
 		}
 		return null;
-	}, [debouncedTitleRegex, importMode, filename, dirFiles, t, titleMode]);
+	}, [
+		debouncedTitleRegex,
+		importMode,
+		filename,
+		dirFiles,
+		titleMode,
+	]);
 
 	const titleRegexWarning = useMemo(() => {
-		if (!titleRegex || titleMode !== 'regex') return false;
-		return classifyRegex(titleRegex).dangerous;
-	}, [titleRegex, titleMode]);
+		if (titleMode !== 'regex') return null;
+		const msg = getRegexWarnings(titleRegex, {
+			checkEmpty: true,
+			checkCaptureGroup: true,
+			checkEmptyCaptureGroup: true,
+		});
+		if (!msg) return null;
+		return { message: t(msg.key), isError: msg.isError };
+	}, [
+		titleRegex,
+		titleMode,
+		t,
+	]);
 
 	const titlePreview = useMemo(() => {
 		const sample = importMode === 'file' ? filename : (dirFiles[0]?.name ?? '');
@@ -90,7 +107,14 @@ const TitleExtractControl: FC = () => {
 			case 'regex':
 				return titleRegexPreview ?? null;
 		}
-	}, [titleMode, titleRegexPreview, importMode, filename, dirFiles, features]);
+	}, [
+		titleMode,
+		titleRegexPreview,
+		importMode,
+		filename,
+		dirFiles,
+		features,
+	]);
 
 	const titleModeOptions = useMemo(
 		() => [
@@ -155,29 +179,34 @@ const TitleExtractControl: FC = () => {
 						label={t('import.titleRegex')}
 						Info={hintTitleRegex}
 					>
-						<TextInput
-							dense
-							value={titleRegex}
-							placeholder="^(\\d{8})_"
-							maxLength={300}
-							onChangeText={handleSetTitleRegex}
-							style={localStyles.configInput}
-						/>
+						<View>
+							<TextInput
+								underlineColor="transparent"
+								dense
+								error={!!titleRegexWarning}
+								value={titleRegex}
+								placeholder="^(\d{8})_"
+								maxLength={300}
+								onChangeText={handleSetTitleRegex}
+								style={localStyles.configInput}
+							/>
+							{titleRegexWarning && (
+								<Text
+									style={[
+										localStyles.configPreview,
+										titleRegexWarning.isError && { color: theme.colors.error },
+									]}
+								>
+									{titleRegexWarning.message}
+								</Text>
+							)}
+							{titleRegexPreview && (
+								<Text style={localStyles.configPreview}>
+									{t('import.titlePreview')}: {titleRegexPreview}
+								</Text>
+							)}
+						</View>
 					</InfoLabelRow>
-					{titleRegexWarning && (
-						<Text style={localStyles.configPreview}>
-							<Icon
-								source="alert"
-								size={12}
-							/>{' '}
-							{t('import.regexExpensive')}
-						</Text>
-					)}
-					{titleRegexPreview && (
-						<Text style={localStyles.configPreview}>
-							{t('import.titlePreview')}: {titleRegexPreview}
-						</Text>
-					)}
 				</>
 			)}
 

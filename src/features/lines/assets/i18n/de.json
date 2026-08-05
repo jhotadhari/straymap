@@ -94,8 +94,6 @@
 	"hintDelete": "Löscht diese Route dauerhaft aus deiner Bibliothek und entfernt sie von der Karte. Dies kann nicht rückgängig gemacht werden.",
 	"hintTags": "Tags, die dieser Route zugeordnet sind. Füge Tags über den Tag-Editor hinzu oder entferne sie. System-Tags (mit Schloss-Symbol) können nicht entfernt werden.",
 	"regexUnavailable": "REGEXP ist nicht verfügbar. Regex-Filter funktionieren nicht.",
-	"regexInvalid": "Ungültiges Regex-Muster",
-	"regexExpensive": "Dieses Muster könnte die Leistung beeinträchtigen",
 	"selectAll": "Alle auswählen",
 	"selectNone": "Auswahl aufheben",
 	"addTag": "Tag hinzufügen",

@@ -21,7 +21,9 @@ import {
 	setMergeMode,
 	setOverwriteMode,
 	setTagMode,
-	setTagRegex,
+	setTagRegexes,
+	addTagRegex,
+	removeTagRegex,
 	setTitleMode,
 	setTitleRegex,
 } from './slice';
@@ -72,8 +74,8 @@ export const initializeFromStorage = (store: AppStore) => {
 			if (newSettings?.tagMode) {
 				store.dispatch(setTagMode(newSettings.tagMode));
 			}
-			if (newSettings?.tagRegex != null) {
-				store.dispatch(setTagRegex(newSettings.tagRegex));
+			if (newSettings?.tagRegexes != null) {
+				store.dispatch(setTagRegexes(newSettings.tagRegexes));
 			}
 			}
 			store.dispatch(setInitialized(true));
@@ -112,7 +114,9 @@ startAppListening({
 		setTitleMode,
 		setTitleRegex,
 		setTagMode,
-		setTagRegex
+		setTagRegexes,
+		addTagRegex,
+		removeTagRegex
 	),
 	effect: async (action, listenerApi) => {
 		try {

@@ -9,11 +9,11 @@ import { useTranslation } from 'react-i18next';
 /**
  * Internal dependencies
  */
-import InfoLabelRow from '../../../components/generic/infoWrapper/InfoLabelRow';
-import IconButtonHighlight from '../../../components/generic/primitives/IconButtonHighlight';
-import { useAppDispatch, useAppSelector } from '../../../store/hooks';
-import { selectAutoCustomDate } from '../selectors';
-import { setAutoCustomDate } from '../slice';
+import InfoLabelRow from '../../../../components/generic/infoWrapper/InfoLabelRow';
+import IconButtonHighlight from '../../../../components/generic/primitives/IconButtonHighlight';
+import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
+import { selectAutoCustomDate } from '../../selectors';
+import { setAutoCustomDate } from '../../slice';
 import DatePatternEditorModal from './DatePatternEditorModal';
 
 const styles = StyleSheet.create({

@@ -94,8 +94,6 @@
 	"hintDelete": "Permanently delete this route from your library and remove it from the map. This cannot be undone.",
 	"hintTags": "Tags attached to this route. Add or remove tags via the tag editor. System tags (with a lock icon) cannot be removed.",
 	"regexUnavailable": "REGEXP is not available. Regex filters will not work.",
-	"regexInvalid": "Invalid regex pattern",
-	"regexExpensive": "This pattern may cause slow performance",
 	"selectAll": "Select all",
 	"selectNone": "Select none",
 	"addTag": "Add tag",

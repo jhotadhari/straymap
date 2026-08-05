@@ -42,6 +42,7 @@ const SelectType: FC<{
 				opt={option}
 				onPress={handlePress}
 				labelExtractor={labelExtractor}
+				translateLabel={true}
 				// descExtractor={(a) => a.label}
 			/>
 		</View>

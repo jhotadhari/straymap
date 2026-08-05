@@ -87,5 +87,12 @@
 			"digitalEleData": "Dados digitais de elevação",
 			"digitalEleDataCoverage": "A maneira mais fácil de baixar dados de elevação no formato hgt com resolução de 3 segundos de arco"
 		}
+	},
+	"regex": {
+		"invalid": "Regex inválido",
+		"noCaptureGroup": "Este padrão não tem grupo de captura e não extrairá nenhum valor.",
+		"emptyGroup": "Grupo de captura vazio",
+		"expensive": "Este padrão pode causar desempenho lento",
+		"empty": "Padrão não pode estar vazio"
 	}
 }

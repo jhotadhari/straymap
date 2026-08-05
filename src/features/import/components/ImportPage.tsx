@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { memo, MutableRefObject, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { View } from 'react-native';
+import { ScrollView, View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { openDocument, openDocumentTree, listFiles } from 'react-native-scoped-storage';
@@ -338,7 +338,7 @@ const ImportPage = () => {
 	return (
 		<ImportContextProvider value={ctxValue}>
 			<MutationBootstrap mutationRef={mutationRef} />
-			<View style={localStyles.modalInner}>
+			<ScrollView contentContainerStyle={localStyles.container}>
 				{step === 'idle' && <StepIdle />}
 
 				{step === 'scanning' && (
@@ -375,7 +375,7 @@ const ImportPage = () => {
 				)}
 
 				{step === 'result' && <StepResult />}
-			</View>
+			</ScrollView>
 		</ImportContextProvider>
 	);
 };

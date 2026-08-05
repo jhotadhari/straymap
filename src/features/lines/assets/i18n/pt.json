@@ -94,8 +94,6 @@
 	"hintDelete": "Exclua permanentemente esta rota da sua biblioteca e remova-a do mapa. Isso não pode ser desfeito.",
 	"hintTags": "Tags atribuídas a esta rota. Adicione ou remova tags pelo editor de tags. Tags do sistema (com ícone de cadeado) não podem ser removidas.",
 	"regexUnavailable": "REGEXP não está disponível. Os filtros de regex não funcionarão.",
-	"regexInvalid": "Padrão regex inválido",
-	"regexExpensive": "Este padrão pode causar baixo desempenho",
 	"selectAll": "Selecionar tudo",
 	"selectNone": "Não selecionar nada",
 	"addTag": "Adicionar tag",
