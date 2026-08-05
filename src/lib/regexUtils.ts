@@ -27,7 +27,9 @@ export const classifyRegex = (
 	const dangerous = valid && DANGEROUS.test(pattern);
 	const result: RegexValidation = { valid, dangerous };
 
-	if (options?.checkCaptureGroup && valid) {
+	const needsCaptureCheck =
+		options?.checkCaptureGroup || options?.checkEmptyCaptureGroup;
+	if (needsCaptureCheck && valid) {
 		result.hasCaptureGroup = pattern.includes('(');
 	}
 	if (options?.checkEmptyCaptureGroup && result.hasCaptureGroup) {

@@ -146,26 +146,29 @@ const useImportMutation = () => {
 		[tagMode, selectedTagIds, tagRegexes, getOrCreateImportTag]
 	);
 
-	const queryExistingBySourcePath = async (
-		sourcePath: string
-	): Promise<{ id: number; trackIndex: number | null }[]> => {
-		if (!dbConnection?.drizzle) return [];
-		try {
-			const rows = await dbConnection.drizzle
-				.select({ id: linesTable.id, data: linesTable.data })
-				.from(linesTable)
-				.where(
-					sql`json_extract(${linesTable.data}, '$.import.sourceFilePath') = ${sourcePath}`
-				);
-			return rows.map((r) => {
-				const index = r.data?.import?.trackIndexInFile;
-				return { id: r.id, trackIndex: typeof index === 'number' ? index : null };
-			});
-		} catch (err) {
-			logError('import.queryExistingBySourcePath', err);
-			return [];
-		}
-	};
+	const queryExistingBySourcePath = useCallback(
+		async (
+			sourcePath: string
+		): Promise<{ id: number; trackIndex: number | null }[]> => {
+			if (!dbConnection?.drizzle) return [];
+			try {
+				const rows = await dbConnection.drizzle
+					.select({ id: linesTable.id, data: linesTable.data })
+					.from(linesTable)
+					.where(
+						sql`json_extract(${linesTable.data}, '$.import.sourceFilePath') = ${sourcePath}`
+					);
+				return rows.map((r) => {
+					const index = r.data?.import?.trackIndexInFile;
+					return { id: r.id, trackIndex: typeof index === 'number' ? index : null };
+				});
+			} catch (err) {
+				logError('import.queryExistingBySourcePath', err);
+				return [];
+			}
+		},
+		[]
+	);
 
 	const mutation = useMutation({
 		mutationFn: async () => {
@@ -406,7 +409,7 @@ const useImportMutation = () => {
 								existingIdxMapSingle.set(row.trackIndex, row.id);
 							}
 						}
-						staleIdsToDeleteSingle = [...existingIdxMapSingle.values()];
+						staleIdsToDeleteSingle = existing.map((r) => r.id);
 					}
 				}
 			}

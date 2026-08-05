@@ -125,6 +125,11 @@ const TagExtractModal: FC<{ visible: boolean; onDismiss: () => void }> = ({
 		setLocalRegexes(tagRegexes);
 	}, [tagRegexes]);
 
+	useEffect(() => {
+		const ref = debounceRef.current;
+		return () => Object.values(ref).forEach(clearTimeout);
+	}, []);
+
 	const handleChangeRegex = useCallback(
 		(idx: number, value: string) => {
 			setLocalRegexes((prev) => {
@@ -148,6 +153,10 @@ const TagExtractModal: FC<{ visible: boolean; onDismiss: () => void }> = ({
 
 	const handleRemoveRegex = useCallback(
 		(idx: number) => {
+			if (debounceRef.current[idx]) {
+				clearTimeout(debounceRef.current[idx]);
+				delete debounceRef.current[idx];
+			}
 			dispatch(removeTagRegex(idx));
 		},
 		[dispatch]

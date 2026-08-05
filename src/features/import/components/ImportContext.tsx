@@ -57,7 +57,7 @@ export interface ImportContextValue {
 	handleImport: () => void;
 	handleResultDone: () => void;
 	dismissedRef: MutableRefObject<boolean>;
-	mutationRef: MutableRefObject<UseMutationResult<void, Error, void, unknown> | null>;
+	mutationRef?: MutableRefObject<UseMutationResult<void, Error, void, unknown> | null>;
 }
 
 const ImportContext = createContext<ImportContextValue | null>(null);

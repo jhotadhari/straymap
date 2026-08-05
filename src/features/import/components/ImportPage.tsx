@@ -305,7 +305,6 @@ const ImportPage = () => {
 			handleImport,
 			handleResultDone,
 			dismissedRef,
-			mutationRef,
 		}),
 		[
 			step,

@@ -27,7 +27,7 @@ const useDrawerState = ({
 	translationX: SharedValue<number>;
 	translationXOther: SharedValue<number>;
 }): DrawerState => {
-	const { width } = Dimensions.get('window');
+	const { width } = useMemo(() => Dimensions.get('window'), []);
 
 	const drawerWidthResponsive = getDrawerWidthResponsive(width);
 

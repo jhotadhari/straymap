@@ -86,7 +86,7 @@ export const CenterInner = ({ cursor }: { cursor?: CursorConfig }) => {
 
 const Center = () => {
 	const { mapHeight } = useContext(AppContext);
-	const { width } = Dimensions.get('window');
+	const { width } = useMemo(() => Dimensions.get('window'), []);
 
 	const styleWrapper = useMemo(
 		() => [styles.wrapper, { width, height: mapHeight || 0 }],

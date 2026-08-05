@@ -16,7 +16,7 @@ import { AppContext } from '../../../Context';
 const UiItemComponent: FC<{}> = () => {
 	const uiItemsKeys = useAppSelector(selectUiItemKeys);
 
-	const { width } = Dimensions.get('window');
+	const { width } = useMemo(() => Dimensions.get('window'), []);
 
 	const theme = useTheme();
 

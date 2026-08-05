@@ -439,7 +439,7 @@ const LayersControl: FC<{
 }) => {
 	const dispatch = useAppDispatch();
 
-	const { width: width_ } = Dimensions.get('window');
+	const { width: width_ } = useMemo(() => Dimensions.get('window'), []);
 	width = width ? width : width_;
 
 	const { t } = useTranslation();

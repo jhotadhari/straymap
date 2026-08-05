@@ -22,7 +22,7 @@ const SplashScreen = ({
 	innerStyle?: StyleProp<ViewStyle>;
 }) => {
 	const theme = useTheme();
-	const { width } = Dimensions.get('window');
+	const { width } = useMemo(() => Dimensions.get('window'), []);
 
 	const styleInner = useMemo(
 		() => [

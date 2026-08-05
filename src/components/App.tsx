@@ -51,7 +51,7 @@ const App: FC = () => {
 		return () => backHandler.remove();
 	}, []);
 
-	const { width, height } = Dimensions.get('window');
+	const { width, height } = useMemo(() => Dimensions.get('window'), []);
 
 	const [mapViewNativeNodeHandle, setMapViewNativeNodeHandle] = useState<null | number>(null);
 

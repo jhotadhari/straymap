@@ -48,7 +48,7 @@ const RadioListItem = ({
 	translateLabel?: boolean;
 	translateDesc?: boolean;
 }) => {
-	const { width } = Dimensions.get('window');
+	const { width } = useMemo(() => Dimensions.get('window'), []);
 	const { t } = useTranslation();
 	const theme = useTheme();
 	const label = !labelNode && labelExtractor ? labelExtractor(opt) : null;

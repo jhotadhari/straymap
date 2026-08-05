@@ -11,7 +11,7 @@ import { Switch } from 'react-native-paper';
 import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
 import { useButtonProps } from '../../../../compose/useButtonProps';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
-import { selectDryRun, selectTitleMode, selectTitleRegex } from '../../selectors';
+import { selectDryRun, selectTitleMode, selectTitleRegex, selectTagMode, selectTagRegexes } from '../../selectors';
 import { useImportContext } from '../ImportContext';
 import InfoLabelRow from '../../../../components/generic/infoWrapper/InfoLabelRow';
 import { setDryRun } from '../../slice';
@@ -23,6 +23,8 @@ const ImportButton: FC = () => {
 	const dryRun = useAppSelector(selectDryRun);
 	const titleMode = useAppSelector(selectTitleMode);
 	const titleRegex = useAppSelector(selectTitleRegex);
+	const tagMode = useAppSelector(selectTagMode);
+	const tagRegexes = useAppSelector(selectTagRegexes);
 	const { selectionCount, handleImport } = useImportContext();
 
 	const titleRegexError = useMemo(() => {
@@ -36,8 +38,20 @@ const ImportButton: FC = () => {
 		);
 	}, [titleMode, titleRegex]);
 
+	const tagRegexError = useMemo(() => {
+		if (tagMode !== 'regex') return false;
+		return tagRegexes.some(
+			(r) =>
+				getRegexWarnings(r, {
+					checkEmpty: true,
+					checkCaptureGroup: true,
+					checkEmptyCaptureGroup: true,
+				}) !== null
+		);
+	}, [tagMode, tagRegexes]);
+
 	const buttonPropsImport = useButtonProps({
-		disabled: selectionCount === 0 || titleRegexError,
+		disabled: selectionCount === 0 || titleRegexError || tagRegexError,
 		isSuccess: true,
 	});
 

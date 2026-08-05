@@ -32,7 +32,7 @@ const DraggableItem: FC<{
 
 	const buttonPropsText = useButtonProps({ mode: 'text' });
 
-	const { width } = Dimensions.get('window');
+	const { width } = useMemo(() => Dimensions.get('window'), []);
 
 	const style = useMemo(
 		() => [

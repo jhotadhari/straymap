@@ -32,7 +32,7 @@ const DraggableItem: FC<{
 }> = memo(({ pattern, enabled, onToggle, onDelete, onEdit }) => {
 	const theme = useTheme();
 
-	const { width: screenW } = Dimensions.get('window');
+	const { width: screenW } = useMemo(() => Dimensions.get('window'), []);
 
 	const itemOpacityStyle = useMemo(() => ({ opacity: enabled ? 1 : 0.4 }), [enabled]);
 	const itemWidthStyle = useMemo(
@@ -140,7 +140,6 @@ const DatePatternEditorModal: FC<{
 	}, []);
 
 	const handleDismiss = useCallback(() => {
-		saveRef.current();
 		onDismiss();
 	}, [onDismiss]);
 
