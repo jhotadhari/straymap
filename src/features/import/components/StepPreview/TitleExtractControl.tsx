@@ -156,6 +156,11 @@ const TitleExtractControl: FC = () => {
 		[t]
 	);
 
+	const styleRegexWarning = useMemo(
+		() => [localStyles.configPreview, { color: theme.colors.error }],
+		[theme]
+	);
+
 	return (
 		<>
 			<InfoLabelRow
@@ -192,10 +197,11 @@ const TitleExtractControl: FC = () => {
 							/>
 							{titleRegexWarning && (
 								<Text
-									style={[
-										localStyles.configPreview,
-										titleRegexWarning.isError && { color: theme.colors.error },
-									]}
+									style={
+										titleRegexWarning.isError
+											? styleRegexWarning
+											: localStyles.configPreview
+									}
 								>
 									{titleRegexWarning.message}
 								</Text>

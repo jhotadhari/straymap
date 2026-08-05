@@ -126,6 +126,11 @@ const DatePatternAddPatternModal: FC<{
 		[t, dayJsUrl]
 	);
 
+	const styleRegexWarning = useMemo(
+		() => [localStyles.configPreview, { color: theme.colors.error }],
+		[theme]
+	);
+
 	return (
 		<ModalWrapper
 			visible={visible}
@@ -165,12 +170,7 @@ const DatePatternAddPatternModal: FC<{
 					/>
 					{regexWarning && (
 						<Text
-							style={[
-								localStyles.configPreview,
-								{
-									color: theme.colors.error,
-								},
-							]}
+							style={styleRegexWarning}
 						>
 							{t(regexWarning.key)}
 						</Text>

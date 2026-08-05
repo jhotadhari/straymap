@@ -5,6 +5,7 @@ import React, {
 	Dispatch,
 	FC,
 	SetStateAction,
+	memo,
 	useCallback,
 	useContext,
 	useMemo,
@@ -33,7 +34,7 @@ const labelExtractor = (a: OptionBase) => a.label;
 const SelectType: FC<{
 	option: OptionBase;
 	onPress: (elementType: string) => void;
-}> = ({ option, onPress }) => {
+}> = memo(({ option, onPress }) => {
 	const handlePress = useCallback(() => onPress(option.key), [onPress, option.key]);
 
 	return (
@@ -47,12 +48,12 @@ const SelectType: FC<{
 			/>
 		</View>
 	);
-};
+});
 
 const Modal: FC<{
 	modalVisible: boolean;
 	setModalVisible: Dispatch<SetStateAction<boolean>>;
-}> = ({ modalVisible, setModalVisible }) => {
+}> = memo(({ modalVisible, setModalVisible }) => {
 	const { t } = useTranslation();
 
 	const options: OptionBase[] = useMemo(() => {
@@ -120,7 +121,7 @@ const Modal: FC<{
 			))}
 		</ModalWrapper>
 	);
-};
+});
 
 const renderNewItemIcon = ({ color }: { color: string }) => (
 	<MaterialIcons
@@ -130,7 +131,7 @@ const renderNewItemIcon = ({ color }: { color: string }) => (
 	/>
 );
 
-const NewItemControl: FC<{}> = () => {
+const NewItemControl: FC<{}> = memo(() => {
 	const { t } = useTranslation();
 
 	const buttonProps = useButtonProps({});
@@ -157,7 +158,7 @@ const NewItemControl: FC<{}> = () => {
 			</ButtonHighlight>
 		</View>
 	);
-};
+});
 
 const styles = StyleSheet.create({
 	optionRow: { marginTop: 10 },

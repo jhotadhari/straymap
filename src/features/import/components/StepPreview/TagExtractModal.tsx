@@ -215,6 +215,11 @@ const TagExtractModal: FC<{ visible: boolean; onDismiss: () => void }> = ({
 		onDismiss,
 	]);
 
+	const styleRegexWarning = useMemo(
+		() => [localStyles.configPreview, { color: theme.colors.error }],
+		[theme]
+	);
+
 	return (
 		<>
 			<ModalWrapper
@@ -309,10 +314,11 @@ const TagExtractModal: FC<{ visible: boolean; onDismiss: () => void }> = ({
 									</View>
 									{warning && (
 										<Text
-											style={[
-												localStyles.configPreview,
-												warning.isError && { color: theme.colors.error },
-											]}
+											style={
+												warning.isError
+													? styleRegexWarning
+													: localStyles.configPreview
+											}
 										>
 											{warning.message}
 										</Text>

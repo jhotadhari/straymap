@@ -164,6 +164,11 @@ const FilterStringModal: FC<{
 		);
 	}, [t]);
 
+	const styleRegexWarning = useMemo(
+		() => [localStyles.regexFeedbackText, { color: theme.colors.error }],
+		[theme]
+	);
+
 	return (
 		<ModalWrapper
 			visible={visible}
@@ -196,12 +201,7 @@ const FilterStringModal: FC<{
 				/>
 				{regexValidation && (
 					<Text
-						style={[
-							localStyles.regexFeedbackText,
-							{
-								color: theme.colors.error,
-							},
-						]}
+						style={styleRegexWarning}
 					>
 						{t(regexValidation.key)}
 					</Text>

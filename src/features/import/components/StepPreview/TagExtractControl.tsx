@@ -27,6 +27,8 @@ const TagExtractControl: FC = () => {
 
 	const [modalVisible, setModalVisible] = useState(false);
 
+	const handleOpenModal = useCallback(() => setModalVisible(true), []);
+
 	const anchorLabel = useMemo(() => {
 		if (tagMode === 'existing') {
 			return sprintf(t('import.tagModeExistingLabel'), selectedTagIds.length);
@@ -51,7 +53,7 @@ const TagExtractControl: FC = () => {
 				<ButtonHighlight
 					{...buttonProps}
 					compact
-					onPress={() => setModalVisible(true)}
+					onPress={handleOpenModal}
 				>
 					{anchorLabel}
 				</ButtonHighlight>

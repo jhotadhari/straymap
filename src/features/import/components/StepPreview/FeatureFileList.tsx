@@ -95,6 +95,11 @@ const FeatureFileList: FC = () => {
 		]
 	);
 
+	const flashListStyle = useMemo(
+		() => ({ height: listHeight - headerHeight }),
+		[listHeight, headerHeight]
+	);
+
 	const keyExtractor = useCallback(
 		(item: unknown, index: number) =>
 			importMode === 'file' ? String(index) : (item as { uri: string }).uri,
@@ -191,7 +196,7 @@ const FeatureFileList: FC = () => {
 
 					{listHeight > 0 && (
 						<FlashList
-							style={{ height: listHeight - headerHeight }}
+							style={flashListStyle}
 							data={listData}
 							keyExtractor={keyExtractor}
 							renderItem={renderItem}

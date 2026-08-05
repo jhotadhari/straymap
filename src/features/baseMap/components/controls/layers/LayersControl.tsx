@@ -6,6 +6,7 @@ import {
 	FC,
 	ReactNode,
 	SetStateAction,
+	memo,
 	useCallback,
 	useEffect,
 	useMemo,
@@ -76,7 +77,7 @@ const DraggableItem: FC<{
 	reverse: boolean;
 	saveOnChange: boolean;
 	saveLayers: () => void;
-}> = ({ item, width, reverse, saveOnChange, saveLayers }) => {
+}> = memo(({ item, width, reverse, saveOnChange, saveLayers }) => {
 	const theme = useTheme();
 	const { t } = useTranslation();
 	const dispatch = useAppDispatch();
@@ -224,11 +225,11 @@ const DraggableItem: FC<{
 			</TouchableHighlight>
 		</View>
 	);
-};
+});
 
 const OptionSelectType: FC<{
 	option: LayerOption;
-}> = ({ option }) => {
+}> = memo(({ option }) => {
 	const dispatch = useAppDispatch();
 
 	const onPress = useCallback(() => {
@@ -248,17 +249,20 @@ const OptionSelectType: FC<{
 		<RadioListItem
 			opt={option}
 			onPress={onPress}
-			labelExtractor={(a) => '[' + a.key + ']'}
-			descExtractor={(a) => a.label}
+			labelExtractor={extractLayerType}
+			descExtractor={extractLayerDesc}
 			translateDesc={true}
 		/>
 	);
-};
+});
+
+const extractLayerType = (a: { key: string; label?: string }) => '[' + a.key + ']';
+const extractLayerDesc = (a: { label?: string }) => a.label ?? null;
 
 const EditModal: FC<{
 	saveOnChange: boolean;
 	saveLayers: () => void;
-}> = ({ saveOnChange, saveLayers }) => {
+}> = memo(({ saveOnChange, saveLayers }) => {
 	const { t } = useTranslation();
 
 	const dispatch = useAppDispatch();
@@ -404,7 +408,7 @@ const EditModal: FC<{
 			)}
 		</ModalWrapper>
 	);
-};
+});
 
 const ControlIcon: (props: { color: string; style: Style }) => ReactNode = (props) => (
 	<View style={sharedStyles.controlIcon}>
@@ -424,7 +428,7 @@ const LayersControl: FC<{
 	saveOnUnmount: boolean;
 	uiStateKey?: string;
 	newLabel?: string;
-}> = ({
+}> = memo(({
 	setScrollEnabled,
 	width,
 	reverseDraggableItem,
@@ -607,7 +611,7 @@ const LayersControl: FC<{
 			</List.Accordion>
 		</View>
 	);
-};
+});
 
 const AddIcon: IconSource = () => {
 	const theme = useTheme();
