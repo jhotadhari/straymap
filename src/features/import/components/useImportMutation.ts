@@ -23,11 +23,10 @@ import { sql } from 'drizzle-orm';
 import { ensureTagByLabel } from '../../lines/db/actionsTag';
 import { invalidateTagsTable, invalidateLinesQueries, invalidateLineGeomQueries } from '../../lines/db/queryFns';
 import { isValidGeometry, ImportFileResult } from './types';
-import { useAppDispatch } from '../../../store/hooks';
+import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { selectSelected } from '../../lines/selectors';
 import { setLinesSelected } from '../../lines/slice';
 import { useImportContext } from './ImportContext';
-import { useAppSelector } from '../../../store/hooks';
 import {
 	selectFileLimit,
 	selectTitleMode,
@@ -136,9 +135,15 @@ const useImportMutation = () => {
 				for (const tid of selectedTagIds) tagIds.push(tid);
 			} else if (tagMode === 'regex' && tagRegexes.length > 0) {
 				// Skip logic mirrors TagExtractControl anchorLabel:
-				// empty and invalid regexes are excluded.
+				// empty, invalid, missing capture group, and
+				// empty capture group regexes are excluded.
 				for (const r of tagRegexes) {
-					if (!r || !classifyRegex(r, { checkCaptureGroup: true }).valid) continue;
+					if (!r) continue;
+					const cls = classifyRegex(r, {
+						checkCaptureGroup: true,
+						checkEmptyCaptureGroup: true,
+					});
+					if (!cls.valid || !cls.hasCaptureGroup || cls.hasEmptyGroup) continue;
 					const re = new RegExp(r, 'g');
 					let match;
 					while ((match = re.exec(name)) !== null) {

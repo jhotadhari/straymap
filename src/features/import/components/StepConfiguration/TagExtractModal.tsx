@@ -210,6 +210,7 @@ const TagExtractModal: FC<{ visible: boolean; onDismiss: () => void }> = ({
 				const labels: string[] = [];
 				let match;
 				while ((match = re.exec(sampleName)) !== null) {
+					if (match[0] === '') { re.lastIndex++; continue; }
 					labels.push(match[1] ?? match[0]);
 				}
 				return labels.length ? labels.join(', ') : null;

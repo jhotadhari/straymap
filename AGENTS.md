@@ -189,13 +189,15 @@ onSuccessRef.current = () => { /* fresh scope */ };
 
 const mutation = useMutation({
     mutationFn: useCallback(async () => mutationFnRef.current(), []),
-    onSuccess:   useCallback((d) => onSuccessRef.current(d),     []),
+    onSuccess:   useCallback((data, vars, ctx) => onSuccessRef.current(data, vars, ctx), []),
 });
 ```
 
-Inline callbacks in `useMutation` options can cause re-render loops if
-the host component re-renders frequently and React Query detects new
-function references on each render.
+Inline callbacks in `useMutation` options capture stale closure values
+from the render they were created in. When Redux/context state changes
+between renders, the callbacks won't see updated values. The ref pattern
+ensures callbacks always read fresh state at invocation time. The same
+pattern applies to `onMutate`, `onError`, and `onSettled` callbacks.
 
 ### Performance conventions
 
