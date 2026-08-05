@@ -5,6 +5,7 @@ import { FC, memo } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
+import { sprintf } from 'sprintf-js';
 
 /**
  * Internal dependencies
@@ -26,9 +27,7 @@ const StepIdle: FC = () => {
 	return (
 		<ScrollView contentContainerStyle={localStyles.idleContainer}>
 			<Text style={localStyles.hint}>
-				{t('import.hint.selectInput', {
-					extensions: IMPORT_EXTENSIONS.join(', '),
-				})}
+				{sprintf(t('import.hint.selectInput'), IMPORT_EXTENSIONS.join(', '))}
 			</Text>
 
 			<View style={styles.controls}>
