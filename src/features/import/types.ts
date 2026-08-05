@@ -21,6 +21,7 @@ export type ImportFileResult = {
 	importedCount?: number;
 	overwritten?: number;
 	skipped?: number;
+	unmatchedIds?: number[];
 };
 
 export const isValidGeometry = (feature: Feature<LineString, GeoJsonProperties>): boolean => {

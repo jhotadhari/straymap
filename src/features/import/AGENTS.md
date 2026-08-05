@@ -115,13 +115,12 @@ The mutation is initialized in `ImportPage.tsx` via `MutationBootstrap`, a non-m
 
 **`skip`**: queries existing lines by source file path. If any exist, reports them as skipped and continues to the next file. Dry-run also simulates skip correctly.
 
-**`overwrite`**: 
-- **Merge mode**: deletes all existing lines from the same source file, creates one new merged line. `created_at` is fresh (merged entity is fundamentally new).
-- **Non-merge mode**: queries existing lines, builds `Map<trackIndexInFile, lineId>`. For each feature:
-  - Matching track index → calls `updateLine()` to update in place, preserving `created_at` and setting fresh `modified_at`. Also updates import metadata (`data`) via `buildImportData()`.
+**`overwrite`**: always updates lines in-place — never deletes and recreates.
+- **Merge mode**: finds the existing merged line (`trackIndexInFile = null`). If found, updates it in-place via `updateLine()`. If not found, creates via `createLines()`. Non-merged lines from the same source (survivors from prior `'create'` imports with non-null `trackIndexInFile`) are cleaned up. Extra merged-line duplicates are also removed.
+- **Non-merge mode**: queries existing lines, groups IDs by `trackIndexInFile` into `Map<number, number[]>`. For each feature:
+  - Matching track index → updates ALL matching lines in-place via `updateLine()`, preserving `created_at` and setting fresh `modified_at`. All duplicates from prior `'create'` imports are updated, not just one.
   - No match → collected for `createLines()`.
-  - Stale existing lines (not matched by any feature) → deleted.
-  - `staleIdsToDelete` is initialized to `existing.map(r => r.id)` — this includes null-trackIndex lines from previous merge imports, fixing a data-duplication bug.
+  - Stale existing lines (track indices not matching any feature) → deleted.
 
 ### Tag assignment (`buildDeriveTagIds`)
 
@@ -224,4 +223,4 @@ Regex validation strings live in the global `regex` namespace (`src/assets/i18n/
 2. **`ensureTagByLabel` edge case**: if drizzle's `INSERT` succeeds but `returning()` returns 0 rows, the tag exists but isn't linked to the imported line. Extremely rare.
 3. **`nameProperty` in merge mode**: if the first track has no name, falls through to subsequent tracks until one with a `properties.name` is found. If no track has a name, the merged route gets an empty title.
 4. **`custom_date`**: when `autoCustomDate` is enabled but extraction returns `null`, `createLines` falls through to SQL default (`current_timestamp`) while `updateLine` uses `?? undefined` to achieve the same default behavior. Symmetrical by design.
-5. **Stale lines deleted on overwrite**: when a re-imported file has fewer tracks than before, the excess existing lines are hard-deleted. Their IDs are removed from the database. Lines that match by `trackIndexInFile` are updated in-place via `updateLine` and keep their IDs. New tracks get fresh autoincrement IDs.
+5. **Unmatched lines on overwrite**: when a re-imported file has fewer tracks than before, or mode changes (merge ↔ non-merge), or prior `'create'` imports created duplicates, the excess lines are NOT automatically deleted. Instead, their IDs are collected into `result.unmatchedIds` and presented in the result page with a "N unmatched tracks" warning button. The button opens a modal with a checkbox list (like `FeatureFileList`) and a "Delete checked" action. The user must explicitly choose which unmatched lines to remove. Lines that match by `trackIndexInFile` are updated in-place via `updateLine` and keep their IDs. New tracks get fresh autoincrement IDs.

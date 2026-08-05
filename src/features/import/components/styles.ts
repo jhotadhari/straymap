@@ -56,4 +56,13 @@ export const localStyles = StyleSheet.create({
 	autoWidth: {
 		width: 'auto',
 	},
+	unmatchedRow: {
+		marginTop: 4,
+		marginLeft: 36,
+	},
+	unmatchedListItem: {
+		padding: 0,
+		marginLeft: 0,
+		paddingVertical: 4,
+	},
 });

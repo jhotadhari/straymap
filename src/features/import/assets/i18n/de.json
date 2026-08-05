@@ -83,5 +83,8 @@
 	"tagModeNoneText": "Allen Routen wird automatisch der Tag „importiert\" zugewiesen. Keine zusätzlichen Tags.",
 	"tagModeNoneLabel": "Keine zusätzlichen Tags",
 	"tagModeRegexText": "Tag „importiert\" wird immer automatisch zugewiesen. Zusätzliche Tags werden aus Dateinamen mit den folgenden Mustern extrahiert.",
-	"addTagRegex": "Muster hinzufügen"
+	"addTagRegex": "Muster hinzufügen",
+	"resultUnmatchedButton": "%s nicht zugeordnete(r) Track(s) benötigen Aufmerksamkeit",
+	"resultUnmatchedHeader": "Nicht zugeordnete Tracks in %s",
+	"resultUnmatchedDeleteChecked": "%s ausgewählte löschen"
 }

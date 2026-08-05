@@ -83,5 +83,8 @@
 	"tagModeNoneText": "Todas las rutas recibirán automáticamente la etiqueta 'imported'. No se asignarán etiquetas adicionales.",
 	"tagModeNoneLabel": "Sin etiquetas adicionales",
 	"tagModeRegexText": "La etiqueta 'imported' se asigna siempre automáticamente. Las etiquetas adicionales se extraerán de los nombres de archivo usando los patrones siguientes.",
-	"addTagRegex": "Añadir patrón"
+	"addTagRegex": "Añadir patrón",
+	"resultUnmatchedButton": "%s ruta(s) no emparejada(s) necesitan atención",
+	"resultUnmatchedHeader": "Rutas no emparejadas en %s",
+	"resultUnmatchedDeleteChecked": "Eliminar %s seleccionadas"
 }

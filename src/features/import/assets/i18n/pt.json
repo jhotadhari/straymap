@@ -83,5 +83,8 @@
 	"tagModeNoneText": "Todas as rotas receberão automaticamente a tag 'imported'. Nenhuma tag adicional será atribuída.",
 	"tagModeNoneLabel": "Sem tags adicionais",
 	"tagModeRegexText": "A tag 'imported' é sempre atribuída automaticamente. Tags adicionais serão extraídas dos nomes de arquivo usando os padrões abaixo.",
-	"addTagRegex": "Adicionar padrão"
+	"addTagRegex": "Adicionar padrão",
+	"resultUnmatchedButton": "%s trilha(s) não correspondida(s) precisam de atenção",
+	"resultUnmatchedHeader": "Trilhas não correspondidas em %s",
+	"resultUnmatchedDeleteChecked": "Excluir %s selecionadas"
 }

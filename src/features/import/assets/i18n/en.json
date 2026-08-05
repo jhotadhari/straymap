@@ -83,5 +83,8 @@
 	"tagModeNoneText": "All routes will automatically get the tag 'imported'. No additional tags will be assigned.",
 	"tagModeNoneLabel": "No additional tags",
 	"tagModeRegexText": "Tag 'imported' is always assigned automatically. Additional tags will be extracted from filenames using the patterns below.",
-	"addTagRegex": "Add pattern"
+	"addTagRegex": "Add pattern",
+	"resultUnmatchedButton": "%s unmatched track(s) need attention",
+	"resultUnmatchedHeader": "Unmatched Tracks in %s",
+	"resultUnmatchedDeleteChecked": "Delete %s checked"
 }

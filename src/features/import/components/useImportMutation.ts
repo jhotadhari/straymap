@@ -16,16 +16,14 @@ import { logError } from '../../../lib/utils';
 import { classifyRegex } from '../../../lib/regexUtils';
 import useBackgroundTask from '../../../hooks/useBackgroundTask';
 import { detectImportFormat, parseImportContent } from '../../lines/utils/importParser';
-import { createLines, deleteLines, updateLine } from '../../lines/db/actionsLine';
+import { createLines, updateLine } from '../../lines/db/actionsLine';
 import { dbConnection } from '../../dbLoader/DBConnection';
 import { linesTable } from '../../lines/db/schema/schema';
 import { sql } from 'drizzle-orm';
 import { ensureTagByLabel } from '../../lines/db/actionsTag';
 import { invalidateTagsTable, invalidateLinesQueries, invalidateLineGeomQueries } from '../../lines/db/queryFns';
 import { isValidGeometry, ImportFileResult } from '../types';
-import { useAppDispatch, useAppSelector } from '../../../store/hooks';
-import { selectSelected } from '../../lines/selectors';
-import { setLinesSelected } from '../../lines/slice';
+import { useAppSelector } from '../../../store/hooks';
 import { useImportContext } from '../ImportContext';
 import {
 	selectFileLimit,
@@ -79,9 +77,6 @@ const useImportMutation = () => {
 	const importResultsRef = useRef<ImportFileResult[]>([]);
 	const isImporting = useRef(false);
 	const importBatchId = useRef(Date.now().toString(36));
-	const dispatch = useAppDispatch();
-	const selectedLineIds = useAppSelector(selectSelected);
-	const deletedStaleIdsRef = useRef<number[]>([]);
 
 	const getOrCreateImportTag = useCallback(async (): Promise<number | undefined> => {
 		return ensureTagByLabel('imported');
@@ -190,7 +185,6 @@ const useImportMutation = () => {
 	const onSettledRef = useRef<() => void>(() => {});
 
 	mutationFnRef.current = async () => {
-			deletedStaleIdsRef.current = [];
 			if (isImporting.current) return;
 			isImporting.current = true;
 			importResultsRef.current = [];
@@ -238,8 +232,10 @@ const useImportMutation = () => {
 						}
 
 						let overwritten = 0;
-						let existingIdxMap: Map<number, number> = new Map();
+						let existingByIndex: Map<number, number[]> = new Map();
 						let staleIdsToDelete: number[] = [];
+						let mergedId: number | null = null;
+						let unmatchIds: number[] = [];
 
 						if (!dryRun && overwriteMode !== 'create') {
 							const existing = await queryExistingBySourcePath(uri);
@@ -254,13 +250,20 @@ const useImportMutation = () => {
 									continue;
 								}
 								if (mergeMode) {
-									deletedStaleIdsRef.current.push(...existing.map((r) => r.id));
-									await deleteLines(existing.map((r) => r.id));
+									const nonMerged = existing.filter((r) => r.trackIndex != null);
+									const mergedEntries = existing.filter((r) => r.trackIndex == null);
+									mergedId = mergedEntries[0]?.id ?? null;
+									unmatchIds.push(...nonMerged.map((r) => r.id));
+									if (mergedEntries.length > 1) {
+										unmatchIds.push(...mergedEntries.slice(1).map((r) => r.id));
+									}
 									overwritten = existing.length;
 								} else {
 									for (const row of existing) {
 										if (row.trackIndex != null) {
-											existingIdxMap.set(row.trackIndex, row.id);
+											const arr = existingByIndex.get(row.trackIndex) ?? [];
+											arr.push(row.id);
+											existingByIndex.set(row.trackIndex, arr);
 										}
 									}
 									staleIdsToDelete = existing.map((r) => r.id);
@@ -296,7 +299,7 @@ const useImportMutation = () => {
 							: undefined;
 
 						try {
-							let created: Awaited<ReturnType<typeof createLines>>;
+							let created: Awaited<ReturnType<typeof createLines>> | undefined;
 							if (mergeMode) {
 								const allCoords = validFeatures.flatMap((f) => f.geometry.coordinates);
 								const merged: Feature<LineString, GeoJsonProperties> = {
@@ -304,33 +307,46 @@ const useImportMutation = () => {
 									properties: {},
 									geometry: { type: 'LineString', coordinates: allCoords },
 								};
-								created = await createLines([
-									{
+								if (mergedId != null) {
+									await updateLine(mergedId, {
 										title: deriveTitle(name, validFeatures.find(f => f.properties?.name)?.properties?.name),
 										lineStringFeature: merged,
 										tagIds: tagIds.length ? tagIds : undefined,
 										data: buildImportData(uri, name, null),
-										custom_date: customDateDir,
-									},
-								]);
-							} else if (overwriteMode === 'overwrite' && existingIdxMap.size > 0) {
+										custom_date: customDateDir ?? undefined,
+									});
+									overwritten++;
+								} else {
+									created = await createLines([
+										{
+											title: deriveTitle(name, validFeatures.find(f => f.properties?.name)?.properties?.name),
+											lineStringFeature: merged,
+											tagIds: tagIds.length ? tagIds : undefined,
+											data: buildImportData(uri, name, null),
+											custom_date: customDateDir,
+										},
+									]);
+								}
+							} else if (overwriteMode === 'overwrite' && existingByIndex.size > 0) {
 								const toCreate: Parameters<typeof createLines>[0] = [];
 
 								for (let idx = 0; idx < validFeatures.length; idx++) {
 									const f = validFeatures[idx];
-									const existingId = existingIdxMap.get(idx);
-									if (existingId != null) {
+									const existingIds = existingByIndex.get(idx);
+									if (existingIds && existingIds.length > 0) {
+										for (const existingId of existingIds) {
+											await updateLine(existingId, {
+												title: deriveTitle(name, f.properties?.name),
+												lineStringFeature: f,
+												tagIds: tagIds.length ? tagIds : undefined,
+												custom_date: customDateDir ?? undefined,
+												data: buildImportData(uri, name, idx),
+											});
+											overwritten++;
+										}
 										staleIdsToDelete = staleIdsToDelete.filter(
-											(id) => id !== existingId
+											(id) => !existingIds.includes(id)
 										);
-										await updateLine(existingId, {
-											title: deriveTitle(name, f.properties?.name),
-											lineStringFeature: f,
-											tagIds: tagIds.length ? tagIds : undefined,
-											custom_date: customDateDir ?? undefined,
-											data: buildImportData(uri, name, idx),
-										});
-										overwritten++;
 									} else {
 										toCreate.push({
 											title: deriveTitle(name, f.properties?.name),
@@ -343,12 +359,14 @@ const useImportMutation = () => {
 								}
 
 								if (staleIdsToDelete.length > 0) {
-									deletedStaleIdsRef.current.push(...staleIdsToDelete);
-									await deleteLines(staleIdsToDelete);
+									unmatchIds.push(...staleIdsToDelete);
 								}
 
 								created = toCreate.length > 0 ? await createLines(toCreate) : undefined;
 							} else {
+								if (staleIdsToDelete.length > 0) {
+									unmatchIds.push(...staleIdsToDelete);
+								}
 								created = await createLines(
 									validFeatures.map((f, idx) => ({
 										title: deriveTitle(name, f.properties?.name),
@@ -365,6 +383,7 @@ const useImportMutation = () => {
 								importedCount: created?.length ?? validFeatures.length,
 								overwritten: overwritten > 0 ? overwritten : undefined,
 								skippedGeom: skippedGeom > 0 ? skippedGeom : undefined,
+								unmatchedIds: unmatchIds.length > 0 ? unmatchIds : undefined,
 							});
 						} catch (dbErr) {
 							logError('ImportModal.bulkInsert', dbErr);
@@ -404,8 +423,10 @@ const useImportMutation = () => {
 			}
 
 			let overwrittenSingle = 0;
-			let existingIdxMapSingle: Map<number, number> = new Map();
+			let existingByIndexSingle: Map<number, number[]> = new Map();
 			let staleIdsToDeleteSingle: number[] = [];
+			let mergedIdSingle: number | null = null;
+			let unmatchIdsSingle: number[] = [];
 
 			if (!dryRun && overwriteMode !== 'create') {
 				const existing = await queryExistingBySourcePath(sourceFilePath);
@@ -422,13 +443,20 @@ const useImportMutation = () => {
 						return;
 					}
 					if (mergeMode) {
-						deletedStaleIdsRef.current.push(...existing.map((r) => r.id));
-						await deleteLines(existing.map((r) => r.id));
+						const nonMerged = existing.filter((r) => r.trackIndex != null);
+						const mergedEntries = existing.filter((r) => r.trackIndex == null);
+						mergedIdSingle = mergedEntries[0]?.id ?? null;
+						unmatchIdsSingle.push(...nonMerged.map((r) => r.id));
+						if (mergedEntries.length > 1) {
+							unmatchIdsSingle.push(...mergedEntries.slice(1).map((r) => r.id));
+						}
 						overwrittenSingle = existing.length;
 					} else {
 						for (const row of existing) {
 							if (row.trackIndex != null) {
-								existingIdxMapSingle.set(row.trackIndex, row.id);
+								const arr = existingByIndexSingle.get(row.trackIndex) ?? [];
+								arr.push(row.id);
+								existingByIndexSingle.set(row.trackIndex, arr);
 							}
 						}
 						staleIdsToDeleteSingle = existing.map((r) => r.id);
@@ -478,33 +506,46 @@ const useImportMutation = () => {
 					properties: {},
 					geometry: { type: 'LineString', coordinates: allCoords },
 				};
-				await createLines([
-					{
+				if (mergedIdSingle != null) {
+					await updateLine(mergedIdSingle, {
 						title: deriveTitle(filename, toImport.find(f => f.properties?.name)?.properties?.name),
 						lineStringFeature: merged,
 						tagIds: tagIds.length ? tagIds : undefined,
 						data: buildImportData(sourceFilePath, filename, null),
-						custom_date: customDateSingle,
-					},
-				]);
-			} else if (overwriteMode === 'overwrite' && existingIdxMapSingle.size > 0) {
+						custom_date: customDateSingle ?? undefined,
+					});
+					overwrittenSingle++;
+				} else {
+					await createLines([
+						{
+							title: deriveTitle(filename, toImport.find(f => f.properties?.name)?.properties?.name),
+							lineStringFeature: merged,
+							tagIds: tagIds.length ? tagIds : undefined,
+							data: buildImportData(sourceFilePath, filename, null),
+							custom_date: customDateSingle,
+						},
+					]);
+				}
+			} else if (overwriteMode === 'overwrite' && existingByIndexSingle.size > 0) {
 				const toCreateSingle: Parameters<typeof createLines>[0] = [];
 
 				for (let idx = 0; idx < toImport.length; idx++) {
 					const feature = toImport[idx];
-					const existingId = existingIdxMapSingle.get(idx);
-					if (existingId != null) {
+					const existingIds = existingByIndexSingle.get(idx);
+					if (existingIds && existingIds.length > 0) {
+						for (const existingId of existingIds) {
+							await updateLine(existingId, {
+								title: deriveTitle(filename, feature.properties?.name),
+								lineStringFeature: feature,
+								tagIds: tagIds.length ? tagIds : undefined,
+								custom_date: customDateSingle ?? undefined,
+								data: buildImportData(sourceFilePath, filename, idx),
+							});
+							overwrittenSingle++;
+						}
 						staleIdsToDeleteSingle = staleIdsToDeleteSingle.filter(
-							(id) => id !== existingId
+							(id) => !existingIds.includes(id)
 						);
-						await updateLine(existingId, {
-							title: deriveTitle(filename, feature.properties?.name),
-							lineStringFeature: feature,
-							tagIds: tagIds.length ? tagIds : undefined,
-							custom_date: customDateSingle ?? undefined,
-							data: buildImportData(sourceFilePath, filename, idx),
-						});
-						overwrittenSingle++;
 					} else {
 						toCreateSingle.push({
 							title: deriveTitle(filename, feature.properties?.name),
@@ -517,14 +558,16 @@ const useImportMutation = () => {
 				}
 
 				if (staleIdsToDeleteSingle.length > 0) {
-					deletedStaleIdsRef.current.push(...staleIdsToDeleteSingle);
-					await deleteLines(staleIdsToDeleteSingle);
+					unmatchIdsSingle.push(...staleIdsToDeleteSingle);
 				}
 
 				if (toCreateSingle.length > 0) {
 					await createLines(toCreateSingle);
 				}
 			} else {
+				if (staleIdsToDeleteSingle.length > 0) {
+					unmatchIdsSingle.push(...staleIdsToDeleteSingle);
+				}
 				const newLines = toImport.map((feature, idx) => ({
 					title: deriveTitle(filename, feature.properties?.name),
 					lineStringFeature: feature,
@@ -542,6 +585,7 @@ const useImportMutation = () => {
 					importedCount: mergeMode ? 1 : toImport.length,
 					overwritten: overwrittenSingle > 0 ? overwrittenSingle : undefined,
 					skippedGeom: skippedCount > 0 ? skippedCount : undefined,
+					unmatchedIds: unmatchIdsSingle.length > 0 ? unmatchIdsSingle : undefined,
 				},
 			];
 			importResultsRef.current = result;
@@ -552,15 +596,6 @@ const useImportMutation = () => {
 			invalidateLinesQueries(queryClient);
 			invalidateLineGeomQueries(queryClient);
 			invalidateTagsTable(queryClient);
-
-			const staleIds = deletedStaleIdsRef.current;
-			if (staleIds.length > 0 && selectedLineIds.length > 0) {
-				const staleSet = new Set(staleIds);
-				const cleaned = selectedLineIds.filter((id) => !staleSet.has(id));
-				if (cleaned.length !== selectedLineIds.length) {
-					dispatch(setLinesSelected(cleaned));
-				}
-			}
 
 			setStep('result');
 	};
