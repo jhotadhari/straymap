@@ -17,6 +17,7 @@
 		"line_count": "Rotas",
 		"color": "Cor",
 		"notes": "Notas",
+		"id": "ID",
 		"import_source_path": "Caminho de importação"
 	},
 	"columnMenu": {
@@ -142,5 +143,6 @@
 		"trackRecording": "Esta rota não pode ser modificada porque está sendo usada para gravação de percurso."
 	},
 	"rowImportSource": "Origem da importação",
-	"rowImportSourceHint": "O arquivo do qual esta rota foi importada, junto com sua posição no arquivo."
+	"rowImportSourceHint": "O arquivo do qual esta rota foi importada.",
+	"rowImportSourceTrackHint": "O arquivo do qual esta rota foi importada, junto com sua posição no arquivo."
 }

@@ -8,6 +8,7 @@ export type CellConfig = {
 };
 
 export const lineCells: { [key: string]: CellConfig } = {
+	id: { style: { width: 80 } },
 	created_at: { style: { width: 170 } },
 	modified_at: { style: { width: 170 } },
 	custom_date: { style: { width: 170 } },

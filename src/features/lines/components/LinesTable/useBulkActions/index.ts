@@ -38,8 +38,8 @@ const useBulkActions = () => {
 		actions[actionExport.key] = actionExport;
 		actions[actionAddTag.key] = actionAddTag;
 		actions[actionRemoveTag.key] = actionRemoveTag;
-		actions[actionDeleteLine.key] = actionDeleteLine;
 		actions[actionApplyDem.key] = actionApplyDem;
+		actions[actionDeleteLine.key] = actionDeleteLine;
 
 		return actions;
 	}, [
@@ -50,8 +50,8 @@ const useBulkActions = () => {
 		actionExport,
 		actionAddTag,
 		actionRemoveTag,
-		actionDeleteLine,
 		actionApplyDem,
+		actionDeleteLine,
 	]);
 };
 

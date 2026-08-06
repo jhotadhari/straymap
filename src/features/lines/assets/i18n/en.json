@@ -17,6 +17,7 @@
 		"line_count": "Routes",
 		"color": "Color",
 		"notes": "Notes",
+		"id": "ID",
 		"import_source_path": "Import path"
 	},
 	"columnMenu": {
@@ -142,5 +143,6 @@
 		"trackRecording": "This line can't be modified because it is currently used for track recording."
 	},
 	"rowImportSource": "Import source",
-	"rowImportSourceHint": "The file this route was imported from, along with its track position within the file."
+	"rowImportSourceHint": "The file this route was imported from.",
+	"rowImportSourceTrackHint": "The file this route was imported from, along with its track position within the file."
 }

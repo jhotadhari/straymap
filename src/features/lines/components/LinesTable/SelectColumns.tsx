@@ -144,7 +144,6 @@ const SelectColumns: FC<{}> = ({}) => {
 				headerLabel={t('lines.selectColumns')}
 				innerStyle={tableStyles.modalInner}
 				scrollEnabled={scrollEnabled}
-				modalStyle={styles.modal}
 			>
 				<Sortable.Flex
 					itemEntering={null}
@@ -198,9 +197,6 @@ const styles = StyleSheet.create({
 		flexGrow: 1,
 		gap: 16,
 		alignItems: 'center',
-	},
-	modal: {
-		overflow: 'visible',
 	},
 });
 

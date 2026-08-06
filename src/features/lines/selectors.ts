@@ -21,6 +21,8 @@ const allLinesColumnKeys = [
 	...Object.keys(statsCells),
 	...Object.keys(otherCells),
 ];
+const hiddenByDefaultColumnKeys = new Set(['id', 'created_at', 'modified_at']);
+
 export const selectLinesTableColumns = createAppSelector(
 	(state: RootState) => state.lines.linesTable.tableColumns,
 	(tableColumns) => {
@@ -30,7 +32,7 @@ export const selectLinesTableColumns = createAppSelector(
 			if (!result.some((col) => col.key === key)) {
 				result.push({
 					key,
-					visible: true,
+					visible: !hiddenByDefaultColumnKeys.has(key),
 				});
 			}
 		});

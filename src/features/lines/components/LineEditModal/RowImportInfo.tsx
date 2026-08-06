@@ -31,7 +31,11 @@ const RowImportInfo: FC = () => {
 	return (
 		<InfoLabelRow
 			label={t('lines.rowImportSource')}
-			Info={t('lines.rowImportSourceHint')}
+			Info={
+				importData.trackIndexInFile != null
+					? t('lines.rowImportSourceTrackHint')
+					: t('lines.rowImportSourceHint')
+			}
 		>
 			<Text selectable>{label}</Text>
 		</InfoLabelRow>
