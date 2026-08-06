@@ -49,7 +49,7 @@ const TRANSFORMS: Record<string, TransformFn> = {
 };
 
 /** Default template: title + date (caller formats created_at before passing). */
-export const DEFAULT_TEMPLATE = '{{title}}_{{id}}_{{created_at}}';
+export const DEFAULT_TEMPLATE = '{{title}}_{{id}}_{{custom_date}}';
 
 /** Matches {{field}} or {{field|transform}} */
 const TOKEN_RE = /\{\{(\w+)(?:\|(\w+))?\}\}/g;

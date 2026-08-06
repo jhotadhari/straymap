@@ -21,7 +21,7 @@ const escXml = (s: string): string =>
 
 interface LineMeta {
 	title?: string | null;
-	created_at?: string | null;
+	custom_date?: string | null;
 }
 
 // ---- GPX ----
@@ -92,7 +92,7 @@ export const toGeoJson = (lines: { geometry: LineString; meta?: LineMeta }[]): s
 		properties: l.meta
 			? {
 					title: l.meta.title ?? undefined,
-					timestamp: l.meta.created_at ?? undefined,
+					timestamp: l.meta.custom_date ?? undefined,
 				}
 			: {},
 	}));

@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { sprintf } from 'sprintf-js';
 import { writeFile, ExternalStorageDirectoryPath } from 'react-native-fs';
 import dayjs from '../../../../../lib/dayjs';
+import { chunk } from 'lodash-es';
 import { LineString } from 'geojson';
 
 /**
@@ -84,46 +85,58 @@ const useExport = () => {
 					'geometry',
 					'title',
 					'created_at',
+					'custom_date',
 				],
 			})) as (LinePartial & { geometry?: LineString })[];
-			const total = linesWithGeom.filter((l) => l.geometry).length;
+			const prepTasks = linesWithGeom
+				.filter((l) => l.geometry)
+				.map((line) => {
+					const safeTitle = line.title ?? line.id?.toString() ?? 'line';
+					const rawDate = line.custom_date ?? line.created_at ?? null;
+					const dateStr = rawDate
+						? dayjs(rawDate).format('YYYY-MM-DD')
+						: 'no-date';
+					const ext = selectedFormat === 'geojson' ? 'geojson' : selectedFormat;
 
-			for (const line of linesWithGeom) {
-				if (!line.geometry) {
-					continue;
-				}
+					const resolved = resolveFilename(DEFAULT_TEMPLATE, {
+						title: safeTitle,
+						id: line.id,
+						custom_date: dateStr,
+					});
+					const filename = `${sanitizeFilename(resolved)}.${ext}`;
 
-				const safeTitle = line.title ?? line.id?.toString() ?? 'line';
-				const dateStr = line.created_at
-					? dayjs(line.created_at).format('YYYY-MM-DD')
-					: 'no-date';
-				const ext = selectedFormat === 'geojson' ? 'geojson' : selectedFormat;
-
-				const resolved = resolveFilename(DEFAULT_TEMPLATE, {
-					title: safeTitle,
-					id: line.id,
-					created_at: dateStr,
-				});
-				const filename = `${sanitizeFilename(resolved)}.${ext}`;
-
-				const content = writeFormat(selectedFormat, [
-					{
-						geometry: line.geometry,
-						meta: {
-							title: line.title,
-							created_at: line.created_at,
+					const content = writeFormat(selectedFormat, [
+						{
+							geometry: line.geometry!,
+							meta: {
+								title: line.title,
+								custom_date: rawDate,
+							},
 						},
-					},
-				]);
+					]);
 
-				try {
-					const path = `${EXPORT_DIR}/${filename}`;
-					await writeFile(path, content, 'utf8');
-					written++;
-				} catch (e) {
-					logError('useExport.handleExport.perFile', e);
-					failed.push(filename);
-				}
+					return { filename, content };
+				});
+
+			const total = prepTasks.length;
+
+			const batchSize = 20;
+			const batches = chunk(prepTasks, batchSize);
+
+			for (const batch of batches) {
+				const results = await Promise.allSettled(
+					batch.map(({ filename, content }) =>
+						writeFile(`${EXPORT_DIR}/${filename}`, content, 'utf8')
+					)
+				);
+				results.forEach((result, i) => {
+					if (result.status === 'fulfilled') {
+						written++;
+					} else {
+						logError('useExport.handleExport.perFile', result.reason);
+						failed.push(batch[i].filename);
+					}
+				});
 			}
 
 			// Report outcome
