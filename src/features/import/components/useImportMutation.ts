@@ -54,6 +54,7 @@ const useImportMutation = () => {
 		setStep,
 		setBulkProgress,
 		setImportResults,
+		handleCloseImporter,
 	} = useImportContext();
 
 	const fileLimit = useAppSelector(selectFileLimit);
@@ -780,7 +781,11 @@ const useImportMutation = () => {
 	onErrorRef.current = (err) => {
 			if (keepAppActive) bgTask.stop();
 			if ((err as any)?.__aborted) {
-				setStep('configuration');
+				if (dryRun) {
+					setStep('configuration');
+				} else {
+					handleCloseImporter();
+				}
 				return;
 			}
 			logError('ImportModal.import', err);

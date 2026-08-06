@@ -27,6 +27,8 @@ import get from 'lodash/get';
 import { ErrorToastContext } from '../../../components/ErrorToast/Context';
 import { logError } from '../../../lib/utils';
 import LoadingIndicator from '../../../components/generic/primitives/LoadingIndicator';
+import ButtonHighlight from '../../../components/generic/primitives/ButtonHighlight';
+import ModalWrapper from '../../../components/generic/wrapper/ModalWrapper';
 import useAsyncBusy from '../../../compose/useAsyncBusy';
 import {
 	detectImportFormat,
@@ -36,7 +38,9 @@ import {
 import useDirsInfo from '../../dirs/hooks/useDirsInfo';
 import { useAppSelector, useAppDispatch } from '../../../store/hooks';
 import { selectAppDirs } from '../../dirs/selectors';
+import { useButtonProps } from '../../../compose/useButtonProps';
 import { localStyles } from './styles';
+import { sharedStyles } from '../../../sharedStyles';
 import { ImportMode, ImportFileResult, ImportStep } from '../types';
 import { AbsPath } from '../../dirs/types';
 import { ImportContextProvider } from '../ImportContext';
@@ -132,6 +136,20 @@ const ImportPage = () => {
 			dismissedRef.current = true;
 		};
 	}, []);
+
+	const [showStopConfirm, setShowStopConfirm] = useState(false);
+
+	const buttonPropsStop = useButtonProps({ isDestructive: true });
+	const buttonPropsProceed = useButtonProps({});
+
+	const handleStopImport = useCallback(() => {
+		setShowStopConfirm(true);
+	}, []);
+
+	const handleConfirmStop = useCallback(() => {
+		setShowStopConfirm(false);
+		dismissedRef.current = true;
+	}, [dismissedRef]);
 
 	const mutationRef = useRef<UseMutationResult<void, Error, void, unknown> | null>(null);
 
@@ -417,11 +435,44 @@ const ImportPage = () => {
 							) : (
 								<Text>{t('import.importing')}</Text>
 							)}
+							{importMode === 'directory' && (
+								<View style={localStyles.topSpace}>
+									<ButtonHighlight
+										onPress={handleStopImport}
+										{...buttonPropsStop}
+									>
+										{t('import.stopImport')}
+									</ButtonHighlight>
+								</View>
+							)}
 						</View>
 					)}
 				</ScrollView>
 			)}
 			{step === 'result' && <StepResult />}
+
+			<ModalWrapper
+				visible={showStopConfirm}
+				onDismiss={() => setShowStopConfirm(false)}
+				headerLabel={t('import.stopImportHeader')}
+				innerStyle={sharedStyles.modal}
+			>
+				<Text>{t('import.stopImportBody')}</Text>
+				<View style={sharedStyles.modalControls}>
+					<ButtonHighlight
+						onPress={() => setShowStopConfirm(false)}
+						{...buttonPropsProceed}
+					>
+						{t('import.proceedImport')}
+					</ButtonHighlight>
+					<ButtonHighlight
+						onPress={handleConfirmStop}
+						{...buttonPropsStop}
+					>
+						{t('import.stopImport')}
+					</ButtonHighlight>
+				</View>
+			</ModalWrapper>
 		</ImportContextProvider>
 	);
 };

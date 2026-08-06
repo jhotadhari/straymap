@@ -26,11 +26,12 @@ export default {
 			Component: LinesImport,
 		},
 	],
-	settingsPages: [
-		{
-			key: 'import',
-			uiItemKey: 'import',
-			priority: 1500,
-		},
-	],
+	// // Fow now do not add a standalone settings page. The Importer UI can be reached via the Routes Browser.
+	// settingsPages: [
+	// 	{
+	// 		key: 'import',
+	// 		uiItemKey: 'import',
+	// 		priority: 1500,
+	// 	},
+	// ],
 };

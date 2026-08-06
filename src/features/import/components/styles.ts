@@ -124,4 +124,7 @@ export const localStyles = StyleSheet.create({
 	flex1: {
 		flex: 1,
 	},
+	topSpace: {
+		marginTop: 24,
+	},
 });

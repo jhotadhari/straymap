@@ -35,7 +35,8 @@ const DatePatternAddPatternModal: FC<{
 	onDismiss: () => void;
 	pattern?: DatePattern | null;
 	onSave: (pattern: DatePattern) => void;
-}> = memo(({ visible, onDismiss, pattern, onSave }) => {
+	onDelete?: () => void;
+}> = memo(({ visible, onDismiss, pattern, onSave, onDelete }) => {
 	const theme = useTheme();
 	const { t, i18n } = useTranslation();
 
@@ -53,11 +54,6 @@ const DatePatternAddPatternModal: FC<{
 		});
 	}, [regex]);
 
-	const buttonPropsCancel = useButtonProps({});
-	const buttonPropsAdd = useButtonProps({
-		disabled: !regex || !format || !!regexWarning?.isError,
-	});
-
 	useEffect(() => {
 		if (visible) {
 			if (pattern) {
@@ -72,29 +68,26 @@ const DatePatternAddPatternModal: FC<{
 		}
 	}, [visible, pattern]);
 
-	const handleSave = useCallback(() => {
-		if (!regex || !format) return;
-		onSave({
-			key: pattern?.key ?? '',
-			regex,
-			format,
-			label: label || format,
-			enabled: pattern?.enabled ?? true,
-			removable: pattern?.removable ?? true,
-		});
-		onDismiss();
-	}, [
-		onDismiss,
-		onSave,
-		pattern,
-		label,
-		regex,
-		format,
-	]);
-
 	const handleDismiss = useCallback(() => {
+		if (regex && format && !regexWarning?.isError) {
+			onSave({
+				key: pattern?.key ?? '',
+				regex,
+				format,
+				label: label || format,
+				enabled: pattern?.enabled ?? true,
+				removable: pattern?.removable ?? true,
+			});
+		}
 		onDismiss();
-	}, [onDismiss]);
+	}, [onDismiss, onSave, pattern, regex, format, label, regexWarning]);
+
+	const handleDelete = useCallback(() => {
+		onDelete?.();
+		onDismiss();
+	}, [onDelete, onDismiss]);
+
+	const buttonPropsDelete = useButtonProps({ isDestructive: true });
 
 	const hintRegex = useMemo(
 		() => (
@@ -190,19 +183,15 @@ const DatePatternAddPatternModal: FC<{
 						onChangeText={setFormat}
 					/>
 				</InfoLabelRow>
-				<View style={sharedStyles.modalControls}>
-					<ButtonHighlight
-						{...buttonPropsCancel}
-						onPress={handleDismiss}
-					>
-						{t('import.cancel')}
-					</ButtonHighlight>
-					<ButtonHighlight
-						{...buttonPropsAdd}
-						onPress={handleSave}
-					>
-						{isEditing ? t('import.save') : t('import.add')}
-					</ButtonHighlight>
+				<View style={sharedStyles.modalControlsEnd}>
+					{onDelete && pattern?.removable && (
+						<ButtonHighlight
+							onPress={handleDelete}
+							{...buttonPropsDelete}
+						>
+							{t('import.removePattern')}
+						</ButtonHighlight>
+					)}
 				</View>
 			</View>
 		</ModalWrapper>

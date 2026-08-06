@@ -29,9 +29,9 @@ const DraggableItem: FC<{
 	pattern: DatePattern;
 	enabled: boolean;
 	onToggle: () => void;
-	onDelete: () => void;
+	onDuplicate: () => void;
 	onEdit: () => void;
-}> = memo(({ pattern, enabled, onToggle, onDelete, onEdit }) => {
+}> = memo(({ pattern, enabled, onToggle, onDuplicate, onEdit }) => {
 	const theme = useTheme();
 
 	const { width: screenW } = useMemo(() => Dimensions.get('window'), []);
@@ -79,23 +79,27 @@ const DraggableItem: FC<{
 			<View style={styles.controls}>
 				<View style={styles.editActions}>
 					{pattern.removable && (
-						<>
-							<IconButtonHighlight
-								icon="cog"
-								size={20}
-								onPress={onEdit}
-							/>
-							<IconButtonHighlight
-								icon="delete-outline"
-								size={20}
-								onPress={onDelete}
-							/>
-						</>
+						<IconButtonHighlight
+							icon="cog"
+							size={20}
+							onPress={onEdit}
+							style={styles.control}
+
+						/>
 					)}
+					<IconButtonHighlight
+						icon="content-duplicate"
+						size={20}
+						onPress={onDuplicate}
+						style={styles.control}
+					/>
 				</View>
 				<Switch
 					value={pattern.enabled}
 					onValueChange={onToggle}
+					style={[[styles.control,{
+						marginRight: 0,
+					}]]}
 				/>
 			</View>
 		</View>
@@ -147,6 +151,22 @@ const DatePatternEditorModal: FC<{
 		setLocalPatterns((prev) => prev.filter((p) => p.key !== key));
 	}, []);
 
+	const handleDuplicate = useCallback((key: string) => {
+		setLocalPatterns((prev) => {
+			const idx = prev.findIndex((p) => p.key === key);
+			if (idx === -1) return prev;
+			const original = prev[idx];
+			const copy: DatePattern = {
+				...original,
+				key: uuid.v4() as string,
+				removable: true,
+			};
+			const next = [...prev];
+			next.splice(idx + 1, 0, copy);
+			return next;
+		});
+	}, []);
+
 	const handleSave = useCallback((saved: DatePattern) => {
 		if (saved.key) {
 			setLocalPatterns((prev) =>
@@ -179,6 +199,14 @@ const DatePatternEditorModal: FC<{
 	const handleReset = useCallback(() => {
 		setLocalPatterns(DATE_PATTERN_PRESETS);
 	}, []);
+
+	const handleDeletePattern = useCallback(() => {
+		if (editingPattern) {
+			handleDelete(editingPattern.key);
+		}
+		setShowAdd(false);
+		setEditingPattern(null);
+	}, [editingPattern, handleDelete]);
 
 	const handleDragStart = useCallback((_params: DragStartParams) => {
 		setScrollEnabled(false);
@@ -240,7 +268,7 @@ const DatePatternEditorModal: FC<{
 									pattern={pattern}
 									enabled={pattern.enabled}
 									onToggle={() => handleToggle(pattern.key)}
-									onDelete={() => handleDelete(pattern.key)}
+									onDuplicate={() => handleDuplicate(pattern.key)}
 									onEdit={() => handleOpenEdit(pattern)}
 								/>
 							</View>
@@ -254,6 +282,7 @@ const DatePatternEditorModal: FC<{
 				onDismiss={handleCloseAdd}
 				pattern={editingPattern}
 				onSave={handleSave}
+				onDelete={handleDeletePattern}
 			/>
 		</>
 	);
@@ -299,13 +328,15 @@ const styles = StyleSheet.create({
 	controls: {
 		flexDirection: 'row',
 		alignItems: 'center',
-		gap: 4,
+	},
+	control: {
+		marginHorizontal: -2,
 	},
 	editActions: {
 		width: 76,
 		flexDirection: 'row',
 		alignItems: 'center',
-		gap: 4,
+		justifyContent: 'flex-end',
 	},
 });
 
