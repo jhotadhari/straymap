@@ -14,6 +14,7 @@ import TagsBrowser from './uiItems/TagsBrowser';
 import linesDrawerItem from './drawerPanels/lines';
 import LineEditModalWrapper from './components/LineEditModalWrapper';
 import TagBadgeModeControl from './components/controls/TagBadgeModeControl';
+import UseSimplificationControl from './components/controls/UseSimplificationControl';
 import LinesIcon from './components/LinesIcon';
 
 export default {
@@ -68,6 +69,11 @@ export default {
 			key: 'tagBadgeMode',
 			label: 'lines.tagBadgeMode',
 			Control: TagBadgeModeControl,
+		},
+		{
+			key: 'useSimplification',
+			label: 'lines.useSimplification',
+			Control: UseSimplificationControl,
 		},
 	],
 	systemTagLabels: ['imported'],

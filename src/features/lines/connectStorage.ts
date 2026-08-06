@@ -15,6 +15,7 @@ import {
 	setInitialized,
 	setSelected,
 	setTagBadgeMode,
+	setUseSimplification,
 	setLinesTableColumns,
 	setLinesSort,
 	setLinesFilters,
@@ -83,9 +84,12 @@ export const initializeFromStorage = async (store: AppStore): Promise<boolean> =
 			if (newSettings?.tagsTable?.filterLogic) {
 				store.dispatch(setTagsFilterLogic(newSettings.tagsTable.filterLogic));
 			}
-			if (newSettings?.tagBadgeMode) {
-				store.dispatch(setTagBadgeMode(newSettings.tagBadgeMode));
-			}
+		if (newSettings?.tagBadgeMode) {
+			store.dispatch(setTagBadgeMode(newSettings.tagBadgeMode));
+		}
+		if (newSettings?.useSimplification !== undefined) {
+			store.dispatch(setUseSimplification(newSettings.useSimplification));
+		}
 		}
 		store.dispatch(setInitialized(true));
 	} catch (err) {
@@ -129,6 +133,7 @@ startAppListening({
 	matcher: isAnyOf(
 		setSelected,
 		setTagBadgeMode,
+		setUseSimplification,
 		setLinesTableColumns,
 		setLinesSort,
 		setLinesFilters,

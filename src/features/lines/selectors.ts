@@ -10,6 +10,8 @@ export const selectInitialized = (state: RootState) => state.lines.initialized;
 
 export const selectTagBadgeMode = (state: RootState) => state.lines.tagBadgeMode;
 
+export const selectUseSimplification = (state: RootState) => state.lines.useSimplification;
+
 export const selectLineTemp = (state: RootState) => state.lines.lineTemp;
 
 export const selectTagTemp = (state: RootState) => state.lines.tagTemp;

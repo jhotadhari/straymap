@@ -23,7 +23,7 @@ const getSimplification = (zoomLevel: number) => {
 	}
 };
 
-const useSimplificationTolerance = () => {
+const useSimplificationTolerance = (fixedTolerance?: number) => {
 	const zoomLevel = useMapZoomLevel();
 
 	const [simplify, setSimplify] = useState<number | undefined>(undefined);
@@ -61,6 +61,8 @@ const useSimplificationTolerance = () => {
 			}
 		};
 	}, [zoomLevel]);
+
+	if (fixedTolerance !== undefined) return fixedTolerance;
 
 	return simplify;
 };

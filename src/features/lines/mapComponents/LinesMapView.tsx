@@ -11,7 +11,7 @@ import { LayerPath, ReindexScope, SharedLayer, useViewportBbox } from 'react-nat
 import { MapContext } from '../../../Context';
 import { useAppDispatch, useAppSelector, useSystemLineIds } from '../../../store/hooks';
 import { addBusyKey, removeBusyKey } from '../../ui/slice';
-import { selectSelected } from '../selectors';
+import { selectSelected, selectUseSimplification } from '../selectors';
 import { selectMapUpdateInterval } from '../../general/selectors';
 import { queryLineGeomsBatch } from '../db/queryFns';
 import useSimplificationTolerance from '../hooks/useSimplificationTolerance';
@@ -25,8 +25,9 @@ const paintSelectedLine = {
 
 const LinesMapView = () => {
 	const selectedIds = useAppSelector(selectSelected);
+	const useSimplification = useAppSelector(selectUseSimplification);
 	const systemLineIds = useSystemLineIds();
-	const simplify = useSimplificationTolerance();
+	const simplify = useSimplificationTolerance(useSimplification ? undefined : 0.00004);
 
 	// ── Diagnostics: trace systemLineIds changes ────────────────────
 	const prevSystemLineIdsRef = useRef<Record<string, number>>({});
