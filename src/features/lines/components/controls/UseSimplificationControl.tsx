@@ -28,7 +28,7 @@ const UseSimplificationControl: FC = () => {
 			{ key: 'nosimplify', label: t('lines.useSimplificationDisabled') },
 			{ key: 'simplify', label: t('lines.useSimplificationEnabled') },
 		],
-		[]
+		[t]
 	);
 
 	return (

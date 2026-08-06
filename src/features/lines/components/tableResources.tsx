@@ -67,46 +67,86 @@ export const tableStyles = StyleSheet.create({
 	},
 });
 
+const LONG_PRESS_DEFAULT_DELAY = 500;
+
 /**
- * Returns responder props for a View that distinguish taps from scrolls.
- * The wrapped {@code onPress} fires only when the finger hasn't moved more
- * than 10 px in any direction between touch-down and touch-up. This prevents
+ * Returns responder props for a View that distinguish taps from scrolls
+ * and detect long presses via a JS-level timer. The wrapped {@code onPress}
+ * fires only when the finger hasn't moved more than 10 px in any direction
+ * between touch-down and touch-up and no long press has fired. This prevents
  * spurious presses while the user is scrolling the enclosing
  * {@code BidirectionalScrollHost}.
+ *
+ * {@code View.onLongPress} is unreliable on Android when the JS responder
+ * system is active, so long-press detection is implemented here as a timer
+ * rather than relying on the native {@code OnLongClickListener}.
  */
-export const useScrollSafePress = (onPress: () => void) => {
+export const useScrollSafePress = (
+	onPress: () => void,
+	opts?: { onLongPress?: () => void; longPressDelay?: number }
+) => {
+	const onLongPress = opts?.onLongPress;
+	const longPressDelay = opts?.longPressDelay ?? LONG_PRESS_DEFAULT_DELAY;
+
 	const touchStartRef = useRef<{ x: number; y: number } | null>(null);
 	const hasMovedRef = useRef(false);
+	const longPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+	const longPressFiredRef = useRef(false);
 
 	const handleStartShouldSetResponder = useCallback(() => true, []);
 
-	const handleResponderGrant = useCallback((e: GestureResponderEvent) => {
-		touchStartRef.current = {
-			x: e.nativeEvent.pageX,
-			y: e.nativeEvent.pageY,
-		};
-		hasMovedRef.current = false;
-	}, []);
+	const handleResponderGrant = useCallback(
+		(e: GestureResponderEvent) => {
+			touchStartRef.current = {
+				x: e.nativeEvent.pageX,
+				y: e.nativeEvent.pageY,
+			};
+			hasMovedRef.current = false;
+			longPressFiredRef.current = false;
 
-	const handleResponderMove = useCallback((e: GestureResponderEvent) => {
-		if (!touchStartRef.current) return;
-		const dx = Math.abs(e.nativeEvent.pageX - touchStartRef.current.x);
-		const dy = Math.abs(e.nativeEvent.pageY - touchStartRef.current.y);
-		if (dx > 10 || dy > 10) {
-			hasMovedRef.current = true;
+			if (onLongPress) {
+				longPressTimerRef.current = setTimeout(() => {
+					longPressTimerRef.current = null;
+					longPressFiredRef.current = true;
+					onLongPress();
+				}, longPressDelay);
+			}
+		},
+		[onLongPress, longPressDelay]
+	);
+
+	const clearLongPressTimer = useCallback(() => {
+		if (longPressTimerRef.current !== null) {
+			clearTimeout(longPressTimerRef.current);
+			longPressTimerRef.current = null;
 		}
 	}, []);
 
+	const handleResponderMove = useCallback(
+		(e: GestureResponderEvent) => {
+			if (!touchStartRef.current) return;
+			const dx = Math.abs(e.nativeEvent.pageX - touchStartRef.current.x);
+			const dy = Math.abs(e.nativeEvent.pageY - touchStartRef.current.y);
+			if (dx > 10 || dy > 10) {
+				hasMovedRef.current = true;
+				clearLongPressTimer();
+			}
+		},
+		[clearLongPressTimer]
+	);
+
 	const handleResponderRelease = useCallback(() => {
-		if (!hasMovedRef.current) {
+		clearLongPressTimer();
+		if (!hasMovedRef.current && !longPressFiredRef.current) {
 			onPress();
 		}
 		touchStartRef.current = null;
-	}, [onPress]);
+	}, [clearLongPressTimer, onPress]);
 
 	const handleResponderTerminate = useCallback(() => {
+		clearLongPressTimer();
 		touchStartRef.current = null;
-	}, []);
+	}, [clearLongPressTimer]);
 
 	return useMemo(
 		() => ({
@@ -149,19 +189,21 @@ export const SortableHeaderCell: FC<{
 	onRef: (view: View | null) => void;
 	t: (key: string) => string;
 }> = ({ columnKey, sortable, sortIcon, cellStyle, onSortPress, onLongPress, onRef, t }) => {
-	const handlePress = useCallback(() => onSortPress(columnKey), [onSortPress, columnKey]);
-	const scrollSafeResponderProps = useScrollSafePress(handlePress);
+	const handlePress = useCallback(() => {
+		if (sortable) onSortPress(columnKey);
+	}, [sortable, onSortPress, columnKey]);
 
 	const handleLongPress = useCallback(() => onLongPress(columnKey), [onLongPress, columnKey]);
+
+	const scrollSafeResponderProps = useScrollSafePress(handlePress, {
+		onLongPress: handleLongPress,
+	});
 
 	return (
 		<View
 			ref={onRef}
 			style={cellStyle}
-			{...(sortable ? scrollSafeResponderProps : {})}
-			// @ts-expect-error — onLongPress exists on View but the TS types
-			// shipped with this RN version don't include it.
-			onLongPress={handleLongPress}
+			{...scrollSafeResponderProps}
 		>
 			<Text>{t(`lines.columns.${columnKey}`)}</Text>
 			{sortIcon && (
