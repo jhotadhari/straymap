@@ -1,7 +1,16 @@
 /**
  * External dependencies
  */
-import { memo, MutableRefObject, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import {
+	memo,
+	MutableRefObject,
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
 import { ScrollView, View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -19,32 +28,44 @@ import { ErrorToastContext } from '../../../components/ErrorToast/Context';
 import { logError } from '../../../lib/utils';
 import LoadingIndicator from '../../../components/generic/primitives/LoadingIndicator';
 import useAsyncBusy from '../../../compose/useAsyncBusy';
-import { detectImportFormat, parseImportContent, IMPORT_EXTENSIONS } from '../../lines/utils/importParser';
+import {
+	detectImportFormat,
+	parseImportContent,
+	IMPORT_EXTENSIONS,
+} from '../../lines/utils/importParser';
 import useDirsInfo from '../../dirs/hooks/useDirsInfo';
-import { useAppSelector } from '../../../store/hooks';
+import { useAppSelector, useAppDispatch } from '../../../store/hooks';
 import { selectAppDirs } from '../../dirs/selectors';
 import { localStyles } from './styles';
 import { ImportMode, ImportFileResult, ImportStep } from '../types';
 import { AbsPath } from '../../dirs/types';
 import { ImportContextProvider } from '../ImportContext';
 import useImportMutation from './useImportMutation';
+import { setUiItemKeys } from '../../ui/slice';
+import { selectUiItemKeys } from '../../ui/selectors';
 import StepIdle from './StepIdle';
 import StepConfiguration from './StepConfiguration';
 import StepResult from './StepResult';
+import useKeyboardShown from '../../../compose/useKeyboardShown';
 
-const MutationBootstrap = memo(({
-	mutationRef,
-}: {
-	mutationRef: MutableRefObject<UseMutationResult<void, Error, void, unknown> | null>;
-}) => {
-	const mutation = useImportMutation();
-	mutationRef.current = mutation;
-	return null;
-});
+const MutationBootstrap = memo(
+	({
+		mutationRef,
+	}: {
+		mutationRef: MutableRefObject<UseMutationResult<void, Error, void, unknown> | null>;
+	}) => {
+		const mutation = useImportMutation();
+		mutationRef.current = mutation;
+		return null;
+	}
+);
 
 const ImportPage = () => {
 	const appDirs = useAppSelector(selectAppDirs);
 	const importDirs = useMemo(() => get(appDirs, 'import', []) as AbsPath[], [appDirs]);
+
+	const dispatch = useAppDispatch();
+	const uiItemsKeys = useAppSelector(selectUiItemKeys);
 
 	const { t } = useTranslation();
 	const { showError } = useContext(ErrorToastContext);
@@ -69,24 +90,19 @@ const ImportPage = () => {
 	// Storage directory scanning
 	const [storagePath, setStoragePath] = useState<AbsPath | ''>('');
 	const dirsExtensions = useMemo(() => [...IMPORT_EXTENSIONS] as string[], []);
-	const dirsNavDirs = useMemo(
-		() => storagePath ? [storagePath as AbsPath] : [],
-		[storagePath]
-	);
+	const dirsNavDirs = useMemo(() => (storagePath ? [storagePath as AbsPath] : []), [storagePath]);
 	const { dirsInfo, isLoading: isScanningStorage } = useDirsInfo({
 		navDirs: dirsNavDirs,
 		extensions: dirsExtensions,
 		recursive: true,
+		skipCache: !!storagePath,
 	});
 
-	const handleSelectAppDir = useCallback(
-		(path: AbsPath) => {
-			setImportMode('directory');
-			setStoragePath(path);
-			setStep('scanning');
-		},
-		[]
-	);
+	const handleSelectAppDir = useCallback((path: AbsPath) => {
+		setImportMode('directory');
+		setStoragePath(path);
+		setStep('scanning');
+	}, []);
 
 	useEffect(() => {
 		if (dismissedRef.current) return;
@@ -94,14 +110,18 @@ const ImportPage = () => {
 		const dirKey = Object.keys(dirsInfo)[0];
 		if (!dirKey || !dirsInfo[dirKey]?.navChildren) return;
 
-		const children = dirsInfo[dirKey].navChildren!.filter(
-			(c) => c.isFile && c.canRead
+		const children = dirsInfo[dirKey].navChildren!.filter((c) => c.isFile && c.canRead);
+		setDirFiles(
+			children.map((c) => ({ uri: c.name, name: c.name.split('/').pop() ?? c.name }))
 		);
-		setDirFiles(children.map((c) => ({ uri: c.name, name: c.name.split('/').pop() ?? c.name })));
 		setSelectedFileUris(new Set(children.map((c) => c.name)));
 		setStoragePath('');
 		setStep('configuration');
-	}, [storagePath, dirsInfo, isScanningStorage]);
+	}, [
+		storagePath,
+		dirsInfo,
+		isScanningStorage,
+	]);
 
 	const [_isPickingFile, runOpenDocument] = useAsyncBusy(openDocument);
 	const [_isPickingDir, runOpenDocumentTree] = useAsyncBusy(openDocumentTree);
@@ -122,7 +142,11 @@ const ImportPage = () => {
 		setStep('importing');
 		setImportResults([]);
 		mutationRef.current?.mutate();
-	}, [importMode, selectedFileUris.size, selectedIndices.size]);
+	}, [
+		importMode,
+		selectedFileUris.size,
+		selectedIndices.size,
+	]);
 
 	const handlePickFile = useCallback(async () => {
 		try {
@@ -266,6 +290,14 @@ const ImportPage = () => {
 		setImportResults([]);
 	}, []);
 
+	const handleCloseImporter = useCallback(() => {
+		dispatch(setUiItemKeys([...uiItemsKeys].slice(0, Math.max(0, uiItemsKeys.length - 1))));
+	}, [dispatch, uiItemsKeys]);
+
+	const handleBackToConfiguration = useCallback(() => {
+		setStep('configuration');
+	}, []);
+
 	const selectionCount =
 		importMode === 'directory' ? selectedFileUris.size : selectedIndices.size;
 
@@ -304,6 +336,8 @@ const ImportPage = () => {
 			handleDeselectAllFiles,
 			handleImport,
 			handleResultDone,
+			handleCloseImporter,
+			handleBackToConfiguration,
 			dismissedRef,
 		}),
 		[
@@ -330,50 +364,64 @@ const ImportPage = () => {
 			handleDeselectAllFiles,
 			handleImport,
 			handleResultDone,
+			handleCloseImporter,
+			handleBackToConfiguration,
 		]
+	);
+
+	const { keyboardHeight } = useKeyboardShown();
+
+	const containerStyle = useMemo(
+		() => [
+			localStyles.container,
+			keyboardHeight ? { paddingBottom: keyboardHeight } : undefined,
+		],
+		[keyboardHeight]
 	);
 
 	return (
 		<ImportContextProvider value={ctxValue}>
 			<MutationBootstrap mutationRef={mutationRef} />
-			<ScrollView contentContainerStyle={localStyles.container}>
-				{step === 'idle' && <StepIdle />}
 
-				{step === 'scanning' && (
-					<View style={localStyles.centered}>
-						<LoadingIndicator />
-						<Text>{t('import.scanningDir')}</Text>
-					</View>
-				)}
+			{step !== 'result' && (
+				<ScrollView contentContainerStyle={containerStyle}>
+					{step === 'idle' && <StepIdle />}
 
-				{step === 'parsing' && (
-					<View style={localStyles.centered}>
-						<LoadingIndicator />
-						<Text>{t('import.parsing')}</Text>
-					</View>
-				)}
+					{step === 'scanning' && (
+						<View style={localStyles.centered}>
+							<LoadingIndicator />
+							<Text>{t('import.scanningDir')}</Text>
+						</View>
+					)}
 
-				{step === 'configuration' && <StepConfiguration />}
+					{step === 'parsing' && (
+						<View style={localStyles.centered}>
+							<LoadingIndicator />
+							<Text>{t('import.parsing')}</Text>
+						</View>
+					)}
 
-				{step === 'importing' && (
-					<View style={localStyles.centered}>
-						<LoadingIndicator />
-						{importMode === 'directory' && bulkProgress.total > 0 ? (
-							<Text>
-								{sprintf(
-									t('import.progress'),
-									bulkProgress.current,
-									bulkProgress.total
-								)}
-							</Text>
-						) : (
-							<Text>{t('import.importing')}</Text>
-						)}
-					</View>
-				)}
+					{step === 'configuration' && <StepConfiguration />}
 
-				{step === 'result' && <StepResult />}
-			</ScrollView>
+					{step === 'importing' && (
+						<View style={localStyles.centered}>
+							<LoadingIndicator />
+							{importMode === 'directory' && bulkProgress.total > 0 ? (
+								<Text>
+									{sprintf(
+										t('import.progress'),
+										bulkProgress.current,
+										bulkProgress.total
+									)}
+								</Text>
+							) : (
+								<Text>{t('import.importing')}</Text>
+							)}
+						</View>
+					)}
+				</ScrollView>
+			)}
+			{step === 'result' && <StepResult />}
 		</ImportContextProvider>
 	);
 };

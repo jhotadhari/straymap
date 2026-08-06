@@ -67,3 +67,25 @@ export const extractDateFromFilename = (
 	}
 	return null;
 };
+
+export const extractDateWithPattern = (
+	filename: string,
+	patterns: DatePattern[]
+): { date: string | null; patternName: string | null } => {
+	for (const { regex, format, label } of patterns) {
+		if (!regex) continue;
+		try {
+			const re = new RegExp(regex);
+			const match = filename.match(re);
+			if (!match?.[1]) continue;
+			const captured = normalizeMonthNames(match[1]);
+			const parsed = dayjs(captured, format, true);
+			if (parsed.isValid()) {
+				return { date: parsed.toISOString(), patternName: label };
+			}
+		} catch {
+			/* invalid regex — skip */
+		}
+	}
+	return { date: null, patternName: null };
+};

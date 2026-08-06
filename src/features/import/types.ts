@@ -22,6 +22,21 @@ export type ImportFileResult = {
 	overwritten?: number;
 	skipped?: number;
 	unmatchedIds?: number[];
+
+	isDryRun?: boolean;
+	mergeMode?: boolean;
+	tracksTotal?: number;
+
+	titleMode?: string;
+	titleExtracted?: string;
+	tracksWithNames?: number;
+	tracksWithoutNames?: number;
+
+	tagMode?: string;
+	tags?: { id?: number; label: string | null; data?: any }[];
+
+	dateApplied?: string;
+	datePatternName?: string;
 };
 
 export const isValidGeometry = (feature: Feature<LineString, GeoJsonProperties>): boolean => {

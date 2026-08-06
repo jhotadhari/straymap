@@ -63,9 +63,18 @@ Renders all configuration controls in order:
 10. **`ImportButton`** — dry-run switch + "Start Import" / "Start dry run" button.
     Disabled when `selectionCount === 0` or when `titleMode === 'regex'` and `getRegexWarnings()` returns a warning.
 
-### Result display
+### Result display (`StepResult/`)
 
-`StepResult` extracts a `ResultItem` memoized component with stable `left`/`description` callbacks per result entry.
+The result page is split into four files:
+
+| File | Role |
+|---|---|
+| `StepResult/index.tsx` | Container: dry-run notice banner, button bar ("Back to Configuration" / "Close Importer"), FlashList of file rows. In dry-run mode, hardware back button is intercepted → goes back to configuration instead of popping the navigation stack. |
+| `StepResult/FileRow.tsx` | Per-file result row. Shows: status icon, filename, per-file counts (merged / new tracks / overwritten / skipped / skipped-geom), title extraction info, tag badges via `TagBadge`, custom date extraction info. Renders `<UnmatchedLines />` for stale unmatched IDs. |
+| `StepResult/UnmatchedLines.tsx` | Owns the `remainingIds` local state. Conditionally renders the warning button (`"N unmatched track(s) need attention"`) + `UnmatchedLinesModal`. Button auto-hides when all IDs are deleted. |
+| `StepResult/UnmatchedLinesModal.tsx` | Modal with explanatory text, select-all / select-none buttons, FlashList of unmatched lines with `ListItem` + `Checkbox` rows, and "Delete N checked" button. After delete, calls `onIdsChange` to update parent state. |
+
+The `FileRow` counts logic handles merge mode, overwrite, and partial-import scenarios with distinct labels (`resultTracksMerged`, `resultNewTracks`, `resultTracksOf`, `resultSuccess`, `resultOverwritten`, `resultSkippedExisting`, `resultSkippedGeom`).
 
 ## Redux state (`slice.ts`)
 
@@ -120,13 +129,24 @@ The mutation is initialized in `ImportPage.tsx` via `MutationBootstrap`, a non-m
 - **Non-merge mode**: queries existing lines, groups IDs by `trackIndexInFile` into `Map<number, number[]>`. For each feature:
   - Matching track index → updates ALL matching lines in-place via `updateLine()`, preserving `created_at` and setting fresh `modified_at`. All duplicates from prior `'create'` imports are updated, not just one.
   - No match → collected for `createLines()`.
-  - Stale existing lines (track indices not matching any feature) → deleted.
+  - Stale existing lines (track indices not matching any feature) → collected into `unmatchedIds` for user review in `StepResult`.
 
-### Tag assignment (`buildDeriveTagIds`)
+### Tag assignment (`extractTagInfo` + `resolveTagObjects`)
 
-Always assigns the `imported` system tag. Then, depending on `tagMode`:
-- `existing`: uses `selectedTagIds` from the TagExtractModal
-- `regex`: iterates `tagRegexes` array, extracts labels from filenames, creates/finds tags via `ensureTagByLabel()`. Regexes without capture groups are skipped (checked via `classifyRegex(r, { checkCaptureGroup: true }).valid`). Zero-width matches are skipped to prevent infinite loops.
+Tag extraction is split into two phases:
+
+1. **`extractTagInfo(name)`** — pure extraction, no DB access. Returns `{ labels: string[], existingIds: number[] }`:
+   - Always includes `'imported'` in labels
+   - `existing` mode: collects `selectedTagIds` into `existingIds`
+   - `regex` mode: runs regexes on filename, collects matched labels
+   - `none` mode: only `'imported'`
+
+2. **`resolveTagObjects(labels, existingIds, isDryRun)`** — resolves labels and IDs to full `{ id?, label, data? }` objects suitable for `<TagBadge />`:
+   - Queries DB for existing tags by label and by ID
+   - For labels not in DB: real import calls `ensureTagByLabel()` to create them; dry run returns `{ label }` without an ID (no DB writes)
+   - Real import extracts numeric `uniqueTagIds` from resolved objects for `createLines`/`updateLine` calls
+
+This pipeline runs **before** the dry-run check, so both real and dry-run results include full tag/title/date extraction info in `ImportFileResult`.
 
 ### Title derivation (`deriveTitle`)
 
@@ -174,6 +194,22 @@ interface ImportFileResult {
     overwritten?: number;
     skipped?: number;
     skippedGeom?: number;
+    unmatchedIds?: number[];
+
+    isDryRun?: boolean;
+    mergeMode?: boolean;
+    tracksTotal?: number;
+
+    titleMode?: string;
+    titleExtracted?: string;
+    tracksWithNames?: number;
+    tracksWithoutNames?: number;
+
+    tagMode?: string;
+    tags?: { id?: number; label: string | null; data?: any }[];
+
+    dateApplied?: string;
+    datePatternName?: string;
 }
 ```
 
@@ -196,7 +232,8 @@ interface ImportFileResult {
 | `importResults` | `ImportFileResult[]` | Results after import |
 | `selectionCount` | `number` | Computed from current mode |
 | `handleImport` | `() => void` | Triggers the mutation |
-| `handleResultDone` | `() => void` | Reset to idle |
+| `handleCloseImporter` | `() => void` | Pops last `uiItemKey` to return to settings |
+| `handleBackToConfiguration` | `() => void` | Returns to configuration step (dry-run only) |
 | `dismissedRef` | `MutableRefObject<boolean>` | Prevents state updates after unmount |
 
 ## i18n
@@ -214,6 +251,19 @@ Feature translations at `assets/i18n/{en,de,es,pt}.json`. Notable keys:
 | `startImport` | Button: "Start Import" |
 | `startDryRun` | Button: "Start dry run" |
 | `mergeMode` | Label: "Merge into one route per file" |
+| `resultDryRunNotice` | Banner: "Dry run — no data was changed on device." |
+| `resultCloseImporter` | Button: "Close Importer" |
+| `resultBackToConfiguration` | Button: "Back to Configuration" (dry run only) |
+| `resultTitleVia` | "Title: '%s' (%s)" — extracted title + mode label |
+| `resultTracksNamed` | "%s named / %s unnamed" (non-merge mode) |
+| `resultTracksMerged` | "%s tracks merged into 1 route" |
+| `resultNewTracks` | "%s new tracks imported" (when overwrite mode) |
+| `resultDateApplied` | "%s: %s (extracted from filename by '%s')" |
+| `resultRegexNoMatch` | "Title regex produced no match" |
+| `resultUnmatchedButton` | "%s unmatched track(s) need attention" |
+| `resultUnmatchedExplanation` | Explanatory text in unmatched lines modal |
+| `resultUnmatchedDeleteChecked` | "Delete %s checked" |
+| `routeN` | "Route %s" — fallback title for unmatched lines without a title |
 
 Regex validation strings live in the global `regex` namespace (`src/assets/i18n/`) — shared across import, lines, and future features.
 
@@ -223,4 +273,4 @@ Regex validation strings live in the global `regex` namespace (`src/assets/i18n/
 2. **`ensureTagByLabel` edge case**: if drizzle's `INSERT` succeeds but `returning()` returns 0 rows, the tag exists but isn't linked to the imported line. Extremely rare.
 3. **`nameProperty` in merge mode**: if the first track has no name, falls through to subsequent tracks until one with a `properties.name` is found. If no track has a name, the merged route gets an empty title.
 4. **`custom_date`**: when `autoCustomDate` is enabled but extraction returns `null`, `createLines` falls through to SQL default (`current_timestamp`) while `updateLine` uses `?? undefined` to achieve the same default behavior. Symmetrical by design.
-5. **Unmatched lines on overwrite**: when a re-imported file has fewer tracks than before, or mode changes (merge ↔ non-merge), or prior `'create'` imports created duplicates, the excess lines are NOT automatically deleted. Instead, their IDs are collected into `result.unmatchedIds` and presented in the result page with a "N unmatched tracks" warning button. The button opens a modal with a checkbox list (like `FeatureFileList`) and a "Delete checked" action. The user must explicitly choose which unmatched lines to remove. Lines that match by `trackIndexInFile` are updated in-place via `updateLine` and keep their IDs. New tracks get fresh autoincrement IDs.
+5. **Unmatched lines on overwrite**: when a re-imported file has fewer tracks than before, or mode changes (merge ↔ non-merge), or prior `'create'` imports created duplicates, the excess line IDs are collected into `result.unmatchedIds`. They are NOT automatically deleted. The `UnmatchedLines` component renders a warning button showing the remaining count; tapping it opens `UnmatchedLinesModal` with an explanatory text, select-all/select-none buttons, a `FlashList` of lines with `ListItem` + `Checkbox` rows, and a "Delete N checked" button. The modal tracks locally via `remainingIds` state — deleted IDs vanish immediately from the list, and the parent button auto-hides when all are deleted. Lines that match by `trackIndexInFile` are updated in-place via `updateLine` and keep their IDs. New tracks get fresh autoincrement IDs.

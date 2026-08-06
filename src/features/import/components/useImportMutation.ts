@@ -18,8 +18,8 @@ import useBackgroundTask from '../../../hooks/useBackgroundTask';
 import { detectImportFormat, parseImportContent } from '../../lines/utils/importParser';
 import { createLines, updateLine } from '../../lines/db/actionsLine';
 import { dbConnection } from '../../dbLoader/DBConnection';
-import { linesTable } from '../../lines/db/schema/schema';
-import { sql } from 'drizzle-orm';
+import { linesTable, tagsTable } from '../../lines/db/schema/schema';
+import { sql, inArray } from 'drizzle-orm';
 import { ensureTagByLabel } from '../../lines/db/actionsTag';
 import { invalidateTagsTable, invalidateLinesQueries, invalidateLineGeomQueries } from '../../lines/db/queryFns';
 import { isValidGeometry, ImportFileResult } from '../types';
@@ -39,7 +39,7 @@ import {
 	selectKeepAppActive,
 	selectSelectedTagIds,
 } from '../selectors';
-import { extractDateFromFilename } from '../utils';
+import { extractDateWithPattern } from '../utils';
 
 const useImportMutation = () => {
 	const {
@@ -78,9 +78,87 @@ const useImportMutation = () => {
 	const isImporting = useRef(false);
 	const importBatchId = useRef(Date.now().toString(36));
 
-	const getOrCreateImportTag = useCallback(async (): Promise<number | undefined> => {
-		return ensureTagByLabel('imported');
-	}, []);
+	const extractTagInfo = useCallback(
+		(name: string): { labels: string[]; existingIds: number[] } => {
+			const labels: string[] = ['imported'];
+			const existingIds: number[] = [];
+
+			if (tagMode === 'existing') {
+				existingIds.push(...selectedTagIds);
+			} else if (tagMode === 'regex' && tagRegexes.length > 0) {
+				for (const r of tagRegexes) {
+					if (!r) continue;
+					const cls = classifyRegex(r, {
+						checkCaptureGroup: true,
+						checkEmptyCaptureGroup: true,
+					});
+					if (!cls.valid || !cls.hasCaptureGroup || cls.hasEmptyGroup) continue;
+					const re = new RegExp(r, 'g');
+					let match;
+					while ((match = re.exec(name)) !== null) {
+						if (match[0] === '') { re.lastIndex++; continue; }
+						labels.push(match[1] ?? match[0]);
+					}
+				}
+			}
+
+			return { labels: [...new Set(labels)], existingIds };
+		},
+		[tagMode, selectedTagIds, tagRegexes]
+	);
+
+	const resolveTagObjects = async (
+		labels: string[],
+		existingIds: number[],
+		isDryRun: boolean
+	): Promise<{ id?: number; label: string | null; data?: any }[]> => {
+		const results: { id?: number; label: string | null; data?: any }[] = [];
+
+		if (!dbConnection?.drizzle) return results;
+
+		if (labels.length > 0) {
+			const labelRows = await dbConnection.drizzle
+				.select({
+					id: tagsTable.id,
+					label: tagsTable.label,
+					data: tagsTable.data,
+				})
+				.from(tagsTable)
+				.where(inArray(tagsTable.label, labels as string[]));
+			results.push(...labelRows);
+
+			const foundLabels = new Set(labelRows.map((t) => t.label));
+			for (const label of labels) {
+				if (foundLabels.has(label)) continue;
+				if (!isDryRun) {
+					const id = await ensureTagByLabel(label);
+					if (id) results.push({ id, label, data: undefined });
+				} else {
+					results.push({ label, data: undefined });
+				}
+			}
+		}
+
+		if (existingIds.length > 0) {
+			const idRows = await dbConnection.drizzle
+				.select({
+					id: tagsTable.id,
+					label: tagsTable.label,
+					data: tagsTable.data,
+				})
+				.from(tagsTable)
+				.where(inArray(tagsTable.id, existingIds));
+			results.push(...idRows);
+		}
+
+		const seen = new Set<string>();
+		return results.filter((t) => {
+			const key = t.label ?? '';
+			if (seen.has(key)) return false;
+			seen.add(key);
+			return true;
+		});
+	};
 
 	const buildImportData = useCallback(
 		(uri: string, originalFilename: string, trackIndexInFile: number | null) => ({
@@ -120,39 +198,6 @@ const useImportMutation = () => {
 			}
 		},
 		[applyTitleRegex, titleMode]
-	);
-
-	const buildDeriveTagIds = useCallback(
-		async (name: string): Promise<number[]> => {
-			const tagIds: number[] = [];
-			const importedId = await getOrCreateImportTag();
-			if (importedId) tagIds.push(importedId);
-			if (tagMode === 'existing') {
-				for (const tid of selectedTagIds) tagIds.push(tid);
-			} else if (tagMode === 'regex' && tagRegexes.length > 0) {
-				// Skip logic mirrors TagExtractControl anchorLabel:
-				// empty, invalid, missing capture group, and
-				// empty capture group regexes are excluded.
-				for (const r of tagRegexes) {
-					if (!r) continue;
-					const cls = classifyRegex(r, {
-						checkCaptureGroup: true,
-						checkEmptyCaptureGroup: true,
-					});
-					if (!cls.valid || !cls.hasCaptureGroup || cls.hasEmptyGroup) continue;
-					const re = new RegExp(r, 'g');
-					let match;
-					while ((match = re.exec(name)) !== null) {
-						if (match[0] === '') { re.lastIndex++; continue; }
-						const label = match[1] ?? match[0];
-						const id = await ensureTagByLabel(label);
-						if (id) tagIds.push(id);
-					}
-				}
-			}
-			return [...new Set(tagIds)];
-		},
-		[tagMode, selectedTagIds, tagRegexes, getOrCreateImportTag]
 	);
 
 	const queryExistingBySourcePath = useCallback(
@@ -214,6 +259,8 @@ const useImportMutation = () => {
 									t('import.unsupportedFormat'),
 									name.split('.').pop() ?? ''
 								),
+								isDryRun: dryRun,
+								mergeMode,
 							});
 							continue;
 						}
@@ -227,6 +274,8 @@ const useImportMutation = () => {
 								success: false,
 								error: t('import.noFeatures'),
 								skippedGeom: skippedGeom > 0 ? skippedGeom : undefined,
+								isDryRun: dryRun,
+								mergeMode,
 							});
 							continue;
 						}
@@ -246,6 +295,8 @@ const useImportMutation = () => {
 										success: true,
 										skipped: existing.length,
 										skippedGeom: skippedGeom > 0 ? skippedGeom : undefined,
+										isDryRun: dryRun,
+										mergeMode,
 									});
 									continue;
 								}
@@ -271,32 +322,81 @@ const useImportMutation = () => {
 							}
 						}
 
+						const tagInfo = extractTagInfo(name);
+						const dateResult = autoCustomDate
+							? extractDateWithPattern(name, datePatterns.filter((p) => p.enabled))
+							: { date: null, patternName: null };
+						const dateApplied = dateResult.date ?? undefined;
+						const datePatternName = dateResult.patternName ?? undefined;
+
+						let titleExtracted: string | undefined;
+						let tracksWithNames: number | undefined;
+						let tracksWithoutNames: number | undefined;
+						if (mergeMode) {
+							const t = deriveTitle(name, validFeatures.find(f => f.properties?.name)?.properties?.name);
+							if (t) titleExtracted = t;
+						} else {
+							let named = 0;
+							let unnamed = 0;
+							for (const f of validFeatures) {
+								if (deriveTitle(name, f.properties?.name)) named++;
+								else unnamed++;
+							}
+							tracksWithNames = named;
+							tracksWithoutNames = unnamed;
+						}
+
 						if (dryRun) {
 							if (overwriteMode === 'skip') {
 								const existing = await queryExistingBySourcePath(uri);
 								if (existing.length > 0) {
+									const tags = await resolveTagObjects(tagInfo.labels, tagInfo.existingIds, true);
 									results.push({
 										name,
 										success: true,
 										skipped: existing.length,
 										skippedGeom: skippedGeom > 0 ? skippedGeom : undefined,
+										isDryRun: true,
+										mergeMode,
+										tracksTotal: validFeatures.length,
+										titleMode,
+										titleExtracted,
+										tracksWithNames,
+										tracksWithoutNames,
+										tagMode,
+										tags: tags.length > 0 ? tags : undefined,
+										dateApplied,
+										datePatternName,
 									});
 									continue;
 								}
 							}
+							const tags = await resolveTagObjects(tagInfo.labels, tagInfo.existingIds, true);
 							results.push({
 								name,
 								success: true,
 								importedCount: mergeMode ? Math.min(validFeatures.length, 1) : validFeatures.length,
 								skippedGeom: skippedGeom > 0 ? skippedGeom : undefined,
+								isDryRun: true,
+								mergeMode,
+								tracksTotal: validFeatures.length,
+								titleMode,
+								titleExtracted,
+								tracksWithNames,
+								tracksWithoutNames,
+								tagMode,
+								tags: tags.length > 0 ? tags : undefined,
+								dateApplied,
+								datePatternName,
 							});
 							continue;
 						}
 
-						const tagIds = await buildDeriveTagIds(name);
-						const customDateDir = autoCustomDate
-							? extractDateFromFilename(name, datePatterns.filter((p) => p.enabled))
-							: undefined;
+						const tags = await resolveTagObjects(tagInfo.labels, tagInfo.existingIds, false);
+						const rawIds = tags
+							.map((t) => t.id)
+							.filter((id): id is number => id !== undefined && id > 0);
+						const uniqueTagIds = [...new Set(rawIds)];
 
 						try {
 							let created: Awaited<ReturnType<typeof createLines>> | undefined;
@@ -311,9 +411,9 @@ const useImportMutation = () => {
 									await updateLine(mergedId, {
 										title: deriveTitle(name, validFeatures.find(f => f.properties?.name)?.properties?.name),
 										lineStringFeature: merged,
-										tagIds: tagIds.length ? tagIds : undefined,
+										tagIds: uniqueTagIds.length ? uniqueTagIds : undefined,
 										data: buildImportData(uri, name, null),
-										custom_date: customDateDir ?? undefined,
+										custom_date: dateApplied ?? undefined,
 									});
 									overwritten++;
 								} else {
@@ -321,9 +421,9 @@ const useImportMutation = () => {
 										{
 											title: deriveTitle(name, validFeatures.find(f => f.properties?.name)?.properties?.name),
 											lineStringFeature: merged,
-											tagIds: tagIds.length ? tagIds : undefined,
+											tagIds: uniqueTagIds.length ? uniqueTagIds : undefined,
 											data: buildImportData(uri, name, null),
-											custom_date: customDateDir,
+											custom_date: dateApplied,
 										},
 									]);
 								}
@@ -338,8 +438,8 @@ const useImportMutation = () => {
 											await updateLine(existingId, {
 												title: deriveTitle(name, f.properties?.name),
 												lineStringFeature: f,
-												tagIds: tagIds.length ? tagIds : undefined,
-												custom_date: customDateDir ?? undefined,
+												tagIds: uniqueTagIds.length ? uniqueTagIds : undefined,
+												custom_date: dateApplied ?? undefined,
 												data: buildImportData(uri, name, idx),
 											});
 											overwritten++;
@@ -351,9 +451,9 @@ const useImportMutation = () => {
 										toCreate.push({
 											title: deriveTitle(name, f.properties?.name),
 											lineStringFeature: f,
-											tagIds: tagIds.length ? tagIds : undefined,
+											tagIds: uniqueTagIds.length ? uniqueTagIds : undefined,
 											data: buildImportData(uri, name, idx),
-											custom_date: customDateDir,
+											custom_date: dateApplied,
 										});
 									}
 								}
@@ -371,19 +471,30 @@ const useImportMutation = () => {
 									validFeatures.map((f, idx) => ({
 										title: deriveTitle(name, f.properties?.name),
 										lineStringFeature: f,
-										tagIds: tagIds.length ? tagIds : undefined,
+										tagIds: uniqueTagIds.length ? uniqueTagIds : undefined,
 										data: buildImportData(uri, name, idx),
-										custom_date: customDateDir,
+										custom_date: dateApplied,
 									}))
 								);
 							}
 							results.push({
 								name,
 								success: true,
-								importedCount: created?.length ?? validFeatures.length,
+								importedCount: created?.length ?? 0,
 								overwritten: overwritten > 0 ? overwritten : undefined,
 								skippedGeom: skippedGeom > 0 ? skippedGeom : undefined,
 								unmatchedIds: unmatchIds.length > 0 ? unmatchIds : undefined,
+								isDryRun: dryRun,
+								mergeMode,
+								tracksTotal: validFeatures.length,
+								titleMode,
+								titleExtracted,
+								tracksWithNames,
+								tracksWithoutNames,
+								tagMode,
+								tags: tags.length > 0 ? tags : undefined,
+								dateApplied,
+								datePatternName,
 							});
 						} catch (dbErr) {
 							logError('ImportModal.bulkInsert', dbErr);
@@ -392,6 +503,8 @@ const useImportMutation = () => {
 								success: false,
 								error: (dbErr as Error)?.message ?? String(dbErr),
 								skippedGeom: skippedGeom > 0 ? skippedGeom : undefined,
+								isDryRun: dryRun,
+								mergeMode,
 							});
 						}
 					} catch (err) {
@@ -400,6 +513,8 @@ const useImportMutation = () => {
 							name,
 							success: false,
 							error: (err as Error)?.message ?? String(err),
+							isDryRun: dryRun,
+							mergeMode,
 						});
 					}
 				}
@@ -423,6 +538,7 @@ const useImportMutation = () => {
 			}
 
 			let overwrittenSingle = 0;
+			let createdSingle: Awaited<ReturnType<typeof createLines>> | undefined;
 			let existingByIndexSingle: Map<number, number[]> = new Map();
 			let staleIdsToDeleteSingle: number[] = [];
 			let mergedIdSingle: number | null = null;
@@ -438,6 +554,8 @@ const useImportMutation = () => {
 								success: true,
 								skipped: existing.length,
 								skippedGeom: skippedCount > 0 ? skippedCount : undefined,
+								isDryRun: dryRun,
+								mergeMode,
 							},
 						]);
 						return;
@@ -464,16 +582,52 @@ const useImportMutation = () => {
 				}
 			}
 
+			const tagInfo = extractTagInfo(filename);
+			const dateResult = autoCustomDate
+				? extractDateWithPattern(filename, datePatterns.filter((p) => p.enabled))
+				: { date: null, patternName: null };
+			const dateApplied = dateResult.date ?? undefined;
+			const datePatternName = dateResult.patternName ?? undefined;
+
+			let titleExtracted: string | undefined;
+			let tracksWithNames: number | undefined;
+			let tracksWithoutNames: number | undefined;
+			if (mergeMode) {
+				const t = deriveTitle(filename, toImport.find(f => f.properties?.name)?.properties?.name);
+				if (t) titleExtracted = t;
+			} else {
+				let named = 0;
+				let unnamed = 0;
+				for (const f of toImport) {
+					if (deriveTitle(filename, f.properties?.name)) named++;
+					else unnamed++;
+				}
+				tracksWithNames = named;
+				tracksWithoutNames = unnamed;
+			}
+
 			if (dryRun) {
 				if (overwriteMode === 'skip') {
 					const existing = await queryExistingBySourcePath(sourceFilePath);
 					if (existing.length > 0) {
+						const tags = await resolveTagObjects(tagInfo.labels, tagInfo.existingIds, true);
 						const result = [
 							{
 								name: filename,
 								success: true,
 								skipped: existing.length,
 								skippedGeom: skippedCount > 0 ? skippedCount : undefined,
+								isDryRun: true,
+								mergeMode,
+								tracksTotal: toImport.length,
+								titleMode,
+								titleExtracted,
+								tracksWithNames,
+								tracksWithoutNames,
+								tagMode,
+								tags: tags.length > 0 ? tags : undefined,
+								dateApplied,
+								datePatternName,
 							},
 						];
 						importResultsRef.current = result;
@@ -481,12 +635,24 @@ const useImportMutation = () => {
 						return;
 					}
 				}
+				const tags = await resolveTagObjects(tagInfo.labels, tagInfo.existingIds, true);
 				const result = [
 					{
 						name: filename,
 						success: true,
 						importedCount: mergeMode ? Math.min(toImport.length, 1) : toImport.length,
 						skippedGeom: skippedCount > 0 ? skippedCount : undefined,
+						isDryRun: true,
+						mergeMode,
+						tracksTotal: toImport.length,
+						titleMode,
+						titleExtracted,
+						tracksWithNames,
+						tracksWithoutNames,
+						tagMode,
+						tags: tags.length > 0 ? tags : undefined,
+						dateApplied,
+						datePatternName,
 					},
 				];
 				importResultsRef.current = result;
@@ -494,10 +660,11 @@ const useImportMutation = () => {
 				return;
 			}
 
-			const tagIds = await buildDeriveTagIds(filename);
-			const customDateSingle = autoCustomDate
-				? extractDateFromFilename(filename, datePatterns.filter((p) => p.enabled))
-				: undefined;
+			const tags = await resolveTagObjects(tagInfo.labels, tagInfo.existingIds, false);
+			const rawIds = tags
+				.map((t) => t.id)
+				.filter((id): id is number => id !== undefined && id > 0);
+			const uniqueTagIds = [...new Set(rawIds)];
 
 			if (mergeMode) {
 				const allCoords = toImport.flatMap((f) => f.geometry.coordinates);
@@ -510,19 +677,19 @@ const useImportMutation = () => {
 					await updateLine(mergedIdSingle, {
 						title: deriveTitle(filename, toImport.find(f => f.properties?.name)?.properties?.name),
 						lineStringFeature: merged,
-						tagIds: tagIds.length ? tagIds : undefined,
+						tagIds: uniqueTagIds.length ? uniqueTagIds : undefined,
 						data: buildImportData(sourceFilePath, filename, null),
-						custom_date: customDateSingle ?? undefined,
+						custom_date: dateApplied ?? undefined,
 					});
 					overwrittenSingle++;
 				} else {
-					await createLines([
+					createdSingle = await createLines([
 						{
 							title: deriveTitle(filename, toImport.find(f => f.properties?.name)?.properties?.name),
 							lineStringFeature: merged,
-							tagIds: tagIds.length ? tagIds : undefined,
+							tagIds: uniqueTagIds.length ? uniqueTagIds : undefined,
 							data: buildImportData(sourceFilePath, filename, null),
-							custom_date: customDateSingle,
+							custom_date: dateApplied,
 						},
 					]);
 				}
@@ -537,8 +704,8 @@ const useImportMutation = () => {
 							await updateLine(existingId, {
 								title: deriveTitle(filename, feature.properties?.name),
 								lineStringFeature: feature,
-								tagIds: tagIds.length ? tagIds : undefined,
-								custom_date: customDateSingle ?? undefined,
+								tagIds: uniqueTagIds.length ? uniqueTagIds : undefined,
+								custom_date: dateApplied ?? undefined,
 								data: buildImportData(sourceFilePath, filename, idx),
 							});
 							overwrittenSingle++;
@@ -550,9 +717,9 @@ const useImportMutation = () => {
 						toCreateSingle.push({
 							title: deriveTitle(filename, feature.properties?.name),
 							lineStringFeature: feature,
-							tagIds: tagIds.length ? tagIds : undefined,
+							tagIds: uniqueTagIds.length ? uniqueTagIds : undefined,
 							data: buildImportData(sourceFilePath, filename, idx),
-							custom_date: customDateSingle,
+							custom_date: dateApplied,
 						});
 					}
 				}
@@ -562,7 +729,7 @@ const useImportMutation = () => {
 				}
 
 				if (toCreateSingle.length > 0) {
-					await createLines(toCreateSingle);
+					createdSingle = await createLines(toCreateSingle);
 				}
 			} else {
 				if (staleIdsToDeleteSingle.length > 0) {
@@ -571,21 +738,32 @@ const useImportMutation = () => {
 				const newLines = toImport.map((feature, idx) => ({
 					title: deriveTitle(filename, feature.properties?.name),
 					lineStringFeature: feature,
-					tagIds: tagIds.length ? tagIds : undefined,
+					tagIds: uniqueTagIds.length ? uniqueTagIds : undefined,
 					data: buildImportData(sourceFilePath, filename, idx),
-					custom_date: customDateSingle,
+					custom_date: dateApplied,
 				}));
-				await createLines(newLines);
+				createdSingle = await createLines(newLines);
 			}
 
 			const result = [
 				{
 					name: filename,
 					success: true,
-					importedCount: mergeMode ? 1 : toImport.length,
+					importedCount: createdSingle?.length ?? 0,
 					overwritten: overwrittenSingle > 0 ? overwrittenSingle : undefined,
 					skippedGeom: skippedCount > 0 ? skippedCount : undefined,
 					unmatchedIds: unmatchIdsSingle.length > 0 ? unmatchIdsSingle : undefined,
+					isDryRun: dryRun,
+					mergeMode,
+					tracksTotal: toImport.length,
+					titleMode,
+					titleExtracted,
+					tracksWithNames,
+					tracksWithoutNames,
+					tagMode,
+					tags: tags.length > 0 ? tags : undefined,
+					dateApplied,
+					datePatternName,
 				},
 			];
 			importResultsRef.current = result;

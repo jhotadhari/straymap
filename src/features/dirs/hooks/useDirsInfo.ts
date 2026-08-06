@@ -21,10 +21,12 @@ const useDirsInfo = ({
 	navDirs,
 	extensions,
 	recursive,
+	skipCache = false,
 }: {
 	navDirs: AbsPath[];
 	extensions?: string[];
 	recursive?: boolean;
+	skipCache?: boolean;
 }): { dirsInfo: DirInfoMap | undefined; isLoading: boolean } => {
 	const dispatch = useAppDispatch();
 
@@ -49,7 +51,7 @@ const useDirsInfo = ({
 	const infos = useAppSelector((state) => selectDirsInfoCacheEntry(state, dirInfoCacheId));
 
 	useEffect(() => {
-		if (undefined === infos) {
+		if (skipCache || undefined === infos) {
 			Promise.all(
 				navDirs.map((navDir) => {
 					return new Promise((resolve: (value: DirInfoMap | false) => void) => {
@@ -101,6 +103,7 @@ const useDirsInfo = ({
 		navDirs,
 		extensions,
 		recursive,
+		skipCache,
 		infos,
 		dirInfoCacheId,
 		showError,

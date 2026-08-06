@@ -12,7 +12,7 @@ import { getTagColor } from './tagColor';
 import Badge from '../../../components/generic/primitives/Badge';
 
 const TagBadge: FC<{
-	tag: { id: number; label: string | null; data?: any };
+	tag: { id?: number; label: string | null; data?: any };
 }> = ({ tag }) => {
 	const badgeMode = useAppSelector(selectTagBadgeMode);
 

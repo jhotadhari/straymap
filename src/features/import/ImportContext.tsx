@@ -54,6 +54,8 @@ export interface ImportContextValue {
 	handleDeselectAllFiles: () => void;
 	handleImport: () => void;
 	handleResultDone: () => void;
+	handleCloseImporter: () => void;
+	handleBackToConfiguration: () => void;
 	dismissedRef: MutableRefObject<boolean>;
 	mutationRef?: MutableRefObject<UseMutationResult<void, Error, void, unknown> | null>;
 }
