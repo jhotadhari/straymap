@@ -145,5 +145,7 @@
 	"rowImportSource": "Importquelle",
 	"rowImportSourceHint": "Die Datei, aus der diese Route importiert wurde.",
 	"rowImportSourceTrackHint": "Die Datei, aus der diese Route importiert wurde, zusammen mit ihrer Position innerhalb der Datei.",
-	"useSimplification": "Routengeometrien bei Zoomänderung vereinfachen"
+	"useSimplification": "Routengeometrien bei Zoomänderung vereinfachen",
+	"useSimplificationDisabled": "Deaktiviert",
+	"useSimplificationEnabled": "Aktiviert (empfohlen)"
 }

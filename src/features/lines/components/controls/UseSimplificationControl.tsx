@@ -25,8 +25,8 @@ const UseSimplificationControl: FC = () => {
 
 	const options = useMemo(
 		() => [
-			{ key: 'nosimplify', label: 'disabled' },
-			{ key: 'simplify', label: 'enabled' },
+			{ key: 'nosimplify', label: t('lines.useSimplificationDisabled') },
+			{ key: 'simplify', label: t('lines.useSimplificationEnabled') },
 		],
 		[]
 	);

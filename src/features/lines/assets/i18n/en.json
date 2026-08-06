@@ -145,5 +145,7 @@
 	"rowImportSource": "Import source",
 	"rowImportSourceHint": "The file this route was imported from.",
 	"rowImportSourceTrackHint": "The file this route was imported from, along with its track position within the file.",
-	"useSimplification": "Simplify route geometries on zoomlevel change"
+	"useSimplification": "Simplify route geometries on zoomlevel change",
+	"useSimplificationDisabled": "Disabled",
+	"useSimplificationEnabled": "Enabled (recommended)"
 }

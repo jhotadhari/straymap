@@ -145,5 +145,7 @@
 	"rowImportSource": "Origem da importação",
 	"rowImportSourceHint": "O arquivo do qual esta rota foi importada.",
 	"rowImportSourceTrackHint": "O arquivo do qual esta rota foi importada, junto com sua posição no arquivo.",
-	"useSimplification": "Simplificar geometrias de rotas ao alterar zoom"
+	"useSimplification": "Simplificar geometrias de rotas ao alterar zoom",
+	"useSimplificationDisabled": "Desativado",
+	"useSimplificationEnabled": "Ativado (recomendado)"
 }
