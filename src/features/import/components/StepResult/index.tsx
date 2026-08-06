@@ -19,6 +19,8 @@ import { ImportFileResult } from '../../types';
 import { useImportContext } from '../../ImportContext';
 import FileRow from './FileRow';
 
+const containerFlexStyle = [localStyles.container, localStyles.flex1];
+
 const StepResult: FC = () => {
 	const { t } = useTranslation();
 	const theme = useTheme();
@@ -74,7 +76,7 @@ const StepResult: FC = () => {
 	);
 
 	return (
-		<View style={[localStyles.container, localStyles.flex1]}>
+		<View style={containerFlexStyle}>
 			{isDryRun && (
 				<View style={styleNotice}>
 					<LucideIcons

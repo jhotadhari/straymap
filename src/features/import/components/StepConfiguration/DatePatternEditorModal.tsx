@@ -36,49 +36,41 @@ const DraggableItem: FC<{
 
 	const { width: screenW } = useMemo(() => Dimensions.get('window'), []);
 
-	const itemOpacityStyle = useMemo(() => ({ opacity: enabled ? 1 : 0.4 }), [enabled]);
-	const itemWidthStyle = useMemo(
-		() => ({
-			width: screenW * MODAL_WIDTH_FACTOR - 2 * MODAL_PADDING,
-		}),
-		[screenW]
+	const itemStyle = useMemo(
+		() => [
+			styles.item,
+			{ opacity: enabled ? 1 : 0.4 },
+			{ width: screenW * MODAL_WIDTH_FACTOR - 2 * MODAL_PADDING },
+		],
+		[enabled, screenW]
 	);
-	const handleTextColorStyle = useMemo(() => ({ color: theme.colors.onSurface }), [theme]);
-	const formatTextColorStyle = useMemo(() => ({ color: theme.colors.onSurfaceVariant }), [theme]);
-	const regexPreviewColorStyle = useMemo(
-		() => ({ color: theme.colors.onSurfaceVariant }),
+	const handleTextColorStyle = useMemo(
+		() => [styles.label, { color: theme.colors.onSurface }],
+		[theme]
+	);
+	const formatTextStyle = useMemo(
+		() => [styles.formatText, { color: theme.colors.onSurfaceVariant }],
+		[theme]
+	);
+	const regexPreviewStyle = useMemo(
+		() => [styles.regexPreview, { color: theme.colors.onSurfaceVariant }],
 		[theme]
 	);
 
 	return (
-		<View
-			style={[
-				styles.item,
-				itemOpacityStyle,
-				itemWidthStyle,
-			]}>
+		<View style={itemStyle}>
 			<Sortable.Handle
 				mode="draggable"
 				style={styles.handle}
 			>
 				<View style={styles.handleText}>
-					<Text style={[styles.label, handleTextColorStyle]}>
+					<Text style={handleTextColorStyle}>
 						{pattern.label}
 					</Text>
-					<Text
-						style={[
-							styles.formatText,
-							formatTextColorStyle,
-						]}
-					>
+					<Text style={formatTextStyle}>
 						{pattern.format}
 					</Text>
-					<Text
-						style={[
-							styles.regexPreview,
-							regexPreviewColorStyle,
-						]}
-					>
+					<Text style={regexPreviewStyle}>
 						/{pattern.regex}/
 					</Text>
 				</View>

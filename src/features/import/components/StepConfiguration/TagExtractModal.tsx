@@ -32,6 +32,8 @@ import { useButtonProps } from '../../../../compose/useButtonProps';
 import { sharedStyles } from '../../../../sharedStyles';
 import { localStyles } from '../styles';
 
+const NOOP = () => {};
+
 const TagExtractModal: FC<{ visible: boolean; onDismiss: () => void }> = ({
 	visible,
 	onDismiss,
@@ -289,7 +291,7 @@ const TagExtractModal: FC<{ visible: boolean; onDismiss: () => void }> = ({
 										labelNode={<TagBadge tag={tag} />}
 										value={isChecked}
 										onToggle={
-											isSystemTag ? () => {} : () => handleToggleTag(tag.id)
+											isSystemTag ? NOOP : () => handleToggleTag(tag.id)
 										}
 										disabled={isSystemTag}
 									/>

@@ -73,7 +73,7 @@ const ImportDirPicker: FC<{
 	);
 
 	const hintColorStyle = useMemo(
-		() => ({ color: theme.colors.onSurfaceVariant }),
+		() => [styles.hint, { color: theme.colors.onSurfaceVariant }],
 		[theme]
 	);
 
@@ -96,10 +96,7 @@ const ImportDirPicker: FC<{
 				>
 					<ScrollView>
 						<Text
-							style={[
-								styles.hint,
-								hintColorStyle,
-							]}
+							style={hintColorStyle}
 						>
 							{t('import.dirHint')}
 						</Text>

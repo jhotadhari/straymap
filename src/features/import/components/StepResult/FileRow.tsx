@@ -43,6 +43,16 @@ const FileRow: FC<{ result: ImportFileResult }> = memo(({ result }) => {
 		]
 	);
 
+	const fileRowStyle = useMemo(
+		() => [localStyles.fileRow, { borderBottomColor: borderColor }],
+		[borderColor]
+	);
+
+	const errorCountsStyle = useMemo(
+		() => [localStyles.fileRowCounts, { color: errorColor }],
+		[errorColor]
+	);
+
 	const countsParts = useMemo(() => {
 		const parts: string[] = [];
 		if (result.overwritten && result.overwritten > 0) {
@@ -115,7 +125,7 @@ const FileRow: FC<{ result: ImportFileResult }> = memo(({ result }) => {
 	const hasTags = result.tags && result.tags.length > 0;
 
 	return (
-		<View style={[localStyles.fileRow, { borderBottomColor: borderColor }]}>
+		<View style={fileRowStyle}>
 			<View style={localStyles.fileRowHeader}>
 				<Icon
 					size={20}
@@ -151,7 +161,7 @@ const FileRow: FC<{ result: ImportFileResult }> = memo(({ result }) => {
 					{dateText && <Text style={localStyles.fileRowDetail}>{dateText}</Text>}
 				</>
 			) : (
-				<Text style={[localStyles.fileRowCounts, { color: errorColor }]}>
+				<Text style={errorCountsStyle}>
 					{sprintf(t('import.resultFailed'), result.error ?? '')}
 				</Text>
 			)}
