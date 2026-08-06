@@ -2,6 +2,7 @@
  * External dependencies
  */
 import React, { FC, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { LayoutChangeEvent, View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { get } from 'lodash-es';
 import { useMap } from 'react-native-mapsforge-vtm';
@@ -48,6 +49,7 @@ const Display: FC<DashboardWidgetProps<Options>> = ({ item, style = {}, onPress 
 	const [settledCenter, setSettledCenter] = useState<[number, number] | null>(null);
 	const settleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 	const lastCenterRef = useRef<[number, number] | null>(null);
+	const [measuredMaxWidth, setMeasuredMaxWidth] = useState(0);
 
 	// Detect centre-position changes (excluding zoom) and manage a 100 ms
 	// "settle" timer.  While the map is moving, altitudeP is cleared so the
@@ -128,6 +130,8 @@ const Display: FC<DashboardWidgetProps<Options>> = ({ item, style = {}, onPress 
 
 	const textStyle = useMemo(() => ({ fontSize, textAlign }), [fontSize, textAlign]);
 
+	const viewStyle = useMemo(() => ({ minWidth: measuredMaxWidth }), [measuredMaxWidth]);
+
 	return (
 		<ElementFrame
 			item={item}
@@ -139,9 +143,18 @@ const Display: FC<DashboardWidgetProps<Options>> = ({ item, style = {}, onPress 
 			textAlign={textAlign}
 			onPress={onPress}
 		>
-			<Text style={textStyle}>
-				{altitude === undefined ? '-' : formatHeightDepth(altitude, unitPref)}
-			</Text>
+			<View
+				collapsable={false}
+				style={viewStyle}
+				onLayout={(e: LayoutChangeEvent) => {
+					const w = e.nativeEvent.layout.width;
+					if (w > measuredMaxWidth) setMeasuredMaxWidth(w);
+				}}
+			>
+				<Text style={textStyle}>
+					{altitude === undefined ? '-' : formatHeightDepth(altitude, unitPref)}
+				</Text>
+			</View>
 		</ElementFrame>
 	);
 };
