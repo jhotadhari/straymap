@@ -9,7 +9,7 @@ and date extraction from filenames.
 
 The feature follows the standard `AppFeature` contract:
 - `selectInitialized`, `translation` (de/en/es/pt), `initializeFromStorage`
-- Exposes one `uiItem` (`'import'`) registered as a settings page
+- Exposes one `uiItem` (`'import'`); settings page registration is commented out — the importer is reached via the Routes Browser instead
 
 ## Step flow
 
@@ -54,7 +54,7 @@ Renders all configuration controls in order:
 
 8. **`TagExtractModal`** — modal wrapper with three sub-views based on `tagMode`:
    - **`none`**: descriptive text about auto `imported` tag
-   - **`existing`**: tag list loaded from DB, each tag toggleable. System tags disabled, "imported" preselected + locked. "Create tag" button opens `CreateTagModal`.
+   - **`existing`**: tag list loaded from DB, each tag toggleable. System tags disabled, "imported" preselected + locked. "Create tag" button opens `CreateTagModal` (imported from `src/features/lines/components/CreateTagModal`).
    - **`regex`**: list of regex pattern inputs with per-pattern preview, delete button, and "Add pattern" button. Uses `getRegexWarnings()` for validation.
 
 9. **`DateExtractRowControl`** — switch for auto date extraction + gear icon to open `DatePatternEditorModal`.
@@ -91,6 +91,7 @@ ImportState extends SliceSettingsBase {
     titleRegex: string;               // single regex for title extraction
     tagMode: TagMode;                 // 'none' | 'existing' | 'regex'
     tagRegexes: string[];             // array of regex patterns for tag extraction
+    selectedTagIds: number[];         // tag IDs selected in existing-tag mode
 }
 ```
 
@@ -104,7 +105,7 @@ Each state field has a corresponding selector: `selectOverwriteMode`, `selectTit
 
 ## Import mutation (`useImportMutation.ts`)
 
-The mutation is initialized in `ImportPage.tsx` via `MutationBootstrap`, a non-memoized component that calls `useImportMutation()` on every render to capture fresh context closures. The mutation reference is stored in a ref (`mutationRef.current`).
+The mutation is initialized in `ImportPage.tsx` via `MutationBootstrap`, a component that calls `useImportMutation()` and stores the result in a ref (`mutationRef.current`). `MutationBootstrap` rerenders on every parent render to capture fresh context closures via the ref/callback pattern described in the root AGENTS.md.
 
 ### Import modes
 
@@ -133,12 +134,12 @@ The mutation is initialized in `ImportPage.tsx` via `MutationBootstrap`, a non-m
 
 ### Tag assignment (`extractTagInfo` + `resolveTagObjects`)
 
-Tag extraction is split into two phases:
+Tag extraction is split into two phases (both defined inline inside `useImportMutation.ts` as `useCallback` closures):
 
 1. **`extractTagInfo(name)`** — pure extraction, no DB access. Returns `{ labels: string[], existingIds: number[] }`:
    - Always includes `'imported'` in labels
-   - `existing` mode: collects `selectedTagIds` into `existingIds`
-   - `regex` mode: runs regexes on filename, collects matched labels
+   - `existing` mode: collects `selectedTagIds` from Redux state into `existingIds`
+   - `regex` mode: runs regexes on filename (validated via `classifyRegex` from `src/lib/regexUtils.ts`), collects matched labels
    - `none` mode: only `'imported'`
 
 2. **`resolveTagObjects(labels, existingIds, isDryRun)`** — resolves labels and IDs to full `{ id?, label, data? }` objects suitable for `<TagBadge />`:
@@ -148,14 +149,14 @@ Tag extraction is split into two phases:
 
 This pipeline runs **before** the dry-run check, so both real and dry-run results include full tag/title/date extraction info in `ImportFileResult`.
 
-### Title derivation (`deriveTitle`)
+### Title derivation (`deriveTitle`, inline in `useImportMutation.ts`)
 
 Maps `titleMode` to a function of `(filename, featurePropertiesName)`:
 - `none` → `""`
 - `filenameWithoutExt` → strip extension
 - `filenameWithExt` → full filename
 - `nameProperty` → feature's `properties.name`
-- `regex` → first capture group from regex match on filename; `null` if no match
+- `regex` → delegates to `applyTitleRegex`, which runs `classifyRegex` (from `src/lib/regexUtils.ts`) then extracts the first capture group; `null` if no match
 
 In merge mode, the first track's `properties.name` is passed instead of `undefined`, so `nameProperty` mode has a meaningful fallback.
 
@@ -174,6 +175,22 @@ Each imported line stores:
 ```
 
 `sourceFilePath` is the deduplication key for overwrite/skip modes. `trackIndexInFile` maps features to existing lines for in-place updates.
+
+## Utility functions
+
+| Function | Location | Purpose |
+|---|---|---|
+| `extractTagInfo` | Inline in `useImportMutation.ts` | Extract tag labels/IDs from filename |
+| `resolveTagObjects` | Inline in `useImportMutation.ts` | Resolve to full tag objects via DB |
+| `deriveTitle` / `applyTitleRegex` | Inline in `useImportMutation.ts` | Derive title from filename or feature |
+| `buildImportData` | Inline in `useImportMutation.ts` | Build the `data` column JSON |
+| `queryExistingBySourcePath` | Inline in `useImportMutation.ts` | Query existing lines for skip/overwrite |
+| `extractDateFromFilename` | `utils.ts` | Extract ISO date string from filename |
+| `extractDateWithPattern` | `utils.ts` | Extract date + pattern name |
+| `getRegexWarnings` | `src/lib/regexUtils.ts` | Validate regex for common issues |
+| `classifyRegex` | `src/lib/regexUtils.ts` | Classify/parse regex with validation |
+
+`utils.ts` only contains date-extraction helpers. The core import logic (tag resolution, title derivation, overwrite queries) is defined inline inside `useImportMutation.ts` via `useCallback` closures to follow the stale-closure-avoiding ref pattern described in the root AGENTS.md.
 
 ## Types (`types.ts`)
 
@@ -222,19 +239,36 @@ interface ImportFileResult {
 `ImportContextValue` provides shared state for all StepConfiguration components and the mutation. Key fields:
 
 | Field | Type | Purpose |
-|---|---|---|
+|---|---|---|---|
 | `importMode` | `ImportMode` | Current mode |
+| `step` / `setStep` | `ImportStep` / setter | Current step in the import flow |
 | `features` | `Feature<LineString>[]` | Parsed features (single-file) |
 | `selectedIndices` | `Set<number>` | Selected feature indices |
+| `filename` | `string` | Current file name |
+| `sourceFilePath` | `string` | Current file URI |
 | `dirFiles` | `{ uri, name }[]` | Discovered files (directory) |
 | `selectedFileUris` | `Set<string>` | Selected file URIs |
-| `selectedTagIds` | `number[]` | Tags selected in TagExtractModal |
+| `importDirs` | `AbsPath[]` | Available import directories |
+| `bulkProgress` | `{ current, total }` | Directory-import progress counter |
 | `importResults` | `ImportFileResult[]` | Results after import |
 | `selectionCount` | `number` | Computed from current mode |
 | `handleImport` | `() => void` | Triggers the mutation |
 | `handleCloseImporter` | `() => void` | Pops last `uiItemKey` to return to settings |
 | `handleBackToConfiguration` | `() => void` | Returns to configuration step (dry-run only) |
+| `handlePickFile` | `() => Promise<void>` | Opens file picker |
+| `handleSelectAppDir` | `(path: AbsPath) => void` | Selects an app-managed directory |
+| `handleSelectCustom` | `() => void` | Opens directory tree picker |
+| `handleToggleFeature` | `(idx: number) => void` | Toggle single feature selection |
+| `handleSelectAllFeatures` | `() => void` | Select all features |
+| `handleDeselectAllFeatures` | `() => void` | Deselect all features |
+| `handleToggleFile` | `(uri: string) => void` | Toggle single file selection |
+| `handleSelectAllFiles` | `() => void` | Select all directory files |
+| `handleDeselectAllFiles` | `() => void` | Deselect all directory files |
+| `handleResultDone` | `() => void` | Return to settings or idle |
 | `dismissedRef` | `MutableRefObject<boolean>` | Prevents state updates after unmount |
+| `mutationRef` | `MutableRefObject<...\|null>` | Holds the `useMutation` result |
+
+Note: `selectedTagIds` (tag IDs selected in existing-tag mode) lives in Redux state, not context.
 
 ## i18n
 
