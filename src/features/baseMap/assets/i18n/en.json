@@ -128,5 +128,10 @@
 		}
 	},
 	"cacheManager": "Cache manager",
-	"sweepCaches": "Sweep all unused caches"
+	"sweepCaches": "Sweep all unused caches",
+	"getStarted": "Get started",
+	"noLayersHintBody": "To get started, add a map layer.",
+	"note": "Note",
+	"noteBody": "Underlined labels have more info — tap them.",
+	"noteHint": "Whenever you see underlined labels, you can tap them to see more information."
 }

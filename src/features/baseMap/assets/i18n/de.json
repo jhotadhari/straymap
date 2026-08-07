@@ -128,5 +128,10 @@
 		}
 	},
 	"cacheManager": "Cache-Verwaltung",
-	"sweepCaches": "Alle ungenutzten Caches löschen"
+	"sweepCaches": "Alle ungenutzten Caches löschen",
+	"getStarted": "Los geht's",
+	"noLayersHintBody": "Um loszulegen, füge eine Kartenebene hinzu.",
+	"note": "Hinweis",
+	"noteBody": "Unterstrichene Beschriftungen enthalten weitere Infos — antippen.",
+	"noteHint": "Immer wenn du eine unterstrichene Beschriftung siehst, kannst du sie antippen, um mehr Informationen zu erhalten."
 }

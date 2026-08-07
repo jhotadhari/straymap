@@ -128,5 +128,10 @@
 		}
 	},
 	"cacheManager": "Gerenciador de cache",
-	"sweepCaches": "Limpar todos os caches não utilizados"
+	"sweepCaches": "Limpar todos os caches não utilizados",
+	"getStarted": "Começar",
+	"noLayersHintBody": "Para começar, adicione uma camada de mapa.",
+	"note": "Nota",
+	"noteBody": "Rótulos sublinhados têm mais informações — toque neles.",
+	"noteHint": "Sempre que vir rótulos sublinhados, pode tocá-los para ver mais informações."
 }

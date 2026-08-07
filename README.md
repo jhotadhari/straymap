@@ -43,6 +43,8 @@ The app works entirely offline, with one exception: the `online-raster-xyz` map 
 
 \* Any server request transmits your IP address — this is technically unavoidable.
 
+For a detailed explanation of permissions and data handling, see [PRIVACY.md](./PRIVACY.md).
+
 ## Development
 
 > **Note**: Complete the [React Native environment setup](https://reactnative.dev/docs/set-up-your-environment) first.

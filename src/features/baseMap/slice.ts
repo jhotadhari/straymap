@@ -42,23 +42,7 @@ export interface BaseMapState extends SliceSettingsBase, BaseMapSettings {
 }
 
 export const initialSettings: BaseMapSettings = {
-	layers: [
-		{
-			key: rnUuid.v4(),
-			name: 'OpenStreetMap',
-			type: 'online-raster-xyz',
-			visible: true,
-			options: {
-				cacheSize: 128,
-				cacheDirBase: 'internal',
-				enabledZoomMax: 20,
-				enabledZoomMin: 1,
-				url: 'https://tile.openstreetmap.org/{Z}/{X}/{Y}.png',
-				zoomMax: 20,
-				zoomMin: 1,
-			},
-		},
-	],
+	layers: [],
 	mapsforgeProfiles: [
 		{
 			key: rnUuid.v4(),

@@ -25,6 +25,7 @@ import { selectLayers, selectMapsforgeProfiles } from '../../selectors';
 import { selectAppDirs } from '../../../dirs/selectors';
 import { setLayerInfos } from '../../slice';
 import { removeBusyKey } from '../../../ui/slice';
+import NoLayersHintModal from './NoLayersHintModal';
 import LayerRendererOnlineRasterXYZ from './LayerRendererOnlineRasterXYZ';
 import LayerRendererRasterMBtiles from './LayerRendererRasterMBtiles';
 import LayerRendererMapsforge from './LayerRendererMapsforge';
@@ -78,70 +79,74 @@ const BaseMap: FC<{}> = () => {
 	const profiles = useAppSelector((state) => selectMapsforgeProfiles(state, { temp: false }));
 
 	return (
-		<ReindexScope order={100}>
-			{layersReverse.map((layer: LayerConfig) => {
-				if (!layer.type) {
-					return null;
-				}
-
-				switch (layer.type) {
-					case 'online-raster-xyz':
-						return (
-							<LayerRendererOnlineRasterXYZ
-								key={layer.key}
-								layer={layer as LayerConfig<LayerConfigOptionsOnlineRasterXYZ>}
-								internalCacheDir={internalCacheDir}
-								onLayerChange={handleLayerChange}
-								onLayerCreated={onLayerCreated}
-							/>
-						);
-
-					case 'raster-MBtiles':
-						return (
-							<LayerRendererRasterMBtiles
-								key={layer.key}
-								layer={layer as LayerConfig<LayerConfigOptionsRasterMBtiles>}
-								onLayerChange={handleLayerChange}
-								onLayerCreated={onLayerCreated}
-							/>
-						);
-
-					case 'mapsforge': {
-						if (profiles.length === 0) {
-							return null;
-						}
-						const mapsforgeLayer = layer as LayerConfig<LayerConfigOptionsMapsforge>;
-						return (
-							<LayerRendererMapsforge
-								key={layer.key}
-								layer={mapsforgeLayer}
-								profile={
-									profiles.find(
-										(prof) => prof.key === mapsforgeLayer.options.profile
-									) || profiles[0]
-								}
-								onLayerChange={handleLayerChange}
-								onLayerCreated={onLayerCreated}
-							/>
-						);
+		<>
+			<NoLayersHintModal layersLength={layers.length} />
+			<ReindexScope order={100}>
+				{layersReverse.map((layer: LayerConfig) => {
+					if (!layer.type) {
+						return null;
 					}
 
-					case 'hillshading':
-						return (
-							<LayerRendererHillshading
-								key={layer.key}
-								layer={layer as LayerConfig<LayerConfigOptionsHillshading>}
-								internalCacheDir={internalCacheDir}
-								onLayerChange={handleLayerChange}
-								onLayerCreated={onLayerCreated}
-							/>
-						);
+					switch (layer.type) {
+						case 'online-raster-xyz':
+							return (
+								<LayerRendererOnlineRasterXYZ
+									key={layer.key}
+									layer={layer as LayerConfig<LayerConfigOptionsOnlineRasterXYZ>}
+									internalCacheDir={internalCacheDir}
+									onLayerChange={handleLayerChange}
+									onLayerCreated={onLayerCreated}
+								/>
+							);
 
-					default:
-						return null;
-				}
-			})}
-		</ReindexScope>
+						case 'raster-MBtiles':
+							return (
+								<LayerRendererRasterMBtiles
+									key={layer.key}
+									layer={layer as LayerConfig<LayerConfigOptionsRasterMBtiles>}
+									onLayerChange={handleLayerChange}
+									onLayerCreated={onLayerCreated}
+								/>
+							);
+
+						case 'mapsforge': {
+							if (profiles.length === 0) {
+								return null;
+							}
+							const mapsforgeLayer =
+								layer as LayerConfig<LayerConfigOptionsMapsforge>;
+							return (
+								<LayerRendererMapsforge
+									key={layer.key}
+									layer={mapsforgeLayer}
+									profile={
+										profiles.find(
+											(prof) => prof.key === mapsforgeLayer.options.profile
+										) || profiles[0]
+									}
+									onLayerChange={handleLayerChange}
+									onLayerCreated={onLayerCreated}
+								/>
+							);
+						}
+
+						case 'hillshading':
+							return (
+								<LayerRendererHillshading
+									key={layer.key}
+									layer={layer as LayerConfig<LayerConfigOptionsHillshading>}
+									internalCacheDir={internalCacheDir}
+									onLayerChange={handleLayerChange}
+									onLayerCreated={onLayerCreated}
+								/>
+							);
+
+						default:
+							return null;
+					}
+				})}
+			</ReindexScope>
+		</>
 	);
 };
 

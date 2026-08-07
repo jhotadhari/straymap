@@ -26,7 +26,6 @@ export const initialSettings: DrawersSettings = {
 	itemKeysLeft: [
 		'position',
 		'lines',
-		'waypoints',
 	],
 	itemKeysRight: [
 		'maps',
@@ -36,8 +35,8 @@ export const initialSettings: DrawersSettings = {
 	controlHandleSide: 'right',
 	showSettingsHandle: false,
 	sortable: false,
-	activeKeyLeft: undefined,
-	activeKeyRight: undefined,
+	activeKeyLeft: 'lines',
+	activeKeyRight: 'maps',
 };
 
 const initialState: DrawersState = {

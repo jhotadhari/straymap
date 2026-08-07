@@ -128,5 +128,10 @@
 		}
 	},
 	"cacheManager": "Gestor de caché",
-	"sweepCaches": "Eliminar todos los cachés no utilizados"
+	"sweepCaches": "Eliminar todos los cachés no utilizados",
+	"getStarted": "Empezar",
+	"noLayersHintBody": "Para empezar, añade una capa de mapa.",
+	"note": "Nota",
+	"noteBody": "Las etiquetas subrayadas tienen más información — tócalas.",
+	"noteHint": "Cuando veas etiquetas subrayadas, puedes tocarlas para ver más información."
 }
