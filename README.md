@@ -34,14 +34,14 @@ Straymap is gratis, non-commercial, not intended for profit. If you can afford t
 - Report [issues and bugs](https://github.com/jhotadhari/straymap/issues)
 - Ask questions or suggest features in [discussions](https://github.com/jhotadhari/straymap/discussions)
 - [Fork the repo](https://github.com/jhotadhari/straymap) and open pull requests against the `development` branch
+- Help translate the app — improve existing translations or contribute a new language. If you don't want to touch code, [start a discussion on GitHub](https://github.com/jhotadhari/straymap/discussions).
+- Respect homeless people! If someone is squatting in your backyard, don't call the police, offer help instead. It might be the author of the app.
 
 ## Privacy
 
 Straymap contains **no trackers** of any kind. All data stays on-device — nothing is collected, uploaded, or shared.
 
-The app works entirely offline, with one exception: the `online-raster-xyz` map layer, which requests raster tiles from an online source you choose yourself.*
-
-\* Any server request transmits your IP address — this is technically unavoidable.
+The app works entirely offline, with one exception: the `online-raster-xyz` map layer, which requests raster tiles from an online source you choose yourself.
 
 For a detailed explanation of permissions and data handling, see [PRIVACY.md](./PRIVACY.md).
 
@@ -58,15 +58,26 @@ yarn android      # Build & run (in a second terminal)
 
 The default branch for PRs is `development`.
 
+## Straymap Code Ecosystem
+
+Core parts of Straymap are published as standalone, reusable packages — anyone
+can pick them up and use them in their own projects.
+
+- [react-native-mapsforge-vtm](https://github.com/jhotadhari/react-native-mapsforge-vtm) — React Native wrapper for mapsforge's vtm map rendering engine
+- [react-native-mapsforge-vtm-ext-path-color-ramp](https://github.com/jhotadhari/react-native-mapsforge-vtm-ext-path-color-ramp) — Extension for map path color-ramp styling
+- [react-native-brouter](https://github.com/jhotadhari/react-native-brouter) — React Native wrapper for the BRouter offline routing engine
+- [@jhotadhari/release-kit](https://github.com/jhotadhari/release-kit) — Release automation toolkit
+- [react-native-hardwarekey-event](https://github.com/jhotadhari/react-native-hardwarekey-event) — Hardware key event handling for React Native
+
 ## Credits
 
 - Built around [mapsforge's vtm](https://github.com/mapsforge/vtm) via [react-native-mapsforge-vtm](https://github.com/jhotadhari/react-native-mapsforge-vtm)
 - **Framework:** [React](https://react.dev/) · [React Native](https://reactnative.dev/) · [TypeScript](https://www.typescriptlang.org/) · [Babel](https://babeljs.io/)
-- **State & data:** [Redux Toolkit](https://redux-toolkit.js.org/) · [React Query](https://tanstack.com/query) · [drizzle-orm](https://orm.drizzle.team/) · [op-sqlite](https://github.com/OP-Engineering/op-sqlite)
-- **UI:** [react-native-paper](https://callstack.github.io/react-native-paper/) · [react-native-paper-dates](https://github.com/web-ridge/react-native-paper-dates) · [react-native-reanimated](https://docs.swmansion.com/react-native-reanimated/) · [react-native-gesture-handler](https://docs.swmansion.com/react-native-gesture-handler/) · [react-native-svg](https://github.com/software-mansion/react-native-svg) · [react-native-sortables](https://github.com/mzuender/react-native-sortables) · [FlashList](https://shopify.github.io/flash-list/) · [@react-native-vector-icons](https://github.com/react-native-vector-icons) · [Font-GIS](https://github.com/viglino/font-gis) · [react-native-safe-area-context](https://github.com/th3rdwave/react-native-safe-area-context) · [@react-native-community/blur](https://github.com/react-native-community/blur)
+- **State & data:** [Redux Toolkit](https://redux-toolkit.js.org/) · [React Query](https://tanstack.com/query) · [drizzle-orm](https://orm.drizzle.team/) · [op-sqlite](https://github.com/OP-Engineering/op-sqlite) · [SpatiaLite](https://www.gaia-gis.it/fossil/libspatialite/index)
+- **UI:** [react-native-paper](https://callstack.github.io/react-native-paper/) · [react-native-paper-dates](https://github.com/web-ridge/react-native-paper-dates) · [react-native-reanimated & react-native-worklets](https://docs.swmansion.com/react-native-reanimated/) · [react-native-gesture-handler](https://docs.swmansion.com/react-native-gesture-handler/) · [react-native-svg](https://github.com/software-mansion/react-native-svg) · [react-native-sortables](https://github.com/mzuender/react-native-sortables) · [FlashList](https://shopify.github.io/flash-list/) · [@react-native-vector-icons](https://github.com/react-native-vector-icons) · [Font-GIS](https://github.com/viglino/font-gis) · [react-native-safe-area-context](https://github.com/th3rdwave/react-native-safe-area-context) · [@react-native-community/blur](https://github.com/react-native-community/blur)
 
-- **Maps & geo:** [Turf.js](https://turfjs.org/) · [react-native-brouter](https://github.com/jhotadhari/react-native-brouter) · [@tmcw/togeojson](https://github.com/placemark/togeojson)
+- **Maps & geo:** [Turf.js](https://turfjs.org/) · [@tmcw/togeojson](https://github.com/placemark/togeojson)
 - **i18n:** [i18next](https://www.i18next.com/) · [react-i18next](https://react.i18next.com/) · [intl-pluralrules](https://www.npmjs.com/package/intl-pluralrules)
-- **Utilities:** [lodash-es](https://lodash.com/) · [dayjs](https://day.js.org/) · [formatcoords](https://github.com/nerik/formatcoords) · [slugify](https://github.com/simov/slugify) · [sprintf-js](https://github.com/alexei/sprintf.js) · [semver-compare](https://github.com/substack/semver-compare) · [@ungap/structured-clone](https://github.com/ungap/structured-clone) · [defaults](https://github.com/tmpvar/defaults) · [react-native-fs](https://github.com/itinance/react-native-fs) · [react-native-uuid](https://github.com/eugenehp/react-native-uuid) · [react-native-default-preference](https://github.com/kevinresol/react-native-default-preference) · [react-native-scoped-storage](https://github.com/ammarahm-ed/react-native-scoped-storage) · [react-native-popover-view](https://github.com/SteffeyDev/react-native-popover-view) · [@klarna/react-native-vector-drawable](https://github.com/klarna-incubator/react-native-vector-drawable) · [react-native-markdown-display](https://github.com/iamacup/react-native-markdown-display)
+- **Utilities:** [lodash-es](https://lodash.com/) · [array-move](https://www.npmjs.com/package/array-move) · [dayjs](https://day.js.org/) · [formatcoords](https://github.com/nerik/formatcoords) · [slugify](https://github.com/simov/slugify) · [sprintf-js](https://github.com/alexei/sprintf.js) · [semver-compare](https://github.com/substack/semver-compare) · [@ungap/structured-clone](https://github.com/ungap/structured-clone) · [defaults](https://github.com/tmpvar/defaults) · [react-native-fs](https://github.com/itinance/react-native-fs) · [react-native-uuid](https://github.com/eugenehp/react-native-uuid) · [react-native-default-preference](https://github.com/kevinresol/react-native-default-preference) · [react-native-scoped-storage](https://github.com/ammarahm-ed/react-native-scoped-storage) · [react-native-popover-view](https://github.com/SteffeyDev/react-native-popover-view) · [@klarna/react-native-vector-drawable](https://github.com/klarna-incubator/react-native-vector-drawable) · [react-native-markdown-display](https://github.com/iamacup/react-native-markdown-display)
 - **Font:** [Jangly Walk](https://www.fonts4free.net/jangly-walk-font.html) © [Jakob Fischer / pizzadude.dk](https://www.pizzadude.dk)
 - **Logo:** foreground based on [hotpot.ai/logo-generator](https://hotpot.ai/logo-generator), background based on [World PNGs by Vecteezy](https://www.vecteezy.com/free-png/world)

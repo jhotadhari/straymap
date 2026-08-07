@@ -65,6 +65,7 @@ const README_SECTION_ORDER = [
 	'contribution',
 	'privacy',
 	'whereToGetMaps',
+	'codeEcosystem',
 	'credits',
 ] as const;
 const changelogParts = getMdParts(changelog).slice(1).map(stripLinkedImages);

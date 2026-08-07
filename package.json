@@ -29,7 +29,6 @@
   },
   "dependencies": {
     "@klarna/react-native-vector-drawable": "^0.5.1",
-    "@libsql/client": "^0.17.3",
     "@op-engineering/op-sqlite": "^16.1.0",
     "@react-native-community/blur": "^4.4.1",
     "@react-native-vector-icons/common": "^13.0.1",
@@ -91,7 +90,6 @@
     "@react-native/jest-preset": "^0.86.0",
     "@react-native/metro-config": "0.86.0",
     "@react-native/typescript-config": "0.86.0",
-    "@types/convert-units": "^2.3.11",
     "@types/formatcoords": "^1.1.2",
     "@types/geojson": "^7946.0.16",
     "@types/jest": "^29.5.13",
@@ -104,7 +102,6 @@
     "@types/sprintf-js": "^1.1.4",
     "@types/ungap__structured-clone": "^1.2.0",
     "babel-jest": "^29.6.3",
-    "convert-units": "^2.3.4",
     "drizzle-kit": "^0.31.10",
     "eslint": "^8.19.0",
     "glob": "^13.0.6",
