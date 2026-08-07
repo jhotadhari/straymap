@@ -9,6 +9,7 @@ import { isEqual, uniq } from 'lodash-es';
  * Internal dependencies
  */
 import { SliceSettingsBase } from '../../types';
+import { PALETTE_COLORS } from '../../constants';
 import { selectSelected } from './selectors';
 import { AppThunk } from '../../store/store';
 import {
@@ -42,11 +43,13 @@ export interface LinesSettings {
 	tagBadgeMode: 'outlined' | 'contained';
 	tagsTable: TagsTableSettings;
 	linesTable: LinesTableSettings;
+	lineColors: Record<number, string>;
 }
 
 export interface LinesState extends SliceSettingsBase, LinesSettings {
 	lineTemp?: LinePartial;
 	tagTemp?: { id: number; label?: string | null; notes?: string | null; data?: any } | null;
+	lineColors: Record<number, string>;
 }
 
 export const initialSettings: LinesSettings = {
@@ -65,11 +68,13 @@ export const initialSettings: LinesSettings = {
 		filters: [],
 		filterLogic: 'and',
 	},
+	lineColors: {},
 };
 
 const initialState: LinesState = {
 	initialized: false,
 	...initialSettings,
+	lineColors: {},
 };
 
 // Slices contain Redux reducer logic for updating state, and
@@ -274,6 +279,23 @@ export const linesSlice = createSlice({
 		) => {
 			state.tagsTable.filterLogic = action.payload;
 		},
+		setLineColor: (
+			state,
+			action: PayloadAction<{ lineId: number; color: string }>
+		) => {
+			state.lineColors[action.payload.lineId] = action.payload.color;
+		},
+		setLineColors: (
+			state,
+			action: PayloadAction<Record<number, string>>
+		) => {
+			Object.assign(state.lineColors, action.payload);
+		},
+		removeLineColors: (state, action: PayloadAction<number[]>) => {
+			for (const lineId of action.payload) {
+				delete state.lineColors[lineId];
+			}
+		},
 	},
 });
 
@@ -299,6 +321,9 @@ export const {
 	removeTagsFilter,
 	resetTagsFilters,
 	setTagsFilterLogic,
+	setLineColor,
+	setLineColors,
+	removeLineColors,
 } = linesSlice.actions;
 
 // Export the slice reducer for use in the store configuration
@@ -357,6 +382,34 @@ export const toggleTagsSort = (columnKey: string): AppThunk => {
 		} else {
 			dispatch(linesSlice.actions.setTagsSort({ columnKey, direction: 'asc' }));
 		}
+	};
+};
+
+export const randomizeLineColors = (): AppThunk => {
+	return (dispatch, getState) => {
+		const selected = selectSelected(getState());
+		const colors: Record<number, string> = {};
+		let prevIdx = -1;
+		for (const lineId of selected) {
+			let idx = Math.floor(Math.random() * PALETTE_COLORS.length);
+			if (PALETTE_COLORS.length > 1 && idx === prevIdx) {
+				idx = (idx + 1) % PALETTE_COLORS.length;
+			}
+			colors[lineId] = PALETTE_COLORS[idx].bg;
+			prevIdx = idx;
+		}
+		dispatch(linesSlice.actions.setLineColors(colors));
+	};
+};
+
+export const setLinesColor = (color: string): AppThunk => {
+	return (dispatch, getState) => {
+		const selected = selectSelected(getState());
+		const colors: Record<number, string> = {};
+		for (const lineId of selected) {
+			colors[lineId] = color;
+		}
+		dispatch(linesSlice.actions.setLineColors(colors));
 	};
 };
 

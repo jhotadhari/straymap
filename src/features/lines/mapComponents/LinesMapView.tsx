@@ -11,23 +11,39 @@ import { LayerPath, ReindexScope, SharedLayer, useViewportBbox } from 'react-nat
 import { MapContext } from '../../../Context';
 import { useAppDispatch, useAppSelector, useSystemLineIds } from '../../../store/hooks';
 import { addBusyKey, removeBusyKey } from '../../ui/slice';
-import { selectSelected, selectUseSimplification } from '../selectors';
+import { selectSelected, selectLineColors, selectUseSimplification } from '../selectors';
 import { selectMapUpdateInterval } from '../../general/selectors';
 import { queryLineGeomsBatch } from '../db/queryFns';
 import useSimplificationTolerance from '../hooks/useSimplificationTolerance';
+import { PALETTE_COLORS } from '../../../constants';
 
-const BASE_STROKE_WIDTH = 5;
+const BASE_STROKE_WIDTH = 3;
 
-const paintSelectedLine = {
-	strokeColor: '#ff2222' as `#${string}`,
-	strokeWidth: BASE_STROKE_WIDTH,
-};
+const FALLBACK_COLOR = PALETTE_COLORS[0].bg;
 
 const LinesMapView = () => {
 	const selectedIds = useAppSelector(selectSelected);
 	const useSimplification = useAppSelector(selectUseSimplification);
 	const systemLineIds = useSystemLineIds();
 	const simplify = useSimplificationTolerance(useSimplification ? undefined : 0.00004);
+	const lineColors = useAppSelector(selectLineColors);
+
+	const paintByColor = useMemo(() => {
+		const map = new Map<string, { strokeColor: `#${string}`; strokeWidth: number }>();
+		const addColor = (color: string) => {
+			if (!map.has(color)) {
+				map.set(color, {
+					strokeColor: color as `#${string}`,
+					strokeWidth: BASE_STROKE_WIDTH,
+				});
+			}
+		};
+		addColor(FALLBACK_COLOR);
+		for (const palette of PALETTE_COLORS) {
+			addColor(palette.bg);
+		}
+		return map;
+	}, []);
 
 	// ── Diagnostics: trace systemLineIds changes ────────────────────
 	const prevSystemLineIdsRef = useRef<Record<string, number>>({});
@@ -152,11 +168,13 @@ const LinesMapView = () => {
 		return linesToRender.map((line) => {
 			const coords = geomByLineId.get(line.id);
 			if (!coords) return undefined;
+			const color = lineColors[line.id] ?? FALLBACK_COLOR;
+			const paint = paintByColor.get(color);
 			return (
 				<LayerPath
 					key={line.id}
 					coordinates={coords}
-					paint={paintSelectedLine}
+					paint={paint}
 				/>
 			);
 		});
@@ -164,6 +182,8 @@ const LinesMapView = () => {
 		linesToRender,
 		simplify,
 		lines,
+		lineColors,
+		paintByColor,
 	]);
 
 	return (

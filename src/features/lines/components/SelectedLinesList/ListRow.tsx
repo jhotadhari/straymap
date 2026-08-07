@@ -1,24 +1,27 @@
 /**
  * External dependencies
  */
-import { FC, memo, useCallback, useContext, useMemo } from 'react';
-import { StyleProp, View, ViewStyle } from 'react-native';
+import { FC, memo, useCallback, useContext, useMemo, useRef, useState } from 'react';
+import { ScrollView, StyleProp, StyleSheet, TouchableHighlight, View, ViewStyle } from 'react-native';
 import { useTheme, Text, Icon } from 'react-native-paper';
 import { useMap } from 'react-native-mapsforge-vtm';
-import dayjs from '../../../../lib/dayjs';
+import Popover from 'react-native-popover-view';
 
 /**
  * Internal dependencies
  */
+import dayjs from '../../../../lib/dayjs';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { Line } from '../../types';
 import DrawerContext from '../../../drawers/DrawerContext';
 import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
-import { setLineSelected, setLineTemp } from '../../slice';
+import MenuItem from '../../../../components/generic/wrapper/MenuItem';
+import { setLineSelected, setLineTemp, setLineColor } from '../../slice';
+import { selectLineColors } from '../../selectors';
 import TagBadge from '../TagBadge';
 import IconRouting from '../../../routing/drawerPanels/routing/IconComponent';
 import useActivateDrawerItem from '../../../drawers/hooks/useActivateDrawerItem';
-import { DRAWER_ICON_SIZE, MAP_ANIMATION_PADDING_PX } from '../../../../constants';
+import { DRAWER_ICON_SIZE, MAP_ANIMATION_PADDING_PX, PALETTE_COLORS } from '../../../../constants';
 import { sharedStyles } from './sharedDeps';
 import LineStatsCompactRows from '../Stats/LineStatsCompactRows';
 import { bbox as turfBbox } from '@turf/turf';
@@ -36,6 +39,8 @@ export interface ListRowProps {
 const ListRow: FC<ListRowProps> = ({ line, idx, systemFeatureKey }) => {
 	const dispatch = useAppDispatch();
 
+	const lineColors = useAppSelector(selectLineColors);
+
 	const { mapViewNativeNodeHandle } = useContext(AppContext);
 
 	const { flyToBounds } = useMap(mapViewNativeNodeHandle);
@@ -48,6 +53,22 @@ const ListRow: FC<ListRowProps> = ({ line, idx, systemFeatureKey }) => {
 	const theme = useTheme();
 
 	const dateTimeFormat = useAppSelector(selectDateTimeFormat);
+
+	const [colorMenuVisible, setColorMenuVisible] = useState(false);
+	const colorAnchorRef = useRef<View>(null);
+
+	const lineColor = lineColors[line.id];
+	const fallbackColor = PALETTE_COLORS[0].bg;
+
+	const dismissColorMenu = useCallback(() => setColorMenuVisible(false), []);
+
+	const handleColorSelect = useCallback(
+		(color: string) => {
+			dispatch(setLineColor({ lineId: line.id, color }));
+			dismissColorMenu();
+		},
+		[dispatch, line.id, dismissColorMenu]
+	);
 
 	const dynamicStyles = useMemo(
 		() => ({
@@ -122,19 +143,87 @@ const ListRow: FC<ListRowProps> = ({ line, idx, systemFeatureKey }) => {
 	const { nestedIconColor, ...buttonPropsAny } = useButtonProps({
 		mode: 'text',
 	});
+
+	const popoverStyle = useMemo(
+		() => ({
+			backgroundColor: theme.colors.background,
+			borderWidth: 1,
+			borderColor: theme.colors.outline,
+		}),
+		[theme]
+	);
+
 	return (
 		<View style={dynamicStyles.container}>
+			<TouchableHighlight
+				onPress={() => setColorMenuVisible(true)}
+				style={
+					'left' === side ? sharedStyles.colorColumnLeft : sharedStyles.colorColumnRight
+				}
+			>
+				<View
+					ref={colorAnchorRef}
+					style={[
+						sharedStyles.colorColumnInner,
+						{
+							backgroundColor: (lineColor ?? fallbackColor) as `#${string}`,
+						},
+					]}
+				/>
+			</TouchableHighlight>
+
+			{colorAnchorRef.current && (
+				<Popover
+					popoverStyle={popoverStyle}
+					arrowSize={arrowSize}
+					isVisible={colorMenuVisible}
+					onRequestClose={dismissColorMenu}
+					from={colorAnchorRef as React.RefObject<React.Component<{}, {}, any>>}
+					animationConfig={animationConfig}
+				>
+					<ScrollView>
+						{colorMenuVisible && (
+							<View>
+								{PALETTE_COLORS.map((palette) => (
+									<MenuItem
+										key={palette.bg}
+										IconComponent={() => (
+											<View
+												style={[
+													colorCircle.circle,
+													{
+														backgroundColor:
+															palette.bg as `#${string}`,
+													},
+												]}
+											/>
+										)}
+										onPress={() => handleColorSelect(palette.bg)}
+									/>
+								))}
+							</View>
+						)}
+					</ScrollView>
+				</Popover>
+			)}
+
 			<View style={sharedStyles.rowColInfo}>
 				{line.title && (
 					<View style={dynamicStyles.rowColInfoRow}>
-						<Text>{line.title}</Text>
+						<Text
+							numberOfLines={1}
+							ellipsizeMode="tail"
+						>
+							{line.title}
+						</Text>
 					</View>
 				)}
 				<View style={dynamicStyles.rowColInfoRow}>
-					<Text>
-						{line.custom_date
-							? dayjs(line.custom_date).format(dateTimeFormat)
-							: ''}
+					<Text
+						numberOfLines={1}
+						ellipsizeMode="tail"
+					>
+						{line.custom_date ? dayjs(line.custom_date).format(dateTimeFormat) : ''}
 					</Text>
 				</View>
 
@@ -211,5 +300,18 @@ const ListRow: FC<ListRowProps> = ({ line, idx, systemFeatureKey }) => {
 		</View>
 	);
 };
+
+const animationConfig = {
+	duration: 0,
+};
+const arrowSize = { height: 0, width: 0 };
+
+const colorCircle = StyleSheet.create({
+	circle: {
+		width: 24,
+		height: 24,
+		borderRadius: 12,
+	},
+});
 
 export default memo(ListRow);

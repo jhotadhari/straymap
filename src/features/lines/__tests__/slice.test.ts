@@ -206,7 +206,7 @@ describe('lines selectors', () => {
 		});
 	});
 
-	it('selectSelected runs uniq on numbers', () => {
+	it('selectSelected returns selected IDs as-is', () => {
 		const state = buildRoot({
 			selected: [
 				1,
@@ -216,9 +216,9 @@ describe('lines selectors', () => {
 			],
 		});
 		const result = selectSelected(state);
-		// lodash uniq with numbers deduplicates by value (SameValueZero)
 		expect(result).toEqual([
 			1,
+			2,
 			2,
 			3,
 		]);

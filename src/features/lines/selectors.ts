@@ -80,3 +80,8 @@ export const selectTagsFilters = (state: RootState) => state.lines.tagsTable.fil
 export const selectTagsFilterLogic = (state: RootState) => state.lines.tagsTable.filterLogic;
 
 export const selectTagsFilterableColumns = (state: RootState) => selectTagsTableColumns(state);
+
+export const selectLineColors = (state: RootState) => state.lines.lineColors;
+
+export const selectLineColor = (lineId: number) => (state: RootState) =>
+	state.lines.lineColors[lineId];

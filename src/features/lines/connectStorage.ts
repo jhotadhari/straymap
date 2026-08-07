@@ -28,6 +28,7 @@ import {
 	setTagsFilterLogic,
 	upsertTagsFilter,
 	removeTagsFilter,
+	setLineColors,
 } from './slice';
 import { startAppListening } from '../../store/listenerMiddleware';
 import { selectInitialized } from './selectors';
@@ -90,6 +91,9 @@ export const initializeFromStorage = async (store: AppStore): Promise<boolean> =
 		if (newSettings?.useSimplification !== undefined) {
 			store.dispatch(setUseSimplification(newSettings.useSimplification));
 		}
+		if (newSettings?.lineColors) {
+			store.dispatch(setLineColors(newSettings.lineColors));
+		}
 		}
 		store.dispatch(setInitialized(true));
 	} catch (err) {
@@ -145,7 +149,8 @@ startAppListening({
 		setTagsFilters,
 		setTagsFilterLogic,
 		upsertTagsFilter,
-		removeTagsFilter
+		removeTagsFilter,
+		setLineColors
 	),
 	effect: async (action, listenerApi) => {
 		try {

@@ -26,4 +26,18 @@ export const sharedStyles = StyleSheet.create({
 		gap: 8,
 	},
 	disabled: { opacity: OPACITY_DISABLED },
+	colorColumnLeft: {
+		marginLeft: 2,
+		marginRight: -16,
+		paddingHorizontal: 8,
+	},
+	colorColumnRight: {
+		marginLeft: -16,
+		paddingHorizontal: 8,
+	},
+	colorColumnInner: {
+		width: 2,
+		flex: 1,
+		height: '100%',
+	},
 });
