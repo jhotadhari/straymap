@@ -56,7 +56,7 @@ yarn start        # Start Metro bundler
 yarn android      # Build & run (in a second terminal)
 ```
 
-The default branch for PRs is `development`.
+The default branch for PRs is `development`. The `main` branch contains only tagged, versioned releases.
 
 ## Straymap Code Ecosystem
 
