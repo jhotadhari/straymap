@@ -41,6 +41,7 @@ LinesState extends SliceSettingsBase, LinesSettings {
   tagBadgeMode: 'outlined' | 'contained';         // badge visual style
   linesTable: LinesTableSettings;                 // columns, sort, filters, filterLogic
   tagsTable: TagsTableSettings;                   // columns, sort, filters, filterLogic
+  lineColors: Record<number, string>;             // lineId → palette hex colour (persisted)
   // LinesState only:
   lineTemp?: LinePartial;                         // draft being edited in LineEditModal
   tagTemp?: { id: number; ... } | null;           // draft tag being edited
@@ -55,6 +56,8 @@ LinesState extends SliceSettingsBase, LinesSettings {
 | `setLinesSelected(newIds: number[])` | Bulk-replaces `selected[]` (no-op if unchanged)                  |
 | `toggleLinesSort(columnKey)`         | Toggle sort direction or switch to a new column                  |
 | `toggleTagsSort(columnKey)`          | Same for the tags table                                          |
+| `randomizeLineColors()`              | Assigns random `PALETTE_COLORS` to all selected lines, avoiding same-adjacent-colour |
+| `setLinesColor(color)`               | Sets all selected lines to the same palette colour               |
 | `onSetDbPath()`                      | Clears `selected[]` when the db path changes (user must restart) |
 
 ### Key reducers (also exported as actions)
@@ -69,6 +72,9 @@ LinesState extends SliceSettingsBase, LinesSettings {
 | `upsertTagsFilter`   | Add or merge a filter on the tags table              |
 | `removeTagsFilter`   | Remove a single filter from the tags table           |
 | `resetTagsFilters`   | Clear all tag filters                                |
+| `setLineColor`       | Set the palette colour for one line                  |
+| `setLineColors`      | Bulk-set palette colours for multiple lines          |
+| `removeLineColors`   | Remove colour entries for given line IDs             |
 
 ### Key selectors
 
@@ -86,6 +92,8 @@ LinesState extends SliceSettingsBase, LinesSettings {
 | `selectTagsSort`          | `SortState \| null`                                           |
 | `selectTagsFilters`       | `ColumnFilter[]`                                              |
 | `selectTagsFilterLogic`   | `'and' \| 'or'`                                               |
+| `selectLineColors`        | `Record<number, string>` (lineId → hex colour)                |
+| `selectLineColor(lineId)` | `string \| undefined` (single line's colour)                  |
 
 ## React Query layer
 
@@ -235,6 +243,68 @@ Key points:
 - **Conflict detection** surfaces impossible filter combinations as a
   warning icon in the table header.
 
+## Per-line colours
+
+Line stroke colours are stored in Redux (`lineColors: Record<number, string>`),
+NOT in the database. The key maps `lineId` to a hex colour from
+`PALETTE_COLORS` (defined in `src/constants.ts`). Persisted via
+`connectStorage`.
+
+### LinesMapView
+
+`LinesMapView` subscribes to `selectLineColors`. A `useMemo`'d
+`Map<colorHex, paintObject>` (at most 11 entries — 10 palette + 1 default
+`PALETTE_COLORS[0].bg`) is created once. Each `<LayerPath>` looks up its
+line's paint via `paintByColor.get(lineColors[lineId] ?? FALLBACK_COLOR)`.
+Paint objects are shared when colours repeat, so per-line colour has no
+per-element allocation cost.
+
+### ListRow colour column
+
+The colour column (`colorColumnInner`) in `ListRow` shows a vertical
+2px-wide bar. Background reads from Redux: `lineColors[line.id]` fallback
+`PALETTE_COLORS[0].bg`. Tapping opens a `Popover` (raw `react-native-popover-view`,
+no placement — auto-positions) with one `MenuItem` per palette colour
+showing an unlabelled coloured circle. Selecting dispatches
+`setLineColor({ lineId, color })`.
+
+## DrawerTopBar actions popover
+
+Follows the same `useActions` aggregator pattern as
+`RoutingActionsButton` (`src/features/routing/components/DrawerTopBar/useActions/`).
+
+### Files
+
+```
+DrawerTopBar/
+├── DrawerTopBar.tsx           # calls useActions, renders LinesActionsButton
+├── LinesActionsButton.tsx     # dual-mode Popover (actions ↔ colour palette)
+└── useActions/
+    ├── index.ts               # aggregator → Record<string, MenuActionOption>
+    ├── useActionClearLines.tsx # confirmation modal → setSelected(system-only IDs)
+    ├── useActionRandomizeColors.tsx # dispatches randomizeLineColors()
+    ├── useActionSetEqualColors.tsx  # switches popover to colour-picker mode
+    └── useActionShowStats.tsx       # aggregated-statistics modal
+```
+
+### LinesActionsButton dual-mode popover
+
+Uses a raw `Popover` (not `ButtonHighlightMenuControl`) because the popover
+must stay open and swap between two content sets:
+
+1. **Actions menu** (3 items): clearLines, randomizeColors, setEqualColors
+2. **Colour picker** (10 items): one per `PALETTE_COLORS`, unlabelled circles
+
+"set equal colours" sets `colorPickerActive = true` without closing the
+popover. Selecting a colour calls `handleColorSelect` which dispatches
+`setLinesColor(color)` and calls `dismissMenu()` (closing both).
+
+Button styling is shared with the "Lines browser" button via `buttonProps`
+typed as `ReturnType<typeof useButtonProps>` (destructured from
+`nestedIconColor`). `paddingHorizontal` is toggled dynamically via
+`onLayout` overflow detection: if both buttons don't fit in the row,
+`contentFits` flips to `false` (one-way), removing horizontal padding.
+
 ## Gotchas
 
 - **Bulk delete must update Redux**: `useDeleteLines.onSuccess` dispatches
@@ -258,3 +328,8 @@ Key points:
 
 - **Import convention**: Feature-level `AGENTS.md` documents architecture.
   The root `AGENTS.md` covers project-wide commands and conventions.
+
+- **Line colours are Redux-only, not DB**: `lineColors` lives in Redux and
+  is persisted via `DefaultPreference`. It is never written to the lines
+  table. `LinesMapView` reads `selectLineColors`, not React Query. This
+  avoids coupling geometry batch queries to colour data.
