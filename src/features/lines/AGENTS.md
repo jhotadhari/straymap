@@ -195,7 +195,7 @@ Opens when `lineTemp` is set (via `dispatch(setLineTemp({ id }))`).
 | `RowToggleOnMap` | Toggle line visibility with dynamic icon/label             |
 | `RowRouting`     | Load/activate routing for this line                        |
 | `RowStats`       | Show aggregated statistics                                 |
-| `RowExport`      | Export GPX                                                 |
+| `RowExport`      | Export to GPX/KML/GeoJSON via shared 3-phase modal   |
 | `RowDelete`      | Delete single line with confirmation modal                 |
 
 ## Bulk actions (`LinesTable/useBulkActions/`)
@@ -211,7 +211,7 @@ into a `Record<string, MenuActionOption>` — also memoized.
 | Fly to          | `useFlyTo`         | No     |
 | Add tag         | `useAddTag`        | No     |
 | Remove tag      | `useRemoveTag`     | No     |
-| Export          | `useExport`        | No     |
+| Export          | `useExport`        | Yes    |
 | Show stats      | `useShowStats`     | Yes    |
 | Delete lines    | `useDeleteLines`   | Yes    |
 
@@ -226,6 +226,50 @@ useBulkActions() → useMemo'd Record
 `Object.values()` is memoized so the `React.memo` on `PopoverMenuItems` can
 actually bail out of re-renders when the underlying action objects haven't
 changed.
+
+## Export
+
+Shared hook `hooks/useExportCbModal.tsx` handles both single-line and bulk export.
+Follows the `useDeleteLinesCbModal` pattern — returns `{ cb, modalNode }`.
+
+### Consumers
+
+| Consumer | Location | Hook call |
+|---|---|---|
+| Single line | `LineEditModal/RowExport.tsx` | `useExportCbModal({ type: 'single', line })` |
+| Bulk lines | `LinesTable/useBulkActions/useExport.tsx` | `useExportCbModal({ type: 'bulk', checkedIds })` |
+
+### Modal phases
+
+| Phase | Content |
+|---|---|
+| `'format'` | Radio buttons (GPX/KML/GeoJSON) + "Export" button |
+| `'progress'` | `LoadingIndicator` + text (single: `lines.exporting`, bulk: `lines.exportProgress` "Exporting X of Y...") + (bulk) "Stop" button with `isDestructive` |
+| `'result'` | Icon (check/warning/error) + summary header + file-paths list. Dismissable via backdrop or back arrow — no explicit button needed |
+
+`dismissDisabled={true}` during `'progress'` — backdrop tap and back arrow blocked.
+The "Stop" button sets a `stoppedRef` flag; bulk write loop checks it between batches
+(20 files per `Promise.allSettled` chunk) and transitions to result with the partial
+written-files list.
+
+### Error reporting
+
+All outcomes shown inline in the result phase — no `ErrorToastContext` / `showError`
+calls. Result paths:
+
+- **No geometry**: `exportNoGeom`
+- **Permission denied**: `exportPermissionDenied`
+- **All success**: `exportSuccess` ("Exported X of Y routes.") + full file-paths list
+- **Partial**: `exportPartial` ("Exported X of Y routes. Failed: …") + failed paths
+- **All failed**: `exportNoFilesWritten`
+- **Stopped**: `exportStopped` ("Stopped. Exported X of Y routes.") + written paths
+- **Generic error**: `errorGeneric`
+
+### Date field
+
+Filenames use `custom_date` with fallback to `created_at`. The default template is
+`{{title}}_{{id}}_{{custom_date}}` (`utils/filenameTemplate.ts`). GeoJSON metadata
+`timestamp` property also uses the resolved date.
 
 ## Filters
 
