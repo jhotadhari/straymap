@@ -1,6 +1,6 @@
 {
   "name": "com.jhotadhari.straymap",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "private": true,
   "codegenConfig": {
     "name": "AppSpecs",
