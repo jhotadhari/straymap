@@ -1,0 +1,31 @@
+{
+	"hardwareKeyAssignment": "Asignación de teclas de hardware",
+	"hardwareKey_one": "Tecla de hardware",
+	"hardwareKey_other": "Teclas de hardware",
+	"nothing": "Nada",
+	"volumeUp": "Subir volumen",
+	"volumeDown": "Bajar volumen",
+	"zoomIn": "Acercar",
+	"zoomOut": "Alejar",
+	"hint": {
+		"units": {
+			"heightDepth": "La altura/profundidad no se refiere a las etiquetas de altura/profundidad dentro de una capa del mapa. Estas son completamente independientes de esta configuración. Las etiquetas de altura/profundidad dentro de una capa del mapa dependen únicamente de la fuente de la capa.",
+			"unit": "Selecciona el sistema de unidades utilizado para mostrar valores de este tipo en toda la aplicación.",
+			"decimalPlaces": "Número de decimales mostrados para valores de este tipo de unidad. Valores más altos muestran más dígitos después del punto decimal para mayor precisión.",
+			"coordsPadLng": "Si se activa, la longitud se rellenará a tres dígitos. Ej.: '012°' en lugar de '12°'.",
+			"coordsPadLat": "Si se activa, la latitud se rellenará a dos dígitos. Ej.: '02°' en lugar de '2°'.",
+			"coordsForceNE": "Si se activa, siempre se usará norte y este en lugar de sur y oeste. Valores negativos indican sur u oeste. Ej.: '-12°E' en lugar de '12°O'.",
+			"coordsOrder": "Determina qué componentes de coordenadas se muestran y en qué orden."
+		},
+		"hardwareKey": "Asigna una acción a este botón de hardware. Mapea las teclas de volumen para acercar y alejar el mapa, o configúralas para que no hagan nada y evitar cambios accidentales de zoom.",
+		"dateTimeFormat": "Las fechas y horas se formatean con day.js. Consulta la documentación para ver las opciones de formato disponibles.",
+		"dateTimeHintDefault": "Personaliza cómo se muestran las fechas y horas en la aplicación.\n\nCuando está activado, las fechas y horas se muestran con el formato predeterminado %s. Desactívalo para introducir un formato day.js personalizado.",
+		"dateTimeHintCustom": "Introduce un formato day.js personalizado para controlar cómo se muestran las fechas y horas en la aplicación."
+	},
+	"dateTime": "Fecha / hora",
+	"customFormat": "Formato personalizado",
+	"timeZoneNotice": "La zona horaria está fijada en UTC. La hora siempre se muestra en formato de 24 horas.",
+	"useDefaultFormat": "Formato predeterminado",
+	"formatDocs": "Documentación de formato day.js",
+	"example": "Ejemplo"
+}

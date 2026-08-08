@@ -1,155 +1,46 @@
 /**
- * External dependencies
- */
-import { LayerHillshading } from 'react-native-mapsforge-vtm';
-
-/**
  * Internal dependencies
  */
-import packageJson from '../package.json';
+import { PaletteColor } from './types';
 
-export const LINKING_ERROR =
-	'The package doesn\'t seem to be linked. Make sure: \n\n' +
-	'- You rebuilt the app after installing the package\n' +
-	'- You are not using Expo Go\n';
+export const LABEL_WIDTH = 8 * 13;
 
-export const modalWidthFactor = 0.8;
+export const MODAL_WIDTH_FACTOR = 0.8;
 
-export const defaults = {
-	uiState: {
-		mapLayersExpanded: false,
-		mapsforgeProfilesExpanded: false,
-		cacheManagerExpanded: false,
-	},
-	layerConfigOptions: {
-		['online-raster-xyz']: {
-			alpha: 1,
-			cacheSize: 0,
-			cacheDirBase: 'internal',
-			zoomMin: 1,
-			zoomMax: 20,
-			enabledZoomMin: 1,
-			enabledZoomMax: 20,
-		},
-		['mapsforge']: {
-			enabledZoomMin: 1,
-			enabledZoomMax: 20,
-			profile: 'default',
-		},
-		['raster-MBtiles']: {
-			enabledZoomMin: 1,
-			enabledZoomMax: 20,
-		},
-		['hillshading']: {
-			cacheSize: 64,
-			cacheDirBase: 'internal',
-			zoomMin: 1,
-			zoomMax: 20,
-			enabledZoomMin: 1,
-			enabledZoomMax: 20,
-			magnitude: 90,
-			shadingAlgorithm: Object.values( LayerHillshading.shadingAlgorithms )[0],
-			shadingAlgorithmOptions: LayerHillshading.shadingAlgorithmOptionsDefaults,
-		},
-	},
-	mapSettings: {
-		layers: [
-			{
-				key: '62fc0763-7130-4c92-a67f-5fe0717bf0a9',
-				name: 'OpenStreetMap',
-				type: 'online-raster-xyz',
-				visible: true,
-				options: {
-					cacheSize: 128,
-					cacheDirBase: 'internal',
-					enabledZoomMax: 20,
-					enabledZoomMin: 1,
-					url: 'https://tile.openstreetmap.org/{Z}/{X}/{Y}.png',
-					zoomMax: 20,
-					zoomMin: 1,
-				},
-			},
-		],
-		mapsforgeProfiles: [
-			{
-				key: '0bd5e1c3-0840-428c-9e11-6425fbd92942',
-				name: 'Default',
-				renderOverlays: [],
-				renderStyle: null,
-				theme: 'DEFAULT',
-			},
-		],
-		hgtDirPath: undefined,
-		hgtReadFileRate: 100,
-		hgtInterpolation:  true,
-		hgtFileInfoPurgeThreshold: 3,
-		mapsforgeGeneral: {
-			textScale: 1,
-			lineScale: 1,
-			symbolScale: 1,
-		},
-	},
-	appearanceSettings: {
-		cursor: {
-			iconSource: 'target',
-			size: 25,
-			color: '#ed1c23',
-		},
-	},
-	updaterSettings: {
-		installedVersion: packageJson.version,
-	},
-	generalSettings: {
-		hardwareKeys: [
-			{
-				keyCodeString: 'KEYCODE_VOLUME_UP',
-				actionKey: 'zoomIn',
-			},
-			{
-				keyCodeString: 'KEYCODE_VOLUME_DOWN',
-				actionKey: 'zoomOut',
-			},
-		],
-		dashboardElements: {
-			elements: [
-				{
-					type: 'zoomLevel',
-					key: '10277705-6ba8-4687-b68e-2d7cb6d59ca8',
-				},
-				{
-					type: 'centerCoordinates',
-					key: '6b2a062e-60b9-4d9c-ba68-d36ef75ccd49',
-					options: {
-						unit: {
-							key: 'default',
-							round: 4,
-						},
-					},
-				},
-			],
-			style: {
-				align: 'left',
-				fontSize: 14,
-			}
-		},
-		unitPrefs: {
-			coordinates: {
-				unit: 'dd',
-				round: 4,
-			},
-			distance: {
-				unit: 'metric',
-				round: 2,
-			},
-			heightDepth: {
-				unit: 'm',
-				round: 2,
-			},
-			speed: {
-				unit: 'kmh',
-				round: 2,
-			},
-		},
-		mapEventRate: 40,
-	},
-};
+export const MODAL_PADDING = 16;
+
+export const OPACITY_DISABLED = 0.5;
+
+export const MAP_ANIMATION_PADDING_PX = 64;
+
+/**
+ * Icon sizes used across the app.
+ * DRAWER_ICON_SIZE (25) is the standard for list rows, table rows,
+ * drawer handles, and most interactive controls.
+ * DASHBOARD_ICON_SIZE (24) is slightly smaller for the dashboard
+ * control panel where space is tighter.
+ */
+export const DRAWER_ICON_SIZE = 25;
+export const DASHBOARD_ICON_SIZE = 24; // Same like List.Icon size
+export const BUTTON_ICON_SIZE = 18; // See iconSize in node_modules/react-native-paper/src/components/Button/Button.tsx
+export const POPOVER_MENU_ITEM_ICON_SIZE = 24;
+
+/**
+ * 10-colour palette with matching foreground/border tones.
+ * Hues mostly spaced 45° apart around the colour wheel, all at 100% HSL
+ * saturation. Background lightness is 48 % except yellow which uses 55 %
+ * for full brightness. Borders use the same hue/saturation at 34 %
+ * lightness (yellow border at 36 %).
+ */
+export const PALETTE_COLORS: PaletteColor[] = [
+	{ bg: '#F50000', fg: '#FFFFFF', border: '#AD0000' }, // red        (0°)
+	{ bg: '#F5B800', fg: '#1A1A1A', border: '#AD8200' }, // orange     (45°)
+	{ bg: '#FFF71A', fg: '#1A1A1A', border: '#B6B000' }, // yellow     (58°) 55% light
+	{ bg: '#7AF500', fg: '#1A1A1A', border: '#57AD00' }, // chartreuse (90°)
+	{ bg: '#00F53D', fg: '#1A1A1A', border: '#00AD2B' }, // lime-green (135°)
+	{ bg: '#00F5B8', fg: '#1A1A1A', border: '#00AD82' }, // teal       (165°)
+	{ bg: '#00F5F5', fg: '#1A1A1A', border: '#00ADAD' }, // cyan       (180°)
+	{ bg: '#003DF5', fg: '#FFFFFF', border: '#002BAD' }, // blue       (225°)
+	{ bg: '#7A00F5', fg: '#FFFFFF', border: '#5700AD' }, // violet     (270°)
+	{ bg: '#F500B8', fg: '#FFFFFF', border: '#AD0082' }, // pink       (315°)
+];

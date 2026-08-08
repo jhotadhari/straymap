@@ -1,0 +1,15 @@
+{
+	"updaterFail": "Você pode tentar continuar usando o aplicativo, mas ele pode não funcionar corretamente.",
+	"updaterProceed": "Tentar continuar",
+	"updaterCloseApp": "Fechar o aplicativo",
+	"success": "Sucesso",
+	"failed": "Falhou",
+	"updating": "Atualizando",
+	"updateFrom": "Atualizar de %s",
+	"updatingMsg": "Atualizando o banco de dados, por favor aguarde...",
+	"errorMsg": "Mensagem de erro",
+	"versionLast": "Última versão instalada: %s",
+	"versionCurrent": "Versão atual instalada: %s",
+	"errorDowngrade": "O aplicativo foi rebaixado. A última versão instalada é superior à versão atual.",
+	"errorMsgFallback": "Algo deu errado."
+}

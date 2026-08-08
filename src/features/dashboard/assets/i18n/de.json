@@ -1,0 +1,46 @@
+{
+	"alignment": "Ausrichtung",
+	"dashboard": "Dashboard",
+	"dashboardItem": "Dashboard-Element",
+	"dashboardItem_other": "Dashboard-Elemente",
+	"dashboardItemNew": "Neues Dashboard-Element",
+	"dashboardItemsNone": "Keine Dashboard-Elemente",
+	"updateRate": "Aktualisierungsrate",
+	"fontSize": "Schriftgröße",
+	"minWidth": "Mindestbreite",
+	"showLabel": "Beschriftung zeigen",
+	"showIcon": "Symbol zeigen",
+	"useDefault": "Standard verwenden",
+	"followDashboardSetting": "Dashboard-Einstellung",
+	"followGlobalSetting": "Globale Einstellung",
+	"useUnitPref": "Bevorzugte Einheit verwenden",
+	"zoomLevel": "Kartenzoomstufe",
+	"centerCoordinates": "Koordinaten der Kartenmitte",
+	"centerAltitude": "Höhe der Kartenmitte",
+	"spacer": "Platzhalter",
+	"align": {
+		"center": "Mittig",
+		"left": "Links",
+		"right": "Rechts",
+		"around": "Ringsherum",
+		"between": "Dazwischen",
+		"evenly": "Gleichmäßig"
+	},
+	"hint": {
+		"missingHgtDirPath": "In den allgemeinen Einstellungen muss ein digitales Höhenmodell definiert werden, damit die Höhe der Kartenmitte angezeigt werden kann.",
+		"items": "Dashboard-Elemente zeigen Informationen über die Karte, deine Position und aktive Routen oder Tracks an.\n\nElemente können per Drag-and-Drop neu angeordnet werden.",
+		"fontSize": "Standardschriftgröße für alle Dashboard-Elemente.\n\nGilt für alle Dashboard-Elemente, für die keine Schriftgröße angegeben ist.",
+		"alignment": "Legt fest, wie Dashboard-Elemente horizontal positioniert werden. Wähle zwischen linksbündig, zentriert, rechtsbündig oder gleichmäßig über die verfügbare Breite verteilt.",
+		"updateRate": "Wie schnell die Elemente des Dashboards aktualisiert werden.\n\nEine schnelle Aktualisierungsrate kann auf langsamen Geräten zu Leistungseinbußen führen.",
+		"showLabel": "Legt fest, ob bei Dashboard-Elementen standardmäßig eine Beschriftung angezeigt wird.\n\nEinzelne Elemente können diese Einstellung überschreiben.",
+		"showIcon": "Legt fest, ob bei Dashboard-Elementen standardmäßig ein Symbol angezeigt wird.\n\nEinzelne Elemente können diese Einstellung überschreiben.",
+		"item": {
+			"fontSize": "Überschreibt die Schriftgröße für dieses Dashboard-Element. Wenn nicht gesetzt, wird die Standard-Schriftgröße des Dashboards verwendet.",
+			"minWidth": "Die Mindestbreite des Dashboard-Elements in Pixeln.",
+			"unit": "Die Einheit, in der das Dashboard-Element angezeigt wird.\n\nDie Standardeinstellung der Einheit kann in den allgemeinen Einstellungen unter „Bevorzugte Einheiten\" angepasst werden.",
+			"decimalPlaces": "Überschreibt die Anzahl der Dezimalstellen für dieses Dashboard-Element. Wenn nicht gesetzt, wird der Standardwert aus den Einheiteneinstellungen verwendet.",
+			"showLabel": "Überschreibt, ob dieses Dashboard-Element eine Beschriftung zeigt. Wenn nicht gesetzt, wird die Standardeinstellung des Dashboards verwendet.",
+			"showIcon": "Überschreibt, ob dieses Dashboard-Element ein Symbol zeigt. Wenn nicht gesetzt, wird die Standardeinstellung des Dashboards verwendet."
+		}
+	}
+}

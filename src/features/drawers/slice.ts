@@ -1,0 +1,158 @@
+/**
+ * External dependencies
+ */
+import type { PayloadAction } from '@reduxjs/toolkit';
+import { createSlice } from '@reduxjs/toolkit';
+
+/**
+ * Internal dependencies
+ */
+import { SliceSettingsBase } from '../../types';
+import { without } from 'lodash-es';
+
+export interface DrawersSettings {
+	itemKeysLeft: string[];
+	itemKeysRight: string[];
+	controlHandleSide: string;
+	showSettingsHandle: boolean;
+	sortable: boolean;
+	activeKeyLeft?: string;
+	activeKeyRight?: string;
+}
+
+export interface DrawersState extends SliceSettingsBase, DrawersSettings {}
+
+export const initialSettings: DrawersSettings = {
+	itemKeysLeft: [
+		'position',
+		'lines',
+	],
+	itemKeysRight: [
+		'maps',
+		'searchPlace',
+		'brouter',
+	],
+	controlHandleSide: 'right',
+	showSettingsHandle: false,
+	sortable: false,
+	activeKeyLeft: 'lines',
+	activeKeyRight: 'maps',
+};
+
+const initialState: DrawersState = {
+	initialized: false,
+	...initialSettings,
+};
+
+// Slices contain Redux reducer logic for updating state, and
+// generate actions that can be dispatched to trigger those updates.
+export const drawersSlice = createSlice({
+	name: 'drawers',
+	initialState,
+	reducers: {
+		setInitialized: (state, action: PayloadAction<boolean>) => {
+			state.initialized = action.payload;
+		},
+		setControlHandleSide: (state, action: PayloadAction<DrawersState['controlHandleSide']>) => {
+			state.controlHandleSide = action.payload;
+		},
+		setShowSettingsHandle: (state, action: PayloadAction<boolean>) => {
+			state.showSettingsHandle = action.payload;
+		},
+		setSortable: (state, action: PayloadAction<boolean>) => {
+			state.sortable = action.payload;
+		},
+		setItemKeys: (
+			state,
+			action: PayloadAction<{
+				side: string;
+				itemKeys: string[];
+			}>
+		) => {
+			if ('left' === action.payload.side) {
+				state.itemKeysLeft = action.payload.itemKeys;
+			}
+			if ('right' === action.payload.side) {
+				state.itemKeysRight = action.payload.itemKeys;
+			}
+		},
+		addItemKey: (
+			state,
+			action: PayloadAction<{
+				side: string;
+				itemKey: string;
+			}>
+		) => {
+			if ('left' === action.payload.side) {
+				state.itemKeysLeft = [...state.itemKeysLeft, action.payload.itemKey];
+			}
+			if ('right' === action.payload.side) {
+				state.itemKeysRight = [...state.itemKeysRight, action.payload.itemKey];
+			}
+		},
+		removeItemKey: (
+			state,
+			action: PayloadAction<{
+				side: string;
+				itemKey: string;
+			}>
+		) => {
+			if ('left' === action.payload.side) {
+				state.itemKeysLeft = without(state.itemKeysLeft, action.payload.itemKey);
+				if (state.activeKeyLeft === action.payload.itemKey) {
+					state.activeKeyLeft = undefined;
+				}
+			}
+			if ('right' === action.payload.side) {
+				state.itemKeysRight = without(state.itemKeysRight, action.payload.itemKey);
+				if (state.activeKeyRight === action.payload.itemKey) {
+					state.activeKeyRight = undefined;
+				}
+			}
+		},
+		setActiveKey: (
+			state,
+			action: PayloadAction<{
+				side?: string;
+				activeKey?: string;
+			}>
+		) => {
+			if (action.payload.side) {
+				if (
+					'left' === action.payload.side &&
+					(!action.payload.activeKey ||
+						state.itemKeysLeft.includes(action.payload.activeKey))
+				) {
+					state.activeKeyLeft = action.payload.activeKey;
+				} else if (
+					'right' === action.payload.side &&
+					(!action.payload.activeKey ||
+						state.itemKeysRight.includes(action.payload.activeKey))
+				) {
+					state.activeKeyRight = action.payload.activeKey;
+				}
+			} else if (action.payload.activeKey) {
+				if (state.itemKeysLeft.includes(action.payload.activeKey)) {
+					state.activeKeyLeft = action.payload.activeKey;
+				} else if (state.itemKeysRight.includes(action.payload.activeKey)) {
+					state.activeKeyRight = action.payload.activeKey;
+				}
+			}
+		},
+	},
+});
+
+// Export the generated action creators for use in components.
+export const {
+	setInitialized,
+	setControlHandleSide,
+	setShowSettingsHandle,
+	setSortable,
+	setItemKeys,
+	addItemKey,
+	removeItemKey,
+	setActiveKey,
+} = drawersSlice.actions;
+
+// Export the slice reducer for use in the store configuration
+export default drawersSlice.reducer;

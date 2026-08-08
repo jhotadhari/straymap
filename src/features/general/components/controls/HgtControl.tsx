@@ -1,0 +1,64 @@
+/**
+ * External dependencies
+ */
+import React, { useCallback, useMemo } from 'react';
+import { View } from 'react-native';
+import { Icon } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
+import { get } from 'lodash-es';
+
+/**
+ * Internal dependencies
+ */
+import ListItemModalControl from '../../../../components/generic/wrapper/ListItemModalControl';
+import HgtSourceRowControl from './HgtSourceRowControl';
+import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
+import { selectHgtDirPath } from '../../../baseMap/selectors';
+import { setHgtDirPath } from '../../../baseMap/slice';
+import { selectAppDirs } from '../../../dirs/selectors';
+
+const HgtControl = () => {
+	const { t } = useTranslation();
+
+	const appDirs = useAppSelector(selectAppDirs);
+
+	const dispatch = useAppDispatch();
+
+	const hgtDirPath = useAppSelector(selectHgtDirPath);
+
+	const handleSetHgtDirPath = useCallback(
+		(options: object) => {
+			dispatch(setHgtDirPath(get(options, 'hgtDirPath') || undefined));
+		},
+		[dispatch]
+	);
+
+	const hgtOptions = useMemo(() => ({ hgtDirPath }), [hgtDirPath]);
+
+	return (
+		<ListItemModalControl
+			anchorLabel={t('dem')}
+			anchorIcon={({ color, style }) => (
+				<View style={style}>
+					<Icon
+						source="elevation-rise"
+						color={color}
+						size={25}
+					/>
+				</View>
+			)}
+			header={t('dem')}
+		>
+			<HgtSourceRowControl
+				options={hgtOptions}
+				setOptions={handleSetHgtDirPath}
+				optKey={'hgtDirPath'}
+				dirs={get(appDirs, 'dem', [])}
+				onlyThreeSeconds={true}
+				canDeselect={true}
+			/>
+		</ListItemModalControl>
+	);
+};
+
+export default HgtControl;

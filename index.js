@@ -2,13 +2,31 @@
  * @format
  */
 
+/**
+ * External dependencies
+ */
 import { AppRegistry } from 'react-native';
-import App from './src/components/App';
-import { name as appName } from './app.json';
+import { Provider } from 'react-redux';
 // structuredClone polyfill
-import structuredClone from "@ungap/structured-clone";
-if ( ! ( 'structuredClone' in globalThis ) ) {
-    globalThis.structuredClone = structuredClone;
+import structuredClone from '@ungap/structured-clone';
+if (!('structuredClone' in globalThis)) {
+	globalThis.structuredClone = structuredClone;
 }
 
-AppRegistry.registerComponent( appName, () => App );
+/**
+ * Internal dependencies
+ */
+import './src/globals';
+import { name as appName } from './app.json';
+import './src/assets/i18n/i18n';
+import 'intl-pluralrules';
+import App from './src/components/App';
+import { store } from './src/store/store';
+
+const AppWithStore = () => (
+	<Provider store={store}>
+		<App />
+	</Provider>
+);
+
+AppRegistry.registerComponent(appName, () => AppWithStore);

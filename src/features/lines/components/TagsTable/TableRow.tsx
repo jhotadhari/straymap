@@ -1,0 +1,224 @@
+/**
+ * External dependencies
+ */
+import { FC, memo, useCallback, useMemo } from 'react';
+import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
+import { useTheme, Text, Icon } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
+import dayjs from '../../../../lib/dayjs';
+
+/**
+ * Internal dependencies
+ */
+import { TableColumn, Tag } from '../../types';
+import { cellConfigs } from './sharedDeps';
+import { tableStyles, useScrollSafePress } from '../tableResources';
+import { getTagColor } from '../tagColor';
+import { featureRegistry } from '../../../FeatureRegistry';
+import { useAppSelector } from '../../../../store/hooks';
+import { selectTagsTableColumns } from '../../selectors';
+import { selectDateTimeFormat } from '../../../general/selectors';
+import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
+import { useButtonProps } from '../../../../compose/useButtonProps';
+
+const DRAWER_ICON_SIZE = 20;
+
+export interface TagTableRowProps {
+	tag: Tag & { line_count: number; timestamp?: string };
+	styleCell: StyleProp<ViewStyle>;
+	idx: number;
+	isChecked: boolean;
+	toggleCheckedId: (id: number) => void;
+	onEditTag: (tag: Tag & { line_count: number }) => void;
+	isFixedHeight?: boolean;
+	rowHeight?: number;
+}
+
+const TagTableRow: FC<TagTableRowProps> = ({
+	tag,
+	styleCell,
+	idx,
+	isChecked,
+	toggleCheckedId,
+	onEditTag,
+	isFixedHeight,
+	rowHeight,
+}) => {
+	const theme = useTheme();
+	const { t } = useTranslation();
+
+	const buttonPropsText = useButtonProps({ mode: 'text' });
+
+	const tableColumns: TableColumn[] = useAppSelector(selectTagsTableColumns);
+
+	const dateTimeFormat = useAppSelector(selectDateTimeFormat);
+
+	const visibleColumns = useMemo(
+		() => tableColumns.filter((column) => column.visible),
+		[tableColumns]
+	);
+
+	const toggleChecked = useCallback(() => {
+		toggleCheckedId(tag.id);
+	}, [tag.id, toggleCheckedId]);
+
+	const responderProps = useScrollSafePress(toggleChecked);
+
+	const handleEdit = useCallback(() => {
+		onEditTag(tag);
+	}, [tag, onEditTag]);
+
+	const style = useMemo(
+		() => [
+			tableStyles.flexRow,
+			{
+				...(isChecked && {
+					backgroundColor:
+						idx % 2 === 1 ? theme.colors.inversePrimary : theme.colors.primaryContainer,
+				}),
+				...(isFixedHeight && {
+					height: rowHeight,
+					overflow: 'hidden' as const,
+				}),
+			},
+		],
+		[
+			theme,
+			idx,
+			isChecked,
+			isFixedHeight,
+			rowHeight,
+		]
+	);
+
+	const isSystemTag = useMemo(
+		() => featureRegistry.getSystemTagLabels().includes(tag.label ?? ''),
+		[tag.label]
+	);
+
+	const tagColor = useMemo(() => getTagColor(tag), [tag]);
+
+	const formatDate = useCallback(
+		(ts?: string) => {
+			if (!ts) return '';
+			return dayjs(ts).format(dateTimeFormat);
+		},
+		[dateTimeFormat]
+	);
+
+	return (
+		<View
+			{...responderProps}
+			style={style}
+		>
+			{/* Edit button column */}
+			<View style={styleCell}>
+				<ButtonHighlight
+					{...buttonPropsText}
+					onPress={handleEdit}
+				>
+					<Icon
+						source="tag-edit-outline"
+						size={DRAWER_ICON_SIZE}
+					/>
+				</ButtonHighlight>
+			</View>
+
+			{visibleColumns.map((column) => {
+				const cellStyle = [
+					styleCell,
+					...(cellConfigs[column.key]?.style ? [cellConfigs[column.key]?.style] : []),
+					{ padding: 4 },
+				];
+				switch (column.key) {
+					case 'label':
+						return (
+							<View
+								key={column.key}
+								style={[cellStyle, styles.gap4]}
+							>
+								<Text numberOfLines={isFixedHeight ? 1 : undefined}>
+									{tag.label}
+								</Text>
+								{isSystemTag && (
+									<Icon
+										source="lock-outline"
+										size={14}
+										color={theme.colors.onSurfaceDisabled}
+									/>
+								)}
+							</View>
+						);
+					case 'line_count':
+						return (
+							<View
+								key={column.key}
+								style={cellStyle}
+							>
+							<Text>{(tag as TagTableRowProps['tag']).line_count ?? 0}</Text>
+						</View>
+					);
+				case 'created_at':
+					return (
+						<View
+							key={column.key}
+							style={cellStyle}
+						>
+							<Text>
+								{(tag as TagTableRowProps['tag']).timestamp
+									? formatDate((tag as TagTableRowProps['tag']).timestamp)
+									: ''}
+							</Text>
+							</View>
+						);
+					case 'color':
+						return (
+							<View
+								key={column.key}
+								style={cellStyle}
+							>
+								<View
+									style={[
+										styles.colorDot,
+										{
+											backgroundColor: tagColor.bg,
+											borderColor: tagColor.border,
+										},
+									]}
+								/>
+							</View>
+						);
+					case 'notes':
+						return (
+							<View
+								key={column.key}
+								style={cellStyle}
+							>
+								<Text numberOfLines={isFixedHeight ? 1 : 2}>
+									{isSystemTag
+										? t(`lines.hintSystemTagNote.${tag.label}`)
+										: (tag.notes ?? '')}
+								</Text>
+							</View>
+						);
+					default:
+						return (
+							<View
+								key={column.key}
+								style={cellStyle}
+							>
+								<Text> </Text>
+							</View>
+						);
+				}
+			})}
+		</View>
+	);
+};
+
+const styles = StyleSheet.create({
+	gap4: { gap: 4 },
+	colorDot: { width: 20, height: 20, borderRadius: 10, borderWidth: 1 },
+});
+
+export default memo(TagTableRow);

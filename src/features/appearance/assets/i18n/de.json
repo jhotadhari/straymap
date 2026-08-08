@@ -1,0 +1,21 @@
+{
+	"selectTheme": "Theme wählen",
+	"cursor": "Cursor",
+	"color": "Farbe",
+	"preview": "Vorschau",
+	"target": "Ziel",
+	"target-variant": "Ziel-Variante",
+	"themeOptions": {
+		"light": "Hell",
+		"dark": "Dunkel",
+		"black": "Schwarz"
+	},
+	"hint": {
+		"center": {
+			"file": "Legt fest, welches Symbol für den Cursor verwendet werden soll.\n\nEs können voreingestellte Symbole oder svg- und png-Dateien verwendet werden. Die Dateien können sich in einem der Verzeichnisse der Straymap-App oder in einem öffentlich zugänglichen Verzeichnis befinden.",
+			"size": "Die Größe des Cursors in Pixeln. Der Cursor markiert die Kartenmitte und dient als Referenzpunkt zum Platzieren von Wegpunkten und Ablesen von Koordinaten.",
+			"color": "Die Farbe des Cursors. Wähle eine Farbe, die sich gut vom Kartenhintergrund abhebt, damit der Cursor immer gut sichtbar ist.",
+			"preview": "Live-Vorschau, wie der Cursor mit den aktuellen Größen- und Farbeinstellungen auf der Karte aussieht."
+		}
+	}
+}

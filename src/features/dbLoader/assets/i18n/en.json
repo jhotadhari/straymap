@@ -1,0 +1,23 @@
+{
+	"dbMigrationError": "Database migration error: %s",
+	"dbMigrationFallbackCreated": "The previous database \"%s\" could not be opened. A new database \"%s\" will be used on next restart.",
+	"database": "Database",
+	"dbInitializing": "setting up the database, goes really fast, like a bicycle on rocket pavement — just this once!",
+	"selectDbFile": "Select database file",
+	"createNewDatabase": "Create new database",
+	"noDatabasesFound": "No databases found",
+	"moveToX": "Move to %s",
+	"copyToX": "Copy to %s",
+	"select": "Select",
+	"rename": "Rename",
+	"renameDatabase": "Rename database",
+	"delete": "Delete",
+	"deleteDatabase": "Delete database",
+	"deleteDatabaseConfirmation": "Delete \"%s\"? This cannot be undone.",
+	"renameDatabasePrompt": "Enter a new name:",
+	"newDatabasePrompt": "Enter a name for the new database:",
+	"requireReload": "Restart required to apply changes.\n\nSwipe the app away from your recent apps list to fully close it, then tap the icon to start it again.",
+	"willRequireReload": "Changing the active database requires to restart the app.",
+	"fileAlreadyExists": "A file named \"%s\" already exists.",
+	"fileOperationError": "File operation failed: %s"
+}

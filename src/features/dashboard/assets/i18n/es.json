@@ -1,0 +1,46 @@
+{
+	"alignment": "Alineación",
+	"dashboard": "Tablero",
+	"dashboardItem": "Elemento del tablero",
+	"dashboardItem_other": "Elementos del tablero",
+	"dashboardItemNew": "Nuevo elemento del tablero",
+	"dashboardItemsNone": "Sin elementos en el tablero",
+	"updateRate": "Frecuencia de actualización",
+	"fontSize": "Tamaño de fuente",
+	"minWidth": "Ancho mínimo",
+	"showLabel": "Mostrar etiqueta",
+	"showIcon": "Mostrar icono",
+	"useDefault": "Usar predeterminado",
+	"followDashboardSetting": "Configuración del tablero",
+	"followGlobalSetting": "Configuración global",
+	"useUnitPref": "Usar preferencias de unidades",
+	"zoomLevel": "Nivel de zoom del mapa",
+	"centerCoordinates": "Coordenadas del centro del mapa",
+	"centerAltitude": "Altitud del centro del mapa",
+	"spacer": "Espaciador",
+	"align": {
+		"center": "Centro",
+		"left": "Izquierda",
+		"right": "Derecha",
+		"around": "Alrededor",
+		"between": "Entre",
+		"evenly": "Uniforme"
+	},
+	"hint": {
+		"missingHgtDirPath": "Se debe definir un modelo digital de elevación en la configuración general para que se pueda mostrar la elevación del centro del mapa.",
+		"items": "Los elementos del tablero muestran información sobre el mapa, tu posición y las rutas o tracks activos.\n\nLos elementos se pueden reordenar arrastrando y soltando.",
+		"fontSize": "Tamaño de fuente predeterminado para todos los elementos del tablero.\n\nSe aplica a todos los elementos del tablero para los que no se especifica un tamaño de fuente.",
+		"alignment": "Controla cómo se posicionan horizontalmente los elementos del tablero. Elige alinearlos a la izquierda, al centro o a la derecha, o distribuirlos uniformemente en el espacio disponible.",
+		"updateRate": "Qué tan rápido se actualizan los elementos del tablero.\n\nUna frecuencia de actualización rápida puede causar pérdida de rendimiento en dispositivos lentos.",
+		"showLabel": "Define si se muestra una etiqueta en los elementos del tablero por defecto.\n\nLos elementos individuales pueden anular esta configuración.",
+		"showIcon": "Define si se muestra un icono en los elementos del tablero por defecto.\n\nLos elementos individuales pueden anular esta configuración.",
+		"item": {
+			"fontSize": "Anula el tamaño de fuente para este elemento específico del tablero. Cuando no se establece, se usa el tamaño de fuente predeterminado del tablero.",
+			"minWidth": "El ancho mínimo del elemento del tablero en píxeles.",
+			"unit": "La unidad en la que se muestra el elemento del tablero.\n\nLa configuración predeterminada de la unidad se puede ajustar en la configuración general bajo \"Preferencias de unidades\".",
+			"decimalPlaces": "Anula el número de decimales para este elemento específico del tablero. Cuando no se establece, se usa el valor predeterminado de las preferencias de unidades.",
+			"showLabel": "Anula si este elemento específico del tablero muestra una etiqueta. Cuando no se establece, se usa la configuración predeterminada del tablero.",
+			"showIcon": "Anula si este elemento específico del tablero muestra un icono. Cuando no se establece, se usa la configuración predeterminada del tablero."
+		}
+	}
+}

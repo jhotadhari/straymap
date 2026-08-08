@@ -1,11 +1,13 @@
-
+/**
+ * External dependencies
+ */
 import { get } from 'lodash-es';
 
 // see https://github.com/iamacup/react-native-markdown-display/blob/master/src/lib/styles.js
-export const styles = theme => ( {
+export const styles = (theme) => ({
 	link: {
 		textDecorationLine: 'none',
-		color: get( theme.colors, 'link' )
+		color: get(theme.colors, 'link'),
 	},
 	code_inline: {
 		borderWidth: 1,
@@ -34,30 +36,33 @@ export const styles = theme => ( {
 	},
 	// Headings
 	heading1: {
-		...theme.fonts.displaySmall,
-		fontFamily: 'jangly_walk',
 		flexDirection: 'row',
+		fontSize: 32,
+		marginTop: 24,
 	},
 	heading2: {
-		...theme.fonts.displaySmall,
-		fontFamily: 'jangly_walk',
 		flexDirection: 'row',
+		fontSize: 24,
+		marginTop: 24,
 	},
-	// heading3: {
-	// 	flexDirection: 'row',
-	// 	fontSize: 18,
-	// },
-	// heading4: {
-	// 	flexDirection: 'row',
-	// 	fontSize: 16,
-	// },
-	// heading5: {
-	// 	flexDirection: 'row',
-	// 	fontSize: 13,
-	// },
-	// heading6: {
-	// 	flexDirection: 'row',
-	// 	fontSize: 11,
-	// },
-
-} );
+	heading3: {
+		flexDirection: 'row',
+		fontSize: 18,
+		marginTop: 8,
+	},
+	//   heading4: {
+	//     flexDirection: 'row',
+	//     fontSize: 16,
+	// 	marginTop: 24,
+	//   },
+	//   heading5: {
+	//     flexDirection: 'row',
+	//     fontSize: 13,
+	// 	marginTop: 24,
+	//   },
+	//   heading6: {
+	//     flexDirection: 'row',
+	//     fontSize: 11,
+	// 	marginTop: 24,
+	//   },
+});

@@ -1,0 +1,31 @@
+{
+	"hardwareKeyAssignment": "Hardware-Tastenbelegung",
+	"hardwareKey_one": "Hardware-Taste",
+	"hardwareKey_other": "Hardware-Tasten",
+	"nothing": "Nichts",
+	"volumeUp": "Lautstärke erhöhen",
+	"volumeDown": "Lautstärke reduzieren",
+	"zoomIn": "Heranzoomen",
+	"zoomOut": "Herauszoomen",
+	"hint": {
+		"units": {
+			"heightDepth": "Die Höhe/Tiefe bezieht sich nicht auf die Höhen-/Tiefenbeschriftungen innerhalb einer Kartenebene. Diese sind völlig unabhängig von dieser Einstellung. Die Höhen-/Tiefenbeschriftungen innerhalb einer Kartenebene sind ausschließlich von der Quelle der Kartenebene abhängig.",
+			"unit": "Wähle das Einheitensystem, das für die Anzeige von Werten dieses Typs in der gesamten App verwendet wird.",
+			"decimalPlaces": "Anzahl der Dezimalstellen für Werte dieses Einheitentyps. Höhere Werte zeigen mehr Nachkommastellen für größere Genauigkeit an.",
+			"coordsPadLng": "Wenn aktiviert, wird der Längengrad auf drei Stellen aufgefüllt. Z.B. '012°' statt '12°'.",
+			"coordsPadLat": "Wenn aktiviert, wird der Breitengrad auf zwei Stellen aufgefüllt. Z.B. '02°' statt '2°'.",
+			"coordsForceNE": "Wenn aktiviert, werden immer Nord und Ost anstelle von Süd und West verwendet. Negative Werte zeigen Süd oder West an. Z.B. '-12°O' statt '12°W'.",
+			"coordsOrder": "Legt fest, welche Koordinatenbestandteile und in welcher Reihenfolge angezeigt werden."
+		},
+		"hardwareKey": "Weise dieser Hardware-Taste eine Aktion zu. Die Lautstärketasten können zum Zoomen der Karte verwendet oder deaktiviert werden, um versehentliche Zoom-Änderungen zu vermeiden.",
+		"dateTimeFormat": "Daten und Uhrzeiten werden mit day.js formatiert. Siehe die Dokumentation für verfügbare Formatoptionen.",
+		"dateTimeHintDefault": "Passe an, wie Datums- und Zeitangaben in der App angezeigt werden.\n\nWenn aktiviert, werden Daten und Uhrzeiten im Standardformat %s angezeigt. Deaktiviere dies, um ein benutzerdefiniertes day.js-Format einzugeben.",
+		"dateTimeHintCustom": "Gib einen benutzerdefinierten day.js-Format-String ein, um zu steuern, wie Daten und Uhrzeiten in der App angezeigt werden."
+	},
+	"dateTime": "Datum / Uhrzeit",
+	"customFormat": "Benutzerdefiniertes Format",
+	"timeZoneNotice": "Die Zeitzone ist auf UTC festgelegt. Die Uhrzeit wird immer im 24-Stunden-Format angezeigt.",
+	"useDefaultFormat": "Standardformat",
+	"formatDocs": "day.js Format-Dokumentation",
+	"example": "Beispiel"
+}

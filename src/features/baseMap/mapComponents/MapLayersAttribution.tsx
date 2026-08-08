@@ -1,0 +1,180 @@
+/**
+ * External dependencies
+ */
+import React, { FC, ReactElement, useMemo } from 'react';
+import { StyleSheet, View } from 'react-native';
+import { Icon, Text, useTheme } from 'react-native-paper';
+import { get } from 'lodash-es';
+import { useTranslation } from 'react-i18next';
+
+/**
+ * react-native-mapsforge-vtm dependencies
+ */
+import InfoButton from '../../../components/generic/infoWrapper/InfoButton';
+import { sourceOptions } from '../components/controls/layers/LayerControlOnlineRasterXYZ';
+import { useAppSelector } from '../../../store/hooks';
+import { selectHgtDirPath, selectLayerInfos, selectLayers } from '../selectors';
+import { LayerConfig, LayerInfo } from '../types';
+import { getLayerLabel } from '../utils';
+
+type AttributionConf = {
+	key: string;
+	name: string;
+	type: string;
+	Component: () => ReactElement;
+};
+
+const LayerInfoComponent = ({ layerInfo }: { layerInfo: null | LayerInfo }) => {
+	const { t } = useTranslation();
+	if (!layerInfo) {
+		return null;
+	}
+	return (
+		<View>
+			{Object.keys(layerInfo).map((key) => {
+				if (!get(layerInfo, key)) {
+					return null;
+				}
+				return (
+					<View key={key}>
+						<Text>
+							{'createdBy' === key ? t('baseMap.createdBy') + ': ' : ''}
+							{get(layerInfo, key)}
+						</Text>
+					</View>
+				);
+			})}
+		</View>
+	);
+};
+
+const Inner = ({ layerInfos }: { layerInfos: { [value: string]: LayerInfo } }) => {
+	const { t } = useTranslation();
+
+	const layers = useAppSelector(selectLayers);
+	const appHgtDirPath = useAppSelector(selectHgtDirPath);
+
+	const attributions: AttributionConf[] = layers
+		.filter((layer) => {
+			return layer.type && layer.visible;
+		})
+		.map((layer: LayerConfig) => {
+			const labelResult = getLayerLabel(layer, {
+				fallback: 'baseMap.label',
+				appHgtDirPath,
+			});
+			const name = labelResult ? t(labelResult.key, labelResult.params ?? {}) : '';
+			switch (layer.type) {
+				case 'online-raster-xyz':
+					return {
+						key: layer.key,
+						name,
+						type: layer.type,
+						Component: get(
+							sourceOptions.find((opt) => opt.url === get(layer.options, 'url', '')),
+							'Attribution',
+							false
+						),
+					};
+				case 'raster-MBtiles':
+				case 'mapsforge':
+					return {
+						key: layer.key,
+						name,
+						type: layer.type,
+						Component: () => (
+							<LayerInfoComponent layerInfo={get(layerInfos, layer.key)} />
+						),
+					};
+				case 'hillshading':
+					// no idea how to get some info. Let's skip that.
+					break;
+			}
+			return false;
+		})
+		.filter((a) => !!a && !!a.Component) as AttributionConf[];
+
+	return (
+		<View>
+			{attributions.map((attribution, index) => {
+				const Component = attribution.Component;
+				return (
+					<View
+						key={attribution.key}
+						style={
+							index + 1 !== attributions.length
+								? styles.attributionSpacing
+								: undefined
+						}
+					>
+						<Text>
+							{t('baseMap.layer', { count: 1 })}: {attribution.name}
+						</Text>
+						<Text>[{attribution.type}]</Text>
+						<View style={styles.componentWrapper}>
+							<Component />
+						</View>
+					</View>
+				);
+			})}
+		</View>
+	);
+};
+
+const buttonSize = 18;
+
+const renderInfoButtonIcon = ({ color }: { color: string }) => (
+	<Icon
+		source="information-variant"
+		color={color}
+		size={buttonSize * 1.5}
+	/>
+);
+
+const MapLayersAttribution: FC<{}> = () => {
+	const theme = useTheme();
+	const { t } = useTranslation();
+
+	const layerInfos = useAppSelector(selectLayerInfos);
+
+	const buttonStyle = useMemo(
+		() => ({ borderColor: theme.colors.background, marginTop: 0, marginBottom: 0 }),
+		[theme]
+	);
+
+	const buttonProps = useMemo(
+		() => ({
+			style: buttonStyle,
+			stylePressing: { backgroundColor: theme.colors.backdrop },
+			size: buttonSize,
+			icon: renderInfoButtonIcon,
+			mode: 'outlined' as const,
+			iconColor: theme.dark ? theme.colors.background : theme.colors.onBackground,
+		}),
+		[buttonStyle, theme]
+	);
+
+	const InnerElement = useMemo(() => <Inner layerInfos={layerInfos} />, [layerInfos]);
+
+	return (
+		<InfoButton
+			labelPattern={t('baseMap.layerAttributions')}
+			headerPlural={true}
+			backgroundBlur={true}
+			Info={InnerElement}
+			buttonProps={buttonProps}
+		/>
+	);
+};
+
+const styles = StyleSheet.create({
+	attributionSpacing: {
+		marginBottom: 25,
+	},
+	componentWrapper: {
+		marginLeft: 10,
+		marginTop: 10,
+	},
+});
+
+export default MapLayersAttribution;

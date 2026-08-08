@@ -1,0 +1,22 @@
+{
+    "tabWidth": 4,
+    "printWidth": 100,
+    "useTabs": true,
+    "semi": true,
+    "singleQuote": true,
+    "bracketSpacing": true,
+    "singleAttributePerLine": true,
+    "bracketSameLine": false,
+    "trailingComma": "es5",
+    "objectWrap": "preserve",
+    "proseWrap": "preserve",
+    "endOfLine": "lf",
+    "plugins": [
+        "prettier-plugin-embed",
+        "prettier-plugin-sql",
+        "prettier-plugin-multiline-arrays"
+    ],
+    "language": "sqlite",
+    "linesBetweenQueries": 0,
+    "multilineArraysWrapThreshold": 2
+}

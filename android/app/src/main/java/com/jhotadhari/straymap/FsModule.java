@@ -1,93 +1,163 @@
 package com.jhotadhari.straymap;
 
 import android.os.Build;
-import android.os.Environment;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContext;
-import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.WritableNativeArray;
 import com.facebook.react.bridge.WritableNativeMap;
+import com.facebook.react.module.annotations.ReactModule;
 
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
-import java.io.FileFilter;
-import java.nio.file.Path;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.logging.FileHandler;
 
-public class FsModule extends ReactContextBaseJavaModule {
+
+@ReactModule(name = FsModule.NAME)
+public class FsModule extends NativeFsModuleSpec {
+
+	public static final String NAME = "FsModule";
 
 	ReactContext reactContext;
+	private final ExecutorService executor = Executors.newSingleThreadExecutor();
+	private volatile boolean mShuttingDown = false;
 
 	public FsModule(@Nullable ReactApplicationContext reactContext_) {
 		super(reactContext_);
 		reactContext = reactContext_;
 	}
 
+	@NonNull
 	@Override
     public String getName() {
-        return "FsModule";
+        return NAME;
     }
+
+	@Override
+	public void invalidate() {
+		mShuttingDown = true;
+		executor.shutdown();
+		super.invalidate();
+	}
+
+	protected boolean isAtLeastO() {
+		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.O;
+	}
+
+	protected WritableMap createMap() {
+		return new WritableNativeMap();
+	}
+
+	protected WritableArray createArray() {
+		return new WritableNativeArray();
+	}
+
+	protected MatchExtensionsPredicate createPredicate(String[] extensions) {
+		return new MatchExtensionsPredicate(extensions);
+	}
 
     @ReactMethod
-    public void getInfo( String navDir, @Nullable ReadableArray extensions, Boolean recursive, Promise promise ) {
-        try {
-            WritableMap response = new WritableNativeMap();
-            File path = new File( navDir );
+    public void getInfo( String navDir, @Nullable ReadableArray extensions, boolean recursive, @Nullable Boolean stopOnFirstMatch, @Nullable Double maxDepth, Promise promise ) {
+		executor.execute(() -> {
+			try {
+				WritableMap response = createMap();
+				File path = new File( navDir );
 
-            // navParent
-			response.putString( "navParent", String.valueOf( path.getParent() ) );
+				// navParent
+				response.putString( "navParent", String.valueOf( path.getParent() ) );
 
-			@Nullable String[] extensionsStrings =  null == extensions
-				? null
-				: extensions.toArrayList().toArray( new String[ 0 ] );
+				String[] extensionsStrings = extensions != null
+					? extensions.toArrayList().toArray( new String[ 0 ] )
+					: new String[ 0 ];
 
-            // navChildren
-            WritableArray navChildrenArray = new WritableNativeArray();
-            if ( path.isDirectory() ) {
-				Iterator<File> fileIterator = FileUtils.iterateFiles(
+				// navChildren
+				WritableArray navChildrenArray = createArray();
+				final boolean stopOnMatch = stopOnFirstMatch != null ? stopOnFirstMatch : false;
+				final int depthLimit = maxDepth != null ? maxDepth.intValue() : Integer.MAX_VALUE;
+				this.walk(
 					path,
-					extensionsStrings,
-					recursive
+					createPredicate( extensionsStrings ),
+					recursive,
+					stopOnMatch,
+					depthLimit,
+					0,
+					new FileHandler() {
+						@Override
+						void handle( File file ) {
+							int depth = file.toString().replace(
+								path.toString() + '/',
+								""
+							).split( "/" ).length - 1;
+							WritableMap fileInfoMap = createMap();
+							fileInfoMap.putString( "name", file.toString() );
+							fileInfoMap.putInt( "depth", depth );
+							fileInfoMap.putBoolean( "isDir", file.isDirectory() );
+							fileInfoMap.putBoolean( "isFile", file.isFile() );
+							fileInfoMap.putBoolean( "canRead", file.canRead() );
+							fileInfoMap.putBoolean( "canExecute", file.canExecute() );
+							fileInfoMap.putDouble( "size", (double) file.length() );
+							navChildrenArray.pushMap( fileInfoMap );
+						}
+					}
 				);
-				while ( fileIterator.hasNext() ) {
-					File file = fileIterator.next();
-					int depth = file.toString().replace(
-						path.toString() + '/',
-						""
-					).split( "/" ).length - 1;
-					WritableMap fileInfoMap = new WritableNativeMap();
-					fileInfoMap.putString( "name", file.toString() );
-					fileInfoMap.putInt( "depth", depth );
-					fileInfoMap.putBoolean( "isDir", file.isDirectory() );
-					fileInfoMap.putBoolean( "isFile", file.isFile() );
-					fileInfoMap.putBoolean( "canRead", file.canRead() );
-					fileInfoMap.putBoolean( "canExecute", file.canExecute() );
-					navChildrenArray.pushMap( fileInfoMap );
-				}
-            }
-			response.putArray( "navChildren", navChildrenArray );
+				response.putArray( "navChildren", navChildrenArray );
 
-            // Return response
-            promise.resolve( response );
-        } catch(Exception e) {
-            promise.reject("Error", e);
-        }
-    }
+				// Return response
+				if ( !mShuttingDown ) {
+					promise.resolve( response );
+				}
+			} catch(Exception e) {
+				if ( !mShuttingDown ) {
+					promise.reject("Error", e);
+				}
+			}
+		});
+	}
+
+	protected boolean walk( File startPath, MatchExtensionsPredicate filter, Boolean recursive, boolean stopOnFirstMatch, int maxDepth, int currentDepth, FileHandler handler ) {
+		if ( !startPath.isDirectory() || currentDepth > maxDepth ) return false;
+		boolean shouldWalk = recursive && ! stopOnFirstMatch;
+		if ( isAtLeastO() ) {
+			File[] files = startPath.listFiles();
+			if ( files == null ) return false;
+			boolean foundMatch = false;
+			for (File file : files) {
+				if (! file.isDirectory() && ! file.getName().startsWith( "." ) && filter.test(file.toPath())) {
+					foundMatch = true;
+					handler.handle( file );
+				}
+			}
+			if ( foundMatch && stopOnFirstMatch ) {
+				return true;
+			}
+			if ( shouldWalk || ( recursive && ! foundMatch ) ) {
+				for (File file : files ) {
+					if ( file.isDirectory() && ! file.getName().startsWith( "." ) ) {
+						if ( this.walk( file, filter, recursive, stopOnFirstMatch, maxDepth, currentDepth + 1, handler ) ) {
+							return true;
+						}
+					}
+				}
+			}
+		}
+		return false;
+	}
 
     @ReactMethod
     public void deleteDir( String path, Promise promise ) {
@@ -100,27 +170,102 @@ public class FsModule extends ReactContextBaseJavaModule {
 		}
 	}
 
+
+	    @ReactMethod
+	    public void deleteFile( String path, Promise promise ) {
+			try {
+				File file = new File( path );
+				if ( ! file.exists() ) {
+					promise.reject( "Error", "File does not exist: " + path );
+					return;
+				}
+				if ( file.isDirectory() ) {
+					promise.reject( "Error", "Path is a directory, use deleteDir instead: " + path );
+					return;
+				}
+				boolean result = file.delete();
+				promise.resolve( result );
+			} catch( Exception e ) {
+				promise.reject( "Error", e );
+			}
+		}
+
+	    @ReactMethod
+	    public void renameFile( String oldPath, String newPath, Promise promise ) {
+			try {
+				File oldFile = new File( oldPath );
+				if ( ! oldFile.exists() ) {
+					promise.reject( "Error", "File does not exist: " + oldPath );
+					return;
+				}
+				File newFile = new File( newPath );
+				if ( newFile.exists() ) {
+					promise.reject( "Error", "Target already exists: " + newPath );
+					return;
+				}
+				File parentDir = newFile.getParentFile();
+				if ( parentDir != null && ! parentDir.exists() ) {
+					parentDir.mkdirs();
+				}
+				boolean result = oldFile.renameTo( newFile );
+				if ( ! result ) {
+					FileUtils.copyFile( oldFile, newFile );
+					oldFile.delete();
+				}
+				promise.resolve( true );
+			} catch( Exception e ) {
+				promise.reject( "Error", e );
+			}
+		}
+
+	    @ReactMethod
+	    public void copyFile( String sourcePath, String destPath, Promise promise ) {
+			try {
+				File sourceFile = new File( sourcePath );
+				if ( ! sourceFile.exists() ) {
+					promise.reject( "Error", "Source file does not exist: " + sourcePath );
+					return;
+				}
+				if ( sourceFile.isDirectory() ) {
+					promise.reject( "Error", "Source is a directory: " + sourcePath );
+					return;
+				}
+				File destFile = new File( destPath );
+				if ( destFile.exists() ) {
+					promise.reject( "Error", "Target already exists: " + destPath );
+					return;
+				}
+				File parentDir = destFile.getParentFile();
+				if ( parentDir != null && ! parentDir.exists() ) {
+					parentDir.mkdirs();
+				}
+				FileUtils.copyFile( sourceFile, destFile );
+				promise.resolve( true );
+			} catch( Exception e ) {
+				promise.reject( "Error", e );
+			}
+		}
     @ReactMethod
     public void getCacheInfo( Promise promise ) {
         try {
-			WritableArray responseCacheDirs = new WritableNativeArray();
+			WritableArray responseCacheDirs = createArray();
 			List<File> cacheDirs = new ArrayList<>();
 			cacheDirs.add( getReactApplicationContext().getCacheDir() );
 			Collections.addAll( cacheDirs, getReactApplicationContext().getExternalCacheDirs() );
 			// Loop cache dirs.
 			for ( int i = 0; i < cacheDirs.size(); i++ ) {
 				File cacheDir = cacheDirs.get( i );
-				WritableMap fileMap = new WritableNativeMap();
+				WritableMap fileMap = createMap();
 				fileMap.putString( "path", cacheDir.toString() );
 				// Loop cacheSubDirs.
-				WritableArray caches = new WritableNativeArray();
+				WritableArray caches = createArray();
 				File[] cacheSubDirs = cacheDir.listFiles();
 				if ( null != cacheSubDirs ) {
 					for ( File cacheSubDir : cacheSubDirs ) {
 						if ( ! cacheSubDir.isDirectory() ) {
 							continue;
 						}
-						WritableMap fileInfoMap = new WritableNativeMap();
+						WritableMap fileInfoMap = createMap();
 						String readableSize = getReadableSize( FileUtils.sizeOfDirectory( cacheSubDir ) );
 						fileInfoMap.putString( "basename", cacheSubDir.toString().replace( cacheDir.toString() + "/", "" ) );
 						fileInfoMap.putString( "readableSize", readableSize );
@@ -143,10 +288,14 @@ public class FsModule extends ReactContextBaseJavaModule {
 		}
 		String[] units = new String[] { "B", "KB", "MB", "GB", "TB" };
 		int unitIndex = (int) (Math.log10(size) / 3);
-		double unitValue = 1 << (unitIndex * 10);
+		double unitValue = 1L << (unitIndex * 10);
 		return new DecimalFormat("#,##0.#")
 				.format(size / unitValue) + " "
 				+ units[unitIndex];
+	}
+
+	abstract static protected class FileHandler {
+		abstract void handle( File file );
 	}
 
 }

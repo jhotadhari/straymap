@@ -3,290 +3,428 @@
  */
 import React, {
 	Dispatch,
+	memo,
+	MutableRefObject,
 	SetStateAction,
+	useCallback,
 	useContext,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
 } from 'react';
 import {
-	StatusBar,
-	useColorScheme,
+	Dimensions,
+	NativeSyntheticEvent,
+	PixelRatio,
+	StyleSheet,
 	View,
+	ViewStyle,
 } from 'react-native';
-import 'intl-pluralrules';
-import {
-	useTheme,
-} from 'react-native-paper';
-import { get } from 'lodash-es';
-import { SafeAreaView, useSafeAreaFrame } from 'react-native-safe-area-context';
-
-/**
- * react-native-mapsforge-vtm dependencies
- */
+import { useTheme } from 'react-native-paper';
+import { clamp, get } from 'lodash-es';
+import { sprintf } from 'sprintf-js';
+import { useTranslation } from 'react-i18next';
 import {
 	MapContainer,
-	LayerBitmapTile,
 	LayerScalebar,
-	type HardwareKeyEventResponse,
-	type MapContainerProps,
-	LayerMBTilesBitmap,
-	LayerHillshading,
-	LayerMapsforge,
-	LayerMapsforgeProps,
-	MapContainerModule,
 	MapEventResponse,
-	ResponseInclude,
-	LayerMBTilesBitmapResponse,
-	LayerMapsforgeResponse,
-    LayerBitmapTileProps,
-    LayerHillshadingProps,
+	CanvasAdapterModule,
+	ErrorWithErrorMsg,
+	TapEventResponse,
+	useMap,
+	ReindexScope,
 } from 'react-native-mapsforge-vtm';
+import { useMapPosition } from 'react-native-mapsforge-vtm/reanimated';
+import { useHardwareKeyEvent } from 'react-native-hardwarekey-event';
+import type { KeyCode, KeyEvent } from 'react-native-hardwarekey-event';
 
 /**
  * Internal dependencies
  */
-import '../assets/i18n/i18n';
-import TopAppBar from './TopAppBar';
-import type {
-	LayerConfig,
-	LayerConfigOptionsOnlineRasterXYZ,
-	LayerConfigOptionsRasterMBtiles,
-	LayerConfigOptionsHillshading,
-	LayerConfigOptionsMapsforge,
-	DashboardElementConf,
-	LayerInfos,
-    InitialPosition,
-} from '../types';
-import { AppContext } from '../Context';
-import Center from './Center';
-import { Dashboard } from './Dashboard';
-import * as dashboardElementComponents from "./Dashboard/elements";
+import TopAppBar from '../features/ui/components/TopAppBar';
+import type { InitialPosition } from '../types';
+import { AppContext, MapContext } from '../Context';
+import { ErrorToastContext } from './ErrorToast/Context';
 import SplashScreen from './SplashScreen';
-import MapLayersAttribution from './MapLayersAttribution';
-import { fillLayerConfigOptionsWithDefaults, getHillshadingCacheDirChild, stringifyProp } from '../utils';
+import { useAppSelector } from '../store/hooks';
+import { selectHardwareKeys } from '../features/general/selectors';
+import { selectElementsSettings, selectItems } from '../features/dashboard/selectors';
+import { DashboardItem } from '../features/dashboard/types';
+import { selectHgtDirPath, selectMapsforgeGeneral } from '../features/baseMap/selectors';
+import UiItemComponent from '../features/ui/components/UiItemComponent';
+import useShowInitialSplash from '../compose/useShowInitialSplash';
+import { DRAWER_HANDLE_SIZE } from '../features/drawers/constants';
+import { selectItemKeys, selectControlHandleSide } from '../features/drawers/selectors';
+import { getDrawerWidthResponsive } from '../features/drawers/utils';
+import { useAppDispatch } from '../store/hooks';
+import { featureRegistry } from '../features/FeatureRegistry';
+import LayerDebugDumpButton from './LayerDebugDumpButton';
+import MapCornerComponents from './MapCornerComponents';
+import { useGnssSetup } from '../features/trackRecording/hooks/useGnssSetup';
+import { altitudeService } from '../lib/AltitudeService';
+import { addBusyKey, removeBusyKey } from '../features/ui/slice';
 
-const AppView = ( {
-    showSplash,
-    initialPosition,
-    setInitialPosition,
-    setTopAppBarHeight,
-    setBottomBarHeight,
-    setCurrentMapEvent,
-    setMapViewNativeNodeHandle,
-    layerInfos,
-    onLayerChange,
-} : {
-    showSplash: boolean;
-    initialPosition: InitialPosition;
-    setInitialPosition: Dispatch<SetStateAction<null | InitialPosition>>;
-    setTopAppBarHeight: Dispatch<SetStateAction<number>>;
-    setBottomBarHeight: Dispatch<SetStateAction<number>>;
-    setCurrentMapEvent: Dispatch<SetStateAction<MapEventResponse>>;
-    setMapViewNativeNodeHandle: Dispatch<SetStateAction<null | number>>;
-    layerInfos: LayerInfos;
-    onLayerChange: ( key: string, response: LayerMapsforgeResponse | LayerMBTilesBitmapResponse ) => void;
-} ) => {
+const zoomMin = 2;
+const zoomMax = 20;
 
-    const theme = useTheme();
-    const systemIsDarkMode = useColorScheme() === 'dark';
+const AppView = ({
+	initialPositionRef,
+	saveCurrentPositionToInitial,
+	setMapViewNativeNodeHandle,
+}: {
+	initialPositionRef: MutableRefObject<InitialPosition | undefined>;
+	saveCurrentPositionToInitial: (event?: NativeSyntheticEvent<MapEventResponse>) => void;
+	setMapViewNativeNodeHandle: Dispatch<SetStateAction<null | number>>;
+}) => {
+	const theme = useTheme();
+	const { t } = useTranslation();
 
-    const { width, height } = useSafeAreaFrame();
+	const { showError } = useContext(ErrorToastContext);
 
-    const {
-		mapViewNativeNodeHandle,
-		appInnerHeight,
-		bottomBarHeight,
-		selectedHierarchyItems,
-		appDirs,
-		mapSettings,
-		generalSettings,
-		currentMapEvent,
-    } = useContext( AppContext );
+	const showSplash = useShowInitialSplash();
 
-    if (
-        ! generalSettings
-        || ! mapSettings
+	const dispatch = useAppDispatch();
+	const { gnssFilter, handleGnssPosition } = useGnssSetup();
 
-    ) {
-        return null;
-    }
+	const hardwareKeys = useAppSelector(selectHardwareKeys);
 
-    const mapHeight = ( appInnerHeight || height ) - ( bottomBarHeight || 0 );
+	const dashboardItems = useAppSelector((state) => selectItems(state, { position: 'bottom' }));
+	const hgtDirPathStore = useAppSelector(selectHgtDirPath);
+	const dashboardWidgets = useAppSelector(selectElementsSettings);
 
-    return <SafeAreaView style={ {
-        backgroundColor: theme.colors.background,
-        height,
-        width,
-    } }>
+	const controlHandleSide = useAppSelector(selectControlHandleSide);
+	const leftItemKeys = useAppSelector((state) => selectItemKeys(state, { side: 'left' }));
+	const rightItemKeys = useAppSelector((state) => selectItemKeys(state, { side: 'right' }));
 
-        { showSplash && <SplashScreen/> }
+	const getDrawerHandleHeight = useCallback(
+		(itemsCount: number) =>
+			itemsCount * DRAWER_HANDLE_SIZE + itemsCount * (DRAWER_HANDLE_SIZE / 2),
+		[]
+	);
 
-        <StatusBar barStyle={ systemIsDarkMode ? 'light-content' : 'dark-content' } />
+	const { width } = useMemo(() => Dimensions.get('window'), []);
 
-        <TopAppBar setTopAppBarHeight={ setTopAppBarHeight } />
+	const { mapViewNativeNodeHandle, moveEnabled, drawerControlsRef } = useContext(AppContext);
 
-        <View style={ {
-            height: mapHeight,
-            width,
-        } } >
+	// Wire the map's nativeNodeHandle to altitudeService so thunks
+	// (routing, elevation enrichment) can query altitude without
+	// needing the React tree.
+	useEffect(() => {
+		if (mapViewNativeNodeHandle) {
+			altitudeService.wire(mapViewNativeNodeHandle);
+		}
+		return () => {
+			altitudeService.unwire();
+		};
+	}, [mapViewNativeNodeHandle]);
 
-            { selectedHierarchyItems && selectedHierarchyItems[selectedHierarchyItems.length-1].SubActivity && selectedHierarchyItems[selectedHierarchyItems.length-1].SubActivity }
+	const { currentMapEventRef, centerPositionSvRef } = useContext(MapContext);
 
-            <MapContainer
-                mapEventRate={ generalSettings.mapEventRate }
-                nativeNodeHandle={ mapViewNativeNodeHandle }
-                setNativeNodeHandle={ setMapViewNativeNodeHandle }
-                hgtInterpolation={ mapSettings.hgtInterpolation }
-                hgtFileInfoPurgeThreshold={ mapSettings.hgtFileInfoPurgeThreshold }
-                hgtReadFileRate={ mapSettings.hgtReadFileRate }
-                hgtDirPath={ mapSettings?.hgtDirPath && [...generalSettings.dashboardElements.elements].reduce( ( acc: boolean, ele: DashboardElementConf ) => {
-                    return acc || ! ele.type ? acc : get( dashboardElementComponents, [ele.type,'shouldSetHgtDirPath'], false );
-                }, false ) as boolean ? mapSettings.hgtDirPath : undefined }
-                responseInclude={ [...generalSettings.dashboardElements.elements].reduce( ( acc: object, ele: DashboardElementConf ) => {
-                    return ele.type ? {
-                        ...acc,
-                        ...get( dashboardElementComponents, [ele.type,'responseInclude'], {} ),
-                    } : acc;
-                }, { zoomLevel: 2 } ) as ResponseInclude }
-                height={ mapHeight }
-                width={ width }
-                center={ initialPosition.center }
-                zoomLevel={ initialPosition.zoomLevel }
-                zoomMin={ 2 }
-                zoomMax={ 20 }
-                moveEnabled={ true }
-                tiltEnabled={ false }
-                rotationEnabled={ false }
-                zoomEnabled={ true }
-                onPause={ response => {
-                    if ( response.center && response.zoomLevel ) {
-                        setInitialPosition( {
-                            center: response.center,
-                            zoomLevel: response.zoomLevel,
-                        } );
-                    }
-                } }
-                onError={ err => console.log( 'Error', err ) }
-                onResume={ response => console.log( 'lifecycle event onResume', response ) }
-                onMapEvent={ ( response: MapEventResponse ) => {
-                    // console.log( 'onMapEvent event', response ); // debug
-                    setCurrentMapEvent( response );
-                } }
-                emitsHardwareKeyUp={ [...generalSettings.hardwareKeys].filter( keyConf => 'none' !== keyConf.actionKey ).map( keyConf => keyConf.keyCodeString ) as MapContainerProps['emitsHardwareKeyUp'] }
-                onHardwareKeyUp={ generalSettings.hardwareKeys.length > 0 ? ( response: HardwareKeyEventResponse ) => {
-                    [...generalSettings.hardwareKeys].map( keyConf => {
-                        if ( response.keyCodeString === keyConf.keyCodeString ) {
-                            switch( keyConf.actionKey ) {
-                                case 'zoomIn':
-                                    MapContainerModule.zoomIn( mapViewNativeNodeHandle );
-                                    break;
-                                case 'zoomOut':
-                                    MapContainerModule.zoomOut( mapViewNativeNodeHandle );
-                                    break;
-                            }
-                        }
-                    } )
-                } : null }
-            >
+	const { flyTo } = useMap(mapViewNativeNodeHandle);
 
-                { [...mapSettings.layers].reverse().map( ( layer : LayerConfig ) => {
-                    if ( layer.type && layer.visible ) {
-                        let options;
-                        let cacheDirBase;
-                        switch( layer.type ) {
-                            case 'online-raster-xyz':
-                                options = fillLayerConfigOptionsWithDefaults( layer.type, layer.options ) as LayerConfigOptionsOnlineRasterXYZ
-                                cacheDirBase = 'internal' === options?.cacheDirBase
-                                    ? get( appDirs, 'internalCacheDir', undefined )
-                                    : options?.cacheDirBase as LayerConfigOptionsOnlineRasterXYZ['cacheDirBase'];
-                                return <LayerBitmapTile
-                                    key={ layer.key }
-                                    zoomMin={ options.zoomMin }
-                                    zoomMax={ options.zoomMax }
-                                    enabledZoomMin={ options.enabledZoomMin }
-                                    enabledZoomMax={ options.enabledZoomMax }
-                                    url={ get( layer.options, 'url', '' ) }
-                                    alpha={ options.alpha }
-                                    cacheSize={ options.cacheSize }
-                                    cacheDirChild={ stringifyProp( options.url || '' ) }
-                                    cacheDirBase={ ( cacheDirBase || '/' ) as LayerBitmapTileProps['cacheDirBase'] }    // if `/`, will fallback to java getReactApplicationContext().getCacheDir();
-                                />;
-                            case 'raster-MBtiles':
-                                options = fillLayerConfigOptionsWithDefaults( layer.type, layer.options ) as LayerConfigOptionsRasterMBtiles
-                                return <LayerMBTilesBitmap
-                                    key={ layer.key }
-                                    mapFile={ options.mapFile }
-                                    enabledZoomMin={ options.enabledZoomMin }
-                                    enabledZoomMax={ options.enabledZoomMax }
-                                    onCreate={ response => onLayerChange( layer.key, response ) }
-                                    onChange={ response => onLayerChange( layer.key, response ) }
-                                />;
-                            case 'mapsforge':
-                                if ( mapSettings.mapsforgeProfiles.length > 0 ) {
-                                    const layerMapsforgeOptions = fillLayerConfigOptionsWithDefaults( layer.type, layer.options ) as LayerConfigOptionsMapsforge
-                                    let profile = mapSettings.mapsforgeProfiles.find( prof => prof.key === layerMapsforgeOptions.profile );
-                                    profile = profile || mapSettings.mapsforgeProfiles[0];
-                                    return <LayerMapsforge
-                                        key={ layer.key }
-                                        enabledZoomMin={ layerMapsforgeOptions.enabledZoomMin }
-                                        enabledZoomMax={ layerMapsforgeOptions.enabledZoomMax }
-                                        mapFile={ layerMapsforgeOptions.mapFile }
-                                        renderTheme={ profile.theme as LayerMapsforgeProps['renderTheme'] }
-                                        renderStyle={ profile.renderStyle || undefined }
-                                        renderOverlays={ profile.renderOverlays }
-                                        hasBuildings={ profile.hasBuildings }
-                                        hasLabels={ profile.hasLabels }
-                                        onCreate={ response => onLayerChange( layer.key, response ) }
-                                        onChange={ response => onLayerChange( layer.key, response ) }
-                                    />;
-                                }
-                                return null;
-                            case 'hillshading':
-                                options = fillLayerConfigOptionsWithDefaults( layer.type, layer.options ) as LayerConfigOptionsHillshading
-                                cacheDirBase = 'internal' === options?.cacheDirBase
-                                    ? get( appDirs, 'internalCacheDir', undefined )
-                                    : options?.cacheDirBase as LayerConfigOptionsHillshading['cacheDirBase']
-                                return <LayerHillshading
-                                    key={ layer.key }
-                                    hgtDirPath={ options.hgtDirPath }
-                                    zoomMin={ options.zoomMin }
-                                    zoomMax={ options.zoomMax }
-                                    enabledZoomMin={ options.enabledZoomMin }
-                                    enabledZoomMax={ options.enabledZoomMax }
-                                    magnitude={ options.magnitude }
-                                    cacheSize={ options.cacheSize }
-                                    cacheDirChild={ getHillshadingCacheDirChild( options ) }
-                                    cacheDirBase={ ( cacheDirBase || '/' ) as LayerHillshadingProps['cacheDirBase'] }    // if ``, will fallback to cache dbname;
-                                    shadingAlgorithm={ options.shadingAlgorithm }
-                                    shadingAlgorithmOptions={ options.shadingAlgorithmOptions }
-                                />;
-                        }
-                    }
-                    return null
-                } ) }
+	const { centerSv, handleMapUpdate } = useMapPosition();
+	// Expose the shared value through context so dashboard elements
+	// can read the map center without bridge crossings.
+	centerPositionSvRef.current = centerSv;
 
-                <LayerScalebar/>
+	const hgtDirPath = useMemo(
+		() =>
+			hgtDirPathStore &&
+			(dashboardItems.reduce((acc: boolean, ele: DashboardItem) => {
+				return acc || !ele.elementType
+					? acc
+					: get(dashboardWidgets, [ele.elementType, 'shouldSetHgtDirPath'], false);
+			}, false) as boolean)
+				? hgtDirPathStore
+				: undefined,
+		[
+			hgtDirPathStore,
+			dashboardItems,
+			dashboardWidgets,
+		]
+	);
 
-            </MapContainer>
+	// Observe hardware keys that have a non-'none' action assigned.
+	// Only the key-code strings themselves are passed to the native layer;
+	// the actionKey is resolved in onKeyDown via the Redux config.
+	const observedKeyCodes = useMemo(
+		() =>
+			hardwareKeys
+				.filter((keyConf) => keyConf.actionKey !== 'general.none')
+				.map((keyConf) => keyConf.keyCodeString as KeyCode),
+		[hardwareKeys]
+	);
 
-            <Center
-                height={ mapHeight }
-                width={ width }
-            />
+	useHardwareKeyEvent({
+		keys: observedKeyCodes,
+		onKeyDown: useCallback(
+			(event: KeyEvent) => {
+				const keyConf = hardwareKeys.find((kc) => kc.keyCodeString === event.keyCodeString);
+				if (!keyConf || undefined === currentMapEventRef.current?.zoomLevel) return;
 
-            <MapLayersAttribution
-                layerInfos={ layerInfos }
-            />
+				switch (keyConf.actionKey) {
+					case 'zoomIn':
+						flyTo({
+							zoomLevel: clamp(
+								currentMapEventRef.current?.zoomLevel + 1,
+								zoomMin,
+								zoomMax
+							),
+						});
+						break;
+					case 'zoomOut':
+						flyTo({
+							zoomLevel: clamp(
+								currentMapEventRef.current?.zoomLevel - 1,
+								zoomMin,
+								zoomMax
+							),
+						});
+						break;
+				}
+			},
+			[
+				hardwareKeys,
+				flyTo,
+				currentMapEventRef,
+			]
+		),
+	});
 
-        </View>
+	const insideMapComponents = useMemo(() => featureRegistry.getMapComponents(), []);
+	const siblingOverlayComponents = useMemo(() => featureRegistry.getAppOverlays(), []);
 
-        { generalSettings?.dashboardElements?.elements && generalSettings?.dashboardElements?.elements.length > 0 && generalSettings.unitPrefs && <Dashboard
-            elements={ generalSettings.dashboardElements.elements }
-            dashboardStyle={ generalSettings.dashboardElements.style }
-            unitPrefs={ generalSettings.unitPrefs }
-            currentMapEvent={ currentMapEvent || {} }
-            setBottomBarHeight={ setBottomBarHeight }
-        /> }
+	const [showMap, setShowMap] = useState(false);
+	const mapsforgeGeneral = useAppSelector(selectMapsforgeGeneral);
+	useEffect(() => {
+		// Snapshot the current position into initialPositionRef so the
+		// recreated map resumes where the user was, rather than jumping
+		// to a stale saved position.  (saveCurrentPositionToInitial only
+		// writes to DefaultPreference, not the ref, so onPause during
+		// unmount arrives too late for the re-mount render pass.)
+		if (currentMapEventRef.current?.center && currentMapEventRef.current?.zoomLevel) {
+			initialPositionRef.current = {
+				center: currentMapEventRef.current.center,
+				zoomLevel: currentMapEventRef.current.zoomLevel,
+			};
+		}
+		setShowMap(false);
+		setTimeout(() => {
+			CanvasAdapterModule.setLineScale(mapsforgeGeneral.lineScale);
+			CanvasAdapterModule.setTextScale(mapsforgeGeneral.textScale);
+			CanvasAdapterModule.setSymbolScale(mapsforgeGeneral.symbolScale);
+			setShowMap(true);
+		}, 1);
+	}, [
+		mapsforgeGeneral,
+		currentMapEventRef,
+		initialPositionRef,
+	]);
 
-    </SafeAreaView>;
+	// Busy key 'map:init': added when MapContainer mounts, removed on first rendered frame.
+	const firstMapUpdateRef = useRef(false);
+	useEffect(() => {
+		if (showMap) {
+			firstMapUpdateRef.current = false;
+			dispatch(addBusyKey('map:init'));
+		}
+	}, [showMap, dispatch]);
+
+	// onPause/onResume/onMapUpdate/onError are Fabric native-view event props, so React invokes them
+	// with a NativeSyntheticEvent wrapper (event.nativeEvent), not a bare response object.
+	const handleMapError = useCallback(
+		(event: NativeSyntheticEvent<ErrorWithErrorMsg>) => {
+			console.log('Error', event.nativeEvent);
+			showError(sprintf(t('errorGeneric'), event.nativeEvent.errorMsg));
+		},
+		[showError, t]
+	);
+
+	const handleMapResume = useCallback(
+		(event: NativeSyntheticEvent<MapEventResponse>) =>
+			console.log('lifecycle event onResume', event.nativeEvent),
+		[]
+	);
+
+	const handleMapEvent = useCallback(
+		(event: NativeSyntheticEvent<MapEventResponse>) => {
+			currentMapEventRef.current = event.nativeEvent;
+			// Feed the same event to useMapPosition's shared values
+			// so centerSv stays in sync at zero bridge cost.
+			handleMapUpdate(event as { nativeEvent: Readonly<MapEventResponse> });
+			// First onMapUpdate signals the native map has rendered its initial
+			// frame with layers mounted — clear the 'map:init' busy key.
+			if (!firstMapUpdateRef.current) {
+				firstMapUpdateRef.current = true;
+				dispatch(removeBusyKey('map:init'));
+			}
+			// Track recording positions now flow through the native gnssFilter
+			// on MapContainer — onGnssPosition dispatches writeGnssPosition.
+		},
+		[
+			currentMapEventRef,
+			handleMapUpdate,
+			dispatch,
+		]
+	);
+
+	// onTap fires when the user taps on an empty map area (unconsumed by marker/path layers).
+	// On a tap, close any open drawers to give the user a clear view of the map.
+	// Taps on drawer handles and expanded drawer content are excluded so that interacting
+	// with a drawer doesn't immediately close it.
+	const handleMapTap = useCallback(
+		(event: NativeSyntheticEvent<TapEventResponse>) => {
+			const { x, y } = event.nativeEvent;
+			const xLogical = x / PixelRatio.get();
+			const yLogical = y / PixelRatio.get();
+
+			const drawerWidthResponsive = getDrawerWidthResponsive(width);
+
+			const translationXLeft = drawerControlsRef.current?.left.translationX;
+			const translationXRight = drawerControlsRef.current?.right.translationX;
+
+			// Left-side exclusion: handles always visible; when expanded, the drawer
+			// content covers drawerWidth from the left edge plus the handle tab.
+			const leftItemCount = leftItemKeys.length + (controlHandleSide === 'left' ? 1 : 0);
+			if (leftItemCount > 0) {
+				const leftHandleH = getDrawerHandleHeight(leftItemCount);
+				// Get out if the tap event was within the rectangle of the left drawer handles.
+				// Handles sit at the right edge of the drawer content and extend right by
+				// DRAWER_HANDLE_SIZE.  The content itself is at x = translationXLeft (left edge)
+				// with width = drawerWidthResponsive, so the handle rectangle is:
+				//   [translationXLeft + drawerWidth, translationXLeft + drawerWidth + HANDLE_SIZE]
+				const leftHandleLeft =
+					(translationXLeft?.value ?? -drawerWidthResponsive) + drawerWidthResponsive;
+				const leftHandleRight = leftHandleLeft + DRAWER_HANDLE_SIZE;
+				if (yLogical <= leftHandleH && xLogical <= leftHandleRight) {
+					return;
+				}
+			}
+
+			// Right-side exclusion: mirror of the left-side logic.
+			const rightItemCount = rightItemKeys.length + (controlHandleSide === 'right' ? 1 : 0);
+			if (rightItemCount > 0) {
+				const rightHandleH = getDrawerHandleHeight(rightItemCount);
+				// Get out if the tap event was within the rectangle of the right drawer handles.
+				// Handles sit at the left edge of the drawer content and extend left by
+				// DRAWER_HANDLE_SIZE.  The content itself ends at x = width (flex-end) with
+				// width = drawerWidthResponsive, so its left edge is:
+				//   width - drawerWidth + translationXRight
+				// and the handle rectangle is:
+				//   [contentLeft - HANDLE_SIZE, contentLeft]
+				const rightContentLeft =
+					width -
+					drawerWidthResponsive +
+					(translationXRight?.value ?? drawerWidthResponsive);
+				const rightHandleLeft = rightContentLeft - DRAWER_HANDLE_SIZE;
+				if (yLogical <= rightHandleH && xLogical >= rightHandleLeft) {
+					return;
+				}
+			}
+
+			drawerControlsRef.current?.left.expand(false);
+			drawerControlsRef.current?.right.expand(false);
+		},
+		[
+			drawerControlsRef,
+			getDrawerHandleHeight,
+			leftItemKeys.length,
+			rightItemKeys.length,
+			controlHandleSide,
+			width,
+		]
+	);
+
+	const styleContainer: ViewStyle = useMemo(
+		() => ({
+			backgroundColor: theme.colors.background,
+			flex: 1,
+			width,
+			flexDirection: 'column',
+			justifyContent: 'space-between',
+		}),
+		[
+			theme,
+			width,
+		]
+	);
+
+	const styleAppInner: ViewStyle = useMemo(
+		() => ({
+			flexDirection: 'column',
+			flexGrow: 1,
+		}),
+		[]
+	);
+
+	return (
+		<View style={styleContainer}>
+			{showSplash && <SplashScreen />}
+
+			<TopAppBar />
+
+			<View style={styleAppInner}>
+				<UiItemComponent />
+
+				<View style={styles.map}>
+					{showMap && (
+						<MapContainer
+							nativeNodeHandle={mapViewNativeNodeHandle}
+							setNativeNodeHandle={setMapViewNativeNodeHandle}
+							hgtDirPath={hgtDirPath}
+							height={null}
+							width={null}
+							center={initialPositionRef?.current?.center}
+							zoomLevel={initialPositionRef?.current?.zoomLevel}
+							zoomMin={zoomMin}
+							zoomMax={zoomMax}
+							moveEnabled={moveEnabled ?? true}
+							tiltEnabled={false}
+							rotationEnabled={false}
+							zoomEnabled={true}
+							onPause={saveCurrentPositionToInitial}
+							onError={handleMapError}
+							onResume={handleMapResume}
+							onMapUpdate={handleMapEvent}
+							onTap={handleMapTap}
+							gnssFilter={gnssFilter}
+							onGnssPosition={handleGnssPosition}
+						>
+							{insideMapComponents.map(({ key, Component, props }) => (
+								<Component
+									key={key}
+									{...props}
+								/>
+							))}
+
+							<ReindexScope order={9999}>
+								<LayerScalebar />
+							</ReindexScope>
+
+							<MapCornerComponents />
+
+							<LayerDebugDumpButton />
+						</MapContainer>
+					)}
+				</View>
+
+				{siblingOverlayComponents.map(({ key, Component, props }) => (
+					<Component
+						key={key}
+						{...props}
+					/>
+				))}
+			</View>
+		</View>
+	);
 };
 
-export default AppView;
+const styles = StyleSheet.create({
+	map: {
+		flexDirection: 'column',
+		flexGrow: 1,
+	},
+});
+
+export default memo(AppView);

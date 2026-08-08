@@ -1,0 +1,137 @@
+{
+	"createdBy": "Erstellt von",
+	"label": "Name",
+	"globalDEM": "Globales DEM",
+	"file": "Karten Datei",
+	"selectFile": "Karten Datei auswählen",
+	"demDir": "DEM Verzeichnis",
+	"demLabel": {
+		"shading": "Schattierung, {{label}}",
+		"shadingGlobal": "Schattierung, global, {{label}}"
+	},
+	"selectDemDir": "DEM Verzeichnis auswählen",
+	"useAppHgt": "Global verwenden",
+	"useCache": "Cache verwenden",
+	"openAppHgt": "Global",
+	"notConfiguredAppHgt": "Global nicht konfiguriert",
+	"addNew": "Neue Karte hinzufügen",
+	"layerAttributions": "Kartendatengrundlage",
+	"cacheSize": "Cache Größe",
+	"cacheSizeCurrent": "Aktuelle Cache-Größe",
+	"cacheClear": "Cache leeren",
+	"cacheDir": "Cache Verzeichnis",
+	"useFirstOne": "Das erste benutzen",
+	"noLayerUseCache": "Keine Kartenebene verwendet diesen Cache",
+	"layerEdit": "Kartenebene bearbeiten",
+	"layerRemove": "Kartenebene entfernen",
+	"layersNone": "Derzeit sind keine Kartenebenen vorhanden",
+	"mapsforgeGeneral": "Allgemeine Mapsforge Einstellungen",
+	"mapType": "Kartentyp",
+	"addNewLayer": "Neue Kartenebene hinzufügen",
+	"addNewLayerShort": "Neue Ebene hinzufügen",
+	"selectType": "Wähle den Kartentyp",
+	"askCancel": "Möchtest du die Bearbeitung dieser Karte wirklich abbrechen?",
+	"source": "Kartenquelle",
+	"lineScale": "Linien-Skalierung",
+	"textScale": "Text-Skalierung",
+	"symbolScale": "Symbol-Skalierung",
+	"visibility": "Sichtbarkeit",
+	"selectTheme": "Theme auswählen",
+	"theme": "Theme",
+	"builtInThemes": "Eingebaute Themes",
+	"overlay_one": "Overlay",
+	"overlay_other": "Overlays",
+	"hasLabels": "Beschriftungen",
+	"hasBuildings": "3D Gebäude",
+	"layer_one": "Kartenebene",
+	"layer_other": "Kartenebenen",
+	"layerShort_one": "Ebene",
+	"layerShort_other": "Ebenen",
+	"layerSelectedCount_one": "%s Ebene hat dieses Profil ausgewählt",
+	"layerSelectedCount_other": "%s Ebenen haben dieses Profil ausgewählt",
+	"layerSelectedDefaultCount_one": "%s Ebene benutzt dieses Profil, weil es das Standardprofil ist",
+	"layerSelectedDefaultCount_other": "%s Ebenen benutzen dieses Profil, weil es das Standardprofil ist",
+	"select": {
+		"none": "Nichts auswählen",
+		"all": "Alles auswählen",
+		"toggle": "Auswahl umschalten"
+	},
+	"selected": {
+		"none": "Nichts ausgewählt",
+		"all": "Alles ausgewählt",
+		"count": "%s ausgewählt"
+	},
+	"mapsforge": {
+		"profile_one": "Mapsforge Profil",
+		"profile_other": "Mapsforge Profile",
+		"profileRemove": "Profil entfernen",
+		"profileEdit": "Mapsforge Profil bearbeiten",
+		"profilesNone": "Derzeit sind keine mapsforge Profile vorhanden",
+		"profileAddNew": "Neues mapsforge Profil hinzufügen",
+		"profileAddNewShort": "Neues Profil hinzufügen"
+	},
+	"typeDesc": {
+		"online-raster-xyz": "Online-Rasterkarten-Kacheln von einem Web-Tile-Server. Benötigt eine Internetverbindung. Geeignet für Satellitenbilder, Straßenkarten und andere Web-Tile-Dienste. Heruntergeladene Kacheln können auf dem Gerät gespeichert und offline wiederverwendet werden.",
+		"mapsforge": "Offline-Vektorkarten (.map). Beste Wahl für detaillierte Wander-, Fahrrad- und Stadtnavigations-Karten.",
+		"raster-MBtiles": "Offline-Raster-Übersichtskarten (.mbtiles). Eine einzelne Datei mit vorgerenderten Kartenbildern — am besten für großflächige Übersichten auf niedrigen Zoomstufen.",
+		"hillshading": "Offline-Geländeschattierung aus digitalen Höhenmodellen (DEM). Fügt der Karte realistische Reliefdarstellung und Tiefe hinzu. Verwendet .hgt-Höhendateien."
+	},
+	"hint": {
+		"label": "Ein Name zur Wiedererkennung dieses Elements. Du kannst jeden beliebigen Namen wählen — er wird nur in den App-Einstellungen angezeigt.\n\nFalls nicht angegeben, wird die Quellangabe der Kartenebene als Name verwendet.",
+		"applyToAllMapsforge": "Diese Einstellungen gelten für alle mapsforge Kartenebenen.",
+		"lineScale": "Linien-Skalierungsfaktor > 0.0\n\nZur Skalierung der Liniendicke auf der Karte\n\nStandard: 1. = keine Skalierung der Liniendicke",
+		"textScale": "Text-Skalierungsfaktor > 0.0\n\nZur Skalierung der Größe von Beschriftungen auf der Karte\n\nStandard: 1. = keine Skalierung der Textgröße",
+		"symbolScale": "Symbol-Skalierungsfaktor > 0.0\n\nZur Skalierung der Symbolgröße auf der Karte\n\nStandard: 1. = keine Skalierung der Symbolgröße",
+		"layers": "Die Kartenebenen werden übereinander angezeigt. Ebenen, die in den Einstellungen weiter oben stehen, werden über den anderen Ebenen in der Karte angezeigt.\n\nDie Ebenen können per Drag & Drop sortiert werden.\n\nDie einzelnen Kartenebenen können in verschiedenen Zoomstufen ein- oder ausgeschaltet werden.\n\nDadurch können Übersichts- und Detailkarten zusammen verwendet werden.\n\nKartenebenen, die vorübergehend nicht benötigt werden, können ausgeblendet werden (Schaltfläche Augensymbol).",
+		"profiles": "„Profile“ bestimmen, wie Offline-Vektorkarten aussehen — Farben, Linienstile, Beschriftungsdichte und mehr.\n\nDie Profile können per Drag & Drop sortiert werden. Das oberste Profil ist das Standardprofil für alle Kartenebenen, denen kein bestimmtes Profil zugewiesen ist.",
+		"visibility": "Schaltet die Kartenebene ein oder aus. Ebenen, die vorübergehend nicht benötigt werden, können ausgeblendet werden, um die Karte übersichtlicher zu machen.",
+		"xyzSource": "Die URL zum xyz Karten Tile-Server.\n\nDie URL muss vorzugsweise mit https:// beginnen. Unsichere Verbindungen mit http:// sind möglich, werden aber nicht empfohlen.\n\nDie URL muss die Platzhalter {X}, {Y} und {Z} enthalten (in geschweiften Klammern).\n\nDiese Kartenebene ruft Rasterbilder von einer Online-Quelle ab. Bei jeder Anfrage an jeden beliebigen Server werden personenbezogene Daten (Ihre IP-Adresse) übertragen. Dies ist technisch notwendig.",
+		"enabled": "Legt den Zoomstufen-Bereich fest, in dem diese Kartenebene sichtbar ist. Unterhalb des Minimums oder oberhalb des Maximums wird die Ebene automatisch ausgeblendet.",
+		"zoom": "Zwischen welchen Zoomstufen die Kartenebene geladen wird. Wird über das maximale Zoomlevel der Kartenebene hinaus gezoomt, wird die Karte zwar weiterhin angezeigt, aber sie aktualisiert sich nicht. Damit kann vermieden werden das einige Tile-Server Platzhalter bei hohen Zoomstufen anzeigen.",
+		"zoomGeneralInfo": "ûber zoom im allgemeinen:\n\nBei niedrigen Zoomstufen wird die Karte weit herausgezoomt, und es wird ein großer Bereich auf der Karte angezeigt. Bei großen Zoomstufen zeigt die Karte einen detaillierten Ausschnitt.\n\nTipp: Im Dashboard kann die aktuelle Zoomstufe der Karte angezeigt werden.",
+		"mapsforgeFile": "Mapsforge-Dateien (.map) enthalten detaillierte Vektorkartendaten (Wege, Straßen, Gebäude, Landbedeckung). Beste Wahl für detaillierte Wander- und Fahrradkarten. Funktioniert offline nach dem Herunterladen.",
+		"mapsforgeProfile": "Profile bestimmen, wie die Offline-Vektorkarten von mapsforge dargestellt werden. Für die Kartenebene kann ein Profil ausgewählt werden, das zuvor konfiguriert werden muss. Die verschiedenen mapsforge-Profile können allgemein in den Karteneinstellungen verwaltet werden.\n\nIst der Kartenebene kein Profil zugeordnet, wird automatisch das erste Profil verwendet.",
+		"mapsforgeHasBuildings": "Gebäude als 3D-Formen auf der Karte anzeigen.\n\nWenn aktiviert, erscheinen Gebäude als 3D-Extrusionen über der Karte. Wenn deaktiviert, werden sie nur flach als Teil des Kartenhintergrunds dargestellt.",
+		"mbTilesFile": "MBtiles-Dateien (.mbtiles) enthalten vorgerenderte Raster-Kartenbilder. Beste Wahl für großflächige Übersichtskarten — ideal, um das große Ganze auf niedrigen Zoomstufen zu sehen.\n\nSie müssen manuell heruntergeladen werden. Nach dem Herunterladen ist keine Internetverbindung erforderlich, um sie zu verwenden.\n\nNach dem Herunterladen müssen die Dateien in eines der Verzeichnisse der Straymap-App verschoben werden.",
+		"demDir": "Das DEM-Verzeichnis enthält die Dateien für das digitale Höhenmodell (DEM) (.hgt). DEM liefern die Geländehöhendaten, die für die Schattierung verwendet werden.\n\nSie müssen manuell heruntergeladen werden. Nach dem Herunterladen ist keine Internetverbindung erforderlich, um sie zu verwenden.\n\nNach dem Herunterladen müssen die Dateien in eines der Verzeichnisse der Straymap-App verschoben werden.\n\nDEM werden meist in einer Auflösung von 1 oder 3 Bogensekunden zur Verfügung gestellt. (Eine Bogensekunde entspricht ungefähr 30m am Äquator)",
+		"demOnly3Sec": "Zurzeit werden nur Höhenmodelle mit einer Auflösung von 3 Bogensekunden unterstützt.",
+		"mapsforgeProfileFile": "Custom Themes (.xml-Dateien) ändern das visuelle Erscheinungsbild von Mapsforge-Karten — Farben, Symbole, Straßenstile.\n\nSie müssen manuell heruntergeladen und in eines der Verzeichnisse der Straymap-App verschoben werden. Eingebaute Themes sind ebenfalls verfügbar und erfordern keinen Download.",
+		"mapsforgeProfileStyle": "Wähle eine visuelle Stilvariante innerhalb dieses Themes. Stile bieten leichte Variationen im Erscheinungsbild, wie z.B. andere Farbschemata oder Linienstärken.",
+		"mapsforgeProfileOverlays": "Bestimmt, welche Kartenelemente angezeigt werden — Straßen, Wege, Gebäude, Landbedeckung und mehr.\n\nTipp: Schalte den Kartenhintergrund aus, um eine andere Ebene (z.B. Satellitenbilder) dahinter zu platzieren.",
+		"opacity": "Die Deckkraft der Kartenebene.\n\nEin Wert zwischen 0 und 1.\n\n- 0 bedeutet, dass die Ebene transparent ist.\n- 1 bedeutet, dass die Ebene volle Deckkraft hat und darunter liegende Ebenen nicht sichtbar sind.",
+		"cache": "Ein Cache (Pufferspeicher) speichert Kartenbilder. So müssen sie nicht erneut heruntergeladen oder erstellt werden.",
+		"cacheDir": "Das Verzeichnis, in dem der Cache gespeichert werden soll.\n\n Auf ein internes Verzeichnis kann nur die App selbst zugreifen. Auf ein externes Verzeichnis können auch andere Apps, wie z. B. Datei-Explorer-Apps, zugreifen.",
+		"cacheSize": "Die Größe des Caches in MB."
+	},
+	"link": {
+		"xmlRenderThemes": "Render-Themes im Xml-Format",
+		"xmlRenderThemesModify": "Fortgeschritten: Modifiziere oder erstelle dein eigenes Theme",
+		"openandromapsDownloads": "Vektorkarten und xml Render-Themes im mapsforge Format basierend auf open-street-map Daten",
+		"openandromapsDownloadsRaster": "Raster-Übersichtskarten im mbtiles-Format"
+	},
+	"shadingOptions": {
+		"magnitude": {
+			"label": "Magnitude",
+			"hint": "Die Magnitude bestimmt die Intensität der Schattierung"
+		},
+		"maxSlope": {
+			"label": "Maximale Steigung",
+			"hint": "Die kleinste Steigung, die den dunkelsten Farbton hat.\n\nAlle größeren Steigungen haben den gleichen Farbton, nämlich den dunkelsten.\n\nSollte größer als Null sein.\n\nDer Standardwert ist 80.\n\n[Prozent, %]"
+		},
+		"minSlope": {
+			"label": "Minimale Steigung",
+			"hint": "Die größte Steigung, die den hellsten Farbton hat.\n\nAlle kleineren Steigungen haben den gleichen Farbton, nämlich den hellsten.\n\nSollte im Bereich zwischen Null und „Maximale Steigung“ liegen.\n\nDer Standardwert ist 0 (Null).\n\n[Prozent, %]"
+		},
+		"asymmetryFactor": {
+			"label": "Asymmetrie-Faktor",
+			"hint": "Zahl zwischen 0 und 1.\n\nBei 1 erhält die Referenzrichtung (standardmäßig NW) eine minimale Schattierung (maximaler Asymmetrieeffekt),\n\nBei 0 ist die Schattierung in allen Richtungen symmetrisch (kein Asymmetrieeffekt).\n\nBei einem Wert größer als 0 wird die Schattierung gleichmäßig asymmetrisch, wobei mit zunehmendem Faktor die Schattierung von Hängen, die näher an der Referenzrichtung liegen, geringer ist als die von Hängen in der entgegengesetzten Richtung.\n\nDer Standardwert ist 0.5"
+		}
+	},
+	"cacheManager": "Cache-Verwaltung",
+	"sweepCaches": "Alle ungenutzten Caches löschen",
+	"getStarted": "Los geht's",
+	"noLayersHintBody": "Um loszulegen, füge eine Kartenebene hinzu.",
+	"note": "Hinweis",
+	"noteBody": "Unterstrichene Beschriftungen enthalten weitere Infos — antippen.",
+	"noteHint": "Immer wenn du eine unterstrichene Beschriftung siehst, kannst du sie antippen, um mehr Informationen zu erhalten."
+}

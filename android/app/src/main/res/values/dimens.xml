@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="splash_icon_size">270dp</dimen>
+    <dimen name="splash_icon_bg_size">216dp</dimen>
+    <dimen name="splash_title_width">96dp</dimen>
+</resources>

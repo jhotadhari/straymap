@@ -1,0 +1,82 @@
+/**
+ * External dependencies
+ */
+import { useContext, useCallback, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { sprintf } from 'sprintf-js';
+
+/**
+ * Internal dependencies
+ */
+import { FooterContext } from '../Context';
+import { lineAddTag } from '../../../db/actionsLine';
+import AddTagModal from '../../AddTagModal';
+import { invalidateTagsTable, invalidateLinesQueries } from '../../../db/queryFns';
+import { logError } from '../../../../../lib/utils';
+import { ErrorToastContext } from '../../../../../components/ErrorToast/Context';
+
+const useAddTag = () => {
+	const { t } = useTranslation();
+	const { showError } = useContext(ErrorToastContext);
+	const { checkedIds } = useContext(FooterContext);
+	const queryClient = useQueryClient();
+
+	const [modalVisible, setModalVisible] = useState(false);
+
+	const mutation = useMutation({
+		mutationFn: async (vars: { tagId: number; lineIds: number[] }) => {
+			for (const lineId of vars.lineIds) {
+				await lineAddTag(lineId, vars.tagId);
+			}
+		},
+		onSuccess: async () => {
+			await invalidateLinesQueries(queryClient);
+			invalidateTagsTable(queryClient);
+			setModalVisible(false);
+		},
+		onError: (err) => {
+			logError('useAddTag', err);
+			showError(sprintf(t('errorGeneric'), err instanceof Error ? err.message : String(err)));
+		},
+	});
+
+	const handleApply = useCallback(
+		(tagId: number) => {
+			mutation.mutate({ tagId, lineIds: checkedIds });
+		},
+		[mutation, checkedIds]
+	);
+
+	const disabled = useCallback(() => checkedIds.length === 0, [checkedIds]);
+
+	const modalNode = useMemo(
+		() => (
+			<AddTagModal
+				visible={modalVisible}
+				onDismiss={() => setModalVisible(false)}
+				onApply={handleApply}
+				isApplying={mutation.isPending}
+			/>
+		),
+		[
+			modalVisible,
+			handleApply,
+			mutation.isPending,
+		]
+	);
+
+	return useMemo(
+		() => ({
+			key: 'addTag',
+			cb: () => setModalVisible(true),
+			label: 'lines.addTag',
+			leadingIcon: 'tag-plus-outline',
+			modalNode,
+			disabled,
+		}),
+		[modalNode, disabled]
+	);
+};
+
+export default useAddTag;

@@ -1,0 +1,93 @@
+/**
+ * External dependencies
+ */
+import { isAnyOf } from '@reduxjs/toolkit';
+import DefaultPreference from 'react-native-default-preference';
+import { get, isEqual, set } from 'lodash-es';
+
+/**
+ * Internal dependencies
+ */
+import {
+	UiSettings,
+	UiState,
+	initialSettings,
+	addBusyKey,
+	removeBusyKey,
+	setBusyKeys,
+	setElementExpanded,
+	setExpandedElements,
+	setInitialized,
+} from './slice';
+import { startAppListening } from '../../store/listenerMiddleware';
+import { selectInitialized } from './selectors';
+import { AppStore } from '../../store/store';
+import { logError } from '../../lib/utils';
+
+const settingsKey = 'uiSettings';
+
+/**
+ * Loads settings from defaultPreferences and dispatches them to the store.
+ */
+export const initializeFromStorage = (store: AppStore) => {
+	if (selectInitialized(store.getState())) {
+		return;
+	}
+	DefaultPreference.get(settingsKey)
+		.then((newSettingsStr) => {
+			if (newSettingsStr) {
+				const newSettings = JSON.parse(newSettingsStr) as Partial<UiState>;
+				if (newSettings?.expandedElements) {
+					store.dispatch(setExpandedElements(newSettings.expandedElements));
+				}
+			}
+			store.dispatch(setInitialized(true));
+		})
+		.catch((err) => logError('ui/connectStorage', err));
+};
+
+/**
+ * Compares settings in this store slice with initialSettings,
+ * and saves anything that differs to initialSettings to defaultPreferences.
+ */
+export const saveToStorage = (uiState: UiState, actionType: string) => {
+	if (!uiState.initialized) {
+		return;
+	}
+	const settingsToSave: Partial<UiSettings> = {};
+	Object.keys(initialSettings).forEach((key) => {
+		if (!isEqual(get(uiState, key), get(initialSettings, key))) {
+			set(settingsToSave, key, get(uiState, key));
+		}
+	});
+	if (__DEV__ && globalThis.shouldLog.saveToStorage) {
+		console.log('DEBUG saveToStorage', settingsKey, actionType, settingsToSave);
+	}
+	return DefaultPreference.set(settingsKey, JSON.stringify(settingsToSave));
+};
+
+/**
+ * Listens to action that change settings in this store slice,
+ * and calls the function to save them to defaultPreferences.
+ */
+startAppListening({
+	matcher: isAnyOf(setExpandedElements, setElementExpanded),
+	effect: async (action, listenerApi) => {
+		try {
+			await saveToStorage(listenerApi.getState().ui, action.type);
+		} catch (err) {
+			logError('saveToStorage', err);
+		}
+	},
+});
+
+if (__DEV__ && globalThis.shouldLog.busyKeys) {
+	// Log busy key changes for debugging.
+	startAppListening({
+		matcher: isAnyOf(addBusyKey, removeBusyKey, setBusyKeys),
+		effect: (_action, listenerApi) => {
+			const { busyKeys } = listenerApi.getState().ui;
+			console.log('[busy]', busyKeys.length > 0 ? busyKeys : '(idle)');
+		},
+	});
+}

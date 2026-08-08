@@ -1,0 +1,48 @@
+{
+	"changelog": "Changelog",
+	"license": "License",
+	"readmeSections": {
+		"codeEcosystem": {
+			"title": "Straymap Code Ecosystem",
+			"body": "Core parts of Straymap are published as standalone, reusable packages — anyone can pick them up and use them in their own projects.\n\n- [react-native-mapsforge-vtm](https://github.com/jhotadhari/react-native-mapsforge-vtm) — React Native wrapper for mapsforge's vtm map rendering engine\n- [react-native-mapsforge-vtm-ext-path-color-ramp](https://github.com/jhotadhari/react-native-mapsforge-vtm-ext-path-color-ramp) — Extension for map path color-ramp styling\n- [react-native-brouter](https://github.com/jhotadhari/react-native-brouter) — React Native wrapper for the BRouter offline routing engine\n- [@jhotadhari/release-kit](https://github.com/jhotadhari/release-kit) — Release automation toolkit\n- [react-native-hardwarekey-event](https://github.com/jhotadhari/react-native-hardwarekey-event) — Hardware key event handling for React Native\n"
+		},
+		"contribution": {
+			"title": "Contributing",
+			"body": "- Report [issues and bugs](https://github.com/jhotadhari/straymap/issues)\n- Ask questions or suggest features in [discussions](https://github.com/jhotadhari/straymap/discussions)\n- [Fork the repo](https://github.com/jhotadhari/straymap) and open pull requests against the `development` branch\n- Help translate the app — improve existing translations or contribute a new language. If you don't want to touch code, [start a discussion on GitHub](https://github.com/jhotadhari/straymap/discussions).\n- Respect homeless people! If someone is squatting in your backyard, don't call the police, offer help instead. It might be the author of the app.\n"
+		},
+		"credits": {
+			"title": "Credits",
+			"body": "- Built around [mapsforge's vtm](https://github.com/mapsforge/vtm) via [react-native-mapsforge-vtm](https://github.com/jhotadhari/react-native-mapsforge-vtm)\n- **Framework:** [React](https://react.dev/) · [React Native](https://reactnative.dev/) · [TypeScript](https://www.typescriptlang.org/) · [Babel](https://babeljs.io/)\n- **State & data:** [Redux Toolkit](https://redux-toolkit.js.org/) · [React Query](https://tanstack.com/query) · [drizzle-orm](https://orm.drizzle.team/) · [op-sqlite](https://github.com/OP-Engineering/op-sqlite) · [SpatiaLite](https://www.gaia-gis.it/fossil/libspatialite/index)\n- **UI:** [react-native-paper](https://callstack.github.io/react-native-paper/) · [react-native-paper-dates](https://github.com/web-ridge/react-native-paper-dates) · [react-native-reanimated & react-native-worklets](https://docs.swmansion.com/react-native-reanimated/) · [react-native-gesture-handler](https://docs.swmansion.com/react-native-gesture-handler/) · [react-native-svg](https://github.com/software-mansion/react-native-svg) · [react-native-sortables](https://github.com/mzuender/react-native-sortables) · [FlashList](https://shopify.github.io/flash-list/) · [@react-native-vector-icons](https://github.com/react-native-vector-icons) · [Font-GIS](https://github.com/viglino/font-gis) · [react-native-safe-area-context](https://github.com/th3rdwave/react-native-safe-area-context) · [@react-native-community/blur](https://github.com/react-native-community/blur)\n\n- **Maps & geo:** [Turf.js](https://turfjs.org/) · [@tmcw/togeojson](https://github.com/placemark/togeojson)\n- **i18n:** [i18next](https://www.i18next.com/) · [react-i18next](https://react.i18next.com/) · [intl-pluralrules](https://www.npmjs.com/package/intl-pluralrules)\n- **Utilities:** [lodash-es](https://lodash.com/) · [array-move](https://www.npmjs.com/package/array-move) · [dayjs](https://day.js.org/) · [formatcoords](https://github.com/nerik/formatcoords) · [slugify](https://github.com/simov/slugify) · [sprintf-js](https://github.com/alexei/sprintf.js) · [semver-compare](https://github.com/substack/semver-compare) · [@ungap/structured-clone](https://github.com/ungap/structured-clone) · [defaults](https://github.com/tmpvar/defaults) · [react-native-fs](https://github.com/itinance/react-native-fs) · [react-native-uuid](https://github.com/eugenehp/react-native-uuid) · [react-native-default-preference](https://github.com/kevinresol/react-native-default-preference) · [react-native-scoped-storage](https://github.com/ammarahm-ed/react-native-scoped-storage) · [react-native-popover-view](https://github.com/SteffeyDev/react-native-popover-view) · [@klarna/react-native-vector-drawable](https://github.com/klarna-incubator/react-native-vector-drawable)\n- **Font:** [Jangly Walk](https://www.fonts4free.net/jangly-walk-font.html) © [Jakob Fischer / pizzadude.dk](https://www.pizzadude.dk)\n- **Logo:** foreground based on [hotpot.ai/logo-generator](https://hotpot.ai/logo-generator), background based on [World PNGs by Vecteezy](https://www.vecteezy.com/free-png/world)\n"
+		},
+		"donation": {
+			"title": "Donation",
+			"body": "Straymap is gratis, non-commercial, not intended for profit. If you can afford to pay for it, you're free to do so. Otherwise, just use it.\n\n[![liberapay](https://liberapay.com/assets/widgets/donate.svg)](https://liberapay.com/jhotadhari/donate)\n[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/H2H3162PAG)\n"
+		},
+		"freeSoftware": {
+			"title": "Free Software",
+			"body": "Straymap is [Free Software](https://www.gnu.org/philosophy/free-sw.en.html) ([source code](https://github.com/jhotadhari/straymap)):\n\n> \"Free software\" means that **the users have the freedom to run, copy, distribute, study, change and improve the software**. It's a matter of liberty, not price.\n"
+		},
+		"privacy": {
+			"title": "Privacy",
+			"body": "Straymap contains **no trackers** of any kind. All data stays on-device — nothing is collected, uploaded, or shared.\n\nThe app works entirely offline, with one exception: the `online-raster-xyz` map layer, which requests raster tiles from an online source you choose yourself.\n\n[Full Privacy Policy](https://github.com/jhotadhari/straymap/blob/main/PRIVACY.md)\n"
+		},
+		"whereToGetMaps": {
+			"title": "Where to get maps?",
+			"body": "- **Vector maps** (mapsforge) and **XML render styles**: [OpenAndroMaps](https://www.openandromaps.org/en/downloads)\n- **Raster overview maps** (MBtiles): [OpenAndroMaps general maps](https://www.openandromaps.org/en/downloads/general-maps)\n- **Digital elevation models** (hgt, 3 arc-second): [viewfinderpanoramas.org](https://viewfinderpanoramas.org/Coverage%20map%20viewfinderpanoramas_org3.htm)\n"
+		}
+	},
+	"slogan": "Android offline map app for stray cyclists and roaming vagabonds",
+	"sourceHostedOnGithub": "Source code is hosted on github",
+	"gitStatus": "Git Status",
+	"latestCommit": "Latest commit",
+	"items": {
+		"settings": "Settings",
+		"about": "About",
+		"general": "General",
+		"appearance": "Appearance",
+		"dashboard": "Dashboard",
+		"drawers": "Drawers",
+		"maps": "Maps",
+		"location": "Location"
+	}
+}

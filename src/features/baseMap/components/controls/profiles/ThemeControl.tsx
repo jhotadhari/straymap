@@ -1,0 +1,184 @@
+/**
+ * External dependencies
+ */
+import { FC, useCallback, useMemo } from 'react';
+import { View, Linking } from 'react-native';
+import { useTheme, Text, Icon } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
+import { get, omit } from 'lodash-es';
+import { sprintf } from 'sprintf-js';
+
+import ButtonHighlight from '../../../../../components/generic/primitives/ButtonHighlight';
+import { useButtonProps } from '../../../../../compose/useButtonProps';
+
+/**
+ * react-native-mapsforge-vtm dependencies
+ */
+import { LayerMapsforge } from 'react-native-mapsforge-vtm';
+
+import FileSourceRowControl from '../../../../../components/generic/controls/FileSourceRowControl';
+import LoadingIndicator from '../../../../../components/generic/primitives/LoadingIndicator';
+import { MapsforgeProfile, RenderStylesCache } from '../../../types';
+import { useAppDispatch, useAppSelector } from '../../../../../store/hooks';
+import { selectMapsforgeProfileTemp } from '../../../selectors';
+import { setMapsforgeProfileTemp, setRenderStylesCache } from '../../../slice';
+import { selectAppDirs } from '../../../../dirs/selectors';
+import { getDirInfoCacheId } from '../../../../dirs/utils';
+import { removeDirInfoCacheEntry } from '../../../../dirs/slice';
+
+const extensions = ['xml'];
+
+const renderLoadingIndicator = () => <LoadingIndicator />;
+
+const ResetCacheButton: FC<{
+	renderStylesCache: RenderStylesCache;
+	isFetchingTheme: boolean;
+}> = ({ renderStylesCache, isFetchingTheme }) => {
+	const dispatch = useAppDispatch();
+
+	const profileTemp = useAppSelector(selectMapsforgeProfileTemp);
+
+	const appDirs = useAppSelector(selectAppDirs);
+
+	const handlePress = useCallback(() => {
+		if (profileTemp && null !== profileTemp.theme && 'string' === typeof profileTemp.theme) {
+			dispatch(
+				setRenderStylesCache({
+					optionsMap: omit(renderStylesCache.optionsMap, profileTemp.theme),
+					defaultsMap: omit(renderStylesCache.defaultsMap, profileTemp.theme),
+				})
+			);
+		}
+		dispatch(
+			removeDirInfoCacheEntry(
+				getDirInfoCacheId({
+					navDirs: appDirs.mapstyles,
+					extensions,
+					recursive: true,
+				})
+			)
+		);
+	}, [
+		appDirs?.mapstyles,
+		dispatch,
+		profileTemp,
+		renderStylesCache.defaultsMap,
+		renderStylesCache.optionsMap,
+	]);
+
+	const { nestedIconColor, ...buttonProps } = useButtonProps({ mode: 'text' });
+	return isFetchingTheme ? undefined : (
+		<ButtonHighlight
+			{...buttonProps}
+			compact
+			onPress={handlePress}
+		>
+			<Icon
+				source="refresh"
+				size={25}
+				color={nestedIconColor}
+			/>
+		</ButtonHighlight>
+	);
+};
+
+const themeInfoLinks = [
+	{
+		label: 'link.xmlRenderThemes',
+		url: 'https://www.openandromaps.org/en/legend/elevate-mountain-hike-theme',
+	},
+	{
+		label: 'link.xmlRenderThemesModify',
+		url: 'https://github.com/mapsforge/mapsforge/blob/master/docs/Rendertheme.md',
+	},
+];
+const styleThemeInfoLink = { marginTop: 10 };
+const ThemeInfo: FC<{}> = () => {
+	const { t } = useTranslation();
+	const theme = useTheme();
+	const styleThemeInfoLinkText = useMemo(() => ({ color: get(theme.colors, 'link') }), [theme]);
+	return (
+		<View>
+			<Text>{t('baseMap.hint.mapsforgeProfileFile')}</Text>
+			{themeInfoLinks.map((link) => (
+				<View style={styleThemeInfoLink}>
+					<Text>{t(link.label)}</Text>
+					<Text
+						style={styleThemeInfoLinkText}
+						onPress={() => Linking.openURL(link.url)}
+					>
+						{link.url}
+					</Text>
+				</View>
+			))}
+		</View>
+	);
+};
+
+const ThemeControl: FC<{
+	renderStylesCache: RenderStylesCache;
+	isFetchingTheme: boolean;
+}> = ({ renderStylesCache, isFetchingTheme }) => {
+	const { t } = useTranslation();
+
+	const dispatch = useAppDispatch();
+
+	const profileTemp = useAppSelector(selectMapsforgeProfileTemp);
+
+	const appDirs = useAppSelector(selectAppDirs);
+
+	const handleSelect = useCallback(
+		(selectedOpt?: string) => {
+			dispatch(
+				setMapsforgeProfileTemp(
+					(profileTemp) =>
+						({
+							...(profileTemp ?? {}),
+							theme: selectedOpt,
+						}) as MapsforgeProfile
+				)
+			);
+		},
+		[
+			dispatch,
+		]
+	);
+
+	const initialOptionsByPath = useMemo(
+		() => ({
+			[t('baseMap.builtInThemes') + ':']: [...LayerMapsforge.BUILT_IN_THEMES].map((key) => ({
+				key,
+				label: key,
+			})),
+		}),
+		[t]
+	);
+
+	if (!appDirs?.mapstyles || !profileTemp) {
+		return undefined;
+	}
+
+	return (
+		<FileSourceRowControl
+			AlternativeButton={isFetchingTheme ? renderLoadingIndicator : undefined}
+			label={t('baseMap.theme')}
+			header={t('baseMap.selectTheme')}
+			initialOptionsByPath={initialOptionsByPath}
+			value={profileTemp?.theme}
+			onSelect={handleSelect}
+			After={
+				<ResetCacheButton
+					renderStylesCache={renderStylesCache}
+					isFetchingTheme={isFetchingTheme}
+				/>
+			}
+			extensions={extensions}
+			dirs={appDirs.mapstyles}
+			Info={<ThemeInfo />}
+			filesHeading={sprintf(t('filesIn'), '(.xml)')}
+			noFilesHeading={sprintf(t('noFilesIn'), '(.xml)')}
+		/>
+	);
+};
+
+export default ThemeControl;

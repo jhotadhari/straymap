@@ -1,0 +1,137 @@
+{
+	"createdBy": "Created by",
+	"label": "label",
+	"globalDEM": "Global DEM",
+	"file": "Map file",
+	"selectFile": "Select map file",
+	"demDir": "DEM Directory",
+	"demLabel": {
+		"shading": "Shading, {{label}}",
+		"shadingGlobal": "Shading, global, {{label}}"
+	},
+	"selectDemDir": "Select layer DEM Directory",
+	"useAppHgt": "Use global",
+	"useCache": "Use cache",
+	"openAppHgt": "Global",
+	"notConfiguredAppHgt": "Global not configured",
+	"addNew": "Add new map",
+	"layerAttributions": "Map data attribution",
+	"cacheSize": "Cache size",
+	"cacheSizeCurrent": "Current cache size",
+	"cacheClear": "Clear cache",
+	"cacheDir": "Cache directory",
+	"useFirstOne": "Use first one",
+	"noLayerUseCache": "No map layer uses this cache",
+	"layerEdit": "Edit map layer",
+	"layerRemove": "Remove layer",
+	"layersNone": "There are currently no map layers",
+	"mapsforgeGeneral": "Mapsforge General Settings",
+	"mapType": "Map type",
+	"addNewLayer": "Add new map layer",
+	"addNewLayerShort": "Add new layer",
+	"selectType": "Select map type",
+	"askCancel": "Do you really want to cancel editing this map?",
+	"source": "Map source",
+	"lineScale": "Line scale",
+	"textScale": "Text scale",
+	"symbolScale": "Symbol scale",
+	"visibility": "Visibility",
+	"selectTheme": "Select theme",
+	"theme": "Theme",
+	"builtInThemes": "Built-in themes",
+	"overlay_one": "Overlay",
+	"overlay_other": "Overlays",
+	"hasLabels": "Labels",
+	"hasBuildings": "3D Buildings",
+	"layer_one": "Map layer",
+	"layer_other": "Map layers",
+	"layerShort_one": "Layer",
+	"layerShort_other": "Layers",
+	"layerSelectedCount_one": "%s layer selected this profile",
+	"layerSelectedCount_other": "%s layers selected this profile",
+	"layerSelectedDefaultCount_one": "%s layer is using this profile because it is the default profile",
+	"layerSelectedDefaultCount_other": "%s layers are using this profile because it is the default profile",
+	"select": {
+		"none": "Select nothing",
+		"all": "Select all",
+		"toggle": "Toggle selection"
+	},
+	"selected": {
+		"none": "Nothing selected",
+		"all": "All selected",
+		"count": "%s selected"
+	},
+	"mapsforge": {
+		"profile_one": "Mapsforge profile",
+		"profile_other": "Mapsforge profiles",
+		"profileRemove": "Remove profile",
+		"profileEdit": "Edit mapsforge profile",
+		"profilesNone": "There are currently no mapsforge profiles",
+		"profileAddNew": "Add new mapsforge profile",
+		"profileAddNewShort": "Add new profile"
+	},
+	"typeDesc": {
+		"online-raster-xyz": "Online raster map tiles from a web tile server. Requires an internet connection. Suitable for satellite imagery, road maps, and other web tile services. Downloaded tiles can be stored on the device for offline reuse.",
+		"mapsforge": "Offline vector maps (.map). Best choice for detailed hiking, cycling, and city navigation maps.",
+		"raster-MBtiles": "Offline raster overview maps (.mbtiles). A single file containing pre-rendered map tiles — best for broad-area overviews at wide zoom levels.",
+		"hillshading": "Offline terrain shading from digital elevation models (DEM). Adds realistic relief and depth to the map. Uses .hgt elevation files."
+	},
+	"hint": {
+		"label": "A label to help you identify this item. Choose any name that makes sense to you — it's only shown in the app's settings.\n\nIf not specified, the layer source will be used as label.",
+		"applyToAllMapsforge": "These settings apply to all mapsforge map layers.",
+		"lineScale": "Line scale factor > 0.0\n\nTo scale thickness of lines on map\n\nDefault: 1. = no line thickness scaling",
+		"textScale": "Text scale factor > 0.0\n\nTo scale size of labels on map\n\nDefault: 1. = no text size scaling",
+		"symbolScale": "Symbol scale factor > 0.0\n\nTo scale size of symbols on map\n\nDefault: 1. = no symbol size scaling",
+		"layers": "Map layers are displayed on top of each other. Layers that are higher up in the settings are displayed above the other layers in the map.\n\nThe layers can be sorted by drag and drop.\n\nThe individual map layers can be switched on or off at different zoom levels.\n\nThis allows overview and detail maps to be used together.\n\nMap layers that are temporarily not needed can be hidden (eye symbol button).",
+		"profiles": "“Profiles” determine how offline vector maps look — colors, line styles, label density, and more.\n\nThe profiles can be sorted by drag and drop. The topmost profile is the default for all map layers that don't have a specific profile assigned.",
+		"visibility": "Toggle the map layer on or off. Layers that are temporarily not needed can be hidden to reduce visual clutter.",
+		"xyzSource": "The url to the xyz map tile server.\n\nThe url must preferably start with https://. Insecure connections with http:// are possible, but are not recommended.\n\nThe url must contain the placeholders {X}, {Y} and {Z} (in curly braces).\n\nThis map layer requests raster images from an online source. Any request to any server transfers personal data (your IP address). This is technically necessary.",
+		"enabled": "Set the zoom level range where this map layer is visible. Below the minimum or above the maximum zoom level, the layer is automatically hidden.",
+		"zoom": "Between which zoom levels the map layer is loaded. If you zoom beyond the maximum zoom level of the map layer, the map will continue to be displayed but will not be updated. This prevents some tile servers from showing placeholders at high zoom levels.",
+		"zoomGeneralInfo": "About zoom in general:\n\nAt low zoom levels, the zoom is wide and a large area is displayed on the map. At large zoom levels, the map shows a detailed section.\n\nTip: The dashboard can display the current map zoom level.",
+		"mapsforgeFile": "Mapsforge files (.map) contain detailed vector map data (paths, roads, buildings, land cover). Best choice for zoomed-in hiking and cycling. Works offline once downloaded.",
+		"mapsforgeProfile": "Profiles determine how the offline vector maps are displayed by mapsforge.\n\nA profile can be selected for the map layer, which must be configured beforehand. The various mapsforge profiles can generally be managed in the map settings.\n\nIf no profile is assigned to the map layer, the first profile is used automatically.",
+		"mapsforgeHasBuildings": "Show buildings as 3D shapes on top of the map.\n\nWhen enabled, buildings appear as 3D extrusions above the map. When disabled, they are only rendered flat as part of the map background.",
+		"mbTilesFile": "MBtiles files (.mbtiles) contain pre-rendered raster map tiles. Best choice for broad-area overview maps — ideal for seeing the big picture at low zoom levels.\n\nThey must be downloaded manually. After downloading, no internet connection is required to use them.\n\nAfter downloading, the files must be moved to one of the Straymap app directories.",
+		"demDir": "The DEM directory contains the digital elevation model (DEM) files (.hgt). DEM provide the terrain height data used for hillshading.\n\nThey must be downloaded manually. After downloading, no internet connection is required to use them.\n\nAfter downloading, the files must be moved to one of the Straymap app directories.\n\nDEM are usually provided with a resolution of 1 or 3 arc seconds. (One arc second corresponds to approximately 30m at the equator)",
+		"demOnly3Sec": "Currently, only elevation models with a resolution of 3 arc seconds are supported.",
+		"mapsforgeProfileFile": "Custom themes (.xml files) change the visual style of mapsforge maps — colors, symbols, road styles.\n\nThey must be downloaded manually and moved to one of the Straymap app directories. Built-in themes are also available and require no download.",
+		"mapsforgeProfileStyle": "Select a visual style variant within this theme. Styles offer subtle variations in appearance, such as different color schemes or line weights.",
+		"mapsforgeProfileOverlays": "Control which map elements are shown — roads, paths, buildings, land cover, and more.\n\nTip: Disable the map background to place another layer (e.g. satellite imagery) behind this one.",
+		"opacity": "The opacity of the map layer.\n\nValue between 0 and 1.\n\n- 0 means the layer is fully transparent.\n- 1 means the layer is fully opaque and covers layers beneath it.",
+		"cache": "A cache stores map images. So they don't have to get downloaded or generated again.",
+		"cacheDir": "The directory where the cache is to be saved.\n\nAn internal directory can only be accessed by the app itself. An external directory can also be accessed by other apps, such as File Explorer apps.",
+		"cacheSize": "The size of the cache in MB."
+	},
+	"link": {
+		"xmlRenderThemes": "Render themes in xml format",
+		"xmlRenderThemesModify": "Advanced: modify or create your own theme",
+		"openandromapsDownloads": "Vector maps in mapsforge format based on open-street-map data and xml render themes",
+		"openandromapsDownloadsRaster": "Raster overview maps in mbtiles format"
+	},
+	"shadingOptions": {
+		"magnitude": {
+			"label": "Magnitude",
+			"hint": "The magnitude determines the intensity of the shading."
+		},
+		"maxSlope": {
+			"label": "Maximum Slope",
+			"hint": "The smallest slope that will have the darkest shade.\n\nAll larger slopes will have the same shade, the darkest one.\n\nShould be larger than zero.\n\nThe default is 80.\n\n[percentage, %]"
+		},
+		"minSlope": {
+			"label": "Minimum Slope",
+			"hint": "The largest slope that will have the lightest shade.\n\nAll smaller slopes will have the same shade, the lightest one.\n\nShould be in the range of zero and \"Maximum Slope\".\n\nThe default is 0 (zero).\n\n[percentage, %]"
+		},
+		"asymmetryFactor": {
+			"label": "Asymmetry Factor",
+			"hint": "Number between 0 and 1.\n\nWhen 1 the reference direction (NW by default) slopes will get minimal shading (max asymmetry effect),\n\nwhen 0 the shading will be symmetrical in all directions (no asymmetry effect).\n\nAny value larger than 0 will make the shading smoothly asymmetrical, with slopes closer to the reference direction less shaded than slopes in the opposite direction as the factor increases.\n\nThe default is 0.5"
+		}
+	},
+	"cacheManager": "Cache manager",
+	"sweepCaches": "Sweep all unused caches",
+	"getStarted": "Get started",
+	"noLayersHintBody": "To get started, add a map layer.",
+	"note": "Note",
+	"noteBody": "Underlined labels have more info — tap them.",
+	"noteHint": "Whenever you see underlined labels, you can tap them to see more information."
+}

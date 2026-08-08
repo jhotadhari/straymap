@@ -1,0 +1,46 @@
+{
+	"alignment": "Alignment",
+	"dashboard": "Dashboard",
+	"dashboardItem": "Dashboard Item",
+	"dashboardItem_other": "Dashboard Items",
+	"dashboardItemNew": "New Dashboard Item",
+	"dashboardItemsNone": "No Dashboard Items",
+	"updateRate": "Update rate",
+	"fontSize": "Font size",
+	"minWidth": "Min Width",
+	"showLabel": "Show label",
+	"showIcon": "Show icon",
+	"useDefault": "Use default",
+	"followDashboardSetting": "Follow dashboard setting",
+	"followGlobalSetting": "Follow global setting",
+	"useUnitPref": "Use unit preferences",
+	"zoomLevel": "Map zoom level",
+	"centerCoordinates": "Map center coordinates",
+	"centerAltitude": "Map center altitude",
+	"spacer": "Spacer",
+	"align": {
+		"center": "Center",
+		"left": "Left",
+		"right": "Right",
+		"around": "Around",
+		"between": "Between",
+		"evenly": "Evenly"
+	},
+	"hint": {
+		"missingHgtDirPath": "A digital elevation model must be defined in the general settings so that the elevation of the map center can be displayed.",
+		"items": "Dashboard items display information about the map, your position, and active routes or tracks.\n\nItems can be reordered using drag and drop.",
+		"fontSize": "Default font size for all dashboard elements.\n\nApplies to all dashboard elements for which no font size is specified.",
+		"alignment": "Controls how dashboard items are positioned horizontally. Choose to align them left, center, or right, or distribute them evenly across the available space.",
+		"updateRate": "How quickly the dashboard elements are updated.\n\nA fast refresh rate can lead to a loss of performance on slow devices.",
+		"showLabel": "Whether to show a label above dashboard items by default.\n\nIndividual items can override this setting.",
+		"showIcon": "Whether to show an icon next to dashboard items by default.\n\nIndividual items can override this setting.",
+		"item": {
+			"fontSize": "Override the font size for this specific dashboard element. When not set, the default dashboard font size is used.",
+			"minWidth": "The minimum width of the dashboard element in pixels.",
+			"unit": "The unit in which the dashboard element is displayed.\n\nThe default setting of the unit can be adjusted in the general settings under \"Unit preferences\".",
+			"decimalPlaces": "Override the number of decimal places for this specific dashboard element. When not set, the default from the unit preferences is used.",
+			"showLabel": "Override whether this specific dashboard element shows a label. When not set, the default dashboard setting is used.",
+			"showIcon": "Override whether this specific dashboard element shows an icon. When not set, the default dashboard setting is used."
+		}
+	}
+}

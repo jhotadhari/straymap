@@ -1,0 +1,121 @@
+/**
+ * External dependencies
+ */
+import { QueryClient } from '@tanstack/react-query';
+import { drizzle } from 'drizzle-orm/op-sqlite';
+import { migrate } from 'drizzle-orm/op-sqlite/migrator';
+import { DB, open } from '@op-engineering/op-sqlite';
+
+/**
+ * Internal dependencies
+ */
+import * as schema from './schema';
+import migrations from '../../../drizzle/migrations';
+
+class DBConnection {
+	op?: DB;
+
+	drizzle?: ReturnType<typeof drizzle<typeof schema>>;
+
+	queryClient?: QueryClient;
+
+	/** Whether SpatiaLite registered regexp() — needed for SQL REGEXP operator. */
+	regexpAvailable = false;
+
+	constructor() {}
+
+	async open(dbPath: string) {
+		this.setDbOp(dbPath);
+		this.drizzle = drizzle(this.op!, {
+			logger: globalThis.shouldLog.drizzle,
+			schema,
+		});
+
+		// SpatiaLite 5+ may bundle RegexpCache which registers regexp().
+		// Check availability so callers can fall back to JS-side regex
+		// when the SQL REGEXP operator is unavailable.
+		try {
+			await this.op!.execute("SELECT CASE WHEN REGEXP('t.st', 'test') THEN 1 ELSE 0 END");
+			this.regexpAvailable = true;
+		} catch {
+			this.regexpAvailable = false;
+		}
+	}
+
+	async countPendingMigrations(): Promise<number> {
+		if (!this.op) throw new Error('DB not opened. Call open() first.');
+		const totalMigrations = migrations.journal.entries.length;
+		try {
+			const result = await this.op.execute(
+				'SELECT COUNT(*) as count FROM "__drizzle_migrations"'
+			);
+			if (result?.rows?.length) {
+				const appliedCount = result.rows[0].count as number;
+				return totalMigrations - appliedCount;
+			}
+			return totalMigrations;
+		} catch {
+			return totalMigrations;
+		}
+	}
+
+	async runMigrations() {
+		if (!this.drizzle) throw new Error('DB not opened. Call open() first.');
+		await migrate(this.drizzle, migrations);
+	}
+
+	private setDbOp(dbPath: string) {
+		const dbPathParts = dbPath.split('/');
+		const conf = {
+			location:
+				dbPathParts.length > 1
+					? dbPathParts.slice(0, dbPathParts.length - 1).join('/') + '/'
+					: undefined,
+			name: dbPathParts.length > 1 ? dbPathParts[dbPathParts.length - 1] : dbPathParts[0],
+		};
+		this.op = open(conf);
+		try {
+			this.op.loadExtension('libspatialite', 'sqlite3_modspatialite_init');
+		} catch (e) {
+			throw new Error(
+				`Failed to load libspatialite: ${e instanceof Error ? e.message : String(e)}`
+			);
+		}
+	}
+
+	setQueryClient() {
+		if (this.queryClient) {
+			this.queryClient.cancelQueries();
+		}
+		this.queryClient = new QueryClient({
+			defaultOptions: {
+				queries: {
+					staleTime: Infinity, // Never trigger a refetch until the Query is invalidated manually.
+					gcTime: 0, // The time in milliseconds that unused/inactive cache data remains in memory. When a query's cache becomes unused or inactive, that cache data will be garbage collected after this duration.
+					networkMode: 'always', // We don't care for network, we fetch from a local db.
+					throwOnError: (error, query) => {
+						if (__DEV__) {
+							const msg =
+								error instanceof Error
+									? error.message
+									: typeof error === 'string'
+										? error
+										: JSON.stringify(error);
+							console.error(
+								`DEBUG error query [${query.queryKey.join(', ')}]` +
+									`\n  message: ${msg}` +
+									`\n  stale: ${query.state.status}`,
+								error instanceof Error ? error : undefined
+							);
+						}
+						return false;
+					},
+				},
+			},
+		});
+	}
+}
+
+const dbConnection = new DBConnection();
+
+export { dbConnection };

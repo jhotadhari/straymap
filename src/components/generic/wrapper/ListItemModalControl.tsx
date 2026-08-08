@@ -1,0 +1,76 @@
+/**
+ * External dependencies
+ */
+import React, { FC, ReactNode, useCallback, useEffect, useState } from 'react';
+import { Style as ListStyle } from 'react-native-paper/lib/typescript/components/List/utils';
+
+/**
+ * Internal dependencies
+ */
+import ListItem from './ListItem';
+import { LayoutChangeEvent, View, ViewStyle } from 'react-native';
+import ModalWrapper from './ModalWrapper';
+import { sharedStyles } from '../../../sharedStyles';
+
+const ListItemModalControl: FC<{
+	listItemStyle?: ViewStyle;
+	children: ReactNode;
+	anchorLabel: string;
+	header: string;
+	innerStyle?: null | ViewStyle;
+	backgroundBlur?: boolean;
+	scrollEnabled?: boolean;
+	onLayout?: (event: LayoutChangeEvent) => void;
+	anchorIcon?: (props: { color: string; style: ListStyle }) => React.ReactNode;
+	afterDismiss?: () => void;
+}> = ({
+	listItemStyle,
+	children,
+	anchorLabel,
+	header,
+	innerStyle,
+	backgroundBlur = true,
+	scrollEnabled = true,
+	onLayout,
+	anchorIcon,
+	afterDismiss,
+}) => {
+	const [visible, setVisible] = useState(false);
+
+	useEffect(() => {
+		if (!visible && afterDismiss) {
+			afterDismiss();
+		}
+	}, [visible, afterDismiss]);
+
+	const handleClose = useCallback(() => setVisible(false), []);
+
+	const handleAnchorPress = useCallback(() => setVisible((isVisible) => !isVisible), []);
+
+	return (
+		<View>
+			{visible && (
+				<ModalWrapper
+					visible={visible}
+					onDismiss={handleClose}
+					headerLabel={header}
+					innerStyle={innerStyle}
+					backgroundBlur={backgroundBlur}
+					scrollEnabled={scrollEnabled}
+					onLayout={onLayout}
+				>
+					<View style={sharedStyles.modal}>{children}</View>
+				</ModalWrapper>
+			)}
+
+			<ListItem
+				style={listItemStyle}
+				title={anchorLabel}
+				icon={anchorIcon ? anchorIcon : undefined}
+				onPress={handleAnchorPress}
+			/>
+		</View>
+	);
+};
+
+export default ListItemModalControl;

@@ -2,12 +2,6 @@ apply plugin: "com.android.application"
 apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
 
-// Icons https://github.com/oblador/react-native-vector-icons?tab=readme-ov-file#bundled-icon-sets
-project.ext.vectoricons = [
-    iconFontNames: [ 'MaterialIcons.ttf', 'MaterialCommunityIcons.ttf' ] // Specify font files
-]
-apply from: file("../../node_modules/react-native-vector-icons/fonts.gradle")
-
 /**
  * This is the configuration block to customize your React Native Android app.
  * By default you don't need to apply any configuration, just uncomment the lines you need.
@@ -69,14 +63,18 @@ def enableProguardInReleaseBuilds = false
  * The preferred build flavor of JavaScriptCore (JSC)
  *
  * For example, to use the international variant, you can use:
- * `def jscFlavor = 'org.webkit:android-jsc-intl:+'`
+ * `def jscFlavor = io.github.react-native-community:jsc-android-intl:2026004.+`
  *
  * The international variant includes ICU i18n library and necessary data
  * allowing to use e.g. `Date.toLocaleString` and `String.localeCompare` that
  * give correct results when using with locales other than en-US. Note that
  * this variant is about 6MiB larger per architecture than default.
  */
-def jscFlavor = 'org.webkit:android-jsc:+'
+def jscFlavor = 'io.github.react-native-community:jsc-android:2026004.+'
+
+// Strip vtm classes shadowed by extensions (e.g. ext-path-color-ramp).
+// Must run before DEX merge to prevent "Type X is defined multiple times" errors.
+apply from: "${projectDir}/../../node_modules/react-native-mapsforge-vtm/android/strip-vtm-classes.gradle"
 
 android {
     ndkVersion rootProject.ext.ndkVersion
@@ -88,15 +86,15 @@ android {
         applicationId "com.jhotadhari.straymap"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "0.2.1"
+        versionCode 30099
+        versionName "0.3.0"
     }
     signingConfigs {
         debug {
-            storeFile file( String.valueOf( System.getenv( "APP_KEYSTORE_PATH" ) ) ?: 'debug.keystore' )
+            storeFile file( System.getenv( "APP_KEYSTORE_PATH" ) ?: 'debug.keystore' )
             storePassword String.valueOf( System.getenv( "APP_KEYSTORE_PASSWORD" ) ?: 'android' )
-            keyPassword String.valueOf( System.getenv( "APP_KEY_PASSWORD" ) ?: 'androiddebugkey' )
-            keyAlias String.valueOf( System.getenv( "APP_KEYSTORE_ALIAS" ) ?: 'android' )
+            keyPassword String.valueOf( System.getenv( "APP_KEY_PASSWORD" ) ?: 'android' )
+            keyAlias String.valueOf( System.getenv( "APP_KEYSTORE_ALIAS" ) ?: 'androiddebugkey' )
         }
         release {
             storeFile file( String.valueOf( System.getenv( "APP_KEYSTORE_PATH" ) ) )
@@ -115,15 +113,23 @@ android {
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
     }
+    sourceSets {
+        getByName("test") {
+            java.srcDirs += ["build/generated/source/codegen/java"]
+        }
+    }
+
+    testOptions {
+        unitTests {
+            returnDefaultValues = true
+        }
+    }
 }
 
 
 dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
-
-    // react-native-vector-icons
-    implementation project(':react-native-vector-icons')
 
     // react-native-fs
     implementation project(':react-native-fs')
@@ -139,4 +145,9 @@ dependencies {
     } else {
         implementation jscFlavor
     }
+
+    // Unit test dependencies
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.mockito:mockito-core:5.16.1'
+    testImplementation 'org.skyscreamer:jsonassert:1.5.3'
 }

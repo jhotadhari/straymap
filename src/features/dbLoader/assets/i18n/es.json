@@ -1,0 +1,23 @@
+{
+	"dbMigrationError": "Error de migración de la base de datos: %s",
+	"dbMigrationFallbackCreated": "La base de datos anterior \"%s\" no se pudo abrir. Se usará una nueva base de datos \"%s\" en el próximo reinicio.",
+	"database": "Base de datos",
+	"dbInitializing": "configurando la base de datos, va muy rápido, como una bicicleta sobre asfalto cohete — ¡solo esta vez!",
+	"selectDbFile": "Seleccionar archivo de base de datos",
+	"createNewDatabase": "Crear nueva base de datos",
+	"noDatabasesFound": "No se encontraron bases de datos",
+	"moveToX": "Mover a %s",
+	"copyToX": "Copiar a %s",
+	"select": "Seleccionar",
+	"rename": "Renombrar",
+	"renameDatabase": "Renombrar base de datos",
+	"delete": "Eliminar",
+	"deleteDatabase": "Eliminar base de datos",
+	"deleteDatabaseConfirmation": "¿Eliminar \"%s\"? Esto no se puede deshacer.",
+	"renameDatabasePrompt": "Ingresa un nuevo nombre:",
+	"newDatabasePrompt": "Ingresa un nombre para la nueva base de datos:",
+	"requireReload": "Reinicio requerido para aplicar los cambios.\n\nDesliza la aplicación fuera de la lista de aplicaciones recientes para cerrarla por completo, luego toca el ícono para iniciarla de nuevo.",
+	"willRequireReload": "Cambiar la base de datos activa requiere reiniciar la aplicación.",
+	"fileAlreadyExists": "Ya existe un archivo llamado \"%s\".",
+	"fileOperationError": "Error en la operación de archivo: %s"
+}

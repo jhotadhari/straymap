@@ -1,0 +1,31 @@
+{
+	"hardwareKeyAssignment": "Hardware key assignment",
+	"hardwareKey_one": "Hardware key",
+	"hardwareKey_other": "Hardware keys",
+	"nothing": "Nothing",
+	"volumeUp": "Volume up",
+	"volumeDown": "Volume down",
+	"zoomIn": "Zoom in",
+	"zoomOut": "Zoom out",
+	"hint": {
+		"units": {
+			"heightDepth": "The height/depth does not refer to the height/depth labels within a map layer. These are completely independent of this setting. The height/depth labels within a map layer are solely dependent on the source of the map layer.",
+			"unit": "Select the unit system used to display values of this type throughout the app.",
+			"decimalPlaces": "Number of decimal places shown for values of this unit type. Higher values show more digits after the decimal point for greater precision.",
+			"coordsPadLng": "If enabled, the longitude will be padded to three digits. E.g. '012°' instead of '12°'.",
+			"coordsPadLat": "If enabled, the latitude will be padded to two digits. E.g. '02°' instead of '2°'.",
+			"coordsForceNE": "If enabled, north and east will always be used instead of south and west. Negative values indicate south or west. E.g. '-12°E' instead of '12°W'.",
+			"coordsOrder": "Determines which coordinate components are displayed and in which order."
+		},
+		"hardwareKey": "Assign an action to this hardware button. Map the volume keys to zoom the map in and out, or set them to do nothing to prevent accidental zoom changes.",
+		"dateTimeFormat": "Dates and times are formatted using day.js. See the documentation for available format options.",
+		"dateTimeHintDefault": "Customize how dates and times are displayed throughout the app.\n\nWhen enabled, dates and times are displayed using the default format %s. Turn off to enter a custom day.js format string.",
+		"dateTimeHintCustom": "Enter a custom day.js format string to control how dates and times appear throughout the app."
+	},
+	"dateTime": "Date / time",
+	"customFormat": "Custom format",
+	"timeZoneNotice": "Timezone is fixed to UTC. Time is always shown in 24-hour format.",
+	"useDefaultFormat": "Use default format",
+	"formatDocs": "day.js format documentation",
+	"example": "Example"
+}

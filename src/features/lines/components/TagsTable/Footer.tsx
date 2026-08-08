@@ -1,0 +1,76 @@
+/**
+ * External dependencies
+ */
+import { FC, useCallback, useContext, useMemo } from 'react';
+import { View } from 'react-native';
+import { useTheme, Text, Icon } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
+import { without } from 'lodash-es';
+import { sprintf } from 'sprintf-js';
+
+/**
+ * Internal dependencies
+ */
+import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
+import { useButtonProps } from '../../../../compose/useButtonProps';
+import { DRAWER_ICON_SIZE } from '../../../drawers/constants';
+import { tableStyles } from '../tableResources';
+import TagBulkActions from './BulkActions';
+import { FooterContext } from './Context';
+
+const TagFooter: FC = () => {
+	const theme = useTheme();
+	const { t } = useTranslation();
+
+	const buttonPropsText = useButtonProps({ mode: 'text' });
+
+	const { checkedIds, tagsCount, setCheckedIds, tagIds } = useContext(FooterContext);
+
+	const style = useMemo(
+		() => [
+			tableStyles.footer,
+			{ borderColor: theme.colors.onBackground },
+		],
+		[theme]
+	);
+
+	const toggleCheckedIds = useCallback(() => {
+		setCheckedIds?.((ids) => {
+			return without(tagIds, ...ids);
+		});
+	}, [tagIds, setCheckedIds]);
+
+	const labelStyle = useMemo(
+		() => ({
+			color: checkedIds.length ? theme.colors.onBackground : theme.colors.onSurfaceDisabled,
+		}),
+		[theme, checkedIds]
+	);
+
+	return (
+		<View style={style}>
+			<View style={tableStyles.flexRowGap}>
+				<TagBulkActions />
+				<Text style={labelStyle}>{t('lines.bulkActions')}</Text>
+				<Text style={labelStyle}>
+					{sprintf(t('lines.selectedCount'), checkedIds.length, tagsCount)}
+				</Text>
+			</View>
+
+			<View style={tableStyles.flexRowGap}>
+				<ButtonHighlight
+					{...buttonPropsText}
+					compact
+					onPress={toggleCheckedIds}
+				>
+					<Icon
+						source="swap-horizontal-variant"
+						size={DRAWER_ICON_SIZE}
+					/>
+				</ButtonHighlight>
+			</View>
+		</View>
+	);
+};
+
+export default TagFooter;

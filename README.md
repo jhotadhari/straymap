@@ -1,101 +1,83 @@
-## Straymap
+# Straymap
 
 Android offline map app for stray cyclists and roaming vagabonds.
 
 ## Installation
 
-It's not on F-Droid or Play Store yet.
-
-Download the [latest version](https://github.com/jhotadhari/straymap/releases/latest) and install the `apk`.
+Not on F-Droid or Play Store yet. Download the [latest APK](https://github.com/jhotadhari/straymap/releases/latest).
 
 ## Where to get maps?
 
-Vector maps in mapsforge V5 format and xml render styles [https://www.openandromaps.org/en/downloads](https://www.openandromaps.org/en/downloads).
-
-Raster overview maps in MBtiles format [https://www.openandromaps.org/en/downloads/general-maps](https://www.openandromaps.org/en/downloads/general-maps).
-
-Digital elevation Models, elevation data in hgt format at 3 arc second resolution [https://viewfinderpanoramas.org/dem3.html](https://viewfinderpanoramas.org/Coverage%20map%20viewfinderpanoramas_org3.htm)
+- **Vector maps** (mapsforge) and **XML render styles**: [OpenAndroMaps](https://www.openandromaps.org/en/downloads)
+- **Raster overview maps** (MBtiles): [OpenAndroMaps general maps](https://www.openandromaps.org/en/downloads/general-maps)
+- **Digital elevation models** (hgt, 3 arc-second): [viewfinderpanoramas.org](https://viewfinderpanoramas.org/Coverage%20map%20viewfinderpanoramas_org3.htm)
 
 ## Free Software
 
-Straymap is Free Software ([source code](https://github.com/jhotadhari/straymap))
+Straymap is [Free Software](https://www.gnu.org/philosophy/free-sw.en.html) ([source code](https://github.com/jhotadhari/straymap)):
 
-What is Free Software? [https://www.gnu.org/philosophy/free-sw.en.html](https://www.gnu.org/philosophy/free-sw.en.html)
-
-> “Free software” means software that respects users' freedom and community. Roughly, it means that **the users have the freedom to run, copy, distribute, study, change and improve the software**. Thus, “free software” is a matter of liberty, not price. To understand the concept, you should think of “free” as in “free speech,” not as in “free beer.”
+> “Free software” means that **the users have the freedom to run, copy, distribute, study, change and improve the software**. It's a matter of liberty, not price.
 
 ## License
 
-[MIT License](https://github.com/jhotadhari/straymap/blob/main/LICENSE.md)
+[MIT](https://github.com/jhotadhari/straymap/blob/main/LICENSE.md)
 
 ## Donation
 
-Straymap is gratis, it's free of charge. It's non-commercial. It's not intended for commercial advantage or monetary compensation. It is not intended for profit.
-
-If you want and if you can afford to pay for it, your are free to do so. Otherwise, it's OK, just use it.
+Straymap is gratis, non-commercial, not intended for profit. If you can afford to pay for it, you're free to do so. Otherwise, just use it.
 
 [![liberapay](https://liberapay.com/assets/widgets/donate.svg)](https://liberapay.com/jhotadhari/donate)
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/H2H3162PAG)
 
-### Donation to third parties
-Straymap and other map apps are fundamentally based on the [mapsforge programming library](https://github.com/mapsforge). And the free maps that [OpenAndroMaps](https://www.openandromaps.org/en/project-funding) makes available to us. If you have a little money to spare, it's in good hands there.
+## Contributing
 
-## Contribution
-
-- You can report [issues and bugs](https://github.com/jhotadhari/straymap/issues).
-- Ask questions, suggest new features, just start a [discussion](https://github.com/jhotadhari/straymap/discussions).
-- Help me coding. This project is free open source software. [Checkout the repository](https://github.com/jhotadhari/straymap), fork it and make pull requests for the `development` branch.
+- Report [issues and bugs](https://github.com/jhotadhari/straymap/issues)
+- Ask questions or suggest features in [discussions](https://github.com/jhotadhari/straymap/discussions)
+- [Fork the repo](https://github.com/jhotadhari/straymap) and open pull requests against the `development` branch
+- Help translate the app — improve existing translations or contribute a new language. If you don't want to touch code, [start a discussion on GitHub](https://github.com/jhotadhari/straymap/discussions).
+- Respect homeless people! If someone is squatting in your backyard, don't call the police, offer help instead. It might be the author of the app.
 
 ## Privacy
 
-Straymap respects the users privacy. It does **not** contain any kind of trackers. Nothing external, nothing internal. The entire data stays on the device. Nothing gets collected, uploaded or shared with no one no where never.
+Straymap contains **no trackers** of any kind. All data stays on-device — nothing is collected, uploaded, or shared.
 
-Straymap works, with one exception, entirely offline, no other requests* to any kind of servers are done. The exceptions is:
+The app works entirely offline, with one exception: the `online-raster-xyz` map layer, which requests raster tiles from an online source you choose yourself.
 
-- The `online-raster-xyz` map layer. This map layer requests raster images from an online source. The online source that you choose by yourself.
-
-\* A request to a server, transmits personal data (the users IP address). This is technically necessary.
+For a detailed explanation of permissions and data handling, see [PRIVACY.md](./PRIVACY.md).
 
 ## Development
 
->**Note**: Make sure you have completed the [React Native - Environment Setup](https://reactnative.dev/docs/environment-setup) instructions till "Creating a new application" step, before proceeding.
+> **Note**: Complete the [React Native environment setup](https://reactnative.dev/docs/set-up-your-environment) first.
 
-Clone the repository
 ```bash
 git clone git@github.com:jhotadhari/straymap.git
-```
-
-Checkout and pull the development branch
-```bash
 git checkout development
-git pull
+yarn start        # Start Metro bundler
+yarn android      # Build & run (in a second terminal)
 ```
 
->**Note**: The development branch is called `development`. This should be the pull request base.
+The default branch for PRs is `development`. The `main` branch contains only tagged, versioned releases.
 
-Start the Metro Server, the JavaScript _bundler_ that ships _with_ React Native. Run the following command from the _root_ of the project:
-```bash
-yarn start
-```
+## Straymap Code Ecosystem
 
-Start your Application.
-Open a _new_ terminal from the _root_ of the project. Run the following command to start the app:
-```bash
-yarn android
-```
+Core parts of Straymap are published as standalone, reusable packages — anyone
+can pick them up and use them in their own projects.
 
-If everything is set up _correctly_, you should see the app running in your _Android Emulator_ or your connected physical device.
-
-This is one way to run your app — you can also run it directly from within Android Studio, if the Metro Server is running.
+- [react-native-mapsforge-vtm](https://github.com/jhotadhari/react-native-mapsforge-vtm) — React Native wrapper for mapsforge's vtm map rendering engine
+- [react-native-mapsforge-vtm-ext-path-color-ramp](https://github.com/jhotadhari/react-native-mapsforge-vtm-ext-path-color-ramp) — Extension for map path color-ramp styling
+- [react-native-brouter](https://github.com/jhotadhari/react-native-brouter) — React Native wrapper for the BRouter offline routing engine
+- [@jhotadhari/release-kit](https://github.com/jhotadhari/release-kit) — Release automation toolkit
+- [react-native-hardwarekey-event](https://github.com/jhotadhari/react-native-hardwarekey-event) — Hardware key event handling for React Native
 
 ## Credits
 
-- It's build around [Mapsforges fork of vtm](https://github.com/mapsforge/vtm).
-- To use mapsforge/vtm with react-native I build a library: [react-native-mapsforge-vtm](https://github.com/jhotadhari/react-native-mapsforge-vtm)
-- [react](https://react.dev/); [react-native](https://www.npmjs.com/package/react-native); [typescript](https://www.typescriptlang.org/); [babel](https://babeljs.io/).
-- Translation libraries: [i18next](https://www.npmjs.com/package/i18next); [intl-pluralrules](https://www.npmjs.com/package/intl-pluralrules); [react-i18next](https://www.npmjs.com/package/react-i18next)
-- [lodash](https://lodash.com); [@klarna/react-native-vector-drawable](https://www.npmjs.com/package/@klarna/react-native-vector-drawable); [@react-native-community/blur](https://www.npmjs.com/package/@react-native-community/blur); [dayjs](https://www.npmjs.com/package/dayjs); [formatcoords](https://www.npmjs.com/package/formatcoords); [react-native-default-preference](https://www.npmjs.com/package/react-native-default-preference); [react-native-draggable-grid](https://www.npmjs.com/package/react-native-draggable-grid); [react-native-fs](https://www.npmjs.com/package/react-native-fs); [react-native-markdown-display](https://www.npmjs.com/package/react-native-markdown-display); [react-native-paper](https://www.npmjs.com/package/react-native-paper); [react-native-safe-area-context](https://www.npmjs.com/package/react-native-safe-area-context); [react-native-scoped-storage](https://www.npmjs.com/package/react-native-scoped-storage); [react-native-svg](https://www.npmjs.com/package/react-native-svg); [react-native-uuid](https://www.npmjs.com/package/react-native-uuid); [react-native-vector-icons](https://www.npmjs.com/package/react-native-vector-icons); [react-native-wheel-color-picker](https://www.npmjs.com/package/react-native-wheel-color-picker); [semver-compare](https://www.npmjs.com/package/semver-compare); [slugify](https://www.npmjs.com/package/slugify); [sprintf-js](https://www.npmjs.com/package/sprintf-js); [use-deep-compare-effect](https://www.npmjs.com/package/use-deep-compare-effect); [defaults](https://www.npmjs.com/package/defaults); [@ungap/structured-clone](https://www.npmjs.com/package/@ungap/structured-clone); [Keep a Changelog](https://www.npmjs.com/package/keep-a-changelog)
-- Dependencies of [vtm](https://github.com/mapsforge/vtm): [AndroidSVG](https://bigbadaboom.github.io/androidsvg/); [Simple Logging Facade for Java](https://www.slf4j.org/); [OkHttp](https://square.github.io/okhttp/); [Okio](https://github.com/square/okio); [Protocol Buffers - Google's data interchange format](https://github.com/protocolbuffers/protobuf); [MapBox Vector Tile - Java](https://github.com/wdtinc/mapbox-vector-tile-java)
-- Dependencies and sources of [react-native-mapsforge-vtm](https://github.com/jhotadhari/react-native-mapsforge-vtm): [JTS Topology Suite](https://github.com/locationtech/jts); To retrieve the elevation for certain coordinates, most code is copied from [mapsforge](https://github.com/mapsforge/mapsforge) and [JOSM-Elevation-Plugin by Harald Hetzner](https://github.com/hhtznr/JOSM-Elevation-Plugin) and [Java OpenStreetMap Editor - Plugins - ElevationProfile by Oliver Wieland](https://github.com/JOSM/josm-plugins/tree/master/ElevationProfile); [Android GPX Parser](https://github.com/ticofab/android-gpx-parser); [Simplification of a 2D-polyline or a 3D-polyline](https://github.com/hgoebl/simplify-java/); [Savitzky–Golay filter in Java](https://github.com/vaccovecrana/savitzky-golay); [queue-promise](https://www.npmjs.com/package/queue-promise); [create-react-native-library](https://github.com/callstack/react-native-builder-bob)
-- Font for some headings: [Jangly Walk](https://www.fonts4free.net/jangly-walk-font.html) copyright (c) [Jakob Fischer at www.pizzadude.dk](https://www.pizzadude.dk)
-- The logo foreground is based on an image generated by [hotpot.ai/logo-generator](https://hotpot.ai/logo-generator) and the background is based on [World PNGs by Vecteezy](https://www.vecteezy.com/free-png/world)
+- Built around [mapsforge's vtm](https://github.com/mapsforge/vtm) via [react-native-mapsforge-vtm](https://github.com/jhotadhari/react-native-mapsforge-vtm)
+- **Framework:** [React](https://react.dev/) · [React Native](https://reactnative.dev/) · [TypeScript](https://www.typescriptlang.org/) · [Babel](https://babeljs.io/)
+- **State & data:** [Redux Toolkit](https://redux-toolkit.js.org/) · [React Query](https://tanstack.com/query) · [drizzle-orm](https://orm.drizzle.team/) · [op-sqlite](https://github.com/OP-Engineering/op-sqlite) · [SpatiaLite](https://www.gaia-gis.it/fossil/libspatialite/index)
+- **UI:** [react-native-paper](https://callstack.github.io/react-native-paper/) · [react-native-paper-dates](https://github.com/web-ridge/react-native-paper-dates) · [react-native-reanimated & react-native-worklets](https://docs.swmansion.com/react-native-reanimated/) · [react-native-gesture-handler](https://docs.swmansion.com/react-native-gesture-handler/) · [react-native-svg](https://github.com/software-mansion/react-native-svg) · [react-native-sortables](https://github.com/mzuender/react-native-sortables) · [FlashList](https://shopify.github.io/flash-list/) · [@react-native-vector-icons](https://github.com/react-native-vector-icons) · [Font-GIS](https://github.com/viglino/font-gis) · [react-native-safe-area-context](https://github.com/th3rdwave/react-native-safe-area-context) · [@react-native-community/blur](https://github.com/react-native-community/blur)
+
+- **Maps & geo:** [Turf.js](https://turfjs.org/) · [@tmcw/togeojson](https://github.com/placemark/togeojson)
+- **i18n:** [i18next](https://www.i18next.com/) · [react-i18next](https://react.i18next.com/) · [intl-pluralrules](https://www.npmjs.com/package/intl-pluralrules)
+- **Utilities:** [lodash-es](https://lodash.com/) · [array-move](https://www.npmjs.com/package/array-move) · [dayjs](https://day.js.org/) · [formatcoords](https://github.com/nerik/formatcoords) · [slugify](https://github.com/simov/slugify) · [sprintf-js](https://github.com/alexei/sprintf.js) · [semver-compare](https://github.com/substack/semver-compare) · [@ungap/structured-clone](https://github.com/ungap/structured-clone) · [defaults](https://github.com/tmpvar/defaults) · [react-native-fs](https://github.com/itinance/react-native-fs) · [react-native-uuid](https://github.com/eugenehp/react-native-uuid) · [react-native-default-preference](https://github.com/kevinresol/react-native-default-preference) · [react-native-scoped-storage](https://github.com/ammarahm-ed/react-native-scoped-storage) · [react-native-popover-view](https://github.com/SteffeyDev/react-native-popover-view) · [@klarna/react-native-vector-drawable](https://github.com/klarna-incubator/react-native-vector-drawable) · [react-native-markdown-display](https://github.com/iamacup/react-native-markdown-display)
+- **Font:** [Jangly Walk](https://www.fonts4free.net/jangly-walk-font.html) © [Jakob Fischer / pizzadude.dk](https://www.pizzadude.dk)
+- **Logo:** foreground based on [hotpot.ai/logo-generator](https://hotpot.ai/logo-generator), background based on [World PNGs by Vecteezy](https://www.vecteezy.com/free-png/world)

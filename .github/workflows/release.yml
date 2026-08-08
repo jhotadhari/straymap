@@ -3,7 +3,7 @@ name: Android CI
 on:
   push:
     tags:
-      - 'v*.*.*'
+      - 'v*'
   workflow_dispatch:
 
 jobs:
@@ -43,7 +43,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
       - name: install dependencies
         run: yarn install --immutable
 
@@ -55,21 +55,33 @@ jobs:
           APP_KEYSTORE_ALIAS: ${{ secrets.APP_KEYSTORE_ALIAS }}
         run: cd ./android && ./gradlew assembleRelease
 
-      - name: Get Current Release
-        id: get_current_release
-        uses: joutvhu/get-release@v1
+      - name: Build Release AAB
+        env:
+          APP_KEYSTORE_PATH: ${{ secrets.APP_KEYSTORE_PATH }}
+          APP_KEYSTORE_PASSWORD: ${{ secrets.APP_KEYSTORE_PASSWORD }}
+          APP_KEY_PASSWORD: ${{ secrets.APP_KEY_PASSWORD }}
+          APP_KEYSTORE_ALIAS: ${{ secrets.APP_KEYSTORE_ALIAS }}
+        run: cd ./android && ./gradlew bundleRelease
+
+      - name: Stage release artifacts
+        env:
+          TAG: ${{ steps.vars.outputs.tag }}
+        run: |
+          mkdir -p ./artifacts
+          cp ./android/app/build/outputs/apk/release/app-release.apk "./artifacts/straymap_${TAG}.apk"
+          cp ./android/app/build/outputs/bundle/release/app-release.aab "./artifacts/straymap_${TAG}.aab"
+
+      # Attach the APK & AAB to the GitHub release that release-kit created.
+      # softprops/action-gh-release creates the release if it doesn't exist yet
+      # (and retries), so this is race-free against release-kit's tag-then-create
+      # ordering. `body` is intentionally omitted so we don't clobber the changelog
+      # body release-kit already wrote — we only attach the build artifacts.
+      - name: Attach APK & AAB to GitHub release
+        uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ steps.vars.outputs.tag }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Upload Release Asset
-        id: upload-release-asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.get_current_release.outputs.upload_url }}
-          asset_path: ./android/app/build/outputs/apk/release/app-release.apk
-          asset_name: straymap_${{ steps.vars.outputs.tag }}.apk
-          asset_content_type: application/zip
+          files: |
+            ./artifacts/straymap_${{ steps.vars.outputs.tag }}.apk
+            ./artifacts/straymap_${{ steps.vars.outputs.tag }}.aab

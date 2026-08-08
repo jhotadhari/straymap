@@ -1,0 +1,10 @@
+{
+	"title": "GNSS",
+	"gnssCoordinates": "GNSS-Koordinaten",
+	"gnssAccuracy": "GNSS-Genauigkeit",
+	"gnssAltitude": "GNSS-Höhe",
+	"gnssSpeed": "GNSS-Geschwindigkeit",
+	"activateGnss": "GNSS aktivieren",
+	"deactivateGnss": "GNSS deaktivieren",
+	"confirmDeactivateRecording": "Spuraufzeichnung ist aktiv. GNSS-Tracking beenden?"
+}

@@ -1,0 +1,20 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1785339004100,
+      "tag": "0000_elite_katie_power",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1785339004889,
+      "tag": "0001_initSpatial",
+      "breakpoints": true
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+	"drawer_one": "Panel",
+	"drawer_other": "Panels",
+	"openMapsSettings": "Karten Einstellungen öffnen",
+	"showSettingsHandle": "Einstellungen werden angezeigt",
+	"hideSettingsHandle": "Einstellungen sind ausgeblendet",
+	"hintShowSettingsHandle": "Legt fest, ob ein zusätzlicher Griff auf der Karte sichtbar ist, um direkt auf die Panel-Auswahl zuzugreifen.\n\nWenn ausgeblendet, kannst du die Panel-Konfiguration weiterhin über den Einstellungsbildschirm erreichen.",
+	"settingsHandle": "Einstellungen",
+	"selectDrawers": "Panels auswählen",
+	"hintSelectDrawers": "Panels auf der linken und rechten Seite der Karte hinzufügen, entfernen oder neu anordnen.",
+	"sortableHandle": "Sortierbar",
+	"hintSortableHandle": "Wenn aktiviert, können die Panele per Drag-and-Drop neu angeordnet werden. Wenn deaktiviert, ist die Reihenfolge gesperrt.",
+	"sortableEnabled": "Sortierbar",
+	"sortableDisabled": "Nicht sortierbar"
+}

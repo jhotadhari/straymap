@@ -2,28 +2,40 @@
   "migIndex": 1,
   "data": [
     {
-      "path": "src/assets/fonts/Coustard-Regular-custom.ttf",
-      "sha1": "fa5026669ee89e49f63209d5c0ded272b9483111"
+      "path": "node_modules/font-gis/fonts/font-gis.eot",
+      "sha1": "a128713401c2831f280a98c13eaa8beea19a148c"
+    },
+    {
+      "path": "node_modules/font-gis/fonts/font-gis.svg",
+      "sha1": "202156ab8bcc2306ae0938d8abafcca2f035a43a"
+    },
+    {
+      "path": "node_modules/font-gis/fonts/font-gis.ttf",
+      "sha1": "4bb551d1005f1f4635edfa4cd42a0bc2decf733f"
+    },
+    {
+      "path": "node_modules/font-gis/fonts/font-gis.woff",
+      "sha1": "ae574400e505f790abdb40f8832a7b103bfa5041"
+    },
+    {
+      "path": "node_modules/font-gis/fonts/font-gis.woff2",
+      "sha1": "dccab7c4e3fc1cd4fe3e74709557c282177d9ac8"
+    },
+    {
+      "path": "node_modules/font-gis/fonts/readme.md",
+      "sha1": "4c46ae55b8d42cec342ffaf522efc3dd7de873b4"
     },
     {
       "path": "src/assets/fonts/jangly_walk.ttf",
       "sha1": "1a99812898e2c11a4a8bcaf0c51e203e09b8fdbe"
     },
     {
-      "path": "src/assets/icons/icomoon/fonts/icomoon.eot",
-      "sha1": "a8d87be46cad877656c613cca558c51388d263b9"
+      "path": "src/assets/icons/build/build-icons.svg",
+      "sha1": "1b928bb13733e8f766690f756109166a71c14f49"
     },
     {
-      "path": "src/assets/icons/icomoon/fonts/icomoon.svg",
-      "sha1": "3c1cddd2e787fe478259b241c75cac57e18d33b6"
-    },
-    {
-      "path": "src/assets/icons/icomoon/fonts/icomoon.ttf",
-      "sha1": "cd811fb5b483df38e64bc409f6b711222f37983e"
-    },
-    {
-      "path": "src/assets/icons/icomoon/fonts/icomoon.woff",
-      "sha1": "693ebdd244a3b2e99e3784c6c0f1787cb0e90be5"
+      "path": "src/assets/icons/build/build-icons.ttf",
+      "sha1": "758dbe555864ce8f5dc31341a8987a6cfb7d15ce"
     }
   ]
 }

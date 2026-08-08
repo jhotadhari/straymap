@@ -1,0 +1,317 @@
+/**
+ * External dependencies
+ */
+import { FC, memo, useCallback, useContext, useMemo, useRef, useState } from 'react';
+import { ScrollView, StyleProp, StyleSheet, TouchableHighlight, View, ViewStyle } from 'react-native';
+import { useTheme, Text, Icon } from 'react-native-paper';
+import { useMap } from 'react-native-mapsforge-vtm';
+import Popover from 'react-native-popover-view';
+
+/**
+ * Internal dependencies
+ */
+import dayjs from '../../../../lib/dayjs';
+import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
+import { Line } from '../../types';
+import DrawerContext from '../../../drawers/DrawerContext';
+import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
+import MenuItem from '../../../../components/generic/wrapper/MenuItem';
+import { setLineSelected, setLineTemp, setLineColor } from '../../slice';
+import { selectLineColors } from '../../selectors';
+import TagBadge from '../TagBadge';
+import IconRouting from '../../../routing/drawerPanels/routing/IconComponent';
+import useActivateDrawerItem from '../../../drawers/hooks/useActivateDrawerItem';
+import { DRAWER_ICON_SIZE, MAP_ANIMATION_PADDING_PX, PALETTE_COLORS } from '../../../../constants';
+import { sharedStyles } from './sharedDeps';
+import LineStatsCompactRows from '../Stats/LineStatsCompactRows';
+import { bbox as turfBbox } from '@turf/turf';
+import { AppContext } from '../../../../Context';
+import { useButtonProps } from '../../../../compose/useButtonProps';
+import { selectDateTimeFormat } from '../../../general/selectors';
+import IconCustom from '../../../../components/generic/primitives/IconCustom';
+
+export interface ListRowProps {
+	line: Omit<Line, 'geometry'>;
+	idx: number;
+	systemFeatureKey: string | null;
+}
+
+const ListRow: FC<ListRowProps> = ({ line, idx, systemFeatureKey }) => {
+	const dispatch = useAppDispatch();
+
+	const lineColors = useAppSelector(selectLineColors);
+
+	const { mapViewNativeNodeHandle } = useContext(AppContext);
+
+	const { flyToBounds } = useMap(mapViewNativeNodeHandle);
+
+	const activateRoutingDrawerItem = useActivateDrawerItem('routing');
+	const activateTrackingDrawerItem = useActivateDrawerItem('trackRecording');
+
+	const { side } = useContext(DrawerContext);
+
+	const theme = useTheme();
+
+	const dateTimeFormat = useAppSelector(selectDateTimeFormat);
+
+	const [colorMenuVisible, setColorMenuVisible] = useState(false);
+	const colorAnchorRef = useRef<View>(null);
+
+	const lineColor = lineColors[line.id];
+	const fallbackColor = PALETTE_COLORS[0].bg;
+
+	const dismissColorMenu = useCallback(() => setColorMenuVisible(false), []);
+
+	const handleColorSelect = useCallback(
+		(color: string) => {
+			dispatch(setLineColor({ lineId: line.id, color }));
+			dismissColorMenu();
+		},
+		[dispatch, line.id, dismissColorMenu]
+	);
+
+	const dynamicStyles = useMemo(
+		() => ({
+			container: [
+				sharedStyles.row,
+				!idx && { paddingTop: 0 },
+				idx % 2 === 1 && { backgroundColor: theme.colors.surfaceDisabled },
+				'left' === side && {
+					flexDirection: 'row-reverse',
+					justifyContent: 'flex-end',
+					paddingRight: 16,
+				},
+				'right' === side && {
+					justifyContent: 'flex-start',
+					flexDirection: 'row',
+					paddingLeft: 16,
+				},
+			] as StyleProp<ViewStyle>,
+			rowColInfoRow: [
+				sharedStyles.rowColInfoRow,
+				'left' === side && {
+					flexDirection: 'row-reverse',
+				},
+			] as StyleProp<ViewStyle>,
+		}),
+		[
+			idx,
+			theme,
+			side,
+		]
+	);
+
+	const handleEditPress = useCallback(() => {
+		dispatch(setLineTemp({ id: line.id }));
+	}, [dispatch, line.id]);
+
+	const toggleSelected = useCallback(
+		() => dispatch(setLineSelected(line.id)),
+		[dispatch, line.id]
+	);
+	const stats = line?.stats ?? {};
+
+	const handleActivate = useCallback(() => {
+		if (line?.envelope) {
+			const bbox = turfBbox(line.envelope);
+			// no need to close ui items,
+			// because never ui items are visible simultanes with this component.
+			// other occurrences of flyToBounds have to call `dispatch(setUiItemKeys([]));`.
+			flyToBounds(bbox, { paddingPx: MAP_ANIMATION_PADDING_PX });
+		}
+	}, [
+		line,
+		flyToBounds,
+	]);
+
+	const handleActivateRouting = useCallback(() => {
+		activateRoutingDrawerItem();
+		handleActivate();
+	}, [
+		activateRoutingDrawerItem,
+		handleActivate,
+	]);
+
+	const handleActivateTracking = useCallback(() => {
+		activateTrackingDrawerItem();
+		handleActivate();
+	}, [
+		activateTrackingDrawerItem,
+		handleActivate,
+	]);
+
+	const { nestedIconColor, ...buttonPropsAny } = useButtonProps({
+		mode: 'text',
+	});
+
+	const popoverStyle = useMemo(
+		() => ({
+			backgroundColor: theme.colors.background,
+			borderWidth: 1,
+			borderColor: theme.colors.outline,
+		}),
+		[theme]
+	);
+
+	return (
+		<View style={dynamicStyles.container}>
+			<TouchableHighlight
+				onPress={() => setColorMenuVisible(true)}
+				style={
+					'left' === side ? sharedStyles.colorColumnLeft : sharedStyles.colorColumnRight
+				}
+			>
+				<View
+					ref={colorAnchorRef}
+					style={[
+						sharedStyles.colorColumnInner,
+						{
+							backgroundColor: (lineColor ?? fallbackColor) as `#${string}`,
+						},
+					]}
+				/>
+			</TouchableHighlight>
+
+			{colorAnchorRef.current && (
+				<Popover
+					popoverStyle={popoverStyle}
+					arrowSize={arrowSize}
+					isVisible={colorMenuVisible}
+					onRequestClose={dismissColorMenu}
+					from={colorAnchorRef as React.RefObject<React.Component<{}, {}, any>>}
+					animationConfig={animationConfig}
+				>
+					<ScrollView>
+						{colorMenuVisible && (
+							<View>
+								{PALETTE_COLORS.map((palette) => (
+									<MenuItem
+										key={palette.bg}
+										IconComponent={() => (
+											<View
+												style={[
+													colorCircle.circle,
+													{
+														backgroundColor:
+															palette.bg as `#${string}`,
+													},
+												]}
+											/>
+										)}
+										onPress={() => handleColorSelect(palette.bg)}
+									/>
+								))}
+							</View>
+						)}
+					</ScrollView>
+				</Popover>
+			)}
+
+			<View style={sharedStyles.rowColInfo}>
+				{line.title && (
+					<View style={dynamicStyles.rowColInfoRow}>
+						<Text
+							numberOfLines={1}
+							ellipsizeMode="tail"
+						>
+							{line.title}
+						</Text>
+					</View>
+				)}
+				<View style={dynamicStyles.rowColInfoRow}>
+					<Text
+						numberOfLines={1}
+						ellipsizeMode="tail"
+					>
+						{line.custom_date ? dayjs(line.custom_date).format(dateTimeFormat) : ''}
+					</Text>
+				</View>
+
+				<LineStatsCompactRows
+					stats={stats}
+					reverse={'left' === side}
+				/>
+
+				{line?.tags && line?.tags.length > 0 && (
+					<View style={dynamicStyles.rowColInfoRow}>
+						{line.tags.map((tag) => (
+							<TagBadge
+								key={tag.id}
+								tag={tag}
+							/>
+						))}
+					</View>
+				)}
+			</View>
+
+			<View style={sharedStyles.noShrink}>
+				<ButtonHighlight
+					{...buttonPropsAny}
+					compact={true}
+					onPress={handleEditPress}
+				>
+					<IconCustom
+						name="route_cog"
+						size={DRAWER_ICON_SIZE}
+						color={nestedIconColor}
+					/>
+				</ButtonHighlight>
+
+				{systemFeatureKey === null && (
+					<ButtonHighlight
+						{...buttonPropsAny}
+						compact={true}
+						onPress={toggleSelected}
+					>
+						<Icon
+							source={'map-minus'}
+							size={DRAWER_ICON_SIZE}
+							color={nestedIconColor}
+						/>
+					</ButtonHighlight>
+				)}
+
+				{systemFeatureKey === 'routing' && (
+					<ButtonHighlight
+						{...buttonPropsAny}
+						compact={true}
+						onPress={handleActivateRouting}
+					>
+						<IconRouting
+							color={theme.colors.primary} // system lines primary.
+						/>
+					</ButtonHighlight>
+				)}
+
+				{systemFeatureKey !== null && systemFeatureKey !== 'routing' && (
+					<ButtonHighlight
+						{...buttonPropsAny}
+						compact={true}
+						onPress={handleActivateTracking}
+					>
+						<Icon
+							source={'record-rec'} // same src/features/trackRecording/drawerPanels/trackRecordingDrawerItem.tsx
+							size={DRAWER_ICON_SIZE}
+							color={theme.colors.primary} // system lines primary.
+						/>
+					</ButtonHighlight>
+				)}
+			</View>
+		</View>
+	);
+};
+
+const animationConfig = {
+	duration: 0,
+};
+const arrowSize = { height: 0, width: 0 };
+
+const colorCircle = StyleSheet.create({
+	circle: {
+		width: 24,
+		height: 24,
+		borderRadius: 12,
+	},
+});
+
+export default memo(ListRow);

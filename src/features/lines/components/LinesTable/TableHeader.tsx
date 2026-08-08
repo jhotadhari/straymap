@@ -1,0 +1,291 @@
+/**
+ * External dependencies
+ */
+import { FC, RefObject, useCallback, useContext, useMemo, useRef, useState } from 'react';
+import { ScrollView, StyleProp, View, ViewStyle } from 'react-native';
+import { useTheme } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
+import Popover, { PopoverPlacement } from 'react-native-popover-view';
+
+/**
+ * Internal dependencies
+ */
+import { cellConfigs, getCellCategory, getFilterColumnType } from './sharedDeps';
+import { SortableHeaderCell, useContainerMinWidth, tableStyles } from '../tableResources';
+import { TableColumn } from '../../types';
+import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
+import { selectLinesTableColumns, selectLinesSort, selectLinesFilters } from '../../selectors';
+import {
+	toggleLinesSort,
+	setLinesTableColumns,
+	setLinesSort,
+	removeLinesFilter,
+} from '../../slice';
+import MenuItem from '../../../../components/generic/wrapper/MenuItem';
+import { ColumnHeaderMenuContext } from './Context';
+
+const TableHeader: FC<{
+	styleCell: StyleProp<ViewStyle>;
+}> = ({ styleCell }) => {
+	const theme = useTheme();
+
+	const { t } = useTranslation();
+
+	const dispatch = useAppDispatch();
+
+	const sort = useAppSelector(selectLinesSort);
+	const filters = useAppSelector(selectLinesFilters);
+
+	const tableColumns: TableColumn[] = useAppSelector(selectLinesTableColumns);
+
+	const { openFilterForColumn } = useContext(ColumnHeaderMenuContext);
+
+	const visibleColumns = useMemo(
+		() => tableColumns.filter((column) => column.visible),
+		[tableColumns]
+	);
+
+	const style: StyleProp<ViewStyle> = useMemo(
+		() => [
+			styleCell,
+			{
+				height: 50,
+			},
+		],
+		[styleCell]
+	);
+
+	const containerMinWidth = useContainerMinWidth(tableColumns, cellConfigs);
+
+	const styleContainer: StyleProp<ViewStyle> = useMemo(
+		() => [
+			tableStyles.flexRow,
+			{
+				backgroundColor: theme.colors.background,
+				borderBottomWidth: 1,
+				borderColor: theme.colors.onBackground,
+				minWidth: containerMinWidth,
+			},
+		],
+		[theme, containerMinWidth]
+	);
+
+	// ── Column header popover ─────────────────────────────────────────────
+
+	const [menuVisible, setMenuVisible] = useState(false);
+	const [activeColumnKey, setActiveColumnKey] = useState<string | null>(null);
+
+	const dismissMenu = useCallback(() => {
+		setMenuVisible(false);
+		setActiveColumnKey(null);
+	}, []);
+
+	// Per-column stable ref objects for popover anchoring.
+	// We store the raw views and build RefObject wrappers on demand
+	// to avoid type conflicts with React.createRef in this RN version.
+	const columnViewsRef = useRef<Map<string, View | null>>(new Map());
+
+	const getColumnAnchorRef = useCallback((key: string): RefObject<View> => {
+		const view = columnViewsRef.current.get(key) ?? null;
+		return { current: view } as RefObject<View>;
+	}, []);
+
+	const isSortable = useCallback((columnKey: string) => {
+		return columnKey !== 'tags';
+	}, []);
+
+	const columnHasFilters = useCallback(
+		(columnKey: string) => {
+			return filters.some((f) => f.columnKey === columnKey);
+		},
+		[filters]
+	);
+
+	const handleSortPress = useCallback(
+		(columnKey: string) => {
+			dispatch(toggleLinesSort(columnKey));
+		},
+		[dispatch]
+	);
+
+	const handleLongPress = useCallback((columnKey: string) => {
+		setActiveColumnKey(columnKey);
+		setMenuVisible(true);
+	}, []);
+
+	const handleHideColumn = useCallback(() => {
+		if (!activeColumnKey) return;
+		dispatch(
+			setLinesTableColumns(
+				tableColumns.map((col) =>
+					col.key === activeColumnKey ? { ...col, visible: false } : col
+				)
+			)
+		);
+		dismissMenu();
+	}, [
+		activeColumnKey,
+		tableColumns,
+		dispatch,
+		dismissMenu,
+	]);
+
+	const handleSortAsc = useCallback(() => {
+		if (!activeColumnKey) return;
+		dispatch(setLinesSort({ columnKey: activeColumnKey, direction: 'asc' }));
+		dismissMenu();
+	}, [
+		activeColumnKey,
+		dispatch,
+		dismissMenu,
+	]);
+
+	const handleSortDesc = useCallback(() => {
+		if (!activeColumnKey) return;
+		dispatch(setLinesSort({ columnKey: activeColumnKey, direction: 'desc' }));
+		dismissMenu();
+	}, [
+		activeColumnKey,
+		dispatch,
+		dismissMenu,
+	]);
+
+	const handleAddFilter = useCallback(() => {
+		if (!activeColumnKey) return;
+		openFilterForColumn(activeColumnKey);
+		dismissMenu();
+	}, [
+		activeColumnKey,
+		openFilterForColumn,
+		dismissMenu,
+	]);
+
+	const handleRemoveFilter = useCallback(() => {
+		if (!activeColumnKey) return;
+		const columnFilters = filters.filter((f) => f.columnKey === activeColumnKey);
+		columnFilters.forEach((f) => dispatch(removeLinesFilter(f)));
+		dismissMenu();
+	}, [
+		activeColumnKey,
+		filters,
+		dispatch,
+		dismissMenu,
+	]);
+
+	const popoverStyle = useMemo(
+		() => ({
+			backgroundColor: theme.colors.background,
+			borderWidth: 1,
+			borderColor: theme.colors.outline,
+			minWidth: 150,
+		}),
+		[theme]
+	);
+
+	const activeAnchorRef = activeColumnKey ? getColumnAnchorRef(activeColumnKey) : undefined;
+
+	const activeColumnSupportsSort = activeColumnKey ? isSortable(activeColumnKey) : false;
+	const activeColumnSupportsFilter = activeColumnKey
+		? !!getFilterColumnType(activeColumnKey)
+		: false;
+	const activeColumnHasFilters = activeColumnKey ? columnHasFilters(activeColumnKey) : false;
+
+	return (
+		<View style={styleContainer}>
+			{/* empty placeholder for the column containing action buttons */}
+			<View style={style} />
+
+			{visibleColumns.map((column) => {
+				const baseStyle = 'line' === getCellCategory(column.key) ? style : styleCell;
+				const cellStyle = cellConfigs[column.key]?.style;
+				const sortable = isSortable(column.key);
+
+				const sortIcon =
+					sort?.columnKey === column.key
+						? sort?.direction === 'asc'
+							? 'arrow-up'
+							: 'arrow-down'
+						: undefined;
+
+				return (
+					<SortableHeaderCell
+						key={column.key}
+						columnKey={column.key}
+						sortable={sortable}
+						sortIcon={sortIcon}
+						cellStyle={cellStyle ? [baseStyle, cellStyle] : baseStyle}
+						onSortPress={handleSortPress}
+						onLongPress={handleLongPress}
+						onRef={(view: View | null) => {
+							columnViewsRef.current.set(column.key, view);
+						}}
+						t={t}
+					/>
+				);
+			})}
+
+			{activeAnchorRef && (
+				<Popover
+					popoverStyle={popoverStyle}
+					arrowSize={arrowSize}
+					isVisible={menuVisible}
+					placement={PopoverPlacement.BOTTOM}
+					onRequestClose={dismissMenu}
+					from={activeAnchorRef as RefObject<React.Component<{}, {}, any>>}
+					animationConfig={animationConfig}
+				>
+					<ScrollView>
+						{menuVisible && (
+							<View>
+								<MenuItem
+									leadingIcon="eye-off-outline"
+									onPress={handleHideColumn}
+									title={t('lines.columnMenu.hideColumn')}
+								/>
+
+								{activeColumnSupportsSort && (
+									<MenuItem
+										leadingIcon="arrow-up"
+										onPress={handleSortAsc}
+										title={t('lines.columnMenu.sortAsc')}
+									/>
+								)}
+
+								{activeColumnSupportsSort && (
+									<MenuItem
+										leadingIcon="arrow-down"
+										onPress={handleSortDesc}
+										title={t('lines.columnMenu.sortDesc')}
+									/>
+								)}
+
+								{activeColumnSupportsFilter && (
+									<MenuItem
+										leadingIcon="filter-plus-outline"
+										onPress={handleAddFilter}
+										title={t('lines.columnMenu.addFilter')}
+									/>
+								)}
+
+								{activeColumnHasFilters && (
+									<MenuItem
+										leadingIcon="filter-remove-outline"
+										onPress={handleRemoveFilter}
+										title={t('lines.columnMenu.removeFilter')}
+									/>
+								)}
+							</View>
+						)}
+					</ScrollView>
+				</Popover>
+			)}
+		</View>
+	);
+};
+
+const animationConfig = {
+	duration: 0,
+};
+const arrowSize = { height: 0, width: 0 };
+
+export default TableHeader;

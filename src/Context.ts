@@ -1,69 +1,45 @@
 /**
  * External dependencies
  */
-import {
-    createContext,
-    Dispatch,
-    SetStateAction,
-} from "react";
-import { MapEventResponse } from "react-native-mapsforge-vtm";
+import { createContext, createRef, Dispatch, MutableRefObject, SetStateAction } from 'react';
+import { SharedValue } from 'react-native-reanimated';
+import { MapEventResponse } from 'react-native-mapsforge-vtm';
 
 /**
  * Internal dependencies
  */
-import { ThemeOption, OptionBase, HierarchyItem, AbsPathsMap, MapSettings, LayerConfig, MapsforgeProfile, AppearanceSettings, GeneralSettings, UiState } from "./types";
+import { BottomBarHeight } from './types';
+import { DrawerControls } from './features/drawers/types';
 
 export type AppContextType = {
-	appDirs?: AbsPathsMap;
-	selectedTheme?: string;
-	setSelectedTheme?: Dispatch<SetStateAction<string | null>>;
-	themeOptions?: ThemeOption[];
-	langOptions?: OptionBase[];
-	changeLang?: ( newSelectedLang : string ) => void;
-	selectedLang?: string;
-    mapViewNativeNodeHandle?: number | null;
-    appInnerHeight?: number;
-    topAppBarHeight?: number;
-    bottomBarHeight?: number;
-	selectedHierarchyItems?: null | HierarchyItem[];
-	setSelectedHierarchyItems?: Dispatch<SetStateAction<null | HierarchyItem[]>>;
-	mapSettings?: MapSettings;
-	setMapSettings?: Dispatch<SetStateAction<MapSettings>>;
-	uiState?: UiState;
-	setUiState?: Dispatch<SetStateAction<UiState>>;
-	appearanceSettings?: AppearanceSettings;
-	setAppearanceSettings?: Dispatch<SetStateAction<AppearanceSettings>>;
-	generalSettings?: GeneralSettings;
-	setGeneralSettings?: Dispatch<SetStateAction<GeneralSettings>>;
-    isBusy?: boolean;
-	maybeIsBusyAdd?: ( key: string ) => void;
-	maybeIsBusyRemove?: ( key: string ) => void;
-    currentMapEvent?: MapEventResponse;
+	mapViewNativeNodeHandle?: number | null;
+	appInnerHeight?: number;
+	topAppBarHeight?: number;
+	bottomBarHeight?: BottomBarHeight;
+	setBottomBarHeight?: Dispatch<SetStateAction<BottomBarHeight>>;
+	setTopAppBarHeight?: Dispatch<SetStateAction<number>>;
+	mapHeight?: number;
+	drawerControlsRef: MutableRefObject<DrawerControls | null>;
+	moveEnabled?: boolean;
+	setMoveEnabled?: Dispatch<SetStateAction<boolean>>;
+	mapCornerComponentsHeight?: number;
+	setMapCornerComponentsHeight?: Dispatch<SetStateAction<number>>;
 };
 
-export const AppContext = createContext<AppContextType>( {} );
+export const AppContext = createContext<AppContextType>({
+	drawerControlsRef: createRef<DrawerControls>(),
+});
 
-export type SettingsMapsContextType = {
-	// layers
-    layers: LayerConfig[];
-    editLayer: null | LayerConfig;
-    setEditLayer?: Dispatch<SetStateAction<null | LayerConfig>>
-    updateLayer?: ( newLayer: LayerConfig ) => void;
-    setLayers?: Dispatch<SetStateAction<LayerConfig[]>>;
-    saveLayers?: () => void;
-	// profiles
-    profiles: MapsforgeProfile[];
-    editProfile: null | MapsforgeProfile;
-    setEditProfile?: Dispatch<SetStateAction<null | MapsforgeProfile>>;
-    updateProfile?: ( newProfile: MapsforgeProfile ) => void;
-    setProfiles?: Dispatch<SetStateAction<MapsforgeProfile[]>>;
-    saveProfiles?: () => void;
-    getNewProfile?: () => MapsforgeProfile;
+export type MapContextType = {
+	currentMapEventRef: MutableRefObject<MapEventResponse | null>;
+	/**
+	 * Shared value tracking the map center [lng, lat] at ~25/sec,
+	 * populated by useMapPosition(). Reads from JS are fast (no bridge).
+	 * null until the first map-update event arrives.
+	 */
+	centerPositionSvRef: MutableRefObject<SharedValue<[number, number] | null> | null>;
 };
-
-export const SettingsMapsContext = createContext<SettingsMapsContextType>( {
-	layers: [],
-    editLayer: null,
-	profiles: [],
-    editProfile: null,
-} );
+export const MapContext = createContext<MapContextType>({
+	currentMapEventRef: createRef<MapEventResponse>(),
+	centerPositionSvRef: createRef<SharedValue<[number, number] | null> | null>(),
+});

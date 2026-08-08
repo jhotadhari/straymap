@@ -1,21 +1,17 @@
 /**
  * External dependencies
  */
-import {
-	MD3DarkTheme,
-	MD3LightTheme,
-} from 'react-native-paper';
-import { configureFonts } from 'react-native-paper';
-import { get, set } from 'lodash-es';
+import { MD3DarkTheme, MD3LightTheme } from 'react-native-paper';
+import { set } from 'lodash-es';
 
 /**
  * Internal dependencies
  */
-import type { ThemePropExtended } from './types';
+import { ThemePropExtended } from './features/appearance/types';
 
-const BlackTheme : ThemePropExtended = {
+const BlackTheme: ThemePropExtended = {
 	...MD3DarkTheme,
-    label: 'themeOptions.black',
+	label: 'appearance.themeOptions.black',
 	colors: {
 		...MD3DarkTheme.colors,
 		background: '#000',
@@ -34,35 +30,35 @@ const BlackTheme : ThemePropExtended = {
 	},
 };
 
-const themes : { [value: string]: ThemePropExtended } = {
-	light: { ... MD3LightTheme, label: 'themeOptions.light' },
-	dark: { ... MD3DarkTheme, label: 'themeOptions.dark' },
-    black: BlackTheme,
+const themes: { [value: string]: ThemePropExtended } = {
+	light: { ...MD3LightTheme, label: 'appearance.themeOptions.light' },
+	dark: { ...MD3DarkTheme, label: 'appearance.themeOptions.dark' },
+	black: BlackTheme,
 };
 
 // Loop themes, apply custom colors
-Object.keys( themes ).map( ( key : string ) => {
+Object.keys(themes).forEach((key: string) => {
 	// Custom colors
 	const colorSuccess = themes[key].dark
 		? {
-			"link": "rgb(100, 150, 255)",
-			"success": "rgb(130, 219, 126)",
-			"onSuccess": "rgb(0, 57, 10)",
-			"successContainer": "rgb(0, 83, 18)",
-			"onSuccessContainer": "rgb(157, 248, 152)"
-		}
+				link: 'rgb(100, 150, 255)',
+				success: 'rgb(130, 219, 126)',
+				onSuccess: 'rgb(0, 57, 10)',
+				successContainer: 'rgb(0, 83, 18)',
+				onSuccessContainer: 'rgb(157, 248, 152)',
+			}
 		: {
-			"link": "rgb(0, 0, 255)",
-			"success": "rgb(16, 109, 32)",
-			"onSuccess": "rgb(255, 255, 255)",
-			"successContainer": "rgb(157, 248, 152)",
-			"onSuccessContainer": "rgb(0, 34, 4)"
-		};
+				link: 'rgb(0, 0, 255)',
+				success: 'rgb(16, 109, 32)',
+				onSuccess: 'rgb(255, 255, 255)',
+				successContainer: 'rgb(157, 248, 152)',
+				onSuccessContainer: 'rgb(0, 34, 4)',
+			};
 	// Use lodash set because ts is complaining
-	set( themes[key], 'colors', {
+	set(themes[key], 'colors', {
 		...themes[key].colors,
 		...colorSuccess,
-	} );
-} );
+	});
+});
 
 export default themes;

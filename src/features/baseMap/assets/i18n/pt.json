@@ -1,0 +1,137 @@
+{
+	"createdBy": "Criado por",
+	"label": "rótulo",
+	"globalDEM": "DEM global",
+	"file": "Arquivo de mapa",
+	"selectFile": "Selecionar arquivo de mapa",
+	"demDir": "Diretório DEM",
+	"demLabel": {
+		"shading": "Sombreamento, {{label}}",
+		"shadingGlobal": "Sombreamento, global, {{label}}"
+	},
+	"selectDemDir": "Selecionar diretório DEM",
+	"useAppHgt": "Usar global",
+	"useCache": "Usar cache",
+	"openAppHgt": "Global",
+	"notConfiguredAppHgt": "Global não configurado",
+	"addNew": "Adicionar novo mapa",
+	"layerAttributions": "Atribuição cartográfica",
+	"cacheSize": "Tamanho do cache",
+	"cacheSizeCurrent": "Tamanho atual do cache",
+	"cacheClear": "Limpar cache",
+	"cacheDir": "Diretório de cache",
+	"useFirstOne": "Usar o primeiro",
+	"noLayerUseCache": "Nenhuma camada do mapa usa este cache",
+	"layerEdit": "Editar camada do mapa",
+	"layerRemove": "Remover camada",
+	"layersNone": "Atualmente não há camadas de mapa",
+	"mapsforgeGeneral": "Configurações gerais do Mapsforge",
+	"mapType": "Tipo de mapa",
+	"addNewLayer": "Adicionar nova camada de mapa",
+	"addNewLayerShort": "Adicionar nova camada",
+	"selectType": "Selecionar tipo de mapa",
+	"askCancel": "Você realmente quer cancelar a edição deste mapa?",
+	"source": "Fonte do mapa",
+	"lineScale": "Escala de linhas",
+	"textScale": "Escala de texto",
+	"symbolScale": "Escala de símbolos",
+	"visibility": "Visibilidade",
+	"selectTheme": "Selecionar tema",
+	"theme": "Tema",
+	"builtInThemes": "Temas integrados",
+	"overlay_one": "Sobreposição",
+	"overlay_other": "Sobreposições",
+	"hasLabels": "Rótulos",
+	"hasBuildings": "Edifícios 3D",
+	"layer_one": "Camada do mapa",
+	"layer_other": "Camadas do mapa",
+	"layerShort_one": "Camada",
+	"layerShort_other": "Camadas",
+	"layerSelectedCount_one": "%s camada selecionou este perfil",
+	"layerSelectedCount_other": "%s camadas selecionaram este perfil",
+	"layerSelectedDefaultCount_one": "%s camada está usando este perfil porque é o perfil padrão",
+	"layerSelectedDefaultCount_other": "%s camadas estão usando este perfil porque é o perfil padrão",
+	"select": {
+		"none": "Não selecionar nada",
+		"all": "Selecionar tudo",
+		"toggle": "Alternar seleção"
+	},
+	"selected": {
+		"none": "Nada selecionado",
+		"all": "Tudo selecionado",
+		"count": "%s selecionados"
+	},
+	"mapsforge": {
+		"profile_one": "Perfil do Mapsforge",
+		"profile_other": "Perfis do Mapsforge",
+		"profileRemove": "Remover perfil",
+		"profileEdit": "Editar perfil do Mapsforge",
+		"profilesNone": "Atualmente não há perfis do Mapsforge",
+		"profileAddNew": "Adicionar novo perfil do Mapsforge",
+		"profileAddNewShort": "Adicionar novo perfil"
+	},
+	"typeDesc": {
+		"online-raster-xyz": "Imagens raster de mapas online de um servidor de tiles web. Requer conexão com a internet. Adequado para imagens de satélite, mapas de estradas e outros serviços de tiles web. Os tiles baixados podem ser armazenados no dispositivo para reutilização offline.",
+		"mapsforge": "Mapas vetoriais offline (.map). Melhor escolha para mapas detalhados de trilhas, ciclismo e navegação urbana.",
+		"raster-MBtiles": "Mapas raster offline de visão geral (.mbtiles). Um único arquivo contendo tiles de mapa pré-renderizados — ideal para visões gerais de áreas amplas em níveis de zoom baixos.",
+		"hillshading": "Sombreamento de terreno offline a partir de modelos digitais de elevação (DEM). Adiciona relevo e profundidade realistas ao mapa. Usa arquivos de elevação .hgt."
+	},
+	"hint": {
+		"label": "Um rótulo para ajudar você a identificar este item. Escolha qualquer nome que faça sentido para você — ele só é mostrado nas configurações do aplicativo.\n\nSe não for especificado, a fonte da camada será usada como rótulo.",
+		"applyToAllMapsforge": "Estas configurações se aplicam a todas as camadas de mapa do Mapsforge.",
+		"lineScale": "Fator de escala de linhas > 0.0\n\nPara dimensionar a espessura das linhas no mapa\n\nPadrão: 1. = sem dimensionamento de espessura de linha",
+		"textScale": "Fator de escala de texto > 0.0\n\nPara dimensionar o tamanho dos rótulos no mapa\n\nPadrão: 1. = sem dimensionamento de tamanho de texto",
+		"symbolScale": "Fator de escala de símbolos > 0.0\n\nPara dimensionar o tamanho dos símbolos no mapa\n\nPadrão: 1. = sem dimensionamento de tamanho de símbolos",
+		"layers": "As camadas do mapa são exibidas umas sobre as outras. As camadas que estão mais acima nas configurações são exibidas acima das outras camadas no mapa.\n\nAs camadas podem ser ordenadas arrastando e soltando.\n\nAs camadas individuais do mapa podem ser ativadas ou desativadas em diferentes níveis de zoom.\n\nIsso permite usar mapas gerais e detalhados juntos.\n\nAs camadas do mapa que não são necessárias temporariamente podem ser ocultadas (botão com símbolo de olho).",
+		"profiles": "Os \"perfis\" determinam como os mapas vetoriais offline são exibidos — cores, estilos de linha, densidade de rótulos e mais.\n\nOs perfis podem ser ordenados arrastando e soltando. O perfil superior é o padrão para todas as camadas do mapa que não têm um perfil específico atribuído.",
+		"visibility": "Ativa ou desativa a camada do mapa. As camadas que não são necessárias temporariamente podem ser ocultadas para reduzir a desordem visual.",
+		"xyzSource": "A URL para o servidor de tiles de mapa xyz.\n\nA URL deve começar preferencialmente com https://. Conexões inseguras com http:// são possíveis, mas não são recomendadas.\n\nA URL deve conter os marcadores {X}, {Y} e {Z} (entre chaves).\n\nEsta camada de mapa solicita imagens raster de uma fonte online. Qualquer solicitação a qualquer servidor transfere dados pessoais (seu endereço IP). Isso é tecnicamente necessário.",
+		"enabled": "Define o intervalo de nível de zoom onde esta camada do mapa é visível. Abaixo do mínimo ou acima do nível máximo de zoom, a camada é ocultada automaticamente.",
+		"zoom": "Entre quais níveis de zoom a camada do mapa é carregada. Se você ampliar além do nível máximo de zoom da camada do mapa, o mapa continuará a ser exibido, mas não será atualizado. Isso evita que alguns servidores de tiles mostrem marcadores de posição em níveis de zoom altos.",
+		"zoomGeneralInfo": "Sobre o zoom em geral:\n\nEm níveis de zoom baixos, o zoom é amplo e uma grande área é exibida no mapa. Em níveis de zoom altos, o mapa mostra uma seção detalhada.\n\nDica: O painel pode exibir o nível de zoom atual do mapa.",
+		"mapsforgeFile": "Arquivos Mapsforge (.map) contêm dados vetoriais detalhados do mapa (trilhas, estradas, edifícios, cobertura do solo). Melhor escolha para mapas detalhados de trilhas e ciclismo. Funciona offline após o download.",
+		"mapsforgeProfile": "Os perfis determinam como os mapas vetoriais offline são exibidos pelo Mapsforge.\n\nUm perfil pode ser selecionado para a camada do mapa, que deve ser configurado previamente. Os vários perfis do Mapsforge podem ser gerenciados geralmente nas configurações do mapa.\n\nSe nenhum perfil for atribuído à camada do mapa, o primeiro perfil é usado automaticamente.",
+		"mapsforgeHasBuildings": "Mostra edifícios como formas 3D sobre o mapa.\n\nQuando ativado, os edifícios aparecem como extrusões 3D acima do mapa. Quando desativado, são exibidos apenas planos como parte do fundo do mapa.",
+		"mbTilesFile": "Arquivos MBtiles (.mbtiles) contêm tiles de mapa raster pré-renderizados. Melhor escolha para mapas gerais de áreas amplas — ideal para ver o panorama geral em níveis de zoom baixos.\n\nEles devem ser baixados manualmente. Após o download, não é necessária conexão com a internet para usá-los.\n\nApós o download, os arquivos devem ser movidos para um dos diretórios do aplicativo Straymap.",
+		"demDir": "O diretório DEM contém os arquivos do modelo digital de elevação (DEM) (.hgt). Os DEM fornecem os dados de altura do terreno usados para o sombreamento.\n\nEles devem ser baixados manualmente. Após o download, não é necessária conexão com a internet para usá-los.\n\nApós o download, os arquivos devem ser movidos para um dos diretórios do aplicativo Straymap.\n\nOs DEM geralmente são fornecidos com uma resolução de 1 ou 3 segundos de arco. (Um segundo de arco corresponde a aproximadamente 30 m no equador)",
+		"demOnly3Sec": "Atualmente, apenas modelos de elevação com resolução de 3 segundos de arco são suportados.",
+		"mapsforgeProfileFile": "Temas personalizados (arquivos .xml) alteram o estilo visual dos mapas Mapsforge — cores, símbolos, estilos de estradas.\n\nEles devem ser baixados manualmente e movidos para um dos diretórios do aplicativo Straymap. Temas integrados também estão disponíveis e não requerem download.",
+		"mapsforgeProfileStyle": "Selecione uma variante de estilo visual dentro deste tema. Os estilos oferecem variações sutis na aparência, como diferentes esquemas de cores ou espessuras de linha.",
+		"mapsforgeProfileOverlays": "Controla quais elementos do mapa são exibidos — estradas, trilhas, edifícios, cobertura do solo e mais.\n\nDica: Desative o fundo do mapa para colocar outra camada (por exemplo, imagens de satélite) atrás desta.",
+		"opacity": "A opacidade da camada do mapa.\n\nValor entre 0 e 1.\n\n- 0 significa que a camada é transparente.\n- 1 significa que a camada tem opacidade total e as camadas subjacentes não são visíveis.",
+		"cache": "Um cache armazena imagens do mapa. Assim, elas não precisam ser baixadas ou geradas novamente.",
+		"cacheDir": "O diretório onde o cache será salvo.\n\nUm diretório interno só pode ser acessado pelo próprio aplicativo. Um diretório externo também pode ser acessado por outros aplicativos, como aplicativos de explorador de arquivos.",
+		"cacheSize": "O tamanho do cache em MB."
+	},
+	"link": {
+		"xmlRenderThemes": "Temas de renderização em formato xml",
+		"xmlRenderThemesModify": "Avançado: modifique ou crie seu próprio tema",
+		"openandromapsDownloads": "Mapas vetoriais no formato Mapsforge baseados em dados do OpenStreetMap e temas de renderização xml",
+		"openandromapsDownloadsRaster": "Mapas raster gerais no formato mbtiles"
+	},
+	"shadingOptions": {
+		"magnitude": {
+			"label": "Magnitude",
+			"hint": "A magnitude determina a intensidade do sombreamento."
+		},
+		"maxSlope": {
+			"label": "Inclinação máxima",
+			"hint": "A menor inclinação que terá o tom mais escuro.\n\nTodas as inclinações maiores terão o mesmo tom, o mais escuro.\n\nDeve ser maior que zero.\n\nO padrão é 80.\n\n[porcentagem, %]"
+		},
+		"minSlope": {
+			"label": "Inclinação mínima",
+			"hint": "A maior inclinação que terá o tom mais claro.\n\nTodas as inclinações menores terão o mesmo tom, o mais claro.\n\nDeve estar no intervalo de zero e \"Inclinação máxima\".\n\nO padrão é 0 (zero).\n\n[porcentagem, %]"
+		},
+		"asymmetryFactor": {
+			"label": "Fator de assimetria",
+			"hint": "Número entre 0 e 1.\n\nQuando é 1, as inclinações na direção de referência (NO por padrão) terão sombreamento mínimo (efeito máximo de assimetria),\n\nquando é 0, o sombreamento será simétrico em todas as direções (sem efeito de assimetria).\n\nQualquer valor maior que 0 tornará o sombreamento suavemente assimétrico, com as inclinações mais próximas da direção de referência menos sombreadas do que as inclinações na direção oposta à medida que o fator aumenta.\n\nO padrão é 0.5"
+		}
+	},
+	"cacheManager": "Gerenciador de cache",
+	"sweepCaches": "Limpar todos os caches não utilizados",
+	"getStarted": "Começar",
+	"noLayersHintBody": "Para começar, adicione uma camada de mapa.",
+	"note": "Nota",
+	"noteBody": "Rótulos sublinhados têm mais informações — toque neles.",
+	"noteHint": "Sempre que vir rótulos sublinhados, pode tocá-los para ver mais informações."
+}

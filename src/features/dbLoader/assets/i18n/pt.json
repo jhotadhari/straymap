@@ -1,0 +1,23 @@
+{
+	"dbMigrationError": "Erro de migração do banco de dados: %s",
+	"dbMigrationFallbackCreated": "O banco de dados anterior \"%s\" não pôde ser aberto. Um novo banco de dados \"%s\" será usado no próximo reinício.",
+	"database": "Banco de dados",
+	"dbInitializing": "configurando o banco de dados, vai bem rápido, como uma bicicleta no asfalto-foguete — só desta vez!",
+	"selectDbFile": "Selecionar arquivo de banco de dados",
+	"createNewDatabase": "Criar novo banco de dados",
+	"noDatabasesFound": "Nenhum banco de dados encontrado",
+	"moveToX": "Mover para %s",
+	"copyToX": "Copiar para %s",
+	"select": "Selecionar",
+	"rename": "Renomear",
+	"renameDatabase": "Renomear banco de dados",
+	"delete": "Excluir",
+	"deleteDatabase": "Excluir banco de dados",
+	"deleteDatabaseConfirmation": "Excluir \"%s\"? Isso não pode ser desfeito.",
+	"renameDatabasePrompt": "Digite um novo nome:",
+	"newDatabasePrompt": "Digite um nome para o novo banco de dados:",
+	"requireReload": "Reinicialização necessária para aplicar as alterações.\n\nDeslize o aplicativo para fora da lista de aplicativos recentes para fechá-lo completamente e, em seguida, toque no ícone para iniciá-lo novamente.",
+	"willRequireReload": "Alterar o banco de dados ativo requer reiniciar o aplicativo.",
+	"fileAlreadyExists": "Já existe um arquivo chamado \"%s\".",
+	"fileOperationError": "Falha na operação de arquivo: %s"
+}
