@@ -86,8 +86,8 @@ android {
         applicationId "com.jhotadhari.straymap"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 30099
-        versionName "0.3.0"
+        versionCode 30199
+        versionName "0.3.1"
     }
     signingConfigs {
         debug {

@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.3.1] - 2026-08-08
+
+### Fixed
+
+- CI release workflow: bump Node.js from 22 to 24 for engine compatibility.
+- Release config: set `github.attachment` to `false` so CI handles artifact uploads.
+
 ## [0.3.0] - 2026-08-08
 
 Complete rewrite with no backwards compatibility to previous versions.  The app has been rebuilt around a spatial SQLite database and a Redux store with substantial performance improvements across the board, a new side-drawer panel system, and a new customizable dashboard.  New capabilities include BRouter offline routing, full line management with tags, and Lines and Tags data browsers.
@@ -139,6 +146,7 @@ Basic app structure and map viewer functionality.
 - Topbar with breadcrumbs and a menu.
 - Structure for settings and some settings pages.
 
+[0.3.1]: https://github.com/jhotadhari/straymap/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/jhotadhari/straymap/compare/v0.2.1...v0.3.0
 [0.2.1]: https://github.com/jhotadhari/straymap/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/jhotadhari/straymap/compare/v0.1.0...v0.2.0
