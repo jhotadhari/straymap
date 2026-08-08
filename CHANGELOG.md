@@ -1,13 +1,16 @@
 # Changelog
+
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [0.3.0] - 2026-08-08
+
 Complete rewrite with no backwards compatibility to previous versions.  The app has been rebuilt around a spatial SQLite database and a Redux store with substantial performance improvements across the board, a new side-drawer panel system, and a new customizable dashboard.  New capabilities include BRouter offline routing, full line management with tags, and Lines and Tags data browsers.
 
 ### Added
+
 - Feature-based plugin architecture — 14 production features each contributing UI items, drawer panels, dashboard widgets, map components, and app overlays via a shared `AppFeature` contract and priority-sorted `FeatureRegistry`.
 - Redux Toolkit with 16 slices and a custom listener middleware for side-effect-driven persistence, state reactions, and cross-feature coordination.
 - Spatial SQLite database layer with drizzle-orm, op-sqlite, and libspatialite — LINESTRINGZ/POINTZ geometry columns (SRID 4326), R*Tree spatial indexes, React Query caching (`staleTime: Infinity`), drizzle-kit migrations, and dynamic database path configuration.
@@ -32,6 +35,7 @@ Complete rewrite with no backwards compatibility to previous versions.  The app 
 - `PRIVACY.md` — permission disclosures, GDPR rights, data storage description, and contact info.
 
 ### Changed
+
 - Architecture — restructured from flat component tree to self-contained feature modules, each with its own Redux slice, selectors, i18n, and extension-point registration.
 - State management — introduced Redux Toolkit with 16 slices and listener middleware for side-effect coordination.
 - Map rendering — migrated to `react-native-mapsforge-vtm` 0.8.0 with `useMapPosition()` Reanimated hook for 60fps coordinate reads at zero bridge cost, native GNSS filter on `MapContainer`, and DEM-based elevation enrichment.
@@ -46,10 +50,13 @@ Complete rewrite with no backwards compatibility to previous versions.  The app 
 - Logging — centralized error handling with toast notifications, no bare `console` calls anywhere.
 
 ## [0.2.1] - 2025-04-06
+
 ### Changed
+
 - Changed font: Use system font for normal text.
 
 ### Fixed
+
 - Fix app doesn't start up on very first start of the app.
 - Fix overlapping list items About page.
 - Fix Dashboard out of viewport on some devices.
@@ -57,9 +64,11 @@ Complete rewrite with no backwards compatibility to previous versions.  The app 
 - Fix *Edit mapsforge profile*: Cache renderStyles so they don't have to be parsed every time the Modal opens.
 
 ## [0.2.0] - 2025-04-05
+
 In love with mountains.
 
 ### Changed
+
 - Update `react-native-mapsforge-vtm` dependency, that uses `com.github.mapsforge.vtm` version `0.25.0` and all the new fancy hillshading features.
     - Hillshading is now much faster, stable and the generated tiles are more accurate.
     - Implemented all the new *Clear Asymmetry* shading algorithms that came with this update.
@@ -73,16 +82,20 @@ In love with mountains.
 - Add more info texts.
 
 ### Removed
+
 - Remove built in mapsforge themes `MOTORIDER_DARK` and `OSMAGRAY`. Because they are not existing anymore in latest version of `com.github.mapsforge.vtm`.
 
 ### Fixed
+
 - Fix some weird zoom changes when the app is storing the current map position.
 - Fix Unhandled SoftException com.facebook.react.bridge.ReactNoCrashSoftException
 - Fix possible NullPointerException on non existing externalCacheDir
 - Small UI fixes: Some buttons or options-drop-down where out viewport.
 
 ## [0.1.0] - 2025-03-26
+
 ### Added
+
 - Add Opacity setting for map layer `online-raster-xyz`.
 - Add *Mapsforge General Settings* to *Settings / Maps*. To control `lineScale`, `textScale` and `symbolScale` of all mapsforge layers. Changes require a restart of the app.
 - Added new mapsforge-profile settings, whether to show buildings and labels or not.
@@ -102,18 +115,22 @@ In love with mountains.
     - Rename *Google Maps* to *Google Road*
 
 ### Changed
+
 - Each cache has its own directory now. Makes it easier to control the size and clear each cache individually. The old cache directory and files are obsolete now.
 - Option to select the cache base-directory for each layer that supports caching. Options include the internal cache directory and the external directories.
 - Some info texts and added more external download links.
 
 ### Fixed
+
 - File picker controls should search recursive in nested directories.
 - Save map position and zoom level every half minute.
 
 ## [0.0.2] - 2025-03-19
+
 Basic app structure and map viewer functionality.
 
 ### Added
+
 - Logo and design with multiple themes.
 - Multilingual.
 - Map viewer with different layers that can be stacked on top of each other.
@@ -122,7 +139,7 @@ Basic app structure and map viewer functionality.
 - Topbar with breadcrumbs and a menu.
 - Structure for settings and some settings pages.
 
-[Unreleased]: https://github.com/jhotadhari/straymap/compare/v0.2.1...HEAD
+[0.3.0]: https://github.com/jhotadhari/straymap/compare/v0.2.1...v0.3.0
 [0.2.1]: https://github.com/jhotadhari/straymap/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/jhotadhari/straymap/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/jhotadhari/straymap/compare/v0.0.2...v0.1.0
