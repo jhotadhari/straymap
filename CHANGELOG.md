@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 ### Fixed
 - CI release workflow: bump Node.js from 22 to 24 for engine compatibility.
+- Release config: set `github.attachment` to `false` so CI handles artifact uploads.
 
 ## [0.3.0] - 2026-08-08
 Complete rewrite with no backwards compatibility to previous versions.  The app has been rebuilt around a spatial SQLite database and a Redux store with substantial performance improvements across the board, a new side-drawer panel system, and a new customizable dashboard.  New capabilities include BRouter offline routing, full line management with tags, and Lines and Tags data browsers.

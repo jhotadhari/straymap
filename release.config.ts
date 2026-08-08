@@ -2,7 +2,7 @@ export default {
 	repo: 'https://github.com/jhotadhari/straymap',
 	publish: {
 		npm: false,
-		github: { attachment: true },
+		github: { attachment: false },
 	},
 	bumpFiles: [
 		{ path: 'package.json', type: 'json', key: 'version' },
