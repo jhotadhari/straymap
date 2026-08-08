@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- Upgrade `react-native-mapsforge-vtm` from `0.8.0` to `0.8.1`. Fixes the
+  `strip-vtm-classes.gradle` script that resolves DEX duplicate-class errors
+  on CI (fresh Gradle cache) when the extension's shadowed `LineBucket`/
+  `RenderBuckets` classes collide with the vtm JAR's copies.
+- Upgrade `react-native-mapsforge-vtm-ext-path-color-ramp` from `0.1.0` to
+  `0.1.1`.
+
 ## [0.3.2] - 2026-08-08
 
 ### Fixed
