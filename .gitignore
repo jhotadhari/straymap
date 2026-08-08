@@ -25,6 +25,7 @@ DerivedData
 # Android/IntelliJ
 #
 build/
+!/src/assets/icons/build/
 .idea
 .gradle
 local.properties
