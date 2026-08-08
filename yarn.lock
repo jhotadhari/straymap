@@ -8681,17 +8681,17 @@ react-native-is-edge-to-edge@^1.3.1:
   resolved "https://registry.npmjs.org/react-native-is-edge-to-edge/-/react-native-is-edge-to-edge-1.3.1.tgz"
   integrity sha512-NIXU/iT5+ORyCc7p0z2nnlkouYKX425vuU1OEm6bMMtWWR9yvb+Xg5AZmImTKoF9abxCPqrKC3rOZsKzUYgYZA==
 
-react-native-mapsforge-vtm-ext-path-color-ramp@0.1.0:
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/react-native-mapsforge-vtm-ext-path-color-ramp/-/react-native-mapsforge-vtm-ext-path-color-ramp-0.1.0.tgz#423dcac9ee777e22f4cc48effcfd8cb8c381ed47"
-  integrity sha512-XueWQbmTR6aBGWN1UyCxEJqGOCOPlKRC32RC8qH8WfKH+liYYtM3Wqlwlg4FmzOGkkkprbinkrh35XoGNepONA==
+react-native-mapsforge-vtm-ext-path-color-ramp@0.1.1:
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/react-native-mapsforge-vtm-ext-path-color-ramp/-/react-native-mapsforge-vtm-ext-path-color-ramp-0.1.1.tgz#9d4b6af8d11041d634adfaef1dd0e7e456028197"
+  integrity sha512-2f5rePyG3eieR1FF3Bj9u24DzYYlONwcm9BXLiB//RbWXx4eAZvYOoM5XZhtC9/Ouxaf51JjzofhK/Exi8/0fw==
   dependencies:
     react-native-worklets "^0.10.1"
 
-react-native-mapsforge-vtm@0.8.0:
-  version "0.8.0"
-  resolved "https://registry.yarnpkg.com/react-native-mapsforge-vtm/-/react-native-mapsforge-vtm-0.8.0.tgz#0ecd73379a6c797cfd547b3c1bd97f6f71dbde51"
-  integrity sha512-TAyvJErrzGkx9OOMmo0avylLlAM+e4leQolx2svvyfYZDXXKmH8KRsOMxZUggpHjC53N27U6TvCfWzA/UNY+Hw==
+react-native-mapsforge-vtm@0.8.1:
+  version "0.8.1"
+  resolved "https://registry.yarnpkg.com/react-native-mapsforge-vtm/-/react-native-mapsforge-vtm-0.8.1.tgz#3892f748fc7b8e6327282fe08ab8d0a1c7d1cd0d"
+  integrity sha512-Fw9b7AN45W4tmzeyNCbZjkzPAkLx8za+dufhC8IG3TxPfrN30jy1U9mNR91+6lPr1To/WavuLIRdblauZ5IRjg==
   dependencies:
     lodash-es "^4.17.21"
 

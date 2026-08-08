@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.3.3] - 2026-08-08
+
+### Changed
+
+- Upgrade `react-native-mapsforge-vtm` from `0.8.0` to `0.8.1`. Fixes the
+  `strip-vtm-classes.gradle` script that resolves DEX duplicate-class errors
+  on CI (fresh Gradle cache) when the extension's shadowed `LineBucket`/
+  `RenderBuckets` classes collide with the vtm JAR's copies.
+- Upgrade `react-native-mapsforge-vtm-ext-path-color-ramp` from `0.1.0` to
+  `0.1.1`.
+
 ## [0.3.2] - 2026-08-08
 
 ### Fixed
@@ -152,6 +163,7 @@ Basic app structure and map viewer functionality.
 - Topbar with breadcrumbs and a menu.
 - Structure for settings and some settings pages.
 
+[0.3.3]: https://github.com/jhotadhari/straymap/compare/v0.3.2...v0.3.3
 [0.3.2]: https://github.com/jhotadhari/straymap/compare/v0.3.1...v0.3.2
 [0.3.1]: https://github.com/jhotadhari/straymap/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/jhotadhari/straymap/compare/v0.2.1...v0.3.0
