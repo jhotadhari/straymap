@@ -5,6 +5,8 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
 ## [0.3.3] - 2026-08-08
 
 ### Changed
@@ -163,6 +165,7 @@ Basic app structure and map viewer functionality.
 - Topbar with breadcrumbs and a menu.
 - Structure for settings and some settings pages.
 
+[Unreleased]: https://github.com/jhotadhari/straymap/compare/v0.3.3...HEAD
 [0.3.3]: https://github.com/jhotadhari/straymap/compare/v0.3.2...v0.3.3
 [0.3.2]: https://github.com/jhotadhari/straymap/compare/v0.3.1...v0.3.2
 [0.3.1]: https://github.com/jhotadhari/straymap/compare/v0.3.0...v0.3.1
