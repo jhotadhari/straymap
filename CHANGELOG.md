@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+- Regenerate `react-native-sortables` patch for v1.10.0 (was 1.9.4).
+
 ## [0.3.4] - 2026-08-09
 
 ### Changed
