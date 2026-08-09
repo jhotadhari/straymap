@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- Upgrade `react-native-mapsforge-vtm` from `0.8.1` to `0.8.3`. Layer-order hardening: fixes z-order drift where shared `VectorLayer` paths could render behind raster tile layers due to incorrect indexing in the LIS-based `reorderMinimalMoves` algorithm.
+
 ## [0.3.3] - 2026-08-08
 
 ### Changed

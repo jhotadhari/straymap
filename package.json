@@ -60,7 +60,7 @@
     "react-native-fs": "^2.20.0",
     "react-native-gesture-handler": "^3.0.2",
     "react-native-hardwarekey-event": "1.0.1",
-    "react-native-mapsforge-vtm": "0.8.1",
+    "react-native-mapsforge-vtm": "0.8.3",
     "react-native-mapsforge-vtm-ext-path-color-ramp": "0.1.1",
     "react-native-markdown-display": "^7.0.2",
     "react-native-paper": "^5.12.5",
