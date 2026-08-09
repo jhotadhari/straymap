@@ -1,0 +1,28 @@
+diff --git a/node_modules/react-native-sortables/dist/module/components/SortableFlex.js b/node_modules/react-native-sortables/dist/module/components/SortableFlex.js
+index 02ccb16..6bb093b 100644
+--- a/node_modules/react-native-sortables/dist/module/components/SortableFlex.js
++++ b/node_modules/react-native-sortables/dist/module/components/SortableFlex.js
+@@ -180,7 +180,7 @@ function SortableFlexComponent({
+   return /*#__PURE__*/_jsx(SortableContainer, {
+     ...rest,
+     containerStyle: [baseContainerStyle, animatedContainerStyle],
+-    onLayout: runOnUI(handleContainerMeasurement)
++    onLayout: event => runOnUI(handleContainerMeasurement)(event.nativeEvent.layout.width, event.nativeEvent.layout.height)
+   });
+ }
+ export default SortableFlex;
+diff --git a/node_modules/react-native-sortables/dist/module/components/SortableGrid.js b/node_modules/react-native-sortables/dist/module/components/SortableGrid.js
+index 113d784..6737d36 100644
+--- a/node_modules/react-native-sortables/dist/module/components/SortableGrid.js
++++ b/node_modules/react-native-sortables/dist/module/components/SortableGrid.js
+@@ -174,9 +174,7 @@ function SortableGridComponent({
+     ...rest,
+     containerStyle: [styles.gridContainer, animatedInnerStyle],
+     itemStyle: itemStyle,
+-    onLayout: runOnUI((w, h) => {
+-      handleContainerMeasurement(w - (isVertical && !IS_WEB ? columnGap.value : 0), h);
+-    })
++    onLayout: event => { const {width: w, height: h} = event.nativeEvent.layout; runOnUI(() => { handleContainerMeasurement(w - (isVertical && !IS_WEB ? columnGap.value : 0), h); })(); }
+   });
+ }
+ const styles = StyleSheet.create({
