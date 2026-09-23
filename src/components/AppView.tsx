@@ -60,6 +60,7 @@ import { getDrawerWidthResponsive } from '../features/drawers/utils';
 import { useAppDispatch } from '../store/hooks';
 import { featureRegistry } from '../features/FeatureRegistry';
 import LayerDebugDumpButton from './LayerDebugDumpButton';
+import SceneBusyBridge from './SceneBusyBridge';
 import MapCornerComponents from './MapCornerComponents';
 import { useGnssSetup } from '../features/trackRecording/hooks/useGnssSetup';
 import { altitudeService } from '../lib/AltitudeService';
@@ -405,6 +406,8 @@ const AppView = ({
 							<MapCornerComponents />
 
 							<LayerDebugDumpButton />
+
+							<SceneBusyBridge />
 						</MapContainer>
 					)}
 				</View>
