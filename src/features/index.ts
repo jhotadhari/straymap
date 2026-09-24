@@ -8,6 +8,7 @@ import dashboard from './dashboard';
 import dbLoader from './dbLoader';
 import dirs from './dirs';
 import drawers from './drawers';
+import bottomDrawer from './bottomDrawer';
 import general from './general';
 import importFeature from './import';
 import lang from './lang';
@@ -26,6 +27,7 @@ const features = {
 	dbLoader,
 	dirs,
 	drawers,
+	bottomDrawer,
 	general,
 	import: importFeature,
 	lang,

@@ -5,6 +5,7 @@ import {
 	AppFeature,
 	AppMode,
 	AppOverlayDescriptor,
+	BottomDrawerItem,
 	DashboardWidget,
 	DrawerPanel,
 	MapComponentDescriptor,
@@ -120,6 +121,22 @@ export class FeatureRegistry {
 			}
 		}
 		return panels;
+	}
+
+	/** Returns all bottom drawer items as a keyed record (itemKey → definition). */
+	getBottomDrawerItems(): Record<string, BottomDrawerItem> {
+		const items: Record<string, BottomDrawerItem> = {};
+		for (const [, feature] of Object.entries(this.features())) {
+			if (feature.bottomDrawerItems) {
+				for (const item of feature.bottomDrawerItems) {
+					const key = item.key ?? '';
+					if (key) {
+						items[key] = item;
+					}
+				}
+			}
+		}
+		return items;
 	}
 
 	/** Returns map components (rendered inside MapContainer), sorted by priority. */

@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { createContext, createRef, Dispatch, MutableRefObject, SetStateAction } from 'react';
-import { SharedValue } from 'react-native-reanimated';
+import { makeMutable, SharedValue } from 'react-native-reanimated';
 import { MapEventResponse } from 'react-native-mapsforge-vtm';
 
 /**
@@ -10,6 +10,7 @@ import { MapEventResponse } from 'react-native-mapsforge-vtm';
  */
 import { BottomBarHeight } from './types';
 import { DrawerControls } from './features/drawers/types';
+import { BottomDrawerControls } from './features/bottomDrawer/types';
 
 export type AppContextType = {
 	mapViewNativeNodeHandle?: number | null;
@@ -20,6 +21,13 @@ export type AppContextType = {
 	setTopAppBarHeight?: Dispatch<SetStateAction<number>>;
 	mapHeight?: number;
 	drawerControlsRef: MutableRefObject<DrawerControls | null>;
+	bottomDrawerControlsRef: MutableRefObject<BottomDrawerControls | null>;
+	/**
+	 * Shared value tracking the bottom drawer's current open height (0 = collapsed).
+	 * Written by the bottom drawer on the UI thread, read by overlays (center cursor,
+	 * side drawers) so they track the shrinking map without JS round-trips.
+	 */
+	bottomDrawerHeightSv: SharedValue<number>;
 	moveEnabled?: boolean;
 	setMoveEnabled?: Dispatch<SetStateAction<boolean>>;
 	mapCornerComponentsHeight?: number;
@@ -28,6 +36,8 @@ export type AppContextType = {
 
 export const AppContext = createContext<AppContextType>({
 	drawerControlsRef: createRef<DrawerControls>(),
+	bottomDrawerControlsRef: createRef<BottomDrawerControls>(),
+	bottomDrawerHeightSv: makeMutable(0),
 });
 
 export type MapContextType = {

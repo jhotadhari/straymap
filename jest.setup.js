@@ -369,6 +369,9 @@ jest.mock('./src/features/FeatureRegistry', () => {
 		lines: { key: 'lines' },
 		waypoints: { key: 'waypoints' },
 	};
+	const mockBottomDrawerItems = {
+		example: { key: 'example' },
+	};
 	return {
 		featureRegistry: {
 			getUiItems: jest.fn(() => []),
@@ -376,6 +379,7 @@ jest.mock('./src/features/FeatureRegistry', () => {
 			getSettingsControls: jest.fn(() => []),
 			getDashboardWidgets: jest.fn(() => ({})),
 			getDrawerPanels: jest.fn(() => mockDrawerItems),
+			getBottomDrawerItems: jest.fn(() => mockBottomDrawerItems),
 			getMapComponents: jest.fn(() => []),
 			getAppOverlays: jest.fn(() => []),
 			getAllModes: jest.fn(() => []),
