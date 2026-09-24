@@ -8623,13 +8623,17 @@ react-native-is-edge-to-edge@^1.3.1:
   resolved "https://registry.yarnpkg.com/react-native-is-edge-to-edge/-/react-native-is-edge-to-edge-1.3.1.tgz#feb9a6a8faf0874298947edd556e5af22044e139"
   integrity sha512-NIXU/iT5+ORyCc7p0z2nnlkouYKX425vuU1OEm6bMMtWWR9yvb+Xg5AZmImTKoF9abxCPqrKC3rOZsKzUYgYZA==
 
-"react-native-mapsforge-vtm-ext-path-color-ramp@file:.yalc/react-native-mapsforge-vtm-ext-path-color-ramp":
-  version "0.1.1"
+react-native-mapsforge-vtm-ext-path-color-ramp@^0.2.0:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/react-native-mapsforge-vtm-ext-path-color-ramp/-/react-native-mapsforge-vtm-ext-path-color-ramp-0.2.0.tgz#5ee8cb923b049bcadf1c11bfb8a5bdaa29bc41ea"
+  integrity sha512-qcBtvShN2ksFNntum0xdDs4Cu4ZllXcQjtD+CykS3yHCUK0G0SDnC49ezoAPXNQlJICFyZU0k7RYnOc2AfG25A==
   dependencies:
     react-native-worklets "^0.10.1"
 
-"react-native-mapsforge-vtm@file:.yalc/react-native-mapsforge-vtm":
-  version "0.8.3"
+react-native-mapsforge-vtm@^0.9.0:
+  version "0.9.0"
+  resolved "https://registry.yarnpkg.com/react-native-mapsforge-vtm/-/react-native-mapsforge-vtm-0.9.0.tgz#8e5b03475f09d396d61eccd96d8bdd07b87b61fd"
+  integrity sha512-gupIaxzcDUHd66yhie1AwrmS01yZOeQy6wpprQggsubXpNvVh3PPOXz9APeN3S0/te0V1m3NjfNB866NfK3P+w==
   dependencies:
     lodash-es "^4.17.21"
 
