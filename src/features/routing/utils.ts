@@ -3,6 +3,8 @@
  */
 import { getRoute } from 'react-native-brouter/geojson';
 import { enrichCoordinatesWithElevation } from 'react-native-mapsforge-vtm';
+import { lineString, simplify as turfSimplify } from '@turf/turf';
+import { Position } from 'geojson';
 
 /**
  * Internal dependencies
@@ -33,6 +35,66 @@ export const aggregateSegmentsToCoords = (segments: RoutingSegment[]) =>
 		}
 		return acc;
 	}, [] as number[][]);
+
+/**
+ * Simplify one segment's positions with turf, mirroring exactly what
+ * RoutingMapView renders. Straight-line segments are returned unsimplified
+ * so the full per-coordinate elevation is preserved.
+ */
+export const getSimplifiedSegmentCoords = (
+	positions: Position[] | undefined,
+	simplify: number | undefined,
+	provider?: string
+): number[][] | undefined => {
+	if (!positions || positions.length < 2 || simplify === undefined) {
+		return undefined;
+	}
+	// Straight-line segments are already at the user-requested interval —
+	// skip simplification so the full per-coordinate elevation is preserved.
+	if (provider === 'straightLine') {
+		return positions as number[][];
+	}
+	const line = lineString(positions);
+	const result = turfSimplify(line, { tolerance: simplify, highQuality: false });
+	return result.geometry.coordinates;
+};
+
+/**
+ * Concatenated simplified coordinates for the whole route, in point order.
+ * Segments that are still fetching, errored or too short are skipped —
+ * matching the ramp segments actually rendered on the map.
+ */
+export const getPathCoords = (
+	points: RoutingPoint[],
+	segments: Record<string, RoutingSegment>,
+	simplify: number
+): number[][] => {
+	const coords: number[][] = [];
+	points.forEach((fromPoint, index) => {
+		const toPoint = points[index + 1];
+		if (!toPoint) {
+			return;
+		}
+		const segment = segments[getSegmentRecordId({ fromId: fromPoint.id, toId: toPoint.id })];
+		if (
+			!segment ||
+			segment.isFetching ||
+			segment.errorMsg ||
+			(segment.positions?.length ?? 0) < 2
+		) {
+			return;
+		}
+		const simplified = getSimplifiedSegmentCoords(
+			segment.positions,
+			simplify,
+			fromPoint.profile?.provider
+		);
+		if (simplified) {
+			coords.push(...simplified);
+		}
+	});
+	return coords;
+};
 
 /**
  * Fetch coordinates from BRouter, with optional compression fallback.

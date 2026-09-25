@@ -23,13 +23,13 @@ import { get } from 'lodash-es';
 /**
  * Internal dependencies
  */
-import { featureRegistry } from '../../FeatureRegistry';
 import BottomDrawerContext from '../BottomDrawerContext';
 import BottomDrawerMenu from './BottomDrawerMenu';
+import { getBottomDrawerItem } from '../dynamicItems';
 import { useAppSelector } from '../../../store/hooks';
 import { selectItemKeys } from '../selectors';
-import { BottomDrawerItem } from '../types';
 import { MenuActionOption } from '../../../types';
+import { useProfileItemLabels } from '../../altitudeProfile/hooks/useProfileItemLabels';
 import {
 	BOTTOM_DRAWER_HANDLE_HEIGHT,
 	BOTTOM_DRAWER_HANDLE_WIDTH,
@@ -58,13 +58,9 @@ const BottomDrawerHandle: FC<{
 	// available content while nothing has been activated yet.
 	const itemKey = activeItemKey ?? itemKeys[0];
 
-	const drawerItem = useMemo(
-		() =>
-			get(featureRegistry.getBottomDrawerItems() as { [itemKey: string]: BottomDrawerItem }, [
-				itemKey ?? '',
-			]),
-		[itemKey]
-	);
+	const profileLabels = useProfileItemLabels();
+
+	const drawerItem = useMemo(() => getBottomDrawerItem(itemKey ?? ''), [itemKey]);
 
 	const { IconComponent, iconSource } = useMemo(() => {
 		return {
@@ -189,15 +185,10 @@ const BottomDrawerHandle: FC<{
 	const menuOptions = useMemo(
 		() =>
 			itemKeys.map((key): MenuActionOption => {
-				const item = get(
-					featureRegistry.getBottomDrawerItems() as {
-						[itemKey: string]: BottomDrawerItem;
-					},
-					[key]
-				) as BottomDrawerItem | undefined;
+				const item = getBottomDrawerItem(key);
 				return {
 					key,
-					label: item?.label ?? key,
+					label: item?.label ?? profileLabels[key] ?? key,
 					leadingIcon: item?.iconSource,
 					IconComponent: item?.IconComponent,
 					cb: () => {
@@ -210,6 +201,7 @@ const BottomDrawerHandle: FC<{
 			}),
 		[
 			itemKeys,
+			profileLabels,
 			setActiveItemKey,
 			getIsFullyCollapsed,
 			expand,

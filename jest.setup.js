@@ -369,9 +369,7 @@ jest.mock('./src/features/FeatureRegistry', () => {
 		lines: { key: 'lines' },
 		waypoints: { key: 'waypoints' },
 	};
-	const mockBottomDrawerItems = {
-		example: { key: 'example' },
-	};
+	const mockBottomDrawerItems = {};
 	return {
 		featureRegistry: {
 			getUiItems: jest.fn(() => []),

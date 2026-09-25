@@ -152,5 +152,7 @@
 	"rowImportSourceTrackHint": "Die Datei, aus der diese Route importiert wurde, zusammen mit ihrer Position innerhalb der Datei.",
 	"useSimplification": "Routengeometrien bei Zoomänderung vereinfachen",
 	"useSimplificationDisabled": "Deaktiviert",
-	"useSimplificationEnabled": "Aktiviert (empfohlen)"
+	"useSimplificationEnabled": "Aktiviert (empfohlen)",
+	"altitudeProfile": "Höhenprofil",
+	"hintAltitudeProfile": "Fügt dieser Route ein Höhenprofil im unteren Panel hinzu. Benötigt Höhendaten — verwende zuerst „DEM-Höhendaten anwenden“, falls keine vorhanden sind."
 }

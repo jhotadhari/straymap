@@ -23,7 +23,11 @@ const allLinesColumnKeys = [
 	...Object.keys(statsCells),
 	...Object.keys(otherCells),
 ];
-const hiddenByDefaultColumnKeys = new Set(['id', 'created_at', 'modified_at']);
+const hiddenByDefaultColumnKeys = new Set([
+	'id',
+	'created_at',
+	'modified_at',
+]);
 
 export const selectLinesTableColumns = createAppSelector(
 	(state: RootState) => state.lines.linesTable.tableColumns,
@@ -82,6 +86,8 @@ export const selectTagsFilterLogic = (state: RootState) => state.lines.tagsTable
 export const selectTagsFilterableColumns = (state: RootState) => selectTagsTableColumns(state);
 
 export const selectLineColors = (state: RootState) => state.lines.lineColors;
+
+export const selectProfileLines = (state: RootState) => state.lines.profileLines;
 
 export const selectLineColor = (lineId: number) => (state: RootState) =>
 	state.lines.lineColors[lineId];

@@ -18,7 +18,7 @@ export interface BottomDrawerSettings {
 export interface BottomDrawersState extends SliceSettingsBase, BottomDrawerSettings {}
 
 export const initialSettings: BottomDrawerSettings = {
-	itemKeys: ['example'],
+	itemKeys: [],
 	activeKey: undefined,
 };
 
@@ -49,9 +49,11 @@ export const bottomDrawerSlice = createSlice({
 			}
 		},
 		setActiveKey: (state, action: PayloadAction<string | undefined>) => {
-			if (!action.payload || state.itemKeys.includes(action.payload)) {
-				state.activeKey = action.payload;
-			}
+			// No itemKeys guard here: the active key may be a derived key
+			// (e.g. `altitudeProfile:routing`) that isn't part of the raw
+			// itemKeys list. Stale keys are filtered/handled by the UI layer
+			// (selectItemKeys + effectiveActiveItemKey fallback).
+			state.activeKey = action.payload;
 		},
 	},
 });

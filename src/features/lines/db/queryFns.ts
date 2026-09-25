@@ -3,6 +3,7 @@
  */
 import { QueryClient, WithRequired } from '@tanstack/react-query';
 import type { Query } from '@tanstack/react-query';
+import { lineString, simplify as turfSimplify } from '@turf/turf';
 
 /**
  * Internal dependencies
@@ -268,6 +269,52 @@ export const queryTagsWithLineCounts = ({
 
 	const opts = queryKey.length > 1 ? queryKey[1] : undefined;
 	return fetchTagsWithLineCounts(opts);
+};
+
+/**
+ * Fetch the simplified path coordinates for one line, used by the
+ * altitude profile display and (later) the per-line color ramp.
+ *
+ * Fetches the UNSIMPLIFIED geometry and simplifies in JS with turf
+ * (same tolerance as the routing ramp, 0.00004) so elevations (Z) are
+ * preserved — SpatiaLite's Simplify() may drop Z.
+ *
+ * Used with:
+ *  queryKey: ['linePathCoords', lineId],
+ */
+export const queryLinePathCoords = ({
+	queryKey,
+}: {
+	queryKey: (string | number | undefined)[];
+}) => {
+	return new Promise<number[][] | null>((resolve, reject) => {
+		const lineId = queryKey[1];
+		if ('number' !== typeof lineId) {
+			resolve(null);
+			return;
+		}
+		fetchLines({
+			lineIds: [lineId],
+			fieldsInclude: ['geometry'],
+		})
+			.then((lines) => {
+				const line = lines[0] as WithRequired<LinePartial, 'geometry'> | undefined;
+				if (!line?.geometry?.coordinates) {
+					resolve(null);
+					return;
+				}
+				// Same tolerance as the routing ramp — keeps profile and
+				// rendered geometry consistent across sources.
+				const simplified = turfSimplify(lineString(line.geometry.coordinates), {
+					tolerance: 0.00004,
+					highQuality: false,
+				});
+				resolve(simplified.geometry.coordinates);
+			})
+			.catch((error) => {
+				reject(error);
+			});
+	});
 };
 
 /**

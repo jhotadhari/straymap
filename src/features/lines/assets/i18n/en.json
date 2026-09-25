@@ -152,5 +152,7 @@
 	"rowImportSourceTrackHint": "The file this route was imported from, along with its track position within the file.",
 	"useSimplification": "Simplify route geometries on zoomlevel change",
 	"useSimplificationDisabled": "Disabled",
-	"useSimplificationEnabled": "Enabled (recommended)"
+	"useSimplificationEnabled": "Enabled (recommended)",
+	"altitudeProfile": "Altitude profile",
+	"hintAltitudeProfile": "Add an altitude profile for this line to the bottom drawer. Requires elevation data — use 'Apply DEM elevation' first if the line has none."
 }

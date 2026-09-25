@@ -22,6 +22,8 @@ import {
 	setSegment,
 } from './slice';
 import { addBusyKey, removeBusyKey } from '../ui/slice';
+import { setActiveKey } from '../bottomDrawer/slice';
+import { getAltitudeProfileSourceKey } from '../altitudeProfile/types';
 import { startAppListening } from '../../store/listenerMiddleware';
 import { selectInitialized } from './selectors';
 import { AppStore } from '../../store/store';
@@ -118,6 +120,17 @@ startAppListening({
 					updateLine: false,
 				})
 			);
+		}
+	},
+});
+
+// Auto-select the routing altitude profile as the bottom drawer content
+// when routing becomes active (the drawer itself stays closed).
+startAppListening({
+	actionCreator: setIsRoutingAction,
+	effect: (action, listenerApi) => {
+		if (action.payload) {
+			listenerApi.dispatch(setActiveKey(getAltitudeProfileSourceKey.routing()));
 		}
 	},
 });

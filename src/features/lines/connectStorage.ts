@@ -29,6 +29,9 @@ import {
 	upsertTagsFilter,
 	removeTagsFilter,
 	setLineColors,
+	setProfileLines,
+	toggleProfileLine,
+	removeProfileLines,
 } from './slice';
 import { startAppListening } from '../../store/listenerMiddleware';
 import { selectInitialized } from './selectors';
@@ -85,15 +88,18 @@ export const initializeFromStorage = async (store: AppStore): Promise<boolean> =
 			if (newSettings?.tagsTable?.filterLogic) {
 				store.dispatch(setTagsFilterLogic(newSettings.tagsTable.filterLogic));
 			}
-		if (newSettings?.tagBadgeMode) {
-			store.dispatch(setTagBadgeMode(newSettings.tagBadgeMode));
-		}
-		if (newSettings?.useSimplification !== undefined) {
-			store.dispatch(setUseSimplification(newSettings.useSimplification));
-		}
-		if (newSettings?.lineColors) {
-			store.dispatch(setLineColors(newSettings.lineColors));
-		}
+			if (newSettings?.tagBadgeMode) {
+				store.dispatch(setTagBadgeMode(newSettings.tagBadgeMode));
+			}
+			if (newSettings?.useSimplification !== undefined) {
+				store.dispatch(setUseSimplification(newSettings.useSimplification));
+			}
+			if (newSettings?.lineColors) {
+				store.dispatch(setLineColors(newSettings.lineColors));
+			}
+			if (newSettings?.profileLines) {
+				store.dispatch(setProfileLines(newSettings.profileLines));
+			}
 		}
 		store.dispatch(setInitialized(true));
 	} catch (err) {
@@ -150,7 +156,10 @@ startAppListening({
 		setTagsFilterLogic,
 		upsertTagsFilter,
 		removeTagsFilter,
-		setLineColors
+		setLineColors,
+		setProfileLines,
+		toggleProfileLine,
+		removeProfileLines
 	),
 	effect: async (action, listenerApi) => {
 		try {

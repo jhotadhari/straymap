@@ -57,6 +57,7 @@ describe('routing slice reducers', () => {
 		const prev: RoutingState = {
 			...initialSettings,
 			initialized: true,
+			pathCoords: [],
 			brouterAvailable: null,
 			segments: { '1_2': makeSegment({ fromId: 1, toId: 2 }) },
 			routingLineId: 5,
@@ -72,6 +73,7 @@ describe('routing slice reducers', () => {
 		const prev: RoutingState = {
 			...initialSettings,
 			initialized: true,
+			pathCoords: [],
 			brouterAvailable: null,
 			segments: { '1_2': makeSegment() },
 			routingLineId: 5,
@@ -115,6 +117,7 @@ describe('routing slice reducers', () => {
 		const prev: RoutingState = {
 			...initialSettings,
 			initialized: true,
+			pathCoords: [],
 			brouterAvailable: null,
 			segments: {
 				'1_2': makeSegment({ fromId: 1, toId: 2 }),
@@ -133,6 +136,7 @@ describe('routing slice reducers', () => {
 		const prev: RoutingState = {
 			...initialSettings,
 			initialized: true,
+			pathCoords: [],
 			brouterAvailable: null,
 			segments: { '1_2': seg },
 			routingLineId: null,
@@ -146,6 +150,7 @@ describe('routing slice reducers', () => {
 		const prev: RoutingState = {
 			...initialSettings,
 			initialized: true,
+			pathCoords: [],
 			brouterAvailable: null,
 			segments: { '1_2': makeSegment() },
 			routingLineId: null,

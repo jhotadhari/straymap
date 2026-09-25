@@ -17,6 +17,7 @@ import { AppThunk } from '../../store/store';
 import {
 	aggregateSegmentsToCoords,
 	getCoordsFromRouting,
+	getPathCoords,
 	getSegmentRecordId,
 	resolveProfileForPoint,
 } from './utils';
@@ -33,7 +34,7 @@ import { queryRoute } from './db/queryFns';
 import { selectIsRouting } from './selectors';
 import { dbConnection } from '../dbLoader/DBConnection';
 import { pointsCoordsAreOverlapping } from '../../lib/utils';
-import { DEFAULT_LAST_PROFILES } from './constants';
+import { DEFAULT_LAST_PROFILES, ROUTING_SIMPLIFY_TOLERANCE } from './constants';
 
 export interface RoutingSettings {
 	isRouting: false | number; // false or routeId.
@@ -47,6 +48,12 @@ export interface RoutingState extends SliceSettingsBase, RoutingSettings {
 		string, // fromId_toId
 		RoutingSegment
 	>;
+	/**
+	 * Concatenated simplified coordinates of the active route (render
+	 * consistent with RoutingMapView's ramp), computed in processRouting.
+	 * Feeds the altitude profile bottom drawer content.
+	 */
+	pathCoords: number[][];
 }
 
 export const initialSettings: RoutingSettings = {
@@ -59,6 +66,7 @@ const initialState: RoutingState = {
 	initialized: false,
 	brouterAvailable: null,
 	segments: {},
+	pathCoords: [],
 	...initialSettings,
 };
 
@@ -76,11 +84,15 @@ export const routingSlice = createSlice({
 		},
 		setIsRouting: (state, action: PayloadAction<RoutingState['isRouting']>) => {
 			state.segments = {};
+			state.pathCoords = [];
 			state.isRouting = action.payload;
 			state.routingLineId = null;
 		},
 		setRoutingLineId: (state, action: PayloadAction<RoutingState['routingLineId']>) => {
 			state.routingLineId = action.payload;
+		},
+		setPathCoords: (state, action: PayloadAction<RoutingState['pathCoords']>) => {
+			state.pathCoords = action.payload;
 		},
 		setLastProfiles: (state, action: PayloadAction<RoutingState['lastProfiles']>) => {
 			state.lastProfiles = action.payload;
@@ -111,6 +123,7 @@ export const {
 	setBrouterAvailable,
 	setIsRouting: setIsRoutingAction,
 	setRoutingLineId,
+	setPathCoords,
 	setLastProfiles,
 	setLastProfile,
 	setSegment,
@@ -382,6 +395,11 @@ export const processRouting = (
 					});
 			}
 		);
+
+		// Publish the render-consistent simplified coordinates for the
+		// altitude profile (matches RoutingMapView's ramp geometry).
+		const pathCoords = getPathCoords(points, updatedSegments, ROUTING_SIMPLIFY_TOLERANCE);
+		dispatch(routingSlice.actions.setPathCoords(pathCoords));
 
 		if (routeId) {
 			if (false !== options?.updateLine) {

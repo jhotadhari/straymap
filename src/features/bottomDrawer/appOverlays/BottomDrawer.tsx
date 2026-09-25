@@ -68,6 +68,24 @@ const BottomDrawer: FC = () => {
 		setActiveItemKey,
 	]);
 
+	// Derived item keys can disappear (routing stopped, profile untoggled):
+	// clear a stale active key so the handle/content fall back to the first
+	// available item.
+	useEffect(() => {
+		if (activeItemKey && !itemKeys.includes(activeItemKey)) {
+			setActiveItemKey(undefined);
+		}
+	}, [
+		activeItemKey,
+		itemKeys,
+		setActiveItemKey,
+	]);
+
+	const effectiveActiveItemKey = useMemo(
+		() => (activeItemKey && itemKeys.includes(activeItemKey) ? activeItemKey : undefined),
+		[activeItemKey, itemKeys]
+	);
+
 	// On no items, collapse the drawer and clear the active item.
 	useEffect(() => {
 		if (!itemKeys.length) {
@@ -106,7 +124,7 @@ const BottomDrawer: FC = () => {
 
 	const contextValue = useMemo(
 		() => ({
-			activeItemKey,
+			activeItemKey: effectiveActiveItemKey,
 			width,
 			height: BOTTOM_DRAWER_CONTENT_HEIGHT,
 			getIsFullyCollapsed,
@@ -114,7 +132,7 @@ const BottomDrawer: FC = () => {
 			expand,
 		}),
 		[
-			activeItemKey,
+			effectiveActiveItemKey,
 			width,
 			getIsFullyCollapsed,
 			setActiveItemKey,
@@ -134,7 +152,7 @@ const BottomDrawer: FC = () => {
 	return (
 		<BottomDrawerContext.Provider value={contextValue}>
 			<Animated.View style={styleContainer}>
-				{showContent && activeItemKey && <BottomDrawerContent />}
+				{showContent && effectiveActiveItemKey && <BottomDrawerContent />}
 				{/* Rendered after the content so the straddling grab line stays on top */}
 				<BottomDrawerHandle
 					gesture={gesture}

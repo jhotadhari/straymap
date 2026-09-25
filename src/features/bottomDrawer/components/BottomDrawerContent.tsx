@@ -3,30 +3,23 @@
  */
 import React, { FC, useContext, useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { get } from 'lodash-es';
 import { useTheme } from 'react-native-paper';
 
 /**
  * Internal dependencies
  */
-import { featureRegistry } from '../../FeatureRegistry';
 import BottomDrawerContext from '../BottomDrawerContext';
-import { BottomDrawerItem } from '../types';
+import { getBottomDrawerItem } from '../dynamicItems';
 
 const BottomDrawerContent: FC<{}> = () => {
 	const { activeItemKey } = useContext(BottomDrawerContext);
 
 	const theme = useTheme();
 
-	const DisplayComponent = useMemo(() => {
-		if (!activeItemKey) {
-			return undefined;
-		}
-		return get(
-			featureRegistry.getBottomDrawerItems() as { [itemKey: string]: BottomDrawerItem },
-			[activeItemKey, 'DisplayComponent']
-		);
-	}, [activeItemKey]);
+	const DisplayComponent = useMemo(
+		() => (activeItemKey ? getBottomDrawerItem(activeItemKey)?.DisplayComponent : undefined),
+		[activeItemKey]
+	);
 
 	if (!DisplayComponent) {
 		return null;
