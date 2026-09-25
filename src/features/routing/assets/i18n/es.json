@@ -4,8 +4,7 @@
 	"fast": "Rápido",
 	"editProfile": "Editar perfil",
 	"editRouteProfile": "Editar perfil de ruta",
-	"hintProfile": "Selecciona el perfil de enrutamiento para este punto de referencia. El perfil determina qué caminos y carreteras prefiere el motor de enrutamiento: elige entre auto, bicicleta o a pie.",
-	"hintFast": "Cuando está activado, el motor de enrutamiento prefiere rutas más rápidas en lugar de más cortas. Desactívalo para encontrar la ruta más directa.",
+	"hintFast": "Cuando está activado, el motor de enrutamiento prefiere rutas más rápidas en lugar de más cortas. Desactívalo para encontrar la ruta más directa.\n\nSolo se aplica a los perfiles integrados. Se ignora cuando se selecciona un archivo de perfil personalizado.",
 	"inheritModeRoute": "Ruta",
 	"inheritModePrev": "Anterior",
 	"inheritModeOwn": "Propio",
@@ -34,5 +33,12 @@
 	"applyPrevPointProfile": "Perfil anterior",
 	"hintApplyPrevPointProfile": "Copia el perfil de enrutamiento (motor y ajustes) del punto anterior a este. Útil cuando segmentos consecutivos deben usar el mismo perfil.",
 	"applyPrevPointProfileBtn": "Aplicar",
-	"routeProfileUsage": "{{routeCount}} puntos usan este perfil, {{prevCount}} heredan del punto anterior, {{ownCount}} tienen perfiles propios"
+	"routeProfileUsage": "{{routeCount}} puntos usan este perfil, {{prevCount}} heredan del punto anterior, {{ownCount}} tienen perfiles propios",
+	"selectProfile": "Seleccionar perfil",
+	"builtInProfiles": "Perfiles integrados",
+	"hintProfileFile": "Selecciona un perfil integrado (automóvil, bicicleta, a pie) o un archivo de perfil BRouter personalizado (.brf). El perfil determina qué caminos y carreteras prefiere el motor de rutas.\n\nLos perfiles personalizados permiten rutas especializadas, p. ej. para mountain bike, gravel o senderismo. Deben descargarse manualmente y moverse a uno de los directorios de la aplicación Straymap. Si se selecciona un archivo de perfil, su contenido se envía a BRouter y se ignora el ajuste rápido.",
+	"profileFileMissing": "Archivo de perfil ausente o ilegible. Vuelve a colocar el archivo en uno de los directorios brouterProfiles de la aplicación o selecciona otro perfil.",
+	"linkBrouterProfiles": "Perfiles oficiales de BRouter",
+	"linkBrouterWeb": "Explorar perfiles en BRouter web",
+	"linkBrouterCommunityProfiles": "Perfiles de la comunidad (bici y senderismo)"
 }

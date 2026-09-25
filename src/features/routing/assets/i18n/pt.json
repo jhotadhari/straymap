@@ -4,8 +4,7 @@
 	"fast": "Rápido",
 	"editProfile": "Editar perfil",
 	"editRouteProfile": "Editar perfil da rota",
-	"hintProfile": "Selecione o perfil de roteamento para este ponto de referência. O perfil determina quais caminhos e estradas o motor de roteamento prefere — escolha entre carro, bicicleta ou a pé.",
-	"hintFast": "Quando ativado, o motor de roteamento prefere rotas mais rápidas em vez de mais curtas. Desative para encontrar o caminho mais direto.",
+	"hintFast": "Quando ativado, o motor de roteamento prefere rotas mais rápidas em vez de mais curtas. Desative para encontrar o caminho mais direto.\n\nAplica-se apenas aos perfis integrados. É ignorado quando um arquivo de perfil personalizado é selecionado.",
 	"inheritModeRoute": "Rota",
 	"inheritModePrev": "Anterior",
 	"inheritModeOwn": "Próprio",
@@ -34,5 +33,12 @@
 	"applyPrevPointProfile": "Perfil anterior",
 	"hintApplyPrevPointProfile": "Copia o perfil de roteamento (motor e configurações) do ponto anterior para este. Útil quando segmentos consecutivos devem usar o mesmo perfil.",
 	"applyPrevPointProfileBtn": "Aplicar",
-	"routeProfileUsage": "{{routeCount}} pontos usam este perfil, {{prevCount}} herdam do ponto anterior, {{ownCount}} têm perfis próprios"
+	"routeProfileUsage": "{{routeCount}} pontos usam este perfil, {{prevCount}} herdam do ponto anterior, {{ownCount}} têm perfis próprios",
+	"selectProfile": "Selecionar perfil",
+	"builtInProfiles": "Perfis integrados",
+	"hintProfileFile": "Selecione um perfil integrado (carro, bicicleta, a pé) ou um arquivo de perfil BRouter personalizado (.brf). O perfil determina quais caminhos e estradas o motor de rotas prefere.\n\nPerfis personalizados permitem rotas especializadas, ex. para mountain bike, gravel ou caminhada. Eles devem ser baixados manualmente e movidos para um dos diretórios do aplicativo Straymap. Quando um arquivo de perfil é selecionado, seu conteúdo é enviado ao BRouter e a configuração rápido é ignorada.",
+	"profileFileMissing": "Arquivo de perfil ausente ou ilegível. Coloque o arquivo novamente em um dos diretórios brouterProfiles do aplicativo ou selecione outro perfil.",
+	"linkBrouterProfiles": "Perfis oficiais do BRouter",
+	"linkBrouterWeb": "Explorar perfis no BRouter web",
+	"linkBrouterCommunityProfiles": "Perfis da comunidade (bicicleta e caminhada)"
 }

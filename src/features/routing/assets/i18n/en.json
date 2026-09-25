@@ -4,8 +4,7 @@
 	"fast": "Fast",
 	"editProfile": "Edit profile",
 	"editRouteProfile": "Edit route profile",
-	"hintProfile": "Select the routing profile for this waypoint. The profile determines which paths and roads the routing engine prefers — choose between car, bicycle, or foot.",
-	"hintFast": "When enabled, the routing engine prefers faster routes over shorter ones. Disable to find the most direct path instead.",
+	"hintFast": "When enabled, the routing engine prefers faster routes over shorter ones. Disable to find the most direct path instead.\n\nOnly applies to the built-in profiles. Ignored when a custom profile file is selected.",
 	"inheritModeRoute": "Route",
 	"inheritModePrev": "Previous",
 	"inheritModeOwn": "Own",
@@ -34,5 +33,12 @@
 	"applyPrevPointProfile": "Previous profile",
 	"hintApplyPrevPointProfile": "Copy the routing profile (engine and settings) from the previous waypoint to this one. Useful when consecutive segments should use the same profile.",
 	"applyPrevPointProfileBtn": "Apply",
-	"routeProfileUsage": "{{routeCount}} points use this profile, {{prevCount}} inherit from previous point, {{ownCount}} have custom profiles"
+	"routeProfileUsage": "{{routeCount}} points use this profile, {{prevCount}} inherit from previous point, {{ownCount}} have custom profiles",
+	"selectProfile": "Select profile",
+	"builtInProfiles": "Built-in profiles",
+	"hintProfileFile": "Select a built-in profile (car, bicycle, foot) or a custom BRouter profile file (.brf). The profile determines which roads and paths the routing engine prefers.\n\nCustom profiles enable specialized routing, e.g. for mountain biking, gravel riding or hiking. They must be downloaded manually and moved to one of the Straymap app directories. When a profile file is selected, its content is sent to BRouter and the fast setting is ignored.",
+	"profileFileMissing": "Profile file missing or unreadable. Add the file to one of the app's brouterProfiles directories again, or select another profile.",
+	"linkBrouterProfiles": "Official BRouter profiles",
+	"linkBrouterWeb": "Explore profiles in BRouter web",
+	"linkBrouterCommunityProfiles": "Community profiles (bike & hike)"
 }

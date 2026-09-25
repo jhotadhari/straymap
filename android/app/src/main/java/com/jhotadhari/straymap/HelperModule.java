@@ -104,6 +104,7 @@ public class HelperModule extends NativeHelperModuleSpec {
 			"marker",
 			"cursor",
 			"import",
+			"brouterProfiles",
 		};
 		for ( int si = 0; si < subDirs.length; si++ ) {
 			WritableArray dirs = createArray();

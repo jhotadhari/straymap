@@ -15,7 +15,7 @@ import {
 	useRef,
 	useState,
 } from 'react';
-import { StyleSheet, View, ViewStyle } from 'react-native';
+import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 import { Text, TextInput, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { get } from 'lodash-es';
@@ -338,6 +338,7 @@ const FileSourceRowControl: FC<{
 	initialOptionsByPath?: OptionsByPathType;
 	AlternativeButton?: AlternativeButtonType;
 	anchorButtonIcon?: IconSource;
+	anchorButtonStyle?: StyleProp<ViewStyle>;
 	warningIfUnset?: boolean;
 	styleContent?: ViewStyle;
 	newOptionLabel?: string;
@@ -360,6 +361,7 @@ const FileSourceRowControl: FC<{
 	initialOptionsByPath = {},
 	AlternativeButton = null,
 	anchorButtonIcon: anchorButtonIcon_,
+	anchorButtonStyle,
 	warningIfUnset,
 	styleContent,
 	newOptionLabel,
@@ -553,6 +555,8 @@ const FileSourceRowControl: FC<{
 
 	const buttonProps = useButtonProps({});
 
+	const { style: buttonPropsStyle, ...restButtonProps } = buttonProps;
+
 	return (
 		<InfoLabelRow
 			label={label}
@@ -585,7 +589,8 @@ const FileSourceRowControl: FC<{
 			<View style={[styles.actionsRow, styleContent]}>
 				{!AlternativeButton && !dirsInfoLoading && (
 					<ButtonHighlight
-						{...buttonProps}
+						{...restButtonProps}
+						style={[buttonPropsStyle, anchorButtonStyle]}
 						icon={anchorButtonIcon}
 						onPress={handleOpenModal}
 					>
