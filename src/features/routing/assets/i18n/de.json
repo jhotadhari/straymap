@@ -4,8 +4,7 @@
 	"fast": "Schnell",
 	"editProfile": "Profil bearbeiten",
 	"editRouteProfile": "Routenprofil bearbeiten",
-	"hintProfile": "Wähle das Routing-Profil für diesen Wegpunkt. Das Profil bestimmt, welche Wege und Straßen die Routing-Engine bevorzugt — wähle zwischen Auto, Fahrrad oder zu Fuß.",
-	"hintFast": "Wenn aktiviert, bevorzugt die Routing-Engine schnellere Routen gegenüber kürzeren. Deaktiviere dies, um stattdessen den direktesten Weg zu finden.",
+	"hintFast": "Wenn aktiviert, bevorzugt die Routing-Engine schnellere Routen gegenüber kürzeren. Deaktiviere dies, um stattdessen den direktesten Weg zu finden.\n\nGilt nur für die eingebauten Profile. Wird ignoriert, wenn eine eigene Profildatei ausgewählt ist.",
 	"inheritModeRoute": "Route",
 	"inheritModePrev": "Vorheriger",
 	"inheritModeOwn": "Eigenes",
@@ -34,5 +33,12 @@
 	"applyPrevPointProfile": "Vorheriges Profil",
 	"hintApplyPrevPointProfile": "Übernehme das Routing-Profil (Engine und Einstellungen) vom vorherigen Wegpunkt. Nützlich, wenn aufeinanderfolgende Segmente dasselbe Profil verwenden sollen.",
 	"applyPrevPointProfileBtn": "Übernehmen",
-	"routeProfileUsage": "{{routeCount}} Punkte verwenden dieses Profil, {{prevCount}} erben vom vorherigen Punkt, {{ownCount}} haben eigene Profile"
+	"routeProfileUsage": "{{routeCount}} Punkte verwenden dieses Profil, {{prevCount}} erben vom vorherigen Punkt, {{ownCount}} haben eigene Profile",
+	"selectProfile": "Profil auswählen",
+	"builtInProfiles": "Eingebaute Profile",
+	"hintProfileFile": "Wähle ein eingebautes Profil (Auto, Fahrrad, zu Fuß) oder eine eigene BRouter-Profildatei (.brf). Das Profil bestimmt, welche Wege und Straßen die Routing-Engine bevorzugt.\n\nEigene Profile ermöglichen spezialisiertes Routing, z. B. für Mountainbike, Gravel oder Wandern. Sie müssen manuell heruntergeladen und in eines der Straymap-App-Verzeichnisse verschoben werden. Ist eine Profildatei ausgewählt, wird ihr Inhalt an BRouter gesendet und die Schnell-Einstellung ignoriert.",
+	"profileFileMissing": "Profildatei fehlt oder ist nicht lesbar. Lege die Datei wieder in eines der brouterProfiles-Verzeichnisse der App oder wähle ein anderes Profil.",
+	"linkBrouterProfiles": "Offizielle BRouter-Profile",
+	"linkBrouterWeb": "Profile im BRouter-Web erkunden",
+	"linkBrouterCommunityProfiles": "Community-Profile (Fahrrad & Wandern)"
 }

@@ -91,6 +91,13 @@ jest.mock('react-native-mapsforge-vtm', () => ({
 		shadingAlgorithms: { HILLSHADE: 0, SLOPESHADE: 1 },
 		shadingAlgorithmsOptionKeys: { 0: [], 1: [] },
 	},
+	createMapHandleRegistry: jest.fn(() => ({
+		createHandle: jest.fn(),
+		getHandle: jest.fn(() => null),
+		requireHandle: jest.fn(() => ({})),
+		unregister: jest.fn(),
+	})),
+	enrichCoordinatesWithElevation: jest.fn().mockResolvedValue(undefined),
 }));
 
 // ---------------------------------------------------------------------------

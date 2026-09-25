@@ -13,6 +13,20 @@ import { RoutingPointInheritMode, RoutingProfile } from '../types';
 import { formatDistance } from '../../../lib/formatting';
 import { UnitPref } from '../../../features/general/types';
 
+const getProfileFileName = (profilePath: string) => {
+	if (profilePath.startsWith('content://')) {
+		const parts = profilePath.split('%2F');
+		const encodedName = parts.length > 0 ? parts[parts.length - 1] : '';
+		try {
+			return decodeURIComponent(encodedName);
+		} catch {
+			return encodedName;
+		}
+	}
+	const parts = profilePath.split('/');
+	return parts.length > 0 ? parts[parts.length - 1] : '';
+};
+
 const RoutingProfileInfo: FC<{
 	profile: RoutingProfile;
 	inheritMode?: RoutingPointInheritMode;
@@ -32,16 +46,19 @@ const RoutingProfileInfo: FC<{
 					)}
 				</Text>
 			)}
-			{profile.provider === 'brouter' && (
-				<>
-					<Text>
-						{t(
-							`routing.vehicle${profile.options.v.charAt(0).toUpperCase() + profile.options.v.slice(1)}`
-						)}
-					</Text>
-					<Text>{profile.options.fast ? t('routing.fast') : t('routing.slow')}</Text>
-				</>
-			)}
+			{profile.provider === 'brouter' &&
+				(profile.options.profilePath ? (
+					<Text>{getProfileFileName(profile.options.profilePath)}</Text>
+				) : (
+					<>
+						<Text>
+							{t(
+								`routing.vehicle${profile.options.v.charAt(0).toUpperCase() + profile.options.v.slice(1)}`
+							)}
+						</Text>
+						<Text>{profile.options.fast ? t('routing.fast') : t('routing.slow')}</Text>
+					</>
+				))}
 			{profile.provider === 'straightLine' && (
 				<Text>
 					{t('routing.providerStraightLine')}

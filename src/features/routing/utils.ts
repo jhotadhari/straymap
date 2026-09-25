@@ -5,6 +5,7 @@ import { getRoute } from 'react-native-brouter/geojson';
 import { enrichCoordinatesWithElevation } from 'react-native-mapsforge-vtm';
 import { lineString, simplify as turfSimplify } from '@turf/turf';
 import { Position } from 'geojson';
+import { readFile } from 'react-native-fs';
 
 /**
  * Internal dependencies
@@ -116,17 +117,43 @@ const getBrouterCoords = async (
 ): Promise<number[][]> => {
 	const mode: BrouterCompressionMode = opts.compressionMode ?? 'off';
 
+	// When a custom .brf profile file is selected, read its content once
+	// and pass it as remoteProfile. BRouter then ignores v + fast.
+	// A missing/unreadable file rejects with an i18n key, which is stored
+	// as segment.errorMsg and rendered by PointsList / RoutingMapView.
+	let remoteProfile: string | undefined;
+	if (opts.profilePath) {
+		try {
+			remoteProfile = await readFile(opts.profilePath, 'utf8');
+		} catch {
+			throw 'routing.profileFileMissing';
+		}
+	}
+
+	const getRequestParams = (
+		extra: { compressGpxToJson?: boolean } = {}
+	): Parameters<typeof getRoute>[0] =>
+		remoteProfile
+			? {
+					waypoints,
+					remoteProfile,
+					format: 'json',
+					...extra,
+				}
+			: {
+					waypoints,
+					vehicle: opts.v,
+					fast: opts.fast,
+					format: 'json',
+					...extra,
+				};
+
 	/**
 	 * Fetch via the uncompressed JSON path (mode `off`).
 	 */
 	const fetchUncompressed = (): Promise<number[][]> =>
 		new Promise<number[][]>((resolve, reject) => {
-			getRoute({
-				waypoints,
-				vehicle: opts.v,
-				fast: opts.fast,
-				format: 'json',
-			})
+			getRoute(getRequestParams())
 				.then((result) => {
 					if (!result.parsed) {
 						reject(new Error('Failed to parse BRouter JSON track'));
@@ -149,13 +176,11 @@ const getBrouterCoords = async (
 	 * the converted output — we enrich it from the app's own DEM data.
 	 */
 	const fetchCompressed = async (): Promise<number[][]> => {
-		const result = await getRoute({
-			waypoints,
-			vehicle: opts.v,
-			fast: opts.fast,
-			format: 'json',
-			compressGpxToJson: true,
-		});
+		const result = await getRoute(
+			getRequestParams({
+				compressGpxToJson: true,
+			})
+		);
 
 		if (!result.parsed) {
 			throw new Error('Failed to parse BRouter JSON track (compressed)');

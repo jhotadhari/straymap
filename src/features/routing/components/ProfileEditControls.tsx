@@ -2,9 +2,12 @@
  * External dependencies
  */
 import React, { useCallback, useMemo } from 'react';
+import { Linking, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { get } from 'lodash-es';
-import { useTheme } from 'react-native-paper';
+import { Text, useTheme } from 'react-native-paper';
+import { sprintf } from 'sprintf-js';
+import { VehicleMode } from 'react-native-brouter/geojson';
 
 /**
  * Internal dependencies
@@ -13,6 +16,7 @@ import ToggleRowControl from '../../../components/generic/controls/ToggleRowCont
 import InfoLabelRow from '../../../components/generic/infoWrapper/InfoLabelRow';
 import NumericRowControl from '../../../components/generic/controls/NumericRowControl';
 import ButtonHighlightMenuControl from '../../../components/generic/wrapper/ButtonHighlightMenuControl';
+import FileSourceRowControl from '../../../components/generic/controls/FileSourceRowControl';
 import { useAppSelector } from '../../../store/hooks';
 import {
 	RoutingProfile,
@@ -23,6 +27,7 @@ import {
 import { DEFAULT_OPTIONS_BROUTER, DEFAULT_OPTIONS_STRAIGHT_LINE } from '../constants';
 import { formatDistanceUnit } from '../../../lib/formatting';
 import { selectUnitPrefs } from '../../general/selectors';
+import { selectAppDirs } from '../../dirs/selectors';
 import { selectLastProfiles } from '../selectors';
 import { sharedStyles } from '../../../sharedStyles';
 
@@ -116,45 +121,113 @@ const ProviderRowControl: React.FC<{
 	);
 };
 
-const VehicleRowControl: React.FC<{
+const profileInfoLinks = [
+	{
+		label: 'routing.linkBrouterProfiles',
+		url: 'https://brouter.de/brouter/profiles2/',
+	},
+	{
+		label: 'routing.linkBrouterWeb',
+		url: 'https://brouter.de/brouter-web/',
+	},
+	{
+		label: 'routing.linkBrouterCommunityProfiles',
+		url: 'https://github.com/poutnikl/Brouter-profiles',
+	},
+];
+const styleProfileInfoLink = { marginTop: 10 };
+const ProfileFileInfo: React.FC<{}> = () => {
+	const { t } = useTranslation();
+	const theme = useTheme();
+	const styleLinkText = useMemo(() => ({ color: get(theme.colors, 'link') }), [theme]);
+	return (
+		<View>
+			<Text>{t('routing.hintProfileFile')}</Text>
+			{profileInfoLinks.map((link) => (
+				<View
+					style={styleProfileInfoLink}
+					key={link.label}
+				>
+					<Text>{t(link.label)}</Text>
+					<Text
+						style={styleLinkText}
+						onPress={() => Linking.openURL(link.url)}
+					>
+						{link.url}
+					</Text>
+				</View>
+			))}
+		</View>
+	);
+};
+
+const ProfileRowControl: React.FC<{
 	profile: RoutingProfile;
 	onProfileChange: (profile: RoutingProfile) => void;
 }> = ({ profile, onProfileChange }) => {
 	const { t } = useTranslation();
 
-	const selectedOpt =
-		profile.provider === 'brouter'
-			? vehicleOptions.find((opt) => opt.key === (profile.options as BrouterOptions).v)
-			: undefined;
+	const appDirs = useAppSelector(selectAppDirs);
 
-	const handleSetVehicle = useCallback(
-		(newValue: string) =>
+	const opts = profile.provider === 'brouter' ? (profile.options as BrouterOptions) : undefined;
+
+	const handleSelect = useCallback(
+		(newValue?: string) => {
+			if (!opts || !newValue) {
+				return;
+			}
+			const vehicleKey = vehicleOptions.find((opt) => opt.key === newValue)?.key;
+			if (vehicleKey) {
+				onProfileChange({
+					provider: 'brouter' as const,
+					options: {
+						...opts,
+						v: vehicleKey as VehicleMode,
+						profilePath: undefined,
+					},
+				} as RoutingProfile);
+				return;
+			}
 			onProfileChange({
 				provider: 'brouter' as const,
 				options: {
-					...profile.options,
-					v: newValue,
+					...opts,
+					profilePath: newValue,
 				},
-			} as RoutingProfile),
-		[profile, onProfileChange]
+			} as RoutingProfile);
+		},
+		[opts, onProfileChange]
 	);
 
-	if (profile.provider !== 'brouter') {
+	const initialOptionsByPath = useMemo(
+		() => ({
+			[t('routing.builtInProfiles') + ':']: vehicleOptions.map((opt) => ({
+				key: opt.key,
+				label: t(opt.label),
+			})),
+		}),
+		[t]
+	);
+
+	if (!opts) {
 		return undefined;
 	}
 
 	return (
-		<InfoLabelRow
+		<FileSourceRowControl
 			label={t('routing.profile')}
-			Info={t('routing.hintProfile')}
-		>
-			<ButtonHighlightMenuControl
-				options={vehicleOptions}
-				value={get(selectedOpt, 'key')}
-				setValue={handleSetVehicle}
-				anchorLabel={t(get(selectedOpt, 'label', ''))}
-			/>
-		</InfoLabelRow>
+			header={t('routing.selectProfile')}
+			initialOptionsByPath={initialOptionsByPath}
+			value={opts.profilePath ?? opts.v}
+			onSelect={handleSelect}
+			extensions={['brf']}
+			dirs={appDirs?.brouterProfiles ?? []}
+			hasCustom
+			anchorButtonStyle={sharedStyles.flex1}
+			Info={<ProfileFileInfo />}
+			filesHeading={sprintf(t('filesIn'), '(.brf)')}
+			noFilesHeading={sprintf(t('noFilesIn'), '(.brf)')}
+		/>
 	);
 };
 
@@ -249,19 +322,21 @@ const ProfileEditControls: React.FC<ProfileEditControlsProps> = ({ profile, onPr
 	const { t } = useTranslation();
 	const theme = useTheme();
 
+	const brouterOpts =
+		profile.provider === 'brouter' ? (profile.options as BrouterOptions) : undefined;
+
 	const handleToggleFast = useCallback(() => {
-		if (profile.provider !== 'brouter') {
+		if (!brouterOpts) {
 			return;
 		}
-		const opts = profile.options;
 		onProfileChange({
 			provider: 'brouter' as const,
 			options: {
-				...opts,
-				fast: !opts.fast,
+				...brouterOpts,
+				fast: !brouterOpts.fast,
 			},
 		} as RoutingProfile);
-	}, [profile, onProfileChange]);
+	}, [brouterOpts, onProfileChange]);
 
 	return (
 		<>
@@ -270,16 +345,17 @@ const ProfileEditControls: React.FC<ProfileEditControlsProps> = ({ profile, onPr
 				onProfileChange={onProfileChange}
 			/>
 
-			<VehicleRowControl
+			<ProfileRowControl
 				profile={profile}
 				onProfileChange={onProfileChange}
 			/>
 
-			{profile.provider === 'brouter' && (
+			{brouterOpts && (
 				<ToggleRowControl
 					label={t('routing.fast')}
-					value={(profile.options as BrouterOptions).fast ?? false}
+					value={brouterOpts.fast ?? false}
 					onToggle={handleToggleFast}
+					disabled={!!brouterOpts.profilePath}
 					labelStyle={theme.fonts.bodyMedium}
 					innerStyle={sharedStyles.alignStart}
 					Info={t('routing.hintFast')}

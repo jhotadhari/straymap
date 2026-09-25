@@ -12,6 +12,12 @@ export type BrouterOptions = {
 	fast: boolean;
 	v: VehicleMode;
 	compressionMode?: BrouterCompressionMode;
+	/**
+	 * Absolute path or `content://` URI of a custom .brf profile file.
+	 * When set, its content is sent to BRouter as `remoteProfile` and
+	 * `fast`/`v` are ignored. Absent = use BRouter's built-in profiles.
+	 */
+	profilePath?: string;
 };
 
 export type StraightLineOptions = {
