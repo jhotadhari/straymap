@@ -20,3 +20,24 @@ export const getProfileSourceFromKey = (key: string | undefined): ProfileSource 
 	}
 	return undefined;
 };
+
+// ── Per-profile settings (persisted) ──────────────────────────────────
+
+export type ProfileXMode = 'distance' | 'time';
+export type ProfilePrimarySeries = 'elevation';
+export type ProfileSecondarySeries = 'none' | 'slope';
+export type ProfileColorMode = 'axis' | 'slope';
+
+export interface ProfileSettings {
+	primary: ProfilePrimarySeries;
+	secondary: ProfileSecondarySeries;
+	xMode: ProfileXMode;
+	colorMode: ProfileColorMode;
+}
+
+export const DEFAULT_PROFILE_SETTINGS: ProfileSettings = {
+	primary: 'elevation',
+	secondary: 'none',
+	xMode: 'distance',
+	colorMode: 'axis',
+};

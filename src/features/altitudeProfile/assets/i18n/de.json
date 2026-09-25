@@ -1,3 +1,17 @@
 {
-	"routingTitle": "Höhenprofil"
+	"routingTitle": "Höhenprofil",
+	"settingsTitle": "Profil-Einstellungen",
+	"primarySeries": "Primäre Serie",
+	"secondarySeries": "Sekundäre Serie",
+	"colorMode": "Einfärbung",
+	"xMode": "X-Achse",
+	"seriesElevation": "Höhe",
+	"seriesSlope": "Steigung",
+	"seriesNone": "Keine",
+	"colorAxis": "Achsenfarbe",
+	"colorSlope": "Steigung (Rampe)",
+	"xDistance": "Entfernung",
+	"statUphill": "↑",
+	"statDownhill": "↓",
+	"statLength": "↔"
 }

@@ -18,6 +18,7 @@ import dashboardReducer from '../features/dashboard/slice';
 import baseMapReducer from '../features/baseMap/slice';
 import drawersReducer from '../features/drawers/slice';
 import bottomDrawerReducer from '../features/bottomDrawer/slice';
+import altitudeProfileReducer from '../features/altitudeProfile/slice';
 import langReducer from '../features/lang/slice';
 import linesReducer from '../features/lines/slice';
 import gnssReducer from '../features/gnss/slice';
@@ -37,6 +38,7 @@ export const store = configureStore({
 		baseMap: baseMapReducer,
 		drawers: drawersReducer,
 		bottomDrawer: bottomDrawerReducer,
+		altitudeProfile: altitudeProfileReducer,
 		routing: routingReducer,
 		updater: updaterReducer,
 		lang: langReducer,

@@ -1,3 +1,17 @@
 {
-	"routingTitle": "Perfil de altitude"
+	"routingTitle": "Perfil de altitude",
+	"settingsTitle": "Ajustes do perfil",
+	"primarySeries": "Série principal",
+	"secondarySeries": "Série secundária",
+	"colorMode": "Coloração",
+	"xMode": "Eixo X",
+	"seriesElevation": "Altitude",
+	"seriesSlope": "Inclinação",
+	"seriesNone": "Nenhuma",
+	"colorAxis": "Cor do eixo",
+	"colorSlope": "Inclinação (rampa)",
+	"xDistance": "Distância",
+	"statUphill": "↑",
+	"statDownhill": "↓",
+	"statLength": "↔"
 }
