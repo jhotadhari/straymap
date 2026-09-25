@@ -13,7 +13,7 @@ import { selectActiveKey, selectItemKeys } from '../selectors';
 import { setActiveKey } from '../slice';
 import BottomDrawerContext from '../BottomDrawerContext';
 import useBottomDrawerState from '../hooks/useBottomDrawerState';
-import BottomDrawerHandles from '../components/BottomDrawerHandles';
+import BottomDrawerHandle from '../components/BottomDrawerHandle';
 import BottomDrawerContent from '../components/BottomDrawerContent';
 import { AppContext } from '../../../Context';
 import { BOTTOM_DRAWER_CONTENT_HEIGHT } from '../constants';
@@ -134,8 +134,12 @@ const BottomDrawer: FC = () => {
 	return (
 		<BottomDrawerContext.Provider value={contextValue}>
 			<Animated.View style={styleContainer}>
-				<BottomDrawerHandles gesture={gesture} />
 				{showContent && activeItemKey && <BottomDrawerContent />}
+				{/* Rendered after the content so the straddling grab line stays on top */}
+				<BottomDrawerHandle
+					gesture={gesture}
+					heightSv={height}
+				/>
 			</Animated.View>
 		</BottomDrawerContext.Provider>
 	);

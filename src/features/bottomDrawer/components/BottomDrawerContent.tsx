@@ -33,7 +33,12 @@ const BottomDrawerContent: FC<{}> = () => {
 	}
 
 	return (
-		<View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+		<View
+			style={[
+				styles.container,
+				{ backgroundColor: theme.colors.background, borderColor: theme.colors.outline },
+			]}
+		>
 			<DisplayComponent />
 		</View>
 	);
@@ -42,6 +47,7 @@ const BottomDrawerContent: FC<{}> = () => {
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
+		borderTopWidth: 1,
 	},
 });
 
