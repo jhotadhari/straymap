@@ -3,7 +3,7 @@
  */
 import createAppSelector from '../../store/createAppSelector';
 import { RootState } from '../../store/store';
-import { selectIsRouting } from '../routing/selectors';
+import { selectIsRouting, selectRoutingLineId } from '../routing/selectors';
 import { selectProfileLines } from '../lines/selectors';
 import { getAltitudeProfileSourceKey } from '../altitudeProfile/types';
 import { getBottomDrawerItem } from './dynamicItems';
@@ -16,7 +16,8 @@ export const selectItemKeys = createAppSelector(
 	(state: RootState) => state.bottomDrawer.itemKeys,
 	(state: RootState) => selectIsRouting(state),
 	(state: RootState) => selectProfileLines(state),
-	(itemKeys, isRouting, profileLines): string[] => {
+	(state: RootState) => selectRoutingLineId(state),
+	(itemKeys, isRouting, profileLines, routingLineId): string[] => {
 		// Derived keys: altitude profile sources (routing while active,
 		// one per line with a profile enabled). Not persisted — derived
 		// from the owning features' state.
@@ -25,6 +26,11 @@ export const selectItemKeys = createAppSelector(
 			derivedKeys.push(getAltitudeProfileSourceKey.routing());
 		}
 		profileLines.forEach((lineId) => {
+			// The routing line is already covered by the routing key —
+			// don't add a second entry for the same line.
+			if (lineId === routingLineId) {
+				return;
+			}
 			derivedKeys.push(getAltitudeProfileSourceKey.line(lineId));
 		});
 

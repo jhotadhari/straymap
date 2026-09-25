@@ -28,6 +28,7 @@ const buildRoot = (overrides: Partial<BottomDrawersState> = {}) =>
 		},
 		routing: {
 			isRouting: false,
+			routingLineId: null,
 		},
 		lines: {
 			profileLines: [],
@@ -126,7 +127,7 @@ describe('bottomDrawer selectors', () => {
 
 	it('selectItemKeys appends the routing profile key while routing is active', () => {
 		setBottomDrawerItemResolver((key) =>
-			key === 'altitudeProfile:routing' ? routingProfileItem : undefined
+			key.startsWith('altitudeProfile:') ? routingProfileItem : undefined
 		);
 		const state = {
 			...buildRoot(),
@@ -134,6 +135,22 @@ describe('bottomDrawer selectors', () => {
 		} as unknown as RootState;
 		const keys = selectItemKeys(state);
 		expect(keys).toContain('altitudeProfile:routing');
+		setBottomDrawerItemResolver(undefined);
+	});
+
+	it('selectItemKeys skips the line key for the routing line', () => {
+		setBottomDrawerItemResolver((key) =>
+			key.startsWith('altitudeProfile:') ? routingProfileItem : undefined
+		);
+		const state = {
+			...buildRoot(),
+			routing: { isRouting: 42, routingLineId: 7 },
+			lines: { profileLines: [7, 8] },
+		} as unknown as RootState;
+		const keys = selectItemKeys(state);
+		expect(keys).toContain('altitudeProfile:routing');
+		expect(keys).not.toContain('altitudeProfile:line:7');
+		expect(keys).toContain('altitudeProfile:line:8');
 		setBottomDrawerItemResolver(undefined);
 	});
 });

@@ -15,6 +15,7 @@ import ButtonHighlight from '../../../../components/generic/primitives/ButtonHig
 import { useButtonProps } from '../../../../compose/useButtonProps';
 import { useAppDispatch, useAppSelector, useSystemLineIds } from '../../../../store/hooks';
 import { selectProfileLines } from '../../selectors';
+import { selectRoutingLineId } from '../../../routing/selectors';
 import { toggleProfileLine } from '../../slice';
 import { LineEditModalContext } from './Context';
 
@@ -34,11 +35,19 @@ const RowAltitudeProfile: FC = () => {
 	const { line } = useContext(LineEditModalContext);
 
 	const profileLines = useAppSelector(selectProfileLines);
+	const routingLineId = useAppSelector(selectRoutingLineId);
 	const systemLineIds = useSystemLineIds();
 
 	const isSystemLine = useMemo(
 		() => Object.values(systemLineIds).includes(line?.id ?? -1),
 		[systemLineIds, line?.id]
+	);
+
+	// The routing line's profile is always available via the routing bottom
+	// drawer entry — mark the button active (and keep it disabled) for it.
+	const isRoutingLine = useMemo(
+		() => typeof line?.id === 'number' && line.id === routingLineId,
+		[line?.id, routingLineId]
 	);
 
 	// Profile/ramp require elevation; lines without Z (never DEM-enriched)
@@ -54,9 +63,15 @@ const RowAltitudeProfile: FC = () => {
 		]
 	);
 
-	const isEnabled = useMemo(
-		() => (typeof line?.id === 'number' ? profileLines.includes(line.id) : false),
-		[profileLines, line?.id]
+	const isActive = useMemo(
+		() =>
+			isRoutingLine ||
+			(typeof line?.id === 'number' ? profileLines.includes(line.id) : false),
+		[
+			isRoutingLine,
+			profileLines,
+			line?.id,
+		]
 	);
 
 	const handlePress = useCallback(() => {
@@ -71,7 +86,9 @@ const RowAltitudeProfile: FC = () => {
 	]);
 
 	const buttonProps = useButtonProps({
-		mode: isEnabled ? 'contained' : 'outlined',
+		// Active state is visualized by the label (checkmark/x) only,
+		// not by the background color.
+		mode: 'outlined',
 		disabled,
 		paddingHorizontal: true,
 	});
@@ -88,6 +105,7 @@ const RowAltitudeProfile: FC = () => {
 				icon={AltitudeProfileIcon}
 			>
 				{t('lines.altitudeProfile')}
+				{isActive ? ' ✓' : ' ✕'}
 			</ButtonHighlight>
 		</InfoLabelRow>
 	);
