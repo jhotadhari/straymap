@@ -80,7 +80,8 @@ const styles = StyleSheet.create({
 		right: 0,
 		height: BOTTOM_DRAWER_HANDLE_HEIGHT,
 		// Poke up above the drawer's top edge so the pills overlap the map.
-		transform: [{ translateY: -BOTTOM_DRAWER_HANDLE_HEIGHT }],
+		// -1px overlap closes the junction with the drawer content (no gap).
+		transform: [{ translateY: -BOTTOM_DRAWER_HANDLE_HEIGHT + 1 }],
 	},
 	scrollView: {
 		height: BOTTOM_DRAWER_HANDLE_HEIGHT,

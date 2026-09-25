@@ -144,6 +144,7 @@ const BottomDrawer: FC = () => {
 const styles = StyleSheet.create({
 	container: {
 		flexDirection: 'column',
+		zIndex: 40, // above side drawers (30), below dashboard (50)
 	},
 });
 

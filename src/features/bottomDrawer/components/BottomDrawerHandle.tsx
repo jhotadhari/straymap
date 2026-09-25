@@ -3,7 +3,7 @@
  */
 import React, { useContext, useMemo } from 'react';
 import { StyleSheet, View, ViewProps } from 'react-native';
-import { Button, Icon, Text } from 'react-native-paper';
+import { Button, Icon, Text, useTheme } from 'react-native-paper';
 import { ComposedGesture, GestureDetector, GestureType } from 'react-native-gesture-handler';
 import { get } from 'lodash-es';
 import { useTranslation } from 'react-i18next';
@@ -18,7 +18,6 @@ import {
 	BOTTOM_DRAWER_HANDLE_HEIGHT,
 	BOTTOM_DRAWER_HANDLE_WIDTH,
 	BOTTOM_DRAWER_ICON_SIZE,
-	BOTTOM_DRAWER_DEBUG,
 } from '../constants';
 
 const BottomDrawerHandle = ({
@@ -30,6 +29,7 @@ const BottomDrawerHandle = ({
 	gesture: ComposedGesture | GestureType;
 	onPress?: () => void;
 }) => {
+	const theme = useTheme();
 	const { t } = useTranslation();
 
 	const { activeItemKey } = useContext(BottomDrawerContext);
@@ -53,8 +53,8 @@ const BottomDrawerHandle = ({
 	const isActive = itemKey && itemKey === activeItemKey;
 
 	const color = useMemo(
-		() => (isActive ? BOTTOM_DRAWER_DEBUG.handleIconActive : BOTTOM_DRAWER_DEBUG.handleIcon),
-		[isActive]
+		() => (isActive ? theme.colors.onBackground : theme.colors.onSurfaceVariant),
+		[isActive, theme]
 	);
 
 	const containerStyle: ViewProps['style'] = useMemo(
@@ -71,13 +71,11 @@ const BottomDrawerHandle = ({
 		() => [
 			styles.handle,
 			{
-				backgroundColor: isActive
-					? BOTTOM_DRAWER_DEBUG.handleActiveBg
-					: BOTTOM_DRAWER_DEBUG.handleInactiveBg,
-				borderColor: BOTTOM_DRAWER_DEBUG.handleBorder,
+				backgroundColor: isActive ? theme.colors.background : theme.colors.surfaceVariant,
+				borderColor: theme.colors.outline,
 			},
 		],
-		[isActive]
+		[isActive, theme]
 	);
 
 	return (

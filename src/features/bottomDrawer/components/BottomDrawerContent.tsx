@@ -4,6 +4,7 @@
 import React, { FC, useContext, useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { get } from 'lodash-es';
+import { useTheme } from 'react-native-paper';
 
 /**
  * Internal dependencies
@@ -11,10 +12,11 @@ import { get } from 'lodash-es';
 import { featureRegistry } from '../../FeatureRegistry';
 import BottomDrawerContext from '../BottomDrawerContext';
 import { BottomDrawerItem } from '../types';
-import { BOTTOM_DRAWER_DEBUG } from '../constants';
 
 const BottomDrawerContent: FC<{}> = () => {
 	const { activeItemKey } = useContext(BottomDrawerContext);
+
+	const theme = useTheme();
 
 	const DisplayComponent = useMemo(() => {
 		if (!activeItemKey) {
@@ -31,7 +33,7 @@ const BottomDrawerContent: FC<{}> = () => {
 	}
 
 	return (
-		<View style={[styles.container, { backgroundColor: BOTTOM_DRAWER_DEBUG.content }]}>
+		<View style={[styles.container, { backgroundColor: theme.colors.background }]}>
 			<DisplayComponent />
 		</View>
 	);
