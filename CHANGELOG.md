@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- BRouter routing: custom `.brf` profile support. The merged Profile picker
+  offers built-in profiles (car, bicycle, foot) plus custom profile files from
+  the new `brouterProfiles` app directory — including a SAF file picker and
+  info links to official and community profile sources. Profile content is sent
+  to BRouter via `remoteProfile`; a missing or unreadable file surfaces as a
+  per-segment routing error.
+
 ## [0.3.5] - 2026-08-09
 
 ### Fixed
