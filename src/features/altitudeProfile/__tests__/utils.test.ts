@@ -21,7 +21,7 @@ describe('getProfileSeries', () => {
 		).toBeUndefined();
 	});
 
-	it('derives distances, elevations and stats', () => {
+	it('derives distances, elevations and slopes', () => {
 		// Two points ~111m apart (0.001° latitude).
 		const series = getProfileSeries([
 			[
@@ -49,11 +49,6 @@ describe('getProfileSeries', () => {
 		expect(series!.distances[0]).toBe(0);
 		expect(series!.distances[1]).toBeGreaterThan(100);
 		expect(series!.distances[2]).toBeGreaterThan(series!.distances[1]);
-		expect(series!.stats.uphill).toBeCloseTo(10);
-		expect(series!.stats.downhill).toBeCloseTo(15);
-		expect(series!.stats.minZ).toBe(95);
-		expect(series!.stats.maxZ).toBe(110);
-		expect(series!.stats.length).toBeGreaterThan(200);
 		expect(series!.slopes).toHaveLength(3);
 	});
 });

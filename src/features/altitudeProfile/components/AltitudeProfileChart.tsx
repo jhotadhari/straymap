@@ -3,17 +3,7 @@
  */
 import React, { FC, useCallback, useMemo, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import Svg, {
-	Circle,
-	Defs,
-	G,
-	Line,
-	LinearGradient,
-	Path,
-	Rect,
-	Stop,
-	Text as SvgText,
-} from 'react-native-svg';
+import Svg, { Circle, G, Line, Path, Text as SvgText } from 'react-native-svg';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { useTheme } from 'react-native-paper';
 import { interpolateColor } from 'react-native-mapsforge-vtm-ext-path-color-ramp';
@@ -162,13 +152,8 @@ const AltitudeProfileChart: FC<{
 		const xs = series.distances.map(distToX);
 		const ysElev = series.elevations.map(elevToY);
 		const ysSlope = series.slopes.map(slopeToY);
-		const primaryD = buildPathD(xs, ysElev);
-		const areaD = primaryD
-			? `${primaryD} L ${xs[xs.length - 1]} ${plotH} L ${xs[0]} ${plotH} Z`
-			: '';
 		return {
-			primaryD,
-			areaD,
+			primaryD: buildPathD(xs, ysElev),
 			secondaryD: buildPathD(xs, ysSlope),
 			xs,
 			ysElev,
@@ -178,7 +163,6 @@ const AltitudeProfileChart: FC<{
 		distToX,
 		elevToY,
 		slopeToY,
-		plotH,
 	]);
 
 	// Slope coloring: quantized buckets, batched into color-run paths.
@@ -389,49 +373,12 @@ const AltitudeProfileChart: FC<{
 					width={width}
 					height={height}
 				>
-					<Defs>
-						<LinearGradient
-							id="areaGradient"
-							x1="0"
-							y1="0"
-							x2="0"
-							y2="1"
-						>
-							<Stop
-								offset="0"
-								stopColor={COLOR_PRIMARY}
-								stopOpacity="0.35"
-							/>
-							<Stop
-								offset="1"
-								stopColor={COLOR_PRIMARY}
-								stopOpacity="0"
-							/>
-						</LinearGradient>
-					</Defs>
-
 					{/* Plot content (pan/zoom) */}
 					<G
 						x={MARGIN_LEFT}
 						y={MARGIN_TOP}
 						transform={groupTransform}
 					>
-						<Rect
-							x={0}
-							y={0}
-							width={plotW}
-							height={plotH}
-							fill={theme.colors.surfaceVariant}
-							opacity={0.4}
-						/>
-
-						{settings.colorMode === 'axis' && pathData.areaD && (
-							<Path
-								d={pathData.areaD}
-								fill="url(#areaGradient)"
-							/>
-						)}
-
 						{settings.colorMode === 'slope' &&
 							slopeRuns.map((run, idx) => (
 								<Path

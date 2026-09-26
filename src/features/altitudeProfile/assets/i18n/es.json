@@ -11,9 +11,6 @@
 	"colorAxis": "Color del eje",
 	"colorSlope": "Pendiente (rampa)",
 	"xDistance": "Distancia",
-	"statUphill": "↑",
-	"statDownhill": "↓",
-	"statLength": "↔",
 	"removeProfile": "Quitar perfil",
 	"removeProfileConfirmBody": "Solo se quita el perfil del panel inferior. La ruta permanece en el mapa, no se elimina nada y el perfil puede volver a activarse en cualquier momento."
 }

@@ -11,9 +11,6 @@
 	"colorAxis": "Cor do eixo",
 	"colorSlope": "Inclinação (rampa)",
 	"xDistance": "Distância",
-	"statUphill": "↑",
-	"statDownhill": "↓",
-	"statLength": "↔",
 	"removeProfile": "Remover perfil",
 	"removeProfileConfirmBody": "Somente o perfil é removido do painel inferior. A rota permanece no mapa, nada é apagado e o perfil pode ser reativado a qualquer momento."
 }

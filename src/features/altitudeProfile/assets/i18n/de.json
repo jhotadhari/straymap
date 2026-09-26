@@ -11,9 +11,6 @@
 	"colorAxis": "Achsenfarbe",
 	"colorSlope": "Steigung (Rampe)",
 	"xDistance": "Entfernung",
-	"statUphill": "↑",
-	"statDownhill": "↓",
-	"statLength": "↔",
 	"removeProfile": "Profil entfernen",
 	"removeProfileConfirmBody": "Es wird nur das Profil aus der unteren Leiste entfernt. Die Route bleibt auf der Karte, es wird nichts gelöscht, und das Profil kann jederzeit wieder aktiviert werden."
 }

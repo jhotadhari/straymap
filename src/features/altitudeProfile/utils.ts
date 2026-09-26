@@ -8,14 +8,6 @@ import { calculateSlope } from 'react-native-mapsforge-vtm-ext-path-color-ramp';
  */
 import { haversineDistance } from '../../lib/formatting';
 
-export interface ProfileStats {
-	length: number;
-	uphill: number;
-	downhill: number;
-	minZ: number;
-	maxZ: number;
-}
-
 export interface ProfileSeries {
 	/** Cumulative haversine distance per point (metres). */
 	distances: number[];
@@ -23,7 +15,6 @@ export interface ProfileSeries {
 	elevations: number[];
 	/** Slope per point (degrees), mapped from per-segment values. */
 	slopes: number[];
-	stats: ProfileStats;
 }
 
 // ── Viewport (pan/zoom) helpers ────────────────────────────────────────
@@ -73,6 +64,9 @@ export const zoomAroundPoint = (
 /**
  * Derives the chart series from profile coordinates ([lng, lat, z][]).
  * Returns undefined when there aren't at least two coordinates.
+ * Stats are intentionally NOT computed here — the stats row uses the
+ * DB (SpatiaLite) values via LineStats to stay consistent with the
+ * rest of the app.
  */
 export const getProfileSeries = (coordinates: number[][]): ProfileSeries | undefined => {
 	if (!coordinates || coordinates.length < 2) {
@@ -99,26 +93,10 @@ export const getProfileSeries = (coordinates: number[][]): ProfileSeries | undef
 		(_c, i) => segmentSlopes[Math.min(i, segmentSlopes.length - 1)] ?? 0
 	);
 
-	let uphill = 0;
-	let downhill = 0;
-	let minZ = elevations[0];
-	let maxZ = elevations[0];
-	for (let i = 1; i < elevations.length; i++) {
-		const delta = elevations[i] - elevations[i - 1];
-		if (delta > 0) {
-			uphill += delta;
-		} else {
-			downhill -= delta;
-		}
-		minZ = Math.min(minZ, elevations[i]);
-		maxZ = Math.max(maxZ, elevations[i]);
-	}
-
 	return {
 		distances,
 		elevations,
 		slopes,
-		stats: { length, uphill, downhill, minZ, maxZ },
 	};
 };
 

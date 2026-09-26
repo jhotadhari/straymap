@@ -41,6 +41,10 @@ const styles = StyleSheet.create({
 	container: {
 		flex: 1,
 		borderTopWidth: 1,
+		// Clip content while the drawer's height animates — without this
+		// the display (e.g. header buttons) paints outside the drawer
+		// during the slide-in. The handle is a sibling layer, unaffected.
+		overflow: 'hidden',
 	},
 });
 

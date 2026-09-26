@@ -5,7 +5,6 @@ import React, { FC, useCallback, useContext, useEffect, useMemo, useRef, useStat
 import { LayoutChangeEvent, StyleSheet, View } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { useQuery } from '@tanstack/react-query';
-import { useTranslation } from 'react-i18next';
 
 /**
  * Internal dependencies
@@ -16,8 +15,11 @@ import IconButtonHighlight from '../../../components/generic/primitives/IconButt
 import { useAppSelector } from '../../../store/hooks';
 import { selectPathCoords } from '../../routing/selectors';
 import { selectMapUpdateInterval, selectUnitPrefs } from '../../general/selectors';
-import { queryLinePathCoords } from '../../lines/db/queryFns';
-import { haversineDistance, formatDistance, formatHeightDepth } from '../../../lib/formatting';
+import { queryLinePathCoords, queryLinesWithoutGeom } from '../../lines/db/queryFns';
+import { haversineDistance } from '../../../lib/formatting';
+import LineStats from '../../lines/components/Stats/LineStats';
+import { RenderPart } from '../../lines/components/Stats/sharedDeps';
+import { LinePartial } from '../../lines/types';
 import useRoute from '../../routing/hooks/useRoute';
 import { getProfileSourceFromKey } from '../types';
 import { selectProfileSettings } from '../selectors';
@@ -25,6 +27,9 @@ import { useProfileItemLabels } from '../hooks/useProfileItemLabels';
 import { getProfileSeries } from '../utils';
 import AltitudeProfileChart from './AltitudeProfileChart';
 import ProfileSettingsModal from './ProfileSettingsModal/ProfileSettingsModal';
+
+const statsRenderParts = ['icon', 'value'] as RenderPart[];
+const statsRenderPartsNoIcon = ['value'] as RenderPart[];
 
 const nearestDistance = (
 	coordinates: number[][],
@@ -45,7 +50,6 @@ const nearestDistance = (
 
 const AltitudeProfileDisplay: FC = () => {
 	const theme = useTheme();
-	const { t } = useTranslation();
 
 	const { activeItemKey } = useContext(BottomDrawerContext);
 	const { currentMapEventRef } = useContext(MapContext);
@@ -61,18 +65,21 @@ const AltitudeProfileDisplay: FC = () => {
 		enabled: lineId !== undefined,
 	});
 
+	// DB (SpatiaLite) stats for the line — the same values every other
+	// LineStats usage shows for this route.
+	const { data: line } = useQuery({
+		queryKey: ['lines', lineId !== undefined ? [lineId] : []],
+		queryFn: queryLinesWithoutGeom,
+		enabled: lineId !== undefined,
+		select: (lines: LinePartial[]) => (lines.length ? lines[0] : null),
+	});
+
 	const coordinates: number[][] | undefined =
 		source?.type === 'routing' ? routingCoords : (lineCoords ?? undefined);
 
 	const unitPrefs = useAppSelector(selectUnitPrefs);
 	const mapUpdateInterval = useAppSelector(selectMapUpdateInterval);
 	const settings = useAppSelector((state) => selectProfileSettings(state, activeItemKey));
-
-	const distancePref = useMemo(
-		() => unitPrefs.distance ?? { unit: 'metric', round: 1 },
-		[unitPrefs]
-	);
-	const heightPref = useMemo(() => unitPrefs.heightDepth ?? { unit: 'm', round: 0 }, [unitPrefs]);
 
 	const series = useMemo(
 		() => (coordinates ? getProfileSeries(coordinates) : undefined),
@@ -84,8 +91,10 @@ const AltitudeProfileDisplay: FC = () => {
 		[activeItemKey, profileLabels]
 	);
 
-	// Routing waypoints (routing source only).
-	const { points } = useRoute(['points']) || {};
+	// Routing waypoints and stats (routing source only). route.stats is
+	// computed from the routed line's geometry with the same SpatiaLite
+	// functions as the lines table.
+	const { points, stats: routeStats } = useRoute(['points', 'stats']) || {};
 	const waypointDistances = useMemo(() => {
 		if (!coordinates || !series || source?.type !== 'routing' || !points?.length) {
 			return undefined;
@@ -102,6 +111,18 @@ const AltitudeProfileDisplay: FC = () => {
 		source,
 		points,
 	]);
+
+	const stats = useMemo(() => {
+		const rawStats = source?.type === 'line' ? line?.stats : routeStats;
+		const { length, ...rest } = rawStats ?? {};
+		return { length, rest };
+	}, [
+		source?.type,
+		line?.stats,
+		routeStats,
+	]);
+
+	const hasStats = stats.length != null || Object.keys(stats.rest).length > 0;
 
 	// Center indicator: poll the map center (same cadence as the map events).
 	const [center, setCenter] = useState<[number, number] | undefined>(undefined);
@@ -157,8 +178,6 @@ const AltitudeProfileDisplay: FC = () => {
 		);
 	}
 
-	const { stats } = series;
-
 	return (
 		<View style={styles.container}>
 			<View style={styles.header}>
@@ -174,9 +193,20 @@ const AltitudeProfileDisplay: FC = () => {
 				/>
 			</View>
 
-			<Text style={[styles.stats, { color: theme.colors.onSurfaceVariant }]}>
-				{`${t('altitudeProfile.statUphill')} ${formatHeightDepth(stats.uphill, heightPref)}  ${t('altitudeProfile.statDownhill')} ${formatHeightDepth(stats.downhill, heightPref)}  ${t('altitudeProfile.statLength')} ${formatDistance(stats.length, distancePref)}  ${formatHeightDepth(stats.minZ, heightPref)}–${formatHeightDepth(stats.maxZ, heightPref)}`}
-			</Text>
+			{hasStats && (
+				<View style={styles.statsRow}>
+					{stats.length != null && (
+						<LineStats
+							stats={{ length: stats.length }}
+							renderParts={statsRenderPartsNoIcon}
+						/>
+					)}
+					<LineStats
+						stats={stats.rest}
+						renderParts={statsRenderParts}
+					/>
+				</View>
+			)}
 
 			<View
 				style={styles.chartWrap}
@@ -220,8 +250,10 @@ const styles = StyleSheet.create({
 		flexShrink: 1,
 		fontWeight: 'bold',
 	},
-	stats: {
-		fontSize: 11,
+	statsRow: {
+		flexDirection: 'row',
+		flexWrap: 'wrap',
+		gap: 8,
 		marginBottom: 4,
 	},
 	chartWrap: {
