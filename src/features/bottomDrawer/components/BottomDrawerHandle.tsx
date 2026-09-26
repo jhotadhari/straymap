@@ -13,7 +13,6 @@ import {
 import Animated, {
 	Extrapolation,
 	interpolate,
-	interpolateColor,
 	runOnJS,
 	useAnimatedStyle,
 	type SharedValue,
@@ -69,11 +68,6 @@ const BottomDrawerHandle: FC<{
 	const handleStyle = useAnimatedStyle(() => {
 		const p = heightSv.value;
 		return {
-			backgroundColor: interpolateColor(
-				p,
-				[0, BOTTOM_DRAWER_MORPH_DISTANCE],
-				[theme.colors.background, theme.colors.outline]
-			),
 			width: interpolate(
 				p,
 				[0, BOTTOM_DRAWER_MORPH_DISTANCE],
@@ -134,6 +128,15 @@ const BottomDrawerHandle: FC<{
 			heightSv.value,
 			[0, BOTTOM_DRAWER_MORPH_DISTANCE * 0.66],
 			[1, 0],
+			Extrapolation.CLAMP
+		),
+	}));
+
+	const iconDotsStyle = useAnimatedStyle(() => ({
+		opacity: interpolate(
+			heightSv.value,
+			[0, BOTTOM_DRAWER_MORPH_DISTANCE * 0.66],
+			[0, 1],
 			Extrapolation.CLAMP
 		),
 	}));
@@ -205,6 +208,14 @@ const BottomDrawerHandle: FC<{
 								/>
 							)}
 						</Animated.View>
+
+						<Animated.View style={[styles.iconWrapper, iconDotsStyle]}>
+							<Icon
+								source="dots-horizontal"
+								size={BOTTOM_DRAWER_ICON_SIZE}
+								color={theme.colors.onBackground}
+							/>
+						</Animated.View>
 					</Animated.View>
 				</View>
 			</GestureDetector>
@@ -230,6 +241,7 @@ const styles = StyleSheet.create({
 		overflow: 'hidden',
 		alignItems: 'center',
 		justifyContent: 'center',
+		position: 'absolute',
 	},
 	handle: {
 		borderWidth: 1,
