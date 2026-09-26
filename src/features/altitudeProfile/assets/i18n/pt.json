@@ -19,5 +19,6 @@
 	"profileModeHintCustom": "Tem configurações personalizadas próprias – as alterações afetam apenas este perfil.",
 	"showLabel": "Mostrar rótulo",
 	"showStats": "Mostrar estatísticas",
+	"blendColors": "Misturar cores",
 	"removeProfileConfirmBody": "Somente o perfil é removido do painel inferior. A rota permanece no mapa, nada é apagado e o perfil pode ser reativado a qualquer momento."
 }

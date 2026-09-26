@@ -35,6 +35,7 @@ export interface ProfileSettings {
 	colorMode: ProfileColorMode;
 	showLabel: boolean;
 	showStats: boolean;
+	blendColors: boolean;
 }
 
 export const DEFAULT_PROFILE_SETTINGS: ProfileSettings = {
@@ -44,4 +45,5 @@ export const DEFAULT_PROFILE_SETTINGS: ProfileSettings = {
 	colorMode: 'axis',
 	showLabel: true,
 	showStats: true,
+	blendColors: false,
 };

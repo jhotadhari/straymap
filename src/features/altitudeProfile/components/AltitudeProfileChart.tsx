@@ -339,6 +339,10 @@ const AltitudeProfileChart: FC<{
 		return Gesture.Simultaneous(pan, pinch, doubleTap);
 	}, [plotW, plotH]);
 
+	// Blend colors: semi-transparent series strokes so crossings show a
+	// mixed color (only meaningful while the secondary series is visible).
+	const blendOpacity = settings.blendColors && settings.secondary === 'slope' ? 0.65 : 1;
+
 	const markerXs = useMemo(
 		() => (waypointDistances ?? []).map((d) => distToX(d)).filter((x) => x >= 0 && x <= plotW),
 		[
@@ -379,6 +383,17 @@ const AltitudeProfileChart: FC<{
 						y={MARGIN_TOP}
 						transform={groupTransform}
 					>
+						{/* Secondary series first — the primary always draws above it. */}
+						{settings.secondary === 'slope' && pathData.secondaryD && (
+							<Path
+								d={pathData.secondaryD}
+								stroke={COLOR_SECONDARY}
+								strokeWidth={1.5 / scale}
+								opacity={blendOpacity}
+								fill="none"
+							/>
+						)}
+
 						{settings.colorMode === 'slope' &&
 							slopeRuns.map((run, idx) => (
 								<Path
@@ -386,6 +401,7 @@ const AltitudeProfileChart: FC<{
 									d={run.d}
 									stroke={run.color}
 									strokeWidth={2 / scale}
+									opacity={blendOpacity}
 									fill="none"
 								/>
 							))}
@@ -395,15 +411,7 @@ const AltitudeProfileChart: FC<{
 								d={pathData.primaryD}
 								stroke={COLOR_PRIMARY}
 								strokeWidth={2 / scale}
-								fill="none"
-							/>
-						)}
-
-						{settings.secondary === 'slope' && pathData.secondaryD && (
-							<Path
-								d={pathData.secondaryD}
-								stroke={COLOR_SECONDARY}
-								strokeWidth={1.5 / scale}
+								opacity={blendOpacity}
 								fill="none"
 							/>
 						)}

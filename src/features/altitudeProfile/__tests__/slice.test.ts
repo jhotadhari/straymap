@@ -105,6 +105,7 @@ describe('altitudeProfile selectors', () => {
 		expect(settings.primary).toBe('elevation');
 		expect(settings.showLabel).toBe(true);
 		expect(settings.showStats).toBe(true);
+		expect(settings.blendColors).toBe(false);
 	});
 
 	it('selectProfileSettings falls back to the general settings', () => {

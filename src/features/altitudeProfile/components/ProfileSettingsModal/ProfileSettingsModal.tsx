@@ -27,6 +27,7 @@ import RowColorMode from './rows/RowColorMode';
 import RowXMode from './rows/RowXMode';
 import RowShowLabel from './rows/RowShowLabel';
 import RowShowStats from './rows/RowShowStats';
+import RowBlendColors from './rows/RowBlendColors';
 import RowRemoveProfile from './rows/RowRemoveProfile';
 
 const ProfileSettingsModal: FC<{
@@ -139,6 +140,8 @@ const ProfileSettingsModal: FC<{
 				<RowShowLabel />
 
 				<RowShowStats />
+
+				<RowBlendColors />
 			</ProfileSettingsModalContext.Provider>
 		</ModalWrapper>
 	);
