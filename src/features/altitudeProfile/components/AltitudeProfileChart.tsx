@@ -31,7 +31,8 @@ const COLOR_WAYPOINT = '#F57C00';
 
 const MAX_SCALE = 20;
 const MARGIN_LEFT = 44;
-const MARGIN_RIGHT = 44;
+const MARGIN_RIGHT = 40;
+const MARGIN_FALLBACK = 8;
 const MARGIN_TOP = 10;
 const MARGIN_BOTTOM = 26;
 
@@ -101,12 +102,9 @@ const AltitudeProfileChart: FC<{
 	tyRef.current = translateY;
 
 	// ── Domains / plot geometry ─────────────────────────────────────────
-	const plotW = Math.max(1, width - MARGIN_LEFT - MARGIN_RIGHT);
 	const plotH = Math.max(1, height - MARGIN_TOP - MARGIN_BOTTOM);
 
 	const totalLength = useMemo(() => series.distances[series.distances.length - 1] || 1, [series]);
-
-	const distToX = useCallback((d: number) => (d / totalLength) * plotW, [totalLength, plotW]);
 
 	// Per-series views: data source, domain, y-mapping, tick formatter.
 	const buildSeriesView = useCallback(
@@ -159,6 +157,16 @@ const AltitudeProfileChart: FC<{
 			settings.secondaryColor,
 		]
 	);
+
+	// Right margin: a compact label gutter while the secondary axis is
+	// visible, a small inset aligned with the header otherwise.
+	const marginRight = seriesViews.secondary.values ? MARGIN_RIGHT : MARGIN_FALLBACK;
+	// Left margin: full label gutter while the primary axis is visible,
+	// a small inset aligned with the header otherwise.
+	const marginLeft = seriesViews.primary.values ? MARGIN_LEFT : MARGIN_FALLBACK;
+	const plotW = Math.max(1, width - marginLeft - marginRight);
+
+	const distToX = useCallback((d: number) => (d / totalLength) * plotW, [totalLength, plotW]);
 
 	// ── Paths (memoized — only depend on the series) ────────────────────
 	const pathData = useMemo(() => {
@@ -268,8 +276,12 @@ const AltitudeProfileChart: FC<{
 	]);
 
 	const toScreenX = useCallback(
-		(v: number) => MARGIN_LEFT + translateX + scale * v,
-		[translateX, scale]
+		(v: number) => marginLeft + translateX + scale * v,
+		[
+			translateX,
+			scale,
+			marginLeft,
+		]
 	);
 	const toScreenY = useCallback(
 		(v: number) => MARGIN_TOP + translateY + scale * v,
@@ -318,7 +330,7 @@ const AltitudeProfileChart: FC<{
 				translateX: txRef.current,
 				translateY: tyRef.current,
 			};
-			pinchBaseRef.focal = { x: focalX - MARGIN_LEFT, y: focalY - MARGIN_TOP };
+			pinchBaseRef.focal = { x: focalX - marginLeft, y: focalY - MARGIN_TOP };
 		};
 
 		const pinch = Gesture.Pinch()
@@ -359,7 +371,7 @@ const AltitudeProfileChart: FC<{
 				applyTransform(
 					zoomAroundPoint(
 						base,
-						{ x: event.x - MARGIN_LEFT, y: event.y - MARGIN_TOP },
+						{ x: event.x - marginLeft, y: event.y - MARGIN_TOP },
 						base.scale * 2,
 						{ width: plotW, height: plotH },
 						MAX_SCALE
@@ -368,7 +380,11 @@ const AltitudeProfileChart: FC<{
 			});
 
 		return Gesture.Simultaneous(pan, pinch, doubleTap);
-	}, [plotW, plotH]);
+	}, [
+		plotW,
+		plotH,
+		marginLeft,
+	]);
 
 	const markerXs = useMemo(
 		() => (waypointDistances ?? []).map((d) => distToX(d)).filter((x) => x >= 0 && x <= plotW),
@@ -441,7 +457,7 @@ const AltitudeProfileChart: FC<{
 				>
 					{/* Plot content (pan/zoom) */}
 					<G
-						x={MARGIN_LEFT}
+						x={marginLeft}
 						y={MARGIN_TOP}
 						transform={groupTransform}
 					>
@@ -495,16 +511,16 @@ const AltitudeProfileChart: FC<{
 
 					{/* Axes (static) */}
 					<Line
-						x1={MARGIN_LEFT}
+						x1={marginLeft}
 						y1={height - MARGIN_BOTTOM}
-						x2={width - MARGIN_RIGHT}
+						x2={width - marginRight}
 						y2={height - MARGIN_BOTTOM}
 						stroke={theme.colors.outline}
 						strokeWidth={1}
 					/>
 					{ticks.xTicks.map((tick, idx) => {
 						const x = toScreenX(distToX(tick));
-						if (x < MARGIN_LEFT - 1 || x > width - MARGIN_RIGHT + 1) {
+						if (x < marginLeft - 1 || x > width - marginRight + 1) {
 							return null;
 						}
 						return (
@@ -539,15 +555,15 @@ const AltitudeProfileChart: FC<{
 							return (
 								<G key={`y1t-${idx}`}>
 									<Line
-										x1={MARGIN_LEFT}
+										x1={marginLeft}
 										y1={y}
-										x2={MARGIN_LEFT - 4}
+										x2={marginLeft - 4}
 										y2={y}
 										stroke={COLOR_PRIMARY}
 										strokeWidth={1}
 									/>
 									<SvgText
-										x={MARGIN_LEFT - 6}
+										x={marginLeft - 6}
 										y={y + 3}
 										fill={COLOR_PRIMARY}
 										fontSize={9}
@@ -568,15 +584,15 @@ const AltitudeProfileChart: FC<{
 							return (
 								<G key={`y2t-${idx}`}>
 									<Line
-										x1={width - MARGIN_RIGHT}
+										x1={width - marginRight}
 										y1={y}
-										x2={width - MARGIN_RIGHT + 4}
+										x2={width - marginRight + 4}
 										y2={y}
 										stroke={COLOR_SECONDARY}
 										strokeWidth={1}
 									/>
 									<SvgText
-										x={width - MARGIN_RIGHT + 6}
+										x={width - marginRight + 6}
 										y={y + 3}
 										fill={COLOR_SECONDARY}
 										fontSize={9}

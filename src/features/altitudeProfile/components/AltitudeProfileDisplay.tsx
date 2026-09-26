@@ -285,6 +285,7 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		justifyContent: 'space-between',
 		paddingLeft: 8,
+		paddingRight: 8,
 		marginRight: 0, // align with mapCornerComponents
 	},
 	headerAbs: {
