@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { FC, useCallback, useContext, useEffect, useMemo } from 'react';
+import React, { FC, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { Dimensions, StyleSheet, ViewStyle } from 'react-native';
 import Animated from 'react-native-reanimated';
 
@@ -56,6 +56,8 @@ const BottomDrawer: FC = () => {
 		[dispatch]
 	);
 
+	const [settingsModalVisible, setSettingsModalVisible] = useState(false);
+
 	// On first open, set first item active, if nothing active.
 	useEffect(() => {
 		if (showContent && !activeItemKey && itemKeys.length) {
@@ -70,10 +72,12 @@ const BottomDrawer: FC = () => {
 
 	// Derived item keys can disappear (routing stopped, profile untoggled):
 	// clear a stale active key so the handle/content fall back to the first
-	// available item.
+	// available item. Also close any open item settings modal — its rows
+	// would target a profile that no longer exists.
 	useEffect(() => {
 		if (activeItemKey && !itemKeys.includes(activeItemKey)) {
 			setActiveItemKey(undefined);
+			setSettingsModalVisible(false);
 		}
 	}, [
 		activeItemKey,
@@ -130,6 +134,8 @@ const BottomDrawer: FC = () => {
 			getIsFullyCollapsed,
 			setActiveItemKey,
 			expand,
+			settingsModalVisible,
+			setSettingsModalVisible,
 		}),
 		[
 			effectiveActiveItemKey,
@@ -137,6 +143,7 @@ const BottomDrawer: FC = () => {
 			getIsFullyCollapsed,
 			setActiveItemKey,
 			expand,
+			settingsModalVisible,
 		]
 	);
 

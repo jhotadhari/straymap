@@ -51,7 +51,8 @@ const nearestDistance = (
 const AltitudeProfileDisplay: FC = () => {
 	const theme = useTheme();
 
-	const { activeItemKey } = useContext(BottomDrawerContext);
+	const { activeItemKey, settingsModalVisible, setSettingsModalVisible } =
+		useContext(BottomDrawerContext);
 	const { currentMapEventRef } = useContext(MapContext);
 
 	const source = useMemo(() => getProfileSourceFromKey(activeItemKey), [activeItemKey]);
@@ -168,8 +169,6 @@ const AltitudeProfileDisplay: FC = () => {
 		}
 	}, []);
 
-	const [settingsVisible, setSettingsVisible] = useState(false);
-
 	if (!series) {
 		return (
 			<View style={styles.container}>
@@ -178,35 +177,42 @@ const AltitudeProfileDisplay: FC = () => {
 		);
 	}
 
+	const { showLabel, showStats } = settings;
+
+	const statsNode = hasStats && showStats && (
+		<View style={styles.statsRow}>
+			{stats.length != null && (
+				<LineStats
+					stats={{ length: stats.length }}
+					renderParts={statsRenderPartsNoIcon}
+				/>
+			)}
+			<LineStats
+				stats={stats.rest}
+				renderParts={statsRenderParts}
+			/>
+		</View>
+	);
+
 	return (
 		<View style={styles.container}>
-			<View style={styles.header}>
-				<Text
-					style={[styles.title, { color: theme.colors.onBackground }]}
-					numberOfLines={1}
-				>
-					{label}
-				</Text>
+			<View style={showLabel || showStats ? styles.header : styles.headerAbs}>
+				{showLabel && (
+					<Text
+						style={[styles.title, { color: theme.colors.onBackground }]}
+						numberOfLines={1}
+					>
+						{label}
+					</Text>
+				)}
+				{!showLabel && statsNode}
 				<IconButtonHighlight
 					icon="cog"
-					onPress={() => setSettingsVisible(true)}
+					onPress={() => setSettingsModalVisible(true)}
 				/>
 			</View>
 
-			{hasStats && (
-				<View style={styles.statsRow}>
-					{stats.length != null && (
-						<LineStats
-							stats={{ length: stats.length }}
-							renderParts={statsRenderPartsNoIcon}
-						/>
-					)}
-					<LineStats
-						stats={stats.rest}
-						renderParts={statsRenderParts}
-					/>
-				</View>
-			)}
+			{showLabel && <View style={styles.header}>{statsNode}</View>}
 
 			<View
 				style={styles.chartWrap}
@@ -226,8 +232,8 @@ const AltitudeProfileDisplay: FC = () => {
 			</View>
 
 			<ProfileSettingsModal
-				visible={settingsVisible}
-				setVisible={setSettingsVisible}
+				visible={settingsModalVisible}
+				setVisible={setSettingsModalVisible}
 				profileKey={activeItemKey ?? ''}
 			/>
 		</View>
@@ -237,14 +243,21 @@ const AltitudeProfileDisplay: FC = () => {
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		paddingHorizontal: 8,
-		paddingBottom: 8,
 	},
 	header: {
 		flexDirection: 'row',
 		alignItems: 'center',
 		justifyContent: 'space-between',
-		marginTop: 4,
+		paddingLeft: 8,
+		marginRight: 0, // align with mapCornerComponents
+	},
+	headerAbs: {
+		alignItems: 'center',
+		justifyContent: 'space-between',
+		position: 'absolute',
+		flexDirection: 'row-reverse',
+		width: '100%',
+		zIndex: 10,
 	},
 	title: {
 		flexShrink: 1,

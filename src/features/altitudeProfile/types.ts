@@ -33,6 +33,8 @@ export interface ProfileSettings {
 	secondary: ProfileSecondarySeries;
 	xMode: ProfileXMode;
 	colorMode: ProfileColorMode;
+	showLabel: boolean;
+	showStats: boolean;
 }
 
 export const DEFAULT_PROFILE_SETTINGS: ProfileSettings = {
@@ -40,4 +42,6 @@ export const DEFAULT_PROFILE_SETTINGS: ProfileSettings = {
 	secondary: 'none',
 	xMode: 'distance',
 	colorMode: 'axis',
+	showLabel: true,
+	showStats: true,
 };

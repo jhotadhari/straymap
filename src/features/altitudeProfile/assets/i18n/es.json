@@ -12,5 +12,8 @@
 	"colorSlope": "Pendiente (rampa)",
 	"xDistance": "Distancia",
 	"removeProfile": "Quitar perfil",
+	"activeProfile": "Perfil activo",
+	"showLabel": "Mostrar etiqueta",
+	"showStats": "Mostrar estadísticas",
 	"removeProfileConfirmBody": "Solo se quita el perfil del panel inferior. La ruta permanece en el mapa, no se elimina nada y el perfil puede volver a activarse en cualquier momento."
 }

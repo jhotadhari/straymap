@@ -9,7 +9,7 @@ export const selectInitialized = (state: RootState) => state.altitudeProfile.ini
 export const selectProfileSettings = (
 	state: RootState,
 	key: string | undefined
-): ProfileSettings =>
-	key
-		? (state.altitudeProfile.profiles[key] ?? DEFAULT_PROFILE_SETTINGS)
-		: DEFAULT_PROFILE_SETTINGS;
+): ProfileSettings => ({
+	...DEFAULT_PROFILE_SETTINGS,
+	...(key ? (state.altitudeProfile.profiles[key] ?? {}) : {}),
+});

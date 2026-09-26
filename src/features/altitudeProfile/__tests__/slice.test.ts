@@ -76,4 +76,19 @@ describe('altitudeProfile selectors', () => {
 		const root = { altitudeProfile: state } as unknown as RootState;
 		expect(selectProfileSettings(root, 'line:3').colorMode).toBe('slope');
 	});
+
+	it('selectProfileSettings merges defaults for partial stored settings', () => {
+		// Simulates older persisted settings restored without the new keys.
+		const root = {
+			altitudeProfile: {
+				initialized: true,
+				profiles: { 'line:4': { colorMode: 'slope' } },
+			},
+		} as unknown as RootState;
+		const settings = selectProfileSettings(root, 'line:4');
+		expect(settings.colorMode).toBe('slope');
+		expect(settings.primary).toBe('elevation');
+		expect(settings.showLabel).toBe(true);
+		expect(settings.showStats).toBe(true);
+	});
 });

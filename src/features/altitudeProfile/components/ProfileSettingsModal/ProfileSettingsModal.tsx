@@ -1,8 +1,9 @@
 /**
  * External dependencies
  */
-import React, { Dispatch, FC, SetStateAction, useCallback, useMemo } from 'react';
+import React, { FC, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Divider } from 'react-native-paper';
 
 /**
  * Internal dependencies
@@ -14,15 +15,18 @@ import { setProfileSettings } from '../../slice';
 import { ProfileSettings } from '../../types';
 import { ProfileSettingsModalContext } from './Context';
 import { sharedStyles } from './sharedDeps';
+import RowSelectProfile from './rows/RowSelectProfile';
 import RowPrimarySeries from './rows/RowPrimarySeries';
 import RowSecondarySeries from './rows/RowSecondarySeries';
 import RowColorMode from './rows/RowColorMode';
 import RowXMode from './rows/RowXMode';
+import RowShowLabel from './rows/RowShowLabel';
+import RowShowStats from './rows/RowShowStats';
 import RowRemoveProfile from './rows/RowRemoveProfile';
 
 const ProfileSettingsModal: FC<{
 	visible: boolean;
-	setVisible: Dispatch<SetStateAction<boolean>>;
+	setVisible: (visible: boolean) => void;
 	profileKey: string;
 }> = ({ visible, setVisible, profileKey }) => {
 	const { t } = useTranslation();
@@ -64,6 +68,12 @@ const ProfileSettingsModal: FC<{
 			innerStyle={sharedStyles.modalInner}
 		>
 			<ProfileSettingsModalContext.Provider value={contextValue}>
+				<RowSelectProfile />
+
+				<RowRemoveProfile />
+
+				<Divider />
+
 				<RowPrimarySeries />
 
 				<RowSecondarySeries />
@@ -72,7 +82,9 @@ const ProfileSettingsModal: FC<{
 
 				<RowXMode />
 
-				<RowRemoveProfile />
+				<RowShowLabel />
+
+				<RowShowStats />
 			</ProfileSettingsModalContext.Provider>
 		</ModalWrapper>
 	);

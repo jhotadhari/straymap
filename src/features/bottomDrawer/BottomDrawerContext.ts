@@ -10,6 +10,8 @@ export type BottomDrawerContextType = {
 	getIsFullyCollapsed: () => boolean;
 	setActiveItemKey: (newActiveKey?: string) => void;
 	expand: (expanded: number | boolean) => void;
+	settingsModalVisible: boolean;
+	setSettingsModalVisible: (visible: boolean) => void;
 };
 
 const BottomDrawerContext = createContext<BottomDrawerContextType>({
@@ -19,6 +21,8 @@ const BottomDrawerContext = createContext<BottomDrawerContextType>({
 	getIsFullyCollapsed: () => true,
 	setActiveItemKey: (_newActiveKey?: string) => {},
 	expand: (_expanded: number | boolean) => {},
+	settingsModalVisible: false,
+	setSettingsModalVisible: (_visible: boolean) => {},
 });
 
 export default BottomDrawerContext;

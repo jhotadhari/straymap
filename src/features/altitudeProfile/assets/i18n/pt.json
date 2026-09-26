@@ -12,5 +12,8 @@
 	"colorSlope": "Inclinação (rampa)",
 	"xDistance": "Distância",
 	"removeProfile": "Remover perfil",
+	"activeProfile": "Perfil ativo",
+	"showLabel": "Mostrar rótulo",
+	"showStats": "Mostrar estatísticas",
 	"removeProfileConfirmBody": "Somente o perfil é removido do painel inferior. A rota permanece no mapa, nada é apagado e o perfil pode ser reativado a qualquer momento."
 }
