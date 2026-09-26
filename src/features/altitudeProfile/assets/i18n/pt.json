@@ -1,5 +1,5 @@
 {
-	"routingTitle": "Perfil de altitude",
+	"routingTitle": "Planejamento de rota",
 	"settingsTitle": "Ajustes do perfil",
 	"primarySeries": "Série principal",
 	"secondarySeries": "Série secundária",
@@ -13,6 +13,10 @@
 	"xDistance": "Distância",
 	"removeProfile": "Remover perfil",
 	"activeProfile": "Perfil ativo",
+	"profileModeDefault": "Padrão",
+	"profileModeCustom": "Personalizado",
+	"profileModeHintDefault": "Usa as configurações padrão partilhadas – as alterações aplicam-se a todos os perfis sem configurações personalizadas.",
+	"profileModeHintCustom": "Tem configurações personalizadas próprias – as alterações afetam apenas este perfil.",
 	"showLabel": "Mostrar rótulo",
 	"showStats": "Mostrar estatísticas",
 	"removeProfileConfirmBody": "Somente o perfil é removido do painel inferior. A rota permanece no mapa, nada é apagado e o perfil pode ser reativado a qualquer momento."

@@ -8,11 +8,15 @@ import { createContext } from 'react';
  */
 import { DEFAULT_PROFILE_SETTINGS, ProfileSettings } from '../../types';
 
+export type ProfileSettingsMode = 'general' | 'own';
+
 export type ProfileSettingsModalContextType = {
 	profileKey: string;
 	settings: ProfileSettings;
 	update: (partial: Partial<ProfileSettings>) => void;
 	onDismiss: () => void;
+	mode: ProfileSettingsMode;
+	setMode: (mode: ProfileSettingsMode) => void;
 };
 
 export const ProfileSettingsModalContext = createContext<ProfileSettingsModalContextType>({
@@ -20,4 +24,6 @@ export const ProfileSettingsModalContext = createContext<ProfileSettingsModalCon
 	settings: DEFAULT_PROFILE_SETTINGS,
 	update: (_partial: Partial<ProfileSettings>) => undefined,
 	onDismiss: () => undefined,
+	mode: 'general',
+	setMode: (_mode: ProfileSettingsMode) => undefined,
 });

@@ -1,5 +1,5 @@
 {
-	"routingTitle": "Höhenprofil",
+	"routingTitle": "Routenplanung",
 	"settingsTitle": "Profil-Einstellungen",
 	"primarySeries": "Primäre Serie",
 	"secondarySeries": "Sekundäre Serie",
@@ -13,6 +13,10 @@
 	"xDistance": "Entfernung",
 	"removeProfile": "Profil entfernen",
 	"activeProfile": "Aktives Profil",
+	"profileModeDefault": "Standard",
+	"profileModeCustom": "Eigene",
+	"profileModeHintDefault": "Verwendet die gemeinsamen Standardeinstellungen – Änderungen gelten für alle Profile ohne eigene Einstellungen.",
+	"profileModeHintCustom": "Hat eigene Einstellungen – Änderungen betreffen nur dieses Profil.",
 	"showLabel": "Beschriftung anzeigen",
 	"showStats": "Statistiken anzeigen",
 	"removeProfileConfirmBody": "Es wird nur das Profil aus der unteren Leiste entfernt. Die Route bleibt auf der Karte, es wird nichts gelöscht, und das Profil kann jederzeit wieder aktiviert werden."

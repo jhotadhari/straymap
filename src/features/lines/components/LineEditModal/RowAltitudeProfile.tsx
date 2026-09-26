@@ -105,7 +105,7 @@ const RowAltitudeProfile: FC = () => {
 				icon={AltitudeProfileIcon}
 			>
 				{t('lines.altitudeProfile')}
-				{isActive ? ' ✓' : ' ✕'}
+				{isActive ? ' ✓' : ''}
 			</ButtonHighlight>
 		</InfoLabelRow>
 	);

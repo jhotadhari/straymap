@@ -13,11 +13,14 @@ import { DEFAULT_PROFILE_SETTINGS, ProfileSettings } from './types';
 export interface AltitudeProfileState extends SliceSettingsBase {
 	/** Per-profile-key settings (routing / line:<id>). */
 	profiles: Record<string, ProfileSettings>;
+	/** General settings — the fallback for profiles without their own. */
+	general: ProfileSettings;
 }
 
 const initialState: AltitudeProfileState = {
 	initialized: false,
 	profiles: {},
+	general: DEFAULT_PROFILE_SETTINGS,
 };
 
 // Slices contain Redux reducer logic for updating state, and
@@ -44,11 +47,17 @@ export const altitudeProfileSlice = createSlice({
 				delete state.profiles[key];
 			}
 		},
+		setGeneralSettings: (state, action: PayloadAction<Partial<ProfileSettings>>) => {
+			state.general = {
+				...(state.general ?? DEFAULT_PROFILE_SETTINGS),
+				...action.payload,
+			};
+		},
 	},
 });
 
 // Export the generated action creators for use in components.
-export const { setInitialized, setProfileSettings, removeProfileSettings } =
+export const { setInitialized, setProfileSettings, removeProfileSettings, setGeneralSettings } =
 	altitudeProfileSlice.actions;
 
 // Export the slice reducer for use in the store configuration

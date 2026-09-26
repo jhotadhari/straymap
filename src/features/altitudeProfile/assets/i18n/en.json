@@ -1,5 +1,5 @@
 {
-	"routingTitle": "Altitude profile",
+	"routingTitle": "Route planning",
 	"settingsTitle": "Profile settings",
 	"primarySeries": "Primary series",
 	"secondarySeries": "Secondary series",
@@ -13,6 +13,10 @@
 	"xDistance": "Distance",
 	"removeProfile": "Remove profile",
 	"activeProfile": "Active profile",
+	"profileModeDefault": "Default",
+	"profileModeCustom": "Custom",
+	"profileModeHintDefault": "Uses the shared default settings — changes apply to every profile without its own custom settings.",
+	"profileModeHintCustom": "Has its own custom settings — changes only affect this profile.",
 	"showLabel": "Show label",
 	"showStats": "Show stats",
 	"removeProfileConfirmBody": "Only the profile is removed from the bottom drawer. The route stays on the map, nothing is deleted, and the profile can be toggled on again at any time."

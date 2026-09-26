@@ -13,7 +13,9 @@ import {
 	setInitialized,
 	setProfileSettings,
 	removeProfileSettings,
+	setGeneralSettings,
 } from './slice';
+import { DEFAULT_PROFILE_SETTINGS } from './types';
 import { startAppListening } from '../../store/listenerMiddleware';
 import { selectInitialized } from './selectors';
 import { AppStore } from '../../store/store';
@@ -36,6 +38,9 @@ export const initializeFromStorage = (store: AppStore) => {
 					Object.entries(newSettings.profiles).forEach(([key, settings]) => {
 						store.dispatch(setProfileSettings({ key, settings }));
 					});
+				}
+				if (newSettings?.general) {
+					store.dispatch(setGeneralSettings(newSettings.general));
 				}
 			}
 			store.dispatch(setInitialized(true));
@@ -60,6 +65,10 @@ export const saveToStorage = (state: AltitudeProfileState, actionType: string) =
 				valueToSave = state.profiles;
 				shouldSave = !isEqual(valueToSave, {});
 				break;
+			case 'general':
+				valueToSave = state.general;
+				shouldSave = !isEqual(valueToSave, DEFAULT_PROFILE_SETTINGS);
+				break;
 			default:
 				valueToSave = get(state, key);
 				shouldSave = !isEqual(valueToSave, get({ initialized: false, profiles: {} }, key));
@@ -79,7 +88,7 @@ export const saveToStorage = (state: AltitudeProfileState, actionType: string) =
  * and calls the function to save them to defaultPreferences.
  */
 startAppListening({
-	matcher: isAnyOf(setProfileSettings, removeProfileSettings),
+	matcher: isAnyOf(setProfileSettings, removeProfileSettings, setGeneralSettings),
 	effect: async (action, listenerApi) => {
 		try {
 			await saveToStorage(listenerApi.getState().altitudeProfile, action.type);

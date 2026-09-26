@@ -12,6 +12,8 @@ import { useAppSelector } from '../../../store/hooks';
 import { selectProfileLines } from '../../lines/selectors';
 import { queryLinesWithoutGeom } from '../../lines/db/queryFns';
 import { LinePartial } from '../../lines/types';
+import { selectDateTimeFormat } from '../../general/selectors';
+import dayjs from '../../../lib/dayjs';
 import { getAltitudeProfileSourceKey } from '../types';
 
 /**
@@ -23,6 +25,7 @@ export const useProfileItemLabels = (): Record<string, string> => {
 	const { t } = useTranslation();
 
 	const profileLines = useAppSelector(selectProfileLines);
+	const dateTimeFormat = useAppSelector(selectDateTimeFormat);
 
 	const { data: lines } = useQuery({
 		queryKey: ['lines', profileLines],
@@ -36,9 +39,14 @@ export const useProfileItemLabels = (): Record<string, string> => {
 		};
 		(lines ?? []).forEach((line: LinePartial) => {
 			if (typeof line?.id === 'number') {
-				labels[getAltitudeProfileSourceKey.line(line.id)] = line.title ?? `${line.id}`;
+				labels[getAltitudeProfileSourceKey.line(line.id)] =
+					line.title ?? dayjs(line.custom_date ?? line.created_at).format(dateTimeFormat);
 			}
 		});
 		return labels;
-	}, [t, lines]);
+	}, [
+		t,
+		lines,
+		dateTimeFormat,
+	]);
 };

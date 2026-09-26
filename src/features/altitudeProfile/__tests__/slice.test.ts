@@ -9,16 +9,22 @@ import altitudeProfileReducer, {
 	setInitialized,
 	setProfileSettings,
 	removeProfileSettings,
+	setGeneralSettings,
 } from '../slice';
-import { selectProfileSettings } from '../selectors';
+import {
+	selectGeneralSettings,
+	selectHasOwnProfileSettings,
+	selectProfileSettings,
+} from '../selectors';
 import { DEFAULT_PROFILE_SETTINGS } from '../types';
 import type { RootState } from '../../../store/store';
 
-const buildRoot = (state?: Partial<{ profiles: Record<string, object> }>) =>
+const buildRoot = (state?: Partial<{ profiles: Record<string, object>; general: object }>) =>
 	({
 		altitudeProfile: {
 			initialized: false,
 			profiles: {},
+			general: DEFAULT_PROFILE_SETTINGS,
 			...state,
 		},
 	}) as unknown as RootState;
@@ -61,6 +67,14 @@ describe('altitudeProfile slice reducers', () => {
 		state = altitudeProfileReducer(state, removeProfileSettings(['line:1']));
 		expect(state.profiles['line:1']).toBeUndefined();
 	});
+
+	it('setGeneralSettings merges partial settings', () => {
+		const state = altitudeProfileReducer(undefined, setGeneralSettings({ colorMode: 'slope' }));
+		expect(state.general).toEqual({
+			...DEFAULT_PROFILE_SETTINGS,
+			colorMode: 'slope',
+		});
+	});
 });
 
 describe('altitudeProfile selectors', () => {
@@ -82,6 +96,7 @@ describe('altitudeProfile selectors', () => {
 		const root = {
 			altitudeProfile: {
 				initialized: true,
+				general: DEFAULT_PROFILE_SETTINGS,
 				profiles: { 'line:4': { colorMode: 'slope' } },
 			},
 		} as unknown as RootState;
@@ -90,5 +105,38 @@ describe('altitudeProfile selectors', () => {
 		expect(settings.primary).toBe('elevation');
 		expect(settings.showLabel).toBe(true);
 		expect(settings.showStats).toBe(true);
+	});
+
+	it('selectProfileSettings falls back to the general settings', () => {
+		const root = buildRoot({
+			general: { ...DEFAULT_PROFILE_SETTINGS, colorMode: 'slope' },
+		});
+		expect(selectProfileSettings(root, 'line:5').colorMode).toBe('slope');
+		expect(selectProfileSettings(root, 'line:5').secondary).toBe('none');
+	});
+
+	it('selectProfileSettings prefers own settings over the general settings', () => {
+		const root = buildRoot({
+			general: { ...DEFAULT_PROFILE_SETTINGS, colorMode: 'slope' },
+			profiles: { 'line:6': { colorMode: 'axis' } },
+		});
+		expect(selectProfileSettings(root, 'line:6').colorMode).toBe('axis');
+	});
+
+	it('selectGeneralSettings merges defaults', () => {
+		expect(selectGeneralSettings(buildRoot())).toEqual(DEFAULT_PROFILE_SETTINGS);
+		const root = buildRoot({
+			general: { ...DEFAULT_PROFILE_SETTINGS, showStats: false },
+		});
+		expect(selectGeneralSettings(root).showStats).toBe(false);
+	});
+
+	it('selectHasOwnProfileSettings detects own entries', () => {
+		const root = buildRoot({
+			profiles: { 'line:7': { colorMode: 'slope' } },
+		});
+		expect(selectHasOwnProfileSettings(root, 'line:7')).toBe(true);
+		expect(selectHasOwnProfileSettings(root, 'line:8')).toBe(false);
+		expect(selectHasOwnProfileSettings(root, undefined)).toBe(false);
 	});
 });
