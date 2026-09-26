@@ -13,5 +13,7 @@
 	"xDistance": "Distance",
 	"statUphill": "↑",
 	"statDownhill": "↓",
-	"statLength": "↔"
+	"statLength": "↔",
+	"removeProfile": "Remove profile",
+	"removeProfileConfirmBody": "Only the profile is removed from the bottom drawer. The route stays on the map, nothing is deleted, and the profile can be toggled on again at any time."
 }

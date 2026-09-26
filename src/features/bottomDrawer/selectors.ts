@@ -4,7 +4,7 @@
 import createAppSelector from '../../store/createAppSelector';
 import { RootState } from '../../store/store';
 import { selectIsRouting, selectRoutingLineId } from '../routing/selectors';
-import { selectProfileLines } from '../lines/selectors';
+import { selectProfileLines, selectSelected } from '../lines/selectors';
 import { getAltitudeProfileSourceKey } from '../altitudeProfile/types';
 import { getBottomDrawerItem } from './dynamicItems';
 
@@ -17,18 +17,19 @@ export const selectItemKeys = createAppSelector(
 	(state: RootState) => selectIsRouting(state),
 	(state: RootState) => selectProfileLines(state),
 	(state: RootState) => selectRoutingLineId(state),
-	(itemKeys, isRouting, profileLines, routingLineId): string[] => {
+	(state: RootState) => selectSelected(state),
+	(itemKeys, isRouting, profileLines, routingLineId, selectedLineIds): string[] => {
 		// Derived keys: altitude profile sources (routing while active,
-		// one per line with a profile enabled). Not persisted — derived
-		// from the owning features' state.
+		// one per line that has a profile enabled AND is on the map).
+		// Not persisted — derived from the owning features' state.
 		const derivedKeys: string[] = [];
 		if (isRouting) {
 			derivedKeys.push(getAltitudeProfileSourceKey.routing());
 		}
 		profileLines.forEach((lineId) => {
-			// The routing line is already covered by the routing key —
-			// don't add a second entry for the same line.
-			if (lineId === routingLineId) {
+			// Only lines currently on the map get a profile entry; the
+			// routing line is already covered by the routing key.
+			if (lineId === routingLineId || !selectedLineIds.includes(lineId)) {
 				return;
 			}
 			derivedKeys.push(getAltitudeProfileSourceKey.line(lineId));

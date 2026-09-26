@@ -5,7 +5,7 @@
 /**
  * Internal dependencies
  */
-import { getNiceTicks, getProfileSeries } from '../utils';
+import { clampTranslate, getNiceTicks, getProfileSeries, zoomAroundPoint } from '../utils';
 
 describe('getProfileSeries', () => {
 	it('returns undefined for fewer than two coordinates', () => {
@@ -83,5 +83,57 @@ describe('getNiceTicks', () => {
 		const ticks = getNiceTicks(-21, -3, 5);
 		expect(ticks[0]).toBeGreaterThanOrEqual(-21);
 		expect(ticks[ticks.length - 1]).toBeLessThanOrEqual(-3 + 1e-6);
+	});
+});
+
+describe('clampTranslate', () => {
+	it('keeps translations within the plot bounds', () => {
+		expect(clampTranslate(300, 2, 100)).toBe(0);
+		expect(clampTranslate(300, 2, -400)).toBe(-300);
+		expect(clampTranslate(300, 2, -100)).toBe(-100);
+	});
+
+	it('forces zero translation at scale 1', () => {
+		expect(clampTranslate(300, 1, 50)).toBe(0);
+		expect(clampTranslate(300, 1, -50)).toBe(0);
+	});
+});
+
+describe('zoomAroundPoint', () => {
+	const base = { scale: 1, translateX: 0, translateY: 0 };
+
+	it('keeps the focal point anchored when zooming in', () => {
+		const next = zoomAroundPoint(base, { x: 100, y: 50 }, 2, { width: 300, height: 200 }, 20);
+		expect(next.scale).toBe(2);
+		// The content point under the focal stays at the focal's screen position.
+		expect(next.translateX + 2 * 100).toBeCloseTo(100);
+		expect(next.translateY + 2 * 50).toBeCloseTo(50);
+	});
+
+	it('zooms from a panned base', () => {
+		const panned = { scale: 2, translateX: -150, translateY: -60 };
+		const focal = { x: 120, y: 40 };
+		const next = zoomAroundPoint(panned, focal, 4, { width: 300, height: 200 }, 20);
+		expect(next.scale).toBe(4);
+		// Content point under the focal: (focal - translate) / scale.
+		const contentX = (focal.x - panned.translateX) / panned.scale;
+		const contentY = (focal.y - panned.translateY) / panned.scale;
+		expect(next.translateX + 4 * contentX).toBeCloseTo(focal.x);
+		expect(next.translateY + 4 * contentY).toBeCloseTo(focal.y);
+	});
+
+	it('clamps scale to [1, maxScale]', () => {
+		const below = zoomAroundPoint(base, { x: 0, y: 0 }, 0.5, { width: 300, height: 200 }, 20);
+		expect(below.scale).toBe(1);
+		const above = zoomAroundPoint(base, { x: 0, y: 0 }, 42, { width: 300, height: 200 }, 20);
+		expect(above.scale).toBe(20);
+	});
+
+	it('clamps the resulting translation', () => {
+		const next = zoomAroundPoint(base, { x: 0, y: 0 }, 20, { width: 300, height: 200 }, 20);
+		expect(next.translateX).toBeGreaterThanOrEqual(300 * (1 - 20));
+		expect(next.translateX).toBeLessThanOrEqual(0);
+		expect(next.translateY).toBeGreaterThanOrEqual(200 * (1 - 20));
+		expect(next.translateY).toBeLessThanOrEqual(0);
 	});
 });

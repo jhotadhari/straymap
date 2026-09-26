@@ -32,6 +32,7 @@ const buildRoot = (overrides: Partial<BottomDrawersState> = {}) =>
 		},
 		lines: {
 			profileLines: [],
+			selected: [],
 		},
 	}) as unknown as RootState;
 
@@ -145,12 +146,26 @@ describe('bottomDrawer selectors', () => {
 		const state = {
 			...buildRoot(),
 			routing: { isRouting: 42, routingLineId: 7 },
-			lines: { profileLines: [7, 8] },
+			lines: { profileLines: [7, 8], selected: [7, 8] },
 		} as unknown as RootState;
 		const keys = selectItemKeys(state);
 		expect(keys).toContain('altitudeProfile:routing');
 		expect(keys).not.toContain('altitudeProfile:line:7');
 		expect(keys).toContain('altitudeProfile:line:8');
+		setBottomDrawerItemResolver(undefined);
+	});
+
+	it('selectItemKeys only derives line profile keys for lines on the map', () => {
+		setBottomDrawerItemResolver((key) =>
+			key.startsWith('altitudeProfile:') ? routingProfileItem : undefined
+		);
+		const state = {
+			...buildRoot(),
+			lines: { profileLines: [8, 9], selected: [8] },
+		} as unknown as RootState;
+		const keys = selectItemKeys(state);
+		expect(keys).toContain('altitudeProfile:line:8');
+		expect(keys).not.toContain('altitudeProfile:line:9');
 		setBottomDrawerItemResolver(undefined);
 	});
 });

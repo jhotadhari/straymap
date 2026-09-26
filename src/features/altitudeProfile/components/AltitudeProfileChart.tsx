@@ -21,7 +21,13 @@ import { interpolateColor } from 'react-native-mapsforge-vtm-ext-path-color-ramp
 /**
  * Internal dependencies
  */
-import { getNiceTicks, ProfileSeries } from '../utils';
+import {
+	getNiceTicks,
+	ProfileSeries,
+	ViewportTransform,
+	clampTranslate,
+	zoomAroundPoint,
+} from '../utils';
 import { ProfileSettings } from '../types';
 import { formatDistance, formatHeightDepth } from '../../../lib/formatting';
 import { UnitPref } from '../../general/types';
@@ -256,47 +262,94 @@ const AltitudeProfileChart: FC<{
 	);
 
 	// ── Gestures (JS-driven state — small subtree, labels stay in sync) ──
+	// All math runs off gesture-start snapshots (not live state), so scale
+	// is never compounded across events and pan never fights the pinch.
 	const gesture = useMemo(() => {
-		const clampTx = (s: number, v: number) => clamp(v, Math.min(0, plotW * (1 - s)), 0);
-		const clampTy = (s: number, v: number) => clamp(v, Math.min(0, plotH * (1 - s)), 0);
-
-		const zoomAround = (focalX: number, focalY: number, newScale: number) => {
-			const s = clamp(newScale, 1, MAX_SCALE);
-			const fx = focalX - MARGIN_LEFT;
-			const fy = focalY - MARGIN_TOP;
-			return {
-				tx: clampTx(s, fx - (s * (fx - txRef.current)) / scaleRef.current),
-				ty: clampTy(s, fy - (s * (fy - tyRef.current)) / scaleRef.current),
-			};
+		const panStartRef = { tx: 0, ty: 0 };
+		const pinchBaseRef: { base: ViewportTransform; focal: { x: number; y: number } } = {
+			base: { scale: 1, translateX: 0, translateY: 0 },
+			focal: { x: 0, y: 0 },
 		};
 
+		const applyTransform = (next: ViewportTransform) => {
+			setScale(next.scale);
+			setTranslateX(next.translateX);
+			setTranslateY(next.translateY);
+		};
+
+		// One-finger pan: never fires while two fingers pinch.
 		const pan = Gesture.Pan()
 			.minDistance(4)
+			.maxPointers(1)
 			.runOnJS(true)
+			.onStart(() => {
+				panStartRef.tx = txRef.current;
+				panStartRef.ty = tyRef.current;
+			})
 			.onUpdate((event) => {
-				setTranslateX(clampTx(scaleRef.current, txRef.current + event.translationX));
-				setTranslateY(clampTy(scaleRef.current, tyRef.current + event.translationY));
+				setTranslateX(
+					clampTranslate(plotW, scaleRef.current, panStartRef.tx + event.translationX)
+				);
+				setTranslateY(
+					clampTranslate(plotH, scaleRef.current, panStartRef.ty + event.translationY)
+				);
 			});
+
+		// Two-finger pinch: snapshot the base once, derive everything from
+		// it. Re-snapshot whenever a finger changes (Android re-touch quirk).
+		const snapshotPinchBase = (focalX: number, focalY: number) => {
+			pinchBaseRef.base = {
+				scale: scaleRef.current,
+				translateX: txRef.current,
+				translateY: tyRef.current,
+			};
+			pinchBaseRef.focal = { x: focalX - MARGIN_LEFT, y: focalY - MARGIN_TOP };
+		};
 
 		const pinch = Gesture.Pinch()
 			.runOnJS(true)
+			.onStart((event) => {
+				snapshotPinchBase(event.focalX, event.focalY);
+			})
+			.onTouchesDown((event) => {
+				const touches = event.allTouches ?? [];
+				if (touches.length < 2) {
+					return;
+				}
+				const [t0, t1] = touches;
+				snapshotPinchBase((t0.x + t1.x) / 2, (t0.y + t1.y) / 2);
+			})
 			.onUpdate((event) => {
-				const s = clamp(scaleRef.current * event.scale, 1, MAX_SCALE);
-				const next = zoomAround(event.focalX, event.focalY, s);
-				setScale(s);
-				setTranslateX(next.tx);
-				setTranslateY(next.ty);
+				const { base, focal } = pinchBaseRef;
+				applyTransform(
+					zoomAroundPoint(
+						base,
+						focal,
+						base.scale * event.scale,
+						{ width: plotW, height: plotH },
+						MAX_SCALE
+					)
+				);
 			});
 
 		const doubleTap = Gesture.Tap()
 			.numberOfTaps(2)
 			.runOnJS(true)
 			.onEnd((event) => {
-				const s = clamp(scaleRef.current * 2, 1, MAX_SCALE);
-				const next = zoomAround(event.x, event.y, s);
-				setScale(s);
-				setTranslateX(next.tx);
-				setTranslateY(next.ty);
+				const base: ViewportTransform = {
+					scale: scaleRef.current,
+					translateX: txRef.current,
+					translateY: tyRef.current,
+				};
+				applyTransform(
+					zoomAroundPoint(
+						base,
+						{ x: event.x - MARGIN_LEFT, y: event.y - MARGIN_TOP },
+						base.scale * 2,
+						{ width: plotW, height: plotH },
+						MAX_SCALE
+					)
+				);
 			});
 
 		return Gesture.Simultaneous(pan, pinch, doubleTap);
@@ -385,7 +438,7 @@ const AltitudeProfileChart: FC<{
 									key={idx}
 									d={run.d}
 									stroke={run.color}
-									strokeWidth={2}
+									strokeWidth={2 / scale}
 									fill="none"
 								/>
 							))}
@@ -394,7 +447,7 @@ const AltitudeProfileChart: FC<{
 							<Path
 								d={pathData.primaryD}
 								stroke={COLOR_PRIMARY}
-								strokeWidth={2}
+								strokeWidth={2 / scale}
 								fill="none"
 							/>
 						)}
@@ -403,7 +456,7 @@ const AltitudeProfileChart: FC<{
 							<Path
 								d={pathData.secondaryD}
 								stroke={COLOR_SECONDARY}
-								strokeWidth={1.5}
+								strokeWidth={1.5 / scale}
 								fill="none"
 							/>
 						)}
@@ -416,14 +469,14 @@ const AltitudeProfileChart: FC<{
 									x2={x}
 									y2={plotH}
 									stroke={COLOR_WAYPOINT}
-									strokeWidth={1}
-									strokeDasharray="3,3"
+									strokeWidth={1 / scale}
+									strokeDasharray={`${3 / scale},${3 / scale}`}
 								/>
 								<SvgText
-									x={x + 2}
-									y={10}
+									x={x + 2 / scale}
+									y={10 / scale}
 									fill={COLOR_WAYPOINT}
-									fontSize={10}
+									fontSize={10 / scale}
 								>
 									{idx + 1}
 								</SvgText>
@@ -438,13 +491,13 @@ const AltitudeProfileChart: FC<{
 									x2={centerX}
 									y2={plotH}
 									stroke={COLOR_CENTER}
-									strokeWidth={1}
-									strokeDasharray="3,3"
+									strokeWidth={1 / scale}
+									strokeDasharray={`${3 / scale},${3 / scale}`}
 								/>
 								<Circle
 									cx={centerX}
 									cy={centerY}
-									r={3}
+									r={3 / scale}
 									fill={COLOR_CENTER}
 								/>
 							</G>

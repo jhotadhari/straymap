@@ -18,6 +18,9 @@ import { useButtonProps } from '../../../compose/useButtonProps';
 import { useAppDispatch } from '../../../store/hooks';
 import { sharedStyles } from '../../../sharedStyles';
 import { setIsRouting } from '../../routing/slice';
+import { removeProfileLines } from '../slice';
+import { removeProfileSettings } from '../../altitudeProfile/slice';
+import { getAltitudeProfileSourceKey } from '../../altitudeProfile/types';
 import { deleteLines } from '../db/actionsLine';
 import {
 	cancelLinesQueries,
@@ -116,6 +119,12 @@ const useDeleteLinesCbModal = ({
 		includesRoute && dispatch(setIsRouting(false));
 		// remove from map
 		removeLinesFromMap();
+		// Prune altitude-profile state for the deleted lines: the derived
+		// bottom-drawer profile entries and their persisted settings must
+		// not survive the line (profileLines is persisted, so without this
+		// the stale entries come back after a restart).
+		dispatch(removeProfileLines(deleteIds));
+		dispatch(removeProfileSettings(deleteIds.map(getAltitudeProfileSourceKey.line)));
 		// delete lines and uncheck and dismiss modal
 		mutation.mutate(deleteIds);
 	}, [

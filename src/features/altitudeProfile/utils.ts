@@ -26,6 +26,50 @@ export interface ProfileSeries {
 	stats: ProfileStats;
 }
 
+// ── Viewport (pan/zoom) helpers ────────────────────────────────────────
+
+export interface ViewportTransform {
+	scale: number;
+	translateX: number;
+	translateY: number;
+}
+
+/**
+ * Clamps a translation along one axis for the given scale: the content
+ * can never move past its edges ([plotSize * (1 - scale), 0] at scale >= 1).
+ */
+export const clampTranslate = (plotSize: number, scale: number, translate: number): number =>
+	Math.min(0, Math.max(plotSize * (1 - scale), translate));
+
+/**
+ * Derives the viewport transform after zooming to `newScale`, keeping the
+ * given focal point (plot-local coordinates) anchored to its screen
+ * position. `base` must be the transform at the start of the gesture.
+ */
+export const zoomAroundPoint = (
+	base: ViewportTransform,
+	focal: { x: number; y: number },
+	newScale: number,
+	plotSize: { width: number; height: number },
+	maxScale: number
+): ViewportTransform => {
+	const scale = Math.min(maxScale, Math.max(1, newScale));
+	const k = scale / base.scale;
+	return {
+		scale,
+		translateX: clampTranslate(
+			plotSize.width,
+			scale,
+			focal.x - k * (focal.x - base.translateX)
+		),
+		translateY: clampTranslate(
+			plotSize.height,
+			scale,
+			focal.y - k * (focal.y - base.translateY)
+		),
+	};
+};
+
 /**
  * Derives the chart series from profile coordinates ([lng, lat, z][]).
  * Returns undefined when there aren't at least two coordinates.

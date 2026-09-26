@@ -24,7 +24,7 @@ import { selectProfileSettings } from '../selectors';
 import { useProfileItemLabels } from '../hooks/useProfileItemLabels';
 import { getProfileSeries } from '../utils';
 import AltitudeProfileChart from './AltitudeProfileChart';
-import ProfileSettingsModal from './ProfileSettingsModal';
+import ProfileSettingsModal from './ProfileSettingsModal/ProfileSettingsModal';
 
 const nearestDistance = (
 	coordinates: number[][],

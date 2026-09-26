@@ -11,6 +11,9 @@ import linesReducer, {
 	setLineTemp,
 	setLineSelected,
 	setLinesSelected,
+	setProfileLines,
+	toggleProfileLine,
+	removeProfileLines,
 	onSetDbPath,
 	initialSettings,
 } from '../slice';
@@ -92,6 +95,36 @@ describe('lines slice reducers', () => {
 		const state = linesReducer(undefined, { type: '@@INIT' });
 		expect(state.selected).toEqual([]);
 		expect(state.initialized).toBe(false);
+	});
+
+	describe('profile lines', () => {
+		it('setProfileLines replaces the list', () => {
+			const state = linesReducer(undefined, setProfileLines([1, 2]));
+			expect(state.profileLines).toEqual([1, 2]);
+		});
+
+		it('toggleProfileLine adds then removes a line', () => {
+			let state = linesReducer(undefined, toggleProfileLine(3));
+			expect(state.profileLines).toContain(3);
+			state = linesReducer(state, toggleProfileLine(3));
+			expect(state.profileLines).not.toContain(3);
+		});
+
+		it('removeProfileLines removes multiple ids', () => {
+			const state = linesReducer(
+				linesReducer(
+					undefined,
+					setProfileLines([
+						1,
+						2,
+						3,
+						4,
+					])
+				),
+				removeProfileLines([2, 4])
+			);
+			expect(state.profileLines).toEqual([1, 3]);
+		});
 	});
 });
 
