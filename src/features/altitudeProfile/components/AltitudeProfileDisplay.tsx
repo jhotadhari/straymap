@@ -2,14 +2,16 @@
  * External dependencies
  */
 import React, { FC, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { LayoutChangeEvent, StyleSheet, View } from 'react-native';
-import { Text, useTheme } from 'react-native-paper';
+import { LayoutChangeEvent, StyleSheet, TouchableHighlight, View } from 'react-native';
+import { Icon, Text, useTheme } from 'react-native-paper';
 import { useQuery } from '@tanstack/react-query';
 
 /**
  * Internal dependencies
  */
 import BottomDrawerContext from '../../bottomDrawer/BottomDrawerContext';
+import BottomDrawerMenu from '../../bottomDrawer/components/BottomDrawerMenu';
+import { useBottomDrawerMenuOptions } from '../../bottomDrawer/hooks/useBottomDrawerMenuOptions';
 import { MapContext } from '../../../Context';
 import IconButtonHighlight from '../../../components/generic/primitives/IconButtonHighlight';
 import { useAppSelector } from '../../../store/hooks';
@@ -169,6 +171,12 @@ const AltitudeProfileDisplay: FC = () => {
 		}
 	}, []);
 
+	// Title menu: switch the active bottom drawer item (replaces the
+	// handle's long-press menu).
+	const [menuVisible, setMenuVisible] = useState(false);
+	const titleAnchorRef = useRef<View>(null);
+	const menuOptions = useBottomDrawerMenuOptions();
+
 	if (!series) {
 		return (
 			<View style={styles.container}>
@@ -198,12 +206,30 @@ const AltitudeProfileDisplay: FC = () => {
 		<View style={styles.container}>
 			<View style={showLabel || showStats ? styles.header : styles.headerAbs}>
 				{showLabel && (
-					<Text
-						style={[styles.title, { color: theme.colors.onBackground }]}
-						numberOfLines={1}
+					<View
+						ref={titleAnchorRef}
+						collapsable={false}
+						style={styles.titleAnchorWrap}
 					>
-						{label}
-					</Text>
+						<TouchableHighlight
+							underlayColor={theme.colors.elevation.level3}
+							onPress={() => setMenuVisible(true)}
+						>
+							<View style={styles.titleAnchor}>
+								<Text
+									style={[styles.title, { color: theme.colors.onBackground }]}
+									numberOfLines={1}
+								>
+									{label}
+								</Text>
+								<Icon
+									source="chevron-down"
+									size={16}
+									color={theme.colors.onSurfaceVariant}
+								/>
+							</View>
+						</TouchableHighlight>
+					</View>
 				)}
 				{!showLabel && statsNode}
 				<IconButtonHighlight
@@ -236,6 +262,16 @@ const AltitudeProfileDisplay: FC = () => {
 				setVisible={setSettingsModalVisible}
 				profileKey={activeItemKey ?? ''}
 			/>
+
+			{showLabel && (
+				<BottomDrawerMenu
+					visible={menuVisible}
+					setVisible={setMenuVisible}
+					from={titleAnchorRef}
+					options={menuOptions}
+					activeKey={activeItemKey}
+				/>
+			)}
 		</View>
 	);
 };
@@ -262,6 +298,14 @@ const styles = StyleSheet.create({
 	title: {
 		flexShrink: 1,
 		fontWeight: 'bold',
+	},
+	titleAnchorWrap: {
+		flexShrink: 1,
+	},
+	titleAnchor: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		gap: 2,
 	},
 	statsRow: {
 		flexDirection: 'row',

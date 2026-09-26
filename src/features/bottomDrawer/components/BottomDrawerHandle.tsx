@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { FC, useCallback, useContext, useMemo, useRef, useState } from 'react';
+import React, { FC, useCallback, useContext, useMemo } from 'react';
 import { StyleSheet, View, ViewProps } from 'react-native';
 import { Icon, useTheme } from 'react-native-paper';
 import {
@@ -24,12 +24,9 @@ import { get } from 'lodash-es';
  * Internal dependencies
  */
 import BottomDrawerContext from '../BottomDrawerContext';
-import BottomDrawerMenu from './BottomDrawerMenu';
 import { getBottomDrawerItem } from '../dynamicItems';
 import { useAppSelector } from '../../../store/hooks';
 import { selectItemKeys } from '../selectors';
-import { MenuActionOption } from '../../../types';
-import { useProfileItemLabels } from '../../altitudeProfile/hooks/useProfileItemLabels';
 import {
 	BOTTOM_DRAWER_HANDLE_HEIGHT,
 	BOTTOM_DRAWER_HANDLE_WIDTH,
@@ -48,17 +45,11 @@ const BottomDrawerHandle: FC<{
 
 	const itemKeys = useAppSelector(selectItemKeys);
 
-	const { activeItemKey, setActiveItemKey, expand, getIsFullyCollapsed } =
-		useContext(BottomDrawerContext);
-
-	const [menuVisible, setMenuVisible] = useState(false);
-	const anchorRef = useRef<View>(null);
+	const { activeItemKey, expand, getIsFullyCollapsed } = useContext(BottomDrawerContext);
 
 	// The single handle shows the active content. Fall back to the first
 	// available content while nothing has been activated yet.
 	const itemKey = activeItemKey ?? itemKeys[0];
-
-	const profileLabels = useProfileItemLabels();
 
 	const drawerItem = useMemo(() => getBottomDrawerItem(itemKey ?? ''), [itemKey]);
 
@@ -147,7 +138,7 @@ const BottomDrawerHandle: FC<{
 		),
 	}));
 
-	// ── Gestures: tap toggles, vertical pan drags, long-press opens the menu ──
+	// ── Gestures: tap toggles, vertical pan drags ──
 	const handleToggle = useCallback(() => {
 		expand(getIsFullyCollapsed());
 	}, [expand, getIsFullyCollapsed]);
@@ -162,49 +153,11 @@ const BottomDrawerHandle: FC<{
 		[handleToggle]
 	);
 
-	const longPressGesture = useMemo(
-		() =>
-			Gesture.LongPress()
-				.minDuration(350)
-				// onStart only fires once the long-press activates (movement fails it).
-				.onStart(() => {
-					runOnJS(setMenuVisible)(true);
-				}),
-		[]
-	);
-
 	const composedGesture = useMemo(
-		() => Gesture.Race(gesture as any, longPressGesture, tapGesture),
+		() => Gesture.Race(gesture as any, tapGesture),
 		[
 			gesture,
-			longPressGesture,
 			tapGesture,
-		]
-	);
-
-	const menuOptions = useMemo(
-		() =>
-			itemKeys.map((key): MenuActionOption => {
-				const item = getBottomDrawerItem(key);
-				return {
-					key,
-					label: item?.label ?? profileLabels[key] ?? key,
-					leadingIcon: item?.iconSource,
-					IconComponent: item?.IconComponent,
-					cb: () => {
-						setActiveItemKey(key);
-						if (getIsFullyCollapsed()) {
-							expand(true);
-						}
-					},
-				};
-			}),
-		[
-			itemKeys,
-			profileLabels,
-			setActiveItemKey,
-			getIsFullyCollapsed,
-			expand,
 		]
 	);
 
@@ -230,50 +183,32 @@ const BottomDrawerHandle: FC<{
 	);
 
 	return (
-		<>
-			<Animated.View
-				style={styles.layer}
-				pointerEvents="box-none"
-			>
-				<GestureDetector gesture={composedGesture as any}>
-					<View style={handleContainerStyle}>
-						{/* Plain (non-collapsable) wrapper anchors the popover to the
-							visual handle's rect — an Animated.View ref would yield the
-							component instance, not a measurable host node. */}
-						<View
-							ref={anchorRef}
-							collapsable={false}
-						>
-							<Animated.View style={[styleHandle, handleStyle]}>
-								<Animated.View style={[styles.iconWrapper, iconStyle]}>
-									{IconComponent && (
-										<IconComponent
-											color={theme.colors.onBackground}
-											size={BOTTOM_DRAWER_ICON_SIZE}
-										/>
-									)}
-									{iconSource && (
-										<Icon
-											source={iconSource}
-											size={BOTTOM_DRAWER_ICON_SIZE}
-											color={theme.colors.onBackground}
-										/>
-									)}
-								</Animated.View>
-							</Animated.View>
-						</View>
-					</View>
-				</GestureDetector>
-			</Animated.View>
-
-			<BottomDrawerMenu
-				visible={menuVisible}
-				setVisible={setMenuVisible}
-				from={anchorRef}
-				options={menuOptions}
-				activeKey={activeItemKey}
-			/>
-		</>
+		<Animated.View
+			style={styles.layer}
+			pointerEvents="box-none"
+		>
+			<GestureDetector gesture={composedGesture as any}>
+				<View style={handleContainerStyle}>
+					<Animated.View style={[styleHandle, handleStyle]}>
+						<Animated.View style={[styles.iconWrapper, iconStyle]}>
+							{IconComponent && (
+								<IconComponent
+									color={theme.colors.onBackground}
+									size={BOTTOM_DRAWER_ICON_SIZE}
+								/>
+							)}
+							{iconSource && (
+								<Icon
+									source={iconSource}
+									size={BOTTOM_DRAWER_ICON_SIZE}
+									color={theme.colors.onBackground}
+								/>
+							)}
+						</Animated.View>
+					</Animated.View>
+				</View>
+			</GestureDetector>
+		</Animated.View>
 	);
 };
 
