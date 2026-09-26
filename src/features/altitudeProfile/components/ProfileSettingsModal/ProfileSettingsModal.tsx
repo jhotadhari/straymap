@@ -21,10 +21,11 @@ import { ProfileSettingsModalContext, ProfileSettingsMode } from './Context';
 import { sharedStyles } from './sharedDeps';
 import RowSelectProfile from './rows/RowSelectProfile';
 import RowProfileMode from './rows/RowProfileMode';
-import RowPrimarySeries from './rows/RowPrimarySeries';
-import RowSecondarySeries from './rows/RowSecondarySeries';
-import RowColorMode from './rows/RowColorMode';
-import RowXMode from './rows/RowXMode';
+import RowPrimaryData from './rows/RowPrimaryData';
+import RowPrimaryColor from './rows/RowPrimaryColor';
+import RowSecondaryData from './rows/RowSecondaryData';
+import RowSecondaryColor from './rows/RowSecondaryColor';
+// import RowXMode from './rows/RowXMode';
 import RowShowLabel from './rows/RowShowLabel';
 import RowShowStats from './rows/RowShowStats';
 import RowBlendColors from './rows/RowBlendColors';
@@ -129,13 +130,15 @@ const ProfileSettingsModal: FC<{
 
 				<RowProfileMode />
 
-				<RowPrimarySeries />
+				<RowPrimaryData />
 
-				<RowSecondarySeries />
+				<RowPrimaryColor />
 
-				<RowColorMode />
+				<RowSecondaryData />
 
-				<RowXMode />
+				<RowSecondaryColor />
+
+				{/* <RowXMode /> */}
 
 				<RowShowLabel />
 

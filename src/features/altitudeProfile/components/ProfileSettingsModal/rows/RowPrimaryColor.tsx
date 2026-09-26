@@ -10,28 +10,34 @@ import { useTranslation } from 'react-i18next';
 import InfoLabelRow from '../../../../../components/generic/infoWrapper/InfoLabelRow';
 import ButtonHighlightMenuControl from '../../../../../components/generic/wrapper/ButtonHighlightMenuControl';
 import { OptionBase } from '../../../../../types';
-import { ProfileSettings } from '../../../types';
+import { ProfileColorMode } from '../../../types';
 import { ProfileSettingsModalContext } from '../Context';
 
-const primaryOptions: OptionBase[] = [
-	{ key: 'elevation', label: 'altitudeProfile.seriesElevation' },
+const primaryColorOptions: OptionBase[] = [
+	{ key: 'axis', label: 'altitudeProfile.colorAxisPrimary' },
+	{ key: 'primary', label: 'altitudeProfile.colorPrimaryData' },
+	{ key: 'secondary', label: 'altitudeProfile.colorSecondaryData' },
 ];
 
-const RowPrimarySeries: FC = () => {
+const RowPrimaryColor: FC = () => {
 	const { t } = useTranslation();
 	const { settings, update } = useContext(ProfileSettingsModalContext);
 
 	const selectedOpt = useMemo(
-		() => primaryOptions.find((opt) => opt.key === settings.primary),
-		[settings.primary]
+		() => primaryColorOptions.find((opt) => opt.key === settings.primaryColor),
+		[settings.primaryColor]
 	);
 
+	if (settings.primary === 'none') {
+		return null;
+	}
+
 	return (
-		<InfoLabelRow label={t('altitudeProfile.primarySeries')}>
+		<InfoLabelRow label={t('altitudeProfile.primaryColor')}>
 			<ButtonHighlightMenuControl
-				options={primaryOptions}
-				value={settings.primary}
-				setValue={(v) => update({ primary: v as ProfileSettings['primary'] })}
+				options={primaryColorOptions}
+				value={settings.primaryColor}
+				setValue={(v) => update({ primaryColor: v as ProfileColorMode })}
 				anchorLabel={t(selectedOpt?.label ?? '')}
 				compact
 				buttonPropsProps={{ paddingHorizontal: true }}
@@ -40,4 +46,4 @@ const RowPrimarySeries: FC = () => {
 	);
 };
 
-export default RowPrimarySeries;
+export default RowPrimaryColor;

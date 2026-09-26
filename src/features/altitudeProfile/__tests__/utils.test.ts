@@ -5,7 +5,17 @@
 /**
  * Internal dependencies
  */
-import { clampTranslate, getNiceTicks, getProfileSeries, zoomAroundPoint } from '../utils';
+import {
+	buildColorRuns,
+	clampTranslate,
+	ELEVATION_RAMP,
+	elevationToColor,
+	getNiceTicks,
+	getProfileSeries,
+	SLOPE_STOPS,
+	slopeToColor,
+	zoomAroundPoint,
+} from '../utils';
 
 describe('getProfileSeries', () => {
 	it('returns undefined for fewer than two coordinates', () => {
@@ -130,5 +140,67 @@ describe('zoomAroundPoint', () => {
 		expect(next.translateX).toBeLessThanOrEqual(0);
 		expect(next.translateY).toBeGreaterThanOrEqual(200 * (1 - 20));
 		expect(next.translateY).toBeLessThanOrEqual(0);
+	});
+});
+
+describe('slopeToColor', () => {
+	it('maps zero slope to the green stop', () => {
+		expect(slopeToColor(0)).toBe('#00ff00');
+	});
+
+	it('clamps extreme values to the ramp ends', () => {
+		expect(slopeToColor(-20)).toBe('#00004d');
+		expect(slopeToColor(100)).toBe(SLOPE_STOPS[SLOPE_STOPS.length - 1].color);
+	});
+});
+
+describe('elevationToColor', () => {
+	it('maps the data minimum to the first ramp color', () => {
+		expect(elevationToColor(0, 0, 10)).toBe(ELEVATION_RAMP[0]);
+	});
+
+	it('maps the data maximum to the last ramp color', () => {
+		expect(elevationToColor(10, 0, 10)).toBe(ELEVATION_RAMP[ELEVATION_RAMP.length - 1]);
+	});
+
+	it('maps the midpoint into the ramp', () => {
+		expect(elevationToColor(5, 0, 10)).toBe(ELEVATION_RAMP[2]);
+	});
+
+	it('handles a flat domain', () => {
+		expect(elevationToColor(42, 42, 42)).toBe(ELEVATION_RAMP[2]);
+	});
+});
+
+describe('buildColorRuns', () => {
+	const xs = [
+		0,
+		1,
+		2,
+	];
+	const ys = [
+		10,
+		20,
+		30,
+	];
+	const colorForValue = (v: number) => (v > 50 ? 'red' : 'green');
+
+	it('batches same-colored segments into one run', () => {
+		const runs = buildColorRuns(xs, ys, [0, 0], colorForValue);
+		expect(runs).toHaveLength(1);
+		expect(runs[0].color).toBe('green');
+		expect(runs[0].d).toContain('M 0 10');
+		expect(runs[0].d).toContain('L 2 30');
+	});
+
+	it('splits differently-colored segments into separate runs', () => {
+		const runs = buildColorRuns(xs, ys, [0, 100], colorForValue);
+		expect(runs).toHaveLength(2);
+		expect(runs[0].color).toBe('green');
+		expect(runs[1].color).toBe('red');
+	});
+
+	it('returns no runs for too few points', () => {
+		expect(buildColorRuns([1], [1], [0], colorForValue)).toEqual([]);
 	});
 });

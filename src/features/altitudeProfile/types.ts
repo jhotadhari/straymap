@@ -24,15 +24,15 @@ export const getProfileSourceFromKey = (key: string | undefined): ProfileSource 
 // ── Per-profile settings (persisted) ──────────────────────────────────
 
 export type ProfileXMode = 'distance' | 'time';
-export type ProfilePrimarySeries = 'elevation';
-export type ProfileSecondarySeries = 'none' | 'slope';
-export type ProfileColorMode = 'axis' | 'slope';
+export type ProfileSeriesValue = 'none' | 'elevation' | 'slope';
+export type ProfileColorMode = 'axis' | 'primary' | 'secondary';
 
 export interface ProfileSettings {
-	primary: ProfilePrimarySeries;
-	secondary: ProfileSecondarySeries;
+	primary: ProfileSeriesValue;
+	primaryColor: ProfileColorMode;
+	secondary: ProfileSeriesValue;
+	secondaryColor: ProfileColorMode;
 	xMode: ProfileXMode;
-	colorMode: ProfileColorMode;
 	showLabel: boolean;
 	showStats: boolean;
 	blendColors: boolean;
@@ -40,9 +40,10 @@ export interface ProfileSettings {
 
 export const DEFAULT_PROFILE_SETTINGS: ProfileSettings = {
 	primary: 'elevation',
+	primaryColor: 'axis',
 	secondary: 'none',
+	secondaryColor: 'axis',
 	xMode: 'distance',
-	colorMode: 'axis',
 	showLabel: true,
 	showStats: true,
 	blendColors: false,

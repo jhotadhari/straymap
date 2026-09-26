@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { calculateSlope } from 'react-native-mapsforge-vtm-ext-path-color-ramp';
+import { calculateSlope, interpolateColor } from 'react-native-mapsforge-vtm-ext-path-color-ramp';
 
 /**
  * Internal dependencies
@@ -132,4 +132,143 @@ export const getNiceTicks = (min: number, max: number, targetCount = 5): number[
 		ticks.push(Number(v.toFixed(10)));
 	}
 	return ticks;
+};
+
+// ── Color ramps (slope + elevation) and color-run path building ───────
+
+const clampNum = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
+
+export interface ColorStop {
+	value: number;
+	color: string;
+}
+
+// Slope ramp stops in degrees (percent stops converted, like the map ramp).
+export const SLOPE_STOPS: ColorStop[] = [
+	{ value: -11.31, color: '#00004d' },
+	{ value: -7.41, color: '#000080' },
+	{ value: -4, color: '#0000ff' },
+	{ value: -1.15, color: '#00e8ff' },
+	{ value: 0, color: '#00ff00' },
+	{ value: 1.15, color: '#FFDE02' },
+	{ value: 4, color: '#ff0000' },
+	{ value: 7.41, color: '#800000' },
+	{ value: 11.31, color: '#4d0000' },
+];
+
+export const slopeToColor = (slope: number): string => {
+	const min = SLOPE_STOPS[0].value;
+	const max = SLOPE_STOPS[SLOPE_STOPS.length - 1].value;
+	const v = clampNum(slope, min, max);
+	for (const stop of SLOPE_STOPS) {
+		if (v === stop.value) {
+			return stop.color;
+		}
+	}
+	for (let i = 0; i < SLOPE_STOPS.length - 1; i++) {
+		const a = SLOPE_STOPS[i];
+		const b = SLOPE_STOPS[i + 1];
+		if (v > a.value && v < b.value) {
+			return interpolateColor(a.color, b.color, (v - a.value) / (b.value - a.value));
+		}
+	}
+	return SLOPE_STOPS[SLOPE_STOPS.length - 1].color;
+};
+
+// Hypsometric elevation ramp, low → high.
+export const ELEVATION_RAMP = [
+	'#1a9850', // green
+	'#a6d96a',
+	'#fee08b', // yellow
+	'#fc8d59', // orange
+	'#d73027', // red
+	'#ffffff', // white
+];
+
+/**
+ * Samples a color from an equally-spaced ramp at position t (0..1).
+ * Deterministic at the endpoints.
+ */
+export const rampColor = (t: number, ramp: string[]): string => {
+	if (t <= 0 || ramp.length < 2) {
+		return ramp[0];
+	}
+	if (t >= 1) {
+		return ramp[ramp.length - 1];
+	}
+	const pos = t * (ramp.length - 1);
+	const i = Math.min(Math.floor(pos), ramp.length - 2);
+	return interpolateColor(ramp[i], ramp[i + 1], pos - i);
+};
+
+/**
+ * Colors an elevation by the hypsometric ramp, normalized across
+ * [min, max] of the series' own data.
+ */
+export const elevationToColor = (elevation: number, min: number, max: number): string =>
+	rampColor(max === min ? 0.5 : (elevation - min) / (max - min), ELEVATION_RAMP);
+
+export interface ColorRun {
+	color: string;
+	d: string;
+}
+
+/**
+ * Builds quantized, batched color-run paths for a series path
+ * (`xs`/`ys`) colored by per-segment `values` through `colorForValue`.
+ * Consecutive segments with the same color are merged into one path.
+ */
+export const buildColorRuns = (
+	xs: number[],
+	ys: number[],
+	values: number[],
+	colorForValue: (value: number) => string,
+	bucketCount = 12
+): ColorRun[] => {
+	const runs: ColorRun[] = [];
+	if (xs.length < 2 || !values.length) {
+		return runs;
+	}
+	let vmin = Infinity;
+	let vmax = -Infinity;
+	for (const v of values) {
+		if (v < vmin) {
+			vmin = v;
+		}
+		if (v > vmax) {
+			vmax = v;
+		}
+	}
+	if (!isFinite(vmin)) {
+		return runs;
+	}
+	const range = vmax - vmin || 1;
+	const bucketColor = (v: number) => {
+		const idx = clampNum(
+			Math.round(((clampNum(v, vmin, vmax) - vmin) / range) * (bucketCount - 1)),
+			0,
+			bucketCount - 1
+		);
+		return colorForValue(vmin + (range * idx) / (bucketCount - 1));
+	};
+
+	let currentColor = '';
+	let currentD = '';
+	for (let i = 0; i < xs.length - 1; i++) {
+		const color = bucketColor(values[Math.min(i, values.length - 1)]);
+		const seg = `M ${xs[i]} ${ys[i]} L ${xs[i + 1]} ${ys[i + 1]} `;
+		if (color === currentColor) {
+			currentD += seg;
+		} else {
+			if (currentD) {
+				runs.push({ color: currentColor, d: currentD });
+			}
+			currentColor = color;
+			currentD = seg;
+		}
+	}
+	if (currentD) {
+		runs.push({ color: currentColor, d: currentD });
+	}
+	return runs;
 };

@@ -6,19 +6,21 @@ import { StyleSheet, View } from 'react-native';
 import Svg, { Circle, G, Line, Path, Text as SvgText } from 'react-native-svg';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { useTheme } from 'react-native-paper';
-import { interpolateColor } from 'react-native-mapsforge-vtm-ext-path-color-ramp';
 
 /**
  * Internal dependencies
  */
 import {
+	buildColorRuns,
+	elevationToColor,
 	getNiceTicks,
 	ProfileSeries,
+	slopeToColor,
 	ViewportTransform,
 	clampTranslate,
 	zoomAroundPoint,
 } from '../utils';
-import { ProfileSettings } from '../types';
+import { ProfileColorMode, ProfileSeriesValue, ProfileSettings } from '../types';
 import { formatDistance, formatHeightDepth } from '../../../lib/formatting';
 import { UnitPref } from '../../general/types';
 
@@ -32,8 +34,6 @@ const MARGIN_LEFT = 44;
 const MARGIN_RIGHT = 44;
 const MARGIN_TOP = 10;
 const MARGIN_BOTTOM = 26;
-
-const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 
 const nearestIndex = (distances: number[], target: number): number => {
 	let best = 0;
@@ -59,33 +59,17 @@ const buildPathD = (xs: number[], ys: number[]): string => {
 	return d;
 };
 
-// Slope ramp stops in degrees (percent stops converted, like the map ramp).
-const SLOPE_STOPS = [
-	{ value: -11.31, color: '#00004d' },
-	{ value: -7.41, color: '#000080' },
-	{ value: -4, color: '#0000ff' },
-	{ value: -1.15, color: '#00e8ff' },
-	{ value: 0, color: '#00ff00' },
-	{ value: 1.15, color: '#FFDE02' },
-	{ value: 4, color: '#ff0000' },
-	{ value: 7.41, color: '#800000' },
-	{ value: 11.31, color: '#4d0000' },
-];
-
-const slopeToColor = (slope: number): string => {
-	const min = SLOPE_STOPS[0].value;
-	const max = SLOPE_STOPS[SLOPE_STOPS.length - 1].value;
-	const v = clamp(slope, min, max);
-	for (let i = 0; i < SLOPE_STOPS.length - 1; i++) {
-		const a = SLOPE_STOPS[i];
-		const b = SLOPE_STOPS[i + 1];
-		if (v >= a.value && v <= b.value) {
-			const t = (v - a.value) / (b.value - a.value || 1);
-			return interpolateColor(a.color, b.color, t);
-		}
-	}
-	return SLOPE_STOPS[SLOPE_STOPS.length - 1].color;
-};
+interface SeriesView {
+	data: ProfileSeriesValue;
+	color: ProfileColorMode;
+	axisColor: string;
+	values?: number[];
+	vmin: number;
+	vmax: number;
+	vrange: number;
+	toY: (v: number) => number;
+	formatTick: (v: number) => string;
+}
 
 const AltitudeProfileChart: FC<{
 	series: ProfileSeries;
@@ -121,93 +105,138 @@ const AltitudeProfileChart: FC<{
 	const plotH = Math.max(1, height - MARGIN_TOP - MARGIN_BOTTOM);
 
 	const totalLength = useMemo(() => series.distances[series.distances.length - 1] || 1, [series]);
-	const yMin = Math.min(...series.elevations);
-	const yMax = Math.max(...series.elevations);
-	const yRange = yMax - yMin || 1;
-	const slopeMin = Math.min(...series.slopes);
-	const slopeMax = Math.max(...series.slopes);
-	const slopeRange = slopeMax - slopeMin || 1;
 
-	// Plot-local coordinates (0..plotW / 0..plotH).
 	const distToX = useCallback((d: number) => (d / totalLength) * plotW, [totalLength, plotW]);
-	const elevToY = useCallback(
-		(e: number) => ((yMax - e) / yRange) * plotH,
+
+	// Per-series views: data source, domain, y-mapping, tick formatter.
+	const buildSeriesView = useCallback(
+		(data: ProfileSeriesValue, color: ProfileColorMode, axisColor: string): SeriesView => {
+			const values =
+				data === 'elevation'
+					? series.elevations
+					: data === 'slope'
+						? series.slopes
+						: undefined;
+			const vmin = values ? Math.min(...values) : 0;
+			const vmax = values ? Math.max(...values) : 0;
+			const vrange = vmax - vmin || 1;
+			return {
+				data,
+				color,
+				axisColor,
+				values,
+				vmin,
+				vmax,
+				vrange,
+				toY: (v: number) => ((vmax - v) / vrange) * plotH,
+				formatTick:
+					data === 'slope'
+						? (v: number) => `${Math.round(v * 10) / 10}°`
+						: (v: number) => formatHeightDepth(v, heightPref),
+			};
+		},
 		[
-			yMax,
-			yRange,
+			series,
 			plotH,
+			heightPref,
 		]
 	);
-	const slopeToY = useCallback(
-		(s: number) => ((slopeMax - s) / slopeRange) * plotH,
+
+	const seriesViews = useMemo(
+		() => ({
+			primary: buildSeriesView(settings.primary, settings.primaryColor, COLOR_PRIMARY),
+			secondary: buildSeriesView(
+				settings.secondary,
+				settings.secondaryColor,
+				COLOR_SECONDARY
+			),
+		}),
 		[
-			slopeMax,
-			slopeRange,
-			plotH,
+			buildSeriesView,
+			settings.primary,
+			settings.primaryColor,
+			settings.secondary,
+			settings.secondaryColor,
 		]
 	);
 
 	// ── Paths (memoized — only depend on the series) ────────────────────
 	const pathData = useMemo(() => {
 		const xs = series.distances.map(distToX);
-		const ysElev = series.elevations.map(elevToY);
-		const ysSlope = series.slopes.map(slopeToY);
+		const ysFor = (view: SeriesView) => (view.values ? view.values.map(view.toY) : undefined);
 		return {
-			primaryD: buildPathD(xs, ysElev),
-			secondaryD: buildPathD(xs, ysSlope),
 			xs,
-			ysElev,
+			ysPrimary: ysFor(seriesViews.primary),
+			ysSecondary: ysFor(seriesViews.secondary),
 		};
 	}, [
 		series,
 		distToX,
-		elevToY,
-		slopeToY,
+		seriesViews,
 	]);
 
-	// Slope coloring: quantized buckets, batched into color-run paths.
-	const slopeRuns = useMemo(() => {
-		if (settings.colorMode !== 'slope') {
-			return [];
-		}
-		const min = SLOPE_STOPS[0].value;
-		const max = SLOPE_STOPS[SLOPE_STOPS.length - 1].value;
-		const bucketCount = 12;
-		const bucketColor = (slope: number) => {
-			const idx = clamp(
-				Math.round(((clamp(slope, min, max) - min) / (max - min)) * (bucketCount - 1)),
-				0,
-				bucketCount - 1
-			);
-			const bucketValue = min + ((max - min) * idx) / (bucketCount - 1);
-			return slopeToColor(bucketValue);
-		};
+	const paths = useMemo(
+		() => ({
+			primary: pathData.ysPrimary ? buildPathD(pathData.xs, pathData.ysPrimary) : '',
+			secondary: pathData.ysSecondary ? buildPathD(pathData.xs, pathData.ysSecondary) : '',
+		}),
+		[pathData]
+	);
 
-		const runs: { color: string; d: string }[] = [];
-		let currentColor = '';
-		let currentD = '';
-		for (let i = 0; i < pathData.xs.length - 1; i++) {
-			const color = bucketColor(series.slopes[i]);
-			const seg = `M ${pathData.xs[i]} ${pathData.ysElev[i]} L ${pathData.xs[i + 1]} ${pathData.ysElev[i + 1]} `;
-			if (color === currentColor) {
-				currentD += seg;
-			} else {
-				if (currentD) {
-					runs.push({ color: currentColor, d: currentD });
-				}
-				currentColor = color;
-				currentD = seg;
+	// Color source series for a color mode ('primary' / 'secondary').
+	const colorSourceFor = useCallback(
+		(mode: ProfileColorMode): SeriesView | undefined =>
+			mode === 'primary'
+				? seriesViews.primary
+				: mode === 'secondary'
+					? seriesViews.secondary
+					: undefined,
+		[seriesViews]
+	);
+
+	// Ramp coloring for a series view: batched color runs along the view's
+	// path, colored by the values of the chosen source series.
+	const colorRunsFor = useCallback(
+		(view: SeriesView): { color: string; d: string }[] => {
+			const source = colorSourceFor(view.color);
+			const ys = view === seriesViews.primary ? pathData.ysPrimary : pathData.ysSecondary;
+			if (view.color === 'axis' || !view.values || !ys || !source?.values) {
+				return [];
 			}
-		}
-		if (currentD) {
-			runs.push({ color: currentColor, d: currentD });
-		}
-		return runs;
-	}, [
-		settings.colorMode,
-		pathData,
-		series.slopes,
-	]);
+			const colorForValue =
+				source.data === 'slope'
+					? slopeToColor
+					: (v: number) => elevationToColor(v, source.vmin, source.vmax);
+			return buildColorRuns(pathData.xs, ys, source.values, colorForValue);
+		},
+		[
+			colorSourceFor,
+			pathData,
+			seriesViews,
+		]
+	);
+
+	const primaryRuns = useMemo(
+		() => colorRunsFor(seriesViews.primary),
+		[
+			colorRunsFor,
+			seriesViews.primary,
+		]
+	);
+	const secondaryRuns = useMemo(
+		() => colorRunsFor(seriesViews.secondary),
+		[
+			colorRunsFor,
+			seriesViews.secondary,
+		]
+	);
+
+	// Blend colors: semi-transparent series strokes so crossings show a
+	// mixed color (only meaningful while both series are visible).
+	const blendOpacity =
+		settings.blendColors && seriesViews.primary.values && seriesViews.secondary.values
+			? 0.65
+			: 1;
 
 	// ── Viewport-derived ticks ──────────────────────────────────────────
 	const ticks = useMemo(() => {
@@ -215,14 +244,19 @@ const AltitudeProfileChart: FC<{
 		const d1 = (((plotW - translateX) / scale) * totalLength) / plotW;
 		const xTicks = getNiceTicks(d0, d1, 5);
 
-		const e0 = yMax - (((plotH - translateY) / scale) * yRange) / plotH;
-		const e1 = yMax - ((-translateY / scale) * yRange) / plotH;
-		const y1Ticks = getNiceTicks(Math.min(e0, e1), Math.max(e0, e1), 4);
-
-		const s0 = slopeMax - (((plotH - translateY) / scale) * slopeRange) / plotH;
-		const s1 = slopeMax - ((-translateY / scale) * slopeRange) / plotH;
-		const y2Ticks = getNiceTicks(Math.min(s0, s1), Math.max(s0, s1), 4);
-		return { xTicks, y1Ticks, y2Ticks };
+		const yTicksFor = (view: SeriesView): number[] => {
+			if (!view.values) {
+				return [];
+			}
+			const v0 = view.vmax - (((plotH - translateY) / scale) * view.vrange) / plotH;
+			const v1 = view.vmax - ((-translateY / scale) * view.vrange) / plotH;
+			return getNiceTicks(Math.min(v0, v1), Math.max(v0, v1), 4);
+		};
+		return {
+			xTicks,
+			y1Ticks: yTicksFor(seriesViews.primary),
+			y2Ticks: yTicksFor(seriesViews.secondary),
+		};
 	}, [
 		translateX,
 		translateY,
@@ -230,10 +264,7 @@ const AltitudeProfileChart: FC<{
 		totalLength,
 		plotW,
 		plotH,
-		yMax,
-		yRange,
-		slopeMax,
-		slopeRange,
+		seriesViews,
 	]);
 
 	const toScreenX = useCallback(
@@ -339,10 +370,6 @@ const AltitudeProfileChart: FC<{
 		return Gesture.Simultaneous(pan, pinch, doubleTap);
 	}, [plotW, plotH]);
 
-	// Blend colors: semi-transparent series strokes so crossings show a
-	// mixed color (only meaningful while the secondary series is visible).
-	const blendOpacity = settings.blendColors && settings.secondary === 'slope' ? 0.65 : 1;
-
 	const markerXs = useMemo(
 		() => (waypointDistances ?? []).map((d) => distToX(d)).filter((x) => x >= 0 && x <= plotW),
 		[
@@ -357,18 +384,53 @@ const AltitudeProfileChart: FC<{
 	);
 	const centerY = useMemo(
 		() =>
-			centerDistance !== undefined
-				? elevToY(series.elevations[nearestIndex(series.distances, centerDistance)] ?? yMax)
+			centerDistance !== undefined && seriesViews.primary.values
+				? seriesViews.primary.toY(
+						seriesViews.primary.values[
+							nearestIndex(series.distances, centerDistance)
+						] ?? seriesViews.primary.vmax
+					)
 				: undefined,
 		[
 			centerDistance,
 			series,
-			elevToY,
-			yMax,
+			seriesViews,
 		]
 	);
 
 	const groupTransform = `translate(${translateX}, ${translateY}) scale(${scale})`;
+
+	const renderSeries = (
+		view: SeriesView,
+		runs: { color: string; d: string }[],
+		pathD: string,
+		strokeWidth: number
+	) => {
+		if (!view.values) {
+			return null;
+		}
+		if (runs.length) {
+			return runs.map((run, idx) => (
+				<Path
+					key={idx}
+					d={run.d}
+					stroke={run.color}
+					strokeWidth={strokeWidth / scale}
+					opacity={blendOpacity}
+					fill="none"
+				/>
+			));
+		}
+		return (
+			<Path
+				d={pathD}
+				stroke={view.axisColor}
+				strokeWidth={strokeWidth / scale}
+				opacity={blendOpacity}
+				fill="none"
+			/>
+		);
+	};
 
 	return (
 		<GestureDetector gesture={gesture}>
@@ -384,37 +446,9 @@ const AltitudeProfileChart: FC<{
 						transform={groupTransform}
 					>
 						{/* Secondary series first — the primary always draws above it. */}
-						{settings.secondary === 'slope' && pathData.secondaryD && (
-							<Path
-								d={pathData.secondaryD}
-								stroke={COLOR_SECONDARY}
-								strokeWidth={1.5 / scale}
-								opacity={blendOpacity}
-								fill="none"
-							/>
-						)}
+						{renderSeries(seriesViews.secondary, secondaryRuns, paths.secondary, 1.5)}
 
-						{settings.colorMode === 'slope' &&
-							slopeRuns.map((run, idx) => (
-								<Path
-									key={idx}
-									d={run.d}
-									stroke={run.color}
-									strokeWidth={2 / scale}
-									opacity={blendOpacity}
-									fill="none"
-								/>
-							))}
-
-						{settings.colorMode === 'axis' && pathData.primaryD && (
-							<Path
-								d={pathData.primaryD}
-								stroke={COLOR_PRIMARY}
-								strokeWidth={2 / scale}
-								opacity={blendOpacity}
-								fill="none"
-							/>
-						)}
+						{renderSeries(seriesViews.primary, primaryRuns, paths.primary, 2)}
 
 						{markerXs.map((x, idx) => (
 							<G key={`wp-${idx}`}>
@@ -496,37 +530,38 @@ const AltitudeProfileChart: FC<{
 						);
 					})}
 
-					{ticks.y1Ticks.map((tick, idx) => {
-						const y = toScreenY(elevToY(tick));
-						if (y < MARGIN_TOP - 1 || y > height - MARGIN_BOTTOM + 1) {
-							return null;
-						}
-						return (
-							<G key={`y1t-${idx}`}>
-								<Line
-									x1={MARGIN_LEFT}
-									y1={y}
-									x2={MARGIN_LEFT - 4}
-									y2={y}
-									stroke={COLOR_PRIMARY}
-									strokeWidth={1}
-								/>
-								<SvgText
-									x={MARGIN_LEFT - 6}
-									y={y + 3}
-									fill={COLOR_PRIMARY}
-									fontSize={9}
-									textAnchor="end"
-								>
-									{formatHeightDepth(tick, heightPref)}
-								</SvgText>
-							</G>
-						);
-					})}
+					{seriesViews.primary.values &&
+						ticks.y1Ticks.map((tick, idx) => {
+							const y = toScreenY(seriesViews.primary.toY(tick));
+							if (y < MARGIN_TOP - 1 || y > height - MARGIN_BOTTOM + 1) {
+								return null;
+							}
+							return (
+								<G key={`y1t-${idx}`}>
+									<Line
+										x1={MARGIN_LEFT}
+										y1={y}
+										x2={MARGIN_LEFT - 4}
+										y2={y}
+										stroke={COLOR_PRIMARY}
+										strokeWidth={1}
+									/>
+									<SvgText
+										x={MARGIN_LEFT - 6}
+										y={y + 3}
+										fill={COLOR_PRIMARY}
+										fontSize={9}
+										textAnchor="end"
+									>
+										{seriesViews.primary.formatTick(tick)}
+									</SvgText>
+								</G>
+							);
+						})}
 
-					{settings.secondary === 'slope' &&
+					{seriesViews.secondary.values &&
 						ticks.y2Ticks.map((tick, idx) => {
-							const y = toScreenY(slopeToY(tick));
+							const y = toScreenY(seriesViews.secondary.toY(tick));
 							if (y < MARGIN_TOP - 1 || y > height - MARGIN_BOTTOM + 1) {
 								return null;
 							}
@@ -546,7 +581,7 @@ const AltitudeProfileChart: FC<{
 										fill={COLOR_SECONDARY}
 										fontSize={9}
 									>
-										{`${Math.round(tick * 10) / 10}°`}
+										{seriesViews.secondary.formatTick(tick)}
 									</SvgText>
 								</G>
 							);

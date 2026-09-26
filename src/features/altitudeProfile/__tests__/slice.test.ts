@@ -46,12 +46,12 @@ describe('altitudeProfile slice reducers', () => {
 		});
 		state = altitudeProfileReducer(
 			state,
-			setProfileSettings({ key: 'routing', settings: { colorMode: 'slope' } })
+			setProfileSettings({ key: 'routing', settings: { primaryColor: 'secondary' } })
 		);
 		expect(state.profiles['routing']).toEqual({
 			...DEFAULT_PROFILE_SETTINGS,
 			secondary: 'slope',
-			colorMode: 'slope',
+			primaryColor: 'secondary',
 		});
 	});
 
@@ -69,10 +69,13 @@ describe('altitudeProfile slice reducers', () => {
 	});
 
 	it('setGeneralSettings merges partial settings', () => {
-		const state = altitudeProfileReducer(undefined, setGeneralSettings({ colorMode: 'slope' }));
+		const state = altitudeProfileReducer(
+			undefined,
+			setGeneralSettings({ primaryColor: 'secondary' })
+		);
 		expect(state.general).toEqual({
 			...DEFAULT_PROFILE_SETTINGS,
-			colorMode: 'slope',
+			primaryColor: 'secondary',
 		});
 	});
 });
@@ -85,10 +88,10 @@ describe('altitudeProfile selectors', () => {
 	it('selectProfileSettings returns stored settings', () => {
 		const state = altitudeProfileReducer(
 			undefined,
-			setProfileSettings({ key: 'line:3', settings: { colorMode: 'slope' } })
+			setProfileSettings({ key: 'line:3', settings: { primaryColor: 'secondary' } })
 		);
 		const root = { altitudeProfile: state } as unknown as RootState;
-		expect(selectProfileSettings(root, 'line:3').colorMode).toBe('slope');
+		expect(selectProfileSettings(root, 'line:3').primaryColor).toBe('secondary');
 	});
 
 	it('selectProfileSettings merges defaults for partial stored settings', () => {
@@ -97,31 +100,46 @@ describe('altitudeProfile selectors', () => {
 			altitudeProfile: {
 				initialized: true,
 				general: DEFAULT_PROFILE_SETTINGS,
-				profiles: { 'line:4': { colorMode: 'slope' } },
+				profiles: { 'line:4': { primaryColor: 'secondary' } },
 			},
 		} as unknown as RootState;
 		const settings = selectProfileSettings(root, 'line:4');
-		expect(settings.colorMode).toBe('slope');
+		expect(settings.primaryColor).toBe('secondary');
 		expect(settings.primary).toBe('elevation');
 		expect(settings.showLabel).toBe(true);
 		expect(settings.showStats).toBe(true);
 		expect(settings.blendColors).toBe(false);
 	});
 
+	it('selectProfileSettings ignores the removed colorMode key', () => {
+		// Old persisted profiles carried a `colorMode` key — it must not
+		// leak into the new model; the defaults apply instead.
+		const root = {
+			altitudeProfile: {
+				initialized: true,
+				general: DEFAULT_PROFILE_SETTINGS,
+				profiles: { 'line:4': { colorMode: 'slope' } as object },
+			},
+		} as unknown as RootState;
+		const settings = selectProfileSettings(root, 'line:4');
+		expect(settings.primaryColor).toBe('axis');
+		expect(settings.secondaryColor).toBe('axis');
+	});
+
 	it('selectProfileSettings falls back to the general settings', () => {
 		const root = buildRoot({
-			general: { ...DEFAULT_PROFILE_SETTINGS, colorMode: 'slope' },
+			general: { ...DEFAULT_PROFILE_SETTINGS, primaryColor: 'secondary' },
 		});
-		expect(selectProfileSettings(root, 'line:5').colorMode).toBe('slope');
+		expect(selectProfileSettings(root, 'line:5').primaryColor).toBe('secondary');
 		expect(selectProfileSettings(root, 'line:5').secondary).toBe('none');
 	});
 
 	it('selectProfileSettings prefers own settings over the general settings', () => {
 		const root = buildRoot({
-			general: { ...DEFAULT_PROFILE_SETTINGS, colorMode: 'slope' },
-			profiles: { 'line:6': { colorMode: 'axis' } },
+			general: { ...DEFAULT_PROFILE_SETTINGS, primaryColor: 'secondary' },
+			profiles: { 'line:6': { primaryColor: 'axis' } },
 		});
-		expect(selectProfileSettings(root, 'line:6').colorMode).toBe('axis');
+		expect(selectProfileSettings(root, 'line:6').primaryColor).toBe('axis');
 	});
 
 	it('selectGeneralSettings merges defaults', () => {
@@ -134,7 +152,7 @@ describe('altitudeProfile selectors', () => {
 
 	it('selectHasOwnProfileSettings detects own entries', () => {
 		const root = buildRoot({
-			profiles: { 'line:7': { colorMode: 'slope' } },
+			profiles: { 'line:7': { primaryColor: 'secondary' } },
 		});
 		expect(selectHasOwnProfileSettings(root, 'line:7')).toBe(true);
 		expect(selectHasOwnProfileSettings(root, 'line:8')).toBe(false);

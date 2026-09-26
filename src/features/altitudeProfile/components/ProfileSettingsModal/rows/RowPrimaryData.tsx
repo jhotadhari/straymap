@@ -10,29 +10,30 @@ import { useTranslation } from 'react-i18next';
 import InfoLabelRow from '../../../../../components/generic/infoWrapper/InfoLabelRow';
 import ButtonHighlightMenuControl from '../../../../../components/generic/wrapper/ButtonHighlightMenuControl';
 import { OptionBase } from '../../../../../types';
-import { ProfileSettings } from '../../../types';
+import { ProfileSeriesValue } from '../../../types';
 import { ProfileSettingsModalContext } from '../Context';
 
-const secondaryOptions: OptionBase[] = [
+const primaryDataOptions: OptionBase[] = [
 	{ key: 'none', label: 'altitudeProfile.seriesNone' },
+	{ key: 'elevation', label: 'altitudeProfile.seriesElevation' },
 	{ key: 'slope', label: 'altitudeProfile.seriesSlope' },
 ];
 
-const RowSecondarySeries: FC = () => {
+const RowPrimaryData: FC = () => {
 	const { t } = useTranslation();
 	const { settings, update } = useContext(ProfileSettingsModalContext);
 
 	const selectedOpt = useMemo(
-		() => secondaryOptions.find((opt) => opt.key === settings.secondary),
-		[settings.secondary]
+		() => primaryDataOptions.find((opt) => opt.key === settings.primary),
+		[settings.primary]
 	);
 
 	return (
-		<InfoLabelRow label={t('altitudeProfile.secondarySeries')}>
+		<InfoLabelRow label={t('altitudeProfile.primaryData')}>
 			<ButtonHighlightMenuControl
-				options={secondaryOptions}
-				value={settings.secondary}
-				setValue={(v) => update({ secondary: v as ProfileSettings['secondary'] })}
+				options={primaryDataOptions}
+				value={settings.primary}
+				setValue={(v) => update({ primary: v as ProfileSeriesValue })}
 				anchorLabel={t(selectedOpt?.label ?? '')}
 				compact
 				buttonPropsProps={{ paddingHorizontal: true }}
@@ -41,4 +42,4 @@ const RowSecondarySeries: FC = () => {
 	);
 };
 
-export default RowSecondarySeries;
+export default RowPrimaryData;
