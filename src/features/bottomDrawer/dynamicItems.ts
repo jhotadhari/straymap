@@ -8,7 +8,7 @@ let itemResolver: ((key: string) => BottomDrawerItem | undefined) | undefined;
 
 /**
  * Registers a resolver for dynamically-resolved bottom drawer items
- * (e.g. the altitudeProfile feature's `altitudeProfile:*` keys).
+ * (e.g. the chart feature's `chart:*` keys).
  */
 export const setBottomDrawerItemResolver = (
 	resolver: ((key: string) => BottomDrawerItem | undefined) | undefined

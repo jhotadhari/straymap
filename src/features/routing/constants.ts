@@ -13,8 +13,8 @@ export const DEFAULT_INHERIT_MODE: RoutingPointInheritMode = 'route';
 
 /**
  * Fixed simplification tolerance used for the per-segment color ramp
- * rendering and the altitude profile coordinates. Kept in sync so the
- * rendered ramp and the profile always show the same geometry.
+ * rendering and the chart coordinates. Kept in sync so the
+ * rendered ramp and the chart always show the same geometry.
  */
 export const ROUTING_SIMPLIFY_TOLERANCE = 0.00004;
 

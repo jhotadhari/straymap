@@ -153,6 +153,6 @@
 	"useSimplification": "Simplificar geometrias de rotas ao alterar zoom",
 	"useSimplificationDisabled": "Desativado",
 	"useSimplificationEnabled": "Ativado (recomendado)",
-	"altitudeProfile": "Perfil de altitude",
-	"hintAltitudeProfile": "Adiciona um perfil de altitude desta rota ao painel inferior. Requer dados de elevação — use 'Aplicar elevação DEM' primeiro se não houver."
+	"chart": "Gráfico",
+	"hintChart": "Adiciona um gráfico desta rota ao painel inferior. Requer dados de elevação — use 'Aplicar elevação DEM' primeiro se não houver."
 }

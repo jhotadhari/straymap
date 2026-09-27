@@ -273,7 +273,7 @@ export const queryTagsWithLineCounts = ({
 
 /**
  * Fetch the simplified path coordinates for one line, used by the
- * altitude profile display and (later) the per-line color ramp.
+ * chart display and (later) the per-line color ramp.
  *
  * Fetches the UNSIMPLIFIED geometry and simplifies in JS with turf
  * (same tolerance as the routing ramp, 0.00004) so elevations (Z) are
@@ -303,7 +303,7 @@ export const queryLinePathCoords = ({
 					resolve(null);
 					return;
 				}
-				// Same tolerance as the routing ramp — keeps profile and
+				// Same tolerance as the routing ramp — keeps the chart and
 				// rendered geometry consistent across sources.
 				const simplified = turfSimplify(lineString(line.geometry.coordinates), {
 					tolerance: 0.00004,

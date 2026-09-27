@@ -87,7 +87,7 @@ export const selectTagsFilterableColumns = (state: RootState) => selectTagsTable
 
 export const selectLineColors = (state: RootState) => state.lines.lineColors;
 
-export const selectProfileLines = (state: RootState) => state.lines.profileLines;
+export const selectChartLines = (state: RootState) => state.lines.chartLines;
 
 export const selectLineColor = (lineId: number) => (state: RootState) =>
 	state.lines.lineColors[lineId];

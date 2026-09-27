@@ -51,7 +51,7 @@ export interface RoutingState extends SliceSettingsBase, RoutingSettings {
 	/**
 	 * Concatenated simplified coordinates of the active route (render
 	 * consistent with RoutingMapView's ramp), computed in processRouting.
-	 * Feeds the altitude profile bottom drawer content.
+	 * Feeds the chart bottom drawer content.
 	 */
 	pathCoords: number[][];
 }
@@ -397,7 +397,7 @@ export const processRouting = (
 		);
 
 		// Publish the render-consistent simplified coordinates for the
-		// altitude profile (matches RoutingMapView's ramp geometry).
+		// chart (matches RoutingMapView's ramp geometry).
 		const pathCoords = getPathCoords(points, updatedSegments, ROUTING_SIMPLIFY_TOLERANCE);
 		dispatch(routingSlice.actions.setPathCoords(pathCoords));
 

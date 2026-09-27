@@ -37,7 +37,11 @@ const useActionShowStats = ({ lineIds }: { lineIds: number[] }) => {
 				showHeader={true}
 			/>
 		);
-	}, [modalVisible, handleDismissModal, lineIds]);
+	}, [
+		modalVisible,
+		handleDismissModal,
+		lineIds,
+	]);
 
 	return useMemo(
 		() => ({

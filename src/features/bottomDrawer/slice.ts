@@ -50,7 +50,7 @@ export const bottomDrawerSlice = createSlice({
 		},
 		setActiveKey: (state, action: PayloadAction<string | undefined>) => {
 			// No itemKeys guard here: the active key may be a derived key
-			// (e.g. `altitudeProfile:routing`) that isn't part of the raw
+			// (e.g. `chart:routing`) that isn't part of the raw
 			// itemKeys list. Stale keys are filtered/handled by the UI layer
 			// (selectItemKeys + effectiveActiveItemKey fallback).
 			state.activeKey = action.payload;

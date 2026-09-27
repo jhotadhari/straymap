@@ -11,13 +11,13 @@ import LucideIcons from '@react-native-vector-icons/lucide/static';
 import { useAppDispatch } from '../../../../../store/hooks';
 import { randomizeLineColors } from '../../../slice';
 
-const PaintbrushIcon = (({
-	color,
-	size,
-}: {
-	color?: TextStyle['color'];
-	size?: number;
-}) => <LucideIcons size={size ?? 20} color={color} name="paintbrush" />) as ElementType<{
+const PaintbrushIcon = (({ color, size }: { color?: TextStyle['color']; size?: number }) => (
+	<LucideIcons
+		size={size ?? 20}
+		color={color}
+		name="paintbrush"
+	/>
+)) as ElementType<{
 	color?: TextStyle['color'];
 	size?: number;
 }>;

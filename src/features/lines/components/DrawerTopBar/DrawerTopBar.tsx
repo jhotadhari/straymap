@@ -53,11 +53,10 @@ const DrawerTopBar: FC = () => {
 	const [contentFits, setContentFits] = useState(true);
 
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	const { nestedIconColor, ...buttonProps }: ReturnType<typeof useButtonProps> =
-		useButtonProps({
-			mode: 'outlined',
-			paddingHorizontal: contentFits,
-		});
+	const { nestedIconColor, ...buttonProps }: ReturnType<typeof useButtonProps> = useButtonProps({
+		mode: 'outlined',
+		paddingHorizontal: contentFits,
+	});
 
 	const dispatch = useAppDispatch();
 
@@ -133,7 +132,10 @@ const DrawerTopBar: FC = () => {
 			{actionModalNodes}
 
 			<View style={styleItem}>
-				<View style={styleButtonRowFirst} onLayout={handleRowLayout}>
+				<View
+					style={styleButtonRowFirst}
+					onLayout={handleRowLayout}
+				>
 					{lineIds.length > 0 && (
 						<View
 							style={styles.childMeasure}
@@ -163,7 +165,6 @@ const DrawerTopBar: FC = () => {
 					</View>
 				</View>
 			</View>
-
 		</View>
 	);
 };

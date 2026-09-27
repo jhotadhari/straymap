@@ -199,13 +199,7 @@ const FilterStringModal: FC<{
 					maxLength={300}
 					placeholder={operator === 'regex' ? '^Mount.*' : t('lines.filterValue')}
 				/>
-				{regexValidation && (
-					<Text
-						style={styleRegexWarning}
-					>
-						{t(regexValidation.key)}
-					</Text>
-				)}
+				{regexValidation && <Text style={styleRegexWarning}>{t(regexValidation.key)}</Text>}
 			</InfoLabelRow>
 
 			{onDelete && (

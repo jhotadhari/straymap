@@ -25,11 +25,7 @@ import { useButtonProps } from '../../../compose/useButtonProps';
 import { fetchLines } from '../db/fetch';
 import { queryLineGeom } from '../db/queryFns';
 import { writeFormat, EXPORT_FORMATS, ExportFormat } from '../utils/formatWriters';
-import {
-	resolveFilename,
-	sanitizeFilename,
-	DEFAULT_TEMPLATE,
-} from '../utils/filenameTemplate';
+import { resolveFilename, sanitizeFilename, DEFAULT_TEMPLATE } from '../utils/filenameTemplate';
 import { LinePartial } from '../types';
 
 const EXPORT_DIR = ExternalStorageDirectoryPath + '/Android/media/com.jhotadhari.straymap/export';
@@ -202,7 +198,12 @@ const useExportCbModal = (params: UseExportCbModalParams) => {
 		} finally {
 			setPhase('result');
 		}
-	}, [params, lineWithGeom, selectedFormat, t]);
+	}, [
+		params,
+		lineWithGeom,
+		selectedFormat,
+		t,
+	]);
 
 	const handleExportBulk = useCallback(async () => {
 		const checkedIds = params.type === 'bulk' ? params.checkedIds : [];
@@ -230,7 +231,12 @@ const useExportCbModal = (params: UseExportCbModalParams) => {
 		try {
 			const linesWithGeom = (await fetchLines({
 				lineIds: checkedIds,
-				fieldsInclude: ['geometry', 'title', 'created_at', 'custom_date'],
+				fieldsInclude: [
+					'geometry',
+					'title',
+					'created_at',
+					'custom_date',
+				],
 			})) as (LinePartial & { geometry?: LineString })[];
 			const total = linesWithGeom.filter((l) => l.geometry).length;
 			setTotalCount(total);
@@ -250,9 +256,7 @@ const useExportCbModal = (params: UseExportCbModalParams) => {
 				.map((line) => {
 					const safeTitle = line.title ?? line.id?.toString() ?? 'line';
 					const rawDate = line.custom_date ?? line.created_at ?? null;
-					const dateStr = rawDate
-						? dayjs(rawDate).format('YYYY-MM-DD')
-						: 'no-date';
+					const dateStr = rawDate ? dayjs(rawDate).format('YYYY-MM-DD') : 'no-date';
 					const ext = selectedFormat === 'geojson' ? 'geojson' : selectedFormat;
 
 					const resolved = resolveFilename(DEFAULT_TEMPLATE, {
@@ -336,12 +340,7 @@ const useExportCbModal = (params: UseExportCbModalParams) => {
 			if (written > 0) {
 				setResult({
 					icon: 'alert-outline',
-					header: sprintf(
-						t('lines.exportPartial'),
-						written,
-						written + failed.length,
-						''
-					),
+					header: sprintf(t('lines.exportPartial'), written, written + failed.length, ''),
 					details: failed,
 				});
 			} else {
@@ -354,7 +353,11 @@ const useExportCbModal = (params: UseExportCbModalParams) => {
 		} finally {
 			setPhase('result');
 		}
-	}, [params, selectedFormat, t]);
+	}, [
+		params,
+		selectedFormat,
+		t,
+	]);
 
 	const handleExport = params.type === 'single' ? handleExportSingle : handleExportBulk;
 
@@ -392,9 +395,7 @@ const useExportCbModal = (params: UseExportCbModalParams) => {
 								key={opt.key}
 								opt={opt}
 								onPress={() => setSelectedFormat(opt.key as ExportFormat)}
-								status={
-									selectedFormat === opt.key ? 'checked' : 'unchecked'
-								}
+								status={selectedFormat === opt.key ? 'checked' : 'unchecked'}
 								labelExtractor={extractLabel}
 							/>
 						))}
@@ -414,14 +415,9 @@ const useExportCbModal = (params: UseExportCbModalParams) => {
 						<View style={styles.progressRow}>
 							<LoadingIndicator />
 							<Text style={styles.progressText}>
-								{params.type === 'single' ||
-								totalCount === 0
+								{params.type === 'single' || totalCount === 0
 									? t('lines.exporting')
-									: sprintf(
-											t('lines.exportProgress'),
-											progressCount,
-											totalCount
-										)}
+									: sprintf(t('lines.exportProgress'), progressCount, totalCount)}
 							</Text>
 						</View>
 						{params.type === 'bulk' && (
@@ -451,7 +447,10 @@ const useExportCbModal = (params: UseExportCbModalParams) => {
 								<Text>{result.header}</Text>
 								{result.details.length > 0 &&
 									result.details.map((d, i) => (
-										<Text key={i} style={detailStyle}>
+										<Text
+											key={i}
+											style={detailStyle}
+										>
 											{d}
 										</Text>
 									))}

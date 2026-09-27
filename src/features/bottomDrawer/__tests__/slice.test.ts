@@ -31,13 +31,13 @@ const buildRoot = (overrides: Partial<BottomDrawersState> = {}) =>
 			routingLineId: null,
 		},
 		lines: {
-			profileLines: [],
+			chartLines: [],
 			selected: [],
 		},
 	}) as unknown as RootState;
 
-const routingProfileItem: BottomDrawerItem = {
-	key: 'altitudeProfile:routing',
+const routingChartItem: BottomDrawerItem = {
+	key: 'chart:routing',
 	DisplayComponent: () => null,
 };
 
@@ -89,8 +89,8 @@ describe('bottomDrawer slice reducers', () => {
 
 	describe('setActiveKey', () => {
 		it('sets activeKey', () => {
-			const state = bottomDrawerReducer(undefined, setActiveKey('altitudeProfile:routing'));
-			expect(state.activeKey).toBe('altitudeProfile:routing');
+			const state = bottomDrawerReducer(undefined, setActiveKey('chart:routing'));
+			expect(state.activeKey).toBe('chart:routing');
 		});
 
 		it('sets activeKey for a key not in itemKeys (derived keys)', () => {
@@ -126,46 +126,46 @@ describe('bottomDrawer selectors', () => {
 		expect(keys).toEqual([]);
 	});
 
-	it('selectItemKeys appends the routing profile key while routing is active', () => {
+	it('selectItemKeys appends the routing chart key while routing is active', () => {
 		setBottomDrawerItemResolver((key) =>
-			key.startsWith('altitudeProfile:') ? routingProfileItem : undefined
+			key.startsWith('chart:') ? routingChartItem : undefined
 		);
 		const state = {
 			...buildRoot(),
 			routing: { isRouting: 42 },
 		} as unknown as RootState;
 		const keys = selectItemKeys(state);
-		expect(keys).toContain('altitudeProfile:routing');
+		expect(keys).toContain('chart:routing');
 		setBottomDrawerItemResolver(undefined);
 	});
 
 	it('selectItemKeys skips the line key for the routing line', () => {
 		setBottomDrawerItemResolver((key) =>
-			key.startsWith('altitudeProfile:') ? routingProfileItem : undefined
+			key.startsWith('chart:') ? routingChartItem : undefined
 		);
 		const state = {
 			...buildRoot(),
 			routing: { isRouting: 42, routingLineId: 7 },
-			lines: { profileLines: [7, 8], selected: [7, 8] },
+			lines: { chartLines: [7, 8], selected: [7, 8] },
 		} as unknown as RootState;
 		const keys = selectItemKeys(state);
-		expect(keys).toContain('altitudeProfile:routing');
-		expect(keys).not.toContain('altitudeProfile:line:7');
-		expect(keys).toContain('altitudeProfile:line:8');
+		expect(keys).toContain('chart:routing');
+		expect(keys).not.toContain('chart:line:7');
+		expect(keys).toContain('chart:line:8');
 		setBottomDrawerItemResolver(undefined);
 	});
 
-	it('selectItemKeys only derives line profile keys for lines on the map', () => {
+	it('selectItemKeys only derives line chart keys for lines on the map', () => {
 		setBottomDrawerItemResolver((key) =>
-			key.startsWith('altitudeProfile:') ? routingProfileItem : undefined
+			key.startsWith('chart:') ? routingChartItem : undefined
 		);
 		const state = {
 			...buildRoot(),
-			lines: { profileLines: [8, 9], selected: [8] },
+			lines: { chartLines: [8, 9], selected: [8] },
 		} as unknown as RootState;
 		const keys = selectItemKeys(state);
-		expect(keys).toContain('altitudeProfile:line:8');
-		expect(keys).not.toContain('altitudeProfile:line:9');
+		expect(keys).toContain('chart:line:8');
+		expect(keys).not.toContain('chart:line:9');
 		setBottomDrawerItemResolver(undefined);
 	});
 });

@@ -153,6 +153,6 @@
 	"useSimplification": "Routengeometrien bei Zoomänderung vereinfachen",
 	"useSimplificationDisabled": "Deaktiviert",
 	"useSimplificationEnabled": "Aktiviert (empfohlen)",
-	"altitudeProfile": "Höhenprofil",
-	"hintAltitudeProfile": "Fügt dieser Route ein Höhenprofil im unteren Panel hinzu. Benötigt Höhendaten — verwende zuerst „DEM-Höhendaten anwenden“, falls keine vorhanden sind."
+	"chart": "Diagramm",
+	"hintChart": "Fügt dieser Route ein Diagramm im unteren Panel hinzu. Benötigt Höhendaten — verwende zuerst „DEM-Höhendaten anwenden“, falls keine vorhanden sind."
 }

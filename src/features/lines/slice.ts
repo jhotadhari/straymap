@@ -45,11 +45,11 @@ export interface LinesSettings {
 	linesTable: LinesTableSettings;
 	lineColors: Record<number, string>;
 	/**
-	 * Line IDs for which an altitude profile bottom drawer entry is
-	 * enabled. Persisted; drives the derived `altitudeProfile:line:<id>`
+	 * Line IDs for which an chart bottom drawer entry is
+	 * enabled. Persisted; drives the derived `chart:line:<id>`
 	 * bottom drawer menu entries.
 	 */
-	profileLines: number[];
+	chartLines: number[];
 }
 
 export interface LinesState extends SliceSettingsBase, LinesSettings {
@@ -75,7 +75,7 @@ export const initialSettings: LinesSettings = {
 		filterLogic: 'and',
 	},
 	lineColors: {},
-	profileLines: [],
+	chartLines: [],
 };
 
 const initialState: LinesState = {
@@ -295,18 +295,18 @@ export const linesSlice = createSlice({
 				delete state.lineColors[lineId];
 			}
 		},
-		setProfileLines: (state, action: PayloadAction<number[]>) => {
-			state.profileLines = action.payload;
+		setChartLines: (state, action: PayloadAction<number[]>) => {
+			state.chartLines = action.payload;
 		},
-		toggleProfileLine: (state, action: PayloadAction<number>) => {
-			if (state.profileLines.includes(action.payload)) {
-				state.profileLines = without(state.profileLines, action.payload);
+		toggleChartLine: (state, action: PayloadAction<number>) => {
+			if (state.chartLines.includes(action.payload)) {
+				state.chartLines = without(state.chartLines, action.payload);
 			} else {
-				state.profileLines = [...state.profileLines, action.payload];
+				state.chartLines = [...state.chartLines, action.payload];
 			}
 		},
-		removeProfileLines: (state, action: PayloadAction<number[]>) => {
-			state.profileLines = without(state.profileLines, ...action.payload);
+		removeChartLines: (state, action: PayloadAction<number[]>) => {
+			state.chartLines = without(state.chartLines, ...action.payload);
 		},
 	},
 });
@@ -336,9 +336,9 @@ export const {
 	setLineColor,
 	setLineColors,
 	removeLineColors,
-	setProfileLines,
-	toggleProfileLine,
-	removeProfileLines,
+	setChartLines,
+	toggleChartLine,
+	removeChartLines,
 } = linesSlice.actions;
 
 // Export the slice reducer for use in the store configuration

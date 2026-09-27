@@ -9,7 +9,7 @@ import dbLoader from './dbLoader';
 import dirs from './dirs';
 import drawers from './drawers';
 import bottomDrawer from './bottomDrawer';
-import altitudeProfile from './altitudeProfile';
+import chart from './chart';
 import general from './general';
 import importFeature from './import';
 import lang from './lang';
@@ -29,7 +29,7 @@ const features = {
 	dirs,
 	drawers,
 	bottomDrawer,
-	altitudeProfile,
+	chart,
 	general,
 	import: importFeature,
 	lang,

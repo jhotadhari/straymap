@@ -155,20 +155,20 @@ const TagTableRow: FC<TagTableRowProps> = ({
 								key={column.key}
 								style={cellStyle}
 							>
-							<Text>{(tag as TagTableRowProps['tag']).line_count ?? 0}</Text>
-						</View>
-					);
-				case 'created_at':
-					return (
-						<View
-							key={column.key}
-							style={cellStyle}
-						>
-							<Text>
-								{(tag as TagTableRowProps['tag']).timestamp
-									? formatDate((tag as TagTableRowProps['tag']).timestamp)
-									: ''}
-							</Text>
+								<Text>{(tag as TagTableRowProps['tag']).line_count ?? 0}</Text>
+							</View>
+						);
+					case 'created_at':
+						return (
+							<View
+								key={column.key}
+								style={cellStyle}
+							>
+								<Text>
+									{(tag as TagTableRowProps['tag']).timestamp
+										? formatDate((tag as TagTableRowProps['tag']).timestamp)
+										: ''}
+								</Text>
 							</View>
 						);
 					case 'color':

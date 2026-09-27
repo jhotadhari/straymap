@@ -36,10 +36,7 @@ const RowCustomDate: FC = () => {
 	const currentValue =
 		lineTemp && 'custom_date' in lineTemp ? lineTemp.custom_date : line?.custom_date;
 
-	const currentDate = useMemo(
-		() => stringToDate(currentValue),
-		[currentValue]
-	);
+	const currentDate = useMemo(() => stringToDate(currentValue), [currentValue]);
 
 	const handleChange = useCallback(
 		(d: Date) => {

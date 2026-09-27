@@ -35,7 +35,7 @@ import RowToggleOnMap from './RowToggleOnMap';
 import RowCustomDate from './RowCustomDate';
 import RowTags from './RowTags';
 import RowApplyDem from './RowApplyDem';
-import RowAltitudeProfile from './RowAltitudeProfile';
+import RowChart from './RowChart';
 
 const LineEditModal: FC<{
 	selectLine: (id: number, isSelected: boolean) => void;
@@ -148,7 +148,7 @@ const LineEditModal: FC<{
 
 				<RowApplyDem />
 
-				<RowAltitudeProfile />
+				<RowChart />
 
 				<RowExport />
 

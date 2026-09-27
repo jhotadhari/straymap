@@ -11,7 +11,7 @@ import { MenuActionOption } from '../../../types';
 import BottomDrawerContext from '../BottomDrawerContext';
 import { getBottomDrawerItem } from '../dynamicItems';
 import { selectItemKeys } from '../selectors';
-import { useProfileItemLabels } from '../../altitudeProfile/hooks/useProfileItemLabels';
+import { useChartItemLabels } from '../../chart/hooks/useChartItemLabels';
 
 /**
  * Menu options for the bottom drawer's item switcher: one per available
@@ -22,7 +22,7 @@ export const useBottomDrawerMenuOptions = (): MenuActionOption[] => {
 	const { setActiveItemKey, getIsFullyCollapsed, expand } = useContext(BottomDrawerContext);
 
 	const itemKeys = useAppSelector(selectItemKeys);
-	const profileLabels = useProfileItemLabels();
+	const chartLabels = useChartItemLabels();
 
 	return useMemo(
 		() =>
@@ -30,7 +30,7 @@ export const useBottomDrawerMenuOptions = (): MenuActionOption[] => {
 				const item = getBottomDrawerItem(key);
 				return {
 					key,
-					label: item?.label ?? profileLabels[key] ?? key,
+					label: item?.label ?? chartLabels[key] ?? key,
 					leadingIcon: item?.iconSource,
 					IconComponent: item?.IconComponent,
 					cb: () => {
@@ -43,7 +43,7 @@ export const useBottomDrawerMenuOptions = (): MenuActionOption[] => {
 			}),
 		[
 			itemKeys,
-			profileLabels,
+			chartLabels,
 			setActiveItemKey,
 			getIsFullyCollapsed,
 			expand,

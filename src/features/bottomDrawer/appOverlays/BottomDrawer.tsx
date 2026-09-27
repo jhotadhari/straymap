@@ -70,10 +70,10 @@ const BottomDrawer: FC = () => {
 		setActiveItemKey,
 	]);
 
-	// Derived item keys can disappear (routing stopped, profile untoggled):
+	// Derived item keys can disappear (routing stopped, chart untoggled):
 	// clear a stale active key so the handle/content fall back to the first
 	// available item. Also close any open item settings modal — its rows
-	// would target a profile that no longer exists.
+	// would target a chart that no longer exists.
 	useEffect(() => {
 		if (activeItemKey && !itemKeys.includes(activeItemKey)) {
 			setActiveItemKey(undefined);

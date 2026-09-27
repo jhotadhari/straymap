@@ -83,11 +83,25 @@ export const buildLinesWhereClause = (
 					if (filter.columnKey === 'import_source_path') {
 						if (!filter.value) return undefined;
 						if (filter.operator === 'regex') {
-							return sql`json_extract(${linesTable.data}, '$.import.sourceFilePath') REGEXP ${filter.value}`;
+							return sql`
+								json_extract(
+									${linesTable.data},
+									'$.import.sourceFilePath'
+								) REGEXP ${filter.value}
+							`;
 						}
-						const pattern = STRING_OPERATOR_PATTERNS[filter.operator](filter.value.toLowerCase());
+						const pattern = STRING_OPERATOR_PATTERNS[filter.operator](
+							filter.value.toLowerCase()
+						);
 						return like(
-							sql`LOWER(json_extract(${linesTable.data}, '$.import.sourceFilePath'))`,
+							sql`
+								LOWER(
+									json_extract(
+										${linesTable.data},
+										'$.import.sourceFilePath'
+									)
+								)
+							`,
 							pattern
 						);
 					}
@@ -263,7 +277,12 @@ export const buildLinesOrderByClause = (
 	} else if (sort.columnKey === 'title') {
 		expr = linesTable.title;
 	} else if (sort.columnKey === 'import_source_path') {
-		expr = sql<string>`json_extract(${linesTable.data}, '$.import.sourceFilePath')`;
+		expr = sql<string>`
+			json_extract(
+				${linesTable.data},
+				'$.import.sourceFilePath'
+			)
+		`;
 	} else {
 		return undefined;
 	}

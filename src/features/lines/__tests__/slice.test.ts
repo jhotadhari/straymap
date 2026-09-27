@@ -11,9 +11,9 @@ import linesReducer, {
 	setLineTemp,
 	setLineSelected,
 	setLinesSelected,
-	setProfileLines,
-	toggleProfileLine,
-	removeProfileLines,
+	setChartLines,
+	toggleChartLine,
+	removeChartLines,
 	onSetDbPath,
 	initialSettings,
 } from '../slice';
@@ -97,33 +97,33 @@ describe('lines slice reducers', () => {
 		expect(state.initialized).toBe(false);
 	});
 
-	describe('profile lines', () => {
-		it('setProfileLines replaces the list', () => {
-			const state = linesReducer(undefined, setProfileLines([1, 2]));
-			expect(state.profileLines).toEqual([1, 2]);
+	describe('chart lines', () => {
+		it('setChartLines replaces the list', () => {
+			const state = linesReducer(undefined, setChartLines([1, 2]));
+			expect(state.chartLines).toEqual([1, 2]);
 		});
 
-		it('toggleProfileLine adds then removes a line', () => {
-			let state = linesReducer(undefined, toggleProfileLine(3));
-			expect(state.profileLines).toContain(3);
-			state = linesReducer(state, toggleProfileLine(3));
-			expect(state.profileLines).not.toContain(3);
+		it('toggleChartLine adds then removes a line', () => {
+			let state = linesReducer(undefined, toggleChartLine(3));
+			expect(state.chartLines).toContain(3);
+			state = linesReducer(state, toggleChartLine(3));
+			expect(state.chartLines).not.toContain(3);
 		});
 
-		it('removeProfileLines removes multiple ids', () => {
+		it('removeChartLines removes multiple ids', () => {
 			const state = linesReducer(
 				linesReducer(
 					undefined,
-					setProfileLines([
+					setChartLines([
 						1,
 						2,
 						3,
 						4,
 					])
 				),
-				removeProfileLines([2, 4])
+				removeChartLines([2, 4])
 			);
-			expect(state.profileLines).toEqual([1, 3]);
+			expect(state.chartLines).toEqual([1, 3]);
 		});
 	});
 });

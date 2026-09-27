@@ -29,9 +29,9 @@ import {
 	upsertTagsFilter,
 	removeTagsFilter,
 	setLineColors,
-	setProfileLines,
-	toggleProfileLine,
-	removeProfileLines,
+	setChartLines,
+	toggleChartLine,
+	removeChartLines,
 } from './slice';
 import { startAppListening } from '../../store/listenerMiddleware';
 import { selectInitialized } from './selectors';
@@ -97,8 +97,8 @@ export const initializeFromStorage = async (store: AppStore): Promise<boolean> =
 			if (newSettings?.lineColors) {
 				store.dispatch(setLineColors(newSettings.lineColors));
 			}
-			if (newSettings?.profileLines) {
-				store.dispatch(setProfileLines(newSettings.profileLines));
+			if (newSettings?.chartLines) {
+				store.dispatch(setChartLines(newSettings.chartLines));
 			}
 		}
 		store.dispatch(setInitialized(true));
@@ -157,9 +157,9 @@ startAppListening({
 		upsertTagsFilter,
 		removeTagsFilter,
 		setLineColors,
-		setProfileLines,
-		toggleProfileLine,
-		removeProfileLines
+		setChartLines,
+		toggleChartLine,
+		removeChartLines
 	),
 	effect: async (action, listenerApi) => {
 		try {
