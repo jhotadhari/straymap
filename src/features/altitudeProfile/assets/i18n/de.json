@@ -24,6 +24,7 @@
 	"showStats": "Statistiken anzeigen",
 	"blendColors": "Farben mischen",
 	"ratio": "Verhältnis",
-	"ratioAuto": "Auto-Ratio",
+	"ratioFit": "An Bildschirm anpassen",
+	"followMap": "Karte folgen",
 	"removeProfileConfirmBody": "Es wird nur das Profil aus der unteren Leiste entfernt. Die Route bleibt auf der Karte, es wird nichts gelöscht, und das Profil kann jederzeit wieder aktiviert werden."
 }

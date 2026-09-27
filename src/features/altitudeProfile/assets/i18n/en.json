@@ -24,6 +24,7 @@
 	"showStats": "Show statistics",
 	"blendColors": "Blend colors",
 	"ratio": "Ratio",
-	"ratioAuto": "Auto ratio",
+	"ratioFit": "Fit screen",
+	"followMap": "Follow map",
 	"removeProfileConfirmBody": "Only the profile is removed from the bottom drawer. The route stays on the map, nothing is deleted, and the profile can be toggled on again at any time."
 }

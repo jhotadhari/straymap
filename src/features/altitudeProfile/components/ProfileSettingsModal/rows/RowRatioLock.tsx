@@ -7,52 +7,56 @@ import { useTranslation } from 'react-i18next';
 /**
  * Internal dependencies
  */
-import NumericRowControlSegmented from '../../../../../components/generic/controls/NumericRowControlSegmented';
+import NumericRowControl from '../../../../../components/generic/controls/NumericRowControl';
+import { useAppDispatch } from '../../../../../store/hooks';
 import { roundTo } from '../../../../../lib/utilsLight';
+import { setProfileSettings } from '../../../slice';
 import { ProfileSettingsModalContext } from '../Context';
 
+/**
+ * The ratio is always per-profile ("custom"): read from and written to
+ * the profile's own entry, independent of the Default/Custom mode.
+ * The field is always editable; the button resets the value to the
+ * natural fit ratio and requests a full viewport reset.
+ */
 const RowRatioLock: FC = () => {
 	const { t } = useTranslation();
-	const { settings, update, currentRatio } = useContext(ProfileSettingsModalContext);
+	const dispatch = useAppDispatch();
+	const { profileKey, settings, currentRatio, fitRatio, onFitScreen } = useContext(
+		ProfileSettingsModalContext
+	);
 
-	const numValueActive = settings.ratioMode === 'fixed';
-
-	const handleToggleOption = useCallback(() => {
-		if (numValueActive) {
-			update({ ratioMode: 'auto' });
-		} else {
-			// Pre-fill the field with the last auto-ratio.
-			update({ ratioMode: 'fixed', ratioValue: currentRatio });
-		}
+	const handleFitScreen = useCallback(() => {
+		dispatch(setProfileSettings({ key: profileKey, settings: { ratioValue: fitRatio } }));
+		onFitScreen && onFitScreen();
 	}, [
-		numValueActive,
-		update,
-		currentRatio,
+		dispatch,
+		profileKey,
+		fitRatio,
+		onFitScreen,
 	]);
 
 	const handleUpdate = useCallback(
 		(newValue: number) => {
-			update({ ratioValue: newValue });
+			dispatch(setProfileSettings({ key: profileKey, settings: { ratioValue: newValue } }));
 		},
-		[update]
+		[dispatch, profileKey]
 	);
 
-	const rawValue =
-		settings.ratioMode === 'fixed'
-			? (settings.ratioValue ?? currentRatio ?? '')
-			: (currentRatio ?? '');
-	const value = 'number' === typeof rawValue ? roundTo(rawValue, 4) : rawValue;
+	const rawValue = currentRatio;
+	const value =
+		'number' === typeof rawValue && isFinite(rawValue) ? roundTo(rawValue, 4) : rawValue;
 
 	return (
-		<NumericRowControlSegmented
+		<NumericRowControl
 			label={t('altitudeProfile.ratio')}
-			buttonLabel={t('altitudeProfile.ratioAuto')}
-			numValueActive={numValueActive}
-			toggleOption={handleToggleOption}
-			value={value}
+			buttonLabel={t('altitudeProfile.ratioFit')}
+			onButtonPress={handleFitScreen}
+			value={settings.followMap ? undefined : value}
 			onUpdate={handleUpdate}
 			numType="float"
 			validate={(val) => val > 0}
+			disabled={settings.followMap}
 		/>
 	);
 };

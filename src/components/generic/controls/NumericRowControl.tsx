@@ -2,13 +2,16 @@
  * External dependencies
  */
 import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { StyleSheet, TextStyle, ViewStyle } from 'react-native';
+import { StyleSheet, TextStyle, View, ViewStyle } from 'react-native';
 import { useTheme, TextInput } from 'react-native-paper';
 
 /**
  * Internal dependencies
  */
 import InfoLabelRow from '../infoWrapper/InfoLabelRow';
+import ButtonHighlight from '../primitives/ButtonHighlight';
+import { useButtonProps } from '../../../compose/useButtonProps';
+import { sharedStyles as appSharedStyles } from '../../../sharedStyles';
 import useKeyboardShown from '../../../compose/useKeyboardShown';
 import { strValToNb } from '../../../lib/utils';
 import { NumType } from '../../../types';
@@ -24,6 +27,9 @@ const NumericRowControl = ({
 	saveOnType = true,
 	validate,
 	onClear,
+	buttonLabel,
+	onButtonPress,
+	disabled = false,
 }: {
 	label?: string;
 	value: number | undefined;
@@ -36,6 +42,11 @@ const NumericRowControl = ({
 	validate?: (val: number) => boolean;
 	/** Called when the user clears the input and blurs (value becomes undefined). When omitted, clearing resets to the previous value. */
 	onClear?: () => void;
+	/** Optional action button rendered before the input (always active). */
+	buttonLabel?: string;
+	onButtonPress?: () => void;
+	/** Disables both the button and the input. */
+	disabled?: boolean;
 }) => {
 	const theme = useTheme();
 
@@ -184,7 +195,20 @@ const NumericRowControl = ({
 		isFocusedRef.current = true;
 	}, []);
 
-	const styleInput = useMemo(() => [styles.flexGrow, inputStyle], [inputStyle]);
+	const styleInput = useMemo(
+		() => [
+			styles.flexGrow,
+			disabled && appSharedStyles.disabled,
+			inputStyle,
+		],
+		[disabled, inputStyle]
+	);
+
+	const buttonProps = useButtonProps({
+		mode: 'outlined',
+		paddingHorizontal: true,
+		disabled,
+	});
 
 	return (
 		<InfoLabelRow
@@ -192,18 +216,30 @@ const NumericRowControl = ({
 			Info={Info}
 			style={style}
 		>
-			<TextInput
-				style={styleInput}
-				underlineColor="transparent"
-				error={!isValid}
-				dense={true}
-				theme={overwriteTheme}
-				onChangeText={handleChangeText}
-				onBlur={handleBlur}
-				onFocus={handleFocus}
-				value={val}
-				keyboardType="numeric"
-			/>
+			<View style={styles.row}>
+				{buttonLabel && onButtonPress && (
+					<ButtonHighlight
+						{...buttonProps}
+						compact={true}
+						onPress={onButtonPress}
+					>
+						{buttonLabel}
+					</ButtonHighlight>
+				)}
+				<TextInput
+					style={styleInput}
+					underlineColor="transparent"
+					error={!isValid}
+					dense={true}
+					theme={overwriteTheme}
+					editable={!disabled}
+					onChangeText={handleChangeText}
+					onBlur={handleBlur}
+					onFocus={handleFocus}
+					value={val}
+					keyboardType="numeric"
+				/>
+			</View>
 		</InfoLabelRow>
 	);
 };
@@ -211,4 +247,9 @@ export default NumericRowControl;
 
 const styles = StyleSheet.create({
 	flexGrow: { flexGrow: 1 },
+	row: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		gap: 8,
+	},
 });

@@ -18,6 +18,8 @@ export type ProfileSettingsModalContextType = {
 	mode: ProfileSettingsMode;
 	setMode: (mode: ProfileSettingsMode) => void;
 	currentRatio?: number;
+	fitRatio?: number;
+	onFitScreen?: () => void;
 };
 
 export const ProfileSettingsModalContext = createContext<ProfileSettingsModalContextType>({
@@ -28,4 +30,6 @@ export const ProfileSettingsModalContext = createContext<ProfileSettingsModalCon
 	mode: 'general',
 	setMode: (_mode: ProfileSettingsMode) => undefined,
 	currentRatio: undefined,
+	fitRatio: undefined,
+	onFitScreen: undefined,
 });

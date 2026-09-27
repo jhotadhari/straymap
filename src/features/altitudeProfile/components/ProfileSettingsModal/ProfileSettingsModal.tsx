@@ -2,6 +2,7 @@
  * External dependencies
  */
 import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
+import { omit, pick } from 'lodash-es';
 import { useTranslation } from 'react-i18next';
 import { Divider } from 'react-native-paper';
 
@@ -11,11 +12,17 @@ import { Divider } from 'react-native-paper';
 import ModalWrapper from '../../../../components/generic/wrapper/ModalWrapper';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import {
+	PER_PROFILE_SETTINGS_KEYS,
 	selectGeneralSettings,
 	selectHasOwnProfileSettings,
+	selectOwnPerProfileSettings,
 	selectProfileSettings,
 } from '../../selectors';
-import { removeProfileSettings, setGeneralSettings, setProfileSettings } from '../../slice';
+import {
+	resetProfileSettingsToPerProfile,
+	setGeneralSettings,
+	setProfileSettings,
+} from '../../slice';
 import { ProfileSettings } from '../../types';
 import { ProfileSettingsModalContext, ProfileSettingsMode } from './Context';
 import { sharedStyles } from './sharedDeps';
@@ -26,6 +33,7 @@ import RowPrimaryColor from './rows/RowPrimaryColor';
 import RowSecondaryData from './rows/RowSecondaryData';
 import RowSecondaryColor from './rows/RowSecondaryColor';
 import RowRatioLock from './rows/RowRatioLock';
+import RowFollowMap from './rows/RowFollowMap';
 // import RowXMode from './rows/RowXMode';
 import RowShowLabel from './rows/RowShowLabel';
 import RowShowStats from './rows/RowShowStats';
@@ -37,13 +45,18 @@ const ProfileSettingsModal: FC<{
 	setVisible: (visible: boolean) => void;
 	profileKey: string;
 	currentRatio?: number;
-}> = ({ visible, setVisible, profileKey, currentRatio }) => {
+	fitRatio?: number;
+	onFitScreen?: () => void;
+}> = ({ visible, setVisible, profileKey, currentRatio, fitRatio, onFitScreen }) => {
 	const { t } = useTranslation();
 	const dispatch = useAppDispatch();
 
 	const settings = useAppSelector((state) => selectProfileSettings(state, profileKey));
 	const generalSettings = useAppSelector(selectGeneralSettings);
 	const hasOwn = useAppSelector((state) => selectHasOwnProfileSettings(state, profileKey));
+	const ownPerProfileSettings = useAppSelector((state) =>
+		selectOwnPerProfileSettings(state, profileKey)
+	);
 
 	// The mode follows the current profile: 'own' only while the profile
 	// has its own settings entry (copied from general on switch).
@@ -81,11 +94,22 @@ const ProfileSettingsModal: FC<{
 				return;
 			}
 			if (nextMode === 'own') {
-				// Copy the current general settings into the profile's own.
-				dispatch(setProfileSettings({ key: profileKey, settings: generalSettings }));
+				// Copy the current general settings into the profile's own,
+				// preserving its always-per-profile settings (ratio,
+				// follow-map).
+				dispatch(
+					setProfileSettings({
+						key: profileKey,
+						settings: {
+							...omit(generalSettings, PER_PROFILE_SETTINGS_KEYS),
+							...pick(ownPerProfileSettings, PER_PROFILE_SETTINGS_KEYS),
+						},
+					})
+				);
 			} else {
-				// Discard the profile's own settings — fall back to general.
-				dispatch(removeProfileSettings([profileKey]));
+				// Discard the profile's own settings — fall back to general,
+				// keeping the per-profile settings.
+				dispatch(resetProfileSettingsToPerProfile(profileKey));
 			}
 			setModeState(nextMode);
 		},
@@ -94,6 +118,7 @@ const ProfileSettingsModal: FC<{
 			profileKey,
 			mode,
 			generalSettings,
+			ownPerProfileSettings,
 		]
 	);
 
@@ -106,6 +131,8 @@ const ProfileSettingsModal: FC<{
 			mode,
 			setMode,
 			currentRatio,
+			fitRatio,
+			onFitScreen,
 		}),
 		[
 			profileKey,
@@ -115,6 +142,8 @@ const ProfileSettingsModal: FC<{
 			mode,
 			setMode,
 			currentRatio,
+			fitRatio,
+			onFitScreen,
 		]
 	);
 
@@ -127,6 +156,10 @@ const ProfileSettingsModal: FC<{
 		>
 			<ProfileSettingsModalContext.Provider value={contextValue}>
 				<RowSelectProfile />
+
+				<RowFollowMap />
+
+				<RowRatioLock />
 
 				<RowRemoveProfile />
 
@@ -141,8 +174,6 @@ const ProfileSettingsModal: FC<{
 				<RowSecondaryData />
 
 				<RowSecondaryColor />
-
-				<RowRatioLock />
 
 				{/* <RowXMode /> */}
 

@@ -47,6 +47,28 @@ export const altitudeProfileSlice = createSlice({
 				delete state.profiles[key];
 			}
 		},
+		/**
+		 * Keeps only the per-profile settings of a profile's own entry
+		 * (deleting the entry entirely when none remain) — used when
+		 * switching the profile back to the general (Default) mode. The
+		 * always-custom settings (ratio, follow-map) must survive.
+		 */
+		resetProfileSettingsToPerProfile: (state, action: PayloadAction<string>) => {
+			const key = action.payload;
+			const own = state.profiles[key];
+			if (!own) {
+				return;
+			}
+			const perProfileOnly = {
+				...(own.ratioValue !== undefined && { ratioValue: own.ratioValue }),
+				...(own.followMap !== undefined && { followMap: own.followMap }),
+			};
+			if (Object.keys(perProfileOnly).length) {
+				state.profiles[key] = perProfileOnly as ProfileSettings;
+			} else {
+				delete state.profiles[key];
+			}
+		},
 		setGeneralSettings: (state, action: PayloadAction<Partial<ProfileSettings>>) => {
 			state.general = {
 				...(state.general ?? DEFAULT_PROFILE_SETTINGS),
@@ -57,8 +79,13 @@ export const altitudeProfileSlice = createSlice({
 });
 
 // Export the generated action creators for use in components.
-export const { setInitialized, setProfileSettings, removeProfileSettings, setGeneralSettings } =
-	altitudeProfileSlice.actions;
+export const {
+	setInitialized,
+	setProfileSettings,
+	removeProfileSettings,
+	resetProfileSettingsToPerProfile,
+	setGeneralSettings,
+} = altitudeProfileSlice.actions;
 
 // Export the slice reducer for use in the store configuration
 export default altitudeProfileSlice.reducer;

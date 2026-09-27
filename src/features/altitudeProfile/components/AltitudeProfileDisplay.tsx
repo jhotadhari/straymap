@@ -24,12 +24,13 @@ import { RenderPart } from '../../lines/components/Stats/sharedDeps';
 import { LinePartial } from '../../lines/types';
 import useRoute from '../../routing/hooks/useRoute';
 import { getProfileSourceFromKey } from '../types';
-import { selectHasOwnProfileSettings, selectProfileSettings } from '../selectors';
-import { setGeneralSettings, setProfileSettings } from '../slice';
+import { selectProfileSettings } from '../selectors';
+import { setProfileSettings } from '../slice';
 import { useProfileItemLabels } from '../hooks/useProfileItemLabels';
 import { getProfileSeries } from '../utils';
 import AltitudeProfileChart from './AltitudeProfileChart';
 import ProfileSettingsModal from './ProfileSettingsModal/ProfileSettingsModal';
+import { computeViewportBbox } from 'react-native-mapsforge-vtm';
 
 const statsRenderParts = ['icon', 'value'] as RenderPart[];
 const statsRenderPartsNoIcon = ['value'] as RenderPart[];
@@ -49,6 +50,40 @@ const nearestDistance = (
 		}
 	}
 	return distances[bestIdx];
+};
+
+/**
+ * Distances along the route that fall inside the given geographic bbox
+ * ([west, south, east, north]) — the covered route segment.
+ */
+const getCoveredRange = (
+	coordinates: number[][],
+	distances: number[],
+	bbox: [
+		number,
+		number,
+		number,
+		number,
+	]
+): [number, number] | undefined => {
+	const [
+		west,
+		south,
+		east,
+		north,
+	] = bbox;
+	let first: number | undefined;
+	let last: number | undefined;
+	for (let i = 0; i < coordinates.length; i++) {
+		const [lng, lat] = coordinates[i];
+		if (lng >= west && lng <= east && lat >= south && lat <= north) {
+			if (first === undefined) {
+				first = distances[i];
+			}
+			last = distances[i];
+		}
+	}
+	return first !== undefined && last !== undefined && last > first ? [first, last] : undefined;
 };
 
 const AltitudeProfileDisplay: FC = () => {
@@ -84,31 +119,20 @@ const AltitudeProfileDisplay: FC = () => {
 	const unitPrefs = useAppSelector(selectUnitPrefs);
 	const mapUpdateInterval = useAppSelector(selectMapUpdateInterval);
 	const settings = useAppSelector((state) => selectProfileSettings(state, activeItemKey));
-	const hasOwnSettings = useAppSelector((state) =>
-		selectHasOwnProfileSettings(state, activeItemKey)
-	);
 	const dispatch = useAppDispatch();
 
-	// Axis-strip stretch settles a new fixed ratio: write it to the same
-	// target the settings modal edits (own entry when it exists, else the
-	// general settings — matching the modal's mode invariant).
+	// Axis gesture settles a new fixed ratio — always written to the
+	// active profile's own entry (the ratio is always per-profile).
 	const handleRatioUpdate = useCallback(
 		(ratio: number | undefined) => {
 			if (ratio == null || !activeItemKey) {
 				return;
 			}
-			if (hasOwnSettings) {
-				dispatch(
-					setProfileSettings({ key: activeItemKey, settings: { ratioValue: ratio } })
-				);
-			} else {
-				dispatch(setGeneralSettings({ ratioValue: ratio }));
-			}
+			dispatch(setProfileSettings({ key: activeItemKey, settings: { ratioValue: ratio } }));
 		},
 		[
 			dispatch,
 			activeItemKey,
-			hasOwnSettings,
 		]
 	);
 
@@ -155,6 +179,47 @@ const AltitudeProfileDisplay: FC = () => {
 
 	const hasStats = stats.length != null || Object.keys(stats.rest).length > 0;
 
+	// The natural "fit" ratio (total distance per primary-axis unit) —
+	// used by the modal's Fit-screen button.
+	const fitRatio = useMemo(() => {
+		if (!series) {
+			return undefined;
+		}
+		const values = settings.primary === 'slope' ? series.slopes : series.elevations;
+		const vmin = Math.min(...values);
+		const vmax = Math.max(...values);
+		const total = series.distances[series.distances.length - 1] || 0;
+		return total / (vmax - vmin || 1);
+	}, [
+		series,
+		settings.primary,
+	]);
+
+	// Viewport reset signal (Fit-screen button + profile switches).
+	const [resetSignal, setResetSignal] = useState(0);
+	const handleFitScreen = useCallback(() => {
+		setResetSignal((t) => t + 1);
+	}, []);
+	useEffect(() => {
+		setResetSignal((t) => t + 1);
+	}, [activeItemKey]);
+
+	// A user gesture on the chart switches the follow-map toggle off.
+	const handleUserGesture = useCallback(() => {
+		if (!activeItemKey) {
+			return;
+		}
+		dispatch(setProfileSettings({ key: activeItemKey, settings: { followMap: false } }));
+	}, [
+		dispatch,
+		activeItemKey,
+	]);
+
+	// Covered route range (follow-map): the map's visible bbox mapped onto
+	// the route's distance axis. Frozen (kept) when there is no
+	// intersection or no map event data.
+	const [followRange, setFollowRange] = useState<[number, number] | undefined>(undefined);
+
 	// Center indicator: poll the map center (same cadence as the map events).
 	const [center, setCenter] = useState<[number, number] | undefined>(undefined);
 	const prevCenterRef = useRef<[number, number] | undefined>(undefined);
@@ -172,9 +237,39 @@ const AltitudeProfileDisplay: FC = () => {
 				prevCenterRef.current = next;
 				setCenter(next);
 			}
+			if (
+				settings.followMap &&
+				ev?.center &&
+				typeof ev.zoomLevel === 'number' &&
+				typeof ev.viewportWidth === 'number' &&
+				typeof ev.viewportHeight === 'number' &&
+				coordinates &&
+				series
+			) {
+				const bbox = computeViewportBbox(
+					[ev.center[0], ev.center[1]],
+					ev.zoomLevel,
+					ev.viewportWidth,
+					ev.viewportHeight,
+					ev.bearing ?? 0,
+					ev.tilt ?? 0
+				);
+				if (bbox) {
+					const range = getCoveredRange(coordinates, series.distances, bbox);
+					if (range) {
+						setFollowRange(range);
+					}
+				}
+			}
 		}, mapUpdateInterval);
 		return () => clearInterval(interval);
-	}, [currentMapEventRef, mapUpdateInterval]);
+	}, [
+		currentMapEventRef,
+		mapUpdateInterval,
+		settings.followMap,
+		coordinates,
+		series,
+	]);
 
 	const centerDistance = useMemo(
 		() =>
@@ -209,14 +304,35 @@ const AltitudeProfileDisplay: FC = () => {
 	// into a ref (no per-frame re-renders); the settings modal snapshots it
 	// when opened (the chart can't be zoomed while the modal is open).
 	const ratioRef = useRef<number | undefined>(undefined);
-	const handleRatioChange = useCallback((ratio: number | undefined) => {
-		ratioRef.current = ratio;
-	}, []);
+	const handleRatioChange = useCallback(
+		(ratio: number | undefined) => {
+			ratioRef.current = ratio;
+			// Keep the modal's ratio field live while it is open (and not
+			// following — the field is hidden then).
+			if (settingsModalVisible && !settings.followMap) {
+				setCurrentRatio(ratio);
+			}
+		},
+		[
+			settingsModalVisible,
+			settings.followMap,
+		]
+	);
 	const [currentRatio, setCurrentRatio] = useState<number | undefined>(undefined);
 	const handleOpenSettings = useCallback(() => {
 		setCurrentRatio(ratioRef.current);
 		setSettingsModalVisible(true);
 	}, [setSettingsModalVisible]);
+
+	// Keep the modal's ratio snapshot fresh: the chart's ratio changes
+	// while follow-map is active (and on profile switches), but the modal
+	// only snapshots it when opened.
+	useEffect(() => {
+		setCurrentRatio(ratioRef.current);
+	}, [
+		settings.followMap,
+		activeItemKey,
+	]);
 
 	if (!series) {
 		return (
@@ -296,6 +412,10 @@ const AltitudeProfileDisplay: FC = () => {
 						centerDistance={centerDistance}
 						onRatioChange={handleRatioChange}
 						onRatioUpdate={handleRatioUpdate}
+						resetSignal={resetSignal}
+						followRange={settings.followMap ? followRange : undefined}
+						onUserGesture={handleUserGesture}
+						modalOpen={settingsModalVisible}
 					/>
 				)}
 			</View>
@@ -305,6 +425,8 @@ const AltitudeProfileDisplay: FC = () => {
 				setVisible={setSettingsModalVisible}
 				profileKey={activeItemKey ?? ''}
 				currentRatio={currentRatio}
+				fitRatio={fitRatio}
+				onFitScreen={handleFitScreen}
 			/>
 
 			{showLabel && (

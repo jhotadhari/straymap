@@ -26,7 +26,6 @@ export const getProfileSourceFromKey = (key: string | undefined): ProfileSource 
 export type ProfileXMode = 'distance' | 'time';
 export type ProfileSeriesValue = 'none' | 'elevation' | 'slope';
 export type ProfileColorMode = 'axis' | 'primary' | 'secondary';
-export type ProfileRatioMode = 'auto' | 'fixed';
 
 export interface ProfileSettings {
 	primary: ProfileSeriesValue;
@@ -34,9 +33,10 @@ export interface ProfileSettings {
 	secondary: ProfileSeriesValue;
 	secondaryColor: ProfileColorMode;
 	xMode: ProfileXMode;
-	ratioMode: ProfileRatioMode;
 	/** Fixed aspect ratio (visible x-range per visible y-range unit). */
 	ratioValue?: number;
+	/** Viewport follows the map's covered route segment (1:1). */
+	followMap: boolean;
 	showLabel: boolean;
 	showStats: boolean;
 	blendColors: boolean;
@@ -48,8 +48,8 @@ export const DEFAULT_PROFILE_SETTINGS: ProfileSettings = {
 	secondary: 'none',
 	secondaryColor: 'axis',
 	xMode: 'distance',
-	ratioMode: 'auto',
 	ratioValue: undefined,
+	followMap: false,
 	showLabel: true,
 	showStats: true,
 	blendColors: false,

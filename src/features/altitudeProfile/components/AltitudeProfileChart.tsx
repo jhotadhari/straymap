@@ -28,6 +28,7 @@ const COLOR_CENTER = '#1A73E8';
 const COLOR_WAYPOINT = '#F57C00';
 
 const MAX_SCALE = 20;
+const MIN_SCALE = 1 / MAX_SCALE;
 const MARGIN_LEFT = 44;
 const MARGIN_RIGHT = 40;
 const MARGIN_FALLBACK = 8;
@@ -95,6 +96,10 @@ const AltitudeProfileChart: FC<{
 	centerDistance?: number;
 	onRatioChange?: (ratio: number | undefined) => void;
 	onRatioUpdate?: (ratio: number | undefined) => void;
+	resetSignal?: number;
+	followRange?: [number, number];
+	onUserGesture?: () => void;
+	modalOpen?: boolean;
 }> = ({
 	series,
 	width,
@@ -105,6 +110,10 @@ const AltitudeProfileChart: FC<{
 	centerDistance,
 	onRatioChange,
 	onRatioUpdate,
+	resetSignal,
+	followRange,
+	onUserGesture,
+	modalOpen = false,
 }) => {
 	const theme = useTheme();
 
@@ -122,6 +131,23 @@ const AltitudeProfileChart: FC<{
 	// happens only after the final gesture frame has been committed.
 	const [reportTick, setReportTick] = useState(0);
 	const pendingAxisReportRef = useRef(false);
+	// Follow-map is active until the first user gesture (flipped off
+	// synchronously so the follow derivation stops immediately). Re-armed
+	// only when follow-map is enabled again — NOT synced from settings on
+	// every render (that would undo the flip-off during the gesture's
+	// pre-dispatch renders).
+	const followActiveRef = useRef(settings.followMap);
+	useEffect(() => {
+		if (settings.followMap) {
+			followActiveRef.current = true;
+		}
+	}, [settings.followMap]);
+	// Live follow-map flag for the gesture callbacks — read through a ref
+	// so the gesture memo never rebuilds mid-interaction when follow-map
+	// toggles (a rebuild would restart the in-flight gesture and reset
+	// its start snapshot to zero).
+	const followMapRef = useRef(settings.followMap);
+	followMapRef.current = settings.followMap;
 
 	// Latest state for gesture-start snapshots.
 	const scaleXRef = useRef(scaleX);
@@ -202,25 +228,22 @@ const AltitudeProfileChart: FC<{
 
 	// ── Ratio (aspect ratio) handling ───────────────────────────────────
 	// The ratio is (visible x-range) / (visible y-range of the primary
-	// axis). In 'fixed' mode the y-scale is derived from the x-scale so
-	// the ratio stays pinned to the user's value; in 'auto' mode both axes
-	// share one scale (the data's natural ratio).
+	// The ratio is always per-profile: the y-scale is derived from the
+	// x-scale so the aspect stays pinned to the stored value.
 	const ratioK = useMemo(() => {
-		if (settings.ratioMode !== 'fixed' || !settings.ratioValue || !seriesViews.primary.values) {
+		if (!settings.ratioValue || !seriesViews.primary.values) {
 			return undefined;
 		}
 		return (settings.ratioValue * seriesViews.primary.vrange) / totalLength;
 	}, [
-		settings.ratioMode,
 		settings.ratioValue,
 		seriesViews,
 		totalLength,
 	]);
 
-	// Effective y-scale: derived from the x-scale in auto mode, an
-	// independent state (stretchable via the axis gestures) in fixed mode.
-	const isFixed = settings.ratioMode === 'fixed';
-	const syEff = isFixed ? scaleY : scaleX;
+	// Effective y-scale: an independent state; follows the ratio when
+	// set, otherwise stays where the user (or follow-mode) left it.
+	const syEff = scaleY;
 
 	// Current ratio, reported to the parent (modal snapshot).
 	const currentRatio = seriesViews.primary.values
@@ -250,26 +273,65 @@ const AltitudeProfileChart: FC<{
 		onRatioUpdate,
 	]);
 
-	// Re-validate the viewport whenever the ratio settings change — no
-	// gesture required. Switching back to auto resets to fit. Keyed on the
-	// settings/plot geometry only (refs for the values) so it never fights
-	// an in-flight gesture.
-	const prevRatioModeRef = useRef(settings.ratioMode);
-	useEffect(() => {
-		const modeChanged = prevRatioModeRef.current !== settings.ratioMode;
-		prevRatioModeRef.current = settings.ratioMode;
-		if (modeChanged && settings.ratioMode === 'auto') {
-			setScaleX(1);
-			setScaleY(1);
-			setTranslateX(0);
-			setTranslateY(0);
+	// ── Ratio application ────────────────────────────────────────────────
+	// The ratio is applied by scaling X (the y-scale stays where the user
+	// left it). While the settings modal is open the apply is deferred to
+	// the modal closing; otherwise it applies immediately.
+	const plotWRef = useRef(plotW);
+	const plotHRef = useRef(plotH);
+	plotWRef.current = plotW;
+	plotHRef.current = plotH;
+	const pendingRatioApplyRef = useRef(false);
+
+	const applyRatioNow = useCallback(() => {
+		if (ratioK === undefined) {
 			return;
 		}
-		const sx = clamp(scaleXRef.current, 1, MAX_SCALE);
-		const sy =
-			ratioK !== undefined
-				? clamp(sx * ratioK, 1, MAX_SCALE)
-				: clamp(scaleYRef.current, 1, MAX_SCALE);
+		const sx = clamp(scaleYRef.current / ratioK, MIN_SCALE, MAX_SCALE);
+		const sy = clamp(scaleYRef.current, MIN_SCALE, MAX_SCALE);
+		const tx = clampTranslate(plotWRef.current, sx, txRef.current);
+		const ty = clampTranslate(plotHRef.current, sy, tyRef.current);
+		if (
+			sx !== scaleXRef.current ||
+			sy !== scaleYRef.current ||
+			tx !== txRef.current ||
+			ty !== tyRef.current
+		) {
+			setScaleX(sx);
+			setScaleY(sy);
+			setTranslateX(tx);
+			setTranslateY(ty);
+		}
+	}, [ratioK]);
+
+	useEffect(() => {
+		if (modalOpen) {
+			pendingRatioApplyRef.current = true;
+			return;
+		}
+		applyRatioNow();
+	}, [
+		ratioK,
+		modalOpen,
+		applyRatioNow,
+	]);
+
+	useEffect(() => {
+		if (!modalOpen && pendingRatioApplyRef.current) {
+			pendingRatioApplyRef.current = false;
+			applyRatioNow();
+		}
+	}, [
+		modalOpen,
+		applyRatioNow,
+	]);
+
+	// Layout resize: clamp the current viewport to the new bounds without
+	// touching the stored ratio (a keyboard-driven resize must not re-apply
+	// an old ratio).
+	useEffect(() => {
+		const sx = clamp(scaleXRef.current, MIN_SCALE, MAX_SCALE);
+		const sy = clamp(scaleYRef.current, MIN_SCALE, MAX_SCALE);
 		const tx = clampTranslate(plotW, sx, txRef.current);
 		const ty = clampTranslate(plotH, sy, tyRef.current);
 		if (
@@ -284,10 +346,74 @@ const AltitudeProfileChart: FC<{
 			setTranslateY(ty);
 		}
 	}, [
-		settings.ratioMode,
-		ratioK,
 		plotW,
 		plotH,
+	]);
+
+	// Fit-screen / profile switch: reset the viewport to fit, then apply
+	// the stored ratio on the x-scale when one is set. Reads the ratio
+	// through a ref so it only fires on reset-signal changes (not on every
+	// typed ratio value).
+	const ratioKRef = useRef(ratioK);
+	ratioKRef.current = ratioK;
+	useEffect(() => {
+		if (resetSignal === undefined) {
+			return;
+		}
+		const k = ratioKRef.current;
+		setScaleX(k !== undefined ? clamp(1 / k, MIN_SCALE, MAX_SCALE) : 1);
+		setScaleY(1);
+		setTranslateX(0);
+		setTranslateY(0);
+	}, [resetSignal]);
+
+	// Follow-map: the viewport's x-window is the map-covered route range
+	// (1:1), the y-scale stays as-is, and the view scrolls vertically to
+	// keep the center indicator in view. Gated on followActiveRef so a
+	// just-started gesture stops the overwrites immediately (no jump).
+	useEffect(() => {
+		if (!followActiveRef.current || !settings.followMap || !followRange) {
+			return;
+		}
+		const [d0, d1] = followRange;
+		const span = d1 - d0 || 1;
+		const sx = clamp(totalLength / span, MIN_SCALE, MAX_SCALE);
+		const sy = clamp(scaleYRef.current, MIN_SCALE, MAX_SCALE);
+		const tx = clampTranslate(plotW, sx, (-d0 * plotW) / span);
+		const centerIdx =
+			centerDistance !== undefined
+				? nearestIndex(series.distances, centerDistance)
+				: undefined;
+		const centerYPlot =
+			centerIdx !== undefined && seriesViews.primary.values
+				? seriesViews.primary.toY(
+						seriesViews.primary.values[centerIdx] ?? seriesViews.primary.vmax
+					)
+				: undefined;
+		const ty =
+			centerYPlot !== undefined
+				? clampTranslate(plotH, sy, plotH / 2 - sy * centerYPlot)
+				: clampTranslate(plotH, sy, tyRef.current);
+		if (
+			sx !== scaleXRef.current ||
+			sy !== scaleYRef.current ||
+			tx !== txRef.current ||
+			ty !== tyRef.current
+		) {
+			setScaleX(sx);
+			setScaleY(sy);
+			setTranslateX(tx);
+			setTranslateY(ty);
+		}
+	}, [
+		settings.followMap,
+		followRange,
+		totalLength,
+		plotW,
+		plotH,
+		centerDistance,
+		series,
+		seriesViews,
 	]);
 
 	// ── Paths (memoized — only depend on the series) ────────────────────
@@ -435,14 +561,19 @@ const AltitudeProfileChart: FC<{
 			t0: { x: number; y: number },
 			t1: { x: number; y: number }
 		): 'uniform' | 'x' => {
-			if (!isFixed) {
-				return 'uniform';
-			}
 			const focalY = (t0.y + t1.y) / 2;
 			if (focalY > height - MARGIN_BOTTOM - X_AXIS_BAND_OVERLAP) {
 				return 'x';
 			}
 			return 'uniform';
+		};
+
+		// A user gesture switches the follow-map toggle off.
+		const notifyUserGesture = () => {
+			followActiveRef.current = false;
+			if (followMapRef.current && onUserGesture) {
+				onUserGesture();
+			}
 		};
 
 		// One-finger pan: never fires while two fingers pinch.
@@ -451,6 +582,7 @@ const AltitudeProfileChart: FC<{
 			.maxPointers(1)
 			.runOnJS(true)
 			.onStart(() => {
+				notifyUserGesture();
 				panStartRef.tx = txRef.current;
 				panStartRef.ty = tyRef.current;
 			})
@@ -459,11 +591,7 @@ const AltitudeProfileChart: FC<{
 					clampTranslate(plotW, scaleXRef.current, panStartRef.tx + event.translationX)
 				);
 				setTranslateY(
-					clampTranslate(
-						plotH,
-						isFixed ? scaleYRef.current : scaleXRef.current,
-						panStartRef.ty + event.translationY
-					)
+					clampTranslate(plotH, scaleYRef.current, panStartRef.ty + event.translationY)
 				);
 			});
 
@@ -474,7 +602,7 @@ const AltitudeProfileChart: FC<{
 			const [t0, t1] = touches;
 			pinchBaseRef.base = {
 				sx: scaleXRef.current,
-				sy: isFixed ? scaleYRef.current : scaleXRef.current,
+				sy: scaleYRef.current,
 				tx: txRef.current,
 				ty: tyRef.current,
 				focalX: (t0.x + t1.x) / 2 - marginLeft,
@@ -486,13 +614,14 @@ const AltitudeProfileChart: FC<{
 		const pinch = Gesture.Pinch()
 			.runOnJS(true)
 			.onStart((event) => {
+				notifyUserGesture();
 				const touches = pinchTouchesRef.current;
 				if (touches.length >= 2) {
 					snapshotPinchBase(touches.slice(0, 2));
 				} else {
 					const base: PinchBase = {
 						sx: scaleXRef.current,
-						sy: isFixed ? scaleYRef.current : scaleXRef.current,
+						sy: scaleYRef.current,
 						tx: txRef.current,
 						ty: tyRef.current,
 						focalX: event.focalX - marginLeft,
@@ -532,14 +661,11 @@ const AltitudeProfileChart: FC<{
 								)
 							: undefined;
 					const factor = perAxis ?? event.scale;
-					sx = clamp(base.sx * factor, 1, MAX_SCALE);
+					sx = clamp(base.sx * factor, MIN_SCALE, MAX_SCALE);
 					sy = base.sy;
-				} else if (isFixed) {
-					sx = clamp(base.sx * event.scale, 1, MAX_SCALE);
-					sy = clamp(base.sy * event.scale, 1, MAX_SCALE);
 				} else {
-					sx = clamp(base.sx * event.scale, 1, MAX_SCALE);
-					sy = sx;
+					sx = clamp(base.sx * event.scale, MIN_SCALE, MAX_SCALE);
+					sy = clamp(base.sy * event.scale, MIN_SCALE, MAX_SCALE);
 				}
 				const kx = sx / base.sx;
 				const ky = sy / base.sy;
@@ -564,16 +690,17 @@ const AltitudeProfileChart: FC<{
 			.numberOfTaps(2)
 			.runOnJS(true)
 			.onEnd((event) => {
+				notifyUserGesture();
 				const base: PinchBase = {
 					sx: scaleXRef.current,
-					sy: isFixed ? scaleYRef.current : scaleXRef.current,
+					sy: scaleYRef.current,
 					tx: txRef.current,
 					ty: tyRef.current,
 					focalX: event.x - marginLeft,
 					focalY: event.y - MARGIN_TOP,
 				};
-				const sx = clamp(base.sx * 2, 1, MAX_SCALE);
-				const sy = isFixed ? clamp(base.sy * 2, 1, MAX_SCALE) : sx;
+				const sx = clamp(base.sx * 2, MIN_SCALE, MAX_SCALE);
+				const sy = clamp(base.sy * 2, MIN_SCALE, MAX_SCALE);
 				const kx = sx / base.sx;
 				const ky = sy / base.sy;
 				applyTransform(
@@ -590,7 +717,7 @@ const AltitudeProfileChart: FC<{
 		plotH,
 		marginLeft,
 		height,
-		isFixed,
+		onUserGesture,
 	]);
 
 	const markerXs = useMemo(
