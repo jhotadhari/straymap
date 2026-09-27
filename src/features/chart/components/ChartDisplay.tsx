@@ -512,7 +512,7 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		justifyContent: 'space-between',
 		paddingLeft: 8,
-		paddingRight: 8,
+		paddingRight: 0, // cog flush right, aligned with the map corner components
 		marginRight: 0, // align with mapCornerComponents
 	},
 	headerAbs: {
