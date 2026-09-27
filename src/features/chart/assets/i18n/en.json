@@ -26,5 +26,6 @@
 	"ratio": "Ratio",
 	"ratioFit": "Fit screen",
 	"followMap": "Follow map",
+	"flyTo": "Fly to route",
 	"removeChartConfirmBody": "Only the chart is removed from the bottom drawer. The route stays on the map, nothing is deleted, and the chart can be toggled on again at any time."
 }

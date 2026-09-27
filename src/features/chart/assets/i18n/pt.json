@@ -26,5 +26,6 @@
 	"ratio": "Proporção",
 	"ratioFit": "Ajustar ao ecrã",
 	"followMap": "Seguir mapa",
+	"flyTo": "Voar para a rota",
 	"removeChartConfirmBody": "Somente o gráfico é removido do painel inferior. A rota permanece no mapa, nada é apagado e o gráfico pode ser reativado a qualquer momento."
 }

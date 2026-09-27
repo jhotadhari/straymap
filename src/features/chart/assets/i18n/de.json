@@ -26,5 +26,6 @@
 	"ratio": "Verhältnis",
 	"ratioFit": "An Bildschirm anpassen",
 	"followMap": "Karte folgen",
+	"flyTo": "Zur Route fliegen",
 	"removeChartConfirmBody": "Es wird nur das Diagramm aus der unteren Leiste entfernt. Die Route bleibt auf der Karte, es wird nichts gelöscht, und das Diagramm kann jederzeit wieder aktiviert werden."
 }

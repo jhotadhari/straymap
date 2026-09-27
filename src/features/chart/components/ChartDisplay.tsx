@@ -5,6 +5,8 @@ import React, { FC, useCallback, useContext, useEffect, useMemo, useRef, useStat
 import { LayoutChangeEvent, StyleSheet, TouchableHighlight, View } from 'react-native';
 import { Icon, Text, useTheme } from 'react-native-paper';
 import { useQuery } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
+import { bbox as turfBbox } from '@turf/turf';
 
 /**
  * Internal dependencies
@@ -12,8 +14,10 @@ import { useQuery } from '@tanstack/react-query';
 import BottomDrawerContext from '../../bottomDrawer/BottomDrawerContext';
 import BottomDrawerMenu from '../../bottomDrawer/components/BottomDrawerMenu';
 import { useBottomDrawerMenuOptions } from '../../bottomDrawer/hooks/useBottomDrawerMenuOptions';
-import { MapContext } from '../../../Context';
+import { AppContext, MapContext } from '../../../Context';
+import ButtonHighlight from '../../../components/generic/primitives/ButtonHighlight';
 import IconButtonHighlight from '../../../components/generic/primitives/IconButtonHighlight';
+import { MAP_ANIMATION_PADDING_PX } from '../../../constants';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { selectPathCoords } from '../../routing/selectors';
 import { selectMapUpdateInterval, selectUnitPrefs } from '../../general/selectors';
@@ -30,7 +34,7 @@ import { useChartItemLabels } from '../hooks/useChartItemLabels';
 import { getChartSeries } from '../utils';
 import Chart from './Chart';
 import ChartSettingsModal from './ChartSettingsModal/ChartSettingsModal';
-import { computeViewportBbox } from 'react-native-mapsforge-vtm';
+import { computeViewportBbox, useMap } from 'react-native-mapsforge-vtm';
 
 const statsRenderParts = ['icon', 'value'] as RenderPart[];
 const statsRenderPartsNoIcon = ['value'] as RenderPart[];
@@ -88,10 +92,13 @@ const getCoveredRange = (
 
 const ChartDisplay: FC = () => {
 	const theme = useTheme();
+	const { t } = useTranslation();
 
 	const { activeItemKey, settingsModalVisible, setSettingsModalVisible } =
 		useContext(BottomDrawerContext);
 	const { currentMapEventRef } = useContext(MapContext);
+	const { mapViewNativeNodeHandle } = useContext(AppContext);
+	const { flyToBounds } = useMap(mapViewNativeNodeHandle);
 
 	const source = useMemo(() => getChartSourceFromKey(activeItemKey), [activeItemKey]);
 	const chartLabels = useChartItemLabels();
@@ -215,10 +222,45 @@ const ChartDisplay: FC = () => {
 		activeItemKey,
 	]);
 
+	// Fly the map to the route (shown while following with the map panned
+	// away from it). The follow derivation re-syncs the chart while the
+	// map animates.
+	const handleFlyToRoute = useCallback(() => {
+		if (!mapViewNativeNodeHandle) {
+			return;
+		}
+		const bbox =
+			source?.type === 'line'
+				? line?.envelope
+					? turfBbox(line.envelope)
+					: undefined
+				: coordinates && coordinates.length
+					? turfBbox({ type: 'LineString', coordinates })
+					: undefined;
+		if (bbox) {
+			flyToBounds(bbox, { paddingPx: MAP_ANIMATION_PADDING_PX });
+		}
+	}, [
+		mapViewNativeNodeHandle,
+		flyToBounds,
+		source?.type,
+		line?.envelope,
+		coordinates,
+	]);
+
 	// Covered route range (follow-map): the map's visible bbox mapped onto
 	// the route's distance axis. Frozen (kept) when there is no
-	// intersection or no map event data.
+	// intersection or no map event data. `followOutOfView` is true while
+	// following and the visible map has no overlap with the route (the
+	// chart then renders no lines and shows the Fly-to-route button).
 	const [followRange, setFollowRange] = useState<[number, number] | undefined>(undefined);
+	const [followOutOfView, setFollowOutOfView] = useState(false);
+
+	useEffect(() => {
+		if (!settings.followMap) {
+			setFollowOutOfView(false);
+		}
+	}, [settings.followMap]);
 
 	// Center indicator: poll the map center (same cadence as the map events).
 	const [center, setCenter] = useState<[number, number] | undefined>(undefined);
@@ -258,6 +300,9 @@ const ChartDisplay: FC = () => {
 					const range = getCoveredRange(coordinates, series.distances, bbox);
 					if (range) {
 						setFollowRange(range);
+						setFollowOutOfView(false);
+					} else {
+						setFollowOutOfView(true);
 					}
 				}
 			}
@@ -414,9 +459,25 @@ const ChartDisplay: FC = () => {
 						onRatioUpdate={handleRatioUpdate}
 						resetSignal={resetSignal}
 						followRange={settings.followMap ? followRange : undefined}
+						followOutOfView={settings.followMap ? followOutOfView : false}
 						onUserGesture={handleUserGesture}
 						modalOpen={settingsModalVisible}
 					/>
+				)}
+				{settings.followMap && followOutOfView && (
+					<View
+						style={styles.flyToWrap}
+						pointerEvents="box-none"
+					>
+						<ButtonHighlight
+							mode="outlined"
+							compact={true}
+							icon="image-filter-center-focus-strong-outline"
+							onPress={handleFlyToRoute}
+						>
+							{t('chart.flyTo')}
+						</ButtonHighlight>
+					</View>
 				)}
 			</View>
 
@@ -482,6 +543,15 @@ const styles = StyleSheet.create({
 	},
 	chartWrap: {
 		flex: 1,
+	},
+	flyToWrap: {
+		position: 'absolute',
+		top: 0,
+		left: 0,
+		right: 0,
+		bottom: 0,
+		alignItems: 'center',
+		justifyContent: 'center',
 	},
 	text: {
 		textAlign: 'center',

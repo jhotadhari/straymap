@@ -98,6 +98,7 @@ const Chart: FC<{
 	onRatioUpdate?: (ratio: number | undefined) => void;
 	resetSignal?: number;
 	followRange?: [number, number];
+	followOutOfView?: boolean;
 	onUserGesture?: () => void;
 	modalOpen?: boolean;
 }> = ({
@@ -112,6 +113,7 @@ const Chart: FC<{
 	onRatioUpdate,
 	resetSignal,
 	followRange,
+	followOutOfView,
 	onUserGesture,
 	modalOpen = false,
 }) => {
@@ -792,6 +794,16 @@ const Chart: FC<{
 			/>
 		);
 	};
+
+	if (followOutOfView) {
+		// Follow-map with the visible map panned away from the route —
+		// render an empty plot (no lines, axes, ticks or indicators).
+		return (
+			<GestureDetector gesture={gesture}>
+				<View style={styles.container} />
+			</GestureDetector>
+		);
+	}
 
 	return (
 		<GestureDetector gesture={gesture}>

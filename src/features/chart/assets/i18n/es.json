@@ -26,5 +26,6 @@
 	"ratio": "Relación",
 	"ratioFit": "Ajustar a pantalla",
 	"followMap": "Seguir mapa",
+	"flyTo": "Volar a la ruta",
 	"removeChartConfirmBody": "Solo se quita el gráfico del panel inferior. La ruta permanece en el mapa, no se elimina nada y el gráfico puede volver a activarse en cualquier momento."
 }
