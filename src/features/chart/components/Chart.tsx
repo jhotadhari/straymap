@@ -533,13 +533,6 @@ const Chart: FC<{
 		]
 	);
 
-	// Blend colors: semi-transparent series strokes so crossings show a
-	// mixed color (only meaningful while both series are visible).
-	const blendOpacity =
-		settings.blendColors && seriesViews.primary.values && seriesViews.secondary.values
-			? 0.65
-			: 1;
-
 	// ── Viewport-derived ticks ──────────────────────────────────────────
 	const ticks = useMemo(() => {
 		const d0 = ((-translateX / scaleX) * totalLength) / plotW;
@@ -867,7 +860,6 @@ const Chart: FC<{
 					d={run.d}
 					stroke={run.color}
 					strokeWidth={strokeWidth / sizeScale}
-					opacity={blendOpacity}
 					fill="none"
 				/>
 			));
@@ -877,7 +869,6 @@ const Chart: FC<{
 				d={pathD}
 				stroke={view.axisColor}
 				strokeWidth={strokeWidth / sizeScale}
-				opacity={blendOpacity}
 				fill="none"
 			/>
 		);

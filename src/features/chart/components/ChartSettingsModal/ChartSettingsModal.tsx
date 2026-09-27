@@ -33,7 +33,6 @@ import RowFollowMap from './rows/RowFollowMap';
 // import RowXMode from './rows/RowXMode';
 import RowShowLabel from './rows/RowShowLabel';
 import RowShowStats from './rows/RowShowStats';
-import RowBlendColors from './rows/RowBlendColors';
 import RowRemoveChart from './rows/RowRemoveChart';
 
 const ChartSettingsModal: FC<{
@@ -176,8 +175,6 @@ const ChartSettingsModal: FC<{
 				<RowShowLabel />
 
 				<RowShowStats />
-
-				<RowBlendColors />
 			</ChartSettingsModalContext.Provider>
 		</ModalWrapper>
 	);

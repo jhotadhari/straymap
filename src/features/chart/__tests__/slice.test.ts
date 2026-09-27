@@ -137,7 +137,6 @@ describe('chart selectors', () => {
 		expect(settings.followMap).toBe(false);
 		expect(settings.showLabel).toBe(true);
 		expect(settings.showStats).toBe(true);
-		expect(settings.blendColors).toBe(false);
 	});
 
 	it('selectChartSettings ignores the removed colorMode key', () => {

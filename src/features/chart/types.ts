@@ -39,7 +39,6 @@ export interface ChartSettings {
 	followMap: boolean;
 	showLabel: boolean;
 	showStats: boolean;
-	blendColors: boolean;
 }
 
 export const DEFAULT_CHART_SETTINGS: ChartSettings = {
@@ -52,5 +51,4 @@ export const DEFAULT_CHART_SETTINGS: ChartSettings = {
 	followMap: false,
 	showLabel: true,
 	showStats: true,
-	blendColors: false,
 };
