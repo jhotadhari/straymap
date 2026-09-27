@@ -49,7 +49,8 @@ const RowRatioLock: FC = () => {
 	return (
 		<NumericRowControl
 			label={t('chart.ratio')}
-			buttonLabel={t('chart.ratioFit')}
+			Info={t('chart.ratioHint')}
+			buttonLabel={t('chart.ratioReset')}
 			onButtonPress={handleFitScreen}
 			value={settings.followMap ? undefined : value}
 			onUpdate={handleUpdate}

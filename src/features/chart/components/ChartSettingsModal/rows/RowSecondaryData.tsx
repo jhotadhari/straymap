@@ -29,7 +29,10 @@ const RowSecondaryData: FC = () => {
 	);
 
 	return (
-		<InfoLabelRow label={t('chart.secondaryData')}>
+		<InfoLabelRow
+			label={t('chart.secondaryData')}
+			Info={t('chart.secondaryDataHint')}
+		>
 			<ButtonHighlightMenuControl
 				options={secondaryDataOptions}
 				value={settings.secondary}

@@ -29,7 +29,10 @@ const RowPrimaryData: FC = () => {
 	);
 
 	return (
-		<InfoLabelRow label={t('chart.primaryData')}>
+		<InfoLabelRow
+			label={t('chart.primaryData')}
+			Info={t('chart.primaryDataHint')}
+		>
 			<ButtonHighlightMenuControl
 				options={primaryDataOptions}
 				value={settings.primary}

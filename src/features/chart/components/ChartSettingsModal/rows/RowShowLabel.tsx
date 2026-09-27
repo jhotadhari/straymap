@@ -21,6 +21,7 @@ const RowShowLabel: FC = () => {
 	return (
 		<ToggleRowControl
 			label={t('chart.showLabel')}
+			Info={t('chart.showLabelHint')}
 			value={settings.showLabel}
 			onToggle={handleToggle}
 		/>

@@ -35,7 +35,10 @@ const RowSecondaryColor: FC = () => {
 	}
 
 	return (
-		<InfoLabelRow label={t('chart.secondaryColor')}>
+		<InfoLabelRow
+			label={t('chart.secondaryColor')}
+			Info={t('chart.secondaryColorHint')}
+		>
 			<ButtonHighlightMenuControl
 				options={secondaryColorOptions}
 				value={settings.secondaryColor}

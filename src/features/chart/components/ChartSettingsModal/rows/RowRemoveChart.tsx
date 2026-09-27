@@ -52,7 +52,10 @@ const RowRemoveChart: FC = () => {
 	}
 
 	return (
-		<InfoLabelRow label={t('chart.removeChart')}>
+		<InfoLabelRow
+			label={t('chart.removeChart')}
+			Info={t('chart.removeChartHint')}
+		>
 			{modalNode}
 			<ButtonHighlight
 				{...buttonProps}

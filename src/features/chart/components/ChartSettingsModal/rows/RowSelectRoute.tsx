@@ -41,7 +41,10 @@ const RowSelectRoute: FC = () => {
 
 	return (
 		<>
-			<InfoLabelRow label={t('chart.route')}>
+			<InfoLabelRow
+				label={t('chart.route')}
+				Info={t('chart.routeHint')}
+			>
 				<ButtonHighlightMenuControl
 					options={chartOptions}
 					value={activeItemKey}

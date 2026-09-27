@@ -35,7 +35,10 @@ const RowPrimaryColor: FC = () => {
 	}
 
 	return (
-		<InfoLabelRow label={t('chart.primaryColor')}>
+		<InfoLabelRow
+			label={t('chart.primaryColor')}
+			Info={t('chart.primaryColorHint')}
+		>
 			<ButtonHighlightMenuControl
 				options={primaryColorOptions}
 				value={settings.primaryColor}

@@ -31,6 +31,7 @@ const RowFollowMap: FC = () => {
 	return (
 		<ToggleRowControl
 			label={t('chart.followMap')}
+			Info={t('chart.followMapHint')}
 			value={settings.followMap}
 			onToggle={handleToggle}
 		/>
