@@ -25,7 +25,7 @@ export const getChartSourceFromKey = (key: string | undefined): ChartSource => {
 
 export type ChartXMode = 'distance' | 'time';
 export type ChartSeriesValue = 'none' | 'elevation' | 'slope';
-export type ChartColorMode = 'axis' | 'primary' | 'secondary';
+export type ChartColorMode = 'axis' | 'elevation' | 'elevationFill' | 'slope' | 'slopeFill';
 
 export interface ChartSettings {
 	primary: ChartSeriesValue;

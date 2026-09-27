@@ -15,8 +15,10 @@ import { ChartSettingsModalContext } from '../Context';
 
 const primaryColorOptions: OptionBase[] = [
 	{ key: 'axis', label: 'chart.colorAxisPrimary' },
-	{ key: 'primary', label: 'chart.colorPrimaryData' },
-	{ key: 'secondary', label: 'chart.colorSecondaryData' },
+	{ key: 'elevation', label: 'chart.colorElevation' },
+	{ key: 'elevationFill', label: 'chart.colorElevationFill' },
+	{ key: 'slope', label: 'chart.colorSlope' },
+	{ key: 'slopeFill', label: 'chart.colorSlopeFill' },
 ];
 
 const RowPrimaryColor: FC = () => {

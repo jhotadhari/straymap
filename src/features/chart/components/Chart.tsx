@@ -15,6 +15,7 @@ import {
 	elevationToColor,
 	getNiceTicks,
 	ChartSeries,
+	ColorRun,
 	slopeToColor,
 	clampTranslate,
 } from '../utils';
@@ -448,36 +449,35 @@ const Chart: FC<{
 		[pathData]
 	);
 
-	// Color source series for a color mode ('primary' / 'secondary').
-	const colorSourceFor = useCallback(
-		(mode: ChartColorMode): SeriesView | undefined =>
-			mode === 'primary'
-				? seriesViews.primary
-				: mode === 'secondary'
-					? seriesViews.secondary
-					: undefined,
-		[seriesViews]
-	);
+	// Elevation domain for the elevation ramp (independent of the series
+	// views — the color modes reference data fields, not series).
+	const elevationDomain = useMemo(() => {
+		const vmin = Math.min(...series.elevations);
+		const vmax = Math.max(...series.elevations);
+		return { vmin, vmax };
+	}, [series]);
 
 	// Ramp coloring for a series view: batched color runs along the view's
-	// path, colored by the values of the chosen source series.
+	// path, colored by the values of the chosen data field (elevation or
+	// slope) — independent of which series the view is.
 	const colorRunsFor = useCallback(
-		(view: SeriesView): { color: string; d: string }[] => {
-			const source = colorSourceFor(view.color);
+		(view: SeriesView): ColorRun[] => {
 			const ys = view === seriesViews.primary ? pathData.ysPrimary : pathData.ysSecondary;
-			if (view.color === 'axis' || !view.values || !ys || !source?.values) {
+			if (view.color === 'axis' || !view.values || !ys) {
 				return [];
 			}
-			const colorForValue =
-				source.data === 'slope'
-					? slopeToColor
-					: (v: number) => elevationToColor(v, source.vmin, source.vmax);
-			return buildColorRuns(pathData.xs, ys, source.values, colorForValue);
+			const isSlope = view.color === 'slope' || view.color === 'slopeFill';
+			const values = isSlope ? series.slopes : series.elevations;
+			const colorForValue = isSlope
+				? slopeToColor
+				: (v: number) => elevationToColor(v, elevationDomain.vmin, elevationDomain.vmax);
+			return buildColorRuns(pathData.xs, ys, values, colorForValue);
 		},
 		[
-			colorSourceFor,
 			pathData,
 			seriesViews,
+			series,
+			elevationDomain,
 		]
 	);
 
@@ -492,6 +492,43 @@ const Chart: FC<{
 		() => colorRunsFor(seriesViews.secondary),
 		[
 			colorRunsFor,
+			seriesViews.secondary,
+		]
+	);
+
+	// Area fills (fill color modes): closed polygons per color run,
+	// dropping from the line down to the x-axis (plot y = plotH). The
+	// stroke uses the same runs as the non-fill counterpart.
+	const fillRunsFor = useCallback(
+		(view: SeriesView): { color: string; d: string }[] => {
+			if (view.color !== 'elevationFill' && view.color !== 'slopeFill') {
+				return [];
+			}
+			const runs = view === seriesViews.primary ? primaryRuns : secondaryRuns;
+			return runs.map((run) => ({
+				color: run.color,
+				d: `${run.d} L ${run.x1} ${plotH} L ${run.x0} ${plotH} Z`,
+			}));
+		},
+		[
+			seriesViews,
+			primaryRuns,
+			secondaryRuns,
+			plotH,
+		]
+	);
+
+	const primaryFillRuns = useMemo(
+		() => fillRunsFor(seriesViews.primary),
+		[
+			fillRunsFor,
+			seriesViews.primary,
+		]
+	);
+	const secondaryFillRuns = useMemo(
+		() => fillRunsFor(seriesViews.secondary),
+		[
+			fillRunsFor,
 			seriesViews.secondary,
 		]
 	);
@@ -869,6 +906,25 @@ const Chart: FC<{
 						y={MARGIN_TOP}
 						transform={groupTransform}
 					>
+						{/* Area fills first, secondary below primary. */}
+						{secondaryFillRuns.map((run, idx) => (
+							<Path
+								key={`sf-${idx}`}
+								d={run.d}
+								fill={run.color}
+								stroke="none"
+							/>
+						))}
+
+						{primaryFillRuns.map((run, idx) => (
+							<Path
+								key={`pf-${idx}`}
+								d={run.d}
+								fill={run.color}
+								stroke="none"
+							/>
+						))}
+
 						{/* Secondary series first — the primary always draws above it. */}
 						{renderSeries(seriesViews.secondary, secondaryRuns, paths.secondary, 1.5)}
 

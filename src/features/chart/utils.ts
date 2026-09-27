@@ -211,12 +211,17 @@ export const elevationToColor = (elevation: number, min: number, max: number): s
 export interface ColorRun {
 	color: string;
 	d: string;
+	/** x-range covered by the run (first and last point). */
+	x0: number;
+	x1: number;
 }
 
 /**
  * Builds quantized, batched color-run paths for a series path
  * (`xs`/`ys`) colored by per-segment `values` through `colorForValue`.
  * Consecutive segments with the same color are merged into one path.
+ * Each run is a single subpath polyline (`M x0 y0 L x1 y1 …`) so the
+ * `d` can also be reused as an area-fill polygon boundary.
  */
 export const buildColorRuns = (
 	xs: number[],
@@ -252,23 +257,28 @@ export const buildColorRuns = (
 		return colorForValue(vmin + (range * idx) / (bucketCount - 1));
 	};
 
-	let currentColor = '';
+	let currentColor: string | undefined;
 	let currentD = '';
+	let currentX0 = xs[0];
 	for (let i = 0; i < xs.length - 1; i++) {
 		const color = bucketColor(values[Math.min(i, values.length - 1)]);
-		const seg = `M ${xs[i]} ${ys[i]} L ${xs[i + 1]} ${ys[i + 1]} `;
-		if (color === currentColor) {
-			currentD += seg;
-		} else {
+		if (color !== currentColor) {
 			if (currentD) {
-				runs.push({ color: currentColor, d: currentD });
+				runs.push({ color: currentColor as string, d: currentD, x0: currentX0, x1: xs[i] });
 			}
 			currentColor = color;
-			currentD = seg;
+			currentD = `M ${xs[i]} ${ys[i]} `;
+			currentX0 = xs[i];
 		}
+		currentD += `L ${xs[i + 1]} ${ys[i + 1]} `;
 	}
 	if (currentD) {
-		runs.push({ color: currentColor, d: currentD });
+		runs.push({
+			color: currentColor as string,
+			d: currentD,
+			x0: currentX0,
+			x1: xs[xs.length - 1],
+		});
 	}
 	return runs;
 };

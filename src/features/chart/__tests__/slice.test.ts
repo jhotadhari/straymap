@@ -48,12 +48,12 @@ describe('chart slice reducers', () => {
 		});
 		state = chartReducer(
 			state,
-			setChartSettings({ key: 'routing', settings: { primaryColor: 'secondary' } })
+			setChartSettings({ key: 'routing', settings: { primaryColor: 'slope' } })
 		);
 		expect(state.charts['routing']).toEqual({
 			...DEFAULT_CHART_SETTINGS,
 			secondary: 'slope',
-			primaryColor: 'secondary',
+			primaryColor: 'slope',
 		});
 	});
 
@@ -71,10 +71,10 @@ describe('chart slice reducers', () => {
 	});
 
 	it('setGeneralSettings merges partial settings', () => {
-		const state = chartReducer(undefined, setGeneralSettings({ primaryColor: 'secondary' }));
+		const state = chartReducer(undefined, setGeneralSettings({ primaryColor: 'slope' }));
 		expect(state.general).toEqual({
 			...DEFAULT_CHART_SETTINGS,
-			primaryColor: 'secondary',
+			primaryColor: 'slope',
 		});
 	});
 
@@ -83,7 +83,7 @@ describe('chart slice reducers', () => {
 			undefined,
 			setChartSettings({
 				key: 'line:1',
-				settings: { primaryColor: 'secondary', ratioValue: 20, followMap: true },
+				settings: { primaryColor: 'slope', ratioValue: 20, followMap: true },
 			})
 		);
 		state = chartReducer(state, resetChartSettingsToPerChart('line:1'));
@@ -97,7 +97,7 @@ describe('chart slice reducers', () => {
 		// entry retains followMap: false as a stored per-chart value).
 		let state = chartReducer(
 			undefined,
-			setChartSettings({ key: 'line:2', settings: { primaryColor: 'secondary' } })
+			setChartSettings({ key: 'line:2', settings: { primaryColor: 'slope' } })
 		);
 		state = chartReducer(state, resetChartSettingsToPerChart('line:2'));
 		expect(state.charts['line:2']).toEqual({ followMap: false });
@@ -115,10 +115,10 @@ describe('chart selectors', () => {
 	it('selectChartSettings returns stored settings', () => {
 		const state = chartReducer(
 			undefined,
-			setChartSettings({ key: 'line:3', settings: { primaryColor: 'secondary' } })
+			setChartSettings({ key: 'line:3', settings: { primaryColor: 'slope' } })
 		);
 		const root = { chart: state } as unknown as RootState;
-		expect(selectChartSettings(root, 'line:3').primaryColor).toBe('secondary');
+		expect(selectChartSettings(root, 'line:3').primaryColor).toBe('slope');
 	});
 
 	it('selectChartSettings merges defaults for partial stored settings', () => {
@@ -127,11 +127,11 @@ describe('chart selectors', () => {
 			chart: {
 				initialized: true,
 				general: DEFAULT_CHART_SETTINGS,
-				charts: { 'line:4': { primaryColor: 'secondary' } },
+				charts: { 'line:4': { primaryColor: 'slope' } },
 			},
 		} as unknown as RootState;
 		const settings = selectChartSettings(root, 'line:4');
-		expect(settings.primaryColor).toBe('secondary');
+		expect(settings.primaryColor).toBe('slope');
 		expect(settings.primary).toBe('elevation');
 		expect(settings.ratioValue).toBeUndefined();
 		expect(settings.followMap).toBe(false);
@@ -157,15 +157,15 @@ describe('chart selectors', () => {
 
 	it('selectChartSettings falls back to the general settings', () => {
 		const root = buildRoot({
-			general: { ...DEFAULT_CHART_SETTINGS, primaryColor: 'secondary' },
+			general: { ...DEFAULT_CHART_SETTINGS, primaryColor: 'slope' },
 		});
-		expect(selectChartSettings(root, 'line:5').primaryColor).toBe('secondary');
+		expect(selectChartSettings(root, 'line:5').primaryColor).toBe('slope');
 		expect(selectChartSettings(root, 'line:5').secondary).toBe('none');
 	});
 
 	it('selectChartSettings prefers own settings over the general settings', () => {
 		const root = buildRoot({
-			general: { ...DEFAULT_CHART_SETTINGS, primaryColor: 'secondary' },
+			general: { ...DEFAULT_CHART_SETTINGS, primaryColor: 'slope' },
 			charts: { 'line:6': { primaryColor: 'axis' } },
 		});
 		expect(selectChartSettings(root, 'line:6').primaryColor).toBe('axis');
@@ -181,7 +181,7 @@ describe('chart selectors', () => {
 
 	it('selectHasOwnChartSettings detects own entries', () => {
 		const root = buildRoot({
-			charts: { 'line:7': { primaryColor: 'secondary' } },
+			charts: { 'line:7': { primaryColor: 'slope' } },
 		});
 		expect(selectHasOwnChartSettings(root, 'line:7')).toBe(true);
 		expect(selectHasOwnChartSettings(root, 'line:8')).toBe(false);

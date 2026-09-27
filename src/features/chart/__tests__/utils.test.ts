@@ -191,13 +191,25 @@ describe('buildColorRuns', () => {
 		expect(runs[0].color).toBe('green');
 		expect(runs[0].d).toContain('M 0 10');
 		expect(runs[0].d).toContain('L 2 30');
+		expect(runs[0].x0).toBe(0);
+		expect(runs[0].x1).toBe(2);
+	});
+
+	it('emits a single subpath per run (no per-segment M commands)', () => {
+		const runs = buildColorRuns(xs, ys, [0, 0], colorForValue);
+		expect(runs[0].d.match(/M /g)).toHaveLength(1);
+		expect(runs[0].d).toBe('M 0 10 L 1 20 L 2 30 ');
 	});
 
 	it('splits differently-colored segments into separate runs', () => {
 		const runs = buildColorRuns(xs, ys, [0, 100], colorForValue);
 		expect(runs).toHaveLength(2);
 		expect(runs[0].color).toBe('green');
+		expect(runs[0].x0).toBe(0);
+		expect(runs[0].x1).toBe(1);
 		expect(runs[1].color).toBe('red');
+		expect(runs[1].x0).toBe(1);
+		expect(runs[1].x1).toBe(2);
 	});
 
 	it('returns no runs for too few points', () => {
