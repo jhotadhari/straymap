@@ -2,7 +2,14 @@
  * External dependencies
  */
 import { FC, memo, useCallback, useContext, useMemo, useRef, useState } from 'react';
-import { ScrollView, StyleProp, StyleSheet, TouchableHighlight, View, ViewStyle } from 'react-native';
+import {
+	ScrollView,
+	StyleProp,
+	StyleSheet,
+	TouchableHighlight,
+	View,
+	ViewStyle,
+} from 'react-native';
 import { useTheme, Text, Icon } from 'react-native-paper';
 import { useMap } from 'react-native-mapsforge-vtm';
 import Popover from 'react-native-popover-view';
@@ -67,7 +74,11 @@ const ListRow: FC<ListRowProps> = ({ line, idx, systemFeatureKey }) => {
 			dispatch(setLineColor({ lineId: line.id, color }));
 			dismissColorMenu();
 		},
-		[dispatch, line.id, dismissColorMenu]
+		[
+			dispatch,
+			line.id,
+			dismissColorMenu,
+		]
 	);
 
 	const dynamicStyles = useMemo(
@@ -192,8 +203,7 @@ const ListRow: FC<ListRowProps> = ({ line, idx, systemFeatureKey }) => {
 												style={[
 													colorCircle.circle,
 													{
-														backgroundColor:
-															palette.bg as `#${string}`,
+														backgroundColor: palette.bg as `#${string}`,
 													},
 												]}
 											/>

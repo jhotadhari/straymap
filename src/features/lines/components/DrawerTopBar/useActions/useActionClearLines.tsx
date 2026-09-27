@@ -40,7 +40,12 @@ const useActionClearLines = ({ lineIds }: { lineIds: number[] }) => {
 		const filtered = lineIds.filter((id) => systemIds.has(id));
 		dispatch(setSelected(filtered));
 		handleDismissModal();
-	}, [dispatch, handleDismissModal, lineIds, systemLineIds]);
+	}, [
+		dispatch,
+		handleDismissModal,
+		lineIds,
+		systemLineIds,
+	]);
 
 	const modalNode = useMemo(() => {
 		if (!modalVisible) {
@@ -54,16 +59,20 @@ const useActionClearLines = ({ lineIds }: { lineIds: number[] }) => {
 				headerLabel={t('lines.clearLinesConfirm')}
 				innerStyle={sharedStyles.modal}
 			>
-				<Text>
-					{sprintf(t('lines.clearLinesConfirmationBody'), lineIds.length)}
-				</Text>
+				<Text>{sprintf(t('lines.clearLinesConfirmationBody'), lineIds.length)}</Text>
 
 				<View style={sharedStyles.modalControls}>
-					<ButtonHighlight onPress={handleDismissModal} {...buttonPropsSuccess}>
+					<ButtonHighlight
+						onPress={handleDismissModal}
+						{...buttonPropsSuccess}
+					>
 						{t('cancel')}
 					</ButtonHighlight>
 
-					<ButtonHighlight onPress={handleClearLines} {...buttonPropsDelete}>
+					<ButtonHighlight
+						onPress={handleClearLines}
+						{...buttonPropsDelete}
+					>
 						{t('lines.clearLinesFromMap')}
 					</ButtonHighlight>
 				</View>

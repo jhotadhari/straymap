@@ -5,6 +5,7 @@ import React, { FC, useCallback, useContext, useMemo, useState } from 'react';
 import { StyleSheet, View, ViewProps } from 'react-native';
 import Sortable, { SortableFlexDragEndParams } from 'react-native-sortables';
 import { ScrollView } from 'react-native-gesture-handler';
+import Animated, { useAnimatedStyle } from 'react-native-reanimated';
 
 /**
  * Internal dependencies
@@ -41,7 +42,8 @@ const DrawerHandles: FC<
 	const showSettingsHandle = useAppSelector(selectShowSettingsHandle);
 	const sortable = useAppSelector(selectSortable);
 
-	const { setMoveEnabled, mapCornerComponentsHeight } = useContext(AppContext);
+	const { setMoveEnabled, mapCornerComponentsHeight, bottomBarHeight, bottomDrawerHeightSv } =
+		useContext(AppContext);
 	const { setActiveItemKey, height: drawerHeight } = useContext(DrawerContext);
 
 	const [scrollEnabled, setScrollEnabled] = useState(true);
@@ -115,32 +117,22 @@ const DrawerHandles: FC<
 		]
 	);
 
-	const styleWrapper = useMemo(
-		() => [
-			styles.wrapper,
-			{
-				height: drawerHeight || height,
-				maxHeight:
-					'right' === side
-						? (drawerHeight || height) -
-							((mapCornerComponentsHeight ?? 0) + PADDING * 2)
-						: drawerHeight || height,
-			},
-			'left' === side && styles.wrapperLeft,
-			'right' === side && styles.wrapperRight,
-		],
-		[
-			drawerHeight,
-			side,
-			height,
-			mapCornerComponentsHeight,
-		]
-	);
+	const baseMapHeight = (drawerHeight || height) + (bottomBarHeight?.bottomDrawer ?? 0);
 
-	const styleScrollView = useMemo(
-		() => [styles.scrollView, { height: drawerHeight }],
-		[drawerHeight]
-	);
+	const animatedWrapperStyle = useAnimatedStyle(() => {
+		const current = baseMapHeight - bottomDrawerHeightSv.value;
+		return {
+			height: current,
+			maxHeight:
+				'right' === side
+					? current - ((mapCornerComponentsHeight ?? 0) + PADDING * 2)
+					: current,
+		};
+	}, [
+		baseMapHeight,
+		side,
+		mapCornerComponentsHeight,
+	]);
 
 	const styleContainer = useMemo(
 		() => ({
@@ -182,10 +174,17 @@ const DrawerHandles: FC<
 	}
 
 	return (
-		<View style={styleWrapper}>
+		<Animated.View
+			style={[
+				styles.wrapper,
+				animatedWrapperStyle,
+				'left' === side && styles.wrapperLeft,
+				'right' === side && styles.wrapperRight,
+			]}
+		>
 			<ScrollView
 				scrollEnabled={scrollEnabled}
-				style={styleScrollView}
+				style={[styles.scrollView, styles.scrollViewFill]}
 			>
 				<View style={styleContainer}>
 					<View>
@@ -251,7 +250,7 @@ const DrawerHandles: FC<
 					)}
 				</View>
 			</ScrollView>
-		</View>
+		</Animated.View>
 	);
 };
 
@@ -278,6 +277,9 @@ const styles = StyleSheet.create({
 	scrollView: {
 		overflow: 'visible',
 		width: DRAWER_HANDLE_SIZE,
+	},
+	scrollViewFill: {
+		height: '100%',
 	},
 	sortableItem: {
 		height: DRAWER_HANDLE_SIZE + DRAWER_HANDLE_SIZE / 2,

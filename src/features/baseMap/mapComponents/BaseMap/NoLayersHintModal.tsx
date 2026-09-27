@@ -3,7 +3,7 @@
  */
 import { FC, useCallback, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Text, useTheme } from 'react-native-paper';
+import { Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 
 /**
@@ -19,7 +19,6 @@ import { getNewLayer } from '../../utils';
 import InfoLabelRow from '../../../../components/generic/infoWrapper/InfoLabelRow';
 
 const NoLayersHintModal: FC<{ layersLength: number }> = ({ layersLength }) => {
-	const theme = useTheme();
 	const dispatch = useAppDispatch();
 	const { t } = useTranslation();
 	const activateMapsDrawerItem = useActivateDrawerItem('maps');

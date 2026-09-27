@@ -252,6 +252,23 @@ jest.mock('react-native-gesture-handler', () => {
 });
 
 // ---------------------------------------------------------------------------
+// react-native-mapsforge-vtm-ext-path-color-ramp — slope/color helpers
+// (the native LayerPathColorRamp TurboModule isn't available in Jest)
+// ---------------------------------------------------------------------------
+jest.mock('react-native-mapsforge-vtm-ext-path-color-ramp', () => ({
+	calculateSlope: jest.fn((coords) =>
+		new Array(Math.max(0, (coords?.length ?? 0) - 1)).fill(0)
+	),
+	interpolateColor: jest.fn((color1, _color2) => color1),
+	usePathColorRamp: jest.fn(() => ({
+		segmentColors: [],
+		normalizedValues: [],
+		colorRampStops: [],
+		valueMode: 'segment',
+	})),
+}));
+
+// ---------------------------------------------------------------------------
 // @react-native-community/blur
 // ---------------------------------------------------------------------------
 jest.mock('@react-native-community/blur', () => 'BlurView');
@@ -376,6 +393,7 @@ jest.mock('./src/features/FeatureRegistry', () => {
 		lines: { key: 'lines' },
 		waypoints: { key: 'waypoints' },
 	};
+	const mockBottomDrawerItems = {};
 	return {
 		featureRegistry: {
 			getUiItems: jest.fn(() => []),
@@ -383,6 +401,7 @@ jest.mock('./src/features/FeatureRegistry', () => {
 			getSettingsControls: jest.fn(() => []),
 			getDashboardWidgets: jest.fn(() => ({})),
 			getDrawerPanels: jest.fn(() => mockDrawerItems),
+			getBottomDrawerItems: jest.fn(() => mockBottomDrawerItems),
 			getMapComponents: jest.fn(() => []),
 			getAppOverlays: jest.fn(() => []),
 			getAllModes: jest.fn(() => []),

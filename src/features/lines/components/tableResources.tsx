@@ -191,7 +191,11 @@ export const SortableHeaderCell: FC<{
 }> = ({ columnKey, sortable, sortIcon, cellStyle, onSortPress, onLongPress, onRef, t }) => {
 	const handlePress = useCallback(() => {
 		if (sortable) onSortPress(columnKey);
-	}, [sortable, onSortPress, columnKey]);
+	}, [
+		sortable,
+		onSortPress,
+		columnKey,
+	]);
 
 	const handleLongPress = useCallback(() => onLongPress(columnKey), [onLongPress, columnKey]);
 

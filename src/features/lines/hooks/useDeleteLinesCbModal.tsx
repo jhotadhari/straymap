@@ -18,6 +18,9 @@ import { useButtonProps } from '../../../compose/useButtonProps';
 import { useAppDispatch } from '../../../store/hooks';
 import { sharedStyles } from '../../../sharedStyles';
 import { setIsRouting } from '../../routing/slice';
+import { removeChartLines } from '../slice';
+import { removeChartSettings } from '../../chart/slice';
+import { getChartSourceKey } from '../../chart/types';
 import { deleteLines } from '../db/actionsLine';
 import {
 	cancelLinesQueries,
@@ -116,6 +119,12 @@ const useDeleteLinesCbModal = ({
 		includesRoute && dispatch(setIsRouting(false));
 		// remove from map
 		removeLinesFromMap();
+		// Prune chart state for the deleted lines: the derived
+		// bottom-drawer chart entries and their persisted settings must
+		// not survive the line (chartLines is persisted, so without this
+		// the stale entries come back after a restart).
+		dispatch(removeChartLines(deleteIds));
+		dispatch(removeChartSettings(deleteIds.map(getChartSourceKey.line)));
 		// delete lines and uncheck and dismiss modal
 		mutation.mutate(deleteIds);
 	}, [

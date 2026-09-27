@@ -1,10 +1,10 @@
 /**
  * External dependencies
  */
-import React, { FC, useCallback, useEffect, useMemo } from 'react';
+import React, { FC, useCallback, useContext, useEffect, useMemo } from 'react';
 import { StyleSheet, View, ViewStyle } from 'react-native';
 import { useTheme } from 'react-native-paper';
-import Animated from 'react-native-reanimated';
+import Animated, { useAnimatedStyle } from 'react-native-reanimated';
 
 /**
  * Internal dependencies
@@ -16,6 +16,7 @@ import DrawerContent from './DrawerContent';
 import { setActiveKey } from '../slice';
 import DrawerContext from '../DrawerContext';
 import DrawerHandles from './DrawerHandles';
+import { AppContext } from '../../../Context';
 
 const Drawer: FC<DrawerProps> = ({
 	height,
@@ -32,6 +33,8 @@ const Drawer: FC<DrawerProps> = ({
 	const theme = useTheme();
 
 	const dispatch = useAppDispatch();
+
+	const { bottomBarHeight, bottomDrawerHeightSv } = useContext(AppContext);
 
 	const itemKeys = useAppSelector((state) => selectItemKeys(state, { side }));
 
@@ -89,20 +92,28 @@ const Drawer: FC<DrawerProps> = ({
 		]
 	);
 
+	const baseMapHeight = height + (bottomBarHeight?.bottomDrawer ?? 0);
+	const animatedHeight = useAnimatedStyle(
+		() => ({
+			height: baseMapHeight - bottomDrawerHeightSv.value,
+		}),
+		[baseMapHeight]
+	);
+
 	const styleDrawer = useMemo(
 		() => [
 			animatedStyles,
+			animatedHeight,
 			{
 				width: drawerWidth,
-				height,
 				backgroundColor: theme.colors.background,
 				zIndex: 30,
 			},
 		],
 		[
 			animatedStyles,
+			animatedHeight,
 			drawerWidth,
-			height,
 			theme,
 		]
 	);

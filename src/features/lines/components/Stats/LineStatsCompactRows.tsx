@@ -29,7 +29,7 @@ const LineStatsCompactRows: FC<{
 		() => [
 			styles.row,
 			reverse && {
-				flexDirection: 'row-reverse',
+				justifyContent: 'flex-end',
 			},
 		],
 		[reverse]

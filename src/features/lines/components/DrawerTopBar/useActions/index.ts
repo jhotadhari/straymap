@@ -27,7 +27,12 @@ const useActions = ({ lineIds }: { lineIds: number[] }) => {
 		actions[actionClearLines.key] = actionClearLines;
 
 		return actions;
-	}, [actionClearLines, actionRandomizeColors, actionSetEqualColors, actionShowStats]);
+	}, [
+		actionClearLines,
+		actionRandomizeColors,
+		actionSetEqualColors,
+		actionShowStats,
+	]);
 };
 
 export default useActions;

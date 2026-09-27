@@ -168,8 +168,8 @@ const NumericRowControlSegmented = ({
 	}, []);
 
 	const handleButtonPress = useCallback(() => {
-		numValueActive && toggleOption();
-	}, [numValueActive, toggleOption]);
+		toggleOption();
+	}, [toggleOption]);
 
 	const handleFocus = useCallback(() => {
 		isFocusedRef.current = true;

@@ -8,7 +8,7 @@ import { MapEventResponse } from 'react-native-mapsforge-vtm';
 import { sprintf } from 'sprintf-js';
 import { useTranslation } from 'react-i18next';
 import { QueryClientProvider } from '@tanstack/react-query';
-import type { SharedValue } from 'react-native-reanimated';
+import { useSharedValue, type SharedValue } from 'react-native-reanimated';
 
 /**
  * Internal dependencies
@@ -24,6 +24,7 @@ import { useSetupTheme } from '../features/appearance/hooks';
 import { selectIsUpdating } from '../features/updater/selectors';
 import useInitialCenter from '../compose/useInitialCenter';
 import { DrawerControls } from '../features/drawers/types';
+import { BottomDrawerControls } from '../features/bottomDrawer/types';
 import {
 	selectDbMigrated,
 	selectDbPendingMigrations,
@@ -44,6 +45,8 @@ const App: FC = () => {
 	const currentMapEventRef = useRef<MapEventResponse | null>(null);
 	const centerPositionSvRef = useRef<SharedValue<[number, number] | null> | null>(null);
 	const drawerControlsRef = useRef<DrawerControls | null>(null);
+	const bottomDrawerControlsRef = useRef<BottomDrawerControls | null>(null);
+	const bottomDrawerHeightSv = useSharedValue(0);
 
 	// Prevent app from closing on hardwareBackPress.
 	useEffect(() => {
@@ -116,6 +119,8 @@ const App: FC = () => {
 			setTopAppBarHeight,
 			setBottomBarHeight,
 			drawerControlsRef,
+			bottomDrawerControlsRef,
+			bottomDrawerHeightSv,
 			moveEnabled,
 			setMoveEnabled,
 			mapCornerComponentsHeight,
@@ -130,6 +135,7 @@ const App: FC = () => {
 			appInnerHeight,
 			topAppBarHeight,
 			bottomBarHeight,
+			bottomDrawerHeightSv,
 			moveEnabled,
 			mapCornerComponentsHeight,
 			height,
