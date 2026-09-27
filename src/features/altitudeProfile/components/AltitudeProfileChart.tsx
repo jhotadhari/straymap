@@ -34,6 +34,7 @@ const MARGIN_FALLBACK = 8;
 const MARGIN_TOP = 10;
 const MARGIN_BOTTOM = 26;
 const X_AXIS_BAND_OVERLAP = 12;
+const MIN_AXIS_SEPARATION = 10;
 
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 
@@ -80,6 +81,8 @@ interface PinchBase {
 	ty: number;
 	focalX: number;
 	focalY: number;
+	/** Initial per-axis finger separation (for the x-axis gesture). */
+	dx?: number;
 }
 
 const AltitudeProfileChart: FC<{
@@ -115,6 +118,10 @@ const AltitudeProfileChart: FC<{
 	const [scaleY, setScaleY] = useState(1);
 	const [translateX, setTranslateX] = useState(0);
 	const [translateY, setTranslateY] = useState(0);
+	// Axis-gesture ratio reporting: bumped on gesture end so the report
+	// happens only after the final gesture frame has been committed.
+	const [reportTick, setReportTick] = useState(0);
+	const pendingAxisReportRef = useRef(false);
 
 	// Latest state for gesture-start snapshots.
 	const scaleXRef = useRef(scaleX);
@@ -225,6 +232,22 @@ const AltitudeProfileChart: FC<{
 	}, [
 		currentRatio,
 		onRatioChange,
+	]);
+
+	// Report the axis gesture's ratio once the final viewport frame is
+	// committed (the tick render follows the last gesture setState).
+	useEffect(() => {
+		if (!pendingAxisReportRef.current) {
+			return;
+		}
+		pendingAxisReportRef.current = false;
+		if (currentRatio !== undefined && onRatioUpdate) {
+			onRatioUpdate(currentRatio);
+		}
+	}, [
+		reportTick,
+		currentRatio,
+		onRatioUpdate,
 	]);
 
 	// Re-validate the viewport whenever the ratio settings change — no
@@ -393,25 +416,13 @@ const AltitudeProfileChart: FC<{
 	// is never compounded across events and pan never fights the pinch.
 	// The pinch region (plot / x-axis band / y-axis column) is classified
 	// once at gesture start from the focal point — no per-view overlays.
-	const reportRatio = useCallback(() => {
-		if (!onRatioUpdate || !seriesViews.primary.values) {
-			return;
-		}
-		onRatioUpdate(
-			(totalLength * scaleYRef.current) / (seriesViews.primary.vrange * scaleXRef.current)
-		);
-	}, [
-		onRatioUpdate,
-		seriesViews,
-		totalLength,
-	]);
-
 	const gesture = useMemo(() => {
 		const panStartRef = { tx: 0, ty: 0 };
 		const pinchBaseRef: { base: PinchBase } = {
 			base: { sx: 1, sy: 1, tx: 0, ty: 0, focalX: 0, focalY: 0 },
 		};
-		const pinchRegionRef: { region: 'uniform' | 'x' | 'y' } = { region: 'uniform' };
+		const pinchRegionRef: { region: 'uniform' | 'x' } = { region: 'uniform' };
+		const pinchTouchesRef: { current: { x: number; y: number }[] } = { current: [] };
 
 		const applyTransform = (sx: number, sy: number, tx: number, ty: number) => {
 			setScaleX(sx);
@@ -420,13 +431,14 @@ const AltitudeProfileChart: FC<{
 			setTranslateY(ty);
 		};
 
-		const classifyRegion = (focalX: number, focalY: number): 'uniform' | 'x' | 'y' => {
+		const classifyRegionFromTouches = (
+			t0: { x: number; y: number },
+			t1: { x: number; y: number }
+		): 'uniform' | 'x' => {
 			if (!isFixed) {
 				return 'uniform';
 			}
-			if (focalX < marginLeft) {
-				return 'y';
-			}
+			const focalY = (t0.y + t1.y) / 2;
 			if (focalY > height - MARGIN_BOTTOM - X_AXIS_BAND_OVERLAP) {
 				return 'x';
 			}
@@ -456,31 +468,53 @@ const AltitudeProfileChart: FC<{
 			});
 
 		// Two-finger pinch: snapshot the base once, derive everything from
-		// it. Re-snapshot whenever a finger changes (Android re-touch quirk).
-		const snapshotPinchBase = (focalX: number, focalY: number) => {
+		// it. Re-snapshot and re-classify whenever a finger changes
+		// (Android re-touch quirk).
+		const snapshotPinchBase = (touches: { x: number; y: number }[]) => {
+			const [t0, t1] = touches;
 			pinchBaseRef.base = {
 				sx: scaleXRef.current,
 				sy: isFixed ? scaleYRef.current : scaleXRef.current,
 				tx: txRef.current,
 				ty: tyRef.current,
-				focalX: focalX - marginLeft,
-				focalY: focalY - MARGIN_TOP,
+				focalX: (t0.x + t1.x) / 2 - marginLeft,
+				focalY: (t0.y + t1.y) / 2 - MARGIN_TOP,
+				dx: Math.abs(t1.x - t0.x),
 			};
 		};
 
 		const pinch = Gesture.Pinch()
 			.runOnJS(true)
 			.onStart((event) => {
-				pinchRegionRef.region = classifyRegion(event.focalX, event.focalY);
-				snapshotPinchBase(event.focalX, event.focalY);
+				const touches = pinchTouchesRef.current;
+				if (touches.length >= 2) {
+					snapshotPinchBase(touches.slice(0, 2));
+				} else {
+					const base: PinchBase = {
+						sx: scaleXRef.current,
+						sy: isFixed ? scaleYRef.current : scaleXRef.current,
+						tx: txRef.current,
+						ty: tyRef.current,
+						focalX: event.focalX - marginLeft,
+						focalY: event.focalY - MARGIN_TOP,
+					};
+					pinchBaseRef.base = base;
+				}
 			})
 			.onTouchesDown((event) => {
-				const touches = event.allTouches ?? [];
+				const touches = (event.allTouches ?? []).map((t) => ({ x: t.x, y: t.y }));
+				pinchTouchesRef.current = touches;
 				if (touches.length < 2) {
 					return;
 				}
-				const [t0, t1] = touches;
-				snapshotPinchBase((t0.x + t1.x) / 2, (t0.y + t1.y) / 2);
+				pinchRegionRef.region = classifyRegionFromTouches(touches[0], touches[1]);
+				snapshotPinchBase(touches.slice(0, 2));
+			})
+			.onTouchesMove((event) => {
+				pinchTouchesRef.current = (event.allTouches ?? []).map((t) => ({
+					x: t.x,
+					y: t.y,
+				}));
 			})
 			.onUpdate((event) => {
 				const { base } = pinchBaseRef;
@@ -488,11 +522,18 @@ const AltitudeProfileChart: FC<{
 				let sx: number;
 				let sy: number;
 				if (region === 'x') {
-					sx = clamp(base.sx * event.scale, 1, MAX_SCALE);
+					const touches = pinchTouchesRef.current;
+					const perAxis =
+						touches.length >= 2 && base.dx && base.dx >= MIN_AXIS_SEPARATION
+							? clamp(
+									Math.abs(touches[1].x - touches[0].x) / base.dx,
+									1 / MAX_SCALE,
+									MAX_SCALE
+								)
+							: undefined;
+					const factor = perAxis ?? event.scale;
+					sx = clamp(base.sx * factor, 1, MAX_SCALE);
 					sy = base.sy;
-				} else if (region === 'y') {
-					sx = base.sx;
-					sy = clamp(base.sy * event.scale, 1, MAX_SCALE);
 				} else if (isFixed) {
 					sx = clamp(base.sx * event.scale, 1, MAX_SCALE);
 					sy = clamp(base.sy * event.scale, 1, MAX_SCALE);
@@ -511,8 +552,12 @@ const AltitudeProfileChart: FC<{
 			})
 			.onEnd(() => {
 				if (pinchRegionRef.region !== 'uniform') {
-					reportRatio();
+					// Report the ratio after the final gesture frame has been
+					// committed (the tick render follows the last setState).
+					pendingAxisReportRef.current = true;
+					setReportTick((t) => t + 1);
 				}
+				pinchRegionRef.region = 'uniform';
 			});
 
 		const doubleTap = Gesture.Tap()
@@ -546,7 +591,6 @@ const AltitudeProfileChart: FC<{
 		marginLeft,
 		height,
 		isFixed,
-		reportRatio,
 	]);
 
 	const markerXs = useMemo(
