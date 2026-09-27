@@ -741,19 +741,70 @@ const Chart: FC<{
 		() => (centerDistance !== undefined ? distToX(centerDistance) : undefined),
 		[centerDistance, distToX]
 	);
-	const centerY = useMemo(
+	const centerIdx = useMemo(
 		() =>
-			centerDistance !== undefined && seriesViews.primary.values
-				? seriesViews.primary.toY(
-						seriesViews.primary.values[
-							nearestIndex(series.distances, centerDistance)
-						] ?? seriesViews.primary.vmax
-					)
+			centerDistance !== undefined
+				? nearestIndex(series.distances, centerDistance)
 				: undefined,
 		[
 			centerDistance,
 			series,
+		]
+	);
+	const centerY = useMemo(
+		() =>
+			centerIdx !== undefined && seriesViews.primary.values
+				? seriesViews.primary.toY(
+						seriesViews.primary.values[centerIdx] ?? seriesViews.primary.vmax
+					)
+				: undefined,
+		[
+			centerIdx,
 			seriesViews,
+		]
+	);
+	const centerYSecondary = useMemo(
+		() =>
+			centerIdx !== undefined && seriesViews.secondary.values
+				? seriesViews.secondary.toY(
+						seriesViews.secondary.values[centerIdx] ?? seriesViews.secondary.vmax
+					)
+				: undefined,
+		[
+			centerIdx,
+			seriesViews,
+		]
+	);
+	const centerPrimaryLabel = useMemo(
+		() =>
+			centerIdx !== undefined && seriesViews.primary.values
+				? seriesViews.primary.formatTick(
+						seriesViews.primary.values[centerIdx] ?? seriesViews.primary.vmax
+					)
+				: undefined,
+		[
+			centerIdx,
+			seriesViews,
+		]
+	);
+	const centerSecondaryLabel = useMemo(
+		() =>
+			centerIdx !== undefined && seriesViews.secondary.values
+				? seriesViews.secondary.formatTick(
+						seriesViews.secondary.values[centerIdx] ?? seriesViews.secondary.vmax
+					)
+				: undefined,
+		[
+			centerIdx,
+			seriesViews,
+		]
+	);
+	const centerDistanceLabel = useMemo(
+		() =>
+			centerDistance !== undefined ? formatDistance(centerDistance, distancePref) : undefined,
+		[
+			centerDistance,
+			distancePref,
 		]
 	);
 
@@ -856,6 +907,34 @@ const Chart: FC<{
 									strokeWidth={1 / sizeScale}
 									strokeDasharray={`${3 / sizeScale},${3 / sizeScale}`}
 								/>
+								<Line
+									x1={0}
+									y1={centerY}
+									x2={centerX}
+									y2={centerY}
+									stroke={COLOR_CENTER}
+									strokeWidth={1 / sizeScale}
+									strokeDasharray={`${3 / sizeScale},${3 / sizeScale}`}
+								/>
+								{centerYSecondary !== undefined && (
+									<>
+										<Line
+											x1={centerX}
+											y1={centerYSecondary}
+											x2={plotW}
+											y2={centerYSecondary}
+											stroke={COLOR_CENTER}
+											strokeWidth={1 / sizeScale}
+											strokeDasharray={`${3 / sizeScale},${3 / sizeScale}`}
+										/>
+										<Circle
+											cx={centerX}
+											cy={centerYSecondary}
+											r={3 / sizeScale}
+											fill={COLOR_CENTER}
+										/>
+									</>
+								)}
 								<Circle
 									cx={centerX}
 									cy={centerY}
@@ -959,6 +1038,46 @@ const Chart: FC<{
 								</G>
 							);
 						})}
+
+					{/* Center indicator values (blue) at the axes the
+					    horizontal center lines meet. */}
+					{centerX !== undefined && centerY !== undefined && (
+						<G>
+							{centerPrimaryLabel !== undefined && (
+								<SvgText
+									x={marginLeft - 6}
+									y={toScreenY(centerY) + 3}
+									fill={COLOR_CENTER}
+									fontSize={9}
+									textAnchor="end"
+								>
+									{centerPrimaryLabel}
+								</SvgText>
+							)}
+							{centerYSecondary !== undefined &&
+								centerSecondaryLabel !== undefined && (
+									<SvgText
+										x={width - marginRight + 6}
+										y={toScreenY(centerYSecondary) + 3}
+										fill={COLOR_CENTER}
+										fontSize={9}
+									>
+										{centerSecondaryLabel}
+									</SvgText>
+								)}
+							{centerDistanceLabel !== undefined && (
+								<SvgText
+									x={toScreenX(centerX)}
+									y={height - MARGIN_BOTTOM + 16}
+									fill={COLOR_CENTER}
+									fontSize={9}
+									textAnchor="middle"
+								>
+									{centerDistanceLabel}
+								</SvgText>
+							)}
+						</G>
+					)}
 				</Svg>
 			</View>
 		</GestureDetector>
