@@ -50,8 +50,9 @@ export const selectChartSettings = createAppSelector(
 );
 
 /** The chart.s own per-chart settings (always custom). */
-export const selectOwnPerChartSettings = (
-	state: RootState,
-	key: string | undefined
-): Partial<Pick<ChartSettings, 'ratioValue' | 'followMap'>> =>
-	key ? pick(state.chart.charts[key] ?? {}, PER_CHART_SETTINGS_KEYS) : {};
+export const selectOwnPerChartSettings = createAppSelector(
+	(state: RootState) => state.chart.charts,
+	(_state: RootState, key: string | undefined) => key,
+	(charts, key): Partial<Pick<ChartSettings, 'ratioValue' | 'followMap'>> =>
+		key ? pick(charts[key] ?? {}, PER_CHART_SETTINGS_KEYS) : {}
+);
