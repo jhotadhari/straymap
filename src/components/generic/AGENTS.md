@@ -19,16 +19,16 @@ matches its role. If nothing fits, it may belong in a feature directory instead.
 
 Form inputs that manage a value with an `onUpdate` / `onSelect` / `onToggle` callback.
 
-| Component                    | Purpose                                                  |
-| ---------------------------- | -------------------------------------------------------- |
-| `NumericRowControl`          | Single numeric text input, save-on-type, blur validation |
-| `NumericRowControlMulti`     | Two numeric inputs side by side (min/max range)          |
-| `NumericRowControlSegmented` | Toggle button + numeric input (auto/manual override)     |
-| `ToggleRowControl`           | Boolean switch                                           |
-| `ToggleRowControlSegmented`  | Toggle button + boolean switch                           |
-| `NameRowControl`             | Text input for an entity's `name`, debounced (300ms)     |
-| `FileSourceRowControl`       | File/directory picker modal with radio selection         |
-| `ColorPaletteInline`         | Color swatch picker from the 10-color palette            |
+| Component                    | Purpose                                                                                                                                                                                                                     |
+| ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `NumericRowControl`          | Single numeric text input, save-on-type, blur validation                                                                                                                                                                    |
+| `NumericRowControlMulti`     | Two numeric inputs side by side (min/max range)                                                                                                                                                                             |
+| `NumericRowControlSegmented` | Toggle button + numeric input (auto/manual override)                                                                                                                                                                        |
+| `ToggleRowControl`           | Boolean switch                                                                                                                                                                                                              |
+| `ToggleRowControlSegmented`  | Toggle button + boolean switch                                                                                                                                                                                              |
+| `NameRowControl`             | Text input for an entity's `name`, debounced (300ms)                                                                                                                                                                        |
+| `FileSourceRowControl`       | File/directory picker modal with radio selection                                                                                                                                                                            |
+| `ColorPaletteInline`         | Color swatch picker from the 10-color palette                                                                                                                                                                               |
 | `DateTimePickerControl`      | Date + time picker: `ButtonHighlight` → sequential `DatePickerModal` + `TimePickerModal`. Supports `anchor` prop (component receiving `onPress`) for custom trigger buttons. `onBeforeOpen` hook fires before picker opens. |
 
 All row controls compose `InfoLabelRow` from `infoWrapper/` for the label + layout.

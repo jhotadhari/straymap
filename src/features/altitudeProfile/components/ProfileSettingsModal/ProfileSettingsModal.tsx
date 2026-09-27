@@ -25,6 +25,7 @@ import RowPrimaryData from './rows/RowPrimaryData';
 import RowPrimaryColor from './rows/RowPrimaryColor';
 import RowSecondaryData from './rows/RowSecondaryData';
 import RowSecondaryColor from './rows/RowSecondaryColor';
+import RowRatioLock from './rows/RowRatioLock';
 // import RowXMode from './rows/RowXMode';
 import RowShowLabel from './rows/RowShowLabel';
 import RowShowStats from './rows/RowShowStats';
@@ -35,7 +36,8 @@ const ProfileSettingsModal: FC<{
 	visible: boolean;
 	setVisible: (visible: boolean) => void;
 	profileKey: string;
-}> = ({ visible, setVisible, profileKey }) => {
+	currentRatio?: number;
+}> = ({ visible, setVisible, profileKey, currentRatio }) => {
 	const { t } = useTranslation();
 	const dispatch = useAppDispatch();
 
@@ -103,6 +105,7 @@ const ProfileSettingsModal: FC<{
 			onDismiss,
 			mode,
 			setMode,
+			currentRatio,
 		}),
 		[
 			profileKey,
@@ -111,6 +114,7 @@ const ProfileSettingsModal: FC<{
 			onDismiss,
 			mode,
 			setMode,
+			currentRatio,
 		]
 	);
 
@@ -137,6 +141,8 @@ const ProfileSettingsModal: FC<{
 				<RowSecondaryData />
 
 				<RowSecondaryColor />
+
+				<RowRatioLock />
 
 				{/* <RowXMode /> */}
 

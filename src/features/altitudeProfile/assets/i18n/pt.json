@@ -23,5 +23,7 @@
 	"showLabel": "Mostrar rótulo",
 	"showStats": "Mostrar estatísticas",
 	"blendColors": "Misturar cores",
+	"ratio": "Proporção",
+	"ratioAuto": "Proporção automática",
 	"removeProfileConfirmBody": "Somente o perfil é removido do painel inferior. A rota permanece no mapa, nada é apagado e o perfil pode ser reativado a qualquer momento."
 }

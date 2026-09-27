@@ -14,7 +14,7 @@ import BottomDrawerMenu from '../../bottomDrawer/components/BottomDrawerMenu';
 import { useBottomDrawerMenuOptions } from '../../bottomDrawer/hooks/useBottomDrawerMenuOptions';
 import { MapContext } from '../../../Context';
 import IconButtonHighlight from '../../../components/generic/primitives/IconButtonHighlight';
-import { useAppSelector } from '../../../store/hooks';
+import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { selectPathCoords } from '../../routing/selectors';
 import { selectMapUpdateInterval, selectUnitPrefs } from '../../general/selectors';
 import { queryLinePathCoords, queryLinesWithoutGeom } from '../../lines/db/queryFns';
@@ -24,7 +24,8 @@ import { RenderPart } from '../../lines/components/Stats/sharedDeps';
 import { LinePartial } from '../../lines/types';
 import useRoute from '../../routing/hooks/useRoute';
 import { getProfileSourceFromKey } from '../types';
-import { selectProfileSettings } from '../selectors';
+import { selectHasOwnProfileSettings, selectProfileSettings } from '../selectors';
+import { setGeneralSettings, setProfileSettings } from '../slice';
 import { useProfileItemLabels } from '../hooks/useProfileItemLabels';
 import { getProfileSeries } from '../utils';
 import AltitudeProfileChart from './AltitudeProfileChart';
@@ -83,6 +84,33 @@ const AltitudeProfileDisplay: FC = () => {
 	const unitPrefs = useAppSelector(selectUnitPrefs);
 	const mapUpdateInterval = useAppSelector(selectMapUpdateInterval);
 	const settings = useAppSelector((state) => selectProfileSettings(state, activeItemKey));
+	const hasOwnSettings = useAppSelector((state) =>
+		selectHasOwnProfileSettings(state, activeItemKey)
+	);
+	const dispatch = useAppDispatch();
+
+	// Axis-strip stretch settles a new fixed ratio: write it to the same
+	// target the settings modal edits (own entry when it exists, else the
+	// general settings — matching the modal's mode invariant).
+	const handleRatioUpdate = useCallback(
+		(ratio: number | undefined) => {
+			if (ratio == null || !activeItemKey) {
+				return;
+			}
+			if (hasOwnSettings) {
+				dispatch(
+					setProfileSettings({ key: activeItemKey, settings: { ratioValue: ratio } })
+				);
+			} else {
+				dispatch(setGeneralSettings({ ratioValue: ratio }));
+			}
+		},
+		[
+			dispatch,
+			activeItemKey,
+			hasOwnSettings,
+		]
+	);
 
 	const series = useMemo(
 		() => (coordinates ? getProfileSeries(coordinates) : undefined),
@@ -177,6 +205,19 @@ const AltitudeProfileDisplay: FC = () => {
 	const titleAnchorRef = useRef<View>(null);
 	const menuOptions = useBottomDrawerMenuOptions();
 
+	// Current chart aspect ratio: the chart reports every viewport change
+	// into a ref (no per-frame re-renders); the settings modal snapshots it
+	// when opened (the chart can't be zoomed while the modal is open).
+	const ratioRef = useRef<number | undefined>(undefined);
+	const handleRatioChange = useCallback((ratio: number | undefined) => {
+		ratioRef.current = ratio;
+	}, []);
+	const [currentRatio, setCurrentRatio] = useState<number | undefined>(undefined);
+	const handleOpenSettings = useCallback(() => {
+		setCurrentRatio(ratioRef.current);
+		setSettingsModalVisible(true);
+	}, [setSettingsModalVisible]);
+
 	if (!series) {
 		return (
 			<View style={styles.container}>
@@ -234,7 +275,7 @@ const AltitudeProfileDisplay: FC = () => {
 				{!showLabel && statsNode}
 				<IconButtonHighlight
 					icon="cog"
-					onPress={() => setSettingsModalVisible(true)}
+					onPress={handleOpenSettings}
 				/>
 			</View>
 
@@ -253,6 +294,8 @@ const AltitudeProfileDisplay: FC = () => {
 						unitPrefs={unitPrefs}
 						waypointDistances={waypointDistances}
 						centerDistance={centerDistance}
+						onRatioChange={handleRatioChange}
+						onRatioUpdate={handleRatioUpdate}
 					/>
 				)}
 			</View>
@@ -261,6 +304,7 @@ const AltitudeProfileDisplay: FC = () => {
 				visible={settingsModalVisible}
 				setVisible={setSettingsModalVisible}
 				profileKey={activeItemKey ?? ''}
+				currentRatio={currentRatio}
 			/>
 
 			{showLabel && (

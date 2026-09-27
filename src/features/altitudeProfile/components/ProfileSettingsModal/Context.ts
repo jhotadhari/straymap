@@ -17,6 +17,7 @@ export type ProfileSettingsModalContextType = {
 	onDismiss: () => void;
 	mode: ProfileSettingsMode;
 	setMode: (mode: ProfileSettingsMode) => void;
+	currentRatio?: number;
 };
 
 export const ProfileSettingsModalContext = createContext<ProfileSettingsModalContextType>({
@@ -26,4 +27,5 @@ export const ProfileSettingsModalContext = createContext<ProfileSettingsModalCon
 	onDismiss: () => undefined,
 	mode: 'general',
 	setMode: (_mode: ProfileSettingsMode) => undefined,
+	currentRatio: undefined,
 });

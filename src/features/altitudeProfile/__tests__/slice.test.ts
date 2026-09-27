@@ -106,6 +106,8 @@ describe('altitudeProfile selectors', () => {
 		const settings = selectProfileSettings(root, 'line:4');
 		expect(settings.primaryColor).toBe('secondary');
 		expect(settings.primary).toBe('elevation');
+		expect(settings.ratioMode).toBe('auto');
+		expect(settings.ratioValue).toBeUndefined();
 		expect(settings.showLabel).toBe(true);
 		expect(settings.showStats).toBe(true);
 		expect(settings.blendColors).toBe(false);

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { FC, useCallback, useMemo, useRef, useState } from 'react';
+import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Svg, { Circle, G, Line, Path, Text as SvgText } from 'react-native-svg';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
@@ -16,9 +16,7 @@ import {
 	getNiceTicks,
 	ProfileSeries,
 	slopeToColor,
-	ViewportTransform,
 	clampTranslate,
-	zoomAroundPoint,
 } from '../utils';
 import { ProfileColorMode, ProfileSeriesValue, ProfileSettings } from '../types';
 import { formatDistance, formatHeightDepth } from '../../../lib/formatting';
@@ -35,6 +33,9 @@ const MARGIN_RIGHT = 40;
 const MARGIN_FALLBACK = 8;
 const MARGIN_TOP = 10;
 const MARGIN_BOTTOM = 26;
+const X_AXIS_BAND_OVERLAP = 12;
+
+const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 
 const nearestIndex = (distances: number[], target: number): number => {
 	let best = 0;
@@ -72,6 +73,15 @@ interface SeriesView {
 	formatTick: (v: number) => string;
 }
 
+interface PinchBase {
+	sx: number;
+	sy: number;
+	tx: number;
+	ty: number;
+	focalX: number;
+	focalY: number;
+}
+
 const AltitudeProfileChart: FC<{
 	series: ProfileSeries;
 	width: number;
@@ -80,7 +90,19 @@ const AltitudeProfileChart: FC<{
 	unitPrefs: { [value: string]: UnitPref };
 	waypointDistances?: number[];
 	centerDistance?: number;
-}> = ({ series, width, height, settings, unitPrefs, waypointDistances, centerDistance }) => {
+	onRatioChange?: (ratio: number | undefined) => void;
+	onRatioUpdate?: (ratio: number | undefined) => void;
+}> = ({
+	series,
+	width,
+	height,
+	settings,
+	unitPrefs,
+	waypointDistances,
+	centerDistance,
+	onRatioChange,
+	onRatioUpdate,
+}) => {
 	const theme = useTheme();
 
 	const distancePref = useMemo(
@@ -89,15 +111,18 @@ const AltitudeProfileChart: FC<{
 	);
 	const heightPref = useMemo(() => unitPrefs.heightDepth ?? { unit: 'm', round: 0 }, [unitPrefs]);
 
-	const [scale, setScale] = useState(1);
+	const [scaleX, setScaleX] = useState(1);
+	const [scaleY, setScaleY] = useState(1);
 	const [translateX, setTranslateX] = useState(0);
 	const [translateY, setTranslateY] = useState(0);
 
 	// Latest state for gesture-start snapshots.
-	const scaleRef = useRef(scale);
+	const scaleXRef = useRef(scaleX);
+	const scaleYRef = useRef(scaleY);
 	const txRef = useRef(translateX);
 	const tyRef = useRef(translateY);
-	scaleRef.current = scale;
+	scaleXRef.current = scaleX;
+	scaleYRef.current = scaleY;
 	txRef.current = translateX;
 	tyRef.current = translateY;
 
@@ -167,6 +192,80 @@ const AltitudeProfileChart: FC<{
 	const plotW = Math.max(1, width - marginLeft - marginRight);
 
 	const distToX = useCallback((d: number) => (d / totalLength) * plotW, [totalLength, plotW]);
+
+	// ── Ratio (aspect ratio) handling ───────────────────────────────────
+	// The ratio is (visible x-range) / (visible y-range of the primary
+	// axis). In 'fixed' mode the y-scale is derived from the x-scale so
+	// the ratio stays pinned to the user's value; in 'auto' mode both axes
+	// share one scale (the data's natural ratio).
+	const ratioK = useMemo(() => {
+		if (settings.ratioMode !== 'fixed' || !settings.ratioValue || !seriesViews.primary.values) {
+			return undefined;
+		}
+		return (settings.ratioValue * seriesViews.primary.vrange) / totalLength;
+	}, [
+		settings.ratioMode,
+		settings.ratioValue,
+		seriesViews,
+		totalLength,
+	]);
+
+	// Effective y-scale: derived from the x-scale in auto mode, an
+	// independent state (stretchable via the axis gestures) in fixed mode.
+	const isFixed = settings.ratioMode === 'fixed';
+	const syEff = isFixed ? scaleY : scaleX;
+
+	// Current ratio, reported to the parent (modal snapshot).
+	const currentRatio = seriesViews.primary.values
+		? totalLength / scaleX / (seriesViews.primary.vrange / syEff)
+		: undefined;
+
+	useEffect(() => {
+		onRatioChange && onRatioChange(currentRatio);
+	}, [
+		currentRatio,
+		onRatioChange,
+	]);
+
+	// Re-validate the viewport whenever the ratio settings change — no
+	// gesture required. Switching back to auto resets to fit. Keyed on the
+	// settings/plot geometry only (refs for the values) so it never fights
+	// an in-flight gesture.
+	const prevRatioModeRef = useRef(settings.ratioMode);
+	useEffect(() => {
+		const modeChanged = prevRatioModeRef.current !== settings.ratioMode;
+		prevRatioModeRef.current = settings.ratioMode;
+		if (modeChanged && settings.ratioMode === 'auto') {
+			setScaleX(1);
+			setScaleY(1);
+			setTranslateX(0);
+			setTranslateY(0);
+			return;
+		}
+		const sx = clamp(scaleXRef.current, 1, MAX_SCALE);
+		const sy =
+			ratioK !== undefined
+				? clamp(sx * ratioK, 1, MAX_SCALE)
+				: clamp(scaleYRef.current, 1, MAX_SCALE);
+		const tx = clampTranslate(plotW, sx, txRef.current);
+		const ty = clampTranslate(plotH, sy, tyRef.current);
+		if (
+			sx !== scaleXRef.current ||
+			sy !== scaleYRef.current ||
+			tx !== txRef.current ||
+			ty !== tyRef.current
+		) {
+			setScaleX(sx);
+			setScaleY(sy);
+			setTranslateX(tx);
+			setTranslateY(ty);
+		}
+	}, [
+		settings.ratioMode,
+		ratioK,
+		plotW,
+		plotH,
+	]);
 
 	// ── Paths (memoized — only depend on the series) ────────────────────
 	const pathData = useMemo(() => {
@@ -248,16 +347,16 @@ const AltitudeProfileChart: FC<{
 
 	// ── Viewport-derived ticks ──────────────────────────────────────────
 	const ticks = useMemo(() => {
-		const d0 = ((-translateX / scale) * totalLength) / plotW;
-		const d1 = (((plotW - translateX) / scale) * totalLength) / plotW;
+		const d0 = ((-translateX / scaleX) * totalLength) / plotW;
+		const d1 = (((plotW - translateX) / scaleX) * totalLength) / plotW;
 		const xTicks = getNiceTicks(d0, d1, 5);
 
 		const yTicksFor = (view: SeriesView): number[] => {
 			if (!view.values) {
 				return [];
 			}
-			const v0 = view.vmax - (((plotH - translateY) / scale) * view.vrange) / plotH;
-			const v1 = view.vmax - ((-translateY / scale) * view.vrange) / plotH;
+			const v0 = view.vmax - (((plotH - translateY) / syEff) * view.vrange) / plotH;
+			const v1 = view.vmax - ((-translateY / syEff) * view.vrange) / plotH;
 			return getNiceTicks(Math.min(v0, v1), Math.max(v0, v1), 4);
 		};
 		return {
@@ -268,7 +367,8 @@ const AltitudeProfileChart: FC<{
 	}, [
 		translateX,
 		translateY,
-		scale,
+		scaleX,
+		syEff,
 		totalLength,
 		plotW,
 		plotH,
@@ -276,32 +376,61 @@ const AltitudeProfileChart: FC<{
 	]);
 
 	const toScreenX = useCallback(
-		(v: number) => marginLeft + translateX + scale * v,
+		(v: number) => marginLeft + translateX + scaleX * v,
 		[
 			translateX,
-			scale,
+			scaleX,
 			marginLeft,
 		]
 	);
 	const toScreenY = useCallback(
-		(v: number) => MARGIN_TOP + translateY + scale * v,
-		[translateY, scale]
+		(v: number) => MARGIN_TOP + translateY + syEff * v,
+		[translateY, syEff]
 	);
 
 	// ── Gestures (JS-driven state — small subtree, labels stay in sync) ──
 	// All math runs off gesture-start snapshots (not live state), so scale
 	// is never compounded across events and pan never fights the pinch.
+	// The pinch region (plot / x-axis band / y-axis column) is classified
+	// once at gesture start from the focal point — no per-view overlays.
+	const reportRatio = useCallback(() => {
+		if (!onRatioUpdate || !seriesViews.primary.values) {
+			return;
+		}
+		onRatioUpdate(
+			(totalLength * scaleYRef.current) / (seriesViews.primary.vrange * scaleXRef.current)
+		);
+	}, [
+		onRatioUpdate,
+		seriesViews,
+		totalLength,
+	]);
+
 	const gesture = useMemo(() => {
 		const panStartRef = { tx: 0, ty: 0 };
-		const pinchBaseRef: { base: ViewportTransform; focal: { x: number; y: number } } = {
-			base: { scale: 1, translateX: 0, translateY: 0 },
-			focal: { x: 0, y: 0 },
+		const pinchBaseRef: { base: PinchBase } = {
+			base: { sx: 1, sy: 1, tx: 0, ty: 0, focalX: 0, focalY: 0 },
+		};
+		const pinchRegionRef: { region: 'uniform' | 'x' | 'y' } = { region: 'uniform' };
+
+		const applyTransform = (sx: number, sy: number, tx: number, ty: number) => {
+			setScaleX(sx);
+			setScaleY(sy);
+			setTranslateX(tx);
+			setTranslateY(ty);
 		};
 
-		const applyTransform = (next: ViewportTransform) => {
-			setScale(next.scale);
-			setTranslateX(next.translateX);
-			setTranslateY(next.translateY);
+		const classifyRegion = (focalX: number, focalY: number): 'uniform' | 'x' | 'y' => {
+			if (!isFixed) {
+				return 'uniform';
+			}
+			if (focalX < marginLeft) {
+				return 'y';
+			}
+			if (focalY > height - MARGIN_BOTTOM - X_AXIS_BAND_OVERLAP) {
+				return 'x';
+			}
+			return 'uniform';
 		};
 
 		// One-finger pan: never fires while two fingers pinch.
@@ -315,10 +444,14 @@ const AltitudeProfileChart: FC<{
 			})
 			.onUpdate((event) => {
 				setTranslateX(
-					clampTranslate(plotW, scaleRef.current, panStartRef.tx + event.translationX)
+					clampTranslate(plotW, scaleXRef.current, panStartRef.tx + event.translationX)
 				);
 				setTranslateY(
-					clampTranslate(plotH, scaleRef.current, panStartRef.ty + event.translationY)
+					clampTranslate(
+						plotH,
+						isFixed ? scaleYRef.current : scaleXRef.current,
+						panStartRef.ty + event.translationY
+					)
 				);
 			});
 
@@ -326,16 +459,19 @@ const AltitudeProfileChart: FC<{
 		// it. Re-snapshot whenever a finger changes (Android re-touch quirk).
 		const snapshotPinchBase = (focalX: number, focalY: number) => {
 			pinchBaseRef.base = {
-				scale: scaleRef.current,
-				translateX: txRef.current,
-				translateY: tyRef.current,
+				sx: scaleXRef.current,
+				sy: isFixed ? scaleYRef.current : scaleXRef.current,
+				tx: txRef.current,
+				ty: tyRef.current,
+				focalX: focalX - marginLeft,
+				focalY: focalY - MARGIN_TOP,
 			};
-			pinchBaseRef.focal = { x: focalX - marginLeft, y: focalY - MARGIN_TOP };
 		};
 
 		const pinch = Gesture.Pinch()
 			.runOnJS(true)
 			.onStart((event) => {
+				pinchRegionRef.region = classifyRegion(event.focalX, event.focalY);
 				snapshotPinchBase(event.focalX, event.focalY);
 			})
 			.onTouchesDown((event) => {
@@ -347,35 +483,59 @@ const AltitudeProfileChart: FC<{
 				snapshotPinchBase((t0.x + t1.x) / 2, (t0.y + t1.y) / 2);
 			})
 			.onUpdate((event) => {
-				const { base, focal } = pinchBaseRef;
+				const { base } = pinchBaseRef;
+				const region = pinchRegionRef.region;
+				let sx: number;
+				let sy: number;
+				if (region === 'x') {
+					sx = clamp(base.sx * event.scale, 1, MAX_SCALE);
+					sy = base.sy;
+				} else if (region === 'y') {
+					sx = base.sx;
+					sy = clamp(base.sy * event.scale, 1, MAX_SCALE);
+				} else if (isFixed) {
+					sx = clamp(base.sx * event.scale, 1, MAX_SCALE);
+					sy = clamp(base.sy * event.scale, 1, MAX_SCALE);
+				} else {
+					sx = clamp(base.sx * event.scale, 1, MAX_SCALE);
+					sy = sx;
+				}
+				const kx = sx / base.sx;
+				const ky = sy / base.sy;
 				applyTransform(
-					zoomAroundPoint(
-						base,
-						focal,
-						base.scale * event.scale,
-						{ width: plotW, height: plotH },
-						MAX_SCALE
-					)
+					sx,
+					sy,
+					clampTranslate(plotW, sx, base.focalX - kx * (base.focalX - base.tx)),
+					clampTranslate(plotH, sy, base.focalY - ky * (base.focalY - base.ty))
 				);
+			})
+			.onEnd(() => {
+				if (pinchRegionRef.region !== 'uniform') {
+					reportRatio();
+				}
 			});
 
 		const doubleTap = Gesture.Tap()
 			.numberOfTaps(2)
 			.runOnJS(true)
 			.onEnd((event) => {
-				const base: ViewportTransform = {
-					scale: scaleRef.current,
-					translateX: txRef.current,
-					translateY: tyRef.current,
+				const base: PinchBase = {
+					sx: scaleXRef.current,
+					sy: isFixed ? scaleYRef.current : scaleXRef.current,
+					tx: txRef.current,
+					ty: tyRef.current,
+					focalX: event.x - marginLeft,
+					focalY: event.y - MARGIN_TOP,
 				};
+				const sx = clamp(base.sx * 2, 1, MAX_SCALE);
+				const sy = isFixed ? clamp(base.sy * 2, 1, MAX_SCALE) : sx;
+				const kx = sx / base.sx;
+				const ky = sy / base.sy;
 				applyTransform(
-					zoomAroundPoint(
-						base,
-						{ x: event.x - marginLeft, y: event.y - MARGIN_TOP },
-						base.scale * 2,
-						{ width: plotW, height: plotH },
-						MAX_SCALE
-					)
+					sx,
+					sy,
+					clampTranslate(plotW, sx, base.focalX - kx * (base.focalX - base.tx)),
+					clampTranslate(plotH, sy, base.focalY - ky * (base.focalY - base.ty))
 				);
 			});
 
@@ -384,6 +544,9 @@ const AltitudeProfileChart: FC<{
 		plotW,
 		plotH,
 		marginLeft,
+		height,
+		isFixed,
+		reportRatio,
 	]);
 
 	const markerXs = useMemo(
@@ -414,7 +577,11 @@ const AltitudeProfileChart: FC<{
 		]
 	);
 
-	const groupTransform = `translate(${translateX}, ${translateY}) scale(${scale})`;
+	const groupTransform = `translate(${translateX}, ${translateY}) scale(${scaleX}, ${syEff})`;
+
+	// Stroke/marker sizes divide by the larger scale so nothing thickens
+	// when the plot is stretched.
+	const sizeScale = Math.max(scaleX, syEff);
 
 	const renderSeries = (
 		view: SeriesView,
@@ -431,7 +598,7 @@ const AltitudeProfileChart: FC<{
 					key={idx}
 					d={run.d}
 					stroke={run.color}
-					strokeWidth={strokeWidth / scale}
+					strokeWidth={strokeWidth / sizeScale}
 					opacity={blendOpacity}
 					fill="none"
 				/>
@@ -441,7 +608,7 @@ const AltitudeProfileChart: FC<{
 			<Path
 				d={pathD}
 				stroke={view.axisColor}
-				strokeWidth={strokeWidth / scale}
+				strokeWidth={strokeWidth / sizeScale}
 				opacity={blendOpacity}
 				fill="none"
 			/>
@@ -474,14 +641,14 @@ const AltitudeProfileChart: FC<{
 									x2={x}
 									y2={plotH}
 									stroke={COLOR_WAYPOINT}
-									strokeWidth={1 / scale}
-									strokeDasharray={`${3 / scale},${3 / scale}`}
+									strokeWidth={1 / sizeScale}
+									strokeDasharray={`${3 / sizeScale},${3 / sizeScale}`}
 								/>
 								<SvgText
-									x={x + 2 / scale}
-									y={10 / scale}
+									x={x + 2 / sizeScale}
+									y={10 / sizeScale}
 									fill={COLOR_WAYPOINT}
-									fontSize={10 / scale}
+									fontSize={10 / sizeScale}
 								>
 									{idx + 1}
 								</SvgText>
@@ -496,13 +663,13 @@ const AltitudeProfileChart: FC<{
 									x2={centerX}
 									y2={plotH}
 									stroke={COLOR_CENTER}
-									strokeWidth={1 / scale}
-									strokeDasharray={`${3 / scale},${3 / scale}`}
+									strokeWidth={1 / sizeScale}
+									strokeDasharray={`${3 / sizeScale},${3 / sizeScale}`}
 								/>
 								<Circle
 									cx={centerX}
 									cy={centerY}
-									r={3 / scale}
+									r={3 / sizeScale}
 									fill={COLOR_CENTER}
 								/>
 							</G>

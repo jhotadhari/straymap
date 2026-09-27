@@ -23,5 +23,7 @@
 	"showLabel": "Mostrar etiqueta",
 	"showStats": "Mostrar estadísticas",
 	"blendColors": "Mezclar colores",
+	"ratio": "Relación",
+	"ratioAuto": "Relación automática",
 	"removeProfileConfirmBody": "Solo se quita el perfil del panel inferior. La ruta permanece en el mapa, no se elimina nada y el perfil puede volver a activarse en cualquier momento."
 }
