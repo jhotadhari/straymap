@@ -16,6 +16,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   to BRouter via `remoteProfile`; a missing or unreadable file surfaces as a
   per-segment routing error.
 
+- Bottom drawer — new bottom drawer panel system with a morphing grab-line
+  handle (dots indicator) hosting per-route panels.
+
+- Route chart panel — interactive elevation/slope chart for the routing and
+  selected lines: pan/zoom gestures, per-chart aspect-ratio lock (axis-aware
+  pinch scaling and a reset button), follow-map viewport synced 1:1 with the
+  map (with a "Fly to route" button when the map is panned away), hypsometric
+  and slope color ramps for strokes and area fills, per-chart/general settings
+  with Default/Custom mode, center-indicator value labels, title menu for
+  switching between charts, and info hints for every settings control.
+
 ## [0.3.5] - 2026-08-09
 
 ### Fixed
