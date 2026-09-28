@@ -331,7 +331,13 @@ const ChartDisplay: FC = () => {
 				if (bbox) {
 					const range = getCoveredRange(coordinates, series.distances, bbox);
 					if (range) {
-						setFollowRange(range);
+						// Value-compare: keep the previous reference when the
+						// range is unchanged so an idle follow-map doesn't
+						// re-render the whole tree (incl. the settings
+						// modal's popovers) on every map event.
+						setFollowRange((prev) =>
+							prev && prev[0] === range[0] && prev[1] === range[1] ? prev : range
+						);
 						setFollowOutOfView(false);
 					} else {
 						setFollowOutOfView(true);

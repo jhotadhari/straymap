@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { FC, memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { omit, pick } from 'lodash-es';
 import { useTranslation } from 'react-i18next';
 import { Divider } from 'react-native-paper';
@@ -194,4 +194,7 @@ const ChartSettingsModal: FC<{
 	);
 };
 
-export default ChartSettingsModal;
+// Memoized: follow-map updates re-render the chart's display tree on every
+// map event — with stable props the modal (and its popover menus) stays
+// quiet while the chart follows the map.
+export default memo(ChartSettingsModal);
