@@ -1,11 +1,12 @@
 /**
  * External dependencies
  */
-import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { FC, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Svg, { Circle, G, Line, Path, Text as SvgText } from 'react-native-svg';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { useTheme } from 'react-native-paper';
+import { MD3Theme } from 'react-native-paper/lib/typescript/types';
 
 /**
  * Internal dependencies
@@ -18,6 +19,7 @@ import {
 	ColorRun,
 	slopeToColor,
 	clampTranslate,
+	simplifyColorRuns,
 } from '../utils';
 import { ChartColorMode, ChartSeriesValue, ChartSettings } from '../types';
 import { formatDistance, formatHeightDepth } from '../../../lib/formatting';
@@ -40,17 +42,26 @@ const MIN_AXIS_SEPARATION = 10;
 
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 
+/**
+ * Nearest index in the monotonic cumulative-distance array — binary
+ * search, O(log n), instead of a full scan (the map center polls this
+ * on every map event).
+ */
 const nearestIndex = (distances: number[], target: number): number => {
-	let best = 0;
-	let bestDiff = Infinity;
-	for (let i = 0; i < distances.length; i++) {
-		const diff = Math.abs(distances[i] - target);
-		if (diff < bestDiff) {
-			bestDiff = diff;
-			best = i;
+	let lo = 0;
+	let hi = distances.length - 1;
+	while (lo < hi) {
+		const mid = Math.floor((lo + hi) / 2);
+		if (distances[mid] < target) {
+			lo = mid + 1;
+		} else {
+			hi = mid;
 		}
 	}
-	return best;
+	if (lo > 0 && Math.abs(distances[lo - 1] - target) < Math.abs(distances[lo] - target)) {
+		return lo - 1;
+	}
+	return lo;
 };
 
 const buildPathD = (xs: number[], ys: number[]): string => {
@@ -86,6 +97,403 @@ interface PinchBase {
 	/** Initial per-axis finger separation (for the x-axis gesture). */
 	dx?: number;
 }
+
+const renderSeries = (
+	view: SeriesView,
+	runs: { color: string; d: string }[],
+	pathD: string,
+	strokeWidth: number,
+	sizeScale: number
+) => {
+	if (!view.values) {
+		return null;
+	}
+	if (runs.length) {
+		return runs.map((run, idx) => (
+			<Path
+				key={idx}
+				d={run.d}
+				stroke={run.color}
+				strokeWidth={strokeWidth / sizeScale}
+				fill="none"
+			/>
+		));
+	}
+	return (
+		<Path
+			d={pathD}
+			stroke={view.axisColor}
+			strokeWidth={strokeWidth / sizeScale}
+			fill="none"
+		/>
+	);
+};
+
+/**
+ * The static plot content (fills, series strokes, waypoints, axes and
+ * ticks). Memoized: map-center updates re-render only the center
+ * indicator/labels, not this heavy subtree.
+ */
+const PlotStatic = memo(
+	({
+		seriesViews,
+		primaryRenderRuns,
+		secondaryRenderRuns,
+		primaryFillRuns,
+		secondaryFillRuns,
+		paths,
+		markerXs,
+		ticks,
+		width,
+		height,
+		marginLeft,
+		marginRight,
+		plotH,
+		sizeScale,
+		distancePref,
+		theme,
+		distToX,
+		toScreenX,
+		toScreenY,
+		groupTransform,
+	}: {
+		seriesViews: { primary: SeriesView; secondary: SeriesView };
+		primaryRenderRuns: ColorRun[];
+		secondaryRenderRuns: ColorRun[];
+		primaryFillRuns: { color: string; d: string }[];
+		secondaryFillRuns: { color: string; d: string }[];
+		paths: { primary: string; secondary: string };
+		markerXs: number[];
+		ticks: { xTicks: number[]; y1Ticks: number[]; y2Ticks: number[] };
+		width: number;
+		height: number;
+		marginLeft: number;
+		marginRight: number;
+		plotH: number;
+		sizeScale: number;
+		distancePref: UnitPref;
+		theme: MD3Theme;
+		distToX: (d: number) => number;
+		toScreenX: (v: number) => number;
+		toScreenY: (v: number) => number;
+		groupTransform: string;
+	}) => (
+		<>
+			{/* Plot content (pan/zoom) */}
+			<G
+				x={marginLeft}
+				y={MARGIN_TOP}
+				transform={groupTransform}
+			>
+				{/* Area fills first, secondary below primary. */}
+				{secondaryFillRuns.map((run, idx) => (
+					<Path
+						key={`sf-${idx}`}
+						d={run.d}
+						fill={run.color}
+						stroke="none"
+					/>
+				))}
+
+				{primaryFillRuns.map((run, idx) => (
+					<Path
+						key={`pf-${idx}`}
+						d={run.d}
+						fill={run.color}
+						stroke="none"
+					/>
+				))}
+
+				{/* Secondary series first — the primary always draws above it. */}
+				{renderSeries(
+					seriesViews.secondary,
+					secondaryRenderRuns,
+					paths.secondary,
+					1.5,
+					sizeScale
+				)}
+
+				{renderSeries(seriesViews.primary, primaryRenderRuns, paths.primary, 2, sizeScale)}
+
+				{markerXs.map((x, idx) => (
+					<G key={`wp-${idx}`}>
+						<Line
+							x1={x}
+							y1={0}
+							x2={x}
+							y2={plotH}
+							stroke={COLOR_WAYPOINT}
+							strokeWidth={1 / sizeScale}
+							strokeDasharray={`${3 / sizeScale},${3 / sizeScale}`}
+						/>
+						<SvgText
+							x={x + 2 / sizeScale}
+							y={10 / sizeScale}
+							fill={COLOR_WAYPOINT}
+							fontSize={10 / sizeScale}
+						>
+							{idx + 1}
+						</SvgText>
+					</G>
+				))}
+			</G>
+
+			{/* Axes (static) */}
+			<Line
+				x1={marginLeft}
+				y1={height - MARGIN_BOTTOM}
+				x2={width - marginRight}
+				y2={height - MARGIN_BOTTOM}
+				stroke={theme.colors.outline}
+				strokeWidth={1}
+			/>
+			{ticks.xTicks.map((tick, idx) => {
+				const x = toScreenX(distToX(tick));
+				if (x < marginLeft - 1 || x > width - marginRight + 1) {
+					return null;
+				}
+				return (
+					<G key={`xt-${idx}`}>
+						<Line
+							x1={x}
+							y1={height - MARGIN_BOTTOM}
+							x2={x}
+							y2={height - MARGIN_BOTTOM + 4}
+							stroke={theme.colors.outline}
+							strokeWidth={1}
+						/>
+						<SvgText
+							x={x}
+							y={height - MARGIN_BOTTOM + 16}
+							fill={theme.colors.onSurfaceVariant}
+							fontSize={9}
+							textAnchor="middle"
+						>
+							{formatDistance(tick, distancePref)}
+						</SvgText>
+					</G>
+				);
+			})}
+
+			{seriesViews.primary.values &&
+				ticks.y1Ticks.map((tick, idx) => {
+					const y = toScreenY(seriesViews.primary.toY(tick));
+					if (y < MARGIN_TOP - 1 || y > height - MARGIN_BOTTOM + 1) {
+						return null;
+					}
+					return (
+						<G key={`y1t-${idx}`}>
+							<Line
+								x1={marginLeft}
+								y1={y}
+								x2={marginLeft - 4}
+								y2={y}
+								stroke={COLOR_PRIMARY}
+								strokeWidth={1}
+							/>
+							<SvgText
+								x={marginLeft - 6}
+								y={y + 3}
+								fill={COLOR_PRIMARY}
+								fontSize={9}
+								textAnchor="end"
+							>
+								{seriesViews.primary.formatTick(tick)}
+							</SvgText>
+						</G>
+					);
+				})}
+
+			{seriesViews.secondary.values &&
+				ticks.y2Ticks.map((tick, idx) => {
+					const y = toScreenY(seriesViews.secondary.toY(tick));
+					if (y < MARGIN_TOP - 1 || y > height - MARGIN_BOTTOM + 1) {
+						return null;
+					}
+					return (
+						<G key={`y2t-${idx}`}>
+							<Line
+								x1={width - marginRight}
+								y1={y}
+								x2={width - marginRight + 4}
+								y2={y}
+								stroke={COLOR_SECONDARY}
+								strokeWidth={1}
+							/>
+							<SvgText
+								x={width - marginRight + 6}
+								y={y + 3}
+								fill={COLOR_SECONDARY}
+								fontSize={9}
+							>
+								{seriesViews.secondary.formatTick(tick)}
+							</SvgText>
+						</G>
+					);
+				})}
+		</>
+	)
+);
+
+/**
+ * The blue map-center indicator (vertical/horizontal lines + dots),
+ * drawn in its own transformed group above the static plot. Memoized so
+ * map-center updates only touch this subtree.
+ */
+const CenterIndicator = memo(
+	({
+		groupTransform,
+		marginLeft,
+		plotH,
+		plotW,
+		sizeScale,
+		centerX,
+		centerY,
+		centerYSecondary,
+	}: {
+		groupTransform: string;
+		marginLeft: number;
+		plotH: number;
+		plotW: number;
+		sizeScale: number;
+		centerX?: number;
+		centerY?: number;
+		centerYSecondary?: number;
+	}) => {
+		if (centerX === undefined || centerY === undefined) {
+			return null;
+		}
+		return (
+			<G
+				x={marginLeft}
+				y={MARGIN_TOP}
+				transform={groupTransform}
+			>
+				<Line
+					x1={centerX}
+					y1={
+						centerYSecondary !== undefined
+							? Math.min(centerY, centerYSecondary)
+							: centerY
+					}
+					x2={centerX}
+					y2={plotH}
+					stroke={COLOR_CENTER}
+					strokeWidth={1 / sizeScale}
+					strokeDasharray={`${3 / sizeScale},${3 / sizeScale}`}
+				/>
+				<Line
+					x1={0}
+					y1={centerY}
+					x2={centerX}
+					y2={centerY}
+					stroke={COLOR_CENTER}
+					strokeWidth={1 / sizeScale}
+					strokeDasharray={`${3 / sizeScale},${3 / sizeScale}`}
+				/>
+				{centerYSecondary !== undefined && (
+					<>
+						<Line
+							x1={centerX}
+							y1={centerYSecondary}
+							x2={plotW}
+							y2={centerYSecondary}
+							stroke={COLOR_CENTER}
+							strokeWidth={1 / sizeScale}
+							strokeDasharray={`${3 / sizeScale},${3 / sizeScale}`}
+						/>
+						<Circle
+							cx={centerX}
+							cy={centerYSecondary}
+							r={3 / sizeScale}
+							fill={COLOR_CENTER}
+						/>
+					</>
+				)}
+				<Circle
+					cx={centerX}
+					cy={centerY}
+					r={3 / sizeScale}
+					fill={COLOR_CENTER}
+				/>
+			</G>
+		);
+	}
+);
+
+/**
+ * The blue center values at the axes. Memoized — updated independently
+ * of the static plot on every map-center change.
+ */
+const CenterLabels = memo(
+	({
+		centerX,
+		centerY,
+		centerYSecondary,
+		centerPrimaryLabel,
+		centerSecondaryLabel,
+		centerDistanceLabel,
+		toScreenX,
+		toScreenY,
+		marginLeft,
+		marginRight,
+		width,
+		height,
+	}: {
+		centerX?: number;
+		centerY?: number;
+		centerYSecondary?: number;
+		centerPrimaryLabel?: string;
+		centerSecondaryLabel?: string;
+		centerDistanceLabel?: string;
+		toScreenX: (v: number) => number;
+		toScreenY: (v: number) => number;
+		marginLeft: number;
+		marginRight: number;
+		width: number;
+		height: number;
+	}) => {
+		if (centerX === undefined || centerY === undefined) {
+			return null;
+		}
+		return (
+			<G>
+				{centerPrimaryLabel !== undefined && (
+					<SvgText
+						x={marginLeft - 6}
+						y={toScreenY(centerY) + 3}
+						fill={COLOR_CENTER}
+						fontSize={9}
+						textAnchor="end"
+					>
+						{centerPrimaryLabel}
+					</SvgText>
+				)}
+				{centerYSecondary !== undefined && centerSecondaryLabel !== undefined && (
+					<SvgText
+						x={width - marginRight + 6}
+						y={toScreenY(centerYSecondary) + 3}
+						fill={COLOR_CENTER}
+						fontSize={9}
+					>
+						{centerSecondaryLabel}
+					</SvgText>
+				)}
+				{centerDistanceLabel !== undefined && (
+					<SvgText
+						x={toScreenX(centerX)}
+						y={height - MARGIN_BOTTOM + 16}
+						fill={COLOR_CENTER}
+						fontSize={9}
+						textAnchor="middle"
+					>
+						{centerDistanceLabel}
+					</SvgText>
+				)}
+			</G>
+		);
+	}
+);
 
 const Chart: FC<{
 	series: ChartSeries;
@@ -496,15 +904,43 @@ const Chart: FC<{
 		]
 	);
 
+	// Adaptive simplification: keep only the visible runs and merge
+	// sub-pixel ones so the rendered node count stays bounded at any
+	// zoom level. Exact per-segment colors remain wherever segments are
+	// at least a pixel wide.
+	const simplifyRuns = useCallback(
+		(runs: ColorRun[]): ColorRun[] =>
+			simplifyColorRuns(runs, scaleX, -translateX / scaleX, (plotW - translateX) / scaleX),
+		[
+			scaleX,
+			translateX,
+			plotW,
+		]
+	);
+	const primaryRenderRuns = useMemo(
+		() => simplifyRuns(primaryRuns),
+		[
+			simplifyRuns,
+			primaryRuns,
+		]
+	);
+	const secondaryRenderRuns = useMemo(
+		() => simplifyRuns(secondaryRuns),
+		[
+			simplifyRuns,
+			secondaryRuns,
+		]
+	);
+
 	// Area fills (fill color modes): closed polygons per color run,
 	// dropping from the line down to the x-axis (plot y = plotH). The
-	// stroke uses the same runs as the non-fill counterpart.
+	// stroke uses the same (simplified) runs as the fill.
 	const fillRunsFor = useCallback(
 		(view: SeriesView): { color: string; d: string }[] => {
 			if (view.color !== 'elevationFill' && view.color !== 'slopeFill') {
 				return [];
 			}
-			const runs = view === seriesViews.primary ? primaryRuns : secondaryRuns;
+			const runs = view === seriesViews.primary ? primaryRenderRuns : secondaryRenderRuns;
 			return runs.map((run) => ({
 				color: run.color,
 				d: `${run.d} L ${run.x1} ${plotH} L ${run.x0} ${plotH} Z`,
@@ -512,8 +948,8 @@ const Chart: FC<{
 		},
 		[
 			seriesViews,
-			primaryRuns,
-			secondaryRuns,
+			primaryRenderRuns,
+			secondaryRenderRuns,
 			plotH,
 		]
 	);
@@ -844,36 +1280,6 @@ const Chart: FC<{
 	// when the plot is stretched.
 	const sizeScale = Math.max(scaleX, syEff);
 
-	const renderSeries = (
-		view: SeriesView,
-		runs: { color: string; d: string }[],
-		pathD: string,
-		strokeWidth: number
-	) => {
-		if (!view.values) {
-			return null;
-		}
-		if (runs.length) {
-			return runs.map((run, idx) => (
-				<Path
-					key={idx}
-					d={run.d}
-					stroke={run.color}
-					strokeWidth={strokeWidth / sizeScale}
-					fill="none"
-				/>
-			));
-		}
-		return (
-			<Path
-				d={pathD}
-				stroke={view.axisColor}
-				strokeWidth={strokeWidth / sizeScale}
-				fill="none"
-			/>
-		);
-	};
-
 	if (followOutOfView) {
 		// Follow-map with the visible map panned away from the route —
 		// render an empty plot (no lines, axes, ticks or indicators).
@@ -891,244 +1297,54 @@ const Chart: FC<{
 					width={width}
 					height={height}
 				>
-					{/* Plot content (pan/zoom) */}
-					<G
-						x={marginLeft}
-						y={MARGIN_TOP}
-						transform={groupTransform}
-					>
-						{/* Area fills first, secondary below primary. */}
-						{secondaryFillRuns.map((run, idx) => (
-							<Path
-								key={`sf-${idx}`}
-								d={run.d}
-								fill={run.color}
-								stroke="none"
-							/>
-						))}
-
-						{primaryFillRuns.map((run, idx) => (
-							<Path
-								key={`pf-${idx}`}
-								d={run.d}
-								fill={run.color}
-								stroke="none"
-							/>
-						))}
-
-						{/* Secondary series first — the primary always draws above it. */}
-						{renderSeries(seriesViews.secondary, secondaryRuns, paths.secondary, 1.5)}
-
-						{renderSeries(seriesViews.primary, primaryRuns, paths.primary, 2)}
-
-						{markerXs.map((x, idx) => (
-							<G key={`wp-${idx}`}>
-								<Line
-									x1={x}
-									y1={0}
-									x2={x}
-									y2={plotH}
-									stroke={COLOR_WAYPOINT}
-									strokeWidth={1 / sizeScale}
-									strokeDasharray={`${3 / sizeScale},${3 / sizeScale}`}
-								/>
-								<SvgText
-									x={x + 2 / sizeScale}
-									y={10 / sizeScale}
-									fill={COLOR_WAYPOINT}
-									fontSize={10 / sizeScale}
-								>
-									{idx + 1}
-								</SvgText>
-							</G>
-						))}
-
-						{centerX !== undefined && centerY !== undefined && (
-							<G>
-								<Line
-									x1={centerX}
-									y1={
-										centerYSecondary !== undefined
-											? Math.min(centerY, centerYSecondary)
-											: centerY
-									}
-									x2={centerX}
-									y2={plotH}
-									stroke={COLOR_CENTER}
-									strokeWidth={1 / sizeScale}
-									strokeDasharray={`${3 / sizeScale},${3 / sizeScale}`}
-								/>
-								<Line
-									x1={0}
-									y1={centerY}
-									x2={centerX}
-									y2={centerY}
-									stroke={COLOR_CENTER}
-									strokeWidth={1 / sizeScale}
-									strokeDasharray={`${3 / sizeScale},${3 / sizeScale}`}
-								/>
-								{centerYSecondary !== undefined && (
-									<>
-										<Line
-											x1={centerX}
-											y1={centerYSecondary}
-											x2={plotW}
-											y2={centerYSecondary}
-											stroke={COLOR_CENTER}
-											strokeWidth={1 / sizeScale}
-											strokeDasharray={`${3 / sizeScale},${3 / sizeScale}`}
-										/>
-										<Circle
-											cx={centerX}
-											cy={centerYSecondary}
-											r={3 / sizeScale}
-											fill={COLOR_CENTER}
-										/>
-									</>
-								)}
-								<Circle
-									cx={centerX}
-									cy={centerY}
-									r={3 / sizeScale}
-									fill={COLOR_CENTER}
-								/>
-							</G>
-						)}
-					</G>
-
-					{/* Axes (static) */}
-					<Line
-						x1={marginLeft}
-						y1={height - MARGIN_BOTTOM}
-						x2={width - marginRight}
-						y2={height - MARGIN_BOTTOM}
-						stroke={theme.colors.outline}
-						strokeWidth={1}
+					<PlotStatic
+						seriesViews={seriesViews}
+						primaryRenderRuns={primaryRenderRuns}
+						secondaryRenderRuns={secondaryRenderRuns}
+						primaryFillRuns={primaryFillRuns}
+						secondaryFillRuns={secondaryFillRuns}
+						paths={paths}
+						markerXs={markerXs}
+						ticks={ticks}
+						width={width}
+						height={height}
+						marginLeft={marginLeft}
+						marginRight={marginRight}
+						plotH={plotH}
+						sizeScale={sizeScale}
+						distancePref={distancePref}
+						theme={theme}
+						distToX={distToX}
+						toScreenX={toScreenX}
+						toScreenY={toScreenY}
+						groupTransform={groupTransform}
 					/>
-					{ticks.xTicks.map((tick, idx) => {
-						const x = toScreenX(distToX(tick));
-						if (x < marginLeft - 1 || x > width - marginRight + 1) {
-							return null;
-						}
-						return (
-							<G key={`xt-${idx}`}>
-								<Line
-									x1={x}
-									y1={height - MARGIN_BOTTOM}
-									x2={x}
-									y2={height - MARGIN_BOTTOM + 4}
-									stroke={theme.colors.outline}
-									strokeWidth={1}
-								/>
-								<SvgText
-									x={x}
-									y={height - MARGIN_BOTTOM + 16}
-									fill={theme.colors.onSurfaceVariant}
-									fontSize={9}
-									textAnchor="middle"
-								>
-									{formatDistance(tick, distancePref)}
-								</SvgText>
-							</G>
-						);
-					})}
 
-					{seriesViews.primary.values &&
-						ticks.y1Ticks.map((tick, idx) => {
-							const y = toScreenY(seriesViews.primary.toY(tick));
-							if (y < MARGIN_TOP - 1 || y > height - MARGIN_BOTTOM + 1) {
-								return null;
-							}
-							return (
-								<G key={`y1t-${idx}`}>
-									<Line
-										x1={marginLeft}
-										y1={y}
-										x2={marginLeft - 4}
-										y2={y}
-										stroke={COLOR_PRIMARY}
-										strokeWidth={1}
-									/>
-									<SvgText
-										x={marginLeft - 6}
-										y={y + 3}
-										fill={COLOR_PRIMARY}
-										fontSize={9}
-										textAnchor="end"
-									>
-										{seriesViews.primary.formatTick(tick)}
-									</SvgText>
-								</G>
-							);
-						})}
+					<CenterIndicator
+						groupTransform={groupTransform}
+						marginLeft={marginLeft}
+						plotH={plotH}
+						plotW={plotW}
+						sizeScale={sizeScale}
+						centerX={centerX}
+						centerY={centerY}
+						centerYSecondary={centerYSecondary}
+					/>
 
-					{seriesViews.secondary.values &&
-						ticks.y2Ticks.map((tick, idx) => {
-							const y = toScreenY(seriesViews.secondary.toY(tick));
-							if (y < MARGIN_TOP - 1 || y > height - MARGIN_BOTTOM + 1) {
-								return null;
-							}
-							return (
-								<G key={`y2t-${idx}`}>
-									<Line
-										x1={width - marginRight}
-										y1={y}
-										x2={width - marginRight + 4}
-										y2={y}
-										stroke={COLOR_SECONDARY}
-										strokeWidth={1}
-									/>
-									<SvgText
-										x={width - marginRight + 6}
-										y={y + 3}
-										fill={COLOR_SECONDARY}
-										fontSize={9}
-									>
-										{seriesViews.secondary.formatTick(tick)}
-									</SvgText>
-								</G>
-							);
-						})}
-
-					{/* Center indicator values (blue) at the axes the
-					    horizontal center lines meet. */}
-					{centerX !== undefined && centerY !== undefined && (
-						<G>
-							{centerPrimaryLabel !== undefined && (
-								<SvgText
-									x={marginLeft - 6}
-									y={toScreenY(centerY) + 3}
-									fill={COLOR_CENTER}
-									fontSize={9}
-									textAnchor="end"
-								>
-									{centerPrimaryLabel}
-								</SvgText>
-							)}
-							{centerYSecondary !== undefined &&
-								centerSecondaryLabel !== undefined && (
-									<SvgText
-										x={width - marginRight + 6}
-										y={toScreenY(centerYSecondary) + 3}
-										fill={COLOR_CENTER}
-										fontSize={9}
-									>
-										{centerSecondaryLabel}
-									</SvgText>
-								)}
-							{centerDistanceLabel !== undefined && (
-								<SvgText
-									x={toScreenX(centerX)}
-									y={height - MARGIN_BOTTOM + 16}
-									fill={COLOR_CENTER}
-									fontSize={9}
-									textAnchor="middle"
-								>
-									{centerDistanceLabel}
-								</SvgText>
-							)}
-						</G>
-					)}
+					<CenterLabels
+						centerX={centerX}
+						centerY={centerY}
+						centerYSecondary={centerYSecondary}
+						centerPrimaryLabel={centerPrimaryLabel}
+						centerSecondaryLabel={centerSecondaryLabel}
+						centerDistanceLabel={centerDistanceLabel}
+						toScreenX={toScreenX}
+						toScreenY={toScreenY}
+						marginLeft={marginLeft}
+						marginRight={marginRight}
+						width={width}
+						height={height}
+					/>
 				</Svg>
 			</View>
 		</GestureDetector>

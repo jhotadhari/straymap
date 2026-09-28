@@ -31,30 +31,12 @@ import { getChartSourceFromKey } from '../types';
 import { selectChartSettings } from '../selectors';
 import { setChartSettings } from '../slice';
 import { useChartItemLabels } from '../hooks/useChartItemLabels';
-import { getChartSeries } from '../utils';
+import { getChartSeries, windowedNearestIdx } from '../utils';
 import Chart from './Chart';
 import ChartSettingsModal from './ChartSettingsModal/ChartSettingsModal';
 import { computeViewportBbox, useMap } from 'react-native-mapsforge-vtm';
-
 const statsRenderParts = ['icon', 'value'] as RenderPart[];
 const statsRenderPartsNoIcon = ['value'] as RenderPart[];
-
-const nearestDistance = (
-	coordinates: number[][],
-	distances: number[],
-	target: [number, number]
-): number => {
-	let bestIdx = 0;
-	let bestDist = Infinity;
-	for (let i = 0; i < coordinates.length; i++) {
-		const d = haversineDistance([coordinates[i][0], coordinates[i][1]], target);
-		if (d < bestDist) {
-			bestDist = d;
-			bestIdx = i;
-		}
-	}
-	return distances[bestIdx];
-};
 
 /**
  * Distances along the route that fall inside the given geographic bbox
@@ -148,6 +130,41 @@ const ChartDisplay: FC = () => {
 		[coordinates]
 	);
 
+	// Nearest along-route distance lookup: windowed incremental search
+	// with a per-route last-best index (resets when the coordinates
+	// array changes) — O(1) typical instead of a full scan per map event.
+	const nearestSearchRef = useRef<{
+		coords?: number[][];
+		idx: number;
+		lastTarget?: [number, number];
+	}>({ idx: 0 });
+	const nearestDistance = useCallback(
+		(coordinates: number[][], distances: number[], target: [number, number]): number => {
+			const search = nearestSearchRef.current;
+			if (search.coords !== coordinates) {
+				search.coords = coordinates;
+				search.idx = 0;
+				search.lastTarget = undefined;
+			}
+			// First lookup for these coordinates, or a target that jumped
+			// far from the last one (e.g. the map was panned away, or a
+			// different waypoint) — use a covering window so the result
+			// is exact instead of a local minimum.
+			const jumped =
+				search.lastTarget !== undefined &&
+				haversineDistance(search.lastTarget, target) > 1000;
+			if (jumped) {
+				search.idx = 0;
+			}
+			const initialWindow =
+				search.lastTarget === undefined || jumped ? coordinates.length : 64;
+			search.lastTarget = target;
+			search.idx = windowedNearestIdx(coordinates, search.idx, target, initialWindow);
+			return distances[search.idx];
+		},
+		[]
+	);
+
 	const label = useMemo(
 		() => (activeItemKey ? (chartLabels[activeItemKey] ?? activeItemKey) : ''),
 		[activeItemKey, chartLabels]
@@ -172,6 +189,7 @@ const ChartDisplay: FC = () => {
 		series,
 		source,
 		points,
+		nearestDistance,
 	]);
 
 	const stats = useMemo(() => {
@@ -339,6 +357,7 @@ const ChartDisplay: FC = () => {
 			coordinates,
 			series,
 			center,
+			nearestDistance,
 		]
 	);
 

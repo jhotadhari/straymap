@@ -85,10 +85,9 @@ export const getChartSeries = (coordinates: number[][]): ChartSeries | undefined
 	}
 
 	// Per-segment slopes; map onto points (last point repeats the previous).
-	const segmentSlopes = calculateSlope(coordinates, {
-		smoothElevations: false,
-		fillElevationGaps: false,
-	});
+	// Default options (smoothed elevations + gap filling) — matches the
+	// slope values the map's route line is colored with.
+	const segmentSlopes = calculateSlope(coordinates);
 	const slopes = coordinates.map(
 		(_c, i) => segmentSlopes[Math.min(i, segmentSlopes.length - 1)] ?? 0
 	);
@@ -217,51 +216,28 @@ export interface ColorRun {
 }
 
 /**
- * Builds quantized, batched color-run paths for a series path
- * (`xs`/`ys`) colored by per-segment `values` through `colorForValue`.
- * Consecutive segments with the same color are merged into one path.
- * Each run is a single subpath polyline (`M x0 y0 L x1 y1 …`) so the
- * `d` can also be reused as an area-fill polygon boundary.
+ * Builds batched color-run paths for a series path (`xs`/`ys`) colored
+ * by per-segment `values` through `colorForValue`. Each segment is
+ * colored with its exact ramp color; only consecutive segments with
+ * identical colors are merged into one path. Each run is a single
+ * subpath polyline (`M x0 y0 L x1 y1 …`) so the `d` can also be reused
+ * as an area-fill polygon boundary.
  */
 export const buildColorRuns = (
 	xs: number[],
 	ys: number[],
 	values: number[],
-	colorForValue: (value: number) => string,
-	bucketCount = 12
+	colorForValue: (value: number) => string
 ): ColorRun[] => {
 	const runs: ColorRun[] = [];
 	if (xs.length < 2 || !values.length) {
 		return runs;
 	}
-	let vmin = Infinity;
-	let vmax = -Infinity;
-	for (const v of values) {
-		if (v < vmin) {
-			vmin = v;
-		}
-		if (v > vmax) {
-			vmax = v;
-		}
-	}
-	if (!isFinite(vmin)) {
-		return runs;
-	}
-	const range = vmax - vmin || 1;
-	const bucketColor = (v: number) => {
-		const idx = clampNum(
-			Math.round(((clampNum(v, vmin, vmax) - vmin) / range) * (bucketCount - 1)),
-			0,
-			bucketCount - 1
-		);
-		return colorForValue(vmin + (range * idx) / (bucketCount - 1));
-	};
-
 	let currentColor: string | undefined;
 	let currentD = '';
 	let currentX0 = xs[0];
 	for (let i = 0; i < xs.length - 1; i++) {
-		const color = bucketColor(values[Math.min(i, values.length - 1)]);
+		const color = colorForValue(values[Math.min(i, values.length - 1)]);
 		if (color !== currentColor) {
 			if (currentD) {
 				runs.push({ color: currentColor as string, d: currentD, x0: currentX0, x1: xs[i] });
@@ -281,4 +257,124 @@ export const buildColorRuns = (
 		});
 	}
 	return runs;
+};
+
+/**
+ * Merges consecutive runs into a single run. Geometry keeps every point
+ * (a single subpath polyline — the next run's leading `M` is dropped);
+ * the color is the widest run's color. The runs must be x-adjacent.
+ */
+const mergeColorRuns = (runs: ColorRun[]): ColorRun => {
+	if (runs.length === 1) {
+		return runs[0];
+	}
+	let widest = runs[0];
+	for (const run of runs) {
+		if (run.x1 - run.x0 > widest.x1 - widest.x0) {
+			widest = run;
+		}
+	}
+	let d = runs[0].d;
+	for (let i = 1; i < runs.length; i++) {
+		d += runs[i].d.substring(runs[i].d.indexOf('L'));
+	}
+	return {
+		color: widest.color,
+		d,
+		x0: runs[0].x0,
+		x1: runs[runs.length - 1].x1,
+	};
+};
+
+/**
+ * Adaptive simplification for rendering: culls runs fully outside the
+ * visible x-window and merges consecutive x-adjacent runs narrower than
+ * `minPxWidth` screen pixels (so the SVG node count stays bounded at any
+ * zoom level). Runs at least one pixel wide keep their exact color —
+ * zooming in restores the per-segment colors.
+ */
+export const simplifyColorRuns = (
+	runs: ColorRun[],
+	scaleX: number,
+	minVisibleX: number,
+	maxVisibleX: number,
+	minPxWidth = 2,
+	maxRuns = 800
+): ColorRun[] => {
+	const visible = runs.filter((run) => run.x1 >= minVisibleX && run.x0 <= maxVisibleX);
+	if (!visible.length) {
+		return visible;
+	}
+	// Guarantee the budget: at most `maxRuns` groups across the window.
+	const windowPx = Math.max(1e-6, (maxVisibleX - minVisibleX) * scaleX);
+	const effectiveMinPx = Math.max(minPxWidth, windowPx / maxRuns);
+
+	const out: ColorRun[] = [];
+	let group: ColorRun[] = [];
+	for (const run of visible) {
+		const prev = group[group.length - 1];
+		if (prev) {
+			const widthPx = (run.x1 - group[0].x0) * scaleX;
+			// Only merge x-adjacent runs (a route that exits and
+			// re-enters the window must not bridge the gap).
+			if (widthPx < effectiveMinPx && run.x0 === prev.x1) {
+				group.push(run);
+				continue;
+			}
+			out.push(mergeColorRuns(group));
+			group = [];
+		}
+		group.push(run);
+	}
+	if (group.length) {
+		out.push(mergeColorRuns(group));
+	}
+	return out;
+};
+
+/**
+ * Incremental nearest-point search: starts at `startIdx` with an
+ * `initialWindow` around it and widens until the best candidate is
+ * contained — near O(1) while the target moves continuously along the
+ * route (the map center), instead of a full O(n) scan on every map
+ * event. Pass a covering window (>= n) for one-shot lookups to get an
+ * exact result instead of a local minimum.
+ */
+export const windowedNearestIdx = (
+	coordinates: number[][],
+	startIdx: number,
+	target: [number, number],
+	initialWindow = 64
+): number => {
+	const n = coordinates.length;
+	const distAt = (i: number) => haversineDistance([coordinates[i][0], coordinates[i][1]], target);
+	let best = Math.min(Math.max(startIdx, 0), n - 1);
+	let bestDist = distAt(best);
+	let window = Math.min(Math.max(initialWindow, 1), n);
+	for (;;) {
+		const lo = Math.max(0, best - window);
+		const hi = Math.min(n - 1, best + window);
+		let improved = false;
+		for (let i = lo; i <= hi; i++) {
+			const d = distAt(i);
+			if (d < bestDist) {
+				bestDist = d;
+				best = i;
+				improved = true;
+			}
+		}
+		if (lo === 0 && hi === n - 1) {
+			// The whole route was scanned — exact result.
+			return best;
+		}
+		if (improved && best > lo && best < hi) {
+			// The best candidate sits strictly inside the window — good
+			// enough for a continuously moving target (the next call
+			// re-centers on this index).
+			return best;
+		}
+		// No improvement, or the best sits on the window edge — widen
+		// until the true minimum is covered.
+		window *= 2;
+	}
 };

@@ -8,12 +8,15 @@
 import {
 	buildColorRuns,
 	clampTranslate,
+	ColorRun,
 	ELEVATION_RAMP,
 	elevationToColor,
 	getNiceTicks,
 	getChartSeries,
+	simplifyColorRuns,
 	SLOPE_STOPS,
 	slopeToColor,
+	windowedNearestIdx,
 	zoomAroundPoint,
 } from '../utils';
 
@@ -212,7 +215,95 @@ describe('buildColorRuns', () => {
 		expect(runs[1].x1).toBe(2);
 	});
 
+	it('colors each segment with its exact value (no quantization)', () => {
+		// Close but different values must produce separate runs — no
+		// bucketing collapses them into one coarse color.
+		const colorFor = (v: number) => (v > 50 ? 'red' : v > 25 ? 'blue' : 'green');
+		const runs = buildColorRuns(xs, ys, [10, 30], colorFor);
+		expect(runs).toHaveLength(2);
+		expect(runs[0].color).toBe('green');
+		expect(runs[1].color).toBe('blue');
+	});
+
 	it('returns no runs for too few points', () => {
 		expect(buildColorRuns([1], [1], [0], colorForValue)).toEqual([]);
+	});
+});
+
+describe('simplifyColorRuns', () => {
+	const run = (color: string, x0: number, x1: number, y = 0): ColorRun => ({
+		color,
+		d: `M ${x0} ${y} L ${x1} ${y + 1} `,
+		x0,
+		x1,
+	});
+
+	it('culls runs fully outside the visible window', () => {
+		const runs = [
+			run('red', 0, 5),
+			run('green', 5, 10),
+		];
+		expect(simplifyColorRuns(runs, 1, 6, 10)).toEqual([
+			run('green', 5, 10),
+		]);
+	});
+
+	it('merges sub-pixel runs and keeps the widest color', () => {
+		const runs = [
+			run('red', 0, 5),
+			run('green', 5, 6),
+		];
+		const simplified = simplifyColorRuns(runs, 0.1, 0, 10); // 0.5px / 0.1px wide
+		expect(simplified).toHaveLength(1);
+		expect(simplified[0].color).toBe('red');
+		expect(simplified[0].x0).toBe(0);
+		expect(simplified[0].x1).toBe(6);
+		expect(simplified[0].d.match(/M /g)).toHaveLength(1);
+	});
+
+	it('keeps pixel-wide runs untouched (exact colors when zoomed in)', () => {
+		const runs = [
+			run('red', 0, 5),
+			run('green', 5, 10),
+		];
+		expect(simplifyColorRuns(runs, 1, 0, 10)).toEqual(runs);
+	});
+
+	it('does not bridge a gap between non-adjacent runs', () => {
+		const runs = [
+			run('red', 0, 2),
+			run('blue', 5, 6),
+		];
+		const simplified = simplifyColorRuns(runs, 0.01, 0, 10);
+		expect(simplified).toHaveLength(2);
+		expect(simplified[0].color).toBe('red');
+		expect(simplified[1].color).toBe('blue');
+	});
+});
+
+describe('windowedNearestIdx', () => {
+	// Straight north-south line: point i at latitude i * 0.001.
+	const coords = Array.from({ length: 101 }, (_c, i) => [
+		0,
+		i * 0.001,
+		0,
+	]);
+
+	it('returns the exact nearest index for a covering first lookup', () => {
+		// A small window must not settle for a local minimum near the
+		// route start when the target is far away.
+		expect(windowedNearestIdx(coords, 0, [0.001, 0.05], coords.length)).toBe(50);
+		expect(windowedNearestIdx(coords, 0, [0, 0.099], coords.length)).toBe(99);
+	});
+
+	it('tracks a continuously moving target within a small window', () => {
+		const start = windowedNearestIdx(coords, 0, [0, 0.05], coords.length);
+		expect(start).toBe(50);
+		expect(windowedNearestIdx(coords, start, [0, 0.052], 64)).toBe(52);
+	});
+
+	it('widens when the target moved beyond the small window', () => {
+		const start = windowedNearestIdx(coords, 0, [0, 0.05], coords.length);
+		expect(windowedNearestIdx(coords, start, [0, 0.09], 64)).toBe(90);
 	});
 });
