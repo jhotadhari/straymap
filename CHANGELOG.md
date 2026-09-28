@@ -27,6 +27,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   with Default/Custom mode, center-indicator value labels, title menu for
   switching between charts, and info hints for every settings control.
 
+### Fixed
+
+- Lines and Tags tables: prevent FlashList "Maximum update depth exceeded"
+  crash by always using fixed 50px rows, deferring row-state resets one
+  frame, and wrapping each table list in an error boundary.
+
+- Lines table: fix unresponsive stats/tags filters — restored the
+  numeric/tags column-type mappings lost in a refactor; the add-filter
+  picker now only lists filterable columns (ID excluded).
+
 ## [0.3.5] - 2026-08-09
 
 ### Fixed

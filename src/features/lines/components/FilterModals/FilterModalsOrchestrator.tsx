@@ -55,28 +55,37 @@ const FilterModalsOrchestrator: FC<FilterModalsOrchestratorProps> = ({
 	const [selectedColumnKey, setSelectedColumnKey] = useState<string | null>(null);
 	const [tempFilter, setTempFilter] = useState<ColumnFilter | undefined>(undefined);
 
-	// Reset state when modal opens
+	// Reset internal state when the modal closes, so the next open starts
+	// fresh (no stale step/column from the previous session).
 	useEffect(() => {
-		if (visible) {
-			if (editFilter) {
-				setSelectedColumnKey(editFilter.columnKey);
-				setStep('editFilter');
-				setTempFilter(editFilter);
-			} else if (initialColumnKey) {
-				setSelectedColumnKey(initialColumnKey);
-				setStep('editFilter');
-				setTempFilter(undefined);
-			} else {
-				setSelectedColumnKey(null);
-				setStep('selectColumn');
-				setTempFilter(undefined);
-			}
+		if (!visible) {
+			setStep('selectColumn');
+			setSelectedColumnKey(null);
+			setTempFilter(undefined);
+		}
+	}, [visible]);
+
+	// Auto-dismiss when editing a filter whose column has no resolvable
+	// filter type (e.g. a legacy persisted filter). Without this the modal
+	// would render nothing while `visible` stays true, leaving the UI stuck.
+	useEffect(() => {
+		if (visible && editFilter && !resolveFilterType(editFilter.columnKey)) {
+			onDismiss();
 		}
 	}, [
 		visible,
 		editFilter,
-		initialColumnKey,
+		resolveFilterType,
+		onDismiss,
 	]);
+
+	// Derive the active step/column synchronously from the incoming props
+	// while the modal is open. Using an effect for this caused a one-frame
+	// render with stale state — the wrong modal (or none) flashed open and
+	// then closed.
+	const activeStep: ModalStep = editFilter || initialColumnKey ? 'editFilter' : step;
+	const activeColumnKey: string | null =
+		editFilter?.columnKey ?? initialColumnKey ?? selectedColumnKey;
 
 	const handleSelectColumn = useCallback((columnKey: string) => {
 		setSelectedColumnKey(columnKey);
@@ -132,21 +141,21 @@ const FilterModalsOrchestrator: FC<FilterModalsOrchestratorProps> = ({
 
 	const canDelete = !!(editFilter || tempFilter);
 
-	const filterType = selectedColumnKey ? resolveFilterType(selectedColumnKey) : undefined;
+	const filterType = activeColumnKey ? resolveFilterType(activeColumnKey) : undefined;
 
 	return (
 		<>
 			<ColumnSelectModal
-				visible={visible && step === 'selectColumn'}
+				visible={visible && activeStep === 'selectColumn'}
 				onDismiss={handleDismiss}
 				onSelectColumn={handleSelectColumn}
 			/>
 
-			{selectedColumnKey && filterType === 'numeric' && (
+			{activeColumnKey && filterType === 'numeric' && (
 				<FilterNumericModal
-					key={selectedColumnKey}
-					visible={visible && step === 'editFilter'}
-					columnKey={selectedColumnKey}
+					key={activeColumnKey}
+					visible={visible && activeStep === 'editFilter'}
+					columnKey={activeColumnKey}
 					existingFilter={
 						(editFilter ?? tempFilter)?.type === 'numeric'
 							? ((editFilter ?? tempFilter) as NumericColumnFilter)
@@ -158,11 +167,11 @@ const FilterModalsOrchestrator: FC<FilterModalsOrchestratorProps> = ({
 				/>
 			)}
 
-			{selectedColumnKey && filterType === 'date' && (
+			{activeColumnKey && filterType === 'date' && (
 				<FilterDateModal
-					key={selectedColumnKey}
-					visible={visible && step === 'editFilter'}
-					columnKey={selectedColumnKey}
+					key={activeColumnKey}
+					visible={visible && activeStep === 'editFilter'}
+					columnKey={activeColumnKey}
 					existingFilter={
 						(editFilter ?? tempFilter)?.type === 'date'
 							? ((editFilter ?? tempFilter) as DateColumnFilter)
@@ -174,11 +183,11 @@ const FilterModalsOrchestrator: FC<FilterModalsOrchestratorProps> = ({
 				/>
 			)}
 
-			{selectedColumnKey && filterType === 'string' && (
+			{activeColumnKey && filterType === 'string' && (
 				<FilterStringModal
-					key={selectedColumnKey}
-					visible={visible && step === 'editFilter'}
-					columnKey={selectedColumnKey}
+					key={activeColumnKey}
+					visible={visible && activeStep === 'editFilter'}
+					columnKey={activeColumnKey}
 					existingFilter={
 						(editFilter ?? tempFilter)?.type === 'string'
 							? ((editFilter ?? tempFilter) as StringColumnFilter)
@@ -190,11 +199,11 @@ const FilterModalsOrchestrator: FC<FilterModalsOrchestratorProps> = ({
 				/>
 			)}
 
-			{selectedColumnKey && filterType === 'tags' && (
+			{activeColumnKey && filterType === 'tags' && (
 				<FilterTagsModal
-					key={selectedColumnKey}
-					visible={visible && step === 'editFilter'}
-					columnKey={selectedColumnKey}
+					key={activeColumnKey}
+					visible={visible && activeStep === 'editFilter'}
+					columnKey={activeColumnKey}
 					existingFilter={
 						(editFilter ?? tempFilter)?.type === 'tags'
 							? ((editFilter ?? tempFilter) as TagsColumnFilter)

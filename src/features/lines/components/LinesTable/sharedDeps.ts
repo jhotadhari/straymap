@@ -57,6 +57,14 @@ export const getFilterColumnType = (key: string): FilterColumnType | undefined =
 			return 'string';
 		}
 	}
+	if (key in statsCells) {
+		return 'numeric';
+	}
+	if (key in otherCells) {
+		if (key === 'tags') {
+			return 'tags';
+		}
+	}
 	return undefined;
 };
 
