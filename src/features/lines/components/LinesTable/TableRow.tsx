@@ -15,7 +15,7 @@ import ButtonHighlight from '../../../../components/generic/primitives/ButtonHig
 import { useButtonProps } from '../../../../compose/useButtonProps';
 import { DRAWER_ICON_SIZE } from '../../../drawers/constants';
 import { cellConfigs, getCellCategory } from './sharedDeps';
-import { tableStyles, useScrollSafePress } from '../tableResources';
+import { tableStyles, TABLE_ROW_HEIGHT, useScrollSafePress } from '../tableResources';
 import TagBadge from '../TagBadge';
 import IconRouting from '../../../routing/drawerPanels/routing/IconComponent';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
@@ -70,8 +70,6 @@ export interface TableRowProps {
 	toggleOnMapId: (id: number) => void;
 	isRoutingLine: boolean;
 	stats?: LineStatsType;
-	isFixedHeight?: boolean;
-	rowHeight?: number;
 }
 
 const statsRenderParts = ['value'] as RenderPart[];
@@ -88,8 +86,6 @@ const TableRow: FC<TableRowProps> = memo(
 		toggleOnMapId,
 		isRoutingLine,
 		stats: stats_,
-		isFixedHeight,
-		rowHeight,
 	}) => {
 		const theme = useTheme();
 
@@ -127,18 +123,14 @@ const TableRow: FC<TableRowProps> = memo(
 									backgroundColor: theme.colors.primaryContainer,
 								}),
 					}),
-					...(isFixedHeight && {
-						height: rowHeight,
-						overflow: 'hidden' as const,
-					}),
+					height: TABLE_ROW_HEIGHT,
+					overflow: 'hidden' as const,
 				},
 			],
 			[
 				theme,
 				idx,
 				isChecked,
-				isFixedHeight,
-				rowHeight,
 			]
 		);
 
@@ -279,9 +271,7 @@ const TableRow: FC<TableRowProps> = memo(
 										key={column.key}
 										style={columnStyle}
 									>
-										<Text numberOfLines={isFixedHeight ? 1 : undefined}>
-											{display}
-										</Text>
+										<Text numberOfLines={1}>{display}</Text>
 									</View>
 								);
 							}

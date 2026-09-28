@@ -12,7 +12,12 @@ import Popover, { PopoverPlacement } from 'react-native-popover-view';
  */
 import { cellConfigs, getFilterColumnType } from './sharedDeps';
 
-import { SortableHeaderCell, useContainerMinWidth, tableStyles } from '../tableResources';
+import {
+	SortableHeaderCell,
+	useContainerMinWidth,
+	tableStyles,
+	TABLE_ROW_HEIGHT,
+} from '../tableResources';
 import { TableColumn } from '../../types';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { selectTagsTableColumns, selectTagsSort, selectTagsFilters } from '../../selectors';
@@ -43,7 +48,7 @@ const TagTableHeader: FC<{
 	const style: StyleProp<ViewStyle> = useMemo(
 		() => [
 			styleCell,
-			{ height: 50 },
+			{ height: TABLE_ROW_HEIGHT },
 		],
 		[styleCell]
 	);

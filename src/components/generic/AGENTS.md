@@ -88,6 +88,7 @@ Layout shell components — modals, list/menu items, popovers.
 | `ListItemMenuControl`        | `ListItem` anchor + `MenuControl` popover (value-selection pattern with `setValue`)                                                                                                                                                            |
 | `ButtonHighlightMenuControl` | `ButtonHighlight` anchor + `MenuControl` popover. Supports `anchorLabel`, `anchorIcon`, `compact`, and `buttonPropsProps` forwarding to `useButtonProps`. Works with both `OptionBase[]` (selection) and `MenuActionOption[]` (action) options |
 | `ListItemModalControl`       | `ListItem` anchor that opens a `ModalWrapper` on press                                                                                                                                                                                         |
+| `ErrorBoundary`              | Generic class error boundary: renders `fallback(reset)` when a descendant throws during render/layout commit; `reset` clears it so the subtree can mount again                                                                                 |
 
 ## Related components (outside generic/)
 

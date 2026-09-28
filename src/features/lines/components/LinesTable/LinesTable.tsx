@@ -23,7 +23,7 @@ import {
 	selectLinesTableColumns,
 } from '../../selectors';
 import { Line, LineStats } from '../../types';
-import { tableStyles } from '../tableResources';
+import { tableStyles, TableErrorFallback } from '../tableResources';
 import { cellConfigs } from './sharedDeps';
 import TableHeader from './TableHeader';
 import TableRow, { TableRowProps } from './TableRow';
@@ -42,7 +42,7 @@ import { bbox as turfBbox } from '@turf/turf';
 import { AppContext } from '../../../../Context';
 import { MAP_ANIMATION_PADDING_PX } from '../../../../constants';
 import BidirectionalScrollHost from '../../../../components/generic/wrapper/BidirectionalScrollHost';
-import { useFixedRowHeight } from '../../hooks/useFixedRowHeight';
+import ErrorBoundary from '../../../../components/generic/wrapper/ErrorBoundary';
 
 const HEADER_ID = -1;
 
@@ -60,9 +60,7 @@ const TableRowMemo = memo(
 			prevProps.isChecked === nextProps.isChecked &&
 			prevProps.isRoutingLine === nextProps.isRoutingLine &&
 			prevProps.line?.title === nextProps.line?.title &&
-			prevProps.line?.tags === nextProps.line?.tags &&
-			prevProps.isFixedHeight === nextProps.isFixedHeight &&
-			prevProps.rowHeight === nextProps.rowHeight
+			prevProps.line?.tags === nextProps.line?.tags
 		);
 	}
 );
@@ -127,7 +125,17 @@ const LinesTable: FC = () => {
 
 	const lineIds = useMemo(() => lines?.map((line) => line.id) ?? [], [lines]);
 
-	const { isFixedHeight, rowHeight } = useFixedRowHeight(lines?.length ?? 0);
+	// Dev-only: log dataset size transitions to make hard-to-reproduce
+	// rendering issues attributable.
+	const prevDataLengthRef = useRef<number | null>(null);
+	useEffect(() => {
+		if (!__DEV__) return;
+		const prev = prevDataLengthRef.current;
+		if (prev !== null && prev !== dataWithHeader.length) {
+			console.log(`DEBUG LinesTable data ${prev} -> ${dataWithHeader.length} rows`);
+		}
+		prevDataLengthRef.current = dataWithHeader.length;
+	}, [dataWithHeader.length]);
 
 	const tableColumns = useAppSelector(selectLinesTableColumns);
 
@@ -149,14 +157,19 @@ const LinesTable: FC = () => {
 		[contentMinWidth]
 	);
 
-	// Remove not existing ids from selection.
+	// Remove not existing ids from selection. Deferred to the next frame so
+	// the state change lands in a commit separate from the query data change —
+	// keeps `renderItem` stable while FlashList's layout cascade settles.
 	useEffect(() => {
-		if (lineIds.length) {
-			const notExistingIds = without(onMapIdsTemp, ...lineIds);
-			if (notExistingIds.length) {
-				setOnMapIdsTemp(without(onMapIds, ...notExistingIds));
+		const raf = requestAnimationFrame(() => {
+			if (lineIds.length) {
+				const notExistingIds = without(onMapIdsTemp, ...lineIds);
+				if (notExistingIds.length) {
+					setOnMapIdsTemp(without(onMapIds, ...notExistingIds));
+				}
 			}
-		}
+		});
+		return () => cancelAnimationFrame(raf);
 	}, [
 		lineIds,
 		onMapIdsTemp,
@@ -166,8 +179,12 @@ const LinesTable: FC = () => {
 	const [checkedIds, setCheckedIds] = useState<number[]>([]);
 
 	// Reset checked rows when filters change, since the visible row set changed.
+	// Deferred to the next frame for the same reason as the cleanup above.
 	useEffect(() => {
-		setCheckedIds([]);
+		const raf = requestAnimationFrame(() => {
+			setCheckedIds([]);
+		});
+		return () => cancelAnimationFrame(raf);
 	}, [filters]);
 
 	// ── Column-header filter modal ────────────────────────────────────────
@@ -271,8 +288,6 @@ const LinesTable: FC = () => {
 					toggleOnMapId={toggleOnMapId}
 					isChecked={checkedIds.includes(line.id)}
 					isRoutingLine={line.id === routingLineId}
-					isFixedHeight={isFixedHeight}
-					rowHeight={rowHeight}
 					stats={
 						line.id !== routingLineId
 							? undefined
@@ -288,8 +303,6 @@ const LinesTable: FC = () => {
 			checkedIds,
 			routingLineId,
 			routingStats,
-			isFixedHeight,
-			rowHeight,
 			styleCell,
 			toggleOnMapId,
 		]
@@ -342,21 +355,18 @@ const LinesTable: FC = () => {
 							</View>
 						</BlurView>
 					)}
-					<BidirectionalScrollHost style={styles.flexOne}>
-						<FlashList
-							stickyHeaderIndices={STICKY_HEADER_INDICES}
-							scrollEnabled={false}
-							data={dataWithHeader}
-							keyExtractor={keyExtractor}
-							renderItem={renderItem}
-							{...(isFixedHeight && {
-								overrideItemLayout: (layout: { span?: number; size?: number }) => {
-									layout.size = rowHeight;
-								},
-							})}
-							style={flashListStyle}
-						/>
-					</BidirectionalScrollHost>
+					<ErrorBoundary fallback={(reset) => <TableErrorFallback onRetry={reset} />}>
+						<BidirectionalScrollHost style={styles.flexOne}>
+							<FlashList
+								stickyHeaderIndices={STICKY_HEADER_INDICES}
+								scrollEnabled={false}
+								data={dataWithHeader}
+								keyExtractor={keyExtractor}
+								renderItem={renderItem}
+								style={flashListStyle}
+							/>
+						</BidirectionalScrollHost>
+					</ErrorBoundary>
 				</View>
 
 				<FooterContext.Provider value={footerContextValue}>

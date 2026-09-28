@@ -154,5 +154,7 @@
 	"useSimplificationDisabled": "Desactivado",
 	"useSimplificationEnabled": "Activado (recomendado)",
 	"chart": "Gráfico",
-	"hintChart": "Añade un gráfico de esta ruta al panel inferior. Requiere datos de elevación — usa primero 'Aplicar elevación DEM' si no los tiene."
+	"hintChart": "Añade un gráfico de esta ruta al panel inferior. Requiere datos de elevación — usa primero 'Aplicar elevación DEM' si no los tiene.",
+	"tableErrorBoundary": "Algo salió mal al renderizar la tabla.",
+	"tableErrorRetry": "Reintentar"
 }
