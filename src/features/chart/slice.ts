@@ -37,8 +37,12 @@ export const chartSlice = createSlice({
 			action: PayloadAction<{ key: string; settings: Partial<ChartSettings> }>
 		) => {
 			const { key, settings } = action.payload;
+			// No DEFAULT_CHART_SETTINGS base here: the entry must only
+			// carry what was explicitly written, otherwise every chart
+			// that ever received a per-chart value (ratio, follow-map)
+			// would count as "custom" (selectHasOwnChartSettings).
 			state.charts[key] = {
-				...(state.charts[key] ?? DEFAULT_CHART_SETTINGS),
+				...(state.charts[key] ?? {}),
 				...settings,
 			};
 		},

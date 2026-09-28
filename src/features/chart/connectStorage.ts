@@ -21,7 +21,7 @@ import { selectInitialized } from './selectors';
 import { AppStore } from '../../store/store';
 import { logError } from '../../lib/utils';
 
-const settingsKey = 'altitudeChartSettings';
+const settingsKey = 'chartSettings';
 
 /**
  * Loads settings from defaultPreferences and dispatches them to the store.

@@ -947,7 +947,11 @@ const Chart: FC<{
 							<G>
 								<Line
 									x1={centerX}
-									y1={0}
+									y1={
+										centerYSecondary !== undefined
+											? Math.min(centerY, centerYSecondary)
+											: centerY
+									}
 									x2={centerX}
 									y2={plotH}
 									stroke={COLOR_CENTER}

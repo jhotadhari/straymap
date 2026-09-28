@@ -14,6 +14,8 @@ export type ChartSettingsModalContextType = {
 	chartKey: string;
 	settings: ChartSettings;
 	update: (partial: Partial<ChartSettings>) => void;
+	/** Writes the always-general settings (label, statistics). */
+	updateGeneral: (partial: Partial<ChartSettings>) => void;
 	onDismiss: () => void;
 	mode: ChartSettingsMode;
 	setMode: (mode: ChartSettingsMode) => void;
@@ -26,6 +28,7 @@ export const ChartSettingsModalContext = createContext<ChartSettingsModalContext
 	chartKey: '',
 	settings: DEFAULT_CHART_SETTINGS,
 	update: (_partial: Partial<ChartSettings>) => undefined,
+	updateGeneral: (_partial: Partial<ChartSettings>) => undefined,
 	onDismiss: () => undefined,
 	mode: 'general',
 	setMode: (_mode: ChartSettingsMode) => undefined,

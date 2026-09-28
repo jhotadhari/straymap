@@ -37,21 +37,17 @@ describe('chart slice reducers', () => {
 		expect(state.initialized).toBe(true);
 	});
 
-	it('setChartSettings merges partial settings', () => {
+	it('setChartSettings stores only the written keys', () => {
 		let state = chartReducer(
 			undefined,
 			setChartSettings({ key: 'routing', settings: { secondary: 'slope' } })
 		);
-		expect(state.charts['routing']).toEqual({
-			...DEFAULT_CHART_SETTINGS,
-			secondary: 'slope',
-		});
+		expect(state.charts['routing']).toEqual({ secondary: 'slope' });
 		state = chartReducer(
 			state,
 			setChartSettings({ key: 'routing', settings: { primaryColor: 'slope' } })
 		);
 		expect(state.charts['routing']).toEqual({
-			...DEFAULT_CHART_SETTINGS,
 			secondary: 'slope',
 			primaryColor: 'slope',
 		});
@@ -91,17 +87,27 @@ describe('chart slice reducers', () => {
 	});
 
 	it('resetChartSettingsToPerChart drops non-per-chart props of a merged entry', () => {
-		// setChartSettings merges over the defaults — only the
-		// non-per-chart props go (the default followMap false is kept
-		// only when the entry carries it; here the merge keeps it, so the
-		// entry retains followMap: false as a stored per-chart value).
+		// setChartSettings stores only the written keys — an entry
+		// without per-chart props is deleted entirely.
 		let state = chartReducer(
 			undefined,
 			setChartSettings({ key: 'line:2', settings: { primaryColor: 'slope' } })
 		);
 		state = chartReducer(state, resetChartSettingsToPerChart('line:2'));
-		expect(state.charts['line:2']).toEqual({ followMap: false });
+		expect(state.charts['line:2']).toBeUndefined();
 		expect(selectHasOwnChartSettings({ chart: state } as unknown as RootState, 'line:2')).toBe(
+			false
+		);
+	});
+
+	it('per-chart-only writes do not make a chart custom', () => {
+		// A chart that only ever received per-chart values (ratio,
+		// follow-map) stays in the general (Default) mode.
+		const state = chartReducer(
+			undefined,
+			setChartSettings({ key: 'line:2b', settings: { ratioValue: 20 } })
+		);
+		expect(selectHasOwnChartSettings({ chart: state } as unknown as RootState, 'line:2b')).toBe(
 			false
 		);
 	});
@@ -152,6 +158,18 @@ describe('chart selectors', () => {
 		const settings = selectChartSettings(root, 'line:4');
 		expect(settings.primaryColor).toBe('axis');
 		expect(settings.secondaryColor).toBe('axis');
+	});
+
+	it('selectChartSettings keeps the always-general settings general', () => {
+		// A chart.s own entry must not contribute showLabel/showStats —
+		// the general value always wins.
+		const root = buildRoot({
+			general: { ...DEFAULT_CHART_SETTINGS, showLabel: true },
+			charts: { 'line:4b': { showLabel: false, showStats: false } },
+		});
+		expect(selectChartSettings(root, 'line:4b').showLabel).toBe(true);
+		expect(selectChartSettings(root, 'line:4b').showStats).toBe(true);
+		expect(selectHasOwnChartSettings(root, 'line:4b')).toBe(false);
 	});
 
 	it('selectChartSettings falls back to the general settings', () => {

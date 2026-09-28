@@ -12,11 +12,11 @@ import { ChartSettingsModalContext } from '../Context';
 
 const RowShowStats: FC = () => {
 	const { t } = useTranslation();
-	const { settings, update } = useContext(ChartSettingsModalContext);
+	const { settings, updateGeneral } = useContext(ChartSettingsModalContext);
 
 	const handleToggle = useCallback(() => {
-		update({ showStats: !settings.showStats });
-	}, [settings.showStats, update]);
+		updateGeneral({ showStats: !settings.showStats });
+	}, [settings.showStats, updateGeneral]);
 
 	return (
 		<ToggleRowControl

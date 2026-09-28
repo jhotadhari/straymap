@@ -15,6 +15,15 @@ export const PER_CHART_SETTINGS_KEYS = [
 	'followMap',
 ] as const;
 
+/**
+ * Settings keys that are always general — a chart.s own entry never
+ * contributes these (they apply to every chart).
+ */
+export const GENERAL_ONLY_SETTINGS_KEYS = [
+	'showLabel',
+	'showStats',
+] as const;
+
 export const selectInitialized = (state: RootState) => state.chart.initialized;
 
 export const selectGeneralSettings = createAppSelector(
@@ -33,9 +42,13 @@ export const selectHasOwnChartSettings = (state: RootState, key: string | undefi
 	if (!own) {
 		return false;
 	}
-	// per-chart-only entries (ratio / follow-map) don't count as "custom"
-	// — the Default/Custom mode governs everything except those.
-	return Object.keys(omit(own, PER_CHART_SETTINGS_KEYS)).length > 0;
+	// per-chart-only entries (ratio / follow-map) and always-general
+	// entries (label / statistics) don't count as "custom" — the
+	// Default/Custom mode governs everything except those.
+	return (
+		Object.keys(omit(own, [...PER_CHART_SETTINGS_KEYS, ...GENERAL_ONLY_SETTINGS_KEYS])).length >
+		0
+	);
 };
 
 export const selectChartSettings = createAppSelector(
@@ -45,7 +58,7 @@ export const selectChartSettings = createAppSelector(
 	(general, charts, key): ChartSettings => ({
 		...DEFAULT_CHART_SETTINGS,
 		...omit(general, PER_CHART_SETTINGS_KEYS),
-		...(key ? (charts[key] ?? {}) : {}),
+		...(key ? omit(charts[key] ?? {}, GENERAL_ONLY_SETTINGS_KEYS) : {}),
 	})
 );
 

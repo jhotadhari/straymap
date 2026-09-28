@@ -211,6 +211,20 @@ const ChartDisplay: FC = () => {
 		setResetSignal((t) => t + 1);
 	}, [activeItemKey]);
 
+	// Routing re-fit: while the routing chart sits at the natural fit
+	// (no stored ratio) and doesn't follow the map, route changes
+	// (waypoint edits) re-fit the viewport to the new data.
+	useEffect(() => {
+		if (source?.type === 'routing' && settings.ratioValue == null && !settings.followMap) {
+			setResetSignal((t) => t + 1);
+		}
+	}, [
+		series,
+		source?.type,
+		settings.ratioValue,
+		settings.followMap,
+	]);
+
 	// A user gesture on the chart switches the follow-map toggle off.
 	const handleUserGesture = useCallback(() => {
 		if (!activeItemKey) {

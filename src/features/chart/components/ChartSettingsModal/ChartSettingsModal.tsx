@@ -13,6 +13,7 @@ import ModalWrapper from '../../../../components/generic/wrapper/ModalWrapper';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import {
 	PER_CHART_SETTINGS_KEYS,
+	GENERAL_ONLY_SETTINGS_KEYS,
 	selectGeneralSettings,
 	selectHasOwnChartSettings,
 	selectOwnPerChartSettings,
@@ -83,6 +84,13 @@ const ChartSettingsModal: FC<{
 		]
 	);
 
+	const updateGeneral = useCallback(
+		(partial: Partial<ChartSettings>) => {
+			dispatch(setGeneralSettings(partial));
+		},
+		[dispatch]
+	);
+
 	const setMode = useCallback(
 		(nextMode: ChartSettingsMode) => {
 			if (nextMode === mode) {
@@ -91,12 +99,16 @@ const ChartSettingsModal: FC<{
 			if (nextMode === 'own') {
 				// Copy the current general settings into The chart.s own,
 				// preserving its always-per-chart settings (ratio,
-				// follow-map).
+				// follow-map) and skipping the always-general ones
+				// (label, statistics).
 				dispatch(
 					setChartSettings({
 						key: chartKey,
 						settings: {
-							...omit(generalSettings, PER_CHART_SETTINGS_KEYS),
+							...omit(generalSettings, [
+								...PER_CHART_SETTINGS_KEYS,
+								...GENERAL_ONLY_SETTINGS_KEYS,
+							]),
 							...pick(ownPerChartSettings, PER_CHART_SETTINGS_KEYS),
 						},
 					})
@@ -122,6 +134,7 @@ const ChartSettingsModal: FC<{
 			chartKey,
 			settings,
 			update,
+			updateGeneral,
 			onDismiss,
 			mode,
 			setMode,
@@ -133,6 +146,7 @@ const ChartSettingsModal: FC<{
 			chartKey,
 			settings,
 			update,
+			updateGeneral,
 			onDismiss,
 			mode,
 			setMode,
@@ -156,6 +170,10 @@ const ChartSettingsModal: FC<{
 
 				<RowRatioLock />
 
+				<RowShowLabel />
+
+				<RowShowStats />
+
 				<RowRemoveChart />
 
 				<Divider />
@@ -171,10 +189,6 @@ const ChartSettingsModal: FC<{
 				<RowSecondaryColor />
 
 				{/* <RowXMode /> */}
-
-				<RowShowLabel />
-
-				<RowShowStats />
 			</ChartSettingsModalContext.Provider>
 		</ModalWrapper>
 	);
