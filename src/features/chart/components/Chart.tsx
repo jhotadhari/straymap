@@ -102,8 +102,7 @@ const renderSeries = (
 	view: SeriesView,
 	runs: { color: string; d: string }[],
 	pathD: string,
-	strokeWidth: number,
-	sizeScale: number
+	strokeWidth: number
 ) => {
 	if (!view.values) {
 		return null;
@@ -114,7 +113,8 @@ const renderSeries = (
 				key={idx}
 				d={run.d}
 				stroke={run.color}
-				strokeWidth={strokeWidth / sizeScale}
+				strokeWidth={strokeWidth}
+				vectorEffect="non-scaling-stroke"
 				fill="none"
 			/>
 		));
@@ -123,15 +123,16 @@ const renderSeries = (
 		<Path
 			d={pathD}
 			stroke={view.axisColor}
-			strokeWidth={strokeWidth / sizeScale}
+			strokeWidth={strokeWidth}
+			vectorEffect="non-scaling-stroke"
 			fill="none"
 		/>
 	);
 };
 
 /**
- * The static plot content (fills, series strokes, waypoints, axes and
- * ticks). Memoized: map-center updates re-render only the center
+ * The static plot content (fills, series strokes, axes and ticks).
+ * Memoized: map-center updates re-render only the center
  * indicator/labels, not this heavy subtree.
  */
 const PlotStatic = memo(
@@ -142,14 +143,11 @@ const PlotStatic = memo(
 		primaryFillRuns,
 		secondaryFillRuns,
 		paths,
-		markerXs,
 		ticks,
 		width,
 		height,
 		marginLeft,
 		marginRight,
-		plotH,
-		sizeScale,
 		distancePref,
 		theme,
 		distToX,
@@ -163,14 +161,11 @@ const PlotStatic = memo(
 		primaryFillRuns: { color: string; d: string }[];
 		secondaryFillRuns: { color: string; d: string }[];
 		paths: { primary: string; secondary: string };
-		markerXs: number[];
 		ticks: { xTicks: number[]; y1Ticks: number[]; y2Ticks: number[] };
 		width: number;
 		height: number;
 		marginLeft: number;
 		marginRight: number;
-		plotH: number;
-		sizeScale: number;
 		distancePref: UnitPref;
 		theme: MD3Theme;
 		distToX: (d: number) => number;
@@ -205,37 +200,9 @@ const PlotStatic = memo(
 				))}
 
 				{/* Secondary series first — the primary always draws above it. */}
-				{renderSeries(
-					seriesViews.secondary,
-					secondaryRenderRuns,
-					paths.secondary,
-					1.5,
-					sizeScale
-				)}
+				{renderSeries(seriesViews.secondary, secondaryRenderRuns, paths.secondary, 1.5)}
 
-				{renderSeries(seriesViews.primary, primaryRenderRuns, paths.primary, 2, sizeScale)}
-
-				{markerXs.map((x, idx) => (
-					<G key={`wp-${idx}`}>
-						<Line
-							x1={x}
-							y1={0}
-							x2={x}
-							y2={plotH}
-							stroke={COLOR_WAYPOINT}
-							strokeWidth={1 / sizeScale}
-							strokeDasharray={`${3 / sizeScale},${3 / sizeScale}`}
-						/>
-						<SvgText
-							x={x + 2 / sizeScale}
-							y={10 / sizeScale}
-							fill={COLOR_WAYPOINT}
-							fontSize={10 / sizeScale}
-						>
-							{idx + 1}
-						</SvgText>
-					</G>
-				))}
+				{renderSeries(seriesViews.primary, primaryRenderRuns, paths.primary, 2)}
 			</G>
 
 			{/* Axes (static) */}
@@ -336,84 +303,126 @@ const PlotStatic = memo(
 );
 
 /**
+ * The orange waypoint markers (dashed vertical lines + numbers), drawn
+ * in screen space so strokes, dashes and text stay uniform at any zoom
+ * or aspect ratio. Memoized.
+ */
+const WaypointMarkers = memo(
+	({
+		markerXs,
+		plotH,
+		toScreenX,
+		toScreenY,
+	}: {
+		markerXs: number[];
+		plotH: number;
+		toScreenX: (v: number) => number;
+		toScreenY: (v: number) => number;
+	}) => (
+		<G>
+			{markerXs.map((x, idx) => {
+				const screenX = toScreenX(x);
+				return (
+					<G key={`wp-${idx}`}>
+						<Line
+							x1={screenX}
+							y1={toScreenY(0)}
+							x2={screenX}
+							y2={toScreenY(plotH)}
+							stroke={COLOR_WAYPOINT}
+							strokeWidth={1}
+							strokeDasharray="3,3"
+						/>
+						<SvgText
+							x={screenX + 2}
+							y={toScreenY(0) + 12}
+							fill={COLOR_WAYPOINT}
+							fontSize={10}
+						>
+							{idx + 1}
+						</SvgText>
+					</G>
+				);
+			})}
+		</G>
+	)
+);
+
+/**
  * The blue map-center indicator (vertical/horizontal lines + dots),
- * drawn in its own transformed group above the static plot. Memoized so
- * map-center updates only touch this subtree.
+ * drawn in screen space so strokes, dashes and dots stay uniform at any
+ * zoom or aspect ratio. Memoized: map-center updates only touch this
+ * subtree.
  */
 const CenterIndicator = memo(
 	({
-		groupTransform,
-		marginLeft,
 		plotH,
 		plotW,
-		sizeScale,
 		centerX,
 		centerY,
 		centerYSecondary,
+		toScreenX,
+		toScreenY,
 	}: {
-		groupTransform: string;
-		marginLeft: number;
 		plotH: number;
 		plotW: number;
-		sizeScale: number;
 		centerX?: number;
 		centerY?: number;
 		centerYSecondary?: number;
+		toScreenX: (v: number) => number;
+		toScreenY: (v: number) => number;
 	}) => {
 		if (centerX === undefined || centerY === undefined) {
 			return null;
 		}
+		const screenX = toScreenX(centerX);
 		return (
-			<G
-				x={marginLeft}
-				y={MARGIN_TOP}
-				transform={groupTransform}
-			>
+			<G>
 				<Line
-					x1={centerX}
-					y1={
+					x1={screenX}
+					y1={toScreenY(
 						centerYSecondary !== undefined
 							? Math.min(centerY, centerYSecondary)
 							: centerY
-					}
-					x2={centerX}
-					y2={plotH}
+					)}
+					x2={screenX}
+					y2={toScreenY(plotH)}
 					stroke={COLOR_CENTER}
-					strokeWidth={1 / sizeScale}
-					strokeDasharray={`${3 / sizeScale},${3 / sizeScale}`}
+					strokeWidth={1}
+					strokeDasharray="3,3"
 				/>
 				<Line
-					x1={0}
-					y1={centerY}
-					x2={centerX}
-					y2={centerY}
+					x1={toScreenX(0)}
+					y1={toScreenY(centerY)}
+					x2={screenX}
+					y2={toScreenY(centerY)}
 					stroke={COLOR_CENTER}
-					strokeWidth={1 / sizeScale}
-					strokeDasharray={`${3 / sizeScale},${3 / sizeScale}`}
+					strokeWidth={1}
+					strokeDasharray="3,3"
 				/>
 				{centerYSecondary !== undefined && (
 					<>
 						<Line
-							x1={centerX}
-							y1={centerYSecondary}
-							x2={plotW}
-							y2={centerYSecondary}
+							x1={screenX}
+							y1={toScreenY(centerYSecondary)}
+							x2={toScreenX(plotW)}
+							y2={toScreenY(centerYSecondary)}
 							stroke={COLOR_CENTER}
-							strokeWidth={1 / sizeScale}
-							strokeDasharray={`${3 / sizeScale},${3 / sizeScale}`}
+							strokeWidth={1}
+							strokeDasharray="3,3"
 						/>
 						<Circle
-							cx={centerX}
-							cy={centerYSecondary}
-							r={3 / sizeScale}
+							cx={screenX}
+							cy={toScreenY(centerYSecondary)}
+							r={3}
 							fill={COLOR_CENTER}
 						/>
 					</>
 				)}
 				<Circle
-					cx={centerX}
-					cy={centerY}
-					r={3 / sizeScale}
+					cx={screenX}
+					cy={toScreenY(centerY)}
+					r={3}
 					fill={COLOR_CENTER}
 				/>
 			</G>
@@ -1276,10 +1285,6 @@ const Chart: FC<{
 
 	const groupTransform = `translate(${translateX}, ${translateY}) scale(${scaleX}, ${syEff})`;
 
-	// Stroke/marker sizes divide by the larger scale so nothing thickens
-	// when the plot is stretched.
-	const sizeScale = Math.max(scaleX, syEff);
-
 	if (followOutOfView) {
 		// Follow-map with the visible map panned away from the route —
 		// render an empty plot (no lines, axes, ticks or indicators).
@@ -1304,14 +1309,11 @@ const Chart: FC<{
 						primaryFillRuns={primaryFillRuns}
 						secondaryFillRuns={secondaryFillRuns}
 						paths={paths}
-						markerXs={markerXs}
 						ticks={ticks}
 						width={width}
 						height={height}
 						marginLeft={marginLeft}
 						marginRight={marginRight}
-						plotH={plotH}
-						sizeScale={sizeScale}
 						distancePref={distancePref}
 						theme={theme}
 						distToX={distToX}
@@ -1320,15 +1322,21 @@ const Chart: FC<{
 						groupTransform={groupTransform}
 					/>
 
+					<WaypointMarkers
+						markerXs={markerXs}
+						plotH={plotH}
+						toScreenX={toScreenX}
+						toScreenY={toScreenY}
+					/>
+
 					<CenterIndicator
-						groupTransform={groupTransform}
-						marginLeft={marginLeft}
 						plotH={plotH}
 						plotW={plotW}
-						sizeScale={sizeScale}
 						centerX={centerX}
 						centerY={centerY}
 						centerYSecondary={centerYSecondary}
+						toScreenX={toScreenX}
+						toScreenY={toScreenY}
 					/>
 
 					<CenterLabels
