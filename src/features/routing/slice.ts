@@ -398,7 +398,12 @@ export const processRouting = (
 
 		// Publish the render-consistent simplified coordinates for the
 		// chart (matches RoutingMapView's ramp geometry).
-		const pathCoords = getPathCoords(points, updatedSegments, ROUTING_SIMPLIFY_TOLERANCE);
+		const pathCoords = getPathCoords(
+			points,
+			updatedSegments,
+			ROUTING_SIMPLIFY_TOLERANCE,
+			effectiveRouteProfile
+		);
 		dispatch(routingSlice.actions.setPathCoords(pathCoords));
 
 		if (routeId) {

@@ -25,7 +25,7 @@ import {
 	StraightLineOptions,
 } from '../types';
 import { DEFAULT_OPTIONS_BROUTER, DEFAULT_OPTIONS_STRAIGHT_LINE } from '../constants';
-import { formatDistanceUnit } from '../../../lib/formatting';
+import { formatDistanceUnit, metersToUnit, unitToMeters } from '../../../lib/formatting';
 import { selectUnitPrefs } from '../../general/selectors';
 import { selectAppDirs } from '../../dirs/selectors';
 import { selectLastProfiles } from '../selectors';
@@ -289,10 +289,12 @@ const IntervalRowControl: React.FC<{
 		(newValue: number) => {
 			onProfileChange({
 				provider: 'straightLine' as const,
-				options: { interval: newValue },
+				// The control displays the user's distance unit — store
+				// meters internally.
+				options: { interval: unitToMeters(newValue, distUnit, true) },
 			} as RoutingProfile);
 		},
-		[onProfileChange]
+		[onProfileChange, distUnit]
 	);
 
 	const validatePositive = useCallback((val: number) => val > 0, []);
@@ -300,6 +302,18 @@ const IntervalRowControl: React.FC<{
 	const label = useMemo(
 		() => t('routing.interval') + ' [' + formatDistanceUnit(distUnit, true) + ']',
 		[t, distUnit]
+	);
+
+	const intervalDisplayValue = useMemo(
+		() =>
+			profile.provider === 'straightLine'
+				? Math.round(metersToUnit(profile.options.interval, distUnit, true))
+				: 0,
+		[
+			profile.provider,
+			profile.options,
+			distUnit,
+		]
 	);
 
 	if (profile.provider !== 'straightLine') {
@@ -310,7 +324,7 @@ const IntervalRowControl: React.FC<{
 		<NumericRowControl
 			label={label}
 			Info={t('routing.hintInterval')}
-			value={profile.options.interval}
+			value={intervalDisplayValue}
 			onUpdate={handleSetInterval}
 			numType="int"
 			validate={validatePositive}

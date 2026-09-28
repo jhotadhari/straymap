@@ -54,6 +54,54 @@ export const formatDistanceUnit = (unitPref: UnitPref, useFraction?: boolean): s
 	}
 };
 
+// Input: meters → display value in the user's unit (numeric, unformatted).
+export const metersToUnit = (value: number, unitPref: UnitPref, useFraction = false): number => {
+	if (useFraction) {
+		switch (unitPref.unit) {
+			case 'imperial':
+				return value * M_TO_FT;
+			case 'nautical':
+				return value * M_TO_NM;
+			case 'metric':
+			default:
+				return value;
+		}
+	}
+	switch (unitPref.unit) {
+		case 'imperial':
+			return value * M_TO_MI;
+		case 'nautical':
+			return value * M_TO_NM;
+		case 'metric':
+		default:
+			return value / 1000;
+	}
+};
+
+// Input: user-unit value → meters.
+export const unitToMeters = (value: number, unitPref: UnitPref, useFraction = false): number => {
+	if (useFraction) {
+		switch (unitPref.unit) {
+			case 'imperial':
+				return value / M_TO_FT;
+			case 'nautical':
+				return value / M_TO_NM;
+			case 'metric':
+			default:
+				return value;
+		}
+	}
+	switch (unitPref.unit) {
+		case 'imperial':
+			return value / M_TO_MI;
+		case 'nautical':
+			return value / M_TO_NM;
+		case 'metric':
+		default:
+			return value * 1000;
+	}
+};
+
 // Input: meters
 export const formatDistance = (
 	value: number,

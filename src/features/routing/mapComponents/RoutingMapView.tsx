@@ -22,7 +22,7 @@ import { get } from 'lodash-es';
  */
 import { useAppSelector } from '../../../store/hooks';
 import { selectSegmentByRecordId } from '../selectors';
-import { getSegmentRecordId, getSimplifiedSegmentCoords } from '../utils';
+import { getSegmentRecordId, getSimplifiedSegmentCoords, resolveProfileForPoint } from '../utils';
 import { ROUTING_SIMPLIFY_TOLERANCE } from '../constants';
 import useRoute from '../hooks/useRoute';
 // import useSimplificationTolerance from '../../lines/hooks/useSimplificationTolerance';
@@ -153,6 +153,9 @@ const Segments: FC<{
 	// const simplify = useSimplificationTolerance();
 	const simplify = ROUTING_SIMPLIFY_TOLERANCE;
 
+	const route = useRoute(['profile']);
+	const routeProfile = route?.profile;
+
 	return (
 		<ReindexScope order={300}>
 			{points &&
@@ -187,7 +190,12 @@ const Segments: FC<{
 							segmentRecordId={segmentRecordId}
 							placeholderCoordinates={placeholderCoordinates}
 							simplify={simplify}
-							provider={fromPoint.profile?.provider}
+							provider={
+								routeProfile
+									? resolveProfileForPoint(fromPoint, index, points, routeProfile)
+											.provider
+									: fromPoint.profile?.provider
+							}
 						/>
 					);
 				})}

@@ -143,7 +143,15 @@ const useApplyDemCbModal = ({
 					setCurrentLineProgress(null);
 					setFailedLineIds([]);
 					setLineStats({});
-					const api = altitudeService.requireHandle();
+					const api = altitudeService.getHandle();
+					if (!api) {
+						// The map (and its elevation reader) isn't ready —
+						// surface a clear error instead of a cryptic throw.
+						rejectOuter(
+							new Error('DEM enrichment unavailable — the map is not ready yet.')
+						);
+						return;
+					}
 					lineIds
 						.reduce(
 							(chain, lineId) =>
