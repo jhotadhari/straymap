@@ -166,25 +166,6 @@ const LinesTable: FC = () => {
 		[contentMinWidth]
 	);
 
-	// Remove not existing ids from selection. Deferred to the next frame so
-	// the state change lands in a commit separate from the query data change —
-	// keeps `renderItem` stable while FlashList's layout cascade settles.
-	useEffect(() => {
-		const raf = requestAnimationFrame(() => {
-			if (lineIds.length) {
-				const notExistingIds = without(onMapIdsTemp, ...lineIds);
-				if (notExistingIds.length) {
-					setOnMapIdsTemp(without(onMapIds, ...notExistingIds));
-				}
-			}
-		});
-		return () => cancelAnimationFrame(raf);
-	}, [
-		lineIds,
-		onMapIdsTemp,
-		onMapIds,
-	]);
-
 	const [checkedIds, setCheckedIds] = useState<number[]>([]);
 
 	// Reset checked rows when filters change, since the visible row set changed.
