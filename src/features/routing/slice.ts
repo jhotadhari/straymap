@@ -397,14 +397,19 @@ export const processRouting = (
 		);
 
 		// Publish the render-consistent simplified coordinates for the
-		// chart (matches RoutingMapView's ramp geometry).
+		// chart (matches RoutingMapView's ramp geometry). Guard like the
+		// rest of this thunk: the user may have stopped routing (or
+		// switched routes) while BRouter was computing — the reducer
+		// already cleared pathCoords, don't repopulate stale ones.
 		const pathCoords = getPathCoords(
 			points,
 			updatedSegments,
 			ROUTING_SIMPLIFY_TOLERANCE,
 			effectiveRouteProfile
 		);
-		dispatch(routingSlice.actions.setPathCoords(pathCoords));
+		if (selectIsRouting(getState()) === routeId) {
+			dispatch(routingSlice.actions.setPathCoords(pathCoords));
+		}
 
 		if (routeId) {
 			if (false !== options?.updateLine) {

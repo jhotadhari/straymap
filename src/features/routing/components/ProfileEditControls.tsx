@@ -27,6 +27,7 @@ import {
 import { DEFAULT_OPTIONS_BROUTER, DEFAULT_OPTIONS_STRAIGHT_LINE } from '../constants';
 import { EMPTY_STRING_ARRAY } from '../../../constants';
 import { formatDistanceUnit, metersToUnit, unitToMeters } from '../../../lib/formatting';
+import { roundTo } from '../../../lib/utilsLight';
 import { selectUnitPrefs } from '../../general/selectors';
 import { selectAppDirs } from '../../dirs/selectors';
 import { selectLastProfiles } from '../selectors';
@@ -318,17 +319,19 @@ const IntervalRowControl: React.FC<{
 		[t, distUnit]
 	);
 
-	const intervalDisplayValue = useMemo(
-		() =>
-			profile.provider === 'straightLine'
-				? Math.round(metersToUnit(profile.options.interval, distUnit, true))
-				: 0,
-		[
-			profile.provider,
-			profile.options,
-			distUnit,
-		]
-	);
+	const intervalDisplayValue = useMemo(() => {
+		if (profile.provider !== 'straightLine') {
+			return 0;
+		}
+		const converted = metersToUnit(profile.options.interval, distUnit, true);
+		// Nautical values collapse to 0 when integer-rounded (100 m ≈
+		// 0.054 nm) — keep fractional precision for nautical.
+		return distUnit.unit === 'nautical' ? roundTo(converted, 3) : Math.round(converted);
+	}, [
+		profile.provider,
+		profile.options,
+		distUnit,
+	]);
 
 	if (profile.provider !== 'straightLine') {
 		return undefined;
@@ -340,7 +343,7 @@ const IntervalRowControl: React.FC<{
 			Info={t('routing.hintInterval')}
 			value={intervalDisplayValue}
 			onUpdate={handleSetInterval}
-			numType="int"
+			numType={distUnit.unit === 'nautical' ? 'float' : 'int'}
 			validate={validatePositive}
 		/>
 	);
