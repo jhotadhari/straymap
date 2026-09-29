@@ -14,68 +14,68 @@ import InfoLabelRow from '../../../../components/generic/infoWrapper/InfoLabelRo
 import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
 import { useButtonProps } from '../../../../compose/useButtonProps';
 import { useAppDispatch, useAppSelector, useSystemLineIds } from '../../../../store/hooks';
-import { selectChartLines, selectSelected } from '../../selectors';
-import { selectRoutingLineId } from '../../../routing/selectors';
-import { toggleChartLine } from '../../slice';
+import {
+	CHART_FULLSCREEN_UI_ITEM_KEY,
+	closeFullscreenChart,
+	openFullscreenChart,
+} from '../../../chart/slice';
+import { selectFullscreenLineId } from '../../../chart/selectors';
+import { selectUiItemKeys } from '../../../ui/selectors';
 import { LineEditModalContext } from './Context';
 
 const ChartIcon: IconSource = ({ color, size }) => (
 	<LucideIcons
 		color={color}
 		size={(size ?? 18) - 2}
-		name="activity"
+		name="chart-line"
 		style={styles.iconFix}
 	/>
 );
 
-const RowChart: FC = () => {
+/**
+ * Opens the standalone fullscreen chart UiItem, dedicated to this line
+ * and independent from the bottom drawer charts. Unlike the bottom
+ * drawer chart it does not require the line to be on the map.
+ */
+const RowChartFullscreen: FC = () => {
 	const { t } = useTranslation();
 	const dispatch = useAppDispatch();
 
-	const { line } = useContext(LineEditModalContext);
+	const { line, onDismiss } = useContext(LineEditModalContext);
 
-	const chartLines = useAppSelector(selectChartLines);
-	const selectedIds = useAppSelector(selectSelected);
-	const routingLineId = useAppSelector(selectRoutingLineId);
 	const systemLineIds = useSystemLineIds();
+
+	const uiItemKeys = useAppSelector(selectUiItemKeys);
+	const fullscreenLineId = useAppSelector(selectFullscreenLineId);
 
 	const isSystemLine = useMemo(
 		() => Object.values(systemLineIds).includes(line?.id ?? -1),
 		[systemLineIds, line?.id]
 	);
 
-	// the routing line.s chart is always available via the routing bottom
-	// drawer entry — mark the button active (and keep it disabled) for it.
-	const isRoutingLine = useMemo(
-		() => typeof line?.id === 'number' && line.id === routingLineId,
-		[line?.id, routingLineId]
-	);
-
-	const isSelected = useMemo(() => selectedIds.includes(line?.id ?? -1), [selectedIds, line?.id]);
-
 	// Profile/ramp require elevation; lines without Z (never DEM-enriched)
 	// have no minZ stats. Disable with a hint to Apply DEM in that case.
 	const hasElevation = useMemo(() => line?.stats?.minZ != null, [line?.stats?.minZ]);
 
-	// A drawer chart requires the line to be on the map — removing the
-	// line from the map removes its drawer chart.
 	const disabled = useMemo(
-		() => !line?.id || isSystemLine || !hasElevation || !isSelected,
+		() => !line?.id || isSystemLine || !hasElevation,
 		[
 			line?.id,
 			isSystemLine,
 			hasElevation,
-			isSelected,
 		]
 	);
 
+	// Active while the fullscreen chart UiItem shows this very line.
 	const isActive = useMemo(
 		() =>
-			isRoutingLine || (typeof line?.id === 'number' ? chartLines.includes(line.id) : false),
+			typeof line?.id === 'number' &&
+			fullscreenLineId === line.id &&
+			uiItemKeys.includes(CHART_FULLSCREEN_UI_ITEM_KEY),
 		[
-			isRoutingLine,
-			chartLines,
 			line?.id,
+			fullscreenLineId,
+			uiItemKeys,
 		]
 	);
 
@@ -83,16 +83,24 @@ const RowChart: FC = () => {
 		if (disabled || typeof line?.id !== 'number') {
 			return;
 		}
-		dispatch(toggleChartLine(line.id));
+		if (isActive) {
+			// Close the fullscreen chart UiItem again.
+			dispatch(closeFullscreenChart());
+			return;
+		}
+		// Close the LineEditModal (saving pending edits if dirty) before
+		// the fullscreen chart UiItem opens above the map.
+		onDismiss();
+		dispatch(openFullscreenChart(line.id));
 	}, [
 		disabled,
+		isActive,
 		dispatch,
+		onDismiss,
 		line?.id,
 	]);
 
 	const buttonProps = useButtonProps({
-		// Active state is visualized by the label (checkmark/x) only,
-		// not by the background color.
 		mode: 'outlined',
 		disabled,
 		paddingHorizontal: true,
@@ -100,8 +108,8 @@ const RowChart: FC = () => {
 
 	return (
 		<InfoLabelRow
-			label={t('lines.bottomDrawerChart')}
-			Info={t('lines.hintBottomDrawerChart')}
+			label={t('lines.openFullscreenChart')}
+			Info={t('lines.hintOpenFullscreenChart')}
 		>
 			<ButtonHighlight
 				{...buttonProps}
@@ -109,7 +117,7 @@ const RowChart: FC = () => {
 				onPress={handlePress}
 				icon={ChartIcon}
 			>
-				{t('lines.bottomDrawerChart')}
+				{t('lines.openFullscreenChart')}
 				{isActive ? ' ✓' : ''}
 			</ButtonHighlight>
 		</InfoLabelRow>
@@ -122,4 +130,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export default RowChart;
+export default RowChartFullscreen;

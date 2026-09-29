@@ -38,5 +38,6 @@
 	"primaryDataHint": "Die Hauptdatenreihe des Diagramms: Höhe oder Steigung. Die linke Y-Achse und die blauen Mittelwerte zeigen diese Reihe.",
 	"primaryColorHint": "Wie die primäre Reihe eingefärbt wird: in ihrer eigenen Achsenfarbe oder über einen Farbverlauf nach Höhen- bzw. Steigungswerten. Die Optionen mit „(Füllung)“ färben zusätzlich die Fläche zwischen Linie und X-Achse ein.",
 	"secondaryDataHint": "Eine optionale zweite Datenreihe mit eigener rechter Y-Achse. Wähle „Keine“, um sie auszublenden.",
-	"secondaryColorHint": "Wie die sekundäre Reihe eingefärbt wird: in ihrer eigenen Achsenfarbe oder über einen Farbverlauf nach Höhen- bzw. Steigungswerten. Die Optionen mit „(Füllung)“ färben zusätzlich die Fläche zwischen Linie und X-Achse ein."
+	"secondaryColorHint": "Wie die sekundäre Reihe eingefärbt wird: in ihrer eigenen Achsenfarbe oder über einen Farbverlauf nach Höhen- bzw. Steigungswerten. Die Optionen mit „(Füllung)“ färben zusätzlich die Fläche zwischen Linie und X-Achse ein.",
+	"fullscreen": "Diagramm"
 }

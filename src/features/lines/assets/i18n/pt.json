@@ -153,8 +153,10 @@
 	"useSimplification": "Simplificar geometrias de rotas ao alterar zoom",
 	"useSimplificationDisabled": "Desativado",
 	"useSimplificationEnabled": "Ativado (recomendado)",
-	"chart": "Gráfico",
-	"hintChart": "Adiciona um gráfico desta rota ao painel inferior. Requer dados de elevação — use 'Aplicar elevação DEM' primeiro se não houver.",
+	"bottomDrawerChart": "Gráfico no painel inferior",
+	"hintBottomDrawerChart": "Adiciona um gráfico desta rota ao painel inferior ou remove-o. Disponível apenas enquanto a rota estiver no mapa. Requer dados de elevação — use 'Aplicar elevação DEM' primeiro se não houver.",
+	"openFullscreenChart": "Gráfico em ecrã inteiro",
+	"hintOpenFullscreenChart": "Abre o gráfico independente em ecrã inteiro para esta rota, ou fecha-o quando está ativo. Independente dos gráficos do painel inferior. Requer dados de elevação — use 'Aplicar elevação DEM' primeiro se não houver.",
 	"tableErrorBoundary": "Algo deu errado ao renderizar a tabela.",
 	"tableErrorRetry": "Tentar novamente"
 }

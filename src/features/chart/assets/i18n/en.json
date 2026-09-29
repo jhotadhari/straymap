@@ -38,5 +38,6 @@
 	"primaryDataHint": "The main data series shown in the chart: elevation or slope. The left y-axis and the blue center values display this series.",
 	"primaryColorHint": "How the primary series is colored: its own axis color, or a color ramp based on elevation or slope values. The \"fill\" options additionally color the area between the line and the x-axis.",
 	"secondaryDataHint": "An optional second data series with its own right y-axis. Select \"None\" to hide it.",
-	"secondaryColorHint": "How the secondary series is colored: its own axis color, or a color ramp based on elevation or slope values. The \"fill\" options additionally color the area between the line and the x-axis."
+	"secondaryColorHint": "How the secondary series is colored: its own axis color, or a color ramp based on elevation or slope values. The \"fill\" options additionally color the area between the line and the x-axis.",
+	"fullscreen": "Chart"
 }

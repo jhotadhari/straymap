@@ -36,6 +36,7 @@ import RowCustomDate from './RowCustomDate';
 import RowTags from './RowTags';
 import RowApplyDem from './RowApplyDem';
 import RowChart from './RowChart';
+import RowChartFullscreen from './RowChartFullscreen';
 
 const LineEditModal: FC<{
 	selectLine: (id: number, isSelected: boolean) => void;
@@ -149,6 +150,8 @@ const LineEditModal: FC<{
 				<RowApplyDem />
 
 				<RowChart />
+
+				<RowChartFullscreen />
 
 				<RowExport />
 

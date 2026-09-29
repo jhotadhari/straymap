@@ -8,19 +8,27 @@ import { createSlice } from '@reduxjs/toolkit';
  * Internal dependencies
  */
 import { SliceSettingsBase } from '../../types';
+import { AppThunk } from '../../store/store';
+import { addUiItemKey, setUiItemKeys } from '../ui/slice';
+import { selectUiItemKeys } from '../ui/selectors';
 import { DEFAULT_CHART_SETTINGS, ChartSettings } from './types';
 
+export const CHART_FULLSCREEN_UI_ITEM_KEY = 'chartFullscreen';
+
 export interface ChartState extends SliceSettingsBase {
-	/** per-chart-key settings (routing / line:<id>). */
+	/** per-chart-key settings (routing / line:<id> / fullscreen:<id>). */
 	charts: Record<string, ChartSettings>;
 	/** General settings — the fallback for charts without their own. */
 	general: ChartSettings;
+	/** The line the fullscreen chart UiItem is dedicated to. */
+	fullscreenLineId?: number;
 }
 
 const initialState: ChartState = {
 	initialized: false,
 	charts: {},
 	general: DEFAULT_CHART_SETTINGS,
+	fullscreenLineId: undefined,
 };
 
 // Slices contain Redux reducer logic for updating state, and
@@ -79,6 +87,9 @@ export const chartSlice = createSlice({
 				...action.payload,
 			};
 		},
+		setFullscreenLineId: (state, action: PayloadAction<number | undefined>) => {
+			state.fullscreenLineId = action.payload;
+		},
 	},
 });
 
@@ -89,7 +100,35 @@ export const {
 	removeChartSettings,
 	resetChartSettingsToPerChart,
 	setGeneralSettings,
+	setFullscreenLineId,
 } = chartSlice.actions;
 
 // Export the slice reducer for use in the store configuration
 export default chartSlice.reducer;
+
+/**
+ * Dedicate the fullscreen chart UiItem to a single line and open it.
+ * The UiItem.s chart is independent from the bottom drawer chart of
+ * the same line (settings are stored under chart:fullscreen:<id>).
+ */
+export const openFullscreenChart = (lineId: number): AppThunk => {
+	return (dispatch) => {
+		dispatch(chartSlice.actions.setFullscreenLineId(lineId));
+		dispatch(addUiItemKey(CHART_FULLSCREEN_UI_ITEM_KEY));
+	};
+};
+
+/**
+ * Close the fullscreen chart UiItem (remove its key from the UiItem
+ * stack and clear the dedicated line).
+ */
+export const closeFullscreenChart = (): AppThunk => {
+	return (dispatch, getState) => {
+		dispatch(
+			setUiItemKeys(
+				selectUiItemKeys(getState()).filter((key) => key !== CHART_FULLSCREEN_UI_ITEM_KEY)
+			)
+		);
+		dispatch(chartSlice.actions.setFullscreenLineId(undefined));
+	};
+};

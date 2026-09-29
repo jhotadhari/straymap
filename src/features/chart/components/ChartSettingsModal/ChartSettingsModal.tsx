@@ -21,6 +21,7 @@ import {
 } from '../../selectors';
 import { resetChartSettingsToPerChart, setGeneralSettings, setChartSettings } from '../../slice';
 import { ChartSettings } from '../../types';
+import type { ChartContentVariant } from '../ChartContent';
 import { ChartSettingsModalContext, ChartSettingsMode } from './Context';
 import { sharedStyles } from './sharedDeps';
 import RowSelectRoute from './rows/RowSelectRoute';
@@ -40,10 +41,21 @@ const ChartSettingsModal: FC<{
 	visible: boolean;
 	setVisible: (visible: boolean) => void;
 	chartKey: string;
+	/** Drawer charts can switch sources and be removed; the fullscreen
+	 * UiItem chart is dedicated to one line and hides those rows. */
+	variant?: ChartContentVariant;
 	currentRatio?: number;
 	fitRatio?: number;
 	onFitScreen?: () => void;
-}> = ({ visible, setVisible, chartKey, currentRatio, fitRatio, onFitScreen }) => {
+}> = ({
+	visible,
+	setVisible,
+	chartKey,
+	variant = 'drawer',
+	currentRatio,
+	fitRatio,
+	onFitScreen,
+}) => {
 	const { t } = useTranslation();
 	const dispatch = useAppDispatch();
 
@@ -164,17 +176,17 @@ const ChartSettingsModal: FC<{
 			innerStyle={sharedStyles.modalInner}
 		>
 			<ChartSettingsModalContext.Provider value={contextValue}>
-				<RowSelectRoute />
+				{variant === 'drawer' && <RowSelectRoute />}
 
 				<RowFollowMap />
 
 				<RowRatioLock />
 
-				<RowShowLabel />
+				{variant === 'drawer' && <RowShowLabel />}
 
-				<RowShowStats />
+				{variant === 'drawer' && <RowShowStats />}
 
-				<RowRemoveChart />
+				{variant === 'drawer' && <RowRemoveChart />}
 
 				<Divider />
 

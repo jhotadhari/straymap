@@ -26,6 +26,8 @@ export const GENERAL_ONLY_SETTINGS_KEYS = [
 
 export const selectInitialized = (state: RootState) => state.chart.initialized;
 
+export const selectFullscreenLineId = (state: RootState) => state.chart.fullscreenLineId;
+
 export const selectGeneralSettings = createAppSelector(
 	(state: RootState) => state.chart.general,
 	(general): ChartSettings => ({

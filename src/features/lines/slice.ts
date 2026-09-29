@@ -3,7 +3,7 @@
  */
 import type { PayloadAction } from '@reduxjs/toolkit';
 import { createSlice } from '@reduxjs/toolkit';
-import { isEqual, uniq, without } from 'lodash-es';
+import { intersection, isEqual, uniq, without } from 'lodash-es';
 
 /**
  * Internal dependencies
@@ -118,6 +118,9 @@ export const linesSlice = createSlice({
 			state.selected = uniq(action.payload).sort((a, b) => {
 				return a - b;
 			});
+			// A drawer chart requires its line to be on the map: removing
+			// a line from the map removes its chart permanently.
+			state.chartLines = intersection(state.chartLines, state.selected);
 		},
 		setLinesSort: (state, action: PayloadAction<LinesState['linesTable']['sort']>) => {
 			state.linesTable.sort = action.payload;

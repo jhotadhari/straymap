@@ -91,6 +91,17 @@ describe('lines slice reducers', () => {
 		expect(state.selected).toEqual([]);
 	});
 
+	it('setSelected removes chartLines of lines no longer on the map', () => {
+		const state = linesReducer(
+			{
+				selected: [1, 2],
+				chartLines: [1, 2],
+			} as LinesState,
+			setSelected([2])
+		);
+		expect(state.chartLines).toEqual([2]);
+	});
+
 	it('initial state has empty selected', () => {
 		const state = linesReducer(undefined, { type: '@@INIT' });
 		expect(state.selected).toEqual([]);

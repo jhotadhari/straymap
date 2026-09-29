@@ -38,5 +38,6 @@
 	"primaryDataHint": "A série de dados principal do gráfico: altitude ou declive. O eixo Y esquerdo e os valores azuis centrais mostram esta série.",
 	"primaryColorHint": "Como a série principal é colorida: com a cor do próprio eixo ou com um gradiente baseado nos valores de altitude ou declive. As opções «(preenchimento)» colorem também a área entre a linha e o eixo X.",
 	"secondaryDataHint": "Uma segunda série de dados opcional com o seu próprio eixo Y à direita. Seleciona «Nenhum» para a ocultar.",
-	"secondaryColorHint": "Como a série secundária é colorida: com a cor do próprio eixo ou com um gradiente baseado nos valores de altitude ou declive. As opções «(preenchimento)» colorem também a área entre a linha e o eixo X."
+	"secondaryColorHint": "Como a série secundária é colorida: com a cor do próprio eixo ou com um gradiente baseado nos valores de altitude ou declive. As opções «(preenchimento)» colorem também a área entre a linha e o eixo X.",
+	"fullscreen": "Gráfico"
 }

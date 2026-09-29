@@ -11,6 +11,7 @@ import chartReducer, {
 	removeChartSettings,
 	resetChartSettingsToPerChart,
 	setGeneralSettings,
+	setFullscreenLineId,
 } from '../slice';
 import {
 	selectGeneralSettings,
@@ -35,6 +36,13 @@ describe('chart slice reducers', () => {
 	it('setInitialized', () => {
 		const state = chartReducer(undefined, setInitialized(true));
 		expect(state.initialized).toBe(true);
+	});
+
+	it('setFullscreenLineId sets and clears the dedicated fullscreen line', () => {
+		const state = chartReducer(undefined, setFullscreenLineId(42));
+		expect(state.fullscreenLineId).toBe(42);
+		const cleared = chartReducer(state, setFullscreenLineId(undefined));
+		expect(cleared.fullscreenLineId).toBeUndefined();
 	});
 
 	it('setChartSettings stores only the written keys', () => {

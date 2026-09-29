@@ -153,8 +153,10 @@
 	"useSimplification": "Routengeometrien bei Zoomänderung vereinfachen",
 	"useSimplificationDisabled": "Deaktiviert",
 	"useSimplificationEnabled": "Aktiviert (empfohlen)",
-	"chart": "Diagramm",
-	"hintChart": "Fügt dieser Route ein Diagramm im unteren Panel hinzu. Benötigt Höhendaten — verwende zuerst „DEM-Höhendaten anwenden“, falls keine vorhanden sind.",
+	"bottomDrawerChart": "Diagramm im unteren Panel",
+	"hintBottomDrawerChart": "Fügt dieser Route ein Diagramm im unteren Panel hinzu oder entfernt es wieder. Nur verfügbar, solange die Route auf der Karte liegt. Benötigt Höhendaten — verwende zuerst „DEM-Höhendaten anwenden“, falls keine vorhanden sind.",
+	"openFullscreenChart": "Vollbild-Diagramm",
+	"hintOpenFullscreenChart": "Öffnet das eigenständige Vollbild-Diagramm für diese Route oder schließt es, wenn es aktiv ist. Unabhängig von den Diagrammen im unteren Panel. Benötigt Höhendaten — verwende zuerst „DEM-Höhendaten anwenden“, falls keine vorhanden sind.",
 	"tableErrorBoundary": "Beim Rendern der Tabelle ist ein Fehler aufgetreten.",
 	"tableErrorRetry": "Erneut versuchen"
 }
