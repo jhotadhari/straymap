@@ -137,6 +137,11 @@ const ImportPage = () => {
 		};
 	}, []);
 
+	// Signals a user-requested stop to the running import loop. Kept
+	// separate from dismissedRef (unmount guard) — a stop must not
+	// permanently block subsequent imports in the same session.
+	const stopRequestedRef = useRef(false);
+
 	const [showStopConfirm, setShowStopConfirm] = useState(false);
 
 	const buttonPropsStop = useButtonProps({ isDestructive: true });
@@ -148,8 +153,8 @@ const ImportPage = () => {
 
 	const handleConfirmStop = useCallback(() => {
 		setShowStopConfirm(false);
-		dismissedRef.current = true;
-	}, [dismissedRef]);
+		stopRequestedRef.current = true;
+	}, [stopRequestedRef]);
 
 	const mutationRef = useRef<UseMutationResult<void, Error, void, unknown> | null>(null);
 
@@ -157,6 +162,7 @@ const ImportPage = () => {
 		const selectionCount =
 			importMode === 'directory' ? selectedFileUris.size : selectedIndices.size;
 		if (!selectionCount) return;
+		stopRequestedRef.current = false;
 		setStep('importing');
 		setImportResults([]);
 		mutationRef.current?.mutate();
@@ -357,6 +363,7 @@ const ImportPage = () => {
 			handleCloseImporter,
 			handleBackToConfiguration,
 			dismissedRef,
+			stopRequestedRef,
 		}),
 		[
 			step,

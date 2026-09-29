@@ -57,6 +57,7 @@ export interface ImportContextValue {
 	handleCloseImporter: () => void;
 	handleBackToConfiguration: () => void;
 	dismissedRef: MutableRefObject<boolean>;
+	stopRequestedRef: MutableRefObject<boolean>;
 	mutationRef?: MutableRefObject<UseMutationResult<void, Error, void, unknown> | null>;
 }
 

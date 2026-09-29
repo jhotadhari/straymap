@@ -23,6 +23,9 @@ import {
 	invalidateLineGeomQueries,
 } from '../../../lines/db/queryFns';
 import { deleteLines } from '../../../lines/db/actionsLine';
+import { selectSelected } from '../../../lines/selectors';
+import { removeLineColors, setLinesSelected } from '../../../lines/slice';
+import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { logError } from '../../../../lib/utils';
 import { sharedStyles } from '../../../../sharedStyles';
 
@@ -35,6 +38,8 @@ const UnmatchedLinesModal: FC<{
 }> = memo(({ visible, onDismiss, unmatchedIds, filename, onIdsChange }) => {
 	const { t } = useTranslation();
 	const queryClient = useQueryClient();
+	const dispatch = useAppDispatch();
+	const selected = useAppSelector(selectSelected);
 
 	const { data: lines } = useQuery({
 		queryKey: ['lines', unmatchedIds],
@@ -65,6 +70,14 @@ const UnmatchedLinesModal: FC<{
 			await deleteLines(ids);
 			invalidateLinesQueries(queryClient);
 			invalidateLineGeomQueries(queryClient);
+			// Keep Redux in sync — deleted lines must not stay on the
+			// map or in DrawerTopBar (state.lines.selected drives both).
+			const deletedSet = new Set(ids);
+			const nextSelected = selected.filter((id) => !deletedSet.has(id));
+			if (nextSelected.length !== selected.length) {
+				dispatch(setLinesSelected(nextSelected));
+			}
+			dispatch(removeLineColors(ids));
 			const remaining = unmatchedIds.filter((id) => !ids.includes(id));
 			onIdsChange?.(remaining);
 			setCheckedIds(new Set());
@@ -76,6 +89,8 @@ const UnmatchedLinesModal: FC<{
 		checkedIds,
 		unmatchedIds,
 		queryClient,
+		dispatch,
+		selected,
 		onIdsChange,
 		onDismiss,
 	]);
