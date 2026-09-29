@@ -198,8 +198,13 @@ const getBrouterCoords = async (
 				])
 			) ?? [];
 
-		// Enrich with elevation from the app's DEM data.
-		await enrichCoordinatesWithElevation(coords, altitudeService.requireHandle());
+		// Enrich with elevation from the app's DEM data. Graceful like
+		// getStraightLineCoords: without a wired map handle the route must
+		// not hard-fail — coordinates keep z = 0.
+		const handle = altitudeService.getHandle();
+		if (handle) {
+			await enrichCoordinatesWithElevation(coords, handle);
+		}
 
 		return coords;
 	};

@@ -299,6 +299,15 @@ export const processRouting = (
 
 		const updatedSegments = await new Promise<Record<string, RoutingSegment>>(
 			(resolveOuter) => {
+				// Only publish segments to Redux while this route is still
+				// active — stopping routing mid-computation clears the
+				// slice, and a late per-segment dispatch would repopulate
+				// stale segment state for a route that's no longer active.
+				const dispatchSegmentIfActive = (segment: RoutingSegment) => {
+					if (selectIsRouting(getState()) === routeId) {
+						dispatch(routingSlice.actions.setSegment(segment));
+					}
+				};
 				points
 					.reduce(
 						(segmentsPromise, point, pointIdx) => {
@@ -342,14 +351,12 @@ export const processRouting = (
 										newSegment.errorMsg = 'routing.pointsAreOverlapping';
 										newSegment.isFetching = false;
 										newSegments[segmentRecordId] = newSegment;
-										dispatch(routingSlice.actions.setSegment(newSegment));
+										dispatchSegmentIfActive(newSegment);
 										resolve(newSegments);
 									} else {
-										dispatch(
-											routingSlice.actions.setSegment({
-												...newSegment, // spread, because it has to be a new reference. Otherwise newSegment would be read only after dispatching it.
-											})
-										);
+										dispatchSegmentIfActive({
+											...newSegment, // spread, because it has to be a new reference. Otherwise newSegment would be read only after dispatching it.
+										});
 
 										const waypoints: number[][] = [
 											[
@@ -375,18 +382,14 @@ export const processRouting = (
 												newSegment.positions = coords;
 												newSegment.isFetching = false;
 												newSegments[segmentRecordId] = newSegment;
-												dispatch(
-													routingSlice.actions.setSegment(newSegment)
-												);
+												dispatchSegmentIfActive(newSegment);
 												resolve(newSegments);
 											})
 											.catch((errorMsg) => {
 												newSegment.errorMsg = errorMsg;
 												newSegment.isFetching = false;
 												newSegments[segmentRecordId] = newSegment;
-												dispatch(
-													routingSlice.actions.setSegment(newSegment)
-												);
+												dispatchSegmentIfActive(newSegment);
 												resolve(newSegments);
 											});
 									}
