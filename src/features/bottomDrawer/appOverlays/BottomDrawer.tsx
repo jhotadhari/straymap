@@ -90,16 +90,20 @@ const BottomDrawer: FC = () => {
 		[activeItemKey, itemKeys]
 	);
 
-	// On no items, collapse the drawer and clear the active item.
+	// On no items, collapse the drawer and clear the active item. Guarded
+	// so an already-collapsed drawer with no active item doesn't dispatch
+	// no-op state writes (and trigger a persistence save) on every startup.
 	useEffect(() => {
-		if (!itemKeys.length) {
+		if (!itemKeys.length && (activeItemKey || !getIsFullyCollapsed())) {
 			expand(false);
 			setActiveItemKey(undefined);
 		}
 	}, [
 		itemKeys.length,
+		activeItemKey,
 		expand,
 		setActiveItemKey,
+		getIsFullyCollapsed,
 	]);
 
 	// Keep the side drawers' mapHeight in sync: report the collapsed handle-bar

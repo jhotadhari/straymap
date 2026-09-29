@@ -40,5 +40,6 @@
 	"profileFileMissing": "Profildatei fehlt oder ist nicht lesbar. Lege die Datei wieder in eines der brouterProfiles-Verzeichnisse der App oder wähle ein anderes Profil.",
 	"linkBrouterProfiles": "Offizielle BRouter-Profile",
 	"linkBrouterWeb": "Profile im BRouter-Web erkunden",
-	"linkBrouterCommunityProfiles": "Community-Profile (Fahrrad & Wandern)"
+	"linkBrouterCommunityProfiles": "Community-Profile (Fahrrad & Wandern)",
+	"customProfile": "Benutzerdefiniertes Profil"
 }

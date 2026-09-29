@@ -58,26 +58,6 @@ export const importSlice = createSlice({
 		setDatePatterns: (state, action: PayloadAction<DatePattern[]>) => {
 			state.datePatterns = action.payload;
 		},
-		addDatePattern: (state, action: PayloadAction<DatePattern>) => {
-			state.datePatterns.unshift(action.payload);
-		},
-		removeDatePattern: (state, action: PayloadAction<string>) => {
-			state.datePatterns = state.datePatterns.filter(
-				(p) => p.key !== action.payload || !p.removable
-			);
-		},
-		toggleDatePattern: (state, action: PayloadAction<string>) => {
-			const p = state.datePatterns.find((dp) => dp.key === action.payload);
-			if (p) p.enabled = !p.enabled;
-		},
-		reorderDatePatterns: (state, action: PayloadAction<string[]>) => {
-			const ordered = action.payload
-				.map((key) => state.datePatterns.find((p) => p.key === key))
-				.filter((p): p is DatePattern => !!p);
-			if (ordered.length === state.datePatterns.length) {
-				state.datePatterns = ordered;
-			}
-		},
 		setAutoCustomDate: (state, action: PayloadAction<boolean>) => {
 			state.autoCustomDate = action.payload;
 		},
@@ -123,10 +103,6 @@ export const importSlice = createSlice({
 export const {
 	setInitialized,
 	setDatePatterns,
-	addDatePattern,
-	removeDatePattern,
-	toggleDatePattern,
-	reorderDatePatterns,
 	setAutoCustomDate,
 	setMergeMode,
 	setOverwriteMode,

@@ -54,6 +54,15 @@ const DatePatternAddPatternModal: FC<{
 		});
 	}, [regex]);
 
+	// Date extraction requires the capture group (extractDateWithPattern
+	// reads match[1]) — treat a missing group as blocking too, not only
+	// hard errors.
+	const blockingWarning = useMemo(
+		() =>
+			!!regexWarning && (regexWarning.isError || regexWarning.key === 'regex.noCaptureGroup'),
+		[regexWarning]
+	);
+
 	useEffect(() => {
 		if (visible) {
 			if (pattern) {
@@ -69,7 +78,7 @@ const DatePatternAddPatternModal: FC<{
 	}, [visible, pattern]);
 
 	const handleDismiss = useCallback(() => {
-		if (regex && format && !regexWarning?.isError) {
+		if (regex && format && !blockingWarning) {
 			onSave({
 				key: pattern?.key ?? '',
 				regex,
@@ -80,7 +89,15 @@ const DatePatternAddPatternModal: FC<{
 			});
 		}
 		onDismiss();
-	}, [onDismiss, onSave, pattern, regex, format, label, regexWarning]);
+	}, [
+		onDismiss,
+		onSave,
+		pattern,
+		regex,
+		format,
+		label,
+		blockingWarning,
+	]);
 
 	const handleDelete = useCallback(() => {
 		onDelete?.();
@@ -161,13 +178,7 @@ const DatePatternAddPatternModal: FC<{
 						value={regex}
 						onChangeText={setRegex}
 					/>
-					{regexWarning && (
-						<Text
-							style={styleRegexWarning}
-						>
-							{t(regexWarning.key)}
-						</Text>
-					)}
+					{regexWarning && <Text style={styleRegexWarning}>{t(regexWarning.key)}</Text>}
 				</InfoLabelRow>
 
 				<InfoLabelRow

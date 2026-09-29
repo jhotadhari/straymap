@@ -34,7 +34,7 @@ import { queryRoute } from './db/queryFns';
 import { selectIsRouting } from './selectors';
 import { dbConnection } from '../dbLoader/DBConnection';
 import { pointsCoordsAreOverlapping } from '../../lib/utils';
-import { DEFAULT_LAST_PROFILES, ROUTING_SIMPLIFY_TOLERANCE } from './constants';
+import { DEFAULT_LAST_PROFILES, DEFAULT_PROFILE, ROUTING_SIMPLIFY_TOLERANCE } from './constants';
 
 export interface RoutingSettings {
 	isRouting: false | number; // false or routeId.
@@ -271,7 +271,12 @@ export const processRouting = (
 		const { points, profile: routeProfile } = await getPointsForRouteId(routeId, queryClient);
 
 		const { lastProfiles } = getState().routing;
-		const effectiveRouteProfile = routeProfile ?? lastProfiles.profiles[lastProfiles.provider];
+		// Fall back to DEFAULT_PROFILE when persisted lastProfiles is
+		// corrupted (provider key missing from profiles) — otherwise
+		// resolveProfileForPoint returns undefined and .provider access
+		// in getPathCoords throws inside the thunk.
+		const effectiveRouteProfile =
+			routeProfile ?? lastProfiles.profiles[lastProfiles.provider] ?? DEFAULT_PROFILE;
 
 		// Delete segments not used anymore.
 		const newSegmentRecordIds = points

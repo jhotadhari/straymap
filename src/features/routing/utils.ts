@@ -279,24 +279,32 @@ const getStraightLineCoords = async (
 		logError('routing/getStraightLineCoords', err);
 	}
 
-	// Fallback: when the bulk enrichment left elevations unset (e.g. the
-	// preload fence timed out on a busy executor), retry per coordinate
-	// through the retrying altitude lookup the dashboard widget uses.
-	if (coords.some((c) => c[2] === 0)) {
+	// Fallback: when the bulk enrichment failed (or left the majority of
+	// elevations unset, e.g. the preload fence timed out on a busy
+	// executor), retry per coordinate through the retrying altitude
+	// lookup the dashboard widget uses. Gated on a plausible fraction of
+	// missing elevations so genuinely sea-level coordinates (coastal
+	// routes) don't trigger thousands of sequential round-trips, and
+	// parallelized in bounded batches.
+	const zeroCount = coords.filter((c) => c[2] === 0).length;
+	if (zeroCount > coords.length * 0.5) {
 		const handle = altitudeService.getHandle();
 		if (handle && typeof handle.getAltitudeAtPositionRetry === 'function') {
-			for (const c of coords) {
-				if (c[2] !== 0) {
-					continue;
-				}
-				try {
-					const alt = await handle.getAltitudeAtPositionRetry(c[0], c[1]);
-					if (alt != null) {
-						c[2] = alt;
-					}
-				} catch {
-					// Keep 0 — no elevation for this coordinate.
-				}
+			const missing = coords.filter((c) => c[2] === 0);
+			const batchSize = 20;
+			for (let i = 0; i < missing.length; i += batchSize) {
+				await Promise.all(
+					missing.slice(i, i + batchSize).map(async (c) => {
+						try {
+							const alt = await handle.getAltitudeAtPositionRetry(c[0], c[1]);
+							if (alt != null) {
+								c[2] = alt;
+							}
+						} catch {
+							// Keep 0 — no elevation for this coordinate.
+						}
+					})
+				);
 			}
 		}
 	}

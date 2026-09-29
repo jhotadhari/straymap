@@ -24,7 +24,10 @@ const getProfileFileName = (profilePath: string) => {
 		}
 	}
 	const parts = profilePath.split('/');
-	return parts.length > 0 ? parts[parts.length - 1] : '';
+	const lastName = parts.length > 0 ? parts[parts.length - 1] : '';
+	// MediaStore-style URIs (content://media/external/file/123) have no
+	// %2F segment — the last part is a numeric ID, not a filename.
+	return /\.[a-z0-9]+$/i.test(lastName) ? lastName : '';
 };
 
 const RoutingProfileInfo: FC<{
@@ -48,7 +51,10 @@ const RoutingProfileInfo: FC<{
 			)}
 			{profile.provider === 'brouter' &&
 				(profile.options.profilePath ? (
-					<Text>{getProfileFileName(profile.options.profilePath)}</Text>
+					<Text>
+						{getProfileFileName(profile.options.profilePath) ||
+							t('routing.customProfile')}
+					</Text>
 				) : (
 					<>
 						<Text>

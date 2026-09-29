@@ -32,14 +32,18 @@ const useBottomDrawerState = ({
 	const [showContent, setShowContent] = useState(false);
 
 	// Mount the drawer content once the drawer first leaves the collapsed
-	// position. This runs on the UI thread and escapes to JS only on the
-	// 0 -> >0 transition, so it never contends with the gesture's per-frame
-	// SharedValue writes (mirrors the side drawers' useDrawerState).
+	// position and unmount it again when it collapses back — the chart's
+	// map-interval polling would otherwise keep running while the drawer
+	// is closed. Runs on the UI thread and escapes to JS only on the
+	// 0 <-> >0 transitions, so it never contends with the gesture's
+	// per-frame SharedValue writes (mirrors the side drawers' useDrawerState).
 	useAnimatedReaction(
 		() => height.value > collapsed,
 		(isOpen: boolean, prev: boolean | null) => {
-			if ((null === prev || !prev) && isOpen) {
+			if (isOpen && (null === prev || !prev)) {
 				runOnJS(setShowContent)(true);
+			} else if (!isOpen && prev === true) {
+				runOnJS(setShowContent)(false);
 			}
 		},
 		[collapsed]

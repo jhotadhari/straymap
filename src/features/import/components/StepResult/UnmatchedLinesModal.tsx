@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { FC, memo, useCallback, useState } from 'react';
+import { FC, memo, useCallback, useMemo, useState } from 'react';
 import { View } from 'react-native';
 import { Checkbox, Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -100,9 +100,11 @@ const UnmatchedLinesModal: FC<{
 
 	const keyExtractor = useCallback((id: number) => String(id), []);
 
+	const lineById = useMemo(() => new Map((lines ?? []).map((line) => [line.id, line])), [lines]);
+
 	const renderItem: ListRenderItem<number> = useCallback(
 		({ item: id }) => {
-			const line = lines?.find((l) => l.id === id);
+			const line = lineById.get(id);
 			return (
 				<ListItem
 					style={localStyles.featureListItem}
@@ -119,7 +121,7 @@ const UnmatchedLinesModal: FC<{
 			);
 		},
 		[
-			lines,
+			lineById,
 			checkedIds,
 			handleToggle,
 			t,

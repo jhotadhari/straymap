@@ -5,7 +5,6 @@ import React, { Dispatch, FC, memo, RefObject, SetStateAction, useCallback, useM
 import { ScrollView, View } from 'react-native';
 import Popover, { PopoverPlacement } from 'react-native-popover-view';
 import { useTheme } from 'react-native-paper';
-import { useTranslation } from 'react-i18next';
 
 /**
  * Internal dependencies
@@ -24,7 +23,6 @@ const BottomDrawerMenu: FC<{
 	activeKey?: string;
 }> = ({ visible, setVisible, from, options, activeKey }) => {
 	const theme = useTheme();
-	const { t } = useTranslation();
 
 	const popoverStyle = useMemo(
 		() => ({
@@ -60,7 +58,7 @@ const BottomDrawerMenu: FC<{
 					{options.map((opt) => (
 						<MenuItem
 							key={opt.key}
-							title={t(opt.label)}
+							title={opt.label}
 							leadingIcon={opt.leadingIcon}
 							IconComponent={opt.IconComponent}
 							iconSize={POPOVER_MENU_ITEM_ICON_SIZE}

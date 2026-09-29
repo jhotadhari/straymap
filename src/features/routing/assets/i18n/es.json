@@ -40,5 +40,6 @@
 	"profileFileMissing": "Archivo de perfil ausente o ilegible. Vuelve a colocar el archivo en uno de los directorios brouterProfiles de la aplicación o selecciona otro perfil.",
 	"linkBrouterProfiles": "Perfiles oficiales de BRouter",
 	"linkBrouterWeb": "Explorar perfiles en BRouter web",
-	"linkBrouterCommunityProfiles": "Perfiles de la comunidad (bici y senderismo)"
+	"linkBrouterCommunityProfiles": "Perfiles de la comunidad (bici y senderismo)",
+	"customProfile": "Perfil personalizado"
 }
