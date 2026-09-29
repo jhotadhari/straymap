@@ -4,7 +4,7 @@
 import React, { memo, useCallback, useMemo } from 'react';
 import { Linking, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { get } from 'lodash-es';
+import { get, omit } from 'lodash-es';
 import { Text, useTheme } from 'react-native-paper';
 import { sprintf } from 'sprintf-js';
 import { VehicleMode } from 'react-native-brouter/geojson';
@@ -179,14 +179,23 @@ const ProfileRowControl: React.FC<{
 			if (!opts || !newValue) {
 				return;
 			}
+			// FileSourceRowControl re-emits the initial selection on
+			// mount — no-op so a "change" without user input doesn't
+			// trigger a full re-route via getChangedSegmentIds.
+			if (newValue === (opts.profilePath ?? opts.v)) {
+				return;
+			}
 			const vehicleKey = vehicleOptions.find((opt) => opt.key === newValue)?.key;
 			if (vehicleKey) {
 				onProfileChange({
 					provider: 'brouter' as const,
+					// Drop the key rather than setting profilePath: undefined —
+					// lodash isEqual treats an explicit undefined-valued key as
+					// a real difference, which would defeat the isEqual guard
+					// in RouteProfileModal.handleDismiss.
 					options: {
-						...opts,
+						...omit(opts, 'profilePath'),
 						v: vehicleKey as VehicleMode,
-						profilePath: undefined,
 					},
 				} as RoutingProfile);
 				return;
