@@ -7,7 +7,7 @@ import { Text, Icon, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { sprintf } from 'sprintf-js';
 import { writeFile, ExternalStorageDirectoryPath } from 'react-native-fs';
-import { chunk } from 'lodash-es';
+import { chunk, get } from 'lodash-es';
 import { LineString } from 'geojson';
 import { useQuery } from '@tanstack/react-query';
 
@@ -22,13 +22,18 @@ import ModalWrapper from '../../../components/generic/wrapper/ModalWrapper';
 import RadioListItem from '../../../components/generic/wrapper/RadioListItem';
 import LoadingIndicator from '../../../components/generic/primitives/LoadingIndicator';
 import { useButtonProps } from '../../../compose/useButtonProps';
+import { useAppSelector } from '../../../store/hooks';
+import { selectAppDirs } from '../../dirs/selectors';
+import { AbsPath } from '../../dirs/types';
 import { fetchLines } from '../db/fetch';
 import { queryLineGeom } from '../db/queryFns';
 import { writeFormat, EXPORT_FORMATS, ExportFormat } from '../utils/formatWriters';
 import { resolveFilename, sanitizeFilename, DEFAULT_TEMPLATE } from '../utils/filenameTemplate';
 import { LinePartial } from '../types';
 
-const EXPORT_DIR = ExternalStorageDirectoryPath + '/Android/media/com.jhotadhari.straymap/export';
+// Legacy fallback for devices where the dirs feature hasn't resolved yet.
+const LEGACY_EXPORT_DIR =
+	ExternalStorageDirectoryPath + '/Android/media/com.jhotadhari.straymap/export';
 
 const extractLabel = (a: { label: string }) => a.label;
 
@@ -94,6 +99,12 @@ type UseExportCbModalParams =
 const useExportCbModal = (params: UseExportCbModalParams) => {
 	const { t } = useTranslation();
 	const theme = useTheme();
+
+	const appDirs = useAppSelector(selectAppDirs);
+	const exportDir = useMemo(
+		() => (get(appDirs, 'export', []) as AbsPath[])[0] ?? LEGACY_EXPORT_DIR,
+		[appDirs]
+	);
 
 	const [modalVisible, setModalVisible] = useState(false);
 	const [phase, setPhase] = useState<ExportPhase>('format');
@@ -180,7 +191,7 @@ const useExportCbModal = (params: UseExportCbModalParams) => {
 				},
 			]);
 
-			const filepath = `${EXPORT_DIR}/${filename}`;
+			const filepath = `${exportDir}/${filename}`;
 			await writeFile(filepath, content, 'utf8');
 
 			setResult({
@@ -202,6 +213,7 @@ const useExportCbModal = (params: UseExportCbModalParams) => {
 		params,
 		lineWithGeom,
 		selectedFormat,
+		exportDir,
 		t,
 	]);
 
@@ -283,7 +295,7 @@ const useExportCbModal = (params: UseExportCbModalParams) => {
 			for (const batch of batches) {
 				const results = await Promise.allSettled(
 					batch.map(({ filename, content }) =>
-						writeFile(`${EXPORT_DIR}/${filename}`, content, 'utf8')
+						writeFile(`${exportDir}/${filename}`, content, 'utf8')
 					)
 				);
 				results.forEach((r, i) => {
@@ -291,7 +303,7 @@ const useExportCbModal = (params: UseExportCbModalParams) => {
 						written++;
 					} else {
 						logError('useExportCbModal.bulk.perFile', r.reason);
-						failed.push(`${EXPORT_DIR}/${batch[i].filename}`);
+						failed.push(`${exportDir}/${batch[i].filename}`);
 					}
 				});
 				setProgressCount(written);
@@ -300,12 +312,10 @@ const useExportCbModal = (params: UseExportCbModalParams) => {
 					const succeededDetails = prepTasks
 						.slice(0, written + failed.length)
 						.filter((_t) => {
-							const fi = failed.findIndex(
-								(f) => f === `${EXPORT_DIR}/${_t.filename}`
-							);
+							const fi = failed.findIndex((f) => f === `${exportDir}/${_t.filename}`);
 							return fi === -1;
 						})
-						.map((t) => `${EXPORT_DIR}/${t.filename}`);
+						.map((t) => `${exportDir}/${t.filename}`);
 					setResult({
 						icon: 'alert-outline',
 						header: sprintf(t('lines.exportStopped'), written, total),
@@ -317,7 +327,7 @@ const useExportCbModal = (params: UseExportCbModalParams) => {
 			}
 
 			if (failed.length === 0) {
-				const allDetails = prepTasks.map((t) => `${EXPORT_DIR}/${t.filename}`);
+				const allDetails = prepTasks.map((t) => `${exportDir}/${t.filename}`);
 				setResult({
 					icon: 'check-circle-outline',
 					header: sprintf(t('lines.exportSuccess'), written, total),
@@ -357,6 +367,7 @@ const useExportCbModal = (params: UseExportCbModalParams) => {
 	}, [
 		params,
 		selectedFormat,
+		exportDir,
 		t,
 	]);
 

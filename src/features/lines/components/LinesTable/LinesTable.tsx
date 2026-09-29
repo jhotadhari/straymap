@@ -59,6 +59,8 @@ const TableRowMemo = memo(
 			prevProps.isOnMap === nextProps.isOnMap &&
 			prevProps.isChecked === nextProps.isChecked &&
 			prevProps.isRoutingLine === nextProps.isRoutingLine &&
+			prevProps.idx === nextProps.idx &&
+			prevProps.stats === nextProps.stats &&
 			prevProps.line?.title === nextProps.line?.title &&
 			prevProps.line?.tags === nextProps.line?.tags
 		);

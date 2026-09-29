@@ -115,9 +115,17 @@ export const linesSlice = createSlice({
 			state.linesTable.tableColumns = action.payload;
 		},
 		setSelected: (state, action: PayloadAction<LinesState['selected']>) => {
-			state.selected = uniq(action.payload).sort((a, b) => {
+			const nextSelected = uniq(action.payload).sort((a, b) => {
 				return a - b;
 			});
+			// Keep the previous reference when the content is identical —
+			// selectors and memoized consumers otherwise re-render on
+			// every dispatch.
+			if (isEqual(nextSelected, state.selected)) {
+				state.chartLines = intersection(state.chartLines, state.selected);
+				return;
+			}
+			state.selected = nextSelected;
 			// A drawer chart requires its line to be on the map: removing
 			// a line from the map removes its chart permanently.
 			state.chartLines = intersection(state.chartLines, state.selected);
