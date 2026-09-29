@@ -106,7 +106,10 @@ const useImportMutation = () => {
 							re.lastIndex++;
 							continue;
 						}
-						labels.push(match[1] ?? match[0]);
+						// Skip empty captures ((x*) groups) — an empty label
+						// would create an empty-label tag in the DB.
+						const label = match[1] ?? match[0];
+						if (label) labels.push(label);
 					}
 				}
 			}
@@ -323,7 +326,10 @@ const useImportMutation = () => {
 								if (mergedEntries.length > 1) {
 									unmatchIds.push(...mergedEntries.slice(1).map((r) => r.id));
 								}
-								overwritten = existing.length;
+								// Only the single merged line is updated in
+								// place — non-merged survivors and duplicate
+								// merged entries go to unmatchIds instead.
+								overwritten = mergedId != null ? 1 : 0;
 							} else {
 								for (const row of existing) {
 									if (row.trackIndex != null) {
@@ -825,6 +831,12 @@ const useImportMutation = () => {
 		setImportResults(result);
 	};
 	onSuccessRef.current = (_data, _vars) => {
+		// A re-entrant mutate() (double-tap) resolves immediately without
+		// producing results — skip its side effects so it can't flash an
+		// empty result page over a still-running import.
+		if (!importResultsRef.current?.length) {
+			return;
+		}
 		if (keepAppActive) bgTask.stop();
 		invalidateLinesQueries(queryClient);
 		invalidateLineGeomQueries(queryClient);

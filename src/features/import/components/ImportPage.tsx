@@ -162,10 +162,15 @@ const ImportPage = () => {
 		const selectionCount =
 			importMode === 'directory' ? selectedFileUris.size : selectedIndices.size;
 		if (!selectionCount) return;
+		// Ignore re-entrant taps while an import is already running —
+		// the importing step hides the button, but a double-tap can
+		// still land in the same frame.
+		const mutation = mutationRef.current;
+		if (!mutation || mutation.isPending) return;
 		stopRequestedRef.current = false;
 		setStep('importing');
 		setImportResults([]);
-		mutationRef.current?.mutate();
+		mutation.mutate();
 	}, [
 		importMode,
 		selectedFileUris.size,
