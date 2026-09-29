@@ -43,9 +43,13 @@ export const initializeFromStorage = (store: AppStore) => {
 					store.dispatch(setGeneralSettings(newSettings.general));
 				}
 			}
-			store.dispatch(setInitialized(true));
 		})
-		.catch((err) => logError('chart/connectStorage', err));
+		.catch((err) => logError('chart/connectStorage', err))
+		.finally(() => {
+			// Always complete init — a failed storage read or corrupt
+			// JSON must degrade to defaults, not hang app startup.
+			store.dispatch(setInitialized(true));
+		});
 };
 
 /**

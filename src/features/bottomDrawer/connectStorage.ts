@@ -20,6 +20,7 @@ import {
 } from './slice';
 import { startAppListening } from '../../store/listenerMiddleware';
 import { selectInitialized } from './selectors';
+import { getBottomDrawerItem } from './dynamicItems';
 import { AppStore } from '../../store/store';
 import { logError } from '../../lib/utils';
 
@@ -37,15 +38,24 @@ export const initializeFromStorage = (store: AppStore) => {
 			if (newSettingsStr) {
 				const newSettings = JSON.parse(newSettingsStr) as Partial<BottomDrawersState>;
 				if (newSettings?.itemKeys) {
-					store.dispatch(setItemKeys(newSettings.itemKeys));
+					// Drop keys that no longer resolve to an item so stale
+					// entries don't accumulate in the persisted blob.
+					const itemKeys = newSettings.itemKeys.filter(
+						(key) => !!getBottomDrawerItem(key)
+					);
+					store.dispatch(setItemKeys(itemKeys));
 				}
 				if (newSettings?.activeKey) {
 					store.dispatch(setActiveKey(newSettings.activeKey));
 				}
 			}
-			store.dispatch(setInitialized(true));
 		})
-		.catch((err) => logError('bottomDrawer/connectStorage', err));
+		.catch((err) => logError('bottomDrawer/connectStorage', err))
+		.finally(() => {
+			// Always complete init — a failed storage read or corrupt
+			// JSON must degrade to defaults, not hang app startup.
+			store.dispatch(setInitialized(true));
+		});
 };
 
 /**
