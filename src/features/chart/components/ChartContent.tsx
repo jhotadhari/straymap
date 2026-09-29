@@ -132,11 +132,11 @@ const ChartContent: FC<ChartContentProps> = ({
 	const settings = useAppSelector((state) => selectChartSettings(state, chartKey));
 	const dispatch = useAppDispatch();
 
-	// The fullscreen chart always shows its label and statistics; the
-	// general show-label/show-stats toggles only affect drawer charts.
+	// The fullscreen chart always shows its heading and statistics; the
+	// general show-heading/show-stats toggles only affect drawer charts.
 	const displaySettings = useMemo(
 		() =>
-			variant === 'fullscreen' ? { ...settings, showLabel: true, showStats: true } : settings,
+			variant === 'fullscreen' ? { ...settings, showHeading: true, showStats: true } : settings,
 		[variant, settings]
 	);
 
@@ -517,7 +517,7 @@ const ChartContent: FC<ChartContentProps> = ({
 		);
 	}
 
-	const { showLabel, showStats } = displaySettings;
+	const { showHeading, showStats } = displaySettings;
 
 	const statsNode = hasStats && showStats && (
 		<View style={styles.statsRow}>
@@ -554,8 +554,8 @@ const ChartContent: FC<ChartContentProps> = ({
 
 	return (
 		<View style={styles.container}>
-			<View style={showLabel || showStats ? styles.header : styles.headerAbs}>
-				{showLabel && (
+			<View style={showHeading || showStats ? styles.header : styles.headerAbs}>
+				{showHeading && (
 					<View
 						ref={titleAnchorRef}
 						collapsable={false}
@@ -573,7 +573,7 @@ const ChartContent: FC<ChartContentProps> = ({
 						)}
 					</View>
 				)}
-				{!showLabel && statsNode}
+				{!showHeading && statsNode}
 				{variant === 'fullscreen' && source?.type === 'line' ? (
 					<View style={styles.headerActions}>
 						<IconButtonHighlight
@@ -594,7 +594,7 @@ const ChartContent: FC<ChartContentProps> = ({
 				)}
 			</View>
 
-			{showLabel && <View style={styles.header}>{statsNode}</View>}
+			{showHeading && <View style={styles.header}>{statsNode}</View>}
 
 			<View
 				style={styles.chartWrap}
@@ -645,7 +645,7 @@ const ChartContent: FC<ChartContentProps> = ({
 				onFitScreen={handleFitScreen}
 			/>
 
-			{showLabel && variant === 'drawer' && (
+			{showHeading && variant === 'drawer' && (
 				<BottomDrawerMenu
 					visible={menuVisible}
 					setVisible={setMenuVisible}

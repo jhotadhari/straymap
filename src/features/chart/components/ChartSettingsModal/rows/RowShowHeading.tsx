@@ -10,22 +10,22 @@ import { useTranslation } from 'react-i18next';
 import ToggleRowControl from '../../../../../components/generic/controls/ToggleRowControl';
 import { ChartSettingsModalContext } from '../Context';
 
-const RowShowLabel: FC = () => {
+const RowShowHeading: FC = () => {
 	const { t } = useTranslation();
 	const { settings, updateGeneral } = useContext(ChartSettingsModalContext);
 
 	const handleToggle = useCallback(() => {
-		updateGeneral({ showLabel: !settings.showLabel });
-	}, [settings.showLabel, updateGeneral]);
+		updateGeneral({ showHeading: !settings.showHeading });
+	}, [settings.showHeading, updateGeneral]);
 
 	return (
 		<ToggleRowControl
-			label={t('chart.showLabel')}
-			Info={t('chart.showLabelHint')}
-			value={settings.showLabel}
+			label={t('chart.showHeading')}
+			Info={t('chart.showHeadingHint')}
+			value={settings.showHeading}
 			onToggle={handleToggle}
 		/>
 	);
 };
 
-export default RowShowLabel;
+export default RowShowHeading;

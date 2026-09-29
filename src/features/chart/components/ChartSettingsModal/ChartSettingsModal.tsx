@@ -33,7 +33,7 @@ import RowSecondaryColor from './rows/RowSecondaryColor';
 import RowRatioLock from './rows/RowRatioLock';
 import RowFollowMap from './rows/RowFollowMap';
 // import RowXMode from './rows/RowXMode';
-import RowShowLabel from './rows/RowShowLabel';
+import RowShowHeading from './rows/RowShowHeading';
 import RowShowStats from './rows/RowShowStats';
 import RowRemoveChart from './rows/RowRemoveChart';
 
@@ -182,7 +182,7 @@ const ChartSettingsModal: FC<{
 
 				<RowRatioLock />
 
-				{variant === 'drawer' && <RowShowLabel />}
+				{variant === 'drawer' && <RowShowHeading />}
 
 				{variant === 'drawer' && <RowShowStats />}
 

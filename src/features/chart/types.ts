@@ -38,7 +38,7 @@ export interface ChartSettings {
 	ratioValue?: number;
 	/** Viewport follows the map's covered route segment (1:1). */
 	followMap: boolean;
-	showLabel: boolean;
+	showHeading: boolean;
 	showStats: boolean;
 }
 
@@ -50,6 +50,6 @@ export const DEFAULT_CHART_SETTINGS: ChartSettings = {
 	xMode: 'distance',
 	ratioValue: undefined,
 	followMap: false,
-	showLabel: true,
+	showHeading: true,
 	showStats: true,
 };
