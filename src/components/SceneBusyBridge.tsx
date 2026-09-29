@@ -23,6 +23,12 @@ const SceneBusyBridge = () => {
 		} else {
 			dispatch(removeBusyKey(BUSY_KEY));
 		}
+		// Release the key when the bridge (and its MapContainer) unmounts —
+		// otherwise the LoadingBar can stay busy forever after a map
+		// unmount/remount cycle.
+		return () => {
+			dispatch(removeBusyKey(BUSY_KEY));
+		};
 	}, [isSceneBusy, dispatch]);
 
 	return null;

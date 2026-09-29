@@ -6,7 +6,7 @@ import { Dimensions, Image, StyleSheet, View } from 'react-native';
 import { Icon } from 'react-native-paper';
 import { SvgXml } from 'react-native-svg';
 import { readFile } from 'react-native-fs';
-import Animated, { useAnimatedStyle } from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
 
 /**
  * Internal dependencies
@@ -15,6 +15,7 @@ import { useAppSelector } from '../../../store/hooks';
 import { selectCursor } from '../selectors';
 import { CursorConfig } from '../types';
 import { AppContext } from '../../../Context';
+import useBottomDrawerAwareHeights from '../../drawers/hooks/useBottomDrawerAwareHeights';
 
 const CenterInnerComponent = ({ cursor }: { cursor?: CursorConfig }) => {
 	const cursorConfigFromStore = useAppSelector(selectCursor);
@@ -95,23 +96,13 @@ CenterInnerComponent.displayName = 'CenterInner';
 export const CenterInner = memo(CenterInnerComponent);
 
 const Center = () => {
-	const { mapHeight, bottomBarHeight, bottomDrawerHeightSv } = useContext(AppContext);
+	const { mapHeight } = useContext(AppContext);
 	const { width } = useMemo(() => Dimensions.get('window'), []);
 
 	// Map height without the bottom drawer's (settled) contribution. The
 	// drawer's open height animates on the UI thread; subtracting the shared
 	// value keeps the cursor centered on the shrinking map at 60fps.
-	const baseMapHeight = useMemo(
-		() => (mapHeight ?? 0) + (bottomBarHeight?.bottomDrawer ?? 0),
-		[mapHeight, bottomBarHeight?.bottomDrawer]
-	);
-
-	const animatedHeight = useAnimatedStyle(
-		() => ({
-			height: baseMapHeight - bottomDrawerHeightSv.value,
-		}),
-		[baseMapHeight]
-	);
+	const { animatedHeight } = useBottomDrawerAwareHeights(mapHeight);
 
 	const styleWrapper = useMemo(
 		() => [

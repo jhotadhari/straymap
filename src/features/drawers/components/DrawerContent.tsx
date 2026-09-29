@@ -5,7 +5,7 @@ import React, { FC, useContext, useEffect, useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { get } from 'lodash-es';
 import { useTheme } from 'react-native-paper';
-import Animated, { useAnimatedStyle } from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
 
 /**
  * Internal dependencies
@@ -13,14 +13,12 @@ import Animated, { useAnimatedStyle } from 'react-native-reanimated';
 import { featureRegistry } from '../../FeatureRegistry';
 import DrawerContext from '../DrawerContext';
 import { DrawerPanel } from '../types';
-import { AppContext } from '../../../Context';
+import useBottomDrawerAwareHeights from '../hooks/useBottomDrawerAwareHeights';
 
 const handleSize = 50;
 
 const DrawerContent: FC<{}> = () => {
 	const { activeItemKey, width, height } = useContext(DrawerContext);
-
-	const { bottomBarHeight, bottomDrawerHeightSv } = useContext(AppContext);
 
 	const theme = useTheme();
 	const { isScrollContent, DisplayComponent } = useMemo(() => {
@@ -61,13 +59,7 @@ const DrawerContent: FC<{}> = () => {
 		setScrollEnabled(true);
 	}, [DisplayComponent]);
 
-	const baseMapHeight = height + (bottomBarHeight?.bottomDrawer ?? 0);
-	const animatedHeight = useAnimatedStyle(
-		() => ({
-			height: baseMapHeight - bottomDrawerHeightSv.value,
-		}),
-		[baseMapHeight]
-	);
+	const { animatedHeight } = useBottomDrawerAwareHeights(height);
 
 	const styleScrollView = useMemo(
 		() => [
@@ -103,7 +95,11 @@ const DrawerContent: FC<{}> = () => {
 				</Animated.ScrollView>
 			)}
 
-			{!isScrollContent && DisplayComponent && <DisplayComponent />}
+			{!isScrollContent && DisplayComponent && (
+				<Animated.View style={[animatedHeight, { width }]}>
+					<DisplayComponent />
+				</Animated.View>
+			)}
 		</View>
 	);
 };

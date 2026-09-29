@@ -22,6 +22,7 @@ import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import DrawerHandle from './DrawerHandle';
 import { setItemKeys } from '../slice';
 import DrawerContext from '../DrawerContext';
+import useBottomDrawerAwareHeights from '../hooks/useBottomDrawerAwareHeights';
 import { DRAWER_HANDLE_SIZE } from '../constants';
 import { AppContext } from '../../../Context';
 import useDropIndicatorStyle from '../../../compose/useDropIndicatorStyle';
@@ -42,8 +43,7 @@ const DrawerHandles: FC<
 	const showSettingsHandle = useAppSelector(selectShowSettingsHandle);
 	const sortable = useAppSelector(selectSortable);
 
-	const { setMoveEnabled, mapCornerComponentsHeight, bottomBarHeight, bottomDrawerHeightSv } =
-		useContext(AppContext);
+	const { setMoveEnabled, mapCornerComponentsHeight } = useContext(AppContext);
 	const { setActiveItemKey, height: drawerHeight } = useContext(DrawerContext);
 
 	const [scrollEnabled, setScrollEnabled] = useState(true);
@@ -117,7 +117,7 @@ const DrawerHandles: FC<
 		]
 	);
 
-	const baseMapHeight = (drawerHeight || height) + (bottomBarHeight?.bottomDrawer ?? 0);
+	const { baseMapHeight } = useBottomDrawerAwareHeights(drawerHeight || height);
 
 	const animatedWrapperStyle = useAnimatedStyle(() => {
 		const current = baseMapHeight - bottomDrawerHeightSv.value;
