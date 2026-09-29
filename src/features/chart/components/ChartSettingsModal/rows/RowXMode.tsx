@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { FC, useContext, useMemo } from 'react';
+import React, { FC, useCallback, useContext, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 /**
@@ -15,6 +15,8 @@ import { ChartSettingsModalContext } from '../Context';
 
 const xOptions: OptionBase[] = [{ key: 'distance', label: 'chart.xDistance' }];
 
+const buttonPropsProps = { paddingHorizontal: true };
+
 const RowXMode: FC = () => {
 	const { t } = useTranslation();
 	const { settings, update } = useContext(ChartSettingsModalContext);
@@ -26,15 +28,20 @@ const RowXMode: FC = () => {
 		]
 	);
 
+	const handleSetValue = useCallback(
+		(v: string) => update({ xMode: v as ChartSettings['xMode'] }),
+		[update]
+	);
+
 	return (
 		<InfoLabelRow label={t('chart.xMode')}>
 			<ButtonHighlightMenuControl
 				options={xOptions}
 				value={settings.xMode}
-				setValue={(v) => update({ xMode: v as ChartSettings['xMode'] })}
+				setValue={handleSetValue}
 				anchorLabel={t(selectedOpt?.label ?? '')}
 				compact
-				buttonPropsProps={{ paddingHorizontal: true }}
+				buttonPropsProps={buttonPropsProps}
 			/>
 		</InfoLabelRow>
 	);

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { FC, RefObject, useCallback, useContext, useMemo, useRef, useState } from 'react';
+import { FC, memo, RefObject, useCallback, useContext, useMemo, useRef, useState } from 'react';
 import { ScrollView, StyleProp, View, ViewStyle } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -290,4 +290,4 @@ const animationConfig = {
 };
 const arrowSize = { height: 0, width: 0 };
 
-export default TagTableHeader;
+export default memo(TagTableHeader);

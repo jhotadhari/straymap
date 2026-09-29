@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { FC, Fragment, useMemo } from 'react';
+import React, { FC, Fragment, memo, useMemo } from 'react';
 import {
 	PathPaint,
 	Marker,
@@ -36,7 +36,7 @@ const SegmentLineLayer: FC<{
 		number,
 		number,
 	][];
-}> = ({ segmentRecordId, coordinates }) => {
+}> = memo(({ segmentRecordId, coordinates }) => {
 	const prepared = useMemo(
 		() => ({
 			segmentValues: calculateSlope(coordinates),
@@ -73,14 +73,14 @@ const SegmentLineLayer: FC<{
 			paint={paintPathRamp}
 		/>
 	);
-};
+});
 
 const SegmentLine: FC<{
 	simplify?: number;
 	segmentRecordId: string;
 	placeholderCoordinates: number[][];
 	provider?: string;
-}> = ({ simplify, segmentRecordId, placeholderCoordinates, provider }) => {
+}> = memo(({ simplify, segmentRecordId, placeholderCoordinates, provider }) => {
 	const segment = useAppSelector((state) => selectSegmentByRecordId(state, segmentRecordId));
 
 	const simplifiedCoords = useMemo(
@@ -144,11 +144,11 @@ const SegmentLine: FC<{
 			}
 		/>
 	);
-};
+});
 
 const Segments: FC<{
 	points?: RoutingPoint[];
-}> = ({ points }) => {
+}> = memo(({ points }) => {
 	// Lets use a fixed simplification tolerance. Doesn't work fast rerenders with LayerPathColorRamp.
 	// const simplify = useSimplificationTolerance();
 	const simplify = ROUTING_SIMPLIFY_TOLERANCE;
@@ -201,11 +201,11 @@ const Segments: FC<{
 				})}
 		</ReindexScope>
 	);
-};
+});
 
 const Markers: FC<{
 	points?: RoutingPoint[];
-}> = ({ points }) => {
+}> = memo(({ points }) => {
 	const markerElements = useMemo(() => {
 		if (!points) return null;
 		return points.map((point, index) => (
@@ -225,7 +225,7 @@ const Markers: FC<{
 			<SharedLayer>{markerElements}</SharedLayer>
 		</ReindexScope>
 	);
-};
+});
 
 const RoutingMapView = () => {
 	const { points } =

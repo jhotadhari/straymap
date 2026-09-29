@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { FC, useContext, useMemo } from 'react';
+import React, { FC, useCallback, useContext, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 /**
@@ -15,6 +15,8 @@ import BottomDrawerContext from '../../../../bottomDrawer/BottomDrawerContext';
 import { selectItemKeys } from '../../../../bottomDrawer/selectors';
 import { CHART_KEY_PREFIX } from '../../../types';
 import { useChartItemLabels } from '../../../hooks/useChartItemLabels';
+
+const buttonPropsProps = { paddingHorizontal: true };
 
 const RowSelectRoute: FC = () => {
 	const { t } = useTranslation();
@@ -39,6 +41,11 @@ const RowSelectRoute: FC = () => {
 
 	const activeLabel = activeItemKey ? (chartLabels[activeItemKey] ?? activeItemKey) : '';
 
+	const handleSetValue = useCallback(
+		(v: string) => setActiveItemKey(v),
+		[setActiveItemKey]
+	);
+
 	return (
 		<>
 			<InfoLabelRow
@@ -48,10 +55,10 @@ const RowSelectRoute: FC = () => {
 				<ButtonHighlightMenuControl
 					options={chartOptions}
 					value={activeItemKey}
-					setValue={(v) => setActiveItemKey(v)}
+					setValue={handleSetValue}
 					anchorLabel={activeLabel}
 					compact
-					buttonPropsProps={{ paddingHorizontal: true }}
+					buttonPropsProps={buttonPropsProps}
 				/>
 			</InfoLabelRow>
 		</>

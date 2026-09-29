@@ -13,6 +13,8 @@ import { roundTo } from '../../../../../lib/utilsLight';
 import { setChartSettings } from '../../../slice';
 import { ChartSettingsModalContext } from '../Context';
 
+const validatePositive = (val: number) => val > 0;
+
 /**
  * The ratio is always per-chart ("custom"): read from and written to
  * the chart.s own entry, independent of the Default/Custom mode.
@@ -55,7 +57,7 @@ const RowRatioLock: FC = () => {
 			value={settings.followMap ? undefined : value}
 			onUpdate={handleUpdate}
 			numType="float"
-			validate={(val) => val > 0}
+			validate={validatePositive}
 			disabled={settings.followMap}
 		/>
 	);

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { useCallback, useMemo } from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
 import { Linking, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { get } from 'lodash-es';
@@ -80,7 +80,7 @@ interface ProfileEditControlsProps {
 const ProviderRowControl: React.FC<{
 	profile: RoutingProfile;
 	onProfileChange: (profile: RoutingProfile) => void;
-}> = ({ profile, onProfileChange }) => {
+}> = memo(({ profile, onProfileChange }) => {
 	const { t } = useTranslation();
 
 	const selectedOpt = providerOptions.find((opt) => opt.key === profile.provider);
@@ -119,7 +119,7 @@ const ProviderRowControl: React.FC<{
 			/>
 		</InfoLabelRow>
 	);
-};
+});
 
 const profileInfoLinks = [
 	{
@@ -164,7 +164,7 @@ const ProfileFileInfo: React.FC<{}> = () => {
 const ProfileRowControl: React.FC<{
 	profile: RoutingProfile;
 	onProfileChange: (profile: RoutingProfile) => void;
-}> = ({ profile, onProfileChange }) => {
+}> = memo(({ profile, onProfileChange }) => {
 	const { t } = useTranslation();
 
 	const appDirs = useAppSelector(selectAppDirs);
@@ -209,6 +209,8 @@ const ProfileRowControl: React.FC<{
 		[t]
 	);
 
+	const profileFileInfoNode = useMemo(() => <ProfileFileInfo />, []);
+
 	if (!opts) {
 		return undefined;
 	}
@@ -224,17 +226,17 @@ const ProfileRowControl: React.FC<{
 			dirs={appDirs?.brouterProfiles ?? []}
 			hasCustom
 			anchorButtonStyle={sharedStyles.flex1}
-			Info={<ProfileFileInfo />}
+			Info={profileFileInfoNode}
 			filesHeading={sprintf(t('filesIn'), '(.brf)')}
 			noFilesHeading={sprintf(t('noFilesIn'), '(.brf)')}
 		/>
 	);
-};
+});
 
 const CompressionModeRowControl: React.FC<{
 	profile: RoutingProfile;
 	onProfileChange: (profile: RoutingProfile) => void;
-}> = ({ profile, onProfileChange }) => {
+}> = memo(({ profile, onProfileChange }) => {
 	const { t } = useTranslation();
 
 	const selectedOpt =
@@ -274,12 +276,12 @@ const CompressionModeRowControl: React.FC<{
 			/>
 		</InfoLabelRow>
 	);
-};
+});
 
 const IntervalRowControl: React.FC<{
 	profile: RoutingProfile;
 	onProfileChange: (profile: RoutingProfile) => void;
-}> = ({ profile, onProfileChange }) => {
+}> = memo(({ profile, onProfileChange }) => {
 	const { t } = useTranslation();
 
 	const unitPrefs = useAppSelector(selectUnitPrefs);
@@ -330,7 +332,7 @@ const IntervalRowControl: React.FC<{
 			validate={validatePositive}
 		/>
 	);
-};
+});
 
 const ProfileEditControls: React.FC<ProfileEditControlsProps> = ({ profile, onProfileChange }) => {
 	const { t } = useTranslation();
@@ -389,4 +391,4 @@ const ProfileEditControls: React.FC<ProfileEditControlsProps> = ({ profile, onPr
 	);
 };
 
-export default ProfileEditControls;
+export default memo(ProfileEditControls);

@@ -185,6 +185,18 @@ const BottomDrawerHandle: FC<{
 		[theme]
 	);
 
+	const styleMorph = useMemo(() => [styleHandle, handleStyle], [styleHandle, handleStyle]);
+
+	const styleIconWrapper = useMemo(
+		() => [styles.iconWrapper, iconStyle],
+		[iconStyle]
+	);
+
+	const styleIconDotsWrapper = useMemo(
+		() => [styles.iconWrapper, iconDotsStyle],
+		[iconDotsStyle]
+	);
+
 	return (
 		<Animated.View
 			style={styles.layer}
@@ -192,8 +204,8 @@ const BottomDrawerHandle: FC<{
 		>
 			<GestureDetector gesture={composedGesture as any}>
 				<View style={handleContainerStyle}>
-					<Animated.View style={[styleHandle, handleStyle]}>
-						<Animated.View style={[styles.iconWrapper, iconStyle]}>
+					<Animated.View style={styleMorph}>
+						<Animated.View style={styleIconWrapper}>
 							{IconComponent && (
 								<IconComponent
 									color={theme.colors.onBackground}
@@ -209,7 +221,7 @@ const BottomDrawerHandle: FC<{
 							)}
 						</Animated.View>
 
-						<Animated.View style={[styles.iconWrapper, iconDotsStyle]}>
+						<Animated.View style={styleIconDotsWrapper}>
 							<Icon
 								source="dots-horizontal"
 								size={BOTTOM_DRAWER_ICON_SIZE}

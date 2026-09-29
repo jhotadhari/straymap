@@ -21,17 +21,20 @@ const BottomDrawerContent: FC<{}> = () => {
 		[activeItemKey]
 	);
 
+	const styleContainer = useMemo(
+		() => [
+			styles.container,
+			{ backgroundColor: theme.colors.background, borderColor: theme.colors.outline },
+		],
+		[theme]
+	);
+
 	if (!DisplayComponent) {
 		return null;
 	}
 
 	return (
-		<View
-			style={[
-				styles.container,
-				{ backgroundColor: theme.colors.background, borderColor: theme.colors.outline },
-			]}
-		>
+		<View style={styleContainer}>
 			<DisplayComponent />
 		</View>
 	);

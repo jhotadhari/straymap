@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { StyleSheet, TextStyle, View, ViewStyle } from 'react-native';
 import { useTheme, TextInput } from 'react-native-paper';
 
@@ -243,7 +243,7 @@ const NumericRowControl = ({
 		</InfoLabelRow>
 	);
 };
-export default NumericRowControl;
+export default memo(NumericRowControl);
 
 const styles = StyleSheet.create({
 	flexGrow: { flexGrow: 1 },

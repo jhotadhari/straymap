@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { StyleSheet, TextStyle, View, ViewStyle } from 'react-native';
 import { useTheme, TextInput } from 'react-native-paper';
 
@@ -239,4 +239,4 @@ const localStyles = StyleSheet.create({
 	input: { flexGrow: 1 },
 });
 
-export default NumericRowControlSegmented;
+export default memo(NumericRowControlSegmented);

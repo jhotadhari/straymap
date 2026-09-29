@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { FC, useContext, useMemo } from 'react';
+import React, { FC, useCallback, useContext, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 /**
@@ -19,6 +19,8 @@ const secondaryDataOptions: OptionBase[] = [
 	{ key: 'slope', label: 'chart.seriesSlope' },
 ];
 
+const buttonPropsProps = { paddingHorizontal: true };
+
 const RowSecondaryData: FC = () => {
 	const { t } = useTranslation();
 	const { settings, update } = useContext(ChartSettingsModalContext);
@@ -26,6 +28,11 @@ const RowSecondaryData: FC = () => {
 	const selectedOpt = useMemo(
 		() => secondaryDataOptions.find((opt) => opt.key === settings.secondary),
 		[settings.secondary]
+	);
+
+	const handleSetValue = useCallback(
+		(v: string) => update({ secondary: v as ChartSeriesValue }),
+		[update]
 	);
 
 	return (
@@ -36,10 +43,10 @@ const RowSecondaryData: FC = () => {
 			<ButtonHighlightMenuControl
 				options={secondaryDataOptions}
 				value={settings.secondary}
-				setValue={(v) => update({ secondary: v as ChartSeriesValue })}
+				setValue={handleSetValue}
 				anchorLabel={t(selectedOpt?.label ?? '')}
 				compact
-				buttonPropsProps={{ paddingHorizontal: true }}
+				buttonPropsProps={buttonPropsProps}
 			/>
 		</InfoLabelRow>
 	);

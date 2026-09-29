@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { FC, useContext, useMemo } from 'react';
+import React, { FC, useCallback, useContext, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 /**
@@ -21,6 +21,8 @@ const secondaryColorOptions: OptionBase[] = [
 	{ key: 'slopeFill', label: 'chart.colorSlopeFill' },
 ];
 
+const buttonPropsProps = { paddingHorizontal: true };
+
 const RowSecondaryColor: FC = () => {
 	const { t } = useTranslation();
 	const { settings, update } = useContext(ChartSettingsModalContext);
@@ -28,6 +30,11 @@ const RowSecondaryColor: FC = () => {
 	const selectedOpt = useMemo(
 		() => secondaryColorOptions.find((opt) => opt.key === settings.secondaryColor),
 		[settings.secondaryColor]
+	);
+
+	const handleSetValue = useCallback(
+		(v: string) => update({ secondaryColor: v as ChartColorMode }),
+		[update]
 	);
 
 	if (settings.secondary === 'none') {
@@ -42,10 +49,10 @@ const RowSecondaryColor: FC = () => {
 			<ButtonHighlightMenuControl
 				options={secondaryColorOptions}
 				value={settings.secondaryColor}
-				setValue={(v) => update({ secondaryColor: v as ChartColorMode })}
+				setValue={handleSetValue}
 				anchorLabel={t(selectedOpt?.label ?? '')}
 				compact
-				buttonPropsProps={{ paddingHorizontal: true }}
+				buttonPropsProps={buttonPropsProps}
 			/>
 		</InfoLabelRow>
 	);

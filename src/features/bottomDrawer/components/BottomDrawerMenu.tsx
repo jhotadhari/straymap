@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { Dispatch, FC, RefObject, SetStateAction, useCallback, useMemo } from 'react';
+import React, { Dispatch, FC, memo, RefObject, SetStateAction, useCallback, useMemo } from 'react';
 import { ScrollView, View } from 'react-native';
 import Popover, { PopoverPlacement } from 'react-native-popover-view';
 import { useTheme } from 'react-native-paper';
@@ -74,4 +74,4 @@ const BottomDrawerMenu: FC<{
 	);
 };
 
-export default BottomDrawerMenu;
+export default memo(BottomDrawerMenu);

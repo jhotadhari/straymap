@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { FC, useMemo } from 'react';
+import { FC, memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 /**
@@ -57,4 +57,4 @@ const FilterColumnSelectModal: FC<{
 	);
 };
 
-export default FilterColumnSelectModal;
+export default memo(FilterColumnSelectModal);

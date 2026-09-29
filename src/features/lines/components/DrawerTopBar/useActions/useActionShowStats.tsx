@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useCallback, useMemo, useState } from 'react';
+import { memo, useCallback, useMemo, useState } from 'react';
 import { get, pick, set } from 'lodash-es';
 import { useQuery } from '@tanstack/react-query';
 import { Text } from 'react-native-paper';
@@ -55,15 +55,16 @@ const useActionShowStats = ({ lineIds }: { lineIds: number[] }) => {
 	);
 };
 
-const StatsModal = ({
-	lineIds,
-	handleDismissModal,
-	showHeader,
-}: {
-	lineIds: number[];
-	handleDismissModal: () => void;
-	showHeader?: boolean;
-}) => {
+const StatsModal = memo(
+	({
+		lineIds,
+		handleDismissModal,
+		showHeader,
+	}: {
+		lineIds: number[];
+		handleDismissModal: () => void;
+		showHeader?: boolean;
+	}) => {
 	const { t } = useTranslation();
 	const { data: lines } = useQuery({
 		queryKey: ['lines', lineIds],
@@ -104,17 +105,18 @@ const StatsModal = ({
 		}, {});
 	}, [lines]);
 
-	return (
-		<ModalWrapper
-			visible={true}
-			onDismiss={handleDismissModal}
-			headerLabel={t('lines.statsSummary')}
-			innerStyle={sharedStyles.modal}
-		>
-			{showHeader && <Text>{sprintf(t('lines.statsForLines'), lineIds.length)}</Text>}
-			<LineStatsRows stats={stats} />
-		</ModalWrapper>
-	);
-};
+		return (
+			<ModalWrapper
+				visible={true}
+				onDismiss={handleDismissModal}
+				headerLabel={t('lines.statsSummary')}
+				innerStyle={sharedStyles.modal}
+			>
+				{showHeader && <Text>{sprintf(t('lines.statsForLines'), lineIds.length)}</Text>}
+				<LineStatsRows stats={stats} />
+			</ModalWrapper>
+		);
+	}
+);
 
 export default useActionShowStats;

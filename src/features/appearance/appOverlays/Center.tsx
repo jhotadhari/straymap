@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { useContext, useEffect, useMemo, useState } from 'react';
+import React, { memo, useContext, useEffect, useMemo, useState } from 'react';
 import { Dimensions, Image, StyleSheet, View } from 'react-native';
 import { Icon } from 'react-native-paper';
 import { SvgXml } from 'react-native-svg';
@@ -16,7 +16,7 @@ import { selectCursor } from '../selectors';
 import { CursorConfig } from '../types';
 import { AppContext } from '../../../Context';
 
-export const CenterInner = ({ cursor }: { cursor?: CursorConfig }) => {
+const CenterInnerComponent = ({ cursor }: { cursor?: CursorConfig }) => {
 	const cursorConfigFromStore = useAppSelector(selectCursor);
 
 	const cursorConfig = cursor || cursorConfigFromStore;
@@ -47,6 +47,15 @@ export const CenterInner = ({ cursor }: { cursor?: CursorConfig }) => {
 		[cursorConfig?.size]
 	);
 
+	const imgSource = useMemo(
+		() => ({
+			uri: cursorConfig?.iconSource.startsWith('/')
+				? 'file://' + cursorConfig?.iconSource
+				: cursorConfig?.iconSource,
+		}),
+		[cursorConfig?.iconSource]
+	);
+
 	return (
 		<View>
 			{cursorConfig &&
@@ -72,11 +81,7 @@ export const CenterInner = ({ cursor }: { cursor?: CursorConfig }) => {
 			{cursorConfig && cursorConfig.iconSource.toLowerCase().endsWith('.png') && (
 				<View style={styleSize}>
 					<Image
-						source={{
-							uri: cursorConfig.iconSource.startsWith('/')
-								? 'file://' + cursorConfig.iconSource
-								: cursorConfig.iconSource,
-						}}
+						source={imgSource}
 						style={styleSize}
 					/>
 				</View>
@@ -84,6 +89,8 @@ export const CenterInner = ({ cursor }: { cursor?: CursorConfig }) => {
 		</View>
 	);
 };
+
+export const CenterInner = memo(CenterInnerComponent);
 
 const Center = () => {
 	const { mapHeight, bottomBarHeight, bottomDrawerHeightSv } = useContext(AppContext);

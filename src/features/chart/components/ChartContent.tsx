@@ -42,6 +42,14 @@ const statsRenderPartsNoIcon = ['value'] as RenderPart[];
 
 export type ChartContentVariant = 'drawer' | 'fullscreen';
 
+const renderRouteCogIcon = ({ color, size }: { color?: string; size?: number }) => (
+	<IconCustom
+		name="route_cog"
+		size={size ?? DRAWER_ICON_SIZE}
+		color={color}
+	/>
+);
+
 /**
  * Distances along the route that fall inside the given geographic bbox
  * ([west, south, east, north]) — the covered route segment.
@@ -464,6 +472,8 @@ const ChartContent: FC<ChartContentProps> = ({
 		setSettingsModalVisible(true);
 	}, [setSettingsModalVisible]);
 
+	const handleOpenMenu = useCallback(() => setMenuVisible(true), []);
+
 	// Open the LineEditModal for the dedicated line (fullscreen only) —
 	// same trigger the lines lists use.
 	const handleOpenLineEdit = useCallback(() => {
@@ -487,10 +497,22 @@ const ChartContent: FC<ChartContentProps> = ({
 		chartKey,
 	]);
 
+	const styleText = useMemo(
+		() => [styles.text, { color: theme.colors.onBackground }],
+		[theme]
+	);
+
+	const styleTitle = useMemo(
+		() => [styles.title, { color: theme.colors.onBackground }],
+		[theme]
+	);
+
+	const lengthStats = useMemo(() => ({ length: stats.length }), [stats.length]);
+
 	if (!series) {
 		return (
 			<View style={styles.container}>
-				<Text style={[styles.text, { color: theme.colors.onBackground }]}>…</Text>
+				<Text style={styleText}>…</Text>
 			</View>
 		);
 	}
@@ -501,7 +523,7 @@ const ChartContent: FC<ChartContentProps> = ({
 		<View style={styles.statsRow}>
 			{stats.length != null && (
 				<LineStats
-					stats={{ length: stats.length }}
+					stats={lengthStats}
 					renderParts={statsRenderPartsNoIcon}
 				/>
 			)}
@@ -515,7 +537,7 @@ const ChartContent: FC<ChartContentProps> = ({
 	const titleNode = (
 		<View style={styles.titleAnchor}>
 			<Text
-				style={[styles.title, { color: theme.colors.onBackground }]}
+				style={styleTitle}
 				numberOfLines={1}
 			>
 				{label}
@@ -542,7 +564,7 @@ const ChartContent: FC<ChartContentProps> = ({
 						{variant === 'drawer' ? (
 							<TouchableHighlight
 								underlayColor={theme.colors.elevation.level3}
-								onPress={() => setMenuVisible(true)}
+								onPress={handleOpenMenu}
 							>
 								{titleNode}
 							</TouchableHighlight>
@@ -555,13 +577,7 @@ const ChartContent: FC<ChartContentProps> = ({
 				{variant === 'fullscreen' && source?.type === 'line' ? (
 					<View style={styles.headerActions}>
 						<IconButtonHighlight
-							icon={({ color, size }) => (
-								<IconCustom
-									name="route_cog"
-									size={size ?? DRAWER_ICON_SIZE}
-									color={color}
-								/>
-							)}
+							icon={renderRouteCogIcon}
 							accessibilityLabel={t('lines.line')}
 							onPress={handleOpenLineEdit}
 						/>

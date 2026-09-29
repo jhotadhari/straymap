@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { FC, useState } from 'react';
+import React, { FC, memo, useState } from 'react';
 import { View, ViewStyle } from 'react-native';
 
 /**
@@ -38,4 +38,4 @@ const ChartFullscreen: FC<{ style?: ViewStyle }> = ({ style }) => {
 	);
 };
 
-export default ChartFullscreen;
+export default memo(ChartFullscreen);

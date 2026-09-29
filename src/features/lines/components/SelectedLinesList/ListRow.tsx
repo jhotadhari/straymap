@@ -19,7 +19,7 @@ import Popover from 'react-native-popover-view';
  */
 import dayjs from '../../../../lib/dayjs';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
-import { Line } from '../../types';
+import { Line, LineStats as LineStatsType } from '../../types';
 import DrawerContext from '../../../drawers/DrawerContext';
 import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
 import MenuItem from '../../../../components/generic/wrapper/MenuItem';
@@ -42,6 +42,8 @@ export interface ListRowProps {
 	idx: number;
 	systemFeatureKey: string | null;
 }
+
+const EMPTY_STATS: LineStatsType = {};
 
 const ListRow: FC<ListRowProps> = ({ line, idx, systemFeatureKey }) => {
 	const dispatch = useAppDispatch();
@@ -68,6 +70,8 @@ const ListRow: FC<ListRowProps> = ({ line, idx, systemFeatureKey }) => {
 	const fallbackColor = PALETTE_COLORS[0].bg;
 
 	const dismissColorMenu = useCallback(() => setColorMenuVisible(false), []);
+
+	const handleOpenColorMenu = useCallback(() => setColorMenuVisible(true), []);
 
 	const handleColorSelect = useCallback(
 		(color: string) => {
@@ -120,7 +124,17 @@ const ListRow: FC<ListRowProps> = ({ line, idx, systemFeatureKey }) => {
 		() => dispatch(setLineSelected(line.id)),
 		[dispatch, line.id]
 	);
-	const stats = line?.stats ?? {};
+	const stats = line?.stats ?? EMPTY_STATS;
+
+	const styleColorColumnInner = useMemo(
+		() => [
+			sharedStyles.colorColumnInner,
+			{
+				backgroundColor: (lineColor ?? fallbackColor) as `#${string}`,
+			},
+		],
+		[lineColor, fallbackColor]
+	);
 
 	const handleActivate = useCallback(() => {
 		if (line?.envelope) {
@@ -167,19 +181,14 @@ const ListRow: FC<ListRowProps> = ({ line, idx, systemFeatureKey }) => {
 	return (
 		<View style={dynamicStyles.container}>
 			<TouchableHighlight
-				onPress={() => setColorMenuVisible(true)}
+				onPress={handleOpenColorMenu}
 				style={
 					'left' === side ? sharedStyles.colorColumnLeft : sharedStyles.colorColumnRight
 				}
 			>
 				<View
 					ref={colorAnchorRef}
-					style={[
-						sharedStyles.colorColumnInner,
-						{
-							backgroundColor: (lineColor ?? fallbackColor) as `#${string}`,
-						},
-					]}
+					style={styleColorColumnInner}
 				/>
 			</TouchableHighlight>
 

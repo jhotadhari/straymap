@@ -432,6 +432,8 @@ const useApplyDemCbModal = ({
 		disabled,
 	});
 
+	const styleErrorText = useMemo(() => ({ color: theme.colors.error }), [theme]);
+
 	const modalNode = useMemo(() => {
 		if (!modalVisible) {
 			return undefined;
@@ -555,7 +557,7 @@ const useApplyDemCbModal = ({
 										{lineStats[id]!.errorMsg ? (
 											<Text
 												variant="bodySmall"
-												style={{ color: theme.colors.error }}
+												style={styleErrorText}
 											>
 												{lineStats[id]!.errorMsg}
 											</Text>
@@ -597,6 +599,7 @@ const useApplyDemCbModal = ({
 		lineStats,
 		theme,
 		systemLineIds,
+		styleErrorText,
 	]);
 
 	return useMemo(

@@ -169,22 +169,24 @@ const DrawerHandles: FC<
 		[setModalVisible]
 	);
 
+	const styleWrapper = useMemo(
+		() => [
+			styles.wrapper,
+			animatedWrapperStyle,
+			'left' === side ? styles.wrapperLeft : styles.wrapperRight,
+		],
+		[animatedWrapperStyle, side]
+	);
+
 	if ((!showSettingsHandle || controlHandleSide !== side) && draggableItems.length === 0) {
 		return undefined;
 	}
 
 	return (
-		<Animated.View
-			style={[
-				styles.wrapper,
-				animatedWrapperStyle,
-				'left' === side && styles.wrapperLeft,
-				'right' === side && styles.wrapperRight,
-			]}
-		>
+		<Animated.View style={styleWrapper}>
 			<ScrollView
 				scrollEnabled={scrollEnabled}
-				style={[styles.scrollView, styles.scrollViewFill]}
+				style={styleScrollView}
 			>
 				<View style={styleContainer}>
 					<View>
@@ -286,5 +288,7 @@ const styles = StyleSheet.create({
 		width: DRAWER_HANDLE_SIZE,
 	},
 });
+
+const styleScrollView = [styles.scrollView, styles.scrollViewFill];
 
 export default DrawerHandles;
