@@ -43,7 +43,8 @@ const DrawerHandles: FC<
 	const showSettingsHandle = useAppSelector(selectShowSettingsHandle);
 	const sortable = useAppSelector(selectSortable);
 
-	const { setMoveEnabled, mapCornerComponentsHeight } = useContext(AppContext);
+	const { setMoveEnabled, mapCornerComponentsHeight, bottomDrawerHeightSv } =
+		useContext(AppContext);
 	const { setActiveItemKey, height: drawerHeight } = useContext(DrawerContext);
 
 	const [scrollEnabled, setScrollEnabled] = useState(true);

@@ -51,10 +51,6 @@ const EMPTY_STATS = Object.freeze({} as LineStatsType);
 const ListRow: FC<ListRowProps> = ({ line, idx, systemFeatureKey }) => {
 	const dispatch = useAppDispatch();
 
-	// Subscribe to this row's colour only — the record-level selector
-	// would re-render every row on any single colour change.
-	const lineColor = useAppSelector(selectLineColor(line.id));
-
 	const { mapViewNativeNodeHandle } = useContext(AppContext);
 
 	const { flyToBounds } = useMap(mapViewNativeNodeHandle);
@@ -71,6 +67,8 @@ const ListRow: FC<ListRowProps> = ({ line, idx, systemFeatureKey }) => {
 	const [colorMenuVisible, setColorMenuVisible] = useState(false);
 	const colorAnchorRef = useRef<View>(null);
 
+	// Subscribe to this row's colour only — the record-level selector
+	// would re-render every row on any single colour change.
 	const lineColor = useAppSelector(selectLineColor(line.id));
 	const fallbackColor = PALETTE_COLORS[0].bg;
 

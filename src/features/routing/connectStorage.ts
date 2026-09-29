@@ -24,6 +24,7 @@ import {
 import { addBusyKey, removeBusyKey } from '../ui/slice';
 import { setActiveKey } from '../bottomDrawer/slice';
 import { getChartSourceKey } from '../chart/types';
+import { StraightLineOptions } from './types';
 import { startAppListening } from '../../store/listenerMiddleware';
 import { selectInitialized } from './selectors';
 import { AppStore } from '../../store/store';
@@ -42,16 +43,20 @@ const intervalMigratedKey = 'routingIntervalUnitMigrated';
  * unit switch never re-converts (values are meters from now on).
  */
 const migrateStraightLineInterval = (newSettings: Partial<RoutingState>, store: AppStore) => {
-	const interval = newSettings?.lastProfiles?.profiles?.straightLine?.options?.interval;
+	const straightLine = newSettings?.lastProfiles?.profiles?.straightLine;
+	if (!straightLine) {
+		return;
+	}
+	const opts = straightLine.options as StraightLineOptions;
+	const interval = opts?.interval;
 	if (typeof interval !== 'number') {
 		return;
 	}
 	const distUnit = selectUnitPrefs(store.getState()).distance;
-	newSettings.lastProfiles!.profiles.straightLine.options.interval = unitToMeters(
-		interval,
-		distUnit,
-		true
-	);
+	straightLine.options = {
+		...opts,
+		interval: unitToMeters(interval, distUnit, true),
+	};
 };
 
 /**
