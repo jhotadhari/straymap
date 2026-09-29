@@ -65,45 +65,45 @@ const StatsModal = memo(
 		handleDismissModal: () => void;
 		showHeader?: boolean;
 	}) => {
-	const { t } = useTranslation();
-	const { data: lines } = useQuery({
-		queryKey: ['lines', lineIds],
-		queryFn: queryLinesWithoutGeom,
-		select: (l: LinePartial[]) => l.map((line) => pick(line, ['stats'])),
-	});
+		const { t } = useTranslation();
+		const { data: lines } = useQuery({
+			queryKey: ['lines', lineIds],
+			queryFn: queryLinesWithoutGeom,
+			select: (l: LinePartial[]) => l.map((line) => pick(line, ['stats'])),
+		});
 
-	const stats: LineStatsType = useMemo(() => {
-		if (!lines || !lines.length) {
-			return {};
-		}
-		return lines.reduce<LineStatsType>((acc, line) => {
-			Object.keys(line?.stats ?? {}).forEach((key) => {
-				switch (key) {
-					case 'length':
-					case 'uphill':
-					case 'downhill':
-						set(acc, key, get(acc, key, 0) + get(line?.stats ?? {}, key, 0));
-						break;
-					case 'minZ':
-					case 'maxZ': {
-						const val = get(line?.stats ?? {}, key);
-						if (undefined !== val) {
-							const accVal = get(acc, key);
-							if (
-								undefined === accVal ||
-								('minZ' === key && val < accVal) ||
-								('maxZ' === key && val > accVal)
-							) {
-								set(acc, key, val);
+		const stats: LineStatsType = useMemo(() => {
+			if (!lines || !lines.length) {
+				return {};
+			}
+			return lines.reduce<LineStatsType>((acc, line) => {
+				Object.keys(line?.stats ?? {}).forEach((key) => {
+					switch (key) {
+						case 'length':
+						case 'uphill':
+						case 'downhill':
+							set(acc, key, get(acc, key, 0) + get(line?.stats ?? {}, key, 0));
+							break;
+						case 'minZ':
+						case 'maxZ': {
+							const val = get(line?.stats ?? {}, key);
+							if (undefined !== val) {
+								const accVal = get(acc, key);
+								if (
+									undefined === accVal ||
+									('minZ' === key && val < accVal) ||
+									('maxZ' === key && val > accVal)
+								) {
+									set(acc, key, val);
+								}
 							}
+							break;
 						}
-						break;
 					}
-				}
-			});
-			return acc;
-		}, {});
-	}, [lines]);
+				});
+				return acc;
+			}, {});
+		}, [lines]);
 
 		return (
 			<ModalWrapper
@@ -118,5 +118,7 @@ const StatsModal = memo(
 		);
 	}
 );
+
+StatsModal.displayName = 'StatsModal';
 
 export default useActionShowStats;

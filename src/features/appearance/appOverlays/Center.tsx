@@ -90,6 +90,8 @@ const CenterInnerComponent = ({ cursor }: { cursor?: CursorConfig }) => {
 	);
 };
 
+CenterInnerComponent.displayName = 'CenterInner';
+
 export const CenterInner = memo(CenterInnerComponent);
 
 const Center = () => {

@@ -432,7 +432,7 @@ const useApplyDemCbModal = ({
 		disabled,
 	});
 
-	const styleErrorText = useMemo(() => ({ color: theme.colors.error }), [theme]);
+	const styleErrorText = useMemo(() => ({ color: theme.colors.error }), [theme.colors.error]);
 
 	const modalNode = useMemo(() => {
 		if (!modalVisible) {

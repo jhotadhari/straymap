@@ -173,10 +173,13 @@ const DrawerHandles: FC<
 		() => [
 			styles.wrapper,
 			animatedWrapperStyle,
-			'left' === side ? styles.wrapperLeft : styles.wrapperRight,
+			'left' === side && styles.wrapperLeft,
+			'right' === side && styles.wrapperRight,
 		],
 		[animatedWrapperStyle, side]
 	);
+
+	const styleScrollView = useMemo(() => [styles.scrollView, styles.scrollViewFill], []);
 
 	if ((!showSettingsHandle || controlHandleSide !== side) && draggableItems.length === 0) {
 		return undefined;
@@ -288,7 +291,5 @@ const styles = StyleSheet.create({
 		width: DRAWER_HANDLE_SIZE,
 	},
 });
-
-const styleScrollView = [styles.scrollView, styles.scrollViewFill];
 
 export default DrawerHandles;

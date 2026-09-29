@@ -43,7 +43,10 @@ export interface ListRowProps {
 	systemFeatureKey: string | null;
 }
 
-const EMPTY_STATS: LineStatsType = {};
+// Shared by every stat-less ListRow — frozen so a future consumer
+// mutating `stats` can't corrupt all rows at once (only ever read via
+// lodash pick).
+const EMPTY_STATS = Object.freeze({} as LineStatsType);
 
 const ListRow: FC<ListRowProps> = ({ line, idx, systemFeatureKey }) => {
 	const dispatch = useAppDispatch();
