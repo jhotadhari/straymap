@@ -156,6 +156,49 @@ const Segments: FC<{
 	const route = useRoute(['profile']);
 	const routeProfile = route?.profile;
 
+	// Stable per-segment references so SegmentLine/SegmentLineLayer's
+	// memo wrappers can actually bail out: resolved providers and the
+	// placeholder coordinate pairs are both rebuilt only when `points`
+	// (or the route profile) changes.
+	const providersByIndex = useMemo(
+		() =>
+			points
+				? points.map((fromPoint, index) =>
+						routeProfile
+							? resolveProfileForPoint(fromPoint, index, points, routeProfile)
+									.provider
+							: fromPoint.profile?.provider
+					)
+				: [],
+		[
+			points,
+			routeProfile,
+		]
+	);
+
+	const placeholdersByIndex = useMemo(
+		() =>
+			points
+				? points.map((fromPoint, index) => {
+						const toPoint = get(points, index + 1);
+						if (
+							!toPoint ||
+							pointsCoordsAreOverlapping(
+								fromPoint.geometry.coordinates,
+								toPoint.geometry.coordinates
+							)
+						) {
+							return undefined;
+						}
+						return [
+							fromPoint.geometry.coordinates,
+							toPoint.geometry.coordinates,
+						];
+					})
+				: [],
+		[points]
+	);
+
 	return (
 		<ReindexScope order={300}>
 			{points &&
@@ -164,13 +207,7 @@ const Segments: FC<{
 					const toPoint = get(points, index + 1);
 
 					// Ensure the segment has two points. And points are not overlapping.
-					if (
-						!toPoint ||
-						pointsCoordsAreOverlapping(
-							fromPoint.geometry.coordinates,
-							toPoint.geometry.coordinates
-						)
-					) {
+					if (!toPoint || placeholdersByIndex[index] === undefined) {
 						return undefined;
 					}
 
@@ -179,23 +216,13 @@ const Segments: FC<{
 						toId: toPoint.id,
 					});
 
-					const placeholderCoordinates = [
-						fromPoint.geometry.coordinates,
-						toPoint.geometry.coordinates,
-					];
-
 					return (
 						<SegmentLine
 							key={segmentRecordId}
 							segmentRecordId={segmentRecordId}
-							placeholderCoordinates={placeholderCoordinates}
+							placeholderCoordinates={placeholdersByIndex[index]}
 							simplify={simplify}
-							provider={
-								routeProfile
-									? resolveProfileForPoint(fromPoint, index, points, routeProfile)
-											.provider
-									: fromPoint.profile?.provider
-							}
+							provider={providersByIndex[index]}
 						/>
 					);
 				})}

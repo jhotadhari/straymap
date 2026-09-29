@@ -192,12 +192,7 @@ const NumericRowControlSegmented = ({
 
 	const buttonProps = useButtonProps({
 		mode: 'outlined',
-		style: numValueActive
-			? {
-					borderColor: 'transparent',
-					opacity: OPACITY_DISABLED,
-				}
-			: undefined,
+		style: numValueActive ? toggleStyleActive : undefined,
 	});
 
 	return (
@@ -229,6 +224,11 @@ const NumericRowControlSegmented = ({
 			</View>
 		</InfoLabelRow>
 	);
+};
+
+const toggleStyleActive = {
+	borderColor: 'transparent',
+	opacity: OPACITY_DISABLED,
 };
 
 const localStyles = StyleSheet.create({

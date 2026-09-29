@@ -14,6 +14,7 @@ import FileSourceRowControl from '../../../../../components/generic/controls/Fil
 import HintLink from '../../../../../components/generic/primitives/HintLink';
 import { LayerConfig, LayerConfigOptionsRasterMBtiles } from '../../../types';
 import { selectAppDirs } from '../../../../dirs/selectors';
+import { EMPTY_STRING_ARRAY } from '../../../../../constants';
 import { useAppDispatch, useAppSelector } from '../../../../../store/hooks';
 import { selectLayerTemp } from '../../../selectors';
 import { setLayerTemp } from '../../../slice';
@@ -50,8 +51,7 @@ const MapFileInfo: FC<{}> = () => {
 const LayerControlRasterMBTiles: FC<{}> = () => {
 	const dispatch = useAppDispatch();
 	const layerTemp = useAppSelector(selectLayerTemp) as
-		| undefined
-		| LayerConfig<LayerConfigOptionsRasterMBtiles>;
+		undefined | LayerConfig<LayerConfigOptionsRasterMBtiles>;
 
 	const { t } = useTranslation();
 
@@ -126,7 +126,7 @@ const LayerControlRasterMBTiles: FC<{}> = () => {
 				value={layerTemp.options?.mapFile}
 				onSelect={handleMapFileChange}
 				extensions={extensions}
-				dirs={appDirs?.mapfiles ?? []}
+				dirs={appDirs?.mapfiles ?? EMPTY_STRING_ARRAY}
 				Info={<MapFileInfo />}
 				filesHeading={sprintf(t('filesIn'), '(.mbtiles)')}
 				noFilesHeading={sprintf(t('noFilesIn'), '(.mbtiles)')}

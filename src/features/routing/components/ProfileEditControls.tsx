@@ -25,11 +25,14 @@ import {
 	StraightLineOptions,
 } from '../types';
 import { DEFAULT_OPTIONS_BROUTER, DEFAULT_OPTIONS_STRAIGHT_LINE } from '../constants';
+import { EMPTY_STRING_ARRAY } from '../../../constants';
 import { formatDistanceUnit, metersToUnit, unitToMeters } from '../../../lib/formatting';
 import { selectUnitPrefs } from '../../general/selectors';
 import { selectAppDirs } from '../../dirs/selectors';
 import { selectLastProfiles } from '../selectors';
 import { sharedStyles } from '../../../sharedStyles';
+
+const BRF_EXTENSIONS = ['brf'];
 
 const providerOptions = [
 	{
@@ -222,8 +225,8 @@ const ProfileRowControl: React.FC<{
 			initialOptionsByPath={initialOptionsByPath}
 			value={opts.profilePath ?? opts.v}
 			onSelect={handleSelect}
-			extensions={['brf']}
-			dirs={appDirs?.brouterProfiles ?? []}
+			extensions={BRF_EXTENSIONS}
+			dirs={appDirs?.brouterProfiles ?? EMPTY_STRING_ARRAY}
 			hasCustom
 			anchorButtonStyle={sharedStyles.flex1}
 			Info={profileFileInfoNode}

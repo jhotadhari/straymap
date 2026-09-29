@@ -20,6 +20,7 @@ import HintLink from '../../../../../components/generic/primitives/HintLink';
 import { LayerConfigOptionsMapsforge, LayerConfig } from '../../../types';
 import { useLayerTemp } from '../../../hooks/useLayerTemp';
 import { selectAppDirs } from '../../../../dirs/selectors';
+import { EMPTY_STRING_ARRAY } from '../../../../../constants';
 import { useAppDispatch, useAppSelector } from '../../../../../store/hooks';
 import { setLayerTemp, setMapsforgeProfileTemp } from '../../../slice';
 import { selectMapsforgeProfiles } from '../../../selectors';
@@ -253,7 +254,7 @@ const LayerControlMapsforge: FC<{}> = ({}) => {
 				value={layerTemp.options?.mapFile}
 				onSelect={handleMapFileChange}
 				extensions={extensions}
-				dirs={appDirs?.mapfiles ?? []}
+				dirs={appDirs?.mapfiles ?? EMPTY_STRING_ARRAY}
 				Info={<MapFileControlInfo />}
 				filesHeading={sprintf(t('filesIn'), '(.map)')}
 				noFilesHeading={sprintf(t('noFilesIn'), '(.map)')}
