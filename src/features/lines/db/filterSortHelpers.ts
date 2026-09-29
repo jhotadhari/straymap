@@ -82,28 +82,43 @@ export const buildLinesWhereClause = (
 				case 'string':
 					if (filter.columnKey === 'import_source_path') {
 						if (!filter.value) return undefined;
+						const rawPath = sql`
+							json_extract(
+								${linesTable.data},
+								'$.import.sourceFilePath'
+							)
+						`;
 						if (filter.operator === 'regex') {
-							return sql`
-								json_extract(
-									${linesTable.data},
-									'$.import.sourceFilePath'
-								) REGEXP ${filter.value}
-							`;
+							return sql`${rawPath} REGEXP ${filter.value}`;
 						}
 						const pattern = STRING_OPERATOR_PATTERNS[filter.operator](
 							filter.value.toLowerCase()
 						);
-						return like(
-							sql`
-								LOWER(
-									json_extract(
-										${linesTable.data},
-										'$.import.sourceFilePath'
-									)
+						const loweredPath = sql`
+							LOWER(
+								json_extract(
+									${linesTable.data},
+									'$.import.sourceFilePath'
 								)
-							`,
-							pattern
-						);
+							)
+						`;
+						if (filter.operator === 'excludes') {
+							const excludeClause = notLike(loweredPath, pattern);
+							// A sole "excludes" must also match rows without
+							// import metadata — "does not contain X" is
+							// satisfied by an absent path.
+							if (soleExcludesCols.has(filter.columnKey)) {
+								return sql`
+									(
+										${excludeClause}
+										OR ${rawPath} IS NULL
+										OR ${rawPath} = ''
+									)
+								`;
+							}
+							return excludeClause;
+						}
+						return like(loweredPath, pattern);
 					}
 					return buildStringWhere(filter, soleExcludesCols.has(filter.columnKey));
 				case 'tags':
