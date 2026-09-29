@@ -169,7 +169,9 @@ const LinesMapView = () => {
 			const coords = geomByLineId.get(line.id);
 			if (!coords) return undefined;
 			const color = lineColors[line.id] ?? FALLBACK_COLOR;
-			const paint = paintByColor.get(color);
+			// Persisted colors may be out of the current palette set —
+			// degrade to the fallback paint instead of passing undefined.
+			const paint = paintByColor.get(color) ?? paintByColor.get(FALLBACK_COLOR)!;
 			return (
 				<LayerPath
 					key={line.id}

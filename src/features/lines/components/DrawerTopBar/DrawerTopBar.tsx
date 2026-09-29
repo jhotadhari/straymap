@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { FC, Fragment, useCallback, useContext, useMemo, useRef, useState } from 'react';
+import { FC, useCallback, useContext, useMemo, useRef, useState } from 'react';
 import { LayoutChangeEvent, StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -119,18 +119,8 @@ const DrawerTopBar: FC = () => {
 		[side]
 	);
 
-	const actionModalNodes = useMemo(
-		() =>
-			Object.entries(actions)
-				.filter(([, a]) => a.modalNode)
-				.map(([key, a]) => <Fragment key={key}>{a.modalNode}</Fragment>),
-		[actions]
-	);
-
 	return (
 		<View>
-			{actionModalNodes}
-
 			<View style={styleItem}>
 				<View
 					style={styleButtonRowFirst}

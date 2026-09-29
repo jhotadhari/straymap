@@ -227,6 +227,7 @@ const useExportCbModal = (params: UseExportCbModalParams) => {
 
 		let written = 0;
 		const failed: string[] = [];
+		let total = 0;
 
 		try {
 			const linesWithGeom = (await fetchLines({
@@ -238,7 +239,7 @@ const useExportCbModal = (params: UseExportCbModalParams) => {
 					'custom_date',
 				],
 			})) as (LinePartial & { geometry?: LineString })[];
-			const total = linesWithGeom.filter((l) => l.geometry).length;
+			total = linesWithGeom.filter((l) => l.geometry).length;
 			setTotalCount(total);
 
 			if (total === 0) {
@@ -331,7 +332,7 @@ const useExportCbModal = (params: UseExportCbModalParams) => {
 			} else {
 				setResult({
 					icon: 'alert-outline',
-					header: sprintf(t('lines.exportPartial'), written, total, ''),
+					header: sprintf(t('lines.exportPartial'), written, total, failed.length),
 					details: failed,
 				});
 			}
@@ -340,7 +341,7 @@ const useExportCbModal = (params: UseExportCbModalParams) => {
 			if (written > 0) {
 				setResult({
 					icon: 'alert-outline',
-					header: sprintf(t('lines.exportPartial'), written, written + failed.length, ''),
+					header: sprintf(t('lines.exportPartial'), written, total, failed.length),
 					details: failed,
 				});
 			} else {
@@ -361,7 +362,10 @@ const useExportCbModal = (params: UseExportCbModalParams) => {
 
 	const handleExport = params.type === 'single' ? handleExportSingle : handleExportBulk;
 
-	const canExport = params.type === 'single' ? !geomLoading && !!lineWithGeom?.geometry : true;
+	const canExport =
+		params.type === 'single'
+			? !geomLoading && !!lineWithGeom?.geometry
+			: params.checkedIds.length > 0;
 
 	const buttonPropsExport = useButtonProps({
 		mode: 'outlined',

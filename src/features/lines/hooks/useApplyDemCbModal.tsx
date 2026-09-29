@@ -23,6 +23,9 @@ import { sharedStyles } from '../../../sharedStyles';
 import { POPOVER_MENU_ITEM_ICON_SIZE } from '../../../constants';
 import { altitudeService } from '../../../lib/AltitudeService';
 import { logError } from '../../../lib/utils';
+import { showErrorToast } from '../../../components/ErrorToast/service';
+import i18n from '../../../assets/i18n/i18n';
+import { sprintf } from 'sprintf-js';
 import { updateLine } from '../db/actionsLine';
 import { fetchLines } from '../db/fetch';
 import {
@@ -378,6 +381,14 @@ const useApplyDemCbModal = ({
 				await invalidateLinesQueries(dbConnection.queryClient!);
 				await invalidateLineGeomQueries(dbConnection.queryClient!);
 				isPendingRef.current = false;
+			},
+			onError: (error) => {
+				// Surface the failure instead of leaving the modal stuck in
+				// its progress view (e.g. the "map not ready" rejection).
+				isPendingRef.current = false;
+				setProcessingStarted(false);
+				logError('useApplyDemCbModal.mutation', error);
+				showErrorToast(sprintf(i18n.t('errorGeneric'), error?.message ?? String(error)));
 			},
 		}),
 		[]

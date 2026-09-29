@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useContext, useMemo } from 'react';
+import { useCallback, useContext, useMemo } from 'react';
 
 /**
  * Internal dependencies
@@ -14,6 +14,8 @@ const useExport = () => {
 
 	const { cb, modalNode } = useExportCbModal({ type: 'bulk', checkedIds });
 
+	const disabled = useCallback(() => checkedIds.length === 0, [checkedIds]);
+
 	return useMemo(
 		() => ({
 			key: 'export',
@@ -21,8 +23,13 @@ const useExport = () => {
 			label: 'lines.export',
 			leadingIcon: 'content-save-outline',
 			modalNode,
+			disabled,
 		}),
-		[cb, modalNode]
+		[
+			cb,
+			modalNode,
+			disabled,
+		]
 	);
 };
 
