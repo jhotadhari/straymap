@@ -24,40 +24,13 @@ import {
 import { addBusyKey, removeBusyKey } from '../ui/slice';
 import { setActiveKey } from '../bottomDrawer/slice';
 import { getChartSourceKey } from '../chart/types';
-import { StraightLineOptions } from './types';
 import { startAppListening } from '../../store/listenerMiddleware';
 import { selectInitialized } from './selectors';
 import { AppStore } from '../../store/store';
 import { dbConnection } from '../dbLoader/DBConnection';
-import { selectUnitPrefs } from '../general/selectors';
-import { unitToMeters } from '../../lib/formatting';
 import { logError } from '../../lib/utils';
 
 const settingsKey = 'routingSettings';
-const intervalMigratedKey = 'routingIntervalUnitMigrated';
-
-/**
- * One-time migration: straight-line interval values persisted before the
- * unit-aware interval change were stored in the user's distance unit but
- * interpreted as meters. Convert them once, then set the flag so a later
- * unit switch never re-converts (values are meters from now on).
- */
-const migrateStraightLineInterval = (newSettings: Partial<RoutingState>, store: AppStore) => {
-	const straightLine = newSettings?.lastProfiles?.profiles?.straightLine;
-	if (!straightLine) {
-		return;
-	}
-	const opts = straightLine.options as StraightLineOptions;
-	const interval = opts?.interval;
-	if (typeof interval !== 'number') {
-		return;
-	}
-	const distUnit = selectUnitPrefs(store.getState()).distance;
-	straightLine.options = {
-		...opts,
-		interval: unitToMeters(interval, distUnit, true),
-	};
-};
 
 /**
  * Loads settings from defaultPreferences and dispatches them to the store.
@@ -69,20 +42,10 @@ export const initializeFromStorage = (store: AppStore) => {
 	// Check BRouter availability on init (fire-and-forget —
 	// doesn't block the rest of initialization).
 	store.dispatch(checkBrouterAvailability());
-	Promise.all([
-		DefaultPreference.get(settingsKey),
-		DefaultPreference.get(intervalMigratedKey),
-	])
-		.then(([newSettingsStr, migratedStr]) => {
+	DefaultPreference.get(settingsKey)
+		.then((newSettingsStr) => {
 			if (newSettingsStr) {
 				const newSettings = JSON.parse(newSettingsStr) as Partial<RoutingState>;
-				if (migratedStr !== 'true') {
-					migrateStraightLineInterval(newSettings, store);
-					// Fire-and-forget flag write — restore must not wait.
-					DefaultPreference.set(intervalMigratedKey, 'true').catch((err) =>
-						logError('routing/intervalMigrated', err)
-					);
-				}
 				if (newSettings?.isRouting) {
 					store.dispatch(setIsRoutingAction(newSettings.isRouting));
 				}

@@ -3,7 +3,7 @@
  */
 import { isAnyOf } from '@reduxjs/toolkit';
 import DefaultPreference from 'react-native-default-preference';
-import { isEqual, omit } from 'lodash-es';
+import { isEqual } from 'lodash-es';
 
 /**
  * Internal dependencies
@@ -36,15 +36,11 @@ export const initializeFromStorage = (store: AppStore) => {
 				const newSettings = JSON.parse(newSettingsStr) as Partial<ChartState>;
 				if (newSettings?.charts) {
 					Object.entries(newSettings.charts).forEach(([key, settings]) => {
-						// Drop legacy showLabel (renamed to showHeading) so old
-						// entries don't count as "custom" or leak the key.
-						store.dispatch(
-							setChartSettings({ key, settings: omit(settings, 'showLabel') })
-						);
+						store.dispatch(setChartSettings({ key, settings }));
 					});
 				}
 				if (newSettings?.general) {
-					store.dispatch(setGeneralSettings(omit(newSettings.general, 'showLabel')));
+					store.dispatch(setGeneralSettings(newSettings.general));
 				}
 			}
 		})
