@@ -24,7 +24,7 @@ import DrawerContext from '../../../drawers/DrawerContext';
 import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
 import MenuItem from '../../../../components/generic/wrapper/MenuItem';
 import { setLineSelected, setLineTemp, setLineColor } from '../../slice';
-import { selectLineColors } from '../../selectors';
+import { selectLineColor } from '../../selectors';
 import TagBadge from '../TagBadge';
 import IconRouting from '../../../routing/drawerPanels/routing/IconComponent';
 import useActivateDrawerItem from '../../../drawers/hooks/useActivateDrawerItem';
@@ -51,7 +51,9 @@ const EMPTY_STATS = Object.freeze({} as LineStatsType);
 const ListRow: FC<ListRowProps> = ({ line, idx, systemFeatureKey }) => {
 	const dispatch = useAppDispatch();
 
-	const lineColors = useAppSelector(selectLineColors);
+	// Subscribe to this row's colour only — the record-level selector
+	// would re-render every row on any single colour change.
+	const lineColor = useAppSelector(selectLineColor(line.id));
 
 	const { mapViewNativeNodeHandle } = useContext(AppContext);
 
@@ -69,7 +71,7 @@ const ListRow: FC<ListRowProps> = ({ line, idx, systemFeatureKey }) => {
 	const [colorMenuVisible, setColorMenuVisible] = useState(false);
 	const colorAnchorRef = useRef<View>(null);
 
-	const lineColor = lineColors[line.id];
+	const lineColor = useAppSelector(selectLineColor(line.id));
 	const fallbackColor = PALETTE_COLORS[0].bg;
 
 	const dismissColorMenu = useCallback(() => setColorMenuVisible(false), []);

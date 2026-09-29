@@ -89,5 +89,15 @@ export const selectLineColors = (state: RootState) => state.lines.lineColors;
 
 export const selectChartLines = (state: RootState) => state.lines.chartLines;
 
-export const selectLineColor = (lineId: number) => (state: RootState) =>
-	state.lines.lineColors[lineId];
+// Memoized selector factory — returning a fresh function per call would
+// defeat React Redux's re-render bailing-out when used in list rows.
+const selectLineColorByLineId = new Map<number, (state: RootState) => string | undefined>();
+
+export const selectLineColor = (lineId: number): ((state: RootState) => string | undefined) => {
+	let selector = selectLineColorByLineId.get(lineId);
+	if (!selector) {
+		selector = (state: RootState) => state.lines.lineColors[lineId];
+		selectLineColorByLineId.set(lineId, selector);
+	}
+	return selector;
+};

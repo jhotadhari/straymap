@@ -16,6 +16,7 @@ interface LinesQueryOptions {
 	sort?: SortState | null;
 	filters?: ColumnFilter[];
 	filterLogic?: FilterLogic;
+	needsImportPath?: boolean;
 }
 
 /** Set to a positive number to return that many fake lines instead of
@@ -96,7 +97,7 @@ export const queryLinesWithoutGeom = ({
 		}
 		return fetchLines({
 			lineIds: opts as number[],
-			fieldsExclude: ['geometry'],
+			fieldsExclude: ['geometry', 'data'],
 		}) as Promise<Omit<Line, 'geometry'>[]>;
 	}
 
@@ -106,7 +107,9 @@ export const queryLinesWithoutGeom = ({
 		...(opts?.sort && { sort: opts.sort }),
 		...(opts?.filters?.length && { filters: opts.filters }),
 		...(opts?.filterLogic && { filterLogic: opts.filterLogic }),
-		fieldsExclude: ['geometry'],
+		// The `data` JSON (import metadata) is only needed when the
+		// import_source_path column is visible.
+		fieldsExclude: opts?.needsImportPath ? ['geometry'] : ['geometry', 'data'],
 	}) as Promise<Omit<Line, 'geometry'>[]>;
 };
 

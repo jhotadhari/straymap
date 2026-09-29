@@ -67,9 +67,17 @@ const DrawerTopBar: FC = () => {
 	const actionsBtnWidthRef = useRef(0);
 
 	const checkFit = useCallback(() => {
-		if (!contentFits) return;
 		if (rowWidthRef.current <= 0) return;
 		const total = browserBtnWidthRef.current + actionsBtnWidthRef.current;
+		// One-way shrink with hysteresis: once compact, only re-expand
+		// when the buttons comfortably fit again (e.g. the count label
+		// shrank or the actions button unmounted).
+		if (!contentFits) {
+			if (total <= rowWidthRef.current * 0.95) {
+				setContentFits(true);
+			}
+			return;
+		}
 		if (total > rowWidthRef.current) {
 			setContentFits(false);
 		}

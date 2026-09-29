@@ -103,9 +103,18 @@ const LinesTable: FC = () => {
 	const sort = useAppSelector(selectLinesSort);
 	const filters = useAppSelector(selectLinesFilters);
 	const filterLogic = useAppSelector(selectLinesFilterLogic);
+	const tableColumns = useAppSelector(selectLinesTableColumns);
+
+	// The import_source_path column displays the line's `data` JSON —
+	// only request it when the column is actually visible to keep the
+	// default table payload small.
+	const needsImportPath = useMemo(
+		() => !!tableColumns.find((c) => c.key === 'import_source_path' && c.visible),
+		[tableColumns]
+	);
 
 	const { data: lines, isLoading } = useQuery({
-		queryKey: ['lines', { sort, filters, filterLogic }],
+		queryKey: ['lines', { sort, filters, filterLogic, needsImportPath }],
 		queryFn: queryLinesWithoutGeom,
 		gcTime: 1000 * 60 * 5, // The time in milliseconds that unused/inactive cache data remains in memory. When a query's cache becomes unused or inactive, that cache data will be garbage collected after this duration.
 	});
@@ -136,8 +145,6 @@ const LinesTable: FC = () => {
 		}
 		prevDataLengthRef.current = dataWithHeader.length;
 	}, [dataWithHeader.length]);
-
-	const tableColumns = useAppSelector(selectLinesTableColumns);
 
 	const contentMinWidth = useMemo(() => {
 		const actionCol = 100;
