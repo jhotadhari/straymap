@@ -35,6 +35,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
+- Drawers: obsolete drawer keys persisted by older versions (`searchPlace`,
+  `brouter`, `position`, `waypoints`) are now filtered out when restoring
+  drawer settings, so stale panels no longer linger in the side drawers.
+
 - Lines and Tags tables: prevent FlashList "Maximum update depth exceeded"
   crash by always using fixed 50px rows, deferring row-state resets one
   frame, and wrapping each table list in an error boundary.

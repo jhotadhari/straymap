@@ -25,8 +25,19 @@ import { startAppListening } from '../../store/listenerMiddleware';
 import { selectInitialized } from './selectors';
 import { AppStore } from '../../store/store';
 import { logError } from '../../lib/utils';
+import { featureRegistry } from '../FeatureRegistry';
 
 const settingsKey = 'drawersSettings';
+
+/**
+ * Removes item keys that no longer match a registered drawer panel.
+ * Protects against keys persisted by older app versions (e.g. `searchPlace`,
+ * `brouter`, `position`, `waypoints`) after the routing panels were merged.
+ */
+export const filterObsoleteDrawerKeys = (itemKeys: string[]): string[] => {
+	const validKeys = Object.keys(featureRegistry.getDrawerPanels());
+	return itemKeys.filter((key) => validKeys.includes(key));
+};
 
 /**
  * Loads settings from defaultPreferences and dispatches them to the store.
@@ -43,7 +54,7 @@ export const initializeFromStorage = (store: AppStore) => {
 					store.dispatch(
 						setItemKeys({
 							side: 'left',
-							itemKeys: newSettings.itemKeysLeft,
+							itemKeys: filterObsoleteDrawerKeys(newSettings.itemKeysLeft),
 						})
 					);
 				}
@@ -51,7 +62,7 @@ export const initializeFromStorage = (store: AppStore) => {
 					store.dispatch(
 						setItemKeys({
 							side: 'right',
-							itemKeys: newSettings.itemKeysRight,
+							itemKeys: filterObsoleteDrawerKeys(newSettings.itemKeysRight),
 						})
 					);
 				}
