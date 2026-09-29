@@ -24,7 +24,7 @@ import { POPOVER_MENU_ITEM_ICON_SIZE } from '../../../constants';
 import { altitudeService } from '../../../lib/AltitudeService';
 import { logError } from '../../../lib/utils';
 import { showErrorToast } from '../../../components/ErrorToast/service';
-import i18n from '../../../assets/i18n/i18n';
+import i18next from 'i18next';
 import { sprintf } from 'sprintf-js';
 import { updateLine } from '../db/actionsLine';
 import { fetchLines } from '../db/fetch';
@@ -388,7 +388,7 @@ const useApplyDemCbModal = ({
 				isPendingRef.current = false;
 				setProcessingStarted(false);
 				logError('useApplyDemCbModal.mutation', error);
-				showErrorToast(sprintf(i18n.t('errorGeneric'), error?.message ?? String(error)));
+				showErrorToast(sprintf(i18next.t('errorGeneric'), error?.message ?? String(error)));
 			},
 		}),
 		[]
