@@ -361,6 +361,10 @@ const CenterIndicator = memo(
 		centerX,
 		centerY,
 		centerYSecondary,
+		marginLeft,
+		marginRight,
+		width,
+		backgroundColor,
 		toScreenX,
 		toScreenY,
 	}: {
@@ -369,6 +373,10 @@ const CenterIndicator = memo(
 		centerX?: number;
 		centerY?: number;
 		centerYSecondary?: number;
+		marginLeft: number;
+		marginRight: number;
+		width: number;
+		backgroundColor: string;
 		toScreenX: (v: number) => number;
 		toScreenY: (v: number) => number;
 	}) => {
@@ -376,44 +384,96 @@ const CenterIndicator = memo(
 			return null;
 		}
 		const screenX = toScreenX(centerX);
+		const verticalY1 = toScreenY(
+			centerYSecondary !== undefined ? Math.min(centerY, centerYSecondary) : centerY
+		);
+		const verticalY2 = toScreenY(plotH);
+		const horizontalY = toScreenY(centerY);
+		// Clamp the horizontal line to the plot area: it must stop just
+		// right of the blue label (the plot's left edge), never extend
+		// under the labels/margins when the viewport is panned or zoomed.
+		const horizontalX1 = Math.max(toScreenX(0), marginLeft);
+		const horizontalX2 = screenX;
+		const secondaryY = centerYSecondary !== undefined ? toScreenY(centerYSecondary) : undefined;
+		const secondaryX2 = Math.min(toScreenX(plotW), width - marginRight);
+
 		return (
 			<G>
+				{/* Background halos keep the indicator readable above area
+					fills and ramp colors. */}
 				<Line
 					x1={screenX}
-					y1={toScreenY(
-						centerYSecondary !== undefined
-							? Math.min(centerY, centerYSecondary)
-							: centerY
-					)}
+					y1={verticalY1}
 					x2={screenX}
-					y2={toScreenY(plotH)}
-					stroke={COLOR_CENTER}
-					strokeWidth={1}
-					strokeDasharray="3,3"
+					y2={verticalY2}
+					stroke={backgroundColor}
+					strokeWidth={3.5}
 				/>
 				<Line
-					x1={toScreenX(0)}
-					y1={toScreenY(centerY)}
-					x2={screenX}
-					y2={toScreenY(centerY)}
-					stroke={COLOR_CENTER}
-					strokeWidth={1}
-					strokeDasharray="3,3"
+					x1={horizontalX1}
+					y1={horizontalY}
+					x2={horizontalX2}
+					y2={horizontalY}
+					stroke={backgroundColor}
+					strokeWidth={3.5}
 				/>
-				{centerYSecondary !== undefined && (
+				{secondaryY !== undefined && (
 					<>
 						<Line
 							x1={screenX}
-							y1={toScreenY(centerYSecondary)}
-							x2={toScreenX(plotW)}
-							y2={toScreenY(centerYSecondary)}
+							y1={secondaryY}
+							x2={secondaryX2}
+							y2={secondaryY}
+							stroke={backgroundColor}
+							strokeWidth={3.5}
+						/>
+						<Circle
+							cx={screenX}
+							cy={secondaryY}
+							r={4.5}
+							fill={backgroundColor}
+						/>
+					</>
+				)}
+				<Circle
+					cx={screenX}
+					cy={horizontalY}
+					r={4.5}
+					fill={backgroundColor}
+				/>
+
+				<Line
+					x1={screenX}
+					y1={verticalY1}
+					x2={screenX}
+					y2={verticalY2}
+					stroke={COLOR_CENTER}
+					strokeWidth={1}
+					strokeDasharray="3,3"
+				/>
+				<Line
+					x1={horizontalX1}
+					y1={horizontalY}
+					x2={horizontalX2}
+					y2={horizontalY}
+					stroke={COLOR_CENTER}
+					strokeWidth={1}
+					strokeDasharray="3,3"
+				/>
+				{secondaryY !== undefined && (
+					<>
+						<Line
+							x1={screenX}
+							y1={secondaryY}
+							x2={secondaryX2}
+							y2={secondaryY}
 							stroke={COLOR_CENTER}
 							strokeWidth={1}
 							strokeDasharray="3,3"
 						/>
 						<Circle
 							cx={screenX}
-							cy={toScreenY(centerYSecondary)}
+							cy={secondaryY}
 							r={3}
 							fill={COLOR_CENTER}
 						/>
@@ -421,7 +481,7 @@ const CenterIndicator = memo(
 				)}
 				<Circle
 					cx={screenX}
-					cy={toScreenY(centerY)}
+					cy={horizontalY}
 					r={3}
 					fill={COLOR_CENTER}
 				/>
@@ -1329,30 +1389,39 @@ const Chart: FC<{
 						toScreenY={toScreenY}
 					/>
 
-					<CenterIndicator
-						plotH={plotH}
-						plotW={plotW}
-						centerX={centerX}
-						centerY={centerY}
-						centerYSecondary={centerYSecondary}
-						toScreenX={toScreenX}
-						toScreenY={toScreenY}
-					/>
+					{/* The center indicator must always be the uppermost layer
+						— keep this group last in the Svg so nothing can paint
+						over the blue lines, dots or labels. */}
+					<G>
+						<CenterIndicator
+							plotH={plotH}
+							plotW={plotW}
+							centerX={centerX}
+							centerY={centerY}
+							centerYSecondary={centerYSecondary}
+							marginLeft={marginLeft}
+							marginRight={marginRight}
+							width={width}
+							backgroundColor={theme.colors.background}
+							toScreenX={toScreenX}
+							toScreenY={toScreenY}
+						/>
 
-					<CenterLabels
-						centerX={centerX}
-						centerY={centerY}
-						centerYSecondary={centerYSecondary}
-						centerPrimaryLabel={centerPrimaryLabel}
-						centerSecondaryLabel={centerSecondaryLabel}
-						centerDistanceLabel={centerDistanceLabel}
-						toScreenX={toScreenX}
-						toScreenY={toScreenY}
-						marginLeft={marginLeft}
-						marginRight={marginRight}
-						width={width}
-						height={height}
-					/>
+						<CenterLabels
+							centerX={centerX}
+							centerY={centerY}
+							centerYSecondary={centerYSecondary}
+							centerPrimaryLabel={centerPrimaryLabel}
+							centerSecondaryLabel={centerSecondaryLabel}
+							centerDistanceLabel={centerDistanceLabel}
+							toScreenX={toScreenX}
+							toScreenY={toScreenY}
+							marginLeft={marginLeft}
+							marginRight={marginRight}
+							width={width}
+							height={height}
+						/>
+					</G>
 				</Svg>
 			</View>
 		</GestureDetector>
