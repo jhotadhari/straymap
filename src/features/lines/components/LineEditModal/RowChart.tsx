@@ -109,7 +109,7 @@ const RowChart: FC = () => {
 				onPress={handlePress}
 				icon={ChartIcon}
 			>
-				{t('lines.bottomDrawerChart')}
+				{t('lines.bottomDrawerChartButton')}
 				{isActive ? ' ✓' : ''}
 			</ButtonHighlight>
 		</InfoLabelRow>

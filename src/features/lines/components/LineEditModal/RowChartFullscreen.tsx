@@ -13,7 +13,7 @@ import LucideIcons from '@react-native-vector-icons/lucide/static';
 import InfoLabelRow from '../../../../components/generic/infoWrapper/InfoLabelRow';
 import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
 import { useButtonProps } from '../../../../compose/useButtonProps';
-import { useAppDispatch, useAppSelector, useSystemLineIds } from '../../../../store/hooks';
+import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import {
 	CHART_FULLSCREEN_UI_ITEM_KEY,
 	closeFullscreenChart,
@@ -43,25 +43,17 @@ const RowChartFullscreen: FC = () => {
 
 	const { line, onDismiss } = useContext(LineEditModalContext);
 
-	const systemLineIds = useSystemLineIds();
-
 	const uiItemKeys = useAppSelector(selectUiItemKeys);
 	const fullscreenLineId = useAppSelector(selectFullscreenLineId);
-
-	const isSystemLine = useMemo(
-		() => Object.values(systemLineIds).includes(line?.id ?? -1),
-		[systemLineIds, line?.id]
-	);
 
 	// Profile/ramp require elevation; lines without Z (never DEM-enriched)
 	// have no minZ stats. Disable with a hint to Apply DEM in that case.
 	const hasElevation = useMemo(() => line?.stats?.minZ != null, [line?.stats?.minZ]);
 
 	const disabled = useMemo(
-		() => !line?.id || isSystemLine || !hasElevation,
+		() => !line?.id || !hasElevation,
 		[
 			line?.id,
-			isSystemLine,
 			hasElevation,
 		]
 	);
@@ -117,7 +109,7 @@ const RowChartFullscreen: FC = () => {
 				onPress={handlePress}
 				icon={ChartIcon}
 			>
-				{t('lines.openFullscreenChart')}
+				{t('lines.openFullscreenChartButton')}
 				{isActive ? ' ✓' : ''}
 			</ButtonHighlight>
 		</InfoLabelRow>

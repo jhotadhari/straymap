@@ -158,5 +158,7 @@
 	"openFullscreenChart": "Gráfico em ecrã inteiro",
 	"hintOpenFullscreenChart": "Abre o gráfico independente em ecrã inteiro para esta rota, ou fecha-o quando está ativo. Independente dos gráficos do painel inferior. Requer dados de elevação — use 'Aplicar elevação DEM' primeiro se não houver.",
 	"tableErrorBoundary": "Algo deu errado ao renderizar a tabela.",
-	"tableErrorRetry": "Tentar novamente"
+	"tableErrorRetry": "Tentar novamente",
+	"bottomDrawerChartButton": "Gráfico no painel",
+	"openFullscreenChartButton": "Ecrã inteiro"
 }

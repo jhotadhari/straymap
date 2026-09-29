@@ -27,6 +27,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   with Default/Custom mode, center-indicator value labels, title menu for
   switching between charts, and info hints for every settings control.
 
+- Standalone fullscreen chart UiItem — one line per chart, independent from
+  the bottom drawer charts.
+
+- Drawer charts are tied to the map: only addable for lines on the map,
+  removed when the line leaves the map.
+
 ### Fixed
 
 - Lines and Tags tables: prevent FlashList "Maximum update depth exceeded"
@@ -36,6 +42,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Lines table: fix unresponsive stats/tags filters — restored the
   numeric/tags column-type mappings lost in a refactor; the add-filter
   picker now only lists filterable columns (ID excluded).
+
+- Straight-line routing: inherited profiles now keep their interval points
+  (full chart profile and slope colors restored).
+
+- Straight-line routing: hardened DEM enrichment; interval stored in meters,
+  shown in the user's distance unit.
 
 ## [0.3.5] - 2026-08-09
 

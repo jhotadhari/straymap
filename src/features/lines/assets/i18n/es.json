@@ -158,5 +158,7 @@
 	"openFullscreenChart": "Gráfico a pantalla completa",
 	"hintOpenFullscreenChart": "Abre el gráfico independiente a pantalla completa para esta ruta, o lo cierra cuando está activo. Independiente de los gráficos del panel inferior. Requiere datos de elevación — usa primero 'Aplicar elevación DEM' si no los tiene.",
 	"tableErrorBoundary": "Algo salió mal al renderizar la tabla.",
-	"tableErrorRetry": "Reintentar"
+	"tableErrorRetry": "Reintentar",
+	"bottomDrawerChartButton": "Gráfico en el panel",
+	"openFullscreenChartButton": "Pantalla completa"
 }

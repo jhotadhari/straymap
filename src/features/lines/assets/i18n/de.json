@@ -158,5 +158,7 @@
 	"openFullscreenChart": "Vollbild-Diagramm",
 	"hintOpenFullscreenChart": "Öffnet das eigenständige Vollbild-Diagramm für diese Route oder schließt es, wenn es aktiv ist. Unabhängig von den Diagrammen im unteren Panel. Benötigt Höhendaten — verwende zuerst „DEM-Höhendaten anwenden“, falls keine vorhanden sind.",
 	"tableErrorBoundary": "Beim Rendern der Tabelle ist ein Fehler aufgetreten.",
-	"tableErrorRetry": "Erneut versuchen"
+	"tableErrorRetry": "Erneut versuchen",
+	"bottomDrawerChartButton": "Panel-Diagramm",
+	"openFullscreenChartButton": "Vollbild-Diagramm"
 }

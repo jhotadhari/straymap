@@ -158,5 +158,7 @@
 	"openFullscreenChart": "Fullscreen chart",
 	"hintOpenFullscreenChart": "Opens the standalone fullscreen chart for this line, or closes it when it is active. Independent from the bottom drawer charts. Requires elevation data — use 'Apply DEM elevation' first if the line has none.",
 	"tableErrorBoundary": "Something went wrong while rendering the table.",
-	"tableErrorRetry": "Retry"
+	"tableErrorRetry": "Retry",
+	"bottomDrawerChartButton": "Bottom drawer chart",
+	"openFullscreenChartButton": "Fullscreen chart"
 }
