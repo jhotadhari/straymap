@@ -726,9 +726,19 @@ const Chart: FC<{
 	const syEff = scaleY;
 
 	// Current ratio, reported to the parent (modal snapshot).
-	const currentRatio = seriesViews.primary.values
-		? totalLength / scaleX / (seriesViews.primary.vrange / syEff)
-		: undefined;
+	const currentRatio = useMemo(
+		() =>
+			seriesViews.primary.values
+				? totalLength / scaleX / (seriesViews.primary.vrange / syEff)
+				: undefined,
+		[
+			seriesViews.primary.values,
+			seriesViews.primary.vrange,
+			totalLength,
+			scaleX,
+			syEff,
+		]
+	);
 
 	useEffect(() => {
 		onRatioChange && onRatioChange(currentRatio);

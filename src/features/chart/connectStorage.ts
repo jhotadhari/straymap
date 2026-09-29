@@ -3,7 +3,7 @@
  */
 import { isAnyOf } from '@reduxjs/toolkit';
 import DefaultPreference from 'react-native-default-preference';
-import { get, isEqual, set } from 'lodash-es';
+import { isEqual, omit } from 'lodash-es';
 
 /**
  * Internal dependencies
@@ -36,11 +36,15 @@ export const initializeFromStorage = (store: AppStore) => {
 				const newSettings = JSON.parse(newSettingsStr) as Partial<ChartState>;
 				if (newSettings?.charts) {
 					Object.entries(newSettings.charts).forEach(([key, settings]) => {
-						store.dispatch(setChartSettings({ key, settings }));
+						// Drop legacy showLabel (renamed to showHeading) so old
+						// entries don't count as "custom" or leak the key.
+						store.dispatch(
+							setChartSettings({ key, settings: omit(settings, 'showLabel') })
+						);
 					});
 				}
 				if (newSettings?.general) {
-					store.dispatch(setGeneralSettings(newSettings.general));
+					store.dispatch(setGeneralSettings(omit(newSettings.general, 'showLabel')));
 				}
 			}
 		})
@@ -60,27 +64,15 @@ export const saveToStorage = (state: ChartState, actionType: string) => {
 	if (!state.initialized) {
 		return;
 	}
+	// Persist only the two settings containers — initialized and
+	// fullscreenLineId are ephemeral and must not accumulate in storage.
 	const settingsToSave: Partial<ChartState> = {};
-	Object.keys(state).forEach((key) => {
-		let shouldSave = false;
-		let valueToSave;
-		switch (key) {
-			case 'charts':
-				valueToSave = state.charts;
-				shouldSave = !isEqual(valueToSave, {});
-				break;
-			case 'general':
-				valueToSave = state.general;
-				shouldSave = !isEqual(valueToSave, DEFAULT_CHART_SETTINGS);
-				break;
-			default:
-				valueToSave = get(state, key);
-				shouldSave = !isEqual(valueToSave, get({ initialized: false, charts: {} }, key));
-		}
-		if (shouldSave) {
-			set(settingsToSave, key, valueToSave);
-		}
-	});
+	if (!isEqual(state.charts, {})) {
+		settingsToSave.charts = state.charts;
+	}
+	if (!isEqual(state.general, DEFAULT_CHART_SETTINGS)) {
+		settingsToSave.general = state.general;
+	}
 	if (__DEV__ && globalThis.shouldLog.saveToStorage) {
 		console.log('DEBUG saveToStorage', settingsKey, actionType, settingsToSave);
 	}

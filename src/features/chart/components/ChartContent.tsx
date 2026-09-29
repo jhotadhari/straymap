@@ -27,11 +27,10 @@ import LineStats from '../../lines/components/Stats/LineStats';
 import { RenderPart } from '../../lines/components/Stats/sharedDeps';
 import { LinePartial } from '../../lines/types';
 import useRoute from '../../routing/hooks/useRoute';
-import { setUiItemKeys } from '../../ui/slice';
 import { setLineTemp } from '../../lines/slice';
 import { getChartSourceFromKey } from '../types';
 import { selectChartSettings } from '../selectors';
-import { setChartSettings } from '../slice';
+import { setChartSettings, closeFullscreenChart } from '../slice';
 import { useChartItemLabels } from '../hooks/useChartItemLabels';
 import { getChartSeries, windowedNearestIdx } from '../utils';
 import Chart from './Chart';
@@ -136,7 +135,9 @@ const ChartContent: FC<ChartContentProps> = ({
 	// general show-heading/show-stats toggles only affect drawer charts.
 	const displaySettings = useMemo(
 		() =>
-			variant === 'fullscreen' ? { ...settings, showHeading: true, showStats: true } : settings,
+			variant === 'fullscreen'
+				? { ...settings, showHeading: true, showStats: true }
+				: settings,
 		[variant, settings]
 	);
 
@@ -309,7 +310,9 @@ const ChartContent: FC<ChartContentProps> = ({
 					: undefined;
 		if (bbox) {
 			if (variant === 'fullscreen') {
-				dispatch(setUiItemKeys([]));
+				// Close only the fullscreen chart UiItem — any UiItem
+				// beneath it (e.g. Settings) stays on the stack.
+				dispatch(closeFullscreenChart());
 			}
 			flyToBounds(bbox, { paddingPx: MAP_ANIMATION_PADDING_PX });
 		}
@@ -497,15 +500,9 @@ const ChartContent: FC<ChartContentProps> = ({
 		chartKey,
 	]);
 
-	const styleText = useMemo(
-		() => [styles.text, { color: theme.colors.onBackground }],
-		[theme]
-	);
+	const styleText = useMemo(() => [styles.text, { color: theme.colors.onBackground }], [theme]);
 
-	const styleTitle = useMemo(
-		() => [styles.title, { color: theme.colors.onBackground }],
-		[theme]
-	);
+	const styleTitle = useMemo(() => [styles.title, { color: theme.colors.onBackground }], [theme]);
 
 	const lengthStats = useMemo(() => ({ length: stats.length }), [stats.length]);
 
