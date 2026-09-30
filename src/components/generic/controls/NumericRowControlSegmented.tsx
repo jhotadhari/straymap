@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { StyleSheet, TextStyle, View, ViewStyle } from 'react-native';
 import { useTheme, TextInput } from 'react-native-paper';
 
@@ -168,8 +168,8 @@ const NumericRowControlSegmented = ({
 	}, []);
 
 	const handleButtonPress = useCallback(() => {
-		numValueActive && toggleOption();
-	}, [numValueActive, toggleOption]);
+		toggleOption();
+	}, [toggleOption]);
 
 	const handleFocus = useCallback(() => {
 		isFocusedRef.current = true;
@@ -192,12 +192,7 @@ const NumericRowControlSegmented = ({
 
 	const buttonProps = useButtonProps({
 		mode: 'outlined',
-		style: numValueActive
-			? {
-					borderColor: 'transparent',
-					opacity: OPACITY_DISABLED,
-				}
-			: undefined,
+		style: numValueActive ? toggleStyleActive : undefined,
 	});
 
 	return (
@@ -231,6 +226,11 @@ const NumericRowControlSegmented = ({
 	);
 };
 
+const toggleStyleActive = {
+	borderColor: 'transparent',
+	opacity: OPACITY_DISABLED,
+};
+
 const localStyles = StyleSheet.create({
 	button: {
 		borderWidth: 1,
@@ -239,4 +239,4 @@ const localStyles = StyleSheet.create({
 	input: { flexGrow: 1 },
 });
 
-export default NumericRowControlSegmented;
+export default memo(NumericRowControlSegmented);

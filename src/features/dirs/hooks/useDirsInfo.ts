@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useContext, useEffect, useMemo } from 'react';
+import { useContext, useEffect, useMemo, useRef } from 'react';
 import { sprintf } from 'sprintf-js';
 import { useTranslation } from 'react-i18next';
 
@@ -50,8 +50,14 @@ const useDirsInfo = ({
 
 	const infos = useAppSelector((state) => selectDirsInfoCacheEntry(state, dirInfoCacheId));
 
+	// Read through a per-render ref so the effect never re-runs merely
+	// because the cached entry reference changed — with skipCache that
+	// would make every fetch dispatch a fresh entry and loop forever.
+	const infosRef = useRef(infos);
+	infosRef.current = infos;
+
 	useEffect(() => {
-		if (skipCache || undefined === infos) {
+		if (skipCache || undefined === infosRef.current) {
 			Promise.all(
 				navDirs.map((navDir) => {
 					return new Promise((resolve: (value: DirInfoMap | false) => void) => {
@@ -104,7 +110,6 @@ const useDirsInfo = ({
 		extensions,
 		recursive,
 		skipCache,
-		infos,
 		dirInfoCacheId,
 		showError,
 		t,

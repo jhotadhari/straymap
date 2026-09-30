@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { FC, useMemo } from 'react';
+import { FC, memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 /**
@@ -12,6 +12,7 @@ import { useAppSelector } from '../../../../../store/hooks';
 import { selectLinesFilterableColumns } from '../../../selectors';
 import { tableStyles } from '../../tableResources';
 import RadioListItem from '../../../../../components/generic/wrapper/RadioListItem';
+import { getFilterColumnType } from '../sharedDeps';
 
 const FilterColumnSelectModal: FC<{
 	visible: boolean;
@@ -24,10 +25,15 @@ const FilterColumnSelectModal: FC<{
 
 	const options = useMemo(
 		() =>
-			filterableColumns.map((col) => ({
-				key: col.key,
-				label: t(`lines.columns.${col.key}`),
-			})),
+			filterableColumns
+				.filter((col) => {
+					// Only columns with a filter type are selectable.
+					return !!getFilterColumnType(col.key);
+				})
+				.map((col) => ({
+					key: col.key,
+					label: t(`lines.columns.${col.key}`),
+				})),
 		[filterableColumns, t]
 	);
 
@@ -51,4 +57,4 @@ const FilterColumnSelectModal: FC<{
 	);
 };
 
-export default FilterColumnSelectModal;
+export default memo(FilterColumnSelectModal);

@@ -78,14 +78,14 @@ describe('rowParseGeometryGeoJSON', () => {
 		expect(result.extraField).toBe(true);
 	});
 
-	it('produces undefined geometry for invalid GeoJSON (parseSerialized returns undefined)', () => {
+	it('throws for invalid GeoJSON', () => {
 		const row = {
 			id: 4,
 			geometryGeoJSON: 'not-valid-json',
 		};
-		const result = rowParseGeometryGeoJSON(row);
-		expect(result.id).toBe(4);
-		expect(result.geometry).toBeUndefined();
+		expect(() => rowParseGeometryGeoJSON(row)).toThrow(
+			'Failed to parse geometry GeoJSON: not-valid-json'
+		);
 	});
 });
 
@@ -115,18 +115,14 @@ describe('rowsParseGeometryGeoJSON', () => {
 		expect(rowsParseGeometryGeoJSON([])).toEqual([]);
 	});
 
-	it('produces undefined geometry for invalid GeoJSON (per-row)', () => {
+	it('throws for invalid GeoJSON (per-row)', () => {
 		const rows = [
 			{ id: 1, geometryGeoJSON: '{"type":"Point","coordinates":[0,0]}' },
 			{ id: 2, geometryGeoJSON: 'broken' },
 		];
-		const results = rowsParseGeometryGeoJSON(rows);
-		expect(results).toHaveLength(2);
-		expect(results[0].geometry).toEqual({
-			type: 'Point',
-			coordinates: [0, 0],
-		});
-		expect(results[1].geometry).toBeUndefined();
+		expect(() => rowsParseGeometryGeoJSON(rows)).toThrow(
+			'Failed to parse geometry GeoJSON: broken'
+		);
 	});
 });
 
@@ -167,11 +163,11 @@ describe('rowParseEnvelopeGeoJSON', () => {
 		expect(result.id).toBe(5);
 	});
 
-	it('produces undefined envelope for invalid JSON', () => {
+	it('throws for invalid JSON', () => {
 		const row = { id: 6, envelopeGeoJSON: '{invalid}' };
-		const result = rowParseEnvelopeGeoJSON(row);
-		expect(result.id).toBe(6);
-		expect(result.envelope).toBeUndefined();
+		expect(() => rowParseEnvelopeGeoJSON(row)).toThrow(
+			'Failed to parse envelope GeoJSON: {invalid}'
+		);
 	});
 });
 

@@ -43,48 +43,52 @@ export const initializeFromStorage = (store: AppStore) => {
 		.then((newSettingsStr) => {
 			if (newSettingsStr) {
 				const newSettings = JSON.parse(newSettingsStr) as Partial<ImportState>;
-			if (newSettings?.datePatterns) {
-				store.dispatch(setDatePatterns(newSettings.datePatterns));
+				if (newSettings?.datePatterns) {
+					store.dispatch(setDatePatterns(newSettings.datePatterns));
+				}
+				if (newSettings?.autoCustomDate != null) {
+					store.dispatch(setAutoCustomDate(newSettings.autoCustomDate));
+				}
+				if (newSettings?.mergeMode != null) {
+					store.dispatch(setMergeMode(newSettings.mergeMode));
+				}
+				if (newSettings?.overwriteMode != null) {
+					store.dispatch(setOverwriteMode(newSettings.overwriteMode));
+				}
+				if (newSettings?.dryRun != null) {
+					store.dispatch(setDryRun(newSettings.dryRun));
+				}
+				if (newSettings?.keepAppActive != null) {
+					store.dispatch(setKeepAppActive(newSettings.keepAppActive));
+				}
+				if (newSettings?.fileLimit != null) {
+					store.dispatch(setFileLimit(newSettings.fileLimit));
+				}
+				if (newSettings?.titleRegex != null) {
+					store.dispatch(setTitleRegex(newSettings.titleRegex));
+				}
+				if (newSettings?.titleMode) {
+					store.dispatch(setTitleMode(newSettings.titleMode));
+				} else if (newSettings?.titleRegex) {
+					store.dispatch(setTitleMode('regex'));
+				}
+				if (newSettings?.tagMode) {
+					store.dispatch(setTagMode(newSettings.tagMode));
+				}
+				if (newSettings?.tagRegexes != null) {
+					store.dispatch(setTagRegexes(newSettings.tagRegexes));
+				}
+				if (newSettings?.selectedTagIds != null) {
+					store.dispatch(setSelectedTagIds(newSettings.selectedTagIds));
+				}
 			}
-			if (newSettings?.autoCustomDate != null) {
-				store.dispatch(setAutoCustomDate(newSettings.autoCustomDate));
-			}
-			if (newSettings?.mergeMode != null) {
-				store.dispatch(setMergeMode(newSettings.mergeMode));
-			}
-			if (newSettings?.overwriteMode != null) {
-				store.dispatch(setOverwriteMode(newSettings.overwriteMode));
-			}
-			if (newSettings?.dryRun != null) {
-				store.dispatch(setDryRun(newSettings.dryRun));
-			}
-			if (newSettings?.keepAppActive != null) {
-				store.dispatch(setKeepAppActive(newSettings.keepAppActive));
-			}
-			if (newSettings?.fileLimit != null) {
-				store.dispatch(setFileLimit(newSettings.fileLimit));
-			}
-			if (newSettings?.titleRegex != null) {
-				store.dispatch(setTitleRegex(newSettings.titleRegex));
-			}
-			if (newSettings?.titleMode) {
-				store.dispatch(setTitleMode(newSettings.titleMode));
-			} else if (newSettings?.titleRegex) {
-				store.dispatch(setTitleMode('regex'));
-			}
-			if (newSettings?.tagMode) {
-				store.dispatch(setTagMode(newSettings.tagMode));
-			}
-			if (newSettings?.tagRegexes != null) {
-				store.dispatch(setTagRegexes(newSettings.tagRegexes));
-			}
-			if (newSettings?.selectedTagIds != null) {
-				store.dispatch(setSelectedTagIds(newSettings.selectedTagIds));
-			}
-			}
-			store.dispatch(setInitialized(true));
 		})
-		.catch((err) => logError('import/connectStorage', err));
+		.catch((err) => logError('import/connectStorage', err))
+		.finally(() => {
+			// Always complete init — a failed storage read or corrupt
+			// JSON must degrade to defaults, not hang app startup.
+			store.dispatch(setInitialized(true));
+		});
 };
 
 export const saveToStorage = (importState: ImportState, actionType: string) => {

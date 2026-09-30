@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { FC, RefObject, useCallback, useContext, useMemo, useRef, useState } from 'react';
+import { FC, memo, RefObject, useCallback, useContext, useMemo, useRef, useState } from 'react';
 import { ScrollView, StyleProp, View, ViewStyle } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -11,7 +11,12 @@ import Popover, { PopoverPlacement } from 'react-native-popover-view';
  * Internal dependencies
  */
 import { cellConfigs, getCellCategory, getFilterColumnType } from './sharedDeps';
-import { SortableHeaderCell, useContainerMinWidth, tableStyles } from '../tableResources';
+import {
+	SortableHeaderCell,
+	useContainerMinWidth,
+	tableStyles,
+	TABLE_ROW_HEIGHT,
+} from '../tableResources';
 import { TableColumn } from '../../types';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { selectLinesTableColumns, selectLinesSort, selectLinesFilters } from '../../selectors';
@@ -49,7 +54,7 @@ const TableHeader: FC<{
 		() => [
 			styleCell,
 			{
-				height: 50,
+				height: TABLE_ROW_HEIGHT,
 			},
 		],
 		[styleCell]
@@ -288,4 +293,4 @@ const animationConfig = {
 };
 const arrowSize = { height: 0, width: 0 };
 
-export default TableHeader;
+export default memo(TableHeader);

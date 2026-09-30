@@ -3,26 +3,28 @@
  */
 import { FC, useCallback, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Text, useTheme } from 'react-native-paper';
+import { Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 
 /**
  * Internal dependencies
  */
-import { useAppDispatch } from '../../../../store/hooks';
+import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { setLayerTemp } from '../../slice';
 import ModalWrapper from '../../../../components/generic/wrapper/ModalWrapper';
 import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
 import { useButtonProps } from '../../../../compose/useButtonProps';
 import useActivateDrawerItem from '../../../drawers/hooks/useActivateDrawerItem';
+import { selectSideForKey } from '../../../drawers/selectors';
+import { setUiItemKeys } from '../../../ui/slice';
 import { getNewLayer } from '../../utils';
 import InfoLabelRow from '../../../../components/generic/infoWrapper/InfoLabelRow';
 
 const NoLayersHintModal: FC<{ layersLength: number }> = ({ layersLength }) => {
-	const theme = useTheme();
 	const dispatch = useAppDispatch();
 	const { t } = useTranslation();
 	const activateMapsDrawerItem = useActivateDrawerItem('maps');
+	const drawerSideWithMaps = useAppSelector((state) => selectSideForKey(state, 'maps'));
 
 	const [hintDismissed, setHintDismissed] = useState(false);
 	const showNoLayersHint = layersLength === 0 && !hintDismissed;
@@ -33,9 +35,19 @@ const NoLayersHintModal: FC<{ layersLength: number }> = ({ layersLength }) => {
 
 	const handleAddNewLayer = useCallback(() => {
 		setHintDismissed(true);
-		activateMapsDrawerItem();
+		if (drawerSideWithMaps) {
+			activateMapsDrawerItem();
+		} else {
+			// The maps drawer item is not in any drawer — open the maps
+			// settings page instead so the action isn't a silent no-op.
+			dispatch(setUiItemKeys(['maps']));
+		}
 		dispatch(setLayerTemp(getNewLayer()));
-	}, [dispatch, activateMapsDrawerItem]);
+	}, [
+		dispatch,
+		activateMapsDrawerItem,
+		drawerSideWithMaps,
+	]);
 
 	const buttonProps = useButtonProps({});
 
@@ -59,9 +71,7 @@ const NoLayersHintModal: FC<{ layersLength: number }> = ({ layersLength }) => {
 				label={t('baseMap.note')}
 				Info={t('baseMap.noteHint')}
 			>
-				<Text>
-					{t('baseMap.noteBody')}
-				</Text>
+				<Text>{t('baseMap.noteBody')}</Text>
 			</InfoLabelRow>
 		</ModalWrapper>
 	);

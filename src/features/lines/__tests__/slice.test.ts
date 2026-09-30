@@ -11,6 +11,9 @@ import linesReducer, {
 	setLineTemp,
 	setLineSelected,
 	setLinesSelected,
+	setChartLines,
+	toggleChartLine,
+	removeChartLines,
 	onSetDbPath,
 	initialSettings,
 } from '../slice';
@@ -88,10 +91,51 @@ describe('lines slice reducers', () => {
 		expect(state.selected).toEqual([]);
 	});
 
+	it('setSelected removes chartLines of lines no longer on the map', () => {
+		const state = linesReducer(
+			{
+				selected: [1, 2],
+				chartLines: [1, 2],
+			} as LinesState,
+			setSelected([2])
+		);
+		expect(state.chartLines).toEqual([2]);
+	});
+
 	it('initial state has empty selected', () => {
 		const state = linesReducer(undefined, { type: '@@INIT' });
 		expect(state.selected).toEqual([]);
 		expect(state.initialized).toBe(false);
+	});
+
+	describe('chart lines', () => {
+		it('setChartLines replaces the list', () => {
+			const state = linesReducer(undefined, setChartLines([1, 2]));
+			expect(state.chartLines).toEqual([1, 2]);
+		});
+
+		it('toggleChartLine adds then removes a line', () => {
+			let state = linesReducer(undefined, toggleChartLine(3));
+			expect(state.chartLines).toContain(3);
+			state = linesReducer(state, toggleChartLine(3));
+			expect(state.chartLines).not.toContain(3);
+		});
+
+		it('removeChartLines removes multiple ids', () => {
+			const state = linesReducer(
+				linesReducer(
+					undefined,
+					setChartLines([
+						1,
+						2,
+						3,
+						4,
+					])
+				),
+				removeChartLines([2, 4])
+			);
+			expect(state.chartLines).toEqual([1, 3]);
+		});
 	});
 });
 

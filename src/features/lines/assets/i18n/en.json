@@ -152,5 +152,13 @@
 	"rowImportSourceTrackHint": "The file this route was imported from, along with its track position within the file.",
 	"useSimplification": "Simplify route geometries on zoomlevel change",
 	"useSimplificationDisabled": "Disabled",
-	"useSimplificationEnabled": "Enabled (recommended)"
+	"useSimplificationEnabled": "Enabled (recommended)",
+	"bottomDrawerChart": "Bottom drawer chart",
+	"hintBottomDrawerChart": "Adds a chart for this line to the bottom drawer, or removes it again. Only available while the line is on the map. Requires elevation data — use 'Apply DEM elevation' first if the line has none.",
+	"openFullscreenChart": "Fullscreen chart",
+	"hintOpenFullscreenChart": "Opens the standalone fullscreen chart for this line, or closes it when it is active. Independent from the bottom drawer charts. Requires elevation data — use 'Apply DEM elevation' first if the line has none.",
+	"tableErrorBoundary": "Something went wrong while rendering the table.",
+	"tableErrorRetry": "Retry",
+	"bottomDrawerChartButton": "Bottom drawer chart",
+	"openFullscreenChartButton": "Fullscreen chart"
 }

@@ -13,8 +13,9 @@ import { AppThunk } from './store/store';
 import { SettingsPageDescriber, UiItem } from './features/ui/types';
 import { DashboardWidget } from './features/dashboard/types';
 import { DrawerPanel } from './features/drawers/types';
+import { BottomDrawerItem } from './features/bottomDrawer/types';
 
-export type { UiItem, DashboardWidget, DrawerPanel };
+export type { UiItem, DashboardWidget, DrawerPanel, BottomDrawerItem };
 
 export type AppMode = string;
 
@@ -166,6 +167,15 @@ export interface AppFeature {
 	 * them here. The `DrawerPanel` type is defined by the `drawers` feature.
 	 */
 	drawerPanels?: DrawerPanel[];
+
+	/**
+	 * Bottom drawer items — content mountable into the single bottom drawer
+	 * (opened with a vertical swipe, handles scroll horizontally). Each
+	 * feature defines its items under its own `bottomDrawerItems/` directory
+	 * and registers them here. The `BottomDrawerItem` type is defined by the
+	 * `bottomDrawer` feature.
+	 */
+	bottomDrawerItems?: BottomDrawerItem[];
 
 	/**
 	 * Components rendered inside the MapContainer (map layers, routes,

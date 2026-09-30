@@ -15,9 +15,13 @@ import { useTranslation } from 'react-i18next';
 import ButtonHighlight from '../../../components/generic/primitives/ButtonHighlight';
 import ModalWrapper from '../../../components/generic/wrapper/ModalWrapper';
 import { useButtonProps } from '../../../compose/useButtonProps';
-import { useAppDispatch } from '../../../store/hooks';
+import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { sharedStyles } from '../../../sharedStyles';
 import { setIsRouting } from '../../routing/slice';
+import { removeChartLines, removeLineColors } from '../slice';
+import { closeFullscreenChart, removeChartSettings } from '../../chart/slice';
+import { getChartSourceKey } from '../../chart/types';
+import { selectFullscreenLineId } from '../../chart/selectors';
 import { deleteLines } from '../db/actionsLine';
 import {
 	cancelLinesQueries,
@@ -46,6 +50,8 @@ const useDeleteLinesCbModal = ({
 	const dispatch = useAppDispatch();
 
 	const { t } = useTranslation();
+
+	const fullscreenLineId = useAppSelector(selectFullscreenLineId);
 
 	const buttonPropsSuccess = useButtonProps({ isSuccess: true });
 	const buttonPropsDelete = useButtonProps({ isDestructive: true });
@@ -94,6 +100,18 @@ const useDeleteLinesCbModal = ({
 				await invalidateLinesQueries(dbConnection.queryClient!);
 				await invalidateLineGeomQueries(dbConnection.queryClient!);
 				invalidateTagsTable(dbConnection.queryClient!);
+				// Prune chart state only after the lines are actually gone:
+				// the derived bottom-drawer chart entries and their persisted
+				// settings must not survive the line (chartLines is persisted,
+				// so without this the stale entries come back after a restart).
+				dispatch(removeChartLines(deleteIds));
+				dispatch(removeChartSettings(deleteIds.map(getChartSourceKey.line)));
+				dispatch(removeChartSettings(deleteIds.map(getChartSourceKey.fullscreen)));
+				if (fullscreenLineId != null && deleteIds.includes(fullscreenLineId)) {
+					dispatch(closeFullscreenChart());
+				}
+				// Keep lineColors from accumulating entries for deleted lines.
+				dispatch(removeLineColors(deleteIds));
 				// Close modal.
 				handleDismissModal();
 				// Call onSuccess (eg LinesTable uncheck lines).
@@ -104,8 +122,10 @@ const useDeleteLinesCbModal = ({
 			routeId,
 			includesRoute,
 			deleteIds,
+			fullscreenLineId,
 			handleDismissModal,
 			onSuccess,
+			dispatch,
 		]
 	);
 

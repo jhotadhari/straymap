@@ -2,6 +2,7 @@
  * Internal dependencies
  */
 import { PaletteColor } from './types';
+import { AbsPath } from './features/dirs/types';
 
 export const LABEL_WIDTH = 8 * 13;
 
@@ -12,6 +13,13 @@ export const MODAL_PADDING = 16;
 export const OPACITY_DISABLED = 0.5;
 
 export const MAP_ANIMATION_PADDING_PX = 64;
+
+/**
+ * Shared empty array for optional array props (dirs, extensions) so
+ * memoized controls can bail out on the stable reference. Never
+ * mutate: push/splice would corrupt every consumer at once.
+ */
+export const EMPTY_STRING_ARRAY = Object.freeze([]) as unknown as AbsPath[];
 
 /**
  * Icon sizes used across the app.

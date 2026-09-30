@@ -152,5 +152,13 @@
 	"rowImportSourceTrackHint": "El archivo desde el que se importó esta ruta, junto con su posición dentro del archivo.",
 	"useSimplification": "Simplificar geometrías de rutas al cambiar zoom",
 	"useSimplificationDisabled": "Desactivado",
-	"useSimplificationEnabled": "Activado (recomendado)"
+	"useSimplificationEnabled": "Activado (recomendado)",
+	"bottomDrawerChart": "Gráfico en el panel inferior",
+	"hintBottomDrawerChart": "Añade un gráfico de esta ruta al panel inferior o lo elimina. Solo disponible mientras la ruta está en el mapa. Requiere datos de elevación — usa primero 'Aplicar elevación DEM' si no los tiene.",
+	"openFullscreenChart": "Gráfico a pantalla completa",
+	"hintOpenFullscreenChart": "Abre el gráfico independiente a pantalla completa para esta ruta, o lo cierra cuando está activo. Independiente de los gráficos del panel inferior. Requiere datos de elevación — usa primero 'Aplicar elevación DEM' si no los tiene.",
+	"tableErrorBoundary": "Algo salió mal al renderizar la tabla.",
+	"tableErrorRetry": "Reintentar",
+	"bottomDrawerChartButton": "Gráfico en el panel",
+	"openFullscreenChartButton": "Pantalla completa"
 }

@@ -64,7 +64,10 @@ FilterModalsOrchestrator
 ```
 
 - **New filter** (tapping "+"): `editFilter=undefined` → column pick →
-  blank modal.
+  blank modal. The column pick only lists columns with a resolvable
+  filter type (`getFilterColumnType` returns non-undefined) — columns
+  like `id` (or tags-table `color`/`notes`) never appear and can't be
+  filtered.
 - **Edit filter** (tapping a badge): `editFilter=<existing filter>` →
   skips column pick, opens modal pre-filled with existing values.
 

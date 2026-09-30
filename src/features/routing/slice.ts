@@ -17,6 +17,7 @@ import { AppThunk } from '../../store/store';
 import {
 	aggregateSegmentsToCoords,
 	getCoordsFromRouting,
+	getPathCoords,
 	getSegmentRecordId,
 	resolveProfileForPoint,
 } from './utils';
@@ -33,7 +34,7 @@ import { queryRoute } from './db/queryFns';
 import { selectIsRouting } from './selectors';
 import { dbConnection } from '../dbLoader/DBConnection';
 import { pointsCoordsAreOverlapping } from '../../lib/utils';
-import { DEFAULT_LAST_PROFILES } from './constants';
+import { DEFAULT_LAST_PROFILES, DEFAULT_PROFILE, ROUTING_SIMPLIFY_TOLERANCE } from './constants';
 
 export interface RoutingSettings {
 	isRouting: false | number; // false or routeId.
@@ -47,6 +48,12 @@ export interface RoutingState extends SliceSettingsBase, RoutingSettings {
 		string, // fromId_toId
 		RoutingSegment
 	>;
+	/**
+	 * Concatenated simplified coordinates of the active route (render
+	 * consistent with RoutingMapView's ramp), computed in processRouting.
+	 * Feeds the chart bottom drawer content.
+	 */
+	pathCoords: number[][];
 }
 
 export const initialSettings: RoutingSettings = {
@@ -59,6 +66,7 @@ const initialState: RoutingState = {
 	initialized: false,
 	brouterAvailable: null,
 	segments: {},
+	pathCoords: [],
 	...initialSettings,
 };
 
@@ -76,11 +84,15 @@ export const routingSlice = createSlice({
 		},
 		setIsRouting: (state, action: PayloadAction<RoutingState['isRouting']>) => {
 			state.segments = {};
+			state.pathCoords = [];
 			state.isRouting = action.payload;
 			state.routingLineId = null;
 		},
 		setRoutingLineId: (state, action: PayloadAction<RoutingState['routingLineId']>) => {
 			state.routingLineId = action.payload;
+		},
+		setPathCoords: (state, action: PayloadAction<RoutingState['pathCoords']>) => {
+			state.pathCoords = action.payload;
 		},
 		setLastProfiles: (state, action: PayloadAction<RoutingState['lastProfiles']>) => {
 			state.lastProfiles = action.payload;
@@ -111,6 +123,7 @@ export const {
 	setBrouterAvailable,
 	setIsRouting: setIsRoutingAction,
 	setRoutingLineId,
+	setPathCoords,
 	setLastProfiles,
 	setLastProfile,
 	setSegment,
@@ -258,7 +271,12 @@ export const processRouting = (
 		const { points, profile: routeProfile } = await getPointsForRouteId(routeId, queryClient);
 
 		const { lastProfiles } = getState().routing;
-		const effectiveRouteProfile = routeProfile ?? lastProfiles.profiles[lastProfiles.provider];
+		// Fall back to DEFAULT_PROFILE when persisted lastProfiles is
+		// corrupted (provider key missing from profiles) — otherwise
+		// resolveProfileForPoint returns undefined and .provider access
+		// in getPathCoords throws inside the thunk.
+		const effectiveRouteProfile =
+			routeProfile ?? lastProfiles.profiles[lastProfiles.provider] ?? DEFAULT_PROFILE;
 
 		// Delete segments not used anymore.
 		const newSegmentRecordIds = points
@@ -281,6 +299,15 @@ export const processRouting = (
 
 		const updatedSegments = await new Promise<Record<string, RoutingSegment>>(
 			(resolveOuter) => {
+				// Only publish segments to Redux while this route is still
+				// active — stopping routing mid-computation clears the
+				// slice, and a late per-segment dispatch would repopulate
+				// stale segment state for a route that's no longer active.
+				const dispatchSegmentIfActive = (segment: RoutingSegment) => {
+					if (selectIsRouting(getState()) === routeId) {
+						dispatch(routingSlice.actions.setSegment(segment));
+					}
+				};
 				points
 					.reduce(
 						(segmentsPromise, point, pointIdx) => {
@@ -324,14 +351,12 @@ export const processRouting = (
 										newSegment.errorMsg = 'routing.pointsAreOverlapping';
 										newSegment.isFetching = false;
 										newSegments[segmentRecordId] = newSegment;
-										dispatch(routingSlice.actions.setSegment(newSegment));
+										dispatchSegmentIfActive(newSegment);
 										resolve(newSegments);
 									} else {
-										dispatch(
-											routingSlice.actions.setSegment({
-												...newSegment, // spread, because it has to be a new reference. Otherwise newSegment would be read only after dispatching it.
-											})
-										);
+										dispatchSegmentIfActive({
+											...newSegment, // spread, because it has to be a new reference. Otherwise newSegment would be read only after dispatching it.
+										});
 
 										const waypoints: number[][] = [
 											[
@@ -357,18 +382,14 @@ export const processRouting = (
 												newSegment.positions = coords;
 												newSegment.isFetching = false;
 												newSegments[segmentRecordId] = newSegment;
-												dispatch(
-													routingSlice.actions.setSegment(newSegment)
-												);
+												dispatchSegmentIfActive(newSegment);
 												resolve(newSegments);
 											})
 											.catch((errorMsg) => {
 												newSegment.errorMsg = errorMsg;
 												newSegment.isFetching = false;
 												newSegments[segmentRecordId] = newSegment;
-												dispatch(
-													routingSlice.actions.setSegment(newSegment)
-												);
+												dispatchSegmentIfActive(newSegment);
 												resolve(newSegments);
 											});
 									}
@@ -382,6 +403,21 @@ export const processRouting = (
 					});
 			}
 		);
+
+		// Publish the render-consistent simplified coordinates for the
+		// chart (matches RoutingMapView's ramp geometry). Guard like the
+		// rest of this thunk: the user may have stopped routing (or
+		// switched routes) while BRouter was computing — the reducer
+		// already cleared pathCoords, don't repopulate stale ones.
+		const pathCoords = getPathCoords(
+			points,
+			updatedSegments,
+			ROUTING_SIMPLIFY_TOLERANCE,
+			effectiveRouteProfile
+		);
+		if (selectIsRouting(getState()) === routeId) {
+			dispatch(routingSlice.actions.setPathCoords(pathCoords));
+		}
 
 		if (routeId) {
 			if (false !== options?.updateLine) {

@@ -23,6 +23,9 @@ import { sharedStyles } from '../../../sharedStyles';
 import { POPOVER_MENU_ITEM_ICON_SIZE } from '../../../constants';
 import { altitudeService } from '../../../lib/AltitudeService';
 import { logError } from '../../../lib/utils';
+import { showErrorToast } from '../../../components/ErrorToast/service';
+import i18next from 'i18next';
+import { sprintf } from 'sprintf-js';
 import { updateLine } from '../db/actionsLine';
 import { fetchLines } from '../db/fetch';
 import {
@@ -143,7 +146,15 @@ const useApplyDemCbModal = ({
 					setCurrentLineProgress(null);
 					setFailedLineIds([]);
 					setLineStats({});
-					const api = altitudeService.requireHandle();
+					const api = altitudeService.getHandle();
+					if (!api) {
+						// The map (and its elevation reader) isn't ready —
+						// surface a clear error instead of a cryptic throw.
+						rejectOuter(
+							new Error('DEM enrichment unavailable — the map is not ready yet.')
+						);
+						return;
+					}
 					lineIds
 						.reduce(
 							(chain, lineId) =>
@@ -371,6 +382,14 @@ const useApplyDemCbModal = ({
 				await invalidateLineGeomQueries(dbConnection.queryClient!);
 				isPendingRef.current = false;
 			},
+			onError: (error) => {
+				// Surface the failure instead of leaving the modal stuck in
+				// its progress view (e.g. the "map not ready" rejection).
+				isPendingRef.current = false;
+				setProcessingStarted(false);
+				logError('useApplyDemCbModal.mutation', error);
+				showErrorToast(sprintf(i18next.t('errorGeneric'), error?.message ?? String(error)));
+			},
 		}),
 		[]
 	);
@@ -423,6 +442,8 @@ const useApplyDemCbModal = ({
 	const buttonProps = useButtonProps({
 		disabled,
 	});
+
+	const styleErrorText = useMemo(() => ({ color: theme.colors.error }), [theme.colors.error]);
 
 	const modalNode = useMemo(() => {
 		if (!modalVisible) {
@@ -547,7 +568,7 @@ const useApplyDemCbModal = ({
 										{lineStats[id]!.errorMsg ? (
 											<Text
 												variant="bodySmall"
-												style={{ color: theme.colors.error }}
+												style={styleErrorText}
 											>
 												{lineStats[id]!.errorMsg}
 											</Text>
@@ -589,6 +610,7 @@ const useApplyDemCbModal = ({
 		lineStats,
 		theme,
 		systemLineIds,
+		styleErrorText,
 	]);
 
 	return useMemo(

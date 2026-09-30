@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { FC, Fragment, useMemo } from 'react';
+import React, { FC, Fragment, memo, useMemo } from 'react';
 import {
 	PathPaint,
 	Marker,
@@ -16,14 +16,14 @@ import {
 	ColorRamp,
 } from 'react-native-mapsforge-vtm-ext-path-color-ramp';
 import { get } from 'lodash-es';
-import { simplify as turfSimplify, lineString } from '@turf/turf';
 
 /**
  * Internal dependencies
  */
 import { useAppSelector } from '../../../store/hooks';
 import { selectSegmentByRecordId } from '../selectors';
-import { getSegmentRecordId } from '../utils';
+import { getSegmentRecordId, getSimplifiedSegmentCoords, resolveProfileForPoint } from '../utils';
+import { ROUTING_SIMPLIFY_TOLERANCE } from '../constants';
 import useRoute from '../hooks/useRoute';
 // import useSimplificationTolerance from '../../lines/hooks/useSimplificationTolerance';
 import { RoutingPoint } from '../types';
@@ -36,7 +36,7 @@ const SegmentLineLayer: FC<{
 		number,
 		number,
 	][];
-}> = ({ segmentRecordId, coordinates }) => {
+}> = memo(({ segmentRecordId, coordinates }) => {
 	const prepared = useMemo(
 		() => ({
 			segmentValues: calculateSlope(coordinates),
@@ -73,37 +73,24 @@ const SegmentLineLayer: FC<{
 			paint={paintPathRamp}
 		/>
 	);
-};
+});
 
 const SegmentLine: FC<{
 	simplify?: number;
 	segmentRecordId: string;
 	placeholderCoordinates: number[][];
 	provider?: string;
-}> = ({ simplify, segmentRecordId, placeholderCoordinates, provider }) => {
+}> = memo(({ simplify, segmentRecordId, placeholderCoordinates, provider }) => {
 	const segment = useAppSelector((state) => selectSegmentByRecordId(state, segmentRecordId));
 
-	const simplifiedCoords = useMemo(() => {
-		if (
-			!segment?.positions ||
-			segment.positions.length < 2 || // if segment is empty but brouter swallowed the error silently
-			simplify === undefined
-		) {
-			return undefined;
-		}
-		// Straight-line segments are already at the user-requested interval —
-		// skip simplification so the full per-coordinate elevation is preserved.
-		if (provider === 'straightLine') {
-			return segment.positions;
-		}
-		const line = lineString(segment.positions);
-		const result = turfSimplify(line, { tolerance: simplify, highQuality: false });
-		return result.geometry.coordinates;
-	}, [
-		segment?.positions,
-		simplify,
-		provider,
-	]);
+	const simplifiedCoords = useMemo(
+		() => getSimplifiedSegmentCoords(segment?.positions, simplify, provider),
+		[
+			segment?.positions,
+			simplify,
+			provider,
+		]
+	);
 
 	let coords: number[][] | undefined = undefined;
 	let paint: PathPaint | undefined = undefined;
@@ -157,14 +144,60 @@ const SegmentLine: FC<{
 			}
 		/>
 	);
-};
+});
 
 const Segments: FC<{
 	points?: RoutingPoint[];
-}> = ({ points }) => {
+}> = memo(({ points }) => {
 	// Lets use a fixed simplification tolerance. Doesn't work fast rerenders with LayerPathColorRamp.
 	// const simplify = useSimplificationTolerance();
-	const simplify = 0.00004;
+	const simplify = ROUTING_SIMPLIFY_TOLERANCE;
+
+	const route = useRoute(['profile']);
+	const routeProfile = route?.profile;
+
+	// Stable per-segment references so SegmentLine/SegmentLineLayer's
+	// memo wrappers can actually bail out: resolved providers and the
+	// placeholder coordinate pairs are both rebuilt only when `points`
+	// (or the route profile) changes.
+	const providersByIndex = useMemo(
+		() =>
+			points
+				? points.map((fromPoint, index) =>
+						routeProfile
+							? resolveProfileForPoint(fromPoint, index, points, routeProfile)
+									.provider
+							: fromPoint.profile?.provider
+					)
+				: [],
+		[
+			points,
+			routeProfile,
+		]
+	);
+
+	const placeholdersByIndex = useMemo(
+		() =>
+			points
+				? points.map((fromPoint, index) => {
+						const toPoint = get(points, index + 1);
+						if (
+							!toPoint ||
+							pointsCoordsAreOverlapping(
+								fromPoint.geometry.coordinates,
+								toPoint.geometry.coordinates
+							)
+						) {
+							return undefined;
+						}
+						return [
+							fromPoint.geometry.coordinates,
+							toPoint.geometry.coordinates,
+						];
+					})
+				: [],
+		[points]
+	);
 
 	return (
 		<ReindexScope order={300}>
@@ -174,13 +207,7 @@ const Segments: FC<{
 					const toPoint = get(points, index + 1);
 
 					// Ensure the segment has two points. And points are not overlapping.
-					if (
-						!toPoint ||
-						pointsCoordsAreOverlapping(
-							fromPoint.geometry.coordinates,
-							toPoint.geometry.coordinates
-						)
-					) {
+					if (!toPoint || placeholdersByIndex[index] === undefined) {
 						return undefined;
 					}
 
@@ -189,28 +216,23 @@ const Segments: FC<{
 						toId: toPoint.id,
 					});
 
-					const placeholderCoordinates = [
-						fromPoint.geometry.coordinates,
-						toPoint.geometry.coordinates,
-					];
-
 					return (
 						<SegmentLine
 							key={segmentRecordId}
 							segmentRecordId={segmentRecordId}
-							placeholderCoordinates={placeholderCoordinates}
+							placeholderCoordinates={placeholdersByIndex[index]}
 							simplify={simplify}
-							provider={fromPoint.profile?.provider}
+							provider={providersByIndex[index]}
 						/>
 					);
 				})}
 		</ReindexScope>
 	);
-};
+});
 
 const Markers: FC<{
 	points?: RoutingPoint[];
-}> = ({ points }) => {
+}> = memo(({ points }) => {
 	const markerElements = useMemo(() => {
 		if (!points) return null;
 		return points.map((point, index) => (
@@ -230,7 +252,7 @@ const Markers: FC<{
 			<SharedLayer>{markerElements}</SharedLayer>
 		</ReindexScope>
 	);
-};
+});
 
 const RoutingMapView = () => {
 	const { points } =

@@ -24,13 +24,11 @@ export interface DrawersState extends SliceSettingsBase, DrawersSettings {}
 
 export const initialSettings: DrawersSettings = {
 	itemKeysLeft: [
-		'position',
 		'lines',
 	],
 	itemKeysRight: [
 		'maps',
-		'searchPlace',
-		'brouter',
+		'routing',
 	],
 	controlHandleSide: 'right',
 	showSettingsHandle: false,

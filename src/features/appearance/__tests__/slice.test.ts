@@ -51,7 +51,7 @@ describe('appearance slice reducers', () => {
 		expect(state.cursor).toEqual({
 			iconSource: 'target',
 			size: 25,
-			color: '#ed1c23',
+			color: '#F50000',
 		});
 	});
 });

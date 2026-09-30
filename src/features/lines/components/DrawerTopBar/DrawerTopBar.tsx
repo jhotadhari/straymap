@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { FC, Fragment, useCallback, useContext, useMemo, useRef, useState } from 'react';
+import { FC, useCallback, useContext, useMemo, useRef, useState } from 'react';
 import { LayoutChangeEvent, StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -53,11 +53,10 @@ const DrawerTopBar: FC = () => {
 	const [contentFits, setContentFits] = useState(true);
 
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	const { nestedIconColor, ...buttonProps }: ReturnType<typeof useButtonProps> =
-		useButtonProps({
-			mode: 'outlined',
-			paddingHorizontal: contentFits,
-		});
+	const { nestedIconColor, ...buttonProps }: ReturnType<typeof useButtonProps> = useButtonProps({
+		mode: 'outlined',
+		paddingHorizontal: contentFits,
+	});
 
 	const dispatch = useAppDispatch();
 
@@ -68,9 +67,17 @@ const DrawerTopBar: FC = () => {
 	const actionsBtnWidthRef = useRef(0);
 
 	const checkFit = useCallback(() => {
-		if (!contentFits) return;
 		if (rowWidthRef.current <= 0) return;
 		const total = browserBtnWidthRef.current + actionsBtnWidthRef.current;
+		// One-way shrink with hysteresis: once compact, only re-expand
+		// when the buttons comfortably fit again (e.g. the count label
+		// shrank or the actions button unmounted).
+		if (!contentFits) {
+			if (total <= rowWidthRef.current * 0.95) {
+				setContentFits(true);
+			}
+			return;
+		}
 		if (total > rowWidthRef.current) {
 			setContentFits(false);
 		}
@@ -120,20 +127,13 @@ const DrawerTopBar: FC = () => {
 		[side]
 	);
 
-	const actionModalNodes = useMemo(
-		() =>
-			Object.entries(actions)
-				.filter(([, a]) => a.modalNode)
-				.map(([key, a]) => <Fragment key={key}>{a.modalNode}</Fragment>),
-		[actions]
-	);
-
 	return (
 		<View>
-			{actionModalNodes}
-
 			<View style={styleItem}>
-				<View style={styleButtonRowFirst} onLayout={handleRowLayout}>
+				<View
+					style={styleButtonRowFirst}
+					onLayout={handleRowLayout}
+				>
 					{lineIds.length > 0 && (
 						<View
 							style={styles.childMeasure}
@@ -163,7 +163,6 @@ const DrawerTopBar: FC = () => {
 					</View>
 				</View>
 			</View>
-
 		</View>
 	);
 };

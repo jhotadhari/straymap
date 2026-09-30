@@ -114,6 +114,30 @@ The function is **pure** — it does not access Redux state. Callers are
 responsible for providing a valid `routeProfile` and handling the
 `lastProfiles` → `DEFAULT_PROFILE` fallback chain themselves.
 
+### Custom .brf profile files (`BrouterOptions.profilePath`)
+
+BRouter profiles (.brf) can be selected per route/point via
+`BrouterOptions.profilePath` (absolute path or `content://` URI). A single
+"Profile" row (`ProfileRowControl` in `ProfileEditControls`) merges the old
+vehicle picker with the file picker: its first group lists the built-in
+profiles (car/bicycle/foot → `v`, no `profilePath`), followed by `.brf` files
+from `appDirs.brouterProfiles` (native subdir registered in `HelperModule`)
+and a SAF "custom" option.
+
+- At routing time `getBrouterCoords` reads the file (`react-native-fs`
+  `readFile`) and sends its content as `remoteProfile` — BRouter then ignores
+  `v`/`fast`. A missing/unreadable file rejects with the i18n key
+  `routing.profileFileMissing`, which flows into `segment.errorMsg` and is
+  rendered by `PointsList`/`RoutingMapView` like any other segment error.
+- Selecting a built-in vehicle clears `profilePath` (and vice versa). When a
+  profile file is selected, the fast control in `ProfileEditControls` is
+  disabled (not hidden); `compressionMode` still applies.
+  `RoutingProfileInfo` displays the profile file name instead of
+  vehicle/fast labels.
+- `profilePath` is serialized with the rest of `BrouterOptions` (DB JSON
+  columns + `lastProfiles`), so `getChangedSegmentIds`' `isEqual` comparison
+  picks up profile-file changes automatically.
+
 ### Segment recalculation optimization (`getChangedSegmentIds`)
 
 When a profile change occurs (route profile edit, or point inheritMode/profile

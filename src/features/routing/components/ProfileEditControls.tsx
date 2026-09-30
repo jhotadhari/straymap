@@ -1,10 +1,13 @@
 /**
  * External dependencies
  */
-import React, { useCallback, useMemo } from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
+import { Linking, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { get } from 'lodash-es';
-import { useTheme } from 'react-native-paper';
+import { get, omit } from 'lodash-es';
+import { Text, useTheme } from 'react-native-paper';
+import { sprintf } from 'sprintf-js';
+import { VehicleMode } from 'react-native-brouter/geojson';
 
 /**
  * Internal dependencies
@@ -13,6 +16,7 @@ import ToggleRowControl from '../../../components/generic/controls/ToggleRowCont
 import InfoLabelRow from '../../../components/generic/infoWrapper/InfoLabelRow';
 import NumericRowControl from '../../../components/generic/controls/NumericRowControl';
 import ButtonHighlightMenuControl from '../../../components/generic/wrapper/ButtonHighlightMenuControl';
+import FileSourceRowControl from '../../../components/generic/controls/FileSourceRowControl';
 import { useAppSelector } from '../../../store/hooks';
 import {
 	RoutingProfile,
@@ -21,10 +25,15 @@ import {
 	StraightLineOptions,
 } from '../types';
 import { DEFAULT_OPTIONS_BROUTER, DEFAULT_OPTIONS_STRAIGHT_LINE } from '../constants';
-import { formatDistanceUnit } from '../../../lib/formatting';
+import { EMPTY_STRING_ARRAY } from '../../../constants';
+import { formatDistanceUnit, metersToUnit, unitToMeters } from '../../../lib/formatting';
+import { roundTo } from '../../../lib/utilsLight';
 import { selectUnitPrefs } from '../../general/selectors';
+import { selectAppDirs } from '../../dirs/selectors';
 import { selectLastProfiles } from '../selectors';
 import { sharedStyles } from '../../../sharedStyles';
+
+const BRF_EXTENSIONS = ['brf'];
 
 const providerOptions = [
 	{
@@ -75,7 +84,7 @@ interface ProfileEditControlsProps {
 const ProviderRowControl: React.FC<{
 	profile: RoutingProfile;
 	onProfileChange: (profile: RoutingProfile) => void;
-}> = ({ profile, onProfileChange }) => {
+}> = memo(({ profile, onProfileChange }) => {
 	const { t } = useTranslation();
 
 	const selectedOpt = providerOptions.find((opt) => opt.key === profile.provider);
@@ -114,54 +123,133 @@ const ProviderRowControl: React.FC<{
 			/>
 		</InfoLabelRow>
 	);
+});
+
+const profileInfoLinks = [
+	{
+		label: 'routing.linkBrouterProfiles',
+		url: 'https://brouter.de/brouter/profiles2/',
+	},
+	{
+		label: 'routing.linkBrouterWeb',
+		url: 'https://brouter.de/brouter-web/',
+	},
+	{
+		label: 'routing.linkBrouterCommunityProfiles',
+		url: 'https://github.com/poutnikl/Brouter-profiles',
+	},
+];
+const styleProfileInfoLink = { marginTop: 10 };
+const ProfileFileInfo: React.FC<{}> = () => {
+	const { t } = useTranslation();
+	const theme = useTheme();
+	const styleLinkText = useMemo(() => ({ color: get(theme.colors, 'link') }), [theme]);
+	return (
+		<View>
+			<Text>{t('routing.hintProfileFile')}</Text>
+			{profileInfoLinks.map((link) => (
+				<View
+					style={styleProfileInfoLink}
+					key={link.label}
+				>
+					<Text>{t(link.label)}</Text>
+					<Text
+						style={styleLinkText}
+						onPress={() => Linking.openURL(link.url)}
+					>
+						{link.url}
+					</Text>
+				</View>
+			))}
+		</View>
+	);
 };
 
-const VehicleRowControl: React.FC<{
+const ProfileRowControl: React.FC<{
 	profile: RoutingProfile;
 	onProfileChange: (profile: RoutingProfile) => void;
-}> = ({ profile, onProfileChange }) => {
+}> = memo(({ profile, onProfileChange }) => {
 	const { t } = useTranslation();
 
-	const selectedOpt =
-		profile.provider === 'brouter'
-			? vehicleOptions.find((opt) => opt.key === (profile.options as BrouterOptions).v)
-			: undefined;
+	const appDirs = useAppSelector(selectAppDirs);
 
-	const handleSetVehicle = useCallback(
-		(newValue: string) =>
+	const opts = profile.provider === 'brouter' ? (profile.options as BrouterOptions) : undefined;
+
+	const handleSelect = useCallback(
+		(newValue?: string) => {
+			if (!opts || !newValue) {
+				return;
+			}
+			// FileSourceRowControl re-emits the initial selection on
+			// mount — no-op so a "change" without user input doesn't
+			// trigger a full re-route via getChangedSegmentIds.
+			if (newValue === (opts.profilePath ?? opts.v)) {
+				return;
+			}
+			const vehicleKey = vehicleOptions.find((opt) => opt.key === newValue)?.key;
+			if (vehicleKey) {
+				onProfileChange({
+					provider: 'brouter' as const,
+					// Drop the key rather than setting profilePath: undefined —
+					// lodash isEqual treats an explicit undefined-valued key as
+					// a real difference, which would defeat the isEqual guard
+					// in RouteProfileModal.handleDismiss.
+					options: {
+						...omit(opts, 'profilePath'),
+						v: vehicleKey as VehicleMode,
+					},
+				} as RoutingProfile);
+				return;
+			}
 			onProfileChange({
 				provider: 'brouter' as const,
 				options: {
-					...profile.options,
-					v: newValue,
+					...opts,
+					profilePath: newValue,
 				},
-			} as RoutingProfile),
-		[profile, onProfileChange]
+			} as RoutingProfile);
+		},
+		[opts, onProfileChange]
 	);
 
-	if (profile.provider !== 'brouter') {
+	const initialOptionsByPath = useMemo(
+		() => ({
+			[t('routing.builtInProfiles') + ':']: vehicleOptions.map((opt) => ({
+				key: opt.key,
+				label: t(opt.label),
+			})),
+		}),
+		[t]
+	);
+
+	const profileFileInfoNode = useMemo(() => <ProfileFileInfo />, []);
+
+	if (!opts) {
 		return undefined;
 	}
 
 	return (
-		<InfoLabelRow
+		<FileSourceRowControl
 			label={t('routing.profile')}
-			Info={t('routing.hintProfile')}
-		>
-			<ButtonHighlightMenuControl
-				options={vehicleOptions}
-				value={get(selectedOpt, 'key')}
-				setValue={handleSetVehicle}
-				anchorLabel={t(get(selectedOpt, 'label', ''))}
-			/>
-		</InfoLabelRow>
+			header={t('routing.selectProfile')}
+			initialOptionsByPath={initialOptionsByPath}
+			value={opts.profilePath ?? opts.v}
+			onSelect={handleSelect}
+			extensions={BRF_EXTENSIONS}
+			dirs={appDirs?.brouterProfiles ?? EMPTY_STRING_ARRAY}
+			hasCustom
+			anchorButtonStyle={sharedStyles.flex1}
+			Info={profileFileInfoNode}
+			filesHeading={sprintf(t('filesIn'), '(.brf)')}
+			noFilesHeading={sprintf(t('noFilesIn'), '(.brf)')}
+		/>
 	);
-};
+});
 
 const CompressionModeRowControl: React.FC<{
 	profile: RoutingProfile;
 	onProfileChange: (profile: RoutingProfile) => void;
-}> = ({ profile, onProfileChange }) => {
+}> = memo(({ profile, onProfileChange }) => {
 	const { t } = useTranslation();
 
 	const selectedOpt =
@@ -201,12 +289,12 @@ const CompressionModeRowControl: React.FC<{
 			/>
 		</InfoLabelRow>
 	);
-};
+});
 
 const IntervalRowControl: React.FC<{
 	profile: RoutingProfile;
 	onProfileChange: (profile: RoutingProfile) => void;
-}> = ({ profile, onProfileChange }) => {
+}> = memo(({ profile, onProfileChange }) => {
 	const { t } = useTranslation();
 
 	const unitPrefs = useAppSelector(selectUnitPrefs);
@@ -216,10 +304,12 @@ const IntervalRowControl: React.FC<{
 		(newValue: number) => {
 			onProfileChange({
 				provider: 'straightLine' as const,
-				options: { interval: newValue },
+				// The control displays the user's distance unit — store
+				// meters internally.
+				options: { interval: unitToMeters(newValue, distUnit, true) },
 			} as RoutingProfile);
 		},
-		[onProfileChange]
+		[onProfileChange, distUnit]
 	);
 
 	const validatePositive = useCallback((val: number) => val > 0, []);
@@ -229,6 +319,20 @@ const IntervalRowControl: React.FC<{
 		[t, distUnit]
 	);
 
+	const intervalDisplayValue = useMemo(() => {
+		if (profile.provider !== 'straightLine') {
+			return 0;
+		}
+		const converted = metersToUnit(profile.options.interval, distUnit, true);
+		// Nautical values collapse to 0 when integer-rounded (100 m ≈
+		// 0.054 nm) — keep fractional precision for nautical.
+		return distUnit.unit === 'nautical' ? roundTo(converted, 3) : Math.round(converted);
+	}, [
+		profile.provider,
+		profile.options,
+		distUnit,
+	]);
+
 	if (profile.provider !== 'straightLine') {
 		return undefined;
 	}
@@ -237,31 +341,33 @@ const IntervalRowControl: React.FC<{
 		<NumericRowControl
 			label={label}
 			Info={t('routing.hintInterval')}
-			value={profile.options.interval}
+			value={intervalDisplayValue}
 			onUpdate={handleSetInterval}
-			numType="int"
+			numType={distUnit.unit === 'nautical' ? 'float' : 'int'}
 			validate={validatePositive}
 		/>
 	);
-};
+});
 
 const ProfileEditControls: React.FC<ProfileEditControlsProps> = ({ profile, onProfileChange }) => {
 	const { t } = useTranslation();
 	const theme = useTheme();
 
+	const brouterOpts =
+		profile.provider === 'brouter' ? (profile.options as BrouterOptions) : undefined;
+
 	const handleToggleFast = useCallback(() => {
-		if (profile.provider !== 'brouter') {
+		if (!brouterOpts) {
 			return;
 		}
-		const opts = profile.options;
 		onProfileChange({
 			provider: 'brouter' as const,
 			options: {
-				...opts,
-				fast: !opts.fast,
+				...brouterOpts,
+				fast: !brouterOpts.fast,
 			},
 		} as RoutingProfile);
-	}, [profile, onProfileChange]);
+	}, [brouterOpts, onProfileChange]);
 
 	return (
 		<>
@@ -270,16 +376,17 @@ const ProfileEditControls: React.FC<ProfileEditControlsProps> = ({ profile, onPr
 				onProfileChange={onProfileChange}
 			/>
 
-			<VehicleRowControl
+			<ProfileRowControl
 				profile={profile}
 				onProfileChange={onProfileChange}
 			/>
 
-			{profile.provider === 'brouter' && (
+			{brouterOpts && (
 				<ToggleRowControl
 					label={t('routing.fast')}
-					value={(profile.options as BrouterOptions).fast ?? false}
+					value={brouterOpts.fast ?? false}
 					onToggle={handleToggleFast}
+					disabled={!!brouterOpts.profilePath}
 					labelStyle={theme.fonts.bodyMedium}
 					innerStyle={sharedStyles.alignStart}
 					Info={t('routing.hintFast')}
@@ -299,4 +406,4 @@ const ProfileEditControls: React.FC<ProfileEditControlsProps> = ({ profile, onPr
 	);
 };
 
-export default ProfileEditControls;
+export default memo(ProfileEditControls);

@@ -3,7 +3,7 @@
  */
 import type { PayloadAction } from '@reduxjs/toolkit';
 import { createSlice } from '@reduxjs/toolkit';
-import { isEqual, uniq } from 'lodash-es';
+import { intersection, isEqual, uniq, without } from 'lodash-es';
 
 /**
  * Internal dependencies
@@ -44,6 +44,12 @@ export interface LinesSettings {
 	tagsTable: TagsTableSettings;
 	linesTable: LinesTableSettings;
 	lineColors: Record<number, string>;
+	/**
+	 * Line IDs for which an chart bottom drawer entry is
+	 * enabled. Persisted; drives the derived `chart:line:<id>`
+	 * bottom drawer menu entries.
+	 */
+	chartLines: number[];
 }
 
 export interface LinesState extends SliceSettingsBase, LinesSettings {
@@ -69,6 +75,7 @@ export const initialSettings: LinesSettings = {
 		filterLogic: 'and',
 	},
 	lineColors: {},
+	chartLines: [],
 };
 
 const initialState: LinesState = {
@@ -108,9 +115,20 @@ export const linesSlice = createSlice({
 			state.linesTable.tableColumns = action.payload;
 		},
 		setSelected: (state, action: PayloadAction<LinesState['selected']>) => {
-			state.selected = uniq(action.payload).sort((a, b) => {
+			const nextSelected = uniq(action.payload).sort((a, b) => {
 				return a - b;
 			});
+			// Keep the previous reference when the content is identical —
+			// selectors and memoized consumers otherwise re-render on
+			// every dispatch.
+			if (isEqual(nextSelected, state.selected)) {
+				state.chartLines = intersection(state.chartLines, state.selected);
+				return;
+			}
+			state.selected = nextSelected;
+			// A drawer chart requires its line to be on the map: removing
+			// a line from the map removes its chart permanently.
+			state.chartLines = intersection(state.chartLines, state.selected);
 		},
 		setLinesSort: (state, action: PayloadAction<LinesState['linesTable']['sort']>) => {
 			state.linesTable.sort = action.payload;
@@ -155,8 +173,7 @@ export const linesSlice = createSlice({
 				);
 				if (colIdx !== -1) {
 					const existing = state.linesTable.filters[colIdx] as
-						| NumericColumnFilter
-						| DateColumnFilter;
+						NumericColumnFilter | DateColumnFilter;
 					state.linesTable.filters[colIdx] = {
 						type: existing.type,
 						columnKey: existing.columnKey,
@@ -241,8 +258,7 @@ export const linesSlice = createSlice({
 				);
 				if (colIdx !== -1) {
 					const existing = state.tagsTable.filters[colIdx] as
-						| NumericColumnFilter
-						| DateColumnFilter;
+						NumericColumnFilter | DateColumnFilter;
 					state.tagsTable.filters[colIdx] = {
 						type: existing.type,
 						columnKey: existing.columnKey,
@@ -279,22 +295,29 @@ export const linesSlice = createSlice({
 		) => {
 			state.tagsTable.filterLogic = action.payload;
 		},
-		setLineColor: (
-			state,
-			action: PayloadAction<{ lineId: number; color: string }>
-		) => {
+		setLineColor: (state, action: PayloadAction<{ lineId: number; color: string }>) => {
 			state.lineColors[action.payload.lineId] = action.payload.color;
 		},
-		setLineColors: (
-			state,
-			action: PayloadAction<Record<number, string>>
-		) => {
+		setLineColors: (state, action: PayloadAction<Record<number, string>>) => {
 			Object.assign(state.lineColors, action.payload);
 		},
 		removeLineColors: (state, action: PayloadAction<number[]>) => {
 			for (const lineId of action.payload) {
 				delete state.lineColors[lineId];
 			}
+		},
+		setChartLines: (state, action: PayloadAction<number[]>) => {
+			state.chartLines = action.payload;
+		},
+		toggleChartLine: (state, action: PayloadAction<number>) => {
+			if (state.chartLines.includes(action.payload)) {
+				state.chartLines = without(state.chartLines, action.payload);
+			} else {
+				state.chartLines = [...state.chartLines, action.payload];
+			}
+		},
+		removeChartLines: (state, action: PayloadAction<number[]>) => {
+			state.chartLines = without(state.chartLines, ...action.payload);
 		},
 	},
 });
@@ -324,6 +347,9 @@ export const {
 	setLineColor,
 	setLineColors,
 	removeLineColors,
+	setChartLines,
+	toggleChartLine,
+	removeChartLines,
 } = linesSlice.actions;
 
 // Export the slice reducer for use in the store configuration

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useCallback, useMemo, useState } from 'react';
+import { memo, useCallback, useMemo, useState } from 'react';
 import { get, pick, set } from 'lodash-es';
 import { useQuery } from '@tanstack/react-query';
 import { Text } from 'react-native-paper';
@@ -37,7 +37,11 @@ const useActionShowStats = ({ lineIds }: { lineIds: number[] }) => {
 				showHeader={true}
 			/>
 		);
-	}, [modalVisible, handleDismissModal, lineIds]);
+	}, [
+		modalVisible,
+		handleDismissModal,
+		lineIds,
+	]);
 
 	return useMemo(
 		() => ({
@@ -51,66 +55,70 @@ const useActionShowStats = ({ lineIds }: { lineIds: number[] }) => {
 	);
 };
 
-const StatsModal = ({
-	lineIds,
-	handleDismissModal,
-	showHeader,
-}: {
-	lineIds: number[];
-	handleDismissModal: () => void;
-	showHeader?: boolean;
-}) => {
-	const { t } = useTranslation();
-	const { data: lines } = useQuery({
-		queryKey: ['lines', lineIds],
-		queryFn: queryLinesWithoutGeom,
-		select: (l: LinePartial[]) => l.map((line) => pick(line, ['stats'])),
-	});
+const StatsModal = memo(
+	({
+		lineIds,
+		handleDismissModal,
+		showHeader,
+	}: {
+		lineIds: number[];
+		handleDismissModal: () => void;
+		showHeader?: boolean;
+	}) => {
+		const { t } = useTranslation();
+		const { data: lines } = useQuery({
+			queryKey: ['lines', lineIds],
+			queryFn: queryLinesWithoutGeom,
+			select: (l: LinePartial[]) => l.map((line) => pick(line, ['stats'])),
+		});
 
-	const stats: LineStatsType = useMemo(() => {
-		if (!lines || !lines.length) {
-			return {};
-		}
-		return lines.reduce<LineStatsType>((acc, line) => {
-			Object.keys(line?.stats ?? {}).forEach((key) => {
-				switch (key) {
-					case 'length':
-					case 'uphill':
-					case 'downhill':
-						set(acc, key, get(acc, key, 0) + get(line?.stats ?? {}, key, 0));
-						break;
-					case 'minZ':
-					case 'maxZ': {
-						const val = get(line?.stats ?? {}, key);
-						if (undefined !== val) {
-							const accVal = get(acc, key);
-							if (
-								undefined === accVal ||
-								('minZ' === key && val < accVal) ||
-								('maxZ' === key && val > accVal)
-							) {
-								set(acc, key, val);
+		const stats: LineStatsType = useMemo(() => {
+			if (!lines || !lines.length) {
+				return {};
+			}
+			return lines.reduce<LineStatsType>((acc, line) => {
+				Object.keys(line?.stats ?? {}).forEach((key) => {
+					switch (key) {
+						case 'length':
+						case 'uphill':
+						case 'downhill':
+							set(acc, key, get(acc, key, 0) + get(line?.stats ?? {}, key, 0));
+							break;
+						case 'minZ':
+						case 'maxZ': {
+							const val = get(line?.stats ?? {}, key);
+							if (undefined !== val) {
+								const accVal = get(acc, key);
+								if (
+									undefined === accVal ||
+									('minZ' === key && val < accVal) ||
+									('maxZ' === key && val > accVal)
+								) {
+									set(acc, key, val);
+								}
 							}
+							break;
 						}
-						break;
 					}
-				}
-			});
-			return acc;
-		}, {});
-	}, [lines]);
+				});
+				return acc;
+			}, {});
+		}, [lines]);
 
-	return (
-		<ModalWrapper
-			visible={true}
-			onDismiss={handleDismissModal}
-			headerLabel={t('lines.statsSummary')}
-			innerStyle={sharedStyles.modal}
-		>
-			{showHeader && <Text>{sprintf(t('lines.statsForLines'), lineIds.length)}</Text>}
-			<LineStatsRows stats={stats} />
-		</ModalWrapper>
-	);
-};
+		return (
+			<ModalWrapper
+				visible={true}
+				onDismiss={handleDismissModal}
+				headerLabel={t('lines.statsSummary')}
+				innerStyle={sharedStyles.modal}
+			>
+				{showHeader && <Text>{sprintf(t('lines.statsForLines'), lineIds.length)}</Text>}
+				<LineStatsRows stats={stats} />
+			</ModalWrapper>
+		);
+	}
+);
+
+StatsModal.displayName = 'StatsModal';
 
 export default useActionShowStats;

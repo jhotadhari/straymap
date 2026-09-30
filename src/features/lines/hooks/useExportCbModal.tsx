@@ -7,7 +7,7 @@ import { Text, Icon, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { sprintf } from 'sprintf-js';
 import { writeFile, ExternalStorageDirectoryPath } from 'react-native-fs';
-import { chunk } from 'lodash-es';
+import { chunk, get } from 'lodash-es';
 import { LineString } from 'geojson';
 import { useQuery } from '@tanstack/react-query';
 
@@ -22,17 +22,18 @@ import ModalWrapper from '../../../components/generic/wrapper/ModalWrapper';
 import RadioListItem from '../../../components/generic/wrapper/RadioListItem';
 import LoadingIndicator from '../../../components/generic/primitives/LoadingIndicator';
 import { useButtonProps } from '../../../compose/useButtonProps';
+import { useAppSelector } from '../../../store/hooks';
+import { selectAppDirs } from '../../dirs/selectors';
+import { AbsPath } from '../../dirs/types';
 import { fetchLines } from '../db/fetch';
 import { queryLineGeom } from '../db/queryFns';
 import { writeFormat, EXPORT_FORMATS, ExportFormat } from '../utils/formatWriters';
-import {
-	resolveFilename,
-	sanitizeFilename,
-	DEFAULT_TEMPLATE,
-} from '../utils/filenameTemplate';
+import { resolveFilename, sanitizeFilename, DEFAULT_TEMPLATE } from '../utils/filenameTemplate';
 import { LinePartial } from '../types';
 
-const EXPORT_DIR = ExternalStorageDirectoryPath + '/Android/media/com.jhotadhari.straymap/export';
+// Legacy fallback for devices where the dirs feature hasn't resolved yet.
+const LEGACY_EXPORT_DIR =
+	ExternalStorageDirectoryPath + '/Android/media/com.jhotadhari.straymap/export';
 
 const extractLabel = (a: { label: string }) => a.label;
 
@@ -98,6 +99,12 @@ type UseExportCbModalParams =
 const useExportCbModal = (params: UseExportCbModalParams) => {
 	const { t } = useTranslation();
 	const theme = useTheme();
+
+	const appDirs = useAppSelector(selectAppDirs);
+	const exportDir = useMemo(
+		() => (get(appDirs, 'export', []) as AbsPath[])[0] ?? LEGACY_EXPORT_DIR,
+		[appDirs]
+	);
 
 	const [modalVisible, setModalVisible] = useState(false);
 	const [phase, setPhase] = useState<ExportPhase>('format');
@@ -184,7 +191,7 @@ const useExportCbModal = (params: UseExportCbModalParams) => {
 				},
 			]);
 
-			const filepath = `${EXPORT_DIR}/${filename}`;
+			const filepath = `${exportDir}/${filename}`;
 			await writeFile(filepath, content, 'utf8');
 
 			setResult({
@@ -202,7 +209,13 @@ const useExportCbModal = (params: UseExportCbModalParams) => {
 		} finally {
 			setPhase('result');
 		}
-	}, [params, lineWithGeom, selectedFormat, t]);
+	}, [
+		params,
+		lineWithGeom,
+		selectedFormat,
+		exportDir,
+		t,
+	]);
 
 	const handleExportBulk = useCallback(async () => {
 		const checkedIds = params.type === 'bulk' ? params.checkedIds : [];
@@ -226,13 +239,19 @@ const useExportCbModal = (params: UseExportCbModalParams) => {
 
 		let written = 0;
 		const failed: string[] = [];
+		let total = 0;
 
 		try {
 			const linesWithGeom = (await fetchLines({
 				lineIds: checkedIds,
-				fieldsInclude: ['geometry', 'title', 'created_at', 'custom_date'],
+				fieldsInclude: [
+					'geometry',
+					'title',
+					'created_at',
+					'custom_date',
+				],
 			})) as (LinePartial & { geometry?: LineString })[];
-			const total = linesWithGeom.filter((l) => l.geometry).length;
+			total = linesWithGeom.filter((l) => l.geometry).length;
 			setTotalCount(total);
 
 			if (total === 0) {
@@ -250,9 +269,7 @@ const useExportCbModal = (params: UseExportCbModalParams) => {
 				.map((line) => {
 					const safeTitle = line.title ?? line.id?.toString() ?? 'line';
 					const rawDate = line.custom_date ?? line.created_at ?? null;
-					const dateStr = rawDate
-						? dayjs(rawDate).format('YYYY-MM-DD')
-						: 'no-date';
+					const dateStr = rawDate ? dayjs(rawDate).format('YYYY-MM-DD') : 'no-date';
 					const ext = selectedFormat === 'geojson' ? 'geojson' : selectedFormat;
 
 					const resolved = resolveFilename(DEFAULT_TEMPLATE, {
@@ -278,7 +295,7 @@ const useExportCbModal = (params: UseExportCbModalParams) => {
 			for (const batch of batches) {
 				const results = await Promise.allSettled(
 					batch.map(({ filename, content }) =>
-						writeFile(`${EXPORT_DIR}/${filename}`, content, 'utf8')
+						writeFile(`${exportDir}/${filename}`, content, 'utf8')
 					)
 				);
 				results.forEach((r, i) => {
@@ -286,7 +303,7 @@ const useExportCbModal = (params: UseExportCbModalParams) => {
 						written++;
 					} else {
 						logError('useExportCbModal.bulk.perFile', r.reason);
-						failed.push(`${EXPORT_DIR}/${batch[i].filename}`);
+						failed.push(`${exportDir}/${batch[i].filename}`);
 					}
 				});
 				setProgressCount(written);
@@ -295,12 +312,10 @@ const useExportCbModal = (params: UseExportCbModalParams) => {
 					const succeededDetails = prepTasks
 						.slice(0, written + failed.length)
 						.filter((_t) => {
-							const fi = failed.findIndex(
-								(f) => f === `${EXPORT_DIR}/${_t.filename}`
-							);
+							const fi = failed.findIndex((f) => f === `${exportDir}/${_t.filename}`);
 							return fi === -1;
 						})
-						.map((t) => `${EXPORT_DIR}/${t.filename}`);
+						.map((t) => `${exportDir}/${t.filename}`);
 					setResult({
 						icon: 'alert-outline',
 						header: sprintf(t('lines.exportStopped'), written, total),
@@ -312,7 +327,7 @@ const useExportCbModal = (params: UseExportCbModalParams) => {
 			}
 
 			if (failed.length === 0) {
-				const allDetails = prepTasks.map((t) => `${EXPORT_DIR}/${t.filename}`);
+				const allDetails = prepTasks.map((t) => `${exportDir}/${t.filename}`);
 				setResult({
 					icon: 'check-circle-outline',
 					header: sprintf(t('lines.exportSuccess'), written, total),
@@ -327,7 +342,7 @@ const useExportCbModal = (params: UseExportCbModalParams) => {
 			} else {
 				setResult({
 					icon: 'alert-outline',
-					header: sprintf(t('lines.exportPartial'), written, total, ''),
+					header: sprintf(t('lines.exportPartial'), written, total, failed.length),
 					details: failed,
 				});
 			}
@@ -336,12 +351,7 @@ const useExportCbModal = (params: UseExportCbModalParams) => {
 			if (written > 0) {
 				setResult({
 					icon: 'alert-outline',
-					header: sprintf(
-						t('lines.exportPartial'),
-						written,
-						written + failed.length,
-						''
-					),
+					header: sprintf(t('lines.exportPartial'), written, total, failed.length),
 					details: failed,
 				});
 			} else {
@@ -354,11 +364,19 @@ const useExportCbModal = (params: UseExportCbModalParams) => {
 		} finally {
 			setPhase('result');
 		}
-	}, [params, selectedFormat, t]);
+	}, [
+		params,
+		selectedFormat,
+		exportDir,
+		t,
+	]);
 
 	const handleExport = params.type === 'single' ? handleExportSingle : handleExportBulk;
 
-	const canExport = params.type === 'single' ? !geomLoading && !!lineWithGeom?.geometry : true;
+	const canExport =
+		params.type === 'single'
+			? !geomLoading && !!lineWithGeom?.geometry
+			: params.checkedIds.length > 0;
 
 	const buttonPropsExport = useButtonProps({
 		mode: 'outlined',
@@ -392,9 +410,7 @@ const useExportCbModal = (params: UseExportCbModalParams) => {
 								key={opt.key}
 								opt={opt}
 								onPress={() => setSelectedFormat(opt.key as ExportFormat)}
-								status={
-									selectedFormat === opt.key ? 'checked' : 'unchecked'
-								}
+								status={selectedFormat === opt.key ? 'checked' : 'unchecked'}
 								labelExtractor={extractLabel}
 							/>
 						))}
@@ -414,14 +430,9 @@ const useExportCbModal = (params: UseExportCbModalParams) => {
 						<View style={styles.progressRow}>
 							<LoadingIndicator />
 							<Text style={styles.progressText}>
-								{params.type === 'single' ||
-								totalCount === 0
+								{params.type === 'single' || totalCount === 0
 									? t('lines.exporting')
-									: sprintf(
-											t('lines.exportProgress'),
-											progressCount,
-											totalCount
-										)}
+									: sprintf(t('lines.exportProgress'), progressCount, totalCount)}
 							</Text>
 						</View>
 						{params.type === 'bulk' && (
@@ -451,7 +462,10 @@ const useExportCbModal = (params: UseExportCbModalParams) => {
 								<Text>{result.header}</Text>
 								{result.details.length > 0 &&
 									result.details.map((d, i) => (
-										<Text key={i} style={detailStyle}>
+										<Text
+											key={i}
+											style={detailStyle}
+										>
 											{d}
 										</Text>
 									))}

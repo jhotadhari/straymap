@@ -113,9 +113,9 @@ describe('drawers slice reducers', () => {
 		it('sets activeKeyLeft with explicit side', () => {
 			const state = drawersReducer(
 				undefined,
-				setActiveKey({ side: 'left', activeKey: 'position' })
+				setActiveKey({ side: 'left', activeKey: 'lines' })
 			);
-			expect(state.activeKeyLeft).toBe('position');
+			expect(state.activeKeyLeft).toBe('lines');
 		});
 
 		it('sets activeKeyRight with explicit side', () => {
@@ -148,27 +148,24 @@ describe('drawers slice reducers', () => {
 				undefined,
 				setActiveKey({ side: 'left', activeKey: 'nonexistent' })
 			);
-			// Default left keys: ['position', 'lines', 'waypoints']
-			expect(state.activeKeyLeft).toBeUndefined();
+			// Default left keys: ['lines']
+			expect(state.activeKeyLeft).toBe('lines');
 		});
 
 		it('auto-detects side when side not provided', () => {
-			const state = drawersReducer(undefined, setActiveKey({ activeKey: 'position' }));
-			expect(state.activeKeyLeft).toBe('position');
+			const state = drawersReducer(undefined, setActiveKey({ activeKey: 'lines' }));
+			expect(state.activeKeyLeft).toBe('lines');
 		});
 	});
 
 	it('initial state has expected defaults', () => {
 		const state = drawersReducer(undefined, { type: '@@INIT' });
 		expect(state.itemKeysLeft).toEqual([
-			'position',
 			'lines',
-			'waypoints',
 		]);
 		expect(state.itemKeysRight).toEqual([
 			'maps',
-			'searchPlace',
-			'brouter',
+			'routing',
 		]);
 		expect(state.controlHandleSide).toBe('right');
 	});
@@ -197,14 +194,12 @@ describe('drawers selectors', () => {
 		const state = buildRoot();
 		const keys = selectItemKeys(state, { side: 'left' });
 		// All default left keys should be valid drawer items
-		expect(keys).toContain('position');
 		expect(keys).toContain('lines');
-		expect(keys).toContain('waypoints');
 	});
 
 	it('selectSideForKey returns side for a key', () => {
 		const state = buildRoot();
-		expect(selectSideForKey(state, 'position')).toBe('left');
+		expect(selectSideForKey(state, 'lines')).toBe('left');
 		expect(selectSideForKey(state, 'maps')).toBe('right');
 		expect(selectSideForKey(state, 'nonexistent')).toBeUndefined();
 	});

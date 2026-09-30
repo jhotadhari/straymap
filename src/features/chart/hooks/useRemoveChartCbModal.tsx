@@ -2,9 +2,8 @@
  * External dependencies
  */
 import { useCallback, useMemo, useState } from 'react';
-import { Text } from 'react-native-paper';
-import { sprintf } from 'sprintf-js';
 import { View } from 'react-native';
+import { Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 
 /**
@@ -13,25 +12,27 @@ import { useTranslation } from 'react-i18next';
 import ButtonHighlight from '../../../components/generic/primitives/ButtonHighlight';
 import ModalWrapper from '../../../components/generic/wrapper/ModalWrapper';
 import { useButtonProps } from '../../../compose/useButtonProps';
-import { useAppDispatch, useSystemLineIds } from '../../../store/hooks';
 import { sharedStyles } from '../../../sharedStyles';
-import { setSelected } from '../slice';
 
-const useClearLinesCbModal = ({
-	lineIds,
-	backgroundBlur,
+/**
+ * Confirmation modal for removing an chart from the bottom
+ * drawer. Nothing is deleted — the line stays on the map and the chart
+ * can be toggled on again at any time, so the confirm action is styled
+ * neutrally (no destructive red).
+ */
+const useRemoveChartCbModal = ({
+	onRemove,
+	onSuccess,
+	backgroundBlur = false,
 }: {
-	lineIds: number[];
+	onRemove: () => void;
+	onSuccess?: () => void;
 	backgroundBlur?: boolean;
 }) => {
-	const dispatch = useAppDispatch();
-
-	const systemLineIds = useSystemLineIds();
-
 	const { t } = useTranslation();
 
-	const buttonPropsSuccess = useButtonProps({ isSuccess: true });
-	const buttonPropsDelete = useButtonProps({ isDestructive: true });
+	const buttonPropsCancel = useButtonProps({ isSuccess: true });
+	const buttonPropsConfirm = useButtonProps({ isDestructive: true });
 
 	const [modalVisible, setModalVisible] = useState(false);
 
@@ -41,16 +42,14 @@ const useClearLinesCbModal = ({
 
 	const handleDismissModal = useCallback(() => setModalVisible(false), []);
 
-	const handleClearLines = useCallback(() => {
-		const systemIds = new Set(Object.values(systemLineIds));
-		const filtered = lineIds.filter((id) => systemIds.has(id));
-		dispatch(setSelected(filtered));
+	const handleConfirm = useCallback(() => {
 		handleDismissModal();
+		onRemove();
+		onSuccess && onSuccess();
 	}, [
-		dispatch,
 		handleDismissModal,
-		lineIds,
-		systemLineIds,
+		onRemove,
+		onSuccess,
 	]);
 
 	const modalNode = useMemo(() => {
@@ -63,47 +62,45 @@ const useClearLinesCbModal = ({
 				visible={modalVisible}
 				backgroundBlur={backgroundBlur}
 				onDismiss={handleDismissModal}
-				headerLabel={t('lines.clearLinesConfirm')}
+				headerLabel={t('chart.removeChart')}
 				innerStyle={sharedStyles.modal}
 			>
-				<Text>{sprintf(t('lines.clearLinesConfirmationBody'), lineIds.length)}</Text>
+				<Text>{t('chart.removeChartConfirmBody')}</Text>
 
 				<View style={sharedStyles.modalControls}>
 					<ButtonHighlight
 						onPress={handleDismissModal}
-						{...buttonPropsSuccess}
+						{...buttonPropsCancel}
 					>
 						{t('cancel')}
 					</ButtonHighlight>
 
 					<ButtonHighlight
-						onPress={handleClearLines}
-						{...buttonPropsDelete}
+						onPress={handleConfirm}
+						{...buttonPropsConfirm}
 					>
-						{t('lines.clearLinesFromMap')}
+						{t('chart.removeChart')}
 					</ButtonHighlight>
 				</View>
 			</ModalWrapper>
 		);
 	}, [
-		t,
-		lineIds.length,
 		modalVisible,
-		handleDismissModal,
-		buttonPropsSuccess,
-		buttonPropsDelete,
-		handleClearLines,
 		backgroundBlur,
+		handleDismissModal,
+		handleConfirm,
+		buttonPropsCancel,
+		buttonPropsConfirm,
+		t,
 	]);
 
 	return useMemo(
 		() => ({
 			cb,
 			modalNode,
-			iconSource: 'map-marker-remove',
 		}),
 		[cb, modalNode]
 	);
 };
 
-export default useClearLinesCbModal;
+export default useRemoveChartCbModal;

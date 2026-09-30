@@ -28,6 +28,7 @@ const MONTH_NAME_MAP: Record<string, string> = {
 	aug: 'Aug',
 	august: 'August',
 	sep: 'Sep',
+	sept: 'Sep',
 	september: 'September',
 	okt: 'Oct',
 	oktober: 'October',

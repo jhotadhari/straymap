@@ -17,7 +17,11 @@ const PaintbrushVerticalIcon = (({
 	color?: TextStyle['color'];
 	size?: number;
 }) => (
-	<LucideIcons size={size ?? 20} color={color} name="paintbrush-vertical" />
+	<LucideIcons
+		size={size ?? 20}
+		color={color}
+		name="paintbrush-vertical"
+	/>
 )) as ElementType<{
 	color?: TextStyle['color'];
 	size?: number;

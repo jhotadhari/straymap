@@ -16,6 +16,7 @@ import DrawerContent from './DrawerContent';
 import { setActiveKey } from '../slice';
 import DrawerContext from '../DrawerContext';
 import DrawerHandles from './DrawerHandles';
+import useBottomDrawerAwareHeights from '../hooks/useBottomDrawerAwareHeights';
 
 const Drawer: FC<DrawerProps> = ({
 	height,
@@ -89,20 +90,22 @@ const Drawer: FC<DrawerProps> = ({
 		]
 	);
 
+	const { animatedHeight } = useBottomDrawerAwareHeights(height);
+
 	const styleDrawer = useMemo(
 		() => [
 			animatedStyles,
+			animatedHeight,
 			{
 				width: drawerWidth,
-				height,
 				backgroundColor: theme.colors.background,
 				zIndex: 30,
 			},
 		],
 		[
 			animatedStyles,
+			animatedHeight,
 			drawerWidth,
-			height,
 			theme,
 		]
 	);

@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { useQuery } from '@tanstack/react-query';
-import { FC, memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { FC, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FlashList } from '@shopify/flash-list';
 import type { ListRenderItem } from '@shopify/flash-list';
 import { StyleSheet, View } from 'react-native';
@@ -21,7 +21,7 @@ import {
 	selectTagsTableColumns,
 } from '../../selectors';
 import { Tag } from '../../types';
-import { tableStyles } from '../tableResources';
+import { tableStyles, TableErrorFallback } from '../tableResources';
 import { cellConfigs } from './sharedDeps';
 import TagTableHeader from './TableHeader';
 import TagTableRow from './TableRow';
@@ -35,7 +35,7 @@ import CreateTagModal from '../CreateTagModal';
 import { setTagTemp } from '../../slice';
 import LoadingIndicator from '../../../../components/generic/primitives/LoadingIndicator';
 import BidirectionalScrollHost from '../../../../components/generic/wrapper/BidirectionalScrollHost';
-import { useFixedRowHeight } from '../../hooks/useFixedRowHeight';
+import ErrorBoundary from '../../../../components/generic/wrapper/ErrorBoundary';
 
 const HEADER_ID = -1;
 
@@ -83,7 +83,17 @@ const TagsTable: FC = () => {
 
 	const tagIds = useMemo(() => tags?.map((tag) => tag.id) ?? [], [tags]);
 
-	const { isFixedHeight, rowHeight } = useFixedRowHeight(tags?.length ?? 0);
+	// Dev-only: log dataset size transitions to make hard-to-reproduce
+	// rendering issues attributable.
+	const prevDataLengthRef = useRef<number | null>(null);
+	useEffect(() => {
+		if (!__DEV__) return;
+		const prev = prevDataLengthRef.current;
+		if (prev !== null && prev !== dataWithHeader.length) {
+			console.log(`DEBUG TagsTable data ${prev} -> ${dataWithHeader.length} rows`);
+		}
+		prevDataLengthRef.current = dataWithHeader.length;
+	}, [dataWithHeader.length]);
 
 	const tableColumns = useAppSelector(selectTagsTableColumns);
 
@@ -108,9 +118,14 @@ const TagsTable: FC = () => {
 	const [checkedIds, setCheckedIds] = useState<number[]>([]);
 	const [addModalVisible, setAddModalVisible] = useState(false);
 
-	// Reset checked rows when filters change
+	// Reset checked rows when filters change. Deferred to the next frame so
+	// the state change lands in a commit separate from the query data change —
+	// keeps `renderItem` stable while FlashList's layout cascade settles.
 	useEffect(() => {
-		setCheckedIds([]);
+		const raf = requestAnimationFrame(() => {
+			setCheckedIds([]);
+		});
+		return () => cancelAnimationFrame(raf);
 	}, [filters]);
 
 	// ── Column-header filter modal ────────────────────────────────────────
@@ -182,8 +197,6 @@ const TagsTable: FC = () => {
 						isChecked={checkedIds.includes(tag.id)}
 						toggleCheckedId={toggleCheckedId}
 						onEditTag={handleEditTag}
-						isFixedHeight={isFixedHeight}
-						rowHeight={rowHeight}
 					/>
 				);
 			},
@@ -193,8 +206,6 @@ const TagsTable: FC = () => {
 				toggleCheckedId,
 				handleEditTag,
 				handleOpenCreate,
-				isFixedHeight,
-				rowHeight,
 			]
 		);
 
@@ -240,21 +251,18 @@ const TagsTable: FC = () => {
 							</View>
 						</BlurView>
 					)}
-					<BidirectionalScrollHost style={styles.flexOne}>
-						<FlashList
-							stickyHeaderIndices={STICKY_HEADER_INDICES}
-							scrollEnabled={false}
-							data={dataWithHeader}
-							keyExtractor={keyExtractor}
-							renderItem={renderItem}
-							{...(isFixedHeight && {
-								overrideItemLayout: (layout: { span?: number; size?: number }) => {
-									layout.size = rowHeight;
-								},
-							})}
-							style={flashListStyle}
-						/>
-					</BidirectionalScrollHost>
+					<ErrorBoundary fallback={(reset) => <TableErrorFallback onRetry={reset} />}>
+						<BidirectionalScrollHost style={styles.flexOne}>
+							<FlashList
+								stickyHeaderIndices={STICKY_HEADER_INDICES}
+								scrollEnabled={false}
+								data={dataWithHeader}
+								keyExtractor={keyExtractor}
+								renderItem={renderItem}
+								style={flashListStyle}
+							/>
+						</BidirectionalScrollHost>
+					</ErrorBoundary>
 				</View>
 
 				<FooterContext.Provider value={footerContextValue}>

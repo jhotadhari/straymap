@@ -23,7 +23,7 @@ import {
 	selectLinesTableColumns,
 } from '../../selectors';
 import { Line, LineStats } from '../../types';
-import { tableStyles } from '../tableResources';
+import { tableStyles, TableErrorFallback } from '../tableResources';
 import { cellConfigs } from './sharedDeps';
 import TableHeader from './TableHeader';
 import TableRow, { TableRowProps } from './TableRow';
@@ -42,7 +42,7 @@ import { bbox as turfBbox } from '@turf/turf';
 import { AppContext } from '../../../../Context';
 import { MAP_ANIMATION_PADDING_PX } from '../../../../constants';
 import BidirectionalScrollHost from '../../../../components/generic/wrapper/BidirectionalScrollHost';
-import { useFixedRowHeight } from '../../hooks/useFixedRowHeight';
+import ErrorBoundary from '../../../../components/generic/wrapper/ErrorBoundary';
 
 const HEADER_ID = -1;
 
@@ -59,10 +59,10 @@ const TableRowMemo = memo(
 			prevProps.isOnMap === nextProps.isOnMap &&
 			prevProps.isChecked === nextProps.isChecked &&
 			prevProps.isRoutingLine === nextProps.isRoutingLine &&
+			prevProps.idx === nextProps.idx &&
+			prevProps.stats === nextProps.stats &&
 			prevProps.line?.title === nextProps.line?.title &&
-			prevProps.line?.tags === nextProps.line?.tags &&
-			prevProps.isFixedHeight === nextProps.isFixedHeight &&
-			prevProps.rowHeight === nextProps.rowHeight
+			prevProps.line?.tags === nextProps.line?.tags
 		);
 	}
 );
@@ -105,9 +105,18 @@ const LinesTable: FC = () => {
 	const sort = useAppSelector(selectLinesSort);
 	const filters = useAppSelector(selectLinesFilters);
 	const filterLogic = useAppSelector(selectLinesFilterLogic);
+	const tableColumns = useAppSelector(selectLinesTableColumns);
+
+	// The import_source_path column displays the line's `data` JSON —
+	// only request it when the column is actually visible to keep the
+	// default table payload small.
+	const needsImportPath = useMemo(
+		() => !!tableColumns.find((c) => c.key === 'import_source_path' && c.visible),
+		[tableColumns]
+	);
 
 	const { data: lines, isLoading } = useQuery({
-		queryKey: ['lines', { sort, filters, filterLogic }],
+		queryKey: ['lines', { sort, filters, filterLogic, needsImportPath }],
 		queryFn: queryLinesWithoutGeom,
 		gcTime: 1000 * 60 * 5, // The time in milliseconds that unused/inactive cache data remains in memory. When a query's cache becomes unused or inactive, that cache data will be garbage collected after this duration.
 	});
@@ -127,9 +136,17 @@ const LinesTable: FC = () => {
 
 	const lineIds = useMemo(() => lines?.map((line) => line.id) ?? [], [lines]);
 
-	const { isFixedHeight, rowHeight } = useFixedRowHeight(lines?.length ?? 0);
-
-	const tableColumns = useAppSelector(selectLinesTableColumns);
+	// Dev-only: log dataset size transitions to make hard-to-reproduce
+	// rendering issues attributable.
+	const prevDataLengthRef = useRef<number | null>(null);
+	useEffect(() => {
+		if (!__DEV__) return;
+		const prev = prevDataLengthRef.current;
+		if (prev !== null && prev !== dataWithHeader.length) {
+			console.log(`DEBUG LinesTable data ${prev} -> ${dataWithHeader.length} rows`);
+		}
+		prevDataLengthRef.current = dataWithHeader.length;
+	}, [dataWithHeader.length]);
 
 	const contentMinWidth = useMemo(() => {
 		const actionCol = 100;
@@ -149,25 +166,15 @@ const LinesTable: FC = () => {
 		[contentMinWidth]
 	);
 
-	// Remove not existing ids from selection.
-	useEffect(() => {
-		if (lineIds.length) {
-			const notExistingIds = without(onMapIdsTemp, ...lineIds);
-			if (notExistingIds.length) {
-				setOnMapIdsTemp(without(onMapIds, ...notExistingIds));
-			}
-		}
-	}, [
-		lineIds,
-		onMapIdsTemp,
-		onMapIds,
-	]);
-
 	const [checkedIds, setCheckedIds] = useState<number[]>([]);
 
 	// Reset checked rows when filters change, since the visible row set changed.
+	// Deferred to the next frame for the same reason as the cleanup above.
 	useEffect(() => {
-		setCheckedIds([]);
+		const raf = requestAnimationFrame(() => {
+			setCheckedIds([]);
+		});
+		return () => cancelAnimationFrame(raf);
 	}, [filters]);
 
 	// ── Column-header filter modal ────────────────────────────────────────
@@ -271,8 +278,6 @@ const LinesTable: FC = () => {
 					toggleOnMapId={toggleOnMapId}
 					isChecked={checkedIds.includes(line.id)}
 					isRoutingLine={line.id === routingLineId}
-					isFixedHeight={isFixedHeight}
-					rowHeight={rowHeight}
 					stats={
 						line.id !== routingLineId
 							? undefined
@@ -288,8 +293,6 @@ const LinesTable: FC = () => {
 			checkedIds,
 			routingLineId,
 			routingStats,
-			isFixedHeight,
-			rowHeight,
 			styleCell,
 			toggleOnMapId,
 		]
@@ -342,21 +345,18 @@ const LinesTable: FC = () => {
 							</View>
 						</BlurView>
 					)}
-					<BidirectionalScrollHost style={styles.flexOne}>
-						<FlashList
-							stickyHeaderIndices={STICKY_HEADER_INDICES}
-							scrollEnabled={false}
-							data={dataWithHeader}
-							keyExtractor={keyExtractor}
-							renderItem={renderItem}
-							{...(isFixedHeight && {
-								overrideItemLayout: (layout: { span?: number; size?: number }) => {
-									layout.size = rowHeight;
-								},
-							})}
-							style={flashListStyle}
-						/>
-					</BidirectionalScrollHost>
+					<ErrorBoundary fallback={(reset) => <TableErrorFallback onRetry={reset} />}>
+						<BidirectionalScrollHost style={styles.flexOne}>
+							<FlashList
+								stickyHeaderIndices={STICKY_HEADER_INDICES}
+								scrollEnabled={false}
+								data={dataWithHeader}
+								keyExtractor={keyExtractor}
+								renderItem={renderItem}
+								style={flashListStyle}
+							/>
+						</BidirectionalScrollHost>
+					</ErrorBoundary>
 				</View>
 
 				<FooterContext.Provider value={footerContextValue}>

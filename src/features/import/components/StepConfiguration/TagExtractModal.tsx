@@ -21,7 +21,7 @@ import TagBadge from '../../../lines/components/TagBadge';
 import CreateTagModal from '../../../lines/components/CreateTagModal';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { selectTagMode, selectTagRegexes, selectSelectedTagIds } from '../../selectors';
-import { setTagMode, addTagRegex, removeTagRegex, setTagRegexes, setSelectedTagIds } from '../../slice';
+import { setTagMode, addTagRegex, setTagRegexes, setSelectedTagIds } from '../../slice';
 import { TagMode } from '../../types';
 import { useImportContext } from '../../ImportContext';
 import { classifyRegex, getRegexWarnings } from '../../../../lib/regexUtils';
@@ -114,14 +114,19 @@ const TagExtractModal: FC<{ visible: boolean; onDismiss: () => void }> = ({
 			await refreshAvailableTags();
 			dispatch(setSelectedTagIds([...selectedTagIds, tag.id]));
 		},
-		[dispatch, queryClient, refreshAvailableTags, selectedTagIds]
+		[
+			dispatch,
+			queryClient,
+			refreshAvailableTags,
+			selectedTagIds,
+		]
 	);
 
 	// -- regex state --
 	const [localRegexes, setLocalRegexes] = useState<string[]>(tagRegexes);
 	const debounceRef = useRef<Record<number, ReturnType<typeof setTimeout>>>({});
-	const tagRegexesRef = useRef(tagRegexes);
-	tagRegexesRef.current = tagRegexes;
+	const localRegexesRef = useRef(localRegexes);
+	localRegexesRef.current = localRegexes;
 
 	const tagRegexesLenRef = useRef(tagRegexes.length);
 
@@ -146,7 +151,14 @@ const TagExtractModal: FC<{ visible: boolean; onDismiss: () => void }> = ({
 			});
 			if (debounceRef.current[idx]) clearTimeout(debounceRef.current[idx]);
 			debounceRef.current[idx] = setTimeout(() => {
-				const updated = [...tagRegexesRef.current];
+				// Apply against the latest local snapshot — a removal
+				// while the timer was pending shifts indices, so writing
+				// into a stale position would resurrect a phantom row.
+				const current = localRegexesRef.current;
+				if (idx >= current.length) {
+					return;
+				}
+				const updated = [...current];
 				updated[idx] = value;
 				dispatch(setTagRegexes(updated));
 			}, 300);
@@ -160,11 +172,12 @@ const TagExtractModal: FC<{ visible: boolean; onDismiss: () => void }> = ({
 
 	const handleRemoveRegex = useCallback(
 		(idx: number) => {
-			if (debounceRef.current[idx]) {
-				clearTimeout(debounceRef.current[idx]);
-				delete debounceRef.current[idx];
-			}
-			dispatch(removeTagRegex(idx));
+			// Cancel every pending debounce — indices shift on removal.
+			Object.values(debounceRef.current).forEach(clearTimeout);
+			debounceRef.current = {};
+			const next = [...localRegexesRef.current];
+			next.splice(idx, 1);
+			dispatch(setTagRegexes(next));
 		},
 		[dispatch]
 	);
@@ -212,7 +225,10 @@ const TagExtractModal: FC<{ visible: boolean; onDismiss: () => void }> = ({
 				const labels: string[] = [];
 				let match;
 				while ((match = re.exec(sampleName)) !== null) {
-					if (match[0] === '') { re.lastIndex++; continue; }
+					if (match[0] === '') {
+						re.lastIndex++;
+						continue;
+					}
 					labels.push(match[1] ?? match[0]);
 				}
 				return labels.length ? labels.join(', ') : null;

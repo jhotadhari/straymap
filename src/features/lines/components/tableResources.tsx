@@ -4,8 +4,14 @@
 import { FC, useCallback, useMemo, useRef } from 'react';
 import { GestureResponderEvent, StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 import { Icon, Text } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 
+/**
+ * Internal dependencies
+ */
 import { TableColumn } from '../types';
+import ButtonHighlight from '../../../components/generic/primitives/ButtonHighlight';
+import { useButtonProps } from '../../../compose/useButtonProps';
 
 /**
  * Shared table styles used by both LinesTable and TagsTable.
@@ -168,6 +174,40 @@ export const useScrollSafePress = (
 
 export const SORT_ICON_SIZE = 16;
 
+export const TABLE_ROW_HEIGHT = 50;
+
+/**
+ * Fallback rendered by the ErrorBoundary wrapping a table's FlashList.
+ * Shows a short message and a retry button that resets the boundary.
+ */
+export const TableErrorFallback: FC<{ onRetry: () => void }> = ({ onRetry }) => {
+	const { t } = useTranslation();
+
+	const buttonProps = useButtonProps({});
+
+	return (
+		<View style={stylesErrorFallback.container}>
+			<Text>{t('lines.tableErrorBoundary')}</Text>
+			<ButtonHighlight
+				{...buttonProps}
+				onPress={onRetry}
+			>
+				{t('lines.tableErrorRetry')}
+			</ButtonHighlight>
+		</View>
+	);
+};
+
+const stylesErrorFallback = StyleSheet.create({
+	container: {
+		flex: 1,
+		alignItems: 'center',
+		justifyContent: 'center',
+		gap: 8,
+		padding: 16,
+	},
+});
+
 /**
  * A single sortable table header cell that uses the JS gesture-responder
  * system ({@link useScrollSafePress}) instead of TouchableOpacity.onPress.
@@ -191,7 +231,11 @@ export const SortableHeaderCell: FC<{
 }> = ({ columnKey, sortable, sortIcon, cellStyle, onSortPress, onLongPress, onRef, t }) => {
 	const handlePress = useCallback(() => {
 		if (sortable) onSortPress(columnKey);
-	}, [sortable, onSortPress, columnKey]);
+	}, [
+		sortable,
+		onSortPress,
+		columnKey,
+	]);
 
 	const handleLongPress = useCallback(() => onLongPress(columnKey), [onLongPress, columnKey]);
 

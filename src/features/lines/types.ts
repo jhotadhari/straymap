@@ -88,10 +88,7 @@ export interface TagsColumnFilter {
 }
 
 export type ColumnFilter =
-	| NumericColumnFilter
-	| DateColumnFilter
-	| StringColumnFilter
-	| TagsColumnFilter;
+	NumericColumnFilter | DateColumnFilter | StringColumnFilter | TagsColumnFilter;
 
 // ── Filter identity ──────────────────────────────────────────────────
 

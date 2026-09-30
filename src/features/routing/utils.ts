@@ -3,6 +3,9 @@
  */
 import { getRoute } from 'react-native-brouter/geojson';
 import { enrichCoordinatesWithElevation } from 'react-native-mapsforge-vtm';
+import { lineString, simplify as turfSimplify } from '@turf/turf';
+import { Position } from 'geojson';
+import { readFile } from 'react-native-fs';
 
 /**
  * Internal dependencies
@@ -17,6 +20,7 @@ import {
 } from './types';
 import { altitudeService } from '../../lib/AltitudeService';
 import { haversineDistance } from '../../lib/formatting';
+import { logError } from '../../lib/utils';
 import { DEFAULT_INHERIT_MODE } from './constants';
 import { isEqual } from 'lodash-es';
 
@@ -33,6 +37,68 @@ export const aggregateSegmentsToCoords = (segments: RoutingSegment[]) =>
 		}
 		return acc;
 	}, [] as number[][]);
+
+/**
+ * Simplify one segment's positions with turf, mirroring exactly what
+ * RoutingMapView renders. Straight-line segments are returned unsimplified
+ * so the full per-coordinate elevation is preserved.
+ */
+export const getSimplifiedSegmentCoords = (
+	positions: Position[] | undefined,
+	simplify: number | undefined,
+	provider?: string
+): number[][] | undefined => {
+	if (!positions || positions.length < 2 || simplify === undefined) {
+		return undefined;
+	}
+	// Straight-line segments are already at the user-requested interval —
+	// skip simplification so the full per-coordinate elevation is preserved.
+	if (provider === 'straightLine') {
+		return positions as number[][];
+	}
+	const line = lineString(positions);
+	const result = turfSimplify(line, { tolerance: simplify, highQuality: false });
+	return result.geometry.coordinates;
+};
+
+/**
+ * Concatenated simplified coordinates for the whole route, in point order.
+ * Segments that are still fetching, errored or too short are skipped —
+ * matching the ramp segments actually rendered on the map. The provider
+ * is resolved per point (inheritance included) so straight-line segments
+ * keep their interval points — a raw `point.profile?.provider` would be
+ * undefined for inherited profiles and the collinear intervals would be
+ * simplified away to the two endpoints.
+ */
+export const getPathCoords = (
+	points: RoutingPoint[],
+	segments: Record<string, RoutingSegment>,
+	simplify: number,
+	routeProfile: RoutingProfile
+): number[][] => {
+	const coords: number[][] = [];
+	points.forEach((fromPoint, index) => {
+		const toPoint = points[index + 1];
+		if (!toPoint) {
+			return;
+		}
+		const segment = segments[getSegmentRecordId({ fromId: fromPoint.id, toId: toPoint.id })];
+		if (
+			!segment ||
+			segment.isFetching ||
+			segment.errorMsg ||
+			(segment.positions?.length ?? 0) < 2
+		) {
+			return;
+		}
+		const provider = resolveProfileForPoint(fromPoint, index, points, routeProfile).provider;
+		const simplified = getSimplifiedSegmentCoords(segment.positions, simplify, provider);
+		if (simplified) {
+			coords.push(...simplified);
+		}
+	});
+	return coords;
+};
 
 /**
  * Fetch coordinates from BRouter, with optional compression fallback.
@@ -54,17 +120,43 @@ const getBrouterCoords = async (
 ): Promise<number[][]> => {
 	const mode: BrouterCompressionMode = opts.compressionMode ?? 'off';
 
+	// When a custom .brf profile file is selected, read its content once
+	// and pass it as remoteProfile. BRouter then ignores v + fast.
+	// A missing/unreadable file rejects with an i18n key, which is stored
+	// as segment.errorMsg and rendered by PointsList / RoutingMapView.
+	let remoteProfile: string | undefined;
+	if (opts.profilePath) {
+		try {
+			remoteProfile = await readFile(opts.profilePath, 'utf8');
+		} catch {
+			throw 'routing.profileFileMissing';
+		}
+	}
+
+	const getRequestParams = (
+		extra: { compressGpxToJson?: boolean } = {}
+	): Parameters<typeof getRoute>[0] =>
+		remoteProfile
+			? {
+					waypoints,
+					remoteProfile,
+					format: 'json',
+					...extra,
+				}
+			: {
+					waypoints,
+					vehicle: opts.v,
+					fast: opts.fast,
+					format: 'json',
+					...extra,
+				};
+
 	/**
 	 * Fetch via the uncompressed JSON path (mode `off`).
 	 */
 	const fetchUncompressed = (): Promise<number[][]> =>
 		new Promise<number[][]>((resolve, reject) => {
-			getRoute({
-				waypoints,
-				vehicle: opts.v,
-				fast: opts.fast,
-				format: 'json',
-			})
+			getRoute(getRequestParams())
 				.then((result) => {
 					if (!result.parsed) {
 						reject(new Error('Failed to parse BRouter JSON track'));
@@ -87,13 +179,11 @@ const getBrouterCoords = async (
 	 * the converted output — we enrich it from the app's own DEM data.
 	 */
 	const fetchCompressed = async (): Promise<number[][]> => {
-		const result = await getRoute({
-			waypoints,
-			vehicle: opts.v,
-			fast: opts.fast,
-			format: 'json',
-			compressGpxToJson: true,
-		});
+		const result = await getRoute(
+			getRequestParams({
+				compressGpxToJson: true,
+			})
+		);
 
 		if (!result.parsed) {
 			throw new Error('Failed to parse BRouter JSON track (compressed)');
@@ -108,8 +198,13 @@ const getBrouterCoords = async (
 				])
 			) ?? [];
 
-		// Enrich with elevation from the app's DEM data.
-		await enrichCoordinatesWithElevation(coords, altitudeService.requireHandle());
+		// Enrich with elevation from the app's DEM data. Graceful like
+		// getStraightLineCoords: without a wired map handle the route must
+		// not hard-fail — coordinates keep z = 0.
+		const handle = altitudeService.getHandle();
+		if (handle) {
+			await enrichCoordinatesWithElevation(coords, handle);
+		}
 
 		return coords;
 	};
@@ -137,7 +232,12 @@ const getStraightLineCoords = async (
 	waypoints: number[][],
 	opts: StraightLineOptions
 ): Promise<number[][]> => {
-	const interval = opts.interval ?? 1000;
+	// Sanitize the interval: NaN / <= 0 (e.g. corrupted persisted
+	// profiles) would produce `numSegments = NaN` and a two-point line.
+	const interval =
+		Number.isFinite(opts?.interval) && (opts?.interval ?? 0) > 0
+			? (opts.interval as number)
+			: 1000;
 	const [from, to] = waypoints;
 	const dist = haversineDistance(
 		[from[0], from[1]] as [number, number],
@@ -172,12 +272,47 @@ const getStraightLineCoords = async (
 		to[2] ?? 0,
 	]);
 
-	// Enrich with altitude — delegates to the library’s windowed
-	// three-phase flow.  Coordinates are grouped by 1°×1° SRTM tile;
-	// tiles without HGT files are automatically skipped.  The LRU
-	// cache capacity is temporarily raised to the window size so the
-	// collect phase is always a guaranteed cache hit.
-	await enrichCoordinatesWithElevation(coords, altitudeService.requireHandle());
+	// Enrich with altitude. Never fatal: without a wired map handle (or
+	// on enrichment errors) the intervals keep z = 0 — the route itself
+	// must not fail.
+	try {
+		const handle = altitudeService.getHandle();
+		if (handle) {
+			await enrichCoordinatesWithElevation(coords, handle);
+		}
+	} catch (err) {
+		logError('routing/getStraightLineCoords', err);
+	}
+
+	// Fallback: when the bulk enrichment failed (or left the majority of
+	// elevations unset, e.g. the preload fence timed out on a busy
+	// executor), retry per coordinate through the retrying altitude
+	// lookup the dashboard widget uses. Gated on a plausible fraction of
+	// missing elevations so genuinely sea-level coordinates (coastal
+	// routes) don't trigger thousands of sequential round-trips, and
+	// parallelized in bounded batches.
+	const zeroCount = coords.filter((c) => c[2] === 0).length;
+	if (zeroCount > coords.length * 0.5) {
+		const handle = altitudeService.getHandle();
+		if (handle && typeof handle.getAltitudeAtPositionRetry === 'function') {
+			const missing = coords.filter((c) => c[2] === 0);
+			const batchSize = 20;
+			for (let i = 0; i < missing.length; i += batchSize) {
+				await Promise.all(
+					missing.slice(i, i + batchSize).map(async (c) => {
+						try {
+							const alt = await handle.getAltitudeAtPositionRetry(c[0], c[1]);
+							if (alt != null) {
+								c[2] = alt;
+							}
+						} catch {
+							// Keep 0 — no elevation for this coordinate.
+						}
+					})
+				);
+			}
+		}
+	}
 
 	return coords;
 };

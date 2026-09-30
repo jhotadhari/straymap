@@ -2,7 +2,14 @@
  * External dependencies
  */
 import { FC, memo, useCallback, useContext, useMemo, useRef, useState } from 'react';
-import { ScrollView, StyleProp, StyleSheet, TouchableHighlight, View, ViewStyle } from 'react-native';
+import {
+	ScrollView,
+	StyleProp,
+	StyleSheet,
+	TouchableHighlight,
+	View,
+	ViewStyle,
+} from 'react-native';
 import { useTheme, Text, Icon } from 'react-native-paper';
 import { useMap } from 'react-native-mapsforge-vtm';
 import Popover from 'react-native-popover-view';
@@ -12,12 +19,12 @@ import Popover from 'react-native-popover-view';
  */
 import dayjs from '../../../../lib/dayjs';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
-import { Line } from '../../types';
+import { Line, LineStats as LineStatsType } from '../../types';
 import DrawerContext from '../../../drawers/DrawerContext';
 import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
 import MenuItem from '../../../../components/generic/wrapper/MenuItem';
 import { setLineSelected, setLineTemp, setLineColor } from '../../slice';
-import { selectLineColors } from '../../selectors';
+import { selectLineColor } from '../../selectors';
 import TagBadge from '../TagBadge';
 import IconRouting from '../../../routing/drawerPanels/routing/IconComponent';
 import useActivateDrawerItem from '../../../drawers/hooks/useActivateDrawerItem';
@@ -36,10 +43,13 @@ export interface ListRowProps {
 	systemFeatureKey: string | null;
 }
 
+// Shared by every stat-less ListRow — frozen so a future consumer
+// mutating `stats` can't corrupt all rows at once (only ever read via
+// lodash pick).
+const EMPTY_STATS = Object.freeze({} as LineStatsType);
+
 const ListRow: FC<ListRowProps> = ({ line, idx, systemFeatureKey }) => {
 	const dispatch = useAppDispatch();
-
-	const lineColors = useAppSelector(selectLineColors);
 
 	const { mapViewNativeNodeHandle } = useContext(AppContext);
 
@@ -57,17 +67,25 @@ const ListRow: FC<ListRowProps> = ({ line, idx, systemFeatureKey }) => {
 	const [colorMenuVisible, setColorMenuVisible] = useState(false);
 	const colorAnchorRef = useRef<View>(null);
 
-	const lineColor = lineColors[line.id];
+	// Subscribe to this row's colour only — the record-level selector
+	// would re-render every row on any single colour change.
+	const lineColor = useAppSelector(selectLineColor(line.id));
 	const fallbackColor = PALETTE_COLORS[0].bg;
 
 	const dismissColorMenu = useCallback(() => setColorMenuVisible(false), []);
+
+	const handleOpenColorMenu = useCallback(() => setColorMenuVisible(true), []);
 
 	const handleColorSelect = useCallback(
 		(color: string) => {
 			dispatch(setLineColor({ lineId: line.id, color }));
 			dismissColorMenu();
 		},
-		[dispatch, line.id, dismissColorMenu]
+		[
+			dispatch,
+			line.id,
+			dismissColorMenu,
+		]
 	);
 
 	const dynamicStyles = useMemo(
@@ -109,7 +127,17 @@ const ListRow: FC<ListRowProps> = ({ line, idx, systemFeatureKey }) => {
 		() => dispatch(setLineSelected(line.id)),
 		[dispatch, line.id]
 	);
-	const stats = line?.stats ?? {};
+	const stats = line?.stats ?? EMPTY_STATS;
+
+	const styleColorColumnInner = useMemo(
+		() => [
+			sharedStyles.colorColumnInner,
+			{
+				backgroundColor: (lineColor ?? fallbackColor) as `#${string}`,
+			},
+		],
+		[lineColor, fallbackColor]
+	);
 
 	const handleActivate = useCallback(() => {
 		if (line?.envelope) {
@@ -156,19 +184,14 @@ const ListRow: FC<ListRowProps> = ({ line, idx, systemFeatureKey }) => {
 	return (
 		<View style={dynamicStyles.container}>
 			<TouchableHighlight
-				onPress={() => setColorMenuVisible(true)}
+				onPress={handleOpenColorMenu}
 				style={
 					'left' === side ? sharedStyles.colorColumnLeft : sharedStyles.colorColumnRight
 				}
 			>
 				<View
 					ref={colorAnchorRef}
-					style={[
-						sharedStyles.colorColumnInner,
-						{
-							backgroundColor: (lineColor ?? fallbackColor) as `#${string}`,
-						},
-					]}
+					style={styleColorColumnInner}
 				/>
 			</TouchableHighlight>
 
@@ -192,8 +215,7 @@ const ListRow: FC<ListRowProps> = ({ line, idx, systemFeatureKey }) => {
 												style={[
 													colorCircle.circle,
 													{
-														backgroundColor:
-															palette.bg as `#${string}`,
+														backgroundColor: palette.bg as `#${string}`,
 													},
 												]}
 											/>

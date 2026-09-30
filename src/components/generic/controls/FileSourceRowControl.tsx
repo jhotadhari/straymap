@@ -15,7 +15,7 @@ import {
 	useRef,
 	useState,
 } from 'react';
-import { StyleSheet, View, ViewStyle } from 'react-native';
+import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 import { Text, TextInput, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { get } from 'lodash-es';
@@ -338,6 +338,7 @@ const FileSourceRowControl: FC<{
 	initialOptionsByPath?: OptionsByPathType;
 	AlternativeButton?: AlternativeButtonType;
 	anchorButtonIcon?: IconSource;
+	anchorButtonStyle?: StyleProp<ViewStyle>;
 	warningIfUnset?: boolean;
 	styleContent?: ViewStyle;
 	newOptionLabel?: string;
@@ -360,6 +361,7 @@ const FileSourceRowControl: FC<{
 	initialOptionsByPath = {},
 	AlternativeButton = null,
 	anchorButtonIcon: anchorButtonIcon_,
+	anchorButtonStyle,
 	warningIfUnset,
 	styleContent,
 	newOptionLabel,
@@ -553,6 +555,17 @@ const FileSourceRowControl: FC<{
 
 	const buttonProps = useButtonProps({});
 
+	const { style: buttonPropsStyle, ...restButtonProps } = buttonProps;
+
+	const styleActionsRow = useMemo(() => [styles.actionsRow, styleContent], [styleContent]);
+
+	const styleButton = useMemo(
+		() => [buttonPropsStyle, anchorButtonStyle],
+		[buttonPropsStyle, anchorButtonStyle]
+	);
+
+	const optionsPaths = useMemo(() => Object.keys(optionsByPath), [optionsByPath]);
+
 	return (
 		<InfoLabelRow
 			label={label}
@@ -564,7 +577,7 @@ const FileSourceRowControl: FC<{
 				onDismiss={dismissModal}
 				headerLabel={header || label}
 			>
-				{Object.keys(optionsByPath).map((path) => (
+				{optionsPaths.map((path) => (
 					<OptionsByPath
 						key={path}
 						options={optionsByPath[path]}
@@ -582,10 +595,11 @@ const FileSourceRowControl: FC<{
 				))}
 			</ModalWrapper>
 
-			<View style={[styles.actionsRow, styleContent]}>
+			<View style={styleActionsRow}>
 				{!AlternativeButton && !dirsInfoLoading && (
 					<ButtonHighlight
-						{...buttonProps}
+						{...restButtonProps}
+						style={styleButton}
 						icon={anchorButtonIcon}
 						onPress={handleOpenModal}
 					>

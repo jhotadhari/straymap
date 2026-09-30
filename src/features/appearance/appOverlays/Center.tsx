@@ -1,11 +1,12 @@
 /**
  * External dependencies
  */
-import React, { useContext, useEffect, useMemo, useState } from 'react';
+import React, { memo, useContext, useEffect, useMemo, useState } from 'react';
 import { Dimensions, Image, StyleSheet, View } from 'react-native';
 import { Icon } from 'react-native-paper';
 import { SvgXml } from 'react-native-svg';
 import { readFile } from 'react-native-fs';
+import Animated from 'react-native-reanimated';
 
 /**
  * Internal dependencies
@@ -14,8 +15,9 @@ import { useAppSelector } from '../../../store/hooks';
 import { selectCursor } from '../selectors';
 import { CursorConfig } from '../types';
 import { AppContext } from '../../../Context';
+import useBottomDrawerAwareHeights from '../../drawers/hooks/useBottomDrawerAwareHeights';
 
-export const CenterInner = ({ cursor }: { cursor?: CursorConfig }) => {
+const CenterInnerComponent = ({ cursor }: { cursor?: CursorConfig }) => {
 	const cursorConfigFromStore = useAppSelector(selectCursor);
 
 	const cursorConfig = cursor || cursorConfigFromStore;
@@ -46,6 +48,15 @@ export const CenterInner = ({ cursor }: { cursor?: CursorConfig }) => {
 		[cursorConfig?.size]
 	);
 
+	const imgSource = useMemo(
+		() => ({
+			uri: cursorConfig?.iconSource.startsWith('/')
+				? 'file://' + cursorConfig?.iconSource
+				: cursorConfig?.iconSource,
+		}),
+		[cursorConfig?.iconSource]
+	);
+
 	return (
 		<View>
 			{cursorConfig &&
@@ -71,11 +82,7 @@ export const CenterInner = ({ cursor }: { cursor?: CursorConfig }) => {
 			{cursorConfig && cursorConfig.iconSource.toLowerCase().endsWith('.png') && (
 				<View style={styleSize}>
 					<Image
-						source={{
-							uri: cursorConfig.iconSource.startsWith('/')
-								? 'file://' + cursorConfig.iconSource
-								: cursorConfig.iconSource,
-						}}
+						source={imgSource}
 						style={styleSize}
 					/>
 				</View>
@@ -84,21 +91,35 @@ export const CenterInner = ({ cursor }: { cursor?: CursorConfig }) => {
 	);
 };
 
+CenterInnerComponent.displayName = 'CenterInner';
+
+export const CenterInner = memo(CenterInnerComponent);
+
 const Center = () => {
 	const { mapHeight } = useContext(AppContext);
 	const { width } = useMemo(() => Dimensions.get('window'), []);
 
+	// Map height without the bottom drawer's (settled) contribution. The
+	// drawer's open height animates on the UI thread; subtracting the shared
+	// value keeps the cursor centered on the shrinking map at 60fps.
+	const { animatedHeight } = useBottomDrawerAwareHeights(mapHeight);
+
 	const styleWrapper = useMemo(
-		() => [styles.wrapper, { width, height: mapHeight || 0 }],
-		[width, mapHeight]
+		() => [
+			styles.wrapper,
+			{ width },
+			animatedHeight,
+		],
+		[width, animatedHeight]
 	);
+
 	return (
-		<View
+		<Animated.View
 			style={styleWrapper}
 			pointerEvents="box-none"
 		>
 			<CenterInner />
-		</View>
+		</Animated.View>
 	);
 };
 

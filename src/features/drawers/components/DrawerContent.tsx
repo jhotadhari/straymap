@@ -2,9 +2,10 @@
  * External dependencies
  */
 import React, { FC, useContext, useEffect, useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { get } from 'lodash-es';
 import { useTheme } from 'react-native-paper';
+import Animated from 'react-native-reanimated';
 
 /**
  * Internal dependencies
@@ -12,6 +13,7 @@ import { useTheme } from 'react-native-paper';
 import { featureRegistry } from '../../FeatureRegistry';
 import DrawerContext from '../DrawerContext';
 import { DrawerPanel } from '../types';
+import useBottomDrawerAwareHeights from '../hooks/useBottomDrawerAwareHeights';
 
 const handleSize = 50;
 
@@ -25,8 +27,7 @@ const DrawerContent: FC<{}> = () => {
 		}
 		let isScrollContent = false;
 		let DisplayComponent:
-			| DrawerPanel['DisplayComponent']
-			| DrawerPanel['DisplayComponentScroll'] = get(
+			DrawerPanel['DisplayComponent'] | DrawerPanel['DisplayComponentScroll'] = get(
 			featureRegistry.getDrawerPanels() as { [itemKey: string]: DrawerPanel },
 			[
 				activeItemKey,
@@ -58,12 +59,18 @@ const DrawerContent: FC<{}> = () => {
 		setScrollEnabled(true);
 	}, [DisplayComponent]);
 
+	const { animatedHeight } = useBottomDrawerAwareHeights(height);
+
 	const styleScrollView = useMemo(
-		() => [styles.scrollView, { backgroundColor: theme.colors.background, height, width }],
+		() => [
+			styles.scrollView,
+			{ backgroundColor: theme.colors.background, width },
+			animatedHeight,
+		],
 		[
 			theme,
-			height,
 			width,
+			animatedHeight,
 		]
 	);
 
@@ -74,7 +81,7 @@ const DrawerContent: FC<{}> = () => {
 	return (
 		<View style={styles.container}>
 			{isScrollContent && DisplayComponent && (
-				<ScrollView
+				<Animated.ScrollView
 					scrollEnabled={scrollEnabled}
 					style={styleScrollView}
 				>
@@ -85,10 +92,14 @@ const DrawerContent: FC<{}> = () => {
 
 					{/* Thats a weird fix for a padding that doesn't work */}
 					<View style={styles.paddingFix} />
-				</ScrollView>
+				</Animated.ScrollView>
 			)}
 
-			{!isScrollContent && DisplayComponent && <DisplayComponent />}
+			{!isScrollContent && DisplayComponent && (
+				<Animated.View style={[animatedHeight, { width }]}>
+					<DisplayComponent />
+				</Animated.View>
+			)}
 		</View>
 	);
 };

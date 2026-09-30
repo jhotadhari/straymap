@@ -7,7 +7,6 @@ import { Icon, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import ColorPaletteInline from '../../../../components/generic/controls/ColorPaletteInline';
 import { sprintf } from 'sprintf-js';
-import { get } from 'lodash-es';
 
 /**
  * Internal dependencies
@@ -21,6 +20,9 @@ import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { initialSettings, setCursor } from '../../slice';
 import { selectCursor } from '../../selectors';
 import { selectAppDirs } from '../../../dirs/selectors';
+import { EMPTY_STRING_ARRAY } from '../../../../constants';
+
+const CURSOR_ICON_EXTENSIONS = ['svg', 'png'];
 
 const initialOptionsByPath = {
 	[' ']: [
@@ -119,8 +121,8 @@ const CenterControl = () => {
 				value={cursorConfig.iconSource}
 				onSelect={handleFileSelect}
 				initialOptionsByPath={initialOptionsByPath}
-				extensions={['svg', 'png']}
-				dirs={get(appDirs, 'cursor', [])}
+				extensions={CURSOR_ICON_EXTENSIONS}
+				dirs={appDirs?.cursor ?? EMPTY_STRING_ARRAY}
 				Info={t('appearance.hint.center.file')}
 				filesHeading={sprintf(t('filesIn'), '(svg|png)')}
 				noFilesHeading={sprintf(t('noFilesIn'), '(svg|png)')}

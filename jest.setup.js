@@ -91,6 +91,13 @@ jest.mock('react-native-mapsforge-vtm', () => ({
 		shadingAlgorithms: { HILLSHADE: 0, SLOPESHADE: 1 },
 		shadingAlgorithmsOptionKeys: { 0: [], 1: [] },
 	},
+	createMapHandleRegistry: jest.fn(() => ({
+		createHandle: jest.fn(),
+		getHandle: jest.fn(() => null),
+		requireHandle: jest.fn(() => ({})),
+		unregister: jest.fn(),
+	})),
+	enrichCoordinatesWithElevation: jest.fn().mockResolvedValue(undefined),
 }));
 
 // ---------------------------------------------------------------------------
@@ -127,6 +134,17 @@ jest.mock('react-native-brouter/geojson', () => ({
 			summary: {},
 		},
 	}),
+}));
+
+// ---------------------------------------------------------------------------
+// react-native-hardwarekey-event — hardware key handling
+// ---------------------------------------------------------------------------
+jest.mock('react-native-hardwarekey-event', () => ({
+	useHardwareKeyEvent: jest.fn(),
+	useSupportedKeyCodes: jest.fn(() => []),
+	registerHardwareKeyEvent: jest.fn(),
+	HardwareKeyEvent: {},
+	ALL_KEY_CODES: [],
 }));
 
 // ---------------------------------------------------------------------------
@@ -200,6 +218,7 @@ jest.mock('react-native-reanimated', () => {
 			Text,
 			createAnimatedComponent: (component) => component,
 			useSharedValue: jest.fn((val) => ({ value: val })),
+			makeMutable: jest.fn((val) => ({ value: val })),
 			useAnimatedStyle: jest.fn(() => ({})),
 			withTiming: jest.fn((val) => val),
 			withSpring: jest.fn((val) => val),
@@ -208,6 +227,7 @@ jest.mock('react-native-reanimated', () => {
 		Text,
 		createAnimatedComponent: (component) => component,
 		useSharedValue: jest.fn((val) => ({ value: val })),
+		makeMutable: jest.fn((val) => ({ value: val })),
 		useAnimatedStyle: jest.fn(() => ({})),
 		withTiming: jest.fn((val) => val),
 		withSpring: jest.fn((val) => val),
@@ -243,6 +263,21 @@ jest.mock('react-native-gesture-handler', () => {
 		Directions: {},
 	};
 });
+
+// ---------------------------------------------------------------------------
+// react-native-mapsforge-vtm-ext-path-color-ramp — slope/color helpers
+// (the native LayerPathColorRamp TurboModule isn't available in Jest)
+// ---------------------------------------------------------------------------
+jest.mock('react-native-mapsforge-vtm-ext-path-color-ramp', () => ({
+	calculateSlope: jest.fn((coords) => new Array(Math.max(0, (coords?.length ?? 0) - 1)).fill(0)),
+	interpolateColor: jest.fn((color1, _color2) => color1),
+	usePathColorRamp: jest.fn(() => ({
+		segmentColors: [],
+		normalizedValues: [],
+		colorRampStops: [],
+		valueMode: 'segment',
+	})),
+}));
 
 // ---------------------------------------------------------------------------
 // @react-native-community/blur
@@ -318,6 +353,16 @@ jest.mock('./src/assets/i18n/i18n', () => {
 	};
 });
 
+// BackgroundTaskModule — TurboModule spec not registered in Jest
+jest.mock('./src/specs/NativeBackgroundTaskModule', () => ({
+	__esModule: true,
+	default: {
+		registerTask: jest.fn().mockResolvedValue(1),
+		updateTask: jest.fn().mockResolvedValue(true),
+		unregisterTask: jest.fn().mockResolvedValue(true),
+	},
+}));
+
 // listenerMiddleware — no mock needed; the real module works because
 // its Dev-mode listener is gated by globalThis.shouldLog.dispatchAction (false).
 
@@ -364,11 +409,11 @@ jest.mock('./src/features/FeatureRegistry', () => {
 	const mockDrawerItems = {
 		maps: { key: 'maps' },
 		routing: { key: 'routing' },
-		position: { key: 'position' },
-		searchPlace: { key: 'searchPlace' },
 		lines: { key: 'lines' },
-		waypoints: { key: 'waypoints' },
+		gnss: { key: 'gnss' },
+		trackRecording: { key: 'trackRecording' },
 	};
+	const mockBottomDrawerItems = {};
 	return {
 		featureRegistry: {
 			getUiItems: jest.fn(() => []),
@@ -376,6 +421,7 @@ jest.mock('./src/features/FeatureRegistry', () => {
 			getSettingsControls: jest.fn(() => []),
 			getDashboardWidgets: jest.fn(() => ({})),
 			getDrawerPanels: jest.fn(() => mockDrawerItems),
+			getBottomDrawerItems: jest.fn(() => mockBottomDrawerItems),
 			getMapComponents: jest.fn(() => []),
 			getAppOverlays: jest.fn(() => []),
 			getAllModes: jest.fn(() => []),

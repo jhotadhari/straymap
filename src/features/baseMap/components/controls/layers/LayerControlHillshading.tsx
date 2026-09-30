@@ -3,7 +3,6 @@
  */
 import { FC, Fragment, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { get } from 'lodash-es';
 
 /**
  * Internal dependencies
@@ -17,6 +16,7 @@ import { defaults } from '../../../defaults';
 import { LayerConfig, LayerConfigOptionsHillshading } from '../../../types';
 import { useLayerTemp } from '../../../hooks/useLayerTemp';
 import { selectAppDirs } from '../../../../dirs/selectors';
+import { EMPTY_STRING_ARRAY } from '../../../../../constants';
 import { useAppSelector } from '../../../../../store/hooks';
 import NumericRowControlMulti from '../../../../../components/generic/controls/NumericRowControlMulti';
 
@@ -108,7 +108,7 @@ const LayerControlHillshading: FC<{}> = () => {
 				options={layerTemp?.options ?? {}}
 				setOptions={setOptions}
 				optKey={'hgtDirPath'}
-				dirs={get(appDirs, 'dem', [])}
+				dirs={appDirs?.dem ?? EMPTY_STRING_ARRAY}
 				fallbackAppHgt={true}
 				modalHeader={t('baseMap.selectDemDir')}
 			/>

@@ -13,6 +13,23 @@ import { RoutingPointInheritMode, RoutingProfile } from '../types';
 import { formatDistance } from '../../../lib/formatting';
 import { UnitPref } from '../../../features/general/types';
 
+const getProfileFileName = (profilePath: string) => {
+	if (profilePath.startsWith('content://')) {
+		const parts = profilePath.split('%2F');
+		const encodedName = parts.length > 0 ? parts[parts.length - 1] : '';
+		try {
+			return decodeURIComponent(encodedName);
+		} catch {
+			return encodedName;
+		}
+	}
+	const parts = profilePath.split('/');
+	const lastName = parts.length > 0 ? parts[parts.length - 1] : '';
+	// MediaStore-style URIs (content://media/external/file/123) have no
+	// %2F segment — the last part is a numeric ID, not a filename.
+	return /\.[a-z0-9]+$/i.test(lastName) ? lastName : '';
+};
+
 const RoutingProfileInfo: FC<{
 	profile: RoutingProfile;
 	inheritMode?: RoutingPointInheritMode;
@@ -32,16 +49,22 @@ const RoutingProfileInfo: FC<{
 					)}
 				</Text>
 			)}
-			{profile.provider === 'brouter' && (
-				<>
+			{profile.provider === 'brouter' &&
+				(profile.options.profilePath ? (
 					<Text>
-						{t(
-							`routing.vehicle${profile.options.v.charAt(0).toUpperCase() + profile.options.v.slice(1)}`
-						)}
+						{getProfileFileName(profile.options.profilePath) ||
+							t('routing.customProfile')}
 					</Text>
-					<Text>{profile.options.fast ? t('routing.fast') : t('routing.slow')}</Text>
-				</>
-			)}
+				) : (
+					<>
+						<Text>
+							{t(
+								`routing.vehicle${profile.options.v.charAt(0).toUpperCase() + profile.options.v.slice(1)}`
+							)}
+						</Text>
+						<Text>{profile.options.fast ? t('routing.fast') : t('routing.slow')}</Text>
+					</>
+				))}
 			{profile.provider === 'straightLine' && (
 				<Text>
 					{t('routing.providerStraightLine')}

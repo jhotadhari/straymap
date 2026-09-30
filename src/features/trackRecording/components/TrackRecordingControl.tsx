@@ -14,6 +14,8 @@ import { setMinDistance, setMinTime, setMinPrecision } from '../slice';
 import NumericRowControl from '../../../components/generic/controls/NumericRowControl';
 import { sharedStyles } from '../../dashboard/dashboardWidgets/sharedDeps';
 
+const validateNonNegative = (v: number) => v >= 0;
+
 const TrackRecordingControl: FC = () => {
 	const { t } = useTranslation();
 	const dispatch = useAppDispatch();
@@ -40,7 +42,7 @@ const TrackRecordingControl: FC = () => {
 				onUpdate={handleMinDistance}
 				Info={t('trackRecording.hintMinDistance')}
 				numType="float"
-				validate={(v) => v >= 0}
+				validate={validateNonNegative}
 			/>
 
 			<NumericRowControl
@@ -49,7 +51,7 @@ const TrackRecordingControl: FC = () => {
 				onUpdate={handleMinTime}
 				Info={t('trackRecording.hintMinTime')}
 				numType="float"
-				validate={(v) => v >= 0}
+				validate={validateNonNegative}
 			/>
 
 			<NumericRowControl
@@ -58,7 +60,7 @@ const TrackRecordingControl: FC = () => {
 				onUpdate={handleMinPrecision}
 				Info={t('trackRecording.hintMinPrecision')}
 				numType="float"
-				validate={(v) => v >= 0}
+				validate={validateNonNegative}
 			/>
 		</View>
 	);

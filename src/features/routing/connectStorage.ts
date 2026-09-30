@@ -22,6 +22,8 @@ import {
 	setSegment,
 } from './slice';
 import { addBusyKey, removeBusyKey } from '../ui/slice';
+import { setActiveKey } from '../bottomDrawer/slice';
+import { getChartSourceKey } from '../chart/types';
 import { startAppListening } from '../../store/listenerMiddleware';
 import { selectInitialized } from './selectors';
 import { AppStore } from '../../store/store';
@@ -41,7 +43,7 @@ export const initializeFromStorage = (store: AppStore) => {
 	// doesn't block the rest of initialization).
 	store.dispatch(checkBrouterAvailability());
 	DefaultPreference.get(settingsKey)
-		.then(async (newSettingsStr) => {
+		.then((newSettingsStr) => {
 			if (newSettingsStr) {
 				const newSettings = JSON.parse(newSettingsStr) as Partial<RoutingState>;
 				if (newSettings?.isRouting) {
@@ -54,9 +56,13 @@ export const initializeFromStorage = (store: AppStore) => {
 					store.dispatch(setLastProfiles(newSettings.lastProfiles));
 				}
 			}
-			store.dispatch(setInitialized(true));
 		})
-		.catch((err) => logError('routing/connectStorage', err));
+		.catch((err) => logError('routing/connectStorage', err))
+		.finally(() => {
+			// Always complete init — a failed storage read or corrupt
+			// JSON must degrade to defaults, not hang app startup.
+			store.dispatch(setInitialized(true));
+		});
 };
 
 /**
@@ -118,6 +124,17 @@ startAppListening({
 					updateLine: false,
 				})
 			);
+		}
+	},
+});
+
+// Auto-select the routing chart as the bottom drawer content
+// when routing becomes active (the drawer itself stays closed).
+startAppListening({
+	actionCreator: setIsRoutingAction,
+	effect: (action, listenerApi) => {
+		if (action.payload) {
+			listenerApi.dispatch(setActiveKey(getChartSourceKey.routing()));
 		}
 	},
 });

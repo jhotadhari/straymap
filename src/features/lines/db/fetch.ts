@@ -57,7 +57,7 @@ const extractRegexFilters = (
 	return { sqlFilters, regexFilters };
 };
 
-const applyRegexFilters = <T extends { title?: string | null }>(
+const applyRegexFilters = <T extends { title?: string | null; data?: any }>(
 	rows: T[],
 	regexFilters: StringColumnFilter[]
 ): T[] => {
@@ -71,18 +71,25 @@ const applyRegexFilters = <T extends { title?: string | null }>(
 	// from ECMAScript regex (no \b, \d, \w, lookaheads). Filters
 	// saved when regexpAvailable==true may produce different results
 	// if applied on a device where regexpAvailable==false.
-	const compiled: { pattern: RegExp }[] = [];
+	const compiled: { columnKey: string; pattern: RegExp }[] = [];
 	for (const f of regexFilters) {
 		try {
-			compiled.push({ pattern: new RegExp(f.value) });
+			compiled.push({ columnKey: f.columnKey, pattern: new RegExp(f.value) });
 		} catch {
 			// Invalid regex syntax — skip this filter (no rows match)
 			return [];
 		}
 	}
 	return rows.filter((row) => {
-		const title = row.title ?? '';
-		return compiled.every(({ pattern }) => pattern.test(title));
+		return compiled.every(({ columnKey, pattern }) => {
+			// Column-aware: import_source_path filters must test the
+			// import path, not the title.
+			const value =
+				columnKey === 'import_source_path'
+					? String(row.data?.import?.sourceFilePath ?? '')
+					: (row.title ?? '');
+			return pattern.test(value);
+		});
 	});
 };
 

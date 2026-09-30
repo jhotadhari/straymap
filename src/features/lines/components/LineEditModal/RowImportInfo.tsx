@@ -17,8 +17,7 @@ const RowImportInfo: FC = () => {
 
 	const importData = useMemo(() => {
 		return (line?.data as any)?.import as
-			| { sourceFilePath?: string; trackIndexInFile?: number | null }
-			| undefined;
+			{ sourceFilePath?: string; trackIndexInFile?: number | null } | undefined;
 	}, [line?.data]);
 
 	if (!importData?.sourceFilePath) return null;

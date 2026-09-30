@@ -5,6 +5,45 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.4.0] - 2026-09-30
+
+### Added
+
+- BRouter routing: custom `.brf` profile support via a merged Profile picker —
+  built-in profiles (car, bicycle, foot) plus custom profile files from the
+  new `brouterProfiles` app directory (SAF file picker, links to official and
+  community profile sources).
+- Bottom drawer — new bottom drawer panel system with a morphing grab-line
+  handle (dots indicator) hosting per-route panels.
+- Route chart panel — interactive elevation/slope charts for routes and
+  selected lines, with follow-map viewport sync, color ramps, and per-chart
+  settings.
+- Standalone fullscreen chart UiItem — one line per chart, independent from
+  the bottom drawer charts.
+- Drawer charts are tied to the map: only addable for lines on the map,
+  removed when the line leaves the map.
+
+### Changed
+
+- Upgrade `react-native-mapsforge-vtm` from `0.8.3` to `0.9.1` — scene-based
+  layer ordering, batched `updateLayers` API, and zombie-entry fixes.
+
+### Fixed
+
+- Drawers: obsolete drawer keys persisted by older versions (`searchPlace`,
+  `brouter`, `position`, `waypoints`) are now filtered out when restoring
+  drawer settings, so stale panels no longer linger in the side drawers.
+- Lines and Tags tables: prevent FlashList "Maximum update depth exceeded"
+  crash by always using fixed 50px rows, deferring row-state resets one
+  frame, and wrapping each table list in an error boundary.
+- Lines table: fix unresponsive stats/tags filters — restored the
+  numeric/tags column-type mappings lost in a refactor; the add-filter
+  picker now only lists filterable columns (ID excluded).
+- Straight-line routing: inherited profiles now keep their interval points
+  (full chart profile and slope colors restored).
+- Straight-line routing: hardened DEM enrichment; interval stored in meters,
+  shown in the user's distance unit.
+
 ## [0.3.5] - 2026-08-09
 
 ### Fixed
@@ -175,6 +214,7 @@ Basic app structure and map viewer functionality.
 - Topbar with breadcrumbs and a menu.
 - Structure for settings and some settings pages.
 
+[0.4.0]: https://github.com/jhotadhari/straymap/compare/v0.3.5...v0.4.0
 [0.3.5]: https://github.com/jhotadhari/straymap/compare/v0.3.4...v0.3.5
 [0.3.4]: https://github.com/jhotadhari/straymap/compare/v0.3.3...v0.3.4
 [0.3.3]: https://github.com/jhotadhari/straymap/compare/v0.3.2...v0.3.3

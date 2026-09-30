@@ -16,6 +16,7 @@ import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { selectHgtDirPath } from '../../../baseMap/selectors';
 import { setHgtDirPath } from '../../../baseMap/slice';
 import { selectAppDirs } from '../../../dirs/selectors';
+import { EMPTY_STRING_ARRAY } from '../../../../constants';
 
 const HgtControl = () => {
 	const { t } = useTranslation();
@@ -53,7 +54,7 @@ const HgtControl = () => {
 				options={hgtOptions}
 				setOptions={handleSetHgtDirPath}
 				optKey={'hgtDirPath'}
-				dirs={get(appDirs, 'dem', [])}
+				dirs={appDirs?.dem ?? EMPTY_STRING_ARRAY}
 				onlyThreeSeconds={true}
 				canDeselect={true}
 			/>

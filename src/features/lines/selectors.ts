@@ -23,7 +23,11 @@ const allLinesColumnKeys = [
 	...Object.keys(statsCells),
 	...Object.keys(otherCells),
 ];
-const hiddenByDefaultColumnKeys = new Set(['id', 'created_at', 'modified_at']);
+const hiddenByDefaultColumnKeys = new Set([
+	'id',
+	'created_at',
+	'modified_at',
+]);
 
 export const selectLinesTableColumns = createAppSelector(
 	(state: RootState) => state.lines.linesTable.tableColumns,
@@ -83,5 +87,17 @@ export const selectTagsFilterableColumns = (state: RootState) => selectTagsTable
 
 export const selectLineColors = (state: RootState) => state.lines.lineColors;
 
-export const selectLineColor = (lineId: number) => (state: RootState) =>
-	state.lines.lineColors[lineId];
+export const selectChartLines = (state: RootState) => state.lines.chartLines;
+
+// Memoized selector factory — returning a fresh function per call would
+// defeat React Redux's re-render bailing-out when used in list rows.
+const selectLineColorByLineId = new Map<number, (state: RootState) => string | undefined>();
+
+export const selectLineColor = (lineId: number): ((state: RootState) => string | undefined) => {
+	let selector = selectLineColorByLineId.get(lineId);
+	if (!selector) {
+		selector = (state: RootState) => state.lines.lineColors[lineId];
+		selectLineColorByLineId.set(lineId, selector);
+	}
+	return selector;
+};
