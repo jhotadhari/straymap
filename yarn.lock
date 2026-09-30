@@ -8568,10 +8568,10 @@ react-is@^19.2.3:
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-19.2.8.tgz#09826f9fbc187bc668e3e5c62edc001f804d5018"
   integrity sha512-s5un28nYxKJw5gvUHyW5PCC28CvBqLu9r3cWgzHT4Vo/5fqqkFcdRYsGcKf50WMPpjjFZS5d76fn3YCo2njKwQ==
 
-react-native-brouter@1.1.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/react-native-brouter/-/react-native-brouter-1.1.0.tgz#bd2eed181fcfe8b1b650fcb062bfd25f5911aec0"
-  integrity sha512-y18aYWdCgCAASiwbh/RMR/xqx4A8ZsKxC4R3GdLC37WT3RmMy7cGODC1NvJ264jrm+371DeBcjscE/suE3BbwA==
+react-native-brouter@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/react-native-brouter/-/react-native-brouter-1.1.1.tgz#8094580f3e041e40f40515762c0867a0f1ed14d7"
+  integrity sha512-XLVZTyErP67e+SWRu0K3hvzmCpGA35xxciMUYjL523piEmvLdr1jN3vSX2ukkdPyuznBNS5EyR/7IK3E0+2qPg==
   dependencies:
     "@types/geojson" "^7946.0.16"
 
@@ -8630,10 +8630,10 @@ react-native-mapsforge-vtm-ext-path-color-ramp@^0.2.0:
   dependencies:
     react-native-worklets "^0.10.1"
 
-react-native-mapsforge-vtm@^0.9.0:
-  version "0.9.0"
-  resolved "https://registry.yarnpkg.com/react-native-mapsforge-vtm/-/react-native-mapsforge-vtm-0.9.0.tgz#8e5b03475f09d396d61eccd96d8bdd07b87b61fd"
-  integrity sha512-gupIaxzcDUHd66yhie1AwrmS01yZOeQy6wpprQggsubXpNvVh3PPOXz9APeN3S0/te0V1m3NjfNB866NfK3P+w==
+react-native-mapsforge-vtm@^0.9.1:
+  version "0.9.1"
+  resolved "https://registry.yarnpkg.com/react-native-mapsforge-vtm/-/react-native-mapsforge-vtm-0.9.1.tgz#6b1c8ef889c6297024b59bae367ec2bd573ca998"
+  integrity sha512-uxI6b3H7YWPDD5qkjMz35m3Tl2icJXnUFpeSegjCgxN5/BungwBa/O1A62YcvjBMIKV2gZOoRdlRkC+sasd8pg==
   dependencies:
     lodash-es "^4.17.21"
 

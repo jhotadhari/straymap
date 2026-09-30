@@ -27,6 +27,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Drawer charts are tied to the map: only addable for lines on the map,
   removed when the line leaves the map.
 
+### Changed
+
+- Upgrade `react-native-mapsforge-vtm` from `0.8.3` to `0.9.1` — scene-based
+  layer ordering, batched `updateLayers` API, and zombie-entry fixes.
+
 ### Fixed
 
 - Drawers: obsolete drawer keys persisted by older versions (`searchPlace`,
