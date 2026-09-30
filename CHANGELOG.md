@@ -9,23 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Added
 
-- BRouter routing: custom `.brf` profile support. The merged Profile picker
-  offers built-in profiles (car, bicycle, foot) plus custom profile files from
-  the new `brouterProfiles` app directory — including a SAF file picker and
-  info links to official and community profile sources. Profile content is sent
-  to BRouter via `remoteProfile`; a missing or unreadable file surfaces as a
-  per-segment routing error.
+- BRouter routing: custom `.brf` profile support via a merged Profile picker —
+  built-in profiles (car, bicycle, foot) plus custom profile files from the
+  new `brouterProfiles` app directory (SAF file picker, links to official and
+  community profile sources).
 
 - Bottom drawer — new bottom drawer panel system with a morphing grab-line
   handle (dots indicator) hosting per-route panels.
 
-- Route chart panel — interactive elevation/slope chart for the routing and
-  selected lines: pan/zoom gestures, per-chart aspect-ratio lock (axis-aware
-  pinch scaling and a reset button), follow-map viewport synced 1:1 with the
-  map (with a "Fly to route" button when the map is panned away), hypsometric
-  and slope color ramps for strokes and area fills, per-chart/general settings
-  with Default/Custom mode, center-indicator value labels, title menu for
-  switching between charts, and info hints for every settings control.
+- Route chart panel — interactive elevation/slope charts for routes and
+  selected lines, with follow-map viewport sync, color ramps, and per-chart
+  settings.
 
 - Standalone fullscreen chart UiItem — one line per chart, independent from
   the bottom drawer charts.
