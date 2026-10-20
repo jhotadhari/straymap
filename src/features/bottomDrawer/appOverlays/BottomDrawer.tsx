@@ -2,8 +2,9 @@
  * External dependencies
  */
 import React, { FC, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { Dimensions, StyleSheet, ViewStyle } from 'react-native';
+import { Dimensions, StyleSheet, View, ViewStyle } from 'react-native';
 import Animated from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 /**
  * Internal dependencies
@@ -29,14 +30,16 @@ const BottomDrawer: FC = () => {
 
 	const { width } = useMemo(() => Dimensions.get('window'), []);
 
+	const insets = useSafeAreaInsets();
+
 	const handleSettle = useCallback(
 		(height: number) => {
 			setBottomBarHeight?.((prev) => ({
 				...prev,
-				bottomDrawer: height,
+				bottomDrawer: itemKeys.length ? height + insets.bottom : 0,
 			}));
 		},
-		[setBottomBarHeight]
+		[setBottomBarHeight, itemKeys.length, insets.bottom]
 	);
 
 	const {
@@ -156,26 +159,40 @@ const BottomDrawer: FC = () => {
 		[animatedStyles]
 	);
 
+	const styleInsetWrapper: ViewStyle[] = useMemo(
+		() => [
+			styles.insetWrapper,
+			{ paddingBottom: insets.bottom },
+		],
+		[insets.bottom]
+	);
+
 	if (!itemKeys.length) {
 		return null;
 	}
 
 	return (
 		<BottomDrawerContext.Provider value={contextValue}>
-			<Animated.View style={styleContainer}>
-				{showContent && effectiveActiveItemKey && <BottomDrawerContent />}
-				{/* Rendered after the content so the straddling grab line stays on top */}
-				<BottomDrawerHandle
-					gesture={gesture}
-					heightSv={height}
-				/>
-			</Animated.View>
+			<View style={styleInsetWrapper}>
+				<Animated.View style={styleContainer}>
+					{showContent && effectiveActiveItemKey && <BottomDrawerContent />}
+					{/* Rendered after the content so the straddling grab line stays on top */}
+					<BottomDrawerHandle
+						gesture={gesture}
+						heightSv={height}
+					/>
+				</Animated.View>
+			</View>
 		</BottomDrawerContext.Provider>
 	);
 };
 
 const styles = StyleSheet.create({
 	container: {
+		flexDirection: 'column',
+		zIndex: 40, // above side drawers (30), below dashboard (50)
+	},
+	insetWrapper: {
 		flexDirection: 'column',
 		zIndex: 40, // above side drawers (30), below dashboard (50)
 	},

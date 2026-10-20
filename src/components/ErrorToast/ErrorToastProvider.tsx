@@ -3,6 +3,7 @@
  */
 import { FC, ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text, useTheme } from 'react-native-paper';
 
 /**
@@ -22,6 +23,8 @@ let nextId = 0;
 
 const ErrorToastProvider: FC<{ children: ReactNode }> = ({ children }) => {
 	const theme = useTheme();
+
+	const insets = useSafeAreaInsets();
 
 	const [toasts, setToasts] = useState<ToastEntry[]>([]);
 
@@ -56,11 +59,13 @@ const ErrorToastProvider: FC<{ children: ReactNode }> = ({ children }) => {
 		[theme]
 	);
 
+	const styleHost = useMemo(() => [styles.host, { bottom: 24 + insets.bottom }], [insets.bottom]);
+
 	return (
 		<ErrorToastContext.Provider value={contextValue}>
 			{children}
 			<View
-				style={styles.host}
+				style={styleHost}
 				pointerEvents="box-none"
 			>
 				{toasts.map((toast) => (

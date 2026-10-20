@@ -14,8 +14,8 @@ import {
 	View,
 	ScrollView,
 	Modal as RNModal,
-	StatusBar,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme, Text, Icon } from 'react-native-paper';
 import { BlurView } from '@react-native-community/blur';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -85,10 +85,12 @@ const ModalWrapper: FC<{
 }) => {
 	// `screen.height` is the full physical screen (consistent across devices).
 	// `window.height` varies by OEM — use screen for all math, subtract the
-	// status bar explicitly to get the usable area (`windowH`).
+	// safe-area insets explicitly to get the usable area (`windowH`). The
+	// window is edge-to-edge (Android 15+), so the insets are the status bar
+	// and navigation bar heights.
 	const { height: screenH, width } = Dimensions.get('screen');
-	const statusBarHeight = StatusBar.currentHeight ?? 0;
-	const windowH = screenH - statusBarHeight;
+	const insets = useSafeAreaInsets();
+	const windowH = screenH - insets.top - insets.bottom;
 
 	const theme = useTheme();
 	const context = useContext(AppContext);
@@ -105,20 +107,20 @@ const ModalWrapper: FC<{
 
 	// When there's no keyboard the modal is absolutely-positioned at
 	// `yogaTop` (centered in the window below the status bar).
-	const yogaTop = statusBarHeight + (windowH - modalHeight) / 2;
+	const yogaTop = insets.top + (windowH - modalHeight) / 2;
 
 	const heightShared = useSharedValue(modalHeight);
 	const topShared = useSharedValue(yogaTop);
 
 	useEffect(() => {
 		if (keyboardScreenY > 0) {
-			const visibleH = keyboardScreenY - statusBarHeight;
+			const visibleH = keyboardScreenY - insets.top;
 			const bottomGap = 0;
 			const heightSlack = 4;
 			const targetHeight = Math.max(windowH * 0.35, visibleH - heightSlack);
 			// Position the top edge so the bottom edge sits exactly at
-			// keyboardScreenY - bottomGap.
-			const targetTop = keyboardScreenY - bottomGap - targetHeight;
+			// keyboardScreenY - bottomGap, never above the top inset.
+			const targetTop = Math.max(insets.top, keyboardScreenY - bottomGap - targetHeight);
 			heightShared.value = withTiming(targetHeight, {
 				duration: 200,
 				easing: Easing.inOut(Easing.quad),
@@ -144,7 +146,7 @@ const ModalWrapper: FC<{
 	}, [
 		keyboardScreenY,
 		windowH,
-		statusBarHeight,
+		insets.top,
 		modalHeight,
 		yogaTop,
 		heightShared,
@@ -204,8 +206,8 @@ const ModalWrapper: FC<{
 	);
 
 	const styleContent = useMemo(
-		() => [sharedStyles.absolute, { paddingTop: statusBarHeight }],
-		[statusBarHeight]
+		() => [sharedStyles.absolute, { paddingTop: insets.top }],
+		[insets.top]
 	);
 
 	// Horizontal center for the absolutely-positioned modal.

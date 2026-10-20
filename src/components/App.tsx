@@ -3,6 +3,7 @@
  */
 import React, { FC, useEffect, useMemo, useRef, useState } from 'react';
 import { BackHandler, Dimensions, processColor, StyleSheet, View } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { PaperProvider, Text, useTheme } from 'react-native-paper';
 import { MapEventResponse } from 'react-native-mapsforge-vtm';
 import { sprintf } from 'sprintf-js';
@@ -226,18 +227,20 @@ export default () => {
 	const dbLoaderInitialized = useAppSelector(selectInitialized);
 
 	return (
-		<PaperProvider theme={theme}>
-			<GestureHandlerRootView style={gestureHandlerStyle}>
-				<ErrorToastProvider>
-					{dbLoaderInitialized && dbConnection?.queryClient ? (
-						<QueryClientProvider client={dbConnection.queryClient}>
+		<SafeAreaProvider>
+			<PaperProvider theme={theme}>
+				<GestureHandlerRootView style={gestureHandlerStyle}>
+					<ErrorToastProvider>
+						{dbLoaderInitialized && dbConnection?.queryClient ? (
+							<QueryClientProvider client={dbConnection.queryClient}>
+								<App />
+							</QueryClientProvider>
+						) : (
 							<App />
-						</QueryClientProvider>
-					) : (
-						<App />
-					)}
-				</ErrorToastProvider>
-			</GestureHandlerRootView>
-		</PaperProvider>
+						)}
+					</ErrorToastProvider>
+				</GestureHandlerRootView>
+			</PaperProvider>
+		</SafeAreaProvider>
 	);
 };

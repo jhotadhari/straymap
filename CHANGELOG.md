@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+- Safe areas: on Android 15+ the app runs edge-to-edge, so the status and
+  navigation bars overlapped app controls (top app bar, bottom drawer,
+  dashboards, corner buttons, modals, toasts). All chrome now respects the
+  system insets via `react-native-safe-area-context`.
+
 ## [0.4.0] - 2026-09-30
 
 ### Added
