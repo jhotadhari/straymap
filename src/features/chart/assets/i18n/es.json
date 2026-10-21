@@ -37,6 +37,8 @@
 	"followModeHintNone": "Sin comportamiento automático: el gráfico permanece donde lo dejes.",
 	"followModeMap": "Seguir mapa",
 	"followModeNone": "Desactivado",
+	"animateFollow": "Animar seguimiento",
+	"animateFollowHint": "El gráfico se desliza suavemente hasta la posición seguida en lugar de saltar. Desactívalo si la app va lenta.",
 	"flyTo": "Volar a la ruta",
 	"removeChartHint": "Quita este gráfico del panel inferior. La ruta permanece en el mapa y no se elimina nada.",
 	"removeChartConfirmBody": "Solo se quita el gráfico del panel inferior. La ruta permanece en el mapa, no se elimina nada y el gráfico puede volver a activarse en cualquier momento.",

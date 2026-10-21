@@ -124,6 +124,7 @@ describe('chart slice reducers', () => {
 describe('chart selectors', () => {
 	it('selectChartSettings returns defaults for unknown keys', () => {
 		expect(selectChartSettings(buildRoot(), 'routing')).toEqual(DEFAULT_CHART_SETTINGS);
+		expect(selectChartSettings(buildRoot(), 'routing').animateFollow).toBe(true);
 	});
 
 	it('selectChartSettings returns stored settings', () => {
@@ -169,14 +170,15 @@ describe('chart selectors', () => {
 	});
 
 	it('selectChartSettings keeps the always-general settings general', () => {
-		// A chart.s own entry must not contribute showHeading/showStats —
-		// the general value always wins.
+		// A chart.s own entry must not contribute showHeading/showStats/
+		// animateFollow — the general value always wins.
 		const root = buildRoot({
-			general: { ...DEFAULT_CHART_SETTINGS, showHeading: true },
-			charts: { 'line:4b': { showHeading: false, showStats: false } },
+			general: { ...DEFAULT_CHART_SETTINGS, showHeading: true, animateFollow: false },
+			charts: { 'line:4b': { showHeading: false, showStats: false, animateFollow: true } },
 		});
 		expect(selectChartSettings(root, 'line:4b').showHeading).toBe(true);
 		expect(selectChartSettings(root, 'line:4b').showStats).toBe(true);
+		expect(selectChartSettings(root, 'line:4b').animateFollow).toBe(false);
 		expect(selectHasOwnChartSettings(root, 'line:4b')).toBe(false);
 	});
 

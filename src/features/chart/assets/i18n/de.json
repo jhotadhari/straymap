@@ -37,6 +37,8 @@
 	"followModeHintNone": "Kein automatisches Verhalten – das Diagramm bleibt, wo du es lässt.",
 	"followModeMap": "Karte folgen",
 	"followModeNone": "Aus",
+	"animateFollow": "Folgen animieren",
+	"animateFollowHint": "Das Diagramm gleitet sanft zur gefolgten Position, statt zu springen. Ausschalten, wenn die App träge wirkt.",
 	"flyTo": "Zur Route fliegen",
 	"removeChartHint": "Entfernt dieses Diagramm aus der unteren Leiste. Die Route bleibt auf der Karte und es wird nichts gelöscht.",
 	"removeChartConfirmBody": "Es wird nur das Diagramm aus der unteren Leiste entfernt. Die Route bleibt auf der Karte, es wird nichts gelöscht, und das Diagramm kann jederzeit wieder aktiviert werden.",

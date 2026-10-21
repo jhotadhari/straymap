@@ -126,6 +126,7 @@ ChartSettings {
   xMode: 'distance' | 'time';
   ratioValue?: number;              // fixed aspect ratio: visible x-range per visible y-range unit
   followMode: 'none' | 'map' | 'center'; // Off / follow covered segment (1:1) / follow map center
+  animateFollow: boolean;           // ease the follow viewport instead of jumping (all charts)
   showHeading: boolean;
   showStats: boolean;
 }
@@ -133,10 +134,10 @@ ChartSettings {
 
 ### General vs per-chart split (`selectors.ts`)
 
-| Constant                     | Keys                       | Meaning                                                        |
-| ---------------------------- | -------------------------- | -------------------------------------------------------------- |
-| `PER_CHART_SETTINGS_KEYS`    | `ratioValue`, `followMode` | Always per-chart — the general settings never contribute these |
-| `GENERAL_ONLY_SETTINGS_KEYS` | `showHeading`, `showStats` | Always general — a chart's own entry never contributes these   |
+| Constant                     | Keys                                        | Meaning                                                        |
+| ---------------------------- | ------------------------------------------- | -------------------------------------------------------------- |
+| `PER_CHART_SETTINGS_KEYS`    | `ratioValue`, `followMode`                  | Always per-chart — the general settings never contribute these |
+| `GENERAL_ONLY_SETTINGS_KEYS` | `animateFollow`, `showHeading`, `showStats` | Always general — a chart's own entry never contributes these   |
 
 Every other key participates in the Default/Custom mode (general vs own).
 
@@ -311,19 +312,20 @@ Context (`ChartSettingsModalContext`): `chartKey`, `settings`, `update`,
 re-render the chart display tree on every map event, and stable props
 keep the modal (and its popover menus) quiet.
 
-| Row                 | Drawer | Fullscreen | Purpose                                                       |
-| ------------------- | :----: | :--------: | ------------------------------------------------------------- |
-| `RowSelectRoute`    |   ✓    |            | Switch the active drawer chart between chart sources          |
-| `RowFollowMode`     |   ✓    |     ✓      | Follow mode picker (Off / Follow map / Follow center)         |
-| `RowRatioLock`      |   ✓    |     ✓      | Fixed aspect ratio + Fit-screen button                        |
-| `RowShowHeading`    |   ✓    |            | Toggle heading (always on in fullscreen)                      |
-| `RowShowStats`      |   ✓    |            | Toggle statistics (always on in fullscreen)                   |
-| `RowRemoveChart`    |   ✓    |            | Remove the line's chart (`toggleChartLine`) with confirmation |
-| `RowChartMode`      |   ✓    |     ✓      | Default/Custom mode switch                                    |
-| `RowPrimaryData`    |   ✓    |     ✓      | Primary series (none/elevation/slope)                         |
-| `RowPrimaryColor`   |   ✓    |     ✓      | Primary color mode (axis/ramp/fill)                           |
-| `RowSecondaryData`  |   ✓    |     ✓      | Secondary series                                              |
-| `RowSecondaryColor` |   ✓    |     ✓      | Secondary color mode                                          |
+| Row                 | Drawer | Fullscreen | Purpose                                                             |
+| ------------------- | :----: | :--------: | ------------------------------------------------------------------- |
+| `RowSelectRoute`    |   ✓    |            | Switch the active drawer chart between chart sources                |
+| `RowFollowMode`     |   ✓    |     ✓      | Follow mode picker (Off / Follow map / Follow center)               |
+| `RowAnimateFollow`  |   ✓    |     ✓      | Toggle the follow animation (always general, applies to all charts) |
+| `RowRatioLock`      |   ✓    |     ✓      | Fixed aspect ratio + Fit-screen button                              |
+| `RowShowHeading`    |   ✓    |            | Toggle heading (always on in fullscreen)                            |
+| `RowShowStats`      |   ✓    |            | Toggle statistics (always on in fullscreen)                         |
+| `RowRemoveChart`    |   ✓    |            | Remove the line's chart (`toggleChartLine`) with confirmation       |
+| `RowChartMode`      |   ✓    |     ✓      | Default/Custom mode switch                                          |
+| `RowPrimaryData`    |   ✓    |     ✓      | Primary series (none/elevation/slope)                               |
+| `RowPrimaryColor`   |   ✓    |     ✓      | Primary color mode (axis/ramp/fill)                                 |
+| `RowSecondaryData`  |   ✓    |     ✓      | Secondary series                                                    |
+| `RowSecondaryColor` |   ✓    |     ✓      | Secondary color mode                                                |
 
 `RowXMode` (distance/time x-axis) exists but is currently commented out
 of the modal.

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- Chart: "Animate follow" toggle — the smooth follow animation can be turned off globally (default on).
+
 ### Changed
 
 - Chart: follow modes animate smoothly — the viewport translation glides via UI-thread animation (no per-frame re-renders) instead of jumping on every map event.

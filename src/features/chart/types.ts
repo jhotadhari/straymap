@@ -39,6 +39,8 @@ export interface ChartSettings {
 	ratioValue?: number;
 	/** How the chart follows the map: Off, covered segment (1:1), or centered on the map center. */
 	followMode: ChartFollowMode;
+	/** Ease the follow-derived viewport instead of jumping (all charts). */
+	animateFollow: boolean;
 	showHeading: boolean;
 	showStats: boolean;
 }
@@ -51,6 +53,7 @@ export const DEFAULT_CHART_SETTINGS: ChartSettings = {
 	xMode: 'distance',
 	ratioValue: undefined,
 	followMode: 'none',
+	animateFollow: true,
 	showHeading: true,
 	showStats: true,
 };

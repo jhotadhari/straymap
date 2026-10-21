@@ -20,6 +20,7 @@ export const PER_CHART_SETTINGS_KEYS = [
  * contributes these (they apply to every chart).
  */
 export const GENERAL_ONLY_SETTINGS_KEYS = [
+	'animateFollow',
 	'showHeading',
 	'showStats',
 ] as const;

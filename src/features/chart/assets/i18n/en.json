@@ -37,6 +37,8 @@
 	"followModeHintNone": "No automatic behavior — the chart stays where you leave it.",
 	"followModeMap": "Follow map",
 	"followModeNone": "Off",
+	"animateFollow": "Animate follow",
+	"animateFollowHint": "Smoothly glides the chart to the followed position instead of jumping. Turn off if the app feels slow.",
 	"flyTo": "Fly to route",
 	"removeChartHint": "Removes this chart from the bottom drawer. The route stays on the map and nothing is deleted.",
 	"removeChartConfirmBody": "Only the chart is removed from the bottom drawer. The route stays on the map, nothing is deleted, and the chart can be toggled on again at any time.",

@@ -831,7 +831,7 @@ const Chart: FC<{
 			}
 			if (tx !== undefined) {
 				setTranslateX(tx);
-				if (animateTxTy) {
+				if (animateTxTy && settings.animateFollow) {
 					const lag = -clamp(tx - txRef.current, -LAG_MAX_X_PX, LAG_MAX_X_PX);
 					lagTxSv.value = lag;
 					lagTxSv.value = withTiming(0, {
@@ -844,7 +844,7 @@ const Chart: FC<{
 			}
 			if (ty !== undefined) {
 				setTranslateY(ty);
-				if (animateTxTy) {
+				if (animateTxTy && settings.animateFollow) {
 					const lag = -clamp(ty - tyRef.current, -LAG_MAX_Y_PX, LAG_MAX_Y_PX);
 					lagTySv.value = lag;
 					lagTySv.value = withTiming(0, {
@@ -859,6 +859,7 @@ const Chart: FC<{
 		[
 			lagTxSv,
 			lagTySv,
+			settings.animateFollow,
 		]
 	);
 	const pendingRatioApplyRef = useRef(false);

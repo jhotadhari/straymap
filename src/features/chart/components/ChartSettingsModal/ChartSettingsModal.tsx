@@ -32,6 +32,7 @@ import RowSecondaryData from './rows/RowSecondaryData';
 import RowSecondaryColor from './rows/RowSecondaryColor';
 import RowRatioLock from './rows/RowRatioLock';
 import RowFollowMode from './rows/RowFollowMode';
+import RowAnimateFollow from './rows/RowAnimateFollow';
 // import RowXMode from './rows/RowXMode';
 import RowShowHeading from './rows/RowShowHeading';
 import RowShowStats from './rows/RowShowStats';
@@ -179,6 +180,8 @@ const ChartSettingsModal: FC<{
 				{variant === 'drawer' && <RowSelectRoute />}
 
 				<RowFollowMode />
+
+				<RowAnimateFollow />
 
 				<RowRatioLock />
 
