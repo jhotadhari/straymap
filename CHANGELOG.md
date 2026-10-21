@@ -25,6 +25,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   `BlurView` was created while the React context had no current activity
   (e.g. the no-layers hint modal at startup on the new architecture) —
   patched to skip the blur setup in that case instead of crashing.
+- Mapsforge labels were rendered below map overlays; they now draw above
+  lines and routes, below waypoint markers.
 
 ## [0.4.0] - 2026-09-30
 
