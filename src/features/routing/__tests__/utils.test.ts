@@ -10,6 +10,7 @@ import {
 	projectLngLatToCenterDpOffset,
 	getNearestPointHit,
 	getNearestSegmentHit,
+	getAdjacentSegmentRecordIds,
 } from '../../../features/routing/utils';
 
 jest.mock('react-native-fs', () => ({
@@ -313,6 +314,38 @@ describe('getNearestSegmentHit', () => {
 				thresholdDp,
 			})
 		).toBeNull();
+	});
+});
+
+// ===========================================================================
+// getAdjacentSegmentRecordIds
+// ===========================================================================
+
+describe('getAdjacentSegmentRecordIds', () => {
+	const points = [
+		makePoint(1, 8, 49),
+		makePoint(2, 8.001, 49),
+		makePoint(3, 8.002, 49),
+	];
+
+	it('returns both adjacent segments for a middle point', () => {
+		expect(getAdjacentSegmentRecordIds(points, 2)).toEqual(['1_2', '2_3']);
+	});
+
+	it('returns only the outgoing segment for the first point', () => {
+		expect(getAdjacentSegmentRecordIds(points, 1)).toEqual(['1_2']);
+	});
+
+	it('returns only the incoming segment for the last point', () => {
+		expect(getAdjacentSegmentRecordIds(points, 3)).toEqual(['2_3']);
+	});
+
+	it('returns an empty array for an unknown point id', () => {
+		expect(getAdjacentSegmentRecordIds(points, 42)).toEqual([]);
+	});
+
+	it('returns an empty array for a single point', () => {
+		expect(getAdjacentSegmentRecordIds([makePoint(1, 8, 49)], 1)).toEqual([]);
 	});
 });
 

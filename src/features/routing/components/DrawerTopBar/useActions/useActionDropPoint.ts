@@ -11,26 +11,30 @@ import { point } from '@turf/turf';
  */
 import { useAppDispatch } from '../../../../../store/hooks';
 import { updateRoutingPoint } from '../../../db/actionsRoutingPoint';
-import { processRouting, setGrabbedPointId } from '../../../slice';
+import { deleteSegments, processRouting, setMovedPointId } from '../../../slice';
 import { RoutingPoint } from '../../../types';
+import { getAdjacentSegmentRecordIds } from '../../../utils';
 import { MapContext } from '../../../../../Context';
 import { dbConnection } from '../../../../dbLoader/DBConnection';
 import { pointsCoordsAreOverlapping } from '../../../../../lib/utils';
 
 /**
- * Drop the grabbed waypoint at the current map center: moves its
- * geometry there and re-runs the routing pipeline. The grab state is
- * cleared on success. No-op when nothing is grabbed (menu entry
- * disabled) or when the center overlaps another existing waypoint.
+ * Drop the moved waypoint at the current map center: moves its
+ * geometry there, deletes the adjacent segments so processRouting
+ * refetches them (moving a point keeps the same segment record ids, so
+ * without the deletion the cached stale geometry would be reused), and
+ * re-runs the routing pipeline. The move state is cleared on success.
+ * No-op when no point is being moved (menu entry disabled) or when the
+ * center overlaps another existing waypoint.
  */
 const useActionDropPoint = ({
 	points,
 	routeId,
-	grabbedPointId,
+	movedPointId,
 }: {
 	points?: RoutingPoint[];
 	routeId?: number;
-	grabbedPointId: number | null;
+	movedPointId: number | null;
 }) => {
 	const dispatch = useAppDispatch();
 	const { currentMapEventRef } = useContext(MapContext);
@@ -43,30 +47,30 @@ const useActionDropPoint = ({
 	> = useMemo(
 		() => ({
 			mutationFn: ({ feature }: { feature: Feature<Point, GeoJsonProperties> }) => {
-				if (!grabbedPointId) {
+				if (!movedPointId) {
 					return Promise.resolve();
 				}
-				return updateRoutingPoint(grabbedPointId, { feature });
+				return updateRoutingPoint(movedPointId, { feature });
 			},
 			onMutate: async () => {
 				await dbConnection.queryClient!.cancelQueries({ queryKey: ['route', routeId] });
 			},
 			onSuccess: async () => {
-				dispatch(setGrabbedPointId(null));
+				dispatch(setMovedPointId(null));
 				await dbConnection.queryClient!.invalidateQueries({ queryKey: ['route', routeId] });
 				dbConnection?.queryClient && dispatch(processRouting(dbConnection.queryClient));
 			},
 		}),
 		[
 			dispatch,
-			grabbedPointId,
+			movedPointId,
 			routeId,
 		]
 	);
 	const mutation = useMutation(mutationOptions);
 
 	const cb = useCallback(async () => {
-		if (!routeId || !grabbedPointId) {
+		if (!routeId || !movedPointId) {
 			return;
 		}
 		const center = currentMapEventRef?.current?.center;
@@ -77,11 +81,17 @@ const useActionDropPoint = ({
 		if (
 			points?.some(
 				(p) =>
-					p.id !== grabbedPointId &&
+					p.id !== movedPointId &&
 					pointsCoordsAreOverlapping(p.geometry.coordinates, center)
 			)
 		) {
 			return;
+		}
+		// Delete the adjacent segments before mutating — processRouting
+		// would otherwise reuse the cached (stale) geometry for the
+		// unchanged segment record ids.
+		if (points) {
+			dispatch(deleteSegments(getAdjacentSegmentRecordIds(points, movedPointId)));
 		}
 		const feature = point([
 			center[0],
@@ -93,7 +103,8 @@ const useActionDropPoint = ({
 		});
 	}, [
 		currentMapEventRef,
-		grabbedPointId,
+		dispatch,
+		movedPointId,
 		mutation,
 		points,
 		routeId,
@@ -104,10 +115,10 @@ const useActionDropPoint = ({
 			key: 'dropPoint',
 			cb,
 			label: 'routing.dropPoint',
-			disabled: () => !grabbedPointId,
-			leadingIcon: 'arrow-down-bold',
+			disabled: () => !movedPointId,
+			leadingIcon: 'arrow-down-bold-outline',
 		}),
-		[cb, grabbedPointId]
+		[cb, movedPointId]
 	);
 };
 

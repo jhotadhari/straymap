@@ -10,9 +10,9 @@ import { MapEventResponse } from 'react-native-mapsforge-vtm';
  */
 import { useAppDispatch, useAppSelector } from '../../../../../store/hooks';
 import { deleteRoutingPoint } from '../../../db/actionsRoutingPoint';
-import { processRouting, setGrabbedPointId } from '../../../slice';
+import { processRouting, setMovedPointId } from '../../../slice';
 import { RoutingGestureHitState, RoutingPoint } from '../../../types';
-import { selectGrabbedPointId } from '../../../selectors';
+import { selectMovedPointId } from '../../../selectors';
 import { MapContext } from '../../../../../Context';
 import { dbConnection } from '../../../../dbLoader/DBConnection';
 import { RoutingGestureHits } from './useActionHitState';
@@ -20,7 +20,7 @@ import { RoutingGestureHits } from './useActionHitState';
 /**
  * Delete the waypoint nearest to the map center. Keeps at least two
  * waypoints on the route (menu entry disabled below that). Clearing the
- * grab state when the deleted point is the grabbed one is handled in
+ * move state when the deleted point is the one being moved is handled in
  * onSuccess. No-op when the center is not within the gesture threshold
  * of a waypoint (menu entry disabled).
  */
@@ -36,7 +36,7 @@ const useActionDeletePointAtCenter = ({
 	getHits: (event: MapEventResponse | null) => RoutingGestureHits;
 }) => {
 	const dispatch = useAppDispatch();
-	const grabbedPointId = useAppSelector(selectGrabbedPointId);
+	const movedPointId = useAppSelector(selectMovedPointId);
 	const { currentMapEventRef } = useContext(MapContext);
 
 	const mutationOptions: UseMutationOptions<void, Error, number, void> = useMemo(
@@ -46,8 +46,8 @@ const useActionDeletePointAtCenter = ({
 				await dbConnection.queryClient!.cancelQueries({ queryKey: ['route', routeId] });
 			},
 			onSuccess: async (_data, id) => {
-				if (grabbedPointId === id) {
-					dispatch(setGrabbedPointId(null));
+				if (movedPointId === id) {
+					dispatch(setMovedPointId(null));
 				}
 				await dbConnection.queryClient!.invalidateQueries({ queryKey: ['route', routeId] });
 				dbConnection?.queryClient && dispatch(processRouting(dbConnection.queryClient));
@@ -55,7 +55,7 @@ const useActionDeletePointAtCenter = ({
 		}),
 		[
 			dispatch,
-			grabbedPointId,
+			movedPointId,
 			routeId,
 		]
 	);
@@ -82,11 +82,12 @@ const useActionDeletePointAtCenter = ({
 			key: 'deletePointAtCenter',
 			cb,
 			label: 'routing.deletePointAtCenter',
-			disabled: () => !hitState.pointHit || (points?.length ?? 0) <= 2,
-			leadingIcon: 'delete',
+			disabled: () => !!movedPointId || !hitState.pointHit || (points?.length ?? 0) <= 2,
+			leadingIcon: 'delete-outline',
 		}),
 		[
 			cb,
+			movedPointId,
 			hitState.pointHit,
 			points,
 		]

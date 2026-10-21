@@ -21,7 +21,7 @@ export const ROUTING_SIMPLIFY_TOLERANCE = 0.00004;
 /**
  * Screen distance (dp) within which the map center is considered to be
  * "on" a rendered segment or waypoint for the gesture-workaround actions
- * (cut segment, grab/delete point at center). Mirrors the map library's
+ * (cut segment, move/delete point at center). Mirrors the map library's
  * native gesture hit-test distance (30 px default).
  */
 export const ROUTING_GESTURE_THRESHOLD_DP = 30;

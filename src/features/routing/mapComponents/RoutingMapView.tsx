@@ -23,7 +23,7 @@ import { get } from 'lodash-es';
  * Internal dependencies
  */
 import { useAppSelector } from '../../../store/hooks';
-import { selectSegmentByRecordId, selectGrabbedPointId } from '../selectors';
+import { selectSegmentByRecordId, selectMovedPointId } from '../selectors';
 import { getSegmentRecordId, getSimplifiedSegmentCoords, resolveProfileForPoint } from '../utils';
 import { ROUTING_SIMPLIFY_TOLERANCE } from '../constants';
 import useRoute from '../hooks/useRoute';
@@ -236,12 +236,12 @@ const Segments: FC<{
 
 const Markers: FC<{
 	points?: RoutingPoint[];
-	grabbedPointId: number | null;
-}> = memo(({ points, grabbedPointId }) => {
+	movedPointId: number | null;
+}> = memo(({ points, movedPointId }) => {
 	const markerElements = useMemo(() => {
 		if (!points) return null;
 		return points.map((point, index) => {
-			const isGrabbed = grabbedPointId === point.id;
+			const isMoving = movedPointId === point.id;
 			return (
 				<Marker
 					key={point.id}
@@ -249,14 +249,14 @@ const Markers: FC<{
 					paint={{
 						text: index + 1 + '',
 						textMargin: 15,
-						...(isGrabbed && paintGrabHighlight),
+						...(isMoving && paintMoveHighlight),
 					}}
 				/>
 			);
 		});
 	}, [
 		points,
-		grabbedPointId,
+		movedPointId,
 	]);
 
 	return (
@@ -266,17 +266,20 @@ const Markers: FC<{
 	);
 });
 
-const GrabPreview: FC<{
-	grabbedPointId: number | null;
-}> = memo(({ grabbedPointId }) => {
+const RoutingMapView = () => {
+	const { points } =
+		useRoute([
+			'points',
+		]) || {};
+	const movedPointId = useAppSelector(selectMovedPointId);
 	const { currentMapEventRef } = useContext(MapContext);
 	const mapUpdateInterval = useAppSelector(selectMapUpdateInterval);
-	const [position, setPosition] = useState<[number, number] | null>(null);
+	const [liveCenter, setLiveCenter] = useState<[number, number] | null>(null);
 
 	useMapEventInterval(currentMapEventRef, mapUpdateInterval, (event) => {
 		const center = event?.center;
-		setPosition((prev) => {
-			if (!grabbedPointId || !center || center.length < 2) {
+		setLiveCenter((prev) => {
+			if (!movedPointId || !center || center.length < 2) {
 				return prev ? null : prev;
 			}
 			const next: [number, number] = [center[0], center[1]];
@@ -287,37 +290,41 @@ const GrabPreview: FC<{
 		});
 	});
 
-	if (!grabbedPointId || !position) {
-		return null;
-	}
-
-	return (
-		<ReindexScope order={400}>
-			<SharedLayer>
-				<Marker
-					position={position}
-					paint={paintGrabPreview}
-				/>
-			</SharedLayer>
-		</ReindexScope>
-	);
-});
-
-const RoutingMapView = () => {
-	const { points } =
-		useRoute([
-			'points',
-		]) || {};
-	const grabbedPointId = useAppSelector(selectGrabbedPointId);
+	// While a point is being moved, its coordinates follow the live map
+	// center: the marker moves with the crosshair and the adjacent
+	// placeholder (fallback) segment lines follow along.
+	const effectivePoints = useMemo(() => {
+		if (!points || !movedPointId || !liveCenter) {
+			return points;
+		}
+		return points.map((p) =>
+			p.id === movedPointId
+				? {
+						...p,
+						geometry: {
+							...p.geometry,
+							coordinates: [
+								liveCenter[0],
+								liveCenter[1],
+								p.geometry.coordinates[2] ?? 0,
+							],
+						},
+					}
+				: p
+		);
+	}, [
+		points,
+		movedPointId,
+		liveCenter,
+	]);
 
 	return (
 		<Fragment>
-			<Segments points={points} />
+			<Segments points={effectivePoints} />
 			<Markers
-				points={points}
-				grabbedPointId={grabbedPointId}
+				points={effectivePoints}
+				movedPointId={movedPointId}
 			/>
-			<GrabPreview grabbedPointId={grabbedPointId} />
 		</Fragment>
 	);
 };
@@ -334,17 +341,11 @@ const paintPathError: PathPaint = {
 
 const paintPathRamp: PathPaint = { strokeWidth: 6 };
 
-const paintGrabHighlight: MarkerPaint = {
+const paintMoveHighlight: MarkerPaint = {
 	fillColor: '#ff8800',
 	strokeColor: '#ffffff',
 	strokeWidth: 4,
 	textColor: '#ffffff',
-};
-
-const paintGrabPreview: MarkerPaint = {
-	fillColor: '#ff8800',
-	strokeColor: '#ffffff',
-	strokeWidth: 4,
 };
 
 export default RoutingMapView;

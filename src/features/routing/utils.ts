@@ -31,6 +31,38 @@ export const getSegmentRecordId = (segment: Pick<RoutingSegment, 'fromId' | 'toI
 		segment.toId,
 	].join('_');
 
+/**
+ * Segment record ids of the two segments touching a waypoint (the
+ * incoming segment from the previous point and the outgoing segment to
+ * the next point). Used to delete a moved point's cached
+ * segments so processRouting refetches them instead of reusing stale
+ * geometry.
+ */
+export const getAdjacentSegmentRecordIds = (points: RoutingPoint[], pointId: number): string[] => {
+	const index = points.findIndex((p) => p.id === pointId);
+	if (index === -1) {
+		return [];
+	}
+	const ids: string[] = [];
+	if (index > 0) {
+		ids.push(
+			getSegmentRecordId({
+				fromId: points[index - 1].id,
+				toId: pointId,
+			})
+		);
+	}
+	if (index < points.length - 1) {
+		ids.push(
+			getSegmentRecordId({
+				fromId: pointId,
+				toId: points[index + 1].id,
+			})
+		);
+	}
+	return ids;
+};
+
 export const aggregateSegmentsToCoords = (segments: RoutingSegment[]) =>
 	segments.reduce((acc, seg) => {
 		if (seg?.positions) {

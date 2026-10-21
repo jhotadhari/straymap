@@ -12,7 +12,7 @@ import { MapEventResponse } from 'react-native-mapsforge-vtm';
  */
 import { useAppDispatch } from '../../../../../store/hooks';
 import { createRoutingPoints } from '../../../db/actionsRoutingPoint';
-import { processRouting } from '../../../slice';
+import { deleteSegments, setMovedPointId } from '../../../slice';
 import { RoutingGestureHitState, RoutingPoint } from '../../../types';
 import { MapContext } from '../../../../../Context';
 import { dbConnection } from '../../../../dbLoader/DBConnection';
@@ -20,20 +20,28 @@ import { RoutingGestureHits } from './useActionHitState';
 
 /**
  * Cut the segment under the map center: inserts a new waypoint at the
- * snapped on-segment position, between the segment's two waypoints, and
- * re-runs the routing pipeline. No-op when the center is not within the
- * gesture threshold of a rendered segment (the menu entry is disabled).
+ * snapped on-segment position, between the segment's two waypoints.
+ * The new point is immediately set to move mode (drag mode) and the cut
+ * segment's cached geometry is deleted, so both adjacent segments
+ * render as blue fallback placeholders that follow the map center. The
+ * routing pipeline only re-runs when the point is dropped.
+ *
+ * No-op when the center is not within the gesture threshold of a
+ * rendered segment or while another point is being moved (menu entry
+ * disabled).
  */
 const useActionCutSegment = ({
 	points,
 	routeId,
 	hitState,
 	getHits,
+	movedPointId,
 }: {
 	points?: RoutingPoint[];
 	routeId?: number;
 	hitState: RoutingGestureHitState;
 	getHits: (event: MapEventResponse | null) => RoutingGestureHits;
+	movedPointId: number | null;
 }) => {
 	const dispatch = useAppDispatch();
 	const { currentMapEventRef } = useContext(MapContext);
@@ -44,7 +52,7 @@ const useActionCutSegment = ({
 		  }[]
 		| undefined,
 		Error,
-		{ feature: Feature<Point, GeoJsonProperties>; index: number },
+		{ feature: Feature<Point, GeoJsonProperties>; index: number; segmentRecordId: string },
 		void
 	> = useMemo(
 		() => ({
@@ -58,9 +66,17 @@ const useActionCutSegment = ({
 			onMutate: async () => {
 				await dbConnection.queryClient!.cancelQueries({ queryKey: ['route', routeId] });
 			},
-			onSuccess: async () => {
+			onSuccess: async (data, variables) => {
+				// Immediately start moving the new cut point and drop
+				// the cut segment's cached geometry so the adjacent
+				// segments render as live fallback placeholders. Routing
+				// is deferred until the point is dropped.
+				const newPointId = data?.[0]?.id;
+				if (newPointId) {
+					dispatch(setMovedPointId(newPointId));
+				}
+				dispatch(deleteSegments([variables.segmentRecordId]));
 				await dbConnection.queryClient!.invalidateQueries({ queryKey: ['route', routeId] });
-				dbConnection?.queryClient && dispatch(processRouting(dbConnection.queryClient));
 			},
 		}),
 		[
@@ -88,6 +104,7 @@ const useActionCutSegment = ({
 		mutation.mutate({
 			feature,
 			index: cutHit.insertIndex,
+			segmentRecordId: cutHit.segmentRecordId,
 		});
 	}, [
 		currentMapEventRef,
@@ -101,11 +118,12 @@ const useActionCutSegment = ({
 			key: 'cutSegment',
 			cb,
 			label: 'routing.cutSegment',
-			disabled: () => !hitState.cutHit || !points?.length,
+			disabled: () => !!movedPointId || !hitState.cutHit || !points?.length,
 			leadingIcon: 'content-cut',
 		}),
 		[
 			cb,
+			movedPointId,
 			hitState.cutHit,
 			points,
 		]

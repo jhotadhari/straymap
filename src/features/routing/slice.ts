@@ -55,12 +55,12 @@ export interface RoutingState extends SliceSettingsBase, RoutingSettings {
 	 */
 	pathCoords: number[][];
 	/**
-	 * Waypoint currently grabbed by the gesture-workaround grab/drop
+	 * Waypoint currently being moved by the gesture-workaround move/drop
 	 * flow. Follows the map center (preview rendered by RoutingMapView)
 	 * until dropped, or cleared on route switch/stop. Runtime state —
 	 * not persisted to storage.
 	 */
-	grabbedPointId: number | null;
+	movedPointId: number | null;
 }
 
 export const initialSettings: RoutingSettings = {
@@ -74,7 +74,7 @@ const initialState: RoutingState = {
 	brouterAvailable: null,
 	segments: {},
 	pathCoords: [],
-	grabbedPointId: null,
+	movedPointId: null,
 	...initialSettings,
 };
 
@@ -93,12 +93,12 @@ export const routingSlice = createSlice({
 		setIsRouting: (state, action: PayloadAction<RoutingState['isRouting']>) => {
 			state.segments = {};
 			state.pathCoords = [];
-			state.grabbedPointId = null;
+			state.movedPointId = null;
 			state.isRouting = action.payload;
 			state.routingLineId = null;
 		},
-		setGrabbedPointId: (state, action: PayloadAction<number | null>) => {
-			state.grabbedPointId = action.payload;
+		setMovedPointId: (state, action: PayloadAction<number | null>) => {
+			state.movedPointId = action.payload;
 		},
 		setRoutingLineId: (state, action: PayloadAction<RoutingState['routingLineId']>) => {
 			state.routingLineId = action.payload;
@@ -140,7 +140,7 @@ export const {
 	setLastProfile,
 	setSegment,
 	deleteSegments,
-	setGrabbedPointId,
+	setMovedPointId,
 } = routingSlice.actions;
 
 // Export the slice reducer for use in the store configuration
