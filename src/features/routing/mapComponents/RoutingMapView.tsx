@@ -1,13 +1,15 @@
 /**
  * External dependencies
  */
-import React, { FC, Fragment, memo, useMemo } from 'react';
+import React, { FC, Fragment, memo, useContext, useMemo, useState } from 'react';
 import {
 	PathPaint,
 	Marker,
+	MarkerPaint,
 	LayerPath,
 	ReindexScope,
 	SharedLayer,
+	useMapEventInterval,
 } from 'react-native-mapsforge-vtm';
 import {
 	LayerPathColorRamp,
@@ -21,13 +23,15 @@ import { get } from 'lodash-es';
  * Internal dependencies
  */
 import { useAppSelector } from '../../../store/hooks';
-import { selectSegmentByRecordId } from '../selectors';
+import { selectSegmentByRecordId, selectGrabbedPointId } from '../selectors';
 import { getSegmentRecordId, getSimplifiedSegmentCoords, resolveProfileForPoint } from '../utils';
 import { ROUTING_SIMPLIFY_TOLERANCE } from '../constants';
 import useRoute from '../hooks/useRoute';
 // import useSimplificationTolerance from '../../lines/hooks/useSimplificationTolerance';
 import { RoutingPoint } from '../types';
 import { pointsCoordsAreOverlapping } from '../../../lib/utils';
+import { MapContext } from '../../../Context';
+import { selectMapUpdateInterval } from '../../general/selectors';
 
 const SegmentLineLayer: FC<{
 	segmentRecordId: string;
@@ -232,24 +236,69 @@ const Segments: FC<{
 
 const Markers: FC<{
 	points?: RoutingPoint[];
-}> = memo(({ points }) => {
+	grabbedPointId: number | null;
+}> = memo(({ points, grabbedPointId }) => {
 	const markerElements = useMemo(() => {
 		if (!points) return null;
-		return points.map((point, index) => (
-			<Marker
-				key={point.id}
-				position={point.geometry.coordinates}
-				paint={{
-					text: index + 1 + '',
-					textMargin: 15,
-				}}
-			/>
-		));
-	}, [points]);
+		return points.map((point, index) => {
+			const isGrabbed = grabbedPointId === point.id;
+			return (
+				<Marker
+					key={point.id}
+					position={point.geometry.coordinates}
+					paint={{
+						text: index + 1 + '',
+						textMargin: 15,
+						...(isGrabbed && paintGrabHighlight),
+					}}
+				/>
+			);
+		});
+	}, [
+		points,
+		grabbedPointId,
+	]);
 
 	return (
 		<ReindexScope order={400}>
 			<SharedLayer>{markerElements}</SharedLayer>
+		</ReindexScope>
+	);
+});
+
+const GrabPreview: FC<{
+	grabbedPointId: number | null;
+}> = memo(({ grabbedPointId }) => {
+	const { currentMapEventRef } = useContext(MapContext);
+	const mapUpdateInterval = useAppSelector(selectMapUpdateInterval);
+	const [position, setPosition] = useState<[number, number] | null>(null);
+
+	useMapEventInterval(currentMapEventRef, mapUpdateInterval, (event) => {
+		const center = event?.center;
+		setPosition((prev) => {
+			if (!grabbedPointId || !center || center.length < 2) {
+				return prev ? null : prev;
+			}
+			const next: [number, number] = [center[0], center[1]];
+			if (prev && prev[0] === next[0] && prev[1] === next[1]) {
+				return prev;
+			}
+			return next;
+		});
+	});
+
+	if (!grabbedPointId || !position) {
+		return null;
+	}
+
+	return (
+		<ReindexScope order={400}>
+			<SharedLayer>
+				<Marker
+					position={position}
+					paint={paintGrabPreview}
+				/>
+			</SharedLayer>
 		</ReindexScope>
 	);
 });
@@ -259,11 +308,16 @@ const RoutingMapView = () => {
 		useRoute([
 			'points',
 		]) || {};
+	const grabbedPointId = useAppSelector(selectGrabbedPointId);
 
 	return (
 		<Fragment>
 			<Segments points={points} />
-			<Markers points={points} />
+			<Markers
+				points={points}
+				grabbedPointId={grabbedPointId}
+			/>
+			<GrabPreview grabbedPointId={grabbedPointId} />
 		</Fragment>
 	);
 };
@@ -279,5 +333,18 @@ const paintPathError: PathPaint = {
 };
 
 const paintPathRamp: PathPaint = { strokeWidth: 6 };
+
+const paintGrabHighlight: MarkerPaint = {
+	fillColor: '#ff8800',
+	strokeColor: '#ffffff',
+	strokeWidth: 4,
+	textColor: '#ffffff',
+};
+
+const paintGrabPreview: MarkerPaint = {
+	fillColor: '#ff8800',
+	strokeColor: '#ffffff',
+	strokeWidth: 4,
+};
 
 export default RoutingMapView;

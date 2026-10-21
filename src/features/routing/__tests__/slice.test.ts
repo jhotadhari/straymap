@@ -15,6 +15,7 @@ import routingReducer, {
 	deleteSegmentByKeyVal,
 	onSetDbPath,
 	initialSettings,
+	setGrabbedPointId,
 } from '../slice';
 import type { RoutingState } from '../slice';
 import type { RoutingSegment } from '../types';
@@ -62,11 +63,13 @@ describe('routing slice reducers', () => {
 			segments: { '1_2': makeSegment({ fromId: 1, toId: 2 }) },
 			routingLineId: 5,
 			isRouting: false,
+			grabbedPointId: 1,
 		};
 		const state = routingReducer(prev, setIsRoutingAction(42));
 		expect(state.isRouting).toBe(42);
 		expect(state.segments).toEqual({});
 		expect(state.routingLineId).toBeNull();
+		expect(state.grabbedPointId).toBeNull();
 	});
 
 	it('setIsRoutingAction sets isRouting to false', () => {
@@ -78,6 +81,7 @@ describe('routing slice reducers', () => {
 			segments: { '1_2': makeSegment() },
 			routingLineId: 5,
 			isRouting: 42,
+			grabbedPointId: null,
 		};
 		const state = routingReducer(prev, setIsRoutingAction(false));
 		expect(state.isRouting).toBe(false);
@@ -90,6 +94,14 @@ describe('routing slice reducers', () => {
 
 		const state2 = routingReducer(state, setRoutingLineId(null));
 		expect(state2.routingLineId).toBeNull();
+	});
+
+	it('setGrabbedPointId updates grabbed point', () => {
+		const state = routingReducer(undefined, setGrabbedPointId(7));
+		expect(state.grabbedPointId).toBe(7);
+
+		const state2 = routingReducer(state, setGrabbedPointId(null));
+		expect(state2.grabbedPointId).toBeNull();
 	});
 
 	it('setSegment adds a segment keyed by fromId_toId', () => {
@@ -125,6 +137,7 @@ describe('routing slice reducers', () => {
 			},
 			routingLineId: null,
 			isRouting: false,
+			grabbedPointId: null,
 		};
 		const state = routingReducer(prev, deleteSegments(['1_2']));
 		expect(state.segments).not.toHaveProperty('1_2');
@@ -141,6 +154,7 @@ describe('routing slice reducers', () => {
 			segments: { '1_2': seg },
 			routingLineId: null,
 			isRouting: false,
+			grabbedPointId: null,
 		};
 		const state = routingReducer(prev, deleteSegments([seg]));
 		expect(state.segments).toEqual({});
@@ -155,6 +169,7 @@ describe('routing slice reducers', () => {
 			segments: { '1_2': makeSegment() },
 			routingLineId: null,
 			isRouting: false,
+			grabbedPointId: null,
 		};
 		const state = routingReducer(prev, deleteSegments(['nonexistent', '1_2']));
 		expect(state.segments).toEqual({});
