@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- About Credits: add missing `react-native-markdown-display` entry to all
+  translations (en/de/es/pt), matching the README utilities list.
+
 ## [0.4.0] - 2026-09-30
 
 ### Added
