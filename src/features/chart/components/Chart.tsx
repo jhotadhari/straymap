@@ -615,19 +615,20 @@ const Chart: FC<{
 	// synchronously so the follow derivation stops immediately). Re-armed
 	// only when follow-map is enabled again — NOT synced from settings on
 	// every render (that would undo the flip-off during the gesture's
-	// pre-dispatch renders).
-	const followActiveRef = useRef(settings.followMap);
+	// pre-dispatch renders). The center mode needs no such gate: its
+	// derivation only re-runs when the center or the x-scale changes.
+	const followActiveRef = useRef(settings.followMode === 'map');
 	useEffect(() => {
-		if (settings.followMap) {
+		if (settings.followMode === 'map') {
 			followActiveRef.current = true;
 		}
-	}, [settings.followMap]);
-	// Live follow-map flag for the gesture callbacks — read through a ref
-	// so the gesture memo never rebuilds mid-interaction when follow-map
-	// toggles (a rebuild would restart the in-flight gesture and reset
-	// its start snapshot to zero).
-	const followMapRef = useRef(settings.followMap);
-	followMapRef.current = settings.followMap;
+	}, [settings.followMode]);
+	// Live follow-mode flag for the gesture callbacks — read through a
+	// ref so the gesture memo never rebuilds mid-interaction when the
+	// mode toggles (a rebuild would restart the in-flight gesture and
+	// reset its start snapshot to zero).
+	const followModeRef = useRef(settings.followMode);
+	followModeRef.current = settings.followMode;
 
 	// Latest state for gesture-start snapshots.
 	const scaleXRef = useRef(scaleX);
@@ -869,7 +870,7 @@ const Chart: FC<{
 	// keep the center indicator in view. Gated on followActiveRef so a
 	// just-started gesture stops the overwrites immediately (no jump).
 	useEffect(() => {
-		if (!followActiveRef.current || !settings.followMap || !followRange) {
+		if (!followActiveRef.current || settings.followMode !== 'map' || !followRange) {
 			return;
 		}
 		const [d0, d1] = followRange;
@@ -903,7 +904,7 @@ const Chart: FC<{
 			setTranslateY(ty);
 		}
 	}, [
-		settings.followMap,
+		settings.followMode,
 		followRange,
 		totalLength,
 		plotW,
@@ -911,6 +912,27 @@ const Chart: FC<{
 		centerDistance,
 		series,
 		seriesViews,
+	]);
+
+	// Follow-center: the map center stays in the chart's horizontal
+	// middle (clamped to the plot edges at the route ends). The scale and
+	// the y-viewport are left alone — only the x-translation is derived.
+	// Re-running on scaleX changes re-centers the chart after x-zooms
+	// without resetting the mode.
+	useEffect(() => {
+		if (settings.followMode !== 'center' || centerDistance === undefined) {
+			return;
+		}
+		const tx = clampTranslate(plotW, scaleX, plotW / 2 - scaleX * distToX(centerDistance));
+		if (tx !== txRef.current) {
+			setTranslateX(tx);
+		}
+	}, [
+		settings.followMode,
+		centerDistance,
+		scaleX,
+		plotW,
+		distToX,
 	]);
 
 	// ── Paths (memoized — only depend on the series) ────────────────────
@@ -1122,11 +1144,20 @@ const Chart: FC<{
 			return 'uniform';
 		};
 
-		// A user gesture switches the follow-map toggle off.
+		// A user gesture on a follow mode switches the option off — the
+		// gesture then continues from the current viewport (the stored
+		// ratio is never re-applied on this reset). In the center mode
+		// only a pan switches the option off; zoom gestures are
+		// compatible with centering and re-center instead.
 		const notifyUserGesture = () => {
 			followActiveRef.current = false;
-			if (followMapRef.current && onUserGesture) {
+			if (followModeRef.current !== 'none' && onUserGesture) {
 				onUserGesture();
+			}
+		};
+		const notifyUserGestureIfMap = () => {
+			if (followModeRef.current === 'map') {
+				notifyUserGesture();
 			}
 		};
 
@@ -1168,7 +1199,7 @@ const Chart: FC<{
 		const pinch = Gesture.Pinch()
 			.runOnJS(true)
 			.onStart((event) => {
-				notifyUserGesture();
+				notifyUserGestureIfMap();
 				const touches = pinchTouchesRef.current;
 				if (touches.length >= 2) {
 					snapshotPinchBase(touches.slice(0, 2));
@@ -1223,10 +1254,16 @@ const Chart: FC<{
 				}
 				const kx = sx / base.sx;
 				const ky = sy / base.sy;
+				// In the center mode the x-translation is owned by the
+				// centering effect (which re-runs on the scaleX change) —
+				// zoom gestures must not write it.
+				const isCenter = followModeRef.current === 'center';
 				applyTransform(
 					sx,
 					sy,
-					clampTranslate(plotW, sx, base.focalX - kx * (base.focalX - base.tx)),
+					isCenter
+						? txRef.current
+						: clampTranslate(plotW, sx, base.focalX - kx * (base.focalX - base.tx)),
 					clampTranslate(plotH, sy, base.focalY - ky * (base.focalY - base.ty))
 				);
 			})
@@ -1244,7 +1281,7 @@ const Chart: FC<{
 			.numberOfTaps(2)
 			.runOnJS(true)
 			.onEnd((event) => {
-				notifyUserGesture();
+				notifyUserGestureIfMap();
 				const base: PinchBase = {
 					sx: scaleXRef.current,
 					sy: scaleYRef.current,
@@ -1257,10 +1294,13 @@ const Chart: FC<{
 				const sy = clamp(base.sy * 2, MIN_SCALE, MAX_SCALE);
 				const kx = sx / base.sx;
 				const ky = sy / base.sy;
+				const isCenter = followModeRef.current === 'center';
 				applyTransform(
 					sx,
 					sy,
-					clampTranslate(plotW, sx, base.focalX - kx * (base.focalX - base.tx)),
+					isCenter
+						? txRef.current
+						: clampTranslate(plotW, sx, base.focalX - kx * (base.focalX - base.tx)),
 					clampTranslate(plotH, sy, base.focalY - ky * (base.focalY - base.ty))
 				);
 			});

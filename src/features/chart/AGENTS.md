@@ -95,18 +95,18 @@ ChartState extends SliceSettingsBase {
 
 Entries in `charts` carry **only explicitly written values** — there is
 deliberately no `DEFAULT_CHART_SETTINGS` base on write, otherwise every
-chart that ever received a per-chart value (ratio, follow-map) would count
-as "custom" in `selectHasOwnChartSettings`.
+chart that ever received a per-chart value (ratio, follow mode) would
+count as "custom" in `selectHasOwnChartSettings`.
 
 ### Actions
 
-| Action                              | What it does                                                                                   |
-| ----------------------------------- | ---------------------------------------------------------------------------------------------- |
-| `setChartSettings({key, settings})` | Shallow-merge `settings` into `charts[key]` (no defaults base, see above)                      |
-| `removeChartSettings(keys)`         | Delete the given chart keys' settings entries                                                  |
-| `resetChartSettingsToPerChart(key)` | Keep only `ratioValue`/`followMap` of the chart's own entry; delete the entry when none remain |
-| `setGeneralSettings(partial)`       | Merge into `general` (defaults base)                                                           |
-| `setFullscreenLineId(lineId?)`      | Set/clear the fullscreen chart's dedicated line                                                |
+| Action                              | What it does                                                                                    |
+| ----------------------------------- | ----------------------------------------------------------------------------------------------- |
+| `setChartSettings({key, settings})` | Shallow-merge `settings` into `charts[key]` (no defaults base, see above)                       |
+| `removeChartSettings(keys)`         | Delete the given chart keys' settings entries                                                   |
+| `resetChartSettingsToPerChart(key)` | Keep only `ratioValue`/`followMode` of the chart's own entry; delete the entry when none remain |
+| `setGeneralSettings(partial)`       | Merge into `general` (defaults base)                                                            |
+| `setFullscreenLineId(lineId?)`      | Set/clear the fullscreen chart's dedicated line                                                 |
 
 ### Thunks
 
@@ -124,8 +124,8 @@ ChartSettings {
   secondary: ChartSeriesValue;
   secondaryColor: ChartColorMode;
   xMode: 'distance' | 'time';
-  ratioValue?: number;   // fixed aspect ratio: visible x-range per visible y-range unit
-  followMap: boolean;    // viewport follows the map's covered route segment (1:1)
+  ratioValue?: number;              // fixed aspect ratio: visible x-range per visible y-range unit
+  followMode: 'none' | 'map' | 'center'; // Off / follow covered segment (1:1) / follow map center
   showHeading: boolean;
   showStats: boolean;
 }
@@ -135,7 +135,7 @@ ChartSettings {
 
 | Constant                     | Keys                       | Meaning                                                        |
 | ---------------------------- | -------------------------- | -------------------------------------------------------------- |
-| `PER_CHART_SETTINGS_KEYS`    | `ratioValue`, `followMap`  | Always per-chart — the general settings never contribute these |
+| `PER_CHART_SETTINGS_KEYS`    | `ratioValue`, `followMode` | Always per-chart — the general settings never contribute these |
 | `GENERAL_ONLY_SETTINGS_KEYS` | `showHeading`, `showStats` | Always general — a chart's own entry never contributes these   |
 
 Every other key participates in the Default/Custom mode (general vs own).
@@ -147,7 +147,7 @@ Every other key participates in the Default/Custom mode (general vs own).
 | `selectChartSettings(state, key)`       | Effective settings: `DEFAULT_CHART_SETTINGS` ← `general` (minus per-chart keys) ← own (minus general-only keys) |
 | `selectGeneralSettings`                 | `DEFAULT_CHART_SETTINGS` merged with `general`                                                                  |
 | `selectHasOwnChartSettings(state, key)` | `true` when the own entry has keys outside the two exclusion sets → drives Default/Custom mode                  |
-| `selectOwnPerChartSettings(state, key)` | `pick` of `ratioValue`/`followMap` from the own entry                                                           |
+| `selectOwnPerChartSettings(state, key)` | `pick` of `ratioValue`/`followMode` from the own entry                                                          |
 | `selectFullscreenLineId`                | The fullscreen chart's dedicated line                                                                           |
 | `selectInitialized`                     | Storage-restore completion flag                                                                                 |
 
@@ -157,7 +157,7 @@ Every other key participates in the Default/Custom mode (general vs own).
   exclusion sets) plus the existing per-chart settings into the chart's
   own entry.
 - **→ Default (general)**: `resetChartSettingsToPerChart` — discards the
-  own entry, keeping only `ratioValue`/`followMap`.
+  own entry, keeping only `ratioValue`/`followMode`.
 - The mode follows `hasOwn` on `chartKey` change; `update()` dispatches
   `setChartSettings` (own mode) or `setGeneralSettings` (general mode).
 
@@ -177,10 +177,10 @@ Every other key participates in the Default/Custom mode (general vs own).
 ## Listeners (`listeners.ts`)
 
 `resetRatioIfLoneChart`: when a chart key newly becomes the **only**
-`chart:*` key in the drawer and it has a stored ratio and doesn't follow
-the map, its `ratioValue` is cleared — a freshly added chart opens at the
-natural fit. The ratio stays relevant (and is kept) while following the
-map, for when follow-map is switched off.
+`chart:*` key in the drawer, its mode is Off and it has a stored ratio,
+its `ratioValue` is cleared — a freshly added chart opens at the natural
+fit. In the follow modes (`map`/`center`) the mode governs the viewport,
+so the ratio stays relevant and is kept.
 
 Triggers:
 
@@ -213,11 +213,12 @@ Data, follow-map polling, ratio plumbing, header/stats UI:
   SpatiaLite-computed values, rendered through the shared `LineStats`
   component.
 - **Center indicator**: a `setInterval` at `mapUpdateInterval` reads
-  `currentMapEventRef` (MapContext). Follow-map additionally derives the
-  covered route range via `computeViewportBbox` + `getCoveredRange`;
-  range updates are value-compared so an idle follow-map doesn't
-  re-render the tree on every map event. The fullscreen variant only
-  projects the center while it lies inside the line's envelope.
+  `currentMapEventRef` (MapContext). In Follow-map mode it additionally
+  derives the covered route range via `computeViewportBbox` +
+  `getCoveredRange`; range updates are value-compared so an idle
+  follow-map doesn't re-render the tree on every map event. The
+  fullscreen variant only projects the center while it lies inside the
+  line's envelope.
 - **Nearest route point**: `windowedNearestIdx` with a per-route
   last-best index; a covering window is used when the target jumps far
   (>1000 m) or on first lookup.
@@ -225,7 +226,7 @@ Data, follow-map polling, ratio plumbing, header/stats UI:
   points.
 - **Reset signal** (`resetSignal`): bumped by the Fit-screen button, on
   chart switches, and for the routing chart on route changes while it
-  sits at the natural fit (no stored ratio, not following).
+  sits at the natural fit (no stored ratio, follow mode Off).
 - **Ratio reporting**: the chart reports every viewport change into a
   ref (no per-frame re-renders); the settings modal snapshots it when
   opened. Axis gestures write a settled ratio back via
@@ -255,16 +256,27 @@ touch the indicator/labels, never the static plot:
   pinch.
 - **Gestures**: one-finger pan, two-finger pinch (uniform, or x-axis-only
   when the pinch starts in the x-axis band — per-axis finger separation),
-  double-tap zoom ×2. A user gesture synchronously flips follow-map off
-  (`onUserGesture` → `setChartSettings({ followMap: false })`).
+  double-tap zoom ×2. A gesture on a follow mode switches the option to
+  Off and continues from the current viewport — the stored ratio is
+  never re-applied on this reset. In Follow-map mode every gesture
+  resets the mode; in Follow-center mode only a pan resets it — zoom
+  gestures are compatible with centering and never write the
+  x-translation (the centering effect owns it).
 - **Ratio**: applied by scaling X (the y-scale stays where the user left
   it); deferred while the settings modal is open; a layout resize only
   clamps the current viewport — it never re-applies the stored ratio.
-- **Follow-map**: x-window = the map-covered route range (1:1), y-scale
-  kept, vertical scroll keeps the center indicator in view; the first
-  user gesture stops the overwrites immediately (no jump). With the map
-  panned away from the route, an empty plot + Fly-to-route button is
-  rendered (`followOutOfView`).
+  The ratio field is disabled while the mode is `map` (the coverage
+  overrides it).
+- **Follow-map** (`followMode: 'map'`): x-window = the map-covered route
+  range (1:1), y-scale kept, vertical scroll keeps the center indicator
+  in view; the first user gesture stops the overwrites immediately (no
+  jump). With the map panned away from the route, an empty plot +
+  Fly-to-route button is rendered (`followOutOfView`).
+- **Follow-center** (`followMode: 'center'`): the map center stays in
+  the chart's horizontal middle — only the x-translation is derived
+  (`plotW/2 − scaleX·x`, clamped to the plot edges at the route ends);
+  scale and y-viewport are left alone. Re-runs on scaleX changes, so
+  x-zooms re-center the chart without resetting the mode.
 - **Ticks**: `getNiceTicks` (1/2/5 × 10^n steps); left margin 44 / right
   margin 40 when the respective series is visible, 8 otherwise.
 
@@ -279,7 +291,7 @@ keep the modal (and its popover menus) quiet.
 | Row                 | Drawer | Fullscreen | Purpose                                                       |
 | ------------------- | :----: | :--------: | ------------------------------------------------------------- |
 | `RowSelectRoute`    |   ✓    |            | Switch the active drawer chart between chart sources          |
-| `RowFollowMap`      |   ✓    |     ✓      | Toggle follow-map                                             |
+| `RowFollowMode`     |   ✓    |     ✓      | Follow mode picker (Off / Follow map / Follow center)         |
 | `RowRatioLock`      |   ✓    |     ✓      | Fixed aspect ratio + Fit-screen button                        |
 | `RowShowHeading`    |   ✓    |            | Toggle heading (always on in fullscreen)                      |
 | `RowShowStats`      |   ✓    |            | Toggle statistics (always on in fullscreen)                   |
@@ -350,10 +362,12 @@ Run with `yarn test chart` or the full `yarn test`.
   `DefaultPreference`.
 - **Storage init must always complete**: a corrupt `chartSettings`
   entry degrades to defaults instead of blocking app startup.
-- **Follow-map flip-off is ref-driven**: `followActiveRef`/
-  `followMapRef` are flipped synchronously on the first user gesture —
+- **Follow-mode flip-off is ref-driven**: `followActiveRef`/
+  `followModeRef` are flipped synchronously on the first user gesture —
   don't sync them from settings on every render, or the gesture's
   pre-dispatch renders would undo the flip and restart the gesture.
+  The center mode has no such gate — its derivation only re-runs when
+  the center or the x-scale changes.
 - **Drawer and fullscreen charts are independent**: the same line has
   separate settings under `chart:line:<id>` and `chart:fullscreen:<id>`.
 - **Stats come from SpatiaLite**: don't compute stats in the chart —

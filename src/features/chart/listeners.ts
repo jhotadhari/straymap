@@ -19,8 +19,8 @@ type ChartListenerApi = ListenerEffectAPI<RootState, AppDispatch, unknown>;
 /**
  * A newly added chart opens at the natural fit: when the added key is
  * the only chart in the drawer and the chart doesn't follow the map,
- * its stored ratio is cleared. The ratio stays relevant while following
- * and is kept for when follow-map is switched off.
+ * its stored ratio is cleared. In the follow modes the mode governs
+ * the viewport, so the ratio stays relevant and is kept.
  */
 const resetRatioIfLoneChart = (api: ChartListenerApi, key: string): void => {
 	const state = api.getState();
@@ -29,7 +29,7 @@ const resetRatioIfLoneChart = (api: ChartListenerApi, key: string): void => {
 		return;
 	}
 	const own = state.chart.charts[key];
-	if (!own || own.followMap || own.ratioValue === undefined) {
+	if (!own || own.followMode !== 'none' || own.ratioValue === undefined) {
 		return;
 	}
 	api.dispatch(setChartSettings({ key, settings: { ratioValue: undefined } }));

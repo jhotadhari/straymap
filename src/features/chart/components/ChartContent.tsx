@@ -271,22 +271,27 @@ const ChartContent: FC<ChartContentProps> = ({
 	// (no stored ratio) and doesn't follow the map, route changes
 	// (waypoint edits) re-fit the viewport to the new data.
 	useEffect(() => {
-		if (source?.type === 'routing' && settings.ratioValue == null && !settings.followMap) {
+		if (
+			source?.type === 'routing' &&
+			settings.ratioValue == null &&
+			settings.followMode === 'none'
+		) {
 			setResetSignal((t) => t + 1);
 		}
 	}, [
 		series,
 		source?.type,
 		settings.ratioValue,
-		settings.followMap,
+		settings.followMode,
 	]);
 
-	// A user gesture on the chart switches the follow-map toggle off.
+	// A user gesture on a follow mode switches the option off — the
+	// gesture continues from the current viewport.
 	const handleUserGesture = useCallback(() => {
 		if (!chartKey) {
 			return;
 		}
-		dispatch(setChartSettings({ key: chartKey, settings: { followMap: false } }));
+		dispatch(setChartSettings({ key: chartKey, settings: { followMode: 'none' } }));
 	}, [
 		dispatch,
 		chartKey,
@@ -335,10 +340,10 @@ const ChartContent: FC<ChartContentProps> = ({
 	const [followOutOfView, setFollowOutOfView] = useState(false);
 
 	useEffect(() => {
-		if (!settings.followMap) {
+		if (settings.followMode !== 'map') {
 			setFollowOutOfView(false);
 		}
-	}, [settings.followMap]);
+	}, [settings.followMode]);
 
 	// Center indicator: poll the map center (same cadence as the map events).
 	const [center, setCenter] = useState<[number, number] | undefined>(undefined);
@@ -358,7 +363,7 @@ const ChartContent: FC<ChartContentProps> = ({
 				setCenter(next);
 			}
 			if (
-				settings.followMap &&
+				settings.followMode === 'map' &&
 				ev?.center &&
 				typeof ev.zoomLevel === 'number' &&
 				typeof ev.viewportWidth === 'number' &&
@@ -395,7 +400,7 @@ const ChartContent: FC<ChartContentProps> = ({
 	}, [
 		currentMapEventRef,
 		mapUpdateInterval,
-		settings.followMap,
+		settings.followMode,
 		coordinates,
 		series,
 	]);
@@ -459,14 +464,14 @@ const ChartContent: FC<ChartContentProps> = ({
 		(ratio: number | undefined) => {
 			ratioRef.current = ratio;
 			// Keep the modal's ratio field live while it is open (and not
-			// following — the field is hidden then).
-			if (settingsModalVisible && !settings.followMap) {
+			// in follow-map mode — the field is hidden then).
+			if (settingsModalVisible && settings.followMode !== 'map') {
 				setCurrentRatio(ratio);
 			}
 		},
 		[
 			settingsModalVisible,
-			settings.followMap,
+			settings.followMode,
 		]
 	);
 	const [currentRatio, setCurrentRatio] = useState<number | undefined>(undefined);
@@ -491,12 +496,12 @@ const ChartContent: FC<ChartContentProps> = ({
 	]);
 
 	// Keep the modal's ratio snapshot fresh: the chart's ratio changes
-	// while follow-map is active (and on chart switches), but the modal
-	// only snapshots it when opened.
+	// while a follow mode is active (and on chart switches), but the
+	// modal only snapshots it when opened.
 	useEffect(() => {
 		setCurrentRatio(ratioRef.current);
 	}, [
-		settings.followMap,
+		settings.followMode,
 		chartKey,
 	]);
 
@@ -609,13 +614,13 @@ const ChartContent: FC<ChartContentProps> = ({
 						onRatioChange={handleRatioChange}
 						onRatioUpdate={handleRatioUpdate}
 						resetSignal={resetSignal}
-						followRange={settings.followMap ? followRange : undefined}
-						followOutOfView={settings.followMap ? followOutOfView : false}
+						followRange={settings.followMode === 'map' ? followRange : undefined}
+						followOutOfView={settings.followMode === 'map' ? followOutOfView : false}
 						onUserGesture={handleUserGesture}
 						modalOpen={settingsModalVisible}
 					/>
 				)}
-				{settings.followMap && followOutOfView && (
+				{settings.followMode === 'map' && followOutOfView && (
 					<View
 						style={styles.flyToWrap}
 						pointerEvents="box-none"

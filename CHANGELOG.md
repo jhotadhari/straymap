@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
+- Chart: "Follow map" toggle becomes a three-way follow mode — Off, Follow map, Follow center.
 - About Credits: add missing `react-native-markdown-display` entry to all
   translations (en/de/es/pt), matching the README utilities list.
 
