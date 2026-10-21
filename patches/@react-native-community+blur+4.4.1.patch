@@ -1,0 +1,45 @@
+diff --git a/node_modules/@react-native-community/blur/android/src/main/java/com/reactnativecommunity/blurview/BlurViewManagerImpl.java b/node_modules/@react-native-community/blur/android/src/main/java/com/reactnativecommunity/blurview/BlurViewManagerImpl.java
+index 4444313..d01dfaf 100644
+--- a/node_modules/@react-native-community/blur/android/src/main/java/com/reactnativecommunity/blurview/BlurViewManagerImpl.java
++++ b/node_modules/@react-native-community/blur/android/src/main/java/com/reactnativecommunity/blurview/BlurViewManagerImpl.java
+@@ -1,11 +1,11 @@
+ package com.reactnativecommunity.blurview;
+ 
++import android.app.Activity;
+ import android.view.View;
+ import com.facebook.react.uimanager.ThemedReactContext;
+ 
+ import eightbitlab.com.blurview.BlurView;
+ 
+-import java.util.Objects;
+ import javax.annotation.Nonnull;
+ 
+ @SuppressWarnings("unused")
+@@ -18,14 +18,19 @@ class BlurViewManagerImpl {
+ 
+   public static @Nonnull BlurView createViewInstance(@Nonnull ThemedReactContext ctx) {
+     BlurView blurView = new BlurView(ctx);
+-    View decorView = Objects
+-      .requireNonNull(ctx.getCurrentActivity())
+-      .getWindow()
+-      .getDecorView();
+-    blurView
+-      .setupWith(decorView.findViewById(android.R.id.content))
+-      .setFrameClearDrawable(decorView.getBackground())
+-      .setBlurRadius(defaultRadius);
++    // On the new architecture the activity can be null when the view is
++    // created on a modal surface (e.g. at startup) — tolerate it and skip
++    // the setup; the view simply renders without a blur root in that case.
++    Activity activity = ctx.getCurrentActivity();
++    if (activity != null) {
++      View decorView = activity
++        .getWindow()
++        .getDecorView();
++      blurView
++        .setupWith(decorView.findViewById(android.R.id.content))
++        .setFrameClearDrawable(decorView.getBackground())
++        .setBlurRadius(defaultRadius);
++    }
+     return blurView;
+   }
+ 

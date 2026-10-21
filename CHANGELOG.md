@@ -21,6 +21,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   destroyed-fragment race in the map library. The app now waits for every
   feature to report initialized, and `AppView` skips the map re-creation
   when the scales are value-unchanged.
+- `@react-native-community/blur` threw a `NullPointerException` when a
+  `BlurView` was created while the React context had no current activity
+  (e.g. the no-layers hint modal at startup on the new architecture) —
+  patched to skip the blur setup in that case instead of crashing.
 
 ## [0.4.0] - 2026-09-30
 
