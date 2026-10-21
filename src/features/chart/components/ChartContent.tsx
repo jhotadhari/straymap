@@ -345,7 +345,23 @@ const ChartContent: FC<ChartContentProps> = ({
 		}
 	}, [settings.followMode]);
 
-	// Center indicator: poll the map center (same cadence as the map events).
+	// Center indicator: poll the map center (same cadence as the map
+	// events). While a follow mode is active with the follow animation
+	// on, the cadence is halved — the eased lag glides the indicator
+	// between updates, so the per-event re-renders/rasterizations are
+	// halved at no visual cost.
+	const pollInterval = useMemo(
+		() =>
+			settings.followMode !== 'none' && settings.animateFollow
+				? mapUpdateInterval * 2
+				: mapUpdateInterval,
+		[
+			settings.followMode,
+			settings.animateFollow,
+			mapUpdateInterval,
+		]
+	);
+
 	const [center, setCenter] = useState<[number, number] | undefined>(undefined);
 	const prevCenterRef = useRef<[number, number] | undefined>(undefined);
 	useEffect(() => {
@@ -395,11 +411,11 @@ const ChartContent: FC<ChartContentProps> = ({
 					}
 				}
 			}
-		}, mapUpdateInterval);
+		}, pollInterval);
 		return () => clearInterval(interval);
 	}, [
 		currentMapEventRef,
-		mapUpdateInterval,
+		pollInterval,
 		settings.followMode,
 		coordinates,
 		series,

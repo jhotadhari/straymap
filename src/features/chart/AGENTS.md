@@ -213,13 +213,15 @@ Data, follow-map polling, ratio plumbing, header/stats UI:
 - **Stats**: `line?.stats` or `route.stats` via `useRoute` — always the
   SpatiaLite-computed values, rendered through the shared `LineStats`
   component.
-- **Center indicator**: a `setInterval` at `mapUpdateInterval` reads
-  `currentMapEventRef` (MapContext). In Follow-map mode it additionally
-  derives the covered route range via `computeViewportBbox` +
-  `getCoveredRange`; range updates are value-compared so an idle
-  follow-map doesn't re-render the tree on every map event. The
-  fullscreen variant only projects the center while it lies inside the
-  line's envelope.
+- **Center indicator**: a `setInterval` reads `currentMapEventRef`
+  (MapContext) — at `mapUpdateInterval`, but at half that cadence while
+  a follow mode is active with the follow animation on (the eased lag
+  glides the indicator between updates). In Follow-map mode it
+  additionally derives the covered route range via `computeViewportBbox`
+    - `getCoveredRange`; range updates are value-compared so an idle
+      follow-map doesn't re-render the tree on every map event. The
+      fullscreen variant only projects the center while it lies inside the
+      line's envelope.
 - **Nearest route point**: `windowedNearestIdx` with a per-route
   last-best index; a covering window is used when the target jumps far
   (>1000 m) or on first lookup.
@@ -286,23 +288,28 @@ touch the indicator/labels, never the static plot:
   overlays, all positioned with the logical viewport) sits in an
   `Animated.View`; the static layer renders `PlotAxes`. The plot content
   is positioned exactly inside its Svg; the layer carries only a small
-  **bounded lag** (`±LAG_MAX_X_PX`/`±LAG_MAX_Y_PX`) that follow writes
-  rebase to `−clamp(Δ, ±PAD)` and ease back to zero via `withTiming`
-  (200ms, `Easing.out(cubic)`) on the UI thread — no JS re-render and no
-  SVG re-rasterization per eased frame, so heavy fill-mode charts don't
-  lag the map. Because RNSVG rasterizes each Svg into a bitmap of its
-  view size (content outside is clipped), the plot layer's `Animated.View`
-  and Svg are padded by the max lag on all sides and all plot-layer
-  coordinates shift by the pad — the bitmap always covers the visible
-  chart while the lag eases. All viewport writes go through
-  `writeViewport`: follow effects pass `animateTxTy: true`, gestures and
-  one-shot writes (ratio apply, fit reset, layout resize) clear the lag
-  instantly, overriding any in-flight glide. Accepted tradeoff: axes/ticks
-  snap to the target viewport per map event while the plot glides
-  (~200ms transient offset); deltas larger than the lag bound snap the
-  excess.
-- **Ticks**: `getNiceTicks` (1/2/5 × 10^n steps); left margin 44 / right
-  margin 40 when the respective series is visible, 8 otherwise.
+  **bounded lag** (`±LAG_MAX_X_PX`/`±LAG_MAX_Y_PX`, 64/48px) that follow
+  writes rebase to `−clamp(Δ, ±PAD)` and ease back to zero via
+  `withTiming` (200ms, `Easing.out(cubic)`) on the UI thread — no JS
+  re-render and no SVG re-rasterization per eased frame, so heavy
+  fill-mode charts don't lag the map. Because RNSVG rasterizes each Svg
+  into a bitmap of its view size (content outside is clipped), the plot
+  layer's `Animated.View` and Svg are padded by the max lag on all sides
+  and all plot-layer coordinates shift by the pad — but **only while
+  `animateFollow` is on**: with the animation off the lag is always zero
+  and the layer keeps the exact W×H size (pre-animation rasterization
+  cost). All viewport writes go through `writeViewport`: follow effects
+  pass `animateTxTy: true`, gestures and one-shot writes (ratio apply,
+  fit reset, layout resize) clear the lag instantly, overriding any
+  in-flight glide. Accepted tradeoffs: axes/ticks snap per map event
+  while the plot glides (~200ms transient offset); deltas larger than
+  the lag bound snap the excess.
+- **Ticks (quantized axes layer)**: `getNiceTicks` (1/2/5 × 10^n steps)
+  runs off a quantized viewport (4px translate grid, 1/64 scale grid)
+  and `PlotAxes` gets quantized `toScreenX/toScreenY`, so the axes Svg
+  re-rasterizes at most per grid step instead of every map event. Left
+  margin 44 / right margin 40 when the respective series is visible,
+  8 otherwise.
 
 ### ChartSettingsModal
 

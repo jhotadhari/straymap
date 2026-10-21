@@ -55,8 +55,13 @@ const FOLLOW_EASING = Easing.out(Easing.cubic);
 // Max layer-translation lag per axis: the plot layer's Svg is padded by
 // this amount so its rasterized bitmap always covers the visible chart
 // while the lag eases. Larger per-event deltas snap the excess.
-const LAG_MAX_X_PX = 160;
-const LAG_MAX_Y_PX = 120;
+const LAG_MAX_X_PX = 64;
+const LAG_MAX_Y_PX = 48;
+// Quantization grids for the static axes layer only: ticks and their
+// transforms recompute at most per grid step, so the axes Svg
+// re-rasterizes far less often than the per-event plot updates.
+const QUANTIZE_TX_PX = 4;
+const QUANTIZE_SCALE_STEPS = 64;
 
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 
@@ -1164,18 +1169,25 @@ const Chart: FC<{
 		]
 	);
 
-	// ── Viewport-derived ticks ──────────────────────────────────────────
+	// ── Viewport-derived ticks (quantized window for the static layer) ──
+	// The tick values run off a quantized viewport so the axes Svg only
+	// re-rasterizes per grid step instead of every map event; the plot
+	// layer keeps exact values.
+	const txQ = Math.round(translateX / QUANTIZE_TX_PX) * QUANTIZE_TX_PX;
+	const tyQ = Math.round(translateY / QUANTIZE_TX_PX) * QUANTIZE_TX_PX;
+	const sxQ = Math.round(scaleX * QUANTIZE_SCALE_STEPS) / QUANTIZE_SCALE_STEPS;
+
 	const ticks = useMemo(() => {
-		const d0 = ((-translateX / scaleX) * totalLength) / plotW;
-		const d1 = (((plotW - translateX) / scaleX) * totalLength) / plotW;
+		const d0 = ((-txQ / sxQ) * totalLength) / plotW;
+		const d1 = (((plotW - txQ) / sxQ) * totalLength) / plotW;
 		const xTicks = getNiceTicks(d0, d1, 5);
 
 		const yTicksFor = (view: SeriesView): number[] => {
 			if (!view.values) {
 				return [];
 			}
-			const v0 = view.vmax - (((plotH - translateY) / syEff) * view.vrange) / plotH;
-			const v1 = view.vmax - ((-translateY / syEff) * view.vrange) / plotH;
+			const v0 = view.vmax - (((plotH - tyQ) / syEff) * view.vrange) / plotH;
+			const v1 = view.vmax - ((-tyQ / syEff) * view.vrange) / plotH;
 			return getNiceTicks(Math.min(v0, v1), Math.max(v0, v1), 4);
 		};
 		return {
@@ -1184,9 +1196,9 @@ const Chart: FC<{
 			y2Ticks: yTicksFor(seriesViews.secondary),
 		};
 	}, [
-		translateX,
-		translateY,
-		scaleX,
+		txQ,
+		tyQ,
+		sxQ,
 		syEff,
 		totalLength,
 		plotW,
@@ -1194,30 +1206,43 @@ const Chart: FC<{
 		seriesViews,
 	]);
 
-	// Screen-space transforms for the static axes/ticks layer.
+	// Screen-space transforms for the static axes/ticks layer —
+	// quantized so the tick positions stay stable between grid steps.
 	const toScreenX = useCallback(
-		(v: number) => marginLeft + translateX + scaleX * v,
+		(v: number) => marginLeft + txQ + sxQ * v,
 		[
-			translateX,
-			scaleX,
 			marginLeft,
+			txQ,
+			sxQ,
 		]
 	);
-	const toScreenY = useCallback(
-		(v: number) => MARGIN_TOP + translateY + syEff * v,
-		[translateY, syEff]
-	);
-	// Plot-layer geometry: the layer's Svg is extended by the max lag on
-	// all sides so its rasterized bitmap covers the visible chart while
-	// the lag eases; all plot-layer coordinates shift by the pad. The
-	// overlays include the logical translation (the layer only carries
-	// the small eased lag).
-	const layerPadX = LAG_MAX_X_PX;
-	const layerPadY = LAG_MAX_Y_PX;
+	const toScreenY = useCallback((v: number) => MARGIN_TOP + tyQ + syEff * v, [tyQ, syEff]);
+	// Plot-layer geometry: while the follow animation is on, the layer's
+	// Svg is extended by the max lag on all sides so its rasterized
+	// bitmap covers the visible chart while the lag eases; all
+	// plot-layer coordinates shift by the pad. With the animation off
+	// the lag is always zero, so the layer keeps the exact W×H size
+	// (pre-animation rasterization cost). The overlays include the
+	// logical translation (the layer only carries the small eased lag).
+	const layerPadX = settings.animateFollow ? LAG_MAX_X_PX : 0;
+	const layerPadY = settings.animateFollow ? LAG_MAX_Y_PX : 0;
 	const layerWidth = width + 2 * layerPadX;
 	const layerHeight = height + 2 * layerPadY;
 	const layerMarginLeft = marginLeft + layerPadX;
 	const layerMarginRight = marginRight + layerPadX;
+
+	// Turning the animation off mid-glide clears the lag instantly —
+	// the unpadded layer must not translate at all.
+	useEffect(() => {
+		if (!settings.animateFollow) {
+			lagTxSv.value = 0;
+			lagTySv.value = 0;
+		}
+	}, [
+		settings.animateFollow,
+		lagTxSv,
+		lagTySv,
+	]);
 
 	const toPlotX = useCallback(
 		(v: number) => layerMarginLeft + translateX + scaleX * v,
