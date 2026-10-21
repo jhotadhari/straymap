@@ -207,3 +207,20 @@ pattern applies to `onMutate`, `onError`, and `onSettled` callbacks.
 - **`Dimensions.get('window')`**: Always wrap in
   `useMemo(() => Dimensions.get('window'), [])` inside component bodies.
   A bare call recomputes on every render.
+
+## Known issues / TODOs
+
+- **Per-layer DEM is invisible to the map-level altitude API.** A DEM
+  directory configured only per-layer (hillshading
+  `baseMapSettings.layers[].hgtDirPath`) never reaches `MapContainer`:
+  `AppView` passes only the global `baseMap.hgtDirPath`
+  (`selectHgtDirPath`) and only when an active dashboard widget declares
+  `shouldSetHgtDirPath` (currently just `centerAltitude`). Consequence:
+  routing elevation enrichment fails with "No elevation data configured"
+  log spam (~10/sec during route processing; coords stay z=0).
+  TODO fix sketch: resolve an effective dir (global ?? first hillshading
+  layer override), pass it to `MapContainer` when a
+  `shouldSetHgtDirPath` widget is active or routing is active
+  (`selectIsRouting`), and gate the enrichment + fallback retry loop in
+  `src/features/routing/utils.ts` on that same effective dir (abort the
+  batch on "not configured" instead of retrying every coordinate).
