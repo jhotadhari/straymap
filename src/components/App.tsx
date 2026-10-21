@@ -81,7 +81,7 @@ const App: FC = () => {
 
 	const isReady =
 		initialPositionInitialized &&
-		settingsInitialized &&
+		settingsInitialized.every(Boolean) &&
 		true === dbMigrated &&
 		!requireReload &&
 		!isUpdating;
@@ -162,7 +162,7 @@ const App: FC = () => {
 
 	if (
 		!initialPositionInitialized ||
-		!settingsInitialized ||
+		!settingsInitialized.every(Boolean) ||
 		true !== dbMigrated ||
 		requireReload
 	) {

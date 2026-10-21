@@ -12,6 +12,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - About Credits: add missing `react-native-markdown-display` entry to all
   translations (en/de/es/pt), matching the README utilities list.
 
+### Fixed
+
+- Startup crash caused by a map remount race: `App` treated the
+  `useSettingsInitialized` boolean array as a single truthy flag, so the map
+  rendered before all feature settings were restored — the late
+  `mapsforgeGeneral` restore then re-created the map view and hit a
+  destroyed-fragment race in the map library. The app now waits for every
+  feature to report initialized, and `AppView` skips the map re-creation
+  when the scales are value-unchanged.
+
 ## [0.4.0] - 2026-09-30
 
 ### Added

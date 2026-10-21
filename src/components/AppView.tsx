@@ -22,7 +22,7 @@ import {
 	ViewStyle,
 } from 'react-native';
 import { useTheme } from 'react-native-paper';
-import { clamp, get } from 'lodash-es';
+import { clamp, get, isEqual } from 'lodash-es';
 import { sprintf } from 'sprintf-js';
 import { useTranslation } from 'react-i18next';
 import {
@@ -198,7 +198,16 @@ const AppView = ({
 
 	const [showMap, setShowMap] = useState(false);
 	const mapsforgeGeneral = useAppSelector(selectMapsforgeGeneral);
+	const mapsforgeGeneralPrevRef = useRef<typeof mapsforgeGeneral | undefined>(undefined);
 	useEffect(() => {
+		const prev = mapsforgeGeneralPrevRef.current;
+		mapsforgeGeneralPrevRef.current = mapsforgeGeneral;
+		// Values unchanged since the last run (and this is not the initial
+		// mount) — the canvas scales are already applied and the map is
+		// already shown, so skip the teardown/remount round-trip.
+		if (undefined !== prev && isEqual(prev, mapsforgeGeneral)) {
+			return;
+		}
 		// Snapshot the current position into initialPositionRef so the
 		// recreated map resumes where the user was, rather than jumping
 		// to a stale saved position.  (saveCurrentPositionToInitial only
