@@ -238,13 +238,13 @@ Data, follow-map polling, ratio plumbing, header/stats UI:
 `react-native-svg` with memoized subcomponents so map-center updates only
 touch the indicator/labels, never the static plot:
 
-| Subcomponent      | Content                                                                           |
-| ----------------- | --------------------------------------------------------------------------------- |
-| `PlotContent`     | Area fills + series strokes, inside the animated `<G transform>` (memoized)       |
-| `PlotAxes`        | Axis lines + tick marks/labels, outside the transform, in screen space (memoized) |
-| `WaypointMarkers` | Orange dashed vertical lines + numbers, in screen space (memoized)                |
-| `CenterIndicator` | Blue map-center lines/dots with background halos (memoized)                       |
-| `CenterLabels`    | Blue center values at the axes (memoized)                                         |
+| Subcomponent      | Content                                                                        |
+| ----------------- | ------------------------------------------------------------------------------ |
+| `PlotContent`     | Area fills + series strokes, inside the scaled `<G>` (memoized)                |
+| `PlotAxes`        | Axis lines + tick marks/labels, static layer, in screen space (memoized)       |
+| `WaypointMarkers` | Orange dashed vertical lines + numbers, in the plot layer (memoized)           |
+| `CenterIndicator` | Blue map-center lines/dots with background halos, in the plot layer (memoized) |
+| `CenterLabels`    | Blue center values at the axes, in the plot layer (memoized)                   |
 
 - **Color runs**: `buildColorRuns` batches consecutive same-color
   segments into single polyline paths; `simplifyColorRuns` culls runs
@@ -252,9 +252,11 @@ touch the indicator/labels, never the static plot:
   max 800 runs) so the SVG node count stays bounded at any zoom level.
   Runs at least one pixel wide keep their exact per-segment color.
 - **Viewport state**: `scaleX`/`scaleY`/`translateX`/`translateY` as JS
-  state; all gesture math runs from gesture-start snapshots (refs), so
-  scale is never compounded across events and pan never fights the
-  pinch.
+  state (the logical viewport — drives ticks, run simplification and
+  gesture math); the translation is mirrored to reanimated shared
+  values via `writeViewport` for the plot layer's native transform.
+  All gesture math runs from gesture-start snapshots (refs), so scale
+  is never compounded across events and pan never fights the pinch.
 - **Gestures**: one-finger pan, two-finger pinch (uniform, or x-axis-only
   when the pinch starts in the x-axis band — per-axis finger separation),
   double-tap zoom ×2. A gesture on a follow mode switches the option to
@@ -278,17 +280,26 @@ touch the indicator/labels, never the static plot:
   (`plotW/2 − scaleX·x`, clamped to the plot edges at the route ends);
   scale and y-viewport are left alone. Re-runs on scaleX changes, so
   x-zooms re-center the chart without resetting the mode.
-- **Eased follow writes**: the follow-derived viewport glides instead of
-  jumping — exponential smoothing (`smoothValue`, α ≈ 0.25) eased via
-  `requestAnimationFrame`, frame-capped at ~30fps and snapping within
-  2px/0.001 scale. Heavy memos (color-run simplification, ticks,
-  `PlotContent`/`PlotAxes` transforms) run off quantized viewport values
-  (4px translate grid, 1/64 scale grid) so they recompute at roughly
-  map-event cadence, not per animation frame; the animated
-  `<G transform>` lives in `Chart`, outside the `PlotContent` memo, and
-  the axes/tick labels (`PlotAxes`) are drawn outside the transform so
-  text never gets scaled. Gestures and all other direct viewport writers
-  cancel a pending glide first, so nothing can fight the loop.
+- **UI-thread eased translation**: the chart renders as two stacked
+  Svgs — the plot layer (translated+scaled `PlotContent` + waypoint/center
+  overlays, all positioned with the logical viewport) sits in an
+  `Animated.View`; the static layer renders `PlotAxes`. The plot content
+  is positioned exactly inside its Svg; the layer carries only a small
+  **bounded lag** (`±LAG_MAX_X_PX`/`±LAG_MAX_Y_PX`) that follow writes
+  rebase to `−clamp(Δ, ±PAD)` and ease back to zero via `withTiming`
+  (200ms, `Easing.out(cubic)`) on the UI thread — no JS re-render and no
+  SVG re-rasterization per eased frame, so heavy fill-mode charts don't
+  lag the map. Because RNSVG rasterizes each Svg into a bitmap of its
+  view size (content outside is clipped), the plot layer's `Animated.View`
+  and Svg are padded by the max lag on all sides and all plot-layer
+  coordinates shift by the pad — the bitmap always covers the visible
+  chart while the lag eases. All viewport writes go through
+  `writeViewport`: follow effects pass `animateTxTy: true`, gestures and
+  one-shot writes (ratio apply, fit reset, layout resize) clear the lag
+  instantly, overriding any in-flight glide. Accepted tradeoff: axes/ticks
+  snap to the target viewport per map event while the plot glides
+  (~200ms transient offset); deltas larger than the lag bound snap the
+  excess.
 - **Ticks**: `getNiceTicks` (1/2/5 × 10^n steps); left margin 44 / right
   margin 40 when the respective series is visible, 8 otherwise.
 

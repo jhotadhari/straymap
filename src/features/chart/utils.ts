@@ -33,14 +33,6 @@ export const clampTranslate = (plotSize: number, scale: number, translate: numbe
 	Math.min(0, Math.max(plotSize * (1 - scale), translate));
 
 /**
- * One exponential-smoothing step: eases `current` toward `target` by
- * `alpha` (0..1). No fixed duration — a continuously moving target
- * glides without the retrigger stutter of restarted tweens.
- */
-export const smoothValue = (current: number, target: number, alpha: number): number =>
-	current + (target - current) * alpha;
-
-/**
  * Derives the viewport transform after zooming to `newScale`, keeping the
  * given focal point (plot-local coordinates) anchored to its screen
  * position. `base` must be the transform at the start of the gesture.

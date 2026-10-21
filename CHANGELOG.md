@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
-- Chart: follow modes animate smoothly — the viewport glides (eased, ~30fps) instead of jumping on every map event.
+- Chart: follow modes animate smoothly — the viewport translation glides via UI-thread animation (no per-frame re-renders) instead of jumping on every map event.
 - Chart: "Follow map" toggle becomes a three-way follow mode — Off, Follow map, Follow center.
 - About Credits: add missing `react-native-markdown-display` entry to all
   translations (en/de/es/pt), matching the README utilities list.

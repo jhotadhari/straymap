@@ -5,6 +5,12 @@ import React, { FC, memo, useCallback, useEffect, useMemo, useRef, useState } fr
 import { StyleSheet, View } from 'react-native';
 import Svg, { Circle, G, Line, Path, Text as SvgText } from 'react-native-svg';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import Animated, {
+	Easing,
+	useAnimatedStyle,
+	useSharedValue,
+	withTiming,
+} from 'react-native-reanimated';
 import { useTheme } from 'react-native-paper';
 import { MD3Theme } from 'react-native-paper/lib/typescript/types';
 
@@ -20,7 +26,6 @@ import {
 	slopeToColor,
 	clampTranslate,
 	simplifyColorRuns,
-	smoothValue,
 } from '../utils';
 import { ChartColorMode, ChartSeriesValue, ChartSettings } from '../types';
 import { formatDistance, formatHeightDepth } from '../../../lib/formatting';
@@ -41,21 +46,17 @@ const MARGIN_BOTTOM = 26;
 const X_AXIS_BAND_OVERLAP = 12;
 const MIN_AXIS_SEPARATION = 10;
 
-// Follow-mode animation: the follow-derived viewport glides toward its
-// target instead of jumping. Exponential smoothing (no fixed duration)
-// keeps a continuously moving target stutter-free; the frame rate is
-// capped so the chart's JS work stays bounded on heavy routes.
-const FOLLOW_SMOOTHING = 0.25;
-const FOLLOW_FRAME_MS = 33;
-const FOLLOW_SNAP_TX_PX = 2;
-const FOLLOW_SNAP_SCALE = 0.001;
-// Quantization grids for the heavy viewport-derived memos (color-run
-// simplification, ticks, PlotContent/PlotAxes transforms): they recompute
-// at most per grid step, not per animation frame. The animated values
-// keep full precision for the plot transform and the screen-space
-// overlays.
-const QUANTIZE_TX_PX = 4;
-const QUANTIZE_SCALE_STEPS = 64;
+// Follow-mode translation easing: the follow-derived translation glides
+// toward its target on the UI thread (reanimated withTiming), so no JS
+// re-render or SVG redraw happens per animation frame. Retriggered on
+// every map event it acts as a low-pass follow of the map movement.
+const FOLLOW_EASE_MS = 200;
+const FOLLOW_EASING = Easing.out(Easing.cubic);
+// Max layer-translation lag per axis: the plot layer's Svg is padded by
+// this amount so its rasterized bitmap always covers the visible chart
+// while the lag eases. Larger per-event deltas snap the excess.
+const LAG_MAX_X_PX = 160;
+const LAG_MAX_Y_PX = 120;
 
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 
@@ -796,65 +797,69 @@ const Chart: FC<{
 	plotWRef.current = plotW;
 	plotHRef.current = plotH;
 
-	// ── Follow-mode animation (eased viewport writes) ───────────────────
-	// The follow-derived viewport glides toward its target (exponential
-	// smoothing, frame-capped) instead of jumping per map event. All
-	// other viewport writers cancel a pending glide first so they can
-	// never fight the loop.
-	const followAnimIdRef = useRef<number | undefined>(undefined);
-	const followLastFrameRef = useRef(0);
+	// ── UI-thread translation easing (reanimated) ───────────────────────
+	// The plot content is positioned exactly (logical viewport) inside
+	// its Svg; the plot LAYER carries only a small bounded lag that
+	// eases back to zero on the UI thread — so the eased motion costs no
+	// JS re-render and no SVG re-rasterization, and the layer's
+	// translation stays within the Svg's padded bounds.
+	const lagTxSv = useSharedValue(0);
+	const lagTySv = useSharedValue(0);
+	const plotLayerStyle = useAnimatedStyle(() => ({
+		transform: [
+			{ translateX: lagTxSv.value },
+			{ translateY: lagTySv.value },
+		],
+	}));
 
-	const cancelFollowAnimation = useCallback(() => {
-		if (followAnimIdRef.current !== undefined) {
-			cancelAnimationFrame(followAnimIdRef.current);
-			followAnimIdRef.current = undefined;
-		}
-	}, []);
-
-	const animateViewportTo = useCallback(
-		(target: { sx: number; tx: number; ty: number }) => {
-			cancelFollowAnimation();
-			// Force an immediate first step so a fresh target starts
-			// moving right away.
-			followLastFrameRef.current = 0;
-			const step = () => {
-				followAnimIdRef.current = undefined;
-				const sx = smoothValue(scaleXRef.current, target.sx, FOLLOW_SMOOTHING);
-				const tx = clampTranslate(
-					plotWRef.current,
-					sx,
-					smoothValue(txRef.current, target.tx, FOLLOW_SMOOTHING)
-				);
-				const ty = smoothValue(tyRef.current, target.ty, FOLLOW_SMOOTHING);
-				const done =
-					Math.abs(target.sx - sx) < FOLLOW_SNAP_SCALE &&
-					Math.abs(target.tx - tx) < FOLLOW_SNAP_TX_PX &&
-					Math.abs(target.ty - ty) < FOLLOW_SNAP_TX_PX;
-				if (done) {
-					// Snap to the exact target and stop.
-					if (sx !== scaleXRef.current) {
-						setScaleX(target.sx);
-					}
-					if (tx !== txRef.current) {
-						setTranslateX(target.tx);
-					}
-					if (ty !== tyRef.current) {
-						setTranslateY(target.ty);
-					}
-					return;
+	/**
+	 * Single viewport write path: updates the given state values (the
+	 * logical viewport) and drives the layer lag. With `animateTxTy`
+	 * (follow writes) the lag is rebased to exactly absorb the content
+	 * step and then glides to zero on the UI thread — the visual stays
+	 * continuous and eases toward the target. Otherwise (gestures and
+	 * one-shot writes) the lag is cleared instantly.
+	 */
+	const writeViewport = useCallback(
+		(update: { sx?: number; sy?: number; tx?: number; ty?: number; animateTxTy?: boolean }) => {
+			const { sx, sy, tx, ty, animateTxTy = false } = update;
+			if (sx !== undefined) {
+				setScaleX(sx);
+			}
+			if (sy !== undefined) {
+				setScaleY(sy);
+			}
+			if (tx !== undefined) {
+				setTranslateX(tx);
+				if (animateTxTy) {
+					const lag = -clamp(tx - txRef.current, -LAG_MAX_X_PX, LAG_MAX_X_PX);
+					lagTxSv.value = lag;
+					lagTxSv.value = withTiming(0, {
+						duration: FOLLOW_EASE_MS,
+						easing: FOLLOW_EASING,
+					});
+				} else {
+					lagTxSv.value = 0;
 				}
-				const now = Date.now();
-				if (now - followLastFrameRef.current >= FOLLOW_FRAME_MS) {
-					followLastFrameRef.current = now;
-					setScaleX(sx);
-					setTranslateX(tx);
-					setTranslateY(ty);
+			}
+			if (ty !== undefined) {
+				setTranslateY(ty);
+				if (animateTxTy) {
+					const lag = -clamp(ty - tyRef.current, -LAG_MAX_Y_PX, LAG_MAX_Y_PX);
+					lagTySv.value = lag;
+					lagTySv.value = withTiming(0, {
+						duration: FOLLOW_EASE_MS,
+						easing: FOLLOW_EASING,
+					});
+				} else {
+					lagTySv.value = 0;
 				}
-				followAnimIdRef.current = requestAnimationFrame(step);
-			};
-			followAnimIdRef.current = requestAnimationFrame(step);
+			}
 		},
-		[cancelFollowAnimation]
+		[
+			lagTxSv,
+			lagTySv,
+		]
 	);
 	const pendingRatioApplyRef = useRef(false);
 	const prevRatioKRef = useRef(ratioK);
@@ -863,7 +868,6 @@ const Chart: FC<{
 		if (ratioK === undefined) {
 			return;
 		}
-		cancelFollowAnimation();
 		const sx = clamp(scaleYRef.current / ratioK, MIN_SCALE, MAX_SCALE);
 		const sy = clamp(scaleYRef.current, MIN_SCALE, MAX_SCALE);
 		const tx = clampTranslate(plotWRef.current, sx, txRef.current);
@@ -874,14 +878,11 @@ const Chart: FC<{
 			tx !== txRef.current ||
 			ty !== tyRef.current
 		) {
-			setScaleX(sx);
-			setScaleY(sy);
-			setTranslateX(tx);
-			setTranslateY(ty);
+			writeViewport({ sx, sy, tx, ty });
 		}
 	}, [
 		ratioK,
-		cancelFollowAnimation,
+		writeViewport,
 	]);
 
 	useEffect(() => {
@@ -916,7 +917,6 @@ const Chart: FC<{
 	// touching the stored ratio (a keyboard-driven resize must not re-apply
 	// an old ratio).
 	useEffect(() => {
-		cancelFollowAnimation();
 		const sx = clamp(scaleXRef.current, MIN_SCALE, MAX_SCALE);
 		const sy = clamp(scaleYRef.current, MIN_SCALE, MAX_SCALE);
 		const tx = clampTranslate(plotW, sx, txRef.current);
@@ -927,15 +927,12 @@ const Chart: FC<{
 			tx !== txRef.current ||
 			ty !== tyRef.current
 		) {
-			setScaleX(sx);
-			setScaleY(sy);
-			setTranslateX(tx);
-			setTranslateY(ty);
+			writeViewport({ sx, sy, tx, ty });
 		}
 	}, [
 		plotW,
 		plotH,
-		cancelFollowAnimation,
+		writeViewport,
 	]);
 
 	// Fit-screen / chart switch: reset the viewport to fit, then apply
@@ -948,25 +945,26 @@ const Chart: FC<{
 		if (resetSignal === undefined) {
 			return;
 		}
-		cancelFollowAnimation();
 		const k = ratioKRef.current;
-		setScaleX(k !== undefined ? clamp(1 / k, MIN_SCALE, MAX_SCALE) : 1);
-		setScaleY(1);
-		setTranslateX(0);
-		setTranslateY(0);
+		writeViewport({
+			sx: k !== undefined ? clamp(1 / k, MIN_SCALE, MAX_SCALE) : 1,
+			sy: 1,
+			tx: 0,
+			ty: 0,
+		});
 	}, [
 		resetSignal,
-		cancelFollowAnimation,
+		writeViewport,
 	]);
 
 	// Follow-map: the viewport's x-window is the map-covered route range
 	// (1:1), the y-scale stays as-is, and the view scrolls vertically to
 	// keep the center indicator in view. Gated on followActiveRef so a
 	// just-started gesture stops the overwrites immediately (no jump).
-	// The derived viewport is eased instead of written directly.
+	// The state is written to the target immediately (ticks etc.) while
+	// the translation glides on the UI thread.
 	useEffect(() => {
 		if (!followActiveRef.current || settings.followMode !== 'map' || !followRange) {
-			cancelFollowAnimation();
 			return;
 		}
 		const [d0, d1] = followRange;
@@ -988,17 +986,13 @@ const Chart: FC<{
 			centerYPlot !== undefined
 				? clampTranslate(plotH, sy, plotH / 2 - sy * centerYPlot)
 				: undefined;
-		if (sy !== scaleYRef.current) {
-			setScaleY(sy);
-		}
-		if (
-			sx !== scaleXRef.current ||
-			tx !== txRef.current ||
-			(ty !== undefined && ty !== tyRef.current)
-		) {
-			animateViewportTo({ sx, tx, ty: ty ?? tyRef.current });
-		}
-		return cancelFollowAnimation;
+		writeViewport({
+			...(sy !== scaleYRef.current && { sy }),
+			...(sx !== scaleXRef.current && { sx }),
+			...(tx !== txRef.current && { tx }),
+			...(ty !== undefined && ty !== tyRef.current && { ty }),
+			animateTxTy: true,
+		});
 	}, [
 		settings.followMode,
 		followRange,
@@ -1008,34 +1002,30 @@ const Chart: FC<{
 		centerDistance,
 		series,
 		seriesViews,
-		animateViewportTo,
-		cancelFollowAnimation,
+		writeViewport,
 	]);
 
 	// Follow-center: the map center stays in the chart's horizontal
 	// middle (clamped to the plot edges at the route ends). The scale and
 	// the y-viewport are left alone — only the x-translation is derived,
-	// and it is eased so the chart glides instead of jumping. Re-running
-	// on scaleX changes re-centers the chart after x-zooms (smoothly)
-	// without resetting the mode.
+	// and it glides on the UI thread. Re-running on scaleX changes
+	// re-centers the chart after x-zooms (smoothly) without resetting
+	// the mode.
 	useEffect(() => {
 		if (settings.followMode !== 'center' || centerDistance === undefined) {
-			cancelFollowAnimation();
 			return;
 		}
 		const tx = clampTranslate(plotW, scaleX, plotW / 2 - scaleX * distToX(centerDistance));
 		if (tx !== txRef.current) {
-			animateViewportTo({ sx: scaleX, tx, ty: tyRef.current });
+			writeViewport({ tx, animateTxTy: true });
 		}
-		return cancelFollowAnimation;
 	}, [
 		settings.followMode,
 		centerDistance,
 		scaleX,
 		plotW,
 		distToX,
-		animateViewportTo,
-		cancelFollowAnimation,
+		writeViewport,
 	]);
 
 	// ── Paths (memoized — only depend on the series) ────────────────────
@@ -1108,25 +1098,16 @@ const Chart: FC<{
 		]
 	);
 
-	// Quantized viewport values for the heavy memos: color-run
-	// simplification and ticks recompute at most per grid step, so the
-	// eased follow writes (30fps) don't re-derive them every frame. The
-	// animated values keep full precision for the plot transform and the
-	// screen-space overlays.
-	const txQ = Math.round(translateX / QUANTIZE_TX_PX) * QUANTIZE_TX_PX;
-	const tyQ = Math.round(translateY / QUANTIZE_TX_PX) * QUANTIZE_TX_PX;
-	const sxQ = Math.round(scaleX * QUANTIZE_SCALE_STEPS) / QUANTIZE_SCALE_STEPS;
-
 	// Adaptive simplification: keep only the visible runs and merge
 	// sub-pixel ones so the rendered node count stays bounded at any
 	// zoom level. Exact per-segment colors remain wherever segments are
 	// at least a pixel wide.
 	const simplifyRuns = useCallback(
 		(runs: ColorRun[]): ColorRun[] =>
-			simplifyColorRuns(runs, sxQ, -txQ / sxQ, (plotW - txQ) / sxQ),
+			simplifyColorRuns(runs, scaleX, -translateX / scaleX, (plotW - translateX) / scaleX),
 		[
-			sxQ,
-			txQ,
+			scaleX,
+			translateX,
 			plotW,
 		]
 	);
@@ -1182,18 +1163,18 @@ const Chart: FC<{
 		]
 	);
 
-	// ── Viewport-derived ticks (quantized window — see txQ/tyQ/sxQ) ─────
+	// ── Viewport-derived ticks ──────────────────────────────────────────
 	const ticks = useMemo(() => {
-		const d0 = ((-txQ / sxQ) * totalLength) / plotW;
-		const d1 = (((plotW - txQ) / sxQ) * totalLength) / plotW;
+		const d0 = ((-translateX / scaleX) * totalLength) / plotW;
+		const d1 = (((plotW - translateX) / scaleX) * totalLength) / plotW;
 		const xTicks = getNiceTicks(d0, d1, 5);
 
 		const yTicksFor = (view: SeriesView): number[] => {
 			if (!view.values) {
 				return [];
 			}
-			const v0 = view.vmax - (((plotH - tyQ) / syEff) * view.vrange) / plotH;
-			const v1 = view.vmax - ((-tyQ / syEff) * view.vrange) / plotH;
+			const v0 = view.vmax - (((plotH - translateY) / syEff) * view.vrange) / plotH;
+			const v1 = view.vmax - ((-translateY / syEff) * view.vrange) / plotH;
 			return getNiceTicks(Math.min(v0, v1), Math.max(v0, v1), 4);
 		};
 		return {
@@ -1202,9 +1183,9 @@ const Chart: FC<{
 			y2Ticks: yTicksFor(seriesViews.secondary),
 		};
 	}, [
-		txQ,
-		tyQ,
-		sxQ,
+		translateX,
+		translateY,
+		scaleX,
 		syEff,
 		totalLength,
 		plotW,
@@ -1212,6 +1193,7 @@ const Chart: FC<{
 		seriesViews,
 	]);
 
+	// Screen-space transforms for the static axes/ticks layer.
 	const toScreenX = useCallback(
 		(v: number) => marginLeft + translateX + scaleX * v,
 		[
@@ -1224,18 +1206,34 @@ const Chart: FC<{
 		(v: number) => MARGIN_TOP + translateY + syEff * v,
 		[translateY, syEff]
 	);
-	// Quantized screen-space transforms for PlotAxes: stable between
-	// grid steps so transform-only animation frames keep the memo (and
-	// its path elements) bailing out.
-	const toScreenXQ = useCallback(
-		(v: number) => marginLeft + txQ + sxQ * v,
+	// Plot-layer geometry: the layer's Svg is extended by the max lag on
+	// all sides so its rasterized bitmap covers the visible chart while
+	// the lag eases; all plot-layer coordinates shift by the pad. The
+	// overlays include the logical translation (the layer only carries
+	// the small eased lag).
+	const layerPadX = LAG_MAX_X_PX;
+	const layerPadY = LAG_MAX_Y_PX;
+	const layerWidth = width + 2 * layerPadX;
+	const layerHeight = height + 2 * layerPadY;
+	const layerMarginLeft = marginLeft + layerPadX;
+	const layerMarginRight = marginRight + layerPadX;
+
+	const toPlotX = useCallback(
+		(v: number) => layerMarginLeft + translateX + scaleX * v,
 		[
-			marginLeft,
-			txQ,
-			sxQ,
+			layerMarginLeft,
+			translateX,
+			scaleX,
 		]
 	);
-	const toScreenYQ = useCallback((v: number) => MARGIN_TOP + tyQ + syEff * v, [tyQ, syEff]);
+	const toPlotY = useCallback(
+		(v: number) => MARGIN_TOP + layerPadY + translateY + syEff * v,
+		[
+			layerPadY,
+			translateY,
+			syEff,
+		]
+	);
 
 	// ── Gestures (JS-driven state — small subtree, labels stay in sync) ──
 	// All math runs off gesture-start snapshots (not live state), so scale
@@ -1249,13 +1247,6 @@ const Chart: FC<{
 		};
 		const pinchRegionRef: { region: 'uniform' | 'x' } = { region: 'uniform' };
 		const pinchTouchesRef: { current: { x: number; y: number }[] } = { current: [] };
-
-		const applyTransform = (sx: number, sy: number, tx: number, ty: number) => {
-			setScaleX(sx);
-			setScaleY(sy);
-			setTranslateX(tx);
-			setTranslateY(ty);
-		};
 
 		const classifyRegionFromTouches = (
 			t0: { x: number; y: number },
@@ -1275,9 +1266,6 @@ const Chart: FC<{
 		// compatible with centering and re-center instead.
 		const notifyUserGesture = () => {
 			followActiveRef.current = false;
-			// Stop a pending follow glide synchronously — the gesture
-			// takes over the viewport from the current state.
-			cancelFollowAnimation();
 			if (followModeRef.current !== 'none' && onUserGesture) {
 				onUserGesture();
 			}
@@ -1288,7 +1276,8 @@ const Chart: FC<{
 			}
 		};
 
-		// One-finger pan: never fires while two fingers pinch.
+		// One-finger pan: never fires while two fingers pinch. The first
+		// write overrides any in-flight follow glide (plain assignment).
 		const pan = Gesture.Pan()
 			.minDistance(4)
 			.maxPointers(1)
@@ -1299,12 +1288,18 @@ const Chart: FC<{
 				panStartRef.ty = tyRef.current;
 			})
 			.onUpdate((event) => {
-				setTranslateX(
-					clampTranslate(plotW, scaleXRef.current, panStartRef.tx + event.translationX)
-				);
-				setTranslateY(
-					clampTranslate(plotH, scaleYRef.current, panStartRef.ty + event.translationY)
-				);
+				writeViewport({
+					tx: clampTranslate(
+						plotW,
+						scaleXRef.current,
+						panStartRef.tx + event.translationX
+					),
+					ty: clampTranslate(
+						plotH,
+						scaleYRef.current,
+						panStartRef.ty + event.translationY
+					),
+				});
 			});
 
 		// Two-finger pinch: snapshot the base once, derive everything from
@@ -1382,17 +1377,23 @@ const Chart: FC<{
 				const kx = sx / base.sx;
 				const ky = sy / base.sy;
 				// In the center mode the x-translation is owned by the
-				// centering effect (which re-runs on the scaleX change) —
-				// zoom gestures must not write it.
+				// centering glide (which re-targets on the scaleX change)
+				// — zoom gestures must not write it.
 				const isCenter = followModeRef.current === 'center';
-				applyTransform(
+				writeViewport({
 					sx,
 					sy,
-					isCenter
-						? txRef.current
-						: clampTranslate(plotW, sx, base.focalX - kx * (base.focalX - base.tx)),
-					clampTranslate(plotH, sy, base.focalY - ky * (base.focalY - base.ty))
-				);
+					...(isCenter
+						? {}
+						: {
+								tx: clampTranslate(
+									plotW,
+									sx,
+									base.focalX - kx * (base.focalX - base.tx)
+								),
+							}),
+					ty: clampTranslate(plotH, sy, base.focalY - ky * (base.focalY - base.ty)),
+				});
 			})
 			.onEnd(() => {
 				if (pinchRegionRef.region !== 'uniform') {
@@ -1422,14 +1423,20 @@ const Chart: FC<{
 				const kx = sx / base.sx;
 				const ky = sy / base.sy;
 				const isCenter = followModeRef.current === 'center';
-				applyTransform(
+				writeViewport({
 					sx,
 					sy,
-					isCenter
-						? txRef.current
-						: clampTranslate(plotW, sx, base.focalX - kx * (base.focalX - base.tx)),
-					clampTranslate(plotH, sy, base.focalY - ky * (base.focalY - base.ty))
-				);
+					...(isCenter
+						? {}
+						: {
+								tx: clampTranslate(
+									plotW,
+									sx,
+									base.focalX - kx * (base.focalX - base.tx)
+								),
+							}),
+					ty: clampTranslate(plotH, sy, base.focalY - ky * (base.focalY - base.ty)),
+				});
 			});
 
 		return Gesture.Simultaneous(pan, pinch, doubleTap);
@@ -1439,7 +1446,7 @@ const Chart: FC<{
 		marginLeft,
 		height,
 		onUserGesture,
-		cancelFollowAnimation,
+		writeViewport,
 	]);
 
 	const markerXs = useMemo(
@@ -1521,7 +1528,10 @@ const Chart: FC<{
 		]
 	);
 
-	const groupTransform = `translate(${translateX}, ${translateY}) scale(${scaleX}, ${syEff})`;
+	// The plot content is translated and scaled inside the SVG (so
+	// non-scaling strokes keep working); the layer carries only the small
+	// eased lag on the UI thread.
+	const plotTransform = `translate(${translateX}, ${translateY}) scale(${scaleX}, ${syEff})`;
 
 	if (followOutOfView) {
 		// Follow-map with the visible map panned away from the route —
@@ -1536,29 +1546,95 @@ const Chart: FC<{
 	return (
 		<GestureDetector gesture={gesture}>
 			<View style={styles.container}>
+				{/* Plot layer: padded by the max lag on all sides so its
+					rasterized bitmap covers the visible chart, and
+					translated by the eased lag on the UI thread — no JS
+					re-render or SVG re-rasterization per eased frame.
+					Overlays live in here and include the logical
+					translation, so they stay glued to the plot. */}
+				<Animated.View
+					pointerEvents="none"
+					style={[
+						styles.layerAbs,
+						{
+							left: -layerPadX,
+							top: -layerPadY,
+							width: layerWidth,
+							height: layerHeight,
+						},
+						plotLayerStyle,
+					]}
+				>
+					<Svg
+						width={layerWidth}
+						height={layerHeight}
+					>
+						<G
+							x={layerMarginLeft}
+							y={MARGIN_TOP + layerPadY}
+							transform={plotTransform}
+						>
+							<PlotContent
+								seriesViews={seriesViews}
+								primaryRenderRuns={primaryRenderRuns}
+								secondaryRenderRuns={secondaryRenderRuns}
+								primaryFillRuns={primaryFillRuns}
+								secondaryFillRuns={secondaryFillRuns}
+								paths={paths}
+							/>
+						</G>
+
+						<WaypointMarkers
+							markerXs={markerXs}
+							plotH={plotH}
+							toScreenX={toPlotX}
+							toScreenY={toPlotY}
+						/>
+
+						{/* The center indicator must always be the uppermost
+							plot layer — keep this group last in the Svg so
+							nothing can paint over the blue lines, dots or
+							labels. */}
+						<G>
+							<CenterIndicator
+								plotH={plotH}
+								plotW={plotW}
+								centerX={centerX}
+								centerY={centerY}
+								centerYSecondary={centerYSecondary}
+								marginLeft={layerMarginLeft}
+								marginRight={layerMarginRight}
+								width={layerWidth}
+								backgroundColor={theme.colors.background}
+								toScreenX={toPlotX}
+								toScreenY={toPlotY}
+							/>
+
+							<CenterLabels
+								centerX={centerX}
+								centerY={centerY}
+								centerYSecondary={centerYSecondary}
+								centerPrimaryLabel={centerPrimaryLabel}
+								centerSecondaryLabel={centerSecondaryLabel}
+								centerDistanceLabel={centerDistanceLabel}
+								toScreenX={toPlotX}
+								toScreenY={toPlotY}
+								marginLeft={layerMarginLeft}
+								marginRight={layerMarginRight}
+								width={layerWidth}
+								height={layerHeight}
+							/>
+						</G>
+					</Svg>
+				</Animated.View>
+
+				{/* Static layer: axes and tick labels (screen space —
+					never translated or scaled). */}
 				<Svg
 					width={width}
 					height={height}
+					style={styles.layerAbs}
 				>
-					{/* Plot content (pan/zoom) — the animated transform lives
-						out here so pure-translation frames don't invalidate
-						the PlotContent memo. */}
-					<G
-						x={marginLeft}
-						y={MARGIN_TOP}
-						transform={groupTransform}
-					>
-						<PlotContent
-							seriesViews={seriesViews}
-							primaryRenderRuns={primaryRenderRuns}
-							secondaryRenderRuns={secondaryRenderRuns}
-							primaryFillRuns={primaryFillRuns}
-							secondaryFillRuns={secondaryFillRuns}
-							paths={paths}
-						/>
-					</G>
-
-					{/* Axes and tick labels (screen space — never transformed) */}
 					<PlotAxes
 						seriesViews={seriesViews}
 						ticks={ticks}
@@ -1569,50 +1645,9 @@ const Chart: FC<{
 						distancePref={distancePref}
 						theme={theme}
 						distToX={distToX}
-						toScreenX={toScreenXQ}
-						toScreenY={toScreenYQ}
-					/>
-
-					<WaypointMarkers
-						markerXs={markerXs}
-						plotH={plotH}
 						toScreenX={toScreenX}
 						toScreenY={toScreenY}
 					/>
-
-					{/* The center indicator must always be the uppermost layer
-						— keep this group last in the Svg so nothing can paint
-						over the blue lines, dots or labels. */}
-					<G>
-						<CenterIndicator
-							plotH={plotH}
-							plotW={plotW}
-							centerX={centerX}
-							centerY={centerY}
-							centerYSecondary={centerYSecondary}
-							marginLeft={marginLeft}
-							marginRight={marginRight}
-							width={width}
-							backgroundColor={theme.colors.background}
-							toScreenX={toScreenX}
-							toScreenY={toScreenY}
-						/>
-
-						<CenterLabels
-							centerX={centerX}
-							centerY={centerY}
-							centerYSecondary={centerYSecondary}
-							centerPrimaryLabel={centerPrimaryLabel}
-							centerSecondaryLabel={centerSecondaryLabel}
-							centerDistanceLabel={centerDistanceLabel}
-							toScreenX={toScreenX}
-							toScreenY={toScreenY}
-							marginLeft={marginLeft}
-							marginRight={marginRight}
-							width={width}
-							height={height}
-						/>
-					</G>
 				</Svg>
 			</View>
 		</GestureDetector>
@@ -1622,6 +1657,13 @@ const Chart: FC<{
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
+	},
+	layerAbs: {
+		position: 'absolute',
+		top: 0,
+		left: 0,
+		right: 0,
+		bottom: 0,
 	},
 });
 
