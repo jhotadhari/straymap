@@ -694,6 +694,7 @@ const styles = StyleSheet.create({
 	statsRow: {
 		flexDirection: 'row',
 		flexWrap: 'wrap',
+		flexGrow: 1,
 		gap: 8,
 		marginBottom: 4,
 	},
