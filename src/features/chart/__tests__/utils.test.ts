@@ -16,6 +16,7 @@ import {
 	simplifyColorRuns,
 	SLOPE_STOPS,
 	slopeToColor,
+	smoothValue,
 	windowedNearestIdx,
 	zoomAroundPoint,
 } from '../utils';
@@ -104,6 +105,22 @@ describe('clampTranslate', () => {
 	it('forces zero translation at scale 1', () => {
 		expect(clampTranslate(300, 1, 50)).toBe(0);
 		expect(clampTranslate(300, 1, -50)).toBe(0);
+	});
+});
+
+describe('smoothValue', () => {
+	it('eases toward the target by the given alpha', () => {
+		expect(smoothValue(0, 100, 0.25)).toBe(25);
+		expect(smoothValue(100, 0, 0.25)).toBe(75);
+	});
+
+	it('is stable at the target and at zero alpha', () => {
+		expect(smoothValue(50, 50, 0.25)).toBe(50);
+		expect(smoothValue(50, 100, 0)).toBe(50);
+	});
+
+	it('reaches the target at alpha 1', () => {
+		expect(smoothValue(50, 100, 1)).toBe(100);
 	});
 });
 

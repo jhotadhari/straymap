@@ -238,12 +238,13 @@ Data, follow-map polling, ratio plumbing, header/stats UI:
 `react-native-svg` with memoized subcomponents so map-center updates only
 touch the indicator/labels, never the static plot:
 
-| Subcomponent      | Content                                                            |
-| ----------------- | ------------------------------------------------------------------ |
-| `PlotStatic`      | Area fills, series strokes, axes, ticks (memoized)                 |
-| `WaypointMarkers` | Orange dashed vertical lines + numbers, in screen space (memoized) |
-| `CenterIndicator` | Blue map-center lines/dots with background halos (memoized)        |
-| `CenterLabels`    | Blue center values at the axes (memoized)                          |
+| Subcomponent      | Content                                                                           |
+| ----------------- | --------------------------------------------------------------------------------- |
+| `PlotContent`     | Area fills + series strokes, inside the animated `<G transform>` (memoized)       |
+| `PlotAxes`        | Axis lines + tick marks/labels, outside the transform, in screen space (memoized) |
+| `WaypointMarkers` | Orange dashed vertical lines + numbers, in screen space (memoized)                |
+| `CenterIndicator` | Blue map-center lines/dots with background halos (memoized)                       |
+| `CenterLabels`    | Blue center values at the axes (memoized)                                         |
 
 - **Color runs**: `buildColorRuns` batches consecutive same-color
   segments into single polyline paths; `simplifyColorRuns` culls runs
@@ -277,6 +278,17 @@ touch the indicator/labels, never the static plot:
   (`plotW/2 − scaleX·x`, clamped to the plot edges at the route ends);
   scale and y-viewport are left alone. Re-runs on scaleX changes, so
   x-zooms re-center the chart without resetting the mode.
+- **Eased follow writes**: the follow-derived viewport glides instead of
+  jumping — exponential smoothing (`smoothValue`, α ≈ 0.25) eased via
+  `requestAnimationFrame`, frame-capped at ~30fps and snapping within
+  2px/0.001 scale. Heavy memos (color-run simplification, ticks,
+  `PlotContent`/`PlotAxes` transforms) run off quantized viewport values
+  (4px translate grid, 1/64 scale grid) so they recompute at roughly
+  map-event cadence, not per animation frame; the animated
+  `<G transform>` lives in `Chart`, outside the `PlotContent` memo, and
+  the axes/tick labels (`PlotAxes`) are drawn outside the transform so
+  text never gets scaled. Gestures and all other direct viewport writers
+  cancel a pending glide first, so nothing can fight the loop.
 - **Ticks**: `getNiceTicks` (1/2/5 × 10^n steps); left margin 44 / right
   margin 40 when the respective series is visible, 8 otherwise.
 

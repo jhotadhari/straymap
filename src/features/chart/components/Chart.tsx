@@ -20,6 +20,7 @@ import {
 	slopeToColor,
 	clampTranslate,
 	simplifyColorRuns,
+	smoothValue,
 } from '../utils';
 import { ChartColorMode, ChartSeriesValue, ChartSettings } from '../types';
 import { formatDistance, formatHeightDepth } from '../../../lib/formatting';
@@ -39,6 +40,22 @@ const MARGIN_TOP = 10;
 const MARGIN_BOTTOM = 26;
 const X_AXIS_BAND_OVERLAP = 12;
 const MIN_AXIS_SEPARATION = 10;
+
+// Follow-mode animation: the follow-derived viewport glides toward its
+// target instead of jumping. Exponential smoothing (no fixed duration)
+// keeps a continuously moving target stutter-free; the frame rate is
+// capped so the chart's JS work stays bounded on heavy routes.
+const FOLLOW_SMOOTHING = 0.25;
+const FOLLOW_FRAME_MS = 33;
+const FOLLOW_SNAP_TX_PX = 2;
+const FOLLOW_SNAP_SCALE = 0.001;
+// Quantization grids for the heavy viewport-derived memos (color-run
+// simplification, ticks, PlotContent/PlotAxes transforms): they recompute
+// at most per grid step, not per animation frame. The animated values
+// keep full precision for the plot transform and the screen-space
+// overlays.
+const QUANTIZE_TX_PX = 4;
+const QUANTIZE_SCALE_STEPS = 64;
 
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 
@@ -131,11 +148,11 @@ const renderSeries = (
 };
 
 /**
- * The static plot content (fills, series strokes, axes and ticks).
- * Memoized: map-center updates re-render only the center
- * indicator/labels, not this heavy subtree.
+ * The transformed plot content (area fills and series strokes) —
+ * rendered inside the animated plot `<G>` owned by `Chart`, so pure
+ * viewport-translation frames never invalidate this memo.
  */
-const PlotStatic = memo(
+const PlotContent = memo(
 	({
 		seriesViews,
 		primaryRenderRuns,
@@ -143,6 +160,51 @@ const PlotStatic = memo(
 		primaryFillRuns,
 		secondaryFillRuns,
 		paths,
+	}: {
+		seriesViews: { primary: SeriesView; secondary: SeriesView };
+		primaryRenderRuns: ColorRun[];
+		secondaryRenderRuns: ColorRun[];
+		primaryFillRuns: { color: string; d: string }[];
+		secondaryFillRuns: { color: string; d: string }[];
+		paths: { primary: string; secondary: string };
+	}) => (
+		<>
+			{/* Area fills first, secondary below primary. */}
+			{secondaryFillRuns.map((run, idx) => (
+				<Path
+					key={`sf-${idx}`}
+					d={run.d}
+					fill={run.color}
+					stroke="none"
+				/>
+			))}
+
+			{primaryFillRuns.map((run, idx) => (
+				<Path
+					key={`pf-${idx}`}
+					d={run.d}
+					fill={run.color}
+					stroke="none"
+				/>
+			))}
+
+			{/* Secondary series first — the primary always draws above it. */}
+			{renderSeries(seriesViews.secondary, secondaryRenderRuns, paths.secondary, 1.5)}
+
+			{renderSeries(seriesViews.primary, primaryRenderRuns, paths.primary, 2)}
+		</>
+	)
+);
+
+/**
+ * The static axes, tick marks and tick labels — drawn OUTSIDE the
+ * animated plot transform, in screen space, so strokes and text never
+ * get scaled or offset by the viewport. Memoized: ticks run off the
+ * quantized viewport values and only recompute per grid step.
+ */
+const PlotAxes = memo(
+	({
+		seriesViews,
 		ticks,
 		width,
 		height,
@@ -153,14 +215,8 @@ const PlotStatic = memo(
 		distToX,
 		toScreenX,
 		toScreenY,
-		groupTransform,
 	}: {
 		seriesViews: { primary: SeriesView; secondary: SeriesView };
-		primaryRenderRuns: ColorRun[];
-		secondaryRenderRuns: ColorRun[];
-		primaryFillRuns: { color: string; d: string }[];
-		secondaryFillRuns: { color: string; d: string }[];
-		paths: { primary: string; secondary: string };
 		ticks: { xTicks: number[]; y1Ticks: number[]; y2Ticks: number[] };
 		width: number;
 		height: number;
@@ -171,41 +227,8 @@ const PlotStatic = memo(
 		distToX: (d: number) => number;
 		toScreenX: (v: number) => number;
 		toScreenY: (v: number) => number;
-		groupTransform: string;
 	}) => (
 		<>
-			{/* Plot content (pan/zoom) */}
-			<G
-				x={marginLeft}
-				y={MARGIN_TOP}
-				transform={groupTransform}
-			>
-				{/* Area fills first, secondary below primary. */}
-				{secondaryFillRuns.map((run, idx) => (
-					<Path
-						key={`sf-${idx}`}
-						d={run.d}
-						fill={run.color}
-						stroke="none"
-					/>
-				))}
-
-				{primaryFillRuns.map((run, idx) => (
-					<Path
-						key={`pf-${idx}`}
-						d={run.d}
-						fill={run.color}
-						stroke="none"
-					/>
-				))}
-
-				{/* Secondary series first — the primary always draws above it. */}
-				{renderSeries(seriesViews.secondary, secondaryRenderRuns, paths.secondary, 1.5)}
-
-				{renderSeries(seriesViews.primary, primaryRenderRuns, paths.primary, 2)}
-			</G>
-
-			{/* Axes (static) */}
 			<Line
 				x1={marginLeft}
 				y1={height - MARGIN_BOTTOM}
@@ -772,6 +795,67 @@ const Chart: FC<{
 	const plotHRef = useRef(plotH);
 	plotWRef.current = plotW;
 	plotHRef.current = plotH;
+
+	// ── Follow-mode animation (eased viewport writes) ───────────────────
+	// The follow-derived viewport glides toward its target (exponential
+	// smoothing, frame-capped) instead of jumping per map event. All
+	// other viewport writers cancel a pending glide first so they can
+	// never fight the loop.
+	const followAnimIdRef = useRef<number | undefined>(undefined);
+	const followLastFrameRef = useRef(0);
+
+	const cancelFollowAnimation = useCallback(() => {
+		if (followAnimIdRef.current !== undefined) {
+			cancelAnimationFrame(followAnimIdRef.current);
+			followAnimIdRef.current = undefined;
+		}
+	}, []);
+
+	const animateViewportTo = useCallback(
+		(target: { sx: number; tx: number; ty: number }) => {
+			cancelFollowAnimation();
+			// Force an immediate first step so a fresh target starts
+			// moving right away.
+			followLastFrameRef.current = 0;
+			const step = () => {
+				followAnimIdRef.current = undefined;
+				const sx = smoothValue(scaleXRef.current, target.sx, FOLLOW_SMOOTHING);
+				const tx = clampTranslate(
+					plotWRef.current,
+					sx,
+					smoothValue(txRef.current, target.tx, FOLLOW_SMOOTHING)
+				);
+				const ty = smoothValue(tyRef.current, target.ty, FOLLOW_SMOOTHING);
+				const done =
+					Math.abs(target.sx - sx) < FOLLOW_SNAP_SCALE &&
+					Math.abs(target.tx - tx) < FOLLOW_SNAP_TX_PX &&
+					Math.abs(target.ty - ty) < FOLLOW_SNAP_TX_PX;
+				if (done) {
+					// Snap to the exact target and stop.
+					if (sx !== scaleXRef.current) {
+						setScaleX(target.sx);
+					}
+					if (tx !== txRef.current) {
+						setTranslateX(target.tx);
+					}
+					if (ty !== tyRef.current) {
+						setTranslateY(target.ty);
+					}
+					return;
+				}
+				const now = Date.now();
+				if (now - followLastFrameRef.current >= FOLLOW_FRAME_MS) {
+					followLastFrameRef.current = now;
+					setScaleX(sx);
+					setTranslateX(tx);
+					setTranslateY(ty);
+				}
+				followAnimIdRef.current = requestAnimationFrame(step);
+			};
+			followAnimIdRef.current = requestAnimationFrame(step);
+		},
+		[cancelFollowAnimation]
+	);
 	const pendingRatioApplyRef = useRef(false);
 	const prevRatioKRef = useRef(ratioK);
 
@@ -779,6 +863,7 @@ const Chart: FC<{
 		if (ratioK === undefined) {
 			return;
 		}
+		cancelFollowAnimation();
 		const sx = clamp(scaleYRef.current / ratioK, MIN_SCALE, MAX_SCALE);
 		const sy = clamp(scaleYRef.current, MIN_SCALE, MAX_SCALE);
 		const tx = clampTranslate(plotWRef.current, sx, txRef.current);
@@ -794,7 +879,10 @@ const Chart: FC<{
 			setTranslateX(tx);
 			setTranslateY(ty);
 		}
-	}, [ratioK]);
+	}, [
+		ratioK,
+		cancelFollowAnimation,
+	]);
 
 	useEffect(() => {
 		const ratioKChanged = prevRatioKRef.current !== ratioK;
@@ -828,6 +916,7 @@ const Chart: FC<{
 	// touching the stored ratio (a keyboard-driven resize must not re-apply
 	// an old ratio).
 	useEffect(() => {
+		cancelFollowAnimation();
 		const sx = clamp(scaleXRef.current, MIN_SCALE, MAX_SCALE);
 		const sy = clamp(scaleYRef.current, MIN_SCALE, MAX_SCALE);
 		const tx = clampTranslate(plotW, sx, txRef.current);
@@ -846,6 +935,7 @@ const Chart: FC<{
 	}, [
 		plotW,
 		plotH,
+		cancelFollowAnimation,
 	]);
 
 	// Fit-screen / chart switch: reset the viewport to fit, then apply
@@ -858,19 +948,25 @@ const Chart: FC<{
 		if (resetSignal === undefined) {
 			return;
 		}
+		cancelFollowAnimation();
 		const k = ratioKRef.current;
 		setScaleX(k !== undefined ? clamp(1 / k, MIN_SCALE, MAX_SCALE) : 1);
 		setScaleY(1);
 		setTranslateX(0);
 		setTranslateY(0);
-	}, [resetSignal]);
+	}, [
+		resetSignal,
+		cancelFollowAnimation,
+	]);
 
 	// Follow-map: the viewport's x-window is the map-covered route range
 	// (1:1), the y-scale stays as-is, and the view scrolls vertically to
 	// keep the center indicator in view. Gated on followActiveRef so a
 	// just-started gesture stops the overwrites immediately (no jump).
+	// The derived viewport is eased instead of written directly.
 	useEffect(() => {
 		if (!followActiveRef.current || settings.followMode !== 'map' || !followRange) {
+			cancelFollowAnimation();
 			return;
 		}
 		const [d0, d1] = followRange;
@@ -891,18 +987,18 @@ const Chart: FC<{
 		const ty =
 			centerYPlot !== undefined
 				? clampTranslate(plotH, sy, plotH / 2 - sy * centerYPlot)
-				: clampTranslate(plotH, sy, tyRef.current);
+				: undefined;
+		if (sy !== scaleYRef.current) {
+			setScaleY(sy);
+		}
 		if (
 			sx !== scaleXRef.current ||
-			sy !== scaleYRef.current ||
 			tx !== txRef.current ||
-			ty !== tyRef.current
+			(ty !== undefined && ty !== tyRef.current)
 		) {
-			setScaleX(sx);
-			setScaleY(sy);
-			setTranslateX(tx);
-			setTranslateY(ty);
+			animateViewportTo({ sx, tx, ty: ty ?? tyRef.current });
 		}
+		return cancelFollowAnimation;
 	}, [
 		settings.followMode,
 		followRange,
@@ -912,27 +1008,34 @@ const Chart: FC<{
 		centerDistance,
 		series,
 		seriesViews,
+		animateViewportTo,
+		cancelFollowAnimation,
 	]);
 
 	// Follow-center: the map center stays in the chart's horizontal
 	// middle (clamped to the plot edges at the route ends). The scale and
-	// the y-viewport are left alone — only the x-translation is derived.
-	// Re-running on scaleX changes re-centers the chart after x-zooms
+	// the y-viewport are left alone — only the x-translation is derived,
+	// and it is eased so the chart glides instead of jumping. Re-running
+	// on scaleX changes re-centers the chart after x-zooms (smoothly)
 	// without resetting the mode.
 	useEffect(() => {
 		if (settings.followMode !== 'center' || centerDistance === undefined) {
+			cancelFollowAnimation();
 			return;
 		}
 		const tx = clampTranslate(plotW, scaleX, plotW / 2 - scaleX * distToX(centerDistance));
 		if (tx !== txRef.current) {
-			setTranslateX(tx);
+			animateViewportTo({ sx: scaleX, tx, ty: tyRef.current });
 		}
+		return cancelFollowAnimation;
 	}, [
 		settings.followMode,
 		centerDistance,
 		scaleX,
 		plotW,
 		distToX,
+		animateViewportTo,
+		cancelFollowAnimation,
 	]);
 
 	// ── Paths (memoized — only depend on the series) ────────────────────
@@ -1005,16 +1108,25 @@ const Chart: FC<{
 		]
 	);
 
+	// Quantized viewport values for the heavy memos: color-run
+	// simplification and ticks recompute at most per grid step, so the
+	// eased follow writes (30fps) don't re-derive them every frame. The
+	// animated values keep full precision for the plot transform and the
+	// screen-space overlays.
+	const txQ = Math.round(translateX / QUANTIZE_TX_PX) * QUANTIZE_TX_PX;
+	const tyQ = Math.round(translateY / QUANTIZE_TX_PX) * QUANTIZE_TX_PX;
+	const sxQ = Math.round(scaleX * QUANTIZE_SCALE_STEPS) / QUANTIZE_SCALE_STEPS;
+
 	// Adaptive simplification: keep only the visible runs and merge
 	// sub-pixel ones so the rendered node count stays bounded at any
 	// zoom level. Exact per-segment colors remain wherever segments are
 	// at least a pixel wide.
 	const simplifyRuns = useCallback(
 		(runs: ColorRun[]): ColorRun[] =>
-			simplifyColorRuns(runs, scaleX, -translateX / scaleX, (plotW - translateX) / scaleX),
+			simplifyColorRuns(runs, sxQ, -txQ / sxQ, (plotW - txQ) / sxQ),
 		[
-			scaleX,
-			translateX,
+			sxQ,
+			txQ,
 			plotW,
 		]
 	);
@@ -1070,18 +1182,18 @@ const Chart: FC<{
 		]
 	);
 
-	// ── Viewport-derived ticks ──────────────────────────────────────────
+	// ── Viewport-derived ticks (quantized window — see txQ/tyQ/sxQ) ─────
 	const ticks = useMemo(() => {
-		const d0 = ((-translateX / scaleX) * totalLength) / plotW;
-		const d1 = (((plotW - translateX) / scaleX) * totalLength) / plotW;
+		const d0 = ((-txQ / sxQ) * totalLength) / plotW;
+		const d1 = (((plotW - txQ) / sxQ) * totalLength) / plotW;
 		const xTicks = getNiceTicks(d0, d1, 5);
 
 		const yTicksFor = (view: SeriesView): number[] => {
 			if (!view.values) {
 				return [];
 			}
-			const v0 = view.vmax - (((plotH - translateY) / syEff) * view.vrange) / plotH;
-			const v1 = view.vmax - ((-translateY / syEff) * view.vrange) / plotH;
+			const v0 = view.vmax - (((plotH - tyQ) / syEff) * view.vrange) / plotH;
+			const v1 = view.vmax - ((-tyQ / syEff) * view.vrange) / plotH;
 			return getNiceTicks(Math.min(v0, v1), Math.max(v0, v1), 4);
 		};
 		return {
@@ -1090,9 +1202,9 @@ const Chart: FC<{
 			y2Ticks: yTicksFor(seriesViews.secondary),
 		};
 	}, [
-		translateX,
-		translateY,
-		scaleX,
+		txQ,
+		tyQ,
+		sxQ,
 		syEff,
 		totalLength,
 		plotW,
@@ -1112,6 +1224,18 @@ const Chart: FC<{
 		(v: number) => MARGIN_TOP + translateY + syEff * v,
 		[translateY, syEff]
 	);
+	// Quantized screen-space transforms for PlotAxes: stable between
+	// grid steps so transform-only animation frames keep the memo (and
+	// its path elements) bailing out.
+	const toScreenXQ = useCallback(
+		(v: number) => marginLeft + txQ + sxQ * v,
+		[
+			marginLeft,
+			txQ,
+			sxQ,
+		]
+	);
+	const toScreenYQ = useCallback((v: number) => MARGIN_TOP + tyQ + syEff * v, [tyQ, syEff]);
 
 	// ── Gestures (JS-driven state — small subtree, labels stay in sync) ──
 	// All math runs off gesture-start snapshots (not live state), so scale
@@ -1151,6 +1275,9 @@ const Chart: FC<{
 		// compatible with centering and re-center instead.
 		const notifyUserGesture = () => {
 			followActiveRef.current = false;
+			// Stop a pending follow glide synchronously — the gesture
+			// takes over the viewport from the current state.
+			cancelFollowAnimation();
 			if (followModeRef.current !== 'none' && onUserGesture) {
 				onUserGesture();
 			}
@@ -1312,6 +1439,7 @@ const Chart: FC<{
 		marginLeft,
 		height,
 		onUserGesture,
+		cancelFollowAnimation,
 	]);
 
 	const markerXs = useMemo(
@@ -1412,13 +1540,27 @@ const Chart: FC<{
 					width={width}
 					height={height}
 				>
-					<PlotStatic
+					{/* Plot content (pan/zoom) — the animated transform lives
+						out here so pure-translation frames don't invalidate
+						the PlotContent memo. */}
+					<G
+						x={marginLeft}
+						y={MARGIN_TOP}
+						transform={groupTransform}
+					>
+						<PlotContent
+							seriesViews={seriesViews}
+							primaryRenderRuns={primaryRenderRuns}
+							secondaryRenderRuns={secondaryRenderRuns}
+							primaryFillRuns={primaryFillRuns}
+							secondaryFillRuns={secondaryFillRuns}
+							paths={paths}
+						/>
+					</G>
+
+					{/* Axes and tick labels (screen space — never transformed) */}
+					<PlotAxes
 						seriesViews={seriesViews}
-						primaryRenderRuns={primaryRenderRuns}
-						secondaryRenderRuns={secondaryRenderRuns}
-						primaryFillRuns={primaryFillRuns}
-						secondaryFillRuns={secondaryFillRuns}
-						paths={paths}
 						ticks={ticks}
 						width={width}
 						height={height}
@@ -1427,9 +1569,8 @@ const Chart: FC<{
 						distancePref={distancePref}
 						theme={theme}
 						distToX={distToX}
-						toScreenX={toScreenX}
-						toScreenY={toScreenY}
-						groupTransform={groupTransform}
+						toScreenX={toScreenXQ}
+						toScreenY={toScreenYQ}
 					/>
 
 					<WaypointMarkers
