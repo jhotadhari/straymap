@@ -33,6 +33,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 - Chart: follow modes animate smoothly — the viewport translation glides via UI-thread animation (no per-frame re-renders) instead of jumping on every map event.
 - Chart: "Follow map" toggle becomes a three-way follow mode — Off, Follow map, Follow center.
+- Upgrade `react-native-mapsforge-vtm` to `0.10.0` (map-level tap/long-press
+  hit aggregation, marker event positions, marker hit-test fix) and
+  `react-native-mapsforge-vtm-ext-path-color-ramp` to `0.3.0` (gesture
+  support on `LayerPathColorRamp`).
 - About Credits: add missing `react-native-markdown-display` entry to all
   translations (en/de/es/pt), matching the README utilities list.
 
