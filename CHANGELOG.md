@@ -16,6 +16,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   the new waypoint and switches the affected segments to fallback lines
   that follow the map center until the point is dropped (moving an
   existing waypoint does the same).
+- Map context menu: short-press and long-press popover menus at the tap
+  position, with actions contributed by features and divided by source.
+  Short-press: routing waypoints (move/delete), routing segments (cut —
+  disabled when a waypoint is under the tap), empty-map append ("Append
+  routing point"), moving mode (drop here/discard), and selected lines
+  (edit/fly to/remove from map, disabled for system lines). Long-press:
+  general menu (share position — mock modal for now). Tap resolution is
+  screen-distance based (30 dp, zoom-aware), backed by the map library's
+  new hit-aggregation (`hits` in `onTap`/`onLongPress`).
 
 ### Changed
 

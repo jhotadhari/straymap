@@ -16,6 +16,7 @@ import LineEditModalWrapper from './components/LineEditModalWrapper';
 import TagBadgeModeControl from './components/controls/TagBadgeModeControl';
 import UseSimplificationControl from './components/controls/UseSimplificationControl';
 import LinesIcon from './components/LinesIcon';
+import LinesLineSource from './mapContextMenuSources/LinesLineSource';
 
 export default {
 	selectInitialized,
@@ -52,6 +53,13 @@ export default {
 			key: 'lineEditModal',
 			Component: LineEditModalWrapper,
 			priority: 500,
+		},
+	],
+	mapContextMenuSources: [
+		{
+			key: 'linesLine',
+			press: 'short',
+			SourceComponent: LinesLineSource,
 		},
 	],
 	settingsPages: [

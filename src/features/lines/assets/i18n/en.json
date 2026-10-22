@@ -70,6 +70,7 @@
 	"exportStopped": "Stopped. Exported %s of %s routes.",
 	"delete": "Delete",
 	"removeFromMap": "Remove from map",
+	"editLine": "Edit line",
 	"showOnMap": "Show on map",
 	"isRoutingLine": "Active route",
 	"noRoutingData": "No routing data",

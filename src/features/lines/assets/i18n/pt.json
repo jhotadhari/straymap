@@ -70,6 +70,7 @@
 	"exportStopped": "Parado. Exportadas %s de %s rotas.",
 	"delete": "Excluir",
 	"removeFromMap": "Remover do mapa",
+	"editLine": "Editar linha",
 	"showOnMap": "Mostrar no mapa",
 	"isRoutingLine": "Rota ativa",
 	"noRoutingData": "Sem dados de roteamento",
