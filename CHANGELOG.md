@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+<<<<<<< HEAD
 ### Added
 
 - Chart: "Animate follow" toggle — the smooth follow animation can be turned off globally (default on).
@@ -54,6 +55,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   generic `MenuControl` now greys out disabled options (background, text
   and icon), so cut/move/delete routing actions visibly reflect when no
   segment or waypoint is under the map center.
+- Safe areas: on Android 15+ the app runs edge-to-edge, so the status and
+  navigation bars overlapped app controls (top app bar, bottom drawer,
+  dashboards, corner buttons, modals, toasts). All chrome now respects the
+  system insets via `react-native-safe-area-context`.
 
 ## [0.4.0] - 2026-09-30
 
