@@ -10,18 +10,22 @@ import { useMap } from 'react-native-mapsforge-vtm';
  * Internal dependencies
  */
 import { MapContextMenuSourceComponentProps, MenuActionOption } from '../../../types';
-import { useAppDispatch } from '../../../store/hooks';
+import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { setLineTemp, setLineSelected } from '../slice';
+import { selectLineColor } from '../selectors';
 import { queryLinesWithoutGeom } from '../db/queryFns';
 import { lineIdByPathUuid } from '../layerRegistry';
 import { useSystemLineIds } from '../../../store/hooks';
 import { AppContext } from '../../../Context';
-import { MAP_ANIMATION_PADDING_PX } from '../../../constants';
+import { MAP_ANIMATION_PADDING_PX, PALETTE_COLORS } from '../../../constants';
+import IconCustom from '../../../components/generic/primitives/IconCustom';
+import { openLineColorPicker } from './lineColorPickerStore';
 
 /**
- * Short-press source for a selected line (LayerPath hit): edit the line,
- * fly to it, or remove it from the map (disabled for system lines such as
- * the routing or track-recording lines).
+ * Long-press source for a selected line (LayerPath hit): route details,
+ * fly to it, change its color, or remove it from the map. System lines
+ * (routing, track-recording, …) get the color/remove actions disabled —
+ * they use the colored path layer instead of per-line colors.
  */
 const LinesLineSource: FC<MapContextMenuSourceComponentProps> = ({ context, onOptions }) => {
 	const dispatch = useAppDispatch();
@@ -30,7 +34,7 @@ const LinesLineSource: FC<MapContextMenuSourceComponentProps> = ({ context, onOp
 	const systemLineIds = useSystemLineIds();
 
 	const lineId = useMemo(() => {
-		if (context.press !== 'short') {
+		if (context.press !== 'long') {
 			return null;
 		}
 		const pathHit = context.hits.find((hit) => hit?.manager === 'paths');
@@ -44,15 +48,27 @@ const LinesLineSource: FC<MapContextMenuSourceComponentProps> = ({ context, onOp
 	});
 	const line = lines?.length ? lines[0] : undefined;
 
+	const lineColor = useAppSelector(selectLineColor(lineId ?? -1));
+	const isSystemLine = useMemo(
+		() => lineId != null && Object.values(systemLineIds).includes(lineId),
+		[lineId, systemLineIds]
+	);
+
 	const options = useMemo<MenuActionOption[] | null>(() => {
 		if (lineId == null) {
 			return null;
 		}
 		return [
 			{
-				key: 'editLine',
-				label: 'lines.editLine',
-				leadingIcon: 'pencil-outline',
+				key: 'routeDetails',
+				label: 'lines.routeDetails',
+				IconComponent: ({ color, size }) => (
+					<IconCustom
+						name="route_cog"
+						color={color}
+						size={size}
+					/>
+				),
 				cb: () => {
 					dispatch(setLineTemp({ id: lineId }));
 				},
@@ -73,11 +89,22 @@ const LinesLineSource: FC<MapContextMenuSourceComponentProps> = ({ context, onOp
 				disabled: () => !line?.envelope,
 			},
 			{
+				key: 'changeColor',
+				label: 'lines.changeColor',
+				leadingIcon: 'palette-outline',
+				cb: () => {
+					openLineColorPicker(lineId, lineColor ?? PALETTE_COLORS[0].bg);
+				},
+				disabled: () => isSystemLine,
+			},
+			{
 				key: 'removeFromMap',
 				label: 'lines.removeFromMap',
 				leadingIcon: 'map-minus',
-				cb: () => dispatch(setLineSelected(lineId, false)),
-				disabled: () => Object.values(systemLineIds).includes(lineId),
+				cb: () => {
+					dispatch(setLineSelected(lineId, false));
+				},
+				disabled: () => isSystemLine,
 			},
 		];
 	}, [
@@ -85,8 +112,9 @@ const LinesLineSource: FC<MapContextMenuSourceComponentProps> = ({ context, onOp
 		drawerControlsRef,
 		flyToBounds,
 		line?.envelope,
+		lineColor,
 		lineId,
-		systemLineIds,
+		isSystemLine,
 	]);
 
 	useEffect(() => {

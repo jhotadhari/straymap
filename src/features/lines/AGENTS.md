@@ -377,3 +377,25 @@ typed as `ReturnType<typeof useButtonProps>` (destructured from
   is persisted via `DefaultPreference`. It is never written to the lines
   table. `LinesMapView` reads `selectLineColors`, not React Query. This
   avoids coupling geometry batch queries to colour data.
+
+## Map context menu + under-center highlight
+
+- **`LinesLineSource`** (`mapContextMenuSources/`) — long-press source for
+  selected lines: Route details (`setLineTemp` → LineEditModal), Fly to,
+  Change color (modal with `ColorPaletteInline`, disabled for system lines),
+  Remove from map (disabled for system lines via `useSystemLineIds`).
+  Resolves the tapped line through `linesLayerRegistry` (uuid → lineId,
+  fed by LinesMapView `onCreate`).
+- **`LineColorPickerModal`** (`components/`) + `lineColorPickerStore` — the
+  always-mounted host (lines mapComponent) for the color picker; the store
+  pattern keeps the modal alive after the context menu closes. Selecting a
+  swatch dispatches `setLineColor({ lineId, color })`.
+- **`useLineIdUnderCenter`** (`hooks/`) — returns the Set of selected line
+  ids whose rendered geometry is under the map center (point-to-segment
+  screen distance, `LINES_HOVER_THRESHOLD_DP` = 4 dp, zoom-aware). Reuses
+  the `lineGeomsBatch` viewport query (cache-shared with LinesMapView —
+  SQL-side `MbrIntersects` keeps candidates on-screen only). `SelectedLinesList`
+  widens each hit row's color bar (animated, fixed-width column — no layout
+  shift).
+- **`layerRegistry.ts`** — module-level `pathUuidByLineId` fed by
+  LinesMapView's `onCreate`/`onRemove`; consumed by the context-menu source.

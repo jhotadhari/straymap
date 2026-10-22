@@ -65,6 +65,7 @@ const MapContextMenuOverlay: FC = () => {
 	const [menu, setMenu] = useState<MapContextMenuContext | null>(null);
 	const [optionsBySource, setOptionsBySource] = useState<Record<string, MenuActionOption[]>>({});
 	const [sharePosition, setSharePosition] = useState<SharePositionState>(null);
+	const [settled, setSettled] = useState(false);
 	const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
 	const [panelSize, setPanelSize] = useState({ width: 0, height: 0 });
 
@@ -72,12 +73,24 @@ const MapContextMenuOverlay: FC = () => {
 		() =>
 			subscribeMapContextMenu((context) => {
 				setOptionsBySource({});
+				setSettled(false);
 				setMenu(context);
 			}),
 		[]
 	);
 
 	useEffect(() => subscribeSharePosition(setSharePosition), []);
+
+	// The sources report their options in effects of the same commit —
+	// mark the menu settled a macrotask later so an empty menu (no source
+	// resolved anything) is suppressed without flashing an empty panel.
+	useEffect(() => {
+		if (!menu) {
+			return;
+		}
+		const timer = setTimeout(() => setSettled(true), 0);
+		return () => clearTimeout(timer);
+	}, [menu]);
 
 	/**
 	 * Content-aware compare: an equivalent re-report (same keys, same cb
@@ -173,7 +186,7 @@ const MapContextMenuOverlay: FC = () => {
 		]
 	);
 
-	if (!menu) {
+	if (!menu || (settled && groups.length === 0)) {
 		return (
 			<SharePositionModal
 				visible={!!sharePosition}

@@ -21,6 +21,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   selected lines, general long-press), divided by source. Tap resolution
   is screen-distance based (30 dp, zoom-aware) via the map library's new
   hit aggregation.
+- Selected lines list: the color bar of a row widens (animated) while the
+  map center is over that line — point-to-segment screen distance (4 dp),
+  multiple overlapping lines highlight at once.
+- Map context menu for lines moved to long-press, with a "Change color"
+  action (palette modal, disabled for system lines); the details action
+  is now "Route details".
 
 ### Changed
 
