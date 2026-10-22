@@ -9,6 +9,7 @@ import {
 	DashboardWidget,
 	DrawerPanel,
 	MapComponentDescriptor,
+	MapContextMenuSource,
 	MapCornerComponentDescriptor,
 	SettingsControlFragment,
 	UiItem,
@@ -173,6 +174,17 @@ export class FeatureRegistry {
 		}
 		components.sort((a, b) => a.priority - b.priority);
 		return components;
+	}
+
+	/** Returns all map context-menu sources (feature registration order). */
+	getMapContextMenuSources(): MapContextMenuSource[] {
+		const sources: MapContextMenuSource[] = [];
+		for (const feature of Object.values(this.features())) {
+			if (feature.mapContextMenuSources) {
+				sources.push(...feature.mapContextMenuSources);
+			}
+		}
+		return sources;
 	}
 
 	/** Returns all modes declared by all features, de-duplicated. */

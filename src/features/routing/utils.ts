@@ -5,6 +5,7 @@ import { getRoute } from 'react-native-brouter/geojson';
 import { enrichCoordinatesWithElevation } from 'react-native-mapsforge-vtm';
 import { lineString, simplify as turfSimplify } from '@turf/turf';
 import { Position } from 'geojson';
+import { PixelRatio } from 'react-native';
 import { readFile } from 'react-native-fs';
 
 /**
@@ -22,7 +23,7 @@ import {
 import { altitudeService } from '../../lib/AltitudeService';
 import { haversineDistance } from '../../lib/formatting';
 import { logError } from '../../lib/utils';
-import { DEFAULT_INHERIT_MODE } from './constants';
+import { DEFAULT_INHERIT_MODE, ROUTING_GESTURE_THRESHOLD_DP } from './constants';
 import { isEqual } from 'lodash-es';
 
 export const getSegmentRecordId = (segment: Pick<RoutingSegment, 'fromId' | 'toId'>) =>
@@ -317,6 +318,34 @@ export const getNearestPointHit = ({
 	});
 
 	return best;
+};
+
+/**
+ * Zoom-aware (dp-based) hit-test of a map-context-menu tap against the
+ * route's waypoints — the screen-distance equivalent of
+ * {@link getNearestPointHit} for tap contexts. Returns null when the
+ * zoom is unknown (no map event yet).
+ */
+export const getNearestPointHitAtTap = (
+	points: RoutingPoint[],
+	context: {
+		lng: number;
+		lat: number;
+		zoomLevel?: number;
+		tileSize?: number;
+	}
+): { pointId: number } | null => {
+	if (context.zoomLevel == null || !points.length) {
+		return null;
+	}
+	return getNearestPointHit({
+		points,
+		center: [context.lng, context.lat],
+		zoom: context.zoomLevel,
+		tileSize: context.tileSize ?? 576,
+		density: PixelRatio.get(),
+		thresholdDp: ROUTING_GESTURE_THRESHOLD_DP,
+	});
 };
 
 /**

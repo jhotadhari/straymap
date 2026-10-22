@@ -373,3 +373,24 @@ The routing drawer has no true drag gestures — actions are driven by the
 - **`setLastProfile` dispatches are required** whenever a profile is saved
   (point's own profile or route profile), so `lastProfiles` in Redux stays in
   sync as the "global routing profile default".
+
+## Map context menu sources + shared point actions
+
+- **`mapContextMenuSources/`** — short-press sources for the mapContextMenu
+  feature: `RoutingMovingSource` (drop here/discard — overrides while
+  `movedPointId` is set), `RoutingWaypointSource` (move/delete; resolves the
+  tapped point via `routingLayerRegistry` with a 30 dp screen-distance
+  fallback), `RoutingSegmentSource` (cut at `hit.nearestPoint`; disabled when
+  a waypoint is under the tap), `RoutingMapSource` (append routing point on
+  the empty map).
+- **`layerRegistry.ts`** — module-level `segmentUuidByRecordId` /
+  `markerUuidByPointId` fed by RoutingMapView's `onCreate`/`onRemove`;
+  consumed by the sources.
+- **`hooks/usePointActions.ts`** — shared stable callbacks
+  (`appendPointAt`, `cutSegmentAt`, `movePoint`, `dropPointAt`,
+  `discardMoving`, `deletePoint`) taking explicit `[lng, lat]` — used by the
+  menu sources. Uses the AGENTS.md ref pattern (`useMutation` returns a new
+  object per render — callbacks read state/mutations through refs so the
+  sources' option arrays stay stable; without it the menu update loop fires).
+  The drawer action hooks predate this hook and keep their own mutation
+  copies (duplication noted — could be refactored onto it later).

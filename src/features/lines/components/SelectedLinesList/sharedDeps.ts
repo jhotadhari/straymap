@@ -30,14 +30,17 @@ export const sharedStyles = StyleSheet.create({
 		marginLeft: 2,
 		marginRight: -16,
 		paddingHorizontal: 8,
+		// Fixed total width so the inner bar can grow (under-center
+		// highlight) without resizing the column / shifting the row.
+		width: 20,
 	},
 	colorColumnRight: {
 		marginLeft: -16,
 		paddingHorizontal: 8,
+		width: 20,
 	},
 	colorColumnInner: {
 		width: 2,
-		flex: 1,
 		height: '100%',
 	},
 });

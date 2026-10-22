@@ -32,6 +32,8 @@ import {
 	CanvasAdapterModule,
 	ErrorWithErrorMsg,
 	TapEventResponse,
+	LongPressEventResponse,
+	MapTapHit,
 	useMap,
 	ReindexScope,
 } from 'react-native-mapsforge-vtm';
@@ -59,6 +61,7 @@ import { selectItemKeys, selectControlHandleSide } from '../features/drawers/sel
 import { getDrawerWidthResponsive } from '../features/drawers/utils';
 import { useAppDispatch } from '../store/hooks';
 import { featureRegistry } from '../features/FeatureRegistry';
+import { emitMapContextMenu } from '../features/mapContextMenu/controller';
 import LayerDebugDumpButton from './LayerDebugDumpButton';
 import SceneBusyBridge from './SceneBusyBridge';
 import MapCornerComponents from './MapCornerComponents';
@@ -199,6 +202,8 @@ const AppView = ({
 	const [showMap, setShowMap] = useState(false);
 	const mapsforgeGeneral = useAppSelector(selectMapsforgeGeneral);
 	const mapsforgeGeneralPrevRef = useRef<typeof mapsforgeGeneral | undefined>(undefined);
+	const mapWrapperRef = useRef<View>(null);
+	const mapWindowOffsetRef = useRef<{ x: number; y: number } | null>(null);
 	useEffect(() => {
 		const prev = mapsforgeGeneralPrevRef.current;
 		mapsforgeGeneralPrevRef.current = mapsforgeGeneral;
@@ -279,13 +284,15 @@ const AppView = ({
 		]
 	);
 
-	// onTap fires when the user taps on an empty map area (unconsumed by marker/path layers).
-	// On a tap, close any open drawers to give the user a clear view of the map.
-	// Taps on drawer handles and expanded drawer content are excluded so that interacting
+	// onTap/onLongPress fire for every map press (the library's HitTestLayer
+	// aggregates hits from all layer managers into the event payload). On a
+	// press, close any open drawers to give the user a clear view of the map
+	// and emit the press to the mapContextMenu feature. Presses on drawer
+	// handles and expanded drawer content are excluded so that interacting
 	// with a drawer doesn't immediately close it.
-	const handleMapTap = useCallback(
-		(event: NativeSyntheticEvent<TapEventResponse>) => {
-			const { x, y } = event.nativeEvent;
+	const handleMapPress = useCallback(
+		(event: NativeSyntheticEvent<TapEventResponse>, press: 'short' | 'long') => {
+			const { x, y, lng, lat } = event.nativeEvent;
 			const xLogical = x / PixelRatio.get();
 			const yLogical = y / PixelRatio.get();
 
@@ -335,6 +342,36 @@ const AppView = ({
 
 			drawerControlsRef.current?.left.expand(false);
 			drawerControlsRef.current?.right.expand(false);
+
+			// Parse the aggregated layer hits (JSON string — see the
+			// library's HitTestLayer / TapEventResponse.hits) and forward
+			// to the map context menu. Filter to plain objects: a malformed
+			// native payload must never surface null/primitives to sources.
+			let hits: MapTapHit[] = [];
+			try {
+				const parsed = event.nativeEvent?.hits ? JSON.parse(event.nativeEvent.hits) : [];
+				hits = Array.isArray(parsed)
+					? parsed.filter((hit: unknown) => hit && typeof hit === 'object')
+					: [];
+			} catch {
+				hits = [];
+			}
+			// The popover renders in a Modal (window space), so convert the
+			// map-local physical px to window dp via the wrapper's offset.
+			const windowOffset = mapWindowOffsetRef.current;
+			const mapEvent = currentMapEventRef.current;
+			emitMapContextMenu({
+				press,
+				lng,
+				lat,
+				x,
+				y,
+				windowX: (windowOffset?.x ?? 0) + xLogical,
+				windowY: (windowOffset?.y ?? 0) + yLogical,
+				...(mapEvent?.zoomLevel != null && { zoomLevel: mapEvent.zoomLevel }),
+				...(mapEvent?.tileSize != null && { tileSize: mapEvent.tileSize }),
+				hits,
+			});
 		},
 		[
 			drawerControlsRef,
@@ -343,7 +380,18 @@ const AppView = ({
 			rightItemKeys.length,
 			controlHandleSide,
 			width,
+			currentMapEventRef,
 		]
+	);
+
+	const handleMapTap = useCallback(
+		(event: NativeSyntheticEvent<TapEventResponse>) => handleMapPress(event, 'short'),
+		[handleMapPress]
+	);
+
+	const handleMapLongPress = useCallback(
+		(event: NativeSyntheticEvent<LongPressEventResponse>) => handleMapPress(event, 'long'),
+		[handleMapPress]
 	);
 
 	const styleContainer: ViewStyle = useMemo(
@@ -377,7 +425,15 @@ const AppView = ({
 			<View style={styleAppInner}>
 				<UiItemComponent />
 
-				<View style={styles.map}>
+				<View
+					style={styles.map}
+					ref={mapWrapperRef}
+					onLayout={() => {
+						mapWrapperRef.current?.measureInWindow((x, y) => {
+							mapWindowOffsetRef.current = { x, y };
+						});
+					}}
+				>
 					{showMap && (
 						<MapContainer
 							nativeNodeHandle={mapViewNativeNodeHandle}
@@ -398,6 +454,7 @@ const AppView = ({
 							onResume={handleMapResume}
 							onMapUpdate={handleMapEvent}
 							onTap={handleMapTap}
+							onLongPress={handleMapLongPress}
 							gnssFilter={gnssFilter}
 							onGnssPosition={handleGnssPosition}
 						>

@@ -13,6 +13,7 @@ import {
 import { useTheme, Text, Icon } from 'react-native-paper';
 import { useMap } from 'react-native-mapsforge-vtm';
 import Popover from 'react-native-popover-view';
+import Animated, { useAnimatedStyle, withTiming } from 'react-native-reanimated';
 
 /**
  * Internal dependencies
@@ -41,6 +42,7 @@ export interface ListRowProps {
 	line: Omit<Line, 'geometry'>;
 	idx: number;
 	systemFeatureKey: string | null;
+	isUnderCenter?: boolean;
 }
 
 // Shared by every stat-less ListRow — frozen so a future consumer
@@ -48,7 +50,7 @@ export interface ListRowProps {
 // lodash pick).
 const EMPTY_STATS = Object.freeze({} as LineStatsType);
 
-const ListRow: FC<ListRowProps> = ({ line, idx, systemFeatureKey }) => {
+const ListRow: FC<ListRowProps> = ({ line, idx, systemFeatureKey, isUnderCenter }) => {
 	const dispatch = useAppDispatch();
 
 	const { mapViewNativeNodeHandle } = useContext(AppContext);
@@ -136,8 +138,18 @@ const ListRow: FC<ListRowProps> = ({ line, idx, systemFeatureKey }) => {
 				backgroundColor: (lineColor ?? fallbackColor) as `#${string}`,
 			},
 		],
-		[lineColor, fallbackColor]
+		[
+			lineColor,
+			fallbackColor,
+		]
 	);
+
+	// Widen the color bar while the map center is over this line — the
+	// column's total width is fixed, so the animation consumes padding
+	// instead of shifting the row layout.
+	const colorColumnAnimatedStyle = useAnimatedStyle(() => ({
+		width: withTiming(isUnderCenter ? 4 : 2, { duration: 150 }),
+	}));
 
 	const handleActivate = useCallback(() => {
 		if (line?.envelope) {
@@ -191,8 +203,15 @@ const ListRow: FC<ListRowProps> = ({ line, idx, systemFeatureKey }) => {
 			>
 				<View
 					ref={colorAnchorRef}
-					style={styleColorColumnInner}
-				/>
+					style={colorCircle.anchorWrapper}
+				>
+					<Animated.View
+						style={[
+							styleColorColumnInner,
+							colorColumnAnimatedStyle,
+						]}
+					/>
+				</View>
 			</TouchableHighlight>
 
 			{colorAnchorRef.current && (
@@ -333,6 +352,11 @@ const colorCircle = StyleSheet.create({
 		width: 24,
 		height: 24,
 		borderRadius: 12,
+	},
+	anchorWrapper: {
+		flex: 1,
+		height: '100%',
+		alignItems: 'flex-start',
 	},
 });
 

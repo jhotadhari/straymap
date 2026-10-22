@@ -32,6 +32,7 @@ import { RoutingPoint } from '../types';
 import { pointsCoordsAreOverlapping } from '../../../lib/utils';
 import { MapContext } from '../../../Context';
 import { selectMapUpdateInterval } from '../../general/selectors';
+import { routingLayerRegistry } from '../layerRegistry';
 
 const SegmentLineLayer: FC<{
 	segmentRecordId: string;
@@ -75,6 +76,17 @@ const SegmentLineLayer: FC<{
 			segmentValues={normalizedValues}
 			colorRampStops={colorRampStops}
 			paint={paintPathRamp}
+			onCreate={(response) => {
+				routingLayerRegistry.segmentUuidByRecordId.set(segmentRecordId, response.uuid);
+			}}
+			onRemove={(response) => {
+				if (
+					routingLayerRegistry.segmentUuidByRecordId.get(segmentRecordId) ===
+					response.uuid
+				) {
+					routingLayerRegistry.segmentUuidByRecordId.delete(segmentRecordId);
+				}
+			}}
 		/>
 	);
 });
@@ -131,6 +143,17 @@ const SegmentLine: FC<{
 				key={segmentRecordId + 'fallback'}
 				coordinates={coords}
 				paint={paint}
+				onCreate={(response) => {
+					routingLayerRegistry.segmentUuidByRecordId.set(segmentRecordId, response.uuid);
+				}}
+				onRemove={(response) => {
+					if (
+						routingLayerRegistry.segmentUuidByRecordId.get(segmentRecordId) ===
+						response.uuid
+					) {
+						routingLayerRegistry.segmentUuidByRecordId.delete(segmentRecordId);
+					}
+				}}
 			/>
 		);
 	}
@@ -250,6 +273,16 @@ const Markers: FC<{
 						text: index + 1 + '',
 						textMargin: 15,
 						...(isMoving && paintMoveHighlight),
+					}}
+					onCreate={(response) => {
+						routingLayerRegistry.markerUuidByPointId.set(point.id, response.uuid);
+					}}
+					onRemove={(response) => {
+						if (
+							routingLayerRegistry.markerUuidByPointId.get(point.id) === response.uuid
+						) {
+							routingLayerRegistry.markerUuidByPointId.delete(point.id);
+						}
 					}}
 				/>
 			);

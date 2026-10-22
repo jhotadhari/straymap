@@ -16,6 +16,7 @@ import { selectMapUpdateInterval } from '../../general/selectors';
 import { queryLineGeomsBatch } from '../db/queryFns';
 import useSimplificationTolerance from '../hooks/useSimplificationTolerance';
 import { PALETTE_COLORS } from '../../../constants';
+import { linesLayerRegistry } from '../layerRegistry';
 
 const BASE_STROKE_WIDTH = 3;
 
@@ -177,6 +178,14 @@ const LinesMapView = () => {
 					key={line.id}
 					coordinates={coords}
 					paint={paint}
+					onCreate={(response) => {
+						linesLayerRegistry.pathUuidByLineId.set(line.id, response.uuid);
+					}}
+					onRemove={(response) => {
+						if (linesLayerRegistry.pathUuidByLineId.get(line.id) === response.uuid) {
+							linesLayerRegistry.pathUuidByLineId.delete(line.id);
+						}
+					}}
 				/>
 			);
 		});
