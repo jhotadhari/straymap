@@ -10,6 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ### Added
 
 - Chart: "Animate follow" toggle — the smooth follow animation can be turned off globally (default on).
+- Routing: gesture-workaround actions in the route planning drawer — cut a
+  segment under the map center, move a waypoint (move/drag/drop), delete
+  the waypoint at the center, and discard a move. Cutting a segment grabs
+  the new waypoint and switches the affected segments to fallback lines
+  that follow the map center until the point is dropped (moving an
+  existing waypoint does the same).
 
 ### Changed
 
@@ -33,6 +39,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   patched to skip the blur setup in that case instead of crashing.
 - Mapsforge labels were rendered below map overlays; they now draw above
   lines and routes, below waypoint markers.
+- Disabled popover-menu actions were still rendered as tappable — the
+  generic `MenuControl` now greys out disabled options (background, text
+  and icon), so cut/move/delete routing actions visibly reflect when no
+  segment or waypoint is under the map center.
 
 ## [0.4.0] - 2026-09-30
 

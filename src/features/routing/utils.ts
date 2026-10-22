@@ -17,6 +17,7 @@ import {
 	RoutingProfile,
 	BrouterCompressionMode,
 	RoutingPoint,
+	RoutingSegmentHit,
 } from './types';
 import { altitudeService } from '../../lib/AltitudeService';
 import { haversineDistance } from '../../lib/formatting';
@@ -29,6 +30,38 @@ export const getSegmentRecordId = (segment: Pick<RoutingSegment, 'fromId' | 'toI
 		segment.fromId,
 		segment.toId,
 	].join('_');
+
+/**
+ * Segment record ids of the two segments touching a waypoint (the
+ * incoming segment from the previous point and the outgoing segment to
+ * the next point). Used to delete a moved point's cached
+ * segments so processRouting refetches them instead of reusing stale
+ * geometry.
+ */
+export const getAdjacentSegmentRecordIds = (points: RoutingPoint[], pointId: number): string[] => {
+	const index = points.findIndex((p) => p.id === pointId);
+	if (index === -1) {
+		return [];
+	}
+	const ids: string[] = [];
+	if (index > 0) {
+		ids.push(
+			getSegmentRecordId({
+				fromId: points[index - 1].id,
+				toId: pointId,
+			})
+		);
+	}
+	if (index < points.length - 1) {
+		ids.push(
+			getSegmentRecordId({
+				fromId: pointId,
+				toId: points[index + 1].id,
+			})
+		);
+	}
+	return ids;
+};
 
 export const aggregateSegmentsToCoords = (segments: RoutingSegment[]) =>
 	segments.reduce((acc, seg) => {
@@ -100,9 +133,194 @@ export const getPathCoords = (
 	return coords;
 };
 
+// ---------------------------------------------------------------------------
+// Center hit-testing for the gesture-workaround actions
+// ---------------------------------------------------------------------------
+
+const MERCATOR_MAX_LAT = 85.0511287798066;
+
+const clampMercatorLat = (lat: number) => {
+	if (lat > MERCATOR_MAX_LAT) return MERCATOR_MAX_LAT;
+	if (lat < -MERCATOR_MAX_LAT) return -MERCATOR_MAX_LAT;
+	return lat;
+};
+
+const latLngToMercator = (lat: number, lng: number): [number, number] => {
+	const mx = (lng + 180) / 360;
+	const latRad = (clampMercatorLat(lat) * Math.PI) / 180;
+	const mercY = Math.log(Math.tan(Math.PI / 4 + latRad / 2));
+	return [mx, 0.5 - mercY / (2 * Math.PI)];
+};
+
+const wrapMxDelta = (dMx: number) => {
+	if (dMx > 0.5) return dMx - 1;
+	if (dMx < -0.5) return dMx + 1;
+	return dMx;
+};
+
+/**
+ * Projects a geo coordinate to a screen-dp offset relative to the map
+ * center, using plain Web Mercator math identical to the library's
+ * reanimated mercatorUtils. Straymap disables map rotation and tilt, so
+ * bearing/tilt do not need to be accounted for.
+ */
+export const projectLngLatToCenterDpOffset = (
+	center: [number, number],
+	lngLat: [number, number],
+	zoom: number,
+	tileSize: number,
+	density: number
+): [number, number] => {
+	const [centerMx, centerMy] = latLngToMercator(center[1], center[0]);
+	const [pointMx, pointMy] = latLngToMercator(lngLat[1], lngLat[0]);
+	const worldPx = tileSize * Math.pow(2, zoom);
+	const scaleDp = density > 0 ? worldPx / density : worldPx;
+	return [
+		wrapMxDelta(pointMx - centerMx) * scaleDp,
+		(pointMy - centerMy) * scaleDp,
+	];
+};
+
+/**
+ * Nearest position on a polyline (screen-dp offsets relative to the map
+ * center) to the origin, with the fraction along the found edge so the
+ * corresponding geo coordinate can be interpolated.
+ */
+const getNearestOnPolylineDp = (offsets: [number, number][]) => {
+	let bestDistance = Infinity;
+	let bestVertexIndex = 0;
+	let bestFraction = 0;
+	for (let i = 0; i < offsets.length - 1; i++) {
+		const [ax, ay] = offsets[i];
+		const [bx, by] = offsets[i + 1];
+		const abx = bx - ax;
+		const aby = by - ay;
+		const abLen2 = abx * abx + aby * aby;
+		let fraction = abLen2 > 0 ? -(ax * abx + ay * aby) / abLen2 : 0;
+		fraction = Math.max(0, Math.min(1, fraction));
+		const px = ax + abx * fraction;
+		const py = ay + aby * fraction;
+		const distance = Math.hypot(px, py);
+		if (distance < bestDistance) {
+			bestDistance = distance;
+			bestVertexIndex = i;
+			bestFraction = fraction;
+		}
+	}
+	return {
+		distance: bestDistance,
+		vertexIndex: bestVertexIndex,
+		fraction: bestFraction,
+	};
+};
+
+/**
+ * Hit-tests the map center against the rendered (simplified) route
+ * segments. Returns the closest segment within `thresholdDp` screen
+ * distance, the point-order index a cut waypoint should be inserted at,
+ * and the snapped [lng, lat] coordinate on the segment.
+ */
+export const getNearestSegmentHit = ({
+	points,
+	simplifiedByRecordId,
+	center,
+	zoom,
+	tileSize,
+	density,
+	thresholdDp,
+}: {
+	points: RoutingPoint[];
+	simplifiedByRecordId: Record<string, number[][]>;
+	center: [number, number];
+	zoom: number;
+	tileSize: number;
+	density: number;
+	thresholdDp: number;
+}): RoutingSegmentHit | null => {
+	let best: RoutingSegmentHit | null = null;
+	let bestDistance = thresholdDp;
+
+	points.forEach((fromPoint, index) => {
+		const toPoint = points[index + 1];
+		if (!toPoint) {
+			return;
+		}
+		const segmentRecordId = getSegmentRecordId({
+			fromId: fromPoint.id,
+			toId: toPoint.id,
+		});
+		const coords = simplifiedByRecordId[segmentRecordId];
+		if (!coords || coords.length < 2) {
+			return;
+		}
+		const offsets = coords.map(
+			(c) =>
+				projectLngLatToCenterDpOffset(center, [c[0], c[1]], zoom, tileSize, density) as [
+					number,
+					number,
+				]
+		);
+		const { distance, vertexIndex, fraction } = getNearestOnPolylineDp(offsets);
+		if (distance < bestDistance) {
+			bestDistance = distance;
+			const from = coords[vertexIndex];
+			const to = coords[vertexIndex + 1];
+			best = {
+				segmentRecordId,
+				insertIndex: index + 1,
+				nearest: [
+					from[0] + (to[0] - from[0]) * fraction,
+					from[1] + (to[1] - from[1]) * fraction,
+				],
+			};
+		}
+	});
+
+	return best;
+};
+
+/**
+ * Hit-tests the map center against the route's waypoints. Returns the
+ * closest waypoint within `thresholdDp` screen distance.
+ */
+export const getNearestPointHit = ({
+	points,
+	center,
+	zoom,
+	tileSize,
+	density,
+	thresholdDp,
+}: {
+	points: RoutingPoint[];
+	center: [number, number];
+	zoom: number;
+	tileSize: number;
+	density: number;
+	thresholdDp: number;
+}): { pointId: number } | null => {
+	let best: { pointId: number } | null = null;
+	let bestDistance = thresholdDp;
+
+	points.forEach((point) => {
+		const [dx, dy] = projectLngLatToCenterDpOffset(
+			center,
+			[point.geometry.coordinates[0], point.geometry.coordinates[1]],
+			zoom,
+			tileSize,
+			density
+		);
+		const distance = Math.hypot(dx, dy);
+		if (distance < bestDistance) {
+			bestDistance = distance;
+			best = { pointId: point.id };
+		}
+	});
+
+	return best;
+};
+
 /**
  * Fetch coordinates from BRouter, with optional compression fallback.
- *
  * Three modes, controlled by {@link BrouterOptions.compressionMode}:
  *
  * - **`off`** (default): JSON format, no compression, elevation from BRouter.

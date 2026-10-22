@@ -23,6 +23,7 @@ import useRoute from '../../hooks/useRoute';
 import { queryLinesWithoutGeom } from '../../../lines/db/queryFns';
 import { LinePartial } from '../../../lines/types';
 import { setLineTemp } from '../../../lines/slice';
+import { selectMovedPointId } from '../../selectors';
 import useActions from './useActions';
 import RoutingActionsButton from '../RoutingActionsButton';
 import useToggleRouting from './useToggleRouting';
@@ -63,6 +64,8 @@ const DrawerTopBar: FC = () => {
 	const { isToggling, handleToggleRouting } = useToggleRouting({
 		routeId,
 	});
+
+	const movedPointId = useAppSelector(selectMovedPointId);
 
 	const actions = useActions({
 		routeId,
@@ -120,11 +123,13 @@ const DrawerTopBar: FC = () => {
 						<>
 							<ButtonHighlight
 								{...buttonPropsAdd}
-								onPress={actions.appendPoint.cb}
+								onPress={
+									movedPointId ? actions.dropPoint.cb : actions.appendPoint.cb
+								}
 								compact={true}
 							>
 								<Icon
-									source={'plus'}
+									source={movedPointId ? 'arrow-down-bold-outline' : 'plus'}
 									size={20}
 									color={nestedIconColorAdd}
 								/>

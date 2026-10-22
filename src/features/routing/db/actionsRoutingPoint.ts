@@ -22,7 +22,8 @@ export const createRoutingPoints = withDbErrorHandling(
 			profile?: RoutingProfile;
 			inheritMode?: RoutingPointInheritMode;
 		}[],
-		route_id?: number | false
+		route_id?: number | false,
+		index?: number
 	) => {
 		if (!route_id || !dbConnection?.drizzle) {
 			return;
@@ -51,9 +52,18 @@ export const createRoutingPoints = withDbErrorHandling(
 			if (inserted.length !== newPoints.length) {
 				return inserted;
 			}
-			// Append new point IDs to the existing point_order.
 			const existingIds = routes.length ? routes[0].points.map((p) => p.id) : [];
-			const newOrder = [...existingIds, ...inserted.map((r) => r.id)];
+			// Insert at the given point_order index (used by the
+			// cut-segment action), otherwise append like before.
+			const insertAt =
+				undefined === index
+					? existingIds.length
+					: Math.max(0, Math.min(index, existingIds.length));
+			const newOrder = [
+				...existingIds.slice(0, insertAt),
+				...inserted.map((r) => r.id),
+				...existingIds.slice(insertAt),
+			];
 
 			await exec(
 				dbConnection
