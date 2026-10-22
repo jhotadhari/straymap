@@ -212,6 +212,13 @@ jest.mock('react-native-paper', () => {
 // ---------------------------------------------------------------------------
 jest.mock('react-native-reanimated', () => {
 	const { View, Text } = require('react-native');
+	const Easing = {
+		out: (value) => value,
+		in: (value) => value,
+		cubic: 0,
+		linear: 0,
+		quad: 0,
+	};
 	return {
 		default: {
 			View,
@@ -222,6 +229,7 @@ jest.mock('react-native-reanimated', () => {
 			useAnimatedStyle: jest.fn(() => ({})),
 			withTiming: jest.fn((val) => val),
 			withSpring: jest.fn((val) => val),
+			Easing,
 		},
 		View,
 		Text,
@@ -231,6 +239,7 @@ jest.mock('react-native-reanimated', () => {
 		useAnimatedStyle: jest.fn(() => ({})),
 		withTiming: jest.fn((val) => val),
 		withSpring: jest.fn((val) => val),
+		Easing,
 	};
 });
 
