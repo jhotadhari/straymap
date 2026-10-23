@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ### Added
 
 - Chart: "Animate follow" toggle — the smooth follow animation can be turned off globally (default on).
-- Routing: gesture-workaround actions in the route planning drawer — cut a
+- Routing: route-editing actions in the route planning drawer — cut a
   segment under the map center, move a waypoint (move/drag/drop), delete
   the waypoint at the center, and discard a move. Cutting a segment grabs
   the new waypoint and switches the affected segments to fallback lines
