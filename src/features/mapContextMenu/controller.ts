@@ -12,6 +12,7 @@ import type { MapContextMenuContext } from '../../types';
 export type SharePositionState = {
 	lng: number;
 	lat: number;
+	zoomLevel?: number;
 } | null;
 
 type MenuListener = (context: MapContextMenuContext) => void;
@@ -31,8 +32,8 @@ export const subscribeMapContextMenu = (listener: MenuListener): (() => void) =>
 	};
 };
 
-export const openSharePosition = (lng: number, lat: number): void => {
-	sharePositionListeners.forEach((listener) => listener({ lng, lat }));
+export const openSharePosition = (lng: number, lat: number, zoomLevel?: number): void => {
+	sharePositionListeners.forEach((listener) => listener({ lng, lat, zoomLevel }));
 };
 
 export const closeSharePosition = (): void => {

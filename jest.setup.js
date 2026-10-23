@@ -83,6 +83,18 @@ jest.mock('@op-engineering/op-sqlite', () => ({
 }));
 
 // ---------------------------------------------------------------------------
+// @react-native-clipboard/clipboard — native clipboard binding
+// ---------------------------------------------------------------------------
+jest.mock('@react-native-clipboard/clipboard', () => ({
+	__esModule: true,
+	default: {
+		setString: jest.fn(),
+		getString: jest.fn().mockResolvedValue(''),
+		hasString: jest.fn().mockResolvedValue(false),
+	},
+}));
+
+// ---------------------------------------------------------------------------
 // react-native-mapsforge-vtm — map rendering
 // ---------------------------------------------------------------------------
 jest.mock('react-native-mapsforge-vtm', () => ({

@@ -1,4 +1,15 @@
 {
-	"sharePosition": "Compartilhar posição",
-	"sharePositionPlaceholder": "Compartilhar a posição {{lat}}, {{lng}} — em breve."
+	"coordinates": "Coordenadas",
+	"coordinatesDecimal": "Coordenadas (decimal)",
+	"copy": "Copiar",
+	"copyError": "Falha ao copiar",
+	"geoUri": "URI geo",
+	"googleMaps": "Google Maps",
+	"openstreetmap": "OpenStreetMap",
+	"openTopoMap": "OpenTopoMap",
+	"organicMaps": "Organic Maps",
+	"osmand": "OsmAnd",
+	"share": "Compartilhar",
+	"shareError": "Falha ao compartilhar",
+	"sharePosition": "Compartilhar posição"
 }

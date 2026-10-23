@@ -7,7 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
-<<<<<<< HEAD
 ### Added
 
 - Chart: "Animate follow" toggle — the smooth follow animation can be turned off globally (default on).
@@ -28,6 +27,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Map context menu for lines moved to long-press, with a "Change color"
   action (palette modal, disabled for system lines); the details action
   is now "Route details".
+- Map context menu: "Share position" modal — coordinates in the user's
+  configured format plus plain decimal coordinates, and map links
+  (OpenStreetMap, OpenTopoMap, Google Maps, Organic Maps, OsmAnd, geo
+  URI) with per-row copy/share buttons; links carry the live map zoom.
 
 ### Changed
 

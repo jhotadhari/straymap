@@ -7,16 +7,23 @@ other features via the `mapContextMenuSources` extension point.
 
 - **`controller.ts`** — module-level event hub (no Redux): `emitMapContextMenu`
   / `subscribeMapContextMenu` for press events, plus a share-position store
-  (`openSharePosition` / `subscribeSharePosition`). Menu state is transient
-  UI state and intentionally not persisted.
+  (`openSharePosition(lng, lat, zoomLevel?)` / `subscribeSharePosition`).
+  Menu state is transient UI state and intentionally not persisted.
 - **`MapContextMenuOverlay.tsx`** — the `appOverlays` entry (priority 1000,
   rendered above map and drawers). On a press it mounts the registered
   sources, collects their option groups, and renders a plain View-based
   menu (no Modal popover — opens instantly, no animation) at the tap
   position, with dividers between groups and edge clamping. When no source
   resolves options, the menu is suppressed entirely.
-- **`SharePositionModal.tsx`** — mock modal for the long-press "Share
-  position" action. Content TBD.
+- **`SharePositionModal.tsx`** — share modal for the long-press "Share
+  position" action. Lists value rows (disabled text field + copy/share
+  `IconButtonHighlight`s): coordinates in the user's configured format,
+  plain decimal coordinates, and map links (OSM, OpenTopoMap, Google Maps,
+  Organic Maps, OsmAnd, geo URI). Copy uses `@react-native-clipboard/clipboard`
+  (icon swaps to a check for ~1.5s), share uses RN core `Share.share`.
+- **`shareRows.ts`** — pure `buildShareRows(lng, lat, zoomLevel, unitPref,
+  t)` row builder (unit-tested in `__tests__/shareRows.test.ts`). Falls
+  back to `DEFAULT_SHARE_ZOOM` (18) when no zoom was captured.
 - **`mapContextMenuSources/MapGeneralSource.tsx`** — the feature's own
   long-press source (general map actions). Future slots: add waypoint,
   measure distance.
@@ -57,7 +64,7 @@ update loop protection will churn.
 | `routingSegment` | short | routing | Cut segment (disabled when a waypoint is under the tap) |
 | `routingMap` | short | routing | Append routing point (empty map) |
 | `linesLine` | long | lines | Route details, Fly to, Change color, Remove from map (color/remove disabled for system lines) |
-| `mapGeneral` | long | mapContextMenu | Share position (mock) |
+| `mapGeneral` | long | mapContextMenu | Share position (opens `SharePositionModal` with lng/lat/zoomLevel) |
 
 ## Correlation with tapped entities
 
@@ -81,5 +88,4 @@ presses lives in the same handler.
 - Waypoint feature ("Add waypoint here" action) — future, DB-backed like lines
 - Measure-distance action in the general long-press menu
 - Long-press feature-specific menus (hits are already in the payload)
-- `SharePositionModal` content (mock shell)
 - Marker finger-drag gestures

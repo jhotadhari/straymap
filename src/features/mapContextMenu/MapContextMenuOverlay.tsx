@@ -193,6 +193,7 @@ const MapContextMenuOverlay: FC = () => {
 				onDismiss={closeSharePosition}
 				lng={sharePosition?.lng ?? 0}
 				lat={sharePosition?.lat ?? 0}
+				zoomLevel={sharePosition?.zoomLevel}
 			/>
 		);
 	}
@@ -217,6 +218,7 @@ const MapContextMenuOverlay: FC = () => {
 				onDismiss={closeSharePosition}
 				lng={sharePosition?.lng ?? 0}
 				lat={sharePosition?.lat ?? 0}
+				zoomLevel={sharePosition?.zoomLevel}
 			/>
 
 			<Pressable

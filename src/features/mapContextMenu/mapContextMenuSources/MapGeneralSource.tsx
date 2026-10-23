@@ -28,7 +28,7 @@ const MapGeneralSource: FC<MapContextMenuSourceComponentProps> = ({ context, onO
 				label: 'mapContextMenu.sharePosition',
 				leadingIcon: 'share-variant-outline',
 				cb: () => {
-					openSharePosition(context.lng, context.lat);
+					openSharePosition(context.lng, context.lat, context.zoomLevel);
 				},
 			},
 		];
