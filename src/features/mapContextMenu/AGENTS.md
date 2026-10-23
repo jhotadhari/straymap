@@ -1,7 +1,7 @@
 # mapContextMenu feature
 
-Tap/long-press context menus on the map, with actions contributed by
-other features via the `mapContextMenuSources` extension point.
+Long-press context menus on the map, with actions contributed by other
+features via the `mapContextMenuSources` extension point.
 
 ## Architecture
 
@@ -10,11 +10,13 @@ other features via the `mapContextMenuSources` extension point.
   (`openSharePosition(lng, lat, zoomLevel?)` / `subscribeSharePosition`).
   Menu state is transient UI state and intentionally not persisted.
 - **`MapContextMenuOverlay.tsx`** — the `appOverlays` entry (priority 1000,
-  rendered above map and drawers). On a press it mounts the registered
+  rendered above map and drawers). On a long press it mounts the registered
   sources, collects their option groups, and renders a plain View-based
-  menu (no Modal popover — opens instantly, no animation) at the tap
-  position, with dividers between groups and edge clamping. When no source
-  resolves options, the menu is suppressed entirely.
+  menu (no Modal popover — opens instantly, no animation) at the press
+  position, with dividers between groups and edge clamping. Presses whose
+  press type has no registered source are suppressed synchronously (no
+  empty-panel flash); when sources exist but no source resolves options,
+  a settle macrotask suppresses the empty panel (see `settled`).
 - **`SharePositionModal.tsx`** — share modal for the long-press "Share
   position" action. Lists value rows (disabled text field + copy/share
   `IconButtonHighlight`s): coordinates in the user's configured format,
@@ -31,18 +33,22 @@ other features via the `mapContextMenuSources` extension point.
 ## Extension point
 
 `AppFeature.mapContextMenuSources: MapContextMenuSource[]` —
-`{ key, press: 'short' | 'long', SourceComponent }`. Collected by
-`FeatureRegistry.getMapContextMenuSources()` in registration order (group
-order = divider order).
+`{ key, press: 'short' | 'long', priority?, SourceComponent }`. All sources
+currently register `'long'` — short-press menus are suppressed (the overlay
+only mounts sources matching the press type). Collected by
+`FeatureRegistry.getMapContextMenuSources()`, sorted by `priority` (lower
+first, defaults to 100 — stable, so equal priorities keep feature
+registration order). Current ordering: routing (default 100) → lines (200)
+→ general (300). Group order = divider order.
 
 A `SourceComponent` receives `{ context, onOptions }`:
 
 ```ts
 interface MapContextMenuContext {
 	press: 'short' | 'long';
-	lng: number; lat: number;      // tap geo position
-	x: number; y: number;          // tap position (physical px, map-local)
-	windowX: number; windowY: number; // tap position (window dp) — overlay anchoring
+	lng: number; lat: number;      // press geo position
+	x: number; y: number;          // press position (physical px, map-local)
+	windowX: number; windowY: number; // press position (window dp) — overlay anchoring
 	zoomLevel?: number; tileSize?: number; // live map state for zoom-aware resolution
 	hits: MapTapHit[];             // library hit-aggregation (paths/shapes/markers/…)
 }
@@ -59,10 +65,10 @@ update loop protection will churn.
 
 | Source | Press | Feature | Actions |
 |---|---|---|---|
-| `routingMoving` | short | routing | Drop point here, Discard moving (overrides all while `movedPointId` is set) |
-| `routingWaypoint` | short | routing | Move point, Delete point |
-| `routingSegment` | short | routing | Cut segment (disabled when a waypoint is under the tap) |
-| `routingMap` | short | routing | Append routing point (empty map) |
+| `routingMoving` | long | routing | Drop point here, Discard moving (overrides all while `movedPointId` is set) |
+| `routingWaypoint` | long | routing | Move point, Delete point |
+| `routingSegment` | long | routing | Cut segment (disabled when a waypoint is under the press) |
+| `routingMap` | long | routing | Append routing point (empty map) |
 | `linesLine` | long | lines | Route details, Fly to, Change color, Remove from map (color/remove disabled for system lines) |
 | `mapGeneral` | long | mapContextMenu | Share position (opens `SharePositionModal` with lng/lat/zoomLevel) |
 

@@ -65,6 +65,7 @@ export default {
 		{
 			key: 'linesLine',
 			press: 'long',
+			priority: 200,
 			SourceComponent: LinesLineSource,
 		},
 	],

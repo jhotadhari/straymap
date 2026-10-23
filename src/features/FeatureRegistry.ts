@@ -176,7 +176,11 @@ export class FeatureRegistry {
 		return components;
 	}
 
-	/** Returns all map context-menu sources (feature registration order). */
+	/**
+	 * Returns all map context-menu sources, sorted by priority (lower
+	 * first, defaults to 100). The stable sort preserves feature
+	 * registration order for sources with equal priority.
+	 */
 	getMapContextMenuSources(): MapContextMenuSource[] {
 		const sources: MapContextMenuSource[] = [];
 		for (const feature of Object.values(this.features())) {
@@ -184,6 +188,9 @@ export class FeatureRegistry {
 				sources.push(...feature.mapContextMenuSources);
 			}
 		}
+		sources.sort(
+			(a, b) => (a.priority ?? DEFAULT_PRIORITY) - (b.priority ?? DEFAULT_PRIORITY)
+		);
 		return sources;
 	}
 

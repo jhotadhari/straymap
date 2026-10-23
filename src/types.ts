@@ -97,6 +97,8 @@ export interface MapContextMenuSourceComponentProps {
 export interface MapContextMenuSource {
 	key: string;
 	press: MapContextMenuPress;
+	/** Group order in the menu (lower first); defaults to 100. */
+	priority?: number;
 	SourceComponent: ElementType<MapContextMenuSourceComponentProps>;
 }
 

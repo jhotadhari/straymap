@@ -13,9 +13,9 @@ import useRoute from '../hooks/useRoute';
 import usePointActions from '../hooks/usePointActions';
 
 /**
- * Short-press source shown while a waypoint is being moved — it overrides
- * the other routing sources: any tap while moving offers dropping the
- * point at the tap position or discarding the move.
+ * Long-press source shown while a waypoint is being moved — it overrides
+ * the other routing sources: any long-press while moving offers dropping
+ * the point at the press position or discarding the move.
  */
 const RoutingMovingSource: FC<MapContextMenuSourceComponentProps> = ({ context, onOptions }) => {
 	const movedPointId = useAppSelector(selectMovedPointId);
@@ -24,7 +24,7 @@ const RoutingMovingSource: FC<MapContextMenuSourceComponentProps> = ({ context, 
 	const { dropPointAt, discardMoving } = usePointActions({ routeId, points });
 
 	const options = useMemo<MenuActionOption[] | null>(() => {
-		if (context.press !== 'short' || !movedPointId) {
+		if (context.press !== 'long' || !movedPointId) {
 			return null;
 		}
 		return [

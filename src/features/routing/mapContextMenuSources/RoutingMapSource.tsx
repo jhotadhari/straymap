@@ -15,8 +15,8 @@ import useRoute from '../hooks/useRoute';
 import usePointActions from '../hooks/usePointActions';
 
 /**
- * Short-press source for the feature-less map while routing is active:
- * appends a routing waypoint at the tapped position. (A future waypoint
+ * Long-press source for the feature-less map while routing is active:
+ * appends a routing waypoint at the pressed position. (A future waypoint
  * feature will add its own "Add waypoint here" action.)
  */
 const RoutingMapSource: FC<MapContextMenuSourceComponentProps> = ({ context, onOptions }) => {
@@ -27,7 +27,7 @@ const RoutingMapSource: FC<MapContextMenuSourceComponentProps> = ({ context, onO
 	const { appendPointAt } = usePointActions({ routeId, points });
 
 	const options = useMemo<MenuActionOption[] | null>(() => {
-		if (context.press !== 'short' || movedPointId || !isRouting) {
+		if (context.press !== 'long' || movedPointId || !isRouting) {
 			return null;
 		}
 		// Only when no routing feature was hit: waypoints (screen-distance

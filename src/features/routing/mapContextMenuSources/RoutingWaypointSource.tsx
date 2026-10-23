@@ -15,11 +15,11 @@ import useRoute from '../hooks/useRoute';
 import usePointActions from '../hooks/usePointActions';
 
 /**
- * Short-press source for a routing waypoint (marker hit while routing is
- * active and no point is being moved): move or delete the tapped point.
+ * Long-press source for a routing waypoint (marker hit while routing is
+ * active and no point is being moved): move or delete the pressed point.
  *
  * Resolution: the marker hit's uuid registry first; falls back to a
- * zoom-aware screen-distance (dp) match against the tap position — the
+ * zoom-aware screen-distance (dp) match against the press position — the
  * same 30 dp tolerance as the Phase A gesture-workaround actions.
  */
 const RoutingWaypointSource: FC<MapContextMenuSourceComponentProps> = ({ context, onOptions }) => {
@@ -30,7 +30,7 @@ const RoutingWaypointSource: FC<MapContextMenuSourceComponentProps> = ({ context
 	const { movePoint, deletePoint } = usePointActions({ routeId, points });
 
 	const options = useMemo<MenuActionOption[] | null>(() => {
-		if (context.press !== 'short' || movedPointId || !isRouting) {
+		if (context.press !== 'long' || movedPointId || !isRouting) {
 			return null;
 		}
 		const markerHit = context.hits.find((hit) => hit?.manager === 'markers');

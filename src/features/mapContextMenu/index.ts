@@ -28,6 +28,7 @@ export default {
 		{
 			key: 'mapGeneral',
 			press: 'long',
+			priority: 300,
 			SourceComponent: MapGeneralSource,
 		},
 	],

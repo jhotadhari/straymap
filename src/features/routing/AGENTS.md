@@ -376,12 +376,12 @@ The routing drawer has no true drag gestures — actions are driven by the
 
 ## Map context menu sources + shared point actions
 
-- **`mapContextMenuSources/`** — short-press sources for the mapContextMenu
+- **`mapContextMenuSources/`** — long-press sources for the mapContextMenu
   feature: `RoutingMovingSource` (drop here/discard — overrides while
   `movedPointId` is set), `RoutingWaypointSource` (move/delete; resolves the
-  tapped point via `routingLayerRegistry` with a 30 dp screen-distance
+  pressed point via `routingLayerRegistry` with a 30 dp screen-distance
   fallback), `RoutingSegmentSource` (cut at `hit.nearestPoint`; disabled when
-  a waypoint is under the tap), `RoutingMapSource` (append routing point on
+  a waypoint is under the press), `RoutingMapSource` (append routing point on
   the empty map).
 - **`layerRegistry.ts`** — module-level `segmentUuidByRecordId` /
   `markerUuidByPointId` fed by RoutingMapView's `onCreate`/`onRemove`;

@@ -15,9 +15,9 @@ import useRoute from '../hooks/useRoute';
 import usePointActions from '../hooks/usePointActions';
 
 /**
- * Short-press source for a routing segment (ramp or fallback path hit
+ * Long-press source for a routing segment (ramp or fallback path hit
  * while routing is active and no point is being moved): cuts the segment
- * at the tapped position — the new waypoint immediately enters move mode.
+ * at the pressed position — the new waypoint immediately enters move mode.
  */
 const RoutingSegmentSource: FC<MapContextMenuSourceComponentProps> = ({ context, onOptions }) => {
 	const movedPointId = useAppSelector(selectMovedPointId);
@@ -27,7 +27,7 @@ const RoutingSegmentSource: FC<MapContextMenuSourceComponentProps> = ({ context,
 	const { cutSegmentAt } = usePointActions({ routeId, points });
 
 	const options = useMemo<MenuActionOption[] | null>(() => {
-		if (context.press !== 'short' || movedPointId || !isRouting || !points?.length) {
+		if (context.press !== 'long' || movedPointId || !isRouting || !points?.length) {
 			return null;
 		}
 		// Ramp segments live in the ext's "paths_colorramp" manager; the

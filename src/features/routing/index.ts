@@ -37,22 +37,22 @@ export default {
 	mapContextMenuSources: [
 		{
 			key: 'routingMoving',
-			press: 'short',
+			press: 'long',
 			SourceComponent: RoutingMovingSource,
 		},
 		{
 			key: 'routingWaypoint',
-			press: 'short',
+			press: 'long',
 			SourceComponent: RoutingWaypointSource,
 		},
 		{
 			key: 'routingSegment',
-			press: 'short',
+			press: 'long',
 			SourceComponent: RoutingSegmentSource,
 		},
 		{
 			key: 'routingMap',
-			press: 'short',
+			press: 'long',
 			SourceComponent: RoutingMapSource,
 		},
 	],

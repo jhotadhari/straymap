@@ -81,17 +81,6 @@ const MapContextMenuOverlay: FC = () => {
 
 	useEffect(() => subscribeSharePosition(setSharePosition), []);
 
-	// The sources report their options in effects of the same commit —
-	// mark the menu settled a macrotask later so an empty menu (no source
-	// resolved anything) is suppressed without flashing an empty panel.
-	useEffect(() => {
-		if (!menu) {
-			return;
-		}
-		const timer = setTimeout(() => setSettled(true), 0);
-		return () => clearTimeout(timer);
-	}, [menu]);
-
 	/**
 	 * Content-aware compare: an equivalent re-report (same keys, same cb
 	 * references) returns prev so a source re-rendering with a fresh array
@@ -128,6 +117,19 @@ const MapContextMenuOverlay: FC = () => {
 		() => (menu ? sources.filter((source) => source.press === menu.press) : []),
 		[sources, menu]
 	);
+
+	// The sources report their options in effects of the same commit —
+	// mark the menu settled a macrotask later so an empty menu (no source
+	// resolved anything) is suppressed without flashing an empty panel.
+	// Skipped entirely when no source matches the press type — a press
+	// without sources is suppressed synchronously (no timer, no flash).
+	useEffect(() => {
+		if (!menu || !matchingSources.length) {
+			return;
+		}
+		const timer = setTimeout(() => setSettled(true), 0);
+		return () => clearTimeout(timer);
+	}, [menu, matchingSources]);
 
 	const closeMenu = useCallback(() => setMenu(null), []);
 
@@ -186,7 +188,7 @@ const MapContextMenuOverlay: FC = () => {
 		]
 	);
 
-	if (!menu || (settled && groups.length === 0)) {
+	if (!menu || !matchingSources.length || (settled && groups.length === 0)) {
 		return (
 			<SharePositionModal
 				visible={!!sharePosition}
