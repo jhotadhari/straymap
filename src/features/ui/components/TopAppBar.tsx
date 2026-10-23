@@ -5,6 +5,7 @@ import { FC, Fragment, useCallback, useContext, useEffect, useMemo } from 'react
 import { useTheme, Icon, Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { View, BackHandler, TouchableHighlight, StyleSheet, LayoutChangeEvent } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 /**
  * Internal dependencies
@@ -40,6 +41,8 @@ const TopAppBar: FC = () => {
 	const { t } = useTranslation();
 
 	const { setTopAppBarHeight } = useContext(AppContext);
+
+	const insets = useSafeAreaInsets();
 
 	const theme = useTheme();
 
@@ -93,8 +96,13 @@ const TopAppBar: FC = () => {
 		[setTopAppBarHeight]
 	);
 
+	const styleOuter = useMemo(() => ({ paddingTop: insets.top }), [insets.top]);
+
 	return (
-		<View onLayout={handleLayout}>
+		<View
+			onLayout={handleLayout}
+			style={styleOuter}
+		>
 			<View style={styleBar}>
 				{!showTopDashboard && (
 					<Fragment>

@@ -4,6 +4,7 @@
 import React, { FC, useContext, useMemo } from 'react';
 import { useTheme } from 'react-native-paper';
 import { Dimensions, StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 /**
  * Internal dependencies
@@ -19,6 +20,8 @@ const UiItemComponent: FC<{}> = () => {
 	const { width } = useMemo(() => Dimensions.get('window'), []);
 
 	const theme = useTheme();
+
+	const insets = useSafeAreaInsets();
 
 	const { appInnerHeight } = useContext(AppContext);
 
@@ -37,11 +40,13 @@ const UiItemComponent: FC<{}> = () => {
 			width,
 			position: 'absolute',
 			zIndex: 100,
+			paddingBottom: insets.bottom,
 		}),
 		[
 			theme,
 			appInnerHeight,
 			width,
+			insets.bottom,
 		]
 	);
 

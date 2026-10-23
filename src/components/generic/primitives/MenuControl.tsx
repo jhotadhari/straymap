@@ -81,12 +81,25 @@ const MenuControl: FC<MenuControlProps> = ({
 							const actionOpt = opt as MenuActionOption;
 							const isDisabled = actionOpt.disabled?.() ?? false;
 							const hasCb = !!actionOpt.cb;
+							const menuItemStyleResult =
+								menuItemStyle instanceof Function
+									? menuItemStyle(idx)
+									: menuItemStyle;
 							return (
 								<MenuItem
-									style={
-										menuItemStyle instanceof Function
-											? menuItemStyle(idx)
-											: menuItemStyle
+									style={[
+										menuItemStyleResult,
+										isDisabled && {
+											backgroundColor: theme.colors.surfaceDisabled,
+										},
+									]}
+									textStyle={
+										isDisabled
+											? { color: theme.colors.onSurfaceDisabled }
+											: null
+									}
+									iconColor={
+										isDisabled ? theme.colors.onSurfaceDisabled : undefined
 									}
 									key={opt.key}
 									onPress={isDisabled ? undefined : () => handleOptionPress(opt)}

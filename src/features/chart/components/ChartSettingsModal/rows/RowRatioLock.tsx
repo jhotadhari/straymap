@@ -54,11 +54,11 @@ const RowRatioLock: FC = () => {
 			Info={t('chart.ratioHint')}
 			buttonLabel={t('chart.ratioReset')}
 			onButtonPress={handleFitScreen}
-			value={settings.followMap ? undefined : value}
+			value={settings.followMode === 'map' ? undefined : value}
 			onUpdate={handleUpdate}
 			numType="float"
 			validate={validatePositive}
-			disabled={settings.followMap}
+			disabled={settings.followMode === 'map'}
 		/>
 	);
 };

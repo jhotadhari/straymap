@@ -31,7 +31,8 @@ import RowPrimaryColor from './rows/RowPrimaryColor';
 import RowSecondaryData from './rows/RowSecondaryData';
 import RowSecondaryColor from './rows/RowSecondaryColor';
 import RowRatioLock from './rows/RowRatioLock';
-import RowFollowMap from './rows/RowFollowMap';
+import RowFollowMode from './rows/RowFollowMode';
+import RowAnimateFollow from './rows/RowAnimateFollow';
 // import RowXMode from './rows/RowXMode';
 import RowShowHeading from './rows/RowShowHeading';
 import RowShowStats from './rows/RowShowStats';
@@ -178,7 +179,9 @@ const ChartSettingsModal: FC<{
 			<ChartSettingsModalContext.Provider value={contextValue}>
 				{variant === 'drawer' && <RowSelectRoute />}
 
-				<RowFollowMap />
+				<RowFollowMode />
+
+				<RowAnimateFollow />
 
 				<RowRatioLock />
 

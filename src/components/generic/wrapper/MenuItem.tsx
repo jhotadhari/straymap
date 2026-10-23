@@ -4,7 +4,14 @@
 import { ElementType, memo, ReactNode, useMemo } from 'react';
 import { Style as ListStyle } from 'react-native-paper/lib/typescript/components/List/utils';
 import { useTheme, Icon, Text } from 'react-native-paper';
-import { StyleSheet, View, TouchableHighlight, ViewStyle, TextStyle } from 'react-native';
+import {
+	StyleSheet,
+	View,
+	TouchableHighlight,
+	ViewStyle,
+	TextStyle,
+	StyleProp,
+} from 'react-native';
 
 /**
  * Internal dependencies
@@ -26,7 +33,7 @@ const MenuItem = ({
 	leadingIcon?: string | ((props: { color: string; style: ListStyle }) => ReactNode);
 	IconComponent?: ElementType<{ color?: TextStyle['color']; size?: number }>;
 	iconSize?: number;
-	style?: null | ViewStyle;
+	style?: null | StyleProp<ViewStyle>;
 	iconColor?: string;
 	textStyle?: null | TextStyle;
 	title?: ReactNode;

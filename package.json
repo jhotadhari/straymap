@@ -1,6 +1,6 @@
 {
   "name": "com.jhotadhari.straymap",
-  "version": "0.4.0",
+  "version": "5.0.0-beta.1",
   "private": true,
   "codegenConfig": {
     "name": "AppSpecs",
@@ -30,6 +30,7 @@
   "dependencies": {
     "@klarna/react-native-vector-drawable": "^0.5.1",
     "@op-engineering/op-sqlite": "^16.1.0",
+    "@react-native-clipboard/clipboard": "^1.16.3",
     "@react-native-community/blur": "^4.4.1",
     "@react-native-vector-icons/common": "^13.0.1",
     "@react-native-vector-icons/feather": "^13.1.2",
@@ -60,8 +61,8 @@
     "react-native-fs": "^2.20.0",
     "react-native-gesture-handler": "^3.0.2",
     "react-native-hardwarekey-event": "1.0.1",
-    "react-native-mapsforge-vtm": "^0.9.1",
-    "react-native-mapsforge-vtm-ext-path-color-ramp": "^0.2.0",
+    "react-native-mapsforge-vtm": "^0.10.0",
+    "react-native-mapsforge-vtm-ext-path-color-ramp": "^0.3.0",
     "react-native-markdown-display": "^7.0.2",
     "react-native-paper": "^5.12.5",
     "react-native-paper-dates": "^0.23.9",

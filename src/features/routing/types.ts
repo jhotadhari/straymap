@@ -50,6 +50,33 @@ export type RoutingSegment = {
 	errorMsg?: string;
 };
 
+/**
+ * Result of hit-testing the map center against the rendered route
+ * segments. `insertIndex` is the index in `point_order` (the points
+ * array) where a cut waypoint should be inserted, i.e. between
+ * `insertIndex - 1` and `insertIndex`.
+ */
+export type RoutingSegmentHit = {
+	segmentRecordId: string;
+	insertIndex: number;
+	nearest: [number, number]; // [lng, lat] on the segment closest to the center
+};
+
+/**
+ * Live hit state of the map center, recomputed every map-update tick by
+ * useActionHitState. Only the values needed by the action menu's
+ * `disabled` callbacks are kept — the exact hit (with `nearest`) is
+ * recomputed from the live map event when an action is actually run.
+ */
+export type RoutingGestureHitState = {
+	cutHit: {
+		segmentRecordId: string;
+	} | null;
+	pointHit: {
+		pointId: number;
+	} | null;
+};
+
 export interface Route {
 	id: number;
 	point_order: number[];
