@@ -84,14 +84,12 @@ const DrawerContent: FC<{}> = () => {
 				<Animated.ScrollView
 					scrollEnabled={scrollEnabled}
 					style={styleScrollView}
+					contentContainerStyle={styles.scrollContent}
 				>
 					<DisplayComponent
 						scrollEnabled={scrollEnabled}
 						setScrollEnabled={setScrollEnabled}
 					/>
-
-					{/* Thats a weird fix for a padding that doesn't work */}
-					<View style={styles.paddingFix} />
 				</Animated.ScrollView>
 			)}
 
@@ -107,7 +105,7 @@ const DrawerContent: FC<{}> = () => {
 const styles = StyleSheet.create({
 	container: { marginTop: handleSize / 4 },
 	scrollView: { position: 'absolute' },
-	paddingFix: { height: 8 },
+	scrollContent: { paddingBottom: 16 },
 });
 
 export default DrawerContent;

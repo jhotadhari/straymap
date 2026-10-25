@@ -18,5 +18,6 @@
 	"hintMinDistance": "Distancia mínima en metros entre puntos grabados.",
 	"hintMinTime": "Tiempo mínimo en segundos entre puntos grabados.",
 	"hintMinPrecision": "La precisión GNSS debe ser mejor que este valor (en metros) para que se grabe un punto.",
-	"start": "Iniciar grabación"
+	"start": "Iniciar grabación",
+	"tracking": "Seguimiento"
 }

@@ -12,7 +12,6 @@ import gnssAccuracy from './dashboardWidgets/gnssAccuracy';
 import gnssAltitude from './dashboardWidgets/gnssAltitude';
 import gnssSpeed from './dashboardWidgets/gnssSpeed';
 import SettingsLocation from './uiItems/SettingsLocation';
-import gnssDrawerItem from './drawerPanels/gnssDrawerItem';
 
 export default {
 	selectInitialized,
@@ -38,9 +37,6 @@ export default {
 		gnssAccuracy,
 		gnssAltitude,
 		gnssSpeed,
-	],
-	drawerPanels: [
-		gnssDrawerItem,
 	],
 	settingsPages: [
 		{

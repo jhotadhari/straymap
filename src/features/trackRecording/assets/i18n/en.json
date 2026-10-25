@@ -18,5 +18,6 @@
 	"hintMinDistance": "Minimum distance in meters between recorded points.",
 	"hintMinTime": "Minimum time in seconds between recorded points.",
 	"hintMinPrecision": "GNSS accuracy must be better than this value (in meters) for a point to be recorded.",
-	"start": "Start Recording"
+	"start": "Start Recording",
+	"tracking": "Tracking"
 }

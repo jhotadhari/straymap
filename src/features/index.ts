@@ -39,10 +39,8 @@ const features = {
 	routing,
 	ui,
 	updater,
-	...(__DEV__ && {
-		gnss,
-		trackRecording,
-	}),
+	gnss,
+	trackRecording,
 } as { [featureKey: string]: AppFeature };
 
 // Populate the registry so consumers can discover extension points.

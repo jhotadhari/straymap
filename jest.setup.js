@@ -440,8 +440,7 @@ jest.mock('./src/features/FeatureRegistry', () => {
 		maps: { key: 'maps' },
 		routing: { key: 'routing' },
 		lines: { key: 'lines' },
-		gnss: { key: 'gnss' },
-		trackRecording: { key: 'trackRecording' },
+		tracking: { key: 'tracking' },
 	};
 	const mockBottomDrawerItems = {};
 	return {

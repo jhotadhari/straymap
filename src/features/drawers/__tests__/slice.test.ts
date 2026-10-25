@@ -166,6 +166,7 @@ describe('drawers slice reducers', () => {
 		expect(state.itemKeysRight).toEqual([
 			'maps',
 			'routing',
+			'tracking',
 		]);
 		expect(state.controlHandleSide).toBe('right');
 	});

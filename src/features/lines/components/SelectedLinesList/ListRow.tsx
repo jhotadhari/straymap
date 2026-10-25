@@ -64,7 +64,7 @@ const ListRow: FC<ListRowProps> = ({ line, idx, systemFeatureKey, isUnderCenter 
 	const { flyToBounds } = useMap(mapViewNativeNodeHandle);
 
 	const activateRoutingDrawerItem = useActivateDrawerItem('routing');
-	const activateTrackingDrawerItem = useActivateDrawerItem('trackRecording');
+	const activateTrackingDrawerItem = useActivateDrawerItem('tracking');
 
 	const { side } = useContext(DrawerContext);
 

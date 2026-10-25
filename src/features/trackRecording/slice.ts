@@ -20,6 +20,7 @@ import {
 } from './selectors';
 import { logError } from '../../lib/utils';
 import NativeTrackingModule from '../../specs/NativeTrackingModule';
+import { setIsActive } from '../gnss/slice';
 
 export interface TrackRecordingSettings {
 	isRecording: boolean;
@@ -136,6 +137,10 @@ export const startRecording =
 		if (selectIsRecording(getState())) {
 			return;
 		}
+
+		// Recording requires GNSS — switch it on. One-way: stopping the
+		// recording leaves GNSS toggling to the user.
+		dispatch(setIsActive(true));
 
 		// Capture current settings for the track snapshot
 		const settings = {

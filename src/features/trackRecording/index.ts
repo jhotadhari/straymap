@@ -9,7 +9,7 @@ import es from './assets/i18n/es.json';
 import pt from './assets/i18n/pt.json';
 import trackingStats from './dashboardWidgets/trackingStats';
 import TrackRecordingMapView from './mapComponents/TrackRecordingMapView';
-import trackRecordingDrawerItem from './drawerPanels/trackRecordingDrawerItem';
+import trackingDrawerItem from './drawerPanels/trackingDrawerItem';
 
 export default {
 	selectInitialized,
@@ -34,5 +34,5 @@ export default {
 			priority: 310,
 		},
 	],
-	drawerPanels: [trackRecordingDrawerItem],
+	drawerPanels: [trackingDrawerItem],
 };

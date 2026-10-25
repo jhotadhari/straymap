@@ -29,6 +29,7 @@ export const initialSettings: DrawersSettings = {
 	itemKeysRight: [
 		'maps',
 		'routing',
+		'tracking',
 	],
 	controlHandleSide: 'right',
 	showSettingsHandle: false,
