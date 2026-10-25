@@ -13,6 +13,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   color picker and the selected-lines list color column offer toggling a
   slope color ramp (single lines only, requires elevation data).
 
+## [0.5.1] - 2026-10-25
+
+### Fixed
+
+- CI: raise Gradle daemon heap/metaspace (4g/1g) and log stacktraces in
+  release builds — fixes intermittent `:app:packageRelease` failures on
+  the release pipeline.
+
 ## [0.5.0] - 2026-10-25
 
 ### Added
@@ -298,7 +306,8 @@ Basic app structure and map viewer functionality.
 - Topbar with breadcrumbs and a menu.
 - Structure for settings and some settings pages.
 
-[Unreleased]: https://github.com/jhotadhari/straymap/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/jhotadhari/straymap/compare/v0.5.1...HEAD
+[0.5.1]: https://github.com/jhotadhari/straymap/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/jhotadhari/straymap/compare/v0.5.0-beta.1...v0.5.0
 [0.5.0-beta.1]: https://github.com/jhotadhari/straymap/compare/v0.4.0...v0.5.0-beta.1
 [0.4.0]: https://github.com/jhotadhari/straymap/compare/v0.3.5...v0.4.0
