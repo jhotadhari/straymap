@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+- CI: raise Gradle daemon heap/metaspace (4g/1g) and log stacktraces in
+  release builds — fixes intermittent `:app:packageRelease` failures on
+  the release pipeline.
+
 ## [0.5.0] - 2026-10-25
 
 ### Added
