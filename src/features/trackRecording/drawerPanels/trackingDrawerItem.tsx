@@ -1,11 +1,12 @@
 /**
  * External dependencies
  */
-import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { FC, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { View, StyleSheet, TextStyle } from 'react-native';
 import { Text, useTheme, Button } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
+import { get } from 'lodash-es';
 import MdiIcons from '@react-native-vector-icons/material-icons/static';
 
 /**
@@ -13,17 +14,22 @@ import MdiIcons from '@react-native-vector-icons/material-icons/static';
  */
 import { DrawerPanel } from '../../drawers/types';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
-import { selectIsActive } from '../../gnss/selectors';
+import { selectIsActive, selectGnssPosition } from '../../gnss/selectors';
 import { setIsActive } from '../../gnss/slice';
 import { selectIsRecording, selectActiveLineId, selectRecordingStartTime } from '../selectors';
-import { stopRecording } from '../slice';
+import { startRecording, stopRecording } from '../slice';
 import { queryLineGeom } from '../../lines/db/queryFns';
 import {
 	formatDistance,
 	haversineLineLength,
 	formatDurationCompact,
+	formatCoords,
+	formatHeightDepth,
+	formatSpeed,
 } from '../../../lib/formatting';
 import { selectUnitPrefs } from '../../general/selectors';
+import ensureLocationPermission from '../../../lib/locationPermission';
+import { ErrorToastContext } from '../../../components/ErrorToast/Context';
 
 /**
  * Dynamic handle icon: gps-not-fixed (no center dot) while GNSS is off,
@@ -61,11 +67,23 @@ const TrackingDrawerContent: FC = () => {
 	const theme = useTheme();
 	const dispatch = useAppDispatch();
 
+	const { showError } = useContext(ErrorToastContext);
+
 	const isRecording = useAppSelector(selectIsRecording);
 	const isActive = useAppSelector(selectIsActive);
+	const gnssPosition = useAppSelector(selectGnssPosition);
 	const activeLineId = useAppSelector(selectActiveLineId);
 	const recordingStartTime = useAppSelector(selectRecordingStartTime);
 	const unitPrefs = useAppSelector(selectUnitPrefs);
+
+	const coordUnit = get(unitPrefs, ['coordinates', 'unit'], 'dd');
+	const coordRound = get(unitPrefs, ['coordinates', 'round'], 4);
+	const coordsPadLng = get(unitPrefs, ['coordinates', 'coordsPadLng']);
+	const coordsPadLat = get(unitPrefs, ['coordinates', 'coordsPadLat']);
+	const coordsOrder = get(unitPrefs, ['coordinates', 'coordsOrder']);
+	const coordsForceNE = get(unitPrefs, ['coordinates', 'coordsForceNE']);
+	const heightUnit = get(unitPrefs, ['heightDepth']);
+	const speedUnit = get(unitPrefs, ['speed']);
 
 	// Live elapsed timer based on recording start
 	const [elapsed, setElapsed] = useState(0);
@@ -104,13 +122,39 @@ const TrackingDrawerContent: FC = () => {
 	const pointCount = line?.geometry?.coordinates?.length ?? 0;
 	const distUnit = unitPrefs?.distance;
 
-	const handleStop = useCallback(() => {
-		dispatch(stopRecording());
-	}, [dispatch]);
+	const handleToggleRecording = useCallback(async () => {
+		if (isRecording) {
+			dispatch(stopRecording());
+			return;
+		}
+		const granted = await ensureLocationPermission();
+		if (!granted) {
+			showError(t('gnss.permissionDenied'));
+			return;
+		}
+		dispatch(startRecording());
+	}, [
+		dispatch,
+		isRecording,
+		showError,
+		t,
+	]);
 
-	const handleToggleGnss = useCallback(() => {
+	const handleToggleGnss = useCallback(async () => {
+		if (!isActive) {
+			const granted = await ensureLocationPermission();
+			if (!granted) {
+				showError(t('gnss.permissionDenied'));
+				return;
+			}
+		}
 		dispatch(setIsActive(!isActive));
-	}, [dispatch, isActive]);
+	}, [
+		dispatch,
+		isActive,
+		showError,
+		t,
+	]);
 
 	return (
 		<View style={styles.container}>
@@ -126,43 +170,65 @@ const TrackingDrawerContent: FC = () => {
 			</View>
 
 			{isRecording && (
-				<>
-					<View style={styles.row}>
-						<Text>{t('trackRecording.pointCount')}:</Text>
-						<Text style={styles.value}>{pointCount}</Text>
-					</View>
-
-					<Button
-						mode="contained"
-						onPress={handleStop}
-						style={styles.stopButton}
-						buttonColor={theme.colors.error}
-					>
-						{t('trackRecording.stop')}
-					</Button>
-				</>
+				<View style={styles.row}>
+					<Text>{t('trackRecording.pointCount')}:</Text>
+					<Text style={styles.value}>{pointCount}</Text>
+				</View>
 			)}
 
-			{/* GNSS values render dashes until the position pipeline
-				provides real data — deliberately no map-center fallback. */}
+			<Button
+				mode="contained"
+				onPress={handleToggleRecording}
+				style={styles.button}
+				icon={isRecording ? 'stop' : 'record-rec'}
+				buttonColor={isRecording ? theme.colors.error : undefined}
+			>
+				{isRecording ? t('trackRecording.stop') : t('trackRecording.start')}
+			</Button>
+			{/* Live GNSS values from the gnss slice — dashes until the
+				native listener delivers the first position. */}
 			<View style={styles.row}>
 				<Text>{t('gnss.gnssCoordinates')}:</Text>
-				<Text style={styles.value}>-</Text>
+				<Text style={styles.value}>
+					{gnssPosition
+						? formatCoords(
+								gnssPosition.lat,
+								gnssPosition.lng,
+								{
+									unit: coordUnit,
+									round: coordRound,
+									coordsPadLng,
+									coordsPadLat,
+									coordsOrder,
+									coordsForceNE,
+								},
+								t
+							)
+						: '-'}
+				</Text>
 			</View>
 
 			<View style={styles.row}>
 				<Text>{t('gnss.gnssAccuracy')}:</Text>
-				<Text style={styles.value}>-</Text>
+				<Text style={styles.value}>
+					{gnssPosition ? `${gnssPosition.accuracy.toFixed(1)} m` : '-'}
+				</Text>
 			</View>
 
 			<View style={styles.row}>
 				<Text>{t('gnss.gnssAltitude')}:</Text>
-				<Text style={styles.value}>-</Text>
+				<Text style={styles.value}>
+					{gnssPosition?.altitude == null
+						? '-'
+						: formatHeightDepth(gnssPosition.altitude, heightUnit)}
+				</Text>
 			</View>
 
 			<View style={styles.row}>
 				<Text>{t('gnss.gnssSpeed')}:</Text>
-				<Text style={styles.value}>-</Text>
+				<Text style={styles.value}>
+					{gnssPosition ? formatSpeed(gnssPosition.speed, speedUnit) : '-'}
+				</Text>
 			</View>
 
 			<Button
@@ -187,9 +253,6 @@ const styles = StyleSheet.create({
 	},
 	value: {
 		fontWeight: 'bold',
-	},
-	stopButton: {
-		marginTop: 16,
 	},
 	button: {
 		marginTop: 8,

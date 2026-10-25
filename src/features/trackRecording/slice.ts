@@ -9,15 +9,7 @@ import { createSlice } from '@reduxjs/toolkit';
  */
 import { SliceSettingsBase } from '../../types';
 import { AppThunk } from '../../store/store';
-import { createLines } from '../lines/db/actionsLine';
-import { createTrack } from './db/actionsTrack';
-import { setLineSelected } from '../lines/slice';
-import {
-	selectIsRecording,
-	selectMinDistance,
-	selectMinTime,
-	selectMinPrecision,
-} from './selectors';
+import { selectIsRecording } from './selectors';
 import { logError } from '../../lib/utils';
 import NativeTrackingModule from '../../specs/NativeTrackingModule';
 import { setIsActive } from '../gnss/slice';
@@ -33,7 +25,11 @@ export interface TrackRecordingSettings {
 }
 
 export interface TrackRecordingState extends SliceSettingsBase, TrackRecordingSettings {
-	lastWrittenPosition?: [number, number];
+	lastWrittenPosition?: [
+		number,
+		number,
+		number?,
+	];
 	lastWrittenTime?: number;
 }
 
@@ -81,7 +77,17 @@ export const trackRecordingSlice = createSlice({
 		setMinPrecision: (state, action: PayloadAction<number>) => {
 			state.minPrecision = action.payload;
 		},
-		setLastWrittenPosition: (state, action: PayloadAction<[number, number] | undefined>) => {
+		setLastWrittenPosition: (
+			state,
+			action: PayloadAction<
+				| [
+						number,
+						number,
+						number?,
+				  ]
+				| undefined
+			>
+		) => {
 			state.lastWrittenPosition = action.payload;
 		},
 		setLastWrittenTime: (state, action: PayloadAction<number | undefined>) => {
@@ -125,90 +131,39 @@ export const {
 export default trackRecordingSlice.reducer;
 
 /**
- * Start recording a new track. Creates a line with a single point, creates a
- * track record, and starts the foreground service.
+ * Start recording a new track: switches GNSS on and starts the
+ * foreground service. The track's line is created lazily by the
+ * writeGnssPosition listener once two native positions exist — a
+ * single-point LineString is invalid GeoJSON and SpatiaLite's
+ * GeomFromGeoJSON rejects it (NOT NULL constraint on lines.geometry).
  *
  * Guards against re-entry: if already recording, returns immediately.
  */
-export const startRecording =
-	(currentPosition: { lng: number; lat: number; z?: number }): AppThunk =>
-	async (dispatch, getState) => {
-		// Guard: don't start a second recording
-		if (selectIsRecording(getState())) {
-			return;
-		}
+export const startRecording = (): AppThunk => async (dispatch, getState) => {
+	// Guard: don't start a second recording
+	if (selectIsRecording(getState())) {
+		return;
+	}
 
-		// Recording requires GNSS — switch it on. One-way: stopping the
-		// recording leaves GNSS toggling to the user.
-		dispatch(setIsActive(true));
+	// Recording requires GNSS — switch it on. One-way: stopping the
+	// recording leaves GNSS toggling to the user.
+	dispatch(setIsActive(true));
 
-		// Capture current settings for the track snapshot
-		const settings = {
-			minDistance: selectMinDistance(getState()),
-			minTime: selectMinTime(getState()),
-			minPrecision: selectMinPrecision(getState()),
-		};
+	const now = Date.now();
 
-		// Create a line with initial point
-		const coord: number[] = [currentPosition.lng, currentPosition.lat];
-		if (currentPosition.z !== undefined) {
-			coord[2] = currentPosition.z;
-		}
+	dispatch(setIsRecordingAction(true));
+	dispatch(setActiveTrackId(null));
+	dispatch(setActiveLineId(null));
+	dispatch(setRecordingStartTime(now));
 
-		const result = await createLines([
-			{
-				title: null,
-				lineStringFeature: {
-					type: 'Feature',
-					properties: {},
-					geometry: {
-						type: 'LineString',
-						coordinates: [coord],
-					},
-				},
-			},
-		]);
-
-		if (!result?.length) {
-			return;
-		}
-
-		const lineId = result[0].id;
-
-		// Create a track record linked to the line
-		const trackResult = await createTrack({
-			line_id: lineId,
-			settings,
-		});
-
-		if (!trackResult?.id) {
-			// Clean up the orphaned line — createTrack failed after createLines
-			// committed.  TODO: add deleteLine call once a non-throwing version
-			// is available (currently wrapped in withDbErrorHandling).
-			return;
-		}
-
-		const trackId = trackResult.id;
-		const now = Date.now();
-
-		dispatch(setIsRecordingAction(true));
-		dispatch(setActiveTrackId(trackId));
-		dispatch(setActiveLineId(lineId));
-		dispatch(setRecordingStartTime(now));
-		dispatch(setLastWrittenPosition([currentPosition.lng, currentPosition.lat]));
-		dispatch(setLastWrittenTime(now));
-
-		// Auto-select the line so it appears in the drawer list
-		dispatch(setLineSelected(lineId, true));
-
-		// Start the foreground service — keeps the recording notification
-		// alive while the app is backgrounded. Non-fatal on failure.
-		try {
-			await NativeTrackingModule.startService();
-		} catch (err) {
-			logError('trackRecording/startRecording.startService', err);
-		}
-	};
+	// Start the foreground service — keeps the recording notification
+	// alive while the app is backgrounded. Non-fatal on failure.
+	try {
+		await NativeTrackingModule.startService();
+	} catch (err) {
+		logError('trackRecording/startRecording.startService', err);
+	}
+};
 
 /**
  * Stop recording. Finalizes the track and stops the foreground service.

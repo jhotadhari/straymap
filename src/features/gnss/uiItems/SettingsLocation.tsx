@@ -17,12 +17,13 @@ import TrackRecordingControl from '../../trackRecording/components/TrackRecordin
 import InfoLabelRow from '../../../components/generic/infoWrapper/InfoLabelRow';
 import ButtonHighlight from '../../../components/generic/primitives/ButtonHighlight';
 import { useButtonProps } from '../../../compose/useButtonProps';
-import { MapContext } from '../../../Context';
+import { ErrorToastContext } from '../../../components/ErrorToast/Context';
+import ensureLocationPermission from '../../../lib/locationPermission';
 
 const SettingsLocation: FC<{ style?: ViewStyle }> = ({ style }) => {
 	const { t } = useTranslation();
 	const dispatch = useAppDispatch();
-	const { currentMapEventRef } = useContext(MapContext);
+	const { showError } = useContext(ErrorToastContext);
 
 	const isGnssActive = useAppSelector(selectIsActive);
 	const isRecording = useAppSelector(selectIsRecording);
@@ -30,31 +31,38 @@ const SettingsLocation: FC<{ style?: ViewStyle }> = ({ style }) => {
 	const buttonPropsGnss = useButtonProps({ mode: isGnssActive ? 'contained' : 'outlined' });
 	const buttonPropsRecording = useButtonProps({ mode: isRecording ? 'contained' : 'outlined' });
 
-	const handleToggleGnss = useCallback(() => {
-		dispatch(setIsActive(!isGnssActive));
-	}, [dispatch, isGnssActive]);
-
-	const handleToggleRecording = useCallback(() => {
-		if (isRecording) {
-			dispatch(stopRecording());
-		} else {
-			const ev = currentMapEventRef?.current;
-			const lng = ev?.center?.[0];
-			const lat = ev?.center?.[1];
-			if (lng !== undefined && lat !== undefined) {
-				dispatch(
-					startRecording({
-						lng,
-						lat,
-						z: ev?.center?.[2],
-					})
-				);
+	const handleToggleGnss = useCallback(async () => {
+		if (!isGnssActive) {
+			const granted = await ensureLocationPermission();
+			if (!granted) {
+				showError(t('gnss.permissionDenied'));
+				return;
 			}
 		}
+		dispatch(setIsActive(!isGnssActive));
+	}, [
+		dispatch,
+		isGnssActive,
+		showError,
+		t,
+	]);
+
+	const handleToggleRecording = useCallback(async () => {
+		if (isRecording) {
+			dispatch(stopRecording());
+			return;
+		}
+		const granted = await ensureLocationPermission();
+		if (!granted) {
+			showError(t('gnss.permissionDenied'));
+			return;
+		}
+		dispatch(startRecording());
 	}, [
 		dispatch,
 		isRecording,
-		currentMapEventRef,
+		showError,
+		t,
 	]);
 
 	return (

@@ -6,5 +6,6 @@
 	"gnssSpeed": "GNSS-Geschwindigkeit",
 	"activateGnss": "GNSS aktivieren",
 	"deactivateGnss": "GNSS deaktivieren",
-	"confirmDeactivateRecording": "Spuraufzeichnung ist aktiv. GNSS-Tracking beenden?"
+	"confirmDeactivateRecording": "Spuraufzeichnung ist aktiv. GNSS-Tracking beenden?",
+	"permissionDenied": "Für GNSS wird die Standortberechtigung benötigt. Bitte in den Systemeinstellungen aktivieren."
 }

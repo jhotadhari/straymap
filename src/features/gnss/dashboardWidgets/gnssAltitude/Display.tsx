@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { FC, useMemo, useState } from 'react';
+import React, { FC, useMemo } from 'react';
 import { Text } from 'react-native-paper';
 import { get } from 'lodash-es';
 
@@ -11,10 +11,10 @@ import { get } from 'lodash-es';
 import { formatHeightDepth } from '../../../../lib/formatting';
 import { useAppSelector } from '../../../../store/hooks';
 import { selectUnitPrefs } from '../../../general/selectors';
+import { selectGnssPosition } from '../../selectors';
 import { DashboardWidgetProps } from '../../../dashboard/types';
 import { UnitPref } from '../../../general/types';
 import useItemStyle from '../../../dashboard/hooks/useItemStyle';
-import { useMapEventInterval } from '../../../dashboard/hooks/useMapEventInterval';
 import ElementFrame from '../../../dashboard/components/ElementFrame';
 
 export interface Options {
@@ -26,6 +26,8 @@ const Display: FC<DashboardWidgetProps<Options>> = ({ item, style = {}, onPress 
 
 	const { fontSize, minWidth, textAlign, showLabel, showIcon } = useItemStyle(item);
 
+	const gnssPosition = useAppSelector(selectGnssPosition);
+
 	const unitPref: UnitPref = useMemo(
 		() => ({
 			...get(unitPrefs, ['heightDepth']),
@@ -33,11 +35,6 @@ const Display: FC<DashboardWidgetProps<Options>> = ({ item, style = {}, onPress 
 		}),
 		[item, unitPrefs]
 	);
-
-	const [altitudeM, setAltitudeM] = useState<number | null>(null);
-	useMapEventInterval((event) => {
-		setAltitudeM(event?.center?.[2] ?? null);
-	});
 
 	const textStyle = useMemo(() => ({ fontSize, textAlign }), [fontSize, textAlign]);
 
@@ -53,7 +50,9 @@ const Display: FC<DashboardWidgetProps<Options>> = ({ item, style = {}, onPress 
 			onPress={onPress}
 		>
 			<Text style={textStyle}>
-				{altitudeM === null ? '-' : formatHeightDepth(altitudeM, unitPref)}
+				{gnssPosition?.altitude == null
+					? '-'
+					: formatHeightDepth(gnssPosition.altitude, unitPref)}
 			</Text>
 		</ElementFrame>
 	);

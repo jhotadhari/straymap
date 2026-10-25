@@ -6,5 +6,6 @@
 	"gnssSpeed": "GNSS Speed",
 	"activateGnss": "Activate GNSS",
 	"deactivateGnss": "Deactivate GNSS",
-	"confirmDeactivateRecording": "Track recording is active. Stop GNSS tracking?"
+	"confirmDeactivateRecording": "Track recording is active. Stop GNSS tracking?",
+	"permissionDenied": "Location permission is required to use GNSS. Please enable it in the system settings."
 }

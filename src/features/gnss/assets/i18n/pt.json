@@ -6,5 +6,6 @@
 	"gnssSpeed": "Velocidade GNSS",
 	"activateGnss": "Ativar GNSS",
 	"deactivateGnss": "Desativar GNSS",
-	"confirmDeactivateRecording": "A gravação de trilha está ativa. Parar o rastreamento GNSS?"
+	"confirmDeactivateRecording": "A gravação de trilha está ativa. Parar o rastreamento GNSS?",
+	"permissionDenied": "É necessária a permissão de localização para usar o GNSS. Ative-a nas definições do sistema."
 }

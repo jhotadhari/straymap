@@ -30,7 +30,9 @@ import { startAppListening } from '../../store/listenerMiddleware';
 import { selectInitialized } from './selectors';
 import { AppStore } from '../../store/store';
 import { logError } from '../../lib/utils';
-import { appendPointToLine } from './db/actionsTrack';
+import { appendPointToLine, createTrack } from './db/actionsTrack';
+import { createLines } from '../lines/db/actionsLine';
+import { setLineSelected } from '../lines/slice';
 import { dbConnection } from '../dbLoader/DBConnection';
 
 const settingsKey = 'trackRecordingSettings';
@@ -130,6 +132,10 @@ startAppListening({
  * callback on MapContainer).  Filtering (distance, time, accuracy) and
  * altitude resolution are handled natively — this listener only writes
  * to the DB.
+ *
+ * Lazy line creation: a single-point LineString is invalid GeoJSON
+ * (SpatiaLite's GeomFromGeoJSON rejects it), so the first position is
+ * buffered and the track line is created from the first two positions.
  */
 startAppListening({
 	actionCreator: writeGnssPosition,
@@ -141,32 +147,119 @@ startAppListening({
 			return;
 		}
 
-		const { activeLineId } = trk;
-		if (!activeLineId) {
-			return;
-		}
-
 		if (!dbConnection?.drizzle) {
 			return;
 		}
 
 		const { lng, lat, altitude } = action.payload;
+		const coord: [
+			number,
+			number,
+			number?,
+		] =
+			altitude != null
+				? [
+						lng,
+						lat,
+						altitude,
+					]
+				: [lng, lat];
+
+		if (!trk.activeLineId) {
+			const buffered = trk.lastWrittenPosition;
+			if (!buffered) {
+				// First position — buffer it, create the line on the next.
+				listenerApi.dispatch(setLastWrittenPosition(coord));
+				listenerApi.dispatch(setLastWrittenTime(Date.now()));
+				return;
+			}
+
+			// Second position — create the track line from both points.
+			const settings = {
+				minDistance: trk.minDistance,
+				minTime: trk.minTime,
+				minPrecision: trk.minPrecision,
+			};
+			const toPosition = (
+				c: [
+					number,
+					number,
+					number?,
+				]
+			):
+				| [number, number]
+				| [
+						number,
+						number,
+						number,
+				  ] =>
+				c[2] != null
+					? [
+							c[0],
+							c[1],
+							c[2],
+						]
+					: [c[0], c[1]];
+
+			let result:
+				| {
+						id: number;
+				  }[]
+				| undefined;
+			try {
+				result = await createLines([
+					{
+						title: null,
+						lineStringFeature: {
+							type: 'Feature',
+							properties: {},
+							geometry: {
+								type: 'LineString',
+								coordinates: [toPosition(buffered), toPosition(coord)],
+							},
+						},
+					},
+				]);
+			} catch (err) {
+				// Creation failed — keep the buffer and retry on the next
+				// position.
+				logError('trackRecording/createLine', err);
+				return;
+			}
+
+			if (!result?.length) {
+				return;
+			}
+
+			const lineId = result[0].id;
+
+			const trackResult = await createTrack({
+				line_id: lineId,
+				settings,
+			});
+
+			if (!trackResult?.id) {
+				// Clean up the orphaned line — createTrack failed after
+				// createLines committed. TODO: add deleteLine call once a
+				// non-throwing version is available.
+				return;
+			}
+
+			listenerApi.dispatch(setActiveTrackId(trackResult.id));
+			listenerApi.dispatch(setActiveLineId(lineId));
+			// Auto-select the line so it appears in the drawer list.
+			listenerApi.dispatch(setLineSelected(lineId, true));
+			listenerApi.dispatch(setLastWrittenPosition(coord));
+			listenerApi.dispatch(setLastWrittenTime(Date.now()));
+			return;
+		}
 
 		// Update state so other UI can track the last-written position.
-		listenerApi.dispatch(setLastWrittenPosition([lng, lat]));
+		listenerApi.dispatch(setLastWrittenPosition(coord));
 		listenerApi.dispatch(setLastWrittenTime(Date.now()));
 
 		try {
-			await appendPointToLine(
-				activeLineId,
-				altitude != null
-					? [
-							lng,
-							lat,
-							altitude,
-						]
-					: [lng, lat]
-			);
+			await appendPointToLine(trk.activeLineId, coord);
 		} catch (err) {
 			logError('trackRecording/appendPoint', err);
 		}

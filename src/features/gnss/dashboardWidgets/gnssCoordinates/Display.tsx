@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { FC, useMemo, useState } from 'react';
+import React, { FC, useMemo } from 'react';
 import { Text } from 'react-native-paper';
 import { get } from 'lodash-es';
 import { useTranslation } from 'react-i18next';
@@ -12,10 +12,10 @@ import { useTranslation } from 'react-i18next';
 import { formatCoords } from '../../../../lib/formatting';
 import { useAppSelector } from '../../../../store/hooks';
 import { selectUnitPrefs } from '../../../general/selectors';
+import { selectGnssPosition } from '../../selectors';
 import { DashboardWidgetProps } from '../../../dashboard/types';
 import { UnitPref } from '../../../general/types';
 import useItemStyle from '../../../dashboard/hooks/useItemStyle';
-import { useMapEventInterval } from '../../../dashboard/hooks/useMapEventInterval';
 import ElementFrame from '../../../dashboard/components/ElementFrame';
 
 export interface Options {
@@ -29,12 +29,7 @@ const Display: FC<DashboardWidgetProps<Options>> = ({ item, style = {}, onPress 
 
 	const { fontSize, minWidth, textAlign, showLabel, showIcon } = useItemStyle(item);
 
-	const [centerLng, setCenterLng] = useState<number | undefined>(undefined);
-	const [centerLat, setCenterLat] = useState<number | undefined>(undefined);
-	useMapEventInterval((event) => {
-		setCenterLng(event?.center?.[0]);
-		setCenterLat(event?.center?.[1]);
-	});
+	const gnssPosition = useAppSelector(selectGnssPosition);
 
 	const unit = item?.options?.unitPref?.unit ?? get(unitPrefs, ['coordinates', 'unit']);
 	const round = item?.options?.unitPref?.round ?? get(unitPrefs, ['coordinates', 'round']);
@@ -60,23 +55,23 @@ const Display: FC<DashboardWidgetProps<Options>> = ({ item, style = {}, onPress 
 			textAlign={textAlign}
 			onPress={onPress}
 		>
-			{undefined !== centerLng && undefined !== centerLat && (
-				<Text style={textStyle}>
-					{formatCoords(
-						centerLat,
-						centerLng,
-						{
-							unit,
-							round,
-							coordsPadLng,
-							coordsPadLat,
-							coordsOrder,
-							coordsForceNE,
-						},
-						t
-					)}
-				</Text>
-			)}
+			<Text style={textStyle}>
+				{gnssPosition
+					? formatCoords(
+							gnssPosition.lat,
+							gnssPosition.lng,
+							{
+								unit,
+								round,
+								coordsPadLng,
+								coordsPadLat,
+								coordsOrder,
+								coordsForceNE,
+							},
+							t
+						)
+					: '-'}
+			</Text>
 		</ElementFrame>
 	);
 };

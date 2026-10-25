@@ -13,7 +13,11 @@ export interface TrackRecordingState {
 	minTime: number;
 	minPrecision: number;
 	recordingStartTime: number | null;
-	lastWrittenPosition?: [number, number];
+	lastWrittenPosition?: [
+		number,
+		number,
+		number?,
+	];
 	lastWrittenTime?: number;
 }
 
