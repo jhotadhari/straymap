@@ -19,7 +19,7 @@ import Animated, { useAnimatedStyle, withTiming } from 'react-native-reanimated'
  * Internal dependencies
  */
 import dayjs from '../../../../lib/dayjs';
-import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
+import { useAppDispatch, useAppSelector, useLineColorRamps } from '../../../../store/hooks';
 import { Line, LineStats as LineStatsType } from '../../types';
 import DrawerContext from '../../../drawers/DrawerContext';
 import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
@@ -31,6 +31,7 @@ import IconRouting from '../../../routing/drawerPanels/routing/IconComponent';
 import useActivateDrawerItem from '../../../drawers/hooks/useActivateDrawerItem';
 import { DRAWER_ICON_SIZE, MAP_ANIMATION_PADDING_PX, PALETTE_COLORS } from '../../../../constants';
 import { sharedStyles } from './sharedDeps';
+import ColorRampColumn from './ColorRampColumn';
 import LineStatsCompactRows from '../Stats/LineStatsCompactRows';
 import { bbox as turfBbox } from '@turf/turf';
 import { AppContext } from '../../../../Context';
@@ -73,6 +74,12 @@ const ListRow: FC<ListRowProps> = ({ line, idx, systemFeatureKey, isUnderCenter 
 	// would re-render every row on any single colour change.
 	const lineColor = useAppSelector(selectLineColor(line.id));
 	const fallbackColor = PALETTE_COLORS[0].bg;
+
+	// Lines rendered with LayerPathColorRamp (feature-declared per-line
+	// colour ramp) show the ramp legend instead of the solid palette
+	// colour. The palette picker has no effect on those lines.
+	const lineColorRamps = useLineColorRamps();
+	const colorRamp = lineColorRamps[line.id];
 
 	const dismissColorMenu = useCallback(() => setColorMenuVisible(false), []);
 
@@ -134,21 +141,31 @@ const ListRow: FC<ListRowProps> = ({ line, idx, systemFeatureKey, isUnderCenter 
 	const styleColorColumnInner = useMemo(
 		() => [
 			sharedStyles.colorColumnInner,
-			{
-				backgroundColor: (lineColor ?? fallbackColor) as `#${string}`,
-			},
+			colorRamp
+				? undefined
+				: {
+						backgroundColor: (lineColor ?? fallbackColor) as `#${string}`,
+					},
 		],
 		[
 			lineColor,
 			fallbackColor,
+			colorRamp,
 		]
 	);
 
 	// Widen the color bar while the map center is over this line — the
 	// column's total width is fixed, so the animation consumes padding
-	// instead of shifting the row layout.
+	// instead of shifting the row layout. Scaled (not width-animated):
+	// reanimated width changes bypass Yoga and children keep their
+	// laid-out sizes, so the ramp legend's SVG would not grow with them.
 	const colorColumnAnimatedStyle = useAnimatedStyle(() => ({
-		width: withTiming(isUnderCenter ? 4 : 2, { duration: 150 }),
+		transform: [
+			{
+				scaleX: withTiming(isUnderCenter ? 2 : 1, { duration: 150 }),
+			},
+		],
+		transformOrigin: 'left',
 	}));
 
 	const handleActivate = useCallback(() => {
@@ -196,7 +213,8 @@ const ListRow: FC<ListRowProps> = ({ line, idx, systemFeatureKey, isUnderCenter 
 	return (
 		<View style={dynamicStyles.container}>
 			<TouchableHighlight
-				onPress={handleOpenColorMenu}
+				onPress={colorRamp ? undefined : handleOpenColorMenu}
+				disabled={!!colorRamp}
 				style={
 					'left' === side ? sharedStyles.colorColumnLeft : sharedStyles.colorColumnRight
 				}
@@ -210,7 +228,9 @@ const ListRow: FC<ListRowProps> = ({ line, idx, systemFeatureKey, isUnderCenter 
 							styleColorColumnInner,
 							colorColumnAnimatedStyle,
 						]}
-					/>
+					>
+						{colorRamp && <ColorRampColumn ramp={colorRamp} />}
+					</Animated.View>
 				</View>
 			</TouchableHighlight>
 

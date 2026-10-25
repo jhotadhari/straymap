@@ -15,7 +15,6 @@ import {
 	LayerPathColorRamp,
 	usePathColorRamp,
 	calculateSlope,
-	ColorRamp,
 } from 'react-native-mapsforge-vtm-ext-path-color-ramp';
 import { get } from 'lodash-es';
 
@@ -33,6 +32,7 @@ import { pointsCoordsAreOverlapping } from '../../../lib/utils';
 import { MapContext } from '../../../Context';
 import { selectMapUpdateInterval } from '../../general/selectors';
 import { routingLayerRegistry } from '../layerRegistry';
+import { SLOPE_COLOR_RAMP } from '../constants';
 
 const SegmentLineLayer: FC<{
 	segmentRecordId: string;
@@ -45,20 +45,7 @@ const SegmentLineLayer: FC<{
 	const prepared = useMemo(
 		() => ({
 			segmentValues: calculateSlope(coordinates),
-			colorRamp: {
-				unit: 'percent',
-				stops: [
-					{ value: -20, color: '#00004d' },
-					{ value: -13, color: '#000080' },
-					{ value: -7, color: '#0000ff' },
-					{ value: -2, color: '#00e8ff' },
-					{ value: 0, color: '#00ff00' },
-					{ value: 2, color: '#FFDE02' },
-					{ value: 7, color: '#ff0000' },
-					{ value: 13, color: '#800000' },
-					{ value: 20, color: '#4d0000' },
-				],
-			} as ColorRamp,
+			colorRamp: SLOPE_COLOR_RAMP,
 		}),
 		[coordinates]
 	);

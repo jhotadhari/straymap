@@ -50,15 +50,15 @@ LinesState extends SliceSettingsBase, LinesSettings {
 
 ### Key thunks
 
-| Thunk                                | What it does                                                     |
-| ------------------------------------ | ---------------------------------------------------------------- |
-| `setLineSelected(id, isSelected?)`   | Toggle-adds/removes a single line from `selected[]`              |
-| `setLinesSelected(newIds: number[])` | Bulk-replaces `selected[]` (no-op if unchanged)                  |
-| `toggleLinesSort(columnKey)`         | Toggle sort direction or switch to a new column                  |
-| `toggleTagsSort(columnKey)`          | Same for the tags table                                          |
+| Thunk                                | What it does                                                                         |
+| ------------------------------------ | ------------------------------------------------------------------------------------ |
+| `setLineSelected(id, isSelected?)`   | Toggle-adds/removes a single line from `selected[]`                                  |
+| `setLinesSelected(newIds: number[])` | Bulk-replaces `selected[]` (no-op if unchanged)                                      |
+| `toggleLinesSort(columnKey)`         | Toggle sort direction or switch to a new column                                      |
+| `toggleTagsSort(columnKey)`          | Same for the tags table                                                              |
 | `randomizeLineColors()`              | Assigns random `PALETTE_COLORS` to all selected lines, avoiding same-adjacent-colour |
-| `setLinesColor(color)`               | Sets all selected lines to the same palette colour               |
-| `onSetDbPath()`                      | Clears `selected[]` when the db path changes (user must restart) |
+| `setLinesColor(color)`               | Sets all selected lines to the same palette colour                                   |
+| `onSetDbPath()`                      | Clears `selected[]` when the db path changes (user must restart)                     |
 
 ### Key reducers (also exported as actions)
 
@@ -195,7 +195,7 @@ Opens when `lineTemp` is set (via `dispatch(setLineTemp({ id }))`).
 | `RowToggleOnMap` | Toggle line visibility with dynamic icon/label             |
 | `RowRouting`     | Load/activate routing for this line                        |
 | `RowStats`       | Show aggregated statistics                                 |
-| `RowExport`      | Export to GPX/KML/GeoJSON via shared 3-phase modal   |
+| `RowExport`      | Export to GPX/KML/GeoJSON via shared 3-phase modal         |
 | `RowDelete`      | Delete single line with confirmation modal                 |
 
 ## Bulk actions (`LinesTable/useBulkActions/`)
@@ -234,18 +234,18 @@ Follows the `useDeleteLinesCbModal` pattern — returns `{ cb, modalNode }`.
 
 ### Consumers
 
-| Consumer | Location | Hook call |
-|---|---|---|
-| Single line | `LineEditModal/RowExport.tsx` | `useExportCbModal({ type: 'single', line })` |
-| Bulk lines | `LinesTable/useBulkActions/useExport.tsx` | `useExportCbModal({ type: 'bulk', checkedIds })` |
+| Consumer    | Location                                  | Hook call                                        |
+| ----------- | ----------------------------------------- | ------------------------------------------------ |
+| Single line | `LineEditModal/RowExport.tsx`             | `useExportCbModal({ type: 'single', line })`     |
+| Bulk lines  | `LinesTable/useBulkActions/useExport.tsx` | `useExportCbModal({ type: 'bulk', checkedIds })` |
 
 ### Modal phases
 
-| Phase | Content |
-|---|---|
-| `'format'` | Radio buttons (GPX/KML/GeoJSON) + "Export" button |
+| Phase        | Content                                                                                                                                               |
+| ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `'format'`   | Radio buttons (GPX/KML/GeoJSON) + "Export" button                                                                                                     |
 | `'progress'` | `LoadingIndicator` + text (single: `lines.exporting`, bulk: `lines.exportProgress` "Exporting X of Y...") + (bulk) "Stop" button with `isDestructive` |
-| `'result'` | Icon (check/warning/error) + summary header + file-paths list. Dismissable via backdrop or back arrow — no explicit button needed |
+| `'result'`   | Icon (check/warning/error) + summary header + file-paths list. Dismissable via backdrop or back arrow — no explicit button needed                     |
 
 `dismissDisabled={true}` during `'progress'` — backdrop tap and back arrow blocked.
 The "Stop" button sets a `stoppedRef` flag; bulk write loop checks it between batches
@@ -311,6 +311,30 @@ The colour column (`colorColumnInner`) in `ListRow` shows a vertical
 no placement — auto-positions) with one `MenuItem` per palette colour
 showing an unlabelled coloured circle. Selecting dispatches
 `setLineColor({ lineId, color })`.
+
+Lines rendered with `LayerPathColorRamp` instead show a multi-coloured
+legend column: `ListRow` reads the aggregated per-line ramp declarations
+(`useLineColorRamps()` → `FeatureRegistry.getLineColorRamps()`, fed by
+each feature's `AppFeature.selectLineColorRamps`) and renders
+`ColorRampColumn` — a vertical `react-native-svg` gradient whose stop
+offsets are normalized in the ramp's effective value domain (percent
+stops converted to degrees first, mirroring `usePathColorRamp`). The
+palette popover is disabled for ramp lines — `setLineColor` has no
+effect on their rendering.
+
+### Ramp-rendered lines (LinesMapView)
+
+Non-system selected lines with a registered colour ramp are excluded
+from the solid `LayerPath` batch and rendered as `LayerPathColorRamp`
+via the memoized `LineColorRampPath` subcomponent (slope metric,
+`calculateSlope` + `usePathColorRamp`, `strokeWidth` 6 — matching the
+routing ramp). Geometry comes from the per-line `['linePathCoords',
+lineId]` query (turf-simplified at fixed tolerance 0.00004, Z-preserving,
+cache-shared with the chart feature), not from `lineGeomsBatch` — the
+zoom-dependent DB simplification would drop Z and re-trigger slow ramp
+re-renders. Uuids still register in `linesLayerRegistry`, so context-menu
+hit resolution works unchanged. System lines with a ramp (the routing
+line) render themselves — their declaration only drives the list legend.
 
 ## DrawerTopBar actions popover
 
@@ -395,7 +419,9 @@ typed as `ReturnType<typeof useButtonProps>` (destructured from
   screen distance, `LINES_HOVER_THRESHOLD_DP` = 4 dp, zoom-aware). Reuses
   the `lineGeomsBatch` viewport query (cache-shared with LinesMapView —
   SQL-side `MbrIntersects` keeps candidates on-screen only). `SelectedLinesList`
-  widens each hit row's color bar (animated, fixed-width column — no layout
-  shift).
+  scales each hit row's color bar to double width (animated `scaleX` from the
+  left edge, fixed-width column — no layout shift). Scale rather than width:
+  reanimated width changes bypass Yoga, so the ramp legend's SVG child would
+  keep its laid-out 2px size and not grow.
 - **`layerRegistry.ts`** — module-level `pathUuidByLineId` fed by
   LinesMapView's `onCreate`/`onRemove`; consumed by the context-menu source.

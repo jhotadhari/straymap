@@ -3,6 +3,7 @@
  */
 import { useRef } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
+import type { ColorRamp } from 'react-native-mapsforge-vtm-ext-path-color-ramp';
 
 /**
  * Internal dependencies
@@ -45,6 +46,30 @@ export const useSystemLineIds = (): Record<string, number> => {
 			nextKeys.length === Object.keys(prev).length &&
 			nextKeys.every((k) => prev[k] === next[k])
 		) {
+			return prev;
+		}
+		prevRef.current = next;
+		return next;
+	}, shallowEqual);
+};
+
+/**
+ * Returns a stable Record mapping line IDs to the colour ramp each line
+ * is rendered with via LayerPathColorRamp. Aggregated across features
+ * by `FeatureRegistry.getLineColorRamps()`.
+ *
+ * Same ref-stability pattern as `useSystemLineIds` — the aggregated
+ * object is only replaced when the underlying ramp declarations change,
+ * so `shallowEqual` can skip re-renders otherwise.
+ */
+export const useLineColorRamps = (): Record<number, ColorRamp> => {
+	const prevRef = useRef<Record<number, ColorRamp>>({});
+	return useAppSelector((state: RootState) => {
+		const next = featureRegistry.getLineColorRamps(state);
+		const prev = prevRef.current;
+		const nextIds = Object.keys(next).map(Number);
+		const prevIds = Object.keys(prev).map(Number);
+		if (nextIds.length === prevIds.length && nextIds.every((id) => prev[id] === next[id])) {
 			return prev;
 		}
 		prevRef.current = next;

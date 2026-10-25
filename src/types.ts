@@ -5,6 +5,7 @@ import { EnhancedStore } from '@reduxjs/toolkit';
 import { ElementType, ReactNode } from 'react';
 import { TextStyle } from 'react-native';
 import { MapTapHit, Position } from 'react-native-mapsforge-vtm';
+import type { ColorRamp } from 'react-native-mapsforge-vtm-ext-path-color-ramp';
 
 /**
  * Internal dependencies
@@ -272,6 +273,21 @@ export interface AppFeature {
 	 * Example: routing → { routing: 42 }, trackRecording → { trackRecording: 7 }
 	 */
 	selectSystemLineIds?: (state: any) => Record<string, number | null>;
+
+	/**
+	 * Selector that returns a Record mapping line IDs to the colour ramp
+	 * that line is rendered with via LayerPathColorRamp. Aggregated
+	 * across all features by `FeatureRegistry.getLineColorRamps()`.
+	 * Consumers:
+	 * - Line-list colour columns render the ramp legend instead of the
+	 *   solid palette colour for these lines.
+	 * - Non-system lines with a registered ramp are rendered as
+	 *   LayerPathColorRamp by LinesMapView (system lines render
+	 *   themselves but still register for the legend).
+	 *
+	 * Example: routing → { 42: SLOPE_COLOR_RAMP }
+	 */
+	selectLineColorRamps?: (state: any) => Record<number, ColorRamp | null | undefined>;
 
 	/**
 	 * Labels of tags that are managed by this feature and should not be
