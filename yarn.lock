@@ -1752,10 +1752,10 @@
     "@types/yargs" "^17.0.8"
     chalk "^4.0.0"
 
-"@jhotadhari/release-kit@^0.0.9":
-  version "0.0.9"
-  resolved "https://registry.yarnpkg.com/@jhotadhari/release-kit/-/release-kit-0.0.9.tgz#03789aa0bee2f573fb74fe8cf5cb3edb32774c7f"
-  integrity sha512-XDnyOEjdxSSdKCb1ZojndvJ5IiiWoGqMYUGiY9buTHl0B503XyxzakGIlDhFxwaNW36kBdldKmuj8PAWq2YbIQ==
+"@jhotadhari/release-kit@^0.0.10":
+  version "0.0.10"
+  resolved "https://registry.yarnpkg.com/@jhotadhari/release-kit/-/release-kit-0.0.10.tgz#26b4467cdfa6209ec4d696a149fb0277e30fe0bb"
+  integrity sha512-kKs/N0vKha+MeA0K00xfd7z0iOlge5tlTaVK/pREQHahb1TsQkPQd9dzEiGfK6IebY8EmxzeepnyQUqxHG6vJQ==
   dependencies:
     "@octokit/rest" "^22.0.1"
     commander "^15.0.0"
