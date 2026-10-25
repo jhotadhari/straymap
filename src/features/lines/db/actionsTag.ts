@@ -55,38 +55,56 @@ export const createTags = withDbErrorHandling(
 
 export const ensureTagByLabel = withDbErrorHandling(
 	'lines/actionsTag.ensureTagByLabel',
-	async (label: string) => {
+	async (label: string, data?: any) => {
 		if (!dbConnection?.drizzle) {
 			return;
 		}
 		// Check if a tag already exists with this label.
 		const existing = await dbConnection.drizzle
-			.select({ id: tagsTable.id })
+			.select({ id: tagsTable.id, data: tagsTable.data })
 			.from(tagsTable)
 			.where(eq(tagsTable.label, label))
 			.limit(1);
 		if (existing.length) {
-			return existing[0].id;
+			const row = existing[0];
+			// Backfill default data (e.g. system-tag colours) when the
+			// tag was created before data was specified. System tags
+			// can't be user-edited, so overwriting null data is safe.
+			if (data !== undefined && row.data == null) {
+				await dbConnection.drizzle
+					.update(tagsTable)
+					.set({ data })
+					.where(eq(tagsTable.id, row.id));
+			}
+			return row.id;
 		}
 		// Create if not found.
 		const created = await dbConnection.drizzle
 			.insert(tagsTable)
-			.values({ label, notes: null, data: null })
+			.values({ label, notes: null, data: data ?? null })
 			.returning({ id: tagsTable.id });
 		return created.length ? created[0].id : undefined;
 	}
 );
 
 /**
+ * Default `data` for system-reserved tags (label → data). The 'recorded'
+ * tag renders red via its explicit `data.color`.
+ */
+const SYSTEM_TAG_DEFAULTS: Record<string, any> = {
+	recorded: { color: '#e53935' },
+};
+
+/**
  * Ensure all system-reserved tags exist in the database.
  * Call once during app initialization. Idempotent — existing tags
- * are left untouched.
+ * are left untouched (null data gets backfilled with the defaults).
  */
 export const ensureSystemTagsExist = async () => {
 	const labels = featureRegistry.getSystemTagLabels();
 	for (const label of labels) {
 		try {
-			await ensureTagByLabel(label);
+			await ensureTagByLabel(label, SYSTEM_TAG_DEFAULTS[label]);
 		} catch {
 			// ensureTagByLabel already logs + toasts errors; continue with
 			// remaining labels so one failure doesn't skip the rest.

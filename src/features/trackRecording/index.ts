@@ -22,6 +22,7 @@ export default {
 	},
 	modes: ['trackRecording'],
 	selectActiveModes: (state: any) => (selectIsRecording(state) ? ['trackRecording'] : []),
+	systemTagLabels: ['recorded'],
 	selectSystemLineIds: (state: any) => {
 		const id = selectActiveLineId(state);
 		return { trackRecording: id ?? null };

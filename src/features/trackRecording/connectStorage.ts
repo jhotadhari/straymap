@@ -32,6 +32,7 @@ import { AppStore } from '../../store/store';
 import { logError } from '../../lib/utils';
 import { appendPointToLine, createTrack } from './db/actionsTrack';
 import { createLines } from '../lines/db/actionsLine';
+import { ensureTagByLabel } from '../lines/db/actionsTag';
 import { setLineSelected } from '../lines/slice';
 import { dbConnection } from '../dbLoader/DBConnection';
 
@@ -207,6 +208,15 @@ startAppListening({
 				  }[]
 				| undefined;
 			try {
+				// Attach the system 'recorded' tag (red) to the track line.
+				let recordedTagId: number | undefined;
+				try {
+					recordedTagId = await ensureTagByLabel('recorded');
+				} catch (err) {
+					// Tagging is non-critical — recording must not die
+					// over a tag failure.
+					logError('trackRecording/ensureRecordedTag', err);
+				}
 				result = await createLines([
 					{
 						title: null,
@@ -218,6 +228,7 @@ startAppListening({
 								coordinates: [toPosition(buffered), toPosition(coord)],
 							},
 						},
+						tagIds: recordedTagId !== undefined ? [recordedTagId] : [],
 					},
 				]);
 			} catch (err) {

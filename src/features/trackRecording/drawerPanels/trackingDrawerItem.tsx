@@ -253,6 +253,7 @@ const styles = StyleSheet.create({
 	},
 	value: {
 		fontWeight: 'bold',
+		marginLeft: 4,
 	},
 	button: {
 		marginTop: 8,
