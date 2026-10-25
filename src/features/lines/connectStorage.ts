@@ -29,6 +29,9 @@ import {
 	upsertTagsFilter,
 	removeTagsFilter,
 	setLineColors,
+	setLineRamp,
+	setLineRamps,
+	removeLineRamps,
 	setChartLines,
 	toggleChartLine,
 	removeChartLines,
@@ -97,6 +100,9 @@ export const initializeFromStorage = async (store: AppStore): Promise<boolean> =
 			if (newSettings?.lineColors) {
 				store.dispatch(setLineColors(newSettings.lineColors));
 			}
+			if (newSettings?.lineRamps) {
+				store.dispatch(setLineRamps(newSettings.lineRamps));
+			}
 			if (newSettings?.chartLines) {
 				store.dispatch(setChartLines(newSettings.chartLines));
 			}
@@ -157,6 +163,9 @@ startAppListening({
 		upsertTagsFilter,
 		removeTagsFilter,
 		setLineColors,
+		setLineRamp,
+		setLineRamps,
+		removeLineRamps,
 		setChartLines,
 		toggleChartLine,
 		removeChartLines

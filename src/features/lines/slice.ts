@@ -45,6 +45,12 @@ export interface LinesSettings {
 	linesTable: LinesTableSettings;
 	lineColors: Record<number, string>;
 	/**
+	 * Line IDs with a user-assigned colour ramp, keyed by ramp kind
+	 * (currently only `'slope'`). Persisted; renders the line as
+	 * LayerPathColorRamp instead of the solid palette colour.
+	 */
+	lineRamps: Record<number, RampKey>;
+	/**
 	 * Line IDs for which an chart bottom drawer entry is
 	 * enabled. Persisted; drives the derived `chart:line:<id>`
 	 * bottom drawer menu entries.
@@ -57,6 +63,9 @@ export interface LinesState extends SliceSettingsBase, LinesSettings {
 	tagTemp?: { id: number; label?: string | null; notes?: string | null; data?: any } | null;
 	lineColors: Record<number, string>;
 }
+
+/** Kinds of user-assignable colour ramps for lines. */
+export type RampKey = 'slope';
 
 export const initialSettings: LinesSettings = {
 	selected: [],
@@ -75,6 +84,7 @@ export const initialSettings: LinesSettings = {
 		filterLogic: 'and',
 	},
 	lineColors: {},
+	lineRamps: {},
 	chartLines: [],
 };
 
@@ -82,6 +92,7 @@ const initialState: LinesState = {
 	initialized: false,
 	...initialSettings,
 	lineColors: {},
+	lineRamps: {},
 };
 
 // Slices contain Redux reducer logic for updating state, and
@@ -306,6 +317,24 @@ export const linesSlice = createSlice({
 				delete state.lineColors[lineId];
 			}
 		},
+		setLineRamp: (
+			state,
+			action: PayloadAction<{ lineId: number; rampKey: RampKey | null }>
+		) => {
+			if (action.payload.rampKey === null) {
+				delete state.lineRamps[action.payload.lineId];
+			} else {
+				state.lineRamps[action.payload.lineId] = action.payload.rampKey;
+			}
+		},
+		setLineRamps: (state, action: PayloadAction<Record<number, RampKey>>) => {
+			Object.assign(state.lineRamps, action.payload);
+		},
+		removeLineRamps: (state, action: PayloadAction<number[]>) => {
+			for (const lineId of action.payload) {
+				delete state.lineRamps[lineId];
+			}
+		},
 		setChartLines: (state, action: PayloadAction<number[]>) => {
 			state.chartLines = action.payload;
 		},
@@ -347,6 +376,9 @@ export const {
 	setLineColor,
 	setLineColors,
 	removeLineColors,
+	setLineRamp,
+	setLineRamps,
+	removeLineRamps,
 	setChartLines,
 	toggleChartLine,
 	removeChartLines,

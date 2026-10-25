@@ -42,6 +42,7 @@ LinesState extends SliceSettingsBase, LinesSettings {
   linesTable: LinesTableSettings;                 // columns, sort, filters, filterLogic
   tagsTable: TagsTableSettings;                   // columns, sort, filters, filterLogic
   lineColors: Record<number, string>;             // lineId → palette hex colour (persisted)
+  lineRamps: Record<number, RampKey>;            // lineId → user-assigned ramp kind, 'slope' (persisted)
   // LinesState only:
   lineTemp?: LinePartial;                         // draft being edited in LineEditModal
   tagTemp?: { id: number; ... } | null;           // draft tag being edited
@@ -75,6 +76,9 @@ LinesState extends SliceSettingsBase, LinesSettings {
 | `setLineColor`       | Set the palette colour for one line                  |
 | `setLineColors`      | Bulk-set palette colours for multiple lines          |
 | `removeLineColors`   | Remove colour entries for given line IDs             |
+| `setLineRamp`        | Assign a ramp kind (or `null` to clear) for one line |
+| `setLineRamps`       | Bulk-replace the lineRamps record (storage restore)  |
+| `removeLineRamps`    | Remove ramp entries for given line IDs               |
 
 ### Key selectors
 
@@ -94,6 +98,7 @@ LinesState extends SliceSettingsBase, LinesSettings {
 | `selectTagsFilterLogic`   | `'and' \| 'or'`                                               |
 | `selectLineColors`        | `Record<number, string>` (lineId → hex colour)                |
 | `selectLineColor(lineId)` | `string \| undefined` (single line's colour)                  |
+| `selectLineRamps`         | `Record<number, RampKey>` (lineId → user-assigned ramp kind)  |
 
 ## React Query layer
 
@@ -195,6 +200,7 @@ Opens when `lineTemp` is set (via `dispatch(setLineTemp({ id }))`).
 | `RowToggleOnMap` | Toggle line visibility with dynamic icon/label             |
 | `RowRouting`     | Load/activate routing for this line                        |
 | `RowStats`       | Show aggregated statistics                                 |
+| `RowApplyDem`    | Apply DEM elevation data (disabled for system lines)       |
 | `RowExport`      | Export to GPX/KML/GeoJSON via shared 3-phase modal         |
 | `RowDelete`      | Delete single line with confirmation modal                 |
 
@@ -294,6 +300,17 @@ NOT in the database. The key maps `lineId` to a hex colour from
 `PALETTE_COLORS` (defined in `src/constants.ts`). Persisted via
 `connectStorage`.
 
+User-assigned colour ramps (`lineRamps: Record<number, RampKey>`,
+`RampKey = 'slope'`) are the Redux counterpart that switches a line to
+ramp rendering instead of the palette colour — also persisted, and never
+written to the DB. The lines feature registers them via its own
+`AppFeature.selectLineColorRamps` (`LINE_RAMPS` in `index.ts`, mapping
+`slope` → the routing feature's `SLOPE_COLOR_RAMP`), merged with
+feature-declared ramps by `FeatureRegistry.getLineColorRamps()`. There
+is deliberately **no bulk ramp action** — every ramp line costs its own
+`linePathCoords` query + native color-ramp layer, so ramps are only
+assigned per line.
+
 ### LinesMapView
 
 `LinesMapView` subscribes to `selectLineColors`. A `useMemo`'d
@@ -310,7 +327,8 @@ The colour column (`colorColumnInner`) in `ListRow` shows a vertical
 `PALETTE_COLORS[0].bg`. Tapping opens a `Popover` (raw `react-native-popover-view`,
 no placement — auto-positions) with one `MenuItem` per palette colour
 showing an unlabelled coloured circle. Selecting dispatches
-`setLineColor({ lineId, color })`.
+`setLineColor({ lineId, color })` and clears any ramp
+(`setLineRamp(…, null)`).
 
 Lines rendered with `LayerPathColorRamp` instead show a multi-coloured
 legend column: `ListRow` reads the aggregated per-line ramp declarations
@@ -318,9 +336,14 @@ legend column: `ListRow` reads the aggregated per-line ramp declarations
 each feature's `AppFeature.selectLineColorRamps`) and renders
 `ColorRampColumn` — a vertical `react-native-svg` gradient whose stop
 offsets are normalized in the ramp's effective value domain (percent
-stops converted to degrees first, mirroring `usePathColorRamp`). The
-palette popover is disabled for ramp lines — `setLineColor` has no
-effect on their rendering.
+stops converted to degrees first, mirroring `usePathColorRamp`).
+
+The popover is fully disabled only for **system lines** (feature-rendered,
+no user colour controls). For non-system lines it additionally offers a
+"Slope color ramp" `MenuItem` (gradient thumbnail, `active` when ramped)
+that toggles `setLineRamp`; the item is hidden when the line has no
+elevation (`stats.minZ == null`) and no active ramp — slope colouring is
+meaningless without Z.
 
 ### Ramp-rendered lines (LinesMapView)
 
@@ -406,14 +429,18 @@ typed as `ReturnType<typeof useButtonProps>` (destructured from
 
 - **`LinesLineSource`** (`mapContextMenuSources/`) — long-press source for
   selected lines: Route details (`setLineTemp` → LineEditModal), Fly to,
-  Change color (modal with `ColorPaletteInline`, disabled for system lines),
+  Change color (modal with uniform rows: slope-ramp toggle + palette
+  colours, disabled for system lines),
   Remove from map (disabled for system lines via `useSystemLineIds`).
   Resolves the tapped line through `linesLayerRegistry` (uuid → lineId,
   fed by LinesMapView `onCreate`).
 - **`LineColorPickerModal`** (`components/`) + `lineColorPickerStore` — the
   always-mounted host (lines mapComponent) for the color picker; the store
   pattern keeps the modal alive after the context menu closes. Selecting a
-  swatch dispatches `setLineColor({ lineId, color })`.
+  swatch dispatches `setLineColor({ lineId, color })` and clears any ramp.
+  A "Slope color ramp" `MenuItem` (shown when the line has elevation or an
+  active ramp) toggles `setLineRamp`; the source passes `rampActive` /
+  `rampEnabled` through `openLineColorPicker`.
 - **`useLineIdUnderCenter`** (`hooks/`) — returns the Set of selected line
   ids whose rendered geometry is under the map center (point-to-segment
   screen distance, `LINES_HOVER_THRESHOLD_DP` = 4 dp, zoom-aware). Reuses

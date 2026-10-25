@@ -18,7 +18,7 @@ import { useButtonProps } from '../../../compose/useButtonProps';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { sharedStyles } from '../../../sharedStyles';
 import { setIsRouting } from '../../routing/slice';
-import { removeChartLines, removeLineColors } from '../slice';
+import { removeChartLines, removeLineColors, removeLineRamps } from '../slice';
 import { closeFullscreenChart, removeChartSettings } from '../../chart/slice';
 import { getChartSourceKey } from '../../chart/types';
 import { selectFullscreenLineId } from '../../chart/selectors';
@@ -112,6 +112,8 @@ const useDeleteLinesCbModal = ({
 				}
 				// Keep lineColors from accumulating entries for deleted lines.
 				dispatch(removeLineColors(deleteIds));
+				// Same for user-assigned colour ramps.
+				dispatch(removeLineRamps(deleteIds));
 				// Close modal.
 				handleDismissModal();
 				// Call onSuccess (eg LinesTable uncheck lines).

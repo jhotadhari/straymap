@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- Lines: per-line slope color ramp assignment — the map context menu
+  color picker and the selected-lines list color column offer toggling a
+  slope color ramp (single lines only, requires elevation data).
+
 ## [0.5.0] - 2026-10-25
 
 ### Added
