@@ -10,7 +10,7 @@ import { useMap } from 'react-native-mapsforge-vtm';
  * Internal dependencies
  */
 import { MapContextMenuSourceComponentProps, MenuActionOption } from '../../../types';
-import { useAppDispatch, useAppSelector } from '../../../store/hooks';
+import { useAppDispatch, useAppSelector, useLineColorRamps } from '../../../store/hooks';
 import { setLineTemp, setLineSelected } from '../slice';
 import { selectLineColor } from '../selectors';
 import { queryLinesWithoutGeom } from '../db/queryFns';
@@ -37,7 +37,15 @@ const LinesLineSource: FC<MapContextMenuSourceComponentProps> = ({ context, onOp
 		if (context.press !== 'long') {
 			return null;
 		}
-		const pathHit = context.hits.find((hit) => hit?.manager === 'paths');
+		// Ramp-rendered lines report under the ext's "paths_colorramp"
+		// manager; solid lines under the core "paths" manager. Both
+		// register their uuids in linesLayerRegistry — the lookup also
+		// disambiguates routing segments (routing registry, not lines).
+		const pathHit = context.hits.find(
+			(hit) =>
+				(hit?.manager === 'paths' || hit?.manager === 'paths_colorramp') &&
+				lineIdByPathUuid(hit.uuid) !== null
+		);
 		return pathHit ? lineIdByPathUuid(pathHit.uuid) : null;
 	}, [context]);
 
@@ -49,6 +57,7 @@ const LinesLineSource: FC<MapContextMenuSourceComponentProps> = ({ context, onOp
 	const line = lines?.length ? lines[0] : undefined;
 
 	const lineColor = useAppSelector(selectLineColor(lineId ?? -1));
+	const lineColorRamps = useLineColorRamps();
 	const isSystemLine = useMemo(
 		() => lineId != null && Object.values(systemLineIds).includes(lineId),
 		[lineId, systemLineIds]
@@ -93,7 +102,10 @@ const LinesLineSource: FC<MapContextMenuSourceComponentProps> = ({ context, onOp
 				label: 'lines.changeColor',
 				leadingIcon: 'palette-outline',
 				cb: () => {
-					openLineColorPicker(lineId, lineColor ?? PALETTE_COLORS[0].bg);
+					openLineColorPicker(lineId, lineColor ?? PALETTE_COLORS[0].bg, {
+						rampActive: lineColorRamps[lineId] != null,
+						rampEnabled: line?.stats?.minZ != null,
+					});
 				},
 				disabled: () => isSystemLine,
 			},
@@ -112,7 +124,9 @@ const LinesLineSource: FC<MapContextMenuSourceComponentProps> = ({ context, onOp
 		drawerControlsRef,
 		flyToBounds,
 		line?.envelope,
+		line?.stats?.minZ,
 		lineColor,
+		lineColorRamps,
 		lineId,
 		isSystemLine,
 	]);

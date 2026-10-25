@@ -14,6 +14,7 @@ import { useTheme, Text, Icon } from 'react-native-paper';
 import { useMap } from 'react-native-mapsforge-vtm';
 import Popover from 'react-native-popover-view';
 import Animated, { useAnimatedStyle, withTiming } from 'react-native-reanimated';
+import { useTranslation } from 'react-i18next';
 
 /**
  * Internal dependencies
@@ -24,14 +25,16 @@ import { Line, LineStats as LineStatsType } from '../../types';
 import DrawerContext from '../../../drawers/DrawerContext';
 import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
 import MenuItem from '../../../../components/generic/wrapper/MenuItem';
-import { setLineSelected, setLineTemp, setLineColor } from '../../slice';
+import { setLineSelected, setLineTemp, setLineColor, setLineRamp } from '../../slice';
 import { selectLineColor } from '../../selectors';
+import { SLOPE_COLOR_RAMP } from '../../../routing/constants';
 import TagBadge from '../TagBadge';
 import IconRouting from '../../../routing/drawerPanels/routing/IconComponent';
 import useActivateDrawerItem from '../../../drawers/hooks/useActivateDrawerItem';
 import { DRAWER_ICON_SIZE, MAP_ANIMATION_PADDING_PX, PALETTE_COLORS } from '../../../../constants';
 import { sharedStyles } from './sharedDeps';
 import ColorRampColumn from './ColorRampColumn';
+import ColorRampGradient from '../ColorRampGradient';
 import LineStatsCompactRows from '../Stats/LineStatsCompactRows';
 import { bbox as turfBbox } from '@turf/turf';
 import { AppContext } from '../../../../Context';
@@ -53,6 +56,8 @@ const EMPTY_STATS = Object.freeze({} as LineStatsType);
 
 const ListRow: FC<ListRowProps> = ({ line, idx, systemFeatureKey, isUnderCenter }) => {
 	const dispatch = useAppDispatch();
+
+	const { t } = useTranslation();
 
 	const { mapViewNativeNodeHandle } = useContext(AppContext);
 
@@ -77,9 +82,15 @@ const ListRow: FC<ListRowProps> = ({ line, idx, systemFeatureKey, isUnderCenter 
 
 	// Lines rendered with LayerPathColorRamp (feature-declared per-line
 	// colour ramp) show the ramp legend instead of the solid palette
-	// colour. The palette picker has no effect on those lines.
+	// colour. For non-system lines the ramp is user-toggleable; system
+	// lines are feature-rendered and get no colour controls.
 	const lineColorRamps = useLineColorRamps();
 	const colorRamp = lineColorRamps[line.id];
+	const isSystemLine = systemFeatureKey !== null;
+
+	// The slope ramp requires elevation data — lines without Z would
+	// render flat green, so the toggle is hidden unless already active.
+	const hasElevation = line?.stats?.minZ != null;
 
 	const dismissColorMenu = useCallback(() => setColorMenuVisible(false), []);
 
@@ -88,6 +99,8 @@ const ListRow: FC<ListRowProps> = ({ line, idx, systemFeatureKey, isUnderCenter 
 	const handleColorSelect = useCallback(
 		(color: string) => {
 			dispatch(setLineColor({ lineId: line.id, color }));
+			// Selecting a palette colour restores solid rendering.
+			dispatch(setLineRamp({ lineId: line.id, rampKey: null }));
 			dismissColorMenu();
 		},
 		[
@@ -96,6 +109,21 @@ const ListRow: FC<ListRowProps> = ({ line, idx, systemFeatureKey, isUnderCenter 
 			dismissColorMenu,
 		]
 	);
+
+	const handleToggleRamp = useCallback(() => {
+		dispatch(
+			setLineRamp({
+				lineId: line.id,
+				rampKey: colorRamp ? null : 'slope',
+			})
+		);
+		dismissColorMenu();
+	}, [
+		dispatch,
+		line.id,
+		colorRamp,
+		dismissColorMenu,
+	]);
 
 	const dynamicStyles = useMemo(
 		() => ({
@@ -213,8 +241,8 @@ const ListRow: FC<ListRowProps> = ({ line, idx, systemFeatureKey, isUnderCenter 
 	return (
 		<View style={dynamicStyles.container}>
 			<TouchableHighlight
-				onPress={colorRamp ? undefined : handleOpenColorMenu}
-				disabled={!!colorRamp}
+				onPress={isSystemLine ? undefined : handleOpenColorMenu}
+				disabled={isSystemLine}
 				style={
 					'left' === side ? sharedStyles.colorColumnLeft : sharedStyles.colorColumnRight
 				}
@@ -246,6 +274,18 @@ const ListRow: FC<ListRowProps> = ({ line, idx, systemFeatureKey, isUnderCenter 
 					<ScrollView>
 						{colorMenuVisible && (
 							<View>
+								{(colorRamp || hasElevation) && (
+									<MenuItem
+										active={!!colorRamp}
+										IconComponent={() => (
+											<View style={colorCircle.rampThumb}>
+												<ColorRampGradient ramp={SLOPE_COLOR_RAMP} />
+											</View>
+										)}
+										title={t('lines.colorRamp')}
+										onPress={handleToggleRamp}
+									/>
+								)}
 								{PALETTE_COLORS.map((palette) => (
 									<MenuItem
 										key={palette.bg}
@@ -372,6 +412,12 @@ const colorCircle = StyleSheet.create({
 		width: 24,
 		height: 24,
 		borderRadius: 12,
+	},
+	rampThumb: {
+		width: 8,
+		height: 24,
+		borderRadius: 2,
+		overflow: 'hidden',
 	},
 	anchorWrapper: {
 		flex: 1,

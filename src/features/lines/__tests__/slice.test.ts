@@ -14,6 +14,9 @@ import linesReducer, {
 	setChartLines,
 	toggleChartLine,
 	removeChartLines,
+	setLineRamp,
+	setLineRamps,
+	removeLineRamps,
 	onSetDbPath,
 	initialSettings,
 } from '../slice';
@@ -135,6 +138,28 @@ describe('lines slice reducers', () => {
 				removeChartLines([2, 4])
 			);
 			expect(state.chartLines).toEqual([1, 3]);
+		});
+	});
+
+	describe('line ramps', () => {
+		it('setLineRamp assigns and clears a ramp', () => {
+			let state = linesReducer(undefined, setLineRamp({ lineId: 1, rampKey: 'slope' }));
+			expect(state.lineRamps).toEqual({ 1: 'slope' });
+			state = linesReducer(state, setLineRamp({ lineId: 1, rampKey: null }));
+			expect(state.lineRamps).toEqual({});
+		});
+
+		it('setLineRamps replaces the record', () => {
+			const state = linesReducer(undefined, setLineRamps({ 1: 'slope', 2: 'slope' }));
+			expect(state.lineRamps).toEqual({ 1: 'slope', 2: 'slope' });
+		});
+
+		it('removeLineRamps removes multiple ids', () => {
+			const state = linesReducer(
+				linesReducer(undefined, setLineRamps({ 1: 'slope', 2: 'slope', 3: 'slope' })),
+				removeLineRamps([1, 3])
+			);
+			expect(state.lineRamps).toEqual({ 2: 'slope' });
 		});
 	});
 });

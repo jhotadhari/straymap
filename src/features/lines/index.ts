@@ -1,8 +1,15 @@
 /**
+ * External dependencies
+ */
+import { ColorRamp } from 'react-native-mapsforge-vtm-ext-path-color-ramp';
+
+/**
  * Internal dependencies
  */
 import { initializeFromStorage } from './connectStorage';
-import { selectInitialized } from './selectors';
+import { selectInitialized, selectLineRamps } from './selectors';
+import { RampKey } from './slice';
+import { SLOPE_COLOR_RAMP } from '../routing/constants';
 import de from './assets/i18n/de.json';
 import en from './assets/i18n/en.json';
 import es from './assets/i18n/es.json';
@@ -92,4 +99,27 @@ export default {
 		},
 	],
 	systemTagLabels: ['imported'],
+	selectLineColorRamps: (state: any) => {
+		// User-assigned per-line ramps (single-line UI only — no bulk
+		// actions, each ramp line costs its own geometry query + native
+		// color-ramp layer). Unknown ramp keys from older/stale persisted
+		// state are skipped.
+		const lineRamps = selectLineRamps(state);
+		const colorRamps: Record<number, ColorRamp> = {};
+		for (const [lineId, rampKey] of Object.entries(lineRamps)) {
+			const colorRamp = LINE_RAMPS[rampKey as RampKey];
+			if (colorRamp) {
+				colorRamps[Number(lineId)] = colorRamp;
+			}
+		}
+		return colorRamps;
+	},
+};
+
+/**
+ * User-selectable ramp kinds. The slope ramp is shared with the routing
+ * feature (keep in sync with the chart's SLOPE_STOPS).
+ */
+const LINE_RAMPS: Record<RampKey, ColorRamp> = {
+	slope: SLOPE_COLOR_RAMP,
 };
