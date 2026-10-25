@@ -332,6 +332,103 @@ const PlotAxes = memo(
 );
 
 /**
+ * Tick-aligned background grid lines, drawn in screen space below the
+ * plot layer. Runs off the same quantized viewport values as `PlotAxes`,
+ * so the lines land exactly on the tick marks and only re-rasterize per
+ * grid step. Horizontal lines follow the axis colors when both series
+ * are active (disambiguating the two y-scales), otherwise stay neutral.
+ */
+const PlotGrid = memo(
+	({
+		seriesViews,
+		ticks,
+		width,
+		height,
+		marginLeft,
+		marginRight,
+		theme,
+		distToX,
+		toScreenX,
+		toScreenY,
+	}: {
+		seriesViews: { primary: SeriesView; secondary: SeriesView };
+		ticks: { xTicks: number[]; y1Ticks: number[]; y2Ticks: number[] };
+		width: number;
+		height: number;
+		marginLeft: number;
+		marginRight: number;
+		theme: MD3Theme;
+		distToX: (d: number) => number;
+		toScreenX: (v: number) => number;
+		toScreenY: (v: number) => number;
+	}) => {
+		const bothActive = Boolean(seriesViews.primary.values && seriesViews.secondary.values);
+		const primaryColor = bothActive ? COLOR_PRIMARY : theme.colors.outlineVariant;
+		const secondaryColor = bothActive ? COLOR_SECONDARY : theme.colors.outlineVariant;
+		const neutralColor = theme.colors.outlineVariant;
+		return (
+			<>
+				{ticks.xTicks.map((tick, idx) => {
+					const x = toScreenX(distToX(tick));
+					if (x < marginLeft - 1 || x > width - marginRight + 1) {
+						return null;
+					}
+					return (
+						<Line
+							key={`gx-${idx}`}
+							x1={x}
+							y1={MARGIN_TOP}
+							x2={x}
+							y2={height - MARGIN_BOTTOM}
+							stroke={neutralColor}
+							strokeWidth={1}
+						/>
+					);
+				})}
+
+				{seriesViews.primary.values &&
+					ticks.y1Ticks.map((tick, idx) => {
+						const y = toScreenY(seriesViews.primary.toY(tick));
+						if (y < MARGIN_TOP - 1 || y > height - MARGIN_BOTTOM + 1) {
+							return null;
+						}
+						return (
+							<Line
+								key={`gy1-${idx}`}
+								x1={marginLeft}
+								y1={y}
+								x2={width - marginRight}
+								y2={y}
+								stroke={primaryColor}
+								strokeWidth={1}
+							/>
+						);
+					})}
+
+				{seriesViews.secondary.values &&
+					ticks.y2Ticks.map((tick, idx) => {
+						const y = toScreenY(seriesViews.secondary.toY(tick));
+						if (y < MARGIN_TOP - 1 || y > height - MARGIN_BOTTOM + 1) {
+							return null;
+						}
+						return (
+							<Line
+								key={`gy2-${idx}`}
+								x1={marginLeft}
+								y1={y}
+								x2={width - marginRight}
+								y2={y}
+								stroke={secondaryColor}
+								strokeWidth={1}
+							/>
+						);
+					})}
+			</>
+		);
+	}
+);
+
+/**
  * The orange waypoint markers (dashed vertical lines + numbers), drawn
  * in screen space so strokes, dashes and text stay uniform at any zoom
  * or aspect ratio. Memoized.
@@ -1572,6 +1669,28 @@ const Chart: FC<{
 	return (
 		<GestureDetector gesture={gesture}>
 			<View style={styles.container}>
+				{/* Grid layer: tick-aligned background lines in screen
+					space, rendered first so they stay below the plot
+					content and area fills. */}
+				<Svg
+					width={width}
+					height={height}
+					style={styles.layerAbs}
+				>
+					<PlotGrid
+						seriesViews={seriesViews}
+						ticks={ticks}
+						width={width}
+						height={height}
+						marginLeft={marginLeft}
+						marginRight={marginRight}
+						theme={theme}
+						distToX={distToX}
+						toScreenX={toScreenX}
+						toScreenY={toScreenY}
+					/>
+				</Svg>
+
 				{/* Plot layer: padded by the max lag on all sides so its
 					rasterized bitmap covers the visible chart, and
 					translated by the eased lag on the UI thread — no JS

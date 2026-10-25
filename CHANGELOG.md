@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- Chart: thin tick-aligned background grid lines.
+
 ### Fixed
 
 - Map presses during drawer interactions: long presses on drawer handles
