@@ -384,6 +384,15 @@ jest.mock('./src/specs/NativeBackgroundTaskModule', () => ({
 	},
 }));
 
+// TrackingModule — TurboModule spec not registered in Jest
+jest.mock('./src/specs/NativeTrackingModule', () => ({
+	__esModule: true,
+	default: {
+		startService: jest.fn().mockResolvedValue(true),
+		stopService: jest.fn().mockResolvedValue(true),
+	},
+}));
+
 // listenerMiddleware — no mock needed; the real module works because
 // its Dev-mode listener is gated by globalThis.shouldLog.dispatchAction (false).
 
