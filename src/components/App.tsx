@@ -48,6 +48,7 @@ const App: FC = () => {
 	const drawerControlsRef = useRef<DrawerControls | null>(null);
 	const bottomDrawerControlsRef = useRef<BottomDrawerControls | null>(null);
 	const bottomDrawerHeightSv = useSharedValue(0);
+	const drawerGestureRef = useRef<{ active: number; until: number }>({ active: 0, until: 0 });
 
 	// Prevent app from closing on hardwareBackPress.
 	useEffect(() => {
@@ -122,6 +123,7 @@ const App: FC = () => {
 			drawerControlsRef,
 			bottomDrawerControlsRef,
 			bottomDrawerHeightSv,
+			drawerGestureRef,
 			moveEnabled,
 			setMoveEnabled,
 			mapCornerComponentsHeight,
@@ -137,6 +139,7 @@ const App: FC = () => {
 			topAppBarHeight,
 			bottomBarHeight,
 			bottomDrawerHeightSv,
+			drawerGestureRef,
 			moveEnabled,
 			mapCornerComponentsHeight,
 			height,

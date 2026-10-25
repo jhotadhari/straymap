@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+- Map presses during drawer interactions: long presses on drawer handles
+  and open/close drags (side and bottom) no longer open the map context
+  menu, and a long press on the map no longer closes the side drawers.
+
 ## [0.5.0-beta.1] - 2026-10-25
 
 ### Added
