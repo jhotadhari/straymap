@@ -12,6 +12,7 @@ const LAT = 48.1234567;
 const LNG = 11.1234567;
 
 const ddUnitPref: UnitPref = { unit: 'dd', round: 4 };
+const dmsUnitPref: UnitPref = { unit: 'dms', round: 0 };
 
 describe('buildShareRows', () => {
 	it('returns the expected row keys in order', () => {
@@ -22,10 +23,19 @@ describe('buildShareRows', () => {
 			'openstreetmap',
 			'openTopoMap',
 			'googleMaps',
-			'organicMaps',
 			'osmand',
 			'geoUri',
 		]);
+	});
+
+	it('labels the coordinates row with the unit-pref suffix', () => {
+		const rows = buildShareRows(LNG, LAT, 17, ddUnitPref);
+		expect(rows[0].labelKey).toBe('coordinatesUnitPref');
+	});
+
+	it('labels the coordinates row with the unit-pref suffix for dms too', () => {
+		const rows = buildShareRows(LNG, LAT, 17, dmsUnitPref);
+		expect(rows[0].labelKey).toBe('coordinatesUnitPref');
 	});
 
 	it('formats coordinates with the configured format (dd)', () => {
@@ -34,7 +44,7 @@ describe('buildShareRows', () => {
 	});
 
 	it('formats coordinates with the configured format (dms)', () => {
-		const rows = buildShareRows(LNG, LAT, 17, { unit: 'dms', round: 0 });
+		const rows = buildShareRows(LNG, LAT, 17, dmsUnitPref);
 		expect(rows[0].value).toBe('48° 7′ 24″ N 11° 7′ 24″ E');
 	});
 
@@ -60,28 +70,23 @@ describe('buildShareRows', () => {
 		expect(rows[3].value).toBe('https://opentopomap.org/#marker=17/48.123457/11.123457');
 	});
 
-	it('builds the Organic Maps link', () => {
-		const rows = buildShareRows(LNG, LAT, 17, ddUnitPref);
-		expect(rows[5].value).toBe('https://omaps.app/map?v=1&ll=48.123457,11.123457&n=Straymap');
-	});
-
 	it('builds the OsmAnd link', () => {
 		const rows = buildShareRows(LNG, LAT, 17, ddUnitPref);
-		expect(rows[6].value).toBe('https://osmand.net/go?lat=48.123457&lon=11.123457&z=17');
+		expect(rows[5].value).toBe('https://osmand.net/go?lat=48.123457&lon=11.123457&z=17');
 	});
 
 	it('builds the geo URI', () => {
 		const rows = buildShareRows(LNG, LAT, 17, ddUnitPref);
-		expect(rows[7].value).toBe('geo:48.123457,11.123457?z=17');
+		expect(rows[6].value).toBe('geo:48.123457,11.123457?z=17');
 	});
 
 	it('falls back to the default zoom when zoomLevel is undefined', () => {
 		const rows = buildShareRows(LNG, LAT, undefined, ddUnitPref);
-		expect(rows[7].value).toBe(`geo:48.123457,11.123457?z=${DEFAULT_SHARE_ZOOM}`);
+		expect(rows[6].value).toBe(`geo:48.123457,11.123457?z=${DEFAULT_SHARE_ZOOM}`);
 	});
 
 	it('rounds fractional zoom levels', () => {
 		const rows = buildShareRows(LNG, LAT, 17.6, ddUnitPref);
-		expect(rows[7].value).toBe('geo:48.123457,11.123457?z=18');
+		expect(rows[6].value).toBe('geo:48.123457,11.123457?z=18');
 	});
 });

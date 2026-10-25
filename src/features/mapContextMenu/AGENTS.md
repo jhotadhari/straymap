@@ -21,7 +21,7 @@ features via the `mapContextMenuSources` extension point.
   position" action. Lists value rows (disabled text field + copy/share
   `IconButtonHighlight`s): coordinates in the user's configured format,
   plain decimal coordinates, and map links (OSM, OpenTopoMap, Google Maps,
-  Organic Maps, OsmAnd, geo URI). Copy uses `@react-native-clipboard/clipboard`
+  OsmAnd, geo URI). Copy uses `@react-native-clipboard/clipboard`
   (icon swaps to a check for ~1.5s), share uses RN core `Share.share`.
 - **`shareRows.ts`** — pure `buildShareRows(lng, lat, zoomLevel, unitPref,
   t)` row builder (unit-tested in `__tests__/shareRows.test.ts`). Falls

@@ -20,7 +20,8 @@ export const DEFAULT_SHARE_ZOOM = 18;
 /**
  * Builds the share-position rows: coordinates (user's configured format),
  * plain decimal coordinates, and links into common map apps. Pure so it
- * can be unit-tested.
+ * can be unit-tested. The configured-format row always carries the
+ * "global unit preference" label suffix, next to the plain-decimal row.
  */
 export const buildShareRows = (
 	lng: number,
@@ -33,10 +34,10 @@ export const buildShareRows = (
 	const latStr = lat.toFixed(6);
 	const lngStr = lng.toFixed(6);
 
-	return [
+	const rows: ShareRow[] = [
 		{
 			key: 'coordinates',
-			labelKey: 'coordinates',
+			labelKey: 'coordinatesUnitPref',
 			value: formatCoords(lat, lng, unitPref, t).trim(),
 		},
 		{
@@ -44,6 +45,9 @@ export const buildShareRows = (
 			labelKey: 'coordinatesDecimal',
 			value: `${latStr}, ${lngStr}`,
 		},
+	];
+
+	rows.push(
 		{
 			key: 'openstreetmap',
 			labelKey: 'openstreetmap',
@@ -60,11 +64,6 @@ export const buildShareRows = (
 			value: `https://maps.google.com/maps?z=${zoom}&q=${latStr},${lngStr}`,
 		},
 		{
-			key: 'organicMaps',
-			labelKey: 'organicMaps',
-			value: `https://omaps.app/map?v=1&ll=${latStr},${lngStr}&n=Straymap`,
-		},
-		{
 			key: 'osmand',
 			labelKey: 'osmand',
 			value: `https://osmand.net/go?lat=${latStr}&lon=${lngStr}&z=${zoom}`,
@@ -73,6 +72,8 @@ export const buildShareRows = (
 			key: 'geoUri',
 			labelKey: 'geoUri',
 			value: `geo:${latStr},${lngStr}?z=${zoom}`,
-		},
-	];
+		}
+	);
+
+	return rows;
 };
