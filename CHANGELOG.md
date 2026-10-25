@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ### Added
 
 - Chart: thin tick-aligned background grid lines.
+- Lines: generic per-line color-ramp infrastructure — ramp lines render
+  via LayerPathColorRamp and show a slope-ramp legend in the
+  selected-lines list color column.
 
 ### Fixed
 

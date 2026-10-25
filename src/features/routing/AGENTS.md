@@ -271,24 +271,35 @@ commit `00e770d`.
 
 ## Key components and hooks
 
-| Component/Hook             | File                                                             | Role                                                                    |
-| -------------------------- | ---------------------------------------------------------------- | ----------------------------------------------------------------------- |
-| `useToggleRouting`         | `components/DrawerTopBar/useToggleRouting.ts`                    | Start/stop routing toggle; creates route with profile from lastProfiles |
-| `useActions`               | `components/DrawerTopBar/useActions/index.ts`                    | Composes routing action hooks                                           |
-| `useActionAppendPoint`     | `components/DrawerTopBar/useActions/useActionAppendPoint.ts`     | Add waypoint (inheritMode: 'route') at current map center               |
-| `useActionDeleteLastPoint` | `components/DrawerTopBar/useActions/useActionDeleteLastPoint.ts` | Remove last waypoint                                                    |
-| `useActionHitState`        | `components/DrawerTopBar/useActions/useActionHitState.ts`        | Live hit-testing of map center vs rendered segments/waypoints (see Gesture-workaround actions) |
-| `useActionCutSegment`      | `components/DrawerTopBar/useActions/useActionCutSegment.ts`      | Insert waypoint at snapped on-segment position, immediately start moving it |
-| `useActionMovePoint`       | `components/DrawerTopBar/useActions/useActionMovePoint.ts`       | Move the center-nearest waypoint; becomes "Discard moving" while active |
-| `useActionDropPoint`       | `components/DrawerTopBar/useActions/useActionDropPoint.ts`       | Persist the moved waypoint at the map center and reprocess segments     |
-| `useActionDeletePointAtCenter` | `components/DrawerTopBar/useActions/useActionDeletePointAtCenter.ts` | Delete the center-nearest waypoint (keeps ≥ 2)                   |
-| `RoutingActionsButton`     | `components/RoutingActionsButton.tsx`                            | Popover menu with routing actions                                       |
-| `RowRouting`               | `../lines/components/LineEditModal/RowRouting.tsx`               | Load/activate a line's route from LineEditModal                         |
-| `useRoute`                 | `hooks/useRoute.ts`                                              | Fetch active route from Redux + React Query                             |
-| `EditPointModal`           | `components/EditPointModal.tsx`                                  | Edit point profile/inheritMode; snapshotting on first 'own' switch      |
-| `RouteProfileModal`        | `components/RouteProfileModal.tsx`                               | Edit route-level profile with point usage stats                         |
-| `RoutingProfileInfo`       | `components/RoutingProfileInfo.tsx`                              | Read-only profile display (resolved profile + inheritMode label)        |
-| `ProfileEditControls`      | `components/ProfileEditControls.tsx`                             | Reusable profile editing UI shared by both modals                       |
+| Component/Hook                 | File                                                                 | Role                                                                                           |
+| ------------------------------ | -------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| `useToggleRouting`             | `components/DrawerTopBar/useToggleRouting.ts`                        | Start/stop routing toggle; creates route with profile from lastProfiles                        |
+| `useActions`                   | `components/DrawerTopBar/useActions/index.ts`                        | Composes routing action hooks                                                                  |
+| `useActionAppendPoint`         | `components/DrawerTopBar/useActions/useActionAppendPoint.ts`         | Add waypoint (inheritMode: 'route') at current map center                                      |
+| `useActionDeleteLastPoint`     | `components/DrawerTopBar/useActions/useActionDeleteLastPoint.ts`     | Remove last waypoint                                                                           |
+| `useActionHitState`            | `components/DrawerTopBar/useActions/useActionHitState.ts`            | Live hit-testing of map center vs rendered segments/waypoints (see Gesture-workaround actions) |
+| `useActionCutSegment`          | `components/DrawerTopBar/useActions/useActionCutSegment.ts`          | Insert waypoint at snapped on-segment position, immediately start moving it                    |
+| `useActionMovePoint`           | `components/DrawerTopBar/useActions/useActionMovePoint.ts`           | Move the center-nearest waypoint; becomes "Discard moving" while active                        |
+| `useActionDropPoint`           | `components/DrawerTopBar/useActions/useActionDropPoint.ts`           | Persist the moved waypoint at the map center and reprocess segments                            |
+| `useActionDeletePointAtCenter` | `components/DrawerTopBar/useActions/useActionDeletePointAtCenter.ts` | Delete the center-nearest waypoint (keeps ≥ 2)                                                 |
+| `RoutingActionsButton`         | `components/RoutingActionsButton.tsx`                                | Popover menu with routing actions                                                              |
+| `RowRouting`                   | `../lines/components/LineEditModal/RowRouting.tsx`                   | Load/activate a line's route from LineEditModal                                                |
+| `useRoute`                     | `hooks/useRoute.ts`                                                  | Fetch active route from Redux + React Query                                                    |
+| `EditPointModal`               | `components/EditPointModal.tsx`                                      | Edit point profile/inheritMode; snapshotting on first 'own' switch                             |
+| `RouteProfileModal`            | `components/RouteProfileModal.tsx`                                   | Edit route-level profile with point usage stats                                                |
+| `RoutingProfileInfo`           | `components/RoutingProfileInfo.tsx`                                  | Read-only profile display (resolved profile + inheritMode label)                               |
+| `ProfileEditControls`          | `components/ProfileEditControls.tsx`                                 | Reusable profile editing UI shared by both modals                                              |
+
+## Colour ramp
+
+- **`SLOPE_COLOR_RAMP`** (`constants.ts`) — the slope ramp (percent,
+  -20…+20) `RoutingMapView` renders segments with via
+  `LayerPathColorRamp`. Kept in sync with the chart's `SLOPE_STOPS`.
+- **`selectLineColorRamps`** (registered in `index.ts`) — declares the
+  routing line's ramp to `FeatureRegistry.getLineColorRamps()`. The
+  routing line renders itself (live brouter segments), so this
+  declaration only drives the line-list legend column
+  (`ColorRampColumn` in the lines feature), not `LinesMapView` rendering.
 
 ## Gesture-workaround actions
 
