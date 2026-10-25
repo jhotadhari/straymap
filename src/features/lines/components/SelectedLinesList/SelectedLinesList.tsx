@@ -13,6 +13,7 @@ import { StyleSheet, View } from 'react-native';
 import { useAppSelector, useSystemLineIds } from '../../../../store/hooks';
 import { selectSelected } from '../../selectors';
 import { queryLinesWithoutGeom } from '../../db/queryFns';
+import useLineIdUnderCenter from '../../hooks/useLineIdUnderCenter';
 import ListRow, { ListRowProps } from './ListRow';
 import DrawerContext from '../../../drawers/DrawerContext';
 import { Line } from '../../types';
@@ -25,6 +26,7 @@ const ListRowMemo = memo(
 	(prevProps, nextProps) => {
 		return (
 			prevProps.systemFeatureKey === nextProps.systemFeatureKey &&
+			prevProps.isUnderCenter === nextProps.isUnderCenter &&
 			prevProps.line?.title === nextProps.line?.title &&
 			prevProps.line?.custom_date === nextProps.line?.custom_date &&
 			prevProps.line?.tags === nextProps.line?.tags &&
@@ -36,6 +38,7 @@ const ListRowMemo = memo(
 const SelectedLinesList: FC = () => {
 	const { width } = useContext(DrawerContext);
 	const selectedIds = useAppSelector(selectSelected);
+	const underCenterLineIds = useLineIdUnderCenter();
 
 	const { data: lines, isLoading } = useQuery({
 		queryKey: ['lines', selectedIds],
@@ -55,10 +58,11 @@ const SelectedLinesList: FC = () => {
 					line={line}
 					idx={index}
 					systemFeatureKey={systemFeatureKey}
+					isUnderCenter={underCenterLineIds.has(line.id)}
 				/>
 			);
 		},
-		[systemLineIds]
+		[systemLineIds, underCenterLineIds]
 	);
 
 	const styleList = useMemo(() => [styles.list, { width }], [width]);

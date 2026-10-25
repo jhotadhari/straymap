@@ -4,7 +4,14 @@
 
 import { readFile } from 'react-native-fs';
 import { getRoute } from 'react-native-brouter/geojson';
-import { getSegmentRecordId, aggregateSegmentsToCoords } from '../../../features/routing/utils';
+import {
+	getSegmentRecordId,
+	aggregateSegmentsToCoords,
+	projectLngLatToCenterDpOffset,
+	getNearestPointHit,
+	getNearestSegmentHit,
+	getAdjacentSegmentRecordIds,
+} from '../../../features/routing/utils';
 
 jest.mock('react-native-fs', () => ({
 	readFile: jest.fn(),
@@ -17,7 +24,7 @@ jest.mock('react-native-brouter/geojson', () => ({
 /**
  * Internal dependencies
  */
-import type { RoutingSegment } from '../../../features/routing/types';
+import type { RoutingSegment, RoutingPoint } from '../../../features/routing/types';
 
 // jest.setup.js mocks ./src/features/routing/utils and stubs getCoordsFromRouting —
 // grab the real implementation for these tests.
@@ -149,6 +156,196 @@ describe('aggregateSegmentsToCoords', () => {
 				200,
 			],
 		]);
+	});
+});
+
+// ===========================================================================
+// Center hit-testing helpers (gesture-workaround actions)
+// ===========================================================================
+
+const makePoint = (id: number, lng: number, lat: number): RoutingPoint => ({
+	id,
+	geometry: { type: 'Point', coordinates: [lng, lat] },
+});
+
+// Shared projection parameters: zoom 15, vtm tile size, density 1 —
+// 1° lng ≈ 52429 dp, so the 30 dp threshold ≈ 0.000572°.
+const zoom = 15;
+const tileSize = 576;
+const density = 1;
+const thresholdDp = 30;
+
+describe('projectLngLatToCenterDpOffset', () => {
+	it('returns a zero offset for the center itself', () => {
+		expect(projectLngLatToCenterDpOffset([8, 49], [8, 49], zoom, tileSize, density)).toEqual([
+			0,
+			0,
+		]);
+	});
+
+	it('returns a positive dx east of the center', () => {
+		const [dx, dy] = projectLngLatToCenterDpOffset(
+			[8, 49],
+			[8.001, 49],
+			zoom,
+			tileSize,
+			density
+		);
+		expect(dx).toBeGreaterThan(0);
+		expect(dx).toBeCloseTo(52.43, 0);
+		expect(dy).toBeCloseTo(0, 5);
+	});
+});
+
+describe('getNearestPointHit', () => {
+	it('hits a waypoint within the threshold', () => {
+		const points = [makePoint(1, 8.0005, 49)];
+		const hit = getNearestPointHit({
+			points,
+			center: [8, 49],
+			zoom,
+			tileSize,
+			density,
+			thresholdDp,
+		});
+		expect(hit).toEqual({ pointId: 1 });
+	});
+
+	it('returns null when all waypoints are beyond the threshold', () => {
+		const points = [makePoint(1, 8.001, 49)];
+		expect(
+			getNearestPointHit({ points, center: [8, 49], zoom, tileSize, density, thresholdDp })
+		).toBeNull();
+	});
+
+	it('picks the nearest waypoint', () => {
+		const points = [makePoint(1, 8.002, 49), makePoint(2, 8.0004, 49)];
+		expect(
+			getNearestPointHit({ points, center: [8, 49], zoom, tileSize, density, thresholdDp })
+		).toEqual({ pointId: 2 });
+	});
+});
+
+describe('getNearestSegmentHit', () => {
+	it('hits a segment under the center and returns the insert index', () => {
+		const points = [makePoint(1, 8, 49), makePoint(2, 8.002, 49)];
+		const hit = getNearestSegmentHit({
+			points,
+			simplifiedByRecordId: {
+				'1_2': [
+					[8, 49],
+					[8.001, 49],
+					[8.002, 49],
+				],
+			},
+			center: [8.001, 49],
+			zoom,
+			tileSize,
+			density,
+			thresholdDp,
+		});
+		expect(hit).not.toBeNull();
+		expect(hit!.segmentRecordId).toBe('1_2');
+		expect(hit!.insertIndex).toBe(1);
+		expect(hit!.nearest[0]).toBeCloseTo(8.001, 6);
+		expect(hit!.nearest[1]).toBeCloseTo(49, 6);
+	});
+
+	it('returns the correct insert index for the second segment', () => {
+		const points = [
+			makePoint(1, 8, 49),
+			makePoint(2, 8.002, 49),
+			makePoint(3, 8.004, 49),
+		];
+		const hit = getNearestSegmentHit({
+			points,
+			simplifiedByRecordId: {
+				'1_2': [
+					[8, 49],
+					[8.002, 49],
+				],
+				'2_3': [
+					[8.002, 49],
+					[8.003, 49],
+					[8.004, 49],
+				],
+			},
+			center: [8.003, 49],
+			zoom,
+			tileSize,
+			density,
+			thresholdDp,
+		});
+		expect(hit).not.toBeNull();
+		expect(hit!.segmentRecordId).toBe('2_3');
+		expect(hit!.insertIndex).toBe(2);
+	});
+
+	it('returns null when the center is beyond the threshold', () => {
+		const points = [makePoint(1, 8, 49), makePoint(2, 8.002, 49)];
+		expect(
+			getNearestSegmentHit({
+				points,
+				simplifiedByRecordId: {
+					'1_2': [
+						[8, 49],
+						[8.002, 49],
+					],
+				},
+				center: [8.01, 49],
+				zoom,
+				tileSize,
+				density,
+				thresholdDp,
+			})
+		).toBeNull();
+	});
+
+	it('ignores segments without simplified coordinates', () => {
+		const points = [makePoint(1, 8, 49), makePoint(2, 8.002, 49)];
+		expect(
+			getNearestSegmentHit({
+				points,
+				simplifiedByRecordId: {},
+				center: [8.001, 49],
+				zoom,
+				tileSize,
+				density,
+				thresholdDp,
+			})
+		).toBeNull();
+	});
+});
+
+// ===========================================================================
+// getAdjacentSegmentRecordIds
+// ===========================================================================
+
+describe('getAdjacentSegmentRecordIds', () => {
+	const points = [
+		makePoint(1, 8, 49),
+		makePoint(2, 8.001, 49),
+		makePoint(3, 8.002, 49),
+	];
+
+	it('returns both adjacent segments for a middle point', () => {
+		expect(getAdjacentSegmentRecordIds(points, 2)).toEqual(['1_2', '2_3']);
+	});
+
+	it('returns only the outgoing segment for the first point', () => {
+		expect(getAdjacentSegmentRecordIds(points, 1)).toEqual(['1_2']);
+	});
+
+	it('returns only the incoming segment for the last point', () => {
+		expect(getAdjacentSegmentRecordIds(points, 3)).toEqual(['2_3']);
+	});
+
+	it('returns an empty array for an unknown point id', () => {
+		expect(getAdjacentSegmentRecordIds(points, 42)).toEqual([]);
+	});
+
+	it('returns an empty array for a single point', () => {
+		expect(getAdjacentSegmentRecordIds([makePoint(1, 8, 49)], 1)).toEqual([]);
 	});
 });
 

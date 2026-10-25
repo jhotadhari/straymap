@@ -54,6 +54,13 @@ export interface RoutingState extends SliceSettingsBase, RoutingSettings {
 	 * Feeds the chart bottom drawer content.
 	 */
 	pathCoords: number[][];
+	/**
+	 * Waypoint currently being moved by the gesture-workaround move/drop
+	 * flow. Follows the map center (preview rendered by RoutingMapView)
+	 * until dropped, or cleared on route switch/stop. Runtime state —
+	 * not persisted to storage.
+	 */
+	movedPointId: number | null;
 }
 
 export const initialSettings: RoutingSettings = {
@@ -67,6 +74,7 @@ const initialState: RoutingState = {
 	brouterAvailable: null,
 	segments: {},
 	pathCoords: [],
+	movedPointId: null,
 	...initialSettings,
 };
 
@@ -85,8 +93,12 @@ export const routingSlice = createSlice({
 		setIsRouting: (state, action: PayloadAction<RoutingState['isRouting']>) => {
 			state.segments = {};
 			state.pathCoords = [];
+			state.movedPointId = null;
 			state.isRouting = action.payload;
 			state.routingLineId = null;
+		},
+		setMovedPointId: (state, action: PayloadAction<number | null>) => {
+			state.movedPointId = action.payload;
 		},
 		setRoutingLineId: (state, action: PayloadAction<RoutingState['routingLineId']>) => {
 			state.routingLineId = action.payload;
@@ -128,6 +140,7 @@ export const {
 	setLastProfile,
 	setSegment,
 	deleteSegments,
+	setMovedPointId,
 } = routingSlice.actions;
 
 // Export the slice reducer for use in the store configuration

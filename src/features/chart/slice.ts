@@ -63,7 +63,7 @@ export const chartSlice = createSlice({
 		 * Keeps only the per-chart settings of a chart.s own entry
 		 * (deleting the entry entirely when none remain) — used when
 		 * switching the chart back to the general (Default) mode. The
-		 * always-custom settings (ratio, follow-map) must survive.
+		 * always-custom settings (ratio, follow-mode) must survive.
 		 */
 		resetChartSettingsToPerChart: (state, action: PayloadAction<string>) => {
 			const key = action.payload;
@@ -73,7 +73,7 @@ export const chartSlice = createSlice({
 			}
 			const perChartOnly = {
 				...(own.ratioValue !== undefined && { ratioValue: own.ratioValue }),
-				...(own.followMap !== undefined && { followMap: own.followMap }),
+				...(own.followMode !== undefined && { followMode: own.followMode }),
 			};
 			if (Object.keys(perChartOnly).length) {
 				state.charts[key] = perChartOnly as ChartSettings;

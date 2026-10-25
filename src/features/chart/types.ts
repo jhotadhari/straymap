@@ -27,6 +27,7 @@ export const getChartSourceFromKey = (key: string | undefined): ChartSource => {
 export type ChartXMode = 'distance' | 'time';
 export type ChartSeriesValue = 'none' | 'elevation' | 'slope';
 export type ChartColorMode = 'axis' | 'elevation' | 'elevationFill' | 'slope' | 'slopeFill';
+export type ChartFollowMode = 'none' | 'map' | 'center';
 
 export interface ChartSettings {
 	primary: ChartSeriesValue;
@@ -36,8 +37,10 @@ export interface ChartSettings {
 	xMode: ChartXMode;
 	/** Fixed aspect ratio (visible x-range per visible y-range unit). */
 	ratioValue?: number;
-	/** Viewport follows the map's covered route segment (1:1). */
-	followMap: boolean;
+	/** How the chart follows the map: Off, covered segment (1:1), or centered on the map center. */
+	followMode: ChartFollowMode;
+	/** Ease the follow-derived viewport instead of jumping (all charts). */
+	animateFollow: boolean;
 	showHeading: boolean;
 	showStats: boolean;
 }
@@ -49,7 +52,8 @@ export const DEFAULT_CHART_SETTINGS: ChartSettings = {
 	secondaryColor: 'axis',
 	xMode: 'distance',
 	ratioValue: undefined,
-	followMap: false,
+	followMode: 'none',
+	animateFollow: true,
 	showHeading: true,
 	showStats: true,
 };

@@ -58,8 +58,13 @@ RoutingState {
   routingLineId: null | number; // line ID linked to the active route
   segments: Record<string, RoutingSegment>; // brouter-computed path segments
   lastProfiles: LastProfiles;  // persisted "global" routing profiles per provider
+  movedPointId: number | null; // waypoint currently being moved (move/drop gesture-workaround)
 }
 ```
+
+`movedPointId` is runtime-only (not persisted). `setMovedPointId` sets it,
+`selectMovedPointId` reads it, and `setIsRouting` clears it on route
+switch/stop.
 
 ### Key thunks
 
@@ -272,6 +277,11 @@ commit `00e770d`.
 | `useActions`               | `components/DrawerTopBar/useActions/index.ts`                    | Composes routing action hooks                                           |
 | `useActionAppendPoint`     | `components/DrawerTopBar/useActions/useActionAppendPoint.ts`     | Add waypoint (inheritMode: 'route') at current map center               |
 | `useActionDeleteLastPoint` | `components/DrawerTopBar/useActions/useActionDeleteLastPoint.ts` | Remove last waypoint                                                    |
+| `useActionHitState`        | `components/DrawerTopBar/useActions/useActionHitState.ts`        | Live hit-testing of map center vs rendered segments/waypoints (see Gesture-workaround actions) |
+| `useActionCutSegment`      | `components/DrawerTopBar/useActions/useActionCutSegment.ts`      | Insert waypoint at snapped on-segment position, immediately start moving it |
+| `useActionMovePoint`       | `components/DrawerTopBar/useActions/useActionMovePoint.ts`       | Move the center-nearest waypoint; becomes "Discard moving" while active |
+| `useActionDropPoint`       | `components/DrawerTopBar/useActions/useActionDropPoint.ts`       | Persist the moved waypoint at the map center and reprocess segments     |
+| `useActionDeletePointAtCenter` | `components/DrawerTopBar/useActions/useActionDeletePointAtCenter.ts` | Delete the center-nearest waypoint (keeps ≥ 2)                   |
 | `RoutingActionsButton`     | `components/RoutingActionsButton.tsx`                            | Popover menu with routing actions                                       |
 | `RowRouting`               | `../lines/components/LineEditModal/RowRouting.tsx`               | Load/activate a line's route from LineEditModal                         |
 | `useRoute`                 | `hooks/useRoute.ts`                                              | Fetch active route from Redux + React Query                             |
@@ -279,6 +289,47 @@ commit `00e770d`.
 | `RouteProfileModal`        | `components/RouteProfileModal.tsx`                               | Edit route-level profile with point usage stats                         |
 | `RoutingProfileInfo`       | `components/RoutingProfileInfo.tsx`                              | Read-only profile display (resolved profile + inheritMode label)        |
 | `ProfileEditControls`      | `components/ProfileEditControls.tsx`                             | Reusable profile editing UI shared by both modals                       |
+
+## Gesture-workaround actions
+
+The routing drawer has no true drag gestures — actions are driven by the
+**map center** (crosshair) plus menu buttons in `DrawerTopBar`:
+
+- **Hit-testing** (`utils.ts`): `projectLngLatToCenterDpOffset` (plain Web
+  Mercator, dp offset from center), `getNearestSegmentHit` (nearest rendered
+  segment within `ROUTING_GESTURE_THRESHOLD_DP` = 30dp, returns the snapped
+  `[lng, lat]` and the `insertIndex` in `point_order`), `getNearestPointHit`
+  (nearest waypoint), and `getAdjacentSegmentRecordIds` (the two segment keys
+  touching a point). `useActionHitState` memoizes the simplified segment
+  coords (same `getSimplifiedSegmentCoords` + `ROUTING_SIMPLIFY_TOLERANCE` as
+  `RoutingMapView`) and re-runs the hit tests each map-update tick, storing
+  only the reduced hit state (`segmentRecordId` / `pointId`) so the drawer
+  re-renders on hit-target changes only; `getHits(event)` recomputes the full
+  hit from a live event for the action callbacks.
+- **Menu disabling**: each action's `disabled()` closure reflects the live
+  hit state (e.g. cut disabled when no segment is under the center). The
+  generic `MenuControl` greys out disabled options.
+- **Move mode** (`movedPointId`): `movePoint` deletes the adjacent segment
+  cache (`deleteSegments(getAdjacentSegmentRecordIds(...))`) and sets
+  `movedPointId`. `RoutingMapView` polls the live center and replaces the
+  moved point's coordinates (`effectivePoints`), so the marker follows the
+  crosshair and the uncached adjacent segments render as the blue
+  placeholder lines that follow the center. The drawer's plus button
+  becomes Drop while a point is being moved.
+- **Cut**: `createRoutingPoints([{feature}], routeId, index)` inserts the
+  waypoint at `insertIndex` (new optional index param — splices into
+  `point_order` instead of appending), deletes the cut segment's cached
+  geometry, and sets `movedPointId` to the new point. **`processRouting` is
+  deferred until the point is dropped/discarded.**
+- **Drop**: `updateRoutingPoint` moves the geometry to the center, then the
+  adjacent segments are deleted again (they may not have been deleted if the
+  move started from a cut whose new ids were never cached) and
+  `processRouting` recomputes them. **Moving a point keeps the same segment
+  record ids (`fromId_toId`), so `processRouting` would reuse stale cached
+  geometry without the deletion.**
+- **Discard** (move menu entry while active): clears `movedPointId` without
+  touching DB geometry and runs `processRouting` — the point stays wherever
+  it is (a cut point stays at its snapped position).
 
 ## Gotchas
 
@@ -322,3 +373,24 @@ commit `00e770d`.
 - **`setLastProfile` dispatches are required** whenever a profile is saved
   (point's own profile or route profile), so `lastProfiles` in Redux stays in
   sync as the "global routing profile default".
+
+## Map context menu sources + shared point actions
+
+- **`mapContextMenuSources/`** — long-press sources for the mapContextMenu
+  feature: `RoutingMovingSource` (drop here/discard — overrides while
+  `movedPointId` is set), `RoutingWaypointSource` (move/delete; resolves the
+  pressed point via `routingLayerRegistry` with a 30 dp screen-distance
+  fallback), `RoutingSegmentSource` (cut at `hit.nearestPoint`; disabled when
+  a waypoint is under the press), `RoutingMapSource` (append routing point on
+  the empty map).
+- **`layerRegistry.ts`** — module-level `segmentUuidByRecordId` /
+  `markerUuidByPointId` fed by RoutingMapView's `onCreate`/`onRemove`;
+  consumed by the sources.
+- **`hooks/usePointActions.ts`** — shared stable callbacks
+  (`appendPointAt`, `cutSegmentAt`, `movePoint`, `dropPointAt`,
+  `discardMoving`, `deletePoint`) taking explicit `[lng, lat]` — used by the
+  menu sources. Uses the AGENTS.md ref pattern (`useMutation` returns a new
+  object per render — callbacks read state/mutations through refs so the
+  sources' option arrays stay stable; without it the menu update loop fires).
+  The drawer action hooks predate this hook and keep their own mutation
+  copies (duplication noted — could be refactored onto it later).

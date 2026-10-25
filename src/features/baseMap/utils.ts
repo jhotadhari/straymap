@@ -182,3 +182,10 @@ export const getLayerLabel = (
 
 export const makeLayerBusyKey = (layerType: string, layerKey: string): string =>
 	`map:base-layer:${layerType}:${layerKey}`;
+
+/**
+ * Z-order for mapsforge label layers. Labels are rendered in their own
+ * ReindexScope so they stay above line/route overlays (lines 200, routing
+ * segments 300, track recording 310) but below routing waypoint markers (400).
+ */
+export const MAPSFORGE_LABELS_ORDER = 350;

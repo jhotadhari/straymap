@@ -11,6 +11,10 @@ import { onSetDbPath } from './slice';
 import { selectIsRouting, selectRoutingLineId } from './selectors';
 import RoutingMapView from './mapComponents/RoutingMapView';
 import routingDrawerItem from './drawerPanels/routing';
+import RoutingMovingSource from './mapContextMenuSources/RoutingMovingSource';
+import RoutingWaypointSource from './mapContextMenuSources/RoutingWaypointSource';
+import RoutingSegmentSource from './mapContextMenuSources/RoutingSegmentSource';
+import RoutingMapSource from './mapContextMenuSources/RoutingMapSource';
 
 export default {
 	selectInitialized,
@@ -28,6 +32,28 @@ export default {
 			key: 'routingMapView',
 			Component: RoutingMapView,
 			priority: 300,
+		},
+	],
+	mapContextMenuSources: [
+		{
+			key: 'routingMoving',
+			press: 'long',
+			SourceComponent: RoutingMovingSource,
+		},
+		{
+			key: 'routingWaypoint',
+			press: 'long',
+			SourceComponent: RoutingWaypointSource,
+		},
+		{
+			key: 'routingSegment',
+			press: 'long',
+			SourceComponent: RoutingSegmentSource,
+		},
+		{
+			key: 'routingMap',
+			press: 'long',
+			SourceComponent: RoutingMapSource,
 		},
 	],
 	modes: ['routing'],

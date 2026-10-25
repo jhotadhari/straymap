@@ -21,6 +21,8 @@ export const selectPathCoords = (state: RootState) => state.routing.pathCoords;
 
 export const selectLastProfiles = (state: RootState) => state.routing.lastProfiles;
 
+export const selectMovedPointId = (state: RootState) => state.routing.movedPointId;
+
 export const selectSegmentByRecordId = (state: RootState, segmentRecordId: string) => {
 	return get(state.routing.segments, segmentRecordId);
 };

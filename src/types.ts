@@ -4,7 +4,7 @@
 import { EnhancedStore } from '@reduxjs/toolkit';
 import { ElementType, ReactNode } from 'react';
 import { TextStyle } from 'react-native';
-import { Position } from 'react-native-mapsforge-vtm';
+import { MapTapHit, Position } from 'react-native-mapsforge-vtm';
 
 /**
  * Internal dependencies
@@ -54,6 +54,52 @@ export interface MenuActionOption extends OptionBase {
 	cb: () => Promise<void> | void;
 	disabled?: () => boolean;
 	modalNode?: ReactNode;
+}
+
+// ── Map context menu (mapContextMenu feature) ────────────────────────────
+
+export type MapContextMenuPress = 'short' | 'long';
+
+/** Everything a context-menu source needs to resolve its actions. */
+export interface MapContextMenuContext {
+	press: MapContextMenuPress;
+	/** Tap position (geo). */
+	lng: number;
+	lat: number;
+	/** Tap position (screen, physical px, map-local — see windowX/windowY). */
+	x: number;
+	y: number;
+	/**
+	 * Tap position in WINDOW coordinates (dp) — includes the map view's
+	 * offset within the window. The menu popover renders in a Modal
+	 * (window space), so it anchors on these, not on x/y.
+	 */
+	windowX: number;
+	windowY: number;
+	/** Live map zoom at press time — enables zoom-aware (dp-based) hit resolution. */
+	zoomLevel?: number;
+	/** Live map tile size at press time. */
+	tileSize?: number;
+	/** All layer hits under the tap (from the library's HitTestLayer). */
+	hits: MapTapHit[];
+}
+
+export interface MapContextMenuSourceComponentProps {
+	context: MapContextMenuContext;
+	/**
+	 * Reports this source's menu options for the current context, or null
+	 * when the source has nothing to contribute (group omitted). Called
+	 * whenever the resolved options change.
+	 */
+	onOptions: (options: MenuActionOption[] | null) => void;
+}
+
+export interface MapContextMenuSource {
+	key: string;
+	press: MapContextMenuPress;
+	/** Group order in the menu (lower first); defaults to 100. */
+	priority?: number;
+	SourceComponent: ElementType<MapContextMenuSourceComponentProps>;
 }
 
 export type NumType = 'int' | 'float';
@@ -192,6 +238,14 @@ export interface AppFeature {
 
 	/** Components rendered inside the map corner overlay. */
 	mapCornerComponents?: MapCornerComponentDescriptor[];
+
+	/**
+	 * Map context-menu sources — each contributes a group of actions to
+	 * the tap/long-press context menu (mapContextMenu feature) when the
+	 * press type matches and the source resolves non-empty options.
+	 * Groups from multiple sources are joined by dividers.
+	 */
+	mapContextMenuSources?: MapContextMenuSource[];
 
 	/**
 	 * Modes this feature can activate (e.g. `'location'`, `'trackRecording'`,

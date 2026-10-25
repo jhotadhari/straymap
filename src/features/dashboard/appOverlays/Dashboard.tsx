@@ -4,6 +4,7 @@
 import React, { FC, useCallback, useContext, useMemo } from 'react';
 import { GestureResponderEvent, LayoutChangeEvent, View, ViewProps, ViewStyle } from 'react-native';
 import { get } from 'lodash-es';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
 	DragStartCallback,
 	DragStartParams,
@@ -49,6 +50,8 @@ const Dashboard: FC<{
 	onLayout,
 }) => {
 	const { setBottomBarHeight } = useContext(AppContext);
+
+	const insets = useSafeAreaInsets();
 
 	const items = useAppSelector((state) => selectItems(state, { position }));
 	const dashboardStyle = useAppSelector((state) => selectDashboardStyle(state, position));
@@ -108,10 +111,27 @@ const Dashboard: FC<{
 
 	const dropIndicatorStyle = useDropIndicatorStyle();
 
+	const styleRoot = useMemo(
+		() => [
+			{ backgroundColor: theme.colors.background },
+			'bottom' === position && items.length
+				? { paddingBottom: insets.bottom }
+				: undefined,
+			style,
+		],
+		[
+			theme,
+			position,
+			items.length,
+			insets.bottom,
+			style,
+		]
+	);
+
 	return (
 		<ControlContext.Provider value={{ position }}>
 			<View
-				style={[{ backgroundColor: theme.colors.background }, style]}
+				style={styleRoot}
 				onLayout={handleLayout}
 			>
 				<Sortable.Flex

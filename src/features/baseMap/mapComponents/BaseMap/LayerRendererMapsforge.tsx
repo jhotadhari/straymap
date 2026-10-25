@@ -13,6 +13,7 @@ import {
  * Internal dependencies
  */
 import { LayerConfig, LayerConfigOptionsMapsforge, MapsforgeProfile } from '../../types';
+import { MAPSFORGE_LABELS_ORDER } from '../../utils';
 import useLayerChangeCallback from './useLayerChangeCallback';
 import { useMakeLayerBusy } from './useMakeLayerBusy';
 
@@ -57,6 +58,7 @@ const LayerRendererMapsforge: FC<{
 			renderOverlays={profile.renderOverlays}
 			hasBuildings={profile.hasBuildings}
 			hasLabels={profile.hasLabels}
+			labelsOrder={MAPSFORGE_LABELS_ORDER}
 			onCreate={handleCreate}
 			onChange={handleCreateOrChange}
 		/>

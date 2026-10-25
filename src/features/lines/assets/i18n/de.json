@@ -70,6 +70,8 @@
 	"exportStopped": "Abgebrochen. %s von %s Routen exportiert.",
 	"delete": "Löschen",
 	"removeFromMap": "Von Karte entfernen",
+	"routeDetails": "Routendetails",
+	"changeColor": "Farbe ändern",
 	"showOnMap": "Auf Karte anzeigen",
 	"isRoutingLine": "Aktive Route",
 	"noRoutingData": "Keine Routing-Daten",

@@ -5,6 +5,67 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.5.0-beta.1] - 2026-10-25
+
+### Added
+
+- Chart: "Animate follow" toggle — the smooth follow animation can be turned off globally (default on).
+- Routing: route-editing actions in the route planning drawer — cut a
+  segment under the map center, move a waypoint (move/drag/drop), delete
+  the waypoint at the center, and discard a move. Cutting a segment grabs
+  the new waypoint and switches the affected segments to fallback lines
+  that follow the map center until the point is dropped (moving an
+  existing waypoint does the same).
+- Map context menu: long-press menus at the press position with per-source
+  actions — routing (drop/discard a moving waypoint, move/delete a
+  waypoint, cut a segment, append a routing point on the empty map),
+  selected lines (route details, fly to, change color, remove from map),
+  and general map actions — divided by source. Tap resolution is
+  screen-distance based (30 dp, zoom-aware) via the map library's new hit
+  aggregation.
+- Selected lines list: the color bar of a row widens (animated) while the
+  map center is over that line — point-to-segment screen distance (4 dp),
+  multiple overlapping lines highlight at once.
+- Map context menu: "Share position" modal — coordinates in the user's
+  configured format plus plain decimal coordinates, and map links
+  (OpenStreetMap, OpenTopoMap, Google Maps, Organic Maps, OsmAnd, geo
+  URI) with per-row copy/share buttons; links carry the live map zoom.
+
+### Changed
+
+- Chart: follow modes animate smoothly — the viewport translation glides via UI-thread animation (no per-frame re-renders) instead of jumping on every map event.
+- Chart: "Follow map" toggle becomes a three-way follow mode — Off, Follow map, Follow center.
+- Upgrade `react-native-mapsforge-vtm` to `0.10.0` (map-level tap/long-press
+  hit aggregation, marker event positions, marker hit-test fix) and
+  `react-native-mapsforge-vtm-ext-path-color-ramp` to `0.3.0` (gesture
+  support on `LayerPathColorRamp`).
+- About Credits: add missing `react-native-markdown-display` entry to all
+  translations (en/de/es/pt), matching the README utilities list.
+
+### Fixed
+
+- Startup crash caused by a map remount race: `App` treated the
+  `useSettingsInitialized` boolean array as a single truthy flag, so the map
+  rendered before all feature settings were restored — the late
+  `mapsforgeGeneral` restore then re-created the map view and hit a
+  destroyed-fragment race in the map library. The app now waits for every
+  feature to report initialized, and `AppView` skips the map re-creation
+  when the scales are value-unchanged.
+- `@react-native-community/blur` threw a `NullPointerException` when a
+  `BlurView` was created while the React context had no current activity
+  (e.g. the no-layers hint modal at startup on the new architecture) —
+  patched to skip the blur setup in that case instead of crashing.
+- Mapsforge labels were rendered below map overlays; they now draw above
+  lines and routes, below waypoint markers.
+- Disabled popover-menu actions were still rendered as tappable — the
+  generic `MenuControl` now greys out disabled options (background, text
+  and icon), so cut/move/delete routing actions visibly reflect when no
+  segment or waypoint is under the map center.
+- Safe areas: on Android 15+ the app runs edge-to-edge, so the status and
+  navigation bars overlapped app controls (top app bar, bottom drawer,
+  dashboards, corner buttons, modals, toasts). All chrome now respects the
+  system insets via `react-native-safe-area-context`.
+
 ## [0.4.0] - 2026-09-30
 
 ### Added
@@ -214,6 +275,7 @@ Basic app structure and map viewer functionality.
 - Topbar with breadcrumbs and a menu.
 - Structure for settings and some settings pages.
 
+[0.5.0-beta.1]: https://github.com/jhotadhari/straymap/compare/v0.4.0...v0.5.0-beta.1
 [0.4.0]: https://github.com/jhotadhari/straymap/compare/v0.3.5...v0.4.0
 [0.3.5]: https://github.com/jhotadhari/straymap/compare/v0.3.4...v0.3.5
 [0.3.4]: https://github.com/jhotadhari/straymap/compare/v0.3.3...v0.3.4

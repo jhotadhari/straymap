@@ -1,0 +1,15 @@
+{
+	"coordinates": "Coordenadas",
+	"coordinatesDecimal": "Coordenadas (decimal)",
+	"copy": "Copiar",
+	"copyError": "Error al copiar",
+	"geoUri": "URI geo",
+	"googleMaps": "Google Maps",
+	"openstreetmap": "OpenStreetMap",
+	"openTopoMap": "OpenTopoMap",
+	"organicMaps": "Organic Maps",
+	"osmand": "OsmAnd",
+	"share": "Compartir",
+	"shareError": "Error al compartir",
+	"sharePosition": "Compartir posición"
+}

@@ -1,13 +1,15 @@
 /**
  * External dependencies
  */
-import React, { FC, Fragment, memo, useMemo } from 'react';
+import React, { FC, Fragment, memo, useContext, useMemo, useState } from 'react';
 import {
 	PathPaint,
 	Marker,
+	MarkerPaint,
 	LayerPath,
 	ReindexScope,
 	SharedLayer,
+	useMapEventInterval,
 } from 'react-native-mapsforge-vtm';
 import {
 	LayerPathColorRamp,
@@ -21,13 +23,16 @@ import { get } from 'lodash-es';
  * Internal dependencies
  */
 import { useAppSelector } from '../../../store/hooks';
-import { selectSegmentByRecordId } from '../selectors';
+import { selectSegmentByRecordId, selectMovedPointId } from '../selectors';
 import { getSegmentRecordId, getSimplifiedSegmentCoords, resolveProfileForPoint } from '../utils';
 import { ROUTING_SIMPLIFY_TOLERANCE } from '../constants';
 import useRoute from '../hooks/useRoute';
 // import useSimplificationTolerance from '../../lines/hooks/useSimplificationTolerance';
 import { RoutingPoint } from '../types';
 import { pointsCoordsAreOverlapping } from '../../../lib/utils';
+import { MapContext } from '../../../Context';
+import { selectMapUpdateInterval } from '../../general/selectors';
+import { routingLayerRegistry } from '../layerRegistry';
 
 const SegmentLineLayer: FC<{
 	segmentRecordId: string;
@@ -71,6 +76,17 @@ const SegmentLineLayer: FC<{
 			segmentValues={normalizedValues}
 			colorRampStops={colorRampStops}
 			paint={paintPathRamp}
+			onCreate={(response) => {
+				routingLayerRegistry.segmentUuidByRecordId.set(segmentRecordId, response.uuid);
+			}}
+			onRemove={(response) => {
+				if (
+					routingLayerRegistry.segmentUuidByRecordId.get(segmentRecordId) ===
+					response.uuid
+				) {
+					routingLayerRegistry.segmentUuidByRecordId.delete(segmentRecordId);
+				}
+			}}
 		/>
 	);
 });
@@ -127,6 +143,17 @@ const SegmentLine: FC<{
 				key={segmentRecordId + 'fallback'}
 				coordinates={coords}
 				paint={paint}
+				onCreate={(response) => {
+					routingLayerRegistry.segmentUuidByRecordId.set(segmentRecordId, response.uuid);
+				}}
+				onRemove={(response) => {
+					if (
+						routingLayerRegistry.segmentUuidByRecordId.get(segmentRecordId) ===
+						response.uuid
+					) {
+						routingLayerRegistry.segmentUuidByRecordId.delete(segmentRecordId);
+					}
+				}}
 			/>
 		);
 	}
@@ -232,20 +259,38 @@ const Segments: FC<{
 
 const Markers: FC<{
 	points?: RoutingPoint[];
-}> = memo(({ points }) => {
+	movedPointId: number | null;
+}> = memo(({ points, movedPointId }) => {
 	const markerElements = useMemo(() => {
 		if (!points) return null;
-		return points.map((point, index) => (
-			<Marker
-				key={point.id}
-				position={point.geometry.coordinates}
-				paint={{
-					text: index + 1 + '',
-					textMargin: 15,
-				}}
-			/>
-		));
-	}, [points]);
+		return points.map((point, index) => {
+			const isMoving = movedPointId === point.id;
+			return (
+				<Marker
+					key={point.id}
+					position={point.geometry.coordinates}
+					paint={{
+						text: index + 1 + '',
+						textMargin: 15,
+						...(isMoving && paintMoveHighlight),
+					}}
+					onCreate={(response) => {
+						routingLayerRegistry.markerUuidByPointId.set(point.id, response.uuid);
+					}}
+					onRemove={(response) => {
+						if (
+							routingLayerRegistry.markerUuidByPointId.get(point.id) === response.uuid
+						) {
+							routingLayerRegistry.markerUuidByPointId.delete(point.id);
+						}
+					}}
+				/>
+			);
+		});
+	}, [
+		points,
+		movedPointId,
+	]);
 
 	return (
 		<ReindexScope order={400}>
@@ -259,11 +304,60 @@ const RoutingMapView = () => {
 		useRoute([
 			'points',
 		]) || {};
+	const movedPointId = useAppSelector(selectMovedPointId);
+	const { currentMapEventRef } = useContext(MapContext);
+	const mapUpdateInterval = useAppSelector(selectMapUpdateInterval);
+	const [liveCenter, setLiveCenter] = useState<[number, number] | null>(null);
+
+	useMapEventInterval(currentMapEventRef, mapUpdateInterval, (event) => {
+		const center = event?.center;
+		setLiveCenter((prev) => {
+			if (!movedPointId || !center || center.length < 2) {
+				return prev ? null : prev;
+			}
+			const next: [number, number] = [center[0], center[1]];
+			if (prev && prev[0] === next[0] && prev[1] === next[1]) {
+				return prev;
+			}
+			return next;
+		});
+	});
+
+	// While a point is being moved, its coordinates follow the live map
+	// center: the marker moves with the crosshair and the adjacent
+	// placeholder (fallback) segment lines follow along.
+	const effectivePoints = useMemo(() => {
+		if (!points || !movedPointId || !liveCenter) {
+			return points;
+		}
+		return points.map((p) =>
+			p.id === movedPointId
+				? {
+						...p,
+						geometry: {
+							...p.geometry,
+							coordinates: [
+								liveCenter[0],
+								liveCenter[1],
+								p.geometry.coordinates[2] ?? 0,
+							],
+						},
+					}
+				: p
+		);
+	}, [
+		points,
+		movedPointId,
+		liveCenter,
+	]);
 
 	return (
 		<Fragment>
-			<Segments points={points} />
-			<Markers points={points} />
+			<Segments points={effectivePoints} />
+			<Markers
+				points={effectivePoints}
+				movedPointId={movedPointId}
+			/>
 		</Fragment>
 	);
 };
@@ -279,5 +373,12 @@ const paintPathError: PathPaint = {
 };
 
 const paintPathRamp: PathPaint = { strokeWidth: 6 };
+
+const paintMoveHighlight: MarkerPaint = {
+	fillColor: '#ff8800',
+	strokeColor: '#ffffff',
+	strokeWidth: 4,
+	textColor: '#ffffff',
+};
 
 export default RoutingMapView;
