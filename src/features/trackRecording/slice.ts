@@ -18,7 +18,8 @@ import {
 	selectMinTime,
 	selectMinPrecision,
 } from './selectors';
-// import NativeTrackingModule from '../../specs/NativeTrackingModule';
+import { logError } from '../../lib/utils';
+import NativeTrackingModule from '../../specs/NativeTrackingModule';
 
 export interface TrackRecordingSettings {
 	isRecording: boolean;
@@ -195,12 +196,13 @@ export const startRecording =
 		// Auto-select the line so it appears in the drawer list
 		dispatch(setLineSelected(lineId, true));
 
-		// Start foreground service (requires Phase 5 native module)
-		// try {
-		// 	await NativeTrackingModule.startService();
-		// } catch (_e) {
-		// 	// Service start failure is non-fatal
-		// }
+		// Start the foreground service — keeps the recording notification
+		// alive while the app is backgrounded. Non-fatal on failure.
+		try {
+			await NativeTrackingModule.startService();
+		} catch (err) {
+			logError('trackRecording/startRecording.startService', err);
+		}
 	};
 
 /**
@@ -213,9 +215,10 @@ export const stopRecording = (): AppThunk => async (dispatch) => {
 	dispatch(setActiveLineId(null));
 	dispatch(setRecordingStartTime(null));
 
-	// try {
-	// 	await NativeTrackingModule.stopService();
-	// } catch (_e) {
-	// 	// Non-fatal
-	// }
+	// Stop the foreground service. Non-fatal on failure.
+	try {
+		await NativeTrackingModule.stopService();
+	} catch (err) {
+		logError('trackRecording/stopRecording.stopService', err);
+	}
 };
