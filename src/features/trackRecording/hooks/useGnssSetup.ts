@@ -14,6 +14,7 @@ import {
 	selectMinDistance,
 	selectMinTime,
 	selectMinPrecision,
+	selectResumePending,
 } from '../selectors';
 import { writeGnssPosition } from '../slice';
 
@@ -47,6 +48,7 @@ const GNSS_IDLE_FILTER = {
 export function useGnssSetup() {
 	const dispatch = useAppDispatch();
 	const isRecording = useAppSelector(selectIsRecording);
+	const resumePending = useAppSelector(selectResumePending);
 	const gnssIsActive = useAppSelector(selectIsActive);
 	const minDistance = useAppSelector(selectMinDistance);
 	const minTime = useAppSelector(selectMinTime);
@@ -75,11 +77,12 @@ export function useGnssSetup() {
 	]);
 
 	// Callback from native onGnssPosition — feeds the gnss slice's live
-	// position, and (while recording) the track-recording listener.
+	// position, and (while recording or resuming) the track-recording
+	// listener.
 	const handleGnssPosition = useCallback(
 		(event: { nativeEvent: GnssPositionData }) => {
 			dispatch(setGnssPosition(event.nativeEvent));
-			if (isRecording) {
+			if (isRecording || resumePending) {
 				dispatch(
 					writeGnssPosition({
 						lng: event.nativeEvent.lng,
@@ -89,7 +92,11 @@ export function useGnssSetup() {
 				);
 			}
 		},
-		[dispatch, isRecording]
+		[
+			dispatch,
+			isRecording,
+			resumePending,
+		]
 	);
 
 	// Clear the stale position whenever the listener is unregistered

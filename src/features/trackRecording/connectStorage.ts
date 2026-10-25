@@ -22,6 +22,7 @@ import {
 	setLastWrittenPosition,
 	setLastWrittenTime,
 	setRecordingStartTime,
+	setResumePending,
 	writeGnssPosition,
 } from './slice';
 // GNSS positions come from the native gnssFilter on MapContainer.
@@ -34,6 +35,8 @@ import { appendPointToLine, createTrack } from './db/actionsTrack';
 import { createLines } from '../lines/db/actionsLine';
 import { ensureTagByLabel } from '../lines/db/actionsTag';
 import { setLineSelected } from '../lines/slice';
+import { setIsActive } from '../gnss/slice';
+import NativeTrackingModule from '../../specs/NativeTrackingModule';
 import { dbConnection } from '../dbLoader/DBConnection';
 
 const settingsKey = 'trackRecordingSettings';
@@ -58,7 +61,11 @@ export const initializeFromStorage = (store: AppStore) => {
 						dbConnection?.drizzle &&
 						typeof newSettings.activeLineId === 'number'
 					) {
-						store.dispatch(setIsRecordingAction(newSettings.isRecording));
+						// Deferred resume: re-activate recording only after
+						// the first native GNSS position arrives (see the
+						// writeGnssPosition listener) — recording surfaces
+						// mount cleanly instead of racing app startup.
+						store.dispatch(setResumePending(true));
 					} else if (!newSettings.isRecording) {
 						store.dispatch(setIsRecordingAction(newSettings.isRecording));
 					}
@@ -116,7 +123,8 @@ startAppListening({
 		setMinDistance,
 		setMinTime,
 		setMinPrecision,
-		setRecordingStartTime
+		setRecordingStartTime,
+		setResumePending
 	),
 	effect: async (action, listenerApi) => {
 		try {
@@ -141,11 +149,26 @@ startAppListening({
 startAppListening({
 	actionCreator: writeGnssPosition,
 	effect: async (action, listenerApi) => {
-		const state = listenerApi.getState();
+		let state = listenerApi.getState();
 		const trk = state.trackRecording;
 
-		if (!trk.isRecording) {
+		if (!trk.isRecording && !trk.resumePending) {
 			return;
+		}
+
+		// Deferred resume: recording was restored from storage — only
+		// re-activate on the first native position, then start the
+		// foreground service that keeps it alive in the background.
+		if (trk.resumePending) {
+			listenerApi.dispatch(setResumePending(false));
+			listenerApi.dispatch(setIsRecordingAction(true));
+			listenerApi.dispatch(setIsActive(true));
+			try {
+				await NativeTrackingModule.startService();
+			} catch (err) {
+				logError('trackRecording/resume.startService', err);
+			}
+			state = listenerApi.getState();
 		}
 
 		if (!dbConnection?.drizzle) {

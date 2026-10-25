@@ -17,6 +17,7 @@ import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { selectIsActive, selectGnssPosition } from '../../gnss/selectors';
 import { setIsActive } from '../../gnss/slice';
 import { selectIsRecording, selectActiveLineId, selectRecordingStartTime } from '../selectors';
+import { selectResumePending } from '../selectors';
 import { startRecording, stopRecording } from '../slice';
 import { queryLineGeom } from '../../lines/db/queryFns';
 import {
@@ -71,6 +72,7 @@ const TrackingDrawerContent: FC = () => {
 
 	const isRecording = useAppSelector(selectIsRecording);
 	const isActive = useAppSelector(selectIsActive);
+	const resumePending = useAppSelector(selectResumePending);
 	const gnssPosition = useAppSelector(selectGnssPosition);
 	const activeLineId = useAppSelector(selectActiveLineId);
 	const recordingStartTime = useAppSelector(selectRecordingStartTime);
@@ -165,7 +167,9 @@ const TrackingDrawerContent: FC = () => {
 				<Text style={styles.value}>
 					{isRecording
 						? `${formatDurationCompact(elapsed)} · ${formatDistance(distance, distUnit)}`
-						: t('trackRecording.notRecording')}
+						: resumePending
+							? t('trackRecording.resuming')
+							: t('trackRecording.notRecording')}
 				</Text>
 			</View>
 

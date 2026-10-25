@@ -5,6 +5,7 @@ import { RootState } from '../../store/store';
 
 export const selectInitialized = (state: RootState) => state.trackRecording.initialized;
 export const selectIsRecording = (state: RootState) => state.trackRecording.isRecording;
+export const selectResumePending = (state: RootState) => state.trackRecording.resumePending;
 export const selectActiveTrackId = (state: RootState) => state.trackRecording.activeTrackId;
 export const selectActiveLineId = (state: RootState) => state.trackRecording.activeLineId;
 export const selectMinDistance = (state: RootState) => state.trackRecording.minDistance;

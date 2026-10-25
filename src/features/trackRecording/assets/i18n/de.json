@@ -19,5 +19,6 @@
 	"hintMinTime": "Mindestzeit in Sekunden zwischen aufgezeichneten Punkten.",
 	"hintMinPrecision": "Die GNSS-Genauigkeit muss besser als dieser Wert (in Metern) sein, damit ein Punkt aufgezeichnet wird.",
 	"start": "Aufzeichnung starten",
-	"tracking": "Tracking"
+	"tracking": "Tracking",
+	"resuming": "Warte auf GNSS…"
 }

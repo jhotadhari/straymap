@@ -16,6 +16,9 @@ import { setIsActive } from '../gnss/slice';
 
 export interface TrackRecordingSettings {
 	isRecording: boolean;
+	/** Recording was restored from storage and resumes on the first
+	 * native GNSS position (see writeGnssPosition listener). */
+	resumePending: boolean;
 	activeTrackId: number | null;
 	activeLineId: number | null;
 	minDistance: number;
@@ -35,6 +38,7 @@ export interface TrackRecordingState extends SliceSettingsBase, TrackRecordingSe
 
 export const initialSettings: TrackRecordingSettings = {
 	isRecording: false,
+	resumePending: false,
 	activeTrackId: null,
 	activeLineId: null,
 	minDistance: 5,
@@ -111,6 +115,9 @@ export const trackRecordingSlice = createSlice({
 		setRecordingStartTime: (state, action: PayloadAction<number | null>) => {
 			state.recordingStartTime = action.payload;
 		},
+		setResumePending: (state, action: PayloadAction<boolean>) => {
+			state.resumePending = action.payload;
+		},
 	},
 });
 
@@ -125,6 +132,7 @@ export const {
 	setLastWrittenPosition,
 	setLastWrittenTime,
 	setRecordingStartTime,
+	setResumePending,
 	writeGnssPosition,
 } = trackRecordingSlice.actions;
 
@@ -151,6 +159,8 @@ export const startRecording = (): AppThunk => async (dispatch, getState) => {
 
 	const now = Date.now();
 
+	// A manual start supersedes a pending restore-resume.
+	dispatch(setResumePending(false));
 	dispatch(setIsRecordingAction(true));
 	dispatch(setActiveTrackId(null));
 	dispatch(setActiveLineId(null));
