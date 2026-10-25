@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useContext, useMemo, useState } from 'react';
 import {
 	SharedValue,
 	runOnJS,
@@ -17,6 +17,7 @@ import { Dimensions } from 'react-native';
  */
 import { DrawerState } from '../types';
 import { getDrawerWidthResponsive } from '../utils';
+import { AppContext } from '../../../Context';
 
 const useDrawerState = ({
 	side,
@@ -28,6 +29,21 @@ const useDrawerState = ({
 	translationXOther: SharedValue<number>;
 }): DrawerState => {
 	const { width } = useMemo(() => Dimensions.get('window'), []);
+
+	const { drawerGestureRef } = useContext(AppContext);
+
+	const beginDrawerGesture = useCallback(() => {
+		drawerGestureRef.current.active += 1;
+	}, [drawerGestureRef]);
+
+	const endDrawerGesture = useCallback(() => {
+		if (drawerGestureRef.current.active > 0) {
+			drawerGestureRef.current.active -= 1;
+		}
+		// Grace window: swallow map press events that arrive just after the
+		// finger lifts (the map's native long-press fires ~500ms after down).
+		drawerGestureRef.current.until = Date.now() + 700;
+	}, [drawerGestureRef]);
 
 	const drawerWidthResponsive = getDrawerWidthResponsive(width);
 
@@ -134,6 +150,15 @@ const useDrawerState = ({
 				.activeOffsetX([-10, 10])
 				.failOffsetY([-10, 10])
 				.minDistance(1)
+				.onBegin(() => {
+					// While a finger is on a drawer handle, suppress map press
+					// handling — the native map would otherwise still emit
+					// tap/long-press events for the same touch stream.
+					runOnJS(beginDrawerGesture)();
+				})
+				.onFinalize(() => {
+					runOnJS(endDrawerGesture)();
+				})
 				.onStart(() => {
 					prevTranslationX.value = translationX.value;
 				})
@@ -167,6 +192,8 @@ const useDrawerState = ({
 			translationX,
 			setTranslationX,
 			expand,
+			beginDrawerGesture,
+			endDrawerGesture,
 		]
 	);
 

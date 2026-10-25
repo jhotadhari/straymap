@@ -1,4 +1,9 @@
 /**
+ * External dependencies
+ */
+import type { ColorRamp } from 'react-native-mapsforge-vtm-ext-path-color-ramp';
+
+/**
  * Internal dependencies
  */
 import {
@@ -188,9 +193,7 @@ export class FeatureRegistry {
 				sources.push(...feature.mapContextMenuSources);
 			}
 		}
-		sources.sort(
-			(a, b) => (a.priority ?? DEFAULT_PRIORITY) - (b.priority ?? DEFAULT_PRIORITY)
-		);
+		sources.sort((a, b) => (a.priority ?? DEFAULT_PRIORITY) - (b.priority ?? DEFAULT_PRIORITY));
 		return sources;
 	}
 
@@ -249,6 +252,27 @@ export class FeatureRegistry {
 			}
 		}
 		return ids;
+	}
+
+	/**
+	 * Returns all feature-declared per-line colour ramps aggregated into
+	 * a single record (line ID → ColorRamp). Null/undefined entries are
+	 * skipped. Mirrors {@link getSystemLineIds} but keyed by line ID —
+	 * a line can be ramp-rendered without being feature-owned.
+	 */
+	getLineColorRamps(state: any): Record<number, ColorRamp> {
+		const ramps: Record<number, ColorRamp> = {};
+		for (const feature of Object.values(this.features())) {
+			if (feature.selectLineColorRamps) {
+				const featureRamps = feature.selectLineColorRamps(state);
+				for (const [lineId, colorRamp] of Object.entries(featureRamps)) {
+					if (colorRamp && Number.isFinite(Number(lineId))) {
+						ramps[Number(lineId)] = colorRamp;
+					}
+				}
+			}
+		}
+		return ramps;
 	}
 }
 

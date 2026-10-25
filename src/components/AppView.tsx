@@ -25,6 +25,7 @@ import { useTheme } from 'react-native-paper';
 import { clamp, get, isEqual } from 'lodash-es';
 import { sprintf } from 'sprintf-js';
 import { useTranslation } from 'react-i18next';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
 	MapContainer,
 	LayerScalebar,
@@ -57,11 +58,13 @@ import { selectHgtDirPath, selectMapsforgeGeneral } from '../features/baseMap/se
 import UiItemComponent from '../features/ui/components/UiItemComponent';
 import useShowInitialSplash from '../compose/useShowInitialSplash';
 import { DRAWER_HANDLE_SIZE } from '../features/drawers/constants';
+import { BOTTOM_DRAWER_HANDLE_HEIGHT } from '../features/bottomDrawer/constants';
 import { selectItemKeys, selectControlHandleSide } from '../features/drawers/selectors';
 import { getDrawerWidthResponsive } from '../features/drawers/utils';
 import { useAppDispatch } from '../store/hooks';
 import { featureRegistry } from '../features/FeatureRegistry';
 import { emitMapContextMenu } from '../features/mapContextMenu/controller';
+import { isMapPressOverDrawerUi } from './mapPressExclusions';
 import LayerDebugDumpButton from './LayerDebugDumpButton';
 import SceneBusyBridge from './SceneBusyBridge';
 import MapCornerComponents from './MapCornerComponents';
@@ -101,15 +104,18 @@ const AppView = ({
 	const leftItemKeys = useAppSelector((state) => selectItemKeys(state, { side: 'left' }));
 	const rightItemKeys = useAppSelector((state) => selectItemKeys(state, { side: 'right' }));
 
-	const getDrawerHandleHeight = useCallback(
-		(itemsCount: number) =>
-			itemsCount * DRAWER_HANDLE_SIZE + itemsCount * (DRAWER_HANDLE_SIZE / 2),
-		[]
-	);
+	const { width, height } = useMemo(() => Dimensions.get('window'), []);
 
-	const { width } = useMemo(() => Dimensions.get('window'), []);
+	const insets = useSafeAreaInsets();
 
-	const { mapViewNativeNodeHandle, moveEnabled, drawerControlsRef } = useContext(AppContext);
+	const {
+		mapViewNativeNodeHandle,
+		moveEnabled,
+		drawerControlsRef,
+		bottomBarHeight,
+		bottomDrawerHeightSv,
+		drawerGestureRef,
+	} = useContext(AppContext);
 
 	// Wire the map's nativeNodeHandle to altitudeService so thunks
 	// (routing, elevation enrichment) can query altitude without
@@ -286,62 +292,61 @@ const AppView = ({
 
 	// onTap/onLongPress fire for every map press (the library's HitTestLayer
 	// aggregates hits from all layer managers into the event payload). On a
-	// press, close any open drawers to give the user a clear view of the map
-	// and emit the press to the mapContextMenu feature. Presses on drawer
-	// handles and expanded drawer content are excluded so that interacting
-	// with a drawer doesn't immediately close it.
+	// short press, close any open drawers to give the user a clear view of
+	// the map and emit the press to the mapContextMenu feature. Long presses
+	// open the context menu but leave the drawers alone. Presses on drawer
+	// handles and drawer content (side or bottom) are excluded so that
+	// interacting with a drawer never triggers map behavior.
 	const handleMapPress = useCallback(
 		(event: NativeSyntheticEvent<TapEventResponse>, press: 'short' | 'long') => {
 			const { x, y, lng, lat } = event.nativeEvent;
 			const xLogical = x / PixelRatio.get();
 			const yLogical = y / PixelRatio.get();
 
+			// While a finger is on a drawer handle (or just after it lifted),
+			// the native map still receives the same touch stream and may
+			// emit tap/long-press events mid-drag; ignore them outright.
+			const drawerGesture = drawerGestureRef.current;
+			if (drawerGesture.active > 0 || Date.now() < drawerGesture.until) {
+				return;
+			}
+
 			const drawerWidthResponsive = getDrawerWidthResponsive(width);
 
-			const translationXLeft = drawerControlsRef.current?.left.translationX;
-			const translationXRight = drawerControlsRef.current?.right.translationX;
-
-			// Left-side exclusion: handles always visible; when expanded, the drawer
-			// content covers drawerWidth from the left edge plus the handle tab.
 			const leftItemCount = leftItemKeys.length + (controlHandleSide === 'left' ? 1 : 0);
-			if (leftItemCount > 0) {
-				const leftHandleH = getDrawerHandleHeight(leftItemCount);
-				// Get out if the tap event was within the rectangle of the left drawer handles.
-				// Handles sit at the right edge of the drawer content and extend right by
-				// DRAWER_HANDLE_SIZE.  The content itself is at x = translationXLeft (left edge)
-				// with width = drawerWidthResponsive, so the handle rectangle is:
-				//   [translationXLeft + drawerWidth, translationXLeft + drawerWidth + HANDLE_SIZE]
-				const leftHandleLeft =
-					(translationXLeft?.value ?? -drawerWidthResponsive) + drawerWidthResponsive;
-				const leftHandleRight = leftHandleLeft + DRAWER_HANDLE_SIZE;
-				if (yLogical <= leftHandleH && xLogical <= leftHandleRight) {
-					return;
-				}
-			}
-
-			// Right-side exclusion: mirror of the left-side logic.
 			const rightItemCount = rightItemKeys.length + (controlHandleSide === 'right' ? 1 : 0);
-			if (rightItemCount > 0) {
-				const rightHandleH = getDrawerHandleHeight(rightItemCount);
-				// Get out if the tap event was within the rectangle of the right drawer handles.
-				// Handles sit at the left edge of the drawer content and extend left by
-				// DRAWER_HANDLE_SIZE.  The content itself ends at x = width (flex-end) with
-				// width = drawerWidthResponsive, so its left edge is:
-				//   width - drawerWidth + translationXRight
-				// and the handle rectangle is:
-				//   [contentLeft - HANDLE_SIZE, contentLeft]
-				const rightContentLeft =
-					width -
-					drawerWidthResponsive +
-					(translationXRight?.value ?? drawerWidthResponsive);
-				const rightHandleLeft = rightContentLeft - DRAWER_HANDLE_SIZE;
-				if (yLogical <= rightHandleH && xLogical >= rightHandleLeft) {
-					return;
-				}
+
+			// Window-space press position — used for the bottom-drawer region,
+			// which anchors to the window bottom and is therefore independent
+			// of the map wrapper's vertical offset.
+			const windowOffset = mapWindowOffsetRef.current;
+			const windowY = (windowOffset?.y ?? 0) + yLogical;
+
+			const overDrawerUi = isMapPressOverDrawerUi({
+				x: xLogical,
+				y: yLogical,
+				windowY,
+				width,
+				windowHeight: height,
+				insetsBottom: insets.bottom,
+				drawerWidthResponsive,
+				drawerHandleSize: DRAWER_HANDLE_SIZE,
+				bottomDrawerHandleHeight: BOTTOM_DRAWER_HANDLE_HEIGHT,
+				bottomDrawerItemsExist: (bottomBarHeight?.bottomDrawer ?? 0) > 0,
+				bottomDrawerHeight: bottomDrawerHeightSv.value,
+				leftTranslationX: drawerControlsRef.current?.left.translationX?.value ?? null,
+				rightTranslationX: drawerControlsRef.current?.right.translationX?.value ?? null,
+				leftItemCount,
+				rightItemCount,
+			});
+			if (overDrawerUi) {
+				return;
 			}
 
-			drawerControlsRef.current?.left.expand(false);
-			drawerControlsRef.current?.right.expand(false);
+			if ('short' === press) {
+				drawerControlsRef.current?.left.expand(false);
+				drawerControlsRef.current?.right.expand(false);
+			}
 
 			// Parse the aggregated layer hits (JSON string — see the
 			// library's HitTestLayer / TapEventResponse.hits) and forward
@@ -358,7 +363,6 @@ const AppView = ({
 			}
 			// The popover renders in a Modal (window space), so convert the
 			// map-local physical px to window dp via the wrapper's offset.
-			const windowOffset = mapWindowOffsetRef.current;
 			const mapEvent = currentMapEventRef.current;
 			emitMapContextMenu({
 				press,
@@ -367,7 +371,7 @@ const AppView = ({
 				x,
 				y,
 				windowX: (windowOffset?.x ?? 0) + xLogical,
-				windowY: (windowOffset?.y ?? 0) + yLogical,
+				windowY,
 				...(mapEvent?.zoomLevel != null && { zoomLevel: mapEvent.zoomLevel }),
 				...(mapEvent?.tileSize != null && { tileSize: mapEvent.tileSize }),
 				hits,
@@ -375,12 +379,16 @@ const AppView = ({
 		},
 		[
 			drawerControlsRef,
-			getDrawerHandleHeight,
+			drawerGestureRef,
 			leftItemKeys.length,
 			rightItemKeys.length,
 			controlHandleSide,
 			width,
+			height,
 			currentMapEventRef,
+			insets.bottom,
+			bottomBarHeight,
+			bottomDrawerHeightSv,
 		]
 	);
 

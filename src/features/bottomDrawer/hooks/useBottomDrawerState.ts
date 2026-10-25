@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useContext, useMemo, useState } from 'react';
 import {
 	runOnJS,
 	useAnimatedReaction,
@@ -16,6 +16,7 @@ import { Gesture } from 'react-native-gesture-handler';
  */
 import { BottomDrawerState } from '../types';
 import { BOTTOM_DRAWER_CONTENT_HEIGHT } from '../constants';
+import { AppContext } from '../../../Context';
 
 const useBottomDrawerState = ({
 	onSettle,
@@ -26,6 +27,21 @@ const useBottomDrawerState = ({
 }): BottomDrawerState => {
 	const collapsed = 0;
 	const max = BOTTOM_DRAWER_CONTENT_HEIGHT;
+
+	const { drawerGestureRef } = useContext(AppContext);
+
+	const beginDrawerGesture = useCallback(() => {
+		drawerGestureRef.current.active += 1;
+	}, [drawerGestureRef]);
+
+	const endDrawerGesture = useCallback(() => {
+		if (drawerGestureRef.current.active > 0) {
+			drawerGestureRef.current.active -= 1;
+		}
+		// Grace window: swallow map press events that arrive just after the
+		// finger lifts (the map's native long-press fires ~500ms after down).
+		drawerGestureRef.current.until = Date.now() + 700;
+	}, [drawerGestureRef]);
 
 	const prevHeight = useSharedValue(collapsed);
 
@@ -101,6 +117,15 @@ const useBottomDrawerState = ({
 				.activeOffsetY([-10, 10])
 				.failOffsetX([-10, 10])
 				.minDistance(1)
+				.onBegin(() => {
+					// While a finger is on the handle, suppress map press
+					// handling — the native map would otherwise still emit
+					// tap/long-press events for the same touch stream.
+					runOnJS(beginDrawerGesture)();
+				})
+				.onFinalize(() => {
+					runOnJS(endDrawerGesture)();
+				})
 				.onStart(() => {
 					prevHeight.value = height.value;
 				})
@@ -133,6 +158,8 @@ const useBottomDrawerState = ({
 			setHeight,
 			notifySettle,
 			expand,
+			beginDrawerGesture,
+			endDrawerGesture,
 		]
 	);
 

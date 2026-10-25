@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.5.0] - 2026-10-25
+
+### Added
+
+- Chart: thin tick-aligned background grid lines.
+- Lines: generic per-line color-ramp infrastructure — ramp lines render
+  via LayerPathColorRamp and show a slope-ramp legend in the
+  selected-lines list color column.
+
+### Fixed
+
+- Map presses during drawer interactions: long presses on drawer handles
+  and open/close drags (side and bottom) no longer open the map context
+  menu, and a long press on the map no longer closes the side drawers.
+
 ## [0.5.0-beta.1] - 2026-10-25
 
 ### Added
@@ -275,6 +290,7 @@ Basic app structure and map viewer functionality.
 - Topbar with breadcrumbs and a menu.
 - Structure for settings and some settings pages.
 
+[0.5.0]: https://github.com/jhotadhari/straymap/compare/v0.5.0-beta.1...v0.5.0
 [0.5.0-beta.1]: https://github.com/jhotadhari/straymap/compare/v0.4.0...v0.5.0-beta.1
 [0.4.0]: https://github.com/jhotadhari/straymap/compare/v0.3.5...v0.4.0
 [0.3.5]: https://github.com/jhotadhari/straymap/compare/v0.3.4...v0.3.5

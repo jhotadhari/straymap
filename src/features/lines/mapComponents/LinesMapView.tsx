@@ -1,26 +1,105 @@
 /**
  * External dependencies
  */
-import React, { useContext, useEffect, useMemo, useRef } from 'react';
+import React, { FC, memo, useContext, useEffect, useMemo, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { LayerPath, ReindexScope, SharedLayer, useViewportBbox } from 'react-native-mapsforge-vtm';
+import {
+	LayerPath,
+	PathPaint,
+	ReindexScope,
+	SharedLayer,
+	useViewportBbox,
+} from 'react-native-mapsforge-vtm';
+import {
+	LayerPathColorRamp,
+	usePathColorRamp,
+	calculateSlope,
+	ColorRamp,
+} from 'react-native-mapsforge-vtm-ext-path-color-ramp';
 
 /**
  * Internal dependencies
  */
 import { MapContext } from '../../../Context';
-import { useAppDispatch, useAppSelector, useSystemLineIds } from '../../../store/hooks';
+import {
+	useAppDispatch,
+	useAppSelector,
+	useLineColorRamps,
+	useSystemLineIds,
+} from '../../../store/hooks';
 import { addBusyKey, removeBusyKey } from '../../ui/slice';
 import { selectSelected, selectLineColors, selectUseSimplification } from '../selectors';
 import { selectMapUpdateInterval } from '../../general/selectors';
-import { queryLineGeomsBatch } from '../db/queryFns';
+import { queryLineGeomsBatch, queryLinePathCoords } from '../db/queryFns';
 import useSimplificationTolerance from '../hooks/useSimplificationTolerance';
 import { PALETTE_COLORS } from '../../../constants';
 import { linesLayerRegistry } from '../layerRegistry';
 
 const BASE_STROKE_WIDTH = 3;
 
+const RAMP_STROKE_WIDTH = 6;
+
 const FALLBACK_COLOR = PALETTE_COLORS[0].bg;
+
+const paintPathRamp: PathPaint = { strokeWidth: RAMP_STROKE_WIDTH };
+
+/**
+ * Renders a single line as a LayerPathColorRamp using the slope metric
+ * (same metric + fixed JS-turf simplification as the routing ramp —
+ * Z-preserving, see queryLinePathCoords).
+ */
+const LineColorRampPath: FC<{
+	lineId: number;
+	colorRamp: ColorRamp;
+}> = memo(({ lineId, colorRamp }) => {
+	const { data: coordinates } = useQuery({
+		queryKey: ['linePathCoords', lineId],
+		queryFn: queryLinePathCoords,
+		gcTime: 1000 * 10,
+	});
+
+	const coords = useMemo(
+		() =>
+			(coordinates ?? []) as [
+				number,
+				number,
+				number,
+			][],
+		[coordinates]
+	);
+
+	const segmentValues = useMemo(
+		() => (coords.length > 1 ? calculateSlope(coords) : undefined),
+		[coords]
+	);
+
+	const { colorRampStops, normalizedValues } = usePathColorRamp({
+		coordinates: coords,
+		segmentValues,
+		colorRamp,
+	});
+
+	if (coords.length < 2) {
+		return undefined;
+	}
+
+	return (
+		<LayerPathColorRamp
+			coordinates={coords}
+			segmentValues={normalizedValues}
+			colorRampStops={colorRampStops}
+			paint={paintPathRamp}
+			onCreate={(response) => {
+				linesLayerRegistry.pathUuidByLineId.set(lineId, response.uuid);
+			}}
+			onRemove={(response) => {
+				if (linesLayerRegistry.pathUuidByLineId.get(lineId) === response.uuid) {
+					linesLayerRegistry.pathUuidByLineId.delete(lineId);
+				}
+			}}
+		/>
+	);
+});
 
 const LinesMapView = () => {
 	const selectedIds = useAppSelector(selectSelected);
@@ -28,6 +107,7 @@ const LinesMapView = () => {
 	const systemLineIds = useSystemLineIds();
 	const simplify = useSimplificationTolerance(useSimplification ? undefined : 0.00004);
 	const lineColors = useAppSelector(selectLineColors);
+	const lineColorRamps = useLineColorRamps();
 
 	const paintByColor = useMemo(() => {
 		const map = new Map<string, { strokeColor: `#${string}`; strokeWidth: number }>();
@@ -148,10 +228,33 @@ const LinesMapView = () => {
 		return ids;
 	}, [systemLineIds]);
 
+	// Ramp-rendered lines: selected lines with a feature-declared colour
+	// ramp that are not system lines. System lines (e.g. the routing
+	// line) render themselves — their ramp declarations only drive the
+	// line-list legend column.
+	const rampIdSet = useMemo(() => {
+		const selectedSet = new Set(selectedIds);
+		const ids = new Set<number>();
+		for (const id of Object.keys(lineColorRamps).map(Number)) {
+			if (selectedSet.has(id) && !systemIdSet.has(id)) {
+				ids.add(id);
+			}
+		}
+		return ids;
+	}, [
+		lineColorRamps,
+		selectedIds,
+		systemIdSet,
+	]);
+
 	const linesToRender = useMemo(() => {
 		if (!lines) return [];
-		return lines.filter((l) => !systemIdSet.has(l.id));
-	}, [lines, systemIdSet]);
+		return lines.filter((l) => !systemIdSet.has(l.id) && !rampIdSet.has(l.id));
+	}, [
+		lines,
+		systemIdSet,
+		rampIdSet,
+	]);
 
 	const pathElements = useMemo(() => {
 		if (simplify === undefined || !lines) return undefined;
@@ -197,9 +300,22 @@ const LinesMapView = () => {
 		paintByColor,
 	]);
 
+	const rampPathElements = useMemo(
+		() =>
+			[...rampIdSet].map((id) => (
+				<LineColorRampPath
+					key={id}
+					lineId={id}
+					colorRamp={lineColorRamps[id]}
+				/>
+			)),
+		[rampIdSet, lineColorRamps]
+	);
+
 	return (
 		<ReindexScope order={200}>
 			<SharedLayer>{pathElements}</SharedLayer>
+			{rampPathElements}
 		</ReindexScope>
 	);
 };

@@ -28,6 +28,14 @@ export type AppContextType = {
 	 * side drawers) so they track the shrinking map without JS round-trips.
 	 */
 	bottomDrawerHeightSv: SharedValue<number>;
+	/**
+	 * Plain JS ref tracking drawer-handle gestures (side or bottom). The
+	 * drawer pan gestures update it from the JS thread via runOnJS on
+	 * onBegin/onFinalize; the map press handler ignores map presses while
+	 * `active > 0` or within the post-release grace window (`until`), so
+	 * drawer open/close interactions never reach the map's gesture layer.
+	 */
+	drawerGestureRef: MutableRefObject<{ active: number; until: number }>;
 	moveEnabled?: boolean;
 	setMoveEnabled?: Dispatch<SetStateAction<boolean>>;
 	mapCornerComponentsHeight?: number;
@@ -38,6 +46,7 @@ export const AppContext = createContext<AppContextType>({
 	drawerControlsRef: createRef<DrawerControls>(),
 	bottomDrawerControlsRef: createRef<BottomDrawerControls>(),
 	bottomDrawerHeightSv: makeMutable(0),
+	drawerGestureRef: { current: { active: 0, until: 0 } },
 });
 
 export type MapContextType = {

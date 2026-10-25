@@ -1,4 +1,9 @@
 /**
+ * External dependencies
+ */
+import { ColorRamp } from 'react-native-mapsforge-vtm-ext-path-color-ramp';
+
+/**
  * Internal dependencies
  */
 import {
@@ -8,6 +13,28 @@ import {
 	RoutingProfile,
 	StraightLineOptions,
 } from './types';
+
+/**
+ * Slope colour ramp (percent grade) used to render routing segments via
+ * LayerPathColorRamp. Also registered per-line via
+ * `selectLineColorRamps` so line-list colour columns can render the
+ * matching legend. Keep in sync with the chart's slope ramp
+ * (`src/features/chart/utils.ts` SLOPE_STOPS).
+ */
+export const SLOPE_COLOR_RAMP: ColorRamp = {
+	unit: 'percent',
+	stops: [
+		{ value: -20, color: '#00004d' },
+		{ value: -13, color: '#000080' },
+		{ value: -7, color: '#0000ff' },
+		{ value: -2, color: '#00e8ff' },
+		{ value: 0, color: '#00ff00' },
+		{ value: 2, color: '#FFDE02' },
+		{ value: 7, color: '#ff0000' },
+		{ value: 13, color: '#800000' },
+		{ value: 20, color: '#4d0000' },
+	],
+};
 
 export const DEFAULT_INHERIT_MODE: RoutingPointInheritMode = 'route';
 
