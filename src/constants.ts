@@ -52,3 +52,10 @@ export const PALETTE_COLORS: PaletteColor[] = [
 	{ bg: '#7A00F5', fg: '#FFFFFF', border: '#5700AD' }, // violet     (270°)
 	{ bg: '#F500B8', fg: '#FFFFFF', border: '#AD0082' }, // pink       (315°)
 ];
+
+/**
+ * The app's single "recorded line" red — the default colour of the
+ * system 'recorded' tag and of every recording indicator (GNSS direction
+ * marker, etc.) so all recording reds match.
+ */
+export const RECORDED_LINE_COLOR = '#e53935';

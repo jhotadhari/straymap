@@ -13,6 +13,7 @@ import gnssAltitude from './dashboardWidgets/gnssAltitude';
 import gnssSpeed from './dashboardWidgets/gnssSpeed';
 import SettingsLocation from './uiItems/SettingsLocation';
 import GnssCenterOverlay from './appOverlays/GnssCenterOverlay';
+import GnssCenterMarker from './mapComponents/GnssCenterMarker';
 
 export default {
 	selectInitialized,
@@ -44,6 +45,13 @@ export default {
 			key: 'gnssCenter',
 			Component: GnssCenterOverlay,
 			priority: 100,
+		},
+	],
+	mapComponents: [
+		{
+			key: 'gnssCenterMarker',
+			Component: GnssCenterMarker,
+			priority: 250,
 		},
 	],
 	settingsPages: [

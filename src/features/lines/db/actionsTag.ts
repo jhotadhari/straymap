@@ -11,6 +11,7 @@ import { tagsTable, tagsToLinesTable } from './schema/schema';
 import { withDbErrorHandling } from '../../dbLoader/utils';
 import { featureRegistry } from '../../FeatureRegistry';
 import { logError } from '../../../lib/utils';
+import { RECORDED_LINE_COLOR } from '../../../constants';
 
 export const createTags = withDbErrorHandling(
 	'lines/actionsTag.createTags',
@@ -91,7 +92,6 @@ export const ensureTagByLabel = withDbErrorHandling(
  * Default `data` for system-reserved tags (label → data). The 'recorded'
  * tag renders red via its explicit `data.color`.
  */
-export const RECORDED_LINE_COLOR = '#e53935';
 const SYSTEM_TAG_DEFAULTS: Record<string, any> = {
 	recorded: { color: RECORDED_LINE_COLOR },
 };

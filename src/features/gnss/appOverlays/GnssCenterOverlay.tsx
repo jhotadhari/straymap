@@ -10,7 +10,7 @@ import Animated, {
 	useAnimatedStyle,
 	useSharedValue,
 } from 'react-native-reanimated';
-import Svg, { Line, Polygon } from 'react-native-svg';
+import Svg, { Line } from 'react-native-svg';
 import { MapPositionSharedValues, toScreenPosition } from 'react-native-mapsforge-vtm/reanimated';
 
 /**
@@ -21,10 +21,7 @@ import { selectGnssPosition, selectIsCenterActive } from '../selectors';
 import { useGnssCenterMode } from '../hooks/useGnssCenterMode';
 import { AppContext, MapContext } from '../../../Context';
 import useBottomDrawerAwareHeights from '../../drawers/hooks/useBottomDrawerAwareHeights';
-import { RECORDED_LINE_COLOR } from '../../lines/db/actionsTag';
 
-const TRIANGLE_WIDTH = 14;
-const TRIANGLE_HEIGHT = 26;
 const LINE_WIDTH = 2;
 /** Label distance beyond the map center, along the GNSS→center direction. */
 const LABEL_OFFSET_DP = 48;
@@ -92,66 +89,6 @@ function clipSegmentToRect(
 	}
 	return { x: x1 + t1 * dx, y: y1 + t1 * dy };
 }
-
-const GnssCenterTriangle = ({
-	sharedValues,
-	gnssTargetSv,
-	gnssBearingSv,
-}: {
-	sharedValues: OverlaySharedValues;
-	gnssTargetSv: SharedValue<{ lat: number; lng: number } | null>;
-	gnssBearingSv: SharedValue<number>;
-}) => {
-	const { centerSv, viewportWidthSv, viewportHeightSv, zoomSv, bearingSv, tiltSv } = sharedValues;
-
-	const animatedStyle = useAnimatedStyle(() => {
-		const target = gnssTargetSv.value;
-		if (!target) {
-			return { opacity: 0 };
-		}
-		const screenPos = toScreenPosition(
-			centerSv,
-			viewportWidthSv,
-			viewportHeightSv,
-			zoomSv,
-			bearingSv,
-			tiltSv,
-			target
-		);
-		if (!screenPos) {
-			return { opacity: 0 };
-		}
-		return {
-			opacity: 1,
-			left: screenPos.x,
-			top: screenPos.y,
-			transform: [
-				{ translateX: -TRIANGLE_WIDTH / 2 },
-				{ translateY: -TRIANGLE_HEIGHT / 2 },
-				{ rotate: `${gnssBearingSv.value - bearingSv.value}deg` },
-			],
-		};
-	});
-
-	return (
-		<Animated.View
-			style={[styles.triangle, animatedStyle]}
-			pointerEvents="none"
-		>
-			<Svg
-				width={TRIANGLE_WIDTH}
-				height={TRIANGLE_HEIGHT}
-			>
-				<Polygon
-					points={`${TRIANGLE_WIDTH / 2},1 1,${TRIANGLE_HEIGHT - 1} ${TRIANGLE_WIDTH - 1},${TRIANGLE_HEIGHT - 1}`}
-					fill={RECORDED_LINE_COLOR}
-					stroke="#000000"
-					strokeWidth={2}
-				/>
-			</Svg>
-		</Animated.View>
-	);
-};
 
 const AnimatedLine = Animated.createAnimatedComponent(Line);
 
@@ -284,11 +221,11 @@ const GnssCenterLabel = ({
 };
 
 /**
- * Center-mode overlay: triangle marker on the GNSS position (rotated to
- * the direction of movement), plus — while the map is panned away from
- * the GNSS position — a thin connecting line and a distance/bearing
- * label anchored just beyond the map center. All positions are derived
- * on the UI thread at 60fps with zero bridge crossings.
+ * Center-mode overlay: while the map is panned away from the GNSS
+ * position (the position itself is a native marker in GnssCenterMarker),
+ * a thin connecting line and a distance/bearing label anchored just
+ * beyond the map center are derived on the UI thread at 60fps with zero
+ * bridge crossings.
  */
 const GnssCenterOverlay = () => {
 	const theme = useTheme();
@@ -302,21 +239,17 @@ const GnssCenterOverlay = () => {
 	const { animatedHeight } = useBottomDrawerAwareHeights(mapHeight);
 
 	const gnssTargetSv = useSharedValue<{ lat: number; lng: number } | null>(null);
-	const gnssBearingSv = useSharedValue(0);
 	const showConnectionSv = useSharedValue(false);
 
 	useEffect(() => {
 		if (gnssPosition) {
 			gnssTargetSv.value = { lat: gnssPosition.lat, lng: gnssPosition.lng };
-			gnssBearingSv.value = gnssPosition.bearing;
 		} else {
 			gnssTargetSv.value = null;
-			gnssBearingSv.value = 0;
 		}
 	}, [
 		gnssPosition,
 		gnssTargetSv,
-		gnssBearingSv,
 	]);
 
 	const showConnection = mode === 'pannedAway' || mode === 'returning';
@@ -343,11 +276,6 @@ const GnssCenterOverlay = () => {
 				gnssTargetSv={gnssTargetSv}
 				showConnectionSv={showConnectionSv}
 			/>
-			<GnssCenterTriangle
-				sharedValues={mapPosition}
-				gnssTargetSv={gnssTargetSv}
-				gnssBearingSv={gnssBearingSv}
-			/>
 			<GnssCenterLabel
 				sharedValues={mapPosition}
 				gnssTargetSv={gnssTargetSv}
@@ -365,11 +293,6 @@ const styles = StyleSheet.create({
 		position: 'absolute',
 		top: 0,
 		left: 0,
-	},
-	triangle: {
-		position: 'absolute',
-		left: 0,
-		top: 0,
 	},
 	label: {
 		position: 'absolute',
