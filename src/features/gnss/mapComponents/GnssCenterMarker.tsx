@@ -11,7 +11,7 @@ import { LayerMarker, Marker, ReindexScope } from 'react-native-mapsforge-vtm';
  * Internal dependencies
  */
 import { useAppSelector } from '../../../store/hooks';
-import { selectGnssPosition, selectIsCenterActive } from '../selectors';
+import { selectGnssHeading, selectGnssPosition, selectIsCenterActive } from '../selectors';
 import { selectAppDirs } from '../../dirs/selectors';
 import { RECORDED_LINE_COLOR } from '../../../constants';
 import { logError } from '../../../lib/utils';
@@ -37,6 +37,7 @@ const buildMarkerSvg = (): string =>
 const GnssCenterMarker: FC = () => {
 	const isCenterActive = useAppSelector(selectIsCenterActive);
 	const gnssPosition = useAppSelector(selectGnssPosition);
+	const gnssHeading = useAppSelector(selectGnssHeading);
 	const appDirs = useAppSelector(selectAppDirs);
 
 	const markerDir = get(appDirs, ['marker', 0]) as string | undefined;
@@ -71,7 +72,9 @@ const GnssCenterMarker: FC = () => {
 	// The native marker canvas is raw pixels — scale dp by density.
 	const sizePx = useMemo(() => Math.round(MARKER_SIZE_DP * PixelRatio.get()), []);
 
-	const rotation = gnssPosition?.bearing ?? 0;
+	// Movement direction from consecutive fixes (slice-derived heading) —
+	// the payload's velocity bearing is unreliable for pedestrian fixes.
+	const rotation = gnssHeading ?? 0;
 
 	const paint = useMemo(
 		() =>
