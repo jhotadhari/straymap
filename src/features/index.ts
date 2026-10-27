@@ -15,6 +15,7 @@ import importFeature from './import';
 import lang from './lang';
 import lines from './lines';
 import mapContextMenu from './mapContextMenu';
+import measure from './measure';
 import routing from './routing';
 import gnss from './gnss';
 import trackRecording from './trackRecording';
@@ -36,6 +37,7 @@ const features = {
 	lang,
 	lines,
 	mapContextMenu,
+	measure,
 	routing,
 	ui,
 	updater,
