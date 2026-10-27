@@ -86,7 +86,7 @@ const useStopRecordingCbModal = () => {
 const styles = StyleSheet.create({
 	controls: {
 		flexDirection: 'row',
-		justifyContent: 'flex-end',
+		justifyContent: 'space-between',
 		alignItems: 'center',
 		gap: 12,
 		marginBottom: 40,

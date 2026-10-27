@@ -49,14 +49,11 @@ const ResumeRecordingPrompt: FC = () => {
 		dispatch(stopRecording());
 	}, [dispatch]);
 
-	const buttonPropsDiscard = useButtonProps({
-		mode: 'outlined',
-		isDestructive: true,
-	});
-	const buttonPropsContinue = useButtonProps({
-		mode: 'outlined',
-		isSuccess: true,
-	});
+	// Plain outlined for both — the isDestructive/isSuccess presets pass a
+	// buttonColor, which Paper uses as the background fill even in
+	// outlined mode.
+	const buttonPropsDiscard = useButtonProps({ mode: 'outlined' });
+	const buttonPropsContinue = useButtonProps({ mode: 'outlined' });
 
 	return (
 		<ModalWrapper
@@ -93,7 +90,7 @@ const styles = StyleSheet.create({
 	},
 	controls: {
 		flexDirection: 'row',
-		justifyContent: 'flex-end',
+		justifyContent: 'space-between',
 		gap: 12,
 		marginTop: 16,
 	},
