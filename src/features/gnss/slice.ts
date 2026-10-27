@@ -10,9 +10,15 @@ import { createSlice } from '@reduxjs/toolkit';
 import { SliceSettingsBase } from '../../types';
 import { bearingBetween, haversineDistance } from '../../lib/formatting';
 
-/** Min movement between two fixes (m) before the heading is recomputed.
- * Below this the bearing is pure GPS noise — keep the previous heading. */
-export const MIN_HEADING_MOVE_M = 3;
+/** Min movement away from the heading anchor (m) before the heading is
+ * recomputed. Accumulates across fixes, so slow movement still updates
+ * the direction every few fixes instead of never (per-fix distances at
+ * walking pace are ~1-2 m and would drown in GPS noise). */
+export const MIN_HEADING_MOVE_M = 5;
+/** Max age of the heading anchor (ms). When older and the movement
+ * threshold was never reached (stationary GPS drift), the anchor resets
+ * to the current fix without changing the heading. */
+export const HEADING_ANCHOR_MAX_AGE_MS = 10 * 1000;
 
 /** Live GNSS position data — mirrors the native onGnssPosition payload. */
 export interface GnssPositionData {
@@ -40,10 +46,10 @@ export interface GnssState extends SliceSettingsBase, GnssSettings {
 	/** Live position — runtime only, never persisted. Null until the
 	 * first onGnssPosition event, and reset to null when GNSS turns off. */
 	position: GnssPositionData | null;
-	/** Previous fix's coordinates — runtime only; feeding the heading. */
-	lastPosition: { lng: number; lat: number } | null;
-	/** Movement direction (degrees 0-360) resolved from the last two
-	 * fixes, movement-gated (MIN_HEADING_MOVE_M). Runtime only. */
+	/** Reference fix for the heading derivation — runtime only. */
+	headingAnchor: { lng: number; lat: number; timestamp: number } | null;
+	/** Movement direction (degrees 0-360) resolved from the heading
+	 * anchor, movement-gated (MIN_HEADING_MOVE_M). Runtime only. */
 	heading: number | null;
 }
 
@@ -57,7 +63,7 @@ const initialState: GnssState = {
 	initialized: false,
 	...initialSettings,
 	position: null,
-	lastPosition: null,
+	headingAnchor: null,
 	heading: null,
 };
 
@@ -72,7 +78,7 @@ export const gnssSlice = createSlice({
 			state.isActive = action.payload;
 			if (!action.payload) {
 				state.position = null;
-				state.lastPosition = null;
+				state.headingAnchor = null;
 				state.heading = null;
 			}
 		},
@@ -80,22 +86,35 @@ export const gnssSlice = createSlice({
 			const next = action.payload;
 			if (!next) {
 				state.position = null;
-				state.lastPosition = null;
+				state.headingAnchor = null;
 				state.heading = null;
 				return;
 			}
-			const prev = state.lastPosition;
-			if (prev) {
-				const dist = haversineDistance([prev.lng, prev.lat], [next.lng, next.lat]);
+			const anchor = state.headingAnchor;
+			if (!anchor) {
+				state.headingAnchor = { lng: next.lng, lat: next.lat, timestamp: next.timestamp };
+			} else {
+				const dist = haversineDistance([anchor.lng, anchor.lat], [next.lng, next.lat]);
 				if (dist >= MIN_HEADING_MOVE_M) {
-					// Movement direction from the last two positions —
-					// the payload's velocity bearing is unreliable.
-					state.heading = bearingBetween([prev.lng, prev.lat], [next.lng, next.lat]);
+					// Movement direction from the anchor — the payload's
+					// velocity bearing is unreliable.
+					state.heading = bearingBetween([anchor.lng, anchor.lat], [next.lng, next.lat]);
+					state.headingAnchor = {
+						lng: next.lng,
+						lat: next.lat,
+						timestamp: next.timestamp,
+					};
+				} else if (next.timestamp - anchor.timestamp >= HEADING_ANCHOR_MAX_AGE_MS) {
+					// Below the threshold the bearing is GPS noise — but a
+					// stale anchor would eventually cross it via stationary
+					// drift. Reset it without changing the heading.
+					state.headingAnchor = {
+						lng: next.lng,
+						lat: next.lat,
+						timestamp: next.timestamp,
+					};
 				}
-				// Below the threshold the bearing is GPS noise — keep the
-				// previous heading.
 			}
-			state.lastPosition = { lng: next.lng, lat: next.lat };
 			state.position = next;
 		},
 		setIsCenterActive: (state, action: PayloadAction<boolean>) => {
