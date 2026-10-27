@@ -14,8 +14,8 @@ import MdiIcons from '@react-native-vector-icons/material-icons/static';
  */
 import { DrawerPanel } from '../../drawers/types';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
-import { selectIsActive, selectGnssPosition } from '../../gnss/selectors';
-import { setIsActive } from '../../gnss/slice';
+import { selectIsActive, selectGnssPosition, selectIsCenterActive } from '../../gnss/selectors';
+import { setIsActive, setIsCenterActive } from '../../gnss/slice';
 import { selectIsRecording, selectActiveLineId, selectRecordingStartTime } from '../selectors';
 import { selectResumePending } from '../selectors';
 import { startRecording, stopRecording, continueRecording } from '../slice';
@@ -89,6 +89,7 @@ const TrackingDrawerContent: FC = () => {
 
 	const isRecording = useAppSelector(selectIsRecording);
 	const isActive = useAppSelector(selectIsActive);
+	const isCenterActive = useAppSelector(selectIsCenterActive);
 	const resumePending = useAppSelector(selectResumePending);
 	const gnssPosition = useAppSelector(selectGnssPosition);
 	const activeLineId = useAppSelector(selectActiveLineId);
@@ -216,11 +217,34 @@ const TrackingDrawerContent: FC = () => {
 				showError(t('gnss.permissionDenied'));
 				return;
 			}
+			dispatch(setIsActive(true));
+			return;
 		}
-		dispatch(setIsActive(!isActive));
+		// Center mode without GNSS makes no sense — disable it too.
+		dispatch(setIsCenterActive(false));
+		dispatch(setIsActive(false));
 	}, [
 		dispatch,
 		isActive,
+		showError,
+		t,
+	]);
+
+	const handleToggleCenterMode = useCallback(async () => {
+		if (isCenterActive) {
+			dispatch(setIsCenterActive(false));
+			return;
+		}
+		const granted = await ensureLocationPermission();
+		if (!granted) {
+			showError(t('gnss.permissionDenied'));
+			return;
+		}
+		dispatch(setIsActive(true));
+		dispatch(setIsCenterActive(true));
+	}, [
+		dispatch,
+		isCenterActive,
 		showError,
 		t,
 	]);
@@ -325,6 +349,15 @@ const TrackingDrawerContent: FC = () => {
 				style={styles.button}
 			>
 				{isActive ? t('gnss.deactivateGnss') : t('gnss.activateGnss')}
+			</Button>
+
+			<Button
+				mode={isCenterActive ? 'outlined' : 'contained'}
+				onPress={handleToggleCenterMode}
+				style={styles.button}
+				icon={'crosshairs-gps'}
+			>
+				{isCenterActive ? t('gnss.deactivateCenterMode') : t('gnss.activateCenterMode')}
 			</Button>
 		</View>
 	);

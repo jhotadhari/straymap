@@ -10,10 +10,11 @@ import { useTranslation } from 'react-i18next';
  */
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { selectIsActive } from '../selectors';
-import { setIsActive } from '../slice';
+import { setIsActive, setIsCenterActive } from '../slice';
 import { selectIsRecording } from '../../trackRecording/selectors';
 import { startRecording, stopRecording } from '../../trackRecording/slice';
 import TrackRecordingControl from '../../trackRecording/components/TrackRecordingControl';
+import GnssCenterControl from '../components/controls/GnssCenterControl';
 import InfoLabelRow from '../../../components/generic/infoWrapper/InfoLabelRow';
 import ButtonHighlight from '../../../components/generic/primitives/ButtonHighlight';
 import { useButtonProps } from '../../../compose/useButtonProps';
@@ -38,8 +39,12 @@ const SettingsLocation: FC<{ style?: ViewStyle }> = ({ style }) => {
 				showError(t('gnss.permissionDenied'));
 				return;
 			}
+			dispatch(setIsActive(true));
+			return;
 		}
-		dispatch(setIsActive(!isGnssActive));
+		// Center mode without GNSS makes no sense — disable it too.
+		dispatch(setIsCenterActive(false));
+		dispatch(setIsActive(false));
 	}, [
 		dispatch,
 		isGnssActive,
@@ -94,6 +99,8 @@ const SettingsLocation: FC<{ style?: ViewStyle }> = ({ style }) => {
 					{isRecording ? t('trackRecording.stop') : t('trackRecording.start')}
 				</ButtonHighlight>
 			</InfoLabelRow>
+
+			<GnssCenterControl />
 
 			<TrackRecordingControl />
 		</ScrollView>

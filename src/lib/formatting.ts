@@ -293,6 +293,34 @@ export const haversineLineLength = (coords: number[][]): number => {
 	return total;
 };
 
+/**
+ * Great-circle initial bearing from point a to point b, degrees 0-360
+ * (0 = north, 90 = east). Accepts [lng, lat] or { lng, lat } inputs.
+ */
+export const bearingBetween = (
+	a: [number, number] | { lng: number; lat: number },
+	b: [number, number] | { lng: number; lat: number }
+): number => {
+	const [aLng, aLat] = Array.isArray(a) ? a : [a.lng, a.lat];
+	const [bLng, bLat] = Array.isArray(b) ? b : [b.lng, b.lat];
+	const toRad = (deg: number) => (deg * Math.PI) / 180;
+	const toDeg = (rad: number) => (rad * 180) / Math.PI;
+	const dLng = toRad(bLng - aLng);
+	const y = Math.sin(dLng) * Math.cos(toRad(bLat));
+	const x =
+		Math.cos(toRad(aLat)) * Math.sin(toRad(bLat)) -
+		Math.sin(toRad(aLat)) * Math.cos(toRad(bLat)) * Math.cos(dLng);
+	return (toDeg(Math.atan2(y, x)) + 360) % 360;
+};
+
+/**
+ * Format a bearing in degrees, rounded, with the degree sign:
+ * formatBearing(89.6) → "90°".
+ */
+export const formatBearing = (bearingDeg: number, round = 0): string => {
+	return `${bearingDeg.toFixed(round)}°`;
+};
+
 // ── Inverse converters: display unit → metric ─────────────────────────
 
 // Input: user-entered value in the preferred unit, output: meters

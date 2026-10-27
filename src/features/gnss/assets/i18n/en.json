@@ -6,6 +6,12 @@
 	"gnssSpeed": "GNSS Speed",
 	"activateGnss": "Activate GNSS",
 	"deactivateGnss": "Deactivate GNSS",
+	"centerMode": "Center mode",
+	"activateCenterMode": "Activate center mode",
+	"deactivateCenterMode": "Deactivate center mode",
+	"recenterDelay": "Re-center after (s)",
+	"hintCenterMode": "Keep the map centered on your GNSS position. You can pan away freely — after the configured delay the map flies back.",
+	"hintRecenterDelay": "Seconds of stillness after panning away before the map returns to your GNSS position.",
 	"confirmDeactivateRecording": "Track recording is active. Stop GNSS tracking?",
 	"permissionDenied": "Location permission is required to use GNSS. Please enable it in the system settings."
 }

@@ -6,6 +6,12 @@
 	"gnssSpeed": "Velocidade GNSS",
 	"activateGnss": "Ativar GNSS",
 	"deactivateGnss": "Desativar GNSS",
+	"centerMode": "Modo centralizado",
+	"activateCenterMode": "Ativar modo centralizado",
+	"deactivateCenterMode": "Desativar modo centralizado",
+	"recenterDelay": "Recentrar após (s)",
+	"hintCenterMode": "Mantém o mapa centrado na sua posição GNSS. Pode afastar-se livremente — após o atraso configurado o mapa regressa.",
+	"hintRecenterDelay": "Segundos de imobilidade após se afastar antes de o mapa regressar à sua posição GNSS.",
 	"confirmDeactivateRecording": "A gravação de trilha está ativa. Parar o rastreamento GNSS?",
 	"permissionDenied": "É necessária a permissão de localização para usar o GNSS. Ative-a nas definições do sistema."
 }

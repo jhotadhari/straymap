@@ -22,6 +22,11 @@ export interface GnssPositionData {
 
 export interface GnssSettings {
 	isActive: boolean;
+	/** Center mode: keep the map centered on the GNSS position. */
+	isCenterActive: boolean;
+	/** Seconds of map stillness after a user pan before the map flies back
+	 * to the GNSS position while center mode is active. */
+	recenterDelaySec: number;
 }
 
 export interface GnssState extends SliceSettingsBase, GnssSettings {
@@ -32,6 +37,8 @@ export interface GnssState extends SliceSettingsBase, GnssSettings {
 
 export const initialSettings: GnssSettings = {
 	isActive: false,
+	isCenterActive: false,
+	recenterDelaySec: 10,
 };
 
 const initialState: GnssState = {
@@ -56,9 +63,21 @@ export const gnssSlice = createSlice({
 		setGnssPosition: (state, action: PayloadAction<GnssPositionData | null>) => {
 			state.position = action.payload;
 		},
+		setIsCenterActive: (state, action: PayloadAction<boolean>) => {
+			state.isCenterActive = action.payload;
+		},
+		setRecenterDelaySec: (state, action: PayloadAction<number>) => {
+			state.recenterDelaySec = action.payload;
+		},
 	},
 });
 
-export const { setInitialized, setIsActive, setGnssPosition } = gnssSlice.actions;
+export const {
+	setInitialized,
+	setIsActive,
+	setGnssPosition,
+	setIsCenterActive,
+	setRecenterDelaySec,
+} = gnssSlice.actions;
 
 export default gnssSlice.reducer;

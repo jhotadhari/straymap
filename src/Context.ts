@@ -4,6 +4,7 @@
 import { createContext, createRef, Dispatch, MutableRefObject, SetStateAction } from 'react';
 import { makeMutable, SharedValue } from 'react-native-reanimated';
 import { MapEventResponse } from 'react-native-mapsforge-vtm';
+import { MapPositionSharedValues } from 'react-native-mapsforge-vtm/reanimated';
 
 /**
  * Internal dependencies
@@ -57,8 +58,16 @@ export type MapContextType = {
 	 * null until the first map-update event arrives.
 	 */
 	centerPositionSvRef: MutableRefObject<SharedValue<[number, number] | null> | null>;
+	/**
+	 * Full set of map-position shared values (center, zoom, bearing,
+	 * tilt, viewport size) from the single useMapPosition() instance
+	 * created in AppView. Overlays read it to project geo coordinates
+	 * to screen dp at 60fps with zero bridge crossings.
+	 */
+	mapPositionSvRef: MutableRefObject<MapPositionSharedValues | null>;
 };
 export const MapContext = createContext<MapContextType>({
 	currentMapEventRef: createRef<MapEventResponse>(),
 	centerPositionSvRef: createRef<SharedValue<[number, number] | null> | null>(),
+	mapPositionSvRef: createRef<MapPositionSharedValues | null>(),
 });

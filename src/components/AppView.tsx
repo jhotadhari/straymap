@@ -151,14 +151,16 @@ const AppView = ({
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
-	const { currentMapEventRef, centerPositionSvRef } = useContext(MapContext);
+	const { currentMapEventRef, centerPositionSvRef, mapPositionSvRef } = useContext(MapContext);
 
 	const { flyTo } = useMap(mapViewNativeNodeHandle);
 
-	const { centerSv, handleMapUpdate } = useMapPosition();
-	// Expose the shared value through context so dashboard elements
-	// can read the map center without bridge crossings.
+	const mapPosition = useMapPosition();
+	const { centerSv, handleMapUpdate } = mapPosition;
+	// Expose the shared values through context so overlays can project
+	// geo coordinates to screen positions without bridge crossings.
 	centerPositionSvRef.current = centerSv;
+	mapPositionSvRef.current = mapPosition;
 
 	const hgtDirPath = useMemo(() => {
 		const widgetWantsDem = dashboardItems.reduce((acc: boolean, ele: DashboardItem) => {

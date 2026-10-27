@@ -8,7 +8,15 @@ import { get, isEqual, set } from 'lodash-es';
 /**
  * Internal dependencies
  */
-import { GnssSettings, GnssState, initialSettings, setInitialized, setIsActive } from './slice';
+import {
+	GnssSettings,
+	GnssState,
+	initialSettings,
+	setInitialized,
+	setIsActive,
+	setIsCenterActive,
+	setRecenterDelaySec,
+} from './slice';
 import { startAppListening } from '../../store/listenerMiddleware';
 import { selectInitialized } from './selectors';
 import { AppStore } from '../../store/store';
@@ -26,6 +34,12 @@ export const initializeFromStorage = (store: AppStore) => {
 				const newSettings = JSON.parse(newSettingsStr) as Partial<GnssState>;
 				if (typeof newSettings.isActive === 'boolean') {
 					store.dispatch(setIsActive(newSettings.isActive));
+				}
+				if (typeof newSettings.isCenterActive === 'boolean') {
+					store.dispatch(setIsCenterActive(newSettings.isCenterActive));
+				}
+				if (typeof newSettings.recenterDelaySec === 'number') {
+					store.dispatch(setRecenterDelaySec(newSettings.recenterDelaySec));
 				}
 			}
 			store.dispatch(setInitialized(true));
@@ -49,7 +63,7 @@ export const saveToStorage = (state: GnssState, _actionType: string) => {
 };
 
 startAppListening({
-	matcher: isAnyOf(setIsActive),
+	matcher: isAnyOf(setIsActive, setIsCenterActive, setRecenterDelaySec),
 	effect: async (action, listenerApi) => {
 		try {
 			await saveToStorage(listenerApi.getState().gnss, action.type);

@@ -6,6 +6,12 @@
 	"gnssSpeed": "GNSS-Geschwindigkeit",
 	"activateGnss": "GNSS aktivieren",
 	"deactivateGnss": "GNSS deaktivieren",
+	"centerMode": "Zentriermodus",
+	"activateCenterMode": "Zentriermodus aktivieren",
+	"deactivateCenterMode": "Zentriermodus deaktivieren",
+	"recenterDelay": "Zurückzentrieren nach (s)",
+	"hintCenterMode": "Hält die Karte auf Ihrer GNSS-Position zentriert. Sie können frei wegbewegen — nach der eingestellten Verzögerung fliegt die Karte zurück.",
+	"hintRecenterDelay": "Sekunden Stillstand nach dem Wegbewegen, bevor die Karte zu Ihrer GNSS-Position zurückkehrt.",
 	"confirmDeactivateRecording": "Spuraufzeichnung ist aktiv. GNSS-Tracking beenden?",
 	"permissionDenied": "Für GNSS wird die Standortberechtigung benötigt. Bitte in den Systemeinstellungen aktivieren."
 }

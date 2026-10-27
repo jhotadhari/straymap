@@ -6,6 +6,7 @@ import { BackHandler, Dimensions, processColor, StyleSheet, View } from 'react-n
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { PaperProvider, Text, useTheme } from 'react-native-paper';
 import { MapEventResponse } from 'react-native-mapsforge-vtm';
+import { MapPositionSharedValues } from 'react-native-mapsforge-vtm/reanimated';
 import { sprintf } from 'sprintf-js';
 import { useTranslation } from 'react-i18next';
 import { QueryClientProvider } from '@tanstack/react-query';
@@ -45,6 +46,7 @@ const App: FC = () => {
 
 	const currentMapEventRef = useRef<MapEventResponse | null>(null);
 	const centerPositionSvRef = useRef<SharedValue<[number, number] | null> | null>(null);
+	const mapPositionSvRef = useRef<MapPositionSharedValues | null>(null);
 	const drawerControlsRef = useRef<DrawerControls | null>(null);
 	const bottomDrawerControlsRef = useRef<BottomDrawerControls | null>(null);
 	const bottomDrawerHeightSv = useSharedValue(0);
@@ -150,6 +152,7 @@ const App: FC = () => {
 		() => ({
 			currentMapEventRef,
 			centerPositionSvRef,
+			mapPositionSvRef,
 		}),
 		[]
 	);

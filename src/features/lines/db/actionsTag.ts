@@ -91,8 +91,9 @@ export const ensureTagByLabel = withDbErrorHandling(
  * Default `data` for system-reserved tags (label → data). The 'recorded'
  * tag renders red via its explicit `data.color`.
  */
+export const RECORDED_LINE_COLOR = '#e53935';
 const SYSTEM_TAG_DEFAULTS: Record<string, any> = {
-	recorded: { color: '#e53935' },
+	recorded: { color: RECORDED_LINE_COLOR },
 };
 
 /**

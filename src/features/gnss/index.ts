@@ -12,6 +12,7 @@ import gnssAccuracy from './dashboardWidgets/gnssAccuracy';
 import gnssAltitude from './dashboardWidgets/gnssAltitude';
 import gnssSpeed from './dashboardWidgets/gnssSpeed';
 import SettingsLocation from './uiItems/SettingsLocation';
+import GnssCenterOverlay from './appOverlays/GnssCenterOverlay';
 
 export default {
 	selectInitialized,
@@ -37,6 +38,13 @@ export default {
 		gnssAccuracy,
 		gnssAltitude,
 		gnssSpeed,
+	],
+	appOverlays: [
+		{
+			key: 'gnssCenter',
+			Component: GnssCenterOverlay,
+			priority: 100,
+		},
 	],
 	settingsPages: [
 		{
