@@ -8,8 +8,9 @@ import { useSharedValue } from 'react-native-reanimated';
 /**
  * Internal dependencies
  */
-import { useAppSelector } from '../../../store/hooks';
+import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { selectMeasurePosition } from '../selectors';
+import { clearMeasurement } from '../slice';
 import { selectUnitPrefs } from '../../general/selectors';
 import { useMapEventInterval } from '../../dashboard/hooks/useMapEventInterval';
 import {
@@ -28,6 +29,7 @@ import CenterConnectionOverlay from '../../../components/mapOverlays/CenterConne
  * same convention as the GNSS center-mode label).
  */
 const MeasureOverlay = () => {
+	const dispatch = useAppDispatch();
 	const position = useAppSelector(selectMeasurePosition);
 	const unitPrefs = useAppSelector(selectUnitPrefs);
 
@@ -75,6 +77,7 @@ const MeasureOverlay = () => {
 			targetSv={targetSv}
 			showSv={showSv}
 			labelText={labelText}
+			onLabelPress={() => dispatch(clearMeasurement())}
 		/>
 	);
 };

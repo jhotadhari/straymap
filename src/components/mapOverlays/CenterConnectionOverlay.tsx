@@ -2,7 +2,7 @@
  * External dependencies
  */
 import React, { memo, useContext, useMemo } from 'react';
-import { Dimensions, StyleSheet } from 'react-native';
+import { Dimensions, Pressable, StyleSheet } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import Animated, { SharedValue, useAnimatedProps, useAnimatedStyle } from 'react-native-reanimated';
 import Svg, { Line } from 'react-native-svg';
@@ -150,6 +150,7 @@ const CenterConnectionLabel = ({
 	labelOffsetDp,
 	labelBgColor,
 	labelTextColor,
+	onLabelPress,
 }: {
 	sharedValues: OverlaySharedValues;
 	targetSv: SharedValue<{ lat: number; lng: number } | null>;
@@ -158,6 +159,7 @@ const CenterConnectionLabel = ({
 	labelOffsetDp: number;
 	labelBgColor: string;
 	labelTextColor: string;
+	onLabelPress?: () => void;
 }) => {
 	const { centerSv, viewportWidthSv, viewportHeightSv, zoomSv, bearingSv, tiltSv } = sharedValues;
 
@@ -202,6 +204,10 @@ const CenterConnectionLabel = ({
 		return null;
 	}
 
+	const labelContent = (
+		<Text style={[styles.labelText, { color: labelTextColor }]}>{labelText}</Text>
+	);
+
 	return (
 		<Animated.View
 			style={[
@@ -209,9 +215,18 @@ const CenterConnectionLabel = ({
 				{ backgroundColor: labelBgColor },
 				animatedStyle,
 			]}
-			pointerEvents="none"
+			pointerEvents={onLabelPress ? 'auto' : 'none'}
 		>
-			<Text style={[styles.labelText, { color: labelTextColor }]}>{labelText}</Text>
+			{onLabelPress ? (
+				<Pressable
+					onPress={onLabelPress}
+					hitSlop={6}
+				>
+					{labelContent}
+				</Pressable>
+			) : (
+				labelContent
+			)}
 		</Animated.View>
 	);
 };
@@ -231,12 +246,14 @@ const CenterConnectionOverlay = ({
 	labelText,
 	lineColor = '#000000',
 	labelOffsetDp = DEFAULT_LABEL_OFFSET_DP,
+	onLabelPress,
 }: {
 	targetSv: SharedValue<{ lat: number; lng: number } | null>;
 	showSv: SharedValue<boolean>;
 	labelText: string | null;
 	lineColor?: string;
 	labelOffsetDp?: number;
+	onLabelPress?: () => void;
 }) => {
 	const theme = useTheme();
 
@@ -273,6 +290,7 @@ const CenterConnectionOverlay = ({
 				labelOffsetDp={labelOffsetDp}
 				labelBgColor={theme.colors.surface}
 				labelTextColor={theme.colors.onSurface}
+				onLabelPress={onLabelPress}
 			/>
 		</Animated.View>
 	);

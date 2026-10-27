@@ -33,7 +33,7 @@ const MapGeneralSource: FC<MapContextMenuSourceComponentProps> = ({ context, onO
 				? {
 						key: 'removeMeasurement',
 						label: 'measure.removeMeasurement',
-						leadingIcon: 'ruler-square-remove',
+						leadingIcon: 'ruler-square',
 						cb: () => {
 							dispatch(clearMeasurement());
 						},
