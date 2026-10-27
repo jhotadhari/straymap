@@ -4,6 +4,7 @@
 	"gnssAccuracy": "GNSS Accuracy",
 	"gnssAltitude": "GNSS Altitude",
 	"gnssSpeed": "GNSS Speed",
+	"gnssHeading": "Heading",
 	"activateGnss": "Activate GNSS",
 	"deactivateGnss": "Deactivate GNSS",
 	"centerMode": "Center mode",

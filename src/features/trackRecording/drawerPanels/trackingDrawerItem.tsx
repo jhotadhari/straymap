@@ -14,7 +14,12 @@ import MdiIcons from '@react-native-vector-icons/material-icons/static';
  */
 import { DrawerPanel } from '../../drawers/types';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
-import { selectIsActive, selectGnssPosition, selectIsCenterActive } from '../../gnss/selectors';
+import {
+	selectIsActive,
+	selectGnssPosition,
+	selectGnssHeading,
+	selectIsCenterActive,
+} from '../../gnss/selectors';
 import { setIsActive, setIsCenterActive } from '../../gnss/slice';
 import { selectIsRecording, selectActiveLineId, selectRecordingStartTime } from '../selectors';
 import { selectResumePending } from '../selectors';
@@ -30,6 +35,7 @@ import {
 	formatCoords,
 	formatHeightDepth,
 	formatSpeed,
+	formatBearing,
 } from '../../../lib/formatting';
 import { selectUnitPrefs } from '../../general/selectors';
 import ensureLocationPermission from '../../../lib/locationPermission';
@@ -92,6 +98,7 @@ const TrackingDrawerContent: FC = () => {
 	const isCenterActive = useAppSelector(selectIsCenterActive);
 	const resumePending = useAppSelector(selectResumePending);
 	const gnssPosition = useAppSelector(selectGnssPosition);
+	const gnssHeading = useAppSelector(selectGnssHeading);
 	const activeLineId = useAppSelector(selectActiveLineId);
 	const recordingStartTime = useAppSelector(selectRecordingStartTime);
 	const unitPrefs = useAppSelector(selectUnitPrefs);
@@ -340,6 +347,13 @@ const TrackingDrawerContent: FC = () => {
 				<Text>{t('gnss.gnssSpeed')}:</Text>
 				<Text style={styles.value}>
 					{gnssPosition ? formatSpeed(gnssPosition.speed, speedUnit) : '-'}
+				</Text>
+			</View>
+
+			<View style={styles.row}>
+				<Text>{t('gnss.gnssHeading')}:</Text>
+				<Text style={styles.value}>
+					{gnssHeading === null ? '-' : formatBearing(gnssHeading)}
 				</Text>
 			</View>
 
