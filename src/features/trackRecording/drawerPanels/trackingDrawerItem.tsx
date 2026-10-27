@@ -50,12 +50,19 @@ const TrackingDrawerIcon: FC<{
 	const destructiveColor = useDestructiveColor();
 	const isActive = useAppSelector(selectIsActive);
 	const isRecording = useAppSelector(selectIsRecording);
+	const isHandleActive = useAppSelector(
+		(state) =>
+			state.drawers.activeKeyLeft === 'tracking' ||
+			state.drawers.activeKeyRight === 'tracking'
+	);
 
 	const iconName = isActive || isRecording ? 'gps-fixed' : 'gps-not-fixed';
-	// While recording, the unified destructive red. While GNSS is active
-	// but the drawer handle is not selected, the handle passes a
-	// background-colored icon (invisible in dark mode) — keep it visible.
-	const iconColor = isRecording ? destructiveColor : isActive ? theme.colors.onBackground : color;
+	// While recording, always red — a lighter red on the dark selected
+	// handle so the dot stays visible against the dark background.
+	// Otherwise the handle's own color (dark in dark mode for unselected
+	// handles).
+	const recordingRed = theme.dark && isHandleActive ? theme.colors.error : destructiveColor;
+	const iconColor = isRecording ? recordingRed : color;
 
 	return (
 		<MdiIcons
