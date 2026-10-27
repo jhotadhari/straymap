@@ -87,6 +87,29 @@ Custom native modules live in `android/app/src/main/java/com/jhotadhari/straymap
 - `ReactNativePackage.java` — registers the native modules with React Native.
 - `MainActivity.kt` / `MainApplication.kt` — standard RN entry points.
 
+### Companion apps & extensions
+
+Cross-app integration follows one model: **all JS lives in straymap; a companion app is
+only ever a native (Java/Kotlin) backend** for a feature that needs a heavy side.
+
+- `grib-weather-companion` (sibling repo) is the reference: GRIB download/parse/state over
+  a multi-client AIDL API (`com.jhotadhari.gribweather.api`), payloads as
+  `ParcelFileDescriptor`s (binder ~1 MB limit is never hit by data), events via
+  `RemoteCallbackList`. The `weather` feature consumes it; rendering stays in straymap via
+  `react-native-mapsforge-vtm-ext-grib` (the GL-context owner renders, the companion
+  serves data — see the companion's DECISIONS 12–15).
+- **No executable code ever crosses the app boundary** — neither loading companion JS into
+  straymap nor vice versa (Google Play executable-code policy; also avoids Metro-externals
+  + ABI locks). No declarative UI-spec tier either: extension UI ships as regular JS
+  features inside straymap.
+- Access control: companion grants `signature` FULL tier to same-cert apps; straymap gets
+  FULL via a runtime cert whitelist (straymap's release cert SHA-256) because the
+  companion uses its own dedicated keystore; third parties get a user-grantable
+  `dangerous` READ tier with quotas.
+- Binding pattern for consumers: a native module wraps `bindService`; re-bind on
+  companion package updates, `linkToDeath` both ways, graceful fallback when the
+  companion isn't installed.
+
 ### Map and routing
 
 - `react-native-mapsforge-vtm` (the map rendering library, this author's own package) provides `MapContainer` and related layer/event types; `src/components/AppView.tsx` composes it with drawers, dashboard, and cursor-center UI.
