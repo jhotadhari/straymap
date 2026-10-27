@@ -20,5 +20,18 @@
 	"hintMinPrecision": "A precisão GNSS deve ser melhor que este valor (em metros) para que um ponto seja gravado.",
 	"start": "Iniciar gravação",
 	"tracking": "Rastreio",
-	"resuming": "A aguardar GNSS…"
+	"resuming": "A aguardar GNSS…",
+	"startNew": "Iniciar nova gravação",
+	"continueLast": "Continuar última gravação",
+	"continueRecording": "Continuar gravação",
+	"backgroundTask": "A gravar trilha",
+	"hintContinueRecording": "Acrescentar novos pontos GPS a esta linha gravada.",
+	"resumePromptTitle": "Gravação interrompida",
+	"resumePromptBody": "O Straymap foi fechado durante uma gravação. Continuar a gravação?",
+	"resume": "Continuar",
+	"resumeDiscard": "Descartar",
+	"resumeLineMissing": "A linha gravada já não existe. Gravação descartada.",
+	"useDemAltitude": "Usar elevação DEM",
+	"hintUseDemAltitude": "Preferir elevação de ficheiros DEM em vez da altitude GNSS. Usa cache — se a cache falhar, usa-se a altitude GNSS e os pontos seguintes usam o mosaico carregado. Requer um diretório DEM nas definições do mapa.",
+	"stopConfirmBody": "Parar a gravação atual?"
 }

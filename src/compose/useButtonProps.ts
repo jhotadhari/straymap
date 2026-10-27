@@ -20,6 +20,16 @@ export type ButtonPropsProps = {
 };
 
 /**
+ * The app's single "destructive red" — used by useButtonProps' isDestructive
+ * preset and by all recording indicators (drawer handle icon, Stop button,
+ * recorded-line indicator) so every red in the app is the same color.
+ */
+export const useDestructiveColor = (): string => {
+	const theme = useTheme();
+	return theme.dark ? theme.colors.errorContainer : theme.colors.error;
+};
+
+/**
  * Designed for use with ButtonHighlight to provide a consistent button
  * appearance throughout the app.  Returns all props needed by Paper's
  * Button component — mode, colors, styles — plus nestedIconColor for
@@ -48,6 +58,7 @@ export const useButtonProps = ({
 	alignWithIconButton,
 }: ButtonPropsProps) => {
 	const theme = useTheme();
+	const destructiveColor = useDestructiveColor();
 
 	const mode: undefined | ButtonPropsPaper['mode'] = useMemo(() => {
 		if (mode_) {
@@ -116,7 +127,7 @@ export const useButtonProps = ({
 		if (buttonColor_) {
 			return buttonColor_;
 		} else if (isDestructive) {
-			return theme.dark ? theme.colors.errorContainer : theme.colors.error;
+			return destructiveColor;
 		} else if (isSuccess) {
 			return theme.dark
 				? get(theme.colors, 'successContainer')
@@ -129,6 +140,7 @@ export const useButtonProps = ({
 		buttonColor_,
 		isSuccess,
 		isDestructive,
+		destructiveColor,
 	]);
 
 	const nestedIconColor: undefined | string = useMemo(() => {

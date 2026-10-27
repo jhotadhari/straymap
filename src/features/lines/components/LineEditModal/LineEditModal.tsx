@@ -27,6 +27,7 @@ import { dbConnection } from '../../../dbLoader/DBConnection';
 import RowDelete from './RowDelete';
 import RowName from './RowName';
 import RowRouting from './RowRouting';
+import RowContinueRecording from './RowContinueRecording';
 import RowExport from './RowExport';
 import RowImportInfo from './RowImportInfo';
 import RowStats from './RowStats';
@@ -144,6 +145,8 @@ const LineEditModal: FC<{
 				<RowToggleOnMap />
 
 				<RowRouting />
+
+				<RowContinueRecording />
 
 				<RowStats />
 

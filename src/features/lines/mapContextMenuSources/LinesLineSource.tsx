@@ -16,6 +16,11 @@ import { selectLineColor } from '../selectors';
 import { queryLinesWithoutGeom } from '../db/queryFns';
 import { lineIdByPathUuid } from '../layerRegistry';
 import { useSystemLineIds } from '../../../store/hooks';
+import { continueRecording } from '../../trackRecording/slice';
+import { selectIsRecording } from '../../trackRecording/selectors';
+import ensureLocationPermission from '../../../lib/locationPermission';
+import ensureNotificationPermission from '../../../lib/notificationPermission';
+import useActivateDrawerItem from '../../drawers/hooks/useActivateDrawerItem';
 import { AppContext } from '../../../Context';
 import { MAP_ANIMATION_PADDING_PX, PALETTE_COLORS } from '../../../constants';
 import IconCustom from '../../../components/generic/primitives/IconCustom';
@@ -32,6 +37,8 @@ const LinesLineSource: FC<MapContextMenuSourceComponentProps> = ({ context, onOp
 	const { mapViewNativeNodeHandle, drawerControlsRef } = useContext(AppContext);
 	const { flyToBounds } = useMap(mapViewNativeNodeHandle);
 	const systemLineIds = useSystemLineIds();
+	const activateTrackingDrawerItem = useActivateDrawerItem('tracking');
+	const isRecording = useAppSelector(selectIsRecording);
 
 	const lineId = useMemo(() => {
 		if (context.press !== 'long') {
@@ -61,6 +68,10 @@ const LinesLineSource: FC<MapContextMenuSourceComponentProps> = ({ context, onOp
 	const isSystemLine = useMemo(
 		() => lineId != null && Object.values(systemLineIds).includes(lineId),
 		[lineId, systemLineIds]
+	);
+	const hasRecordedTag = useMemo(
+		() => (line?.tags ?? []).some((tag) => tag.label === 'recorded'),
+		[line?.tags]
 	);
 
 	const options = useMemo<MenuActionOption[] | null>(() => {
@@ -97,6 +108,25 @@ const LinesLineSource: FC<MapContextMenuSourceComponentProps> = ({ context, onOp
 				},
 				disabled: () => !line?.envelope,
 			},
+			...(hasRecordedTag
+				? [
+						{
+							key: 'continueRecording',
+							label: 'trackRecording.continueRecording',
+							leadingIcon: 'record-rec',
+							cb: async () => {
+								const granted = await ensureLocationPermission();
+								if (!granted) {
+									return;
+								}
+								await ensureNotificationPermission();
+								dispatch(continueRecording(lineId));
+								activateTrackingDrawerItem();
+							},
+							disabled: () => isRecording,
+						} as MenuActionOption,
+					]
+				: []),
 			{
 				key: 'changeColor',
 				label: 'lines.changeColor',
@@ -129,6 +159,9 @@ const LinesLineSource: FC<MapContextMenuSourceComponentProps> = ({ context, onOp
 		lineColorRamps,
 		lineId,
 		isSystemLine,
+		hasRecordedTag,
+		isRecording,
+		activateTrackingDrawerItem,
 	]);
 
 	useEffect(() => {

@@ -15,7 +15,9 @@ import {
 	rowParseEnvelopeGeoJSON,
 	rowsParseEnvelopeGeoJSON,
 	parseReturningIds,
+	withDbTransaction,
 } from '../../../features/dbLoader/utils';
+import { dbConnection } from '../../../features/dbLoader/DBConnection';
 
 // Suppress expected console.log from parseSerialized error paths in __DEV__.
 let logSpy: jest.SpyInstance;
@@ -241,5 +243,48 @@ describe('parseReturningIds', () => {
 		};
 		const ids = parseReturningIds(result);
 		expect(ids).toEqual([{ id: 'abc' }, { id: 42 }]);
+	});
+});
+
+// ===========================================================================
+// withDbTransaction — exec accepts drizzle query builders
+// ===========================================================================
+
+describe('withDbTransaction exec query shapes', () => {
+	const originalOp = dbConnection.op;
+	const fakeTx = {
+		execute: jest.fn().mockResolvedValue({ rows: [], insertId: 0, rowsAffected: 1 }),
+	};
+	const fakeOp = {
+		transaction: jest.fn(async (cb: (tx: typeof fakeTx) => Promise<unknown>) => cb(fakeTx)),
+	};
+
+	beforeAll(() => {
+		(dbConnection as any).op = fakeOp;
+	});
+
+	afterAll(() => {
+		(dbConnection as any).op = originalOp;
+	});
+
+	beforeEach(() => {
+		jest.clearAllMocks();
+	});
+
+	it('runs queries exposing toSQL (drizzle query builders)', async () => {
+		await withDbTransaction(async (exec) => {
+			await exec({ toSQL: () => ({ sql: 'SELECT ?', params: [1] }) });
+		});
+		expect(fakeOp.transaction).toHaveBeenCalledTimes(1);
+		expect(fakeTx.execute).toHaveBeenCalledWith('SELECT ?', [1]);
+	});
+
+	it('propagates executor errors to the caller', async () => {
+		fakeTx.execute.mockRejectedValueOnce(new Error('boom'));
+		await expect(
+			withDbTransaction(async (exec) => {
+				await exec({ toSQL: () => ({ sql: 'SELECT 1', params: [] }) });
+			})
+		).rejects.toThrow('boom');
 	});
 });

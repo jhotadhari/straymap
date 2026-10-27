@@ -18,8 +18,11 @@ import { selectIsActive, selectGnssPosition } from '../../gnss/selectors';
 import { setIsActive } from '../../gnss/slice';
 import { selectIsRecording, selectActiveLineId, selectRecordingStartTime } from '../selectors';
 import { selectResumePending } from '../selectors';
-import { startRecording, stopRecording } from '../slice';
+import { startRecording, stopRecording, continueRecording } from '../slice';
 import { queryLineGeom } from '../../lines/db/queryFns';
+import { queryLastRecordedLine } from '../db/queryFns';
+import { MenuActionOption } from '../../../types';
+import ButtonHighlightMenuControl from '../../../components/generic/wrapper/ButtonHighlightMenuControl';
 import {
 	formatDistance,
 	haversineLineLength,
@@ -30,6 +33,8 @@ import {
 } from '../../../lib/formatting';
 import { selectUnitPrefs } from '../../general/selectors';
 import ensureLocationPermission from '../../../lib/locationPermission';
+import ensureNotificationPermission from '../../../lib/notificationPermission';
+import { useDestructiveColor } from '../../../compose/useButtonProps';
 import { ErrorToastContext } from '../../../components/ErrorToast/Context';
 
 /**
@@ -42,11 +47,15 @@ const TrackingDrawerIcon: FC<{
 	size?: number;
 }> = ({ color, size }) => {
 	const theme = useTheme();
+	const destructiveColor = useDestructiveColor();
 	const isActive = useAppSelector(selectIsActive);
 	const isRecording = useAppSelector(selectIsRecording);
 
 	const iconName = isActive || isRecording ? 'gps-fixed' : 'gps-not-fixed';
-	const iconColor = isRecording ? theme.colors.error : color;
+	// While recording, the unified destructive red. While GNSS is active
+	// but the drawer handle is not selected, the handle passes a
+	// background-colored icon (invisible in dark mode) — keep it visible.
+	const iconColor = isRecording ? destructiveColor : isActive ? theme.colors.onBackground : color;
 
 	return (
 		<MdiIcons
@@ -66,6 +75,7 @@ const TrackingDrawerIcon: FC<{
 const TrackingDrawerContent: FC = () => {
 	const { t } = useTranslation();
 	const theme = useTheme();
+	const destructiveColor = useDestructiveColor();
 	const dispatch = useAppDispatch();
 
 	const { showError } = useContext(ErrorToastContext);
@@ -108,10 +118,16 @@ const TrackingDrawerContent: FC = () => {
 		queryKey: [
 			'lineGeom',
 			lineId,
-			'trackingDrawer',
 		],
 		queryFn: queryLineGeom,
 		enabled: !!activeLineId,
+		staleTime: Infinity,
+		gcTime: 1000 * 10,
+	});
+
+	const { data: lastRecordedLineId } = useQuery({
+		queryKey: ['lastRecordedLine'],
+		queryFn: queryLastRecordedLine,
 		staleTime: Infinity,
 		gcTime: 1000 * 10,
 	});
@@ -124,9 +140,22 @@ const TrackingDrawerContent: FC = () => {
 	const pointCount = line?.geometry?.coordinates?.length ?? 0;
 	const distUnit = unitPrefs?.distance;
 
-	const handleToggleRecording = useCallback(async () => {
-		if (isRecording) {
-			dispatch(stopRecording());
+	const handleStartNew = useCallback(async () => {
+		const granted = await ensureLocationPermission();
+		if (!granted) {
+			showError(t('gnss.permissionDenied'));
+			return;
+		}
+		await ensureNotificationPermission();
+		dispatch(startRecording());
+	}, [
+		dispatch,
+		showError,
+		t,
+	]);
+
+	const handleContinueLast = useCallback(async () => {
+		if (typeof lastRecordedLineId !== 'number') {
 			return;
 		}
 		const granted = await ensureLocationPermission();
@@ -134,13 +163,44 @@ const TrackingDrawerContent: FC = () => {
 			showError(t('gnss.permissionDenied'));
 			return;
 		}
-		dispatch(startRecording());
+		await ensureNotificationPermission();
+		dispatch(continueRecording(lastRecordedLineId));
 	}, [
 		dispatch,
-		isRecording,
+		lastRecordedLineId,
 		showError,
 		t,
 	]);
+
+	const handleToggleRecording = useCallback(async () => {
+		if (isRecording) {
+			dispatch(stopRecording());
+			return;
+		}
+		await handleStartNew();
+	}, [
+		dispatch,
+		isRecording,
+		handleStartNew,
+	]);
+
+	const startMenuOptions = useMemo<MenuActionOption[]>(
+		() => [
+			{
+				key: 'startNew',
+				label: 'trackRecording.startNew',
+				leadingIcon: 'record-rec',
+				cb: handleStartNew,
+			},
+			{
+				key: 'continueLast',
+				label: 'trackRecording.continueLast',
+				leadingIcon: 'play',
+				cb: handleContinueLast,
+			},
+		],
+		[handleStartNew, handleContinueLast]
+	);
 
 	const handleToggleGnss = useCallback(async () => {
 		if (!isActive) {
@@ -180,15 +240,32 @@ const TrackingDrawerContent: FC = () => {
 				</View>
 			)}
 
-			<Button
-				mode="contained"
-				onPress={handleToggleRecording}
-				style={styles.button}
-				icon={isRecording ? 'stop' : 'record-rec'}
-				buttonColor={isRecording ? theme.colors.error : undefined}
-			>
-				{isRecording ? t('trackRecording.stop') : t('trackRecording.start')}
-			</Button>
+			{isRecording ? (
+				<Button
+					mode="contained"
+					onPress={handleToggleRecording}
+					style={styles.button}
+					icon={'stop'}
+					buttonColor={destructiveColor}
+				>
+					{t('trackRecording.stop')}
+				</Button>
+			) : typeof lastRecordedLineId === 'number' ? (
+				<ButtonHighlightMenuControl
+					anchorLabel={t('trackRecording.start')}
+					anchorIcon={'record-rec'}
+					options={startMenuOptions}
+				/>
+			) : (
+				<Button
+					mode="contained"
+					onPress={handleToggleRecording}
+					style={styles.button}
+					icon={'record-rec'}
+				>
+					{t('trackRecording.start')}
+				</Button>
+			)}
 			{/* Live GNSS values from the gnss slice — dashes until the
 				native listener delivers the first position. */}
 			<View style={styles.row}>

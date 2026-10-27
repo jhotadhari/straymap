@@ -26,7 +26,6 @@ const TrackRecordingMapView: FC = () => {
 		queryKey: [
 			'lineGeom',
 			lineId,
-			'recording',
 		],
 		queryFn: queryLineGeom,
 		enabled: !!activeLineId,

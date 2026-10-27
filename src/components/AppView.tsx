@@ -69,6 +69,12 @@ import LayerDebugDumpButton from './LayerDebugDumpButton';
 import SceneBusyBridge from './SceneBusyBridge';
 import MapCornerComponents from './MapCornerComponents';
 import { useGnssSetup } from '../features/trackRecording/hooks/useGnssSetup';
+import {
+	selectIsRecording,
+	selectResumePromptPending,
+	selectUseDemAltitude,
+} from '../features/trackRecording/selectors';
+import { pauseRecordingForPrompt } from '../features/trackRecording/slice';
 import { altitudeService } from '../lib/AltitudeService';
 import { addBusyKey, removeBusyKey } from '../features/ui/slice';
 
@@ -99,6 +105,9 @@ const AppView = ({
 	const dashboardItems = useAppSelector((state) => selectItems(state, { position: 'bottom' }));
 	const hgtDirPathStore = useAppSelector(selectHgtDirPath);
 	const dashboardWidgets = useAppSelector(selectElementsSettings);
+	const isRecording = useAppSelector(selectIsRecording);
+	const useDemAltitude = useAppSelector(selectUseDemAltitude);
+	const resumePromptPending = useAppSelector(selectResumePromptPending);
 
 	const controlHandleSide = useAppSelector(selectControlHandleSide);
 	const leftItemKeys = useAppSelector((state) => selectItemKeys(state, { side: 'left' }));
@@ -129,6 +138,19 @@ const AppView = ({
 		};
 	}, [mapViewNativeNodeHandle]);
 
+	// Warm surface recreation (swipe-close with the foreground service
+	// keeping the JS process alive): Redux still says isRecording, but
+	// the map + GNSS pipeline died with the old surface. Pause the stale
+	// recording state and ask via the resume prompt. Runs once per
+	// surface mount — on a cold process start isRecording is still false
+	// at this point (the restore path arms the prompt itself).
+	useEffect(() => {
+		if (isRecording && !resumePromptPending) {
+			dispatch(pauseRecordingForPrompt());
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+
 	const { currentMapEventRef, centerPositionSvRef } = useContext(MapContext);
 
 	const { flyTo } = useMap(mapViewNativeNodeHandle);
@@ -138,22 +160,27 @@ const AppView = ({
 	// can read the map center without bridge crossings.
 	centerPositionSvRef.current = centerSv;
 
-	const hgtDirPath = useMemo(
-		() =>
-			hgtDirPathStore &&
-			(dashboardItems.reduce((acc: boolean, ele: DashboardItem) => {
-				return acc || !ele.elementType
-					? acc
-					: get(dashboardWidgets, [ele.elementType, 'shouldSetHgtDirPath'], false);
-			}, false) as boolean)
-				? hgtDirPathStore
-				: undefined,
-		[
-			hgtDirPathStore,
-			dashboardItems,
-			dashboardWidgets,
-		]
-	);
+	const hgtDirPath = useMemo(() => {
+		const widgetWantsDem = dashboardItems.reduce((acc: boolean, ele: DashboardItem) => {
+			return acc || !ele.elementType
+				? acc
+				: get(dashboardWidgets, [ele.elementType, 'shouldSetHgtDirPath'], false);
+		}, false) as boolean;
+		// Also expose DEM altitude data while track recording is
+		// active with the DEM-elevation toggle on — otherwise
+		// recording silently falls back to GNSS altitude whenever
+		// the centerAltitude widget is not on the dashboard.
+		const recordingWantsDem = isRecording && useDemAltitude;
+		return hgtDirPathStore && (widgetWantsDem || recordingWantsDem)
+			? hgtDirPathStore
+			: undefined;
+	}, [
+		hgtDirPathStore,
+		dashboardItems,
+		dashboardWidgets,
+		isRecording,
+		useDemAltitude,
+	]);
 
 	// Observe hardware keys that have a non-'none' action assigned.
 	// Only the key-code strings themselves are passed to the native layer;

@@ -6,7 +6,11 @@ import { useEffect, useRef } from 'react';
 /**
  * Internal dependencies
  */
-import NativeBackgroundTaskModule from '../specs/NativeBackgroundTaskModule';
+import {
+	registerBackgroundTask,
+	updateBackgroundTask,
+	unregisterBackgroundTask,
+} from '../lib/backgroundTask';
 
 type BackgroundTaskApi = {
 	start: (maxProgress?: number) => Promise<void>;
@@ -31,7 +35,7 @@ const useBackgroundTask = (label: string): BackgroundTaskApi => {
 			if (oldTid != null) {
 				taskIdRef.current = null;
 				try {
-					await NativeBackgroundTaskModule.unregisterTask(oldTid);
+					await unregisterBackgroundTask(oldTid);
 				} catch (e) {
 					log('unregister old task failed', e);
 				}
@@ -39,15 +43,12 @@ const useBackgroundTask = (label: string): BackgroundTaskApi => {
 
 			cancelledRef.current = false;
 			try {
-				const tid = await NativeBackgroundTaskModule.registerTask(
-					labelRef.current,
-					maxProgress ?? 0
-				);
+				const tid = await registerBackgroundTask(labelRef.current, maxProgress ?? 0);
 				if (!cancelledRef.current) {
 					taskIdRef.current = tid;
 				} else {
 					try {
-						await NativeBackgroundTaskModule.unregisterTask(tid);
+						await unregisterBackgroundTask(tid);
 					} catch (e) {
 						log('unregister cancelled task failed', e);
 					}
@@ -61,7 +62,7 @@ const useBackgroundTask = (label: string): BackgroundTaskApi => {
 			try {
 				const tid = taskIdRef.current;
 				if (tid != null) {
-					await NativeBackgroundTaskModule.updateTask(tid, progress, detail ?? '');
+					await updateBackgroundTask(tid, progress, detail ?? '');
 				}
 			} catch (e) {
 				log('updateTask failed', e);
@@ -73,7 +74,7 @@ const useBackgroundTask = (label: string): BackgroundTaskApi => {
 				const tid = taskIdRef.current;
 				if (tid != null) {
 					taskIdRef.current = null;
-					await NativeBackgroundTaskModule.unregisterTask(tid);
+					await unregisterBackgroundTask(tid);
 				}
 			} catch (e) {
 				log('unregisterTask failed', e);

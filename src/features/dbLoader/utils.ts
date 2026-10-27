@@ -55,14 +55,26 @@ export const rowsParseEnvelopeGeoJSON = <T, G>(rows: (T & { envelopeGeoJSON: str
 	return rows.map((row) => rowParseEnvelopeGeoJSON<T, G>(row));
 };
 
-type DrizzleQuery = { toSQL: () => { sql: string; params: unknown[] } };
+/**
+ * Exec accepts drizzle query BUILDERS only (insert/update/delete/select),
+ * which expose `toSQL()`.  Raw `sql`` ` templates must NOT be passed
+ * here — since drizzle 0.41 they only expose `toQuery(config)`, which
+ * requires a driver BuildQueryConfig.  Execute raw templates via
+ * `dbConnection.drizzle.run(sql`...`)` or `dbOpExecute` instead.
+ */
+type DrizzleQuery = {
+	toSQL: () => {
+		sql: string;
+		params: unknown[];
+	};
+};
 type ExecFn = (query: DrizzleQuery) => Promise<QueryResult>;
 
 /**
  * Thin wrapper around op-sqlite's native transaction API (which is genuinely
  * async), replacing drizzle-orm's broken `transaction()` method (see
- * drizzle-orm#2275).  Pass drizzle queries (anything with `.toSQL()`) to the
- * `exec` callback and they will run inside the same transaction.
+ * drizzle-orm#2275).  Pass drizzle query builders (anything with `.toSQL()`)
+ * to the `exec` callback and they will run inside the same transaction.
  */
 export const withDbTransaction = async <T>(callback: (exec: ExecFn) => Promise<T>): Promise<T> => {
 	return new Promise((resolve, reject) => {

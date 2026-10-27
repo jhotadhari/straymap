@@ -11,14 +11,19 @@ import { SliceSettingsBase } from '../../types';
 import { AppThunk } from '../../store/store';
 import { selectIsRecording } from './selectors';
 import { logError } from '../../lib/utils';
-import NativeTrackingModule from '../../specs/NativeTrackingModule';
 import { setIsActive } from '../gnss/slice';
+import { startRecordingTask, stopRecordingTask } from './backgroundTask';
+import { createTrack } from './db/actionsTrack';
+import { queryTrackByLineId, queryLineExists } from './db/queryFns';
 
 export interface TrackRecordingSettings {
 	isRecording: boolean;
 	/** Recording was restored from storage and resumes on the first
 	 * native GNSS position (see writeGnssPosition listener). */
 	resumePending: boolean;
+	/** Prefer DEM (HGT) elevation over GNSS altitude for recorded
+	 * points when the tile is cached. Falls back to GNSS on miss. */
+	useDemAltitude: boolean;
 	activeTrackId: number | null;
 	activeLineId: number | null;
 	minDistance: number;
@@ -34,11 +39,19 @@ export interface TrackRecordingState extends SliceSettingsBase, TrackRecordingSe
 		number?,
 	];
 	lastWrittenTime?: number;
+	/**
+	 * Transient — not persisted.  Set on restore when the app was
+	 * killed while a recording was active (or pending).  The
+	 * ResumeRecordingPrompt overlay asks the user to continue or
+	 * discard before anything resumes.
+	 */
+	resumePromptPending: boolean;
 }
 
 export const initialSettings: TrackRecordingSettings = {
 	isRecording: false,
 	resumePending: false,
+	useDemAltitude: true,
 	activeTrackId: null,
 	activeLineId: null,
 	minDistance: 5,
@@ -49,6 +62,7 @@ export const initialSettings: TrackRecordingSettings = {
 
 const initialState: TrackRecordingState = {
 	initialized: false,
+	resumePromptPending: false,
 	...initialSettings,
 };
 
@@ -118,6 +132,12 @@ export const trackRecordingSlice = createSlice({
 		setResumePending: (state, action: PayloadAction<boolean>) => {
 			state.resumePending = action.payload;
 		},
+		setResumePromptPending: (state, action: PayloadAction<boolean>) => {
+			state.resumePromptPending = action.payload;
+		},
+		setUseDemAltitude: (state, action: PayloadAction<boolean>) => {
+			state.useDemAltitude = action.payload;
+		},
 	},
 });
 
@@ -133,17 +153,20 @@ export const {
 	setLastWrittenTime,
 	setRecordingStartTime,
 	setResumePending,
+	setResumePromptPending,
+	setUseDemAltitude,
 	writeGnssPosition,
 } = trackRecordingSlice.actions;
 
 export default trackRecordingSlice.reducer;
 
 /**
- * Start recording a new track: switches GNSS on and starts the
- * foreground service. The track's line is created lazily by the
- * writeGnssPosition listener once two native positions exist — a
- * single-point LineString is invalid GeoJSON and SpatiaLite's
- * GeomFromGeoJSON rejects it (NOT NULL constraint on lines.geometry).
+ * Start recording a new track: switches GNSS on and registers the
+ * recording foreground task (shared BackgroundTaskService notification).
+ * The track's line is created lazily by the writeGnssPosition listener
+ * once two native positions exist — a single-point LineString is invalid
+ * GeoJSON and SpatiaLite's GeomFromGeoJSON rejects it (NOT NULL
+ * constraint on lines.geometry).
  *
  * Guards against re-entry: if already recording, returns immediately.
  */
@@ -161,34 +184,141 @@ export const startRecording = (): AppThunk => async (dispatch, getState) => {
 
 	// A manual start supersedes a pending restore-resume.
 	dispatch(setResumePending(false));
+	dispatch(setResumePromptPending(false));
 	dispatch(setIsRecordingAction(true));
 	dispatch(setActiveTrackId(null));
 	dispatch(setActiveLineId(null));
 	dispatch(setRecordingStartTime(now));
 
-	// Start the foreground service — keeps the recording notification
-	// alive while the app is backgrounded. Non-fatal on failure.
-	try {
-		await NativeTrackingModule.startService();
-	} catch (err) {
-		logError('trackRecording/startRecording.startService', err);
-	}
+	// Register the foreground task — keeps the shared "Recording track"
+	// notification alive while the app is backgrounded. Non-fatal.
+	await startRecordingTask();
 };
 
 /**
- * Stop recording. Finalizes the track and stops the foreground service.
- * Clears activeLineId so consumers stop rendering the recording line.
+ * Continue recording on an existing line (the line carries the system
+ * 'recorded' tag).  Appends to the line's current geometry; reuses its
+ * existing track row or creates one when missing.  Start/stop are the
+ * only states — a continued line behaves exactly like a fresh one.
+ */
+export const continueRecording =
+	(lineId: number): AppThunk =>
+	async (dispatch, getState) => {
+		// Guard: don't start a second recording
+		if (selectIsRecording(getState())) {
+			return;
+		}
+
+		// Recording requires GNSS — switch it on.
+		dispatch(setIsActive(true));
+		dispatch(setResumePending(false));
+		dispatch(setActiveLineId(lineId));
+		dispatch(setIsRecordingAction(true));
+		dispatch(setRecordingStartTime(Date.now()));
+
+		const state = getState().trackRecording;
+		try {
+			const existing = await queryTrackByLineId(lineId);
+			if (existing?.id != null) {
+				dispatch(setActiveTrackId(existing.id));
+			} else {
+				const trackResult = await createTrack({
+					line_id: lineId,
+					settings: {
+						minDistance: state.minDistance,
+						minTime: state.minTime,
+						minPrecision: state.minPrecision,
+					},
+				});
+				if (trackResult?.id != null) {
+					dispatch(setActiveTrackId(trackResult.id));
+				}
+			}
+		} catch (err) {
+			// Track-row bookkeeping is non-critical — appends work without it.
+			logError('trackRecording/continueRecording.track', err);
+		}
+
+		// Register the foreground task. Non-fatal.
+		await startRecordingTask();
+	};
+
+/**
+ * Continue the recording restored after an app kill — called by the
+ * ResumeRecordingPrompt overlay's Continue button.  Verifies the
+ * restored line still exists, then arms the deferred resume (first
+ * native GNSS position re-activates recording) and switches GNSS on.
+ * Returns false when the line is gone (caller shows a toast).
+ */
+export const confirmRecordingResume =
+	(): AppThunk<Promise<boolean>> => async (dispatch, getState) => {
+		dispatch(setResumePromptPending(false));
+
+		const { activeLineId, isRecording } = getState().trackRecording;
+
+		// Already recording (double-tap on Continue) — nothing to arm.
+		if (isRecording) {
+			return true;
+		}
+
+		if (typeof activeLineId !== 'number') {
+			return false;
+		}
+
+		let exists = false;
+		try {
+			exists = await queryLineExists(activeLineId);
+		} catch (err) {
+			logError('trackRecording/confirmRecordingResume.lineExists', err);
+		}
+
+		if (!exists) {
+			// The recorded line was deleted — abandon the restored
+			// recording instead of resuming into a void.
+			dispatch(setIsRecordingAction(false));
+			dispatch(setResumePending(false));
+			dispatch(setActiveTrackId(null));
+			dispatch(setActiveLineId(null));
+			dispatch(setRecordingStartTime(null));
+			return false;
+		}
+
+		dispatch(setResumePending(true));
+		dispatch(setIsActive(true));
+		return true;
+	};
+
+/**
+ * Stop recording. Finalizes the track and unregisters the foreground
+ * task. Clears activeLineId so consumers stop rendering the recording
+ * line. Stop and pause are the same — any recorded line can be continued
+ * via continueRecording.
  */
 export const stopRecording = (): AppThunk => async (dispatch) => {
 	dispatch(setIsRecordingAction(false));
+	dispatch(setResumePending(false));
+	dispatch(setResumePromptPending(false));
 	dispatch(setActiveTrackId(null));
 	dispatch(setActiveLineId(null));
 	dispatch(setRecordingStartTime(null));
 
-	// Stop the foreground service. Non-fatal on failure.
-	try {
-		await NativeTrackingModule.stopService();
-	} catch (err) {
-		logError('trackRecording/stopRecording.stopService', err);
-	}
+	// Unregister the foreground task. Non-fatal.
+	await stopRecordingTask();
+};
+
+/**
+ * Pause the active recording state and show the resume prompt — used
+ * when the app's surface was destroyed while recording (swipe-close
+ * with the foreground service keeping the process alive): Redux still
+ * says isRecording but the map + GNSS pipeline died with the surface.
+ * Keeps activeLineId/activeTrackId/recordingStartTime so the prompt's
+ * Continue path (confirmRecordingResume) can resume the same line.
+ */
+export const pauseRecordingForPrompt = (): AppThunk => async (dispatch) => {
+	dispatch(setIsRecordingAction(false));
+	dispatch(setResumePromptPending(true));
+
+	// Remove the stale "Recording track" notification — nothing is
+	// recording until the user continues (resume re-registers it).
+	await stopRecordingTask();
 };

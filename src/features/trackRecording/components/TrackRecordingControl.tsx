@@ -9,9 +9,15 @@ import { useTranslation } from 'react-i18next';
  * Internal dependencies
  */
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
-import { selectMinDistance, selectMinTime, selectMinPrecision } from '../selectors';
-import { setMinDistance, setMinTime, setMinPrecision } from '../slice';
+import {
+	selectMinDistance,
+	selectMinTime,
+	selectMinPrecision,
+	selectUseDemAltitude,
+} from '../selectors';
+import { setMinDistance, setMinTime, setMinPrecision, setUseDemAltitude } from '../slice';
 import NumericRowControl from '../../../components/generic/controls/NumericRowControl';
+import ToggleRowControl from '../../../components/generic/controls/ToggleRowControl';
 import { sharedStyles } from '../../dashboard/dashboardWidgets/sharedDeps';
 
 const validateNonNegative = (v: number) => v >= 0;
@@ -23,6 +29,7 @@ const TrackRecordingControl: FC = () => {
 	const minDistance = useAppSelector(selectMinDistance);
 	const minTime = useAppSelector(selectMinTime);
 	const minPrecision = useAppSelector(selectMinPrecision);
+	const useDemAltitude = useAppSelector(selectUseDemAltitude);
 
 	const handleMinDistance = useCallback(
 		(val: number) => dispatch(setMinDistance(val)),
@@ -31,6 +38,10 @@ const TrackRecordingControl: FC = () => {
 	const handleMinTime = useCallback((val: number) => dispatch(setMinTime(val)), [dispatch]);
 	const handleMinPrecision = useCallback(
 		(val: number) => dispatch(setMinPrecision(val)),
+		[dispatch]
+	);
+	const handleUseDemAltitude = useCallback(
+		(val: boolean) => dispatch(setUseDemAltitude(val)),
 		[dispatch]
 	);
 
@@ -61,6 +72,13 @@ const TrackRecordingControl: FC = () => {
 				Info={t('trackRecording.hintMinPrecision')}
 				numType="float"
 				validate={validateNonNegative}
+			/>
+
+			<ToggleRowControl
+				label={t('trackRecording.useDemAltitude')}
+				value={useDemAltitude}
+				onToggle={() => handleUseDemAltitude(!useDemAltitude)}
+				Info={t('trackRecording.hintUseDemAltitude')}
 			/>
 		</View>
 	);

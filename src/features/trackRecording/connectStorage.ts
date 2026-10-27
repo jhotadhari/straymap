@@ -23,6 +23,9 @@ import {
 	setLastWrittenTime,
 	setRecordingStartTime,
 	setResumePending,
+	setResumePromptPending,
+	setUseDemAltitude,
+	stopRecording,
 	writeGnssPosition,
 } from './slice';
 // GNSS positions come from the native gnssFilter on MapContainer.
@@ -36,7 +39,14 @@ import { createLines } from '../lines/db/actionsLine';
 import { ensureTagByLabel } from '../lines/db/actionsTag';
 import { setLineSelected } from '../lines/slice';
 import { setIsActive } from '../gnss/slice';
-import NativeTrackingModule from '../../specs/NativeTrackingModule';
+import { startRecordingTask } from './backgroundTask';
+import { toTrackCoord } from './utils';
+import { invalidateLastRecordedLineQueries } from './db/queryFns';
+import {
+	invalidateLineGeomQueries,
+	invalidateLineGeomQueriesForLine,
+	invalidateLinesQueries,
+} from '../lines/db/queryFns';
 import { dbConnection } from '../dbLoader/DBConnection';
 
 const settingsKey = 'trackRecordingSettings';
@@ -61,14 +71,21 @@ export const initializeFromStorage = (store: AppStore) => {
 						dbConnection?.drizzle &&
 						typeof newSettings.activeLineId === 'number'
 					) {
-						// Deferred resume: re-activate recording only after
-						// the first native GNSS position arrives (see the
-						// writeGnssPosition listener) — recording surfaces
-						// mount cleanly instead of racing app startup.
-						store.dispatch(setResumePending(true));
+						// The app was killed while recording was active —
+						// show the resume prompt (ResumeRecordingPrompt
+						// overlay) instead of silently re-activating.
+						store.dispatch(setResumePromptPending(true));
 					} else if (!newSettings.isRecording) {
 						store.dispatch(setIsRecordingAction(newSettings.isRecording));
 					}
+				}
+				// Killed while a confirmed resume was waiting for its
+				// first GNSS fix — prompt again.
+				if (newSettings.resumePending === true) {
+					store.dispatch(setResumePromptPending(true));
+				}
+				if (typeof newSettings.useDemAltitude === 'boolean') {
+					store.dispatch(setUseDemAltitude(newSettings.useDemAltitude));
 				}
 				if (typeof newSettings.activeTrackId === 'number') {
 					store.dispatch(setActiveTrackId(newSettings.activeTrackId));
@@ -124,7 +141,8 @@ startAppListening({
 		setMinTime,
 		setMinPrecision,
 		setRecordingStartTime,
-		setResumePending
+		setResumePending,
+		setUseDemAltitude
 	),
 	effect: async (action, listenerApi) => {
 		try {
@@ -145,157 +163,215 @@ startAppListening({
  * Lazy line creation: a single-point LineString is invalid GeoJSON
  * (SpatiaLite's GeomFromGeoJSON rejects it), so the first position is
  * buffered and the track line is created from the first two positions.
+ *
+ * Writes are serialized through a promise chain: the creation branch
+ * awaits several DB round-trips, and two positions arriving inside that
+ * window must not both spawn a line (duplicate orphaned tracks).
  */
-startAppListening({
-	actionCreator: writeGnssPosition,
-	effect: async (action, listenerApi) => {
-		let state = listenerApi.getState();
-		const trk = state.trackRecording;
+let writeChain: Promise<void> = Promise.resolve();
 
-		if (!trk.isRecording && !trk.resumePending) {
-			return;
-		}
+const processWriteGnssPosition = async (
+	action: { payload: { lng: number; lat: number; altitude: number | null } },
+	listenerApi: {
+		dispatch: (action: any) => void;
+		getState: () => { trackRecording: TrackRecordingState };
+	}
+) => {
+	let state = listenerApi.getState();
+	const trk = state.trackRecording;
 
-		// Deferred resume: recording was restored from storage — only
-		// re-activate on the first native position, then start the
-		// foreground service that keeps it alive in the background.
-		if (trk.resumePending) {
-			listenerApi.dispatch(setResumePending(false));
-			listenerApi.dispatch(setIsRecordingAction(true));
-			listenerApi.dispatch(setIsActive(true));
-			try {
-				await NativeTrackingModule.startService();
-			} catch (err) {
-				logError('trackRecording/resume.startService', err);
-			}
-			state = listenerApi.getState();
-		}
+	if (!trk.isRecording && !trk.resumePending) {
+		return;
+	}
 
-		if (!dbConnection?.drizzle) {
-			return;
-		}
+	// Deferred resume: recording was restored from storage — only
+	// re-activate on the first native position, then register the
+	// foreground task that keeps it alive in the background.
+	if (trk.resumePending) {
+		listenerApi.dispatch(setResumePending(false));
+		listenerApi.dispatch(setIsRecordingAction(true));
+		listenerApi.dispatch(setIsActive(true));
+		await startRecordingTask();
+		state = listenerApi.getState();
+	}
 
-		const { lng, lat, altitude } = action.payload;
-		const coord: [
-			number,
-			number,
-			number?,
-		] =
-			altitude != null
-				? [
-						lng,
-						lat,
-						altitude,
-					]
-				: [lng, lat];
+	if (!dbConnection?.drizzle) {
+		return;
+	}
 
-		if (!trk.activeLineId) {
-			const buffered = trk.lastWrittenPosition;
-			if (!buffered) {
-				// First position — buffer it, create the line on the next.
-				listenerApi.dispatch(setLastWrittenPosition(coord));
-				listenerApi.dispatch(setLastWrittenTime(Date.now()));
-				return;
-			}
+	const { lng, lat, altitude } = action.payload;
+	// Always 3D — a mixed 2D/3D LineString breaks ST_AddPoint.
+	const coord = toTrackCoord(lng, lat, altitude);
 
-			// Second position — create the track line from both points.
-			const settings = {
-				minDistance: trk.minDistance,
-				minTime: trk.minTime,
-				minPrecision: trk.minPrecision,
-			};
-			const toPosition = (
-				c: [
-					number,
-					number,
-					number?,
-				]
-			):
-				| [number, number]
-				| [
-						number,
-						number,
-						number,
-				  ] =>
-				c[2] != null
-					? [
-							c[0],
-							c[1],
-							c[2],
-						]
-					: [c[0], c[1]];
-
-			let result:
-				| {
-						id: number;
-				  }[]
-				| undefined;
-			try {
-				// Attach the system 'recorded' tag (red) to the track line.
-				let recordedTagId: number | undefined;
-				try {
-					recordedTagId = await ensureTagByLabel('recorded');
-				} catch (err) {
-					// Tagging is non-critical — recording must not die
-					// over a tag failure.
-					logError('trackRecording/ensureRecordedTag', err);
-				}
-				result = await createLines([
-					{
-						title: null,
-						lineStringFeature: {
-							type: 'Feature',
-							properties: {},
-							geometry: {
-								type: 'LineString',
-								coordinates: [toPosition(buffered), toPosition(coord)],
-							},
-						},
-						tagIds: recordedTagId !== undefined ? [recordedTagId] : [],
-					},
-				]);
-			} catch (err) {
-				// Creation failed — keep the buffer and retry on the next
-				// position.
-				logError('trackRecording/createLine', err);
-				return;
-			}
-
-			if (!result?.length) {
-				return;
-			}
-
-			const lineId = result[0].id;
-
-			const trackResult = await createTrack({
-				line_id: lineId,
-				settings,
-			});
-
-			if (!trackResult?.id) {
-				// Clean up the orphaned line — createTrack failed after
-				// createLines committed. TODO: add deleteLine call once a
-				// non-throwing version is available.
-				return;
-			}
-
-			listenerApi.dispatch(setActiveTrackId(trackResult.id));
-			listenerApi.dispatch(setActiveLineId(lineId));
-			// Auto-select the line so it appears in the drawer list.
-			listenerApi.dispatch(setLineSelected(lineId, true));
+	if (!trk.activeLineId) {
+		const buffered = trk.lastWrittenPosition;
+		if (!buffered) {
+			// First position — buffer it, create the line on the next.
 			listenerApi.dispatch(setLastWrittenPosition(coord));
 			listenerApi.dispatch(setLastWrittenTime(Date.now()));
 			return;
 		}
 
-		// Update state so other UI can track the last-written position.
+		// Second position — create the track line from both points.
+		const settings = {
+			minDistance: trk.minDistance,
+			minTime: trk.minTime,
+			minPrecision: trk.minPrecision,
+		};
+		const toPosition = (
+			c: [
+				number,
+				number,
+				number?,
+			]
+		):
+			| [number, number]
+			| [
+					number,
+					number,
+					number,
+			  ] => toTrackCoord(c[0], c[1], c[2]);
+
+		let result:
+			| {
+					id: number;
+			  }[]
+			| undefined;
+		try {
+			// Attach the system 'recorded' tag (red) to the track line.
+			let recordedTagId: number | undefined;
+			try {
+				recordedTagId = await ensureTagByLabel('recorded');
+			} catch (err) {
+				// Tagging is non-critical — recording must not die
+				// over a tag failure.
+				logError('trackRecording/ensureRecordedTag', err);
+			}
+			result = await createLines([
+				{
+					title: null,
+					lineStringFeature: {
+						type: 'Feature',
+						properties: {},
+						geometry: {
+							type: 'LineString',
+							coordinates: [toPosition(buffered), toPosition(coord)],
+						},
+					},
+					tagIds: recordedTagId !== undefined ? [recordedTagId] : [],
+				},
+			]);
+		} catch (err) {
+			// Creation failed — keep the buffer and retry on the next
+			// position.
+			logError('trackRecording/createLine', err);
+			return;
+		}
+
+		if (!result?.length) {
+			return;
+		}
+
+		const lineId = result[0].id;
+
+		const trackResult = await createTrack({
+			line_id: lineId,
+			settings,
+		});
+
+		if (!trackResult?.id) {
+			// Clean up the orphaned line — createTrack failed after
+			// createLines committed. TODO: add deleteLine call once a
+			// non-throwing version is available.
+			return;
+		}
+
+		listenerApi.dispatch(setActiveTrackId(trackResult.id));
+		listenerApi.dispatch(setActiveLineId(lineId));
+		// Auto-select the line so it appears in the drawer list.
+		listenerApi.dispatch(setLineSelected(lineId, true));
 		listenerApi.dispatch(setLastWrittenPosition(coord));
 		listenerApi.dispatch(setLastWrittenTime(Date.now()));
 
-		try {
-			await appendPointToLine(trk.activeLineId, coord);
-		} catch (err) {
-			logError('trackRecording/appendPoint', err);
+		// Refresh line caches so the new line shows up immediately.
+		const queryClient = dbConnection?.queryClient;
+		if (queryClient) {
+			invalidateLinesQueries(queryClient);
+			invalidateLineGeomQueries(queryClient);
+			invalidateLastRecordedLineQueries(queryClient);
+		}
+		return;
+	}
+
+	// Update state so other UI can track the last-written position.
+	listenerApi.dispatch(setLastWrittenPosition(coord));
+	listenerApi.dispatch(setLastWrittenTime(Date.now()));
+
+	try {
+		await appendPointToLine(trk.activeLineId, coord);
+	} catch (err) {
+		logError('trackRecording/appendPoint', err);
+		return;
+	}
+
+	// The geometry changed — refetch so the map line, point count and
+	// distance grow live instead of staying frozen at creation time
+	// (React Query staleTime is Infinity).  Only the active line's
+	// per-line cache is invalidated — never the lineGeomsBatch queries
+	// (their Simplify over all selected lines must not re-run per
+	// append, e.g. with thousands of lines loaded).
+	const queryClient = dbConnection?.queryClient;
+	if (queryClient) {
+		invalidateLineGeomQueriesForLine(queryClient, trk.activeLineId);
+	}
+};
+
+startAppListening({
+	actionCreator: writeGnssPosition,
+	effect: (action, listenerApi) => {
+		writeChain = writeChain
+			.catch((err) => logError('trackRecording/writeChain', err))
+			.then(() => processWriteGnssPosition(action, listenerApi));
+	},
+});
+
+/**
+ * Listener 3: GNSS switched off stops the recording.  Stop and pause
+ * are the same — any recorded line can be continued later.  A pending
+ * restore-resume is cancelled as well (no GNSS, no recording).
+ */
+startAppListening({
+	actionCreator: setIsActive,
+	effect: (action, listenerApi) => {
+		if (action.payload) {
+			return;
+		}
+		const trk = listenerApi.getState().trackRecording;
+		if (trk.isRecording) {
+			listenerApi.dispatch(stopRecording());
+		}
+		if (trk.resumePending) {
+			listenerApi.dispatch(setResumePending(false));
+		}
+	},
+});
+
+/**
+ * Listener 4: recording stopped — refresh line caches so list stats and
+ * geometry reflect the final state (appends only invalidated lineGeom
+ * while recording).
+ */
+startAppListening({
+	actionCreator: setIsRecordingAction,
+	effect: (action, _listenerApi) => {
+		if (action.payload) {
+			return;
+		}
+		const queryClient = dbConnection?.queryClient;
+		if (queryClient) {
+			invalidateLinesQueries(queryClient);
+			invalidateLineGeomQueries(queryClient);
+			invalidateLastRecordedLineQueries(queryClient);
 		}
 	},
 });

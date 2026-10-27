@@ -20,5 +20,18 @@
 	"hintMinPrecision": "GNSS accuracy must be better than this value (in meters) for a point to be recorded.",
 	"start": "Start Recording",
 	"tracking": "Tracking",
-	"resuming": "Waiting for GNSS…"
+	"resuming": "Waiting for GNSS…",
+	"startNew": "Start new recording",
+	"continueLast": "Continue last recording",
+	"continueRecording": "Continue recording",
+	"backgroundTask": "Recording track",
+	"hintContinueRecording": "Append new GPS points to this recorded line.",
+	"resumePromptTitle": "Recording interrupted",
+	"resumePromptBody": "Straymap was closed while recording a track. Continue the recording?",
+	"resume": "Continue",
+	"resumeDiscard": "Discard",
+	"resumeLineMissing": "The recorded line no longer exists. Recording discarded.",
+	"useDemAltitude": "Use DEM elevation",
+	"hintUseDemAltitude": "Prefer elevation from DEM files over GNSS altitude. Uses a cache — on a cache miss the point falls back to GNSS altitude and later points use the loaded tile. Requires a DEM directory in the map settings.",
+	"stopConfirmBody": "Stop the current recording?"
 }

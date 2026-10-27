@@ -223,6 +223,21 @@ export const invalidateLineGeomQueries = (queryClient: QueryClient) => {
 };
 
 /**
+ * Invalidate only the per-line geometry queries of a single line.
+ * Deliberately excludes `lineGeomsBatch` — those batch queries re-run
+ * SpatiaLite Simplify over ALL selected lines on every invalidation,
+ * which must never happen on a hot path like per-append recording
+ * invalidation (users may have thousands of lines loaded).
+ */
+export const invalidateLineGeomQueriesForLine = (queryClient: QueryClient, lineId: number) => {
+	const predicate = (query: Query) =>
+		Array.isArray(query.queryKey) &&
+		query.queryKey[0] === 'lineGeom' &&
+		query.queryKey[1] === lineId;
+	return queryClient.invalidateQueries({ predicate });
+};
+
+/**
  * Fetch tags with line counts, optional sorting and filtering.
  *
  * Used with:

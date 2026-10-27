@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { FC, memo, useCallback } from 'react';
-import { PermissionsAndroid, Platform } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
 /**
@@ -12,6 +11,7 @@ import ToggleRowControl from '../../../../components/generic/controls/ToggleRowC
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { selectKeepAppActive } from '../../selectors';
 import { setKeepAppActive } from '../../slice';
+import ensureNotificationPermission from '../../../../lib/notificationPermission';
 import { localStyles } from '../styles';
 
 const KeepAppActiveControl: FC = () => {
@@ -21,15 +21,9 @@ const KeepAppActiveControl: FC = () => {
 
 	const handleToggleKeepAppActive = useCallback(async () => {
 		const next = !keepAppActive;
-		if (next && Platform.OS === 'android' && Platform.Version >= 33) {
-			try {
-				const result = await PermissionsAndroid.request(
-					'android.permission.POST_NOTIFICATIONS'
-				);
-				if (result !== PermissionsAndroid.RESULTS.GRANTED) {
-					return;
-				}
-			} catch {
+		if (next) {
+			const granted = await ensureNotificationPermission();
+			if (!granted) {
 				return;
 			}
 		}

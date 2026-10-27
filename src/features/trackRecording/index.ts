@@ -10,6 +10,7 @@ import pt from './assets/i18n/pt.json';
 import trackingStats from './dashboardWidgets/trackingStats';
 import TrackRecordingMapView from './mapComponents/TrackRecordingMapView';
 import trackingDrawerItem from './drawerPanels/trackingDrawerItem';
+import ResumeRecordingPrompt from './appOverlays/ResumeRecordingPrompt';
 
 export default {
 	selectInitialized,
@@ -33,6 +34,13 @@ export default {
 			key: 'trackRecordingMapView',
 			Component: TrackRecordingMapView,
 			priority: 310,
+		},
+	],
+	appOverlays: [
+		{
+			key: 'resumeRecordingPrompt',
+			Component: ResumeRecordingPrompt,
+			priority: 1100,
 		},
 	],
 	drawerPanels: [trackingDrawerItem],

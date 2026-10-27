@@ -36,7 +36,6 @@ const Display: FC<DashboardWidgetProps<Options>> = ({ item, style = {}, onPress 
 		queryKey: [
 			'lineGeom',
 			lineId,
-			'trackingStats',
 		],
 		queryFn: queryLineGeom,
 		enabled: !!isRecording && !!activeLineId,

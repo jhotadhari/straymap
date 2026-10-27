@@ -15,6 +15,7 @@ import {
 	selectMinTime,
 	selectMinPrecision,
 	selectResumePending,
+	selectUseDemAltitude,
 } from '../selectors';
 import { writeGnssPosition } from '../slice';
 
@@ -53,15 +54,20 @@ export function useGnssSetup() {
 	const minDistance = useAppSelector(selectMinDistance);
 	const minTime = useAppSelector(selectMinTime);
 	const minPrecision = useAppSelector(selectMinPrecision);
+	const useDemAltitude = useAppSelector(selectUseDemAltitude);
 
 	const gnssFilter = useMemo(() => {
 		if (isRecording) {
+			// DEM elevation when the HGT tile is cached (background
+			// preload on miss — next fix gets the cached value), raw
+			// GNSS altitude otherwise.
+			const altitudeSource = useDemAltitude ? 'dem-preferred' : 'gnss-only';
 			return {
 				minDistanceMeters: minDistance,
 				minTimeSec: minTime,
 				minAccuracyMeters: minPrecision,
 				provider: 'satellite' as const,
-				altitudeSource: 'dem-preferred' as const,
+				altitudeSource: altitudeSource as 'dem-preferred' | 'gnss-only',
 			};
 		}
 		if (gnssIsActive) {
@@ -74,6 +80,7 @@ export function useGnssSetup() {
 		minDistance,
 		minTime,
 		minPrecision,
+		useDemAltitude,
 	]);
 
 	// Callback from native onGnssPosition — feeds the gnss slice's live

@@ -20,5 +20,18 @@
 	"hintMinPrecision": "Die GNSS-Genauigkeit muss besser als dieser Wert (in Metern) sein, damit ein Punkt aufgezeichnet wird.",
 	"start": "Aufzeichnung starten",
 	"tracking": "Tracking",
-	"resuming": "Warte auf GNSS…"
+	"resuming": "Warte auf GNSS…",
+	"startNew": "Neue Aufnahme starten",
+	"continueLast": "Letzte Aufnahme fortsetzen",
+	"continueRecording": "Aufnahme fortsetzen",
+	"backgroundTask": "Zeichne Track auf",
+	"hintContinueRecording": "Hänge neue GPS-Punkte an diese aufgezeichnete Linie an.",
+	"resumePromptTitle": "Aufnahme unterbrochen",
+	"resumePromptBody": "Straymap wurde während einer Aufnahme geschlossen. Aufnahme fortsetzen?",
+	"resume": "Fortsetzen",
+	"resumeDiscard": "Verwerfen",
+	"resumeLineMissing": "Die aufgezeichnete Linie existiert nicht mehr. Aufnahme verworfen.",
+	"useDemAltitude": "DEM-Höhe verwenden",
+	"hintUseDemAltitude": "Bevorzugt Höhen aus DEM-Dateien statt GNSS-Höhe. Nutzt einen Cache — bei einem Cache-Fehltreffer wird die GNSS-Höhe verwendet, spätere Punkte nutzen die geladene Kachel. Erfordert ein DEM-Verzeichnis in den Karteneinstellungen.",
+	"stopConfirmBody": "Die aktuelle Aufnahme beenden?"
 }
