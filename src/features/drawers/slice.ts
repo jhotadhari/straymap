@@ -9,12 +9,13 @@ import { createSlice } from '@reduxjs/toolkit';
  */
 import { SliceSettingsBase } from '../../types';
 import { without } from 'lodash-es';
+import { SETTINGS_HANDLE_KEY } from './constants';
+import { DrawerSide } from './types';
 
 export interface DrawersSettings {
 	itemKeysLeft: string[];
 	itemKeysRight: string[];
-	controlHandleSide: string;
-	showSettingsHandle: boolean;
+	itemKeysAvailable: string[];
 	sortable: boolean;
 	activeKeyLeft?: string;
 	activeKeyRight?: string;
@@ -31,8 +32,9 @@ export const initialSettings: DrawersSettings = {
 		'routing',
 		'tracking',
 	],
-	controlHandleSide: 'right',
-	showSettingsHandle: false,
+	itemKeysAvailable: [
+		SETTINGS_HANDLE_KEY,
+	],
 	sortable: false,
 	activeKeyLeft: 'lines',
 	activeKeyRight: 'maps',
@@ -41,6 +43,70 @@ export const initialSettings: DrawersSettings = {
 const initialState: DrawersState = {
 	initialized: false,
 	...initialSettings,
+};
+
+const getItemKeysForSide = (state: DrawersState, side: DrawerSide): string[] => {
+	if ('left' === side) {
+		return state.itemKeysLeft;
+	}
+	if ('right' === side) {
+		return state.itemKeysRight;
+	}
+	return state.itemKeysAvailable;
+};
+
+const setItemKeysForSide = (state: DrawersState, side: DrawerSide, itemKeys: string[]) => {
+	if ('left' === side) {
+		state.itemKeysLeft = itemKeys;
+	} else if ('right' === side) {
+		state.itemKeysRight = itemKeys;
+	} else {
+		state.itemKeysAvailable = itemKeys;
+	}
+};
+
+const getSideForKey = (state: DrawersState, itemKey: string): DrawerSide | undefined => {
+	if (state.itemKeysLeft.includes(itemKey)) {
+		return 'left';
+	}
+	if (state.itemKeysRight.includes(itemKey)) {
+		return 'right';
+	}
+	if (state.itemKeysAvailable.includes(itemKey)) {
+		return 'available';
+	}
+	return undefined;
+};
+
+const moveItemKeyState = (
+	state: DrawersState,
+	itemKey: string,
+	side: DrawerSide,
+	index: number
+) => {
+	const currentSide = getSideForKey(state, itemKey);
+	if (!currentSide) {
+		return;
+	}
+	if (currentSide === side) {
+		const itemKeys = getItemKeysForSide(state, side);
+		const newItemKeys = without(itemKeys, itemKey);
+		const targetIndex = Math.max(0, Math.min(index, newItemKeys.length));
+		newItemKeys.splice(targetIndex, 0, itemKey);
+		setItemKeysForSide(state, side, newItemKeys);
+		return;
+	}
+	const currentItemKeys = without(getItemKeysForSide(state, currentSide), itemKey);
+	setItemKeysForSide(state, currentSide, currentItemKeys);
+	if ('left' === currentSide && state.activeKeyLeft === itemKey) {
+		state.activeKeyLeft = undefined;
+	}
+	if ('right' === currentSide && state.activeKeyRight === itemKey) {
+		state.activeKeyRight = undefined;
+	}
+	const targetItemKeys = getItemKeysForSide(state, side);
+	const targetIndex = Math.max(0, Math.min(index, targetItemKeys.length));
+	targetItemKeys.splice(targetIndex, 0, itemKey);
 };
 
 // Slices contain Redux reducer logic for updating state, and
@@ -52,61 +118,42 @@ export const drawersSlice = createSlice({
 		setInitialized: (state, action: PayloadAction<boolean>) => {
 			state.initialized = action.payload;
 		},
-		setControlHandleSide: (state, action: PayloadAction<DrawersState['controlHandleSide']>) => {
-			state.controlHandleSide = action.payload;
-		},
-		setShowSettingsHandle: (state, action: PayloadAction<boolean>) => {
-			state.showSettingsHandle = action.payload;
-		},
 		setSortable: (state, action: PayloadAction<boolean>) => {
 			state.sortable = action.payload;
 		},
 		setItemKeys: (
 			state,
 			action: PayloadAction<{
-				side: string;
+				side: DrawerSide;
 				itemKeys: string[];
 			}>
 		) => {
-			if ('left' === action.payload.side) {
-				state.itemKeysLeft = action.payload.itemKeys;
-			}
-			if ('right' === action.payload.side) {
-				state.itemKeysRight = action.payload.itemKeys;
-			}
+			setItemKeysForSide(state, action.payload.side, action.payload.itemKeys);
 		},
-		addItemKey: (
+		moveItemKey: (
 			state,
 			action: PayloadAction<{
-				side: string;
 				itemKey: string;
+				side: DrawerSide;
+				index: number;
 			}>
 		) => {
-			if ('left' === action.payload.side) {
-				state.itemKeysLeft = [...state.itemKeysLeft, action.payload.itemKey];
-			}
-			if ('right' === action.payload.side) {
-				state.itemKeysRight = [...state.itemKeysRight, action.payload.itemKey];
-			}
+			const { itemKey, side, index } = action.payload;
+			moveItemKeyState(state, itemKey, side, index);
 		},
-		removeItemKey: (
+		toggleItemKeySide: (
 			state,
 			action: PayloadAction<{
-				side: string;
 				itemKey: string;
+				side: 'left' | 'right';
 			}>
 		) => {
-			if ('left' === action.payload.side) {
-				state.itemKeysLeft = without(state.itemKeysLeft, action.payload.itemKey);
-				if (state.activeKeyLeft === action.payload.itemKey) {
-					state.activeKeyLeft = undefined;
-				}
-			}
-			if ('right' === action.payload.side) {
-				state.itemKeysRight = without(state.itemKeysRight, action.payload.itemKey);
-				if (state.activeKeyRight === action.payload.itemKey) {
-					state.activeKeyRight = undefined;
-				}
+			const { itemKey, side } = action.payload;
+			const isOnSide = getItemKeysForSide(state, side).includes(itemKey);
+			if (isOnSide) {
+				moveItemKeyState(state, itemKey, 'available', 0);
+			} else {
+				moveItemKeyState(state, itemKey, side, Infinity);
 			}
 		},
 		setActiveKey: (
@@ -144,12 +191,10 @@ export const drawersSlice = createSlice({
 // Export the generated action creators for use in components.
 export const {
 	setInitialized,
-	setControlHandleSide,
-	setShowSettingsHandle,
 	setSortable,
 	setItemKeys,
-	addItemKey,
-	removeItemKey,
+	moveItemKey,
+	toggleItemKeySide,
 	setActiveKey,
 } = drawersSlice.actions;
 

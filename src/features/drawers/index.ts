@@ -2,7 +2,6 @@
  * Internal dependencies
  */
 import { createElement } from 'react';
-import FeatherIcons from '@react-native-vector-icons/feather/static';
 
 /**
  * Internal dependencies
@@ -15,6 +14,8 @@ import es from './assets/i18n/es.json';
 import pt from './assets/i18n/pt.json';
 import SettingsDrawers from './uiItems/SettingsDrawers';
 import Drawers from './appOverlays/Drawers';
+import DrawersIcon from './components/DrawersIcon';
+import { SETTINGS_HANDLE_KEY } from './constants';
 
 export default {
 	selectInitialized,
@@ -25,12 +26,18 @@ export default {
 		es,
 		pt,
 	},
+	drawerPanels: [
+		{
+			key: SETTINGS_HANDLE_KEY,
+			label: 'drawers.settingsHandle',
+			iconSource: 'cog',
+		},
+	],
 	uiItems: [
 		{
 			key: 'drawers',
 			label: 'ui.items.drawers',
-			icon: ({ color, style }: { color: string; style: any }) =>
-				createElement(FeatherIcons, { style, name: 'sidebar', size: 25, color }),
+			icon: (props: { color: string; style: any }) => createElement(DrawersIcon, props),
 			Component: SettingsDrawers,
 		},
 	],

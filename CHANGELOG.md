@@ -12,6 +12,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Lines: per-line slope color ramp assignment — the map context menu
   color picker and the selected-lines list color column offer toggling a
   slope color ramp (single lines only, requires elevation data).
+- Drawers: three-section drawer control (left / right / available)
+  with drag & drop reordering; the settings handle is now a placeable
+  drawer panel.
+- Settings: side controls for the maps drawer panel and the settings
+  handle — shown on the left, on the right, or not at all.
 
 ## [0.5.1] - 2026-10-25
 

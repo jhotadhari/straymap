@@ -14,12 +14,10 @@ import {
 	initialSettings,
 	setInitialized,
 	setItemKeys,
-	removeItemKey,
-	addItemKey,
-	setControlHandleSide,
 	setActiveKey,
 	setSortable,
-	setShowSettingsHandle,
+	moveItemKey,
+	toggleItemKeySide,
 } from './slice';
 import { startAppListening } from '../../store/listenerMiddleware';
 import { selectInitialized } from './selectors';
@@ -66,6 +64,14 @@ export const initializeFromStorage = (store: AppStore) => {
 						})
 					);
 				}
+				if (newSettings?.itemKeysAvailable) {
+					store.dispatch(
+						setItemKeys({
+							side: 'available',
+							itemKeys: filterObsoleteDrawerKeys(newSettings.itemKeysAvailable),
+						})
+					);
+				}
 				if (newSettings?.activeKeyLeft) {
 					store.dispatch(
 						setActiveKey({
@@ -81,12 +87,6 @@ export const initializeFromStorage = (store: AppStore) => {
 							activeKey: newSettings.activeKeyRight,
 						})
 					);
-				}
-				if (newSettings?.controlHandleSide) {
-					store.dispatch(setControlHandleSide(newSettings.controlHandleSide));
-				}
-				if (undefined !== newSettings?.showSettingsHandle) {
-					store.dispatch(setShowSettingsHandle(newSettings.showSettingsHandle));
 				}
 				if (undefined !== newSettings?.sortable) {
 					store.dispatch(setSortable(newSettings.sortable));
@@ -133,15 +133,7 @@ export const saveToStorage = (drawersState: DrawersState, actionType: string) =>
  * and calls the function to save them to defaultPreferences.
  */
 startAppListening({
-	matcher: isAnyOf(
-		setControlHandleSide,
-		setItemKeys,
-		addItemKey,
-		removeItemKey,
-		setActiveKey,
-		setShowSettingsHandle,
-		setSortable
-	),
+	matcher: isAnyOf(setItemKeys, setActiveKey, setSortable, moveItemKey, toggleItemKeySide),
 	effect: async (action, listenerApi) => {
 		try {
 			await saveToStorage(listenerApi.getState().drawers, action.type);

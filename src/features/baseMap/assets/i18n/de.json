@@ -26,6 +26,12 @@
 	"layerRemove": "Kartenebene entfernen",
 	"layersNone": "Derzeit sind keine Kartenebenen vorhanden",
 	"mapsforgeGeneral": "Allgemeine Mapsforge Einstellungen",
+	"drawerPanel": "Karten-Panel",
+	"drawerPanelSide": {
+		"none": "Kein Panel",
+		"left": "Linke Seite",
+		"right": "Rechte Seite"
+	},
 	"mapType": "Kartentyp",
 	"addNewLayer": "Neue Kartenebene hinzufügen",
 	"addNewLayerShort": "Neue Ebene hinzufügen",
@@ -101,7 +107,8 @@
 		"opacity": "Die Deckkraft der Kartenebene.\n\nEin Wert zwischen 0 und 1.\n\n- 0 bedeutet, dass die Ebene transparent ist.\n- 1 bedeutet, dass die Ebene volle Deckkraft hat und darunter liegende Ebenen nicht sichtbar sind.",
 		"cache": "Ein Cache (Pufferspeicher) speichert Kartenbilder. So müssen sie nicht erneut heruntergeladen oder erstellt werden.",
 		"cacheDir": "Das Verzeichnis, in dem der Cache gespeichert werden soll.\n\n Auf ein internes Verzeichnis kann nur die App selbst zugreifen. Auf ein externes Verzeichnis können auch andere Apps, wie z. B. Datei-Explorer-Apps, zugreifen.",
-		"cacheSize": "Die Größe des Caches in MB."
+		"cacheSize": "Die Größe des Caches in MB.",
+		"drawerPanel": "Wo das Karten-Panel angezeigt wird: auf der linken Seite der Karte, auf der rechten Seite oder gar nicht.\n\nWenn ausgeblendet, kannst du die Karteneinstellungen weiterhin über den Einstellungsbildschirm erreichen."
 	},
 	"link": {
 		"xmlRenderThemes": "Render-Themes im Xml-Format",

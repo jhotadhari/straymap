@@ -11,6 +11,7 @@ import { DRAWER_ICON_SIZE } from '../../constants';
 export { DRAWER_ICON_SIZE };
 export const DRAWER_WIDTH = 300;
 export const DRAWER_HANDLE_SIZE = 50;
+export const SETTINGS_HANDLE_KEY = 'settingsHandle';
 
 export const itemStyles = StyleSheet.create({
 	item: {

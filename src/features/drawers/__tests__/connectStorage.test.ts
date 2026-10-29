@@ -36,4 +36,8 @@ describe('filterObsoleteDrawerKeys', () => {
 	it('keeps valid keys unchanged', () => {
 		expect(filterObsoleteDrawerKeys(['lines', 'maps'])).toEqual(['lines', 'maps']);
 	});
+
+	it('keeps the settings handle key', () => {
+		expect(filterObsoleteDrawerKeys(['settingsHandle'])).toEqual(['settingsHandle']);
+	});
 });

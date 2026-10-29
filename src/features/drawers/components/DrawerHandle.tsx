@@ -18,13 +18,11 @@ import { DRAWER_HANDLE_SIZE, DRAWER_ICON_SIZE } from '../constants';
 const DrawerHandle = ({
 	itemKey,
 	gesture,
-	overwriteDrawerItem,
 	onPress,
 	style,
 }: {
 	itemKey?: string;
 	gesture: ComposedGesture | GestureType;
-	overwriteDrawerItem?: DrawerPanel;
 	onPress?: () => void;
 	style?: ViewProps['style'];
 }) => {
@@ -34,11 +32,10 @@ const DrawerHandle = ({
 
 	const drawerItem = useMemo(
 		() =>
-			overwriteDrawerItem ??
 			get(featureRegistry.getDrawerPanels() as { [itemKey: string]: DrawerPanel }, [
 				itemKey ?? '',
 			]),
-		[itemKey, overwriteDrawerItem]
+		[itemKey]
 	);
 
 	const { IconComponent, iconSource } = useMemo(() => {

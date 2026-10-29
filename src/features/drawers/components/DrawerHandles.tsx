@@ -2,7 +2,7 @@
  * External dependencies
  */
 import React, { FC, useCallback, useContext, useMemo, useState } from 'react';
-import { StyleSheet, View, ViewProps } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import Sortable, { SortableFlexDragEndParams } from 'react-native-sortables';
 import { ScrollView } from 'react-native-gesture-handler';
 import Animated, { useAnimatedStyle } from 'react-native-reanimated';
@@ -10,27 +10,17 @@ import Animated, { useAnimatedStyle } from 'react-native-reanimated';
 /**
  * Internal dependencies
  */
-import { DrawerPanel, DrawerProps } from '../types';
-import {
-	selectActiveKey,
-	selectControlHandleSide,
-	selectItemKeys,
-	selectShowSettingsHandle,
-	selectSortable,
-} from '../selectors';
+import { DrawerProps } from '../types';
+import { selectActiveKey, selectItemKeys, selectSortable } from '../selectors';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import DrawerHandle from './DrawerHandle';
 import { setItemKeys } from '../slice';
 import DrawerContext from '../DrawerContext';
 import useBottomDrawerAwareHeights from '../hooks/useBottomDrawerAwareHeights';
-import { DRAWER_HANDLE_SIZE } from '../constants';
+import { DRAWER_HANDLE_SIZE, SETTINGS_HANDLE_KEY } from '../constants';
 import { AppContext } from '../../../Context';
 import useDropIndicatorStyle from '../../../compose/useDropIndicatorStyle';
 import { PADDING } from '../../../components/MapCornerComponents';
-
-const settingsOverwriteDrawerItem: DrawerPanel = {
-	iconSource: 'cog',
-};
 
 const DrawerHandles: FC<
 	Pick<DrawerProps, 'setModalVisible' | 'side' | 'gesture' | 'expand' | 'getIsFullyCollapsed'>
@@ -39,8 +29,6 @@ const DrawerHandles: FC<
 
 	const itemKeys = useAppSelector((state) => selectItemKeys(state, { side }));
 	const activeItemKey = useAppSelector((state) => selectActiveKey(state, { side }));
-	const controlHandleSide = useAppSelector(selectControlHandleSide);
-	const showSettingsHandle = useAppSelector(selectShowSettingsHandle);
 	const sortable = useAppSelector(selectSortable);
 
 	const { setMoveEnabled, mapCornerComponentsHeight, bottomDrawerHeightSv } =
@@ -53,8 +41,17 @@ const DrawerHandles: FC<
 
 	const draggableItems = useMemo(() => itemKeys.map((key) => ({ key })), [itemKeys]);
 
+	const toggleModalVisible = useCallback(
+		() => setModalVisible((visible) => !visible),
+		[setModalVisible]
+	);
+
 	const handleDraggableItemPress = useCallback(
 		({ key }: { key: string }) => {
+			if (SETTINGS_HANDLE_KEY === key) {
+				toggleModalVisible();
+				return;
+			}
 			if (key === activeItemKey) {
 				expand(getIsFullyCollapsed());
 			} else {
@@ -69,6 +66,7 @@ const DrawerHandles: FC<
 			expand,
 			getIsFullyCollapsed,
 			setActiveItemKey,
+			toggleModalVisible,
 		]
 	);
 
@@ -83,7 +81,7 @@ const DrawerHandles: FC<
 			setMoveEnabled?.(true);
 			dispatch(
 				setItemKeys({
-					side,
+					side: side as 'left' | 'right',
 					// SortableFlex appends '.$' to keys during drag; strip it back to the original key
 					itemKeys: indexToKey.map((toKey) => toKey.replace('.$', '')),
 				})
@@ -103,16 +101,8 @@ const DrawerHandles: FC<
 	);
 
 	const height = useMemo(
-		() =>
-			getContainerHeight(
-				showSettingsHandle && controlHandleSide === side
-					? draggableItems.length + 1
-					: draggableItems.length
-			),
+		() => getContainerHeight(draggableItems.length),
 		[
-			showSettingsHandle,
-			controlHandleSide,
-			side,
 			draggableItems.length,
 			getContainerHeight,
 		]
@@ -142,14 +132,6 @@ const DrawerHandles: FC<
 		[height]
 	);
 
-	const styleControlHandle: ViewProps['style'] = useMemo(
-		() => ({
-			position: 'absolute',
-			top: getContainerHeight(draggableItems.length), // Intentional: even single handles get offset from top edge
-		}),
-		[draggableItems.length, getContainerHeight]
-	);
-
 	const handleSingleItemPress = useCallback(
 		() => handleDraggableItemPress(draggableItems[0]),
 		[handleDraggableItemPress, draggableItems]
@@ -165,11 +147,6 @@ const DrawerHandles: FC<
 		return map;
 	}, [draggableItems, handleDraggableItemPress]);
 
-	const toggleModalVisible = useCallback(
-		() => setModalVisible((visible) => !visible),
-		[setModalVisible]
-	);
-
 	const styleWrapper = useMemo(
 		() => [
 			styles.wrapper,
@@ -182,7 +159,7 @@ const DrawerHandles: FC<
 
 	const styleScrollView = useMemo(() => [styles.scrollView, styles.scrollViewFill], []);
 
-	if ((!showSettingsHandle || controlHandleSide !== side) && draggableItems.length === 0) {
+	if (draggableItems.length === 0) {
 		return undefined;
 	}
 
@@ -245,15 +222,6 @@ const DrawerHandles: FC<
 								</View>
 							))}
 					</View>
-
-					{showSettingsHandle && controlHandleSide === side && (
-						<DrawerHandle
-							style={styleControlHandle}
-							gesture={gesture}
-							onPress={toggleModalVisible}
-							overwriteDrawerItem={settingsOverwriteDrawerItem}
-						/>
-					)}
 				</View>
 			</ScrollView>
 		</Animated.View>
