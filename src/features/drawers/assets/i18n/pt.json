@@ -3,6 +3,12 @@
 	"drawer_other": "Painéis",
 	"openMapsSettings": "Abrir configurações de mapas",
 	"settingsHandle": "Configurações",
+	"hintSettingsHandleSide": "Onde a alça de configurações é exibida: no lado esquerdo do mapa, no lado direito ou não é exibida.\n\nA alça de configurações abre a seleção de painéis.",
+	"settingsHandleSide": {
+		"none": "Sem alça de configurações",
+		"left": "Lado esquerdo",
+		"right": "Lado direito"
+	},
 	"selectDrawers": "Selecionar painéis",
 	"hintSelectDrawers": "Adicione, remova ou reorganize painéis nos lados esquerdo e direito do mapa.\n\nArraste um painel entre as seções para movê-lo: para o lado esquerdo, para o lado direito ou para a seção disponível.",
 	"sectionLeft": "Esquerda",

@@ -26,6 +26,12 @@
 	"layerRemove": "Eliminar capa",
 	"layersNone": "Actualmente no hay capas de mapa",
 	"mapsforgeGeneral": "Configuración general de Mapsforge",
+	"drawerPanel": "Panel de mapas",
+	"drawerPanelSide": {
+		"none": "Sin panel",
+		"left": "Lado izquierdo",
+		"right": "Lado derecho"
+	},
 	"mapType": "Tipo de mapa",
 	"addNewLayer": "Agregar nueva capa de mapa",
 	"addNewLayerShort": "Agregar nueva capa",
@@ -101,7 +107,8 @@
 		"opacity": "La opacidad de la capa del mapa.\n\nValor entre 0 y 1.\n\n- 0 significa que la capa es transparente.\n- 1 significa que la capa tiene opacidad total y las capas subyacentes no son visibles.",
 		"cache": "Una caché almacena imágenes del mapa. Así no tienen que descargarse o generarse nuevamente.",
 		"cacheDir": "El directorio donde se guardará la caché.\n\nUn directorio interno solo puede ser accedido por la propia aplicación. Un directorio externo también puede ser accedido por otras aplicaciones, como aplicaciones de explorador de archivos.",
-		"cacheSize": "El tamaño de la caché en MB."
+		"cacheSize": "El tamaño de la caché en MB.",
+		"drawerPanel": "Dónde se muestra el panel de mapas: en el lado izquierdo del mapa, en el lado derecho o no se muestra.\n\nCuando está oculto, puedes acceder a la configuración de mapas desde la pantalla de Ajustes."
 	},
 	"link": {
 		"xmlRenderThemes": "Temas de renderizado en formato xml",

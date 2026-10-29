@@ -3,6 +3,12 @@
 	"drawer_other": "Paneles",
 	"openMapsSettings": "Abrir configuración de mapas",
 	"settingsHandle": "Ajustes",
+	"hintSettingsHandleSide": "Dónde se muestra el asa de ajustes: en el lado izquierdo del mapa, en el lado derecho o no se muestra.\n\nEl asa de ajustes abre la selección de paneles.",
+	"settingsHandleSide": {
+		"none": "Sin asa de ajustes",
+		"left": "Lado izquierdo",
+		"right": "Lado derecho"
+	},
 	"selectDrawers": "Seleccionar paneles",
 	"hintSelectDrawers": "Añade, elimina o reordena paneles en los lados izquierdo y derecho del mapa.\n\nArrastra un panel entre las secciones para moverlo: al lado izquierdo, al lado derecho o a la sección disponible.",
 	"sectionLeft": "Izquierda",

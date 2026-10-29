@@ -3,6 +3,12 @@
 	"drawer_other": "Panels",
 	"openMapsSettings": "Karten Einstellungen öffnen",
 	"settingsHandle": "Einstellungen",
+	"hintSettingsHandleSide": "Wo der Einstellungen-Griff angezeigt wird: auf der linken Seite der Karte, auf der rechten Seite oder gar nicht.\n\nDer Einstellungen-Griff öffnet die Panel-Auswahl.",
+	"settingsHandleSide": {
+		"none": "Kein Einstellungen-Griff",
+		"left": "Linke Seite",
+		"right": "Rechte Seite"
+	},
 	"selectDrawers": "Panels auswählen",
 	"hintSelectDrawers": "Panels auf der linken und rechten Seite der Karte hinzufügen, entfernen oder neu anordnen.\n\nZiehe ein Panel zwischen den Abschnitten hin und her, um es zu verschieben: auf die linke Seite, auf die rechte Seite oder in den verfügbaren Abschnitt.",
 	"sectionLeft": "Links",
