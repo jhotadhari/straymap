@@ -59,7 +59,7 @@ import UiItemComponent from '../features/ui/components/UiItemComponent';
 import useShowInitialSplash from '../compose/useShowInitialSplash';
 import { DRAWER_HANDLE_SIZE } from '../features/drawers/constants';
 import { BOTTOM_DRAWER_HANDLE_HEIGHT } from '../features/bottomDrawer/constants';
-import { selectItemKeys, selectControlHandleSide } from '../features/drawers/selectors';
+import { selectItemKeys } from '../features/drawers/selectors';
 import { getDrawerWidthResponsive } from '../features/drawers/utils';
 import { useAppDispatch } from '../store/hooks';
 import { featureRegistry } from '../features/FeatureRegistry';
@@ -109,7 +109,6 @@ const AppView = ({
 	const useDemAltitude = useAppSelector(selectUseDemAltitude);
 	const resumePromptPending = useAppSelector(selectResumePromptPending);
 
-	const controlHandleSide = useAppSelector(selectControlHandleSide);
 	const leftItemKeys = useAppSelector((state) => selectItemKeys(state, { side: 'left' }));
 	const rightItemKeys = useAppSelector((state) => selectItemKeys(state, { side: 'right' }));
 
@@ -342,8 +341,8 @@ const AppView = ({
 
 			const drawerWidthResponsive = getDrawerWidthResponsive(width);
 
-			const leftItemCount = leftItemKeys.length + (controlHandleSide === 'left' ? 1 : 0);
-			const rightItemCount = rightItemKeys.length + (controlHandleSide === 'right' ? 1 : 0);
+			const leftItemCount = leftItemKeys.length;
+			const rightItemCount = rightItemKeys.length;
 
 			// Window-space press position — used for the bottom-drawer region,
 			// which anchors to the window bottom and is therefore independent
@@ -411,7 +410,6 @@ const AppView = ({
 			drawerGestureRef,
 			leftItemKeys.length,
 			rightItemKeys.length,
-			controlHandleSide,
 			width,
 			height,
 			currentMapEventRef,

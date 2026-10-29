@@ -9,13 +9,32 @@ import { useTranslation } from 'react-i18next';
  * Internal dependencies
  */
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
-import { selectShowSettingsHandle, selectSortable } from '../selectors';
-import { setShowSettingsHandle, setSortable } from '../slice';
+import { selectSideForKey, selectSortable } from '../selectors';
+import { moveItemKey, setSortable } from '../slice';
+import { SETTINGS_HANDLE_KEY } from '../constants';
+import { DrawerSide } from '../types';
 import DrawerControlModal from '../components/controls/DrawerControlModal';
 import InfoLabelRow from '../../../components/generic/infoWrapper/InfoLabelRow';
 import ButtonHighlight from '../../../components/generic/primitives/ButtonHighlight';
+import OptionMenuRowControl from '../../../components/generic/controls/OptionMenuRowControl';
 import { useButtonProps } from '../../../compose/useButtonProps';
 import ListItem from '../../../components/generic/wrapper/ListItem';
+import { OptionBase } from '../../../types';
+
+const settingsHandleSideOptions: OptionBase[] = [
+	{
+		key: 'none',
+		label: 'drawers.settingsHandleSide.none',
+	},
+	{
+		key: 'left',
+		label: 'drawers.settingsHandleSide.left',
+	},
+	{
+		key: 'right',
+		label: 'drawers.settingsHandleSide.right',
+	},
+];
 
 const SettingsDrawers: FC<{ style?: ViewStyle }> = ({ style }) => {
 	const { t } = useTranslation();
@@ -24,14 +43,34 @@ const SettingsDrawers: FC<{ style?: ViewStyle }> = ({ style }) => {
 
 	const buttonProps = useButtonProps({ mode: 'outlined' });
 
-	const showSettingsHandle = useAppSelector(selectShowSettingsHandle);
 	const sortable = useAppSelector(selectSortable);
+
+	const settingsHandleSide = useAppSelector((state) =>
+		selectSideForKey(state, SETTINGS_HANDLE_KEY)
+	);
+
+	const settingsHandleSideValue = useMemo(
+		() => settingsHandleSide ?? 'none',
+		[settingsHandleSide]
+	);
 
 	const [modalVisible, setModalVisible] = useState(false);
 
-	const handleToggleShowSettingsHandle = useCallback(() => {
-		dispatch(setShowSettingsHandle(!showSettingsHandle));
-	}, [dispatch, showSettingsHandle]);
+	const handleUpdateSettingsHandleSide = useCallback(
+		(newValue: string) => {
+			if (newValue === settingsHandleSideValue) {
+				return;
+			}
+			dispatch(
+				moveItemKey({
+					itemKey: SETTINGS_HANDLE_KEY,
+					side: 'none' === newValue ? 'available' : (newValue as DrawerSide),
+					index: Infinity,
+				})
+			);
+		},
+		[dispatch, settingsHandleSideValue]
+	);
 
 	const handleToggleSortable = useCallback(() => {
 		dispatch(setSortable(!sortable));
@@ -40,12 +79,6 @@ const SettingsDrawers: FC<{ style?: ViewStyle }> = ({ style }) => {
 	const handleOpenModal = useCallback(() => {
 		setModalVisible(true);
 	}, []);
-
-	const toggleLabel = useMemo(
-		() =>
-			showSettingsHandle ? t('drawers.showSettingsHandle') : t('drawers.hideSettingsHandle'),
-		[showSettingsHandle, t]
-	);
 
 	const sortableLabel = useMemo(
 		() => (sortable ? t('drawers.sortableEnabled') : t('drawers.sortableDisabled')),
@@ -73,18 +106,14 @@ const SettingsDrawers: FC<{ style?: ViewStyle }> = ({ style }) => {
 
 			<ListItem
 				title={
-					<InfoLabelRow
+					<OptionMenuRowControl
 						label={t('drawers.settingsHandle')}
-						Info={t('drawers.hintShowSettingsHandle')}
-					>
-						<ButtonHighlight
-							{...buttonProps}
-							compact={true}
-							onPress={handleToggleShowSettingsHandle}
-						>
-							{toggleLabel}
-						</ButtonHighlight>
-					</InfoLabelRow>
+						Info={t('drawers.hintSettingsHandleSide')}
+						options={settingsHandleSideOptions}
+						value={settingsHandleSideValue}
+						onUpdate={handleUpdateSettingsHandleSide}
+						compact={true}
+					/>
 				}
 			/>
 

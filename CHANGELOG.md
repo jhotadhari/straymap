@@ -13,6 +13,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   color picker and the selected-lines list color column offer toggling a
   slope color ramp (single lines only, requires elevation data).
 
+### Fixed
+
+- Lang: first launch now resolves the system setting to the device
+  locale instead of always starting in English.
+- Drawers: three-section drawer control (left / right / available)
+  with drag & drop reordering; the settings handle is now a placeable
+  drawer panel.
+- Settings: side controls for the maps drawer panel and the settings
+  handle — shown on the left, on the right, or not at all.
+
 ## [0.5.1] - 2026-10-25
 
 ### Fixed

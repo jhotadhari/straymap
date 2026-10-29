@@ -46,11 +46,16 @@ export const initializeFromStorage = (store: AppStore) => {
 					('system' === newSettings.lang ||
 						([...SUPPORTED_LANGUAGES] as string[]).includes(newSettings.lang))
 				) {
-				store.dispatch(setLang(newSettings.lang));
+					store.dispatch(setLang(newSettings.lang));
 					// Synchronous: ensure dayjs locale is set before first render.
 					// The listener middleware handles subsequent language changes during the session.
 					setDayjsLocale(newSettings.lang);
 				}
+			} else {
+				// Fresh install: dispatch the default 'system' setting so the
+				// listener resolves the device locale instead of staying on the fallback.
+				store.dispatch(setLang('system'));
+				setDayjsLocale('system');
 			}
 			store.dispatch(setInitialized(true));
 		})

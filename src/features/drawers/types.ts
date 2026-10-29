@@ -6,6 +6,8 @@ import { TextStyle } from 'react-native';
 import { ComposedGesture, GestureType } from 'react-native-gesture-handler';
 import { SharedValue } from 'react-native-reanimated';
 
+export type DrawerSide = 'left' | 'right' | 'available';
+
 export type DrawerState = {
 	showContent: boolean;
 	gesture: ComposedGesture | GestureType;

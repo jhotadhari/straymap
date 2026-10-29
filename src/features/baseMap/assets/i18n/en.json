@@ -26,6 +26,12 @@
 	"layerRemove": "Remove layer",
 	"layersNone": "There are currently no map layers",
 	"mapsforgeGeneral": "Mapsforge General Settings",
+	"drawerPanel": "Maps drawer panel",
+	"drawerPanelSide": {
+		"none": "No drawer panel",
+		"left": "Left side",
+		"right": "Right side"
+	},
 	"mapType": "Map type",
 	"addNewLayer": "Add new map layer",
 	"addNewLayerShort": "Add new layer",
@@ -101,7 +107,8 @@
 		"opacity": "The opacity of the map layer.\n\nValue between 0 and 1.\n\n- 0 means the layer is fully transparent.\n- 1 means the layer is fully opaque and covers layers beneath it.",
 		"cache": "A cache stores map images. So they don't have to get downloaded or generated again.",
 		"cacheDir": "The directory where the cache is to be saved.\n\nAn internal directory can only be accessed by the app itself. An external directory can also be accessed by other apps, such as File Explorer apps.",
-		"cacheSize": "The size of the cache in MB."
+		"cacheSize": "The size of the cache in MB.",
+		"drawerPanel": "Where the maps panel is shown: on the left side of the map, on the right side, or not at all.\n\nWhen hidden, you can still access the map settings from the Settings screen."
 	},
 	"link": {
 		"xmlRenderThemes": "Render themes in xml format",

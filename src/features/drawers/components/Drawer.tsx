@@ -17,6 +17,7 @@ import { setActiveKey } from '../slice';
 import DrawerContext from '../DrawerContext';
 import DrawerHandles from './DrawerHandles';
 import useBottomDrawerAwareHeights from '../hooks/useBottomDrawerAwareHeights';
+import { SETTINGS_HANDLE_KEY } from '../constants';
 
 const Drawer: FC<DrawerProps> = ({
 	height,
@@ -51,9 +52,14 @@ const Drawer: FC<DrawerProps> = ({
 	);
 
 	// On first open, set first item active, if nothing active.
+	// The settings handle never becomes active — tapping it opens the
+	// drawer-control modal instead of drawer content.
 	useEffect(() => {
 		if (showContent && !activeItemKey && itemKeys.length) {
-			setActiveItemKey(itemKeys[0]);
+			const firstContentItemKey = itemKeys.find((key) => key !== SETTINGS_HANDLE_KEY);
+			if (firstContentItemKey) {
+				setActiveItemKey(firstContentItemKey);
+			}
 		}
 	}, [
 		setActiveItemKey,
