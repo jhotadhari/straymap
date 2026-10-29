@@ -48,7 +48,7 @@ import { ErrorToastContext } from '../../../components/ErrorToast/Context';
  * gps-fixed (with center dot) while GNSS is on, and red (with dot) while
  * track recording is active.
  */
-const TrackingDrawerIcon: FC<{
+export const TrackingDrawerIcon: FC<{
 	color?: TextStyle['color'];
 	size?: number;
 }> = ({ color, size }) => {

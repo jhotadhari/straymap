@@ -11,6 +11,13 @@
 	"activateCenterMode": "Ativar modo centralizado",
 	"deactivateCenterMode": "Desativar modo centralizado",
 	"recenterDelay": "Recentrar após (s)",
+	"drawerPanel": "Painel de rastreio",
+	"drawerPanelSide": {
+		"none": "Sem painel",
+		"left": "Lado esquerdo",
+		"right": "Lado direito"
+	},
+	"hintDrawerPanel": "Onde o painel de rastreio é exibido: no lado esquerdo do mapa, no lado direito ou não é exibido.\n\nQuando oculto, você ainda pode acessar as configurações de localização na tela de Configurações.",
 	"hintCenterMode": "Mantém o mapa centrado na sua posição GNSS. Pode afastar-se livremente — após o atraso configurado o mapa regressa.",
 	"hintRecenterDelay": "Segundos de imobilidade após se afastar antes de o mapa regressar à sua posição GNSS.",
 	"confirmDeactivateRecording": "A gravação de trilha está ativa. Parar o rastreamento GNSS?",

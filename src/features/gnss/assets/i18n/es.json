@@ -11,6 +11,13 @@
 	"activateCenterMode": "Activar modo centrado",
 	"deactivateCenterMode": "Desactivar modo centrado",
 	"recenterDelay": "Recentrar tras (s)",
+	"drawerPanel": "Panel de seguimiento",
+	"drawerPanelSide": {
+		"none": "Sin panel",
+		"left": "Lado izquierdo",
+		"right": "Lado derecho"
+	},
+	"hintDrawerPanel": "Dónde se muestra el panel de seguimiento: en el lado izquierdo del mapa, en el lado derecho o no se muestra.\n\nCuando está oculto, puedes acceder a la configuración de ubicación desde la pantalla de Ajustes.",
 	"hintCenterMode": "Mantiene el mapa centrado en tu posición GNSS. Puedes alejarte libremente — tras el retardo configurado el mapa vuelve.",
 	"hintRecenterDelay": "Segundos de quietud tras alejarse antes de que el mapa vuelva a tu posición GNSS.",
 	"confirmDeactivateRecording": "La grabación de ruta está activa. ¿Detener el seguimiento GNSS?",

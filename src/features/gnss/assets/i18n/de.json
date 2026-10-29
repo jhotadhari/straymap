@@ -11,6 +11,13 @@
 	"activateCenterMode": "Zentriermodus aktivieren",
 	"deactivateCenterMode": "Zentriermodus deaktivieren",
 	"recenterDelay": "Zurückzentrieren nach (s)",
+	"drawerPanel": "Tracking-Panel",
+	"drawerPanelSide": {
+		"none": "Kein Panel",
+		"left": "Linke Seite",
+		"right": "Rechte Seite"
+	},
+	"hintDrawerPanel": "Wo das Tracking-Panel angezeigt wird: auf der linken Seite der Karte, auf der rechten Seite oder gar nicht.\n\nWenn ausgeblendet, kannst du die Standorteinstellungen weiterhin über den Einstellungsbildschirm erreichen.",
 	"hintCenterMode": "Hält die Karte auf Ihrer GNSS-Position zentriert. Sie können frei wegbewegen — nach der eingestellten Verzögerung fliegt die Karte zurück.",
 	"hintRecenterDelay": "Sekunden Stillstand nach dem Wegbewegen, bevor die Karte zu Ihrer GNSS-Position zurückkehrt.",
 	"confirmDeactivateRecording": "Spuraufzeichnung ist aktiv. GNSS-Tracking beenden?",

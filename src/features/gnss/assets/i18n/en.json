@@ -11,6 +11,13 @@
 	"activateCenterMode": "Activate center mode",
 	"deactivateCenterMode": "Deactivate center mode",
 	"recenterDelay": "Re-center after (s)",
+	"drawerPanel": "Tracking drawer panel",
+	"drawerPanelSide": {
+		"none": "No drawer panel",
+		"left": "Left side",
+		"right": "Right side"
+	},
+	"hintDrawerPanel": "Where the tracking panel is shown: on the left side of the map, on the right side, or not at all.\n\nWhen hidden, you can still access the location settings from the Settings screen.",
 	"hintCenterMode": "Keep the map centered on your GNSS position. You can pan away freely — after the configured delay the map flies back.",
 	"hintRecenterDelay": "Seconds of stillness after panning away before the map returns to your GNSS position.",
 	"confirmDeactivateRecording": "Track recording is active. Stop GNSS tracking?",
