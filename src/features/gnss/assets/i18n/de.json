@@ -21,5 +21,17 @@
 	"hintCenterMode": "Hält die Karte auf Ihrer GNSS-Position zentriert. Sie können frei wegbewegen — nach der eingestellten Verzögerung fliegt die Karte zurück.",
 	"hintRecenterDelay": "Sekunden Stillstand nach dem Wegbewegen, bevor die Karte zu Ihrer GNSS-Position zurückkehrt.",
 	"confirmDeactivateRecording": "Spuraufzeichnung ist aktiv. GNSS-Tracking beenden?",
-	"permissionDenied": "Für GNSS wird die Standortberechtigung benötigt. Bitte in den Systemeinstellungen aktivieren."
+	"permissionDenied": "Für GNSS wird die Standortberechtigung benötigt. Bitte in den Systemeinstellungen aktivieren.",
+	"gnssMarker": "GNSS-Marker",
+	"markerIconTriangle": "Dreieck",
+	"accuracyCircle": "Genauigkeitskreis",
+	"hintAccuracyCircle": "Der Kreis wird mit dem Radius der aktuellen GNSS-Genauigkeit gezeichnet, sobald die Genauigkeit schlechter als dieser Schwellenwert (Meter) ist. 0 deaktiviert den Kreis.",
+	"showMeasurementLabel": "Messwert-Label anzeigen",
+	"hintShowMeasurementLabel": "Zeigt das Distanz-/Peilungs-Label, während die Karte von Ihrer GNSS-Position weggeschwenkt ist.",
+	"hintMarkerFile": "Das Marker-Symbol: das eingebaute Dreieck oder eine eigene SVG/PNG-Datei aus dem Marker-Verzeichnis.",
+	"hintMarkerSize": "Marker-Canvas-Größe in dp.",
+	"hintMarkerColor": "Füllfarbe des Markers (gilt für das eingebaute Dreieck und den Genauigkeitskreis).",
+	"hintMarkerPreview": "Live-Vorschau des konfigurierten Markers.",
+	"hideMeasurement": "Messung ausblenden",
+	"showMeasurement": "Messung einblenden"
 }

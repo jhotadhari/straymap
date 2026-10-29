@@ -10,6 +10,7 @@ import { useMap } from 'react-native-mapsforge-vtm';
  */
 import { useAppSelector } from '../../../store/hooks';
 import { selectGnssPosition, selectIsCenterActive, selectRecenterDelaySec } from '../selectors';
+import { selectMeasureActive } from '../../measure/selectors';
 import { selectUnitPrefs } from '../../general/selectors';
 import { AppContext, MapContext } from '../../../Context';
 import { useMapEventInterval } from '../../dashboard/hooks/useMapEventInterval';
@@ -48,6 +49,7 @@ export function useGnssCenterMode(): {
 	const isCenterActive = useAppSelector(selectIsCenterActive);
 	const gnssPosition = useAppSelector(selectGnssPosition);
 	const recenterDelaySec = useAppSelector(selectRecenterDelaySec);
+	const measureActive = useAppSelector(selectMeasureActive);
 	const unitPrefs = useAppSelector(selectUnitPrefs);
 
 	const { mapViewNativeNodeHandle } = useContext(AppContext);
@@ -66,6 +68,8 @@ export function useGnssCenterMode(): {
 	gnssPositionRef.current = gnssPosition;
 	const recenterDelaySecRef = useRef(recenterDelaySec);
 	recenterDelaySecRef.current = recenterDelaySec;
+	const measureActiveRef = useRef(measureActive);
+	measureActiveRef.current = measureActive;
 	const unitPrefsRef = useRef(unitPrefs);
 	unitPrefsRef.current = unitPrefs;
 	const modeRef = useRef(mode);
@@ -114,6 +118,12 @@ export function useGnssCenterMode(): {
 		clearReturnTimer();
 		returnTimerRef.current = setTimeout(() => {
 			returnTimerRef.current = null;
+			// While a measure-distance measurement is active the map must
+			// not jump back to the GNSS position — stay panned away; the
+			// measurement-end effect re-arms the countdown.
+			if (measureActiveRef.current) {
+				return;
+			}
 			const gnss = gnssPositionRef.current;
 			if (!gnss) {
 				// No fix right now — fly back as soon as the next fix arrives.
@@ -182,6 +192,23 @@ export function useGnssCenterMode(): {
 		clearReturnTimer,
 		flyToGnss,
 	]);
+
+	// While a measure-distance measurement is active the map stays where
+	// the user panned it; when the measurement ends, resume the normal
+	// re-center countdown if the map is still panned away.
+	const wasMeasureActiveRef = useRef(measureActive);
+	useEffect(() => {
+		const was = wasMeasureActiveRef.current;
+		wasMeasureActiveRef.current = measureActive;
+		if (
+			was &&
+			!measureActive &&
+			isCenterActiveRef.current &&
+			modeRef.current === 'pannedAway'
+		) {
+			armReturnTimer();
+		}
+	}, [measureActive, armReturnTimer]);
 
 	// Pan/return detection at the configured map-update interval.
 	useMapEventInterval((event) => {

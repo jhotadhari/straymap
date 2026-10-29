@@ -1,18 +1,18 @@
 /**
  * External dependencies
  */
-import React, { memo, useEffect, useRef, useState } from 'react';
+import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { get } from 'lodash-es';
 import { useSharedValue } from 'react-native-reanimated';
 
 /**
  * Internal dependencies
  */
-import { useAppDispatch, useAppSelector } from '../../../store/hooks';
+import { useAppSelector } from '../../../store/hooks';
 import { selectMeasurePosition } from '../selectors';
-import { clearMeasurement } from '../slice';
 import { selectUnitPrefs } from '../../general/selectors';
 import { useMapEventInterval } from '../../dashboard/hooks/useMapEventInterval';
+import { emitMapContextMenu } from '../../mapContextMenu/controller';
 import {
 	bearingBetween,
 	formatBearing,
@@ -29,7 +29,6 @@ import CenterConnectionOverlay from '../../../components/mapOverlays/CenterConne
  * same convention as the GNSS center-mode label).
  */
 const MeasureOverlay = () => {
-	const dispatch = useAppDispatch();
 	const position = useAppSelector(selectMeasurePosition);
 	const unitPrefs = useAppSelector(selectUnitPrefs);
 
@@ -68,6 +67,25 @@ const MeasureOverlay = () => {
 		setLabelText((prev) => (prev === text ? prev : text));
 	});
 
+	// Label press opens the short context menu (stop measurement), anchored
+	// at the pressed label (map-local physical px — same space as map taps).
+	const handleLabelPress = useCallback(({ x, y }: { x: number; y: number }) => {
+		if (!positionRef.current) {
+			return;
+		}
+		emitMapContextMenu({
+			press: 'short',
+			pressOrigin: 'label',
+			lng: positionRef.current.lng,
+			lat: positionRef.current.lat,
+			x,
+			y,
+			windowX: 0,
+			windowY: 0,
+			hits: [],
+		});
+	}, []);
+
 	if (!position) {
 		return null;
 	}
@@ -77,7 +95,7 @@ const MeasureOverlay = () => {
 			targetSv={targetSv}
 			showSv={showSv}
 			labelText={labelText}
-			onLabelPress={() => dispatch(clearMeasurement())}
+			onLabelPress={handleLabelPress}
 		/>
 	);
 };

@@ -2,7 +2,7 @@
  * External dependencies
  */
 import React, { memo, useContext, useMemo } from 'react';
-import { Dimensions, Pressable, StyleSheet } from 'react-native';
+import { Dimensions, PixelRatio, Pressable, StyleSheet } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import Animated, { SharedValue, useAnimatedProps, useAnimatedStyle } from 'react-native-reanimated';
 import Svg, { Line } from 'react-native-svg';
@@ -17,6 +17,10 @@ import useBottomDrawerAwareHeights from '../../features/drawers/hooks/useBottomD
 const LINE_WIDTH = 2;
 /** Default label distance beyond the map center. */
 const DEFAULT_LABEL_OFFSET_DP = 48;
+/** Min on-screen distance (dp) between the viewport center and the target
+ * below which the label stays hidden — a label for a target that sits
+ * visually on the center is meaningless. */
+export const MIN_LABEL_DISTANCE_DP = 5;
 
 type OverlaySharedValues = Pick<
 	MapPositionSharedValues,
@@ -159,7 +163,7 @@ const CenterConnectionLabel = ({
 	labelOffsetDp: number;
 	labelBgColor: string;
 	labelTextColor: string;
-	onLabelPress?: () => void;
+	onLabelPress?: (position: { x: number; y: number }) => void;
 }) => {
 	const { centerSv, viewportWidthSv, viewportHeightSv, zoomSv, bearingSv, tiltSv } = sharedValues;
 
@@ -187,7 +191,7 @@ const CenterConnectionLabel = ({
 		let dx = cx - screenPos.x;
 		let dy = cy - screenPos.y;
 		const len = Math.sqrt(dx * dx + dy * dy);
-		if (len < 1) {
+		if (len < MIN_LABEL_DISTANCE_DP) {
 			return { opacity: 0 };
 		}
 		dx /= len;
@@ -204,6 +208,48 @@ const CenterConnectionLabel = ({
 		return null;
 	}
 
+	// Press position: the label's center in map-local PHYSICAL px (the
+	// same space as the map's tap events, which the context-menu overlay
+	// uses for panel anchoring). Computed on the JS thread from the same
+	// formula the animated style runs on the UI thread.
+	const handleLabelPress = () => {
+		if (!onLabelPress) {
+			return;
+		}
+		const target = targetSv.value;
+		const vpW = viewportWidthSv.value;
+		const vpH = viewportHeightSv.value;
+		if (!target || vpW <= 0 || vpH <= 0) {
+			return;
+		}
+		const screenPos = toScreenPosition(
+			centerSv,
+			viewportWidthSv,
+			viewportHeightSv,
+			zoomSv,
+			bearingSv,
+			tiltSv,
+			target
+		);
+		if (!screenPos) {
+			return;
+		}
+		const cx = vpW / 2;
+		const cy = vpH / 2;
+		let dx = cx - screenPos.x;
+		let dy = cy - screenPos.y;
+		const len = Math.sqrt(dx * dx + dy * dy);
+		if (len < MIN_LABEL_DISTANCE_DP) {
+			return;
+		}
+		dx /= len;
+		dy /= len;
+		onLabelPress({
+			x: (cx + dx * labelOffsetDp) * PixelRatio.get(),
+			y: (cy + dy * labelOffsetDp) * PixelRatio.get(),
+		});
+	};
+
 	const labelContent = (
 		<Text style={[styles.labelText, { color: labelTextColor }]}>{labelText}</Text>
 	);
@@ -219,7 +265,7 @@ const CenterConnectionLabel = ({
 		>
 			{onLabelPress ? (
 				<Pressable
-					onPress={onLabelPress}
+					onPress={handleLabelPress}
 					hitSlop={6}
 				>
 					{labelContent}
@@ -253,7 +299,7 @@ const CenterConnectionOverlay = ({
 	labelText: string | null;
 	lineColor?: string;
 	labelOffsetDp?: number;
-	onLabelPress?: () => void;
+	onLabelPress?: (position: { x: number; y: number }) => void;
 }) => {
 	const theme = useTheme();
 

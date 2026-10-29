@@ -83,6 +83,12 @@ export interface MapContextMenuContext {
 	tileSize?: number;
 	/** All layer hits under the tap (from the library's HitTestLayer). */
 	hits: MapTapHit[];
+	/**
+	 * Where the menu emission originated. `label` = a measurement-label
+	 * press; `map` (default/undefined) = a regular map press, where
+	 * sources usually gate on proximity to the viewport center.
+	 */
+	pressOrigin?: 'label' | 'map';
 }
 
 export interface MapContextMenuSourceComponentProps {

@@ -2,19 +2,14 @@
  * External dependencies
  */
 import React, { useCallback, useMemo } from 'react';
-import { View } from 'react-native';
 import { Icon, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import ColorPaletteInline from '../../../../components/generic/controls/ColorPaletteInline';
 import { sprintf } from 'sprintf-js';
 
 /**
  * Internal dependencies
  */
-import InfoLabelRow from '../../../../components/generic/infoWrapper/InfoLabelRow';
-import ListItemModalControl from '../../../../components/generic/wrapper/ListItemModalControl';
-import NumericRowControl from '../../../../components/generic/controls/NumericRowControl';
-import FileSourceRowControl from '../../../../components/generic/controls/FileSourceRowControl';
+import MarkerControl from '../../../../components/generic/controls/MarkerControl';
 import { CenterInner } from '../../appOverlays/Center';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { initialSettings, setCursor } from '../../slice';
@@ -37,58 +32,39 @@ const initialOptionsByPath = {
 	],
 };
 
-const validate = (val: number) => val >= 0 && val <= 1000;
+/** Renders the cursor config — falls back to the `target` glyph when no
+ * source is set (matches the anchor-row fallback icon). */
+const CursorPreview = ({
+	config,
+}: {
+	config: { iconSource: string; size: number; color: string };
+}) =>
+	!config.iconSource ? (
+		<Icon
+			source="target"
+			color={config.color}
+			size={config.size}
+		/>
+	) : (
+		<CenterInner cursor={config} />
+	);
 
 const CenterControl = () => {
 	const theme = useTheme();
 	const { t } = useTranslation();
 
 	const appDirs = useAppSelector(selectAppDirs);
-
 	const cursorConfig = useAppSelector(selectCursor);
-
 	const dispatch = useAppDispatch();
 
-	const handleSizeUpdate = useCallback(
-		(newValue: number) =>
-			dispatch(
-				setCursor((cursor) => ({
-					...cursor,
-					size: newValue,
-				}))
-			),
+	const handleUpdate = useCallback(
+		(partial: Partial<{ iconSource: string; size: number; color: string }>) => {
+			dispatch(setCursor((cursor) => ({ ...cursor, ...partial })));
+		},
 		[dispatch]
 	);
 
-	const handleFileSelect = useCallback(
-		(newFileSource?: string) => {
-			dispatch(
-				setCursor((cursor) => ({
-					...cursor,
-					iconSource: newFileSource ?? initialSettings.cursor.iconSource,
-				}))
-			);
-		},
-		[
-			dispatch,
-		]
-	);
-
-	const handleColorChange = useCallback(
-		(newColor: string) => {
-			dispatch(
-				setCursor((cursor) => ({
-					...cursor,
-					color: newColor,
-				}))
-			);
-		},
-		[
-			dispatch,
-		]
-	);
-
-	const cursorPreview = useMemo(
+	const anchorPreviewConfig = useMemo(
 		() => ({
 			...cursorConfig,
 			size: 25,
@@ -98,65 +74,29 @@ const CenterControl = () => {
 	);
 
 	return (
-		<ListItemModalControl
+		<MarkerControl
 			anchorLabel={'Cursor'}
-			anchorIcon={({ color, style }) => (
-				<View style={style}>
-					{!cursorConfig?.iconSource && (
-						<Icon
-							source="target"
-							color={color}
-							size={25}
-						/>
-					)}
-
-					{cursorConfig?.iconSource && <CenterInner cursor={cursorPreview} />}
-				</View>
-			)}
 			header={t('appearance.cursor')}
-		>
-			<FileSourceRowControl
-				header={t('selectFile')}
-				label={t('file')}
-				value={cursorConfig.iconSource}
-				onSelect={handleFileSelect}
-				initialOptionsByPath={initialOptionsByPath}
-				extensions={CURSOR_ICON_EXTENSIONS}
-				dirs={appDirs?.cursor ?? EMPTY_STRING_ARRAY}
-				Info={t('appearance.hint.center.file')}
-				filesHeading={sprintf(t('filesIn'), '(svg|png)')}
-				noFilesHeading={sprintf(t('noFilesIn'), '(svg|png)')}
-			/>
-
-			<NumericRowControl
-				label={t('sizePx')}
-				value={cursorConfig.size}
-				onUpdate={handleSizeUpdate}
-				validate={validate}
-				Info={t('appearance.hint.center.size')}
-			/>
-
-			{cursorConfig?.iconSource &&
-				!cursorConfig.iconSource.startsWith('/') &&
-				!cursorConfig.iconSource.startsWith('content://') && (
-					<InfoLabelRow
-						label={t('appearance.color')}
-						Info={t('appearance.hint.center.color')}
-					>
-						<ColorPaletteInline
-							selectedColor={cursorConfig?.color}
-							onSelect={handleColorChange}
-						/>
-					</InfoLabelRow>
-				)}
-
-			<InfoLabelRow
-				label={t('appearance.preview')}
-				Info={t('appearance.hint.center.preview')}
-			>
-				<CenterInner cursor={cursorConfig} />
-			</InfoLabelRow>
-		</ListItemModalControl>
+			config={cursorConfig}
+			onUpdate={handleUpdate}
+			defaultIconSource={initialSettings.cursor.iconSource}
+			initialOptionsByPath={initialOptionsByPath}
+			extensions={CURSOR_ICON_EXTENSIONS}
+			dirs={appDirs?.cursor ?? EMPTY_STRING_ARRAY}
+			PreviewComponent={CursorPreview}
+			anchorPreviewConfig={anchorPreviewConfig}
+			hintFile={t('appearance.hint.center.file')}
+			hintSize={t('appearance.hint.center.size')}
+			hintColor={t('appearance.hint.center.color')}
+			hintPreview={t('appearance.hint.center.preview')}
+			fileRowHeader={t('selectFile')}
+			fileRowLabel={t('file')}
+			filesHeading={sprintf(t('filesIn'), '(svg|png)')}
+			noFilesHeading={sprintf(t('noFilesIn'), '(svg|png)')}
+			sizeLabel={t('sizePx')}
+			colorLabel={t('appearance.color')}
+			previewLabel={t('appearance.preview')}
+		/>
 	);
 };
 

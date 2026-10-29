@@ -21,5 +21,17 @@
 	"hintCenterMode": "Mantiene el mapa centrado en tu posición GNSS. Puedes alejarte libremente — tras el retardo configurado el mapa vuelve.",
 	"hintRecenterDelay": "Segundos de quietud tras alejarse antes de que el mapa vuelva a tu posición GNSS.",
 	"confirmDeactivateRecording": "La grabación de ruta está activa. ¿Detener el seguimiento GNSS?",
-	"permissionDenied": "Se requiere el permiso de ubicación para usar GNSS. Actívalo en los ajustes del sistema."
+	"permissionDenied": "Se requiere el permiso de ubicación para usar GNSS. Actívalo en los ajustes del sistema.",
+	"gnssMarker": "Marcador GNSS",
+	"markerIconTriangle": "Triángulo",
+	"accuracyCircle": "Círculo de precisión",
+	"hintAccuracyCircle": "El círculo se dibuja con el radio de la precisión GNSS actual cuando la precisión es peor que este umbral (metros). 0 desactiva el círculo.",
+	"showMeasurementLabel": "Mostrar etiqueta de medición",
+	"hintShowMeasurementLabel": "Muestra la etiqueta de distancia/rumbo mientras el mapa está desplazado respecto a tu posición GNSS.",
+	"hintMarkerFile": "El icono del marcador: el triángulo integrado o un archivo SVG/PNG propio del directorio de marcadores.",
+	"hintMarkerSize": "Tamaño del lienzo del marcador en dp.",
+	"hintMarkerColor": "Color de relleno del marcador (aplica al triángulo integrado y al círculo de precisión).",
+	"hintMarkerPreview": "Vista previa en vivo del marcador configurado.",
+	"hideMeasurement": "Ocultar medición",
+	"showMeasurement": "Mostrar medición"
 }

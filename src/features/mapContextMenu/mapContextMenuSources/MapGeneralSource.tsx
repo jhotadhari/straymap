@@ -31,8 +31,8 @@ const MapGeneralSource: FC<MapContextMenuSourceComponentProps> = ({ context, onO
 		return [
 			measureActive
 				? {
-						key: 'removeMeasurement',
-						label: 'measure.removeMeasurement',
+						key: 'stopMeasurement',
+						label: 'measure.stopMeasurement',
 						leadingIcon: 'ruler-square',
 						cb: () => {
 							dispatch(clearMeasurement());

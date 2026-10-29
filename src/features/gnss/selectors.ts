@@ -14,3 +14,14 @@ export const selectGnssHeading = (state: RootState) => state.gnss.heading;
 export const selectIsCenterActive = (state: RootState) => state.gnss.isCenterActive;
 
 export const selectRecenterDelaySec = (state: RootState) => state.gnss.recenterDelaySec;
+
+export const selectMarkerIconSource = (state: RootState) => state.gnss.markerIconSource;
+
+export const selectMarkerSize = (state: RootState) => state.gnss.markerSize;
+
+export const selectMarkerColor = (state: RootState) => state.gnss.markerColor;
+
+export const selectAccuracyCircleThresholdMeters = (state: RootState) =>
+	state.gnss.accuracyCircleThresholdMeters;
+
+export const selectShowMeasurementLabel = (state: RootState) => state.gnss.showMeasurementLabel;

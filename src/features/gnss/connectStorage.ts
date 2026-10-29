@@ -16,6 +16,11 @@ import {
 	setIsActive,
 	setIsCenterActive,
 	setRecenterDelaySec,
+	setMarkerIconSource,
+	setMarkerSize,
+	setMarkerColor,
+	setAccuracyCircleThresholdMeters,
+	setShowMeasurementLabel,
 } from './slice';
 import { startAppListening } from '../../store/listenerMiddleware';
 import { selectInitialized } from './selectors';
@@ -41,6 +46,23 @@ export const initializeFromStorage = (store: AppStore) => {
 				if (typeof newSettings.recenterDelaySec === 'number') {
 					store.dispatch(setRecenterDelaySec(newSettings.recenterDelaySec));
 				}
+				if (typeof newSettings.markerIconSource === 'string') {
+					store.dispatch(setMarkerIconSource(newSettings.markerIconSource));
+				}
+				if (typeof newSettings.markerSize === 'number') {
+					store.dispatch(setMarkerSize(newSettings.markerSize));
+				}
+				if (typeof newSettings.markerColor === 'string') {
+					store.dispatch(setMarkerColor(newSettings.markerColor));
+				}
+				if (typeof newSettings.accuracyCircleThresholdMeters === 'number') {
+					store.dispatch(
+						setAccuracyCircleThresholdMeters(newSettings.accuracyCircleThresholdMeters)
+					);
+				}
+				if (typeof newSettings.showMeasurementLabel === 'boolean') {
+					store.dispatch(setShowMeasurementLabel(newSettings.showMeasurementLabel));
+				}
 			}
 			store.dispatch(setInitialized(true));
 		})
@@ -63,7 +85,16 @@ export const saveToStorage = (state: GnssState, _actionType: string) => {
 };
 
 startAppListening({
-	matcher: isAnyOf(setIsActive, setIsCenterActive, setRecenterDelaySec),
+	matcher: isAnyOf(
+		setIsActive,
+		setIsCenterActive,
+		setRecenterDelaySec,
+		setMarkerIconSource,
+		setMarkerSize,
+		setMarkerColor,
+		setAccuracyCircleThresholdMeters,
+		setShowMeasurementLabel
+	),
 	effect: async (action, listenerApi) => {
 		try {
 			await saveToStorage(listenerApi.getState().gnss, action.type);

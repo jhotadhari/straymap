@@ -9,6 +9,7 @@ import { createSlice } from '@reduxjs/toolkit';
  */
 import { SliceSettingsBase } from '../../types';
 import { bearingBetween, haversineDistance } from '../../lib/formatting';
+import { PALETTE_COLORS } from '../../constants';
 
 /** Min movement away from the heading anchor (m) before the heading is
  * recomputed. Accumulates across fixes, so slow movement still updates
@@ -40,6 +41,19 @@ export interface GnssSettings {
 	/** Seconds of map stillness after a user pan before the map flies back
 	 * to the GNSS position while center mode is active. */
 	recenterDelaySec: number;
+	/** Position-marker icon: the 'triangle' preset or an svg/png file/uri. */
+	markerIconSource: string;
+	/** Position-marker canvas size in dp. */
+	markerSize: number;
+	/** Position-marker fill color (preset triangle + accuracy circle). */
+	markerColor: string;
+	/** Accuracy-circle threshold (m). The circle is drawn with the live
+	 * accuracy radius only while the accuracy is WORSE than this value;
+	 * 0 disables the circle entirely. */
+	accuracyCircleThresholdMeters: number;
+	/** Whether the center-mode measurement label (distance/bearing) is
+	 * shown while panned away from the GNSS position. */
+	showMeasurementLabel: boolean;
 }
 
 export interface GnssState extends SliceSettingsBase, GnssSettings {
@@ -57,6 +71,12 @@ export const initialSettings: GnssSettings = {
 	isActive: false,
 	isCenterActive: false,
 	recenterDelaySec: 10,
+	markerIconSource: 'triangle',
+	markerSize: 26,
+	// The first red of the color-palette options (ColorPaletteInline).
+	markerColor: PALETTE_COLORS[0].bg,
+	accuracyCircleThresholdMeters: 10,
+	showMeasurementLabel: true,
 };
 
 const initialState: GnssState = {
@@ -123,6 +143,21 @@ export const gnssSlice = createSlice({
 		setRecenterDelaySec: (state, action: PayloadAction<number>) => {
 			state.recenterDelaySec = action.payload;
 		},
+		setMarkerIconSource: (state, action: PayloadAction<string>) => {
+			state.markerIconSource = action.payload;
+		},
+		setMarkerSize: (state, action: PayloadAction<number>) => {
+			state.markerSize = action.payload;
+		},
+		setMarkerColor: (state, action: PayloadAction<string>) => {
+			state.markerColor = action.payload;
+		},
+		setAccuracyCircleThresholdMeters: (state, action: PayloadAction<number>) => {
+			state.accuracyCircleThresholdMeters = action.payload;
+		},
+		setShowMeasurementLabel: (state, action: PayloadAction<boolean>) => {
+			state.showMeasurementLabel = action.payload;
+		},
 	},
 });
 
@@ -132,6 +167,11 @@ export const {
 	setGnssPosition,
 	setIsCenterActive,
 	setRecenterDelaySec,
+	setMarkerIconSource,
+	setMarkerSize,
+	setMarkerColor,
+	setAccuracyCircleThresholdMeters,
+	setShowMeasurementLabel,
 } = gnssSlice.actions;
 
 export default gnssSlice.reducer;

@@ -15,6 +15,7 @@ import { selectIsRecording } from '../../trackRecording/selectors';
 import { startRecording, stopRecording } from '../../trackRecording/slice';
 import TrackRecordingControl from '../../trackRecording/components/TrackRecordingControl';
 import GnssCenterControl from '../components/controls/GnssCenterControl';
+import GnssMarkerControl from '../components/controls/GnssMarkerControl';
 import TrackingDrawerPanelSideControl from '../components/controls/TrackingDrawerPanelSideControl';
 import InfoLabelRow from '../../../components/generic/infoWrapper/InfoLabelRow';
 import ButtonHighlight from '../../../components/generic/primitives/ButtonHighlight';
@@ -102,6 +103,8 @@ const SettingsLocation: FC<{ style?: ViewStyle }> = ({ style }) => {
 			</InfoLabelRow>
 
 			<GnssCenterControl />
+
+			<GnssMarkerControl />
 
 			<TrackRecordingControl />
 

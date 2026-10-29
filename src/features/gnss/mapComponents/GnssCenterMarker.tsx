@@ -5,25 +5,29 @@ import React, { FC, useEffect, useMemo, useState } from 'react';
 import { PixelRatio } from 'react-native';
 import { get } from 'lodash-es';
 import RNFS from 'react-native-fs';
-import { LayerMarker, Marker, ReindexScope } from 'react-native-mapsforge-vtm';
+import { LayerMarker, LayerShape, Marker, ReindexScope } from 'react-native-mapsforge-vtm';
 
 /**
  * Internal dependencies
  */
 import { useAppSelector } from '../../../store/hooks';
-import { selectGnssHeading, selectGnssPosition, selectIsActive } from '../selectors';
+import {
+	selectAccuracyCircleThresholdMeters,
+	selectGnssHeading,
+	selectGnssPosition,
+	selectIsActive,
+	selectMarkerColor,
+	selectMarkerIconSource,
+	selectMarkerSize,
+} from '../selectors';
 import { selectAppDirs } from '../../dirs/selectors';
-import { RECORDED_LINE_COLOR } from '../../../constants';
+import { buildMarkerSvg } from '../markerSvg';
 import { logError } from '../../../lib/utils';
-
-/** Marker canvas in dp — the 14x26 triangle centered in a 26x26 square. */
-const MARKER_SIZE_DP = 26;
 
 const MARKER_FILE_NAME = 'gnssCenterMarker.svg';
 
-/** Static north-up triangle; the marker's `rotation` turns it. */
-const buildMarkerSvg = (): string =>
-	`<svg xmlns="http://www.w3.org/2000/svg" width="${MARKER_SIZE_DP}" height="${MARKER_SIZE_DP}" viewBox="0 0 ${MARKER_SIZE_DP} ${MARKER_SIZE_DP}"><polygon points="13,1 7,25 19,25" fill="${RECORDED_LINE_COLOR}" stroke="#000000" stroke-width="2"/></svg>`;
+const isFileSource = (iconSource: string) =>
+	iconSource.startsWith('/') || iconSource.startsWith('content://');
 
 /**
  * GNSS position marker, rendered as a NATIVE marker so it is drawn by
@@ -33,22 +37,35 @@ const buildMarkerSvg = (): string =>
  * Visible whenever GNSS is active (independent of center mode — center
  * mode only controls the map re-centering and the panned-away line).
  *
- * The triangle shape comes from a static SVG file (written once into the
- * app's marker dir); the movement-direction rotation is applied natively
- * via the marker's `rotation` paint option (whole degrees).
+ * The configured icon (triangle preset or a custom svg/png file) is
+ * decoded natively via the marker's filePath paint; the movement-direction
+ * rotation is applied natively via the `rotation` paint option (whole
+ * degrees).
+ *
+ * While the GNSS accuracy is worse than the configured threshold, a
+ * native circle with the live accuracy radius is drawn under the marker.
  */
 const GnssCenterMarker: FC = () => {
 	const isActive = useAppSelector(selectIsActive);
 	const gnssPosition = useAppSelector(selectGnssPosition);
 	const gnssHeading = useAppSelector(selectGnssHeading);
+	const markerIconSource = useAppSelector(selectMarkerIconSource);
+	const markerSize = useAppSelector(selectMarkerSize);
+	const markerColor = useAppSelector(selectMarkerColor);
+	const accuracyCircleThresholdMeters = useAppSelector(selectAccuracyCircleThresholdMeters);
 	const appDirs = useAppSelector(selectAppDirs);
 
 	const markerDir = get(appDirs, ['marker', 0]) as string | undefined;
 
 	const [filePath, setFilePath] = useState<string | null>(null);
 
-	// Write the static SVG once (native decodes .svg filePaths directly).
+	// Custom file sources are used as-is; the triangle preset is written
+	// into the app's marker dir (native decodes .svg filePaths directly).
 	useEffect(() => {
+		if (isFileSource(markerIconSource)) {
+			setFilePath(markerIconSource);
+			return;
+		}
 		if (!markerDir) {
 			return;
 		}
@@ -56,10 +73,7 @@ const GnssCenterMarker: FC = () => {
 		let cancelled = false;
 		(async () => {
 			try {
-				const exists = await RNFS.exists(path);
-				if (!exists) {
-					await RNFS.writeFile(path, buildMarkerSvg(), 'utf8');
-				}
+				await RNFS.writeFile(path, buildMarkerSvg(markerSize, markerColor), 'utf8');
 				if (!cancelled) {
 					setFilePath(path);
 				}
@@ -70,10 +84,15 @@ const GnssCenterMarker: FC = () => {
 		return () => {
 			cancelled = true;
 		};
-	}, [markerDir]);
+	}, [
+		markerDir,
+		markerIconSource,
+		markerSize,
+		markerColor,
+	]);
 
 	// The native marker canvas is raw pixels — scale dp by density.
-	const sizePx = useMemo(() => Math.round(MARKER_SIZE_DP * PixelRatio.get()), []);
+	const sizePx = useMemo(() => Math.round(markerSize * PixelRatio.get()), [markerSize]);
 
 	// Movement direction from consecutive fixes (slice-derived heading) —
 	// the payload's velocity bearing is unreliable for pedestrian fixes.
@@ -85,7 +104,7 @@ const GnssCenterMarker: FC = () => {
 				? {
 						width: sizePx,
 						height: sizePx,
-						filePath: filePath as `/${string}`,
+						filePath: filePath as `/${string}` | `content://${string}`,
 						hotspotPlace: 'CENTER' as const,
 						rotation,
 					}
@@ -97,23 +116,52 @@ const GnssCenterMarker: FC = () => {
 		]
 	);
 
+	// Accuracy circle: radius = live accuracy; only drawn while the
+	// accuracy is worse than the configured threshold (0 disables it).
+	const showAccuracyCircle =
+		accuracyCircleThresholdMeters > 0 &&
+		gnssPosition !== null &&
+		gnssPosition.accuracy > accuracyCircleThresholdMeters;
+
 	if (!isActive || !gnssPosition || !paint) {
 		return null;
 	}
 
 	return (
-		// Explicit scope order: the base map layer renders at order 100 and
-		// route segments/markers at 300/400 — an unordered marker layer
-		// would sort by tree position and land below the map tiles.
-		<ReindexScope order={500}>
-			<LayerMarker>
-				<Marker
-					position={[gnssPosition.lng, gnssPosition.lat]}
-					paint={paint}
-					onError={(err) => logError('gnss/GnssCenterMarker.onError', err)}
-				/>
-			</LayerMarker>
-		</ReindexScope>
+		<>
+			{/* Explicit scope order: the base map layer renders at order 100
+				and route segments/markers at 300/400 — an unordered marker
+				layer would sort by tree position and land below the map
+				tiles. The accuracy circle sits one step below the marker. */}
+			{showAccuracyCircle && (
+				<ReindexScope order={490}>
+					<LayerShape
+						shape={{
+							type: 'circle',
+							center: [gnssPosition.lng, gnssPosition.lat],
+							radiusKm: gnssPosition.accuracy / 1000,
+						}}
+						paint={{
+							strokeColor: markerColor as `#${string}`,
+							strokeWidth: 1,
+							fillColor: markerColor as `#${string}`,
+							fillAlpha: 0.15,
+						}}
+						onError={(err) => logError('gnss/GnssCenterMarker.circle', err)}
+					/>
+				</ReindexScope>
+			)}
+
+			<ReindexScope order={500}>
+				<LayerMarker>
+					<Marker
+						position={[gnssPosition.lng, gnssPosition.lat]}
+						paint={paint}
+						onError={(err) => logError('gnss/GnssCenterMarker.onError', err)}
+					/>
+				</LayerMarker>
+			</ReindexScope>
+		</>
 	);
 };
 

@@ -223,60 +223,70 @@ const MapContextMenuOverlay: FC = () => {
 				zoomLevel={sharePosition?.zoomLevel}
 			/>
 
-			<Pressable
-				style={styles.backdrop}
-				onPress={closeMenu}
-				onLayout={(e) => {
-					const { width, height } = e.nativeEvent.layout;
-					setContainerSize({ width, height });
-				}}
-			>
-				<View
-					style={panelStyle}
+			{/* The panel renders only once the sources settled and at least
+			    one group resolved — an empty panel (or the backdrop) never
+			    flashes while sources resolve their options. */}
+			{settled && groups.length > 0 && (
+				<Pressable
+					style={styles.backdrop}
+					onPress={closeMenu}
 					onLayout={(e) => {
 						const { width, height } = e.nativeEvent.layout;
-						setPanelSize({ width, height });
+						setContainerSize({ width, height });
 					}}
 				>
-					{groups.map((group, index) => (
-						<Fragment key={group.source.key}>
-							{index > 0 && <Divider />}
-							{group.options.map((opt) => {
-								const isDisabled = opt.disabled?.() ?? false;
-								return (
-									<MenuItem
-										key={opt.key}
-										style={
-											isDisabled
-												? { backgroundColor: theme.colors.surfaceDisabled }
-												: undefined
-										}
-										textStyle={
-											isDisabled
-												? { color: theme.colors.onSurfaceDisabled }
-												: undefined
-										}
-										iconColor={
-											isDisabled ? theme.colors.onSurfaceDisabled : undefined
-										}
-										leadingIcon={opt.leadingIcon}
-										IconComponent={opt.IconComponent}
-										onPress={
-											isDisabled
-												? undefined
-												: () => {
-														opt.cb();
-														closeMenu();
-													}
-										}
-										title={t(opt.label)}
-									/>
-								);
-							})}
-						</Fragment>
-					))}
-				</View>
-			</Pressable>
+					<View
+						style={panelStyle}
+						onLayout={(e) => {
+							const { width, height } = e.nativeEvent.layout;
+							setPanelSize({ width, height });
+						}}
+					>
+						{groups.map((group, index) => (
+							<Fragment key={group.source.key}>
+								{index > 0 && <Divider />}
+								{group.options.map((opt) => {
+									const isDisabled = opt.disabled?.() ?? false;
+									return (
+										<MenuItem
+											key={opt.key}
+											style={
+												isDisabled
+													? {
+															backgroundColor:
+																theme.colors.surfaceDisabled,
+														}
+													: undefined
+											}
+											textStyle={
+												isDisabled
+													? { color: theme.colors.onSurfaceDisabled }
+													: undefined
+											}
+											iconColor={
+												isDisabled
+													? theme.colors.onSurfaceDisabled
+													: undefined
+											}
+											leadingIcon={opt.leadingIcon}
+											IconComponent={opt.IconComponent}
+											onPress={
+												isDisabled
+													? undefined
+													: () => {
+															opt.cb();
+															closeMenu();
+														}
+											}
+											title={t(opt.label)}
+										/>
+									);
+								})}
+							</Fragment>
+						))}
+					</View>
+				</Pressable>
+			)}
 		</Fragment>
 	);
 };

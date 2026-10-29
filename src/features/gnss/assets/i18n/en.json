@@ -21,5 +21,17 @@
 	"hintCenterMode": "Keep the map centered on your GNSS position. You can pan away freely — after the configured delay the map flies back.",
 	"hintRecenterDelay": "Seconds of stillness after panning away before the map returns to your GNSS position.",
 	"confirmDeactivateRecording": "Track recording is active. Stop GNSS tracking?",
-	"permissionDenied": "Location permission is required to use GNSS. Please enable it in the system settings."
+	"permissionDenied": "Location permission is required to use GNSS. Please enable it in the system settings.",
+	"gnssMarker": "GNSS marker",
+	"markerIconTriangle": "Triangle",
+	"accuracyCircle": "Accuracy circle",
+	"hintAccuracyCircle": "The circle is drawn with the radius of the current GNSS accuracy whenever the accuracy is worse than this threshold (meters). 0 disables the circle.",
+	"showMeasurementLabel": "Show measurement label",
+	"hintShowMeasurementLabel": "Show the distance/bearing measurement label while the map is panned away from your GNSS position.",
+	"hintMarkerFile": "The marker icon: the built-in triangle, or a custom SVG/PNG file from the marker directory.",
+	"hintMarkerSize": "Marker canvas size in dp.",
+	"hintMarkerColor": "Marker fill color (applies to the built-in triangle and the accuracy circle).",
+	"hintMarkerPreview": "Live preview of the configured marker.",
+	"hideMeasurement": "Hide measurement",
+	"showMeasurement": "Show measurement"
 }
