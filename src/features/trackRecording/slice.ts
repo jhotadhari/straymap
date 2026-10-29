@@ -285,6 +285,14 @@ export const confirmRecordingResume =
 
 		dispatch(setResumePending(true));
 		dispatch(setIsActive(true));
+
+		// Register the location foreground task now — the app is
+		// foreground here (the user just tapped Continue).  Starting it
+		// from the deferred first-fix listener instead would risk a
+		// ForegroundServiceStartNotAllowedException if the user
+		// backgrounded the app before the first GNSS fix arrived.
+		// Idempotent — the listener's call is a no-op afterwards.
+		await startRecordingTask();
 		return true;
 	};
 

@@ -10,6 +10,11 @@ import { logError } from '../../lib/utils';
  * BackgroundTaskService notification).  One recording session = one
  * static task with no progress; the notification reads
  * `trackRecording.backgroundTask` ("Recording track").
+ *
+ * needsLocation flags the task as a location foreground service so
+ * GNSS fixes keep flowing while the app is backgrounded (Android 14+
+ * delivers background location only to location-type foreground
+ * services or apps holding ACCESS_BACKGROUND_LOCATION).
  */
 let recordingTaskId: number | null = null;
 
@@ -18,7 +23,11 @@ export const startRecordingTask = async (): Promise<void> => {
 		return;
 	}
 	try {
-		recordingTaskId = await registerBackgroundTask(i18n.t('trackRecording.backgroundTask'), 0);
+		recordingTaskId = await registerBackgroundTask(
+			i18n.t('trackRecording.backgroundTask'),
+			0,
+			true
+		);
 	} catch (err) {
 		logError('trackRecording/backgroundTask.start', err);
 	}

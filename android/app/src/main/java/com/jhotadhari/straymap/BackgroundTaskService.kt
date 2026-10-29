@@ -6,8 +6,10 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
+import android.content.pm.ServiceInfo
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
+import androidx.core.app.ServiceCompat
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -30,7 +32,8 @@ class BackgroundTaskService : Service() {
         val label: String,
         val maxProgress: Int,
         var progress: Int,
-        var detail: String
+        var detail: String,
+        val needsLocation: Boolean
     )
 
     override fun onBind(intent: Intent?): IBinder? = null
@@ -116,6 +119,18 @@ class BackgroundTaskService : Service() {
             builder.setProgress(0, 0, true)
         }
 
-        startForeground(NOTIFICATION_ID, builder.build())
+        // Foreground service type follows the task registry: a location
+        // task (track recording) keeps receiving GNSS fixes while the app
+        // is backgrounded — on Android 14+ a location FGS type is the only
+        // way to get location updates without ACCESS_BACKGROUND_LOCATION.
+        // Re-calling startForeground with the updated type upgrades/
+        // downgrades the running service when the flag flips.
+        val fgsType = if (tasks.values.any { it.needsLocation }) {
+            ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE or
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION
+        } else {
+            ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
+        }
+        ServiceCompat.startForeground(this, NOTIFICATION_ID, builder.build(), fgsType)
     }
 }

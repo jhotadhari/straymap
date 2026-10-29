@@ -13,8 +13,12 @@ import NativeBackgroundTaskModule from '../specs/NativeBackgroundTaskModule';
  * `useBackgroundTask` (src/hooks/useBackgroundTask.ts) builds on these
  * wrappers for React components; Redux thunks/listeners use them directly.
  */
-export const registerBackgroundTask = async (label: string, maxProgress = 0): Promise<number> => {
-	return NativeBackgroundTaskModule.registerTask(label, maxProgress);
+export const registerBackgroundTask = async (
+	label: string,
+	maxProgress = 0,
+	needsLocation = false
+): Promise<number> => {
+	return NativeBackgroundTaskModule.registerTask(label, maxProgress, needsLocation);
 };
 
 export const updateBackgroundTask = async (

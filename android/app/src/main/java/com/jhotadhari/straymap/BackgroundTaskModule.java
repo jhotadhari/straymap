@@ -23,12 +23,12 @@ public class BackgroundTaskModule extends NativeBackgroundTaskModuleSpec {
     }
 
     @ReactMethod
-    public void registerTask(String label, double maxProgress, Promise promise) {
+    public void registerTask(String label, double maxProgress, boolean needsLocation, Promise promise) {
         try {
             int taskId = BackgroundTaskService.nextTaskId.incrementAndGet();
             BackgroundTaskService.tasks.put(
                 taskId,
-                new BackgroundTaskService.TaskInfo(label, (int) maxProgress, 0, "")
+                new BackgroundTaskService.TaskInfo(label, (int) maxProgress, 0, "", needsLocation)
             );
             sendUpdateIntent();
             promise.resolve(taskId);
