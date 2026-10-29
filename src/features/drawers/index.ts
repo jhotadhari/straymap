@@ -15,6 +15,7 @@ import es from './assets/i18n/es.json';
 import pt from './assets/i18n/pt.json';
 import SettingsDrawers from './uiItems/SettingsDrawers';
 import Drawers from './appOverlays/Drawers';
+import { SETTINGS_HANDLE_KEY } from './constants';
 
 export default {
 	selectInitialized,
@@ -25,6 +26,13 @@ export default {
 		es,
 		pt,
 	},
+	drawerPanels: [
+		{
+			key: SETTINGS_HANDLE_KEY,
+			label: 'drawers.settingsHandle',
+			iconSource: 'cog',
+		},
+	],
 	uiItems: [
 		{
 			key: 'drawers',

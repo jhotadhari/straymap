@@ -7,21 +7,17 @@
  */
 import drawersReducer, {
 	setInitialized,
-	setControlHandleSide,
 	setItemKeys,
-	addItemKey,
-	removeItemKey,
+	moveItemKey,
+	toggleItemKeySide,
 	setActiveKey,
+	setSortable,
 	initialSettings,
 } from '../slice';
 import type { DrawersState } from '../slice';
 import type { RootState } from '../../../store/store';
-import {
-	selectControlHandleSide,
-	selectActiveKey,
-	selectItemKeys,
-	selectSideForKey,
-} from '../selectors';
+import { selectSortable, selectActiveKey, selectItemKeys, selectSideForKey } from '../selectors';
+import { SETTINGS_HANDLE_KEY } from '../constants';
 
 const buildRoot = (overrides: Partial<DrawersState> = {}) =>
 	({
@@ -32,15 +28,21 @@ const buildRoot = (overrides: Partial<DrawersState> = {}) =>
 		},
 	}) as RootState;
 
+const buildState = (overrides: Partial<DrawersState> = {}): DrawersState => ({
+	initialized: false,
+	...initialSettings,
+	...overrides,
+});
+
 describe('drawers slice reducers', () => {
 	it('setInitialized', () => {
 		const state = drawersReducer(undefined, setInitialized(true));
 		expect(state.initialized).toBe(true);
 	});
 
-	it('setControlHandleSide', () => {
-		const state = drawersReducer(undefined, setControlHandleSide('left'));
-		expect(state.controlHandleSide).toBe('left');
+	it('setSortable', () => {
+		const state = drawersReducer(undefined, setSortable(true));
+		expect(state.sortable).toBe(true);
 	});
 
 	describe('setItemKeys', () => {
@@ -59,53 +61,142 @@ describe('drawers slice reducers', () => {
 			);
 			expect(state.itemKeysRight).toEqual(['x', 'y']);
 		});
-	});
 
-	describe('addItemKey', () => {
-		it('adds to left side', () => {
-			const prev: DrawersState = {
-				initialized: false,
-				itemKeysLeft: ['a'],
-				itemKeysRight: ['x'],
-				controlHandleSide: 'right',
-				showSettingsHandle: true,
-				sortable: true,
-			};
-			const state = drawersReducer(prev, addItemKey({ side: 'left', itemKey: 'b' }));
-			expect(state.itemKeysLeft).toEqual(['a', 'b']);
-			expect(state.itemKeysRight).toEqual(['x']); // unchanged
+		it('sets available item keys', () => {
+			const state = drawersReducer(
+				undefined,
+				setItemKeys({ side: 'available', itemKeys: ['a', 'b'] })
+			);
+			expect(state.itemKeysAvailable).toEqual(['a', 'b']);
 		});
 	});
 
-	describe('removeItemKey', () => {
-		it('removes from left and clears activeKeyLeft if active', () => {
-			const prev: DrawersState = {
-				initialized: false,
-				itemKeysLeft: ['a', 'b'],
-				itemKeysRight: ['x'],
-				activeKeyLeft: 'a',
-				controlHandleSide: 'right',
-				showSettingsHandle: true,
-				sortable: true,
-			};
-			const state = drawersReducer(prev, removeItemKey({ side: 'left', itemKey: 'a' }));
-			expect(state.itemKeysLeft).toEqual(['b']);
+	describe('moveItemKey', () => {
+		it('moves an item from right to left at the given index', () => {
+			const prev = buildState({
+				itemKeysLeft: ['lines'],
+				itemKeysRight: [
+					'maps',
+					'routing',
+					'tracking',
+				],
+			});
+			const state = drawersReducer(
+				prev,
+				moveItemKey({ itemKey: 'routing', side: 'left', index: 1 })
+			);
+			expect(state.itemKeysLeft).toEqual(['lines', 'routing']);
+			expect(state.itemKeysRight).toEqual(['maps', 'tracking']);
+		});
+
+		it('moves an item from left to available as first item', () => {
+			const prev = buildState({
+				itemKeysLeft: ['lines', 'routing'],
+				itemKeysAvailable: [SETTINGS_HANDLE_KEY],
+			});
+			const state = drawersReducer(
+				prev,
+				moveItemKey({ itemKey: 'lines', side: 'available', index: 0 })
+			);
+			expect(state.itemKeysLeft).toEqual(['routing']);
+			expect(state.itemKeysAvailable).toEqual(['lines', SETTINGS_HANDLE_KEY]);
+		});
+
+		it('clears activeKeyLeft when the active item is moved away', () => {
+			const prev = buildState({
+				itemKeysLeft: ['lines', 'routing'],
+				activeKeyLeft: 'lines',
+			});
+			const state = drawersReducer(
+				prev,
+				moveItemKey({ itemKey: 'lines', side: 'available', index: 0 })
+			);
 			expect(state.activeKeyLeft).toBeUndefined();
 		});
 
-		it('does not clear activeKeyLeft if different item removed', () => {
-			const prev: DrawersState = {
-				initialized: false,
-				itemKeysLeft: ['a', 'b'],
-				itemKeysRight: ['x'],
-				activeKeyLeft: 'a',
-				controlHandleSide: 'right',
-				showSettingsHandle: true,
-				sortable: true,
-			};
-			const state = drawersReducer(prev, removeItemKey({ side: 'left', itemKey: 'b' }));
-			expect(state.itemKeysLeft).toEqual(['a']);
-			expect(state.activeKeyLeft).toBe('a'); // still active
+		it('clears activeKeyRight when the active item is moved away', () => {
+			const prev = buildState({
+				itemKeysRight: ['maps', 'routing'],
+				activeKeyRight: 'maps',
+			});
+			const state = drawersReducer(
+				prev,
+				moveItemKey({ itemKey: 'maps', side: 'left', index: 0 })
+			);
+			expect(state.activeKeyRight).toBeUndefined();
+		});
+
+		it('reorders within the same side', () => {
+			const prev = buildState({
+				itemKeysRight: [
+					'maps',
+					'routing',
+					'tracking',
+				],
+			});
+			const state = drawersReducer(
+				prev,
+				moveItemKey({ itemKey: 'tracking', side: 'right', index: 0 })
+			);
+			expect(state.itemKeysRight).toEqual([
+				'tracking',
+				'maps',
+				'routing',
+			]);
+		});
+
+		it('appends when index is larger than the list length', () => {
+			const prev = buildState({
+				itemKeysLeft: ['lines'],
+				itemKeysRight: ['maps', 'routing'],
+			});
+			const state = drawersReducer(
+				prev,
+				moveItemKey({ itemKey: 'routing', side: 'left', index: 99 })
+			);
+			expect(state.itemKeysLeft).toEqual(['lines', 'routing']);
+			expect(state.itemKeysRight).toEqual(['maps']);
+		});
+	});
+
+	describe('toggleItemKeySide', () => {
+		it('adds an item not on the side to the end of that side', () => {
+			const prev = buildState({
+				itemKeysLeft: ['lines'],
+				itemKeysRight: ['maps'],
+				itemKeysAvailable: [SETTINGS_HANDLE_KEY, 'routing'],
+			});
+			const state = drawersReducer(
+				prev,
+				toggleItemKeySide({ itemKey: 'routing', side: 'left' })
+			);
+			expect(state.itemKeysLeft).toEqual(['lines', 'routing']);
+			expect(state.itemKeysAvailable).toEqual([SETTINGS_HANDLE_KEY]);
+		});
+
+		it('removes an item on the side to available as first item', () => {
+			const prev = buildState({
+				itemKeysLeft: ['lines', 'routing'],
+			});
+			const state = drawersReducer(
+				prev,
+				toggleItemKeySide({ itemKey: 'lines', side: 'left' })
+			);
+			expect(state.itemKeysLeft).toEqual(['routing']);
+			expect(state.itemKeysAvailable[0]).toBe('lines');
+		});
+
+		it('moves an item from the other side when toggled', () => {
+			const prev = buildState({
+				itemKeysLeft: ['lines'],
+				itemKeysRight: ['maps', 'routing'],
+			});
+			const state = drawersReducer(
+				prev,
+				toggleItemKeySide({ itemKey: 'maps', side: 'left' })
+			);
+			expect(state.itemKeysLeft).toEqual(['lines', 'maps']);
+			expect(state.itemKeysRight).toEqual(['routing']);
 		});
 	});
 
@@ -127,15 +218,11 @@ describe('drawers slice reducers', () => {
 		});
 
 		it('clears activeKeyLeft when activeKey is falsy', () => {
-			const prev: DrawersState = {
-				initialized: false,
+			const prev = buildState({
 				itemKeysLeft: ['a'],
 				itemKeysRight: [],
 				activeKeyLeft: 'a',
-				controlHandleSide: 'right',
-				showSettingsHandle: true,
-				sortable: true,
-			};
+			});
 			const state = drawersReducer(
 				prev,
 				setActiveKey({ side: 'left', activeKey: undefined })
@@ -168,13 +255,13 @@ describe('drawers slice reducers', () => {
 			'routing',
 			'tracking',
 		]);
-		expect(state.controlHandleSide).toBe('right');
+		expect(state.itemKeysAvailable).toEqual([SETTINGS_HANDLE_KEY]);
 	});
 });
 
 describe('drawers selectors', () => {
-	it('selectControlHandleSide', () => {
-		expect(selectControlHandleSide(buildRoot({ controlHandleSide: 'left' }))).toBe('left');
+	it('selectSortable', () => {
+		expect(selectSortable(buildRoot({ sortable: true }))).toBe(true);
 	});
 
 	it('selectActiveKey returns left activeKey', () => {
@@ -198,10 +285,24 @@ describe('drawers selectors', () => {
 		expect(keys).toContain('lines');
 	});
 
+	it('selectItemKeys for available returns settings handle by default', () => {
+		const state = buildRoot();
+		const keys = selectItemKeys(state, { side: 'available' });
+		expect(keys).toContain(SETTINGS_HANDLE_KEY);
+	});
+
+	it('selectItemKeys for available filters obsolete persisted keys', () => {
+		const state = buildRoot({
+			itemKeysAvailable: ['searchPlace', SETTINGS_HANDLE_KEY],
+		});
+		const keys = selectItemKeys(state, { side: 'available' });
+		expect(keys).toEqual([SETTINGS_HANDLE_KEY]);
+	});
+
 	it('selectSideForKey returns side for a key', () => {
 		const state = buildRoot();
 		expect(selectSideForKey(state, 'lines')).toBe('left');
 		expect(selectSideForKey(state, 'maps')).toBe('right');
-		expect(selectSideForKey(state, 'nonexistent')).toBeUndefined();
+		expect(selectSideForKey(state, SETTINGS_HANDLE_KEY)).toBeUndefined();
 	});
 });
