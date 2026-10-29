@@ -1,5 +1,8 @@
 {
 	"routingTitle": "Routenplanung",
+	"modeRouting": "Route",
+	"modeFollowing": "Folgen",
+	"modeRecording": "Aufnahme",
 	"settingsTitle": "Diagramm-Einstellungen",
 	"primaryData": "Primäre Daten",
 	"primaryColor": "Primärfarbe",

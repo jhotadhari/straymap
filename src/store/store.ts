@@ -25,6 +25,7 @@ import gnssReducer from '../features/gnss/slice';
 import trackRecordingReducer from '../features/trackRecording/slice';
 import importReducer from '../features/import/slice';
 import measureReducer from '../features/measure/slice';
+import lineFollowReducer from '../features/lineFollow/slice';
 import { listenerMiddleware } from './listenerMiddleware';
 import { initializeAppState } from '../features/utils';
 
@@ -48,6 +49,7 @@ export const store = configureStore({
 		trackRecording: trackRecordingReducer,
 		import: importReducer,
 		measure: measureReducer,
+		lineFollow: lineFollowReducer,
 	},
 	devTools: false, // not working in react native currently. If ever working again, set to `__DEV__`.
 	// Add the listener middleware to the store.

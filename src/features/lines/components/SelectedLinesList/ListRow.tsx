@@ -31,6 +31,7 @@ import { SLOPE_COLOR_RAMP } from '../../../routing/constants';
 import TagBadge from '../TagBadge';
 import IconRouting from '../../../routing/drawerPanels/routing/IconComponent';
 import { selectIsRecording } from '../../../trackRecording/selectors';
+import { selectFollowingLineId } from '../../../lineFollow/selectors';
 import useStopRecordingCbModal from '../../../trackRecording/hooks/useStopRecordingCbModal';
 import useActivateDrawerItem from '../../../drawers/hooks/useActivateDrawerItem';
 import { DRAWER_ICON_SIZE, MAP_ANIMATION_PADDING_PX, PALETTE_COLORS } from '../../../../constants';
@@ -38,6 +39,7 @@ import { sharedStyles } from './sharedDeps';
 import ColorRampColumn from './ColorRampColumn';
 import ColorRampGradient from '../ColorRampGradient';
 import LineStatsCompactRows from '../Stats/LineStatsCompactRows';
+import FollowDistanceBadge from './FollowDistanceBadge';
 import { bbox as turfBbox } from '@turf/turf';
 import { AppContext } from '../../../../Context';
 import { useButtonProps, useDestructiveColor } from '../../../../compose/useButtonProps';
@@ -63,6 +65,8 @@ const ListRow: FC<ListRowProps> = ({ line, idx, systemFeatureKey, isUnderCenter 
 	const destructiveColor = useDestructiveColor();
 
 	const isRecording = useAppSelector(selectIsRecording);
+	const followingLineId = useAppSelector(selectFollowingLineId);
+	const isFollowed = followingLineId === line.id;
 	const { cb: handleStopPress, modalNode: stopRecordingModalNode } = useStopRecordingCbModal();
 
 	const { mapViewNativeNodeHandle } = useContext(AppContext);
@@ -328,6 +332,7 @@ const ListRow: FC<ListRowProps> = ({ line, idx, systemFeatureKey, isUnderCenter 
 				<LineStatsCompactRows
 					stats={stats}
 					reverse={'left' === side}
+					firstRowExtra={isFollowed ? <FollowDistanceBadge lineId={line.id} /> : undefined}
 				/>
 
 				{line?.tags && line?.tags.length > 0 && (

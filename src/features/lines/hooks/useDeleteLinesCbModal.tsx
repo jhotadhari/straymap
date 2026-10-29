@@ -22,6 +22,7 @@ import { removeChartLines, removeLineColors, removeLineRamps } from '../slice';
 import { closeFullscreenChart, removeChartSettings } from '../../chart/slice';
 import { getChartSourceKey } from '../../chart/types';
 import { selectFullscreenLineId } from '../../chart/selectors';
+import { clearFollowingIfMatches } from '../../lineFollow/slice';
 import { deleteLines } from '../db/actionsLine';
 import {
 	cancelLinesQueries,
@@ -107,6 +108,8 @@ const useDeleteLinesCbModal = ({
 				dispatch(removeChartLines(deleteIds));
 				dispatch(removeChartSettings(deleteIds.map(getChartSourceKey.line)));
 				dispatch(removeChartSettings(deleteIds.map(getChartSourceKey.fullscreen)));
+				// A followed line can't survive deletion — clear it.
+				dispatch(clearFollowingIfMatches(deleteIds));
 				if (fullscreenLineId != null && deleteIds.includes(fullscreenLineId)) {
 					dispatch(closeFullscreenChart());
 				}

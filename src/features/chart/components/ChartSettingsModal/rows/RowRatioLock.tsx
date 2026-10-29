@@ -24,16 +24,17 @@ const validatePositive = (val: number) => val > 0;
 const RowRatioLock: FC = () => {
 	const { t } = useTranslation();
 	const dispatch = useAppDispatch();
-	const { chartKey, settings, currentRatio, fitRatio, onFitScreen } =
-		useContext(ChartSettingsModalContext);
+	const { chartKey, settings, currentRatio, onFitScreen } = useContext(ChartSettingsModalContext);
 
 	const handleFitScreen = useCallback(() => {
-		dispatch(setChartSettings({ key: chartKey, settings: { ratioValue: fitRatio } }));
+		// Reset restores the natural fit: clear the ratio lock so the chart
+		// keeps re-fitting on route changes (rather than pinning the old
+		// natural-fit value).
+		dispatch(setChartSettings({ key: chartKey, settings: { ratioValue: undefined } }));
 		onFitScreen && onFitScreen();
 	}, [
 		dispatch,
 		chartKey,
-		fitRatio,
 		onFitScreen,
 	]);
 
@@ -44,9 +45,11 @@ const RowRatioLock: FC = () => {
 		[dispatch, chartKey]
 	);
 
-	const rawValue = currentRatio;
-	const value =
-		'number' === typeof rawValue && isFinite(rawValue) ? roundTo(rawValue, 4) : rawValue;
+	const rounded =
+		'number' === typeof currentRatio && isFinite(currentRatio)
+			? roundTo(currentRatio, 4)
+			: undefined;
+	const hasRatio = settings.ratioValue != null;
 
 	return (
 		<NumericRowControl
@@ -54,7 +57,8 @@ const RowRatioLock: FC = () => {
 			Info={t('chart.ratioHint')}
 			buttonLabel={t('chart.ratioReset')}
 			onButtonPress={handleFitScreen}
-			value={settings.followMode === 'map' ? undefined : value}
+			value={settings.followMode === 'map' || !hasRatio ? undefined : rounded}
+			placeholder={!hasRatio && rounded !== undefined ? String(rounded) : undefined}
 			onUpdate={handleUpdate}
 			numType="float"
 			validate={validatePositive}

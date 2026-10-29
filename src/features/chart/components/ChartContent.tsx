@@ -19,7 +19,7 @@ import IconButtonHighlight from '../../../components/generic/primitives/IconButt
 import IconCustom from '../../../components/generic/primitives/IconCustom';
 import { DRAWER_ICON_SIZE, MAP_ANIMATION_PADDING_PX } from '../../../constants';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
-import { selectPathCoords } from '../../routing/selectors';
+import { selectPathCoords, selectRoutingLineId } from '../../routing/selectors';
 import { selectMapUpdateInterval, selectUnitPrefs } from '../../general/selectors';
 import { queryLinePathCoords, queryLinesWithoutGeom } from '../../lines/db/queryFns';
 import { haversineDistance } from '../../../lib/formatting';
@@ -106,12 +106,19 @@ const ChartContent: FC<ChartContentProps> = ({
 	const source = useMemo(() => getChartSourceFromKey(chartKey), [chartKey]);
 	const chartLabels = useChartItemLabels();
 
+	const routingLineId = useAppSelector(selectRoutingLineId);
 	const routingCoords = useAppSelector(selectPathCoords);
-	const lineId = source?.type === 'line' ? source.lineId : undefined;
+	const lineId = source?.lineId;
+	const isRoutingLine = lineId != null && lineId === routingLineId;
+
+	// The routing line's chart reads the synchronous Redux pathCoords (the
+	// same simplified geometry RoutingMapView renders) so it updates and
+	// re-fits immediately when the route reprocesses. Other lines read the
+	// DB-simplified `linePathCoords` query.
 	const { data: lineCoords } = useQuery({
 		queryKey: ['linePathCoords', lineId],
 		queryFn: queryLinePathCoords,
-		enabled: lineId !== undefined,
+		enabled: lineId !== undefined && !isRoutingLine,
 	});
 
 	// DB (SpatiaLite) stats for the line — the same values every other
@@ -123,8 +130,9 @@ const ChartContent: FC<ChartContentProps> = ({
 		select: (lines: LinePartial[]) => (lines.length ? lines[0] : null),
 	});
 
-	const coordinates: number[][] | undefined =
-		source?.type === 'routing' ? routingCoords : (lineCoords ?? undefined);
+	const coordinates: number[][] | undefined = isRoutingLine
+		? routingCoords
+		: (lineCoords ?? undefined);
 
 	const unitPrefs = useAppSelector(selectUnitPrefs);
 	const mapUpdateInterval = useAppSelector(selectMapUpdateInterval);
@@ -208,12 +216,12 @@ const ChartContent: FC<ChartContentProps> = ({
 		chartLabels,
 	]);
 
-	// Routing waypoints and stats (routing source only). route.stats is
-	// computed from the routed line's geometry with the same SpatiaLite
-	// functions as the lines table.
-	const { points, stats: routeStats } = useRoute(['points', 'stats']) || {};
+	// Routing waypoints (only when this chart's line is the active routing
+	// line). The routing line's stats come from the line itself (SpatiaLite),
+	// like every other line.
+	const { points } = useRoute(['points']) || {};
 	const waypointDistances = useMemo(() => {
-		if (!coordinates || !series || source?.type !== 'routing' || !points?.length) {
+		if (!coordinates || !series || !isRoutingLine || !points?.length) {
 			return undefined;
 		}
 		return points.map((p) =>
@@ -225,20 +233,15 @@ const ChartContent: FC<ChartContentProps> = ({
 	}, [
 		coordinates,
 		series,
-		source,
+		isRoutingLine,
 		points,
 		nearestDistance,
 	]);
 
 	const stats = useMemo(() => {
-		const rawStats = source?.type === 'line' ? line?.stats : routeStats;
-		const { length, ...rest } = rawStats ?? {};
+		const { length, ...rest } = line?.stats ?? {};
 		return { length, rest };
-	}, [
-		source?.type,
-		line?.stats,
-		routeStats,
-	]);
+	}, [line?.stats]);
 
 	const hasStats = stats.length != null || Object.keys(stats.rest).length > 0;
 
@@ -267,20 +270,16 @@ const ChartContent: FC<ChartContentProps> = ({
 		setResetSignal((t) => t + 1);
 	}, [chartKey]);
 
-	// Routing re-fit: while the routing chart sits at the natural fit
-	// (no stored ratio) and doesn't follow the map, route changes
+	// Routing re-fit: while the routing line's chart sits at the natural
+	// fit (no stored ratio) and doesn't follow the map, route changes
 	// (waypoint edits) re-fit the viewport to the new data.
 	useEffect(() => {
-		if (
-			source?.type === 'routing' &&
-			settings.ratioValue == null &&
-			settings.followMode === 'none'
-		) {
+		if (isRoutingLine && settings.ratioValue == null && settings.followMode === 'none') {
 			setResetSignal((t) => t + 1);
 		}
 	}, [
 		series,
-		source?.type,
+		isRoutingLine,
 		settings.ratioValue,
 		settings.followMode,
 	]);
@@ -305,14 +304,11 @@ const ChartContent: FC<ChartContentProps> = ({
 		if (!mapViewNativeNodeHandle) {
 			return;
 		}
-		const bbox =
-			source?.type === 'line'
-				? line?.envelope
-					? turfBbox(line.envelope)
-					: undefined
-				: coordinates && coordinates.length
-					? turfBbox({ type: 'LineString', coordinates })
-					: undefined;
+		const bbox = line?.envelope
+			? turfBbox(line.envelope)
+			: coordinates && coordinates.length
+				? turfBbox({ type: 'LineString', coordinates })
+				: undefined;
 		if (bbox) {
 			if (variant === 'fullscreen') {
 				// Close only the fullscreen chart UiItem — any UiItem
@@ -326,7 +322,6 @@ const ChartContent: FC<ChartContentProps> = ({
 		variant,
 		mapViewNativeNodeHandle,
 		flyToBounds,
-		source?.type,
 		line?.envelope,
 		coordinates,
 	]);

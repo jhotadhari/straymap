@@ -1,0 +1,11 @@
+{
+	"title": "Seguir ruta",
+	"start": "Seguir ruta",
+	"stop": "Dejar de seguir",
+	"hint": "Sigue tu progreso a lo largo de esta ruta: distancia al destino, ascenso y descenso restantes.",
+	"following": "Siguiendo",
+	"distanceToDestination": "Distancia al destino",
+	"distanceCovered": "Distancia recorrida",
+	"climbToDestination": "Ascenso hasta el destino",
+	"descentToDestination": "Descenso hasta el destino"
+}

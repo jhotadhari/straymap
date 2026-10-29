@@ -24,6 +24,7 @@ import {
 import { addBusyKey, removeBusyKey } from '../ui/slice';
 import { setActiveKey } from '../bottomDrawer/slice';
 import { getChartSourceKey } from '../chart/types';
+import { selectFollowingLineId } from '../lineFollow/selectors';
 import { startAppListening } from '../../store/listenerMiddleware';
 import { selectInitialized } from './selectors';
 import { AppStore } from '../../store/store';
@@ -128,14 +129,24 @@ startAppListening({
 	},
 });
 
-// Auto-select the routing chart as the bottom drawer content
-// when routing becomes active (the drawer itself stays closed).
+// Auto-select the routing line's chart as the bottom drawer content once
+// the routing line exists (the drawer itself stays closed). Following takes
+// priority — when a line is followed, routing never steals the selection.
+// Only react when the line id actually changes — the action is re-dispatched
+// with the same id on every segments reprocess.
 startAppListening({
-	actionCreator: setIsRoutingAction,
+	actionCreator: setRoutingLineId,
 	effect: (action, listenerApi) => {
-		if (action.payload) {
-			listenerApi.dispatch(setActiveKey(getChartSourceKey.routing()));
+		if (action.payload == null) {
+			return;
 		}
+		if (listenerApi.getOriginalState().routing.routingLineId === action.payload) {
+			return;
+		}
+		if (selectFollowingLineId(listenerApi.getState()) != null) {
+			return;
+		}
+		listenerApi.dispatch(setActiveKey(getChartSourceKey.line(action.payload)));
 	},
 });
 

@@ -455,6 +455,7 @@ export const processRouting = (
 						await invalidateLineGeomQueries(queryClient);
 					}
 					await queryClient.invalidateQueries({ queryKey: ['lineGeom', lineId] });
+					await queryClient.invalidateQueries({ queryKey: ['linePathCoords', lineId] });
 					await invalidateLinesQueries(queryClient);
 					await queryClient.invalidateQueries({ queryKey: ['routeForLine', lineId] });
 				}
@@ -482,6 +483,7 @@ export const processRouting = (
 						dispatch(setLineSelected(route.line_id, true));
 					}
 					await queryClient.invalidateQueries({ queryKey: ['lineGeom', route.line_id] });
+					await queryClient.invalidateQueries({ queryKey: ['linePathCoords', route.line_id] });
 					await invalidateLinesQueries(queryClient);
 				}
 				await queryClient.invalidateQueries({ queryKey: ['route', routeId] });

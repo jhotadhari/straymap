@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { FC, useMemo } from 'react';
+import { FC, ReactNode, useMemo } from 'react';
 import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 import { pick } from 'lodash-es';
 
@@ -15,7 +15,9 @@ import { RenderPart } from './sharedDeps';
 const LineStatsCompactRows: FC<{
 	stats: LineStatsType;
 	reverse?: boolean;
-}> = ({ stats, reverse }) => {
+	/** Optional node appended to the first (distance) statistics row. */
+	firstRowExtra?: ReactNode;
+}> = ({ stats, reverse, firstRowExtra }) => {
 	const statsPerRow = useMemo(
 		() => [
 			pick(stats, ['length']),
@@ -45,19 +47,25 @@ const LineStatsCompactRows: FC<{
 		[reverse]
 	);
 
-	return statsPerRow.map((st, idx) => (
-		<View
-			key={idx}
-			style={style}
-		>
-			<LineStats
-				stats={st}
-				round={0}
-				renderParts={statsRenderParts}
-				styleStat={styleStat}
-			/>
-		</View>
-	));
+	return (
+		<>
+			{statsPerRow.map((st, idx) => (
+				<View
+					key={idx}
+					style={style}
+				>
+					{idx === 0 && reverse && firstRowExtra}
+					<LineStats
+						stats={st}
+						round={0}
+						renderParts={statsRenderParts}
+						styleStat={styleStat}
+					/>
+					{idx === 0 && !reverse && firstRowExtra}
+				</View>
+			))}
+		</>
+	);
 };
 
 const statsRenderParts = ['icon', 'value'] as RenderPart[];

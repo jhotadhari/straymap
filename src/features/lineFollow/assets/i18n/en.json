@@ -1,0 +1,11 @@
+{
+	"title": "Follow route",
+	"start": "Follow route",
+	"stop": "Stop following",
+	"hint": "Track your progress along this route: distance to destination, remaining climb and descent.",
+	"following": "Following",
+	"distanceToDestination": "Distance to destination",
+	"distanceCovered": "Distance covered",
+	"climbToDestination": "Climb to destination",
+	"descentToDestination": "Descent to destination"
+}

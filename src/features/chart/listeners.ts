@@ -9,7 +9,9 @@ import type { ListenerEffectAPI } from '@reduxjs/toolkit';
 import { startAppListening } from '../../store/listenerMiddleware';
 import { AppDispatch, RootState } from '../../store/store';
 import { toggleChartLine } from '../lines/slice';
-import { routingSlice } from '../routing/slice';
+import { setRoutingLineId } from '../routing/slice';
+import { setActiveLineId } from '../trackRecording/slice';
+import { setFollowingLineId } from '../lineFollow/slice';
 import { selectItemKeys } from '../bottomDrawer/selectors';
 import { CHART_KEY_PREFIX, getChartSourceKey } from './types';
 import { setChartSettings } from './slice';
@@ -46,13 +48,40 @@ startAppListening({
 	},
 });
 
-// The routing chart appeared (skip exiting routing mode).
+// The routing line's chart appeared (skip clearing routingLineId). The
+// action is re-dispatched with the same id on every segments reprocess —
+// only react when the line id actually changes (a new chart).
 startAppListening({
-	actionCreator: routingSlice.actions.setIsRouting,
+	actionCreator: setRoutingLineId,
 	effect: (action, api) => {
-		if (!action.payload) {
+		if (action.payload == null) {
 			return;
 		}
-		resetRatioIfLoneChart(api, getChartSourceKey.routing());
+		if (api.getOriginalState().routing.routingLineId === action.payload) {
+			return;
+		}
+		resetRatioIfLoneChart(api, getChartSourceKey.line(action.payload));
+	},
+});
+
+// The tracking line's chart appeared (skip clearing activeLineId).
+startAppListening({
+	actionCreator: setActiveLineId,
+	effect: (action, api) => {
+		if (action.payload == null) {
+			return;
+		}
+		resetRatioIfLoneChart(api, getChartSourceKey.line(action.payload));
+	},
+});
+
+// The followed line's chart appeared (skip clearing followingLineId).
+startAppListening({
+	actionCreator: setFollowingLineId,
+	effect: (action, api) => {
+		if (action.payload == null) {
+			return;
+		}
+		resetRatioIfLoneChart(api, getChartSourceKey.line(action.payload));
 	},
 });

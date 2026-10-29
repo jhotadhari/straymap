@@ -12,6 +12,7 @@ import { AppThunk } from '../../store/store';
 import { selectIsRecording } from './selectors';
 import { logError } from '../../lib/utils';
 import { setIsActive } from '../gnss/slice';
+import { selectFollowingLineId } from '../lineFollow/selectors';
 import { startRecordingTask, stopRecordingTask } from './backgroundTask';
 import { createTrack } from './db/actionsTrack';
 import { queryTrackByLineId, queryLineExists } from './db/queryFns';
@@ -206,6 +207,11 @@ export const continueRecording =
 	async (dispatch, getState) => {
 		// Guard: don't start a second recording
 		if (selectIsRecording(getState())) {
+			return;
+		}
+		// Guard: a line cannot be the followed line and the recording
+		// line at the same time.
+		if (selectFollowingLineId(getState()) === lineId) {
 			return;
 		}
 

@@ -18,6 +18,7 @@ import { cellConfigs, getCellCategory } from './sharedDeps';
 import { tableStyles, TABLE_ROW_HEIGHT, useScrollSafePress } from '../tableResources';
 import TagBadge from '../TagBadge';
 import IconRouting from '../../../routing/drawerPanels/routing/IconComponent';
+import RecordingCenterButton from './RecordingCenterButton';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { setLineTemp } from '../../slice';
 import { selectLinesTableColumns } from '../../selectors';
@@ -69,6 +70,7 @@ export interface TableRowProps {
 	toggleCheckedId: (id: number) => void;
 	toggleOnMapId: (id: number) => void;
 	isRoutingLine: boolean;
+	isRecordingLine: boolean;
 	stats?: LineStatsType;
 }
 
@@ -85,6 +87,7 @@ const TableRow: FC<TableRowProps> = memo(
 		toggleCheckedId,
 		toggleOnMapId,
 		isRoutingLine,
+		isRecordingLine,
 		stats: stats_,
 	}) => {
 		const theme = useTheme();
@@ -155,7 +158,9 @@ const TableRow: FC<TableRowProps> = memo(
 		return (
 			<View style={style}>
 				<View style={styleActionCell}>
-					{!isRoutingLine ? (
+					{isRecordingLine ? (
+						<RecordingCenterButton />
+					) : !isRoutingLine ? (
 						<ButtonHighlight
 							{...buttonPropsText}
 							onPress={toggleOnMap}

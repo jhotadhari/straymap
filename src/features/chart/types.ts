@@ -1,19 +1,15 @@
 export const CHART_KEY_PREFIX = 'chart:';
 
 export const getChartSourceKey = {
-	routing: (): string => `${CHART_KEY_PREFIX}routing`,
 	line: (lineId: number): string => `${CHART_KEY_PREFIX}line:${lineId}`,
 	fullscreen: (lineId: number): string => `${CHART_KEY_PREFIX}fullscreen:${lineId}`,
 };
 
-export type ChartSource = { type: 'routing' } | { type: 'line'; lineId: number } | undefined;
+export type ChartSource = { type: 'line'; lineId: number } | undefined;
 
 export const getChartSourceFromKey = (key: string | undefined): ChartSource => {
 	if (!key) {
 		return undefined;
-	}
-	if (key === `${CHART_KEY_PREFIX}routing`) {
-		return { type: 'routing' };
 	}
 	const match = key.match(/^chart:(line|fullscreen):(\d+)$/);
 	if (match) {

@@ -20,25 +20,28 @@ and statistics always come from SpatiaLite (never recomputed in the chart).
 ```ts
 CHART_KEY_PREFIX = 'chart:'
 
-getChartSourceKey.routing()          → 'chart:routing'
 getChartSourceKey.line(lineId)       → 'chart:line:<id>'
 getChartSourceKey.fullscreen(lineId) → 'chart:fullscreen:<id>'
 ```
 
 `getChartSourceFromKey` parses a key back into a `ChartSource`
-(`{ type: 'routing' }` or `{ type: 'line', lineId }` — the fullscreen key
-also resolves to `type: 'line'`).
+(`{ type: 'line', lineId }` — the fullscreen key also resolves to
+`type: 'line'`). There is no routing-specific key anymore: the routing
+chart is the routing *line*'s chart (`chart:line:<routingLineId>`).
 
 ## Bottom drawer integration
 
 ### Derived item keys (not persisted)
 
 `bottomDrawer/selectors.ts` (`selectItemKeys`) derives the chart keys from
-the owning features' state:
+the owning features' state (deduped so a line contributes one chart at
+most):
 
-- `chart:routing` — while routing is active.
-- `chart:line:<id>` — for each line in `lines.chartLines` that is also in
-  `lines.selected` and isn't the routing line.
+- `chart:line:<routingLineId>` — while routing is active and the line exists.
+- `chart:line:<activeLineId>` — while recording and the line exists.
+- `chart:line:<followingLineId>` — while a line is followed.
+- `chart:line:<id>` — for each line in `lines.chartLines` that is also on
+  the map and not already covered by one of the feature lines above.
 
 All keys (static + derived) are filtered against the registered item
 resolvers, so stale persisted keys never produce broken drawer entries.
@@ -55,17 +58,23 @@ first render). Every key starting with `chart:` resolves to
 
 ### Labels
 
-`useChartItemLabels` provides the drawer menu labels: the i18n key
-`chart.routingTitle` for the routing source, and the real line titles
+`useChartItemLabels` provides the drawer menu labels: the real line titles
 (`line.title` falling back to `custom_date`/`created_at` formatted with
-the user's date-time format) from a batched `['lines', chartLines]` query.
+the user's date-time format) from a batched `['lines', lineIds]` query,
+with an aggregated suffix for any modes the line carries
+(`chart.modeRouting` / `chart.modeFollowing` / `chart.modeRecording`).
 
-### Auto-activation on routing
+### Auto-activation
 
-`routing/connectStorage.ts` listens for `setIsRoutingAction` and, when
-routing becomes active, dispatches `setActiveKey('chart:routing')` — the
-routing chart becomes the drawer's active content (the drawer itself
-stays closed).
+- Routing: `routing/connectStorage.ts` listens for `setRoutingLineId` and,
+  when a routing line comes into existence, dispatches
+  `setActiveKey('chart:line:<id>')` — gated on no line being followed.
+- Recording: `trackRecording/connectStorage.ts` listens for `setActiveLineId`
+  and selects the tracking line's chart — gated on no line being followed.
+- Following: `lineFollow/connectStorage.ts` listens for `setFollowingLineId`
+  and **always** selects the followed line's chart (following has priority).
+
+In all cases the drawer itself stays closed; only the active content is set.
 
 ## Fullscreen UiItem
 
@@ -186,8 +195,9 @@ so the ratio stays relevant and is kept.
 Triggers:
 
 - `toggleChartLine` (a line's chart was just enabled — removals skipped).
-- `routingSlice.actions.setIsRouting` with a truthy payload (routing mode
-  entered).
+- `setRoutingLineId` (the routing line's chart appeared).
+- `setActiveLineId` (the tracking line's chart appeared).
+- `setFollowingLineId` (the followed line's chart appeared).
 
 ## Component tree
 
@@ -206,13 +216,14 @@ ChartFullscreen (UiItem)
 
 Data, follow-map polling, ratio plumbing, header/stats UI:
 
-- **Coordinates**: `selectPathCoords` (routing source) or the
-  `['linePathCoords', lineId]` query (line source); line meta
-  (title/envelope) from `['lines', [lineId]]`.
+- **Coordinates**: the `['linePathCoords', lineId]` query (all chart
+  sources are lines now); line meta (title/envelope) from
+  `['lines', [lineId]]`.
 - **Series**: `getChartSeries(coordinates)` — memoized.
-- **Stats**: `line?.stats` or `route.stats` via `useRoute` — always the
-  SpatiaLite-computed values, rendered through the shared `LineStats`
-  component.
+- **Stats**: `line?.stats` — always the SpatiaLite-computed values,
+  rendered through the shared `LineStats` component.
+- **Routing line**: detected via `lineId === selectRoutingLineId` — drives
+  the waypoint markers (`useRoute(['points'])`) and the route re-fit.
 - **Center indicator**: a `setInterval` reads `currentMapEventRef`
   (MapContext) — at `mapUpdateInterval`, but at half that cadence while
   a follow mode is active with the follow animation on (the eased lag
@@ -341,19 +352,20 @@ of the modal.
 
 | Hook                    | Purpose                                                                                                    |
 | ----------------------- | ---------------------------------------------------------------------------------------------------------- |
-| `useChartItemLabels`    | Labels for the derived chart drawer menu entries (routing i18n label + batched line titles)                |
+| `useChartItemLabels`    | Labels for the derived chart drawer menu entries (batched line titles + aggregated mode suffix) |
 | `useRemoveChartCbModal` | Confirmation modal for removing a chart; neutral styling — nothing is deleted, the chart can be re-enabled |
 
 ## Data sources
 
-| Source  | Coordinates                                      | Stats                                               |
-| ------- | ------------------------------------------------ | --------------------------------------------------- |
-| Routing | `selectPathCoords` (routing slice, flat arrays)  | `route.stats` via `useRoute` (SpatiaLite)           |
-| Line    | `['linePathCoords', lineId]` (lines query layer) | `line.stats` (SpatiaLite), rendered via `LineStats` |
+| Source | Coordinates                                      | Stats                                              |
+| ------ | ------------------------------------------------ | -------------------------------------------------- |
+| Line   | `['linePathCoords', lineId]` (lines query layer) | `line.stats` (SpatiaLite), rendered via `LineStats` |
 
-The chart never reads or writes the database directly, and never
-recomputes statistics — they must stay consistent with the values every
-other `LineStats` usage shows.
+The routing line is just a line source whose `lineId` equals the active
+routing line (waypoint markers are added for it in `ChartContent`). The
+chart never reads or writes the database directly, and never recomputes
+statistics — they must stay consistent with the values every other
+`LineStats` usage shows.
 
 ## Cross-feature coupling
 
@@ -364,9 +376,10 @@ other `LineStats` usage shows.
   `chart:fullscreen:<id>` keys so settings don't survive the line. The
   lines slice also prunes `chartLines` against `selected` (charts of
   lines no longer on the map disappear).
-- **routing**: `routing/connectStorage.ts` auto-activates the
-  `chart:routing` drawer key when routing starts; `listeners.ts` resets
-  the lone-chart ratio on `setIsRouting(true)`.
+- **routing**: `routing/connectStorage.ts` auto-activates the routing
+  line's `chart:line:<routingLineId>` drawer key when the line appears
+  (`setRoutingLineId`); `listeners.ts` resets the lone-chart ratio on the
+  same action.
 - **bottomDrawer**: derived item keys (never persisted) + the dynamic
   item resolver.
 - **ui**: the fullscreen UiItem key is pushed/removed via

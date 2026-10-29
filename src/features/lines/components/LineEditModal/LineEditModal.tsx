@@ -28,6 +28,7 @@ import RowDelete from './RowDelete';
 import RowName from './RowName';
 import RowRouting from './RowRouting';
 import RowContinueRecording from './RowContinueRecording';
+import RowFollow from './RowFollow';
 import RowExport from './RowExport';
 import RowImportInfo from './RowImportInfo';
 import RowStats from './RowStats';
@@ -147,6 +148,8 @@ const LineEditModal: FC<{
 				<RowRouting />
 
 				<RowContinueRecording />
+
+				<RowFollow />
 
 				<RowStats />
 

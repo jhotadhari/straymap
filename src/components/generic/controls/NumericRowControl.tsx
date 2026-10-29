@@ -30,6 +30,7 @@ const NumericRowControl = ({
 	buttonLabel,
 	onButtonPress,
 	disabled = false,
+	placeholder,
 }: {
 	label?: string;
 	value: number | undefined;
@@ -47,6 +48,8 @@ const NumericRowControl = ({
 	onButtonPress?: () => void;
 	/** Disables both the button and the input. */
 	disabled?: boolean;
+	/** Placeholder shown while the value is empty. */
+	placeholder?: string;
 }) => {
 	const theme = useTheme();
 
@@ -237,6 +240,7 @@ const NumericRowControl = ({
 					onBlur={handleBlur}
 					onFocus={handleFocus}
 					value={val}
+					placeholder={placeholder}
 					keyboardType="numeric"
 				/>
 			</View>

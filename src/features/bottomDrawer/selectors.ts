@@ -5,6 +5,8 @@ import createAppSelector from '../../store/createAppSelector';
 import { RootState } from '../../store/store';
 import { selectIsRouting, selectRoutingLineId } from '../routing/selectors';
 import { selectChartLines, selectSelected } from '../lines/selectors';
+import { selectIsRecording, selectActiveLineId } from '../trackRecording/selectors';
+import { selectFollowingLineId } from '../lineFollow/selectors';
 import { getChartSourceKey } from '../chart/types';
 import { getBottomDrawerItem } from './dynamicItems';
 
@@ -18,20 +20,46 @@ export const selectItemKeys = createAppSelector(
 	(state: RootState) => selectChartLines(state),
 	(state: RootState) => selectRoutingLineId(state),
 	(state: RootState) => selectSelected(state),
-	(itemKeys, isRouting, chartLines, routingLineId, selectedLineIds): string[] => {
-		// Derived keys: chart sources (routing while active,
-		// one per line that has a chart enabled AND is on the map).
-		// Not persisted — derived from the owning features' state.
+	(state: RootState) => selectIsRecording(state),
+	(state: RootState) => selectActiveLineId(state),
+	(state: RootState) => selectFollowingLineId(state),
+	(
+		itemKeys,
+		isRouting,
+		chartLines,
+		routingLineId,
+		selectedLineIds,
+		isRecording,
+		activeLineId,
+		followingLineId
+	): string[] => {
+		// Derived keys — one chart per line. A line can be the routing
+		// line, the active recording line, the followed line, or a plain
+		// selected line with a user-enabled chart; the Set dedupes so a
+		// line never contributes more than one chart entry.
 		const derivedKeys: string[] = [];
-		if (isRouting) {
-			derivedKeys.push(getChartSourceKey.routing());
+		const covered = new Set<number>();
+
+		if (isRouting && routingLineId != null && !covered.has(routingLineId)) {
+			covered.add(routingLineId);
+			derivedKeys.push(getChartSourceKey.line(routingLineId));
 		}
+		if (isRecording && activeLineId != null && !covered.has(activeLineId)) {
+			covered.add(activeLineId);
+			derivedKeys.push(getChartSourceKey.line(activeLineId));
+		}
+		if (followingLineId != null && !covered.has(followingLineId)) {
+			covered.add(followingLineId);
+			derivedKeys.push(getChartSourceKey.line(followingLineId));
+		}
+
 		chartLines.forEach((lineId) => {
-			// Only lines currently on the map get a chart entry; the
-			// routing line is already covered by the routing key.
-			if (lineId === routingLineId || !selectedLineIds.includes(lineId)) {
+			// Only lines currently on the map get a chart entry; feature
+			// lines (routing / recording / followed) are already covered.
+			if (covered.has(lineId) || !selectedLineIds.includes(lineId)) {
 				return;
 			}
+			covered.add(lineId);
 			derivedKeys.push(getChartSourceKey.line(lineId));
 		});
 

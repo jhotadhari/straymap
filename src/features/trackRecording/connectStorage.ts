@@ -42,6 +42,9 @@ import { setIsActive } from '../gnss/slice';
 import { startRecordingTask } from './backgroundTask';
 import { toTrackCoord } from './utils';
 import { invalidateLastRecordedLineQueries } from './db/queryFns';
+import { setActiveKey } from '../bottomDrawer/slice';
+import { getChartSourceKey } from '../chart/types';
+import { selectFollowingLineId } from '../lineFollow/selectors';
 import {
 	invalidateLineGeomQueries,
 	invalidateLineGeomQueriesForLine,
@@ -323,6 +326,9 @@ const processWriteGnssPosition = async (
 	const queryClient = dbConnection?.queryClient;
 	if (queryClient) {
 		invalidateLineGeomQueriesForLine(queryClient, trk.activeLineId);
+		// The chart/follow consumers read the simplified `linePathCoords`
+		// query — keep it live too so the tracking chart grows per append.
+		queryClient.invalidateQueries({ queryKey: ['linePathCoords', trk.activeLineId] });
 	}
 };
 
@@ -373,5 +379,24 @@ startAppListening({
 			invalidateLineGeomQueries(queryClient);
 			invalidateLastRecordedLineQueries(queryClient);
 		}
+	},
+});
+
+/**
+ * Listener 5: auto-select the tracking line's chart when the recording
+ * line comes into existence (the drawer itself stays closed). Following
+ * takes priority — while a line is followed the tracking chart is added
+ * but not selected.
+ */
+startAppListening({
+	actionCreator: setActiveLineId,
+	effect: (action, listenerApi) => {
+		if (action.payload == null) {
+			return;
+		}
+		if (selectFollowingLineId(listenerApi.getState()) != null) {
+			return;
+		}
+		listenerApi.dispatch(setActiveKey(getChartSourceKey.line(action.payload)));
 	},
 });

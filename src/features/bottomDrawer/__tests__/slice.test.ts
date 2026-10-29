@@ -34,10 +34,17 @@ const buildRoot = (overrides: Partial<BottomDrawersState> = {}) =>
 			chartLines: [],
 			selected: [],
 		},
+		trackRecording: {
+			isRecording: false,
+			activeLineId: null,
+		},
+		lineFollow: {
+			followingLineId: null,
+		},
 	}) as unknown as RootState;
 
 const routingChartItem: BottomDrawerItem = {
-	key: 'chart:routing',
+	key: 'chart:line:7',
 	DisplayComponent: () => null,
 };
 
@@ -126,20 +133,20 @@ describe('bottomDrawer selectors', () => {
 		expect(keys).toEqual([]);
 	});
 
-	it('selectItemKeys appends the routing chart key while routing is active', () => {
+	it('selectItemKeys appends the routing line chart key while routing is active', () => {
 		setBottomDrawerItemResolver((key) =>
 			key.startsWith('chart:') ? routingChartItem : undefined
 		);
 		const state = {
 			...buildRoot(),
-			routing: { isRouting: 42 },
+			routing: { isRouting: 42, routingLineId: 7 },
 		} as unknown as RootState;
 		const keys = selectItemKeys(state);
-		expect(keys).toContain('chart:routing');
+		expect(keys).toContain('chart:line:7');
 		setBottomDrawerItemResolver(undefined);
 	});
 
-	it('selectItemKeys skips the line key for the routing line', () => {
+	it('selectItemKeys dedupes the routing line from the chartLines entries', () => {
 		setBottomDrawerItemResolver((key) =>
 			key.startsWith('chart:') ? routingChartItem : undefined
 		);
@@ -149,9 +156,9 @@ describe('bottomDrawer selectors', () => {
 			lines: { chartLines: [7, 8], selected: [7, 8] },
 		} as unknown as RootState;
 		const keys = selectItemKeys(state);
-		expect(keys).toContain('chart:routing');
-		expect(keys).not.toContain('chart:line:7');
+		expect(keys).toContain('chart:line:7');
 		expect(keys).toContain('chart:line:8');
+		expect(keys.filter((k) => k === 'chart:line:7')).toHaveLength(1);
 		setBottomDrawerItemResolver(undefined);
 	});
 
@@ -166,6 +173,21 @@ describe('bottomDrawer selectors', () => {
 		const keys = selectItemKeys(state);
 		expect(keys).toContain('chart:line:8');
 		expect(keys).not.toContain('chart:line:9');
+		setBottomDrawerItemResolver(undefined);
+	});
+
+	it('selectItemKeys dedupes the routing and following line onto one key', () => {
+		setBottomDrawerItemResolver((key) =>
+			key.startsWith('chart:') ? routingChartItem : undefined
+		);
+		const state = {
+			...buildRoot(),
+			routing: { isRouting: 42, routingLineId: 7 },
+			lineFollow: { followingLineId: 7 },
+		} as unknown as RootState;
+		const keys = selectItemKeys(state);
+		expect(keys).toContain('chart:line:7');
+		expect(keys.filter((k) => k === 'chart:line:7')).toHaveLength(1);
 		setBottomDrawerItemResolver(undefined);
 	});
 });

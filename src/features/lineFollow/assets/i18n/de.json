@@ -1,0 +1,11 @@
+{
+	"title": "Route folgen",
+	"start": "Route folgen",
+	"stop": "Folgen beenden",
+	"hint": "Verfolge deinen Fortschritt entlang dieser Route: Entfernung zum Ziel, verbleibender Anstieg und Abstieg.",
+	"following": "Folgen",
+	"distanceToDestination": "Entfernung zum Ziel",
+	"distanceCovered": "Zurückgelegte Strecke",
+	"climbToDestination": "Anstieg bis zum Ziel",
+	"descentToDestination": "Abstieg bis zum Ziel"
+}

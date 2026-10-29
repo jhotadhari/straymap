@@ -13,6 +13,7 @@ import ButtonHighlight from '../../../../components/generic/primitives/ButtonHig
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { continueRecording } from '../../../trackRecording/slice';
 import { selectIsRecording } from '../../../trackRecording/selectors';
+import { selectFollowingLineId } from '../../../lineFollow/selectors';
 import ensureLocationPermission from '../../../../lib/locationPermission';
 import ensureNotificationPermission from '../../../../lib/notificationPermission';
 import useActivateDrawerItem from '../../../drawers/hooks/useActivateDrawerItem';
@@ -31,17 +32,24 @@ const RowContinueRecording: FC = () => {
 	const activateTrackingDrawerItem = useActivateDrawerItem('tracking');
 
 	const isRecording = useAppSelector(selectIsRecording);
+	const followingLineId = useAppSelector(selectFollowingLineId);
 
 	const hasRecordedTag = useMemo(
 		() => (line?.tags ?? []).some((tag) => tag.label === 'recorded'),
 		[line?.tags]
 	);
 
+	const isFollowed = useMemo(
+		() => typeof line?.id === 'number' && followingLineId === line.id,
+		[line?.id, followingLineId]
+	);
+
 	const disabled = useMemo(
-		() => typeof line?.id !== 'number' || isRecording,
+		() => typeof line?.id !== 'number' || isRecording || isFollowed,
 		[
 			line?.id,
 			isRecording,
+			isFollowed,
 		]
 	);
 
@@ -81,7 +89,9 @@ const RowContinueRecording: FC = () => {
 			Info={
 				isRecording
 					? t('lines.lineBusy.trackRecording')
-					: t('trackRecording.hintContinueRecording')
+					: isFollowed
+						? t('lineFollow.following')
+						: t('trackRecording.hintContinueRecording')
 			}
 		>
 			<ButtonHighlight

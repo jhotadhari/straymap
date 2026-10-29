@@ -32,6 +32,7 @@ import Footer from './Footer';
 import { queryLinesWithoutGeom } from '../../db/queryFns';
 import { setLineSelected, setLinesSelected } from '../../slice';
 import { setUiItemKeys } from '../../../ui/slice';
+import { selectActiveLineId } from '../../../trackRecording/selectors';
 import useRoute from '../../../routing/hooks/useRoute';
 import useActivateDrawerItem from '../../../drawers/hooks/useActivateDrawerItem';
 import { FooterContext, HeaderContext, ColumnHeaderMenuContext } from './Context';
@@ -59,6 +60,7 @@ const TableRowMemo = memo(
 			prevProps.isOnMap === nextProps.isOnMap &&
 			prevProps.isChecked === nextProps.isChecked &&
 			prevProps.isRoutingLine === nextProps.isRoutingLine &&
+			prevProps.isRecordingLine === nextProps.isRecordingLine &&
 			prevProps.idx === nextProps.idx &&
 			prevProps.stats === nextProps.stats &&
 			prevProps.line?.title === nextProps.line?.title &&
@@ -77,6 +79,8 @@ const LinesTable: FC = () => {
 	const { flyToBounds } = useMap(mapViewNativeNodeHandle);
 
 	const onMapIds = useAppSelector(selectSelected);
+
+	const activeLineId = useAppSelector(selectActiveLineId);
 
 	const [onMapIdsTemp, setOnMapIdsTemp] = useState(onMapIds);
 	const toggleOnMapId = useCallback(
@@ -278,6 +282,7 @@ const LinesTable: FC = () => {
 					toggleOnMapId={toggleOnMapId}
 					isChecked={checkedIds.includes(line.id)}
 					isRoutingLine={line.id === routingLineId}
+					isRecordingLine={line.id === activeLineId}
 					stats={
 						line.id !== routingLineId
 							? undefined
@@ -292,6 +297,7 @@ const LinesTable: FC = () => {
 			onMapIdsTemp,
 			checkedIds,
 			routingLineId,
+			activeLineId,
 			routingStats,
 			styleCell,
 			toggleOnMapId,

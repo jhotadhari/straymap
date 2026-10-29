@@ -19,6 +19,7 @@ import measure from './measure';
 import routing from './routing';
 import gnss from './gnss';
 import trackRecording from './trackRecording';
+import lineFollow from './lineFollow';
 import ui from './ui';
 import updater from './updater';
 import { featureRegistry } from './FeatureRegistry';
@@ -43,6 +44,7 @@ const features = {
 	updater,
 	gnss,
 	trackRecording,
+	lineFollow,
 } as { [featureKey: string]: AppFeature };
 
 // Populate the registry so consumers can discover extension points.
