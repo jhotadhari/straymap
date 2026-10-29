@@ -24,6 +24,8 @@ import {
 	DrawerSideItemKeys,
 	getSectionEmptyKey,
 	getSectionHeaderKey,
+	getSectionSpacerEndKey,
+	getSectionSpacerStartKey,
 	resolveDragEndSections,
 } from '../../utils';
 
@@ -32,6 +34,11 @@ const SECTION_KEYS: DrawerSide[] = [
 	'right',
 	'available',
 ];
+
+// Height of the invisible boundary spacers. They absorb the library's
+// compaction shift next to the fixed-order headers, so real items never
+// visually cross a section divider while dragging.
+const SECTION_SPACER_HEIGHT = 10;
 
 const CircleButton: FC<{
 	checked: boolean;
@@ -242,6 +249,19 @@ const DrawerControlModal: FC<{
 
 	const dropIndicatorStyle = useDropIndicatorStyle();
 
+	const renderSpacer = useCallback(
+		(key: string, width: number) => (
+			<View key={key}>
+				<Sortable.Handle mode="non-draggable">
+					<View
+						style={[styles.sectionSpacer, { width, height: SECTION_SPACER_HEIGHT }]}
+					/>
+				</Sortable.Handle>
+			</View>
+		),
+		[]
+	);
+
 	const renderItem = useCallback(
 		(itemKey: string) => (
 			<View key={itemKey}>
@@ -297,8 +317,12 @@ const DrawerControlModal: FC<{
 							</View>
 						</Sortable.Handle>
 					</View>,
+					renderSpacer(getSectionSpacerStartKey(side), sectionWidth),
 					...(itemKeysBySide[side].length > 0
-						? itemKeysBySide[side].map((itemKey) => renderItem(itemKey))
+						? [
+								...itemKeysBySide[side].map((itemKey) => renderItem(itemKey)),
+								renderSpacer(getSectionSpacerEndKey(side), sectionWidth),
+							]
 						: [
 								<View key={getSectionEmptyKey(side)}>
 									<Sortable.Handle mode="non-draggable">
@@ -316,6 +340,7 @@ const DrawerControlModal: FC<{
 										</View>
 									</Sortable.Handle>
 								</View>,
+								renderSpacer(getSectionSpacerEndKey(side), sectionWidth),
 							]),
 				])}
 			</Sortable.Flex>
@@ -360,6 +385,9 @@ const styles = StyleSheet.create({
 	},
 	sectionEmptyHint: {
 		fontStyle: 'italic',
+	},
+	sectionSpacer: {
+		backgroundColor: 'transparent',
 	},
 });
 

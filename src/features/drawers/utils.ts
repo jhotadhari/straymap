@@ -24,9 +24,14 @@ export const getDrawerWidthResponsive = (windowWidth: number) => {
 
 export const SECTION_HEADER_KEY_PREFIX = '__header_';
 export const SECTION_EMPTY_KEY_PREFIX = '__empty_';
+export const SECTION_SPACER_KEY_PREFIX = '__spacer_';
 
 export const getSectionHeaderKey = (side: DrawerSide) => `${SECTION_HEADER_KEY_PREFIX}${side}`;
 export const getSectionEmptyKey = (side: DrawerSide) => `${SECTION_EMPTY_KEY_PREFIX}${side}`;
+export const getSectionSpacerStartKey = (side: DrawerSide) =>
+	`${SECTION_SPACER_KEY_PREFIX}start_${side}`;
+export const getSectionSpacerEndKey = (side: DrawerSide) =>
+	`${SECTION_SPACER_KEY_PREFIX}end_${side}`;
 
 export type DrawerSideItemKeys = Record<DrawerSide, string[]>;
 
@@ -108,8 +113,8 @@ export const reconstructSections = ({
 };
 
 /**
- * Full drag-end pipeline: strip placeholders, split the final order by
- * header sentinels, and repair the compaction artifact.
+ * Full drag-end pipeline: strip placeholders and boundary spacers, split
+ * the final order by header sentinels, and repair the compaction artifact.
  */
 export const resolveDragEndSections = ({
 	preSides,
@@ -120,7 +125,10 @@ export const resolveDragEndSections = ({
 	order: string[];
 	draggedKey: string;
 }): DrawerSideItemKeys => {
-	const cleanedOrder = order.filter((key) => !key.startsWith(SECTION_EMPTY_KEY_PREFIX));
+	const cleanedOrder = order.filter(
+		(key) =>
+			!key.startsWith(SECTION_EMPTY_KEY_PREFIX) && !key.startsWith(SECTION_SPACER_KEY_PREFIX)
+	);
 	const finalSides = splitOrderIntoSections(cleanedOrder);
 	return reconstructSections({ preSides, finalSides, draggedKey });
 };

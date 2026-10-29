@@ -9,6 +9,8 @@ import {
 	DrawerSideItemKeys,
 	getSectionEmptyKey,
 	getSectionHeaderKey,
+	getSectionSpacerEndKey,
+	getSectionSpacerStartKey,
 	reconstructSections,
 	resolveDragEndSections,
 	splitOrderIntoSections,
@@ -170,6 +172,102 @@ describe('resolveDragEndSections', () => {
 		).toEqual({
 			left: ['L2', 'L1'],
 			right: ['R1', 'R2'],
+			available: ['A1'],
+		});
+	});
+
+	it('filters boundary spacers and resolves a downward cross-section drag', () => {
+		// L2 dragged from left onto R1: the compaction displaced the right
+		// spacer-start into the left section instead of R1. Everything
+		// resolves to the correct sections.
+		expect(
+			resolveDragEndSections({
+				preSides,
+				order: [
+					HEADERS.left,
+					getSectionSpacerStartKey('left'),
+					'L1',
+					getSectionSpacerEndKey('left'),
+					getSectionSpacerStartKey('right'),
+					HEADERS.right,
+					'R1',
+					'L2',
+					'R2',
+					getSectionSpacerEndKey('right'),
+					HEADERS.available,
+					getSectionSpacerStartKey('available'),
+					'A1',
+					getSectionSpacerEndKey('available'),
+				],
+				draggedKey: 'L2',
+			})
+		).toEqual({
+			left: ['L1'],
+			right: [
+				'R1',
+				'L2',
+				'R2',
+			],
+			available: ['A1'],
+		});
+	});
+
+	it('filters boundary spacers and resolves an upward cross-section drag', () => {
+		// R1 dragged from right onto L1: the compaction displaced the left
+		// spacer-end into the right section instead of L2.
+		expect(
+			resolveDragEndSections({
+				preSides,
+				order: [
+					HEADERS.left,
+					getSectionSpacerStartKey('left'),
+					'R1',
+					'L1',
+					'L2',
+					HEADERS.right,
+					getSectionSpacerEndKey('left'),
+					getSectionSpacerStartKey('right'),
+					'R2',
+					getSectionSpacerEndKey('right'),
+					HEADERS.available,
+					getSectionSpacerStartKey('available'),
+					'A1',
+					getSectionSpacerEndKey('available'),
+				],
+				draggedKey: 'R1',
+			})
+		).toEqual({
+			left: [
+				'R1',
+				'L1',
+				'L2',
+			],
+			right: ['R2'],
+			available: ['A1'],
+		});
+	});
+
+	it('resolves a drop into an empty section that has a spacer next to the placeholder', () => {
+		expect(
+			resolveDragEndSections({
+				preSides: { left: ['L1'], right: [], available: ['A1'] },
+				order: [
+					HEADERS.left,
+					getSectionSpacerStartKey('left'),
+					getSectionSpacerEndKey('left'),
+					HEADERS.right,
+					'L1',
+					getSectionSpacerEndKey('right'),
+					HEADERS.available,
+					getSectionSpacerStartKey('available'),
+					'A1',
+					getSectionSpacerEndKey('available'),
+				],
+				draggedKey: 'L1',
+			})
+		).toEqual({
+			left: [],
+			right: ['L1'],
 			available: ['A1'],
 		});
 	});
