@@ -11,7 +11,7 @@ import { LayerMarker, Marker, ReindexScope } from 'react-native-mapsforge-vtm';
  * Internal dependencies
  */
 import { useAppSelector } from '../../../store/hooks';
-import { selectGnssHeading, selectGnssPosition, selectIsCenterActive } from '../selectors';
+import { selectGnssHeading, selectGnssPosition, selectIsActive } from '../selectors';
 import { selectAppDirs } from '../../dirs/selectors';
 import { RECORDED_LINE_COLOR } from '../../../constants';
 import { logError } from '../../../lib/utils';
@@ -26,16 +26,19 @@ const buildMarkerSvg = (): string =>
 	`<svg xmlns="http://www.w3.org/2000/svg" width="${MARKER_SIZE_DP}" height="${MARKER_SIZE_DP}" viewBox="0 0 ${MARKER_SIZE_DP} ${MARKER_SIZE_DP}"><polygon points="13,1 7,25 19,25" fill="${RECORDED_LINE_COLOR}" stroke="#000000" stroke-width="2"/></svg>`;
 
 /**
- * GNSS position marker for center mode, rendered as a NATIVE marker so it
- * is drawn by the map itself every render frame — unlike the reanimated
- * overlays, it cannot lag behind the map content during fast pans.
+ * GNSS position marker, rendered as a NATIVE marker so it is drawn by
+ * the map itself every render frame — unlike the reanimated overlays, it
+ * cannot lag behind the map content during fast pans.
+ *
+ * Visible whenever GNSS is active (independent of center mode — center
+ * mode only controls the map re-centering and the panned-away line).
  *
  * The triangle shape comes from a static SVG file (written once into the
  * app's marker dir); the movement-direction rotation is applied natively
  * via the marker's `rotation` paint option (whole degrees).
  */
 const GnssCenterMarker: FC = () => {
-	const isCenterActive = useAppSelector(selectIsCenterActive);
+	const isActive = useAppSelector(selectIsActive);
 	const gnssPosition = useAppSelector(selectGnssPosition);
 	const gnssHeading = useAppSelector(selectGnssHeading);
 	const appDirs = useAppSelector(selectAppDirs);
@@ -94,7 +97,7 @@ const GnssCenterMarker: FC = () => {
 		]
 	);
 
-	if (!isCenterActive || !gnssPosition || !paint) {
+	if (!isActive || !gnssPosition || !paint) {
 		return null;
 	}
 
