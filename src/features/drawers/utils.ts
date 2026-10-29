@@ -9,84 +9,118 @@ export const getDrawerWidthResponsive = (windowWidth: number) => {
 };
 
 /**
- * Geometry helpers for the drawer-control modal's drag-and-drop.
+ * Helpers for the drawer-control modal's drag-and-drop.
  *
- * Every section and item row has a fixed height, so the drop target can be
- * derived from pure arithmetic on the vertical position — no measurement
- * needed. This keeps the math Fabric-safe (repeated UI-thread measure()
- * calls are unreliable on the new architecture).
+ * The modal renders all sections inside a single Sortable.Flex. Section
+ * headers are fixed-order sentinel items and empty sections contribute a
+ * non-draggable placeholder item, so the library's final order contains
+ * both real item keys and sentinels. These helpers split that order back
+ * into the three sections and repair the library's compaction artifact:
+ * `reorderInsert` skips fixed items while compacting the displaced chain
+ * toward the source, which pushes exactly one item per crossed header into
+ * the section above. `resolveDragEndSections` moves those displaced items
+ * back to their pre-drag sections.
  */
 
-export interface SectionSize {
-	side: DrawerSide;
-	itemCount: number;
-}
+export const SECTION_HEADER_KEY_PREFIX = '__header_';
+export const SECTION_EMPTY_KEY_PREFIX = '__empty_';
 
-export interface SectionLayout extends SectionSize {
-	top: number;
-	height: number;
-}
+export const getSectionHeaderKey = (side: DrawerSide) => `${SECTION_HEADER_KEY_PREFIX}${side}`;
+export const getSectionEmptyKey = (side: DrawerSide) => `${SECTION_EMPTY_KEY_PREFIX}${side}`;
+
+export type DrawerSideItemKeys = Record<DrawerSide, string[]>;
+
+const DRAWER_SIDES: DrawerSide[] = [
+	'left',
+	'right',
+	'available',
+];
 
 /**
- * Computes the absolute top offset and height of every section in the list.
- * Empty sections occupy a fixed minimum height so they stay droppable.
+ * Splits a flat key order (with header sentinels) into the three sections.
  */
-export const getSectionLayouts = (
-	sections: SectionSize[],
-	headerHeight: number,
-	itemHeight: number,
-	emptySectionHeight: number
-): SectionLayout[] => {
-	let top = 0;
-	return sections.map(({ side, itemCount }) => {
-		const height = itemCount > 0 ? headerHeight + itemCount * itemHeight : emptySectionHeight;
-		const layout: SectionLayout = { side, itemCount, top, height };
-		top += height;
-		return layout;
-	});
-};
-
-/**
- * Absolute top offset of the item row at `index` in the given section.
- */
-export const getRowTop = (
-	layouts: SectionLayout[],
-	side: DrawerSide,
-	index: number,
-	headerHeight: number,
-	itemHeight: number
-): number => {
-	const layout = layouts.find(({ side: layoutSide }) => layoutSide === side);
-	if (!layout) {
-		return 0;
-	}
-	return layout.top + headerHeight + Math.max(0, index) * itemHeight;
-};
-
-/**
- * Derives the drop target (section + insertion index) from a vertical
- * position in the list. Positions past the last section land at the end
- * of the last section.
- */
-export const computeDropTarget = (
-	layouts: SectionLayout[],
-	headerHeight: number,
-	itemHeight: number,
-	relY: number
-): { side: DrawerSide; index: number } => {
-	for (const layout of layouts) {
-		if (relY < layout.top + layout.height) {
-			if (0 === layout.itemCount) {
-				return { side: layout.side, index: 0 };
-			}
-			const withinSectionY = relY - layout.top - headerHeight;
-			const index = Math.max(
-				0,
-				Math.min(layout.itemCount, Math.round(withinSectionY / itemHeight))
-			);
-			return { side: layout.side, index };
+export const splitOrderIntoSections = (order: string[]): DrawerSideItemKeys => {
+	const result: DrawerSideItemKeys = {
+		left: [],
+		right: [],
+		available: [],
+	};
+	let currentSide: DrawerSide = 'available';
+	order.forEach((key) => {
+		const headerSide = DRAWER_SIDES.find((side) => getSectionHeaderKey(side) === key);
+		if (headerSide) {
+			currentSide = headerSide;
+			return;
 		}
-	}
-	const last = layouts[layouts.length - 1];
-	return last ? { side: last.side, index: last.itemCount } : { side: 'available', index: 0 };
+		result[currentSide].push(key);
+	});
+	return result;
+};
+
+/**
+ * Repairs the section membership after a drag: every item that ended up in
+ * a section other than its pre-drag one — except the dragged item itself —
+ * returns to its pre-drag section at its pre-drag index.
+ */
+export const reconstructSections = ({
+	preSides,
+	finalSides,
+	draggedKey,
+}: {
+	preSides: DrawerSideItemKeys;
+	finalSides: DrawerSideItemKeys;
+	draggedKey: string;
+}): DrawerSideItemKeys => {
+	const result: DrawerSideItemKeys = {
+		left: [],
+		right: [],
+		available: [],
+	};
+
+	// Keep only the keys that belong in each section; collect the rest.
+	const displaced: { key: string; home: DrawerSide; index: number }[] = [];
+	DRAWER_SIDES.forEach((side) => {
+		finalSides[side].forEach((key) => {
+			if (key === draggedKey || preSides[side].includes(key)) {
+				result[side].push(key);
+			} else {
+				const home = DRAWER_SIDES.find((homeSide) => preSides[homeSide].includes(key));
+				if (home) {
+					displaced.push({
+						key,
+						home,
+						index: preSides[home].indexOf(key),
+					});
+				}
+			}
+		});
+	});
+
+	// Re-insert displaced items into their home sections in pre-drag order.
+	displaced
+		.sort((a, b) => a.index - b.index)
+		.forEach(({ key, home, index }) => {
+			const targetIndex = Math.max(0, Math.min(index, result[home].length));
+			result[home].splice(targetIndex, 0, key);
+		});
+
+	return result;
+};
+
+/**
+ * Full drag-end pipeline: strip placeholders, split the final order by
+ * header sentinels, and repair the compaction artifact.
+ */
+export const resolveDragEndSections = ({
+	preSides,
+	order,
+	draggedKey,
+}: {
+	preSides: DrawerSideItemKeys;
+	order: string[];
+	draggedKey: string;
+}): DrawerSideItemKeys => {
+	const cleanedOrder = order.filter((key) => !key.startsWith(SECTION_EMPTY_KEY_PREFIX));
+	const finalSides = splitOrderIntoSections(cleanedOrder);
+	return reconstructSections({ preSides, finalSides, draggedKey });
 };
