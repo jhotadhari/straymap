@@ -29,6 +29,7 @@ import {
 	upsertTagsFilter,
 	removeTagsFilter,
 	setLineColors,
+	setLineWidth,
 	setLineRamp,
 	setLineRamps,
 	removeLineRamps,
@@ -100,6 +101,9 @@ export const initializeFromStorage = async (store: AppStore): Promise<boolean> =
 			if (newSettings?.lineColors) {
 				store.dispatch(setLineColors(newSettings.lineColors));
 			}
+			if (newSettings?.lineWidth !== undefined) {
+				store.dispatch(setLineWidth(newSettings.lineWidth));
+			}
 			if (newSettings?.lineRamps) {
 				store.dispatch(setLineRamps(newSettings.lineRamps));
 			}
@@ -163,6 +167,7 @@ startAppListening({
 		upsertTagsFilter,
 		removeTagsFilter,
 		setLineColors,
+		setLineWidth,
 		setLineRamp,
 		setLineRamps,
 		removeLineRamps,

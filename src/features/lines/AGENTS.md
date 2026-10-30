@@ -43,6 +43,7 @@ LinesState extends SliceSettingsBase, LinesSettings {
   tagsTable: TagsTableSettings;                   // columns, sort, filters, filterLogic
   lineColors: Record<number, string>;             // lineId → palette hex colour (persisted)
   lineRamps: Record<number, RampKey>;            // lineId → user-assigned ramp kind, 'slope' (persisted)
+  lineWidth: number;                             // stroke width (dp) for all ordinary lines (persisted, clamped)
   // LinesState only:
   lineTemp?: LinePartial;                         // draft being edited in LineEditModal
   tagTemp?: { id: number; ... } | null;           // draft tag being edited
@@ -57,9 +58,10 @@ LinesState extends SliceSettingsBase, LinesSettings {
 | `setLinesSelected(newIds: number[])` | Bulk-replaces `selected[]` (no-op if unchanged)                                      |
 | `toggleLinesSort(columnKey)`         | Toggle sort direction or switch to a new column                                      |
 | `toggleTagsSort(columnKey)`          | Same for the tags table                                                              |
-| `randomizeLineColors()`              | Assigns random `PALETTE_COLORS` to all selected lines, avoiding same-adjacent-colour |
-| `setLinesColor(color)`               | Sets all selected lines to the same palette colour                                   |
-| `onSetDbPath()`                      | Clears `selected[]` when the db path changes (user must restart)                     |
+| `randomizeLineColors(lineIds)`     | Assigns random `PALETTE_COLORS` to the given lines, avoiding same-adjacent-colour |
+| `setLinesColor(color, lineIds)`    | Sets the given lines to the same palette colour                                    |
+| `setLinesWidth(width)`             | Sets the shared ordinary-line stroke width (clamped)                               |
+| `onSetDbPath()`                    | Clears `selected[]` when the db path changes (user must restart)                   |
 
 ### Key reducers (also exported as actions)
 
@@ -76,6 +78,7 @@ LinesState extends SliceSettingsBase, LinesSettings {
 | `setLineColor`       | Set the palette colour for one line                  |
 | `setLineColors`      | Bulk-set palette colours for multiple lines          |
 | `removeLineColors`   | Remove colour entries for given line IDs             |
+| `setLineWidth`       | Set the shared ordinary-line stroke width (clamped)  |
 | `setLineRamp`        | Assign a ramp kind (or `null` to clear) for one line |
 | `setLineRamps`       | Bulk-replace the lineRamps record (storage restore)  |
 | `removeLineRamps`    | Remove ramp entries for given line IDs               |
@@ -99,6 +102,7 @@ LinesState extends SliceSettingsBase, LinesSettings {
 | `selectLineColors`        | `Record<number, string>` (lineId → hex colour)                |
 | `selectLineColor(lineId)` | `string \| undefined` (single line's colour)                  |
 | `selectLineRamps`         | `Record<number, RampKey>` (lineId → user-assigned ramp kind)  |
+| `selectLineWidth`         | `number` (shared ordinary-line stroke width)                  |
 
 ## React Query layer
 
@@ -313,12 +317,14 @@ assigned per line.
 
 ### LinesMapView
 
-`LinesMapView` subscribes to `selectLineColors`. A `useMemo`'d
-`Map<colorHex, paintObject>` (at most 11 entries — 10 palette + 1 default
-`PALETTE_COLORS[0].bg`) is created once. Each `<LayerPath>` looks up its
-line's paint via `paintByColor.get(lineColors[lineId] ?? FALLBACK_COLOR)`.
-Paint objects are shared when colours repeat, so per-line colour has no
-per-element allocation cost.
+`LinesMapView` subscribes to `selectLineColors` and `selectLineWidth`. A
+`useMemo`'d `Map<colorHex, paintObject>` (at most 11 entries — 10 palette
++ 1 default `PALETTE_COLORS[0].bg`) caches paints by colour; each paint
+carries the shared `lineWidth` (default `DEFAULT_LINE_WIDTH`), rebuilt when
+`lineWidth` changes. Each `<LayerPath>` looks up its line's paint via
+`paintByColor.get(lineColors[lineId] ?? FALLBACK_COLOR)`. Paint objects are
+shared when colours repeat, so per-line colour has no per-element allocation
+cost. Stroke width is shared across all ordinary lines (not per-line).
 
 ### ListRow colour column
 
@@ -369,26 +375,37 @@ Follows the same `useActions` aggregator pattern as
 ```
 DrawerTopBar/
 ├── DrawerTopBar.tsx           # calls useActions, renders LinesActionsButton
-├── LinesActionsButton.tsx     # dual-mode Popover (actions ↔ colour palette)
+├── LinesActionsButton.tsx     # tri-mode Popover (actions ↔ colour palette ↔ width picker)
 └── useActions/
-    ├── index.ts               # aggregator → Record<string, MenuActionOption>
+    ├── index.ts               # aggregator → { showStats, ordinary[], ordinaryCount, ordinaryLineIds }
     ├── useActionClearLines.tsx # confirmation modal → setSelected(system-only IDs)
-    ├── useActionRandomizeColors.tsx # dispatches randomizeLineColors()
+    ├── useActionRandomizeColors.tsx # dispatches randomizeLineColors(ordinaryLineIds)
     ├── useActionSetEqualColors.tsx  # switches popover to colour-picker mode
+    ├── useActionSetLineWidth.tsx    # switches popover to width-picker mode
     └── useActionShowStats.tsx       # aggregated-statistics modal
 ```
 
-### LinesActionsButton dual-mode popover
+### LinesActionsButton tri-mode popover
 
 Uses a raw `Popover` (not `ButtonHighlightMenuControl`) because the popover
-must stay open and swap between two content sets:
+must stay open and swap between three content sets:
 
-1. **Actions menu** (3 items): clearLines, randomizeColors, setEqualColors
-2. **Colour picker** (10 items): one per `PALETTE_COLORS`, unlabelled circles
+1. **Actions menu**: `showStats` (applies to every selected line) followed by
+   a `Divider`, a heading `lines.ordinaryRoutes` ("Ordinary routes %d", where
+   `%d` is `ordinaryCount`), then the ordinary-only actions
+   (`setLineWidth`, `randomizeColors`, `setEqualColors`, `clearLines`) — each
+   disabled when `ordinaryCount === 0`.
+2. **Colour picker** (10 items): one per `PALETTE_COLORS`, unlabelled circles.
+3. **Width picker**: a vertical `LineWidthControl` menu of preset widths
+   (`LINE_WIDTH_MIN`..`MAX` in `LINE_WIDTH_STEP` half-steps — 15 items from
+   1..8), the current width marked `active` and the default (`DEFAULT_LINE_WIDTH`)
+   suffixed with `lineWidthDefaultSuffix`. Tapping an entry dispatches
+   `setLinesWidth(width)`.
 
-"set equal colours" sets `colorPickerActive = true` without closing the
-popover. Selecting a colour calls `handleColorSelect` which dispatches
-`setLinesColor(color)` and calls `dismissMenu()` (closing both).
+"set equal colours" / "set line width" set `colorPickerActive` /
+`widthPickerActive` without closing the popover. Selecting a colour calls
+`handleColorSelect` which dispatches `setLinesColor(color, ordinaryLineIds)`;
+applying a width dispatches `setLinesWidth(width)` — both then `dismissMenu()`.
 
 Button styling is shared with the "Lines browser" button via `buttonProps`
 typed as `ReturnType<typeof useButtonProps>` (destructured from

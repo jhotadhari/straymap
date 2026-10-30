@@ -89,6 +89,8 @@ export const selectLineColors = (state: RootState) => state.lines.lineColors;
 
 export const selectLineRamps = (state: RootState) => state.lines.lineRamps;
 
+export const selectLineWidth = (state: RootState) => state.lines.lineWidth;
+
 export const selectChartLines = (state: RootState) => state.lines.chartLines;
 
 // Memoized selector factory — returning a fresh function per call would
