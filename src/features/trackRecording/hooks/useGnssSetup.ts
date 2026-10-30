@@ -8,7 +8,8 @@ import { useCallback, useEffect, useMemo } from 'react';
  */
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { selectIsActive } from '../../gnss/selectors';
-import { setGnssPosition, GnssPositionData } from '../../gnss/slice';
+import { setGnssPosition } from '../../gnss/slice';
+import type { GnssPosition } from 'react-native-mapsforge-vtm';
 import {
 	selectIsRecording,
 	selectMinDistance,
@@ -87,14 +88,28 @@ export function useGnssSetup() {
 	// position, and (while recording or resuming) the track-recording
 	// listener.
 	const handleGnssPosition = useCallback(
-		(event: { nativeEvent: GnssPositionData }) => {
-			dispatch(setGnssPosition(event.nativeEvent));
+		(event: { nativeEvent: GnssPosition }) => {
+			const { lng, lat, altitude, gnssAltitude, bearing, accuracy, speed, timestamp } =
+				event.nativeEvent;
+			// Live display always uses the raw GNSS altitude — the DEM
+			// toggle only affects what is stored, not what is shown.
+			dispatch(
+				setGnssPosition({
+					lng,
+					lat,
+					altitude: gnssAltitude,
+					bearing,
+					accuracy,
+					speed,
+					timestamp,
+				})
+			);
 			if (isRecording || resumePending) {
 				dispatch(
 					writeGnssPosition({
-						lng: event.nativeEvent.lng,
-						lat: event.nativeEvent.lat,
-						altitude: event.nativeEvent.altitude,
+						lng,
+						lat,
+						altitude,
 					})
 				);
 			}

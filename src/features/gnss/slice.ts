@@ -21,7 +21,9 @@ export const MIN_HEADING_MOVE_M = 5;
  * to the current fix without changing the heading. */
 export const HEADING_ANCHOR_MAX_AGE_MS = 10 * 1000;
 
-/** Live GNSS position data — mirrors the native onGnssPosition payload. */
+/** Live GNSS position data.  `altitude` is always the raw GNSS fix
+ * (independent of the recording filter's DEM resolution), so live
+ * altitude displays never show DEM elevation. */
 export interface GnssPositionData {
 	lng: number;
 	lat: number;
