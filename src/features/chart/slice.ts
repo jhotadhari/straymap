@@ -74,6 +74,7 @@ export const chartSlice = createSlice({
 			const perChartOnly = {
 				...(own.ratioValue !== undefined && { ratioValue: own.ratioValue }),
 				...(own.followMode !== undefined && { followMode: own.followMode }),
+				...(own.animateFollow !== undefined && { animateFollow: own.animateFollow }),
 			};
 			if (Object.keys(perChartOnly).length) {
 				state.charts[key] = perChartOnly as ChartSettings;

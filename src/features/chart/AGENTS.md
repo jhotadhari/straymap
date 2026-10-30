@@ -126,7 +126,7 @@ ChartSettings {
   xMode: 'distance' | 'time';
   ratioValue?: number;              // fixed aspect ratio: visible x-range per visible y-range unit
   followMode: 'none' | 'map' | 'center'; // Off / follow covered segment (1:1) / follow map center
-  animateFollow: boolean;           // ease the follow viewport instead of jumping (all charts)
+  animateFollow: boolean;           // ease the follow viewport instead of jumping (per-chart, picked via the follow control)
   showHeading: boolean;
   showStats: boolean;
 }
@@ -136,8 +136,8 @@ ChartSettings {
 
 | Constant                     | Keys                                        | Meaning                                                        |
 | ---------------------------- | ------------------------------------------- | -------------------------------------------------------------- |
-| `PER_CHART_SETTINGS_KEYS`    | `ratioValue`, `followMode`                  | Always per-chart — the general settings never contribute these |
-| `GENERAL_ONLY_SETTINGS_KEYS` | `animateFollow`, `showHeading`, `showStats` | Always general — a chart's own entry never contributes these   |
+| `PER_CHART_SETTINGS_KEYS`    | `ratioValue`, `followMode`, `animateFollow` | Always per-chart — the general settings never contribute these |
+| `GENERAL_ONLY_SETTINGS_KEYS` | `showHeading`, `showStats`                  | Always general — a chart's own entry never contributes these   |
 
 Every other key participates in the Default/Custom mode (general vs own).
 
@@ -148,7 +148,7 @@ Every other key participates in the Default/Custom mode (general vs own).
 | `selectChartSettings(state, key)`       | Effective settings: `DEFAULT_CHART_SETTINGS` ← `general` (minus per-chart keys) ← own (minus general-only keys) |
 | `selectGeneralSettings`                 | `DEFAULT_CHART_SETTINGS` merged with `general`                                                                  |
 | `selectHasOwnChartSettings(state, key)` | `true` when the own entry has keys outside the two exclusion sets → drives Default/Custom mode                  |
-| `selectOwnPerChartSettings(state, key)` | `pick` of `ratioValue`/`followMode` from the own entry                                                          |
+| `selectOwnPerChartSettings(state, key)` | `pick` of `ratioValue`/`followMode`/`animateFollow` from the own entry                                              |
 | `selectFullscreenLineId`                | The fullscreen chart's dedicated line                                                                           |
 | `selectInitialized`                     | Storage-restore completion flag                                                                                 |
 
@@ -158,7 +158,7 @@ Every other key participates in the Default/Custom mode (general vs own).
   exclusion sets) plus the existing per-chart settings into the chart's
   own entry.
 - **→ Default (general)**: `resetChartSettingsToPerChart` — discards the
-  own entry, keeping only `ratioValue`/`followMode`.
+  own entry, keeping only `ratioValue`/`followMode`/`animateFollow`.
 - The mode follows `hasOwn` on `chartKey` change; `update()` dispatches
   `setChartSettings` (own mode) or `setGeneralSettings` (general mode).
 
@@ -321,18 +321,21 @@ keep the modal (and its popover menus) quiet.
 
 | Row                 | Drawer | Fullscreen | Purpose                                                             |
 | ------------------- | :----: | :--------: | ------------------------------------------------------------------- |
-| `RowSelectRoute`    |   ✓    |            | Switch the active drawer chart between chart sources                |
-| `RowFollowMode`     |   ✓    |     ✓      | Follow mode picker (Off / Follow map / Follow center)               |
-| `RowAnimateFollow`  |   ✓    |     ✓      | Toggle the follow animation (always general, applies to all charts) |
-| `RowRatioLock`      |   ✓    |     ✓      | Fixed aspect ratio + Fit-screen button                              |
+| `RowSelectRoute`    |   ✓    |            | "Drawer content" picker (chart sources, labels prefixed "Chart ")   |
 | `RowShowHeading`    |   ✓    |            | Toggle heading (always on in fullscreen)                            |
 | `RowShowStats`      |   ✓    |            | Toggle statistics (always on in fullscreen)                         |
 | `RowRemoveChart`    |   ✓    |            | Remove the line's chart (`toggleChartLine`) with confirmation       |
+| `RowFollowMode`     |   ✓    |     ✓      | Follow mode picker: Off + follow map/center, each animated/not      |
+| `RowRatioLock`      |   ✓    |     ✓      | Fixed aspect ratio + Fit-screen button                              |
 | `RowChartMode`      |   ✓    |     ✓      | Default/Custom mode switch                                          |
 | `RowPrimaryData`    |   ✓    |     ✓      | Primary series (none/elevation/slope)                               |
 | `RowPrimaryColor`   |   ✓    |     ✓      | Primary color mode (axis/ramp/fill)                                 |
 | `RowSecondaryData`  |   ✓    |     ✓      | Secondary series                                                    |
 | `RowSecondaryColor` |   ✓    |     ✓      | Secondary color mode                                                |
+
+Drawer-variant header is "Drawer settings"; fullscreen keeps "Chart
+settings". The follow/ratio rows are separated from the chart-data rows
+by a divider plus a "Chart data" heading.
 
 `RowXMode` (distance/time x-axis) exists but is currently commented out
 of the modal.

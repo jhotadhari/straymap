@@ -31,15 +31,18 @@ const RowSelectRoute: FC = () => {
 				.filter((key) => key.startsWith(CHART_KEY_PREFIX))
 				.map((key): OptionBase => ({
 					key,
-					label: chartLabels[key] ?? key,
+					label: `${t('chart.chartPrefix')} ${chartLabels[key] ?? key}`,
 				})),
 		[
 			itemKeys,
 			chartLabels,
+			t,
 		]
 	);
 
-	const activeLabel = activeItemKey ? (chartLabels[activeItemKey] ?? activeItemKey) : '';
+	const activeLabel = activeItemKey
+		? `${t('chart.chartPrefix')} ${chartLabels[activeItemKey] ?? activeItemKey}`
+		: '';
 
 	const handleSetValue = useCallback(
 		(v: string) => setActiveItemKey(v),
@@ -49,8 +52,8 @@ const RowSelectRoute: FC = () => {
 	return (
 		<>
 			<InfoLabelRow
-				label={t('chart.route')}
-				Info={t('chart.routeHint')}
+				label={t('chart.drawerContent')}
+				Info={t('chart.drawerContentHint')}
 			>
 				<ButtonHighlightMenuControl
 					options={chartOptions}
