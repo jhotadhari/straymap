@@ -11,6 +11,7 @@ import { useAppSelector } from '../../../store/hooks';
 import { selectGnssPosition, selectIsCenterActive, selectShowMeasurementLabel } from '../selectors';
 import { useGnssCenterMode } from '../hooks/useGnssCenterMode';
 import { selectMeasureActive } from '../../measure/selectors';
+import { selectMovedPointId } from '../../routing/selectors';
 import { emitMapContextMenu } from '../../mapContextMenu/controller';
 import CenterConnectionOverlay from '../../../components/mapOverlays/CenterConnectionOverlay';
 
@@ -21,14 +22,15 @@ import CenterConnectionOverlay from '../../../components/mapOverlays/CenterConne
  * beyond the map center are rendered by the shared CenterConnectionOverlay.
  *
  * Only one center-connection line is shown at a time — while a measure-
- * distance measurement is active, the GNSS line stays hidden. The label
- * can also be hidden persistently via the marker control or the label's
- * own short-press context menu.
+ * distance measurement or a waypoint move is active, the GNSS line stays
+ * hidden. The label can also be hidden persistently via the marker control
+ * or the label's own short-press context menu.
  */
 const GnssCenterOverlay = () => {
 	const isCenterActive = useAppSelector(selectIsCenterActive);
 	const gnssPosition = useAppSelector(selectGnssPosition);
 	const measureActive = useAppSelector(selectMeasureActive);
+	const movedPointId = useAppSelector(selectMovedPointId);
 	const showMeasurementLabel = useAppSelector(selectShowMeasurementLabel);
 	const { mode, labelText } = useGnssCenterMode();
 
@@ -47,9 +49,12 @@ const GnssCenterOverlay = () => {
 	]);
 
 	// The connecting line always shows while panned away (unless a
-	// measure-distance measurement owns the center connection). The
-	// showMeasurementLabel setting gates only the label.
-	const showConnection = (mode === 'pannedAway' || mode === 'returning') && !measureActive;
+	// measure-distance measurement or a waypoint move owns the center
+	// connection). The showMeasurementLabel setting gates only the label.
+	const showConnection =
+		(mode === 'pannedAway' || mode === 'returning') &&
+		!measureActive &&
+		movedPointId === null;
 	useEffect(() => {
 		showConnectionSv.value = showConnection;
 	}, [showConnection, showConnectionSv]);
