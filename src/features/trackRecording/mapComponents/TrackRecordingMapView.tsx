@@ -33,7 +33,7 @@ const CHEVRON_FILE_NAME = 'recordingChevron.svg';
 /** Spacing between chevron canvases: edge-to-edge (near-zipper look).
  * The glyph's internal margins leave a sliver of gap; use a factor
  * below 1 for a slight overlap. */
-const CHEVRON_GAP_FACTOR = 0.45;
+const CHEVRON_GAP_FACTOR = 0.4;
 
 /** Hard cap on chevron markers per render (very long recordings get a
  * uniformly coarser spacing instead of dropping markers). */
