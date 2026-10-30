@@ -332,7 +332,9 @@ const ListRow: FC<ListRowProps> = ({ line, idx, systemFeatureKey, isUnderCenter 
 				<LineStatsCompactRows
 					stats={stats}
 					reverse={'left' === side}
-					firstRowExtra={isFollowed ? <FollowDistanceBadge lineId={line.id} /> : undefined}
+					firstRowExtra={
+						isFollowed ? <FollowDistanceBadge lineId={line.id} /> : undefined
+					}
 				/>
 
 				{line?.tags && line?.tags.length > 0 && (
@@ -361,6 +363,23 @@ const ListRow: FC<ListRowProps> = ({ line, idx, systemFeatureKey, isUnderCenter 
 				</ButtonHighlight>
 
 				{systemFeatureKey === null && (
+					<ButtonHighlight
+						{...buttonPropsAny}
+						compact={true}
+						onPress={toggleSelected}
+					>
+						<Icon
+							source={'map-minus'}
+							size={DRAWER_ICON_SIZE}
+							color={nestedIconColor}
+						/>
+					</ButtonHighlight>
+				)}
+
+				{systemFeatureKey === 'trackRecording' && !isRecording && (
+					// Paused recording: removing it from the map releases
+					// the paused recording mode — re-adding renders it as
+					// a normal line.
 					<ButtonHighlight
 						{...buttonPropsAny}
 						compact={true}

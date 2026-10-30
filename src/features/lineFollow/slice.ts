@@ -9,7 +9,7 @@ import { createSlice } from '@reduxjs/toolkit';
  */
 import { SliceSettingsBase } from '../../types';
 import { AppThunk } from '../../store/store';
-import { selectActiveLineId } from '../trackRecording/selectors';
+import { selectTrackLineId } from '../trackRecording/selectors';
 import { selectFollowingLineId } from './selectors';
 
 export interface LineFollowSettings {
@@ -58,8 +58,9 @@ export const startFollowing =
 		if (typeof lineId !== 'number') {
 			return;
 		}
-		// Guard: the line is currently being recorded — can't follow it.
-		if (selectActiveLineId(getState()) === lineId) {
+		// Guard: the line is currently being recorded (or parked after a
+		// recording) — can't follow it.
+		if (selectTrackLineId(getState()) === lineId) {
 			return;
 		}
 		dispatch(setFollowingLineId(lineId));

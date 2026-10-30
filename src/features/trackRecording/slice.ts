@@ -9,9 +9,10 @@ import { createSlice } from '@reduxjs/toolkit';
  */
 import { SliceSettingsBase } from '../../types';
 import { AppThunk } from '../../store/store';
-import { selectIsRecording } from './selectors';
+import { selectActiveLineId, selectIsRecording } from './selectors';
 import { logError } from '../../lib/utils';
 import { setIsActive } from '../gnss/slice';
+import { setLineSelected } from '../lines/slice';
 import { selectFollowingLineId } from '../lineFollow/selectors';
 import { startRecordingTask, stopRecordingTask } from './backgroundTask';
 import { createTrack } from './db/actionsTrack';
@@ -41,6 +42,13 @@ export interface TrackRecordingState extends SliceSettingsBase, TrackRecordingSe
 	];
 	lastWrittenTime?: number;
 	/**
+	 * Transient — not persisted.  Set on stopRecording to the line that
+	 * was just recorded: stopping is pausing, so the last recorded line
+	 * stays rendered as the recording line (on top) until it is removed
+	 * from the map — re-adding it then renders it as a normal line.
+	 */
+	pausedLineId: number | null;
+	/**
 	 * Transient — not persisted.  Set on restore when the app was
 	 * killed while a recording was active (or pending).  The
 	 * ResumeRecordingPrompt overlay asks the user to continue or
@@ -63,6 +71,7 @@ export const initialSettings: TrackRecordingSettings = {
 
 const initialState: TrackRecordingState = {
 	initialized: false,
+	pausedLineId: null,
 	resumePromptPending: false,
 	...initialSettings,
 };
@@ -139,6 +148,9 @@ export const trackRecordingSlice = createSlice({
 		setUseDemAltitude: (state, action: PayloadAction<boolean>) => {
 			state.useDemAltitude = action.payload;
 		},
+		setPausedLineId: (state, action: PayloadAction<number | null>) => {
+			state.pausedLineId = action.payload;
+		},
 	},
 });
 
@@ -156,6 +168,7 @@ export const {
 	setResumePending,
 	setResumePromptPending,
 	setUseDemAltitude,
+	setPausedLineId,
 	writeGnssPosition,
 } = trackRecordingSlice.actions;
 
@@ -189,6 +202,7 @@ export const startRecording = (): AppThunk => async (dispatch, getState) => {
 	dispatch(setIsRecordingAction(true));
 	dispatch(setActiveTrackId(null));
 	dispatch(setActiveLineId(null));
+	dispatch(setPausedLineId(null));
 	dispatch(setRecordingStartTime(now));
 
 	// Register the foreground task — keeps the shared "Recording track"
@@ -219,6 +233,11 @@ export const continueRecording =
 		dispatch(setIsActive(true));
 		dispatch(setResumePending(false));
 		dispatch(setActiveLineId(lineId));
+		dispatch(setPausedLineId(null));
+		// The line may have been removed from the map while paused
+		// (which releases the paused state) — continuing must put it
+		// back in the drawer list. Idempotent when already selected.
+		dispatch(setLineSelected(lineId, true));
 		dispatch(setIsRecordingAction(true));
 		dispatch(setRecordingStartTime(Date.now()));
 
@@ -285,6 +304,7 @@ export const confirmRecordingResume =
 			dispatch(setResumePending(false));
 			dispatch(setActiveTrackId(null));
 			dispatch(setActiveLineId(null));
+			dispatch(setPausedLineId(null));
 			dispatch(setRecordingStartTime(null));
 			return false;
 		}
@@ -304,11 +324,14 @@ export const confirmRecordingResume =
 
 /**
  * Stop recording. Finalizes the track and unregisters the foreground
- * task. Clears activeLineId so consumers stop rendering the recording
- * line. Stop and pause are the same — any recorded line can be continued
- * via continueRecording.
+ * task. Stop and pause are the same — the just-recorded line is parked
+ * in pausedLineId so it stays rendered as the recording line (on top)
+ * until it is removed from the map; re-adding it renders it as a normal
+ * line again. Any recorded line can be continued via continueRecording.
  */
-export const stopRecording = (): AppThunk => async (dispatch) => {
+export const stopRecording = (): AppThunk => async (dispatch, getState) => {
+	const pausedLineId = selectActiveLineId(getState());
+	dispatch(setPausedLineId(pausedLineId));
 	dispatch(setIsRecordingAction(false));
 	dispatch(setResumePending(false));
 	dispatch(setResumePromptPending(false));

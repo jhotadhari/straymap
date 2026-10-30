@@ -11,6 +11,7 @@ import trackRecordingReducer, {
 	setResumePromptPending,
 	setUseDemAltitude,
 	setActiveLineId,
+	setPausedLineId,
 } from '../slice';
 
 describe('trackRecording slice reducers', () => {
@@ -21,6 +22,7 @@ describe('trackRecording slice reducers', () => {
 		expect(state.resumePromptPending).toBe(false);
 		expect(state.useDemAltitude).toBe(true);
 		expect(state.activeLineId).toBeNull();
+		expect(state.pausedLineId).toBeNull();
 	});
 
 	it('setIsRecordingAction(true) flags recording', () => {
@@ -61,5 +63,12 @@ describe('trackRecording slice reducers', () => {
 	it('setActiveLineId updates the active line', () => {
 		const state = trackRecordingReducer(undefined, setActiveLineId(42));
 		expect(state.activeLineId).toBe(42);
+	});
+
+	it('setPausedLineId parks the stopped recording line', () => {
+		let state = trackRecordingReducer(undefined, setPausedLineId(42));
+		expect(state.pausedLineId).toBe(42);
+		state = trackRecordingReducer(state, setPausedLineId(null));
+		expect(state.pausedLineId).toBeNull();
 	});
 });

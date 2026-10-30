@@ -9,7 +9,7 @@ import { useQuery } from '@tanstack/react-query';
  * Internal dependencies
  */
 import { useAppSelector } from '../../../store/hooks';
-import { selectActiveLineId, selectIsRecording } from '../selectors';
+import { selectTrackLineId } from '../selectors';
 import { queryLineGeom } from '../../lines/db/queryFns';
 
 const paintRecordingLine = {
@@ -18,23 +18,21 @@ const paintRecordingLine = {
 };
 
 const TrackRecordingMapView: FC = () => {
-	const activeLineId = useAppSelector(selectActiveLineId);
-	const isRecording = useAppSelector(selectIsRecording);
+	const lineId = useAppSelector(selectTrackLineId);
 
-	const lineId = activeLineId ?? -1;
 	const { data: line } = useQuery({
 		queryKey: [
 			'lineGeom',
-			lineId,
+			lineId ?? -1,
 		],
 		queryFn: queryLineGeom,
-		enabled: !!activeLineId,
+		enabled: lineId != null,
 		gcTime: 1000 * 10,
 	});
 
 	return (
 		<ReindexScope order={310}>
-			{activeLineId && line?.geometry?.coordinates && isRecording && (
+			{lineId != null && line?.geometry?.coordinates && (
 				<LayerPath
 					coordinates={line.geometry.coordinates}
 					paint={paintRecordingLine}

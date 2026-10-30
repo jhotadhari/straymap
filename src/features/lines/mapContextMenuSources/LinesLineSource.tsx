@@ -17,7 +17,7 @@ import { queryLinesWithoutGeom } from '../db/queryFns';
 import { lineIdByPathUuid } from '../layerRegistry';
 import { useSystemLineIds } from '../../../store/hooks';
 import { continueRecording } from '../../trackRecording/slice';
-import { selectIsRecording } from '../../trackRecording/selectors';
+import { selectPausedLineId, selectIsRecording } from '../../trackRecording/selectors';
 import ensureLocationPermission from '../../../lib/locationPermission';
 import ensureNotificationPermission from '../../../lib/notificationPermission';
 import useActivateDrawerItem from '../../drawers/hooks/useActivateDrawerItem';
@@ -39,6 +39,7 @@ const LinesLineSource: FC<MapContextMenuSourceComponentProps> = ({ context, onOp
 	const systemLineIds = useSystemLineIds();
 	const activateTrackingDrawerItem = useActivateDrawerItem('tracking');
 	const isRecording = useAppSelector(selectIsRecording);
+	const pausedLineId = useAppSelector(selectPausedLineId);
 
 	const lineId = useMemo(() => {
 		if (context.press !== 'long') {
@@ -146,7 +147,10 @@ const LinesLineSource: FC<MapContextMenuSourceComponentProps> = ({ context, onOp
 				cb: () => {
 					dispatch(setLineSelected(lineId, false));
 				},
-				disabled: () => isSystemLine,
+				// System lines can't be removed — except the paused
+				// recording line: removing it releases the paused
+				// recording mode.
+				disabled: () => isSystemLine && pausedLineId !== lineId,
 			},
 		];
 	}, [
@@ -159,6 +163,7 @@ const LinesLineSource: FC<MapContextMenuSourceComponentProps> = ({ context, onOp
 		lineColorRamps,
 		lineId,
 		isSystemLine,
+		pausedLineId,
 		hasRecordedTag,
 		isRecording,
 		activateTrackingDrawerItem,

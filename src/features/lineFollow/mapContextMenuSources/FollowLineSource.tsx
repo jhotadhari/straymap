@@ -9,7 +9,7 @@ import { FC, useEffect, useMemo } from 'react';
 import { MapContextMenuSourceComponentProps, MenuActionOption } from '../../../types';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { selectFollowingLineId } from '../selectors';
-import { selectActiveLineId } from '../../trackRecording/selectors';
+import { selectTrackLineId } from '../../trackRecording/selectors';
 import { selectIsRouting, selectRoutingLineId } from '../../routing/selectors';
 import { startFollowing, stopFollowing } from '../slice';
 import { lineIdByPathUuid } from '../../lines/layerRegistry';
@@ -19,13 +19,14 @@ import { segmentRecordIdByUuid } from '../../routing/layerRegistry';
  * Long-press source that contributes the follow / stop-follow action for
  * the pressed line — both regular lines (lines layer registry) and the
  * routing line (routing segment registry). A line can't be the followed
- * line and the recording line at the same time, so the follow action is
- * disabled while the pressed line is being recorded.
+ * line and the recording line (or a parked recording) at the same time,
+ * so the follow action is disabled while the pressed line is being
+ * recorded or parked after a recording.
  */
 const FollowLineSource: FC<MapContextMenuSourceComponentProps> = ({ context, onOptions }) => {
 	const dispatch = useAppDispatch();
 	const followingLineId = useAppSelector(selectFollowingLineId);
-	const activeLineId = useAppSelector(selectActiveLineId);
+	const trackLineId = useAppSelector(selectTrackLineId);
 	const isRouting = useAppSelector(selectIsRouting);
 	const routingLineId = useAppSelector(selectRoutingLineId);
 
@@ -54,16 +55,26 @@ const FollowLineSource: FC<MapContextMenuSourceComponentProps> = ({ context, onO
 			}
 		}
 		return null;
-	}, [context, isRouting, routingLineId]);
+	}, [
+		context,
+		isRouting,
+		routingLineId,
+	]);
 
-	const isFollowing = useMemo(() => lineId != null && followingLineId === lineId, [
-		lineId,
-		followingLineId,
-	]);
-	const isRecordingThisLine = useMemo(() => lineId != null && activeLineId === lineId, [
-		lineId,
-		activeLineId,
-	]);
+	const isFollowing = useMemo(
+		() => lineId != null && followingLineId === lineId,
+		[
+			lineId,
+			followingLineId,
+		]
+	);
+	const isRecordingThisLine = useMemo(
+		() => lineId != null && trackLineId === lineId,
+		[
+			lineId,
+			trackLineId,
+		]
+	);
 
 	const options = useMemo<MenuActionOption[] | null>(() => {
 		if (lineId == null) {

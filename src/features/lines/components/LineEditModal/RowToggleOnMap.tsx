@@ -12,6 +12,7 @@ import InfoLabelRow from '../../../../components/generic/infoWrapper/InfoLabelRo
 import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
 import { useAppSelector, useSystemLineIds } from '../../../../store/hooks';
 import { selectSelected } from '../../selectors';
+import { selectPausedLineId } from '../../../trackRecording/selectors';
 import { useButtonProps } from '../../../../compose/useButtonProps';
 
 const RowToggleOnMap: FC = () => {
@@ -21,6 +22,8 @@ const RowToggleOnMap: FC = () => {
 
 	const selectedIds = useAppSelector(selectSelected);
 
+	const pausedLineId = useAppSelector(selectPausedLineId);
+
 	const systemLineIds = useSystemLineIds();
 	const isSystemLine = useMemo(
 		() => Object.values(systemLineIds).includes(line?.id ?? -1),
@@ -29,12 +32,15 @@ const RowToggleOnMap: FC = () => {
 
 	const isSelected = useMemo(() => selectedIds.includes(line?.id ?? -1), [selectedIds, line?.id]);
 
+	// System lines can't be removed from the map — except the paused
+	// recording line: removing it releases the paused recording mode.
 	const disabled = useMemo(
-		() => !line?.id || (isSelected && isSystemLine),
+		() => !line?.id || (isSelected && isSystemLine && pausedLineId !== line.id),
 		[
 			line?.id,
 			isSelected,
 			isSystemLine,
+			pausedLineId,
 		]
 	);
 

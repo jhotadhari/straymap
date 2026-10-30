@@ -11,15 +11,16 @@ import { LineEditModalContext } from './Context';
 import InfoLabelRow from '../../../../components/generic/infoWrapper/InfoLabelRow';
 import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
-import { selectActiveLineId } from '../../../trackRecording/selectors';
+import { selectTrackLineId } from '../../../trackRecording/selectors';
 import { selectFollowingLineId } from '../../../lineFollow/selectors';
 import { startFollowing, stopFollowing } from '../../../lineFollow/slice';
 import { useButtonProps } from '../../../../compose/useButtonProps';
 
 /**
  * Follow a line (progress tracking along its geometry). A line cannot be
- * the currently recording line and the followed line at the same time —
- * the button is disabled while this line is being recorded.
+ * the recording line (or the paused recording line) and the followed
+ * line at the same time — the button is disabled while this line is
+ * being recorded or parked after a recording.
  */
 const RowFollow: FC = () => {
 	const { t } = useTranslation();
@@ -28,11 +29,11 @@ const RowFollow: FC = () => {
 	const { line } = useContext(LineEditModalContext);
 
 	const followingLineId = useAppSelector(selectFollowingLineId);
-	const activeLineId = useAppSelector(selectActiveLineId);
+	const trackLineId = useAppSelector(selectTrackLineId);
 
 	const lineId = line?.id;
 	const isFollowing = typeof lineId === 'number' && followingLineId === lineId;
-	const isRecordingThisLine = typeof lineId === 'number' && activeLineId === lineId;
+	const isRecordingThisLine = typeof lineId === 'number' && trackLineId === lineId;
 
 	const disabled = useMemo(
 		() => typeof lineId !== 'number' || isRecordingThisLine,

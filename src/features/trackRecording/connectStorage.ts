@@ -25,6 +25,7 @@ import {
 	setResumePending,
 	setResumePromptPending,
 	setUseDemAltitude,
+	setPausedLineId,
 	stopRecording,
 	writeGnssPosition,
 } from './slice';
@@ -37,7 +38,7 @@ import { logError } from '../../lib/utils';
 import { appendPointToLine, createTrack } from './db/actionsTrack';
 import { createLines } from '../lines/db/actionsLine';
 import { ensureTagByLabel } from '../lines/db/actionsTag';
-import { setLineSelected } from '../lines/slice';
+import { setLineSelected, setSelected } from '../lines/slice';
 import { setIsActive } from '../gnss/slice';
 import { startRecordingTask } from './backgroundTask';
 import { toTrackCoord } from './utils';
@@ -398,5 +399,25 @@ startAppListening({
 			return;
 		}
 		listenerApi.dispatch(setActiveKey(getChartSourceKey.line(action.payload)));
+	},
+});
+
+/**
+ * Listener 6: releasing the parked recording line ends the paused
+ * recording mode.  Removing the paused line from the map (toggle, table,
+ * bulk actions, delete, clear — all converge on lines/setSelected)
+ * parks nothing; re-adding it renders it as a normal line.
+ */
+startAppListening({
+	actionCreator: setSelected,
+	effect: (_action, listenerApi) => {
+		const { pausedLineId } = listenerApi.getState().trackRecording;
+		if (pausedLineId == null) {
+			return;
+		}
+		const { selected } = listenerApi.getState().lines;
+		if (!selected.includes(pausedLineId)) {
+			listenerApi.dispatch(setPausedLineId(null));
+		}
 	},
 });

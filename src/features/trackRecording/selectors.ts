@@ -11,6 +11,13 @@ export const selectResumePromptPending = (state: RootState) =>
 export const selectUseDemAltitude = (state: RootState) => state.trackRecording.useDemAltitude;
 export const selectActiveTrackId = (state: RootState) => state.trackRecording.activeTrackId;
 export const selectActiveLineId = (state: RootState) => state.trackRecording.activeLineId;
+export const selectPausedLineId = (state: RootState) => state.trackRecording.pausedLineId;
+/**
+ * The line the track-recording feature owns: the actively recorded line,
+ * or the last recorded line parked after a stop (stop is pause).
+ */
+export const selectTrackLineId = (state: RootState) =>
+	state.trackRecording.activeLineId ?? state.trackRecording.pausedLineId;
 export const selectMinDistance = (state: RootState) => state.trackRecording.minDistance;
 export const selectMinTime = (state: RootState) => state.trackRecording.minTime;
 export const selectMinPrecision = (state: RootState) => state.trackRecording.minPrecision;
