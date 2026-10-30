@@ -12,11 +12,13 @@ import { sprintf } from 'sprintf-js';
  */
 import MarkerControl from '../../../../components/generic/controls/MarkerControl';
 import NumericRowControl from '../../../../components/generic/controls/NumericRowControl';
+import OptionMenuRowControl from '../../../../components/generic/controls/OptionMenuRowControl';
 import ToggleRowControl from '../../../../components/generic/controls/ToggleRowControl';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import {
 	selectAccuracyCircleThresholdMeters,
 	selectMarkerColor,
+	selectMarkerDirection,
 	selectMarkerIconSource,
 	selectMarkerSize,
 	selectShowMeasurementLabel,
@@ -24,13 +26,16 @@ import {
 import {
 	setAccuracyCircleThresholdMeters,
 	setMarkerColor,
+	setMarkerDirection,
 	setMarkerIconSource,
 	setMarkerSize,
 	setShowMeasurementLabel,
 	initialSettings,
+	GnssMarkerDirection,
 } from '../../slice';
 import { buildMarkerSvg } from '../../markerSvg';
 import { selectAppDirs } from '../../../dirs/selectors';
+import { OptionBase } from '../../../../types';
 import { EMPTY_STRING_ARRAY } from '../../../../constants';
 
 const GNSS_MARKER_ICON_EXTENSIONS = ['svg', 'png'];
@@ -43,6 +48,17 @@ const initialOptionsByPath = {
 		},
 	],
 };
+
+const markerDirectionOptions: OptionBase[] = [
+	{
+		key: 'movingDirection',
+		label: 'gnss.markerDirectionMode.movingDirection',
+	},
+	{
+		key: 'north',
+		label: 'gnss.markerDirectionMode.magneticNorth',
+	},
+];
 
 const validateAccuracyThreshold = (val: number) => val >= 0;
 
@@ -87,6 +103,7 @@ const GnssMarkerControl: FC = () => {
 	const markerIconSource = useAppSelector(selectMarkerIconSource);
 	const markerSize = useAppSelector(selectMarkerSize);
 	const markerColor = useAppSelector(selectMarkerColor);
+	const markerDirection = useAppSelector(selectMarkerDirection);
 	const accuracyCircleThresholdMeters = useAppSelector(selectAccuracyCircleThresholdMeters);
 	const showMeasurementLabel = useAppSelector(selectShowMeasurementLabel);
 
@@ -120,6 +137,14 @@ const GnssMarkerControl: FC = () => {
 
 	const extraRows = (
 		<>
+			<OptionMenuRowControl
+				label={t('gnss.markerDirection')}
+				Info={t('gnss.hintMarkerDirection')}
+				options={markerDirectionOptions}
+				value={markerDirection}
+				onUpdate={(val: string) => dispatch(setMarkerDirection(val as GnssMarkerDirection))}
+			/>
+
 			<NumericRowControl
 				label={t('gnss.accuracyCircle')}
 				value={accuracyCircleThresholdMeters}

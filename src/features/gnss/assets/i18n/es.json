@@ -24,6 +24,12 @@
 	"permissionDenied": "Se requiere el permiso de ubicación para usar GNSS. Actívalo en los ajustes del sistema.",
 	"gnssMarker": "Marcador GNSS",
 	"markerIconTriangle": "Triángulo",
+	"markerDirection": "Dirección del marcador",
+	"markerDirectionMode": {
+		"movingDirection": "Dirección de movimiento",
+		"magneticNorth": "Norte magnético"
+	},
+	"hintMarkerDirection": "Si el marcador apunta en tu dirección de movimiento o siempre al norte.",
 	"accuracyCircle": "Círculo de precisión",
 	"hintAccuracyCircle": "El círculo se dibuja con el radio de la precisión GNSS actual cuando la precisión es peor que este umbral (metros). 0 desactiva el círculo.",
 	"showMeasurementLabel": "Mostrar etiqueta de medición",

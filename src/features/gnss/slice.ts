@@ -36,6 +36,9 @@ export interface GnssPositionData {
 	timestamp: number;
 }
 
+/** Position-marker direction mode. */
+export type GnssMarkerDirection = 'movingDirection' | 'north';
+
 export interface GnssSettings {
 	isActive: boolean;
 	/** Center mode: keep the map centered on the GNSS position. */
@@ -49,6 +52,10 @@ export interface GnssSettings {
 	markerSize: number;
 	/** Position-marker fill color (preset triangle + accuracy circle). */
 	markerColor: string;
+	/** Position-marker direction: 'movingDirection' rotates the marker to
+	 * the derived movement heading, 'north' keeps it pointing to map
+	 * north (rotation 0). */
+	markerDirection: GnssMarkerDirection;
 	/** Accuracy-circle threshold (m). The circle is drawn with the live
 	 * accuracy radius only while the accuracy is WORSE than this value;
 	 * 0 disables the circle entirely. */
@@ -77,6 +84,7 @@ export const initialSettings: GnssSettings = {
 	markerSize: 26,
 	// The first red of the color-palette options (ColorPaletteInline).
 	markerColor: PALETTE_COLORS[0].bg,
+	markerDirection: 'movingDirection',
 	accuracyCircleThresholdMeters: 10,
 	showMeasurementLabel: true,
 };
@@ -154,6 +162,9 @@ export const gnssSlice = createSlice({
 		setMarkerColor: (state, action: PayloadAction<string>) => {
 			state.markerColor = action.payload;
 		},
+		setMarkerDirection: (state, action: PayloadAction<GnssMarkerDirection>) => {
+			state.markerDirection = action.payload;
+		},
 		setAccuracyCircleThresholdMeters: (state, action: PayloadAction<number>) => {
 			state.accuracyCircleThresholdMeters = action.payload;
 		},
@@ -172,6 +183,7 @@ export const {
 	setMarkerIconSource,
 	setMarkerSize,
 	setMarkerColor,
+	setMarkerDirection,
 	setAccuracyCircleThresholdMeters,
 	setShowMeasurementLabel,
 } = gnssSlice.actions;

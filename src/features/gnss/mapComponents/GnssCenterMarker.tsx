@@ -17,6 +17,7 @@ import {
 	selectGnssPosition,
 	selectIsActive,
 	selectMarkerColor,
+	selectMarkerDirection,
 	selectMarkerIconSource,
 	selectMarkerSize,
 } from '../selectors';
@@ -38,9 +39,9 @@ const isFileSource = (iconSource: string) =>
  * mode only controls the map re-centering and the panned-away line).
  *
  * The configured icon (triangle preset or a custom svg/png file) is
- * decoded natively via the marker's filePath paint; the movement-direction
- * rotation is applied natively via the `rotation` paint option (whole
- * degrees).
+ * decoded natively via the marker's filePath paint; the rotation
+ * (movement direction, or 0 when the marker direction is 'north') is
+ * applied natively via the `rotation` paint option (whole degrees).
  *
  * While the GNSS accuracy is worse than the configured threshold, a
  * native circle with the live accuracy radius is drawn under the marker.
@@ -52,6 +53,7 @@ const GnssCenterMarker: FC = () => {
 	const markerIconSource = useAppSelector(selectMarkerIconSource);
 	const markerSize = useAppSelector(selectMarkerSize);
 	const markerColor = useAppSelector(selectMarkerColor);
+	const markerDirection = useAppSelector(selectMarkerDirection);
 	const accuracyCircleThresholdMeters = useAppSelector(selectAccuracyCircleThresholdMeters);
 	const appDirs = useAppSelector(selectAppDirs);
 
@@ -96,7 +98,8 @@ const GnssCenterMarker: FC = () => {
 
 	// Movement direction from consecutive fixes (slice-derived heading) —
 	// the payload's velocity bearing is unreliable for pedestrian fixes.
-	const rotation = gnssHeading ?? 0;
+	// In 'north' mode the marker always points to map north (rotation 0).
+	const rotation = markerDirection === 'north' ? 0 : gnssHeading ?? 0;
 
 	const paint = useMemo(
 		() =>

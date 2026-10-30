@@ -10,6 +10,7 @@ import gnssReducer, {
 	setMarkerIconSource,
 	setMarkerSize,
 	setMarkerColor,
+	setMarkerDirection,
 	setAccuracyCircleThresholdMeters,
 	setShowMeasurementLabel,
 } from '../slice';
@@ -21,6 +22,7 @@ describe('gnss slice reducers', () => {
 		expect(state.markerIconSource).toBe('triangle');
 		expect(state.markerSize).toBe(26);
 		expect(state.markerColor).toBe('#F50000');
+		expect(state.markerDirection).toBe('movingDirection');
 		expect(state.accuracyCircleThresholdMeters).toBe(10);
 		expect(state.showMeasurementLabel).toBe(true);
 	});
@@ -58,6 +60,11 @@ describe('gnss slice reducers', () => {
 	it('setMarkerColor updates the marker color', () => {
 		const state = gnssReducer(undefined, setMarkerColor('#00ff00'));
 		expect(state.markerColor).toBe('#00ff00');
+	});
+
+	it('setMarkerDirection updates the marker direction', () => {
+		const state = gnssReducer(undefined, setMarkerDirection('north'));
+		expect(state.markerDirection).toBe('north');
 	});
 
 	it('setAccuracyCircleThresholdMeters updates the threshold (0 disables)', () => {
