@@ -7,12 +7,14 @@ import { FC, useEffect, useMemo } from 'react';
  * Internal dependencies
  */
 import { MapContextMenuSourceComponentProps, MenuActionOption } from '../../../types';
-import { useAppSelector } from '../../../store/hooks';
+import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { selectIsRouting, selectMovedPointId } from '../selectors';
+import { setLineTemp } from '../../lines/slice';
 import { segmentRecordIdByUuid } from '../layerRegistry';
 import { getNearestPointHitAtTap } from '../utils';
 import useRoute from '../hooks/useRoute';
 import usePointActions from '../hooks/usePointActions';
+import IconCustom from '../../../components/generic/primitives/IconCustom';
 
 /**
  * Long-press source for a routing segment (ramp or fallback path hit
@@ -20,9 +22,10 @@ import usePointActions from '../hooks/usePointActions';
  * at the pressed position — the new waypoint immediately enters move mode.
  */
 const RoutingSegmentSource: FC<MapContextMenuSourceComponentProps> = ({ context, onOptions }) => {
+	const dispatch = useAppDispatch();
 	const movedPointId = useAppSelector(selectMovedPointId);
 	const isRouting = useAppSelector(selectIsRouting);
-	const { points, id: routeId } = useRoute(['id', 'points']) || {};
+	const { points, id: routeId, line_id } = useRoute(['id', 'points', 'line_id']) || {};
 
 	const { cutSegmentAt } = usePointActions({ routeId, points });
 
@@ -67,11 +70,30 @@ const RoutingSegmentSource: FC<MapContextMenuSourceComponentProps> = ({ context,
 				cb: () => cutSegmentAt(segmentRecordId, nearest, toIndex),
 				disabled: () => tapHitsMarker,
 			},
+			{
+				key: 'routeDetails',
+				label: 'lines.routeDetails',
+				IconComponent: ({ color, size }) => (
+					<IconCustom
+						name="route_cog"
+						color={color}
+						size={size}
+					/>
+				),
+				cb: () => {
+					if (line_id != null) {
+						dispatch(setLineTemp({ id: line_id }));
+					}
+				},
+				disabled: () => line_id == null,
+			},
 		];
 	}, [
 		context,
 		cutSegmentAt,
+		dispatch,
 		isRouting,
+		line_id,
 		movedPointId,
 		points,
 	]);
