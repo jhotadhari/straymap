@@ -5,6 +5,7 @@
 	"editProfile": "Profil bearbeiten",
 	"editRouteProfile": "Routenprofil bearbeiten",
 	"hintFast": "Wenn aktiviert, bevorzugt die Routing-Engine schnellere Routen gegenüber kürzeren. Deaktiviere dies, um stattdessen den direktesten Weg zu finden.\n\nGilt nur für die eingebauten Profile. Wird ignoriert, wenn eine eigene Profildatei ausgewählt ist.",
+	"hintNoPoints": "Lange auf die Karte drücken, um Routing-Punkte hinzuzufügen.",
 	"inheritModeRoute": "Route",
 	"inheritModePrev": "Vorheriger",
 	"inheritModeOwn": "Eigenes",

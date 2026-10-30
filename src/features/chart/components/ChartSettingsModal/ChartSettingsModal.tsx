@@ -4,7 +4,7 @@
 import React, { FC, memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { omit, pick } from 'lodash-es';
 import { useTranslation } from 'react-i18next';
-import { Divider } from 'react-native-paper';
+import { Divider, Text } from 'react-native-paper';
 
 /**
  * Internal dependencies
@@ -32,7 +32,6 @@ import RowSecondaryData from './rows/RowSecondaryData';
 import RowSecondaryColor from './rows/RowSecondaryColor';
 import RowRatioLock from './rows/RowRatioLock';
 import RowFollowMode from './rows/RowFollowMode';
-import RowAnimateFollow from './rows/RowAnimateFollow';
 // import RowXMode from './rows/RowXMode';
 import RowShowHeading from './rows/RowShowHeading';
 import RowShowStats from './rows/RowShowStats';
@@ -173,25 +172,31 @@ const ChartSettingsModal: FC<{
 		<ModalWrapper
 			visible={visible}
 			onDismiss={onDismiss}
-			headerLabel={t('chart.settingsTitle')}
+			headerLabel={t(variant === 'drawer' ? 'chart.drawerSettings' : 'chart.settingsTitle')}
 			innerStyle={sharedStyles.modalInner}
 		>
 			<ChartSettingsModalContext.Provider value={contextValue}>
-				{variant === 'drawer' && <RowSelectRoute />}
+				{variant === 'drawer' && (
+					<>
+						<RowSelectRoute />
+
+						<RowShowHeading />
+
+						<RowShowStats />
+
+						<RowRemoveChart />
+
+						<Divider />
+					</>
+				)}
 
 				<RowFollowMode />
 
-				<RowAnimateFollow />
-
 				<RowRatioLock />
 
-				{variant === 'drawer' && <RowShowHeading />}
-
-				{variant === 'drawer' && <RowShowStats />}
-
-				{variant === 'drawer' && <RowRemoveChart />}
-
 				<Divider />
+
+				<Text variant="titleSmall">{t('chart.chartData')}</Text>
 
 				<RowChartMode />
 

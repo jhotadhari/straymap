@@ -13,6 +13,7 @@ import { DEFAULT_CHART_SETTINGS, ChartSettings } from './types';
 export const PER_CHART_SETTINGS_KEYS = [
 	'ratioValue',
 	'followMode',
+	'animateFollow',
 ] as const;
 
 /**
@@ -20,7 +21,6 @@ export const PER_CHART_SETTINGS_KEYS = [
  * contributes these (they apply to every chart).
  */
 export const GENERAL_ONLY_SETTINGS_KEYS = [
-	'animateFollow',
 	'showHeading',
 	'showStats',
 ] as const;
@@ -69,6 +69,6 @@ export const selectChartSettings = createAppSelector(
 export const selectOwnPerChartSettings = createAppSelector(
 	(state: RootState) => state.chart.charts,
 	(_state: RootState, key: string | undefined) => key,
-	(charts, key): Partial<Pick<ChartSettings, 'ratioValue' | 'followMode'>> =>
+	(charts, key): Partial<Pick<ChartSettings, 'ratioValue' | 'followMode' | 'animateFollow'>> =>
 		key ? pick(charts[key] ?? {}, PER_CHART_SETTINGS_KEYS) : {}
 );

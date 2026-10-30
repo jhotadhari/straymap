@@ -87,11 +87,20 @@ describe('chart slice reducers', () => {
 			undefined,
 			setChartSettings({
 				key: 'line:1',
-				settings: { primaryColor: 'slope', ratioValue: 20, followMode: 'map' },
+				settings: {
+					primaryColor: 'slope',
+					ratioValue: 20,
+					followMode: 'map',
+					animateFollow: true,
+				},
 			})
 		);
 		state = chartReducer(state, resetChartSettingsToPerChart('line:1'));
-		expect(state.charts['line:1']).toEqual({ ratioValue: 20, followMode: 'map' });
+		expect(state.charts['line:1']).toEqual({
+			ratioValue: 20,
+			followMode: 'map',
+			animateFollow: true,
+		});
 	});
 
 	it('resetChartSettingsToPerChart drops non-per-chart props of a merged entry', () => {
@@ -170,15 +179,16 @@ describe('chart selectors', () => {
 	});
 
 	it('selectChartSettings keeps the always-general settings general', () => {
-		// A chart.s own entry must not contribute showHeading/showStats/
-		// animateFollow — the general value always wins.
+		// A chart.s own entry must not contribute showHeading/showStats —
+		// the general value always wins. animateFollow is per-chart now,
+		// so the chart.s own value wins over the general one.
 		const root = buildRoot({
 			general: { ...DEFAULT_CHART_SETTINGS, showHeading: true, animateFollow: false },
 			charts: { 'line:4b': { showHeading: false, showStats: false, animateFollow: true } },
 		});
 		expect(selectChartSettings(root, 'line:4b').showHeading).toBe(true);
 		expect(selectChartSettings(root, 'line:4b').showStats).toBe(true);
-		expect(selectChartSettings(root, 'line:4b').animateFollow).toBe(false);
+		expect(selectChartSettings(root, 'line:4b').animateFollow).toBe(true);
 		expect(selectHasOwnChartSettings(root, 'line:4b')).toBe(false);
 	});
 
@@ -226,11 +236,17 @@ describe('chart selectors', () => {
 
 	it('selectChartSettings ignores the general per-chart settings', () => {
 		const root = buildRoot({
-			general: { ...DEFAULT_CHART_SETTINGS, ratioValue: 20, followMode: 'map' },
+			general: {
+				...DEFAULT_CHART_SETTINGS,
+				ratioValue: 20,
+				followMode: 'map',
+				animateFollow: false,
+			},
 		});
 		const settings = selectChartSettings(root, 'line:10');
 		expect(settings.ratioValue).toBeUndefined();
 		expect(settings.followMode).toBe('none');
+		expect(settings.animateFollow).toBe(true);
 	});
 
 	it('selectChartSettings uses the own per-chart settings independently per chart', () => {
@@ -253,12 +269,18 @@ describe('chart selectors', () => {
 	it('selectOwnPerChartSettings returns only the own per-chart props', () => {
 		const root = buildRoot({
 			charts: {
-				'line:14': { primaryColor: 'slope', ratioValue: 25, followMode: 'map' },
+				'line:14': {
+					primaryColor: 'slope',
+					ratioValue: 25,
+					followMode: 'map',
+					animateFollow: true,
+				},
 			},
 		});
 		expect(selectOwnPerChartSettings(root, 'line:14')).toEqual({
 			ratioValue: 25,
 			followMode: 'map',
+			animateFollow: true,
 		});
 		expect(selectOwnPerChartSettings(root, 'line:15')).toEqual({});
 	});
