@@ -28,14 +28,12 @@ import {
 	useSystemLineIds,
 } from '../../../store/hooks';
 import { addBusyKey, removeBusyKey } from '../../ui/slice';
-import { selectSelected, selectLineColors, selectUseSimplification } from '../selectors';
+import { selectSelected, selectLineColors, selectLineWidth, selectUseSimplification } from '../selectors';
 import { selectMapUpdateInterval } from '../../general/selectors';
 import { queryLineGeomsBatch, queryLinePathCoords } from '../db/queryFns';
 import useSimplificationTolerance from '../hooks/useSimplificationTolerance';
 import { PALETTE_COLORS } from '../../../constants';
 import { linesLayerRegistry } from '../layerRegistry';
-
-const BASE_STROKE_WIDTH = 3;
 
 const RAMP_STROKE_WIDTH = 6;
 
@@ -107,6 +105,7 @@ const LinesMapView = () => {
 	const systemLineIds = useSystemLineIds();
 	const simplify = useSimplificationTolerance(useSimplification ? undefined : 0.00004);
 	const lineColors = useAppSelector(selectLineColors);
+	const lineWidth = useAppSelector(selectLineWidth);
 	const lineColorRamps = useLineColorRamps();
 
 	const paintByColor = useMemo(() => {
@@ -115,7 +114,7 @@ const LinesMapView = () => {
 			if (!map.has(color)) {
 				map.set(color, {
 					strokeColor: color as `#${string}`,
-					strokeWidth: BASE_STROKE_WIDTH,
+					strokeWidth: lineWidth,
 				});
 			}
 		};
@@ -124,7 +123,7 @@ const LinesMapView = () => {
 			addColor(palette.bg);
 		}
 		return map;
-	}, []);
+	}, [lineWidth]);
 
 	// ── Diagnostics: trace systemLineIds changes ────────────────────
 	const prevSystemLineIdsRef = useRef<Record<string, number>>({});

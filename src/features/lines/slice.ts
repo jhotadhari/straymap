@@ -10,6 +10,8 @@ import { intersection, isEqual, uniq, without } from 'lodash-es';
  */
 import { SliceSettingsBase } from '../../types';
 import { PALETTE_COLORS } from '../../constants';
+import { clampLineWidth } from '../../lib/lineWidth';
+import { DEFAULT_LINE_WIDTH } from './constants';
 import { selectSelected } from './selectors';
 import { AppThunk } from '../../store/store';
 import {
@@ -51,6 +53,11 @@ export interface LinesSettings {
 	 */
 	lineRamps: Record<number, RampKey>;
 	/**
+	 * Stroke width (dp) for all ordinary lines rendered by the lines
+	 * feature. Persisted; clamped to LINE_WIDTH_MIN..MAX on write.
+	 */
+	lineWidth: number;
+	/**
 	 * Line IDs for which an chart bottom drawer entry is
 	 * enabled. Persisted; drives the derived `chart:line:<id>`
 	 * bottom drawer menu entries.
@@ -85,6 +92,7 @@ export const initialSettings: LinesSettings = {
 	},
 	lineColors: {},
 	lineRamps: {},
+	lineWidth: DEFAULT_LINE_WIDTH,
 	chartLines: [],
 };
 
@@ -317,6 +325,9 @@ export const linesSlice = createSlice({
 				delete state.lineColors[lineId];
 			}
 		},
+		setLineWidth: (state, action: PayloadAction<number>) => {
+			state.lineWidth = clampLineWidth(action.payload);
+		},
 		setLineRamp: (
 			state,
 			action: PayloadAction<{ lineId: number; rampKey: RampKey | null }>
@@ -376,6 +387,7 @@ export const {
 	setLineColor,
 	setLineColors,
 	removeLineColors,
+	setLineWidth,
 	setLineRamp,
 	setLineRamps,
 	removeLineRamps,
@@ -443,12 +455,11 @@ export const toggleTagsSort = (columnKey: string): AppThunk => {
 	};
 };
 
-export const randomizeLineColors = (): AppThunk => {
-	return (dispatch, getState) => {
-		const selected = selectSelected(getState());
+export const randomizeLineColors = (lineIds: number[]): AppThunk => {
+	return (dispatch) => {
 		const colors: Record<number, string> = {};
 		let prevIdx = -1;
-		for (const lineId of selected) {
+		for (const lineId of lineIds) {
 			let idx = Math.floor(Math.random() * PALETTE_COLORS.length);
 			if (PALETTE_COLORS.length > 1 && idx === prevIdx) {
 				idx = (idx + 1) % PALETTE_COLORS.length;
@@ -460,14 +471,19 @@ export const randomizeLineColors = (): AppThunk => {
 	};
 };
 
-export const setLinesColor = (color: string): AppThunk => {
-	return (dispatch, getState) => {
-		const selected = selectSelected(getState());
+export const setLinesColor = (color: string, lineIds: number[]): AppThunk => {
+	return (dispatch) => {
 		const colors: Record<number, string> = {};
-		for (const lineId of selected) {
+		for (const lineId of lineIds) {
 			colors[lineId] = color;
 		}
 		dispatch(linesSlice.actions.setLineColors(colors));
+	};
+};
+
+export const setLinesWidth = (width: number): AppThunk => {
+	return (dispatch) => {
+		dispatch(linesSlice.actions.setLineWidth(clampLineWidth(width)));
 	};
 };
 

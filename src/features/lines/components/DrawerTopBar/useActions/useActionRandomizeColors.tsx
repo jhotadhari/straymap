@@ -22,12 +22,12 @@ const PaintbrushIcon = (({ color, size }: { color?: TextStyle['color']; size?: n
 	size?: number;
 }>;
 
-const useActionRandomizeColors = () => {
+const useActionRandomizeColors = ({ lineIds }: { lineIds: number[] }) => {
 	const dispatch = useAppDispatch();
 
 	const cb = useCallback(() => {
-		dispatch(randomizeLineColors());
-	}, [dispatch]);
+		dispatch(randomizeLineColors(lineIds));
+	}, [dispatch, lineIds]);
 
 	return useMemo(
 		() => ({
