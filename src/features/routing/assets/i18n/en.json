@@ -5,6 +5,7 @@
 	"editProfile": "Edit profile",
 	"editRouteProfile": "Edit route profile",
 	"hintFast": "When enabled, the routing engine prefers faster routes over shorter ones. Disable to find the most direct path instead.\n\nOnly applies to the built-in profiles. Ignored when a custom profile file is selected.",
+	"hintNoPoints": "Long press on the map to add routing points.",
 	"inheritModeRoute": "Route",
 	"inheritModePrev": "Previous",
 	"inheritModeOwn": "Own",

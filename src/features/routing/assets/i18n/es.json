@@ -5,6 +5,7 @@
 	"editProfile": "Editar perfil",
 	"editRouteProfile": "Editar perfil de ruta",
 	"hintFast": "Cuando está activado, el motor de enrutamiento prefiere rutas más rápidas en lugar de más cortas. Desactívalo para encontrar la ruta más directa.\n\nSolo se aplica a los perfiles integrados. Se ignora cuando se selecciona un archivo de perfil personalizado.",
+	"hintNoPoints": "Mantén pulsado el mapa para añadir puntos de ruta.",
 	"inheritModeRoute": "Ruta",
 	"inheritModePrev": "Anterior",
 	"inheritModeOwn": "Propio",

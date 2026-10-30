@@ -357,6 +357,7 @@ const PointsList: FC = () => {
 	const { width } = useContext(DrawerContext);
 	const { t } = useTranslation();
 	const { showError } = useContext(ErrorToastContext);
+	const theme = useTheme();
 
 	const [editPoint, setEditPoint] = useState<undefined | RoutingPoint>(undefined);
 
@@ -498,35 +499,46 @@ const PointsList: FC = () => {
 				/>
 			)}
 
-			<Sortable.Flex
-				itemEntering={null}
-				gap={0}
-				padding={0}
-				sortEnabled={true}
-				customHandle={true}
-				showDropIndicator={true}
-				dropIndicatorStyle={dropIndicatorStyle}
-				flexDirection="column"
-				reorderTriggerOrigin="touch"
-				alignItems="center"
-				onDragStart={handleDragStart}
-				onDragEnd={handleDragEnd}
-			>
-				{points.map((item: RoutingPoint, order: number) => {
-					return (
-						<View key={item.id}>
-							<MemoDraggableItem
-								item={item}
-								resolvedProfile={resolvedProfiles[item.id]}
-								width={width - itemPaddingH * 2}
-								order={order}
-								draggingItemIndex={draggingItemIndex}
-								setEditPoint={setEditPoint}
-							/>
-						</View>
-					);
-				})}
-			</Sortable.Flex>
+			{route && !points.length ? (
+				<View style={styles.emptyHintWrapper}>
+					<Text
+						variant="bodyMedium"
+						style={[styles.emptyHint, { color: theme.colors.onSurfaceVariant }]}
+					>
+						{t('routing.hintNoPoints')}
+					</Text>
+				</View>
+			) : (
+				<Sortable.Flex
+					itemEntering={null}
+					gap={0}
+					padding={0}
+					sortEnabled={true}
+					customHandle={true}
+					showDropIndicator={true}
+					dropIndicatorStyle={dropIndicatorStyle}
+					flexDirection="column"
+					reorderTriggerOrigin="touch"
+					alignItems="center"
+					onDragStart={handleDragStart}
+					onDragEnd={handleDragEnd}
+				>
+					{points.map((item: RoutingPoint, order: number) => {
+						return (
+							<View key={item.id}>
+								<MemoDraggableItem
+									item={item}
+									resolvedProfile={resolvedProfiles[item.id]}
+									width={width - itemPaddingH * 2}
+									order={order}
+									draggingItemIndex={draggingItemIndex}
+									setEditPoint={setEditPoint}
+								/>
+							</View>
+						);
+					})}
+				</Sortable.Flex>
+			)}
 		</ScrollView>
 	);
 };
@@ -585,6 +597,14 @@ const styles = StyleSheet.create({
 	},
 	scrollView: {
 		paddingHorizontal: itemPaddingH,
+	},
+	emptyHintWrapper: {
+		paddingVertical: 24,
+		paddingHorizontal: 8,
+		alignItems: 'center',
+	},
+	emptyHint: {
+		textAlign: 'center',
 	},
 	stat: {
 		paddingTop: 8,

@@ -31,7 +31,6 @@ const useToggleRouting = ({ routeId }: { routeId?: number }) => {
 			onSuccess: async (newRouteId) => {
 				if (newRouteId) {
 					dispatch(setIsRouting(newRouteId));
-					expand(0.35);
 				}
 			},
 			onSettled: () => {
@@ -40,7 +39,6 @@ const useToggleRouting = ({ routeId }: { routeId?: number }) => {
 		}),
 		[
 			dispatch,
-			expand,
 			lastProfiles,
 		]
 	);
