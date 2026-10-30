@@ -33,5 +33,8 @@
 	"resumeLineMissing": "Die aufgezeichnete Linie existiert nicht mehr. Aufnahme verworfen.",
 	"useDemAltitude": "DEM-Höhe verwenden",
 	"hintUseDemAltitude": "Bevorzugt Höhen aus DEM-Dateien statt GNSS-Höhe. Nutzt einen Cache — bei einem Cache-Fehltreffer wird die GNSS-Höhe verwendet, spätere Punkte nutzen die geladene Kachel. Erfordert ein DEM-Verzeichnis in den Karteneinstellungen.",
-	"stopConfirmBody": "Die aktuelle Aufnahme beenden?"
+	"stopConfirmBody": "Die aktuelle Aufnahme beenden?",
+	"lineWidth": "Linienbreite",
+	"hintLineWidth": "Linienbreite der aufgezeichneten Spur, die auf der Karte dargestellt wird.",
+	"lineWidthDefaultSuffix": "(Standard)"
 }

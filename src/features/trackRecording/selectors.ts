@@ -21,6 +21,7 @@ export const selectTrackLineId = (state: RootState) =>
 export const selectMinDistance = (state: RootState) => state.trackRecording.minDistance;
 export const selectMinTime = (state: RootState) => state.trackRecording.minTime;
 export const selectMinPrecision = (state: RootState) => state.trackRecording.minPrecision;
+export const selectLineWidth = (state: RootState) => state.trackRecording.lineWidth;
 export const selectLastWrittenPosition = (state: RootState) =>
 	state.trackRecording.lastWrittenPosition;
 export const selectLastWrittenTime = (state: RootState) => state.trackRecording.lastWrittenTime;

@@ -17,6 +17,10 @@ import { selectFollowingLineId } from '../lineFollow/selectors';
 import { startRecordingTask, stopRecordingTask } from './backgroundTask';
 import { createTrack } from './db/actionsTrack';
 import { queryTrackByLineId, queryLineExists } from './db/queryFns';
+import { clampLineWidth } from '../../lib/lineWidth';
+
+/** Default recording line width (dp) — the chevron trail's band height. */
+export const DEFAULT_RECORDING_LINE_WIDTH = 4;
 
 export interface TrackRecordingSettings {
 	isRecording: boolean;
@@ -32,6 +36,8 @@ export interface TrackRecordingSettings {
 	minTime: number;
 	minPrecision: number;
 	recordingStartTime: number | null;
+	/** Recording line width (dp), clamped. Drives the chevron size. */
+	lineWidth: number;
 }
 
 export interface TrackRecordingState extends SliceSettingsBase, TrackRecordingSettings {
@@ -67,6 +73,7 @@ export const initialSettings: TrackRecordingSettings = {
 	minTime: 2,
 	minPrecision: 20,
 	recordingStartTime: null,
+	lineWidth: DEFAULT_RECORDING_LINE_WIDTH,
 };
 
 const initialState: TrackRecordingState = {
@@ -104,6 +111,9 @@ export const trackRecordingSlice = createSlice({
 		},
 		setMinPrecision: (state, action: PayloadAction<number>) => {
 			state.minPrecision = action.payload;
+		},
+		setLineWidth: (state, action: PayloadAction<number>) => {
+			state.lineWidth = clampLineWidth(action.payload);
 		},
 		setLastWrittenPosition: (
 			state,
@@ -162,6 +172,7 @@ export const {
 	setMinDistance,
 	setMinTime,
 	setMinPrecision,
+	setLineWidth,
 	setLastWrittenPosition,
 	setLastWrittenTime,
 	setRecordingStartTime,

@@ -19,13 +19,14 @@ import type { Position } from 'geojson';
  * Internal dependencies
  */
 import { useAppSelector } from '../../../store/hooks';
-import { selectTrackLineId } from '../selectors';
+import { selectTrackLineId, selectLineWidth } from '../selectors';
 import { queryLineGeom } from '../../lines/db/queryFns';
 import useSimplificationTolerance from '../../lines/hooks/useSimplificationTolerance';
 import useMapZoomLevel from '../../../compose/useMapZoomLevel';
 import { selectAppDirs } from '../../dirs/selectors';
 import { logError } from '../../../lib/utils';
-import { buildRecordingChevronSvg, RECORDING_CHEVRON_SIZE_DP } from '../chevronSvg';
+import { PALETTE_COLORS } from '../../../constants';
+import { buildRecordingChevronSvg, recordingChevronSizeDp } from '../chevronSvg';
 
 const CHEVRON_FILE_NAME = 'recordingChevron.svg';
 
@@ -50,6 +51,7 @@ interface ChevronMarker {
 
 const TrackRecordingMapView: FC = () => {
 	const lineId = useAppSelector(selectTrackLineId);
+	const lineWidth = useAppSelector(selectLineWidth);
 	const simplify = useSimplificationTolerance();
 	const zoomLevel = useMapZoomLevel();
 	const appDirs = useAppSelector(selectAppDirs);
@@ -57,8 +59,9 @@ const TrackRecordingMapView: FC = () => {
 
 	const [filePath, setFilePath] = useState<string | null>(null);
 
-	// Write the chevron SVG once into the app's marker dir — the native
-	// marker decodes .svg filePaths directly (same flow as GnssCenterMarker).
+	// Write the chevron SVG into the app's marker dir — the native marker
+	// decodes .svg filePaths directly (same flow as GnssCenterMarker).
+	// Rewritten whenever the line width changes so the chevron scales.
 	useEffect(() => {
 		if (!markerDir) {
 			return;
@@ -67,7 +70,11 @@ const TrackRecordingMapView: FC = () => {
 		let cancelled = false;
 		(async () => {
 			try {
-				await RNFS.writeFile(path, buildRecordingChevronSvg(), 'utf8');
+				await RNFS.writeFile(
+					path,
+					buildRecordingChevronSvg(lineWidth, PALETTE_COLORS[0].bg),
+					'utf8'
+				);
 				if (!cancelled) {
 					setFilePath(path);
 				}
@@ -78,10 +85,13 @@ const TrackRecordingMapView: FC = () => {
 		return () => {
 			cancelled = true;
 		};
-	}, [markerDir]);
+	}, [markerDir, lineWidth]);
 
 	// The native marker canvas is raw pixels — scale dp by density.
-	const sizePx = useMemo(() => Math.round(RECORDING_CHEVRON_SIZE_DP * PixelRatio.get()), []);
+	const sizePx = useMemo(
+		() => Math.round(recordingChevronSizeDp(lineWidth) * PixelRatio.get()),
+		[lineWidth]
+	);
 
 	const { data: line } = useQuery({
 		queryKey: [

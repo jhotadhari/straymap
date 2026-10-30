@@ -58,6 +58,7 @@ RoutingState {
   routingLineId: null | number; // line ID linked to the active route
   segments: Record<string, RoutingSegment>; // brouter-computed path segments
   lastProfiles: LastProfiles;  // persisted "global" routing profiles per provider
+  lineWidth: number;           // routing line width (dp), persisted — drives the ramp path
   movedPointId: number | null; // waypoint currently being moved (move/drop gesture-workaround)
 }
 ```
@@ -282,7 +283,8 @@ commit `00e770d`.
 | `useActionMovePoint`           | `components/DrawerTopBar/useActions/useActionMovePoint.ts`           | Move the center-nearest waypoint; becomes "Discard moving" while active                                                                          |
 | `useActionDropPoint`           | `components/DrawerTopBar/useActions/useActionDropPoint.ts`           | Persist the moved waypoint at the map center and reprocess segments                                                                              |
 | `useActionDeletePointAtCenter` | `components/DrawerTopBar/useActions/useActionDeletePointAtCenter.ts` | Delete the center-nearest waypoint (keeps ≥ 2)                                                                                                   |
-| `RoutingActionsButton`         | `components/RoutingActionsButton.tsx`                                | Popover menu with routing actions                                                                                                                |
+| `useActionSetLineWidth`        | `components/DrawerTopBar/useActions/useActionSetLineWidth.ts`        | "Set line width" — swaps the burger popover to the preset-width `LineWidthControl` menu (last action, after a divider)                         |
+| `RoutingActionsButton`         | `components/RoutingActionsButton.tsx`                                | Custom popover menu with routing actions + "Set line width" (divider + `LineWidthControl` swap)                                                 |
 | `RowRouting`                   | `../lines/components/LineEditModal/RowRouting.tsx`                   | Load/activate a line's route from LineEditModal                                                                                                  |
 | `useRoute`                     | `hooks/useRoute.ts`                                                  | Fetch active route from Redux + React Query                                                                                                      |
 | `EditPointModal`               | `components/EditPointModal.tsx`                                      | Edit point profile/inheritMode; snapshotting on first 'own' switch                                                                               |

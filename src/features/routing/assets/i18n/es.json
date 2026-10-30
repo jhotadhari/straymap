@@ -50,5 +50,7 @@
 	"linkBrouterProfiles": "Perfiles oficiales de BRouter",
 	"linkBrouterWeb": "Explorar perfiles en BRouter web",
 	"linkBrouterCommunityProfiles": "Perfiles de la comunidad (bici y senderismo)",
-	"customProfile": "Perfil personalizado"
+	"customProfile": "Perfil personalizado",
+	"setLineWidth": "Establecer ancho de línea",
+	"lineWidthDefaultSuffix": "(predeterminado)"
 }

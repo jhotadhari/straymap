@@ -22,7 +22,7 @@ import { get } from 'lodash-es';
  * Internal dependencies
  */
 import { useAppSelector } from '../../../store/hooks';
-import { selectSegmentByRecordId, selectMovedPointId } from '../selectors';
+import { selectSegmentByRecordId, selectMovedPointId, selectLineWidth } from '../selectors';
 import { getSegmentRecordId, getSimplifiedSegmentCoords, resolveProfileForPoint } from '../utils';
 import { ROUTING_SIMPLIFY_TOLERANCE } from '../constants';
 import useRoute from '../hooks/useRoute';
@@ -42,6 +42,9 @@ const SegmentLineLayer: FC<{
 		number,
 	][];
 }> = memo(({ segmentRecordId, coordinates }) => {
+	const lineWidth = useAppSelector(selectLineWidth);
+	const paintPathRamp = useMemo(() => ({ strokeWidth: lineWidth }), [lineWidth]);
+
 	const prepared = useMemo(
 		() => ({
 			segmentValues: calculateSlope(coordinates),
@@ -358,8 +361,6 @@ const paintPathError: PathPaint = {
 	strokeColor: '#ff0000',
 	strokeWidth: 3,
 };
-
-const paintPathRamp: PathPaint = { strokeWidth: 6 };
 
 const paintMoveHighlight: MarkerPaint = {
 	fillColor: '#ff8800',

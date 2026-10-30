@@ -330,10 +330,13 @@ cost. Stroke width is shared across all ordinary lines (not per-line).
 
 The colour column (`colorColumnInner`) in `ListRow` shows a vertical
 2px-wide bar. Background reads from Redux: `lineColors[line.id]` fallback
-`PALETTE_COLORS[0].bg`. Tapping opens a `Popover` (raw `react-native-popover-view`,
-no placement — auto-positions) with one `MenuItem` per palette colour
-showing an unlabelled coloured circle. Selecting dispatches
-`setLineColor({ lineId, color })` and clears any ramp
+`PALETTE_COLORS[0].bg` — except the recording line
+(`systemFeatureKey === 'trackRecording'`), which always shows
+`PALETTE_COLORS[0].bg` (the recording feature's render colour, not the
+assigned line colour). Tapping opens a `Popover` (raw
+`react-native-popover-view`, no placement — auto-positions) with one
+`MenuItem` per palette colour showing an unlabelled coloured circle.
+Selecting dispatches `setLineColor({ lineId, color })` and clears any ramp
 (`setLineRamp(…, null)`).
 
 Lines rendered with `LayerPathColorRamp` instead show a multi-coloured
@@ -463,7 +466,7 @@ typed as `ReturnType<typeof useButtonProps>` (destructured from
   screen distance, `LINES_HOVER_THRESHOLD_DP` = 4 dp, zoom-aware). Reuses
   the `lineGeomsBatch` viewport query (cache-shared with LinesMapView —
   SQL-side `MbrIntersects` keeps candidates on-screen only). `SelectedLinesList`
-  scales each hit row's color bar to double width (animated `scaleX` from the
+  scales each hit row's color bar to 3× width (animated `scaleX` from the
   left edge, fixed-width column — no layout shift). Scale rather than width:
   reanimated width changes bypass Yoga, so the ramp legend's SVG child would
   keep its laid-out 2px size and not grow.

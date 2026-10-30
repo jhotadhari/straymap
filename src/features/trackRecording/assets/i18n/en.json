@@ -33,5 +33,8 @@
 	"resumeLineMissing": "The recorded line no longer exists. Recording discarded.",
 	"useDemAltitude": "Use DEM elevation",
 	"hintUseDemAltitude": "Prefer elevation from DEM files over GNSS altitude. Uses a cache — on a cache miss the point falls back to GNSS altitude and later points use the loaded tile. Requires a DEM directory in the map settings.",
-	"stopConfirmBody": "Stop the current recording?"
+	"stopConfirmBody": "Stop the current recording?",
+	"lineWidth": "Line width",
+	"hintLineWidth": "Stroke width of the recorded track line rendered on the map.",
+	"lineWidthDefaultSuffix": "(default)"
 }

@@ -50,5 +50,7 @@
 	"linkBrouterProfiles": "Official BRouter profiles",
 	"linkBrouterWeb": "Explore profiles in BRouter web",
 	"linkBrouterCommunityProfiles": "Community profiles (bike & hike)",
-	"customProfile": "Custom profile"
+	"customProfile": "Custom profile",
+	"setLineWidth": "Set line width",
+	"lineWidthDefaultSuffix": "(default)"
 }

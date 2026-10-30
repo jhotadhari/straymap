@@ -50,5 +50,7 @@
 	"linkBrouterProfiles": "Offizielle BRouter-Profile",
 	"linkBrouterWeb": "Profile im BRouter-Web erkunden",
 	"linkBrouterCommunityProfiles": "Community-Profile (Fahrrad & Wandern)",
-	"customProfile": "Benutzerdefiniertes Profil"
+	"customProfile": "Benutzerdefiniertes Profil",
+	"setLineWidth": "Linienbreite festlegen",
+	"lineWidthDefaultSuffix": "(Standard)"
 }

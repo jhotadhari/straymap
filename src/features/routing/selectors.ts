@@ -15,6 +15,8 @@ export const selectIsRouting = (state: RootState) => state.routing.isRouting;
 
 export const selectRoutingLineId = (state: RootState) => state.routing.routingLineId;
 
+export const selectLineWidth = (state: RootState) => state.routing.lineWidth;
+
 export const selectSegments = (state: RootState) => state.routing.segments;
 
 export const selectPathCoords = (state: RootState) => state.routing.pathCoords;

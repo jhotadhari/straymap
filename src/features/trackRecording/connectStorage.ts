@@ -18,6 +18,7 @@ import {
 	setMinDistance,
 	setMinTime,
 	setMinPrecision,
+	setLineWidth,
 	setInitialized,
 	setLastWrittenPosition,
 	setLastWrittenTime,
@@ -106,6 +107,9 @@ export const initializeFromStorage = (store: AppStore) => {
 				if (typeof newSettings.minPrecision === 'number') {
 					store.dispatch(setMinPrecision(newSettings.minPrecision));
 				}
+				if (typeof newSettings.lineWidth === 'number') {
+					store.dispatch(setLineWidth(newSettings.lineWidth));
+				}
 				if (typeof newSettings.recordingStartTime === 'number') {
 					store.dispatch(setRecordingStartTime(newSettings.recordingStartTime));
 				}
@@ -144,6 +148,7 @@ startAppListening({
 		setMinDistance,
 		setMinTime,
 		setMinPrecision,
+		setLineWidth,
 		setRecordingStartTime,
 		setResumePending,
 		setUseDemAltitude

@@ -38,6 +38,9 @@ export const SLOPE_COLOR_RAMP: ColorRamp = {
 
 export const DEFAULT_INHERIT_MODE: RoutingPointInheritMode = 'route';
 
+/** Default routing line width (dp) — the coloured ramp path. */
+export const DEFAULT_ROUTING_LINE_WIDTH = 4;
+
 /**
  * Fixed simplification tolerance used for the per-segment color ramp
  * rendering and the chart coordinates. Kept in sync so the

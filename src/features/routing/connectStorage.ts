@@ -19,6 +19,7 @@ import {
 	setLastProfile,
 	setLastProfiles,
 	setRoutingLineId,
+	setLineWidth,
 	setSegment,
 } from './slice';
 import { addBusyKey, removeBusyKey } from '../ui/slice';
@@ -55,6 +56,9 @@ export const initializeFromStorage = (store: AppStore) => {
 				}
 				if (newSettings?.lastProfiles) {
 					store.dispatch(setLastProfiles(newSettings.lastProfiles));
+				}
+				if (newSettings?.lineWidth !== undefined) {
+					store.dispatch(setLineWidth(newSettings.lineWidth));
 				}
 			}
 		})
@@ -98,7 +102,7 @@ export const saveToStorage = (routingState: RoutingState, actionType: string) =>
  * and calls the function to save them to defaultPreferences.
  */
 startAppListening({
-	matcher: isAnyOf(setIsRoutingAction, setRoutingLineId, setLastProfile, setLastProfiles),
+	matcher: isAnyOf(setIsRoutingAction, setRoutingLineId, setLastProfile, setLastProfiles, setLineWidth),
 	effect: async (action, listenerApi) => {
 		try {
 			await saveToStorage(listenerApi.getState().routing, action.type);

@@ -18,6 +18,7 @@ import useActionCutSegment from './useActionCutSegment';
 import useActionMovePoint from './useActionMovePoint';
 import useActionDropPoint from './useActionDropPoint';
 import useActionDeletePointAtCenter from './useActionDeletePointAtCenter';
+import useActionSetLineWidth from './useActionSetLineWidth';
 
 const useActions = ({ points, routeId }: { points?: RoutingPoint[]; routeId?: number }) => {
 	const movedPointId = useAppSelector(selectMovedPointId);
@@ -42,6 +43,7 @@ const useActions = ({ points, routeId }: { points?: RoutingPoint[]; routeId?: nu
 		hitState,
 		getHits,
 	});
+	const actionSetLineWidth = useActionSetLineWidth();
 
 	return useMemo(() => {
 		const actions: Record<string, MenuActionOption> = {};
@@ -52,6 +54,7 @@ const useActions = ({ points, routeId }: { points?: RoutingPoint[]; routeId?: nu
 		actions[actionMovePoint.key] = actionMovePoint;
 		actions[actionDropPoint.key] = actionDropPoint;
 		actions[actionDeletePointAtCenter.key] = actionDeletePointAtCenter;
+		actions[actionSetLineWidth.key] = actionSetLineWidth;
 
 		return actions;
 	}, [
@@ -61,6 +64,7 @@ const useActions = ({ points, routeId }: { points?: RoutingPoint[]; routeId?: nu
 		actionMovePoint,
 		actionDropPoint,
 		actionDeletePointAtCenter,
+		actionSetLineWidth,
 	]);
 };
 

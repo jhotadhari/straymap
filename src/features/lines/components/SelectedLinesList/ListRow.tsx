@@ -96,6 +96,7 @@ const ListRow: FC<ListRowProps> = ({ line, idx, systemFeatureKey, isUnderCenter 
 	const lineColorRamps = useLineColorRamps();
 	const colorRamp = lineColorRamps[line.id];
 	const isSystemLine = systemFeatureKey !== null;
+	const isRecordingLine = systemFeatureKey === 'trackRecording';
 
 	// The slope ramp requires elevation data — lines without Z would
 	// render flat green, so the toggle is hidden unless already active.
@@ -181,13 +182,16 @@ const ListRow: FC<ListRowProps> = ({ line, idx, systemFeatureKey, isUnderCenter 
 			colorRamp
 				? undefined
 				: {
-						backgroundColor: (lineColor ?? fallbackColor) as `#${string}`,
+						backgroundColor: (isRecordingLine
+							? PALETTE_COLORS[0].bg
+							: (lineColor ?? fallbackColor)) as `#${string}`,
 					},
 		],
 		[
 			lineColor,
 			fallbackColor,
 			colorRamp,
+			isRecordingLine,
 		]
 	);
 
@@ -199,7 +203,7 @@ const ListRow: FC<ListRowProps> = ({ line, idx, systemFeatureKey, isUnderCenter 
 	const colorColumnAnimatedStyle = useAnimatedStyle(() => ({
 		transform: [
 			{
-				scaleX: withTiming(isUnderCenter ? 2 : 1, { duration: 150 }),
+				scaleX: withTiming(isUnderCenter ? 3 : 1, { duration: 150 }),
 			},
 		],
 		transformOrigin: 'left',

@@ -42,6 +42,7 @@ import ensureLocationPermission from '../../../lib/locationPermission';
 import ensureNotificationPermission from '../../../lib/notificationPermission';
 import { useDestructiveColor } from '../../../compose/useButtonProps';
 import { ErrorToastContext } from '../../../components/ErrorToast/Context';
+import RecordingLineWidthControl from '../components/controls/RecordingLineWidthControl';
 
 /**
  * Dynamic handle icon: gps-not-fixed (no center dot) while GNSS is off,
@@ -304,6 +305,12 @@ const TrackingDrawerContent: FC = () => {
 					{t('trackRecording.start')}
 				</Button>
 			)}
+
+			<View style={styles.row}>
+				<Text>{t('trackRecording.lineWidth')}:</Text>
+				<RecordingLineWidthControl />
+			</View>
+
 			{/* Live GNSS values from the gnss slice — dashes until the
 				native listener delivers the first position. */}
 			<View style={styles.row}>

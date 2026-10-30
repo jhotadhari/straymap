@@ -33,5 +33,8 @@
 	"resumeLineMissing": "La línea grabada ya no existe. Grabación descartada.",
 	"useDemAltitude": "Usar elevación DEM",
 	"hintUseDemAltitude": "Preferir elevación de archivos DEM sobre la altitud GNSS. Usa caché — si falla la caché se usa la altitud GNSS y los puntos posteriores usan el mosaico cargado. Requiere un directorio DEM en los ajustes del mapa.",
-	"stopConfirmBody": "¿Detener la grabación actual?"
+	"stopConfirmBody": "¿Detener la grabación actual?",
+	"lineWidth": "Ancho de línea",
+	"hintLineWidth": "Ancho de línea de la pista grabada que se muestra en el mapa.",
+	"lineWidthDefaultSuffix": "(predeterminado)"
 }

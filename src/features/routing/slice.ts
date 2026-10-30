@@ -34,12 +34,20 @@ import { queryRoute } from './db/queryFns';
 import { selectIsRouting } from './selectors';
 import { dbConnection } from '../dbLoader/DBConnection';
 import { pointsCoordsAreOverlapping } from '../../lib/utils';
-import { DEFAULT_LAST_PROFILES, DEFAULT_PROFILE, ROUTING_SIMPLIFY_TOLERANCE } from './constants';
+import { clampLineWidth } from '../../lib/lineWidth';
+import {
+	DEFAULT_LAST_PROFILES,
+	DEFAULT_PROFILE,
+	DEFAULT_ROUTING_LINE_WIDTH,
+	ROUTING_SIMPLIFY_TOLERANCE,
+} from './constants';
 
 export interface RoutingSettings {
 	isRouting: false | number; // false or routeId.
 	routingLineId: null | number;
 	lastProfiles: LastProfiles;
+	/** Routing line width (dp), clamped. Drives the coloured ramp path. */
+	lineWidth: number;
 }
 
 export interface RoutingState extends SliceSettingsBase, RoutingSettings {
@@ -67,6 +75,7 @@ export const initialSettings: RoutingSettings = {
 	isRouting: false,
 	routingLineId: null,
 	lastProfiles: DEFAULT_LAST_PROFILES,
+	lineWidth: DEFAULT_ROUTING_LINE_WIDTH,
 };
 
 const initialState: RoutingState = {
@@ -103,6 +112,9 @@ export const routingSlice = createSlice({
 		setRoutingLineId: (state, action: PayloadAction<RoutingState['routingLineId']>) => {
 			state.routingLineId = action.payload;
 		},
+		setLineWidth: (state, action: PayloadAction<number>) => {
+			state.lineWidth = clampLineWidth(action.payload);
+		},
 		setPathCoords: (state, action: PayloadAction<RoutingState['pathCoords']>) => {
 			state.pathCoords = action.payload;
 		},
@@ -135,6 +147,7 @@ export const {
 	setBrouterAvailable,
 	setIsRouting: setIsRoutingAction,
 	setRoutingLineId,
+	setLineWidth,
 	setPathCoords,
 	setLastProfiles,
 	setLastProfile,
