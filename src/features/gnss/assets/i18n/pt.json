@@ -30,8 +30,8 @@
 		"magneticNorth": "Norte magnético"
 	},
 	"hintMarkerDirection": "Se o marcador aponta na sua direção de movimento ou roda com a bússola do dispositivo.",
-	"accuracyCircle": "Círculo de precisão",
-	"hintAccuracyCircle": "O círculo é desenhado com o raio da precisão GNSS atual quando a precisão é pior que este limite (metros). 0 desativa o círculo.",
+	"accuracyCircle": "Limiar do círculo de precisão [{{unit}}]",
+	"hintAccuracyCircle": "O círculo é desenhado com o raio da precisão GNSS atual quando a precisão é pior que este limite (na unidade escolhida). 0 desativa o círculo.",
 	"showMeasurementLabel": "Mostrar etiqueta de medição",
 	"hintShowMeasurementLabel": "Mostra a etiqueta de distância/rumo enquanto o mapa está afastado da sua posição GNSS.",
 	"hintMarkerFile": "O ícone do marcador: o triângulo integrado ou um ficheiro SVG/PNG próprio do diretório de marcadores.",

@@ -35,6 +35,9 @@ import {
 } from '../../slice';
 import { buildMarkerSvg } from '../../markerSvg';
 import { selectAppDirs } from '../../../dirs/selectors';
+import { selectUnitPrefs } from '../../../general/selectors';
+import { metersToUnit, unitToMeters, formatDistanceUnit } from '../../../../lib/formatting';
+import { roundTo } from '../../../../lib/utilsLight';
 import { OptionBase } from '../../../../types';
 import { EMPTY_STRING_ARRAY } from '../../../../constants';
 
@@ -106,6 +109,21 @@ const GnssMarkerControl: FC = () => {
 	const markerDirection = useAppSelector(selectMarkerDirection);
 	const accuracyCircleThresholdMeters = useAppSelector(selectAccuracyCircleThresholdMeters);
 	const showMeasurementLabel = useAppSelector(selectShowMeasurementLabel);
+	const unitPrefs = useAppSelector(selectUnitPrefs);
+
+	const distanceUnitPref = unitPrefs?.distance;
+	const accuracyUnit = formatDistanceUnit(distanceUnitPref, true);
+
+	// The threshold is stored in meters but shown in the user's distance
+	// unit (metric → m, imperial → ft, nautical → nm).
+	const accuracyThresholdDisplay = useMemo(
+		() =>
+			roundTo(
+				metersToUnit(accuracyCircleThresholdMeters, distanceUnitPref, true),
+				distanceUnitPref.round
+			),
+		[accuracyCircleThresholdMeters, distanceUnitPref]
+	);
 
 	const config = useMemo(
 		() => ({
@@ -146,9 +164,11 @@ const GnssMarkerControl: FC = () => {
 			/>
 
 			<NumericRowControl
-				label={t('gnss.accuracyCircle')}
-				value={accuracyCircleThresholdMeters}
-				onUpdate={(val: number) => dispatch(setAccuracyCircleThresholdMeters(val))}
+				label={t('gnss.accuracyCircle', { unit: accuracyUnit })}
+				value={accuracyThresholdDisplay}
+				onUpdate={(val: number) =>
+					dispatch(setAccuracyCircleThresholdMeters(unitToMeters(val, distanceUnitPref, true)))
+				}
 				validate={validateAccuracyThreshold}
 				numType="float"
 				Info={t('gnss.hintAccuracyCircle')}

@@ -30,8 +30,8 @@
 		"magneticNorth": "Magnetic north"
 	},
 	"hintMarkerDirection": "Whether the marker points in your moving direction or turns with your device compass.",
-	"accuracyCircle": "Accuracy circle",
-	"hintAccuracyCircle": "The circle is drawn with the radius of the current GNSS accuracy whenever the accuracy is worse than this threshold (meters). 0 disables the circle.",
+	"accuracyCircle": "Accuracy circle threshold [{{unit}}]",
+	"hintAccuracyCircle": "The circle is drawn with the radius of the current GNSS accuracy whenever the accuracy is worse than this threshold (in your distance unit). 0 disables the circle.",
 	"showMeasurementLabel": "Show measurement label",
 	"hintShowMeasurementLabel": "Show the distance/bearing measurement label while the map is panned away from your GNSS position.",
 	"hintMarkerFile": "The marker icon: the built-in triangle, or a custom SVG/PNG file from the marker directory.",

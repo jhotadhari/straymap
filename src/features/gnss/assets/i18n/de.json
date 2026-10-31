@@ -30,8 +30,8 @@
 		"magneticNorth": "Magnetisch Nord"
 	},
 	"hintMarkerDirection": "Ob der Marker in Ihre Bewegungsrichtung zeigt oder sich mit dem Gerätekompass dreht.",
-	"accuracyCircle": "Genauigkeitskreis",
-	"hintAccuracyCircle": "Der Kreis wird mit dem Radius der aktuellen GNSS-Genauigkeit gezeichnet, sobald die Genauigkeit schlechter als dieser Schwellenwert (Meter) ist. 0 deaktiviert den Kreis.",
+	"accuracyCircle": "Genauigkeitskreis-Schwellenwert [{{unit}}]",
+	"hintAccuracyCircle": "Der Kreis wird mit dem Radius der aktuellen GNSS-Genauigkeit gezeichnet, sobald die Genauigkeit schlechter als dieser Schwellenwert (in der gewählten Einheit) ist. 0 deaktiviert den Kreis.",
 	"showMeasurementLabel": "Messwert-Label anzeigen",
 	"hintShowMeasurementLabel": "Zeigt das Distanz-/Peilungs-Label, während die Karte von Ihrer GNSS-Position weggeschwenkt ist.",
 	"hintMarkerFile": "Das Marker-Symbol: das eingebaute Dreieck oder eine eigene SVG/PNG-Datei aus dem Marker-Verzeichnis.",
