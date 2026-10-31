@@ -27,7 +27,7 @@ export type GnssCenterMode = 'off' | 'centered' | 'pannedAway' | 'returning';
 /** Max distance (m) between map center and GNSS position to count as centered. */
 const CENTER_EPS_M = 2;
 /** Chase-cam animation duration while following the moving GNSS position. */
-const CHASE_DURATION_MS = 400;
+const CHASE_DURATION_MS = 0;
 /** Re-centering flight duration after the panned-away timer fires. */
 const RETURN_DURATION_MS = 600;
 
