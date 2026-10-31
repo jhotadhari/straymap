@@ -11,7 +11,6 @@ import gnssReducer, {
 	setMarkerSize,
 	setMarkerColor,
 	setMarkerDirection,
-	setDeviceAzimuth,
 	setAccuracyCircleThresholdMeters,
 	setShowMeasurementLabel,
 } from '../slice';
@@ -42,12 +41,10 @@ describe('gnss slice reducers', () => {
 				timestamp: 1,
 			},
 		} as any);
-		state = gnssReducer(state, setDeviceAzimuth(42));
 		state = gnssReducer(state, setIsActive(false));
 		expect(state.position).toBeNull();
 		expect(state.heading).toBeNull();
 		expect(state.headingAnchor).toBeNull();
-		expect(state.deviceAzimuth).toBeNull();
 	});
 
 	it('setMarkerIconSource updates the marker icon', () => {
@@ -68,13 +65,6 @@ describe('gnss slice reducers', () => {
 	it('setMarkerDirection updates the marker direction', () => {
 		const state = gnssReducer(undefined, setMarkerDirection('north'));
 		expect(state.markerDirection).toBe('north');
-	});
-
-	it('setDeviceAzimuth updates and clears the compass azimuth', () => {
-		let state = gnssReducer(undefined, setDeviceAzimuth(123));
-		expect(state.deviceAzimuth).toBe(123);
-		state = gnssReducer(state, setDeviceAzimuth(null));
-		expect(state.deviceAzimuth).toBeNull();
 	});
 
 	it('setAccuracyCircleThresholdMeters updates the threshold (0 disables)', () => {

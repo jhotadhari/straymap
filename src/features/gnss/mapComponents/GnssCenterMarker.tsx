@@ -13,7 +13,6 @@ import { LayerMarker, LayerShape, Marker, ReindexScope } from 'react-native-maps
 import { useAppSelector } from '../../../store/hooks';
 import {
 	selectAccuracyCircleThresholdMeters,
-	selectDeviceAzimuth,
 	selectGnssHeading,
 	selectGnssPosition,
 	selectIsActive,
@@ -22,6 +21,7 @@ import {
 	selectMarkerIconSource,
 	selectMarkerSize,
 } from '../selectors';
+import { useDeviceAzimuth } from '../deviceAzimuthStore';
 import { selectAppDirs } from '../../dirs/selectors';
 import { buildMarkerSvg } from '../markerSvg';
 import { logError } from '../../../lib/utils';
@@ -56,7 +56,9 @@ const GnssCenterMarker: FC = () => {
 	const markerSize = useAppSelector(selectMarkerSize);
 	const markerColor = useAppSelector(selectMarkerColor);
 	const markerDirection = useAppSelector(selectMarkerDirection);
-	const deviceAzimuth = useAppSelector(selectDeviceAzimuth);
+	// Device compass azimuth from the lightweight store — this is the only
+	// component subscribing, and it re-renders only on value changes.
+	const deviceAzimuth = useDeviceAzimuth();
 	const accuracyCircleThresholdMeters = useAppSelector(selectAccuracyCircleThresholdMeters);
 	const appDirs = useAppSelector(selectAppDirs);
 

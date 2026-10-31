@@ -74,11 +74,6 @@ export interface GnssState extends SliceSettingsBase, GnssSettings {
 	/** Movement direction (degrees 0-360) resolved from the heading
 	 * anchor, movement-gated (MIN_HEADING_MOVE_M). Runtime only. */
 	heading: number | null;
-	/** Device compass azimuth (degrees 0-360 clockwise from magnetic
-	 * north) from the native rotation-vector sensor — runtime only.
-	 * Null until the first onDeviceAzimuth event, and on devices without
-	 * the sensor. */
-	deviceAzimuth: number | null;
 }
 
 export const initialSettings: GnssSettings = {
@@ -100,7 +95,6 @@ const initialState: GnssState = {
 	position: null,
 	headingAnchor: null,
 	heading: null,
-	deviceAzimuth: null,
 };
 
 export const gnssSlice = createSlice({
@@ -116,7 +110,6 @@ export const gnssSlice = createSlice({
 				state.position = null;
 				state.headingAnchor = null;
 				state.heading = null;
-				state.deviceAzimuth = null;
 			}
 		},
 		setGnssPosition: (state, action: PayloadAction<GnssPositionData | null>) => {
@@ -157,9 +150,6 @@ export const gnssSlice = createSlice({
 		setIsCenterActive: (state, action: PayloadAction<boolean>) => {
 			state.isCenterActive = action.payload;
 		},
-		setDeviceAzimuth: (state, action: PayloadAction<number | null>) => {
-			state.deviceAzimuth = action.payload;
-		},
 		setRecenterDelaySec: (state, action: PayloadAction<number>) => {
 			state.recenterDelaySec = action.payload;
 		},
@@ -189,7 +179,6 @@ export const {
 	setIsActive,
 	setGnssPosition,
 	setIsCenterActive,
-	setDeviceAzimuth,
 	setRecenterDelaySec,
 	setMarkerIconSource,
 	setMarkerSize,
