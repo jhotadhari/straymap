@@ -21,6 +21,8 @@ import { DRAWER_ICON_SIZE, MAP_ANIMATION_PADDING_PX } from '../../../constants';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { selectPathCoords, selectRoutingLineId } from '../../routing/selectors';
 import { selectMapUpdateInterval, selectUnitPrefs } from '../../general/selectors';
+import { selectGnssPosition } from '../../gnss/selectors';
+import { selectFollowingLineId } from '../../lineFollow/selectors';
 import { queryLinePathCoords, queryLinesWithoutGeom } from '../../lines/db/queryFns';
 import { haversineDistance } from '../../../lib/formatting';
 import LineStats from '../../lines/components/Stats/LineStats';
@@ -90,6 +92,37 @@ export interface ChartContentProps {
 	variant?: ChartContentVariant;
 }
 
+/**
+ * Creates a windowed nearest-along-route distance lookup with its own
+ * per-route search state (last-best index, last target): O(1) typical
+ * while the target moves continuously, with a covering full scan on
+ * first lookup or when the target jumps far (>1000 m). Each target
+ * stream (map center/waypoints vs. the live GNSS fix) gets its own
+ * instance so interleaved targets don't reset each other's window.
+ */
+const createNearestSearch = () => {
+	const search: { coords?: number[][]; idx: number; lastTarget?: [number, number] } = {
+		idx: 0,
+	};
+	return (coordinates: number[][], distances: number[], target: [number, number]): number => {
+		if (search.coords !== coordinates) {
+			search.coords = coordinates;
+			search.idx = 0;
+			search.lastTarget = undefined;
+		}
+		const jumped =
+			search.lastTarget !== undefined &&
+			haversineDistance(search.lastTarget, target) > 1000;
+		if (jumped) {
+			search.idx = 0;
+		}
+		const initialWindow = search.lastTarget === undefined || jumped ? coordinates.length : 64;
+		search.lastTarget = target;
+		search.idx = windowedNearestIdx(coordinates, search.idx, target, initialWindow);
+		return distances[search.idx];
+	};
+};
+
 const ChartContent: FC<ChartContentProps> = ({
 	chartKey,
 	settingsModalVisible,
@@ -108,8 +141,12 @@ const ChartContent: FC<ChartContentProps> = ({
 
 	const routingLineId = useAppSelector(selectRoutingLineId);
 	const routingCoords = useAppSelector(selectPathCoords);
+	const gnss = useAppSelector(selectGnssPosition);
+	const followingLineId = useAppSelector(selectFollowingLineId);
 	const lineId = source?.lineId;
 	const isRoutingLine = lineId != null && lineId === routingLineId;
+	// The GNSS indicator only renders on charts of the followed line.
+	const isFollowedLine = lineId != null && followingLineId === lineId;
 
 	// The routing line's chart reads the synchronous Redux pathCoords (the
 	// same simplified geometry RoutingMapView renders) so it updates and
@@ -169,40 +206,12 @@ const ChartContent: FC<ChartContentProps> = ({
 		[coordinates]
 	);
 
-	// Nearest along-route distance lookup: windowed incremental search
-	// with a per-route last-best index (resets when the coordinates
-	// array changes) — O(1) typical instead of a full scan per map event.
-	const nearestSearchRef = useRef<{
-		coords?: number[][];
-		idx: number;
-		lastTarget?: [number, number];
-	}>({ idx: 0 });
-	const nearestDistance = useCallback(
-		(coordinates: number[][], distances: number[], target: [number, number]): number => {
-			const search = nearestSearchRef.current;
-			if (search.coords !== coordinates) {
-				search.coords = coordinates;
-				search.idx = 0;
-				search.lastTarget = undefined;
-			}
-			// First lookup for these coordinates, or a target that jumped
-			// far from the last one (e.g. the map was panned away, or a
-			// different waypoint) — use a covering window so the result
-			// is exact instead of a local minimum.
-			const jumped =
-				search.lastTarget !== undefined &&
-				haversineDistance(search.lastTarget, target) > 1000;
-			if (jumped) {
-				search.idx = 0;
-			}
-			const initialWindow =
-				search.lastTarget === undefined || jumped ? coordinates.length : 64;
-			search.lastTarget = target;
-			search.idx = windowedNearestIdx(coordinates, search.idx, target, initialWindow);
-			return distances[search.idx];
-		},
-		[]
-	);
+	// Nearest along-route distance lookups: one search instance for the
+	// map-center/waypoint targets, a separate one for the live GNSS fix —
+	// the two streams interleave (map events at ~25 Hz, GNSS at ~1 Hz)
+	// and must not reset each other's incremental window.
+	const nearestDistance = useMemo(createNearestSearch, []);
+	const nearestGnssDistance = useMemo(createNearestSearch, []);
 
 	const label = useMemo(() => {
 		if (variant === 'fullscreen') {
@@ -450,6 +459,23 @@ const ChartContent: FC<ChartContentProps> = ({
 		]
 	);
 
+	// GNSS indicator (line-follow mode): the live GNSS fix projected onto
+	// the route, only while this chart's line is the followed line. GNSS
+	// fixes arrive ~1 Hz (Redux) — no polling needed.
+	const gnssDistance = useMemo(
+		() =>
+			isFollowedLine && gnss && coordinates && series
+				? nearestGnssDistance(coordinates, series.distances, [gnss.lng, gnss.lat])
+				: undefined,
+		[
+			isFollowedLine,
+			gnss,
+			coordinates,
+			series,
+			nearestGnssDistance,
+		]
+	);
+
 	const [chartSize, setChartSize] = useState<{ width: number; height: number }>({
 		width: 0,
 		height: 0,
@@ -622,6 +648,7 @@ const ChartContent: FC<ChartContentProps> = ({
 						unitPrefs={unitPrefs}
 						waypointDistances={waypointDistances}
 						centerDistance={centerDistance}
+						gnssDistance={gnssDistance}
 						onRatioChange={handleRatioChange}
 						onRatioUpdate={handleRatioUpdate}
 						resetSignal={resetSignal}

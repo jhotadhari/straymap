@@ -235,7 +235,15 @@ Data, follow-map polling, ratio plumbing, header/stats UI:
       line's envelope.
 - **Nearest route point**: `windowedNearestIdx` with a per-route
   last-best index; a covering window is used when the target jumps far
-  (>1000 m) or on first lookup.
+  (>1000 m) or on first lookup. Two `createNearestSearch` instances run:
+  one for the map center + waypoints, a separate one for the GNSS fix —
+  the streams interleave (map events ~25 Hz, GNSS ~1 Hz) and must not
+  reset each other's incremental window.
+- **GNSS indicator** (line-follow mode): `selectGnssPosition` +
+  `selectFollowingLineId` — while this chart's line is the followed
+  line, the live GNSS fix is projected onto the route (its own nearest
+  search) and passed as `gnssDistance`. Updates ~1 Hz per GNSS fix; no
+  polling. Rendered in drawer and fullscreen charts alike.
 - **Waypoint markers**: nearest along-route distances of the routing
   points.
 - **Reset signal** (`resetSignal`): bumped by the Fit-screen button, on
@@ -252,13 +260,23 @@ Data, follow-map polling, ratio plumbing, header/stats UI:
 `react-native-svg` with memoized subcomponents so map-center updates only
 touch the indicator/labels, never the static plot:
 
-| Subcomponent      | Content                                                                        |
-| ----------------- | ------------------------------------------------------------------------------ |
-| `PlotContent`     | Area fills + series strokes, inside the scaled `<G>` (memoized)                |
-| `PlotAxes`        | Axis lines + tick marks/labels, static layer, in screen space (memoized)       |
-| `WaypointMarkers` | Orange dashed vertical lines + numbers, in the plot layer (memoized)           |
-| `CenterIndicator` | Blue map-center lines/dots with background halos, in the plot layer (memoized) |
-| `CenterLabels`    | Blue center values at the axes, in the plot layer (memoized)                   |
+| Subcomponent       | Content                                                                             |
+| ------------------ | ----------------------------------------------------------------------------------- |
+| `PlotContent`      | Area fills + series strokes, inside the scaled `<G>` (memoized)                     |
+| `PlotAxes`         | Axis lines + tick marks/labels, static layer, in screen space (memoized)            |
+| `WaypointMarkers`  | Orange dashed vertical lines + numbers, in the plot layer (memoized)                |
+| `LocationIndicator`| Lines/dots with background halos for a location, in the plot layer (memoized)       |
+| `LocationLabels`   | Location values at the axes, in the plot layer (memoized)                           |
+
+- **Location indicators**: `LocationIndicator` + `LocationLabels` render
+  twice from values derived by `deriveIndicator` (plot x, nearest series
+  index, per-series values, formatted labels — all from an along-route
+  distance). The blue map-center indicator (`COLOR_CENTER`) renders
+  first; while the chart's line is the followed line, the GNSS indicator
+  renders above it in the GNSS color — contrasty yellow `#FFEB3B` on
+  dark themes, near-black neutral `#1A1A1A` (not red/green/blue) on
+  light themes (`theme.dark` picks). Both use the route's series values
+  at the nearest route point (the GNSS fix's own altitude is ignored).
 
 - **Color runs**: `buildColorRuns` batches consecutive same-color
   segments into single polyline paths; `simplifyColorRuns` culls runs
@@ -385,6 +403,11 @@ statistics — they must stay consistent with the values every other
   same action.
 - **bottomDrawer**: derived item keys (never persisted) + the dynamic
   item resolver.
+- **gnss**: `selectGnssPosition` feeds the GNSS indicator's target; it is
+  null while GNSS is inactive, so the indicator disappears automatically.
+- **lineFollow**: `selectFollowingLineId` gates the indicator — it only
+  renders on charts whose source line is the followed line (drawer and
+  fullscreen variants).
 - **ui**: the fullscreen UiItem key is pushed/removed via
   `addUiItemKey`/`setUiItemKeys`.
 - **i18n**: keys live under the `chart.*` namespace (e.g.

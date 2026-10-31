@@ -35,6 +35,10 @@ const COLOR_PRIMARY = '#E53935';
 const COLOR_SECONDARY = '#43A047';
 const COLOR_CENTER = '#1A73E8';
 const COLOR_WAYPOINT = '#F57C00';
+// GNSS indicator (line-follow mode): contrasty yellow on dark themes,
+// near-black neutral (not red/green/blue) on light themes.
+const COLOR_GNSS_DARK = '#FFEB3B';
+const COLOR_GNSS_LIGHT = '#1A1A1A';
 
 const MAX_SCALE = 20;
 const MIN_SCALE = 1 / MAX_SCALE;
@@ -475,52 +479,55 @@ const WaypointMarkers = memo(
 );
 
 /**
- * The blue map-center indicator (vertical/horizontal lines + dots),
- * drawn in screen space so strokes, dashes and dots stay uniform at any
- * zoom or aspect ratio. Memoized: map-center updates only touch this
- * subtree.
+ * A location indicator (vertical/horizontal lines + dots) — the blue
+ * map-center indicator and the GNSS indicator (line-follow mode) both
+ * render through this, in screen space so strokes, dashes and dots stay
+ * uniform at any zoom or aspect ratio. Memoized: location updates only
+ * touch this subtree.
  */
-const CenterIndicator = memo(
+const LocationIndicator = memo(
 	({
 		plotH,
 		plotW,
-		centerX,
-		centerY,
-		centerYSecondary,
+		x,
+		y,
+		ySecondary,
 		marginLeft,
 		marginRight,
 		width,
 		backgroundColor,
+		color,
 		toScreenX,
 		toScreenY,
 	}: {
 		plotH: number;
 		plotW: number;
-		centerX?: number;
-		centerY?: number;
-		centerYSecondary?: number;
+		x?: number;
+		y?: number;
+		ySecondary?: number;
 		marginLeft: number;
 		marginRight: number;
 		width: number;
 		backgroundColor: string;
+		color: string;
 		toScreenX: (v: number) => number;
 		toScreenY: (v: number) => number;
 	}) => {
-		if (centerX === undefined || centerY === undefined) {
+		if (x === undefined || y === undefined) {
 			return null;
 		}
-		const screenX = toScreenX(centerX);
+		const screenX = toScreenX(x);
 		const verticalY1 = toScreenY(
-			centerYSecondary !== undefined ? Math.min(centerY, centerYSecondary) : centerY
+			ySecondary !== undefined ? Math.min(y, ySecondary) : y
 		);
 		const verticalY2 = toScreenY(plotH);
-		const horizontalY = toScreenY(centerY);
+		const horizontalY = toScreenY(y);
 		// Clamp the horizontal line to the plot area: it must stop just
-		// right of the blue label (the plot's left edge), never extend
+		// right of the label gutter (the plot's left edge), never extend
 		// under the labels/margins when the viewport is panned or zoomed.
 		const horizontalX1 = Math.max(toScreenX(0), marginLeft);
 		const horizontalX2 = screenX;
-		const secondaryY = centerYSecondary !== undefined ? toScreenY(centerYSecondary) : undefined;
+		const secondaryY = ySecondary !== undefined ? toScreenY(ySecondary) : undefined;
 		const secondaryX2 = Math.min(toScreenX(plotW), width - marginRight);
 
 		return (
@@ -573,7 +580,7 @@ const CenterIndicator = memo(
 					y1={verticalY1}
 					x2={screenX}
 					y2={verticalY2}
-					stroke={COLOR_CENTER}
+					stroke={color}
 					strokeWidth={1}
 					strokeDasharray="3,3"
 				/>
@@ -582,7 +589,7 @@ const CenterIndicator = memo(
 					y1={horizontalY}
 					x2={horizontalX2}
 					y2={horizontalY}
-					stroke={COLOR_CENTER}
+					stroke={color}
 					strokeWidth={1}
 					strokeDasharray="3,3"
 				/>
@@ -593,7 +600,7 @@ const CenterIndicator = memo(
 							y1={secondaryY}
 							x2={secondaryX2}
 							y2={secondaryY}
-							stroke={COLOR_CENTER}
+							stroke={color}
 							strokeWidth={1}
 							strokeDasharray="3,3"
 						/>
@@ -601,7 +608,7 @@ const CenterIndicator = memo(
 							cx={screenX}
 							cy={secondaryY}
 							r={3}
-							fill={COLOR_CENTER}
+							fill={color}
 						/>
 					</>
 				)}
@@ -609,7 +616,7 @@ const CenterIndicator = memo(
 					cx={screenX}
 					cy={horizontalY}
 					r={3}
-					fill={COLOR_CENTER}
+					fill={color}
 				/>
 			</G>
 		);
@@ -617,17 +624,18 @@ const CenterIndicator = memo(
 );
 
 /**
- * The blue center values at the axes. Memoized — updated independently
- * of the static plot on every map-center change.
+ * A location indicator's values at the axes. Memoized — updated
+ * independently of the static plot on every location change.
  */
-const CenterLabels = memo(
+const LocationLabels = memo(
 	({
-		centerX,
-		centerY,
-		centerYSecondary,
-		centerPrimaryLabel,
-		centerSecondaryLabel,
-		centerDistanceLabel,
+		x,
+		y,
+		ySecondary,
+		primaryLabel,
+		secondaryLabel,
+		distanceLabel,
+		color,
 		toScreenX,
 		toScreenY,
 		marginLeft,
@@ -635,12 +643,13 @@ const CenterLabels = memo(
 		width,
 		height,
 	}: {
-		centerX?: number;
-		centerY?: number;
-		centerYSecondary?: number;
-		centerPrimaryLabel?: string;
-		centerSecondaryLabel?: string;
-		centerDistanceLabel?: string;
+		x?: number;
+		y?: number;
+		ySecondary?: number;
+		primaryLabel?: string;
+		secondaryLabel?: string;
+		distanceLabel?: string;
+		color: string;
 		toScreenX: (v: number) => number;
 		toScreenY: (v: number) => number;
 		marginLeft: number;
@@ -648,41 +657,41 @@ const CenterLabels = memo(
 		width: number;
 		height: number;
 	}) => {
-		if (centerX === undefined || centerY === undefined) {
+		if (x === undefined || y === undefined) {
 			return null;
 		}
 		return (
 			<G>
-				{centerPrimaryLabel !== undefined && (
+				{primaryLabel !== undefined && (
 					<SvgText
 						x={marginLeft - 6}
-						y={toScreenY(centerY) + 3}
-						fill={COLOR_CENTER}
+						y={toScreenY(y) + 3}
+						fill={color}
 						fontSize={9}
 						textAnchor="end"
 					>
-						{centerPrimaryLabel}
+						{primaryLabel}
 					</SvgText>
 				)}
-				{centerYSecondary !== undefined && centerSecondaryLabel !== undefined && (
+				{ySecondary !== undefined && secondaryLabel !== undefined && (
 					<SvgText
 						x={width - marginRight + 6}
-						y={toScreenY(centerYSecondary) + 3}
-						fill={COLOR_CENTER}
+						y={toScreenY(ySecondary) + 3}
+						fill={color}
 						fontSize={9}
 					>
-						{centerSecondaryLabel}
+						{secondaryLabel}
 					</SvgText>
 				)}
-				{centerDistanceLabel !== undefined && (
+				{distanceLabel !== undefined && (
 					<SvgText
-						x={toScreenX(centerX)}
+						x={toScreenX(x)}
 						y={height - MARGIN_BOTTOM + 16}
-						fill={COLOR_CENTER}
+						fill={color}
 						fontSize={9}
 						textAnchor="middle"
 					>
-						{centerDistanceLabel}
+						{distanceLabel}
 					</SvgText>
 				)}
 			</G>
@@ -698,6 +707,7 @@ const Chart: FC<{
 	unitPrefs: { [value: string]: UnitPref };
 	waypointDistances?: number[];
 	centerDistance?: number;
+	gnssDistance?: number;
 	onRatioChange?: (ratio: number | undefined) => void;
 	onRatioUpdate?: (ratio: number | undefined) => void;
 	resetSignal?: number;
@@ -713,6 +723,7 @@ const Chart: FC<{
 	unitPrefs,
 	waypointDistances,
 	centerDistance,
+	gnssDistance,
 	onRatioChange,
 	onRatioUpdate,
 	resetSignal,
@@ -1580,75 +1591,68 @@ const Chart: FC<{
 			plotW,
 		]
 	);
-	const centerX = useMemo(
-		() => (centerDistance !== undefined ? distToX(centerDistance) : undefined),
-		[centerDistance, distToX]
-	);
-	const centerIdx = useMemo(
-		() =>
-			centerDistance !== undefined
-				? nearestIndex(series.distances, centerDistance)
-				: undefined,
+	// Location indicators (blue map-center + GNSS): everything derived
+	// from an along-route distance — plot x, nearest series index,
+	// per-series values, and the formatted axis labels.
+	const deriveIndicator = useCallback(
+		(distance: number | undefined) => {
+			if (distance === undefined) {
+				return {
+					x: undefined,
+					y: undefined,
+					ySecondary: undefined,
+					primaryLabel: undefined,
+					secondaryLabel: undefined,
+					distanceLabel: undefined,
+				};
+			}
+			const idx = nearestIndex(series.distances, distance);
+			return {
+				x: distToX(distance),
+				y:
+					seriesViews.primary.values
+						? seriesViews.primary.toY(
+								seriesViews.primary.values[idx] ?? seriesViews.primary.vmax
+							)
+						: undefined,
+				ySecondary:
+					seriesViews.secondary.values
+						? seriesViews.secondary.toY(
+								seriesViews.secondary.values[idx] ?? seriesViews.secondary.vmax
+							)
+						: undefined,
+				primaryLabel: seriesViews.primary.values
+					? seriesViews.primary.formatTick(
+							seriesViews.primary.values[idx] ?? seriesViews.primary.vmax
+						)
+					: undefined,
+				secondaryLabel: seriesViews.secondary.values
+					? seriesViews.secondary.formatTick(
+							seriesViews.secondary.values[idx] ?? seriesViews.secondary.vmax
+						)
+					: undefined,
+				distanceLabel: formatDistance(distance, distancePref),
+			};
+		},
 		[
-			centerDistance,
 			series,
-		]
-	);
-	const centerY = useMemo(
-		() =>
-			centerIdx !== undefined && seriesViews.primary.values
-				? seriesViews.primary.toY(
-						seriesViews.primary.values[centerIdx] ?? seriesViews.primary.vmax
-					)
-				: undefined,
-		[
-			centerIdx,
 			seriesViews,
-		]
-	);
-	const centerYSecondary = useMemo(
-		() =>
-			centerIdx !== undefined && seriesViews.secondary.values
-				? seriesViews.secondary.toY(
-						seriesViews.secondary.values[centerIdx] ?? seriesViews.secondary.vmax
-					)
-				: undefined,
-		[
-			centerIdx,
-			seriesViews,
-		]
-	);
-	const centerPrimaryLabel = useMemo(
-		() =>
-			centerIdx !== undefined && seriesViews.primary.values
-				? seriesViews.primary.formatTick(
-						seriesViews.primary.values[centerIdx] ?? seriesViews.primary.vmax
-					)
-				: undefined,
-		[
-			centerIdx,
-			seriesViews,
-		]
-	);
-	const centerSecondaryLabel = useMemo(
-		() =>
-			centerIdx !== undefined && seriesViews.secondary.values
-				? seriesViews.secondary.formatTick(
-						seriesViews.secondary.values[centerIdx] ?? seriesViews.secondary.vmax
-					)
-				: undefined,
-		[
-			centerIdx,
-			seriesViews,
-		]
-	);
-	const centerDistanceLabel = useMemo(
-		() =>
-			centerDistance !== undefined ? formatDistance(centerDistance, distancePref) : undefined,
-		[
-			centerDistance,
+			distToX,
 			distancePref,
 		]
+	);
+
+	const centerIndicator = useMemo(
+		() => deriveIndicator(centerDistance),
+		[deriveIndicator, centerDistance]
+	);
+	const gnssIndicator = useMemo(
+		() => deriveIndicator(gnssDistance),
+		[deriveIndicator, gnssDistance]
+	);
+	const gnssColor = useMemo(
+		() => (theme.dark ? COLOR_GNSS_DARK : COLOR_GNSS_LIGHT),
+		[theme.dark]
 	);
 
 	// The plot content is translated and scaled inside the SVG (so
@@ -1736,32 +1740,67 @@ const Chart: FC<{
 							toScreenY={toPlotY}
 						/>
 
-						{/* The center indicator must always be the uppermost
-							plot layer — keep this group last in the Svg so
-							nothing can paint over the blue lines, dots or
-							labels. */}
+						{/* The location indicators must always be the
+							uppermost plot layer — keep this group last in
+							the Svg so nothing can paint over their lines,
+							dots or labels. The GNSS indicator renders after
+							the blue map-center indicator, layered above
+							it. */}
 						<G>
-							<CenterIndicator
+							<LocationIndicator
 								plotH={plotH}
 								plotW={plotW}
-								centerX={centerX}
-								centerY={centerY}
-								centerYSecondary={centerYSecondary}
+								x={centerIndicator.x}
+								y={centerIndicator.y}
+								ySecondary={centerIndicator.ySecondary}
 								marginLeft={layerMarginLeft}
 								marginRight={layerMarginRight}
 								width={layerWidth}
 								backgroundColor={theme.colors.background}
+								color={COLOR_CENTER}
 								toScreenX={toPlotX}
 								toScreenY={toPlotY}
 							/>
 
-							<CenterLabels
-								centerX={centerX}
-								centerY={centerY}
-								centerYSecondary={centerYSecondary}
-								centerPrimaryLabel={centerPrimaryLabel}
-								centerSecondaryLabel={centerSecondaryLabel}
-								centerDistanceLabel={centerDistanceLabel}
+							<LocationLabels
+								x={centerIndicator.x}
+								y={centerIndicator.y}
+								ySecondary={centerIndicator.ySecondary}
+								primaryLabel={centerIndicator.primaryLabel}
+								secondaryLabel={centerIndicator.secondaryLabel}
+								distanceLabel={centerIndicator.distanceLabel}
+								color={COLOR_CENTER}
+								toScreenX={toPlotX}
+								toScreenY={toPlotY}
+								marginLeft={layerMarginLeft}
+								marginRight={layerMarginRight}
+								width={layerWidth}
+								height={layerHeight}
+							/>
+
+							<LocationIndicator
+								plotH={plotH}
+								plotW={plotW}
+								x={gnssIndicator.x}
+								y={gnssIndicator.y}
+								ySecondary={gnssIndicator.ySecondary}
+								marginLeft={layerMarginLeft}
+								marginRight={layerMarginRight}
+								width={layerWidth}
+								backgroundColor={theme.colors.background}
+								color={gnssColor}
+								toScreenX={toPlotX}
+								toScreenY={toPlotY}
+							/>
+
+							<LocationLabels
+								x={gnssIndicator.x}
+								y={gnssIndicator.y}
+								ySecondary={gnssIndicator.ySecondary}
+								primaryLabel={gnssIndicator.primaryLabel}
+								secondaryLabel={gnssIndicator.secondaryLabel}
+								distanceLabel={gnssIndicator.distanceLabel}
+								color={gnssColor}
 								toScreenX={toPlotX}
 								toScreenY={toPlotY}
 								marginLeft={layerMarginLeft}
