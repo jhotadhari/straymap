@@ -11,6 +11,7 @@ import { LayerLabel, LayerScreenLine, ReindexScope } from 'react-native-mapsforg
 import { useAppSelector } from '../../../store/hooks';
 import { selectGnssPosition, selectIsCenterActive, selectShowMeasurementLabel } from '../selectors';
 import { selectMeasureActive } from '../../measure/selectors';
+import { selectMovedPointId } from '../../routing/selectors';
 import { useGnssCenterMode } from '../hooks/useGnssCenterMode';
 
 /**
@@ -25,13 +26,15 @@ import { useGnssCenterMode } from '../hooks/useGnssCenterMode';
  * glued to the map with zero latency and zero bridge crossings.
  *
  * Only one center-connection line is shown at a time — while a
- * measure-distance measurement is active, the GNSS line stays hidden.
- * The label can also be hidden persistently via its short-press menu.
+ * measure-distance measurement or a waypoint move is active, the GNSS
+ * line stays hidden. The label can also be hidden persistently via its
+ * short-press menu.
  */
 const GnssCenterConnection: FC = () => {
 	const isCenterActive = useAppSelector(selectIsCenterActive);
 	const gnssPosition = useAppSelector(selectGnssPosition);
 	const measureActive = useAppSelector(selectMeasureActive);
+	const movedPointId = useAppSelector(selectMovedPointId);
 	const showMeasurementLabel = useAppSelector(selectShowMeasurementLabel);
 	const theme = useTheme();
 	const { mode, labelText } = useGnssCenterMode();
@@ -64,7 +67,9 @@ const GnssCenterConnection: FC = () => {
 	}
 
 	const showConnection =
-		(mode === 'pannedAway' || mode === 'returning') && !measureActive;
+		(mode === 'pannedAway' || mode === 'returning') &&
+		!measureActive &&
+		movedPointId === null;
 
 	if (!showConnection) {
 		return null;
