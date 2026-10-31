@@ -316,7 +316,6 @@ const DraggableItem: FC<{
 					style={styleHandle}
 				>
 					<Text>{order + 1}</Text>
-					<Text>{item.id}</Text>
 					<Text>
 						{item?.geometry?.coordinates &&
 							formatCoords(
