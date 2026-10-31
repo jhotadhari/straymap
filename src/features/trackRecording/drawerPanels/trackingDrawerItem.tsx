@@ -26,6 +26,10 @@ import { selectResumePending } from '../selectors';
 import { startRecording, stopRecording, continueRecording } from '../slice';
 import { queryLineGeom } from '../../lines/db/queryFns';
 import { queryLastRecordedLine } from '../db/queryFns';
+import { setUiItemKeys } from '../../ui/slice';
+import { itemStyles } from '../../drawers/constants';
+import { useButtonProps } from '../../../compose/useButtonProps';
+import ButtonHighlight from '../../../components/generic/primitives/ButtonHighlight';
 import { MenuActionOption } from '../../../types';
 import ButtonHighlightMenuControl from '../../../components/generic/wrapper/ButtonHighlightMenuControl';
 import {
@@ -93,6 +97,15 @@ const TrackingDrawerContent: FC = () => {
 	const dispatch = useAppDispatch();
 
 	const { showError } = useContext(ErrorToastContext);
+
+	const openLocationSettings = useCallback(
+		() => dispatch(setUiItemKeys(['location'])),
+		[dispatch]
+	);
+
+	const buttonProps = useButtonProps({
+		style: itemStyles.buttonRow,
+	});
 
 	const isRecording = useAppSelector(selectIsRecording);
 	const isActive = useAppSelector(selectIsActive);
@@ -260,6 +273,13 @@ const TrackingDrawerContent: FC = () => {
 	return (
 		<View style={styles.container}>
 			<Text style={theme.fonts.titleMedium}>{t('trackRecording.tracking')}</Text>
+
+			<ButtonHighlight
+				{...buttonProps}
+				onPress={openLocationSettings}
+			>
+				{t('drawers.openLocationSettings')}
+			</ButtonHighlight>
 
 			<View style={styles.row}>
 				<Text>{t('trackRecording.trackRecording')}:</Text>

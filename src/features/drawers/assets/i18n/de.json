@@ -2,6 +2,7 @@
 	"drawer_one": "Panel",
 	"drawer_other": "Panels",
 	"openMapsSettings": "Karten Einstellungen öffnen",
+	"openLocationSettings": "Standort Einstellungen öffnen",
 	"settingsHandle": "Einstellungen",
 	"hintSettingsHandleSide": "Wo der Einstellungen-Griff angezeigt wird: auf der linken Seite der Karte, auf der rechten Seite oder gar nicht.\n\nDer Einstellungen-Griff öffnet die Panel-Auswahl.",
 	"settingsHandleSide": {

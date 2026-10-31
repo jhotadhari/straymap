@@ -2,6 +2,7 @@
 	"drawer_one": "Panel",
 	"drawer_other": "Paneles",
 	"openMapsSettings": "Abrir configuración de mapas",
+	"openLocationSettings": "Abrir configuración de ubicación",
 	"settingsHandle": "Ajustes",
 	"hintSettingsHandleSide": "Dónde se muestra el asa de ajustes: en el lado izquierdo del mapa, en el lado derecho o no se muestra.\n\nEl asa de ajustes abre la selección de paneles.",
 	"settingsHandleSide": {

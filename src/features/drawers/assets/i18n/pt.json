@@ -2,6 +2,7 @@
 	"drawer_one": "Painel",
 	"drawer_other": "Painéis",
 	"openMapsSettings": "Abrir configurações de mapas",
+	"openLocationSettings": "Abrir configurações de localização",
 	"settingsHandle": "Configurações",
 	"hintSettingsHandleSide": "Onde a alça de configurações é exibida: no lado esquerdo do mapa, no lado direito ou não é exibida.\n\nA alça de configurações abre a seleção de painéis.",
 	"settingsHandleSide": {

@@ -2,6 +2,7 @@
 	"drawer_one": "Drawer",
 	"drawer_other": "Drawers",
 	"openMapsSettings": "Open maps settings",
+	"openLocationSettings": "Open location settings",
 	"settingsHandle": "Settings handle",
 	"hintSettingsHandleSide": "Where the settings handle is shown: on the left side of the map, on the right side, or not at all.\n\nThe settings handle opens the drawer selection.",
 	"settingsHandleSide": {
