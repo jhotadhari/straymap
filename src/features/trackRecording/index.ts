@@ -7,7 +7,7 @@ import de from './assets/i18n/de.json';
 import en from './assets/i18n/en.json';
 import es from './assets/i18n/es.json';
 import pt from './assets/i18n/pt.json';
-import trackingStats from './dashboardWidgets/trackingStats';
+import trackingWidgets from './dashboardWidgets/trackingStats';
 import TrackRecordingMapView from './mapComponents/TrackRecordingMapView';
 import trackingDrawerItem from './drawerPanels/trackingDrawerItem';
 import ResumeRecordingPrompt from './appOverlays/ResumeRecordingPrompt';
@@ -28,7 +28,7 @@ export default {
 		const id = selectTrackLineId(state);
 		return { trackRecording: id ?? null };
 	},
-	dashboardWidgets: [trackingStats],
+	dashboardWidgets: trackingWidgets,
 	mapComponents: [
 		{
 			key: 'trackRecordingMapView',
