@@ -13,6 +13,7 @@ import { LayerMarker, LayerShape, Marker, ReindexScope } from 'react-native-maps
 import { useAppSelector } from '../../../store/hooks';
 import {
 	selectAccuracyCircleThresholdMeters,
+	selectDeviceAzimuth,
 	selectGnssHeading,
 	selectGnssPosition,
 	selectIsActive,
@@ -40,8 +41,9 @@ const isFileSource = (iconSource: string) =>
  *
  * The configured icon (triangle preset or a custom svg/png file) is
  * decoded natively via the marker's filePath paint; the rotation
- * (movement direction, or 0 when the marker direction is 'north') is
- * applied natively via the `rotation` paint option (whole degrees).
+ * (movement direction, or the device compass azimuth when the marker
+ * direction is 'north') is applied natively via the `rotation` paint
+ * option (whole degrees).
  *
  * While the GNSS accuracy is worse than the configured threshold, a
  * native circle with the live accuracy radius is drawn under the marker.
@@ -54,6 +56,7 @@ const GnssCenterMarker: FC = () => {
 	const markerSize = useAppSelector(selectMarkerSize);
 	const markerColor = useAppSelector(selectMarkerColor);
 	const markerDirection = useAppSelector(selectMarkerDirection);
+	const deviceAzimuth = useAppSelector(selectDeviceAzimuth);
 	const accuracyCircleThresholdMeters = useAppSelector(selectAccuracyCircleThresholdMeters);
 	const appDirs = useAppSelector(selectAppDirs);
 
@@ -98,8 +101,11 @@ const GnssCenterMarker: FC = () => {
 
 	// Movement direction from consecutive fixes (slice-derived heading) —
 	// the payload's velocity bearing is unreliable for pedestrian fixes.
-	// In 'north' mode the marker always points to map north (rotation 0).
-	const rotation = markerDirection === 'north' ? 0 : gnssHeading ?? 0;
+	// In 'north' mode the marker turns with the device compass (azimuth
+	// relative to magnetic north); without a compass sensor it stays
+	// pointing to map north (rotation 0).
+	const rotation =
+		markerDirection === 'north' ? deviceAzimuth ?? 0 : gnssHeading ?? 0;
 
 	const paint = useMemo(
 		() =>

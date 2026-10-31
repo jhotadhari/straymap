@@ -29,7 +29,7 @@
 		"movingDirection": "Dirección de movimiento",
 		"magneticNorth": "Norte magnético"
 	},
-	"hintMarkerDirection": "Si el marcador apunta en tu dirección de movimiento o siempre al norte.",
+	"hintMarkerDirection": "Si el marcador apunta en tu dirección de movimiento o gira con la brújula del dispositivo.",
 	"accuracyCircle": "Círculo de precisión",
 	"hintAccuracyCircle": "El círculo se dibuja con el radio de la precisión GNSS actual cuando la precisión es peor que este umbral (metros). 0 desactiva el círculo.",
 	"showMeasurementLabel": "Mostrar etiqueta de medición",

@@ -75,6 +75,12 @@ import {
 	selectUseDemAltitude,
 } from '../features/trackRecording/selectors';
 import { pauseRecordingForPrompt } from '../features/trackRecording/slice';
+import {
+	selectDeviceAzimuth,
+	selectIsActive as selectGnssIsActive,
+	selectMarkerDirection,
+} from '../features/gnss/selectors';
+import { setDeviceAzimuth } from '../features/gnss/slice';
 import { altitudeService } from '../lib/AltitudeService';
 import { addBusyKey, removeBusyKey } from '../features/ui/slice';
 
@@ -108,6 +114,14 @@ const AppView = ({
 	const isRecording = useAppSelector(selectIsRecording);
 	const useDemAltitude = useAppSelector(selectUseDemAltitude);
 	const resumePromptPending = useAppSelector(selectResumePromptPending);
+
+	const gnssIsActive = useAppSelector(selectGnssIsActive);
+	const markerDirection = useAppSelector(selectMarkerDirection);
+	const deviceAzimuth = useAppSelector(selectDeviceAzimuth);
+
+	// The device compass only feeds the marker while GNSS is active and the
+	// marker direction is 'north' (device compass).
+	const compassEnabled = gnssIsActive && markerDirection === 'north';
 
 	const leftItemKeys = useAppSelector((state) => selectItemKeys(state, { side: 'left' }));
 	const rightItemKeys = useAppSelector((state) => selectItemKeys(state, { side: 'right' }));
@@ -289,6 +303,26 @@ const AppView = ({
 		},
 		[showError, t]
 	);
+
+	// onDeviceAzimuth delivers the native compass azimuth (whole degrees,
+	// 0-360 clockwise from magnetic north) while the compass is enabled.
+	const handleDeviceAzimuth = useCallback(
+		(event: NativeSyntheticEvent<{ azimuth: number }>) => {
+			if (typeof event?.nativeEvent?.azimuth === 'number') {
+				dispatch(setDeviceAzimuth(event.nativeEvent.azimuth));
+			}
+		},
+		[dispatch]
+	);
+
+	// Drop the stale azimuth when the compass is disabled (GNSS off or the
+	// marker direction switched back to moving direction) so the marker
+	// doesn't keep an old compass heading.
+	useEffect(() => {
+		if (!compassEnabled && deviceAzimuth !== null) {
+			dispatch(setDeviceAzimuth(null));
+		}
+	}, [compassEnabled, deviceAzimuth, dispatch]);
 
 	const handleMapResume = useCallback(
 		(event: NativeSyntheticEvent<MapEventResponse>) =>
@@ -492,6 +526,8 @@ const AppView = ({
 							onLongPress={handleMapLongPress}
 							gnssFilter={gnssFilter}
 							onGnssPosition={handleGnssPosition}
+							compassEnabled={compassEnabled}
+							onDeviceAzimuth={handleDeviceAzimuth}
 						>
 							{insideMapComponents.map(({ key, Component, props }) => (
 								<Component
