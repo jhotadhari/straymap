@@ -54,13 +54,13 @@ export function useGnssCenterMode(): {
 	const movedPointId = useAppSelector(selectMovedPointId);
 	const unitPrefs = useAppSelector(selectUnitPrefs);
 
-	// Interactions that suspend center-mode map movement while active:
-	// measure only blocks the return jump, while an active waypoint move
-	// (move point / cut segment) owns the map fully and also blocks the
-	// chase-cam follow.
+	// Interactions that suspend center-mode map movement while active —
+	// measure-distance measurements and waypoint moves (move point /
+	// cut segment). While any is active the map is fully user-owned:
+	// no return jump, no chase-cam follow, no enable flight.
 	const centerBlocks = [
-		{ key: 'measure', active: measureActive, ownsMap: false },
-		{ key: 'pointMove', active: movedPointId !== null, ownsMap: true },
+		{ key: 'measure', active: measureActive },
+		{ key: 'pointMove', active: movedPointId !== null },
 	];
 	const anyBlockActive = centerBlocks.some((block) => block.active);
 
@@ -161,9 +161,9 @@ export function useGnssCenterMode(): {
 			return;
 		}
 		setMode('centered');
-		// An interaction that owns the map (waypoint move) also suppresses
-		// the initial flight — the map stays user-controlled.
-		if (!centerBlocksRef.current.some((block) => block.active && block.ownsMap)) {
+		// An active interaction owns the map — also suppress the initial
+		// flight; the poll below handles the mode transition.
+		if (!centerBlocksRef.current.some((block) => block.active)) {
 			flyToGnss(CHASE_DURATION_MS);
 		}
 	}, [
@@ -174,14 +174,14 @@ export function useGnssCenterMode(): {
 
 	// Chase-cam: follow each new fix while centered. Also covers the
 	// initial flight when enabling without a fix, and the pending return
-	// when the timer fired while no fix was available. Interactions that
-	// own the map (waypoint move) suppress every flight — the map stays
-	// fully user-controlled until they end.
+	// when the timer fired while no fix was available. While an
+	// interaction is active every flight is suppressed — the map stays
+	// fully user-controlled until it ends.
 	useEffect(() => {
 		if (!isCenterActive || !gnssPosition) {
 			return;
 		}
-		if (centerBlocksRef.current.some((block) => block.active && block.ownsMap)) {
+		if (centerBlocksRef.current.some((block) => block.active)) {
 			return;
 		}
 		const currentMode = modeRef.current;
