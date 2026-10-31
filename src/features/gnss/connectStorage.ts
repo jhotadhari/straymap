@@ -19,6 +19,7 @@ import {
 	setMarkerIconSource,
 	setMarkerSize,
 	setMarkerColor,
+	setMarkerDirection,
 	setAccuracyCircleThresholdMeters,
 	setShowMeasurementLabel,
 } from './slice';
@@ -54,6 +55,12 @@ export const initializeFromStorage = (store: AppStore) => {
 				}
 				if (typeof newSettings.markerColor === 'string') {
 					store.dispatch(setMarkerColor(newSettings.markerColor));
+				}
+				if (
+					newSettings.markerDirection === 'movingDirection' ||
+					newSettings.markerDirection === 'north'
+				) {
+					store.dispatch(setMarkerDirection(newSettings.markerDirection));
 				}
 				if (typeof newSettings.accuracyCircleThresholdMeters === 'number') {
 					store.dispatch(
@@ -92,6 +99,7 @@ startAppListening({
 		setMarkerIconSource,
 		setMarkerSize,
 		setMarkerColor,
+		setMarkerDirection,
 		setAccuracyCircleThresholdMeters,
 		setShowMeasurementLabel
 	),

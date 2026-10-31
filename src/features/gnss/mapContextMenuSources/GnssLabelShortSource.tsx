@@ -10,6 +10,7 @@ import { MapContextMenuSourceComponentProps, MenuActionOption } from '../../../t
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { MapContext } from '../../../Context';
 import { isPressNearCenter } from '../../mapContextMenu/isPressNearCenter';
+import { isPressOnLabel } from '../../mapContextMenu/isPressOnLabel';
 import { selectIsCenterActive, selectShowMeasurementLabel } from '../selectors';
 import { setShowMeasurementLabel } from '../slice';
 import { selectMeasureActive } from '../../measure/selectors';
@@ -18,8 +19,8 @@ import { selectMeasureActive } from '../../measure/selectors';
  * Short-press source for the GNSS center-mode measurement label: offers
  * "Hide label" / "Show label" (persisted). Contributes only when center
  * mode is active, no measure-distance measurement is running, and the
- * menu was triggered by the label itself or by a press near the
- * viewport center.
+ * menu was triggered by the label itself (a native map label hit) or by
+ * a press near the viewport center.
  */
 const GnssLabelShortSource: FC<MapContextMenuSourceComponentProps> = ({ context, onOptions }) => {
 	const dispatch = useAppDispatch();
@@ -34,6 +35,7 @@ const GnssLabelShortSource: FC<MapContextMenuSourceComponentProps> = ({ context,
 		}
 		if (
 			context.pressOrigin !== 'label' &&
+			!isPressOnLabel(context) &&
 			!isPressNearCenter(context, mapPositionSvRef.current)
 		) {
 			return [];

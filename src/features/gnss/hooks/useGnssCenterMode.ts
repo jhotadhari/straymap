@@ -11,6 +11,7 @@ import { useMap } from 'react-native-mapsforge-vtm';
 import { useAppSelector } from '../../../store/hooks';
 import { selectGnssPosition, selectIsCenterActive, selectRecenterDelaySec } from '../selectors';
 import { selectMeasureActive } from '../../measure/selectors';
+import { selectMovedPointId } from '../../routing/selectors';
 import { selectUnitPrefs } from '../../general/selectors';
 import { AppContext, MapContext } from '../../../Context';
 import { useMapEventInterval } from '../../dashboard/hooks/useMapEventInterval';
@@ -26,7 +27,7 @@ export type GnssCenterMode = 'off' | 'centered' | 'pannedAway' | 'returning';
 /** Max distance (m) between map center and GNSS position to count as centered. */
 const CENTER_EPS_M = 2;
 /** Chase-cam animation duration while following the moving GNSS position. */
-const CHASE_DURATION_MS = 400;
+const CHASE_DURATION_MS = 0;
 /** Re-centering flight duration after the panned-away timer fires. */
 const RETURN_DURATION_MS = 600;
 
@@ -50,7 +51,18 @@ export function useGnssCenterMode(): {
 	const gnssPosition = useAppSelector(selectGnssPosition);
 	const recenterDelaySec = useAppSelector(selectRecenterDelaySec);
 	const measureActive = useAppSelector(selectMeasureActive);
+	const movedPointId = useAppSelector(selectMovedPointId);
 	const unitPrefs = useAppSelector(selectUnitPrefs);
+
+	// Interactions that suspend center-mode map movement while active —
+	// measure-distance measurements and waypoint moves (move point /
+	// cut segment). While any is active the map is fully user-owned:
+	// no return jump, no chase-cam follow, no enable flight.
+	const centerBlocks = [
+		{ key: 'measure', active: measureActive },
+		{ key: 'pointMove', active: movedPointId !== null },
+	];
+	const anyBlockActive = centerBlocks.some((block) => block.active);
 
 	const { mapViewNativeNodeHandle } = useContext(AppContext);
 	const { currentMapEventRef } = useContext(MapContext);
@@ -68,8 +80,8 @@ export function useGnssCenterMode(): {
 	gnssPositionRef.current = gnssPosition;
 	const recenterDelaySecRef = useRef(recenterDelaySec);
 	recenterDelaySecRef.current = recenterDelaySec;
-	const measureActiveRef = useRef(measureActive);
-	measureActiveRef.current = measureActive;
+	const centerBlocksRef = useRef(centerBlocks);
+	centerBlocksRef.current = centerBlocks;
 	const unitPrefsRef = useRef(unitPrefs);
 	unitPrefsRef.current = unitPrefs;
 	const modeRef = useRef(mode);
@@ -118,10 +130,11 @@ export function useGnssCenterMode(): {
 		clearReturnTimer();
 		returnTimerRef.current = setTimeout(() => {
 			returnTimerRef.current = null;
-			// While a measure-distance measurement is active the map must
-			// not jump back to the GNSS position — stay panned away; the
-			// measurement-end effect re-arms the countdown.
-			if (measureActiveRef.current) {
+			// While an interaction (measure-distance measurement, waypoint
+			// move) is active the map must not jump back to the GNSS
+			// position — stay panned away; the interaction-end effect
+			// re-arms the countdown.
+			if (centerBlocksRef.current.some((block) => block.active)) {
 				return;
 			}
 			const gnss = gnssPositionRef.current;
@@ -148,7 +161,11 @@ export function useGnssCenterMode(): {
 			return;
 		}
 		setMode('centered');
-		flyToGnss(CHASE_DURATION_MS);
+		// An active interaction owns the map — also suppress the initial
+		// flight; the poll below handles the mode transition.
+		if (!centerBlocksRef.current.some((block) => block.active)) {
+			flyToGnss(CHASE_DURATION_MS);
+		}
 	}, [
 		isCenterActive,
 		clearReturnTimer,
@@ -157,9 +174,14 @@ export function useGnssCenterMode(): {
 
 	// Chase-cam: follow each new fix while centered. Also covers the
 	// initial flight when enabling without a fix, and the pending return
-	// when the timer fired while no fix was available.
+	// when the timer fired while no fix was available. While an
+	// interaction is active every flight is suppressed — the map stays
+	// fully user-controlled until it ends.
 	useEffect(() => {
 		if (!isCenterActive || !gnssPosition) {
+			return;
+		}
+		if (centerBlocksRef.current.some((block) => block.active)) {
 			return;
 		}
 		const currentMode = modeRef.current;
@@ -193,22 +215,22 @@ export function useGnssCenterMode(): {
 		flyToGnss,
 	]);
 
-	// While a measure-distance measurement is active the map stays where
-	// the user panned it; when the measurement ends, resume the normal
-	// re-center countdown if the map is still panned away.
-	const wasMeasureActiveRef = useRef(measureActive);
+	// While an interaction is active the map stays where the user panned
+	// it; when the last interaction ends, resume the normal re-center
+	// countdown if the map is still panned away.
+	const wasAnyBlockActiveRef = useRef(anyBlockActive);
 	useEffect(() => {
-		const was = wasMeasureActiveRef.current;
-		wasMeasureActiveRef.current = measureActive;
+		const was = wasAnyBlockActiveRef.current;
+		wasAnyBlockActiveRef.current = anyBlockActive;
 		if (
 			was &&
-			!measureActive &&
+			!anyBlockActive &&
 			isCenterActiveRef.current &&
 			modeRef.current === 'pannedAway'
 		) {
 			armReturnTimer();
 		}
-	}, [measureActive, armReturnTimer]);
+	}, [anyBlockActive, armReturnTimer]);
 
 	// Pan/return detection at the configured map-update interval.
 	useMapEventInterval((event) => {

@@ -21,6 +21,8 @@ export const selectMarkerSize = (state: RootState) => state.gnss.markerSize;
 
 export const selectMarkerColor = (state: RootState) => state.gnss.markerColor;
 
+export const selectMarkerDirection = (state: RootState) => state.gnss.markerDirection;
+
 export const selectAccuracyCircleThresholdMeters = (state: RootState) =>
 	state.gnss.accuracyCircleThresholdMeters;
 

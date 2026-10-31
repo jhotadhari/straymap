@@ -75,6 +75,8 @@ import {
 	selectUseDemAltitude,
 } from '../features/trackRecording/selectors';
 import { pauseRecordingForPrompt } from '../features/trackRecording/slice';
+import { selectIsActive as selectGnssIsActive, selectMarkerDirection } from '../features/gnss/selectors';
+import { getDeviceAzimuth, setDeviceAzimuth } from '../features/gnss/deviceAzimuthStore';
 import { altitudeService } from '../lib/AltitudeService';
 import { addBusyKey, removeBusyKey } from '../features/ui/slice';
 
@@ -108,6 +110,13 @@ const AppView = ({
 	const isRecording = useAppSelector(selectIsRecording);
 	const useDemAltitude = useAppSelector(selectUseDemAltitude);
 	const resumePromptPending = useAppSelector(selectResumePromptPending);
+
+	const gnssIsActive = useAppSelector(selectGnssIsActive);
+	const markerDirection = useAppSelector(selectMarkerDirection);
+
+	// The device compass only feeds the marker while GNSS is active and the
+	// marker direction is 'north' (device compass).
+	const compassEnabled = gnssIsActive && markerDirection === 'north';
 
 	const leftItemKeys = useAppSelector((state) => selectItemKeys(state, { side: 'left' }));
 	const rightItemKeys = useAppSelector((state) => selectItemKeys(state, { side: 'right' }));
@@ -289,6 +298,30 @@ const AppView = ({
 		},
 		[showError, t]
 	);
+
+	// onDeviceAzimuth delivers the native compass azimuth (whole degrees,
+	// 0-360 clockwise from magnetic north) while the compass is enabled.
+	// Written to the device-azimuth store imperatively — no dispatch, so
+	// AppView never re-renders on azimuth events; only the marker
+	// component subscribes.
+	const handleDeviceAzimuth = useCallback(
+		(event: NativeSyntheticEvent<{ azimuth: number }>) => {
+			if (typeof event?.nativeEvent?.azimuth === 'number') {
+				setDeviceAzimuth(event.nativeEvent.azimuth);
+			}
+		},
+		[]
+	);
+
+	// Drop the stale azimuth when the compass is disabled (GNSS off or the
+	// marker direction switched back to moving direction) so the marker
+	// doesn't keep an old compass heading. Reads the store imperatively —
+	// no subscription, so azimuth changes never re-render AppView.
+	useEffect(() => {
+		if (!compassEnabled && getDeviceAzimuth() !== null) {
+			setDeviceAzimuth(null);
+		}
+	}, [compassEnabled]);
 
 	const handleMapResume = useCallback(
 		(event: NativeSyntheticEvent<MapEventResponse>) =>
@@ -492,6 +525,8 @@ const AppView = ({
 							onLongPress={handleMapLongPress}
 							gnssFilter={gnssFilter}
 							onGnssPosition={handleGnssPosition}
+							compassEnabled={compassEnabled}
+							onDeviceAzimuth={handleDeviceAzimuth}
 						>
 							{insideMapComponents.map(({ key, Component, props }) => (
 								<Component

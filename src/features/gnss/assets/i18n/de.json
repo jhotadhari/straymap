@@ -24,6 +24,12 @@
 	"permissionDenied": "Für GNSS wird die Standortberechtigung benötigt. Bitte in den Systemeinstellungen aktivieren.",
 	"gnssMarker": "GNSS-Marker",
 	"markerIconTriangle": "Dreieck",
+	"markerDirection": "Markerausrichtung",
+	"markerDirectionMode": {
+		"movingDirection": "Bewegungsrichtung",
+		"magneticNorth": "Magnetisch Nord"
+	},
+	"hintMarkerDirection": "Ob der Marker in Ihre Bewegungsrichtung zeigt oder sich mit dem Gerätekompass dreht.",
 	"accuracyCircle": "Genauigkeitskreis",
 	"hintAccuracyCircle": "Der Kreis wird mit dem Radius der aktuellen GNSS-Genauigkeit gezeichnet, sobald die Genauigkeit schlechter als dieser Schwellenwert (Meter) ist. 0 deaktiviert den Kreis.",
 	"showMeasurementLabel": "Messwert-Label anzeigen",

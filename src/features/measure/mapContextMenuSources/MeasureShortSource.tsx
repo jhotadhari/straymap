@@ -10,14 +10,15 @@ import { MapContextMenuSourceComponentProps, MenuActionOption } from '../../../t
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { MapContext } from '../../../Context';
 import { isPressNearCenter } from '../../mapContextMenu/isPressNearCenter';
+import { isPressOnLabel } from '../../mapContextMenu/isPressOnLabel';
 import { selectMeasureActive } from '../../measure/selectors';
 import { clearMeasurement } from '../../measure/slice';
 
 /**
  * Short-press source for the active measure-distance measurement: offers
  * "Stop measurement". Contributes only when a measurement is active and
- * the menu was triggered by the measurement label itself or by a press
- * near the viewport center.
+ * the menu was triggered by the measurement label itself (a native map
+ * label hit) or by a press near the viewport center.
  */
 const MeasureShortSource: FC<MapContextMenuSourceComponentProps> = ({ context, onOptions }) => {
 	const dispatch = useAppDispatch();
@@ -30,6 +31,7 @@ const MeasureShortSource: FC<MapContextMenuSourceComponentProps> = ({ context, o
 		}
 		if (
 			context.pressOrigin !== 'label' &&
+			!isPressOnLabel(context) &&
 			!isPressNearCenter(context, mapPositionSvRef.current)
 		) {
 			return [];
