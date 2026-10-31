@@ -15,7 +15,7 @@ import { setIsEditingDashboard, setEditItemKey } from '../slice';
 import useKeyboardShown from '../../../compose/useKeyboardShown';
 
 const SettingsDashboard: FC<{ style?: ViewStyle }> = ({ style }) => {
-	const { mapHeight } = useContext(AppContext);
+	const { mapHeight, appInnerHeight, bottomBarHeight } = useContext(AppContext);
 
 	const { keyboardHeight } = useKeyboardShown();
 
@@ -31,12 +31,21 @@ const SettingsDashboard: FC<{ style?: ViewStyle }> = ({ style }) => {
 		dispatch,
 	]);
 
+	// Use the full page height minus the reserved bottom-dashboard band.
+	// `mapHeight` also subtracts the bottom drawer (chart) height, but the
+	// drawer is hidden behind this page's opaque cover — letting it shrink
+	// the viewport only cuts the accordion content off.
+	const scrollViewHeight = useMemo(
+		() => (appInnerHeight ?? mapHeight ?? 0) - (bottomBarHeight?.dashboard ?? 0),
+		[appInnerHeight, mapHeight, bottomBarHeight]
+	);
+
 	const styleScrollView = useMemo(
 		() => [
 			style,
-			{ height: mapHeight },
+			{ height: scrollViewHeight },
 		],
-		[style, mapHeight]
+		[style, scrollViewHeight]
 	);
 
 	const containerPadding = useMemo(
