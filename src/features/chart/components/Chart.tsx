@@ -1655,6 +1655,38 @@ const Chart: FC<{
 		[theme.dark]
 	);
 
+	// Visibility gate: the derived values always lie inside the route's
+	// plot domain ([0, plotW] × [0, plotH]) — only the viewport transform
+	// can move them off the visible plot. An indicator outside the plot
+	// is not rendered at all (lines, dots and labels), so no artifacts
+	// leak into the axis gutters or the follow-lag padding.
+	const isIndicatorInPlot = useCallback(
+		(ind: { x?: number; y?: number }) => {
+			if (ind.x === undefined || ind.y === undefined) {
+				return false;
+			}
+			const vx = translateX + scaleX * ind.x;
+			const vy = translateY + syEff * ind.y;
+			return vx >= 0 && vx <= plotW && vy >= 0 && vy <= plotH;
+		},
+		[
+			translateX,
+			translateY,
+			scaleX,
+			syEff,
+			plotW,
+			plotH,
+		]
+	);
+	const centerInPlot = useMemo(
+		() => isIndicatorInPlot(centerIndicator),
+		[isIndicatorInPlot, centerIndicator]
+	);
+	const gnssInPlot = useMemo(
+		() => isIndicatorInPlot(gnssIndicator),
+		[isIndicatorInPlot, gnssIndicator]
+	);
+
 	// The plot content is translated and scaled inside the SVG (so
 	// non-scaling strokes keep working); the layer carries only the small
 	// eased lag on the UI thread.
@@ -1745,69 +1777,78 @@ const Chart: FC<{
 							the Svg so nothing can paint over their lines,
 							dots or labels. The GNSS indicator renders after
 							the blue map-center indicator, layered above
-							it. */}
+							it. Indicators outside the visible plot area
+							are not rendered (see `isIndicatorInPlot`). */}
 						<G>
-							<LocationIndicator
-								plotH={plotH}
-								plotW={plotW}
-								x={centerIndicator.x}
-								y={centerIndicator.y}
-								ySecondary={centerIndicator.ySecondary}
-								marginLeft={layerMarginLeft}
-								marginRight={layerMarginRight}
-								width={layerWidth}
-								backgroundColor={theme.colors.background}
-								color={COLOR_CENTER}
-								toScreenX={toPlotX}
-								toScreenY={toPlotY}
-							/>
+							{centerInPlot && (
+								<>
+									<LocationIndicator
+										plotH={plotH}
+										plotW={plotW}
+										x={centerIndicator.x}
+										y={centerIndicator.y}
+										ySecondary={centerIndicator.ySecondary}
+										marginLeft={layerMarginLeft}
+										marginRight={layerMarginRight}
+										width={layerWidth}
+										backgroundColor={theme.colors.background}
+										color={COLOR_CENTER}
+										toScreenX={toPlotX}
+										toScreenY={toPlotY}
+									/>
 
-							<LocationLabels
-								x={centerIndicator.x}
-								y={centerIndicator.y}
-								ySecondary={centerIndicator.ySecondary}
-								primaryLabel={centerIndicator.primaryLabel}
-								secondaryLabel={centerIndicator.secondaryLabel}
-								distanceLabel={centerIndicator.distanceLabel}
-								color={COLOR_CENTER}
-								toScreenX={toPlotX}
-								toScreenY={toPlotY}
-								marginLeft={layerMarginLeft}
-								marginRight={layerMarginRight}
-								width={layerWidth}
-								height={layerHeight}
-							/>
+									<LocationLabels
+										x={centerIndicator.x}
+										y={centerIndicator.y}
+										ySecondary={centerIndicator.ySecondary}
+										primaryLabel={centerIndicator.primaryLabel}
+										secondaryLabel={centerIndicator.secondaryLabel}
+										distanceLabel={centerIndicator.distanceLabel}
+										color={COLOR_CENTER}
+										toScreenX={toPlotX}
+										toScreenY={toPlotY}
+										marginLeft={layerMarginLeft}
+										marginRight={layerMarginRight}
+										width={layerWidth}
+										height={layerHeight}
+									/>
+								</>
+							)}
 
-							<LocationIndicator
-								plotH={plotH}
-								plotW={plotW}
-								x={gnssIndicator.x}
-								y={gnssIndicator.y}
-								ySecondary={gnssIndicator.ySecondary}
-								marginLeft={layerMarginLeft}
-								marginRight={layerMarginRight}
-								width={layerWidth}
-								backgroundColor={theme.colors.background}
-								color={gnssColor}
-								toScreenX={toPlotX}
-								toScreenY={toPlotY}
-							/>
+							{gnssInPlot && (
+								<>
+									<LocationIndicator
+										plotH={plotH}
+										plotW={plotW}
+										x={gnssIndicator.x}
+										y={gnssIndicator.y}
+										ySecondary={gnssIndicator.ySecondary}
+										marginLeft={layerMarginLeft}
+										marginRight={layerMarginRight}
+										width={layerWidth}
+										backgroundColor={theme.colors.background}
+										color={gnssColor}
+										toScreenX={toPlotX}
+										toScreenY={toPlotY}
+									/>
 
-							<LocationLabels
-								x={gnssIndicator.x}
-								y={gnssIndicator.y}
-								ySecondary={gnssIndicator.ySecondary}
-								primaryLabel={gnssIndicator.primaryLabel}
-								secondaryLabel={gnssIndicator.secondaryLabel}
-								distanceLabel={gnssIndicator.distanceLabel}
-								color={gnssColor}
-								toScreenX={toPlotX}
-								toScreenY={toPlotY}
-								marginLeft={layerMarginLeft}
-								marginRight={layerMarginRight}
-								width={layerWidth}
-								height={layerHeight}
-							/>
+									<LocationLabels
+										x={gnssIndicator.x}
+										y={gnssIndicator.y}
+										ySecondary={gnssIndicator.ySecondary}
+										primaryLabel={gnssIndicator.primaryLabel}
+										secondaryLabel={gnssIndicator.secondaryLabel}
+										distanceLabel={gnssIndicator.distanceLabel}
+										color={gnssColor}
+										toScreenX={toPlotX}
+										toScreenY={toPlotY}
+										marginLeft={layerMarginLeft}
+										marginRight={layerMarginRight}
+										width={layerWidth}
+										height={layerHeight}
+									/>
+								</>
+							)}
 						</G>
 					</Svg>
 				</Animated.View>

@@ -277,6 +277,12 @@ touch the indicator/labels, never the static plot:
   dark themes, near-black neutral `#1A1A1A` (not red/green/blue) on
   light themes (`theme.dark` picks). Both use the route's series values
   at the nearest route point (the GNSS fix's own altitude is ignored).
+  An indicator outside the visible plot area is not rendered at all:
+  `isIndicatorInPlot` checks `translateX + scaleX·x ∈ [0, plotW]` and
+  `translateY + syEff·y ∈ [0, plotH]` against the logical viewport (the
+  derived values always lie inside the route's plot domain — only the
+  viewport transform moves them off), so no lines, dots or axis labels
+  leak into the gutters or the follow-lag padding.
 
 - **Color runs**: `buildColorRuns` batches consecutive same-color
   segments into single polyline paths; `simplifyColorRuns` culls runs
