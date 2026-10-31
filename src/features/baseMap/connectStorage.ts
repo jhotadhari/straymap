@@ -57,7 +57,12 @@ export const initializeFromStorage = (store: AppStore) => {
 					store.dispatch(setHgtDirPath(newSettings.hgtDirPath));
 				}
 				if (newSettings?.mapsforgeGeneral) {
-					store.dispatch(setMapsforgeGeneralAction(newSettings.mapsforgeGeneral));
+					store.dispatch(
+						setMapsforgeGeneralAction({
+							...initialSettings.mapsforgeGeneral,
+							...newSettings.mapsforgeGeneral,
+						})
+					);
 				}
 				if (
 					newSettings?.renderStylesCache &&
