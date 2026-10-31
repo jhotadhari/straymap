@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
+- Routing: on app start, resume processing now waits until the map/DEM is
+  ready, so segments keep their altitude data instead of starting at 0.
 - Lang: first launch now resolves the system setting to the device
   locale instead of always starting in English.
 - Drawers: three-section drawer control (left / right / available)

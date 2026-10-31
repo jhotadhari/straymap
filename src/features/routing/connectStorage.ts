@@ -28,6 +28,7 @@ import { startAppListening } from '../../store/listenerMiddleware';
 import { selectInitialized } from './selectors';
 import { AppStore } from '../../store/store';
 import { dbConnection } from '../dbLoader/DBConnection';
+import { altitudeService } from '../../lib/AltitudeService';
 import { logError } from '../../lib/utils';
 
 const settingsKey = 'routingSettings';
@@ -119,6 +120,26 @@ startAppListening({
 		}
 
 		if (listenerApi.getState().dbLoader.initialized && dbConnection?.queryClient) {
+			// On app start this listener fires during store init, before
+			// the map has mounted: the altitude handle is not wired yet
+			// and segments would be computed without DEM altitude (z=0).
+			// Wait until baseMap settings are restored and either no DEM
+			// dir is configured or the map handle is wired, so resume
+			// processing can enrich segments with elevation.
+			await listenerApi.condition(
+				(_action, state) =>
+					state.baseMap.initialized &&
+					(state.baseMap.hgtDirPath == null ||
+						altitudeService.getHandle() !== null),
+				15000
+			);
+
+			// The route may have been stopped while waiting — don't
+			// process a route that's no longer active.
+			if (!listenerApi.getState().routing.isRouting) {
+				return;
+			}
+
 			listenerApi.dispatch(
 				processRouting(dbConnection.queryClient, {
 					updateLine: false,

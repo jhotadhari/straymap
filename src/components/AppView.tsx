@@ -55,6 +55,7 @@ import { selectHardwareKeys } from '../features/general/selectors';
 import { selectElementsSettings, selectItems } from '../features/dashboard/selectors';
 import { DashboardItem } from '../features/dashboard/types';
 import { selectHgtDirPath, selectMapsforgeGeneral } from '../features/baseMap/selectors';
+import { selectIsRouting } from '../features/routing/selectors';
 import UiItemComponent from '../features/ui/components/UiItemComponent';
 import useShowInitialSplash from '../compose/useShowInitialSplash';
 import { DRAWER_HANDLE_SIZE } from '../features/drawers/constants';
@@ -99,6 +100,7 @@ const AppView = ({
 	const dashboardItems = useAppSelector((state) => selectItems(state, { position: 'bottom' }));
 	const hgtDirPathStore = useAppSelector(selectHgtDirPath);
 	const dashboardWidgets = useAppSelector(selectElementsSettings);
+	const isRouting = useAppSelector(selectIsRouting);
 
 	const leftItemKeys = useAppSelector((state) => selectItemKeys(state, { side: 'left' }));
 	const rightItemKeys = useAppSelector((state) => selectItemKeys(state, { side: 'right' }));
@@ -144,13 +146,18 @@ const AppView = ({
 				return acc || !ele.elementType
 					? acc
 					: get(dashboardWidgets, [ele.elementType, 'shouldSetHgtDirPath'], false);
-			}, false) as boolean)
+			}, false) as boolean ||
+				// Routing segment enrichment needs DEM altitude —
+				// expose the DEM dir whenever routing is active,
+				// independent of the dashboard widgets.
+				isRouting)
 				? hgtDirPathStore
 				: undefined,
 		[
 			hgtDirPathStore,
 			dashboardItems,
 			dashboardWidgets,
+			isRouting,
 		]
 	);
 
