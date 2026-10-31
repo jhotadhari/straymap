@@ -19,7 +19,7 @@ const useRoute = (fields?: (keyof Route)[]) => {
 		queryFn: queryRoute,
 		...(fields &&
 			fields.length && {
-				select: (route: Route | null) => pick<Route>(route, fields),
+				select: (route: Route | null) => (route ? pick<Route>(route, fields) : null),
 			}),
 	});
 	return route;
