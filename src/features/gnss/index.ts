@@ -12,7 +12,7 @@ import gnssAccuracy from './dashboardWidgets/gnssAccuracy';
 import gnssAltitude from './dashboardWidgets/gnssAltitude';
 import gnssSpeed from './dashboardWidgets/gnssSpeed';
 import SettingsLocation from './uiItems/SettingsLocation';
-import GnssCenterOverlay from './appOverlays/GnssCenterOverlay';
+import GnssCenterConnection from './mapComponents/GnssCenterConnection';
 import GnssCenterMarker from './mapComponents/GnssCenterMarker';
 import GnssLabelShortSource from './mapContextMenuSources/GnssLabelShortSource';
 
@@ -41,14 +41,12 @@ export default {
 		gnssAltitude,
 		gnssSpeed,
 	],
-	appOverlays: [
-		{
-			key: 'gnssCenter',
-			Component: GnssCenterOverlay,
-			priority: 100,
-		},
-	],
 	mapComponents: [
+		{
+			key: 'gnssCenterConnection',
+			Component: GnssCenterConnection,
+			priority: 250,
+		},
 		{
 			key: 'gnssCenterMarker',
 			Component: GnssCenterMarker,

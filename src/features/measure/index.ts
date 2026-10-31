@@ -7,7 +7,8 @@ import en from './assets/i18n/en.json';
 import es from './assets/i18n/es.json';
 import pt from './assets/i18n/pt.json';
 import MeasureMarker from './mapComponents/MeasureMarker';
-import MeasureOverlay from './appOverlays/MeasureOverlay';
+import MeasureLine from './mapComponents/MeasureLine';
+import MeasureLineLabel from './mapComponents/MeasureLineLabel';
 import MeasureShortSource from './mapContextMenuSources/MeasureShortSource';
 
 export default {
@@ -20,16 +21,19 @@ export default {
 	},
 	mapComponents: [
 		{
+			key: 'measureLine',
+			Component: MeasureLine,
+			priority: 250,
+		},
+		{
+			key: 'measureLineLabel',
+			Component: MeasureLineLabel,
+			priority: 251,
+		},
+		{
 			key: 'measureMarker',
 			Component: MeasureMarker,
 			priority: 250,
-		},
-	],
-	appOverlays: [
-		{
-			key: 'measureOverlay',
-			Component: MeasureOverlay,
-			priority: 100,
 		},
 	],
 	mapContextMenuSources: [
