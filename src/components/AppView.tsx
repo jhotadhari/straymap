@@ -272,6 +272,7 @@ const AppView = ({
 			CanvasAdapterModule.setLineScale(mapsforgeGeneral.lineScale);
 			CanvasAdapterModule.setTextScale(mapsforgeGeneral.textScale);
 			CanvasAdapterModule.setSymbolScale(mapsforgeGeneral.symbolScale);
+			CanvasAdapterModule.setCorrectTextPacking(mapsforgeGeneral.correctTextPacking ?? true);
 			setShowMap(true);
 		}, 1);
 	}, [

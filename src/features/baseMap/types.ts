@@ -104,4 +104,5 @@ export type MapsforgeGeneral = {
 	textScale: number;
 	lineScale: number;
 	symbolScale: number;
+	correctTextPacking: boolean;
 };

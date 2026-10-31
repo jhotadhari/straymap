@@ -11,6 +11,7 @@ import { StyleSheet, View } from 'react-native';
  */
 import ListItemModalControl from '../../../../components/generic/wrapper/ListItemModalControl';
 import NumericRowControl from '../../../../components/generic/controls/NumericRowControl';
+import ToggleRowControl from '../../../../components/generic/controls/ToggleRowControl';
 import IconCustom from '../../../../components/generic/primitives/IconCustom';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { selectMapsforgeGeneral } from '../../selectors';
@@ -20,7 +21,10 @@ import type { MapsforgeGeneral } from '../../types';
 const validate = (val: number) => val >= 0 && val <= 20;
 
 const isEqual = (a: MapsforgeGeneral, b: MapsforgeGeneral) =>
-	a.lineScale === b.lineScale && a.textScale === b.textScale && a.symbolScale === b.symbolScale;
+	a.lineScale === b.lineScale &&
+	a.textScale === b.textScale &&
+	a.symbolScale === b.symbolScale &&
+	a.correctTextPacking === b.correctTextPacking;
 
 const MapsforgeGeneralControl = () => {
 	const { t } = useTranslation();
@@ -56,6 +60,15 @@ const MapsforgeGeneralControl = () => {
 
 	const handleSymbolScale = useCallback(
 		(newValue: number) => setLocalSettings((prev) => ({ ...prev, symbolScale: newValue })),
+		[]
+	);
+
+	const handleCorrectTextPacking = useCallback(
+		() =>
+			setLocalSettings((prev) => ({
+				...prev,
+				correctTextPacking: !prev.correctTextPacking,
+			})),
 		[]
 	);
 
@@ -112,6 +125,13 @@ const MapsforgeGeneralControl = () => {
 					onUpdate={handleSymbolScale}
 					validate={validate}
 					Info={t('baseMap.hint.symbolScale')}
+				/>
+
+				<ToggleRowControl
+					label={t('baseMap.correctTextPacking')}
+					value={localSettings.correctTextPacking}
+					onToggle={handleCorrectTextPacking}
+					Info={t('baseMap.hint.correctTextPacking')}
 				/>
 			</View>
 		</ListItemModalControl>

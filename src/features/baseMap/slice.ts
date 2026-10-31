@@ -57,6 +57,7 @@ export const initialSettings: BaseMapSettings = {
 		lineScale: 1.1,
 		symbolScale: 1,
 		textScale: 1.2,
+		correctTextPacking: true,
 	},
 	renderStylesCache: {
 		optionsMap: {},
