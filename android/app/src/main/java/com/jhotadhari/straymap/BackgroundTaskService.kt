@@ -45,6 +45,9 @@ class BackgroundTaskService : Service() {
 
     override fun onDestroy() {
         tasks.clear()
+        // Explicitly remove the notification — stopService() from
+        // unregisterTask does not always drop it on every OEM skin.
+        stopForeground(STOP_FOREGROUND_REMOVE)
         super.onDestroy()
     }
 
@@ -97,26 +100,25 @@ class BackgroundTaskService : Service() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        // android.R.drawable.ic_menu_upload is a system drawable — not part
-        // of the stable public API. It may differ or be missing across OEM
-        // skins (Samsung, Xiaomi, etc.). Replace with an app-bundled resource
-        // if crash reports surface on specific devices.
+        // The app's cat-on-bike logo — same artwork as the launcher icon
+        // (res/drawable/cat_cycle.xml). Rendered as a flat alpha
+        // silhouette by the system.
         val builder = NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("Straymap")
             .setContentText(lines)
-            .setSmallIcon(android.R.drawable.ic_menu_upload)
+            .setSmallIcon(R.drawable.cat_cycle)
             .setOngoing(true)
             .setContentIntent(pendingIntent)
             .setSubText(detail)
 
-        // The notification progress bar only reflects the first task with
-        // maxProgress > 0. Multiple simultaneous progress-tracked tasks are
-        // not supported — callers should serialise imports.
+        // Progress bar only for tasks that report progress (imports).
+        // Track recording reports no progress — showing an indeterminate
+        // spinner for it just adds visual noise. Only the first
+        // progress-tracked task is reflected; callers should serialise
+        // imports.
         val progressTask = tasks.values.find { it.maxProgress > 0 }
         if (progressTask != null) {
             builder.setProgress(progressTask.maxProgress, progressTask.progress, false)
-        } else {
-            builder.setProgress(0, 0, true)
         }
 
         // Foreground service type follows the task registry: a location

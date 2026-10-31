@@ -41,7 +41,7 @@ import { createLines } from '../lines/db/actionsLine';
 import { ensureTagByLabel } from '../lines/db/actionsTag';
 import { setLineSelected, setSelected } from '../lines/slice';
 import { setIsActive } from '../gnss/slice';
-import { startRecordingTask } from './backgroundTask';
+import { startRecordingTask, stopRecordingTask } from './backgroundTask';
 import { toTrackCoord } from './utils';
 import { invalidateLastRecordedLineQueries } from './db/queryFns';
 import { setActiveKey } from '../bottomDrawer/slice';
@@ -365,6 +365,12 @@ startAppListening({
 		if (trk.resumePending) {
 			listenerApi.dispatch(setResumePending(false));
 		}
+		// Unconditionally remove the recording foreground task.  Without
+		// this, a task registered while resumePending (confirmRecordingResume,
+		// before the first GNSS fix) survives GNSS being switched off and
+		// the notification lingers.  Idempotent — no-op when no task is
+		// registered (stopRecording already unregisters when isRecording).
+		stopRecordingTask();
 	},
 });
 

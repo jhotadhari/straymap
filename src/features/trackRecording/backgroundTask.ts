@@ -17,30 +17,53 @@ import { logError } from '../../lib/utils';
  * services or apps holding ACCESS_BACKGROUND_LOCATION).
  */
 let recordingTaskId: number | null = null;
+let pendingRegistration: Promise<number> | null = null;
 
 export const startRecordingTask = async (): Promise<void> => {
-	if (recordingTaskId != null) {
+	if (recordingTaskId != null || pendingRegistration != null) {
 		return;
 	}
+	const registration = registerBackgroundTask(i18n.t('trackRecording.backgroundTask'), 0, true);
+	pendingRegistration = registration;
 	try {
-		recordingTaskId = await registerBackgroundTask(
-			i18n.t('trackRecording.backgroundTask'),
-			0,
-			true
-		);
+		const tid = await registration;
+		if (pendingRegistration !== registration) {
+			// stopRecordingTask ran while registration was in flight —
+			// it already unregistered this id. Unregister again for
+			// safety; the native registry tolerates unknown ids.
+			try {
+				await unregisterBackgroundTask(tid);
+			} catch (err) {
+				logError('trackRecording/backgroundTask.start.cleanup', err);
+			}
+			return;
+		}
+		recordingTaskId = tid;
 	} catch (err) {
 		logError('trackRecording/backgroundTask.start', err);
+	} finally {
+		if (pendingRegistration === registration) {
+			pendingRegistration = null;
+		}
 	}
 };
 
 export const stopRecordingTask = async (): Promise<void> => {
+	const pending = pendingRegistration;
+	pendingRegistration = null;
 	const tid = recordingTaskId;
 	recordingTaskId = null;
-	if (tid == null) {
-		return;
-	}
 	try {
-		await unregisterBackgroundTask(tid);
+		if (pending != null) {
+			// Registration still in flight — await it and remove the
+			// task it creates, so a quick start/stop cannot leak the
+			// notification.
+			const resolvedId = await pending;
+			await unregisterBackgroundTask(resolvedId);
+		}
+		if (tid != null) {
+			await unregisterBackgroundTask(tid);
+		}
 	} catch (err) {
 		logError('trackRecording/backgroundTask.stop', err);
 	}
