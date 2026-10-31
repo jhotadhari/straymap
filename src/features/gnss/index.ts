@@ -1,4 +1,9 @@
 /**
+ * External dependencies
+ */
+import { createElement } from 'react';
+
+/**
  * Internal dependencies
  */
 import { initializeFromStorage } from './connectStorage';
@@ -12,6 +17,7 @@ import gnssAccuracy from './dashboardWidgets/gnssAccuracy';
 import gnssAltitude from './dashboardWidgets/gnssAltitude';
 import gnssSpeed from './dashboardWidgets/gnssSpeed';
 import SettingsLocation from './uiItems/SettingsLocation';
+import GnssStatusIcon from './components/GnssStatusIcon';
 import GnssCenterConnection from './mapComponents/GnssCenterConnection';
 import GnssCenterMarker from './mapComponents/GnssCenterMarker';
 import GnssLabelShortSource from './mapContextMenuSources/GnssLabelShortSource';
@@ -31,7 +37,8 @@ export default {
 		{
 			key: 'location',
 			label: 'ui.items.location',
-			icon: 'crosshairs-gps',
+			icon: (props: { color: string; style?: any; size?: number }) =>
+				createElement(GnssStatusIcon, props),
 			Component: SettingsLocation,
 		},
 	],
@@ -65,6 +72,7 @@ export default {
 		{
 			key: 'location',
 			uiItemKey: 'location',
+			priority: 2200,
 		},
 	],
 };

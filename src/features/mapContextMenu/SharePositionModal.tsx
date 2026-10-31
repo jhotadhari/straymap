@@ -2,9 +2,9 @@
  * External dependencies
  */
 import { FC, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { Share, StyleSheet, View } from 'react-native';
+import { ScrollView, Share, StyleSheet, View } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { Text, TextInput, useTheme } from 'react-native-paper';
+import { Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 
 /**
@@ -20,10 +20,49 @@ import { buildShareRows, ShareRow } from './shareRows';
 const COPY_FEEDBACK_DURATION = 1500;
 
 /**
+ * Read-only value field: a single line of text inside a horizontally
+ * swipeable scroll view, styled like the disabled flat input it replaces.
+ */
+const ScrollableValueField: FC<{ value: string }> = ({ value }) => {
+	const theme = useTheme();
+
+	const textStyle = useMemo(
+		() => ({
+			...theme.fonts.bodySmall,
+			fontFamily: 'sans-serif',
+			color: theme.colors.onSurface,
+		}),
+		[theme]
+	);
+
+	return (
+		<View
+			style={[
+				styles.valueField,
+				{ borderBottomColor: theme.colors.onSurfaceDisabled },
+			]}
+		>
+			<ScrollView
+				horizontal={true}
+				showsHorizontalScrollIndicator={false}
+				contentContainerStyle={styles.valueFieldContent}
+			>
+				<Text
+					numberOfLines={1}
+					style={textStyle}
+				>
+					{value}
+				</Text>
+			</ScrollView>
+		</View>
+	);
+};
+
+/**
  * Modal listing shareable representations of a position: coordinates in
  * the user's configured format, plain decimal coordinates, and links for
- * common map apps. Each row shows the value in a disabled text field with
- * copy and share buttons.
+ * common map apps. Each row shows the value in a swipeable read-only
+ * field with copy and share buttons.
  */
 const SharePositionModal: FC<{
 	visible: boolean;
@@ -33,7 +72,6 @@ const SharePositionModal: FC<{
 	zoomLevel?: number;
 }> = ({ visible, onDismiss, lng, lat, zoomLevel }) => {
 	const { t } = useTranslation();
-	const theme = useTheme();
 	const unitPrefs = useAppSelector(selectUnitPrefs);
 	const { showError } = useContext(ErrorToastContext);
 
@@ -58,18 +96,6 @@ const SharePositionModal: FC<{
 			}
 		},
 		[]
-	);
-
-	const textInputTheme = useMemo(
-		() => ({
-			fonts: {
-				bodyLarge: {
-					...theme.fonts.bodySmall,
-					fontFamily: 'sans-serif',
-				},
-			},
-		}),
-		[theme]
 	);
 
 	const handleCopy = useCallback(
@@ -119,13 +145,7 @@ const SharePositionModal: FC<{
 							{t(`mapContextMenu.${row.labelKey}`)}
 						</Text>
 						<View style={styles.valueRow}>
-							<TextInput
-								disabled={true}
-								dense={true}
-								theme={textInputTheme}
-								style={styles.valueInput}
-								value={row.value}
-							/>
+							<ScrollableValueField value={row.value} />
 							<View style={styles.buttons}>
 								<IconButtonHighlight
 									icon={copiedKey === row.key ? 'check' : 'content-copy'}
@@ -166,8 +186,14 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		gap: 4,
 	},
-	valueInput: {
+	valueField: {
 		flex: 1,
+		minHeight: 40,
+		justifyContent: 'center',
+		borderBottomWidth: 1,
+	},
+	valueFieldContent: {
+		alignItems: 'center',
 	},
 	buttons: {
 		flexDirection: 'row',

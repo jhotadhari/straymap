@@ -56,7 +56,8 @@ import RecordingLineWidthControl from '../components/controls/RecordingLineWidth
 export const TrackingDrawerIcon: FC<{
 	color?: TextStyle['color'];
 	size?: number;
-}> = ({ color, size }) => {
+	style?: TextStyle;
+}> = ({ color, size, style }) => {
 	const theme = useTheme();
 	const destructiveColor = useDestructiveColor();
 	const isActive = useAppSelector(selectIsActive);
@@ -80,6 +81,7 @@ export const TrackingDrawerIcon: FC<{
 			name={iconName}
 			color={iconColor}
 			size={size}
+			style={style}
 		/>
 	);
 };
