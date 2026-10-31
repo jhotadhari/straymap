@@ -55,6 +55,7 @@ import { selectHardwareKeys } from '../features/general/selectors';
 import { selectElementsSettings, selectItems } from '../features/dashboard/selectors';
 import { DashboardItem } from '../features/dashboard/types';
 import { selectHgtDirPath, selectMapsforgeGeneral } from '../features/baseMap/selectors';
+import { selectIsRouting } from '../features/routing/selectors';
 import UiItemComponent from '../features/ui/components/UiItemComponent';
 import useShowInitialSplash from '../compose/useShowInitialSplash';
 import { DRAWER_HANDLE_SIZE } from '../features/drawers/constants';
@@ -110,6 +111,7 @@ const AppView = ({
 	const isRecording = useAppSelector(selectIsRecording);
 	const useDemAltitude = useAppSelector(selectUseDemAltitude);
 	const resumePromptPending = useAppSelector(selectResumePromptPending);
+	const isRouting = useAppSelector(selectIsRouting);
 
 	const gnssIsActive = useAppSelector(selectGnssIsActive);
 	const markerDirection = useAppSelector(selectMarkerDirection);
@@ -181,7 +183,13 @@ const AppView = ({
 		// recording silently falls back to GNSS altitude whenever
 		// the centerAltitude widget is not on the dashboard.
 		const recordingWantsDem = isRecording && useDemAltitude;
-		return hgtDirPathStore && (widgetWantsDem || recordingWantsDem)
+		return hgtDirPathStore &&
+			(widgetWantsDem ||
+				recordingWantsDem ||
+				// Routing segment enrichment needs DEM altitude —
+				// expose the DEM dir whenever routing is active,
+				// independent of the dashboard widgets.
+				isRouting)
 			? hgtDirPathStore
 			: undefined;
 	}, [
@@ -190,6 +198,7 @@ const AppView = ({
 		dashboardWidgets,
 		isRecording,
 		useDemAltitude,
+		isRouting,
 	]);
 
 	// Observe hardware keys that have a non-'none' action assigned.

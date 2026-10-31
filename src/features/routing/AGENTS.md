@@ -172,11 +172,23 @@ dispatches `setLastProfile(profile)` to keep `lastProfiles` in sync.
 | Listener    | Trigger                                  | Effect                                                          |
 | ----------- | ---------------------------------------- | --------------------------------------------------------------- |
 | Persistence | `setIsRoutingAction`, `setRoutingLineId` | Saves settings to `DefaultPreference`                           |
-| Auto-load   | `setIsRoutingAction` with truthy payload | Dispatches `processRouting(queryClient, { updateLine: false })` |
+| Auto-load   | `setIsRoutingAction` with truthy payload | Waits for the map/DEM to be ready, then dispatches `processRouting(queryClient, { updateLine: false })` |
 
 The auto-load listener means: **calling `dispatch(setIsRouting(routeId))` is
 sufficient to re-load a persisted route.** The listener picks it up and
 dispatches `processRouting` which fetches points and computes segments.
+
+On app start the listener fires during store init, before `MapContainer` has
+mounted — the altitude handle (`altitudeService`) is not wired yet and
+segment altitude enrichment would silently keep z=0. The listener therefore
+awaits `listenerApi.condition` until `baseMap` settings are restored and
+either no DEM dir is configured (`baseMap.hgtDirPath == null`) or the map
+handle is wired (`altitudeService.getHandle() !== null`), with a 15 s
+timeout fallback that processes without altitude rather than never. After
+the wait it re-checks `routing.isRouting` (the route may have been stopped
+meanwhile) before dispatching. User-triggered `setIsRouting` calls are
+unaffected: the handle is already wired and the condition passes
+immediately.
 
 ### Gotcha: `routingLineId` cleared on route switch
 
