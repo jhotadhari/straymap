@@ -16,12 +16,14 @@ import { AppContext } from '../../../../Context';
 import { DRAWER_ICON_SIZE } from '../../../drawers/constants';
 import { useButtonProps, useDestructiveColor } from '../../../../compose/useButtonProps';
 import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
+import useActivateDrawerItem from '../../../drawers/hooks/useActivateDrawerItem';
 
 /**
- * Recording-line button shown in the routes browser instead of the
- * add/remove-from-map toggle. Centers the map on the last GNSS position
- * (zooming to 10 when the current zoom is below 10). Rendered only for the
- * active recording row, so GNSS-fix re-renders stay confined to one row.
+ * Recording-line button shown in the routes browser and the lines drawer
+ * panel instead of the add/remove-from-map toggle. Centers the map on the
+ * last GNSS position (zooming to 10 when the current zoom is below 10) and
+ * opens the tracking drawer panel. Rendered only for the recording row, so
+ * GNSS-fix re-renders stay confined to one row.
  */
 const RecordingCenterButton: FC = () => {
 	const dispatch = useAppDispatch();
@@ -29,6 +31,7 @@ const RecordingCenterButton: FC = () => {
 	const { flyTo, getPosition } = useMap(mapViewNativeNodeHandle);
 	const gnssPosition = useAppSelector(selectGnssPosition);
 	const destructiveColor = useDestructiveColor();
+	const activateTrackingDrawerItem = useActivateDrawerItem('tracking');
 
 	const buttonProps = useButtonProps({ mode: 'text' });
 
@@ -38,6 +41,9 @@ const RecordingCenterButton: FC = () => {
 		}
 		// Close the routes browser so the re-centered map is visible.
 		dispatch(setUiItemKeys([]));
+
+		// Open the tracking drawer panel alongside the fly-to.
+		activateTrackingDrawerItem();
 
 		let zoom = 0;
 		try {
@@ -58,6 +64,7 @@ const RecordingCenterButton: FC = () => {
 		gnssPosition,
 		getPosition,
 		flyTo,
+		activateTrackingDrawerItem,
 	]);
 
 	return (

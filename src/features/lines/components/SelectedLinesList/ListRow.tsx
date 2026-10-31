@@ -32,7 +32,6 @@ import TagBadge from '../TagBadge';
 import IconRouting from '../../../routing/drawerPanels/routing/IconComponent';
 import { selectIsRecording } from '../../../trackRecording/selectors';
 import { selectFollowingLineId } from '../../../lineFollow/selectors';
-import useStopRecordingCbModal from '../../../trackRecording/hooks/useStopRecordingCbModal';
 import useActivateDrawerItem from '../../../drawers/hooks/useActivateDrawerItem';
 import { DRAWER_ICON_SIZE, MAP_ANIMATION_PADDING_PX, PALETTE_COLORS } from '../../../../constants';
 import { sharedStyles } from './sharedDeps';
@@ -42,9 +41,10 @@ import LineStatsCompactRows from '../Stats/LineStatsCompactRows';
 import FollowDistanceBadge from './FollowDistanceBadge';
 import { bbox as turfBbox } from '@turf/turf';
 import { AppContext } from '../../../../Context';
-import { useButtonProps, useDestructiveColor } from '../../../../compose/useButtonProps';
+import { useButtonProps } from '../../../../compose/useButtonProps';
 import { selectDateTimeFormat } from '../../../general/selectors';
 import IconCustom from '../../../../components/generic/primitives/IconCustom';
+import RecordingCenterButton from '../LinesTable/RecordingCenterButton';
 
 export interface ListRowProps {
 	line: Omit<Line, 'geometry'>;
@@ -62,12 +62,10 @@ const ListRow: FC<ListRowProps> = ({ line, idx, systemFeatureKey, isUnderCenter 
 	const dispatch = useAppDispatch();
 
 	const { t } = useTranslation();
-	const destructiveColor = useDestructiveColor();
 
 	const isRecording = useAppSelector(selectIsRecording);
 	const followingLineId = useAppSelector(selectFollowingLineId);
 	const isFollowed = followingLineId === line.id;
-	const { cb: handleStopPress, modalNode: stopRecordingModalNode } = useStopRecordingCbModal();
 
 	const { mapViewNativeNodeHandle } = useContext(AppContext);
 
@@ -411,26 +409,12 @@ const ListRow: FC<ListRowProps> = ({ line, idx, systemFeatureKey, isUnderCenter 
 
 				{systemFeatureKey !== null && systemFeatureKey !== 'routing' && isRecording && (
 					// Recording indicator for the active track-recording line.
-					// Tapping it asks to stop the recording. Same button shell
-					// as the other row icons so the dot stays centered under
-					// them.
-					<ButtonHighlight
-						{...buttonPropsAny}
-						compact={true}
-						onPress={handleStopPress}
-					>
-						<View style={styles.indicatorBox}>
-							<Icon
-								source={'circle'}
-								size={16}
-								color={destructiveColor}
-							/>
-						</View>
-					</ButtonHighlight>
+					// Centers the map on the last GNSS position and opens the
+					// tracking drawer panel. Same button shell as the other
+					// row icons so the dot stays centered under them.
+					<RecordingCenterButton />
 				)}
 			</View>
-
-			{stopRecordingModalNode}
 		</View>
 	);
 };
@@ -456,15 +440,6 @@ const colorCircle = StyleSheet.create({
 		flex: 1,
 		height: '100%',
 		alignItems: 'flex-start',
-	},
-});
-
-const styles = StyleSheet.create({
-	indicatorBox: {
-		width: DRAWER_ICON_SIZE,
-		height: DRAWER_ICON_SIZE,
-		alignItems: 'center',
-		justifyContent: 'center',
 	},
 });
 
