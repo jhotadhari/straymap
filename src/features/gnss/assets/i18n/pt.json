@@ -4,7 +4,7 @@
 	"gnssAccuracy": "Precisão GNSS",
 	"gnssAltitude": "Altitude GNSS",
 	"gnssSpeed": "Velocidade GNSS",
-	"gnssHeading": "Direção",
+	"gnssCourse": "GNSS Rumo",
 	"gnssCompass": "[sensor] Bússola",
 	"activateGnss": "Ativar GNSS",
 	"deactivateGnss": "Desativar GNSS",
@@ -26,10 +26,10 @@
 	"gnssMarker": "Marcador GNSS",
 	"markerDirection": "Direção do marcador",
 	"markerDirectionMode": {
-		"movingDirection": "Direção de movimento",
+		"movingDirection": "Rumo sobre o solo",
 		"magneticNorth": "Norte magnético"
 	},
-	"hintMarkerDirection": "Se o marcador aponta na sua direção de movimento ou roda com a bússola do dispositivo.",
+	"hintMarkerDirection": "Se o marcador aponta segundo o seu rumo sobre o solo (direção de movimento) ou roda com a bússola do dispositivo.",
 	"accuracyCircle": "Limiar do círculo de precisão [{{unit}}]",
 	"hintAccuracyCircle": "O círculo é desenhado com o raio da precisão GNSS atual quando a precisão é pior que este limite (na unidade escolhida). 0 desativa o círculo.",
 	"showMeasurementLabel": "Mostrar etiqueta de medição",

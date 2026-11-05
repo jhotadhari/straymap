@@ -4,7 +4,7 @@
 	"gnssAccuracy": "GNSS Accuracy",
 	"gnssAltitude": "GNSS Altitude",
 	"gnssSpeed": "GNSS Speed",
-	"gnssHeading": "Heading",
+	"gnssCourse": "GNSS Course",
 	"gnssCompass": "[sensor] Compass",
 	"activateGnss": "Activate GNSS",
 	"deactivateGnss": "Deactivate GNSS",
@@ -26,10 +26,10 @@
 	"gnssMarker": "GNSS marker",
 	"markerDirection": "Marker direction",
 	"markerDirectionMode": {
-		"movingDirection": "Moving direction",
+		"movingDirection": "Course over ground",
 		"magneticNorth": "Magnetic north"
 	},
-	"hintMarkerDirection": "Whether the marker points in your moving direction or turns with your device compass.",
+	"hintMarkerDirection": "Whether the marker points in your course over ground (direction of movement) or turns with your device compass.",
 	"accuracyCircle": "Accuracy circle threshold [{{unit}}]",
 	"hintAccuracyCircle": "The circle is drawn with the radius of the current GNSS accuracy whenever the accuracy is worse than this threshold (in your distance unit). 0 disables the circle.",
 	"showMeasurementLabel": "Show measurement label",

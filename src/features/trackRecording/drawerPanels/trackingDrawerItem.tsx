@@ -367,7 +367,7 @@ const TrackingDrawerContent: FC = () => {
 			</View>
 
 			<View style={styles.row}>
-				<Text>{t('gnss.gnssHeading')}:</Text>
+				<Text>{t('gnss.gnssCourse')}:</Text>
 				<Text style={styles.value}>
 					{gnssHeading === null ? '-' : formatBearing(gnssHeading)}
 				</Text>
