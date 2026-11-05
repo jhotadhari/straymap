@@ -1,7 +1,17 @@
 /**
  * External dependencies
  */
-import React, { FC, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+	Dispatch,
+	FC,
+	SetStateAction,
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
 import { View, StyleSheet, TextStyle } from 'react-native';
 import { Text, useTheme, Button } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -92,8 +102,18 @@ export const TrackingDrawerIcon: FC<{
  * status rows and activation toggle. The GNSS values show dashes until
  * the GNSS position pipeline provides real data (no map-center
  * fallback — that would be misleading).
+ *
+ * Rendered as scroll content (DisplayComponentScroll) — the panel has
+ * enough rows that it no longer fits once the bottom drawer is open,
+ * and without scrolling the bottom rows would be unreachable. The
+ * scroll-enable props are accepted for the DrawerPanel contract; this
+ * panel has no sortable/drag interactions that would need to pause
+ * scrolling.
  */
-const TrackingDrawerContent: FC = () => {
+const TrackingDrawerContent: FC<{
+	scrollEnabled: boolean;
+	setScrollEnabled: Dispatch<SetStateAction<boolean>>;
+}> = () => {
 	const { t } = useTranslation();
 	const theme = useTheme();
 	const destructiveColor = useDestructiveColor();
@@ -414,6 +434,6 @@ const styles = StyleSheet.create({
 export default {
 	key: 'tracking',
 	label: 'trackRecording.tracking',
-	DisplayComponent: TrackingDrawerContent,
+	DisplayComponentScroll: TrackingDrawerContent,
 	IconComponent: TrackingDrawerIcon,
 } as DrawerPanel;

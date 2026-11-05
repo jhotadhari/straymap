@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { FC, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { FC, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { Dimensions, StyleSheet, View, ViewStyle } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -32,25 +32,28 @@ const BottomDrawer: FC = () => {
 
 	const insets = useSafeAreaInsets();
 
+	// Last settled height reported by the drawer (0 = collapsed at mount).
+	// Updated on every settle so the re-report below never falls back to
+	// the collapsed value while the drawer is open.
+	const settledHeightRef = useRef(0);
+
 	const handleSettle = useCallback(
 		(height: number) => {
+			settledHeightRef.current = height;
 			setBottomBarHeight?.((prev) => ({
 				...prev,
 				bottomDrawer: itemKeys.length ? height + insets.bottom : 0,
 			}));
 		},
-		[setBottomBarHeight, itemKeys.length, insets.bottom]
+		[
+			setBottomBarHeight,
+			itemKeys.length,
+			insets.bottom,
+		]
 	);
 
-	const {
-		showContent,
-		gesture,
-		animatedStyles,
-		collapsedHeight,
-		height,
-		expand,
-		getIsFullyCollapsed,
-	} = useBottomDrawerState({ onSettle: handleSettle, height: bottomDrawerHeightSv });
+	const { showContent, gesture, animatedStyles, height, expand, getIsFullyCollapsed } =
+		useBottomDrawerState({ onSettle: handleSettle, height: bottomDrawerHeightSv });
 
 	const setActiveItemKey = useCallback(
 		(newActiveKey?: string) => {
@@ -109,13 +112,15 @@ const BottomDrawer: FC = () => {
 		getIsFullyCollapsed,
 	]);
 
-	// Keep the side drawers' mapHeight in sync: report the collapsed handle-bar
+	// Keep the side drawers' mapHeight in sync: re-report the current settled
 	// height (or zero when there are no items) whenever the item set changes.
+	// Reporting the collapsed height here would make mapHeight too tall while
+	// the drawer is open — side drawer content would extend behind the open
+	// drawer (bottom part unreachable).
 	useEffect(() => {
-		handleSettle(itemKeys.length ? collapsedHeight : 0);
+		handleSettle(itemKeys.length ? settledHeightRef.current : 0);
 	}, [
 		itemKeys.length,
-		collapsedHeight,
 		handleSettle,
 	]);
 
