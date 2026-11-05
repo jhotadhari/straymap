@@ -24,7 +24,6 @@
 	"confirmDeactivateRecording": "Spuraufzeichnung ist aktiv. GNSS-Tracking beenden?",
 	"permissionDenied": "Für GNSS wird die Standortberechtigung benötigt. Bitte in den Systemeinstellungen aktivieren.",
 	"gnssMarker": "GNSS-Marker",
-	"markerIconTriangle": "Dreieck",
 	"markerDirection": "Markerausrichtung",
 	"markerDirectionMode": {
 		"movingDirection": "Bewegungsrichtung",

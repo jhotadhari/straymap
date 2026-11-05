@@ -24,7 +24,6 @@
 	"confirmDeactivateRecording": "A gravação de trilha está ativa. Parar o rastreamento GNSS?",
 	"permissionDenied": "É necessária a permissão de localização para usar o GNSS. Ative-a nas definições do sistema.",
 	"gnssMarker": "Marcador GNSS",
-	"markerIconTriangle": "Triângulo",
 	"markerDirection": "Direção do marcador",
 	"markerDirectionMode": {
 		"movingDirection": "Direção de movimento",

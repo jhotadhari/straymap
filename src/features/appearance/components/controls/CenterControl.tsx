@@ -19,19 +19,6 @@ import { EMPTY_STRING_ARRAY } from '../../../../constants';
 
 const CURSOR_ICON_EXTENSIONS = ['svg', 'png'];
 
-const initialOptionsByPath = {
-	[' ']: [
-		{
-			key: 'target',
-			label: 'appearance.target',
-		},
-		{
-			key: 'target-variant',
-			label: 'appearance.target-variant',
-		},
-	],
-};
-
 /** Renders the cursor config — falls back to the `target` glyph when no
  * source is set (matches the anchor-row fallback icon). */
 const CursorPreview = ({
@@ -71,6 +58,24 @@ const CenterControl = () => {
 			color: theme.colors.onBackground,
 		}),
 		[cursorConfig, theme.colors.onBackground]
+	);
+
+	// Labels are translated here (not as raw i18n keys) — FileSourceRowControl
+	// renders option labels verbatim.
+	const initialOptionsByPath = useMemo(
+		() => ({
+			[' ']: [
+				{
+					key: 'target',
+					label: t('appearance.target'),
+				},
+				{
+					key: 'target-variant',
+					label: t('appearance.target-variant'),
+				},
+			],
+		}),
+		[t]
 	);
 
 	return (

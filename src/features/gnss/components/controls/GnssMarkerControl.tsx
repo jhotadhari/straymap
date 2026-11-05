@@ -33,7 +33,7 @@ import {
 	initialSettings,
 	GnssMarkerDirection,
 } from '../../slice';
-import { buildMarkerSvg } from '../../markerSvg';
+import { buildMarkerSvg, markerSourceToShape } from '../../markerSvg';
 import { selectAppDirs } from '../../../dirs/selectors';
 import { selectUnitPrefs } from '../../../general/selectors';
 import { metersToUnit, unitToMeters, formatDistanceUnit } from '../../../../lib/formatting';
@@ -46,8 +46,16 @@ const GNSS_MARKER_ICON_EXTENSIONS = ['svg', 'png'];
 const initialOptionsByPath = {
 	[' ']: [
 		{
-			key: 'triangle',
-			label: 'gnss.markerIconTriangle',
+			key: 'materialNavigation',
+			label: 'MaterialIcons - navigation',
+		},
+		{
+			key: 'materialNavigationOutline',
+			label: 'MaterialIcons - navigation-outline',
+		},
+		{
+			key: 'lucideNavigation',
+			label: 'Lucide - navigation',
 		},
 	],
 };
@@ -68,7 +76,7 @@ const validateAccuracyThreshold = (val: number) => val >= 0;
 const isFileSource = (iconSource: string) =>
 	iconSource.startsWith('/') || iconSource.startsWith('content://');
 
-/** Live preview of the configured marker (preset triangle or custom file). */
+/** Live preview of the configured marker (built-in preset or custom file). */
 const GnssMarkerPreview: FC<{
 	config: { iconSource: string; size: number; color: string };
 }> = ({ config }) => {
@@ -86,7 +94,12 @@ const GnssMarkerPreview: FC<{
 	}
 	return (
 		<SvgXml
-			xml={buildMarkerSvg(config.size, config.color)}
+			xml={buildMarkerSvg(
+				config.size,
+				config.color,
+				'#000000',
+				markerSourceToShape(config.iconSource)
+			)}
 			width={config.size}
 			height={config.size}
 		/>
@@ -95,8 +108,9 @@ const GnssMarkerPreview: FC<{
 
 /**
  * GNSS position-marker config control — same modal pattern as the cursor
- * control, with the triangle preset / custom svg+png files, the accuracy
- * circle threshold and the measurement-label visibility toggle.
+ * control, with the built-in presets (triangle / navigation arrows) and
+ * custom svg+png files, the accuracy circle threshold and the
+ * measurement-label visibility toggle.
  */
 const GnssMarkerControl: FC = () => {
 	const { t } = useTranslation();
@@ -167,7 +181,9 @@ const GnssMarkerControl: FC = () => {
 				label={t('gnss.accuracyCircle', { unit: accuracyUnit })}
 				value={accuracyThresholdDisplay}
 				onUpdate={(val: number) =>
-					dispatch(setAccuracyCircleThresholdMeters(unitToMeters(val, distanceUnitPref, true)))
+					dispatch(
+						setAccuracyCircleThresholdMeters(unitToMeters(val, distanceUnitPref, true))
+					)
 				}
 				validate={validateAccuracyThreshold}
 				numType="float"

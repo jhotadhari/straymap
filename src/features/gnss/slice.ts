@@ -46,7 +46,7 @@ export interface GnssSettings {
 	/** Seconds of map stillness after a user pan before the map flies back
 	 * to the GNSS position while center mode is active. */
 	recenterDelaySec: number;
-	/** Position-marker icon: the 'triangle' preset or an svg/png file/uri. */
+	/** Position-marker icon: a built-in preset (navigation arrows) or an svg/png file/uri. */
 	markerIconSource: string;
 	/** Position-marker canvas size in dp. */
 	markerSize: number;
@@ -80,7 +80,7 @@ export const initialSettings: GnssSettings = {
 	isActive: false,
 	isCenterActive: false,
 	recenterDelaySec: 10,
-	markerIconSource: 'triangle',
+	markerIconSource: 'materialNavigation',
 	markerSize: 26,
 	// The first red of the color-palette options (ColorPaletteInline).
 	markerColor: PALETTE_COLORS[0].bg,

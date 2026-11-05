@@ -19,7 +19,7 @@ describe('gnss slice reducers', () => {
 	it('initial state has sensible marker defaults', () => {
 		const state = gnssReducer(undefined, { type: '@@INIT' } as any);
 		expect(state.isActive).toBe(false);
-		expect(state.markerIconSource).toBe('triangle');
+		expect(state.markerIconSource).toBe('materialNavigation');
 		expect(state.markerSize).toBe(26);
 		expect(state.markerColor).toBe('#F50000');
 		expect(state.markerDirection).toBe('movingDirection');

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { FC, useEffect, useMemo, useState } from 'react';
+import React, { FC, useEffect, useMemo, useRef, useState } from 'react';
 import { PixelRatio } from 'react-native';
 import { get } from 'lodash-es';
 import RNFS from 'react-native-fs';
@@ -23,10 +23,16 @@ import {
 } from '../selectors';
 import { useDeviceAzimuth } from '../deviceAzimuthStore';
 import { selectAppDirs } from '../../dirs/selectors';
-import { buildMarkerSvg } from '../markerSvg';
+import { buildMarkerSvg, markerSourceToShape, MarkerShape } from '../markerSvg';
 import { logError } from '../../../lib/utils';
 
-const MARKER_FILE_NAME = 'gnssCenterMarker.svg';
+// The generated file name embeds shape + color: the native bitmap cache
+// keys on the file path (not the content), so a new name per shape/color
+// forces a fresh decode instead of serving a stale cached bitmap.
+const markerFileName = (shape: MarkerShape, color: string): string =>
+	`gnssCenterMarker-${shape}-${color.replace('#', '')}.svg`;
+
+const GENERATED_FILE_PREFIX = 'gnssCenterMarker-';
 
 const isFileSource = (iconSource: string) =>
 	iconSource.startsWith('/') || iconSource.startsWith('content://');
@@ -39,11 +45,11 @@ const isFileSource = (iconSource: string) =>
  * Visible whenever GNSS is active (independent of center mode — center
  * mode only controls the map re-centering and the panned-away line).
  *
- * The configured icon (triangle preset or a custom svg/png file) is
- * decoded natively via the marker's filePath paint; the rotation
- * (movement direction, or the device compass azimuth when the marker
- * direction is 'north') is applied natively via the `rotation` paint
- * option (whole degrees).
+ * The configured icon (a built-in preset — triangle or navigation
+ * arrows — or a custom svg/png file) is decoded natively via the
+ * marker's filePath paint; the rotation (movement direction, or the
+ * device compass azimuth when the marker direction is 'north') is
+ * applied natively via the `rotation` paint option (whole degrees).
  *
  * While the GNSS accuracy is worse than the configured threshold, a
  * native circle with the live accuracy radius is drawn under the marker.
@@ -65,8 +71,32 @@ const GnssCenterMarker: FC = () => {
 	const markerDir = get(appDirs, ['marker', 0]) as string | undefined;
 
 	const [filePath, setFilePath] = useState<string | null>(null);
+	// Last generated marker file (shape/color-versioned) — unlinked when
+	// a new one replaces it so stale files don't accumulate.
+	const previousGeneratedPathRef = useRef<string | null>(null);
 
-	// Custom file sources are used as-is; the triangle preset is written
+	// Sweep leftover generated marker files from previous sessions
+	// (older shapes/colors and the legacy fixed-name file). Best effort.
+	useEffect(() => {
+		if (!markerDir) {
+			return;
+		}
+		RNFS.readDir(markerDir)
+			.then((entries) => {
+				entries.forEach((entry) => {
+					if (
+						entry.isFile() &&
+						(entry.name === 'gnssCenterMarker.svg' ||
+							entry.name.startsWith(GENERATED_FILE_PREFIX))
+					) {
+						RNFS.unlink(entry.path).catch(() => {});
+					}
+				});
+			})
+			.catch(() => {});
+	}, [markerDir]);
+
+	// Custom file sources are used as-is; built-in presets are written
 	// into the app's marker dir (native decodes .svg filePaths directly).
 	useEffect(() => {
 		if (isFileSource(markerIconSource)) {
@@ -76,12 +106,22 @@ const GnssCenterMarker: FC = () => {
 		if (!markerDir) {
 			return;
 		}
-		const path = `${markerDir}/${MARKER_FILE_NAME}`;
+		const shape = markerSourceToShape(markerIconSource);
+		const path = `${markerDir}/${markerFileName(shape, markerColor)}`;
 		let cancelled = false;
 		(async () => {
 			try {
-				await RNFS.writeFile(path, buildMarkerSvg(markerSize, markerColor), 'utf8');
+				await RNFS.writeFile(
+					path,
+					buildMarkerSvg(markerSize, markerColor, '#000000', shape),
+					'utf8'
+				);
 				if (!cancelled) {
+					const previousPath = previousGeneratedPathRef.current;
+					if (previousPath && previousPath !== path) {
+						RNFS.unlink(previousPath).catch(() => {});
+					}
+					previousGeneratedPathRef.current = path;
 					setFilePath(path);
 				}
 			} catch (err) {
@@ -106,8 +146,7 @@ const GnssCenterMarker: FC = () => {
 	// In 'north' mode the marker turns with the device compass (azimuth
 	// relative to magnetic north); without a compass sensor it stays
 	// pointing to map north (rotation 0).
-	const rotation =
-		markerDirection === 'north' ? deviceAzimuth ?? 0 : gnssHeading ?? 0;
+	const rotation = markerDirection === 'north' ? (deviceAzimuth ?? 0) : (gnssHeading ?? 0);
 
 	const paint = useMemo(
 		() =>
