@@ -12,12 +12,18 @@ import { DashboardWidgetProps } from '../../../dashboard/types';
 import useItemStyle from '../../../dashboard/hooks/useItemStyle';
 import ElementFrame from '../../../dashboard/components/ElementFrame';
 
-export interface Options {}
+export interface Options {
+	showNumber?: boolean;
+}
 
 const Display: FC<DashboardWidgetProps<Options>> = ({ item, style = {}, onPress }) => {
 	const { fontSize, minWidth, textAlign, showLabel, showIcon } = useItemStyle(item);
 
 	const deviceAzimuth = useDeviceAzimuth();
+
+	// Number shown by default; hidden entirely (no degree sign, no dash)
+	// when the item option disables it. The rotating icon is unaffected.
+	const showNumber = item?.options?.showNumber !== false;
 
 	const textStyle = useMemo(() => ({ fontSize, textAlign }), [fontSize, textAlign]);
 
@@ -33,7 +39,9 @@ const Display: FC<DashboardWidgetProps<Options>> = ({ item, style = {}, onPress 
 			onPress={onPress}
 			iconRotation={deviceAzimuth ?? undefined}
 		>
-			<Text style={textStyle}>{deviceAzimuth == null ? '-' : `${deviceAzimuth}°`}</Text>
+			{showNumber && (
+				<Text style={textStyle}>{deviceAzimuth == null ? '-' : `${deviceAzimuth}°`}</Text>
+			)}
 		</ElementFrame>
 	);
 };

@@ -10,6 +10,7 @@
 	"minWidth": "Ancho mínimo",
 	"showLabel": "Mostrar etiqueta",
 	"showIcon": "Mostrar icono",
+	"showNumber": "Mostrar número",
 	"useDefault": "Usar predeterminado",
 	"followDashboardSetting": "Configuración del tablero",
 	"followGlobalSetting": "Configuración global",
@@ -40,7 +41,8 @@
 			"unit": "La unidad en la que se muestra el elemento del tablero.\n\nLa configuración predeterminada de la unidad se puede ajustar en la configuración general bajo \"Preferencias de unidades\".",
 			"decimalPlaces": "Anula el número de decimales para este elemento específico del tablero. Cuando no se establece, se usa el valor predeterminado de las preferencias de unidades.",
 			"showLabel": "Anula si este elemento específico del tablero muestra una etiqueta. Cuando no se establece, se usa la configuración predeterminada del tablero.",
-			"showIcon": "Anula si este elemento específico del tablero muestra un icono. Cuando no se establece, se usa la configuración predeterminada del tablero."
+			"showIcon": "Anula si este elemento específico del tablero muestra un icono. Cuando no se establece, se usa la configuración predeterminada del tablero.",
+			"showNumber": "Si se muestra el valor de la dirección de la brújula en grados junto al icono.\n\nSi no se muestra nada, puede que el icono esté desactivado — puedes volver a activarlo en los ajustes de este elemento."
 		}
 	}
 }

@@ -10,6 +10,7 @@
 	"minWidth": "Mindestbreite",
 	"showLabel": "Beschriftung zeigen",
 	"showIcon": "Symbol zeigen",
+	"showNumber": "Nummer anzeigen",
 	"useDefault": "Standard verwenden",
 	"followDashboardSetting": "Dashboard-Einstellung",
 	"followGlobalSetting": "Globale Einstellung",
@@ -40,7 +41,8 @@
 			"unit": "Die Einheit, in der das Dashboard-Element angezeigt wird.\n\nDie Standardeinstellung der Einheit kann in den allgemeinen Einstellungen unter „Bevorzugte Einheiten\" angepasst werden.",
 			"decimalPlaces": "Überschreibt die Anzahl der Dezimalstellen für dieses Dashboard-Element. Wenn nicht gesetzt, wird der Standardwert aus den Einheiteneinstellungen verwendet.",
 			"showLabel": "Überschreibt, ob dieses Dashboard-Element eine Beschriftung zeigt. Wenn nicht gesetzt, wird die Standardeinstellung des Dashboards verwendet.",
-			"showIcon": "Überschreibt, ob dieses Dashboard-Element ein Symbol zeigt. Wenn nicht gesetzt, wird die Standardeinstellung des Dashboards verwendet."
+			"showIcon": "Überschreibt, ob dieses Dashboard-Element ein Symbol zeigt. Wenn nicht gesetzt, wird die Standardeinstellung des Dashboards verwendet.",
+			"showNumber": "Ob der Kompasswert in Grad neben dem Symbol angezeigt wird.\n\nWenn nichts angezeigt wird, ist möglicherweise das Symbol deaktiviert — du kannst es in den Einstellungen dieses Elements wieder aktivieren."
 		}
 	}
 }
