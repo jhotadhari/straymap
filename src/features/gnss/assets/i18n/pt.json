@@ -5,6 +5,7 @@
 	"gnssAltitude": "Altitude GNSS",
 	"gnssSpeed": "Velocidade GNSS",
 	"gnssHeading": "Direção",
+	"gnssCompass": "[sensor] Bússola",
 	"activateGnss": "Ativar GNSS",
 	"deactivateGnss": "Desativar GNSS",
 	"centerMode": "Modo centralizado",

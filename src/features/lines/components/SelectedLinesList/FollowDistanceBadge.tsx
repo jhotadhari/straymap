@@ -2,6 +2,7 @@
  * External dependencies
  */
 import React, { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 import { StyleSheet, View } from 'react-native';
 import { Icon, Text, useTheme } from 'react-native-paper';
 import { get } from 'lodash-es';
@@ -17,18 +18,19 @@ import { useFollowProgress } from '../../../lineFollow/hooks/useFollowProgress';
 /**
  * Live "distance to destination" badge for the followed line's first
  * statistics row. Rendered as its own component so only this badge (not
- * every selected-lines row) re-renders on GNSS fixes.
+ * every selected-lines row) re-renders on GNSS fixes. Falls back to the
+ * "Following" text while no progress is available (GNSS off or no fix yet).
  */
 const FollowDistanceBadge: FC<{ lineId: number }> = ({ lineId }) => {
+	const { t } = useTranslation();
 	const theme = useTheme();
 	const unitPrefs = useAppSelector(selectUnitPrefs);
 	const progress = useFollowProgress(lineId);
 
-	if (progress?.distanceToDestination == null) {
-		return null;
-	}
-
-	const value = formatDistance(progress.distanceToDestination, get(unitPrefs, ['distance']));
+	const value =
+		progress?.distanceToDestination != null
+			? formatDistance(progress.distanceToDestination, get(unitPrefs, ['distance']))
+			: t('lineFollow.following');
 
 	return (
 		<View style={[styles.pill, { backgroundColor: theme.colors.primaryContainer }]}>

@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next';
  */
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { selectIsActive } from '../selectors';
-import { setIsActive, setIsCenterActive } from '../slice';
+import { setIsActive } from '../slice';
 import { selectIsRecording } from '../../trackRecording/selectors';
 import { startRecording, stopRecording } from '../../trackRecording/slice';
 import TrackRecordingControl from '../../trackRecording/components/TrackRecordingControl';
@@ -44,8 +44,6 @@ const SettingsLocation: FC<{ style?: ViewStyle }> = ({ style }) => {
 			dispatch(setIsActive(true));
 			return;
 		}
-		// Center mode without GNSS makes no sense — disable it too.
-		dispatch(setIsCenterActive(false));
 		dispatch(setIsActive(false));
 	}, [
 		dispatch,

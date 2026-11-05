@@ -27,6 +27,7 @@ interface ElementFrameProps {
 	textAlign?: TextStyle['textAlign'];
 	showLabel: boolean;
 	showIcon: boolean;
+	iconRotation?: number;
 	onPress?: (itemKey: string, event: GestureResponderEvent) => void;
 	children: ReactNode;
 }
@@ -46,6 +47,7 @@ const ElementFrame: FC<ElementFrameProps> = ({
 	textAlign,
 	showLabel,
 	showIcon,
+	iconRotation,
 	onPress,
 	children,
 }) => {
@@ -104,6 +106,7 @@ const ElementFrame: FC<ElementFrameProps> = ({
 							<elementDef.Icon
 								color={theme.colors.onSurface}
 								size={iconSize}
+								rotation={iconRotation}
 							/>
 						</View>
 					)}

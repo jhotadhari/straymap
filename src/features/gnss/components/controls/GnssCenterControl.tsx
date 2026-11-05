@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { FC, useCallback, useContext } from 'react';
+import React, { FC, useCallback } from 'react';
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
@@ -10,45 +10,31 @@ import { useTranslation } from 'react-i18next';
  */
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { selectIsCenterActive, selectRecenterDelaySec } from '../../selectors';
-import { setIsActive, setIsCenterActive, setRecenterDelaySec } from '../../slice';
+import { setIsCenterActive, setRecenterDelaySec } from '../../slice';
 import NumericRowControl from '../../../../components/generic/controls/NumericRowControl';
 import ToggleRowControl from '../../../../components/generic/controls/ToggleRowControl';
 import { sharedStyles } from '../../../dashboard/dashboardWidgets/sharedDeps';
-import { ErrorToastContext } from '../../../../components/ErrorToast/Context';
-import ensureLocationPermission from '../../../../lib/locationPermission';
 
 const validateNonNegative = (v: number) => v >= 0;
 
 /**
  * Center-mode settings: on/off toggle plus the panned-away re-centering
- * delay in seconds. Enabling center mode also turns GNSS on.
+ * delay in seconds. Center mode is an independent persisted setting —
+ * toggling it does not touch GNSS, and while GNSS is off it simply waits
+ * for a fix.
  */
 const GnssCenterControl: FC = () => {
 	const { t } = useTranslation();
 	const dispatch = useAppDispatch();
-	const { showError } = useContext(ErrorToastContext);
 
 	const isCenterActive = useAppSelector(selectIsCenterActive);
 	const recenterDelaySec = useAppSelector(selectRecenterDelaySec);
 
-	const handleToggleCenterMode = useCallback(async () => {
-		if (isCenterActive) {
-			dispatch(setIsCenterActive(false));
-			return;
-		}
-		const granted = await ensureLocationPermission();
-		if (!granted) {
-			showError(t('gnss.permissionDenied'));
-			return;
-		}
-		dispatch(setIsActive(true));
-		dispatch(setIsCenterActive(true));
-	}, [
-		dispatch,
-		isCenterActive,
-		showError,
-		t,
-	]);
+	const handleToggleCenterMode = useCallback(() => {
+		// Center mode is a standalone persisted setting — toggling it must
+		// not touch GNSS. While GNSS is off it simply waits for a fix.
+		dispatch(setIsCenterActive(!isCenterActive));
+	}, [dispatch, isCenterActive]);
 
 	const handleRecenterDelaySec = useCallback(
 		(val: number) => dispatch(setRecenterDelaySec(val)),

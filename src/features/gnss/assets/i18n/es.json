@@ -5,6 +5,7 @@
 	"gnssAltitude": "Altitud GNSS",
 	"gnssSpeed": "Velocidad GNSS",
 	"gnssHeading": "Rumbo",
+	"gnssCompass": "[sensor] Brújula",
 	"activateGnss": "Activar GNSS",
 	"deactivateGnss": "Desactivar GNSS",
 	"centerMode": "Modo centrado",

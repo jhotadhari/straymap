@@ -16,6 +16,7 @@ import gnssCoordinates from './dashboardWidgets/gnssCoordinates';
 import gnssAccuracy from './dashboardWidgets/gnssAccuracy';
 import gnssAltitude from './dashboardWidgets/gnssAltitude';
 import gnssSpeed from './dashboardWidgets/gnssSpeed';
+import gnssCompass from './dashboardWidgets/gnssCompass';
 import SettingsLocation from './uiItems/SettingsLocation';
 import GnssStatusIcon from './components/GnssStatusIcon';
 import GnssCenterConnection from './mapComponents/GnssCenterConnection';
@@ -47,6 +48,7 @@ export default {
 		gnssAccuracy,
 		gnssAltitude,
 		gnssSpeed,
+		gnssCompass,
 	],
 	mapComponents: [
 		{

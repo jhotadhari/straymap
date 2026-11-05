@@ -14,7 +14,6 @@ import useItemStyle from '../../../dashboard/hooks/useItemStyle';
 import ElementFrame from '../../../dashboard/components/ElementFrame';
 import { useAppSelector } from '../../../../store/hooks';
 import { selectIsRecording, selectActiveLineId, selectRecordingStartTime } from '../../selectors';
-import { selectGnssPosition } from '../../../gnss/selectors';
 import { queryLineGeom } from '../../../lines/db/queryFns';
 import {
 	formatDistance,
@@ -33,7 +32,6 @@ const Display: FC<DashboardWidgetProps> = ({ item, style = {}, onPress }) => {
 	const isRecording = useAppSelector(selectIsRecording);
 	const activeLineId = useAppSelector(selectActiveLineId);
 	const recordingStartTime = useAppSelector(selectRecordingStartTime);
-	const gnssPosition = useAppSelector(selectGnssPosition);
 
 	const statKey = STATS.find((stat) => stat.key === item.elementType)?.key;
 
@@ -98,13 +96,14 @@ const Display: FC<DashboardWidgetProps> = ({ item, style = {}, onPress }) => {
 			}
 			case 'trackingDuration':
 				return recordingStartTime ? formatDurationCompact(elapsed) : null;
-			case 'trackingSpeed':
-				return gnssPosition ? formatSpeed(gnssPosition.speed, get(unitPrefs, ['speed'])) : null;
 			case 'trackingAvgSpeed': {
 				if (!coords || !recordingStartTime || !elapsed) {
 					return null;
 				}
-				return formatSpeed(haversineLineLength(coords) / elapsed, get(unitPrefs, ['speed']));
+				return formatSpeed(
+					haversineLineLength(coords) / elapsed,
+					get(unitPrefs, ['speed'])
+				);
 			}
 			default:
 				return null;
@@ -114,7 +113,6 @@ const Display: FC<DashboardWidgetProps> = ({ item, style = {}, onPress }) => {
 		statKey,
 		line,
 		unitPrefs,
-		gnssPosition,
 		recordingStartTime,
 		elapsed,
 	]);

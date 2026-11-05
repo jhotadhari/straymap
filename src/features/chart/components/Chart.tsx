@@ -517,9 +517,7 @@ const LocationIndicator = memo(
 			return null;
 		}
 		const screenX = toScreenX(x);
-		const verticalY1 = toScreenY(
-			ySecondary !== undefined ? Math.min(y, ySecondary) : y
-		);
+		const verticalY1 = toScreenY(ySecondary !== undefined ? Math.min(y, ySecondary) : y);
 		const verticalY2 = toScreenY(plotH);
 		const horizontalY = toScreenY(y);
 		// Clamp the horizontal line to the plot area: it must stop just
@@ -634,28 +632,22 @@ const LocationLabels = memo(
 		ySecondary,
 		primaryLabel,
 		secondaryLabel,
-		distanceLabel,
 		color,
-		toScreenX,
 		toScreenY,
 		marginLeft,
 		marginRight,
 		width,
-		height,
 	}: {
 		x?: number;
 		y?: number;
 		ySecondary?: number;
 		primaryLabel?: string;
 		secondaryLabel?: string;
-		distanceLabel?: string;
 		color: string;
-		toScreenX: (v: number) => number;
 		toScreenY: (v: number) => number;
 		marginLeft: number;
 		marginRight: number;
 		width: number;
-		height: number;
 	}) => {
 		if (x === undefined || y === undefined) {
 			return null;
@@ -683,18 +675,44 @@ const LocationLabels = memo(
 						{secondaryLabel}
 					</SvgText>
 				)}
-				{distanceLabel !== undefined && (
-					<SvgText
-						x={toScreenX(x)}
-						y={height - MARGIN_BOTTOM + 16}
-						fill={color}
-						fontSize={9}
-						textAnchor="middle"
-					>
-						{distanceLabel}
-					</SvgText>
-				)}
 			</G>
+		);
+	}
+);
+
+/**
+ * A location indicator's along-route distance value at the bottom (x)
+ * axis. Rendered independently of the indicator line so it stays visible
+ * whenever the indicator is horizontally inside the plot, even when its
+ * vertical position is panned or zoomed out of view.
+ */
+const LocationDistanceLabel = memo(
+	({
+		x,
+		label,
+		color,
+		toScreenX,
+		y,
+	}: {
+		x?: number;
+		label?: string;
+		color: string;
+		toScreenX: (v: number) => number;
+		y: number;
+	}) => {
+		if (x === undefined || label === undefined) {
+			return null;
+		}
+		return (
+			<SvgText
+				x={toScreenX(x)}
+				y={y}
+				fill={color}
+				fontSize={9}
+				textAnchor="middle"
+			>
+				{label}
+			</SvgText>
 		);
 	}
 );
@@ -1609,18 +1627,16 @@ const Chart: FC<{
 			const idx = nearestIndex(series.distances, distance);
 			return {
 				x: distToX(distance),
-				y:
-					seriesViews.primary.values
-						? seriesViews.primary.toY(
-								seriesViews.primary.values[idx] ?? seriesViews.primary.vmax
-							)
-						: undefined,
-				ySecondary:
-					seriesViews.secondary.values
-						? seriesViews.secondary.toY(
-								seriesViews.secondary.values[idx] ?? seriesViews.secondary.vmax
-							)
-						: undefined,
+				y: seriesViews.primary.values
+					? seriesViews.primary.toY(
+							seriesViews.primary.values[idx] ?? seriesViews.primary.vmax
+						)
+					: undefined,
+				ySecondary: seriesViews.secondary.values
+					? seriesViews.secondary.toY(
+							seriesViews.secondary.values[idx] ?? seriesViews.secondary.vmax
+						)
+					: undefined,
 				primaryLabel: seriesViews.primary.values
 					? seriesViews.primary.formatTick(
 							seriesViews.primary.values[idx] ?? seriesViews.primary.vmax
@@ -1657,9 +1673,11 @@ const Chart: FC<{
 
 	// Visibility gate: the derived values always lie inside the route's
 	// plot domain ([0, plotW] × [0, plotH]) — only the viewport transform
-	// can move them off the visible plot. An indicator outside the plot
-	// is not rendered at all (lines, dots and labels), so no artifacts
-	// leak into the axis gutters or the follow-lag padding.
+	// can move them off the visible plot. The full in-plot check gates
+	// the indicator lines and the y-axis gutter labels. The x-axis
+	// distance label is gated separately by the horizontal-only check
+	// below, so the distance value stays on the axis even when the
+	// indicator's vertical position is panned or zoomed out of view.
 	const isIndicatorInPlot = useCallback(
 		(ind: { x?: number; y?: number }) => {
 			if (ind.x === undefined || ind.y === undefined) {
@@ -1685,6 +1703,32 @@ const Chart: FC<{
 	const gnssInPlot = useMemo(
 		() => isIndicatorInPlot(gnssIndicator),
 		[isIndicatorInPlot, gnssIndicator]
+	);
+
+	// The x-axis distance label only depends on the horizontal position —
+	// keep it visible while the indicator is horizontally inside the plot,
+	// even when the vertical position is out of view.
+	const isIndicatorXInPlot = useCallback(
+		(ind: { x?: number }) => {
+			if (ind.x === undefined) {
+				return false;
+			}
+			const vx = translateX + scaleX * ind.x;
+			return vx >= 0 && vx <= plotW;
+		},
+		[
+			translateX,
+			scaleX,
+			plotW,
+		]
+	);
+	const centerXInPlot = useMemo(
+		() => isIndicatorXInPlot(centerIndicator),
+		[isIndicatorXInPlot, centerIndicator]
+	);
+	const gnssXInPlot = useMemo(
+		() => isIndicatorXInPlot(gnssIndicator),
+		[isIndicatorXInPlot, gnssIndicator]
 	);
 
 	// The plot content is translated and scaled inside the SVG (so
@@ -1778,7 +1822,11 @@ const Chart: FC<{
 							dots or labels. The GNSS indicator renders after
 							the blue map-center indicator, layered above
 							it. Indicators outside the visible plot area
-							are not rendered (see `isIndicatorInPlot`). */}
+							are not rendered (see `isIndicatorInPlot`),
+							except the x-axis distance label, which is
+							gated by the horizontal-only
+							`isIndicatorXInPlot` and stays on the axis
+							while the indicator is horizontally in scope. */}
 						<G>
 							{centerInPlot && (
 								<>
@@ -1803,16 +1851,23 @@ const Chart: FC<{
 										ySecondary={centerIndicator.ySecondary}
 										primaryLabel={centerIndicator.primaryLabel}
 										secondaryLabel={centerIndicator.secondaryLabel}
-										distanceLabel={centerIndicator.distanceLabel}
 										color={COLOR_CENTER}
-										toScreenX={toPlotX}
 										toScreenY={toPlotY}
 										marginLeft={layerMarginLeft}
 										marginRight={layerMarginRight}
 										width={layerWidth}
-										height={layerHeight}
 									/>
 								</>
+							)}
+
+							{centerXInPlot && (
+								<LocationDistanceLabel
+									x={centerIndicator.x}
+									label={centerIndicator.distanceLabel}
+									color={COLOR_CENTER}
+									toScreenX={toPlotX}
+									y={layerPadY + height - MARGIN_BOTTOM + 16}
+								/>
 							)}
 
 							{gnssInPlot && (
@@ -1838,16 +1893,23 @@ const Chart: FC<{
 										ySecondary={gnssIndicator.ySecondary}
 										primaryLabel={gnssIndicator.primaryLabel}
 										secondaryLabel={gnssIndicator.secondaryLabel}
-										distanceLabel={gnssIndicator.distanceLabel}
 										color={gnssColor}
-										toScreenX={toPlotX}
 										toScreenY={toPlotY}
 										marginLeft={layerMarginLeft}
 										marginRight={layerMarginRight}
 										width={layerWidth}
-										height={layerHeight}
 									/>
 								</>
+							)}
+
+							{gnssXInPlot && (
+								<LocationDistanceLabel
+									x={gnssIndicator.x}
+									label={gnssIndicator.distanceLabel}
+									color={gnssColor}
+									toScreenX={toPlotX}
+									y={layerPadY + height - MARGIN_BOTTOM + 16}
+								/>
 							)}
 						</G>
 					</Svg>

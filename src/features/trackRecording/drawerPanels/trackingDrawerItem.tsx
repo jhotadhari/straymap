@@ -21,6 +21,7 @@ import {
 	selectIsCenterActive,
 } from '../../gnss/selectors';
 import { setIsActive, setIsCenterActive } from '../../gnss/slice';
+import { useGnssSpeed } from '../../gnss/hooks/useGnssSpeed';
 import { selectIsRecording, selectActiveLineId, selectRecordingStartTime } from '../selectors';
 import { selectResumePending } from '../selectors';
 import { startRecording, stopRecording, continueRecording } from '../slice';
@@ -115,6 +116,7 @@ const TrackingDrawerContent: FC = () => {
 	const resumePending = useAppSelector(selectResumePending);
 	const gnssPosition = useAppSelector(selectGnssPosition);
 	const gnssHeading = useAppSelector(selectGnssHeading);
+	const speed = useGnssSpeed();
 	const activeLineId = useAppSelector(selectActiveLineId);
 	const recordingStartTime = useAppSelector(selectRecordingStartTime);
 	const unitPrefs = useAppSelector(selectUnitPrefs);
@@ -243,8 +245,6 @@ const TrackingDrawerContent: FC = () => {
 			dispatch(setIsActive(true));
 			return;
 		}
-		// Center mode without GNSS makes no sense — disable it too.
-		dispatch(setIsCenterActive(false));
 		dispatch(setIsActive(false));
 	}, [
 		dispatch,
@@ -253,24 +253,11 @@ const TrackingDrawerContent: FC = () => {
 		t,
 	]);
 
-	const handleToggleCenterMode = useCallback(async () => {
-		if (isCenterActive) {
-			dispatch(setIsCenterActive(false));
-			return;
-		}
-		const granted = await ensureLocationPermission();
-		if (!granted) {
-			showError(t('gnss.permissionDenied'));
-			return;
-		}
-		dispatch(setIsActive(true));
-		dispatch(setIsCenterActive(true));
-	}, [
-		dispatch,
-		isCenterActive,
-		showError,
-		t,
-	]);
+	const handleToggleCenterMode = useCallback(() => {
+		// Center mode is a standalone persisted setting — toggling it must
+		// not touch GNSS. While GNSS is off it simply waits for a fix.
+		dispatch(setIsCenterActive(!isCenterActive));
+	}, [dispatch, isCenterActive]);
 
 	return (
 		<View style={styles.container}>
@@ -375,7 +362,7 @@ const TrackingDrawerContent: FC = () => {
 			<View style={styles.row}>
 				<Text>{t('gnss.gnssSpeed')}:</Text>
 				<Text style={styles.value}>
-					{gnssPosition ? formatSpeed(gnssPosition.speed, speedUnit) : '-'}
+					{speed == null ? '-' : formatSpeed(speed, speedUnit)}
 				</Text>
 			</View>
 

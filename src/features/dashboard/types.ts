@@ -38,6 +38,7 @@ export type DashboardWidget<Options = {}> = {
 	Icon?: ElementType<{
 		color: string;
 		size: number;
+		rotation?: number;
 	}>;
 	shouldSetHgtDirPath?: boolean;
 	defaultMinWidth: number;

@@ -84,3 +84,10 @@ export const clearFollowingIfMatches = (lineIds: number[]): AppThunk => {
 		}
 	};
 };
+
+/**
+ * Clear following when the DB path changes — line IDs are database-local.
+ */
+export const onSetDbPath = (): AppThunk => (dispatch) => {
+	dispatch(setFollowingLineId(null));
+};

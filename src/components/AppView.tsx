@@ -76,7 +76,10 @@ import {
 	selectUseDemAltitude,
 } from '../features/trackRecording/selectors';
 import { pauseRecordingForPrompt } from '../features/trackRecording/slice';
-import { selectIsActive as selectGnssIsActive, selectMarkerDirection } from '../features/gnss/selectors';
+import {
+	selectIsActive as selectGnssIsActive,
+	selectMarkerDirection,
+} from '../features/gnss/selectors';
 import { getDeviceAzimuth, setDeviceAzimuth } from '../features/gnss/deviceAzimuthStore';
 import { altitudeService } from '../lib/AltitudeService';
 import { addBusyKey, removeBusyKey } from '../features/ui/slice';
@@ -106,6 +109,7 @@ const AppView = ({
 	const hardwareKeys = useAppSelector(selectHardwareKeys);
 
 	const dashboardItems = useAppSelector((state) => selectItems(state, { position: 'bottom' }));
+	const dashboardItemsTop = useAppSelector((state) => selectItems(state, { position: 'top' }));
 	const hgtDirPathStore = useAppSelector(selectHgtDirPath);
 	const dashboardWidgets = useAppSelector(selectElementsSettings);
 	const isRecording = useAppSelector(selectIsRecording);
@@ -116,9 +120,18 @@ const AppView = ({
 	const gnssIsActive = useAppSelector(selectGnssIsActive);
 	const markerDirection = useAppSelector(selectMarkerDirection);
 
-	// The device compass only feeds the marker while GNSS is active and the
-	// marker direction is 'north' (device compass).
-	const compassEnabled = gnssIsActive && markerDirection === 'north';
+	// The device compass feeds the marker while GNSS is active and the
+	// marker direction is 'north' (device compass). The compass dashboard
+	// widget additionally needs the sensor whenever it is on the
+	// dashboard, independent of the GNSS state.
+	const compassWidgetActive = useMemo(
+		() =>
+			[...dashboardItems, ...dashboardItemsTop].some(
+				(item) => item.elementType === 'gnssCompass'
+			),
+		[dashboardItems, dashboardItemsTop]
+	);
+	const compassEnabled = (gnssIsActive && markerDirection === 'north') || compassWidgetActive;
 
 	const leftItemKeys = useAppSelector((state) => selectItemKeys(state, { side: 'left' }));
 	const rightItemKeys = useAppSelector((state) => selectItemKeys(state, { side: 'right' }));
@@ -314,14 +327,11 @@ const AppView = ({
 	// Written to the device-azimuth store imperatively — no dispatch, so
 	// AppView never re-renders on azimuth events; only the marker
 	// component subscribes.
-	const handleDeviceAzimuth = useCallback(
-		(event: NativeSyntheticEvent<{ azimuth: number }>) => {
-			if (typeof event?.nativeEvent?.azimuth === 'number') {
-				setDeviceAzimuth(event.nativeEvent.azimuth);
-			}
-		},
-		[]
-	);
+	const handleDeviceAzimuth = useCallback((event: NativeSyntheticEvent<{ azimuth: number }>) => {
+		if (typeof event?.nativeEvent?.azimuth === 'number') {
+			setDeviceAzimuth(event.nativeEvent.azimuth);
+		}
+	}, []);
 
 	// Drop the stale azimuth when the compass is disabled (GNSS off or the
 	// marker direction switched back to moving direction) so the marker

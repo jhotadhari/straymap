@@ -27,7 +27,7 @@ getChartSourceKey.fullscreen(lineId) → 'chart:fullscreen:<id>'
 `getChartSourceFromKey` parses a key back into a `ChartSource`
 (`{ type: 'line', lineId }` — the fullscreen key also resolves to
 `type: 'line'`). There is no routing-specific key anymore: the routing
-chart is the routing *line*'s chart (`chart:line:<routingLineId>`).
+chart is the routing _line_'s chart (`chart:line:<routingLineId>`).
 
 ## Bottom drawer integration
 
@@ -157,7 +157,7 @@ Every other key participates in the Default/Custom mode (general vs own).
 | `selectChartSettings(state, key)`       | Effective settings: `DEFAULT_CHART_SETTINGS` ← `general` (minus per-chart keys) ← own (minus general-only keys) |
 | `selectGeneralSettings`                 | `DEFAULT_CHART_SETTINGS` merged with `general`                                                                  |
 | `selectHasOwnChartSettings(state, key)` | `true` when the own entry has keys outside the two exclusion sets → drives Default/Custom mode                  |
-| `selectOwnPerChartSettings(state, key)` | `pick` of `ratioValue`/`followMode`/`animateFollow` from the own entry                                              |
+| `selectOwnPerChartSettings(state, key)` | `pick` of `ratioValue`/`followMode`/`animateFollow` from the own entry                                          |
 | `selectFullscreenLineId`                | The fullscreen chart's dedicated line                                                                           |
 | `selectInitialized`                     | Storage-restore completion flag                                                                                 |
 
@@ -260,13 +260,13 @@ Data, follow-map polling, ratio plumbing, header/stats UI:
 `react-native-svg` with memoized subcomponents so map-center updates only
 touch the indicator/labels, never the static plot:
 
-| Subcomponent       | Content                                                                             |
-| ------------------ | ----------------------------------------------------------------------------------- |
-| `PlotContent`      | Area fills + series strokes, inside the scaled `<G>` (memoized)                     |
-| `PlotAxes`         | Axis lines + tick marks/labels, static layer, in screen space (memoized)            |
-| `WaypointMarkers`  | Orange dashed vertical lines + numbers, in the plot layer (memoized)                |
-| `LocationIndicator`| Lines/dots with background halos for a location, in the plot layer (memoized)       |
-| `LocationLabels`   | Location values at the axes, in the plot layer (memoized)                           |
+| Subcomponent        | Content                                                                       |
+| ------------------- | ----------------------------------------------------------------------------- |
+| `PlotContent`       | Area fills + series strokes, inside the scaled `<G>` (memoized)               |
+| `PlotAxes`          | Axis lines + tick marks/labels, static layer, in screen space (memoized)      |
+| `WaypointMarkers`   | Orange dashed vertical lines + numbers, in the plot layer (memoized)          |
+| `LocationIndicator` | Lines/dots with background halos for a location, in the plot layer (memoized) |
+| `LocationLabels`    | Location values at the axes, in the plot layer (memoized)                     |
 
 - **Location indicators**: `LocationIndicator` + `LocationLabels` render
   twice from values derived by `deriveIndicator` (plot x, nearest series
@@ -281,8 +281,15 @@ touch the indicator/labels, never the static plot:
   `isIndicatorInPlot` checks `translateX + scaleX·x ∈ [0, plotW]` and
   `translateY + syEff·y ∈ [0, plotH]` against the logical viewport (the
   derived values always lie inside the route's plot domain — only the
-  viewport transform moves them off), so no lines, dots or axis labels
-  leak into the gutters or the follow-lag padding.
+  viewport transform moves them off), so the indicator lines/dots and
+  the y-axis gutter labels are hidden when the indicator is fully out of
+  plot and no artifacts leak into the gutters or the follow-lag padding.
+  Exception: the x-axis distance label renders whenever the indicator is
+  horizontally in scope — a horizontal-only `isIndicatorXInPlot` check —
+  positioned just below the plot bottom in layer space
+  (`layerPadY + height - MARGIN_BOTTOM + 16`), so the along-route
+  distance value stays on the axis even when the indicator's vertical
+  position is panned or zoomed out of view.
 
 - **Color runs**: `buildColorRuns` batches consecutive same-color
   segments into single polyline paths; `simplifyColorRuns` culls runs
@@ -354,19 +361,19 @@ Context (`ChartSettingsModalContext`): `chartKey`, `settings`, `update`,
 re-render the chart display tree on every map event, and stable props
 keep the modal (and its popover menus) quiet.
 
-| Row                 | Drawer | Fullscreen | Purpose                                                             |
-| ------------------- | :----: | :--------: | ------------------------------------------------------------------- |
-| `RowSelectRoute`    |   ✓    |            | "Drawer content" picker (chart sources, labels prefixed "Chart ")   |
-| `RowShowHeading`    |   ✓    |            | Toggle heading (always on in fullscreen)                            |
-| `RowShowStats`      |   ✓    |            | Toggle statistics (always on in fullscreen)                         |
-| `RowRemoveChart`    |   ✓    |            | Remove the line's chart (`toggleChartLine`) with confirmation       |
-| `RowFollowMode`     |   ✓    |     ✓      | Follow mode picker: Off + follow map/center, each animated/not      |
-| `RowRatioLock`      |   ✓    |     ✓      | Fixed aspect ratio + Fit-screen button                              |
-| `RowChartMode`      |   ✓    |     ✓      | Default/Custom mode switch                                          |
-| `RowPrimaryData`    |   ✓    |     ✓      | Primary series (none/elevation/slope)                               |
-| `RowPrimaryColor`   |   ✓    |     ✓      | Primary color mode (axis/ramp/fill)                                 |
-| `RowSecondaryData`  |   ✓    |     ✓      | Secondary series                                                    |
-| `RowSecondaryColor` |   ✓    |     ✓      | Secondary color mode                                                |
+| Row                 | Drawer | Fullscreen | Purpose                                                           |
+| ------------------- | :----: | :--------: | ----------------------------------------------------------------- |
+| `RowSelectRoute`    |   ✓    |            | "Drawer content" picker (chart sources, labels prefixed "Chart ") |
+| `RowShowHeading`    |   ✓    |            | Toggle heading (always on in fullscreen)                          |
+| `RowShowStats`      |   ✓    |            | Toggle statistics (always on in fullscreen)                       |
+| `RowRemoveChart`    |   ✓    |            | Remove the line's chart (`toggleChartLine`) with confirmation     |
+| `RowFollowMode`     |   ✓    |     ✓      | Follow mode picker: Off + follow map/center, each animated/not    |
+| `RowRatioLock`      |   ✓    |     ✓      | Fixed aspect ratio + Fit-screen button                            |
+| `RowChartMode`      |   ✓    |     ✓      | Default/Custom mode switch                                        |
+| `RowPrimaryData`    |   ✓    |     ✓      | Primary series (none/elevation/slope)                             |
+| `RowPrimaryColor`   |   ✓    |     ✓      | Primary color mode (axis/ramp/fill)                               |
+| `RowSecondaryData`  |   ✓    |     ✓      | Secondary series                                                  |
+| `RowSecondaryColor` |   ✓    |     ✓      | Secondary color mode                                              |
 
 Drawer-variant header is "Drawer settings"; fullscreen keeps "Chart
 settings". The follow/ratio rows are separated from the chart-data rows
@@ -379,13 +386,13 @@ of the modal.
 
 | Hook                    | Purpose                                                                                                    |
 | ----------------------- | ---------------------------------------------------------------------------------------------------------- |
-| `useChartItemLabels`    | Labels for the derived chart drawer menu entries (batched line titles + aggregated mode suffix) |
+| `useChartItemLabels`    | Labels for the derived chart drawer menu entries (batched line titles + aggregated mode suffix)            |
 | `useRemoveChartCbModal` | Confirmation modal for removing a chart; neutral styling — nothing is deleted, the chart can be re-enabled |
 
 ## Data sources
 
-| Source | Coordinates                                      | Stats                                              |
-| ------ | ------------------------------------------------ | -------------------------------------------------- |
+| Source | Coordinates                                      | Stats                                               |
+| ------ | ------------------------------------------------ | --------------------------------------------------- |
 | Line   | `['linePathCoords', lineId]` (lines query layer) | `line.stats` (SpatiaLite), rendered via `LineStats` |
 
 The routing line is just a line source whose `lineId` equals the active

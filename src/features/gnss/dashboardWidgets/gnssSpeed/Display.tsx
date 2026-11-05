@@ -11,7 +11,7 @@ import { get } from 'lodash-es';
 import { formatSpeed } from '../../../../lib/formatting';
 import { useAppSelector } from '../../../../store/hooks';
 import { selectUnitPrefs } from '../../../general/selectors';
-import { selectGnssPosition } from '../../selectors';
+import { useGnssSpeed } from '../../hooks/useGnssSpeed';
 import { DashboardWidgetProps } from '../../../dashboard/types';
 import { UnitPref } from '../../../general/types';
 import useItemStyle from '../../../dashboard/hooks/useItemStyle';
@@ -26,7 +26,7 @@ const Display: FC<DashboardWidgetProps<Options>> = ({ item, style = {}, onPress 
 
 	const { fontSize, minWidth, textAlign, showLabel, showIcon } = useItemStyle(item);
 
-	const gnssPosition = useAppSelector(selectGnssPosition);
+	const speed = useGnssSpeed();
 
 	const unitPref: UnitPref = useMemo(
 		() => ({
@@ -49,9 +49,7 @@ const Display: FC<DashboardWidgetProps<Options>> = ({ item, style = {}, onPress 
 			textAlign={textAlign}
 			onPress={onPress}
 		>
-			<Text style={textStyle}>
-				{gnssPosition ? formatSpeed(gnssPosition.speed, unitPref) : '-'}
-			</Text>
+			<Text style={textStyle}>{speed == null ? '-' : formatSpeed(speed, unitPref)}</Text>
 		</ElementFrame>
 	);
 };

@@ -41,12 +41,6 @@ const STATS: TrackingStatDef[] = [
 		defaultMinWidth: 80,
 	},
 	{
-		key: 'trackingSpeed',
-		label: 'trackRecording.trackingSpeed',
-		iconName: 'speed',
-		defaultMinWidth: 80,
-	},
-	{
 		key: 'trackingAvgSpeed',
 		label: 'trackRecording.trackingAvgSpeed',
 		iconName: 'multiline-chart',

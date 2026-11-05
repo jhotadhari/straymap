@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { FC, useCallback } from 'react';
+import React, { FC, useCallback, useMemo } from 'react';
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
@@ -16,6 +16,9 @@ import {
 	selectUseDemAltitude,
 } from '../selectors';
 import { setMinDistance, setMinTime, setMinPrecision, setUseDemAltitude } from '../slice';
+import { selectUnitPrefs } from '../../general/selectors';
+import { formatDistanceUnit, metersToUnit, unitToMeters } from '../../../lib/formatting';
+import { roundTo } from '../../../lib/utilsLight';
 import NumericRowControl from '../../../components/generic/controls/NumericRowControl';
 import ToggleRowControl from '../../../components/generic/controls/ToggleRowControl';
 import InfoLabelRow from '../../../components/generic/infoWrapper/InfoLabelRow';
@@ -32,15 +35,30 @@ const TrackRecordingControl: FC = () => {
 	const minTime = useAppSelector(selectMinTime);
 	const minPrecision = useAppSelector(selectMinPrecision);
 	const useDemAltitude = useAppSelector(selectUseDemAltitude);
+	const unitPrefs = useAppSelector(selectUnitPrefs);
+
+	const distanceUnitPref = unitPrefs?.distance;
+	const distanceUnit = formatDistanceUnit(distanceUnitPref, true);
+
+	// Stored in meters but shown in the user's distance unit
+	// (metric → m, imperial → ft, nautical → nm).
+	const minDistanceDisplay = useMemo(
+		() => roundTo(metersToUnit(minDistance, distanceUnitPref, true), distanceUnitPref.round),
+		[minDistance, distanceUnitPref]
+	);
+	const minPrecisionDisplay = useMemo(
+		() => roundTo(metersToUnit(minPrecision, distanceUnitPref, true), distanceUnitPref.round),
+		[minPrecision, distanceUnitPref]
+	);
 
 	const handleMinDistance = useCallback(
-		(val: number) => dispatch(setMinDistance(val)),
-		[dispatch]
+		(val: number) => dispatch(setMinDistance(unitToMeters(val, distanceUnitPref, true))),
+		[dispatch, distanceUnitPref]
 	);
 	const handleMinTime = useCallback((val: number) => dispatch(setMinTime(val)), [dispatch]);
 	const handleMinPrecision = useCallback(
-		(val: number) => dispatch(setMinPrecision(val)),
-		[dispatch]
+		(val: number) => dispatch(setMinPrecision(unitToMeters(val, distanceUnitPref, true))),
+		[dispatch, distanceUnitPref]
 	);
 	const handleUseDemAltitude = useCallback(
 		(val: boolean) => dispatch(setUseDemAltitude(val)),
@@ -50,8 +68,8 @@ const TrackRecordingControl: FC = () => {
 	return (
 		<View style={sharedStyles.container}>
 			<NumericRowControl
-				label={t('trackRecording.minDistance')}
-				value={minDistance}
+				label={t('trackRecording.minDistance', { unit: distanceUnit })}
+				value={minDistanceDisplay}
 				onUpdate={handleMinDistance}
 				Info={t('trackRecording.hintMinDistance')}
 				numType="float"
@@ -68,8 +86,8 @@ const TrackRecordingControl: FC = () => {
 			/>
 
 			<NumericRowControl
-				label={t('trackRecording.minPrecision')}
-				value={minPrecision}
+				label={t('trackRecording.minPrecision', { unit: distanceUnit })}
+				value={minPrecisionDisplay}
 				onUpdate={handleMinPrecision}
 				Info={t('trackRecording.hintMinPrecision')}
 				numType="float"

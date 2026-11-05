@@ -7,6 +7,7 @@ import de from './assets/i18n/de.json';
 import en from './assets/i18n/en.json';
 import es from './assets/i18n/es.json';
 import pt from './assets/i18n/pt.json';
+import { onSetDbPath } from './slice';
 import distanceToDestination from './dashboardWidgets/distanceToDestination';
 import distanceCovered from './dashboardWidgets/distanceCovered';
 import climbToDestination from './dashboardWidgets/climbToDestination';
@@ -16,6 +17,7 @@ import FollowLineSource from './mapContextMenuSources/FollowLineSource';
 export default {
 	selectInitialized,
 	initializeFromStorage,
+	onSetDbPath,
 	translation: {
 		de,
 		en,
