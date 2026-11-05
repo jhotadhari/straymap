@@ -24,14 +24,10 @@ import MdiIcons from '@react-native-vector-icons/material-icons/static';
  */
 import { DrawerPanel } from '../../drawers/types';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
-import {
-	selectIsActive,
-	selectGnssPosition,
-	selectGnssHeading,
-	selectIsCenterActive,
-} from '../../gnss/selectors';
+import { selectIsActive, selectGnssPosition, selectIsCenterActive } from '../../gnss/selectors';
 import { setIsActive, setIsCenterActive } from '../../gnss/slice';
 import { useGnssSpeed } from '../../gnss/hooks/useGnssSpeed';
+import { useGnssCourse } from '../../gnss/hooks/useGnssCourse';
 import { selectIsRecording, selectActiveLineId, selectRecordingStartTime } from '../selectors';
 import { selectResumePending } from '../selectors';
 import { startRecording, stopRecording, continueRecording } from '../slice';
@@ -135,7 +131,7 @@ const TrackingDrawerContent: FC<{
 	const isCenterActive = useAppSelector(selectIsCenterActive);
 	const resumePending = useAppSelector(selectResumePending);
 	const gnssPosition = useAppSelector(selectGnssPosition);
-	const gnssHeading = useAppSelector(selectGnssHeading);
+	const gnssCourse = useGnssCourse();
 	const speed = useGnssSpeed();
 	const activeLineId = useAppSelector(selectActiveLineId);
 	const recordingStartTime = useAppSelector(selectRecordingStartTime);
@@ -389,7 +385,7 @@ const TrackingDrawerContent: FC<{
 			<View style={styles.row}>
 				<Text>{t('gnss.gnssCourse')}:</Text>
 				<Text style={styles.value}>
-					{gnssHeading === null ? '-' : formatBearing(gnssHeading)}
+					{gnssCourse === null ? '-' : formatBearing(gnssCourse)}
 				</Text>
 			</View>
 

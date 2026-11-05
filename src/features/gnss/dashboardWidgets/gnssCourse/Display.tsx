@@ -1,0 +1,50 @@
+/**
+ * External dependencies
+ */
+import React, { FC, useMemo } from 'react';
+import { Text } from 'react-native-paper';
+
+/**
+ * Internal dependencies
+ */
+import { formatBearing } from '../../../../lib/formatting';
+import { useGnssCourse } from '../../hooks/useGnssCourse';
+import { DashboardWidgetProps } from '../../../dashboard/types';
+import useItemStyle from '../../../dashboard/hooks/useItemStyle';
+import ElementFrame from '../../../dashboard/components/ElementFrame';
+
+export interface Options {
+	showNumber?: boolean;
+}
+
+const Display: FC<DashboardWidgetProps<Options>> = ({ item, style = {}, onPress }) => {
+	const { fontSize, minWidth, textAlign, showLabel, showIcon } = useItemStyle(item);
+
+	const course = useGnssCourse();
+
+	// Number shown by default; hidden entirely (no degree sign, no dash)
+	// when the item option disables it. The rotating icon is unaffected.
+	const showNumber = item?.options?.showNumber !== false;
+
+	const textStyle = useMemo(() => ({ fontSize, textAlign }), [fontSize, textAlign]);
+
+	return (
+		<ElementFrame
+			item={item}
+			style={style}
+			minWidth={minWidth}
+			fontSize={fontSize}
+			showLabel={showLabel}
+			showIcon={showIcon}
+			textAlign={textAlign}
+			onPress={onPress}
+			iconRotation={course ?? undefined}
+		>
+			{showNumber && (
+				<Text style={textStyle}>{course == null ? '-' : formatBearing(course)}</Text>
+			)}
+		</ElementFrame>
+	);
+};
+
+export default Display;

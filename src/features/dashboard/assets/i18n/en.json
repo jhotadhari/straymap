@@ -42,7 +42,8 @@
 			"decimalPlaces": "Override the number of decimal places for this specific dashboard element. When not set, the default from the unit preferences is used.",
 			"showLabel": "Override whether this specific dashboard element shows a label. When not set, the default dashboard setting is used.",
 			"showIcon": "Override whether this specific dashboard element shows an icon. When not set, the default dashboard setting is used.",
-			"showNumber": "Whether to show the compass direction value in degrees next to the icon.\n\nIf nothing is displayed, the icon may be turned off — you can enable it again in this item's settings."
+			"showNumber": "Whether to show the compass direction value in degrees next to the icon.\n\nIf nothing is displayed, the icon may be turned off — you can enable it again in this item's settings.",
+			"showNumberCourse": "Whether to show the course over ground value in degrees next to the icon.\n\nIf nothing is displayed, the icon may be turned off — you can enable it again in this item's settings."
 		}
 	}
 }

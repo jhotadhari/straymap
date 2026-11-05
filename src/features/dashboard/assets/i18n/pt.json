@@ -42,7 +42,8 @@
 			"decimalPlaces": "Substitui o número de casas decimais para este elemento específico do painel. Quando não definido, o valor padrão das preferências de unidades é usado.",
 			"showLabel": "Substitui se este elemento específico do painel mostra um rótulo. Quando não definido, a configuração padrão do painel é usada.",
 			"showIcon": "Substitui se este elemento específico do painel mostra um ícone. Quando não definido, a configuração padrão do painel é usada.",
-			"showNumber": "Se o valor da direção da bússola em graus é apresentado junto ao ícone.\n\nSe nada for apresentado, o ícone pode estar desativado — pode voltar a ativá-lo nas definições deste item."
+			"showNumber": "Se o valor da direção da bússola em graus é apresentado junto ao ícone.\n\nSe nada for apresentado, o ícone pode estar desativado — pode voltar a ativá-lo nas definições deste item.",
+			"showNumberCourse": "Se o valor do rumo sobre o solo em graus é apresentado junto ao ícone.\n\nSe nada for apresentado, o ícone pode estar desativado — pode voltar a ativá-lo nas definições deste item."
 		}
 	}
 }
