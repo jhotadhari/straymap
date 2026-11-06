@@ -46,6 +46,7 @@
 	"chartPrefix": "Gráfico",
 	"flyTo": "Volar a la ruta",
 	"removeChartHint": "Quita este gráfico del panel inferior. La ruta permanece en el mapa y no se elimina nada.",
+	"removeChartDisabledHint": "Este gráfico se muestra automáticamente mientras el modo {{mode}} está activo. No se puede quitar del panel mientras el modo está activo — desaparece cuando el modo termina.",
 	"removeChartConfirmBody": "Solo se quita el gráfico del panel inferior. La ruta permanece en el mapa, no se elimina nada y el gráfico puede volver a activarse en cualquier momento.",
 	"primaryDataHint": "La serie de datos principal del gráfico: altitud o pendiente. El eje Y izquierdo y los valores azules centrales muestran esta serie.",
 	"primaryColorHint": "Cómo se colorea la serie principal: con el color de su propio eje o mediante un degradado según los valores de altitud o pendiente. Las opciones «(relleno)» colorean además el área entre la línea y el eje X.",

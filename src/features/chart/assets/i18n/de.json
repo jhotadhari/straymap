@@ -46,6 +46,7 @@
 	"chartPrefix": "Diagramm",
 	"flyTo": "Zur Route fliegen",
 	"removeChartHint": "Entfernt dieses Diagramm aus der unteren Leiste. Die Route bleibt auf der Karte und es wird nichts gelöscht.",
+	"removeChartDisabledHint": "Dieses Diagramm wird automatisch angezeigt, solange der Modus {{mode}} aktiv ist. Es kann nicht aus der unteren Leiste entfernt werden, solange der Modus aktiv ist — es verschwindet, wenn der Modus endet.",
 	"removeChartConfirmBody": "Es wird nur das Diagramm aus der unteren Leiste entfernt. Die Route bleibt auf der Karte, es wird nichts gelöscht, und das Diagramm kann jederzeit wieder aktiviert werden.",
 	"primaryDataHint": "Die Hauptdatenreihe des Diagramms: Höhe oder Steigung. Die linke Y-Achse und die blauen Mittelwerte zeigen diese Reihe.",
 	"primaryColorHint": "Wie die primäre Reihe eingefärbt wird: in ihrer eigenen Achsenfarbe oder über einen Farbverlauf nach Höhen- bzw. Steigungswerten. Die Optionen mit „(Füllung)“ färben zusätzlich die Fläche zwischen Linie und X-Achse ein.",

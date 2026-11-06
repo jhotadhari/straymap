@@ -46,6 +46,7 @@
 	"chartPrefix": "Chart",
 	"flyTo": "Fly to route",
 	"removeChartHint": "Removes this chart from the bottom drawer. The route stays on the map and nothing is deleted.",
+	"removeChartDisabledHint": "This chart is shown automatically while the {{mode}} mode is active. It cannot be removed from the drawer while the mode is active — it disappears when the mode ends.",
 	"removeChartConfirmBody": "Only the chart is removed from the bottom drawer. The route stays on the map, nothing is deleted, and the chart can be toggled on again at any time.",
 	"primaryDataHint": "The main data series shown in the chart: elevation or slope. The left y-axis and the blue center values display this series.",
 	"primaryColorHint": "How the primary series is colored: its own axis color, or a color ramp based on elevation or slope values. The \"fill\" options additionally color the area between the line and the x-axis.",
