@@ -26,7 +26,9 @@ const Icon: FC<{
 
 export default {
 	key: 'spacer',
+	category: 'misc',
 	label: 'dashboard.spacer',
+	desc: 'dashboard.desc.spacer',
 	Display,
 	Control,
 	Icon,

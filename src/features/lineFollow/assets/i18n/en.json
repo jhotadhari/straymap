@@ -7,5 +7,11 @@
 	"distanceToDestination": "Distance to destination",
 	"distanceCovered": "Distance covered",
 	"climbToDestination": "Climb to destination",
-	"descentToDestination": "Descent to destination"
+	"descentToDestination": "Descent to destination",
+	"desc": {
+		"distanceToDestination": "Remaining distance to the route destination.",
+		"distanceCovered": "Distance covered along the followed route.",
+		"climbToDestination": "Remaining ascent to the route destination.",
+		"descentToDestination": "Remaining descent to the route destination."
+	}
 }

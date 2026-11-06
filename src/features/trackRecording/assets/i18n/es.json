@@ -29,10 +29,18 @@
 	"lineWidth": "Ancho de línea",
 	"hintLineWidth": "Ancho de línea de la pista grabada que se muestra en el mapa.",
 	"lineWidthDefaultSuffix": "(predeterminado)",
-	"trackingDistance": "[tracking] Distancia",
-	"trackingDuration": "[tracking] Duración",
-	"trackingUphill": "[tracking] Ascenso",
-	"trackingDownhill": "[tracking] Descenso",
-	"trackingAvgSpeed": "[tracking] Velocidad media",
-	"trackingPointCount": "[tracking] Cantidad de puntos"
+	"trackingDistance": "Distancia",
+	"trackingDuration": "Duración",
+	"trackingUphill": "Ascenso",
+	"trackingDownhill": "Descenso",
+	"trackingAvgSpeed": "Velocidad media",
+	"trackingPointCount": "Cantidad de puntos",
+	"desc": {
+		"trackingDistance": "Distancia recorrida durante la grabación actual.",
+		"trackingDuration": "Tiempo transcurrido desde el inicio de la grabación.",
+		"trackingUphill": "Ascenso total de la ruta grabada.",
+		"trackingDownhill": "Descenso total de la ruta grabada.",
+		"trackingAvgSpeed": "Velocidad media de la ruta grabada.",
+		"trackingPointCount": "Número de puntos GNSS grabados."
+	}
 }

@@ -1,11 +1,11 @@
 {
 	"title": "GNSS",
-	"gnssCoordinates": "GNSS Coordinates",
-	"gnssAccuracy": "GNSS Accuracy",
-	"gnssAltitude": "GNSS Altitude",
-	"gnssSpeed": "GNSS Speed",
-	"gnssCourse": "GNSS Course",
-	"gnssCompass": "[sensor] Compass",
+	"gnssCoordinates": "Coordinates",
+	"gnssAccuracy": "Accuracy",
+	"gnssAltitude": "Altitude",
+	"gnssSpeed": "Speed",
+	"gnssCourse": "Course",
+	"gnssCompass": "Compass",
 	"activateGnss": "Activate GNSS",
 	"deactivateGnss": "Deactivate GNSS",
 	"centerMode": "Center mode",
@@ -39,5 +39,13 @@
 	"hintMarkerColor": "Marker fill color (applies to the built-in triangle and the accuracy circle).",
 	"hintMarkerPreview": "Live preview of the configured marker.",
 	"hideMeasurement": "Hide measurement",
-	"showMeasurement": "Show measurement"
+	"showMeasurement": "Show measurement",
+	"desc": {
+		"gnssCoordinates": "Your current position from the GNSS receiver.",
+		"gnssAccuracy": "Estimated accuracy of the current GNSS fix.",
+		"gnssAltitude": "Altitude of your current position.",
+		"gnssSpeed": "Current speed over ground from the GNSS receiver.",
+		"gnssCourse": "Current course over ground (direction of movement).",
+		"gnssCompass": "Direction the device is pointing (compass bearing)."
+	}
 }

@@ -1,11 +1,11 @@
 {
 	"title": "GNSS",
-	"gnssCoordinates": "Coordenadas GNSS",
-	"gnssAccuracy": "Precisão GNSS",
-	"gnssAltitude": "Altitude GNSS",
-	"gnssSpeed": "Velocidade GNSS",
-	"gnssCourse": "GNSS Rumo",
-	"gnssCompass": "[sensor] Bússola",
+	"gnssCoordinates": "Coordenadas",
+	"gnssAccuracy": "Precisão",
+	"gnssAltitude": "Altitude",
+	"gnssSpeed": "Velocidade",
+	"gnssCourse": "Rumo",
+	"gnssCompass": "Bússola",
 	"activateGnss": "Ativar GNSS",
 	"deactivateGnss": "Desativar GNSS",
 	"centerMode": "Modo centralizado",
@@ -39,5 +39,13 @@
 	"hintMarkerColor": "Cor de preenchimento do marcador (aplica-se ao triângulo integrado e ao círculo de precisão).",
 	"hintMarkerPreview": "Pré-visualização em direto do marcador configurado.",
 	"hideMeasurement": "Ocultar medição",
-	"showMeasurement": "Mostrar medição"
+	"showMeasurement": "Mostrar medição",
+	"desc": {
+		"gnssCoordinates": "Sua posição atual segundo o recetor GNSS.",
+		"gnssAccuracy": "Precisão estimada da posição GNSS atual.",
+		"gnssAltitude": "Altitude da sua posição atual.",
+		"gnssSpeed": "Velocidade atual sobre o solo segundo o recetor GNSS.",
+		"gnssCourse": "Rumo atual sobre o solo (direção de movimento).",
+		"gnssCompass": "Direção para onde o dispositivo aponta (rumo da bússola)."
+	}
 }

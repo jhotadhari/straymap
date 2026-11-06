@@ -29,10 +29,18 @@
 	"lineWidth": "Line width",
 	"hintLineWidth": "Stroke width of the recorded track line rendered on the map.",
 	"lineWidthDefaultSuffix": "(default)",
-	"trackingDistance": "[tracking] Distance",
-	"trackingDuration": "[tracking] Duration",
-	"trackingUphill": "[tracking] Uphill",
-	"trackingDownhill": "[tracking] Downhill",
-	"trackingAvgSpeed": "[tracking] Avg Speed",
-	"trackingPointCount": "[tracking] Point Count"
+	"trackingDistance": "Distance",
+	"trackingDuration": "Duration",
+	"trackingUphill": "Uphill",
+	"trackingDownhill": "Downhill",
+	"trackingAvgSpeed": "Avg Speed",
+	"trackingPointCount": "Point Count",
+	"desc": {
+		"trackingDistance": "Distance covered during the current recording.",
+		"trackingDuration": "Elapsed time since the recording started.",
+		"trackingUphill": "Total ascent of the recorded track.",
+		"trackingDownhill": "Total descent of the recorded track.",
+		"trackingAvgSpeed": "Average speed over the recorded track.",
+		"trackingPointCount": "Number of recorded GNSS points."
+	}
 }

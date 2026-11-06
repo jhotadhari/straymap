@@ -26,7 +26,9 @@ const Icon: FC<{
 
 export default {
 	key: 'zoomLevel',
+	category: 'map',
 	label: 'dashboard.zoomLevel',
+	desc: 'dashboard.desc.zoomLevel',
 	Display,
 	Control,
 	Icon,

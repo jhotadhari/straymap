@@ -26,7 +26,9 @@ const Icon: FC<{
 
 export default {
 	key: 'centerAltitude',
+	category: 'map',
 	label: 'dashboard.centerAltitude',
+	desc: 'dashboard.desc.centerAltitude',
 	Display,
 	Control,
 	Icon,

@@ -26,7 +26,9 @@ const Icon: FC<{
 
 export default {
 	key: 'gnssCoordinates',
+	category: 'gnss',
 	label: 'gnss.gnssCoordinates',
+	desc: 'gnss.desc.gnssCoordinates',
 	Display,
 	Control,
 	Icon,

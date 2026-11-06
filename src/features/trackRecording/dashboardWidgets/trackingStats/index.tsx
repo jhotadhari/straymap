@@ -29,7 +29,9 @@ const createIcon = (
 
 const widgets: DashboardWidget[] = STATS.map((stat) => ({
 	key: stat.key,
+	category: stat.category,
 	label: stat.label,
+	desc: stat.desc,
 	Display,
 	Control,
 	Icon: createIcon(stat.iconName),

@@ -15,10 +15,24 @@
 	"followDashboardSetting": "Configuração do painel",
 	"followGlobalSetting": "Configuração global",
 	"useUnitPref": "Usar preferências de unidades",
-	"zoomLevel": "Nível de zoom do mapa",
-	"centerCoordinates": "Coordenadas do centro do mapa",
-	"centerAltitude": "Altitude do centro do mapa",
+	"zoomLevel": "Nível de zoom",
+	"centerCoordinates": "Coordenadas do centro",
+	"centerAltitude": "Altitude do centro",
 	"spacer": "Espaçador",
+	"categories": {
+		"map": "Mapa",
+		"gnss": "GNSS",
+		"sensor": "Sensor",
+		"tracking": "Rastreio",
+		"following": "Seguindo",
+		"misc": "Diversos"
+	},
+	"desc": {
+		"zoomLevel": "Nível de zoom atual do mapa.",
+		"centerCoordinates": "Coordenadas do centro do mapa.",
+		"centerAltitude": "Elevação no centro do mapa (requer um diretório DEM).",
+		"spacer": "Espaço invisível entre itens do painel."
+	},
 	"align": {
 		"center": "Centro",
 		"left": "Esquerda",

@@ -23,6 +23,7 @@ import { featureRegistry } from '../../../FeatureRegistry';
 import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
 import InfoLabelRow from '../../../../components/generic/infoWrapper/InfoLabelRow';
 import { ControlContext } from '../../ControlContext';
+import { getCategoryLabelKey } from '../../utils/widgetCategories';
 import { DASHBOARD_ICON_SIZE } from '../../../../constants';
 import ItemShowLabelControl from './ItemShowLabelControl';
 import ItemShowIconControl from './ItemShowIconControl';
@@ -64,7 +65,7 @@ const ItemControl: FC<{}> = ({}) => {
 		}, 1);
 	}, [item?.key]);
 
-	const { label, Control, Icon } = useMemo(
+	const { label, category, Control, Icon } = useMemo(
 		() =>
 			item?.elementType
 				? get(
@@ -75,11 +76,27 @@ const ItemControl: FC<{}> = ({}) => {
 					)
 				: {
 						label: undefined,
+						category: undefined,
 						Control: undefined,
 						Icon: undefined,
 					},
 		[item?.elementType]
 	);
+
+	// "[Category] Label" — the category disambiguates generic labels
+	// (e.g. "Speed" vs "Distance covered") while editing an item.
+	const titleLabel = useMemo(() => {
+		const labelText = t(label ?? '');
+		if (!category) {
+			return labelText;
+		}
+		const categoryText = t(getCategoryLabelKey(category), { defaultValue: category });
+		return `[${categoryText}] ${labelText}`;
+	}, [
+		label,
+		category,
+		t,
+	]);
 
 	const ControlIcon = useCallback(
 		({ color, style }: { color: string; style: Style }) => {
@@ -185,7 +202,7 @@ const ItemControl: FC<{}> = ({}) => {
 		item && (
 			<ControlContext.Provider value={controlContextValue}>
 				<List.Accordion
-					title={sprintf(t('dashboard.dashboardItem') + ': %s', t(label ?? ''))}
+					title={sprintf(t('dashboard.dashboardItem') + ': %s', titleLabel)}
 					left={ControlIcon}
 					expanded={!notExpanded}
 					onPress={handleAccordionPress}

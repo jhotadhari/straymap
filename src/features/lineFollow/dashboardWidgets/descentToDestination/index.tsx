@@ -20,7 +20,9 @@ const Icon: FC<{ color: string; size: number }> = ({ color, size }) => (
 
 export default {
 	key: 'lineFollowDescentToDestination',
+	category: 'following',
 	label: 'lineFollow.descentToDestination',
+	desc: 'lineFollow.desc.descentToDestination',
 	Display,
 	Icon,
 	defaultMinWidth: 100,

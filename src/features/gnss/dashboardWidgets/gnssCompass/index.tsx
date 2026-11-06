@@ -8,7 +8,9 @@ import Control from './Control';
 
 export default {
 	key: 'gnssCompass',
+	category: 'sensor',
 	label: 'gnss.gnssCompass',
+	desc: 'gnss.desc.gnssCompass',
 	Display,
 	Control,
 	Icon: AnimatedNavigationIcon,

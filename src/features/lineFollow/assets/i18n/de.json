@@ -7,5 +7,11 @@
 	"distanceToDestination": "Entfernung zum Ziel",
 	"distanceCovered": "Zurückgelegte Strecke",
 	"climbToDestination": "Anstieg bis zum Ziel",
-	"descentToDestination": "Abstieg bis zum Ziel"
+	"descentToDestination": "Abstieg bis zum Ziel",
+	"desc": {
+		"distanceToDestination": "Verbleibende Entfernung zum Routenziel.",
+		"distanceCovered": "Entlang der gefolgten Route zurückgelegte Strecke.",
+		"climbToDestination": "Verbleibender Anstieg bis zum Routenziel.",
+		"descentToDestination": "Verbleibender Abstieg bis zum Routenziel."
+	}
 }

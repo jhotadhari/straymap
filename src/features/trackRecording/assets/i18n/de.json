@@ -29,10 +29,18 @@
 	"lineWidth": "Linienbreite",
 	"hintLineWidth": "Linienbreite der aufgezeichneten Spur, die auf der Karte dargestellt wird.",
 	"lineWidthDefaultSuffix": "(Standard)",
-	"trackingDistance": "[tracking] Entfernung",
-	"trackingDuration": "[tracking] Dauer",
-	"trackingUphill": "[tracking] Aufstieg",
-	"trackingDownhill": "[tracking] Abstieg",
-	"trackingAvgSpeed": "[tracking] Durchschn.-Geschw.",
-	"trackingPointCount": "[tracking] Anzahl Punkte"
+	"trackingDistance": "Entfernung",
+	"trackingDuration": "Dauer",
+	"trackingUphill": "Aufstieg",
+	"trackingDownhill": "Abstieg",
+	"trackingAvgSpeed": "Durchschn.-Geschw.",
+	"trackingPointCount": "Anzahl Punkte",
+	"desc": {
+		"trackingDistance": "Während der aktuellen Aufnahme zurückgelegte Strecke.",
+		"trackingDuration": "Verstrichene Zeit seit Beginn der Aufnahme.",
+		"trackingUphill": "Gesamter Anstieg der aufgezeichneten Spur.",
+		"trackingDownhill": "Gesamter Abstieg der aufgezeichneten Spur.",
+		"trackingAvgSpeed": "Durchschnittsgeschwindigkeit der aufgezeichneten Spur.",
+		"trackingPointCount": "Anzahl der aufgezeichneten GNSS-Punkte."
+	}
 }

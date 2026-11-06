@@ -8,7 +8,9 @@ import Control from './Control';
 
 export default {
 	key: 'gnssCourse',
+	category: 'gnss',
 	label: 'gnss.gnssCourse',
+	desc: 'gnss.desc.gnssCourse',
 	Display,
 	Control,
 	Icon: AnimatedNavigationIcon,

@@ -26,7 +26,9 @@ const Icon: FC<{
 
 export default {
 	key: 'gnssSpeed',
+	category: 'gnss',
 	label: 'gnss.gnssSpeed',
+	desc: 'gnss.desc.gnssSpeed',
 	Display,
 	Control,
 	Icon,

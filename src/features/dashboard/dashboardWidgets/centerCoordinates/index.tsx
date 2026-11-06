@@ -35,7 +35,9 @@ const Icon: FC<{
 
 export default {
 	key: 'centerCoordinates',
+	category: 'map',
 	label: 'dashboard.centerCoordinates',
+	desc: 'dashboard.desc.centerCoordinates',
 	Display,
 	Control,
 	Icon,

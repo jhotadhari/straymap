@@ -11,6 +11,13 @@ export type DashboardStyle = {
 	showIcon: boolean;
 };
 
+/**
+ * Open category namespace — categories are not registered anywhere. A
+ * widget carrying a category makes it exist; consumers group/order the
+ * known ones and fall back to the raw key for unknown ones.
+ */
+export type DashboardCategory = string;
+
 export type DashboardItem<Options = {}> = {
 	key: string;
 	elementType: string;
@@ -32,7 +39,9 @@ export type DashboardWidgetProps<Options = {}> = {
 
 export type DashboardWidget<Options = {}> = {
 	key: string;
+	category: DashboardCategory;
 	label: string;
+	desc?: string;
 	Display: ElementType<DashboardWidgetProps<Options>>;
 	Control?: ElementType<DashboardWidgetProps<Options>>;
 	Icon?: ElementType<{

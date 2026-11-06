@@ -19,6 +19,20 @@
 	"centerCoordinates": "Koordinaten der Kartenmitte",
 	"centerAltitude": "Höhe der Kartenmitte",
 	"spacer": "Platzhalter",
+	"categories": {
+		"map": "Karte",
+		"gnss": "GNSS",
+		"sensor": "Sensor",
+		"tracking": "Tracking",
+		"following": "Folgen",
+		"misc": "Sonstiges"
+	},
+	"desc": {
+		"zoomLevel": "Aktuelle Zoomstufe der Karte.",
+		"centerCoordinates": "Koordinaten der Kartenmitte.",
+		"centerAltitude": "Höhe an der Kartenmitte (erfordert ein DEM-Verzeichnis).",
+		"spacer": "Unsichtbarer Abstand zwischen Dashboard-Elementen."
+	},
 	"align": {
 		"center": "Mittig",
 		"left": "Links",

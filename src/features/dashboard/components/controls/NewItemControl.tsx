@@ -12,6 +12,7 @@ import React, {
 	useState,
 } from 'react';
 import { StyleSheet, View } from 'react-native';
+import { Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import rnUuid from 'react-native-uuid';
 import MaterialIcons from '@react-native-vector-icons/material-icons/static';
@@ -28,11 +29,18 @@ import RadioListItem from '../../../../components/generic/wrapper/RadioListItem'
 import { OptionBase } from '../../../../types';
 import { featureRegistry } from '../../../FeatureRegistry';
 import { ControlContext } from '../../ControlContext';
+import { DashboardWidget } from '../../types';
+import { getCategoryLabelKey, groupWidgetsByCategory } from '../../utils/widgetCategories';
 
 const labelExtractor = (a: OptionBase) => a.label;
+const descExtractor = (a: OptionBase & { desc?: string }) => a.desc ?? null;
+
+interface DashboardWidgetOption extends OptionBase {
+	desc?: string;
+}
 
 const SelectType: FC<{
-	option: OptionBase;
+	option: DashboardWidgetOption;
 	onPress: (elementType: string) => void;
 }> = memo(({ option, onPress }) => {
 	const handlePress = useCallback(() => onPress(option.key), [onPress, option.key]);
@@ -44,7 +52,8 @@ const SelectType: FC<{
 				onPress={handlePress}
 				labelExtractor={labelExtractor}
 				translateLabel={true}
-				// descExtractor={(a) => a.label}
+				descExtractor={descExtractor}
+				translateDesc={true}
 			/>
 		</View>
 	);
@@ -55,18 +64,14 @@ const Modal: FC<{
 	setModalVisible: Dispatch<SetStateAction<boolean>>;
 }> = memo(({ modalVisible, setModalVisible }) => {
 	const { t } = useTranslation();
+	const theme = useTheme();
 
-	const options: OptionBase[] = useMemo(() => {
-		const elementsMap = featureRegistry.getDashboardWidgets();
-		return Object.values(elementsMap).map((element: any) => ({
-			key: element.key,
-			label: element.label,
-		}));
+	const groups = useMemo(() => {
+		const widgets = Object.values(featureRegistry.getDashboardWidgets()) as DashboardWidget[];
+		return groupWidgetsByCategory(widgets);
 	}, []);
 
 	const { position } = useContext(ControlContext);
-
-	// const [position, setPosition] = useState('bottom');
 
 	const dispatch = useAppDispatch();
 
@@ -112,12 +117,31 @@ const Modal: FC<{
 			onDismiss={handleDismiss}
 			headerLabel={t('dashboard.dashboardItemNew')}
 		>
-			{options.map((option) => (
-				<SelectType
-					key={option.key}
-					option={option}
-					onPress={onPress}
-				/>
+			{groups.map(({ category, widgets }) => (
+				<View
+					key={category}
+					style={styles.categoryBlock}
+				>
+					<Text
+						style={[
+							styles.categoryHeading,
+							{ color: theme.colors.primary },
+						]}
+					>
+						{t(getCategoryLabelKey(category), { defaultValue: category })}
+					</Text>
+					{widgets.map((widget) => (
+						<SelectType
+							key={widget.key}
+							option={{
+								key: widget.key,
+								label: widget.label,
+								desc: widget.desc,
+							}}
+							onPress={onPress}
+						/>
+					))}
+				</View>
 			))}
 		</ModalWrapper>
 	);
@@ -162,6 +186,13 @@ const NewItemControl: FC<{}> = memo(() => {
 
 const styles = StyleSheet.create({
 	optionRow: { marginTop: 10 },
+	categoryBlock: { marginBottom: 8 },
+	categoryHeading: {
+		fontSize: 16,
+		fontWeight: '600',
+		marginTop: 14,
+		marginBottom: 2,
+	},
 });
 
 export default NewItemControl;

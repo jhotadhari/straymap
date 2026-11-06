@@ -15,10 +15,24 @@
 	"followDashboardSetting": "Follow dashboard setting",
 	"followGlobalSetting": "Follow global setting",
 	"useUnitPref": "Use unit preferences",
-	"zoomLevel": "Map zoom level",
-	"centerCoordinates": "Map center coordinates",
-	"centerAltitude": "Map center altitude",
+	"zoomLevel": "Zoom level",
+	"centerCoordinates": "Center coordinates",
+	"centerAltitude": "Center altitude",
 	"spacer": "Spacer",
+	"categories": {
+		"map": "Map",
+		"gnss": "GNSS",
+		"sensor": "Sensor",
+		"tracking": "Tracking",
+		"following": "Following",
+		"misc": "Misc"
+	},
+	"desc": {
+		"zoomLevel": "Current zoom level of the map.",
+		"centerCoordinates": "Coordinates of the map center.",
+		"centerAltitude": "Elevation at the map center (requires a DEM directory).",
+		"spacer": "Invisible gap between dashboard items."
+	},
 	"align": {
 		"center": "Center",
 		"left": "Left",

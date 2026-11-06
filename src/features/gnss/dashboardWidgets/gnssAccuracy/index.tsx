@@ -26,7 +26,9 @@ const Icon: FC<{
 
 export default {
 	key: 'gnssAccuracy',
+	category: 'gnss',
 	label: 'gnss.gnssAccuracy',
+	desc: 'gnss.desc.gnssAccuracy',
 	Display,
 	Control,
 	Icon,

@@ -20,7 +20,9 @@ const Icon: FC<{ color: string; size: number }> = ({ color, size }) => (
 
 export default {
 	key: 'lineFollowDistanceCovered',
+	category: 'following',
 	label: 'lineFollow.distanceCovered',
+	desc: 'lineFollow.desc.distanceCovered',
 	Display,
 	Icon,
 	defaultMinWidth: 100,
