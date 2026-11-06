@@ -58,7 +58,7 @@ export const initializeFromStorage = (store: AppStore) => {
 				}
 				if (
 					newSettings.markerDirection === 'movingDirection' ||
-					newSettings.markerDirection === 'north'
+					newSettings.markerDirection === 'compass'
 				) {
 					store.dispatch(setMarkerDirection(newSettings.markerDirection));
 				}

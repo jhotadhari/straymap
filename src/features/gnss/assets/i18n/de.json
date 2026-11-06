@@ -27,9 +27,9 @@
 	"markerDirection": "Markerausrichtung",
 	"markerDirectionMode": {
 		"movingDirection": "Kurs über Grund",
-		"magneticNorth": "Magnetisch Nord"
+		"compassBearing": "Kompasspeilung"
 	},
-	"hintMarkerDirection": "Ob der Marker in Ihren Kurs über Grund (Bewegungsrichtung) zeigt oder sich mit dem Gerätekompass dreht.",
+	"hintMarkerDirection": "Ob der Marker in Ihren Kurs über Grund (Bewegungsrichtung) zeigt oder die Kompasspeilung Ihres Geräts anzeigt.",
 	"accuracyCircle": "Genauigkeitskreis-Schwellenwert [{{unit}}]",
 	"hintAccuracyCircle": "Der Kreis wird mit dem Radius der aktuellen GNSS-Genauigkeit gezeichnet, sobald die Genauigkeit schlechter als dieser Schwellenwert (in der gewählten Einheit) ist. 0 deaktiviert den Kreis.",
 	"showMeasurementLabel": "Messwert-Label anzeigen",

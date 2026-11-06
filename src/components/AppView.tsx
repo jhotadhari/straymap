@@ -121,8 +121,8 @@ const AppView = ({
 	const markerDirection = useAppSelector(selectMarkerDirection);
 
 	// The device compass feeds the marker while GNSS is active and the
-	// marker direction is 'north' (device compass). The compass dashboard
-	// widget additionally needs the sensor whenever it is on the
+	// marker direction is 'compass' (device compass bearing). The compass
+	// dashboard widget additionally needs the sensor whenever it is on the
 	// dashboard, independent of the GNSS state.
 	const compassWidgetActive = useMemo(
 		() =>
@@ -131,7 +131,7 @@ const AppView = ({
 			),
 		[dashboardItems, dashboardItemsTop]
 	);
-	const compassEnabled = (gnssIsActive && markerDirection === 'north') || compassWidgetActive;
+	const compassEnabled = (gnssIsActive && markerDirection === 'compass') || compassWidgetActive;
 
 	const leftItemKeys = useAppSelector((state) => selectItemKeys(state, { side: 'left' }));
 	const rightItemKeys = useAppSelector((state) => selectItemKeys(state, { side: 'right' }));
@@ -322,11 +322,11 @@ const AppView = ({
 		[showError, t]
 	);
 
-	// onDeviceAzimuth delivers the native compass azimuth (whole degrees,
-	// 0-360 clockwise from magnetic north) while the compass is enabled.
-	// Written to the device-azimuth store imperatively — no dispatch, so
-	// AppView never re-renders on azimuth events; only the marker
-	// component subscribes.
+	// onDeviceAzimuth delivers the native compass bearing (whole degrees,
+	// 0-360 clockwise, magnetic-north-referenced) while the compass is
+	// enabled. Written to the device-azimuth store imperatively — no
+	// dispatch, so AppView never re-renders on azimuth events; only the
+	// marker component subscribes.
 	const handleDeviceAzimuth = useCallback((event: NativeSyntheticEvent<{ azimuth: number }>) => {
 		if (typeof event?.nativeEvent?.azimuth === 'number') {
 			setDeviceAzimuth(event.nativeEvent.azimuth);

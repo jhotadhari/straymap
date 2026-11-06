@@ -48,7 +48,7 @@ const isFileSource = (iconSource: string) =>
  * The configured icon (a built-in preset — triangle or navigation
  * arrows — or a custom svg/png file) is decoded natively via the
  * marker's filePath paint; the rotation (movement direction, or the
- * device compass azimuth when the marker direction is 'north') is
+ * device compass bearing when the marker direction is 'compass') is
  * applied natively via the `rotation` paint option (whole degrees).
  *
  * While the GNSS accuracy is worse than the configured threshold, a
@@ -143,10 +143,10 @@ const GnssCenterMarker: FC = () => {
 
 	// Movement direction from consecutive fixes (slice-derived heading) —
 	// the payload's velocity bearing is unreliable for pedestrian fixes.
-	// In 'north' mode the marker turns with the device compass (azimuth
-	// relative to magnetic north); without a compass sensor it stays
+	// In 'compass' mode the marker turns with the device compass bearing
+	// (magnetic-north-referenced); without a compass sensor it stays
 	// pointing to map north (rotation 0).
-	const rotation = markerDirection === 'north' ? (deviceAzimuth ?? 0) : (gnssHeading ?? 0);
+	const rotation = markerDirection === 'compass' ? (deviceAzimuth ?? 0) : (gnssHeading ?? 0);
 
 	const paint = useMemo(
 		() =>

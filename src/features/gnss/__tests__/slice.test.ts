@@ -63,8 +63,8 @@ describe('gnss slice reducers', () => {
 	});
 
 	it('setMarkerDirection updates the marker direction', () => {
-		const state = gnssReducer(undefined, setMarkerDirection('north'));
-		expect(state.markerDirection).toBe('north');
+		const state = gnssReducer(undefined, setMarkerDirection('compass'));
+		expect(state.markerDirection).toBe('compass');
 	});
 
 	it('setAccuracyCircleThresholdMeters updates the threshold (0 disables)', () => {

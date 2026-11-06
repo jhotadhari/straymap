@@ -37,7 +37,7 @@ export interface GnssPositionData {
 }
 
 /** Position-marker direction mode. */
-export type GnssMarkerDirection = 'movingDirection' | 'north';
+export type GnssMarkerDirection = 'movingDirection' | 'compass';
 
 export interface GnssSettings {
 	isActive: boolean;
@@ -53,8 +53,8 @@ export interface GnssSettings {
 	/** Position-marker fill color (preset triangle + accuracy circle). */
 	markerColor: string;
 	/** Position-marker direction: 'movingDirection' rotates the marker to
-	 * the derived movement heading, 'north' keeps it pointing to map
-	 * north (rotation 0). */
+	 * the derived movement heading (course over ground), 'compass' turns
+	 * it with the device compass bearing. */
 	markerDirection: GnssMarkerDirection;
 	/** Accuracy-circle threshold (m). The circle is drawn with the live
 	 * accuracy radius only while the accuracy is WORSE than this value;

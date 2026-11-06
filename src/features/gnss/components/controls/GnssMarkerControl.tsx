@@ -66,8 +66,8 @@ const markerDirectionOptions: OptionBase[] = [
 		label: 'gnss.markerDirectionMode.movingDirection',
 	},
 	{
-		key: 'north',
-		label: 'gnss.markerDirectionMode.magneticNorth',
+		key: 'compass',
+		label: 'gnss.markerDirectionMode.compassBearing',
 	},
 ];
 
