@@ -13,7 +13,7 @@ import { DashboardWidgetProps } from '../../../dashboard/types';
 import useItemStyle from '../../../dashboard/hooks/useItemStyle';
 import ElementFrame from '../../../dashboard/components/ElementFrame';
 import { useAppSelector } from '../../../../store/hooks';
-import { selectIsRecording, selectActiveLineId, selectRecordingStartTime } from '../../selectors';
+import { selectIsRecording, selectTrackLineId, selectRecordingStartTime } from '../../selectors';
 import { queryLineGeom } from '../../../lines/db/queryFns';
 import {
 	formatDistance,
@@ -30,7 +30,7 @@ const Display: FC<DashboardWidgetProps> = ({ item, style = {}, onPress }) => {
 	const unitPrefs = useAppSelector(selectUnitPrefs);
 
 	const isRecording = useAppSelector(selectIsRecording);
-	const activeLineId = useAppSelector(selectActiveLineId);
+	const trackLineId = useAppSelector(selectTrackLineId);
 	const recordingStartTime = useAppSelector(selectRecordingStartTime);
 
 	const statKey = STATS.find((stat) => stat.key === item.elementType)?.key;
@@ -49,23 +49,29 @@ const Display: FC<DashboardWidgetProps> = ({ item, style = {}, onPress }) => {
 		return () => clearInterval(timer);
 	}, [isRecording, recordingStartTime]);
 
-	const lineId = (isRecording ? activeLineId : null) ?? -1;
 	const { data: line } = useQuery({
 		queryKey: [
 			'lineGeom',
-			lineId,
+			trackLineId ?? -1,
 		],
 		queryFn: queryLineGeom,
-		enabled: !!isRecording && !!activeLineId,
+		enabled: !!trackLineId,
 		staleTime: Infinity,
 		gcTime: 1000 * 10,
 	});
 
 	const statValue = useMemo(() => {
-		if (!isRecording) {
-			return null;
-		}
 		const coords = line?.geometry?.coordinates;
+
+		// Stop is pause: while tracking is off the parked line is still
+		// on the map, and the distance widget keeps showing its total
+		// (frozen). All other stats need a live recording.
+		if (!isRecording) {
+			if (statKey !== 'trackingDistance' || !coords) {
+				return null;
+			}
+			return formatDistance(haversineLineLength(coords), get(unitPrefs, ['distance']));
+		}
 
 		switch (statKey) {
 			case 'trackingDistance': {
