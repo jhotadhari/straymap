@@ -1,14 +1,15 @@
 /**
  * External dependencies
  */
-import { desc, eq } from 'drizzle-orm';
+import { asc, desc, eq, inArray } from 'drizzle-orm';
 import { QueryClient } from '@tanstack/react-query';
 
 /**
  * Internal dependencies
  */
 import { dbConnection } from '../../dbLoader/DBConnection';
-import { tracksTable } from './schema/schema';
+import { dbOpExecute } from '../../dbLoader/utils';
+import { trackPointsTable, tracksTable } from './schema/schema';
 import { Track } from '../types';
 import { linesTable, tagsTable, tagsToLinesTable } from '../../lines/db/schema/schema';
 
@@ -91,4 +92,79 @@ export const invalidateLastRecordedLineQueries = (queryClient: QueryClient) => {
 		predicate: (query) =>
 			Array.isArray(query.queryKey) && query.queryKey[0] === 'lastRecordedLine',
 	});
+};
+
+/**
+ * Invalidate per-line track_points queries (['lineTrackPoints', lineId])
+ * — used by the export flow for GPX <time>/GeoJSON coordTimes.
+ */
+export const invalidateLineTrackPointsQueries = (queryClient: QueryClient) => {
+	return queryClient.invalidateQueries({
+		predicate: (query) =>
+			Array.isArray(query.queryKey) && query.queryKey[0] === 'lineTrackPoints',
+	});
+};
+
+/**
+ * Number of coordinates in the line's geometry (ST_NPoints) — the anchor
+ * for the next `point_index` when a recording session (re)starts on an
+ * existing line.  Geometry can be ahead of track_points (crash between
+ * the two writes), never behind: metadata is written only after the
+ * geometry append succeeds.
+ */
+export const queryLinePointCount = async (lineId: number): Promise<number | null> => {
+	if (!dbConnection?.op) {
+		return null;
+	}
+	const result = await dbOpExecute('SELECT ST_NPoints(geometry) AS n FROM lines WHERE id = ?', [
+		lineId,
+	]);
+	const row = result.rows?.[0] as Record<string, unknown> | undefined;
+	return typeof row?.n === 'number' ? row.n : null;
+};
+
+/**
+ * Latest metadata row of a line (highest point_index) — e.g. for
+ * summary freshness checks or speed-baseline seeding on continue.
+ */
+export const queryLastTrackPoint = async (lineId: number) => {
+	if (!dbConnection?.drizzle) {
+		return null;
+	}
+	const rows = await dbConnection.drizzle
+		.select()
+		.from(trackPointsTable)
+		.where(eq(trackPointsTable.line_id, lineId))
+		.orderBy(desc(trackPointsTable.point_index))
+		.limit(1);
+	return rows[0] ?? null;
+};
+
+/**
+ * All metadata rows of a line, ordered by point_index (0-based, aligned
+ * to lines.geometry coordinates).
+ */
+export const queryTrackPointsByLineId = async (lineId: number) => {
+	if (!dbConnection?.drizzle) {
+		return [];
+	}
+	return dbConnection.drizzle
+		.select()
+		.from(trackPointsTable)
+		.where(eq(trackPointsTable.line_id, lineId))
+		.orderBy(asc(trackPointsTable.point_index));
+};
+
+/**
+ * Metadata rows for several lines in one query (bulk export).
+ */
+export const queryTrackPointsByLineIds = async (lineIds: number[]) => {
+	if (!dbConnection?.drizzle || !lineIds.length) {
+		return [];
+	}
+	return dbConnection.drizzle
+		.select()
+		.from(trackPointsTable)
+		.where(inArray(trackPointsTable.line_id, lineIds))
+		.orderBy(asc(trackPointsTable.line_id), asc(trackPointsTable.point_index));
 };

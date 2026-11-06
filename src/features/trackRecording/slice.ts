@@ -3,6 +3,7 @@
  */
 import type { PayloadAction } from '@reduxjs/toolkit';
 import { createSlice } from '@reduxjs/toolkit';
+import type { GnssPosition } from 'react-native-mapsforge-vtm';
 
 /**
  * Internal dependencies
@@ -15,9 +16,10 @@ import { setIsActive } from '../gnss/slice';
 import { setLineSelected } from '../lines/slice';
 import { selectFollowingLineId } from '../lineFollow/selectors';
 import { startRecordingTask, stopRecordingTask } from './backgroundTask';
-import { createTrack } from './db/actionsTrack';
+import { createTrack, finalizeTrackSummary } from './db/actionsTrack';
 import { queryTrackByLineId, queryLineExists } from './db/queryFns';
 import { clampLineWidth } from '../../lib/lineWidth';
+import { TrackPointMeta } from './types';
 
 /** Default recording line width (dp) — the recording path's stroke width. */
 export const DEFAULT_RECORDING_LINE_WIDTH = 4;
@@ -47,6 +49,13 @@ export interface TrackRecordingState extends SliceSettingsBase, TrackRecordingSe
 		number?,
 	];
 	lastWrittenTime?: number;
+	/**
+	 * Transient — not persisted.  Metadata of the last buffered/written
+	 * fix, kept alongside lastWrittenPosition so the write listener can
+	 * derive the next point's segment speed and create track_points rows
+	 * for the lazily created line's first two points.
+	 */
+	lastWrittenMeta?: TrackPointMeta;
 	/**
 	 * Transient — not persisted.  Set on stopRecording to the line that
 	 * was just recorded: stopping is pausing, so the last recorded line
@@ -95,6 +104,7 @@ export const trackRecordingSlice = createSlice({
 			if (!action.payload) {
 				state.lastWrittenPosition = undefined;
 				state.lastWrittenTime = undefined;
+				state.lastWrittenMeta = undefined;
 			}
 		},
 		setActiveTrackId: (state, action: PayloadAction<number | null>) => {
@@ -131,19 +141,15 @@ export const trackRecordingSlice = createSlice({
 		setLastWrittenTime: (state, action: PayloadAction<number | undefined>) => {
 			state.lastWrittenTime = action.payload;
 		},
+		setLastWrittenMeta: (state, action: PayloadAction<TrackPointMeta | undefined>) => {
+			state.lastWrittenMeta = action.payload;
+		},
 		/**
 		 * Passthrough — no state change.  The connectStorage listener
 		 * watches this action to write the native-filtered GNSS position
 		 * (with altitude resolved) to the DB.
 		 */
-		writeGnssPosition: (
-			_state,
-			_action: PayloadAction<{
-				lng: number;
-				lat: number;
-				altitude: number | null;
-			}>
-		) => {
+		writeGnssPosition: (_state, _action: PayloadAction<GnssPosition>) => {
 			// Passthrough for listener middleware.
 		},
 		setRecordingStartTime: (state, action: PayloadAction<number | null>) => {
@@ -175,6 +181,7 @@ export const {
 	setLineWidth,
 	setLastWrittenPosition,
 	setLastWrittenTime,
+	setLastWrittenMeta,
 	setRecordingStartTime,
 	setResumePending,
 	setResumePromptPending,
@@ -255,6 +262,13 @@ export const continueRecording =
 		const state = getState().trackRecording;
 		try {
 			const existing = await queryTrackByLineId(lineId);
+			// The recording may have been stopped (or re-targeted to
+			// another line) while the DB round-trip was in flight —
+			// resolving the stale track id now would clobber the current
+			// session's activeTrackId.
+			if (getState().trackRecording.activeLineId !== lineId) {
+				return;
+			}
 			if (existing?.id != null) {
 				dispatch(setActiveTrackId(existing.id));
 			} else {
@@ -266,6 +280,9 @@ export const continueRecording =
 						minPrecision: state.minPrecision,
 					},
 				});
+				if (getState().trackRecording.activeLineId !== lineId) {
+					return;
+				}
 				if (trackResult?.id != null) {
 					dispatch(setActiveTrackId(trackResult.id));
 				}
@@ -341,7 +358,9 @@ export const confirmRecordingResume =
  * line again. Any recorded line can be continued via continueRecording.
  */
 export const stopRecording = (): AppThunk => async (dispatch, getState) => {
+	const state = getState().trackRecording;
 	const pausedLineId = selectActiveLineId(getState());
+	const activeTrackId = state.activeTrackId;
 	dispatch(setPausedLineId(pausedLineId));
 	dispatch(setIsRecordingAction(false));
 	dispatch(setResumePending(false));
@@ -349,6 +368,18 @@ export const stopRecording = (): AppThunk => async (dispatch, getState) => {
 	dispatch(setActiveTrackId(null));
 	dispatch(setActiveLineId(null));
 	dispatch(setRecordingStartTime(null));
+
+	// Finalize the track summary into tracks.data — a cache: raw
+	// track_points + geometry remain the source of truth.  Non-critical;
+	// a failure leaves a stale/missing summary that the next read
+	// recomputes.
+	if (pausedLineId != null && activeTrackId != null) {
+		try {
+			await finalizeTrackSummary(activeTrackId, pausedLineId);
+		} catch (err) {
+			logError('trackRecording/stopRecording.summary', err);
+		}
+	}
 
 	// Unregister the foreground task. Non-fatal.
 	await stopRecordingTask();

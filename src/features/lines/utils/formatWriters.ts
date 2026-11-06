@@ -24,25 +24,50 @@ interface LineMeta {
 	custom_date?: string | null;
 }
 
+/** Per-coordinate metadata from track_points, aligned by array index
+ * with the geometry coordinates (null where no metadata exists). */
+export interface ExportPointMeta {
+	timestamp: number | null;
+	speed: number | null;
+	gnss_altitude: number | null;
+}
+
+export interface ExportLine {
+	geometry: LineString;
+	meta?: LineMeta;
+	points?: (ExportPointMeta | null)[];
+}
+
+const toIso = (ts: number): string => new Date(ts).toISOString();
+
 // ---- GPX ----
 
-const toGpxTrack = (coords: Position[], meta?: LineMeta): string => {
+const toGpxTrack = (line: ExportLine): string => {
+	const { geometry, meta, points } = line;
+	const coords = geometry.coordinates;
 	const name = meta?.title ? `\t\t<name>${escXml(meta.title)}</name>\n` : '';
 	const pts = coords
-		.map(
-			(c) =>
-				`\t\t\t<trkpt lat="${c[1]}" lon="${c[0]}">${c.length > 2 ? `\n\t\t\t\t<ele>${c[2]}</ele>\n\t\t\t` : ''}</trkpt>`
-		)
+		.map((c, i) => {
+			const point = points?.[i];
+			let inner = '';
+			if (c.length > 2) {
+				inner += `\n\t\t\t\t<ele>${c[2]}</ele>`;
+			}
+			if (point?.timestamp != null) {
+				inner += `\n\t\t\t\t<time>${toIso(point.timestamp)}</time>`;
+			}
+			if (inner) {
+				inner += '\n\t\t\t';
+			}
+			return `\t\t\t<trkpt lat="${c[1]}" lon="${c[0]}">${inner}</trkpt>`;
+		})
 		.join('\n');
 
 	return `\t<trk>\n${name}\t\t<trkseg>\n${pts}\n\t\t</trkseg>\n\t</trk>`;
 };
 
-export const toGpx = (
-	lines: { geometry: LineString; meta?: LineMeta }[],
-	creator = 'Straymap'
-): string => {
-	const tracks = lines.map((l) => toGpxTrack(l.geometry.coordinates, l.meta)).join('\n');
+export const toGpx = (lines: ExportLine[], creator = 'Straymap'): string => {
+	const tracks = lines.map((l) => toGpxTrack(l)).join('\n');
 
 	return [
 		'<?xml version="1.0" encoding="UTF-8"?>',
@@ -70,7 +95,7 @@ const toKmlPlacemark = (coords: Position[], meta?: LineMeta): string => {
 	].join('\n');
 };
 
-export const toKml = (lines: { geometry: LineString; meta?: LineMeta }[]): string => {
+export const toKml = (lines: ExportLine[]): string => {
 	const placemarks = lines.map((l) => toKmlPlacemark(l.geometry.coordinates, l.meta)).join('\n');
 
 	return [
@@ -85,17 +110,25 @@ export const toKml = (lines: { geometry: LineString; meta?: LineMeta }[]): strin
 
 // ---- GeoJSON ----
 
-export const toGeoJson = (lines: { geometry: LineString; meta?: LineMeta }[]): string => {
-	const features: Feature<LineString, GeoJsonProperties>[] = lines.map((l) => ({
-		type: 'Feature',
-		geometry: l.geometry,
-		properties: l.meta
-			? {
-					title: l.meta.title ?? undefined,
-					timestamp: l.meta.custom_date ?? undefined,
-				}
-			: {},
-	}));
+export const toGeoJson = (lines: ExportLine[]): string => {
+	const features: Feature<LineString, GeoJsonProperties>[] = lines.map((l) => {
+		// Parallel to geometry.coordinates — nulls kept so indexes align.
+		const coordTimes = l.points?.map((p) => (p?.timestamp != null ? toIso(p.timestamp) : null));
+		const hasTimes = coordTimes?.some((v) => v != null) ?? false;
+		return {
+			type: 'Feature',
+			geometry: l.geometry,
+			properties: {
+				...(l.meta
+					? {
+							title: l.meta.title ?? undefined,
+							timestamp: l.meta.custom_date ?? undefined,
+						}
+					: {}),
+				...(hasTimes ? { coordTimes } : {}),
+			},
+		};
+	});
 
 	return JSON.stringify(
 		{
@@ -117,10 +150,7 @@ export const EXPORT_FORMATS: { key: ExportFormat; label: string }[] = [
 	{ key: 'geojson', label: 'GeoJSON' },
 ];
 
-export const writeFormat = (
-	format: ExportFormat,
-	lines: { geometry: LineString; meta?: LineMeta }[]
-): string => {
+export const writeFormat = (format: ExportFormat, lines: ExportLine[]): string => {
 	switch (format) {
 		case 'gpx':
 			return toGpx(lines);
@@ -131,4 +161,37 @@ export const writeFormat = (
 		default:
 			return '';
 	}
+};
+
+/**
+ * Align track_points rows (indexed by point_index) into a dense array
+ * parallel to the geometry coordinates, so writers can emit per-point
+ * `<time>`/coordTimes.  Returns undefined when there are no rows.
+ */
+export const alignPointsToCoords = (
+	coords: Position[],
+	points:
+		| {
+				point_index: number;
+				timestamp: number;
+				speed: number | null;
+				gnss_altitude: number | null;
+		  }[]
+		| null
+		| undefined
+): (ExportPointMeta | null)[] | undefined => {
+	if (!points?.length) {
+		return undefined;
+	}
+	const byIndex = new Map(points.map((p) => [p.point_index, p]));
+	return coords.map((_, i) => {
+		const p = byIndex.get(i);
+		return p
+			? {
+					timestamp: p.timestamp,
+					speed: p.speed,
+					gnss_altitude: p.gnss_altitude,
+				}
+			: null;
+	});
 };

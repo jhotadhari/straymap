@@ -15,6 +15,13 @@
       "when": 1785339004889,
       "tag": "0001_initSpatial",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1793993313325,
+      "tag": "0002_puzzling_garia",
+      "breakpoints": true
     }
   ]
 }

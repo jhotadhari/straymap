@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { FC, useEffect, useMemo, useRef, useState } from 'react';
+import React, { FC, useEffect, useMemo, useState } from 'react';
 import { PixelRatio } from 'react-native';
 import { get } from 'lodash-es';
 import RNFS from 'react-native-fs';
@@ -71,33 +71,14 @@ const GnssCenterMarker: FC = () => {
 	const markerDir = get(appDirs, ['marker', 0]) as string | undefined;
 
 	const [filePath, setFilePath] = useState<string | null>(null);
-	// Last generated marker file (shape/color-versioned) — unlinked when
-	// a new one replaces it so stale files don't accumulate.
-	const previousGeneratedPathRef = useRef<string | null>(null);
-
-	// Sweep leftover generated marker files from previous sessions
-	// (older shapes/colors and the legacy fixed-name file). Best effort.
-	useEffect(() => {
-		if (!markerDir) {
-			return;
-		}
-		RNFS.readDir(markerDir)
-			.then((entries) => {
-				entries.forEach((entry) => {
-					if (
-						entry.isFile() &&
-						(entry.name === 'gnssCenterMarker.svg' ||
-							entry.name.startsWith(GENERATED_FILE_PREFIX))
-					) {
-						RNFS.unlink(entry.path).catch(() => {});
-					}
-				});
-			})
-			.catch(() => {});
-	}, [markerDir]);
 
 	// Custom file sources are used as-is; built-in presets are written
 	// into the app's marker dir (native decodes .svg filePaths directly).
+	// The stale-file sweep runs INSIDE this effect, ordered BEFORE the
+	// write: a separate mount sweep could resolve after the write and
+	// unlink the freshly written file (its deps never change, so it
+	// would never be rewritten) — the marker would then fail to decode
+	// on every fix.
 	useEffect(() => {
 		if (isFileSource(markerIconSource)) {
 			setFilePath(markerIconSource);
@@ -107,21 +88,42 @@ const GnssCenterMarker: FC = () => {
 			return;
 		}
 		const shape = markerSourceToShape(markerIconSource);
-		const path = `${markerDir}/${markerFileName(shape, markerColor)}`;
+		const fileName = markerFileName(shape, markerColor);
+		const path = `${markerDir}/${fileName}`;
 		let cancelled = false;
 		(async () => {
 			try {
+				// Sweep leftover generated marker files (older shapes,
+				// colors, and the legacy fixed-name file) — never the
+				// file about to be (re)written.
+				try {
+					const entries = await RNFS.readDir(markerDir);
+					await Promise.all(
+						entries.map((entry) => {
+							if (
+								!entry.isFile() ||
+								entry.name === fileName ||
+								!(
+									entry.name === 'gnssCenterMarker.svg' ||
+									entry.name.startsWith(GENERATED_FILE_PREFIX)
+								)
+							) {
+								return;
+							}
+							return RNFS.unlink(entry.path).catch(() => {});
+						})
+					);
+				} catch {
+					// Sweep is best-effort — a stale file is a memory
+					// cost, not a correctness problem.
+				}
+
 				await RNFS.writeFile(
 					path,
 					buildMarkerSvg(markerSize, markerColor, '#000000', shape),
 					'utf8'
 				);
 				if (!cancelled) {
-					const previousPath = previousGeneratedPathRef.current;
-					if (previousPath && previousPath !== path) {
-						RNFS.unlink(previousPath).catch(() => {});
-					}
-					previousGeneratedPathRef.current = path;
 					setFilePath(path);
 				}
 			} catch (err) {

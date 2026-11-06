@@ -4,6 +4,7 @@
 import { isAnyOf } from '@reduxjs/toolkit';
 import DefaultPreference from 'react-native-default-preference';
 import { get, isEqual, set } from 'lodash-es';
+import type { GnssPosition } from 'react-native-mapsforge-vtm';
 
 /**
  * Internal dependencies
@@ -22,6 +23,7 @@ import {
 	setInitialized,
 	setLastWrittenPosition,
 	setLastWrittenTime,
+	setLastWrittenMeta,
 	setRecordingStartTime,
 	setResumePending,
 	setResumePromptPending,
@@ -37,13 +39,19 @@ import { selectInitialized } from './selectors';
 import { AppStore } from '../../store/store';
 import { logError } from '../../lib/utils';
 import { appendPointToLine, createTrack } from './db/actionsTrack';
+import { insertTrackPoint, insertTrackPoints } from './db/actionsTrackPoints';
+import { TrackPointInput, TrackPointMeta } from './types';
 import { createLines } from '../lines/db/actionsLine';
 import { ensureTagByLabel } from '../lines/db/actionsTag';
 import { setLineSelected, setSelected } from '../lines/slice';
 import { setIsActive } from '../gnss/slice';
 import { startRecordingTask, stopRecordingTask } from './backgroundTask';
-import { toTrackCoord } from './utils';
-import { invalidateLastRecordedLineQueries } from './db/queryFns';
+import { deriveSpeedMps, toTrackCoord } from './utils';
+import {
+	invalidateLastRecordedLineQueries,
+	invalidateLineTrackPointsQueries,
+	queryLinePointCount,
+} from './db/queryFns';
 import { setActiveKey } from '../bottomDrawer/slice';
 import { getChartSourceKey } from '../chart/types';
 import { selectFollowingLineId } from '../lineFollow/selectors';
@@ -169,6 +177,13 @@ startAppListening({
  * altitude resolution are handled natively — this listener only writes
  * to the DB.
  *
+ * Each qualifying fix writes two things: the geometry append (critical
+ * path, ST_AddPoint) and — best-effort — a track_points metadata row
+ * (fix timestamp, derived segment speed, accuracy, bearing, raw GNSS
+ * altitude and its provenance).  Geometry first: a crash between the
+ * two writes leaves a tolerated trailing gap in the metadata table,
+ * never a misalignment (point_index is anchored to the geometry).
+ *
  * Lazy line creation: a single-point LineString is invalid GeoJSON
  * (SpatiaLite's GeomFromGeoJSON rejects it), so the first position is
  * buffered and the track line is created from the first two positions.
@@ -179,8 +194,56 @@ startAppListening({
  */
 let writeChain: Promise<void> = Promise.resolve();
 
+// Geometry-anchored index of the next appended point (0-based, matching
+// lines.geometry coordinates).  Seeded once per active line via
+// ST_NPoints.  Advances with the geometry (even when a metadata insert
+// fails), so track_points can only ever be behind the geometry, never
+// misaligned with it.
+let nextPointIndex: number | null = null;
+let seededLineId: number | null = null;
+// Set when the ST_NPoints seed query fails — disables metadata writes
+// for the rest of the session instead of re-querying per fix.
+let seedingFailed = false;
+
+const toMeta = (payload: GnssPosition): TrackPointMeta => ({
+	timestamp: payload.timestamp,
+	gnssAltitude: payload.gnssAltitude,
+	elevationSource: payload.elevationSource,
+	accuracy: payload.accuracy,
+	bearing: payload.bearing,
+});
+
+const toTrackPointInput = (
+	trackId: number,
+	lineId: number,
+	pointIndex: number,
+	meta: TrackPointMeta,
+	speed: number | null
+): TrackPointInput => ({
+	track_id: trackId,
+	line_id: lineId,
+	point_index: pointIndex,
+	timestamp: meta.timestamp,
+	gnss_altitude: meta.gnssAltitude,
+	elevation_source: meta.elevationSource,
+	accuracy: meta.accuracy,
+	bearing: meta.bearing,
+	speed,
+});
+
+/** Defensive fallback when a buffered fix has no captured metadata (the
+ * listener always buffers position and meta together, so this only ever
+ * guards against a future refactor dropping one without the other). */
+const toFallbackMeta = (): TrackPointMeta => ({
+	timestamp: Date.now(),
+	gnssAltitude: null,
+	elevationSource: 'none',
+	accuracy: 0,
+	bearing: -1,
+});
+
 const processWriteGnssPosition = async (
-	action: { payload: { lng: number; lat: number; altitude: number | null } },
+	action: { payload: GnssPosition },
 	listenerApi: {
 		dispatch: (action: any) => void;
 		getState: () => { trackRecording: TrackRecordingState };
@@ -208,20 +271,24 @@ const processWriteGnssPosition = async (
 		return;
 	}
 
-	const { lng, lat, altitude } = action.payload;
+	const payload = action.payload;
+	const { lng, lat, altitude } = payload;
 	// Always 3D — a mixed 2D/3D LineString breaks ST_AddPoint.
 	const coord = toTrackCoord(lng, lat, altitude);
+	const meta = toMeta(payload);
 
 	if (!trk.activeLineId) {
 		const buffered = trk.lastWrittenPosition;
 		if (!buffered) {
 			// First position — buffer it, create the line on the next.
 			listenerApi.dispatch(setLastWrittenPosition(coord));
+			listenerApi.dispatch(setLastWrittenMeta(meta));
 			listenerApi.dispatch(setLastWrittenTime(Date.now()));
 			return;
 		}
 
 		// Second position — create the track line from both points.
+		const bufferedMeta = trk.lastWrittenMeta ?? toFallbackMeta();
 		const settings = {
 			minDistance: trk.minDistance,
 			minTime: trk.minTime,
@@ -295,11 +362,41 @@ const processWriteGnssPosition = async (
 			return;
 		}
 
-		listenerApi.dispatch(setActiveTrackId(trackResult.id));
+		const trackId = trackResult.id;
+
+		// Persist metadata for the two creation points.  Best-effort —
+		// geometry is the critical path; a failure leaves a gap that a
+		// later task can backfill from the remaining data.
+		try {
+			await insertTrackPoints([
+				toTrackPointInput(trackId, lineId, 0, bufferedMeta, null),
+				toTrackPointInput(
+					trackId,
+					lineId,
+					1,
+					meta,
+					deriveSpeedMps(
+						{
+							lng: buffered[0],
+							lat: buffered[1],
+							timestamp: bufferedMeta.timestamp,
+						},
+						{ lng, lat, timestamp: meta.timestamp }
+					)
+				),
+			]);
+		} catch (err) {
+			logError('trackRecording/insertTrackPoints', err);
+		}
+		nextPointIndex = 2;
+		seededLineId = lineId;
+
+		listenerApi.dispatch(setActiveTrackId(trackId));
 		listenerApi.dispatch(setActiveLineId(lineId));
 		// Auto-select the line so it appears in the drawer list.
 		listenerApi.dispatch(setLineSelected(lineId, true));
 		listenerApi.dispatch(setLastWrittenPosition(coord));
+		listenerApi.dispatch(setLastWrittenMeta(meta));
 		listenerApi.dispatch(setLastWrittenTime(Date.now()));
 
 		// Refresh line caches so the new line shows up immediately.
@@ -308,12 +405,41 @@ const processWriteGnssPosition = async (
 			invalidateLinesQueries(queryClient);
 			invalidateLineGeomQueries(queryClient);
 			invalidateLastRecordedLineQueries(queryClient);
+			invalidateLineTrackPointsQueries(queryClient);
 		}
 		return;
 	}
 
+	// Seed the point index once per active line — new, continued and
+	// resumed sessions all funnel through here.  The geometry is the
+	// anchor: the next appended coordinate lands at ST_NPoints,
+	// regardless of whether track_points has trailing gaps.
+	if (seededLineId !== trk.activeLineId) {
+		// Different line than the cached index — re-seed from its
+		// geometry.
+		nextPointIndex = null;
+		seedingFailed = false;
+	}
+	if (nextPointIndex == null && !seedingFailed) {
+		const seeded = await queryLinePointCount(trk.activeLineId);
+		if (seeded == null) {
+			// Metadata writes stay disabled for this session — geometry
+			// recording is unaffected.
+			seedingFailed = true;
+			logError('trackRecording/seedPointIndex', new Error('ST_NPoints returned no count'));
+		}
+		nextPointIndex = seeded;
+	}
+	seededLineId = trk.activeLineId;
+
+	// Snapshot the previous point (from the state captured at event
+	// time, before this write updates it) for speed derivation.
+	const prevMeta = trk.lastWrittenMeta;
+	const prevPosition = trk.lastWrittenPosition;
+
 	// Update state so other UI can track the last-written position.
 	listenerApi.dispatch(setLastWrittenPosition(coord));
+	listenerApi.dispatch(setLastWrittenMeta(meta));
 	listenerApi.dispatch(setLastWrittenTime(Date.now()));
 
 	try {
@@ -321,6 +447,35 @@ const processWriteGnssPosition = async (
 	} catch (err) {
 		logError('trackRecording/appendPoint', err);
 		return;
+	}
+
+	// Metadata write is best-effort and strictly after the geometry
+	// append.  The index advances with the geometry (even when the
+	// insert is skipped — e.g. the track id is still resolving during a
+	// continueRecording — or fails), so the table can only ever trail
+	// the geometry, never misalign with it.
+	if (nextPointIndex != null && trk.activeTrackId != null) {
+		const speed =
+			prevMeta && prevPosition
+				? deriveSpeedMps(
+						{
+							lng: prevPosition[0],
+							lat: prevPosition[1],
+							timestamp: prevMeta.timestamp,
+						},
+						{ lng, lat, timestamp: meta.timestamp }
+					)
+				: null;
+		try {
+			await insertTrackPoint(
+				toTrackPointInput(trk.activeTrackId, trk.activeLineId, nextPointIndex, meta, speed)
+			);
+		} catch (err) {
+			logError('trackRecording/insertTrackPoint', err);
+		}
+	}
+	if (nextPointIndex != null) {
+		nextPointIndex += 1;
 	}
 
 	// The geometry changed — refetch so the map line, point count and
@@ -332,6 +487,7 @@ const processWriteGnssPosition = async (
 	const queryClient = dbConnection?.queryClient;
 	if (queryClient) {
 		invalidateLineGeomQueriesForLine(queryClient, trk.activeLineId);
+		invalidateLineTrackPointsQueries(queryClient);
 		// The chart/follow consumers read the simplified `linePathCoords`
 		// query — keep it live too so the tracking chart grows per append.
 		queryClient.invalidateQueries({ queryKey: ['linePathCoords', trk.activeLineId] });
@@ -390,6 +546,7 @@ startAppListening({
 			invalidateLinesQueries(queryClient);
 			invalidateLineGeomQueries(queryClient);
 			invalidateLastRecordedLineQueries(queryClient);
+			invalidateLineTrackPointsQueries(queryClient);
 		}
 	},
 });

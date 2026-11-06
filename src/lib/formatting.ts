@@ -294,6 +294,24 @@ export const haversineLineLength = (coords: number[][]): number => {
 };
 
 /**
+ * Segment speed (m/s) between two consecutive points, derived from their
+ * timestamps — reliable for pedestrians and for sources that move
+ * positions without reporting a speed (GPS spoofers), unlike the raw
+ * fix-reported speed.  Returns null when the timestamps don't form a
+ * usable interval (equal/backwards clocks, first point of a session).
+ */
+export const deriveSpeedMps = (
+	prev: { lng: number; lat: number; timestamp: number },
+	curr: { lng: number; lat: number; timestamp: number }
+): number | null => {
+	const dtSec = (curr.timestamp - prev.timestamp) / 1000;
+	if (!(dtSec > 0)) {
+		return null;
+	}
+	return haversineDistance([prev.lng, prev.lat], [curr.lng, curr.lat]) / dtSec;
+};
+
+/**
  * Great-circle initial bearing from point a to point b, degrees 0-360
  * (0 = north, 90 = east). Accepts [lng, lat] or { lng, lat } inputs.
  */

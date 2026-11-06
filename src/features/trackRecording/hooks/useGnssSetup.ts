@@ -115,18 +115,13 @@ export function useGnssSetup() {
 	);
 
 	// Recording stream (onGnssPosition) — natively gated positions.
-	// Forwards to the track-recording listener for persistence.
+	// Forwards the full fix (including timestamp, accuracy, bearing and
+	// altitude provenance) to the track-recording listener for
+	// persistence.
 	const handleGnssPosition = useCallback(
 		(event: { nativeEvent: GnssPosition }) => {
-			const { lng, lat, altitude } = event.nativeEvent;
 			if (isRecording || resumePending) {
-				dispatch(
-					writeGnssPosition({
-						lng,
-						lat,
-						altitude,
-					})
-				);
+				dispatch(writeGnssPosition(event.nativeEvent));
 			}
 		},
 		[

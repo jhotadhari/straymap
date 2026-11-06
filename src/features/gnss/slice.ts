@@ -8,7 +8,7 @@ import { createSlice } from '@reduxjs/toolkit';
  * Internal dependencies
  */
 import { SliceSettingsBase } from '../../types';
-import { bearingBetween, haversineDistance } from '../../lib/formatting';
+import { bearingBetween, deriveSpeedMps, haversineDistance } from '../../lib/formatting';
 import { PALETTE_COLORS } from '../../constants';
 
 /** Min movement away from the heading anchor (m) before the heading is
@@ -74,6 +74,13 @@ export interface GnssState extends SliceSettingsBase, GnssSettings {
 	/** Movement direction (degrees 0-360) resolved from the heading
 	 * anchor, movement-gated (MIN_HEADING_MOVE_M). Runtime only. */
 	heading: number | null;
+	/** Previous live fix — basis for the derived speed. Runtime only. */
+	prevFix: { lng: number; lat: number; timestamp: number } | null;
+	/** Speed (m/s) derived from consecutive live fixes — independent of
+	 * the payload's reported speed field (which some sources, e.g. GPS
+	 * spoofers, leave near zero).  Null until the second fix. Runtime
+	 * only. */
+	derivedSpeed: number | null;
 }
 
 export const initialSettings: GnssSettings = {
@@ -95,6 +102,8 @@ const initialState: GnssState = {
 	position: null,
 	headingAnchor: null,
 	heading: null,
+	prevFix: null,
+	derivedSpeed: null,
 };
 
 export const gnssSlice = createSlice({
@@ -110,6 +119,8 @@ export const gnssSlice = createSlice({
 				state.position = null;
 				state.headingAnchor = null;
 				state.heading = null;
+				state.prevFix = null;
+				state.derivedSpeed = null;
 			}
 		},
 		setGnssPosition: (state, action: PayloadAction<GnssPositionData | null>) => {
@@ -118,8 +129,25 @@ export const gnssSlice = createSlice({
 				state.position = null;
 				state.headingAnchor = null;
 				state.heading = null;
+				state.prevFix = null;
+				state.derivedSpeed = null;
 				return;
 			}
+			// Derived speed from consecutive live fixes — the reported
+			// speed field is Doppler-based and unreliable for some
+			// sources (pedestrian fixes, GPS spoofers that only move
+			// positions).  Null on the first fix / unusable intervals.
+			state.derivedSpeed = state.prevFix
+				? deriveSpeedMps(
+						{
+							lng: state.prevFix.lng,
+							lat: state.prevFix.lat,
+							timestamp: state.prevFix.timestamp,
+						},
+						{ lng: next.lng, lat: next.lat, timestamp: next.timestamp }
+					)
+				: null;
+			state.prevFix = { lng: next.lng, lat: next.lat, timestamp: next.timestamp };
 			const anchor = state.headingAnchor;
 			if (!anchor) {
 				state.headingAnchor = { lng: next.lng, lat: next.lat, timestamp: next.timestamp };

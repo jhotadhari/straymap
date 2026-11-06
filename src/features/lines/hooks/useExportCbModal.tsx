@@ -27,7 +27,16 @@ import { selectAppDirs } from '../../dirs/selectors';
 import { AbsPath } from '../../dirs/types';
 import { fetchLines } from '../db/fetch';
 import { queryLineGeom } from '../db/queryFns';
-import { writeFormat, EXPORT_FORMATS, ExportFormat } from '../utils/formatWriters';
+import {
+	alignPointsToCoords,
+	writeFormat,
+	EXPORT_FORMATS,
+	ExportFormat,
+} from '../utils/formatWriters';
+import {
+	queryTrackPointsByLineId,
+	queryTrackPointsByLineIds,
+} from '../../trackRecording/db/queryFns';
 import { resolveFilename, sanitizeFilename, DEFAULT_TEMPLATE } from '../utils/filenameTemplate';
 import { LinePartial } from '../types';
 
@@ -122,6 +131,16 @@ const useExportCbModal = (params: UseExportCbModalParams) => {
 		enabled: typeof lineId === 'number' && modalVisible && params.type === 'single',
 	});
 
+	// Per-point metadata (timestamps etc.) for recorded lines — feeds
+	// GPX <time> / GeoJSON coordTimes.  Empty for non-recorded lines.
+	const { data: singleTrackPoints } = useQuery({
+		queryKey: ['lineTrackPoints', lineId],
+		queryFn: () => queryTrackPointsByLineId(lineId as number),
+		enabled: typeof lineId === 'number' && modalVisible && params.type === 'single',
+		staleTime: Infinity,
+		gcTime: 1000 * 10,
+	});
+
 	const detailStyle = useMemo(
 		() => [styles.detailText, { color: theme.colors.onSurfaceVariant }],
 		[theme.colors.onSurfaceVariant]
@@ -188,6 +207,10 @@ const useExportCbModal = (params: UseExportCbModalParams) => {
 				{
 					geometry: lineWithGeom.geometry,
 					meta: { title: line?.title, custom_date: rawDate },
+					points: alignPointsToCoords(
+						lineWithGeom.geometry.coordinates,
+						singleTrackPoints
+					),
 				},
 			]);
 
@@ -212,6 +235,7 @@ const useExportCbModal = (params: UseExportCbModalParams) => {
 	}, [
 		params,
 		lineWithGeom,
+		singleTrackPoints,
 		selectedFormat,
 		exportDir,
 		t,
@@ -251,6 +275,20 @@ const useExportCbModal = (params: UseExportCbModalParams) => {
 					'custom_date',
 				],
 			})) as (LinePartial & { geometry?: LineString })[];
+
+			// Per-point metadata for recorded lines (timestamps feed GPX
+			// <time> / GeoJSON coordTimes).  One query for the whole batch.
+			const trackPoints = await queryTrackPointsByLineIds(checkedIds);
+			const pointsByLineId = new Map<number, typeof trackPoints>();
+			for (const p of trackPoints) {
+				const bucket = pointsByLineId.get(p.line_id);
+				if (bucket) {
+					bucket.push(p);
+				} else {
+					pointsByLineId.set(p.line_id, [p]);
+				}
+			}
+
 			total = linesWithGeom.filter((l) => l.geometry).length;
 			setTotalCount(total);
 
@@ -283,6 +321,10 @@ const useExportCbModal = (params: UseExportCbModalParams) => {
 						{
 							geometry: line.geometry!,
 							meta: { title: line.title, custom_date: rawDate },
+							points: alignPointsToCoords(
+								line.geometry!.coordinates,
+								pointsByLineId.get(line.id)
+							),
 						},
 					]);
 
