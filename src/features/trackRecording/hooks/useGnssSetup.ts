@@ -21,9 +21,9 @@ import {
 import { writeGnssPosition } from '../slice';
 
 /**
- * Relaxed filter for plain GNSS activation (no recording). Recording
- * uses the strict track-recording filter instead — denser updates are a
- * superset, so the recording filter wins when both are active.
+ * Relaxed gate params for plain GNSS activation (no recording).  The
+ * live stream is always raw — these params only gate the recording
+ * stream, which the JS side ignores while not recording.
  */
 const GNSS_IDLE_FILTER = {
 	minDistanceMeters: 0,
@@ -35,17 +35,22 @@ const GNSS_IDLE_FILTER = {
 
 /**
  * Derives the native {@code gnssFilter} prop and the
- * {@code onGnssPosition} callback for {@code MapContainer}.
+ * {@code onGnssPosition} / {@code onGnssLive} callbacks for
+ * {@code MapContainer}.
+ *
+ * The native listener is registered with raw parameters — every fix
+ * (~1 Hz) reaches JS through {@code onGnssLive} and feeds the gnss
+ * slice's live position (marker, speed/course widgets). The native
+ * recording gate (minDistance/minTime/minAccuracy) emits
+ * {@code onGnssPosition} only for track-recording-qualifying positions;
+ * those are forwarded via {@code writeGnssPosition} to the
+ * track-recording listener for persistence.
  *
  * The filter is set while GNSS is active or track recording is running,
  * and {@code undefined} otherwise — the native {@code LocationListener}
  * is unregistered by the view manager when the filter is removed.
  *
- * Every native position feeds the gnss slice's live position; while
- * recording it is additionally forwarded via {@code writeGnssPosition}
- * for the track-recording listener to persist.
- *
- * @returns {{ gnssFilter, handleGnssPosition }}
+ * @returns {{ gnssFilter, handleGnssLive, handleGnssPosition }}
  */
 export function useGnssSetup() {
 	const dispatch = useAppDispatch();
@@ -58,10 +63,11 @@ export function useGnssSetup() {
 	const useDemAltitude = useAppSelector(selectUseDemAltitude);
 
 	const gnssFilter = useMemo(() => {
-		if (isRecording) {
+		if (isRecording || resumePending) {
 			// DEM elevation when the HGT tile is cached (background
 			// preload on miss — next fix gets the cached value), raw
-			// GNSS altitude otherwise.
+			// GNSS altitude otherwise. These fields gate the native
+			// recording stream only — the live stream stays raw.
 			const altitudeSource = useDemAltitude ? 'dem-preferred' : 'gnss-only';
 			return {
 				minDistanceMeters: minDistance,
@@ -77,6 +83,7 @@ export function useGnssSetup() {
 		return undefined;
 	}, [
 		isRecording,
+		resumePending,
 		gnssIsActive,
 		minDistance,
 		minTime,
@@ -84,12 +91,11 @@ export function useGnssSetup() {
 		useDemAltitude,
 	]);
 
-	// Callback from native onGnssPosition — feeds the gnss slice's live
-	// position, and (while recording or resuming) the track-recording
-	// listener.
-	const handleGnssPosition = useCallback(
+	// Live stream (onGnssLive) — every native fix. Feeds the gnss
+	// slice's live position only.
+	const handleGnssLive = useCallback(
 		(event: { nativeEvent: GnssPosition }) => {
-			const { lng, lat, altitude, gnssAltitude, bearing, accuracy, speed, timestamp } =
+			const { lng, lat, gnssAltitude, bearing, accuracy, speed, timestamp } =
 				event.nativeEvent;
 			// Live display always uses the raw GNSS altitude — the DEM
 			// toggle only affects what is stored, not what is shown.
@@ -104,6 +110,15 @@ export function useGnssSetup() {
 					timestamp,
 				})
 			);
+		},
+		[dispatch]
+	);
+
+	// Recording stream (onGnssPosition) — natively gated positions.
+	// Forwards to the track-recording listener for persistence.
+	const handleGnssPosition = useCallback(
+		(event: { nativeEvent: GnssPosition }) => {
+			const { lng, lat, altitude } = event.nativeEvent;
 			if (isRecording || resumePending) {
 				dispatch(
 					writeGnssPosition({
@@ -129,5 +144,12 @@ export function useGnssSetup() {
 		}
 	}, [gnssFilter, dispatch]);
 
-	return useMemo(() => ({ gnssFilter, handleGnssPosition }), [gnssFilter, handleGnssPosition]);
+	return useMemo(
+		() => ({ gnssFilter, handleGnssLive, handleGnssPosition }),
+		[
+			gnssFilter,
+			handleGnssLive,
+			handleGnssPosition,
+		]
+	);
 }

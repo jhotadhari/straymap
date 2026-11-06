@@ -104,7 +104,7 @@ const AppView = ({
 	const showSplash = useShowInitialSplash();
 
 	const dispatch = useAppDispatch();
-	const { gnssFilter, handleGnssPosition } = useGnssSetup();
+	const { gnssFilter, handleGnssLive, handleGnssPosition } = useGnssSetup();
 
 	const hardwareKeys = useAppSelector(selectHardwareKeys);
 
@@ -361,8 +361,10 @@ const AppView = ({
 				firstMapUpdateRef.current = true;
 				dispatch(removeBusyKey('map:init'));
 			}
-			// Track recording positions now flow through the native gnssFilter
-			// on MapContainer — onGnssPosition dispatches writeGnssPosition.
+			// Track recording positions flow through the native recording
+			// stream on MapContainer — onGnssPosition dispatches
+			// writeGnssPosition (the live onGnssLive stream only feeds
+			// the gnss slice's position).
 		},
 		[
 			currentMapEventRef,
@@ -544,6 +546,7 @@ const AppView = ({
 							onTap={handleMapTap}
 							onLongPress={handleMapLongPress}
 							gnssFilter={gnssFilter}
+							onGnssLive={handleGnssLive}
 							onGnssPosition={handleGnssPosition}
 							compassEnabled={compassEnabled}
 							onDeviceAzimuth={handleDeviceAzimuth}

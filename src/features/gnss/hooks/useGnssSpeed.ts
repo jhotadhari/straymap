@@ -12,11 +12,12 @@ import { selectGnssPosition } from '../selectors';
 import { useNow } from './useNow';
 
 /**
- * Live GNSS speed with staleness handling: while stationary the native
- * GNSS listener may stop delivering fixes, which would keep the last
- * speed forever. When the last fix is older than one second beyond the
- * configured recording `minTime`, the speed reads as 0. Returns null
- * while there is no fix at all (GNSS off).
+ * Live GNSS speed with staleness handling. Fixes arrive densely (~1 Hz)
+ * through the native live stream, so a stopped user gets fresh fixes
+ * with speed 0 naturally; the staleness gate below only covers true
+ * signal loss (no fix for more than one second beyond the configured
+ * recording `minTime`, e.g. in a tunnel), where it reads as 0. Returns
+ * null while there is no fix at all (GNSS off).
  */
 export const useGnssSpeed = (): number | null => {
 	const position = useAppSelector(selectGnssPosition);
