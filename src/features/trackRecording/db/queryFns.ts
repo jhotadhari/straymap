@@ -226,6 +226,60 @@ export const queryTrackPointsStats = async (lineId: number): Promise<TrackPoints
 };
 
 /**
+ * Per-line aggregate stats for several lines in ONE query (stats
+ * modal): the same aggregation as queryTrackPointsStats, partitioned by
+ * line_id.  Lines without track_points rows simply don't appear.
+ */
+export interface LineTrackPointsStats extends TrackPointsStats {
+	lineId: number;
+}
+
+export const queryTrackPointsStatsByLineIds = async (
+	lineIds: number[]
+): Promise<LineTrackPointsStats[]> => {
+	if (!dbConnection?.op || !lineIds.length) {
+		return [];
+	}
+	const placeholders = lineIds.map(() => '?').join(', ');
+	const result = await dbOpExecute(
+		`SELECT
+			line_id AS lineId,
+			COUNT(*) AS n,
+			MAX(speed) AS maxSpeed,
+			MIN(ts) AS startTs,
+			MAX(ts) AS endTs,
+			COALESCE(SUM(
+				CASE
+					WHEN ts - prevTs > 0 AND ts - prevTs <= ? THEN ts - prevTs
+					ELSE 0
+				END
+			), 0) AS movingMs
+		FROM (
+			SELECT
+				line_id,
+				timestamp AS ts,
+				LAG(timestamp) OVER (PARTITION BY line_id ORDER BY point_index) AS prevTs,
+				speed
+			FROM track_points
+			WHERE line_id IN (${placeholders})
+		)
+		GROUP BY line_id`,
+		[PAUSE_GAP_THRESHOLD_MS, ...lineIds]
+	);
+	return (result.rows ?? []).map((row) => {
+		const r = row as Record<string, Scalar>;
+		return {
+			lineId: r.lineId as number,
+			count: typeof r.n === 'number' ? r.n : 0,
+			maxSpeed: typeof r.maxSpeed === 'number' ? r.maxSpeed : null,
+			startTs: typeof r.startTs === 'number' ? r.startTs : null,
+			endTs: typeof r.endTs === 'number' ? r.endTs : null,
+			movingDurationMs: typeof r.movingMs === 'number' ? r.movingMs : 0,
+		};
+	});
+};
+
+/**
  * Invalidate track-summary queries (['trackSummary', lineId]) — used
  * after a recording stops so the drawer's idle view refetches the
  * freshly written tracks.data summary.

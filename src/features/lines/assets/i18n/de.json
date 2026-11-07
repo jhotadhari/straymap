@@ -83,6 +83,8 @@
 	"deleteConfirmationBody": "Möchtest du wirklich %s Route(n) löschen? Dies kann nicht rückgängig gemacht werden.",
 	"statsSummary": "Statistiken",
 	"statsForLines": "Statistiken für %s Routen",
+	"statsRecording": "Aufzeichnungsstatistik",
+	"statsRecordingPartial": "Aufzeichnungsstatistik für %s von %s Routen",
 	"hideStats": "Ausblenden",
 	"showStats": "Statistiken anzeigen",
 	"hintNumericFilter": "Routen nach Mindest- und/oder Höchstwerten für diese Spalte filtern. Lass ein Feld leer, um diese Seite des Bereichs zu überspringen.",

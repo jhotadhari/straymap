@@ -1,88 +1,23 @@
 /**
  * External dependencies
  */
-import { FC, useCallback, useMemo, useState } from 'react';
-import { get, pick, set } from 'lodash-es';
-import { useQuery } from '@tanstack/react-query';
-import { Text } from 'react-native-paper';
-import { sprintf } from 'sprintf-js';
-import { useTranslation } from 'react-i18next';
+import { useCallback, useMemo, useState } from 'react';
 
 /**
  * Internal dependencies
  */
-import ModalWrapper from '../../../components/generic/wrapper/ModalWrapper';
-import { sharedStyles } from '../../../sharedStyles';
-import { LinePartial, LineStats as LineStatsType } from '../types';
-import { queryLinesWithoutGeom } from '../db/queryFns';
-import LineStatsRows from '../components/Stats/LineStatsRows';
+import LineStatsModal from '../components/Stats/LineStatsModal';
 
-const StatsModal: FC<{
-	lineIds: number[];
-	handleDismissModal: () => void;
-	backgroundBlur?: boolean;
-	showHeader?: boolean;
-}> = ({ lineIds, handleDismissModal, showHeader, backgroundBlur: _backgroundBlur }) => {
-	const { t } = useTranslation();
-	const { data: lines } = useQuery({
-		queryKey: ['lines', lineIds],
-		queryFn: queryLinesWithoutGeom,
-		select: (lines: LinePartial[]) => lines.map((line) => pick(line, ['stats'])),
-	});
-
-	const stats: LineStatsType = useMemo(() => {
-		if (!lines || !lines.length) {
-			return {};
-		}
-		return lines.reduce<LineStatsType>((acc, line) => {
-			Object.keys(line?.stats ?? {}).forEach((key) => {
-				switch (key) {
-					case 'length':
-					case 'uphill':
-					case 'downhill':
-						set(acc, key, get(acc, key, 0) + get(line?.stats ?? {}, key, 0));
-						break;
-					case 'minZ':
-					case 'maxZ':
-						const val = get(line?.stats ?? {}, key);
-						if (undefined !== val) {
-							const accVal = get(acc, key);
-							if (
-								undefined === accVal ||
-								('minZ' === key && val < accVal) ||
-								('maxZ' === key && val > accVal)
-							) {
-								set(acc, key, val);
-							}
-						}
-						break;
-				}
-			});
-			return acc;
-		}, {});
-	}, [lines]);
-
-	return (
-		<ModalWrapper
-			visible={true}
-			onDismiss={handleDismissModal}
-			headerLabel={t('lines.statsSummary')}
-			innerStyle={sharedStyles.modal}
-		>
-			{showHeader && <Text>{sprintf(t('lines.statsForLines'), lineIds.length)}</Text>}
-
-			<LineStatsRows stats={stats} />
-		</ModalWrapper>
-	);
-};
-
+/**
+ * Stats modal trigger — returns `{ cb, modalNode, iconSource }` so it
+ * can be used from a button, a menu action or a modal row.  Renders the
+ * shared LineStatsModal (geometry stats + recording-metadata section).
+ */
 const useShowLinesStatsCbModal = ({
 	lineIds,
-	backgroundBlur,
 	showHeader,
 }: {
 	lineIds: number[];
-	backgroundBlur?: boolean;
 	showHeader?: boolean;
 }) => {
 	const [modalVisible, setModalVisible] = useState(false);
@@ -98,9 +33,8 @@ const useShowLinesStatsCbModal = ({
 			return undefined;
 		}
 		return (
-			<StatsModal
+			<LineStatsModal
 				handleDismissModal={handleDismissModal}
-				backgroundBlur={backgroundBlur}
 				lineIds={lineIds}
 				showHeader={showHeader}
 			/>
@@ -110,7 +44,6 @@ const useShowLinesStatsCbModal = ({
 		lineIds,
 		modalVisible,
 		handleDismissModal,
-		backgroundBlur,
 	]);
 
 	return useMemo(
