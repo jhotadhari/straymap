@@ -133,3 +133,19 @@ export const closeFullscreenChart = (): AppThunk => {
 		dispatch(chartSlice.actions.setFullscreenLineId(undefined));
 	};
 };
+
+/**
+ * Called when the database path changes (dbLoader `setDbPath` thunk
+ * dispatches every feature's `onSetDbPath` hook).  Per-chart settings
+ * are keyed by chart keys that embed line ids (`chart:line:<id>`,
+ * `chart:fullscreen:<id>`) — drop them so orphaned settings don't
+ * survive the swap.
+ */
+export const onSetDbPath = (): AppThunk => {
+	return (dispatch, getState) => {
+		const keys = Object.keys(getState().chart.charts);
+		if (keys.length) {
+			dispatch(removeChartSettings(keys));
+		}
+	};
+};

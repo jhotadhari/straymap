@@ -490,5 +490,9 @@ export const setLinesWidth = (width: number): AppThunk => {
 export const onSetDbPath = (): AppThunk => {
 	return (dispatch) => {
 		dispatch(linesSlice.actions.setSelected([]));
+		// Id-keyed maps also reference rows of the OLD database —
+		// clear them so stale entries don't survive the swap.
+		dispatch(linesSlice.actions.setLineColors({}));
+		dispatch(linesSlice.actions.setLineRamps({}));
 	};
 };

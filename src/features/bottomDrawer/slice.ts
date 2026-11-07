@@ -8,6 +8,7 @@ import { createSlice } from '@reduxjs/toolkit';
  * Internal dependencies
  */
 import { SliceSettingsBase } from '../../types';
+import { AppThunk } from '../../store/store';
 import { without } from 'lodash-es';
 
 export interface BottomDrawerSettings {
@@ -61,6 +62,20 @@ export const bottomDrawerSlice = createSlice({
 // Export the generated action creators for use in components.
 export const { setInitialized, setItemKeys, addItemKey, removeItemKey, setActiveKey } =
 	bottomDrawerSlice.actions;
+
+/**
+ * Called when the database path changes (dbLoader `setDbPath` thunk
+ * dispatches every feature's `onSetDbPath` hook).  The active key can
+ * embed a line id (chart source key like `chart:line:<id>`, persisted
+ * via the auto-activation listeners) — clear it so the drawer doesn't
+ * re-open with a dead chart key against the new database.  `itemKeys`
+ * needs no clearing: chart entries are derived by the selectors and
+ * filtered against the item resolvers (see chart feature), so stale
+ * persisted keys never produce broken drawer entries.
+ */
+export const onSetDbPath = (): AppThunk => (dispatch) => {
+	dispatch(setActiveKey(undefined));
+};
 
 // Export the slice reducer for use in the store configuration
 export default bottomDrawerSlice.reducer;

@@ -2,6 +2,7 @@
  * Internal dependencies
  */
 import { initializeFromStorage } from './connectStorage';
+import { onSetDbPath } from './slice';
 import { selectInitialized } from './selectors';
 import de from './assets/i18n/de.json';
 import en from './assets/i18n/en.json';
@@ -12,6 +13,7 @@ import BottomDrawer from './appOverlays/BottomDrawer';
 export default {
 	selectInitialized,
 	initializeFromStorage,
+	onSetDbPath,
 	translation: {
 		de,
 		en,

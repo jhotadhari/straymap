@@ -12,6 +12,7 @@ import chartReducer, {
 	resetChartSettingsToPerChart,
 	setGeneralSettings,
 	setFullscreenLineId,
+	onSetDbPath,
 } from '../slice';
 import {
 	selectGeneralSettings,
@@ -127,6 +128,37 @@ describe('chart slice reducers', () => {
 		expect(selectHasOwnChartSettings({ chart: state } as unknown as RootState, 'line:2b')).toBe(
 			false
 		);
+	});
+});
+
+describe('onSetDbPath', () => {
+	it('removes all per-chart settings (keys embed line ids)', () => {
+		const dispatch = jest.fn();
+		const getState = jest.fn(
+			() =>
+				({
+					chart: {
+						charts: {
+							'chart:line:1': { primaryColor: 'slope' },
+							'chart:fullscreen:2': { ratioValue: 20 },
+						},
+					},
+				}) as unknown as RootState
+		);
+		onSetDbPath()(dispatch, getState, undefined as any);
+		expect(dispatch).toHaveBeenCalledWith(
+			expect.objectContaining({
+				type: 'chart/removeChartSettings',
+				payload: ['chart:line:1', 'chart:fullscreen:2'],
+			})
+		);
+	});
+
+	it('does nothing when there are no per-chart settings', () => {
+		const dispatch = jest.fn();
+		const getState = jest.fn(() => ({ chart: { charts: {} } }) as unknown as RootState);
+		onSetDbPath()(dispatch, getState, undefined as any);
+		expect(dispatch).not.toHaveBeenCalled();
 	});
 });
 

@@ -253,6 +253,23 @@ describe('lines thunks', () => {
 				})
 			);
 		});
+
+		it('clears the id-keyed color and ramp maps', () => {
+			const dispatch = jest.fn();
+			onSetDbPath()(dispatch, jest.fn(), undefined as any);
+			expect(dispatch).toHaveBeenCalledWith(
+				expect.objectContaining({
+					type: 'lines/setLineColors',
+					payload: {},
+				})
+			);
+			expect(dispatch).toHaveBeenCalledWith(
+				expect.objectContaining({
+					type: 'lines/setLineRamps',
+					payload: {},
+				})
+			);
+		});
 	});
 });
 

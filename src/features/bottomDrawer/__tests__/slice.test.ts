@@ -12,6 +12,7 @@ import bottomDrawerReducer, {
 	removeItemKey,
 	setActiveKey,
 	initialSettings,
+	onSetDbPath,
 } from '../slice';
 import type { BottomDrawersState } from '../slice';
 import type { RootState } from '../../../store/store';
@@ -119,6 +120,20 @@ describe('bottomDrawer slice reducers', () => {
 	it('initial state has empty itemKeys', () => {
 		const state = bottomDrawerReducer(undefined, { type: '@@INIT' });
 		expect(state.itemKeys).toEqual([]);
+	});
+});
+
+describe('onSetDbPath', () => {
+	it('clears the active key (may embed a line id)', () => {
+		const dispatch = jest.fn();
+		onSetDbPath()(dispatch, jest.fn(), undefined as any);
+		expect(dispatch).toHaveBeenCalledWith(
+			expect.objectContaining({
+				type: 'bottomDrawer/setActiveKey',
+				payload: undefined,
+			})
+		);
+		expect(dispatch).toHaveBeenCalledTimes(1);
 	});
 });
 

@@ -8,7 +8,7 @@ import pt from './assets/i18n/pt.json';
 import { initializeFromStorage } from './connectStorage';
 import { selectInitialized } from './selectors';
 import { registerChartItemResolver } from './resolver';
-import { CHART_FULLSCREEN_UI_ITEM_KEY } from './slice';
+import { CHART_FULLSCREEN_UI_ITEM_KEY, onSetDbPath } from './slice';
 import ChartFullscreen from './uiItems/ChartFullscreen';
 // Register store listeners (new-chart ratio reset) at module scope:
 // features are imported by features/index.ts before the app renders.
@@ -22,6 +22,7 @@ registerChartItemResolver();
 export default {
 	selectInitialized,
 	initializeFromStorage,
+	onSetDbPath,
 	translation: {
 		de,
 		en,
