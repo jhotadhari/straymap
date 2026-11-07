@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { FC, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FlashList } from '@shopify/flash-list';
 import type { ListRenderItem } from '@shopify/flash-list';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, ViewStyle } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import { without } from 'lodash-es';
 import { BlurView } from '@react-native-community/blur';
@@ -107,10 +107,11 @@ const TagsTable: FC = () => {
 		return actionCol + cols;
 	}, [tableColumns]);
 
-	const flashListStyle = useMemo(
+	const flashListStyle: ViewStyle = useMemo(
 		() => ({
-			alignSelf: 'flex-start' as const,
+			alignSelf: 'flex-start',
 			minWidth: contentMinWidth,
+			height: '100%',
 		}),
 		[contentMinWidth]
 	);

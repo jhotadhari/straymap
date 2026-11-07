@@ -166,6 +166,7 @@ const LinesTable: FC = () => {
 		() => ({
 			alignSelf: 'flex-start',
 			minWidth: contentMinWidth,
+			height: '100%',
 		}),
 		[contentMinWidth]
 	);
