@@ -13,7 +13,7 @@ import React, {
 	useState,
 } from 'react';
 import { View, StyleSheet, TextStyle } from 'react-native';
-import { Text, useTheme, Button } from 'react-native-paper';
+import { Text, useTheme, Divider, Switch } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { get } from 'lodash-es';
@@ -34,9 +34,10 @@ import { startRecording, stopRecording, continueRecording } from '../slice';
 import { queryLineGeom } from '../../lines/db/queryFns';
 import { queryLastRecordedLine } from '../db/queryFns';
 import { setUiItemKeys } from '../../ui/slice';
-import { itemStyles } from '../../drawers/constants';
-import { useButtonProps } from '../../../compose/useButtonProps';
+import { itemStyles, DRAWER_HANDLE_SIZE, DRAWER_ICON_SIZE } from '../../drawers/constants';
+import { useButtonProps, useDestructiveColor } from '../../../compose/useButtonProps';
 import ButtonHighlight from '../../../components/generic/primitives/ButtonHighlight';
+import IconButtonHighlight from '../../../components/generic/primitives/IconButtonHighlight';
 import { MenuActionOption } from '../../../types';
 import ButtonHighlightMenuControl from '../../../components/generic/wrapper/ButtonHighlightMenuControl';
 import {
@@ -51,9 +52,9 @@ import {
 import { selectUnitPrefs } from '../../general/selectors';
 import ensureLocationPermission from '../../../lib/locationPermission';
 import ensureNotificationPermission from '../../../lib/notificationPermission';
-import { useDestructiveColor } from '../../../compose/useButtonProps';
 import { ErrorToastContext } from '../../../components/ErrorToast/Context';
 import RecordingLineWidthControl from '../components/controls/RecordingLineWidthControl';
+import { sharedStyles } from '../../../sharedStyles';
 
 /**
  * Dynamic handle icon: gps-not-fixed (no center dot) while GNSS is off,
@@ -94,10 +95,25 @@ export const TrackingDrawerIcon: FC<{
 };
 
 /**
- * Combined tracking panel: track recording stats/controls plus the GNSS
- * status rows and activation toggle. The GNSS values show dashes until
- * the GNSS position pipeline provides real data (no map-center
- * fallback — that would be misleading).
+ * A single label + right-aligned value row used for the GNSS telemetry
+ * and the track-recording statistics, so both groups share one visual
+ * language (muted label left, tabular value right).
+ */
+const StatRow: FC<{ label: string; value: string }> = ({ label, value }) => (
+	<View style={styles.statRow}>
+		<Text style={styles.statLabel}>{label}</Text>
+		<Text
+			style={styles.statValue}
+			numberOfLines={1}
+		>
+			{value}
+		</Text>
+	</View>
+);
+
+/**
+ * Combined tracking panel: location/GNSS status and toggles plus the
+ * track-recording stats and controls, structured as two sections.
  *
  * Rendered as scroll content (DisplayComponentScroll) — the panel has
  * enough rows that it no longer fits once the bottom drawer is open,
@@ -112,7 +128,6 @@ const TrackingDrawerContent: FC<{
 }> = () => {
 	const { t } = useTranslation();
 	const theme = useTheme();
-	const destructiveColor = useDestructiveColor();
 	const dispatch = useAppDispatch();
 
 	const { showError } = useContext(ErrorToastContext);
@@ -122,8 +137,13 @@ const TrackingDrawerContent: FC<{
 		[dispatch]
 	);
 
-	const buttonProps = useButtonProps({
-		style: itemStyles.buttonRow,
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	const { nestedIconColor: _stopNestedIconColor, ...stopButtonProps } = useButtonProps({
+		isDestructive: true,
+	});
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	const { nestedIconColor: _startNestedIconColor, ...startButtonProps } = useButtonProps({
+		isSuccess: true,
 	});
 
 	const isRecording = useAppSelector(selectIsRecording);
@@ -276,160 +296,236 @@ const TrackingDrawerContent: FC<{
 	}, [dispatch, isCenterActive]);
 
 	return (
-		<View style={styles.container}>
-			<Text style={theme.fonts.titleMedium}>{t('trackRecording.tracking')}</Text>
-
-			<ButtonHighlight
-				{...buttonProps}
-				onPress={openLocationSettings}
-			>
-				{t('drawers.openLocationSettings')}
-			</ButtonHighlight>
-
-			<View style={styles.row}>
-				<Text>{t('trackRecording.trackRecording')}:</Text>
-				<Text style={styles.value}>
-					{isRecording
-						? `${formatDurationCompact(elapsed)} · ${formatDistance(distance, distUnit)}`
-						: resumePending
-							? t('trackRecording.resuming')
-							: t('trackRecording.notRecording')}
-				</Text>
-			</View>
-
-			{isRecording && (
-				<View style={styles.row}>
-					<Text>{t('trackRecording.pointCount')}:</Text>
-					<Text style={styles.value}>{pointCount}</Text>
+		<View style={itemStyles.item}>
+			<View style={styles.container}>
+				<View style={styles.headerWrap}>
+					<View style={[itemStyles.buttonRow, styles.header]}>
+						<Text style={styles.heading}>{t('gnss.locationAndGnss')}</Text>
+						<IconButtonHighlight
+							icon="cog"
+							iconColor={theme.colors.onSurfaceVariant}
+							onPress={openLocationSettings}
+							accessibilityLabel={t('drawers.openLocationSettings')}
+						/>
+					</View>
 				</View>
-			)}
 
-			{isRecording ? (
-				<Button
-					mode="contained"
-					onPress={handleToggleRecording}
-					style={styles.button}
-					icon={'stop'}
-					buttonColor={destructiveColor}
-				>
-					{t('trackRecording.stop')}
-				</Button>
-			) : typeof lastRecordedLineId === 'number' ? (
-				<ButtonHighlightMenuControl
-					anchorLabel={t('trackRecording.start')}
-					anchorIcon={'record-rec'}
-					options={startMenuOptions}
-				/>
-			) : (
-				<Button
-					mode="contained"
-					onPress={handleToggleRecording}
-					style={styles.button}
-					icon={'record-rec'}
-				>
-					{t('trackRecording.start')}
-				</Button>
-			)}
+				{/* Location & GNSS section */}
+				<View style={sharedStyles.gap}>
+					<View style={styles.switchRow}>
+						<View style={styles.switchLabelWrap}>
+							<Text style={styles.switchLabel}>{t('gnss.gnssLocation')}</Text>
+							<Text style={styles.switchHint}>{t('gnss.hintGnssLocation')}</Text>
+						</View>
+						<Switch
+							value={isActive}
+							onValueChange={handleToggleGnss}
+						/>
+					</View>
 
-			<View style={styles.row}>
-				<Text>{t('trackRecording.lineWidth')}:</Text>
-				<RecordingLineWidthControl />
+					<View style={styles.switchRow}>
+						<View style={styles.switchLabelWrap}>
+							<Text style={styles.switchLabel}>{t('gnss.centerMapOnPosition')}</Text>
+							<Text style={styles.switchHint}>
+								{t('gnss.hintCenterMapOnPosition')}
+							</Text>
+						</View>
+						<Switch
+							value={isCenterActive}
+							onValueChange={handleToggleCenterMode}
+						/>
+					</View>
+
+					<View>
+						<StatRow
+							label={t('gnss.gnssCoordinates')}
+							value={
+								gnssPosition
+									? formatCoords(
+											gnssPosition.lat,
+											gnssPosition.lng,
+											{
+												unit: coordUnit,
+												round: coordRound,
+												coordsPadLng,
+												coordsPadLat,
+												coordsOrder,
+												coordsForceNE,
+											},
+											t
+										)
+									: '-'
+							}
+						/>
+						<StatRow
+							label={t('gnss.gnssAccuracy')}
+							value={gnssPosition ? `${gnssPosition.accuracy.toFixed(1)} m` : '-'}
+						/>
+						<StatRow
+							label={t('gnss.gnssAltitude')}
+							value={
+								gnssPosition?.altitude == null
+									? '-'
+									: formatHeightDepth(gnssPosition.altitude, heightUnit)
+							}
+						/>
+						<StatRow
+							label={t('gnss.gnssSpeed')}
+							value={speed == null ? '-' : formatSpeed(speed, speedUnit)}
+						/>
+						<StatRow
+							label={t('gnss.gnssCourse')}
+							value={gnssCourse === null ? '-' : formatBearing(gnssCourse)}
+						/>
+					</View>
+				</View>
+
+				<Divider style={styles.sectionDivider} />
+
+				{/* Track recording section */}
+				<View style={sharedStyles.gap}>
+					{isRecording ? (
+						<ButtonHighlight
+							{...stopButtonProps}
+							onPress={handleToggleRecording}
+							icon="stop"
+						>
+							{t('trackRecording.stop')}
+						</ButtonHighlight>
+					) : typeof lastRecordedLineId === 'number' ? (
+						<ButtonHighlightMenuControl
+							anchorLabel={t('trackRecording.start')}
+							anchorIcon={'record-rec'}
+							options={startMenuOptions}
+							buttonPropsProps={{ isSuccess: true }}
+						/>
+					) : (
+						<ButtonHighlight
+							{...startButtonProps}
+							onPress={handleToggleRecording}
+							icon="record-rec"
+						>
+							{t('trackRecording.start')}
+						</ButtonHighlight>
+					)}
+
+					<View>
+						{isRecording ? (
+							<>
+								<StatRow
+									label={t('trackRecording.trackingDuration')}
+									value={formatDurationCompact(elapsed)}
+								/>
+								<StatRow
+									label={t('trackRecording.trackingDistance')}
+									value={formatDistance(distance, distUnit)}
+								/>
+								<StatRow
+									label={t('trackRecording.trackingPointCount')}
+									value={String(pointCount)}
+								/>
+							</>
+						) : (
+							<Text style={styles.idleText}>
+								{resumePending
+									? t('trackRecording.resuming')
+									: t('trackRecording.notRecording')}
+							</Text>
+						)}
+					</View>
+
+					<View style={styles.lineWidthRow}>
+						<Text style={styles.statLabel}>{t('trackRecording.lineWidth')}</Text>
+						<RecordingLineWidthControl />
+					</View>
+				</View>
 			</View>
-
-			{/* Live GNSS values from the gnss slice — dashes until the
-				native listener delivers the first position. */}
-			<View style={styles.row}>
-				<Text>{t('gnss.gnssCoordinates')}:</Text>
-				<Text style={styles.value}>
-					{gnssPosition
-						? formatCoords(
-								gnssPosition.lat,
-								gnssPosition.lng,
-								{
-									unit: coordUnit,
-									round: coordRound,
-									coordsPadLng,
-									coordsPadLat,
-									coordsOrder,
-									coordsForceNE,
-								},
-								t
-							)
-						: '-'}
-				</Text>
-			</View>
-
-			<View style={styles.row}>
-				<Text>{t('gnss.gnssAccuracy')}:</Text>
-				<Text style={styles.value}>
-					{gnssPosition ? `${gnssPosition.accuracy.toFixed(1)} m` : '-'}
-				</Text>
-			</View>
-
-			<View style={styles.row}>
-				<Text>{t('gnss.gnssAltitude')}:</Text>
-				<Text style={styles.value}>
-					{gnssPosition?.altitude == null
-						? '-'
-						: formatHeightDepth(gnssPosition.altitude, heightUnit)}
-				</Text>
-			</View>
-
-			<View style={styles.row}>
-				<Text>{t('gnss.gnssSpeed')}:</Text>
-				<Text style={styles.value}>
-					{speed == null ? '-' : formatSpeed(speed, speedUnit)}
-				</Text>
-			</View>
-
-			<View style={styles.row}>
-				<Text>{t('gnss.gnssCourse')}:</Text>
-				<Text style={styles.value}>
-					{gnssCourse === null ? '-' : formatBearing(gnssCourse)}
-				</Text>
-			</View>
-
-			<Button
-				mode={isActive ? 'outlined' : 'contained'}
-				onPress={handleToggleGnss}
-				style={styles.button}
-			>
-				{isActive ? t('gnss.deactivateGnss') : t('gnss.activateGnss')}
-			</Button>
-
-			<Button
-				mode={isCenterActive ? 'outlined' : 'contained'}
-				onPress={handleToggleCenterMode}
-				style={styles.button}
-				icon={'crosshairs-gps'}
-			>
-				{isCenterActive ? t('gnss.deactivateCenterMode') : t('gnss.activateCenterMode')}
-			</Button>
 		</View>
 	);
 };
 
 const styles = StyleSheet.create({
 	container: {
-		padding: 16,
+		// // No top padding — the header row carries the buttonRow vertical
+		// // margin, so it lands exactly where the other panels' first rows
+		// // do (aligned with the drawer handle).
+		paddingTop: 0,
+		paddingBottom: 16,
+		paddingHorizontal: 16,
 	},
-	row: {
+	headerWrap: {
+		// Same negative offset the lines/routing DrawerTopBar uses — paired
+		// with buttonRow's marginTop it puts the first row at the content
+		// origin, exactly overlapping the 50dp handle box.
+		top: -(DRAWER_HANDLE_SIZE - DRAWER_ICON_SIZE) / 6,
+	},
+	header: {
 		flexDirection: 'row',
 		alignItems: 'center',
-		marginBottom: 12,
+		justifyContent: 'space-between',
+		// Fixed handle-height row: centers the heading/cog on the same
+		// vertical center as the drawer handle icon.
+		height: DRAWER_HANDLE_SIZE,
+		// buttonRow adds marginHorizontal 16 for padding-less panels; the
+		// container here already has its own 16px padding.
+		marginHorizontal: 0,
+		marginRight: -12,
 	},
-	value: {
+	heading: {
+		fontSize: 20,
 		fontWeight: 'bold',
-		marginLeft: 4,
 	},
-	button: {
-		marginTop: 8,
+	sectionDivider: {
+		// Full-bleed: extends through the container's 16px padding so the
+		// line spans the entire drawer width, visibly splitting the two
+		// sections like a grouped list.
+		marginHorizontal: -16,
+		marginVertical: 24,
+	},
+	switchRow: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		gap: 12,
+	},
+	switchLabelWrap: {
+		flex: 1,
+		gap: 2,
+	},
+	switchLabel: {
+		fontWeight: '600',
+	},
+	switchHint: {
+		fontSize: 12,
+		opacity: 0.6,
+	},
+	statRow: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		gap: 12,
+	},
+	statLabel: {
+		opacity: 0.6,
+	},
+	statValue: {
+		// Always occupy the remaining row width so every value — short or
+		// long — is flush against the same right edge.
+		flex: 1,
+		textAlign: 'right',
+	},
+	idleText: {
+		opacity: 0.6,
+	},
+	lineWidthRow: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		justifyContent: 'space-between',
+		gap: 12,
 	},
 });
 
 export default {
 	key: 'tracking',
-	label: 'trackRecording.tracking',
+	label: 'gnss.locationAndGnss',
 	DisplayComponentScroll: TrackingDrawerContent,
 	IconComponent: TrackingDrawerIcon,
 } as DrawerPanel;

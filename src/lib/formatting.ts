@@ -208,7 +208,13 @@ export const formatCoords = (
 		decimalPlaces: Math.min(unitPref.round ?? 4, 99),
 	});
 
-	const coordsStrParts = coordsStr.split(/([NSEW])/).map((str) => str.trim());
+	const coordsStrParts = coordsStr
+		.split(/([NSEW])/)
+		.map((str) => str.trim())
+		// The capture group in the split regex always produces a trailing
+		// empty string ("52.5N 13.4E" → [..., "E", ""]) — drop it so the
+		// default join doesn't append a trailing space.
+		.filter((str) => '' !== str);
 
 	if (coordsForceNE) {
 		if ('S' === coordsStrParts[1]) {

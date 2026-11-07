@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { FC, useCallback, useMemo, useRef, useState } from 'react';
-import { View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import Popover from 'react-native-popover-view';
@@ -61,6 +61,7 @@ const RecordingLineWidthControl: FC = () => {
 				<ButtonHighlight
 					{...buttonProps}
 					compact
+					style={[buttonProps.style, styles.button]}
 					onPress={() => setVisible(true)}
 				>
 					{String(lineWidth)}
@@ -91,5 +92,12 @@ const animationConfig = {
 	duration: 0,
 };
 const arrowSize = { height: 0, width: 0 };
+
+const styles = StyleSheet.create({
+	button: {
+		minWidth: 76,
+		justifyContent: 'center',
+	},
+});
 
 export default RecordingLineWidthControl;
