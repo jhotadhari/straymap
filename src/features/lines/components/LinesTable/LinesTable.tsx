@@ -5,7 +5,14 @@ import { useQuery } from '@tanstack/react-query';
 import { FlashList } from '@shopify/flash-list';
 import type { ListRenderItem } from '@shopify/flash-list';
 import { FC, memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { BackHandler, StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
+import {
+	BackHandler,
+	LayoutChangeEvent,
+	StyleProp,
+	StyleSheet,
+	View,
+	ViewStyle,
+} from 'react-native';
 import { useTheme } from 'react-native-paper';
 import { uniq, without } from 'lodash-es';
 import { BlurView } from '@react-native-community/blur';
@@ -162,14 +169,21 @@ const LinesTable: FC = () => {
 		return actionCol + cols;
 	}, [tableColumns]);
 
+	const [listHeight, setListHeight] = useState<number | undefined>(undefined);
+
 	const flashListStyle: ViewStyle = useMemo(
 		() => ({
 			alignSelf: 'flex-start',
 			minWidth: contentMinWidth,
-			height: '100%',
+			height: listHeight ?? '100%',
 		}),
-		[contentMinWidth]
+		[contentMinWidth, listHeight]
 	);
+
+	const handleHostLayout = useCallback((e: LayoutChangeEvent) => {
+		const { height } = e.nativeEvent.layout;
+		setListHeight((prev) => (prev === height ? prev : height));
+	}, []);
 
 	const [checkedIds, setCheckedIds] = useState<number[]>([]);
 
@@ -353,7 +367,10 @@ const LinesTable: FC = () => {
 						</BlurView>
 					)}
 					<ErrorBoundary fallback={(reset) => <TableErrorFallback onRetry={reset} />}>
-						<BidirectionalScrollHost style={styles.flexOne}>
+						<BidirectionalScrollHost
+							style={styles.flexOne}
+							onLayout={handleHostLayout}
+						>
 							<FlashList
 								stickyHeaderIndices={STICKY_HEADER_INDICES}
 								scrollEnabled={false}

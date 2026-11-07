@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { FC, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FlashList } from '@shopify/flash-list';
 import type { ListRenderItem } from '@shopify/flash-list';
-import { StyleSheet, View, ViewStyle } from 'react-native';
+import { LayoutChangeEvent, StyleSheet, View, ViewStyle } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import { without } from 'lodash-es';
 import { BlurView } from '@react-native-community/blur';
@@ -107,14 +107,21 @@ const TagsTable: FC = () => {
 		return actionCol + cols;
 	}, [tableColumns]);
 
+	const [listHeight, setListHeight] = useState<number | undefined>(undefined);
+
 	const flashListStyle: ViewStyle = useMemo(
 		() => ({
 			alignSelf: 'flex-start',
 			minWidth: contentMinWidth,
-			height: '100%',
+			height: listHeight ?? '100%',
 		}),
-		[contentMinWidth]
+		[contentMinWidth, listHeight]
 	);
+
+	const handleHostLayout = useCallback((e: LayoutChangeEvent) => {
+		const { height } = e.nativeEvent.layout;
+		setListHeight((prev) => (prev === height ? prev : height));
+	}, []);
 
 	const [checkedIds, setCheckedIds] = useState<number[]>([]);
 	const [addModalVisible, setAddModalVisible] = useState(false);
@@ -253,7 +260,10 @@ const TagsTable: FC = () => {
 						</BlurView>
 					)}
 					<ErrorBoundary fallback={(reset) => <TableErrorFallback onRetry={reset} />}>
-						<BidirectionalScrollHost style={styles.flexOne}>
+						<BidirectionalScrollHost
+							style={styles.flexOne}
+							onLayout={handleHostLayout}
+						>
 							<FlashList
 								stickyHeaderIndices={STICKY_HEADER_INDICES}
 								scrollEnabled={false}
