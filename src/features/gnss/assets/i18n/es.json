@@ -5,7 +5,6 @@
 	"gnssAltitude": "Altitud",
 	"gnssSpeed": "Velocidad",
 	"gnssCourse": "Rumbo",
-	"compassBearing": "Rumbo de brújula",
 	"gnssCompass": "Brújula",
 	"locationAndGnss": "Ubicación y GNSS",
 	"gnssLocation": "Ubicación GNSS",

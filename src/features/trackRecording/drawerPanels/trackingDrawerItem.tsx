@@ -34,7 +34,6 @@ import { startRecording, stopRecording, continueRecording } from '../slice';
 import { queryLineGeom } from '../../lines/db/queryFns';
 import { queryLastRecordedLine, queryTrackByLineId, queryTrackPointsStats } from '../db/queryFns';
 import { getTrackSummary } from '../db/actionsTrack';
-import { useDeviceAzimuth } from '../../gnss/deviceAzimuthStore';
 import { setUiItemKeys } from '../../ui/slice';
 import { itemStyles, DRAWER_HANDLE_SIZE, DRAWER_ICON_SIZE } from '../../drawers/constants';
 import { useButtonProps, useDestructiveColor } from '../../../compose/useButtonProps';
@@ -226,7 +225,6 @@ const TrackingDrawerContent: FC<{
 	const gnssPosition = useAppSelector(selectGnssPosition);
 	const gnssCourse = useGnssCourse();
 	const speed = useGnssSpeed();
-	const deviceAzimuth = useDeviceAzimuth();
 	const activeLineId = useAppSelector(selectActiveLineId);
 	const recordingStartTime = useAppSelector(selectRecordingStartTime);
 	const unitPrefs = useAppSelector(selectUnitPrefs);
@@ -554,10 +552,6 @@ const TrackingDrawerContent: FC<{
 						<StatRow
 							label={t('gnss.gnssCourse')}
 							value={gnssCourse === null ? '-' : formatBearing(gnssCourse)}
-						/>
-						<StatRow
-							label={t('gnss.compassBearing')}
-							value={deviceAzimuth == null ? '-' : formatBearing(deviceAzimuth)}
 						/>
 					</View>
 				</View>

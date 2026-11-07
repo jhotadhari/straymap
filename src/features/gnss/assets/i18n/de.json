@@ -5,7 +5,6 @@
 	"gnssAltitude": "Höhe",
 	"gnssSpeed": "Geschwindigkeit",
 	"gnssCourse": "Kurs",
-	"compassBearing": "Kompasspeilung",
 	"gnssCompass": "Kompass",
 	"locationAndGnss": "Standort & GNSS",
 	"gnssLocation": "GNSS-Standort",

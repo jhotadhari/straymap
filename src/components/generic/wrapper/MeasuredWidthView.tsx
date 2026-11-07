@@ -22,9 +22,15 @@ const MeasuredWidthView: FC<{ children?: ReactNode; style?: StyleProp<ViewStyle>
 
 	// Functional update — the callback identity stays stable across
 	// widens, so the View doesn't re-register its layout listener.
+	// RN can deliver onLayout with a null nativeEvent during view
+	// teardown (modal close / list churn) — guard before reading.
 	const onLayout = useCallback((event: LayoutChangeEvent) => {
+		const layout = event?.nativeEvent?.layout;
+		if (!layout) {
+			return;
+		}
 		setMeasuredMaxWidth((prev) => {
-			const width = event.nativeEvent.layout.width;
+			const width = layout.width;
 			return width > prev ? width : prev;
 		});
 	}, []);
