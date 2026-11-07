@@ -12,6 +12,7 @@ import { useGnssCourse } from '../../hooks/useGnssCourse';
 import { DashboardWidgetProps } from '../../../dashboard/types';
 import useItemStyle from '../../../dashboard/hooks/useItemStyle';
 import ElementFrame from '../../../dashboard/components/ElementFrame';
+import MeasuredWidthView from '../../../../components/generic/wrapper/MeasuredWidthView';
 
 export interface Options {
 	showNumber?: boolean;
@@ -41,7 +42,9 @@ const Display: FC<DashboardWidgetProps<Options>> = ({ item, style = {}, onPress 
 			iconRotation={course ?? undefined}
 		>
 			{showNumber && (
-				<Text style={textStyle}>{course == null ? '-' : formatBearing(course)}</Text>
+				<MeasuredWidthView>
+					<Text style={textStyle}>{course == null ? '-' : formatBearing(course)}</Text>
+				</MeasuredWidthView>
 			)}
 		</ElementFrame>
 	);

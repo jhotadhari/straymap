@@ -17,6 +17,7 @@ import { UnitPref } from '../../../general/types';
 import useItemStyle from '../../hooks/useItemStyle';
 import { useMapEventInterval } from '../../hooks/useMapEventInterval';
 import ElementFrame from '../../components/ElementFrame';
+import MeasuredWidthView from '../../../../components/generic/wrapper/MeasuredWidthView';
 
 export interface Options {
 	unitPref?: Partial<UnitPref>;
@@ -61,21 +62,23 @@ const Display: FC<DashboardWidgetProps<Options>> = ({ item, style = {}, onPress 
 			onPress={onPress}
 		>
 			{undefined !== centerLng && undefined !== centerLat && (
-				<Text style={textStyle}>
-					{formatCoords(
-						centerLat,
-						centerLng,
-						{
-							unit,
-							round,
-							coordsPadLng,
-							coordsPadLat,
-							coordsOrder,
-							coordsForceNE,
-						},
-						t
-					)}
-				</Text>
+				<MeasuredWidthView>
+					<Text style={textStyle}>
+						{formatCoords(
+							centerLat,
+							centerLng,
+							{
+								unit,
+								round,
+								coordsPadLng,
+								coordsPadLat,
+								coordsOrder,
+								coordsForceNE,
+							},
+							t
+						)}
+					</Text>
+				</MeasuredWidthView>
 			)}
 		</ElementFrame>
 	);

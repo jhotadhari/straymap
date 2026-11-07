@@ -11,6 +11,7 @@ import { useDeviceAzimuth } from '../../deviceAzimuthStore';
 import { DashboardWidgetProps } from '../../../dashboard/types';
 import useItemStyle from '../../../dashboard/hooks/useItemStyle';
 import ElementFrame from '../../../dashboard/components/ElementFrame';
+import MeasuredWidthView from '../../../../components/generic/wrapper/MeasuredWidthView';
 
 export interface Options {
 	showNumber?: boolean;
@@ -40,7 +41,11 @@ const Display: FC<DashboardWidgetProps<Options>> = ({ item, style = {}, onPress 
 			iconRotation={deviceAzimuth ?? undefined}
 		>
 			{showNumber && (
-				<Text style={textStyle}>{deviceAzimuth == null ? '-' : `${deviceAzimuth}°`}</Text>
+				<MeasuredWidthView>
+					<Text style={textStyle}>
+						{deviceAzimuth == null ? '-' : `${deviceAzimuth}°`}
+					</Text>
+				</MeasuredWidthView>
 			)}
 		</ElementFrame>
 	);

@@ -12,6 +12,7 @@ import { selectGnssPosition } from '../../selectors';
 import { DashboardWidgetProps } from '../../../dashboard/types';
 import useItemStyle from '../../../dashboard/hooks/useItemStyle';
 import ElementFrame from '../../../dashboard/components/ElementFrame';
+import MeasuredWidthView from '../../../../components/generic/wrapper/MeasuredWidthView';
 
 export interface Options {}
 
@@ -33,9 +34,11 @@ const Display: FC<DashboardWidgetProps<Options>> = ({ item, style = {}, onPress 
 			textAlign={textAlign}
 			onPress={onPress}
 		>
-			<Text style={textStyle}>
-				{gnssPosition ? `${gnssPosition.accuracy.toFixed(1)} m` : '-'}
-			</Text>
+			<MeasuredWidthView>
+				<Text style={textStyle}>
+					{gnssPosition ? `${gnssPosition.accuracy.toFixed(1)} m` : '-'}
+				</Text>
+			</MeasuredWidthView>
 		</ElementFrame>
 	);
 };

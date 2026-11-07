@@ -16,6 +16,7 @@ import { DashboardWidgetProps } from '../../../dashboard/types';
 import { UnitPref } from '../../../general/types';
 import useItemStyle from '../../../dashboard/hooks/useItemStyle';
 import ElementFrame from '../../../dashboard/components/ElementFrame';
+import MeasuredWidthView from '../../../../components/generic/wrapper/MeasuredWidthView';
 
 export interface Options {
 	unitPref?: Partial<UnitPref>;
@@ -49,11 +50,13 @@ const Display: FC<DashboardWidgetProps<Options>> = ({ item, style = {}, onPress 
 			textAlign={textAlign}
 			onPress={onPress}
 		>
-			<Text style={textStyle}>
-				{gnssPosition?.altitude == null
-					? '-'
-					: formatHeightDepth(gnssPosition.altitude, unitPref)}
-			</Text>
+			<MeasuredWidthView>
+				<Text style={textStyle}>
+					{gnssPosition?.altitude == null
+						? '-'
+						: formatHeightDepth(gnssPosition.altitude, unitPref)}
+				</Text>
+			</MeasuredWidthView>
 		</ElementFrame>
 	);
 };
