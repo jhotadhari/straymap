@@ -69,13 +69,8 @@ import { isMapPressOverDrawerUi } from './mapPressExclusions';
 import LayerDebugDumpButton from './LayerDebugDumpButton';
 import SceneBusyBridge from './SceneBusyBridge';
 import MapCornerComponents from './MapCornerComponents';
-import { useGnssSetup } from '../features/trackRecording/hooks/useGnssSetup';
-import {
-	selectIsRecording,
-	selectResumePromptPending,
-	selectUseDemAltitude,
-} from '../features/trackRecording/selectors';
-import { pauseRecordingForPrompt } from '../features/trackRecording/slice';
+import { initGnssModuleController, setSurfacePresent } from '../features/gnss/gnssModuleController';
+import { selectIsRecording, selectUseDemAltitude } from '../features/trackRecording/selectors';
 import {
 	selectIsActive as selectGnssIsActive,
 	selectMarkerDirection,
@@ -104,7 +99,6 @@ const AppView = ({
 	const showSplash = useShowInitialSplash();
 
 	const dispatch = useAppDispatch();
-	const { gnssFilter, handleGnssLive, handleGnssPosition } = useGnssSetup();
 
 	const hardwareKeys = useAppSelector(selectHardwareKeys);
 
@@ -114,7 +108,6 @@ const AppView = ({
 	const dashboardWidgets = useAppSelector(selectElementsSettings);
 	const isRecording = useAppSelector(selectIsRecording);
 	const useDemAltitude = useAppSelector(selectUseDemAltitude);
-	const resumePromptPending = useAppSelector(selectResumePromptPending);
 	const isRouting = useAppSelector(selectIsRouting);
 
 	const gnssIsActive = useAppSelector(selectGnssIsActive);
@@ -161,17 +154,17 @@ const AppView = ({
 		};
 	}, [mapViewNativeNodeHandle]);
 
-	// Warm surface recreation (swipe-close with the foreground service
-	// keeping the JS process alive): Redux still says isRecording, but
-	// the map + GNSS pipeline died with the old surface. Pause the stale
-	// recording state and ask via the resume prompt. Runs once per
-	// surface mount — on a cold process start isRecording is still false
-	// at this point (the restore path arms the prompt itself).
+	// GNSS is application-scoped (GnssModule) — the surface only flips
+	// the controller's presence flag. A recording keeps GNSS alive
+	// while the surface is gone (accidental swipe / background
+	// recording); plain GNSS-on stops with the surface (battery).
+	// Runs once per surface mount.
 	useEffect(() => {
-		if (isRecording && !resumePromptPending) {
-			dispatch(pauseRecordingForPrompt());
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
+		initGnssModuleController();
+		setSurfacePresent(true);
+		return () => {
+			setSurfacePresent(false);
+		};
 	}, []);
 
 	const { currentMapEventRef, centerPositionSvRef, mapPositionSvRef } = useContext(MapContext);
@@ -361,10 +354,10 @@ const AppView = ({
 				firstMapUpdateRef.current = true;
 				dispatch(removeBusyKey('map:init'));
 			}
-			// Track recording positions flow through the native recording
-			// stream on MapContainer — onGnssPosition dispatches
-			// writeGnssPosition (the live onGnssLive stream only feeds
-			// the gnss slice's position).
+			// Track recording positions flow through the application-scoped
+			// GnssModule's device events — the controller dispatches
+			// writeGnssPosition (the live stream only feeds the gnss
+			// slice's position). See gnss/gnssModuleController.ts.
 		},
 		[
 			currentMapEventRef,
@@ -545,9 +538,6 @@ const AppView = ({
 							onMapUpdate={handleMapEvent}
 							onTap={handleMapTap}
 							onLongPress={handleMapLongPress}
-							gnssFilter={gnssFilter}
-							onGnssLive={handleGnssLive}
-							onGnssPosition={handleGnssPosition}
 							compassEnabled={compassEnabled}
 							onDeviceAzimuth={handleDeviceAzimuth}
 						>

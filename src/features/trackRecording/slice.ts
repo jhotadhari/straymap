@@ -405,23 +405,6 @@ export const stopRecording = (): AppThunk => async (dispatch, getState) => {
 };
 
 /**
- * Pause the active recording state and show the resume prompt — used
- * when the app's surface was destroyed while recording (swipe-close
- * with the foreground service keeping the process alive): Redux still
- * says isRecording but the map + GNSS pipeline died with the surface.
- * Keeps activeLineId/activeTrackId/recordingStartTime so the prompt's
- * Continue path (confirmRecordingResume) can resume the same line.
- */
-export const pauseRecordingForPrompt = (): AppThunk => async (dispatch) => {
-	dispatch(setIsRecordingAction(false));
-	dispatch(setResumePromptPending(true));
-
-	// Remove the stale "Recording track" notification — nothing is
-	// recording until the user continues (resume re-registers it).
-	await stopRecordingTask();
-};
-
-/**
  * Called when the database path changes (dbLoader `setDbPath` thunk
  * dispatches every feature's `onSetDbPath` hook). Clears all DB-local
  * state: the ids referenced rows in the OLD database and would point

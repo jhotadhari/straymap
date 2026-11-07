@@ -33,7 +33,9 @@ import {
 	stopRecording,
 	writeGnssPosition,
 } from './slice';
-// GNSS positions come from the native gnssFilter on MapContainer.
+// GNSS positions come from the native GnssModule (application-scoped)
+// as device events — the controller in gnss/gnssModuleController.ts
+// forwards them to this listener and the gnss slice.
 // The listener below watches writeGnssPosition to append points to the active line.
 import { startAppListening } from '../../store/listenerMiddleware';
 import { selectInitialized } from './selectors';
