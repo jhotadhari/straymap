@@ -3,7 +3,7 @@
  */
 import { sql } from 'drizzle-orm/sql';
 import { relations } from 'drizzle-orm';
-import { AnySQLiteColumn, integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import { AnySQLiteColumn, index, integer, real, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 
 /**
  * Internal dependencies
@@ -77,6 +77,40 @@ export const tagsToLinesTableRelations = relations(tagsToLinesTable, ({ one }) =
 	}),
 	line: one(linesTable, {
 		fields: [tagsToLinesTable.line_id],
+		references: [linesTable.id],
+	}),
+}));
+
+/**
+ * Per-point time metadata for imported lines, aligned to the line's
+ * geometry by `point_index` (0-based, matching
+ * `lines.geometry.coordinates[i]`).  Mirrors trackRecording's
+ * `track_points` (minus the `tracks` coupling) so imported GPX tracks
+ * can surface time-based stats (duration, moving time, speed) with the
+ * same window-function aggregation.
+ *
+ * `speed` is the derived segment speed (m/s) since the previous stored
+ * point, computed at import time.  `data` is reserved for future
+ * per-point extras (heart rate, cadence, ...).
+ */
+export const linePointsTable = sqliteTable(
+	'line_points',
+	{
+		id: integer('id').primaryKey({ autoIncrement: true }),
+		line_id: integer('line_id')
+			.notNull()
+			.references((): AnySQLiteColumn => linesTable.id, { onDelete: 'cascade' }),
+		point_index: integer('point_index').notNull(),
+		timestamp: integer('timestamp').notNull(),
+		speed: real('speed'),
+		data: text('data', { mode: 'json' }).$type<any>(),
+	},
+	(table) => [index('line_points_line_id_idx').on(table.line_id)]
+);
+
+export const linePointsRelations = relations(linePointsTable, ({ one }) => ({
+	line: one(linesTable, {
+		fields: [linePointsTable.line_id],
 		references: [linesTable.id],
 	}),
 }));

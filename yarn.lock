@@ -6044,7 +6044,7 @@ fast-stringify@^4.0.0:
   resolved "https://registry.yarnpkg.com/fast-stringify/-/fast-stringify-4.0.1.tgz#c12cb02eebe43e56157c708884014e6c6b25bf80"
   integrity sha512-Cpr1Vsu/L/PyXL24thmEnAWauHhXzvBdbRzoD3YmxhDBTXLtYpo49Cpn6w+darUXz6g8qsPNLnVYOWkOq6QIng==
 
-fast-xml-parser@^4.4.1:
+fast-xml-parser@^4.4.1, fast-xml-parser@^4.5.7:
   version "4.5.7"
   resolved "https://registry.yarnpkg.com/fast-xml-parser/-/fast-xml-parser-4.5.7.tgz#ba3479a1eca8abf2cc3e54af254fae6f1f115021"
   integrity sha512-a6Qh1RMCNbSrU1+sAyAAZH3rTe+OaWJbNZIq0S+ifZciUUOQtlVxBJwoTUE2bYhysmG/RYyI5WJFIKdBahJdrQ==
@@ -8635,10 +8635,8 @@ react-native-mapsforge-vtm-ext-path-color-ramp@^0.3.0:
   dependencies:
     react-native-worklets "^0.10.1"
 
-react-native-mapsforge-vtm@^0.10.0:
+"react-native-mapsforge-vtm@file:.yalc/react-native-mapsforge-vtm":
   version "0.10.0"
-  resolved "https://registry.yarnpkg.com/react-native-mapsforge-vtm/-/react-native-mapsforge-vtm-0.10.0.tgz#e1bea046f5370dd3edd88876bf67b93736e86cd2"
-  integrity sha512-q8VuNaFFXQwM25zCTCnQ6WDQwhGUO0zF56QEVf163u9aBFROM9SMZ1OMyp9UkXGghgb+yGZwfibOTfChu8GYHA==
   dependencies:
     lodash-es "^4.17.21"
 

@@ -85,6 +85,8 @@
 	"statsForLines": "Estadísticas para %s rutas",
 	"statsRecording": "Estadísticas de grabación",
 	"statsRecordingPartial": "Estadísticas de grabación para %s de %s rutas",
+	"statsTime": "Tiempo de recorrido",
+	"statsTimePartial": "Tiempo de recorrido para %s de %s rutas",
 	"hideStats": "Ocultar",
 	"showStats": "Mostrar estadísticas",
 	"hintNumericFilter": "Filtrar rutas por valores mínimos y/o máximos para esta columna. Deja un campo vacío para omitir ese lado del rango.",

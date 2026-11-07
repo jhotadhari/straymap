@@ -27,6 +27,8 @@ export interface ImportContextValue {
 	setImportMode: Dispatch<SetStateAction<ImportMode>>;
 	features: Feature<LineString, GeoJsonProperties>[];
 	setFeatures: Dispatch<SetStateAction<Feature<LineString, GeoJsonProperties>[]>>;
+	featureTimes: (number[] | null)[];
+	setFeatureTimes: Dispatch<SetStateAction<(number[] | null)[]>>;
 	filename: string;
 	setFilename: Dispatch<SetStateAction<string>>;
 	sourceFilePath: string;
@@ -41,6 +43,8 @@ export interface ImportContextValue {
 	setBulkProgress: Dispatch<SetStateAction<{ current: number; total: number }>>;
 	importResults: ImportFileResult[];
 	setImportResults: Dispatch<SetStateAction<ImportFileResult[]>>;
+	importAborted: boolean;
+	setImportAborted: Dispatch<SetStateAction<boolean>>;
 	selectionCount: number;
 	importDirs: AbsPath[];
 	handlePickFile: () => Promise<void>;

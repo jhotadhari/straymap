@@ -16,7 +16,12 @@ import { logError } from '../../../lib/utils';
 import { classifyRegex } from '../../../lib/regexUtils';
 import useBackgroundTask from '../../../hooks/useBackgroundTask';
 import { detectImportFormat, parseImportContent } from '../../lines/utils/importParser';
-import { createLines, updateLine } from '../../lines/db/actionsLine';
+import { createLines, updateLine, updateLinesBatch } from '../../lines/db/actionsLine';
+import {
+	createLinePoints,
+	replaceLinePoints,
+	LinePointInput,
+} from '../../lines/db/actionsLinePoints';
 import { dbConnection } from '../../dbLoader/DBConnection';
 import { linesTable, tagsTable } from '../../lines/db/schema/schema';
 import { sql, inArray } from 'drizzle-orm';
@@ -43,12 +48,13 @@ import {
 	selectKeepAppActive,
 	selectSelectedTagIds,
 } from '../selectors';
-import { extractDateWithPattern } from '../utils';
+import { extractDateWithPattern, buildLinePoints, firstTimeIso } from '../utils';
 
 const useImportMutation = () => {
 	const {
 		importMode,
 		features,
+		featureTimes,
 		filename,
 		sourceFilePath,
 		selectedIndices,
@@ -59,6 +65,7 @@ const useImportMutation = () => {
 		setStep,
 		setBulkProgress,
 		setImportResults,
+		setImportAborted,
 		handleCloseImporter,
 	} = useImportContext();
 
@@ -83,6 +90,18 @@ const useImportMutation = () => {
 	const importResultsRef = useRef<ImportFileResult[]>([]);
 	const isImporting = useRef(false);
 	const importBatchId = useRef(Date.now().toString(36));
+
+	/**
+	 * Batch-local cache for tag lookups (label and id namespaces).
+	 * Directory imports resolve the same labels (e.g. 'imported' plus
+	 * regex matches) for every file — without a cache each file would
+	 * re-query the tags table.  Reset at the start of every mutation
+	 * run so the cache never outlives the batch it was built for.
+	 */
+	const tagCacheRef = useRef<{
+		byLabel: Map<string, { id?: number; label: string | null; data?: any }>;
+		byId: Map<number, { id?: number; label: string | null; data?: any }>;
+	}>({ byLabel: new Map(), byId: new Map() });
 
 	const extractTagInfo = useCallback(
 		(name: string): { labels: string[]; existingIds: number[] } => {
@@ -132,39 +151,68 @@ const useImportMutation = () => {
 
 		if (!dbConnection?.drizzle) return results;
 
-		if (labels.length > 0) {
-			const labelRows = await dbConnection.drizzle
-				.select({
-					id: tagsTable.id,
-					label: tagsTable.label,
-					data: tagsTable.data,
-				})
-				.from(tagsTable)
-				.where(inArray(tagsTable.label, labels as string[]));
-			results.push(...labelRows);
+		const { byLabel, byId } = tagCacheRef.current;
 
-			const foundLabels = new Set(labelRows.map((t) => t.label));
-			for (const label of labels) {
-				if (foundLabels.has(label)) continue;
-				if (!isDryRun) {
-					const id = await ensureTagByLabel(label);
-					if (id) results.push({ id, label, data: undefined });
-				} else {
-					results.push({ label, data: undefined });
+		if (labels.length > 0) {
+			// Resolve only labels not seen before in this batch — one
+			// WHERE label IN (...) query for all of them at once.
+			const uncachedLabels = [...new Set(labels)].filter((l) => !byLabel.has(l));
+			if (uncachedLabels.length > 0) {
+				const labelRows = await dbConnection.drizzle
+					.select({
+						id: tagsTable.id,
+						label: tagsTable.label,
+						data: tagsTable.data,
+					})
+					.from(tagsTable)
+					.where(inArray(tagsTable.label, uncachedLabels as string[]));
+				for (const row of labelRows) {
+					if (row.label != null) {
+						byLabel.set(row.label, { id: row.id, label: row.label, data: row.data });
+					}
 				}
+				// Labels not in the DB: create them once per batch
+				// (real import) or cache the label-only object (dry run).
+				for (const label of uncachedLabels) {
+					if (byLabel.has(label)) continue;
+					if (!isDryRun) {
+						const id = await ensureTagByLabel(label);
+						byLabel.set(label, id ? { id, label, data: undefined } : { label });
+					} else {
+						byLabel.set(label, { label });
+					}
+				}
+			}
+			for (const label of labels) {
+				const entry = byLabel.get(label);
+				if (entry) results.push(entry);
 			}
 		}
 
 		if (existingIds.length > 0) {
-			const idRows = await dbConnection.drizzle
-				.select({
-					id: tagsTable.id,
-					label: tagsTable.label,
-					data: tagsTable.data,
-				})
-				.from(tagsTable)
-				.where(inArray(tagsTable.id, existingIds));
-			results.push(...idRows);
+			const uncachedIds = existingIds.filter((id) => !byId.has(id));
+			if (uncachedIds.length > 0) {
+				const idRows = await dbConnection.drizzle
+					.select({
+						id: tagsTable.id,
+						label: tagsTable.label,
+						data: tagsTable.data,
+					})
+					.from(tagsTable)
+					.where(inArray(tagsTable.id, uncachedIds));
+				for (const row of idRows) {
+					byId.set(row.id, { id: row.id, label: row.label, data: row.data });
+				}
+				// Mark unresolvable ids so later files skip the lookup;
+				// they are not pushed into results (no id, no label).
+				for (const id of uncachedIds) {
+					if (!byId.has(id)) byId.set(id, { label: null });
+				}
+			}
+			for (const id of existingIds) {
+				const entry = byId.get(id);
+				if (entry && entry.id !== undefined) results.push(entry);
+			}
 		}
 
 		const seen = new Set<string>();
@@ -250,6 +298,7 @@ const useImportMutation = () => {
 		if (isImporting.current) return;
 		isImporting.current = true;
 		importResultsRef.current = [];
+		tagCacheRef.current = { byLabel: new Map(), byId: new Map() };
 		if (importMode === 'directory') {
 			const uris = Array.from(selectedFileUris);
 			const limitedUris = fileLimit > 0 ? uris.slice(0, fileLimit) : uris;
@@ -257,8 +306,52 @@ const useImportMutation = () => {
 
 			if (keepAppActive) await bgTask.start(limitedUris.length);
 
+			// Pre-fetch existing lines for all selected URIs in ONE
+			// query instead of one full scan per file (skip/overwrite
+			// modes and the dry-run skip simulation).  The expression
+			// index on json_extract(data, '$.import.sourceFilePath')
+			// (migration 0003) makes this an index lookup.
+			const needExisting =
+				overwriteMode !== 'create' && (!dryRun || overwriteMode === 'skip');
+			let existingByUri = new Map<string, { id: number; trackIndex: number | null }[]>();
+			if (needExisting && limitedUris.length > 0 && dbConnection?.drizzle) {
+				try {
+					const rows = await dbConnection.drizzle
+						.select({ id: linesTable.id, data: linesTable.data })
+						.from(linesTable)
+						.where(sql`
+							json_extract(
+								${linesTable.data},
+								'$.import.sourceFilePath'
+							) IN ${limitedUris}
+						`);
+					for (const row of rows) {
+						const sourcePath = row.data?.import?.sourceFilePath;
+						if (typeof sourcePath !== 'string') continue;
+						const index = row.data?.import?.trackIndexInFile;
+						const entry = {
+							id: row.id,
+							trackIndex: typeof index === 'number' ? index : null,
+						};
+						const arr = existingByUri.get(sourcePath);
+						if (arr) arr.push(entry);
+						else existingByUri.set(sourcePath, [entry]);
+					}
+				} catch (err) {
+					logError('import.preFetchExistingByUri', err);
+					existingByUri = new Map();
+				}
+			}
+
+			// Read-ahead: overlap the next file's native read with the
+			// current file's JS-side parse/write.
+			let pendingRead: Promise<string> | null = null;
 			for (let i = 0; i < limitedUris.length; i++) {
 				if (dismissedRef.current || stopRequestedRef.current) {
+					// Persist partial results before aborting so the
+					// onError handler can show them on the result page.
+					setImportResults(results);
+					importResultsRef.current = results;
 					throw { __aborted: true };
 				}
 				setBulkProgress({ current: i + 1, total: limitedUris.length });
@@ -267,7 +360,13 @@ const useImportMutation = () => {
 					dirFiles.find((f) => f.uri === uri)?.name ?? uri.split('/').pop() ?? uri;
 				if (keepAppActive) bgTask.update(i + 1, name);
 				try {
-					const content = await readFile(uri, 'utf8');
+					const content = pendingRead ? await pendingRead : await readFile(uri, 'utf8');
+					if (i + 1 < limitedUris.length) {
+						pendingRead = readFile(limitedUris[i + 1], 'utf8');
+					}
+					// Yield once per file so a Stop press stays
+					// responsive before the synchronous parse work.
+					await new Promise<void>((resolve) => setTimeout(resolve, 0));
 					const format = detectImportFormat(name);
 					if (!format) {
 						results.push({
@@ -283,7 +382,14 @@ const useImportMutation = () => {
 						continue;
 					}
 					const result = parseImportContent(content, format);
-					const validFeatures = result.features.filter(isValidGeometry);
+					const validFeatures: Feature<LineString, GeoJsonProperties>[] = [];
+					const validTimes: (number[] | null)[] = [];
+					for (let fi = 0; fi < result.features.length; fi++) {
+						if (isValidGeometry(result.features[fi])) {
+							validFeatures.push(result.features[fi]);
+							validTimes.push(result.times[fi]);
+						}
+					}
 					const skippedGeom = result.features.length - validFeatures.length;
 
 					if (!validFeatures.length) {
@@ -305,7 +411,7 @@ const useImportMutation = () => {
 					let unmatchIds: number[] = [];
 
 					if (!dryRun && overwriteMode !== 'create') {
-						const existing = await queryExistingBySourcePath(uri);
+						const existing = existingByUri.get(uri) ?? [];
 						if (existing.length > 0) {
 							if (overwriteMode === 'skip') {
 								results.push({
@@ -375,7 +481,7 @@ const useImportMutation = () => {
 
 					if (dryRun) {
 						if (overwriteMode === 'skip') {
-							const existing = await queryExistingBySourcePath(uri);
+							const existing = existingByUri.get(uri) ?? [];
 							if (existing.length > 0) {
 								const tags = await resolveTagObjects(
 									tagInfo.labels,
@@ -443,6 +549,12 @@ const useImportMutation = () => {
 						let created: Awaited<ReturnType<typeof createLines>> | undefined;
 						if (mergeMode) {
 							const allCoords = validFeatures.flatMap((f) => f.geometry.coordinates);
+							// Times only align with the merged geometry when
+							// every feature has full time coverage.
+							const mergedTimes = validTimes.every((t) => t != null)
+								? (validTimes as number[][]).flat()
+								: null;
+							const dateFallback = firstTimeIso(mergedTimes);
 							const merged: Feature<LineString, GeoJsonProperties> = {
 								type: 'Feature',
 								properties: {},
@@ -458,8 +570,12 @@ const useImportMutation = () => {
 									lineStringFeature: merged,
 									tagIds: uniqueTagIds.length ? uniqueTagIds : undefined,
 									data: buildImportData(uri, name, null),
-									custom_date: dateApplied ?? undefined,
+									custom_date: dateApplied ?? dateFallback ?? undefined,
 								});
+								await replaceLinePoints(
+									[mergedId],
+									buildLinePoints(mergedId, allCoords, mergedTimes)
+								);
 								overwritten++;
 							} else {
 								created = await createLines([
@@ -472,25 +588,45 @@ const useImportMutation = () => {
 										lineStringFeature: merged,
 										tagIds: uniqueTagIds.length ? uniqueTagIds : undefined,
 										data: buildImportData(uri, name, null),
-										custom_date: dateApplied,
+										custom_date: dateApplied ?? dateFallback,
 									},
 								]);
+								if (created && created.length > 0) {
+									await createLinePoints(
+										buildLinePoints(created[0].id, allCoords, mergedTimes)
+									);
+								}
 							}
 						} else if (overwriteMode === 'overwrite' && existingByIndex.size > 0) {
 							const toCreate: Parameters<typeof createLines>[0] = [];
+							const toCreateTimes: (number[] | null)[] = [];
+							const toCreateFeatures: Feature<LineString, GeoJsonProperties>[] = [];
+							const toUpdate: Parameters<typeof updateLinesBatch>[0] = [];
+							const updatedIds: number[] = [];
+							const updatedPointRows: LinePointInput[] = [];
 
 							for (let idx = 0; idx < validFeatures.length; idx++) {
 								const f = validFeatures[idx];
+								const dateFallback = firstTimeIso(validTimes[idx]);
 								const existingIds = existingByIndex.get(idx);
 								if (existingIds && existingIds.length > 0) {
 									for (const existingId of existingIds) {
-										await updateLine(existingId, {
+										toUpdate.push({
+											id: existingId,
 											title: deriveTitle(name, f.properties?.name),
 											lineStringFeature: f,
 											tagIds: uniqueTagIds.length ? uniqueTagIds : undefined,
-											custom_date: dateApplied ?? undefined,
+											custom_date: dateApplied ?? dateFallback ?? undefined,
 											data: buildImportData(uri, name, idx),
 										});
+										updatedIds.push(existingId);
+										updatedPointRows.push(
+											...buildLinePoints(
+												existingId,
+												f.geometry.coordinates,
+												validTimes[idx]
+											)
+										);
 										overwritten++;
 									}
 									staleIdsToDelete = staleIdsToDelete.filter(
@@ -502,8 +638,10 @@ const useImportMutation = () => {
 										lineStringFeature: f,
 										tagIds: uniqueTagIds.length ? uniqueTagIds : undefined,
 										data: buildImportData(uri, name, idx),
-										custom_date: dateApplied,
+										custom_date: dateApplied ?? dateFallback,
 									});
+									toCreateFeatures.push(f);
+									toCreateTimes.push(validTimes[idx]);
 								}
 							}
 
@@ -511,7 +649,34 @@ const useImportMutation = () => {
 								unmatchIds.push(...staleIdsToDelete);
 							}
 
+							// One batched transaction for all in-place
+							// updates — avoids a transaction + several
+							// round-trips per line (updateLine).
+							if (toUpdate.length > 0) {
+								await updateLinesBatch(toUpdate);
+							}
+							// Replace point metadata for every overwritten
+							// line (stale rows must not survive even when
+							// the new file has no usable timestamps).
+							if (updatedIds.length > 0) {
+								await replaceLinePoints(updatedIds, updatedPointRows);
+							}
 							created = toCreate.length > 0 ? await createLines(toCreate) : undefined;
+							if (created && created.length > 0) {
+								const pointRows: LinePointInput[] = [];
+								created.forEach((line, i) => {
+									pointRows.push(
+										...buildLinePoints(
+											line.id,
+											toCreateFeatures[i].geometry.coordinates,
+											toCreateTimes[i]
+										)
+									);
+								});
+								if (pointRows.length) {
+									await createLinePoints(pointRows);
+								}
+							}
 						} else {
 							if (staleIdsToDelete.length > 0) {
 								unmatchIds.push(...staleIdsToDelete);
@@ -522,9 +687,24 @@ const useImportMutation = () => {
 									lineStringFeature: f,
 									tagIds: uniqueTagIds.length ? uniqueTagIds : undefined,
 									data: buildImportData(uri, name, idx),
-									custom_date: dateApplied,
+									custom_date: dateApplied ?? firstTimeIso(validTimes[idx]),
 								}))
 							);
+							if (created && created.length > 0) {
+								const pointRows: LinePointInput[] = [];
+								created.forEach((line, idx) => {
+									pointRows.push(
+										...buildLinePoints(
+											line.id,
+											validFeatures[idx].geometry.coordinates,
+											validTimes[idx]
+										)
+									);
+								});
+								if (pointRows.length) {
+									await createLinePoints(pointRows);
+								}
+							}
 						}
 						results.push({
 							name,
@@ -578,9 +758,19 @@ const useImportMutation = () => {
 			return;
 		}
 
-		let toImport = features.filter((_, idx) => selectedIndices.has(idx));
-		const skippedCount = toImport.length - toImport.filter(isValidGeometry).length;
-		toImport = toImport.filter(isValidGeometry);
+		const pairs: {
+			feature: Feature<LineString, GeoJsonProperties>;
+			times: number[] | null;
+		}[] = [];
+		features.forEach((feature, idx) => {
+			if (selectedIndices.has(idx)) {
+				pairs.push({ feature, times: featureTimes?.[idx] ?? null });
+			}
+		});
+		const skippedCount = pairs.filter((p) => !isValidGeometry(p.feature)).length;
+		const validPairs = pairs.filter((p) => isValidGeometry(p.feature));
+		const toImport = validPairs.map((p) => p.feature);
+		const toImportTimes = validPairs.map((p) => p.times);
 
 		if (!toImport.length) {
 			throw new Error(t('import.noFeatures'));
@@ -723,6 +913,12 @@ const useImportMutation = () => {
 
 		if (mergeMode) {
 			const allCoords = toImport.flatMap((f) => f.geometry.coordinates);
+			// Times only align with the merged geometry when every
+			// feature has full time coverage.
+			const mergedTimes = toImportTimes.every((t) => t != null)
+				? (toImportTimes as number[][]).flat()
+				: null;
+			const dateFallback = firstTimeIso(mergedTimes);
 			const merged: Feature<LineString, GeoJsonProperties> = {
 				type: 'Feature',
 				properties: {},
@@ -737,8 +933,12 @@ const useImportMutation = () => {
 					lineStringFeature: merged,
 					tagIds: uniqueTagIds.length ? uniqueTagIds : undefined,
 					data: buildImportData(sourceFilePath, filename, null),
-					custom_date: dateApplied ?? undefined,
+					custom_date: dateApplied ?? dateFallback ?? undefined,
 				});
+				await replaceLinePoints(
+					[mergedIdSingle],
+					buildLinePoints(mergedIdSingle, allCoords, mergedTimes)
+				);
 				overwrittenSingle++;
 			} else {
 				createdSingle = await createLines([
@@ -750,25 +950,45 @@ const useImportMutation = () => {
 						lineStringFeature: merged,
 						tagIds: uniqueTagIds.length ? uniqueTagIds : undefined,
 						data: buildImportData(sourceFilePath, filename, null),
-						custom_date: dateApplied,
+						custom_date: dateApplied ?? dateFallback,
 					},
 				]);
+				if (createdSingle && createdSingle.length > 0) {
+					await createLinePoints(
+						buildLinePoints(createdSingle[0].id, allCoords, mergedTimes)
+					);
+				}
 			}
 		} else if (overwriteMode === 'overwrite' && existingByIndexSingle.size > 0) {
 			const toCreateSingle: Parameters<typeof createLines>[0] = [];
+			const toCreateSingleTimes: (number[] | null)[] = [];
+			const toCreateSingleFeatures: Feature<LineString, GeoJsonProperties>[] = [];
+			const toUpdateSingle: Parameters<typeof updateLinesBatch>[0] = [];
+			const updatedIdsSingle: number[] = [];
+			const updatedPointRowsSingle: LinePointInput[] = [];
 
 			for (let idx = 0; idx < toImport.length; idx++) {
 				const feature = toImport[idx];
+				const dateFallback = firstTimeIso(toImportTimes[idx]);
 				const existingIds = existingByIndexSingle.get(idx);
 				if (existingIds && existingIds.length > 0) {
 					for (const existingId of existingIds) {
-						await updateLine(existingId, {
+						toUpdateSingle.push({
+							id: existingId,
 							title: deriveTitle(filename, feature.properties?.name),
 							lineStringFeature: feature,
 							tagIds: uniqueTagIds.length ? uniqueTagIds : undefined,
-							custom_date: dateApplied ?? undefined,
+							custom_date: dateApplied ?? dateFallback ?? undefined,
 							data: buildImportData(sourceFilePath, filename, idx),
 						});
+						updatedIdsSingle.push(existingId);
+						updatedPointRowsSingle.push(
+							...buildLinePoints(
+								existingId,
+								feature.geometry.coordinates,
+								toImportTimes[idx]
+							)
+						);
 						overwrittenSingle++;
 					}
 					staleIdsToDeleteSingle = staleIdsToDeleteSingle.filter(
@@ -780,8 +1000,10 @@ const useImportMutation = () => {
 						lineStringFeature: feature,
 						tagIds: uniqueTagIds.length ? uniqueTagIds : undefined,
 						data: buildImportData(sourceFilePath, filename, idx),
-						custom_date: dateApplied,
+						custom_date: dateApplied ?? dateFallback,
 					});
+					toCreateSingleFeatures.push(feature);
+					toCreateSingleTimes.push(toImportTimes[idx]);
 				}
 			}
 
@@ -789,8 +1011,32 @@ const useImportMutation = () => {
 				unmatchIdsSingle.push(...staleIdsToDeleteSingle);
 			}
 
+			if (toUpdateSingle.length > 0) {
+				await updateLinesBatch(toUpdateSingle);
+			}
+			// Replace point metadata for every overwritten line (stale
+			// rows must not survive even when the new file has no
+			// usable timestamps).
+			if (updatedIdsSingle.length > 0) {
+				await replaceLinePoints(updatedIdsSingle, updatedPointRowsSingle);
+			}
 			if (toCreateSingle.length > 0) {
 				createdSingle = await createLines(toCreateSingle);
+				if (createdSingle && createdSingle.length > 0) {
+					const pointRows: LinePointInput[] = [];
+					createdSingle.forEach((line, i) => {
+						pointRows.push(
+							...buildLinePoints(
+								line.id,
+								toCreateSingleFeatures[i].geometry.coordinates,
+								toCreateSingleTimes[i]
+							)
+						);
+					});
+					if (pointRows.length) {
+						await createLinePoints(pointRows);
+					}
+				}
 			}
 		} else {
 			if (staleIdsToDeleteSingle.length > 0) {
@@ -801,9 +1047,24 @@ const useImportMutation = () => {
 				lineStringFeature: feature,
 				tagIds: uniqueTagIds.length ? uniqueTagIds : undefined,
 				data: buildImportData(sourceFilePath, filename, idx),
-				custom_date: dateApplied,
+				custom_date: dateApplied ?? firstTimeIso(toImportTimes[idx]),
 			}));
 			createdSingle = await createLines(newLines);
+			if (createdSingle && createdSingle.length > 0) {
+				const pointRows: LinePointInput[] = [];
+				createdSingle.forEach((line, idx) => {
+					pointRows.push(
+						...buildLinePoints(
+							line.id,
+							toImport[idx].geometry.coordinates,
+							toImportTimes[idx]
+						)
+					);
+				});
+				if (pointRows.length) {
+					await createLinePoints(pointRows);
+				}
+			}
 		}
 
 		const result = [
@@ -841,6 +1102,7 @@ const useImportMutation = () => {
 		invalidateLinesQueries(queryClient);
 		invalidateLineGeomQueries(queryClient);
 		invalidateTagsTable(queryClient);
+		queryClient.invalidateQueries({ queryKey: ['linePoints'] });
 
 		setStep('result');
 	};
@@ -849,8 +1111,21 @@ const useImportMutation = () => {
 		if ((err as any)?.__aborted) {
 			// Clear the stop flag so a subsequent import in the same
 			// session can start again (dry-run returns to configuration).
+			const wasStopRequested = stopRequestedRef.current;
 			stopRequestedRef.current = false;
-			if (dryRun) {
+			// Files may have been written before the stop — invalidate
+			// the query cache so the lines browser reflects them without
+			// an app restart (staleTime is Infinity across queries).
+			invalidateLinesQueries(queryClient);
+			invalidateLineGeomQueries(queryClient);
+			invalidateTagsTable(queryClient);
+			queryClient.invalidateQueries({ queryKey: ['linePoints'] });
+			// User-initiated stop with partial results: show them on the
+			// result page instead of silently closing the importer.
+			if (!dismissedRef.current && wasStopRequested && importResultsRef.current.length > 0) {
+				setImportAborted(true);
+				setStep('result');
+			} else if (dryRun) {
 				setStep('configuration');
 			} else {
 				handleCloseImporter();

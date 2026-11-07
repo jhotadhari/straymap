@@ -30,6 +30,20 @@ except `id`. Used by most queries because geometry is fetched separately via
 Queries that use `fieldsExclude: ['geometry']` still return `envelope` because
 only `geometry` is excluded, not `'envelope'`.
 
+### Imported per-point time metadata (`line_points`)
+
+`linePointsTable` (same schema file, migration `0004_mushy_maginty`)
+stores per-point `timestamp` (ms epoch) and derived `speed` (m/s) for
+**imported** lines, aligned to `geometry.coordinates` by `point_index`.
+It mirrors trackRecording's `track_points` minus the `tracks` coupling.
+Written only by the import feature (`createLinePoints`,
+`replaceLinePoints`, `deleteLinePointsByLineIds` in
+`db/actionsLinePoints.ts`); `deleteLine`/`deleteLines` clean it up
+explicitly (FK cascade may be off at runtime). Time stats are queried
+by `queryLinePointsStatsByLineIds` (`db/lineTimeStats.ts`) using the
+same LAG-window moving-duration aggregation as trackRecording, and
+rendered in `LineStatsModal` as a "Track time" section.
+
 ## Redux state (`lines/slice.ts`)
 
 ```ts

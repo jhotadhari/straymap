@@ -85,6 +85,8 @@
 	"statsForLines": "Statistics for %s routes",
 	"statsRecording": "Recording stats",
 	"statsRecordingPartial": "Recording stats for %s of %s routes",
+	"statsTime": "Track time",
+	"statsTimePartial": "Track time for %s of %s routes",
 	"hideStats": "Hide",
 	"showStats": "Show statistics",
 	"hintNumericFilter": "Filter routes by minimum and/or maximum values for this column. Leave a field empty to skip that side of the range.",

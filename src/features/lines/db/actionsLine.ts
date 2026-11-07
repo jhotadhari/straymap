@@ -13,6 +13,7 @@ import { withDbErrorHandling, withDbTransaction, parseReturningIds } from '../..
 import { featureRegistry } from '../../FeatureRegistry';
 import { parseSerialized } from '../../../lib/utilsLight';
 import { pointToFakeLineStringFeature } from '../../../lib/utils';
+import { deleteLinePointsByLineIds } from './actionsLinePoints';
 
 export const createLines = withDbErrorHandling(
 	'lines/actionsLine.createLines',
@@ -222,6 +223,137 @@ export const updateLine = withDbErrorHandling(
 	}
 );
 
+export const updateLinesBatch = withDbErrorHandling(
+	'lines/actionsLine.updateLinesBatch',
+	async (
+		updates: {
+			id: number;
+			title?: string | null;
+			lineStringFeature?: Feature<LineString, GeoJsonProperties>;
+			tagIds?: number[];
+			custom_date?: string | null;
+			data?: any;
+		}[]
+	) => {
+		if (!dbConnection?.drizzle || !updates.length) {
+			return;
+		}
+
+		const ids = updates.map((u) => u.id);
+
+		// Pre-flight queries outside the transaction (drizzle's typed
+		// query builder), mirroring the per-line updateLine logic but
+		// batched:
+		// 1. Which line ids actually exist (guard against stale ids).
+		const existingRows = await dbConnection.drizzle
+			.select({ id: linesTable.id })
+			.from(linesTable)
+			.where(inArray(linesTable.id, ids));
+		const existingIds = new Set(existingRows.map((r) => r.id));
+
+		// 2. Current tag relations for every line that has a tag update.
+		const linesWithTags = updates.filter(
+			(u) => Array.isArray(u.tagIds) && existingIds.has(u.id)
+		);
+		const currentTagsByLine = new Map<number, number[]>();
+		if (linesWithTags.length > 0) {
+			const lineIdsWithTags = linesWithTags.map((u) => u.id);
+			const tagRows = await dbConnection.drizzle
+				.select({ line_id: tagsToLinesTable.line_id, tag_id: tagsToLinesTable.tag_id })
+				.from(tagsToLinesTable)
+				.where(inArray(tagsToLinesTable.line_id, lineIdsWithTags));
+			for (const row of tagRows) {
+				const arr = currentTagsByLine.get(row.line_id) ?? [];
+				arr.push(row.tag_id);
+				currentTagsByLine.set(row.line_id, arr);
+			}
+		}
+
+		// 3. Which tag ids to add actually exist (single IN query).
+		const allTagIdsToAdd = [
+			...new Set(
+				linesWithTags.flatMap((u) => {
+					const current = currentTagsByLine.get(u.id) ?? [];
+					return u.tagIds!.filter((tagId) => !current.includes(tagId));
+				})
+			),
+		];
+		let existingTagIds: Set<number> = new Set();
+		if (allTagIdsToAdd.length > 0) {
+			const existingTags = await dbConnection.drizzle
+				.select({ id: tagsTable.id })
+				.from(tagsTable)
+				.where(inArray(tagsTable.id, allTagIdsToAdd));
+			existingTagIds = new Set(existingTags.map((t) => t.id));
+		}
+
+		let updatedCount = 0;
+		await withDbTransaction(async (exec) => {
+			const tagRelationInserts: { tag_id: number; line_id: number }[] = [];
+
+			for (const update of updates) {
+				if (!existingIds.has(update.id)) {
+					continue;
+				}
+				const hasGeometry = update.lineStringFeature !== undefined;
+				const newData = {
+					...(undefined !== update.title && { title: update.title }),
+					...(hasGeometry && {
+						geometry: update.lineStringFeature!.geometry,
+						modified_at: sql`(current_timestamp)`,
+					}),
+					...(undefined !== update.custom_date && {
+						custom_date: update.custom_date,
+					}),
+					...(undefined !== update.data && { data: update.data }),
+				};
+
+				if (Object.keys(newData).length) {
+					await exec(
+						dbConnection
+							.drizzle!.update(linesTable)
+							.set(newData)
+							.where(eq(linesTable.id, update.id))
+					);
+					updatedCount++;
+				}
+
+				if (!Array.isArray(update.tagIds)) {
+					continue;
+				}
+				const current = currentTagsByLine.get(update.id) ?? [];
+				const tagIdsToAdd = update.tagIds.filter(
+					(tagId) => !current.includes(tagId) && existingTagIds.has(tagId)
+				);
+				for (const tagId of tagIdsToAdd) {
+					tagRelationInserts.push({ tag_id: tagId, line_id: update.id });
+				}
+				const tagIdsToRemove = current.filter((tagId) => !update.tagIds!.includes(tagId));
+				if (tagIdsToRemove.length > 0) {
+					await exec(
+						dbConnection
+							.drizzle!.delete(tagsToLinesTable)
+							.where(
+								and(
+									inArray(tagsToLinesTable.tag_id, tagIdsToRemove),
+									eq(tagsToLinesTable.line_id, update.id)
+								)
+							)
+					);
+				}
+			}
+
+			if (tagRelationInserts.length > 0) {
+				await exec(
+					dbConnection.drizzle!.insert(tagsToLinesTable).values(tagRelationInserts)
+				);
+			}
+		});
+
+		return updatedCount;
+	}
+);
+
 export const lineAddTag = withDbErrorHandling(
 	'lines/actionsLine.lineAddTag',
 	async (lineId: number, tagId: number, opts?: { skipSystemGuard?: boolean }) => {
@@ -284,6 +416,9 @@ export const deleteLine = withDbErrorHandling(
 	async (id?: number | false) => {
 		if (id && dbConnection?.drizzle) {
 			await dbConnection.drizzle.delete(linesTable).where(eq(linesTable.id, id));
+			// line_points has ON DELETE cascade, but PRAGMA foreign_keys
+			// may not be ON at runtime — explicit cleanup as safety net.
+			await deleteLinePointsByLineIds([id]);
 		}
 	}
 );
@@ -296,5 +431,7 @@ export const deleteLines = withDbErrorHandling(
 		}
 
 		await dbConnection.drizzle.delete(linesTable).where(inArray(linesTable.id, ids));
+		// See deleteLine — explicit line_points cleanup as safety net.
+		await deleteLinePointsByLineIds(ids);
 	}
 );

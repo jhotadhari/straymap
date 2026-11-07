@@ -96,6 +96,7 @@
 	"resultUnmatchedDeleteChecked": "Eliminar %s seleccionadas",
 	"resultUnmatchedExplanation": "Estas rutas se importaron previamente desde este archivo pero ya no tienen una pista correspondiente. Selecciona y elimina las que ya no necesites.",
 	"resultDryRunNotice": "Simulación — no se modificaron datos en el dispositivo.",
+	"resultStoppedNotice": "Importación detenida antes de tiempo — las rutas ya importadas permanecen en la base de datos.",
 	"resultCloseImporter": "Cerrar importador",
 	"resultBackToConfiguration": "Volver a la configuración",
 	"resultMergedBadge": "Combinado",

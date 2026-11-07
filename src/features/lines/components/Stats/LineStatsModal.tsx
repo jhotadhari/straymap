@@ -16,7 +16,11 @@ import ModalWrapper from '../../../../components/generic/wrapper/ModalWrapper';
 import { sharedStyles } from '../../../../sharedStyles';
 import { LinePartial } from '../../types';
 import { queryLinesWithoutGeom } from '../../db/queryFns';
-import { queryTrackPointsStatsByLineIds } from '../../../trackRecording/db/queryFns';
+import {
+	queryTrackPointsStatsByLineIds,
+	LineTrackPointsStats,
+} from '../../../trackRecording/db/queryFns';
+import { queryLinePointsStatsByLineIds } from '../../db/lineTimeStats';
 import LineStatsRows from './LineStatsRows';
 import LineTrackingStatsRows, { aggregateTrackingStats } from './LineTrackingStatsRows';
 import { aggregateLineStats } from './sharedDeps';
@@ -65,6 +69,21 @@ const LineStatsModal = memo(
 			gcTime: 1000 * 10,
 		});
 
+		// Imported tracks' time stats (line_points).  Disjoint from
+		// track_points: a line has recording metadata OR imported
+		// point metadata, never both.
+		const { data: importedStats } = useQuery({
+			queryKey: [
+				'linePoints',
+				lineIdsKey,
+				'stats',
+			],
+			queryFn: () => queryLinePointsStatsByLineIds(lineIds),
+			enabled: lineIds.length > 0,
+			staleTime: Infinity,
+			gcTime: 1000 * 10,
+		});
+
 		const tracking = useMemo(() => {
 			const { values, coveredCount, totalCount } = aggregateTrackingStats(
 				(perLineStats ?? []).map((stats) => ({ lineId: stats.lineId, stats })),
@@ -84,6 +103,29 @@ const LineStatsModal = memo(
 			};
 		}, [
 			perLineStats,
+			stats,
+			lineIds,
+		]);
+
+		const imported = useMemo(() => {
+			const { values, coveredCount, totalCount } = aggregateTrackingStats(
+				(importedStats ?? []).map((s) => ({
+					lineId: s.lineId,
+					stats: s as LineTrackPointsStats,
+				})),
+				lineIds.length
+			);
+			const length = get(stats, 'length', 0) as number;
+			return {
+				values: {
+					...values,
+					avgSpeedMps: values.movingMs > 0 ? length / (values.movingMs / 1000) : null,
+				},
+				coveredCount,
+				totalCount,
+			};
+		}, [
+			importedStats,
 			stats,
 			lineIds,
 		]);
@@ -114,6 +156,24 @@ const LineStatsModal = memo(
 							</Text>
 						)}
 						<LineTrackingStatsRows values={tracking.values} />
+					</>
+				)}
+
+				{imported.coveredCount > 0 && (
+					<>
+						{imported.coveredCount === imported.totalCount && (
+							<Text style={styles.sectionHeading}>{t('lines.statsTime')}</Text>
+						)}
+						{imported.coveredCount < imported.totalCount && (
+							<Text style={styles.sectionHeading}>
+								{sprintf(
+									t('lines.statsTimePartial'),
+									imported.coveredCount,
+									imported.totalCount
+								)}
+							</Text>
+						)}
+						<LineTrackingStatsRows values={imported.values} />
 					</>
 				)}
 			</ModalWrapper>

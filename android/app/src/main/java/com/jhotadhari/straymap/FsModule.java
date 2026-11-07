@@ -170,6 +170,50 @@ public class FsModule extends NativeFsModuleSpec {
 		}
 	}
 
+	/**
+	 * Lightweight recursive listing for the import feature: returns a
+	 * plain String[] of matching file paths instead of the full per-file
+	 * info maps that getInfo ships over the bridge (a huge payload for
+	 * directories with thousands of files).
+	 */
+	@ReactMethod
+	public void listFilePaths( String dir, @Nullable ReadableArray extensions, boolean recursive, Promise promise ) {
+		executor.execute(() -> {
+			try {
+				String[] extensionsStrings = extensions != null
+					? extensions.toArrayList().toArray( new String[ 0 ] )
+					: new String[ 0 ];
+				List<String> paths = new ArrayList<>();
+				this.walkPaths( new File( dir ), createPredicate( extensionsStrings ), recursive, paths );
+				WritableArray result = createArray();
+				for ( String path : paths ) {
+					result.pushString( path );
+				}
+				if ( !mShuttingDown ) {
+					promise.resolve( result );
+				}
+			} catch(Exception e) {
+				if ( !mShuttingDown ) {
+					promise.reject("Error", e);
+				}
+			}
+		});
+	}
+
+	protected void walkPaths( File startPath, MatchExtensionsPredicate filter, boolean recursive, List<String> out ) {
+		if ( !startPath.isDirectory() || !isAtLeastO() ) return;
+		File[] files = startPath.listFiles();
+		if ( files == null ) return;
+		for ( File file : files ) {
+			if ( file.isDirectory() ) {
+				if ( recursive && ! file.getName().startsWith( "." ) ) {
+					walkPaths( file, filter, recursive, out );
+				}
+			} else if ( ! file.getName().startsWith( "." ) && filter.test( file.toPath() ) ) {
+				out.add( file.toString() );
+			}
+		}
+	}
 
 	    @ReactMethod
 	    public void deleteFile( String path, Promise promise ) {

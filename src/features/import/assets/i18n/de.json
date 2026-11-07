@@ -96,6 +96,7 @@
 	"resultUnmatchedDeleteChecked": "%s ausgewählte löschen",
 	"resultUnmatchedExplanation": "Diese Routen wurden zuvor aus dieser Datei importiert, haben aber keine entsprechende Strecke mehr. Auswählen und löschen, was nicht mehr benötigt wird.",
 	"resultDryRunNotice": "Probelauf — es wurden keine Daten auf dem Gerät geändert.",
+	"resultStoppedNotice": "Import vorzeitig gestoppt — bereits importierte Routen bleiben in der Datenbank.",
 	"resultCloseImporter": "Import schließen",
 	"resultBackToConfiguration": "Zurück zur Konfiguration",
 	"resultMergedBadge": "Zusammengeführt",

@@ -13,6 +13,11 @@ interface Spec extends TurboModule {
 		stopOnFirstMatch?: boolean | null,
 		maxDepth?: number | null
 	): Promise<UnsafeObject>;
+	listFilePaths(
+		dir: string,
+		extensions: Array<string> | null,
+		recursive: boolean
+	): Promise<Array<string>>;
 	deleteDir(path: string): Promise<boolean>;
 	deleteFile(path: string): Promise<boolean>;
 	renameFile(oldPath: string, newPath: string): Promise<boolean>;

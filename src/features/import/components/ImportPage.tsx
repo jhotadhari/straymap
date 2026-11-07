@@ -35,8 +35,8 @@ import {
 	parseImportContent,
 	IMPORT_EXTENSIONS,
 } from '../../lines/utils/importParser';
-import useDirsInfo from '../../dirs/hooks/useDirsInfo';
 import { useAppSelector, useAppDispatch } from '../../../store/hooks';
+import { FsModule } from '../../../nativeModules';
 import { selectAppDirs } from '../../dirs/selectors';
 import { useButtonProps } from '../../../compose/useButtonProps';
 import { localStyles } from './styles';
@@ -79,6 +79,7 @@ const ImportPage = () => {
 
 	// Single-file state
 	const [features, setFeatures] = useState<Feature<LineString, GeoJsonProperties>[]>([]);
+	const [featureTimes, setFeatureTimes] = useState<(number[] | null)[]>([]);
 	const [filename, setFilename] = useState('');
 	const [sourceFilePath, setSourceFilePath] = useState('');
 	const [selectedIndices, setSelectedIndices] = useState<Set<number>>(new Set());
@@ -90,42 +91,46 @@ const ImportPage = () => {
 	// Shared
 	const [bulkProgress, setBulkProgress] = useState({ current: 0, total: 0 });
 	const [importResults, setImportResults] = useState<ImportFileResult[]>([]);
+	const [importAborted, setImportAborted] = useState(false);
 
 	// Storage directory scanning
-	const [storagePath, setStoragePath] = useState<AbsPath | ''>('');
-	const dirsExtensions = useMemo(() => [...IMPORT_EXTENSIONS] as string[], []);
-	const dirsNavDirs = useMemo(() => (storagePath ? [storagePath as AbsPath] : []), [storagePath]);
-	const { dirsInfo, isLoading: isScanningStorage } = useDirsInfo({
-		navDirs: dirsNavDirs,
-		extensions: dirsExtensions,
-		recursive: true,
-		skipCache: !!storagePath,
-	});
-
-	const handleSelectAppDir = useCallback((path: AbsPath) => {
-		setImportMode('directory');
-		setStoragePath(path);
-		setStep('scanning');
-	}, []);
-
-	useEffect(() => {
-		if (dismissedRef.current) return;
-		if (!storagePath || !dirsInfo || isScanningStorage) return;
-		const dirKey = Object.keys(dirsInfo)[0];
-		if (!dirKey || !dirsInfo[dirKey]?.navChildren) return;
-
-		const children = dirsInfo[dirKey].navChildren!.filter((c) => c.isFile && c.canRead);
-		setDirFiles(
-			children.map((c) => ({ uri: c.name, name: c.name.split('/').pop() ?? c.name }))
-		);
-		setSelectedFileUris(new Set(children.map((c) => c.name)));
-		setStoragePath('');
-		setStep('configuration');
-	}, [
-		storagePath,
-		dirsInfo,
-		isScanningStorage,
-	]);
+	const handleSelectAppDir = useCallback(
+		async (path: AbsPath) => {
+			setImportMode('directory');
+			setFeatures([]);
+			setFeatureTimes([]);
+			setFilename('');
+			setSourceFilePath('');
+			setSelectedIndices(new Set());
+			setImportResults([]);
+			setStep('scanning');
+			try {
+				// Lightweight native listing (plain path strings — much
+				// smaller bridge payload than getInfo's per-file maps).
+				const paths = await FsModule.listFilePaths(path, IMPORT_EXTENSIONS, true);
+				if (dismissedRef.current) return;
+				const supported = (paths ?? [])
+					.filter((p) => typeof p === 'string' && p.length > 0)
+					.map((p) => ({ uri: p, name: p.split('/').pop() ?? p }));
+				if (!supported.length) {
+					showError(t('import.dirNoFiles'));
+					setStep('idle');
+					return;
+				}
+				setDirFiles(supported);
+				setSelectedFileUris(new Set(supported.map((f) => f.uri)));
+				setStep('configuration');
+			} catch (err) {
+				logError('ImportPage.handleSelectAppDir', err);
+				if (dismissedRef.current) return;
+				showError(
+					sprintf(t('errorGeneric'), err instanceof Error ? err.message : String(err))
+				);
+				setStep('idle');
+			}
+		},
+		[showError, t]
+	);
 
 	const [_isPickingFile, runOpenDocument] = useAsyncBusy(openDocument);
 	const [_isPickingDir, runOpenDocumentTree] = useAsyncBusy(openDocumentTree);
@@ -168,6 +173,7 @@ const ImportPage = () => {
 		const mutation = mutationRef.current;
 		if (!mutation || mutation.isPending) return;
 		stopRequestedRef.current = false;
+		setImportAborted(false);
 		setStep('importing');
 		setImportResults([]);
 		mutation.mutate();
@@ -212,6 +218,7 @@ const ImportPage = () => {
 
 			if (dismissedRef.current) return;
 			setFeatures(result.features);
+			setFeatureTimes(result.times);
 			setSelectedIndices(new Set(result.features.map((_, i) => i)));
 			setStep('configuration');
 		} catch (err) {
@@ -233,6 +240,7 @@ const ImportPage = () => {
 
 			setImportMode('directory');
 			setFeatures([]);
+			setFeatureTimes([]);
 			setFilename('');
 			setSourceFilePath('');
 			setSelectedIndices(new Set());
@@ -310,6 +318,7 @@ const ImportPage = () => {
 		setStep('idle');
 		setImportMode('file');
 		setFeatures([]);
+		setFeatureTimes([]);
 		setFilename('');
 		setSourceFilePath('');
 		setSelectedIndices(new Set());
@@ -317,6 +326,7 @@ const ImportPage = () => {
 		setSelectedFileUris(new Set());
 		setBulkProgress({ current: 0, total: 0 });
 		setImportResults([]);
+		setImportAborted(false);
 	}, []);
 
 	const handleCloseImporter = useCallback(() => {
@@ -338,6 +348,8 @@ const ImportPage = () => {
 			setImportMode,
 			features,
 			setFeatures,
+			featureTimes,
+			setFeatureTimes,
 			filename,
 			setFilename,
 			sourceFilePath,
@@ -352,6 +364,8 @@ const ImportPage = () => {
 			setBulkProgress,
 			importResults,
 			setImportResults,
+			importAborted,
+			setImportAborted,
 			selectionCount,
 			importDirs,
 			handlePickFile,
@@ -374,6 +388,7 @@ const ImportPage = () => {
 			step,
 			importMode,
 			features,
+			featureTimes,
 			filename,
 			sourceFilePath,
 			selectedIndices,
@@ -381,6 +396,7 @@ const ImportPage = () => {
 			selectedFileUris,
 			bulkProgress,
 			importResults,
+			importAborted,
 			selectionCount,
 			importDirs,
 			handlePickFile,

@@ -96,6 +96,7 @@
 	"resultUnmatchedDeleteChecked": "Delete %s checked",
 	"resultUnmatchedExplanation": "These routes were imported from this file previously but no longer have a matching track. Select and delete any you no longer need.",
 	"resultDryRunNotice": "Dry run — no data was changed on device.",
+	"resultStoppedNotice": "Import stopped early — already imported routes stay in the database.",
 	"resultCloseImporter": "Close Importer",
 	"resultBackToConfiguration": "Back to Configuration",
 	"resultMergedBadge": "Merged",

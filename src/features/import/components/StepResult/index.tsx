@@ -24,7 +24,8 @@ const containerFlexStyle = [localStyles.container, localStyles.flex1];
 const StepResult: FC = () => {
 	const { t } = useTranslation();
 	const theme = useTheme();
-	const { importResults, handleCloseImporter, handleBackToConfiguration } = useImportContext();
+	const { importResults, importAborted, handleCloseImporter, handleBackToConfiguration } =
+		useImportContext();
 	const buttonPropsAny = useButtonProps({});
 
 	// const dryRunBgStyle = useMemo(
@@ -49,13 +50,10 @@ const StepResult: FC = () => {
 
 	useEffect(() => {
 		if (!isDryRun) return;
-		const subscription = BackHandler.addEventListener(
-			'hardwareBackPress',
-			() => {
-				handleBackToConfiguration();
-				return true;
-			}
-		);
+		const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
+			handleBackToConfiguration();
+			return true;
+		});
 		return () => subscription.remove();
 	}, [isDryRun, handleBackToConfiguration]);
 
@@ -84,7 +82,22 @@ const StepResult: FC = () => {
 						color={theme.colors.onBackground}
 						name="triangle-alert"
 					/>
-					<Text style={localStyles.dryRunNoticeText}>{t('import.resultDryRunNotice')}</Text>
+					<Text style={localStyles.dryRunNoticeText}>
+						{t('import.resultDryRunNotice')}
+					</Text>
+				</View>
+			)}
+
+			{importAborted && (
+				<View style={styleNotice}>
+					<LucideIcons
+						size={20}
+						color={theme.colors.onBackground}
+						name="triangle-alert"
+					/>
+					<Text style={localStyles.dryRunNoticeText}>
+						{t('import.resultStoppedNotice')}
+					</Text>
 				</View>
 			)}
 
