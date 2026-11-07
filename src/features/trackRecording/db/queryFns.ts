@@ -3,6 +3,7 @@
  */
 import { asc, desc, eq, inArray } from 'drizzle-orm';
 import { QueryClient } from '@tanstack/react-query';
+import type { Scalar } from '@op-engineering/op-sqlite';
 
 /**
  * Internal dependencies
@@ -11,6 +12,7 @@ import { dbConnection } from '../../dbLoader/DBConnection';
 import { dbOpExecute } from '../../dbLoader/utils';
 import { trackPointsTable, tracksTable } from './schema/schema';
 import { Track } from '../types';
+import { PAUSE_GAP_THRESHOLD_MS } from '../utils';
 import { linesTable, tagsTable, tagsToLinesTable } from '../../lines/db/schema/schema';
 
 export const queryTrack = async ({ queryKey }: { queryKey: [string, number] }) => {
@@ -167,4 +169,69 @@ export const queryTrackPointsByLineIds = async (lineIds: number[]) => {
 		.from(trackPointsTable)
 		.where(inArray(trackPointsTable.line_id, lineIds))
 		.orderBy(asc(trackPointsTable.line_id), asc(trackPointsTable.point_index));
+};
+
+/**
+ * Aggregate stats over a line's track_points (live while recording).
+ * `movingDurationMs` sums inter-point timestamp gaps up to the pause
+ * threshold (gaps larger than that count as pauses, mirroring
+ * computeTrackSummary).  A single aggregate per fix — never the full
+ * rows.
+ */
+export interface TrackPointsStats {
+	count: number;
+	maxSpeed: number | null;
+	startTs: number | null;
+	endTs: number | null;
+	movingDurationMs: number;
+}
+
+export const queryTrackPointsStats = async (lineId: number): Promise<TrackPointsStats | null> => {
+	if (!dbConnection?.op) {
+		return null;
+	}
+	const result = await dbOpExecute(
+		`SELECT
+			COUNT(*) AS n,
+			MAX(speed) AS maxSpeed,
+			MIN(ts) AS startTs,
+			MAX(ts) AS endTs,
+			COALESCE(SUM(
+				CASE
+					WHEN ts - prevTs > 0 AND ts - prevTs <= ? THEN ts - prevTs
+					ELSE 0
+				END
+			), 0) AS movingMs
+		FROM (
+			SELECT
+				timestamp AS ts,
+				LAG(timestamp) OVER (ORDER BY point_index) AS prevTs,
+				speed
+			FROM track_points
+			WHERE line_id = ?
+		)`,
+		[PAUSE_GAP_THRESHOLD_MS, lineId]
+	);
+	const row = result.rows?.[0] as Record<string, Scalar> | undefined;
+	if (!row) {
+		return null;
+	}
+	return {
+		count: typeof row.n === 'number' ? row.n : 0,
+		maxSpeed: typeof row.maxSpeed === 'number' ? row.maxSpeed : null,
+		startTs: typeof row.startTs === 'number' ? row.startTs : null,
+		endTs: typeof row.endTs === 'number' ? row.endTs : null,
+		movingDurationMs: typeof row.movingMs === 'number' ? row.movingMs : 0,
+	};
+};
+
+/**
+ * Invalidate track-summary queries (['trackSummary', lineId]) — used
+ * after a recording stops so the drawer's idle view refetches the
+ * freshly written tracks.data summary.
+ */
+export const invalidateTrackSummaryQueries = (queryClient: QueryClient) => {
+	return queryClient.invalidateQueries({
+		predicate: (query) => Array.isArray(query.queryKey) && query.queryKey[0] === 'trackSummary',
+	});
 };

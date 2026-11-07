@@ -35,6 +35,9 @@
 	"trackingUphill": "Subida",
 	"trackingDownhill": "Descida",
 	"trackingAvgSpeed": "Velocidade média",
+	"trackingMaxSpeed": "Velocidade máx.",
+	"trackingMovingDuration": "Tempo em movimento",
+	"trackingPauseDuration": "Tempo em pausa",
 	"trackingPointCount": "Número de pontos",
 	"desc": {
 		"trackingDistance": "Distância percorrida durante a gravação atual.",

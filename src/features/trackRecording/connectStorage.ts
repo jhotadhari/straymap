@@ -50,6 +50,7 @@ import { deriveSpeedMps, toTrackCoord } from './utils';
 import {
 	invalidateLastRecordedLineQueries,
 	invalidateLineTrackPointsQueries,
+	invalidateTrackSummaryQueries,
 	queryLinePointCount,
 } from './db/queryFns';
 import { setActiveKey } from '../bottomDrawer/slice';
@@ -547,6 +548,7 @@ startAppListening({
 			invalidateLineGeomQueries(queryClient);
 			invalidateLastRecordedLineQueries(queryClient);
 			invalidateLineTrackPointsQueries(queryClient);
+			invalidateTrackSummaryQueries(queryClient);
 		}
 	},
 });

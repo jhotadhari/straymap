@@ -32,7 +32,9 @@ import { selectIsRecording, selectActiveLineId, selectRecordingStartTime } from 
 import { selectResumePending } from '../selectors';
 import { startRecording, stopRecording, continueRecording } from '../slice';
 import { queryLineGeom } from '../../lines/db/queryFns';
-import { queryLastRecordedLine } from '../db/queryFns';
+import { queryLastRecordedLine, queryTrackByLineId, queryTrackPointsStats } from '../db/queryFns';
+import { getTrackSummary } from '../db/actionsTrack';
+import { useDeviceAzimuth } from '../../gnss/deviceAzimuthStore';
 import { setUiItemKeys } from '../../ui/slice';
 import { itemStyles, DRAWER_HANDLE_SIZE, DRAWER_ICON_SIZE } from '../../drawers/constants';
 import { useButtonProps, useDestructiveColor } from '../../../compose/useButtonProps';
@@ -50,6 +52,7 @@ import {
 	formatBearing,
 } from '../../../lib/formatting';
 import { selectUnitPrefs } from '../../general/selectors';
+import { UnitPref } from '../../general/types';
 import ensureLocationPermission from '../../../lib/locationPermission';
 import ensureNotificationPermission from '../../../lib/notificationPermission';
 import { ErrorToastContext } from '../../../components/ErrorToast/Context';
@@ -112,6 +115,76 @@ const StatRow: FC<{ label: string; value: string }> = ({ label, value }) => (
 );
 
 /**
+ * Values of the nine track-recording stat rows.  Rendered identically
+ * while recording (live values) and while idle (last summary values),
+ * so toggling recording only morphs values in place — never the layout.
+ */
+interface TrackStatsValues {
+	durationSec: number | null;
+	distanceM: number;
+	pointCount: number;
+	uphill: number;
+	downhill: number;
+	avgSpeedMps: number | null;
+	maxSpeedMps: number | null;
+	movingSec: number | null;
+	pauseSec: number | null;
+}
+
+const TrackStatsRows: FC<{
+	values: TrackStatsValues;
+	distUnit: UnitPref;
+	heightUnit: UnitPref;
+	speedUnit: UnitPref;
+}> = ({ values, distUnit, heightUnit, speedUnit }) => {
+	const { t } = useTranslation();
+	return (
+		<>
+			<StatRow
+				label={t('trackRecording.trackingDuration')}
+				value={values.durationSec == null ? '-' : formatDurationCompact(values.durationSec)}
+			/>
+			<StatRow
+				label={t('trackRecording.trackingDistance')}
+				value={formatDistance(values.distanceM, distUnit)}
+			/>
+			<StatRow
+				label={t('trackRecording.trackingPointCount')}
+				value={String(values.pointCount)}
+			/>
+			<StatRow
+				label={t('trackRecording.trackingUphill')}
+				value={formatHeightDepth(values.uphill, heightUnit)}
+			/>
+			<StatRow
+				label={t('trackRecording.trackingDownhill')}
+				value={formatHeightDepth(values.downhill, heightUnit)}
+			/>
+			<StatRow
+				label={t('trackRecording.trackingAvgSpeed')}
+				value={
+					values.avgSpeedMps == null ? '-' : formatSpeed(values.avgSpeedMps, speedUnit)
+				}
+			/>
+			<StatRow
+				label={t('trackRecording.trackingMaxSpeed')}
+				value={
+					values.maxSpeedMps == null ? '-' : formatSpeed(values.maxSpeedMps, speedUnit)
+				}
+			/>
+			<StatRow
+				label={t('trackRecording.trackingMovingDuration')}
+				value={values.movingSec == null ? '-' : formatDurationCompact(values.movingSec)}
+			/>
+			<StatRow
+				label={t('trackRecording.trackingPauseDuration')}
+				value={values.pauseSec == null ? '-' : formatDurationCompact(values.pauseSec)}
+			/>
+		</>
+	);
+};
+
+/**
  * Combined tracking panel: location/GNSS status and toggles plus the
  * track-recording stats and controls, structured as two sections.
  *
@@ -153,6 +226,7 @@ const TrackingDrawerContent: FC<{
 	const gnssPosition = useAppSelector(selectGnssPosition);
 	const gnssCourse = useGnssCourse();
 	const speed = useGnssSpeed();
+	const deviceAzimuth = useDeviceAzimuth();
 	const activeLineId = useAppSelector(selectActiveLineId);
 	const recordingStartTime = useAppSelector(selectRecordingStartTime);
 	const unitPrefs = useAppSelector(selectUnitPrefs);
@@ -201,6 +275,39 @@ const TrackingDrawerContent: FC<{
 		gcTime: 1000 * 10,
 	});
 
+	// Aggregate over the active line's track_points — one cheap SQL
+	// aggregate per fix (the per-append invalidation keeps it live).
+	const { data: pointsStats } = useQuery({
+		queryKey: [
+			'lineTrackPoints',
+			lineId,
+			'stats',
+		],
+		queryFn: () => queryTrackPointsStats(lineId),
+		enabled: isRecording && !!activeLineId,
+		staleTime: Infinity,
+		gcTime: 1000 * 10,
+	});
+
+	// Last recording's cached summary (tracks.data) for the idle view.
+	// getTrackSummary verifies freshness and recomputes when stale.
+	const { data: lastTrackSummary } = useQuery({
+		queryKey: ['trackSummary', lastRecordedLineId],
+		queryFn: async () => {
+			if (typeof lastRecordedLineId !== 'number') {
+				return null;
+			}
+			const track = await queryTrackByLineId(lastRecordedLineId);
+			if (!track?.id) {
+				return null;
+			}
+			return getTrackSummary(track.id, lastRecordedLineId);
+		},
+		enabled: !isRecording && typeof lastRecordedLineId === 'number',
+		staleTime: Infinity,
+		gcTime: 1000 * 10,
+	});
+
 	const distance = useMemo(() => {
 		if (!line?.geometry?.coordinates) return 0;
 		return haversineLineLength(line.geometry.coordinates);
@@ -208,6 +315,77 @@ const TrackingDrawerContent: FC<{
 
 	const pointCount = line?.geometry?.coordinates?.length ?? 0;
 	const distUnit = unitPrefs?.distance;
+
+	const coords = line?.geometry?.coordinates;
+
+	const { uphill, downhill } = useMemo(() => {
+		let up = 0;
+		let down = 0;
+		if (coords) {
+			for (let i = 1; i < coords.length; i++) {
+				const dz = (coords[i][2] ?? 0) - (coords[i - 1][2] ?? 0);
+				if (dz > 0) {
+					up += dz;
+				} else {
+					down += -dz;
+				}
+			}
+		}
+		return { uphill: up, downhill: down };
+	}, [coords]);
+
+	const movingMs = pointsStats?.movingDurationMs ?? 0;
+	const avgSpeed = movingMs > 0 ? distance / (movingMs / 1000) : null;
+
+	// Duration, moving and pause all come from the SAME fetched stats
+	// snapshot (no Date.now() in the mix): they update together per fix,
+	// stay internally consistent and can never step backwards.  Falls
+	// back to the session timer only before the first metadata rows
+	// exist (the first two fixes).
+	const statsDurationMs =
+		pointsStats?.startTs != null && pointsStats?.endTs != null
+			? Math.max(0, pointsStats.endTs - pointsStats.startTs)
+			: null;
+	const liveDurationSec = statsDurationMs != null ? Math.floor(statsDurationMs / 1000) : elapsed;
+	const livePauseSec =
+		statsDurationMs != null ? Math.max(0, Math.floor((statsDurationMs - movingMs) / 1000)) : 0;
+
+	// Live values while recording.
+	const recordingStats: TrackStatsValues = {
+		durationSec: liveDurationSec,
+		distanceM: distance,
+		pointCount,
+		uphill,
+		downhill,
+		avgSpeedMps: avgSpeed,
+		maxSpeedMps: pointsStats?.maxSpeed ?? null,
+		movingSec: pointsStats ? Math.floor(movingMs / 1000) : null,
+		pauseSec: pointsStats ? livePauseSec : null,
+	};
+
+	// The same rows sourced from the last recording's summary while idle.
+	const idleStats: TrackStatsValues | null = lastTrackSummary
+		? {
+				durationSec:
+					lastTrackSummary.totalDurationMs == null
+						? null
+						: Math.floor(lastTrackSummary.totalDurationMs / 1000),
+				distanceM: lastTrackSummary.distanceM,
+				pointCount: lastTrackSummary.pointCount,
+				uphill: lastTrackSummary.ascentM,
+				downhill: lastTrackSummary.descentM,
+				avgSpeedMps: lastTrackSummary.avgSpeedMps,
+				maxSpeedMps: lastTrackSummary.maxSpeedMps,
+				movingSec:
+					lastTrackSummary.movingDurationMs == null
+						? null
+						: Math.floor(lastTrackSummary.movingDurationMs / 1000),
+				pauseSec:
+					lastTrackSummary.pauseDurationMs == null
+						? null
+						: Math.floor(lastTrackSummary.pauseDurationMs / 1000),
+			}
+		: null;
 
 	const handleStartNew = useCallback(async () => {
 		const granted = await ensureLocationPermission();
@@ -377,6 +555,10 @@ const TrackingDrawerContent: FC<{
 							label={t('gnss.gnssCourse')}
 							value={gnssCourse === null ? '-' : formatBearing(gnssCourse)}
 						/>
+						<StatRow
+							label={t('gnss.compassBearing')}
+							value={deviceAzimuth == null ? '-' : formatBearing(deviceAzimuth)}
+						/>
 					</View>
 				</View>
 
@@ -409,26 +591,23 @@ const TrackingDrawerContent: FC<{
 
 					<View>
 						{isRecording ? (
-							<>
-								<StatRow
-									label={t('trackRecording.trackingDuration')}
-									value={formatDurationCompact(elapsed)}
-								/>
-								<StatRow
-									label={t('trackRecording.trackingDistance')}
-									value={formatDistance(distance, distUnit)}
-								/>
-								<StatRow
-									label={t('trackRecording.trackingPointCount')}
-									value={String(pointCount)}
-								/>
-							</>
+							<TrackStatsRows
+								values={recordingStats}
+								distUnit={distUnit}
+								heightUnit={heightUnit}
+								speedUnit={speedUnit}
+							/>
+						) : resumePending ? (
+							<Text style={styles.idleText}>{t('trackRecording.resuming')}</Text>
+						) : idleStats ? (
+							<TrackStatsRows
+								values={idleStats}
+								distUnit={distUnit}
+								heightUnit={heightUnit}
+								speedUnit={speedUnit}
+							/>
 						) : (
-							<Text style={styles.idleText}>
-								{resumePending
-									? t('trackRecording.resuming')
-									: t('trackRecording.notRecording')}
-							</Text>
+							<Text style={styles.idleText}>{t('trackRecording.notRecording')}</Text>
 						)}
 					</View>
 
