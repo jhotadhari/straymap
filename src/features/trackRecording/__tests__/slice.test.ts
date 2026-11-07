@@ -12,6 +12,7 @@ import trackRecordingReducer, {
 	setUseDemAltitude,
 	setActiveLineId,
 	setPausedLineId,
+	setLastRecordedLineId,
 } from '../slice';
 
 describe('trackRecording slice reducers', () => {
@@ -70,5 +71,15 @@ describe('trackRecording slice reducers', () => {
 		expect(state.pausedLineId).toBe(42);
 		state = trackRecordingReducer(state, setPausedLineId(null));
 		expect(state.pausedLineId).toBeNull();
+	});
+
+	it('setLastRecordedLineId sets and clears the drawer last-recording pointer', () => {
+		expect(
+			trackRecordingReducer(undefined, { type: '@@INIT' } as any).lastRecordedLineId
+		).toBeNull();
+		let state = trackRecordingReducer(undefined, setLastRecordedLineId(42));
+		expect(state.lastRecordedLineId).toBe(42);
+		state = trackRecordingReducer(state, setLastRecordedLineId(null));
+		expect(state.lastRecordedLineId).toBeNull();
 	});
 });

@@ -52,16 +52,16 @@ LinesState extends SliceSettingsBase, LinesSettings {
 
 ### Key thunks
 
-| Thunk                                | What it does                                                                         |
-| ------------------------------------ | ------------------------------------------------------------------------------------ |
-| `setLineSelected(id, isSelected?)`   | Toggle-adds/removes a single line from `selected[]`                                  |
-| `setLinesSelected(newIds: number[])` | Bulk-replaces `selected[]` (no-op if unchanged)                                      |
-| `toggleLinesSort(columnKey)`         | Toggle sort direction or switch to a new column                                      |
-| `toggleTagsSort(columnKey)`          | Same for the tags table                                                              |
-| `randomizeLineColors(lineIds)`     | Assigns random `PALETTE_COLORS` to the given lines, avoiding same-adjacent-colour |
-| `setLinesColor(color, lineIds)`    | Sets the given lines to the same palette colour                                    |
-| `setLinesWidth(width)`             | Sets the shared ordinary-line stroke width (clamped)                               |
-| `onSetDbPath()`                    | Clears `selected[]` when the db path changes (user must restart)                   |
+| Thunk                                | What it does                                                                      |
+| ------------------------------------ | --------------------------------------------------------------------------------- |
+| `setLineSelected(id, isSelected?)`   | Toggle-adds/removes a single line from `selected[]`                               |
+| `setLinesSelected(newIds: number[])` | Bulk-replaces `selected[]` (no-op if unchanged)                                   |
+| `toggleLinesSort(columnKey)`         | Toggle sort direction or switch to a new column                                   |
+| `toggleTagsSort(columnKey)`          | Same for the tags table                                                           |
+| `randomizeLineColors(lineIds)`       | Assigns random `PALETTE_COLORS` to the given lines, avoiding same-adjacent-colour |
+| `setLinesColor(color, lineIds)`      | Sets the given lines to the same palette colour                                   |
+| `setLinesWidth(width)`               | Sets the shared ordinary-line stroke width (clamped)                              |
+| `onSetDbPath()`                      | Clears `selected[]` when the db path changes (user must restart)                  |
 
 ### Key reducers (also exported as actions)
 
@@ -195,18 +195,18 @@ Opens when `lineTemp` is set (via `dispatch(setLineTemp({ id }))`).
 
 ### Rows (in render order)
 
-| Row              | Purpose                                                    |
-| ---------------- | ---------------------------------------------------------- |
-| `RowName`        | Edits line title (dispatches `setLineTemp`)                |
-| `RowTags`        | Manage tags attached to this line (add/remove)             |
-| `RowCustomDate`  | Edit the `custom_date` field                               |
-| `RowFlyTo`       | Smooth fly to line's bounding box (disabled if not on map) |
-| `RowToggleOnMap` | Toggle line visibility with dynamic icon/label             |
-| `RowRouting`     | Load/activate routing for this line                        |
-| `RowStats`       | Show aggregated statistics                                 |
-| `RowApplyDem`    | Apply DEM elevation data (disabled for system lines)       |
-| `RowExport`      | Export to GPX/KML/GeoJSON via shared 3-phase modal         |
-| `RowDelete`      | Delete single line with confirmation modal                 |
+| Row              | Purpose                                                                                                                                                   |
+| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `RowName`        | Edits line title (dispatches `setLineTemp`)                                                                                                               |
+| `RowTags`        | Manage tags attached to this line (add/remove)                                                                                                            |
+| `RowCustomDate`  | Edit the `custom_date` field                                                                                                                              |
+| `RowFlyTo`       | Smooth fly to line's bounding box (disabled if not on map)                                                                                                |
+| `RowToggleOnMap` | Toggle line visibility with dynamic icon/label                                                                                                            |
+| `RowRouting`     | Load/activate routing for this line                                                                                                                       |
+| `RowStats`       | Show aggregated statistics                                                                                                                                |
+| `RowApplyDem`    | Apply DEM elevation data (disabled for system lines)                                                                                                      |
+| `RowExport`      | Export to GPX/KML/GeoJSON via shared 3-phase modal                                                                                                        |
+| `RowDelete`      | Delete single line with confirmation modal. Disabled for system lines — except the paused recording line: deleting it releases the paused recording mode. |
 
 ## Bulk actions (`LinesTable/useBulkActions/`)
 
@@ -224,6 +224,12 @@ into a `Record<string, MenuActionOption>` — also memoized.
 | Export          | `useExport`        | Yes    |
 | Show stats      | `useShowStats`     | Yes    |
 | Delete lines    | `useDeleteLines`   | Yes    |
+
+Bulk delete excludes the routing line **and the actively recording line**
+(`routingLineId` / `trackRecording.activeLineId`) from `deleteIds` — neither
+may be deleted while in use. The **paused** recording line is deletable:
+stopping clears `activeLineId`, and deleting the parked line releases the
+paused recording mode.
 
 ### Consumer memo chain
 
@@ -319,12 +325,13 @@ assigned per line.
 
 `LinesMapView` subscribes to `selectLineColors` and `selectLineWidth`. A
 `useMemo`'d `Map<colorHex, paintObject>` (at most 11 entries — 10 palette
-+ 1 default `PALETTE_COLORS[0].bg`) caches paints by colour; each paint
-carries the shared `lineWidth` (default `DEFAULT_LINE_WIDTH`), rebuilt when
-`lineWidth` changes. Each `<LayerPath>` looks up its line's paint via
-`paintByColor.get(lineColors[lineId] ?? FALLBACK_COLOR)`. Paint objects are
-shared when colours repeat, so per-line colour has no per-element allocation
-cost. Stroke width is shared across all ordinary lines (not per-line).
+
+- 1 default `PALETTE_COLORS[0].bg`) caches paints by colour; each paint
+  carries the shared `lineWidth` (default `DEFAULT_LINE_WIDTH`), rebuilt when
+  `lineWidth` changes. Each `<LayerPath>` looks up its line's paint via
+  `paintByColor.get(lineColors[lineId] ?? FALLBACK_COLOR)`. Paint objects are
+  shared when colours repeat, so per-line colour has no per-element allocation
+  cost. Stroke width is shared across all ordinary lines (not per-line).
 
 ### ListRow colour column
 
@@ -422,6 +429,28 @@ typed as `ReturnType<typeof useButtonProps>` (destructured from
   `setLinesSelected(without(selectedIds, ...checkedIds))` to immediately sync
   Redux after DB deletion. Without this, the map and DrawerTopBar show stale
   data because they read from Redux, not React Query.
+
+- **Deleting a paused recording line releases the pause**: a line that is
+  currently recording can't be deleted (`RowDelete` disabled, bulk delete
+  excludes `activeLineId`), but after `stopRecording` the last recorded line
+  is parked in `pausedLineId` and **can** be deleted. `useDeleteLinesCbModal`
+  clears `pausedLineId` on success (the `setSelected` listener in
+  trackRecording does the same on map removal) and also clears
+  `trackRecording.lastRecordedLineId` when the deleted ids include it — the
+  persisted field that drives the tracking drawer's idle stats and
+  Continue-last menu. Clearing it (rather than re-deriving from the DB)
+  ensures the drawer shows _nothing_ after a deliberate delete instead of
+  falling back to an older recorded line. It also invalidates the
+  `['trackSummary', …]` query.
+
+- **Removing the last recorded line from the map also clears
+  `lastRecordedLineId`**: the `setSelected` listener in trackRecording
+  releases both `pausedLineId` and `lastRecordedLineId` when the parked
+  line leaves the map — but only on an actual removal (checked against the
+  pre-action `selected`), so a legacy-seeded pointer whose line simply
+  isn't selected survives unrelated map toggles. Re-adding the line
+  renders it as a normal line; continuing is still possible via
+  `RowContinueRecording`.
 
 - **`envelope` is included in `queryLinesWithoutGeom`**: only `geometry` is
   excluded. `envelope` is always available for fly-to / bounding box operations

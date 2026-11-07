@@ -16,6 +16,7 @@ import {
 	setIsRecordingAction,
 	setActiveTrackId,
 	setActiveLineId,
+	setLastRecordedLineId,
 	setMinDistance,
 	setMinTime,
 	setMinPrecision,
@@ -48,9 +49,9 @@ import { setIsActive } from '../gnss/slice';
 import { startRecordingTask, stopRecordingTask } from './backgroundTask';
 import { deriveSpeedMps, toTrackCoord } from './utils';
 import {
-	invalidateLastRecordedLineQueries,
 	invalidateLineTrackPointsQueries,
 	invalidateTrackSummaryQueries,
+	queryLastRecordedLine,
 	queryLinePointCount,
 } from './db/queryFns';
 import { setActiveKey } from '../bottomDrawer/slice';
@@ -64,6 +65,21 @@ import {
 import { dbConnection } from '../dbLoader/DBConnection';
 
 const settingsKey = 'trackRecordingSettings';
+
+/**
+ * Seed the drawer's "last recording" pointer from the DB — used once
+ * for legacy installs whose persisted settings predate the field. Never
+ * runs when the key is present in storage (including an explicit null),
+ * so a deliberate delete isn't undone by re-seeding on restart.
+ */
+const seedLastRecordedLineId = (store: AppStore) => {
+	if (!dbConnection?.drizzle) {
+		return;
+	}
+	queryLastRecordedLine()
+		.then((id) => store.dispatch(setLastRecordedLineId(id)))
+		.catch((err) => logError('trackRecording/seedLastRecordedLineId', err));
+};
 
 /**
  * Load settings from DefaultPreference and dispatch to the store.
@@ -122,6 +138,21 @@ export const initializeFromStorage = (store: AppStore) => {
 				if (typeof newSettings.recordingStartTime === 'number') {
 					store.dispatch(setRecordingStartTime(newSettings.recordingStartTime));
 				}
+				// Restore the drawer's "last recording" pointer. The key
+				// is always persisted (even when null), so a stored null
+				// means "deliberately cleared" — never re-seed. Only
+				// legacy settings (pre-field) seed from the DB.
+				if (Object.prototype.hasOwnProperty.call(newSettings, 'lastRecordedLineId')) {
+					store.dispatch(
+						setLastRecordedLineId(
+							typeof newSettings.lastRecordedLineId === 'number'
+								? newSettings.lastRecordedLineId
+								: null
+						)
+					);
+				} else {
+					seedLastRecordedLineId(store);
+				}
 			}
 			store.dispatch(setInitialized(true));
 		})
@@ -143,6 +174,10 @@ export const saveToStorage = (state: TrackRecordingState, _actionType: string) =
 			set(settingsToSave, key, valueToSave);
 		}
 	});
+	// Always persist the last-recorded pointer — including null, which
+	// marks a deliberate delete (see initializeFromStorage). The loop
+	// above skips null because it matches the initial value.
+	set(settingsToSave, 'lastRecordedLineId', get(state, 'lastRecordedLineId') ?? null);
 	return DefaultPreference.set(settingsKey, JSON.stringify(settingsToSave));
 };
 
@@ -154,6 +189,7 @@ startAppListening({
 		setIsRecordingAction,
 		setActiveTrackId,
 		setActiveLineId,
+		setLastRecordedLineId,
 		setMinDistance,
 		setMinTime,
 		setMinPrecision,
@@ -405,7 +441,6 @@ const processWriteGnssPosition = async (
 		if (queryClient) {
 			invalidateLinesQueries(queryClient);
 			invalidateLineGeomQueries(queryClient);
-			invalidateLastRecordedLineQueries(queryClient);
 			invalidateLineTrackPointsQueries(queryClient);
 		}
 		return;
@@ -546,7 +581,6 @@ startAppListening({
 		if (queryClient) {
 			invalidateLinesQueries(queryClient);
 			invalidateLineGeomQueries(queryClient);
-			invalidateLastRecordedLineQueries(queryClient);
 			invalidateLineTrackPointsQueries(queryClient);
 			invalidateTrackSummaryQueries(queryClient);
 		}
@@ -577,17 +611,27 @@ startAppListening({
  * recording mode.  Removing the paused line from the map (toggle, table,
  * bulk actions, delete, clear — all converge on lines/setSelected)
  * parks nothing; re-adding it renders it as a normal line.
+ *
+ * Removing the last recorded line from the map also releases the
+ * drawer's idle "last recording" state (stats + Continue-last menu) —
+ * only on an actual removal though: a legacy-seeded pointer whose line
+ * simply isn't on the map must survive unrelated map toggles.
  */
 startAppListening({
 	actionCreator: setSelected,
 	effect: (_action, listenerApi) => {
-		const { pausedLineId } = listenerApi.getState().trackRecording;
-		if (pausedLineId == null) {
-			return;
-		}
+		const prevSelected = listenerApi.getOriginalState().lines.selected;
+		const { pausedLineId, lastRecordedLineId } = listenerApi.getState().trackRecording;
 		const { selected } = listenerApi.getState().lines;
-		if (!selected.includes(pausedLineId)) {
+		if (pausedLineId != null && !selected.includes(pausedLineId)) {
 			listenerApi.dispatch(setPausedLineId(null));
+		}
+		if (
+			lastRecordedLineId != null &&
+			prevSelected.includes(lastRecordedLineId) &&
+			!selected.includes(lastRecordedLineId)
+		) {
+			listenerApi.dispatch(setLastRecordedLineId(null));
 		}
 	},
 });

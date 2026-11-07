@@ -11,6 +11,7 @@ import { FooterContext } from '../Context';
 import { useAppDispatch, useAppSelector } from '../../../../../store/hooks';
 import { selectSelected } from '../../../selectors';
 import { setLinesSelected } from '../../../slice';
+import { selectActiveLineId } from '../../../../trackRecording/selectors';
 import useDeleteLinesCbModal from '../../../hooks/useDeleteLinesCbModal';
 
 const useDeleteLines = () => {
@@ -20,14 +21,28 @@ const useDeleteLines = () => {
 	const dispatch = useAppDispatch();
 
 	const selectedIds = useAppSelector(selectSelected);
+	const activeLineId = useAppSelector(selectActiveLineId);
 
-	// Exclude the routing line from bulk deletion — deleting the
-	// line that is currently being routed would orphan the active
-	// route and break the map display.
-	const deleteIds = useMemo(
-		() => (routingLineId ? without(checkedIds, routingLineId) : checkedIds),
-		[checkedIds, routingLineId]
-	);
+	// Exclude the routing line and the actively recording line from
+	// bulk deletion — deleting the line that is currently being routed
+	// would orphan the active route, and deleting the line a recording
+	// session is appending to would break the recording. The paused
+	// recording line (activeLineId is null after a stop) stays
+	// deletable — deleting it releases the paused recording mode.
+	const deleteIds = useMemo(() => {
+		const excluded: number[] = [];
+		if (routingLineId) {
+			excluded.push(routingLineId);
+		}
+		if (activeLineId != null) {
+			excluded.push(activeLineId);
+		}
+		return excluded.length ? without(checkedIds, ...excluded) : checkedIds;
+	}, [
+		checkedIds,
+		routingLineId,
+		activeLineId,
+	]);
 
 	const removeLinesFromMap = useCallback(() => {
 		setOnMapIdsTemp &&

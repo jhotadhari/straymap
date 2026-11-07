@@ -13,6 +13,7 @@ import ButtonHighlight from '../../../../components/generic/primitives/ButtonHig
 import useDeleteLinesCbModal from '../../hooks/useDeleteLinesCbModal';
 import { selectLineTemp } from '../../selectors';
 import { useAppSelector, useSystemLineIds } from '../../../../store/hooks';
+import { selectActiveLineId, selectPausedLineId } from '../../../trackRecording/selectors';
 import { useButtonProps } from '../../../../compose/useButtonProps';
 
 const RowDelete: FC = () => {
@@ -23,9 +24,27 @@ const RowDelete: FC = () => {
 	const { selectLine, route, onDismiss, onDeleteSuccess } = useContext(LineEditModalContext);
 
 	const systemLineIds = useSystemLineIds();
+	const activeLineId = useAppSelector(selectActiveLineId);
+	const pausedLineId = useAppSelector(selectPausedLineId);
 	const isSystemLine = useMemo(
 		() => Object.values(systemLineIds).includes(lineTemp?.id ?? -1),
 		[systemLineIds, lineTemp?.id]
+	);
+	const isActiveRecordingLine = useMemo(
+		() => activeLineId != null && activeLineId === lineTemp?.id,
+		[activeLineId, lineTemp?.id]
+	);
+	const isPausedRecordingLine = useMemo(
+		() => pausedLineId != null && pausedLineId === lineTemp?.id,
+		[pausedLineId, lineTemp?.id]
+	);
+	// System lines can't be deleted — except the paused recording line:
+	// deleting it releases the paused recording mode (the line carries
+	// the 'recorded' tag, so it could still be continued afterwards, but
+	// the user explicitly chose to delete it).
+	const disabled = useMemo(
+		() => isSystemLine && !isPausedRecordingLine,
+		[isSystemLine, isPausedRecordingLine]
 	);
 
 	const removeFromMap = useCallback(() => {
@@ -56,14 +75,16 @@ const RowDelete: FC = () => {
 
 	const buttonProps = useButtonProps({
 		mode: 'outlined',
-		disabled: !!isSystemLine,
+		disabled,
 		paddingHorizontal: true,
 	});
 
 	return (
 		<InfoLabelRow
 			label={t('lines.delete')}
-			Info={t('lines.hintDelete')}
+			Info={
+				isActiveRecordingLine ? t('lines.lineBusy.trackRecording') : t('lines.hintDelete')
+			}
 		>
 			{modalNodeDelete}
 			<ButtonHighlight
@@ -72,7 +93,7 @@ const RowDelete: FC = () => {
 				onPress={handleDelete}
 				icon={iconSourceDelete}
 			>
-				{isSystemLine ? t('lines.isRoutingLine') : t('lines.delete')}
+				{disabled && !isActiveRecordingLine ? t('lines.isRoutingLine') : t('lines.delete')}
 			</ButtonHighlight>
 		</InfoLabelRow>
 	);

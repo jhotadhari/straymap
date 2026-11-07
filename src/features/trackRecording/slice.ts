@@ -34,6 +34,12 @@ export interface TrackRecordingSettings {
 	useDemAltitude: boolean;
 	activeTrackId: number | null;
 	activeLineId: number | null;
+	/** The line of the most recently *stopped* recording — drives the
+	 * tracking drawer's idle stats and its "Continue last" menu. Set on
+	 * stopRecording, cleared when that line is deleted or removed from
+	 * the map. Persisted (even when null) so a deliberate clear isn't
+	 * undone by a DB fallback to an older recorded line. */
+	lastRecordedLineId: number | null;
 	minDistance: number;
 	minTime: number;
 	minPrecision: number;
@@ -78,6 +84,7 @@ export const initialSettings: TrackRecordingSettings = {
 	useDemAltitude: true,
 	activeTrackId: null,
 	activeLineId: null,
+	lastRecordedLineId: null,
 	minDistance: 5,
 	minTime: 2,
 	minPrecision: 20,
@@ -112,6 +119,9 @@ export const trackRecordingSlice = createSlice({
 		},
 		setActiveLineId: (state, action: PayloadAction<number | null>) => {
 			state.activeLineId = action.payload;
+		},
+		setLastRecordedLineId: (state, action: PayloadAction<number | null>) => {
+			state.lastRecordedLineId = action.payload;
 		},
 		setMinDistance: (state, action: PayloadAction<number>) => {
 			state.minDistance = action.payload;
@@ -175,6 +185,7 @@ export const {
 	setIsRecording: setIsRecordingAction,
 	setActiveTrackId,
 	setActiveLineId,
+	setLastRecordedLineId,
 	setMinDistance,
 	setMinTime,
 	setMinPrecision,
@@ -333,6 +344,7 @@ export const confirmRecordingResume =
 			dispatch(setActiveTrackId(null));
 			dispatch(setActiveLineId(null));
 			dispatch(setPausedLineId(null));
+			dispatch(setLastRecordedLineId(null));
 			dispatch(setRecordingStartTime(null));
 			return false;
 		}
@@ -367,6 +379,13 @@ export const stopRecording = (): AppThunk => async (dispatch, getState) => {
 	dispatch(setResumePromptPending(false));
 	dispatch(setActiveTrackId(null));
 	dispatch(setActiveLineId(null));
+	// The just-stopped line becomes the tracking drawer's idle "last
+	// recording" (stats + Continue-last menu). Only when a line exists —
+	// a stop before the lazily created line's first two fixes parks
+	// nothing and must keep the previous last recording.
+	if (pausedLineId != null) {
+		dispatch(setLastRecordedLineId(pausedLineId));
+	}
 	dispatch(setRecordingStartTime(null));
 
 	// Finalize the track summary into tracks.data — a cache: raw

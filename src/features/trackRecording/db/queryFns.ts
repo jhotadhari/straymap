@@ -70,6 +70,9 @@ export const queryTrackByLineId = async (lineId: number) => {
 /**
  * Most recently created line carrying the system 'recorded' tag.
  * `created_at` ranks recordings correctly (recording start time).
+ * Only used to seed the trackRecording slice's `lastRecordedLineId`
+ * for legacy installs — the drawer reads the Redux field, not this
+ * query, so no invalidation helper is needed.
  */
 export const queryLastRecordedLine = async () => {
 	if (!dbConnection?.drizzle) {
@@ -84,16 +87,6 @@ export const queryLastRecordedLine = async () => {
 		.orderBy(desc(linesTable.created_at))
 		.limit(1);
 	return rows[0]?.id ?? null;
-};
-
-/**
- * Invalidate the last-recorded-line query (['lastRecordedLine']).
- */
-export const invalidateLastRecordedLineQueries = (queryClient: QueryClient) => {
-	return queryClient.invalidateQueries({
-		predicate: (query) =>
-			Array.isArray(query.queryKey) && query.queryKey[0] === 'lastRecordedLine',
-	});
 };
 
 /**

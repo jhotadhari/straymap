@@ -18,6 +18,9 @@ import { useButtonProps } from '../../../compose/useButtonProps';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { sharedStyles } from '../../../sharedStyles';
 import { setIsRouting } from '../../routing/slice';
+import { setPausedLineId, setLastRecordedLineId } from '../../trackRecording/slice';
+import { selectPausedLineId, selectLastRecordedLineId } from '../../trackRecording/selectors';
+import { invalidateTrackSummaryQueries } from '../../trackRecording/db/queryFns';
 import { removeChartLines, removeLineColors, removeLineRamps } from '../slice';
 import { closeFullscreenChart, removeChartSettings } from '../../chart/slice';
 import { getChartSourceKey } from '../../chart/types';
@@ -53,6 +56,8 @@ const useDeleteLinesCbModal = ({
 	const { t } = useTranslation();
 
 	const fullscreenLineId = useAppSelector(selectFullscreenLineId);
+	const pausedLineId = useAppSelector(selectPausedLineId);
+	const lastRecordedLineId = useAppSelector(selectLastRecordedLineId);
 
 	const buttonPropsSuccess = useButtonProps({ isSuccess: true });
 	const buttonPropsDelete = useButtonProps({ isDestructive: true });
@@ -101,6 +106,10 @@ const useDeleteLinesCbModal = ({
 				await invalidateLinesQueries(dbConnection.queryClient!);
 				await invalidateLineGeomQueries(dbConnection.queryClient!);
 				invalidateTagsTable(dbConnection.queryClient!);
+				// The tracking drawer's idle-stats query is cached — the
+				// invalidation above doesn't reach it, and after the id is
+				// cleared below it would disable itself while stale.
+				await invalidateTrackSummaryQueries(dbConnection.queryClient!);
 				// Prune chart state only after the lines are actually gone:
 				// the derived bottom-drawer chart entries and their persisted
 				// settings must not survive the line (chartLines is persisted,
@@ -117,6 +126,22 @@ const useDeleteLinesCbModal = ({
 				dispatch(removeLineColors(deleteIds));
 				// Same for user-assigned colour ramps.
 				dispatch(removeLineRamps(deleteIds));
+				// A deleted line can't stay parked as the paused recording
+				// line — release the paused mode. Belt-and-braces: the
+				// setSelected listener in trackRecording already releases
+				// it when the line is removed from the map, but this also
+				// covers deletes where no selected-set change happened.
+				if (pausedLineId != null && deleteIds.includes(pausedLineId)) {
+					dispatch(setPausedLineId(null));
+				}
+				// Deleting the last recorded line clears the tracking
+				// drawer's idle "last recording" (stats + Continue-last
+				// menu) — it must not fall back to an older recorded
+				// line. The field is persisted, so the cleared state
+				// also survives restarts.
+				if (lastRecordedLineId != null && deleteIds.includes(lastRecordedLineId)) {
+					dispatch(setLastRecordedLineId(null));
+				}
 				// Close modal.
 				handleDismissModal();
 				// Call onSuccess (eg LinesTable uncheck lines).
@@ -128,6 +153,8 @@ const useDeleteLinesCbModal = ({
 			includesRoute,
 			deleteIds,
 			fullscreenLineId,
+			pausedLineId,
+			lastRecordedLineId,
 			handleDismissModal,
 			onSuccess,
 			dispatch,

@@ -12,6 +12,8 @@ export const selectUseDemAltitude = (state: RootState) => state.trackRecording.u
 export const selectActiveTrackId = (state: RootState) => state.trackRecording.activeTrackId;
 export const selectActiveLineId = (state: RootState) => state.trackRecording.activeLineId;
 export const selectPausedLineId = (state: RootState) => state.trackRecording.pausedLineId;
+export const selectLastRecordedLineId = (state: RootState) =>
+	state.trackRecording.lastRecordedLineId;
 /**
  * The line the track-recording feature owns: the actively recorded line,
  * or the last recorded line parked after a stop (stop is pause).

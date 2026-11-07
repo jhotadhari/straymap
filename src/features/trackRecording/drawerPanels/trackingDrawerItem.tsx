@@ -29,10 +29,10 @@ import { setIsActive, setIsCenterActive } from '../../gnss/slice';
 import { useGnssSpeed } from '../../gnss/hooks/useGnssSpeed';
 import { useGnssCourse } from '../../gnss/hooks/useGnssCourse';
 import { selectIsRecording, selectActiveLineId, selectRecordingStartTime } from '../selectors';
-import { selectResumePending } from '../selectors';
+import { selectResumePending, selectLastRecordedLineId } from '../selectors';
 import { startRecording, stopRecording, continueRecording } from '../slice';
 import { queryLineGeom } from '../../lines/db/queryFns';
-import { queryLastRecordedLine, queryTrackByLineId, queryTrackPointsStats } from '../db/queryFns';
+import { queryTrackByLineId, queryTrackPointsStats } from '../db/queryFns';
 import { getTrackSummary } from '../db/actionsTrack';
 import { setUiItemKeys } from '../../ui/slice';
 import { itemStyles, DRAWER_HANDLE_SIZE, DRAWER_ICON_SIZE } from '../../drawers/constants';
@@ -228,6 +228,11 @@ const TrackingDrawerContent: FC<{
 	const activeLineId = useAppSelector(selectActiveLineId);
 	const recordingStartTime = useAppSelector(selectRecordingStartTime);
 	const unitPrefs = useAppSelector(selectUnitPrefs);
+	// The drawer's idle "last recording" comes from Redux, not a DB
+	// lookup: set on stopRecording, cleared when that line is deleted.
+	// A DB-derived fallback would resurrect an older recorded line's
+	// stats right after the user deleted their last recording.
+	const lastRecordedLineId = useAppSelector(selectLastRecordedLineId);
 
 	const coordUnit = get(unitPrefs, ['coordinates', 'unit'], 'dd');
 	const coordRound = get(unitPrefs, ['coordinates', 'round'], 4);
@@ -262,13 +267,6 @@ const TrackingDrawerContent: FC<{
 		],
 		queryFn: queryLineGeom,
 		enabled: !!activeLineId,
-		staleTime: Infinity,
-		gcTime: 1000 * 10,
-	});
-
-	const { data: lastRecordedLineId } = useQuery({
-		queryKey: ['lastRecordedLine'],
-		queryFn: queryLastRecordedLine,
 		staleTime: Infinity,
 		gcTime: 1000 * 10,
 	});
