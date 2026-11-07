@@ -2,7 +2,8 @@
  * External dependencies
  */
 import React, { FC, useCallback, useContext } from 'react';
-import { ScrollView, ViewStyle } from 'react-native';
+import { ScrollView, StyleSheet, View, ViewStyle } from 'react-native';
+import { useTheme, Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 
 /**
@@ -11,28 +12,50 @@ import { useTranslation } from 'react-i18next';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { selectIsActive } from '../selectors';
 import { setIsActive } from '../slice';
-import { selectIsRecording } from '../../trackRecording/selectors';
-import { startRecording, stopRecording } from '../../trackRecording/slice';
 import TrackRecordingControl from '../../trackRecording/components/TrackRecordingControl';
 import GnssCenterControl from '../components/controls/GnssCenterControl';
 import GnssMarkerControl from '../components/controls/GnssMarkerControl';
 import TrackingDrawerPanelSideControl from '../components/controls/TrackingDrawerPanelSideControl';
-import InfoLabelRow from '../../../components/generic/infoWrapper/InfoLabelRow';
-import ButtonHighlight from '../../../components/generic/primitives/ButtonHighlight';
-import { useButtonProps } from '../../../compose/useButtonProps';
+import ToggleRowControl from '../../../components/generic/controls/ToggleRowControl';
 import { ErrorToastContext } from '../../../components/ErrorToast/Context';
 import ensureLocationPermission from '../../../lib/locationPermission';
 
+/**
+ * Uppercase, muted section heading rendered above each settings group —
+ * the flat list equivalent of the Material 3 grouped-list look.
+ */
+const SettingsSectionHeader: FC<{ title: string; first?: boolean }> = ({ title, first }) => {
+	const theme = useTheme();
+
+	return (
+		<Text
+			style={[
+				styles.sectionHeader,
+				first && styles.sectionHeaderFirst,
+				{ color: theme.colors.onSurfaceVariant },
+			]}
+		>
+			{title}
+		</Text>
+	);
+};
+
+/**
+ * Location settings, grouped into three flat sections:
+ *
+ * 1. GNSS & Positioning — enable toggle, auto-center mode, marker config.
+ * 2. Track Recording — recording thresholds and line width.
+ * 3. Display & Drawer — where the tracking drawer panel lives.
+ *
+ * Live session actions (start/stop recording) live in the drawer panel,
+ * not here — this page only holds configuration.
+ */
 const SettingsLocation: FC<{ style?: ViewStyle }> = ({ style }) => {
 	const { t } = useTranslation();
 	const dispatch = useAppDispatch();
 	const { showError } = useContext(ErrorToastContext);
 
 	const isGnssActive = useAppSelector(selectIsActive);
-	const isRecording = useAppSelector(selectIsRecording);
-
-	const buttonPropsGnss = useButtonProps({ mode: isGnssActive ? 'contained' : 'outlined' });
-	const buttonPropsRecording = useButtonProps({ mode: isRecording ? 'contained' : 'outlined' });
 
 	const handleToggleGnss = useCallback(async () => {
 		if (!isGnssActive) {
@@ -52,63 +75,67 @@ const SettingsLocation: FC<{ style?: ViewStyle }> = ({ style }) => {
 		t,
 	]);
 
-	const handleToggleRecording = useCallback(async () => {
-		if (isRecording) {
-			dispatch(stopRecording());
-			return;
-		}
-		const granted = await ensureLocationPermission();
-		if (!granted) {
-			showError(t('gnss.permissionDenied'));
-			return;
-		}
-		dispatch(startRecording());
-	}, [
-		dispatch,
-		isRecording,
-		showError,
-		t,
-	]);
-
 	return (
-		<ScrollView style={style}>
-			<InfoLabelRow
-				label={t('gnss.title')}
-				Info={t(isGnssActive ? 'gnss.deactivateGnss' : 'gnss.activateGnss')}
-			>
-				<ButtonHighlight
-					{...buttonPropsGnss}
-					compact={true}
-					onPress={handleToggleGnss}
-					icon={isGnssActive ? 'crosshairs-gps' : 'crosshairs-off'}
-				>
-					{isGnssActive ? t('gnss.deactivateGnss') : t('gnss.activateGnss')}
-				</ButtonHighlight>
-			</InfoLabelRow>
-
-			<InfoLabelRow
-				label={t('trackRecording.title')}
-				Info={t(isRecording ? 'trackRecording.stop' : 'trackRecording.start')}
-			>
-				<ButtonHighlight
-					{...buttonPropsRecording}
-					compact={true}
-					onPress={handleToggleRecording}
-					icon={isRecording ? 'stop' : 'record-rec'}
-				>
-					{isRecording ? t('trackRecording.stop') : t('trackRecording.start')}
-				</ButtonHighlight>
-			</InfoLabelRow>
-
-			<GnssCenterControl />
-
-			<GnssMarkerControl />
-
-			<TrackRecordingControl />
-
-			<TrackingDrawerPanelSideControl />
+		<ScrollView
+			style={style}
+			contentContainerStyle={styles.content}
+		>
+			<View>
+				<SettingsSectionHeader
+					first
+					title={t('gnss.sectionGnssPositioning')}
+				/>
+				<View style={styles.row}>
+					<ToggleRowControl
+						label={t('gnss.enableGnss')}
+						value={isGnssActive}
+						onToggle={handleToggleGnss}
+						Info={t('gnss.hintGnssLocation')}
+					/>
+				</View>
+				<View style={styles.row}>
+					<GnssCenterControl />
+				</View>
+				<View style={styles.row}>
+					<GnssMarkerControl />
+				</View>
+			</View>
+			<View>
+				<SettingsSectionHeader title={t('trackRecording.sectionTrackRecording')} />
+				<View style={styles.row}>
+					<TrackRecordingControl />
+				</View>
+			</View>
+			<View>
+				<SettingsSectionHeader title={t('gnss.sectionDisplayDrawer')} />
+				<View style={styles.row}>
+					<TrackingDrawerPanelSideControl />
+				</View>
+			</View>
 		</ScrollView>
 	);
 };
+
+const styles = StyleSheet.create({
+	content: {
+		paddingBottom: 32,
+		paddingHorizontal: 16,
+		gap: 20,
+	},
+	row: {
+		paddingVertical: 8,
+	},
+	sectionHeader: {
+		fontSize: 12,
+		fontWeight: '600',
+		letterSpacing: 1,
+		textTransform: 'uppercase',
+		marginTop: 24,
+		marginBottom: 8,
+	},
+	sectionHeaderFirst: {
+		marginTop: 8,
+	},
+});
 
 export default SettingsLocation;

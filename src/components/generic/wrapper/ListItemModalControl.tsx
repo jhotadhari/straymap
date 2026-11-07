@@ -22,6 +22,8 @@ const ListItemModalControl: FC<{
 	scrollEnabled?: boolean;
 	onLayout?: (event: LayoutChangeEvent) => void;
 	anchorIcon?: (props: { color: string; style: ListStyle }) => React.ReactNode;
+	/** Custom anchor row replacing the built-in ListItem (receives the open handler). */
+	anchor?: (props: { onPress: () => void }) => ReactNode;
 	afterDismiss?: () => void;
 }> = ({
 	listItemStyle,
@@ -33,6 +35,7 @@ const ListItemModalControl: FC<{
 	scrollEnabled = true,
 	onLayout,
 	anchorIcon,
+	anchor,
 	afterDismiss,
 }) => {
 	const [visible, setVisible] = useState(false);
@@ -63,12 +66,16 @@ const ListItemModalControl: FC<{
 				</ModalWrapper>
 			)}
 
-			<ListItem
-				style={listItemStyle}
-				title={anchorLabel}
-				icon={anchorIcon ? anchorIcon : undefined}
-				onPress={handleAnchorPress}
-			/>
+			{anchor ? (
+				anchor({ onPress: handleAnchorPress })
+			) : (
+				<ListItem
+					style={listItemStyle}
+					title={anchorLabel}
+					icon={anchorIcon ? anchorIcon : undefined}
+					onPress={handleAnchorPress}
+				/>
+			)}
 		</View>
 	);
 };

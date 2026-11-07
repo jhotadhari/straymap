@@ -50,16 +50,15 @@ const GnssCenterControl: FC = () => {
 				Info={t('gnss.hintCenterMode')}
 			/>
 
-			{isCenterActive && (
-				<NumericRowControl
-					label={t('gnss.recenterDelay')}
-					value={recenterDelaySec}
-					onUpdate={handleRecenterDelaySec}
-					Info={t('gnss.hintRecenterDelay')}
-					numType="float"
-					validate={validateNonNegative}
-				/>
-			)}
+			<NumericRowControl
+				label={t('gnss.recenterDelay')}
+				value={recenterDelaySec}
+				onUpdate={handleRecenterDelaySec}
+				Info={t('gnss.hintRecenterDelay')}
+				numType="float"
+				validate={validateNonNegative}
+				disabled={!isCenterActive}
+			/>
 		</View>
 	);
 };

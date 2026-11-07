@@ -2,7 +2,8 @@
  * External dependencies
  */
 import React, { FC, useCallback, useMemo } from 'react';
-import { Icon } from 'react-native-paper';
+import { Icon, useTheme } from 'react-native-paper';
+import { StyleSheet, TouchableHighlight, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { SvgXml } from 'react-native-svg';
 import { sprintf } from 'sprintf-js';
@@ -14,6 +15,7 @@ import MarkerControl from '../../../../components/generic/controls/MarkerControl
 import NumericRowControl from '../../../../components/generic/controls/NumericRowControl';
 import OptionMenuRowControl from '../../../../components/generic/controls/OptionMenuRowControl';
 import ToggleRowControl from '../../../../components/generic/controls/ToggleRowControl';
+import InfoLabelRow from '../../../../components/generic/infoWrapper/InfoLabelRow';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import {
 	selectAccuracyCircleThresholdMeters,
@@ -114,6 +116,7 @@ const GnssMarkerPreview: FC<{
  */
 const GnssMarkerControl: FC = () => {
 	const { t } = useTranslation();
+	const theme = useTheme();
 	const dispatch = useAppDispatch();
 
 	const appDirs = useAppSelector(selectAppDirs);
@@ -151,6 +154,33 @@ const GnssMarkerControl: FC = () => {
 			markerColor,
 		]
 	);
+
+	// Anchor row: label left (InfoLabelRow → aligned with the other
+	// settings rows' labels) and the live marker preview right (aligned
+	// with the toggles above). The whole row opens the config modal.
+	const anchorComponent = useMemo(() => {
+		return ({ onPress }: { onPress: () => void }) => (
+			<TouchableHighlight
+				underlayColor={theme.colors.elevation.level3}
+				onPress={onPress}
+			>
+				<InfoLabelRow label={t('gnss.gnssMarker')}>
+					<View style={styles.anchorContent}>
+						<GnssMarkerPreview
+							config={{
+								...config,
+								color: theme.colors.onBackground,
+							}}
+						/>
+					</View>
+				</InfoLabelRow>
+			</TouchableHighlight>
+		);
+	}, [
+		theme,
+		t,
+		config,
+	]);
 
 	const handleUpdate = useCallback(
 		(partial: Partial<{ iconSource: string; size: number; color: string }>) => {
@@ -202,6 +232,7 @@ const GnssMarkerControl: FC = () => {
 	return (
 		<MarkerControl
 			anchorLabel={t('gnss.gnssMarker')}
+			anchorComponent={anchorComponent}
 			header={t('gnss.gnssMarker')}
 			config={config}
 			onUpdate={handleUpdate}
@@ -225,5 +256,13 @@ const GnssMarkerControl: FC = () => {
 		/>
 	);
 };
+
+const styles = StyleSheet.create({
+	anchorContent: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		justifyContent: 'flex-end',
+	},
+});
 
 export default GnssMarkerControl;

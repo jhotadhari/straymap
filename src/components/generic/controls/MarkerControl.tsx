@@ -44,6 +44,8 @@ const MarkerControl: FC<{
 	PreviewComponent: ElementType<{ config: MarkerConfig }>;
 	/** Config used for the anchor-row preview (e.g. size/color overrides). */
 	anchorPreviewConfig?: MarkerConfig;
+	/** Custom anchor row replacing the built-in ListItem anchor (receives the open handler). */
+	anchorComponent?: (props: { onPress: () => void }) => ReactNode;
 	hintFile: string;
 	hintSize: string;
 	hintColor: string;
@@ -67,6 +69,7 @@ const MarkerControl: FC<{
 	dirs,
 	PreviewComponent,
 	anchorPreviewConfig,
+	anchorComponent,
 	hintFile,
 	hintSize,
 	hintColor,
@@ -103,6 +106,7 @@ const MarkerControl: FC<{
 	return (
 		<ListItemModalControl
 			anchorLabel={anchorLabel}
+			anchor={anchorComponent}
 			anchorIcon={({ color, style }) => (
 				<View style={style}>
 					<PreviewComponent
