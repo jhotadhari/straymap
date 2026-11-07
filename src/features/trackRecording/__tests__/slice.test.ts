@@ -10,9 +10,12 @@ import trackRecordingReducer, {
 	setResumePending,
 	setResumePromptPending,
 	setUseDemAltitude,
+	setActiveTrackId,
 	setActiveLineId,
 	setPausedLineId,
+	setRecordingStartTime,
 	setLastRecordedLineId,
+	onSetDbPath,
 } from '../slice';
 
 describe('trackRecording slice reducers', () => {
@@ -81,5 +84,34 @@ describe('trackRecording slice reducers', () => {
 		expect(state.lastRecordedLineId).toBe(42);
 		state = trackRecordingReducer(state, setLastRecordedLineId(null));
 		expect(state.lastRecordedLineId).toBeNull();
+	});
+
+	describe('onSetDbPath', () => {
+		it('clears all DB-local state for the db swap', () => {
+			// Build a state where every DB-local field is set.
+			let state = trackRecordingReducer(undefined, { type: '@@INIT' } as any);
+			state = trackRecordingReducer(state, setIsRecordingAction(true));
+			state = trackRecordingReducer(state, setResumePending(true));
+			state = trackRecordingReducer(state, setResumePromptPending(true));
+			state = trackRecordingReducer(state, setActiveTrackId(7));
+			state = trackRecordingReducer(state, setActiveLineId(42));
+			state = trackRecordingReducer(state, setPausedLineId(42));
+			state = trackRecordingReducer(state, setRecordingStartTime(123456));
+			state = trackRecordingReducer(state, setLastRecordedLineId(42));
+
+			const dispatch = jest.fn((action: any) => {
+				state = trackRecordingReducer(state, action);
+			});
+			onSetDbPath()(dispatch, jest.fn(), undefined as any);
+
+			expect(state.isRecording).toBe(false);
+			expect(state.resumePending).toBe(false);
+			expect(state.resumePromptPending).toBe(false);
+			expect(state.activeTrackId).toBeNull();
+			expect(state.activeLineId).toBeNull();
+			expect(state.pausedLineId).toBeNull();
+			expect(state.recordingStartTime).toBeNull();
+			expect(state.lastRecordedLineId).toBeNull();
+		});
 	});
 });

@@ -3,6 +3,7 @@
  */
 import { initializeFromStorage } from './connectStorage';
 import { selectInitialized, selectIsRecording, selectTrackLineId } from './selectors';
+import { onSetDbPath } from './slice';
 import de from './assets/i18n/de.json';
 import en from './assets/i18n/en.json';
 import es from './assets/i18n/es.json';
@@ -15,6 +16,7 @@ import ResumeRecordingPrompt from './appOverlays/ResumeRecordingPrompt';
 export default {
 	selectInitialized,
 	initializeFromStorage,
+	onSetDbPath,
 	translation: {
 		de,
 		en,

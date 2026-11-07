@@ -47,6 +47,16 @@ public class HelperModule extends NativeHelperModuleSpec {
 	};
 
 	@ReactMethod
+	public void exitApp() {
+		// Kill the process (including any running foreground service).
+		// Used by the db-swap "restart required" flow: swiping the app
+		// away normally leaves the process alive while a foreground
+		// service runs, which would keep the Redux store (and the
+		// requireReload flag) around forever.
+		android.os.Process.killProcess( android.os.Process.myPid() );
+	}
+
+	@ReactMethod
 	public void setWindowBackgroundColor(String color) {
 		getReactApplicationContext().runOnUiQueueThread(new Runnable() {
 			@Override

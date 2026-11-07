@@ -2,7 +2,7 @@
  * External dependencies
  */
 import React, { FC, useEffect, useMemo, useRef, useState } from 'react';
-import { BackHandler, Dimensions, processColor, StyleSheet, View } from 'react-native';
+import { BackHandler, AppState, Dimensions, processColor, StyleSheet, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { PaperProvider, Text, useTheme } from 'react-native-paper';
 import { MapEventResponse } from 'react-native-mapsforge-vtm';
@@ -82,6 +82,24 @@ const App: FC = () => {
 	const dbPendingMigrations = useAppSelector(selectDbPendingMigrations);
 
 	const requireReload = useAppSelector(selectRequireReload);
+
+	// While a db change is pending (requireReload), make sure "swipe the
+	// app away" actually terminates the process: a running foreground
+	// service (BackgroundTaskService) keeps the process alive otherwise,
+	// which would preserve the Redux store and re-show this splash on
+	// every relaunch. Exiting on background guarantees a fresh start
+	// that opens the new database.
+	useEffect(() => {
+		if (!requireReload) {
+			return;
+		}
+		const subscription = AppState.addEventListener('change', (nextState) => {
+			if ('background' === nextState) {
+				HelperModule.exitApp();
+			}
+		});
+		return () => subscription.remove();
+	}, [requireReload]);
 
 	const isReady =
 		initialPositionInitialized &&

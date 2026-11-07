@@ -420,3 +420,25 @@ export const pauseRecordingForPrompt = (): AppThunk => async (dispatch) => {
 	// recording until the user continues (resume re-registers it).
 	await stopRecordingTask();
 };
+
+/**
+ * Called when the database path changes (dbLoader `setDbPath` thunk
+ * dispatches every feature's `onSetDbPath` hook). Clears all DB-local
+ * state: the ids referenced rows in the OLD database and would point
+ * into the void after the swap + restart.
+ *
+ * `setLastRecordedLineId(null)` is the important one: it is always
+ * persisted (even as null) by `saveToStorage`, so the deliberate-clear
+ * marker is written at swap time and the next start does NOT re-seed
+ * the "Continue last recording" pointer from the new database.
+ */
+export const onSetDbPath = (): AppThunk => (dispatch) => {
+	dispatch(setIsRecordingAction(false)); // resets lastWritten* too
+	dispatch(setResumePending(false));
+	dispatch(setResumePromptPending(false));
+	dispatch(setActiveTrackId(null));
+	dispatch(setActiveLineId(null));
+	dispatch(setPausedLineId(null));
+	dispatch(setRecordingStartTime(null));
+	dispatch(setLastRecordedLineId(null)); // "deliberately cleared" marker
+};
