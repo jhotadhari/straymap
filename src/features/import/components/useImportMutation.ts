@@ -306,36 +306,48 @@ const useImportMutation = () => {
 
 			if (keepAppActive) await bgTask.start(limitedUris.length);
 
-			// Pre-fetch existing lines for all selected URIs in ONE
-			// query instead of one full scan per file (skip/overwrite
+			// Pre-fetch existing lines for all selected URIs (skip/overwrite
 			// modes and the dry-run skip simulation).  The expression
 			// index on json_extract(data, '$.import.sourceFilePath')
-			// (migration 0003) makes this an index lookup.
+			// (migration 0003) makes this an index lookup.  Chunked so
+			// very large selections stay well under SQLite's variable
+			// limit and the SQL string stays small.
 			const needExisting =
 				overwriteMode !== 'create' && (!dryRun || overwriteMode === 'skip');
+			const PRE_FETCH_CHUNK = 500;
 			let existingByUri = new Map<string, { id: number; trackIndex: number | null }[]>();
 			if (needExisting && limitedUris.length > 0 && dbConnection?.drizzle) {
 				try {
-					const rows = await dbConnection.drizzle
-						.select({ id: linesTable.id, data: linesTable.data })
-						.from(linesTable)
-						.where(sql`
-							json_extract(
-								${linesTable.data},
-								'$.import.sourceFilePath'
-							) IN ${limitedUris}
-						`);
-					for (const row of rows) {
-						const sourcePath = row.data?.import?.sourceFilePath;
-						if (typeof sourcePath !== 'string') continue;
-						const index = row.data?.import?.trackIndexInFile;
-						const entry = {
-							id: row.id,
-							trackIndex: typeof index === 'number' ? index : null,
-						};
-						const arr = existingByUri.get(sourcePath);
-						if (arr) arr.push(entry);
-						else existingByUri.set(sourcePath, [entry]);
+					for (
+						let chunkStart = 0;
+						chunkStart < limitedUris.length;
+						chunkStart += PRE_FETCH_CHUNK
+					) {
+						const chunkUris = limitedUris.slice(
+							chunkStart,
+							chunkStart + PRE_FETCH_CHUNK
+						);
+						const rows = await dbConnection.drizzle
+							.select({ id: linesTable.id, data: linesTable.data })
+							.from(linesTable)
+							.where(sql`
+								json_extract(
+									${linesTable.data},
+									'$.import.sourceFilePath'
+								) IN ${chunkUris}
+							`);
+						for (const row of rows) {
+							const sourcePath = row.data?.import?.sourceFilePath;
+							if (typeof sourcePath !== 'string') continue;
+							const index = row.data?.import?.trackIndexInFile;
+							const entry = {
+								id: row.id,
+								trackIndex: typeof index === 'number' ? index : null,
+							};
+							const arr = existingByUri.get(sourcePath);
+							if (arr) arr.push(entry);
+							else existingByUri.set(sourcePath, [entry]);
+						}
 					}
 				} catch (err) {
 					logError('import.preFetchExistingByUri', err);
@@ -344,8 +356,12 @@ const useImportMutation = () => {
 			}
 
 			// Read-ahead: overlap the next file's native read with the
-			// current file's JS-side parse/write.
+			// current file's JS-side parse/write.  Files that will be
+			// fast-skipped (already imported) are never read at all.
+			const namesByUri = new Map<string, string>();
+			for (const f of dirFiles) namesByUri.set(f.uri, f.name);
 			let pendingRead: Promise<string> | null = null;
+			let lastBgTaskUpdate = 0;
 			for (let i = 0; i < limitedUris.length; i++) {
 				if (dismissedRef.current || stopRequestedRef.current) {
 					// Persist partial results before aborting so the
@@ -356,13 +372,52 @@ const useImportMutation = () => {
 				}
 				setBulkProgress({ current: i + 1, total: limitedUris.length });
 				const uri = limitedUris[i];
-				const name =
-					dirFiles.find((f) => f.uri === uri)?.name ?? uri.split('/').pop() ?? uri;
-				if (keepAppActive) bgTask.update(i + 1, name);
+				const name = namesByUri.get(uri) ?? uri.split('/').pop() ?? uri;
+
+				// Fast path: skip mode + this file was already imported —
+				// decide BEFORE reading/parsing the file.  A directory
+				// re-import with thousands of preexisting files becomes
+				// one map lookup per file instead of a disk read + GPX
+				// parse per file.  (Dry runs stay faithful: they still
+				// read/parse to preview per-file detail.)
+				const existing = existingByUri.get(uri) ?? [];
+				const fastSkip = !dryRun && overwriteMode === 'skip' && existing.length > 0;
+
+				// Throttled native notification update (skipped files
+				// included so the progress still advances).
+				if (keepAppActive) {
+					const now = Date.now();
+					if (i === 0 || now - lastBgTaskUpdate >= 300 || i === limitedUris.length - 1) {
+						lastBgTaskUpdate = now;
+						bgTask.update(i + 1, name);
+					}
+				}
+
+				if (fastSkip) {
+					results.push({
+						name,
+						success: true,
+						skipped: existing.length,
+						isDryRun: false,
+						mergeMode,
+					});
+					// Yield so a Stop press stays responsive during long
+					// skip-only runs (near-instant iterations).
+					await new Promise<void>((resolve) => setTimeout(resolve, 0));
+					continue;
+				}
+
 				try {
 					const content = pendingRead ? await pendingRead : await readFile(uri, 'utf8');
-					if (i + 1 < limitedUris.length) {
-						pendingRead = readFile(limitedUris[i + 1], 'utf8');
+					const nextUri = i + 1 < limitedUris.length ? limitedUris[i + 1] : null;
+					if (nextUri != null) {
+						// Never prefetch a file that will be fast-skipped —
+						// pendingRead must always hold the current file's
+						// content (or be null).
+						const nextExisting = existingByUri.get(nextUri) ?? [];
+						const nextWillFastSkip =
+							!dryRun && overwriteMode === 'skip' && nextExisting.length > 0;
+						pendingRead = nextWillFastSkip ? null : readFile(nextUri, 'utf8');
 					}
 					// Yield once per file so a Stop press stays
 					// responsive before the synchronous parse work.
@@ -411,7 +466,6 @@ const useImportMutation = () => {
 					let unmatchIds: number[] = [];
 
 					if (!dryRun && overwriteMode !== 'create') {
-						const existing = existingByUri.get(uri) ?? [];
 						if (existing.length > 0) {
 							if (overwriteMode === 'skip') {
 								results.push({
@@ -481,7 +535,6 @@ const useImportMutation = () => {
 
 					if (dryRun) {
 						if (overwriteMode === 'skip') {
-							const existing = existingByUri.get(uri) ?? [];
 							if (existing.length > 0) {
 								const tags = await resolveTagObjects(
 									tagInfo.labels,

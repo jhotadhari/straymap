@@ -132,11 +132,13 @@ The mutation is initialized in `ImportPage.tsx` via `MutationBootstrap`, a compo
   one pre-flight query for current tag relations + one transaction with
   per-row UPDATEs and a single multi-row tag-relation INSERT/DELETE.
 - **Existing-line lookup is pre-fetched once per batch**: directory
-  mode runs a single
-  `json_extract(data, '$.import.sourceFilePath') IN (...)` query for all
-  selected URIs before the loop (indexed by migration
-  `0003_sourcePathIndex`); skip/overwrite/dry-run-skip read from the
-  resulting map instead of querying per file.
+  mode runs chunked `json_extract(data, '$.import.sourceFilePath') IN (...)`
+  queries (500 URIs each) for all selected URIs before the loop (indexed
+  by migration `0003_sourcePathIndex`); skip/overwrite/dry-run-skip read
+  from the resulting map instead of querying per file. In skip mode,
+  files that already exist are **fast-skipped before being read or
+  parsed** — a directory re-import with thousands of preexisting files
+  costs one map lookup per file, not a disk read + GPX parse.
 - **Tag resolution is cached across the batch**: `resolveTagObjects`
   memoizes label→tag and id→tag lookups in `tagCacheRef` for the whole
   mutation run (reset at the start of each run), so later files reuse
