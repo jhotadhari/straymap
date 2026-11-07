@@ -15,11 +15,30 @@ import { PALETTE_COLORS } from '../../constants';
  * recomputed. Accumulates across fixes, so slow movement still updates
  * the direction every few fixes instead of never (per-fix distances at
  * walking pace are ~1-2 m and would drown in GPS noise). */
-export const MIN_HEADING_MOVE_M = 5;
+export const MIN_HEADING_MOVE_M = 2;
 /** Max age of the heading anchor (ms). When older and the movement
  * threshold was never reached (stationary GPS drift), the anchor resets
  * to the current fix without changing the heading. */
 export const HEADING_ANCHOR_MAX_AGE_MS = 10 * 1000;
+
+/** Reported speed at or below this is treated as "no reported speed"
+ * for the derived-speed fallback (m/s). */
+export const REPORTED_SPEED_EPSILON_MPS = 0.5;
+/** Derived speed clearly above this (m/s) while the reported speed is
+ * at or below epsilon votes for the fallback — covers sources that move
+ * positions without reporting a speed (GPS spoofers).  Low enough that
+ * slow-but-steady spoofed movement (e.g. 3 m per 1.5 s ≈ 2 m/s) engages
+ * via the debounce; stationary GPS jitter never sustains it. */
+export const DERIVED_SPEED_FALLBACK_MIN_MPS = 1.5;
+/** Consecutive qualifying fixes required before the fallback engages —
+ * debounce: single-fix GPS jitter spikes don't sustain this. */
+export const FALLBACK_ENGAGE_VOTES = 5;
+/** Reported speed above this (m/s) exits the fallback immediately —
+ * the source is reporting real speed again. */
+export const FALLBACK_EXIT_RAW_MPS = 1;
+/** Consecutive fixes without clear derived movement required to exit
+ * the fallback while the reported speed stays near zero. */
+export const FALLBACK_EXIT_VOTES = 3;
 
 /** Live GNSS position data.  `altitude` is always the raw GNSS fix
  * (independent of the recording filter's DEM resolution), so live
@@ -81,6 +100,14 @@ export interface GnssState extends SliceSettingsBase, GnssSettings {
 	 * spoofers, leave near zero).  Null until the second fix. Runtime
 	 * only. */
 	derivedSpeed: number | null;
+	/** Derived-speed fallback latch: engaged with debounce (consecutive
+	 * qualifying fixes) and released with hysteresis (raw speed clearly
+	 * recovers, or derived movement stops). Runtime only. */
+	speedFallbackActive: boolean;
+	/** Consecutive-fix counter for the fallback latch (both the engage
+	 * and the exit debounce — the phases are mutually exclusive).
+	 * Runtime only. */
+	fallbackVotes: number;
 }
 
 export const initialSettings: GnssSettings = {
@@ -104,6 +131,8 @@ const initialState: GnssState = {
 	heading: null,
 	prevFix: null,
 	derivedSpeed: null,
+	speedFallbackActive: false,
+	fallbackVotes: 0,
 };
 
 export const gnssSlice = createSlice({
@@ -121,6 +150,8 @@ export const gnssSlice = createSlice({
 				state.heading = null;
 				state.prevFix = null;
 				state.derivedSpeed = null;
+				state.speedFallbackActive = false;
+				state.fallbackVotes = 0;
 			}
 		},
 		setGnssPosition: (state, action: PayloadAction<GnssPositionData | null>) => {
@@ -131,6 +162,8 @@ export const gnssSlice = createSlice({
 				state.heading = null;
 				state.prevFix = null;
 				state.derivedSpeed = null;
+				state.speedFallbackActive = false;
+				state.fallbackVotes = 0;
 				return;
 			}
 			// Derived speed from consecutive live fixes — the reported
@@ -148,6 +181,42 @@ export const gnssSlice = createSlice({
 					)
 				: null;
 			state.prevFix = { lng: next.lng, lat: next.lat, timestamp: next.timestamp };
+
+			// Speed-fallback latch: a per-fix binary switch between the
+			// reported and the derived speed oscillates at slow speeds
+			// (reported ~0 while position jitter occasionally spikes the
+			// derived value).  Instead, engage only after consecutive
+			// qualifying fixes, and release only when the reported speed
+			// clearly recovers or the derived movement stops.
+			const rawSpeed = next.speed;
+			const derived = state.derivedSpeed;
+			if (state.speedFallbackActive) {
+				if (rawSpeed > FALLBACK_EXIT_RAW_MPS) {
+					state.speedFallbackActive = false;
+					state.fallbackVotes = 0;
+				} else if (derived == null || derived <= DERIVED_SPEED_FALLBACK_MIN_MPS) {
+					state.fallbackVotes += 1;
+					if (state.fallbackVotes >= FALLBACK_EXIT_VOTES) {
+						state.speedFallbackActive = false;
+						state.fallbackVotes = 0;
+					}
+				} else {
+					state.fallbackVotes = 0;
+				}
+			} else if (
+				rawSpeed <= REPORTED_SPEED_EPSILON_MPS &&
+				derived != null &&
+				derived > DERIVED_SPEED_FALLBACK_MIN_MPS
+			) {
+				state.fallbackVotes += 1;
+				if (state.fallbackVotes >= FALLBACK_ENGAGE_VOTES) {
+					state.speedFallbackActive = true;
+					state.fallbackVotes = 0;
+				}
+			} else {
+				state.fallbackVotes = 0;
+			}
+
 			const anchor = state.headingAnchor;
 			if (!anchor) {
 				state.headingAnchor = { lng: next.lng, lat: next.lat, timestamp: next.timestamp };

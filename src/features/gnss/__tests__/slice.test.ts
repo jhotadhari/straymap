@@ -15,6 +15,21 @@ import gnssReducer, {
 	setShowMeasurementLabel,
 } from '../slice';
 
+/** Dispatch a live GNSS fix (0.001° lat per second ≈ 111 m/s derived). */
+const pos = (lng: number, lat: number, speed: number, timestamp: number) =>
+	({
+		type: 'gnss/setGnssPosition',
+		payload: {
+			lng,
+			lat,
+			altitude: null,
+			bearing: -1,
+			accuracy: 5,
+			speed,
+			timestamp,
+		},
+	}) as any;
+
 describe('gnss slice reducers', () => {
 	it('initial state has sensible marker defaults', () => {
 		const state = gnssReducer(undefined, { type: '@@INIT' } as any);
@@ -175,5 +190,90 @@ describe('gnss slice reducers', () => {
 		state = gnssReducer(state, setIsActive(false));
 		expect(state.prevFix).toBeNull();
 		expect(state.derivedSpeed).toBeNull();
+	});
+
+	describe('speed-fallback latch', () => {
+		/** Engage the fallback: 1 seed fix + 5 qualifying fixes
+		 * (raw 0, derived ~111 m/s). */
+		const engage = () => {
+			let state = gnssReducer(undefined, pos(0, 0, 0, 1000));
+			for (let i = 1; i <= 5; i++) {
+				state = gnssReducer(state, pos(0, i * 0.001, 0, 1000 + i * 1000));
+			}
+			return state;
+		};
+
+		it('engages only after consecutive qualifying fixes', () => {
+			let state = gnssReducer(undefined, pos(0, 0, 0, 1000));
+			for (let i = 1; i < 5; i++) {
+				state = gnssReducer(state, pos(0, i * 0.001, 0, 1000 + i * 1000));
+				expect(state.speedFallbackActive).toBe(false);
+			}
+			state = gnssReducer(state, pos(0, 0.005, 0, 6000));
+			expect(state.speedFallbackActive).toBe(true);
+			expect(state.fallbackVotes).toBe(0);
+		});
+
+		it('resets votes when a fix is not qualifying', () => {
+			let state = gnssReducer(undefined, pos(0, 0, 0, 1000));
+			state = gnssReducer(state, pos(0, 0.001, 0, 2000)); // vote 1
+			state = gnssReducer(state, pos(0, 0.002, 0, 3000)); // vote 2
+			// No movement → derived 0 → not qualifying.
+			state = gnssReducer(state, pos(0, 0.002, 0, 4000));
+			expect(state.speedFallbackActive).toBe(false);
+			expect(state.fallbackVotes).toBe(0);
+		});
+
+		it('raw speed near zero with low derived speed never engages', () => {
+			// Stationary drift: raw 0, derived ~0 (same position).
+			let state = gnssReducer(undefined, pos(0, 0, 0, 1000));
+			for (let i = 0; i < 10; i++) {
+				state = gnssReducer(state, pos(0, 0, 0, 2000 + i * 1000));
+			}
+			expect(state.speedFallbackActive).toBe(false);
+			expect(state.fallbackVotes).toBe(0);
+		});
+
+		it('engages on sustained slow spoofed movement (~2 m/s)', () => {
+			// 3 m per 1.5 s — a slow spoofer stream: derived ≈ 2.2 m/s.
+			let state = gnssReducer(undefined, pos(0, 0, 0, 0));
+			for (let i = 1; i <= 5; i++) {
+				state = gnssReducer(state, pos(0, i * 3e-5, 0, i * 1500));
+			}
+			expect(state.derivedSpeed).toBeGreaterThan(2);
+			expect(state.derivedSpeed).toBeLessThan(3);
+			expect(state.speedFallbackActive).toBe(true);
+		});
+
+		it('exits immediately when the raw speed clearly recovers', () => {
+			let state = engage();
+			expect(state.speedFallbackActive).toBe(true);
+			state = gnssReducer(state, pos(0, 0.006, 1.5, 7000));
+			expect(state.speedFallbackActive).toBe(false);
+			expect(state.fallbackVotes).toBe(0);
+		});
+
+		it('exits after consecutive fixes without derived movement', () => {
+			let state = engage();
+			// Two stops: derived 0 (no movement) while raw stays 0.
+			state = gnssReducer(state, pos(0, 0.005, 0, 7000));
+			expect(state.speedFallbackActive).toBe(true);
+			state = gnssReducer(state, pos(0, 0.005, 0, 8000));
+			expect(state.speedFallbackActive).toBe(true);
+			state = gnssReducer(state, pos(0, 0.005, 0, 9000));
+			expect(state.speedFallbackActive).toBe(false);
+		});
+
+		it('clears the latch when the position resets or GNSS turns off', () => {
+			let state = engage();
+			state = gnssReducer(state, { type: 'gnss/setGnssPosition', payload: null } as any);
+			expect(state.speedFallbackActive).toBe(false);
+			expect(state.fallbackVotes).toBe(0);
+
+			state = engage();
+			state = gnssReducer(state, setIsActive(false));
+			expect(state.speedFallbackActive).toBe(false);
+			expect(state.fallbackVotes).toBe(0);
+		});
 	});
 });

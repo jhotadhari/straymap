@@ -13,6 +13,8 @@ export const selectGnssHeading = (state: RootState) => state.gnss.heading;
 
 export const selectDerivedSpeed = (state: RootState) => state.gnss.derivedSpeed;
 
+export const selectSpeedFallbackActive = (state: RootState) => state.gnss.speedFallbackActive;
+
 export const selectIsCenterActive = (state: RootState) => state.gnss.isCenterActive;
 
 export const selectRecenterDelaySec = (state: RootState) => state.gnss.recenterDelaySec;
