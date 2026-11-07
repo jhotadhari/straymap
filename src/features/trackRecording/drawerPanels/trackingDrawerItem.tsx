@@ -258,13 +258,13 @@ const TrackingDrawerContent: FC<{
 			{
 				key: 'startNew',
 				label: 'trackRecording.startNew',
-				leadingIcon: 'record-rec',
+				leadingIcon: 'play',
 				cb: handleStartNew,
 			},
 			{
 				key: 'continueLast',
 				label: 'trackRecording.continueLast',
-				leadingIcon: 'play',
+				leadingIcon: 'play-pause',
 				cb: handleContinueLast,
 			},
 		],
@@ -388,14 +388,13 @@ const TrackingDrawerContent: FC<{
 						<ButtonHighlight
 							{...stopButtonProps}
 							onPress={handleToggleRecording}
-							icon="stop"
+							icon="pause"
 						>
 							{t('trackRecording.stop')}
 						</ButtonHighlight>
 					) : typeof lastRecordedLineId === 'number' ? (
 						<ButtonHighlightMenuControl
 							anchorLabel={t('trackRecording.start')}
-							anchorIcon={'record-rec'}
 							options={startMenuOptions}
 							buttonPropsProps={{ isSuccess: true }}
 						/>
@@ -403,7 +402,6 @@ const TrackingDrawerContent: FC<{
 						<ButtonHighlight
 							{...startButtonProps}
 							onPress={handleToggleRecording}
-							icon="record-rec"
 						>
 							{t('trackRecording.start')}
 						</ButtonHighlight>
