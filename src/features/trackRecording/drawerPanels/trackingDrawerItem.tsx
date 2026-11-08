@@ -38,7 +38,7 @@ import { setUiItemKeys } from '../../ui/slice';
 import { itemStyles, DRAWER_HANDLE_SIZE, DRAWER_ICON_SIZE } from '../../drawers/constants';
 import { useButtonProps, useDestructiveColor } from '../../../compose/useButtonProps';
 import ButtonHighlight from '../../../components/generic/primitives/ButtonHighlight';
-import IconButtonHighlight from '../../../components/generic/primitives/IconButtonHighlight';
+import DrawerPanelHeading from '../../drawers/components/DrawerPanelHeading';
 import { MenuActionOption } from '../../../types';
 import ButtonHighlightMenuControl from '../../../components/generic/wrapper/ButtonHighlightMenuControl';
 import {
@@ -199,7 +199,6 @@ const TrackingDrawerContent: FC<{
 	setScrollEnabled: Dispatch<SetStateAction<boolean>>;
 }> = () => {
 	const { t } = useTranslation();
-	const theme = useTheme();
 	const dispatch = useAppDispatch();
 
 	const { showError } = useContext(ErrorToastContext);
@@ -473,15 +472,13 @@ const TrackingDrawerContent: FC<{
 		<View style={itemStyles.item}>
 			<View style={styles.container}>
 				<View style={styles.headerWrap}>
-					<View style={[itemStyles.buttonRow, styles.header]}>
-						<Text style={styles.heading}>{t('gnss.locationAndGnss')}</Text>
-						<IconButtonHighlight
-							icon="cog"
-							iconColor={theme.colors.onSurfaceVariant}
-							onPress={openLocationSettings}
-							accessibilityLabel={t('drawers.openLocationSettings')}
-						/>
-					</View>
+					<DrawerPanelHeading
+						title={t('gnss.locationAndGnss')}
+						actionIcon="cog"
+						onActionPress={openLocationSettings}
+						actionAccessibilityLabel={t('drawers.openLocationSettings')}
+						style={styles.header}
+					/>
 				</View>
 
 				{/* Location & GNSS section */}
@@ -629,9 +626,6 @@ const styles = StyleSheet.create({
 		top: -(DRAWER_HANDLE_SIZE - DRAWER_ICON_SIZE) / 6,
 	},
 	header: {
-		flexDirection: 'row',
-		alignItems: 'center',
-		justifyContent: 'space-between',
 		// Fixed handle-height row: centers the heading/cog on the same
 		// vertical center as the drawer handle icon.
 		height: DRAWER_HANDLE_SIZE,
@@ -639,10 +633,6 @@ const styles = StyleSheet.create({
 		// container here already has its own 16px padding.
 		marginHorizontal: 0,
 		marginRight: -12,
-	},
-	heading: {
-		fontSize: 20,
-		fontWeight: 'bold',
 	},
 	sectionDivider: {
 		// Full-bleed: extends through the container's 16px padding so the

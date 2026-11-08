@@ -1,21 +1,15 @@
 /**
  * External dependencies
  */
-import { FC, Fragment, useCallback, useContext, useMemo, useState } from 'react';
+import { FC, useCallback, useContext, useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
-import { Icon } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import LucideIcons from '@react-native-vector-icons/lucide/static';
 
 /**
  * Internal dependencies
  */
-import {
-	DRAWER_HANDLE_SIZE,
-	DRAWER_ICON_SIZE as handleIconSize,
-	itemStyles,
-} from '../../../drawers/constants';
+import { DRAWER_HANDLE_SIZE, itemStyles } from '../../../drawers/constants';
 import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
 import DrawerContext from '../../../drawers/DrawerContext';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
@@ -89,7 +83,8 @@ const DrawerTopBar: FC = () => {
 		[side]
 	);
 
-	const { nestedIconColor: nestedIconColorToggle, ...buttonPropsToggle } = useButtonProps({
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	const { nestedIconColor: _nestedIconColorToggle, ...buttonPropsToggle } = useButtonProps({
 		mode: 'outlined',
 		disabled: isToggling,
 		paddingHorizontal: true,
@@ -100,7 +95,8 @@ const DrawerTopBar: FC = () => {
 		disabled: isToggling,
 		paddingHorizontal: true,
 	});
-	const { nestedIconColor: nestedIconColorProfile, ...buttonPropsProfile } = useButtonProps({
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	const { nestedIconColor: _nestedIconColorProfile, ...buttonPropsProfile } = useButtonProps({
 		mode: 'outlined',
 		disabled: isToggling,
 		paddingHorizontal: true,
@@ -108,72 +104,57 @@ const DrawerTopBar: FC = () => {
 
 	return (
 		<View>
-			<View style={styleItem}>
+			<View style={itemStyles.item}>
 				<View style={styleButtonRow}>
 					{routeId && (
-						<>
-							<RoutingActionsButton
-								actions={actions}
-								disabled={isToggling}
-								buttonPropsProps={{ paddingHorizontal: true }}
-								compact={true}
-							/>
-
-							{line && (
-								<ButtonHighlight
-									{...buttonPropsLine}
-									onPress={handleEditPress}
-									compact={true}
-								>
-									<IconCustom
-										name="route_cog"
-										size={20}
-										color={nestedIconColorLine}
-									/>
-								</ButtonHighlight>
-							)}
-						</>
+						<RoutingActionsButton
+							actions={actions}
+							disabled={isToggling}
+							buttonPropsProps={{ paddingHorizontal: true }}
+							compact={true}
+						/>
 					)}
 
-					<ButtonHighlight
-						{...buttonPropsToggle}
-						onPress={handleToggleRouting}
-						compact={!!routeId}
-					>
-						{!routeId && t('routing.startRouting')}
-						{routeId && (
-							<Icon
-								source={'close'}
-								size={20}
-								color={nestedIconColorToggle}
-							/>
-						)}
-					</ButtonHighlight>
-				</View>
-			</View>
+					{!routeId && (
+						<ButtonHighlight
+							{...buttonPropsToggle}
+							onPress={handleToggleRouting}
+						>
+							{t('routing.startRouting')}
+						</ButtonHighlight>
+					)}
 
-			{route && route.profile && (
-				<View style={styleItem}>
-					<View style={styleButtonRow}>
-						<RoutingProfileInfo
-							profile={route.profile}
-							distUnit={distUnit}
-							style={styleProfileInfo}
-						/>
+					{route && route.profile && (
 						<ButtonHighlight
 							{...buttonPropsProfile}
 							compact={true}
 							onPress={() => setRouteProfileModalVisible(true)}
 						>
-							<LucideIcons
-								size={20}
-								color={nestedIconColorProfile}
-								name="settings-2"
+							<RoutingProfileInfo
+								profile={route.profile}
+								distUnit={distUnit}
+								style={styleProfileInfo}
 							/>
 						</ButtonHighlight>
-					</View>
+					)}
+
+					{routeId && line && (
+						<>
+							<ButtonHighlight
+								{...buttonPropsLine}
+								onPress={handleEditPress}
+								compact={true}
+							>
+								<IconCustom
+									name="route_cog"
+									size={20}
+									color={nestedIconColorLine}
+								/>
+							</ButtonHighlight>
+						</>
+					)}
 				</View>
-			)}
+			</View>
 
 			{route && (
 				<RouteProfileModal
@@ -186,9 +167,6 @@ const DrawerTopBar: FC = () => {
 	);
 };
 const styles = StyleSheet.create({
-	item: {
-		top: -(DRAWER_HANDLE_SIZE - handleIconSize) / 6,
-	},
 	flexRow: {
 		flexDirection: 'row',
 		alignItems: 'center',
@@ -199,7 +177,5 @@ const styles = StyleSheet.create({
 		flexDirection: 'row-reverse',
 	},
 });
-
-const styleItem = [itemStyles.item, styles.item];
 
 export default DrawerTopBar;
