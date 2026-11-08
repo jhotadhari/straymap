@@ -26,6 +26,7 @@ import { dbConnection } from './DBConnection';
 import { logError } from '../../lib/utils';
 import { getDbDefaultName } from './utils';
 import { dbExtension } from './constants';
+import { repairGiantGeometries } from '../lines/db/repairGiantGeometries';
 import i18n from '../../assets/i18n/i18n';
 
 const settingsKey = 'dbLoaderSettings';
@@ -59,7 +60,21 @@ export const initializeFromStorage = (store: AppStore) => {
 						store.dispatch(setDbPendingMigrations(pendingCount));
 						return dbConnection.runMigrations();
 					})
-					.then(() => {
+					.then(async () => {
+						// One-time repair of oversized geometries (giant
+						// tracks crash libspatialite on read — see
+						// lines/db/repairGiantGeometries.ts).  Runs before
+						// features initialize, so no geometry query can
+						// touch the bad blobs.  Must never fail app init:
+						// errors are logged and skipped.
+						try {
+							const repaired = await repairGiantGeometries();
+							if (repaired > 0 && __DEV__) {
+								console.log(`[dbLoader] repaired ${repaired} giant geometr(y/ies)`);
+							}
+						} catch (err) {
+							logError('dbLoader.repairGiantGeometries', err);
+						}
 						store.dispatch(setDbMigrated(true));
 						store.dispatch(setInitialized(true));
 						resolve(true);

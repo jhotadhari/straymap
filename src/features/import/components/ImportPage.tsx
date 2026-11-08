@@ -211,7 +211,9 @@ const ImportPage = () => {
 
 			if (!result.features.length) {
 				if (dismissedRef.current) return;
-				showError(t('import.noFeatures'));
+				showError(
+					result.tinyCount > 0 ? t('import.noTrackPoints') : t('import.noFeatures')
+				);
 				setStep('idle');
 				return;
 			}
@@ -463,6 +465,9 @@ const ImportPage = () => {
 							) : (
 								<Text>{t('import.importing')}</Text>
 							)}
+							<Text style={localStyles.importHint}>
+								{t('import.keepAppOpenHint')}
+							</Text>
 							{importMode === 'directory' && (
 								<View style={localStyles.topSpace}>
 									<ButtonHighlight

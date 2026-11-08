@@ -5,9 +5,11 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
+import android.content.Context
 import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.os.IBinder
+import android.os.PowerManager
 import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
 import java.util.concurrent.ConcurrentHashMap
@@ -36,19 +38,51 @@ class BackgroundTaskService : Service() {
         val needsLocation: Boolean
     )
 
+    /**
+     * Partial wake lock held while tasks are registered.  Without it the
+     * CPU sleeps once the display turns off (Doze) and the JS import
+     * loop stalls — a foreground service alone only keeps the PROCESS
+     * alive, it does not keep the CPU awake.
+     */
+    private var wakeLock: PowerManager.WakeLock? = null
+
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
+        acquireWakeLock()
     }
 
     override fun onDestroy() {
         tasks.clear()
+        releaseWakeLock()
         // Explicitly remove the notification — stopService() from
         // unregisterTask does not always drop it on every OEM skin.
         stopForeground(STOP_FOREGROUND_REMOVE)
         super.onDestroy()
+    }
+
+    private fun acquireWakeLock() {
+        if (wakeLock == null) {
+            val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
+            wakeLock = powerManager.newWakeLock(
+                PowerManager.PARTIAL_WAKE_LOCK,
+                "straymap:backgroundTask"
+            ).apply {
+                setReferenceCounted(false)
+                acquire()
+            }
+        }
+    }
+
+    private fun releaseWakeLock() {
+        wakeLock?.let {
+            if (it.isHeld) {
+                it.release()
+            }
+            wakeLock = null
+        }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {

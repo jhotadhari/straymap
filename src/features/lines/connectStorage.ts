@@ -14,6 +14,7 @@ import {
 	initialSettings,
 	setInitialized,
 	setSelected,
+	setSelectedCountPromptPending,
 	setTagBadgeMode,
 	setUseSimplification,
 	setLinesTableColumns,
@@ -39,6 +40,7 @@ import {
 } from './slice';
 import { startAppListening } from '../../store/listenerMiddleware';
 import { selectInitialized } from './selectors';
+import { shouldPromptSelectedCount } from './utils/selectedPrompt';
 import { AppStore } from '../../store/store';
 import { logError } from '../../lib/utils';
 import { ensureSystemTagsExist } from './db/actionsTag';
@@ -67,6 +69,12 @@ export const initializeFromStorage = async (store: AppStore): Promise<boolean> =
 			const newSettings = JSON.parse(newSettingsStr) as Partial<LinesState>;
 			if (newSettings?.selected) {
 				store.dispatch(setSelected(newSettings.selected));
+				// Very large restored selections slow the map — ask the
+				// user once whether to keep or clear them (the overlay
+				// appears after the recording-resume prompt).
+				if (shouldPromptSelectedCount(newSettings.selected)) {
+					store.dispatch(setSelectedCountPromptPending(true));
+				}
 			}
 			if (newSettings?.linesTable?.tableColumns) {
 				store.dispatch(setLinesTableColumns(newSettings.linesTable!.tableColumns));

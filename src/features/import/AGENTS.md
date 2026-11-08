@@ -115,8 +115,14 @@ The mutation is initialized in `ImportPage.tsx` via `MutationBootstrap`, a compo
 - Iterates over `selectedFileUris` (respecting `fileLimit`)
 - For each file: reads content, detects format, parses features
 - Read-ahead: the next file's native read overlaps the current file's
-  parse/write; a `setTimeout(0)` yield per file keeps the Stop button
-  responsive
+  parse/write
+- **No timer-based yields inside the loop**: RN schedules JS timers on
+  choreographer frame boundaries, which stop ticking when the app is
+  backgrounded — a `setTimeout` await would freeze the import there.
+  Responsiveness comes from the loop's natural native awaits
+  (`readFile`, op-sqlite), which return control to the event loop so a
+  Stop press (checked via `stopRequestedRef` at the top of every
+  iteration) is processed between files.
 - Optionally starts a background task to keep the app alive
 - Reports per-file results
 
@@ -150,16 +156,35 @@ The mutation is initialized in `ImportPage.tsx` via `MutationBootstrap`, a compo
 
 `parseImportContent` returns `times: (number[] | null)[]` aligned with
 its features — per-point epoch timestamps from GPX `<trkpt>/<rtept>`
-`<time>` elements (togeojson-style `coordinateProperties.times`).
+`<time>` elements (togeojson-style `coordinateProperties.times`), plus
+`tinyCount` (tracks with exactly one point — zero-distance recordings
+that can never become LineStrings; the importer reports them with the
+`noTrackPoints` message instead of the generic "nothing found").
 The import writes them into the `line_points` table
 (`lines/db/schema/schema.ts`, migration `0004_mushy_maginty`) via
 `createLinePoints` / `replaceLinePoints`
 (`lines/db/actionsLinePoints.ts`); `buildLinePoints`
 (`import/utils.ts`) derives per-segment speed from haversine distances.
-When no date is extracted from the filename, `custom_date` falls back
-to the track's first timestamp (`firstTimeIso`) instead of the SQL
-`current_timestamp` default. In merge mode, times are concatenated in
-feature order and only stored when every feature has full coverage.
+Inserts are chunked (500 rows per statement) — a single INSERT for a
+100k+ point track would exceed SQLite's SQL variable limit and overflow
+Hermes' native stack. When no date is extracted from the filename,
+`custom_date` falls back to the track's first timestamp (`firstTimeIso`)
+instead of the SQL `current_timestamp` default. In merge mode, times
+are concatenated in feature order and only stored when every feature
+has full coverage.
+
+### Giant tracks are split (`LINE_MAX_POINTS`)
+
+Features larger than `LINE_MAX_POINTS` (30,000 points — defined in
+`lines/db/repairGiantGeometries.ts`) are split into consecutive parts
+at write time (`expandToWriteItems` / `partTitleSuffix` in
+`import/utils.ts`): parts share `properties` and `trackIndexInFile`,
+get titles like `name (2/3)`, and their `line_points` times are sliced
+in sync. Overwrite mode pairs parts with existing line ids by order;
+extra parts are created, leftover ids go to the unmatched list. Merge
+mode splits its merged output the same way. Existing oversized lines
+from before this change are split once at startup by
+`repairGiantGeometries()` (dbLoader init, after migrations).
 
 ### Stopping an import
 

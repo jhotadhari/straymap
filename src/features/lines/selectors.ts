@@ -18,6 +18,9 @@ export const selectTagTemp = (state: RootState) => state.lines.tagTemp;
 
 export const selectSelected = (state: RootState) => state.lines.selected;
 
+export const selectSelectedCountPromptPending = (state: RootState) =>
+	state.lines.selectedCountPromptPending;
+
 const allLinesColumnKeys = [
 	...Object.keys(lineCells),
 	...Object.keys(statsCells),

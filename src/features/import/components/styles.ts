@@ -26,7 +26,7 @@ export const localStyles = StyleSheet.create({
 		marginVertical: 16,
 	},
 	featureListItem: {
-		padding: 0,	// overwrite ListItem innerStyle
+		padding: 0, // overwrite ListItem innerStyle
 		marginLeft: 0, // // overwrite ListItem innerStyle
 		paddingVertical: 4,
 	},
@@ -126,5 +126,11 @@ export const localStyles = StyleSheet.create({
 	},
 	topSpace: {
 		marginTop: 24,
+	},
+	importHint: {
+		marginTop: 12,
+		paddingHorizontal: 24,
+		textAlign: 'center',
+		opacity: 0.7,
 	},
 });

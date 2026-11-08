@@ -69,6 +69,12 @@ export interface LinesState extends SliceSettingsBase, LinesSettings {
 	lineTemp?: LinePartial;
 	tagTemp?: { id: number; label?: string | null; notes?: string | null; data?: any } | null;
 	lineColors: Record<number, string>;
+	/**
+	 * Startup prompt: a large restored selection ("N routes on map")
+	 * asks the user to keep or clear it.  Runtime-only — set during
+	 * initializeFromStorage, cleared once the user answers.
+	 */
+	selectedCountPromptPending: boolean;
 }
 
 /** Kinds of user-assignable colour ramps for lines. */
@@ -101,6 +107,7 @@ const initialState: LinesState = {
 	...initialSettings,
 	lineColors: {},
 	lineRamps: {},
+	selectedCountPromptPending: false,
 };
 
 // Slices contain Redux reducer logic for updating state, and
@@ -148,6 +155,9 @@ export const linesSlice = createSlice({
 			// A drawer chart requires its line to be on the map: removing
 			// a line from the map removes its chart permanently.
 			state.chartLines = intersection(state.chartLines, state.selected);
+		},
+		setSelectedCountPromptPending: (state, action: PayloadAction<boolean>) => {
+			state.selectedCountPromptPending = action.payload;
 		},
 		setLinesSort: (state, action: PayloadAction<LinesState['linesTable']['sort']>) => {
 			state.linesTable.sort = action.payload;
@@ -369,6 +379,7 @@ export const {
 	setUseSimplification,
 	setLinesTableColumns,
 	setSelected,
+	setSelectedCountPromptPending,
 	setLineTemp,
 	setTagTemp,
 	setLinesSort,

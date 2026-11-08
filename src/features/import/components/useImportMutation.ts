@@ -22,6 +22,7 @@ import {
 	replaceLinePoints,
 	LinePointInput,
 } from '../../lines/db/actionsLinePoints';
+import { partSizes } from '../../lines/db/repairGiantGeometries';
 import { dbConnection } from '../../dbLoader/DBConnection';
 import { linesTable, tagsTable } from '../../lines/db/schema/schema';
 import { sql, inArray } from 'drizzle-orm';
@@ -48,7 +49,13 @@ import {
 	selectKeepAppActive,
 	selectSelectedTagIds,
 } from '../selectors';
-import { extractDateWithPattern, buildLinePoints, firstTimeIso } from '../utils';
+import {
+	extractDateWithPattern,
+	buildLinePoints,
+	firstTimeIso,
+	expandToWriteItems,
+	partTitleSuffix,
+} from '../utils';
 
 const useImportMutation = () => {
 	const {
@@ -401,9 +408,14 @@ const useImportMutation = () => {
 						isDryRun: false,
 						mergeMode,
 					});
-					// Yield so a Stop press stays responsive during long
-					// skip-only runs (near-instant iterations).
-					await new Promise<void>((resolve) => setTimeout(resolve, 0));
+					// No explicit yield here: a skipped file is a map
+					// lookup + result push (~µs), so a whole skip-only
+					// run completes within a few tens of milliseconds
+					// synchronously.  setTimeout-based yields must NOT
+					// be used in this loop — RN schedules JS timers on
+					// choreographer frame boundaries, which stop
+					// ticking in the background and would freeze the
+					// import there.
 					continue;
 				}
 
@@ -419,9 +431,12 @@ const useImportMutation = () => {
 							!dryRun && overwriteMode === 'skip' && nextExisting.length > 0;
 						pendingRead = nextWillFastSkip ? null : readFile(nextUri, 'utf8');
 					}
-					// Yield once per file so a Stop press stays
-					// responsive before the synchronous parse work.
-					await new Promise<void>((resolve) => setTimeout(resolve, 0));
+					// No explicit yield before the parse: the awaited
+					// readFile above already returned control to the
+					// event loop, so a Stop press gets processed between
+					// files (the loop checks stopRequestedRef at the top
+					// of every iteration).  Timers can't be used for
+					// this — see the fastSkip note above.
 					const format = detectImportFormat(name);
 					if (!format) {
 						results.push({
@@ -448,11 +463,15 @@ const useImportMutation = () => {
 					const skippedGeom = result.features.length - validFeatures.length;
 
 					if (!validFeatures.length) {
+						const tinyTotal = result.tinyCount + skippedGeom;
 						results.push({
 							name,
 							success: false,
-							error: t('import.noFeatures'),
-							skippedGeom: skippedGeom > 0 ? skippedGeom : undefined,
+							error:
+								result.features.length > 0 || tinyTotal > 0
+									? t('import.noTrackPoints')
+									: t('import.noFeatures'),
+							skippedGeom: tinyTotal > 0 ? tinyTotal : undefined,
 							isDryRun: dryRun,
 							mergeMode,
 						});
@@ -600,6 +619,10 @@ const useImportMutation = () => {
 
 					try {
 						let created: Awaited<ReturnType<typeof createLines>> | undefined;
+						const mergeTitle = deriveTitle(
+							name,
+							validFeatures.find((f) => f.properties?.name)?.properties?.name
+						);
 						if (mergeMode) {
 							const allCoords = validFeatures.flatMap((f) => f.geometry.coordinates);
 							// Times only align with the merged geometry when
@@ -608,66 +631,141 @@ const useImportMutation = () => {
 								? (validTimes as number[][]).flat()
 								: null;
 							const dateFallback = firstTimeIso(mergedTimes);
-							const merged: Feature<LineString, GeoJsonProperties> = {
-								type: 'Feature',
-								properties: {},
-								geometry: { type: 'LineString', coordinates: allCoords },
-							};
+							// Split the merged output so no stored geometry
+							// ever exceeds LINE_MAX_POINTS.
+							const mergedItems: {
+								feature: Feature<LineString, GeoJsonProperties>;
+								times: number[] | null;
+								part: number;
+							}[] = [];
+							let mergedOffset = 0;
+							partSizes(allCoords.length).forEach((size, p) => {
+								mergedItems.push({
+									feature: {
+										type: 'Feature',
+										properties: {},
+										geometry: {
+											type: 'LineString',
+											coordinates: allCoords.slice(
+												mergedOffset,
+												mergedOffset + size
+											),
+										},
+									},
+									times: mergedTimes
+										? mergedTimes.slice(mergedOffset, mergedOffset + size)
+										: null,
+									part: p + 1,
+								});
+								mergedOffset += size;
+							});
+							const mergedPartTitle = (part: number) =>
+								partTitleSuffix(mergeTitle, part, mergedItems.length);
+							// Index of the first merged item that goes through
+							// createLines (part 1 may update the existing
+							// merged line in place instead).
+							let mergedCreatedStart = 0;
 							if (mergedId != null) {
+								mergedCreatedStart = 1;
+								const first = mergedItems[0];
 								await updateLine(mergedId, {
-									title: deriveTitle(
-										name,
-										validFeatures.find((f) => f.properties?.name)?.properties
-											?.name
-									),
-									lineStringFeature: merged,
+									title: mergedPartTitle(1),
+									lineStringFeature: first.feature,
 									tagIds: uniqueTagIds.length ? uniqueTagIds : undefined,
 									data: buildImportData(uri, name, null),
 									custom_date: dateApplied ?? dateFallback ?? undefined,
 								});
 								await replaceLinePoints(
 									[mergedId],
-									buildLinePoints(mergedId, allCoords, mergedTimes)
+									buildLinePoints(
+										mergedId,
+										first.feature.geometry.coordinates,
+										first.times
+									)
 								);
 								overwritten++;
+								if (mergedItems.length > 1) {
+									created = await createLines(
+										mergedItems.slice(1).map((item) => ({
+											title: mergedPartTitle(item.part),
+											lineStringFeature: item.feature,
+											tagIds: uniqueTagIds.length ? uniqueTagIds : undefined,
+											data: buildImportData(uri, name, null),
+											custom_date: dateApplied ?? dateFallback,
+										}))
+									);
+								}
 							} else {
-								created = await createLines([
-									{
-										title: deriveTitle(
-											name,
-											validFeatures.find((f) => f.properties?.name)
-												?.properties?.name
-										),
-										lineStringFeature: merged,
+								created = await createLines(
+									mergedItems.map((item) => ({
+										title: mergedPartTitle(item.part),
+										lineStringFeature: item.feature,
 										tagIds: uniqueTagIds.length ? uniqueTagIds : undefined,
 										data: buildImportData(uri, name, null),
 										custom_date: dateApplied ?? dateFallback,
-									},
-								]);
-								if (created && created.length > 0) {
-									await createLinePoints(
-										buildLinePoints(created[0].id, allCoords, mergedTimes)
+									}))
+								);
+							}
+							if (created && created.length > 0) {
+								const pointRows: LinePointInput[] = [];
+								created.forEach((line, i) => {
+									const item = mergedItems[mergedCreatedStart + i];
+									pointRows.push(
+										...buildLinePoints(
+											line.id,
+											item.feature.geometry.coordinates,
+											item.times
+										)
 									);
+								});
+								if (pointRows.length) {
+									await createLinePoints(pointRows);
 								}
 							}
 						} else if (overwriteMode === 'overwrite' && existingByIndex.size > 0) {
+							// Expand features into ≤LINE_MAX_POINTS write
+							// items, grouped by original feature index so
+							// parts pair 1:1 with existing line ids.
+							const items = expandToWriteItems(validFeatures, validTimes);
+							const itemsByIndex = new Map<number, typeof items>();
+							for (const item of items) {
+								const arr = itemsByIndex.get(item.trackIndex) ?? [];
+								arr.push(item);
+								itemsByIndex.set(item.trackIndex, arr);
+							}
+
 							const toCreate: Parameters<typeof createLines>[0] = [];
-							const toCreateTimes: (number[] | null)[] = [];
-							const toCreateFeatures: Feature<LineString, GeoJsonProperties>[] = [];
+							const createPointInfo: {
+								feature: Feature<LineString, GeoJsonProperties>;
+								times: number[] | null;
+							}[] = [];
 							const toUpdate: Parameters<typeof updateLinesBatch>[0] = [];
 							const updatedIds: number[] = [];
 							const updatedPointRows: LinePointInput[] = [];
+							const usedExistingIds = new Set<number>();
 
-							for (let idx = 0; idx < validFeatures.length; idx++) {
-								const f = validFeatures[idx];
+							for (const [idx, idxItems] of itemsByIndex) {
+								const existingIds = [...(existingByIndex.get(idx) ?? [])].sort(
+									(a, b) => a - b
+								);
 								const dateFallback = firstTimeIso(validTimes[idx]);
-								const existingIds = existingByIndex.get(idx);
-								if (existingIds && existingIds.length > 0) {
-									for (const existingId of existingIds) {
+								const baseTitle = deriveTitle(
+									name,
+									validFeatures[idx]?.properties?.name
+								);
+								idxItems.forEach((item, j) => {
+									const title = partTitleSuffix(
+										baseTitle,
+										item.part,
+										item.partCount
+									);
+									if (j < existingIds.length) {
+										const existingId = existingIds[j];
+										usedExistingIds.add(existingId);
 										toUpdate.push({
 											id: existingId,
-											title: deriveTitle(name, f.properties?.name),
-											lineStringFeature: f,
+											title,
+											lineStringFeature: item.feature,
 											tagIds: uniqueTagIds.length ? uniqueTagIds : undefined,
 											custom_date: dateApplied ?? dateFallback ?? undefined,
 											data: buildImportData(uri, name, idx),
@@ -676,30 +774,34 @@ const useImportMutation = () => {
 										updatedPointRows.push(
 											...buildLinePoints(
 												existingId,
-												f.geometry.coordinates,
-												validTimes[idx]
+												item.feature.geometry.coordinates,
+												item.times
 											)
 										);
 										overwritten++;
+									} else {
+										toCreate.push({
+											title,
+											lineStringFeature: item.feature,
+											tagIds: uniqueTagIds.length ? uniqueTagIds : undefined,
+											data: buildImportData(uri, name, idx),
+											custom_date: dateApplied ?? dateFallback,
+										});
+										createPointInfo.push({
+											feature: item.feature,
+											times: item.times,
+										});
 									}
-									staleIdsToDelete = staleIdsToDelete.filter(
-										(id) => !existingIds.includes(id)
-									);
-								} else {
-									toCreate.push({
-										title: deriveTitle(name, f.properties?.name),
-										lineStringFeature: f,
-										tagIds: uniqueTagIds.length ? uniqueTagIds : undefined,
-										data: buildImportData(uri, name, idx),
-										custom_date: dateApplied ?? dateFallback,
-									});
-									toCreateFeatures.push(f);
-									toCreateTimes.push(validTimes[idx]);
-								}
+								});
 							}
 
+							// Existing ids not paired with a part (track
+							// indices gone from the file, or extra old
+							// duplicates) go to the unmatched list.
 							if (staleIdsToDelete.length > 0) {
-								unmatchIds.push(...staleIdsToDelete);
+								unmatchIds.push(
+									...staleIdsToDelete.filter((id) => !usedExistingIds.has(id))
+								);
 							}
 
 							// One batched transaction for all in-place
@@ -718,11 +820,12 @@ const useImportMutation = () => {
 							if (created && created.length > 0) {
 								const pointRows: LinePointInput[] = [];
 								created.forEach((line, i) => {
+									const info = createPointInfo[i];
 									pointRows.push(
 										...buildLinePoints(
 											line.id,
-											toCreateFeatures[i].geometry.coordinates,
-											toCreateTimes[i]
+											info.feature.geometry.coordinates,
+											info.times
 										)
 									);
 								});
@@ -734,23 +837,33 @@ const useImportMutation = () => {
 							if (staleIdsToDelete.length > 0) {
 								unmatchIds.push(...staleIdsToDelete);
 							}
+							const items = expandToWriteItems(validFeatures, validTimes);
 							created = await createLines(
-								validFeatures.map((f, idx) => ({
-									title: deriveTitle(name, f.properties?.name),
-									lineStringFeature: f,
+								items.map((item) => ({
+									title: partTitleSuffix(
+										deriveTitle(
+											name,
+											validFeatures[item.trackIndex]?.properties?.name
+										),
+										item.part,
+										item.partCount
+									),
+									lineStringFeature: item.feature,
 									tagIds: uniqueTagIds.length ? uniqueTagIds : undefined,
-									data: buildImportData(uri, name, idx),
-									custom_date: dateApplied ?? firstTimeIso(validTimes[idx]),
+									data: buildImportData(uri, name, item.trackIndex),
+									custom_date:
+										dateApplied ?? firstTimeIso(validTimes[item.trackIndex]),
 								}))
 							);
 							if (created && created.length > 0) {
 								const pointRows: LinePointInput[] = [];
-								created.forEach((line, idx) => {
+								created.forEach((line, i) => {
+									const item = items[i];
 									pointRows.push(
 										...buildLinePoints(
 											line.id,
-											validFeatures[idx].geometry.coordinates,
-											validTimes[idx]
+											item.feature.geometry.coordinates,
+											item.times
 										)
 									);
 								});
@@ -826,7 +939,7 @@ const useImportMutation = () => {
 		const toImportTimes = validPairs.map((p) => p.times);
 
 		if (!toImport.length) {
-			throw new Error(t('import.noFeatures'));
+			throw new Error(skippedCount > 0 ? t('import.noTrackPoints') : t('import.noFeatures'));
 		}
 
 		let overwrittenSingle = 0;
@@ -964,6 +1077,10 @@ const useImportMutation = () => {
 			.filter((id): id is number => id !== undefined && id > 0);
 		const uniqueTagIds = [...new Set(rawIds)];
 
+		const mergeTitleSingle = deriveTitle(
+			filename,
+			toImport.find((f) => f.properties?.name)?.properties?.name
+		);
 		if (mergeMode) {
 			const allCoords = toImport.flatMap((f) => f.geometry.coordinates);
 			// Times only align with the merged geometry when every
@@ -972,64 +1089,117 @@ const useImportMutation = () => {
 				? (toImportTimes as number[][]).flat()
 				: null;
 			const dateFallback = firstTimeIso(mergedTimes);
-			const merged: Feature<LineString, GeoJsonProperties> = {
-				type: 'Feature',
-				properties: {},
-				geometry: { type: 'LineString', coordinates: allCoords },
-			};
+			// Split the merged output so no stored geometry ever exceeds
+			// LINE_MAX_POINTS.
+			const mergedItems: {
+				feature: Feature<LineString, GeoJsonProperties>;
+				times: number[] | null;
+				part: number;
+			}[] = [];
+			let mergedOffset = 0;
+			partSizes(allCoords.length).forEach((size, p) => {
+				mergedItems.push({
+					feature: {
+						type: 'Feature',
+						properties: {},
+						geometry: {
+							type: 'LineString',
+							coordinates: allCoords.slice(mergedOffset, mergedOffset + size),
+						},
+					},
+					times: mergedTimes
+						? mergedTimes.slice(mergedOffset, mergedOffset + size)
+						: null,
+					part: p + 1,
+				});
+				mergedOffset += size;
+			});
+			const mergedPartTitle = (part: number) =>
+				partTitleSuffix(mergeTitleSingle, part, mergedItems.length);
+			let mergedCreatedStart = 0;
 			if (mergedIdSingle != null) {
+				mergedCreatedStart = 1;
+				const first = mergedItems[0];
 				await updateLine(mergedIdSingle, {
-					title: deriveTitle(
-						filename,
-						toImport.find((f) => f.properties?.name)?.properties?.name
-					),
-					lineStringFeature: merged,
+					title: mergedPartTitle(1),
+					lineStringFeature: first.feature,
 					tagIds: uniqueTagIds.length ? uniqueTagIds : undefined,
 					data: buildImportData(sourceFilePath, filename, null),
 					custom_date: dateApplied ?? dateFallback ?? undefined,
 				});
 				await replaceLinePoints(
 					[mergedIdSingle],
-					buildLinePoints(mergedIdSingle, allCoords, mergedTimes)
+					buildLinePoints(mergedIdSingle, first.feature.geometry.coordinates, first.times)
 				);
 				overwrittenSingle++;
+				if (mergedItems.length > 1) {
+					createdSingle = await createLines(
+						mergedItems.slice(1).map((item) => ({
+							title: mergedPartTitle(item.part),
+							lineStringFeature: item.feature,
+							tagIds: uniqueTagIds.length ? uniqueTagIds : undefined,
+							data: buildImportData(sourceFilePath, filename, null),
+							custom_date: dateApplied ?? dateFallback,
+						}))
+					);
+				}
 			} else {
-				createdSingle = await createLines([
-					{
-						title: deriveTitle(
-							filename,
-							toImport.find((f) => f.properties?.name)?.properties?.name
-						),
-						lineStringFeature: merged,
+				createdSingle = await createLines(
+					mergedItems.map((item) => ({
+						title: mergedPartTitle(item.part),
+						lineStringFeature: item.feature,
 						tagIds: uniqueTagIds.length ? uniqueTagIds : undefined,
 						data: buildImportData(sourceFilePath, filename, null),
 						custom_date: dateApplied ?? dateFallback,
-					},
-				]);
-				if (createdSingle && createdSingle.length > 0) {
-					await createLinePoints(
-						buildLinePoints(createdSingle[0].id, allCoords, mergedTimes)
+					}))
+				);
+			}
+			if (createdSingle && createdSingle.length > 0) {
+				const pointRows: LinePointInput[] = [];
+				createdSingle.forEach((line, i) => {
+					const item = mergedItems[mergedCreatedStart + i];
+					pointRows.push(
+						...buildLinePoints(line.id, item.feature.geometry.coordinates, item.times)
 					);
+				});
+				if (pointRows.length) {
+					await createLinePoints(pointRows);
 				}
 			}
 		} else if (overwriteMode === 'overwrite' && existingByIndexSingle.size > 0) {
+			const items = expandToWriteItems(toImport, toImportTimes);
+			const itemsByIndex = new Map<number, typeof items>();
+			for (const item of items) {
+				const arr = itemsByIndex.get(item.trackIndex) ?? [];
+				arr.push(item);
+				itemsByIndex.set(item.trackIndex, arr);
+			}
+
 			const toCreateSingle: Parameters<typeof createLines>[0] = [];
-			const toCreateSingleTimes: (number[] | null)[] = [];
-			const toCreateSingleFeatures: Feature<LineString, GeoJsonProperties>[] = [];
+			const createPointInfoSingle: {
+				feature: Feature<LineString, GeoJsonProperties>;
+				times: number[] | null;
+			}[] = [];
 			const toUpdateSingle: Parameters<typeof updateLinesBatch>[0] = [];
 			const updatedIdsSingle: number[] = [];
 			const updatedPointRowsSingle: LinePointInput[] = [];
+			const usedExistingIdsSingle = new Set<number>();
 
-			for (let idx = 0; idx < toImport.length; idx++) {
-				const feature = toImport[idx];
+			for (const [idx, idxItems] of itemsByIndex) {
+				const existingIds = [...(existingByIndexSingle.get(idx) ?? [])].sort(
+					(a, b) => a - b
+				);
 				const dateFallback = firstTimeIso(toImportTimes[idx]);
-				const existingIds = existingByIndexSingle.get(idx);
-				if (existingIds && existingIds.length > 0) {
-					for (const existingId of existingIds) {
+				const baseTitle = deriveTitle(filename, toImport[idx]?.properties?.name);
+				idxItems.forEach((item, j) => {
+					const title = partTitleSuffix(baseTitle, item.part, item.partCount);
+					if (j < existingIds.length) {
+						const existingId = existingIds[j];
+						usedExistingIdsSingle.add(existingId);
 						toUpdateSingle.push({
 							id: existingId,
-							title: deriveTitle(filename, feature.properties?.name),
-							lineStringFeature: feature,
+							title,
+							lineStringFeature: item.feature,
 							tagIds: uniqueTagIds.length ? uniqueTagIds : undefined,
 							custom_date: dateApplied ?? dateFallback ?? undefined,
 							data: buildImportData(sourceFilePath, filename, idx),
@@ -1038,30 +1208,31 @@ const useImportMutation = () => {
 						updatedPointRowsSingle.push(
 							...buildLinePoints(
 								existingId,
-								feature.geometry.coordinates,
-								toImportTimes[idx]
+								item.feature.geometry.coordinates,
+								item.times
 							)
 						);
 						overwrittenSingle++;
+					} else {
+						toCreateSingle.push({
+							title,
+							lineStringFeature: item.feature,
+							tagIds: uniqueTagIds.length ? uniqueTagIds : undefined,
+							data: buildImportData(sourceFilePath, filename, idx),
+							custom_date: dateApplied ?? dateFallback,
+						});
+						createPointInfoSingle.push({
+							feature: item.feature,
+							times: item.times,
+						});
 					}
-					staleIdsToDeleteSingle = staleIdsToDeleteSingle.filter(
-						(id) => !existingIds.includes(id)
-					);
-				} else {
-					toCreateSingle.push({
-						title: deriveTitle(filename, feature.properties?.name),
-						lineStringFeature: feature,
-						tagIds: uniqueTagIds.length ? uniqueTagIds : undefined,
-						data: buildImportData(sourceFilePath, filename, idx),
-						custom_date: dateApplied ?? dateFallback,
-					});
-					toCreateSingleFeatures.push(feature);
-					toCreateSingleTimes.push(toImportTimes[idx]);
-				}
+				});
 			}
 
 			if (staleIdsToDeleteSingle.length > 0) {
-				unmatchIdsSingle.push(...staleIdsToDeleteSingle);
+				unmatchIdsSingle.push(
+					...staleIdsToDeleteSingle.filter((id) => !usedExistingIdsSingle.has(id))
+				);
 			}
 
 			if (toUpdateSingle.length > 0) {
@@ -1078,11 +1249,12 @@ const useImportMutation = () => {
 				if (createdSingle && createdSingle.length > 0) {
 					const pointRows: LinePointInput[] = [];
 					createdSingle.forEach((line, i) => {
+						const info = createPointInfoSingle[i];
 						pointRows.push(
 							...buildLinePoints(
 								line.id,
-								toCreateSingleFeatures[i].geometry.coordinates,
-								toCreateSingleTimes[i]
+								info.feature.geometry.coordinates,
+								info.times
 							)
 						);
 					});
@@ -1095,23 +1267,26 @@ const useImportMutation = () => {
 			if (staleIdsToDeleteSingle.length > 0) {
 				unmatchIdsSingle.push(...staleIdsToDeleteSingle);
 			}
-			const newLines = toImport.map((feature, idx) => ({
-				title: deriveTitle(filename, feature.properties?.name),
-				lineStringFeature: feature,
-				tagIds: uniqueTagIds.length ? uniqueTagIds : undefined,
-				data: buildImportData(sourceFilePath, filename, idx),
-				custom_date: dateApplied ?? firstTimeIso(toImportTimes[idx]),
-			}));
-			createdSingle = await createLines(newLines);
+			const items = expandToWriteItems(toImport, toImportTimes);
+			createdSingle = await createLines(
+				items.map((item) => ({
+					title: partTitleSuffix(
+						deriveTitle(filename, toImport[item.trackIndex]?.properties?.name),
+						item.part,
+						item.partCount
+					),
+					lineStringFeature: item.feature,
+					tagIds: uniqueTagIds.length ? uniqueTagIds : undefined,
+					data: buildImportData(sourceFilePath, filename, item.trackIndex),
+					custom_date: dateApplied ?? firstTimeIso(toImportTimes[item.trackIndex]),
+				}))
+			);
 			if (createdSingle && createdSingle.length > 0) {
 				const pointRows: LinePointInput[] = [];
-				createdSingle.forEach((line, idx) => {
+				createdSingle.forEach((line, i) => {
+					const item = items[i];
 					pointRows.push(
-						...buildLinePoints(
-							line.id,
-							toImport[idx].geometry.coordinates,
-							toImportTimes[idx]
-						)
+						...buildLinePoints(line.id, item.feature.geometry.coordinates, item.times)
 					);
 				});
 				if (pointRows.length) {

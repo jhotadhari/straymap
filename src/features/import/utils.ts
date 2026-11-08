@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { Position } from 'geojson';
+import { Feature, GeoJsonProperties, LineString, Position } from 'geojson';
 import dayjs from '../../lib/dayjs';
 
 /**
@@ -9,6 +9,7 @@ import dayjs from '../../lib/dayjs';
  */
 import { haversineDistance } from '../../lib/formatting';
 import { LinePointInput } from '../lines/db/actionsLinePoints';
+import { partSizes } from '../lines/db/repairGiantGeometries';
 import { DatePattern } from './types';
 
 const MONTH_NAME_MAP: Record<string, string> = {
@@ -142,3 +143,54 @@ export const firstTimeIso = (times: number[] | null): string | null => {
 	if (!times || !times.length) return null;
 	return new Date(times[0]).toISOString();
 };
+
+/**
+ * A single unit the import writes to the DB.  Features larger than
+ * LINE_MAX_POINTS are split into consecutive parts (shared properties,
+ * same trackIndexInFile, sliced per-point times) so no stored LineString
+ * ever exceeds the size libspatialite/Hermes can handle.
+ */
+export type ImportWriteItem = {
+	feature: Feature<LineString, GeoJsonProperties>;
+	times: number[] | null;
+	/** Index of the original feature within the file. */
+	trackIndex: number;
+	/** 1-based part index within the original feature. */
+	part: number;
+	partCount: number;
+};
+
+export const expandToWriteItems = (
+	features: Feature<LineString, GeoJsonProperties>[],
+	times: (number[] | null)[]
+): ImportWriteItem[] => {
+	const items: ImportWriteItem[] = [];
+	features.forEach((feature, idx) => {
+		const coords = feature.geometry.coordinates;
+		const featureTimes = times[idx];
+		const sizes = partSizes(coords.length);
+		let offset = 0;
+		sizes.forEach((size, p) => {
+			items.push({
+				feature: {
+					type: 'Feature',
+					properties: feature.properties,
+					geometry: {
+						type: 'LineString',
+						coordinates: coords.slice(offset, offset + size),
+					},
+				},
+				times: featureTimes ? featureTimes.slice(offset, offset + size) : null,
+				trackIndex: idx,
+				part: p + 1,
+				partCount: sizes.length,
+			});
+			offset += size;
+		});
+	});
+	return items;
+};
+
+/** Append "(k/n)" to a title when a feature was split into parts. */
+export const partTitleSuffix = (base: string, part: number, partCount: number): string =>
+	partCount <= 1 || !base ? base : `${base} (${part}/${partCount})`;

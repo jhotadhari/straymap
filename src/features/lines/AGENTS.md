@@ -44,6 +44,37 @@ by `queryLinePointsStatsByLineIds` (`db/lineTimeStats.ts`) using the
 same LAG-window moving-duration aggregation as trackRecording, and
 rendered in `LineStatsModal` as a "Track time" section.
 
+### Giant geometry cap + startup repair (`db/repairGiantGeometries.ts`)
+
+Single LineStrings may hold at most `LINE_MAX_POINTS` (30,000) points —
+larger geometries crash the prebuilt libspatialite on read (SIGSEGV in
+`gaiaFromSpatiaLiteBlobWkbEx`) and overflow Hermes on JSON
+round-trips. The import feature enforces the cap for new data.
+`repairGiantGeometries()` repairs EXISTING oversized lines: it runs
+once per app start from dbLoader init (after migrations, before any
+feature queries geometry) and probes with a cheap
+`length(geometry) > threshold` scan (raw SQL — no spatial functions,
+which crash on these blobs). Oversized blobs are decoded in JS
+(`parseSpatiaLiteBlob` — 47-byte header + little-endian LINESTRINGZ
+points, verified against production data) and split into parts: part 1
+is updated in place (keeps id/created_at), further parts are inserted
+with titles like `name (2/3)`, tags copied, `line_points` slices
+redistributed. Idempotent — after the first run the probe finds
+nothing and startup only pays for the cheap scan.
+
+## Startup prompt: large restored selection
+
+When `initializeFromStorage` restores more than
+`SELECTED_LINES_PROMPT_THRESHOLD` (500) selected lines, it sets the
+runtime-only `selectedCountPromptPending` flag (never persisted). The
+`SelectedLinesCountPrompt` appOverlay (`appOverlays/`) then asks the
+user to keep or clear the selection — gated on the recording-resume
+prompt (`resumePromptPending`) so the recording question comes first.
+"Clear" replaces the selection with the system lines only
+(`useSystemLineIds` / `FeatureRegistry.getSystemLineIds`); both buttons
+are plain outlined and backdrop dismiss = keep. Helpers live in
+`utils/selectedPrompt.ts` (unit-tested).
+
 ## Redux state (`lines/slice.ts`)
 
 ```ts

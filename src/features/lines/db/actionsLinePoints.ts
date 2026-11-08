@@ -28,6 +28,15 @@ const toInsertValues = (rows: LinePointInput[]) =>
 	}));
 
 /**
+ * Chunk size for multi-row line_points inserts.  A single INSERT with
+ * 100k+ rows exceeds SQLite's SQL variable limit (~32k) and overflows
+ * Hermes' native stack during parameter conversion ("Maximum call stack
+ * size exceeded (native stack depth)") — 500 rows × 5 columns keeps
+ * every statement well under both limits.
+ */
+const LINE_POINTS_INSERT_CHUNK = 500;
+
+/**
  * Bulk-insert line_points rows (imported per-point timestamps/speeds).
  */
 export const createLinePoints = withDbErrorHandling(
@@ -36,7 +45,10 @@ export const createLinePoints = withDbErrorHandling(
 		if (!dbConnection?.drizzle || !rows.length) {
 			return;
 		}
-		await dbConnection.drizzle.insert(linePointsTable).values(toInsertValues(rows));
+		for (let i = 0; i < rows.length; i += LINE_POINTS_INSERT_CHUNK) {
+			const chunk = rows.slice(i, i + LINE_POINTS_INSERT_CHUNK);
+			await dbConnection.drizzle.insert(linePointsTable).values(toInsertValues(chunk));
+		}
 	}
 );
 
@@ -59,9 +71,10 @@ export const replaceLinePoints = withDbErrorHandling(
 						.where(inArray(linePointsTable.line_id, lineIds))
 				);
 			}
-			if (rows.length) {
+			for (let i = 0; i < rows.length; i += LINE_POINTS_INSERT_CHUNK) {
+				const chunk = rows.slice(i, i + LINE_POINTS_INSERT_CHUNK);
 				await exec(
-					dbConnection.drizzle!.insert(linePointsTable).values(toInsertValues(rows))
+					dbConnection.drizzle!.insert(linePointsTable).values(toInsertValues(chunk))
 				);
 			}
 		});

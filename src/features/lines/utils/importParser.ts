@@ -88,7 +88,7 @@ const gpxPropsOf = (node: Record<string, unknown> | undefined, gpxType: string) 
 const pointsToFeature = (
 	props: Record<string, unknown>,
 	points: unknown[]
-): Feature<LineString, GeoJsonProperties> | null => {
+): { feature: Feature<LineString, GeoJsonProperties> | null; validPointCount: number } => {
 	const coords: Position[] = [];
 	const times: string[] = [];
 	for (const raw of points) {
@@ -99,16 +99,19 @@ const pointsToFeature = (
 		const timeStr = textOf((raw as Record<string, unknown>).time);
 		if (timeStr != null) times.push(timeStr);
 	}
-	if (coords.length < 2) return null;
+	if (coords.length < 2) return { feature: null, validPointCount: coords.length };
 	return {
-		type: 'Feature',
-		properties: {
-			...props,
-			// Only attach times when every point has one — otherwise the
-			// array can't align with the coordinates.
-			...(times.length === coords.length ? { coordinateProperties: { times } } : {}),
+		feature: {
+			type: 'Feature',
+			properties: {
+				...props,
+				// Only attach times when every point has one — otherwise the
+				// array can't align with the coordinates.
+				...(times.length === coords.length ? { coordinateProperties: { times } } : {}),
+			},
+			geometry: { type: 'LineString', coordinates: coords },
 		},
-		geometry: { type: 'LineString', coordinates: coords },
+		validPointCount: coords.length,
 	};
 };
 
@@ -123,7 +126,7 @@ type GpxRoot = {
  * Fast GPX → FeatureCollection.  Returns null when the document can't
  * be parsed (caller falls back to xmldom + togeojson).
  */
-const parseGpxFast = (content: string): FeatureCollection | null => {
+const parseGpxFast = (content: string): { geo: FeatureCollection; tinyCount: number } | null => {
 	let doc: GpxRoot | null = null;
 	try {
 		doc = gpxXmlParser.parse(content) as GpxRoot;
@@ -134,6 +137,10 @@ const parseGpxFast = (content: string): FeatureCollection | null => {
 	if (!gpxNode) return null;
 
 	const features: Feature<LineString, GeoJsonProperties>[] = [];
+	// Tracks/segments with exactly one usable point (zero-distance
+	// recordings) can't become LineStrings — count them so the import
+	// can report "too few points" instead of "nothing found".
+	let tinyCount = 0;
 
 	const collectList = (node: unknown, gpxType: 'trk' | 'rte', pointKey: 'trkpt' | 'rtept') => {
 		const list = Array.isArray(node) ? node : [node];
@@ -153,8 +160,12 @@ const parseGpxFast = (content: string): FeatureCollection | null => {
 			for (const holder of points) {
 				const holderObj = holder as Record<string, unknown>;
 				const pts = Array.isArray(holderObj?.[pointKey]) ? holderObj[pointKey] : [];
-				const feature = pointsToFeature(props, pts);
-				if (feature) features.push(feature);
+				const { feature, validPointCount } = pointsToFeature(props, pts);
+				if (feature) {
+					features.push(feature);
+				} else if (validPointCount === 1) {
+					tinyCount++;
+				}
 			}
 		}
 	};
@@ -162,7 +173,7 @@ const parseGpxFast = (content: string): FeatureCollection | null => {
 	collectList(gpxNode.trk, 'trk', 'trkpt');
 	collectList(gpxNode.rte, 'rte', 'rtept');
 
-	return { type: 'FeatureCollection', features };
+	return { geo: { type: 'FeatureCollection', features }, tinyCount };
 };
 
 /**
@@ -245,10 +256,12 @@ const parseLineStringFeatures = (
  * GPX uses a fast-xml-parser based converter with an xmldom +
  * togeojson fallback; KML and GeoJSON use togeojson / JSON.parse.
  *
- * Returns { features, times, isMulti } where times[i] holds per-point
- * epoch timestamps aligned to features[i]'s coordinates (null when the
- * source has no usable per-point timestamps) and isMulti is true when
- * the source file contained multiple tracks/routes.
+ * Returns { features, times, isMulti, tinyCount } where times[i] holds
+ * per-point epoch timestamps aligned to features[i]'s coordinates (null
+ * when the source has no usable per-point timestamps), isMulti is true
+ * when the source file contained multiple tracks/routes, and tinyCount
+ * counts tracks with exactly one point (zero-distance recordings that
+ * can never become LineStrings).
  */
 export const parseImportContent = (
 	content: string,
@@ -257,15 +270,18 @@ export const parseImportContent = (
 	features: Feature<LineString, GeoJsonProperties>[];
 	times: (number[] | null)[];
 	isMulti: boolean;
+	tinyCount: number;
 } => {
 	let geo: FeatureCollection | Feature;
+	let tinyCount = 0;
 
 	switch (format) {
 		case 'gpx': {
 			const fast = parseGpxFast(content);
-			if (fast && fast.features.length > 0) {
-				geo = fast;
+			if (fast && fast.geo.features.length > 0) {
+				geo = fast.geo;
 			} else {
+				tinyCount = fast?.tinyCount ?? 0;
 				// Fallback: full DOM parse (exotic extensions, files the
 				// fast path can't read, or genuinely empty files).
 				try {
@@ -289,7 +305,7 @@ export const parseImportContent = (
 			break;
 		}
 		default:
-			return { features: [], times: [], isMulti: false };
+			return { features: [], times: [], isMulti: false, tinyCount: 0 };
 	}
 
 	const { features, times } = parseLineStringFeatures(geo);
@@ -297,6 +313,7 @@ export const parseImportContent = (
 		features,
 		times,
 		isMulti: features.length > 1,
+		tinyCount,
 	};
 };
 

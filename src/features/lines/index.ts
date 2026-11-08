@@ -25,6 +25,7 @@ import UseSimplificationControl from './components/controls/UseSimplificationCon
 import LinesIcon from './components/LinesIcon';
 import LinesLineSource from './mapContextMenuSources/LinesLineSource';
 import LineColorPickerModal from './components/LineColorPickerModal';
+import SelectedLinesCountPrompt from './appOverlays/SelectedLinesCountPrompt';
 
 export default {
 	selectInitialized,
@@ -51,6 +52,13 @@ export default {
 		},
 	],
 	drawerPanels: [linesDrawerItem],
+	appOverlays: [
+		{
+			key: 'selectedLinesCountPrompt',
+			Component: SelectedLinesCountPrompt,
+			priority: 1100,
+		},
+	],
 	mapComponents: [
 		{
 			key: 'linesMapView',
