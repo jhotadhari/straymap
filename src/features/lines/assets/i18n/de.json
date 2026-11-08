@@ -63,6 +63,7 @@
 	"exportNoFilesWritten": "Keine Dateien geschrieben. Überprüfe, ob die ausgewählten Routen Geometriedaten haben.",
 	"exportNoGeom": "Keine Geometriedaten für den Export verfügbar.",
 	"exporting": "Exportiere...",
+	"exportingBackground": "Routen werden exportiert",
 	"exportPartial": "%s von %s Routen exportiert. Fehlgeschlagen: %s",
 	"exportPermissionDenied": "Zum Exportieren wird die Speicherberechtigung benötigt. Bitte erteile sie in den Geräteeinstellungen.",
 	"exportProgress": "Exportiere %s von %s...",

@@ -293,6 +293,29 @@ changed.
 Shared hook `hooks/useExportCbModal.tsx` handles both single-line and bulk export.
 Follows the `useDeleteLinesCbModal` pattern — returns `{ cb, modalNode }`.
 
+### Per-point time
+
+Both metadata sources feed the writers via `alignPointsToCoords`
+(source-agnostic, keyed by `point_index`): recorded lines from
+`track_points` (`queryTrackPointsByLineId(s)`, trackRecording) and
+imported lines from `line_points` (`db/linePointsQueryFns.ts`). A line
+has one source or the other — the exporter prefers track_points when
+non-empty. GPX emits `<time>` per trkpt and GeoJSON a `coordTimes`
+array; KML carries no per-point time.
+
+### Bulk keep-alive + lazy content
+
+- `useBackgroundTask('lines.exportingBackground')` registers a task in
+  the shared BackgroundTaskService before the write loop and stops it in
+  `finally` — the service's partial wake lock keeps the CPU alive through
+  Doze, so a backgrounded bulk export completes (same pattern as the
+  import feature).
+- File content strings are built **lazily per batch** (20 files at a
+  time) inside the write loop — never upfront. A 30k-point line is
+  ~2 MB of text; upfront prep of a large selection would spike memory
+  and block the JS thread. No `setTimeout` yields in the loop: RN
+  timers stop ticking in background (see `49551c51`).
+
 ### Consumers
 
 | Consumer    | Location                                  | Hook call                                        |

@@ -27,6 +27,8 @@ import { selectAppDirs } from '../../dirs/selectors';
 import { AbsPath } from '../../dirs/types';
 import { fetchLines } from '../db/fetch';
 import { queryLineGeom } from '../db/queryFns';
+import { queryLinePointsByLineId, queryLinePointsByLineIds } from '../db/linePointsQueryFns';
+import useBackgroundTask from '../../../hooks/useBackgroundTask';
 import {
 	alignPointsToCoords,
 	writeFormat,
@@ -52,7 +54,7 @@ type ExportPhase = 'format' | 'progress' | 'result';
 
 interface PrepTask {
 	filename: string;
-	content: string;
+	buildContent: () => string;
 }
 
 interface ExportResult {
@@ -141,6 +143,22 @@ const useExportCbModal = (params: UseExportCbModalParams) => {
 		gcTime: 1000 * 10,
 	});
 
+	// Same for imported lines (line_points) — a line has recording
+	// metadata XOR imported metadata, never both.
+	const { data: singleLinePoints } = useQuery({
+		queryKey: ['linePoints', lineId],
+		queryFn: () => queryLinePointsByLineId(lineId as number),
+		enabled: typeof lineId === 'number' && modalVisible && params.type === 'single',
+		staleTime: Infinity,
+		gcTime: 1000 * 10,
+	});
+
+	// Bulk export keep-alive: registers a task in the shared
+	// BackgroundTaskService (wake lock keeps the CPU alive through
+	// Doze), so a backgrounded bulk export completes.  Errors are
+	// swallowed by the hook — the export never depends on it.
+	const bgTask = useBackgroundTask(t('lines.exportingBackground'));
+
 	const detailStyle = useMemo(
 		() => [styles.detailText, { color: theme.colors.onSurfaceVariant }],
 		[theme.colors.onSurfaceVariant]
@@ -209,7 +227,7 @@ const useExportCbModal = (params: UseExportCbModalParams) => {
 					meta: { title: line?.title, custom_date: rawDate },
 					points: alignPointsToCoords(
 						lineWithGeom.geometry.coordinates,
-						singleTrackPoints
+						singleTrackPoints?.length ? singleTrackPoints : singleLinePoints
 					),
 				},
 			]);
@@ -236,6 +254,7 @@ const useExportCbModal = (params: UseExportCbModalParams) => {
 		params,
 		lineWithGeom,
 		singleTrackPoints,
+		singleLinePoints,
 		selectedFormat,
 		exportDir,
 		t,
@@ -289,6 +308,20 @@ const useExportCbModal = (params: UseExportCbModalParams) => {
 				}
 			}
 
+			// Same for imported lines (line_points) — one query for the
+			// whole batch, bucketed the same way.  A line has recording
+			// metadata XOR imported metadata, never both.
+			const linePoints = await queryLinePointsByLineIds(checkedIds);
+			const linePointsByLineId = new Map<number, typeof linePoints>();
+			for (const p of linePoints) {
+				const bucket = linePointsByLineId.get(p.line_id);
+				if (bucket) {
+					bucket.push(p);
+				} else {
+					linePointsByLineId.set(p.line_id, [p]);
+				}
+			}
+
 			total = linesWithGeom.filter((l) => l.geometry).length;
 			setTotalCount(total);
 
@@ -301,6 +334,11 @@ const useExportCbModal = (params: UseExportCbModalParams) => {
 				setPhase('result');
 				return;
 			}
+
+			// Keep the process AND CPU alive if the app is backgrounded
+			// mid-export (BackgroundTaskService wake lock).  start() never
+			// throws — a notification failure must not abort the export.
+			await bgTask.start(total);
 
 			const prepTasks: PrepTask[] = linesWithGeom
 				.filter((l) => l.geometry)
@@ -317,18 +355,28 @@ const useExportCbModal = (params: UseExportCbModalParams) => {
 					});
 					const filename = `${sanitizeFilename(resolved)}.${ext}`;
 
-					const content = writeFormat(selectedFormat, [
-						{
-							geometry: line.geometry!,
-							meta: { title: line.title, custom_date: rawDate },
-							points: alignPointsToCoords(
-								line.geometry!.coordinates,
-								pointsByLineId.get(line.id)
-							),
-						},
-					]);
+					const recordedPoints = pointsByLineId.get(line.id);
+					const importedPoints = linePointsByLineId.get(line.id);
+					const pointsSource = recordedPoints?.length ? recordedPoints : importedPoints;
 
-					return { filename, content };
+					// Content is built lazily inside the write loop:
+					// building every file's string upfront would hold the
+					// whole selection in memory at once (a 30k-point line
+					// is ~2 MB of text) and block the JS thread.
+					return {
+						filename,
+						buildContent: () =>
+							writeFormat(selectedFormat, [
+								{
+									geometry: line.geometry!,
+									meta: { title: line.title, custom_date: rawDate },
+									points: alignPointsToCoords(
+										line.geometry!.coordinates,
+										pointsSource
+									),
+								},
+							]),
+					};
 				});
 
 			const batchSize = 20;
@@ -336,8 +384,8 @@ const useExportCbModal = (params: UseExportCbModalParams) => {
 
 			for (const batch of batches) {
 				const results = await Promise.allSettled(
-					batch.map(({ filename, content }) =>
-						writeFile(`${exportDir}/${filename}`, content, 'utf8')
+					batch.map(({ filename, buildContent }) =>
+						writeFile(`${exportDir}/${filename}`, buildContent(), 'utf8')
 					)
 				);
 				results.forEach((r, i) => {
@@ -349,6 +397,7 @@ const useExportCbModal = (params: UseExportCbModalParams) => {
 					}
 				});
 				setProgressCount(written);
+				bgTask.update(written);
 
 				if (stoppedRef.current) {
 					const succeededDetails = prepTasks
@@ -404,6 +453,9 @@ const useExportCbModal = (params: UseExportCbModalParams) => {
 				});
 			}
 		} finally {
+			// Unregister the keep-alive task on every exit path
+			// (success, stopped, error).  No-op when never started.
+			await bgTask.stop();
 			setPhase('result');
 		}
 	}, [
@@ -411,6 +463,7 @@ const useExportCbModal = (params: UseExportCbModalParams) => {
 		selectedFormat,
 		exportDir,
 		t,
+		bgTask,
 	]);
 
 	const handleExport = params.type === 'single' ? handleExportSingle : handleExportBulk;
