@@ -15,6 +15,7 @@ import { findKey, get } from 'lodash-es';
 /**
  * Internal dependencies
  */
+import ToggleRowControl from '../../../components/generic/controls/ToggleRowControl';
 import ButtonHighlight from '../../../components/generic/primitives/ButtonHighlight';
 import LoadingIndicator from '../../../components/generic/primitives/LoadingIndicator';
 import ModalWrapper from '../../../components/generic/wrapper/ModalWrapper';
@@ -101,6 +102,7 @@ const useApplyDemCbModal = ({
 	const [processingStarted, setProcessingStarted] = useState(false);
 	const [modalVisible, setModalVisible] = useState(false);
 	const [selectedOption, setSelectedOption] = useState<string | null>(null);
+	const [interpolateMissing, setInterpolateMissing] = useState(true);
 
 	const [processedLineIds, setProcessedLineIds] = useState<number[]>([]);
 	const [currentLineId, setCurrentLineId] = useState<number | null>(null);
@@ -130,16 +132,17 @@ const useApplyDemCbModal = ({
 		setLineStats({});
 		setLineMeta({});
 		setSelectedOption(null);
+		setInterpolateMissing(true);
 	}, []);
 
 	const mutationOptions: UseMutationOptions<
 		void,
 		Error,
-		{ lineIds: number[]; option: string },
+		{ lineIds: number[]; option: string; interpolateMissing: boolean },
 		void
 	> = useMemo(
 		() => ({
-			mutationFn: ({ lineIds, option }) => {
+			mutationFn: ({ lineIds, option, interpolateMissing }) => {
 				return new Promise<void>((resolveOuter, rejectOuter) => {
 					setProcessedLineIds([]);
 					setCurrentLineId(null);
@@ -155,6 +158,12 @@ const useApplyDemCbModal = ({
 						);
 						return;
 					}
+					const enrichOptions = {
+						onProgress: setCurrentLineProgress,
+						...(interpolateMissing
+							? { interpolateMissing: true, interpolateMaxGapMeters: 1000 }
+							: {}),
+					};
 					lineIds
 						.reduce(
 							(chain, lineId) =>
@@ -219,10 +228,7 @@ const useApplyDemCbModal = ({
 																enrichCoordinatesWithElevation(
 																	zeroCoords,
 																	api,
-																	{
-																		onProgress:
-																			setCurrentLineProgress,
-																	}
+																	enrichOptions
 																).then(() => {
 																	zeroIndices.forEach(
 																		(originalIdx, j) => {
@@ -271,10 +277,7 @@ const useApplyDemCbModal = ({
 															enrichCoordinatesWithElevation(
 																clonedCoords,
 																api,
-																{
-																	onProgress:
-																		setCurrentLineProgress,
-																}
+																enrichOptions
 															).then(() => {
 																clonedCoords.forEach((c, i) => {
 																	if (
@@ -317,10 +320,7 @@ const useApplyDemCbModal = ({
 															enrichCoordinatesWithElevation(
 																clonedCoords,
 																api,
-																{
-																	onProgress:
-																		setCurrentLineProgress,
-																}
+																enrichOptions
 															).then(() => {
 																const _stillZero =
 																	clonedCoords.filter(
@@ -377,9 +377,20 @@ const useApplyDemCbModal = ({
 				await cancelLinesQueries(dbConnection.queryClient!);
 				await cancelLineGeomQueries(dbConnection.queryClient!);
 			},
-			onSuccess: async () => {
+			onSuccess: async (_data, variables) => {
 				await invalidateLinesQueries(dbConnection.queryClient!);
 				await invalidateLineGeomQueries(dbConnection.queryClient!);
+				// Charts (fullscreen, bottom drawer) and the lineFollow
+				// dashboard widgets read the simplified Z-preserving
+				// `linePathCoords` query — refresh it per processed line
+				// so they pick up the new elevations immediately.
+				await Promise.all(
+					variables.lineIds.map((lineId) =>
+						dbConnection.queryClient!.invalidateQueries({
+							queryKey: ['linePathCoords', lineId],
+						})
+					)
+				);
 				isPendingRef.current = false;
 			},
 			onError: (error) => {
@@ -426,10 +437,15 @@ const useApplyDemCbModal = ({
 			// Metadata fetch is non-critical — continue even if it fails.
 		}
 
-		mutation.mutate({ lineIds: processableLineIds, option: selectedOption });
+		mutation.mutate({
+			lineIds: processableLineIds,
+			option: selectedOption,
+			interpolateMissing,
+		});
 	}, [
 		lineIds,
 		selectedOption,
+		interpolateMissing,
 		mutation,
 		processableLineIds,
 	]);
@@ -462,20 +478,34 @@ const useApplyDemCbModal = ({
 				<Text>{t('lines.applyDemDescription')}</Text>
 
 				<View>
-					{demOptions.map(
-						(opt) =>
+					{demOptions.map((opt) => {
+						const isOverwriteAll = opt.key === DEM_OPTION_OVERWRITE_ALL;
+						const label =
+							isOverwriteAll && interpolateMissing
+								? 'lines.applyDemOptionOverwriteAllInterpolate'
+								: opt.label;
+						return (
 							(!processingStarted || selectedOption === opt.key) && (
 								<RadioListItem
 									key={opt.key}
-									opt={opt}
+									opt={isOverwriteAll ? { ...opt, label } : opt}
 									labelExtractor={(o) => t(o.label)}
 									status={selectedOption === opt.key ? 'checked' : 'unchecked'}
 									onPress={() => setSelectedOption(opt.key)}
 									disabled={processingStarted}
 								/>
 							)
-					)}
+						);
+					})}
 				</View>
+
+				<ToggleRowControl
+					label={t('lines.applyDemInterpolateMissing')}
+					value={interpolateMissing}
+					onToggle={() => setInterpolateMissing((prev) => !prev)}
+					disabled={processingStarted}
+					Info={t('lines.applyDemInterpolateMissingInfo')}
+				/>
 
 				{!processingStarted && (
 					<View style={styles.controlsContainer}>
@@ -597,6 +627,7 @@ const useApplyDemCbModal = ({
 		handleApplyDem,
 		backgroundBlur,
 		selectedOption,
+		interpolateMissing,
 		mutation.isPending,
 		buttonProps,
 		lineIds,

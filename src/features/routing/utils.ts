@@ -450,7 +450,10 @@ const getBrouterCoords = async (
 		// not hard-fail — coordinates keep z = 0.
 		const handle = altitudeService.getHandle();
 		if (handle) {
-			await enrichCoordinatesWithElevation(coords, handle);
+			await enrichCoordinatesWithElevation(coords, handle, {
+				interpolateMissing: true,
+				interpolateMaxGapMeters: 1000,
+			});
 		}
 
 		return coords;
@@ -525,7 +528,10 @@ const getStraightLineCoords = async (
 	try {
 		const handle = altitudeService.getHandle();
 		if (handle) {
-			await enrichCoordinatesWithElevation(coords, handle);
+			await enrichCoordinatesWithElevation(coords, handle, {
+				interpolateMissing: true,
+				interpolateMaxGapMeters: 2000,
+			});
 		}
 	} catch (err) {
 		logError('routing/getStraightLineCoords', err);
