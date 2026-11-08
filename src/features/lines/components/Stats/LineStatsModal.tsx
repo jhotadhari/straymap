@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { memo, useMemo } from 'react';
-import { StyleSheet } from 'react-native';
 import { get, pick } from 'lodash-es';
 import { useQuery } from '@tanstack/react-query';
 import { Text } from 'react-native-paper';
@@ -22,14 +21,15 @@ import {
 } from '../../../trackRecording/db/queryFns';
 import { queryLinePointsStatsByLineIds } from '../../db/lineTimeStats';
 import LineStatsRows from './LineStatsRows';
-import LineTrackingStatsRows, { aggregateTrackingStats } from './LineTrackingStatsRows';
+import { buildTrackingStatsSection, MetadataStatsSection } from './LineTrackingStatsRows';
 import { aggregateLineStats } from './sharedDeps';
 
 /**
  * Shared stats modal for one or many lines: the aggregated geometry
- * stats, plus a recording-metadata section (duration, moving/pause
- * time, avg/max speed, point count) whenever at least one selected
- * line has track_points data.  Partial coverage is flagged with a note.
+ * stats, plus one metadata section per source — recording metadata
+ * (track_points) and imported track time stats (line_points) — whenever
+ * at least one selected line carries that source.  Partial coverage is
+ * flagged via the section heading.
  */
 const LineStatsModal = memo(
 	({
@@ -84,51 +84,46 @@ const LineStatsModal = memo(
 			gcTime: 1000 * 10,
 		});
 
-		const tracking = useMemo(() => {
-			const { values, coveredCount, totalCount } = aggregateTrackingStats(
-				(perLineStats ?? []).map((stats) => ({ lineId: stats.lineId, stats })),
-				lineIds.length
-			);
-			// Average speed = aggregated geometry length over aggregated
-			// moving time (moving-time-weighted, consistent with the
-			// geometry section's length source).
-			const length = get(stats, 'length', 0) as number;
-			return {
-				values: {
-					...values,
-					avgSpeedMps: values.movingMs > 0 ? length / (values.movingMs / 1000) : null,
-				},
-				coveredCount,
-				totalCount,
-			};
-		}, [
-			perLineStats,
-			stats,
-			lineIds,
-		]);
+		// Geometry length feeds the sections' avg-speed derivation
+		// (aggregated length over aggregated moving time).
+		const geometryLength = get(stats, 'length', 0) as number;
 
-		const imported = useMemo(() => {
-			const { values, coveredCount, totalCount } = aggregateTrackingStats(
-				(importedStats ?? []).map((s) => ({
-					lineId: s.lineId,
-					stats: s as LineTrackPointsStats,
-				})),
-				lineIds.length
-			);
-			const length = get(stats, 'length', 0) as number;
-			return {
-				values: {
-					...values,
-					avgSpeedMps: values.movingMs > 0 ? length / (values.movingMs / 1000) : null,
-				},
-				coveredCount,
-				totalCount,
-			};
-		}, [
-			importedStats,
-			stats,
-			lineIds,
-		]);
+		const recordingSection = useMemo(
+			() => ({
+				...buildTrackingStatsSection(
+					(perLineStats ?? []).map((stats) => ({ lineId: stats.lineId, stats })),
+					lineIds.length,
+					geometryLength
+				),
+				headingKey: 'lines.statsRecording',
+				partialKey: 'lines.statsRecordingPartial',
+			}),
+			[
+				perLineStats,
+				lineIds,
+				geometryLength,
+			]
+		);
+
+		const importedSection = useMemo(
+			() => ({
+				...buildTrackingStatsSection(
+					(importedStats ?? []).map((s) => ({
+						lineId: s.lineId,
+						stats: s as LineTrackPointsStats,
+					})),
+					lineIds.length,
+					geometryLength
+				),
+				headingKey: 'lines.statsTime',
+				partialKey: 'lines.statsTimePartial',
+			}),
+			[
+				importedStats,
+				lineIds,
+				geometryLength,
+			]
+		);
 
 		return (
 			<ModalWrapper
@@ -141,53 +136,13 @@ const LineStatsModal = memo(
 
 				<LineStatsRows stats={stats} />
 
-				{tracking.coveredCount > 0 && (
-					<>
-						{tracking.coveredCount === tracking.totalCount && (
-							<Text style={styles.sectionHeading}>{t('lines.statsRecording')}</Text>
-						)}
-						{tracking.coveredCount < tracking.totalCount && (
-							<Text style={styles.sectionHeading}>
-								{sprintf(
-									t('lines.statsRecordingPartial'),
-									tracking.coveredCount,
-									tracking.totalCount
-								)}
-							</Text>
-						)}
-						<LineTrackingStatsRows values={tracking.values} />
-					</>
-				)}
-
-				{imported.coveredCount > 0 && (
-					<>
-						{imported.coveredCount === imported.totalCount && (
-							<Text style={styles.sectionHeading}>{t('lines.statsTime')}</Text>
-						)}
-						{imported.coveredCount < imported.totalCount && (
-							<Text style={styles.sectionHeading}>
-								{sprintf(
-									t('lines.statsTimePartial'),
-									imported.coveredCount,
-									imported.totalCount
-								)}
-							</Text>
-						)}
-						<LineTrackingStatsRows values={imported.values} />
-					</>
-				)}
+				<MetadataStatsSection section={recordingSection} />
+				<MetadataStatsSection section={importedSection} />
 			</ModalWrapper>
 		);
 	}
 );
 
 LineStatsModal.displayName = 'LineStatsModal';
-
-const styles = StyleSheet.create({
-	sectionHeading: {
-		fontWeight: '600',
-		marginTop: 16,
-	},
-});
 
 export default LineStatsModal;

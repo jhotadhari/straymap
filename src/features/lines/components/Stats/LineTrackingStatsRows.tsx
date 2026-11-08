@@ -2,8 +2,10 @@
  * External dependencies
  */
 import { FC, useMemo } from 'react';
+import { StyleSheet } from 'react-native';
 import { get } from 'lodash-es';
 import { useTranslation } from 'react-i18next';
+import { sprintf } from 'sprintf-js';
 import { Text } from 'react-native-paper';
 
 /**
@@ -109,5 +111,68 @@ const LineTrackingStatsRows: FC<{ values: TrackingStatsValues }> = ({ values }) 
 		</>
 	);
 };
+
+/**
+ * One metadata section of the stats modal: a heading (or the
+ * partial-coverage note as heading) plus the six tracking rows.
+ */
+export interface MetadataStatsSectionData {
+	values: TrackingStatsValues;
+	coveredCount: number;
+	totalCount: number;
+	headingKey: string;
+	partialKey: string;
+}
+
+/**
+ * Aggregate one metadata source into a section's data (shared by the
+ * recording and the imported sections).  Avg speed is the aggregated
+ * geometry length over the aggregated moving time.
+ */
+export const buildTrackingStatsSection = (
+	entries: { lineId: number; stats: LineTrackPointsStats }[],
+	totalCount: number,
+	geometryLengthM: number
+): Omit<MetadataStatsSectionData, 'headingKey' | 'partialKey'> => {
+	const {
+		values,
+		coveredCount,
+		totalCount: sectionTotal,
+	} = aggregateTrackingStats(entries, totalCount);
+	return {
+		values: {
+			...values,
+			avgSpeedMps: values.movingMs > 0 ? geometryLengthM / (values.movingMs / 1000) : null,
+		},
+		coveredCount,
+		totalCount: sectionTotal,
+	};
+};
+
+const MetadataStatsSection: FC<{ section: MetadataStatsSectionData }> = ({ section }) => {
+	const { t } = useTranslation();
+	if (section.coveredCount === 0) {
+		return null;
+	}
+	const label =
+		section.coveredCount === section.totalCount
+			? t(section.headingKey)
+			: sprintf(t(section.partialKey), section.coveredCount, section.totalCount);
+	return (
+		<>
+			<Text style={styles.sectionHeading}>{label}</Text>
+			<LineTrackingStatsRows values={section.values} />
+		</>
+	);
+};
+
+export { MetadataStatsSection };
+
+const styles = StyleSheet.create({
+	sectionHeading: {
+		fontWeight: '600',
+		marginTop: 16,
+	},
+});
 
 export default LineTrackingStatsRows;
