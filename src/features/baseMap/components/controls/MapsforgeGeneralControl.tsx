@@ -20,11 +20,15 @@ import type { MapsforgeGeneral } from '../../types';
 
 const validate = (val: number) => val >= 0 && val <= 20;
 
+const validatePruneTimeout = (val: number) => val >= 1 && val <= 60;
+
 const isEqual = (a: MapsforgeGeneral, b: MapsforgeGeneral) =>
 	a.lineScale === b.lineScale &&
 	a.textScale === b.textScale &&
 	a.symbolScale === b.symbolScale &&
-	a.correctTextPacking === b.correctTextPacking;
+	a.correctTextPacking === b.correctTextPacking &&
+	a.backgroundPrune === b.backgroundPrune &&
+	a.backgroundPruneTimeoutMin === b.backgroundPruneTimeoutMin;
 
 const MapsforgeGeneralControl = () => {
 	const { t } = useTranslation();
@@ -68,6 +72,24 @@ const MapsforgeGeneralControl = () => {
 			setLocalSettings((prev) => ({
 				...prev,
 				correctTextPacking: !prev.correctTextPacking,
+			})),
+		[]
+	);
+
+	const handleBackgroundPrune = useCallback(
+		() =>
+			setLocalSettings((prev) => ({
+				...prev,
+				backgroundPrune: !prev.backgroundPrune,
+			})),
+		[]
+	);
+
+	const handleBackgroundPruneTimeoutMin = useCallback(
+		(newValue: number) =>
+			setLocalSettings((prev) => ({
+				...prev,
+				backgroundPruneTimeoutMin: newValue,
 			})),
 		[]
 	);
@@ -132,6 +154,22 @@ const MapsforgeGeneralControl = () => {
 					value={localSettings.correctTextPacking}
 					onToggle={handleCorrectTextPacking}
 					Info={t('baseMap.hint.correctTextPacking')}
+				/>
+
+				<ToggleRowControl
+					label={t('baseMap.backgroundPrune')}
+					value={localSettings.backgroundPrune}
+					onToggle={handleBackgroundPrune}
+					Info={t('baseMap.hint.backgroundPrune')}
+				/>
+
+				<NumericRowControl
+					label={t('baseMap.backgroundPruneTimeoutMin')}
+					numType={'int'}
+					value={localSettings.backgroundPruneTimeoutMin}
+					onUpdate={handleBackgroundPruneTimeoutMin}
+					validate={validatePruneTimeout}
+					Info={t('baseMap.hint.backgroundPruneTimeoutMin')}
 				/>
 			</View>
 		</ListItemModalControl>

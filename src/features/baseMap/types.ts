@@ -105,4 +105,14 @@ export type MapsforgeGeneral = {
 	lineScale: number;
 	symbolScale: number;
 	correctTextPacking: boolean;
+	/** Prune the map's in-memory tile caches while the app is
+	 * backgrounded (viewport tiles are kept, so returning to the map is
+	 * instant).  Reduces the app's background memory footprint so
+	 * Android is far less likely to destroy the hidden activity under
+	 * memory pressure. */
+	backgroundPrune: boolean;
+	/** Minutes to wait after backgrounding before pruning, while a
+	 * recording is active.  Without a recording the caches are pruned
+	 * immediately on background. */
+	backgroundPruneTimeoutMin: number;
 };

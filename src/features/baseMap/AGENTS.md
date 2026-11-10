@@ -21,7 +21,10 @@ BaseMapState extends SliceSettingsBase, BaseMapSettings {
   layers: LayerConfig[];                 // committed layer list
   mapsforgeProfiles: MapsforgeProfile[]; // committed profile list
   hgtDirPath?: string;                   // global DEM directory
-  mapsforgeGeneral: MapsforgeGeneral;    // { textScale, lineScale, symbolScale }
+  mapsforgeGeneral: MapsforgeGeneral;    // { textScale, lineScale, symbolScale,
+                                          //   correctTextPacking,
+                                          //   backgroundPrune,
+                                          //   backgroundPruneTimeoutMin }
   renderStylesCache: RenderStylesCache;  // cached render-style options per theme
 
   // Ephemeral (unsaved editing state):
@@ -113,6 +116,24 @@ When source is missing or layer is not visible, the renderer returns `null` earl
 - Edits to `layersTemp` / `profilesTemp` (temp copy) are NOT persisted — only when committed via `setLayers({ temp: false })`
 - Listener middleware watches `setLayers`, `setMapsforgeProfiles`, `setHgtDirPath`, `setMapsforgeGeneralAction`, `setRenderStylesCache`
 
+## Background memory manager (`mapMemoryManager.ts`)
+
+Process-scoped controller (same pattern as `gnss/gnssModuleController.ts`),
+initialized from `AppView` alongside it. Shrinks the map's in-memory tile
+caches while backgrounded so Android stops destroying the hidden activity
+under memory pressure (`wm_destroy_activity … low-mem`).
+
+- `src/lib/MapMemoryService.ts` — `MapHandleRegistry` singleton (like
+  `AltitudeService`), wired from `AppView` when the map view mounts.
+- On `AppState` `'background'`: recording → schedule prune after
+  `mapsforgeGeneral.backgroundPruneTimeoutMin`; no recording → prune
+  immediately. `'active'` cancels the timer.
+- On `'memoryWarning'` while backgrounded: clear everything (last
+  resort against the activity destroy).
+- Prune budget: `PRUNE_BUDGET_TILES` (48) per layer, via
+  `useMap().pruneTileMemoryCache` / `clearTileMemoryCache`
+  (react-native-mapsforge-vtm). On-disk caches are never touched.
+
 ## Utils (`utils.ts`)
 
 | Function                                              | Purpose                                                                                                                                                        |
@@ -123,7 +144,7 @@ When source is missing or layer is not visible, the renderer returns `null` earl
 | `fillLayerConfigOptionsWithDefaults(type, options)`   | Deep-merges defaults for given layer type into options                                                                                                         |
 | `getLayerLabel(layer, props?)`                        | Returns `{ key, params }` for i18next — an i18n key for hillshading layers, or a raw string for other types. Returns `undefined` when no source is configured. |
 | `hasLayerSource(layer, appHgtDirPath?)`               | Returns `true` when the layer has a configured source (delegates to `getLayerLabel`). Used for warning icons and guard checks.                                 |
-| `labelFromAppPath(path)` (in `src/lib/utils.ts`)     | Converts an app directory path to a short label (`"media"`, `"sdcard data"`, etc.). Not i18n'd — these are path segments.                                       |
+| `labelFromAppPath(path)` (in `src/lib/utils.ts`)      | Converts an app directory path to a short label (`"media"`, `"sdcard data"`, etc.). Not i18n'd — these are path segments.                                      |
 | `makeLayerBusyKey(layerType, layerKey)`               | Returns `"map:base-layer:<layerType>:<layerKey>"`                                                                                                              |
 | `resolveCacheDirBase(cacheDirBase, internalCacheDir)` | Resolves `'internal'` → app's internal cache dir, otherwise passes through                                                                                     |
 | `getHillshadingCacheDirChild(options)`                | Derives cache subdirectory name from shading options                                                                                                           |
@@ -162,11 +183,11 @@ When source is missing or layer is not visible, the renderer returns `null` earl
 
 ### Other controls
 
-| Control                       | Purpose                                                                                                                                          |
-| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `LabelRowControl.tsx`         | Debounced (300ms) text input for renaming layers/profiles. Uses refs so debounce always writes the latest value.                                 |
-| `MapsforgeGeneralControl.tsx` | Modal with line/text/symbol scale sliders. Uses local state snapshots — commits to Redux only on dismiss to avoid map re-creation on keystrokes. |
-| `CacheManager.tsx`            | Accordion listing all cache directories with sizes, layer associations, and delete buttons.                                                      |
+| Control                       | Purpose                                                                                                                                                                                           |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `LabelRowControl.tsx`         | Debounced (300ms) text input for renaming layers/profiles. Uses refs so debounce always writes the latest value.                                                                                  |
+| `MapsforgeGeneralControl.tsx` | Modal with line/text/symbol scale sliders plus background cache pruning (toggle + timeout). Uses local state snapshots — commits to Redux only on dismiss to avoid map re-creation on keystrokes. |
+| `CacheManager.tsx`            | Accordion listing all cache directories with sizes, layer associations, and delete buttons.                                                                                                       |
 
 ## Gotchas
 

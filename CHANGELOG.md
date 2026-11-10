@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- BaseMap: background map memory pruning — while the app is backgrounded
+  the map's in-memory tile caches are pruned to a viewport-sized budget
+  (immediately without a recording; after a configurable timeout while
+  recording), and cleared on memory warnings. Prevents Android from
+  destroying the hidden activity under memory pressure (`low-mem`),
+  which used to restart the app after long screen-off periods while the
+  recording kept running. On-disk caches are untouched. Settings in
+  Mapsforge General (on/off + timeout, default 3 min).
 - Lines: per-line slope color ramp assignment — the map context menu
   color picker and the selected-lines list color column offer toggling a
   slope color ramp (single lines only, requires elevation data).

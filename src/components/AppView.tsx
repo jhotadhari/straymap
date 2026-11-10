@@ -77,6 +77,8 @@ import {
 } from '../features/gnss/selectors';
 import { getDeviceAzimuth, setDeviceAzimuth } from '../features/gnss/deviceAzimuthStore';
 import { altitudeService } from '../lib/AltitudeService';
+import { mapMemoryService } from '../lib/MapMemoryService';
+import { initMapMemoryManager } from '../features/baseMap/mapMemoryManager';
 import { addBusyKey, removeBusyKey } from '../features/ui/slice';
 
 const zoomMin = 2;
@@ -154,6 +156,18 @@ const AppView = ({
 		};
 	}, [mapViewNativeNodeHandle]);
 
+	// Wire the map's nativeNodeHandle to mapMemoryService so the
+	// background memory manager (baseMap/mapMemoryManager) can
+	// prune/clear the in-memory tile caches without the React tree.
+	useEffect(() => {
+		if (mapViewNativeNodeHandle) {
+			mapMemoryService.wire(mapViewNativeNodeHandle);
+		}
+		return () => {
+			mapMemoryService.unwire();
+		};
+	}, [mapViewNativeNodeHandle]);
+
 	// GNSS is application-scoped (GnssModule) — the surface only flips
 	// the controller's presence flag. A recording keeps GNSS alive
 	// while the surface is gone (accidental swipe / background
@@ -161,6 +175,7 @@ const AppView = ({
 	// Runs once per surface mount.
 	useEffect(() => {
 		initGnssModuleController();
+		initMapMemoryManager();
 		setSurfacePresent(true);
 		return () => {
 			setSurfacePresent(false);

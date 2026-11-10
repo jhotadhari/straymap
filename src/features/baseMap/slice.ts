@@ -58,6 +58,8 @@ export const initialSettings: BaseMapSettings = {
 		symbolScale: 1,
 		textScale: 1.2,
 		correctTextPacking: true,
+		backgroundPrune: true,
+		backgroundPruneTimeoutMin: 3,
 	},
 	renderStylesCache: {
 		optionsMap: {},

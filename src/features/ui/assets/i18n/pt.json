@@ -24,7 +24,7 @@
 		},
 		"privacy": {
 			"title": "Privacidade",
-			"body": "Straymap **não contém rastreadores** de nenhum tipo. Todos os dados permanecem no dispositivo — nada é coletado, enviado ou compartilhado.\n\nO app funciona completamente offline, com uma exceção: a camada de mapa `online-raster-xyz`, que solicita blocos rasterizados de uma fonte online que você mesmo escolhe.\n\n[Política de privacidade completa](https://github.com/jhotadhari/straymap/blob/main/PRIVACY.md)\n"
+			"body": "Straymap **não contém rastreadores** de nenhum tipo. Todos os dados permanecem no dispositivo — nada é coletado, enviado ou compartilhado.\n\nO app funciona completamente offline, com uma exceção: a camada de mapa `online-raster-xyz`, que solicita azulejos rasterizados de uma fonte online que você mesmo escolhe.\n\n[Política de privacidade completa](https://github.com/jhotadhari/straymap/blob/main/PRIVACY.md)\n"
 		},
 		"whereToGetMaps": {
 			"title": "Onde obter mapas?",
