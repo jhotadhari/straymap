@@ -32,13 +32,13 @@ export const initialSettings: DashboardSettings = {
 	dashboardStyleTop: {
 		align: 'between',
 		fontSize: 20,
-		showLabel: true,
+		showLabel: false,
 		showIcon: true,
 	},
 	dashboardStyleBottom: {
 		align: 'between',
 		fontSize: 20,
-		showLabel: true,
+		showLabel: false,
 		showIcon: true,
 	},
 	itemsTop: [],
