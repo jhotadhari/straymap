@@ -16,7 +16,14 @@ import trackRecordingReducer, {
 	setRecordingStartTime,
 	setLastRecordedLineId,
 	onSetDbPath,
+	initialSettings,
+	setInitialized,
+	setRecordedDistanceM,
+	addRecordedDistanceM,
+	startRecording,
 } from '../slice';
+import { selectRecordedDistanceM } from '../selectors';
+import { saveToStorage } from '../connectStorage';
 
 describe('trackRecording slice reducers', () => {
 	it('initial state has recording off and DEM altitude on', () => {
@@ -84,6 +91,69 @@ describe('trackRecording slice reducers', () => {
 		expect(state.lastRecordedLineId).toBe(42);
 		state = trackRecordingReducer(state, setLastRecordedLineId(null));
 		expect(state.lastRecordedLineId).toBeNull();
+	});
+
+	describe('recordedDistanceM (runtime-only)', () => {
+		it('starts unavailable and is not part of the persisted settings shape', () => {
+			const state = trackRecordingReducer(undefined, { type: '@@INIT' } as any);
+			expect(state.recordedDistanceM).toBeNull();
+			expect(Object.keys(initialSettings)).not.toContain('recordedDistanceM');
+		});
+
+		it('is not written by saveToStorage', () => {
+			const DefaultPreference = require('react-native-default-preference');
+			let state = trackRecordingReducer(undefined, setInitialized(true));
+			state = trackRecordingReducer(state, setRecordedDistanceM(1234));
+			saveToStorage(state, 'test');
+			const calls = (DefaultPreference.set as jest.Mock).mock.calls;
+			const saved = JSON.parse(calls[calls.length - 1][1]);
+			expect(saved).not.toHaveProperty('recordedDistanceM');
+		});
+
+		it('accumulates segments incrementally', () => {
+			let state = trackRecordingReducer(undefined, setRecordedDistanceM(0));
+			state = trackRecordingReducer(state, addRecordedDistanceM(10));
+			state = trackRecordingReducer(state, addRecordedDistanceM(2.5));
+			expect(state.recordedDistanceM).toBeCloseTo(12.5);
+		});
+
+		it('ignores increments while unavailable (null)', () => {
+			const state = trackRecordingReducer(undefined, addRecordedDistanceM(10));
+			expect(state.recordedDistanceM).toBeNull();
+		});
+
+		it('stays readable after stopRecording-style state changes, reset by onSetDbPath', () => {
+			let state = trackRecordingReducer(undefined, setRecordedDistanceM(500));
+			state = trackRecordingReducer(state, setIsRecordingAction(true));
+			state = trackRecordingReducer(state, setIsRecordingAction(false));
+			expect(state.recordedDistanceM).toBe(500);
+
+			const dispatch = jest.fn((action: any) => {
+				state = trackRecordingReducer(state, action);
+			});
+			onSetDbPath()(dispatch, jest.fn(), undefined as any);
+			expect(state.recordedDistanceM).toBeNull();
+		});
+
+		it('startRecording resets it to null', async () => {
+			let state = trackRecordingReducer(undefined, setRecordedDistanceM(500));
+			const dispatch = jest.fn((action: any) => {
+				if (typeof action === 'object') {
+					state = trackRecordingReducer(state, action);
+				}
+			});
+			await startRecording()(
+				dispatch,
+				() => ({ trackRecording: state }) as any,
+				undefined as any
+			);
+			expect(state.recordedDistanceM).toBeNull();
+		});
+
+		it('selectRecordedDistanceM reads the slice value', () => {
+			const state = trackRecordingReducer(undefined, setRecordedDistanceM(42));
+			expect(selectRecordedDistanceM({ trackRecording: state } as any)).toBe(42);
+		});
 	});
 
 	describe('onSetDbPath', () => {

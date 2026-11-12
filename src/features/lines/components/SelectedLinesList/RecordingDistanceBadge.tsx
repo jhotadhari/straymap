@@ -1,11 +1,10 @@
 /**
  * External dependencies
  */
-import React, { FC, useMemo } from 'react';
+import React, { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, TouchableHighlight, View } from 'react-native';
 import { Icon, Text } from 'react-native-paper';
-import { useQuery } from '@tanstack/react-query';
 import { get } from 'lodash-es';
 
 /**
@@ -13,8 +12,8 @@ import { get } from 'lodash-es';
  */
 import { useAppSelector } from '../../../../store/hooks';
 import { selectUnitPrefs } from '../../../general/selectors';
-import { formatDistance, haversineLineLength } from '../../../../lib/formatting';
-import { queryLineGeom } from '../../db/queryFns';
+import { formatDistance } from '../../../../lib/formatting';
+import { selectRecordedDistanceM } from '../../../trackRecording/selectors';
 import useCenterRecordingPosition from '../../hooks/useCenterRecordingPosition';
 import { RECORDED_LINE_COLOR } from '../../../../constants';
 
@@ -36,24 +35,18 @@ import { RECORDED_LINE_COLOR } from '../../../../constants';
  * Rendered as its own component so only this badge (not every
  * selected-lines row) re-renders as recorded points append.
  */
+// `lineId` stays in the props for the caller's sake (the badge belongs to
+// that row) but is no longer needed: the distance lives in Redux.
 const RecordingDistanceBadge: FC<{ lineId: number; isPaused?: boolean }> = ({
-	lineId,
 	isPaused = false,
 }) => {
 	const { t } = useTranslation();
 	const unitPrefs = useAppSelector(selectUnitPrefs);
 	const centerOnRecording = useCenterRecordingPosition();
 
-	const { data: line } = useQuery({
-		queryKey: ['lineGeom', lineId],
-		queryFn: queryLineGeom,
-		gcTime: 1000 * 60 * 5,
-	});
-
-	const distanceM = useMemo(() => {
-		const coords = line?.geometry?.coordinates;
-		return coords?.length ? haversineLineLength(coords) : null;
-	}, [line]);
+	// Incrementally accumulated in the trackRecording slice — no geometry
+	// query / rescan here.
+	const distanceM = useAppSelector(selectRecordedDistanceM);
 
 	const value = isPaused
 		? t('lines.paused')

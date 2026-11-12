@@ -28,6 +28,65 @@ export const toTrackCoord = (
 ];
 
 /**
+ * Haversine length (m) of the segment between two coordinates — the
+ * increment added to the running recorded distance per append.
+ */
+export const segmentLengthM = (
+	prev: ArrayLike<number | undefined>,
+	next: ArrayLike<number | undefined>
+): number =>
+	haversineDistance(
+		[
+			prev[0] as number,
+			prev[1] as number,
+		],
+		[
+			next[0] as number,
+			next[1] as number,
+		]
+	);
+
+/**
+ * Deferral of the per-append react-query refresh while the app is in the
+ * background (nobody can see the growing line / stats).  DB writes are
+ * never deferred — only the cache refresh is, and it is caught up once.
+ *
+ * - `request(lineId, flush)`: app active → `flush(lineId)` right away;
+ *   backgrounded → only remember the line (dirty).  If a different line
+ *   was already pending, that one is flushed first so no refresh is lost.
+ * - `onActiveChange(true)`: flush the remembered line once, clear dirty.
+ * - `discard()`: clear dirty without flushing (recording stopped — the
+ *   stop listener invalidates everything anyway).
+ */
+export const createDeferredRefresh = (isActive: () => boolean) => {
+	let pendingLineId: number | null = null;
+	return {
+		request: (lineId: number, flush: (lineId: number) => void) => {
+			if (isActive()) {
+				flush(lineId);
+				return;
+			}
+			if (pendingLineId != null && pendingLineId !== lineId) {
+				flush(pendingLineId);
+			}
+			pendingLineId = lineId;
+		},
+		flushPending: (flush: (lineId: number) => void) => {
+			if (pendingLineId == null) {
+				return;
+			}
+			const lineId = pendingLineId;
+			pendingLineId = null;
+			flush(lineId);
+		},
+		discard: () => {
+			pendingLineId = null;
+		},
+		getPendingLineId: () => pendingLineId,
+	};
+};
+
+/**
  * Inter-point gaps larger than this are treated as pauses (GNSS signal
  * loss, or the gap between a stopped and continued recording segment).
  */

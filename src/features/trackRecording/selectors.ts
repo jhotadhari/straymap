@@ -20,6 +20,8 @@ export const selectLastRecordedLineId = (state: RootState) =>
  */
 export const selectTrackLineId = (state: RootState) =>
 	state.trackRecording.activeLineId ?? state.trackRecording.pausedLineId;
+/** Running recorded distance (m) of the track line; null = unavailable. */
+export const selectRecordedDistanceM = (state: RootState) => state.trackRecording.recordedDistanceM;
 export const selectMinDistance = (state: RootState) => state.trackRecording.minDistance;
 export const selectMinTime = (state: RootState) => state.trackRecording.minTime;
 export const selectMinPrecision = (state: RootState) => state.trackRecording.minPrecision;

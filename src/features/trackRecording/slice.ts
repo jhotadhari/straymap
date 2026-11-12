@@ -20,6 +20,8 @@ import { createTrack, finalizeTrackSummary } from './db/actionsTrack';
 import { queryTrackByLineId, queryLineExists } from './db/queryFns';
 import { clampLineWidth } from '../../lib/lineWidth';
 import { TrackPointMeta } from './types';
+import { queryLineGeom } from '../lines/db/queryFns';
+import { haversineLineLength } from '../../lib/formatting';
 
 /** Default recording line width (dp) — the recording path's stroke width. */
 export const DEFAULT_RECORDING_LINE_WIDTH = 4;
@@ -76,6 +78,17 @@ export interface TrackRecordingState extends SliceSettingsBase, TrackRecordingSe
 	 * discard before anything resumes.
 	 */
 	resumePromptPending: boolean;
+	/**
+	 * Transient — not persisted (deliberately NOT part of
+	 * TrackRecordingSettings / initialSettings).  Running haversine
+	 * length (m) of the recorded line, accumulated per append in the
+	 * writeGnssPosition listener so no consumer rescans the growing
+	 * geometry (O(n) per fix).  `null` = unavailable (line not created
+	 * yet / not initialized).  Survives stopRecording (the paused state
+	 * stays readable), reset by startRecording, initialized once from
+	 * the line's geometry on continue / resume.
+	 */
+	recordedDistanceM: number | null;
 }
 
 export const initialSettings: TrackRecordingSettings = {
@@ -96,6 +109,7 @@ const initialState: TrackRecordingState = {
 	initialized: false,
 	pausedLineId: null,
 	resumePromptPending: false,
+	recordedDistanceM: null,
 	...initialSettings,
 };
 
@@ -177,6 +191,15 @@ export const trackRecordingSlice = createSlice({
 		setPausedLineId: (state, action: PayloadAction<number | null>) => {
 			state.pausedLineId = action.payload;
 		},
+		setRecordedDistanceM: (state, action: PayloadAction<number | null>) => {
+			state.recordedDistanceM = action.payload;
+		},
+		/** Adds a segment length; a no-op while the distance is unavailable. */
+		addRecordedDistanceM: (state, action: PayloadAction<number>) => {
+			if (state.recordedDistanceM != null) {
+				state.recordedDistanceM += action.payload;
+			}
+		},
 	},
 });
 
@@ -198,8 +221,34 @@ export const {
 	setResumePromptPending,
 	setUseDemAltitude,
 	setPausedLineId,
+	setRecordedDistanceM,
+	addRecordedDistanceM,
 	writeGnssPosition,
 } = trackRecordingSlice.actions;
+
+/**
+ * One O(n) pass over the line's stored geometry to (re)initialize the
+ * running distance — used by continue / resume.  Display-only head
+ * start: the writeGnssPosition listener re-seeds authoritatively
+ * (serialized with the appends) on the first fix of the line, so this
+ * only writes while nothing has been appended yet (`recordedDistanceM`
+ * still null) and the line is still the active one.
+ */
+const initRecordedDistanceFromGeometry =
+	(lineId: number): AppThunk =>
+	async (dispatch, getState) => {
+		try {
+			const line = await queryLineGeom({ queryKey: ['lineGeom', lineId] });
+			const trk = getState().trackRecording;
+			if (trk.activeLineId !== lineId || trk.recordedDistanceM != null) {
+				return;
+			}
+			const coords = line?.geometry?.coordinates;
+			dispatch(setRecordedDistanceM(coords?.length ? haversineLineLength(coords) : 0));
+		} catch (err) {
+			logError('trackRecording/initRecordedDistance', err);
+		}
+	};
 
 export default trackRecordingSlice.reducer;
 
@@ -232,6 +281,7 @@ export const startRecording = (): AppThunk => async (dispatch, getState) => {
 	dispatch(setActiveTrackId(null));
 	dispatch(setActiveLineId(null));
 	dispatch(setPausedLineId(null));
+	dispatch(setRecordedDistanceM(null));
 	dispatch(setRecordingStartTime(now));
 
 	// Register the foreground task — keeps the shared "Recording track"
@@ -263,6 +313,10 @@ export const continueRecording =
 		dispatch(setResumePending(false));
 		dispatch(setActiveLineId(lineId));
 		dispatch(setPausedLineId(null));
+		// Distance of the existing geometry — null until the one-off
+		// O(n) init below resolves, then incremented per append.
+		dispatch(setRecordedDistanceM(null));
+		dispatch(initRecordedDistanceFromGeometry(lineId));
 		// The line may have been removed from the map while paused
 		// (which releases the paused state) — continuing must put it
 		// back in the drawer list. Idempotent when already selected.
@@ -351,6 +405,11 @@ export const confirmRecordingResume =
 
 		dispatch(setResumePending(true));
 		dispatch(setIsActive(true));
+		// Killed-and-restored recording: the runtime distance is gone —
+		// rebuild it from the stored geometry (activeLineId is already
+		// restored, so the init's guard passes).
+		dispatch(setRecordedDistanceM(null));
+		dispatch(initRecordedDistanceFromGeometry(activeLineId));
 
 		// Register the location foreground task now — the app is
 		// foreground here (the user just tapped Continue).  Starting it
@@ -423,5 +482,6 @@ export const onSetDbPath = (): AppThunk => (dispatch) => {
 	dispatch(setActiveLineId(null));
 	dispatch(setPausedLineId(null));
 	dispatch(setRecordingStartTime(null));
+	dispatch(setRecordedDistanceM(null));
 	dispatch(setLastRecordedLineId(null)); // "deliberately cleared" marker
 };

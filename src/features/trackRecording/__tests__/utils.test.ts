@@ -5,7 +5,89 @@
 /**
  * Internal dependencies
  */
-import { computeTrackSummary, deriveSpeedMps, toTrackCoord } from '../utils';
+import {
+	computeTrackSummary,
+	createDeferredRefresh,
+	deriveSpeedMps,
+	segmentLengthM,
+	toTrackCoord,
+} from '../utils';
+import { haversineLineLength } from '../../../lib/formatting';
+
+describe('segmentLengthM', () => {
+	it('sums to the full haversine line length', () => {
+		const coords = [
+			[
+				8.0,
+				50.0,
+				0,
+			],
+			[
+				8.001,
+				50.001,
+				5,
+			],
+			[
+				8.003,
+				50.002,
+				9,
+			],
+		];
+		const incremental =
+			segmentLengthM(coords[0], coords[1]) + segmentLengthM(coords[1], coords[2]);
+		expect(incremental).toBeCloseTo(haversineLineLength(coords), 6);
+		expect(segmentLengthM(coords[0], coords[0])).toBe(0);
+	});
+});
+
+describe('createDeferredRefresh', () => {
+	it('flushes immediately while the app is active', () => {
+		const flush = jest.fn();
+		const d = createDeferredRefresh(() => true);
+		d.request(7, flush);
+		expect(flush).toHaveBeenCalledWith(7);
+		expect(d.getPendingLineId()).toBeNull();
+	});
+
+	it('defers while backgrounded and flushes once on foreground', () => {
+		let active = false;
+		const flush = jest.fn();
+		const d = createDeferredRefresh(() => active);
+		d.request(7, flush);
+		d.request(7, flush);
+		d.request(7, flush);
+		expect(flush).not.toHaveBeenCalled();
+		expect(d.getPendingLineId()).toBe(7);
+
+		active = true;
+		d.flushPending(flush);
+		expect(flush).toHaveBeenCalledTimes(1);
+		expect(flush).toHaveBeenCalledWith(7);
+		expect(d.getPendingLineId()).toBeNull();
+
+		// Nothing dirty → no further flush.
+		d.flushPending(flush);
+		expect(flush).toHaveBeenCalledTimes(1);
+	});
+
+	it('flushes the remembered line when the active line changes while dirty', () => {
+		const flush = jest.fn();
+		const d = createDeferredRefresh(() => false);
+		d.request(7, flush);
+		d.request(9, flush);
+		expect(flush).toHaveBeenCalledWith(7);
+		expect(d.getPendingLineId()).toBe(9);
+	});
+
+	it('discard clears the dirty flag without flushing', () => {
+		const flush = jest.fn();
+		const d = createDeferredRefresh(() => false);
+		d.request(7, flush);
+		d.discard();
+		d.flushPending(flush);
+		expect(flush).not.toHaveBeenCalled();
+	});
+});
 
 describe('toTrackCoord', () => {
 	it('keeps a numeric altitude', () => {

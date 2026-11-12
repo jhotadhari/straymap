@@ -59,6 +59,7 @@ import {
 	selectActiveLineId,
 	selectTrackLineId,
 	selectRecordingStartTime,
+	selectRecordedDistanceM,
 } from '../selectors';
 import { selectResumePending, selectLastRecordedLineId } from '../selectors';
 import { startRecording, stopRecording, continueRecording } from '../slice';
@@ -76,7 +77,6 @@ import { MenuActionOption } from '../../../types';
 import ButtonHighlightMenuControl from '../../../components/generic/wrapper/ButtonHighlightMenuControl';
 import {
 	formatDistance,
-	haversineLineLength,
 	formatDurationCompact,
 	formatCoords,
 	formatHeightDepth,
@@ -345,10 +345,9 @@ const TrackingDrawerContent: FC<{
 		gcTime: 1000 * 10,
 	});
 
-	const distance = useMemo(() => {
-		if (!line?.geometry?.coordinates) return 0;
-		return haversineLineLength(line.geometry.coordinates);
-	}, [line]);
+	// Live distance comes from the incrementally accumulated Redux value
+	// (O(1) per fix) — no rescan of the growing geometry.
+	const distance = useAppSelector(selectRecordedDistanceM) ?? 0;
 
 	const pointCount = line?.geometry?.coordinates?.length ?? 0;
 	const distUnit = unitPrefs?.distance;

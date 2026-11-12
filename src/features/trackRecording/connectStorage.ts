@@ -30,6 +30,8 @@ import {
 	setResumePromptPending,
 	setUseDemAltitude,
 	setPausedLineId,
+	setRecordedDistanceM,
+	addRecordedDistanceM,
 	stopRecording,
 	writeGnssPosition,
 } from './slice';
@@ -49,7 +51,9 @@ import { ensureTagByLabel } from '../lines/db/actionsTag';
 import { setLineSelected, setSelected } from '../lines/slice';
 import { setIsActive } from '../gnss/slice';
 import { startRecordingTask, stopRecordingTask } from './backgroundTask';
-import { deriveSpeedMps, toTrackCoord } from './utils';
+import { createDeferredRefresh, deriveSpeedMps, segmentLengthM, toTrackCoord } from './utils';
+import { haversineLineLength } from '../../lib/formatting';
+import { isAppActive, subscribeAppActive } from '../../lib/appActive';
 import {
 	invalidateLineTrackPointsQueries,
 	invalidateTrackSummaryQueries,
@@ -63,6 +67,7 @@ import {
 	invalidateLineGeomQueries,
 	invalidateLineGeomQueriesForLine,
 	invalidateLinesQueries,
+	queryLineGeom,
 } from '../lines/db/queryFns';
 import { dbConnection } from '../dbLoader/DBConnection';
 
@@ -243,6 +248,78 @@ let seededLineId: number | null = null;
 // Set when the ST_NPoints seed query fails — disables metadata writes
 // for the rest of the session instead of re-querying per fix.
 let seedingFailed = false;
+
+// Incremental recorded distance (Redux `recordedDistanceM`): the line the
+// running total belongs to and the last coordinate actually appended to
+// its geometry (the segment start for the next append — the geometry, not
+// lastWrittenPosition, is the anchor, so a failed append can't drift the
+// total and a continued/resumed line starts from its real last point).
+// Reset whenever recording stops, so a later continue re-seeds from the
+// (possibly edited) stored geometry.
+let distanceLineId: number | null = null;
+let lastAppendedCoord: ArrayLike<number> | null = null;
+
+/**
+ * Per-append react-query refresh (growing line, stats, chart) — executed
+ * right away while the app is visible, deferred to the next foreground
+ * transition while backgrounded.  DB writes and the Redux distance are
+ * never deferred.
+ *
+ * Why only these three families (no `lineGeomsBatch`): the actively
+ * recorded line is a system line rendered by TrackRecordingMapView from
+ * ['lineGeom', id]; LinesMapView's batch is not refetched per append, so
+ * no `lines:load` busy key (global LoadingBar) toggles from the append
+ * path.  Consequence: useLineIdUnderCenter (shares the batch) may lag
+ * for the recording line until the next natural batch refetch.
+ * ['lineTrackPoints', …] is narrowed to the active line.
+ */
+const deferredAppendRefresh = createDeferredRefresh(isAppActive);
+
+const flushAppendRefresh = (lineId: number) => {
+	const queryClient = dbConnection?.queryClient;
+	if (!queryClient) {
+		return;
+	}
+	invalidateLineGeomQueriesForLine(queryClient, lineId);
+	invalidateLineTrackPointsQueries(queryClient, lineId);
+	// The chart/follow consumers read the simplified `linePathCoords`
+	// query — keep it live too so the tracking chart grows per append.
+	queryClient.invalidateQueries({ queryKey: ['linePathCoords', lineId] });
+};
+
+// Back in the foreground: catch up once for the line that grew meanwhile.
+subscribeAppActive((active) => {
+	if (active) {
+		deferredAppendRefresh.flushPending(flushAppendRefresh);
+	}
+});
+
+/**
+ * Seed the running distance (and the segment anchor) from the line's
+ * stored geometry — one O(n) pass per recording session / active line.
+ */
+const seedRecordedDistance = async (
+	lineId: number,
+	dispatch: (action: any) => void
+): Promise<void> => {
+	distanceLineId = lineId;
+	lastAppendedCoord = null;
+	try {
+		const line = await queryLineGeom({ queryKey: ['lineGeom', lineId] });
+		const coords = line?.geometry?.coordinates;
+		if (coords?.length) {
+			lastAppendedCoord = coords[coords.length - 1];
+			dispatch(setRecordedDistanceM(haversineLineLength(coords)));
+		} else {
+			dispatch(setRecordedDistanceM(0));
+		}
+	} catch (err) {
+		// Distance stays unavailable (the badge falls back to its text);
+		// recording itself is unaffected.
+		dispatch(setRecordedDistanceM(null));
+		logError('trackRecording/seedRecordedDistance', err);
+	}
+};
 
 const toMeta = (payload: GnssPosition): TrackPointMeta => ({
 	timestamp: payload.timestamp,
@@ -429,6 +506,10 @@ const processWriteGnssPosition = async (
 		}
 		nextPointIndex = 2;
 		seededLineId = lineId;
+		// Lazy creation: the distance is the segment of the first two fixes.
+		distanceLineId = lineId;
+		lastAppendedCoord = coord;
+		listenerApi.dispatch(setRecordedDistanceM(segmentLengthM(buffered, coord)));
 
 		listenerApi.dispatch(setActiveTrackId(trackId));
 		listenerApi.dispatch(setActiveLineId(lineId));
@@ -470,6 +551,12 @@ const processWriteGnssPosition = async (
 	}
 	seededLineId = trk.activeLineId;
 
+	// Seed the running distance once per active line — BEFORE the append,
+	// so the stored geometry doesn't yet contain this fix.
+	if (distanceLineId !== trk.activeLineId) {
+		await seedRecordedDistance(trk.activeLineId, listenerApi.dispatch);
+	}
+
 	// Snapshot the previous point (from the state captured at event
 	// time, before this write updates it) for speed derivation.
 	const prevMeta = trk.lastWrittenMeta;
@@ -486,6 +573,12 @@ const processWriteGnssPosition = async (
 		logError('trackRecording/appendPoint', err);
 		return;
 	}
+
+	// Incremental distance: only the new segment (O(1)), never a rescan.
+	if (lastAppendedCoord) {
+		listenerApi.dispatch(addRecordedDistanceM(segmentLengthM(lastAppendedCoord, coord)));
+	}
+	lastAppendedCoord = coord;
 
 	// Metadata write is best-effort and strictly after the geometry
 	// append.  The index advances with the geometry (even when the
@@ -517,19 +610,10 @@ const processWriteGnssPosition = async (
 	}
 
 	// The geometry changed — refetch so the map line, point count and
-	// distance grow live instead of staying frozen at creation time
-	// (React Query staleTime is Infinity).  Only the active line's
-	// per-line cache is invalidated — never the lineGeomsBatch queries
-	// (their Simplify over all selected lines must not re-run per
-	// append, e.g. with thousands of lines loaded).
-	const queryClient = dbConnection?.queryClient;
-	if (queryClient) {
-		invalidateLineGeomQueriesForLine(queryClient, trk.activeLineId);
-		invalidateLineTrackPointsQueries(queryClient);
-		// The chart/follow consumers read the simplified `linePathCoords`
-		// query — keep it live too so the tracking chart grows per append.
-		queryClient.invalidateQueries({ queryKey: ['linePathCoords', trk.activeLineId] });
-	}
+	// stats grow live (React Query staleTime is Infinity).  Skipped while
+	// the app is backgrounded (remembered, flushed once on foreground);
+	// see deferredAppendRefresh for the query families and rationale.
+	deferredAppendRefresh.request(trk.activeLineId, flushAppendRefresh);
 };
 
 startAppListening({
@@ -579,6 +663,13 @@ startAppListening({
 		if (action.payload) {
 			return;
 		}
+		// Session over: drop the deferred per-append refresh (the full
+		// invalidation below covers it) and the distance anchors, so a
+		// later continue re-seeds from the stored geometry.  The Redux
+		// `recordedDistanceM` itself stays readable for the paused state.
+		deferredAppendRefresh.discard();
+		distanceLineId = null;
+		lastAppendedCoord = null;
 		const queryClient = dbConnection?.queryClient;
 		if (queryClient) {
 			invalidateLinesQueries(queryClient);

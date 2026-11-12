@@ -93,10 +93,23 @@ export const queryLastRecordedLine = async () => {
  * Invalidate per-line track_points queries (['lineTrackPoints', lineId])
  * — used by the export flow for GPX <time>/GeoJSON coordTimes.
  */
-export const invalidateLineTrackPointsQueries = (queryClient: QueryClient) => {
+export const invalidateLineTrackPointsQueries = (queryClient: QueryClient, lineId?: number) => {
 	return queryClient.invalidateQueries({
-		predicate: (query) =>
-			Array.isArray(query.queryKey) && query.queryKey[0] === 'lineTrackPoints',
+		predicate: (query) => {
+			if (!Array.isArray(query.queryKey) || query.queryKey[0] !== 'lineTrackPoints') {
+				return false;
+			}
+			if (lineId == null) {
+				return true;
+			}
+			// Key shapes: ['lineTrackPoints', lineId, …] (per line) and
+			// ['lineTrackPoints', '3,7,12', 'stats'] (multi-line stats
+			// modal, sorted comma-joined ids).
+			const part = query.queryKey[1];
+			return typeof part === 'string'
+				? part.split(',').includes(String(lineId))
+				: part === lineId;
+		},
 	});
 };
 
