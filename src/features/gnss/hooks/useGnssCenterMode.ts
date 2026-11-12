@@ -14,6 +14,7 @@ import { selectMeasureActive } from '../../measure/selectors';
 import { selectMovedPointId } from '../../routing/selectors';
 import { selectUnitPrefs } from '../../general/selectors';
 import { AppContext, MapContext } from '../../../Context';
+import { useIsAppActive } from '../../../lib/appActive';
 import { useMapEventInterval } from '../../dashboard/hooks/useMapEventInterval';
 import {
 	bearingBetween,
@@ -30,6 +31,8 @@ const CENTER_EPS_M = 2;
 const CHASE_DURATION_MS = 0;
 /** Re-centering flight duration after the panned-away timer fires. */
 const RETURN_DURATION_MS = 600;
+/** Catch-up jump when the app returns to the foreground — no animation. */
+const RESUME_DURATION_MS = 0;
 
 /**
  * Center-mode state machine:
@@ -86,6 +89,14 @@ export function useGnssCenterMode(): {
 	unitPrefsRef.current = unitPrefs;
 	const modeRef = useRef(mode);
 	modeRef.current = mode;
+	// While the app is backgrounded (screen off, recording keeps JS alive)
+	// nobody sees the map: panning it on every fix only loads tiles /
+	// labels / hillshading and refills the caches the background prune
+	// just shrank. So no flights happen then; one jump catches up on resume.
+	const isAppActive = useIsAppActive();
+	const isAppActiveRef = useRef(isAppActive);
+	isAppActiveRef.current = isAppActive;
+	const wasAppActiveRef = useRef(isAppActive);
 
 	// In-flight sequence counter: > 0 while any own flyTo animation runs.
 	// A counter (not a boolean) survives overlapping flights — only the
@@ -138,8 +149,10 @@ export function useGnssCenterMode(): {
 				return;
 			}
 			const gnss = gnssPositionRef.current;
-			if (!gnss) {
+			if (!gnss || !isAppActiveRef.current) {
 				// No fix right now — fly back as soon as the next fix arrives.
+				// Backgrounded — no flight; the resume jump in the chase
+				// effect resolves the pending return.
 				pendingReturnRef.current = true;
 				return;
 			}
@@ -163,7 +176,8 @@ export function useGnssCenterMode(): {
 		setMode('centered');
 		// An active interaction owns the map — also suppress the initial
 		// flight; the poll below handles the mode transition.
-		if (!centerBlocksRef.current.some((block) => block.active)) {
+		// Backgrounded: skip too — the resume jump covers it.
+		if (!centerBlocksRef.current.some((block) => block.active) && isAppActiveRef.current) {
 			flyToGnss(CHASE_DURATION_MS);
 		}
 	}, [
@@ -177,7 +191,15 @@ export function useGnssCenterMode(): {
 	// when the timer fired while no fix was available. While an
 	// interaction is active every flight is suppressed — the map stays
 	// fully user-controlled until it ends.
+	//
+	// Also the catch-up when the app returns to the foreground (re-runs via
+	// isAppActive): a single instant jump to the latest fix, no animation.
 	useEffect(() => {
+		const resumed = !wasAppActiveRef.current && isAppActive;
+		wasAppActiveRef.current = isAppActive;
+		if (!isAppActive) {
+			return;
+		}
 		if (!isCenterActive || !gnssPosition) {
 			return;
 		}
@@ -197,18 +219,33 @@ export function useGnssCenterMode(): {
 				haversineDistance([center[0], center[1]], [gnssPosition.lng, gnssPosition.lat]) <
 					CENTER_EPS_M;
 			if (!alreadyThere) {
-				flyToGnss(CHASE_DURATION_MS);
+				flyToGnss(resumed ? RESUME_DURATION_MS : CHASE_DURATION_MS);
 			}
 			return;
 		}
 		if (currentMode === 'pannedAway' && pendingReturnRef.current) {
 			pendingReturnRef.current = false;
 			clearReturnTimer();
+			if (resumed) {
+				// The countdown elapsed while backgrounded: nobody saw the
+				// map, so jump instead of animating a return flight.
+				setMode('centered');
+				flyToGnss(RESUME_DURATION_MS);
+				return;
+			}
 			setMode('returning');
 			flyToGnss(RETURN_DURATION_MS);
+			return;
+		}
+		if (currentMode === 'returning' && resumed) {
+			// Backgrounded mid-return: the poll was paused, so mode never
+			// settled. Land on the latest fix instantly.
+			setMode('centered');
+			flyToGnss(RESUME_DURATION_MS);
 		}
 	}, [
 		isCenterActive,
+		isAppActive,
 		gnssPosition,
 		currentMapEventRef,
 		clearReturnTimer,
@@ -234,7 +271,10 @@ export function useGnssCenterMode(): {
 
 	// Pan/return detection at the configured map-update interval.
 	useMapEventInterval((event) => {
-		if (!isCenterActiveRef.current || flightSeqRef.current > 0) {
+		// Backgrounded: the map center is stale (we stopped following the
+		// fixes), so comparing it with the GNSS position would mis-detect
+		// a pan.
+		if (!isCenterActiveRef.current || !isAppActiveRef.current || flightSeqRef.current > 0) {
 			return;
 		}
 		const gnss = gnssPositionRef.current;
