@@ -41,5 +41,6 @@ class MainApplication : Application(), ReactApplication {
       load()
     }
     DummyContent.init( this );
+    MemoryProbe.start(this)
   }
 }

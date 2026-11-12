@@ -87,6 +87,21 @@ Custom native modules live in `android/app/src/main/java/com/jhotadhari/straymap
 - `ReactNativePackage.java` — registers the native modules with React Native.
 - `MainActivity.kt` / `MainApplication.kt` — standard RN entry points.
 
+`MemoryProbe.kt` is a field memory-diagnostics probe (added to chase Java-heap
+`OutOfMemoryError`s after hours of track recording), started from
+`MainApplication.onCreate()` and active in release builds too. On a daemon
+`StraymapMemProbe` thread it appends a CSV row every 30 s, plus one per
+activity lifecycle / `onTrimMemory` / `onLowMemory` / dump event, to
+`/storage/emulated/0/Android/media/com.jhotadhari.straymap/logs/mem-YYYYMMDD.csv`
+(falls back to `getExternalFilesDir(null)/logs`). Columns: time, uptime, pid,
+event, visible/recording flags, Java used/max/%, native alloc, PSS
+(total/java/native/graphics) and thread count. At most one `.hprof` per process
+is written to the same dir: `heap-nearlimit-*.hprof` when the Java heap reaches
+85 % of `maxMemory()`, or `heap-oom-*.hprof` from a wrapping default uncaught
+exception handler on `OutOfMemoryError` (which always delegates to the previous
+handler). Heap dumps are roughly heap-sized (~200+ MB) — delete them after
+pulling. The probe swallows all errors and never crashes the app.
+
 ### Companion apps & extensions
 
 Cross-app integration follows one model: **all JS lives in straymap; a companion app is
