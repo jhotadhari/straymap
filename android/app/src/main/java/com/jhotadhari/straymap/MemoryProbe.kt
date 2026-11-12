@@ -35,6 +35,11 @@ object MemoryProbe {
 
     private const val TICK_SEC = 30L
     private const val DUMP_THRESHOLD = 0.85
+    // Off by default: Debug.dumpHprofData suspends the whole VM for several
+    // seconds (~5.7 s at a 240 MB heap) — during a GC death spiral that was
+    // the final straw for an ANR. Flip on locally when chasing a leak; the
+    // dump on an actual OutOfMemoryError (process is dying anyway) stays on.
+    private const val NEARLIMIT_DUMP_ENABLED = false
     // Released in the OOM handler so the oom row + heap dump have some headroom.
     private const val RESERVE_BYTES = 512 * 1024
     private const val HEADER = "time,uptimeSec,pid,event,visible,recording," +
@@ -85,7 +90,7 @@ object MemoryProbe {
     private fun tick() {
         try {
             writeRow("tick", withPss = true)
-            if (!dumpTaken.get() && javaFraction() >= DUMP_THRESHOLD) {
+            if (NEARLIMIT_DUMP_ENABLED && !dumpTaken.get() && javaFraction() >= DUMP_THRESHOLD) {
                 // used = total - free still counts uncollected garbage — with
                 // heavy allocation churn that alone can cross the threshold.
                 // Collect first and only dump if the live set is really there.

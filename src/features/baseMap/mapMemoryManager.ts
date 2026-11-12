@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { AppState, type AppStateStatus } from 'react-native';
+import { setNativeBufferPoolLimit } from 'react-native-mapsforge-vtm';
 
 /**
  * Internal dependencies
@@ -39,6 +40,9 @@ import { selectIsRecording } from '../trackRecording/selectors';
 
 /** Per-layer tile budget — roughly one visible viewport of tiles. */
 const PRUNE_BUDGET_TILES = 48;
+
+/** Cap for vtm's NativeBufferPool (bytes kept pooled between frames). */
+const NATIVE_BUFFER_POOL_MAX_BYTES = 16 * 1024 * 1024;
 
 let initialized = false;
 let appState: AppStateStatus = AppState.currentState;
@@ -94,6 +98,14 @@ export const initMapMemoryManager = (): void => {
 		return;
 	}
 	initialized = true;
+
+	// Bound vtm's peak-hold GL upload buffer pool (direct buffers live on
+	// the Java heap on Android — a heap dump showed 58 MB pinned after
+	// panning across regions). 16 MB matches vtm's own VBO budget
+	// (BufferObject.LIMIT_BUFFERS); bigger uploads just re-allocate.
+	setNativeBufferPoolLimit(NATIVE_BUFFER_POOL_MAX_BYTES).catch((err) => {
+		logError('baseMap/mapMemoryManager.bufferPoolLimit', err);
+	});
 
 	AppState.addEventListener('change', (nextState) => {
 		const wasBackground = appState === 'background';
