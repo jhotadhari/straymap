@@ -14,6 +14,7 @@ import es from './assets/i18n/es.json';
 import pt from './assets/i18n/pt.json';
 import SettingsDrawers from './uiItems/SettingsDrawers';
 import Drawers from './appOverlays/Drawers';
+import AssignDrawerPanelSideHost from './appOverlays/AssignDrawerPanelSideHost';
 import DrawersIcon from './components/DrawersIcon';
 import { SETTINGS_HANDLE_KEY } from './constants';
 
@@ -45,6 +46,11 @@ export default {
 		{
 			key: 'drawers',
 			Component: Drawers,
+			priority: 100,
+		},
+		{
+			key: 'assignDrawerPanelSide',
+			Component: AssignDrawerPanelSideHost,
 			priority: 100,
 		},
 	],

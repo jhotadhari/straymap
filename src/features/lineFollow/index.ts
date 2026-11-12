@@ -13,6 +13,7 @@ import distanceCovered from './dashboardWidgets/distanceCovered';
 import climbToDestination from './dashboardWidgets/climbToDestination';
 import descentToDestination from './dashboardWidgets/descentToDestination';
 import FollowLineSource from './mapContextMenuSources/FollowLineSource';
+import followDrawerItem from './drawerPanels/follow';
 
 export default {
 	selectInitialized,
@@ -26,6 +27,7 @@ export default {
 	},
 	modes: ['lineFollow'],
 	selectActiveModes: (state: any) => (selectIsFollowing(state) ? ['lineFollow'] : []),
+	drawerPanels: [followDrawerItem],
 	dashboardWidgets: [
 		distanceToDestination,
 		distanceCovered,

@@ -21,7 +21,14 @@ export interface DrawersSettings {
 	activeKeyRight?: string;
 }
 
-export interface DrawersState extends SliceSettingsBase, DrawersSettings {}
+export interface DrawersState extends SliceSettingsBase, DrawersSettings {
+	/**
+	 * Runtime-only: key of a drawer panel that an action wants to open
+	 * but which isn't assigned to any side yet. Drives the global
+	 * AssignDrawerPanelSideHost "add panel to a side" offer modal.
+	 */
+	sideOfferKey?: string;
+}
 
 export const initialSettings: DrawersSettings = {
 	itemKeysLeft: [
@@ -85,10 +92,8 @@ const moveItemKeyState = (
 	index: number
 ) => {
 	const currentSide = getSideForKey(state, itemKey);
-	if (!currentSide) {
-		return;
-	}
-	if (currentSide === side) {
+	// Reorder within the same side.
+	if (currentSide && currentSide === side) {
 		const itemKeys = getItemKeysForSide(state, side);
 		const newItemKeys = without(itemKeys, itemKey);
 		const targetIndex = Math.max(0, Math.min(index, newItemKeys.length));
@@ -96,13 +101,18 @@ const moveItemKeyState = (
 		setItemKeysForSide(state, side, newItemKeys);
 		return;
 	}
-	const currentItemKeys = without(getItemKeysForSide(state, currentSide), itemKey);
-	setItemKeysForSide(state, currentSide, currentItemKeys);
-	if ('left' === currentSide && state.activeKeyLeft === itemKey) {
-		state.activeKeyLeft = undefined;
-	}
-	if ('right' === currentSide && state.activeKeyRight === itemKey) {
-		state.activeKeyRight = undefined;
+	// Remove from the current side. Registered keys that are present in
+	// no list yet (newly added drawer panels) have no current side — they
+	// skip the removal and are simply inserted into the target side below.
+	if (currentSide) {
+		const currentItemKeys = without(getItemKeysForSide(state, currentSide), itemKey);
+		setItemKeysForSide(state, currentSide, currentItemKeys);
+		if ('left' === currentSide && state.activeKeyLeft === itemKey) {
+			state.activeKeyLeft = undefined;
+		}
+		if ('right' === currentSide && state.activeKeyRight === itemKey) {
+			state.activeKeyRight = undefined;
+		}
 	}
 	const targetItemKeys = getItemKeysForSide(state, side);
 	const targetIndex = Math.max(0, Math.min(index, targetItemKeys.length));
@@ -185,6 +195,9 @@ export const drawersSlice = createSlice({
 				}
 			}
 		},
+		setSideOfferKey: (state, action: PayloadAction<string | null>) => {
+			state.sideOfferKey = action.payload ?? undefined;
+		},
 	},
 });
 
@@ -196,6 +209,7 @@ export const {
 	moveItemKey,
 	toggleItemKeySide,
 	setActiveKey,
+	setSideOfferKey,
 } = drawersSlice.actions;
 
 // Export the slice reducer for use in the store configuration

@@ -3,18 +3,13 @@
  */
 import { FC, useCallback, useContext, useMemo, useRef, useState } from 'react';
 import { LayoutChangeEvent, StyleSheet, View } from 'react-native';
-import { Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { sprintf } from 'sprintf-js';
 
 /**
  * Internal dependencies
  */
-import {
-	DRAWER_HANDLE_SIZE,
-	DRAWER_ICON_SIZE as handleIconSize,
-	itemStyles,
-} from '../../../drawers/constants';
+import { DRAWER_HANDLE_SIZE, itemStyles } from '../../../drawers/constants';
 import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
 import { useButtonProps } from '../../../../compose/useButtonProps';
 import DrawerContext from '../../../drawers/DrawerContext';
@@ -25,9 +20,6 @@ import useActions from './useActions';
 import LinesActionsButton from './LinesActionsButton';
 
 const styles = StyleSheet.create({
-	item: {
-		top: -(DRAWER_HANDLE_SIZE - handleIconSize) / 6,
-	},
 	flexRow: {
 		flexDirection: 'row',
 		alignItems: 'center',
@@ -41,11 +33,6 @@ const styles = StyleSheet.create({
 		flexShrink: 0,
 	},
 });
-
-const styleItem = [
-	itemStyles.item,
-	styles.item,
-];
 
 const DrawerTopBar: FC = () => {
 	const { t } = useTranslation();
@@ -129,7 +116,7 @@ const DrawerTopBar: FC = () => {
 
 	return (
 		<View>
-			<View style={styleItem}>
+			<View style={itemStyles.item}>
 				<View
 					style={styleButtonRowFirst}
 					onLayout={handleRowLayout}
@@ -146,8 +133,6 @@ const DrawerTopBar: FC = () => {
 							/>
 						</View>
 					)}
-
-					{lineIds.length === 0 && <Text>{t('lines.noLinesSelected')}</Text>}
 
 					<View
 						style={styles.childMeasure}

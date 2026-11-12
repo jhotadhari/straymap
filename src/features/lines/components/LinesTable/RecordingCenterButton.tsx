@@ -1,22 +1,17 @@
 /**
  * External dependencies
  */
-import { FC, useCallback, useContext } from 'react';
+import { FC } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Icon } from 'react-native-paper';
-import { useMap } from 'react-native-mapsforge-vtm';
 
 /**
  * Internal dependencies
  */
-import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
-import { selectGnssPosition } from '../../../gnss/selectors';
-import { setUiItemKeys } from '../../../ui/slice';
-import { AppContext } from '../../../../Context';
-import { DRAWER_ICON_SIZE } from '../../../drawers/constants';
 import { useButtonProps, useDestructiveColor } from '../../../../compose/useButtonProps';
+import { DRAWER_ICON_SIZE } from '../../../drawers/constants';
 import ButtonHighlight from '../../../../components/generic/primitives/ButtonHighlight';
-import useActivateDrawerItem from '../../../drawers/hooks/useActivateDrawerItem';
+import useCenterRecordingPosition from '../../hooks/useCenterRecordingPosition';
 
 /**
  * Recording-line button shown in the routes browser and the lines drawer
@@ -26,52 +21,16 @@ import useActivateDrawerItem from '../../../drawers/hooks/useActivateDrawerItem'
  * GNSS-fix re-renders stay confined to one row.
  */
 const RecordingCenterButton: FC = () => {
-	const dispatch = useAppDispatch();
-	const { mapViewNativeNodeHandle } = useContext(AppContext);
-	const { flyTo, getPosition } = useMap(mapViewNativeNodeHandle);
-	const gnssPosition = useAppSelector(selectGnssPosition);
 	const destructiveColor = useDestructiveColor();
-	const activateTrackingDrawerItem = useActivateDrawerItem('tracking');
+	const centerOnRecording = useCenterRecordingPosition();
 
 	const buttonProps = useButtonProps({ mode: 'text' });
-
-	const handlePress = useCallback(async () => {
-		if (!gnssPosition) {
-			return;
-		}
-		// Close the routes browser so the re-centered map is visible.
-		dispatch(setUiItemKeys([]));
-
-		// Open the tracking drawer panel alongside the fly-to.
-		activateTrackingDrawerItem();
-
-		let zoom = 0;
-		try {
-			const pos = await getPosition();
-			zoom = pos?.zoomLevel ?? 0;
-		} catch {
-			// Zoom unknown — fall back to just centering.
-		}
-
-		const center: [number, number] = [gnssPosition.lng, gnssPosition.lat];
-		if (zoom < 10) {
-			await flyTo({ center, zoomLevel: 10 });
-		} else {
-			await flyTo({ center });
-		}
-	}, [
-		dispatch,
-		gnssPosition,
-		getPosition,
-		flyTo,
-		activateTrackingDrawerItem,
-	]);
 
 	return (
 		<ButtonHighlight
 			{...buttonProps}
 			compact={true}
-			onPress={handlePress}
+			onPress={centerOnRecording}
 		>
 			<View style={styles.indicatorBox}>
 				<Icon

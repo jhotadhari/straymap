@@ -1,4 +1,6 @@
 {
+	"addPanelToSide": "Add panel to a drawer side",
+	"addPanelToSideBody": "The %s panel isn't added to any side yet. Choose a side to add it and open it.",
 	"drawer_one": "Drawer",
 	"drawer_other": "Drawers",
 	"openMapsSettings": "Open maps settings",

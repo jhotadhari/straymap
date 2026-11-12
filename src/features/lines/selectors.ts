@@ -54,6 +54,8 @@ export const selectLinesTableColumns = createAppSelector(
 
 export const selectLinesSort = (state: RootState) => state.lines.linesTable.sort;
 
+export const selectDrawerSort = (state: RootState) => state.lines.drawerSort;
+
 export const selectLinesFilters = (state: RootState) => state.lines.linesTable.filters;
 
 export const selectLinesFilterLogic = (state: RootState) => state.lines.linesTable.filterLogic;

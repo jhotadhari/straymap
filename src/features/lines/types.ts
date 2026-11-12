@@ -51,6 +51,17 @@ export interface SortState {
 	direction: SortDirection;
 }
 
+// ── Drawer list sort ────────────────────────────────────────────────
+
+export interface DrawerSortSettings {
+	columnKey: string;
+	direction: SortDirection;
+	/** List system routes before all other routes. */
+	prioritizeSystem: boolean;
+	/** List the followed route before all other routes. */
+	prioritizeFollowed: boolean;
+}
+
 // ── Filters ─────────────────────────────────────────────────────────
 
 export type FilterLogic = 'and' | 'or';

@@ -20,6 +20,32 @@ import { get } from 'lodash-es';
 import MdiIcons from '@react-native-vector-icons/material-icons/static';
 
 /**
+ * Button icons rendered through the app's MCI set with Android font
+ * padding disabled so the glyph shares the label's line metrics —
+ * Paper's string icons keep the default padding, which pushes the glyph
+ * off the text's vertical center (most visible on the play triangle).
+ */
+const iconStyles = StyleSheet.create({
+	glyph: {
+		includeFontPadding: false,
+	},
+});
+
+const makeRecordingButtonIcon =
+	(name: React.ComponentProps<typeof MdiIcons>['name']) =>
+	({ size, color }: { size: number; color: string }) => (
+		<MdiIcons
+			name={name}
+			size={size}
+			color={color}
+			style={iconStyles.glyph}
+		/>
+	);
+
+const RecordingPlayButtonIcon = makeRecordingButtonIcon('play-arrow');
+const RecordingPauseButtonIcon = makeRecordingButtonIcon('pause');
+
+/**
  * Internal dependencies
  */
 import { DrawerPanel } from '../../drawers/types';
@@ -28,16 +54,23 @@ import { selectIsActive, selectGnssPosition, selectIsCenterActive } from '../../
 import { setIsActive, setIsCenterActive } from '../../gnss/slice';
 import { useGnssSpeed } from '../../gnss/hooks/useGnssSpeed';
 import { useGnssCourse } from '../../gnss/hooks/useGnssCourse';
-import { selectIsRecording, selectActiveLineId, selectRecordingStartTime } from '../selectors';
+import {
+	selectIsRecording,
+	selectActiveLineId,
+	selectTrackLineId,
+	selectRecordingStartTime,
+} from '../selectors';
 import { selectResumePending, selectLastRecordedLineId } from '../selectors';
 import { startRecording, stopRecording, continueRecording } from '../slice';
 import { queryLineGeom } from '../../lines/db/queryFns';
+import { setLineTemp } from '../../lines/slice';
 import { queryTrackByLineId, queryTrackPointsStats } from '../db/queryFns';
 import { getTrackSummary } from '../db/actionsTrack';
 import { setUiItemKeys } from '../../ui/slice';
 import { itemStyles, DRAWER_HANDLE_SIZE, DRAWER_ICON_SIZE } from '../../drawers/constants';
 import { useButtonProps, useDestructiveColor } from '../../../compose/useButtonProps';
 import ButtonHighlight from '../../../components/generic/primitives/ButtonHighlight';
+import IconCustom from '../../../components/generic/primitives/IconCustom';
 import DrawerPanelHeading from '../../drawers/components/DrawerPanelHeading';
 import { MenuActionOption } from '../../../types';
 import ButtonHighlightMenuControl from '../../../components/generic/wrapper/ButtonHighlightMenuControl';
@@ -55,7 +88,6 @@ import { UnitPref } from '../../general/types';
 import ensureLocationPermission from '../../../lib/locationPermission';
 import ensureNotificationPermission from '../../../lib/notificationPermission';
 import { ErrorToastContext } from '../../../components/ErrorToast/Context';
-import RecordingLineWidthControl from '../components/controls/RecordingLineWidthControl';
 import { sharedStyles } from '../../../sharedStyles';
 
 /**
@@ -225,6 +257,16 @@ const TrackingDrawerContent: FC<{
 	const gnssCourse = useGnssCourse();
 	const speed = useGnssSpeed();
 	const activeLineId = useAppSelector(selectActiveLineId);
+	// The line the track-recording feature currently owns: the actively
+	// recorded line, or the line parked after a stop.  Drives the edit
+	// button opening LineEditModal.
+	const recordingLineId = useAppSelector(selectTrackLineId);
+	const { nestedIconColor: editNestedIconColor, ...editButtonProps } = useButtonProps({
+		disabled: typeof recordingLineId !== 'number',
+		// Tight horizontal content padding so the icon-only button stays
+		// compact — same sizing as the routing top bar's edit button.
+		paddingHorizontal: true,
+	});
 	const recordingStartTime = useAppSelector(selectRecordingStartTime);
 	const unitPrefs = useAppSelector(selectUnitPrefs);
 	// The drawer's idle "last recording" comes from Redux, not a DB
@@ -426,6 +468,15 @@ const TrackingDrawerContent: FC<{
 		handleStartNew,
 	]);
 
+	const handleEditLine = useCallback(() => {
+		if (typeof recordingLineId === 'number') {
+			dispatch(setLineTemp({ id: recordingLineId }));
+		}
+	}, [
+		dispatch,
+		recordingLineId,
+	]);
+
 	const startMenuOptions = useMemo<MenuActionOption[]>(
 		() => [
 			{
@@ -555,28 +606,49 @@ const TrackingDrawerContent: FC<{
 
 				{/* Track recording section */}
 				<View style={sharedStyles.gap}>
-					{isRecording ? (
+					<View style={styles.recordButtonsRow}>
 						<ButtonHighlight
-							{...stopButtonProps}
-							onPress={handleToggleRecording}
-							icon="pause"
+							{...editButtonProps}
+							onPress={handleEditLine}
+							compact={true}
 						>
-							{t('trackRecording.stop')}
+							<IconCustom
+								name="route_cog"
+								size={20}
+								color={editNestedIconColor}
+							/>
 						</ButtonHighlight>
-					) : typeof lastRecordedLineId === 'number' ? (
-						<ButtonHighlightMenuControl
-							anchorLabel={t('trackRecording.start')}
-							options={startMenuOptions}
-							buttonPropsProps={{ isSuccess: true }}
-						/>
-					) : (
-						<ButtonHighlight
-							{...startButtonProps}
-							onPress={handleToggleRecording}
-						>
-							{t('trackRecording.start')}
-						</ButtonHighlight>
-					)}
+						{isRecording ? (
+							<ButtonHighlight
+								{...stopButtonProps}
+								style={styles.recordToggleButton}
+								onPress={handleToggleRecording}
+								icon={RecordingPauseButtonIcon}
+							>
+								{t('trackRecording.stop')}
+							</ButtonHighlight>
+						) : typeof lastRecordedLineId === 'number' ? (
+							<View style={styles.recordToggleButton}>
+								<ButtonHighlightMenuControl
+									anchorLabel={t('trackRecording.start')}
+									anchorIcon={RecordingPlayButtonIcon}
+									options={startMenuOptions}
+									buttonPropsProps={{
+										isSuccess: true,
+									}}
+								/>
+							</View>
+						) : (
+							<ButtonHighlight
+								{...startButtonProps}
+								style={styles.recordToggleButton}
+								onPress={handleToggleRecording}
+								icon={RecordingPlayButtonIcon}
+							>
+								{t('trackRecording.start')}
+							</ButtonHighlight>
+						)}
+					</View>
 
 					<View>
 						{isRecording ? (
@@ -598,11 +670,6 @@ const TrackingDrawerContent: FC<{
 						) : (
 							<Text style={styles.idleText}>{t('trackRecording.notRecording')}</Text>
 						)}
-					</View>
-
-					<View style={styles.lineWidthRow}>
-						<Text style={styles.statLabel}>{t('trackRecording.lineWidth')}</Text>
-						<RecordingLineWidthControl />
 					</View>
 				</View>
 			</View>
@@ -641,6 +708,14 @@ const styles = StyleSheet.create({
 		marginHorizontal: -16,
 		marginVertical: 24,
 	},
+	recordButtonsRow: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		gap: 8,
+	},
+	recordToggleButton: {
+		flex: 1,
+	},
 	switchRow: {
 		flexDirection: 'row',
 		alignItems: 'center',
@@ -673,12 +748,6 @@ const styles = StyleSheet.create({
 	},
 	idleText: {
 		opacity: 0.6,
-	},
-	lineWidthRow: {
-		flexDirection: 'row',
-		alignItems: 'center',
-		justifyContent: 'space-between',
-		gap: 12,
 	},
 });
 

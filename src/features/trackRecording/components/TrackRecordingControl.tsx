@@ -21,8 +21,6 @@ import { formatDistanceUnit, metersToUnit, unitToMeters } from '../../../lib/for
 import { roundTo } from '../../../lib/utilsLight';
 import NumericRowControl from '../../../components/generic/controls/NumericRowControl';
 import ToggleRowControl from '../../../components/generic/controls/ToggleRowControl';
-import InfoLabelRow from '../../../components/generic/infoWrapper/InfoLabelRow';
-import RecordingLineWidthControl from './controls/RecordingLineWidthControl';
 import { sharedStyles } from '../../dashboard/dashboardWidgets/sharedDeps';
 
 const validateNonNegative = (v: number) => v >= 0;
@@ -100,13 +98,6 @@ const TrackRecordingControl: FC = () => {
 				onToggle={() => handleUseDemAltitude(!useDemAltitude)}
 				Info={t('trackRecording.hintUseDemAltitude')}
 			/>
-
-			<InfoLabelRow
-				label={t('trackRecording.lineWidth')}
-				Info={t('trackRecording.hintLineWidth')}
-			>
-				<RecordingLineWidthControl />
-			</InfoLabelRow>
 		</View>
 	);
 };

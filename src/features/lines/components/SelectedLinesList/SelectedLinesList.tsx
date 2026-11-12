@@ -6,20 +6,28 @@ import { FC, memo, useCallback, useContext, useMemo } from 'react';
 import { FlashList } from '@shopify/flash-list';
 import type { ListRenderItem } from '@shopify/flash-list';
 import { StyleSheet, View } from 'react-native';
+import { Divider } from 'react-native-paper';
 
 /**
  * Internal dependencies
  */
 import { useAppSelector, useSystemLineIds } from '../../../../store/hooks';
-import { selectSelected } from '../../selectors';
+import { selectSelected, selectDrawerSort } from '../../selectors';
+import { selectFollowingLineId } from '../../../lineFollow/selectors';
 import { queryLinesWithoutGeom } from '../../db/queryFns';
 import useLineIdUnderCenter from '../../hooks/useLineIdUnderCenter';
 import ListRow, { ListRowProps } from './ListRow';
 import DrawerContext from '../../../drawers/DrawerContext';
 import { Line } from '../../types';
+import { compareLinesForSort } from '../../utils/sortLines';
 import LoadingIndicator from '../../../../components/generic/primitives/LoadingIndicator';
 
-const keyExtractor = (line: { id: number }) => line.id.toString();
+type LineWithoutGeom = Omit<Line, 'geometry'>;
+
+type DrawerListItem = { type: 'line'; line: LineWithoutGeom } | { type: 'divider'; key: string };
+
+const keyExtractor = (item: DrawerListItem) =>
+	item.type === 'line' ? item.line.id.toString() : item.key;
 
 const ListRowMemo = memo(
 	(props: ListRowProps) => <ListRow {...props} />,
@@ -39,6 +47,8 @@ const SelectedLinesList: FC = () => {
 	const { width } = useContext(DrawerContext);
 	const selectedIds = useAppSelector(selectSelected);
 	const underCenterLineIds = useLineIdUnderCenter();
+	const drawerSort = useAppSelector(selectDrawerSort);
+	const followingLineId = useAppSelector(selectFollowingLineId);
 
 	const { data: lines, isLoading } = useQuery({
 		queryKey: ['lines', selectedIds],
@@ -48,8 +58,64 @@ const SelectedLinesList: FC = () => {
 
 	const systemLineIds = useSystemLineIds();
 
-	const renderItem: ListRenderItem<Omit<Line, 'geometry'>> = useCallback(
-		({ item: line, index }) => {
+	// Sort the list client-side: prioritized sections (followed route,
+	// system routes) are listed first, each section ordered by the
+	// configured column/direction. Full-bleed dividers separate the
+	// sections so the grouping is visible (same look as the location
+	// drawer panel's section divider).
+	const displayItems = useMemo<DrawerListItem[]>(() => {
+		const source = lines ?? [];
+		const systemIds = new Set(Object.values(systemLineIds));
+
+		const followedLines: LineWithoutGeom[] = [];
+		const systemLines: LineWithoutGeom[] = [];
+		const ordinaryLines: LineWithoutGeom[] = [];
+
+		for (const line of source) {
+			if (drawerSort.prioritizeFollowed && line.id === followingLineId) {
+				followedLines.push(line);
+			} else if (drawerSort.prioritizeSystem && systemIds.has(line.id)) {
+				systemLines.push(line);
+			} else {
+				ordinaryLines.push(line);
+			}
+		}
+
+		const sortFn = compareLinesForSort(drawerSort.columnKey, drawerSort.direction);
+		followedLines.sort(sortFn);
+		systemLines.sort(sortFn);
+		ordinaryLines.sort(sortFn);
+
+		const items: DrawerListItem[] = [];
+		const pushSection = (section: LineWithoutGeom[]) => {
+			if (!section.length) {
+				return;
+			}
+			if (items.length) {
+				items.push({ type: 'divider', key: `divider-${items.length}` });
+			}
+			for (const line of section) {
+				items.push({ type: 'line', line });
+			}
+		};
+		pushSection(followedLines);
+		pushSection(systemLines);
+		pushSection(ordinaryLines);
+
+		return items;
+	}, [
+		lines,
+		systemLineIds,
+		followingLineId,
+		drawerSort,
+	]);
+
+	const renderItem: ListRenderItem<DrawerListItem> = useCallback(
+		({ item, index }) => {
+			if (item.type === 'divider') {
+				return <Divider style={styles.sectionDivider} />;
+			}
+			const line = item.line;
 			const systemFeatureKey =
 				Object.entries(systemLineIds).find(([, id]) => id === line.id)?.[0] ?? null;
 			return (
@@ -77,7 +143,7 @@ const SelectedLinesList: FC = () => {
 				<FlashList
 					style={styleList}
 					scrollEnabled={true}
-					data={lines ?? []}
+					data={displayItems}
 					keyExtractor={keyExtractor}
 					renderItem={renderItem}
 				/>
@@ -92,6 +158,13 @@ const styles = StyleSheet.create({
 		flex: 1,
 		alignItems: 'center',
 		justifyContent: 'center',
+	},
+	sectionDivider: {
+		// Full-bleed: extends through the rows' 16px padding so the
+		// line spans the entire drawer width, visibly splitting the
+		// prioritized sections from the rest of the list.
+		marginHorizontal: -16,
+		marginVertical: 24,
 	},
 });
 
