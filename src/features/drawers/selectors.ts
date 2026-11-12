@@ -8,6 +8,8 @@ import { DrawerPanel, DrawerSide } from './types';
 
 export const selectInitialized = (state: RootState) => state.drawers.initialized;
 
+export const selectSideOfferKey = (state: RootState) => state.drawers.sideOfferKey;
+
 export const selectSortable = (state: RootState) => state.drawers.sortable;
 
 export const selectActiveKey = (state: RootState, { side }: { side: string }) => {

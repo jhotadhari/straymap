@@ -13,10 +13,12 @@ import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { selectIsActive } from '../selectors';
 import { setIsActive } from '../slice';
 import TrackRecordingControl from '../../trackRecording/components/TrackRecordingControl';
+import RecordingLineWidthControl from '../../trackRecording/components/controls/RecordingLineWidthControl';
 import GnssCenterControl from '../components/controls/GnssCenterControl';
 import GnssMarkerControl from '../components/controls/GnssMarkerControl';
 import TrackingDrawerPanelSideControl from '../components/controls/TrackingDrawerPanelSideControl';
 import ToggleRowControl from '../../../components/generic/controls/ToggleRowControl';
+import InfoLabelRow from '../../../components/generic/infoWrapper/InfoLabelRow';
 import { ErrorToastContext } from '../../../components/ErrorToast/Context';
 import ensureLocationPermission from '../../../lib/locationPermission';
 
@@ -44,8 +46,8 @@ const SettingsSectionHeader: FC<{ title: string; first?: boolean }> = ({ title, 
  * Location settings, grouped into three flat sections:
  *
  * 1. GNSS & Positioning — enable toggle, auto-center mode, marker config.
- * 2. Track Recording — recording thresholds and line width.
- * 3. Display & Drawer — where the tracking drawer panel lives.
+ * 2. Track Recording — recording thresholds.
+ * 3. Display — drawer panel side and recording line width.
  *
  * Live session actions (start/stop recording) live in the drawer panel,
  * not here — this page only holds configuration.
@@ -110,6 +112,14 @@ const SettingsLocation: FC<{ style?: ViewStyle }> = ({ style }) => {
 				<SettingsSectionHeader title={t('gnss.sectionDisplayDrawer')} />
 				<View style={styles.row}>
 					<TrackingDrawerPanelSideControl />
+				</View>
+				<View style={styles.row}>
+					<InfoLabelRow
+						label={t('trackRecording.lineWidth')}
+						Info={t('trackRecording.hintLineWidth')}
+					>
+						<RecordingLineWidthControl />
+					</InfoLabelRow>
 				</View>
 			</View>
 		</ScrollView>

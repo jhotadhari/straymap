@@ -39,6 +39,7 @@ import ColorRampColumn from './ColorRampColumn';
 import ColorRampGradient from '../ColorRampGradient';
 import LineStatsCompactRows from '../Stats/LineStatsCompactRows';
 import FollowDistanceBadge from './FollowDistanceBadge';
+import RecordingDistanceBadge from './RecordingDistanceBadge';
 import { bbox as turfBbox } from '@turf/turf';
 import { AppContext } from '../../../../Context';
 import { useButtonProps } from '../../../../compose/useButtonProps';
@@ -335,7 +336,17 @@ const ListRow: FC<ListRowProps> = ({ line, idx, systemFeatureKey, isUnderCenter 
 					stats={stats}
 					reverse={'left' === side}
 					firstRowExtra={
-						isFollowed ? <FollowDistanceBadge lineId={line.id} /> : undefined
+						isFollowed || isRecordingLine ? (
+							<>
+								{isFollowed && <FollowDistanceBadge lineId={line.id} />}
+								{isRecordingLine && (
+									<RecordingDistanceBadge
+										lineId={line.id}
+										isPaused={!isRecording}
+									/>
+								)}
+							</>
+						) : undefined
 					}
 				/>
 

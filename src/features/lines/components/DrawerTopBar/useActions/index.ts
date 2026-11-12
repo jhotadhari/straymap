@@ -13,14 +13,19 @@ import useActionRandomizeColors from './useActionRandomizeColors';
 import useActionSetEqualColors from './useActionSetEqualColors';
 import useActionSetLineWidth from './useActionSetLineWidth';
 import useActionShowStats from './useActionShowStats';
+import useActionSortOrder from './useActionSortOrder';
 
 export interface LinesBulkActions {
 	/** Applies to every selected line (incl. system lines). */
 	showStats: MenuActionOption;
+	/** Sort-order settings for the selected-lines list. */
+	sortOrder: MenuActionOption;
 	/** Actions that only affect ordinary (non-system) lines. */
 	ordinary: MenuActionOption[];
 	/** Number of ordinary lines currently selected. */
 	ordinaryCount: number;
+	/** Number of system lines currently selected. */
+	systemCount: number;
 	/** IDs of the ordinary lines currently selected. */
 	ordinaryLineIds: number[];
 }
@@ -38,10 +43,12 @@ const useActions = ({ lineIds }: { lineIds: number[] }): LinesBulkActions => {
 	const actionSetEqualColors = useActionSetEqualColors();
 	const actionSetLineWidth = useActionSetLineWidth();
 	const actionShowStats = useActionShowStats({ lineIds });
+	const actionSortOrder = useActionSortOrder();
 
 	return useMemo(
 		() => ({
 			showStats: actionShowStats,
+			sortOrder: actionSortOrder,
 			ordinary: [
 				actionSetLineWidth,
 				actionRandomizeColors,
@@ -49,6 +56,7 @@ const useActions = ({ lineIds }: { lineIds: number[] }): LinesBulkActions => {
 				actionClearLines,
 			],
 			ordinaryCount: ordinaryLineIds.length,
+			systemCount: lineIds.length - ordinaryLineIds.length,
 			ordinaryLineIds,
 		}),
 		[
@@ -57,7 +65,9 @@ const useActions = ({ lineIds }: { lineIds: number[] }): LinesBulkActions => {
 			actionSetEqualColors,
 			actionSetLineWidth,
 			actionShowStats,
+			actionSortOrder,
 			ordinaryLineIds,
+			lineIds.length,
 		]
 	);
 };

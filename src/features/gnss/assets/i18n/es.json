@@ -42,7 +42,7 @@
 	"hideMeasurement": "Ocultar medición",
 	"showMeasurement": "Mostrar medición",
 	"sectionGnssPositioning": "GNSS Y POSICIONAMIENTO",
-	"sectionDisplayDrawer": "PANTALLA Y PANEL",
+	"sectionDisplayDrawer": "PANTALLA",
 	"desc": {
 		"gnssCoordinates": "Tu posición actual según el receptor GNSS.",
 		"gnssAccuracy": "Precisión estimada de la posición GNSS actual.",

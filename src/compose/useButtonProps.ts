@@ -103,8 +103,15 @@ export const useButtonProps = ({
 		alignWithIconButton,
 	]);
 
-	let labelStyle: undefined | StyleProp<TextStyle>;
-	labelStyle = styles.buttonLabel;
+	// Android adds asymmetric top/bottom padding derived from the font's
+	// metrics — disabling it keeps glyphs vertically centered inside the
+	// button (most visible in stretched buttons like the recording toggle).
+	const labelStyle: undefined | StyleProp<TextStyle> = useMemo(
+		() => ({
+			includeFontPadding: false,
+		}),
+		[]
+	);
 
 	const textColor: string = useMemo(() => {
 		if (textColor_) {
@@ -177,11 +184,6 @@ export const useButtonProps = ({
 const styles = StyleSheet.create({
 	buttonContent: {
 		paddingHorizontal: 8,
-	},
-	buttonLabel: {
-		display: 'flex',
-		flexDirection: 'row',
-		flexGrow: 1,
 	},
 	itemBtnAlignFix: { marginVertical: -2 },
 });

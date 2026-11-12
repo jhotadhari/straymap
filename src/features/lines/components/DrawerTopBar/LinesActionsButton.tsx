@@ -64,7 +64,11 @@ const LinesActionsButton: FC<Props> = ({ actions, label, buttonProps }) => {
 			dispatch(setLinesColor(color, actions.ordinaryLineIds));
 			dismissMenu();
 		},
-		[dispatch, actions.ordinaryLineIds, dismissMenu]
+		[
+			dispatch,
+			actions.ordinaryLineIds,
+			dismissMenu,
+		]
 	);
 
 	const handleWidthApply = useCallback(
@@ -79,7 +83,11 @@ const LinesActionsButton: FC<Props> = ({ actions, label, buttonProps }) => {
 
 	const actionModalNodes = useMemo(
 		() =>
-			[actions.showStats, ...actions.ordinary]
+			[
+				actions.showStats,
+				actions.sortOrder,
+				...actions.ordinary,
+			]
 				.filter((a) => a.modalNode)
 				.map((a) => <Fragment key={a.key}>{a.modalNode}</Fragment>),
 		[actions]
@@ -130,7 +138,21 @@ const LinesActionsButton: FC<Props> = ({ actions, label, buttonProps }) => {
 									title={t(actions.showStats.label)}
 								/>
 
+								<MenuItem
+									leadingIcon={actions.sortOrder.leadingIcon}
+									IconComponent={actions.sortOrder.IconComponent}
+									onPress={() => {
+										actions.sortOrder.cb();
+										dismissMenu();
+									}}
+									title={t(actions.sortOrder.label)}
+								/>
+
 								<Divider />
+
+								<Text style={styles.heading}>
+									{sprintf(t('lines.systemRoutes'), actions.systemCount)}
+								</Text>
 
 								<Text style={styles.heading}>
 									{sprintf(t('lines.ordinaryRoutes'), actions.ordinaryCount)}
@@ -162,7 +184,9 @@ const LinesActionsButton: FC<Props> = ({ actions, label, buttonProps }) => {
 												: () => {
 														if (action.key === 'setLineWidth') {
 															handleSelectSetLineWidth();
-														} else if (action.key === 'setEqualColors') {
+														} else if (
+															action.key === 'setEqualColors'
+														) {
 															handleSelectSetEqualColors();
 														} else {
 															action.cb();

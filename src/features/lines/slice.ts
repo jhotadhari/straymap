@@ -18,6 +18,7 @@ import {
 	LinePartial,
 	TableColumn,
 	SortState,
+	DrawerSortSettings,
 	ColumnFilter,
 	NumericColumnFilter,
 	DateColumnFilter,
@@ -63,6 +64,13 @@ export interface LinesSettings {
 	 * bottom drawer menu entries.
 	 */
 	chartLines: number[];
+	/**
+	 * Sort order for the selected-lines drawer list. Persisted.
+	 * `columnKey`/`direction` order every priority section;
+	 * `prioritizeSystem` lists system routes before ordinary ones and
+	 * `prioritizeFollowed` lists the followed route first of all.
+	 */
+	drawerSort: DrawerSortSettings;
 }
 
 export interface LinesState extends SliceSettingsBase, LinesSettings {
@@ -100,6 +108,12 @@ export const initialSettings: LinesSettings = {
 	lineRamps: {},
 	lineWidth: DEFAULT_LINE_WIDTH,
 	chartLines: [],
+	drawerSort: {
+		columnKey: 'created_at',
+		direction: 'desc',
+		prioritizeSystem: true,
+		prioritizeFollowed: true,
+	},
 };
 
 const initialState: LinesState = {
@@ -369,6 +383,9 @@ export const linesSlice = createSlice({
 		removeChartLines: (state, action: PayloadAction<number[]>) => {
 			state.chartLines = without(state.chartLines, ...action.payload);
 		},
+		setDrawerSort: (state, action: PayloadAction<Partial<LinesSettings['drawerSort']>>) => {
+			state.drawerSort = { ...state.drawerSort, ...action.payload };
+		},
 	},
 });
 
@@ -405,6 +422,7 @@ export const {
 	setChartLines,
 	toggleChartLine,
 	removeChartLines,
+	setDrawerSort,
 } = linesSlice.actions;
 
 // Export the slice reducer for use in the store configuration

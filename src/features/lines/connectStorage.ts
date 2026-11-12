@@ -37,6 +37,7 @@ import {
 	setChartLines,
 	toggleChartLine,
 	removeChartLines,
+	setDrawerSort,
 } from './slice';
 import { startAppListening } from '../../store/listenerMiddleware';
 import { selectInitialized } from './selectors';
@@ -118,6 +119,9 @@ export const initializeFromStorage = async (store: AppStore): Promise<boolean> =
 			if (newSettings?.chartLines) {
 				store.dispatch(setChartLines(newSettings.chartLines));
 			}
+			if (newSettings?.drawerSort) {
+				store.dispatch(setDrawerSort(newSettings.drawerSort));
+			}
 		}
 		store.dispatch(setInitialized(true));
 	} catch (err) {
@@ -181,7 +185,8 @@ startAppListening({
 		removeLineRamps,
 		setChartLines,
 		toggleChartLine,
-		removeChartLines
+		removeChartLines,
+		setDrawerSort
 	),
 	effect: async (action, listenerApi) => {
 		try {

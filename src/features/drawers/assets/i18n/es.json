@@ -1,4 +1,6 @@
 {
+	"addPanelToSide": "Añadir panel a un lado",
+	"addPanelToSideBody": "El panel %s aún no está añadido a ningún lado. Elige un lado para añadirlo y abrirlo.",
 	"drawer_one": "Panel",
 	"drawer_other": "Paneles",
 	"openMapsSettings": "Abrir configuración de mapas",
