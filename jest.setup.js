@@ -110,6 +110,9 @@ jest.mock('react-native-mapsforge-vtm', () => ({
 		unregister: jest.fn(),
 	})),
 	enrichCoordinatesWithElevation: jest.fn().mockResolvedValue(undefined),
+	setSceneMutationTrace: jest.fn(),
+	setHillshadingMemoryDefaults: jest.fn().mockResolvedValue(undefined),
+	setNativeBufferPoolLimit: jest.fn().mockResolvedValue(undefined),
 }));
 
 // ---------------------------------------------------------------------------

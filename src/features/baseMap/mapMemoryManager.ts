@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { AppState, type AppStateStatus } from 'react-native';
-import { setNativeBufferPoolLimit } from 'react-native-mapsforge-vtm';
+import { setHillshadingMemoryDefaults, setNativeBufferPoolLimit } from 'react-native-mapsforge-vtm';
 
 /**
  * Internal dependencies
@@ -43,6 +43,9 @@ const PRUNE_BUDGET_TILES = 48;
 
 /** Cap for vtm's NativeBufferPool (bytes kept pooled between frames). */
 const NATIVE_BUFFER_POOL_MAX_BYTES = 16 * 1024 * 1024;
+
+/** Cap for live hillshading bitmaps (MB; ~5.8 MB per 2402² ALPHA_8 tile). */
+const HILLSHADING_CACHE_MAX_MB = 64;
 
 let initialized = false;
 let appState: AppStateStatus = AppState.currentState;
@@ -105,6 +108,18 @@ export const initMapMemoryManager = (): void => {
 	// (BufferObject.LIMIT_BUFFERS); bigger uploads just re-allocate.
 	setNativeBufferPoolLimit(NATIVE_BUFFER_POOL_MAX_BYTES).catch((err) => {
 		logError('baseMap/mapMemoryManager.bufferPoolLimit', err);
+	});
+
+	// Hillshading bitmaps are ALPHA_8 native bitmaps; mapsforge's cache
+	// evicts them without recycle() and its byte cap doesn't count
+	// in-flight renders. Recycling caps native heap (heap dumps showed
+	// 1.0-1.2 GB of dead hillshading bitmaps after high-zoom mountain
+	// swiping). Must be set before the hillshading layer mounts.
+	setHillshadingMemoryDefaults({
+		recycleEvictedBitmaps: true,
+		hgtMemoryCacheMaxMb: HILLSHADING_CACHE_MAX_MB,
+	}).catch((err) => {
+		logError('baseMap/mapMemoryManager.hillshadingMemory', err);
 	});
 
 	AppState.addEventListener('change', (nextState) => {
