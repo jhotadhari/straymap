@@ -173,7 +173,6 @@ const LayerControlHillshading: FC<{}> = () => {
 				setOptions={setOptions}
 				baseDefault={defaults.layerConfigOptions.hillshading.cacheDirBase as string}
 				cacheDirChild={getHillshadingCacheDirChild(layerTemp?.options ?? {})}
-				treatAsBoolean={999}
 			/>
 		</Fragment>
 	);
