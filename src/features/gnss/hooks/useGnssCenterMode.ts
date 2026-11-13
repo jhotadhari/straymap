@@ -33,6 +33,17 @@ const CHASE_DURATION_MS = 0;
 const RETURN_DURATION_MS = 600;
 /** Catch-up jump when the app returns to the foreground — no animation. */
 const RESUME_DURATION_MS = 0;
+/**
+ * Pan-detection settle window after a flyTo resolves. The flight clears
+ * flightSeqRef the instant flyTo's promise resolves, but
+ * currentMapEventRef.center only refreshes on the next onMapUpdate tick
+ * (every mapUpdateInterval ms). For one poll the center therefore still
+ * holds the pre-flight position, which — against a new fix — reads as a
+ * pan and flickers the connection line+label (centered→pannedAway→centered
+ * per fix). Suppressing detection for this window swallows the lag; a real
+ * user pan easily outlasts it.
+ */
+const CENTER_SETTLE_MS = 300;
 
 /**
  * Center-mode state machine:
@@ -102,6 +113,9 @@ export function useGnssCenterMode(): {
 	// A counter (not a boolean) survives overlapping flights — only the
 	// awaiter of the newest flight clears it.
 	const flightSeqRef = useRef(0);
+	// Epoch ms until which pan detection is suppressed after a flight, to
+	// cover the onMapUpdate lag that still reports the pre-flight center.
+	const settleUntilRef = useRef(0);
 	const returnTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 	const lastCenterRef = useRef<[number, number] | null>(null);
 	const pendingReturnRef = useRef(false);
@@ -132,6 +146,9 @@ export function useGnssCenterMode(): {
 			}
 			if (flightSeqRef.current === seq) {
 				flightSeqRef.current = 0;
+				// Start the settle window: the next onMapUpdate tick still
+				// reports the pre-flight center, so don't treat that as a pan.
+				settleUntilRef.current = Date.now() + CENTER_SETTLE_MS;
 			}
 		},
 		[flyTo, mapViewNativeNodeHandle]
@@ -275,6 +292,11 @@ export function useGnssCenterMode(): {
 		// fixes), so comparing it with the GNSS position would mis-detect
 		// a pan.
 		if (!isCenterActiveRef.current || !isAppActiveRef.current || flightSeqRef.current > 0) {
+			return;
+		}
+		// Within the post-flight settle window the reported center is still
+		// the pre-flight one; skip so the chase doesn't mis-read it as a pan.
+		if (Date.now() < settleUntilRef.current) {
 			return;
 		}
 		const gnss = gnssPositionRef.current;
